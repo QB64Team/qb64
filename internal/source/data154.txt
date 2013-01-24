@@ -1,0 +1,49 @@
+int64 *_FUNC_CHKSUM_INTEGER64_CHKSUM=NULL;
+if(_FUNC_CHKSUM_INTEGER64_CHKSUM==NULL){
+_FUNC_CHKSUM_INTEGER64_CHKSUM=(int64*)mem_static_malloc(8);
+*_FUNC_CHKSUM_INTEGER64_CHKSUM=0;
+}
+qbs*oldstr4485=NULL;
+if(_FUNC_CHKSUM_STRING_F->tmp||_FUNC_CHKSUM_STRING_F->fixed||_FUNC_CHKSUM_STRING_F->readonly){
+oldstr4485=_FUNC_CHKSUM_STRING_F;
+if (oldstr4485->cmem_descriptor){
+_FUNC_CHKSUM_STRING_F=qbs_new_cmem(oldstr4485->len,0);
+}else{
+_FUNC_CHKSUM_STRING_F=qbs_new(oldstr4485->len,0);
+}
+memcpy(_FUNC_CHKSUM_STRING_F->chr,oldstr4485->chr,oldstr4485->len);
+}
+int64 *_FUNC_CHKSUM_INTEGER64_C=NULL;
+if(_FUNC_CHKSUM_INTEGER64_C==NULL){
+_FUNC_CHKSUM_INTEGER64_C=(int64*)mem_static_malloc(8);
+*_FUNC_CHKSUM_INTEGER64_C=0;
+}
+int64 *_FUNC_CHKSUM_INTEGER64_X=NULL;
+if(_FUNC_CHKSUM_INTEGER64_X==NULL){
+_FUNC_CHKSUM_INTEGER64_X=(int64*)mem_static_malloc(8);
+*_FUNC_CHKSUM_INTEGER64_X=0;
+}
+int64 *_FUNC_CHKSUM_INTEGER64_B=NULL;
+if(_FUNC_CHKSUM_INTEGER64_B==NULL){
+_FUNC_CHKSUM_INTEGER64_B=(int64*)mem_static_malloc(8);
+*_FUNC_CHKSUM_INTEGER64_B=0;
+}
+qbs *_FUNC_CHKSUM_STRING_A=NULL;
+if (!_FUNC_CHKSUM_STRING_A)_FUNC_CHKSUM_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_4486=NULL;
+if (!byte_element_4486){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4486=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4486=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_CHKSUM_LONG_I=NULL;
+if(_FUNC_CHKSUM_LONG_I==NULL){
+_FUNC_CHKSUM_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_CHKSUM_LONG_I=0;
+}
+int64 fornext_value4488;
+int64 fornext_finalvalue4488;
+int64 fornext_step4488;
+uint8 fornext_step_negative4488;
+byte_element_struct *byte_element_4489=NULL;
+if (!byte_element_4489){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4489=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4489=(byte_element_struct*)mem_static_malloc(12);
+}

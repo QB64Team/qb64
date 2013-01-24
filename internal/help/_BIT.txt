@@ -1,0 +1,91 @@
+The '''_BIT''' datatype can return only values of 0 (bit off) and -1 (bit on). 
+
+
+{{PageSyntax}}
+:{{Parameter|variable}} AS [[[_UNSIGNED]]] '''_BIT''' {{Parameter|* numberofbits}}
+
+
+::''Syntax, for example in regard to _DEFINE:'' [[_DEFINE]] LetterRange AS [_UNSIGNED] '''_BIT''' [*numberofbits]
+
+::''Syntax, for example in regard to DIM:'' [[DIM]] Variable AS [_UNSIGNED] '''_BIT''' [* numberofbits]
+
+
+''More information:''
+
+* An [[_UNSIGNED]] _BIT can hold 0 or 1 instead of 0 and -1, if you set the numberofbits you can hold larger values depending on the number of bits you have set (_BIT * 8 can hold the same values as [[_BYTE]] for example) and the information below is comprimised if setting any number of bits other than 1.
+* If you set the variable to any other number then the least significant bit of that number will be set as the variables number, if the bit is 1 (on) then the variable will be -1 and if the bit is 0 (off) then the variable will be 0.
+*The least significant bit is the last bit on a string of bits (11111) since that bit will only add 1 to the value if set. The most significant bit is the first bit on a string of bits and changes the value more dramatically (significantly) if set on or off.
+*The _BIT datatype can be succesfully used as a [[Boolean]] (TRUE or FALSE) and it requires minimal amount of memory (the lowest amount possible actually, one byte can hold 8 bits, if you want to use bits in order to decrease memory usage, use them as arrays as a _BIT variable by itself allocates 4 bytes - DIM bitarray(800) AS _BIT uses 100 bytes).
+* '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
+* '''[[Keywords_currently_not_supported_by_QB64|_BIT is not currently supported in User Defined TYPES!]]'''
+
+
+*'''Suffix Symbols''' The bit type suffix used is below the shifted tilde key! '''NOT an apostrophy'''! Foreign keyboards may not have the ´ key. Try [[CHR$]](96).
+
+:You can define a bit on-the-fly by adding a ` after the variable, like this; variable` = -1
+
+:If you want a unsigned bit you can define it on-the-fly by adding ~` instead, like this; variable~` = 1
+
+:You can set the number of bits on the fly by just adding that number - this defines it as being two bits; variable`2 = -1
+
+
+&lt;center&gt;'''[[_BIT|BITS]]'''&lt;/center&gt;
+* The '''MSB''' is the most significant(largest) bit value and '''LSB''' is the least significant bit of a binary or register memory address value. The order in which the bits are read determines the binary or decimal byte value. There are two common ways to read a byte:
+
+:* '''&quot;Big-endian&quot;''': MSB is the first bit encountered, decreasing to the LSB as the last bit by position, memory address or time.
+:* '''&quot;Little-endian&quot;''': LSB is the first bit encountered, increasing to the MSB as the last bit by position, memory address or time.
+{{WhiteStart}}
+         '''Offset or Position:    0    1   2   3   4   5   6   7      Example: 11110000'''
+                              ----------------------------------             --------
+    '''Big-Endian Bit On Value:'''   128  64  32  16   8   4   2   1                 240
+ '''Little-Endian Bit On Value:'''    1    2   4   8  16  32  64  128                 15
+{{WhiteEnd}}
+::The big-endian method compares exponents of 2 &lt;sup&gt;7&lt;/sup&gt; down to 2 &lt;sup&gt;0&lt;/sup&gt; while the little-endian method does the opposite. 
+
+&lt;center&gt;'''[[_BYTE|BYTES]]'''&lt;/center&gt;
+* [[INTEGER]] values consist of 2 bytes called the '''HI''' and '''LO''' bytes. Anytime that the number of binary digits is a multiple of 16 (2bytes, 4 bytes, etc.) and the HI byte's MSB is on(1), the value returned will be negative. Even with [[SINGLE]] or [[DOUBLE]] values! 
+{{WhiteStart}}                                 '''16 BIT INTEGER OR REGISTER'''
+              '''AH (High Byte Bits)                         AL (Low Byte Bits)'''
+   BIT:    15    14   13   12   11   10   9   8  |   7   6    5   4    3    2   1    0
+          ---------------------------------------|--------------------------------------
+   HEX:   8000  4000 2000 1000  800 400  200 100 |  80   40  20   10   8    4   2    1
+                                                 |
+   DEC: -32768 16384 8192 4096 2048 1024 512 256 | 128   64  32   16   8    4   2    1
+{{WhiteEnd}}
+::The HI byte's '''MSB''' is often called the '''sign''' bit! When all 16 of the integer binary bits are on, the decimal return is -1.  
+
+
+''Example:'' Shifting bits in a value.
+{{CodeStart}} '' ''
+n = 24
+Shift = 3
+
+{{Cl|PRINT}} LShift(n, Shift)
+{{Cl|PRINT}} RShift(n, Shift)
+{{Cl|END}}
+
+{{Cl|FUNCTION}} LShift&amp;(n AS {{Cl|LONG}}, LS AS {{Cl|LONG}})
+IF LS &lt; 0 THEN {{Cl|EXIT FUNCTION}}
+LShift = {{Cl|INT}}(n * (2 ^ LS))    
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} RShift&amp;(n AS {{Cl|LONG}}, RS AS {{Cl|LONG}})
+IF RS &lt; 0 THEN {{Cl|EXIT FUNCTION}}
+RShift = {{Cl|INT}}(n / (2 ^ RS))
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Adapted from code by RThorpe}}
+{{OutputStart}} 192
+ 3
+{{OutputEnd}}
+
+
+{{PageSeeAlso}} 
+* [[&amp;B]] (binary), [[_BYTE]]
+* [[_DEFINE]], [[_UNSIGNED]]
+* [[DIM]]
+* [[Binary]], [[Boolean]]
+* [[Variable Types]]
+
+
+{{PageNavigation}}

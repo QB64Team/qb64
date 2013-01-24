@@ -1,0 +1,27 @@
+The {{KW|UNLOCK}} statement opens access to parts or all of a file to other programs and network users.
+
+
+{{PageSyntax}}
+:&lt;code&gt;{{KW|UNLOCK}} [#]{{Parameter|fileNumber%}}&lt;/code&gt;
+:&lt;code&gt;{{KW|UNLOCK}} [#]{{Parameter|fileNumber%}}, {{Parameter|record&amp;}}&lt;/code&gt;
+:&lt;code&gt;{{KW|UNLOCK}} [#]{{Parameter|fileNumber%}}, [{{Parameter|firstRecord&amp;}}] TO {{Parameter|lastRecord&amp;}}&lt;/code&gt;
+
+
+{{PageDescription}}
+* {{Parameter|fileNumber%}} is the file number of the file to unlock.
+* In the first syntax, the entire file is unlocked.
+* In the second syntax, {{Parameter|record&amp;}} is the record number of the file to unlock.
+* In the third syntax, the records or bytes in the range [{{Parameter|firstRecord&amp;}},{{Parameter|lastRecord&amp;}}] are unlocked. If {{Parameter|firstRecord&amp;}} is omitted, it is assumed to be the first record or byte.
+* For files opened in [[BINARY]] mode, each record corresponds to a single byte.
+* [[LOCK]] and UNLOCK statements are always used in pairs and each statement must match the other one.
+* Files must be unlocked before other programs can access them, and before the file is closed.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+{{PageSeeAlso}}
+* {{KW|LOCK}}
+* {{KW|OPEN}}
+* {{KW|ACCESS}}
+
+
+{{PageNavigation}}

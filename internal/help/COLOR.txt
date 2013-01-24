@@ -1,0 +1,227 @@
+The {{KW|COLOR}} statement is used to change the color of text and background in some [[SCREEN]] modes.
+
+{| align=&quot;Right&quot;
+  | __TOC__
+  |}
+
+
+{{PageSyntax}}
+:{{KW|COLOR}} [{{Parameter|foreground%}}][, {{Parameter|background%}}]
+
+
+
+* ''Background'' colors are available in SCREEN modes 0, 1, 7, 8 and 9 only.
+* [[SCREEN]] mode 10 has only 3 white foreground attributes including flashing. 
+* [[SCREEN]] modes 12 and 13 can use the foreground parameter only! Background color 0 can be changed using [[OUT]].
+* '''[[SCREEN]] modes 2 and 11 cannot use the COLOR keyword as they are monochrome with white foreground!''' 
+* An [[ERROR Codes|illegal function error]] will occur if a background color is used in other screen modes!
+* To change the ''background'' color only, use a comma and the color. EX: COLOR ,background%
+
+
+==Screen Mode Attributes==
+
+* '''SCREEN 0''' ''background'' colors 0 to 7 can be changed each text character without affecting other text. Use {{KW|CLS}} after a background color statement to create a fullscreen background color. 64 [[DAC]] hues with 16 high intensity blinking foreground (16 to 31) color attributes. QBasic windows will not flash in a window in NT, XP, VISTA or 7 (will flash in '''QB64'''). See example 7 below for more SCREEN 0 background colors.
+
+* '''SCREEN 1''' has '''4 background color attributes''': 0 = black, 1 = blue, 2 = green, 3 = grey. White foreground color only.
+
+* '''SCREEN 2''' is '''monochrome''' with white forecolor and black background. '''Cannot use the COLOR statement!'''
+
+* '''SCREEN 7''' can use 16 ([[DAC]]) colors with background colors. RGB settings can be changed in colors 0 to 7 using {{KW|OUT}}. 
+
+* '''SCREEN 8''' has 16 color attributes with 16 background colors. 
+
+* '''SCREEN 9''' can use up to 64 [[DAC]] color hues in 16 color attributes with background colors assigned to attribute 0 with a {{KW|PALETTE}} swap. RGB settings can be changed in colors 0 to 5 and 7 using {{KW|OUT}}.
+
+* '''SCREEN 10''' has '''only 4 color attributes''' with black background. COLOR 0 = black, 1 = grey, 2 = flash white and 3 = bright white.
+
+* '''SCREEN 11''' is '''monochrome''' with white forecolor and a black background, '''Cannot use the COLOR statement!'''
+
+* '''SCREEN 12''' can use 16 color attributes with a black background. 256K possible RGB color hues.
+
+* '''SCREEN 13''' can use 256 color attributes with a black background. 256K possible RGB hues.
+
+* [[DAC]] screens 0, 7 and 9 color changes are limited in '''Qbasic ONLY'''!
+
+* [[PALETTE]] swaps can be made in SCREEN 7 and 9 only. Those screens were [[DAC]] screen modes in Qbasic.
+* [[_DEST]] can be used to set the destination page or image to color using '''QB64'''.
+* [[_DEFAULTCOLOR]] returns the current color being used on an image or screen page handle.
+
+
+&lt;center&gt;'''24/32 Bit Colors using QB64'''&lt;/center&gt;
+
+* Pixel color intensities for Red, Green, Blue and Alpha range from 0 to 255 when used with [[_RGB]], [[_RGBA]], [[_RGB32]] and [[RGBA32]].
+* Combined RGB function values returned are [[LONG]] values! '''Blue intensity values may be cut off using [[SINGLE]] values!'''
+* [[_ALPHA]] transparency values can range from 0 as transparent up to 255 which is fully opaque. 
+* [[_CLEARCOLOR]] can also be used to set a color as transparent.
+* Colors can be mixed by using [[_BLEND]](default) in 32 bit screen modes ONLY. [[_DONTBLEND]] disables blending.
+* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==RGB Palette Intensities==
+
+&lt;center&gt;'''Basic's 16 Default Color Attributes (non-[[DAC]])'''&lt;/center&gt;
+{{OutputStart}}{{text|     Attribute        Description     Red   Green   Blue   32 HEX    HTML Name |Gold}}
+         0            Black            0      0       0    000000    Black
+{{text|         1            Dark Blue        0      0      42    00008B    DarkBlue|#00008B}}   
+{{text|         2            Dark Green       0     42       0    006400    DarkGreen|#006400}}  
+{{text|         3            Dark Cyan        0     42      42    008B8B    DarkCyan|#008B8B}}
+{{text|         4            Dark Red        42      0       0    8B0000    DarkRed|#8B0000}}
+{{text|         5            Dark Magenta    42      0      42    8B008B    DarkMagenta|#8B008B}}
+{{text|         6            Dark Yellow     42     21       0    DAA520    GoldenRod|#DAA520}}
+{{text|         7            Light Grey      42     42      42    D3D3D3    LightGrey|#D3D3D3}}
+{{text|         8            Dark Grey       21     21      21    696969    DimGray|#696969}}
+{{text|         9            Blue            21     21      63    0000FF    Blue|#1515FF}}
+{{text|        10            Green           21     63      21    15FF15    Lime|#15FF15}}
+{{text|        11            Cyan            21     63      63    15FFFF    Cyan|#15FFFF}}
+{{text|        12            Red             63     21      21    FF1515    Red|#FF1515}}
+{{text|        13            Magenta         63     21      63    FF15FF    Magenta|#FF15FF}}
+{{text|        14            Yellow          63     63      21    FFFF00    Yellow|#FFFF00}}
+{{text|        15            White           63     63      63    FFFFFF    White|#FFFFFF}} '' ''
+{{OutputEnd}}
+&lt;center&gt;[http://www.w3schools.com/html/html_colornames.asp HTML Color Table Values and Names] or [http://www.tayloredmktg.com/rgb/#OR Other RGB colors]&lt;/center&gt;
+::: ''Note:'' '''QB64''' 32 bit color intensity values from 0 to 255 can be found by multiplying above values by 4.
+
+''Summary:'' The red, green, and blue intensity values can be changed using {{KW|OUT}} or {{KW|PALETTE}} statements. Some '''Qbasic''' RGB color attribute values can be changed in [[DAC]] {{KW|SCREEN (statement)|SCREEN}} modes and the [[DAC]] RGB intensity settings may be different. 
+&lt;center&gt;&lt;/center&gt;
+
+&lt;center&gt;'''Color Port access using INP and OUT'''&lt;/center&gt;
+
+:::::::::OUT &amp;H3C7, attribute : Set port to read RGB settings
+:::::::::color_intensity = INP(&amp;H3C9) 'reads present setting
+ 
+:::::::::OUT &amp;H3C8, attribute : Set port to write RGB settings
+:::::::::OUT &amp;H3C9, color_intensity : Writes new settings
+
+* After every 3 reads or writes, changes to next higher color attribute. Loops can be used to set more than one attribute's intensities.
+* Color port setting of Red, Green and Blue intensities can be done in ascending order.
+* Color port attribute intensity values range from 0 to 63(1/4 of the 32 bit values) only in Qbasic 4 and 8 bit screen modes.
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==Examples:==
+
+''Example 1:'' Reading the default RGB color settings of color attribute 15.
+{{CodeStart}} '' ''
+ {{Cl|OUT}} &amp;H3C7, 15
+ red% = {{Cl|INP}}(&amp;H3C9)
+ green% = {{Cl|INP}}(&amp;H3C9)
+ blue% = {{Cl|INP}}(&amp;H3C9)
+ {{Cl|PRINT}} red%, green%, blue% '' ''
+{{CodeEnd}}
+
+{{OutputStart}}
+ 63       63       63
+{{OutputEnd}}
+
+
+''Example 2:'' Changing the color settings of attribute 0 (the background) to dark blue in [[SCREEN]]s 12 or 13.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 0          'set color port attribute to write
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 0          'red intensity
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 0          'green intensity
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 30         'blue intensity 
+
+{{Cl|OUT}} {{Cl|&amp;H}}3C7, 0
+{{Cl|PRINT}} {{Cl|INP}}({{Cl|&amp;H}}3C9); {{Cl|INP}}({{Cl|&amp;H}}3C9); {{Cl|INP}}({{Cl|&amp;H}}3C9)
+{{Cl|END}}'' ''
+{{CodeEnd}}
+{{CodeStart}} 0  0  30 {{CodeEnd}}
+
+
+''Example 3:'' Printing in fullscreen SCREEN 0 mode with a color background under the text only.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0: {{Cl|_FULLSCREEN}} ' used for fullscreen instead of window
+{{Cl|COLOR}} 30, 6: {{Cl|LOCATE}} 12, 4: {{Cl|PRINT}} &quot;Hello!&quot; '' ''
+{{CodeEnd}}
+:''Result:'' Hello! is printed in flashing high intensity yellow with brown background behind text only when in Qbasic [[_FULLSCREEN|fullscreen]].
+
+
+''Example 4:'' Using [[CLS]] after setting the background color in SCREEN 0 to make the color cover the entire screen.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0: {{Cl|_FULLSCREEN}}
+{{Cl|COLOR}} , 7: {{Cl|CLS}}
+{{Cl|COLOR}} 9: {{Cl|PRINT}} &quot;Hello&quot; '' ''
+{{CodeEnd}}
+{{TextStart}}{{text|Hello|blue}}{{TextEnd}}
+:''Result:'' The blue word Hello is printed to a totally grey background in [[_FULLSCREEN|fullscreen]].
+
+
+''Example 5:'' Using a different foreground color for each letter:
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0
+{{Cl|COLOR}} 1: {{Cl|PRINT}} &quot;H&quot;;
+{{Cl|COLOR}} 3: {{Cl|PRINT}} &quot;E&quot;;
+{{Cl|COLOR}} 4: {{Cl|PRINT}} &quot;L&quot;;
+{{Cl|COLOR}} 5: {{Cl|PRINT}} &quot;L&quot;;
+{{Cl|COLOR}} 6: {{Cl|PRINT}} &quot;O&quot;
+{{Cl|COLOR}} 9: {{Cl|PRINT}} &quot;W&quot;;
+{{Cl|COLOR}} 11: {{Cl|PRINT}} &quot;O&quot;;
+{{Cl|COLOR}} 12: {{Cl|PRINT}} &quot;R&quot;;
+{{Cl|COLOR}} 13: {{Cl|PRINT}} &quot;L&quot;;
+{{Cl|COLOR}} 14: {{Cl|PRINT}} &quot;D&quot; '' ''
+{{CodeEnd}}
+
+{{OutputStart}}
+{{text|H|darkblue}}{{text|E|darkcyan}}{{text|L|darkred}}{{text|L|darkmagenta}}{{text|O|goldenrod}}
+{{text|W|blue}}{{text|O|cyan}}{{text|R|red}}{{text|L|magenta}}{{text|D|yellow}}
+{{OutputEnd}}
+
+
+''Example 6:'' Doing the same as Example 5 but in only a few lines:
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 0
+text$ = &quot;HelloWorld&quot;
+{{Cl|FOR...NEXT|FOR}} textpos = 1 {{Cl|TO}} {{Cl|LEN}}(text$)
+  {{Cl|COLOR}} textpos
+  {{Cl|IF...THEN|IF}} textpos &lt;&gt; 5 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|MID$}}(text$, textpos, 1);
+  {{Cl|IF...THEN|IF}} textpos = 5 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|MID$}}(text$, textpos, 1)    'start print on next row
+{{Cl|NEXT}}
+
+{{CodeEnd}}
+{{OutputStart}}
+{{text|H|darkblue}}{{text|e|darkgreen}}{{text|l|darkcyan}}{{text|l|darkred}}{{text|o|darkmagenta}}
+{{text|W|goldenrod}}{{text|o|lightgrey}}{{text|r|dimgray}}{{text|l|blue}}{{text|d|lime}} '' ''
+{{OutputEnd}}
+: ''Explanation:''Semicolon(;) means that the next PRINT happens on the same line, we don't want that when it comes to position 5 so when it is at position 5 the next PRINT will move to the next line (when it isn't at position 5 we want it to continue printing the letter side-by-side on the same line though).
+
+
+''Example 7:'' Since SCREEN 0 only uses background colors 0 to 7 by default, use [[OUT]] to change color intensities of color 0 in QB64 only.
+{{CodeStart}} '' ''
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 0 'change color 0 intensities
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 63
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 63
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 63
+
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 8 'change color 8 intensities
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 0
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 0
+{{Cl|OUT}} {{Cl|&amp;H}}3C9, 0
+
+{{Cl|COLOR}} 8: {{Cl|PRINT}} &quot;Black on bright white!&quot; '' ''
+{{CodeEnd}}
+{{WhiteStart}}'''{{text|Black on bright white!|#000000}}'''
+{{WhiteEnd}}
+: ''Explanation:'' Since QB64 does not use [[DAC]] [[SCREEN]] 0 limitations, changing color intensities for custom background colors is possible.
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==References:==
+
+{{PageSeeAlso}}
+* [[_RGB]], [[_RGBA]], [[_RGB32]], [[RGBA32]].
+* [[_RED]], [[_GREEN]], [[_BLUE]]
+* [[_RED32]], [[_GREEN32]], [[_BLUE32]]
+* [[_ALPHA]], [[_ALPHA32]], [[_CLEARCOLOR]]
+* [[PRINT]], [[LOCATE]], [[SCREEN]]
+* [[POINT]], [[SCREEN (function)]]
+* [[OUT]], [[INP]], [[PALETTE]]
+* [[_DEFAULTCOLOR]]
+* [[_BACKGROUNDCOLOR]]
+* [[_PALETTECOLOR]]
+* [[Windows_Libraries#Color_Dialog_Box|Color Dialog Box]]
+* [http://www.w3schools.com/html/html_colornames.asp Hexadecimal Color Values]
+
+
+{{PageNavigation}}

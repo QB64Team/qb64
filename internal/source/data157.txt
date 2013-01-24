@@ -1,0 +1,25 @@
+qbs *_FUNC_RIPPATH_STRING_RIPPATH=NULL;
+if (!_FUNC_RIPPATH_STRING_RIPPATH)_FUNC_RIPPATH_STRING_RIPPATH=qbs_new(0,0);
+qbs*oldstr4500=NULL;
+if(_FUNC_RIPPATH_STRING_A->tmp||_FUNC_RIPPATH_STRING_A->fixed||_FUNC_RIPPATH_STRING_A->readonly){
+oldstr4500=_FUNC_RIPPATH_STRING_A;
+if (oldstr4500->cmem_descriptor){
+_FUNC_RIPPATH_STRING_A=qbs_new_cmem(oldstr4500->len,0);
+}else{
+_FUNC_RIPPATH_STRING_A=qbs_new(oldstr4500->len,0);
+}
+memcpy(_FUNC_RIPPATH_STRING_A->chr,oldstr4500->chr,oldstr4500->len);
+}
+int32 *_FUNC_RIPPATH_LONG_I=NULL;
+if(_FUNC_RIPPATH_LONG_I==NULL){
+_FUNC_RIPPATH_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_RIPPATH_LONG_I=0;
+}
+int64 fornext_value4502;
+int64 fornext_finalvalue4502;
+int64 fornext_step4502;
+uint8 fornext_step_negative4502;
+byte_element_struct *byte_element_4503=NULL;
+if (!byte_element_4503){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4503=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4503=(byte_element_struct*)mem_static_malloc(12);
+}

@@ -1,0 +1,20 @@
+The '''_DIREXISTS''' function determines if a designated file path or folder exists and returns True or False.
+
+
+{{PageSyntax}}
+
+::: IF _DIREXISTS(''filepath$'') THEN 
+
+
+* The ''filepath'' parameter can be a literal or variable [[STRING|string]] path value.
+* The function returns -1 when a path or folder exists and 0 when it does not.
+* The function reads the system information directly without using a [[SHELL]] procedure.
+* The function will use the appropriate Operating System path separators.
+
+
+''See also:''
+* [[_FILEEXISTS]]
+* [[SHELL]]
+
+
+{{PageNavigation}}

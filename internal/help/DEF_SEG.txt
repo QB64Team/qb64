@@ -1,0 +1,67 @@
+'''DEF SEG''' is used to define the area in memory to access QB64's emulated conventional memory.
+
+
+{{PageSyntax}}
+:: DEF SEG [=][{segment|VARSEG(variable}]
+
+
+* Used to set the pointer to a memory area of a variable/array or register.
+* [[PEEK]] and [[POKE]] require a segment memory address (often just 0) without using VARSEG.
+* Important segments using [[PEEK]] and [[POKE]] include &amp;HB800 (text segment) and &amp;HA000 (graphics segment).
+* [[BSAVE]] and [[BLOAD]] require a VARSEG reference to the grahic array(0 index) used.
+* ALWAYS use DEF SEG when the procedure is completed to reset the segment to Qbasic's default value!
+* '''Warning: DEF SEG, VARSEG , VARPTR, PEEK or POKE access QB64's emulated 16 bit conventional memory block!''' 
+: '''It is highly recommended that QB64's [[_MEM]] memory system be used to avoid running out of memory.'''
+
+
+''Example:'' In a Qbasic(ONLY) file delete, '''SEG''' forces the parameter to be passed as a far pointer.
+{{CodeStart}} '' ''
+{{Cl|CONST}} file = &quot;trashme.tmp&quot;  'example temporary file name to delete
+{{Cl|DEFINT}} A-Z
+{{Cl|DIM}} filename {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} result {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} i {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|CONST}} codelen = 48
+{{Cl|DIM}} code {{Cl|AS}} {{Cl|STRING}} * codelen
+
+{{Cl|CLS}}
+
+t = &quot;5589E51E8B560C8EDA8B5E0A8B5702B441CD218B56088EDA8B5E06720B6631C0&quot;
+t = t + &quot;6689071F5DCA0800660D0000FFFFEBF0&quot;
+
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} codelen - 1
+{{Cl|MID$}}(code, i + 1, 1) = {{Cl|CHR$}}({{Cl|VAL}}(&quot;&amp;h&quot; + {{Cl|MID$}}(t, i + i + 1, 2)))
+{{Cl|NEXT}}
+
+{{Cl|OPEN}} file {{Cl|FOR...NEXT|FOR}} {{Cl|APPEND}} {{Cl|AS}} 1  'create temporary file
+{{Cl|PRINT (file statement)|PRINT}} #1, &quot;I am doomed! :-(&quot;
+{{Cl|CLOSE}}
+
+{{Cl|PRINT}} &quot;now you see it:&quot;
+{{Cl|SHELL}} &quot;dir &quot; + file
+K$ = {{Cl|INPUT$}}(1)
+
+filename = file + {{Cl|CHR$}}(0)  'create zero string name for DOS
+{{Cl|DEF SEG}} = {{Cl|VARSEG}}(code)
+{{Cl|CALL}} absolute('''SEG''' filename, '''SEG''' result, {{Cl|VARPTR}}(code))
+
+{{Cl|IF...THEN|IF}} result {{Cl|THEN}}  'check results
+{{Cl|PRINT}} &quot;oops. error: 0x&quot;; {{Cl|HEX$}}(result {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FFFF&amp;)
+{{Cl|ELSE}}
+{{Cl|PRINT}} &quot;now you don't:&quot;
+{{Cl|END IF}}
+{{Cl|SHELL}} &quot;dir &quot; + file
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Michael Calkins as Public Domain(2011)}}
+
+
+''See also:'' 
+* [[DEF SEG = 0]]
+* [[VARPTR]], [[VARSEG]] 
+* [[PEEK]], [[POKE]]
+* [[BSAVE]], [[BLOAD]]
+
+
+{{PageNavigation}}

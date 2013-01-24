@@ -1,0 +1,39 @@
+'''_glStencilMask:''' control the front and back writing of individual bits in the stencil planes
+
+
+{{PageSyntax}}
+
+  SUB _glStencilMask (BYVAL mask AS _UNSIGNED LONG)
+  void '''_glStencilMask'''(GLuint {{Parameter|mask}});
+
+
+; mask
+: Specifies a bit mask to enable and disable writing of individual bits in the stencil planes. Initially, the mask is all 1's.
+
+
+{{PageDescription}}
+
+'''_glStencilMask''' controls the writing of individual bits in the stencil planes. The least significant ''n'' bits of {{Parameter|mask}}, where ''n'' is the number of bits in the stencil buffer, specify a mask. Where a 1 appears in the mask, it's possible to write to the corresponding bit in the stencil buffer. Where a 0 appears, the corresponding bit is write-protected. Initially, all bits are enabled for writing.
+
+There can be two separate {{Parameter|mask}} writemasks; one affects back-facing polygons, and the other affects front-facing polygons as well as other non-polygon primitives. {{KW|_glStencilMask}} sets both front and back stencil writemasks to the same values. Use {{KW|_glStencilMaskSeparate}} to set front and back stencil writemasks to different values.
+
+
+{{PageNotes}}
+
+{{KW|_glStencilMask}} is the same as calling {{KW|_glStencilMaskSeparate}} with {{Parameter|face}} set to {{KW|_GL_FRONT_AND_BACK}}.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_STENCIL_WRITEMASK}}, {{KW|_GL_STENCIL_BACK_WRITEMASK}}, or {{KW|_GL_STENCIL_BITS}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glClear}}, {{KW|_glClearBuffer}}, {{KW|_glColorMask}}, {{KW|_glDepthMask}}, {{KW|_glStencilFunc}}, {{KW|_glStencilFuncSeparate}}, {{KW|_glStencilMaskSeparate}}, {{KW|_glStencilOp}}, {{KW|_glStencilOpSeparate}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

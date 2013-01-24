@@ -1,0 +1,68 @@
+-http://kcat.strangesoft.net/openal.html
+
+-found & imported a custom Windows version of src\config.h
+ -added #define HAVE_GCC_DESTRUCTOR
+
+-forced 'extern'-style for static linkage in Windows in AL\al.h & AL\alc.h
+  //#define AL_API __declspec(dllimport)
+  //QB64: Force static build
+  #define AL_API extern
+
+-uses -D AL_LIBTYPE_STATIC switch when compiling components
+
+-building with extra Windows library dependencies: -lksguid -lole32 -lwinmm -ldxguid
+
+-in 'src\ALc.c' commented out: (these were causing compilation to fail)
+/*
+    { "alcSetThreadContext",        (ALCvoid *) alcSetThreadContext      },
+    { "alcGetThreadContext",        (ALCvoid *) alcGetThreadContext      },
+
+    { "alcLoopbackOpenDeviceSOFT",  (ALCvoid *) alcLoopbackOpenDeviceSOFT},
+    { "alcIsRenderFormatSupportedSOFT",(ALCvoid *) alcIsRenderFormatSupportedSOFT},
+    { "alcRenderSamplesSOFT",       (ALCvoid *) alcRenderSamplesSOFT         },
+*/
+/*
+    { "alGenFilters",               (ALCvoid *) alGenFilters             },
+    { "alDeleteFilters",            (ALCvoid *) alDeleteFilters          },
+    { "alIsFilter",                 (ALCvoid *) alIsFilter               },
+    { "alFilteri",                  (ALCvoid *) alFilteri                },
+    { "alFilteriv",                 (ALCvoid *) alFilteriv               },
+    { "alFilterf",                  (ALCvoid *) alFilterf                },
+    { "alFilterfv",                 (ALCvoid *) alFilterfv               },
+    { "alGetFilteri",               (ALCvoid *) alGetFilteri             },
+    { "alGetFilteriv",              (ALCvoid *) alGetFilteriv            },
+    { "alGetFilterf",               (ALCvoid *) alGetFilterf             },
+    { "alGetFilterfv",              (ALCvoid *) alGetFilterfv            },
+    { "alGenEffects",               (ALCvoid *) alGenEffects             },
+    { "alDeleteEffects",            (ALCvoid *) alDeleteEffects          },
+    { "alIsEffect",                 (ALCvoid *) alIsEffect               },
+    { "alEffecti",                  (ALCvoid *) alEffecti                },
+    { "alEffectiv",                 (ALCvoid *) alEffectiv               },
+    { "alEffectf",                  (ALCvoid *) alEffectf                },
+    { "alEffectfv",                 (ALCvoid *) alEffectfv               },
+    { "alGetEffecti",               (ALCvoid *) alGetEffecti             },
+    { "alGetEffectiv",              (ALCvoid *) alGetEffectiv            },
+    { "alGetEffectf",               (ALCvoid *) alGetEffectf             },
+    { "alGetEffectfv",              (ALCvoid *) alGetEffectfv            },
+    { "alGenAuxiliaryEffectSlots",  (ALCvoid *) alGenAuxiliaryEffectSlots},
+    { "alDeleteAuxiliaryEffectSlots",(ALCvoid *) alDeleteAuxiliaryEffectSlots},
+    { "alIsAuxiliaryEffectSlot",    (ALCvoid *) alIsAuxiliaryEffectSlot  },
+    { "alAuxiliaryEffectSloti",     (ALCvoid *) alAuxiliaryEffectSloti   },
+    { "alAuxiliaryEffectSlotiv",    (ALCvoid *) alAuxiliaryEffectSlotiv  },
+    { "alAuxiliaryEffectSlotf",     (ALCvoid *) alAuxiliaryEffectSlotf   },
+    { "alAuxiliaryEffectSlotfv",    (ALCvoid *) alAuxiliaryEffectSlotfv  },
+    { "alGetAuxiliaryEffectSloti",  (ALCvoid *) alGetAuxiliaryEffectSloti},
+    { "alGetAuxiliaryEffectSlotiv", (ALCvoid *) alGetAuxiliaryEffectSlotiv},
+    { "alGetAuxiliaryEffectSlotf",  (ALCvoid *) alGetAuxiliaryEffectSlotf},
+    { "alGetAuxiliaryEffectSlotfv", (ALCvoid *) alGetAuxiliaryEffectSlotfv},
+
+    { "alBufferSubDataSOFT",        (ALCvoid *) alBufferSubDataSOFT      },
+
+    { "alBufferSamplesSOFT",        (ALCvoid *) alBufferSamplesSOFT      },
+    { "alBufferSubSamplesSOFT",     (ALCvoid *) alBufferSubSamplesSOFT   },
+    { "alGetBufferSamplesSOFT",     (ALCvoid *) alGetBufferSamplesSOFT   },
+    { "alIsBufferFormatSupportedSOFT",(ALCvoid *) alIsBufferFormatSupportedSOFT},
+
+    { "alDeferUpdatesSOFT",         (ALCvoid *) alDeferUpdatesSOFT       },
+    { "alProcessUpdatesSOFT",       (ALCvoid *) alProcessUpdatesSOFT     },
+*/

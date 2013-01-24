@@ -1,0 +1,51 @@
+The {{KW|_RGBA}} function returns the closest palette index OR the 32 bit [[LONG]] color value in 32 bit screens.
+
+
+
+{{PageSyntax}}
+:{{Parameter|colorindex~&amp;}} = '''_RGBA({{Parameter|red}}, {{Parameter|green}}, {{Parameter|blue}}, {{Parameter|alpha}}'''[, {{Parameter|image_handle}}]''')'''
+
+
+* The value returned is either the closest color attribute number or a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
+* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!''''
+* {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
+* {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
+* {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.
+* The [[_ALPHA|''alpha'']] value can be set to make the color transparent(0), opaque(255) or somewhere in between.
+* Parameter values outside of the 0 to 255 range are clipped.
+* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;H00{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with varying [[_ALPHA]] transparency.
+* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]](colorvalue&amp;), 3) to place 3 colors.
+* If the ''image_handle'' is omitted the image is assumed to be the current [[_DEST|destination]] or [[SCREEN]] page.
+* Allows the blending of pixel colors red, green and blue to create any of 16 million colors.
+* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+
+
+''Example:'' Setting a font's background color alpha to clear to overlay a second text color.
+{{CodeStart}} '' ''
+scrn&amp; = {{Cl|_NEWIMAGE}}(400, 400, 32)
+{{Cl|SCREEN (statement)|SCREEN}} scrn&amp;
+fnt&amp; = {{Cl|_LOADFONT}}(&quot;C:\WINDOWS\FONTS\ARIAL.TTF&quot;, 26)
+{{Cl|_FONT}} fnt&amp;
+X% = 20
+Y% = 20
+{{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 255), {{Cl|_RGB}}(0, 0, 0) 'Foreground set to WHITE background to BLACK
+{{Cl|_PRINTSTRING}} (X%, Y%), &quot;Hello World&quot;
+{{Cl|COLOR}} {{Cl|_RGB}}(255, 0, 0), {{Cl|_RGBA}}(0, 0, 0, 0) 'Foreground set to RED background to TRANSPARENT BLACK
+{{Cl|_PRINTSTRING}} (X% + 2, Y% + 2), &quot;Hello World&quot;
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Unseen Machine}}
+''Explanation:'' [[_PRINTSTRING]] allows text or font colors to be alpha blended in 32 bit screens.
+
+
+{{PageSeeAlso}}
+* [[_RGB]], [[_RGB32]], [[_RGBA32]]
+* [[_RED]], [[_GREEN]], [[_BLUE]]
+* [[_LOADIMAGE]]
+* [[_PRINTSTRING]]
+* [[HEX$ 32 Bit Values]], [[POINT]]
+* [[SAVEIMAGE]] {{text|(bitmap creator)}}
+* [http://www.w3schools.com/html/html_colornames.asp Hexadecimal Color Values]
+
+
+{{PageNavigation}}

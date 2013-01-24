@@ -1,0 +1,27 @@
+The [[EXIT]] statement is used to exit certain Qbasic procedures.
+
+
+{{PageSyntax}}
+::EXIT {DO|WHILE|FOR|SUB|FUNCTION|DEF}
+
+
+{{PageDescription}}
+* EXIT leaves any of the following procedures immediately.
+:* [[EXIT]] DO exits a [[DO...LOOP]] when called.
+:* [[EXIT]] WHILE exits a [[WHILE...WEND]] loop when called.
+:* [[EXIT]] FOR exits a [[FOR...NEXT]] counter loop when called.
+:* [[EXIT]] SUB exits a [[SUB]] procedure before it ends. Use before any [[GOSUB]] procedures using [[RETURN]].
+:* [[EXIT]] FUNCTION exits a [[FUNCTION]] procedure before it ends. The value passed by the function's name should be defined.
+:* [[EXIT]] DEF exits a [[DEF FN]] function procedure before it ends. The value passed by the function's name should be defined.
+* EXIT statements normally use an [[IF...THEN]] statement to evaluate a program condition that would require the EXIT.
+* To exit a program and allow the last program screen to be displayed with &quot;Press any key to continue&quot;, use [[END]].
+* To exit the program immediately you can use [[SYSTEM]].
+
+
+{{PageSeeAlso}}
+* [[_EXIT (function)]]
+* [[END]], [[SYSTEM]]
+* [[STOP]]
+
+
+{{PageNavigation}}

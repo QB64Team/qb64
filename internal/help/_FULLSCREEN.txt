@@ -1,0 +1,94 @@
+The '''_FULLSCREEN''' statement attempts to make the program window fullscreen. 
+
+
+{{PageSyntax}}
+:::_FULLSCREEN [{ ''_OFF | _STRETCH | _SQUAREPIXELS''}]
+
+
+{{PageDescription}}
+* The statement can be used in ANY [[SCREEN (statement)|SCREEN]] mode. Set the screen mode (and text [[WIDTH]] when necessary) first!
+* _FULLSCREEN can use the following methods:
+** '''{{Parameter|_STRETCH}}''' default first choice attempts to mimic QBasic's full screens if possible. _FULLSCREEN function returns 1.
+** '''{{Parameter|_SQUAREPIXELS}}''' default second choice enlarges the pixels into squares. _FULLSCREEN function returns 2.
+** '''{{Parameter|_OFF}}''' turns fullscreen off after full screen has been enabled. _FULLSCREEN function returns 0.
+* If no option/method is specified after _FULLSCREEN, QB64 chooses {{Parameter|_STRETCH}} or {{Parameter|_SQUAREPIXELS}} (note: this prioritizes {{Parameter|_STRETCH}} to mimic QBASIC when possible)
+* '''Always''' check the fullscreen mode with the {{KW|_FULLSCREEN (function)|_FULLSCREEN}} function in your programs!
+* It is advisable to get input from the user to confirm that fullscreen was completed or there were possible monitor incompatibilities.
+* If fullscreen is '''not confirmed''' with a _FULLSCREEN function return '''greater than 0''', then disable with {{KW|_FULLSCREEN}} _OFF!
+* '''NOTE:''' _FULLSCREEN can also be affected by custom [[_FONT]] size settings!
+
+
+''Example:'' How fonts and _FULLSCREEN change the program window size.
+{{CodeStart}}
+'' ''
+{{Cl|SCREEN (statement)|SCREEN}} 0
+{{Cl|DO}}
+  {{Cl|PRINT}}
+  {{Cl|LINE INPUT}} &quot;Enter MODE 1) ENLARGE WINDOW  2) FULL _SQUAREPIXELS  3) FULL _STRETCH: &quot;, WMODE$
+  {{Cl|PRINT}}
+  {{Cl|IF}} WMODE$ = &quot;1&quot; {{Cl|THEN}} {{Cl|INPUT (file mode)|INPUT}} &quot;SIZE 1 {{Cl|TO}} 9: &quot;, ENLARGE%
+
+  {{Cl|SELECT CASE}} ENLARGE%
+    {{Cl|CASE}} 1, 2, 3, 4, 5: STYLE$ = &quot;MONOSPACE, BOLD&quot;
+    {{Cl|CASE}} 6, 7, 8, 9: STYLE$ = &quot;MONOSPACE&quot;
+    {{Cl|CASE ELSE}}: STYLE$ = &quot;MONOSPACE&quot;
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} WMODE$
+    {{Cl|CASE}} &quot;1&quot;
+      full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
+      {{Cl|IF}} full &gt; 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _OFF
+      f&amp; = {{Cl|_LOADFONT}}(&quot;c:\windows\fonts\lucon.ttf&quot;, 13 + ENLARGE%, STYLE$)
+      {{Cl|_FONT}} f&amp;
+    {{Cl|CASE}} &quot;2&quot;
+      {{Cl|_FULLSCREEN}} _SQUAREPIXELS
+      full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
+      {{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|GOSUB}} FCHECK
+    {{Cl|CASE}} &quot;3&quot;
+      {{Cl|_FULLSCREEN}} _STRETCH
+      full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
+      {{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|GOSUB}} FCHECK
+  {{Cl|END SELECT}}
+
+  mode = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
+  {{Cl|PRINT}}
+  {{Cl|PRINT}} &quot;_FULLSCREEN mode =&quot;; mode,
+  {{Cl|PRINT}} &quot;PRESS ESC {{Cl|TO}} {{Cl|END}} {{Cl|OR}} ENTER {{Cl|TO}} CONTINUE...&quot;
+
+  {{Cl|DO}}: {{Cl|SLEEP}}: B$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} B$ = {{Cl|CHR$}}(13) {{Cl|OR}} B$ = {{Cl|CHR$}}(27)
+
+  {{Cl|GOSUB}} ClearFont
+
+{{Cl|LOOP}} {{Cl|UNTIL}} B$ = {{Cl|CHR$}}(27) 
+ClearFont
+{{Cl|END}}
+
+FCHECK:
+Z3 = timer
+{{Cl|DO}}
+{{Cl|IF}} {{Cl|TIMER (statement)|TIMER }}&lt; Z3 {{Cl|THEN}} Z3 = Z3 - {{Cl|TIMER}}
+{{Cl|IF}} {{Cl|TIMER (statement)|TIMER }}- Z3 &gt; 4 {{Cl|THEN}} {{Cl|EXIT DO}}
+{{Cl|LOOP}}
+full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
+{{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _{{Cl|OFF}}: {{Cl|SOUND}} 100, .75
+{{Cl|RETURN}}
+
+ClearFont: 
+{{Cl|IF}} f&amp; &gt; 0 {{Cl|THEN}}
+    {{Cl|_FONT}} 16 'select inbuilt 8x16 default font
+    {{Cl|_FREEFONT}} f&amp;
+{{Cl|END IF}}
+{{Cl|RETURN}}    
+ 
+{{CodeEnd}}
+
+
+
+
+
+{{PageSeeAlso}}
+* [[_FULLSCREEN (function)]]
+* [[_SCREENMOVE]], [[_SCREENX]], [[_SCREENY]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,162 @@
+The '''PSET''' grahics [[SCREEN (statement)|SCREEN]] statement sets a pixel to a coordinate with a default or designated color attribute.
+
+
+{{PageSyntax}}
+:: '''PSET''' [STEP]'''(''column%'', ''row%'')'''[, ''color_attribute'']
+
+
+''[[Parameters]]:''
+* Can use [[STEP]] relative graphics coordinates from a previous graphic object.
+* ''Column'' and ''row'' can be literal or variable [[INTEGER]] coordinates values which can be offscreen.
+* If the ''color attribute'' is omitted, PSET will adopt a color from a previous [[PRINT]] or graphics object's color.
+
+
+''Usage:''
+* ''Color attributes'' are limited to the SCREEN mode used. Any color value other than 0 will be white in [[SCREEN (statement)|SCREEN]]s 2 or 11.
+* PSET can locate other graphics objects and color [[DRAW]] statements.
+* The PSET action can be used in a graphics [[PUT (graphics statement)|PUT]] to produce an identical image on any background.
+* '''PSET can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
+
+
+''Example:'' Using PSET to locate and color a [[DRAW]] statement.
+{{CodeStart}} '' ''
+SCREEN 12
+{{Cl|PSET}}(100, 100), 12
+{{Cl|DRAW}} &quot;U20 R20 D20 L20&quot; '' ''
+{{CodeEnd}}
+:''Screen results:'' A drawn box that is bright red.
+
+
+''Example 2:'' Magnifying a box portion of a Mandelbrot image with PSET
+{{CodeStart}} '' ''
+{{Cl|DECLARE}} {{Cl|SUB}} readmouse (x {{Cl|AS}} {{Cl|INTEGER}}, y {{Cl|AS}} {{Cl|INTEGER}}, z {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DECLARE}} {{Cl|SUB}} rectangle (x1 {{Cl|AS}} {{Cl|INTEGER}}, y1 {{Cl|AS}} {{Cl|INTEGER}}, x2 {{Cl|AS}} {{Cl|INTEGER}}, y2 {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DECLARE}} {{Cl|FUNCTION}} mandel% (x {{Cl|AS}} {{Cl|DOUBLE}}, y {{Cl|AS}} {{Cl|DOUBLE}}, limit {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DECLARE}} {{Cl|SUB}} drawmand (x {{Cl|AS}} {{Cl|DOUBLE}}, y {{Cl|AS}} {{Cl|DOUBLE}}, mag {{Cl|AS}} {{Cl|DOUBLE}})
+{{Cl|DEFSTR}} A-Z
+{{Cl|DIM}} red(15) {{Cl|AS}} {{Cl|INTEGER}}, green(15) {{Cl|AS}} {{Cl|INTEGER}}, blue(15) {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} i {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|SCREEN}} 12
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 15: {{Cl|READ}} red(i): {{Cl|NEXT}}
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 15: {{Cl|READ}} green(i): {{Cl|NEXT}}
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 15: {{Cl|READ}} blue(i): {{Cl|NEXT}}
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 15: {{Cl|PALETTE}} i, 65536 * blue(i) + 256&amp; * green(i) + red(i): {{Cl|NEXT}}
+{{Cl|DATA}} 0,63,63,63,63,63,31, 0, 0,31,31,31,47,63,63,63
+{{Cl|DATA}} 0, 0,15,31,47,63,63,63,63,31,15, 0, 0, 0, 0, 0
+{{Cl|DATA}} 0, 0, 0, 0, 0, 0, 0, 0,31,63,63,63,63,63,42,21
+
+{{Cl|DIM}} dmag {{Cl|AS}} {{Cl|INTEGER}}, dlogmag {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} a {{Cl|AS}} {{Cl|DOUBLE}}, b {{Cl|AS}} {{Cl|DOUBLE}}, mag {{Cl|AS}} {{Cl|DOUBLE}}
+{{Cl|DIM}} dx {{Cl|AS}} {{Cl|INTEGER}}, dy {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} mx {{Cl|AS}} {{Cl|INTEGER}}, my {{Cl|AS}} {{Cl|INTEGER}}, mz {{Cl|AS}} {{Cl|INTEGER}}
+
+dmag = 16
+mag = 1
+
+a = -.75
+b = 0
+DO
+  {{Cl|DIM}} limitx {{Cl|AS}} {{Cl|DOUBLE}}, limit {{Cl|AS}} {{Cl|INTEGER}}
+  {{Cl|DIM}} inc {{Cl|AS}} {{Cl|DOUBLE}}, left {{Cl|AS}} {{Cl|DOUBLE}}, top {{Cl|AS}} {{Cl|DOUBLE}}
+
+  limitx = 150 * ({{Cl|LOG}}(mag) + 1)
+  {{Cl|IF...THEN|IF}} limitx &gt; 32767 {{Cl|THEN}} limitx = 32767
+  limit = {{Cl|INT}}(limitx)
+  inc = .004 / mag
+  left = a - inc * 319
+  top = b + inc * 239
+  {{Cl|CLS}}
+
+  {{Cl|DIM}} yy {{Cl|AS}} {{Cl|INTEGER}}, xx {{Cl|AS}} {{Cl|INTEGER}}
+  {{Cl|DIM}} x {{Cl|AS}} {{Cl|DOUBLE}}, y {{Cl|AS}} {{Cl|DOUBLE}}, z {{Cl|AS}} {{Cl|INTEGER}}
+
+  {{Cl|FOR...NEXT|FOR}} yy = 0 {{Cl|TO}} 479
+    y = top - inc * yy
+    {{Cl|FOR...NEXT|FOR}} xx = 0 {{Cl|TO}} 639
+        x = left + inc * xx
+        z = mandel(x, y, limit)
+        {{Cl|IF...THEN|IF}} z &lt; limit {{Cl|THEN}} {{Cl|PSET}} (xx, yy), 1 + z {{Cl|MOD}} 15
+        {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|SYSTEM}}
+    {{Cl|NEXT}}
+  {{Cl|NEXT}}
+  mz = 0
+  {{Cl|CALL}} readmouse(mx, my, mz)
+  DO
+    dx = 319 \ dmag
+    dy = 239 \ dmag
+    {{Cl|CALL}} readmouse(mx, my, mz)
+    {{Cl|IF...THEN|IF}} mz {{Cl|THEN}} {{Cl|EXIT DO}}
+    {{Cl|CALL}} rectangle(mx - dx, my - dy, mx + dx, my + dy)
+    {{Cl|DIM}} t {{Cl|AS}} {{Cl|DOUBLE}}
+    t = {{Cl|TIMER}}
+    {{Cl|WHILE}} t = {{Cl|TIMER}}
+      key$ = {{Cl|INKEY$}}
+      {{Cl|SELECT CASE}} key$
+        {{Cl|CASE}} {{Cl|CHR$}}(27)
+          {{Cl|SYSTEM}}
+        {{Cl|CASE}} {{Cl|CHR$}}(0) + {{Cl|CHR$}}(72)
+          dmag = dmag \ 2
+          {{Cl|IF...THEN|IF}} dmag &lt; 2 {{Cl|THEN}} dmag = 2
+        {{Cl|CASE}} {{Cl|CHR$}}(0) + {{Cl|CHR$}}(80)
+          dmag = dmag * 2
+          {{Cl|IF...THEN|IF}} dmag &gt; 128 {{Cl|THEN}} dmag = 128
+      {{Cl|END SELECT}}
+    {{Cl|WEND}}
+    {{Cl|CALL}} rectangle(mx - dx, my - dy, mx + dx, my + dy)
+  {{Cl|LOOP}}
+  a = a + inc * (mx - 319): b = b - inc * (my - 239)
+  {{Cl|IF...THEN|IF}} (mz = 1) {{Cl|THEN}} mag = dmag * mag {{Cl|ELSE}} mag = mag / dmag
+  {{Cl|IF...THEN|IF}} (mag &lt; 1) {{Cl|THEN}} mag = 1
+{{Cl|LOOP}}
+
+{{Cl|FUNCTION}} mandel% (x {{Cl|AS}} {{Cl|DOUBLE}}, y {{Cl|AS}} {{Cl|DOUBLE}}, limit {{Cl|AS}} {{Cl|INTEGER}})
+  {{Cl|DIM}} a {{Cl|AS}} {{Cl|DOUBLE}}, b {{Cl|AS}} {{Cl|DOUBLE}}, t {{Cl|AS}} {{Cl|DOUBLE}}
+  {{Cl|DIM}} n {{Cl|AS}} {{Cl|INTEGER}}
+  n = 0: a = 0: b = 0
+  DO
+    t = a * a - b * b + x
+    b = 2 * a * b + y: a = t
+    n = n + 1
+  {{Cl|LOOP}} {{Cl|UNTIL}} a * a + b * b &gt; 4 {{Cl|OR (boolean)|OR}} n &gt; limit
+  mandel = n
+{{Cl|END FUNCTION}}
+
+{{Cl|SUB}} readmouse (x {{Cl|AS}} {{Cl|INTEGER}}, y {{Cl|AS}} {{Cl|INTEGER}}, z {{Cl|AS}} {{Cl|INTEGER}})
+z=0
+DO
+if {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} z = z {{Cl|OR (boolean)|OR}} 1
+if {{Cl|_MOUSEBUTTON}}(2) {{Cl|THEN}} z = z {{Cl|OR (boolean)|OR}} 2
+if {{Cl|_MOUSEBUTTON}}(3) {{Cl|THEN}} z = z {{Cl|OR (boolean)|OR}} 4
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|_MOUSEINPUT}}=0
+x={{Cl|_MOUSEX}}
+y={{Cl|_MOUSEY}}
+{{Cl|END SUB}}
+
+{{Cl|SUB}} rectangle (x1 {{Cl|AS}} {{Cl|INTEGER}}, y1 {{Cl|AS}} {{Cl|INTEGER}}, x2 {{Cl|AS}} {{Cl|INTEGER}}, y2 {{Cl|AS}} {{Cl|INTEGER}})
+  {{Cl|DIM}} i {{Cl|AS}} {{Cl|INTEGER}}, j {{Cl|AS}} {{Cl|INTEGER}}
+  {{Cl|FOR...NEXT|FOR}} i = x1 {{Cl|TO}} x2
+    j = {{Cl|POINT}}(i, y1)
+    {{Cl|PSET}} (i, y1), j {{Cl|XOR (boolean)|XOR}} 15
+    j = {{Cl|POINT}}(i, y2)
+    {{Cl|PSET}} (i, y2), j {{Cl|XOR (boolean)|XOR}} 15
+  {{Cl|NEXT}}
+  {{Cl|FOR...NEXT|FOR}} i = y1 {{Cl|TO}} y2
+    j = {{Cl|POINT}}(x1, i)
+    {{Cl|PSET}} (x1, i), j {{Cl|XOR (boolean)|XOR}} 15
+    j = {{Cl|POINT}}(x2, i)
+    {{Cl|PSET}} (x2, i), j {{Cl|XOR (boolean)|XOR}} 15
+  {{Cl|NEXT}}
+{{Cl|END SUB}}
+{{CodeEnd}} {{small|Code by Codeguy}}
+: ''Notes:'' Left click, to zoom in on the rectangle. Right click, to zoom out. Up arrow makes the rectangle bigger and down arrow makes the rectangle smaller. 
+
+
+''See also:'' 
+* [[PRESET]], [[CIRCLE]], [[LINE]]
+* [[COLOR]], [[POINT]]
+* [[PUT (graphics statement)]]
+* [[GET (graphics statement)]]
+* [[Text Using Graphics]] (Demo)
+
+
+{{PageNavigation}}

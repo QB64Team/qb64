@@ -1,0 +1,36 @@
+int32 *_FUNC_HASHFIND_LONG_HASHFIND=NULL;
+if(_FUNC_HASHFIND_LONG_HASHFIND==NULL){
+_FUNC_HASHFIND_LONG_HASHFIND=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_HASHFIND=0;
+}
+qbs*oldstr4399=NULL;
+if(_FUNC_HASHFIND_STRING_A->tmp||_FUNC_HASHFIND_STRING_A->fixed||_FUNC_HASHFIND_STRING_A->readonly){
+oldstr4399=_FUNC_HASHFIND_STRING_A;
+if (oldstr4399->cmem_descriptor){
+_FUNC_HASHFIND_STRING_A=qbs_new_cmem(oldstr4399->len,0);
+}else{
+_FUNC_HASHFIND_STRING_A=qbs_new(oldstr4399->len,0);
+}
+memcpy(_FUNC_HASHFIND_STRING_A->chr,oldstr4399->chr,oldstr4399->len);
+}
+int32 *_FUNC_HASHFIND_LONG_I=NULL;
+if(_FUNC_HASHFIND_LONG_I==NULL){
+_FUNC_HASHFIND_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_I=0;
+}
+qbs *_FUNC_HASHFIND_STRING_UA=NULL;
+if (!_FUNC_HASHFIND_STRING_UA)_FUNC_HASHFIND_STRING_UA=qbs_new(0,0);
+byte_element_struct *byte_element_4400=NULL;
+if (!byte_element_4400){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4400=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4400=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_HASHFIND_LONG_F=NULL;
+if(_FUNC_HASHFIND_LONG_F==NULL){
+_FUNC_HASHFIND_LONG_F=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_F=0;
+}
+int32 *_FUNC_HASHFIND_LONG_I2=NULL;
+if(_FUNC_HASHFIND_LONG_I2==NULL){
+_FUNC_HASHFIND_LONG_I2=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_I2=0;
+}

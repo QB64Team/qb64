@@ -1,0 +1,65 @@
+'''SELECT CASE''' is used to determine the program flow by comparing the value of a variable to specific values.
+
+
+{{PageSyntax}}
+:::::SELECT CASE variable
+::::::' [[CASE]]
+::::::' [[CASE IS]]
+::::::' [[CASE ELSE]]
+:::::[[END SELECT]] 
+
+
+* Variable can be any literal string or numerical type. Can only evaluate ONE value or calculation.
+* Use SELECT CASE when IF statements get too long or complicated.
+* The CASE comparisons should cover the normal ranges of the variable values(use CASE ELSE if necessary).
+* CASEs should be listed in an ascending or descending values for best and fastest results.
+* The routine will execute code in the FIRST True [[CASE]] statement and exit the procedure.
+* Supports individual CASE values and ranges or lists of values as below:
+:* CASE value
+:* CASE value1 [[TO]] value2
+:* CASE value1, value2, value3
+:* [[CASE IS]] value1 &gt; value2
+:* [[CASE ELSE]]
+
+* SELECT CASE statements must '''always''' be ended with [[END SELECT]]!
+* Use '''[[colon]]s''' to execute multiple statements in a one line statement. You cannot use AND for multiple statements!
+* An '''[[underscore]]''' can be used anywhere after the code on one line to continue it to the next line in '''QB64 ONLY'''.
+
+
+''Example:''
+{{CodeStart}}
+a = 100
+{{Cl|SELECT CASE}} a          'designate the value to compare
+  {{Cl|CASE}} 1, 3, 5, 7, 9
+    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+  {{Cl|CASE}} 10
+    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+  {{Cl|CASE}} 50
+    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+  {{Cl|CASE}} 100
+    {{Cl|PRINT}} &quot;This will be displayed when a equals 100)&quot;
+    {{Cl|PRINT}} &quot;(and no other case will be checked)&quot;
+  {{Cl|CASE}} 150
+    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+  {{Cl|CASE IS}} &lt; 150
+    {{Cl|PRINT}} &quot;This will not be shown as a previous case was true&quot;
+  {{Cl|CASE}} 50 {{Cl|TO}} 150
+    {{Cl|PRINT}} &quot;This will not be shown as a previous case was true&quot;
+  {{Cl|CASE ELSE}}
+   {{Cl|PRINT}} &quot;This will only print if it gets this far!&quot;
+{{Cl|END SELECT}} '' ''
+{{CodeEnd}}
+{{OutputStart}} 
+This will be displayed when a equals 100)
+(and no other case will be checked)
+{{OutputEnd}}
+:''Explanation:'' The first case where a value is true is shown, the remainder are skipped. Try changing the value of 'a' to different numbers!
+
+
+
+''See also:'' 
+* [[CASE]], [[CASE IS]]
+* [[IF...THEN]], [[Boolean]]
+
+
+{{PageNavigation}}

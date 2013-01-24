@@ -1,0 +1,43 @@
+'''_glGenTextures:''' generate texture names
+
+
+{{PageSyntax}}
+
+  SUB _glGenTextures (BYVAL n AS LONG, textures AS _UNSIGNED LONG)
+  void '''_glGenTextures'''(GLsizei {{Parameter|n}}, GLuint * {{Parameter|textures}});
+
+
+; n
+: Specifies the number of texture names to be generated.
+; textures
+: Specifies an array in which the generated texture names are stored.
+
+
+{{PageDescription}}
+
+'''_glGenTextures''' returns {{Parameter|n}} texture names in {{Parameter|textures}}. There is no guarantee that the names form a contiguous set of integers; however, it is guaranteed that none of the returned names was in use immediately before the call to '''_glGenTextures'''.
+
+The generated textures have no dimensionality; they assume the dimensionality of the texture target to which they are first bound (see {{KW|_glBindTexture}}).
+
+Texture names returned by a call to '''_glGenTextures''' are not returned by subsequent calls, unless they are first deleted with {{KW|_glDeleteTextures}}.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|n}} is negative.
+
+
+{{PageUseWith}}
+
+{{KW|_glIsTexture}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glBindTexture}}, {{KW|_glDeleteTextures}}, {{KW|_glIsTexture}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

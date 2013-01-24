@@ -1,0 +1,102 @@
+The '''SCREEN''' function returns the [[ASCII]] code of a text character or the color attribute at a set text location on the screen.
+
+
+{{PageSyntax}}
+:: codeorcolor% = '''SCREEN (''row%'', ''column%''''' [, colorflag%]''')'''
+
+
+{{Parameters}}
+* ''row'' and ''column'' are the [[INTEGER]] text coordinates of the [[SCREEN]] mode used.
+* Optional ''colorflag'' [[INTEGER]] value can be zero for [[ASCII]] code values or 1 for colors.
+
+
+''Usage:''
+* The ''code'' value returned is the [[ASCII]] code from 0 to 255. Returns 32([[SPACE$|space]]) when no character is found at a coordinate.
+* If the ''colorflag'' value is omitted or it is 0, the function returns the [[ASCII]] code of the text character at the position designated.
+* When the ''flag'' value is greater than 0, the function returns the foreground color attribute of the text character position.
+* '''QB64''' can return color values in screen modes other than [[SCREEN]] 0. Qbasic returned the wrong color values in graphic screen modes!
+
+
+''Example 1:'' Reading the [[ASCII]] code and color of a text character using the SCREEN function. Graphic screen colors were not reliable in Qbasic!
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+row = 10: column = 10
+
+{{Cl|COLOR}} 9: {{Cl|LOCATE}} row, column: {{Cl|PRINT}} &quot;Hello&quot;
+code% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 0)     ' character code return parameter 0
+attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1)   ' character color return parameter 1
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 15, 10: {{Cl|PRINT}} &quot;ASCII:&quot;; code%, &quot;COLOR:&quot;; attrib%
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+{{Text|         Hello|blue}}
+
+
+
+{{Text|         ASCII: 72     COLOR: 9|yellow}}
+{{OutputEnd}}
+:''Explanation:'' The SCREEN function returns the [[ASCII]] code for &quot;H&quot; and the color 9.
+
+
+''Example 2:'' SCREEN 0 will return the values for both foreground and background colors. The combined color attribute value is returned.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0
+row = 10: column = 10
+
+{{Cl|COLOR}} 9, 10: {{Cl|LOCATE}} row, column: {{Cl|PRINT}} &quot;Hello&quot; 'use the background color of bright green
+code% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 0) ' character code return parameter 0
+attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1) ' character color return parameter 1
+{{Cl|COLOR}} 14, 0: {{Cl|LOCATE}} 15, 10: {{Cl|PRINT}} &quot;ASCII:&quot;; code%, &quot;{{Cl|COLOR}}:&quot;; attrib%
+
+fg% = (attrib% {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) 'get the lower nibble
+bg% = (attrib% {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F0) / 16 'get the upper nibble
+{{Cl|IF...THEN|IF}} bg% &gt; 7 {{Cl|THEN}} 'MSB set in the bg% nibble indicates blinking fg%
+  fg% = fg% + 16
+  bg% = bg% - 8
+{{Cl|END IF}}
+{{Cl|LOCATE}} 20, 10:{{Cl|PRINT}} &quot;FG:&quot;; fg%, &quot;BG:&quot;; bg% '' ''
+{{CodeEnd}}{{small|Contributed by RhoSigma}}
+{{OutputStart}}
+{{Text|         Hello|blue}}
+
+
+
+{{Text|         ASCII: 72     COLOR: 41|yellow}}
+
+
+{{text|         FG: 9         BG: 2|yellow}}
+{{OutputEnd}}
+:''Note:'' SCREEN 0 background colors are limited to colors 0 to 7 so [[COLOR]] 10 is converted to attribute 2 (8 less than the high intensity background color value of 10).
+
+
+''Example 3:'' Finding the current program path placed on the screen using [[FILES]] and the SCREEN function in SCREEN 0.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0, 0, 0, 0
+{{Cl|CLS}}
+{{Cl|PRINT}} &quot;This is a directory test...&quot;
+{{Cl|SCREEN}} 0, 0, 1, 0
+{{Cl|COLOR}} 0 'blank out the screen text
+{{Cl|FILES}} &quot;qb64.exe&quot;        'the current program's filename can also be used
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 80
+  a$ = a$ + {{Cl|CHR$}}({{Cl|SCREEN (function)|SCREEN}}(1, i)) 'scan the black text on the screen
+{{Cl|NEXT}}
+{{Cl|CLS}}
+{{Cl|COLOR}} 7
+a$ = {{Cl|RTRIM$}}(a$)
+{{Cl|SLEEP}}
+{{Cl|SCREEN (statement)|SCREEN}} 0, 0, 0, 0
+{{Cl|LOCATE}} 3, 1: {{Cl|PRINT}} &quot;The current directory is: &quot;; a$
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Pete from the N54 QB site}}
+:''Explanation:'' The SCREEN page one is used to hide the [[FILES]] display using COLOR 0. The [[SCREEN (function)|SCREEN]] function reads the top of the screen page text and creates the current path string. It is then printed on the visual page.
+
+
+''See also:'' 
+* [[PRINT]], [[SCREEN]]
+* [[COLOR]], [[CHR$]], [[POINT]]
+* [[CSRLIN]], [[POS]], [[ASCII]]
+* [[Screen Memory]]
+
+
+{{PageNavigation}}

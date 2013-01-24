@@ -1,0 +1,32 @@
+The '''SGN''' function returns the sign of a number value.
+
+
+
+{{PageSyntax}}
+:: sign% = SGN(value)
+
+
+
+* Returns -1 when a sign is negative, 0 when a value is zero or 1 when a value is positive.
+* Used to hold the original sign of a number.
+* '''QB64''' allows programs to return only [[_UNSIGNED]] variable values using a [[_DEFINE]] statement.
+
+
+
+''Example:'' Checking and changing negative values to positive ones.
+{{CodeStart}}
+n = -100
+{{Cl|IF...THEN|IF}} {{Cl|SGN}}(n) = -1 THEN n = {{Cl|ABS}}(n)
+PRINT n '' ''
+{{CodeEnd}}
+{{OutputStart}} 100
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[ABS]]
+* [[_DEFINE]], [[_UNSIGNED]] 
+* [[Mathematical Operations]]
+
+
+{{PageNavigation}}

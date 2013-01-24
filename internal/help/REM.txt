@@ -1,0 +1,30 @@
+'''REM''' or an apostrophe is used for programmer remarks, comments or to stop the execution of program code.
+
+
+{{PageSyntax}}
+:: REM program comment or ignore code
+
+
+{{PageDescription}}
+* Comments cannot be read by Qbasic correctly and may cause syntax and other errors without REM!
+* Instead of REM you can use the {{KW|REM|'}} symbol which can be put anywhere.
+* Code can also be commented out for program testing purposes.
+* Qbasic Metacommands such as {{KW|$DYNAMIC}} and {{KW|$INCLUDE}} require the use of REM or the apostrophe.  
+
+
+''Example:'' Avoiding an END IF error.
+{{CodeStart}} '' ''
+{{Cl|REM}} This is a remark...
+' This is also a remark...
+{{Cl|IF...THEN|IF}} a = 0 {{Cl|THEN}} {{Cl|REM}} (REM follows syntax rules)
+{{Cl|IF...THEN|IF}} a = 0 {{Cl|THEN}} '(apostrophe doesn't follow syntax rules, so use END IF after this)
+{{Cl|END IF}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}} 
+* [[Apostrophe]]
+* {{KW|$DYNAMIC}}, {{KW|$STATIC}}, {{KW|$INCLUDE|$INCLUDE:}}
+
+
+{{PageNavigation}}

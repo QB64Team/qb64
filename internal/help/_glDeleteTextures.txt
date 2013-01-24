@@ -1,0 +1,41 @@
+'''_glDeleteTextures:''' delete named textures
+
+
+{{PageSyntax}}
+
+  SUB _glDeleteTextures (BYVAL n AS LONG, textures AS _UNSIGNED LONG)
+  void '''_glDeleteTextures'''(GLsizei {{Parameter|n}}, const GLuint * {{Parameter|textures}});
+
+
+; n
+: Specifies the number of textures to be deleted.
+; textures
+: Specifies an array of textures to be deleted.
+
+
+{{PageDescription}}
+
+'''_glDeleteTextures''' deletes {{Parameter|n}} textures named by the elements of the array {{Parameter|textures}}. After a texture is deleted, it has no contents or dimensionality, and its name is free for reuse (for example by {{KW|_glGenTextures}}). If a texture that is currently bound is deleted, the binding reverts to 0 (the default texture).
+
+'''_glDeleteTextures''' silently ignores 0's and names that do not correspond to existing textures.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|n}} is negative.
+
+
+{{PageUseWith}}
+
+{{KW|_glIsTexture}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glBindTexture}}, {{KW|_glGenTextures}}, {{KW|_glIsTexture}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

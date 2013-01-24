@@ -1,0 +1,78 @@
+'''VARPTR$''' is a memory function that returns a [[STRING]] representation of a variable's memory address value for use in a [[DRAW]] or [[PLAY]] statement.
+
+
+{{PageSyntax}}
+:: string_value$ = VARPTR$(''variable'')
+
+
+* Can use any [[STRING|string]] or numerical variable reference '''existing''' in memory.
+* If the parameter value is from an array it must be dimensioned already. Cannot use fixed length string arrays.
+* When using '''numerical''' ''variable'' values in [[DRAW]] strings, use an = sign after the function letter. &quot;TA=&quot; + VARPTR$(''variable%'')
+* Always use variable X as in &quot;X&quot; + VARPTR$(''string_variable$'') to [[DRAW]] or [[PLAY]] another [[STRING]] value.
+* DRAW relative Moves use a + or - before the equal sign. EX: DRAW &quot;M+=&quot; + VARPTR$(x%) + &quot;,-=&quot; + VARPTR$(y%)
+
+
+''Example 1:'' How VARPTR$ reads consecutive values from memory.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 2
+{{Cl|CLS}}
+WIND$ = &quot;r10 d7 l10 u7 br20&quot;   'create draw string to be read by function
+ROW$ = &quot;x&quot;+{{Cl|VARPTR$}}(WIND$)+&quot;x&quot;+{{Cl|VARPTR$}}(WIND$)+&quot;x&quot;+{{Cl|VARPTR$}}(WIND$)+&quot; x&quot;+{{Cl|VARPTR$}}(WIND$)+&quot;bl80 bd11&quot;
+{{Cl|LINE}} (100, 50)-(200, 160), , B
+{{Cl|DRAW}} &quot;bm 115,52&quot;
+{{Cl|FOR...NEXT|FOR}} I = 1 {{Cl|TO}} 10
+    {{Cl|DRAW}} &quot;x&quot; + {{Cl|VARPTR$}}(ROW$)
+{{Cl|NEXT}} '' ''
+{{CodeEnd}}
+:''NOTE:'' '''GWBasic''' allows '''semicolons''' to be used in the ROW$ definition, but Qbasic and '''QB64''' MUST use '''+''' concatenation.
+
+
+''Example 2:'' Using the function to change a Turn Angle value using DRAW.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+                           'Demonstrates how string DRAW angles are used with TA
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 360 {{Cl|STEP}} 30           'mark clock hours every 30 degrees
+  angle$ = {{Cl|STR$}}(i)                 'change degree value i to a string   
+  {{Cl|PSET}} (175, 250), 6               'clock center
+  {{Cl|DRAW}} &quot;TA&quot; + angle$ + &quot;BU100&quot;     'add string angle to Turn Angle and draw blind up
+  {{Cl|CIRCLE}} {{Cl|STEP}}(0, 0), 5, 12         'place a circle at end of Up line
+  {{Cl|DRAW}} &quot;P9, 12&quot;
+  {{Cl|_DELAY}} .5           
+{{Cl|NEXT}}
+                            'Demonstrates how VARPTR$ is used with TA= 
+{{Cl|DO}}: sec$ = {{Cl|RIGHT$}}({{Cl|TIME$}}, 2)        'get current second value from time
+  degree = {{Cl|VAL}}(sec$) * -6          'use a negative value to Turn Angle clockwise
+  {{Cl|PSET}} (175, 250), 9               'clock center
+  {{Cl|DRAW}} &quot;TA=&quot; + {{Cl|VARPTR$}}(degree) + &quot;U90&quot;  'VARPTR$ value requires = in DRAW
+  {{Cl|DO}}: {{Cl|_LIMIT}} 30: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|RIGHT$}}({{Cl|TIME$}}, 2) &lt;&gt; sec$  'loop until seconds value changes
+  {{Cl|IF}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|PSET}} (175, 250), 0
+  {{Cl|DRAW}} &quot;TA=&quot; + {{Cl|VARPTR$}}(degree) + &quot;U90&quot;  'erase previous second hand draw
+{{Cl|LOOP}} '' ''
+{{CodeEnd}}
+:''Explanation:'' When the VARPTR$ value is used in DRAW, '''=''' MUST be used to pass the value to the draw! Negative Turn Angle values move clockwise and each second moves the hand 6 degrees. '''TA''' uses actual degree angles starting at 0 or noon.
+
+
+''Example 3:'' Comparing DRAW moves using VARPTR$ and [[STR$]] values.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|PSET}} (200, 200), 12
+{{Cl|CIRCLE}} {{Cl|STEP}}(0, 0), 5, 10
+A = 100: B = 100
+{{Cl|DRAW}} &quot;M+=&quot; + {{Cl|VARPTR$}}(A) + &quot;,-=&quot; + {{Cl|VARPTR$}}(B)
+
+{{Cl|PSET}} (400, 400), 10
+{{Cl|CIRCLE}} {{Cl|STEP}}(0, 0), 5, 12
+C = 100: D = -100
+{{Cl|DRAW}} &quot;M+&quot; + {{Cl|STR$}}(C) + &quot;,&quot; + {{Cl|STR$}}(D) 'must add + for positive relative moves
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' A negative STR$ value will move the DRAW relatively where VARPTR$ won't without the sign before the equal.
+
+
+''See also:'' 
+* [[VARPTR]], [[STR$]] 
+* [[DRAW]], [[PLAY]]
+
+
+{{PageNavigation}}

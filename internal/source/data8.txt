@@ -1,0 +1,42 @@
+qbs*oldstr1874=NULL;
+if(_SUB_HELP_ADDTXT_STRING_T->tmp||_SUB_HELP_ADDTXT_STRING_T->fixed||_SUB_HELP_ADDTXT_STRING_T->readonly){
+oldstr1874=_SUB_HELP_ADDTXT_STRING_T;
+if (oldstr1874->cmem_descriptor){
+_SUB_HELP_ADDTXT_STRING_T=qbs_new_cmem(oldstr1874->len,0);
+}else{
+_SUB_HELP_ADDTXT_STRING_T=qbs_new(oldstr1874->len,0);
+}
+memcpy(_SUB_HELP_ADDTXT_STRING_T->chr,oldstr1874->chr,oldstr1874->len);
+}
+int32 *_SUB_HELP_ADDTXT_LONG_I=NULL;
+if(_SUB_HELP_ADDTXT_LONG_I==NULL){
+_SUB_HELP_ADDTXT_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_HELP_ADDTXT_LONG_I=0;
+}
+int64 fornext_value1876;
+int64 fornext_finalvalue1876;
+int64 fornext_step1876;
+uint8 fornext_step_negative1876;
+byte_element_struct *byte_element_1877=NULL;
+if (!byte_element_1877){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1877=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1877=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_SUB_HELP_ADDTXT_LONG_C=NULL;
+if(_SUB_HELP_ADDTXT_LONG_C==NULL){
+_SUB_HELP_ADDTXT_LONG_C=(int32*)mem_static_malloc(4);
+*_SUB_HELP_ADDTXT_LONG_C=0;
+}
+qbs *_SUB_HELP_ADDTXT_STRING_B=NULL;
+if (!_SUB_HELP_ADDTXT_STRING_B)_SUB_HELP_ADDTXT_STRING_B=qbs_new(0,0);
+byte_element_struct *byte_element_1878=NULL;
+if (!byte_element_1878){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1878=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1878=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_1879=NULL;
+if (!byte_element_1879){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1879=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1879=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_1880=NULL;
+if (!byte_element_1880){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1880=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1880=(byte_element_struct*)mem_static_malloc(12);
+}

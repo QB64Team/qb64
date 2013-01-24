@@ -1,0 +1,54 @@
+The '''_FONTHEIGHT''' function returns the font height of a font handle created by {{KW|_LOADFONT}}.
+
+
+
+{{PageSyntax}}
+:{{Parameter|pixel_height%}} = {{KW|_FONTHEIGHT}}[({{Parameter|font_handle}})] 
+
+
+* Will return height of the last font used if a handle is not designated.
+* If no font is used it returns the current screen mode's text block height.
+
+
+''Example:'' Finding the [[_FONT|font]] or text block size of printed [[STRING|string]] characters in graphic [[SCREEN]] modes.
+{{CodeStart}} '' ''
+DO
+  {{Cl|INPUT}} &quot;Enter Screen mode 1, 2 or 7 to 13 or 256, 32 for {{Cl|_NEWIMAGE}}: &quot;, scr$
+  mode% = {{Cl|VAL}}(scr$)
+{{Cl|LOOP}} {{Cl|UNTIL}} mode% &gt; 0
+{{Cl|SELECT CASE}} mode%
+  {{Cl|CASE}} 1, 2, 7 {{Cl|TO}} 13: {{Cl|SCREEN}} mode%
+  {{Cl|CASE}} 256, 32: {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, mode%)
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} &quot;Invalid mode selected!&quot;: {{Cl|END}}
+{{Cl|END SELECT}}
+
+{{Cl|INPUT}} &quot;Enter first name of TTF font to use or hit enter for text block size: &quot;, TTFont$
+{{Cl|IF...THEN|IF}} {{Cl|LEN}}(TTFont$) {{Cl|THEN}} {{Cl|INPUT}} &quot;Enter font height: &quot;, hi$
+height&amp; = {{Cl|VAL}}(hi$)
+{{Cl|IF...THEN|IF}} height&amp; &gt; 0 {{Cl|THEN}}
+  fnt&amp; = {{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\&quot; + TTFont$ + &quot;.ttf&quot;, height&amp;, style$)
+  {{Cl|IF...THEN|IF}} fnt&amp; &lt;= 0 {{Cl|THEN}} {{Cl|PRINT}} &quot;Invalid Font handle!&quot;: {{Cl|END}}
+  {{Cl|_FONT}} fnt&amp;
+{{Cl|END IF}}
+
+TextSize wide&amp;, high&amp; 'get the font or current screen mode's text block pixel size
+
+{{Cl|_PRINTSTRING}} (20, 100), &quot;Block size = &quot; + {{Cl|CHR$}}(1) + {{Cl|STR$}}(wide&amp;) + &quot; X&quot; + {{Cl|STR$}}(high&amp;) + &quot; &quot; + {{Cl|CHR$}}(2)
+
+{{Cl|END}}
+
+{{Cl|SUB}} TextSize (TextWidth&amp;, TextHeight&amp;)
+TextWidth&amp; = {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'measure width of one font or text character
+TextHeight&amp; = {{Cl|_FONTHEIGHT}} 'can measure normal text block heights also
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_FONTWIDTH]], [[_FONT]]
+* [[_PRINTWIDTH]], [[_PRINTSTRING]]
+* [[SCREEN]], [[_LOADFONT]]
+* [[Text Using Graphics]] (Demo)
+
+
+{{PageNavigation}}

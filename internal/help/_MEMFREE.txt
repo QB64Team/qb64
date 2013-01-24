@@ -1,0 +1,26 @@
+The '''_MEMFREE''' statement frees the designated memory block [[_MEM]] value and MUST be used with all memory functions. 
+
+
+{{PageSyntax}}
+::: '''_MEMFREE ''memory_variable'''''
+
+
+{{Parameters}}
+* ALL designated [[_MEM]] type ''memory variable'' values must be freed to conserve memory when they are no longer used or needed.
+
+
+''Usage:''
+* Since all [[_MEM]] type variables cannot use a suffix, use [[DIM]] ''variable'' [[AS]] [[_MEM]] to create memory handle variables.
+* All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable.
+
+
+''See also:''
+* [[_MEM]] {{text|(variable type)}}
+* [[_MEM (function)]]
+* [[_MEMNEW]] {{text|(function)}}
+* [[_MEMIMAGE]] {{text|(function)}}
+* [[_MEMELEMENT]] {{text|(function)}}
+* [[_MEMGET (function)]]
+
+
+{{PageNavigation}}

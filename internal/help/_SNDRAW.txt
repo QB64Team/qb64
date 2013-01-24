@@ -1,0 +1,106 @@
+The '''_SNDRAW''' statement plays sound wave sample frequencies created by a program. 
+
+
+{{PageSyntax}}
+::_SNDRAW ''left_sample''[, ''right_sample'']
+
+
+* The ''sample'' value(s) can be any [[SINGLE]] or [[DOUBLE]] literal or variable frequency value between -1.0 and 1.0.
+* If only one ''sample'' value is used, the sound will come out of both speakers.
+* Using _SNDRAW will pause any currently playing music. (You'll have to generate your own .)
+* _SNDRAW is designed for continuous play. It will not produce any sound until a significant number of samples have been queued. Do not expect to hear anything if you only queue one or two samples.
+* Ensure that [[_SNDRAWLEN]] is comfortably above 0 (until you've actually finished playing sound). If you are getting occasional random clicks, this generally means that [[_SNDRAWLEN]] has dropped to 0 (unless of course the sounds happen to be clicks).
+* _SNDRAW is not intended to queue up many minutes worth of sound! It will probably work but will chew up a lot of memory (and if it gets swapped to disk, your sound could be interrupted abruptly).
+* [[_SNDRATE]] determines how many samples are played per second, but timing is done by the sound card, not your program. 
+* '''Do not attempt to use [[_TIMER]] or [[_DELAY]] or [[_LIMIT]] to control the timing of _SNDRAW. You may use them for delays or to limit your program's CPU usage, but how much to queue should only be based on the [[_SNDRAWLEN]].'''
+
+
+''Example 1:'' Sound using a sine wave with _SNDRAW Amplitude * SIN(8 * ATN(1) * Duration * (Frequency / _SNDRATE))
+{{CodeStart}}
+FREQ = 400                             'any frequency desired from 36 to 10,000
+Pi2 = 8 * {{Cl|ATN}}(1)                       '2 * pi 
+Amplitude = .3                         'amplitude of the signal from -1.0 to 1.0
+SampleRate = {{Cl|_SNDRATE}}                  'sets the sample rate
+FRate = FREQ / SampleRate
+{{Cl|FOR...NEXT|FOR}} Duration = 0 {{Cl|TO}} 5 * SampleRate     'play 5 seconds
+        {{Cl|_SNDRAW}} Amplitude * {{Cl|SIN}}(Pi2 * Duration * FRate)            'sine wave
+       '{{Cl|_SNDRAW}} Amplitude * {{Cl|SGN}}({{Cl|SIN}}(Pi2 * Duration * FRate))       'square wave
+{{Cl|NEXT}}
+{{Cl|DO}}: LOOP {{Cl|WHILE}} {{Cl|_SNDRAWLEN}}
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by DarthWho}}
+:''Explanation:'' The loop Duration is determined by the number of seconds times the [[_SNDRATE]] number of samples per second. Square waves can use the same formula with Amplitude * [[SGN]](SIN(8 * ATN(1) * Duration * (Frequency/_SNDRATE))).
+
+
+''Example 2:'' A simple ringing bell tone that tapers off.
+{{CodeStart}}t = 0
+tmp$ = &quot;Sample = ##.#####   Time = ##.#####&quot;
+LOCATE 1, 60: PRINT &quot;Rate:&quot;; {{Cl|_SNDRATE}}
+DO
+  'queue some sound
+  DO WHILE {{Cl|_SNDRAWLEN}} &lt; 0.1             'you may wish to adjust this    
+    sample = {{Cl|SIN}}(t * 440 * {{Cl|ATN}}(1) * 8)  '440Hz sine wave (t * 440 * 2π)   
+    sample = sample * {{Cl|EXP}}(-t * 3)       'fade out eliminates clicks after sound
+    {{Cl|_SNDRAW}} sample
+    t = t + 1 / {{Cl|_SNDRATE}}                'sound card sample frequency determines time
+  LOOP
+
+  'do other stuff, but it may interrupt sound
+  LOCATE 1, 1: PRINT USING tmp$; sample; t
+LOOP WHILE t &lt; 3.0                      'play for 3 seconds
+
+DO WHILE {{Cl|_SNDRAWLEN}} &gt; 0                 'Finish any left over queued sound!
+LOOP
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Artelius the creator of _SNDRAW}}
+
+
+''Example 3:'' Routine uses _SNDRAW to display and play 12 notes from octaves 1 through 9.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} rate&amp;
+rate&amp; = {{Cl|_SNDRATE}}
+DO
+  {{Cl|PRINT}} &quot;Enter the octave 1 to 8 (0 quits!):&quot;;
+  oct% = {{Cl|VAL}}({{Cl|INPUT$}}(1)): {{Cl|PRINT}} oct%
+  {{Cl|IF...THEN|IF}} oct% = 0 {{Cl|THEN}} {{Cl|EXIT DO}}
+  octave = oct% - 4 '440 is in the 4th octave, 9th note
+  {{Cl|COLOR}} oct% + 1
+  {{Cl|PRINT USING}} &quot;Octave: ##&quot;; oct%
+  {{Cl|FOR...NEXT|FOR}} Note = 0 {{Cl|TO}} 11  'notes C to B
+    fq = FreQ(octave, Note, note$)
+    {{Cl|PRINT USING}} &quot;#####.## \\&quot;; fq, note$
+    PlaySound fq
+    {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} &gt; &quot;&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|NEXT}}
+{{Cl|LOOP}}
+{{Cl|END}}
+
+{{Cl|FUNCTION}} FreQ (octave, note, note$)
+FreQ = 440 * 2 ^ (octave + (note + 3) / 12 - 1) '* 12 note octave starts at C (3 notes up)
+note$ = {{Cl|MID$}}(&quot;C C#D D#E F F#G G#A A#B &quot;, note * 2 + 1, 2)
+{{Cl|END FUNCTION}}
+
+{{Cl|SUB}} PlaySound (frq!)    ' plays sine wave fading in and out
+SndLoop! = 0
+{{Cl|DO...LOOP|DO}} {{Cl|WHILE}} SndLoop! &lt; rate&amp;
+  {{Cl|_SNDRAW}} {{Cl|SIN}}((2 * 4 * {{Cl|ATN}}(1) * SndLoop! / rate&amp;) * frq!) * {{Cl|EXP}}(-(SndLoop! / rate&amp;) * 3)
+  SndLoop! = SndLoop! + 1
+{{Cl|LOOP}}
+{{Cl|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_SNDRAWLEN}}   'flush the sound playing buffer
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by CodeGuy}}
+
+
+''See the Music Frequency table in [[SOUND]]
+
+''See also:''
+* [[_SNDRATE]], [[_SNDRAWLEN]]
+* [[_SNDOPEN]] (play sound files)
+* [[PLAY]], [[BEEP]]
+* [[DTMF Phone Demo]]
+
+
+{{PageNavigation}}

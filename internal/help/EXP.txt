@@ -1,0 +1,23 @@
+The '''EXP''' math function returns the value of '''e''' to the power of the parameter used.
+
+
+
+{{PageSyntax}}
+:: value = EXP(exponent)
+
+
+* '''e''' is defined as the base of natural logarithms or as the limit of (1 + 1 / n) ^ n as n goes to infinity
+* The exponent value MUST be less than or equal to '''88.02969''' or an [[ERROR Codes|&quot;overflow&quot; error]] will occur!
+* Value returned is '''e''' to the exponent parameter. '''e = 2.718282'''  (approximately)
+* Values returned are [[SINGLE]] by default but will return [[DOUBLE]] precision if the exponent uses a double value.
+* Positive exponent values indicate the number of times to multiply '''e''' by itself.
+* Negative exponent values indicate the number of times to divide by '''e'''. Example: e&lt;sup&gt;-3&lt;/sup&gt; = 1 / e&lt;sup&gt;3&lt;/sup&gt; = 1 /(e * e * e)
+
+
+''See also:'' 
+*[[LOG]] 
+*[[Mathematical Operations]]
+*[http://qb64.net/wiki/index.php?title=Mathematical_Operations#Derived_Mathematical_Functions Derived Trigonometric Functions]
+
+
+{{PageNavigation}}

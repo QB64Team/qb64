@@ -1,0 +1,35 @@
+The {{KW|LBOUND}} function returns the smallest valid index (lower bound) of an array dimension.
+
+
+{{PageSyntax}}
+:''result%'' = {{KW|LBOUND}}({{Parameter|arrayName}}[, {{Parameter|dimension%}}])
+
+
+{{PageDescription}}
+* {{Parameter|arrayName}} specifies the name of the array.
+
+* {{Parameter|dimension%}} specifies the dimension number, starting with &lt;code&gt;1&lt;/code&gt; for the first dimension.
+** If omitted, {{Parameter|dimension%}} is assumed to be &lt;code&gt;1&lt;/code&gt;.
+** If {{Parameter|dimension%}} is less than &lt;code&gt;1&lt;/code&gt; or is greater than the number of dimensions, a [[ERROR Codes|subscript out of range]] error occurs.
+
+* {{KW|LBOUND}}, along with {{KW|UBOUND}}, is used to determine the range of valid indexes of an array.
+
+
+{{PageExamples}}
+{{CodeStart}}{{Cl|DIM}} myArray(5) {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} myOtherArray(1 to 2, 3 to 4) {{Cl|AS}} {{Cl|INTEGER}}
+
+{{Cl|PRINT}} {{Cl|LBOUND}}(myArray)
+{{Cl|PRINT}} {{Cl|LBOUND}}(myOtherArray, 2)
+{{CodeEnd}}
+{{OutputStart}} 0
+ 3
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|Arrays}}, {{KW|UBOUND}}
+* {{KW|DIM}}, {{KW|COMMON}}, {{KW|STATIC}}, {{KW|SHARED}}
+
+
+{{PageNavigation}}

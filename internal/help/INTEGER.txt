@@ -1,0 +1,31 @@
+'''INTEGER''' is a 2 byte number type definition that can hold whole numerical values.
+
+
+{{PageSyntax}}
+:: DIM ''variable'' AS INTEGER
+
+
+* Integers do not use decimal point values but will round those off to the nearest even whole number.
+* Qbasic Integer values can range from -32768 to 32767 without an &quot;overflow&quot; error.
+* For larger Integer values Qbasic can use the [[LONG]] Integer values.
+* '''QB64''' [[_UNSIGNED]] Integers can range from  0 to 65535.
+* '''QB64''' _UNSIGNED [[_INTEGER64]] values range from 0 to 18446744073709551615
+* Many Graphic programs require INTEGER arrays or DEFINT.
+* Variable type suffix is % or ~% for [[_UNSIGNED]]. Suffix can also be placed after a literal or hexadecimal numerical value.
+* [[LONG]] integers use the '''&amp;''' suffix and [[_INTEGER64]] use the '''&amp;&amp;''' suffix.
+* Values can be converted to 2 byte [[ASCII]] string values using [[MKI$]] and back with [[CVI]].
+* '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
+* '''Warning: Qbasic keyword names cannot be used as numerical variable names with or without the type suffix!'''
+
+
+''See also:'' 
+* [[DIM]], [[DEFINT]]
+* [[LONG]], [[_INTEGER64]]
+* [[LEN]], [[MKI$]], [[CVI]]
+* [[_UNSIGNED]]
+* [[Variable Types]]
+* [[&amp;B]] (binary), [[&amp;O]] (octal), [[&amp;H]] (hexadecimal)
+* [[\|Integer Division]], [[MOD]] (Integer remainder division)
+
+
+{{PageNavigation}}

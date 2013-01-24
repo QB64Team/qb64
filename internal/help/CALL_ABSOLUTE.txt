@@ -1,0 +1,215 @@
+'''CALL ABSOLUTE''' is used to access Interrupts on the computer or execute assembly type procedures.
+
+
+{{PageSyntax}}
+: '''CALL ABSOLUTE([{{Parameter|argument_list}},] {{Parameter|integer_offset}})'''
+
+
+{{PageDescription}}
+* [[CALL]] and parameter brackets are required in the statement.
+* {{Parameter|argument_list}} contains the list of arguments passed to the procedure.
+* {{Parameter|integer_offset}} contains the offset from the current code segment, set by [[DEF SEG]] and [[SADD]], to the starting location of the called procedure.
+* Qbasic and '''QB64''' have the Absolute statement built in and require no library.
+* QuickBASIC requires the QB.QLB Quick Library, loaded with the &lt;tt&gt;/L&lt;/tt&gt; switch.
+* '''NOTE: QB64 does not currently support INT 33h mouse functions above 3 or {{KW|BYVAL}} in an ABSOLUTE statement!'''
+
+
+{{PageExamples}}
+:::''Typical ABSOLUTE mouse program demonstrates the AX% mouse functions:''
+::: (Copy only the code not marked as Demo Code to use it in your program.)
+
+:::::''Can also be used in QuickBASIC 4.x and QBasic 1.x''
+{{CodeStart}}
+
+{{Cl|DECLARE}} {{Cl|SUB}} MouseDriver (AX%, BX%, CX%, DX%, LB%, RB%, EX%)
+{{Cl|DIM}} {{Cl|SHARED}} mouse$ ' Hardware communications resource string (created in SUB MouseDriver)
+{{Cl|DIM}} {{Cl|SHARED}} CX%, DX%, LB%, RB% ' CX = column, DX = row, LB and RB are left and right buttons
+{{Cl|SCREEN (statement)|SCREEN}} 12         
+
+MouseDriver 1, BX%, CX%, DX%, LB%, RB%, 1 ' EX% = 1 initiates the mouse. Otherwise use EX% = 0
+     ' ----------------------- DEMO CODE ----------------------
+{{Cl|COLOR}} 10: {{Cl|LOCATE}} 1, 36: {{Cl|PRINT}} &quot;H = Hide, S = Show, M = Move, L = Limit area&quot;
+{{Cl|COLOR}} 6: {{Cl|LOCATE}} 2, 10: {{Cl|PRINT}} &quot;Hold mouse button down for total: P = Presses, R = Releases&quot; 
+{{Cl|COLOR}} 13: {{Cl|LOCATE}} 29, 30: {{Cl|PRINT}} &quot;Click or [Esc] EXIT!&quot;;
+{{Cl|CIRCLE}} (220, 150), 90, 10 ' use radius and center coordinates to find circle later
+{{Cl|LOCATE}} 9, 22: {{Cl|PRINT}} &quot;Click in circle&quot;
+{{Cl|COLOR}} 12: {{Cl|LOCATE}} 27, 10: {{Cl|PRINT}} &quot;Show the mouse the same number of times it was Hidden!&quot;
+{{Cl|COLOR}} 14
+
+{{Cl|DO...LOOP|DO}}: Funct$ = {{Cl|UCASE$}}({{Cl|INKEY$}}) ' any keypress....keeps loop running for mouse
+
+  MouseDriver 3, BX%, CX%, DX%, LB%, RB%, 0 ' AX% = 3 reads mouse every loop
+  {{Cl|LOCATE}} 1, 2: {{Cl|PRINT}} &quot;LB &quot;; LB% ' left button value 0 or 1 pressed
+  {{Cl|LOCATE}} 1, 29: {{Cl|PRINT}} &quot;RB &quot;; RB% ' right button value 0 or 1 pressed
+  {{Cl|LOCATE}} 1, 10: {{Cl|PRINT}} &quot;COL&quot;; CX% ' column coordinate
+  {{Cl|LOCATE}} 1, 20: {{Cl|PRINT}} &quot;ROW&quot;; DX% ' row coordinate 
+  {{Cl|IF...THEN|IF}} CX% &gt;= 230 {{Cl|AND (boolean)|AND}} CX% &lt;= 390 {{Cl|AND (boolean)|AND}} DX% &gt;= 445 {{Cl|AND (boolean)|AND}} DX% &lt;= 460 {{Cl|AND (boolean)|AND}} LB% {{Cl|THEN}} {{Cl|EXIT DO}}
+   {{Cl|SELECT CASE}} Funct$
+     {{Cl|CASE}} &quot;S&quot;: MouseDriver 1, BX%, CX%, DX%, LB%, RB%, 0  ' AX% = 1 show mouse
+     {{Cl|CASE}} &quot;H&quot;: MouseDriver 2, BX%, CX%, DX%, LB%, RB%, 0  ' AX% = 2 hide mouse(accumulates)
+     {{Cl|CASE}} &quot;M&quot;: CX% = 220: DX% = 150 ' set CX% and DX% to circle center
+      MouseDriver 4, BX%, CX%, DX%, LB%, RB%, 0  ' AX% = 4 moves mouse pointer to a coordinate
+     {{Cl|CASE}} &quot;P&quot;: BX% = -1
+      {{Cl|IF...THEN|IF}} LB% {{Cl|THEN}} BX% = 0: {{Cl|IF...THEN|IF}} RB% {{Cl|THEN}} BX% = 1
+      MouseDriver 5, BX%, CX%, DX%, LB%, RB%, 0 ' AX% = 5 read button presses since last read
+      {{Cl|COLOR}} 6: {{Cl|LOCATE}} 29, 10: {{Cl|PRINT}} &quot;Presses =&quot;; BX%; {{Cl|SPACE$}}(2);
+     {{Cl|CASE}} &quot;R&quot;: BX% = -1
+      {{Cl|IF...THEN|IF}} LB% {{Cl|THEN}} BX% = 0: {{Cl|IF...THEN|IF}} RB% {{Cl|THEN}} BX% = 1
+      MouseDriver 6, BX%, CX%, DX%, LB%, RB%, 0 ' AX% = 6 read button releases since last read
+      {{Cl|COLOR}} 6: {{Cl|LOCATE}} 29, 10: {{Cl|PRINT}} &quot;Releases =&quot;; BX%; {{Cl|SPACE$}}(2);
+     {{Cl|CASE}} &quot;L&quot;: limit = {{Cl|NOT}} limit ' alternates between partial to fullscreen cursor move area.
+      {{Cl|IF...THEN|IF}} limit {{Cl|THEN}} CX% = 100: DX% = 500 {{Cl|ELSE}} CX% = 0: DX% = 639 ' min and max column coordinates
+      MouseDriver 7, BX%, CX%, DX%, LB%, RB%, 0 ' AX% = 7 limit horizontal column area
+      {{Cl|IF...THEN|IF}} limit {{Cl|THEN}} CX% = 100: DX% = 400 {{Cl|ELSE}} CX% = 0: DX% = 479 ' min and max row coordinates
+      MouseDriver 8, BX%, CX%, DX%, LB%, RB%, 0 ' AX% = 8 limit vertical row area
+
+   {{Cl|END SELECT}}
+
+     ' CALCULATING WHEN THE POINTER IS INSIDE OF THE CIRCLE
+   ' Pythagorean calculation: X ^ 2 + Y ^ 2 &lt;= Radius ^ 2 for a position inside circle
+  XX&amp; = ((CX% - 220) ^ 2) + ((DX% - 150) ^ 2) ' 220 and 150 are circle center coordinates
+  {{Cl|COLOR}} 11: {{Cl|LOCATE}} 22, 8 
+  {{Cl|PRINT}} &quot;Columns&quot;; {{Cl|CHR$}}(253); &quot; + Rows&quot;; {{Cl|CHR$}}(253); &quot; &lt;= Radius&quot;; {{Cl|CHR$}}(253); &quot; : IF&quot;; XX&amp;; &quot;&lt;= 8100 THEN &quot;;
+  {{Cl|IF...THEN|IF}} XX&amp; &lt;= 8100 {{Cl|THEN}} ' 90 ^ 2 = 8100 is the circle radius squared
+   {{Cl|PRINT}} &quot;Over Circle&quot;; {{Cl|SPACE$}}(7)
+   {{Cl|IF...THEN|IF}} LB% = 1 {{Cl|THEN}} {{Cl|COLOR}} 12 ' left mouse button pressed in circle
+   {{Cl|IF...THEN|IF}} RB% = 1 {{Cl|THEN}} {{Cl|COLOR}} 13 ' right mouse button pressed in circle
+  {{Cl|ELSE}}: {{Cl|PRINT}} &quot;Out of Circle&quot;; {{Cl|SPACE$}}(5): {{Cl|COLOR}} 14 ' when mouse is not over circle
+  {{Cl|END IF}}
+ {{Cl|LOOP}} {{Cl|UNTIL}} Funct$ = {{Cl|CHR$}}(27)                                ' escape
+ {{Cl|SYSTEM}}
+     ' -------------------- END DEMO CODE -----------------
+
+MouseData:
+{{Cl|DATA}} 55,89,E5,8B,5E,0C,8B,07,50,8B,5E,0A,8B,07,50,8B
+{{Cl|DATA}} 5E,08,8B,0F,8B,5E,06,8B,17,5B,58,1E,07,CD,33,53
+{{Cl|DATA}} 8B,5E,0C,89,07,58,8B,5E,0A,89,07,8B,5E,08,89,0F
+{{Cl|DATA}} 8B,5E,06,89,17,5D,CA,08,00
+
+
+{{Cl|SUB}} MouseDriver (AX%, BX%, CX%, DX%, LB%, RB%, EX%)
+  {{Cl|IF...THEN|IF}} EX% = 1 {{Cl|THEN}} ' initiate mouse once. EX normally = 0
+   ' mouse$ = Hardware communications resource string
+   {{Cl|RESTORE}} MouseData ' restore MouseDATA
+   mouse$ = {{Cl|SPACE$}}(57) ' defines fixed length as 57 bytes
+   {{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} 57
+    {{Cl|READ}} a$ ' read data for communication string
+    H$ = {{Cl|CHR$}}({{Cl|VAL}}(&quot;&amp;H&quot; + a$))   ' get DATA hex ASCII character
+    {{Cl|MID$ (statement)|MID$}}(mouse$, i%, 1) = H$
+   {{Cl|NEXT}} i%
+  {{Cl|END IF}}
+  {{Cl|DEF SEG}} = {{Cl|VARSEG}}(mouse$)
+  {{Cl|CALL ABSOLUTE|CALL Absolute}}(AX%, BX%, CX%, DX%, {{Cl|SADD}}(mouse$)) 'get coordinates and buttons
+  {{Cl|DEF SEG}}
+  {{Cl|IF...THEN|IF}} EX% = 1 {{Cl|THEN}}
+   {{Cl|LOCATE}} 29, 60 
+   {{Cl|IF...THEN|IF}} AX% {{Cl|THEN}}
+    {{Cl|PRINT}} &quot;Mouse Found&quot;; ' AX = -1 IF FOUND
+   {{Cl|ELSE}} : {{Cl|BEEP}}: {{Cl|PRINT}} &quot;Mouse not found&quot;; : {{Cl|SYSTEM}}
+   {{Cl|END IF}}
+  {{Cl|END IF}}
+  LB% = BX% {{Cl|AND}} 1 ' positive 1 return values
+  RB% = (BX% {{Cl|AND}} 2) \ 2
+  MB% = (BX% {{Cl|AND}} 4) \ 4
+{{Cl|END SUB}}
+
+{{CodeEnd}}
+{{small|Code by: Ted Weissgerber}}
+:::'''NOTE: QB64 does not currently support functions above AX% = 3 in above ABSOLUTE demo!'''
+
+{{OutputStart}}
+ LB  0   COL 84    ROW 140  RB  0  H = Hide, S = Show, M = Move, L = Limit area 
+         Hold mouse button down for total: P = Presses, R = Releases
+
+
+
+
+
+
+
+
+                     Click in circle
+
+
+
+
+
+
+
+
+
+
+
+
+       Columns^2 + Rows^2 &lt;= Radius^2 : IF 18596 &lt;= 8100 THEN Out of Circle
+
+
+
+
+
+         Show the mouse the same number of times it was Hidden!
+
+                             Click or [Esc] EXIT!          Mouse Found
+
+{{OutputEnd}}
+''Explanation:'' The circle isn't shown in this output screen, but when you run the example you can move the mouse into a circle in the middle of the screen and the text will change color to reflect that you are inside the circle, you can also use the mousebuttons and the color will change.
+
+
+:::::---------------------------------------------------------------------
+&lt;center&gt;'''An Absolute substitution for INTERRUPT that can be used by all QB versions including PDS(7.1)'''&lt;/center&gt;
+
+{{CodeStart}}
+
+{{Cl|TYPE}} regs
+  AX {{Cl|AS}} {{Cl|INTEGER}} ' mouse function call
+  CX {{Cl|AS}} {{Cl|INTEGER}} ' mouse column position
+  DX {{Cl|AS}} {{Cl|INTEGER}} ' mouse row position
+  BX {{Cl|AS}} {{Cl|INTEGER}} ' mouse button press 
+  SP {{Cl|AS}} {{Cl|INTEGER}} ' Ignored
+  BP {{Cl|AS}} {{Cl|INTEGER}}
+  SI {{Cl|AS}} {{Cl|INTEGER}}
+  DI {{Cl|AS}} {{Cl|INTEGER}}
+  Flags {{Cl|AS}} {{Cl|INTEGER}}
+  DS {{Cl|AS}} {{Cl|INTEGER}}
+  ES {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|END TYPE}}
+
+{{Cl|DIM}} R {{Cl|AS}} regs ' set dot variable to the TYPE
+   ' Program code
+   ' R.AX = 3 ' mouse read function = 3
+   ' CALL INTX(R) 
+
+
+{{Cl|SUB}} INTX(R {{Cl|AS}} regs)
+  {{Cl|STATIC}} Code {{Cl|AS}} {{Cl|STRING}}, M() {{Cl|AS}} {{Cl|INTEGER}}
+  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(Code) = 0 {{Cl|THEN}}  ' setup only
+   {{Cl|DIM}} M(0 {{Cl|TO}} 26) {{Cl|AS}} {{Cl|INTEGER}}
+   Code = &quot;5589E58B76069C061EB90B00FCAD50E2FC071F9D61CD&quot;
+
+    '* Change this to the desired interrupt hex address number *
+   Code = Code + &quot;33&quot; ' IN HEXadecimal form only!
+    ' mouse = &quot;33&quot;; DOS Services = &quot;21&quot;
+
+   Code = Code + &quot;609C1E0689E58E46168B7E2283C714B90B00FD58ABE2FC1F079D5DCA02&quot;
+   {{Cl|DEF SEG}} = {{Cl|VARSEG}}(M(0))
+   {{Cl|FOR...NEXT|FOR}} I = 0 {{Cl|TO}} 51
+    {{Cl|POKE}} {{Cl|VARPTR}}(M(0)) + I, {{Cl|VAL}}(&quot;&amp;H&quot; + {{Cl|MID$}}(Code, I * 2 + 1, 2))
+   {{Cl|NEXT}}
+  {{Cl|END IF}} ' end setup
+  {{Cl|DEF SEG}} = {{Cl|VARSEG}}(M(0))
+   {{Cl|CALL ABSOLUTE}}(R, {{Cl|VARPTR}}(M(0)))
+  {{Cl|DEF SEG}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by: Artelius}}
+''Explanation:'' To read or send values use dot variable names. Such as R.AX, R.BX(buttons), R.CX (horizontal coordinate) and R.DX (vertical coordinate). It can use all of the mouse functions used in previous code demo.
+
+'''Note: The second example cannot currently be run in QB64 as &quot;User defined types are invalid with Absolute&quot;!'''
+
+
+{{PageSeeAlso}}
+* [[SADD]], [[INTERRUPT]]
+* [[DECLARE (non-BASIC statement)]]
+
+
+{{PageNavigation}}

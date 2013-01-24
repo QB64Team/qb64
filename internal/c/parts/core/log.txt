@@ -1,0 +1,66 @@
+-downloaded: http://freeglut.sourceforge.net/index.php#download
+-copied *.c in 'src' folder of download to src
+-copied headers in 'include' folder of download to src
+-created QB64 program to help locally build freeglut without makefiles
+ note: this program is for reference purposes only, do not run it unless you fully understand it
+ note: for rebuilding edits to the exisiting source, simple run the batch/script file provided
+
+########################### QB64 PROGRAM TO MANAGE FREEGLUT LIBRARY ######################################
+'FreeGLUT Source Manipulation
+rel_c_path$ = "..\..\"
+c_path$ = "c:\qb64_gl_core\internal\c\" '<<<<<<<<<< ********CHANGE ME*********
+path$ = c_path$ + "parts\core\"
+SHELL "dir /b /s " + path$ + "src\*.c >glutfiles.txt"
+OPEN path$ + "rebuild_libfreeglut_a.bat" FOR OUTPUT AS #10
+OPEN path$ + "rebuild_libfreeglut_a_pause.bat" FOR OUTPUT AS #11
+OPEN "glutfiles.txt" FOR INPUT AS #1
+DO UNTIL EOF(1)
+    LINE INPUT #1, f$
+    IF LEN(f$) THEN
+        OPEN f$ FOR BINARY AS #2
+        a$ = SPACE$(LOF(2))
+        GET #2, , a$
+        CLOSE #2
+        h$ = "#ifndef FREEGLUT_STATIC"
+        IF LEFT$(a$, LEN(h$)) <> h$ THEN
+            a$ = "#ifndef FREEGLUT_STATIC" + CHR$(13) + CHR$(10) + "#define FREEGLUT_STATIC" + CHR$(13) + CHR$(10) + "#endif" + CHR$(13) + CHR$(10) + a$
+        END IF
+        DO
+            i = INSTR(a$, "#include <GL/")
+            IF i THEN
+                a$ = LEFT$(a$, i - 1) + "#include <" + RIGHT$(a$, LEN(a$) - i - 12)
+            END IF
+            i = INSTR(a$, "#include <freeglut.h>")
+            IF i THEN
+                MID$(a$, i) = "#include " + CHR$(34) + "freeglut.h" + CHR$(34)
+            END IF
+            i = INSTR(a$, "#include <freeglut_std.h>")
+            IF i THEN
+                MID$(a$, i) = "#include " + CHR$(34) + "freeglut_std.h" + CHR$(34)
+            END IF
+        LOOP UNTIL i = 0
+        OPEN f$ FOR OUTPUT AS #2: CLOSE #2: OPEN f$ FOR BINARY AS #2
+        PUT #2, , a$
+        CLOSE #2
+        'strip path from it \
+        FOR x = LEN(f$) TO 1 STEP -1
+            IF ASC(f$, x) = 92 THEN EXIT FOR
+        NEXT
+        f2$ = RIGHT$(f$, LEN(f$) - x) '.c
+        f3$ = LEFT$(f2$, LEN(f2$) - 2) 'without .c
+        PRINT #10, rel_c_path$ + "bin\gcc -s -O2 -c src\" + f2$ + " -o temp\" + f3$ + ".o"
+        PRINT #11, rel_c_path$ + "bin\gcc -s -O2 -c src\" + f2$ + " -o temp\" + f3$ + ".o"
+        PRINT #11, "pause"
+        o$ = o$ + " temp\" + f3$ + ".o"
+    END IF
+LOOP
+CLOSE #1
+PRINT #10, rel_c_path$ + "\bin\ar rcs libfreeglut_static.a " + o$
+PRINT #11, rel_c_path$ + "\bin\ar rcs libfreeglut_static.a " + o$
+PRINT #11, "********************* PROCESS COMPLETE **************************"
+PRINT #11, "pause"
+PRINT #11, "pause"
+PRINT #11, "pause"
+PRINT #11, "pause"
+PRINT #11, "pause"
+CLOSE

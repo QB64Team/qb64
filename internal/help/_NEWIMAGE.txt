@@ -1,0 +1,102 @@
+The '''_NEWIMAGE''' Function prepares a window image surface and returns the [[LONG]] [[handle]] value.
+
+
+{{PageSyntax}}
+: handle&amp; = '''_NEWIMAGE ({''width&amp;'', ''height&amp;'''''[, {''0''|''1''|''2''|''7''|''8''|''9''|''10''|''11''|''12''|''13''|''256''|''32''}]''')'''
+
+
+{{Parameters}}
+* Minimum [[LONG]] screen dimensions are ''width'' &gt;= 1, ''height'' &gt;= 1 measured in pixels as [[INTEGER]] or [[LONG]] values. 
+* Mode is either a QB type [[SCREEN|screen]] mode(0 to 2 or 7 to 13) or 256 colors or 32 bit(16 million colors) compatible.
+
+
+''Usage:''
+* If the mode is omitted, an image will be created with the same BPP mode, font(which may block freeing of that font), palette, selected colors, transparent color, blend state and print method settings as the current destination image/[[SCREEN|screen]] page.
+* Valid [[LONG]] [[handle]] returns are less than -1. Invalid handles equal -1 and a zero or positive value is also invalid.
+* You can create any sized window(limited by the OS) in any emulated [[SCREEN]] mode or 32 bit using this function.
+* Default text block size in emulated [[SCREEN]] modes 1, 2, 7, 8 and 13 is 8 X 8; 9 and 10 is 8 X 14; 11, 12, 256 and 32 bit is 8 X 16. The text block pixel size will allow you to calculate the available text rows and columns in a custom sized screen.
+* To view the image page, just use [[SCREEN]] handle&amp;. Even if another procedure changes the screen mode and clears the screen, the image can be restored later by using the same SCREEN handle mode.
+* Use the {{KW|_COPYIMAGE}} function to preserve a SCREEN handle value when changing to another screen mode to restore it later.
+* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
+*  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
+* '''It is IMPORTANT to free unused or uneeded images with [[_FREEIMAGE]] to prevent CPU [[ERROR_Codes#Other_Errors|memory overflow errors]]!'''
+* '''Do NOT try to free image handles currently being used as the active [[SCREEN]]! Change screen modes first.'''
+
+
+''Example 1:'' Shrinking a SCREEN 0 text window's size:
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(28, 25, 0) '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Creating an 800 by 600 window version of SCREEN 12 with 256 colors (text 37 X 100):
+{{CodeStart}} '' ''
+handle&amp; = {{Cl|_NEWIMAGE}}(800, 600, 256) 
+{{Cl|SCREEN (statement)|SCREEN}} handle&amp; '' ''
+{{CodeEnd}}
+
+
+''Example 3:'' Setting up a 32 bit SCREEN with _NEWIMAGE for page flipping in QB64.
+{{CodeStart}} '' ''
+SCREEN _NEWIMAGE(640, 480, 32), , 1, 0 '' ''
+{{CodeEnd}}
+: ''Note:'' [[_DISPLAY]] may be used as a substitute for page flipping or [[PCOPY]].
+
+
+''Example 4:'' Switching between two different SCREEN modes
+{{CodeStart}} '' ''
+{{Cl|_TITLE}} &quot;Switching {{Cl|SCREEN}} modes&quot;
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}} (800, 600, 256)
+mode1&amp; = {{Cl|_DEST}}               'get current screen mode handle
+mode2&amp; = {{Cl|_NEWIMAGE}} (300, 200, 13)
+
+{{Cl|_DEST}} mode2&amp;                  'prepare small window
+{{Cl|COLOR}} 10: {{Cl|LOCATE}} 10, 13: {{Cl|PRINT}} &quot;mode2&amp; = &quot;; mode2&amp;
+{{Cl|COLOR}} 13: {{Cl|LOCATE}} 16, 16: {{Cl|PRINT}} &quot;First&quot;
+
+{{Cl|_DEST}} mode1&amp;  'work in main window
+{{Cl|LOCATE}} 5
+{{Cl|FOR...NEXT|FOR}} c = 1 {{Cl|TO}} 248 
+   Color c: {{Cl|PRINT}} c;
+{{Cl|NEXT}} 
+{{Cl|COLOR}} 12: {{Cl|LOCATE}} 20, 44: {{Cl|PRINT}} &quot;mode1&amp; = &quot;; mode1&amp;
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 30, 34: {{Cl|PRINT}} &quot;Press a key to goto Pop-up Window&quot;
+{{Cl|DO...LOOP|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|SCREEN}} mode2&amp;  'switch to small window
+{{Cl|DO...LOOP|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|SCREEN}} mode1&amp;  'back to main window
+{{Cl|COLOR}} 12: {{Cl|LOCATE}} 37, 43: {{Cl|PRINT}} &quot;One more time!&quot;
+{{Cl|DO...LOOP|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|SCREEN}} mode2&amp;  'back to small window
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 16, 16: {{Cl|PRINT}} &quot;LAST &quot; '' ''
+{{CodeEnd}}
+:''Explanation:'' The [[_DEST (function)|_DEST]] function can determine the present screen mode destination handle. The second _NEWIMAGE  handle is created using a SCREEN 13 palette(256 colors also). Each SCREEN is worked on after changing the destination with [[_DEST]] ''handle&amp;'' statement. Images can be created before viewing them. When a key is pressed the second SCREEN created is displayed and so on. 
+
+:'''Legacy SCREEN modes can also return a _DEST value, but the value will create a handle error!''' To restore legacy screens get the[[_COPYIMAGE]] function value before changing screens. Then restore it using SCREEN oldmode&amp;.
+
+
+''See Examples:'' 
+
+[[SAVEIMAGE]] (Bitmap creation)
+
+[[_FILE$]] (restoring previous screen)
+
+[[_PIXELSIZE]] (GetImage function example)
+
+
+{{PageSeeAlso}}
+* [[_COPYIMAGE]]
+* [[_LOADIMAGE]]
+* [[_FREEIMAGE]]
+* [[_PUTIMAGE]]
+* [[_SCREENIMAGE]]
+* [[SCREEN]]
+
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,28 @@
+'''_FLOAT''' numerical values offer the maximum floating-point decimal precision available using '''QB64'''.
+
+
+{{PageSyntax}} 
+::[[DIM]] {{Parameter|variable}} AS _FLOAT
+
+
+{{PageDescription}}
+* '''QB64''' always allocates 32 bytes to store this value. 
+* It is safe to assume this value is at least as precise as {{KW|DOUBLE}}. 
+* Under the current implementation it is stored in a 10-byte floating point variable.
+* '''_FLOAT''' variables can also use the ## variable name type suffix.
+* Values returned may be expressed using exponential or [[scientific notation]] using '''E''' for SINGLE or '''D''' for DOUBLE precision.
+* According to [http://babbage.cs.qc.edu/courses/cs341/IEEE-754references.html IEEE-754] this can store a value of up to 1.1897E+4932 compared to a DOUBLE which 'only' goes up to 1.7976E+308. 
+* Floating decimal point numerical values cannot be {{KW|_UNSIGNED}}!
+* Values can be converted to 32 byte [[ASCII]] strings using [[_MK$]] and back with [[_CV]].
+* '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
+
+
+{{PageSeeAlso}}
+* [[DOUBLE]], [[SINGLE]]
+* [[_MK$]], [[_CV]]
+* [[_DEFINE]], [[DIM]]
+* [[PDS(7.1) Procedures#CURRENCY|CURRENCY]]
+* [[Variable Types]]
+
+
+{{PageNavigation}}

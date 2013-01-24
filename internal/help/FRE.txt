@@ -1,0 +1,30 @@
+The '''FRE''' function returns the amount of Memory available in bytes to running programs.
+
+
+
+{{PageSyntax}}
+:: memory = FRE(string_expression$)
+:: memory = FRE(numerical_expression)
+
+
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* Any string expression returns the size, in bytes, of free string storage space.
+* Also compacts the free string storage to a single block of memory.
+*  0 returns the same value as using a string expression above.
+* -1 returns the size of the largest non-string array in bytes that could be dimensioned.
+* -2 returns the amount of stack space, in bytes, available to a running program. 
+* Any other numerical value returns the size of the next block of string memory storage space.
+
+
+''Example:''
+{{CodeStart}} '' ''
+' {{Cl|$DYNAMIC}}
+PRINT &quot;Sizes in bytes before dimensioning arrays:  &quot;; {{Cl|FRE}}(&quot;&quot;), {{Cl|FRE}}(0), {{Cl|FRE}}(-1), {{Cl|FRE}}(-2)
+{{Cl|DIM}} Array(100, 100), Text$(5000)
+PRINT &quot;Sizes in bytes after dimensioning arrays:   &quot;; {{Cl|FRE}}(&quot;&quot;), {{Cl|FRE}}(0), {{Cl|FRE}}(-1), {{Cl|FRE}} (-2) '' ''
+{{CodeEnd}}
+
+''Notes:'' Sizes returned may vary by computer used. FRE(-2) must be used in a running program!
+
+
+{{PageNavigation}}

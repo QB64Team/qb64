@@ -1,0 +1,53 @@
+The '''LINE INPUT''' statement requests a [[STRING]] keyboard entry from a program user.
+
+
+
+{{PageSyntax}}
+:: '''LINE INPUT''' [;] '''&quot;'''[text prompt or question]'''&quot;{,|;} string_variable$'''
+:: '''LINE INPUT ; string_variable$'''
+
+
+''[[Parameters]]:''
+* [[semicolon]] after LINE INPUT stops the cursor after the entry and prevents screen roll on lowest two screen rows.
+* ''text statement or question'' is optional, but quotes are necessary unless just a semicolon is used before the ''variable''.
+* [[comma]] separator for a statement or [[semicolon]] for a question mark following the text. 
+* No text with a semicolon displays a question mark with a space and keeps the cursor after the entry. 
+* Requires ONE [[STRING|string]] variable to hold the entire text entry.
+
+
+''Usage:'' 
+* Cannot use numerical [[type]] variables or [[comma]] separated variable lists for multiple entries!
+* Allows [[comma]]s and [[quotation mark]]s in the user input, unlike [[INPUT]] where commas denote extra input values and quotes delimit strings. 
+* The statement stops the procedure until an entry is made. Pressing Enter ends the entry and code execution resumes.
+* LINE INPUT does not trim off leading or trailing spaces in the string entry like [[INPUT]] string returns.
+* Use [[VAL]] to convert string numbers and [[&amp;O]](octal) or [[&amp;H]](hexadecimal) prefixed entries into numerical values. 
+* Use [[_DEST]] [[_CONSOLE]] before LINE INPUT statements to be used in a [[$CONSOLE|console]] window.
+
+
+''Example:'' Preventing screen roll after an input entry on the bottom 2 screen rows. 
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 29, 2 '          place dursor at beginning of prompt liine
+{{Cl|PRINT}} &quot;Enter a name to search for... &quot;; 'print prompt on screen
+{{Cl|COLOR}} 15: {{Cl|LINE INPUT}} {{text|;|red}} &quot;&quot;, name$ '       get search name from user
+{{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} {{Cl|SPC}}(78); '       erase previous prompt
+n$ = {{Cl|UCASE$}}(name$) '                 convert search name to upper case
+{{Cl|COLOR}} 14'                        change foreground color to yellow
+{{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} &quot;Searching...&quot;; 'print message
+{{Cl|SLEEP}} 
+{{CodeEnd}}
+{{OutputStart}}{{text|Enter a name to search for...|#FFFF00}} █
+{{OutputEnd}}
+: ''Explanation:'' The {{text|red|red}} [[semicolon]] after LINE INPUT acts like a semicolon after a [[PRINT]], which keeps the print cursor on the same row.
+
+
+''See also:'' 
+* [[INPUT (file mode)]], [[INPUT (file statement)|INPUT #]] [[LINE INPUT (file statement)|LINE INPUT #]], [[INPUT$]] {{text|(file input)}}
+* [[INPUT]], [[INPUT$]] {{text|(keyboard input)}}
+* [[COLOR]], [[LOCATE]] 
+* [[INKEY$]]
+* [[_KEYHIT]], [[_KEYDOWN]]
+
+
+{{PageNavigation}}

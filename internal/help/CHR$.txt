@@ -1,0 +1,88 @@
+The {{KW|CHR$}} function returns the character associated with a certain [[ASCII|character code]] as a {{KW|STRING}}.
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|CHR$}}({{Parameter|code%}})
+
+
+{{PageDescription}}
+* Valid ASCII code numbers range from 0 to 255.
+* The character code of a character can be found using {{KW|ASC}}.
+* Some control codes below 32 will not {{KW|PRINT}} or will move the screen cursor.
+
+
+{{PageExamples}}
+''Example 1:'' Outputs the characters of several character codes:
+{{CodeStart}}{{Cl|PRINT}} {{Cl|CHR$}}(65); {{Cl|CHR$}}(65 + 32)
+{{Cl|PRINT}} {{Cl|CHR$}}(66); {{Cl|CHR$}}(66 + 32)
+{{CodeEnd}}
+{{OutputStart}}Aa
+Bb
+{{OutputEnd}}
+:Explanation: 65 is the ASCII code for &quot;A&quot; and 65 + 32 is the ASCII code for &quot;a&quot;. 66 is the ASCII code for &quot;B&quot; and 66 + 32 is the ASCII code for &quot;b&quot;
+
+
+''Example 2:'' To cut down on typing CHR$(???) all day, define often used characters as variables such as Q$ = CHR$(34) as shown.
+{{CodeStart}}
+
+{{Cl|DIM}} Q AS {{Cl|STRING}} * 1   'define as one byte string(get rid of $ type suffix too)
+Q = {{Cl|CHR$}}(34)          'Q will now represent the elusive quotation mark in a string
+
+PRINT &quot;This text uses &quot;; Q; &quot;quotation marks&quot;; Q; &quot; that could have caused a syntax error!&quot;
+
+{{CodeEnd}}
+{{OutputStart}}
+This text uses &quot;quotation marks&quot; that could have caused a syntax error!
+{{OutputEnd}}
+
+
+''Example 3:'' Using {{KW|ASC}} and {{KW|CHR$}} to '''Encrypt''' a text file size up to 32K bytes
+{{CodeStart}}{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1 ' FileName to be encrypted
+{{Cl|IF...THEN|IF}} {{Cl|LOF}}(1) &lt;= 32000 {{Cl|THEN}} Text$ = {{Cl|INPUT$}}({{Cl|LOF}}(1), 1) ' get Text as one string
+{{Cl|CLOSE}} #1
+Send$ = &quot;&quot; ' clear value
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(Text$)
+    Letter$ = {{Cl|MID$}}(Text$, i, 1) ' get each character in the text
+    Code = {{Cl|ASC}}(Letter$)
+    {{Cl|IF...THEN|IF}} (Code &gt; 64 {{Cl|AND (boolean)|AND}} Code &lt; 91) {{Cl|OR (boolean)|OR}} (Code &gt; 96 {{Cl|AND (boolean)|AND}} Code &lt; 123) {{Cl|THEN}}
+        Letter$ = {{Cl|CHR$}}(Code + 130) ' change letter's ASCII character by 130
+    {{Cl|END IF}}
+    Send$ = Send$ + Letter$ ' reassemble string with just letters encrypted
+{{Cl|NEXT}} i
+{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 ' erase FileName to be encrypted
+{{Cl|PRINT (file statement)|PRINT}} #1, Send$   ' Text as one string
+{{Cl|CLOSE}} #1
+{{CodeEnd}}
+
+::'''Warning: Above routine will change ORIGINAL text file to be unreadable!'''
+::::''Use a second Filename to preserve the original file!''
+
+
+''Example 4:'' '''Decrypting''' the above encrypted text file (32K byte file size limit). 
+{{CodeStart}}{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1       ' FileName to be decrypted
+    Text$ = {{Cl|INPUT$}}({{Cl|LOF}}(1), 1)         ' open Text as one string
+{{Cl|CLOSE}} #1
+Send$ = &quot;&quot;
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(Text$)
+    Letter$ = {{Cl|MID$}}(Text$, i, 1)
+    Code = {{Cl|ASC}}(Letter$)
+    {{Cl|IF...THEN|IF}} (Code &gt; 194 {{Cl|AND (boolean)|AND}} Code &lt; 221) {{Cl|OR (boolean)|OR}} (Code &gt; 226 {{Cl|AND (boolean)|AND}} Code &lt; 253) {{Cl|THEN}}
+        Letter$ = {{Cl|CHR$}}(Code - 130)  ' change back to a Letter character
+    {{Cl|END IF}}
+    Send$ = Send$ + Letter$ ' reassemble string as normal letters
+    {{Cl|NEXT}} i
+{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 ' Erase file for decrypted text
+    {{Cl|PRINT (file statement)|PRINT}} #1, Send$ ' place Text as one string
+{{Cl|CLOSE}} #1 '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' Examples 3 and 4 Encrypt and Decrypt a file up to 32 thousand bytes only! [[INPUT$]] can only get strings less than 32767 characters. The upper and lower case letter characters are the only ones altered, but the encryption and decryption rely on the fact that MOST text files do not use the code characters above 193. You could alter any character from ASCII 32 to 125 without problems using the 130 adder. '''NO [[ASCII]] code above 255 is allowed!''' DON'T alter the codes below code 32 as they are Control characters. Specifically, characters 13 and 10 (CrLf) may be used for line returns in text files.
+
+
+{{PageSeeAlso}}
+* {{KW|ASC}}, {{KW|ASC (statement)}}(QB64)
+* {{KW|INKEY$}}
+* [[ASCII|ASCII character codes]]
+
+
+{{PageNavigation}}
