@@ -8,6 +8,10 @@ rmdir /s /q temp,temp2,temp3,temp4,temp5,temp6,temp7,temp8,temp9 2>nul
 echo Replacing main temp folder
 md temp
 
+echo Replacing dummy file in temp folder to maintain directory structure
+copy source\temp.bin temp\temp.bin
+
+
 echo Pruning source folder
 del source\undo2.bin 2>nul
 del source\recompile.bat 2>nul
@@ -27,5 +31,6 @@ del c\qbx2.cpp,c\qbx3.cpp,c\qbx4.cpp,c\qbx5.cpp,c\qbx6.cpp,c\qbx7.cpp,c\qbx8.cpp
 
 echo Culling Windows executable files from root folder
 del ..\*.exe 2>nul
+
 
 pause

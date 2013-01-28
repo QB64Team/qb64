@@ -1,6 +1,13 @@
 #ifndef FREEGLUT_STATIC
 #define FREEGLUT_STATIC
 #endif
+
+//QB64
+void QB64_Window_Handle(void *handle);
+
+
+
+
 /*
  * freeglut_window.c
  *
@@ -145,7 +152,7 @@ typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShar
 #endif  /* TARGET_HOST_MS_WINDOWS */
 
 #ifdef WM_TOUCH
-	typedef BOOL (WINAPI *pRegisterTouchWindow)(HWND,ULONG);
+    typedef BOOL (WINAPI *pRegisterTouchWindow)(HWND,ULONG);
    static pRegisterTouchWindow fghRegisterTouchWindow = (pRegisterTouchWindow)0xDEADBEEF;
 #endif
 
@@ -393,8 +400,8 @@ GLXFBConfig* fgChooseFBConfig( int *numcfgs )
            fbconfig = NULL;
         }
 
-	if (numcfgs)
-		*numcfgs = fbconfigArraySize;
+    if (numcfgs)
+        *numcfgs = fbconfigArraySize;
 
         return fbconfig;
     }
@@ -427,8 +434,8 @@ static void fghFillContextAttributes( int *attributes ) {
 }
 
 typedef GLXContext (*CreateContextAttribsProc)(Display *dpy, GLXFBConfig config,
-					       GLXContext share_list, Bool direct,
-					       const int *attrib_list);
+                           GLXContext share_list, Bool direct,
+                           const int *attrib_list);
 
 static GLXContext fghCreateNewContext( SFG_Window* window )
 {
@@ -451,8 +458,8 @@ static GLXContext fghCreateNewContext( SFG_Window* window )
   /* glXCreateContextAttribsARB not found, yet the user has requested the new context creation */
   if ( !createContextAttribs && !fghIsLegacyContextRequested() ) {
     fgWarning( "OpenGL >2.1 context requested but glXCreateContextAttribsARB is not available! Falling back to legacy context creation" );
-	fgState.MajorVersion = 2;
-	fgState.MinorVersion = 1;
+    fgState.MajorVersion = 2;
+    fgState.MinorVersion = 1;
   }
 
   /* If nothing fancy has been required, simply use the old context creation GLX API entry */
@@ -527,9 +534,9 @@ static int fghEwmhFullscrToggle(void)
     xev.xclient.format = 32;
     xev.xclient.data.l[0] = _NET_WM_STATE_TOGGLE;
     xev.xclient.data.l[1] = fgDisplay.StateFullScreen;
-    xev.xclient.data.l[2] = 0;	/* no second property to toggle */
-    xev.xclient.data.l[3] = 1;	/* source indication: application */
-    xev.xclient.data.l[4] = 0;	/* unused */
+    xev.xclient.data.l[2] = 0;  /* no second property to toggle */
+    xev.xclient.data.l[3] = 1;  /* source indication: application */
+    xev.xclient.data.l[4] = 0;  /* unused */
 
     if(!XSendEvent(fgDisplay.Display, fgDisplay.RootWindow, 0, evmask, &xev)) {
         return -1;
@@ -1018,9 +1025,9 @@ typedef struct
 } m_proc_t;
 
 static BOOL CALLBACK m_proc(HMONITOR mon,
-			    HDC hdc,
-			    LPRECT rect,
-			    LPARAM data)
+                HDC hdc,
+                LPRECT rect,
+                LPARAM data)
 {
       m_proc_t *dp=(m_proc_t *)data;
       MONITORINFOEX info;
@@ -1143,10 +1150,10 @@ void fgOpenWindow( SFG_Window* window, const char* title,
 
     /*  Get the X visual.  */
     for (i = 0; i < num_FBConfigs; i++) {
-	    visualInfo = glXGetVisualFromFBConfig( fgDisplay.Display,
-						   window->Window.FBConfig[i] );
-	    if (visualInfo)
-		break;
+        visualInfo = glXGetVisualFromFBConfig( fgDisplay.Display,
+                           window->Window.FBConfig[i] );
+        if (visualInfo)
+        break;
     }
 
     FREEGLUT_INTERNAL_ERROR_EXIT( visualInfo != NULL,
@@ -1466,6 +1473,9 @@ void fgOpenWindow( SFG_Window* window, const char* title,
     if( !( window->Window.Handle ) )
         fgError( "Failed to create a window (%s)!", title );
 
+//QB64
+QB64_Window_Handle((void*)window->Window.Handle);
+
 #if !defined(_WIN32_WCE)
     /* Need to set requested style again, apparently Windows doesn't listen when requesting windows without title bar or borders */
     SetWindowLong(window->Window.Handle, GWL_STYLE, flags);
@@ -1484,8 +1494,8 @@ void fgOpenWindow( SFG_Window* window, const char* title,
     /* Enable multitouch: additional flag TWF_FINETOUCH, TWF_WANTPALM */
     #ifdef WM_TOUCH
         if (fghRegisterTouchWindow == (pRegisterTouchWindow)0xDEADBEEF) 
-			fghRegisterTouchWindow = (pRegisterTouchWindow)GetProcAddress(GetModuleHandle("user32"),"RegisterTouchWindow");
-		if (fghRegisterTouchWindow)
+            fghRegisterTouchWindow = (pRegisterTouchWindow)GetProcAddress(GetModuleHandle("user32"),"RegisterTouchWindow");
+        if (fghRegisterTouchWindow)
              fghRegisterTouchWindow( window->Window.Handle, TWF_FINETOUCH | TWF_WANTPALM );
     #endif
 
@@ -2032,7 +2042,7 @@ void FGAPIENTRY glutFullScreen( void )
 
         /* For fullscreen mode, find the monitor that is covered the most
          * by the window and get its rect as the resize target.
-	     */
+         */
         hMonitor= MonitorFromRect(&win->State.OldRect, MONITOR_DEFAULTTONEAREST);
         mi.cbSize = sizeof(mi);
         GetMonitorInfo(hMonitor, &mi);

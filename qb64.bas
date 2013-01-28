@@ -33,7 +33,7 @@ DIM SHARED UseGL 'declared SUB _GL (no params)
 DIM SHARED Version AS STRING
 DIM SHARED C_Core AS LONG '0=SDL, 1=GLUT+OpenGL
 DIM SHARED Debug AS LONG 'debug logging is off by default
-Version$ = "0.973": Debug = 0: C_Core = 1
+Version$ = "0.974": Debug = 0: C_Core = 1
 
 _TITLE "QB64"
 

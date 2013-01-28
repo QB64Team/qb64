@@ -23,10 +23,11 @@ extern void evnt(uint32 linenumber);
 
 
 
+extern "C" int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #define QB64_EVENT_CLOSE 1
 #define QB64_EVENT_KEY 2
- #define QB64_EVENT_KEY_PAUSE 1000
-extern "C" int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
+#define QB64_EVENT_RELATIVE_MOUSE_MOVEMENT 3
+#define QB64_EVENT_KEY_PAUSE 1000
 
 
 
@@ -18862,14 +18863,9 @@ mousemovementfix_state=1;
 
 
 float func__mousemovementx(){
-device_mouse_relative=1;
-mousemovementfix();
 return mouse_messages[current_mouse_message].movementx;
 }
-
 float func__mousemovementy(){
-device_mouse_relative=1;
-mousemovementfix();
 return mouse_messages[current_mouse_message].movementy;
 }
 
@@ -28202,15 +28198,31 @@ if (direction<0){GLUT_MouseButton_Down(5,x,y); GLUT_MouseButton_Up(5,x,y);}
 
 
 
+void *generic_window_handle=NULL;
+#ifdef QB64_WINDOWS
+ HWND window_handle=NULL;
+#endif
+//...
 
+extern "C" void QB64_Window_Handle(void *handle){
+generic_window_handle=handle;
+#ifdef QB64_WINDOWS
+ window_handle=(HWND)handle; 
+#endif
+//...
+}
 
-
-
-
-
-
-
-
+void sub__title(qbs *title){
+if (new_error) return;
+static qbs *sz=NULL; if (!sz) sz=qbs_new(0,0);
+static qbs *cz=NULL; if (!cz){cz=qbs_new(1,0); cz->chr[0]=0;}
+qbs_set(sz,qbs_add(title,cz));
+#ifdef QB64_WINDOWS
+ while (!generic_window_handle) Sleep(10);//wait for window creation
+ SetWindowText(window_handle,(char*)sz->chr);
+#endif
+//...
+}//title
 
 
 
@@ -31833,11 +31845,33 @@ if (event==QB64_EVENT_KEY){
   if (v2>0) keydown_vk(v1); else keyup_vk(v1);
  return NULL;
  }
-
  return -1;
 }//key
 
-return -1;//Unknown command (used for debugging purposes only)
+if (event==QB64_EVENT_RELATIVE_MOUSE_MOVEMENT){ //QB64_Custom_Event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
+static int32 i;
+//message #1
+i=(last_mouse_message+1)&65535;
+if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
+mouse_messages[i].x=mouse_messages[last_mouse_message].x;
+mouse_messages[i].y=mouse_messages[last_mouse_message].y;
+mouse_messages[i].movementx=v1;
+mouse_messages[i].movementy=v2;
+mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
+last_mouse_message=i;
+//message #2 (clears movement values to avoid confusion)
+i=(last_mouse_message+1)&65535;
+if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
+mouse_messages[i].x=mouse_messages[last_mouse_message].x;
+mouse_messages[i].y=mouse_messages[last_mouse_message].y;
+mouse_messages[i].movementx=0;
+mouse_messages[i].movementy=0;
+mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
+last_mouse_message=i;
+return NULL;
+}//QB64_EVENT_RELATIVE_MOUSE_MOVEMENT
+
+return -1;//Unknown command (use for debugging purposes only)
 }//QB64_Custom_Event
 
 

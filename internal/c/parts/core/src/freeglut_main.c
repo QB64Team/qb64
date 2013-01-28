@@ -2,10 +2,10 @@
 #define FREEGLUT_STATIC
 #endif
 
+int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #define QB64_EVENT_CLOSE 1
 #define QB64_EVENT_KEY 2
-int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
-
+#define QB64_EVENT_RELATIVE_MOUSE_MOVEMENT 3
 
 #define QBK 200000
 #define VK 100000
@@ -13,16 +13,16 @@ int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7
 /* QBK codes:
 200000-200010: Numpad keys with Num-Lock off
         NO_NUMLOCK_KP0=INSERT
-	NO_NUMLOCK_KP1=END
-	NO_NUMLOCK_KP2=DOWN
-	NO_NUMLOCK_KP3=PGDOWN
-	NO_NUMLOCK_KP4...
-	NO_NUMLOCK_KP5
-	NO_NUMLOCK_KP6
-	NO_NUMLOCK_KP7
-	NO_NUMLOCK_KP8
-	NO_NUMLOCK_KP9
-	NO_NUMLOCK_KP_PERIOD=DEL
+    NO_NUMLOCK_KP1=END
+    NO_NUMLOCK_KP2=DOWN
+    NO_NUMLOCK_KP3=PGDOWN
+    NO_NUMLOCK_KP4...
+    NO_NUMLOCK_KP5
+    NO_NUMLOCK_KP6
+    NO_NUMLOCK_KP7
+    NO_NUMLOCK_KP8
+    NO_NUMLOCK_KP9
+    NO_NUMLOCK_KP_PERIOD=DEL
 200011: SCROLL_LOCK_ON
 200012: INSERT_MODE_ON
 */
@@ -2208,8 +2208,56 @@ LRESULT CALLBACK fgWindowProc( HWND hWnd, UINT uMsg, WPARAM wParam,
          */
         return 0;
 
+
+ static int raw_setup=0;
+ static RAWINPUTDEVICE Rid[1];
+ case WM_INPUT:
+    {
+
+
+if (raw_setup){
+    //QB64
+    //adapted from http://msdn.microsoft.com/en-us/library/windows/desktop/ee418864%28v=vs.85%29.aspx#WM_INPUT
+        UINT dwSize = 40;
+        static BYTE lpb[40];
+        GetRawInputData((HRAWINPUT)lParam, RID_INPUT,
+                        lpb, &dwSize, sizeof(RAWINPUTHEADER));
+        RAWINPUT* raw = (RAWINPUT*)lpb;
+        if (raw->header.dwType == RIM_TYPEMOUSE)
+        {
+            int xPosRelative = raw->data.mouse.lLastX;
+            int yPosRelative = raw->data.mouse.lLastY;
+            if (xPosRelative||yPosRelative) QB64_Custom_Event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
+        }
+
+}
+
+        break;
+
+    }
+
     case WM_MOUSEMOVE:
     {
+
+
+
+    if (!raw_setup){
+        raw_setup=1;
+        #ifndef HID_USAGE_PAGE_GENERIC
+        #define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
+        #endif
+        #ifndef HID_USAGE_GENERIC_MOUSE
+        #define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+        #endif
+        Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+        Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
+        Rid[0].dwFlags = RIDEV_INPUTSINK;
+        Rid[0].hwndTarget = window->Window.Handle;
+        RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
+    }
+
+
+
 #if defined(_WIN32_WCE)
         window->State.MouseX = 320-HIWORD( lParam );
         window->State.MouseY = LOWORD( lParam );

@@ -90,7 +90,7 @@ extern int32 FontRenderTextASCII(int i,uint8*codepoint,int32 codepoints,int32 op
                           uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment);
 
 
-
+extern void sub__title(qbs *title);
 extern void sub__glrender(int32 method);
 extern int64 GetTicks();
  extern void sub__memfill(mem_block* dblk,ptrszint doff,ptrszint dbytes,ptrszint soff,ptrszint sbytes);
@@ -954,13 +954,7 @@ void sub__limit(double fps);
 void sub__display();
 void sub__autodisplay();
 
-void sub__title(qbs *s){
-if (new_error) return;
-static qbs *sz=NULL; if (!sz) sz=qbs_new(0,0);
-static qbs *cz=NULL; if (!cz){cz=qbs_new(1,0); cz->chr[0]=0;}
-qbs_set(sz,qbs_add(s,cz));
-/////SDL_WM_SetCaption((const char *)sz->chr,(const char *)sz->chr);
-}
+
 
 
 
