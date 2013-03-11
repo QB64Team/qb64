@@ -27424,7 +27424,8 @@ static int image_handle;
 static img_struct *im;
 if (passed){
  if (i>=0){
- validatepage(i); im=&img[image_handle=page[i]];
+ validatepage(i); im=&img[image_handle=page[i]]; 
+ image_handle=-image_handle;
  }else{
  image_handle=i;
  i=-i;
