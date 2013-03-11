@@ -82,6 +82,11 @@ void TIMERTHREAD();
 
 //extern functions
 
+extern void sub__resize(int32 on_off);
+extern int32 func__resize();
+extern int32 func__resizewidth();
+extern int32 func__resizeheight();
+
 
 extern int32 FontLoad (uint8 *content,int32 content_bytes,int32 default_pixel_height,int32 which_font,int32 options);
 extern int32 FontRenderTextUTF32(int i,uint32*codepoint,int32 codepoints,int32 options,
@@ -93,6 +98,9 @@ extern int32 FontRenderTextASCII(int i,uint8*codepoint,int32 codepoints,int32 op
 extern void sub__title(qbs *title);
 extern void sub__glrender(int32 method);
 extern int64 GetTicks();
+
+
+ extern int32 func__memexists(void* blk);
  extern void sub__memfill(mem_block* dblk,ptrszint doff,ptrszint dbytes,ptrszint soff,ptrszint sbytes);
  extern void sub__memfill_nochecks(ptrszint doff,ptrszint dbytes,ptrszint soff,ptrszint sbytes);
  extern void sub__memfill_1(mem_block* dblk,ptrszint doff,ptrszint dbytes,int8 val);
@@ -174,7 +182,7 @@ extern void sub_lock(int32 i,int64 start,int64 end,int32 passed);
 extern void sub_unlock(int32 i,int64 start,int64 end,int32 passed);
 void chain_restorescreenstate(int32);
 void chain_savescreenstate(int32);
-extern void sub__fullscreen(int32 method);
+extern void sub__fullscreen(int32 method,int32 passed);
 extern int32 func__fullscreen();
 extern void sub__clipboard(qbs*);
 extern qbs *func__clipboard();
@@ -919,6 +927,20 @@ return ((uint32)(off-cmem))/16;
  #include "../temp/regsf.txt"
  #include "../temp/global.txt"
 #endif
+
+
+extern int32 ScreenResize;
+
+//set_dynamic_info is called immediately when
+//main() begins, to set global, static variables
+//controlling app init
+void set_dynamic_info(){
+#ifdef QB64_WINDOWS
+ #include "..\\temp\\dyninfo.txt"
+#else
+ #include "../temp/dyninfo.txt"
+#endif
+}
 
 void sub_clear(int32 ignore,int32 ignore2, int32 stack,int32 passed){
 static ptrszint tmp_long;

@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\minigolf"
+CHDIR ".\programs\samples\thebob\minigolf"
 
 '*****************************************************************************
 '

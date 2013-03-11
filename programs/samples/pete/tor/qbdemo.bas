@@ -225,7 +225,7 @@ OUT &H3C9, 63
 OUT &H3C9, 63
 NEXT
 DEF SEG = &HA000
-BLOAD ".\samples\pete\tor\canada.bsv", 0
+BLOAD ".\programs\samples\pete\tor\canada.bsv", 0
 FOR x = 0 TO 255
 OUT &H3C8, x
 OUT &H3C9, 63

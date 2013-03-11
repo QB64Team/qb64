@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\abacus"
+CHDIR ".\programs\samples\thebob\abacus"
 
 '****************************************************************************'
 '

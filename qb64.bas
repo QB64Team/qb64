@@ -33,7 +33,7 @@ DIM SHARED UseGL 'declared SUB _GL (no params)
 DIM SHARED Version AS STRING
 DIM SHARED C_Core AS LONG '0=SDL, 1=GLUT+OpenGL
 DIM SHARED Debug AS LONG 'debug logging is off by default
-Version$ = "0.974": Debug = 0: C_Core = 1
+Version$ = "0.977": Debug = 0: C_Core = 1
 
 _TITLE "QB64"
 
@@ -1418,6 +1418,8 @@ FOR closeall = 1 TO 255: CLOSE closeall: NEXT
 
 OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK READ WRITE AS #26 'relock
 
+fh = FREEFILE: OPEN tmpdir$ + "dyninfo.txt" FOR OUTPUT AS #fh: CLOSE #fh
+
 IF Debug THEN CLOSE #9: OPEN tmpdir$ + "debug.txt" FOR OUTPUT AS #9
 
 
@@ -1437,6 +1439,8 @@ sflistn = -1 'no entries
 SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labels
 
 recompile:
+
+Resize = 0
 
 UseGL = 0
 
@@ -1662,7 +1666,7 @@ ptrsz = OS_BITS \ 8
 lasttype = lasttype + 1: i = lasttype
 udtxname(i) = "_MEM"
 udtxcname(i) = "_MEM"
-udtxsize(i) = ((ptrsz) * 4 + (4) * 1 + (8) * 1) * 8
+udtxsize(i) = ((ptrsz) * 4 + (4) * 2 + (8) * 1) * 8
 udtxbytealign(i) = 1
 lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
 udtename(i2) = "OFFSET"
@@ -1709,6 +1713,15 @@ udtename(i2) = "ELEMENTSIZE"
 udtecname(i2) = "ELEMENTSIZE"
 udtebytealign(i2) = 1
 udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+udtenext(i2) = 0
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "IMAGE"
+udtecname(i2) = "IMAGE"
+udtebytealign(i2) = 1
+udtetype(i2) = LONGTYPE: udtesize(i2) = 32
 udtetypesize(i2) = 0 'tsize
 udtenext(i3) = i2
 udtenext(i2) = 0
@@ -2744,6 +2757,17 @@ DO
         IF a3u$ = "$SCREENSHOW" THEN
             layout$ = "$SCREENSHOW"
             ScreenHide = 0
+            GOTO finishednonexec
+        END IF
+
+        IF a3u$ = "$RESIZE:OFF" THEN
+            layout$ = "$RESIZE:OFF"
+            Resize = 0
+            GOTO finishednonexec
+        END IF
+        IF a3u$ = "$RESIZE:ON" THEN
+            layout$ = "$RESIZE:ON"
+            Resize = 1
             GOTO finishednonexec
         END IF
 
@@ -10207,6 +10231,13 @@ ELSE
     PRINT #18, "int32 screen_hide_startup=0;"
 END IF
 
+fh = FREEFILE
+OPEN tmpdir$ + "dyninfo.txt" FOR APPEND AS #fh
+IF Resize THEN
+    PRINT #fh, "ScreenResize=1;"
+END IF
+CLOSE #fh
+
 'DATA_finalize
 PRINT #18, "ptrszint data_size=" + str2(DataOffset) + ";"
 IF DataOffset = 0 THEN
@@ -11450,19 +11481,23 @@ END 1
 
 FUNCTION Type2MemTypeValue (t1)
 t = 0
+IF t1 AND ISARRAY THEN t = t + 65536
 IF t1 AND ISUDT THEN
-    IF (t1 AND 511) = 1 THEN t = t + 8192 '_MEM type
+    IF (t1 AND 511) = 1 THEN
+        t = t + 4096 '_MEM type
+    ELSE
+        t = t + 32768
+    END IF
 ELSE
     IF t1 AND ISSTRING THEN
-        t = t + 2048 'string
+        t = t + 512 'string
     ELSE
         IF t1 AND ISFLOAT THEN
-            t = t + 1024 'float
-            t = t + 32768 'signed
+            t = t + 256 'float
         ELSE
-            t = t + 512 'integer
-            IF t1 AND ISUNSIGNED THEN t = t + 4096 ELSE t = t + 32768
-            IF t1 AND ISOFFSET THEN t = t + 16384 'offset type
+            t = t + 128 'integer
+            IF t1 AND ISUNSIGNED THEN t = t + 1024
+            IF t1 AND ISOFFSET THEN t = t + 8192 'offset type
         END IF
         t1s = (t1 AND 511) \ 8
         IF t1s = 1 THEN t = t + t1s
@@ -11472,8 +11507,6 @@ ELSE
         IF t1s = 16 THEN t = t + t1s
         IF t1s = 32 THEN t = t + t1s
         IF t1s = 64 THEN t = t + t1s
-        IF t1s = 128 THEN t = t + t1s
-        IF t1s = 256 THEN t = t + t1s
     END IF
 END IF
 Type2MemTypeValue = t
@@ -20533,6 +20566,37 @@ id.n = "_MEMFILL": id.subfunc = 2: id.callname = "sub_stub": regid
 
 
 clearid
+id.n = "_RESIZE"
+id.subfunc = 2
+id.callname = "sub__resize"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "{ON|OFF}"
+regid
+
+clearid
+id.n = "_RESIZE"
+id.subfunc = 1
+id.callname = "func__resize"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_RESIZEWIDTH"
+id.subfunc = 1
+id.callname = "func__resizewidth"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_RESIZEHEIGHT"
+id.subfunc = 1
+id.callname = "func__resizeheight"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+
+clearid
 id.n = "_GLRENDER"
 id.subfunc = 2
 id.callname = "sub__glrender"
@@ -20583,6 +20647,15 @@ id.subfunc = 2
 id.callname = "sub__memfree"
 id.args = 1
 id.arg = MKL$(UDTTYPE + (1))
+regid
+
+clearid
+id.n = "_MEMEXISTS"
+id.subfunc = 1
+id.callname = "func__memexists"
+id.args = 1
+id.arg = MKL$(UDTTYPE + (1))
+id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
@@ -20991,7 +21064,7 @@ id.subfunc = 2
 id.callname = "sub__fullscreen"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS}]"
+id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS}][,{_SMOOTH}]"
 regid
 
 clearid

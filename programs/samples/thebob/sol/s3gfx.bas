@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\sol"
+CHDIR ".\programs\samples\thebob\sol"
 
 DEFINT A-Z
 DECLARE SUB SaveFILE (FileNAME$, ByteCOUNT&)

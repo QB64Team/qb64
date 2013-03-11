@@ -1,3 +1,4 @@
+#define QB64_OS_H_NO_TYPES
 #ifdef WIN32
  #include "..\..\..\..\os.h"
 #else

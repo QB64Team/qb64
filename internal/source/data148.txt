@@ -1,31 +1,31 @@
 qbs *_FUNC_COMPRESS_2_HUFF_STRING_COMPRESS_2_HUFF=NULL;
 if (!_FUNC_COMPRESS_2_HUFF_STRING_COMPRESS_2_HUFF)_FUNC_COMPRESS_2_HUFF_STRING_COMPRESS_2_HUFF=qbs_new(0,0);
-qbs*oldstr4418=NULL;
+qbs*oldstr4419=NULL;
 if(_FUNC_COMPRESS_2_HUFF_STRING_A->tmp||_FUNC_COMPRESS_2_HUFF_STRING_A->fixed||_FUNC_COMPRESS_2_HUFF_STRING_A->readonly){
-oldstr4418=_FUNC_COMPRESS_2_HUFF_STRING_A;
-if (oldstr4418->cmem_descriptor){
-_FUNC_COMPRESS_2_HUFF_STRING_A=qbs_new_cmem(oldstr4418->len,0);
+oldstr4419=_FUNC_COMPRESS_2_HUFF_STRING_A;
+if (oldstr4419->cmem_descriptor){
+_FUNC_COMPRESS_2_HUFF_STRING_A=qbs_new_cmem(oldstr4419->len,0);
 }else{
-_FUNC_COMPRESS_2_HUFF_STRING_A=qbs_new(oldstr4418->len,0);
+_FUNC_COMPRESS_2_HUFF_STRING_A=qbs_new(oldstr4419->len,0);
 }
-memcpy(_FUNC_COMPRESS_2_HUFF_STRING_A->chr,oldstr4418->chr,oldstr4418->len);
+memcpy(_FUNC_COMPRESS_2_HUFF_STRING_A->chr,oldstr4419->chr,oldstr4419->len);
 }
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_I=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_I==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_I=0;
 }
-int64 fornext_value4420;
-int64 fornext_finalvalue4420;
-int64 fornext_step4420;
-uint8 fornext_step_negative4420;
-int64 fornext_value4422;
-int64 fornext_finalvalue4422;
-int64 fornext_step4422;
-uint8 fornext_step_negative4422;
-byte_element_struct *byte_element_4423=NULL;
-if (!byte_element_4423){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4423=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4423=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value4421;
+int64 fornext_finalvalue4421;
+int64 fornext_step4421;
+uint8 fornext_step_negative4421;
+int64 fornext_value4423;
+int64 fornext_finalvalue4423;
+int64 fornext_step4423;
+uint8 fornext_step_negative4423;
+byte_element_struct *byte_element_4424=NULL;
+if (!byte_element_4424){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4424=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4424=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_V=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_V==NULL){
@@ -37,10 +37,10 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_B==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_B=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_B=0;
 }
-int64 fornext_value4425;
-int64 fornext_finalvalue4425;
-int64 fornext_step4425;
-uint8 fornext_step_negative4425;
+int64 fornext_value4426;
+int64 fornext_finalvalue4426;
+int64 fornext_step4426;
+uint8 fornext_step_negative4426;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_W1=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_W1==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_W1=(int32*)mem_static_malloc(4);
@@ -51,10 +51,10 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_W2==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_W2=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_W2=0;
 }
-int64 fornext_value4427;
-int64 fornext_finalvalue4427;
-int64 fornext_step4427;
-uint8 fornext_step_negative4427;
+int64 fornext_value4428;
+int64 fornext_finalvalue4428;
+int64 fornext_step4428;
+uint8 fornext_step_negative4428;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_W=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_W==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_W=(int32*)mem_static_malloc(4);
@@ -80,10 +80,10 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_TOTALBITS==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_TOTALBITS=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_TOTALBITS=0;
 }
-int64 fornext_value4429;
-int64 fornext_finalvalue4429;
-int64 fornext_step4429;
-uint8 fornext_step_negative4429;
+int64 fornext_value4430;
+int64 fornext_finalvalue4430;
+int64 fornext_step4430;
+uint8 fornext_step_negative4430;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_NBITS=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_NBITS==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_NBITS=(int32*)mem_static_malloc(4);
@@ -109,10 +109,10 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_X==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_X=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_X=0;
 }
-int64 fornext_value4431;
-int64 fornext_finalvalue4431;
-int64 fornext_step4431;
-uint8 fornext_step_negative4431;
+int64 fornext_value4432;
+int64 fornext_finalvalue4432;
+int64 fornext_step4432;
+uint8 fornext_step_negative4432;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_BYTEO=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_BYTEO==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_BYTEO=(int32*)mem_static_malloc(4);
@@ -123,10 +123,10 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_X2==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_X2=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_X2=0;
 }
-int64 fornext_value4433;
-int64 fornext_finalvalue4433;
-int64 fornext_step4433;
-uint8 fornext_step_negative4433;
+int64 fornext_value4434;
+int64 fornext_finalvalue4434;
+int64 fornext_step4434;
+uint8 fornext_step_negative4434;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_O1=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_O1==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_O1=(int32*)mem_static_malloc(4);
@@ -142,10 +142,10 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_O2==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_O2=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_O2=0;
 }
-int64 fornext_value4435;
-int64 fornext_finalvalue4435;
-int64 fornext_step4435;
-uint8 fornext_step_negative4435;
+int64 fornext_value4436;
+int64 fornext_finalvalue4436;
+int64 fornext_step4436;
+uint8 fornext_step_negative4436;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_O=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_O==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_O=(int32*)mem_static_malloc(4);
@@ -158,10 +158,10 @@ _FUNC_COMPRESS_2_HUFF_LONG_TOTALBYTES=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_COMPRESS_2_HUFF_STRING_B=NULL;
 if (!_FUNC_COMPRESS_2_HUFF_STRING_B)_FUNC_COMPRESS_2_HUFF_STRING_B=qbs_new(0,0);
-int64 fornext_value4437;
-int64 fornext_finalvalue4437;
-int64 fornext_step4437;
-uint8 fornext_step_negative4437;
+int64 fornext_value4438;
+int64 fornext_finalvalue4438;
+int64 fornext_step4438;
+uint8 fornext_step_negative4438;
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_BITPOS=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_BITPOS==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_BITPOS=(int32*)mem_static_malloc(4);
@@ -172,20 +172,20 @@ if(_FUNC_COMPRESS_2_HUFF_LONG_Z==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_Z=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_Z=0;
 }
-int64 fornext_value4439;
-int64 fornext_finalvalue4439;
-int64 fornext_step4439;
-uint8 fornext_step_negative4439;
-byte_element_struct *byte_element_4440=NULL;
-if (!byte_element_4440){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4440=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4440=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value4440;
+int64 fornext_finalvalue4440;
+int64 fornext_step4440;
+uint8 fornext_step_negative4440;
+byte_element_struct *byte_element_4441=NULL;
+if (!byte_element_4441){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4441=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4441=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_COMPRESS_2_HUFF_LONG_NBYTES=NULL;
 if(_FUNC_COMPRESS_2_HUFF_LONG_NBYTES==NULL){
 _FUNC_COMPRESS_2_HUFF_LONG_NBYTES=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_2_HUFF_LONG_NBYTES=0;
 }
-int64 fornext_value4442;
-int64 fornext_finalvalue4442;
-int64 fornext_step4442;
-uint8 fornext_step_negative4442;
+int64 fornext_value4443;
+int64 fornext_finalvalue4443;
+int64 fornext_step4443;
+uint8 fornext_step_negative4443;

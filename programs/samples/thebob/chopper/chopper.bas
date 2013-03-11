@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\chopper"
+CHDIR ".\programs\samples\thebob\chopper"
 
 '                                                                  °°       '
 '                     °°                                          °°°       '

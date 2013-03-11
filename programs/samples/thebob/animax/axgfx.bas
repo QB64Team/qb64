@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\animax"
+CHDIR ".\programs\samples\thebob\animax"
 
 DEFINT A-Z
 DECLARE SUB PrintSTRING (x, y, Prnt$, Font)

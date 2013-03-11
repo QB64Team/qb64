@@ -1,4 +1,4 @@
-CHDIR ".\samples\qb45com\action\arcdemo"
+CHDIR ".\programs\samples\qb45com\action\arcdemo"
 
 rem No Tittle
 

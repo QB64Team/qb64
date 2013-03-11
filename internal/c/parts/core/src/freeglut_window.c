@@ -6,6 +6,13 @@
 void QB64_Window_Handle(void *handle);
 
 
+int QB64_Resizable();
+/*
+changed:
+WS_OVERLAPPEDWINDOW
+...to...
+((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX)
+*/
 
 
 /*
@@ -778,7 +785,7 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
         wndCls.lpszClassName = _T("FREEGLUT_dummy");
         RegisterClass( &wndCls );
 
-        hWnd=CreateWindow(_T("FREEGLUT_dummy"), _T(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW , 0,0,0,0, 0, 0, fgDisplay.Instance, 0 );
+        hWnd=CreateWindow(_T("FREEGLUT_dummy"), _T(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX) , 0,0,0,0, 0, 0, fgDisplay.Instance, 0 );
         hDC=GetDC(hWnd);
         SetPixelFormat( hDC, pixelformat, ppfd );
 
@@ -917,7 +924,7 @@ void fghComputeWindowRectFromClientArea_QueryWindow( const SFG_Window *window, R
     if (window && window->Window.Handle)
         windowStyle = GetWindowLong(window->Window.Handle, GWL_STYLE);
     else
-        windowStyle = WS_OVERLAPPEDWINDOW;
+        windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
 
     fghComputeWindowRectFromClientArea_UseStyle(windowStyle, clientRect, posIsOutside);
 }
@@ -941,7 +948,7 @@ void fghComputeClientAreaFromWindowRect( const SFG_Window *window, RECT *windowR
     if (window && window->Window.Handle)
         windowStyle = GetWindowLong(window->Window.Handle, GWL_STYLE);
     else
-        windowStyle = WS_OVERLAPPEDWINDOW;
+        windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
 
     /* If window has title bar, correct rect for it */
     if (windowStyle & WS_MAXIMIZEBOX) /* Need to query for WS_MAXIMIZEBOX to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
@@ -1366,9 +1373,9 @@ void fgOpenWindow( SFG_Window* window, const char* title,
                  * NB: we later query whether the window has a title bar or
                  * not by testing for the maximize button, as the test for
                  * WS_CAPTION can be true without the window having a title
-                 * bar. This style WS_OVERLAPPEDWINDOW gives you a maximize
+                 * bar. This style ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX) gives you a maximize
                  * button. */
-                flags |= WS_OVERLAPPEDWINDOW;
+                flags |= ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
 #endif
         else
             /* subwindows always have no decoration, but are marked as a child window to the OS */
@@ -2035,7 +2042,7 @@ void FGAPIENTRY glutFullScreen( void )
         win->State.OldStyle = s = GetWindowLong(win->Window.Handle, GWL_STYLE);
 
         /* remove decorations from style and add popup style*/
-        s &= ~WS_OVERLAPPEDWINDOW;
+        s &= ~((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
         s |= WS_POPUP;
         SetWindowLong(win->Window.Handle, GWL_STYLE, s);
         SetWindowPos(win->Window.Handle, HWND_TOP, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -2060,7 +2067,7 @@ void FGAPIENTRY glutFullScreen( void )
         rect.right  = fgDisplay.ScreenWidth;
         rect.bottom = fgDisplay.ScreenHeight;
 
-        AdjustWindowRect ( &rect, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS |
+        AdjustWindowRect ( &rect, ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX) | WS_CLIPSIBLINGS |
                                   WS_CLIPCHILDREN, FALSE );
 #endif  /* (WINVER >= 0x0500) */
 

@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\chess"
+CHDIR ".\programs\samples\thebob\chess"
 
 'CHESSGFX.BAS
 DEFINT A-Z

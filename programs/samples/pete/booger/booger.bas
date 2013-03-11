@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\booger"
+CHDIR ".\programs\samples\pete\booger"
 
 REM
 REM

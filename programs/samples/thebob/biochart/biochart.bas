@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\biochart"
+CHDIR ".\programs\samples\thebob\biochart"
 
 '****************************************************************************'
 '------------------------- B I O C H A R T . B A S --------------------------'

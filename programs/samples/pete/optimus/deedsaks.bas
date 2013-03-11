@@ -119,7 +119,7 @@ fadetocolor 0, 255, 1, 0, 0, 0
 a$ = "fonts16.fnt"
 c$ = " "
 
-open ".\samples\pete\optimus\"+a$ FOR BINARY AS #1
+open ".\programs\samples\pete\optimus\"+a$ FOR BINARY AS #1
 
 
 FOR i% = 0 TO 255

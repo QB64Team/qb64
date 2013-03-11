@@ -1,4 +1,4 @@
-CHDIR ".\samples\qb45com\action\sfb2"
+CHDIR ".\programs\samples\qb45com\action\sfb2"
 
 '                           SFB2:Vector Warriors                             `
 '                              by Kevin Reems                                `

@@ -1,4 +1,4 @@
-CHDIR ".\samples\qb45com\action\arqanoid"
+CHDIR ".\programs\samples\qb45com\action\arqanoid"
 
 DECLARE SUB DoEnding ()
 DECLARE SUB DoLogos ()

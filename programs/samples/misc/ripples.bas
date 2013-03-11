@@ -1,11 +1,11 @@
-CHDIR ".\samples\qb64\original"
+CHDIR ".\programs\samples\misc"
 
 DECLARE SUB ripples (waterheight%, dlay!, amplitude!, wavelength!)
 DECLARE FUNCTION LoadPcx% (PCX$)
 DECLARE SUB DELAY (x!)
 '----------------------------------------------------------------------------
 'RIPPLES, by Antoni Gual 26/1/2001   agual@eic.ictnet.es
-'Simulates water reflection in a SCREEN 13 image  
+'Simulates water reflection in a SCREEN 13 image
 '----------------------------------------------------------------------------
 'Who said QBasic is obsolete?
 'This is a remake of the popular LAKE Java applet.
@@ -17,7 +17,7 @@ DECLARE SUB DELAY (x!)
 '----------------------------------------------------------------------------
 'WARNING!: PCX MUST be 256 colors and 320x 200.The loader does'nt check it!!
 '----------------------------------------------------------------------------
-'Use as you want, only give me credit. 
+'Use as you want, only give me credit.
 'E-mail me to tell me about!
 '----------------------------------------------------------------------------
 DEFINT A-Z
@@ -50,22 +50,22 @@ FOR T& = SADD(p$) TO SADD(p$) + 767: OUT &H3C9, PEEK(T&) \ 4: NEXT
 
 SEEK #F, 129: T& = BOFS&: RLE% = 0
 DO
-   p$ = INPUT$(256, F): fpos& = SEEK(F): l% = LEN(p$)
-   IF fpos& > fin& THEN l% = l% - (fpos& - fin&): done = 1
-   FOR p& = SADD(p$) TO SADD(p$) + l% - 1
-      DEF SEG = VARSEG(p$): dat% = PEEK(p&): DEF SEG = bseg&
-      IF RLE% THEN
-         FOR RLE% = RLE% TO 1 STEP -1:
-            POKE T&, dat%: T& = T& + 1
-         NEXT
-      ELSE
-         IF (dat% AND 192) = 192 THEN
-            RLE% = dat% AND 63
-         ELSE
-            POKE T&, dat%: T& = T& + 1
-         END IF
-      END IF
-   NEXT
+    p$ = INPUT$(256, F): fpos& = SEEK(F): l% = LEN(p$)
+    IF fpos& > fin& THEN l% = l% - (fpos& - fin&): done = 1
+    FOR p& = SADD(p$) TO SADD(p$) + l% - 1
+        DEF SEG = VARSEG(p$): dat% = PEEK(p&): DEF SEG = bseg&
+        IF RLE% THEN
+            FOR RLE% = RLE% TO 1 STEP -1:
+                POKE T&, dat%: T& = T& + 1
+            NEXT
+        ELSE
+            IF (dat% AND 192) = 192 THEN
+                RLE% = dat% AND 63
+            ELSE
+                POKE T&, dat%: T& = T& + 1
+            END IF
+        END IF
+    NEXT
 LOOP UNTIL done
 CLOSE F
 END FUNCTION
@@ -102,9 +102,9 @@ DO
     DELAY dlay!
    
     FOR i = 1 TO height - waterheight
-       temp = waterheight - i + r((j + i) MOD 200)
-       GET (1, temp)-(widh, temp), a%
-       PUT (1, waterheight + i), a%, PSET
+        temp = waterheight - i + r((j + i) MOD 200)
+        GET (1, temp)-(widh, temp), a%()
+        PUT (1, waterheight + i), a%(), PSET
     NEXT
     IF j = 200 THEN j = 0 ELSE j = j + 1
 LOOP UNTIL LEN(INKEY$)

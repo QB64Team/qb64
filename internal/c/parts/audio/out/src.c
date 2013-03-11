@@ -1667,6 +1667,8 @@ sndqueue_next++; if (sndqueue_next>sndqueue_lastindex) sndqueue_next=0;
 
 }
 
-
+int32 func__sndrate(){
+return snd_frequency;
+}
 
 #endif

@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\kong"
+CHDIR ".\programs\samples\thebob\kong"
 
 'K1.BAS: Creates graphics files for KONG.BAS, -chains K2.BAS
 '-----------------------------------------------------------

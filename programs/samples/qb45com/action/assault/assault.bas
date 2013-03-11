@@ -1,4 +1,4 @@
-CHDIR ".\samples\qb45com\action\assault"
+CHDIR ".\programs\samples\qb45com\action\assault"
 
 'Assault v2
 'By Glenn Powell

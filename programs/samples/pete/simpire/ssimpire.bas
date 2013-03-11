@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\simpire"
+CHDIR ".\programs\samples\pete\simpire"
 
 ' ²±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±²
 ' ² Simpire Beta                    ²

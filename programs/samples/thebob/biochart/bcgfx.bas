@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\biochart"
+CHDIR ".\programs\samples\thebob\biochart"
 
 '*******************************************************
 '----------------------- BCGFX.BAS ---------------------

@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\nlcm2006"
+CHDIR ".\programs\samples\pete\nlcm2006"
 
 DECLARE SUB managerInfo ()
 DECLARE SUB playerSalary ()

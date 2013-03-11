@@ -1,4 +1,4 @@
-CHDIR ".\samples\n54\big\3dsviewer"
+CHDIR ".\programs\samples\n54\big\3dsviewer"
 
 '----sub declarations
 '--file stuff

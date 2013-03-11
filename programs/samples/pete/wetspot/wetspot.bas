@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\wetspot"
+CHDIR ".\programs\samples\pete\wetspot"
 
 ' WETSPOT v0.9
 ' by Angelo Mottola (C) 1996

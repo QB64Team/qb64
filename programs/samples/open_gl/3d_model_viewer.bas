@@ -1,3 +1,5 @@
+CHDIR "programs\samples\open_gl"
+
 ' This example shows how models with textures or materials can be displayed with OpenGL using QB64
 '
 'IMPORTANT:

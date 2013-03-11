@@ -1,10 +1,10 @@
-CHDIR ".\samples\qb64\original"
+CHDIR ".\programs\samples\misc"
 
-deflng a-z
-SCREEN 13,,1,0
+DEFLNG A-Z
+SCREEN 13, , 1, 0
 
-_sndplayfile "ps2battl.mid"
-shootsound=_sndopen("fireball.wav","SYNC")
+_SNDPLAYFILE "ps2battl.mid"
+shootsound = _SNDOPEN("fireball.wav", "SYNC")
 
 'index,filename(.RAW),width,height
 DATA 1,ship1,21,27
@@ -13,264 +13,264 @@ DATA 3,evil1,93,80
 DATA 4,land1,320,56
 DATA 5,boom1,65,75
 
-dim shared spritedata(1000000) as _unsigned _byte
-dim shared freespritedata as long
-dim shared freesprite as long
-freesprite=1
+DIM SHARED spritedata(1000000) AS _UNSIGNED _BYTE
+DIM SHARED freespritedata AS LONG
+DIM SHARED freesprite AS LONG
+freesprite = 1
 
-type spritetype
-x as integer
-y as integer
-index as long 'an index in the spritedata() array
-index2 as long 'optional secondary index
-halfx as integer
-halfy as integer
-end type
-dim shared s(1 to 1000) as spritetype
+TYPE spritetype
+    x AS INTEGER
+    y AS INTEGER
+    index AS LONG 'an index in the spritedata() array
+    index2 AS LONG 'optional secondary index
+    halfx AS INTEGER
+    halfy AS INTEGER
+END TYPE
+DIM SHARED s(1 TO 1000) AS spritetype
 
 'load sprites
-for i=1 to 5
-b$=" "
-read n
-read f$:f$=f$+".raw"
-read x,y
-open f$ for binary as #1
-if lof(1)<>x*y then screen 0:print "Error loading "+f$:end
-for y2=y-1 to 0 step -1
-for x2=0 to x-1
-get #1,,b$
-pset(x2,y2),asc(b$)
-next
-next
-close #1
-get (0,0)-(x-1,y-1),spritedata(freespritedata)
-s(freesprite).index=freespritedata
-freespritedata=freespritedata+x*y+4
-'create shadow
-for y2=y-1 to 0 step -1
-for x2=0 to x-1
-if point(x2,y2)<>254 then pset(x2,y2),18
-next
-next
-get (0,0)-(x-1,y-1),spritedata(freespritedata)
-s(freesprite).index2=freespritedata
-freespritedata=freespritedata+x*y+4
-s(freesprite).x=x:s(freesprite).y=y
-s(freesprite).halfx=x\2:s(freesprite).halfy=y\2
-freesprite=freesprite+1
-next
+FOR i = 1 TO 5
+    b$ = " "
+    READ n
+    READ f$: f$ = f$ + ".raw"
+    READ x, y
+    OPEN f$ FOR BINARY AS #1
+    IF LOF(1) <> x * y THEN SCREEN 0: PRINT "Error loading " + f$: END
+    FOR y2 = y - 1 TO 0 STEP -1
+        FOR x2 = 0 TO x - 1
+            GET #1, , b$
+            PSET (x2, y2), ASC(b$)
+        NEXT
+    NEXT
+    CLOSE #1
+    GET (0, 0)-(x - 1, y - 1), spritedata(freespritedata)
+    s(freesprite).index = freespritedata
+    freespritedata = freespritedata + x * y + 4
+    'create shadow
+    FOR y2 = y - 1 TO 0 STEP -1
+        FOR x2 = 0 TO x - 1
+            IF POINT(x2, y2) <> 254 THEN PSET (x2, y2), 18
+        NEXT
+    NEXT
+    GET (0, 0)-(x - 1, y - 1), spritedata(freespritedata)
+    s(freesprite).index2 = freespritedata
+    freespritedata = freespritedata + x * y + 4
+    s(freesprite).x = x: s(freesprite).y = y
+    s(freesprite).halfx = x \ 2: s(freesprite).halfy = y \ 2
+    freesprite = freesprite + 1
+NEXT
 
-type object
-active as integer
-x as integer
-y as integer
-z as integer 'height
-mx as integer
-my as integer
-sprite as integer
-end type
+TYPE object
+    active AS INTEGER
+    x AS INTEGER
+    y AS INTEGER
+    z AS INTEGER 'height
+    mx AS INTEGER
+    my AS INTEGER
+    sprite AS INTEGER
+END TYPE
 
 'create objects
-dim o(1 to 1000) as object 'all game objects
-dim shared lastobject as integer
-lastobject=1000
+DIM o(1 TO 1000) AS object 'all game objects
+DIM SHARED lastobject AS INTEGER
+lastobject = 1000
 
 'create player
-i=newobject(o())
-o(i).sprite=1
-o(i).z=50
-o(i).active=20
-player=i
+i = newobject(o())
+o(i).sprite = 1
+o(i).z = 50
+o(i).active = 20
+player = i
 
 _MOUSEHIDE
 
 'gameloop
-do
+DO
 
-do: loop while _MOUSEINPUT 'read all available mouse messages until current message
+    DO: LOOP WHILE _MOUSEINPUT 'read all available mouse messages until current message
 
-'set player's position
-o(player).x=_mousex: o(player).y=_mousey
+    'set player's position
+    o(player).x = _MOUSEX: o(player).y = _MOUSEY
 
-'draw land
-landy=(landy+1) mod 56
-for i=-1 to 4
-put (0,i*56+landy),spritedata(s(4).index),_CLIP PSET,254
-next
+    'draw land
+    landy = (landy + 1) MOD 56
+    FOR i = -1 TO 4
+        PUT (0, i * 56 + landy), spritedata(s(4).index), _CLIP PSET, 254
+    NEXT
 
-'draw enemy shadows
-for i=1 to lastobject
-if o(i).sprite=3 then displayshadow o(i)
-next
+    'draw enemy shadows
+    FOR i = 1 TO lastobject
+        IF o(i).sprite = 3 THEN displayshadow o(i)
+    NEXT
 
-'draw player's shadow
-displayshadow o(player)
+    'draw player's shadow
+    displayshadow o(player)
 
-'draw enemies
-for i=1 to lastobject
-if o(i).sprite=3 then
-display o(i)
-move o(i)
-if o(i).y-s(o(i).sprite).halfy>200 then o(i).y=-1000
-end if
-next
+    'draw enemies
+    FOR i = 1 TO lastobject
+        IF o(i).sprite = 3 THEN
+            display o(i)
+            move o(i)
+            IF o(i).y - s(o(i).sprite).halfy > 200 THEN o(i).y = -1000
+        END IF
+    NEXT
 
-'draw bullets
-for i=1 to lastobject
-if o(i).sprite=2 then
-display o(i)
-move o(i)
-if offscreen(o(i)) then freeobject o(i)
-xshift=int(rnd*3)-1
-o(i).mx=o(i).mx+xshift
-o(i).my=o(i).my-1
-end if
-next
+    'draw bullets
+    FOR i = 1 TO lastobject
+        IF o(i).sprite = 2 THEN
+            display o(i)
+            move o(i)
+            IF offscreen(o(i)) THEN freeobject o(i)
+            xshift = INT(RND * 3) - 1
+            o(i).mx = o(i).mx + xshift
+            o(i).my = o(i).my - 1
+        END IF
+    NEXT
 
-'draw player
-display o(player)
+    'draw player
+    display o(player)
 
-'draw explosion(s)
-for i=1 to lastobject
-if o(i).sprite=5 then
-for i2=1 to o(i).active
-rad=i2*5:halfrad=rad\2
-dx=rnd*rad-halfrad: dy=rnd*rad-halfrad
-displayat o(i).x+dx,o(i).y+dy,o(i)
-next
-move o(i)
-o(i).active=o(i).active-1
-if o(i).active=0 then freeobject o(i)
-end if
-next
+    'draw explosion(s)
+    FOR i = 1 TO lastobject
+        IF o(i).sprite = 5 THEN
+            FOR i2 = 1 TO o(i).active
+                rad = i2 * 5: halfrad = rad \ 2
+                dx = RND * rad - halfrad: dy = RND * rad - halfrad
+                displayat o(i).x + dx, o(i).y + dy, o(i)
+            NEXT
+            move o(i)
+            o(i).active = o(i).active - 1
+            IF o(i).active = 0 THEN freeobject o(i)
+        END IF
+    NEXT
 
-'hp bar
-x=60
-y=185
-line (x-1,y)-step(20*10+2,5),2,b
-line (x,y-1)-step(20*10,5+2),2,b
-line (x,y)-step(20*10,5),40,bf
-line (x,y)-step(o(player).active*10,5),47,bf
+    'hp bar
+    x = 60
+    y = 185
+    LINE (x - 1, y)-STEP(20 * 10 + 2, 5), 2, B
+    LINE (x, y - 1)-STEP(20 * 10, 5 + 2), 2, B
+    LINE (x, y)-STEP(20 * 10, 5), 40, BF
+    LINE (x, y)-STEP(o(player).active * 10, 5), 47, BF
 
-pcopy 1,0
+    PCOPY 1, 0
 
-'shoot?
-if _MOUSEBUTTON(1) then
-i=newobject(o())
-o(i).sprite=2
-o(i).x=o(player).x
-o(i).y=o(player).y-s(o(player).sprite).halfy
-o(i).my=-1
-_sndplaycopy shootsound
-end if
+    'shoot?
+    IF _MOUSEBUTTON(1) THEN
+        i = newobject(o())
+        o(i).sprite = 2
+        o(i).x = o(player).x
+        o(i).y = o(player).y - s(o(player).sprite).halfy
+        o(i).my = -1
+        _SNDPLAYCOPY shootsound
+    END IF
 
-'bullet->enemy collision
-for i=1 to lastobject
-if o(i).sprite=2 then 'bullet
-for i2=1 to lastobject
-if o(i2).sprite=3 then 'enemy
-if collision(o(i),o(i2)) then
-_sndplaycopy shootsound
-i3=newobject(o())
-o(i3).sprite=5
-o(i3).my=o(i2).my\2+1
-if o(i2).active>1 then 'hit (small explosion)
-o(i2).active=o(i2).active-1
-o(i3).x=o(i).x
-o(i3).y=o(i).y
-else 'destroyed (large explosion)
-o(i3).x=o(i2).x
-o(i3).y=o(i2).y
-o(i3).active=15
-freeobject o(i2) 'enemy
-end if
-freeobject o(i) 'bullet
-exit for
-end if 'collision
-end if
-next
-end if
-next
+    'bullet->enemy collision
+    FOR i = 1 TO lastobject
+        IF o(i).sprite = 2 THEN 'bullet
+            FOR i2 = 1 TO lastobject
+                IF o(i2).sprite = 3 THEN 'enemy
+                    IF collision(o(i), o(i2)) THEN
+                        _SNDPLAYCOPY shootsound
+                        i3 = newobject(o())
+                        o(i3).sprite = 5
+                        o(i3).my = o(i2).my \ 2 + 1
+                        IF o(i2).active > 1 THEN 'hit (small explosion)
+                            o(i2).active = o(i2).active - 1
+                            o(i3).x = o(i).x
+                            o(i3).y = o(i).y
+                        ELSE 'destroyed (large explosion)
+                            o(i3).x = o(i2).x
+                            o(i3).y = o(i2).y
+                            o(i3).active = 15
+                            freeobject o(i2) 'enemy
+                        END IF
+                        freeobject o(i) 'bullet
+                        EXIT FOR
+                    END IF 'collision
+                END IF
+            NEXT
+        END IF
+    NEXT
 
-'ship->enemy collision
-i=player
-for i2=1 to lastobject
-if o(i2).sprite=3 then 'enemy
-if collision(o(i),o(i2)) then
-o(i).active=o(i).active-1
-if o(i).active=0 then end
-exit for
-end if 'collision
-end if
-next
+    'ship->enemy collision
+    i = player
+    FOR i2 = 1 TO lastobject
+        IF o(i2).sprite = 3 THEN 'enemy
+            IF collision(o(i), o(i2)) THEN
+                o(i).active = o(i).active - 1
+                IF o(i).active = 0 THEN END
+                EXIT FOR
+            END IF 'collision
+        END IF
+    NEXT
 
-'add new enemy?
-addenemy=addenemy+1
-if addenemy=50 then
-addenemy=0
-i=newobject(o())
-o(i).sprite=3
-o(i).x=rnd*320
-o(i).y=rnd*-1000-s(o(i).sprite).halfy
-o(i).my=3+rnd*6
-o(i).z=25+o(i).my*8
-o(i).active=15 'hp
-end if
+    'add new enemy?
+    addenemy = addenemy + 1
+    IF addenemy = 50 THEN
+        addenemy = 0
+        i = newobject(o())
+        o(i).sprite = 3
+        o(i).x = RND * 320
+        o(i).y = RND * -1000 - s(o(i).sprite).halfy
+        o(i).my = 3 + RND * 6
+        o(i).z = 25 + o(i).my * 8
+        o(i).active = 15 'hp
+    END IF
 
-'speed limit main loop to 18.2 frames per second
-do: nt!=timer: loop while nt!=lt!
-lt!=nt!
+    'speed limit main loop to 18.2 frames per second
+    DO: nt! = TIMER: LOOP WHILE nt! = lt!
+    lt! = nt!
 
-loop
+LOOP
 'end main loop
 
-sub move (o as object)
-o.x=o.x+o.mx
-o.y=o.y+o.my
-end sub
+SUB move (o AS object)
+o.x = o.x + o.mx
+o.y = o.y + o.my
+END SUB
 
-sub display (o as object)
-put (o.x-s(o.sprite).halfx,o.y-s(o.sprite).halfy),spritedata(s(o.sprite).index),_CLIP PSET,254
-end sub
+SUB display (o AS object)
+PUT (o.x - s(o.sprite).halfx, o.y - s(o.sprite).halfy), spritedata(s(o.sprite).index), _CLIP PSET, 254
+END SUB
 
-sub displayat (x as integer,y as integer,o as object)
-put (x-s(o.sprite).halfx,y-s(o.sprite).halfy),spritedata(s(o.sprite).index),_CLIP PSET,254
-end sub
+SUB displayat (x AS INTEGER, y AS INTEGER, o AS object)
+PUT (x - s(o.sprite).halfx, y - s(o.sprite).halfy), spritedata(s(o.sprite).index), _CLIP PSET, 254
+END SUB
 
 
-sub displayshadow (o as object)
-put (o.x-s(o.sprite).halfx,o.y-s(o.sprite).halfy+o.z),spritedata(s(o.sprite).index2),_CLIP PSET,254
-end sub
+SUB displayshadow (o AS object)
+PUT (o.x - s(o.sprite).halfx, o.y - s(o.sprite).halfy + o.z), spritedata(s(o.sprite).index2), _CLIP PSET, 254
+END SUB
 
-function newobject (o() as object)
-for i=1 to lastobject
-if o(i).active=0 then
-o(i).active=1
-o(i).mx=0: o(i).my=0
-o(i).z=0
-newobject=i
-exit function
-end if
-next
-screen 0: print "No more free objects available!":end
-end function
+FUNCTION newobject (o() AS object)
+FOR i = 1 TO lastobject
+    IF o(i).active = 0 THEN
+        o(i).active = 1
+        o(i).mx = 0: o(i).my = 0
+        o(i).z = 0
+        newobject = i
+        EXIT FUNCTION
+    END IF
+NEXT
+SCREEN 0: PRINT "No more free objects available!": END
+END FUNCTION
 
-function offscreen (o as object)
-if o.x+s(o.sprite).halfx<0 then offscreen=1:exit function
-if o.x-s(o.sprite).halfx>319 then offscreen=1:exit function
-if o.y+s(o.sprite).halfy<0 then offscreen=1:exit function
-if o.y-s(o.sprite).halfy>199 then offscreen=1:exit function
-end function
+FUNCTION offscreen (o AS object)
+IF o.x + s(o.sprite).halfx < 0 THEN offscreen = 1: EXIT FUNCTION
+IF o.x - s(o.sprite).halfx > 319 THEN offscreen = 1: EXIT FUNCTION
+IF o.y + s(o.sprite).halfy < 0 THEN offscreen = 1: EXIT FUNCTION
+IF o.y - s(o.sprite).halfy > 199 THEN offscreen = 1: EXIT FUNCTION
+END FUNCTION
 
-sub freeobject (o as object)
-o.active=0
-o.sprite=0
-end sub
+SUB freeobject (o AS object)
+o.active = 0
+o.sprite = 0
+END SUB
 
-function collision(o1 as object, o2 as object)
-if o1.y+s(o1.sprite).halfy<o2.y-s(o2.sprite).halfy then exit function
-if o2.y+s(o2.sprite).halfy<o1.y-s(o1.sprite).halfy then exit function
-if o1.x+s(o1.sprite).halfx<o2.x-s(o2.sprite).halfx then exit function
-if o2.x+s(o2.sprite).halfx<o1.x-s(o1.sprite).halfx then exit function
-collision=1
-end function
+FUNCTION collision (o1 AS object, o2 AS object)
+IF o1.y + s(o1.sprite).halfy < o2.y - s(o2.sprite).halfy THEN EXIT FUNCTION
+IF o2.y + s(o2.sprite).halfy < o1.y - s(o1.sprite).halfy THEN EXIT FUNCTION
+IF o1.x + s(o1.sprite).halfx < o2.x - s(o2.sprite).halfx THEN EXIT FUNCTION
+IF o2.x + s(o2.sprite).halfx < o1.x - s(o1.sprite).halfx THEN EXIT FUNCTION
+collision = 1
+END FUNCTION

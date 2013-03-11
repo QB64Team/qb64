@@ -1,4 +1,3 @@
-//~
 #include "common.cpp"
 #ifdef QB64_WINDOWS
 #include <fcntl.h>
@@ -14,7 +13,26 @@
 #endif
 #endif
 
+int32 fullscreen_smooth=0;
+int32 fullscreen_width=0;
+int32 fullscreen_height=0;
 
+int32 screen_scale=0;
+
+int32 resize_pending=1;
+
+int32 ScreenResize=0;
+extern "C" int QB64_Resizable(){
+ return ScreenResize;
+}
+
+int32 resize_snapback=1;
+int32 resize_snapback_x=640;
+int32 resize_snapback_y=400;
+
+int32 resize_event=0;
+int32 resize_event_x=0;
+int32 resize_event_y=0;
 
 int32 sub_gl_called=0;
 
@@ -5399,9 +5417,14 @@ return 1;//success
 int32 nmodes=0;
 int32 anymode=0;
 
-int32 x_scale=1,y_scale=1;
+float x_scale=1,y_scale=1;
 int32 x_offset=0,y_offset=0;
+int32 x_limit=0,y_limit=0;
+
+
+
 int32 x_monitor=0,y_monitor=0;
+
 
 int32 conversion_required=0;
 uint32 *conversion_layer=(uint32*)malloc(8);
@@ -18905,10 +18928,14 @@ error(5);
 float func__mousex(){
 static int32 x,x2;
 static float f;
+
 x=mouse_messages[current_mouse_message].x;
-x-=x_offset;
+
+x+=x_offset;
+x=(float)x*x_scale;
 if (x<0) x=0;
-x/=x_scale;
+if (x>x_limit) x=x_limit;
+
 x2=display_page->width; if (display_page->text) x2*=fontwidth[display_page->font];
 if (x>=x2) x=x2-1;
 if (display_page->text){
@@ -18929,9 +18956,12 @@ float func__mousey(){
 static int32 y,y2;
 static float f;
 y=mouse_messages[current_mouse_message].y;
-y-=y_offset;
+
+y+=y_offset;
+y=(float)y*y_scale;
 if (y<0) y=0;
-y/=y_scale;
+if (y>y_limit) y=y_limit;
+
 y2=display_page->height; if (display_page->text) y2*=fontheight[display_page->font];
 if (y>=y2) y=y2-1;
 if (display_page->text){
@@ -23040,28 +23070,38 @@ return internal_clipboard;
 //#ifdef USE_CLIPBOARD is used above
 #endif
 
-void sub__fullscreen(int32 method){
+
+int32 display_called=0;
+void display_now(){
+if (autodisplay){
+ display_called=0;
+ while(!display_called) Sleep(1);
+}else{
+ display();
+}
+}
+
+
+void sub__fullscreen(int32 method,int32 passed){
 //ref: "[{_OFF|_STRETCH|_SQUAREPIXELS}]"
 //          1      2           3
+
+
+if (passed&1) fullscreen_smooth=1; else fullscreen_smooth=0;
+
+while(full_screen_set!=-1) Sleep(1);//wait for pending changes from previous request to finish
+
+//***uncommenting following lines causes a crash***
+display_now();//force screen frame update to ensure a frame of the correct size exists in the buffer
+
 int32 x;
 if (method==0) x=1;
 if (method==1) x=0;
 if (method==2) x=1;
 if (method==3) x=2;
-if (full_screen==x) return;
-full_screen_set=x;
-if (autodisplay==1) {while(full_screen_set!=-1) Sleep(32);} else display();
-//try alternative if attempted method was unavailable
-if (full_screen!=x){
-if (x==1){
-full_screen_set=2;
-if (autodisplay==1) {while(full_screen_set!=-1) Sleep(32);} else display();
-}
-if (x==2){
-full_screen_set=1;
-if (autodisplay==1) {while(full_screen_set!=-1) Sleep(32);} else display();
-}
-}
+//if (full_screen==x) return;//mode already correct
+full_screen_set=x;//NOTE: QB64-GL does not differentiate between _STRETCH and _SQUAREPIXELS, _STRETCH is the default
+//display();//force screen frame update so mode switch occurs
 }
 
 int32 func__fullscreen(){
@@ -26760,9 +26800,6 @@ double func__sndrawlen()
     return bytes / (SAMP_BYTES * CHANNELS * SAMPLE_RATE);
 }
 
-int32 func__sndrate(){
-return 22050;//*revise
-}
 
 #endif //NO_S_D_L
 
@@ -27329,9 +27366,11 @@ mem_lock_tmp->type=0;//unsecured
 b.lock_offset=(ptrszint)mem_lock_tmp; b.lock_id=mem_lock_id;
 b.offset=offset;
 b.size=size;
-b.type=0;//undefined type
+b.type=16384;//_MEMNEW type
 b.elementsize=1;
+b.image=-1;
 if ((size<0)||new_error){
+ b.type=0;
  b.size=0;
  b.offset=0;
  if (size<0) error(301);
@@ -27344,10 +27383,11 @@ static mem_block b;
 new_mem_lock();
 b.lock_offset=(ptrszint)mem_lock_tmp;
 b.lock_id=mem_lock_id;
-b.type=0;//undefined type
+b.type=16384;//_MEMNEW type
 b.elementsize=1;
-
+b.image=-1;
 if (new_error){
+ b.type=0;
  b.offset=0;
  b.size=0;
  mem_lock_tmp->type=0;
@@ -27379,11 +27419,14 @@ static mem_block b;
 
 if (new_error) goto error;
 
+static int image_handle;
+
 static img_struct *im;
 if (passed){
  if (i>=0){
- validatepage(i); im=&img[page[i]];
+ validatepage(i); im=&img[image_handle=page[i]];
  }else{
+ image_handle=i;
  i=-i;
  if (i>=nextimg){error(258); goto error;}
  im=&img[i];
@@ -27404,8 +27447,9 @@ if (im->lock_id){
 
 b.offset=(ptrszint)im->offset;
 b.size=im->bytes_per_pixel*im->width*im->height;
-b.type=1+2;//integer+unsigned
+b.type=im->bytes_per_pixel+128+1024+2048;//integer+unsigned+pixeltype
 b.elementsize=im->bytes_per_pixel;
+b.image=image_handle;
 
 return b;
 error:
@@ -27414,9 +27458,17 @@ error:
  b.lock_offset=(ptrszint)mem_lock_base; b.lock_id=1073741821;//set invalid lock
  b.type=0;
  b.elementsize=0;
+ b.image=-1;
 return b;
 }
 
+int32 func__memexists(void* void_blk){
+static mem_block *blk;
+blk=(mem_block*)void_blk;
+if ( ((mem_block*)(blk))->lock_offset==NULL ) return 0;
+if ( ((mem_lock*)(((mem_block*)(blk))->lock_offset))->id == ((mem_block*)(blk))->lock_id ) return -1;
+return 0;
+}
 
 void *func__memget(mem_block* blk,ptrszint off,ptrszint bytes){
 //checking A
@@ -27581,6 +27633,7 @@ b.offset=offset;
 b.size=size;
 b.type=type;
 b.elementsize=elementsize;
+b.image=-1;
 return b;
 }
 
@@ -27755,6 +27808,33 @@ GLUT_key_special(key,0);
  }
 #endif
 
+
+
+void GLUT_RESHAPE_FUNC(int width, int height){
+resize_event_x=width;
+resize_event_y=height;
+resize_event=-1;
+display_x=width;
+display_y=height;
+
+resize_pending=0;
+
+//snapback
+if (resize_snapback){
+ if (width!=resize_snapback_x||height!=resize_snapback_y){
+  resize_pending=1;
+  glutReshapeWindow(resize_snapback_x,resize_snapback_y);
+  glutPostRedisplay();
+ }
+}
+
+
+
+}
+
+
+
+
 //displaycall is the window of time to update our display
 
 //these lock values increment
@@ -27773,6 +27853,9 @@ int32 gl_render_method=2; //1=behind, 2=ontop[default], 3=only
 void sub__glrender(int32 method){
 gl_render_method=method;
 }
+
+//forward def
+void reinit_glut_callbacks();
 
 void GLUT_DISPLAY_REQUEST(){
 
@@ -27796,83 +27879,362 @@ i=display_frame_end;
 
 #ifndef DEPENDENCY_GL
  //we only proceed if there's GL content to overlay on existing background, but not otherwise
- if (display_frame[i].displayed) return;
+ if (display_frame[i].displayed){
+  if (full_screen_set==-1){//no pending full-screen changes
+  return;
+  }
+ }
 #endif
+
+
+//update display_x and display_y (unnecessary)
+//display_x=glutGet(GLUT_WINDOW_WIDTH);
+//display_y=glutGet(GLUT_WINDOW_HEIGHT);
+
+if ((full_screen==0)&&(full_screen_set==-1)){//not in (or attempting to enter) full screen
+
+display_required_x=display_frame[i].w; display_required_y=display_frame[i].h;
+
+static int32 framesize_changed;
+framesize_changed=0;
+if ((display_required_x!=resize_snapback_x)||(display_required_y!=resize_snapback_y)) framesize_changed=1;
+
+resize_snapback_x=display_required_x; resize_snapback_y=display_required_y;
+
+if ((display_required_x!=display_x)||(display_required_y!=display_y)){
+  if (resize_snapback||framesize_changed){
+   glutReshapeWindow(display_required_x,display_required_y);
+   glutPostRedisplay();
+   resize_pending=1;
+   return;
+  }
+}
+
+}//not in (or attempting to enter) full screen
+
+
+
+
+
+
+static int32 glut_window;
+
+//fullscreen
+if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
+
+if (full_screen_set!=-1){//full screen mode change requested 
+
+if (full_screen_set==0){
+
+//exit full screen
+glutLeaveGameMode();
+glutSetWindow(glut_window);
+reinit_glut_callbacks();
+full_screen=0;
+full_screen_set=-1;
+return;
+
+}else{
+
+static qbs *ms=NULL; if (!ms) ms=qbs_new(0,0);
+
+//attempt full screen using native dimensions
+//(could calling qbs commands cause multi-thread problems?)
+qbs_set(ms,qbs_ltrim(qbs_str(display_frame[i].w)));
+qbs_set(ms,qbs_add(ms,qbs_new_txt("x")));
+qbs_set(ms,qbs_add(ms,qbs_ltrim(qbs_str(display_frame[i].h))));
+qbs_set(ms,qbs_add(ms,qbs_new_txt_len(":32\0",4)));
+glutGameModeString((char*)ms->chr);
+
+if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
+
+if (full_screen==0) glut_window=glutGetWindow();
+glutEnterGameMode();
+fullscreen_width=display_frame[i].w; fullscreen_height=display_frame[i].h;
+reinit_glut_callbacks();
+full_screen=full_screen_set;//it's currently irrelavent if it is stretched or 1:1
+
+full_screen_set=-1;
+return;
+
+}else{ //native dimensions not possible
+
+//attempt full screen using desktop dimensions
+static int32 w; w=glutGet(GLUT_SCREEN_WIDTH);
+static int32 h; h=glutGet(GLUT_SCREEN_HEIGHT);
+
+qbs_set(ms,qbs_ltrim(qbs_str(w)));
+qbs_set(ms,qbs_add(ms,qbs_new_txt("x")));
+qbs_set(ms,qbs_add(ms,qbs_ltrim(qbs_str(h))));
+qbs_set(ms,qbs_add(ms,qbs_new_txt_len(":32\0",4)));
+glutGameModeString((char*)ms->chr);
+
+if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
+if (full_screen==0) glut_window=glutGetWindow();
+glutEnterGameMode();
+fullscreen_width=w; fullscreen_height=h;
+reinit_glut_callbacks();
+screen_scale=full_screen_set;
+full_screen=full_screen_set;
+full_screen_set=-1;
+return;
+
+}else{//cannot enter full screen
+
+full_screen=0;
+full_screen_set=-1;
+
+}
+
+}
+
+}//enter full screen
+}//full_screen_set check
+}//size pending check
+
+
+
 
 display_frame[i].displayed=1;
 
-//Modify the SCREEN's dimensions if required
-display_required_x=display_frame[i].w;
-display_required_y=display_frame[i].h;
-if ((display_required_x!=display_x)||(display_required_y!=display_y)){
-  glutReshapeWindow(display_required_x,display_required_y);
-  display_x=display_required_x; display_y=display_required_y;
-  glutPostRedisplay();
+
+
+
+
+static int32 blackout;
+blackout=0;
+static int32 level; for (level=1; level<=4;level++){
+
+static int32 x1,y1,x2,y2;
+
+if (screen_scale==2){//precalculate active screen area
+static float monitor_ratio;
+monitor_ratio=(float)fullscreen_width/(float)fullscreen_height;
+static float window_ratio;
+window_ratio=(float)display_frame[i].w/(float)display_frame[i].h;
+
+x_offset=0; y_offset=0;
+x_scale=(float)display_frame[i].w/(float)fullscreen_width; y_scale=(float)display_frame[i].h/(float)fullscreen_height;
+x_limit=fullscreen_width-1; y_limit=fullscreen_height-1;
+
+if (monitor_ratio!=window_ratio){
+x1=0;y1=0;x2=fullscreen_width;y2=fullscreen_height;
+static int32 z;
+if (monitor_ratio>window_ratio){
+ //pad sides
+ z=(float)fullscreen_height*window_ratio;
+ x1=fullscreen_width/2-z/2;
+ x2=x1+z;
+ blackout=1;
+ x_offset=-x1; x_scale=(float)display_frame[i].w/(float)z; x_limit=z-1;
+}else{
+ //pad top/bottom
+ z=(float)fullscreen_width/window_ratio;
+ y1=fullscreen_height/2-z/2;
+ y2=y1+z;
+ blackout=2;
+ y_offset=-y1; y_scale=(float)display_frame[i].h/(float)z; y_limit=z-1;
+}
+}
 }
 
-
-
-static int32 level; for (level=1; level<=3;level++){
-
-//Reset GL properties which may have been altered by SUB _GL
-//(only settings which are known to cause conflict are listed here)
+//Disable/Reset GL states (which may have been altered by SUB _GL)
 glDisable(GL_TEXTURE_2D);
 glDisable(GL_ALPHA_TEST);
 glDisable(GL_BLEND);
 glDisable (GL_COLOR_MATERIAL);
 glDisable(GL_DEPTH_TEST);
+glDisable(GL_LIGHTING);
 
 if (level==1){
 //Clear the screen
 glClear(GL_COLOR_BUFFER_BIT);
 }
 
-
 if (level==2){//GL content
 #ifdef DEPENDENCY_GL
-
-glClear(GL_DEPTH_BUFFER_BIT);
-glMatrixMode(GL_PROJECTION);
-glLoadIdentity();
-glMatrixMode(GL_MODELVIEW);
-glLoadIdentity();
-
-if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
-display_lock_request++;
-while (display_lock_confirmed<display_lock_request){
-if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
-qbevent=1; Sleep(0);
-}
-sub_gl_called=1;
-SUB__GL();
-sub_gl_called=0;
-abort_gl:;
-display_lock_released=display_lock_confirmed;
-
+ glClear(GL_DEPTH_BUFFER_BIT);
+ glMatrixMode(GL_PROJECTION);
+ glLoadIdentity();
+ glMatrixMode(GL_MODELVIEW);
+ glLoadIdentity();
+ if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
+ display_lock_request++;
+ while (display_lock_confirmed<display_lock_request){
+ if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
+ qbevent=1; Sleep(0);
+ }
+ sub_gl_called=1;
+ SUB__GL();
+ sub_gl_called=0;
+ abort_gl:;
+ display_lock_released=display_lock_confirmed;
 #endif //DEPENDENCY_GL
 }
 
-
 if ( ((level==1)&&(gl_render_method==2))||((level==3)&&(gl_render_method==1)) ){
+
 //Render SCREEN's pixels onto OpenGL window
 glClear(GL_DEPTH_BUFFER_BIT);
+
+if (screen_scale){
+
+//1. create texture
+glBindTexture (GL_TEXTURE_2D, -1); //-1 is used to avoid conflicts with QB64 handle usage
+glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, display_frame[i].w, display_frame[i].h, 0, 0x80E1, GL_UNSIGNED_BYTE, display_frame[i].bgra);
+//note: non power-of-2 dimensioned textures are supported on modern 3D cards
+//      even on older cards, as long mip-mapping is not being used they are also supported
+//      therefore, no attempt is made to convert the non-power-of-2 SCREEN sizes via software
+//      to avoid the performance hit this would incur
+ 
+//2. setup environment
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+
+
+gluOrtho2D(0, fullscreen_width, 0, fullscreen_height);
+
+glMatrixMode(GL_MODELVIEW);
+glLoadIdentity();
+
+glScalef(1, -1, 1);//flip vertically
+glTranslatef(0, -fullscreen_height, 0);//move to new vertical position
+
+
+
+
+
+glEnable(GL_TEXTURE_2D);
+glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+if (fullscreen_smooth) glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+
+if (level==3){
+ glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+//3. render as QUAD
+if ((screen_scale==2)&&(blackout!=0)){
+ glBegin(GL_QUADS);
+ glTexCoord2f (0.0f,0.0f); glVertex2f(x1, y1);
+ glTexCoord2f (1.0f,0.0f); glVertex2f(x2,y1);
+ glTexCoord2f (1.0f,1.0f); glVertex2f(x2,y2);
+ glTexCoord2f (0.0f,1.0f); glVertex2f(x1,y2);
+ glEnd();
+}else{
+
+ x_offset=0; y_offset=0;
+ x_scale=(float)display_frame[i].w/(float)fullscreen_width; y_scale=(float)display_frame[i].h/(float)fullscreen_height;
+ x_limit=fullscreen_width-1; y_limit=fullscreen_height-1;
+
+  glBegin(GL_QUADS);
+  glTexCoord2f (0.0f,0.0f); glVertex2f(0, 0);
+  glTexCoord2f (1.0f,0.0f); glVertex2f(fullscreen_width, 0);
+  glTexCoord2f (1.0f,1.0f); glVertex2f(fullscreen_width,fullscreen_height);
+  glTexCoord2f (0.0f,1.0f); glVertex2f(0,fullscreen_height);
+  glEnd();
+}
+
+
+
+}else{
+//no scaling
+
 glMatrixMode(GL_PROJECTION);
 glLoadIdentity();
 glMatrixMode(GL_MODELVIEW);
 glLoadIdentity();
+glViewport(0,0,display_x,display_y);
+glOrtho(0, display_x, display_y,0, -1.0, 1.0);
+glRasterPos2f(0, 0);
 glPixelZoom(1.0f, -1.0f);
-glRasterPos2f(-1,1.0);
+
+
+x_offset=0; y_offset=0;
+x_scale=1; y_scale=1;
+x_limit=display_frame[i].w-1; y_limit=display_frame[i].h-1;
+
+
 if (level==3){
  //glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.5); //(test below is better)
  glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 glDrawPixels(display_frame[i].w,display_frame[i].h,GL_BGRA,GL_UNSIGNED_BYTE,display_frame[i].bgra);
+
+
+}//scaling
+
+}//level
+
+
+if (level==4){
+if (blackout){
+
+//setup environment
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+gluOrtho2D(0, fullscreen_width, 0, fullscreen_height);
+glScalef(1, -1, 1);//flip vertically
+glTranslatef(0, -fullscreen_height, 0);//move to new vertical position
+glMatrixMode(GL_MODELVIEW);
+glLoadIdentity();
+
+if (blackout==1){
+
+static int32 x3;
+x3=x2;
+x2=x1;
+x1=0;
+glBegin(GL_QUADS);
+glColor3f(0,0,0);
+glVertex2f(x1, y1);
+glVertex2f(x2,y1);
+glVertex2f(x2,y2);
+glVertex2f(x1,y2);
+x1=x3;
+x2=fullscreen_width;
+glVertex2f(x1, y1);
+glVertex2f(x2,y1);
+glVertex2f(x2,y2);
+glVertex2f(x1,y2);
+glEnd();
+glColor3f(1, 1, 1);//reset color
+
+}else{
+
+static int32 y3;
+y3=y2;
+y2=y1;
+y1=0;
+glBegin(GL_QUADS);
+glColor3f(0,0,0);
+glVertex2f(x1, y1);
+glVertex2f(x2,y1);
+glVertex2f(x2,y2);
+glVertex2f(x1,y2);
+y1=y3;
+y2=fullscreen_height;
+glVertex2f(x1, y1);
+glVertex2f(x2,y1);
+glVertex2f(x2,y2);
+glVertex2f(x1,y2);
+glEnd();
+glColor3f(1, 1, 1);//reset color
+
+}
+
+}
 }
 
 
 
 }//level
-
 
 
 
@@ -28226,13 +28588,47 @@ qbs_set(sz,qbs_add(title,cz));
 
 
 
+//                     1  2
+void sub__resize(int32 on_off){
+if (on_off==1){
+ resize_snapback=0;
+}else{
+ resize_snapback=1;
+}
+}
+
+extern int32 func__resize(){
+if (resize_snapback) return 0; //resize must be enabled
+if (resize_event){
+resize_event=0;
+return -1;
+} 
+return 0;
+}
+
+extern int32 func__resizewidth(){
+return resize_event_x;
+}
+extern int32 func__resizeheight(){
+return resize_event_y;
+}
 
 
 
+
+extern void set_dynamic_info();
 
 
 int main( int argc, char* argv[] )
 {
+
+
+set_dynamic_info();
+if (ScreenResize){
+ resize_snapback=0;
+}
+
+
 
 //setup lists
 special_handles=list_new(sizeof(special_handle_struct));
@@ -28901,6 +29297,7 @@ qbs_print(qbs_new_txt((char*)glewGetString(err)),1);
   glutMouseFunc(GLUT_MOUSE_FUNC);
   glutMotionFunc(GLUT_MOTION_FUNC);
   glutPassiveMotionFunc(GLUT_PASSIVEMOTION_FUNC);
+  glutReshapeFunc(GLUT_RESHAPE_FUNC);
 
 #ifdef CORE_FREEGLUT
   glutMouseWheelFunc(GLUT_MOUSEWHEEL_FUNC);
@@ -30159,7 +30556,7 @@ uint32 *pixel;
 
 if (lock_display==1){lock_display=2; Sleep(0);}
 
-if (screen_hide) return;
+if (screen_hide) {display_called=1; return;}
 
 if (lock_display==0){
 
@@ -30211,6 +30608,8 @@ z=modes[i].w-x+modes[i].h-y;
 
 #endif //NO_S_D_L
 
+
+/* commented out 2013
 static int32 full_screen_change;
 full_screen_change=0;
 
@@ -30297,82 +30696,22 @@ full_screen=0;
 }
 full_screen_toggle_done:
 full_screen_set=-1;
+*/
 
 
-//set the screen mode if necessary
-
-x_offset=0; y_offset=0;
-x_scale=1; y_scale=1;
 
 x=display_page->width; y=display_page->height;
 if (display_page->compatible_mode==0){
 x=display_page->width*fontwidth[display_page->font]; y=display_page->height*fontheight[display_page->font];
 }
-
-//check for y-stretch flag?
-
-if (full_screen){
-
-//double res. of "small" surfaces to avoid video driver incompatibilities
-if (x<=512&&y<=384){
-x*=2; y*=2;
-y_scale*=2; x_scale*=2;
-}
-
-x2=x; y2=y;
-if (full_screen==1){
- //NO_S_D_L//x=modes[mode_stretch].w; y=modes[mode_stretch].h;
-}
-if (full_screen==2){
- //NO_S_D_L//x=modes[mode_square].w; y=modes[mode_square].h;
-}
-
-//calculate offsets
-x_offset=(x-x2)/2; y_offset=(y-y2)/2;
-
-}//full_screen
-
-
-
-//adjust monitor resolution
-if ((x!=x_monitor)||(y!=y_monitor)||full_screen_change){
 x_monitor=x; y_monitor=y;
 
+z=0; //?
 
- //NO_S_D_L//if (full_screen) z=SDL_FULLSCREEN; else z=0;
- z=0; //<----------------------
-
+//?
 mouseinput_ignoremovement=65536;
-
-
-#ifndef NO_S_D_L
-
-display_surface=SDL_SetVideoMode(x,y,32,z);
-
-#ifdef QB64_WINDOWS
-//retrieve window's handle
-static SDL_SysWMinfo info;
-if (!sdl_hwnd){
- SDL_VERSION(&info.version);
- SDL_GetWMInfo(&info);
- sdl_hwnd = info.window;
-}
-#endif
-
-#endif //NO_S_D_L
-
 mouseinput_flush();
 mouseinput_ignoremovement=4;
-
-
-
-
-//NO_S_D_L//display_surface_offset=(uint32*)display_surface->pixels;
-
-
-
-
-
 
 conversion_required=0;
 #ifndef NO_S_D_L
@@ -30387,7 +30726,7 @@ if ((display_surface->format->Bmask!=255)||(display_surface->format->Gmask!=6528
 #endif //NO_S_D_L
 
 pixel=display_surface_offset;//<-will be made obselete
-}
+
 
 
 /* Ref:
@@ -30425,7 +30764,7 @@ if (display_frame_begin){//frames exist in the buffer
 
 //Can a new frame be added?
 i=display_frame_begin; if (i==1) i=DISPLAY_FRAME_LAST+1;
-if (display_frame_end+1==i) return;//Buffer is full (has main thread stalled?) so ignore this frame
+if (display_frame_end+1==i) {display_called=1; return;}//Buffer is full (has main thread stalled?) so ignore this frame
 static int32 frame_i;
 
 if (!display_page->compatible_mode){//text
@@ -30535,7 +30874,7 @@ if (check_last){
 memcpy(display_frame[frame_i].bgra,display_frame[display_frame_end].bgra,display_frame[frame_i].bytes);
 }
 
-qbg_y_offset=y_offset*x_monitor+x_offset;//the screen base offset
+qbg_y_offset=0;//the screen base offset
 cp=display_page->offset;//read from
 cp_last=screen_last;//written to for future comparisons
 
@@ -30768,43 +31107,9 @@ if ((display_frame_begin!=0)&&(display_frame_begin!=display_frame_end)&&(display
 }
 display_surface_offset=display_frame[frame_i].bgra;
 
+memcpy(display_surface_offset,display_page->offset32,display_page->width*display_page->height*4);
 
-//scaled refresh
-if (x_scale==2){
-static uint32 *lp;
-static uint32 *lp2;
-static uint32 c;
-lp=display_page->offset32;
-lp2=display_surface_offset+x_monitor*y_offset+x_offset;
-x2=display_page->width;
-z=x2*8;
-y2=display_page->height;
-for (y=0;y<y2;y++){
-for (x=0;x<x2;x++){
-c=*lp++; *lp2++=c; *lp2++=c;
-}
-lp2+=(x_monitor-(x2*2));
-if (y_scale==2){memcpy(lp2,lp2-x_monitor,z);lp2+=x_monitor;}
-}
 goto screen_refreshed;
-}//x_scale==2
-if (x_scale==1){
-static uint32 *lp;
-static uint32 *lp2;
-lp=display_page->offset32;
-lp2=display_surface_offset+x_monitor*y_offset+x_offset;
-x2=display_page->width;
-z=x2*4;
-y2=display_page->height;
-for (y=0;y<y2;y++){
-memcpy(lp2,lp,z);
-lp2+=x_monitor;
-if (y_scale==2){memcpy(lp2,lp,z);lp2+=x_monitor;}
-lp+=x2;
-}
-goto screen_refreshed;
-}//x_scale==1
-exit(48341);
 }//32
 
 //assume <=256 colors using palette
@@ -30866,45 +31171,20 @@ display_surface_offset=display_frame[frame_i].bgra;
 memcpy(pixeldata,display_page->offset,i);
 memcpy(paldata,display_page->pal,i2*4);
 
-if (x_scale==2){
 static uint8 *cp;
 static uint32 *lp2;
 static uint32 c;
 cp=pixeldata;
-lp2=display_surface_offset+x_monitor*y_offset+x_offset;
+lp2=display_surface_offset;
 x2=display_page->width;
 y2=display_page->height;
-z=x2*8;
-for (y=0;y<y2;y++){
-for (x=0;x<x2;x++){
-c=paldata[*cp++]; *lp2++=c; *lp2++=c;
-}//x
-lp2+=(x_monitor-(x2*2));
-if (y_scale==2){memcpy(lp2,lp2-x_monitor,z);lp2+=x_monitor;}
-}//y
-goto screen_refreshed;
-}
-
-if (x_scale==1){
-static uint8 *cp;
-static uint32 *lp2;
-static uint32 c;
-cp=pixeldata;
-lp2=display_surface_offset+x_monitor*y_offset+x_offset;
-x2=display_page->width;
-y2=display_page->height;
-z=x2*4;
 for (y=0;y<y2;y++){
 for (x=0;x<x2;x++){
 *lp2++=paldata[*cp++];
 }//x
-lp2+=(x_monitor-x2);
-if (y_scale==2){memcpy(lp2,lp2-x_monitor,z);lp2+=x_monitor;}
 }//y
-goto screen_refreshed;
-}
 
-error(4621);
+goto screen_refreshed;
 
 screen_refreshed:
 
@@ -31011,6 +31291,7 @@ if (lock_display==1){lock_display=2; Sleep(0);}
 
 if (autodisplay==-1) autodisplay=0;
 
+display_called=1; return;
 }
 
 
@@ -31874,6 +32155,30 @@ return NULL;
 return -1;//Unknown command (use for debugging purposes only)
 }//QB64_Custom_Event
 
+void reinit_glut_callbacks(){
+
+
+
+glutDisplayFunc(GLUT_DISPLAY_REQUEST);
+#ifdef QB64_WINDOWS
+  glutTimerFunc(8,GLUT_TIMER_EVENT,0);
+#else
+  glutIdleFunc(GLUT_IDLEFUNC);
+#endif
+  glutKeyboardFunc(GLUT_KEYBOARD_FUNC);
+  glutKeyboardUpFunc(GLUT_KEYBOARDUP_FUNC);
+  glutSpecialFunc(GLUT_SPECIAL_FUNC);
+  glutSpecialUpFunc(GLUT_SPECIALUP_FUNC);
+  glutMouseFunc(GLUT_MOUSE_FUNC);
+  glutMotionFunc(GLUT_MOTION_FUNC);
+  glutPassiveMotionFunc(GLUT_PASSIVEMOTION_FUNC);
+  glutReshapeFunc(GLUT_RESHAPE_FUNC);
+#ifdef CORE_FREEGLUT
+  glutMouseWheelFunc(GLUT_MOUSEWHEEL_FUNC);
+#endif
+
+
+}
 
 
 

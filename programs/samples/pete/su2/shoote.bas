@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\su2"
+CHDIR ".\programs\samples\pete\su2"
 
 DECLARE SUB border ()
 DECLARE SUB center (text$)

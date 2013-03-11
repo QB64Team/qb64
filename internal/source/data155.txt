@@ -3,25 +3,25 @@ if(_FUNC_BEGINDOWNLOAD_LONG_BEGINDOWNLOAD==NULL){
 _FUNC_BEGINDOWNLOAD_LONG_BEGINDOWNLOAD=(int32*)mem_static_malloc(4);
 *_FUNC_BEGINDOWNLOAD_LONG_BEGINDOWNLOAD=0;
 }
-qbs*oldstr4490=NULL;
+qbs*oldstr4491=NULL;
 if(_FUNC_BEGINDOWNLOAD_STRING_URL->tmp||_FUNC_BEGINDOWNLOAD_STRING_URL->fixed||_FUNC_BEGINDOWNLOAD_STRING_URL->readonly){
-oldstr4490=_FUNC_BEGINDOWNLOAD_STRING_URL;
-if (oldstr4490->cmem_descriptor){
-_FUNC_BEGINDOWNLOAD_STRING_URL=qbs_new_cmem(oldstr4490->len,0);
+oldstr4491=_FUNC_BEGINDOWNLOAD_STRING_URL;
+if (oldstr4491->cmem_descriptor){
+_FUNC_BEGINDOWNLOAD_STRING_URL=qbs_new_cmem(oldstr4491->len,0);
 }else{
-_FUNC_BEGINDOWNLOAD_STRING_URL=qbs_new(oldstr4490->len,0);
+_FUNC_BEGINDOWNLOAD_STRING_URL=qbs_new(oldstr4491->len,0);
 }
-memcpy(_FUNC_BEGINDOWNLOAD_STRING_URL->chr,oldstr4490->chr,oldstr4490->len);
+memcpy(_FUNC_BEGINDOWNLOAD_STRING_URL->chr,oldstr4491->chr,oldstr4491->len);
 }
 int32 *_FUNC_BEGINDOWNLOAD_LONG_I=NULL;
 if(_FUNC_BEGINDOWNLOAD_LONG_I==NULL){
 _FUNC_BEGINDOWNLOAD_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_BEGINDOWNLOAD_LONG_I=0;
 }
-int64 fornext_value4492;
-int64 fornext_finalvalue4492;
-int64 fornext_step4492;
-uint8 fornext_step_negative4492;
+int64 fornext_value4493;
+int64 fornext_finalvalue4493;
+int64 fornext_step4493;
+uint8 fornext_step_negative4493;
 qbs *_FUNC_BEGINDOWNLOAD_STRING_URL2=NULL;
 if (!_FUNC_BEGINDOWNLOAD_STRING_URL2)_FUNC_BEGINDOWNLOAD_STRING_URL2=qbs_new(0,0);
 int32 *_FUNC_BEGINDOWNLOAD_LONG_X=NULL;
@@ -38,13 +38,13 @@ qbs *_FUNC_BEGINDOWNLOAD_STRING_E=NULL;
 if (!_FUNC_BEGINDOWNLOAD_STRING_E)_FUNC_BEGINDOWNLOAD_STRING_E=qbs_new(0,0);
 qbs *_FUNC_BEGINDOWNLOAD_STRING_URL3=NULL;
 if (!_FUNC_BEGINDOWNLOAD_STRING_URL3)_FUNC_BEGINDOWNLOAD_STRING_URL3=qbs_new(0,0);
-byte_element_struct *byte_element_4494=NULL;
-if (!byte_element_4494){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4494=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4494=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_BEGINDOWNLOAD_STRING_X=NULL;
-if (!_FUNC_BEGINDOWNLOAD_STRING_X)_FUNC_BEGINDOWNLOAD_STRING_X=qbs_new(0,0);
 byte_element_struct *byte_element_4495=NULL;
 if (!byte_element_4495){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4495=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4495=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_BEGINDOWNLOAD_STRING_X=NULL;
+if (!_FUNC_BEGINDOWNLOAD_STRING_X)_FUNC_BEGINDOWNLOAD_STRING_X=qbs_new(0,0);
+byte_element_struct *byte_element_4496=NULL;
+if (!byte_element_4496){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4496=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4496=(byte_element_struct*)mem_static_malloc(12);
 }

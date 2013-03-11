@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\pongg"
+CHDIR ".\programs\samples\thebob\pongg"
 
 '****************************************************************************
 '------- PGFX.BAS ---- A utility to create graphics files for PONGG! --------

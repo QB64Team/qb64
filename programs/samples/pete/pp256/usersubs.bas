@@ -71,7 +71,7 @@ CLS
 
 '(*) If necessary, change Path$ to the path where
 '    you have PIXELplus 256 installed.
-Path$ = ".\samples\pete\pp256\"
+Path$ = ".\programs\samples\pete\pp256\"
 
 'Load standard palette.
 REDIM StandardPal&(1 TO 1)

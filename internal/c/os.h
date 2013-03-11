@@ -56,13 +56,15 @@
 #define QB64_32
 #endif
 #endif
-#ifdef QB64_64
- #define ptrszint int64
- #define uptrszint uint64
- #define ptrsz 8
-#else
- #define ptrszint int32
- #define uptrszint uint32
- #define ptrsz 4
-#endif
 
+#ifndef QB64_OS_H_NO_TYPES
+ #ifdef QB64_64
+  #define ptrszint int64
+  #define uptrszint uint64
+  #define ptrsz 8
+ #else
+  #define ptrszint int32
+  #define uptrszint uint32
+  #define ptrsz 4
+ #endif
+#endif

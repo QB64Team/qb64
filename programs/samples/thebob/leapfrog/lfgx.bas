@@ -1,4 +1,4 @@
-CHDIR ".\samples\thebob\leapfrog"
+CHDIR ".\programs\samples\thebob\leapfrog"
 
 '*****************************************************************************
 '

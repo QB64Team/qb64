@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\tank"
+CHDIR ".\programs\samples\pete\tank"
 
 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 '

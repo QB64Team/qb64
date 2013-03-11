@@ -1,4 +1,4 @@
-chdir ".\samples\pete\hgm30e"
+chdir ".\programs\samples\pete\hgm30e"
 
 'HEGEMONY 3.0.e
 'Copyright: Akos Ivanyi (21.07.2003)

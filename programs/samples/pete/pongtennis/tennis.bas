@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\pongtennis"
+CHDIR ".\programs\samples\pete\pongtennis"
 
 DECLARE SUB challengeMatchDay ()
 DECLARE SUB challengeMode ()

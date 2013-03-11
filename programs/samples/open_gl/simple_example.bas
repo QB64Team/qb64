@@ -1,3 +1,5 @@
+CHDIR "programs\samples\open_gl"
+
 DIM SHARED AllowSubGL 'we'll set this after we finish our setup immediately below, just in case
 'there is anything here (there isn't currently though) that SUB _GL will depend on
 
@@ -8,6 +10,7 @@ REDIM SHARED DONT_USE_GLH_Handle(1000) AS DONT_USE_GLH_Handle_TYPE
 
 
 SCREEN _NEWIMAGE(1024, 768, 32)
+
 
 
 backdrop = _LOADIMAGE("xcom_backdrop.jpg")

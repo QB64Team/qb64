@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\su2"
+CHDIR ".\programs\samples\pete\su2"
 
 ' Interesting facts
 ' Programmed on windows 95 that runs at 50-60 Mhz

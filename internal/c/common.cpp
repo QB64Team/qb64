@@ -372,6 +372,7 @@ int32 type;
 	 8 char string(s) 'element-size is the memory size of 1 string
 	*/
 ptrszint elementsize;
+int32 image;
 };
 struct mem_lock{
 uint64 id;

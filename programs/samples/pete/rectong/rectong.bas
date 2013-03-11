@@ -1,4 +1,4 @@
-CHDIR ".\samples\pete\rectong"
+CHDIR ".\programs\samples\pete\rectong"
 
 DECLARE SUB AdvanceRound ()
 DECLARE SUB SelectRounds ()
