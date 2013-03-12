@@ -13,6 +13,10 @@
 #endif
 #endif
 
+
+
+
+
 int32 fullscreen_smooth=0;
 int32 fullscreen_width=0;
 int32 fullscreen_height=0;
@@ -296,17 +300,8 @@ static uint16 codepage437_to_unicode16[] = {
 
 
 int64 GetTicks(){
-static int64 x;
-x=clock();
-x*=1000;
-x/=CLOCKS_PER_SEC;
-return x;
+return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );
 }
-
-
-
-
-
 
 
 
@@ -6235,8 +6230,8 @@ extern uint32 cmem_sp; //=65536;
 extern ptrszint dblock; //32bit offset of dblock
 extern uint64 *nothingvalue;
 
-uint32 qb64_firsttimervalue;
-uint32 sdl_firsttimervalue;
+uint32 qb64_firsttimervalue;//based on time of day
+uint32 clock_firsttimervalue;//based on program launch time
 
 
 extern uint32 qbevent;
@@ -13489,7 +13484,7 @@ static uint32 x;
 static double d;
 static float f;
 x=GetTicks();
-x-=sdl_firsttimervalue;
+x-=clock_firsttimervalue;
 x+=qb64_firsttimervalue;
 //make timer value loop after midnight
 //note: there are 86400000 milliseconds in 24hrs(1 day)
@@ -28624,6 +28619,7 @@ int main( int argc, char* argv[] )
 {
 
 
+
 set_dynamic_info();
 if (ScreenResize){
  resize_snapback=0;
@@ -29044,7 +29040,7 @@ if (qb64_tm_val_old!=-1){
 }else{
     qb64_tm_val=0;//time unknown! (set to midnight, January 1, 1970)
 }
-sdl_firsttimervalue=GetTicks();
+clock_firsttimervalue=GetTicks();
 //calculate localtime as milliseconds past midnight
 qb64_tm=localtime(&qb64_tm_val);
 /* re: localtime()
@@ -29061,7 +29057,7 @@ if (qb64_tm){
 }
 /* Used as follows for calculating TIMER value:
 x=GetTicks();
-x-=sdl_firsttimervalue;
+x-=clock_firsttimervalue;
 x+=qb64_firsttimervalue;
 */
 
@@ -29356,7 +29352,7 @@ static uint32 cmem_ticks;
 static double cmem_ticks_double;
 
 cmem_ticks=GetTicks();
-cmem_ticks-=sdl_firsttimervalue;
+cmem_ticks-=clock_firsttimervalue;
 cmem_ticks+=qb64_firsttimervalue;
 //make timer value loop after midnight
 //note: there are 86400000 milliseconds in 24hrs(1 day)
