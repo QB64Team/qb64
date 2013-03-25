@@ -16,6 +16,11 @@ if [ -z "$(which g++)" ]; then
   exit 1
 fi
 
+find . -name "*.sh" -exec chmod +x {} \;
+find . -type f -iname "*.a" -exec rm -f {} \;
+find . -type f -iname "*.o" -exec rm -f {} \;
+rm /internal/temp/*
+
 echo "Building library 'LibQB'"
 cd internal/c/libqb/os/lnx
 rm -f libqb_setup.o

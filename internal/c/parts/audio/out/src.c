@@ -27,36 +27,34 @@
 void sndsetup();
 void sndclose_now(int32 handle);
 void sub__sndstop(int32 handle);
-
 void sub__sndplay(int32);
-
 uint8 *soundwave(double frequency,double length,double volume,double fadein,double fadeout);
-int32 soundwave_bytes=0;
+void qb64_generatesound(double f,double l,uint8 wait);
+void qb64_internal_sndraw(uint8* data,int32 bytes,int32 block);
+double func__sndrawlen(int32 handle,int32 passed);
 
-void qb64_generatesound(double f,double l,uint8 wait){
-sndsetup();
-static uint8* data;
-static uint32 handle;
-data=soundwave(f,l,1,0,0);
-//NO_S_D_L//handle=func__sndraw(data,soundwave_bytes);
-if (handle){
-if (wait){
-sndqueue_wait=sndqueue_next;
-suspend_program|=2;
-qbevent=1;
-}
-sndqueue[sndqueue_next]=handle;
-sndqueue_next++; if (sndqueue_next>sndqueue_lastindex) sndqueue_next=0;
-}else free(data);
-}
+
+//global variables
+int32 qb64_sndraw_lock=0;
+int32 qb64_internal_sndraw_handle=0;
+int64 qb64_internal_sndraw_lastcall=0;
+int64 qb64_internal_sndraw_prepad=0;
+int64 qb64_internal_sndraw_postpad=0;
+int32 soundwave_bytes=0;
+int32 snd_frequency=44100;
+int32 snd_buffer_size=16384;
+int32 snd_allow_internal=0;//set this flag before calling snd_... commands with an internal sound
 
 uint8 *soundwave(double frequency,double length,double volume,double fadein,double fadeout){
+//this creates 16bit signed stereo data
+
 sndsetup();
 static uint8 *data;
 static int32 i;
 static int16 x,lastx;
 static int16* sp;
-static double samples_per_second=22050.0;
+static double samples_per_second;
+samples_per_second=snd_frequency;
 
 //calculate total number of samples required
 static double samples;
@@ -110,7 +108,7 @@ return (uint8*)data;
 
 int32 wavesize(double length){
 static int32 samples;
-samples=length*22050.0; if (samples==0) samples=1;
+samples=length*(double)snd_frequency; if (samples==0) samples=1;
 return samples*4;
 }
 
@@ -136,8 +134,6 @@ error(5);
 
 
 
-int32 snd_frequency=44100;
-int32 snd_buffer_size=16384;
 
 struct snd_sequence_struct{
 uint8 *data;
@@ -215,7 +211,7 @@ int32 stream_buffer_next;
 
 ALuint al_source;
 ALuint *al_buffers;//[4]
-uint8 *al_buffer_state;//[4]
+uint8 *al_buffer_state;//[4] 0=never used, 1=processing, 2=processed
 int32 *al_buffer_index;//[4]
 
 
@@ -249,10 +245,9 @@ double len;
 #define SND_STATE_STOPPED 0
 #define SND_STATE_PLAYING 1
 #define SND_STATE_PAUSED 2
+
+
 list *snd_handles=list_new(sizeof(snd_struct));
-
-
-
 
 int32 snd_stream_handle=0;//only one sound can be streamed
 
@@ -288,7 +283,7 @@ if (snd->close==2){
 void sub_beep(){
 sndsetup();
 qb64_generatesound(783.99,0.2,0);
-Sleep(250);
+sub__delay(0.25);
 }
 
 
@@ -372,6 +367,11 @@ if (!snd) goto error;
 if (snd->internal) goto error;
 if (snd->type!=1) goto error;
 
+while (qb64_sndraw_lock) Sleep(0);
+qb64_sndraw_lock=1;
+
+if (handle==qb64_internal_sndraw_handle) qb64_internal_sndraw_lastcall=GetTicks();
+
 static int16 sample_left;
 sample_left=left*32767.0;
 static int16 sample_right;
@@ -397,12 +397,14 @@ snd->buffer_size=0;
 //attach detached buffer to stream (or discard it)
 static int32 p,p2;
 p=snd->stream_buffer_next; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
-if (p2==snd->stream_buffer_start){free(buffer); return;}//all buffers are full! (quietly ignore this buffer)
+if (p2==snd->stream_buffer_start){free(buffer); qb64_sndraw_lock=0; return;}//all buffers are full! (quietly ignore this buffer)
 snd->stream_buffer[p]=(ptrszint)buffer;
 snd->stream_buffer_next=p2;
 if (!snd->stream_buffer_start) snd->stream_buffer_start=1;
 
 }
+
+qb64_sndraw_lock=0;
 
 return;
 
@@ -412,7 +414,6 @@ return;
 }
 
 void snd_mainloop(){
-
 
 static int64 t;
 t=-1;
@@ -451,66 +452,133 @@ if (snd->close!=2){
 
 if (snd->stream_buffer_start){
 
+
+static int32 repeat;
+do{
+repeat=0; 
+
+//internal sndraw post padding
+//note: without post padding the final, incomplete buffer of sound data would not be played
+if (list_index==qb64_internal_sndraw_handle){//internal sound raw
+if (snd->stream_buffer_start==snd->stream_buffer_next){//on last source buffer
+if (snd->buffer_size>0){//partial size
+if (GetTicks()>(qb64_internal_sndraw_lastcall+20)){//no input received for last 0.02 seconds
+if (!qb64_sndraw_lock){//lock (or skip)
+qb64_sndraw_lock=1;
+if (qb64_internal_sndraw_postpad){//post-pad allowed
+qb64_internal_sndraw_postpad=0;
+while (snd->buffer_size<snd_buffer_size){
+ *(int16*)(snd->buffer+snd->buffer_size)=0;
+ snd->buffer_size+=2;
+ *(int16*)(snd->buffer+snd->buffer_size)=0;
+ snd->buffer_size+=2;
+}
+//detach buffer
+ static uint8 *buffer;
+ buffer=snd->buffer;
+//create new buffer
+ snd->buffer=(uint8*)calloc(snd_buffer_size,1);
+ snd->buffer_size=0;
+//attach detached buffer to stream (or discard it)
+ static int32 p,p2;
+ p=snd->stream_buffer_next; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
+ if (p2==snd->stream_buffer_start){
+  free(buffer); //all buffers are full! (quietly ignore this buffer)
+ }else{
+  snd->stream_buffer[p]=(ptrszint)buffer;
+  snd->stream_buffer_next=p2;
+ }
+//next sound command to prepad if necessary to begin sound
+ qb64_internal_sndraw_prepad=1;
+//unlock
+ qb64_sndraw_lock=0;
+}//post-pad allowed
+}//lock (or skip)
+}//no input received for last x seconds
+}//partial size
+}//on last source buffer
+}//internal sound raw
+
+
 if (snd->stream_buffer_start!=snd->stream_buffer_next){
 static int32 p,p2;
+static int32 i,i2;
 p=snd->stream_buffer_start; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
-//we have the data, now we need to apply it to a buffer... how do we do it?
-static int32 i;
-//1. check for uninitiated buffers
+
+//unqueue processed buffers (if any)
+static ALint buffers_processed;
+static ALuint buffers[4];
+alGetSourcei(snd->al_source, AL_BUFFERS_PROCESSED, &buffers_processed);
+if (buffers_processed){
+alSourceUnqueueBuffers(snd->al_source, buffers_processed, &buffers[0]);
+  //free associated data
+  for (i2=0;i2<buffers_processed;i2++){
+   for (i=0;i<=3;i++){
+    if (buffers[i2]==snd->al_buffers[i]){
+     free((void*)snd->stream_buffer[snd->al_buffer_index[i]]);
+     snd->al_buffer_state[i]=2;//"processed"
+    }
+   }
+  }
+}
+
+//check for uninitiated buffers
 for (i=0;i<=3;i++){
 if (snd->al_buffer_state[i]==0){
-
-snd->al_buffer_state[i]=1; snd->al_buffer_index[i]=p;
-
+snd->al_buffer_state[i]=1;//"processing"
+snd->al_buffer_index[i]=p;
 static ALuint frequency;
 static ALenum format;
 frequency=snd_frequency;
 format=AL_FORMAT_STEREO16;
 alBufferData(snd->al_buffers[i], format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
 alSourceQueueBuffers(snd->al_source, 1, &snd->al_buffers[i]);
-if (i==0) alSourcePlay(snd->al_source);
-
+ static ALint al_state;
+ alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
+ if (al_state!=AL_PLAYING){
+  alSourcePlay(snd->al_source);
+ }
 goto gotbuffer;
 }
 }
-//2. check for finished buffers
-static ALint buffers_available;
-alGetSourcei(snd->al_source, AL_BUFFERS_PROCESSED, &buffers_available);
-if (buffers_available){
+
+//check for finished buffers
+for (i=0;i<=3;i++){
+if (snd->al_buffer_state[i]==2){//"processed"
 static ALuint buffer;
-alSourceUnqueueBuffers(snd->al_source, 1, &buffer);
-
-
 static ALuint frequency;
 static ALenum format;
 frequency=snd_frequency;
 format=AL_FORMAT_STEREO16;
-alBufferData(buffer, format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
-alSourceQueueBuffers(snd->al_source, 1, &buffer);
-
-//locate the buffer to free the old data
-for (i=0;i<=3;i++){
- if (buffer==snd->al_buffers[i]){
-  free((void*)snd->stream_buffer[snd->al_buffer_index[i]]);
-  snd->al_buffer_index[i]=p;
+alBufferData(snd->al_buffers[i], format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
+alSourceQueueBuffers(snd->al_source, 1, &snd->al_buffers[i]);
+ static ALint al_state;
+ alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
+ if (al_state!=AL_PLAYING){
+  alSourcePlay(snd->al_source);
  }
-}
-
+snd->al_buffer_index[i]=p;
+snd->al_buffer_state[i]=1;//"processing"
 goto gotbuffer;
 }
-i=-1;
-gotbuffer:
-if (i!=-1){
-
-snd->stream_buffer_start=p2;
-
-
 }
 
+i=-1;
+
+gotbuffer:
+if (i!=-1){
+ repeat=1;
+ snd->stream_buffer_start=p2;
+}
 
 }//queued buffer exists
+
+}while(repeat); 
+
 }//started
 }//close!=2
+
+
 
 //close raw?
 if (snd->close==1){
@@ -930,13 +998,16 @@ seq->data_mono_size=samples*2;
 
 int32 sndplay_loop=0;
 
+
 void sub__sndplay(int32 handle){
 if (new_error) return;
 sndsetup();
 if (handle==0) return;//default response
 static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
 if (!snd){error(5); return;}
-if (snd->internal){error(5); return;}
+if (!snd_allow_internal){
+ if (snd->internal){error(5); return;}
+}
 if (snd->type==2){
 static snd_sequence_struct *seq; seq=snd->seq;
 switch_to_mono:
@@ -1439,22 +1510,12 @@ break;
 
 case 66://MB
 if (!mb){
-mb=1;
-if (playit){
- //NO_S_D_L//handle=func__sndraw(wave,wave_bytes);
- if (handle){
-  sndqueue[sndqueue_next]=handle;
-  sndqueue_next++; if (sndqueue_next>sndqueue_lastindex) sndqueue_next=0;
- }else{free(wave);}
- wave=(uint8*)calloc(4,1); //NO_S_D_L//handle=func__sndraw(wave,4);
- if (handle){
-  sndqueue_wait=sndqueue_next; suspend_program|=2; qbevent=1;
-  sndqueue[sndqueue_next]=handle;
-  sndqueue_next++; if (sndqueue_next>sndqueue_lastindex) sndqueue_next=0;
- }else{free(wave);}
-}
-playit=0;
-wave=NULL;
+ mb=1;
+ if (playit){
+  playit=0;
+  qb64_internal_sndraw(wave,wave_bytes,1);
+ }
+ wave=NULL;
 }
 break;
 case 70://MF
@@ -1639,36 +1700,157 @@ error(5); return;
 done:
 if (number_entered||followup){error(5); return;}//unhandled data
 
-
-
-
 if (playit){
-//NO_S_D_L//handle=func__sndraw(wave,wave_bytes);
-if (handle){
-sndqueue[sndqueue_next]=handle;
-sndqueue_next++; if (sndqueue_next>sndqueue_lastindex) sndqueue_next=0;
-}
-
-//creating a "blocking" sound object
-if (!mb){
-wave=(uint8*)calloc(4,1); //NO_S_D_L//handle=func__sndraw(wave,4);
-if (handle){
-sndqueue_wait=sndqueue_next; suspend_program|=2; qbevent=1;
-sndqueue[sndqueue_next]=handle;
-sndqueue_next++; if (sndqueue_next>sndqueue_lastindex) sndqueue_next=0;
-}else{free(wave);}
-
-}//!mb
-
-
-
-
+ if (mb){
+  qb64_internal_sndraw(wave,wave_bytes,0);
+ }else{
+  qb64_internal_sndraw(wave,wave_bytes,1);
+ }
 }//playit
 
 }
 
 int32 func__sndrate(){
 return snd_frequency;
+}
+
+void qb64_generatesound(double f,double l,uint8 block){
+sndsetup();
+static uint8* data;
+data=soundwave(f,l,1,0,0);
+qb64_internal_sndraw(data,soundwave_bytes,block);
+}
+
+
+
+void qb64_internal_sndraw(uint8* data,int32 bytes,int32 block){//data required in 16bit stereo at native frequency, data is freed
+sndsetup();
+static int32 i;
+if (qb64_internal_sndraw_handle==0){
+ qb64_internal_sndraw_handle=func__sndopenraw();
+ qb64_internal_sndraw_prepad=1;
+}
+
+
+int64 buffered_ms;
+if (block){
+ buffered_ms=func__sndrawlen(qb64_internal_sndraw_handle,1)*1000.0;
+ buffered_ms=((double)buffered_ms)*0.95;//take 95% of actual length to allow time for processing of new content
+ buffered_ms-=250;//allow for latency (call frequency and pre/post pad)
+ if (buffered_ms<0) buffered_ms=0;
+}
+
+if (qb64_internal_sndraw_prepad){
+ qb64_internal_sndraw_prepad=0;
+ //pad initial buffer so that first sound is played immediately
+ static int32 snd_buffer_size_samples;
+ snd_buffer_size_samples=snd_buffer_size/2/2;
+ static int32 n;
+ n=snd_buffer_size_samples-(bytes/2/2);
+ if (n>0){
+  for (i=0;i<n;i++){
+   sub__sndraw(0,0,qb64_internal_sndraw_handle,2);
+  }
+ }
+}
+//move data into sndraw handle
+for (i=0;i<bytes;i+=4){
+sub__sndraw( (float)((int16*)(data+i))[0]/32768.0 ,(float)((int16*)(data+i))[1]/32768.0,qb64_internal_sndraw_handle,1+2);
+}
+qb64_internal_sndraw_postpad=1;
+free(data);//free the sound data
+
+if (block){
+ int64 length_ms;
+ length_ms=(((bytes/2/2)*1000)/snd_frequency);//length in ms
+ length_ms=((double)length_ms)*0.95;//take 95% of actual length to allow time for processing of new content
+ length_ms-=250;//allow for latency (call frequency and pre/post pad)
+ if (length_ms>0){
+  sub__delay(((double)length_ms+(double)buffered_ms)/1000.0);
+ }
+}
+
+}
+
+
+double func__sndrawlen(int32 handle,int32 passed){
+if (passed){
+ if (handle==0) return 0;
+}else{
+ if (!snd_raw_channel) return 0;
+ handle=snd_raw_channel;
+}
+static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
+if (!snd) goto error;
+if (snd->internal) goto error;
+if (snd->type!=1) goto error;
+if (!snd->stream_buffer_start) return 0;
+//count buffered source buffers
+static int32 source_buffers;
+source_buffers=0;
+static int32 i;
+i=snd->stream_buffer_start;
+while(i!=snd->stream_buffer_next){
+ source_buffers++; i++; if (i>snd->stream_buffer_last) i=1;
+}
+//count dest buffers
+static int32 dest_buffers;
+dest_buffers=0;
+for (i=0;i<=3;i++){
+ if (snd->al_buffer_state[i]==1) dest_buffers++;
+}
+return ((double)((dest_buffers+source_buffers)*(snd_buffer_size/2/2)))/(double)snd_frequency;
+
+error:
+error(5);
+return 0;
+}
+
+void sub__sndrawdone(int32 handle,int32 passed){
+if (passed){
+ if (handle==0) return;
+}else{
+ if (!snd_raw_channel) return;
+ handle=snd_raw_channel;
+}
+static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
+if (!snd) goto error;
+if (snd->internal) goto error;
+if (snd->type!=1) goto error;
+if (snd->buffer_size>0){//partial size
+if (!qb64_sndraw_lock){//lock (or skip)
+qb64_sndraw_lock=1;
+while (snd->buffer_size<snd_buffer_size){
+ *(int16*)(snd->buffer+snd->buffer_size)=0;
+ snd->buffer_size+=2;
+ *(int16*)(snd->buffer+snd->buffer_size)=0;
+ snd->buffer_size+=2;
+}
+//detach buffer
+ static uint8 *buffer;
+ buffer=snd->buffer;
+//create new buffer
+ snd->buffer=(uint8*)calloc(snd_buffer_size,1);
+ snd->buffer_size=0;
+//attach detached buffer to stream (or discard it)
+ static int32 p,p2;
+ p=snd->stream_buffer_next; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
+ if (p2==snd->stream_buffer_start){
+  free(buffer); //all buffers are full! (quietly ignore this buffer)
+ }else{
+  snd->stream_buffer[p]=(ptrszint)buffer;
+  snd->stream_buffer_next=p2;
+  if (!snd->stream_buffer_start) snd->stream_buffer_start=1;
+ }
+//unlock
+ qb64_sndraw_lock=0;
+}//lock (or skip)
+}//partial size
+return;
+
+error:
+error(5);
+return;
 }
 
 #endif

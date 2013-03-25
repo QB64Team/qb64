@@ -1,21 +1,21 @@
 qbs *_FUNC_DECOMPRESS_STRING_DECOMPRESS=NULL;
 if (!_FUNC_DECOMPRESS_STRING_DECOMPRESS)_FUNC_DECOMPRESS_STRING_DECOMPRESS=qbs_new(0,0);
-qbs*oldstr4462=NULL;
+qbs*oldstr4463=NULL;
 if(_FUNC_DECOMPRESS_STRING_A->tmp||_FUNC_DECOMPRESS_STRING_A->fixed||_FUNC_DECOMPRESS_STRING_A->readonly){
-oldstr4462=_FUNC_DECOMPRESS_STRING_A;
-if (oldstr4462->cmem_descriptor){
-_FUNC_DECOMPRESS_STRING_A=qbs_new_cmem(oldstr4462->len,0);
+oldstr4463=_FUNC_DECOMPRESS_STRING_A;
+if (oldstr4463->cmem_descriptor){
+_FUNC_DECOMPRESS_STRING_A=qbs_new_cmem(oldstr4463->len,0);
 }else{
-_FUNC_DECOMPRESS_STRING_A=qbs_new(oldstr4462->len,0);
+_FUNC_DECOMPRESS_STRING_A=qbs_new(oldstr4463->len,0);
 }
-memcpy(_FUNC_DECOMPRESS_STRING_A->chr,oldstr4462->chr,oldstr4462->len);
+memcpy(_FUNC_DECOMPRESS_STRING_A->chr,oldstr4463->chr,oldstr4463->len);
 }
 int32 *_FUNC_DECOMPRESS_LONG_X=NULL;
 if(_FUNC_DECOMPRESS_LONG_X==NULL){
 _FUNC_DECOMPRESS_LONG_X=(int32*)mem_static_malloc(4);
 *_FUNC_DECOMPRESS_LONG_X=0;
 }
-byte_element_struct *byte_element_4464=NULL;
-if (!byte_element_4464){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4464=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4464=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4465=NULL;
+if (!byte_element_4465){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4465=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4465=(byte_element_struct*)mem_static_malloc(12);
 }

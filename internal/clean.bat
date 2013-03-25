@@ -24,6 +24,8 @@ del source\recent.bin 2>nul
 
 echo Culling precompiled libraries
 del /s c\libqb\*.o 2>nul
+del /s c\libqb\*.a 2>nul
+del /s c\parts\*.o 2>nul
 del /s c\parts\*.a 2>nul
 
 echo Culling temporary copies of qbx.cpp, such as qbx2.cpp

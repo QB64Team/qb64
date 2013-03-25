@@ -15,28 +15,32 @@
 
 
 
+void sub__delay(double seconds);
 
+int32 os_resize_event=0;
+
+int32 resize_auto=0;//1=_STRETCH, 2=_SMOOTH
+float resize_auto_ideal_aspect=640.0/400.0;
+float resize_auto_accept_aspect=640.0/400.0;
 
 int32 fullscreen_smooth=0;
 int32 fullscreen_width=0;
 int32 fullscreen_height=0;
-
 int32 screen_scale=0;
-
 int32 resize_pending=1;
+int32 resize_snapback=1;
+int32 resize_snapback_x=640;
+int32 resize_snapback_y=400;
+int32 resize_event=0;
+int32 resize_event_x=0;
+int32 resize_event_y=0;
 
+int32 ScreenResizeScale=0;
 int32 ScreenResize=0;
 extern "C" int QB64_Resizable(){
  return ScreenResize;
 }
 
-int32 resize_snapback=1;
-int32 resize_snapback_x=640;
-int32 resize_snapback_y=400;
-
-int32 resize_event=0;
-int32 resize_event_x=0;
-int32 resize_event_y=0;
 
 int32 sub_gl_called=0;
 
@@ -60,6 +64,8 @@ extern "C" int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,in
 
 static int32 display_x=640;
 static int32 display_y=400;
+int32 display_x_prev=640,display_y_prev=400;
+
 static int32 display_required_x=640;
 static int32 display_required_y=400;
 
@@ -27807,25 +27813,14 @@ GLUT_key_special(key,0);
 
 
 void GLUT_RESHAPE_FUNC(int width, int height){
-resize_event_x=width;
-resize_event_y=height;
+resize_event_x=width; resize_event_y=height;
 resize_event=-1;
-display_x=width;
-display_y=height;
-
+display_x_prev=display_x,display_y_prev=display_y;
+display_x=width; display_y=height;
 resize_pending=0;
-
-//snapback
-if (resize_snapback){
- if (width!=resize_snapback_x||height!=resize_snapback_y){
-  resize_pending=1;
-  glutReshapeWindow(resize_snapback_x,resize_snapback_y);
-  glutPostRedisplay();
- }
-}
-
-
-
+os_resize_event=1;
+//***glutReshapeWindow(...) has no effect if called
+//   within GLUT_RESHAPE_FUNC***
 }
 
 
@@ -27877,25 +27872,57 @@ i=display_frame_end;
  //we only proceed if there's GL content to overlay on existing background, but not otherwise
  if (display_frame[i].displayed){
   if (full_screen_set==-1){//no pending full-screen changes
-  return;
+   if (os_resize_event==0){//no resize events
+    return;
+   }
   }
  }
 #endif
-
-
-//update display_x and display_y (unnecessary)
-//display_x=glutGet(GLUT_WINDOW_WIDTH);
-//display_y=glutGet(GLUT_WINDOW_HEIGHT);
+os_resize_event=0;
 
 if ((full_screen==0)&&(full_screen_set==-1)){//not in (or attempting to enter) full screen
 
 display_required_x=display_frame[i].w; display_required_y=display_frame[i].h;
+
+resize_auto_ideal_aspect=(float)display_frame[i].w/(float)display_frame[i].h;
 
 static int32 framesize_changed;
 framesize_changed=0;
 if ((display_required_x!=resize_snapback_x)||(display_required_y!=resize_snapback_y)) framesize_changed=1;
 
 resize_snapback_x=display_required_x; resize_snapback_y=display_required_y;
+
+if (resize_auto){
+//maintain aspect ratio
+static float ar;
+ar=(float)display_x/(float)display_y;
+if ((ar!=resize_auto_accept_aspect)&&(ar!=resize_auto_ideal_aspect)){
+//set new size
+static int32 x,y;
+if (display_x_prev==display_x){
+ y=display_y;
+ x=(float)y*resize_auto_ideal_aspect;
+}
+if (display_y_prev==display_y){
+ x=display_x;
+ y=(float)x/resize_auto_ideal_aspect;
+}
+if ((display_y_prev!=display_y)&&(display_x_prev!=display_x)){
+ if (abs(display_y_prev-display_y)<abs(display_x_prev-display_x)){
+  x=display_x;
+  y=(float)x/resize_auto_ideal_aspect;
+ }else{
+  y=display_y;
+  x=(float)y*resize_auto_ideal_aspect;
+ }
+}
+resize_auto_accept_aspect=(float)x/(float)y;
+resize_pending=1;
+glutReshapeWindow(x,y);
+glutPostRedisplay();
+goto auto_resized; 
+}
+}//resize_auto
 
 if ((display_required_x!=display_x)||(display_required_y!=display_y)){
   if (resize_snapback||framesize_changed){
@@ -27906,8 +27933,9 @@ if ((display_required_x!=display_x)||(display_required_y!=display_y)){
   }
 }
 
-}//not in (or attempting to enter) full screen
+auto_resized:;
 
+}//not in (or attempting to enter) full screen
 
 
 
@@ -28073,7 +28101,7 @@ if ( ((level==1)&&(gl_render_method==2))||((level==3)&&(gl_render_method==1)) ){
 //Render SCREEN's pixels onto OpenGL window
 glClear(GL_DEPTH_BUFFER_BIT);
 
-if (screen_scale){
+if ((screen_scale!=0)||(resize_auto!=0)){
 
 //1. create texture
 glBindTexture (GL_TEXTURE_2D, -1); //-1 is used to avoid conflicts with QB64 handle usage
@@ -28087,14 +28115,23 @@ glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, display_frame[i].w, display_frame[i].h,
 glMatrixMode(GL_PROJECTION);
 glLoadIdentity();
 
+if (!full_screen){//assume auto, so insert dummy values
+fullscreen_width=display_x;
+fullscreen_height=display_y;
+}
 
 gluOrtho2D(0, fullscreen_width, 0, fullscreen_height);
-
 glMatrixMode(GL_MODELVIEW);
 glLoadIdentity();
-
 glScalef(1, -1, 1);//flip vertically
 glTranslatef(0, -fullscreen_height, 0);//move to new vertical position
+
+if (!full_screen){//assume auto, so insert dummy values
+glViewport(0,0,display_x,display_y);
+}
+
+
+
 
 
 
@@ -28107,8 +28144,11 @@ glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-if (fullscreen_smooth) glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+if (full_screen){
+ if (fullscreen_smooth) glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}else{
+ if (resize_auto==2) glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
 
 
 if (level==3){
@@ -28135,6 +28175,9 @@ if ((screen_scale==2)&&(blackout!=0)){
   glTexCoord2f (1.0f,1.0f); glVertex2f(fullscreen_width,fullscreen_height);
   glTexCoord2f (0.0f,1.0f); glVertex2f(0,fullscreen_height);
   glEnd();
+
+
+
 }
 
 
@@ -28583,14 +28626,19 @@ qbs_set(sz,qbs_add(title,cz));
 }//title
 
 
+//                   0 1  2        0 1       2
+void sub__resize(int32 on_off, int32 stretch_smooth){
 
-//                     1  2
-void sub__resize(int32 on_off){
-if (on_off==1){
- resize_snapback=0;
+if (on_off==1) resize_snapback=0;
+if (on_off==2) resize_snapback=1;
+//no change if omitted
+
+if (stretch_smooth){
+ resize_auto=stretch_smooth;
 }else{
- resize_snapback=1;
+ resize_auto=0;//revert if omitted
 }
+
 }
 
 extern int32 func__resize(){
@@ -28624,7 +28672,9 @@ set_dynamic_info();
 if (ScreenResize){
  resize_snapback=0;
 }
-
+if (ScreenResizeScale){
+ resize_auto=ScreenResizeScale;
+}
 
 
 //setup lists

@@ -1,3 +1,7 @@
+if(__LONG_ALLOWUPDATES==NULL){
+__LONG_ALLOWUPDATES=(int32*)mem_static_malloc(4);
+*__LONG_ALLOWUPDATES=0;
+}
 if(__LONG_INCLUDE_GDB_DEBUGGING_INFO==NULL){
 __LONG_INCLUDE_GDB_DEBUGGING_INFO=(int32*)mem_static_malloc(4);
 *__LONG_INCLUDE_GDB_DEBUGGING_INFO=0;
@@ -2591,6 +2595,10 @@ __LONG_LASTUNRESOLVED=(int32*)mem_static_malloc(4);
 if(__LONG_RESIZE==NULL){
 __LONG_RESIZE=(int32*)mem_static_malloc(4);
 *__LONG_RESIZE=0;
+}
+if(__LONG_RESIZE_SCALE==NULL){
+__LONG_RESIZE_SCALE=(int32*)mem_static_malloc(4);
+*__LONG_RESIZE_SCALE=0;
 }
 if(__LONG_F==NULL){
 __LONG_F=(int32*)mem_static_malloc(4);
@@ -5316,34 +5324,34 @@ __LONG_R2=(int32*)mem_static_malloc(4);
 }
 int32 pass1493;
 int32 pass1495;
-byte_element_struct *byte_element_1504=NULL;
-if (!byte_element_1504){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1504=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1504=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1505=NULL;
+if (!byte_element_1505){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1505=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1505=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1509=NULL;
-if (!byte_element_1509){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1509=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1509=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1510=NULL;
+if (!byte_element_1510){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1510=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1510=(byte_element_struct*)mem_static_malloc(12);
 }
 if(__LONG_FF==NULL){
 __LONG_FF=(int32*)mem_static_malloc(4);
 *__LONG_FF=0;
 }
-static int64 fornext_value1515;
-static int64 fornext_finalvalue1515;
-static int64 fornext_step1515;
-static uint8 fornext_step_negative1515;
-byte_element_struct *byte_element_1516=NULL;
-if (!byte_element_1516){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1516=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1516=(byte_element_struct*)mem_static_malloc(12);
+static int64 fornext_value1516;
+static int64 fornext_finalvalue1516;
+static int64 fornext_step1516;
+static uint8 fornext_step_negative1516;
+byte_element_struct *byte_element_1517=NULL;
+if (!byte_element_1517){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1517=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1517=(byte_element_struct*)mem_static_malloc(12);
 }
 if(__LONG_NCOMMONTMP==NULL){
 __LONG_NCOMMONTMP=(int32*)mem_static_malloc(4);
 *__LONG_NCOMMONTMP=0;
 }
-static int64 fornext_value1521;
-static int64 fornext_finalvalue1521;
-static int64 fornext_step1521;
-static uint8 fornext_step_negative1521;
+static int64 fornext_value1522;
+static int64 fornext_finalvalue1522;
+static int64 fornext_step1522;
+static uint8 fornext_step_negative1522;
 if (!__STRING_PUREVARNAME)__STRING_PUREVARNAME=qbs_new(0,0);
 if(__LONG_ARRAYTYPE==NULL){
 __LONG_ARRAYTYPE=(int32*)mem_static_malloc(4);
@@ -5357,33 +5365,33 @@ if(__LONG_COMMAND==NULL){
 __LONG_COMMAND=(int32*)mem_static_malloc(4);
 *__LONG_COMMAND=0;
 }
-int32 pass1525;
+int32 pass1526;
 if (!__STRING_X1)__STRING_X1=qbs_new(0,0);
-static int64 fornext_value1569;
-static int64 fornext_finalvalue1569;
-static int64 fornext_step1569;
-static uint8 fornext_step_negative1569;
-int32 pass1571;
+static int64 fornext_value1570;
+static int64 fornext_finalvalue1570;
+static int64 fornext_step1570;
+static uint8 fornext_step_negative1570;
 int32 pass1572;
-int32 pass1580;
-int32 pass1582;
-static int64 fornext_value1606;
-static int64 fornext_finalvalue1606;
-static int64 fornext_step1606;
-static uint8 fornext_step_negative1606;
-int32 pass1607;
-int32 pass1610;
-int32 pass1613;
-static int64 fornext_value1617;
-static int64 fornext_finalvalue1617;
-static int64 fornext_step1617;
-static uint8 fornext_step_negative1617;
-int32 pass1618;
-int32 pass1621;
-static int64 fornext_value1636;
-static int64 fornext_finalvalue1636;
-static int64 fornext_step1636;
-static uint8 fornext_step_negative1636;
+int32 pass1573;
+int32 pass1581;
+int32 pass1583;
+static int64 fornext_value1607;
+static int64 fornext_finalvalue1607;
+static int64 fornext_step1607;
+static uint8 fornext_step_negative1607;
+int32 pass1608;
+int32 pass1611;
+int32 pass1614;
+static int64 fornext_value1618;
+static int64 fornext_finalvalue1618;
+static int64 fornext_step1618;
+static uint8 fornext_step_negative1618;
+int32 pass1619;
+int32 pass1622;
+static int64 fornext_value1637;
+static int64 fornext_finalvalue1637;
+static int64 fornext_step1637;
+static uint8 fornext_step_negative1637;
 if(__LONG_WIN==NULL){
 __LONG_WIN=(int32*)mem_static_malloc(4);
 *__LONG_WIN=0;
@@ -5403,31 +5411,31 @@ if (!__STRING_LIBS)__STRING_LIBS=qbs_new(0,0);
 if (!__STRING_D1)__STRING_D1=qbs_new(0,0);
 if (!__STRING_D2)__STRING_D2=qbs_new(0,0);
 if (!__STRING_D3)__STRING_D3=qbs_new(0,0);
-byte_element_struct *byte_element_1640=NULL;
-if (!byte_element_1640){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1640=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1640=(byte_element_struct*)mem_static_malloc(12);
-}
 byte_element_struct *byte_element_1641=NULL;
 if (!byte_element_1641){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1641=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1641=(byte_element_struct*)mem_static_malloc(12);
 }
-if (!__STRING_DEPSTR)__STRING_DEPSTR=qbs_new(0,0);
-static int64 fornext_value1643;
-static int64 fornext_finalvalue1643;
-static int64 fornext_step1643;
-static uint8 fornext_step_negative1643;
-if (!__STRING_LIBQB)__STRING_LIBQB=qbs_new(0,0);
-static int64 fornext_value1645;
-static int64 fornext_finalvalue1645;
-static int64 fornext_step1645;
-static uint8 fornext_step_negative1645;
-byte_element_struct *byte_element_1646=NULL;
-if (!byte_element_1646){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1646=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1646=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1642=NULL;
+if (!byte_element_1642){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1642=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1642=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1649=NULL;
-if (!byte_element_1649){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1649=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1649=(byte_element_struct*)mem_static_malloc(12);
+if (!__STRING_DEPSTR)__STRING_DEPSTR=qbs_new(0,0);
+static int64 fornext_value1644;
+static int64 fornext_finalvalue1644;
+static int64 fornext_step1644;
+static uint8 fornext_step_negative1644;
+if (!__STRING_LIBQB)__STRING_LIBQB=qbs_new(0,0);
+static int64 fornext_value1646;
+static int64 fornext_finalvalue1646;
+static int64 fornext_step1646;
+static uint8 fornext_step_negative1646;
+byte_element_struct *byte_element_1647=NULL;
+if (!byte_element_1647){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1647=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1647=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_1650=NULL;
+if (!byte_element_1650){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1650=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1650=(byte_element_struct*)mem_static_malloc(12);
 }
 if(__LONG_X1==NULL){
 __LONG_X1=(int32*)mem_static_malloc(4);
@@ -5437,29 +5445,25 @@ if(__LONG_FH2==NULL){
 __LONG_FH2=(int32*)mem_static_malloc(4);
 *__LONG_FH2=0;
 }
-byte_element_struct *byte_element_1653=NULL;
-if (!byte_element_1653){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1653=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1653=(byte_element_struct*)mem_static_malloc(12);
-}
 byte_element_struct *byte_element_1654=NULL;
 if (!byte_element_1654){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1654=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1654=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1661=NULL;
-if (!byte_element_1661){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1661=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1661=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1655=NULL;
+if (!byte_element_1655){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1655=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1655=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1665=NULL;
-if (!byte_element_1665){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1665=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1665=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1662=NULL;
+if (!byte_element_1662){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1662=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1662=(byte_element_struct*)mem_static_malloc(12);
 }
 byte_element_struct *byte_element_1666=NULL;
 if (!byte_element_1666){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1666=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1666=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1673=NULL;
-if (!byte_element_1673){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1673=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1673=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1667=NULL;
+if (!byte_element_1667){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1667=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1667=(byte_element_struct*)mem_static_malloc(12);
 }
 byte_element_struct *byte_element_1674=NULL;
 if (!byte_element_1674){
@@ -5505,47 +5509,47 @@ byte_element_struct *byte_element_1684=NULL;
 if (!byte_element_1684){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1684=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1684=(byte_element_struct*)mem_static_malloc(12);
 }
+byte_element_struct *byte_element_1685=NULL;
+if (!byte_element_1685){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1685=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1685=(byte_element_struct*)mem_static_malloc(12);
+}
 if(__LONG_FFH==NULL){
 __LONG_FFH=(int32*)mem_static_malloc(4);
 *__LONG_FFH=0;
 }
-static int64 fornext_value1704;
-static int64 fornext_finalvalue1704;
-static int64 fornext_step1704;
-static uint8 fornext_step_negative1704;
-byte_element_struct *byte_element_1705=NULL;
-if (!byte_element_1705){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1705=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1705=(byte_element_struct*)mem_static_malloc(12);
+static int64 fornext_value1705;
+static int64 fornext_finalvalue1705;
+static int64 fornext_step1705;
+static uint8 fornext_step_negative1705;
+byte_element_struct *byte_element_1706=NULL;
+if (!byte_element_1706){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1706=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1706=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1708=NULL;
-if (!byte_element_1708){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1708=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1708=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_1712=NULL;
-if (!byte_element_1712){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1712=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1712=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1709=NULL;
+if (!byte_element_1709){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1709=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1709=(byte_element_struct*)mem_static_malloc(12);
 }
 byte_element_struct *byte_element_1713=NULL;
 if (!byte_element_1713){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1713=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1713=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1720=NULL;
-if (!byte_element_1720){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1720=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1720=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1714=NULL;
+if (!byte_element_1714){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1714=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1714=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_1724=NULL;
-if (!byte_element_1724){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1724=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1724=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1721=NULL;
+if (!byte_element_1721){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1721=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1721=(byte_element_struct*)mem_static_malloc(12);
 }
 byte_element_struct *byte_element_1725=NULL;
 if (!byte_element_1725){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1725=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1725=(byte_element_struct*)mem_static_malloc(12);
 }
-if (!__STRING_B)__STRING_B=qbs_new(0,0);
-byte_element_struct *byte_element_1732=NULL;
-if (!byte_element_1732){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1732=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1732=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_1726=NULL;
+if (!byte_element_1726){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1726=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1726=(byte_element_struct*)mem_static_malloc(12);
 }
+if (!__STRING_B)__STRING_B=qbs_new(0,0);
 byte_element_struct *byte_element_1733=NULL;
 if (!byte_element_1733){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1733=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1733=(byte_element_struct*)mem_static_malloc(12);
@@ -5578,30 +5582,34 @@ byte_element_struct *byte_element_1740=NULL;
 if (!byte_element_1740){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1740=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1740=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 pass1795;
+byte_element_struct *byte_element_1741=NULL;
+if (!byte_element_1741){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1741=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1741=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 pass1796;
 if(__LONG_QBERRORHAPPENEDVALUE==NULL){
 __LONG_QBERRORHAPPENEDVALUE=(int32*)mem_static_malloc(4);
 *__LONG_QBERRORHAPPENEDVALUE=0;
 }
-int32 pass1801;
 int32 pass1802;
-static int64 fornext_value1806;
-static int64 fornext_finalvalue1806;
-static int64 fornext_step1806;
-static uint8 fornext_step_negative1806;
-byte_element_struct *byte_element_1807=NULL;
-if (!byte_element_1807){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1807=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1807=(byte_element_struct*)mem_static_malloc(12);
+int32 pass1803;
+static int64 fornext_value1807;
+static int64 fornext_finalvalue1807;
+static int64 fornext_step1807;
+static uint8 fornext_step_negative1807;
+byte_element_struct *byte_element_1808=NULL;
+if (!byte_element_1808){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1808=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1808=(byte_element_struct*)mem_static_malloc(12);
 }
-static int64 fornext_value1809;
-static int64 fornext_finalvalue1809;
-static int64 fornext_step1809;
-static uint8 fornext_step_negative1809;
-byte_element_struct *byte_element_1810=NULL;
-if (!byte_element_1810){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1810=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1810=(byte_element_struct*)mem_static_malloc(12);
+static int64 fornext_value1810;
+static int64 fornext_finalvalue1810;
+static int64 fornext_step1810;
+static uint8 fornext_step_negative1810;
+byte_element_struct *byte_element_1811=NULL;
+if (!byte_element_1811){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1811=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1811=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 pass1814;
+int32 pass1815;
 if(_SUB_GETXYMOUSE_SINGLE_OLDMOUSEX==NULL){
 _SUB_GETXYMOUSE_SINGLE_OLDMOUSEX=(float*)mem_static_malloc(4);
 *_SUB_GETXYMOUSE_SINGLE_OLDMOUSEX=0;

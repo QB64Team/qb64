@@ -3,6 +3,9 @@ $SCREENHIDE
 '$DYNAMIC
 DEFLNG A-Z
 
+DIM SHARED AllowUpdates
+
+
 IF _DIREXISTS("internal") = 0 THEN
     _SCREENSHOW
     PRINT "QB64 cannot locate the 'internal' folder"
@@ -33,7 +36,7 @@ DIM SHARED UseGL 'declared SUB _GL (no params)
 DIM SHARED Version AS STRING
 DIM SHARED C_Core AS LONG '0=SDL, 1=GLUT+OpenGL
 DIM SHARED Debug AS LONG 'debug logging is off by default
-Version$ = "0.977": Debug = 0: C_Core = 1
+Version$ = "0.978": Debug = 0: C_Core = 1
 
 _TITLE "QB64"
 
@@ -714,7 +717,7 @@ idedebuginfo = v%
 Include_GDB_Debugging_Info = idedebuginfo
 CLOSE #150
 
-IF os$ = "WIN" THEN
+IF os$ = "WIN" AND AllowUpdates <> 0 THEN
 
     'begin update check
     IF ideupdatecheck THEN
@@ -1441,6 +1444,7 @@ SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labe
 recompile:
 
 Resize = 0
+Resize_Scale = 0
 
 UseGL = 0
 
@@ -2762,14 +2766,27 @@ DO
 
         IF a3u$ = "$RESIZE:OFF" THEN
             layout$ = "$RESIZE:OFF"
-            Resize = 0
+            Resize = 0: Resize_Scale = 0
             GOTO finishednonexec
         END IF
         IF a3u$ = "$RESIZE:ON" THEN
             layout$ = "$RESIZE:ON"
-            Resize = 1
+            Resize = 1: Resize_Scale = 0
             GOTO finishednonexec
         END IF
+
+        IF a3u$ = "$RESIZE:STRETCH" THEN
+            layout$ = "$RESIZE:STRETCH"
+            Resize = 1: Resize_Scale = 1
+            GOTO finishednonexec
+        END IF
+        IF a3u$ = "$RESIZE:SMOOTH" THEN
+            layout$ = "$RESIZE:SMOOTH"
+            Resize = 1: Resize_Scale = 2
+            GOTO finishednonexec
+        END IF
+
+
 
     END IF 'QB64 Metacommands
 
@@ -10236,6 +10253,9 @@ OPEN tmpdir$ + "dyninfo.txt" FOR APPEND AS #fh
 IF Resize THEN
     PRINT #fh, "ScreenResize=1;"
 END IF
+IF Resize_Scale THEN
+    PRINT #fh, "ScreenResizeScale=" + str2(Resize_Scale) + ";"
+END IF
 CLOSE #fh
 
 'DATA_finalize
@@ -12945,9 +12965,9 @@ FOR r = 1 TO 5
     END IF
 NEXT
 CLOSE #fh
-IF os$ = "WIN" THEN
-    'menu$(m, i) = "-": i = i + 1
-    'menu$(m, i) = "#Update": i = i + 1
+IF os$ = "WIN" AND AllowUpdates <> 0 THEN
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "#Update": i = i + 1
 END IF
 menu$(m, i) = "-": i = i + 1
 menu$(m, i) = "E#xit": i = i + 1
@@ -20569,9 +20589,9 @@ clearid
 id.n = "_RESIZE"
 id.subfunc = 2
 id.callname = "sub__resize"
-id.args = 1
-id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "{ON|OFF}"
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{ON|OFF}][,{_STRETCH|_SMOOTH}]"
 regid
 
 clearid
@@ -21912,6 +21932,15 @@ id.specialformat = "?[,[?][,?]]"
 regid
 
 clearid
+id.n = "_SNDRAWDONE": id.Dependency = DEPENDENCY_AUDIO_OUT
+id.subfunc = 2
+id.callname = "sub__sndrawdone"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
+regid
+
+clearid
 id.n = "_SNDOPENRAW": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 1
 id.callname = "func__sndopenraw"
@@ -21922,6 +21951,9 @@ clearid
 id.n = "_SNDRAWLEN": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 1
 id.callname = "func__sndrawlen"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 id.ret = DOUBLETYPE - ISPOINTER
 regid
 
@@ -26278,8 +26310,8 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Display...": i = i + 1
     menu$(m, i) = "#Language...": i = i + 1
     menu$(m, i) = "#Code layout...": i = i + 1
-    IF os$ = "WIN" THEN
-        'menu$(m, i) = "#Update...": i = i + 1
+    IF os$ = "WIN" AND AllowUpdates <> 0 THEN
+        menu$(m, i) = "#Update...": i = i + 1
     END IF
     menu$(m, i) = "#Backup/Undo...": i = i + 1
     menu$(m, i) = "-": i = i + 1

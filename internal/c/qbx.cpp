@@ -82,7 +82,7 @@ void TIMERTHREAD();
 
 //extern functions
 
-extern void sub__resize(int32 on_off);
+extern void sub__resize(int32 on_off,int32 stretch_smooth);
 extern int32 func__resize();
 extern int32 func__resizewidth();
 extern int32 func__resizeheight();
@@ -148,8 +148,9 @@ extern void sub__maptriangle(float sx1,float sy1,float sx2,float sy2,float sx3,f
 extern int32 func_play(int32 ignore);
 extern int32 func__sndrate();
 extern int32 func__sndopenraw();
-extern void  sub__sndraw(float left,float right,int32 handle,int32 passed);
-extern double func__sndrawlen();
+extern void sub__sndrawdone(int32 handle,int32 passed);
+extern void sub__sndraw(float left,float right,int32 handle,int32 passed);
+extern double func__sndrawlen(int32 handle,int32 passed);
 extern void sub_paletteusing(void *element,int32 bits);
 extern int64 func_read_int64(uint8 *data,ptrszint *data_offset,ptrszint data_size);
 extern int64 func_read_uint64(uint8 *data,ptrszint *data_offset,ptrszint data_size);
@@ -930,6 +931,7 @@ return ((uint32)(off-cmem))/16;
 
 
 extern int32 ScreenResize;
+extern int32 ScreenResizeScale;
 
 //set_dynamic_info is called immediately when
 //main() begins, to set global, static variables

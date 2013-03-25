@@ -2,6 +2,12 @@
 echo QB64 Setup
 echo.
 
+del /q /s internal\c\libqb\*.o >nul 2>nul
+del /q /s internal\c\libqb\*.a >nul 2>nul
+del /q /s internal\c\parts\*.o >nul 2>nul
+del /q /s internal\c\parts\*.a >nul 2>nul
+del /q /s internal\temp\*.* >nul 2>nul
+
 echo Building library 'LibQB'
 cd internal/c/libqb/os/win
 if exist libqb_setup.o del libqb_setup.o
