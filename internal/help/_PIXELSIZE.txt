@@ -1,0 +1,47 @@
+The {{KW|_PIXELSIZE}} function returns the color depth (Bits Per Pixel) of an image.
+
+
+{{PageSyntax}}
+:''return&amp;'' = {{KW|_PIXELSIZE}}([{{Parameter|imageHandle&amp;}}])
+
+
+{{PageDescription}}
+* If {{Parameter|imageHandle&amp;}} is omitted, it is assumed to be a handle to the current write page.
+* Returns:
+:: 0 if the image or screen page specified by {{Parameter|imageHandle&amp;}} is in text mode.
+:: 1 If the image specified by {{Parameter|imageHandle&amp;}} is in 1(B &amp; W), 4(16 color) or 8(256 color) BPP mode.
+:: 4 Image specified is a 24/32-bit compatible mode. Pixels use three bytes, one per Red, Green and Blue color intensity.
+* The [[SCREEN]] or [[_NEWIMAGE]] or [[_LOADIMAGE]] color(256 or 32) mode can influence the pixel sizes that can be returned.
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, then an [[ERROR Codes|invalid handle]] error is returned.
+
+
+''Example:'' Saving Images for later program use. Handle values could be saved to an array. 
+{{CodeStart}} '' ''
+handle1&amp; = _Getimage(sx1, sy1, sx2, sy2, sourcehandle&amp;) ' function call
+
+{{Cl|FUNCTION}} GetImage&amp; (sx1, sy1, sx2, sy2, sourcehandle&amp;)
+bytespp = {{Cl|_PIXELSIZE}}(sourcehandle&amp;)
+{{Cl|IF}} bytespp = 4 {{Cl|THEN}} Pal = 32 {{Cl|ELSE}} {{Cl|IF}} bytespp = 1 {{Cl|THEN}} Pal = 256 {{Cl|ELSE}} {{Cl|EXIT FUNCTION}}
+h&amp; = {{Cl|_NEWIMAGE}}({{Cl|ABS}}(sx2 - sx1) + 1, {{Cl|ABS}}(sy2 - sy1) + 1, Pal)
+{{Cl|_PUTIMAGE}} (0, 0), sourcehandle&amp;, h&amp;, (sx1, sy1)-(sx2, sy2) 'image is not displayed
+GetImage&amp; = h&amp;
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Adapted from code by Galleon}}
+
+
+''See examples:'' 
+* [[SAVEIMAGE]] {{text|(SUB to convert image to bitmap)}}
+* [[SaveIcon32]] {{text|(convert any image to icon)}}
+* [[ThirtyTwoBit SUB]] {{text|(convert partial image to bitmap)}}
+* [[Bitmaps]]
+
+
+{{PageSeeAlso}}
+* [[_LOADIMAGE]]
+* [[_NEWIMAGE]]
+* [[_PUTIMAGE]]
+* [[_COPYPALETTE]]
+
+
+{{PageNavigation}}

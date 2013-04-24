@@ -1,0 +1,61 @@
+The [[AND (boolean)|AND]] conditonal operator is used to include another evaluation in an [[IF...THEN]] or [[Boolean]] statement.
+
+
+
+{{PageSyntax}}
+::: IF '''{{Parameter|condition}} AND {{Parameter|condition2}}'''
+
+
+{{PageDescription}}
+* If {{Parameter|condition}} [[AND (boolean)|AND]] {{Parameter|condition2}} are True then the evaluation returns True.
+* {{Parameter|condition}} and {{Parameter|condition2}} can also contain their own AND evaluations.
+* Both the IF evaluation and the AND evaluation must be True for the statement to be True.
+* Statements can use parenthesis to clarify an evaluation.
+* Can be confused with the [[AND]] numerical operator.
+
+
+{{Template:RelationalTable}}
+
+
+''Example:'' Using AND in an IF statement.
+{{CodeStart}}
+
+a% = 100
+b% = 50
+
+{{Cl|IF...THEN|IF}} a% &gt; b% {{Cl|AND (boolean)|AND}} a% &lt; 200 {{Cl|THEN}} {{Cl|PRINT}} &quot;True&quot;
+
+{{CodeEnd}}
+{{OutputStart}}
+True
+{{OutputEnd}}
+''Explanation:'' Both condition evaluations must be true for the code to be executed.
+
+
+''Example:'' Using a AND a more complex way.
+{{CodeStart}} '' ''
+a% = 100
+b% = 50
+c% = 25
+d% = 50
+e% = 100
+
+{{Cl|IF...THEN|IF}} (a% &gt; b% {{Cl|AND (boolean)|AND}} b% &gt; c%) {{Cl|AND (boolean)|AND}} (c% &lt; d% {{Cl|AND (boolean)|AND}} d% &lt; e%) {{Cl|THEN}}
+{{Cl|PRINT}} &quot;True&quot;
+{{Cl|ELSE}}
+{{Cl|PRINT}} &quot;False&quot;
+{{Cl|END IF}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+True
+{{OutputEnd}}
+''Explanation:'' The evaluations in the paranteses are evaluated first then the evaluation ''of'' the paranteses takes place, since all evaluations return True the IF...THEN evaluation returns True. If any of the evaluations returned False then the IF...THEN evaluation would also return False.
+
+
+
+{{PageSeeAlso}}
+* [[OR (boolean)]], [[XOR (boolean)]]
+* [[IF...THEN]]
+
+
+{{PageNavigation}}

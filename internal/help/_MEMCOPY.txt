@@ -1,0 +1,71 @@
+The '''_MEMCOPY''' statement copies a block of bytes from one memory offset TO another offset in memory.
+
+
+{{PageSyntax}}
+:: '''_MEMCOPY  ''source_block'', ''source_block.OFFSET'', ''source_block.SIZE'' [[TO]] ''dest_block'', ''dest_block.OFFSET'''''
+
+
+{{Parameters}}
+* ''source block'' is the source memory block name created AS [[_MEM]].
+* ''source block.OFFSET'' is the dot [[_OFFSET]] within the source memory block to read from.
+* ''source block.SIZE'' is the total number of bytes to transfer based on actual size.
+* ''dest block'' is the destination [[_MEM]] memory block name to transfer data to.
+* ''dest block.OFFSET'' is the dot [[_OFFSET]] within the dest [[_MEM]] memory block to write to.
+
+
+''Usage:''
+* The dot OFFSET is the memory block's start location in memory. Add bytes to place data further into the block.
+* The dot SIZE is the total byte size of the memory block to transfer. You can transfer all or a portion of the data bytes.
+* The memory block regions may overlap.
+* '''Always free memory blocks after values have been transferred to variables and are no longer required!'''
+
+
+''Example:'' Swapping data from one [[STRING]] variable to another. Fixed length strings are recommended for speed.
+{{CodeStart}} '' ''
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+{{Cl|DIM}} n {{Cl|AS}} {{Cl|_MEM}}
+
+m = {{Cl|_MEMNEW}}(10)
+n = {{Cl|_MEMNEW}}(100)
+
+{{Cl|_MEMPUT}} m, m.OFFSET, &quot;1234567890&quot;
+
+s$ = {{Cl|SPACE$}}(10) 'to load into a variable length string set its length first
+{{Cl|_MEMGET}} m, m.OFFSET, s$
+{{Cl|PRINT}} &quot;in:[&quot; + s$ + &quot;]&quot;
+
+{{Cl|_MEMCOPY}} m, m.OFFSET, m.SIZE {{Cl|TO}} n, n.OFFSET 'put m into n
+
+b$ = {{Cl|SPACE$}}(10)
+{{Cl|_MEMGET}} n, n.OFFSET, b$
+{{Cl|PRINT}} &quot;out:[&quot; + b$ + &quot;]&quot; 
+{{Cl|_MEMFREE}} m: {{Cl|_MEMFREE}} n 'always clear the memory when done '' ''
+{{CodeEnd}}
+
+
+''Snippet:'' Instead of copying each array element, one at a time in nested [[FOR...NEXT|FOR]] loops, _MEMCOPY does it in one statement instantly.
+{{TextStart}} '' ''
+'copy array a to array b one index at a time:
+{{Cb|FOR...NEXT|FOR}} i1 = 0 {{Cb|TO}} 100
+    {{Cb|FOR...NEXT|FOR}} i2 = 0 {{Cb|TO}} 100
+        b(i1, i2) = a(i1, i2)
+    {{Cb|NEXT}}
+{{Cb|NEXT}}
+
+'copy array a to array b in memory instantly:
+{{Cb|DIM}} ma {{Cl|AS}} {{Cb|_MEM}}: ma = {{Cb|_MEM (function)|_MEM}}(a()) 'place array data into blocks
+{{Cb|DIM}} mb {{Cl|AS}} {{Cb|_MEM}}: mb = {{Cb|_MEM (function)|_MEM}}(b())
+{{Cb|_MEMCOPY}} ma, ma.OFFSET, ma.SIZE {{Cb|TO}} mb, mb.OFFSET
+{{Cb|_MEMFREE}} ma: {{Cb|_MEMFREE}} mb 'clear the memory when done '' ''
+{{TextEnd}}
+
+
+''See also:''
+* [[_MEM]], [[_MEM (function)]]
+* [[_MEMNEW]], [[_MEMGET (function)]]
+* [[_MEMIMAGE]], [[_MEMELEMENT]]
+* [[_MEMGET]], [[_MEMPUT]]
+* [[_MEMFILL]], [[_MEMFREE]]
+
+
+{{PageNavigation}}

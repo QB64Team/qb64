@@ -1,0 +1,165 @@
+'''TYPE''' definitions are used to create variables that can hold more than one variable type of a fixed byte length.
+
+
+{{PageSyntax}}
+::'''TYPE''' typename
+
+::.
+
+::. variable(s) AS type
+
+::.
+
+::'''END TYPE'''
+
+
+* Typename is an undefined type name holder as it can hold any variable types.
+* TYPE definitions should be placed in the main module before the start of the program code execution.
+* TYPE definitions CAN be placed in [[SUB]] or [[FUNCTION]] procedures using QB64 only!
+* TYPE definitions cannot contain Array variables! Arrays can be [[DIM]]ensioned as a TYPE definition.
+* TYPE definitions cannot be inside of another TYPE definition, but variables can be defined AS another type.(See Example 3)
+* TYPE definitions must be ended with [[END TYPE]].
+* A TYPE variable MUST be assigned to the type after it is defined. Array variables are allowed.
+* Type variables must be defined in every SUB or FUNCTION unless the type variable is [[DIM]]ensioned as [[SHARED]].
+* Type variables use DOT variable names to read or write specific values. They do not use type suffixes as they can hold ANY variable type values! The name before the dot is the one you defined after the type definition and the name after is the variable name used inside of the TYPE. The name of the dimensioned type variable alone can be used to [[PUT]] # or [[GET]] # all of the data at once!
+* Once the TYPE variable is created you can find the record or byte size by using [[LEN]](typevariable).
+* TYPE definitions can also be placed in [[$INCLUDE]] .BI text files such as [[QB.BI]] is used by [[INTERRUPT]] and [[INTERRUPTX]]. 
+* '''[[_BIT]] is not currently supported in User Defined [[TYPE]]s'''.
+* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
+
+
+{{DataTypeTable}}
+
+
+''Example 1:'' Creating a mouse [[INTERRUPT]] TYPE definition. Each [[INTEGER]] value is 2 bytes.
+{{CodeStart}}
+ TYPE RegType
+   AX AS INTEGER    ' mouse function to use
+   BX AS INTEGER    ' mouse button
+   CX AS INTEGER    ' mouse graphic column position
+   DX AS INTEGER    ' mouse graphic row position
+   BP AS INTEGER    ' not used by mouse, but required *
+   SI AS INTEGER    ' not used by mouse, but required *
+   DI AS INTEGER    ' not used by mouse, but required *
+   Flags AS INTEGER ' not used by mouse but required *
+   DS AS INTEGER    ' used by {{Cl|INTERRUPTX}} only
+   ES AS INTEGER    ' used by {{Cl|INTERRUPTX}} only
+ END TYPE
+
+ {{Cl|DIM}} {{Cl|SHARED}} InRegs AS RegType, OutRegs AS RegType ' create dot variables
+
+ InRegs.AX = 3 ' sets the mouse function to read the mouse buttons and position.
+
+ {{Cl|CALL}} {{Cl|INTERRUPT}}(&amp;H33, InRegs, OutRegs)
+
+ column% = OutRegs.CX ' returns the current mouse column position
+{{CodeEnd}}
+:''Explanation:'' InRegs and OutRegs become the DOT variable prefix name for the TYPE definition's variables. 
+
+::::Each TYPE variable is designated as the DOT variable's suffix.
+
+'''* Note: Omitting variables in the RegType definition can change other program variable values!'''
+
+
+
+''Example 2:'' Creating an addressbook database for a [[RANDOM]] file.
+{{CodeStart}}
+ TYPE ContactInfo
+   First AS STRING * 10
+   Last AS STRING * 15
+   Address1 AS STRING * 30
+   Address2 AS STRING * 30
+   City AS STRING * 15
+   State AS STRING * 2
+   Zip AS LONG   ' (4 bytes)
+   Phone AS STRING * 12
+ END TYPE
+
+ DIM Contact AS ContactInfo 'create contact record variable for {{Cl|RANDOM}} file 
+ RecordLEN% = {{Cl|LEN}}(Contact) ' 118 bytes
+  'define values
+ Contact.First = &quot;Ted&quot; ' the fixed string length value will contain 7 extra spaces
+ Contact.Zip = 15236 ' {{Cl|LONG}} value that can be used to search certain zip code numbers.
+
+ {{Cl|PUT|PUT #}}1, 5,Contact  'place contact info into fifth record position
+{{CodeEnd}}
+
+:''Explanation:'' Use the assigned type variable to find the RANDOM record length which is 118 bytes. 
+::::The DOT variable names consist of Contact as the prefix:
+
+
+''Example 3:'' Defining a TYPE variable as another variable type from a previous TYPE definition in QB64.
+{{CodeStart}}
+{{Cl|TYPE}} bar
+  b {{Cl|AS}} {{Cl|STRING}} * 10
+END TYPE
+
+TYPE foo
+  a {{Cl|AS}} {{Cl|SINGLE}}
+  c {{Cl|AS}} bar          'define variable as a bar type
+END TYPE
+
+{{Cl|DIM}} foobar {{Cl|AS}} foo   'create a variable to use the foo type
+foobar.a = 15.5
+foobar.c.b = &quot;this is me&quot;
+
+PRINT foobar.a, foobar.c.b 
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+''Example 4:'' A bitmap header information TYPE [[$INCLUDE]] File.
+{{TextStart}}
+' ********
+'Bitmap.BI can be included at start of program
+
+ TYPE BMPHeaderType        ' Description                  Bytes      '''QB64''' 
+   ID AS STRING * 2        ' File ID is &quot;BM&quot;                2 
+   Size AS LONG            ' Size of the data file          4 
+   Res1 AS INTEGER         ' Reserved 1 should be 0         2 
+   Res2 AS INTEGER         ' Reserved 2 should be 0         2 
+   Offset AS LONG          ' Start position of pixel data   4 
+   Hsize AS LONG           ' Information header size        4 
+   PWidth AS LONG          ' Image width                    4       {{Cl|_WIDTH (QB64)}} 
+   PDepth AS LONG          ' Image height                   4       {{Cl|_HEIGHT}}
+   Planes AS INTEGER       ' Number of planes               2 
+   BPP AS INTEGER          ' Bits per pixel(palette)        2       {{Cl|_PIXELSIZE}}
+   Compress AS LONG        ' Compression                    4
+   ImageBytes AS LONG      ' Width * Height = ImageSIZE     4
+   Xres AS LONG            ' Width in PELS per metre        4
+   Yres AS LONG            ' Depth in PELS per metre        4
+   NumColors AS LONG       ' Number of Colors               4
+   SigColors AS LONG       ' Significant Colors             4
+ END TYPE                  '          Total Header bytes = 54 '' ''
+{{TextEnd}}
+{{CodeStart}}
+'{{Cl|$INCLUDE}}: 'Bitmap.BI'  'use only when including a BI file 
+
+{{Cl|DIM}} {{Cl|SHARED}} BMPHead AS BMPHeaderType 
+
+{{Cl|GET|GET #}}1, , BMPHead  'get the entire bitmap header information
+{{CodeEnd}}
+:''Explanation:'' Use one [[GET]] to read all of the header information from the start of the bitmap file opened AS [[BINARY]]. It reads all 54 bytes as [[STRING]], [[INTEGER]] and [[LONG]] type DOT variable values. 
+
+:NOTE: BPP returns 4(16 colors), 8(256 colors) or 24(16 million colors) bits per pixel in Qbasic. 24 bit can only be in greyscale.  
+
+:Then use the DOT variable name values like this [[GET (graphics statement)]] after you load the bitmap image to the screen:
+
+{{CodeStart}}
+{{Cl|GET (graphics statement)|GET}} (0, 0)-(BMPHead.PWidth - 1, BMPHead.PDepth - 1), Image(48) 'indexed for 4 BPP colors
+{{CodeEnd}}
+
+:The bitmap image is now stored in an {{KW|Arrays|array}} to {{KW|BSAVE}} to a file. The RGB color information follows the file header as [[ASCII]] character values read using {{KW|ASC}}. The color values could be indexed at the start of the Array with the image being offset to: index = NumberOfColors * 3. As determined by the {{KW|SCREEN (statement)|SCREEN}} mode used. In SCREEN 13(256 colors) the index would be 768.
+
+
+''See also:'' 
+* [[INTEGER]], [[SINGLE]], [[DOUBLE]]
+* [[LONG]], [[_INTEGER64]], [[_FLOAT]]
+* [[STRING]], [[_BYTE]], [[_BIT]], [[_OFFSET]]
+* [[GET|GET #]], [[PUT|PUT #]], [[BINARY]] 
+* [[GET (graphics statement)]], [[PUT (graphics statement)]] 
+* [[LEN]], [[LOF]], [[EOF]]
+* [[Bitmaps]], [[Creating_Icon_Bitmaps#Icon_to_Bitmap_Conversion_Function|Icon to Bitmap Conversion Function]]
+
+
+{{PageNavigation}}

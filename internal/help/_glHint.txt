@@ -1,0 +1,56 @@
+'''_glHint:''' specify implementation-specific hints
+
+
+{{PageSyntax}}
+
+  SUB _glHint (BYVAL target AS _UNSIGNED LONG, BYVAL mode AS _UNSIGNED LONG)
+  void '''_glHint'''(GLenum {{Parameter|target}}, GLenum {{Parameter|mode}});
+
+
+; target
+: Specifies a symbolic constant indicating the behavior to be controlled. {{KW|_GL_LINE_SMOOTH_HINT}}, {{KW|_GL_POLYGON_SMOOTH_HINT}}, {{KW|_GL_TEXTURE_COMPRESSION_HINT}}, and {{KW|_GL_FRAGMENT_SHADER_DERIVATIVE_HINT}} are accepted.
+; mode
+: Specifies a symbolic constant indicating the desired behavior. {{KW|_GL_FASTEST}}, {{KW|_GL_NICEST}}, and {{KW|_GL_DONT_CARE}} are accepted.
+
+
+{{PageDescription}}
+
+Certain aspects of GL behavior, when there is room for interpretation, can be controlled with hints. A hint is specified with two arguments. {{Parameter|target}} is a symbolic constant indicating the behavior to be controlled, and {{Parameter|mode}} is another symbolic constant indicating the desired behavior. The initial value for each {{Parameter|target}} is {{KW|_GL_DONT_CARE}}. {{Parameter|mode}} can be one of the following:
+
+; {{KW|_GL_FASTEST}}
+: 
+The most efficient option should be chosen.
+; {{KW|_GL_NICEST}}
+: 
+The most correct, or highest quality, option should be chosen.
+; {{KW|_GL_DONT_CARE}}
+: 
+No preference.
+Though the implementation aspects that can be hinted are well defined, the interpretation of the hints depends on the implementation. The hint aspects that can be specified with {{Parameter|target}}, along with suggested semantics, are as follows:
+
+; {{KW|_GL_FRAGMENT_SHADER_DERIVATIVE_HINT}}
+: 
+Indicates the accuracy of the derivative calculation for the GL shading language fragment processing built-in functions: {{KW|_dFdx}}, {{KW|_dFdy}}, and {{KW|_fwidth}}.
+; {{KW|_GL_LINE_SMOOTH_HINT}}
+: 
+Indicates the sampling quality of antialiased lines. If a larger filter function is applied, hinting {{KW|_GL_NICEST}} can result in more pixel fragments being generated during rasterization.
+; {{KW|_GL_POLYGON_SMOOTH_HINT}}
+: 
+Indicates the sampling quality of antialiased polygons. Hinting {{KW|_GL_NICEST}} can result in more pixel fragments being generated during rasterization, if a larger filter function is applied.
+; {{KW|_GL_TEXTURE_COMPRESSION_HINT}}
+: 
+Indicates the quality and performance of the compressing texture images. Hinting {{KW|_GL_FASTEST}} indicates that texture images should be compressed as quickly as possible, while {{KW|_GL_NICEST}} indicates that texture images should be compressed with as little image quality loss as possible. {{KW|_GL_NICEST}} should be selected if the texture is to be retrieved by {{KW|_glGetCompressedTexImage}} for reuse.
+
+{{PageNotes}}
+
+The interpretation of hints depends on the implementation. Some implementations ignore '''_glHint''' settings.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if either {{Parameter|target}} or {{Parameter|mode}} is not an accepted value.
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

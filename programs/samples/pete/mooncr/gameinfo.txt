@@ -1,0 +1,19 @@
+- - - Mooncrap 1999 - - -
+-
+- written by Daniel Kupfer
+- Runs in Qbasic / QUICK BASIC 4.5
+- 
+
+Controls:
+
+move left  = left  arrow / NUM 4  (use NUM 4)
+move right = right arrow / NUM 6  (use NUM 6)
+fire laser = left Strg
+S          = Toggle Sound
+P          = Pause Game
+
+Press F1 in Title Screen
+
+- For any questions mail to:
+- Email adress:  dk1000000@aol.com
+-           or:  dku1000000@cs.com 

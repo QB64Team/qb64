@@ -1,0 +1,25 @@
+The '''_MK$''' function can convert any numerical type into an [[ASCII]] [[STRING]] value that must be converted back using [[_CV]].
+
+
+{{PageSyntax}}
+:{{Parameter|string_value$}} = {{KW|_MK$}}({{Parameter|numerical_type}}, {{Parameter|numerical_value}})
+
+
+{{PageDescription}}
+* The numerical type is any QB or QB64 number type including: {{KW|INTEGER}}, {{KW|LONG}}, {{KW|SINGLE}}, {{KW|DOUBLE}}, {{KW|_INTEGER64}}, {{KW|_UNSIGNED}}, {{KW|_BYTE}} or {{KW|_BIT}}.
+* The actual numerical value must match the numerical type used.
+* Supports converting any Qbasic or '''QB64''' numerical value into a string value. 
+* Some resulting [[ASCII]] string characters might not be able to be printed to the screen.
+
+
+{{PageSeeAlso}}
+* [[MKI$]], [[CVI]], [[INTEGER]]
+* [[MKL$]], [[CVL]], [[LONG]]
+* [[MKS$]], [[CVS]], [[SINGLE]]
+* [[MKD$]], [[CVD]], [[DOUBLE]]
+* [[MKSMBF$]], [[CVSMBF]] {{text|(Microsoft Binary Format)}}
+* [[MKDMBF$]], [[CVDMBF]] {{text|(Microsoft Binary Format)}}
+* [[PDS(7.1) Procedures#CURRENCY|CURRENCY]]
+
+
+{{PageNavigation}}

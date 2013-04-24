@@ -1,0 +1,54 @@
+'''ELSE''' is used in [[IF...THEN]] or [[SELECT CASE]] statements to offer an alternative to other conditional statements.
+
+
+{{PageSyntax}}
+:: IF condition &lt;&gt; 0 THEN evaluation = -1 [[ELSE]] evaluation = 0
+
+
+''Block {{PageSyntax}}
+:: IF condition &gt; 0 THEN
+:: evaluation = -1
+:: [[ELSEIF]] condition &lt; 0 THEN evaluation = -1 
+:: [[ELSE]] evaluation = 0
+:: [[END IF]]
+
+
+* ELSE is used in a IF block statement to cover any remaining conditions not covered in the block by IF or [[ELSEIF]].
+* [[CASE ELSE]] covers any remaining conditions not covered by the other CASE statements.
+* ELSE can also be used as a False comparison to a True IF statement when a condition will only be True or False.
+* Other [[IF...THEN]] statements can be inside of an ELSE statement.
+
+
+''Example 1:'' One line IF statement
+{{CodeStart}}
+
+IF x = 100 THEN PRINT &quot;100&quot; ELSE PRINT &quot;Not 100&quot;
+
+{{CodeEnd}}
+
+''Example 2:'' Multiple line IF statement block
+{{CodeStart}}
+
+IF x = 100 THEN ' code executed MUST be on next statement line!
+   PRINT &quot;100&quot;
+ELSE PRINT &quot;Not 100&quot;
+END IF
+
+{{CodeEnd}}
+
+
+''Example 3:'' To alternate between any two values (as long as the value after ELSE is the same as the condition)
+{{CodeStart}}
+
+IF a = 3 THEN a = 5 ELSE a = 3
+
+{{CodeEnd}}
+
+
+
+''See also:'' 
+* [[ELSEIF]]
+* [[IF...THEN]]
+
+
+{{PageNavigation}}

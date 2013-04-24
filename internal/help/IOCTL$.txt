@@ -1,0 +1,19 @@
+The {{KW|IOCTL$}} function receives messages from an open device, format of the messages received is device dependent (see manual of the device to see if it is {{KW|IOCTL}} compatible). Most devices are '''NOT''' {{KW|IOCTL}} compatible.
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|IOCTL$}}([#]{{Parameter|fileNumber%}})
+
+
+{{PageDescription}}
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* {{Parameter|fileNumber%}} is the file number for the {{KW|OPEN}}ed device and {{Parameter|result$}} is the message received from the device.
+*'''Note:''' The device must first be opened with the [[OPEN]] statement.
+
+
+{{PageSeeAlso}}
+* {{KW|IOCTL}}
+* {{KW|OPEN}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,48 @@
+The '''DATE$''' statement sets the current computer date to another [[STRING]] value.
+
+
+:::''Syntax:'' DATE$ = String_expression
+
+
+
+* String expression can use slash or dash formats when assigning the date:
+
+::::mm-dd-yyyy
+::::mm/dd/yyyy
+
+* String expression or variable must contain the months, day and 4 digit year to be changed (10 valid characters). 
+* If value is not a valid formatted string, a &quot;Type Mismatch&quot; error results. The previous DATE$ value will be retained.
+* The current date (as assigned when the operating system was initialized) can be saved to restore later with the [[DATE$]] function.
+*The DATE$ function returns a 10-character string in the form ''mm-dd-yyyy''. ''mm'' is the month (01 to 12), ''dd'' is the day (01 to 31), and ''yyyy'' is the four digit year.
+* '''Note: Some systems may not allow the DATE to be reset or require Administrator privileges.''' Try a batch file or [[SHELL]].
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+''Example:'' Backdating computer to run old software.
+
+{{CodeStart}}
+ today$ = {{Cl|DATE$}}         ' function saves current computer date value
+ PRINT today$           ' verify actual date
+ {{Cl|DATE$ (statement)|DATE$}} = &quot;12-25-2000&quot;   ' literal statement changes date 
+ PRINT {{Cl|DATE$}}            ' verify new date setting
+ {{Cl|SHELL}} &quot;CMD /C &quot; + programfile$    'run old program
+ K$ = {{Cl|INPUT$}}(1)         ' press a key
+ DATE$ = today$         ' statement resets computer to original date later in program
+ PRINT {{Cl|DATE$}}            ' verify present setting
+{{CodeEnd}}
+
+{{OutputStart}}
+ 09-01-2009
+ 12-25-2000
+ 09-01-2009
+{{OutputEnd}}
+
+
+
+''See also:'' 
+
+[[DATE$]], [[TIME$]], [[TIME$ (statement)]]
+
+
+
+{{PageNavigation}}

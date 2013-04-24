@@ -1,0 +1,33 @@
+The {{KW|FILEATTR}} function can return a file's current file mode or DOS handle.
+
+
+{{PageSyntax}}
+:''result%'' = {{KW|FILEATTR}}({{Parameter|fileNumber%}}, {{Parameter|mode%}})
+
+
+{{PageDescription}}
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* {{Parameter|fileNumber%}} is the number assigned in the file's [[OPEN]] statement.
+* {{Parameter|mode%}} specifies the type of information to return, which may have the following values
+** ''mode%'' = 1: returns the open mode with the following return values:
+::{| border=&quot;2&quot; cellpadding=&quot;1&quot;
+! Return || Open Mode
+|-
+|  1 ||  [[INPUT]]
+|-
+|  2 ||  [[OUTPUT]]
+|-
+|  4 ||  [[RANDOM]]
+|-
+|  8 ||  [[APPEND]]
+|-
+|  32 ||  [[BINARY]]
+|}
+:* ''mode%'' = 2: returns the [[DOS]] handle number of a file.
+
+
+{{PageSeeAlso}}
+* [[OPEN]]
+
+
+{{PageNavigation}}

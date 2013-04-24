@@ -1,0 +1,20 @@
+The '''_FILEEXISTS''' function determines if a designated file name exists and returns True or False.
+
+
+{{PageSyntax}}
+
+::: IF _FILEEXISTS(''filename$'') THEN 
+
+
+* The ''filename'' parameter can be a literal or variable [[STRING|string]] value that can include a path.
+* The function returns -1 when a file exists and 0 when it does not.
+* The function reads the system information directly without using a [[SHELL]] procedure.
+* The function can use the appropriate Operating System path separators.
+
+
+''See also:''
+* [[_DIREXISTS]]
+* [[SHELL]]
+
+
+{{PageNavigation}}

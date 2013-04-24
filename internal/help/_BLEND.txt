@@ -1,0 +1,136 @@
+The _BLEND statement turns on 32 bit alpha blending for the current image or screen mode and is default.
+
+
+{{PageSyntax}}
+: _BLEND [{{Parameter|imageHandle&amp;}}]
+
+
+{{PageDescription}}
+* Alpha blending is on by default when loading a .PNG image to a 32-bit surface.
+* Normally it is used to turn blending on after a previous {{KW|_DONTBLEND}} call.
+* {{KW|_BLEND}} can only be used on 32-bit surfaces, otherwise it will produce the error [[ERROR Codes|Illegal Function Call]].
+* '''Note: [[_DONTBLEND]] is faster than the default [[_BLEND]] unless you really need to use it in 32 bit!'''
+* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+
+
+''Example:''
+{{CodeStart}}
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+
+'{{Cl|CLS}} , {{Cl|_RGB}}(128, 128, 128) 'change background color for other results
+
+{{Cl|_DONTBLEND}}
+
+bg&amp; = {{Cl|POINT}}(0, 0)
+{{Cl|PRINT}} {{Cl|_RED}}(bg&amp;), {{Cl|_GREEN}}(bg&amp;), {{Cl|_BLUE}}(bg&amp;), {{Cl|_ALPHA}}(bg&amp;)
+
+{{Cl|LINE}} (100, 100)-(200, 200), {{Cl|_RGBA32}}(255, 128, 0, 128), BF
+
+{{Cl|LINE}} (440, 100)-(540, 200), {{Cl|_RGBA32}}(0, 0, 255, 64), BF
+
+K$ = {{Cl|INPUT$}}(1)
+
+{{Cl|_BLEND}}
+
+{{Cl|LINE}} (270, 300)-(370, 400), {{Cl|_RGBA32}}(255, 128, 0, 128), BF
+m&amp; = {{Cl|POINT}}(303, 302)
+{{Cl|PRINT}} {{Cl|_RED}}(m&amp;), {{Cl|_GREEN}}(m&amp;), {{Cl|_BLUE}}(m&amp;), {{Cl|_ALPHA}}(m&amp;)
+K$ = {{Cl|INPUT$}}(1)
+
+{{Cl|LINE}} (270, 300)-(370, 400), {{Cl|_RGBA32}}(0, 0, 255, 64), BF
+m&amp; = {{Cl|POINT}}(303, 302)
+{{Cl|PRINT}} {{Cl|_RED}}(m&amp;), {{Cl|_GREEN}}(m&amp;), {{Cl|_BLUE}}(m&amp;), {{Cl|_ALPHA}}(m&amp;)
+{{CodeEnd}}
+
+
+&lt;table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+
+ style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+
+ mso-yfti-tbllook:480;mso-padding-alt:0cm 5.4pt 0cm 5.4pt;mso-border-insideh:
+
+ .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'&gt;
+
+ &lt;tr style='mso-yfti-irow:0;mso-yfti-lastrow:yes'&gt;
+
+  &lt;td width=118 valign=top style='width:88.55pt;border:solid windowtext 1.0pt;
+
+  mso-border-alt:solid windowtext .5pt;background:#FF8000;padding:0cm 5.4pt 0cm 5.4pt'&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;
+
+  &lt;/td&gt;
+
+  &lt;td width=181 valign=top style='width:136.05pt;border:solid windowtext 1.0pt;
+
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+
+  solid windowtext .5pt;padding:0cm 5.4pt 0cm 5.4pt'&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;_RGBA(255,128,0,128)&lt;/span&gt;&lt;/p&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;   onto&lt;/span&gt;&lt;/p&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;     _RGBA(0,0,255,64)&lt;/span&gt;&lt;/p&gt;
+
+  &lt;/td&gt;
+
+  &lt;td width=120 valign=top style='width:90.0pt;border:solid windowtext 1.0pt;
+
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+
+  solid windowtext .5pt;background:blue;padding:0cm 5.4pt 0cm 5.4pt'&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;
+
+  &lt;/td&gt;
+
+  &lt;td width=180 valign=top style='width:135.0pt;border:solid windowtext 1.0pt;
+
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+
+  solid windowtext .5pt;padding:0cm 5.4pt 0cm 5.4pt'&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;results in&lt;/span&gt;&lt;/p&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;  _RGBA(95,48,64,128)&lt;/span&gt;&lt;/p&gt;
+
+  &lt;/td&gt;
+
+  &lt;td width=120 valign=top style='width:90.0pt;border:solid windowtext 1.0pt;
+
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+
+  solid windowtext .5pt;background:#603080;padding:0cm 5.4pt 0cm 5.4pt'&gt;
+
+  &lt;p class=MsoNormal&gt;&lt;span lang=EN-AU style='font-size:10.0pt;font-family:&quot;Courier New&quot;;
+
+  mso-fareast-font-family:&quot;Times New Roman&quot;'&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;
+
+  &lt;/td&gt;
+
+ &lt;/tr&gt;
+
+&lt;/table&gt;
+
+
+{{PageSeeAlso}}
+* {{KW|_DONTBLEND}}, {{KW|_BLEND (function)}}
+* [[Images]]
+
+
+{{PageNavigation}}

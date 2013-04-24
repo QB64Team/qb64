@@ -1,0 +1,41 @@
+The {{KW|_SOURCE}} statement establishes the image SOURCE using a handle created by {{KW|_LOADIMAGE}} or {{KW|_NEWIMAGE}}.
+
+
+{{PageSyntax}}
+:{{KW|_SOURCE}} {{Parameter|handle&amp;}}
+
+
+{{PageDescription}}
+* The handle is a {{KW|LONG}} integer value from the {{KW|_SOURCE (function)|_SOURCE}} function or a handle created by {{KW|_NEWIMAGE}}. 
+* If the handle is designated as 0, it refers to the current {{KW|SCREEN (statement)|SCREEN}} image.
+* A source image can only supply information to a program. [[POINT]] and [[GET (graphics statement)|GET]] might require a source other than the present one.
+
+
+{{PageExamples}}
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 13
+a = {{Cl|_NEWIMAGE}}(320,200,13)
+{{Cl|_DEST}} a
+{{Cl|PSET}} (100, 100), 15
+{{Cl|_SOURCE}} a
+{{Cl|_DEST}} 0
+{{Cl|PRINT}} {{Cl|POINT}}(100, 100) '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ 15
+{{OutputEnd}}
+: ''Explanation:'' Create a new image with handle 'a', then use {{KW|_DEST}} to define the image to draw on. Draw a pixel then set the source to 'a' and use {{KW|POINT}} to show what color is in that position. White (15) and is the color set with {{KW|PSET}}. Use {{KW|_DEST}} 0 for the screen to display the results.
+
+
+*''See Example:'' 
+* [[Bitmaps]]
+* [[SAVEIMAGE]]
+* [[SaveIcon32]]
+
+
+{{PageSeeAlso}}
+* [[_DEST]]
+* [[_SOURCE (function)]]
+
+
+{{PageNavigation}}

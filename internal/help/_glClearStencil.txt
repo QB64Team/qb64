@@ -1,0 +1,34 @@
+'''_glClearStencil:''' specify the clear value for the stencil buffer
+
+
+{{PageSyntax}}
+
+  SUB _glClearStencil (BYVAL s AS LONG)
+  void '''_glClearStencil'''(GLint {{Parameter|s}});
+
+
+; s
+: Specifies the index used when the stencil buffer is cleared. The initial value is 0.
+
+
+{{PageDescription}}
+
+'''_glClearStencil''' specifies the index used by {{KW|_glClear}} to clear the stencil buffer. {{Parameter|s}} is masked with 2&amp;lt;sup&amp;gt;m&amp;lt;/sup&amp;gt; - 1, where m is the number of bits in the stencil buffer.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_STENCIL_CLEAR_VALUE}}
+
+{{KW|_glGet}} with argument {{KW|_GL_STENCIL_BITS}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glClear}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

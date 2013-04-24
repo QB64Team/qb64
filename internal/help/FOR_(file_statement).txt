@@ -1,0 +1,62 @@
+{{KW|FOR (file statement)|FOR}} is used in a {{KW|OPEN}} statement to select the filemode to open the file with.
+
+
+{{PageSyntax}}
+:{{KW|OPEN}} ... {{KW|FOR (file statement)|FOR}} {APPEND|BINARY|INPUT|OUTPUT|RANDOM}
+
+
+{{PageDescription}}
+
+* If {{KW|FOR (file statement)|FOR}} isn't used in a {{KW|OPEN}} statement then the default filemode {{KW|RANDOM}} is used.
+** {{KW|APPEND}} - Keeps the information of the file intact while you can insert information at the end of it, writing permission only.
+** {{KW|BINARY}} - Opens the file in binary mode, use this with binary files.
+** {{KW|INPUT (file mode)|INPUT}} - Opens the file for viewing only.
+** {{KW|OUTPUT}} - The entire contents of the file is erased while you can put new information inside it, writing permission only.
+** {{KW|RANDOM}} - The default, you can get/put records defined by a record length (the variables type or LEN=length).
+
+
+{{PageExamples}}
+'''Warning:''' ''Make sure you don't have a file named test.tst before you run this! It will be overwritten if so!''
+
+{{CodeStart}}
+
+{{Cl|CLS}}
+
+{{Cl|OPEN}} &quot;test.tst&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
+{{Cl|PRINT (file statement)|PRINT}} #1, &quot;If test.tst didn't exist:&quot;
+{{Cl|PRINT (file statement)|PRINT}} #1, &quot;A new file was created named test.tst and then deleted.&quot;
+{{Cl|PRINT (file statement)|PRINT}} #1, &quot;If test.tst did exist:&quot;
+{{Cl|PRINT (file statement)|PRINT}} #1, &quot;It was overwritten with this and deleted.&quot;
+{{Cl|CLOSE}} #1
+
+{{Cl|OPEN}} &quot;test.tst&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+{{Cl|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1)
+{{Cl|INPUT (file statement)|INPUT}} #1, a$
+{{Cl|PRINT}} a$
+{{Cl|LOOP}}
+{{Cl|CLOSE}} #1
+
+{{Cl|KILL}} &quot;test.tst&quot;
+
+{{Cl|END}}
+
+{{CodeEnd}}
+
+{{OutputStart}}
+If test.tst didn't exist:
+A new file was created named test.tst and then deleted.
+If test.tst did exist:
+It was overwritten with this and deleted.
+{{OutputEnd}}
+
+
+
+
+
+{{PageSeeAlso}}
+* {{KW|OPEN}}
+
+
+
+
+{{PageNavigation}}

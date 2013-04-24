@@ -1,0 +1,43 @@
+The '''GOTO''' statement sends the procedure to a line label or a line number in the program.
+
+
+
+{{PageSyntax}} 
+::GOTO {linenumber|linelabel}
+
+
+* Codeline is a ''[[line number|linenumber]]'' or ''linelabel'' in a procedure. Keep line numbers and labels inside of the main or sub-procedure body!
+* The line label or number MUST already exist or an [[IDE]] status error will be displayed until it is created!
+* Can be used in [[SUB]] or [[FUNCTION]] procedures using their own line labels or numbers.
+* The frequent use of GOTO statements can become confusing when trying to follow the code. Could also cause endless loops!
+* GOTO is an easy trap for new programmers. Use loops instead when possible.
+
+
+''Example:''
+{{CodeStart}} '' ''
+1 {{Cl|PRINT}} &quot;first line&quot;: {{Cl|GOTO}} gohere
+2 {{Cl|PRINT}} &quot;second line&quot;: {{Cl|GOTO}} 3
+
+gohere:
+{{Cl|PRINT}} &quot;third line&quot;
+{{Cl|GOTO}} 2
+
+3 {{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+first line
+third line
+second line
+{{OutputEnd}}
+
+:''Explanation:'' After it prints &quot;first line&quot; it goes to the line label &quot;gohere&quot; where it prints &quot;third line&quot;, then it goes to the line that is numbered &quot;2&quot; and prints &quot;second line&quot; and goes to line number 3 and an [[END]] statement which ends the program.
+
+
+''See also:'' 
+* [[GOSUB]], [[ON ERROR]]
+* [[ON...GOTO]], [[ON...GOSUB]]
+* [[DO...LOOP]], [[FOR...NEXT]]
+* [[Line number]] {{text|(removal program)}}
+
+
+{{PageNavigation}}

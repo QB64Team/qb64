@@ -1,0 +1,79 @@
+The '''DATA''' statement creates a line of fixed program information separated by commas. The DATA can be READ by the program.
+
+
+''Syntax:'' DATA [value1, value2, ...]
+
+
+* DATA is used at the beginning of every data field line with commas separating the values that follow.
+* Values can be any '''literal''' [[STRING]] or numerical type. '''Variables cannot be used!'''
+* DATA fields can be placed and READ consecutively in the main program code body with or without line labels for [[RESTORE]]. 
+* DATA is best placed after the main program code. '''QB64 DATA can be placed inside a [[SUB]] or  [[FUNCTION]] procedures!'''
+* [[RESTORE]] will only read the first data field if the DATA is not labeled or RESTORE call uses no label.
+* When using multiple DATA fields, label each data field with a line label so that '''each''' data pointer can be reset for multiple reads with [[RESTORE]] ''linelabel''. Otherwise RESTORE will only read the '''first''' data field!
+* Comma separations are flexible to allow column alignments when creating them. Spaces are ignored unless inside of quotes.
+* [[STRING]] DATA values with end spaces, QB keywords and commas in them '''require''' quotation marks.
+* DATA fields can only be created by the programmer and cannot be changed by a user or lost.
+* Comments after a data line require a colon before the comment.
+* If a [[READ]] is past the last data value, an [[ERROR Codes|&quot;Out of Data&quot; error]] will occur! Use end of data markers when necessary!
+: Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
+* '''Do not place labeled [[DATA]] fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to [[RESTORE]] properly!'''
+
+
+''Example 1:'' Creating two DATA fields that can be [[READ]] repeatedly using [[RESTORE]] with the appropriate line label.
+{{CodeStart}} '' ''
+{{Cl|RESTORE}} Database2
+{{Cl|READ}} A$, B$, C$, D$         'read 4 string values from second DATA field
+PRINT A$ + B$ + C$ + D$     'note that quoted strings values are spaced
+
+{{Cl|RESTORE}} Database1
+FOR i = 1 TO 18
+  {{Cl|READ}} number%                     'read first DATA field 18 times only
+  PRINT number%;                   
+NEXT
+
+END
+
+Database1:
+{{Cl|DATA}} 1, 0, 0, 1, 1, 0, 1, 1, 1
+{{Cl|DATA}} 2, 0, 0, 2, 2, 0, 2, 2, 2 :       ' DATA line comments require a colon
+
+Database2:
+{{Cl|DATA}} &quot;Hello, &quot;, &quot;world! &quot;, Goodbye, work! '' ''
+{{CodeEnd}}
+{{OutputStart}}Hello world! Goodbyework!
+1  0  0  1  1  0  1  1  1  2  0  0  2  2  0  2  2  2
+{{OutputEnd}}
+
+
+''Example 2:'' How to [[RESTORE]] and [[READ]] DATA in a [[SUB]] procedure in QB64 only. Line labels can be used for multiple DATA fields.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} num(10) 'shared array or must be passed as a parameter
+ReadData 2 '&lt;&lt;&lt;&lt;&lt;&lt;&lt; change value to 1 to read other data
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 10
+  {{Cl|PRINT}} num(i);
+{{Cl|NEXT}}
+{{Cl|END}}
+
+{{Cl|SUB}} ReadData (mode)
+{{Cl|IF...THEN|IF}} mode = 1 {{Cl|THEN}} {{Cl|RESTORE}} mydata1 {{Cl|ELSE}} {{Cl|RESTORE}} mydata2
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 10
+  {{Cl|READ}} num(i)
+{{Cl|NEXT}}
+
+mydata1:
+{{Cl|DATA}} 1,2,3,4,5,6,7,8,9,10
+mydata2:
+{{Cl|DATA}} 10,9,8,7,6,5,4,3,2,1
+{{Cl|END SUB}} '' '' 
+{{CodeEnd}}
+{{OutputStart}} 10  9  8  7  6  5  4  3  2  1 {{OutputEnd}}
+: ''Note:'' A specific array index can be passed in a parameter or the entire array can be passed using empty brackets.
+
+
+''See also:'' 
+* [[READ]] 
+* [[RESTORE]]
+* [[SUB]], [[FUNCTION]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,41 @@
+{{KW|_DONTWAIT}} is used with the {{KW|SHELL}} statement to specify that the program shouldn't wait until the SHELLed command/program is finished (which it otherwise does by default).
+
+
+{{PageSyntax}}
+:{{KW|SHELL}} [{{KW|_DONTWAIT}}] [{{Parameter|commandline$}}]
+
+
+{{PageDescription}}
+*Can only be used in the {{KW|SHELL}} statement when using '''QB64'''.
+*Runs the command/program specified in {{Parameter|commandline$}} and lets the calling program continue at the same time in it's current screen format.
+*Especially useful when CMD /C or START is used in a SHELL command line to run another program. 
+* '''QB64''' automatically uses CMD /C or COMMAND /C when using SHELL. 
+* '''QB64''' program screens will not get distorted or minimized like Qbasic fullscreen modes could. 
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|SHELL}} {{Cl|_DONTWAIT}} &quot;notepad &quot; + filename$
+
+{{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} 5
+    {{Cl|_LIMIT}} 1
+    {{Cl|PRINT}} x
+{{Cl|NEXT}}
+
+{{CodeEnd}}
+(opens up notepad at the same time as counting to 5)
+{{OutputStart}}
+ 1
+ 2
+ 3
+ 4
+ 5
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|SHELL}}, {{KW|_HIDE}}
+
+
+{{PageNavigation}}

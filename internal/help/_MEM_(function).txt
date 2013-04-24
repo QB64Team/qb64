@@ -1,0 +1,68 @@
+The '''_MEM''' function returns a _MEM block referring to the largest possible continuous memory region beginning at variable's offset.
+
+
+{{PageSyntax}}
+::: memory_block = '''_MEM(''reference_ variable'')'''
+
+Unsecure {{PageSyntax}}
+::: memory_block = '''_MEM(''offset'', ''byte_size'')'''
+
+
+{{Parameters}}
+* The ''memory block'' created will hold the ''reference variable''' or [[arrays|array]] value(s), type and byte size in a separate memory area.
+* The secure syntax ''reference variable'' is an existing variable's referenced memory block.
+* The unsecure syntax's designated ''offset'' and ''byte size'' cannot be guaranteed! '''AVOID if possible!'''
+
+
+''Usage:''
+* The ''memory block'' [[_MEM]] type variable holds the read only OFFSET, SIZE, TYPE and ELEMENTSIZE.
+* All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable type.
+* '''_MEM function cannot reference variable length [[STRING]] variable values! String values must be designated as a fixed [[LEN]].'''
+
+
+''Example:'' Assigning values to reference variables in memory.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} m(3) {{Cl|AS}} {{Cl|_MEM}}
+{{Cl|DIM}} {{Cl|SHARED}} Saved(3)
+
+m(1) = {{Cl|_MEM (function)|_MEM}}(x)
+m(2) = {{Cl|_MEM (function)|_MEM}}(y)
+m(3) = {{Cl|_MEM (function)|_MEM}}(z)
+
+x = 3: y = 5: z = 8
+{{Cl|PRINT}} x, y, z
+Save x, y, z
+x = 30: y = 50: z = 80
+{{Cl|PRINT}} x, y, z
+
+RestoreIt
+{{Cl|PRINT}} x, y, z
+
+{{Cl|_MEMFREE}} m(1)
+{{Cl|_MEMFREE}} m(2)
+{{Cl|_MEMFREE}} m(3)
+{{Cl|END}}
+
+{{Cl|SUB}} Save (n1, n2, n3)
+Saved(1) = n1
+Saved(2) = n2
+Saved(3) = n3
+{{Cl|END SUB}}
+
+{{Cl|SUB}} RestoreIt
+{{Cl|_MEMPUT}} m(1), m(1).OFFSET, Saved(1)
+{{Cl|_MEMPUT}} m(2), m(2).OFFSET, Saved(2)
+{{Cl|_MEMPUT}} m(3), m(3).OFFSET, Saved(3)
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}{{small|Code by SMcNeill}}
+
+
+''See also:''
+* [[_MEM]] {{text|(varible type)}}
+* [[_MEMNEW]], [[_MEMCOPY]]
+* [[_MEMGET]], [[_MEMPUT]]
+* [[_MEMFILL]], [[_MEMIMAGE]]
+* [[_MEMFREE]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,28 @@
+The {{KW|LOCK}} statement restricts access to parts of a file by other programs or processes.
+
+
+{{PageSyntax}}
+:{{KW|LOCK}} [#]{{Parameter|fileNumber%}}
+:{{KW|LOCK}} [#]{{Parameter|fileNumber%}}, {{Parameter|record&amp;}}
+:{{KW|LOCK}} [#]{{Parameter|fileNumber%}}, [{{Parameter|firstRecord&amp;}}] TO {{Parameter|lastRecord&amp;}}
+
+
+{{PageDescription}}
+* {{Parameter|fileNumber%}} is the file number of the file to lock.
+* In the first syntax, the entire file is locked.
+* In the second syntax, {{Parameter|record&amp;}} is the record number of the file to lock.
+* In the third syntax, the records or bytes in the range [{{Parameter|firstRecord&amp;}},{{Parameter|lastRecord&amp;}}] are locked. If {{Parameter|firstRecord&amp;}} is omitted, it is assumed to be one (the first record or byte).
+* For files opened in [[BINARY]] mode, each record corresponds to a single byte.
+* LOCK and [[UNLOCK]] statements are always used in pairs and each statement must match the other one.
+* Files must be unlocked using [[UNLOCK]] before other programs can access them, and before the file is closed.
+* Requires DOS '''SHARED.EXE''' be run for QBasic to use networking access modes.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+{{PageSeeAlso}}
+* {{KW|UNLOCK}}
+* {{KW|OPEN}}
+* {{KW|ACCESS}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,64 @@
+The '''READ''' statement reads values from a DATA field and assigns them to variables.
+
+
+{{PageSyntax}}
+::: READ value1$[, value2!, value3%, ...]
+
+
+* READ statements assign variables to DATA statement values on a one-to-one basis.
+* READ statement variables may be numeric or string, and the values read must agree with the variable types specified. If they do not agree, a &quot;Syntax error&quot; results.
+* A single READ statement may access one or more DATA values. They are accessed in order. 
+* Several READ statements may access the same DATA statement at different positions.
+* [[STRING]] READ variables can read unquoted numerical DATA values also so beware!
+* Quoted DATA can only be READ using a [[STRING]] variable or an [[ERROR Codes|error]] will occur!
+* If the number of variables specified is fewer than the number of elements in the DATA statement(s), subsequent READ statements begin reading data at the first unread element. If there are no subsequent READ statements, the extra data is ignored.
+* To reread DATA statements from the start, use the [[RESTORE]] statement with or without a line label as required.
+* If the number of variables in list of variables exceeds the number of elements in the DATA field(s), an [[ERROR Codes|&quot;Out of data&quot; error]] will occur!
+* [[ACCESS]] READ can be used in an [[OPEN]] statement to limit file access to read only, preserving file data.
+* '''WARNING! Do not place DATA fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to compile properly!'''
+: Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
+
+
+''Example 1:'' Placing data into an array.
+{{CodeStart}}
+{{Cl|DIM}} A(10) AS {{Cl|SINGLE}}
+{{Cl|FOR...NEXT|FOR}} I = 1 {{Cl|TO}} 10
+   {{Cl|READ}} A(I)
+{{Cl|NEXT}} I
+{{Cl|FOR...NEXT|FOR}} J = 1 {{Cl|TO}} 10
+   {{Cl|PRINT}} A(J);
+{{Cl|NEXT}}
+{{Cl|END}}
+
+{{Cl|DATA}} 3.08, 5.19, 3.12, 3.98, 4.24
+{{Cl|DATA}} 5.08, 5.55, 4.00, 3.16, 3.37 '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ 3.08  5.19  3.12  3.98  4.24  5.08  5.55  4  3.16  3.37
+{{OutputEnd}}
+:''Explanation:'' This program reads the values from the DATA statements into array A. After execution, the value of A(1) is 3.08, and so on. The DATA statements may be placed anywhere in the program; they may even be placed ahead of the READ statement.
+
+
+''Example 2:'' Reading three pieces of data at once.
+{{CodeStart}}
+ PRINT &quot; CITY &quot;, &quot; STATE  &quot;, &quot; ZIP&quot;
+ PRINT {{Cl|STRING$}}(30, &quot;-&quot;)  'divider
+   {{Cl|READ}} C$, S$, Z&amp;
+ PRINT C$, S$, Z&amp;
+
+ {{Cl|DATA}} &quot;DENVER,&quot;, COLORADO, 80211 '' ''
+{{CodeEnd}}
+{{OutputStart}}
+  CITY        STATE       ZIP
+ ------------------------------
+ DENVER,     COLORADO     80211
+{{OutputEnd}}
+:''Note:'' String DATA values do not require quotes unless they contain commas, end spaces or Qbasic keywords.
+
+
+
+''See also:'' 
+* [[DATA]], [[RESTORE]]
+
+
+{{PageNavigation}}

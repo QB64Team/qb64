@@ -1,0 +1,17 @@
+The {{KW|_AUTODISPLAY}} statement enables the automatic display of the screen image changes previously disabled by {{KW|_DISPLAY}}.
+
+
+{{PageSyntax}}
+:&lt;code&gt;{{KW|_AUTODISPLAY}}&lt;/code&gt;
+
+
+{{PageDescription}}
+* {{KW|_AUTODISPLAY}} is on by default and displays the screen at around 30 frames per second (normal vertical retrace speed).
+* {{KW|_DISPLAY}} disables automatic graphic displays, but it also eliminates having to use PCOPY or page flipping when used correctly. Placing _DISPLAY after screen draws or other screen changes assures completion of the changes before they are displayed. The speed of QB64 code execution makes this a viable option. 
+
+
+{{PageSeeAlso}}
+* {{KW|_DISPLAY}}
+
+
+{{PageNavigation}}

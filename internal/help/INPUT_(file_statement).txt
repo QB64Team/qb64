@@ -1,0 +1,87 @@
+The '''INPUT #''' file or port statement reads sequential data using one variable or a comma separated list of matching variable types.
+
+
+
+{{PageSyntax}} 
+:: '''INPUT #''filenumber%'', ''variable_type'''''[, listof!, variables$,...]
+
+
+{{Parameters}}
+* ''filenumber'' is an [[INTEGER]] number value used to [[OPEN]] the file FOR [[INPUT (file mode)|INPUT]] mode only. 
+* ''variable'' and [[type]] define the value or list of values to be returned from the file. Numeric types must match the values returned.
+
+
+''Usage:''
+* The file number can be determined by the programmer or an unused number can be returned by the [[FREEFILE]] function.
+* INPUT # reads file data from a filenumber% [[OPEN]]ed in the [[INPUT (file mode)|INPUT]] file mode.
+* INPUT # can read one variable at a time from a list or read the entire list by [[comma]] separating a list of input variables.
+* Variable types MUST match the numerical [[type]]s being read! [[STRING]] variables can return numeric values not in quotes.
+* Leading or trailing spaces of [[STRING]] values must be inside of quotes. [[WRITE (file statement)|WRITE #]] writes strings inside of quotes automatically. [[PRINT (file statement)|PRINT #]] removes quotes.
+* INPUT # will read each value until it encounters a comma for the next value in a list.
+* Use the [[EOF]] function to avoid reading past the end of a file.
+* Files created by [[WRITE (file statement)|WRITE #]] usually have the same number of values on each file line. If INPUT reads more or less values, it may read beyond the End of File or return bad data input!
+* Use the [[LINE INPUT (file statement)]] for files created by PRINT # or PRINT #, USING. 
+* '''INPUT can read Excel CSV files, but beware of unquoted text or numerical values containing commas!'''
+
+
+''Example 1:'' Writes new data to a text file sequentially and reads it back to the program screen.
+{{CodeStart}} '' ''
+filename$ = &quot;testfile.dat&quot; 
+x = 1: y = 2: z$ = &quot;Three&quot; 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
+{{Cl|WRITE (file statement)|WRITE}} #1, x, y, z$ 
+{{Cl|CLOSE}} #1 
+
+{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+K$ = {{Cl|INPUT$}}(1) 'press a key 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #2 'opens a file to read it 
+{{Cl|INPUT (file statement)|INPUT}} #2, a, b, c$ 
+{{Cl|CLOSE}} #2 
+
+{{Cl|PRINT}} a, b, c$ 
+{{Cl|WRITE}} a, b, c$
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}} 1           2          Three
+1,2,&quot;Three&quot;
+{{OutputEnd}}
+: ''Screen output:'' [[PRINT]] string values will not display enclosing quotes. [[WRITE]] screen displays will.
+{{TextStart}}1,2,&quot;Three&quot; '' '' {{TextEnd}}
+: ''File content:'' [[WRITE (file statement)|WRITE]] string values will include quotation marks, but they are not required to read the file value as a string.
+
+
+''Example 2:'' Commas inside of string values will not affect the INPUT value as those commas are not [[WRITE (file statement)|WRITE]] separators.
+{{CodeStart}} '' ''
+x$ = &quot;Hello, how are you?&quot;
+y$ = &quot;I'm fine.&quot;
+
+{{Cl|OPEN}} &quot;testinp.dat&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
+{{Cl|WRITE (file statement)|WRITE}} #1, x$, y$
+{{Cl|CLOSE}} #1
+
+
+{{Cl|OPEN}} &quot;testinp.dat&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+
+{{Cl|INPUT (file statement)|INPUT}} #1, a$, b$
+{{Cl|CLOSE}} #1
+
+{{Cl|PRINT}} a$, b$ 
+{{Cl|WRITE}} a$, b$ '' ''
+{{CodeEnd}}
+{{OutputStart}}Hello, how are you?        I'm fine. 
+&quot;Hello, how are you?&quot;,&quot;I'm fine.&quot;{{OutputEnd}}
+{{TextStart}}&quot;Hello, how are you?&quot;,&quot;I'm fine.&quot;{{TextEnd}}
+: ''File content:'' Commas inside of strings delimited with quotes will be ignored. [[WRITE (file statement)|WRITE]] will always enclose string values in quotes.
+
+
+{{PageSeeAlso}}
+* [[INPUT (file mode)]], [[LINE INPUT (file statement)|LINE INPUT #]], [[INPUT$]] {{text|(file input)}}
+* [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
+* [[PRINT (file statement)|PRINT #]], [[PRINT USING (file statement)|PRINT #, USING]] 
+* [[GET|GET #]], [[INPUT (TCP/IP statement)]]
+
+
+{{PageNavigation}}

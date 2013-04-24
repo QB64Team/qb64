@@ -1,0 +1,41 @@
+The '''_DEVICES''' function returns the number of INPUT devices on your computer including keyboard, mouse and game devices.
+
+
+{{PageSyntax}}
+::: device_count% = _DEVICES
+
+
+* Returns the number of devices that can be listed separately with the [[_DEVICE$]] function by the device number.
+* Devices include keyboard, mouse, joysticks, game pads and multiple stick game controllers.
+* '''Note: This function MUST be read before trying to use the [[_DEVICE$]], [[_DEVICEINPUT]] or _LAST control functions!'''
+
+
+''Example:'' Checking for the system's input devices.
+{{CodeStart}} '' ''
+devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
+PRINT &quot;Number of input devices found =&quot;; devices
+FOR i = 1 TO devices
+  PRINT {{Cl|_DEVICE$}}(i)
+  PRINT &quot;Buttons:&quot;; {{Cl|_LASTBUTTON}}(i)
+NEXT '' ''
+{{CodeEnd}}
+{{OutputStart}}Number of input devices found = 2
+[KEYBOARD][BUTTON]
+Buttons: 512
+[MOUSE][BUTTON][AXIS][WHEEL]
+Buttons: 3
+{{OutputEnd}}
+:Note: The [[STRIG]]/[[STICK]] commands won't read from the keyboard or mouse device the above example lists.
+
+
+''See also:''
+* [[_DEVICE$]], [[_DEVICEINPUT]]
+* [[_LASTBUTTON]], [[_LASTAXIS]], [[_LASTWHEEL]]
+* [[_BUTTON]], [[_BUTTONCHANGE]]
+* [[_AXIS]], [[_WHEEL]]
+* [[STRIG]], [[STICK]]
+* [[ON STRIG(n)]], [[STRIG(n)]]
+* [[Controller Devices]]
+
+
+{{PageNavigation}}

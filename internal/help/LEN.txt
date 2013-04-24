@@ -1,0 +1,119 @@
+The '''LEN''' function returns the number of bytes used by a variable value and the number of characters in a [[STRING]].
+
+
+{{PageSyntax}}
+:: length% = LEN(variable$)
+
+
+
+* Literal or variable [[STRING]] values return the number of string bytes which is the same as the number of string characters.
+* A numerical ''variable'' will return the number of bytes used by a numerical variable type.
+** [[_BIT]] variable types and bit multiples '''cannot be measured in bytes'''. 
+** [[_BYTE]] variable types return 1 byte.
+** [[INTEGER]] variable types return 2 bytes.
+** [[SINGLE]] and [[LONG]] Integer variable types return 4 bytes.
+** [[DOUBLE]] and [[_INTEGER64]] variable types return 8 bytes.
+** [[_FLOAT]] variable types return 32 bytes.
+** [[_OFFSET]] and [[_MEM]] variable types return varying byte sizes.
+* '''LEN cannot return lengths of literal numerical values and will create a &quot;variable required&quot; status error in the [[IDE]]!'''
+* '''LEN =''' can be used with a user defined [[TYPE]] variable to determine the number of bytes used in [[RANDOM]] file records:
+:::: '''{{text|[[OPEN]] file$ FOR [[RANDOM]] AS #n LEN &lt;nowiki&gt;=&lt;/nowiki&gt; LEN(record_type_variable)|green}}''' 
+* If a LEN = statement is not used, [[RANDOM]] default record length is 128 or sequencial is 512 up to a maximum of 32767 bytes. 
+* [[BINARY]] OPEN statements will ignore LEN = statements. The byte size of a [[GET|read]] or [[PUT|write]] is determined by the [[Variable Types|variable type]].
+
+
+''Example 1:'' With a string variable the byte size is the same as the number of characters.
+{{CodeStart}}
+LastName$ = &quot;Williams&quot;
+PRINT {{Cl|LEN}}(LastName$); &quot;bytes&quot; '' ''
+{{CodeEnd}}
+{{OutputStart}} 8 bytes
+{{OutputEnd}}
+
+
+''Example 2:'' Testing [[INPUT]] for numerical [[STRING]] entries from a user. 
+{{CodeStart}} '' ''
+{{Cl|INPUT}} &quot;number: &quot;, num$
+
+value$ = {{Cl|LTRIM$}}({{Cl|STR$}}({{Cl|VAL}}(num$)))
+L = {{Cl|LEN}}(value$)
+
+{{Cl|PRINT}} {{Cl|LEN}}(num$), L '' ''
+{{CodeEnd}}
+: ''Note:'' [[&amp;H]], [[&amp;O]], D and E will also be accepted as numerical type data in a [[VAL]] conversion, but will add to the entry length.
+
+
+''Example 3:'' With numerical value types you MUST use a variable to find the inherent byte length when using LEN.
+{{CodeStart}} '' ''
+DIM I AS INTEGER
+PRINT &quot;INTEGER =&quot;; LEN(I); &quot;bytes&quot;
+DIM L AS LONG
+PRINT &quot;LONG =&quot;; LEN(L); &quot;bytes&quot;
+DIM I64 AS _INTEGER64
+PRINT &quot;_INTEGER64 =&quot;; LEN(I64); &quot;bytes&quot;
+DIM S AS SINGLE
+PRINT &quot;SINGLE =&quot;; LEN(S); &quot;bytes&quot;
+DIM D AS DOUBLE
+PRINT &quot;DOUBLE =&quot;; LEN(D); &quot;bytes&quot;
+DIM F AS _FLOAT
+PRINT &quot;_FLOAT =&quot;; LEN(F); &quot;bytes&quot; '' ''
+{{CodeEnd}}
+{{OutputStart}}INTEGER = 2 bytes
+LONG = 4 bytes
+_INTEGER64 = 8 bytes
+SINGLE = 4 bytes
+DOUBLE = 8 bytes
+_FLOAT = 32 bytes
+{{OutputEnd}}
+
+
+''Example 4:'' Opening a RANDOM file using LEN to calculate and LEN = to designate the file record size.
+{{CodeStart}} '' ''
+{{Cl|TYPE}} variabletype
+  x {{Cl|AS}} {{Cl|INTEGER}}'       '2 bytes
+  y {{Cl|AS}} {{Cl|STRING}} * 10'  '10 bytes
+  z {{Cl|AS}} {{Cl|LONG}}'          '4 bytes
+{{Cl|END}} {{Cl|TYPE}}'            '16 bytes total
+{{Cl|DIM}} record {{Cl|AS}} variabletype
+{{Cl|DIM}} newrec {{Cl|AS}} variabletype
+
+file$ = &quot;testrand.inf&quot; '&lt;&lt;&lt;&lt; filename may overwrite existing file
+number% = 1 '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; record number to write cannot be zero
+RecordLEN% = {{Cl|LEN}}(record)
+{{Cl|PRINT}} RecordLEN%; &quot;bytes&quot;
+record.x = 255
+record.y = &quot;Hello world!&quot;
+record.z = 65535
+{{Cl|PRINT}} record.x, record.y, record.z
+
+{{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = RecordLEN%
+{{Cl|PUT}} #1, number% , record 'change record position number to add records
+{{Cl|CLOSE}} #1
+
+{{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = RecordLEN%
+NumRecords% = {{Cl|LOF}}(2) \ RecordLEN%
+PRINT NumRecords%; &quot;records&quot;
+
+{{Cl|GET}} #2, NumRecords% , newrec 'GET last record available
+{{Cl|CLOSE}} #2
+{{Cl|PRINT}} newrec.x, newrec.y, newrec.z
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}} 16 bytes
+ 255        Hello worl       65535
+ 1 records
+ 255        Hello worl       65535
+{{OutputEnd}}
+: ''Explanation:'' The byte size of the record [[TYPE]] determines the [[LOF]] byte size of the file and can determine the number of records.
+: To read the last record [[GET]] the number of records. To add a record, use the number of records + 1 to [[PUT]] new record data.
+
+
+''See also:'' 
+* [[LOF]], [[EOF]]
+* [[AS]], [[TYPE]]
+* [[RANDOM]], [[BINARY]]
+* [[Variable Types]]
+
+
+{{PageNavigation}}

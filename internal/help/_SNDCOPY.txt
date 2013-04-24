@@ -1,0 +1,27 @@
+The {{KW|_SNDCOPY}} function copies a sound to a new handle so that two or more of the same sound can be played at once. The passed handle parameter is from the {{KW|_SNDOPEN}} function.
+
+
+{{PageSyntax}}
+:{{Parameter|copy_handle&amp;}} = {{KW|_SNDCOPY}} ({{Parameter|handle&amp;}})
+
+
+{{PageDescription}}
+*Opened sound files must have the &quot;SYNC&quot; capability to use this function. (Currently WAV, OGG, AIF, RIF and VOC)
+*Returns a new handle to the same sound data referred to by the source handle.
+*No changes to the source handle (such as a volume change) are inherited.
+*The sound data referred to by the handle and its copies is not freed until all of them are closed.
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+h2&amp; = {{Cl|_SNDCOPY}}(h&amp;)
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDPLAYCOPY}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,238 @@
+ ****************************************************************************
+ ************************** C A V E   R A I D E R ************* Version 1.4 *
+ ****************************************************************************
+ ******************* Copyright (c) 2004 by Paul  Redling ********************
+ ****************************************************************************
+
+Cave Raider is a fun and amazing ASCII adventure game. You are a young man
+or a young woman and enter a dangerous underground cave system with six 
+consecutive caves. You'll find a lot of gold in these caves, but also
+terrible cave monsters that guard the gold. Your intention is to raid cave 
+after cave, get all the gold and leave the cave system alive. The layout of
+the individual caves is randomly generated. This means that each game will
+offer you a new challenge! In addition, you can choose between three
+difficulty settings (Easy, Normal and Hard). If you have some spare time,
+then give this game a try. The best cave raiders will get an entry in the 
+Hall of Fame.
+
+This program is freeware, i.e. you can freely use and distribute it. However,
+you must leave all files as they are and must not charge any money for the
+program.
+
+CR.ZIP contains the following files:
+
+  CR.EXE   - The executable program
+  CR-E.TXT - The documentation in English
+  CR-G.TXT - The documentation in German
+  CR.BAS   - The source code
+
+The file CR.DAT is created after you run CR.EXE. It's used for the
+configuration data and the Hall of Fame data.
+
+The program was written in Microsoft QBasic 1.1 and compiled with Microsoft
+Basic PDS 7.1.
+
+It is offered without any warranty. The program has been tested and should
+not cause any undesirable operation. However, you are using it at your own 
+risk.
+
+
+System Requirements
+-------------------
+
+Don't worry! All you need is a computer with an EGA/VGA compatible graphics
+card. The game should run fine under DOS as well as under Windows (including
+Windows NT/2000/XP).
+
+
+Running the Game
+----------------
+
+DOS: Switch to the directory into which you installed the game, type "CR" and
+     then press Enter.
+
+Windows: Open the folder that contains the game and double-click on the CR
+         icon. The game should be played in fullscreen mode.
+
+
+Options
+-------
+  
+  1) Cave Raider        - Male (yellow) or Female (pink)
+
+  2) Difficulty Setting - Easy, Normal or Hard
+
+  3) Sound              - on/off
+
+If you make a change, you can save the new settings. If you want to clear the
+table in the Hall of Fame, then go there and press F1.
+
+
+Keys
+----
+
+  The arrow keys - Move the cave raider
+
+  Spacebar       - Fires a grenade. Use the arrow keys to pick a direction.
+                   Press Spacebar again to cause an immediate explosion of
+                   the grenade.
+
+  M              - Magic (Stone Spell)
+
+  S              - Sound on/off
+
+  H              - Help
+
+  Q              - Quit
+
+Every time you start a new game, you'll be asked for your name. It can have a
+maximum length of eight characters (A-Z, a-z and spaces). Use Backspace to
+delete a character. Press Return if your name is less than eight characters.
+
+
+Symbols
+-------
+
+(The actual ASCII characters can be found in the in-game instructions.)
+
+  Smiley         - You
+
+  Rock           - If you run into it, your health will decrease by 80 (cave
+                   wall), 60 (rock formation) or 40 (damaged rock formation).
+                   If your health is zero, you'll die.
+
+  Gold           - 50 points. As soon as you've collected all the gold, the
+                   magic wall around the magic scroll will disappear and you
+                   can get the scroll.
+
+  Chest of       - Depending on the difficulty setting, you'll get 5 (Easy),
+  grenades         3 (Normal) or 2 (Hard) extra grenades. You also begin a  
+                   a game with 5, 3 or 2 grenades. The number of grenades is
+                   the only difference between the three difficulty settings,
+                   but you'll see that this difference really influences the
+                   difficulty of the game.
+
+  Grenade        - You are equipped with a grenade launcher. Use a grenade to
+                   kill a green or a red monsters or to block its way with a
+                   sign. A grenade has no effect on a black monster, but a
+                   sign will also block its way. Be careful not to hit a
+                   piece of gold. If a grenade blows up one of the pieces of
+                   gold, you can no longer get the magic scroll to leave the
+                   cave and your adventure has come to an end. In rare cases
+                   you'll have to blow up either the leftmost rock or the
+                   rightmost rock of a rock formation to get a piece of gold.
+                   These two rocks are the only ones that can be blown up by
+                   a grenade, provided there's no rock below them. All the
+                   other rocks of a rock formation can only be damaged by a
+                   grenade. A grenade has no effect on the cave walls and on
+                   everything of magic origin.
+
+  Explosion      - If you run into it, you'll die.
+
+  Sign           - A white star on blue background. This sign is left behind
+                   on the ground after you cause an immediate explosion of a
+                   grenade by pressing a button (Spacebar) on your grenade
+                   launcher. It's absolutely harmless, but the cave monsters
+                   are afraid of it and won't walk over it. Therefore, you
+                   can use the sign as a barrier, e.g. at the magic door.
+
+  Magic gem      - 100 points. It gives you two spells. Press "M" to
+                   temporarily turn the red monsters into stone. This also
+                   applies to the black monsters. You need the gem to leave
+                   the cave through the magic door.
+
+  Magic scroll   - 100 points. It generates magic fields of quicksand
+                   every few seconds. If you take the scroll, the magic
+                   fields of quicksand will disappear immediately and the
+                   magic monsters, i.e. the black monsters, will turn into
+                   gems worth 100 points each. You need the scroll to leave
+                   the cave through the magic door.
+
+  Magic wall     - It protects the magic scroll. If you walk into it, you'll
+                   die.
+
+  Magic field of - It's near the magic scroll and protects it. If you walk
+  quicksand        into it, you'll die.
+
+  Green monster  - 60 points. Maximum number: 10. The green monster is slow 
+                   and not very intelligent, but it moves towards the magic
+                   door and once it reaches its destination, it stays there
+                   and hinders your escape. If you're in the way, it'll eat
+                   you.
+
+  Red monster    - 80 points. Maximum number: 10. The red monster is always
+                   in the same cave as the green monster. It's a skilled and
+                   pretty fast hunter that adjusts to the speed of your
+                   movements. If it gets you, it'll eat you.
+
+  Black monster  - 100 points as gem. Maximum number: 15. The black monster
+                   is a magic creature that can't be killed by grenades.
+                   However, as soon as you take the magic scroll, the black
+                   monster will turn into a black gem. Similar to the red
+                   monster, the black monster is a skilled hunter, but it
+                   moves continuously, at a quick speed. This means that you
+                   should also move quickly if you don't want to get eaten by
+                   it. Luckily, the black monster never appears together with
+                   green or red monsters because it doesn't get along with
+                   them.
+                 
+  Magic door     - You'll get 200 points if you leave one of the first five 
+                   caves and 1000 points if you leave the sixth cave, i.e.
+                   the cave system. You need both the magic gem and the magic
+                   scroll in order to leave a cave. In addition, there must
+                   be no cave monster at the magic door when you want to
+                   leave the cave. If these conditions are not met and you
+                   walk into the magic door, you'll die.
+
+
+Notes
+-----
+
+1) As I wanted the possibility to escape from the cave system, I decided that
+   there should be a total of six caves and three difficulty settings (Easy,
+   Normal and Hard). If you play well, you should be able to escape from the
+   cave system in Easy Mode. If you play very well, an escape should also be
+   possible in Normal Mode. In Hard Mode, however, an escape is almost
+   impossible. If it says "Cave:X" in the Hall of Fame, it means that he or
+   she escaped from the cave system. That's great, but remember: There's
+   always a next time. You can never be sure if you'll leave those dangerous
+   caves alive.
+
+2) There's one cheat code in this game. 
+
+
+Program Updates
+---------------
+
+Version 1.4  12/01/2004
+
+  - Changed the behavior of the magic door
+  - Improved some routines
+  - Made a few corrections in the documentation
+
+Version 1.2  10/24/2004
+
+  - Fixed bugs with the grenade
+  - Optimized several routines
+
+Version 1.1  10/04/2004
+
+  - Fixed bug with the initial positions of the monsters
+  - Fixed a few other bugs
+  - Improved the AI of the hunters
+  - Optimized parts of the code
+  - Made some minor cosmetic changes
+  - Improved the story
+  - Revised the documentation
+
+Version 1.0  08/04/2004
+
+  - First public release
+                          
+
+Contact
+-------
+
+Email: paul.redling@gmx.net
+
+I welcome your comments.

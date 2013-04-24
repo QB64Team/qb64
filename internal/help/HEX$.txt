@@ -1,0 +1,56 @@
+The {{KW|HEX$}} function returns the base 16 hexadecimal representation of an [[INTEGER]], [[LONG]] or [[_INTEGER64]] value as a [[STRING]].
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|HEX$}}({{Parameter|decimal_number%}})
+
+
+{{PageDescription}}
+* The function returns the string hexadecimal (base-16) representation of a ''decimal'' integer.
+* If the parameter is not an Integer, it will be converted to one by HEX$.
+* The function does not return a leading sign space so [[LTRIM$]] is not necessary.
+* Can be used in place of [[STR$]] to trim both sides of positive decimal values 0 to 9 only.
+* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with &quot;&amp;H&quot;.
+
+
+''Example:'' Comparing decimal, hexadecimal and octal string values 0 to 15.
+{{CodeStart}} '' ''
+LOCATE 2, 20: PRINT &quot;   Decimal | Hexadecimal | Octal  &quot;
+LOCATE 3, 20: PRINT &quot;-----------+-------------+--------&quot;
+        template$ = &quot;    \ \    |     \\      |    \\  &quot;
+
+FOR n% = 0 TO 15
+  LOCATE 4 + n%, 20: {{Cl|PRINT USING}} template$; {{Cl|STR$}}(n%); {{Cl|HEX$}}(n%); {{Cl|OCT$}}(n%)
+NEXT n% '' ''
+{{CodeEnd}}
+{{OutputStart}}
+                     Decimal | Hexadecimal | Octal
+                  -----------+-------------+--------
+                       0     |     0       |    0   
+                       1     |     1       |    1
+                       2     |     2       |    2
+                       3     |     3       |    3
+                       4     |     4       |    4
+                       5     |     5       |    5
+                       6     |     6       |    6
+                       7     |     7       |    7
+                       8     |     8       |    10
+                       9     |     9       |    11
+                       10    |     A       |    12
+                       11    |     B       |    13
+                       12    |     C       |    14
+                       13    |     D       |    15
+                       14    |     E       |    16
+                       15    |     F       |    17
+{{OutputEnd}}
+''Note:'' Decimal [[STR$]] values contain a leading sign space so values require an extra space in the template using the slash format.
+
+
+{{PageSeeAlso}}
+* [[OCT$]], [[STR$]], [[VAL]]
+* [[&amp;H]] {{text|(hexadecimal)}}, [[&amp;O]] {{text|(octal)}}, [[&amp;B]] {{text|(binary)}}
+* [[Base Comparisons]]   
+* [[HEX$ 32 Bit Values]]
+
+
+{{PageNavigation}}

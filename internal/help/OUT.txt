@@ -1,0 +1,73 @@
+'''OUT''' writes values to register or port hardware addresses. '''QB64 currently has limited access to registers!'''
+
+
+
+{{PageSyntax}}
+:: OUT address%, value%
+
+
+* The ''address'' is an integer value expressed as decimal or Hexadecimal.
+* '''WARNING!''' Be sure that the address is useable. OUT accesses directly unlike [[POKE]] and can cause permanent PC damage!
+* Values sent are normally only 0 to 255 per one byte register(8 bits) address.
+* [[_PALETTECOLOR]] can also be used to set RGB intensity values using [[_RGB32|32 bit color]] values.
+
+
+:::::::'''Color Port access using OUT'''
+
+:::::OUT &amp;H3C7, attribute : Set port to read RGB settings
+:::::OUT &amp;H3C8, attribute : Set port to write RGB settings
+:::::OUT &amp;H3C9, color_intensity : Writes settings
+:::::[[INP]] &amp;H3C9, color_intensity : Reads settings
+::::* Every 3 reads or writes, changes to next color attribute
+::::* Color setting is Red, Green and Blue intensities in order
+::::* Color attribute intensity values range from 0 to 63 only
+::::* Some [[DAC]] color attribute intensities cannot be changed using OUT.
+
+
+''Example 1:'' Reading the default RGB color settings of color attribute 15.
+
+{{CodeStart}} '' ''
+{{Cl|OUT}} &amp;H3C7, 15      'set color port attribute 15 for a read
+red% = {{Cl|INP}}(&amp;H3C9)
+green% = INP(&amp;H3C9)
+blue% = INP(&amp;H3C9)
+PRINT red%, green%, blue% '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ 63       63       63
+{{OutputEnd}}
+
+
+''Example 2:'' Changing the color intensity settings of the [[SCREEN]] background [[COLOR]] 0 to bright white.
+{{CodeStart}} '' ''
+{{Cl|OUT}} &amp;H3C8, 0
+{{Cl|OUT}} &amp;H3C9, 63 'red
+{{Cl|OUT}} &amp;H3C9, 63 'green
+{{Cl|OUT}} &amp;H3C9, 63 'blue '' ''
+{{CodeEnd}}
+:''Explanation:'' In [[SCREEN]] 0 this is one way to make high intensity background colors. [[COLOR]] ,15 is actually grey(7).
+
+
+''Example 3:'' Restoring colors to a bitmap from the Red, Green and Blue [[BSAVE]]d indexed array of color values.
+{{CodeStart}} '' ''
+ {{Cl|SCREEN (statement)|SCREEN}} 12
+ {{Cl|OUT}} {{Cl|&amp;H}}3C8, 0 ' set color port for output at attribute 0
+ {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 47 ' 48 RGB values is (3 * 16) -1 color attributes from 0 in screen 12
+   {{Cl|OUT}} {{Cl|&amp;H}}3C9, Image%(i) ' changes to next attribute after 3 RGB loops
+ {{Cl|NEXT}}
+ {{Cl|PUT (graphics statement)|PUT}}(clm, row), Image(48) PSET '' ''
+{{CodeEnd}}
+:''Explanation:'' The color RGB intensity settings were imported from a file to the Image array using {{KW|BLOAD}}. The color attribute advances to the next one every 3 writes using OUT. The color information was indexed to the start of the array. The image is after the color settings at index 48. Index 48 is the [[GET (graphics statement)|GET]] image width and 49 is the height.
+
+
+
+''See also:'' 
+* [[INP]] {{text|(read register)}}, [[POKE]] {{text|(write to memory)}}
+* [[PALETTE]], [[COLOR]], [[SCREEN]] 
+* [[BSAVE]], [[BLOAD]]
+* [[_PALETTECOLOR]]
+* [[Port Access Libraries]] {{text|(COM or LPT registers)}}
+* [http://en.wikipedia.org/wiki/Input/output_base_address#Common_I.2FO_base_address_device_assignments_in_IBM_PC_compatible_computers PC I/O base address device assignments]
+
+
+{{PageNavigation}}

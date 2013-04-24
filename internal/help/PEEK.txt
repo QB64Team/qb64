@@ -1,0 +1,66 @@
+The '''PEEK''' function returns the value that is contained at a certain memory address offset. '''QB64 currently has limited access!'''
+
+
+{{PageSyntax}}
+:: variable = PEEK(''segment_offset'')
+
+
+* Reads the specified memory ''segment_offset'' value.
+* Use [[DEF SEG]] before PEEK to specify which memory segment to work in. 
+* PEEK only reads the memory byte value. Not certain bits. (See [[AND]])
+* Important [[SCREEN (statement)|SCREEN]] segments using [[PEEK]] and [[POKE]] include &amp;HB800 (text segment) and &amp;HA000 (graphics segment).
+* To return to Basic default segment use [[DEF SEG]] without any arguments.
+* '''Warning: DEF SEG, VARSEG , VARPTR, PEEK or POKE access QB64's emulated 16 bit conventional memory block!''' 
+: '''It is highly recommended that QB64's [[_MEM]] memory system be used to avoid running out of memory.'''
+
+
+''Example:'' Checking the 8 keyboard bit settings using a PEEK return value.
+{{CodeStart}} '' ''
+ SCREEN 12
+ {{Cl|DEF SEG}} = 0 ' BIOS area
+ oldvalue = PEEK(1047) ' IMPORTANT! save initial setting to reset later
+ DO: {{Cl|_LIMIT}} 100
+   port = {{Cl|PEEK}}(1047)
+   IF port &gt; 0 THEN LOCATE 26, 19: COLOR 11: 
+      PRINT &quot;Turn ALL Locks off to see each key's bit value!&quot;
+   END IF
+ COLOR 14:LOCATE 2, 25
+ PRINT &quot;PEEK(1047) =&quot;; port; &quot;present keyboard port byte value&quot;
+ LOCATE 5, 35
+ IF (port {{Cl|AND}} 1) = 1 THEN COLOR 10: PRINT &quot;R SHIFT PRESSED  &quot; ELSE COLOR 12: PRINT &quot;R SHIFT RELEASED&quot;
+ LOCATE 7, 35
+ IF (port AND 2) = 2 THEN COLOR 10: PRINT &quot;L SHIFT PRESSED  &quot; ELSE COLOR 12: PRINT &quot;L SHIFT RELEASED&quot;
+ LOCATE 9, 35
+ IF (port AND 4) = 4 THEN COLOR 10: PRINT &quot;CTRL KEY PRESSED &quot; ELSE COLOR 12: PRINT &quot;CTRL KEY RELEASED&quot;
+ LOCATE 11, 35
+ IF (port AND 8) = 8 THEN COLOR 10: PRINT &quot;ALT KEY PRESSED &quot; ELSE COLOR 12: PRINT &quot;ALT KEY RELEASED&quot;
+ LOCATE 13, 35
+ IF (port AND 16) = 16 THEN COLOR 10: PRINT &quot;SCROLL LOCK ON &quot; ELSE COLOR 12: PRINT &quot;SCROLL LOCK OFF&quot;
+ LOCATE 15, 35
+ IF (port AND 32) = 32 THEN COLOR 10: PRINT &quot;NUMBER LOCK ON &quot; ELSE COLOR 12: PRINT &quot;NUMBER LOCK OFF&quot;
+ LOCATE 17, 35
+ IF (port AND 64) = 64 THEN COLOR 10: PRINT &quot;CAPS LOCK ON &quot; ELSE COLOR 12: PRINT &quot;CAPS LOCK OFF&quot;
+ LOCATE 19, 35
+ IF (port AND 128) = 128 THEN COLOR 10: PRINT &quot;INSERT MODE ON &quot; ELSE COLOR 12: PRINT &quot;INSERT MODE OFF&quot;
+ COLOR 11: LOCATE 21, 20: PRINT &quot;Press mode keys to change or [ESC] to quit!&quot;;
+ LOOP UNTIL {{Cl|INP}}(&amp;H60) = 1 ' escape key exit
+ {{Cl|POKE}} 1047, oldvalue      ' IMPORTANT reset to original settings
+ {{Cl|DEF SEG}} '' ''
+{{CodeEnd}}
+: '''NOTE: Keyboard Port function key settings cannot be reset on NT machines!'''
+
+
+
+''See Example:'' [[SelectScreen]] (Screen 0 row highlighting)
+
+
+''See also:'' 
+* [[POKE]] {{text|(write to memory)}}, [[INP]] {{text|(read register)}} 
+* [[DEF SEG]], [[VARSEG]], [[VARPTR]] 
+* [[_MEMGET (function)]], [[_MEMPUT]]
+* [[DEF SEG = 0]], [[Scancodes]] {{text|(demo)}}
+* [[PEEK and POKE Library]]
+* [[Screen Memory]]
+
+
+{{PageNavigation}}

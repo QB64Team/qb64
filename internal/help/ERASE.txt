@@ -1,0 +1,26 @@
+The '''ERASE''' statement is used to clear all data from an array. [[$STATIC]] [[Arrays|array]] dimensions will not be changed.
+
+
+
+{{PageSyntax}}
+:: ERASE ''ArrayName'' [, ''arrayname2''...]
+
+
+
+* String array elements will all become null strings(&quot;&quot;) and numerical array elements will all become 0.
+* Multiple arrays can be erased using commas between the array names.
+* [[$DYNAMIC|Dynamic]] arrays MUST be [[REDIM]]ensioned if they are referenced after erased. 
+* Dimension subprocedure arrays as [[STATIC]] to use ERASE and not have to REDIM.
+* You do not have to include the array brackets in an ERASE call.
+
+
+''See also:'' 
+
+* [[DIM]], [[REDIM]]
+* [[CLEAR]]
+* [[STATIC]]
+* [[$DYNAMIC]]
+* [[Arrays]]
+
+
+{{PageNavigation}}
