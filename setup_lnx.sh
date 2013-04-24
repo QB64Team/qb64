@@ -45,7 +45,7 @@ else
   GET_WGET=
   #Path to Icon
   #Relative Path to icon -- Don't include beginning or trailing '/'
-  QB64_ICON_PATH="."
+  QB64_ICON_PATH="internal/source"
 fi
 
 #Name of the Icon picture
