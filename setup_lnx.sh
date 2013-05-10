@@ -76,7 +76,7 @@ fi
 #Ubuntu		 = ubuntu
 #Slackware	 = slackware
 #XUbuntu	 = ubuntu
-
+#Zorin  	 = Zorin
 if [ -n "$lsb_command" ]; then
   DISTRO=`$lsb_command -si | tr '[:upper:]' '[:lower:]'`
 elif [ -e /etc/arch-release ]; then
@@ -102,7 +102,7 @@ if [ "$DISTRO" == "arch" ]; then
   installed_packages=`pacman -Q`
   installer_command="sudo pacman -S "
   pkg_install
-elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ]; then
+elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "zorin" ]; then
   echo "Debian based distro detected."
   if [ "$SDL" == "1" ]; then
     pkg_list="g++ libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-net1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev $GET_WGET"
@@ -225,6 +225,8 @@ else
   echo "It appears that the qb64 executable file was not created, this is usually an indication of a compile failure (You probably saw lots of error messages pop up on the screen)"
   echo "Usually these are due to missing packages needed for compilation. If you're not running a distro supported by this compiler, please note you will need to install the packages listed above."
   echo "If you need help, please feel free to post on the QB64 Forums detailing what happened and what distro you are using."
+  echo "Also, please tell them the exact contents of this next line:"
+  echo "DISTRO: $DISTRO"
 fi
 echo
 echo "Thank you for using the QB64 installer."
