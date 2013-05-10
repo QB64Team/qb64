@@ -1,0 +1,46 @@
+The _PALETTECOLOR statement sets the color value of a palette entry of an image using 256 color modes or less (4 or 8 BPP).
+
+
+{{PageSyntax}}
+:[[_PALETTECOLOR]] {{Parameter|index%}}, {{Parameter|colour&amp;}}[, {{Parameter|imageHandle&amp;}}]
+
+
+{{PageDescription}}
+* The {{Parameter|index%}} is the palette index(attribute) of the color to set, ranging from 0 to 15 (4 bit) or 0 to 255 (8 bit) color modes.
+* The [[LONG]] {{Parameter|colour&amp;}} is the new color value to set using [[_RGB32]] or [[_RGBA32]] values or using [[HEX$ 32 Bit Values]].
+* If {{Parameter|imageHandle&amp;}} is omitted, it is assumed to be the current write page.
+* If {{Parameter|index%}} is outside of image or screen mode attribute range, an [[ERROR Codes|illegal function call]] error will occur.
+* If {{Parameter|imageHandle&amp;}} does not use a palette, an [[ERROR Codes|illegal function call]] error occurs. '''Will not work in 24/32 bit color palette modes!'''
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs.
+
+
+''Example:'' Creating custom background colors in SCREEN 0 that follow the text.
+{{CodeStart}}
+{{Cl|_PALETTECOLOR}} 1, {{Cl|_RGB32}}(255, 255, 255) ' white.
+{{Cl|_PALETTECOLOR}} 2, {{Cl|_RGB32}}(255, 170, 170) ' lighter red.
+{{Cl|_PALETTECOLOR}} 3, {{Cl|_RGB32}}(255, 85, 85) ' light red.
+{{Cl|_PALETTECOLOR}} 4, {{Cl|_RGB32}}(255, 0, 0) ' red.
+{{Cl|_PALETTECOLOR}} 5, {{Cl|_RGB32}}(170, 0, 0) ' dark red.
+{{Cl|_PALETTECOLOR}} 6, {{Cl|_RGB32}}(85, 0, 0) ' darker red.
+
+{{Cl|COLOR}} 0, 1: {{Cl|PRINT}} &quot;black on white.&quot;
+{{Cl|COLOR}} 0, 2: {{Cl|PRINT}} &quot;black on lighter red.&quot;
+{{Cl|COLOR}} 0, 3: {{Cl|PRINT}} &quot;black on light red.&quot;
+{{Cl|COLOR}} 0, 4: {{Cl|PRINT}} &quot;black on red.&quot;
+{{Cl|COLOR}} 0, 5: {{Cl|PRINT}} &quot;black on dark red.&quot;
+{{Cl|COLOR}} 0, 6: {{Cl|PRINT}} &quot;black on darker red. 
+
+{{Cl|COLOR}} 1, 6: {{Cl|PRINT}} &quot;white on darker red&quot;
+{{Cl|COLOR}} 2, 6: {{Cl|PRINT}} &quot;ligher red on darker red&quot; '' ''
+{{CodeEnd}}
+: ''Note:'' _PALLETCOLOR expects [[LONG]] 32 bit color values, NOT [[_RGB]] or [[_RGBA]] palette attribute values.
+
+
+{{PageSeeAlso}}
+* [[_PALETTECOLOR (function)]]
+* [[PALETTE]], [[OUT]]
+* [[Images]]
+* [[HEX$ 32 Bit Values]]
+
+
+{{PageNavigation}}

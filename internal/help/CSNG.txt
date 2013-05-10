@@ -1,0 +1,32 @@
+'''CSNG'''
+To converts a numerical value to the closest [[SINGLE]]-precision number.
+
+
+::::::'''Syntax:''' CSNG(n)
+
+
+
+* n must be a numeric value (see the CINT and CDBL functions).
+* Also used to define a value as SINGLE-precision.
+
+
+''Example:''
+
+{{CodeStart}}
+ A# = 975.3421222#
+ PRINT A#, CSNG(A#)
+{{CodeEnd}}
+
+{{OutputStart}} 
+975.3421222      975.3421
+{{OutputEnd}}
+
+
+
+''See also:'' 
+
+[[CDBL]], [[CLNG]], [[CINT]], [[INT]], [[_ROUND]]
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,114 @@
+The [[_PRINTSTRING]] statement prints text or custom font [[STRING|strings]] using graphic column and row coordinate positions.
+
+
+
+{{PageSyntax}}
+::_PRINTSTRING ({{Parameter|column}}, {{Parameter|row}}), {{Parameter|text_expression$}}[, {{Parameter|image_handle&amp;}}] 
+
+
+
+{{PageDescription}}
+* {{Parameter|column}} and {{Parameter|row}} are [[INTEGER]] or [[LONG]] starting PIXEL (graphic) column and row coordinates to set text or custom fonts.
+* The starting coordinate sets the top left corner of the text to be printed. Use [[_FONTHEIGHT]] to calculate that text or [[_FONT|font]] position
+* Coordinates MUST be located on the screen or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur.
+* The [[_FONT]] size can affect the [[SCREEN (statement)|screen]] and row heights. Custom fonts are NOT required! Can print all [[ASCII]] characters.
+* [[_PRINTWIDTH]] can be used to determine how wide a text print will be so that the screen width is not exceeded.
+* {{Parameter|text_expression$}} is any literal or variable [[STRING|string]] value.
+* {{Parameter|image_handle&amp;}} is the image to use. Zero designates current [[SCREEN (statement)|SCREEN]] page.
+* If the {{Parameter|image_handle&amp;}} is omitted, the current image, page or screen destination is used.
+* Can use the current font Alpha blending with a designated image background. See the [[_RGBA]] function example.
+* Use the [[_PRINTMODE]] statement before a print to deal with the text background:
+:*'''1''' _KEEPBACKGROUND: Text background transparent. Only the text is displayed over anything behind it.
+:*'''2''' _ONLYBACKGROUND: Text background is only displayed. Text is transparent to anything behind it.
+:*'''3''' _FILLBACKGROUND: Text and background block anything behind them like [[PRINT]]. Default setting.
+* Use the [[_PRINTMODE (function)]] to find the current _PRINTMODE setting number.
+* '''NOTE: _PRINTSTRING can only be used in graphic, 256 color or 32 bit screen modes, NOT SCREEN 0'''
+
+
+''Example 1:'' Printing those unprintable [[ASCII]] control characters is no longer a problem!
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 256)
+
+{{Cl|FOR...NEXT|FOR}} code = 0 {{Cl|TO}} 31
+  chrstr$ = chrstr$ + {{Cl|CHR$}}(code) + {{Cl|SPACE$}}(1)
+{{Cl|NEXT}}
+
+{{Cl|_FONT}} {{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\Cour.ttf&quot;, 20, &quot;MONOSPACE&quot;) 'select monospace font
+
+{{Cl|_PRINTSTRING}} (0, 16), chrstr$
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+  ☺ ☻ ♥ ♦ ♣ ♠ • ◘ ○ ◙ ♂ ♀ ♪ ♫ ☼ ► ◄ ↕ ‼ ¶ § ▬ ↨ ↑ ↓ → ← ∟ ↔ ▲ ▼
+{{OutputEnd}}
+
+
+''Example 2:'' Making ANY '''QB64 program window''' larger using a SUB that easily converts PRINT to [[_PRINTSTRING]]. 
+{{CodeStart}}
+Scr13&amp; = {{Cl|_NEWIMAGE}}(320, 200, 13)  'this is the old SCREEN 13 image page to set the image
+Big13&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256) 'use 4 X 3 aspect ratio that Qbasic used when full screen
+
+{{Cl|SCREEN (statement)|SCREEN}} Big13&amp;
+{{Cl|_DEST}} Scr13&amp;
+image1&amp; = {{Cl|_LOADIMAGE}}(&quot;Howie.BMP&quot;, 256)
+image2&amp; = {{Cl|_LOADIMAGE}}(&quot;Howie2.BMP&quot;, 256)
+{{Cl|_PUTIMAGE}} (10, 20), image1&amp;, Scr13&amp;
+{{Cl|_PUTIMAGE}} (160, 20), image2&amp;, Scr13&amp;
+{{Cl|_COPYPALETTE}} image1&amp;, Scr13&amp;
+{{Cl|COLOR}} 151: {{Cl|LOCATE}} 2, 4: PRINTS &quot;Screen 13 Height Reduction to 83%&quot; 
+{{Cl|LOCATE}} 22, 22: PRINTS {{Cl|CHR$}}(24) + &quot; 4 X 3 Proportion&quot;  'use {{Cl|concatenation}}
+{{Cl|LOCATE}} 24, 21: PRINTS {{Cl|CHR$}}(27) + &quot; Stretched at 100%&quot; 'instead of a {{Cl|semicolon}}!
+{{Cl|_COPYPALETTE}} Scr13&amp;, Big13&amp;  'required when imported image colors are used
+{{Cl|_PUTIMAGE}} , Scr13&amp;, Big13&amp;   'stretches the screen to double the size
+K$ = {{Cl|INPUT$}}(1)
+{{Cl|END}}
+
+{{Cl|SUB}} PRINTS (Text$)
+row% = ({{Cl|CSRLIN}} - 1) * {{Cl|_FONTHEIGHT}}      'finds current screen page text or font row height
+col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'finds current page text or font column width
+{{Cl|_PRINTSTRING}} (col%, row%), Text$
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+: ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the [[IDE]] '''Search Menu'''.
+&lt;center&gt;[http://dl.dropbox.com/u/8440706/HOWIE.zip Download of Example 2 Bitmap images]&lt;/center&gt;
+
+
+''Example 3:'' Rotating a text string around a graphic object.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12 '' ''
+{{Cl|DIM}} row {{Cl|AS}} {{Cl|INTEGER}}, cnt {{Cl|AS}} {{Cl|INTEGER}}, cstart {{Cl|AS}} {{Cl|SINGLE}}, cend {{Cl|AS}} {{Cl|SINGLE}}
+{{Cl|DIM}} xrot {{Cl|AS}} {{Cl|INTEGER}}, yrot {{Cl|AS}} {{Cl|INTEGER}}, scale {{Cl|AS}} {{Cl|INTEGER}}
+' {{Cl|_FULLSCREEN}}                       'full screen optional
+cstart = 0: cend = 8 * {{Cl|ATN}}(1)
+xrot = 6: yrot = 60: scale = 4 
+row = 1
+{{Cl|CIRCLE}} (320, 240), 15, 9: {{Cl|PAINT}} {{Cl|STEP}}(0, 0), 9
+{{Cl|DO}}
+  {{Cl|FOR...NEXT|FOR}} i = cstart {{Cl|TO}} cend {{Cl|STEP}} .04
+    x = 300 + (scale * 40 - (row * xrot)) * {{Cl|COS}}(i)
+    y = 200 + (scale * 40 - (row * yrot)) * {{Cl|SIN}}(i)
+    cnt = cnt + 1
+    {{Cl|COLOR}} 7: {{Cl|_PRINTSTRING}} (x, y), &quot;HELLO WORLD!&quot;, 0  'display 
+    {{Cl|IF}} cnt = {{Cl|LEN}}(text$) * 8 {{Cl|THEN}} cnt = 0: {{Cl|EXIT DO}}
+    {{Cl|_DISPLAY}}
+    {{Cl|COLOR}} 0: {{Cl|_PRINTSTRING}} (x, y), &quot;HELLO WORLD!&quot;, 0  'erase 
+    {{Cl|_DELAY}} 0.02    
+  {{Cl|NEXT}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
+{{Cl|COLOR}} 15 
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Adapted from code by Unseen Machine}}
+
+
+
+{{PageSeeAlso}}
+* [[_NEWIMAGE]], [[_PRINTWIDTH]], [[_PRINTMODE]]
+* [[_FONT]], [[_LOADFONT]], [[_FONTHEIGHT]], [[_FONTWIDTH]]
+* [[_SCREENIMAGE]], [[_SCREENPRINT]]
+* [[Text Using Graphics]] {{text|(Demo)}}
+
+
+{{PageNavigation}}

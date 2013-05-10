@@ -1,0 +1,44 @@
+ON...GOTO is a control-flow statement that branches to a line number or label in a list depending on a numerical expression's value.
+
+
+{{PageSyntax}}
+:: '''ON''' numerical-expression '''GOTO''' lineornumber[,lineornumber][,...]
+
+
+* The numerical-expression represents the line or label that it should branch to, 1 branches to the first line or label, 2 branches to the second, etc.
+*In QB 4.5 the list can contain a maximum of 60 lines or labels, while there is no limit in QB64.
+* The procedure must be used after the number value is determined or in a loop to monitor current user events.
+
+
+''Example:'' Changing the program flow when a value is not 0.
+{{CodeStart}} '' ''
+{{Cl|CLS}}
+a = 2
+{{Cl|ON GOTO|ON a GOTO}} hello, hereweare, 143
+{{Cl|END}}
+hello:
+{{Cl|PRINT}} &quot;you don't get to see this!&quot;
+{{Cl|END}}
+hereweare:
+PRINT &quot;And here we are...&quot;
+END
+143
+PRINT &quot;you don't get to see this neither...&quot;
+END '' ''
+{{CodeEnd}}
+{{OutputStart}}
+And here we are...
+{{OutputEnd}}
+
+''Explanation:'' Since a equals 2 it goes to the second item in the list (hereweare) and branches to there. Try changing 'a' to 1 or 3!
+&lt;center&gt;''Note:'' [[SELECT CASE]] provides a much more convenient way of doing this task.&lt;/center&gt;
+
+
+''See also:'' 
+* [[ON...GOSUB]]
+* [[GOTO]]
+* [[GOSUB]]
+* [[SELECT CASE]]
+
+
+{{PageNavigation}}

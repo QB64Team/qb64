@@ -1,0 +1,80 @@
+Other things to know...
+=======================
+
+1. 1 + 1 = 2
+2. (a-b)^2 = a^2 + b^2 - 2*a*b
+3. e = m*c^2
+4. ...
+Ooh, do you mean the game?
+
+
+Reproduction rate
+-----------------
+
+Three factors determine the reproduction rate of the population:
+1. Food
+     The quantity of food is calcualted by this formula:
+     (land food) * agricult. + (length of coast) * (1 + sea proport.) * sailing
+     The minimally demanded quantity of food: 1 unit for every 50 people
+     The possible change in population after the comparison: +-10%
+2. Migration
+     If the morale is lower than 100% a part of the population leaves the
+     country. The emigration rate is proportional with the square of the
+     extent of dissatisfaction.
+     Eg. 90% morale -> 10% dissatisfaction -> 1% emmigration
+         80% morale -> 20% dissatisfaction -> 4% emmigration
+         70% morale -> 30% dissatisfaction -> 9% emmigration
+3. Mortality
+     The incidence of epidemics depends on the population density and the
+     science level of medicine. The exact formula of mortality:
+     (random number) * (population / 250 / land) / (science level of medicine)
+
+
+Morale
+------
+
+A country's morale is the average value of the morale of all territories.
+The local value depends on six factors:
+1. Tax
+     More exactly: (1 - tax * 2)
+2. Unemployment
+     (I hope this requires no further explanation.)
+3. Church bonus
+     More exactly: (1 + churches * 20 / (population of the area))
+     But maximum: 2.0 (If you have more than one church for every 20 people.)
+4. Diplomatic trust
+     More exactly: (0.5 + trust / 2)
+5. Possible debts
+     More exactly: (debt / 10 / population)
+6. Freedom or occupation
+     More exactly: -10% for occupation
+
+The first four factors are always multiplied; in case of debt and/or occupation
+the fifth and/or sixth factors are deducted.
+
+
+Liberation of allied territories
+--------------------------------
+If you conquer a territory originally owned by your ally, you automatically set
+it free. In return, you receive a little "thank-you money" that is a random sum
+between zero and 3 times the number of liberated population. This is usually
+less than the value of your liberating army (that you lose by this action), but
+you may hope for a similar favour of your ally. Anyway, a stronger ally can
+help you better...
+WARNING! If you conclude an alliance with a country, you may lose (or win) a lot
+of territory by this rule, so be careful!
+
+
+How to get back "lost" diplomatic trust?
+----------------------------------------
+If a country makes no negative diplomatic actions, the diplomatic trust improves
+by 1% every turn. 
+
+
+Ways of losing the game
+-----------------------
+
+1. The most evident way of defeat is losing all the territory.
+2. The most funny way of defeat is losing all the population.
+3. The most humiliating way of defeat is being expelled from the country, by a
+     revolution that certainly breaks out as soon as the morale sinks below 33%.

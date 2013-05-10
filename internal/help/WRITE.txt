@@ -1,0 +1,37 @@
+The {{KW|WRITE}} statement writes a [[comma]]-separated list of values to the screen without spacing.
+
+
+{{PageSyntax}}
+:{{KW|WRITE}} [{{Parameter|expression, List}}]
+
+
+{{PageDescription}}
+* {{Parameter|expressionList}} is a comma-separated list of variable or literal values to be written to the screen.
+* Write statement separates displayed values using [[comma]] separators(required) that will display on the screen. 
+* Leading and trailing number spaces are omitted when displaying numerical values.
+* [[STRING|String]] [[quotation mark]]s will also be displayed.
+* [[Semicolon]]s cannot be used in or following the WRITE statement!
+
+
+''Example:'' Comparing WRITE to the same PRINT statement.
+{{CodeStart}}a% = 123
+b$ = &quot;Hello&quot;
+c! = 3.1415
+
+{{Cl|PRINT}} a%, b$, c!   'commas display tab spaced data
+{{Cl|WRITE}} a%, b$, c!   'displays commas between values, strings retain end quotes
+{{CodeEnd}}
+{{OutputStart}}
+123        Hello      3.1415 
+123,&quot;Hello&quot;,3.1415 '' ''
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[WRITE (file statement)|WRITE #]]
+* [[INPUT (file statement)|INPUT #]]
+* [[PRINT]], [[PRINT (file statement)|PRINT #]]
+* [[PRINT USING]]
+
+
+{{PageNavigation}}

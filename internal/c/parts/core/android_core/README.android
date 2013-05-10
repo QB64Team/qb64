@@ -1,0 +1,105 @@
+Status
+======
+
+Done:
+- Initialize context with EGL
+- Keyboard support
+- Mouse support
+- Virtual keypad (on touchscreen)
+- Extract assets in cache dir on start-up
+
+TODO:
+- Open new windows (if that's possible)
+- Joystick support (xperia play...)
+- Display translucent keys on virtual keypad
+- API to detect touchscreen presence
+- API to disable assets extract
+- GLES2 support for geometry and menus
+  (possibly also GLES1)
+- Generate freeglut_std.h with GLES1 or GLES2 or non-ES headers
+- Make EGL support reusable by Mesa X11
+- ...
+
+
+Create a module compatible with the NDK build-system
+====================================================
+
+- Use your own cross-compiler for Android, or export the one from the
+  NDK:
+
+  /usr/src/android-ndk-r7/build/tools/make-standalone-toolchain.sh \
+    --platform=android-9 \
+    --install-dir=/usr/src/ndk-standalone-9
+
+- Build FreeGLUT with a '/freeglut' prefix :
+
+  PATH=/usr/src/ndk-standalone-9/bin:$PATH
+  cd /usr/src/freeglut-3.0.0/
+  cmake \
+    -D CMAKE_TOOLCHAIN_FILE=android_toolchain.cmake \
+    -D CMAKE_INSTALL_PREFIX=/freeglut \
+    -D FREEGLUT_GLES2=ON \
+    -D FREEGLUT_BUILD_DEMOS=NO \
+    .
+  make -j4
+  make install DESTDIR=$(pwd)
+
+- Copy Android.mk in the new 'freeglut/' directory :
+
+  cp android/Android.mk freeglut/
+
+- Reference this module in your jni/Android.mk:
+
+  LOCAL_STATIC_LIBRARIES := ... freeglut
+  ...
+  $(call import-module,freeglut)
+
+- You now can point your NDK_MODULE_PATH to this module!
+
+  ndk-build NDK_MODULE_PATH=/usr/src/freeglut-3.0.0/freeglut/
+
+
+Compile FreeGLUT for a traditional cross-compiler environment
+=============================================================
+
+- Use your own cross-compiler for Android, or export the one from the
+  NDK:
+
+  /usr/src/android-ndk-r7/build/tools/make-standalone-toolchain.sh \
+    --platform=android-9 \
+    --install-dir=/usr/src/ndk-standalone-9
+
+- Compile FreeGLUT and install it in your Android cross-compiler path:
+
+
+  PATH=/usr/src/ndk-standalone-9/bin:$PATH
+  cd /usr/src/freeglut-3.0.0/
+  cmake \
+    -D CMAKE_TOOLCHAIN_FILE=android_toolchain.cmake \
+    -D CMAKE_INSTALL_PREFIX=/usr/src/ndk-standalone-9 \
+    -D FREEGLUT_GLES2=ON \
+    -D FREEGLUT_BUILD_DEMOS=NO \
+    .
+  make -j4
+  make install
+
+- Compile your own project.
+
+For instance if you use the autotools:
+
+  PATH=/usr/src/ndk-standalone-9/bin:$PATH
+  ./configure --host=arm-linux-androideabi --prefix=/somewhere
+  make
+  make install
+
+If you use CMake, you may want to copy our Android toolchain
+'android_toolchain.cmake':
+
+  cp .../android_toolchain.cmake .
+  cmake \
+    -D CMAKE_TOOLCHAIN_FILE=android_toolchain.cmake
+    -D CMAKE_INSTALL_PREFIX=/somewhere \
+    -D MY_PROG_OPTION=something ... \
+    .
+  make -j4
+  make install

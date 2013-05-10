@@ -1,0 +1,35 @@
+The {{KW|SPC}} function is used in [[PRINT]] and [[LPRINT]] statements to print or output a number of space characters.
+
+
+{{PageSyntax}}
+::: '''SPC({{Parameter|count%}})'''
+
+
+{{Parameters}}
+* ''count'' designates the number of column spaces to move the cursor in a [[PRINT]] statement.
+
+
+''Usage:''
+* When used in a [[PRINT]] statement,
+** {{Parameter|count%}} is the number of space characters to print, overwriting existing characters.
+** If {{Parameter|count%}} is greater than the number of columns left in the current row, remaining space characters are printed on the next row.
+* When used in a [[PRINT (file statement)|PRINT #]] statement,
+** {{Parameter|count%}} is the number of space characters to output.
+** If {{Parameter|count%}} is less than or equal to zero, the function has no effect.
+
+
+''Example:'' Using SPC to space a text print.
+{{CodeStart}}{{Cl|PRINT}} &quot;123456789&quot;
+{{Cl|PRINT}} &quot;abc&quot; ; {{Cl|SPC}}(3) ; &quot;123&quot;{{CodeEnd}}
+{{OutputStart}}123456789
+abc   123
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[PRINT]], [[PRINT (file statement)|PRINT #]]
+* [[LPRINT]], [[STRING$]]
+* [[TAB]], [[SPACE$]]
+
+
+{{PageNavigation}}

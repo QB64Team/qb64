@@ -1,0 +1,143 @@
+The '''OPEN''' statement is used to open a file or [[OPEN_COM|COM]] serial communications port.
+
+
+''Qbasic:'' {{PageSyntax}}
+
+::'''OPEN''' ''FileName$'' ['''FOR''' mode] [{{{KW|ACCESS}}|{{{KW|LOCK}}|SHARED}} [{READ|WRITE}] '''AS''' [#]''FileNumber%'' [LEN = ''recordLEN'']
+
+
+* ''FileName$'' is a [[STRING]] variable or literal file name inside of quotes. 
+* '''QB64''' ''filenames'' can be up to 255(Windows) characters with no limit on extension length. 
+* ''File number'' can be any [[INTEGER]] value from 1 to 255 or an unused value determined by [[FREEFILE]].
+* [[LEN]] = is optional. Sequencial files default to 512 and [[RANDOM]] to 128 bytes. Statement ignored in [[BINARY]] mode.
+* The ''mode'' defaults to RANDOM if the ''mode'' or FOR access statement is omitted. (see open modes described below)
+* '''Only the ''filename'', ''file number'' and LEN = ''record length'' values can use variable values in the Qbasic OPEN syntax.'''
+* Once a file or port is opened, it can be used in any program procedure using the assigned file number. 
+* Illegal Qbasic filename characters are ''' &quot; * / \ + | ? [ ] , ; : &lt; &gt; ''' and more than one dot(period). 
+* Illegal '''QB64''' filename characters are ''' &quot; * / \ | ? : &lt; &gt; '''. Multiple dots(periods) are allowed, but only the first one will be used. 
+* Qbasic ''filenames'' must not exceed 12 characters(including dot) with a maximum of 3 file type extension characters using the DOS 8.3 naming convention limits.
+* Possible OPEN [[ERROR Codes|errors]] include &quot;Bad file name or number&quot;, &quot;Bad File Mode&quot;, &quot;File Not Found&quot; or &quot;Path Not Found&quot;.
+* '''Devices such as &quot;KYBD:&quot;, &quot;SCRN:&quot;, &quot;CONS:&quot; and &quot;LPTn:&quot; are [[Keywords currently not supported by QB64|currently NOT supported in QB64!]]'''. 
+: '''Note:''' OPEN LPTn is not supported by QB64, but may be supported directly by your operating system. 
+* [[OPEN COM]] is implemented for serial port access!
+
+
+&lt;center&gt; ''' File ACCESS and LOCK Permissions'''&lt;/center&gt;
+
+* [[ACCESS]] clause limits file access to READ, WRITE or READ WRITE on a network ONLY with DOS 3.1 or greater.
+* [[LOCK (access)|LOCK]] clause can specify SHARED or a LOCK READ or LOCK WRITE file lock in an OPEN statement working on a network.
+* A separate [[LOCK]] statement can lock or [[UNLOCK]] file access on a network ONLY using a format that can lock specific records.
+* ''Note:'' '''Qbasic''' ACCESS and LOCK clauses required that the DOS '''SHARED.EXE''' program be run for networking access.
+
+
+&lt;center&gt;'''Qbasic File Modes:''' Open can use 5 different access modes:&lt;/center&gt;
+
+* [[OUTPUT]]: Sequencial mode creates a new file or erases an existing file for new program output. Use [[WRITE (file statement)|WRITE #]] to write numerical or text data or the [[PRINT (file statement)|PRINT #]] for text. OUTPUT clears files of all data and clears the receive buffer on other devices such as [[ON COM(n)|COM]].
+* [[APPEND]]: Sequencial mode creates a new file if it doesn't exist or appends program output to an existing file. Use [[WRITE (file statement)|WRITE #]] for numerical or text data or the [[PRINT (file statement)|PRINT #]] for text as in the OUTPUT mode. APPEND does not remove previous data. 
+* [[BINARY]]: Creates a new file when it doesn't exist or uses input and/or output from an existing file. Use [[GET|GET #]] to read or [[PUT|PUT #]] to write simultaneously. [[LEN]] = statements are ignored in this mode only.
+* [[RANDOM]]: Creates a new file when it doesn't exist or uses input and/or output from an existing file. Use [[GET|GET #]] or [[PUT|PUT #]] the same as BINARY mode. A [[LEN]] = statement can define the byte size of a record(defaut = 128).
+* [[INPUT (file mode)|INPUT]] : Sequencial mode only reads input from an existing file. [[ERROR Codes|File error]] if file does not exist! Use [[_FILEEXISTS]] and [[_DIREXISTS]] to avoid errors. Use [[INPUT (file statement)|INPUT #]] for numerical or text data and [[LINE INPUT (file statement)|LINE INPUT #]] or [[INPUT$]] to only read text data. 
+* The [[INPUT (file mode)|INPUT]], [[BINARY]] and [[RANDOM]] file modes allow a file to be concurrently opened in a different mode and number.
+
+
+&lt;center&gt;'''GW Basic OPEN statements'''&lt;/center&gt;
+
+
+:''GW Basic'' {{PageSyntax}} 
+::'''OPEN''' ''modeletter$'', [#]''filenumber'', ''filename$''[, ''recordLEN'']
+
+
+:* ''Mode letter'' is a variable or literal [[STRING]] letter value as one of the following:
+:::::::::* &quot;O&quot; denotes OUTPUT mode as defined above.
+:::::::::* &quot;A&quot; denotes APPEND mode as defined above.
+:::::::::* &quot;B&quot; denotes BINARY mode as defined above.
+:::::::::* &quot;R&quot; denotes RANDOM mode as defined above.
+:::::::::* &quot;I&quot; denotes INPUT mode as defined above.
+
+:* ''File number'' can be any variable or literal [[INTEGER]] value between 1 and 255 or a  [[FREEFILE]] value.
+:* ''File name'' can be a variable or literal [[STRING]] file name value.
+:* ''Record LENgth'' can be a variable or literal [[INTEGER]] value used in &quot;R&quot; mode only. Use multiples of 128 only.
+:* This type of OPEN allows the statement to be made using program variables only. A holdover for compatibility with GW Basic.
+:* '''Note:''' Does not support any file [[ACCESS]] or [[LOCK]] restrictions.
+
+
+&lt;center&gt; '''Comparing the GWBasic OPEN to a Qbasic OPEN statement:'''&lt;/center&gt;
+
+
+::::::::::GWBasic: OPEN &quot;A&quot;, #1, Filename$
+
+::::::::::Qbasic: OPEN Filename$ FOR APPEND AS #1
+
+:Where Filename$ is the filename variable or a literal string name such as &quot;Data1.DAT&quot; is used. The Qbasic syntax cannot use a variable to change the OPEN mode so the programmer must determine it ahead of time.
+
+
+
+''Example 1:'' Function that displays errors and the number of errors in Qbasic filenames. Returns 0 when filename is OK.
+
+{{CodeStart}}
+ file$ = &quot;Hello,~1.mp3&quot;      'example call below
+ LOCATE 20, 30: errors% = CheckName%(file$): COLOR 14: PRINT &quot;  Total Errors =&quot;; errors% 
+
+{{Cl|FUNCTION}} CheckName% (Filename$)
+  'NOTE: Function also displays filename errors so LOCATE on screen before call!
+  {{Cl|DIM}} L AS INTEGER, DP AS INTEGER, XL AS {{Cl|INTEGER}}
+  L = {{Cl|LEN}}(Filename$): DP = {{Cl|INSTR}}(Filename$, &quot;.&quot;): IF DP THEN XL = L - DP 'extension
+  IF L = 0 OR L &gt; 12 OR DP &gt; 9 OR XL &gt; 3 THEN 
+    CheckName% = -1: COLOR 12: PRINT &quot;Illegal format!&quot;; : EXIT FUNCTION
+  END IF
+  FOR i% = 1 TO L      'check each filename character&quot;
+     code% = {{Cl|ASC}}({{Cl|MID$}}(Filename$, i%, 1)): COLOR 10      ' see {{Cl|ASCII}} codes
+     {{Cl|SELECT CASE}} code%       'check for errors and highlight in red
+	CASE 34, 42 TO 44, 47, 58 TO 63, 91 TO 93, 124: E% = E% + 1: COLOR 12 ' Qbasic errors
+       'CASE 34, 42, 47, 58, 60, 62, 92, 124: E% = E% + 1: COLOR 12 ' '''QB64''' errors
+        CASE 46: dot% = dot% + 1: IF dot% &gt; 1 THEN E% = E% + 1: COLOR 12
+     {{Cl|END SELECT}}     
+     PRINT {{Cl|CHR$}}(code%);  'use LOCATE before FUNCTION call to place print
+  NEXT  
+  CheckName% = E%
+END FUNCTION
+{{CodeEnd}}
+''Note: The QB64 character list is commented out. Comment out the Qbasic one if using QB64 list.
+
+{{OutputStart}}
+                         Hello,~1.mp3  Total Errors = 1
+{{OutputEnd}}
+:''Note:'' The screen output displays filename characters in green except for red comma Qbasic error.
+
+
+''Example 2:'' A function that verifies that a file exists if it is NOT empty. Note: May create a file that is deleted if empty.
+{{CodeStart}} '' ''
+{{Cl|INPUT}} &quot;Enter a file name: &quot;, file$
+{{Cl|IF}} Exist%(file$) {{Cl|THEN}} {{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1: found% = -1   'function call demo
+{{Cl|CLOSE}} #1
+{{Cl|IF}} found% THEN {{Cl|PRINT}} &quot;File exists!&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;File not found!&quot;
+{{Cl|END}}
+
+{{Cl|FUNCTION}} Exist% (filename$)
+f% = {{Cl|FREEFILE}}
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #f%
+{{Cl|IF}} {{Cl|LOF}}(f%) {{Cl|THEN}} Exist% = -1 {{Cl|ELSE}} Exist% = 0: {{Cl|CLOSE}} #f%: {{Cl|KILL}} filename$
+{{Cl|CLOSE}} #f% 
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+
+
+
+* '''QB64''' can use the [[_OPENCLIENT]], [[_OPENHOST]] or [[_OPENCONNECTION]] functions for TCP/IP internet connections. 
+
+
+
+''See also:'' 
+* [[OPEN COM]]
+* [[CLOSE]], [[LOF]], [[EOF]], [[LOC]]
+* [[PRINT (file statement)]], [[INPUT (file statement)]]
+* [[GET]], [[PUT]], [[INPUT$]], [[SEEK (statement)]], [[SEEK]]
+* [[LEN]], [[RESET]] 
+* [[FILEATTR]], [[FIELD]], [[TYPE]]
+* [[_FILEEXISTS]], [[_DIREXISTS]]
+* [[_OPENCLIENT]], [[_OPENHOST]], [[_OPENCONNECTION]] {{text|(TCP/IP)}}
+* [[Port Access Libraries]] {{text|(COM or LPT registers)}}
+
+
+{{PageNavigation}}

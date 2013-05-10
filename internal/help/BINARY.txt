@@ -1,0 +1,84 @@
+{{KW|BINARY}} is used in an {{KW|OPEN}} statement to treat the file or port device as a {{KW|BINARY}}. 
+
+
+{{PageSyntax}}
+:{{KW|OPEN}} {{Parameter|filename$}} {{KW|FOR}} {{KW|BINARY}} {{KW|AS}} {{Parameter|#filenumber%}}
+
+
+{{PageDescription}}
+* BINARY creates the file if the filename$ does not exist.
+* {{Parameter|filename$}} is the name of the file to open, but could also configure a port.
+* {{Parameter|#filenumber%}} is the number that will represent the file when performing file operations.
+* BINARY files use [[GET]] and [[PUT]] to read or write the file at any byte position.
+* The number of bytes read or written depends on the byte [[LEN|length]] of the variable type used.
+* When [[PUT]] is used with a variable, numerical values are converted to [[ASCII]] string types [[MKI$]], [[MKL$]], [[MKS$]], [[MKD$]] or [[_MK$]].
+* One byte [[ASCII]] {{KW|STRING}} data character values can be read as number values using {{KW|ASC}}(values from 0 to 255).
+* Some files, like bitmaps, contain standard length file information headers. 
+* Qbasic's [[BSAVE]] or BINARY save files can be read using a BINARY mode.
+* BINARY mode ignores any [[LEN]] = recordlength statement in the {{KW|OPEN}} statement.
+* Ports can also be opened in {{KW|BINARY}} mode. See: {{KW|OPEN COM}}
+
+
+''Example 1:'' Shows how a PUT variable value is converted to an [[ASCII]] string [[_MK$]] format in a BINARY file.
+{{CodeStart}} '' ''
+{{Cl|DIM}} int64 {{Cl|AS}} {{Cl|_INTEGER64}}
+{{Cl|DIM}} byte8 {{Cl|AS}} {{Cl|STRING}} * 8
+int64 = 12345678
+{{Cl|PRINT}} int64
+
+{{Cl|OPEN}} &quot;temp64.tmp&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+{{Cl|PUT}} #1, , int64                 'the file size will be 8 bytes
+{{Cl|CLOSE}}
+
+{{Cl|PRINT}} &quot;Press a key to read the file!&quot;
+K$ = {{Cl|INPUT$}}(1)
+
+{{Cl|OPEN}} &quot;temp64.tmp&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+{{Cl|GET}} #1, , byte8                'GET the value as a string
+{{Cl|PRINT}} &quot;text string: &quot;; byte8   'show that string is in {{Cl|_MK$}} format
+
+{{Cl|PRINT}} {{Cl|_CV}}({{Cl|_INTEGER64}}, byte8)   'convert to numerical value
+{{Cl|CLOSE}} '' ''
+{{CodeEnd}}
+: ''Note:'' The numerical value does not need to be converted if the file is read using the same numerical variable type as written.
+
+
+''Example 2:'' A binary file viewer that can view integer values. The type of value can be changed at [[DIM]].
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1000, 600, 256)
+{{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
+{{Cl|DIM}} value AS {{Cl|INTEGER}}    'value type can be changed
+{{Cl|LINE INPUT}} ; &quot;Enter a {{Cl|BINARY}} filename to open: &quot;, file$
+{{Cl|PRINT}} &quot; Press S to restart!&quot;
+
+{{Cl|IF...THEN|IF}} {{Cl|LEN}}(file$) {{Cl|THEN}} {{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1 {{Cl|ELSE}} {{Cl|END}}
+{{Cl|IF...THEN|IF}} {{Cl|LOF}}(1) = 0 {{Cl|THEN}} {{Cl|PRINT}} &quot;Empty file!&quot;: {{Cl|END}}
+DO
+  {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 16
+    x = x + 1
+    {{Cl|GET}} #1, , value
+    {{Cl|IF...THEN|IF}} {{Cl|EOF}}(1) {{Cl|THEN}} {{Cl|EXIT DO}}
+    {{Cl|PRINT}} value;
+  {{Cl|NEXT}}
+  {{Cl|PRINT}} {{Cl|CHR$}}(27); x; &quot;@&quot;; row
+  K$ = {{Cl|INPUT$}}(1)
+  {{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(K$) = &quot;S&quot; {{Cl|THEN}} {{Cl|CLS}}: x = 0: row = 0: {{Cl|PRINT}} &quot;Restarted!&quot;: {{Cl|SEEK}} 1, 1
+  {{Cl|IF...THEN|IF}} x = 256 {{Cl|THEN}} x = 0: row = row + 1: {{Cl|PRINT}}
+{{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(27)
+{{Cl|CLOSE}} #1
+{{Cl|PRINT}} &quot;Press Escape to exit!&quot;
+DO: {{Cl|_LIMIT}} 100
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+{{Cl|SYSTEM}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|CLOSE}}
+* {{KW|GET}}, {{KW|PUT}}
+* {{KW|SEEK}} (function), {{KW|SEEK (statement)}}
+* {{KW|RANDOM}}, {{KW|INPUT (file mode)}}, {{KW|APPEND}}, {{KW|OUTPUT}}
+* {{KW|Bitmaps}}, {{KW|Binary}}(numbers)
+
+
+{{PageNavigation}}

@@ -1,0 +1,29 @@
+The {{KW|_RED}} function returns the palette index OR the red component intensity of a 32-bit screen only.
+
+
+{{PageSyntax}}
+:{{Parameter|result&amp;}} = {{KW|_RED}}({{Parameter|rgbaColorIndex&amp;}}[, {{Parameter|imageHandle&amp;}}])
+
+
+{{PageDescription}}
+* {{Parameter|rgbaColorIndex&amp;}} is the ''RGBA'' color value or palette index of the color to retrieve the red component intensity from.
+* The [[LONG]] intensity value returned ranges from 0 (no intensity, not present) to 255 (full intensity).
+* If {{Parameter|imageHandle&amp;}} specifies a 32-bit color image, {{Parameter|rgbaColorIndex&amp;}} is interpreted as a 32-bit ''RGBA'' color value.
+* If {{Parameter|imageHandle&amp;}} specifies an image that uses a palette, {{Parameter|rgbaColorIndex&amp;}} is interpreted as a palette index.
+* If {{Parameter|imageHandle&amp;}} is not specified, it is assumed to be the current write page.
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs.
+* If {{Parameter|rgbaColorIndex&amp;}} is outside the range of valid indexes for a given image mode, an [[ERROR Codes|illegal function call]] error occurs.
+* Uses index parameters passed by the {{KW|_RGB}}, {{KW|_RGBA}}, {{KW|_RGB32}} or {{KW|_RGBA32}} funtions.
+* An image handle is optional.
+
+
+''See Example:'' [[POINT]]
+
+
+{{PageSeeAlso}}
+* {{KW|_GREEN}}, {{KW|_BLUE}}
+* {{KW|_RGB}}, {{KW|RGB32}}
+* {{KW|_LOADIMAGE}} &lt;!-- why have this link ? --&gt;
+
+
+{{PageNavigation}}

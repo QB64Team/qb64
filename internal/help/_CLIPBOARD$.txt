@@ -1,0 +1,51 @@
+The {{KW|_CLIPBOARD$}} function returns the current Operating System's clipboard contents as a [[STRING]].
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|_CLIPBOARD$}}
+
+
+{{PageDescription}}
+* Text returned can contain the entire contents of a copied file or web page.
+* The string returned can also contain formatting like CRLF ([[CHR$]](13) + [[CHR$]](10)) end of line characters.
+* The clipboard can be used to copy, paste and communicate between running programs.
+
+
+''Example:'' Passing a string value between two running programs no matter where they are located.
+
+Program1:
+{{CodeStart}} '' ''
+{{Cl|PRINT}} &quot;Start Program2 to read your text entries! Empty entry quits!&quot;
+{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;Entry program started!&quot;            'set clipboard initially
+
+DO
+  {{Cl|LINE INPUT}} &quot;Enter some text to send to other program: &quot;, text$
+  {{Cl|IF...THEN|IF}} text$ = &quot;&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = text$
+{{Cl|LOOP}}
+
+{{Cl|SYSTEM}} '' ''
+{{CodeEnd}}
+Program2:
+{{CodeStart}}
+{{Cl|PRINT}} &quot;Enter text in Program1 and this program will read it. Esc key quits!&quot;
+
+DO
+  text$ = {{Cl|_CLIPBOARD$}}                       'function returns clipboard contents
+  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(text$) {{Cl|THEN}} 
+     {{Cl|PRINT}} text$
+     {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;&quot;                       'clear clipboard after a read
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+
+{{Cl|END}}  '' ''
+{{CodeEnd}}
+:''Explanation:'' Compile and run both programs at once to see the interaction. You could also run them on different paths.
+
+
+
+{{PageSeeAlso}}
+* [[_CLIPBOARD$ (statement)]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,40 @@
+The {{KW|_DISPLAY}} statement turns off automatic display while only displaying the screen changes when called. 
+
+
+{{PageSyntax}} 
+::: '''_DISPLAY''
+
+
+''Usage:''
+* '''_DISPLAY''' turns off the default [[_AUTODISPLAY]] when used. Prevents screen flickering.
+* Call _DISPLAY each time the screen graphics are to be displayed. Place call after the image has been changed.
+* Re-enable the automatic display by calling [[_AUTODISPLAY]]. If it isn't re-enabled, things may not be displayed later!
+
+
+''Examples:'' Displaying a circle bouncing around the screen.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+x = 21: y =31              'start position
+dx = 3: dy = 3             'number of pixel moves per loop       
+{{Cl|DO}}
+    {{Cl|_LIMIT}} 100       ' set to 100 frames per second
+    x = x + dx: y = y + dy
+    {{Cl|IF...THEN|IF}} x &lt; 0 {{Cl|OR}} x &gt; 640 {{Cl|THEN}} dx = -dx 'limit columns and reverse column direction each side
+    {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|OR}} y &gt; 480 {{Cl|THEN}} dy = -dy 'limit rows and reverse row direction top or bottom
+    IF px &lt;&gt; x OR py &lt;&gt; y THEN FOR d = 1 to 20: CIRCLE (px, py), d, 0: NEXT 'erase
+    FOR c = 1 TO 20: {{Cl|CIRCLE}} (x, y), c, 6: NEXT  'draw new circle at new position
+    px = x: py = y        'save older coordinates to erase older circle next loop
+    {{Cl|_DISPLAY}}                'after new circle is set, show it
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = CHR$(27) '' ''
+{{CodeEnd}}
+
+:''Explanation:'' The loop is set with [[_LIMIT]] to 100 frames per second to limit CPU usage and the speed of the ball. Each loop a circle is drawn while the previous one is erased when the coordinates change. _DISPLAY only shows the new circle position once each loop. The '''_DISPLAY''' routine eliminates the need for setting [[SCREEN (statement)|SCREEN]] swap pages, [[CLS]] and [[PCOPY]]. _DISPLAY keeps the image off of the screen until the changes have all completed. Drawing 40 circles every loop helps slow down the ball.
+
+
+{{PageSeeAlso}}
+* [[_AUTODISPLAY]] {{text|(default mode)}}
+* [[PCOPY]]
+* [[_DISPLAY (function)]]
+
+
+{{PageNavigation}}

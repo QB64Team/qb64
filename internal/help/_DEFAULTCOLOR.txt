@@ -1,0 +1,32 @@
+The {{KW|_DEFAULTCOLOR}} function returns the current default text color for an image handle or page.
+
+
+{{PageSyntax}}
+:''result&amp;'' = {{KW|_DEFAULTCOLOR}} [({{Parameter|imageHandle&amp;}})]
+
+
+{{PageDescription}}
+* If {{Parameter|imageHandle&amp;}} is omitted, it is assumed to be the current write page or image designated by [[_DEST]].
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs. Check handle values first!
+* Default foreground colors: [[SCREEN]] 0 = 7, [[SCREEN]] 1 and 10 = 3, [[SCREEN]] 2 and 11 = 1. All other [[SCREEN]]s = 15. 
+
+
+''Example:'' The default color is the color assigned to the text foreground. The [[SCREEN]] 12 default is [[COLOR]] 15.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63  'assign background RGB intensities
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 8: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0     'assign RGB intensities to COLOR 8
+{{Cl|_PRINTMODE }} _KEEPBACKGROUND
+{{Cl|COLOR}} 8                                                    'assign color 8 to text foreground
+{{Cl|PRINT}} &quot;The default color is attribute&quot;; {{Cl|_DEFAULTCOLOR}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[COLOR]]
+* [[_DEST]]
+* [[Images]]
+* [[Windows_Libraries#Color_Dialog_Box|Color Dialog Box]]
+
+
+{{PageNavigation}}

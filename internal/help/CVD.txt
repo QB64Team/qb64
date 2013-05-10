@@ -1,0 +1,35 @@
+The '''CVD''' function converts 8 byte [[GET]] or [[MKD$]] [[STRING]] values to [[DOUBLE]] numeric values.
+
+
+::::::''Syntax:'' CVD(''8-byte string'')
+
+
+* The 8 byte string value was created by [[MKD$]] or [[PUT]].
+* Numeric values read from a [[RANDOM]]-access or [[BINARY]] file must be converted from [[ASCII]] string characters back into numbers if they are to be arithmetically manipulated.
+* [[DOUBLE]] values can range up to 15 decimal point digits. Decimal point accuracy depends on whole value places taken.
+* [[CVD]] converts an 8-byte string created by [[MKD$]] to a [[DOUBLE]]-precision numerical value.
+* [[CVS]] converts a 4-byte string created by [[MKS$]] to a [[SINGLE]]-precision numerical value. 
+* [[CVI]] converts a 2-byte string created by [[MKI$]] to an [[INTEGER]] numerical value.
+* [[CVL]] converts a 4 byte string created by [[MKL$]] to a [[LONG]] integer numerical value.
+* CV functions can only be used to convert values from [[MK$]] string function values or data from [[BINARY]] files!
+
+
+''Examples:''
+{{CodeStart}} '' ''
+{{Cl|FIELD}} #1, 8 {{Cl|AS}} N$, 12 {{Cl|AS}} B$...
+{{Cl|GET}} #1
+Y# = {{Cl|CVD}}(N$) '' ''
+{{CodeEnd}}
+: ''Explanation:'' Reads a field from file #1, and converts the first eight bytes (N$) into an double-precision number assigned to the variable Y#.
+
+:Since a double-precision number can contain as many as 15 ASCII characters (fifteen bytes), writing a file using [[MKD$]] conversion, and reading with the [[CVD]] conversion, as many as 7 bytes per number recorded are saved on the storage medium.
+
+
+''See also:'' 
+
+* [[MKD$]], [[MKI$]], [[MKS$]], [[MKL$]]
+* [[CVI]], [[CVS]], [[CVL]]
+* [[_CV]], [[_MK$]]
+
+
+{{PageNavigation}}

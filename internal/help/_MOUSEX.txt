@@ -1,0 +1,45 @@
+The '''_MOUSEX''' function returns the current horizontal(column) mouse cursor position when read after [[_MOUSEINPUT]].
+
+
+{{PageSyntax}}
+::: column% = '''_MOUSEX'''
+
+
+''Usage:''
+* SCREEN 0 returns the [[SINGLE]] horizontal text column position. Graphic screens return the [[INTEGER]] pixel columns.
+* To calculate text columns in graphic modes divide the return by 8 or the [[_PRINTWIDTH]] of one [[_FONT]] character.
+* [[_MOUSEINPUT]] MUST be used to detect any changes in the mouse position and is '''required''' for any coordinate returns.
+
+
+''Example:'' A simple mouse drawing board using _MOUSEX and [[_MOUSEY]] coordinate values. 
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+{{Cl|LINE}} (99, 9)-(601, 401), 7, BF
+{{Cl|LINE}} (101, 11)-(599, 399), 8, BF
+tm$ = &quot; Column = ###  Row = ###  Button1 = ##  Button2 = ##  Button3 = ##&quot;
+{{Cl|LOCATE}} 29, 20: {{Cl|PRINT}} &quot;LeftButton = draw - RightButton = Erase&quot;;
+{{Cl|DO}}: K$ = {{Cl|INKEY$}}
+  {{Cl|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+    X = {{Cl|_MOUSEX}}: Y = {{Cl|_MOUSEY}}
+    {{Cl|IF}} X &gt; 100 {{Cl|AND (boolean)|AND}} X &lt; 600 {{Cl|AND (boolean)|AND}} PX &gt; 100 {{Cl|AND (boolean)|AND}} PX &lt; 600 {{Cl|THEN}}
+      {{Cl|IF}} Y &gt; 10 {{Cl|AND (boolean)|AND}} Y &lt; 400 {{Cl|AND (boolean)|AND}} PY &gt; 10 {{Cl|AND (boolean)|AND}} PY &lt; 400 {{Cl|THEN}}
+        {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|LINE}} (PX, PY)-(X, Y), 15
+        {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(2) {{Cl|THEN}} {{Cl|LINE}} (101, 11)-(599, 399), 8, BF
+      {{Cl|END IF}}
+    {{Cl|END IF}}
+    PX = X: PY = Y
+    {{Cl|LOCATE}} 28, 10: {{Cl|PRINT USING}} tm$; X; Y; {{Cl|_MOUSEBUTTON}}(1); {{Cl|_MOUSEBUTTON}}(2); {{Cl|_MOUSEBUTTON}}(3)
+  {{Cl|LOOP}}
+{{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(27)
+{{Cl|SYSTEM}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_MOUSEY]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
+* [[_MOUSEINPUT]], [[_MOUSEMOVE]]
+* [[_MOUSESHOW]], [[_MOUSEHIDE]]
+* [[Controller_Devices]]
+
+
+{{PageNavigation}}

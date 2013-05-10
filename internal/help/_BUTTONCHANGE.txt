@@ -1,0 +1,50 @@
+The '''_BUTTONCHANGE''' function returns -1 or 1 when a specified button number on a controller device has been pressed or released.
+
+
+{{PageSyntax}}
+::: press = _BUTTONCHANGE(''button_number%'')
+
+
+* Values returned are -1 for a press and 1 when a button is released. No press or release event returns zero.
+* The ''button_number'' must be a number which does not exceed the number of buttons found by the [[_LASTBUTTON]] function.
+* '''The number of [[_DEVICES]] MUST be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTBUTTON]]!'''
+* '''Note:''' The center mouse button is button number 2. Center can also be read using  [[_MOUSEBUTTON]](3).
+
+
+''Example:'' Reading multiple controller device buttons, axis and wheels.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
+  {{Cl|PRINT}} {{Cl|STR$}}(i) + &quot;) &quot; + {{Cl|_DEVICE$}}(i) + &quot; Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;,Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;,Wheel:&quot;; {{Cl|_LASTWHEEL}}(i)
+{{Cl|NEXT}}
+
+{{Cl|DO...LOOP|DO}}
+  d&amp; = {{Cl|_DEVICEINPUT}}
+  {{Cl|IF...THEN|IF}} d&amp; {{Cl|THEN}} '             the device number cannot be zero!
+    {{Cl|PRINT}} &quot;Found&quot;; d&amp;;
+    {{Cl|FOR...NEXT|FOR}} b = 1 {{Cl|TO}} {{Cl|_LASTBUTTON}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_BUTTONCHANGE}}(b); {{Cl|_BUTTON}}(b);
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} a = 1 {{Cl|TO}} {{Cl|_LASTAXIS}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_AXIS}}(a);
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} w = 1 {{Cl|TO}} {{Cl|_LASTWHEEL}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_WHEEL}}(w);
+    {{Cl|NEXT}}
+    {{Cl|PRINT}}
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Note:'' When there is no device control to read, a [[FOR...NEXT|FOR]] n = 1 TO 0 loop will not run thus avoiding a control function read error.
+
+
+''See also:''
+* [[_LASTWHEEL]], [[_LASTBUTTON]], [[_LASTAXIS]]
+* [[_AXIS]], [[_WHEEL]], [[_BUTTON]]
+* [[_DEVICE$]], [[_DEVICES]]
+* [[_MOUSEBUTTON]]
+* [[Controller Devices]]
+
+
+{{PageNavigation}}

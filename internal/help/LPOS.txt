@@ -1,0 +1,45 @@
+The {{KW|LPOS}} function returns the current LPT printer head position.
+
+
+{{PageSyntax}}
+:''result%'' = {{KW|LPOS}}({{Parameter|index%}})
+
+
+{{PageDescription}}
+* {{Parameter|index%}} is the index of the printer, which can have the following values:
+** 0 - LPT1:
+** 1 - LPT1:
+** 2 - LPT2:
+** 3 - LPT3:
+* The LPOS function does not necessarily give the physical position of the print head because it does not expand tab characters. In addition, some printers may buffer characters.
+
+
+{{PageExamples}}
+:Prompts the user for team names and the names of players on each team. It then prints the players and their teams on the printer.
+{{CodeStart}}{{Cl|CLS}}
+{{Cl|LPRINT}} &quot;Team Members&quot;; {{Cl|TAB}}(76); &quot;TEAM&quot; : {{Cl|LPRINT}}
+{{Cl|INPUT}} &quot;How many teams&quot;; TEAMS
+{{Cl|INPUT}} &quot;How many players per team&quot;;PPT
+{{Cl|PRINT}}
+{{Cl|FOR}} T = 1 TO TEAMS
+    {{Cl|INPUT}} &quot;Team name: &quot;, TEAM$
+    {{Cl|FOR}} P = 1 TO PPT
+        {{Cl|INPUT}} &quot;   Enter player name: &quot;, PLAYER$
+        {{Cl|LPRINT}} PLAYER$;
+        {{Cl|IF...THEN|IF}} P &lt; PPT {{Cl|THEN}}
+            {{Cl|IF...THEN|IF}} {{Cl|LPOS}}(0) &gt; 55 {{Cl|THEN}} ' Print a new line if print head past column 55.
+                {{Cl|LPRINT}} : {{Cl|LPRINT}} {{Cl|SPACE$}}(5);
+            {{Cl|ELSE}}
+                {{Cl|LPRINT}} &quot;, &quot;;         'Otherwise, print a comma.
+            {{Cl|END}} IF
+        {{Cl|END}} IF
+    {{Cl|NEXT}} P
+{{Cl|LPRINT}} {{Cl|STRING$}}(80 - {{Cl|LPOS}}(0) - {{Cl|LEN}}(TEAM$),&quot;.&quot;); TEAM$
+{{Cl|NEXT}} T
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+
+
+{{PageNavigation}}

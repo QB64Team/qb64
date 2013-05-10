@@ -1,0 +1,39 @@
+SLEEP pauses the program indefinitely or for a specified number of seconds, program is unpaused when the user presses a key or when the specified number of seconds has passed.
+
+
+{{PageSyntax}}
+:: SLEEP [seconds]
+
+
+* Seconds are an optional [[INTEGER]] value. If there is no parameter, then it waits for a keypress.
+* Any user keypress will abort the SLEEP time.
+* SLEEP does NOT clear the keyboard buffer so it can affect [[INKEY$]], [[INPUT]], [[INPUT$]] and [[LINE INPUT]] reads. 
+* Use an [[INKEY$]] keyboard buffer clearing loop when an empty keyboard buffer is necessary.
+* SLEEP allows other programs to share the processor time during the interval.
+
+
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|CLS}} '' ''
+{{Cl|PRINT}} &quot;Press a key...&quot;
+{{Cl|SLEEP}}
+{{Cl|PRINT}} &quot;You pressed a key, now wait for 2 seconds.&quot;
+{{Cl|SLEEP}} 2
+{{Cl|PRINT}} &quot;You've waited for 2 seconds.&quot;
+{{Cl|PRINT}} &quot;(or you pressed a key)&quot;
+{{CodeEnd}}
+{{OutputStart}}
+Press a key...
+You pressed a key, now wait for 2 seconds.
+You've waited for 2 seconds.
+(or you pressed a key)
+{{OutputEnd}}
+:''Explanation:'' SLEEP without any arguments waits until a key is pressed, next SLEEP statement uses the argument 2 which means that it will wait for 2 seconds, any number of seconds can be specified.
+
+
+''See also:'' 
+* [[TIMER]], [[INKEY$]]
+* [[_DELAY]], [[_LIMIT]]
+
+
+{{PageNavigation}}

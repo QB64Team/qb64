@@ -1,0 +1,45 @@
+The {{KW|TAB}} function is used in [[PRINT]] and [[LPRINT]] statements to move to a specified column position.
+
+
+{{PageSyntax}}
+:{{KW|TAB}}({{Parameter|column%}})
+
+
+{{PageDescription}}
+* Space characters are printed until the print cursor reaches the designated {{Parameter|column%}}, overwriting existing characters.
+* If a subsequent TAB ''column%'' is less than the current position, TAB moves the next print to that column on the next row.
+* [[ASCII]] [[CHR$]](9) can be substituted for sequencial 9 space column moves.
+* [[Comma]] PRINT spacing is up to 15 column places (IE: TAB(15)) to a maximum column of 57.
+* When printing to a file, a carriage return([[CHR$]](13)) and linefeed([[CHR$]](10)) character are output when it moves to the next row.
+* '''Note:''' Qbasic did not allow a TAB to be [[concatenation|added]] to a string value. In [[PRINT]] statements the [[+|plus]] would be changed to a [[semicolon]]. 
+: In QB64, TAB [[concatenation]] is allowed instead of [[semicolon]]s. Example: {{text|PRINT &quot;text&quot; + TAB(9) + &quot;here&quot;|green}}
+
+
+''Example:'' Comparing TAB to [[comma]] print spacing which moves the next text print 15 columns.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} {{Cl|TAB}}(15); &quot;T&quot; 'TAB spacing
+
+{{Cl|PRINT}} , &quot;T&quot; '' ''      'comma spacing
+
+{{Cl|PRINT}} {{Cl|TAB}}(15); &quot;T&quot;{{text|;|red}} {{Cl|TAB}}(20); &quot;A&quot;; {{Cl|TAB}}(15); &quot;B&quot; 'semicolons add nothing to position
+
+{{Cl|PRINT}} {{Cl|TAB}}(15); &quot;T&quot;{{text|,|red}} {{Cl|TAB}}(20); &quot;A&quot;; {{Cl|TAB}}(15); &quot;B&quot; 'comma moves column position beyond 20 '' ''
+{{CodeEnd}}
+{{OutputStart}}              T
+              T
+              T    A
+              B 
+              T
+                   A
+              B{{OutputEnd}} 
+: ''Explanation:'' TAB moves the PRINT down to the next row when the current column position is more than the TAB position.
+
+
+{{PageSeeAlso}}
+* [[PRINT]], [[LPRINT]]
+* [[SPC]], [[SPACE$]]
+* [[STRING$]]
+* [[CHR$]], [[ASCII]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,64 @@
+'''_glDepthFunc:''' specify the value used for depth buffer comparisons
+
+
+{{PageSyntax}}
+
+  SUB _glDepthFunc (BYVAL func AS _UNSIGNED LONG)
+  void '''_glDepthFunc'''(GLenum {{Parameter|func}});
+
+
+; func
+: Specifies the depth comparison function. Symbolic constants {{KW|_GL_NEVER}}, {{KW|_GL_LESS}}, {{KW|_GL_EQUAL}}, {{KW|_GL_LEQUAL}}, {{KW|_GL_GREATER}}, {{KW|_GL_NOTEQUAL}}, {{KW|_GL_GEQUAL}}, and {{KW|_GL_ALWAYS}} are accepted. The initial value is {{KW|_GL_LESS}}.
+
+
+{{PageDescription}}
+
+'''_glDepthFunc''' specifies the function used to compare each incoming pixel depth value with the depth value present in the depth buffer. The comparison is performed only if depth testing is enabled. (See {{KW|_glEnable}} and {{KW|_glDisable}} of {{KW|_GL_DEPTH_TEST}}.)
+
+{{Parameter|func}} specifies the conditions under which the pixel will be drawn. The comparison functions are as follows:
+
+; {{KW|_GL_NEVER}}
+: Never passes.
+; {{KW|_GL_LESS}}
+: Passes if the incoming depth value is less than the stored depth value.
+; {{KW|_GL_EQUAL}}
+: Passes if the incoming depth value is equal to the stored depth value.
+; {{KW|_GL_LEQUAL}}
+: Passes if the incoming depth value is less than or equal to the stored depth value.
+; {{KW|_GL_GREATER}}
+: Passes if the incoming depth value is greater than the stored depth value.
+; {{KW|_GL_NOTEQUAL}}
+: Passes if the incoming depth value is not equal to the stored depth value.
+; {{KW|_GL_GEQUAL}}
+: Passes if the incoming depth value is greater than or equal to the stored depth value.
+; {{KW|_GL_ALWAYS}}
+: Always passes.
+The initial value of {{Parameter|func}} is {{KW|_GL_LESS}}. Initially, depth testing is disabled. If depth testing is disabled or if no depth buffer exists, it is as if the depth test always passes.
+
+
+{{PageNotes}}
+
+Even if the depth buffer exists and the depth mask is non-zero, the depth buffer is not updated if the depth test is disabled. In order to unconditionally write to the depth buffer, the depth test should be enabled and set to {{KW|_GL_ALWAYS}}.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|func}} is not an accepted value.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_DEPTH_FUNC}}
+
+{{KW|_glIsEnabled}} with argument {{KW|_GL_DEPTH_TEST}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glEnable|(GL_DEPTH_TEST)}}, {{KW|_glDepthRange}}, {{KW|_glPolygonOffset}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

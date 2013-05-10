@@ -1,0 +1,172 @@
+The '''_KEYDOWN''' function returns whether modifying keys like CTRL, ALT, SHIFT, and any other keys are pressed.
+
+
+{{PageSyntax}}
+:: return% = _KEYDOWN(''code&amp;'')
+
+
+* The ''return'' value is -1 if a specified key is pressed or 0 if it was not pressed. It can be used to monitor key combinations.
+* The [[LONG]] ''code'' value can be from any function key that needs to be monitored in a key press combination. 
+* Unicode references:
+:* 1) What is the glyph represented by that UNICODE value: [http://www.fileformat.info/info/unicode/char/search.htm Unicode Format Info]
+:* 2) Which fonts support the characters I want to use: [http://en.wikipedia.org/wiki/Unicode_typefaces#Comparison_of_fonts Unicode Fonts]
+:* 3) What was the format again?: [http://www.birds-eye.net/definition/u/unicode.shtml Unicode Formats]
+:* A UTF32 value is usually(but by no means always!) the same as a UTF16 value just with the top 2 bytes set to 0.
+* An important difference between [[INKEY$]] and [[_KEYHIT]] is how they work when '''CTRL, ALT''' or '''SHIFT''' are used. [[INKEY$]] returns a different code if you hold down CTRL, ALT or SHIFT before pressing F1 (for example). [[_KEYHIT]] will return the same code regardless of which modifiers were used but you can check _KEYDOWN to see which modifying keys are being used.
+* '''Keyboards with Alt Gr key:''' [[_KEYHIT]] may return both Alt(100307) and Ctrl(100306) codes when key is pressed or released.
+* '''Linux with foreign keyboards:''' [[SHELL]] [[_HIDE]] &quot;setxkbmap us&quot; will setup a keyboard to read US [[Scancodes]].
+
+
+{{WhiteStart}}                       '''The QB64 Virtual Key constant values used: '''
+
+         '''0-255''': [[ASCII|ASCII and Extended code]] values (Refer to [http://en.wikipedia.org/wiki/Code_page_437 CP437])
+
+         '''256-65535''': [http://qb64.net/wiki/index.php?title=ASCII#Two_Byte_Codes ASCII 2-byte] character codes (unaffected by SHIFT/ALT/CTRL modifiers)
+                  Use [[CVI]] to convert ASCII 2-byte codes to _KEYDOWN values.
+
+'                                '''_KEYDOWN Keyboard Values'''
+'
+''''Esc  F1    F2    F3    F4    F5    F6    F7    F8    F9    F10   F11   F12   Sys  ScL Pause'''                  
+' 27 15104 15360 15616 15872 16128 16384 16640 16896 17152 17408 34048 34304 +316 +302 +019
+''''`~  1!  2@  3#  4$  5%  6^  7&amp;  8*  9(  0) -_ =+ BkSp   Ins   Hme   PUp   NumL   /     *    -''' 
+'126 33  64  35  36  37  94  38  42  40  41 95 43   8   20992 18176 18688 +300   47    42   45
+''' 96 49  50  51  52  53  54  55  56  57  48 45 61''
+''''Tab Q   W   E   R   T   Y   U   I   O   P  [{  ]}  \|   Del   End   PDn   7Hme  8/▲   9PU   + '''
+' 9  81  87  69  82  84  89  85  73  79  80 123 125 124 21248 20224 20736 18176 18432 18688 43
+'''   113 119 101 114 116 121 117 105 111 112  91  93  92                    55    56    57 ''
+''''CapL   A   S   D   F   G   H   J   K   L   ;:  '&quot; Enter                   4/◄-   5    6/-►  
+'+301  65  83  68  70  71  72  74  75  76  58  34  13                     19200 19456 19712  '''E'''
+'''      97 115 100 102 103 104 106 107 108  59  39                          52    53    54 ''   '''n'''                                    
+''''Shift   Z   X   C   V   B   N   M   ,&lt;  .&gt;  /?    Shift       ▲           1End  2/▼   3PD   t'''
+'+304   90  88  67  86  66  78  77  60  62  63    +303       18432        20224 20480 20736  '''e'''
+'''      122 120  99 118  98 110 109  44  46  47                             49    50    51 ''   '''r'''
+''''Ctrl   Win  Alt     Spacebar      Alt  Win  Menu  Ctrl   ◄-   ▼   -►      0Ins        .Del '''
+'+306  +311 +308       32         +307 +312 +319  +305 19200 20480 19712  20992       21248 13 
+'                                                                     ''     48          46''
+'
+'     '''    Lower value = LCase/NumLock On __________________ + = add 100000 '''
+{{WhiteEnd}}
+{{small|NOTE: The above commented table can be copied and pasted directly into the QB64 IDE}}
+
+
+{{WhiteStart}}         '''65536-&amp;H40000000''': QB64-specific Virtual Key codes:
+
+                        CONST KEY_PAUSE&amp; = 100019
+                        CONST KEY_NUMLOCK&amp; = 100300
+                        CONST KEY_CAPSLOCK&amp; = 100301
+                        CONST KEY_SCROLLOCK&amp; = 100302
+                        CONST KEY_RSHIFT&amp; = 100303
+                        CONST KEY_LSHIFT&amp; = 100304
+                        CONST KEY_RCTRL&amp; = 100305
+                        CONST KEY_LCTRL&amp; = 100306
+                        CONST KEY_RALT&amp; = 100307
+                        CONST KEY_LALT&amp; = 100308
+                        CONST KEY_RMETA&amp; = 100309 'Left 'Apple' key (MacOSX)
+                        CONST KEY_LMETA&amp; = 100310 'Right 'Apple' key (MacOSX)
+                        CONST KEY_LSUPER&amp; = 100311 'Left &quot;Windows&quot; key
+                        CONST KEY_RSUPER&amp; = 100312 'Right &quot;Windows&quot;key
+                        CONST KEY_MODE&amp; = 100313 '&quot;AltGr&quot; key
+                        CONST KEY_COMPOSE&amp; = 100314
+                        CONST KEY_HELP&amp; = 100315
+                        CONST KEY_PRINT&amp; = 100316
+                        CONST KEY_SYSREQ&amp; = 100317
+                        CONST KEY_BREAK&amp; = 100318
+                        CONST KEY_MENU&amp; = 100319
+                        CONST KEY_POWER&amp; = 100320
+                        CONST KEY_EURO&amp; = 100321
+                        CONST KEY_UNDO&amp; = 100322 
+                        CONST KEY_KP0&amp; = 100256
+                        CONST KEY_KP1&amp; = 100257
+                        CONST KEY_KP2&amp; = 100258
+                        CONST KEY_KP3&amp; = 100259
+                        CONST KEY_KP4&amp; = 100260
+                        CONST KEY_KP5&amp; = 100261
+                        CONST KEY_KP6&amp; = 100262
+                        CONST KEY_KP7&amp; = 100263
+                        CONST KEY_KP8&amp; = 100264
+                        CONST KEY_KP9&amp; = 100265
+                        CONST KEY_KP_PERIOD&amp; = 100266
+                        CONST KEY_KP_DIVIDE&amp; = 100267
+                        CONST KEY_KP_MULTIPLY&amp; = 100268
+                        CONST KEY_KP_MINUS&amp; = 100269
+                        CONST KEY_KP_PLUS&amp; = 100270
+                        CONST KEY_KP_ENTER&amp; = 100271
+                        CONST KEY_KP_INSERT&amp; = 200000
+                        CONST KEY_KP_END&amp; = 200001
+                        CONST KEY_KP_DOWN&amp; = 200002
+                        CONST KEY_KP_PAGE_DOWN&amp; = 200003
+                        CONST KEY_KP_LEFT&amp; = 200004
+                        CONST KEY_KP_MIDDLE&amp; = 200005
+                        CONST KEY_KP_RIGHT&amp; = 200006
+                        CONST KEY_KP_HOME&amp; = 200007
+                        CONST KEY_KP_UP&amp; = 200008
+                        CONST KEY_KP_PAGE_UP&amp; = 200009
+                        CONST KEY_KP_DELETE&amp; = 200010
+                        CONST KEY_SCROLL_LOCK_MODE&amp; = 200011
+                        CONST KEY_INSERT_MODE&amp; = 200012
+
+         '''&amp;H40000000 up''': [[Unicode]] using the '''cyberbit.ttf''' font when available.
+
+              '''Use [[_KEYHIT]] to find the key codes to be monitored by _KEYDOWN! '''
+
+{{WhiteEnd}}
+
+''Example 1:'' Comparing the _KEYDOWN returns using [[CONST|constant]] values with 2 byte [[INKEY$]] returns.
+{{CodeStart}} '' ''
+{{Cl|CONST}} RSHIFT&amp; = 100303
+{{Cl|CONST}} LSHIFT&amp; = 100304
+{{Cl|DO}}
+    x = {{Cl|_KEYHIT}}
+    {{Cl|IF}} x = {{Cl|CVI}}({{Cl|CHR$}}(0) + {{Cl|CHR$}}(59)) {{Cl|THEN}}
+        {{Cl|IF}} {{Cl|_KEYDOWN}}(LSHIFT&amp;) {{Cl|OR (boolean)|OR}} {{Cl|_KEYDOWN}}(RSHIFT&amp;) {{Cl|THEN}}
+            {{Cl|PRINT}} &quot;KEYHIT: SHIFT + F1&quot;
+        {{Cl|ELSE}}
+            {{Cl|PRINT}} &quot;KEYHIT: F1&quot;
+        {{Cl|END IF}}
+    {{Cl|END IF}}
+    k$ = {{Cl|INKEY$}}         'compare key press return values
+    {{Cl|IF}} k$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(59) {{Cl|THEN}} {{Cl|PRINT}} &quot;INKEY$: F1&quot;
+    {{Cl|IF}} k$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(84) {{Cl|THEN}} {{Cl|PRINT}} &quot;INKEY$: SHIFT+F1&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27)     'escape key exit
+{{CodeEnd}}
+{{small|Code by Galleon}}
+
+
+''Example 2:'' How to calculate the _KEYDOWN codes of the 2 byte INKEY$ arrow key codes using [[CVI]].
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12 
+
+x = 320: y = 240
+col = {{Cl|_RGB}}(255, 0, 0)
+radius = 20
+
+DO
+    {{Cl|CLS}}
+    {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} &quot;Use the arrow keys to move the circle.&quot;
+    {{Cl|CIRCLE}} (x, y), radius, col
+    {{Cl|PAINT}} (x, y), col    
+
+    {{Cl|IF...THEN|IF}} {{Cl|_KEYDOWN}}({{Cl|CVI}}({{Cl|CHR$}}(0) + &quot;P&quot;)) {{Cl|THEN}} y = y + 1   '_KEYDOWN(20480)
+    {{Cl|IF...THEN|IF}} {{Cl|_KEYDOWN}}({{Cl|CVI}}({{Cl|CHR$}}(0) + &quot;H&quot;)) {{Cl|THEN}} y = y - 1   '_KEYDOWN(18432)
+    {{Cl|IF...THEN|IF}} {{Cl|_KEYDOWN}}({{Cl|CVI}}({{Cl|CHR$}}(0) + &quot;K&quot;)) {{Cl|THEN}} x = x - 1   '_KEYDOWN(19200)
+    {{Cl|IF...THEN|IF}} {{Cl|_KEYDOWN}}({{Cl|CVI}}({{Cl|CHR$}}(0) + &quot;M&quot;)) {{Cl|THEN}} x = x + 1   '_KEYDOWN(19712)
+
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 100 'limit to 100 frames per second
+{{Cl|LOOP}} '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}}
+:''Explanation:'' When [[CVI]] is used with a 2 byte code, the code of the first character(0) is added to the second character code which is multiplied by 256. In the example, code zero is added to the [[ASCII]] code of &quot;P&quot; which is 80. CVI multiplies 80 * 256 = 20480.
+
+
+''See also:
+
+* [[_KEYHIT]], [[Unicode]], [[Code Pages]] (by region)
+* [[_MAPUNICODE]], [[_MAPUNICODE (function)]]
+* [[INKEY$]], [[ASCII]], [[CVI]]
+* [[INP]](&amp;H60), [[Scancodes]]
+* [[ON KEY(n)]], [[KEY(n)]], [[KEY n]]
+* [[Windows_Libraries#Hot_Keys_.28maximize.29|Windows hot keys]]
+
+
+{{PageNavigation}}

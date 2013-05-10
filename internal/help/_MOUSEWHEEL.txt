@@ -1,0 +1,65 @@
+The '''_MOUSEWHEEL''' function returns a positive or negative [[INTEGER]] value indicating mouse scroll clicks since the last read.
+
+
+{{PageSyntax}}
+:::{{Parameter|scroll%}} = {{KW|_MOUSEWHEEL}}
+
+
+''Usage:''
+* A return value of 1 represent one &quot;click&quot; the mouse scroll wheel was moved toward the user. 
+* A return value of -1 represent one &quot;click&quot; the mouse scroll wheel was moved away from the user.
+* After a &quot;click&quot; has been read, the value resets to 0 automatically so cumulative position values must be added.
+* If no movement on the wheel has occurred since the last [[_MOUSEINPUT]] read, _MOUSEWHEEL returns 0.
+
+
+''Example 1:'' Reading the cumulative mouse wheel &quot;clicks&quot;.
+{{CodeStart}} '' ''
+ DO: {{Cl|_LIMIT}} 100
+    DO WHILE {{Cl|_MOUSEINPUT}}
+      Scroll = Scroll + {{Cl|_MOUSEWHEEL}}
+      LOCATE 10, 20: PRINT Scroll
+    LOOP
+ LOOP UNTIL INKEY$ = CHR$(13) ' press Enter to quit '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' A simple text scrolling routine using the mouse wheel value to read a text array.
+{{CodeStart}} '' ''
+{{Cl|DIM}} Array$(100)
+{{Cl|LINE INPUT}} &quot;Enter a file name with 100 or more lines of text: &quot;, file$
+{{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+{{Cl|DO...LOOP|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1)
+  inputcount = inputcount + 1
+  {{Cl|LINE INPUT (file statement)|LINE INPUT}} #1, Array$(inputcount)
+  {{Cl|IF...THEN|IF}} inputcount = 100 {{Cl|THEN}} {{Cl|EXIT DO}}
+{{Cl|LOOP}}
+{{Cl|FOR...NEXT|FOR}} n = 1 {{Cl|TO}} 21: {{Cl|PRINT}} Array$(n): {{Cl|NEXT}}
+{{Cl|CLOSE}} #1
+DO
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+    {{Cl|IF...THEN|IF}} row &gt;= 0 {{Cl|THEN}} row = row + {{Cl|_MOUSEWHEEL}} {{Cl|ELSE}} row = 0  'prevent under scrolling
+    {{Cl|IF...THEN|IF}} row &gt; inputcount - 20 {{Cl|THEN}} row = inputcount - 20    'prevent over scrolling
+    {{Cl|IF...THEN|IF}} prevrow &lt;&gt; row {{Cl|THEN}} 'look for a change in row value
+      {{Cl|IF...THEN|IF}} row &gt; 0 {{Cl|AND (boolean)|AND}} row &lt;= inputcount - 20 {{Cl|THEN}}
+        {{Cl|CLS}}: {{Cl|LOCATE}} 2, 1
+        {{Cl|FOR...NEXT|FOR}} n = row {{Cl|TO}} row + 20
+          {{Cl|PRINT}} Array$(n)
+        {{Cl|NEXT}}
+      {{Cl|END IF}}
+    {{Cl|END IF}}
+    prevrow = row 'store previous row value
+  {{Cl|LOOP}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot; '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+&lt;center&gt;Note: QB64 comes with a text file called ''readme.txt'' that is large enough for this example.&lt;/center&gt;
+
+
+{{PageSeeAlso}}
+* [[_MOUSEX]], [[_MOUSEY]], [[_MOUSEBUTTON]]
+* [[_MOUSEINPUT]], [[_MOUSEMOVE]] 
+* [[_MOUSESHOW]], [[_MOUSEHIDE]]
+* [[Controller_Devices]]
+
+
+{{PageNavigation}}

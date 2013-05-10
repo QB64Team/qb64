@@ -1,0 +1,129 @@
+The '''POINT''' function returns the pixel [[COLOR]] attribute at a specified graphics coordinate or the current graphic cursor position.
+
+
+''Color'' {{PageSyntax}} color_attribute% = POINT (''column%'', ''row%'')
+
+''Position'' {{PageSyntax}} pointer_coordinate% = POINT({0|1|2|3})
+
+
+:'''POINT in Qbasic Legacy SCREEN modes:'''
+* The [[INTEGER]] color attributes returned are limited by the number of colors in the legacy SCREEN mode used.
+* ''Column'' and ''row'' [[INTEGER]] parameters denote the graphic pixel coordinate to read.
+* Use the [[SCREEN (function)|SCREEN]] function to point text character codes and colors in SCREEN 0.
+* In Qbasic the coordinates MUST be on the screen or an [[ERROR Codes|Illegal Function Call error]] will occur. 
+* In '''QB64''' the offscreen or off image value returned is -1. Use IF POINT(x, y) &lt;&gt; -1 THEN...
+
+
+:'''POINT Cursor Coordinate Position:'''
+* When one [[INTEGER]] value parameter is used, the current graphic cursor position is returned.
+** 0 returns the current graphic cursor [[SCREEN]] column coordinate.
+** 1 returns the current graphic cursor [[SCREEN]] row coordinate.
+** 2 returns the current graphic cursor [[WINDOW]] column position.
+** 3 returns the current graphic cursor [[WINDOW]] row position.
+* If a [[WINDOW]] view port has not been established, the coordinate returned will be the [[SCREEN]] position.
+
+
+:'''POINT in QB64 32 Bit [[_NEWIMAGE]] SCREEN Modes:'''
+* Returns [[_UNSIGNED]] [[LONG]] 32 bit color values. Use [[_UNSIGNED]] values when you don't want negative values.
+*  '''[[LONG]] unsigned variables can be used when comparing POINT returns with [[_RGB]].(QB64 V .937 up)'''
+* Convert 32 bit color values to RGB intensities(0 to 255) using the [[_RED32]], [[_GREEN32]] and [[_BLUE32]] functions.
+* To convert color intensities to OUT &amp;H3C9 color port palette intensity values divide the values of 0 to 255 by 4.
+* Use the [[_PALETTECOLOR (function)]] to convert color port palette intensities in 32 bit modes.
+
+
+''Example 1:'' How [[_RGB]] 32 bit values return [[DOUBLE]] or [[_UNSIGNED]] [[LONG]] values in QB64.
+{{CodeStart}} '' ''
+{{Cl|DIM}} clr {{Cl|AS}} {{Cl|LONG}} 'DO NOT use LONG in older versions of QB64 (V .936 down)
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|CLS}} , {{Cl|_RGB}}(255, 255, 255)  'makes the background opaque white
+
+{{Cl|PRINT}} &quot;POINT(100, 100) =&quot;; {{Cl|POINT}}(100, 100)
+clr = {{Cl|POINT}}(100, 100)
+{{Cl|PRINT}} &quot;Variable clr = &quot;;  clr
+{{Cl|IF...THEN|IF}} clr = {{Cl|_RGB}}(255, 255, 255) {{Cl|THEN}} {{Cl|PRINT}} &quot;Long OK&quot;
+{{Cl|IF...THEN|IF}} {{Cl|POINT}}(100, 100) = {{Cl|_RGB}}(255, 255, 255) {{Cl|THEN}} {{Cl|PRINT}} &quot;_RGB OK&quot;
+{{Cl|IF...THEN|IF}} {{Cl|POINT}}(100, 100) = clr {{Cl|THEN}} {{Cl|PRINT}} &quot;Type OK&quot; 'will not print with a LONG variable type'' ''
+{{CodeEnd}}
+:'''Note:''' Change the DIM ''clr'' variable type to [[LONG]] to see how the last IF statement doesn't PRINT as shown in the output below:
+{{OutputStart}}POINT(100, 100) = 4294967295
+Variable clr = -1
+Long OK
+_RGB OK
+{{OutputEnd}}
+
+
+
+''Example 2:'' Using a POINT mouse routine to get the 32 bit color values of the QB64 Bee. [http://www.qb64.net/forum/index.php Download image from top of Forum].
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|_TITLE}} &quot;Mouse POINTer 32&quot;
+{{Cl|DECLARE LIBRARY}}
+  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} xoffset&amp;, {{Cl|BYVAL}} yoffset&amp;) 
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+'{{Cl|LINE INPUT}} &quot;Enter an image file: &quot;, image$  'use quotes around file names with spaces 
+image$ = &quot;QB64.png&quot;                       'up to 320 X 240 with current _PUTIMAGE settings
+i&amp; = {{Cl|_LOADIMAGE}}(image$, 32)
+{{Cl|IF...THEN|IF}} i&amp; &gt;= -1 {{Cl|THEN}} {{Cl|BEEP}}: {{Cl|PRINT}} &quot;Could NOT load image!&quot;: {{Cl|END}}
+w&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(i&amp;): h&amp; = {{Cl|_HEIGHT}}(i&amp;)
+
+{{Cl|PRINT}} &quot;Make background transparent?(Y\N)&quot;;
+BG$ = {{Cl|UCASE$}}({{Cl|INPUT$}}(1))
+{{Cl|PRINT}} BG$
+{{Cl|_DELAY}} 1
+{{Cl|CLS}}
+{{Cl|IF...THEN|IF}} BG$ = &quot;Y&quot; {{Cl|THEN}} {{Cl|_CLEARCOLOR}} {{Cl|_RGB32}}(255, 255, 255), i&amp; 'make white Background transparent
+{{Cl|_PUTIMAGE}} (320 - w&amp;, 240 - h&amp;)-((2 * w&amp;) + (320 - w&amp;), (2 * h&amp;) + (240 - h&amp;)), i&amp;, 0
+{{Cl|_FREEIMAGE}} i&amp;
+
+MouseMove 320, 240       'center mouse pointer on screen
+
+DO: {{Cl|_LIMIT}} 100
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+    mx = {{Cl|_MOUSEX}}
+    my = {{Cl|_MOUSEY}}
+    c&amp; = {{Cl|POINT}}(mx, my)
+    r = {{Cl|_RED32}}(c&amp;)
+    g = {{Cl|_GREEN32}}(c&amp;)
+    b = {{Cl|_BLUE32}}(c&amp;)
+    {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} mx; my, &quot;R:&quot;; r, &quot;G:&quot;; g, &quot;B:&quot;; b
+    {{Cl|LOCATE}} 2, 2: {{Cl|PRINT}} &quot;HTML Color: {{Cl|&amp;H}}&quot; + {{Cl|RIGHT$}}({{Cl|HEX$}}(c&amp;), 6)
+  {{Cl|LOOP}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot;
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' Use the mouse pointer routine to get the background RGB of the image to make it transparent with [[_CLEARCOLOR]].
+
+
+''Example 3:'' Creating an image mask to PUT an image over other colored backgrounds.
+{{CodeStart}}
+ FOR c = 0 TO 59    '60 X 60 area from 0 pixel
+   FOR r = 0 TO 59
+    IF {{Cl|POINT}}(c, r) = 0 THEN {{Cl|PSET}} (c, r), 15 ELSE PSET (c, r), 0
+   NEXT r
+ NEXT c
+ {{Cl|GET (graphics statement)|GET}}(0, 0)-(60, 60), Image(1500) ' save mask in an array(indexed above original image).
+{{CodeEnd}}
+
+:''Explanation:'' In the procedure all black areas(background) are changed to white for a PUT using AND over other colored objects. The other image colors are changed to black for a PUT of the original image using XOR. The array images can be {{KW|BSAVE}}d for later use. '''QB64 can also''' [[PUT]]''' a full screen 12 image from an array directly into a''' [[BINARY]] '''file.'''
+
+
+''See Examples:''
+
+*{{KW|SAVEIMAGE}} (QB64 Image to Bitmap SUB by Galleon)
+
+*{{KW|Program ScreenShots}} (Member program for legacy screen modes)
+
+* {{KW|ThirtyTwoBit SUB}} (QB64 Image area to bitmap)
+
+
+
+''See also:'' 
+* [[PSET]], [[PRESET]]
+* [[SCREEN]], [[SCREEN (function)]] {{text|(text pointer function)}}
+* [[GET (graphics statement)]], [[PUT (graphics statement)]]
+* [[Bitmaps]], [[Creating Sprite Masks]], [[Text Using Graphics]] (Demo)
+
+
+{{PageNavigation}}

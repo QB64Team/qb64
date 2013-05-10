@@ -1,0 +1,93 @@
+'''DECLARE DYNAMIC LIBRARY''' allows you to dynamically link your program to functions in dynamically linkable libraries. At present, only ''.DLL'' files are supported (support for ''.so'' will be added soon). These libraries are loaded when your program begins.
+
+
+{{PageSyntax}}
+::: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [''&quot;DLL_Library_file&quot;'', &quot;other_library...&quot;]
+::: {SUB|FUNCTION} [''procedure_name'' ALIAS] ''library_procedure'' (BYVAL ''parameter(s)'',...)
+::::.
+::::. 'other Library sub-procedures for named ''DLL''
+::::.
+::: END DECLARE
+
+
+* '''This QB64 procedure is available as of WINDOWS version .923 and Linux and Mac version 0.94 releases!'''
+* The dynamic library file can be located in the QB64 folder (alongside your programs '.EXE'), in Windows' system32 folder, or in a relative/absolute path specified along with the library name.
+* '''Declarations MUST be made at the program start and only one ''.DLL'' file can be specified in each declaration block.'''
+* ''Library_file'' is the ''DLL'' file's name with a specified path when not in the QB64 or the WINDOWS\SYSTEM32 folder. No extension!
+* ''Library filename''s can be listed to combine more than one DLL or Header file name or path into one DECLARE LIBRARY block.
+* ''Procedure_name'' is any procedure name you want to designate by using [[ALIAS]] with the ''Library_procedure'' name following. 
+* ''Parameters'' used by the Library procedure must be passed by value ([[BYVAL]]) except for [[STRING]] values.
+* '''''.h'' header files cannot be used with DECLARE DYNAMIC LIBRARY. Existence of any ''.h'' file of the same name as the ''.DLL'' file will cause DECLARE DYNAMIC LIBRARY to fail!'''
+* '''IMPORTANT:''' [[DECLARE DYNAMIC LIBRARY]] let's you specify any SUB/FUNCTION calling format you wish, but '''if the size of the parameters does not match, the size expected within the library your code will probably cause a GPF(General Protection Fault)!''' It is important to understand that you are creating a 32-bit program (even under 64-bit Windows) so '''pointers (if required) will be 32-bits in size, the equivalent of a [[LONG]].'''
+* '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't really use shared libraries (DLLs are a bit different) this does not affect Windows users.
+* The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
+* Declarations can be made inside of [[SUB]] or [[FUNCTION]] procedures. Declarations do not need to be at program start.
+* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that ANY procedure will work and cannot quarantee ANY troubleshooting help!'''
+
+
+''Example 1:'' This example plays Midi files using the ''playmidi32.dll'' documented here: [http://libertybasicuniversity.com/lbnews/nl110/midi3.htm Liberty Basic University].                         Download the following DLL file to your main QB64 folder: [http://www.qb64.net/playmidi32.dll PlayMidi32.dll]
+{{CodeStart}} '' ''
+{{Cl|DECLARE DYNAMIC LIBRARY}} &quot;playmidi32&quot;
+    {{Cl|FUNCTION}} PlayMIDI&amp; (filename {{Cl|AS}} {{Cl|STRING}})
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+result = PlayMIDI(&quot;.\samples\qb64\original\ps2battl.mid&quot; + {{Cl|CHR$}}(0))
+{{Cl|PRINT}} result
+{{CodeEnd}}
+: '''Note:''' Filename needs to be [[CHR$]](0) terminated. QB64 [[STRING]]s are passed to external libraries as pointers to first character.
+
+
+''Example 2:'' Using a CUSTOMTYPE LIBRARY to return the [[Unicode]] version of the current running program's name.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+{{Cl|DECLARE DYNAMIC LIBRARY|DECLARE CUSTOMTYPE LIBRARY}} 'Directory Information using KERNEL32 provided by Dav
+    {{Cl|FUNCTION}} GetModuleFileNameA&amp; ({{Cl|BYVAL}} hModule {{Cl|AS}} {{Cl|LONG}}, lpFileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+    {{Cl|FUNCTION}} GetModuleFileNameW&amp; ({{Cl|BYVAL}} hModule {{Cl|AS}} {{Cl|LONG}}, lpFileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+'=== SHOW CURRENT PROGRAM
+FileName$ = {{Cl|SPACE$}}(512)
+
+Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
+{{Cl|IF...THEN|IF}} Result {{Cl|THEN}} {{Cl|PRINT}} &quot;CURRENT PROGRAM (ASCII): &quot;; {{Cl|LEFT$}}(FileName$, Result)
+
+'load a unicode font
+f = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
+{{Cl|_FONT}} f
+Result = GetModuleFileNameW(0, FileName$, {{Cl|LEN}}(FileName$) \ 2)
+{{Cl|LOCATE}} 2, 1
+{{Cl|PRINT}} QuickCP437toUTF32$(&quot;CURRENT PROGRAM (UTF): &quot;) + QuickUTF16toUTF32$({{Cl|LEFT$}}(FileName$, Result * 2))
+{{Cl|_FONT}} 16 'restore CP437 font
+
+{{Cl|FUNCTION}} QuickCP437toUTF32$ (a$)
+b$ = {{Cl|STRING$}}({{Cl|LEN}}(a$) * 4, 0)
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(a$)
+    {{Cl|ASC}}(b$, i * 4 - 3) = {{Cl|ASC}}(a$, i)
+{{Cl|NEXT}}
+QuickCP437toUTF32$ = b$
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} QuickUTF16toUTF32$ (a$)
+b$ = {{Cl|STRING$}}({{Cl|LEN}}(a$) * 2, 0)
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(a$) \ 2
+    {{Cl|ASC}}(b$, i * 4 - 3) = {{Cl|ASC}}(a$, i * 2 - 1)
+    {{Cl|ASC}}(b$, i * 4 - 2) = {{Cl|ASC}}(a$, i * 2)
+{{Cl|NEXT}}
+QuickUTF16toUTF32$ = b$
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}} 
+
+&lt;center&gt;'''Note: QB64 requires all DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder!'''&lt;/center&gt;
+
+
+''See also:''
+* [[DECLARE LIBRARY]]
+* [[SUB]], [[FUNCTION]]
+* [[BYVAL]], [[ALIAS]]
+* [[_OFFSET (function)]], [[_OFFSET]] {{text|(variable type)}}
+* [[C Libraries]], [[SDL Libraries]], [[DLL Libraries]], [[Windows Libraries]]
+* [[Port Access Libraries]]
+
+
+{{PageNavigation}}

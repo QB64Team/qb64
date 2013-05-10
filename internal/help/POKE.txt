@@ -1,0 +1,105 @@
+The '''POKE''' statement sets the value of a specified memory address offset. '''QB64 currently has limited access!''' 
+
+
+{{PageSyntax}}
+:: POKE ''segment_offset'', ''offset_value''
+
+
+* Writes a value to the ''segment_offset'' address in memory.
+* POKE can only be used to set a value from 0 to 255 (one byte).
+* A segment should be defined using [[DEF SEG]], if you don't define a segment qbasics ordinary segment will be used.
+* POKE sends byte values to memory areas. It does not directly access registers.
+* Important [[SCREEN (statement)|SCREEN]] segments using [[PEEK]] and [[POKE]] include &amp;HB800 (text segment) and &amp;HA000 (graphics segment).
+* [[DEF SEG]] should always be used to reset the default segment when access to other memory is no longer necessary.
+* POKE is safer to use than [[OUT]] which could damage a PC register.
+* '''Warning: DEF SEG, VARSEG , VARPTR, PEEK or POKE access QB64's emulated 16 bit conventional memory block!''' 
+: '''It is highly recommended that QB64's [[_MEM]] memory system be used to avoid running out of memory.'''
+
+
+:''Example 1:'' Turning keyboard Lock and Insert modes on and off.
+{{CodeStart}} '' ''
+ DEF SEG = 0
+ oldsetting% = PEEK(1047)
+ POKE 1047,PEEK(1047) OR 16 ' ENABLES SCROLL LOCK
+ POKE 1047,PEEK(1047) OR 32 ' ENABLES NUMBER LOCK
+ POKE 1047,PEEK(1047) OR 64 ' ENABLES CAPS LOCK
+ POKE 1047,PEEK(1047) OR 128 ' ENABLES INSERT MODE
+ DEF SEG
+
+{{CodeEnd}}
+:''Note: Use [[XOR]] instead of [[OR]] above to alternate between on and off modes.''
+{{CodeStart}} '' ''
+ {{Cl|DEF SEG}} = 0
+ oldsetting% = {{Cl|PEEK}}(1047)
+ POKE 1047,PEEK(1047) AND 239 ' TURNS OFF SCROLL LOCK (239 = 255 - 16)
+ POKE 1047,PEEK(1047) AND 223 ' TURNS OFF NUMBER LOCK (223 = 255 - 32)
+ POKE 1047,PEEK(1047) AND 191 ' TURNS OFF CAPS LOCK (191 = 255 - 64)
+ POKE 1047,PEEK(1047) AND 127 ' TURNS OFF INSERT MODE (127 = 255 - 128)
+ {{Cl|DEF SEG}} '' ''
+{{CodeEnd}}
+:''Note: Using [[AND]] requires that the bit value is subtracted from 255 to turn off a bit.'' The above examples won't work in NT.
+
+:'''Warning: The keyboard lights may NOT change so it is a good idea to restore the original settings!'''
+
+
+''Example 2:'' A small PEEK and POKE fractal program.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 13
+{{Cl|DEF SEG}} = {{Cl|&amp;H}}A000     'set to read screen buffer
+{{Cl|DO}}
+    {{Cl|FOR...NEXT|FOR}} a&amp; = 0 {{Cl|TO}} 65535
+        {{Cl|POKE}} a&amp;, {{Cl|PEEK}}((a&amp; * 2) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FFFF&amp;) + 1
+    {{Cl|NEXT}}
+    {{Cl|_LIMIT}} 25
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|DEF SEG}} '' ''
+{{CodeEnd}} 
+
+
+''Example 3:'' Highlighting a row of text in Screen 0
+{{CodeStart}}
+minX = 20: maxX = 60: minY = 10: maxY = 24
+selection = 0 'the screen Y coordinate of the previously highlighted item
+{{Cl|FOR}} i% = 1 {{Cl|TO}} 25: {{Cl|LOCATE}} i%, 40: {{Cl|PRINT}} i%;: {{Cl|NEXT}}
+{{Cl|DO}}: {{Cl|_LIMIT}} 100
+  {{Cl|IF}} {{Cl|_MOUSEINPUT}} {{Cl|THEN}}
+    'Un-highlight any selected row
+    {{Cl|IF}} selection {{Cl|THEN}} selectRow selection, minX, maxX, 0
+    x = {{Cl|CINT}}({{Cl|_MOUSEX}})
+    y = {{Cl|CINT}}({{Cl|_MOUSEY}})    
+    {{Cl|IF}} x &gt;= minX {{Cl|AND (boolean)|AND}} x &lt;= maxX {{Cl|AND (boolean)|AND}} y &gt;= minY {{Cl|AND (boolean)|AND}} y &lt;= maxY {{Cl|THEN}}
+      selection = y
+    {{Cl|ELSE}}
+      selection = 0
+    {{Cl|END IF}}
+    'Highlight any selected row
+    {{Cl|IF}} selection {{Cl|THEN}} SelectRow selection, minX, maxX, 2 
+    {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|LOCATE}} 1, 2: {{Cl|PRINT}} x, y, selection 
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|SUB}} SelectRow (y, x1, x2, col)
+{{Cl|DEF SEG}} = {{Cl|&amp;H}}B800
+addr&amp; = (x1 - 1 + (y - 1) * {{Cl|_WIDTH (function)|_WIDTH}}) * 2 + 1
+{{Cl|FOR}} x = x1 {{Cl|TO}} x2
+  oldCol = {{Cl|PEEK}}(addr&amp;) {{Cl|AND (boolean)|AND}} {{Cl|&amp;B}}10001111   ' Mask foreground color and blink bit
+  {{Cl|POKE}} addr&amp;, oldCol {{Cl|OR}} ((col {{Cl|AND (boolean)|AND}} {{Cl|&amp;B}}111) * {{Cl|&amp;B}}10000) ' Apply background color
+  addr&amp; = addr&amp; + 2
+{{Cl|NEXT}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+
+''See Example:'' [[SelectScreen]] (Screen mode selection) 
+
+
+''See also:'' 
+* [[DEF SEG]], [[DEF SEG = 0]] {{text|(reference)}}
+* [[PEEK]] {{text|(read memory)}}, [[OUT]] {{text|(write to register)}}
+* [[VARSEG]], [[VARPTR]]
+* [[_MEMGET (function)]], [[_MEMPUT]]
+* [[Scancodes]] {{text|(demo)}}, [[Screen Memory]] 
+* [[PEEK and POKE Library]]
+
+
+{{PageNavigation}}

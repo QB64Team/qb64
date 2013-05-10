@@ -1,0 +1,1124 @@
+{| align=&quot;center&quot;
+  | __TOC__
+  |}
+
+
+As with everything else, this list will be updated to correspond to new progress of QB64 so make sure that you are using the latest version of '''QB64 (version 0.923 released 3/12/10)'''. Please note that it may take a short time to update this list.
+
+
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+
+==Q: What is QB64?==
+
+A: '''QB64''' is a BASIC compatible Editor and C++ compiler that creates working Executable files from Qbasic BAS files that can be run on 32 or 64 bit PC's using '''WINDOWS'''(XP, Vista and newer), '''LINUX''' or '''MAC'''(OSX only). The goal is to be 100% compatible with QuickBasic 4.5 plus add hundreds of new abilities such as program icons and custom sized windows and a great [[IDE|Editor]] with a new Help Menu. 
+
+
+The '''new keywords''' add some '''new features''' such as playing '''music or sound''' files and instant access to '''32 bit graphics''' file images. Also '''TCP/IP''' internet communication is available to '''download''' files, '''email''' messages over the web or play '''internet games'''. '''DLL Libraries''' can add more programming options and QB64 can access all of the new USB gaming '''controllers''' and '''printers'''.
+
+
+QB is an abbreviation for '''QBasic''' or '''QuickBASIC''' which is an easy to learn language that grew very popular in the 90's. It uses simple syntax but holds great potential as there are methods to achieve nearly anything. '''Qbasic is NOT DEAD thanks to QB64!'''
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;[[Keywords currently not supported by QB64]]&lt;/p&gt;
+
+
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+==Q: If QB64 creates Basic programs why is there no Immediate Window?==
+
+
+A: '''QB64''' uses the Immediate window area to suggest syntax for keyword entries and give the compiler status when compiling. To run code snippets or do program calculations using QB64 just open up another instance of the [[IDE]]. Each new instance of QB64 will create a new numbered instance of Untitled(n).exe when compiled. If you want to save the test code for later use, Save it as a BAS file name before closing that instance of QB64. Ihe [[IDE]] will always ask if you want to save new or edited code.
+
+
+Qbasic and Quickbasic allowed BAS programs to be run in an interpreter to test the code. QB64 has to compile your code before it can be run. The Run Menu will allow you to do the following: 
+
+{{TextStart}}'''{{text|S|white}}tart                    F5'''  Compiles into EXE file and runs program (with IDE whiteout). 
+───────────────────────────
+'''Start ({{text|D|white}}etached)    Ctrl+F5'''  Compiles into EXE and runs program separately (without IDE whiteout).
+'''Make E{{text|X|white}}E Only           F11'''  Compiles into EXE without program files if there are no errors. '' ''
+{{TextEnd}}{{small|White letters indicate CTRL + letter shortcuts when inside Run menu}}
+
+
+&lt;center&gt;'''Associated text [[$INCLUDE]] code files, [[DECLARE LIBRARY|LIBRARY]] DLL files and C++ ''.h'' header files must be in the QB64 folder to compile.'''
+
+Only the associated DLL files need to be included with the program ''EXE'' after it is compiled.
+
+(The compiler can find Windows DLL files in the System folder and C++ DLL files in the QB64 folder.)
+
+'''No additional program files need to be in the QB64 folder to Make EXE Only!'''
+
+The compiled EXE file can then be moved to a different folder holding the program files necessary when it is  run.&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Does it have modern features? Do they HAVE to be used?==
+
+A: QB64 has PLENTY of modern features, but they do not have to be used. You may just want to run some of your old favorites.
+&lt;center&gt;'''QB64 was created to run your old Qbasic 4.5(or less) programs on newer Operating Systems without ANY changes!'''&lt;/center&gt;
+You could code using the original QuickBASIC syntax all the way through and it should work as you expect it to or even better. QB64 is often faster and has none of the memory limitations that plagued Qbasic in the past! Give it try! See for yourself.
+
+&lt;center&gt; '''For incompatibility issues you can look in the QB64 &quot;Discussion&quot; board here:'''&lt;/center&gt;
+
+
+&lt;center&gt;[http://www.qb64.net/forum/index.php Visit the QB64 Community Forum]&lt;/center&gt;
+
+
+&lt;center&gt;'''Some members can still run QB4.5 programs so we can test problem code!'''&lt;/center&gt;
+&lt;center&gt;QB 4.5 code only! QB64 was not meant to run PDS(7.1) QBX code. Will run most GW Basic code too!&lt;/center&gt;
+
+ 
+&lt;center&gt;'''If your program(s) don't work correctly(check your code first) please feel free to post in the &quot;Discussion&quot; board.'''&lt;/center&gt; 
+
+Galleon is constantly working on pure compatibility. You don't have to set it up differently to use the modern features as they are made to work alongside original QB code seamlessly (unlike FreeBASIC and any other modern BASIC out there). The modern statements are designed to go along with the BASIC philosophy and expand Qbasic into the future!
+
+
+&lt;center&gt;'''QB64 FEATURES INCLUDE...'''&lt;/center&gt;
+{{TextStart}}
+
+  1) Full graphic functions for [[_NEWIMAGE|images]] up to 32 bit color. [[_ALPHA|Alpha]] transparancies supported.
+
+  2) Instant [[_LOADIMAGE|loading]] of image files including BMP, PNG, JPEG, GIF and more...
+
+  3) Supports [[_SNDOPEN|stereo sound]] files like WAV, OGG, MP3, speaker and volume control and more...
+
+  4) Animation is easy to do using [[_DISPLAY]] instead of page flipping. NO SCREEN FLICKER!
+
+  5) [[_CLIPBOARD$|Clipboard]] reading and writing support.
+
+  6) Networking over [[TCP/IP Message Format]] and Email.
+
+  7) True type [[_FONT|font]] and [[Unicode]] support for many Languages.
+
+  8) Integrated [[_MOUSEINPUT|mouse]] and [[_DEVICES|game controller]] input including [[_MOUSEWHEEL|scroll wheel]] support.
+
+  9) Support for C++, SDL, Windows API and other custom Dynamic Link [[Libraries]].
+{{TextEnd}}
+
+&lt;p style=&quot;text-align: center&quot;&gt; [http://dl.dropbox.com/u/8440706/Graphics%20Demo.zip Graphics Demo Download].&lt;/p&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: How do I install QB64 on Windows, Linux or Mac OSX?==
+
+A: Since this is a relatively new project, it hasn't been tested as thoroughly as to have defined specifications. However, if you have a relatively new computer you will probably be fine. QB64 supports the following Operating Systems in one download:
+
+
+&lt;center&gt;'''Windows NT(XP), Windows Vista and Windows 7'''&lt;/center&gt;
+:'''1)''' Click the following link to download QB64: [http://www.qb64.net/forum/index.php?board=2.0 QB64 Windows Downloads]
+:'''2)''' Unzip to any folder path you wish. The ZIP file will create a ''QB64'' folder for the program files. 
+
+:* Executable programs are portable between like systems by copying the executable file as well as the QB64 DLL files.
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+
+&lt;center&gt;'''Windows 2000 running QB64 versions .94 and Above'''&lt;/center&gt;
+: QB64 version .940 and above now contain a full version of the Ming Compiler! This may create an entry point error in Windows 2K.
+
+:'''1)''' Click the following link to download QB64: [http://www.qb64.net/forum/index.php?board=2.0 QB64 Windows Downloads]
+:'''2)''' Unzip to any folder path you wish. The ZIP file will create a ''QB64'' folder for the program files. Check for ''MSVCRT.DLL'' errors!
+:'''3)''' If there is an error, unzip the contents of the ZIP FIX file into the QB64 folder after Qb64 has updated to the latest version.
+
+&lt;center&gt;[http://www.qbasicnews.com/dav/files/qb64v942-win2k-fix.zip Download ZIP FIX for Windows 2000 if QB64 does not run correctly!]&lt;/center&gt;
+&lt;center&gt;This download fix will be updated when necessary by Dav&lt;/center&gt;
+
+
+----
+&lt;center&gt;'''Certain versions of LINUX 32 and 64 bit'''&lt;/center&gt;
+:'''1)''' Click on the following link to download QB64: [http://www.qb64.net/forum/index.php?board=2.0 QB64 Linux Downloads]
+:'''2)''' libsdl packages (dev and non-dev)(libsdl, libsdl-image, libsdl-mixer, libsdl-net, libsdl-ttf ) and GCC compiler must be installed.
+:'''3)''' After extracting ''qb64v0??-lnx64.tar.gz'' run the installation batch/script called ''setup.sh'' in the main ''qb64'' folder to setup QB64.
+
+&lt;center&gt;Executable programs are portable between like systems by copying the executable file.&lt;/center&gt;
+&lt;center&gt;'''The Linux 32bit &amp; 64bit versions are combined as of the v 0.925 update'''&lt;/center&gt;
+&lt;center&gt;'''Note: Some QB64 keywords and procedures are not available as of this Linux release.'''&lt;/center&gt;
+
+
+&lt;center&gt;[[Puppy Linux Installation]]&lt;/center&gt;                       
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+----
+&lt;center&gt;'''MAC OSX 32 and 64 bit only'''&lt;/center&gt;
+:'''1)''' You MUST install '''Apple's Xcode package''' for C++ compilation from their website: [http://developer.apple.com/technologies/tools/xcode.html Xcode.html download]
+:     (you won't be using the Xcode interface, QB64 just needs to have access to the C++ compiler it installs)
+:'''2)''' If you have a '''32-bit''' MacOSX system, you should copy: ''qb64\common\libfreetype_alternatives\tiger_32bit\libfreetype.6.3.dylib''     over ''qb64\common\libfreetype.6.dylib'' if you are having difficulties. IE: Rename ''libfreetype.6.3.dylib'' to ''libfreetype.6.dylib''
+:'''3)''' Click on the following link to download QB64 for MacOSX: [http://www.qb64.net/forum/index.php?board=2.0 QB64 MAC OSX Downloads]
+:     Extract the ''MACOSX.zip'' file and run ''setup.command'', found within the QB64 folder to install the QB64 compiler.
+
+&lt;center&gt;'''After installation you should run QB64_start.command to run qb64.'''&lt;/center&gt;
+
+:* Executable programs are portable between like OSX systems by copying the executable file as well as the ''common'' folder.
+:* To help launch executables without a console, a file called ''programname_start.command'' is created along with the program.
+&lt;center&gt;'''Note: Some QB64 keywords and procedures are not available as of this MAC release.'''&lt;/center&gt;
+
+
+&lt;center&gt;[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keywords Not Supported in Linux or MAC OSX versions]]&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Why won't QB64 work on my computer?==
+QB64 currently supports Windows versions from XP to the latest version. Most Linux and MAC OSX versions are also supported.
+
+
+&lt;center&gt;'''Don't move QB64 executable or libraries out of the QB64 folder! The various sub-folders hold the C++ compiler files!'''&lt;/center&gt;
+&lt;center&gt;The DLL files may be copied into the Windows ''System32'' or ''SysWOW64'' folder for program access outside of the QB64 folder. They can also be placed in a separate folder or download package with the EXE and program files.&lt;/center&gt;
+
+
+Does your Windows system have another version of the '''MinGW''' compiler? Does it have '''Fortran''' or '''GFortran'''? You can check your environmental values using the following batch file which will create the '''''settings.inf''''' text file in the batch folder:
+
+{{TextStart}}set &gt;settings.inf '' '' {{TextEnd}}
+
+
+: The '''settings.inf''' file should hold environmental values similar to those listed below:
+{{TextStart}}ALLUSERSPROFILE=C:\Documents and Settings\All Users.WINDOWS
+APPDATA=C:\Documents and Settings\User1\Application Data
+CLIENTNAME=Console
+CommonProgramFiles=C:\Program Files\Common Files
+COMPUTERNAME=PC1
+ComSpec=C:\WINDOWS\system32\cmd.exe
+FP_NO_HOST_CHECK=NO
+HOMEDRIVE=C:
+HOMEPATH=\Documents and Settings\User1
+'''LIBRARY_PATH={{text|\F\G77\Llib|red}}'''
+LOGONSERVER=\\PC1
+NUMBER_OF_PROCESSORS=1
+OS=Windows_NT
+'''Path=C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;{{text|\F\G77\bin|red}}'''
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH
+PROCESSOR_ARCHITECTURE=x86
+PROCESSOR_IDENTIFIER=x86 Family 15 Model 1 Stepping 2, GenuineIntel
+PROCESSOR_LEVEL=15
+PROCESSOR_REVISION=0102
+ProgramFiles=C:\Program Files
+PROMPT=$P$G
+SESSIONNAME=Console
+SystemDrive=C:
+SystemRoot=C:\WINDOWS
+TEMP=C:\DOCUME~1\User1\LOCALS~1\Temp
+TMP=C:\DOCUME~1\User1\LOCALS~1\Temp
+{{TextEnd}}
+: Environmental values in {{text|red|red}} above indicate where another C compiler has altered or added to the Windows settings. 
+
+
+&lt;center&gt;Environmental values to check and possibly clear are '''PATH=''', '''LIBRARY_PATH=''', '''LIB=''' or '''CPLUS_INCLUDE_PATH='''&lt;/center&gt;
+
+
+&lt;center&gt;'''QB64 does NOT alter computer settings! Required files, libraries and the compiler are organized in the QB64 folder.'''&lt;/center&gt;
+
+
+: Try to run the following '''''TestQB64.bat''''' batch file from the QB64 folder only:
+{{TextStart}}@echo off
+REM set environmental values for QB64. Remove offending program paths from the values.
+set Path=C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem
+set LIBRARY_PATH=
+REM start QB64 IDE. A BAS file can be dropped into this batch file to edit in IDE.
+REM this batch file must be run from the QB64 folder!
+Set QB64=%~dp0
+CD &quot;%QB64%&quot;
+start qb64.exe %1 '' ''
+{{TextEnd}}
+{{small|Adapted from code by Michael Calkins}}
+: 64 bit systems should use the ''PATH=C:\WINDOWS\[[SysWOW64]]'' folder in place of the ''C:\WINDOWS\system32'' parameter.
+
+
+: If the batch file works, you can use it to edit and compile QB64 programs. You may want to uninstall the conflicting program.
+
+
+&lt;center&gt;'''[[IDE#Compiler_Errors|IDE Compiler Errors]]&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Are there any known incompatibilities?==
+
+A: There are some things that QB64 will not and NEVER was intended to do! The original concept was and is to provide a platform that allows older and NEW QBasic procedures and programs to run on the newer 32 and 64 bit personal computers. As you may have observed, this compatibility alone limits the access programs now have to DOS. 
+
+'''[[DOS]] is not fully supported''', as this will require full DOS support to be emulated, however it will continually be updated to support more source code and more features, memory addresses, ports, etc. so that it always approaches 100%. If you don't use too many [[ABSOLUTE]], [[INTERRUPT]], [[PEEK]], [[POKE]] and [[OUT]] statements you probably won't notice any difference between QB 4.5 and QB64 (and if you do, report it as a bug in the forums, remember to check if the problem has been reported before please!), you can expect the most common addresses for interrupts, etc. to be functioning. Galleon has also received a comprehensive list of memory and port addresses so that even some less common addresses may work as well. If you are unsure, try them!
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;[[Keywords currently not supported by QB64]]&lt;/p&gt;
+
+
+'''Watch the CPU usage!''' QB64 is a lot faster than QBasic was and it does not have many of the size limitations that confined QBasic programming abilities. Having said that, '''care must be taken to assure that programs do not HOG resources!''' To do that, use speed limits when possible to keep the resources used to a minimum. '''Monitor Task Manager!''' It can tell you how much resources are being used in different parts of a program. The following keywords can lower the impact of your programs on those resources by releasing them to other programs:
+
+:::::* [[_LIMIT]]: Limits the loops per second in ANY loop and thus lowers the overall CPU usage.
+
+:::::* [[_DELAY]]: Pauses a procedure and releases unused resources for other programs.
+
+:::::* [[SLEEP]]: Stops or delays program procedures and shares resources.
+
+:::::* [[INPUT]] and [[INPUT$]] stop program procedures until an entry or key press is given.
+
+
+QB64 can be fast when you need it to be, but take the time to consider the impact of your program on other programs as people SELDOM have only ONE program running and the OS has tasks it MUST do too! The following programs have KNOWN issues with high CPU usage:
+
+
+&lt;center&gt;'''[http://forums.winamp.com/showthread.php?threadid=166479 WINAMP (intermittent sound)]'''&lt;/center&gt;
+
+
+&lt;center&gt;'''Thank you for your support and happy programming!'''&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Why won't my QB64 compiled programs run in folders other than the QB64 folder?==
+
+A: QB64 requires certain DLL files to be in the program folder or in the Windows system path.
+
+
+&lt;center&gt;{{Text|C:\WINDOWS\SYSTEM32|green}}&lt;/center&gt;
+
+
+Copy each of the DLL files included with QB64 to the System32 or [[SysWOW64]] folder. You may need administrator rights to do this!
+
+
+&lt;center&gt;[http://www.samlogic.net/articles/32-64-bit-windows-folder-x86-syswow64.htm SysWOW64 and Program Files(x86) folders on 64 bit Windows OS.]&lt;/center&gt;
+
+
+&lt;center&gt;'''[[QB64_FAQ#Q:_What_files_are_required_to_run_my_compiled_program_in_Windows.3F|List of required QB64 DLL files]]'''&lt;/center&gt;
+
+
+&lt;center&gt;Mac OSX and Linux may require other files to be included with your program!&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: How do I update the information in QB64 HELP?==
+
+A: Use the '''Update current page''' in the [[IDE]] Help menu selection to update a page. Use the '''Update all pages''' choice to update them all, but this may take longer. In general you may want to update monthly or a week after a new version release.
+
+
+&lt;center&gt;[http://qb64.net/wiki/index.php?title=IDE#Help_Menu_.28Alt_.2B_H.29 QB64 IDE Help Menu]&lt;/center&gt;
+
+==Q: Can I use the same libraries with QB64 that I used with QB 4.5?==
+
+A: If the libraries are pure QB 4.5 code then yes, otherwise no. QLB files are not supported but you can easily copy your favorite SUBs or FUNCTIONs to a text BI file and [[$INCLUDE]] them at the end of ANY program. Include them AFTER all SUB and FUNCTION code in the BAS file! 
+
+As of Dec 3, 2010 QB64 acquired [[DECLARE LIBRARY]] to allow users to reference C, Windows, SDL and other DLL libraries. If you find some functions that you like please share them with us at the forum! The following pages list working functions our members have found and tested:
+
+&lt;center&gt;[[C Libraries]], [[SDL Libraries]], [[DLL Libraries]], [[Windows Libraries]]&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: I can't get my QB 4.5 sourcecode to work in QB64! Why?==
+
+A: Perhaps that is because QB64 isn't 100% compatible yet, it is a work in progress. It is around 95-98% compatible right now, and that is a large number! As QB64 approaches the 1.0 version it approaches 100%. Look at the [http://www.qb64.net/forum/index.php?board=15.0 Unimplemented Qbasic Commands Forum] for statements that are currently not available.
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;[[Keywords currently not supported by QB64]]&lt;/p&gt;
+
+
+'''Compiler errors''' are another subject. Always try to test the program in Qbasic BEFORE trying to run or compile it in QB64! You may find '''syntax or other code errors''' that the QB64 IDE may not find yet as a bonus! Always check the code before blaming QB64!
+
+
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: What files are required to run my compiled program in Windows?==
+A: The QB64 compiler and '''EVERY''' EXE file created by the compiler are dependant on various DLL Library files to function properly. These files are found inside of the QB64 folder. This also explains why QB64 will create ALL EXE files in the QB64 folder no matter where the original BAS file is located on the computer. Your new program will require these files too, but you can move the DLL files to your shared SYSTEM32 folder to eliminate duplicates! '''Note:''' As of version 0.94(9/8/2011), QB64 now includes the full GCC compiler.
+
+
+&lt;center&gt;'''YOUR WINDOWS COMPILED EXE FILE NEEDS THESE QB64 DLL FILES TO RUN!'''&lt;/center&gt;
+
+
+&lt;center&gt;''The list of library files you need to include with your program(s) as of July 2010:''&lt;/center&gt;
+
+{{TextStart}}
+
+           jpeg.dll     libfreetype-6.dll     libgcc_s_sjlj-1.dll *(.95)   libogg-0.dll
+
+     libpng12-0.dll       libstdc++-6.dll *(.95)    libtiff-3.dll       libvorbis-0.dll
+
+libvorbisfile-3.dll               SDL.dll           SDL_image.dll         SDL_mixer.dll
+
+        SDL_net.dll           SDL_ttf.dll               smpeg.dll             zlib1.dll
+
+
+                         * denotes DLL updated in (version)
+{{TextEnd}}
+
+&lt;center&gt;'''Other Important Files:'''&lt;/center&gt;
+{{TextStart}}                          cyberbit.ttf (12.7 MB v 0.92, October 2010)
+{{TextEnd}}
+&lt;center&gt;'''NOTE:''' ''cyberbit.ttf'' file is a 12.7 megabyte font for rendering [[Unicode]] characters. Auto-update may be slow downloading this file!&lt;/center&gt;
+&lt;center&gt;This font is NOT required to be included with a program as QB64 can use other fonts when necessary.&lt;/center&gt;
+
+
+&lt;center&gt;It is suggested that frequent users copy the DLL files to the SYSTEM folder in Windows. The location should be: &lt;/center&gt;
+{{WhiteStart}}
+                     ''C:\WINDOWS\SYSTEM32'' or ''C:\WINDOWS\[[SysWOW64]]'' 
+{{WhiteEnd}}
+This will allow all of your programs to run in any location without copies of the DLL files inside of every program folder. Administrator rights may be necessary to move them there! The '''DATA''' folder files are integrated into the compiler itself in versions .91 and above. 
+
+'''If you plan to make your program available for download, the DLL files listed above must be included with the program.''' 
+
+
+&lt;center&gt;A ZIP file with all of the required files can be downloaded here:&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt; [http://bit.ly/MZ9Jhu QB64 Program Package ZIP file].&lt;/p&gt;
+
+
+The ZIP file can be used to unzip the DLL libraries into any program's folder location. It can also be used to create program download packages. Just create a folder with all of the relevant program files needed by your program and unzip the required QB64 files into it. Then you can ZIP the folder or all of the folder contents into your own zip program packages. We hope to have a package installer in the future.
+
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+
+----
+
+
+&lt;center&gt;'''The DATA folder and its contents ARE NO LONGER REQUIRED as of the 8/21/2010 version .91!'''&lt;/center&gt;
+
+&lt;center&gt; ''Files inside of the older version DATA folder.''&lt;/center&gt;
+
+{{TextStart}}
+            charset8.raw  chrset16.raw  qb64.pal  qb64ega.pal  qb64icon '' ''
+{{TextEnd}}
+&lt;center&gt;{{text|These files are no longer required and are no longer available except with older version downloads!|red}}&lt;/center&gt;
+
+
+&lt;center&gt;'''This page and download will be updated when library additions or requirements change!'''&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: How are foreign languages and keyboards supported in QB64?==
+
+A: As of version 0.922 (October 20, 2010) QB64 supports foreign language keyboard characters. 
+
+* Setting up a typing language in the QB64 [[IDE]]:
+:Step 1: In the OPTIONS menu select DISPLAY, then check the CUSTOM FONT check-box.
+:Step 2: In the OPTIONS menu select LANGUAGE, then select a Code Page (CP850 for example) and click OK.
+
+See the [[Unicode]] page to setup a language in a program you create. There are also links to the various [[Code Pages]] that are supported. Also there are four new keywords to work with keypresses and map them to ASCII key character codes: 
+
+&lt;center&gt;[[_KEYHIT]], [[_KEYDOWN]] and [[_MAPUNICODE]]&lt;/center&gt;
+
+
+&lt;center&gt;'''You can now re-assign key codes to Unicode characters in programs you create using the [[_MAPUNICODE]] statement!'''&lt;/center&gt;
+
+
+If you have any problems, post in the discussion board. In the meantime you can use any of these recommended [[ASCII]] methods:
+
+
+&lt;center&gt;'''Using ASCII Characters'''&lt;/center&gt;
+Perhaps you can use the [[ASCII]] character codes. Go to the [[ASCII]] character chart and look  for the character(s) you need. If you find them, remember the code number and use either CHR$(code%) or the Alt-number pad key method to type them into literal strings(real strings with quotes) only. The following QB64 program displays the characters available on your PC:
+{{CodeStart}}
+
+SCREEN _NEWIMAGE(800, 600, 256)
+font$ = &quot;C:\WINDOWS\Fonts\cour.ttf&quot; 'TTF file in Windows
+style$ = &quot;monospace&quot; 'font style
+f&amp; = _LOADFONT(font$, 22, style$)
+_FONT f&amp;
+COLOR 11
+FOR c% = 1 TO 6: PRINT c%; CHR$(c%);: NEXT
+FOR c% = 14 TO 27: PRINT c%; CHR$(c%);: NEXT
+FOR c% = 32 TO 255: PRINT c%; CHR$(c%);: NEX
+DO: SLEEP: LOOP UNTIL INKEY$ &lt;&gt; &quot;&quot;
+
+{{CodeEnd}}
+
+
+'''The ALT Key Method:''' Hold the Alt key down and enter the code number using the Number Pad only. When you release the Alt key, the character should be in the IDE string you are making. Characters can be added (concatenated) using the + between the literal string and CHR$(code) or by using a semicolon as shown below: 
+
+{{CodeStart}}
+
+PRINT {{Cl|CHR$}}(165) + &quot;ormally I don't use these keys. Do You &quot; + {{Cl|CHR$}}(168) 'concatenation
+    
+PRINT {{Cl|CHR$}}(165); &quot;ormally I don't use these keys. Do you&quot;; {{Cl|CHR$}}(168)    'semicolons
+
+PRINT &quot;Ñormally I don't use these keys. Do you¿&quot;             'Alt-number pad method
+
+{{CodeEnd}}
+{{OutputStart}}
+Ñormally I don't use these keys. Do you¿
+{{OutputEnd}}
+
+:'''NOTE:''' You MUST use concatenation when defining a string variable using the CHR$ function character returns!
+
+&lt;center&gt;[[ASCII|Link to the ASCII Character Table]]&lt;/center&gt;
+
+To cut down on typing CHR$(???) all day, define often used characters as string variables such as Q$ = CHR$(34) as shown below:
+{{CodeStart}}
+
+{{Cl|DIM}} Q AS {{Cl|STRING}} * 1   'define as one byte string(get rid of $ type suffix too)
+Q = {{Cl|CHR$}}(34)          'Q will now represent the elusive quotation mark in a string
+
+PRINT &quot;This string uses &quot;; Q; &quot;quotation marks&quot;; Q; &quot; that might cause a syntax error!&quot;
+
+{{CodeEnd}}
+{{OutputStart}}
+This string uses &quot;quotation marks&quot; that might cause a syntax error!
+{{OutputEnd}}
+
+
+:'''Warning! Do NOT use Notepad for special characters as it won't display them! It is best to enter them in the IDE.'''
+
+You can use ANY of the ASCII characters to add borders, arrows, and many other characters not available on the keyboard. Hopefully this information will cure your problem!
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: MUST I copy or drag ALL of my program files to the QB64 folder?==
+
+A: NO! But you will not be able to compile or run it using the editor either. The editor requires that the files associated with your program be available when the program starts AFTER the EXE has been created! You can compile your program without using the editor however. It will require you to do a few extra things:
+{{TextStart}}
+
+         1) Use a batch file or a command line as follows: QB64 -c ''yourfile.BAS''
+
+         2) Move the compiled EXE file back to the folder with the program files.
+
+         3) Copy ALL of the QB64 DLL files from the QB64 folder to your new program's folder.
+
+         4) Try the EXE file to see how it works.
+
+{{TextEnd}}
+
+&lt;center&gt;'''A download is available that can make transferring the required library files easily. Just unzip to any folder!'''&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt; [http://bit.ly/MZ9Jhu QB64 Program Package ZIP file].&lt;/p&gt;
+
+
+&lt;center&gt;'''The Answer to the Question below will show you how to create a batch file and compile BAS files from ANY location.'''&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Is there a way to use the compiler without running my program or using the IDE?==
+
+A: Yes! No other program files besides the BAS file are required! Use the following command to compile a program without running it: 
+{{WhiteStart}}
+                          ''QB64 -c ''yourfile.BAS''
+{{WhiteEnd}}
+
+One advantage to compiling without running a program is that the QB64 editor will require that ALL of the necessary program files be placed inside of the QB64 folder or errors will occur when it is run! Also the EXE file will not be made or will '''disappear''' as it is no longer a valid application! To run the newly created EXE file, MOVE IT BACK to the location where your other program files reside. 
+
+&lt;center&gt;'''NOTE: You must also copy the QB64 DLL libraries to the new program's folder location or the System folder!'''&lt;/center&gt;
+
+
+The batch file below can compile any BAS file from any location using drag and drop. The EXE will be created in the QB64 folder: 
+{{TextStart}} '' ''
+@ECHO OFF
+
+Set QB64=%~dp0
+Echo. QB64 path: %QB64%
+
+REM The QB64 path must designate the drive letter when compiling from another drive letter!
+C:
+CD\
+CD &quot;%QB64%&quot; 
+
+cmd /c start /low QB64.exe -c %1 '' ''
+{{TextEnd}}
+&lt;center&gt;'''Place the BAT file in the QB64 folder!''' You will also be able to drag and drop BAS files onto the batchfile.&lt;/center&gt;
+
+
+
+&lt;center&gt;[http://bit.ly/Oa6Ha0 Download the QB64 Editor and Compiler Shortcuts and Compile Error Batch Files]&lt;/center&gt;
+
+
+&lt;center&gt; '''Associating the batch file in the Right Click Open With pop-up menu'''&lt;/center&gt;
+You can associate the batch file to the Right Click Popup Menu's ''Open With'' dialogue choices when you right click ANY BAS file: 
+
+::::1) Right click any BAS file and move to ''Open With'' and click ''Choose Program'' in the pop-up menu.
+
+::::2) Your batch file will not be in the program choices so select ''Browse''. 
+
+::::3) Navigate to the batch file '''in the QB64 folder''' and click on it. 
+
+::::4) '''Make sure that the ''Always use this program'' box is NOT checked!''' Then save your choice. 
+
+&lt;center&gt;The compiled EXE file can be found in the QB64 folder!&lt;/center&gt;
+
+
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: How do I LINK modules or INCLUDE SUB procedures in QB64? ==
+
+A: QB64 allows you to [[$INCLUDE]] code or BAS modules into one module when it is compiled. Text .BI files containing SUB or FUNCTION code or entire BAS modules can be included in one module that will be compiled. 
+
+After the EXE is compiled, you do not have to even use the added code anymore! The EXE will contain ALL of the program code as ONE stand-alone program! This also allows you to add SUB code to ANY program that you desire. Use the following syntax and rules:
+
+
+&lt;center&gt;''Syntax:'' REM $INCLUDE: 'filename.BI'&lt;/center&gt;
+
+
+:1) '''$INCLUDE [[TYPE]] definitions or [[DATA]] field code''' at the beginning of the module that will be compiled. Text code can be used, but must be renamed to .BI (cannot be a .TXT extension!) or kept as a .BAS module. SUB or FUNCTION code MUST be included at the end of the module code!
+
+:2) '''$INCLUDE [[SUB]] or [[FUNCTION]] code''' AFTER any SUB or FUNCTION code in the module that will be compiled to combine them. Otherwise QB64 will create an error stating that the INCLUDE statement cannot be placed there.
+
+:3) '''LINKING''' of program modules is accomplished by creating a NEW module and using an $INCLUDE statement for each module that is to be combined.
+
+After you have created the include files, you can add them to ANY other program that requires them! Thus you will end up with smaller BAS files and SUB procedures that can be used over and over like libraries. The files are only used during a compilation.
+
+
+&lt;center&gt;[[LINKed or Merged Modules|Program to Convert LINKed or Merged multiple module programs into one QB64 Module]]&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: CHAIN doesn't work the way I'm used to...==
+
+A: CHAIN has been implemented in QB64 versions 0.851 up. Be sure to download the latest version of the compiler when available.
+
+&lt;center&gt;'''Note: QB64 will automatically compile the named BAS file if it does not find the EXE file.&lt;/center&gt;
+
+The statement also can use [[COMMON]] or [[COMMON SHARED]] to pass program information. However QB64 uses files to pass the information. If your program moves to a location other than the EXE file's location, the file may be inaccessable! To avoid this problem, make sure that your program can refer to that location using a path. 
+
+
+There are minor differences from QBasic in that it doesn't open a program in the same window and does not retain the previous screen mode or format. This problem will be addressed in future releases!
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Some screens look small. Can I enlarge them or make them fullscreen?==
+
+&lt;center&gt;You can use the [[_FULLSCREEN]] statement to make your programs run fullscreen.
+
+
+You can also create custom sized screens with page flipping and up to 32 bit colors using [[_NEWIMAGE]].
+
+
+Page flipping is available in most screens and the new [[_DISPLAY]] feature allows the images to be displayed when YOU desire.
+
+
+Picture or image files such as BMP, PNG, JPEG and GIF are EASY to load using [[_LOADIMAGE]].
+
+
+Once images are loaded, all you have to do is use the image handle with any of the new statements and functions.
+
+
+[[_PUTIMAGE]] GETs and PUTs images fast in ONE call. It can even stretch or compress the image sizes!&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt; [http://dl.dropbox.com/u/8440706/Graphics%20Demo.zip Graphics Demo Download].&lt;/p&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Can I have background music as well as [[SOUND]], [[PLAY]] and [[BEEP]]?==
+
+A: Yes, they are emulated to use the soundcard instead of the old boring monotone PC-speaker that is rapidly disappearing.
+
+&lt;center&gt;'''There also are a bunch of new sound capabilities that allow the use of WAV, OGG, MP3 files and more.'''&lt;/center&gt;
+
+Capabilities include:
+
+* 1) Multiple sound tracks
+* 2) Volume and speaker control
+* 3) Background music
+
+&lt;center&gt;'''SOUND HAS RETURNED TO QBASIC!'''&lt;/center&gt;
+
+
+&lt;center&gt;'''Get started with [[_SNDOPEN|MUSIC]] NOW!&lt;/center&gt;
+
+[[_SNDCLOSE]] (statement), [[_SNDCOPY]] (function), [[_SNDGETPOS]] (function), [[_SNDLEN]] (function), [[_SNDLIMIT]] (statement)
+
+[[_SNDLOOP]] (statement), [[_SNDOPEN]] (function), [[_SNDPAUSE]] (statement), [[_SNDPAUSED]] (function), [[_SNDPLAY]] (statement)
+
+[[_SNDPLAYCOPY]] (statement), [[_SNDPLAYFILE]] (statement), [[_SNDPLAYING]] (function), [[_SNDSETPOS]] (statement) 
+
+&lt;center&gt;[[_SNDRAW]] (statement), [[_SNDSTOP]] (statement), [[_SNDVOL]] (statement)&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Can I use multiple monitors or Pole Monitors?==
+
+A: Yes, program windows can be moved to them automatically using [[_SCREENMOVE]] with horizontal pixel values that are negative for a secondary monitor on the left and greater than the screen resolution for secondary monitors on the right.
+
+
+'''Note:''' If [[_FULLSCREEN]] is used the program will appear in the primary monitor only. Other running program windows may be pushed onto a secondary monitor on the right so a secondary monitor on the left is preferable in those circumstances.
+
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Why isn't the [[IDE]] always working as I would expect?==
+
+A: The [[IDE]] is currently being worked on, but it has a lower priority than the compiler (for obvious reasons), syntax checking isn't always working as you would expect, etc., Galleon knows about these issues and makes effort to resolve them in due time. The compiler is priority number one though and the [[IDE]] will be improved as warranted. 
+
+&lt;center&gt;'''WARNING! You may need Administrator rights to install or use QB64!'''&lt;/center&gt;
+
+
+&lt;center&gt;'''Alternate Editors:''' [[PSPAD|PSPad Editor for Windows]] and [[GEDIT|Gedit Editor for Linux]]'''&lt;/center&gt;
+
+
+&lt;center&gt;[http://www.qb64.net/forum/index.php?board=3.0 Report Compiler Bugs here!]
+
+
+[http://www.qb64.net/forum/index.php?board=21.0 Report missed Syntax Errors here!]&lt;/center&gt;
+
+
+&lt;center&gt;'''[[Known QB64 Issues]]'''&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: How can I slow my program down and/or use less CPU resources?==
+
+Not by using FOR loops! It would take a lot of loops just to slow QB64 down! Try [[_LIMIT]] to slow your program down and run at the same frame rate every loop. The integer value you enter determines the loop rate whether it is a [[DO...LOOP]] or a [[FOR...NEXT]] loop. 
+
+
+[[_LIMIT]] also keeps the CPU memory usage lower when used correctly. Use Task Manager or another CPU manager to monitor the percentage of use if it is over 50% and it doesn't need to be. Some QB64 programs can take up over 90% of the memory needed!
+
+
+Use [[SLEEP]] or [[INPUT$]] to wait for user entries, key presses or menu selections rather than using running [[INKEY$]] loops too.
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Can I resize the QB64 Editor([[IDE]])? ==
+
+A: Yes, use the ''Alt + Enter'' key combination to switch from windowed to full screen mode. This can also be used to resize a QB64 program screen! 
+
+There is also a way to set the window size in the ''Options'' Menu. Select ''Display'' and change the size from 80 columns and 25 rows to a '''larger''' size. The size '''cannot be less than 80 by 25!''' The size denotes the TEXT column and rows only! DO NOT MAKE IT TOO LARGE! 
+
+If there is ever a problem with an OPTION that you set, just Delete the '''.\internal\temp\options.bin''' file. Then restart QB64. You can find the program listed in the taskbar. Right click and select ''Close'' from the pop-up menu.
+
+
+&lt;center&gt;'''See the [[IDE|IDE Page]] for more information.'''&lt;/center&gt;
+
+==Q: The autoformatting doesn't work correctly in the [[IDE]]...==
+
+A: The autoformatting only has minor bugs which doesn't alter the actual execution of the code in any way, for now if you save your code in the current formatting it will format correctly in later versions of QB64. If the code you have is 'corrupted' by autoformatting, then please report it on the forums, because that would be a serious issue, if you can you should also provide code example of how it was corrupted.
+
+&lt;center&gt;'''Autoformatting and Updating can be turned off in the [[IDE]] using the Options Menu!&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Does it work on Windows 98 or any OS older than Windows 2000?==
+
+A: No, not yet, it is a low-priority issue, since QB64 is made to run on new systems (WinXP -&gt; Vista etc.), Galleon has said that he wants to make it work on Windows 98 too, so if you are patient it will eventually work there as well. It should work on NT, XP, 2000, Vista and Windows 7 using 32 or 64 bit systems. The .exe files produced by QB64 do work in Windows 98 as long as the QB64 DLL libraries are supported on that system.
+
+
+&lt;center&gt;'''QB64 also has versions for Linux and Mac OSX operating systems!'''&lt;/center&gt;
+
+
+&lt;center&gt;'''See the [[IDE|IDE Page]] for more information.'''&lt;/center&gt;
+
+
+==Q: Does QB64 support CURRENCY values from PDS or VB programs?==
+
+A: Not directly, but [[_FLOAT]] currency values up to 4 decimal places can be multiplied by 10000(10 ^ 4) and converted to MKC$ string values using [[_MK$]] with an [[_INTEGER64]] value. [[_CV]] with an [[_INTEGER64]] value divided by 10000 converts it back to [[_FLOAT]] values.
+
+
+[[PUT]] can write a PDS or VB, 8 byte currency string by multiplying the currency amount by 10000 and using an [[_INTEGER64]] variable.
+
+[[GET]] can read a [[_FLOAT]] CURRENCY value as an [[INTEGER64]] variable value divided by 10000.
+
+&lt;center&gt;[[PDS(7.1)_Procedures#CURRENCY|See CURRENCY examples]]&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: What are the Specifications by Version?==
+
+{{TextStart}}                           '''AUTOMATIC VERSION UPDATES'''
+
+IMPORTANT: QB64 V0.91 users onwards do not need to download ANY Updates! Simply click on 
+the QB64 FILE menu's [[IDE|UPDATE]] command (if QB64 hasn't already detected the new version) to 
+download newer versions. You can allow or block automatic updates in the Options Menu.        
+
+Enjoy,
+Galleon
+
+   '''NOTE: Some auto-updates may take longer! Please allow them to finish completely.'''
+    The ''Help'' menu ''About'' will tell which version of QB64 is currently running.
+  The included ''Readme.txt'' file is also updated with the current version improvements.
+    '''All QB64 versions after Version .94 will contain the full MinGW C++ compiler.'''
+
+         '''Note: QB64 is currently being converted to Open GL graphics. '''
+         '''When fully implemented, DLL files will no longer be required.''' 
+
+                                '''Latest Update April 20, 2012'''
+V0.954 Specific ===============
+-Implements the '[[_MEM]]' memory variable interface for safe, fast, raw memory access [http://www.qb64.net/forum/index.php?topic=5967.msg61466#msg61466]
+-Patch applied for [[SHELL]] &quot;consolecommand &gt;somefile&quot; in Win7 Professional (previously didn't work)
+'''NOTE: This version is the last SDL version and will be updated as required until GL is fully incorporated.'''
+
+V0.953 Specific =============== March 10, 2012
+-New commands added to allow the use of a console window and hide or display the main 
+program window:
+ [[$CONSOLE]]
+ [[_CONSOLE]] OFF/ON
+ [[_DEST]] [[_CONSOLE]]
+ [[$SCREENHIDE]]
+ [[$SCREENSHOW]]
+ [[_SCREENHIDE]]
+ [[_SCREENSHOW]] 
+-Codes can now be sent by [[END]] or [[SYSTEM]] in a program.
+ END return_code
+ SYSTEM return_code
+-The [[SHELL (function)]] and [[_SHELLHIDE]] function can return the END or SYSTEM code sent.
+ return_code = SHELL(&quot;myprogram.exe&quot;)
+ return_code = _SHELLHIDE(&quot;myprogram.exe&quot;)
+-A couple of bugs addressed
+
+V0.952 Specific =============== February 26, 2012
+-'''First automated symultaneous multiplatform release of QB64 across Windows, Linux &amp; MacOSX'''
+-Some bugs addressed
+-Simple console usage added. '''A console window will now appear briefly when the IDE is run.'''
+
+V0.951 Specific =============== February 18, 2012
+-Implements a range of important bug/incompatibility fixes but no new functionality
+ (see the bugs/incompatibilities forum for details)
+
+
+V0.95 Specific === Primarily implements significant improvements to the IDE: 1/18/2012
+-IDE is ~2x faster at checking programs
+-Recently opened files list
+-Bulk comment and uncomment
+-Saved code bookmarks for navigation
+-[[ASCII]] chart (and value of cursor's ASCII character shown)
+-Quick search field ═0 along with a ↨ list of things recently searched for  
+-CONTROL+left/right arrow to move between words of text in code
+-Double click text in a single line text field to clear it
+-Copy (CTRL+C or CTRL+INS) and paste (CTRL+V or SHIFT+INS) into/from single line text fields
+-Mouse wheel scrolls lists (such as file lists in the open box)
+-Can press keyboard keys to jump through list items (before it just gave the first one 
+  or in some cases didn't work at all)
+-View/open/edit/save files with any extension, not just .BAS
+-Backwards searching (SHIFT+F3)
+-When a code error is reported in the IDE you can click on the 'ON LINE 1022' part of the
+  message (which is now highlighted) to jump to that location in your code
+-HOME key now toggles between the absolute left hand side (like before) on the first press 
+  and the first indented character of the line
+-Help system:
+  -Linked to WIKI
+  -Cached for speed but can be updated on request
+  -F1 for help about a keyword (or symbol) the cursor is currently on in your code
+  -Navigation ribbon for moving forward and backwards between recently viewed help pages
+  -Typing a word quickly finds links on help pages (useful on large index pages)
+  -Fully keyboard and/or mouse browsable
+  -F6 to transition between help window and code window
+  [[_SCREENIMAGE]] now supports four screen position parameters to get a portion of the desktop.
+  [[_CONTROLCHR]] OFF sets all ASCII control characters(0 to 31) as text characters. ON resets.
+
+V0.94 Specific === September 10, 2011 
+         '''Large Download will take about ONE HOUR through auto-update !'''
+     '''[http://www.qb64.net/forum/index.php?topic=4404.0 Download full MinGW C++ compiler V0.942 ZIP file update here for faster download!] 
+ '''NOTE: After installing Version .94, Update to Version .942 from File menu!'''
+-[[DECLARE LIBRARY]] significantly improved:
+-[[_OFFSET]] integer variable type and [[_OFFSET (function)]] implemented for the storage of pointers 
+and offsets which varies across systems/implementations and will grow in the future.
+-[[DECLARE LIBRARY|DECLARE CUSTOMTYPE LIBRARY]], allows you to override the required types and use the variable
+ types you want, provided they are the same size
+ -[[DECLARE LIBRARY|DECLARE STATIC LIBRARY]], for specifying static linking over shared library linking
+ -Added DECLARE LIBRARY support to MacOSX &amp; Linux including library versioning
+-SHELL [[SHELL|_DONTWAIT]] and [[_SCREENIMAGE]] implemented in MacOSX &amp; Linux
+-[[_FILEEXISTS]] and [[_DIREXISTS]] functions added to check for file &amp; path existance
+-''''Go to line', 'undo' &amp; 'redo' added to [[IDE]]'''
+-Many bugs fixed, refer to bugs/incompatibilities forum
+-.'\internal\temp\recompile.bat/.sh/.command' batch/script file now autogenerated on run to
+ investigate C++ compilation issues when they arrise
+-'''Note: Windows version of QB64 now distributed with the full (not stripped down) version''' 
+  '''of the MinGW C++ compiler. Update to v .942 after download and installation of v .94!'''
+
+
+V0.936 Specific =============== June 26, 2011
+-Implements the QB64 device interface which can handle joystick, keyboard and mouse 
+   input in a common way by referring to buttons, axes &amp; wheels: 
+-New commands added: [[_DEVICES]], [[_DEVICEINPUT]] and [[_DEVICE$]] See: [http://www.qb64.net/forum/index.php?topic=3585.msg36876#msg36876 Example usage]
+  [[_AXIS]], [[_BUTTON]], [[_BUTTONCHANGE]], [[_WHEEL]], [[LASTAXIS]], [[_LASTBUTTON]], [[_LASTWHEEL]]
+-Implemented QBASIC's [[STICK]], [[STRIG]], [[STRIG(n)]] and [[ON STRIG(n)]] functionality: [http://www.qb64.net/forum/index.php?topic=3585.msg37802#msg37802 Example usage]
+-Fixed problem with [[_CONNECTIONADDRESS]] returning 'localhost' IP (external site this function
+  relied on changed their procedure). '''Will add optional $ suffix next release!'''
+
+V0.935 Specific =============== May 27, 2011
+-Improvements to [[_MAPTRIANGLE]]
+ -Clipping bugs which caused program to crash fixed
+ -_MAPTRIANGLE _SEAMLESS ... option added so common edges aren't drawn twice, affecting alpha   
+   dependent results
+ -Limits (-16383 to 16383) on coordinate positions imposed, as this is a software mapper for 
+  speed reasons it has some limitations
+-[[_SETALPHA]] fixed (was broken by syntax checking upgrade)
+
+V0.934 Specific ===============
+-Fixed the critical problem which made the IDE freeze/crash after a period of usage
+ (Depending on the OS and RAM, the period could have been as short as a few minutes!)
+-Improved support MacOSX (Note: V0.933 was a Mac only version released via a link in the 
+   bugs/incompatibilities forum)
+-New command added: [[_MAPTRIANGLE]]
+ Calling syntax:
+ _MAPTRIANGLE (10,10)-(10,20)-(20,20)[,sourceimage] TO (10,10)-(10,20)-(20,20)[,destimage]
+ What does it do?
+ It texture maps a triangular region from the source image onto the destination image.
+ What's supported:
+ -8bit, 32bit, [[_CLEARCOLOR]] and [[_ALPHA]]
+ Notes:
+ A software mapper, but an extrememly fast one. Could easily be used to make an image rotator
+
+V0.932 Specific ===============
+  '''This is an essential update which corrects problems added by V0.931 naming restrictions!'''
+  -Implements a totally revised set of rules governing name restrictions which offers far 
+    greater QBASIC compatibility than V0.931
+  -Reports as yet unimplemented QBASIC commands as 'not implemented' when you try to use them
+  -Bugs/Incompatibilities:
+  -Indwelling [[$INCLUDE]] problem fixed
+  -DELETE key after mouse click issue in IDE corrected
+  -Phantom errors' after correction of an invalid sub/function argument declaration in IDE fixed
+  '''Syntax for an off screen [[GET (graphics statement)|GET]] has changed to require a color parameter after the array name.''' 
+
+V0.931 Specific ============ '''If you have this version PLEASE UPDATE to V0.932!'''
+-Implements robust syntax checking into all parts of the QB64 compiler:
+  -Naming restrictions
+  -Reserved name restrictions
+  -Duplicate name restrictions
+  -Checking for incorrect syntax
+  -Checking all types match correctly for SUB/FUNCTION calls
+  -and much more...
+-Minor bug-fixes/improvements
+
+[0.927] February 27, 2011
+        [[_SNDRAW]] interface added along with [[_SNDRAWLEN]] and [[_SNDRATE]]. 
+        (See http://www.qb64.net/forum/index.php?topic=2493.msg24885#msg24885)
+        Multiplatform improvements:
+         -Linux/MacOSX: Pop-up box on runtime errors
+         -Linux/MacOSX: _CLIPBOARD$ uses OS's clipboard, very useful in QB64 IDE for 
+           cut/copy/paste operations
+         -Linux: DELETE key now works correctly
+         -MacOSX: Apple(Command)+X/C/V/A also supported in IDE
+         -MacOSX: CTRL+BREAK now works (CTRL+F15 on keyboards without a designated 'break' key)
+         -(Linux too?)/MacOSX: [[TIMER]] now begins on the correct value, before it always 
+           started on the same value which also made RANDOMIZE TIMER do nothing!
+        Bugs/Incompatibilities:
+         -Severe memory leak related to GET/PUT fixed
+
+[0.926] January 30, 2011 
+       '''NOTE: This version reduces the size of QB64 compiled EXE files by as much as 44%!'''
+          The minimum compiled EXE size has been reduced from 875 KB to 495 KB.
+
+         Newly implemented QBASIC commands:
+          [[KEY n|KEY ON]], [[KEY LIST]], [[ON KEY(n)]]..., [[KEY(n)]] ON/OFF/STOP, KEY index,string$, etc
+          [[PALETTE USING]]
+         New commands added to QB64:
+          [[_SCREENMOVE]] newwindowxposition,newwindowyposition
+          _SCREENMOVE _MIDDLE 'center window on desktop
+          mywindowxposition = [[_SCREENX]] 'set window's desktop position
+          mywindowyposition = [[_SCREENY]]
+          [[_MOUSEMOVE]] xoffset,yoffset 'moves the mouse cursor
+          myosinfo$ = {{Cb|_OS$}} (See http://www.qb64.net/forum/index.php?topic=2495.0)
+        Critical bugs fixed in:
+         PRINT USING - EOF - handling of NOT operator - passing multiple arrays to functions
+         KILL - READ - Other minor problems addressed
+
+There is a new menu item in the 'Options' menu called 'About' which will tell you which 
+version of QB64 you have. After this update it will say 0.926
+
+                                '''V0.92 Updates October 17, 2010'''                
+[0.923] {{Cb|DECLARE LIBRARY}} command added to allow for calling functions in external libraries
+        (http://www.qb64.net/forum/index.php?topic=1712.0)
+[0.923] Various minor bugs/incompatibilities fixed
+
+[0.922] QB64 IDE can now use codepages, select them in the options-&gt;language... section.
+        Note: A .TTF font MUST be in use to see the results.
+[0.922] New command: [[_MAPUNICODE]] unicodevalue TO asciivalue 'Maps UNICODE codes to ASCII 
+  values for purposes such as simulating codepages
+[0.922] New command: unicodevalue=_MAPUNICODE(asciivalue) 'Returns the UNICODE code that the
+  ascii value is currently mapped to
+[0.922] Linux version updated
+[0.922] Significant bugs/incompatibilities corrected, including:
+        -corrections to the passing of UDT members by reference
+        -fixed memory leak in [[_FREEIMAGE]] (as _FREEIMAGE is called internally by QB64 for 
+    SCREEN management, it also affected some programs not calling _FREEIMAGE)
+   -corrected mismatch in dimension count of multidimensional arrays passed to functions
+   -corrections to the implementation of the FIELD statement
+        (for other bugs/incompatibilities addressed, refer to the forum)
+[0.921] Various bug fixes and patches applied to V0.92
+
+                                 '''V0.92 Specific October 4, 2010'''
+
+-Significant improvements to the QB64 input system have occurred primarily for multilingual 
+ and multiplatform reasons:
+ i)   The new [[_KEYHIT]] and [[_KEYDOWN]] functions can be used to monitor key press/release 
+events/states.
+      These also return UNICODE (UTF32) codes when UNICODE characters are entered.
+      http://www.qb64.net/forum/index.php?topic=1368.msg12703#msg12703
+ ii)  IME support added to facilitate entering Japanese, Chinese and Korean characters.
+  Note: The font CYBERBIT.TTF is free for non-commercial use and is now included in QB64.
+   It is only required to facilitate input via IME and not loaded unless the user 
+   switches to an IME input system mode.
+   QB64 also locates several fall-back fonts under circumstances when 'cyberbit' 
+   is not present, therefore it is unnecessary to distribute this font with your programs.
+ iii) QB64 now maps the UNICODE input of characters which appear in the CP437 extended
+      range(128-255) to their correct character. This means characters with umlauts and 
+      other international characters now appear correctly when using INKEY$
+ iv)  QB64 emulates scancodes based on what a stock-standard 101-key keyboard might 
+      return. Scancodes are language/platform specific, so this change means programs 
+      which do use INP will work as expected on all platforms.
+-Support for the FIELD statement added.
+-Some bugs/incompatibilities addressed but others will be corrected over coming weeks 
+   via automatic updates.
+ (See the bugs/incompatibilities forum for further information)
+
+                                   '''V0.91 Updates August 22, 2010'''
+
+ -The DATA folder (and its contents) are no longer required. You may delete them 
+  when/if you wish.
+ -Various bugs &amp; incompatibilites addressed http://www.qb64.net/forum/index.php?board=3.0
+   (of note: FREEFILE, FIX, INT, INPUT, INCLUDE)
+ -Improved syntax checking
+ -Removed blank pixel lines occurring between box drawing characters when using .TTF fonts
+                                  7/8/2010:
+ -FILES command implemented
+
+                                  '''V0.91 Specific'''
+
+  -Primarily implements the QB64 auto-updater. 
+      http://www.qb64.net/forum/index.php?topic=1110.msg8195#msg8195
+   QB64 now checks for and applies updates to QB64 automatically or according to the update
+   options you specify in the IDE.
+
+                                  '''V0.9 Specific July 11, 2010'''
+
+(Linux users must now run the batch/script file 'setup.sh' to build/setup/install QB64)
+-Primarily updates Linux pure 64-bit support
+-C++ components have been overhauled to be 64-bit compatible (affects all versions of QB64)
+-Further bugs/incompatibilities fixed (see forum for details)
+-Samples have been checked for Linux compatibility (eg. case sensitive filenames)
+
+{{TextEnd}}
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Does a User licence come with QB64?==
+
+A: Yes, as of version 0.85 a licence comes with QB64 released as freeware. Read the licence.txt that comes with the download package for more information. QB64 will always be free to use with the current library files and the licenses DO NOT LIMIT the use of those libraries! You are also allowed to sell software that you create with the following stipulations:
+
+{{TextStart}}                               '''QB64 SOFTWARE LICENSE'''
+
+QB64 is currently released as freeware meaning that this download may be copied/distributed 
+free of charge. All rights to the programs you create using QB64 (in both their executable 
+and source form) belong to you. '''You are under no obligation to release the source code to''' 
+'''the programs you create. You can sell the programs you create for profit.''' You are under no 
+obligation to acknowledge that the programs you create were written in QB64 or reference 
+the QB64 website in any way.
+
+The dynamically linked libraries (the DLL files you must include with your programs) are 
+distributed under '''LGPL'''. Requirements for this can be found at the following URL: 
+
+                        http://www.libsdl.org/license-lgpl.php
+
+QB64 and QB64 programs dynamically link to SDL (Simple DirectMedia Layer) libraries. SDL
+libraries are made available under the '''GNU Lesser General Public License (LGPL)'''. Details of 
+the SDL license requirements can be found at the above URL.
+
+
+Libraries are used in their 'standard'/unmodified versions and source code for these 
+libraries can be found at: 
+
+                              http://www.libsdl.org
+
+The QB64 compiler generates C++ code which is compiled into executable form by the MINGW 
+GCC compiler. QB64 uses a version of the MINGW &amp; GCC compilers found at the following URL:
+
+                           http://www.drangon.org/mingw/
+
+The official version of MINGW GCC compiler can be found at the following URL:  
+
+                              http://www.mingw.org/ '' ''
+{{TextEnd}}
+:The choice of license makes a big difference: using the '''Lesser GPL''' permits use of the library in proprietary programs; using the ordinary GPL for a library makes it available only for free programs.
+
+
+&lt;center&gt; '''The creator of QB64 is NOT responsible for any damages or the intended use of the  software it creates!'''&lt;/center&gt;
+
+&lt;center&gt;'''The user assumes all risk when they download or use the QB64 compiler!'''&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: How can I find what caused a Compiler error?==
+
+A: Compiler errors are often actually coding errors that both you and the IDE don't notice! Often it is a syntax error such as forgetting a quotation mark in a PRINT. Look for syntax errors too as the IDE still needs some improvements. The best way to get a clue to the problem is to run the following batch file IMMEDIATELY AFTER a compilation failure: '''CODE UPDATED 1/4/2011'''
+
+&lt;center&gt;'''Displays errors in a DOS Console window'''&lt;/center&gt;
+{{TextStart}} '' ''
+@echo off
+ECHO.
+ECHO                       Diagnosing Latest Compilation Error
+ECHO.
+ECHO                                Please wait...
+ECHO.
+
+cd .\internal\c
+.\bin\g -w -Wall -I.\i -I..\..\ -L.\l qbx.cpp libqbx.o -mwindows .\i686-w64-mingw32\lib\libimm32.a -lwinspool -lmingw32 -ln -lmix -limg -lttf -lmn -lSDL -o ..\..\test64.exe
+cd ..\..
+
+ECHO.
+ECHO.
+PAUSE '' ''
+{{TextEnd}}
+&lt;center&gt;'''Note: Make sure that ''test64.exe'' is at the end of the long code line when copying!'''&lt;/center&gt;
+
+
+&lt;center&gt;'''Places compiler errors into the ''0utput64.txt'' file'''&lt;/center&gt;
+{{TextStart}} '' ''
+@echo off
+ECHO.
+ECHO                       Diagnosing Latest Compilation Error
+ECHO.
+ECHO                                Please wait...
+ECHO.
+cd .\internal\c
+.\bin\g -w -Wall -I.\i -I..\..\ -L.\l qbx.cpp libqbx.o -mwindows .\i686-w64-mingw32\lib\libimm32.a -lwinspool -lmingw32 -ln -lmix -limg -lttf -lmn -lSDL -s -o ..\..\ &gt;..\..\0utput64.txt 2&gt;&amp;1
+cd ..\..
+
+ECHO.
+ECHO                            0utput64.txt created!      
+ECHO.
+PAUSE '' ''
+{{TextEnd}}
+&lt;center&gt;'''Note: Make sure that ''0utput64.txt 2&gt;&amp;1'' is at the end of the long code line when copying!'''&lt;/center&gt;
+
+
+&lt;center&gt;'''To create the Batch file, copy code above to Notepad and save it as ''QB64ERR.BAT''. Save as type: ''All Files''.'''&lt;/center&gt;
+
+
+&lt;center&gt;[http://bit.ly/Oa6Ha0 Download the QB64 Editor and Compiler Shortcuts and Compile Error Batch Files]&lt;/center&gt;
+
+
+Look for the word '''error''' in the resulting information. The errors often have to do with syntax or code errors not found by the [[IDE]].
+
+&lt;center&gt;'''Place the batch files into the QB64 folder to use.'''&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to FAQ topics]])&lt;/p&gt;
+
+==Q: Where can I find information about a QB64 statement or function?==
+
+
+&lt;center&gt;'''[[Known QB64 Issues]]'''&lt;/center&gt;
+
+
+&lt;center&gt;'''[http://www.qb64.net/forum/index.php QB64 Forum] ([[Forum Tips]])'''&lt;/center&gt;
+
+
+&lt;center&gt;[http://qb64.net/wiki/index.php?title=QB64_Tutorials Tutorials]
+
+
+[[Main_Page#Appendix:|Appendix of QB64 Procedures]]
+
+
+[http://qb64.net/wiki/index.php?title=Main_Page#Appendix: Information about Programming concepts]&lt;/center&gt;
+
+
+&lt;p style=&quot;text-align: center&quot;&gt;[[Keywords currently not supported by QB64]]&lt;/p&gt;
+
+&lt;center&gt;[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keywords Not Supported in Linux or MAC OSX versions]]&lt;/center&gt;
+
+
+&lt;center&gt;''Offline WIKI Download provided by OlDosLover:''&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt; [https://dl.dropbox.com/u/10291175/QB64OfflineWiki.7z Download the QB64 WIKI for Offline Reference (7 Zip 5MB)].&lt;/p&gt;
+
+
+{{PageNavigation}}

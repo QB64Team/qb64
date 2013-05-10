@@ -1,0 +1,59 @@
+The {{KW|OCT$}} function returns the base 8 octal representation of an [[INTEGER]], [[LONG]] or [[_INTEGER64]] value as a [[STRING]].
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|OCT$}}({{Parameter|number}})
+
+
+{{PageDescription}}
+* The {{KW|OCT$}} function returns the octal (base-8) representation of {{Parameter|number}}.
+* {{Parameter|number}} can be any integer value.
+* No leading space is returned.
+* [[VAL]] can convert octal string values to decimal when the &quot;&amp;O&quot; prefix is added.
+
+
+Example:'' Outputs all of the decimal, hexadecimal and octal digits:
+
+
+{{CodeStart}}
+
+LOCATE 2, 20: PRINT &quot; Decimal | Hexadecimal | Octal &quot;
+LOCATE 3, 20: PRINT &quot;---------+-------------+-------&quot;
+        template$ = &quot;    ##   |     \\      |   ##  &quot;
+
+FOR n% = 0 TO 15
+  LOCATE 4 + n%, 20: {{Cl|PRINT USING}} template$; n%; {{Cl|HEX$}}(n%); VAL({{Cl|OCT$}}(n%))
+NEXT n%
+
+{{CodeEnd}}
+: ''Note:'' The actual Octal value is converted by [[VAL]] directly back to a numerical value by '''not using''' the &quot;&amp;H&quot; prefix.
+
+{{OutputStart}}
+                    Decimal | Hexadecimal | Octal
+                   ---------+-------------+-------
+                        0   |     0       |    0   
+                        1   |     1       |    1
+                        2   |     2       |    2
+                        3   |     3       |    3
+                        4   |     4       |    4
+                        5   |     5       |    5
+                        6   |     6       |    6
+                        7   |     7       |    7
+                        8   |     8       |   10
+                        9   |     9       |   11
+                       10   |     A       |   12
+                       11   |     B       |   13
+                       12   |     C       |   14
+                       13   |     D       |   15
+                       14   |     E       |   16
+                       15   |     F       |   17
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[HEX$]], [[VAL]]
+* [[&amp;H]] {{text|(hexadecimal)}}, [[&amp;O]] {{text|(octal)}}, [[&amp;B]] {{text|(binary)}}
+* [[Base Comparisons]]
+
+
+{{PageNavigation}}

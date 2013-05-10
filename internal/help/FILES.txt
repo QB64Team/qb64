@@ -1,0 +1,112 @@
+The {{KW|FILES}} statement is used to return a list of files in the current directory using a filespec, but long lists will scroll the screen.
+
+
+{{PageSyntax}}
+:{{KW|FILES}} [{{Parameter|fileSpec$}}]
+
+
+{{PageDescription}}
+
+* Filespec is a string expression or variable containing a path when required.
+* Filespec can use the * and ? wildcard specs like normal DOS DIR statements.
+: * denotes one or more wildcard characters in a filename or path spec as any legal file name  character(s).
+: ? denotes one wildcard letter in a filename or path spec as any legal filename character. 
+* If {{Parameter|fileSpec$}} is omitted, it is assumed to be &lt;code&gt;&quot;*.*&quot;&lt;/code&gt; (all files and folders in the current directory).
+* Illegal filename characters in '''QB64''' include * &gt; &lt; : &quot; | \ / with any amount of dot extensions being allowed in Windows.
+* Illegal filename characters in '''Qbasic''' include * ? , &gt; &lt; ; : &quot; | \ / + [ ] and more than one dot extension in [http://www.computerhope.com/issues/ch000209.htm DOS].
+* FILES lists can make the screen roll. Try using SHELL &quot;DIR&quot; with the /P option. [http://www.computerhope.com/dirhlp.htm DIR command].
+
+
+
+''Example 1:'' Finding a list of all BAS files in the current folder. 
+{{CodeStart}}{{Cl|FILES}} &quot;*.BAS&quot;
+{{CodeEnd}}
+&lt;center&gt;'''[http://i301.photobucket.com/albums/nn53/burger2227/FILESss.jpg Screenshot shows only the end of a long list of files]'''&lt;/center&gt;
+
+
+''Example 2:'' A function that verifies that a file exists if it is NOT empty. Note: Function WILL deleted empty files!
+{{CodeStart}} '' ''
+{{Cl|INPUT}} &quot;Enter a file name: &quot;, file$
+{{Cl|IF}} Exist%(file$) {{Cl|THEN}} {{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1: found% = -1   'function call demo
+{{Cl|CLOSE}} #1
+{{Cl|IF}} found% THEN {{Cl|PRINT}} &quot;File exists!&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;File not found!&quot;
+{{Cl|END}}
+
+{{Cl|FUNCTION}} Exist% (filename$)
+f% = {{Cl|FREEFILE}}
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #f%
+{{Cl|IF}} {{Cl|LOF}}(f%) {{Cl|THEN}} Exist% = -1 {{Cl|ELSE}} Exist% = 0: {{Cl|CLOSE}} #f%: {{Cl|KILL}} filename$ 'delete empty files
+{{Cl|CLOSE}} #f% 
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}{{small|Code by Ted Weissgerber}}
+
+
+''Example 3:'' The DIR$ function used in PDS(7.1) returns a filename or a list when more than one exist. The file spec can use a path and/or wildcards.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 2
+  {{Cl|PRINT}}
+  {{Cl|LINE INPUT}} &quot;Enter a file spec: &quot;, spec$
+  file$ = DIR$(spec$) 'use a file spec ONCE to find the last file name listed
+  {{Cl|PRINT}} DIRCount%, file$, 'function can return the file count using {{Cl|SHARED}} variable
+  {{Cl|IF...THEN|IF}} DIRCount% &gt; 1 {{Cl|THEN}}
+    DO
+      K$ = {{Cl|INPUT$}}(1)
+      file$ = DIR$(&quot;&quot;) 'use an empty string parameter to return a list of files!
+      {{Cl|PRINT}} file$,
+    {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(file$) = 0 'file list ends with an empty string
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+
+{{Cl|END}}
+
+{{Cl|FUNCTION}} DIR$ (spec$)
+{{Cl|CONST}} TmpFile$ = &quot;DIR$INF0.INF&quot;, ListMAX% = 500 'change maximum to suit your needs
+{{Cl|SHARED}} DIRCount% 'returns file count if desired
+{{Cl|STATIC}} Ready%, Index%, DirList$()
+{{Cl|IF...THEN|IF}} {{Cl|NOT}} Ready% {{Cl|THEN}} {{Cl|REDIM}} DirList$(ListMAX%): Ready% = -1 '{{Cl|DIM}} array first use
+{{Cl|IF...THEN|IF}} spec$ &gt; &quot;&quot; {{Cl|THEN}} 'get file names when a spec is given
+  {{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR &quot; + spec$ + &quot; /b &gt; &quot; + TmpFile$
+  Index% = 0: DirList$(Index%) = &quot;&quot;: ff% = {{Cl|FREEFILE}}
+  {{Cl|OPEN}} TmpFile$ {{Cl|FOR...NEXT|FOR}} {{Cl|APPEND}} {{Cl|AS}} #ff%
+  size&amp; = {{Cl|LOF}}(ff%)
+  {{Cl|CLOSE}} #ff%
+  {{Cl|IF...THEN|IF}} size&amp; = 0 {{Cl|THEN}} {{Cl|KILL}} TmpFile$: {{Cl|EXIT FUNCTION}}
+  {{Cl|OPEN}} TmpFile$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #ff%
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(ff%) {{Cl|AND (boolean)|AND}} Index% &lt; ListMAX%
+    Index% = Index% + 1
+    {{Cl|LINE INPUT (file statement)|LINE INPUT}} #ff%, DirList$(Index%)
+  {{Cl|LOOP}}
+  DIRCount% = Index% '{{Cl|SHARED}} variable can return the file count
+  {{Cl|CLOSE}} #ff%
+  {{Cl|KILL}} TmpFile$
+{{Cl|ELSE}} {{Cl|IF...THEN|IF}} Index% &gt; 0 {{Cl|THEN}} Index% = Index% - 1 'no spec sends next file name
+{{Cl|END IF}}
+DIR$ = DirList$(Index%)
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' The function will verify that a file exists (even if it is empty) by returning it's name or it returns an empty string if no file exists. It can return a list of file names by using an empty string parameter(&quot;&quot;) after sending a wildcard spec to get the first file name. The number of file names found is returned by using the SHARED variable, '''DIRCount%'''. Unlike the PDS DIR$ function, '''it MUST use an empty string parameter until QB64 supports optional parameters!''' The function does NOT delete empty files.
+
+
+&lt;center&gt;'''Alternative File List Solution'''&lt;/center&gt;
+A member created a [[FILELIST$ (function)]] that uses the mouse and does not affect your program screens. It can verify that a file name exists or display a list of long and short file names to choose from. It also avoids program errors when a file name does not exist.   
+
+&lt;center&gt;NEW expanded code is available here: [[FILELIST$]]&lt;/center&gt;
+
+&lt;center&gt;[http://i301.photobucket.com/albums/nn53/burger2227/FILE-ss2.jpg FILELIST$ function Screenshot]&lt;/center&gt;
+
+
+''See Library:'' File Exist C++ Function that does not create a temp file. [http://qb64.net/wiki/index.php?title=C_Libraries#File_Exist FileExist Function] 
+
+{{PageSeeAlso}}
+* [[SHELL]], [[SCREEN (function)]] {{text|(See Example 2)}}
+* [[CHDIR]], [[MKDIR]]
+* [[RMDIR]], [[KILL]]
+* [[_FILEEXISTS]], [[_DIREXISTS]]
+* [[DOS]], [[Batch Files]], [[DOS#DIR|DIR]]
+* [[Windows_Libraries#File_Exist|Windows File Exist Library]]
+* [[Windows_Libraries#File_Open_and_Save_Dialog|Windows Open and Save Dialog Boxes]]
+* [[C_Libraries#Console_Window|C Console Library]]
+
+
+{{PageNavigation}}

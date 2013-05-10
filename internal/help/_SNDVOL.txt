@@ -1,0 +1,25 @@
+The {{KW|_SNDVOL}} statement sets the volume of a sound using a handle from the {{KW|_SNDOPEN}} Function.
+
+
+{{PageSyntax}}
+:{{KW|_SNDVOL}} ({{Parameter|handle&amp;}}, {{Parameter|volume!}})
+
+
+{{PageDescription}}
+*Volume is a value from 0 (silence) to 1 (full volume).
+*An opened sound file must have the &quot;VOL&quot; capability to use this function.
+
+
+{{PageExamples}}
+{{CodeStart}} '' ''
+h&amp; = {{Cl|_SNDOPEN}}(&quot;bell.wav&quot;, &quot;SYNC,VOL&quot;)
+{{Cl|_SNDVOL}} h&amp;, 0.5
+{{Cl|_SNDPLAY}} h&amp; '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDOPEN}}, {{KW|_SNDBAL}}
+
+
+{{PageNavigation}}

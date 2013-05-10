@@ -1,0 +1,70 @@
+The '''$CONSOLE''' [[Metacommand]] creates a console window that can be used throughout a QB64 program module.
+
+
+{{PageSyntax}}
+::: $CONSOLE
+
+
+* [[_CONSOLE]] OFF or ON may be used to hide or show the console window. ON can only be used after OFF.
+* [[_DEST]] [[_CONSOLE]] may be used to send screen output to the console window.
+* [[_SCREENHIDE]] and [[_SCREENSHOW]] can be used to hide or show the main program window.
+* [[_DELAY]] or [[SLEEP]] can be used to allow the console window to be set in front of the main program window.
+* '''QB64 [[Metacommand]]s require that commenting or [[REM]] NOT be used anywhere on the Metacommand code line!'''
+
+
+''Example 1:'' Hiding and displaying a console window. Use [[_DELAY]] to place console in front of main program window.
+{{CodeStart}} '' ''
+{{Cl|$CONSOLE}}
+{{Cl|_DELAY}} 4
+
+{{Cl|_CONSOLE}} OFF
+{{Cl|_DELAY}} 4
+{{Cl|_CONSOLE}} ON
+
+{{Cl|_DEST}} {{Cl|_CONSOLE}}
+{{Cl|PRINT}} &quot;Close this console window or click main window and press a key!&quot; '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' How to use a Console window to copy screen output using the ''Edit'' menu by right clicking the console window title bar.
+{{CodeStart}}
+{{Cl|$CONSOLE}}
+{{Cl|_DEST}} {{Cl|_CONSOLE}}
+
+c&amp;&amp; = -1: d&amp; = -1: e% = -1: f%% = -1
+hx$ = {{Cl|HEX$}}(f%%)
+{{Cl|PRINT}} &quot;Max hex {{Cl|_BYTE}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+hx$ = {{Cl|HEX$}}(e%)
+{{Cl|PRINT}} &quot;Max hex {{Cl|INTEGER}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+hx$ = {{Cl|HEX$}}(d&amp;)
+{{Cl|PRINT}} &quot;Max hex {{Cl|LONG}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+hx$ = {{Cl|HEX$}}(c&amp;&amp;)
+{{Cl|PRINT}} &quot;Max hex {{Cl|_INTEGER64}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+hx$ = {{Cl|HEX$}}(9223372036854775807)
+{{Cl|PRINT}} &quot;Max {{Cl|_INTEGER64}} value = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits&quot;
+hx$ = {{Cl|HEX$}}(-9223372036854775808)
+{{Cl|PRINT}} &quot;Min {{Cl|_INTEGER64}} value = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits&quot;
+{{CodeEnd}}
+{{OutputStart}}Max hex _BYTE = FF with 2 digits = 255
+Max hex INTEGER = FFFF with 4 digits = 65535
+Max hex LONG = FFFFFFFF with 8 digits = 4294967295
+Max hex _INTEGER64 = FFFFFFFFFFFFFFFF with 16 digits =-1
+Max _INTEGER64 value = 7FFFFFFFFFFFFFFF with 16 digits
+Min _INTEGER64 value = 8000000000000000 with 16 digits
+{{OutputEnd}}
+: ''Console:'' Right click and select ''Edit'' &gt; ''Select All'' (mouse highlight after) then hit Enter or select ''Edit'' &gt; ''Copy'' to the [[_CLIPBOARD$ (function)|clipboard]].
+{{TextStart}}Max hex _BYTE = FF with 2 digits = 255
+Max hex INTEGER = FFFF with 4 digits = 65535
+Max hex LONG = FFFFFFFF with 8 digits = 4294967295
+Max hex _INTEGER64 = FFFFFFFFFFFFFFFF with 16 digits =-1
+{{TextEnd}}
+:''Copied text:'' The above text was copied after ''Select All'' was selected and the smaller area was re-highlighted with the mouse.
+
+
+''See also:''
+* [[_CONSOLE]]
+* [[$SCREENHIDE]], [[$SCREENSHOW]] (QB64 [[Metacommand]]s)
+* [[_SCREENHIDE]], [[_SCREENSHOW]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,42 @@
+The '''MID$''' function returns a portion of a [[STRING]]'s value from any position inside a string.
+
+
+
+{{PageSyntax}}
+:: MID$(''stringvalue$'', ''startposition%''[, ''bytes%''])
+
+
+''[[Parameters]]:''
+* ''stringvalue'' can be any literal or variable [[STRING]] value having a length. See [[LEN]].
+* ''startposition'' designates the non-zero position of the first character to be returned by the function.
+* ''bytes'' (optional) tells the function how many characters to return including the first character when it is used. 
+
+''Usage:''
+* When the ''bytes'' value is not used the function returns the remainder of the string from the starting character  position.
+* Number of character ''bytes'' should be within the string's [[LEN|length]] from the start position, but will only return the string's remainder when exceeded.
+* If the ''bytes'' value is 0 or the ''start position'' is 0 or greater than the [[LEN|length]] of the string, nothing is returned (no error).
+* In QBasic the ''start position'' cannot be zero(0) or an [[ERROR Codes|Illegal function call error]] will occur.
+
+
+''Example:'' Getting the hour and minutes from [[TIME$]]
+{{CodeStart}} '' ''
+{{Cl|PRINT}} {{Cl|TIME$}}
+
+hour$ = {{Cl|LEFT$}}({{Cl|TIME$}}, 2)
+minutes$ = {{Cl|MID$}}({{Cl|TIME$}}, 4, 2) ' skip hours and the colon (3 characters)
+
+{{Cl|PRINT}} &quot;hour = &quot;; hour$; &quot;: minutes = &quot;; minutes$ '' ''
+{{CodeEnd}} 
+
+{{OutputStart}}
+11:23:30
+hour = 11: minutes = 23
+{{OutputEnd}}
+
+
+''See also:''
+* [[MID$ (statement)]], [[LEFT$]], [[RIGHT$]]
+* [[LTRIM$]], [[RTRIM$]], [[INSTR]], [[LEN]] 
+
+
+{{PageNavigation}}

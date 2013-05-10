@@ -1,0 +1,111 @@
+The {{KW|_DEST}} statement sets the current write image or page. All graphic and print changes will be done to this image.
+
+
+{{PageSyntax}}
+:{{KW|_DEST}} {{Parameter|imageHandle&amp;}}
+
+
+{{PageDescription}}
+* {{Parameter|imageHandle&amp;}} is the handle of the image that will act as the current write page.
+* '''_DEST 0''' refers to the present program [[SCREEN]]. You can use 0 to refer to the present program [[SCREEN]].
+* _DEST [[_CONSOLE]] can set the destination to send information to a console window using [[PRINT]] or [[INPUT]].
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs. Always check for bad handle values of -1 first!
+*''Note:'' Use [[_SOURCE]] when you need to read a page or image with [[POINT]], [[GET (graphics statement)|GET]] or the [[SCREEN (function)|SCREEN]] function.
+
+
+''Example 1:'' Placing a center point and a circle using [[_CLEARCOLOR]] to eliminate the background color black.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 13      'program screen can use 256 colors
+a&amp; = {{Cl|_NEWIMAGE}}(320,200,13)        'create 2 screen page handles a&amp; and b&amp;
+b&amp; = {{Cl|_NEWIMAGE}}(320,200,13)
+{{Cl|_DEST}} a&amp;                          'set destination image to handle a&amp;
+{{Cl|PSET}} (100, 100), 15               'draw a dot on the current destination handle a&amp;
+{{Cl|_DEST}} b&amp;                          'set destination image to handle b&amp;
+{{Cl|CIRCLE}} (100, 100), 50, 15         'draw a circle on the current destination handle b&amp;
+{{Cl|_CLEARCOLOR}} 0                     'make page b color 0 (black) transparent
+{{Cl|_PUTIMAGE}} , b&amp;, a&amp;                'put circle on image b to image a&amp; (a PSET dot)
+{{Cl|_PUTIMAGE}} , a&amp;, 0                 'put what is on image a&amp; to the screen (handle 0) '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Demonstrates how [[PRINT|printed]] text can be stretched using [[_PUTIMAGE]] with [[_DEST]] pages.
+{{CodeStart}} '' ''
+{{Cl|DIM}} a(10) {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|LONG}}
+
+{{Cl|REM}} Sets up a newimage for B then sets the screen to that.
+b = {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|SCREEN (statement)|SCREEN}} b
+
+{{Cl|REM}} Make pages 48 pixels tall. If the image is not at least that it wont work
+a(1) = {{Cl|_NEWIMAGE}}(240, 48, 32)
+a(2) = {{Cl|_NEWIMAGE}}(240, 48, 32)
+a(3) = {{Cl|_NEWIMAGE}}(98, 48, 32)
+
+xa = 100
+ya = 120
+xm = 4
+ym = 4
+
+{{Cl|REM}} Some fun things for the bouncing text.
+st$(0) = &quot;doo&quot;
+st$(1) = &quot;rey&quot;
+st$(2) = &quot;mee&quot;
+st$(3) = &quot;faa&quot;
+st$(4) = &quot;soo&quot;
+st$(5) = &quot;laa&quot;
+st$(6) = &quot;tee&quot;
+
+sta$(0) = &quot;This is a demo&quot;
+sta$(1) = &quot;showing how to use&quot;
+sta$(2) = &quot;the _DEST command&quot;
+sta$(3) = &quot;with PRINT&quot;
+sta$(4) = &quot;and _PUTIMAGE&quot;
+
+{{Cl|REM}} prints to a(3) image then switches back to the default 0
+{{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 6): {{Cl|PRINT}} st$(3): {{Cl|_DEST}} 0
+
+DO
+    {{Cl|REM}} prints to a(1) and a(2) then switches bac to 0
+    {{Cl|_DEST}} a(1)
+    {{Cl|CLS}}
+    {{Cl|PRINT}} sta(r)
+    {{Cl|_DEST}} a(2)
+    {{Cl|CLS}}
+    {{Cl|PRINT}} sta(r + 1)
+    {{Cl|_DEST}} 0          'destination zero is the main program page
+
+    {{Cl|REM}} a loop to putimage the images in a(1) and a(2) in a way to make it look like its rolling
+    {{Cl|FOR...NEXT|FOR}} yat = 150 {{Cl|TO}} 380 {{Cl|STEP}} 4
+        {{Cl|CLS}}
+        {{Cl|_PUTIMAGE}} (0, yat)-(640, 380), a(1)
+        {{Cl|_PUTIMAGE}} (0, 150)-(640, yat), a(2)
+        {{Cl|GOSUB}} bounce
+        {{Cl|_DISPLAY}}
+        {{Cl|_LIMIT}} 20
+    {{Cl|NEXT}} yat
+
+    r = r + 1
+    {{Cl|IF...THEN|IF}} r = 4 {{Cl|THEN}} r = 0
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|END}}
+
+bounce:
+{{Cl|IF...THEN|IF}} xa &gt; 600 {{Cl|OR (boolean)|OR}} xa &lt; 20 {{Cl|THEN}} xm = xm * -1: {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 6): {{Cl|CLS}}: {{Cl|_CLEARCOLOR}} 0: {{Cl|PRINT}} st$(f): {{Cl|_DEST}} 0
+{{Cl|IF...THEN|IF}} ya &gt; 400 {{Cl|OR (boolean)|OR}} ya &lt; 20 {{Cl|THEN}} ym = ym * -1: {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 7): {{Cl|CLS}}: {{Cl|_CLEARCOLOR}} 0: {{Cl|PRINT}} st$(f): {{Cl|_DEST}} 0
+{{Cl|_PUTIMAGE}} (xa, ya)-(xa + 150, ya + 80), a(3)
+xa = xa + xm
+ya = ya + ym
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+{{small|Adapted from code by CodeViper}} 
+
+
+{{PageSeeAlso}}
+* [[_DEST (function)]]
+* [[_SOURCE]]
+* [[_PUTIMAGE]]
+* [[_CONSOLE]]
+
+
+{{PageNavigation}}
