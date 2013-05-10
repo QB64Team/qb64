@@ -53,7 +53,7 @@ QB64_ICON_NAME="qb64icon32.png"
 
 DISTRO=
 
-if [ -f ./qb64 ]; then
+if [ -f ./qb64 ] && [ "$DOWNLOAD" == "1" ]; then
   echo "Removing old QB64 files in preperation for installing new version..."
   rm ./qb64
   rm -fr ./internal
