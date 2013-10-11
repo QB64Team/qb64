@@ -1,7 +1,9 @@
 $CONSOLE
 $SCREENHIDE
 
-
+'### STEVE WAS HERE 10/11/2013 ###
+$RESIZE:ON
+'### END OF STEVE EDIT
 
 
 '$DYNAMIC
@@ -26930,6 +26932,27 @@ DO
     ideloop:
 
     idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
+
+    '### STEVE WAS HERE 10/11/2013 ###
+
+    IF _RESIZE THEN
+        f# = FREEFILE
+        OPEN ".\internal\temp\options.bin" FOR BINARY AS f#
+        SEEK f#, 7
+        v% = _RESIZEWIDTH / 8: IF v% < 80 OR v% > 1000 THEN v% = 80
+        PUT f#, , v%
+        idewx = v%
+        v% = _RESIZEHEIGHT / 16: IF v% < 25 OR v% > 1000 THEN v% = 25
+        PUT f#, , v%
+        idewy = v%
+        CLOSE f#
+        WIDTH idewx, idewy
+        retval = 1
+        GOTO redraweverything
+    END IF
+    '### END OF STEVE EDIT
+
+
 
     IF skipdisplay = 0 THEN
 
