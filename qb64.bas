@@ -1945,9 +1945,14 @@ IF idemode THEN GOTO ideret1
 lineinput3load sourcefile$
 
 DO
+
+    stevewashere: '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
+
     wholeline$ = lineinput3$
     IF wholeline$ = CHR$(13) THEN EXIT DO
     ideprepass:
+
+    wholestv$ = wholeline$ '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
 
     prepass = 1
     layout = ""
@@ -2166,7 +2171,7 @@ DO
 
 
 
-
+                        stevewashere2: ' ### STEVE EDIT ON 10/11/2013 (Const Expansion)
 
 
                         IF n >= 1 AND firstelement$ = "CONST" THEN
@@ -2191,12 +2196,126 @@ DO
                             END IF
 
 
+                            'Steve Tweak to add _RGB32 and _MATH support to CONST
+                            'Our alteration to allow for multiple uses of RGB and RGBA inside a CONST //SMcNeill
+                            altered = 0
 
+                            DO
+                                finished = -1
+                                l = INSTR(l + 1, UCASE$(wholestv$), " _RGBA")
+                                IF l > 0 THEN
+                                    altered = -1
+                                    l$ = LEFT$(wholestv$, l - 1)
+                                    vp = INSTR(l, wholestv$, "(")
+                                    IF vp > 0 THEN
+                                        E = INSTR(vp + 1, wholestv$, ")")
+                                        IF E > 0 THEN
+                                            'get our 3 colors or 4 if we need RGBA values
+                                            first = INSTR(vp, wholestv$, ",")
+                                            second = INSTR(first + 1, wholestv$, ",")
+                                            third = INSTR(second + 1, wholestv$, ",")
+                                            fourth = INSTR(third + 1, wholestv$, ",") 'If we need RGBA we need this one as well
+                                            red$ = MID$(wholestv$, vp + 1, first - vp - 1)
+                                            green$ = MID$(wholestv$, first + 1, second - first - 1)
+                                            blue$ = MID$(wholestv$, second + 1, third - second - 1)
+                                            alpha$ = MID$(wholestv$, third + 1, fourth - third - 1)
+                                            val$ = MID$(wholestv$, fourth + 1)
+                                            SELECT CASE VAL(val$)
+                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
+                                                    wi& = _NEWIMAGE(240, 120, VAL(val$))
+                                                    clr = _RGBA(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$), wi&)
+                                                    _FREEIMAGE wi&
+                                                CASE 32
+                                                    clr = _RGBA32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
+                                                CASE ELSE
+                                                    a$ = "Invalid Screen Mode.": GOTO errmes
+                                            END SELECT
 
+                                            wholestv$ = l$ + STR$(clr) + RIGHT$(wholestv$, LEN(wholestv$) - E)
+                                            finished = 0
+                                        ELSE
+                                            'no finishing bracket
+                                            a$ = ") Expected": GOTO errmes
+                                        END IF
+                                    ELSE
+                                        'no starting bracket
+                                        a$ = "( Expected": GOTO errmes
+                                    END IF
+                                END IF
+                            LOOP UNTIL finished
 
+                            DO
+                                finished = -1
+                                l = INSTR(l + 1, UCASE$(wholestv$), " _RGB")
+                                IF l > 0 THEN
+                                    altered = -1
+                                    l$ = LEFT$(wholestv$, l - 1)
+                                    vp = INSTR(l, wholestv$, "(")
+                                    IF vp > 0 THEN
+                                        E = INSTR(vp + 1, wholestv$, ")")
+                                        IF E > 0 THEN
+                                            first = INSTR(vp, wholestv$, ",")
+                                            second = INSTR(first + 1, wholestv$, ",")
+                                            third = INSTR(second + 1, wholestv$, ",")
+                                            red$ = MID$(wholestv$, vp + 1, first - vp - 1)
+                                            green$ = MID$(wholestv$, first + 1, second - first - 1)
+                                            blue$ = MID$(wholestv$, second + 1, third - second - 1)
+                                            val$ = MID$(wholestv$, third + 1)
+                                            SELECT CASE VAL(val$)
+                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
+                                                    wi& = _NEWIMAGE(240, 120, VAL(val$))
+                                                    clr = _RGB(VAL(red$), VAL(green$), VAL(blue$), wi&)
+                                                    _FREEIMAGE wi&
+                                                CASE 32
+                                                    clr = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
+                                                CASE ELSE
+                                                    a$ = "Invalid Screen Mode.": GOTO errmes
+                                            END SELECT
 
+                                            wholestv$ = l$ + STR$(clr) + RIGHT$(wholestv$, LEN(wholestv$) - E)
+                                            finished = 0
+                                        ELSE
+                                            a$ = ") Expected": GOTO errmes
+                                        END IF
+                                    ELSE
+                                        a$ = "( Expected": GOTO errmes
+                                    END IF
+                                END IF
+                            LOOP UNTIL finished
 
+                            comma = 0: lastcomma = 1: lef$ = ""
+                            DO
+                                finished = -1
+                                l = INSTR(UCASE$(wholestv$), " _MATH") + 1
+                                IF l = 1 THEN l = INSTR(UCASE$(wholestv$), "=_MATH") + 1 'In case someone does an CONST x=_MATH command, and the spacer hasn't spaced it properly yet.
+                                IF l > 1 THEN
+                                    finished = 0: altered = -2
+                                    l2$ = RIGHT$(wholestv$, LEN(wholestv$) - l - 4) 'everything after math
+                                    lef$ = lef$ + LEFT$(wholestv$, l - 2) 'everything before our =
+                                    comma = INSTR(l, wholestv$, ",")
+                                    IF comma > 0 THEN
+                                        E = INSTR(l, wholestv$, ")")
+                                        l22$ = UCASE$(MID$(wholestv$, l + 5, comma - l - 5))
+                                    ELSE
+                                        E = INSTR(lastcomma, wholestv$, ")")
+                                        l22$ = UCASE$(MID$(wholestv$, l + 5, E - l - 4))
+                                    END IF
+                                    l3$ = STR$(Calc_RPN##(get_RPN$(l22$), error_flag, error_msg$))
+                                    IF error_flag THEN a$ = error_msg$: GOTO errmes
+                                    lef$ = lef$ + l3$ '+ MID$(wholestv$, E + 1, 2)
+                                    wholestv$ = RIGHT$(wholestv$, LEN(wholestv$) - E - 1)
+                                END IF
+                            LOOP UNTIL finished
 
+                            IF altered = -2 THEN wholestv$ = lef$ + wholestv$
+
+                            IF altered THEN
+                                wholeline$ = wholestv$
+                                linenumber = linenumber - 1
+                                GOTO ideprepass
+                            END IF
+
+                            ' ### END OF STEVE EDIT FOR EXPANDED CONST SUPPORT ###
 
                             IF n < 3 THEN a$ = "Expected CONST name = value/expression": GOTO errmes
                             i = 2
@@ -26413,6 +26532,7 @@ ide = ide2(0)
 END FUNCTION
 
 FUNCTION ide2 (ignore)
+
 c$ = idecommand$
 
 'report any IDE errors which have occurred
@@ -26424,6 +26544,8 @@ IF ideerror THEN
     IF ideerror = 4 THEN ideerrormessage "Path not found"
 END IF
 ideerror = 1 'unknown IDE error
+
+
 
 IF LEFT$(c$, 1) = CHR$(12) THEN
     f$ = RIGHT$(c$, LEN(c$) - 1)
@@ -26931,10 +27053,7 @@ idefocusline = 0
 DO
     ideloop:
 
-    idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
-
     '### STEVE WAS HERE 10/11/2013 ###
-
     IF _RESIZE THEN
         f# = FREEFILE
         OPEN ".\internal\temp\options.bin" FOR BINARY AS f#
@@ -26948,11 +27067,14 @@ DO
         CLOSE f#
         WIDTH idewx, idewy
         retval = 1
+        idechangemade = 1
         GOTO redraweverything
     END IF
     '### END OF STEVE EDIT
 
 
+
+    idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
 
     IF skipdisplay = 0 THEN
 
@@ -32534,9 +32656,45 @@ FOR y = 0 TO (idewy - 9)
         a2$ = SPACE$((idewx - 2))
     END IF
 
-    FOR x = 1 TO LEN(a2$)
-        PRINT CHR$(ASC(a2$, x));
-    NEXT
+    ' ### STEVE EDIT TO MAKE QUOTES AND COMMENTS STAND OUT WITH MINOR COLOR ADJUSTMENTS ###
+
+    'FOR x = 1 TO LEN(a2$)
+    '    PRINT CHR$(ASC(a2$, x));
+    'NEXT
+
+    inquote = 0
+    comment = 0
+    FOR k = 1 TO idesx 'First check the part of the line that's off screen to the left
+        SELECT CASE MID$(a$, k, 1)
+            CASE CHR$(34)
+                inquote = NOT inquote
+            CASE "'"
+                IF inquote = 0 THEN
+                    comment = -1
+                END IF
+        END SELECT
+    NEXT k
+    FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
+        SELECT CASE MID$(a$, m + idesx - 1, 1)
+            CASE CHR$(34)
+                inquote = NOT inquote
+            CASE "'"
+                IF inquote = 0 THEN
+                    comment = -1
+                END IF
+        END SELECT
+        IF comment THEN
+            COLOR 11
+        ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
+            COLOR 14
+        ELSE
+            COLOR 15
+        END IF
+        LOCATE y + 3, 2 + m - 1
+        PRINT MID$(a2$, m, 1);
+    NEXT m
+
+    '### END OF STEVE EDIT
 
     'apply selection color change if necessary
     IF ideselect THEN
@@ -37449,4 +37607,316 @@ END IF
 
 END SUB
 
+'Steve Subs/Functins for _MATH support with CONST
+
+FUNCTION get_RPN$ (equat$)
+stack$ = ""
+ostack$ = ""
+e$ = equat$
+DIM fs$(9) '  + constlast + 1)
+fs$(1) = "SIN"
+fs$(2) = "COS"
+fs$(3) = "TAN"
+fs$(4) = "EXP"
+fs$(5) = "LOG"
+fs$(6) = "ATN"
+fs$(7) = "CSC"
+fs$(8) = "SEC"
+fs$(9) = "COT"
+'last_begin_function = 9
+'for x = 0 to constlast
+'  fs$(10 + x) = ucase$(rtrim$(constcname(x)))
+'next x
+FOR m = 1 TO LEN(equat$)
+    num$ = MID$(equat$, m, 1)
+    IF num$ <> " " THEN
+        IF num$ >= "0" AND num$ <= "9" OR num$ = "." THEN
+            'Number
+            num$ = RTRIM$(LTRIM$(STR$(VAL(MID$(equat$, m)))))
+            m = m + LEN(num$) - 1
+            'number
+            stack$ = stack$ + " " + num$
+        ELSE
+            pre = get_precedence(num$)
+            SELECT CASE num$
+                CASE "*", "/", "\", "+", "^"
+                    numadd$ = ""
+                    FOR k = m + 1 TO LEN(equat$)
+                        IF MID$(equat$, k, 1) = " " THEN
+                        ELSEIF MID$(equat$, k, 1) = "-" THEN
+                            numadd$ = RTRIM$(LTRIM$(STR$(VAL(MID$(equat$, k)))))
+                            m = k + LEN(numadd$) - 1
+                            EXIT FOR
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT k
+                    DO WHILE LEN(ostack$) > 0
+                        x$ = pop_stack$(ostack$)
+                        IF get_precedence(x$) >= pre THEN ' OR (get_precedence(x$) = get_precedence("\") and (x$ = "\" or x$ = "/")) THEN
+                            stack$ = stack$ + " " + x$
+                            'ostack$ = MID$(ostack$, 2)
+                        ELSE
+                            push_stack ostack$, x$
+                            EXIT DO
+                        END IF
+                    LOOP
+                    'ostack$ = num$ + ostack$
+                    push_stack ostack$, num$
+                    IF numadd$ > "" THEN stack$ = stack$ + " " + numadd$
+                CASE "-" 'Special case for subtraction, as it could also be a negative sign
+                    'Those signs are the same, and mean the same thing, but if we push
+                    'both negatives to the stack we'll mess-up the answer
+                    IF (MID$(equat$, m + 1, 1) < "0" OR MID$(equat$, m + 1, 1) > "9") AND MID$(equat$, m + 1, 1) <> "." THEN
+                        neg_count = 0
+                        FOR k = m TO LEN(equat$)
+                            IF MID$(equat$, k, 1) <> " " AND MID$(equat$, k, 1) <> "-" THEN
+                                EXIT FOR
+                            ELSEIF MID$(equat$, k, 1) = "-" THEN
+                                neg_count = neg_count + 1
+                                m = k
+                            END IF
+                        NEXT k
+                        IF (neg_count MOD 2) = 0 THEN num$ = "+"
+                        DO WHILE LEN(ostack$) > 0
+                            IF get_precedence(LEFT$(ostack$, 1)) >= pre THEN
+                                x$ = pop_stack$(ostack$) 'LEFT$(ostack$, 1)
+                                stack$ = stack$ + " " + x$
+                                'ostack$ = MID$(ostack$, 2)
+                            ELSE
+                                EXIT DO
+                            END IF
+                        LOOP
+                        push_stack ostack$, num$
+                        'ostack$ = num$ + ostack$
+                    ELSE
+                        FOR x = m + 1 TO LEN(equat$)
+                            IF INSTR("-+*/\^ ", MID$(equat$, x, 1)) THEN
+                                num$ = MID$(equat$, m, x - m)
+                                m = x
+                                EXIT FOR
+                            END IF
+                        NEXT x
+                        IF x = LEN(equat$) THEN num$ = MID$(equat$, m): m = LEN(equat$)
+                        stack$ = stack$ + " " + RTRIM$(LTRIM$(num$))
+                    END IF
+
+                CASE "("
+                    'ostack$ = "( " + ostack$
+                    push_stack ostack$, "("
+                CASE ")"
+                    't$ = pop_stack$(ostack$)
+                    'IF t$ <> "(" THEN
+                    DO
+                        x$ = pop_stack$(ostack$)
+                        'x$ = LEFT$(ostack$, 1)
+                        IF x$ <> "(" THEN
+                            stack$ = stack$ + " " + x$
+                            'ostack$ = MID$(ostack$, 2)
+                        END IF
+                        'IF LEN(ostack$) = 0 THEN EXIT FUNCTION
+                    LOOP UNTIL x$ = "(" 'LEFT$(ostack$, 1) = "("
+                    IF LEN(ostack$) > 0 THEN
+                        tes$ = pop_stack$(ostack$)
+                        push_flag = 0
+                        FOR k = 1 TO UBOUND(fs$) 'last_begin_function
+                            IF tes$ = fs$(k) THEN
+                                stack$ = stack$ + " " + tes$
+                                push_flag = -1
+                            END IF
+                        NEXT k
+                        IF push_flag = 0 THEN push_stack ostack$, tes$
+                    END IF
+                    'END IF
+                    'ostack$ = MID$(ostack$, 2)
+                CASE "P"
+                    IF MID$(equat$, m + 1, 1) = "I" THEN
+                        'push_stack ostack$, "PI"
+                        stack$ = stack$ + " PI"
+                        m = m + 1
+                    END IF
+                CASE ELSE
+                    'k$ = mid$(equat$, m, 3)
+                    error_flag = -1
+                    FOR k = 1 TO UBOUND(fs$) 'last_begin_functionubound(fs$)
+                        IF MID$(equat$, m, LEN(fs$(k))) = fs$(k) AND fs$(k) > "" THEN
+                            push_stack ostack$, fs$(k)
+                            m = m + LEN(fs$(k)) - 1
+                            error_flag = 0
+                        END IF
+                    NEXT k
+
+                    FOR k = 0 TO constlast
+                        IF MID$(equat$, m, LEN(constcname(k))) = UCASE$(constcname(k)) THEN
+                            stack$ = stack$ + " " + UCASE$(constcname(k))
+                            m = m + LEN(constcname(k)) - 1
+                            error_flag = 0
+                        END IF
+                    NEXT k
+            END SELECT
+        END IF
+    END IF
+NEXT m
+DO WHILE LEN(ostack$) > 0
+    'x$ = LEFT$(ostack$, 1)
+    x$ = pop_stack$(ostack$)
+    stack$ = stack$ + " " + x$
+    'ostack$ = MID$(ostack$, 2)
+LOOP
+'PRINT #1, stack$
+get_RPN$ = RTRIM$(LTRIM$(stack$))
+END FUNCTION
+
+FUNCTION get_precedence (o$)
+IF o$ = "^" THEN
+    get_precedence = 4
+ELSEIF o$ = "*" OR o$ = "/" OR o$ = "\" THEN
+    get_precedence = 3
+ELSEIF o$ = "+" OR o$ = "-" THEN
+    get_precedence = 2
+END IF
+END FUNCTION
+
+FUNCTION Calc_RPN## (n$, error_flag, a$)
+'if error_flag is set, then an error will be returned in a$
+'Everything should be seperated with spaces
+'Accepts:
+'  +
+'  -
+'  *
+'  /
+'  \
+'  ^
+' SIN
+' COS
+' TAN
+' ATN
+' LOG
+' EXP
+' SEC
+' CSC
+' COT
+' CONST variable names
+
+stack$ = ""
+s$ = n$
+DO
+    IF INSTR(s$, " ") THEN
+        num$ = MID$(s$, 1, INSTR(s$, " ") - 1)
+        s$ = MID$(s$, INSTR(s$, " ") + 1)
+    ELSE
+        num$ = s$
+        s$ = ""
+    END IF
+    SELECT CASE UCASE$(num$)
+        CASE "LOG"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(LOG(VAL(v1$)))))
+
+        CASE "EXP"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(EXP(VAL(v1$)))))
+
+        CASE "SIN"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(SIN(VAL(v1$)))))
+        CASE "COS"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(COS(VAL(v1$)))))
+
+        CASE "TAN"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(TAN(VAL(v1$)))))
+
+        CASE "ATN"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(ATN(VAL(v1$)))))
+        CASE "SQR"
+            v1$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(SQR(VAL(v1$)))))
+        CASE "PI"
+            push_stack stack$, "3.14159265359"
+        CASE "SEC"
+            v1$ = pop_stack$(stack$)
+            IF COS(VAL(v1$)) = 0 THEN error_flag = -1: a$ = "Division by 0 error, Bad SEC value.": EXIT FUNCTION
+            push_stack stack$, LTRIM$(RTRIM$(STR$(1 / COS(VAL(v1$)))))
+        CASE "CSC"
+            v1$ = pop_stack$(stack$)
+            IF COS(VAL(v1$)) = 0 THEN error_flag = -1: a$ = "Division by 0 error, Bad CSC value.": EXIT FUNCTION
+            push_stack stack$, LTRIM$(RTRIM$(STR$(1 / SIN(VAL(v1$)))))
+        CASE "COT"
+            v1$ = pop_stack$(stack$)
+            IF COS(VAL(v1$)) = 0 THEN error_flag = -1: a$ = "Division by 0 error, Bad COT value.": EXIT FUNCTION
+            push_stack stack$, LTRIM$(RTRIM$(STR$(1 / TAN(VAL(v1$)))))
+        CASE "+"
+            v1$ = pop_stack$(stack$)
+            v2$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(v2$) + VAL(v1$))))
+        CASE "*"
+            v1$ = pop_stack$(stack$)
+            v2$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(v2$) * VAL(v1$))))
+        CASE "/"
+            v1$ = pop_stack$(stack$)
+            v2$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(v2$) / VAL(v1$))))
+        CASE "\"
+            v1$ = pop_stack$(stack$)
+            v2$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(v2$) \ VAL(v1$))))
+        CASE "^"
+            v1$ = pop_stack$(stack$)
+            v2$ = pop_stack$(stack$)
+            push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(v2$) ^ VAL(v1$))))
+        CASE "-"
+            IF LEN(num$) = 1 THEN
+                v1$ = pop_stack$(stack$)
+                v2$ = pop_stack$(stack$)
+                push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(v2$) - VAL(v1$))))
+            ELSE
+                GOTO last_case:
+            END IF
+        CASE ELSE
+            FOR x = 0 TO constlast
+                IF num$ = UCASE$(constcname$(x)) THEN
+                    IF NOT (consttype(x) AND ISSTRING) THEN
+                        IF consttype(x) AND ISFLOAT THEN
+                            num$ = STR$(constfloat(x))
+                        ELSEIF consttype(x) AND ISUNSIGNED THEN
+                            num$ = STR$(constuinteger(x))
+                        ELSE
+                            num$ = STR$(constinteger(x))
+                        END IF
+                        EXIT FOR
+                    ELSE
+                        a$ = "Const variable " + num$ + " is a string."
+                        error_flag = -1
+                        EXIT FUNCTION
+                    END IF
+                END IF
+            NEXT x
+            last_case:
+            push_stack stack$, LTRIM$(RTRIM$(STR$(VAL(num$)))) 'this makes sure it's a number
+    END SELECT
+
+    'print "s= "; s$; "num= ";num$
+LOOP UNTIL LEN(s$) = 0
+Calc_RPN## = VAL(stack$)
+END FUNCTION
+
+FUNCTION pop_stack$ (stack$)
+'Pulls a string from the end of the stack$ variable, removes it from stack$
+'and returns it
+FOR x = LEN(stack$) TO 1 STEP -1
+    IF MID$(stack$, x, 1) = " " THEN
+        pop_stack$ = MID$(stack$, x + 1)
+        stack$ = MID$(stack$, 1, x - 1)
+        EXIT FUNCTION
+    END IF
+NEXT x
+END FUNCTION
+
+SUB push_stack (stack$, value$)
+stack$ = stack$ + " " + value$
+END SUB
 
