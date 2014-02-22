@@ -1,3 +1,27 @@
+if (__ARRAY_STRING_ONAME[2]&1){
+tmp_long=__ARRAY_STRING_ONAME[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_ONAME[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_ONAME[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_ONAME)[8] );
+if (__ARRAY_INTEGER_PL[2]&1){
+if (__ARRAY_INTEGER_PL[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_INTEGER_PL[0]));
+}else{
+free((void*)(__ARRAY_INTEGER_PL[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_PL)[8] );
+if (__ARRAY_STRING_VARS[2]&1){
+tmp_long=__ARRAY_STRING_VARS[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_VARS[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_VARS[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_VARS)[8] );
+qbs_free(__STRING_FILENAME);
+qbs_free(__STRING_DIRNAME);
+qbs_free(__STRING_REFACTOR_SOURCE);
+qbs_free(__STRING_REFACTOR_DEST);
 if (__ARRAY_LONG_DEPENDENCY[2]&1){
 if (__ARRAY_LONG_DEPENDENCY[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_DEPENDENCY[0]));
@@ -867,6 +891,7 @@ qbs_free(__STRING_SS);
 qbs_free(__STRING_FILE_NAMESPACE);
 qbs_free(__STRING_MYLIB);
 qbs_free(__STRING_MYLIBOPT);
+qbs_free(__STRING_WHOLESTV);
 qbs_free(__STRING_CWHOLELINE);
 qbs_free(__STRING_E);
 qbs_free(__STRING_CA);
@@ -878,6 +903,12 @@ qbs_free(__STRING_SIZ);
 qbs_free(__STRING_N);
 qbs_free(__STRING_T);
 qbs_free(__STRING_HASHNAME);
+qbs_free(__STRING_L);
+qbs_free(__STRING_RED);
+qbs_free(__STRING_GREEN);
+qbs_free(__STRING_BLUE);
+qbs_free(__STRING_ALPHA);
+qbs_free(__STRING_VAL);
 qbs_free(__STRING_S);
 qbs_free(__STRING_E2);
 qbs_free(__STRING_SYMBOL);
@@ -899,7 +930,6 @@ qbs_free(__STRING_U);
 qbs_free(__STRING_LABEL);
 qbs_free(__STRING_E1);
 qbs_free(__STRING_AA);
-qbs_free(__STRING_L);
 qbs_free(__STRING_LIBNAME);
 qbs_free(__STRING_HEADERNAME);
 qbs_free(__STRING_AUTOFORMAT_X);

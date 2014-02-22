@@ -517,7 +517,7 @@ extern void sub_rmdir(qbs *str);
 extern long double pow2(long double x,long double y);
 extern int32 func_freefile();
 extern void sub__mousehide();
-extern void sub__mouseshow();
+extern void sub__mouseshow(qbs *style, int32 passed);
 extern float func__mousex();
 extern float func__mousey();
 extern int32 func__mouseinput();
@@ -1016,7 +1016,8 @@ int32 run_from_line=0;
 //run_from_line's value is an index in a list of possible "run from" locations
 //when 0, the program runs from the beginning
 
-void sub__icon(int32 i);
+void sub__icon(int32 i, int32 i2, int32 passed);
+
 
 void sub__display();
 void sub__autodisplay();

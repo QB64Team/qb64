@@ -8,6 +8,13 @@ del /q /s internal\c\parts\*.o >nul 2>nul
 del /q /s internal\c\parts\*.a >nul 2>nul
 del /q /s internal\temp\*.* >nul 2>nul
 
+cd internal/c/c_compiler
+if exist bin\c++.exe goto skipccompextract
+echo Extracting C++ compiler
+7z\7za.exe x -y c_compiler.7z >nul
+:skipccompextract
+cd ../../..
+
 echo Building library 'LibQB'
 cd internal/c/libqb/os/win
 if exist libqb_setup.o del libqb_setup.o

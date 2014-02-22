@@ -1,6 +1,66 @@
+if (__ARRAY_STRING_ONAME[2]&1){
+if (__ARRAY_STRING_ONAME[2]&2){
+tmp_long=__ARRAY_STRING_ONAME[5];
+while(tmp_long--){
+((qbs*)(((uint64*)(__ARRAY_STRING_ONAME[0]))[tmp_long]))->len=0;
+}
+}else{
+tmp_long=__ARRAY_STRING_ONAME[5];
+while(tmp_long--){
+qbs_free((qbs*)(((uint64*)(__ARRAY_STRING_ONAME[0]))[tmp_long]));
+}
+free((void*)(__ARRAY_STRING_ONAME[0]));
+__ARRAY_STRING_ONAME[2]^=1;
+__ARRAY_STRING_ONAME[4]=2147483647;
+__ARRAY_STRING_ONAME[5]=0;
+__ARRAY_STRING_ONAME[6]=0;
+__ARRAY_STRING_ONAME[0]=(ptrszint)&nothingstring;
+}
+}
+if (__ARRAY_INTEGER_PL[2]&1){
+if (__ARRAY_INTEGER_PL[2]&2){
+memset((void*)(__ARRAY_INTEGER_PL[0]),0,__ARRAY_INTEGER_PL[5]*2);
+}else{
+if (__ARRAY_INTEGER_PL[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_INTEGER_PL[0]));
+}else{
+free((void*)(__ARRAY_INTEGER_PL[0]));
+}
+__ARRAY_INTEGER_PL[2]^=1;
+__ARRAY_INTEGER_PL[4]=2147483647;
+__ARRAY_INTEGER_PL[5]=0;
+__ARRAY_INTEGER_PL[6]=0;
+__ARRAY_INTEGER_PL[0]=(ptrszint)nothingvalue;
+}
+}
+if (__ARRAY_STRING_VARS[2]&1){
+if (__ARRAY_STRING_VARS[2]&2){
+tmp_long=__ARRAY_STRING_VARS[5];
+while(tmp_long--){
+((qbs*)(((uint64*)(__ARRAY_STRING_VARS[0]))[tmp_long]))->len=0;
+}
+}else{
+tmp_long=__ARRAY_STRING_VARS[5];
+while(tmp_long--){
+qbs_free((qbs*)(((uint64*)(__ARRAY_STRING_VARS[0]))[tmp_long]));
+}
+free((void*)(__ARRAY_STRING_VARS[0]));
+__ARRAY_STRING_VARS[2]^=1;
+__ARRAY_STRING_VARS[4]=2147483647;
+__ARRAY_STRING_VARS[5]=0;
+__ARRAY_STRING_VARS[6]=0;
+__ARRAY_STRING_VARS[0]=(ptrszint)&nothingstring;
+}
+}
+__STRING_FILENAME->len=0;
+__STRING_DIRNAME->len=0;
+*__INTEGER_QUICKRETURN=0;
 *__LONG_MAKEANDROID=0;
 *__LONG_ALLOWUPDATES=0;
 *__LONG_IDEBUILDMODECHANGED=0;
+__STRING_REFACTOR_SOURCE->len=0;
+__STRING_REFACTOR_DEST->len=0;
+*__LONG_FH=0;
 *__LONG_INCLUDE_GDB_DEBUGGING_INFO=0;
 *__LONG_DEPENDENCY_LAST=0;
 if (__ARRAY_LONG_DEPENDENCY[2]&1){
@@ -2130,7 +2190,6 @@ __STRING_FILE_NAMESPACE->len=0;
 *__LONG_A=0;
 *__LONG_EX_FH=0;
 *__LONG_CLOSEALL=0;
-*__LONG_FH=0;
 *__LONG_LASTUNRESOLVED=0;
 *__LONG_RESIZE=0;
 *__LONG_RESIZE_SCALE=0;
@@ -2148,6 +2207,7 @@ __STRING_MYLIBOPT->len=0;
 *__LONG_I2=0;
 *__LONG_I3=0;
 *__LONG_IDERECOMPILE=0;
+__STRING_WHOLESTV->len=0;
 __STRING_CWHOLELINE->len=0;
 *__LONG_WHOLELINEN=0;
 *__LONG_WHOLELINEI=0;
@@ -2174,6 +2234,22 @@ __STRING_HASHNAME->len=0;
 *__LONG_U=0;
 *__LONG_HASHFLAGS=0;
 *__LONG_ALLOW=0;
+*__LONG_ALTERED=0;
+*__LONG_FINISHED=0;
+*__LONG_L=0;
+__STRING_L->len=0;
+*__LONG_VP=0;
+*__LONG_FIRST=0;
+*__LONG_SECOND=0;
+*__LONG_THIRD=0;
+*__LONG_FOURTH=0;
+__STRING_RED->len=0;
+__STRING_GREEN->len=0;
+__STRING_BLUE->len=0;
+__STRING_ALPHA->len=0;
+__STRING_VAL->len=0;
+*__LONG_WI=0;
+*__LONG_CLR=0;
 *__LONG_PENDING=0;
 *__LONG_TYPEOVERRIDE=0;
 __STRING_S->len=0;
@@ -2232,7 +2308,6 @@ __STRING_E1->len=0;
 *__LONG_EXCEPT=0;
 __STRING_AA->len=0;
 *__LONG_LASTFUSE=0;
-__STRING_L->len=0;
 *__LONG_V1=0;
 *__LONG_V2=0;
 *__LONG_DEFININGTYPEERROR=0;

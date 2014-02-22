@@ -1,16 +1,17 @@
 //Note: Updated 16/1/2013: Switched to QB64.NET IP service
+//Note: Updated 15/7/2013: Switched to 223.27.25.123 because of DNS issues
 
 /*
 PRINT whatismyip$
 
 $CHECKING:OFF
 FUNCTION whatismyip$
-c = _OPENCLIENT("TCP/IP:80:www.qb64.net")
+c = _OPENCLIENT("TCP/IP:80:223.27.25.123")
 IF c = 0 THEN EXIT FUNCTION
 'send request
 e$ = CHR$(13) + CHR$(10)
 x$ = "GET /ip.php HTTP/1.1" + e$
-x$ = x$ + "Host: www.qb64.net" + e$
+x$ = x$ + "Host: 223.27.25.123" + e$
 x$ = x$ + "" + e$
 PUT #c, , x$
 'wait for reply
@@ -117,7 +118,7 @@ mem_lock *sf_mem_lock;
 new_mem_lock();
 sf_mem_lock=mem_lock_tmp;
 sf_mem_lock->type=3;
-*_FUNC_WHATISMYIP_SINGLE_C=func__openclient(qbs_new_txt_len("TCP/IP:80:www.qb64.net",22));
+*_FUNC_WHATISMYIP_SINGLE_C=func__openclient(qbs_new_txt_len("TCP/IP:80:223.27.25.123",23));
 qbs_cleanup(qbs_tmp_base,0);
 if ((-(*_FUNC_WHATISMYIP_SINGLE_C== 0 ))||new_error){
 goto exit_subfunc;
@@ -126,7 +127,7 @@ qbs_set(_FUNC_WHATISMYIP_STRING_E,qbs_add(func_chr( 13 ),func_chr( 10 )));
 qbs_cleanup(qbs_tmp_base,0);
 qbs_set(_FUNC_WHATISMYIP_STRING_X,qbs_add(qbs_new_txt_len("GET /ip.php HTTP/1.1",20),_FUNC_WHATISMYIP_STRING_E));
 qbs_cleanup(qbs_tmp_base,0);
-qbs_set(_FUNC_WHATISMYIP_STRING_X,qbs_add(qbs_add(_FUNC_WHATISMYIP_STRING_X,qbs_new_txt_len("Host: www.qb64.net",18)),_FUNC_WHATISMYIP_STRING_E));
+qbs_set(_FUNC_WHATISMYIP_STRING_X,qbs_add(qbs_add(_FUNC_WHATISMYIP_STRING_X,qbs_new_txt_len("Host: 223.27.25.123",19)),_FUNC_WHATISMYIP_STRING_E));
 qbs_cleanup(qbs_tmp_base,0);
 qbs_set(_FUNC_WHATISMYIP_STRING_X,qbs_add(qbs_add(_FUNC_WHATISMYIP_STRING_X,qbs_new_txt_len("",0)),_FUNC_WHATISMYIP_STRING_E));
 qbs_cleanup(qbs_tmp_base,0);

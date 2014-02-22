@@ -27,6 +27,17 @@ DIM SHARED AllowUpdates
 DIM SHARED IDEBuildModeChanged
 
 
+'refactor patch
+DIM SHARED Refactor_Source AS STRING
+DIM SHARED Refactor_Dest AS STRING
+IF _FILEEXISTS("refactor.txt") THEN
+    fh = FREEFILE
+    OPEN "refactor.txt" FOR INPUT AS #fh
+    LINE INPUT #fh, Refactor_Source
+    LINE INPUT #fh, Refactor_Dest
+    CLOSE fh
+END IF
+
 IF _DIREXISTS("internal") = 0 THEN
     _SCREENSHOW
     PRINT "QB64 cannot locate the 'internal' folder"
@@ -107,6 +118,7 @@ IF ConsoleMode THEN
 ELSE
     _CONSOLE OFF
     _SCREENSHOW
+    _ICON
 END IF
 
 DIM SHARED NoChecks
@@ -1841,6 +1853,7 @@ subfunc = ""
 'import _MEM type
 ptrsz = OS_BITS \ 8
 
+IF Cloud = 0 THEN
 lasttype = lasttype + 1: i = lasttype
 udtxname(i) = "_MEM"
 udtxcname(i) = "_MEM"
@@ -1905,7 +1918,7 @@ udtenext(i3) = i2
 udtenext(i2) = 0
 
 
-
+END IF 'cloud = 0
 
 
 
@@ -3002,6 +3015,7 @@ DO
         END IF
 
         IF a3u$ = "$CONSOLE" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$CONSOLE"
             Console = 1
             GOTO finishednonexec
@@ -3013,28 +3027,33 @@ DO
             GOTO finishednonexec
         END IF
         IF a3u$ = "$SCREENSHOW" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$SCREENSHOW"
             ScreenHide = 0
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$RESIZE:OFF" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:OFF"
             Resize = 0: Resize_Scale = 0
             GOTO finishednonexec
         END IF
         IF a3u$ = "$RESIZE:ON" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:ON"
             Resize = 1: Resize_Scale = 0
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$RESIZE:STRETCH" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:STRETCH"
             Resize = 1: Resize_Scale = 1
             GOTO finishednonexec
         END IF
         IF a3u$ = "$RESIZE:SMOOTH" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:SMOOTH"
             Resize = 1: Resize_Scale = 2
             GOTO finishednonexec
@@ -7839,6 +7858,7 @@ DO
                 END IF
             ELSE
                 'assume it's a string containing a filename to execute
+                IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
                 e$ = evaluatetotyp(e$, ISSTRING)
                 IF Error_Happened THEN GOTO errmes
                 PRINT #12, "sub_run(" + e$ + ");"
@@ -8129,6 +8149,7 @@ DO
     '(_MEM) _MEMPUT _MEMGET
     IF n >= 1 THEN
         IF firstelement$ = "_MEMGET" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             'get expressions
             e$ = ""
             B = 0
@@ -8228,6 +8249,7 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "_MEMPUT" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             'get expressions
             typ$ = ""
             e$ = ""
@@ -8364,6 +8386,7 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "_MEMFILL" THEN
+            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             'get expressions
             typ$ = ""
             e$ = ""
@@ -8720,6 +8743,12 @@ DO
                         NEXT
                     END IF
                 END IF
+
+
+                IF id.NoCloud THEN
+                    IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
+                END IF
+
                 'generate error on driect _GL call
                 IF firstelement$ = "_GL" THEN a$ = "Cannot call SUB _GL directly": GOTO errmes
 
@@ -11009,6 +11038,7 @@ x = INSTR(ver$, "."): IF x THEN ASC(ver$, x) = 95 'change "." to "_"
 libs$ = ""
 
 IF DEPENDENCY(DEPENDENCY_GL) THEN
+    IF Cloud THEN a$ = "GL not supported on QLOUD": GOTO errmes '***NOCLOUD***
     defines$ = defines$ + defines_header$ + "DEPENDENCY_GL"
 END IF
 
@@ -16106,6 +16136,10 @@ END IF
 
 skipargnumchk:
 
+IF id2.NoCloud THEN
+    IF Cloud THEN Give_Error "Feature not supported on QLOUD" '***NOCLOUD***
+END IF
+
 r$ = RTRIM$(id2.callname) + "("
 
 
@@ -16304,7 +16338,6 @@ IF id2.args <> 0 THEN
                         targettyp = -7
                     END IF
                     IF args = 2 THEN
-                        IF Cloud THEN Give_Error "Feature not supported on QLOUD" '***NOCLOUD***
                         r$ = RTRIM$(id2.callname) + "_at_offset" + RIGHT$(r$, LEN(r$) - LEN(RTRIM$(id2.callname)))
                         IF (sourcetyp AND ISOFFSET) = 0 THEN Give_Error "Expected _MEM(_OFFSET-value,...)": EXIT FUNCTION
                     END IF
@@ -20205,6 +20238,7 @@ FOR x = 1 TO LEN(c$)
         END IF
 
         IF MID$(c$, x, 8) = "$INCLUDE" THEN
+            IF Cloud THEN Give_Error "Feature not supported on QLOUD": EXIT FUNCTION
             'note: INCLUDE adds the file AFTER the line it is on has been processed
             'note: No other metacommands can follow the INCLUDE metacommand!
             'skip spaces until :
@@ -20584,6 +20618,14 @@ IF ASC(id.cn) = 32 THEN
     id.cn = n$
 END IF
 
+IF LEN(Refactor_Source) THEN
+    n$ = RTRIM$(id.n)
+    IF UCASE$(n$) = UCASE$(Refactor_Source) THEN
+        id.cn = Refactor_Dest
+    END IF
+END IF
+
+
 id.insubfunc = subfunc
 id.insubfuncn = subfuncn
 
@@ -20910,6 +20952,7 @@ id.callname = "sub__glrender"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "{_BEHIND|_ONTOP|_ONLY}"
+id.NoCloud = 1
 regid
 
 
@@ -20921,6 +20964,7 @@ id.callname = "func__memget"
 id.args = 3
 id.arg = MKL$(UDTTYPE + (1)) + MKL$(OFFSETTYPE - ISPOINTER) + MKL$(-1) 'x = _MEMGET(block, offset, type)
 id.ret = -1
+id.NoCloud = 1
 regid
 
 clearid
@@ -20933,6 +20977,7 @@ id.args = 2
 id.arg = MKL$(OFFSETTYPE - ISPOINTER) + MKL$(OFFSETTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
+id.NoCloud = 1
 regid
 '---special case---
 
@@ -20943,6 +20988,7 @@ id.callname = "func__mem"
 id.args = 1
 id.arg = MKL$(-8)
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
+id.NoCloud = 1
 regid
 '---special case---
 
@@ -20954,6 +21000,7 @@ id.subfunc = 2
 id.callname = "sub__memfree"
 id.args = 1
 id.arg = MKL$(UDTTYPE + (1))
+id.NoCloud = 1
 regid
 
 clearid
@@ -20963,6 +21010,7 @@ id.callname = "func__memexists"
 id.args = 1
 id.arg = MKL$(UDTTYPE + (1))
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -20972,6 +21020,7 @@ id.callname = "func__memnew"
 id.args = 1
 id.arg = MKL$(OFFSETTYPE - ISPOINTER)
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
+id.NoCloud = 1
 regid
 
 clearid
@@ -20982,6 +21031,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]" 'dest is default
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
+id.NoCloud = 1
 regid
 
 clearid '_MEMCOPY a, aoffset, bytes TO b, boffset
@@ -20991,6 +21041,7 @@ id.callname = "sub__memcopy"
 id.args = 5
 id.arg = MKL$(UDTTYPE + (1)) + MKL$(OFFSETTYPE - ISPOINTER) + MKL$(OFFSETTYPE - ISPOINTER) + MKL$(UDTTYPE + (1)) + MKL$(OFFSETTYPE - ISPOINTER)
 id.specialformat = "?,?,?{TO}?,?" 'dest is default
+id.NoCloud = 1
 regid
 
 clearid
@@ -20999,18 +21050,21 @@ id.subfunc = 2
 id.callname = "sub__consoletitle"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
 id.n = "_SCREENSHOW"
 id.subfunc = 2
 id.callname = "sub__screenshow"
+id.NoCloud = 1
 regid
 
 clearid
 id.n = "_SCREENHIDE"
 id.subfunc = 2
 id.callname = "sub__screenhide"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21018,6 +21072,7 @@ id.n = "_CONSOLE"
 id.subfunc = 1
 id.callname = "func__console"
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -21027,6 +21082,7 @@ id.callname = "sub__console"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "{ON|OFF}"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21287,6 +21343,7 @@ id.callname = "sub_files"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "[?]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21297,6 +21354,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 ''proposed version:
 ''id.specialformat = "[_SQUAREPIXELS][?][,(?,?)-(?,?)]"
+id.NoCloud = 1
 regid
 
 'remote desktop
@@ -21307,6 +21365,7 @@ id.subfunc = 2
 id.callname = "sub__screenclick"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -21315,6 +21374,7 @@ id.subfunc = 2
 id.callname = "sub__screenprint"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -21326,6 +21386,7 @@ id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE
 id.specialformat = "[?,?,?,?]"
 id.ret = LONGTYPE - ISPOINTER
 id.Dependency = DEPENDENCY_IMAGE_CODEC 'used by OSX to read in screen capture files
+id.NoCloud = 1
 regid
 
 
@@ -21339,6 +21400,7 @@ id.callname = "sub_lock"
 id.args = 3
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER)
 id.specialformat = "[#]?[,[?][{TO}?]]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21348,6 +21410,7 @@ id.callname = "sub_unlock"
 id.args = 3
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER)
 id.specialformat = "[#]?[,[?][{TO}?]]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21373,6 +21436,7 @@ id.callname = "sub__fullscreen"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS}][,{_SMOOTH}]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21380,6 +21444,7 @@ id.n = "_FULLSCREEN"
 id.subfunc = 1
 id.callname = "func__fullscreen"
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -21390,6 +21455,7 @@ id.callname = "sub__clipboard"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "=?"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21398,6 +21464,7 @@ id.musthave = "$"
 id.subfunc = 1
 id.callname = "func__clipboard"
 id.ret = STRINGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -21451,6 +21518,7 @@ id.callname = "func__openclient"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 
@@ -21462,6 +21530,7 @@ id.callname = "func_environ"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -21470,6 +21539,7 @@ id.subfunc = 2
 id.callname = "sub_environ"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -21512,8 +21582,10 @@ clearid
 id.n = "_ICON"
 id.subfunc = 2
 id.callname = "sub__icon"
-id.args = 1
-id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?[,?]]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -21522,6 +21594,7 @@ id.subfunc = 2
 id.callname = "sub__title"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22006,6 +22079,7 @@ id.subfunc = 2
 id.callname = "sub_play"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+'id.NoCloud = 1
 regid
 
 clearid
@@ -22015,6 +22089,7 @@ id.callname = "func_play"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 'QB64 MOUSE
@@ -22022,6 +22097,9 @@ clearid
 id.n = "_MOUSESHOW"
 id.subfunc = 2
 id.callname = "sub__mouseshow"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
@@ -22112,6 +22190,7 @@ id.subfunc = 2
 id.callname = "sub_chdir"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 0 'allowed so initial subfolder can be entered
 regid
 
 clearid
@@ -22129,6 +22208,7 @@ id.subfunc = 2
 id.callname = "sub_rmdir"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22200,6 +22280,7 @@ id.subfunc = 1
 id.callname = "func_command"
 id.args = 0
 id.ret = STRINGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 'QB64 AUDIO
@@ -22209,6 +22290,7 @@ id.n = "_SNDRATE": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 1
 id.callname = "func__sndrate"
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22218,6 +22300,7 @@ id.callname = "sub__sndraw"
 id.args = 3
 id.arg = MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?[,[?][,?]]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -22227,6 +22310,7 @@ id.callname = "sub__sndrawdone"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -22234,6 +22318,7 @@ id.n = "_SNDOPENRAW": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 1
 id.callname = "func__sndopenraw"
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22244,6 +22329,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]"
 id.ret = DOUBLETYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22253,6 +22339,7 @@ id.callname = "func__sndlen"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = SINGLETYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22262,6 +22349,7 @@ id.callname = "func__sndpaused"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22271,6 +22359,7 @@ id.callname = "sub__sndplayfile"
 id.args = 3
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "?[,[?][,?]]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -22280,6 +22369,7 @@ id.callname = "sub__sndplaycopy"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
+id.NoCloud = 1
 regid
 
 clearid
@@ -22288,6 +22378,7 @@ id.subfunc = 2
 id.callname = "sub__sndstop"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22296,6 +22387,7 @@ id.subfunc = 2
 id.callname = "sub__sndloop"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22304,6 +22396,7 @@ id.subfunc = 2
 id.callname = "sub__sndlimit"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22314,6 +22407,7 @@ id.args = 2
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = ULONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22322,6 +22416,7 @@ id.subfunc = 2
 id.callname = "sub__sndsetpos"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22331,6 +22426,7 @@ id.callname = "func__sndgetpos"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = SINGLETYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22340,6 +22436,7 @@ id.callname = "func__sndplaying"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22348,6 +22445,7 @@ id.subfunc = 2
 id.callname = "sub__sndpause"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22357,6 +22455,7 @@ id.callname = "sub__sndbal"
 id.args = 4
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "?,[?][,[?][,[?]]]"
+id.NoCloud = 1
 regid
 
 
@@ -22366,6 +22465,7 @@ id.subfunc = 2
 id.callname = "sub__sndvol"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22374,6 +22474,7 @@ id.subfunc = 2
 id.callname = "sub__sndplay"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -22383,6 +22484,7 @@ id.callname = "func__sndcopy"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = ULONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -22391,6 +22493,7 @@ id.subfunc = 2
 id.callname = "sub__sndclose"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -23180,6 +23283,7 @@ id.subfunc = 2
 id.callname = "sub_sound"
 id.args = 2
 id.arg = MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER)
+'id.NoCloud = 1
 regid
 
 clearid
@@ -23187,6 +23291,7 @@ id.n = "BEEP": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 2
 id.callname = "sub_beep"
 id.args = 0
+'id.NoCloud = 1
 regid
 
 clearid
@@ -23440,14 +23545,7 @@ id.subfunc = 2
 id.callname = "qbs_lprint" 'not called directly
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-regid
-
-clearid
-id.n = "LPRINT"
-id.subfunc = 2
-id.callname = "qbs_lprint" 'not called directly
-id.args = 1
-id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
 regid
 
 clearid
@@ -23457,6 +23555,7 @@ id.callname = "func_lpos"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 reginternalsubfunc = 0
@@ -24241,8 +24340,10 @@ IF typ AND ISUDT THEN
     i = INSTR(a$, sp3): o$ = RIGHT$(a$, LEN(a$) - i)
     n$ = "UDT_" + RTRIM$(id.n): IF id.t = 0 THEN n$ = "ARRAY_" + n$ + "[0]"
 
-    IF E <> 0 AND u = 1 THEN 'Setting _MEM type elements is not allowed!
-        Give_Error "Cannot set read-only element of _MEM TYPE": EXIT SUB
+    IF Cloud = 0 THEN
+        IF E <> 0 AND u = 1 THEN 'Setting _MEM type elements is not allowed!
+            Give_Error "Cannot set read-only element of _MEM TYPE": EXIT SUB
+        END IF
     END IF
 
     IF E = 0 THEN
