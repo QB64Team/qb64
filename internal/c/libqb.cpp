@@ -20462,10 +20462,12 @@ SDL_Delay(0);
 //6. Enable autodisplay
 autodisplay=1;
 //7. Wait for a new keypress
-do{
+/*do{
 SDL_Delay(0);
 if (stop_program) end();
-}while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),qbs_new_txt(""))));
+}while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),qbs_new_txt(""))));*/
+sub_sleep(NULL, 0);
+
 }else{
 if (console){
 //screen is hidden, console is visible

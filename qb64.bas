@@ -1854,68 +1854,68 @@ subfunc = ""
 ptrsz = OS_BITS \ 8
 
 IF Cloud = 0 THEN
-lasttype = lasttype + 1: i = lasttype
-udtxname(i) = "_MEM"
-udtxcname(i) = "_MEM"
-udtxsize(i) = ((ptrsz) * 4 + (4) * 2 + (8) * 1) * 8
-udtxbytealign(i) = 1
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "OFFSET"
-udtecname(i2) = "OFFSET"
-udtebytealign(i2) = 1
-udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-udtetypesize(i2) = 0 'tsize
-udtxnext(i) = i2
-i3 = i2
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "SIZE"
-udtecname(i2) = "SIZE"
-udtebytealign(i2) = 1
-udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-udtetypesize(i2) = 0 'tsize
-udtenext(i3) = i2
-i3 = i2
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "$_LOCK_ID"
-udtecname(i2) = "$_LOCK_ID"
-udtebytealign(i2) = 1
-udtetype(i2) = INTEGER64TYPE: udtesize(i2) = 64
-udtetypesize(i2) = 0 'tsize
-udtenext(i3) = i2
-i3 = i2
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "$_LOCK_OFFSET"
-udtecname(i2) = "$_LOCK_OFFSET"
-udtebytealign(i2) = 1
-udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-udtetypesize(i2) = 0 'tsize
-udtenext(i3) = i2
-i3 = i2
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "TYPE"
-udtecname(i2) = "TYPE"
-udtebytealign(i2) = 1
-udtetype(i2) = LONGTYPE: udtesize(i2) = 32
-udtetypesize(i2) = 0 'tsize
-udtenext(i3) = i2
-i3 = i2
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "ELEMENTSIZE"
-udtecname(i2) = "ELEMENTSIZE"
-udtebytealign(i2) = 1
-udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-udtetypesize(i2) = 0 'tsize
-udtenext(i3) = i2
-udtenext(i2) = 0
-i3 = i2
-lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-udtename(i2) = "IMAGE"
-udtecname(i2) = "IMAGE"
-udtebytealign(i2) = 1
-udtetype(i2) = LONGTYPE: udtesize(i2) = 32
-udtetypesize(i2) = 0 'tsize
-udtenext(i3) = i2
-udtenext(i2) = 0
+    lasttype = lasttype + 1: i = lasttype
+    udtxname(i) = "_MEM"
+    udtxcname(i) = "_MEM"
+    udtxsize(i) = ((ptrsz) * 4 + (4) * 2 + (8) * 1) * 8
+    udtxbytealign(i) = 1
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "OFFSET"
+    udtecname(i2) = "OFFSET"
+    udtebytealign(i2) = 1
+    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+    udtetypesize(i2) = 0 'tsize
+    udtxnext(i) = i2
+    i3 = i2
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "SIZE"
+    udtecname(i2) = "SIZE"
+    udtebytealign(i2) = 1
+    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+    udtetypesize(i2) = 0 'tsize
+    udtenext(i3) = i2
+    i3 = i2
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "$_LOCK_ID"
+    udtecname(i2) = "$_LOCK_ID"
+    udtebytealign(i2) = 1
+    udtetype(i2) = INTEGER64TYPE: udtesize(i2) = 64
+    udtetypesize(i2) = 0 'tsize
+    udtenext(i3) = i2
+    i3 = i2
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "$_LOCK_OFFSET"
+    udtecname(i2) = "$_LOCK_OFFSET"
+    udtebytealign(i2) = 1
+    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+    udtetypesize(i2) = 0 'tsize
+    udtenext(i3) = i2
+    i3 = i2
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "TYPE"
+    udtecname(i2) = "TYPE"
+    udtebytealign(i2) = 1
+    udtetype(i2) = LONGTYPE: udtesize(i2) = 32
+    udtetypesize(i2) = 0 'tsize
+    udtenext(i3) = i2
+    i3 = i2
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "ELEMENTSIZE"
+    udtecname(i2) = "ELEMENTSIZE"
+    udtebytealign(i2) = 1
+    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+    udtetypesize(i2) = 0 'tsize
+    udtenext(i3) = i2
+    udtenext(i2) = 0
+    i3 = i2
+    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+    udtename(i2) = "IMAGE"
+    udtecname(i2) = "IMAGE"
+    udtebytealign(i2) = 1
+    udtetype(i2) = LONGTYPE: udtesize(i2) = 32
+    udtetypesize(i2) = 0 'tsize
+    udtenext(i3) = i2
+    udtenext(i2) = 0
 
 
 END IF 'cloud = 0
@@ -37668,31 +37668,36 @@ IF b THEN t$ = MID$(e$, b + 3): var$ = UCASE$(LTRIM$(RTRIM$(MID$(e$, 1, b - 1)))
 
 QuickReturn = 0
 PreParse t$
+
 IF QuickReturn THEN Evaluate_Expression$ = t$: EXIT FUNCTION
 
 IF LEFT$(t$, 5) = "ERROR" THEN Evaluate_Expression$ = t$: EXIT FUNCTION
 
 'Deal with brackets first
 exp$ = "(" + t$ + ")" 'Starting and finishing brackets for our parse routine.
+
 DO
-    E = INSTR(exp$, ")")
-    IF E > 0 THEN
+    Eval_E = INSTR(exp$, ")")
+    IF Eval_E > 0 THEN
         c = 0
-        DO UNTIL E - c <= 0
+        DO UNTIL Eval_E - c <= 0
             c = c + 1
-            IF E THEN
-                IF MID$(exp$, E - c, 1) = "(" THEN EXIT DO
+            IF Eval_E THEN
+                IF MID$(exp$, Eval_E - c, 1) = "(" THEN EXIT DO
             END IF
         LOOP
-        s = E - c + 1
+        s = Eval_E - c + 1
         IF s < 1 THEN PRINT "ERROR -- BAD () Count": END
-        eval$ = " " + MID$(exp$, s, E - s) + " " 'pad with a space before and after so the parser can pick up the values properly.
+        eval$ = " " + MID$(exp$, s, Eval_E - s) + " " 'pad with a space before and after so the parser can pick up the values properly.
         ParseExpression eval$
+
         eval$ = LTRIM$(RTRIM$(eval$))
         IF LEFT$(eval$, 5) = "ERROR" THEN Evaluate_Expression$ = eval$: EXIT SUB
-        exp$ = DWD(LEFT$(exp$, s - 2) + eval$ + MID$(exp$, E + 1))
+        exp$ = DWD(LEFT$(exp$, s - 2) + eval$ + MID$(exp$, Eval_E + 1))
+
+        temppp$ = DWD(LEFT$(exp$, s - 2) + " ## " + eval$ + " ## " + MID$(exp$, E + 1))
     END IF
-LOOP UNTIL E = 0
+LOOP UNTIL Eval_E = 0
 c = 0
 DO
     c = c + 1
