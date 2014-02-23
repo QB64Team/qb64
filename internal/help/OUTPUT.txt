@@ -1,0 +1,49 @@
+The '''OUTPUT''' file mode is used in an [[OPEN]] statement to send new data to Files or Ports.
+
+
+
+{{PageSyntax}}
+:: OPEN FileName$ FOR OUTPUT AS #1
+
+
+
+* OUTPUT mode erases all previous data in an existing file or clears a port receive buffer!
+* Creates an empty file if the filename does not exist. Use [[APPEND]] if previous file data is to be preserved.
+* Mode can use [[PRINT (file statement)|PRINT]], [[WRITE (file statement)|WRITE]] or [[PRINT USING (file statement)|PRINT USING]] to output file data.
+
+
+''Example:'' Writes new data to a text file sequentially and reads it back to the program screen.
+{{CodeStart}} '' ''
+filename$ = &quot;testfile.dat&quot; 
+x = 1: y = 2: z$ = &quot;Three&quot; 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
+
+{{Cl|WRITE (file statement)|WRITE}} #1, x, y, z$ 
+
+{{Cl|CLOSE}} #1 
+
+{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+
+K$ = {{Cl|INPUT$}}(1) 'press a key 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #2 'opens a file to read it 
+
+{{Cl|INPUT (file statement)|INPUT}} #2, a, b, c$ 
+
+{{Cl|CLOSE}} #2 
+
+{{Cl|PRINT}} a, b, c$ 
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+
+* [[APPEND]], [[RANDOM]]
+* [[INPUT (file mode)]], [[BINARY]]
+* [[WRITE]], [[INPUT (file statement)]]
+
+
+{{PageNavigation}}

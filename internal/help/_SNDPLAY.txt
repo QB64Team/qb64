@@ -1,0 +1,26 @@
+The {{KW|_SNDPLAY}} statement plays a sound designated by a file handle created by {{KW|_SNDOPEN}}.
+
+
+{{PageSyntax}}
+:{{KW|_SNDPLAY}} ({{Parameter|handle&amp;}})
+
+
+{{PageDescription}}
+* Make sure that the handle value is not 0 before attempting to play it.
+
+
+{{PageExamples}}
+
+''Example:'' Checking a handle value before playing
+{{CodeStart}}
+
+   {{Cl|IF...THEN|IF}} h&amp; {{Cl|THEN}} {{Cl|_SNDPLAY}} h&amp;
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDPAUSE}}, {{KW|_SNDPLAYING}}
+
+
+{{PageNavigation}}

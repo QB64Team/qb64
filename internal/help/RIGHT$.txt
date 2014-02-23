@@ -1,0 +1,54 @@
+The '''RIGHT$''' function returns a set number of characters in a [[STRING]] variable starting from the end and counting backwards.
+
+
+
+{{PageSyntax}}
+:: RIGHT$(stringvalue$, numberofcharacters%)
+
+
+* The string value can be any string of [[ASCII]] characters as a string variable.
+* If the number of characters exceeds the string length([[LEN]]) the entire string is returned.
+* Number of characters cannot be a negative value.
+* RIGHT$ returns always start at the last character of the string, even if a space. [[RTRIM$]] can remove ending spaces.
+
+
+''Example 1:'' Getting the right portion of a string value such as a person's last name. 
+{{CodeStart}} '' ''
+name$ = &quot;Tom Williams&quot;
+
+Last$ = {{Cl|RIGHT$}}(name$, {{Cl|LEN}}(name$) - {{Cl|INSTR}}(name$, &quot; &quot;)) 'subtract space position from string length
+
+{{Cl|PRINT}} Last$ '' ''
+{{CodeEnd}}
+{{OutputStart}}Williams {{OutputEnd}}
+
+
+''Example 2:'' Adding the leading zero in single digit [[HEX$]] values using RIGHT to take the right two hexadecimal string digits.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) '32 bit screen modes ONLY!
+red = 255
+green = 0
+blue = 128
+
+Color32 red, green, blue
+{{Cl|PRINT}} &quot;Colored text&quot;
+
+{{Cl|SUB}} Color32 (R, G, B)
+R = R {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FF: G = G {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FF: B = B {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FF '    limit values to 0 to 255
+hexadecimal$ = &quot;{{Cl|&amp;H}}FF&quot; + {{Cl|RIGHT$}}(&quot;0&quot; + {{Cl|HEX$}}(R), 2) + {{Cl|RIGHT$}}(&quot;0&quot; + {{Cl|HEX$}}(G), 2) + {{Cl|RIGHT$}}(&quot;0&quot; + {{Cl|HEX$}}(B), 2)
+{{Cl|PRINT}} hexadecimal$
+{{Cl|COLOR}} {{Cl|VAL}}(hexadecimal$)
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{OutputStart}}'''{{text|&amp;HFFFF0080|white}}'''
+'''{{text|Colored text|#FF0080}}'''{{OutputEnd}}
+: ''Note:'' When a single hexadecimal digit is returned the resulting value will need the leading zero added. Otherwise the hexa- decimal value created will have a byte missing from the value. EX: Color &amp;HFF000000 is valid while &amp;HFF000 is not.
+
+
+''See also:'' 
+* [[LEFT$]], [[MID$]] 
+* [[LTRIM$]], [[RTRIM$]] 
+* [[INSTR]], [[HEX$]]
+
+
+{{PageNavigation}}

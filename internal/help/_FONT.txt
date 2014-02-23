@@ -1,0 +1,79 @@
+The '''_FONT''' statement sets the current [[_LOADFONT]] function font handle to be used by [[PRINT]]. 
+
+
+{{PageSyntax}}
+::: '''_FONT ''Font_handle'''''[, ''Image_handle&amp;'']
+
+
+{{Parameters}}
+* {{Parameter|Font_handle}} is the handle retrieved from {{KW|_LOADFONT}} function, the {{KW|_FONT (function)|_FONT}} function, or a predefined handle.
+* If the image handle is omitted the current image [[_DEST]]ination is used. Zero can designate the current program [[SCREEN]].
+
+
+''Usage:''
+* Predefined '''QB64''' font handle numbers can be used before freeing a font:
+**'''_FONT 8 ''' - default font for [[SCREEN (statement)|SCREEN]] 1, 2, 7, 8 or 13
+**'''_FONT 14''' - default font for [[SCREEN (statement)|SCREEN]] 9 or 10
+**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ({{KW|WIDTH}} 80, 25 text only), 11 or 12
+**'''_FONT 9, 15''' and '''17''' are the double width versions of 8, 14 and 16 respectively in text '''SCREEN 0 only'''.
+* {{KW|Unicode}} characters can be assigned to a monospace font that contains those unicode characters using the {{KW|_MAPUNICODE}} TO {{KW|ASCII}} mapping statement. The optional '''IME cyberbit.ttf''' font included with QB64 can also be used.
+* Can alpha blend a font with a background screen created by {{KW|_NEWIMAGE}} in 32 bit color.
+* '''Check for valid handle values greater than 0 before using or freeing font handles!'''
+* Free '''unused''' font handles with {{KW|_FREEFONT}}. Freeing invalid handles will create an [[ERROR Codes|&quot;illegal function call&quot;]] error!
+* '''NOTE: SCREEN 0 can only use ONE font type and style per viewed SCREEN page! Font size may also affect the window size.'''
+
+
+''Example:'' Previewing a font in SCREEN 0. A different true type font can be substituted. 
+{{CodeStart}}
+
+fontpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;) + &quot;\fonts\lucon.ttf&quot; 'Find Windows Folder Path.
+{{Cl|DO}}: {{Cl|CLS}}
+  {{Cl|DO}}
+    style$ = &quot;MONOSPACE&quot;
+    {{Cl|PRINT}}
+    {{Cl|INPUT}} &quot;Enter A FONT Size 8 {{Cl|TO}} 25: &quot;, fontsize%
+  {{Cl|LOOP}} {{Cl|UNTIL}} fontsize% &gt; 7 and fontsize% &lt; 26
+  {{Cl|DO}}
+    {{Cl|PRINT}}
+    {{Cl|INPUT}} &quot;Enter (0) for REGULAR {{Cl|OR}} (1) for ITALIC FONT: &quot;, italic%
+  {{Cl|LOOP}} {{Cl|UNTIL}} italic% = 0 or italic% = 1
+  {{Cl|DO}}
+    {{Cl|PRINT}}
+    {{Cl|INPUT}} &quot;Enter (0) for REGULAR {{Cl|OR}} (1) for BOLD FONT: &quot;, bold%
+  {{Cl|LOOP}} {{Cl|UNTIL}} italic% = 0 or italic% = 1
+  {{Cl|IF}} italic% = 1 {{Cl|THEN}} style$ = style$ + &quot;, ITALIC&quot;
+  {{Cl|IF}} bold% = 1 then style$ = style$ + &quot;, BOLD&quot;
+
+  {{Cl|GOSUB}} ClearFont
+  font&amp; = {{Cl|_LOADFONT}}(fontpath$, fontsize%, style$)
+  {{Cl|_FONT|_FONT }}font&amp;  
+  {{Cl|PRINT}}
+  {{Cl|PRINT}} &quot;This is your LUCON font! Want to try another STYLE?(Y/N): &quot;; 
+  {{Cl|DO}}: {{Cl|SLEEP}}: K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}): {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;Y&quot; {{Cl|OR}} K$ = &quot;N&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;N&quot;
+{{Cl|GOSUB}} ClearFont
+
+{{Cl|PRINT}} &quot;This is the QB64 default {{Cl|_FONT|_FONT }}16!&quot;
+{{Cl|END}}
+
+ClearFont: 
+{{Cl|IF}} font&amp; &gt; 0 {{Cl|THEN}}
+    {{Cl|_FONT|_FONT }}16   'select inbuilt 8x16 default font
+    {{Cl|_FREEFONT}} font&amp;
+{{Cl|END IF}}
+{{Cl|RETURN}}
+
+{{CodeEnd}}
+'''NOTE:''' [[ENVIRON$]](&quot;SYSTEMROOT&quot;) returns a string value of: &quot;C:\WINDOWS&quot;. Add the &quot;\FONTS\&quot; folder and the '''.TTF''' font file name.
+
+
+
+
+{{PageSeeAlso}}
+* [[_FONT (function)]]
+* [[_LOADFONT]], [[_FREEFONT]]
+* [[Unicode]], [[_MAPUNICODE]]
+* [[Windows_Libraries#Font_Dialog_Box|Windows Font Dialog Box]]
+
+
+{{PageNavigation}}

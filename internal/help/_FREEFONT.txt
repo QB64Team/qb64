@@ -1,0 +1,95 @@
+The '''_FREEFONT''' statement frees a font handle that was created by {{KW|_LOADFONT}}.
+
+
+
+{{PageSyntax}}: {{KW|_FREEFONT}} (font_handle&amp;)
+
+
+* Unloads fonts to free memory and resources.
+* If the font handle is invalid(equals -1 or 0), an [[ERROR Codes|error]] will occur! '''Check handle values before using or freeing them!'''
+* You cannot free a font which is in use. Change the font to a QB64 default font size before freeing the handle(see example). 
+* Predefined '''QB64''' font handle numbers can be used before freeing a font:
+**'''_FONT 8 ''' - default font for [[SCREEN (statement)|SCREEN]] 1, 2, 7, 8 or 13
+**'''_FONT 14''' - default font for [[SCREEN (statement)|SCREEN]] 9 or 10
+**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ({{KW|WIDTH}} 80, 25 text only), 11 or 12
+**'''_FONT 9, 15''' and '''17''' are the double width versions of 8, 14 and 16 respectively in text '''SCREEN 0 only'''.
+* You cannot free inbuilt/default QB64 fonts!
+
+
+''Example 1:'' Previews and creates a file list of valid MONOSPACE TTF fonts by checking the [[_LOADFONT]] handle values.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+path$ = &quot;C:\WINDOWS\Fonts\&quot;                  'path to the font folder
+{{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR /b &quot; + path$ + &quot;\*.ttf &gt; TTFonts.INF&quot;  
+style$ = &quot;monospace&quot;                         'set style to MONOSPACE
+{{Cl|OPEN}} &quot;TTFonts.INF&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1           'list of TTF fonts only
+{{Cl|OPEN}} &quot;TTFMono.INF&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #2          'will hold list of valid MONOSPACE fonts
+
+{{Cl|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1): found = found + 1
+  {{Cl|LINE INPUT (file statement)|LINE INPUT}} #1, font$          
+  f&amp; ={{Cl|_LOADFONT}}(path$ + font$, 30, style$)   
+  {{Cl|IF}} f&amp; &gt; 0 {{Cl|THEN}}                  'check for valid handle values &gt; 0
+    OK = OK + 1
+    {{Cl|PRINT (file statement)|PRINT}} #2, font$
+    {{Cl|_FONT}} f&amp;                      'will create error if handle is invalid!
+    {{Cl|PRINT}} &quot;Hello World!&quot;    
+    {{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}} font$; f&amp; 
+    {{Cl|PRINT}} &quot;Press any key.&quot;   
+    K$ = {{Cl|INPUT$}}(1)
+    {{Cl|_FONT}} 16                      'use QB64 default font to free tested font
+    {{Cl|_FREEFONT}} f&amp;                  'returns an error if handle &lt;= 0! 
+    {{Cl|CLS}}  
+  {{Cl|END IF}}     
+  {{Cl|PRINT}}
+{{Cl|IF}} K$ = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|EXIT DO}}
+{{Cl|LOOP}}
+{{Cl|CLOSE}}
+{{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}} &quot;Found&quot;; found; &quot;TTF files,&quot;; OK; &quot;can use Monospace,&quot;
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+{{OutputStart}}
+Found 106 TTF files, 13 can use Monospace.
+{{OutputEnd}}
+
+
+''Example 2:'' Using a _FREEFONT sub-procedure. 
+{{CodeStart}}
+fontpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;) + &quot;\fonts\lucon.ttf&quot; 
+style$ = &quot;MONOSPACE, ITALIC, BOLD&quot;
+fontsize% = 20
+
+{{Cl|_FONT|_FONT }}16
+{{Cl|PRINT}}
+{{Cl|PRINT}} &quot;This is the QB64 default {{Cl|_FONT|_FONT }}16! To change, press any key!&quot;
+{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|GOSUB}} ClearFont  'call will not free anything if font&amp; = 0
+
+font&amp; = {{Cl|_LOADFONT}}(fontpath$, fontsize%, style$)
+{{Cl|IF}} font &gt; 0 THEN {{Cl|_FONT|_FONT}} font&amp;  'NEVER try to load a font value less than 1!
+{{Cl|PRINT}}
+{{Cl|PRINT}} &quot;A NEW {{Cl|_FONT|_FONT}} style. To change to default, press any key!&quot;
+{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|GOSUB}} ClearFont  'call will free a valid font handle from memory
+
+{{Cl|END}}
+
+ClearFont: 
+{{Cl|IF}} font&amp; &gt; 0 {{Cl|THEN}}
+    {{Cl|_FONT|_FONT }}16   'change used font to the QB64 8x16 default font
+    {{Cl|_FREEFONT}} font&amp;
+    {{Cl|PRINT}}: {{Cl|PRINT}} &quot;The previous font was freed with _FREEFONT!&quot;
+{{Cl|ELSE}} : {{Cl|PRINT}}: {{Cl|PRINT}} &quot;_FREEFONT was not used!&quot;
+{{Cl|END IF}}
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+
+
+''See also:''
+* [[_FONT]]
+* [[_LOADFONT]]
+
+
+{{PageNavigation}}

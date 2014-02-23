@@ -1,0 +1,127 @@
+The {{KW|SWAP}} statement is used to exchange two variable or array element values.
+
+
+{{PageSyntax}}
+:{{KW|SWAP}} {{Parameter|variable1}}, {{Parameter|variable2}}
+
+
+{{PageDescription}}
+
+* {{Parameter|variable1}} and {{Parameter|variable2}} are any type variables whose values will be exchanged.
+* If either {{Parameter|variable1}} or {{Parameter|variable2}} is an array, then an element in the array must be designated.
+* {{KW|SWAP}} can be used with string or number variable values. Both must be of the same type.
+* It is often used to sort array elements into greater or lesser values. 
+* SWAP can be used in page flipping to change between 2 page numbers.
+
+
+''Example 1:'' A simple SWAP of [[STRING|string]] values.
+{{CodeStart}}
+a$ = &quot;one&quot;
+b$ = &quot;two&quot;
+
+{{Cl|SWAP}} a$, b$
+
+{{Cl|PRINT}} a$
+{{Cl|PRINT}} b$
+{{CodeEnd}}
+{{OutputStart}}two
+one
+{{OutputEnd}}
+
+
+''Example 2:'' Creating Cryptograms by scrambling EVERY capital letter in the alphabet.
+{{CodeStart}} '' ''
+{{Cl|DIM}} Letter$(65 {{Cl|TO}} 90)
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+{{Cl|CLS}}
+{{Cl|FOR...NEXT|FOR}} a = 65 {{Cl|TO}} 90                    'set ASCII codes and letters in order
+  Letter$(a) = {{Cl|CHR$}}(a)              'create capitalized characters
+{{Cl|NEXT}} a
+
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 10, 10
+{{Cl|FOR...NEXT|FOR}} i = 65 {{Cl|TO}} 90
+  {{Cl|IF...THEN|IF}} Letter$(i) = {{Cl|CHR$}}(i) {{Cl|THEN}}      'find characters the same as the {{Cl|ASCII}} code index
+    {{Cl|DO...LOOP|DO}}: j = {{Cl|INT}}({{Cl|RND}} * 26) + 65: {{Cl|LOOP}} {{Cl|WHILE}} j = i    'loop until j &lt;&gt; i
+    {{Cl|SWAP}} Letter$(i), Letter$(j)     'swap corresponding letter characters
+  {{Cl|END IF}}
+  {{Cl|PRINT}} {{Cl|CHR$}}(i); &quot; &quot;;               'print normal alphabetical order
+{{Cl|NEXT}}
+
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 12, 10
+{{Cl|FOR...NEXT|FOR}} a = 65 {{Cl|TO}} 90                    'display new alphabetical order
+  {{Cl|PRINT}} Letter$(a); &quot; &quot;;
+{{Cl|NEXT}}
+
+text$ = &quot;This is how a normal sentence would look before being encrypted.&quot;
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 20, 5: {{Cl|PRINT}} text$
+L = {{Cl|LEN}}(text$)
+{{Cl|DIM}} Code(L)                         'place ASCII code solution into an array
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 22, 5
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} L
+  Code(i) = {{Cl|ASC}}({{Cl|UCASE$}}(text$), i)   'in QB64, ASC can read by character position
+  {{Cl|IF...THEN|IF}} Code(i) &gt;= 65 {{Cl|AND (boolean)|AND}} Code(i) &lt;= 90 {{Cl|THEN}} {{Cl|PRINT}} Letter$(Code(i)); {{Cl|ELSE}} {{Cl|PRINT}} {{Cl|CHR$}}(Code(i));
+{{Cl|NEXT}}
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:'' Explanation:'' The Letter$ [[STRING]] [[Arrays|array]] is first created with the letters matching the [[ASCII]] code index value. Every index is '''swap'''ped when the letter matches it's index code until every letter is different. The Code array holds the text code solution.
+
+
+''Example 3:'' A very quick array sorting SUB procedure using recursion sorts 10 thousand numbers in milliseconds.
+{{CodeStart}} '' ''
+{{Cl|DEFINT}} A-Z
+{{Cl|DIM}} {{Cl|SHARED}} swap2 {{Cl|AS}} {{Cl|LONG}}  'Demo only
+{{Cl|DIM}} array(10000) {{Cl|AS}} {{Cl|SINGLE}} 'array can hold any type of value
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 10000
+  array(i) = {{Cl|RND}} * 1000 'populate array with random values to sort
+{{Cl|NEXT}}
+start = {{Cl|LBOUND}}(array)  'lowest element
+finish = {{Cl|UBOUND}}(array) 'highest element
+swap2 = 0                     'count swaps for demo only
+start! = {{Cl|TIMER}}(.001)
+{{Cl|CALL}} QuickSort(start, finish, array())
+ending! = {{Cl|TIMER}}(.001)
+tmp$ = &quot; array(0)= ##.#####     array(5000)= ###.####   array(10000)= ###.####&quot;
+{{Cl|PRINT USING}} tmp$; array(0); array(5000); array(10000) 
+{{Cl|PRINT USING}} &quot; Elapsed time: #.###### seconds with #######, swaps&quot;; ending! - start!; swap2&amp;
+{{Cl|FOR...NEXT|FOR}} n = 0 {{Cl|TO}} 10000             'check array sort order
+  {{Cl|IF}} array(n) &gt;= max! {{Cl|THEN}}     'max should match the array type
+    max! = array(n)
+  {{Cl|ELSE}} {{Cl|BEEP}}
+    {{Cl|PRINT}} &quot;Bad sort order!&quot;
+    {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+{{Cl|END}}
+
+{{Cl|SUB}} QuickSort (start {{Cl|AS}} {{Cl|INTEGER}}, finish {{Cl|AS}} {{Cl|INTEGER}}, array() {{Cl|AS}} {{Cl|SINGLE}})    
+{{Cl|DIM}} Hi {{Cl|AS}} {{Cl|INTEGER}}, Lo {{Cl|AS}} {{Cl|INTEGER}}, Middle {{Cl|AS}} {{Cl|SINGLE}}
+Hi = finish: Lo = start
+Middle = array((Lo + Hi) / 2) 'find middle of array
+{{Cl|DO}}
+  {{Cl|DO}} {{Cl|WHILE}} array(Lo) &lt; Middle: Lo = Lo + 1: {{Cl|LOOP}}
+  {{Cl|DO}} {{Cl|WHILE}} array(Hi) &gt; Middle: Hi = Hi - 1: {{Cl|LOOP}}
+  {{Cl|IF}} Lo &lt;= Hi {{Cl|THEN}}
+    {{Cl|SWAP}} array(Lo), array(Hi)
+    swap2 = swap2 + 1                  'count swaps for demo only    
+    Lo = Lo + 1: Hi = Hi - 1
+  {{Cl|END IF}}                               'If homework, you will fail
+{{Cl|LOOP}} {{Cl|UNTIL}} Lo &gt; Hi
+{{Cl|IF}} Hi &gt; start {{Cl|THEN}} {{Cl|CALL}} QuickSort(start, Hi, array())
+{{Cl|IF}} Lo &lt; finish {{Cl|THEN}} {{Cl|CALL}} QuickSort(Lo, finish, array())
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{OutputStart}} array(0)= 0.20200    array(5000)= 525.8505   array(10000)= 999.6196
+ Elapsed time: 0.023438 seconds with 33,759 swaps
+{{OutputEnd}}
+:'''NOTE:''' The ''swap2'' shared value is used to count the swaps for the demo and can be removed from the SUB procedure for speed. 
+
+
+''See also:''
+* [[RND]], [[RANDOMIZE]]
+* [[CHR$]], [[ASC]] 
+* [[ASCII]], [[Arrays]]
+
+
+{{PageNavigation}}

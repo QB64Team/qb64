@@ -1,0 +1,36 @@
+The {{KW|_SNDPLAYFILE}} statement is a simple command to play a sound file with limited options.
+
+
+{{PageSyntax}}
+:'''_SNDPLAYFILE''' {{Parameter|filename$}}[, {{Parameter|sync%}}][, {{Parameter|volume!}}]
+
+
+{{PageDescription}}
+*Filename$ support for: WAVE, OGG, AIFF, RIFF, VOC, MP3, MIDI, MOD
+*If sync% is used an opened file must have the &quot;SYNC&quot; capability to play on a side channel. A  volume value MUST also be used!
+*If sync% is 0 or not used, the sound will be played on the main channel, so playing multiple copies of this sound at the same time won't be possible. (see the {{KW|_SNDOPEN}} function for more information about the way QB64 manages channels)
+*If volume! is used an opened file must have the &quot;VOL&quot; capability.
+*Volume! is a {{KW|SINGLE}} value from 0(silence) to 1(full volume). If not used, the sound will be played at full volume.
+*{{KW|_SNDPLAYFILE}} never creates an error. If the sound cannot be played it takes no further action.
+*Changing the usage of sync% and volume! can make a difference as to whether a sound can be played.
+*The sound is closed automatically after it finishes playing.
+* When a sound will be used often, open the file with {{KW|_SNDOPEN}} and use {{KW|_SNDPLAYCOPY}} to play the handle instead to reduce the burden on a computer.
+* '''NOTE:''' Most of the QB64 sound statements and functions require a handle created by [[_SNDOPEN]] to be used.
+
+
+''Example:'' Playing a song at half volume.
+{{CodeStart}}
+
+{{Cl|_SNDPLAYFILE}} &quot;dog.wav&quot;, .5
+
+{{CodeEnd}}
+
+
+
+
+{{PageSeeAlso}}
+
+*{{KW|_SNDOPEN}}, {{KW|_SNDPLAY}}, {{KW|_SNDPLAYCOPY}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,67 @@
+qbs*oldstr3119=NULL;
+if(_SUB_XFILEWRITE_STRING_CA->tmp||_SUB_XFILEWRITE_STRING_CA->fixed||_SUB_XFILEWRITE_STRING_CA->readonly){
+oldstr3119=_SUB_XFILEWRITE_STRING_CA;
+if (oldstr3119->cmem_descriptor){
+_SUB_XFILEWRITE_STRING_CA=qbs_new_cmem(oldstr3119->len,0);
+}else{
+_SUB_XFILEWRITE_STRING_CA=qbs_new(oldstr3119->len,0);
+}
+memcpy(_SUB_XFILEWRITE_STRING_CA->chr,oldstr3119->chr,oldstr3119->len);
+}
+qbs *_SUB_XFILEWRITE_STRING_L=NULL;
+if (!_SUB_XFILEWRITE_STRING_L)_SUB_XFILEWRITE_STRING_L=qbs_new(0,0);
+qbs *_SUB_XFILEWRITE_STRING_U=NULL;
+if (!_SUB_XFILEWRITE_STRING_U)_SUB_XFILEWRITE_STRING_U=qbs_new(0,0);
+int32 pass3120;
+qbs *_SUB_XFILEWRITE_STRING_A3=NULL;
+if (!_SUB_XFILEWRITE_STRING_A3)_SUB_XFILEWRITE_STRING_A3=qbs_new(0,0);
+int32 *_SUB_XFILEWRITE_LONG_B=NULL;
+if(_SUB_XFILEWRITE_LONG_B==NULL){
+_SUB_XFILEWRITE_LONG_B=(int32*)mem_static_malloc(4);
+*_SUB_XFILEWRITE_LONG_B=0;
+}
+int32 *_SUB_XFILEWRITE_LONG_I=NULL;
+if(_SUB_XFILEWRITE_LONG_I==NULL){
+_SUB_XFILEWRITE_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_XFILEWRITE_LONG_I=0;
+}
+int64 fornext_value3123;
+int64 fornext_finalvalue3123;
+int64 fornext_step3123;
+uint8 fornext_step_negative3123;
+qbs *_SUB_XFILEWRITE_STRING_A2=NULL;
+if (!_SUB_XFILEWRITE_STRING_A2)_SUB_XFILEWRITE_STRING_A2=qbs_new(0,0);
+qbs *_SUB_XFILEWRITE_STRING_E=NULL;
+if (!_SUB_XFILEWRITE_STRING_E)_SUB_XFILEWRITE_STRING_E=qbs_new(0,0);
+int32 pass3124;
+int32 *_SUB_XFILEWRITE_LONG_LAST=NULL;
+if(_SUB_XFILEWRITE_LONG_LAST==NULL){
+_SUB_XFILEWRITE_LONG_LAST=(int32*)mem_static_malloc(4);
+*_SUB_XFILEWRITE_LONG_LAST=0;
+}
+int64 fornext_value3129;
+int64 fornext_finalvalue3129;
+int64 fornext_step3129;
+uint8 fornext_step_negative3129;
+int32 *_SUB_XFILEWRITE_LONG_NEWLINE=NULL;
+if(_SUB_XFILEWRITE_LONG_NEWLINE==NULL){
+_SUB_XFILEWRITE_LONG_NEWLINE=(int32*)mem_static_malloc(4);
+*_SUB_XFILEWRITE_LONG_NEWLINE=0;
+}
+qbs *_SUB_XFILEWRITE_STRING_EBAK=NULL;
+if (!_SUB_XFILEWRITE_STRING_EBAK)_SUB_XFILEWRITE_STRING_EBAK=qbs_new(0,0);
+int32 *_SUB_XFILEWRITE_LONG_REEVALED=NULL;
+if(_SUB_XFILEWRITE_LONG_REEVALED==NULL){
+_SUB_XFILEWRITE_LONG_REEVALED=(int32*)mem_static_malloc(4);
+*_SUB_XFILEWRITE_LONG_REEVALED=0;
+}
+int32 *_SUB_XFILEWRITE_LONG_TYP=NULL;
+if(_SUB_XFILEWRITE_LONG_TYP==NULL){
+_SUB_XFILEWRITE_LONG_TYP=(int32*)mem_static_malloc(4);
+*_SUB_XFILEWRITE_LONG_TYP=0;
+}
+int32 pass3130;
+byte_element_struct *byte_element_3136=NULL;
+if (!byte_element_3136){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3136=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3136=(byte_element_struct*)mem_static_malloc(12);
+}

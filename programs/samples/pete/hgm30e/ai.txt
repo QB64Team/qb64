@@ -1,0 +1,48 @@
+How to change the AI of the game?
+---------------------------------
+
+"Hegemony 3.0.e" has a non-cheating AI (artificial intelligence) included in the main block of the program. So the framework of the AI is rather stiff, but on the other hand, there are several changeable variables that are loaded from external files. These ".ai" files give the AI different behaviours. The variables, and their recommended range are listed below:
+
+
+1. foodweight (0-1) = significance of food when evaluating a territory 
+2. prodweight (0-1) = significance of resources when evaluating a territory 
+3. hateweight (0-10) = importance of hate (for conquered territories) in diplomatic actions 
+4. diplweight (0-10) = importance of diplomacy in evaluating a situation 
+5. friendliness (0-10) = proneness to improve diplomatic relations
+6. chance (0-1) = unpredictability
+7. trustweight (0-10) = importance of diplomatic trust of other empires
+8. remoteweight (0-10) = proneness to improve relations with not neighbouring countries
+9. mintrust (0-1) = trust value that prevents negative diplomatic actions
+10. aitrade (0-1) = the wish to make trade
+11. aifriend (0-1) = the wish to make friends
+12. aially (0-1) = the wish to make alliance
+13. minmorale (0-1) = the minimum limit of morale in case of full employment
+14. mintax (0-1) = minimum limit of tax
+15. feardipl(1) (0-1) = fear that an enemy attacks 
+16. feardipl(2) (0-1) = fear that a neutral country attacks 
+17. feardipl(3) (0-1) = fear that a trading partner attacks 
+18. feardipl(4) (0-1) = fear that a friend attacks 
+19. feardipl(5) (0-1) = fear that an ally attacks 
+20. warmilitary (0-1) = the weight (proportion) of military investments at war
+21. peacemilitary (0-1) = the weight (proportion) of military investments at peace
+22. aibuilding (0-1) = the chance that the rest of money (after the military investments) will be spent on building churches, productive properties and ships, AND NOT on science
+23. aichurch (0-1) = the proportion of money to be spent on churches, if the AI decides on building
+24. aimill (0-1) = the proportion of money to be spent on mills, if the AI decides on building
+25. ainavy (0-1) = the proportion of money to be spent on navy, if the AI decides on building
+26. aiuni (0-1) = the chance that the AI builds universities instead of developing sciences
+27. aiscience(1) (0-1) = the proportion of agriculture in science developments
+28. aiscience(2) (0-1) = the proportion of industry in science developments
+29. aiscience(3) (0-1) = the proportion of trade in science developments
+30. aiscience(4) (0-1) = the proportion of sailing in science developments
+31. aiscience(5) (0-1) = the proportion of military in science developments
+32. aiscience(6) (0-1) = the proportion of medicine in science developments
+33. landorsea (0-1) = the importance of land compared to sea (1 = absolute priority for land; 0 = absolute priority for sea)
+34. planning (0-100) = the length of foresight in turns, for military investments
+35. myfactor (1-999) = the AI begins to turn against the most powerful country and tries to make alliances with other countries, if the biggest empire is stronger than "myfactor" times its own value, and... 
+36. avgfactor (1-999) = ..."avgfactor" times stronger than the average value of a country.
+
+
+If you need more info, send me an e-mail. I will try to give you a more detailed description.
+
+Akos Ivanyi
+ivanyiakos@hotmail.com

@@ -1,0 +1,85 @@
+The '''_MEMIMAGE''' function returns a [[_MEM]] value referring to an image's memory using a designated image handle.
+
+
+{{PageSyntax}}
+::: image_block = '''_MEMIMAGE'''[(''image_handle'')]
+
+
+{{Parameters}}
+* The ''image block'' [[_MEM]] type variable holds the read only .OFFSET, .SIZE, .TYPE and .ELEMENTSIZE.
+* The optional ''image handle'' requires no parameter or 0 if the image desired is the current [[_DEST]]ination program screen image. 
+
+
+''Usage:''
+* Use the function to place images into memory blocks for faster data access.
+* All values created by this function MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable type.
+
+
+''Example 1:'' Darkening an image using memory with [[$CHECKING]]:OFF for greater speed.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1024, 768, 32)
+i&amp; = {{Cl|_LOADIMAGE}}(&quot;turtle.jpg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; use any 24 bit image file
+
+{{Cl|FOR...NEXT|FOR}} n! = 1 {{Cl|TO}} 0.01 {{Cl|STEP}} -0.01
+    i2&amp; = {{Cl|_COPYIMAGE}}(i&amp;)
+    DarkenImage i2&amp;, n!
+    {{Cl|_PUTIMAGE}} (0, 0), i2&amp;
+    {{Cl|_FREEIMAGE}} i2&amp;
+    {{Cl|_DISPLAY}}
+{{Cl|NEXT}}
+
+{{Cl|SUB}} DarkenImage (Image {{Cl|AS}} {{Cl|LONG}}, Value_From_0_To_1 {{Cl|AS}} {{Cl|SINGLE}})
+{{Cl|IF...THEN|IF}} Value_From_0_To_1 &lt;= 0 {{Cl|OR (boolean)|OR}} Value_From_0_To_1 &gt;= 1 {{Cl|OR (boolean)|OR}} {{Cl|_PIXELSIZE}}(Image) &lt;&gt; 4 {{Cl|THEN}} {{Cl|EXIT SUB}}
+{{Cl|DIM}} Buffer {{Cl|AS}} {{Cl|_MEM}}: Buffer = {{Cl|_MEMIMAGE}}(Image) 'Get a memory reference to our image
+{{Cl|DIM}} Frac_Value {{Cl|AS}} {{Cl|LONG}}: Frac_Value = Value_From_0_To_1 * 65536 'Used to avoid slow floating point calculations
+{{Cl|DIM}} O {{Cl|AS}} {{Cl|_OFFSET}}, O_Last {{Cl|AS}} {{Cl|_OFFSET}}
+O = Buffer.OFFSET 'We start at this offset
+O_Last = Buffer.OFFSET + {{Cl|_WIDTH (function)|_WIDTH}}(Image) * {{Cl|_HEIGHT}}(Image) * 4 'We stop when we get to this offset
+{{Cl|$CHECKING}}:OFF 'use on error free code ONLY!
+DO
+    {{Cl|_MEMPUT}} Buffer, O, {{Cl|_MEMGET (function)|_MEMGET}}(Buffer, O, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) * Frac_Value \ 65536 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+    {{Cl|_MEMPUT}} Buffer, O + 1, {{Cl|_MEMGET (function)|_MEMGET}}(Buffer, O + 1, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) * Frac_Value \ 65536 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+    {{Cl|_MEMPUT}} Buffer, O + 2, {{Cl|_MEMGET (function)|_MEMGET}}(Buffer, O + 2, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) * Frac_Value \ 65536 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+    O = O + 4
+{{Cl|LOOP}} {{Cl|UNTIL}} O = O_Last
+{{Cl|$CHECKING}}:ON 'turn checking back on when done!
+{{Cl|_MEMFREE}} Buffer
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}{{small|Code by Galleon}}
+: ''Explanation:'' The second value passed to DarkenImage is a value from 0.0 to 1.0 where 0.0 is full darkness and 1 is none.
+
+
+''Example 2:'' Reading information stored in an image with [[_MEMIMAGE]] to print [[ASC]] text characters to the screen.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13
+{{Cl|_FULLSCREEN}}
+{{Cl|PSET}} (0, 0), {{Cl|ASC}}(&quot;H&quot;)
+{{Cl|PSET}} (1, 0), {{Cl|ASC}}(&quot;E&quot;)
+{{Cl|PSET}} (2, 0), {{Cl|ASC}}(&quot;L&quot;)
+{{Cl|PSET}} (3, 0), {{Cl|ASC}}(&quot;L&quot;)
+{{Cl|PSET}} (4, 0), {{Cl|ASC}}(&quot;O&quot;)
+{{Cl|PSET}} (5, 0), 32
+{{Cl|PSET}} (6, 0), {{Cl|ASC}}(&quot;W&quot;)
+{{Cl|PSET}} (7, 0), {{Cl|ASC}}(&quot;O&quot;)
+{{Cl|PSET}} (8, 0), {{Cl|ASC}}(&quot;R&quot;)
+{{Cl|PSET}} (9, 0), {{Cl|ASC}}(&quot;L&quot;)
+{{Cl|PSET}} (10, 0), {{Cl|ASC}}(&quot;D&quot;)
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+m = {{Cl|_MEMIMAGE}}
+x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 11) 'convert numbers to ASCII text characters
+{{Cl|LOCATE}} 10, 1: {{Cl|PRINT}} {{Cl|LEN}}(x1$) 'prints 11 as byte length
+{{Cl|PRINT}} x1$ 'prints HELLO WORLD
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Notes:'' The colors in the upper left corner are the text data used. An image could hold a hidden text message this way.
+
+
+''See also:''
+* [[_MEM]]
+* [[_MEMNEW]]
+* [[_MEMGET]], [[_MEMPUT]]
+* [[_MEMFREE]]
+* [[$CHECKING]]
+
+
+{{PageNavigation}}

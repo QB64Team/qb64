@@ -1,0 +1,66 @@
+The '''STRIG''' function returns button press True or False status of game port (&amp;H201) or USB joystick control device(s).
+
+
+{{PageSyntax}}
+:: IF STRIG(button_function%) THEN ...
+
+
+QB64 {{PageSyntax}}
+:: IF STRIG(''button_function%''[, ''device_number%'']) THEN ...
+
+
+''Description:''
+* Function returns -1 when a button event(even functions) has occurred or a button is pressed(odd functions). 
+* STRIG will not read keyboard or mouse buttons detected by [[_DEVICES]].
+* The ''device number'' must be used with more than 2 devices. Use device 1 function numbers for just one joystick.
+* '''QB64''' can read many buttons from many devices and allows the use of devices with more than 2 buttons.
+* Returns True(-1) or False(0) button press values for 2 devices. Each leading STRIG checks for missed button press events:
+{{WhiteStart}}  '''STRIG(0) = -1  'lower button 1 on device 1 pressed since last STRIG(0) read'''
+  '''STRIG(1) = -1  'lower button 1 on device 1 currently pressed'''
+  STRIG(2) = -1  'lower button 1 on device 2 pressed since last STRIG(2) read
+  STRIG(3) = -1  'lower button 1 on device 2 currently pressed
+  '''STRIG(4) = -1  'upper button 2 on device 1 pressed since last STRIG(4) read''' 
+  '''STRIG(5) = -1  'upper button 2 on device 1 currently pressed'''
+  STRIG(6) = -1  'upper button 2 on device 2 pressed since last STRIG(6) read
+  STRIG(7) = -1  'upper button 2 on device 2 currently pressed (maximum in Qbasic)
+  '''STRIG(8) = -1  'button 3 on device 1 pressed since last STRIG(8) read'''  'QB64 only
+  '''STRIG(9) = -1  'button 3 on device 1 currently pressed'''           
+  STRIG(10) = -1 'button 3 on device 2 pressed since last STRIG(10) read 'QB64 only
+  STRIG(11) = -1 'button 3 on device 2 currently pressed
+{{WhiteEnd}}
+* STRIG(0), STRIG(2), STRIG(4), STRIG(6), STRIG(8), STRIG(10) are used to monitor any presses that might have been missed.
+* '''QB64''' allows more than two controllers by using the second parameter as the stick number and the odd or even STRIG values:
+{{WhiteStart}}'''STRIG(0, 3): STRIG(1, 3): STRIG(4, 3): STRIG(5, 3): STRIG(8, 3): STRIG(9, 3) 'device 3 {odd)'''
+STRIG(2, 4): STRIG(3, 4): STRIG(6, 4): STRIG(7, 4): STRIG(10, 4): STRIG(11, 4) 'device 4 (even)
+{{WhiteEnd}} 
+:Odd devices use 0, 1, 4, 5, 8 and 9 and Even devices use 2, 3, 6, 7, 10 and 11 as first parameters with device number following.
+* '''There will not be an error if you try to read too many device axis or buttons!'''
+
+
+''Example:'' Displays the input from 3 joysticks, all with dual sticks and 3 buttons.
+{{CodeStart}} '' ''
+{{Cl|DO}}: {{Cl|_LIMIT}} 10
+
+  {{Cl|LOCATE}} 1, 1
+  {{Cl|PRINT}} &quot;JOY1: {{Cl|STICK}}&quot;; {{Cl|STICK}}(0); {{Cl|STICK}}(1); {{Cl|STICK}}(0, 2); {{Cl|STICK}}(1, 2);_ 
+  &quot;STRIG&quot;; {{Cl|STRIG}}(0); {{Cl|STRIG}}(1); {{Cl|STRIG}}(4); {{Cl|STRIG}}(5); {{Cl|STRIG}}(8); {{Cl|STRIG}}(9)
+
+  {{Cl|PRINT}} &quot;JOY2: {{Cl|STICK}}&quot;; {{Cl|STICK}}(2); {{Cl|STICK}}(3); {{Cl|STICK}}(2, 2); {{Cl|STICK}}(3, 2);_ 
+  &quot;STRIG&quot;; {{Cl|STRIG}}(2); {{Cl|STRIG}}(3); {{Cl|STRIG}}(6); {{Cl|STRIG}}(7); {{Cl|STRIG}}(10); {{Cl|STRIG}}(11)
+
+  {{Cl|PRINT}} &quot;JOY3: {{Cl|STICK}}&quot;; {{Cl|STICK}}(4); {{Cl|STICK}}(5); {{Cl|STICK}}(4, 2); {{Cl|STICK}}(5, 2);_ 
+  &quot;STRIG&quot;; {{Cl|STRIG}}(0, 3); {{Cl|STRIG}}(1, 3); {{Cl|STRIG}}(4, 3); {{Cl|STRIG}}(5, 3); {{Cl|STRIG}}(8, 3); {{Cl|STRIG}}(9, 3)
+    
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot; '' ''
+{{CodeEnd}}
+:''Explanation:'' Notice the extra '''QB64 only''' parameters used to cater for the 2nd stick and the buttons of the 3rd joystick.
+
+
+''See also:'' 
+* [[STRIG(n)]] {{text|(statement)}}
+* [[ON STRIG(n)]], [[STICK]]
+* [[_DEVICES]], [[_DEVICE$]], [[_LASTBUTTON]]
+* [http://en.wikipedia.org/wiki/Analog_stick Single and Dual Stick Controllers]
+
+
+{{PageNavigation}}

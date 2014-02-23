@@ -1,0 +1,53 @@
+The {{KW|PALETTECOLOR}} function is used to return the 32 bit attribute color setting of an image or screen page handle's palette.
+
+
+{{PageSyntax}}
+:{{Parameter|color32value&amp;}} = {{KW|_PALETTECOLOR}}({{Parameter|attribute_number%}}, {{Parameter|handle&amp;}})
+
+
+
+{{PageDescription}}
+* {{Parameter|attribute_number&amp;}} is the color attribute value from 0 to 255 for 1, 4 or 8 bit images.
+* {{Parameter|handle&amp;}} is the image handle being read for color data. Zero can be used to read the present screen mode palette.
+* Returns the 32 bit color value to be used by the 32 bit RGB functions.
+* For 32 bit images send the _PALETTECOLOR return value to {{KW|_RED32}}, {{KW|_GREEN32}} and {{KW|_BLUE32}} functions to get the Red, Green, and Blue intensity settings.
+* '''Although 32 bit palette values are returned, the function cannot be used with 32 bit images or screen modes!'''
+
+
+''Example:'' How _PALETTECOLOR works on 32 bit RGB compared to a 4 BPP(SCREEN 12) Qbasic procedure.
+{{CodeStart}} '' ''
+SCREEN 12                         'can use any Qbasic legacy screen mode
+DIM RGB(0 TO 47) AS INTEGER       'color intensity array
+FOR c&amp; = 0 TO 15
+  'OUT &amp;H3C7, c&amp;                  'set color attribute to read
+  value32&amp; = {{Cl|_PALETTECOLOR (function)|_PALETTECOLOR}}(c&amp;, 0) 'sets color value to read of an image page handle.
+  'red% = INP(&amp;H3C9)
+  red% = {{Cl|_RED32}}(value32&amp;)
+  'green% = INP(&amp;H3C9)
+  green% = {{Cl|_GREEN32}}(value32&amp;)
+  'blue% = INP(&amp;H3C9)
+  blue% = {{Cl|_BLUE32}}(value32&amp;)
+  RGB(c&amp; * 3) = red%: RGB((c&amp; * 3) + 1) = green%: RGB((c&amp; * 3) + 2) = blue%
+NEXT
+FOR i = 0 TO 47 STEP 3
+  RGBval$ = LTRIM$(STR$(RGB(i))) + &quot;,&quot; + STR$(RGB(i + 1)) + &quot;,&quot; + STR$(RGB(i + 2)) + &quot;)&quot;
+  PRINT &quot;Color&quot;; i / 3, &quot;_RGB(&quot; + RGBval$;
+  PRINT
+NEXT
+END '' ''
+{{CodeEnd}}
+
+:''Explanation:'' To save a bitmap or other image you need the RGB color settings or the colors will look all wrong. You can store that information into a larger image array and [[GET (graphics statement)|GET]] the image AFTER the color settings. Just GET the image starting at Array(48).
+
+
+
+
+
+{{PageSeeAlso}}
+* [[_PALETTECOLOR]] (statement)
+* [[_NEWIMAGE]], [[_LOADIMAGE]]
+* [[SAVEIMAGE]] (example code)
+
+
+
+{{PageNavigation}}

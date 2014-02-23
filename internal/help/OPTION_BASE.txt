@@ -1,0 +1,50 @@
+The {{KW|OPTION BASE}} statement is used to set the default lower bound of arrays.
+
+
+{{PageSyntax}}
+:{{KW|OPTION BASE}} {0|1}
+
+
+{{PageDescription}}
+* This statement affects array declarations where the lower bound of a dimension is not specified.
+* When used, {{KW|OPTION BASE}} must be used before any array declarations ({{KW|DIM}}) to be affected.
+* By default, the lower bound for arrays is zero, and may be changed to one using the statement.
+* Otherwise, arrays will be dimensioned from element 0 if you DIM just the upper bounds.
+* You can also set other array boundaries by using {{KW|TO}} in the DIM such as: DIM array(5 TO 10)
+* Note: Neither '''OPTION''' nor '''BASE''' can be used as numerical variable names.
+
+
+''Example 1:'' Set the default lower bound for array declarations to one.
+{{CodeStart}}
+{{Cl|OPTION BASE}} 1
+
+' Declare a 5-element one-dimensional array with element indexes of one through five.
+{{Cl|DIM}} array(5) {{Cl|AS}} {{Cl|INTEGER}}
+
+{{Cl|PRINT}} {{Cl|LBOUND}}(array)
+{{CodeEnd}}
+{{OutputStart}} 1{{OutputEnd}}
+
+
+''Example 2:'' Set the default lower bound for array declarations to zero.
+{{CodeStart}} '' ''
+{{Cl|OPTION BASE}} 0
+
+' Declare an 18-element two-dimensional array with element indexes of zero through two 
+' for the first dimension, and 10 through 15 for the second dimension.
+{{Cl|DIM}} array(2, 10 to 15) {{Cl|AS}} {{Cl|INTEGER}}
+
+{{Cl|PRINT}} {{Cl|LBOUND}}(array, 1)
+{{Cl|PRINT}} {{Cl|LBOUND}}(array, 2)
+{{CodeEnd}}
+{{OutputStart}} 0
+ 10
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|Arrays}}, {{KW|LBOUND}}, {{KW|UBOUND}}
+* {{KW|DIM}}, {{KW|REDIM}}, {{KW|STATIC}}, {{KW|COMMON}}
+
+
+{{PageNavigation}}

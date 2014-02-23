@@ -1,0 +1,108 @@
+The '''GET #''' file or port device statement reads data by bytes or record positions.
+
+
+
+{{PageSyntax}}
+:: '''GET #''filenumber%'',''' [''position''][, {''holdingvariable''|''holdingarray()''}]
+
+
+
+* File/port number is the file number used in the [[OPEN]] AS [[BINARY]] or [[RANDOM]] statement. 
+* The [[INTEGER]] or [[LONG]] byte ''position'' in a [[BINARY]] file or the record ''position'' in a [[RANDOM]] file '''must be greater than zero'''.
+* The ''position'' can be omitted if the GETs are consecutive based on the ''holding variable'' [[TYPE]] byte size.
+* The ''holding variable'' [[TYPE]] or [[FIELD]] ''variable'' size determines the byte size and the next ''position'' in the file.
+* The first file position is 1. This may require adding one to an offset value when documentation uses that position as 0.
+* GET does NOT require a byte or record ''position'' or ''holding variable''(or comma) when using a [[FIELD]] statement!
+* '''QB64''' can [[PUT]] the entire contents of an array to a file and later GET those contents to a ''holding array''(include brackets).
+* '''GET can ignore an [[EOF]] statement and return bad data! [[EOF]] after a GET denotes that the data has ended!'''
+{{TextStart}} DO UNTIL {{Cb|EOF}}(1)
+   {{Cb|GET}} #1, , value%
+   IF {{Cb|NOT}}({{Cb|EOF}}(1)) THEN {{Cb|PUT}} #2, , value%
+ LOOP
+{{TextEnd}}
+
+
+''Example 1:'' Opening a RANDOM file using LEN to calculate and LEN = to designate the file record size.
+{{CodeStart}} '' ''
+{{Cl|TYPE}} variabletype
+  x {{Cl|AS}} {{Cl|INTEGER}}'       '2 bytes
+  y {{Cl|AS}} {{Cl|STRING}} * 10'  '10 bytes
+  z {{Cl|AS}} {{Cl|LONG}}'          '4 bytes
+{{Cl|END}} {{Cl|TYPE}}'            '16 bytes total
+{{Cl|DIM}} record {{Cl|AS}} variabletype
+{{Cl|DIM}} newrec {{Cl|AS}} variabletype
+
+file$ = &quot;testrand.inf&quot; '&lt;&lt;&lt;&lt; filename may overwrite existing file
+number% = 1 '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; record number to write cannot be zero
+RecordLEN% = {{Cl|LEN}}(record)
+{{Cl|PRINT}} RecordLEN%; &quot;bytes&quot;
+record.x = 255
+record.y = &quot;Hello world!&quot;
+record.z = 65535
+{{Cl|PRINT}} record.x, record.y, record.z
+
+{{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = RecordLEN%
+{{Cl|PUT}} #1, number% , record 'change record position number to add records
+{{Cl|CLOSE}} #1
+
+{{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = RecordLEN%
+NumRecords% = {{Cl|LOF}}(2) \ RecordLEN%
+PRINT NumRecords%; &quot;records&quot;
+
+{{Cl|GET}} #2, NumRecords% , newrec 'GET last record available
+{{Cl|CLOSE}} #2
+{{Cl|PRINT}} newrec.x, newrec.y, newrec.z
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}} 16 bytes
+ 255        Hello worl       65535
+ 1 records
+ 255        Hello worl       65535
+{{OutputEnd}}
+: ''Explanation:'' The byte size of the record [[TYPE]] determines the [[LOF]] byte size of the file and can determine the number of records.
+: To read the last record [[GET]] the number of records. To add a record, use the number of records + 1 to [[PUT]] new record data.
+
+
+''Example 2:'' Placing the contents of a numerical array into a [[BINARY]] file. You may want to put the array size at the beginning too.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} array(100) {{Cl|AS}} {{Cl|INTEGER}}
+
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 100
+  array(i) = i
+{{Cl|NEXT}}
+showme  'display array contents
+
+{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+
+{{Cl|PUT}} #1, , array()
+
+{{Cl|ERASE}} array 'clear element values from array and display empty
+showme
+{{Cl|CLOSE}} #1
+
+{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2
+{{Cl|GET}} #2, , array()
+{{Cl|CLOSE}} #2
+showme  'display array after transfer from file
+
+{{Cl|END}}
+
+{{Cl|SUB}} showme
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 100
+  {{Cl|PRINT}} array(i);
+{{Cl|NEXT}}
+{{Cl|PRINT}} &quot;done&quot;
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+: ''Note:'' Use empty brackets in QB64 when using [[GET]] to create an array or [[PUT]] to create a [[BINARY]] data file.
+
+
+''See also:'' 
+* [[PUT|PUT #]], [[SEEK]], [[SEEK (statement)]] 
+* [[INPUT (file statement)|INPUT #]], [[GET (TCP/IP statement)]]
+* [[FIELD]], [[RANDOM]], [[BINARY]]
+* [[LEN]], [[LOF]], [[EOF]]
+
+
+{{PageNavigation}}

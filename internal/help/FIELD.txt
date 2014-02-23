@@ -1,0 +1,91 @@
+The '''FIELD''' statement creates a [[STRING]] type definition for a [[RANDOM|random]]-access file buffer.
+
+
+{{PageSyntax}}
+:{{KW|FIELD}} [#]{{Parameter|fileNumber%}} {{Parameter|fieldWidth1%}} AS {{Parameter|variable1$}}[, {{Parameter|fieldWidthN%}} AS {{Parameter|variableN$}}]
+
+
+{{PageDescription}}
+* {{Parameter|fileNumber%}} is a file number used in the [[OPEN]] statement or a value from the [[FREEFILE]] function. 
+* Combined size of the {{Parameter|fieldWidth%}} parameters '''MUST not exceed''' the [[LEN]] = recordsize in the [[RANDOM]] [[OPEN]] statement or a [[ERROR Codes|&quot;FIELD overflow&quot; error]] will occur.
+* Variables are limited to [[STRING]] types. Use [[TYPE]] instead of FIELD if you want to use numerical values. 
+* Once a FIELD is defined in a statement, [[GET]] can read and [[PUT]] can write data without placeholders or variables.
+* [[LSET]], [[RSET]], [[PRINT (file statement)|PRINT #]], [[PRINT USING (file statement)|PRINT # USING]], and [[WRITE (file statement)|WRITE #]] can be used to place characters in the file buffer before a [[PUT]].
+* All field definitions for a file are removed when the file is [[CLOSE|closed]] or [[RESET]] and all strings are set to null(&quot;&quot;).
+* Do NOT re-assign a field defined variable value or use it in an [[INPUT]] statement if you want the variable to remain a field!
+
+
+''Example:'' Comparing a TYPE definition with a FIELD {{KW|STRING|string}} definition.
+
+Demo using a TYPE definition to create a file:
+{{CodeStart}} '' ''
+{{Cl|TYPE}} ClientType
+   CName {{Cl|AS}} {{Cl|STRING}} * 30     '30 bytes
+   Address {{Cl|AS}} {{Cl|STRING}} * 30   '30 bytes 
+   City   {{Cl|AS}} {{Cl|STRING}} * 15    '15 bytes
+   State  {{Cl|AS}} {{Cl|STRING}} * 2     ' 2 bytes
+   Zip    {{Cl|AS}} {{Cl|STRING}} * 5     ' 5 bytes
+{{Cl|END}} {{Cl|TYPE}}      ' total size = 82 bytes
+{{Cl|DIM}} Client {{Cl|AS}} ClientType
+RecordLEN = {{Cl|LEN}}(Client)       'find the size of each TYPE record
+
+{{Cl|OPEN}} &quot;ADDRESS.DAT&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = RecordLEN
+{{Cl|RESTORE}} ClientData         'restore to start of DATA
+record = 0
+{{Cl|DO}}
+   {{Cl|READ}} CName$, Address$, City$, State$, Zip$       'read DATA
+   {{Cl|IF}} CName$ = &quot;END&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+   record = record + 1               'increment record number
+   Client.CName = CName$          
+   Client.Address = Address$
+   Client.City = City$
+   Client.State = State$
+   Client.Zip = Zip$
+   {{Cl|PUT}} #1, record, Client     'PUT by record number
+{{Cl|LOOP}}
+{{Cl|CLOSE}} #1 
+{{Cl|END}}
+
+ClientData:
+   {{Cl|DATA}} &quot;Bob White&quot;,&quot;104 Birdland Rd.&quot;,&quot;Bellview&quot;,&quot;PA&quot;,&quot;15236&quot;
+   {{Cl|DATA}} &quot;Ward Cleaver&quot;,&quot;123 W. Beaver St.&quot;,&quot;Beaver&quot;,&quot;PA&quot;,&quot;15255&quot;
+   {{Cl|DATA}} &quot;Elmer Fudd&quot;,&quot;45 Wabbit St.&quot;,&quot;Bethel Park&quot;,&quot;PA&quot;,&quot;15022&quot;
+   {{Cl|DATA}} &quot;Wyley Coyote&quot;,&quot;33 Roadrunner Ave.&quot;,&quot;Clairton&quot;,&quot;PA&quot;,&quot;15122&quot;
+   {{Cl|DATA}} &quot;Jim Morrison&quot;,&quot;19 Doorway Dr.&quot;,&quot;Belleview&quot;,&quot;PA&quot;,&quot;15236&quot;
+   {{Cl|DATA}} &quot;END&quot;,0,0,0,0 '' ''
+{{CodeEnd}} '' ''
+
+Demo using the FIELD statement to read the file:
+{{CodeStart}} '' ''
+{{Cl|CONST}} NM = 30, AD = 30, CT = 15, ST = 2, ZC = 5  ' Define field and record lengths with constants.
+{{Cl|CONST}} RLEN = NM + AD + CY + ST + ZC
+'
+{{Cl|OPEN}} &quot;ADDRESS.DAT&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = RLEN
+{{Cl|FIELD}} #1, NM {{Cl|AS}} CName$, AD {{Cl|AS}} Address$, CY {{Cl|AS}} City$, ST {{Cl|AS}} State$, ZC {{Cl|AS}} Zip$
+{{Cl|FIELD}} #1, RLEN {{Cl|AS}} Clist$         'define entire record
+
+{{Cl|GET}} #1, 1                  'GET does not need a variable to read FIELD records!
+                                  'Read file for zip codes from 15230 to 15239 .
+{{Cl|DO}} {{Cl|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(1)
+   ZipCheck$ = Zip$                            'read zip codes
+   {{Cl|IF}} (ZipCheck$ &gt;= &quot;15230&quot; {{Cl|AND (boolean)|AND}} ZipCheck$ &lt;= &quot;15239&quot;) {{Cl|THEN}}
+      Info$ = Clist$
+      {{Cl|PRINT}} {{Cl|LEFT$}}(Info$, 30)     'read name string
+      {{Cl|PRINT}} {{Cl|MID$}}(Info$, 31, 30)  'read address string
+      {{Cl|PRINT}} {{Cl|RIGHT$}}(Info$, 17)    'read city, state and zip code
+      {{Cl|PRINT}}
+   {{Cl|END IF}}
+   {{Cl|GET}} #1                               'simply GET reads each FIELD record after first
+{{Cl|LOOP}}
+{{Cl|CLOSE}} #1
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|OPEN}}
+* {{KW|GET}}, {{KW|PUT}}
+* {{KW|LSET}}, {{KW|RSET}}
+
+
+{{PageNavigation}}

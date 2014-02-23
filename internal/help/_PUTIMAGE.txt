@@ -1,0 +1,191 @@
+The {{KW|_PUTIMAGE}} statement puts an area of a source image to an area of a destination image in one operation like [[GET (graphics statement)|GET]] and [[PUT (graphics statement)|PUT]].
+
+
+{{PageSyntax}} 
+::'''_PUTIMAGE''' [(''dx1'', ''dy1'')[-(''dx2'', ''dy2'')]][, ''source_handle''][, ''dest_handle''][, (''sx1'', ''sy1'')[-(''sx2'', ''sy2'')]]
+
+:::or…
+
+::_PUTIMAGE {{text|'full source image to fit full destination area after [[_SOURCE]] and [[_DEST]] are set}}
+
+::_PUTIMAGE , ''source_handle'', ''dest_handle'' {{text|'size full source to fit full destination area}}
+
+::_PUTIMAGE (''dx1'', ''dy1''), ''source_handle'', ''dest_handle'' {{text|'full source to TL corner destination position}}
+
+::_PUTIMAGE (''dx1'', ''dy1'')-(''dx2'', ''dy2''), ''source_handle'', ''dest_handle'' {{text|'size full source to destination coordinate area}}
+
+::_PUTIMAGE (''dx1'', ''dy1''), ''source_handle'',''dest_handle'', (''sx1'', ''sy1'')-(''sx2'', ''sy2'') {{text|'portion of source to TL corner of destination}}
+
+::_PUTIMAGE , ''source_handle'', ''dest_handle'', (''sx1'', ''sy1'')-(''sx2'', ''sy2'') {{text|'portion of source to full destination area}}
+
+::_PUTIMAGE (''dx1'', ''dy1'')-(''dx2'', ''dy2''), ''source_handle'', ''dest_handle'',(''sx1'', ''sy1'') {{text|'right side of source from TL corner to destination}}
+
+
+::Note: The Top Left corner position designates the leftmost and top-most portion of the image to use.
+
+
+{{Parameters}}
+* Coordinates ''dx'' and ''dy'' map the box area of the [[_DEST|destination]] area to use. When omitted the entire desination area is used. If only one coordinate is used, the source is placed with its original dimensions. Coordinates can be set to flip or resize the image.
+:* {{Parameter|dx1}} = the column coordinate at which the insertion of the source will begin(left-most): When larger than ''dx2'' reverses image.
+:* {{Parameter|dy1}} = the row coordinate at which the insertion of the source will begin(top-most): When larger than ''dy2'' inverts image.
+:* {{Parameter|dx2}} = the column coordinate at which the insertion of the source will end(right-most): Further apart widens image.
+:* {{Parameter|dy2}} = the row coordinate at which the insertion of the source will end(bottom-most): Closer together shrinks image
+* {{Parameter|source_handle}} = the [[LONG]] handle of the [[_SOURCE|source]] image created with [[_NEWIMAGE]], [[_LOADIMAGE]] or [[_COPYIMAGE]].
+* {{Parameter|dest_handle}} = the [[LONG]] handle of the [[_DEST|destination]] image may be created with [[_NEWIMAGE]], [[SCREEN]] or [[_DEST|destination]] 0.
+* Coordinates ''sx'' and ''sy'' [[GET (graphics statement)|GET]] the box area of the [[_SOURCE|source]] image to transfer to the [[_DEST|destination]] image, page or [[SCREEN|screen]]:
+:* {{Parameter|sx1}} = the column coordinate of the left-most pixel to include of the source. When omitted the entire image is used
+:* {{Parameter|sy1}} = the row coordinate of the upper-most pixel to include of the source. When omitted the entire image is used
+:* {{Parameter|sx2}} = the column coordinate of the right-most pixel to include of the source. Can be omitted to get rest of image.
+:* {{Parameter|sy2}} = the row coordinate of the bottom-most pixel to include of the source. Can be omitted to get rest of image.
+
+&lt;center&gt;'''Note: The [[PUT (graphics statement)|PUT]] options PSET, PRESET, AND, OR and XOR are not available with _PUTIMAGE. QB64 can use [[_ALPHA|transparency]] of colors to do those things.'''&lt;/center&gt;
+
+
+''Usage:''
+* _PUTIMAGE can be used without any handle parameters if the [[_SOURCE]] and/or [[_DEST]] are already defined.
+* '''The {{Parameter|source_handle}} and {{Parameter|dest_handle}} cannot be the same! If they are it will return an [[ERROR Codes|Illegal Function Call]] error.'''
+* If the area of the source is bigger or smaller than the area of the destination then the image is adjusted to fit that area.
+* Supports 32 bit alpha blending, color key transparency, true type fonts, stretching, mirroring/flipping, and a variety of graphics file formats including gif, png, bmp &amp; jpg. '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] and are transparent when placed over other surfaces.''' Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
+* All graphical surfaces, including screen pages, can be acted upon in the same manner, and are referred to as &quot;images&quot;.
+* Handles are used to identify graphical surfaces. Positive values are used to refer to screen pages. -1 (negative one) indicates an invalid surface. It is recommended that image handles be stored in LONG variables. Passing an invalid handle generates an [[ERROR Codes|&quot;Invalid handle&quot;]] error. Font handles also use -1 to indicate an invalid font.
+* When handles are not passed (or cannot be passed) to subs/functions then the default destination image or source image is referenced. These are set to the active page when the SCREEN statement is called, but can be changed to any image. So it is possible to read from one image using [[POINT]] and write to a different one with [[PSET]].
+* '''[[PRINT]]ed text cannot be transferred and positioned accurately!''' Use [[_PRINTSTRING]] for graphical text or font placement.
+*  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
+* '''It is IMPORTANT to free discarded or unused images with [[_FREEIMAGE]] to prevent CPU memory overflow errors!'''
+
+
+''Example 1:''
+{{CodeStart}} '' ''
+ {{Cl|SCREEN (statement)|SCREEN}} 13
+ a&amp; = {{Cl|_NEWIMAGE}}(640, 200, 13) ' creates a 640 * 200 image with the {{Cl|LONG}} handle a&amp;
+ {{Cl|_DEST}} a&amp; ' makes image a&amp; the default drawing output.
+ {{Cl|LINE}} (10, 10)-(100, 100), 12, BF ' draws a filled box (BF) into destination
+ {{Cl|_PUTIMAGE}} (0, 0)-(320, 200), a&amp;, 0, (0, 0)-(320, 200) '' ''
+'' ''
+{{CodeEnd}} '' ''
+:''Explanation:'' 
+: 1) A graphics mode is set by using [[SCREEN (statement)|SCREEN]] 13 which can use up to 256 colors. 
+: 2) A new image is created that is 640 X 200 and uses the palette compatible with SCREEN 13 (256 colors).
+: 3) [[_DEST]] a&amp; makes the image with handle 'a&amp;' the default image to draw on instead of the screen (which is [[_DEST]] 0).
+: 4) Next a filled box (BF) is drawn from 10, 10 to 100, 100 with red color (12) to the destination image (set by [[_DEST]] a&amp;)
+: 5) Now we put the image from 0, 0 to 320, 200 from the image with the handle 'a&amp;' to the screen (always handle 0) and puts this image into the coordinates 0, 0 to 320, 200. If we want to stretch the image we can alter these coordinates (do try this!)
+
+:'''Note:''' All arguments are optional. If you want to simply put the whole image of the source to the whole image of the destination then you omit the area (x, y)-(x2, y2) on both sides, the last line of the example can be replaced by {{KW|_PUTIMAGE}} , a&amp;, 0 which indeed will stretch the image since image a&amp; is bigger than the screen (the screen is 320 * 200 and a&amp; is 640 * 200)
+
+
+''Example 2: ''You don't need to do anything special to use a .PNG image with alpha/transparency. Here's a simple example:
+
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|CLS}} , {{Cl|_RGB}}(0, 255, 0)
+i = {{Cl|_LOADIMAGE}}('''&quot;QB64.PNG&quot;''') 'see note below examples to get the image 
+{{Cl|_PUTIMAGE}} (0, 0), i ' places image at upper left corner of window w/o stretching it 
+'' ''
+{{CodeEnd}} '' ''
+
+: ''Explanation:'' When QB64 loads a 256 color .PNG file containing a transparent color, that color will be treated as transparent when _PUTIMAGE is used to put it onto another image. So actually, you can use a 256-color .PNG file containing transparency information in a 256 color screen mode in QB64.
+
+
+''Example 3:'' Flipping and enlarging an image with _PUTIMAGE by swapping or increasing the desination coordinates.
+{{CodeStart}} '' ''
+{{Cl|DEFLNG}} A-Z
+dest_handle = {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|SCREEN (statement)|SCREEN}} dest_handle  '32 bit Screen 12 dimensions
+source_handle = {{Cl|_LOADIMAGE}}('''&quot;QB64.PNG&quot;''', 32)
+dx1 = 0: dy1 = 0
+dx2 = {{Cl|_WIDTH (function)|_WIDTH}}(source_handle) - 1: dy2 = {{Cl|_HEIGHT}}(source_handle) - 1 'image dimensions - 1
+{{Cl|LOCATE}} 29, 33: {{Cl|PRINT}} &quot;Press any Key!&quot;;
+'normal image coordinate values based on the dimensions of the image:
+{{Cl|_PUTIMAGE}} (dx1, dy1)-(dx2, dy2), source_handle, dest_handle
+{{Cl|LOCATE}} 20, 34: {{Cl|PRINT}} &quot;Normal layout&quot;
+{{Cl|LOCATE}} 24, 10: {{Cl|PRINT}} &quot;_PUTIMAGE (dx1, dy1)-(dx2, dy2), source_handle, dest_handle&quot;
+K$ = {{Cl|INPUT$}}(1)
+'to flip the image on the x axis, swap the dx coordinate values:
+{{Cl|_PUTIMAGE}} (dx2, dy1)-(dx1, dy2), source_handle, dest_handle
+{{Cl|LOCATE}} 20, 34: {{Cl|PRINT}} &quot;Flip by X axis&quot;
+{{Cl|LOCATE}} 24, 10: {{Cl|PRINT}} &quot;_PUTIMAGE (dx2, dy1)-(dx1, dy2), source_handle, dest_handle&quot;
+K$ = {{Cl|INPUT$}}(1)
+'to flip image on y axis, swap the dy coordinate values:
+{{Cl|_PUTIMAGE}} (dx1, dy2)-(dx2, dy1), source_handle, dest_handle
+{{Cl|LOCATE}} 20, 34: {{Cl|PRINT}} &quot;Flip by Y axis&quot;
+{{Cl|LOCATE}} 24, 10: {{Cl|PRINT}} &quot;_PUTIMAGE (dx1, dy2)-(dx2, dy1), source_handle, dest_handle &quot;
+K$ = {{Cl|INPUT$}}(1)
+'to flip both, swap both the dx and dy coordinate values:
+{{Cl|_PUTIMAGE}} (dx2, dy2)-(dx1, dy1), source_handle, dest_handle
+{{Cl|LOCATE}} 20, 34: {{Cl|PRINT}} &quot;Flip on both axis&quot;
+{{Cl|LOCATE}} 24, 10: {{Cl|PRINT}} &quot;_PUTIMAGE (dx2, dy2)-(dx1, dy1), source_handle, dest_handle&quot;
+K$ = {{Cl|INPUT$}}(1)
+'to enlarge, double the second set of values plus any offset of the first coordinates:
+{{Cl|_PUTIMAGE}} (dx1, dy1)-((2 * dx2) + dx1, (2 * dy2) + dy1), source_handle, dest_handle
+{{Cl|LOCATE}} 20, 34: {{Cl|PRINT}} &quot;Double image size&quot;
+{{Cl|LOCATE}} 24, 2: 
+{{Cl|PRINT}} &quot;_PUTIMAGE (dx1, dy1)-((2 * dx2) + dx1, (2 * dy2) + dy1), s_handle, d_handle '' ''
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Adapted from code by Darth Who}}
+&lt;center&gt;''Note:'' The ''QB64.PNG'' Bee image used can be copied from the top of the [http://www.qb64.net/forum/index.php Main Forum Page]&lt;/center&gt;
+
+
+''Example 4:'' Using _PUTIMAGE to scroll a larger image created on a separate [[_NEWIMAGE]] screen page with QB64.
+{{CodeStart}} '' ''
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+ws&amp; = {{Cl|_NEWIMAGE}}(2560, 1440, 32) 'large image page
+s&amp; = {{Cl|_NEWIMAGE}}(1280, 720, 32)' program screen
+
+{{Cl|_DEST}} ws&amp; 'create large image of random filled circles
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 50
+    x = {{Cl|RND}}(1) * 2560
+    y = {{Cl|RND}}(1) * 1440
+    clr&amp; = {{Cl|_RGB32}}({{Cl|RND}}(1) * 255, {{Cl|RND}}(1) * 255, {{Cl|RND}}(1) * 255)
+    {{Cl|CIRCLE}} (x, y), {{Cl|RND}}(1) * 300, clr&amp;
+    {{Cl|PAINT}} (x, y), clr&amp;
+{{Cl|NEXT}}
+{{Cl|PRINT}} &quot;This is a demo of some screen scrolling.   Use the number pad keys to scroll.  4 goes left, 6 goes right.  8 up, 2 down. ESC key will close this program.&quot;
+x = 0: y = 0
+{{Cl|SCREEN}} s&amp;
+
+DO
+    {{Cl|CLS}}
+    {{Cl|_PUTIMAGE}} (0, 0), ws&amp;, 0, (x, y)-(x + 1279, y + 719)
+    a$ = {{Cl|INKEY$}}
+    {{Cl|SELECT CASE}} a$
+        {{Cl|CASE}} &quot;4&quot;: x = x - 10: {{Cl|IF...THEN|IF}} x &lt; 0 {{Cl|THEN}} x = 0
+        {{Cl|CASE}} &quot;6&quot;: x = x + 10: {{Cl|IF...THEN|IF}} x &gt; 1280 {{Cl|THEN}} x = 1280
+        {{Cl|CASE}} &quot;8&quot;: y = y - 10: {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|THEN}} y = 0
+        {{Cl|CASE}} &quot;2&quot;: y = y + 10: {{Cl|IF...THEN|IF}} y &gt; 720 {{Cl|THEN}} y = 720
+        {{Cl|CASE}} {{Cl|CHR$}}(32): {{Cl|SYSTEM}}
+    {{Cl|END SELECT}}
+    {{Cl|_DISPLAY}}
+{{Cl|LOOP}} '' ''
+{{CodeEnd}}{{small|Code example by SMcNeill}}
+
+
+''Example 5:'' _PUTIMAGE can be used with no parameters at all if the [[_SOURCE]] and [[_DEST]] are already set.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13
+h&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256)
+{{Cl|_DEST}} h&amp;
+{{Cl|_PRINTSTRING}} (10, 10), &quot;This _PUTIMAGE used no parameters!&quot;
+{{Cl|_SOURCE}} h&amp;
+{{Cl|_DEST}} 0
+{{Cl|_PUTIMAGE}}
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+
+''See Examples:'' 
+
+[[Bitmaps]] (Bitmap Screenshots)
+
+[[SAVEIMAGE]] (Converts Images to Bitmaps)
+
+
+{{PageSeeAlso}}
+* [[_LOADIMAGE]], [[_NEWIMAGE]]
+* [[_COPYIMAGE]], [[_SCREENIMAGE]]
+* [[_DEST]], [[_SOURCE]], [[_FREEIMAGE]]
+
+
+
+{{PageNavigation}}

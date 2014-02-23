@@ -1,0 +1,146 @@
+:::The '''DRAW''' graphics statement uses a [[STRING]] expression to draw lines on the screen.
+
+
+
+{{PageSyntax}}
+:: DRAW draw_string$
+
+
+* The draw string can be a draw value in quotation marks or a [[STRING]] variable using DRAW function letters.
+* DRAW starting coordinates can be set using [[PSET]], [[PRESET]], [[CIRCLE]] or [[LINE]] ending positions.
+* Other graphic objects can be located at or relative to the last DRAW position. 
+* DRAW can adopt colors from other graphics objects such as [[PSET]], [[LINE]] and [[CIRCLE]] statements.
+* Draw strings use letters followed by the number of pixels to move, an angle, coordinate or a color value.
+* Draw strings are flexible with spacing. Spacing is not required! DRAW will look for a number value when needed.
+* DRAW statements are not Case sensitive. Use upper or lower case.
+:* &quot;'''C''' n&quot; designates the color n to be used in the draw statement string following use. [[PSET]] or [[PRESET]] colors work too.
+:* &quot;'''B'''&quot; (Blind) before a line move designates that the line move will be hidden. Use to offset from a &quot;P&quot; or [[PAINT]] border. 
+:* &quot;'''M''' x, y&quot; can move to another coordinate area of the screen. When a + or - sign is used before a coordinate, 
+::it is a relative coordinate move similar to using the [[STEP]] graphics keyword. DRAW &quot;M+=&quot; + [[VARPTR$]](variable%)
+:* &quot;'''N'''&quot; before a line move designates that the drawn line will return to the line start position. Saves moves!
+:* &quot;'''P''' f [, b]&quot; is used to [[PAINT|paint]] enclosed objects. f denotes the fill color and b the border color if needed.
+:* &quot;'''S''' n&quot; changes the pixel move size of the lines. Default is 4(1 pixel) minimum. &quot;S8&quot; would double the pixel line moves.
+:* &quot;'''X'''&quot; + [[VARPTR$]](value) can draw another substring.
+
+* Certain letter designations create line moves on the SCREEN. Each move is followed by the number of pixels:
+
+:* &quot;'''U''' n&quot; draws a line UP n pixels.
+:* &quot;'''D''' n&quot; draws a line DOWN n pixels.
+:* &quot;'''L''' n&quot; draws a line LEFT n pixels.
+:* &quot;'''R''' n&quot; draws a line RIGHT n pixels.
+:* &quot;'''E''' n&quot; draws a diagonal / line going UP and RIGHT n pixels each direction.
+:* &quot;'''F''' n&quot; draws a diagonal \ line going DOWN and RIGHT n pixels each direction.
+:* &quot;'''G''' n&quot; draws a diagonal / LINE going DOWN and LEFT n pixels each direction.
+:* &quot;'''H''' n&quot; draws a diagonal \ LINE going UP and LEFT n pixels each direction.
+
+* Angles are used to rotate the draw moves following their use. U could become a down move. 
+
+:* &quot;'''A''' n&quot; can use values of 1 to 3 to rotate up to 3 90 degree(270) angles.
+:* '''TA''' n&quot; can use any n angle from -360 to 0 to 360 to rotate a DRAW (Turn Angle). &quot;TA0&quot; resets to normal.
+:* When [[VARPTR$]] is used DRAW functions such as '''TA''' angles use an equal sign: &quot;TA=&quot; + VARPTR$(angle%)
+* '''DRAW can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
+
+
+''Example 1:'' Placing an octagon shape DRAW across the the screen using PSET.
+
+{{CodeStart}} '' ''
+ SCREEN 12
+ octagon$ = &quot;C12 R10 F10 D10 G10 L10 H10 U10 E10&quot;  'create a DRAW string value
+ {{Cl|SCREEN (statement)|SCREEN}} 12
+ FOR i% = 1 TO 11
+   {{Cl|PSET}} (i% * 50, 100), 15
+   {{Cl|_DELAY}} .5         ' delay for demo
+   {{Cl|DRAW}} octagon$     ' DRAW the octagon using variable
+   {{Cl|_DELAY}} .5         ' delay for demo 
+ NEXT i% '' ''
+{{CodeEnd}}
+''Explanation:'' Once a DRAW string variable is created, it can be used to draw a shape throughout the program at any time. 
+
+
+''Example 2:'' Creating an analog clock's hour markers using &quot;TA=&quot; + [[VARPTR$]](angle).
+{{CodeStart}} '' ''
+ SCREEN 12
+ FOR angle = 0 TO 360 {{Cl|STEP}} 30             ' 360/12 hour circles = 30 degrees apart  
+   PSET (175, 250), 6 ' stay at center point of clock
+   {{Cl|DRAW}} &quot;TA=&quot; + {{Cl|VARPTR$}}(angle) + &quot;BU100&quot; ' move invisibly to set next circle's center point
+   {{Cl|CIRCLE}} {{Cl|STEP}}(0, 0), 5, 12 ' circle placed at end of blind line
+   {{Cl|DRAW}} &quot;P9, 12&quot; ' paint inside of circle 
+   {{Cl|SLEEP}} 1     ' slowed for demo only
+ NEXT '' ''
+{{CodeEnd}}
+
+
+''Explanation:'' To place 12 circles in a circle each move is 30 degrees. PSET sets the center of the circular path every loop. TA moves counter-clockwise with positive degree angles. Once TA sets the angle a blind Up move is at that angle. The hour circles use the end point of the blind line as centers using the STEP relative coordinates of 0. After the circles are drawn, a draw &quot;P&quot; string paints the circle centers. DRAW paint strings use the last coordinate position also.
+
+
+''Example 3:'' Creating a moving second hand for the clock above (SCREEN 12).
+
+{{CodeStart}}
+ DO: sec$ = {{Cl|RIGHT$}}({{Cl|TIME$}}, 2) ' get actual seconds from TIME$ function
+   degree$ = {{Cl|STR$}}({{Cl|VAL}}(sec$) * -6) ' 60 second moves. TA uses negative angles for clockwise moves
+   {{Cl|PSET}} (175, 250), 9 ' stay at clock center
+   DRAW &quot;TA&quot; + degree$ + &quot;U90&quot; ' up becomes TA directional line
+   DO: LOOP UNTIL RIGHT$(TIME$, 2) &lt;&gt; sec$ ' wait for a new second value
+   IF INKEY$ &lt;&gt; &quot;&quot; THEN {{Cl|EXIT DO}} ' any key exit
+   PSET (175, 250), 0 ' set at clock center to erase line
+   DRAW &quot;TA&quot; + degree$ + &quot;U90&quot; ' erases old second hand line using color 0 from PSET
+ LOOP
+{{CodeEnd}}
+
+
+''Explanation:'' The degrees to move from the original UP line move is calculated by dividing 360/60 seconds in a full rotation. That value of 6 is made negative to use TA correctly and multiplied by the [[VAL]]ue of seconds from the TIME$ function. The degree angle is converted by [[STR$]] to a string and added to the DRAW string using the [[STRING]] '''concatenation +''' operator. DO NOT USE SEMICOLONS to create DRAW strings! Once the second hand is placed on the screen, a loop waits for the second value to change. It then erases the hand and it repeats the process again.
+
+
+''Example 4:'' Creating digital displays using DRAW format strings to create the LED segments.
+{{CodeStart}}
+{{Cl|SCREEN}} 12
+DO
+  {{Cl|LOCATE}} 1, 1: {{Cl|INPUT}} &quot;Enter a number 0 to 9: &quot;, num
+  {{Cl|CLS}}
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 0, 2, 3, 5 {{Cl|TO}} 9: {{Cl|PSET}} (20, 20), 12
+      {{Cl|DRAW}} &quot;E2R30F2G2L30H2BR5P12,12&quot; 'top horiz
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 0, 4 {{Cl|TO}} 6, 8, 9: {{Cl|PSET}} (20, 20), 12
+      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12,12&quot; 'left top vert
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 0, 2, 6, 8: {{Cl|PSET}} (20, 54), 12
+      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12, 12&quot; 'left bot vert
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 2 {{Cl|TO}} 6, 8, 9: {{Cl|PSET}} (20, 54), 12
+      {{Cl|DRAW}} &quot;E2R30F2G2L30H2BR5P12, 12&quot; 'middle horiz
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 0 {{Cl|TO}} 4, 7 {{Cl|TO}} 9: {{Cl|PSET}} (54, 20), 12
+      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12,12&quot; 'top right vert
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 0, 1, 3 {{Cl|TO}} 9: {{Cl|PSET}} (54, 54), 12
+      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12,12&quot; 'bottom right vert
+  {{Cl|END SELECT}}
+
+  {{Cl|SELECT CASE}} num
+    {{Cl|CASE}} 0, 2, 3, 5, 6, 8: {{Cl|PSET}} (20, 88), 12
+      {{Cl|DRAW}} &quot;E2R30F2G2L30H2BR5P12,12&quot; 'bottom horiz
+  {{Cl|END SELECT}}
+{{Cl|LOOP}} {{Cl|UNTIL}} num &gt; 9 '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' The DRAW strings can be used more than once with different [[PSET]] positions to create more digits.
+
+
+''See also:'' 
+* [[LINE]], [[PSET]], [[PRESET]], [[CIRCLE]]
+* [[PAINT]], [[SCREEN (statement)|SCREEN]]
+* [[COLOR]], [[PLAY]]
+
+
+{{PageNavigation}}

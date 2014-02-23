@@ -1,0 +1,14 @@
+ERDEV is an integer function that returns an error code from the last device to create an error.
+
+
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* The code is bit-encoded containing DOS error information, the first 8-bit (first byte) contain the DOS error code, while the second bit contains device specific information (bits 15, 14, 13, (12-4 always zero), 3, 2, 1 in that order of the device attribute word).
+
+* ERDEV is set by the critical error handler (interrupt 24h) when DOS encounters a error that prevents it from continuing.
+
+''See also:'' [[ERDEV$]], [[ERROR]]
+
+
+
+
+{{PageNavigation}}

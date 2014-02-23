@@ -1,0 +1,31 @@
+The '''LOF''' Function is used to find the length of an [[OPEN]] file in bytes.
+
+
+
+{{PageSyntax}}
+:: bytes% = LOF(filenumber%)
+
+
+* LOF returns the number of bytes in an OPENed designated filenumber. File is empty if it returns 0.
+* Filenumber is the number of the opened file. # is not required.
+* Often used to determine the number of records in a [[RANDOM]] access file.
+* Can also be used to avoid reading an empty file, which would create an error.
+* LOF in '''QB64''' can return up to 9223372036 gigabyte file sizes.
+
+
+''Example:'' Finding the number of records in a RANDOM file using a [[TYPE]] variable.
+
+{{CodeStart}}
+  OPEN file$ FOR RANDOM AS #1 LEN = {{Cl|LEN}}(Type_variable)
+  NumRecords% = {{Cl|LOF}}(1) \ RecordLEN%
+{{CodeEnd}}
+
+
+''See Example:'' [[INPUT (file mode)]]
+
+
+''See also:'' 
+* [[LEN]], [[EOF]], [[BINARY]], [[RANDOM]], [[TYPE]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,85 @@
+The {{KW|_SCREENPRINT}} statement simulates typing text into a Windows program using the keyboard.
+
+
+
+{{PageSyntax}}
+:&lt;code&gt;{{KW|_SCREENPRINT}} {{Parameter|text$}}&lt;/code&gt;
+
+
+
+{{PageDescription}}
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+* {{Parameter|text$}} is the text to be typed into a &quot;focused&quot; program's text entry area one character at a time.
+* Set the &quot;focus&quot; to a desktop program by using the [[_SCREENIMAGE]] handle as the [[_SOURCE]]. Use the image to map the area. 
+* [[_SCREENCLICK]] can also be used to set the focus to a program's text entry area on the desktop.
+*'''Note: If the focus is not set correctly, the text may be printed to the QB64 IDE or not printed at all!'''
+* Program Ctrl + letter key shortcuts can be simulated using the appropriate [[ASCII]] Control character codes 1 to 26 shown below:
+{{WhiteStart}} CTRL + A = CHR$(1)   ☺  StartHeader (SOH)    CTRL + B = CHR$(2)   ☻  StartText         (STX)
+ CTRL + C = CHR$(3)   ♥  EndText     (ETX)    CTRL + D = CHR$(4)   ♦  EndOfTransmit     (EOT)
+ CTRL + E = CHR$(5)   ♣  Enquiry     (ENQ)    CTRL + F = CHR$(6)   ♠  Acknowledge       (ACK)
+ CTRL + G = CHR$(7)   •  [[BEEP]]        (BEL)    CTRL + H = CHR$(8)   ◘  [Backspace]       (BS)
+ CTRL + I = CHR$(9)   ○  Horiz.Tab   [Tab]    CTRL + J = CHR$(10)  ◙  LineFeed(printer) (LF)
+ CTRL + K = CHR$(11)  ♂  Vert. Tab   (VT)     CTRL + L = CHR$(12)  ♀  FormFeed(printer) (FF)
+ CTRL + M = CHR$(13)  ♪  [Enter]     (CR)     CTRL + N = CHR$(14)  ♫  ShiftOut          (SO)
+ CTRL + O = CHR$(15)  ☼  ShiftIn     (SI)     CTRL + P = CHR$(16)  ►  DataLinkEscape    (DLE)
+ CTRL + Q = CHR$(17)  ◄  DevControl1 (DC1)    CTRL + R = CHR$(18)  ↕  DeviceControl2    (DC2)
+ CTRL + S = CHR$(19)  ‼  DevControl3 (DC3)    CTRL + T = CHR$(20)  ¶  DeviceControl4    (DC4)
+ CTRL + U = CHR$(21)  §  NegativeACK (NAK)    CTRL + V = CHR$(22)  ▬  Synchronous Idle  (SYN)
+ CTRL + W = CHR$(23)  ↨  EndTXBlock  (ETB)    CTRL + X = CHR$(24)  ↑  Cancel            (CAN)
+ CTRL + Y = CHR$(25)  ↓  EndMedium   (EM)     CTRL + Z = CHR$(26)  →  End Of File(SUB)  (EOF)                           
+{{WhiteEnd}}
+
+''Example:'' Printing text into a Windows text editor (Notepad) and copying to the clipboard. MAY NOT WORK ON ALL SYSTEMS!
+{{CodeStart}} '' ''
+{{Cl|DEFLNG}} A-Z
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|PRINT}} &quot;OPENing and MAXIMIZING Notepad in 5 seconds...&quot;; : {{Cl|_DELAY}} 5
+{{Cl|SHELL}} {{Cl|_DONTWAIT}} &quot;START /MAX NotePad.exe&quot;  'opens Notepad file &quot;untitled.txt&quot;
+'detect notepad open and maximized
+'condition: 80% or more of the screen is white
+{{Cl|DO}}                     'read the desktop screen image for maximized window
+  s = {{Cl|_SCREENIMAGE}}
+  {{Cl|_SOURCE}} s
+  z = 0
+  {{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} {{Cl|_HEIGHT}}(s) - 1   'scan for large white area
+    {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} _{{Cl|WIDTH}}(s) - 1
+       c = {{Cl|POINT}}(x, y)
+       {{Cl|IF}} c = {{Cl|_RGB32}}(255, 255, 255) {{Cl|THEN}} z = z + 1
+    {{Cl|NEXT}}
+  {{Cl|NEXT}}
+  {{Cl|IF}} z / ({{Cl|_HEIGHT}}(s) * _{{Cl|WIDTH}}(s)) &gt; 0.8 {{Cl|THEN}} {{Cl|EXIT DO}} 'when 80% of screen is white
+  {{Cl|_FREEIMAGE}} s   'free desktop image
+  {{Cl|_LIMIT}} 1       'scans 1 loop per second
+{{Cl|PRINT}} &quot;.&quot;;
+{{Cl|LOOP}}
+{{Cl|PRINT}}
+{{Cl|PRINT}} &quot;NOTEPAD detected as OPEN and MAXIMIZED&quot;
+
+
+{{Cl|_SCREENPRINT}} &quot;HELLO WORLD&quot;
+{{Cl|SLEEP}} 2
+{{Cl|_SCREENPRINT}} {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) 'backspace 5 characters
+{{Cl|SLEEP}} 3
+{{Cl|_SCREENPRINT}} &quot;QB64!&quot;
+{{Cl|SLEEP}} 2
+{{Cl|_SCREENPRINT}} {{Cl|CHR$}}(1) 'CTRL + A select all
+{{Cl|SLEEP}} 2
+{{Cl|_SCREENPRINT}} {{Cl|CHR$}}(3) 'CTRL + C copy to clipboard
+{{Cl|SLEEP}} 2
+{{Cl|PRINT}} {{Cl|_CLIPBOARD$}}
+{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;QB64 ROCKS!&quot;
+{{Cl|SLEEP}} 2
+{{Cl|_SCREENPRINT}} {{Cl|CHR$}}(22) 'CTRL + V paste from clipboard
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}}
+:''Explanation:'' If the Windows shortcuts are set up properly, printing ASCII Control characters acts like the user selected the control + letter combinations to ''Select all'' (CHR$(1)), ''Copy'' (CHR$(3)) and ''Paste'' (CHR$(22)) the text with the Windows Clipboard. If the editor program's CTRL key combinations are different, use the matching letter [[ASCII]] code from A = 1 to Z = 26 in the text editor.
+
+
+{{PageSeeAlso}}
+* [[_SCREENIMAGE]], [[_SCREENCLICK]]
+* [[_SCREENMOVE]], [[_SCREENX]], [[_SCREENY]]
+
+
+
+{{PageNavigation}}

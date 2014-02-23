@@ -1,0 +1,47 @@
+The {{KW|_SNDPLAYCOPY}} statement copies a sound, plays it and automatically closes the copy using a handle parameter passed from {{KW|_SNDOPEN}} or {{KW|_SNDCOPY}}
+
+
+{{PageSyntax}}
+:{{KW|_SNDPLAYCOPY}} {{Parameter|handle&amp;}}[, {{Parameter|volume!}}]
+
+
+
+{{PageDescription}}
+* Opened sound files must have the &quot;SYNC&quot; capability to use this statement. (Currently WAV, OGG, AIF, RIF and VOC)
+* The volume parameter can be any {{KW|SINGLE}} value from 0 (no volume) to 1 (full volume).
+*Makes coding easier by doing all of the following automatically:
+:#Copies/duplicates the source handle (see {{KW|_SNDCOPY}})
+:#Changes the volume of the copy if volume is passed (file must have &quot;VOL&quot; capability)
+:#Plays the copy
+:#Closes the copy
+* This statement is a better choice than {{KW|_SNDPLAYFILE}} if the sound will be played often, reducing the burden on computer. 
+
+
+''Example 1:'' Playing a sound at half volume.
+
+{{CodeStart}}
+
+{{Cl|_SNDPLAYCOPY}} applause&amp;, 0.5
+
+{{CodeEnd}}
+
+
+''Example 2:'' Playing a song at random volumes.
+
+{{CodeStart}}
+
+chomp&amp; = _SNDOPEN(&quot;chomp.wav&quot;, &quot;VOL,SYNC&quot;)
+
+_SNDPLAYCOPY chomp&amp;, 0.5 + RND * 0.49      
+
+{{CodeEnd}}
+
+
+
+{{PageSeeAlso}}
+
+*{{KW|_SNDOPEN}}
+*{{KW|_SNDCOPY}}
+
+
+{{PageNavigation}}

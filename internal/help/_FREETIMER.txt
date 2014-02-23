@@ -1,0 +1,18 @@
+The '''_FREETIMER''' function returns a free {{KW|TIMER}} number for multiple {{KW|ON TIMER(n)}} events.
+
+
+{{PageSyntax}}
+: timerhandle% = {{KW|_FREETIMER}}
+
+
+{{PageDescription}}
+* QB64 can use an unlimited number of ON TIMER (number, seconds!) event {{KW|INTEGER}} values at once. 
+* Every time _FREETIMER is called the [[INTEGER]] value returned will increase by one, starting at 1, whether it is used or not.
+* Store multiple returns in different variable names to refer to separate events later.
+
+
+{{PageSeeAlso}}
+*{{KW|ON TIMER(n)}}
+
+
+{{PageNavigation}}

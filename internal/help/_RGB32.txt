@@ -1,0 +1,63 @@
+The [[_RGB32]] function ALWAYS returns the 32-bit ''RGBA'' color value with specified red, green and blue component intensities.
+
+
+{{PageSyntax}}
+:{{Parameter|colorvalue~&amp;}} = [[_RGB32]]'''({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}})'''
+
+
+{{PageDescription}}
+* The value returned is ALWAYS a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
+* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!'''
+* {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
+* {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
+* {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.
+* Color intensity values outside of the 0 to 255 range are clipped.
+* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with full [[_ALPHA]] only.
+* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]](colorvalue&amp;), 3) to place 3 colors.
+* Colors returned are ALWAYS opaque as the transparency value is always 255! Use [[_ALPHA]] or [[_CLEARCOLOR]] to change it.
+* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+
+
+''Example:'' Converting the color port RGB intensity palette values 0 to 63 to 32 bit hexadecimal values. 
+{{CodeStart}}
+{{Cl|SCREEN}} 12
+{{Cl|DIM}} hex32$(15)
+{{Cl|FOR...NEXT|FOR}} attribute = 1 {{Cl|TO}} 15
+  {{Cl|OUT}} {{Cl|&amp;H}}3C7, attribute      'set color attribute to read
+  red = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4      'multiply by 4 to convert intensity to 0 to 255 RGB values
+  grn = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4
+  blu = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4
+  hex32$(attribute) = &quot;{{Cl|&amp;H}}&quot; + {{Cl|HEX$}}({{Cl|_RGB32}}(red, grn, blu))   'always returns the 32 bit value
+  {{Cl|COLOR}} attribute
+  {{Cl|PRINT}} &quot;{{Cl|COLOR}}&quot; + {{Cl|STR$}}({{Cl|_RGB}}(red, grn, blu)) + &quot; = &quot; + hex32$(attribute)  'closest attribute
+{{Cl|NEXT}} '' ''
+{{CodeEnd}}
+{{OutputStart}}{{text|COLOR 1 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF0000A8|#0000A8}}
+{{text|COLOR 2 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A800|#00A800}}
+{{text|COLOR 3 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A8A8|#00A8A8}}
+{{text|COLOR 4 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA80000|#A80000}}
+{{text|COLOR 5 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA800A8|#A800A8}}
+{{text|COLOR 6 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA85400|#A85400}}
+{{text|COLOR 7 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA8A8A8|#A8A8A8}}
+{{text|COLOR 8 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF545454|#545454}}
+{{text|COLOR 9 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF5454FC|#5454FC}}
+{{text|COLOR 10 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FC54|#54FC54}}
+{{text|COLOR 11 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FCFC|#54FCFC}}
+{{text|COLOR 12 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC5454|#FC5454}}
+{{text|COLOR 13 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC54FC|#FC54FC}}
+{{text|COLOR 14 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFC54|#FCFC54}}
+{{text|COLOR 15 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFCFC|#FCFCFC}}
+{{OutputEnd}}
+:''Note:'' This procedure also shows how the returns from [[_RGB]] and [[_RGB32]] differ in a non-32 bit screen mode.
+
+
+{{PageSeeAlso}}
+* [[_RGBA32]], [[_RGB]], [[_RGBA]]
+* [[_RED32]], [[_GREEN32]], [[_BLUE32]]
+* [[_PALETTECOLOR]]
+* [[HEX$ 32 Bit Values]]
+* [[SAVEIMAGE]] {{text|(bitmap creator)}}
+* [http://www.w3schools.com/html/html_colornames.asp Hexadecimal Color Values]
+
+
+{{PageNavigation}}

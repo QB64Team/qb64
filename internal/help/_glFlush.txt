@@ -1,0 +1,31 @@
+'''_glFlush:''' force execution of GL commands in finite time
+
+
+{{PageSyntax}}
+
+  SUB _glFlush
+  void '''_glFlush'''({{Parameter|void}});
+
+
+
+{{PageDescription}}
+
+Different GL implementations buffer commands in several different locations, including network buffers and the graphics accelerator itself. '''_glFlush''' empties all of these buffers, causing all issued commands to be executed as quickly as they are accepted by the actual rendering engine. Though this execution may not be completed in any particular time period, it does complete in finite time.
+
+Because any GL program might be executed over a network, or on an accelerator that buffers commands, all programs should call '''_glFlush''' whenever they count on having all of their previously issued commands completed. For example, call '''_glFlush''' before waiting for user input that depends on the generated image.
+
+
+{{PageNotes}}
+
+'''_glFlush''' can return at any time. It does not wait until the execution of all previously issued GL commands is complete.
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glFinish}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

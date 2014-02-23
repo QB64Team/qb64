@@ -1,0 +1,55 @@
+'''_MOUSEY''' Function returns the current vertical(row) mouse cursor position when read after [[_MOUSEINPUT]].
+
+
+{{PageSyntax}}
+::: row% = {{KW|_MOUSEY}}
+
+
+''Usage:''
+* [[SCREEN]] 0 returns the [[SINGLE]] vertical text row position. Graphic screens return the [[INTEGER]] pixel row.
+* To calculate text rows in graphic modes divide the return by 16 or the [[_FONTHEIGHT]] of [[_FONT]] characters.
+* [[_MOUSEINPUT]] MUST be used to detect any changes in the mouse position and is '''required''' for any coordinate returns.
+
+
+''Example:'' Highlighting a row of text in Screen 0.
+{{CodeStart}} '' ''
+minX = 20: maxX = 60: minY = 10: maxY = 24
+selection = 0 'the screen Y coordinate of the previously highlighted item
+{{Cl|FOR}} i% = 1 {{Cl|TO}} 25: {{Cl|LOCATE}} i%, 40: {{Cl|PRINT}} i%;: {{Cl|NEXT}}
+{{Cl|DO}}: {{Cl|_LIMIT}} 100
+  {{Cl|IF}} {{Cl|_MOUSEINPUT}} {{Cl|THEN}}
+    'Un-highlight any selected row
+    {{Cl|IF}} selection {{Cl|THEN}} selectRow selection, minX, maxX, 0
+    x = {{Cl|CINT}}({{Cl|_MOUSEX}})
+    y = {{Cl|CINT}}({{Cl|_MOUSEY}})    
+    {{Cl|IF}} x &gt;= minX {{Cl|AND (boolean)|AND}} x &lt;= maxX {{Cl|AND (boolean)|AND}} y &gt;= minY {{Cl|AND (boolean)|AND}} y &lt;= maxY {{Cl|THEN}}
+      selection = y
+    {{Cl|ELSE}}
+      selection = 0
+    {{Cl|END IF}}
+    'Highlight any selected row
+    {{Cl|IF}} selection {{Cl|THEN}} SelectRow selection, minX, maxX, 2 
+    {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|LOCATE}} 1, 2: {{Cl|PRINT}} x, y, selection 
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|SUB}} SelectRow (y, x1, x2, col)
+{{Cl|DEF SEG}} = {{Cl|&amp;H}}B800
+addr&amp; = (x1 - 1 + (y - 1) * {{Cl|_WIDTH (function)|_WIDTH}}) * 2 + 1
+{{Cl|FOR}} x = x1 {{Cl|TO}} x2
+  oldCol = {{Cl|PEEK}}(addr&amp;) {{Cl|AND (boolean)|AND}} {{Cl|&amp;B}}10001111   ' Mask foreground color and blink bit
+  {{Cl|POKE}} addr&amp;, oldCol {{Cl|OR}} ((col {{Cl|AND (boolean)|AND}} {{Cl|&amp;B}}111) * {{Cl|&amp;B}}10000) ' Apply background color
+  addr&amp; = addr&amp; + 2
+{{Cl|NEXT}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_MOUSEX]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
+* [[_MOUSEINPUT]], [[_MOUSEMOVE]]
+* [[_MOUSESHOW]], [[_MOUSEHIDE]]
+* [[Controller_Devices]]
+
+
+{{PageNavigation}}

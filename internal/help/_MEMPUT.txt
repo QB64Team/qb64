@@ -1,0 +1,33 @@
+The '''_MEMPUT''' statement writes data to a portion of a designated memory block at an OFFSET position.
+
+
+{{PageSyntax}}
+::: '''_MEMPUT ''memory_block'', ''memory_block.OFFSET''''' [+ ''bytes'']''', ''source_variable''''' [AS ''type'']
+
+
+
+* ''memory block'' is a [[_MEM]] variable type name.
+* ''memory block.OFFSET'' is the dot [[OFFSET]] byte zero memory position where block data begins. 
+* The ''source variable'' designates the size and place it will be read from. It can be a variable, array or user defined type.
+* The ''source variable'' is converted to a specific variable ''[[TYPE|type]]'' before it is copied to the ''memory block offset'' as bytes.
+
+
+''Example:'' _MEMPUT can be used just like [[POKE]] without [[DEF SEG]].
+{{CodeStart}} '' ''
+{{Cl|DIM}} o {{Cl|AS}} {{Cl|_MEM}}
+o = {{Cl|_MEM (function)|_MEM}}(d&amp;)
+{{Cl|_MEMPUT}} o, o.OFFSET + 1, 3 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}  'POKE
+v = {{Cl|_MEMGET (function)|_MEMGET}}(o, o.OFFSET + 1, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) 'PEEK
+{{Cl|PRINT}} v 'prints 3
+{{Cl|PRINT}} d&amp; 'print 768 because the 2nd byte of d&amp; has been set to 3 or 3 * 256 '' ''
+{{CodeEnd}}
+
+
+''See also:''
+* [[_MEMGET]], [[_MEMGET (function)]]
+* [[_MEM]], [[_MEM (function)]]
+* [[_MEMIMAGE]], [[_MEMNEW]]
+* [[_MEMFREE]], [[_MEMCOPY]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,80 @@
+The '''INPUT''' statement requests a [[STRING]] or numerical keyboard entry from a program user.
+
+
+
+{{PageSyntax}}
+:: '''INPUT''' [;] '''&quot;'''[Question or statement text]'''&quot;{,|;}''' '''''variable[[type]]'''''[, ...]
+:: '''INPUT ; ''variable[[type]]'''''[, ...]
+
+
+''[[Parameters]]:''
+* [[semicolon]] after the INPUT keyword keeps the entry on the same row after enter is pressed  and prevents screen roll. 
+* [[Quotation mark]]s are required except when just a semicolon follows INPUT. Just a question mark will appear before the entry cursor.
+* The text MUST be a literal [[STRING|string]] created by the programmer if used. '''Use a [[PRINT]] before INPUT to create text using variables.'''
+* [[semicolon]] immediately after the text statement will display a ? mark with a space after it. Use a [[comma]] for input statements.
+* ''variable [[type]]'' determines the allowable numerical value entries in QB64. Text can't be entered for numerical values except D, E or [[HEX$]].
+
+
+''Usage:''
+* '''QB64 will not return Redo from start errors''' as user input is limited to input within the scope of the variable [[type]] used.
+* INPUT is capable of returning more than one ''variable'' value by separating input variables with commas in the statement. The user will have to know to separate each entry value with a comma when they use it. '''Use [[LINE INPUT]] for text entries that may contain commas!'''
+* [[STRING|String]] and numerical variables can both be used in multiple entry requests. Text cannot be entered as numerical variable values! 
+* The user must press enter for the INPUT procedure to end. Multiple entries can be skipped.
+* Will accept the [[scientific notation]] letter D or E inside of [[SINGLE]] or [[DOUBLE]] numerical values.
+* Numerical entries starting with [[&amp;H]], [[&amp;O]] and [[&amp;B]] can be made also.
+* INPUT removes all spaces preceeding or following a string value entry. QB64 doesn't remove the spaces
+* The statement stops a program until enter is pressed. Not good in programs using a mouse (see [[INKEY$]] loops).
+* Use [[_DEST]] [[_CONSOLE]] before INPUT statements to be used in a [[$CONSOLE|console]] window.
+
+
+''Example 1:'' Using a variable in an input text message using PRINT. INPUT text cannot use variables!
+{{CodeStart}} '' ''
+{{Cl|INPUT}} &quot;Enter your name: &quot;, name$
+{{Cl|PRINT}} name$ + &quot; please enter your age: &quot;;: {{Cl|INPUT}} &quot;&quot;, age% 'empty string with comma
+{{Cl|PRINT}} name$ + &quot; how much do you weigh&quot;; : {{Cl|INPUT}} weight%   'no text adds ? '' ''
+{{CodeEnd}}
+:''Explanation:'' Use an empty string with a comma to eliminate the question mark that would appear without the string.
+
+
+''Example 2:'' How QB64 avoids a ''Redo from start'' multiple entry error. Use commas between values!
+{{CodeStart}} '' ''
+{{Cl|DO}} '' ''
+  {{Cl|INPUT}} &quot;What is your name, age, and sex(M/F)&quot;; name$, age%, sex$
+{{Cl|LOOP}} {{Cl|UNTIL}} age%        'loop until age is not 0
+{{Cl|IF}} age% &gt;= 21 {{Cl|THEN}} {{Cl|PRINT}} &quot;You can drink beer!&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;You cannot drink beer yet!&quot;
+{{Cl|END}} '' '' 
+{{CodeEnd}}
+{{OutputStart}}
+What is your name, age, and sex(M/F)? Tom,24,M
+You can drink beer!
+{{OutputEnd}}
+:''Explanation:'' Try to enter text for the age value and it will not work. E or D should be allowed as decimal point numerical entries.
+
+
+''Example 3:'' Preventing screen roll after an input entry on the bottom 2 screen rows. 
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 29, 2 '          place dursor at beginning of prompt liine
+{{Cl|PRINT}} &quot;Enter a name to search for... &quot;; 'print prompt on screen
+{{Cl|COLOR}} 15: {{Cl|INPUT}} {{text|;|red}} &quot;&quot;, name$ '       get search name from user
+{{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} {{Cl|SPC}}(78); '       erase previous prompt
+n$ = {{Cl|UCASE$}}(name$) '                 convert search name to upper case
+{{Cl|COLOR}} 14'                        change foreground color to yellow
+{{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} &quot;Searching...&quot;; 'print message
+{{Cl|SLEEP}} 
+{{CodeEnd}}
+{{OutputStart}}{{text|Enter a name to search for...|#FFFF00}} █
+{{OutputEnd}}
+: ''Explanation:'' The {{text|red|red}} [[semicolon]] after INPUT acts like a semicolon after a [[PRINT]], which keeps the print cursor on the same row.
+
+
+''See also:'' 
+* [[INPUT$]], [[INKEY$]]
+* [[LINE INPUT]], [[LOCATE]]
+* [[INPUT (file statement)|INPUT #]], [[LINE INPUT (file statement)|LINE INPUT #]] {{text|(file input)}}
+* [[_KEYHIT]], [[_KEYDOWN]]
+* [[Scancodes]]
+
+
+{{PageNavigation}}

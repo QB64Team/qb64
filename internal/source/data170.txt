@@ -1,0 +1,50 @@
+qbs*oldstr4671=NULL;
+if(_SUB_BUILD_STRING_PATH->tmp||_SUB_BUILD_STRING_PATH->fixed||_SUB_BUILD_STRING_PATH->readonly){
+oldstr4671=_SUB_BUILD_STRING_PATH;
+if (oldstr4671->cmem_descriptor){
+_SUB_BUILD_STRING_PATH=qbs_new_cmem(oldstr4671->len,0);
+}else{
+_SUB_BUILD_STRING_PATH=qbs_new(oldstr4671->len,0);
+}
+memcpy(_SUB_BUILD_STRING_PATH->chr,oldstr4671->chr,oldstr4671->len);
+}
+int32 *_SUB_BUILD_LONG_DEPTH=NULL;
+if(_SUB_BUILD_LONG_DEPTH==NULL){
+_SUB_BUILD_LONG_DEPTH=(int32*)mem_static_malloc(4);
+*_SUB_BUILD_LONG_DEPTH=0;
+}
+int32 *_SUB_BUILD_LONG_X=NULL;
+if(_SUB_BUILD_LONG_X==NULL){
+_SUB_BUILD_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_BUILD_LONG_X=0;
+}
+int64 fornext_value4673;
+int64 fornext_finalvalue4673;
+int64 fornext_step4673;
+uint8 fornext_step_negative4673;
+byte_element_struct *byte_element_4674=NULL;
+if (!byte_element_4674){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4674=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4674=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_SUB_BUILD_LONG_BFH=NULL;
+if(_SUB_BUILD_LONG_BFH==NULL){
+_SUB_BUILD_LONG_BFH=(int32*)mem_static_malloc(4);
+*_SUB_BUILD_LONG_BFH=0;
+}
+qbs *_SUB_BUILD_STRING_C=NULL;
+if (!_SUB_BUILD_STRING_C)_SUB_BUILD_STRING_C=qbs_new(0,0);
+int32 *_SUB_BUILD_LONG_USE=NULL;
+if(_SUB_BUILD_LONG_USE==NULL){
+_SUB_BUILD_LONG_USE=(int32*)mem_static_malloc(4);
+*_SUB_BUILD_LONG_USE=0;
+}
+byte_element_struct *byte_element_4677=NULL;
+if (!byte_element_4677){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4677=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4677=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_SUB_BUILD_STRING_RETURN_PATH=NULL;
+if (!_SUB_BUILD_STRING_RETURN_PATH)_SUB_BUILD_STRING_RETURN_PATH=qbs_new(0,0);
+int64 fornext_value4679;
+int64 fornext_finalvalue4679;
+int64 fornext_step4679;
+uint8 fornext_step_negative4679;

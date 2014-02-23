@@ -1,0 +1,100 @@
+The '''COS''' function returns the cosine of an angle measured in radians.
+
+
+
+::::::''Syntax:'' value! = COS(''radian_angle!'')
+
+
+
+* The ''radian_angle'' must be measured in radians. To convert from degrees to radians, multiply degrees * π/180.
+* [[COS]]INE is the horizontal component of a unit vector in the direction theta (&amp;theta;).
+* COS(x) can be calculated in either [[SINGLE]] or [[DOUBLE]] precision depending on its argument.  
+::: COS(4) = -.6536436 ...... COS(4#) = -.6536436208636119
+
+
+''Example 1:'' Converting degree angles to radians for Qbasic's trig functions and drawing the line at the angle.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+PI = 4 * {{Cl|ATN}}(1)
+{{Cl|PRINT}} &quot;PI = 4 * {{Cl|ATN}}(1) =&quot;; PI
+{{Cl|PRINT}} &quot;COS(PI) = &quot;; {{Cl|COS}}(PI)
+{{Cl|PRINT}} &quot;SIN(PI) = &quot;; {{Cl|SIN}}(PI)
+{{Cl|DO...LOOP|DO}}
+  {{Cl|PRINT}}
+  {{Cl|INPUT}} &quot;Enter the degree angle (0 quits): &quot;, DEGREES%
+  RADIANS = DEGREES% * PI / 180
+  {{Cl|PRINT}} &quot;RADIANS = DEGREES% * PI / 180 = &quot;; RADIANS
+  {{Cl|PRINT}} &quot;X = COS(RADIANS) = &quot;; {{Cl|COS}}(RADIANS)
+  {{Cl|PRINT}} &quot;Y = SIN(RADIANS) = &quot;; {{Cl|SIN}}(RADIANS)
+  {{Cl|CIRCLE}} (400, 240), 2, 12
+  {{Cl|LINE}} (400, 240)-(400 + (50 * {{Cl|SIN}}(RADIANS)), 240 + (50 * {{Cl|COS}}(RADIANS))), 11
+  DEGREES% = RADIANS * 180 / PI
+  {{Cl|PRINT}} &quot;DEGREES% = RADIANS * 180 / PI =&quot;; DEGREES%
+{{Cl|LOOP}} {{Cl|UNTIL}} DEGREES% = 0 '' ''
+{{CodeEnd}}
+{{OutputStart}}
+PI = 4 * ATN(1) = 3.141593
+COS(PI) = -1
+SIN(PI) = -8.742278E-08
+
+Enter the degree angle (0 quits): 45
+RADIANS = DEGREES% * PI / 180 = .7853982
+X = COS(RADIANS) = .7071068
+Y = SIN(RADIANS) = .7071068
+DEGREES% = RADIANS * 180 / PI = 45
+{{OutputEnd}}
+: ''Explanation:'' When 8.742278E-08(.00000008742278) is returned by [[SIN]] or COS the value  is essentially zero.
+
+
+''Example 2:'' Creating 12 analog clock hour points using [[CIRCLE]]s and [[PAINT]]
+{{CodeStart}} '' ''
+ PI2 = 8 * {{Cl|ATN}}(1)                  '2 * π
+ arc! = PI2 / 12                          'arc interval between hour circles
+ {{Cl|SCREEN (statement)|SCREEN}} 12
+ FOR t! = 0 TO PI2 STEP arc!
+   cx% = {{Cl|CINT}}({{Cl|COS}}(t!) * 70) ' pixel columns (circular radius = 70)
+   cy% = {{Cl|CINT}}({{Cl|SIN}}(t!) * 70) ' pixel rows
+   {{Cl|CIRCLE}} (cx% + 320, cy% + 240), 3, 12
+   {{Cl|PAINT}} {{Cl|STEP}}(0, 0), 9, 12
+ NEXT '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+''Explanation:'' The 12 circles are placed at radian angles that are 1/12 of 6.28318 or .523598 radians apart.
+
+
+''Example 3:'' Creating a rotating spiral with COS and [[SIN]].
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+
+{{Cl|DO...LOOP|DO}}
+  {{Cl|LINE}} (0, 0)-(640, 480), {{Cl|_RGB}}(0, 0, 0), BF
+  j = j + 1
+  {{Cl|PSET}} (320, 240)
+  {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 100 {{Cl|STEP}} .1
+    {{Cl|LINE}} -(.05 * i * i * {{Cl|COS}}(j + i) + 320, .05 * i * i * {{Cl|SIN}}(j + i) + 240)
+  {{Cl|NEXT}}
+  {{Cl|PSET}} (320, 240)
+  {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 100 {{Cl|STEP}} .1
+    {{Cl|LINE}} -(.05 * i * i * {{Cl|COS}}(j + i + 10) + 320, .05 * i * i * {{Cl|SIN}}(j + i + 10) + 240)
+  {{Cl|NEXT}}
+  {{Cl|PSET}} (320, 240)
+  {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 100 {{Cl|STEP}} .1
+    {{Cl|PAINT}} (.05 * i * i * {{Cl|COS}}(j + i + 5) + 320, .05 * i * i * {{Cl|SIN}}(j + i + 5) + 240)
+  {{Cl|NEXT}}
+
+  {{Cl|_DISPLAY}}
+  {{Cl|_LIMIT}} 30
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INP}}({{Cl|&amp;H}}60) = 1 'escape exit '' ''
+{{CodeEnd}}
+{{small|Code by Ben}}
+ 
+
+''See also:'' 
+* [[SIN]] {{text|(sine)}}
+* [[ATN]] {{text|(arctangent)}}
+* [[TAN]] {{text|(tangent)}}
+*[[Mathematical Operations]]
+*[[Mathematical_Operations#Derived_Mathematical_Functions|Derived Mathematical Functions]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,38 @@
+The {{KW|ATN}} or arctangent function returns the angle in radians of a numerical [[TAN|tangent]] value.
+
+
+{{PageSyntax}}
+:: radian_angle = '''ATN(''tangent!'')'''
+
+
+{{PageDescription}}
+* The [[SINGLE]] or [[DOUBLE]] ''tangent'' value would be equal to the tangent value of an angle. EX: [[TAN]](ATN(1)) = 1
+* The return is that tangent value's ''angle'' in radians. To convert from radians to degrees, multiply radians * (180 / &amp;pi;).
+* The function return value is between -&amp;pi; / 2 and &amp;pi; / 2.
+
+
+''Example 1:'' When the [[TAN]]gent value equals 1, the line is drawn at a 45 degree angle(.7853982 radians) where [[SIN]] / [[COS]] = 1.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+x = 100 * {{Cl|COS}}({{Cl|ATN}}(1))
+y = 100 * {{Cl|SIN}}({{Cl|ATN}}(1))
+{{Cl|LINE}} (200, 200)-(200 + x, 200 + y) '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' {{KW|ATN}} can be used to define &amp;pi; in [[SINGLE]] or [[DOUBLE]] precision. The calculation can NOT be used as a [[CONST]]ant.
+{{CodeStart}} '' ''
+Pi = 4 * {{Cl|ATN}}(1)   '{{Cl|SINGLE}} precision
+Pi# = 4 * {{Cl|ATN}}(1#) '{{Cl|DOUBLE}} precision
+PRINT Pi, Pi# '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[TAN]] {{text|(tangent)}}
+* [[SIN]], [[COS]]
+* [[Mathematical Operations]]
+* [[Mathematical_Operations#Derived_Mathematical_Functions|Derived Mathematical Functions]]
+
+
+{{PageNavigation}}
