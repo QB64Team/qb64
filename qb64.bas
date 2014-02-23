@@ -2224,6 +2224,15 @@ DO
                             'Our alteration to allow for multiple uses of RGB and RGBA inside a CONST //SMcNeill
                             altered = 0
 
+                            'Edit 02/23/2014 to add space between = and _ for statements like CONST x=_RGB(123,0,0) and stop us from gettting an error.
+                            DO
+                                l = INSTR(wholestv$, "=_")
+                                IF l THEN
+                                    wholestv$ = LEFT$(wholestv$, l) + " " + MID$(wholestv$, l + 1)
+                                END IF
+                            LOOP UNTIL l = 0
+                            'End of Edit on 02/23/2014
+
                             DO
                                 finished = -1
                                 l = INSTR(l + 1, UCASE$(wholestv$), " _RGBA")
@@ -2242,20 +2251,24 @@ DO
                                             red$ = MID$(wholestv$, vp + 1, first - vp - 1)
                                             green$ = MID$(wholestv$, first + 1, second - first - 1)
                                             blue$ = MID$(wholestv$, second + 1, third - second - 1)
-                                            alpha$ = MID$(wholestv$, third + 1, fourth - third - 1)
-                                            val$ = MID$(wholestv$, fourth + 1)
+                                            alpha$ = MID$(wholestv$, third + 1)
+                                            IF MID$(wholestv$, l + 6, 2) = "32" THEN
+                                                val$ = "32"
+                                            ELSE
+                                                val$ = MID$(wholestv$, fourth + 1)
+                                            END IF
                                             SELECT CASE VAL(val$)
                                                 CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
                                                     wi& = _NEWIMAGE(240, 120, VAL(val$))
-                                                    clr = _RGBA(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$), wi&)
+                                                    clr~& = _RGBA(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$), wi&)
                                                     _FREEIMAGE wi&
                                                 CASE 32
-                                                    clr = _RGBA32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
+                                                    clr~& = _RGBA32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
                                                 CASE ELSE
                                                     a$ = "Invalid Screen Mode.": GOTO errmes
                                             END SELECT
 
-                                            wholestv$ = l$ + STR$(clr) + RIGHT$(wholestv$, LEN(wholestv$) - E)
+                                            wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)
                                             finished = 0
                                         ELSE
                                             'no finishing bracket
@@ -2283,20 +2296,25 @@ DO
                                             third = INSTR(second + 1, wholestv$, ",")
                                             red$ = MID$(wholestv$, vp + 1, first - vp - 1)
                                             green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                            blue$ = MID$(wholestv$, second + 1, third - second - 1)
-                                            val$ = MID$(wholestv$, third + 1)
+                                            blue$ = MID$(wholestv$, second + 1)
+                                            IF MID$(wholestv$, l + 5, 2) = "32" THEN
+                                                val$ = "32"
+                                            ELSE
+                                                val$ = MID$(wholestv$, third + 1)
+                                            END IF
+
                                             SELECT CASE VAL(val$)
                                                 CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
                                                     wi& = _NEWIMAGE(240, 120, VAL(val$))
-                                                    clr = _RGB(VAL(red$), VAL(green$), VAL(blue$), wi&)
+                                                    clr~& = _RGB(VAL(red$), VAL(green$), VAL(blue$), wi&)
                                                     _FREEIMAGE wi&
                                                 CASE 32
-                                                    clr = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
+                                                    clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
                                                 CASE ELSE
                                                     a$ = "Invalid Screen Mode.": GOTO errmes
                                             END SELECT
 
-                                            wholestv$ = l$ + STR$(clr) + RIGHT$(wholestv$, LEN(wholestv$) - E)
+                                            wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)
                                             finished = 0
                                         ELSE
                                             a$ = ") Expected": GOTO errmes
