@@ -1,0 +1,42 @@
+The {{KW|STR$}} function returns the {{KW|STRING}} representation of a numerical value.
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|STR$}}({{Parameter|number}})
+
+
+{{PageDescription}}
+
+* {{Parameter|number}} is any numerical type value to convert.
+* If {{Parameter|number}} is positive, the {{KW|STRING}} value returned will have a leading space character. The leading space can be removed using {{KW|LTRIM$}}.
+* If {{Parameter|number}} is negative, the minus sign will precede the number instead of a space.
+* Returns any type number value with decimal point when needed.
+* Trimming a number using {{KW|RTRIM$}} is not required as STR$ removes the undocumented trailing PRINT number space.
+
+
+{{PageExamples}}
+{{CodeStart}}{{Cl|PRINT}} {{Cl|STR$}}( 1.0 )
+{{Cl|PRINT}} {{Cl|STR$}}( 2.3 )
+{{Cl|PRINT}} {{Cl|STR$}}( -4.5 )
+{{CodeEnd}}
+{{OutputStart}}
+ 1
+ 2.3
+-4.5
+{{OutputEnd}}
+
+
+{{CodeStart}}
+a = 33
+{{Cl|PRINT}} {{Cl|STR$}}(a) + &quot;10&quot; + &quot;1&quot; + &quot;who&quot; + {{Cl|STR$}}(a) + {{Cl|STR$}}(a) + {{Cl|LTRIM$}}({{Cl|STR$}}(a))
+{{CodeEnd}}
+{{OutputStart}} 33101who 33 3333
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|VAL}}
+* {{KW|LTRIM$}}
+* {{KW|HEX$}}
+
+{{PageNavigation}}

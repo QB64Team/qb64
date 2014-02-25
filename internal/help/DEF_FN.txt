@@ -1,0 +1,75 @@
+The '''DEF FN''' statement defines a non-recursive function in the main module that can use the module's variable values.
+
+
+{{PageSyntax}}
+:[[DEF FN]]{{Parameter|name}} [({{Parameter|parameterList}})] = {{Parameter|expression}}
+::or,
+:[[DEF FN]]{{Parameter|name}} [({{Parameter|parameterList}})]
+::[{{Parameter|statements}}]
+::[[DEF FN|FN]]{{Parameter|name}} = {{Parameter|expression}}
+::[{{Parameter|statements}}]
+:END DEF
+
+
+{{PageDescription}}
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* {{Parameter|name}} is the name of the function.
+* {{Parameter|parameterList}} is a comma-separated list of one or more parameters, similar to [[SUB]] and [[FUNCTION]] statements.
+* {{Parameter|expression}} is any numerical or string value to return from the function.
+* Function can be created anywhere in a module. Not in [[SUB]] procedures.
+* Function can NOT be defined in recursive(repeated) parts of a program. Declare it once only!
+* Function returns should be assigned to a variable when an alteration to the return value is necessary.
+* Function references should only be made AFTER the declaration.
+* Multi-line function definitions MUST end with '''END DEF'''.
+* To leave a DEF Fn function early use '''EXIT DEF'''.
+* This type of function can share values in module level code. To keep values local to the procedure use [[STATIC]].
+* Parameters cannot be from arrays, records or fixed length strings!
+* Fn must prefix the function name inside of the procedure and in a call. 
+* Other variable names or procedures cannot begin with FN or fn in Qbasic!
+* Qbasic Help recommends creating real [[FUNCTION]]s over DEF FN functions because of the above limitations.
+
+
+{{PageExamples}}
+:Function to get the base 10 logarithm of a number value.
+{{CodeStart}}{{Cl|DEF FN}}Log10#(x) = {{Cl|LOG}}(x) / {{Cl|LOG}}(10.#)
+
+{{Cl|PRINT}} FNLog10#(10)
+{{Cl|PRINT}} FNLog10#(100)
+{{Cl|PRINT}} FNLog10#(1000)
+{{CodeEnd}}
+{{OutputStart}} 1
+ 2
+ 3
+{{OutputEnd}}
+
+
+:Demonstrates the multi-line syntax by drawing a circle:
+{{CodeStart}}{{Cl|CONST}} PI# = 3.141592653589793#
+
+{{Cl|DEF FN}}DegreesToRadians# (degrees#)
+    radians# = degrees# * (PI# / 180#)
+    FNDegreesToRadians# = radians#
+{{Cl|DEF FN|END DEF}}
+
+{{Cl|SCREEN}} 13
+{{Cl|WINDOW}} (-1, -1)-(1, 1)
+{{Cl|CLS}}
+
+{{Cl|FOR}} degree% = 0 TO 360
+    x# = {{Cl|COS}}(FNDegreesToRadians#(degree%))
+    y# = {{Cl|SIN}}(FNDegreesToRadians#(degree%))
+    {{Cl|PSET}} (x#, y#)
+{{Cl|NEXT}} degree%
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[FUNCTION]], [[SUB]]
+* [[DEFSTR]], [[DEFINT]]
+* [[DEFSNG]], [[DEFLNG]]
+* [[DEFDBL]]
+* [[_DEFINE]]
+
+
+{{PageNavigation}}

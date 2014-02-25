@@ -1,0 +1,227 @@
+{| align=&quot;Right&quot;
+  | __TOC__
+  |}
+The [[SCREEN]] statement sets the video display mode and size of the program window's workspace. 
+
+
+{{PageSyntax}}
+
+::: '''SCREEN''' {''mode%''|''imagehandle&amp;''} [, , active_page, visual_page] 
+
+
+{{Parameters}} 
+* The SCREEN ''mode'' [[INTEGER]] values available today are 0 to 2 and 7 to 13 listed below. 
+* '''QB64''' can use a [[LONG]] [[_NEWIMAGE]] page or [[_LOADIMAGE]] file ''image handle'' value instead.
+* The empty comma disables color when any value is used. '''DO NOT USE!''' Include the comma ONLY when using page flipping.
+* If the SCREEN mode supports pages, the ''active page'' is the page to be worked on while ''visual page'' is the one displayed.
+
+
+''Usage:'' 
+* No SCREEN statement in a program defaults to [[SCREEN]] 0 text ONLY mode.
+* A SCREEN statement that changes screen modes also clears the screen like [[CLS]]. Nothing on the screen is retained.
+* Some screen mode text sizes are adjustable with [[WIDTH]] and all '''QB54''' screens support [[PCOPY]] and page flipping.  
+
+{{WhiteStart}}                       '''LEGACY SCREEN MODES AT A GLANCE'''
+
+ '''Screen      Text           Graphics          Colors      Video    Text      Default''' 
+  '''Mode   Rows   Columns   Width   Height  Attrib.   BPP   Pages    Block    QB64 Font'''
+
+   0   25/43/50  80/40    No graphics     16/16 DAC  4     0-7     -----    _FONT 16
+   1      25      40      320     200     16/4 BG    4     none    8 X 8    _FONT 8 
+   2      25      80      640     200      2/mono    1     none    8 X 8    _FONT 8 
+   ................................................................................. 
+   7      25      40      320     200     16/16 DAC  4     0-7     8 X 8    _FONT 8 
+   8      25      80      640     200     16/16      4     0-3     8 X 8    _FONT 8 
+   9      25      80      640     350     16/64 DAC  4     0-1     8 X 14   _FONT 14
+  10      25      80      640     350     4/2 GScale 2     none    8 X 14   _FONT 14
+  11     30/60    80      640     480      2/mono    1     none    8 X 16   _FONT 16
+  12     30/60    80      640     480     16/262K    4     none    8 X 16   _FONT 16
+  13      25      40      320     200     256/65K    8     none    8 X 8    _FONT 8 
+
+              '''QB64 allows video paging and [[PCOPY]] in ALL screen modes!''' '' ''
+{{WhiteEnd}}
+
+:::::::::'''QB64 Custom Screen Modes'''
+:'''QB64''' {{PageSyntax}}  
+
+::::::[[SCREEN]] ''imagehandle&amp;'' [, , ''active_page'', ''visual_page'']
+
+::::::[[SCREEN]] [[_NEWIMAGE]](''wide&amp;'', ''high&amp;''[, {''mode''|''256''|''32''}]) [, , ''active_page'', ''visual_page'']
+
+::::::[[SCREEN]] [[_LOADIMAGE]](''file$''[, {''mode''|''256''|''32''}]) [, , ''active_page'', ''visual_page'']
+
+
+* Custom screen modes can be created using a [[_NEWIMAGE]] or [[_LOADIMAGE]] function ''imagehandle'' return value. 
+* '''QB64''' screen modes 0 to 2 and 7 to 13 can be emulated with the same color depth and text block size and different dimensions.
+* [[_NEWIMAGE]] screens can be any set size. A screen mode can be emulated or 256 or 32 bit colors can be designated.
+* The [[_LOADIMAGE]] screen size will be the size of the image loaded. Can designate a ''mode'' or 256 or 32 bit colors.
+* '''QB64''' allows page flipping or a [[PCOPY]] in ANY SCREEN mode. [[_DISPLAY]] can also be used to reduce flickering in animations.
+* All SCREEN modes are Windows in QB64. Use [[_FULLSCREEN]] to set the window area to full screen.
+* [[_SCREENMOVE]] can position a window or the _MIDDLE option can center it on the desktop.
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==Legacy Screen Modes==
+
+* '''[[SCREEN]] 0''' (default mode) is a '''text only''' screen mode. 64 (VGA) colors with hi-intensity(blinking) colors 16 to 31. ([[DAC]] attrib 6, 8 to 15). 8 Background colors intensities only(0 - 7). No graphics are possible! Normally runs in a window. ALT-Enter switches from a window to fullscreen. To automatically run in '''Qbasic''' fullscreen, use another Screen mode before using {{KW|SCREEN (statement)|SCREEN}} 0.  Can use {{KW|PCOPY}} with video pages 0 to 7. Text is 25, 43 or 50 rows by 40 or 80 columns. Default is 25 by 80. See {{KW|WIDTH}}.
+
+: '''Note:''' Use [[OUT]] or [[_PALETTECOLOR]] to create higher intensity color backgrounds than [[COLOR]] , 7.  
+
+:::'''All other available [[SCREEN]] modes can use text and graphics and are fullscreen in Qbasic ONLY.''' 
+
+* '''[[SCREEN]] 1''' has 4 background color attributes. 0 = black, 1 = blue, 2 = green, 3 = grey. White foreground only. Text is 25 by 40. White graphics is 320 by 200. 
+
+* '''[[SCREEN]] 2''' is '''monochrome''' with black background and white foreground. Text is 25 by 80. White graphics 640 by 200.          NO [[COLOR]] keyword allowed.
+ 
+* '''[[SCREEN]] 3 to 6 are no longer supported''' on most computers! Using them will cause a video [[ERROR Codes|error]]! 
+
+* '''[[SCREEN]] 7''' has 16 color attributes ([[DAC]] attrib. 8 to 15) with background colors. Text 25 rows by 40 columns. Graphics 320 columns by 200 rows. Video  pages 0 to 7 for flipping or {{KW|PCOPY}}.
+
+* '''[[SCREEN]] 8''' has 16 color attributes with background. Text is 25 by 80. Graphics is 640 by 200. Video pages 0 to 3.
+
+* '''[[SCREEN]] 9''' has 64 DAC color hues for ([[DAC]] attrib. 6, 8 to 15) with background colors. Text is 25 by 80. Graphics is 640 by 350. Video pages 0 and 1 for flipping or {{KW|PCOPY}}. 
+
+* '''[[SCREEN]] 10''' has 4 gray scale color attributes with black background. 1 = normal white, 2 = blinking white and 3 = bright white. Text is 25 by 80. Graphics is 640 by 350.
+
+* '''[[SCREEN]] 11''' is '''monochrome''' with black background and white foreground. Text is 30 or 60 by 80 columns(see {{KW|WIDTH}}). White graphics is 640 by 480. NO [[COLOR]] keyword allowed.
+
+* '''[[SCREEN]] 12''' has 16 color attributes, black background. 256K possible color hues. Text is 30 or 60 by 80 columns(see {{KW|WIDTH}}). Graphics 640 by 480. 
+
+* '''[[SCREEN]] 13''' has 256 color attributes, black background. 256K possible color hues. Text is 25 by 40. Graphics is 320 by 200. 
+
+* '''[[SCREEN]] [[_NEWIMAGE]]'''(wide&amp;, deep&amp;, mode%) can imitate any size screen mode or use 32 bit or 256 color modes in '''QB64'''.
+
+* '''[[SCREEN]] [[_LOADIMAGE]]'''(imagehandle&amp;, colors) can load a program screen of an image file handle in '''QB64''' using 256 or 32 bit. 
+
+&lt;center&gt;'''QB64 can use page flipping with any number of pages in any screen mode!'''&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==Text and Graphics==
+
+
+:::::::::'''Text Coordinates:''' 
+
+* Are a minimum of 1 and the values given above are the maximums. [[LOCATE]] 1, 1 is the top left [[SCREEN]] text position.
+* Text characters occupy a certain sized pixel box adjusted by [[WIDTH]] in some screen modes.
+* Text [[PRINT]] cursor positions can be read by {{KW|CSRLIN}} and {{KW|POS|POS(0)}} to [[LOCATE]] text [[PRINT]]s.
+* The [[SCREEN (function)]] can be used to read the [[ASCII]] character code or color of text in SCREEN 0 only.
+* [[VIEW PRINT]] can be used to designate a text view port area.
+* In '''QB64''' the [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] functions will return the text dimensions in SCREEN 0 only.
+
+
+:::::::::'''Graphic Coordinates:'''
+
+* The minimum on screen graphics pixel coordinates are 0 for columns and rows in the top left corner.
+* Maximum pixel coordinates are one less than the maximum dimensions above because the pixel count starts at 0.
+* Graphic objects such as [[PSET]], [[PRESET]], [[LINE]], [[CIRCLE]] and [[DRAW]] can be placed partially off of the screen.
+* [[GET (graphics statement)|GET]] and [[PUT (graphics statement)|PUT]] screen image operations MUST be located completely on the screen in Qbasic!
+* [[VIEW]] can be used to designate a graphic view port area of the screen.
+* [[WINDOW]] can be used to set the graphics SCREEN coordinates to almost any size needed. Use the SCREEN option for normal row coordinate values. Row coordinates are Cartesian(decrease in value going down the screen) otherwise.
+* In '''QB64''' the [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] functions will return the graphic pixel dimensions in SCREENs other than 0.
+
+
+:::::::'''QB64 Screen Statements and Functions:'''
+
+* For file image screens that adopt the image dimensions and image color settings use: [[_LOADIMAGE]]
+* To create custom sized screen modes or pages and 256 or 32 bit colors use: [[_NEWIMAGE]]
+* [[_PUTIMAGE]] can stretch or reduce the size of images to fit the SCREEN size.
+* [[PUT (graphics statement)|PUT]] can use [[_CLIP]] to set objects partially off screen. [[GET (graphics statement)|GET]] can read objects off screen as a color in QB64 ONLY.
+* A [[_DISPLAY]] statement can be used to only display an image after changes instead of using page flipping or [[PCOPY]].
+* The current desktop screen resolution can be found using the [[_SCREENIMAGE]] handle value with [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]].
+* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==Examples==
+
+:''Example 1:'' Shows an example of each legacy screen mode available to Qbasic and QB64.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0
+{{Cl|PRINT}} &quot;This is {{Cl|SCREEN}} 0 - only text is allowed!&quot;
+{{Cl|FOR}} S = 1 {{Cl|TO}} 13
+   {{Cl|IF}} S &lt; 3 {{Cl|OR}} S &gt; 6 {{Cl|THEN}} 
+     {{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+     {{Cl|SCREEN}} S
+     {{Cl|PRINT}} &quot;This is {{Cl|SCREEN}}&quot;; S; &quot; - can use text and graphics!&quot;
+       {{Cl|IF}} S = 2 {{Cl|OR}} S = 11 {{Cl|THEN}} {{Cl|PRINT}} &quot;Monochrome - no {{Cl|COLOR}} statements!&quot;
+       {{Cl|IF}} S = 10 {{Cl|THEN}} 
+         {{Cl|COLOR}} 2: {{Cl|PRINT}} &quot;This {{Cl|SCREEN}} has only 4 colors. Black and 3 white: 2 blinks.
+         {{Cl|CIRCLE}} (100,100), 50, 2
+       {{Cl|ELSE}} : {{Cl|CIRCLE}} (100,100), 100, S
+       {{Cl|END IF}}
+   {{Cl|END IF}}
+{{Cl|NEXT}} 
+{{Cl|SLEEP}}
+{{Cl|SYSTEM}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+This is SCREEN 0 - only text is allowed!
+{{OutputEnd}}
+:Displays each {{KW|SCREEN (statement)|SCREEN}} mode one at a time with a {{KW|CIRCLE}} (except for {{KW|SCREEN (statement)|SCREEN}} 0)
+
+
+''Example 2:'' Making ANY '''QB64 legacy screen mode''' larger using a SUB that easily converts PRINT to [[_PRINTSTRING]]. 
+{{CodeStart}}
+Scr13&amp; = {{Cl|_NEWIMAGE}}(320, 200, 13)  'this is the old SCREEN 13 image page to set the image
+Big13&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256) 'use 4 X 3 aspect ratio that Qbasic used when full screen
+
+{{Cl|SCREEN}} Big13&amp;
+{{Cl|_DEST}} Scr13&amp;
+image1&amp; = {{Cl|_LOADIMAGE}}(&quot;Howie.BMP&quot;, 256)  'see the download link below for 2 image files
+image2&amp; = {{Cl|_LOADIMAGE}}(&quot;Howie2.BMP&quot;, 256)
+{{Cl|_PUTIMAGE}} (10, 20), image1&amp;, Scr13&amp;
+{{Cl|_PUTIMAGE}} (160, 20), image2&amp;, Scr13&amp;
+{{Cl|_COPYPALETTE}} image1&amp;, Scr13&amp;
+{{Cl|COLOR}} 151: {{Cl|LOCATE}} 2, 4: PRINTS &quot;Screen 13 Height Reduction to 83%&quot; 
+{{Cl|LOCATE}} 22, 22: PRINTS {{Cl|CHR$}}(24) + &quot; 4 X 3 Proportion&quot;  'use {{Cl|concatenation}}
+{{Cl|LOCATE}} 24, 21: PRINTS {{Cl|CHR$}}(27) + &quot; Stretched at 100%&quot; 'instead of a {{Cl|semicolon}}!
+{{Cl|_COPYPALETTE}} Scr13&amp;, Big13&amp;  'required when imported image colors are used
+{{Cl|_PUTIMAGE}} , Scr13&amp;, Big13&amp;   'stretches the screen to double the size
+K$ = {{Cl|INPUT$}}(1)
+{{Cl|END}}
+
+{{Cl|SUB}} PRINTS (Text$)
+row% = ({{Cl|CSRLIN}} - 1) * {{Cl|_FONTHEIGHT}}      'finds current screen page text or font row height
+col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'finds current page text or font column width
+{{Cl|_PRINTSTRING}} (col%, row%), Text$
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+: ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the '''Search Menu'''.
+
+&lt;center&gt;[http://dl.dropbox.com/u/8440706/HOWIE.zip Download of Example 2 Bitmap images]&lt;/center&gt;
+
+
+&lt;center&gt;You can easily change PRINT to the PRINTS sub-procedure name in your code using the [[IDE]] ''Search''  Menu ''Change'' option.&lt;/center&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
+==References==
+
+''See Examples:''
+
+* [[SAVEIMAGE]] {{text|(QB64 Image to Bitmap SUB by Galleon)}}
+
+* [[Program ScreenShots]] {{text|(Member program for legacy screen modes)}}
+
+* [[ThirtyTwoBit SUB]] {{text|(QB64 Image area to bitmap)}}
+
+* [[SelectScreen]] {{text|(Member Screen mode selection function)}}
+
+* [[ScreenMode]] {{text|(Member function to find current Screen mode)}}
+
+
+{{PageSeeAlso}}
+* [[COLOR]], [[CLS]], [[WIDTH]]
+* [[_NEWIMAGE]], [[_LOADIMAGE]], [[_SCREENIMAGE]]
+* [[_LOADFONT]], [[_FONT]]
+* [[_DISPLAY]], [[_COPYIMAGE]], [[_SCREENMOVE]]
+* [[PALETTE]], [[OUT]], [[PCOPY]], 
+* [[GET (graphics statement)|GET]], [[PUT (graphics statement)|PUT]] {{text|(graphics)}}
+* [[VIEW]], [[WINDOW]] {{text|(graphic viewport)}}, [[VIEW PRINT]] {{text|(text view port)}}
+* [[SCREEN (function)]] {{text|(text only)}}, [[POINT]] {{text|(graphic pixel colors)}}
+* [[Screen Memory]], [[Screen Saver Programs]]
+
+
+{{PageNavigation}}

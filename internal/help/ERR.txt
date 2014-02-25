@@ -1,0 +1,42 @@
+'''ERR''' function returns the last Qbasic error code number. 
+
+
+{{PageSyntax}}
+:: errornum% = ERR
+
+
+* If there is no error it returns 0
+* Can be used in an error handling routine to report the error number.
+
+
+''Example:'' Simulating an error to test a program error handler that looks for a &quot;Subscript out of range&quot; error.
+{{CodeStart}} '' ''
+{{Cl|ON ERROR}} {{Cl|GOTO}} handler
+
+{{Cl|IF...THEN|IF}} x = 0 {{Cl|THEN}} {{Cl|ERROR}} 111  'simulate an error code that does not exist
+x = x + 1
+{{Cl|IF...THEN|IF}} x {{Cl|THEN}} {{Cl|ERROR}} 9        'simulate array boundary being exceeded
+
+{{Cl|END}}
+
+handler:
+{{Cl|PRINT}} {{Cl|ERR}}, {{Cl|_ERRORLINE}}
+{{Cl|BEEP}}
+{{Cl|IF...THEN|IF}} {{Cl|ERR}} = 9 {{Cl|THEN}}
+  {{Cl|PRINT}} &quot;The program has encountered an error and needs to close! Press a key!&quot;
+  K$ = {{Cl|INPUT$}}(1)
+  {{Cl|SYSTEM}}
+{{Cl|END IF}}
+{{Cl|RESUME}} {{Cl|NEXT}}               'RESUME can only be used in error handlers '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+
+* [[ON ERROR]], [[RESUME]]
+* [[ERL]], [[_ERRORLINE]] 
+* [[ERROR]]
+* [[ERROR Codes]]
+
+
+{{PageNavigation}}

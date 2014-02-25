@@ -1,0 +1,29 @@
+The {{KW|_SNDPAUSE}} statement pauses a sound using a handle from the {{KW|_SNDOPEN}} function.
+
+
+
+{{PageSyntax}}
+:{{KW|_SNDPAUSE}} {{Parameter|handle&amp;}}
+
+
+{{PageDescription}}
+* Sound must be playing or will not do anything
+* Sound files opened must have the &quot;PAUSE&quot; capability to use this statement.
+* Continue playing by calling {{KW|_SNDPLAY}}
+* Calling {{KW|_SNDPAUSE}} again will not continue playing!
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|_SNDPAUSE}} h&amp;
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDPLAY}}, {{KW|_SNDSTOP}}
+*{{KW|_SNDPAUSED}}
+
+
+{{PageNavigation}}

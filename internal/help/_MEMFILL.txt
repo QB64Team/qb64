@@ -1,0 +1,42 @@
+The '''_MEMFILL''' statement converts a value to a specified type then fills memory with that type including any non-whole remainder.
+
+
+{{PageSyntax}}
+::: _MEMFILL ''memory_block'', ''memory_block.OFFSET'', ''fill_bytes'', ''variable'' [AS variable_type]
+
+
+* The ''memory block'' [[_MEM]] memory block is the block referenced to be filled.
+* The ''offset'' is the starting offset of the above referenced memory block.
+* The ''fill bytes'' is the number of bytes to fill the memory block.
+* The ''variable'' is the variable value to place in the memory block. The variable can be optionally set AS a variable [[TYPE]].
+
+
+''Example:'' Filling array values quickly.
+{{CodeStart}} '' ''
+{{Cl|DIM}} a(100, 100) {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} b(100, 100) {{Cl|AS}} {{Cl|LONG}}
+
+'filling array a with value 13
+{{Cl|FOR...NEXT|FOR}} i1 = 0 {{Cl|TO}} 100
+    {{Cl|FOR...NEXT|FOR}} i2 = 0 {{Cl|TO}} 100
+        a(i1, i2) = 13
+    {{Cl|NEXT}}
+{{Cl|NEXT}}
+
+'filling array a with value 13
+{{Cl|DIM}} mema {{Cl|AS}} {{Cl|_MEM}}
+mema = {{Cl|_MEM (function)|_MEM}}(a())
+{{Cl|_MEMFILL}} mema, mema.OFFSET, mema.SIZE, 13 {{Cl|AS}} {{Cl|LONG}}
+{{Cl|_MEMFREE}} mema '' ''
+{{CodeEnd}}
+
+
+''See also:''
+* [[_MEM]]
+* [[_MEM (function)]]
+* [[_MEMIMAGE]]
+* [[_MEMNEW]]
+* [[_MEMGET]], [[_MEMPUT]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,32 @@
+The '''ALIAS''' clause in the {{KW|DECLARE (non-BASIC statement)|DECLARE}} statement tells the program that you will use a different name than that in the library. This only applies when declaring non-BASIC procedures.
+
+
+{{PageSyntax}}
+::: SUB ''pseudoname'' '''ALIAS ''actualname''''' [(''parameters'')]
+
+
+{{Parameters}}
+* The ''actual name'' is the same procedure name as it is inside of the library.
+* The name does not have to be inside of quotes when using [[DECLARE LIBRARY]].
+* [[Keywords currently not supported by QB64|QB64 supports ALIAS in DECLARE LIBRARY procedures only!]]
+
+
+''Example:'' Instead of creating a SUB with the Library statement inside of it, just rename it:
+{{CodeStart}} '' ''
+{{Cl|DECLARE LIBRARY}}
+  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} xoffset&amp;, {{Cl|BYVAL}} yoffset&amp;) 
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+{{CodeEnd}}
+:''Explanation:'' When a Library procedure is used to represent another procedure name use ALIAS instead. Saves creating a SUB! Just place your name for the procedure first with the actual Library name after ALIAS.
+
+
+{{PageSeeAlso}}
+* [[DECLARE LIBRARY]], [[BYVAL]]
+* [[DECLARE DYNAMIC LIBRARY]]
+* [[DECLARE (non-BASIC statement)]]
+
+
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,51 @@
+The '''FIX''' function rounds a numerical value to the next whole number closest to zero.
+
+
+
+{{PageSyntax}}
+:: result = [[FIX]](''expression'')
+
+
+* [[FIX]] effectively truncates (removes) the fractional part of ''expression'', returning the integer part.
+* This means that [[FIX]] rounds down for positive values and up for negative values.
+
+
+''Example 1:'' Showing the behavior of [[FIX]] with positive and negative decimal point values.
+{{CodeStart}} '' ''
+ PRINT FIX(2.5)
+ PRINT FIX(-2.5) '' ''
+{{CodeEnd}} 
+{{OutputStart}}2 
+-2
+{{OutputEnd}}
+
+
+''Example 2:'' The NORMAL arithmetic method (round half up) can be achieved using the function in the example code below:
+{{CodeStart}} '' ''
+{{Cl|PRINT}} MATHROUND(0.5) 
+{{Cl|PRINT}} MATHROUND(1.5)
+{{Cl|PRINT}} MATHROUND(2.5)
+{{Cl|PRINT}} MATHROUND(3.5)
+{{Cl|PRINT}} MATHROUND(4.5)
+{{Cl|PRINT}} MATHROUND(5.5)
+
+{{Cl|FUNCTION}} MATHROUND(n)
+    MATHROUND = {{Cl|FIX}}(n + 0.5 * {{Cl|SGN}}(n))
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}} 
+{{OutputStart}}1
+2
+3
+4
+5
+6
+{{OutputEnd}}
+
+
+''See also:'' 
+
+* [[CINT]], [[CLNG]], [[_ROUND]]
+* [[MOD]], [[\|Integer Division]]
+* [[/|Normal division]]
+
+{{PageNavigation}}

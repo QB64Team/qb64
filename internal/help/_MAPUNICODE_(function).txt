@@ -1,0 +1,39 @@
+The '''_MAPUNICODE''' function returns the [[Unicode]](UTF32) code point value of a mapped [[ASCII]] character code.
+
+
+
+{{PageSyntax}}
+:: UTFvalue&amp; = _MAPUNICODE(Ascii_code%)
+
+
+* The UTF32 values have 4 byte encoding so the return variable should be [[LONG]].
+* The ''Ascii_code'' can be any [[INTEGER]] value from 0 to 255.
+* Returns can be used to verify or catalog the present Unicode mapping.
+* The function will return Unicode values for the control characters, CHR$(127) and extended characters '''without mapping''' them first.
+
+
+''Example:'' Store function return values in an array for ASCII codes 0 to 255 to restore them later.
+{{CodeStart}}
+{{Cl|DIM}} Unicode&amp;(255)
+{{Cl|SCREEN (statement)|SCREEN}} 0
+{{Cl|_FONT}} {{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\Cour.ttf&quot;, 20, &quot;MONOSPACE&quot;) 'select monospace font
+
+{{Cl|FOR...NEXT|FOR}} ascii = 0 {{Cl|TO}} 255
+Unicode&amp;(ascii) = {{Cl|_MAPUNICODE (function)|_MAPUNICODE}}(ascii)     'read Unicode values
+{{Cl|PRINT}} Unicode&amp;(ascii);                   'display values in demo
+{{Cl|NEXT}}
+ 'rest of program 
+{{Cl|END}}
+{{CodeEnd}}
+
+
+''See also:''
+
+* [[_MAPUNICODE]] (statement)
+
+* [[Unicode]], [[Code Pages]] (by region)
+
+* [[ASCII]], [[CHR$]], [[ASC]]
+
+
+{{PageNavigation}}

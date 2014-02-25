@@ -1,0 +1,67 @@
+The '''_WHEEL''' function returns the relative position of a specified wheel number on a controller device.
+
+
+{{PageSyntax}}
+::: move = _WHEEL(''wheel_number%'')
+
+
+* Returns -1 when scrolling up and 1 when scrolling down with 0 indicating no movement since last read.
+* Add consecutive wheel values to determine a cumulative value over time for scrolling or moving objects.
+* The ''wheel_number'' must be a number which does not exceed the number of wheels found by the [[_LASTWHEEL]] function.
+* When a mouse indicates it has 3 wheels, the first two are for relative movement reads. The third wheel is for scrolling.
+* '''The number of [[_DEVICES]] MUST be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTWHEEL]]!'''
+
+
+''Example 1:'' Reading multiple controller device buttons, axis and wheels.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
+  {{Cl|PRINT}} {{Cl|STR$}}(i) + &quot;) &quot; + {{Cl|_DEVICE$}}(i) + &quot; Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;,Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;,Wheel:&quot;; {{Cl|_LASTWHEEL}}(i)
+{{Cl|NEXT}}
+
+{{Cl|DO...LOOP|DO}}
+  d&amp; = {{Cl|_DEVICEINPUT}}
+  {{Cl|IF...THEN|IF}} d&amp; {{Cl|THEN}} '             the device number cannot be zero!
+    {{Cl|PRINT}} &quot;Found&quot;; d&amp;;
+    {{Cl|FOR...NEXT|FOR}} b = 1 {{Cl|TO}} {{Cl|_LASTBUTTON}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_BUTTONCHANGE}}(b); {{Cl|_BUTTON}}(b);
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} a = 1 {{Cl|TO}} {{Cl|_LASTAXIS}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_AXIS}}(a);
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} w = 1 {{Cl|TO}} {{Cl|_LASTWHEEL}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_WHEEL}}(w);
+    {{Cl|NEXT}}
+    {{Cl|PRINT}}
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Note:'' When there is no device control to read, a [[FOR...NEXT|FOR]] n = 1 TO 0 loop will not run thus avoiding a control function read error.
+
+
+''Example 2:'' Why does a mouse have 3 wheels? Relative x and y movements can be read using the first 2 _WHEEL reads.
+{{CodeStart}} '' ''
+ignore = {{Cl|_MOUSEMOVEMENTX}} 'dummy call to put mouse into relative movement mode
+
+{{Cl|PRINT}} &quot;Move your mouse and/or your mouse wheel (ESC to exit)&quot;
+
+d = {{Cl|_DEVICES}} '  always read number of devices to enable device input
+DO: {{Cl|_LIMIT}} 30  'main loop
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_DEVICEINPUT}}(2) 'loop only runs during a device 2 mouse event
+        {{Cl|PRINT}} {{Cl|_WHEEL}}(1), {{Cl|_WHEEL}}(2), {{Cl|_WHEEL}}(3)
+  {{Cl|LOOP}} 
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
+{{CodeEnd}}
+: ''Explanation:'' Referencing the [[_MOUSEMOVEMENTX]] function hides the mouse and sets the mouse to a relative movement mode which can be read by [[_WHEEL]]. [[_DEVICEINPUT]](2) returns -1 (true) only when the mouse is moved, scrolled or clicked.
+
+
+''See also:''
+* [[_LASTWHEEL]], [[_LASTBUTTON]], [[_LASTAXIS]]
+* [[_AXIS]], [[_BUTTON]], [[_BUTTONCHANGE]]
+* [[_DEVICES]], [[_DEVICE$]], [[_DEVICEINPUT]]
+* [[_MOUSEMOVEMENTX]], [[_MOUSEMOVEMENTY]]
+* [[Controller Devices]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,24 @@
+The '''MKDIR''' statement creates a new directory at a specified path.
+
+
+
+{{PageSyntax}}
+:: MKDIR pathspec$
+
+
+* The path specification is a literal or variable [[STRING]] expression that also specifies the new folder's name.
+* If no path is given the directory will become a sub-directory of the present directory where the program is currently running.
+* Qbasic folder names are limited to 8 characters(no spaces) and filenames use the 8.3 naming convention.
+* '''QB64''' can use both long or short path and file names with spaces when required.
+* The new folder will be created without a user prompt or verification. 
+* If a path is specified, the path MUST exist or a [[ERROR Codes|&quot;Path not found&quot; error]] will occur.
+* [[SHELL]] can use the DOS command &quot;MD &quot; or &quot;MKDIR &quot; + path$ + newfolder$ to do the same thing.
+
+
+''See also:'' 
+* [[SHELL]], [[CHDIR]], [[FILES]]
+* [[NAME]], [[KILL]], [[RMDIR]]
+* [[Windows_Libraries#File_Dialog_Boxes|Windows Open and Save Dialog Boxes]]
+
+
+{{PageNavigation}}

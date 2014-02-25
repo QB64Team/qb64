@@ -1,0 +1,19 @@
+The '''EOF''' Function indicates that the end of a file has been reached.
+
+
+
+{{PageSyntax}}
+:: DO WHILE [[NOT]] EOF(filenumber%)
+
+
+* Filenumber is the number of the file being read. # is not required.
+* Returns 0 until the end of a file. This avoids a file read error.
+* Returns -1 at the end of the file.
+* [[CHR$]](26) can be used to denote the end of a file.
+
+
+''See also:'' 
+* [[LOF]]
+
+
+{{PageNavigation}}

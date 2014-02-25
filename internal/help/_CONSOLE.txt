@@ -1,0 +1,42 @@
+The [[_CONSOLE]] statement can be used to turn OFF a console window or turn it on after it has been OFF.
+
+
+{{PageSyntax}}
+::: '''_CONSOLE''' {OFF|ON}
+::: _DEST '''_CONSOLE'''
+
+
+* _CONSOLE OFF or ON must be used after the [[$CONSOLE]] [[Metacommand]] has established that a console window is desired.
+* _CONSOLE OFF turns the console window off once a console has been established using [[$CONSOLE]].
+* _CONSOLE ON should only be used AFTER the console window has been turned OFF previously.
+* [[_DEST]] [[_CONSOLE]] can be used to send screen output to the console window using QB64 commands such as [[PRINT]].
+* [[_SCREENHIDE]] or [[_SCREENSHOW]] can be used to hide or display the main program window.
+* The [[$SCREENHIDE]] [[Metacommand]] can hide the main program window throughout a program when only the console is used.
+
+
+''Example:'' Hiding and displaying a console window. Use [[_DELAY]] to place console in front of main program window.
+{{CodeStart}} '' ''
+{{Cl|$CONSOLE}}
+{{Cl|_CONSOLE}} OFF 'close original console
+{{Cl|_DELAY}} 2
+{{Cl|_CONSOLE}} ON 'place console above program window
+
+{{Cl|_DEST}} {{Cl|_CONSOLE}} 
+{{Cl|INPUT}} &quot;Enter your name: &quot;, nme$ 'get program input
+{{Cl|_CONSOLE}} OFF 'close console
+
+{{Cl|_DEST}} 0 'destination program window
+{{Cl|PRINT}} nme$
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' The [[_DEST|destination]] must be changed with [[_DEST]] [[_CONSOLE]] to get [[INPUT]] from the [[$CONSOLE]] screen.
+
+
+''See also:''
+* [[$CONSOLE]]
+* [[$SCREENHIDE]], [[$SCREENSHOW]] {{text|(QB64 [[Metacommand]]s)}}
+* [[_SCREENHIDE]], [[_SCREENSHOW]]
+* [[_DEST]]
+
+
+{{PageNavigation}}

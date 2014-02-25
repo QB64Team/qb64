@@ -1,0 +1,71 @@
+'''RANDOM''' is used in an [[OPEN]] statement to read([[GET]]) from or write([[PUT]]) to a file. 
+
+
+
+{{PageSyntax}}
+:: OPEN Filename$ FOR RANDOM AS #1 [LEN = ''recordlength%'']
+
+
+* RANDOM is the Default mode if no mode is given in the OPEN statement.
+* It creates the file if the legal file name given does NOT exist.
+* As a RANDOM file, it can read or write any record using [[GET]] and/or [[PUT]] statements. 
+* ''Recordlength%'' is determined by getting the LEN of a [[TYPE]] variable or a [[FIELD]] statement.
+* If no record length is used in the [[OPEN]] statement, the default record size is 128 bytes except for the last record.
+* A record length cannot exceed 32767 or an [[ERROR Codes|error]] will occur!
+* To determine the number of records in a file the records% = [[LOF]] \ recordlength%. 
+* A serial communication port can also be opened for RANDOM in an [[OPEN COM]] statement.
+
+
+''Example:'' Function that finds a RANDOM file's record number for a string value such as a phone number.
+{{CodeStart}} '' ''
+{{Cl|TYPE}} customer
+  age {{Cl|AS}} {{Cl|INTEGER}}
+  phone {{Cl|AS}} {{Cl|STRING}} * 10
+{{Cl|END}} {{Cl|TYPE}}
+
+{{Cl|DIM}} {{Cl|SHARED}} cust {{Cl|AS}} customer, recLEN
+recLEN = {{Cl|LEN}}(cust)            'get the length of the record type
+{{Cl|PRINT}} &quot;Rec{{Cl|LEN}}:&quot;; recLEN
+
+{{Cl|OPEN}} &quot;randfile.rec&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = recLEN
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 4
+  {{Cl|READ}} cust.age, cust.phone
+  {{Cl|PUT}} #1, , cust
+{{Cl|NEXT}}
+{{Cl|CLOSE}} #1
+
+RP = RecordPos(&quot;randfile.rec&quot;, &quot;2223456789&quot;)  'returns 0 if record not found!
+
+{{Cl|PRINT}} RP  
+
+{{Cl|IF...THEN|IF}} RP {{Cl|THEN}}
+  {{Cl|OPEN}} &quot;randfile.rec&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = recLEN
+  {{Cl|GET}} #2, RP, cust
+  {{Cl|CLOSE}} #2
+{{Cl|PRINT}} cust.age, cust.phone
+{{Cl|END IF}}
+
+{{Cl|END}}
+
+{{Cl|DATA}} 59,2223456789,62,4122776477,32,3335551212,49,1234567890
+
+{{Cl|FUNCTION}} RecordPos (file$, search$)
+f = {{Cl|FREEFILE}}
+{{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #f
+FL = {{Cl|LOF}}(f)
+dat$ = {{Cl|INPUT$}}(FL, f)
+{{Cl|CLOSE}} f
+recpos = {{Cl|INSTR}}(dat$, search$)
+{{Cl|IF...THEN|IF}} recpos {{Cl|THEN}} RecordPos = recpos \ recLEN + 1 {{Cl|ELSE}} RecordPos = 0
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+:''Note:'' Random files can store records holding various variable types using a [[TYPE]] definition or a [[FIELD]] statement.
+
+
+''See also:'' 
+* [[GET]], [[PUT]], [[FIELD]]
+* [[BINARY]] 
+* [[SEEK]], [[SEEK (statement)]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,44 @@
+The '''MKI$''' function converts a numerical [[INTEGER]] value to a 2 byte [[ASCII]] string value.
+
+
+{{PageSyntax}}
+:: two_byte_string$ = MKI$(Integer_value%)
+
+
+* The Integer number value is converted to two ASCII characters.
+* [[INTEGER]] values can range from -32768 to 32767.
+* MKI$ string values can be converted back to numerical INTEGER values using [[CVI]].
+* The function takes up less byte space in a file than using the text numerical value when the value is over 2 digits.
+* When a variable value is used with [[PUT]] a numerical value is converted automatically in [[RANDOM]] and [[BINARY]] files.
+
+
+''Example:'' How MKI$ creates a two byte string integer value to save file space.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12    '_PRINTSTRING requires a graphic screen mode
+DO
+  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 13, 20: {{Cl|INPUT}} &quot;Enter an Integer from 1 to 32767(0 quits): &quot;, number%
+  {{Cl|IF...THEN|IF}} number% &lt; 1 {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|CLS}}
+  A$ = {{Cl|CHR$}}(number% {{Cl|MOD}} 256)   'first digit(0 to 255)
+  B$ = {{Cl|CHR$}}(number% \ 256)     'second digit(0 to 127)
+
+  MKIvalue$ = A$ + B$
+  Q$ = {{Cl|CHR$}}(34)
+  strng$ = &quot;{{Cl|CHR$}}(&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(number% {{Cl|MOD}} 256)) + &quot;) + {{Cl|CHR$}}(&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(number% \ 256)) + &quot;)&quot;
+  {{Cl|COLOR}} 11
+  {{Cl|_PRINTSTRING}} (222, 252), {{Cl|STR$}}(number%) + &quot; = &quot; + strng$
+  {{Cl|_PRINTSTRING}} (252, 300), &quot;{{Cl|MKI$}} value = &quot; + Q$ + MKIvalue$ + Q$ 'print ASCII characters
+{{Cl|LOOP}}
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' INPUT in QB64 limits integer entries to 32767 maximum. MOD 256 finds the part of a value from 0 to 255 while the second value is the number of times that 256 can go into the value. [[_PRINTSTRING]] can print all of the [[ASCII]] characters.
+ 
+
+''See also:'' 
+* [[MKL$]],  [[MKS$]], [[MKD$]] 
+* [[CVI]], [[CVL]], [[CVS]], [[CVD]]
+* [[_CV]], [[_MK$]], [[STRING]] 
+
+
+{{PageNavigation}}

@@ -1,0 +1,61 @@
+The '''ON KEY(n)''' statement defines a line number or label to go to when a specified key is pressed. QB64 can reference a [[SUB]].
+
+
+{{PageSyntax}}
+:: ON KEY(n) {{{KW|GOSUB}} {''linelabel''|''linenumber''}|{{KW|SUB}}procedure}
+
+
+* Predefined and user defined KEY event number assignments to use with ON KEY(n): 
+{{WhiteStart}}     '''1 to 10'''.............Reserved '''F1 to F10''' function keys only.
+     '''11, 12, 13 and 14'''...Reserved '''Up, Left, Right and Down''' numeric keypad arrows only
+     '''15 to 29'''............'''user-defined keys''' using value: [[CHR$]](keyflag)  + [[CHR$]]([[Keyboard scancodes|scancode]])
+     '''30 and 31'''...........Reserved '''F11 and F12''' function keys only.
+{{WhiteEnd}}
+* See the [[KEY n]] page for user defined key or key combination presses and F function softkey assignments.
+* [[GOSUB]] with a ''linelabel'' or ''linenumber''  or a [[SUB]] procedure can be used in '''QB64'''. Don't use [[CALL]]!
+
+
+
+''Example 1:'' Using ON KEY with [[GOSUB]] to execute code.
+{{CodeStart}} '' ''
+{{Cl|KEY(n)|KEY(1) ON}}
+{{Cl|ON KEY(n)|ON KEY}}(1) {{Cl|GOSUB}} trap
+{{Cl|PRINT}} &quot;Press F1 to quit!&quot;
+{{Cl|DO}}:{{Cl|LOOP}}          'never ending loop
+
+trap:
+{{Cl|PRINT}} &quot;You pressed F1 like I told you to :)&quot;
+{{Cl|END}}
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Setting multiple ON KEY statements to send different values to a [[SUB]] procedure.
+{{CodeStart}} '' ''
+  
+{{Cl|FOR...NEXT|FOR}} n = 1 {{Cl|TO}} 10
+  {{Cl|KEY n|KEY}} n, {{Cl|STR$}}(n)  '   assigns soft key as a numerical string 
+  {{Cl|ON KEY(n)|ON KEY}}(n) Funct n  'designate SUB procedure and parameter value passed
+  {{Cl|KEY(n)|KEY}}(n) ON '         turns each key event monitor on
+{{Cl|NEXT}}
+{{Cl|KEY n|KEY}} ON  'displays F1 to F10 soft key assignments at bottom of screen
+
+DO
+
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+{{Cl|END}}
+
+{{Cl|SUB}} Funct (num%)
+{{Cl|CLS}}'                  clears the screen and refreshes bottom soft key list
+{{Cl|PRINT}} &quot;You pressed F&quot;; {{Cl|LTRIM$}}({{Cl|STR$}}(num%))
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+* [[KEY(n)]], [[KEY n]] {{text|(soft key)}}
+* [[ON...GOSUB]], [[Scancodes]]
+* [[_KEYHIT]], [[_KEYDOWN]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,45 @@
+The '''MID$''' statement substitutes one or more new characters for existing characters of a previously defined [[STRING]].
+
+
+
+{{PageSyntax}}
+:: MID$(''basestring$'', ''start_position%''[, ''bytes%'']) = string_to_add$
+
+
+
+* The ''basestring'' variable [[STRING]] value must exist and be large enough to contain the ''string_to_add''.
+* ''Start position'' specifies the string character position to start the overwrite. Cannot be 0 or an [[ERROR Codes|Illegal function call error]] will occur!
+* The ''byte length'' or number of characters is optional. Excess statement string characters or byte lenghts are ignored.
+* The string value to be placed in the string should be as long as the byte length reserved.
+* The length of the original string is NOT changed in any case! Excess characters will not be in the string value returned.
+
+
+''Example:'' Using [[INSTR]] to locate the string positions and a [[MID$ (statement)|MID$]] statement to change the words.
+
+{{CodeStart}}
+ text$ = &quot;The cats and dogs were playing, even though dogs don't like cats.&quot;
+ PRINT text$ 
+ start% = 1          ' start cannot be 0 when used in the INSTR function!
+ {{Cl|DO...LOOP|DO}}
+   position% = {{Cl|INSTR}}(start%, text$, &quot;dog&quot;)
+   IF position% THEN            ' when position is a value greater than 0
+     {{Cl|MID$}}(text$, position%, 3) = &quot;rat&quot;   ' changes &quot;dog&quot; to &quot;rat&quot; when found
+     start% = position% + 1     ' advance one position to search rest of string
+   END IF
+ LOOP UNTIL position% = 0       ' no other matches found
+ PRINT text$ '' ''
+{{CodeEnd}}
+{{OutputStart}}
+The cats and dogs were playing, even though dogs don't like cats.
+The cats and rats were playing, even though rats don't like cats.
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[MID$]] {{text|(function)}}
+* [[LEFT$]], [[RIGHT$]] 
+* [[INSTR]], [[ASCII]],  [[STR$]], [[HEX$]], [[Bitmaps]] (example)
+* [[MKI$]], [[MKL$]], [[MKS$]], [[MKD$]]
+
+
+{{PageNavigation}}

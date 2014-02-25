@@ -1,0 +1,77 @@
+The '''_SCREENMOVE''' statement positions the program window on the desktop using designated coordinates or the _MIDDLE function.
+
+
+{{PageSyntax}}
+:: '''_SCREENMOVE''' {'''''column&amp;'', ''row&amp;'''''|_MIDDLE}
+
+
+{{Parameters}}
+* Positions the program window on the desktop using the ''column'' and ''row'' pixel coordinates for the upper left corner.
+* '''_MIDDLE''' can be used instead to automatically center the program window's position on the desktop in any screen resolution.
+
+
+''Usage:''
+* The program's [[SCREEN]] dimensions may influence the desktop position that can be used to keep the entire window on the screen. 
+* Use [[_SCREENIMAGE]] handle with [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] to find the current Windows desktop resolution to place the program's window.
+* On dual monitors a negative ''column'' position or a value greater than the main screen width can be used to position a window left or right.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+''Example 1:'' Calculating the border and header offsets by comparing a coordinate move with MIDDLE by using trial and error.
+{{CodeStart}} '' ''
+user&amp; = {{Cl|_SCREENIMAGE}}
+userwidth&amp; = {{Cl|_WIDTH}}(user&amp;): userheight&amp; = {{Cl|_HEIGHT}}(user&amp;) 'get current screen resolution
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 256)
+scrnwidth&amp; = {{Cl|_WIDTH}}: scrnheight&amp; = {{Cl|_HEIGHT}}  'get the center of the program screen
+
+{{Cl|_SCREENMOVE}} (userwidth&amp; \ 2 - scrnwidth&amp; \ 2) - 3, (userheight \ 2 - scrnheight&amp; \ 2) - 29
+{{Cl|_DELAY}} 4
+{{Cl|_SCREENMOVE}} _MIDDLE  'check centering
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: When positioning the window, offset the position by -3 columns and - 29 rows to calculate the top left corner coordinate.
+
+
+''Example 2:'' Moving a program window to a second monitor positioned to the right of the main desktop.
+{{CodeStart}} '' ''
+img&amp; = {{Cl|_SCREENIMAGE}}
+wide&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(img&amp;)
+high&amp; = {{Cl|_HEIGHT}}(img&amp;)
+
+{{Cl|PRINT}} wide&amp;; &quot;X&quot;; high&amp;
+
+{{Cl|_DELAY}} 4
+{{Cl|_SCREENMOVE}} wide&amp; + 200, 200 'positive value for right monitor 2
+
+img2&amp; = {{Cl|_SCREENIMAGE}}
+wide2&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(img2&amp;)
+high2&amp; = {{Cl|_HEIGHT}}(img2&amp;)
+{{Cl|PRINT}} wide2&amp;; &quot;X&quot;; high2&amp;
+{{Cl|_DELAY}} 4
+{{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}} 'moves program back to main monitor 1 '' ''
+{{CodeEnd}}
+: ''Notes:'' [[_SCREENIMAGE]] only returns the resolution of the main desktop. Change the [[_SCREENMOVE]] column to negative for a left monitor.
+
+{{WhiteStart}}                                     '''Setting up dual monitors'''
+
+     1) Turn off the computer and attach the second monitor to the computer
+     2) Restart computer and right click an empty desktop area and click ''Properties''.
+     3) In the Settings tab set the position of the monitor numbered 2 to left or right.
+     4) Set the resolution to match the main desktop resolution as closely as possible.
+     5) Save the settings before the prompt window times out.
+{{WhiteEnd}}
+&lt;center&gt;[http://www.geeks.com/techtips/2005/techtips-AUG18-05.htm Dual monitor setup]&lt;/center&gt;
+
+
+&lt;center&gt;'''[[_FULLSCREEN]] works in the primary monitor and may push all running programs to a monitor on the right!'''&lt;/center&gt;
+
+
+''See also:''
+* [[_SCREENIMAGE]]
+* [[_NEWIMAGE]], [[SCREEN (statement)]]
+* [[_SCREENX]], [[_SCREENY]]
+
+
+
+{{PageNavigation}}

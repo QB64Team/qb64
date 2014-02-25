@@ -1,0 +1,63 @@
+'''LSET''' left-justifies a fixed length string expression based on the size of the [[STRING]] variable and string expression.
+
+
+
+{{PageSyntax}}
+: LSET {string_variable = string_expression | string_expression1 = string_expression2}
+
+
+* If the string expression is longer than a fixed length string variable the value is truncated from the right side in LSET or [[RSET]].
+* If the LSET string expression is smaller, spaces will occupy the extra positions to the right in the string. 
+* LSET can be used with a [[FIELD]] or [[TYPE]] definition to set the buffer position before a [[PUT]].
+
+
+''Example 1:'' Using LSET with a [[FIELD]] definition. Note: May create an empty(unchanged) file that can be deleted.
+{{CodeStart}}
+'' ''
+{{Cl|OPEN}} &quot;testfile.dat&quot; FOR {{Cl|RANDOM}} AS #1 {{Cl|LEN}} = 15
+{{Cl|FIELD}} 1, 6 {{Cl|AS}} a$, 9 {{Cl|AS}} other$
+{{Cl|FIELD}} 1, 2 {{Cl|AS}} b$, 13 {{Cl|AS}} another$
+{{Cl|LSET}} a$ = &quot;1234567890&quot;
+{{Cl|LSET}} other$ = &quot;1234567890&quot;
+{{Cl|PRINT}} a$, b$, other$, another$
+{{Cl|CLOSE}} #1
+
+{{CodeEnd}}
+{{OutputStart}}
+123456            12         123456789     3456123456789 
+{{OutputEnd}}
+
+
+''Example 2:'' How LSET can define two different string length values in one statement.
+{{CodeStart}}
+
+{{Cl|TYPE}} ninestring
+head {{Cl|AS}} {{Cl|STRING}} * 9
+{{Cl|END TYPE}}
+
+{{Cl|TYPE}} fivestring
+head AS {{Cl|STRING}} * 5
+{{Cl|END TYPE}}
+
+{{Cl|DIM}} me {{Cl|AS}} ninestring, you {{Cl|AS}} fivestring
+me.head = &quot;ACHES NOT&quot;
+{{Cl|CLS}}
+
+{{Cl|LSET}} you.head = me.head
+{{Cl|PRINT}} &quot;me.head: &quot;; me.head
+{{Cl|PRINT}} &quot;you.head: &quot;; you.head
+{{CodeEnd}}
+{{OutputStart}}
+me.head: ACHES NOT
+you.head: ACHES
+{{OutputEnd}}
+
+
+
+
+''See also:'' 
+* [[RSET]], [[RTRIM$]]
+* [[FIELD]], [[TYPE]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,58 @@
+The {{KW|_RGBA32}} function ALWAYS returns the 32-bit ''RGBA'' color value with specified red, green, blue and alpha component intensities.
+
+
+{{PageSyntax}}
+:{{Parameter|result~&amp;}} = [[_RGBA32]]'''({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}, {{Parameter|alpha&amp;}})'''
+
+
+{{PageDescription}}
+* The value returned is ALWAYS a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
+* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!'''
+* {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
+* {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
+* {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.
+* {{Parameter|alpha&amp;}} specifies the [[_ALPHA|''alpha'']] component transparency value from 0 (fully transparent) to 255 (opaque).
+* Alpha or intensity values outside of the valid range of 0 to 255 are clipped.
+* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;H00{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with varying [[_ALPHA]] transparency.
+* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]](colorvalue&amp;), 3) to place 3 colors.
+* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+
+
+''Example:'' Changing the [[ALPHA]] value to fade an image in and out using a 32 bit PNG image!
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(600, 400, 32)
+
+img&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64.png&quot;)  'use any 24/32 bit image 
+'//Turn off auto display
+{{Cl|_DISPLAY}}
+
+' Fade in
+{{Cl|FOR...NEXT|FOR}} i% = 255 {{Cl|TO}} 0 {{Cl|STEP}} -5
+  {{Cl|_LIMIT}} 20                          'control fade speed 
+  {{Cl|_PUTIMAGE}} (0, 0)-(600, 400), img&amp;
+  {{Cl|LINE}} (0, 0)-(600, 400), {{Cl|_RGBA}}(0, 0, 0, i%), BF 'increase black box transparency
+  {{Cl|_DISPLAY}}
+{{Cl|NEXT}}
+
+' Fade out
+{{Cl|FOR...NEXT|FOR}} i% = 0 {{Cl|TO}} 255 {{Cl|STEP}} 5
+  {{Cl|_LIMIT}} 20                          'control fade speed 
+  {{Cl|_PUTIMAGE}} (0, 0)-(600, 400), img&amp;
+  {{Cl|LINE}} (0, 0)-(600, 400), {{Cl|_RGBA}}(0, 0, 0, i%), BF 'decrease black box transparency
+  {{Cl|_DISPLAY}}
+{{Cl|NEXT}}
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{small|Code by Unseen Machine}}
+:''Note:'' The QB64.PNG bee image used is available at the top of the QB64 forum: http://www.qb64.net/forum/index.php
+
+
+{{PageSeeAlso}}
+* [[_RGB32]], [[_RGBA]], [[_RGB]]
+* [[_RED32]], [[_GREEN32]], [[_BLUE32]]
+* [[HEX$ 32 Bit Values]], [[POINT]]
+* [[SAVEIMAGE]] {{text|(bitmap creator)}}
+* [http://www.w3schools.com/html/html_colornames.asp Hexadecimal Color Values]
+
+
+{{PageNavigation}}

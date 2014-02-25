@@ -1,0 +1,66 @@
+'''_glCopyTexSubImage1D:''' copy a one-dimensional texture subimage
+
+
+{{PageSyntax}}
+
+  SUB _glCopyTexSubImage1D (BYVAL target AS _UNSIGNED LONG, BYVAL level AS LONG, BYVAL xoffset AS LONG, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG)
+  void '''_glCopyTexSubImage1D'''(GLenum {{Parameter|target}}, GLint {{Parameter|level}}, GLint {{Parameter|xoffset}}, GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}});
+
+
+; target
+: Specifies the target texture. Must be {{KW|_GL_TEXTURE_1D}}.
+; level
+: Specifies the level-of-detail number. Level 0 is the base image level. Level ''n'' is the ''n''th mipmap reduction image.
+; xoffset
+: Specifies the texel offset within the texture array.
+; x, y
+: Specify the window coordinates of the left corner of the row of pixels to be copied.
+; width
+: Specifies the width of the texture subimage.
+
+
+{{PageDescription}}
+
+'''_glCopyTexSubImage1D''' replaces a portion of a one-dimensional texture image with pixels from the current {{KW|_GL_READ_BUFFER}} (rather than from main memory, as is the case for {{KW|_glTexSubImage1D}}).
+
+The screen-aligned pixel row with left corner at ({{Parameter|x}},\ {{Parameter|y}}), and with length {{Parameter|width}} replaces the portion of the texture array with x indices {{Parameter|xoffset}} through ''xoffset + width - 1'', inclusive. The destination in the texture array may not include any texels outside the texture array as it was originally specified.
+
+The pixels in the row are processed exactly as if {{KW|_glReadPixels}} had been called, but the process stops just before final conversion. At this point, all pixel component values are clamped to the range [0, 1] and then converted to the texture's internal format for storage in the texel array.
+
+It is not an error to specify a subtexture with zero width, but such a specification has no effect. If any of the pixels within the specified row of the current {{KW|_GL_READ_BUFFER}} are outside the read window associated with the current rendering context, then the values obtained for those pixels are undefined.
+
+No change is made to the ''internalformat'', ''width'', or ''border'' parameters of the specified texture array or to texel values outside the specified subregion.
+
+
+{{PageNotes}}
+
+The {{KW|_glPixelStore}} mode affects texture images.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if /{{Parameter|target}} is not {{KW|_GL_TEXTURE_1D}}.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if the texture array has not been defined by a previous {{KW|_glTexImage1D}} or {{KW|_glCopyTexImage1D}} operation.
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|level}} is less than 0.
+
+{{KW|_GL_INVALID_VALUE}} may be generated if ''level'' is greater than log&amp;lt;sub&amp;gt;2&amp;lt;/sub&amp;gt;(max), where ''max'' is the returned value of {{KW|_GL_MAX_TEXTURE_SIZE}}.
+
+{{KW|_GL_INVALID_VALUE}} is generated if xoffset &amp;lt; 0 or xoffset + width &amp;gt; w, where w is the {{KW|_GL_TEXTURE_WIDTH}}.
+
+
+{{PageUseWith}}
+
+{{KW|_glGetTexImage}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glActiveTexture}}, {{KW|_glBindTexture}}, {{KW|_glBindFramebuffer}}, {{KW|_glCopyImageSubData}}, {{KW|_glCopyTexSubImage2D}}, {{KW|_glCopyTexSubImage3D}}, {{KW|_glCopyTexImage1D}}, {{KW|_glReadBuffer}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

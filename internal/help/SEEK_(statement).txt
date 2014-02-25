@@ -1,0 +1,31 @@
+The '''SEEK''' statement sets the next byte or record position of a file for a read or write.
+
+
+
+{{PageSyntax}}
+:: SEEK ''filenumber%'', ''position%''
+
+
+
+* ''filenumber'' must be the file number that is [[OPEN]] and being read or written to.
+* ''position'' is a byte in [[BINARY]] or sequencial files created in [[OUTPUT]], [[APPEND]] or [[INPUT (file mode)]]s. The first byte = 1.
+* ''position'' is the record in [[RANDOM]] files to read or write. Records can hold more than one variable defined in a [[TYPE]].
+* Since the first SEEK file position is 1 it may require adding one to an offset value when documentation uses that position as 0.
+* After a SEEK statement, the next file operation starts at that SEEK byte position.
+* The SEEK statement can work with the [[SEEK]] function to move around in a file.
+
+
+''Example:'' A SEEK statement using the [[SEEK]] function to move to the next random record in a file.
+
+{{CodeStart}}
+ SEEK 1, {{Cl|SEEK}}(1) + 1
+{{CodeEnd}}
+
+
+
+''See also:''
+* [[SEEK]] {{text|(function)}}
+* [[GET]], [[PUT]]
+
+
+{{PageNavigation}}

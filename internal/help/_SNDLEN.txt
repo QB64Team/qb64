@@ -1,0 +1,27 @@
+The {{KW|_SNDLEN}} Function returns the length of a sound in seconds using a handle from the {{KW|_SNDOPEN}} Function.
+
+
+
+{{PageSyntax}}
+:{{Parameter|soundlength}} = {{KW|_SNDLEN}} ({{Parameter|handle&amp;}})
+
+
+{{PageDescription}}
+*Returns the length of a sound in seconds.
+*The opened file must include the &quot;LEN&quot; capability to use this function.
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|PRINT}} {{Cl|_SNDLEN}}(h&amp;)
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDCOPY}}, {{KW|_SNDLIMIT}}
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,82 @@
+The '''ON TIMER''' statement sets up a timed event to be repeated at specified intervals throughout a program when enabled.
+
+
+''Qbasic'' {{PageSyntax}} 
+::: ON TIMER(seconds%) GOSUB {linelabel|linenumber}
+
+
+''QB64'' {{PageSyntax}} 
+::: ON TIMER([''number%'',] ''seconds!'') {SubProcedure|GOSUB {''linelabel''|''linenumber''}}
+
+
+
+''Description''
+&lt;center&gt; '''QBasic Information''' &lt;/center&gt;
+
+* In Qbasic the [[INTEGER]] ''seconds''' parameter can be from 1 to 86400 seconds(one day).
+* A [[TIMER (statement)|TIMER ON]] statement must be made before an ON TIMER event is enabled in QB or QB64.
+* [[TIMER (statement)|TIMER STOP]] remembers previous events when enabled by a TIMER ON statement and the ON TIMER statement(s) may be executed immediately if a timer event has occurred. 
+* [[TIMER (statement)|TIMER OFF]] disables timer event trapping. Events will not be remembered in a subsequent ON TIMER statement.
+* ON TIMER events will interrupt a [[SLEEP]] call and [[RETURN]] to running program procedures.
+* Qbasic can only use one TIMER event at a time and all TIMER code MUST be in the main code.
+
+
+&lt;center&gt; '''QB64 Specific Information''' &lt;/center&gt;
+* Can use multiple numbered timer events and [[SINGLE]] floating point second values down to one millisecond(.001).
+* '''MUST use the [[_FREETIMER]] function''' to assign free timer numbers. Use specific variables or an array to store the TIMER values.
+* If the TIMER number is omitted or ON TIMER(0, seconds!) is used, the TIMER used is the base timer. '''The base TIMER cannot be freed!''' No number reference can also be used to keep QB64 compatible with older Qbasic code.
+* [[GOSUB]] or [[SUB]] procedures are allowed to be referenced, however [[CALL]] CANNOT be used. 
+* '''[[SUB]] parameter values are passed by value and should be [[SHARED]] or literal values!'''
+* Specific TIMER events can be turned on, suspended, turned off or freed using [[TIMER (statement)|TIMER(n)]] ON, STOP, OFF or FREE.
+* Use '''TIMER(n) FREE''' to release a timer event after it has been turned off or is no longer used.
+* '''QB64''' allows TIMER statements to also be inside of SUB and FUNCTION procedures.
+* Does not currently interrupt [[SLEEP]] or [[_DELAY]] calls.
+* [[$CHECKING]]:OFF can disable QB64 event checking. '''Use it ONLY with errorless code that needs every CPU cycle!'''
+
+
+&lt;center&gt;'''QB64 Timing Alternatives'''&lt;/center&gt;
+* The [[TIMER]] function can be used to find timed intervals down to 1 millisecond(.001) accuracy.
+* The [[_DELAY]] statement can be used to delay program execution for intervals down to milliseconds.
+* [[_LIMIT]] can slow down loops to a specified number of frames per second. This can also alleviate a program's CPU usage.
+
+
+''Example:'' Using a numbered TIMER to check the mouse button press status in '''QB64'''.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} Button {{Cl|AS}} {{Cl|LONG}}    'share variable value with Sub
+
+t1 = _{{Cl|TIMER (statement)|FREE}}{{Cl|TIMER}}              'get a timer number from _FREETIMER ONLY!
+{{Cl|ON TIMER(n)|ON TIMER}}(t1, .05) MouseClick
+{{Cl|TIMER}}(t1) ON
+
+DO
+  {{Cl|LOCATE}} 1, 1
+  {{Cl|IF...THEN|IF}} Button {{Cl|THEN}}
+    {{Cl|PRINT}} &quot;Mouse button&quot;; Button; &quot;is pressed.&quot;;
+  {{Cl|ELSE}} {{Cl|PRINT}} {{Cl|SPACE$}}(70)
+  {{Cl|END IF}}
+  {{Cl|_DISPLAY}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+{{Cl|TIMER}}(t1) {{Cl|OFF}}
+{{Cl|TIMER}}(t1) {{Cl|TIMER (statement)|FREE}} 'release timer
+{{Cl|END}}
+
+{{Cl|SUB}} MouseClick
+{{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+  {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}}
+    {{Cl|COLOR}} 10: Button = 1
+  {{Cl|ELSEIF}} {{Cl|_MOUSEBUTTON}}(2) {{Cl|THEN}}
+    {{Cl|COLOR}} 12: Button = 2
+  {{Cl|ELSE}} Button = 0
+  {{Cl|END IF}}
+{{Cl|LOOP}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[TIMER]], [[_FREETIMER]]
+* [[TIMER (statement)]], [[_DELAY]], [[_LIMIT]]
+* [[$CHECKING]] {{text|(QB64 C++ [[Metacommand]])}}
+
+
+{{PageNavigation}}

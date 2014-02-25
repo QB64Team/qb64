@@ -1,0 +1,47 @@
+The '''COMMAND$''' function returns the DOS commandline arguments passed when a program is run.
+
+
+
+''Syntax:'' variable$ = COMMAND$
+
+
+* The [[STRING|string]] return value is any parameter following the filename in a [[RUN]] or command line statement.
+* Qbasic returns [[UCASE$|uppercase]] [[STRING]] parameters no matter what case they were sent originally. 
+* '''QB64''' does not '''require or return all [[UCASE$|uppercase]]''' values so keep that fact in mind when checking parameters passed!
+* Useful when the programmer wants to add options to the command line of a program for later use by another program.
+* COMMAND$ was not available in QuickBasic versions below 4.0
+
+
+''Example:'' Compile both programs. ProgramA [[RUN]]s ProgramB with a parameter passed following the filename: 
+{{CodeStart}}
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramA&quot;
+
+{{Cl|LOCATE}} 23, 25: {{Cl|PRINT}} &quot;Press any key to run ProgramB&quot;
+K$ = {{Cl|INPUT$}}(1)
+{{Cl|RUN}} &quot;ProgramB FS&quot;  'pass FS parameter to ProgramB in QB64
+
+{{Cl|END}}
+{{CodeEnd}}
+: ''ProgramB'' checks for fullscreen parameter pass in QB64 and goes full screen. 
+{{CodeStart}} '' ''
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramB&quot;
+parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}})
+{{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} &quot;Parameter = &quot; + parameter$
+{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = &quot;FS&quot; {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}                              Parameter = FS.EXE
+{{OutputEnd}}
+
+
+
+''See also:'' 
+
+* [[SHELL]], [[RUN]]
+
+* [[UCASE$]], [[LCASE$]]
+
+
+
+{{PageNavigation}}

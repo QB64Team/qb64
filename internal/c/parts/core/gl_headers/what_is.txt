@@ -1,0 +1,26 @@
+GLEW -
+The OpenGL Extension Wrangler Library (GLEW) is a cross-platform open-source C/C++ extension loading library. GLEW provides efficient run-time mechanisms for determining which OpenGL extensions are supported on the target platform. OpenGL core and extension functionality is exposed in a single header file. GLEW has been tested on a variety of operating systems, including Windows, Linux, Mac OS X, FreeBSD, Irix, and Solaris. 
+
+GLX -
+(initialism for "OpenGL Extension to the X Window System") provides the interface connecting OpenGL and the X Window System: it enables programs wishing to use OpenGL to do so within a window provided by the X Window System.
+
+WGL - the equivalent Microsoft Windows interface to OpenGL
+CGL - the equivalent Mac OS X interface to OpenGL
+AIGLX - accelerated indirect GLX rendering (open source)
+GLUT - library of utilities for OpenGL programs
+
+EGL -
+a similar cross-platform interface between OpenGL ES or VG and the underlying native platform window system
+
+WGL(or Wiggle) -
+the windowing system interface to the Microsoft Windows implementation of the OpenGL specification. WGL is analogous to GLX, which is the X11 interface to OpenGL as well as CGL, which is the Mac OS X interface to OpenGL.
+See also
+    GLX: the equivalent X11 interface to OpenGL
+    CGL: the equivalent Mac OS X interface to OpenGL
+    OpenGL
+    GLUT: A higher level interface that hides the differences between WGL, GLX, etc.
+    EGL (OpenGL): a similar cross-platform interface between OpenGL ES or OpenVG and the underlying native platform window system
+
+ARB -
+glcorearb.h contains interfaces for the core profile of OpenGL and ARB extensions, as described in appendix G.2 of the OpenGL 4.3 Specification. It does not include interfaces found only in the compatibility profile.
+Note: glcorearb.h replaces the old gl3.h draft header, but it is not specific to OpenGL 3.x and we changed the name accordingly.
