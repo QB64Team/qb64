@@ -1,14 +1,14 @@
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION)_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=qbs_new(0,0);
-qbs*oldstr4743=NULL;
+qbs*oldstr4744=NULL;
 if(_FUNC_EVALUATE_EXPRESSION_STRING_E->tmp||_FUNC_EVALUATE_EXPRESSION_STRING_E->fixed||_FUNC_EVALUATE_EXPRESSION_STRING_E->readonly){
-oldstr4743=_FUNC_EVALUATE_EXPRESSION_STRING_E;
-if (oldstr4743->cmem_descriptor){
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr4743->len,0);
+oldstr4744=_FUNC_EVALUATE_EXPRESSION_STRING_E;
+if (oldstr4744->cmem_descriptor){
+_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr4744->len,0);
 }else{
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr4743->len,0);
+_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr4744->len,0);
 }
-memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr4743->chr,oldstr4743->len);
+memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr4744->chr,oldstr4744->len);
 }
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_T=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_T)_FUNC_EVALUATE_EXPRESSION_STRING_T=qbs_new(0,0);
@@ -21,6 +21,11 @@ qbs *_FUNC_EVALUATE_EXPRESSION_STRING_VAR=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_VAR)_FUNC_EVALUATE_EXPRESSION_STRING_VAR=qbs_new(0,0);
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EXP=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EXP)_FUNC_EVALUATE_EXPRESSION_STRING_EXP=qbs_new(0,0);
+int32 *_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E=NULL;
+if(_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E==NULL){
+_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E=(int32*)mem_static_malloc(4);
+*_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E=0;
+}
 int32 *_FUNC_EVALUATE_EXPRESSION_LONG_C=NULL;
 if(_FUNC_EVALUATE_EXPRESSION_LONG_C==NULL){
 _FUNC_EVALUATE_EXPRESSION_LONG_C=(int32*)mem_static_malloc(4);
@@ -33,16 +38,18 @@ _FUNC_EVALUATE_EXPRESSION_LONG_S=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVAL)_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=qbs_new(0,0);
-static qbs *sc_4748=qbs_new(0,0);
-byte_element_struct *byte_element_4749=NULL;
-if (!byte_element_4749){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4749=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4749=(byte_element_struct*)mem_static_malloc(12);
-}
+qbs *_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP=NULL;
+if (!_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP)_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP=qbs_new(0,0);
+static qbs *sc_4749=qbs_new(0,0);
 byte_element_struct *byte_element_4750=NULL;
 if (!byte_element_4750){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4750=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4750=(byte_element_struct*)mem_static_malloc(12);
 }
-static int32 sc_4751;
+byte_element_struct *byte_element_4751=NULL;
+if (!byte_element_4751){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4751=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4751=(byte_element_struct*)mem_static_malloc(12);
+}
+static int32 sc_4752;
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_V=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_V)_FUNC_EVALUATE_EXPRESSION_STRING_V=qbs_new(0,0);
 int32 *_FUNC_EVALUATE_EXPRESSION_LONG_INDEX=NULL;
@@ -60,18 +67,14 @@ if(_FUNC_EVALUATE_EXPRESSION_LONG_COUNTER==NULL){
 _FUNC_EVALUATE_EXPRESSION_LONG_COUNTER=(int32*)mem_static_malloc(4);
 *_FUNC_EVALUATE_EXPRESSION_LONG_COUNTER=0;
 }
-int64 fornext_value4753;
-int64 fornext_finalvalue4753;
-int64 fornext_step4753;
-uint8 fornext_step_negative4753;
+int64 fornext_value4754;
+int64 fornext_finalvalue4754;
+int64 fornext_step4754;
+uint8 fornext_step_negative4754;
 int32 *_FUNC_EVALUATE_EXPRESSION_LONG_LENGTH=NULL;
 if(_FUNC_EVALUATE_EXPRESSION_LONG_LENGTH==NULL){
 _FUNC_EVALUATE_EXPRESSION_LONG_LENGTH=(int32*)mem_static_malloc(4);
 *_FUNC_EVALUATE_EXPRESSION_LONG_LENGTH=0;
-}
-byte_element_struct *byte_element_4754=NULL;
-if (!byte_element_4754){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4754=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4754=(byte_element_struct*)mem_static_malloc(12);
 }
 byte_element_struct *byte_element_4755=NULL;
 if (!byte_element_4755){
@@ -80,4 +83,8 @@ if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4755=(byte_element_s
 byte_element_struct *byte_element_4756=NULL;
 if (!byte_element_4756){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4756=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4756=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_4757=NULL;
+if (!byte_element_4757){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4757=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4757=(byte_element_struct*)mem_static_malloc(12);
 }

@@ -1,12 +1,12 @@
 qbs *_FUNC_COMPRESS_STRING_COMPRESS=NULL;
 if (!_FUNC_COMPRESS_STRING_COMPRESS)_FUNC_COMPRESS_STRING_COMPRESS=qbs_new(0,0);
-qbs*oldstr4536=NULL;
+qbs*oldstr4537=NULL;
 if(_FUNC_COMPRESS_STRING_A->tmp||_FUNC_COMPRESS_STRING_A->fixed||_FUNC_COMPRESS_STRING_A->readonly){
-oldstr4536=_FUNC_COMPRESS_STRING_A;
-if (oldstr4536->cmem_descriptor){
-_FUNC_COMPRESS_STRING_A=qbs_new_cmem(oldstr4536->len,0);
+oldstr4537=_FUNC_COMPRESS_STRING_A;
+if (oldstr4537->cmem_descriptor){
+_FUNC_COMPRESS_STRING_A=qbs_new_cmem(oldstr4537->len,0);
 }else{
-_FUNC_COMPRESS_STRING_A=qbs_new(oldstr4536->len,0);
+_FUNC_COMPRESS_STRING_A=qbs_new(oldstr4537->len,0);
 }
-memcpy(_FUNC_COMPRESS_STRING_A->chr,oldstr4536->chr,oldstr4536->len);
+memcpy(_FUNC_COMPRESS_STRING_A->chr,oldstr4537->chr,oldstr4537->len);
 }
