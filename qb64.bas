@@ -2345,14 +2345,14 @@ DO
                                     IF LEFT$(temp1$, 5) <> "ERROR" AND temp$ <> temp1$ THEN
                                         'The math routine should have did its replacement for us.
                                         altered = -1
-                                        wholestv$ = LEFT$(wholestv$, l + 1) + temp1$ + MID$(wholestv$, l2 + 1)
+                                        wholestv$ = LEFT$(wholestv$, l) + temp1$ + MID$(wholestv$, l2 + 1)
                                     ELSE
                                         'We should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
                                     END IF
                                     l = l + 1
                                 END IF
                                 Emergency_Exit = Emergency_Exit + 1
-                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Attempting to process MATH Function caused Endless Loop.  Please recheck your math formula."
+                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Attempting to process MATH Function caused Endless Loop.  Please recheck your math formula.": GOTO errmes
                             LOOP UNTIL l = 0
                             'End of Math Support Edit
 
