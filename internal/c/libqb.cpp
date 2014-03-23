@@ -1,5 +1,7 @@
 #include "common.cpp"
 
+#include "parts/core/glew/src/glew.c"
+
 #ifdef QB64_ANDROID
  #include <cstdlib> //required for system()
 #endif
@@ -17,6 +19,32 @@
  #include <X11/Xlib.h>
  #include <X11/Xutil.h>
 #endif
+
+void alert(int32 x);
+void alert(char *x);
+
+
+
+int32 force_display_update=0;
+
+
+
+int32 environment_2d__screen_width=0; //the size of the software SCREEN
+int32 environment_2d__screen_height=0;
+int32 environment__window_width=0; //window may be larger or smaller than the SCREEN
+int32 environment__window_height=0;
+int32 environment_2d__screen_x1=0; //offsets of 'screen' within the window
+int32 environment_2d__screen_y1=0;
+int32 environment_2d__screen_x2=0;
+int32 environment_2d__screen_y2=0;
+int32 environment_2d__screen_scaled_width=0;
+int32 environment_2d__screen_scaled_height=0;
+float environment_2d__screen_x_scale=1.0f;
+float environment_2d__screen_y_scale=1.0f;
+int32 environment_2d__screen_smooth=0;//1(LINEAR) or 0(NEAREST)
+int32 environment_2d__letterbox=0;//1=vertical black stripes required, 2=horizontal black stripes required
+
+
 
 //forward ref
 void reinit_glut_callbacks();
@@ -36,6 +64,7 @@ generic_window_handle=handle;
 #endif
 //...
 }
+
 
 
 int32 qloud_next_input_index=1;
@@ -171,17 +200,34 @@ glutTimerFunc(millisec, timerCB, millisec);
 
 
 struct display_frame_struct{
-uint32 *bgra;
-int32 w;
-int32 h;
-int32 bytes;//w*h*4
-int8 used;//0=cannot be freed yet, 1=can be freed
-int8 displayed;//0=not shown yet, 1=already shown
+	int32 state;
+        int64 order;
+	uint32 *bgra;
+	int32 w;
+	int32 h;
+	int32 bytes;//w*h*4
 };
-#define DISPLAY_FRAME_LAST 64 //Note: On a 2000x1000 res with 2GB RAM max possible would be 250
-display_frame_struct display_frame[DISPLAY_FRAME_LAST+1];
-int32 display_frame_begin=0;int32 display_frame_end=0;
-//search for "void display(){"
+display_frame_struct display_frame[3];
+int64 display_frame_order_next=1;
+#define DISPLAY_FRAME_STATE__EMPTY 1
+#define DISPLAY_FRAME_STATE__BUILDING 2
+#define DISPLAY_FRAME_STATE__READY 3
+#define DISPLAY_FRAME_STATE__DISPLAYING 4
+
+//when a new software frame is not required by display(), hardware content may exist,
+//and if it does then this variable is used to determine to highest order index to render
+int64 last_rendered_hardware_display_frame_order=0;
+int64 last_hardware_display_frame_order=0;
+
+
+
+
+
+
+
+
+
+
 
 //List Interface
 //Purpose: Unify and optimize the way QB64 references lists of objects (such as handles)
@@ -200,6 +246,8 @@ ptrszint structure_bases;
 ptrszint *index;//pointers to the structures referred to by each index value
 ptrszint indexes;
 ptrszint indexes_last;
+uint8 lock_freed_list;
+uint8 lock_index_list;
 };
 
 list *list_new(ptrszint structure_size){
@@ -217,6 +265,11 @@ return L;
 ptrszint list_add(list *L){
 ptrszint i;
 if (L->structures_freed){//retrieve index from freed list if possible
+ if (L->lock_freed_list){  
+  still_locked:
+  Sleep(0);
+  if (L->lock_freed_list) goto still_locked;
+ }
  i=L->structure_freed[L->structures_freed--];
  uint8* structure;
  structure=(uint8*)L->index[i];
@@ -228,6 +281,7 @@ if (L->structures_freed){//retrieve index from freed list if possible
   ptrszint new_structures_last;
   new_structures_last=(L->structures_last*2)+1;
   L->structure=(uint8*)calloc(1,L->internal_structure_size*(new_structures_last+1));
+  if (L->structure==NULL){ alert("list_add: failed to allocate new buffer, structure size:"); alert(L->internal_structure_size);}
   L->structures_last=new_structures_last;
   L->structures=0;
   L->structure_base[++L->structure_bases]=(ptrszint)L->structure;
@@ -235,7 +289,11 @@ if (L->structures_freed){//retrieve index from freed list if possible
  i=++L->indexes;
  *(ptrszint*)(L->structure+(L->internal_structure_size*(++L->structures))+L->user_structure_size)=i;
  //allocate new index
- if (L->indexes>L->indexes_last){L->indexes_last=(L->indexes_last*2)+1; L->index=(ptrszint*)realloc(L->index,sizeof(ptrszint)*(L->indexes_last+1));}
+ if (L->indexes>L->indexes_last){
+  L->lock_index_list=1;
+  L->indexes_last=(L->indexes_last*2)+1; L->index=(ptrszint*)realloc(L->index,sizeof(ptrszint)*(L->indexes_last+1));
+  L->lock_index_list=0;
+ }
  L->index[i]=(ptrszint)( L->structure + (L->internal_structure_size*L->structures) );
 }
 return i;
@@ -244,15 +302,22 @@ return i;
 ptrszint list_remove(list *L,ptrszint i){//returns -1 on success, 0 on failure
 if ((i<1)||(i>L->indexes)) return 0;
 uint8* structure;
+if (L->lock_index_list){  
+ still_locked:
+ Sleep(0);
+ if (L->lock_index_list) goto still_locked;
+}
 structure=(uint8*)(L->index[i]);
 if (!*(ptrszint*)(structure+L->user_structure_size)) return 0;
 *(ptrszint*)(structure+L->user_structure_size)=0;
 //expand buffer?
 if ((L->structures_freed+1)>L->structures_freed_last){
+ L->lock_freed_list=1;
  ptrszint new_structures_freed_last;
  new_structures_freed_last=(L->structures_freed_last*2)+1;
  L->structure_freed=(ptrszint*)realloc(L->structure_freed,sizeof(ptrszint)*(new_structures_freed_last+1));
  L->structures_freed_last=new_structures_freed_last;
+ L->lock_freed_list=0;
 }
 L->structure_freed[++L->structures_freed]=i;
 return -1;
@@ -271,6 +336,11 @@ free(L);
 void *list_get(list *L, ptrszint i){//Returns a pointer to an index's structure
 if ((i<1)||(i>L->indexes)) return NULL;
 uint8* structure;
+if (L->lock_index_list){
+ still_locked:
+ Sleep(0);
+ if (L->lock_index_list) goto still_locked;
+}
 structure=(uint8*)(L->index[i]);
 if (!*(ptrszint*)(structure+L->user_structure_size)) return NULL;
 return (void*)structure;
@@ -322,11 +392,133 @@ void connection_close(ptrszint i);
 
 
 
+struct hardware_img_struct{
+ int32 w;
+ int32 h;
+ int32 texture_handle;//if 0, imports from software_pixel_buffer automatically
+ int32 dest_context_handle;//used when rendering other images onto this image
+ int32 pending_commands;//incremented with each command, decremented after command is processed
+ int32 remove;//if =1, free immediately after all pending commands are processed
+ uint32 *software_pixel_buffer;//if NULL, generates a blank texture
+ int32 alpha_disabled;
+ int32 valid;
 
+ int32 will_smooth; 
+};
+list *hardware_img_handles=NULL;
 
+int32 first_hardware_command=0;//only set once
+int32 last_hardware_command_added=0;//0 if none exist
+int32 last_hardware_command_rendered=0;//0 if all have been processed
+int32 next_hardware_command_to_remove=0;//0 if all have been processed
 
+struct hardware_graphics_command_struct{
+ int64 order;//which _DISPLAY event to bind the operation to
+ int32 next_command;//the handle of the next hardware_graphics_command of the same display-order, of 0 if last
+ int64 command;//the command type, actually a set of bit flags
+ //Bit 00: Decimal value 000001: _PUTIMAGE
+ int32 src_img; //MUST be a hardware handle
+ int32 dst_img; //MUST be a hardware handle or 0 for the default 2D rendering context  
+ int32 src_x1;
+ int32 src_y1;
+ int32 src_x2;
+ int32 src_y2;
+ int32 dst_x1;
+ int32 dst_y1;
+ int32 dst_x2;
+ int32 dst_y2;
+ int32 smooth;//0 or 1 (whether to apply texture filtering)
+ int32 use_alpha;//0 or 1 (whether to refer to the alpha component of pixel values)
+ int32 remove;
+};
+list *hardware_graphics_command_handles=NULL;
+#define HARDWARE_GRAPHICS_COMMAND__PUTIMAGE 1
+#define HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST 2
+#define HARDWARE_GRAPHICS_COMMAND__FREEIMAGE 3
 
+int32 new_texture_handle(){
+ GLuint texture=0;
+ glGenTextures(1,&texture);
+ return (int32)texture;
+}
 
+int32 SOFTWARE_IMG_HANDLE_MIN=-8388608;
+
+int32 HARDWARE_IMG_HANDLE_OFFSET=-16777216;//added to all hardware image handles to avoid collision
+                                           //the lowest integer value a single precision number can exactly represent,
+                                           //because users put handles in SINGLEs
+#define NEW_HARDWARE_IMG__BUFFER_CONTENT 1
+#define NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER 2
+int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
+ //note: non power-of-2 dimensioned textures are supported on modern 3D cards and
+ //      even on some older cards, as long as mip-mapping is not being used
+ //      therefore, no attempt is made to convert the non-power-of-2 SCREEN sizes via software
+ //      to avoid the performance hit this would incur
+ //create hardware img
+ static int32 handle;
+ static hardware_img_struct* hardware_img;
+ handle=list_add(hardware_img_handles);
+ hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
+ hardware_img->w=x;
+ hardware_img->h=y;
+ hardware_img->dest_context_handle=0;
+ hardware_img->pending_commands=0;
+ hardware_img->remove=0;
+ hardware_img->will_smooth=0;
+ hardware_img->alpha_disabled=0;
+ hardware_img->valid=1;
+ if (flags&NEW_HARDWARE_IMG__BUFFER_CONTENT){
+  hardware_img->texture_handle=0;    
+  if (flags&NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER){
+   hardware_img->software_pixel_buffer=(uint32*)malloc(x*y*4);
+   memcpy(hardware_img->software_pixel_buffer,pixels,x*y*4);
+  }else{
+   hardware_img->software_pixel_buffer=pixels;
+  }
+ }else{
+  hardware_img->software_pixel_buffer=NULL;
+  hardware_img->texture_handle=new_texture_handle();
+  glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+ }
+ return handle;
+}
+
+void hardware_img_buffer_to_texture(int32 handle){
+ static hardware_img_struct* hardware_img;
+ hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
+ if (hardware_img->texture_handle==0){
+  hardware_img->texture_handle=new_texture_handle();
+  glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  free(hardware_img->software_pixel_buffer);
+ }
+}
+
+//note: only to be used by user functions, not internal functions
+hardware_img_struct *get_hardware_img(int32 handle){
+ static hardware_img_struct *img;
+ if (handle<HARDWARE_IMG_HANDLE_OFFSET||handle>=SOFTWARE_IMG_HANDLE_MIN) return NULL;
+ img=(hardware_img_struct*)list_get(hardware_img_handles,handle-HARDWARE_IMG_HANDLE_OFFSET);
+ if (img==NULL) return NULL;
+ if (!img->valid) return NULL;
+ return img;
+}
+int32 get_hardware_img_index(int32 handle){
+ return handle-HARDWARE_IMG_HANDLE_OFFSET;
+}
 
 
 
@@ -791,7 +983,7 @@ void sub__source(int32);
 int32 func__printwidth(qbs*,int32,int32);
 void sub_cls(int32,uint32,int32);
 void qbs_print(qbs*,int32);
-int32 func__copyimage(int32,int32);
+int32 func__copyimage(int32 i,int32 mode,int32 passed);
 int32 func__dest();
 int32 func__display();
 void qbg_sub_view_print(int32,int32,int32);
@@ -3319,6 +3511,20 @@ return MessageBox(NULL,message,title,type);
 
 
 
+void alert(int32 x){
+ static char str[100];
+ memset(&str[0],0,100);
+ sprintf(str, "%d", x);
+ MessageBox(0,&str[0], "Alert", MB_OK );
+}
+
+void alert(char *x){
+ MessageBox(0,x, "Alert", MB_OK );
+}
+
+
+
+
 
 
 
@@ -4498,39 +4704,74 @@ return i;
 
 
 
+void flush_old_hardware_commands(){
+
+static int32 old_command;
+static int32 command_to_remove;
+static hardware_graphics_command_struct* last_rendered_hgc;
+static hardware_graphics_command_struct* old_hgc;
+static hardware_graphics_command_struct* next_hgc;
+
+if (next_hardware_command_to_remove&&last_hardware_command_rendered){
+
+ last_rendered_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_rendered);
+ 
+ old_command=next_hardware_command_to_remove;
+ old_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,old_command);
+
+ remove_next_hgc:
+
+  if (old_hgc->next_command==0) goto cant_remove;
+  next_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,old_hgc->next_command);
+  if (next_hgc->order>=last_rendered_hgc->order) goto cant_remove;
+
+
+  command_to_remove=old_command;
+
+   if (old_hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST){    
+    static hardware_img_struct *himg;
+    himg=(hardware_img_struct*)list_get(hardware_img_handles,old_hgc->src_img);
+    //alert("HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST");
+    //alert(old_hgc->src_img);
+    //add command to free image
+    //create new command handle & structure
+    int32 hgch=list_add(hardware_graphics_command_handles);
+    hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
+    hgc->remove=0;
+    //set command values
+    hgc->command=HARDWARE_GRAPHICS_COMMAND__FREEIMAGE;
+    hgc->src_img=old_hgc->src_img;
+    //queue the command
+    hgc->next_command=0;
+    hgc->order=display_frame_order_next;
+    if (last_hardware_command_added){
+     hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+     hgc2->next_command=hgch;
+    }
+    last_hardware_command_added=hgch;
+    if (first_hardware_command==0) first_hardware_command=hgch;    
+   }
+
+   old_command=old_hgc->next_command;
+   next_hardware_command_to_remove=old_command;
+   old_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,old_command);
+   list_remove(hardware_graphics_command_handles,command_to_remove);
+
+ goto remove_next_hgc;
+
+ cant_remove:;
+
+}//next_hardware_command_to_remove&&last_hardware_command_rendered
+}//flush_old_hardware_commands
 
 
 void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src,int32 dst,double f_sx1,double f_sy1,double f_sx2,double f_sy2,int32 passed){
-//format & passed bits:
 
-/* 'passed' flag map
-_PUTIMAGE , , , (1, 1)-STEP(1, 1) '64+256+[512]
-_PUTIMAGE , , , (1, 1)-(1, 1) '64+[256]
-_PUTIMAGE , , , STEP(1, 1) '64+[128]
-_PUTIMAGE , , , (1, 1) '[64]
-_PUTIMAGE , , 1 '[32]
-_PUTIMAGE STEP(0, 0)-STEP(1, 1), 1 '1+2+4+8+[16]
-_PUTIMAGE STEP(0, 0)-(1, 1), 1 '1+2+4+[8]
-_PUTIMAGE STEP(0, 0)-(1, 1) '1+2+[4]
-_PUTIMAGE STEP(0, 0) '1+[2]
-_PUTIMAGE (0, 0) '[1]
+/* 
+Format & passed bits: (needs updating)
+[[{STEP}](?,?)[-[{STEP}](?,?)]][,[?][,[?][,[[{STEP}](?,?)[-[{STEP}](?,?)]][,{_SMOOTH}]]]]
+   2?     1              4?       8                                 512      128
 */
-
-//old 'passed' flag map:
-//[(dx1,dy1)[-(dx2,dy2)]][,[src][,[dst][,[(sx1,sy1)[-(sx2,sy2)]][,...?...]]]]
-//  1          2            4      8       16         32          
-
-//changes to 'passed' flag mapping:
-//&1->&1
-//dstep1->&2
-//&2->&4
-//&4->&8
-//dstep2->&16
-//&8->&32
-//&16->&64
-//sstep1->&128
-//&32->&256
-//sstep2->&512
 
 static int32 w,h,sskip,dskip,x,y,xx,yy,z,x2,y2,dbpp,sbpp;
 static img_struct *s,*d;
@@ -4545,8 +4786,56 @@ static uint32 *pal;
 static uint32 *ulp;
 
 no_stretch=0; no_clip=0; no_reverse=1;
-
 flip=0; mirror=0;
+
+static int32 use_hardware;
+static img_struct s_emu,d_emu;//used to emulate a source/dest image for calculation purposes
+use_hardware=0;
+
+//is source a hardware handle?
+if (src){
+hardware_img_struct* src_himg=(hardware_img_struct*)list_get(hardware_img_handles,src-HARDWARE_IMG_HANDLE_OFFSET);
+if (src_himg!=NULL){//source is hardware image
+src-=HARDWARE_IMG_HANDLE_OFFSET;
+
+s_emu.width=src_himg->w;
+s_emu.height=src_himg->h;
+s_emu.clipping_or_scaling=0;
+s_emu.alpha_disabled=src_himg->alpha_disabled;
+s=&s_emu;
+
+//check dst
+hardware_img_struct* dst_himg=NULL;
+if (dst<0){
+ hardware_img_struct* dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
+ if (dst_himg==NULL){error(258); return;}
+ dst-=HARDWARE_IMG_HANDLE_OFFSET;
+
+ d_emu.width=dst_himg->w;
+ d_emu.height=dst_himg->h;
+ d_emu.clipping_or_scaling=0;
+ d_emu.alpha_disabled=dst_himg->alpha_disabled;
+ d=&d_emu;
+
+}else{
+ if (dst>1) {error(5); return;}
+ dst=-dst;
+
+ d=display_page;//use parameters from display page
+
+}
+
+flush_old_hardware_commands();
+
+sbpp=4; dbpp=4;
+use_hardware=1;
+
+goto resolve_coordinates;
+
+}//source is hardware image
+}//src passed
+
+
 
 if (passed&8){//src
  //validate
@@ -4581,6 +4870,11 @@ if (d->text){error(5); return;}
 dbpp=d->bytes_per_pixel;
 if ((sbpp==4)&&(dbpp==1)){error(5); return;}
 if (s==d){error(5); return;}//cannot put source onto itself!
+
+
+resolve_coordinates:
+
+
 
 //quick references
 sw=s->width; sh=s->height; dw=d->width; dh=d->height;
@@ -4629,7 +4923,7 @@ sx1=qbr_float_to_long(f_sx1)+s->view_offset_x; sy1=qbr_float_to_long(f_sy1)+s->v
 sx1=qbr_float_to_long(f_sx1); sy1=qbr_float_to_long(f_sy1);
 }
  //note: sx2 & sy2 cannot be passed if sx1 & sy1 weren't passed
- if (passed&256){//sx2,sy2
+ if (passed&512){//sx2,sy2
  if (s->clipping_or_scaling){
  if (s->clipping_or_scaling==2){
  sx2=qbr_float_to_long(f_sx2*s->scaling_x+s->scaling_offset_x)+s->view_offset_x;
@@ -4647,7 +4941,86 @@ sx1=qbr_float_to_long(f_sx1); sy1=qbr_float_to_long(f_sy1);
 sx1=0; sy1=0; sx2=0; sy2=0;
 }//sx1,sy1
 
-if ((passed&4)&&(passed&256)){//all co-ords given
+//all co-ordinates resolved (but omitted co-ordinates are set to 0!)
+
+if (use_hardware){
+//calculate omitted co-ordinates
+if ((passed&4)&&(passed&512)) goto got_hw_coord;//all passed
+if (passed&4){//(dx1,dy1)-(dx2,dy2)...
+ if (passed&64){//(dx1,dy1)-(dx2,dy2),...,(sx1,sy1)
+  sx2=sx1+abs(dx2-dx1); sy2=sy1+abs(dy2-dy1);
+  goto got_hw_coord;
+ }else{//(dx1,dy1)-(dx2,dy2)
+  sx2=sw-1; sy2=sh-1;
+  goto got_hw_coord;
+ }
+}
+if (passed&512){//...(sx1,sy1)-(sx2,sy2)
+ if (passed&1){//(dx1,dy1),,(sx1,sy1)-(sx2,sy2)
+  dx2=dx1+abs(sx2-sx1); dy2=dy1+abs(sy2-sy1);
+  goto got_hw_coord;
+ }else{//(sx1,sy1)-(sx2,sy2)
+  dx2=dw-1; dy2=dh-1;
+  goto got_hw_coord;
+ }
+}
+if (passed&64){error(5); return;}//Invalid: NULL-NULL,?,?,(sx1,sy1)-NULL
+if (passed&1){//(dx1,dy1)
+ sx2=s->width-1; sy2=s->height-1;
+ dx2=dx1+sx2; dy2=dy1+sy2;
+ goto got_hw_coord;
+}
+//no coords provided
+sx2=s->width-1; sy2=s->height-1;
+dx2=d->width-1; dy2=d->height-1;
+got_hw_coord:
+
+  //create new command handle & structure
+  int32 hgch=list_add(hardware_graphics_command_handles);
+  hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
+ 
+  hgc->remove=0;
+ 
+  //set command values
+  hgc->command=HARDWARE_GRAPHICS_COMMAND__PUTIMAGE;
+ 
+  hgc->src_img=src;
+  hgc->src_x1=sx1;
+  hgc->src_y1=sy1;
+  hgc->src_x2=sx2;
+  hgc->src_y2=sy2;
+
+  hgc->dst_img=dst;
+  hgc->dst_x1=dx1;
+  hgc->dst_y1=dy1;
+  hgc->dst_x2=dx2;
+  hgc->dst_y2=dy2;
+
+  hgc->smooth=0;//unless specified, no filtering will be applied
+  if (passed&128) hgc->smooth=1;
+
+  hgc->use_alpha=1;
+  if (s->alpha_disabled||d->alpha_disabled) hgc->use_alpha=0;
+
+  //queue the command
+  hgc->next_command=0;
+  hgc->order=display_frame_order_next;
+
+  if (last_hardware_command_added){
+   hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+   hgc2->next_command=hgch;
+  }
+  last_hardware_command_added=hgch;
+  if (first_hardware_command==0) first_hardware_command=hgch;
+
+  return;
+
+}//use hardware
+
+//(decided not to throw error, QB64 will use linear filtering if/when available)
+//if (passed&128){error(5); return;}//software surfaces do not support pixel _SMOOTHing yet
+
+if ((passed&4)&&(passed&512)){//all co-ords given
 //could be stretched
  if ( (abs(dx2-dx1)==abs(sx2-sx1)) && (abs(dy2-dy1)==abs(sy2-sy1)) ){//non-stretched
  //could be flipped/reversed
@@ -4676,7 +5049,7 @@ goto stretch;
 }//16
 }//2
 
-if (passed&256){//...(sx1,sy1)-(sx2,sy2)
+if (passed&512){//...(sx1,sy1)-(sx2,sy2)
 if (passed&1){//(dx1,dy1),,(sx1,sy1)-(sx2,sy2)
 dx2=dx1+abs(sx2-sx1); dy2=dy1+abs(sy2-sy1);
 //can't be stretched
@@ -6269,7 +6642,7 @@ exit(cmem[0]);
 int32 screen_last_valid=0;
 uint8 *screen_last=(uint8*)malloc(1);
 uint32 screen_last_size=1;
-uint32 pal_last[256];
+
 
 uint64 asciicode_value=0;
 int32 asciicode_reading=0;
@@ -12521,9 +12894,9 @@ sub__source(func__dest());
 
 //duplicate dest image so any changes can be reverted
 static int32 dest_image,dest_image_temp,dest_image_holding_cursor;
-dest_image=func__copyimage(NULL,NULL);
+dest_image=func__copyimage(func__dest(),NULL,NULL);
 if (dest_image==-1) error(516);//out of memory
-dest_image_temp=func__copyimage(NULL,NULL);
+dest_image_temp=func__copyimage(func__dest(),NULL,NULL);
 if (dest_image_temp==-1) error(517);//out of memory
 static int32 dest_image_cursor_x,dest_image_cursor_y;
 dest_image_cursor_x=write_page->cursor_x;
@@ -18993,71 +19366,86 @@ error(5);
 }
 
 float func__mousex(){
+
 static int32 x,x2;
 static float f;
 
 x=mouse_messages[current_mouse_message].x;
 
+/*
 if (cloud_app){
  x2=display_page->width; if (display_page->text) x2*=fontwidth[display_page->font];
  x_limit=x2-1;
  x_scale=1;
  x_offset=0;
 }
+*/
 
-x+=x_offset;
-x=(float)x*x_scale;
+//calculate pixel offset of mouse within SCREEN using environment variables
+x-=environment_2d__screen_x1;
+x=qbr_float_to_long((((float)x+0.5f)/environment_2d__screen_x_scale)-0.5f);
 if (x<0) x=0;
-if (x>x_limit) x=x_limit;
+if (x>=environment_2d__screen_width) x=environment_2d__screen_width-1;
 
+//restrict range to the current display page's range to avoid causing errors
 x2=display_page->width; if (display_page->text) x2*=fontwidth[display_page->font];
 if (x>=x2) x=x2-1;
+
 if (display_page->text){
 f=x;
 x2=fontwidth[display_page->font];
-x=x/x2+1;
 f=f/(float)x2+0.5f;
- //if cint(f)<>x then adjust f so it does
  x2=qbr_float_to_long(f);
  if (x2>x) f-=0.001f;
  if (x2<x) f+=0.001f;
 return f;
 }
+
 return x;
 }
 
 float func__mousey(){
+
 static int32 y,y2;
 static float f;
+
 y=mouse_messages[current_mouse_message].y;
 
+/*
 if (cloud_app){
  y2=display_page->height; if (display_page->text) y2*=fontheight[display_page->font];
  y_limit=y2-1;
  y_scale=1;
  y_offset=0;
 }
+*/
 
-y+=y_offset;
-y=(float)y*y_scale;
+//calculate pixel offset of mouse within SCREEN using environment variables
+y-=environment_2d__screen_y1;
+y=qbr_float_to_long((((float)y+0.5f)/environment_2d__screen_y_scale)-0.5f);
 if (y<0) y=0;
-if (y>y_limit) y=y_limit;
+if (y>=environment_2d__screen_height) y=environment_2d__screen_height-1;
 
+//restrict range to the current display page's range to avoid causing errors
 y2=display_page->height; if (display_page->text) y2*=fontheight[display_page->font];
 if (y>=y2) y=y2-1;
+
 if (display_page->text){
-f=y;
-y2=fontheight[display_page->font];
-y=y/y2+1;
-f=f/(float)y2+0.5f;
- //if cint(f)<>y then adjust f so it does
+ f=y;
+ y2=fontheight[display_page->font];
+ f=f/(float)y2+0.5f;
  y2=qbr_float_to_long(f);
  if (y2>y) f-=0.001f;
  if (y2<y) f+=0.001f;
 return f;
 }
+
 return y;
 }
+
+
+
+
 
 int32 func__mouseinput(){
 if (current_mouse_message==last_mouse_message) return 0;
@@ -19207,20 +19595,32 @@ return -i;
  #include "parts/video/image/src.c"
 #endif
 
-int32 func__copyimage(int32 i,int32 passed){
+int32 func__copyimage(int32 i,int32 mode,int32 passed){
 static int32 i2,bytes;
 static img_struct *s,*d;
 if (new_error) return 0;
-if (passed){
+//if (passed){
   if (i>=0){//validate i
   validatepage(i); i=page[i];
   }else{
   i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
  }
- }else{
- i=write_page_index;
- }
+// }else{
+// i=write_page_index;
+// }
+
 s=&img[i];
+
+if (passed&1){
+ if (mode!=s->compatible_mode){
+  if (mode!=33||s->compatible_mode!=32){error(5); return -1;}
+  //create new buffered hardware image
+  i2=new_hardware_img(s->width, s->height, (uint32*)s->offset32,
+                      NEW_HARDWARE_IMG__BUFFER_CONTENT | NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER);
+  return i2+HARDWARE_IMG_HANDLE_OFFSET;
+ }
+}
+
 //duplicate structure
 i2=newimg();
 d=&img[i2];
@@ -19248,9 +19648,35 @@ void sub__freeimage(int32 i,int32 passed){
 if (new_error) return;
  if (passed){
   if (i>=0){//validate i
-  error(5); return;//The SCREEN's pages cannot be freed!
+   error(5); return;//The SCREEN's pages cannot be freed!
   }else{
-  i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+
+   static hardware_img_struct *himg;  
+   if (himg=get_hardware_img(i)){
+
+    //add command to free image
+    //create new command handle & structure
+    int32 hgch=list_add(hardware_graphics_command_handles);
+    hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
+    hgc->remove=0;
+    //set command values
+    hgc->command=HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST;
+    hgc->src_img=get_hardware_img_index(i);
+    himg->valid=0;
+    //queue the command
+    hgc->next_command=0;
+    hgc->order=display_frame_order_next;
+    if (last_hardware_command_added){
+     hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+     hgc2->next_command=hgch;
+    }
+    last_hardware_command_added=hgch;
+    if (first_hardware_command==0) first_hardware_command=hgch;
+    
+    return;
+   }
+
+   i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
  }
  }else{
  i=write_page_index;
@@ -19315,9 +19741,14 @@ void sub__blend(int32 i,int32 passed){
 if (new_error) return;
 if (passed){
  if (i>=0){//validate i
- validatepage(i); i=page[i];
+  validatepage(i); i=page[i];
  }else{
- i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
+  static hardware_img_struct *himg;  
+  if (himg=get_hardware_img(i)){
+   himg->alpha_disabled=0;
+   return;
+  }
+  i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
  }
 }else{
 i=write_page_index;
@@ -19330,9 +19761,18 @@ void sub__dontblend(int32 i,int32 passed){
 if (new_error) return;
 if (passed){
  if (i>=0){//validate i
- validatepage(i); i=page[i];
+  validatepage(i); i=page[i];
  }else{
- i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
+  static hardware_img_struct *himg;  
+  if (himg=get_hardware_img(i)){
+   himg->alpha_disabled=1;
+   return;
+  }
+  i=-i;
+  if (i>=nextimg){error(258); return;}
+  if (!img[i].valid){
+   error(258); return;
+  } 
  }
 }else{
 i=write_page_index;
@@ -19469,9 +19909,13 @@ int32 func__width(int32 i,int32 passed){
 if (new_error) return 0;
 if (passed){
  if (i>=0){//validate i
- validatepage(i); i=page[i];
+  validatepage(i); i=page[i];
  }else{
- i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+  static hardware_img_struct *himg;  
+  if (himg=get_hardware_img(i)){
+   return himg->w;
+  }
+  i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
  }
 }else{
 i=write_page_index;
@@ -19483,9 +19927,13 @@ int32 func__height(int32 i,int32 passed){
 if (new_error) return 0;
 if (passed){
  if (i>=0){//validate i
- validatepage(i); i=page[i];
+  validatepage(i); i=page[i];
  }else{
- i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+  static hardware_img_struct *himg;  
+  if (himg=get_hardware_img(i)){
+   return himg->h;
+  }
+  i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
  }
 }else{
 i=write_page_index;
@@ -23171,31 +23619,24 @@ if (autodisplay){
 }
 }
 
-
 void sub__fullscreen(int32 method,int32 passed){
-//ref: "[{_OFF|_STRETCH|_SQUAREPIXELS}]"
-//          1      2           3
-
-
-if (passed&1) fullscreen_smooth=1; else fullscreen_smooth=0;
-
-while(full_screen_set!=-1) Sleep(1);//wait for pending changes from previous request to finish
-
-//***uncommenting following lines causes a crash***
-display_now();//force screen frame update to ensure a frame of the correct size exists in the buffer
-
-int32 x;
-if (method==0) x=1;
-if (method==1) x=0;
-if (method==2) x=1;
-if (method==3) x=2;
-//if (full_screen==x) return;//mode already correct
-full_screen_set=x;//NOTE: QB64-GL does not differentiate between _STRETCH and _SQUAREPIXELS, _STRETCH is the default
-//display();//force screen frame update so mode switch occurs
+ //ref: "[{_OFF|_STRETCH|_SQUAREPIXELS}]"
+ //          1      2           3
+ int32 x;
+ if (method==0) x=1;
+ if (method==1) x=0;
+ if (method==2) x=1;
+ if (method==3) x=2;
+ if (passed&1) fullscreen_smooth=1; else fullscreen_smooth=0;
+ if (full_screen!=x) full_screen_set=x;
+ force_display_update=1;
 }
 
 int32 func__fullscreen(){
-return full_screen;
+ static int32 x;
+ x=full_screen_set;
+ if (x!=-1) return x;
+ return full_screen;
 }
 
 
@@ -27938,59 +28379,547 @@ int64 display_lock_released=0;
 extern void SUB__GL();
 #endif
 
+int32 displayorder_screen=1;
+int32 displayorder_hardware=2;
+int32 displayorder_glrender=3;
+int32 displayorder_hardware1=4;
 
+//sub__displayorder( 1 , 2 , 4 , 3 );
+//id.specialformat = "[{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}]]]]"
+void sub__displayorder(int32 method1,int32 method2,int32 method3,int32 method4){
 
+//check no value has been used twice
+if (method1!=0) if (method1==method2||method1==method3||method1==method4){error(5); return;}
+if (method2!=0) if (method2==method1||method2==method3||method2==method4){error(5); return;}
+if (method3!=0) if (method3==method1||method3==method2||method3==method4){error(5); return;}
+if (method4!=0) if (method4==method1||method4==method2||method4==method3){error(5); return;}
+displayorder_screen=0;
+displayorder_hardware=0;
+displayorder_hardware1=0;
+displayorder_glrender=0;
+static int32 i,method;
+for (i=1;i<=4;i++){ 
+ if (i==1) method=method1;
+ if (i==2) method=method2;
+ if (i==3) method=method3;
+ if (i==4) method=method4;
+ if (method==1) displayorder_screen=i;
+ if (method==2) displayorder_hardware=i;
+ if (method==3) displayorder_hardware1=i;
+ if (method==4) displayorder_glrender=i;
+}
+}
 
-int32 gl_render_method=2; //1=behind, 2=ontop[default], 3=only
+//int32 gl_render_method=2; //1=behind, 2=ontop[default], 3=only
 void sub__glrender(int32 method){
-gl_render_method=method;
+//gl_render_method=method;
+if (method==1) sub__displayorder(4,1,2,3);
+if (method==2) sub__displayorder(1,2,4,3);
+if (method==3) sub__displayorder(4,0,0,0);
 }
 
 
 
-void GLUT_DISPLAY_REQUEST(){
+
+
+
+
 
 #define GL_BGR 0x80E0
 #define GL_BGRA 0x80E1
 
+
+
+/* reference
+struct hardware_img_struct{
+ int32 w;
+ int32 h;
+ int32 texture_handle;
+ int32 dest_context_handle;//used when rendering other images onto this image
+ int32 temp;//if =1, delete immediately after use
+}
+list *hardware_img_handles=NULL;
+*/
+
+
+
+void free_hardware_img(int32 handle){
+
+ //alert("free_hardware_img: entered");
+
+ static hardware_img_struct* hardware_img;
+ hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
+
+ if (hardware_img==NULL) alert("free_hardware_img: image does not exist");
+
+ if (hardware_img->dest_context_handle){
+  GLuint context=(GLuint)hardware_img->dest_context_handle;
+  glDeleteFramebuffers(1, &context);
+ }
+ GLuint texture=(GLuint)hardware_img->texture_handle;
+ glDeleteTextures(1, &texture); 
+ list_remove(hardware_img_handles,handle);
+}
+
+
+/*
+int32 new_hardware_frame(int32 x, int32 y){
+ int32 handle=new_hardware_frame_handle();
+ glBindTexture (GL_TEXTURE_2D, handle);
+ glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+ return handle;
+}
+
+void free_hardware_frame(int32 handle){
+ GLuint texture=(GLuint)handle;
+ glDeleteTextures(1, &texture);
+}
+*/
+
+
+
+
+void prepare_environment_2d(){//called prior to rendering 2D content
+
+//precalculate critical dimensions, offsets & ratios
+
+static int32 can_scale;//can the screen be scaled on the window
+can_scale=0;
+static int32 need_square_pixels;//do we need square_pixels? if not we can stretch the screen
+need_square_pixels=0;
+
+environment_2d__screen_smooth=0;
+
+environment_2d__letterbox=0;
+
+if (full_screen>0){//in full screen
+ //reference: ---int32 full_screen_set=-1;//0(windowed),1(stretched/closest),2(1:1)---
+ can_scale=1;
+ if (full_screen==2) need_square_pixels=1;
+ //note: 'letter-boxing' is only requred where the size of the window cannot be controlled, and the only place where this is the
+ //      case is full screen mode _SQUAREPIXELS
+ environment_2d__screen_smooth=fullscreen_smooth;
+}else{//windowed
+ if (resize_auto>0){//1=STRETCH,2=SMOOTH
+  can_scale=1;
+  if (resize_auto==2) environment_2d__screen_smooth=1;
+  //note: screen will fix its aspect ratio automatically, so there is no need to enforce squarepixels
+ } 
+}
+
+if (environment_2d__screen_width==environment__window_width &&
+    environment_2d__screen_height==environment__window_height){
+ //screen size matches window
+ environment_2d__screen_x1=0;
+ environment_2d__screen_y1=0;
+ environment_2d__screen_x2=environment_2d__screen_width-1;
+ environment_2d__screen_y2=environment_2d__screen_height-1;
+ environment_2d__screen_x_scale=1.0f;
+ environment_2d__screen_y_scale=1.0f;
+ environment_2d__screen_scaled_width=environment_2d__screen_width;
+ environment_2d__screen_scaled_height=environment_2d__screen_height;
+ environment_2d__screen_smooth=0;//no smoothing required
+}else{
+ //screen size does not match
+ //calculate ratios
+ static float window_ratio;
+ static float screen_ratio;
+ window_ratio=(float)environment__window_width/(float)environment__window_height;
+ screen_ratio=(float)environment_2d__screen_width/(float)environment_2d__screen_height;
+ if (can_scale==0){
+  //screen will appear in the top-left of the window with blank space on the bottom & right
+  environment_2d__screen_x1=0;
+  environment_2d__screen_y1=0;
+  environment_2d__screen_x2=environment_2d__screen_width-1;
+  environment_2d__screen_y2=environment_2d__screen_height-1;
+  goto cant_scale;
+ }
+ if (need_square_pixels==0||(window_ratio==screen_ratio)){
+  //can stretch, no 'letter-box' required
+  environment_2d__screen_x1=0;
+  environment_2d__screen_y1=0;
+  environment_2d__screen_x2=environment__window_width-1;
+  environment_2d__screen_y2=environment__window_height-1;
+ }else{
+  //'letter-box' required
+  //this section needs revision
+  static float x_scale,y_scale;
+  static int32 x1,y1,x2,y2,z,x_limit,y_limit,x_offset,y_offset;
+  //x_scale=(float)environment_2d__screen_width/(float)environment__window_width;
+  //y_scale=(float)environment_2d__screen_height/(float)environment__window_height;
+  //x_offset=0; y_offset=0;
+
+  x1=0; y1=0; x2=environment__window_width-1; y2=environment__window_height-1;
+  //x_limit=x2; y_limit=y2;
+  if (window_ratio>screen_ratio){
+   //pad sides
+   z=(float)environment__window_height*screen_ratio;//new width
+   x1=environment__window_width/2-z/2;
+   x2=x1+z-1;
+   environment_2d__letterbox=1;//vertical black stripes required
+   //x_offset=-x1; x_scale=(float)environment_2d__screen_width/(float)z; x_limit=z-1;
+  }else{
+   //pad top/bottom
+   z=(float)environment__window_width/screen_ratio;//new height
+   y1=environment__window_height/2-z/2;
+   y2=y1+z-1;
+   environment_2d__letterbox=2;//horizontal black stripes required
+   //y_offset=-y1; y_scale=(float)environment_2d__screen_height/(float)z; y_limit=z-1;
+  }
+  environment_2d__screen_x1=x1;
+  environment_2d__screen_y1=y1;
+  environment_2d__screen_x2=x2;
+  environment_2d__screen_y2=y2;
+ }
+ cant_scale:
+ environment_2d__screen_scaled_width=environment_2d__screen_x2-environment_2d__screen_x1+1;
+ environment_2d__screen_scaled_height=environment_2d__screen_y2-environment_2d__screen_y1+1;
+ environment_2d__screen_x_scale=(float)environment_2d__screen_scaled_width/(float)environment_2d__screen_width;
+ environment_2d__screen_y_scale=(float)environment_2d__screen_scaled_height/(float)environment_2d__screen_height;
+} 
+
+}//prepare_environment_2d
+
+
+int32 environment_2d__get_window_x1_coord(int32 x){
+ return qbr_float_to_long(((float)x)*environment_2d__screen_x_scale)+environment_2d__screen_x1;
+}
+int32 environment_2d__get_window_y1_coord(int32 y){
+ return qbr_float_to_long((float)y*environment_2d__screen_y_scale)+environment_2d__screen_y1;
+}
+int32 environment_2d__get_window_x2_coord(int32 x){
+ return qbr_float_to_long(((float)x+1.0f)*environment_2d__screen_x_scale-1.0f)+environment_2d__screen_x1;
+}
+
+int32 environment_2d__get_window_y2_coord(int32 y){
+ return qbr_float_to_long(((float)y+1.0f)*environment_2d__screen_y_scale-1.0f)+environment_2d__screen_y1;
+}
+
+struct environment_2d__window_rect_struct{
+ int32 x1;
+ int32 y1;
+ int32 x2;
+ int32 y2;
+};
+
+//this functions returns a constant rect dimensions to stop warping of image
+environment_2d__window_rect_struct tmp_rect;
+environment_2d__window_rect_struct *environment_2d__screen_to_window_rect(int32 x1,int32 y1,int32 x2,int32 y2){
+ tmp_rect.x1=qbr_float_to_long(((float)x1)*environment_2d__screen_x_scale)+environment_2d__screen_x1;
+ tmp_rect.y1=qbr_float_to_long(((float)y1)*environment_2d__screen_y_scale)+environment_2d__screen_y1;
+ static int32 w,h;
+ w=abs(x2-x1)+1; h=abs(y2-y1)+1;
+ //force round upwards to correct gaps when tiling
+ w=((float)w)*environment_2d__screen_x_scale+0.99f;
+ h=((float)h)*environment_2d__screen_y_scale+0.99f;
+ tmp_rect.x2=w-1+tmp_rect.x1;
+ tmp_rect.y2=h-1+tmp_rect.y1;
+ //(code which doesn't support tiling)
+ //tmp_rect.x2=qbr_float_to_long(((float)w)*environment_2d__screen_x_scale-1.0f)+tmp_rect.x1;
+ //tmp_rect.y2=qbr_float_to_long(((float)h)*environment_2d__screen_y_scale-1.0f)+tmp_rect.y1;
+ return &tmp_rect;
+}
+
+int32 hardware_img__current_src=-1;
+int32 hardware_img__current_dst=-1;
+void hardware_img_put(int32 dst_x1,int32 dst_y1,int32 dst_x2,int32 dst_y2,
+                      int32 src_img,int32 dst_img,
+                      int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,
+                      int32 use_alpha,
+                      int32 smooth
+){
+
+if (dst_img<0) dst_img=0;
+
+static hardware_img_struct* src_hardware_img;
+static hardware_img_struct* dst_hardware_img;
+
+src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
+
+
+if (src_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(src_img);
+
+//ensure dst_x1/y1 represent top-left co-ordinate of destination
+static int32 swap_tmp;
+if (dst_x2<dst_x1){
+swap_tmp=dst_x2; dst_x2=dst_x1; dst_x1=swap_tmp;
+swap_tmp=src_x2; src_x2=src_x1; src_x1=swap_tmp;
+}
+if (dst_y2<dst_y1){
+swap_tmp=dst_y2; dst_y2=dst_y1; dst_y1=swap_tmp;
+swap_tmp=src_y2; src_y2=src_y1; src_y1=swap_tmp;
+}
+
+static int32 dst_w,dst_h;
+static int32 src_h,src_w;
+
+src_h=src_hardware_img->h;
+src_w=src_hardware_img->w;
+
+if (dst_img){
+ dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
+ if (dst_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(dst_img);
+
+ //does it have a dest context? if not create one
+ if (dst_hardware_img->dest_context_handle==0){
+  static GLuint framebuffer_handle;
+  framebuffer_handle=0;
+  glGenFramebuffers(1, &framebuffer_handle);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_handle);
+  dst_hardware_img->dest_context_handle=framebuffer_handle;
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
+
+  glEnable(GL_TEXTURE_2D);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
+
+ }else{
+  //if (hardware_img__current_dst!=dst_img) 
+  glBindFramebuffer(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
+ }
+
+
+
+
+
+ dst_w=dst_hardware_img->w;
+ dst_h=dst_hardware_img->h;
+
+}else{ 
+ if (hardware_img__current_dst!=dst_img) glBindFramebuffer(GL_FRAMEBUFFER, 0);
+ dst_w=environment__window_width;
+ dst_h=environment__window_height;
+ //convert coordinates to coordinates within window
+ /* (initial attempt, warped images as rect axes crossed pixel boundaries at different times when scaled)
+ dst_x1=environment_2d__get_window_x1_coord(dst_x1);
+ dst_x2=environment_2d__get_window_x2_coord(dst_x2);
+ dst_y1=environment_2d__get_window_y1_coord(dst_y1);
+ dst_y2=environment_2d__get_window_y2_coord(dst_y2); 
+ */
+ environment_2d__window_rect_struct *rect;
+
+ rect=environment_2d__screen_to_window_rect(dst_x1,dst_y1,dst_x2,dst_y2);
+ dst_x1=rect->x1;
+ dst_y1=rect->y1;
+ dst_x2=rect->x2;
+ dst_y2=rect->y2;
+
+
+/*
+ glEnable(GL_TEXTURE_2D);
+ glMatrixMode(GL_PROJECTION);
+ glLoadIdentity();
+ //gluOrtho2D(0, dst_w, 0, dst_h);
+ glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+ glMatrixMode(GL_MODELVIEW);
+ glLoadIdentity();
+ glScalef(1, -1, 1);//flip vertically
+ glTranslatef(0, -dst_h, 0);//move to new vertical position
+ glViewport(0,0,dst_w,dst_h);
+*/
+
+
+
+
+
+}
+
+//select the source texture
+if (hardware_img__current_src!=src_img||hardware_img__current_dst!=dst_img){
+ glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
+}
+
+
+
+//adjust source texture options (if changed)
+if (src_hardware_img->will_smooth!=smooth){
+ if (smooth){
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ }else{
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+ }
+ src_hardware_img->will_smooth=smooth;
+}
+
+
+
+if (use_alpha){
+ glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}else{
+ glDisable (GL_BLEND);
+}
+
+//adjust for render (x2 & y2 need to be one greater than the destination offset)
+dst_x2++; dst_y2++;
+
+//calc source texture co-ordinates
+float x1f,y1f,x2f,y2f;
+
+if (src_x1<=src_x2){
+ x1f=((float)src_x1+0.01f)/(float)src_w;
+ x2f=((float)src_x2+0.99f)/(float)src_w;
+}else{
+ x2f=((float)src_x2+0.01f)/(float)src_w;
+ x1f=((float)src_x1+0.99f)/(float)src_w;
+}
+
+if (src_y1<=src_y2){
+ y1f=((float)src_y1+0.01f)/(float)src_h;
+ y2f=((float)src_y2+0.99f)/(float)src_h;
+}else{
+ y2f=((float)src_y2+0.01f)/(float)src_h;
+ y1f=((float)src_y1+0.99f)/(float)src_h;
+}
+
+//render it
+glBegin(GL_QUADS);
+glTexCoord2f (x1f,y1f); glVertex2f(dst_x1,dst_y1);
+glTexCoord2f (x2f,y1f); glVertex2f(dst_x2,dst_y1);
+glTexCoord2f (x2f,y2f); glVertex2f(dst_x2,dst_y2);
+glTexCoord2f (x1f,y2f); glVertex2f(dst_x1,dst_y2);
+glEnd();
+
+hardware_img__current_src=src_img;
+hardware_img__current_dst=dst_img;
+
+
+
+//alert((char*)glGetString(GL_RENDERER));
+
+}
+
+
+
+
+
+#define HARDWARE_RENDER_STATE__UNKNOWN -1
+#define HARDWARE_RENDER_STATE__2D 1
+#define HARDWARE_RENDER_STATE__3D 2 //not used yet
+int32 hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
+
+#define HARDWARE_RENDER_ALPHA_MODE__UNKNOWN -1
+#define HARDWARE_RENDER_ALPHA_MODE__DONT_BLEND 1
+#define HARDWARE_RENDER_ALPHA_MODE__BLEND 2
+int32 hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
+
+
+static int32 software_screen_hardware_frame=0;
+
+static int32 in_GLUT_DISPLAY_REQUEST=0;
+
+void GLUT_DISPLAY_REQUEST(){
+
+if (in_GLUT_DISPLAY_REQUEST){
+ return;
+}
+in_GLUT_DISPLAY_REQUEST=1;
+
+//general use variables
 static int32 i,i2,i3;
 static int32 x,y,x2,y2;
 
-//Does first frame exist?
-if (!display_frame_begin) return;
-
-//Mark unrequired frames as used (step 1/2 [step 2 is after 'SUB__GL' section])
-i=display_frame_begin;
-while(i!=display_frame_end){//Note: The final frame never needs to be removed
- display_frame[i].used=1;
- i++; if (i==DISPLAY_FRAME_LAST+1) i=1;
+//determine which software frame to display
+static int32 last_i;//the last software frame displayed
+last_i=-1;
+for (i2=0;i2<=2;i2++){
+ if (display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING){
+  last_i=i2;
+ }
+}
+i=-1;
+static int64 highest_order;
+highest_order=0;
+if (last_i!=-1) highest_order=display_frame[last_i].order;//avoid any frames below the current one
+for (i2=0;i2<=2;i2++){
+ if (display_frame[i2].state==DISPLAY_FRAME_STATE__READY&&display_frame[i2].order>highest_order){
+  highest_order=display_frame[i2].order;
+  i=i2;
+ }
+}
+if (i==-1) i=last_i;
+if (i==-1){
+ in_GLUT_DISPLAY_REQUEST=0;
+ return;//no frames exist yet, so screen size cannot be determined, therefore no action possible
+}
+if (i!=last_i){ 
+ for (i2=0; i2<=2;i2++){
+  if (display_frame[i2].order<display_frame[i].order&&(display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING||display_frame[i2].state==DISPLAY_FRAME_STATE__READY)) display_frame[i2].state=DISPLAY_FRAME_STATE__EMPTY;
+ }
+ display_frame[i].state=DISPLAY_FRAME_STATE__DISPLAYING;
 }
 
-i=display_frame_end;
 
-#ifndef DEPENDENCY_GL
- //we only proceed if there's GL content to overlay on existing background, but not otherwise
- if (display_frame[i].displayed){
+static int64 order;
+order=last_hardware_display_frame_order;
+
+static int32 first_command_prev_order=0;
+static int32 rerender_prev_hardware_frame=0;
+rerender_prev_hardware_frame=0;
+
+//if no new software frame, only proceed if there is _GL content to render
+if (last_rendered_hardware_display_frame_order==last_hardware_display_frame_order){
+ if (i==last_i){
   if (full_screen_set==-1){//no pending full-screen changes
    if (os_resize_event==0){//no resize events
-    return;
+    #ifndef DEPENDENCY_GL //we aren't using SUB _GL 
+     in_GLUT_DISPLAY_REQUEST=0;
+     return;
+    #endif
+    if (displayorder_glrender==0){
+     in_GLUT_DISPLAY_REQUEST=0;
+     return;
+    }
+    if (first_command_prev_order){
+     rerender_prev_hardware_frame=1;
+     //reset next command to prev hardware frame's handle (if any)
+     last_hardware_command_rendered=first_command_prev_order;
+    }
+
    }
   }
  }
-#endif
-os_resize_event=0;
+}
+
+first_command_prev_order=0;
+
+
+//set environment variables
+environment_2d__screen_width=display_frame[i].w;
+environment_2d__screen_height=display_frame[i].h;
+
+
+
+
+
+
+
+
+
+
+
+os_resize_event=0;//turn off flag which forces a render to take place even if no content has changed
+
+
+
 
 if ((full_screen==0)&&(full_screen_set==-1)){//not in (or attempting to enter) full screen
 
-display_required_x=display_frame[i].w; display_required_y=display_frame[i].h;
+ display_required_x=display_frame[i].w; display_required_y=display_frame[i].h;
+ static int32 framesize_changed;
+ framesize_changed=0;
+ if ((display_required_x!=resize_snapback_x)||(display_required_y!=resize_snapback_y)) framesize_changed=1;
 
-resize_auto_ideal_aspect=(float)display_frame[i].w/(float)display_frame[i].h;
 
-static int32 framesize_changed;
-framesize_changed=0;
-if ((display_required_x!=resize_snapback_x)||(display_required_y!=resize_snapback_y)) framesize_changed=1;
+ resize_auto_ideal_aspect=(float)display_frame[i].w/(float)display_frame[i].h;
+ resize_snapback_x=display_required_x; resize_snapback_y=display_required_y;
 
-resize_snapback_x=display_required_x; resize_snapback_y=display_required_y;
+
 
 if (resize_auto){
 //maintain aspect ratio
@@ -28024,32 +28953,53 @@ goto auto_resized;
 }
 }//resize_auto
 
+
+
 if ((display_required_x!=display_x)||(display_required_y!=display_y)){
   if (resize_snapback||framesize_changed){
    glutReshapeWindow(display_required_x,display_required_y);
    glutPostRedisplay();
    resize_pending=1;
-   return;
   }
 }
+
+
 
 auto_resized:;
 
 }//not in (or attempting to enter) full screen
 
+//Pseudo-Fullscreen
+if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
+if (full_screen_set!=-1){//full screen mode change requested 
+if (full_screen_set==0){
+ if (full_screen!=0){
+  //exit full screen
+  resize_pending=1;
+  glutReshapeWindow(display_frame[i].w,display_frame[i].h);
+  glutPostRedisplay();
+ }
+ full_screen=0;
+ full_screen_set=-1;
+}else{
+ if (full_screen==0){
+  glutFullScreen();
+ }
+ full_screen=full_screen_set;
+ full_screen_set=-1;
+}//enter full screen
+}//full_screen_set check
+}//size pending check
 
-
-
-
+//This code is deprecated but kept for reference purposes
+// 1) It was found to be unstable
+// 2) Switching modes means a high chance of losing pre-loaded OpenGL hardware textures/surfaces
+/*
 static int32 glut_window;
-
 //fullscreen
 if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
-
 if (full_screen_set!=-1){//full screen mode change requested 
-
 if (full_screen_set==0){
-
 //exit full screen
 glutLeaveGameMode();
 glutSetWindow(glut_window);
@@ -28057,131 +29007,176 @@ reinit_glut_callbacks();
 full_screen=0;
 full_screen_set=-1;
 return;
-
 }else{
-
-static qbs *ms=NULL; if (!ms) ms=qbs_new(0,0);
-
-//attempt full screen using native dimensions
-//(could calling qbs commands cause multi-thread problems?)
-qbs_set(ms,qbs_ltrim(qbs_str(display_frame[i].w)));
-qbs_set(ms,qbs_add(ms,qbs_new_txt("x")));
-qbs_set(ms,qbs_add(ms,qbs_ltrim(qbs_str(display_frame[i].h))));
-qbs_set(ms,qbs_add(ms,qbs_new_txt_len(":32\0",4)));
-glutGameModeString((char*)ms->chr);
-
+static char game_mode_string[1000];
+static int32 game_mode_string_i;
+game_mode_string_i=0;
+game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", display_frame[i].w);
+game_mode_string[game_mode_string_i++]=120;//"x"
+game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", display_frame[i].h);
+game_mode_string[game_mode_string_i++]=58;//":"
+game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", 32);
+glutGameModeString(game_mode_string);
 if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
-
-if (full_screen==0) glut_window=glutGetWindow();
-glutEnterGameMode();
-fullscreen_width=display_frame[i].w; fullscreen_height=display_frame[i].h;
-reinit_glut_callbacks();
-full_screen=full_screen_set;//it's currently irrelavent if it is stretched or 1:1
-
-full_screen_set=-1;
-return;
-
+ //full screen using native dimensions which match the frame size
+ if (full_screen==0) glut_window=glutGetWindow();
+ glutEnterGameMode();
+ fullscreen_width=display_frame[i].w; fullscreen_height=display_frame[i].h;
+ reinit_glut_callbacks();
+ full_screen=full_screen_set;//it's currently irrelavent if it is stretched or 1:1
+ full_screen_set=-1;
+ return;
 }else{ //native dimensions not possible
-
-//attempt full screen using desktop dimensions
-static int32 w; w=glutGet(GLUT_SCREEN_WIDTH);
-static int32 h; h=glutGet(GLUT_SCREEN_HEIGHT);
-
-qbs_set(ms,qbs_ltrim(qbs_str(w)));
-qbs_set(ms,qbs_add(ms,qbs_new_txt("x")));
-qbs_set(ms,qbs_add(ms,qbs_ltrim(qbs_str(h))));
-qbs_set(ms,qbs_add(ms,qbs_new_txt_len(":32\0",4)));
-glutGameModeString((char*)ms->chr);
-
-if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
-if (full_screen==0) glut_window=glutGetWindow();
-glutEnterGameMode();
-fullscreen_width=w; fullscreen_height=h;
-reinit_glut_callbacks();
-screen_scale=full_screen_set;
-full_screen=full_screen_set;
-full_screen_set=-1;
-return;
-
-}else{//cannot enter full screen
-
-full_screen=0;
-full_screen_set=-1;
-
+ //attempt full screen using desktop dimensions
+ static int32 w; w=glutGet(GLUT_SCREEN_WIDTH);
+ static int32 h; h=glutGet(GLUT_SCREEN_HEIGHT);
+ game_mode_string_i=0;
+ game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", w);
+ game_mode_string[game_mode_string_i++]=120;//"x"
+ game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", h);
+ game_mode_string[game_mode_string_i++]=58;//":"
+ game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", 32);
+ glutGameModeString(game_mode_string);
+ if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
+  //full screen using desktop dimensions  
+  if (full_screen==0) glut_window=glutGetWindow();
+  glutEnterGameMode();
+  fullscreen_width=w; fullscreen_height=h;
+  reinit_glut_callbacks();
+  screen_scale=full_screen_set;
+  full_screen=full_screen_set;
+  full_screen_set=-1;
+  return; 
+ }else{
+  //cannot enter full screen
+  full_screen=0;
+  full_screen_set=-1;
+ }
 }
-
-}
-
 }//enter full screen
 }//full_screen_set check
 }//size pending check
-
-
-
-
-display_frame[i].displayed=1;
+*/
 
 
 
 
 
-static int32 blackout;
-blackout=0;
-static int32 level; for (level=1; level<=4;level++){
+
+
+//set window environment variables
+environment__window_width=display_x;
+environment__window_height=display_y;
+
+prepare_environment_2d();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//need a few variables here
+
+
+
+
+static int32 first_hardware_layer_rendered;
+static int32 first_hardware_layer_command;
+first_hardware_layer_rendered=0;
+first_hardware_layer_command=0;
+
+static int32 level; for (level=0; level<=5; level++){
 
 static int32 x1,y1,x2,y2;
 
-if (screen_scale==2){//precalculate active screen area
-static float monitor_ratio;
-monitor_ratio=(float)fullscreen_width/(float)fullscreen_height;
-static float window_ratio;
-window_ratio=(float)display_frame[i].w/(float)display_frame[i].h;
-
-x_offset=0; y_offset=0;
-x_scale=(float)display_frame[i].w/(float)fullscreen_width; y_scale=(float)display_frame[i].h/(float)fullscreen_height;
-x_limit=fullscreen_width-1; y_limit=fullscreen_height-1;
-
-if (monitor_ratio!=window_ratio){
-x1=0;y1=0;x2=fullscreen_width;y2=fullscreen_height;
-static int32 z;
-if (monitor_ratio>window_ratio){
- //pad sides
- z=(float)fullscreen_height*window_ratio;
- x1=fullscreen_width/2-z/2;
- x2=x1+z;
- blackout=1;
- x_offset=-x1; x_scale=(float)display_frame[i].w/(float)z; x_limit=z-1;
+if (level==0){
+ glClear(GL_COLOR_BUFFER_BIT);
+ hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
+ hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
+ hardware_img__current_src=-1;
+ hardware_img__current_dst=-1;
 }else{
- //pad top/bottom
- z=(float)fullscreen_width/window_ratio;
- y1=fullscreen_height/2-z/2;
- y2=y1+z;
- blackout=2;
- y_offset=-y1; y_scale=(float)display_frame[i].h/(float)z; y_limit=z-1;
-}
-}
-}
 
-//Disable/Reset GL states (which may have been altered by SUB _GL)
-glDisable(GL_TEXTURE_2D);
-glDisable(GL_ALPHA_TEST);
-glDisable(GL_BLEND);
-glDisable (GL_COLOR_MATERIAL);
-glDisable(GL_DEPTH_TEST);
-glDisable(GL_LIGHTING);
-
-if (level==1){
-//Clear the screen
-glClear(GL_COLOR_BUFFER_BIT);
-}
-
-if (level==2){//GL content
+if (level==displayorder_glrender){
 #ifdef DEPENDENCY_GL
+
+ //reset possible dependencies
+ glBindTexture (GL_TEXTURE_2D, 0);
+ glBindFramebuffer(GL_FRAMEBUFFER, 0);
+ glDisable(GL_TEXTURE_2D);
+ glDisable(GL_ALPHA_TEST);
+ glDisable(GL_BLEND);
+ glDisable(GL_COLOR_MATERIAL);
+ glDisable(GL_DEPTH_TEST);
+ glDisable(GL_LIGHTING);
+
+
  glClear(GL_DEPTH_BUFFER_BIT);
  glMatrixMode(GL_PROJECTION);
  glLoadIdentity();
  glMatrixMode(GL_MODELVIEW);
  glLoadIdentity();
+
  if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
  display_lock_request++;
  while (display_lock_confirmed<display_lock_request){
@@ -28193,105 +29188,214 @@ if (level==2){//GL content
  sub_gl_called=0;
  abort_gl:;
  display_lock_released=display_lock_confirmed;
+
+ //there is no way to know what was selected/changed, so set state as unknown
+ hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
+ hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
+ hardware_img__current_src=-1;
+ hardware_img__current_dst=-1;
+
 #endif //DEPENDENCY_GL
+}//level==displayorder_glrender
+
+
+if (level==displayorder_screen){
+
+ if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDisable(GL_ALPHA_TEST);
+  glDisable(GL_BLEND);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+  glEnable(GL_TEXTURE_2D);
+  static int dst_w;
+  dst_w=environment__window_width;
+  static int dst_h;
+  dst_h=environment__window_height;
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  //gluOrtho2D(0, dst_w, 0, dst_h);
+  glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glScalef(1, -1, 1);//flip vertically
+  glTranslatef(0, -dst_h, 0);//move to new vertical position
+  glViewport(0,0,dst_w,dst_h);
+  hardware_render_state=HARDWARE_RENDER_STATE__2D;
+  hardware_img__current_dst=0;
+ }
+
+ if (software_screen_hardware_frame!=0&&i!=last_i){
+  free_hardware_img(software_screen_hardware_frame);
+ }
+ if (i!=last_i||software_screen_hardware_frame==0){
+  software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
+ }
+ static hardware_img_struct* f1;
+ f1=(hardware_img_struct*)list_get(hardware_img_handles,software_screen_hardware_frame);
+ if (software_screen_hardware_frame==0){
+  alert("Invalid software_screen_hardware_frame!!");
+ }
+ if (f1==NULL) alert("Invalid software_screen_hardware_frame!");
+
+ static int32 use_alpha;
+ use_alpha=0; if (level>1) use_alpha=1; 
+
+ //put the software screen
+ hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
+                 software_screen_hardware_frame, 0,
+                 0,0,f1->w-1,f1->h-1,
+		 use_alpha,environment_2d__screen_smooth);
+
 }
 
-if ( ((level==1)&&(gl_render_method==2))||((level==3)&&(gl_render_method==1)) ){
 
-//Render SCREEN's pixels onto OpenGL window
-glClear(GL_DEPTH_BUFFER_BIT);
+if (level==displayorder_hardware||level==displayorder_hardware1){
 
-if ((screen_scale!=0)||(resize_auto!=0)){
+static int32 dst;
+dst=0; if (level==displayorder_hardware1) dst=-1;
 
-//1. create texture
-glBindTexture (GL_TEXTURE_2D, -1); //-1 is used to avoid conflicts with QB64 handle usage
-glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, display_frame[i].w, display_frame[i].h, 0, 0x80E1, GL_UNSIGNED_BYTE, display_frame[i].bgra);
-//note: non power-of-2 dimensioned textures are supported on modern 3D cards
-//      even on older cards, as long mip-mapping is not being used they are also supported
-//      therefore, no attempt is made to convert the non-power-of-2 SCREEN sizes via software
-//      to avoid the performance hit this would incur
- 
-//2. setup environment
-glMatrixMode(GL_PROJECTION);
-glLoadIdentity();
+ if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-if (!full_screen){//assume auto, so insert dummy values
-fullscreen_width=display_x;
-fullscreen_height=display_y;
+  glDisable(GL_ALPHA_TEST);
+  glDisable(GL_BLEND);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+  glEnable(GL_TEXTURE_2D);
+  static int dst_w;
+  dst_w=environment__window_width;
+  static int dst_h;
+  dst_h=environment__window_height;
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  //gluOrtho2D(0, dst_w, 0, dst_h);
+  glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glScalef(1, -1, 1);//flip vertically
+  glTranslatef(0, -dst_h, 0);//move to new vertical position
+  glViewport(0,0,dst_w,dst_h);
+  hardware_render_state=HARDWARE_RENDER_STATE__2D;
+  hardware_img__current_dst=0;
+ }
+
+static int32 command;
+command=0;
+
+if (first_hardware_layer_rendered==0){
+
+if (first_hardware_command){
+
+ if (last_hardware_command_rendered){
+  if (rerender_prev_hardware_frame){
+   command=last_hardware_command_rendered;
+  }else{
+   hardware_graphics_command_struct* last_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_rendered);
+   if (last_hgc==NULL) alert("Rendering: Last HGC is NULL!");
+   command=last_hgc->next_command;
+  }
+ }else{
+  command=first_hardware_command;
+ }
+
+//process/skip pending hardware puts before this frame's order value
+while (command){
+ hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
+ if (hgc->order<order){
+
+  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE){
+   free_hardware_img(hgc->src_img);
+  }
+
+  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
+  if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
+   hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
+                 hgc->src_img, hgc->dst_img,
+                 hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,
+		 hgc->use_alpha,hgc->smooth);
+  }
+  }
+
+  last_hardware_command_rendered=command;
+  if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;
+  command=hgc->next_command;
+  hgc->remove=1;
+ }else{
+  goto found_command_from_current_order;
+ }
 }
+found_command_from_current_order:;
 
-#ifdef QB64_GL1
- gluOrtho2D(0, fullscreen_width, 0, fullscreen_height);
-#endif //QB64_GL1
-
-glMatrixMode(GL_MODELVIEW);
-glLoadIdentity();
-glScalef(1, -1, 1);//flip vertically
-glTranslatef(0, -fullscreen_height, 0);//move to new vertical position
-
-if (!full_screen){//assume auto, so insert dummy values
-glViewport(0,0,display_x,display_y);
-}
+}//first_hardware_command
 
 
-
-
-
-
-
-
-glEnable(GL_TEXTURE_2D);
-glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-if (full_screen){
- if (fullscreen_smooth) glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ first_hardware_layer_command=command;
 }else{
- if (resize_auto==2) glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ command=first_hardware_layer_command;
 }
 
+//process pending hardware puts for this frame's order value
+while (command){
+ hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
+ if (hgc==NULL){
 
-if (level==3){
- glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  hardware_graphics_command_struct* hgcx=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,next_hardware_command_to_remove);
+  alert(order);
+  alert(hgcx->order);
+  alert(command);
+  alert ("Renderer: Command does not exist.");
+ }
+ if (hgc->order==order){
+  if (first_command_prev_order==0) first_command_prev_order=command;
+
+  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE&&rerender_prev_hardware_frame==0&&first_hardware_layer_rendered==0){
+   free_hardware_img(hgc->src_img);
+  }
+
+  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
+  if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
+  if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
+   hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
+                  hgc->src_img, hgc->dst_img,
+                  hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2, 
+    		  hgc->use_alpha,hgc->smooth);
+  }
+  }
+  }
+
+  last_hardware_command_rendered=command;
+  if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;//!!!! should be prev to this command
+  command=hgc->next_command;
+  hgc->remove=1;
+ }else{
+  goto finished_all_commands_for_current_frame;
+ }
+
+
 }
+finished_all_commands_for_current_frame:;
 
-//3. render as QUAD
-if ((screen_scale==2)&&(blackout!=0)){
+first_hardware_layer_rendered=1;
 
-#ifdef QB64_GL1
- glBegin(GL_QUADS);
- glTexCoord2f (0.0f,0.0f); glVertex2f(x1, y1);
- glTexCoord2f (1.0f,0.0f); glVertex2f(x2,y1);
- glTexCoord2f (1.0f,1.0f); glVertex2f(x2,y2);
- glTexCoord2f (0.0f,1.0f); glVertex2f(x1,y2);
- glEnd();
-#endif //QB64_GL1
 
-}else{
 
- x_offset=0; y_offset=0;
- x_scale=(float)display_frame[i].w/(float)fullscreen_width; y_scale=(float)display_frame[i].h/(float)fullscreen_height;
- x_limit=fullscreen_width-1; y_limit=fullscreen_height-1;
 
-#ifdef QB64_GL1
-  glBegin(GL_QUADS);
-  glTexCoord2f (0.0f,0.0f); glVertex2f(0, 0);
-  glTexCoord2f (1.0f,0.0f); glVertex2f(fullscreen_width, 0);
-  glTexCoord2f (1.0f,1.0f); glVertex2f(fullscreen_width,fullscreen_height);
-  glTexCoord2f (0.0f,1.0f); glVertex2f(0,fullscreen_height);
-  glEnd();
-#endif //QB64_GL1
 
-}
+
+/*
 
 
 
 }else{
 //no scaling
 
+
+
 #ifdef QB64_GL1
 
 glMatrixMode(GL_PROJECTION);
@@ -28301,11 +29405,9 @@ glLoadIdentity();
 glViewport(0,0,display_x,display_y);
 
 
-#ifdef QB64_GL1
  glOrtho(0, display_x, display_y,0, -1.0, 1.0);
  glRasterPos2f(0, 0);
  glPixelZoom(1.0f, -1.0f);
-#endif //QB64_GL1
 
 x_offset=0; y_offset=0;
 x_scale=1; y_scale=1;
@@ -28317,9 +29419,15 @@ if (level==3){
  glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-#ifdef QB64_GL1
+
+
+//if (software_screen_hardware_frame){
+// free_hardware_frame(software_screen_hardware_frame);
+//}
+//software_screen_hardware_frame=new_hardware_frame_from_software_frame(display_frame[i].bgra,display_frame[i].w, display_frame[i].h);
+
+
 glDrawPixels(display_frame[i].w,display_frame[i].h,GL_BGRA,GL_UNSIGNED_BYTE,display_frame[i].bgra);
-#endif //QB64_GL1
 
 
 #else
@@ -28375,93 +29483,83 @@ glDrawTexiOES( 0, 0, 0, display_x, display_y );
 
 }//scaling
 
-}//level
+*/
+//2014 big skip
 
 
-if (level==4){
-if (blackout){
+}//level==displayorder_hardware||level==displayorder_hardware1
 
-//setup environment
-glMatrixMode(GL_PROJECTION);
-glLoadIdentity();
 
-#ifdef QB64_GL1
-gluOrtho2D(0, fullscreen_width, 0, fullscreen_height);
-#endif //QB64_GL1
+if (level==5){
 
-glScalef(1, -1, 1);//flip vertically
-glTranslatef(0, -fullscreen_height, 0);//move to new vertical position
-glMatrixMode(GL_MODELVIEW);
-glLoadIdentity();
+if (environment_2d__letterbox){
 
-if (blackout==1){
+ if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-static int32 x3;
-x3=x2;
-x2=x1;
-x1=0;
+  glDisable(GL_ALPHA_TEST);
+  glDisable(GL_BLEND);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
 
-#ifdef QB64_GL1
-glBegin(GL_QUADS);
-glColor3f(0,0,0);
-glVertex2f(x1, y1);
-glVertex2f(x2,y1);
-glVertex2f(x2,y2);
-glVertex2f(x1,y2);
-x1=x3;
-x2=fullscreen_width;
-glVertex2f(x1, y1);
-glVertex2f(x2,y1);
-glVertex2f(x2,y2);
-glVertex2f(x1,y2);
-glEnd();
-glColor3f(1, 1, 1);//reset color
-#endif //QB64_GL1
+  glEnable(GL_TEXTURE_2D);
+  static int dst_w;
+  dst_w=environment__window_width;
+  static int dst_h;
+  dst_h=environment__window_height;
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  //gluOrtho2D(0, dst_w, 0, dst_h);
+  glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glScalef(1, -1, 1);//flip vertically
+  glTranslatef(0, -dst_h, 0);//move to new vertical position
+  glViewport(0,0,dst_w,dst_h);
+  hardware_render_state=HARDWARE_RENDER_STATE__2D;
+  hardware_img__current_dst=0;
+ }
 
+ //create a black texture (if not yet created)
+ static uint32 black_pixel=0;
+ static int32 black_texture=0;
+ if (black_texture==0){
+  black_texture=new_hardware_img(1,1,&black_pixel,NULL);
+ }
+
+if (environment_2d__letterbox==1){
+ //vertical stripes
+ hardware_img_put(-environment_2d__screen_x1,0,-1,environment_2d__screen_height-1,
+                 black_texture, 0,
+                 0,0,0,0,
+		 0,0);
+ hardware_img_put(environment_2d__screen_width,0,-environment_2d__screen_x1+environment__window_width-1,environment_2d__screen_height-1,
+                 black_texture, 0,
+                 0,0,0,0,
+		 0,0);
 }else{
-
-static int32 y3;
-y3=y2;
-y2=y1;
-y1=0;
-
-#ifdef QB64_GL1
-glBegin(GL_QUADS);
-glColor3f(0,0,0);
-glVertex2f(x1, y1);
-glVertex2f(x2,y1);
-glVertex2f(x2,y2);
-glVertex2f(x1,y2);
-y1=y3;
-y2=fullscreen_height;
-glVertex2f(x1, y1);
-glVertex2f(x2,y1);
-glVertex2f(x2,y2);
-glVertex2f(x1,y2);
-glEnd();
-glColor3f(1, 1, 1);//reset color
-#endif //QB64_GL1
-
+ //horizontal stripes
+ hardware_img_put(0,-environment_2d__screen_y1,environment_2d__screen_width-1,-1,
+                 black_texture, 0,
+                 0,0,0,0,
+		 0,0);
+ hardware_img_put(0,environment_2d__screen_height,environment_2d__screen_width-1,-environment_2d__screen_y1+environment__window_height-1,
+                 black_texture, 0,
+                 0,0,0,0,
+		 0,0);
 }
 
-}
-}
+}//letterbox
+
+}//level==5
 
 
+}//level!=0
+}//level loop
 
-}//level
+last_rendered_hardware_display_frame_order=last_hardware_display_frame_order;
 
-
-
-
-
-
-//Mark unrequired frames as used (step 2/2)
-i=display_frame_begin;
-while(i!=display_frame_end){//Note: The final frame is never removed
- display_frame[i].used=1;
- i++; if (i==DISPLAY_FRAME_LAST+1) i=1;
-}
 
 
 if (suspend_program){ //Otherwise skipped SUB__GL content becomes "invisible"
@@ -28470,15 +29568,7 @@ if (suspend_program){ //Otherwise skipped SUB__GL content becomes "invisible"
   glutSwapBuffers();
 }
 
-
-
-
-
-
-
-
-
-
+in_GLUT_DISPLAY_REQUEST=0;
 
 }//GLUT_DISPLAY_REQUEST
 
@@ -28859,6 +29949,26 @@ extern void set_dynamic_info();
 
 int main( int argc, char* argv[] ){
 
+static int32 i,i2,i3,i4;
+static uint8 c,c2,c3,c4;
+static int32 x,x2,x3,x4;
+static int32 y,y2,y3,y4;
+static int32 z,z2,z3,z4;
+static float f,f2,f3,f4;
+static uint8 *cp,*cp2,*cp3,*cp4;
+
+
+for (i=0;i<=2;i++){
+ display_frame[i].state=DISPLAY_FRAME_STATE__EMPTY;
+ display_frame[i].order=0;
+ display_frame[i].bgra=NULL;
+ display_frame[i].w=0; display_frame[i].h=0;
+ display_frame[i].bytes=0;
+}
+
+
+
+
 set_dynamic_info();
 if (ScreenResize){
  resize_snapback=0;
@@ -28873,11 +29983,14 @@ special_handles=list_new(sizeof(special_handle_struct));
 stream_handles=list_new(sizeof(stream_struct));
 connection_handles=list_new(sizeof(connection_struct));
 
+hardware_img_handles=list_new(sizeof(hardware_img_struct));
+hardware_graphics_command_handles=list_new(sizeof(hardware_graphics_command_struct));
+
 if (!cloud_app){
 snd_init();
 }
 
-memset(display_frame,0,sizeof(display_frame_struct)*(DISPLAY_FRAME_LAST+1));
+
 
 if (screen_hide_startup) screen_hide=1;
 
@@ -28893,13 +30006,6 @@ if (console){
 
 
 
-static int32 i,i2,i3,i4;
-static uint8 c,c2,c3,c4;
-static int32 x,x2,x3,x4;
-static int32 y,y2,y3,y4;
-static int32 z,z2,z3,z4;
-static float f,f2,f3,f4;
-static uint8 *cp,*cp2,*cp3,*cp4;
 
 onkey[1].keycode=59<<8;//F1-F10
 onkey[2].keycode=60<<8;
@@ -29555,7 +30661,11 @@ glutInit(&argc, argv);
 
 glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-glutInitWindowSize(1024, 552);
+
+
+glutInitWindowSize(640,400);//cannot be changed unless display_x(etc) are modified
+
+
 
 //glutInitWindowPosition(300, 200);
 
@@ -29565,6 +30675,14 @@ if (!window_title){
  glutCreateWindow((char*)window_title);
 }
 window_exists=1;
+
+GLenum err = glewInit();
+if (GLEW_OK != err)
+{
+alert( (char*)glewGetErrorString(err));
+}
+//alert( (char*)glewGetString(GLEW_VERSION));
+
 
 glutDisplayFunc(GLUT_DISPLAY_REQUEST);
 
@@ -30921,19 +32039,30 @@ exit(exit_code);
 }
 
 
-/* Ref:
-struct display_frame_struct{
-uint32 *bgra;
-int32 w;
-int32 h;
-int32 bytes;//w*h*4
-int8 used;//0=not shown yet, 1=already shown (set by core thread)
-};
-#define DISPLAY_FRAME_LAST 64 //Note: On a 2000x1000 res with 2GB RAM max possible would be 250
-display_frame_struct display_frame[DISPLAY_FRAME_LAST+1];
-int32 display_frame_begin=0;//nothing is processed until init is set to 1
-int32 display_frame_end=0;
-*/
+
+
+
+
+
+
+
+//used to preserve the previous frame's content for comparison/reuse purposes
+uint8 *pixeldata=(uint8*)malloc(1);
+int32 pixeldatasize=1;
+uint32 paldata[256];
+
+//note: temporarily swapping a source palette is far more effecient than converting the resulting image pixels
+void swap_paldata_BGRA_with_RGBA(){
+static uint32 col;
+static uint32 *pos;
+pos=(uint32*)&paldata[0];
+static int32 pixels;
+pixels=256;
+while(pixels--){
+ col=*pos;
+ *pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
+ }
+}
 
 //display updates the visual page onto the visible window/monitor
 void display(){
@@ -30946,19 +32075,56 @@ static int32 y,y2,y3,y4;
 static int32 z,z2,z3,z4;
 static float f,f2,f3,f4;
 static uint8 *cp,*cp2,*cp3,*cp4;
-
-static uint8 *pixeldata=(uint8*)malloc(1);
-static int32 pixeldatasize=1;
-static int32 paldata[256];
 uint32 *pixel;
+
+static uint8 BGRA_to_RGBA;//set to 1 to invert the output to RGBA
+BGRA_to_RGBA=0;//default is 0 but 1 is fun
+#ifdef QB64_GLES1 //OPENGL ES does not support GL_BGRA
+ BGRA_to_RGBA=1;
+#endif
+if (cloud_app){ //more converters handle the RGBA data format than BGRA which is dumped
+ BGRA_to_RGBA=1;
+}
+
+
+
 
 if (lock_display==1){lock_display=2; Sleep(0);}
 
 if (cloud_app==0){
-if (screen_hide) {display_called=1; return;}
+ if (screen_hide) {display_called=1; return;}
 }
 
 if (lock_display==0){
+
+
+//Identify which display_frame to build
+static int32 frame_i;
+frame_i=-1;
+//use LOWEST order ready frame
+static int64 lowest_order;
+lowest_order=display_frame_order_next;
+for (i=0;i<=2;i++){
+ if (display_frame[i].order<lowest_order&&display_frame[i].state==DISPLAY_FRAME_STATE__READY){
+  lowest_order=display_frame[i].order;
+  frame_i=i;
+ }
+}
+//or preferably an unused frame if possible (note: this check happens 2nd for threading reasons)
+for (i=0;i<=2;i++){
+ if (display_frame[i].state==DISPLAY_FRAME_STATE__EMPTY){
+  frame_i=i;	
+ }
+}
+if (frame_i==-1){
+ alert("Software frame buffer: Failed to find available frame");
+ return;
+}
+display_frame[frame_i].state=DISPLAY_FRAME_STATE__BUILDING;
+display_frame[frame_i].order=display_frame_order_next++;
+
+
+
 
 if (cloud_app){
 static double cloud_timer_value=0;
@@ -30969,7 +32135,6 @@ goto cloud_skip_frame;
 }
 cloud_timer_value=cloud_timer_now;
 }
-
 
 
 //validate display_page
@@ -31140,50 +32305,20 @@ pixel=display_surface_offset;//<-will be made obselete
 
 
 
-/* Ref:
-struct display_frame_struct{
-uint32 *bgra;
-int32 w;
-int32 h;
-int32 bytes;//w*h*4
-int8 used;//0=not shown yet, 1=already shown (set by core thread)
-};
-#define DISPLAY_FRAME_LAST 64 //Note: On a 2000x1000 res with 2GB RAM max possible would be 250
-display_frame_struct display_frame[DISPLAY_FRAME_LAST+1];
-int32 display_frame_begin=0;
-int32 display_frame_end=0;
-*/
 
 
-//Remove any EXCESS frame memory (some are 3 kept in reserve for reuse and 1 for current)
-if (display_frame_begin){//frames exist in the buffer
- static int32 rf1,rf2,rf3,rf4;//reserved frames
- rf1=display_frame_end;
- rf2=rf1-1; if (!rf2) rf2=DISPLAY_FRAME_LAST;
- rf3=rf2-1; if (!rf3) rf3=DISPLAY_FRAME_LAST;
- rf4=rf3-1; if (!rf4) rf4=DISPLAY_FRAME_LAST;
- i=display_frame_begin;
- while (
-	( (i!=rf1)&&(i!=rf2)&&(i!=rf3)&&(i!=rf4) )
-	||
-	(cloud_app!=0 && i!=rf1)
-       ){//Note: The final frame(s) are never removed (cloud only retains one frame)
-if (cloud_app==0){//if cloud, treat all frames as used so skip this check
-  if (!display_frame[i].used) break;  
-}
 
-  i2=i;
-  i++; if (i==DISPLAY_FRAME_LAST+1) i=1;
-  display_frame_begin=i;
-  free(display_frame[i2].bgra);
-  display_frame[i2].bgra=NULL;
- }
-}//frames exist in the buffer
 
-//Can a new frame be added?
-i=display_frame_begin; if (i==1) i=DISPLAY_FRAME_LAST+1;
-if (display_frame_end+1==i) {display_called=1; return;}//Buffer is full (has main thread stalled?) so ignore this frame
-static int32 frame_i;
+
+
+
+
+
+
+
+
+
+
 
 if (!display_page->compatible_mode){//text
 
@@ -31211,28 +32346,28 @@ content_changed=0;
 //Realloc pixel-buffer if necessary
 i=display_page->width*display_page->height*2;
 if (screen_last_size!=i){
-free(screen_last);
-screen_last=(uint8*)malloc(i);
-screen_last_size=i;
-check_last=0;
+ free(screen_last);
+ screen_last=(uint8*)malloc(i);
+ screen_last_size=i;
+ check_last=0;
 }
 
 //Check/Prepare palette-buffer
 if (!check_last){
  //set pal_last (no prev pal was avilable to compare to)
- memcpy(&pal_last[0],display_page->pal,256*4);
+ memcpy(&paldata,display_page->pal,256*4);
 }else{
- //if palette has changed, update pal_last and draw all characters
- if (memcmp(&pal_last[0],display_page->pal,256*4)){
+ //if palette has changed, update paldata and draw all characters
+ if (memcmp(&paldata[0],display_page->pal,256*4)){
   //Different palette
-  memcpy(&pal_last[0],display_page->pal,256*4);
+  memcpy(&paldata[0],display_page->pal,256*4);
   check_last=0;
  }
 }
 
 //Check/Prepare content
 if (check_last){
- i=display_frame_end;
+ //i=display_frame_end;
  if (memcmp(screen_last,display_page->offset,screen_last_size)){
   //Different content
   content_changed=1;
@@ -31275,40 +32410,52 @@ if (!content_changed){
 goto no_new_frame;
 }
 
+static int64 last_frame_i=0;
 
 //################################ Setup new frame ################################
-frame_i=display_frame_end+1; if (frame_i>DISPLAY_FRAME_LAST) frame_i=1;
-//Note: Don't set 'display_frame_end' till buffer is ready!
-//Create new frame buffer (or reuse an existing buffer?)
-if (display_frame[frame_i].bgra) exit(9090);
-display_frame[frame_i].w=x_monitor;
-display_frame[frame_i].h=y_monitor;
-display_frame[frame_i].bytes=display_frame[frame_i].w*display_frame[frame_i].h*4;
-display_frame[frame_i].used=0;
-display_frame[frame_i].displayed=0;
-if ((display_frame_begin!=0)&&(display_frame_begin!=display_frame_end)&&(display_frame[display_frame_begin].used==1)&&(display_frame[display_frame_begin].bytes==display_frame[frame_i].bytes)){
- //Use memory of previous frame
- static int32 frm,frm2;
- display_frame[frame_i].bgra=display_frame[display_frame_begin].bgra;
- frm2=display_frame_begin; 
- frm=display_frame_begin+1; if (frm==DISPLAY_FRAME_LAST+1) frm=1;
- display_frame_begin=frm;
- display_frame[frm2].bgra=NULL;
-}else{
- //Allocate new memory
- display_frame[frame_i].bgra=(uint32*)malloc(x_monitor*y_monitor*4);
+{
+static int32 new_size_bytes;
+new_size_bytes=x_monitor*y_monitor*4;
+if (new_size_bytes>display_frame[frame_i].bytes){
+ free(display_frame[frame_i].bgra);
+ display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
+ display_frame[frame_i].bytes=new_size_bytes;
 }
+display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
+}
+
 display_surface_offset=display_frame[frame_i].bgra;
 
-
 //If a compare & update changes method will be used copy the previous content to the new buffer
+
 if (check_last){
-memcpy(display_frame[frame_i].bgra,display_frame[display_frame_end].bgra,display_frame[frame_i].bytes);
+ //find the most recently published page to compare with
+ //(the most recent READY or DISPLAYING page)
+ static int64 highest_order;
+ highest_order=0;
+ i2=-1;
+ for (i3=0;i3<=2;i3++){
+  if ((display_frame[i3].state==DISPLAY_FRAME_STATE__DISPLAYING||
+       display_frame[i3].state==DISPLAY_FRAME_STATE__READY)
+     &&display_frame[i3].order>highest_order){
+     highest_order=display_frame[i3].order;
+     i2=i3;
+  }
+ } 
+ if (i2!=-1){
+   memcpy(display_frame[frame_i].bgra,display_frame[i2].bgra,display_frame[frame_i].w*display_frame[frame_i].h*4);
+ }else{
+   alert("Text Screen Update: Failed to locate previous frame's data for comparison"); 
+   check_last=0;//never occurs, safe-guard only
+ }
 }
 
 qbg_y_offset=0;//the screen base offset
 cp=display_page->offset;//read from
 cp_last=screen_last;//written to for future comparisons
+
+
+if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
 
 //outer loop
 y2=0;
@@ -31368,17 +32515,8 @@ c=col&0xF;//foreground col
 c2=(col>>4)&7;//background col
 c3=col>>7;//flashing?
 if (c3&&show_flashing) c=c2;
-i2=display_page->pal[c];
-i3=display_page->pal[c2];
-#ifdef QB64_GLES1 //BGRA<--->RGBA (OPENGL ES does not support GL_BGRA)
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-i3=(i3&0xFF00FF00)|((i3&0xFF0000)>>16)|((i3&0x0000FF)<<16);
-#endif
-if (cloud_app){
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-i3=(i3&0xFF00FF00)|((i3&0xFF0000)>>16)|((i3&0x0000FF)<<16);
-}
-
+i2=paldata[c];
+i3=paldata[c2];
 lp=display_surface_offset+qbg_y_offset+y2*x_monitor+x2;
 z=x_monitor-fontwidth[display_page->font];
 
@@ -31452,13 +32590,7 @@ if (half_cursor){
 y3=ch-1;
 size=ch/2;
 c=col&0xF;//foreground col
-i2=display_page->pal[c];
-#ifdef QB64_GLES1 //BGRA<--->RGBA (OPENGL ES does not support GL_BGRA)
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-#endif
-if (cloud_app){
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-}
+i2=paldata[c];
 draw_half_curs:
 lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
 for (x3=0;x3<cw;x3++){
@@ -31474,14 +32606,7 @@ if (from_bottom){
 y3=ch-1;
 if (y3==15) y3=14;//leave bottom line blank in 8x16 char set
 c=col&0xF;//foreground col
-i2=display_page->pal[c];
-#ifdef QB64_GLES1 //BGRA<--->RGBA (OPENGL ES does not support GL_BGRA)
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-#endif
-if (cloud_app){
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-}
-
+i2=paldata[c];
 draw_curs_from_bottom:
 lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
 for (x3=0;x3<cw;x3++){
@@ -31496,14 +32621,7 @@ if (size) goto draw_curs_from_bottom;
 if (begin<ch){
 y3=begin;
 c=col&0xF;//foreground col
-i2=display_page->pal[c];
-#ifdef QB64_GLES1 //BGRA<--->RGBA (OPENGL ES does not support GL_BGRA)
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-#endif
-if (cloud_app){
-i2=(i2&0xFF00FF00)|((i2&0xFF0000)>>16)|((i2&0x0000FF)<<16);
-}
-
+i2=paldata[c];
 if (size==255) size=ch-begin;
 draw_curs_from_begin:
 lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
@@ -31534,6 +32652,21 @@ cx_last=cx;
 cy_last=cy;
 screen_last_valid=1;
 
+if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
+
+/*
+//backup for reuse in next frame
+i=display_frame[frame_i].w*display_frame[frame_i].h*4;
+if (i!=pixeldatasize){
+ free(pixeldata);
+ pixeldata=(uint8*)malloc(i);
+ pixeldatasize=i;
+}
+memcpy(pixeldata,display_frame[frame_i].bgra,i);
+*/
+
+last_frame_i=frame_i;
+
 goto screen_refreshed;
 
 }//text
@@ -31541,84 +32674,120 @@ goto screen_refreshed;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if (display_page->bits_per_pixel==32){
 
-if (cloud_app){
-i=display_page->width*display_page->height*4;
-//data changed?
-if (i!=pixeldatasize){
-free(pixeldata);
-pixeldata=(uint8*)malloc(i);
-pixeldatasize=i;
-goto update_display32;
+//note: as software->hardware should be avoided at all costs, pixeldata is
+//      still backed up for comparison purposes because in the very likely
+//      event the data has not changed there is no point generating a 
+//      new hardware surface from the software frame when the old hardware surface 
+//      can be reused. It also saves on BGRA->RGBA conversion on some platforms.
+
+if (!BGRA_to_RGBA){
+ //find the most recently published page to compare with
+ //(the most recent READY or DISPLAYING page)
+ static int64 highest_order;
+ highest_order=0;
+ i2=-1;
+ for (i3=0;i3<=2;i3++){
+  if ((display_frame[i3].state==DISPLAY_FRAME_STATE__DISPLAYING||
+       display_frame[i3].state==DISPLAY_FRAME_STATE__READY)
+     &&display_frame[i3].order>highest_order){
+     highest_order=display_frame[i3].order;
+     i2=i3;
+  }
+ } 
+ 
+ if (force_display_update) goto update_display32b; //force update
+ if (i2!=-1){  
+  i=display_page->width*display_page->height*4;
+  if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;  
+  if (!screen_last_valid) goto update_display32b; //force update because of mode change?
+  if (qb64_ime_reading==1) goto screen_refreshed;
+  goto no_new_frame;//no need to update display
+ }
+ update_display32b:;
+}else{
+ i=display_page->width*display_page->height*4;
+ if (i!=pixeldatasize){
+  free(pixeldata);
+  pixeldata=(uint8*)malloc(i);
+  pixeldatasize=i;
+  goto update_display32;
+ }
+ if (force_display_update) goto update_display32; //force update
+ if (memcmp(pixeldata,display_page->offset,i)) goto update_display32;
+ if (!screen_last_valid) goto update_display32; //force update because of mode change?
+ if (qb64_ime_reading==1) goto screen_refreshed;
+ goto no_new_frame;//no need to update display
+ update_display32:
+ memcpy(pixeldata,display_page->offset,i);
 }
-if (memcmp(pixeldata,display_page->offset,i)) goto update_display32;
-//force update because of mode change?
-if (!screen_last_valid) goto update_display32;
-if (qb64_ime_reading==1) goto screen_refreshed;
-goto no_new_frame;//no need to update display
-update_display32:
-memcpy(pixeldata,display_page->offset,i);
-}
+
 
 //################################ Setup new frame ################################
-frame_i=display_frame_end+1; if (frame_i>DISPLAY_FRAME_LAST) frame_i=1;
-//Note: Don't set 'display_frame_end' till buffer is ready!
-//Create new frame buffer (or reuse an existing buffer?)
-if (display_frame[frame_i].bgra) exit(9090);
-display_frame[frame_i].w=x_monitor;
-display_frame[frame_i].h=y_monitor;
-display_frame[frame_i].bytes=display_frame[frame_i].w*display_frame[frame_i].h*4;
-display_frame[frame_i].used=0;
-display_frame[frame_i].displayed=0;
-if ((display_frame_begin!=0)&&(display_frame_begin!=display_frame_end)&&(display_frame[display_frame_begin].used==1)&&(display_frame[display_frame_begin].bytes==display_frame[frame_i].bytes)){
- //Use memory of previous frame
- static int32 frm,frm2;
- display_frame[frame_i].bgra=display_frame[display_frame_begin].bgra;
- frm2=display_frame_begin; 
- frm=display_frame_begin+1; if (frm==DISPLAY_FRAME_LAST+1) frm=1;
- display_frame_begin=frm;
- display_frame[frm2].bgra=NULL;
+{
+static int32 new_size_bytes;
+new_size_bytes=x_monitor*y_monitor*4;
+if (new_size_bytes>display_frame[frame_i].bytes){
+ free(display_frame[frame_i].bgra);
+ display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
+ display_frame[frame_i].bytes=new_size_bytes;
+}
+display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
+}
+
+if (!BGRA_to_RGBA){
+ memcpy(display_frame[frame_i].bgra,display_page->offset,display_frame[frame_i].w*display_frame[frame_i].h*4);
 }else{
- //Allocate new memory
- display_frame[frame_i].bgra=(uint32*)malloc(x_monitor*y_monitor*4);
-}
-display_surface_offset=display_frame[frame_i].bgra;
-
-memcpy(display_surface_offset,display_page->offset32,display_page->width*display_page->height*4);
-
-#ifdef QB64_GLES1 //OPENGL ES does not support GL_BGRA
-//BGRA<--->RGBA
-static uint32 col;
-static uint32 *pos;
-pos=display_frame[frame_i].bgra;
-static int32 pixels;
-pixels=display_frame[frame_i].w*display_frame[frame_i].h;
-if (pixels>0){
-while(pixels--){
-col=*pos;
-*pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
-}
-}
-#endif
-
-if (cloud_app){
-//BGRA<--->RGBA
-static uint32 col;
-static uint32 *pos;
-pos=display_frame[frame_i].bgra;
-static int32 pixels;
-pixels=display_frame[frame_i].w*display_frame[frame_i].h;
-if (pixels>0){
-while(pixels--){
-col=*pos;
-*pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
-}
-}
+ static uint32 col;
+ static uint32 *src_pos;
+ static uint32 *dst_pos;
+ src_pos=(uint32*)pixeldata;
+ dst_pos=display_frame[frame_i].bgra;
+ static int32 pixels;
+ pixels=display_frame[frame_i].w*display_frame[frame_i].h;
+ if (pixels>0){
+ while(pixels--){
+ col=*src_pos++;
+ *dst_pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
+ }
+ }
 }
 
 goto screen_refreshed;
 }//32
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //assume <=256 colors using palette
 
@@ -31630,9 +32799,9 @@ display_page->pal[i]=pal_mode10[i2][display_page->pal[i+4]];//pal_mode10[0-1][0-
 }
 }
 
-
 i=display_page->width*display_page->height;
 i2=1<<display_page->bits_per_pixel;//unique colors
+
 //data changed?
 if (i!=pixeldatasize){
 free(pixeldata);
@@ -31640,6 +32809,9 @@ pixeldata=(uint8*)malloc(i);
 pixeldatasize=i;
 goto update_display;
 }
+
+if (force_display_update) goto update_display; //force update
+
 if (memcmp(pixeldata,display_page->offset,i)) goto update_display;
 //palette changed?
 if (memcmp(paldata,display_page->pal,i2*4)) goto update_display;
@@ -31651,34 +32823,25 @@ goto no_new_frame;//no need to update display
 
 update_display:
 
-//################################ Setup new frame ################################
-frame_i=display_frame_end+1; if (frame_i>DISPLAY_FRAME_LAST) frame_i=1;
-//Note: Don't set 'display_frame_end' till buffer is ready!
-//Create new frame buffer (or reuse an existing buffer?)
-if (display_frame[frame_i].bgra) exit(9090);
-display_frame[frame_i].w=x_monitor;
-display_frame[frame_i].h=y_monitor;
-display_frame[frame_i].bytes=display_frame[frame_i].w*display_frame[frame_i].h*4;
-display_frame[frame_i].used=0;
-display_frame[frame_i].displayed=0;
-if ((display_frame_begin!=0)&&(display_frame_begin!=display_frame_end)&&(display_frame[display_frame_begin].used==1)&&(display_frame[display_frame_begin].bytes==display_frame[frame_i].bytes)){
- //Use memory of previous frame
- static int32 frm,frm2;
- display_frame[frame_i].bgra=display_frame[display_frame_begin].bgra;
- frm2=display_frame_begin; 
- frm=display_frame_begin+1; if (frm==DISPLAY_FRAME_LAST+1) frm=1;
- display_frame_begin=frm;
- display_frame[frm2].bgra=NULL;
-}else{
- //Allocate new memory
- display_frame[frame_i].bgra=(uint32*)malloc(x_monitor*y_monitor*4);
-}
-display_surface_offset=display_frame[frame_i].bgra;
 
+//################################ Setup new frame ################################
+{
+static int32 new_size_bytes;
+new_size_bytes=x_monitor*y_monitor*4;
+if (new_size_bytes>display_frame[frame_i].bytes){
+ free(display_frame[frame_i].bgra);
+ display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
+ display_frame[frame_i].bytes=new_size_bytes;
+}
+display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
+}
+
+display_surface_offset=display_frame[frame_i].bgra;
 
 memcpy(pixeldata,display_page->offset,i);
 memcpy(paldata,display_page->pal,i2*4);
 
+if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
 static uint8 *cp;
 static uint32 *lp2;
 static uint32 c;
@@ -31691,44 +32854,20 @@ for (x=0;x<x2;x++){
 *lp2++=paldata[*cp++];
 }//x
 }//y
-
-#ifdef QB64_GLES1 //OPENGL ES does not support GL_BGRA
-//BGRA<--->RGBA
-static uint32 col;
-static uint32 *pos;
-pos=display_frame[frame_i].bgra;
-static int32 pixels;
-pixels=display_frame[frame_i].w*display_frame[frame_i].h;
-if (pixels>0){
-while(pixels--){
-col=*pos;
-*pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
-}
-}
-#endif
-
-
-if (cloud_app){
-//BGRA<--->RGBA
-static uint32 col;
-static uint32 *pos;
-pos=display_frame[frame_i].bgra;
-static int32 pixels;
-pixels=display_frame[frame_i].w*display_frame[frame_i].h;
-if (pixels>0){
-while(pixels--){
-col=*pos;
-*pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
-}
-}
-}
-
+if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
 
 goto screen_refreshed;
 
+
+
+
+
+
+
+
 screen_refreshed:
 
-
+force_display_update=0;
 
 
 #ifndef NO_S_D_L
@@ -31756,8 +32895,10 @@ screen_last_valid=1;
 if (qb64_ime_reading==1) screen_last_valid=0;
 
 //Set new display frame as ready
-display_frame_end=frame_i;
-if (!display_frame_begin) display_frame_begin=frame_i;
+//display_frame_end=frame_i;
+//if (!display_frame_begin) display_frame_begin=frame_i;
+
+display_frame[frame_i].state=DISPLAY_FRAME_STATE__READY; last_hardware_display_frame_order=display_frame[frame_i].order;
 
 
 if (cloud_app){
@@ -31811,43 +32952,22 @@ WriteFile(cloud_screenshot_file_handle, &header[0], 12, NULL, NULL);
 
 no_new_frame:;
 display_page_invalid:;
+cloud_skip_frame:
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//cancel frame if not built
+if (display_frame[frame_i].state==DISPLAY_FRAME_STATE__BUILDING){
+ last_hardware_display_frame_order=display_frame[frame_i].order;
+ display_frame[frame_i].state=DISPLAY_FRAME_STATE__EMPTY;
+}
 
 
 
 }//lock_display==0
-cloud_skip_frame:
-
 if (lock_display==1){lock_display=2; Sleep(0);}
-
 if (autodisplay==-1) autodisplay=0;
-
-display_called=1; return;
+display_called=1; 
+return;
 }
 
 
@@ -32178,8 +33298,23 @@ goto key_handled;
 //ALT+ENTER
 if (keyheld(VK+QBVK_RALT)||keyheld(VK+QBVK_LALT)){
 if (x==13){
-full_screen_toggle++;
-goto key_handled;
+ static int32 fs_mode,fs_smooth;
+ fs_mode=full_screen_set;
+ if (fs_mode==-1) fs_mode=full_screen;
+ fs_smooth=fullscreen_smooth;
+ if (fs_mode==2&&fs_smooth==1){
+  fs_mode=0;
+ }else{
+  if (fs_smooth==0&&fs_mode!=0){
+   fullscreen_smooth=1;
+  }else{
+   fs_mode++;
+   fullscreen_smooth=0;   
+  }
+ } 
+ if (full_screen!=fs_mode) full_screen_set=fs_mode;
+ force_display_update=1;
+ goto key_handled;
 }
 }
 
