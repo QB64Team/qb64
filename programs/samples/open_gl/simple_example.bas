@@ -5,6 +5,7 @@ DIM SHARED AllowSubGL 'we'll set this after we finish our setup immediately belo
 
 TYPE DONT_USE_GLH_Handle_TYPE
     in_use AS _BYTE
+    handle AS LONG
 END TYPE
 REDIM SHARED DONT_USE_GLH_Handle(1000) AS DONT_USE_GLH_Handle_TYPE
 
@@ -112,7 +113,7 @@ END SUB
 SUB GLH_Select_Texture (texture_handle AS LONG) 'turn an image handle into a texture handle
 IF texture_handle < 1 OR texture_handle > UBOUND(DONT_USE_GLH_HANDLE) THEN ERROR 258: EXIT FUNCTION
 IF DONT_USE_GLH_Handle(texture_handle).in_use = 0 THEN ERROR 258: EXIT FUNCTION
-_glBindTexture _GL_TEXTURE_2D, texture_handle
+_glBindTexture _GL_TEXTURE_2D, DONT_USE_GLH_Handle(texture_handle).handle
 END SUB
 
 FUNCTION GLH_Image_to_Texture (image_handle AS LONG) 'turn an image handle into a texture handle
@@ -122,20 +123,25 @@ m = _MEMIMAGE(image_handle)
 DIM h AS LONG
 h = DONT_USE_GLH_New_Texture_Handle
 GLH_Image_to_Texture = h
-_glBindTexture _GL_TEXTURE_2D, h
+_glBindTexture _GL_TEXTURE_2D, DONT_USE_GLH_Handle(h).handle
 _glTexImage2D _GL_TEXTURE_2D, 0, _GL_RGBA, _WIDTH(image_handle), _HEIGHT(image_handle), 0, &H80E1&&, _GL_UNSIGNED_BYTE, m.OFFSET
 _MEMFREE m
 END FUNCTION
 
 FUNCTION DONT_USE_GLH_New_Texture_Handle
+handle&& = 0
+_glGenTextures 1, _OFFSET(handle&&)
+DONT_USE_GLH_New_Texture_Handle = handle&&
 FOR h = 1 TO UBOUND(DONT_USE_GLH_Handle)
     IF DONT_USE_GLH_Handle(h).in_use = 0 THEN
         DONT_USE_GLH_Handle(h).in_use = 1
+        DONT_USE_GLH_Handle(h).handle = handle&&
         DONT_USE_GLH_New_Texture_Handle = h
         EXIT FUNCTION
     END IF
 NEXT
+REDIM _PRESERVE DONT_USE_GLH_Handle(UBOUND(DONT_USE_GLH_HANDLE) * 2) AS DONT_USE_GLH_Handle_TYPE
 DONT_USE_GLH_Handle(h).in_use = 1
+DONT_USE_GLH_Handle(h).handle = handle&&
 DONT_USE_GLH_New_Texture_Handle = h
-REDIM _PRESERVE DONT_USE_GLH_HANDLE(UBOUND(DONT_USE_GLH_HANDLE) * 2)
 END FUNCTION

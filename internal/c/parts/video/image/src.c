@@ -15,6 +15,10 @@
 
 int32 func__loadimage(qbs *f,int32 bpp,int32 passed){
 if (new_error) return 0;
+
+static int32 isHardware;
+isHardware=0; if (bpp==33){bpp=32; isHardware=1;}
+
 //validate bpp
 if (passed){
 if ((bpp!=32)&&(bpp!=256)){error(5); return 0;}
@@ -82,20 +86,14 @@ if (i==-1){free(pixels); return -1;}
 memcpy(img[-i].offset,pixels,x*y*4);
 free(pixels);
 
+if (isHardware){
+ static int32 iHardware;
+ iHardware=func__copyimage(i,33,1);
+ sub__freeimage(i,1);
+ i=iHardware;
+}
 
 return i;
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #ifndef NO_S_D_L

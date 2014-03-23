@@ -1,3 +1,5 @@
+#include "glew/include/GL/glew.h"
+
 #ifdef QB64_MACOSX
  //note: MacOSX uses Apple's GLUT not FreeGLUT
  #include <OpenGL/gl.h>

@@ -71,7 +71,7 @@ DIM SHARED UseGL 'declared SUB _GL (no params)
 DIM SHARED Version AS STRING
 DIM SHARED C_Core AS LONG '0=SDL, 1=GLUT+OpenGL
 DIM SHARED Debug AS LONG 'debug logging is off by default
-Version$ = "0.980": Debug = 0: C_Core = 1
+Version$ = "0.990": Debug = 0: C_Core = 1
 
 _TITLE "QB64"
 
@@ -21008,7 +21008,15 @@ id.specialformat = "{_BEHIND|_ONTOP|_ONLY}"
 id.NoCloud = 1
 regid
 
-
+clearid
+id.n = "_DISPLAYORDER"
+id.subfunc = 2
+id.callname = "sub__displayorder"
+id.args = 4
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}]]]]"
+id.NoCloud = 1
+regid
 
 clearid
 id.n = "_MEMGET"
@@ -21695,9 +21703,9 @@ clearid
 id.n = "_COPYIMAGE"
 id.subfunc = 1
 id.callname = "func__copyimage"
-id.args = 1
-id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[?]"
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "?[,?]"
 id.ret = LONGTYPE - ISPOINTER
 regid
 
@@ -21779,7 +21787,7 @@ id.subfunc = 2
 id.callname = "sub__putimage"
 id.args = 10
 id.arg = MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER)
-id.specialformat = "[[{STEP}](?,?)[-[{STEP}](?,?)]][,[?][,[?][,[[{STEP}](?,?)[-[{STEP}](?,?)]]]]]"
+id.specialformat = "[[{STEP}](?,?)[-[{STEP}](?,?)]][,[?][,[?][,[[{STEP}](?,?)[-[{STEP}](?,?)]][,{_SMOOTH}]]]]"
 regid
 
 clearid

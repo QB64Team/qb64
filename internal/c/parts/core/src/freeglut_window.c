@@ -748,13 +748,85 @@ static void fghFillPixelFormatAttributes( int *attributes, const PIXELFORMATDESC
 }
 #endif
 
+
+/*
+void alert(int x){
+ static char str[100];
+ memset(&str[0],0,100);
+ sprintf(str, "%d", x);
+ MessageBox(0,&str[0], "Alert", MB_OK );
+}
+*/
+
+void alert(char *x){
+ MessageBox(0,x, "Alert", MB_OK );
+}
+
+PIXELFORMATDESCRIPTOR pfd;
+
+int ChoosePixelFormatEx(HDC hdc,int *p_bpp,int *p_depth,int *p_dbl,int *p_acc)
+{ int wbpp; if (p_bpp==NULL) wbpp=-1; else wbpp=*p_bpp;
+  int wdepth; if (p_depth==NULL) wdepth=16; else wdepth=*p_depth;
+  int wdbl; if (p_dbl==NULL) wdbl=-1; else wdbl=*p_dbl;
+  int wacc; if (p_acc==NULL) wacc=1; else wacc=*p_acc;
+  ZeroMemory(&pfd,sizeof(pfd)); pfd.nSize=sizeof(pfd); pfd.nVersion=1;
+  int num=DescribePixelFormat(hdc,1,sizeof(pfd),&pfd);
+  if (num==0) return 0;
+  unsigned int maxqual=0; int maxindex=0;
+  int max_bpp, max_depth, max_dbl, max_acc;
+  int i;
+  for (i=1; i<=num; i++)
+  { ZeroMemory(&pfd,sizeof(pfd)); pfd.nSize=sizeof(pfd); pfd.nVersion=1;
+    DescribePixelFormat(hdc,i,sizeof(pfd),&pfd);
+    int bpp=pfd.cColorBits;
+    int depth=pfd.cDepthBits;
+    int pal=(pfd.iPixelType==PFD_TYPE_COLORINDEX);
+    int mcd=((pfd.dwFlags & PFD_GENERIC_FORMAT) && (pfd.dwFlags & PFD_GENERIC_ACCELERATED));
+
+//if (pfd.dwFlags & PFD_GENERIC_ACCELERATED) alert ("SHEEP!");
+//alert ("SHEEPzzz!");
+
+    int soft=((pfd.dwFlags & PFD_GENERIC_FORMAT) && !(pfd.dwFlags & PFD_GENERIC_ACCELERATED));
+    int icd=(!(pfd.dwFlags & PFD_GENERIC_FORMAT) && !(pfd.dwFlags & PFD_GENERIC_ACCELERATED));
+
+//if (icd) alert("icd");
+
+    int opengl=(pfd.dwFlags & PFD_SUPPORT_OPENGL);
+    int window=(pfd.dwFlags & PFD_DRAW_TO_WINDOW);
+    int bitmap=(pfd.dwFlags & PFD_DRAW_TO_BITMAP);
+    int dbuff=(pfd.dwFlags & PFD_DOUBLEBUFFER);
+    //
+    unsigned int q=0;
+    if (opengl && window) q=q+0x8000;
+    if (wdepth==-1 || (wdepth>0 && depth>0)) q=q+0x4000;
+    if (wdbl==-1 || (wdbl==0 && !dbuff) || (wdbl==1 && dbuff)) q=q+0x2000;
+    if (wacc==-1 || (wacc==0 && soft) || (wacc==1 && (mcd || icd))) q=q+0x1000;
+    if (mcd || icd) q=q+0x0040; if (icd) q=q+0x0002;
+    if (wbpp==-1 || (wbpp==bpp)) q=q+0x0800;
+    if (bpp>=16) q=q+0x0020; if (bpp==16) q=q+0x0008;
+    if (wdepth==-1 || (wdepth==depth)) q=q+0x0400;
+    if (depth>=16) q=q+0x0010; if (depth==16) q=q+0x0004;
+    if (!pal) q=q+0x0080;
+    if (bitmap) q=q+0x0001;
+    if (q>maxqual) {maxqual=q; maxindex=i;max_bpp=bpp; max_depth=depth; max_dbl=dbuff?1:0; max_acc=soft?0:1;}
+  }
+  if (maxindex==0) return maxindex;
+  if (p_bpp!=NULL) *p_bpp=max_bpp;
+  if (p_depth!=NULL) *p_depth=max_depth;
+  if (p_dbl!=NULL) *p_dbl=max_dbl;
+  if (p_acc!=NULL) *p_acc=max_acc;
+  DescribePixelFormat(hdc,maxindex,sizeof(pfd),&pfd);
+  return maxindex;
+}
+
+
 GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
                               unsigned char layer_type )
 {
 #if defined(_WIN32_WCE)
     return GL_TRUE;
 #else
-    PIXELFORMATDESCRIPTOR pfd;
+    ////PIXELFORMATDESCRIPTOR pfd;
     PIXELFORMATDESCRIPTOR* ppfd = &pfd;
     int pixelformat;
     HDC current_hDC;
@@ -766,12 +838,49 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
       current_hDC = window->Window.Device;
 
     fghFillPFD( ppfd, current_hDC, layer_type );
+
+    //pfd.dwFlags|=PFD_SUPPORT_OPENGL;
+
+
+//pfd.dwFlags
+
     pixelformat = ChoosePixelFormat( current_hDC, ppfd );
+
+//    int icd=(!(pfd.dwFlags & PFD_GENERIC_FORMAT) && !(pfd.dwFlags & PFD_GENERIC_ACCELERATED));
+//    if (icd) alert("icd");
+
+
+
+
+/*  
+  int bpp2=-1; // don't care. (or a positive integer)
+  int depth2=-1; // don't care. (or a positive integer)
+  int dbl2=1; // we want double-buffering. (or -1 for 'don't care', or 0 for 'none')
+  int acc2=1; // we want acceleration. (or -1 or 0)
+*/
+
+//    hWnd = CreateWindow("OpenGL", title, WS_OVERLAPPEDWINDOW |
+//            WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+//            x, y, width, height, NULL, NULL, hInstance, NULL);
+
+
+//        HWND hWndx=CreateWindow(_T("FREEGLUT_dummy2"), _T(""), WS_OVERLAPPEDWINDOW , 0,0,800,600, 0, 0, fgDisplay.Instance, 0 );
+  //      current_hDC=GetDC(hWndx);
+
+
+//    pixelformat=ChoosePixelFormatEx(current_hDC,&bpp2,&depth2,&dbl2,&acc2);
+/*
+if (pfd.dwFlags&PFD_SUPPORT_OPENGL) alert("HIPPO!");
+if (pfd.dwFlags&PFD_GENERIC_ACCELERATED) alert("cheetah!");
+if (pixelformat==0) alert("noooo!");
+if (acc2) alert("acc!");
+*/
 
     /* windows hack for multismapling/sRGB */
     if ( ( fgState.DisplayMode & GLUT_MULTISAMPLE ) ||
          ( fgState.DisplayMode & GLUT_SRGB ) )
     {        
+
         HGLRC rc, rc_before=wglGetCurrentContext();
         HWND hWnd;
         HDC hDC, hDC_before=wglGetCurrentDC();

@@ -289,6 +289,7 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
       current_hDC = window->Window.pContext.Device;
 
     fghFillPFD( ppfd, current_hDC, layer_type );
+
     pixelformat = ChoosePixelFormat( current_hDC, ppfd );
 
     /* windows hack for multismapling/sRGB */

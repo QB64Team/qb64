@@ -193,7 +193,7 @@ uint8 apm_p2;
 //QBASIC compatible rounding via FPU:
 #ifdef QB64_MICROSOFT
 	inline int64 qbr(long double f){
-		static int64 i;
+		int64 i;
 		__asm{
 		fld   f
 		fistp i
@@ -201,7 +201,7 @@ uint8 apm_p2;
 		return i;
 	}
 	inline uint64 qbr_longdouble_to_uint64(long double f){
-		static uint64 i;
+		uint64 i;
 		__asm{
 		fld   f
 		fistp i
@@ -209,7 +209,7 @@ uint8 apm_p2;
 		return i;
 	}
 	inline int32 qbr_float_to_long(float f){
-		static int32 i;
+		int32 i;
 		__asm{
 		fld   f
 		fistp i
@@ -217,7 +217,7 @@ uint8 apm_p2;
 		return i;
 	}
 	inline int32 qbr_double_to_long(double f){
-		static int32 i;
+		int32 i;
 		__asm{
 		fld   f
 		fistp i
@@ -229,8 +229,8 @@ uint8 apm_p2;
     //FLDL=load double
     //FLDT=load long double
 	inline int64 qbr(long double f){
-	static int64 i;
-  	__asm__ (
+		int64 i;
+  		__asm__ (
 		"fldt %1;"
 		"fistpll %0;"              
 		:"=m" (i)
@@ -239,7 +239,7 @@ uint8 apm_p2;
 		return i;
 	}
 	inline uint64 qbr_longdouble_to_uint64(long double f){
-		static uint64 i;
+		uint64 i;
 		__asm__ (
 		"fldt %1;"
 		"fistpll %0;"              
@@ -249,7 +249,7 @@ uint8 apm_p2;
 		return i;
 	}
 	inline int32 qbr_float_to_long(float f){
-		static int32 i;
+		int32 i;
 		__asm__ (
 		"flds %1;"
 		"fistpl %0;"              
@@ -259,7 +259,7 @@ uint8 apm_p2;
 		return i;
 	}
 	inline int32 qbr_double_to_long(double f){
-		static int32 i;
+		int32 i;
 		__asm__ (
 		"fldl %1;"
 		"fistpl %0;"              

@@ -138,7 +138,10 @@ extern int32 FontRenderTextASCII(int i,uint8*codepoint,int32 codepoints,int32 op
 
 
 extern void sub__title(qbs *title);
+
 extern void sub__glrender(int32 method);
+extern void sub__displayorder(int32 method1,int32 method2,int32 method3,int32 method4);
+
 extern int64 GetTicks();
 
 
@@ -528,7 +531,7 @@ extern void call_interrupt(int32 i);
 extern void sub_play(qbs *str);
 extern int32 func__newimage(int32 x,int32 y,int32 bpp,int32 passed);
 extern int32 func__loadimage(qbs *f,int32 bpp,int32 passed);
-extern int32 func__copyimage(int32 i,int32 passed);
+extern int32 func__copyimage(int32 i,int32 mode,int32 passed);
 extern void sub__freeimage(int32 i,int32 passed);
 extern void sub__source(int32 i);
 extern void sub__dest(int32 i);
