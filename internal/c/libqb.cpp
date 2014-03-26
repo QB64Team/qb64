@@ -28636,7 +28636,6 @@ static hardware_img_struct* dst_hardware_img;
 
 src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
 
-
 if (src_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(src_img);
 
 //ensure dst_x1/y1 represent top-left co-ordinate of destination
@@ -28668,89 +28667,72 @@ if (dst_img){
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_handle);
   dst_hardware_img->dest_context_handle=framebuffer_handle;
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
-
-  glEnable(GL_TEXTURE_2D);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
-
  }else{
-  //if (hardware_img__current_dst!=dst_img) 
-  glBindFramebuffer(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
+  if (hardware_img__current_dst!=dst_img){
+   glBindFramebuffer(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+   glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
+  }
  }
-
-
-
-
 
  dst_w=dst_hardware_img->w;
  dst_h=dst_hardware_img->h;
 
-}else{ 
- if (hardware_img__current_dst!=dst_img) glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}else{ //dest is 0
+
  dst_w=environment__window_width;
  dst_h=environment__window_height;
- //convert coordinates to coordinates within window
- /* (initial attempt, warped images as rect axes crossed pixel boundaries at different times when scaled)
- dst_x1=environment_2d__get_window_x1_coord(dst_x1);
- dst_x2=environment_2d__get_window_x2_coord(dst_x2);
- dst_y1=environment_2d__get_window_y1_coord(dst_y1);
- dst_y2=environment_2d__get_window_y2_coord(dst_y2); 
- */
- environment_2d__window_rect_struct *rect;
 
+ if (hardware_img__current_dst!=dst_img){
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glScalef(1, -1, 1);//flip vertically
+  glTranslatef(0, -dst_h, 0);//move to new vertical position
+  glViewport(0,0,dst_w,dst_h);
+ }
+
+ environment_2d__window_rect_struct *rect;
  rect=environment_2d__screen_to_window_rect(dst_x1,dst_y1,dst_x2,dst_y2);
  dst_x1=rect->x1;
  dst_y1=rect->y1;
  dst_x2=rect->x2;
  dst_y2=rect->y2;
-
-
-/*
- glEnable(GL_TEXTURE_2D);
- glMatrixMode(GL_PROJECTION);
- glLoadIdentity();
- //gluOrtho2D(0, dst_w, 0, dst_h);
- glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
- glMatrixMode(GL_MODELVIEW);
- glLoadIdentity();
- glScalef(1, -1, 1);//flip vertically
- glTranslatef(0, -dst_h, 0);//move to new vertical position
- glViewport(0,0,dst_w,dst_h);
-*/
-
-
-
-
-
 }
 
 //select the source texture
 if (hardware_img__current_src!=src_img||hardware_img__current_dst!=dst_img){
+ //texture is potentially bound to fbo, so if soure or dest changes it must be reloaded
  glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
 }
-
-
 
 //adjust source texture options (if changed)
 if (src_hardware_img->will_smooth!=smooth){
  if (smooth){
   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  }else{
   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
  }
  src_hardware_img->will_smooth=smooth;
 }
 
-
-
 if (use_alpha){
- glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+ glEnable (GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }else{
  glDisable (GL_BLEND);
 }
@@ -28788,14 +28770,7 @@ glEnd();
 hardware_img__current_src=src_img;
 hardware_img__current_dst=dst_img;
 
-
-
-//alert((char*)glGetString(GL_RENDERER));
-
 }
-
-
-
 
 
 #define HARDWARE_RENDER_STATE__UNKNOWN -1
@@ -29216,7 +29191,6 @@ if (level==displayorder_screen){
   dst_h=environment__window_height;
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  //gluOrtho2D(0, dst_w, 0, dst_h);
   glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -29273,7 +29247,6 @@ dst=0; if (level==displayorder_hardware1) dst=-1;
   dst_h=environment__window_height;
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  //gluOrtho2D(0, dst_w, 0, dst_h);
   glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -29510,7 +29483,6 @@ if (environment_2d__letterbox){
   dst_h=environment__window_height;
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  //gluOrtho2D(0, dst_w, 0, dst_h);
   glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
