@@ -455,8 +455,8 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
  //      therefore, no attempt is made to convert the non-power-of-2 SCREEN sizes via software
  //      to avoid the performance hit this would incur
  //create hardware img
- static int32 handle;
- static hardware_img_struct* hardware_img;
+ int32 handle;
+ hardware_img_struct* hardware_img;
  handle=list_add(hardware_img_handles);
  hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
  hardware_img->w=x;
@@ -480,12 +480,10 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
   hardware_img->texture_handle=new_texture_handle();
   glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
   glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
  }
  return handle;
 }
