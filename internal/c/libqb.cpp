@@ -29500,21 +29500,21 @@ if (environment_2d__letterbox){
 
 if (environment_2d__letterbox==1){
  //vertical stripes
- hardware_img_put(-environment_2d__screen_x1,0,-1,environment_2d__screen_height-1,
+ hardware_img_put(((float)-environment_2d__screen_x1)/environment_2d__screen_x_scale-1.0f,0,-1,environment_2d__screen_height-1,
                  black_texture, 0,
                  0,0,0,0,
 		 0,0);
- hardware_img_put(environment_2d__screen_width,0,-environment_2d__screen_x1+environment__window_width-1,environment_2d__screen_height-1,
+ hardware_img_put(environment_2d__screen_width,0,(((float)-environment_2d__screen_x1)+(float)environment__window_width-1.0f)/environment_2d__screen_x_scale+1.0f,environment_2d__screen_height-1,
                  black_texture, 0,
                  0,0,0,0,
 		 0,0);
 }else{
  //horizontal stripes
- hardware_img_put(0,-environment_2d__screen_y1,environment_2d__screen_width-1,-1,
+ hardware_img_put(0,((float)-environment_2d__screen_y1)/environment_2d__screen_y_scale-1.0f,environment_2d__screen_width-1,-1,
                  black_texture, 0,
                  0,0,0,0,
 		 0,0);
- hardware_img_put(0,environment_2d__screen_height,environment_2d__screen_width-1,-environment_2d__screen_y1+environment__window_height-1,
+ hardware_img_put(0,environment_2d__screen_height,environment_2d__screen_width-1,(((float)-environment_2d__screen_y1)+(float)environment__window_height-1.0f)/environment_2d__screen_y_scale+1.0f,
                  black_texture, 0,
                  0,0,0,0,
 		 0,0);
