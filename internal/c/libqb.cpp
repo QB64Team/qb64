@@ -28452,7 +28452,7 @@ void free_hardware_img(int32 handle){
 
  if (hardware_img->dest_context_handle){
   GLuint context=(GLuint)hardware_img->dest_context_handle;
-  glDeleteFramebuffers(1, &context);
+  glDeleteFramebuffersEXT(1, &context);
  }
  GLuint texture=(GLuint)hardware_img->texture_handle;
  glDeleteTextures(1, &texture); 
@@ -28661,10 +28661,10 @@ if (dst_img){
  if (dst_hardware_img->dest_context_handle==0){
   static GLuint framebuffer_handle;
   framebuffer_handle=0;
-  glGenFramebuffers(1, &framebuffer_handle);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_handle);
+  glGenFramebuffersEXT(1, &framebuffer_handle);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
   dst_hardware_img->dest_context_handle=framebuffer_handle;
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
@@ -28673,7 +28673,7 @@ if (dst_img){
   glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
  }else{
   if (hardware_img__current_dst!=dst_img){
-   glBindFramebuffer(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
+   glBindFramebufferEXT(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
@@ -28692,7 +28692,7 @@ if (dst_img){
  dst_h=environment__window_height;
 
  if (hardware_img__current_dst!=dst_img){
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
@@ -28715,6 +28715,9 @@ if (dst_img){
 if (hardware_img__current_src!=src_img||hardware_img__current_dst!=dst_img){
  //texture is potentially bound to fbo, so if soure or dest changes it must be reloaded
  glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
+ /* The following line is not required, but kept for reference purposes
+ glClientActiveTexture(src_hardware_img->texture_handle);
+ */
 }
 
 //adjust source texture options (if changed)
@@ -28758,12 +28761,35 @@ if (src_y1<=src_y2){
 }
 
 //render it
+
+/*
+//OpenGL 1.0 method - Not compatible with OpenGL-ES
 glBegin(GL_QUADS);
 glTexCoord2f (x1f,y1f); glVertex2f(dst_x1,dst_y1);
 glTexCoord2f (x2f,y1f); glVertex2f(dst_x2,dst_y1);
 glTexCoord2f (x2f,y2f); glVertex2f(dst_x2,dst_y2);
 glTexCoord2f (x1f,y2f); glVertex2f(dst_x1,dst_y2);
 glEnd();
+*/
+
+//Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
+static int vertices[8];
+static float texcoords[8];
+static int32 n;
+//think "Z" pattern from top-left
+n=0;
+vertices[n++]=dst_x1; vertices[n++]=dst_y1;
+vertices[n++]=dst_x2; vertices[n++]=dst_y1;
+vertices[n++]=dst_x1; vertices[n++]=dst_y2;
+vertices[n++]=dst_x2; vertices[n++]=dst_y2;
+n=0;
+texcoords[n++]=x1f; texcoords[n++]=y1f;
+texcoords[n++]=x2f; texcoords[n++]=y1f;
+texcoords[n++]=x1f; texcoords[n++]=y2f;
+texcoords[n++]=x2f; texcoords[n++]=y2f;
+glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
+glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 hardware_img__current_src=src_img;
 hardware_img__current_dst=dst_img;
@@ -29134,14 +29160,17 @@ if (level==displayorder_glrender){
 #ifdef DEPENDENCY_GL
 
  //reset possible dependencies
+ glColor4f(1.f, 1.f, 1.f, 1.f);
  glBindTexture (GL_TEXTURE_2D, 0);
- glBindFramebuffer(GL_FRAMEBUFFER, 0);
+ glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
  glDisable(GL_TEXTURE_2D);
  glDisable(GL_ALPHA_TEST);
  glDisable(GL_BLEND);
  glDisable(GL_COLOR_MATERIAL);
  glDisable(GL_DEPTH_TEST);
  glDisable(GL_LIGHTING);
+ glDisableClientState(GL_VERTEX_ARRAY);
+ glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 
  glClear(GL_DEPTH_BUFFER_BIT);
@@ -29175,14 +29204,18 @@ if (level==displayorder_glrender){
 if (level==displayorder_screen){
 
  if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glColor4f(1.f, 1.f, 1.f, 1.f);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
-
   glEnable(GL_TEXTURE_2D);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
   static int dst_w;
   dst_w=environment__window_width;
   static int dst_h;
@@ -29197,6 +29230,8 @@ if (level==displayorder_screen){
   glViewport(0,0,dst_w,dst_h);
   hardware_render_state=HARDWARE_RENDER_STATE__2D;
   hardware_img__current_dst=0;
+
+
  }
 
  if (software_screen_hardware_frame!=0&&i!=last_i){
@@ -29230,15 +29265,18 @@ static int32 dst;
 dst=0; if (level==displayorder_hardware1) dst=-1;
 
  if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+  glColor4f(1.f, 1.f, 1.f, 1.f);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
-
   glEnable(GL_TEXTURE_2D);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
   static int dst_w;
   dst_w=environment__window_width;
   static int dst_h;
@@ -29466,15 +29504,18 @@ if (level==5){
 if (environment_2d__letterbox){
 
  if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+  glColor4f(1.f, 1.f, 1.f, 1.f);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
-
   glEnable(GL_TEXTURE_2D);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
   static int dst_w;
   dst_w=environment__window_width;
   static int dst_h;
@@ -29918,6 +29959,10 @@ extern void set_dynamic_info();
 
 
 int main( int argc, char* argv[] ){
+
+#ifdef QB64_LINUX
+ XInitThreads();
+#endif
 
 static int32 i,i2,i3,i4;
 static uint8 c,c2,c3,c4;
@@ -30625,19 +30670,18 @@ lock_display_required=1;
 if (!screen_hide) create_window=1;
 while (!create_window){Sleep(100);}
 
-
-
 glutInit(&argc, argv);
 
 glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-
-
 glutInitWindowSize(640,400);//cannot be changed unless display_x(etc) are modified
 
-
-
 //glutInitWindowPosition(300, 200);
+
+if (!glutGet(GLUT_DISPLAY_MODE_POSSIBLE))//must be called on Linux or GLUT crashes
+{ 
+    exit(1);
+}
 
 if (!window_title){
  glutCreateWindow("Untitled");
