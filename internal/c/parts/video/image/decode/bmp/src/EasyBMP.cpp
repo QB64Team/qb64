@@ -568,24 +568,24 @@ bool BMP::WriteToFile( const char* FileName )
   
   while( j > -1 )
   {
-   bool Success = false;
+   bool Success_bmp = false;
    if( BitDepth == 32 )
-   { Success = Write32bitRow( Buffer, BufferSize, j ); }
+   { Success_bmp = Write32bitRow( Buffer, BufferSize, j ); }
    if( BitDepth == 24 )
-   { Success = Write24bitRow( Buffer, BufferSize, j ); }
+   { Success_bmp = Write24bitRow( Buffer, BufferSize, j ); }
    if( BitDepth == 8  )
-   { Success = Write8bitRow( Buffer, BufferSize, j ); }
+   { Success_bmp = Write8bitRow( Buffer, BufferSize, j ); }
    if( BitDepth == 4  )
-   { Success = Write4bitRow( Buffer, BufferSize, j ); }
+   { Success_bmp = Write4bitRow( Buffer, BufferSize, j ); }
    if( BitDepth == 1  )
-   { Success = Write1bitRow( Buffer, BufferSize, j ); }
-   if( Success )
+   { Success_bmp = Write1bitRow( Buffer, BufferSize, j ); }
+   if( Success_bmp )
    {
     int BytesWritten = (int) fwrite( (char*) Buffer, 1, BufferSize, fp );
     if( BytesWritten != BufferSize )
-    { Success = false; }
+    { Success_bmp = false; }
    }
-   if( !Success )
+   if( !Success_bmp )
    {
     if( EasyBMPwarnings )
     {
@@ -947,18 +947,18 @@ bool BMP::ReadFromFile( const char* FileName )
    }
    else
    {
-    bool Success = false;
+    bool Success_bmp = false;
     if( BitDepth == 1  )
-	{ Success = Read1bitRow(  Buffer, BufferSize, j ); }
+	{ Success_bmp = Read1bitRow(  Buffer, BufferSize, j ); }
     if( BitDepth == 4  )
-	{ Success = Read4bitRow(  Buffer, BufferSize, j ); }
+	{ Success_bmp = Read4bitRow(  Buffer, BufferSize, j ); }
     if( BitDepth == 8  )
-	{ Success = Read8bitRow(  Buffer, BufferSize, j ); }
+	{ Success_bmp = Read8bitRow(  Buffer, BufferSize, j ); }
     if( BitDepth == 24 )
-	{ Success = Read24bitRow( Buffer, BufferSize, j ); }
+	{ Success_bmp = Read24bitRow( Buffer, BufferSize, j ); }
 	if( BitDepth == 32 )
-	{ Success = Read32bitRow( Buffer, BufferSize, j ); }
-    if( !Success )
+	{ Success_bmp = Read32bitRow( Buffer, BufferSize, j ); }
+    if( !Success_bmp )
     {
      if( EasyBMPwarnings )
      {
@@ -1382,18 +1382,18 @@ const char FileName[]="Memory";
    }
    else
    {
-    bool Success = false;
+    bool Success_bmp = false;
     if( BitDepth == 1  )
-	{ Success = Read1bitRow(  Buffer, BufferSize, j ); }
+	{ Success_bmp = Read1bitRow(  Buffer, BufferSize, j ); }
     if( BitDepth == 4  )
-	{ Success = Read4bitRow(  Buffer, BufferSize, j ); }
+	{ Success_bmp = Read4bitRow(  Buffer, BufferSize, j ); }
     if( BitDepth == 8  )
-	{ Success = Read8bitRow(  Buffer, BufferSize, j ); }
+	{ Success_bmp = Read8bitRow(  Buffer, BufferSize, j ); }
     if( BitDepth == 24 )
-	{ Success = Read24bitRow( Buffer, BufferSize, j ); }
+	{ Success_bmp = Read24bitRow( Buffer, BufferSize, j ); }
 	if( BitDepth == 32 )
-	{ Success = Read32bitRow( Buffer, BufferSize, j ); }
-    if( !Success )
+	{ Success_bmp = Read32bitRow( Buffer, BufferSize, j ); }
+    if( !Success_bmp )
     {
      if( EasyBMPwarnings )
      {
