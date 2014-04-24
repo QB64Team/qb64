@@ -29961,7 +29961,9 @@ extern void set_dynamic_info();
 int main( int argc, char* argv[] ){
 
 #ifdef QB64_LINUX
- XInitThreads();
+ #ifndef QB64_MACOSX
+  XInitThreads();
+ #endif
 #endif
 
 static int32 i,i2,i3,i4;
