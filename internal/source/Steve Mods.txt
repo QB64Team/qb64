@@ -1,0 +1,722 @@
+// ################################################################################################
+// #                                                                                              #
+// #  Steve Functions and Edits                                                                   #
+// #                                                                                              #
+// ################################################################################################
+
+
+//************************************
+// Convert Degrees to Radians   _D2R
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39503);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_D2R",4));
+if(!qbevent)break;evnt(39504);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39505);}while(r);
+
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_deg2rad",12));
+if(!qbevent)break;evnt(39506);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39507);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39508);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39509);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39510);}while(r);
+
+
+// ************************************************************************************************
+
+
+//************************************
+// Convert Degrees to Gradians   _D2G
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39511);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_D2G",4));
+if(!qbevent)break;evnt(39512);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39513);}while(r);
+
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_deg2grad",13));
+if(!qbevent)break;evnt(39514);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39515);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39516);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39517);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39518);}while(r);
+
+
+// ************************************************************************************************
+
+
+//************************************
+// Convert Radians to Degrees    _R2D
+//************************************
+
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39519);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_R2D",4));
+if(!qbevent)break;evnt(39520);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39521);}while(r);
+
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_rad2deg",12));
+if(!qbevent)break;evnt(39522);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39523);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39524);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39525);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39526);}while(r);
+
+
+// ************************************************************************************************
+
+
+//************************************
+// Convert Radians to Gradians   _R2G
+//************************************
+
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39527);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_R2G",4));
+if(!qbevent)break;evnt(39528);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39529);}while(r);
+
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_rad2grad",13));
+if(!qbevent)break;evnt(39530);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39531);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39532);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39533);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39534);}while(r);
+
+
+// ************************************************************************************************
+
+
+//************************************
+// Convert Gradians to Degrees   _G2D
+//************************************
+
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39535);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_G2D",4));
+if(!qbevent)break;evnt(39536);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39537);}while(r);
+
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_grad2deg",13));
+if(!qbevent)break;evnt(39538);}while(r);
+
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39539);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39540);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39541);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39542);}while(r);
+
+
+// ************************************************************************************************
+
+
+//************************************
+// Convert Gradians to Radians  _G2R
+//************************************
+
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39543);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_G2R",4));
+if(!qbevent)break;evnt(39544);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39545);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_grad2rad",13));
+if(!qbevent)break;evnt(39546);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39547);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39548);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39549);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39550);}while(r);
+
+
+
+// ################################################################################################
+// #                                                                                              #
+// #  End of Angle Conversion Functions                                                           #
+// #                                                                                              #
+// ################################################################################################
+
+// ################################################################################################
+// #                                                                                              #
+// #    Adding some C functions not already in QB64                                               #
+// #                                                                                              #
+// ################################################################################################
+
+
+//************************************
+// ATAN2     _ATAN2
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39559);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_ATAN2",6));
+if(!qbevent)break;evnt(39560);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39561);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("atan2",5));
+if(!qbevent)break;evnt(39562);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 2 ;
+if(!qbevent)break;evnt(39563);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),qbs_add(l2string(*__LONG_SINGLETYPE-*__LONG_ISPOINTER),l2string(*__LONG_SINGLETYPE-*__LONG_ISPOINTER)));
+if(!qbevent)break;evnt(39564);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39565);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39566);}while(r);
+
+
+//************************************
+// HYPOT      _HYPOT
+//************************************
+
+
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39567);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_HYPOT",6));
+if(!qbevent)break;evnt(39568);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39569);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("hypot",5));
+if(!qbevent)break;evnt(39570);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 2 ;
+if(!qbevent)break;evnt(39571);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),qbs_add(l2string(*__LONG_SINGLETYPE-*__LONG_ISPOINTER),l2string(*__LONG_SINGLETYPE-*__LONG_ISPOINTER)));
+if(!qbevent)break;evnt(39572);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39573);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39574);}while(r);
+
+
+
+//************************************
+// ASIN      _ASIN
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39575);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_ASIN",5));
+if(!qbevent)break;evnt(39576);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39577);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("asin",4));
+if(!qbevent)break;evnt(39578);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39579);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39580);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39581);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39582);}while(r);
+
+
+
+//************************************
+// ACOS      _ACOS
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39583);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_ACOS",5));
+if(!qbevent)break;evnt(39584);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39585);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("acos",4));
+if(!qbevent)break;evnt(39586);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39587);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39588);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39589);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39590);}while(r);
+
+
+
+//************************************
+// SIN      _SINH
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39591);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_SINH",5));
+if(!qbevent)break;evnt(39592);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39593);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("sinh",4));
+if(!qbevent)break;evnt(39594);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39595);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39596);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39597);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39598);}while(r);
+
+
+
+//************************************
+// COSH      _COSH
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39599);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_COSH",5));
+if(!qbevent)break;evnt(39600);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39601);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("cosh",4));
+if(!qbevent)break;evnt(39602);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39603);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39604);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39605);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39606);}while(r);
+
+
+
+//************************************
+// TANH      _TANH
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39607);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_TANH",5));
+if(!qbevent)break;evnt(39608);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39609);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("tanh",4));
+if(!qbevent)break;evnt(39610);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39611);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39612);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39613);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39614);}while(r);
+
+
+
+//************************************
+// ASIN      _ASINH
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39615);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_ASINH",6));
+if(!qbevent)break;evnt(39616);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39617);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("asinh",5));
+if(!qbevent)break;evnt(39618);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39619);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39620);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39621);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39622);}while(r);
+
+
+
+//************************************
+// ACOSH      _ACOSH
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39623);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_ACOSH",6));
+if(!qbevent)break;evnt(39624);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39625);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("acosh",5));
+if(!qbevent)break;evnt(39626);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39627);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39628);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39629);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39630);}while(r);
+
+
+
+//************************************
+// ATANH      _ATANH
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39631);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_ATANH",6));
+if(!qbevent)break;evnt(39632);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39633);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("atanh",5));
+if(!qbevent)break;evnt(39634);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39635);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39636);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39637);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39638);}while(r);
+
+
+
+//************************************
+// CEIL      _CEIL
+//************************************
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39639);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_CEIL",5));
+if(!qbevent)break;evnt(39640);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39641);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("ceil",4));
+if(!qbevent)break;evnt(39642);}while(r);
+
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 1 ;
+if(!qbevent)break;evnt(39643);}while(r);
+
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(810)),400,1),l2string(*__LONG_FLOATTYPE-*__LONG_ISPOINTER));
+if(!qbevent)break;evnt(39644);}while(r);
+
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_FLOATTYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39645);}while(r);
+
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39646);}while(r);
+
+
+// ################################################################################################? _pi
+// #                                                                                              #
+// #  End of Expanded C Function Support                                                          #
+// #                                                                                              #
+// ################################################################################################
+
+do{
+SUB_CLEARID();
+if(!qbevent)break;evnt(39647);}while(r);
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(0)),256,1),qbs_new_txt_len("_PI",3));
+if(!qbevent)break;evnt(39648);}while(r);
+do{
+*(int16*)(((char*)__UDT_ID)+(544))= 1 ;
+if(!qbevent)break;evnt(39549);}while(r);
+do{
+qbs_set(qbs_new_fixed((((uint8*)__UDT_ID)+(550)),256,1),qbs_new_txt_len("func_pi",7));
+if(!qbevent)break;evnt(39650);}while(r);
+do{
+*(int16*)(((char*)__UDT_ID)+(808))= 0 ;
+if(!qbevent)break;evnt(39651);}while(r);
+do{
+*(int32*)(((char*)__UDT_ID)+(2378))=*__LONG_DOUBLETYPE-*__LONG_ISPOINTER;
+if(!qbevent)break;evnt(39652);}while(r);
+do{
+SUB_REGID();
+if(!qbevent)break;evnt(39653);}while(r);

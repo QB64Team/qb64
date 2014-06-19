@@ -23620,6 +23620,11 @@ id.NoCloud = 1
 regid
 
 reginternalsubfunc = 0
+
+'Change on 06/19/2014 by Steve to allow for easier additions to the Code Id without
+'people having to come into the QB64.bas source directly and make changes.
+'$INCLUDE:'internal\source\User Mods\User Mod List.bi'
+
 END SUB
 
 'this sub is faulty atm!

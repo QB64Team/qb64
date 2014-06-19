@@ -94,7 +94,13 @@ struct stat statbuf;
 
 
 
+ //*******************************************************
+ //  
+ //     Change to make user-defined additions easier to track inside their own headers
+ //
+ //********************************************************
 
+#include "User Mods\user_list.h"
 
 
 
