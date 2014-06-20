@@ -100,9 +100,12 @@ struct stat statbuf;
  //
  //********************************************************
 
-#include "User Mods\user_list.h"
 
-
+ #ifdef QB64_BACKSLASH_FILESYSTEM
+ #include "User Mods\user_list.h"
+#else
+ #include "User Mods/user_list.h"
+#endif
 
 
 
