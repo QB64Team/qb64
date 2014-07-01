@@ -1935,11 +1935,11 @@ void keyup_vk(uint32 x){
 /* This macro can be used to fill a version structure with the compile-time
  * version of the SDL_inputmethod library.
  */
-#define INPUTMETHOD_VERSION(X)			\
-  {						\
-    (X)->major = INPUT_METHOD_MAJOR_VERSION;	\
-    (X)->minor = INPUT_METHOD_MINOR_VERSION;	\
-    (X)->patch = INPUT_METHOD_PATCHLEVEL;	\
+#define INPUTMETHOD_VERSION(X)          \
+  {                     \
+    (X)->major = INPUT_METHOD_MAJOR_VERSION;    \
+    (X)->minor = INPUT_METHOD_MINOR_VERSION;    \
+    (X)->patch = INPUT_METHOD_PATCHLEVEL;   \
   }
 
 
@@ -2038,13 +2038,13 @@ extern "C" {
   } SDL_InputMethod;
 
   extern DECLSPEC InputMethod_Result SDLCALL InputMethod_PostEvent(
-								   InputMethod_Message message,
-								   Uint16 *editingString,
-								   int cursorPosition,
-								   int compositionPosition,
-								   int compositionLength);
+                                   InputMethod_Message message,
+                                   Uint16 *editingString,
+                                   int cursorPosition,
+                                   int compositionPosition,
+                                   int compositionLength);
   extern DECLSPEC InputMethod_Result SDLCALL InputMethod_InitFromOther(
-								       SDL_InputMethod inputMethod);
+                                       SDL_InputMethod inputMethod);
 
 
 
@@ -2332,7 +2332,7 @@ InputMethod_Result InputMethod_Validate(void)
       result = InputMethod_Use->validate();
 
       if (result == INPUT_METHOD_SUCCESS) {
-	IsValid = 1;
+    IsValid = 1;
       }
       return result;
     }
@@ -2360,7 +2360,7 @@ InputMethod_Result InputMethod_Invalidate(void)
     if (InputMethod_Use->invalidate !=NULL) {
       result = InputMethod_Use->invalidate();
       if (result == INPUT_METHOD_SUCCESS) {
-	IsValid = SDL_FALSE;
+    IsValid = SDL_FALSE;
       }
       return result;
     }
@@ -2487,11 +2487,11 @@ int InputMethod_GetUnicodeStringLength(Uint16 *unicodeString)
 
 
 InputMethod_Result InputMethod_PostEvent(
-					 InputMethod_Message message,
-					 Uint16 *editingString,
-					 int cursorPosition,
-					 int compositionPosition,
-					 int compositionLength)
+                     InputMethod_Message message,
+                     Uint16 *editingString,
+                     int cursorPosition,
+                     int compositionPosition,
+                     int compositionLength)
 {
 
   //showvalue(99998);
@@ -2520,8 +2520,8 @@ InputMethod_Result InputMethod_PostEvent(
     if (editingString == NULL) {
       free(event);
       SDL_SetError(
-		   "post INPUT_METHOD_MESSAGE_RESULT: "
-		   "Editing string is NULL");
+           "post INPUT_METHOD_MESSAGE_RESULT: "
+           "Editing string is NULL");
       return INPUT_METHOD_ERROR_NO_STRING;
     }
     size =
@@ -2544,8 +2544,8 @@ InputMethod_Result InputMethod_PostEvent(
     if (editingString == NULL) {
       free(event);
       SDL_SetError(
-		   "post INPUT_METHOD_MESSAGE_CHANGE: "
-		   "Editing string is NULL");
+           "post INPUT_METHOD_MESSAGE_CHANGE: "
+           "Editing string is NULL");
       return INPUT_METHOD_ERROR_NO_STRING;
     }
     size =
@@ -2625,7 +2625,7 @@ InputMethod_Result InputMethod_PostCharEvent(Uint16 unicode)
 
 
 InputMethod_Result InputMethod_InitFromOther(
-					     SDL_InputMethod inputMethod)
+                         SDL_InputMethod inputMethod)
 {
   InputMethod_Result result;
     
@@ -2683,12 +2683,12 @@ int InputMethod_SDLEventFilter(const SDL_Event *e)
     case SDL_KEYDOWN:
       keysym = ((SDL_KeyboardEvent*)e)->keysym;
       if ( (keysym.unicode & 0xFF80) == 0 ) {
-	ch = keysym.unicode & 0x007F;
-	if (isprint(ch)) {
-	  InputMethod_PostCharEvent(keysym.unicode);
-	  keys[keysym.sym] = SDL_RELEASED;
-	  return 0;
-	}
+    ch = keysym.unicode & 0x007F;
+    if (isprint(ch)) {
+      InputMethod_PostCharEvent(keysym.unicode);
+      keys[keysym.sym] = SDL_RELEASED;
+      return 0;
+    }
       }
       break;
     default:
@@ -2861,12 +2861,12 @@ int CompositionProcessing(HWND hWnd, LPARAM lParam)
         
     for (i = 0; i < clausesNum; i++) {
       if (
-	  attrs[clauses[i]] == ATTR_TARGET_CONVERTED ||
-	  attrs[clauses[i]] == ATTR_TARGET_NOTCONVERTED
-	  ) {
-	orgCompositionPosition = clauses[i];
-	orgCompositionLength = clauses[i + 1] - clauses[i];
-	break;
+      attrs[clauses[i]] == ATTR_TARGET_CONVERTED ||
+      attrs[clauses[i]] == ATTR_TARGET_NOTCONVERTED
+      ) {
+    orgCompositionPosition = clauses[i];
+    orgCompositionLength = clauses[i + 1] - clauses[i];
+    break;
       }
     }
         
@@ -2886,13 +2886,13 @@ int CompositionProcessing(HWND hWnd, LPARAM lParam)
   if (orgCompositionLength > 0) {
     compositionLength =
       GetUnicodePosition(
-			 string, orgCompositionPosition + orgCompositionLength)
+             string, orgCompositionPosition + orgCompositionLength)
       - compositionPosition;
   }
   InputMethod_PostEvent(
-			INPUT_METHOD_MESSAGE_CHANGE,
-			unicodeString,
-			cursorPosition, compositionPosition, compositionLength);
+            INPUT_METHOD_MESSAGE_CHANGE,
+            unicodeString,
+            cursorPosition, compositionPosition, compositionLength);
   //free(unicodeString);
   free(string);
     
@@ -2937,9 +2937,9 @@ int ResultProcessing(HWND hWnd)
   */
 
   InputMethod_PostEvent(
-			INPUT_METHOD_MESSAGE_RESULT,
-			(Uint16*)string,
-			0, 0, 0);
+            INPUT_METHOD_MESSAGE_RESULT,
+            (Uint16*)string,
+            0, 0, 0);
   //free(unicodeString);
   free(string);
     
@@ -2959,9 +2959,9 @@ int EndCompositionProcessing(HWND hWnd)
   if (ImmGetCompositionString(hImc, GCS_RESULTSTR, NULL, 0) == 0) {
     dummy = 0x0000;
     InputMethod_PostEvent(
-			  INPUT_METHOD_MESSAGE_CHANGE,
-			  &dummy,
-			  0, 0, 0);
+              INPUT_METHOD_MESSAGE_CHANGE,
+              &dummy,
+              0, 0, 0);
   }
     
   ImmReleaseContext(hWnd, hImc);
@@ -3002,9 +3002,9 @@ LRESULT CALLBACK WrapProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg) {
     case WM_IME_NOTIFY:
       if (wParam == IMN_SETOPENSTATUS) {
-	hImc = ImmGetContext(hWnd);
-	ImmSetOpenStatus(hImc, FALSE);
-	ImmReleaseContext(hWnd, hImc);
+    hImc = ImmGetContext(hWnd);
+    ImmSetOpenStatus(hImc, FALSE);
+    ImmReleaseContext(hWnd, hImc);
       }
       break;
     case WM_SYSKEYDOWN:
@@ -3033,8 +3033,8 @@ LRESULT CALLBACK WrapProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
       ResultProcessing(hWnd);
     }
     if (
-	(lParam & GCS_COMPSTR) ||
-	((lParam & GCS_COMPCLAUSE) && (lParam & GCS_COMPATTR))
+    (lParam & GCS_COMPSTR) ||
+    ((lParam & GCS_COMPCLAUSE) && (lParam & GCS_COMPATTR))
         ) {
       CompositionProcessing(hWnd, lParam);
     }
@@ -3108,20 +3108,20 @@ LRESULT CALLBACK WrapProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (deadchar_use){
       deadchar_use=0;
       if (wParam==32){
-	keydown_unicode(deadchar_code);
-	keyup_unicode(deadchar_code);
-	return 0;//don't allow message to be sent on to SDL
+    keydown_unicode(deadchar_code);
+    keyup_unicode(deadchar_code);
+    return 0;//don't allow message to be sent on to SDL
       }
       static long i,d,a,r;
       i=0;
       while (d=deadchar_lookup[i++]){
-	a=deadchar_lookup[i++];
-	r=deadchar_lookup[i++];
-	if (deadchar_code==d){ if (wParam==a){
-	    keydown_unicode(r);
-	    keyup_unicode(r);
-	    return 0;//don't allow message to be sent on to SDL
-	  }}
+    a=deadchar_lookup[i++];
+    r=deadchar_lookup[i++];
+    if (deadchar_code==d){ if (wParam==a){
+        keydown_unicode(r);
+        keyup_unicode(r);
+        return 0;//don't allow message to be sent on to SDL
+      }}
       }//while
       keydown_unicode(deadchar_code);
       keyup_unicode(deadchar_code);
@@ -3347,8 +3347,8 @@ Uint16 *InputMethod_GetNameWin32(void)
     strcat(tempString, SYSTEM_SPECIFIC_NAME_STRING);
         
     MultiByteToWideChar(
-			CP_ACP, 0, tempString, -1,
-			(LPWSTR)InputMethod_win32.InputMethodName, INPUT_METHOD_NAME_STRING_LENGTH);
+            CP_ACP, 0, tempString, -1,
+            (LPWSTR)InputMethod_win32.InputMethodName, INPUT_METHOD_NAME_STRING_LENGTH);
         
     free(tempString);
     ImmReleaseContext(hWnd, hImc);
@@ -3396,18 +3396,18 @@ int MessageBox(int ignore,char* message, char* header, int type )
   if (type|MB_SYSTEMMODAL) type-=MB_SYSTEMMODAL;
   if (type==MB_YESNO){ 
     CFUserNotificationDisplayAlert(
-				   0, // no timeout
-				   kCFUserNotificationNoteAlertLevel,
-				   NULL,
-				   NULL, 
-				   NULL,
-				   header_ref,
-				   message_ref,
-				   CFSTR("No"),
-				   CFSTR("Yes"),
-				   NULL,
-				   &result
-				   );
+                   0, // no timeout
+                   kCFUserNotificationNoteAlertLevel,
+                   NULL,
+                   NULL, 
+                   NULL,
+                   header_ref,
+                   message_ref,
+                   CFSTR("No"),
+                   CFSTR("Yes"),
+                   NULL,
+                   &result
+                   );
     CFRelease( header_ref );
     CFRelease( message_ref );
     if( result == kCFUserNotificationDefaultResponse )
@@ -3417,18 +3417,18 @@ int MessageBox(int ignore,char* message, char* header, int type )
   }
   if (type==MB_OK){ 
     CFUserNotificationDisplayAlert(
-				   0, // no timeout
-				   kCFUserNotificationNoteAlertLevel,
-				   NULL,
-				   NULL, 
-				   NULL,
-				   header_ref,
-				   message_ref,
-				   CFSTR("OK"),
-				   NULL,
-				   NULL,
-				   &result
-				   );
+                   0, // no timeout
+                   kCFUserNotificationNoteAlertLevel,
+                   NULL,
+                   NULL, 
+                   NULL,
+                   header_ref,
+                   message_ref,
+                   CFSTR("OK"),
+                   NULL,
+                   NULL,
+                   &result
+                   );
     CFRelease( header_ref );
     CFRelease( message_ref );
     return IDOK;
@@ -3496,10 +3496,10 @@ int MessageBox2(int ignore,char* message,char* title,int type){
     FILE *f = fopen("..\\final.txt", "w");
     if (f != NULL)
       {
-	fprintf(f, title);
-	fprintf(f, "\n");
-	fprintf(f, message);
-	fclose(f);
+    fprintf(f, title);
+    fprintf(f, "\n");
+    fprintf(f, message);
+    fclose(f);
       }
     exit(0);//should log error
   }
@@ -3884,10 +3884,10 @@ char *fixdir(qbs *filename){
       if ((filename->chr[i]>=97)&&(filename->chr[i]<=122)) goto ok;
       if (filename->chr[i]==95) goto ok;//underscore
       if (filename->chr[i]==46){
-	if (i!=0) goto ok;//period cannot be the first character
+    if (i!=0) goto ok;//period cannot be the first character
       }
       if (filename->chr[i]==0){
-	if (i==(filename->len-1)) goto ok;//NULL terminator
+    if (i==(filename->len-1)) goto ok;//NULL terminator
       }
       error(263);//"Paths/Filename illegal in QLOUD"
     ok:;
@@ -3963,11 +3963,11 @@ void init_blend(){
   for (i=0;i<256;i++){//source alpha
     for (x2=0;x2<256;x2++){//source
       for (x3=0;x3<256;x3++){//dest
-	f=i;
-	f2=x2;
-	f3=x3;
-	f/=255.0;//0.0-1.0
-	*cp++=qbr_float_to_long((f*f2)+((1.0-f)*f3));//CINT(0.0-255.0)
+    f=i;
+    f2=x2;
+    f3=x3;
+    f/=255.0;//0.0-1.0
+    *cp++=qbr_float_to_long((f*f2)+((1.0-f)*f3));//CINT(0.0-255.0)
       }}}
   /*
     "60%+60%=84%" formula
@@ -4138,10 +4138,10 @@ void pset(int32 x,int32 y,uint32 col){
       destcol=*o32;
       cp=cblend+(col>>24<<16);
       *o32=
-	cp[(col<<8&0xFF00)+(destcol&255)    ]
-	+(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
-	+(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
-	+(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
+    cp[(col<<8&0xFF00)+(destcol&255)    ]
+    +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
+    +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
+    +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
     };
   }
 }
@@ -4478,8 +4478,8 @@ int32 imgload(char *filename,int32 bpp){
       z3=write_page->mask+1;
       //build color value table
       for (i3=0;i3<z3;i3++){
-	c=write_page->pal[i3];
-	db[i3]=c&0xFF; dg[i3]=c>>8&0xFF; dr[i3]=c>>16&0xFF;
+    c=write_page->pal[i3];
+    db[i3]=c&0xFF; dg[i3]=c>>8&0xFF; dr[i3]=c>>16&0xFF;
       }
 
       //reset color used flags
@@ -4488,49 +4488,49 @@ int32 imgload(char *filename,int32 bpp){
       //copy/change colors
       cp=(uint8*)ts2->pixels; cp2=img[i].offset;
       for (y=0;y<img[i].height;y++){
-	for (x=0;x<img[i].width;x++){
-	  c=*((uint32*)(cp+y*ts2->pitch+x*4));
-	  a=c>>24;
-	  if (a==0){
-	    needt=1;
-	  }else{
-	    b=c&0xFF; g=c>>8&0xFF; r=c>>16&0xFF; v=1000; v3=0;
-	    for (i3=0;i3<z3;i3++){
-	      v2=abs(r-(int32)dr[i3])+abs(g-(int32)dg[i3])+abs(b-(int32)db[i3]);
-	      if (v2<v){v3=i3; v=v2;}
-	    }//i3
-	    cp2[y*img[i].width+x]=v3;
-	    usedcolor[v3]++;
-	  }//a==0
+    for (x=0;x<img[i].width;x++){
+      c=*((uint32*)(cp+y*ts2->pitch+x*4));
+      a=c>>24;
+      if (a==0){
+        needt=1;
+      }else{
+        b=c&0xFF; g=c>>8&0xFF; r=c>>16&0xFF; v=1000; v3=0;
+        for (i3=0;i3<z3;i3++){
+          v2=abs(r-(int32)dr[i3])+abs(g-(int32)dg[i3])+abs(b-(int32)db[i3]);
+          if (v2<v){v3=i3; v=v2;}
+        }//i3
+        cp2[y*img[i].width+x]=v3;
+        usedcolor[v3]++;
+      }//a==0
 
-	}}
+    }}
       //add transparency
       if (needt){
-	//find best transparent color
-	v=0x7FFFFFFF;
-	for (x=0;x<z3;x++){
-	  if (usedcolor[x]<=v){
-	    v=usedcolor[x];
-	    t=x;
-	  }
-	}
-	//remake with transparency
-	img[i].transparent_color=t;
-	//copy/change colors
-	cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-	for (y=0;y<img[i].height;y++){ for (x=0;x<img[i].width;x++){
-	    c=*((uint32*)(cp+y*ts2->pitch+x*4));
-	    a=c>>24; if (a==0){cp2[y*img[i].width+x]=t; goto usedtranscol;}
-	    b=c&0xFF; g=c>>8&0xFF; r=c>>16&0xFF; v=1000; v3=0;
-	    for (i3=0;i3<z3;i3++){
-	      if (i3!=t){
-		v2=abs(r-(int32)dr[i3])+abs(g-(int32)dg[i3])+abs(b-(int32)db[i3]);
-		if (v2<v){v3=i3; v=v2;}
-	      }
-	    }//i3
-	    cp2[y*img[i].width+x]=v3;
-	  usedtranscol:;
-	  }}
+    //find best transparent color
+    v=0x7FFFFFFF;
+    for (x=0;x<z3;x++){
+      if (usedcolor[x]<=v){
+        v=usedcolor[x];
+        t=x;
+      }
+    }
+    //remake with transparency
+    img[i].transparent_color=t;
+    //copy/change colors
+    cp=(uint8*)ts2->pixels; cp2=img[i].offset;
+    for (y=0;y<img[i].height;y++){ for (x=0;x<img[i].width;x++){
+        c=*((uint32*)(cp+y*ts2->pitch+x*4));
+        a=c>>24; if (a==0){cp2[y*img[i].width+x]=t; goto usedtranscol;}
+        b=c&0xFF; g=c>>8&0xFF; r=c>>16&0xFF; v=1000; v3=0;
+        for (i3=0;i3<z3;i3++){
+          if (i3!=t){
+        v2=abs(r-(int32)dr[i3])+abs(g-(int32)dg[i3])+abs(b-(int32)db[i3]);
+        if (v2<v){v3=i3; v=v2;}
+          }
+        }//i3
+        cp2[y*img[i].width+x]=v3;
+      usedtranscol:;
+      }}
       }//needt
       //adopt font
       sub__font(write_page->font,-i,1);
@@ -4564,15 +4564,15 @@ int32 imgload(char *filename,int32 bpp){
     for (y=0;y<img[i].height;y++){
       lp=(uint32*)(((char*)ts->pixels)+ts->pitch*y);
       for (x=0;x<img[i].width;x++){
-	if (!(*lp++&0xFF000000)){//alpha==0
-	  //find equivalent 8-bit index
-	  c=*(((uint8*)ts2->pixels)+ts2->pitch*y+x);
-	  if (c<ts2->format->palette->ncolors){
-	    img[i].transparent_color=c;
-	    t=c;
-	    goto found_transparent_color;
-	  }
-	}
+    if (!(*lp++&0xFF000000)){//alpha==0
+      //find equivalent 8-bit index
+      c=*(((uint8*)ts2->pixels)+ts2->pitch*y+x);
+      if (c<ts2->format->palette->ncolors){
+        img[i].transparent_color=c;
+        t=c;
+        goto found_transparent_color;
+      }
+    }
       }}
   found_transparent_color:
 
@@ -4589,73 +4589,73 @@ int32 imgload(char *filename,int32 bpp){
       z3=write_page->mask+1;
       //build color value tables
       for (i2=0;i2<z2;i2++){
-	c=*(uint32*)&ts2->format->palette->colors[i2];
-	sr[i2]=c&0xFF; sg[i2]=c>>8&0xFF; sb[i2]=c>>16&0xFF;
+    c=*(uint32*)&ts2->format->palette->colors[i2];
+    sr[i2]=c&0xFF; sg[i2]=c>>8&0xFF; sb[i2]=c>>16&0xFF;
       }
       for (i3=0;i3<z3;i3++){
-	c=write_page->pal[i3];
-	db[i3]=c&0xFF; dg[i3]=c>>8&0xFF; dr[i3]=c>>16&0xFF;
+    c=write_page->pal[i3];
+    db[i3]=c&0xFF; dg[i3]=c>>8&0xFF; dr[i3]=c>>16&0xFF;
       }
       //link colors to best matching color
       for (i2=0;i2<z2;i2++){
-	v=1000; link[i2]=0;
-	for (i3=0;i3<z3;i3++){
-	  v2=abs((int32)sr[i2]-(int32)dr[i3])+abs((int32)sg[i2]-(int32)dg[i3])+abs((int32)sb[i2]-(int32)db[i3]);
-	  if (v2<v){
-	    link[i2]=i3; v=v2;
-	  }
-	}//i3
+    v=1000; link[i2]=0;
+    for (i3=0;i3<z3;i3++){
+      v2=abs((int32)sr[i2]-(int32)dr[i3])+abs((int32)sg[i2]-(int32)dg[i3])+abs((int32)sb[i2]-(int32)db[i3]);
+      if (v2<v){
+        link[i2]=i3; v=v2;
+      }
+    }//i3
       }//i2
       //change colors
       needt=0;
       cp=(uint8*)ts2->pixels; cp2=img[i].offset;
       for (y=0;y<img[i].height;y++){
-	for (x=0;x<img[i].width;x++){
-	  c=cp[y*ts2->pitch+x];
-	  if (c==t){
-	    needt=1;
-	  }else{
-	    c=link[c];
-	    cp2[y*img[i].width+x]=c;
-	    usedcolor[c]++;
-	  }
-	}}
+    for (x=0;x<img[i].width;x++){
+      c=cp[y*ts2->pitch+x];
+      if (c==t){
+        needt=1;
+      }else{
+        c=link[c];
+        cp2[y*img[i].width+x]=c;
+        usedcolor[c]++;
+      }
+    }}
       //add transparency
       if (needt){
-	t2=t;//backup
-	//find best transparent color
-	v=0x7FFFFFFF;
-	for (x=0;x<z3;x++){
-	  if (usedcolor[x]<=v){
-	    v=usedcolor[x];
-	    t=x;
-	  }
-	}
-	//remake with transparency
-	img[i].transparent_color=t;
-	//relink colors to best matching color (avoiding t)
-	for (i2=0;i2<z2;i2++){
-	  v=1000; link[i2]=0;
-	  for (i3=0;i3<z3;i3++){
-	    if (i3!=t){
-	      v2=abs((int32)sr[i2]-(int32)dr[i3])+abs((int32)sg[i2]-(int32)dg[i3])+abs((int32)sb[i2]-(int32)db[i3]);
-	      if (v2<v){
-		link[i2]=i3; v=v2;
-	      }
-	    }
-	  }//i3
-	}//i2
-	//change colors
-	cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-	for (y=0;y<img[i].height;y++){
-	  for (x=0;x<img[i].width;x++){
-	    c=cp[y*ts2->pitch+x];
-	    if (c==t2){
-	      cp2[y*img[i].width+x]=t;
-	    }else{
-	      cp2[y*img[i].width+x]=link[c];
-	    }
-	  }}
+    t2=t;//backup
+    //find best transparent color
+    v=0x7FFFFFFF;
+    for (x=0;x<z3;x++){
+      if (usedcolor[x]<=v){
+        v=usedcolor[x];
+        t=x;
+      }
+    }
+    //remake with transparency
+    img[i].transparent_color=t;
+    //relink colors to best matching color (avoiding t)
+    for (i2=0;i2<z2;i2++){
+      v=1000; link[i2]=0;
+      for (i3=0;i3<z3;i3++){
+        if (i3!=t){
+          v2=abs((int32)sr[i2]-(int32)dr[i3])+abs((int32)sg[i2]-(int32)dg[i3])+abs((int32)sb[i2]-(int32)db[i3]);
+          if (v2<v){
+        link[i2]=i3; v=v2;
+          }
+        }
+      }//i3
+    }//i2
+    //change colors
+    cp=(uint8*)ts2->pixels; cp2=img[i].offset;
+    for (y=0;y<img[i].height;y++){
+      for (x=0;x<img[i].width;x++){
+        c=cp[y*ts2->pitch+x];
+        if (c==t2){
+          cp2[y*img[i].width+x]=t;
+        }else{
+          cp2[y*img[i].width+x]=link[c];
+        }
+      }}
       }//needt
       //adopt font
       sub__font(write_page->font,-i,1);
@@ -4743,8 +4743,8 @@ void flush_old_hardware_commands(){
       hgc->next_command=0;
       hgc->order=display_frame_order_next;
       if (last_hardware_command_added){
-	hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
-	hgc2->next_command=hgch;
+    hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+    hgc2->next_command=hgch;
       }
       last_hardware_command_added=hgch;
       if (first_hardware_command==0) first_hardware_command=hgch;    
@@ -4805,21 +4805,21 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       //check dst
       hardware_img_struct* dst_himg=NULL;
       if (dst<0){
-	hardware_img_struct* dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
-	if (dst_himg==NULL){error(258); return;}
-	dst-=HARDWARE_IMG_HANDLE_OFFSET;
+    hardware_img_struct* dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
+    if (dst_himg==NULL){error(258); return;}
+    dst-=HARDWARE_IMG_HANDLE_OFFSET;
 
-	d_emu.width=dst_himg->w;
-	d_emu.height=dst_himg->h;
-	d_emu.clipping_or_scaling=0;
-	d_emu.alpha_disabled=dst_himg->alpha_disabled;
-	d=&d_emu;
+    d_emu.width=dst_himg->w;
+    d_emu.height=dst_himg->h;
+    d_emu.clipping_or_scaling=0;
+    d_emu.alpha_disabled=dst_himg->alpha_disabled;
+    d=&d_emu;
 
       }else{
-	if (dst>1) {error(5); return;}
-	dst=-dst;
+    if (dst>1) {error(5); return;}
+    dst=-dst;
 
-	d=display_page;//use parameters from display page
+    d=display_page;//use parameters from display page
 
       }
 
@@ -4881,10 +4881,10 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
   if (passed&1){//dx1,dy1
     if (d->clipping_or_scaling){
       if (d->clipping_or_scaling==2){
-	dx1=qbr_float_to_long(f_dx1*d->scaling_x+d->scaling_offset_x)+d->view_offset_x;
-	dy1=qbr_float_to_long(f_dy1*d->scaling_y+d->scaling_offset_y)+d->view_offset_y;
+    dx1=qbr_float_to_long(f_dx1*d->scaling_x+d->scaling_offset_x)+d->view_offset_x;
+    dy1=qbr_float_to_long(f_dy1*d->scaling_y+d->scaling_offset_y)+d->view_offset_y;
       }else{
-	dx1=qbr_float_to_long(f_dx1)+d->view_offset_x; dy1=qbr_float_to_long(f_dy1)+d->view_offset_y;
+    dx1=qbr_float_to_long(f_dx1)+d->view_offset_x; dy1=qbr_float_to_long(f_dy1)+d->view_offset_y;
       }
     }else{
       dx1=qbr_float_to_long(f_dx1); dy1=qbr_float_to_long(f_dy1);
@@ -4892,14 +4892,14 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     //note: dx2 & dy2 cannot be passed if dx1 & dy1 weren't passed
     if (passed&4){//dx2,dy2
       if (d->clipping_or_scaling){
-	if (d->clipping_or_scaling==2){
-	  dx2=qbr_float_to_long(f_dx2*d->scaling_x+d->scaling_offset_x)+d->view_offset_x;
-	  dy2=qbr_float_to_long(f_dy2*d->scaling_y+d->scaling_offset_y)+d->view_offset_y;
-	}else{
-	  dx2=qbr_float_to_long(f_dx2)+d->view_offset_x; dy2=qbr_float_to_long(f_dy2)+d->view_offset_y;
-	}
+    if (d->clipping_or_scaling==2){
+      dx2=qbr_float_to_long(f_dx2*d->scaling_x+d->scaling_offset_x)+d->view_offset_x;
+      dy2=qbr_float_to_long(f_dy2*d->scaling_y+d->scaling_offset_y)+d->view_offset_y;
+    }else{
+      dx2=qbr_float_to_long(f_dx2)+d->view_offset_x; dy2=qbr_float_to_long(f_dy2)+d->view_offset_y;
+    }
       }else{
-	dx2=qbr_float_to_long(f_dx2); dy2=qbr_float_to_long(f_dy2);
+    dx2=qbr_float_to_long(f_dx2); dy2=qbr_float_to_long(f_dy2);
       }
     }else{//dx2,dy2
       dx2=0; dy2=0;
@@ -4912,10 +4912,10 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     if (s->clipping_or_scaling){
 
       if (s->clipping_or_scaling==2){
-	sx1=qbr_float_to_long(f_sx1*s->scaling_x+s->scaling_offset_x)+s->view_offset_x;
-	sy1=qbr_float_to_long(f_sy1*s->scaling_y+s->scaling_offset_y)+s->view_offset_y;
+    sx1=qbr_float_to_long(f_sx1*s->scaling_x+s->scaling_offset_x)+s->view_offset_x;
+    sy1=qbr_float_to_long(f_sy1*s->scaling_y+s->scaling_offset_y)+s->view_offset_y;
       }else{
-	sx1=qbr_float_to_long(f_sx1)+s->view_offset_x; sy1=qbr_float_to_long(f_sy1)+s->view_offset_y;
+    sx1=qbr_float_to_long(f_sx1)+s->view_offset_x; sy1=qbr_float_to_long(f_sy1)+s->view_offset_y;
       }
     }else{
       sx1=qbr_float_to_long(f_sx1); sy1=qbr_float_to_long(f_sy1);
@@ -4923,14 +4923,14 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     //note: sx2 & sy2 cannot be passed if sx1 & sy1 weren't passed
     if (passed&512){//sx2,sy2
       if (s->clipping_or_scaling){
-	if (s->clipping_or_scaling==2){
-	  sx2=qbr_float_to_long(f_sx2*s->scaling_x+s->scaling_offset_x)+s->view_offset_x;
-	  sy2=qbr_float_to_long(f_sy2*s->scaling_y+s->scaling_offset_y)+s->view_offset_y;
-	}else{
-	  sx2=qbr_float_to_long(f_sx2)+s->view_offset_x; sy2=qbr_float_to_long(f_sy2)+s->view_offset_y;
-	}
+    if (s->clipping_or_scaling==2){
+      sx2=qbr_float_to_long(f_sx2*s->scaling_x+s->scaling_offset_x)+s->view_offset_x;
+      sy2=qbr_float_to_long(f_sy2*s->scaling_y+s->scaling_offset_y)+s->view_offset_y;
+    }else{
+      sx2=qbr_float_to_long(f_sx2)+s->view_offset_x; sy2=qbr_float_to_long(f_sy2)+s->view_offset_y;
+    }
       }else{
-	sx2=qbr_float_to_long(f_sx2); sy2=qbr_float_to_long(f_sy2);
+    sx2=qbr_float_to_long(f_sx2); sy2=qbr_float_to_long(f_sy2);
       }
     }else{//sx2,sy2
       sx2=0; sy2=0;
@@ -4946,20 +4946,20 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     if ((passed&4)&&(passed&512)) goto got_hw_coord;//all passed
     if (passed&4){//(dx1,dy1)-(dx2,dy2)...
       if (passed&64){//(dx1,dy1)-(dx2,dy2),...,(sx1,sy1)
-	sx2=sx1+abs(dx2-dx1); sy2=sy1+abs(dy2-dy1);
-	goto got_hw_coord;
+    sx2=sx1+abs(dx2-dx1); sy2=sy1+abs(dy2-dy1);
+    goto got_hw_coord;
       }else{//(dx1,dy1)-(dx2,dy2)
-	sx2=sw-1; sy2=sh-1;
-	goto got_hw_coord;
+    sx2=sw-1; sy2=sh-1;
+    goto got_hw_coord;
       }
     }
     if (passed&512){//...(sx1,sy1)-(sx2,sy2)
       if (passed&1){//(dx1,dy1),,(sx1,sy1)-(sx2,sy2)
-	dx2=dx1+abs(sx2-sx1); dy2=dy1+abs(sy2-sy1);
-	goto got_hw_coord;
+    dx2=dx1+abs(sx2-sx1); dy2=dy1+abs(sy2-sy1);
+    goto got_hw_coord;
       }else{//(sx1,sy1)-(sx2,sy2)
-	dx2=dw-1; dy2=dh-1;
-	goto got_hw_coord;
+    dx2=dw-1; dy2=dh-1;
+    goto got_hw_coord;
       }
     }
     if (passed&64){error(5); return;}//Invalid: NULL-NULL,?,?,(sx1,sy1)-NULL
@@ -5039,9 +5039,9 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       sx2=sw-1; sy2=sh-1;
       //could be stretched
       if ( ((abs(dx2-dx1)+1)==sw) && ((abs(dy2-dy1)+1)==sh) ){//non-stretched
-	//could be flipped/reversed
-	//could need clipping
-	goto reverse;
+    //could be flipped/reversed
+    //could need clipping
+    goto reverse;
       }
       goto stretch;
     }//16
@@ -5058,9 +5058,9 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       dx2=dw-1; dy2=dh-1;
       //could be stretched
       if ( ((abs(sx2-sx1)+1)==dw) && ((abs(sy2-sy1)+1)==dh) ){//non-stretched
-	//could be flipped/reversed
-	//could need clipping
-	goto reverse;
+    //could be flipped/reversed
+    //could need clipping
+    goto reverse;
       }
       goto stretch;
     }//1
@@ -5220,24 +5220,24 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       //--------plot pixel--------
       switch((col=*(ulp+qbr_double_to_long(fx+=mx)))&0xFF000000){
       case 0xFF000000:
-	*doff32=col;
-	break;
+    *doff32=col;
+    break;
       case 0x0:
-	break;
+    break;
       case 0x80000000:
-	*doff32=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	break; 
+    *doff32=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+    break; 
       case 0x7F000000:
-	*doff32=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	break;
+    *doff32=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+    break;
       default:
-	destcol=*doff32;
-	cp=cblend+(col>>24<<16);
-	*doff32=
-	  cp[(col<<8&0xFF00)+(destcol&255)    ]
-	  +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
-	  +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
-	  +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
+    destcol=*doff32;
+    cp=cblend+(col>>24<<16);
+    *doff32=
+      cp[(col<<8&0xFF00)+(destcol&255)    ]
+      +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
+      +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
+      +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
       };//switch
       //--------done plot pixel--------
       doff32+=xdir;
@@ -5352,7 +5352,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     fx=fsx1;
     do{
       if ((col=*(cp+qbr_double_to_long(fx+=mx)))!=clearcol){
-	*doff=col;
+    *doff=col;
       }
       doff+=xdir;
     }while(--xx);
@@ -5431,7 +5431,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     fx=fsx1;
     do{
       if ((col=*(cp+qbr_double_to_long(fx+=mx)))!=clearcol){
-	*doff32=pal[col];
+    *doff32=pal[col];
       }
       doff32+=xdir;
     }while(--xx);
@@ -5547,25 +5547,25 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       //--------plot pixel--------
       switch((col=*soff32++)&0xFF000000){
       case 0xFF000000:
-	*doff32++=col;
-	break;
+    *doff32++=col;
+    break;
       case 0x0:
-	doff32++;
-	break;
+    doff32++;
+    break;
       case 0x80000000:
-	*doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	break; 
+    *doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+    break; 
       case 0x7F000000:
-	*doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	break;
+    *doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+    break;
       default:
-	destcol=*doff32;
-	cp=cblend+(col>>24<<16);
-	*doff32++=
-	  cp[(col<<8&0xFF00)+(destcol&255)    ]
-	  +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
-	  +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
-	  +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
+    destcol=*doff32;
+    cp=cblend+(col>>24<<16);
+    *doff32++=
+      cp[(col<<8&0xFF00)+(destcol&255)    ]
+      +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
+      +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
+      +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
       };//switch
       //--------done plot pixel--------
     }while(--xx);
@@ -5625,7 +5625,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     xx=w;
     do{
       if ((col=*soff++)!=clearcol){
-	*doff=col;
+    *doff=col;
       }
       doff++;
     }while(--xx);
@@ -5675,7 +5675,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     xx=w;
     do{
       if ((col=*soff++)!=clearcol){
-	*doff32=pal[col];
+    *doff32=pal[col];
       }
       doff32++;
     }while(--xx);
@@ -5702,25 +5702,25 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       //--------plot pixel--------
       switch((col=*soff32--)&0xFF000000){
       case 0xFF000000:
-	*doff32++=col;
-	break;
+    *doff32++=col;
+    break;
       case 0x0:
-	doff32++;
-	break;
+    doff32++;
+    break;
       case 0x80000000:
-	*doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	break; 
+    *doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+    break; 
       case 0x7F000000:
-	*doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	break;
+    *doff32++=(((*doff32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+    break;
       default:
-	destcol=*doff32;
-	cp=cblend+(col>>24<<16);
-	*doff32++=
-	  cp[(col<<8&0xFF00)+(destcol&255)    ]
-	  +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
-	  +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
-	  +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
+    destcol=*doff32;
+    cp=cblend+(col>>24<<16);
+    *doff32++=
+      cp[(col<<8&0xFF00)+(destcol&255)    ]
+      +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
+      +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
+      +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
       };//switch
       //--------done plot pixel--------
     }while(--xx);
@@ -5790,7 +5790,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     xx=w;
     do{
       if ((col=*soff--)!=clearcol){
-	*doff=col;
+    *doff=col;
       }
       doff++;
     }while(--xx);
@@ -5840,7 +5840,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     xx=w;
     do{
       if ((col=*soff--)!=clearcol){
-	*doff32=pal[col];
+    *doff32=pal[col];
       }
       doff32++;
     }while(--xx);
@@ -5934,12 +5934,12 @@ struct cpu_struct{
   union{
     struct{
       union{
-	uint8 al;
-	int8 al_signed;
+    uint8 al;
+    int8 al_signed;
       };
       union{
-	uint8 ah;
-	int8 ah_signed;
+    uint8 ah;
+    int8 ah_signed;
       };
     };
     uint16 ax;
@@ -5951,12 +5951,12 @@ struct cpu_struct{
   union{
     struct{
       union{
-	uint8 bl;
-	int8 bl_signed;
+    uint8 bl;
+    int8 bl_signed;
       };
       union{
-	uint8 bh;
-	int8 bh_signed;
+    uint8 bh;
+    int8 bh_signed;
       };
     };
     uint16 bx;
@@ -5968,12 +5968,12 @@ struct cpu_struct{
   union{
     struct{
       union{
-	uint8 cl;
-	int8 cl_signed;
+    uint8 cl;
+    int8 cl_signed;
       };
       union{
-	uint8 ch;
-	int8 ch_signed;
+    uint8 ch;
+    int8 ch_signed;
       };
     };
     uint16 cx;
@@ -5985,12 +5985,12 @@ struct cpu_struct{
   union{
     struct{
       union{
-	uint8 dl;
-	int8 dl_signed;
+    uint8 dl;
+    int8 dl_signed;
       };
       union{
-	uint8 dh;
-	int8 dh_signed;
+    uint8 dh;
+    int8 dh_signed;
       };
     };
     uint16 dx;
@@ -6461,29 +6461,29 @@ void cpu_call(){
     if (i>=0x88&&i<=0x8E){
       switch(i){
       case 0x88:// /r r/m8,r8
-	*rm8()=*reg8[r];
-	break;
+    *rm8()=*reg8[r];
+    break;
       case 0x89:// /r r/m16(32),r16(32)
-	if (b32) *rm32()=*reg32[r]; else *rm16()=*reg16[r];
-	break;
+    if (b32) *rm32()=*reg32[r]; else *rm16()=*reg16[r];
+    break;
       case 0x8A:// /r r8,r/m8
-	*reg8[r]=*rm8();
-	break;
+    *reg8[r]=*rm8();
+    break;
       case 0x8B:// /r r16(32),r/m16(32)
-	if (b32) *reg32[r]=*rm32(); else *reg16[r]=*rm16();
-	break;
+    if (b32) *reg32[r]=*rm32(); else *reg16[r]=*rm16();
+    break;
       case 0x8C:// /r r/m16,Sreg
-	*rm16()=*segreg[r];
-	break;
+    *rm16()=*segreg[r];
+    break;
       case 0x8E:// /r Sreg,r/m16
-	*segreg[r]=*rm16();
-	if (r==0) seg_es_ptr=(uint8*)cmem+*segreg[r]*16;
-	//CS (r==1) cannot be set
-	if (r==2) seg_ss_ptr=(uint8*)cmem+*segreg[r]*16;
-	if (r==3) seg_ds_ptr=(uint8*)cmem+*segreg[r]*16;
-	if (r==4) seg_fs_ptr=(uint8*)cmem+*segreg[r]*16;
-	if (r==5) seg_gs_ptr=(uint8*)cmem+*segreg[r]*16;
-	break;
+    *segreg[r]=*rm16();
+    if (r==0) seg_es_ptr=(uint8*)cmem+*segreg[r]*16;
+    //CS (r==1) cannot be set
+    if (r==2) seg_ss_ptr=(uint8*)cmem+*segreg[r]*16;
+    if (r==3) seg_ds_ptr=(uint8*)cmem+*segreg[r]*16;
+    if (r==4) seg_fs_ptr=(uint8*)cmem+*segreg[r]*16;
+    if (r==5) seg_gs_ptr=(uint8*)cmem+*segreg[r]*16;
+    break;
       }
       goto done;
     }
@@ -6783,14 +6783,14 @@ static SDL_Cursor *init_system_cursor(const char *image[])
       }
       switch (image[4+row][col]) {
       case 'X':
-	data[i] |= 0x01;
-	mask[i] |= 0x01;//?
-	break;
+    data[i] |= 0x01;
+    mask[i] |= 0x01;//?
+    break;
       case '.':
-	mask[i] |= 0x01;
-	break;
+    mask[i] |= 0x01;
+    break;
       case ' ':
-	break;
+    break;
       }
     }
   }
@@ -6954,12 +6954,12 @@ void fix_error(){
 #ifdef QB64_WINDOWS
     if (v==IDYES){
       if (full_screen){
-	static SDL_SysWMinfo info;
-	static HWND hwnd;
-	SDL_VERSION(&info.version);
-	SDL_GetWMInfo(&info);
-	hwnd = info.window;
-	ShowWindow(hwnd,SW_SHOWMAXIMIZED);
+    static SDL_SysWMinfo info;
+    static HWND hwnd;
+    SDL_VERSION(&info.version);
+    SDL_GetWMInfo(&info);
+    hwnd = info.window;
+    ShowWindow(hwnd,SW_SHOWMAXIMIZED);
       }
     }
 #endif
@@ -7358,9 +7358,9 @@ void qbs_cmem_concat_list(){
   for (i=0;i<qbs_cmem_list_nexti;i++){
     if (qbs_cmem_list[i]!=-1){ 
       if (i!=d){  
-	tqbs=(qbs*)qbs_cmem_list[i];
-	tqbs->listi=d;
-	qbs_cmem_list[d]=(ptrszint)tqbs;
+    tqbs=(qbs*)qbs_cmem_list[i];
+    tqbs->listi=d;
+    qbs_cmem_list[d]=(ptrszint)tqbs;
       }
       d++;
     }
@@ -7383,9 +7383,9 @@ void qbs_concat_list(){
   for (i=0;i<qbs_list_nexti;i++){
     if (qbs_list[i]!=-1){
       if (i!=d){
-	tqbs=(qbs*)qbs_list[i];
-	tqbs->listi=d;
-	qbs_list[d]=(ptrszint)tqbs;
+    tqbs=(qbs*)qbs_list[i];
+    tqbs->listi=d;
+    qbs_list[d]=(ptrszint)tqbs;
       }
       d++;
     }
@@ -7422,13 +7422,13 @@ void qbs_concat(uint32 bytesrequired){
     qbs_sp=0;
     for (i=0;i<qbs_list_nexti;i++){
       if (qbs_list[i]!=-1){
-	tqbs=(qbs*)qbs_list[i];
-	if ((tqbs->chr-dest)>32){
-	  if (tqbs->len) {memmove(dest,tqbs->chr,tqbs->len);}
-	  tqbs->chr=dest;       
-	}
-	dest=tqbs->chr+tqbs->len;
-	qbs_sp=dest-qbs_data;
+    tqbs=(qbs*)qbs_list[i];
+    if ((tqbs->chr-dest)>32){
+      if (tqbs->len) {memmove(dest,tqbs->chr,tqbs->len);}
+      tqbs->chr=dest;       
+    }
+    dest=tqbs->chr+tqbs->len;
+    qbs_sp=dest-qbs_data;
       }
     }
   }
@@ -7441,8 +7441,8 @@ void qbs_concat(uint32 bytesrequired){
     if (qbs_data==NULL) error(512);//realloc failed!
     for (i=0;i<qbs_list_nexti;i++){
       if (qbs_list[i]!=-1){
-	tqbs=(qbs*)qbs_list[i];
-	tqbs->chr=tqbs->chr-oldbase+qbs_data;
+    tqbs=(qbs*)qbs_list[i];
+    tqbs->chr=tqbs->chr-oldbase+qbs_data;
       }
     }
   }
@@ -7462,15 +7462,15 @@ void qbs_concat_cmem(uint32 bytesrequired){
   if (qbs_cmem_list_nexti){
     for (i=0;i<qbs_cmem_list_nexti;i++){
       if (qbs_cmem_list[i]!=-1){
-	tqbs=(qbs*)qbs_cmem_list[i];
-	if (tqbs->chr!=dest){
-	  if (tqbs->len) {memmove(dest,tqbs->chr,tqbs->len);}
-	  tqbs->chr=dest;
-	  //update cmem_descriptor [length][offset]
-	  if (tqbs->cmem_descriptor){tqbs->cmem_descriptor[0]=tqbs->len; tqbs->cmem_descriptor[1]=(uint16)(ptrszint)(tqbs->chr-dblock);}
-	}
-	dest+=tqbs->len;
-	qbs_cmem_sp+=tqbs->len;
+    tqbs=(qbs*)qbs_cmem_list[i];
+    if (tqbs->chr!=dest){
+      if (tqbs->len) {memmove(dest,tqbs->chr,tqbs->len);}
+      tqbs->chr=dest;
+      //update cmem_descriptor [length][offset]
+      if (tqbs->cmem_descriptor){tqbs->cmem_descriptor[0]=tqbs->len; tqbs->cmem_descriptor[1]=(uint16)(ptrszint)(tqbs->chr-dblock);}
+    }
+    dest+=tqbs->len;
+    qbs_cmem_sp+=tqbs->len;
       }
     }
   }
@@ -7606,29 +7606,29 @@ qbs *qbs_set(qbs *deststr,qbs *srcstr){
   if (srcstr->tmp){
     if (srcstr->fixed==0){
       if (srcstr->readonly==0){
-	if (srcstr->in_cmem==deststr->in_cmem){
-	  if (deststr->in_cmem){
-	    //unlist deststr and acquire srcstr's list index
-	    qbs_cmem_list[deststr->listi]=-1;
-	    qbs_cmem_list[srcstr->listi]=(ptrszint)deststr;
-	    deststr->listi=srcstr->listi;
-	  }else{
-	    //unlist deststr and acquire srcstr's list index
-	    qbs_list[deststr->listi]=-1;
-	    qbs_list[srcstr->listi]=(ptrszint)deststr;
-	    deststr->listi=srcstr->listi;
-	  }
+    if (srcstr->in_cmem==deststr->in_cmem){
+      if (deststr->in_cmem){
+        //unlist deststr and acquire srcstr's list index
+        qbs_cmem_list[deststr->listi]=-1;
+        qbs_cmem_list[srcstr->listi]=(ptrszint)deststr;
+        deststr->listi=srcstr->listi;
+      }else{
+        //unlist deststr and acquire srcstr's list index
+        qbs_list[deststr->listi]=-1;
+        qbs_list[srcstr->listi]=(ptrszint)deststr;
+        deststr->listi=srcstr->listi;
+      }
 
-	  qbs_tmp_list[srcstr->tmplisti]=-1;
-	  if (srcstr->tmplisti==(qbs_tmp_list_nexti-1)) qbs_tmp_list_nexti--;//correct last tmp index for performance
+      qbs_tmp_list[srcstr->tmplisti]=-1;
+      if (srcstr->tmplisti==(qbs_tmp_list_nexti-1)) qbs_tmp_list_nexti--;//correct last tmp index for performance
 
-	  deststr->chr=srcstr->chr;
-	  deststr->len=srcstr->len;
-	  qbs_free_descriptor(srcstr);
-	  //update cmem_descriptor [length][offset]
-	  if (deststr->cmem_descriptor){deststr->cmem_descriptor[0]=deststr->len; deststr->cmem_descriptor[1]=(uint16)(ptrszint)(deststr->chr-dblock);}
-	  return deststr;//nb. This return cannot be changed to a goto qbs_set_return!
-	}}}}
+      deststr->chr=srcstr->chr;
+      deststr->len=srcstr->len;
+      qbs_free_descriptor(srcstr);
+      //update cmem_descriptor [length][offset]
+      if (deststr->cmem_descriptor){deststr->cmem_descriptor[0]=deststr->len; deststr->cmem_descriptor[1]=(uint16)(ptrszint)(deststr->chr-dblock);}
+      return deststr;//nb. This return cannot be changed to a goto qbs_set_return!
+    }}}}
 
   //srcstr is equal length or shorter
   if (srcstr->len<=deststr->len){
@@ -7641,10 +7641,10 @@ qbs *qbs_set(qbs *deststr,qbs *srcstr){
   if (deststr->in_cmem){
     if (deststr->listi==(qbs_cmem_list_nexti-1)){//last index
       if (((ptrszint)deststr->chr+srcstr->len)<=(dblock+cmem_sp)){//space available
-	memcpy(deststr->chr,srcstr->chr,srcstr->len);
-	deststr->len=srcstr->len;  
-	qbs_cmem_sp=((ptrszint)deststr->chr)+(ptrszint)deststr->len-dblock;
-	goto qbs_set_return;
+    memcpy(deststr->chr,srcstr->chr,srcstr->len);
+    deststr->len=srcstr->len;  
+    qbs_cmem_sp=((ptrszint)deststr->chr)+(ptrszint)deststr->len-dblock;
+    goto qbs_set_return;
       }
       goto qbs_set_cmem_concat_required;
     }
@@ -7654,7 +7654,7 @@ qbs *qbs_set(qbs *deststr,qbs *srcstr){
     if (qbs_cmem_list[i]!=-1){
       tqbs=(qbs*)qbs_cmem_list[i];
       if (tqbs==srcstr){
-	if (srcstr->tmp==1) goto skippedtmpsrcindex;
+    if (srcstr->tmp==1) goto skippedtmpsrcindex;
       }
       if ((deststr->chr+srcstr->len)>tqbs->chr) goto qbs_set_cmem_concat_required;
       memcpy(deststr->chr,srcstr->chr,srcstr->len);
@@ -7864,9 +7864,9 @@ qbs *qbs_right(qbs *str,int32 l){
   if (l<0) l=0;
   if (l==str->len) return str;//pass on
   if (str->tmp){ if (!str->fixed){ if (!str->readonly){ if (!str->in_cmem){
-	  str->chr=str->chr+(str->len-l);
-	  str->len=l; return str;
-	}}}}
+      str->chr=str->chr+(str->len-l);
+      str->len=l; return str;
+    }}}}
   qbs *tqbs;
   tqbs=qbs_new(l,1);
   if (l) memcpy(tqbs->chr,str->chr+str->len-l,l);
@@ -8069,10 +8069,10 @@ qbs *func_mid(qbs *str,int32 start,int32 l,int32 passed){
   }
   if ((start==1)&&(l==str->len)) return str;//pass on
   if (str->tmp){ if (!str->fixed){ if (!str->readonly){ if (!str->in_cmem){//acquire
-	  str->chr=str->chr+(start-1);
-	  str->len=l;
-	  return str;
-	}}}}
+      str->chr=str->chr+(start-1);
+      str->len=l;
+      return str;
+    }}}}
   tqbs=qbs_new(l,1);
   if (l) memcpy(tqbs->chr,str->chr+start-1,l);
   if (str->tmp) qbs_free(str);
@@ -8083,13 +8083,13 @@ qbs *qbs_ltrim(qbs *str){
   if (!str->len) return str;//pass on
   if (*str->chr!=32) return str;//pass on
   if (str->tmp){ if (!str->fixed){ if (!str->readonly){ if (!str->in_cmem){//acquire?
-	qbs_ltrim_nextchar:
-	  if (*str->chr==32){
-	    str->chr++;
-	    if (--str->len) goto qbs_ltrim_nextchar;
-	  }
-	  return str;
-	}}}}
+    qbs_ltrim_nextchar:
+      if (*str->chr==32){
+        str->chr++;
+        if (--str->len) goto qbs_ltrim_nextchar;
+      }
+      return str;
+    }}}}
   int32 i;
   i=0;
  qbs_ltrim_nextchar2: if (str->chr[i]==32) {i++; if (i<str->len) goto qbs_ltrim_nextchar2;}
@@ -8104,12 +8104,12 @@ qbs *qbs_rtrim(qbs *str){
   if (!str->len) return str;//pass on
   if (str->chr[str->len-1]!=32) return str;//pass on
   if (str->tmp){ if (!str->fixed){ if (!str->readonly){ if (!str->in_cmem){//acquire?
-	qbs_rtrim_nextchar:
-	  if (str->chr[str->len-1]==32){
-	    if (--str->len) goto qbs_rtrim_nextchar;
-	  }
-	  return str;
-	}}}}
+    qbs_rtrim_nextchar:
+      if (str->chr[str->len-1]==32){
+        if (--str->len) goto qbs_rtrim_nextchar;
+      }
+      return str;
+    }}}}
   int32 i;
   i=str->len;
  qbs_rtrim_nextchar2: if (str->chr[i-1]==32) {i--; if (i) goto qbs_rtrim_nextchar2;}
@@ -8497,9 +8497,9 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
 
 
   if (x1>=xmin){ if (x1<=xmax){ if (y1>=ymin){ if (y1<=ymax){//(x1,y1) onscreen?
-	  if (x1==x2) if (y1==y2) goto singlepoint;//is it a single point? (needed to avoid "division by 0" errors)
-	  goto gotx1y1;
-	}}}}
+      if (x1==x2) if (y1==y2) goto singlepoint;//is it a single point? (needed to avoid "division by 0" errors)
+      goto gotx1y1;
+    }}}}
 
   //(x1,y1) offscreen...
 
@@ -8517,13 +8517,13 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (mx<0){
       y=(double)y1+((double)x1-(double)xmax)*my;
       if (y>=ymin){ if (y<=ymax){
-	  //double space indented values calculate pixels to skip
-	  xdis=x1; ydis=y1;
-	  x1=xmax; y1=qbr_float_to_long(y);
-	  xdis=abs(xdis-x1); ydis=abs(ydis-y1);
-	  if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
-	  goto gotx1y1;
-	}}
+      //double space indented values calculate pixels to skip
+      xdis=x1; ydis=y1;
+      x1=xmax; y1=qbr_float_to_long(y);
+      xdis=abs(xdis-x1); ydis=abs(ydis-y1);
+      if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
+      goto gotx1y1;
+    }}
     }
   }
   //left wall from left
@@ -8531,14 +8531,14 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (mx>0){
       y=(double)y1+((double)xmin-(double)x1)*my;
       if (y>=ymin){ if (y<=ymax){
-	  //double space indented values calculate pixels to skip
-	  xdis=x1; ydis=y1;
-	  x1=xmin; y1=qbr_float_to_long(y);
-	  xdis=abs(xdis-x1); ydis=abs(ydis-y1);
+      //double space indented values calculate pixels to skip
+      xdis=x1; ydis=y1;
+      x1=xmin; y1=qbr_float_to_long(y);
+      xdis=abs(xdis-x1); ydis=abs(ydis-y1);
 
-	  if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
-	  goto gotx1y1;
-	}}
+      if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
+      goto gotx1y1;
+    }}
     }
   }
   //top wall from top
@@ -8546,13 +8546,13 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (my>0){
       x=(double)x1+((double)ymin-(double)y1)*mx;
       if (x>=xmin){ if (x<=xmax){
-	  //double space indented values calculate pixels to skip
-	  xdis=x1; ydis=y1;
-	  x1=qbr_float_to_long(x); y1=ymin;
-	  xdis=abs(xdis-x1); ydis=abs(ydis-y1);
-	  if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
-	  goto gotx1y1;
-	}}
+      //double space indented values calculate pixels to skip
+      xdis=x1; ydis=y1;
+      x1=qbr_float_to_long(x); y1=ymin;
+      xdis=abs(xdis-x1); ydis=abs(ydis-y1);
+      if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
+      goto gotx1y1;
+    }}
     }
   }
   //bottom wall from bottom
@@ -8560,13 +8560,13 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (my<0){
       x=(double)x1+((double)y1-(double)ymax)*mx;
       if (x>=xmin){ if (x<=xmax){
-	  //double space indented values calculate pixels to skip
-	  xdis=x1; ydis=y1;
-	  x1=qbr_float_to_long(x); y1=ymax;
-	  xdis=abs(xdis-x1); ydis=abs(ydis-y1);
-	  if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
-	  goto gotx1y1;
-	}}
+      //double space indented values calculate pixels to skip
+      xdis=x1; ydis=y1;
+      x1=qbr_float_to_long(x); y1=ymax;
+      xdis=abs(xdis-x1); ydis=abs(ydis-y1);
+      if (xdis>=ydis) lineclip_skippixels=xdis; else lineclip_skippixels=ydis;
+      goto gotx1y1;
+    }}
     }
   }
   lineclip_draw=0;
@@ -8574,8 +8574,8 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
  gotx1y1:
 
   if (x2>=xmin){ if (x2<=xmax){ if (y2>=ymin){ if (y2<=ymax){
-	  goto gotx2y2;
-	}}}}
+      goto gotx2y2;
+    }}}}
 
 
   mx=(x1-x2)/fabs((double)(y1-y2)); my=(y1-y2)/fabs((double)(x1-x2));
@@ -8584,9 +8584,9 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (mx<0){
       y=(double)y2+((double)x2-(double)xmax)*my;
       if (y>=ymin){ if (y<=ymax){
-	  x2=xmax; y2=qbr_float_to_long(y);
-	  goto gotx2y2;
-	}}
+      x2=xmax; y2=qbr_float_to_long(y);
+      goto gotx2y2;
+    }}
     }
   }
   //left wall from left
@@ -8594,9 +8594,9 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (mx>0){
       y=(double)y2+((double)xmin-(double)x2)*my;
       if (y>=ymin){ if (y<=ymax){
-	  x2=xmin; y2=qbr_float_to_long(y);
-	  goto gotx2y2;
-	}}
+      x2=xmin; y2=qbr_float_to_long(y);
+      goto gotx2y2;
+    }}
     }
   }
   //top wall from top
@@ -8604,9 +8604,9 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (my>0){
       x=(double)x2+((double)ymin-(double)y2)*mx;
       if (x>=xmin){ if (x<=xmax){
-	  x2=qbr_float_to_long(x); y2=ymin;
-	  goto gotx2y2;
-	}}
+      x2=qbr_float_to_long(x); y2=ymin;
+      goto gotx2y2;
+    }}
     }
   }
   //bottom wall from bottom
@@ -8614,9 +8614,9 @@ void lineclip(int32 x1,int32 y1,int32 x2,int32 y2,int32 xmin,int32 ymin,int32 xm
     if (my<0){
       x=(double)x2+((double)y2-(double)ymax)*mx;
       if (x>=xmin){ if (x<=xmax){
-	  x2=qbr_float_to_long(x); y2=ymax;
-	  goto gotx2y2;
-	}}
+      x2=qbr_float_to_long(x); y2=ymax;
+      goto gotx2y2;
+    }}
     }
   }
   lineclip_draw=0;
@@ -8828,13 +8828,13 @@ void qbg_sub_color(uint32 col1,uint32 col2,uint32 bordercolor,int32 passed){
     }
     if (passed&2){
       if (col2&1){
-	write_page->pal[1]=palette_256[3];
-	write_page->pal[2]=palette_256[5];
-	write_page->pal[3]=palette_256[7];
+    write_page->pal[1]=palette_256[3];
+    write_page->pal[2]=palette_256[5];
+    write_page->pal[3]=palette_256[7];
       }else{
-	write_page->pal[1]=palette_256[2];
-	write_page->pal[2]=palette_256[4];
-	write_page->pal[3]=palette_256[6];
+    write_page->pal[1]=palette_256[2];
+    write_page->pal[2]=palette_256[4];
+    write_page->pal[3]=palette_256[6];
       }
     }
     return;
@@ -8929,7 +8929,7 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       if (mode>13) goto error;
       //is mode changing?
       if (i2){
-	if (img[i2].compatible_mode!=mode) i=1;
+    if (img[i2].compatible_mode!=mode) i=1;
       }else i=1;
       //force update if special parameters passed
       //(at present, only SCREEN 0 is ever called with these overrides, so handling
@@ -8966,10 +8966,10 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
   if (autodisplay){
     if (lock_display_required){//on init of main (), attempting a lock would create an infinite loop
       if (i&1){//avoid locking when only changing the screen page
-	if (lock_display==0) lock_display=1;//request lock
-	while (lock_display!=2){
-	  Sleep(0);
-	}
+    if (lock_display==0) lock_display=1;//request lock
+    while (lock_display!=2){
+      Sleep(0);
+    }
       }
     }
   }
@@ -8982,74 +8982,74 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       //calculate previous width & height if possible
       prev_width_in_characters=0; prev_height_in_characters=0; 
       if (i=page[0]){//currently in a screen mode?
-	im=&img[i];
-	if (!im->compatible_mode){
-	  prev_width_in_characters=im->width; prev_height_in_characters=im->height;
-	}else{
-	  x=fontwidth[im->font]; if (!x) x=1;
-	  prev_width_in_characters=im->width/x;
-	  prev_height_in_characters=im->height/fontheight[im->font];
-	}
+    im=&img[i];
+    if (!im->compatible_mode){
+      prev_width_in_characters=im->width; prev_height_in_characters=im->height;
+    }else{
+      x=fontwidth[im->font]; if (!x) x=1;
+      prev_width_in_characters=im->width/x;
+      prev_height_in_characters=im->height/fontheight[im->font];
+    }
       }//currently in a screen mode
 
 
       //free any previously allocated surfaces
       //free pages in reverse order
       if (page[0]){//currently in a screen mode?
-	for (i=1;i<pages;i++){
-	  if(i2=page[i]){
-	    //manual delete, freeing video pages is usually illegal
-	    if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-	    freeimg(i2);
-	  }//i2
-	}//i
-	i=page[0];
-	if (sub_screen_keep_page0){
-	  img[i].flags^=IMG_SCREEN;
-	}else{
-	  if (img[i].flags&IMG_FREEMEM) free(img[i].offset);//free pixel data
-	  if (img[i].flags&IMG_FREEPAL) free(img[i].pal);//free palette
-	  freeimg(i);
-	}
+    for (i=1;i<pages;i++){
+      if(i2=page[i]){
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+      }//i2
+    }//i
+    i=page[0];
+    if (sub_screen_keep_page0){
+      img[i].flags^=IMG_SCREEN;
+    }else{
+      if (img[i].flags&IMG_FREEMEM) free(img[i].offset);//free pixel data
+      if (img[i].flags&IMG_FREEPAL) free(img[i].pal);//free palette
+      freeimg(i);
+    }
       }//currently in a screen mode
       sub_screen_keep_page0=0;//reset to default status
 
       pages=1; page[0]=0;
 
       if (mode<0){//custom screen
-	i=-mode;
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
-	sub_screen_keep_page0=1;
+    i=-mode;
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    sub_screen_keep_page0=1;
       }
 
       //320 x 200 graphics
       //40 x 25 text format, character box size of 8 x 8
       //Assignment of up to 256K colors to up to 256 attributes
       if (mode==13){
-	i=imgframe(&cmem[655360],320,200,13);
-	memset(img[i].offset,0,320*200);
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgframe(&cmem[655360],320,200,13);
+    memset(img[i].offset,0,320*200);
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//13
 
       //640 x 480 graphics
       //80 x 30 or 80 x 60 text format, character box size of 8 x 16 or 8 x 8
       //Assignment of up to 256K colors to 16 attributes
       if (mode==12){
-	i=imgnew(640,480,12);
-	if ((prev_width_in_characters==80)&&(prev_height_in_characters==60)) selectfont(8,&img[i]);//override default font
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(640,480,12);
+    if ((prev_width_in_characters==80)&&(prev_height_in_characters==60)) selectfont(8,&img[i]);//override default font
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//12
 
       /*
-	Screen 11
-	¦ 640 x 480 graphics
-	¦ 80 x 30 or 80 x 60 text format, character box size of 8 x 16 or 8 x 8
-	¦ Assignment of up to 256K colors to 2 attributes
+    Screen 11
+    ¦ 640 x 480 graphics
+    ¦ 80 x 30 or 80 x 60 text format, character box size of 8 x 16 or 8 x 8
+    ¦ Assignment of up to 256K colors to 2 attributes
       */
       if (mode==11){
-	i=imgnew(640,480,11);
-	if ((prev_width_in_characters==80)&&(prev_height_in_characters==60)) selectfont(8,&img[i]);//override default font
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(640,480,11);
+    if ((prev_width_in_characters==80)&&(prev_height_in_characters==60)) selectfont(8,&img[i]);//override default font
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//11
 
       //SCREEN 10: 640 x 350 graphics, monochrome monitor only
@@ -9057,196 +9057,196 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       //  ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
       //  ¦ Up to 9 pseudocolors assigned to 4 attributes
       /*
-	'colors swap every half second!
-	'using PALETTE does NOT swap color indexes
-	'0 black-black
-	'1 black-grey
-	'2 black-white
-	'3 grey-black
-	'4 grey-grey
-	'5 grey-white
-	'6 white-black
-	'7 white-grey
-	'8 white-white
-	'*IMPORTANT* QB sets initial values up different to default palette!
-	'0 block-black(0)
-	'1 grey-grey(4)
-	'2 white-black(6)
-	'3 white-white(8)
+    'colors swap every half second!
+    'using PALETTE does NOT swap color indexes
+    '0 black-black
+    '1 black-grey
+    '2 black-white
+    '3 grey-black
+    '4 grey-grey
+    '5 grey-white
+    '6 white-black
+    '7 white-grey
+    '8 white-white
+    '*IMPORTANT* QB sets initial values up different to default palette!
+    '0 block-black(0)
+    '1 grey-grey(4)
+    '2 white-black(6)
+    '3 white-white(8)
       */
       if (mode==10){
-	i=imgnew(640,350,10);
-	if ((prev_width_in_characters==80)&&(prev_height_in_characters==43)) selectfont(8,&img[i]);//override default font
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(640,350,10);
+    if ((prev_width_in_characters==80)&&(prev_height_in_characters==43)) selectfont(8,&img[i]);//override default font
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
 
       }//10
 
       /*
-	SCREEN 9: 640 x 350 graphics
-	¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-	¦ 64K page size, page range is 0 (64K);
-	128K page size, page range is 0 (128K) or 0-1 (256K)
-	¦ 16 colors assigned to 4 attributes (64K adapter memory), or
-	64 colors assigned to 16 attributes (more than 64K adapter memory)
+    SCREEN 9: 640 x 350 graphics
+    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    ¦ 64K page size, page range is 0 (64K);
+    128K page size, page range is 0 (128K) or 0-1 (256K)
+    ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+    64 colors assigned to 16 attributes (more than 64K adapter memory)
       */
       if (mode==9){
-	i=imgnew(640,350,9);
-	if ((prev_width_in_characters==80)&&(prev_height_in_characters==43)) selectfont(8,&img[i]);//override default font
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(640,350,9);
+    if ((prev_width_in_characters==80)&&(prev_height_in_characters==43)) selectfont(8,&img[i]);//override default font
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//9
 
       /*
-	SCREEN 8: 640 x 200 graphics
-	¦ 80 x 25 text format, 8 x 8 character box
-	¦ 64K page size, page ranges are 0 (64K), 0-1 (128K), or 0-3 (246K)
-	¦ Assignment of 16 colors to any of 16 attributes
+    SCREEN 8: 640 x 200 graphics
+    ¦ 80 x 25 text format, 8 x 8 character box
+    ¦ 64K page size, page ranges are 0 (64K), 0-1 (128K), or 0-3 (246K)
+    ¦ Assignment of 16 colors to any of 16 attributes
       */
       if (mode==8){
-	i=imgnew(640,200,8);
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(640,200,8);
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//8
 
       /*
-	SCREEN 7: 320 x 200 graphics
-	¦ 40 x 25 text format, character box size 8 x 8
-	¦ 32K page size, page ranges are 0-1 (64K), 0-3 (128K), or 0-7 (256K)
-	¦ Assignment of 16 colors to any of 16 attributes
+    SCREEN 7: 320 x 200 graphics
+    ¦ 40 x 25 text format, character box size 8 x 8
+    ¦ 32K page size, page ranges are 0-1 (64K), 0-3 (128K), or 0-7 (256K)
+    ¦ Assignment of 16 colors to any of 16 attributes
       */
       if (mode==7){
-	i=imgnew(320,200,7);
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(320,200,7);
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//7
 
       /*
-	SCREEN 4:
-	¦ Supports Olivetti (R) Personal Computers models M24, M240, M28,
-	M280, M380, M380/C, M380/T and AT&T (R) Personal Computers 6300
-	series
-	¦ 640 x 400 graphics
-	¦ 80 x 25 text format, 8 x 16 character box
-	¦ 1 of 16 colors assigned as the foreground color (selected by the
-	COLOR statement); background is fixed at black.
+    SCREEN 4:
+    ¦ Supports Olivetti (R) Personal Computers models M24, M240, M28,
+    M280, M380, M380/C, M380/T and AT&T (R) Personal Computers 6300
+    series
+    ¦ 640 x 400 graphics
+    ¦ 80 x 25 text format, 8 x 16 character box
+    ¦ 1 of 16 colors assigned as the foreground color (selected by the
+    COLOR statement); background is fixed at black.
       */
       //Note: QB64 will not support SCREEN 4
 
       /*
-	SCREEN 3: Hercules adapter required, monochrome monitor only
-	¦ 720 x 348 graphics
-	¦ 80 x 25 text format, 9 x 14 character box
-	¦ 2 screen pages (1 only if a second display adapter is installed)
-	¦ PALETTE statement not supported
+    SCREEN 3: Hercules adapter required, monochrome monitor only
+    ¦ 720 x 348 graphics
+    ¦ 80 x 25 text format, 9 x 14 character box
+    ¦ 2 screen pages (1 only if a second display adapter is installed)
+    ¦ PALETTE statement not supported
       */
       //Note: QB64 will not support SCREEN 3
 
       /*
-	SCREEN 2: 640 x 200 graphics
-	¦ 80 x 25 text format with character box size of 8 x 8
-	¦ 16 colors assigned to 2 attributes with EGA or VGA
+    SCREEN 2: 640 x 200 graphics
+    ¦ 80 x 25 text format with character box size of 8 x 8
+    ¦ 16 colors assigned to 2 attributes with EGA or VGA
       */
       if (mode==2){
-	i=imgnew(640,200,2);
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(640,200,2);
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//2
 
       /*
-	SCREEN 1: 320 x 200 graphics
-	¦ 40 x 25 text format, 8 x 8 character box
-	¦ 16 background colors and one of two sets of 3 foreground colors assigned
-	using COLOR statement with CGA
-	¦ 16 colors assigned to 4 attributes with EGA or VGA
+    SCREEN 1: 320 x 200 graphics
+    ¦ 40 x 25 text format, 8 x 8 character box
+    ¦ 16 background colors and one of two sets of 3 foreground colors assigned
+    using COLOR statement with CGA
+    ¦ 16 colors assigned to 4 attributes with EGA or VGA
       */
       if (mode==1){
-	i=imgnew(320,200,1);
-	page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i=imgnew(320,200,1);
+    page[0]=i; img[i].flags|=IMG_SCREEN; display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//1
 
       /*
-	MDPA, CGA, EGA, or VGA Adapter Boards
-	SCREEN 0: Text mode only
-	¦ Either 40 x 25, 40 x 43, 40 x 50, 80 x 25, 80 x 43, or 80 x 50 text format
-	with 8 x 8 character box size (8 x 14, 9 x 14, or 9 x 16 with EGA or VGA)
-	¦ 16 colors assigned to 2 attributes
-	¦ 16 colors assigned to any of 16 attributes (with CGA or EGA)
-	¦ 64 colors assigned to any of 16 attributes (with EGA or VGA)
+    MDPA, CGA, EGA, or VGA Adapter Boards
+    SCREEN 0: Text mode only
+    ¦ Either 40 x 25, 40 x 43, 40 x 50, 80 x 25, 80 x 43, or 80 x 50 text format
+    with 8 x 8 character box size (8 x 14, 9 x 14, or 9 x 16 with EGA or VGA)
+    ¦ 16 colors assigned to 2 attributes
+    ¦ 16 colors assigned to any of 16 attributes (with CGA or EGA)
+    ¦ 64 colors assigned to any of 16 attributes (with EGA or VGA)
       */
       /*
-	granularity from &HB800
-	4096 in 80x25
-	2048 in 40x25
-	6880 in 80x43 (80x43x2=6880)
-	3440 in 40x43 (40x43x2=3440)
-	8000 in 80x50 (80x50x2=8000)
-	4000 in 40x50 (40x50x2=4000)
+    granularity from &HB800
+    4096 in 80x25
+    2048 in 40x25
+    6880 in 80x43 (80x43x2=6880)
+    3440 in 40x43 (40x43x2=3440)
+    8000 in 80x50 (80x50x2=8000)
+    4000 in 40x50 (40x50x2=4000)
       */
       if (mode==0){
 
-	if ((sub_screen_width_in_characters!=-1)&&(sub_screen_height_in_characters!=-1)&&(sub_screen_font!=-1)){
-	  x=sub_screen_width_in_characters; y=sub_screen_height_in_characters; f=sub_screen_font;
-	  sub_screen_width_in_characters=-1; sub_screen_height_in_characters=-1; sub_screen_font=-1;
-	  goto gotwidth;
-	}
-	if (sub_screen_width_in_characters!=-1){
-	  x=sub_screen_width_in_characters; sub_screen_width_in_characters=-1;
-	  y=25; f=16;//default
-	  if (prev_height_in_characters==43){y=43; f=14;}
-	  if (prev_height_in_characters==50){y=50; f=8;}
-	  if (x==40) f++;
-	  goto gotwidth;
-	}
-	if (sub_screen_height_in_characters!=-1){
-	  y=sub_screen_height_in_characters; sub_screen_height_in_characters=-1;
-	  f=16;//default
-	  if (y==43) f=14;
-	  if (y==50) f=8;
-	  x=80;//default
-	  if (prev_width_in_characters==40){f++; x=40;}
-	  goto gotwidth;
-	}
+    if ((sub_screen_width_in_characters!=-1)&&(sub_screen_height_in_characters!=-1)&&(sub_screen_font!=-1)){
+      x=sub_screen_width_in_characters; y=sub_screen_height_in_characters; f=sub_screen_font;
+      sub_screen_width_in_characters=-1; sub_screen_height_in_characters=-1; sub_screen_font=-1;
+      goto gotwidth;
+    }
+    if (sub_screen_width_in_characters!=-1){
+      x=sub_screen_width_in_characters; sub_screen_width_in_characters=-1;
+      y=25; f=16;//default
+      if (prev_height_in_characters==43){y=43; f=14;}
+      if (prev_height_in_characters==50){y=50; f=8;}
+      if (x==40) f++;
+      goto gotwidth;
+    }
+    if (sub_screen_height_in_characters!=-1){
+      y=sub_screen_height_in_characters; sub_screen_height_in_characters=-1;
+      f=16;//default
+      if (y==43) f=14;
+      if (y==50) f=8;
+      x=80;//default
+      if (prev_width_in_characters==40){f++; x=40;}
+      goto gotwidth;
+    }
 
-	if ((prev_width_in_characters==80)&&(prev_height_in_characters==50)){
-	  x=80; y=50; f=8; goto gotwidth;
-	}
-	if ((prev_width_in_characters==40)&&(prev_height_in_characters==50)){
-	  x=40; y=50; f=8+1; goto gotwidth;
-	}
-	if ((prev_width_in_characters==80)&&(prev_height_in_characters==43)){
-	  x=80; y=43; f=8; goto gotwidth;
-	}
-	if ((prev_width_in_characters==40)&&(prev_height_in_characters==43)){
-	  x=40; y=43; f=8+1; goto gotwidth;
-	}
-	if ((prev_width_in_characters==40)&&(prev_height_in_characters==25)){
-	  x=40; y=25; f=16+1; goto gotwidth;
-	}
-	x=80; y=25; f=16;
+    if ((prev_width_in_characters==80)&&(prev_height_in_characters==50)){
+      x=80; y=50; f=8; goto gotwidth;
+    }
+    if ((prev_width_in_characters==40)&&(prev_height_in_characters==50)){
+      x=40; y=50; f=8+1; goto gotwidth;
+    }
+    if ((prev_width_in_characters==80)&&(prev_height_in_characters==43)){
+      x=80; y=43; f=8; goto gotwidth;
+    }
+    if ((prev_width_in_characters==40)&&(prev_height_in_characters==43)){
+      x=40; y=43; f=8+1; goto gotwidth;
+    }
+    if ((prev_width_in_characters==40)&&(prev_height_in_characters==25)){
+      x=40; y=25; f=16+1; goto gotwidth;
+    }
+    x=80; y=25; f=16;
       gotwidth:;
-	i2=x*y*2;//default granularity
-	//specific granularities which cannot be calculated
-	if ((x==40)&&(y==25)&&(f=(16+1))) i2=2048;
-	if ((x==80)&&(y==25)&&(f=16)) i2=4096;
-	p=65536/i2;//number of pages to allocate in cmem
-	if (p>8) p=8;//limit cmem pages to 8
-	//make sure 8 page indexes exist
-	if (7>=pages){
-	  i=7+1;
-	  page=(int32*)realloc(page,i*4);
-	  memset(page+pages,0,(i-pages)*4);
-	  pages=i;
-	}
-	for (i3=0;i3<8;i3++){
-	  if (i3<p){
-	    i=imgframe(&cmem[753664+i2*i3],x,y,0);
-	  }else{
-	    i=imgnew(x,y,0);
-	  }
-	  selectfont(f,&img[i]);
-	  img[i].flags|=IMG_SCREEN;
-	  page[i3]=i;
-	}
-	//text-clear 64K after seg. &HB800
-	for (i=0;i<65536;i+=2){cmem[753664+i]=32; cmem[753664+i+1]=7;}//init. 64K of memory after B800
-	i=page[0];
-	display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
+    i2=x*y*2;//default granularity
+    //specific granularities which cannot be calculated
+    if ((x==40)&&(y==25)&&(f=(16+1))) i2=2048;
+    if ((x==80)&&(y==25)&&(f=16)) i2=4096;
+    p=65536/i2;//number of pages to allocate in cmem
+    if (p>8) p=8;//limit cmem pages to 8
+    //make sure 8 page indexes exist
+    if (7>=pages){
+      i=7+1;
+      page=(int32*)realloc(page,i*4);
+      memset(page+pages,0,(i-pages)*4);
+      pages=i;
+    }
+    for (i3=0;i3<8;i3++){
+      if (i3<p){
+        i=imgframe(&cmem[753664+i2*i3],x,y,0);
+      }else{
+        i=imgnew(x,y,0);
+      }
+      selectfont(f,&img[i]);
+      img[i].flags|=IMG_SCREEN;
+      page[i3]=i;
+    }
+    //text-clear 64K after seg. &HB800
+    for (i=0;i<65536;i+=2){cmem[753664+i]=32; cmem[753664+i+1]=7;}//init. 64K of memory after B800
+    i=page[0];
+    display_page_index=i; display_page=&img[i]; write_page_index=i; write_page=&img[i]; read_page_index=i; read_page=&img[i];
       }//0
 
       write_page->draw_ta=0.0; write_page->draw_scale=1.0; //reset DRAW attributes (of write_page)
@@ -9273,32 +9273,32 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       //active page migration
       //note: transfers any screen settings which are maintained during a QBASIC active page switch
       if (last_active_page!=active_page){
-	static img_struct *old_page;
-	old_page=&img[page[last_active_page]];
-	//WINDOW settings
-	/*
-	  SCREEN 7
-	  WINDOW (0, 0)-(1, 1)
-	  SCREEN 7, , 1, 1
-	  PSET (.5, .5), 14
-	*/
-	//VIEW settings
-	/*
-	  SCREEN 7
-	  VIEW SCREEN (50, 50)-(100, 100)
-	  SCREEN 7, , 1, 1
-	  LINE (0, 0)-(1000, 1000), 1, BF
-	*/
-	//GRAPHICS CURSOR LOCATION
-	//(proven)
-	//NOT MAINTAINED:
-	// X color settings (for both text and graphics)
-	// X text cursor location
-	// X draw color (reset, as in QBASIC, by defaultcolors())
-	if (!write_page->text){
-	  memcpy(&write_page->apm_p1,&old_page->apm_p1,(uint32)(&write_page->apm_p2-&write_page->apm_p1));
-	}
-	last_active_page=active_page;
+    static img_struct *old_page;
+    old_page=&img[page[last_active_page]];
+    //WINDOW settings
+    /*
+      SCREEN 7
+      WINDOW (0, 0)-(1, 1)
+      SCREEN 7, , 1, 1
+      PSET (.5, .5), 14
+    */
+    //VIEW settings
+    /*
+      SCREEN 7
+      VIEW SCREEN (50, 50)-(100, 100)
+      SCREEN 7, , 1, 1
+      LINE (0, 0)-(1000, 1000), 1, BF
+    */
+    //GRAPHICS CURSOR LOCATION
+    //(proven)
+    //NOT MAINTAINED:
+    // X color settings (for both text and graphics)
+    // X text cursor location
+    // X draw color (reset, as in QBASIC, by defaultcolors())
+    if (!write_page->text){
+      memcpy(&write_page->apm_p1,&old_page->apm_p1,(uint32)(&write_page->apm_p2-&write_page->apm_p1));
+    }
+    last_active_page=active_page;
       }//active page migration
 
     }
@@ -9403,18 +9403,18 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
     if ((write_page->compatible_mode==32)||(write_page->compatible_mode==256)){
 
       if (!(passed&1)){//width ommited
-	width=write_page->width;
+    width=write_page->width;
       }else{
-	if (width<=0) goto error;
-	i=fontwidth[write_page->font]; if (!i) i=1;
-	width*=i;
+    if (width<=0) goto error;
+    i=fontwidth[write_page->font]; if (!i) i=1;
+    width*=i;
       }
 
       if (!(passed&2)){//height ommited
-	height=write_page->height;
+    height=write_page->height;
       }else{
-	if (height<=0) goto error;
-	height*=fontheight[write_page->font];
+    if (height<=0) goto error;
+    height*=fontheight[write_page->font];
       }
 
       //width & height are now the desired dimensions
@@ -9422,28 +9422,28 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
       if ((width==write_page->width)&&(height==write_page->height)) return;//no change required
 
       if (write_page->flags&IMG_SCREEN){
-	//delete pages 1-?
-	for(i=1;i<pages;i++){
-	  if(i2=page[i]){
-	    if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-	    if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-	    if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-	    //manual delete, freeing video pages is usually illegal
-	    if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-	    freeimg(i2);
-	  }
-	}//i
+    //delete pages 1-?
+    for(i=1;i<pages;i++){
+      if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+      }
+    }//i
       }
 
       if (autodisplay){
-	if (write_page->flags&IMG_SCREEN){
-	  if (lock_display_required){
-	    if (lock_display==0) lock_display=1;
-	    while (lock_display!=2){
-	      Sleep(0);
-	    }
-	  }
-	}
+    if (write_page->flags&IMG_SCREEN){
+      if (lock_display_required){
+        if (lock_display==0) lock_display=1;
+        while (lock_display!=2){
+          Sleep(0);
+        }
+      }
+    }
       }
 
       col=write_page->color; col2=write_page->background_color;
@@ -9451,19 +9451,19 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
       //change resolution
       write_page->width=width; write_page->height=height;
       if (write_page->flags&IMG_FREEMEM){
-	free(write_page->offset);//free pixel data
-	write_page->offset=(uint8*)calloc(width*height*write_page->bytes_per_pixel,1);
+    free(write_page->offset);//free pixel data
+    write_page->offset=(uint8*)calloc(width*height*write_page->bytes_per_pixel,1);
       }else{//frame?
-	memset(write_page->offset,0,width*height*write_page->bytes_per_pixel);
+    memset(write_page->offset,0,width*height*write_page->bytes_per_pixel);
       }
       imgrevert(write_page_index);
       write_page->color=col; write_page->background_color=col2;
       selectfont(f,write_page);
 
       if (autodisplay){
-	if (write_page->flags&IMG_SCREEN){
-	  if (lock_display_required) lock_display=0;//release lock
-	}
+    if (write_page->flags&IMG_SCREEN){
+      if (lock_display_required) lock_display=0;//release lock
+    }
       }
 
       return;
@@ -9474,120 +9474,120 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
       if (height<=0) goto error;
 
       if (!write_page->compatible_mode){//0
-	f=8;
-	if (height<=49) f=14;
-	if (height<=42) f=16;
-	width=write_page->width;
-	if (width<=40) f++;
-	if ((write_page->font==f)&&(write_page->height==height)) return;//no change
-	sub_screen_height_in_characters=height; sub_screen_width_in_characters=width;
-	sub_screen_font=f;
-	qbg_screen(0,0,0,0,0,1);
-	return;
+    f=8;
+    if (height<=49) f=14;
+    if (height<=42) f=16;
+    width=write_page->width;
+    if (width<=40) f++;
+    if ((write_page->font==f)&&(write_page->height==height)) return;//no change
+    sub_screen_height_in_characters=height; sub_screen_width_in_characters=width;
+    sub_screen_font=f;
+    qbg_screen(0,0,0,0,0,1);
+    return;
       }//0
 
       if (((write_page->compatible_mode>=1)&&(write_page->compatible_mode<=8))||(write_page->compatible_mode==13)){
-	if (write_page->height==height*8){//correct resolution
-	  if (write_page->font==8) return;//correct font, no change required
-	  if (write_page->flags&IMG_SCREEN){
-	    //delete pages 1-?
-	    for(i=1;i<pages;i++){
-	      if(i2=page[i]){
-		if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-		if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-		if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-		//manual delete, freeing video pages is usually illegal
-		if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-		freeimg(i2);
-	      }
-	    }//i
-	  }
-	  col=write_page->color; col2=write_page->background_color;
-	  imgrevert(write_page_index);
-	  write_page->color=col; write_page->background_color=col2;
-	  selectfont(8,write_page);
-	  return;
-	}//correct resolution
-	//fall through
+    if (write_page->height==height*8){//correct resolution
+      if (write_page->font==8) return;//correct font, no change required
+      if (write_page->flags&IMG_SCREEN){
+        //delete pages 1-?
+        for(i=1;i<pages;i++){
+          if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+          }
+        }//i
+      }
+      col=write_page->color; col2=write_page->background_color;
+      imgrevert(write_page_index);
+      write_page->color=col; write_page->background_color=col2;
+      selectfont(8,write_page);
+      return;
+    }//correct resolution
+    //fall through
       }//modes 1-8
 
       /*
-	SCREEN 9: 640 x 350 graphics
-	¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-	¦ 64K page size, page range is 0 (64K);
-	128K page size, page range is 0 (128K) or 0-1 (256K)
-	¦ 16 colors assigned to 4 attributes (64K adapter memory), or
-	64 colors assigned to 16 attributes (more than 64K adapter memory)
-	SCREEN 10: 640 x 350 graphics, monochrome monitor only
-	¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-	¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
-	¦ Up to 9 pseudocolors assigned to 4 attributes
+    SCREEN 9: 640 x 350 graphics
+    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    ¦ 64K page size, page range is 0 (64K);
+    128K page size, page range is 0 (128K) or 0-1 (256K)
+    ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+    64 colors assigned to 16 attributes (more than 64K adapter memory)
+    SCREEN 10: 640 x 350 graphics, monochrome monitor only
+    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
+    ¦ Up to 9 pseudocolors assigned to 4 attributes
       */
       if ((write_page->compatible_mode>=9)&&(write_page->compatible_mode<=10)){
-	f=0;
-	if(write_page->height==height*8) f=8;
-	if(write_page->height==height*14) f=14;
-	if((height==43)&&(write_page->height==350)) f=8;//?x350,8x8
-	if(f){//correct resolution
-	  if (write_page->font==f) return;//correct font, no change required
-	  if (write_page->flags&IMG_SCREEN){
-	    //delete pages 1-?
-	    for(i=1;i<pages;i++){
-	      if(i2=page[i]){
-		if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-		if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-		if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-		//manual delete, freeing video pages is usually illegal
-		if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-		freeimg(i2);
-	      }
-	    }//i
-	  }
-	  col=write_page->color; col2=write_page->background_color;
-	  window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
-	  imgrevert(write_page_index);
-	  qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
-	  write_page->color=col; write_page->background_color=col2;
-	  selectfont(f,write_page);
-	  return;
-	}//correct resolution
-	//fall through
+    f=0;
+    if(write_page->height==height*8) f=8;
+    if(write_page->height==height*14) f=14;
+    if((height==43)&&(write_page->height==350)) f=8;//?x350,8x8
+    if(f){//correct resolution
+      if (write_page->font==f) return;//correct font, no change required
+      if (write_page->flags&IMG_SCREEN){
+        //delete pages 1-?
+        for(i=1;i<pages;i++){
+          if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+          }
+        }//i
+      }
+      col=write_page->color; col2=write_page->background_color;
+      window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
+      imgrevert(write_page_index);
+      qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
+      write_page->color=col; write_page->background_color=col2;
+      selectfont(f,write_page);
+      return;
+    }//correct resolution
+    //fall through
       }//modes 9,10
 
       if ((write_page->compatible_mode>=11)&&(write_page->compatible_mode<=12)){
-	f=0;
-	if(write_page->height==height*8) f=8;
-	if(write_page->height==height*16) f=16;
-	if(f){//correct resolution
-	  if (write_page->font==f) return;//correct font, no change required
-	  if (write_page->flags&IMG_SCREEN){
-	    //delete pages 1-?
-	    for(i=1;i<pages;i++){
-	      if(i2=page[i]){
-		if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-		if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-		if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-		//manual delete, freeing video pages is usually illegal
-		if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-		freeimg(i2);
-	      }
-	    }//i
-	  }
-	  col=write_page->color; col2=write_page->background_color;
-	  window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
-	  imgrevert(write_page_index);
-	  qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
-	  write_page->color=col; write_page->background_color=col2;
-	  selectfont(f,write_page);
-	  return;
-	}//correct resolution
-	//fall through
+    f=0;
+    if(write_page->height==height*8) f=8;
+    if(write_page->height==height*16) f=16;
+    if(f){//correct resolution
+      if (write_page->font==f) return;//correct font, no change required
+      if (write_page->flags&IMG_SCREEN){
+        //delete pages 1-?
+        for(i=1;i<pages;i++){
+          if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+          }
+        }//i
+      }
+      col=write_page->color; col2=write_page->background_color;
+      window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
+      imgrevert(write_page_index);
+      qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
+      write_page->color=col; write_page->background_color=col2;
+      selectfont(f,write_page);
+      return;
+    }//correct resolution
+    //fall through
       }//modes 11,12
 
       //fall through:
       if ((height==25)||(height==50)||(height==43)){
-	sub_screen_height_in_characters=height; qbg_screen(0,0,0,0,0,1);
-	return;
+    sub_screen_height_in_characters=height; qbg_screen(0,0,0,0,0,1);
+    return;
       }
 
       goto error;
@@ -9599,120 +9599,120 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
       if (width<=0) goto error;
 
       if (!write_page->compatible_mode){//0
-	height=write_page->height;
-	f=8;
-	if (height<=49) f=14;
-	if (height<=42) f=16;
-	if (width<=40) f++;
-	if ((write_page->font==f)&&(write_page->width==width)) return;//no change
-	sub_screen_height_in_characters=height; sub_screen_width_in_characters=width;
-	sub_screen_font=f;
-	qbg_screen(0,0,0,0,0,1);
-	return;
+    height=write_page->height;
+    f=8;
+    if (height<=49) f=14;
+    if (height<=42) f=16;
+    if (width<=40) f++;
+    if ((write_page->font==f)&&(write_page->width==width)) return;//no change
+    sub_screen_height_in_characters=height; sub_screen_width_in_characters=width;
+    sub_screen_font=f;
+    qbg_screen(0,0,0,0,0,1);
+    return;
       }//0
 
       if (((write_page->compatible_mode>=1)&&(write_page->compatible_mode<=8))||(write_page->compatible_mode==13)){
-	if (write_page->width==width*8){//correct resolution
-	  if (write_page->font==8) return;//correct font, no change required
-	  if (write_page->flags&IMG_SCREEN){
-	    //delete pages 1-?
-	    for(i=1;i<pages;i++){
-	      if(i2=page[i]){
-		if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-		if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-		if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-		//manual delete, freeing video pages is usually illegal
-		if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-		freeimg(i2);
-	      }
-	    }//i
-	  }
-	  col=write_page->color; col2=write_page->background_color;
-	  imgrevert(write_page_index);
-	  write_page->color=col; write_page->background_color=col2;
-	  selectfont(8,write_page);
-	  return;
-	}//correct resolution
-	//fall through
+    if (write_page->width==width*8){//correct resolution
+      if (write_page->font==8) return;//correct font, no change required
+      if (write_page->flags&IMG_SCREEN){
+        //delete pages 1-?
+        for(i=1;i<pages;i++){
+          if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+          }
+        }//i
+      }
+      col=write_page->color; col2=write_page->background_color;
+      imgrevert(write_page_index);
+      write_page->color=col; write_page->background_color=col2;
+      selectfont(8,write_page);
+      return;
+    }//correct resolution
+    //fall through
       }//modes 1-8
 
       /*
-	SCREEN 9: 640 x 350 graphics
-	¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-	¦ 64K page size, page range is 0 (64K);
-	128K page size, page range is 0 (128K) or 0-1 (256K)
-	¦ 16 colors assigned to 4 attributes (64K adapter memory), or
-	64 colors assigned to 16 attributes (more than 64K adapter memory)
-	SCREEN 10: 640 x 350 graphics, monochrome monitor only
-	¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-	¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
-	¦ Up to 9 pseudocolors assigned to 4 attributes
+    SCREEN 9: 640 x 350 graphics
+    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    ¦ 64K page size, page range is 0 (64K);
+    128K page size, page range is 0 (128K) or 0-1 (256K)
+    ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+    64 colors assigned to 16 attributes (more than 64K adapter memory)
+    SCREEN 10: 640 x 350 graphics, monochrome monitor only
+    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
+    ¦ Up to 9 pseudocolors assigned to 4 attributes
       */
       if ((write_page->compatible_mode>=9)&&(write_page->compatible_mode<=10)){
-	f=0;
-	if (write_page->width==width*8) f=8;
-	if (f){//correct resolution
-	  f2=fontheight[write_page->font]; if (f2>8) f=14;
-	  if (write_page->font==f) return;//correct font, no change required
-	  if (write_page->flags&IMG_SCREEN){
-	    //delete pages 1-?
-	    for(i=1;i<pages;i++){
-	      if(i2=page[i]){
-		if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-		if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-		if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-		//manual delete, freeing video pages is usually illegal
-		if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-		freeimg(i2);
-	      }
-	    }//i
-	  }
-	  col=write_page->color; col2=write_page->background_color;
-	  window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
-	  imgrevert(write_page_index);
-	  qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
-	  write_page->color=col; write_page->background_color=col2;
-	  selectfont(f,write_page);
-	  return;
-	}//correct resolution
-	//fall through
+    f=0;
+    if (write_page->width==width*8) f=8;
+    if (f){//correct resolution
+      f2=fontheight[write_page->font]; if (f2>8) f=14;
+      if (write_page->font==f) return;//correct font, no change required
+      if (write_page->flags&IMG_SCREEN){
+        //delete pages 1-?
+        for(i=1;i<pages;i++){
+          if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+          }
+        }//i
+      }
+      col=write_page->color; col2=write_page->background_color;
+      window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
+      imgrevert(write_page_index);
+      qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
+      write_page->color=col; write_page->background_color=col2;
+      selectfont(f,write_page);
+      return;
+    }//correct resolution
+    //fall through
       }//modes 9,10
 
       if ((write_page->compatible_mode>=11)&&(write_page->compatible_mode<=12)){
-	f=0;
-	if (write_page->width==width*8) f=8;
-	if (f){//correct resolution
-	  f2=fontheight[write_page->font]; if (f2>8) f=16;
-	  if (write_page->font==f) return;//correct font, no change required
-	  if (write_page->flags&IMG_SCREEN){
-	    //delete pages 1-?
-	    for(i=1;i<pages;i++){
-	      if(i2=page[i]){
-		if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-		if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-		if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-		//manual delete, freeing video pages is usually illegal
-		if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-		freeimg(i2);
-	      }
-	    }//i
-	  }
-	  col=write_page->color; col2=write_page->background_color;
-	  window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
-	  imgrevert(write_page_index);
-	  qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
-	  write_page->color=col; write_page->background_color=col2;
-	  selectfont(f,write_page);
-	  return;
-	}//correct resolution
-	//fall through
+    f=0;
+    if (write_page->width==width*8) f=8;
+    if (f){//correct resolution
+      f2=fontheight[write_page->font]; if (f2>8) f=16;
+      if (write_page->font==f) return;//correct font, no change required
+      if (write_page->flags&IMG_SCREEN){
+        //delete pages 1-?
+        for(i=1;i<pages;i++){
+          if(i2=page[i]){
+        if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+        if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+        if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+        //manual delete, freeing video pages is usually illegal
+        if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+        freeimg(i2);
+          }
+        }//i
+      }
+      col=write_page->color; col2=write_page->background_color;
+      window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
+      imgrevert(write_page_index);
+      qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
+      write_page->color=col; write_page->background_color=col2;
+      selectfont(f,write_page);
+      return;
+    }//correct resolution
+    //fall through
       }//modes 11,12
 
       //fall through:
       if ((width==40)||(width==80)){
-	sub_screen_width_in_characters=width;
-	qbg_screen(0,0,0,0,0,1);
-	return;
+    sub_screen_width_in_characters=width;
+    qbg_screen(0,0,0,0,0,1);
+    return;
       }
 
       goto error;
@@ -9737,25 +9737,25 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
 
     if (((write_page->compatible_mode>=1)&&(write_page->compatible_mode<=8))||(write_page->compatible_mode==13)){
       if ((write_page->width==width*8)&&(write_page->height==height*8)){//correct resolution
-	if (write_page->font==8) return;//correct font, no change required
-	if (write_page->flags&IMG_SCREEN){
-	  //delete pages 1-?
-	  for(i=1;i<pages;i++){
-	    if(i2=page[i]){
-	      if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-	      if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-	      if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-	      //manual delete, freeing video pages is usually illegal
-	      if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-	      freeimg(i2);
-	    }
-	  }//i
-	}
-	col=write_page->color; col2=write_page->background_color;
-	imgrevert(write_page_index);
-	write_page->color=col; write_page->background_color=col2;
-	selectfont(8,write_page);
-	return;
+    if (write_page->font==8) return;//correct font, no change required
+    if (write_page->flags&IMG_SCREEN){
+      //delete pages 1-?
+      for(i=1;i<pages;i++){
+        if(i2=page[i]){
+          if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+          if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+          if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+          //manual delete, freeing video pages is usually illegal
+          if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+          freeimg(i2);
+        }
+      }//i
+    }
+    col=write_page->color; col2=write_page->background_color;
+    imgrevert(write_page_index);
+    write_page->color=col; write_page->background_color=col2;
+    selectfont(8,write_page);
+    return;
       }//correct resolution
       //fall through
     }//modes 1-8
@@ -9775,32 +9775,32 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
     if ((write_page->compatible_mode>=9)&&(write_page->compatible_mode<=10)){
       f=0;
       if (write_page->width==width*8){
-	if (write_page->height==height*8) f=8;
-	if (write_page->height==height*14) f=14;
-	if ((height==43)&&(write_page->height==350)) f=8;//?x350,8x8
+    if (write_page->height==height*8) f=8;
+    if (write_page->height==height*14) f=14;
+    if ((height==43)&&(write_page->height==350)) f=8;//?x350,8x8
       }
       if (f){//correct resolution
-	if (write_page->font==f) return;//correct font, no change required
-	if (write_page->flags&IMG_SCREEN){
-	  //delete pages 1-?
-	  for(i=1;i<pages;i++){
-	    if(i2=page[i]){
-	      if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-	      if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-	      if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-	      //manual delete, freeing video pages is usually illegal
-	      if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-	      freeimg(i2);
-	    }
-	  }//i
-	}
-	col=write_page->color; col2=write_page->background_color;
-	window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
-	imgrevert(write_page_index);
-	qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
-	write_page->color=col; write_page->background_color=col2;
-	selectfont(f,write_page);
-	return;
+    if (write_page->font==f) return;//correct font, no change required
+    if (write_page->flags&IMG_SCREEN){
+      //delete pages 1-?
+      for(i=1;i<pages;i++){
+        if(i2=page[i]){
+          if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+          if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+          if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+          //manual delete, freeing video pages is usually illegal
+          if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+          freeimg(i2);
+        }
+      }//i
+    }
+    col=write_page->color; col2=write_page->background_color;
+    window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
+    imgrevert(write_page_index);
+    qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
+    write_page->color=col; write_page->background_color=col2;
+    selectfont(f,write_page);
+    return;
       }//correct resolution
       //fall through
     }//modes 9,10
@@ -9809,32 +9809,32 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
       f=0;
       if (write_page->width==width*8){
 
-	if (write_page->height==height*8) f=8;
+    if (write_page->height==height*8) f=8;
 
-	if (write_page->height==height*16) f=16;
+    if (write_page->height==height*16) f=16;
       }
       if (f){//correct resolution
-	if (write_page->font==f) return;//correct font, no change required
-	if (write_page->flags&IMG_SCREEN){
-	  //delete pages 1-?
-	  for(i=1;i<pages;i++){
-	    if(i2=page[i]){
-	      if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
-	      if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
-	      if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
-	      //manual delete, freeing video pages is usually illegal
-	      if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
-	      freeimg(i2);
-	    }
-	  }//i
-	}
-	col=write_page->color; col2=write_page->background_color;
-	window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
-	imgrevert(write_page_index);
-	qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
-	write_page->color=col; write_page->background_color=col2;
-	selectfont(f,write_page);
-	return;
+    if (write_page->font==f) return;//correct font, no change required
+    if (write_page->flags&IMG_SCREEN){
+      //delete pages 1-?
+      for(i=1;i<pages;i++){
+        if(i2=page[i]){
+          if (display_page_index==i2){display_page_index=page[0]; display_page=&img[display_page_index];}
+          if (read_page_index==i2){read_page_index=display_page_index; read_page=display_page;}
+          if (write_page_index==i2){write_page_index=display_page_index; write_page=display_page;}
+          //manual delete, freeing video pages is usually illegal
+          if (img[i2].flags&IMG_FREEMEM) free(img[i2].offset);//free pixel data
+          freeimg(i2);
+        }
+      }//i
+    }
+    col=write_page->color; col2=write_page->background_color;
+    window_x1=write_page->window_x1; window_x2=write_page->window_x2; window_y1=write_page->window_y1; window_y2=write_page->window_y2;
+    imgrevert(write_page_index);
+    qbg_sub_window(window_x1,window_y1,window_x2,window_y2,1+2); write_page->clipping_or_scaling=0;
+    write_page->color=col; write_page->background_color=col2;
+    selectfont(f,write_page);
+    return;
       }//correct resolution
       //fall through
     }//modes 11,12
@@ -9842,14 +9842,14 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
     //fall through:
     if ((width==40)||(width==80)){
       if ((height==25)||(height==50)||(height==43)){
-	sub_screen_width_in_characters=width; sub_screen_height_in_characters=height;
-	f=16;
-	if (height==43) f=14;
-	if (height==50) f=8;
-	if (width==40) f++;
-	sub_screen_font=f;
-	qbg_screen(0,0,0,0,0,1);
-	return;
+    sub_screen_width_in_characters=width; sub_screen_height_in_characters=height;
+    f=16;
+    if (height==43) f=14;
+    if (height==50) f=8;
+    if (width==40) f++;
+    sub_screen_font=f;
+    qbg_screen(0,0,0,0,0,1);
+    return;
       }
 
       goto error;
@@ -9886,36 +9886,36 @@ void pset_and_clip(int32 x,int32 y,uint32 col){
     }else{
 
       if (write_page->alpha_disabled){
-	write_page->offset32[y*write_page->width+x]=col;
-	return;
+    write_page->offset32[y*write_page->width+x]=col;
+    return;
       }
       switch(col&0xFF000000){
       case 0xFF000000://100% alpha, so regular pset (fast)
-	write_page->offset32[y*write_page->width+x]=col;
-	return;
-	break;
+    write_page->offset32[y*write_page->width+x]=col;
+    return;
+    break;
       case 0x0://0%(0) alpha, so no pset (very fast)
-	return;
-	break;
+    return;
+    break;
       case 0x80000000://~50% alpha (optomized)
-	o32=write_page->offset32+(y*write_page->width+x);
-	*o32=(((*o32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*o32>>24]<<24);
-	return;
-	break; 
+    o32=write_page->offset32+(y*write_page->width+x);
+    *o32=(((*o32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend128[*o32>>24]<<24);
+    return;
+    break; 
       case 0x7F000000://~50% alpha (optomized)
-	o32=write_page->offset32+(y*write_page->width+x);
-	*o32=(((*o32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*o32>>24]<<24);
-	return;
-	break;
+    o32=write_page->offset32+(y*write_page->width+x);
+    *o32=(((*o32&0xFEFEFE)+(col&0xFEFEFE))>>1)+(ablend127[*o32>>24]<<24);
+    return;
+    break;
       default://other alpha values (uses a lookup table)
-	o32=write_page->offset32+(y*write_page->width+x);
-	destcol=*o32;
-	cp=cblend+(col>>24<<16);
-	*o32=
-	  cp[(col<<8&0xFF00)+(destcol&255)    ]
-	  +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
-	  +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
-	  +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
+    o32=write_page->offset32+(y*write_page->width+x);
+    destcol=*o32;
+    cp=cblend+(col>>24<<16);
+    *o32=
+      cp[(col<<8&0xFF00)+(destcol&255)    ]
+      +(cp[(col&0xFF00)   +(destcol>>8&255) ]<<8)
+      +(cp[(col>>8&0xFF00)+(destcol>>16&255)]<<16)
+      +(ablend[(col>>24)+(destcol>>16&0xFF00)]<<24);
       };
     }
 
@@ -10012,7 +10012,7 @@ void qb32_boxfill(float x1f,float y1f,float x2f,float y2f,uint32 col){
     while(y--){
       x=width;
       while(x--){
-	*doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend128[*doff32>>24]<<24);
+    *doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend128[*doff32>>24]<<24);
       }
       doff32+=d_width;
     }
@@ -10024,7 +10024,7 @@ void qb32_boxfill(float x1f,float y1f,float x2f,float y2f,uint32 col){
     while(y--){
       x=width;
       while(x--){
-	*doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend127[*doff32>>24]<<24);
+    *doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend127[*doff32>>24]<<24);
       }
       doff32+=d_width;
     }
@@ -10042,10 +10042,10 @@ void qb32_boxfill(float x1f,float y1f,float x2f,float y2f,uint32 col){
     while(x--){
       destcol=*doff32;
       *doff32++=
-	cp[destcol&255]
-	+(cp2[destcol>>8&255]<<8)
-	+(cp3[destcol>>16&255]<<16)
-	+(ablend[(destcol>>24)+a2]<<24);
+    cp[destcol&255]
+    +(cp2[destcol>>8&255]<<8)
+    +(cp3[destcol>>16&255]<<16)
+    +(ablend[(destcol>>24)+a2]<<24);
     }
     doff32+=d_width;
   }
@@ -10111,7 +10111,7 @@ void fast_boxfill(int32 x1,int32 y1,int32 x2,int32 y2,uint32 col){
     while(y--){
       x=width;
       while(x--){
-	*doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend128[*doff32>>24]<<24);
+    *doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend128[*doff32>>24]<<24);
       }
       doff32+=d_width;
     }
@@ -10123,7 +10123,7 @@ void fast_boxfill(int32 x1,int32 y1,int32 x2,int32 y2,uint32 col){
     while(y--){
       x=width;
       while(x--){
-	*doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend127[*doff32>>24]<<24);
+    *doff32++=(((*doff32&0xFEFEFE)+col)>>1)+(ablend127[*doff32>>24]<<24);
       }
       doff32+=d_width;
     }
@@ -10141,10 +10141,10 @@ void fast_boxfill(int32 x1,int32 y1,int32 x2,int32 y2,uint32 col){
     while(x--){
       destcol=*doff32;
       *doff32++=
-	cp[destcol&255]
-	+(cp2[destcol>>8&255]<<8)
-	+(cp3[destcol>>16&255]<<16)
-	+(ablend[(destcol>>24)+a2]<<24);
+    cp[destcol&255]
+    +(cp2[destcol>>8&255]<<8)
+    +(cp3[destcol>>16&255]<<16)
+    +(ablend[(destcol>>24)+a2]<<24);
     }
     doff32+=d_width;
   }
@@ -10178,19 +10178,19 @@ void fast_line(int32 x1,int32 y1,int32 x2,int32 y2,uint32 col){
       //x-axis distance is larger
       y1f=lineclip_y1;
       if (l){//following only applies if drawing more than one pixel
-	m=((float)lineclip_y2-(float)lineclip_y1)/(float)l;
-	if (lineclip_x2>=lineclip_x1) mi=1; else mi=-1;//direction of change
+    m=((float)lineclip_y2-(float)lineclip_y1)/(float)l;
+    if (lineclip_x2>=lineclip_x1) mi=1; else mi=-1;//direction of change
       }
       l++;
       while (l--){
-	if (y1f<0) lineclip_y1=y1f-0.5f; else lineclip_y1=y1f+0.5f;
+    if (y1f<0) lineclip_y1=y1f-0.5f; else lineclip_y1=y1f+0.5f;
 
-	//if ((style=_lrotl(style,1))&1){
-	pset(lineclip_x1,lineclip_y1,col);
-	//}
+    //if ((style=_lrotl(style,1))&1){
+    pset(lineclip_x1,lineclip_y1,col);
+    //}
 
-	lineclip_x1+=mi;
-	y1f+=m;
+    lineclip_x1+=mi;
+    y1f+=m;
       }
 
     }else{
@@ -10198,17 +10198,17 @@ void fast_line(int32 x1,int32 y1,int32 x2,int32 y2,uint32 col){
       //y-axis distance is larger
       x1f=lineclip_x1;
       if (l2){//following only applies if drawing more than one pixel
-	m=((float)lineclip_x2-(float)lineclip_x1)/(float)l2;
-	if (lineclip_y2>=lineclip_y1) mi=1; else mi=-1;//direction of change
+    m=((float)lineclip_x2-(float)lineclip_x1)/(float)l2;
+    if (lineclip_y2>=lineclip_y1) mi=1; else mi=-1;//direction of change
       }
       l2++;
       while (l2--){
-	if (x1f<0) lineclip_x1=x1f-0.5f; else lineclip_x1=x1f+0.5f;
-	//if ((style=_lrotl(style,1))&1){
-	pset(lineclip_x1,lineclip_y1,col);
-	//}
-	lineclip_y1+=mi;
-	x1f+=m;
+    if (x1f<0) lineclip_x1=x1f-0.5f; else lineclip_x1=x1f+0.5f;
+    //if ((style=_lrotl(style,1))&1){
+    pset(lineclip_x1,lineclip_y1,col);
+    //}
+    lineclip_y1+=mi;
+    x1f+=m;
       }
 
     }
@@ -10273,19 +10273,19 @@ void qb32_line(float x1f,float y1f,float x2f,float y2f,uint32 col,uint32 style){
       //x-axis distance is larger
       y1f=lineclip_y1;
       if (l){//following only applies if drawing more than one pixel
-	m=((float)lineclip_y2-(float)lineclip_y1)/(float)l;
-	if (lineclip_x2>=lineclip_x1) mi=1; else mi=-1;//direction of change
+    m=((float)lineclip_y2-(float)lineclip_y1)/(float)l;
+    if (lineclip_x2>=lineclip_x1) mi=1; else mi=-1;//direction of change
       }
       l++;
       while (l--){
-	if (y1f<0) lineclip_y1=y1f-0.5f; else lineclip_y1=y1f+0.5f;
+    if (y1f<0) lineclip_y1=y1f-0.5f; else lineclip_y1=y1f+0.5f;
 
-	if ((style=_lrotl(style,1))&1){
-	  pset(lineclip_x1,lineclip_y1,col);
-	}
+    if ((style=_lrotl(style,1))&1){
+      pset(lineclip_x1,lineclip_y1,col);
+    }
 
-	lineclip_x1+=mi;
-	y1f+=m;
+    lineclip_x1+=mi;
+    y1f+=m;
       }
 
     }else{
@@ -10293,17 +10293,17 @@ void qb32_line(float x1f,float y1f,float x2f,float y2f,uint32 col,uint32 style){
       //y-axis distance is larger
       x1f=lineclip_x1;
       if (l2){//following only applies if drawing more than one pixel
-	m=((float)lineclip_x2-(float)lineclip_x1)/(float)l2;
-	if (lineclip_y2>=lineclip_y1) mi=1; else mi=-1;//direction of change
+    m=((float)lineclip_x2-(float)lineclip_x1)/(float)l2;
+    if (lineclip_y2>=lineclip_y1) mi=1; else mi=-1;//direction of change
       }
       l2++;
       while (l2--){
-	if (x1f<0) lineclip_x1=x1f-0.5f; else lineclip_x1=x1f+0.5f;
-	if ((style=_lrotl(style,1))&1){
-	  pset(lineclip_x1,lineclip_y1,col);
-	}
-	lineclip_y1+=mi;
-	x1f+=m;
+    if (x1f<0) lineclip_x1=x1f-0.5f; else lineclip_x1=x1f+0.5f;
+    if ((style=_lrotl(style,1))&1){
+      pset(lineclip_x1,lineclip_y1,col);
+    }
+    lineclip_y1+=mi;
+    x1f+=m;
       }
 
     }
@@ -10511,145 +10511,145 @@ void sub_paint32(float x,float y,uint32 fillcol,uint32 bordercol,int32 passed){
     if (t&1){
       x2=ix-1; y2=iy;
       if (x2>=qbg_view_x1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    //--------plot pixel--------
-	    doff32=qbg_active_page_offset+offset;
-	    switch(fillcol&0xFF000000){
-	    case 0xFF000000:
-	      *doff32=fillcol;
-	      break;
-	    case 0x0:
-	      doff32;
-	      break;
-	    case 0x80000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	      break; 
-	    case 0x7F000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	      break;
-	    default:
-	      destcol=*doff32;
-	      cp=cblend+(fillcol>>24<<16);
-	      *doff32=
-		cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
-		+(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
-		+(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
-		+(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
-	    };//switch
-	    //--------done plot pixel--------
-	    b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        //--------plot pixel--------
+        doff32=qbg_active_page_offset+offset;
+        switch(fillcol&0xFF000000){
+        case 0xFF000000:
+          *doff32=fillcol;
+          break;
+        case 0x0:
+          doff32;
+          break;
+        case 0x80000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+          break; 
+        case 0x7F000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+          break;
+        default:
+          destcol=*doff32;
+          cp=cblend+(fillcol>>24<<16);
+          *doff32=
+        cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
+        +(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
+        +(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
+        +(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
+        };//switch
+        //--------done plot pixel--------
+        b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //right
     if (t&2){
       x2=ix+1; y2=iy;
       if (x2<=qbg_view_x2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    //--------plot pixel--------
-	    doff32=qbg_active_page_offset+offset;
-	    switch(fillcol&0xFF000000){
-	    case 0xFF000000:
-	      *doff32=fillcol;
-	      break;
-	    case 0x0:
-	      doff32;
-	      break;
-	    case 0x80000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	      break; 
-	    case 0x7F000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	      break;
-	    default:
-	      destcol=*doff32;
-	      cp=cblend+(fillcol>>24<<16);
-	      *doff32=
-		cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
-		+(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
-		+(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
-		+(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
-	    };//switch
-	    //--------done plot pixel--------
-	    b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        //--------plot pixel--------
+        doff32=qbg_active_page_offset+offset;
+        switch(fillcol&0xFF000000){
+        case 0xFF000000:
+          *doff32=fillcol;
+          break;
+        case 0x0:
+          doff32;
+          break;
+        case 0x80000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+          break; 
+        case 0x7F000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+          break;
+        default:
+          destcol=*doff32;
+          cp=cblend+(fillcol>>24<<16);
+          *doff32=
+        cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
+        +(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
+        +(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
+        +(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
+        };//switch
+        //--------done plot pixel--------
+        b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //above
     if (t&4){
       x2=ix; y2=iy-1;
       if (y2>=qbg_view_y1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    //--------plot pixel--------
-	    doff32=qbg_active_page_offset+offset;
-	    switch(fillcol&0xFF000000){
-	    case 0xFF000000:
-	      *doff32=fillcol;
-	      break;
-	    case 0x0:
-	      doff32;
-	      break;
-	    case 0x80000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	      break; 
-	    case 0x7F000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	      break;
-	    default:
-	      destcol=*doff32;
-	      cp=cblend+(fillcol>>24<<16);
-	      *doff32=
-		cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
-		+(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
-		+(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
-		+(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
-	    };//switch
-	    //--------done plot pixel--------
-	    b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        //--------plot pixel--------
+        doff32=qbg_active_page_offset+offset;
+        switch(fillcol&0xFF000000){
+        case 0xFF000000:
+          *doff32=fillcol;
+          break;
+        case 0x0:
+          doff32;
+          break;
+        case 0x80000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+          break; 
+        case 0x7F000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+          break;
+        default:
+          destcol=*doff32;
+          cp=cblend+(fillcol>>24<<16);
+          *doff32=
+        cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
+        +(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
+        +(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
+        +(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
+        };//switch
+        //--------done plot pixel--------
+        b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //below
     if (t&8){
       x2=ix; y2=iy+1;
       if (y2<=qbg_view_y2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    //--------plot pixel--------
-	    doff32=qbg_active_page_offset+offset;
-	    switch(fillcol&0xFF000000){
-	    case 0xFF000000:
-	      *doff32=fillcol;
-	      break;
-	    case 0x0:
-	      doff32;
-	      break;
-	    case 0x80000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
-	      break; 
-	    case 0x7F000000:
-	      *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
-	      break;
-	    default:
-	      destcol=*doff32;
-	      cp=cblend+(fillcol>>24<<16);
-	      *doff32=
-		cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
-		+(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
-		+(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
-		+(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
-	    };//switch
-	    //--------done plot pixel--------
-	    b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        //--------plot pixel--------
+        doff32=qbg_active_page_offset+offset;
+        switch(fillcol&0xFF000000){
+        case 0xFF000000:
+          *doff32=fillcol;
+          break;
+        case 0x0:
+          doff32;
+          break;
+        case 0x80000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend128[*doff32>>24]<<24);
+          break; 
+        case 0x7F000000:
+          *doff32=(((*doff32&0xFEFEFE)+(fillcol&0xFEFEFE))>>1)+(ablend127[*doff32>>24]<<24);
+          break;
+        default:
+          destcol=*doff32;
+          cp=cblend+(fillcol>>24<<16);
+          *doff32=
+        cp[(fillcol<<8&0xFF00)+(destcol&255)    ]
+        +(cp[(fillcol&0xFF00)   +(destcol>>8&255) ]<<8)
+        +(cp[(fillcol>>8&0xFF00)+(destcol>>16&255)]<<16)
+        +(ablend[(fillcol>>24)+(destcol>>16&0xFF00)]<<24);
+        };//switch
+        //--------done plot pixel--------
+        b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
   }//i
 
@@ -10749,49 +10749,49 @@ void sub_paint32x(float x,float y,uint32 fillcol,uint32 bordercol,int32 passed){
     if (t&1){
       x2=ix-1; y2=iy;
       if (x2>=qbg_view_x1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //right
     if (t&2){
       x2=ix+1; y2=iy;
       if (x2<=qbg_view_x2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //above
     if (t&4){
       x2=ix; y2=iy-1;
       if (y2>=qbg_view_y1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //below
     if (t&8){
       x2=ix; y2=iy+1;
       if (y2<=qbg_view_y2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
   }//i
 
@@ -10907,49 +10907,49 @@ void sub_paint(float x,float y,uint32 fillcol,uint32 bordercol,qbs *backgroundst
     if (t&1){
       x2=ix-1; y2=iy;
       if (x2>=qbg_view_x1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //right
     if (t&2){
       x2=ix+1; y2=iy;
       if (x2<=qbg_view_x2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //above
     if (t&4){
       x2=ix; y2=iy-1;
       if (y2>=qbg_view_y1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //below
     if (t&8){
       x2=ix; y2=iy+1;
       if (y2<=qbg_view_y2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
   }//i
 
@@ -11034,47 +11034,47 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
     static int32 x,y;
     for (y=0;y<sy;y++){
       if (qbg_bits_per_pixel==4){
-	bitvalue=128;
-	byte=0;
+    bitvalue=128;
+    byte=0;
       }
       for (x=0;x<sx;x++){
-	//get colour
-	if (qbg_bits_per_pixel==8){
-	  c=*cp;
-	  cp++;
-	}
-	if (qbg_bits_per_pixel==4){
-	  byte=x>>3;
-	  c=0;
-	  if (cp[byte]&bitvalue) c|=1;
-	  if (cp[row2offset+byte]&bitvalue) c|=2;
-	  if (cp[row3offset+byte]&bitvalue) c|=4;
-	  if (cp[row4offset+byte]&bitvalue) c|=8;
-	  bitvalue>>=1; if (bitvalue==0) bitvalue=128;
-	}
-	if (qbg_bits_per_pixel==1){
-	  if (!(x&7)){
-	    byte=*cp;
-	    cp++;
-	  }
-	  c=(byte&128)>>7; byte<<=1;
-	}
-	if (qbg_bits_per_pixel==2){
-	  if (!(x&3)){
-	    byte=*cp;
-	    cp++;
-	  }
-	  c=(byte&192)>>6; byte<<=2;
-	}
-	//"pset" color
-	tile[x][y]=c;
+    //get colour
+    if (qbg_bits_per_pixel==8){
+      c=*cp;
+      cp++;
+    }
+    if (qbg_bits_per_pixel==4){
+      byte=x>>3;
+      c=0;
+      if (cp[byte]&bitvalue) c|=1;
+      if (cp[row2offset+byte]&bitvalue) c|=2;
+      if (cp[row3offset+byte]&bitvalue) c|=4;
+      if (cp[row4offset+byte]&bitvalue) c|=8;
+      bitvalue>>=1; if (bitvalue==0) bitvalue=128;
+    }
+    if (qbg_bits_per_pixel==1){
+      if (!(x&7)){
+        byte=*cp;
+        cp++;
+      }
+      c=(byte&128)>>7; byte<<=1;
+    }
+    if (qbg_bits_per_pixel==2){
+      if (!(x&3)){
+        byte=*cp;
+        cp++;
+      }
+      c=(byte&192)>>6; byte<<=2;
+    }
+    //"pset" color
+    tile[x][y]=c;
       }//x
       if (qbg_bits_per_pixel==4) cp+=(bytesperrow*4);
       if (qbg_bits_per_pixel==1){
-	if (sx&7) cp++;
+    if (sx&7) cp++;
       }
       if (qbg_bits_per_pixel==2){
-	if (sx&3) cp++;
+    if (sx&3) cp++;
       }
     }//y
   }//unlayer
@@ -11178,59 +11178,59 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
     if (t&1){
       x2=ix-1; y2=iy;
       if (x2>=qbg_view_x1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    fillcol=tile[x2%sx][y2%sy];
-	    //no tile check required when moving horizontally!
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        fillcol=tile[x2%sx][y2%sy];
+        //no tile check required when moving horizontally!
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //right
     if (t&2){
       x2=ix+1; y2=iy;
       if (x2<=qbg_view_x2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    fillcol=tile[x2%sx][y2%sy];
-	    //no tile check required when moving horizontally!
-	    qbg_active_page_offset[offset]=fillcol;
-	    b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        fillcol=tile[x2%sx][y2%sy];
+        //no tile check required when moving horizontally!
+        qbg_active_page_offset[offset]=fillcol;
+        b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+      }}}}
 
     //above
     if (t&4){
       x2=ix; y2=iy-1;
       if (y2>=qbg_view_y1){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    fillcol=tile[x2%sx][y2%sy];
-	    if ((fillcol!=qbg_active_page_offset[offset])||(fillcol==backgroundcol)){
-	      qbg_active_page_offset[offset]=fillcol;
-	      b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	    }
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        fillcol=tile[x2%sx][y2%sy];
+        if ((fillcol!=qbg_active_page_offset[offset])||(fillcol==backgroundcol)){
+          qbg_active_page_offset[offset]=fillcol;
+          b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+        }
+      }}}}
 
     //below
     if (t&8){
       x2=ix; y2=iy+1;
       if (y2<=qbg_view_y2){
-	offset=y2*qbg_width+x2;
-	if (!done[offset]){
-	  done[offset]=1;
-	  if (qbg_active_page_offset[offset]!=bordercol){
-	    fillcol=tile[x2%sx][y2%sy];
-	    if ((fillcol!=qbg_active_page_offset[offset])||(fillcol==backgroundcol)){
-	      qbg_active_page_offset[offset]=fillcol;
-	      b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-	    }
-	  }}}}
+    offset=y2*qbg_width+x2;
+    if (!done[offset]){
+      done[offset]=1;
+      if (qbg_active_page_offset[offset]!=bordercol){
+        fillcol=tile[x2%sx][y2%sy];
+        if ((fillcol!=qbg_active_page_offset[offset])||(fillcol==backgroundcol)){
+          qbg_active_page_offset[offset]=fillcol;
+          b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
+        }
+      }}}}
 
   }//i
 
@@ -11463,13 +11463,13 @@ double func_point(float x,float y,int32 passed){
     switch(i){
     case 0:
       if (write_page->clipping_or_scaling==2){
-	return qbr_float_to_long(write_page->x*write_page->scaling_x+write_page->scaling_offset_x);
+    return qbr_float_to_long(write_page->x*write_page->scaling_x+write_page->scaling_offset_x);
       }
       return qbr_float_to_long(write_page->x);
       break;
     case 1:
       if (write_page->clipping_or_scaling==2){
-	return qbr_float_to_long(write_page->y*write_page->scaling_y+write_page->scaling_offset_y);
+    return qbr_float_to_long(write_page->y*write_page->scaling_y+write_page->scaling_offset_y);
       }
       return qbr_float_to_long(write_page->y);
       break;
@@ -11499,9 +11499,9 @@ double func_point(float x,float y,int32 passed){
   if (x2>=read_page->view_x1){ 
     if (x2<=read_page->view_x2){
       if (y2>=read_page->view_y1){ 
-	if (y2<=read_page->view_y2){
-	  return point(x2,y2);
-	}
+    if (y2<=read_page->view_y2){
+      return point(x2,y2);
+    }
       }
     }
   }
@@ -11531,15 +11531,15 @@ void sub_pset(float x,float y,uint32 col,int32 passed){
       x2=qbr(write_page->x)+write_page->view_offset_x; y2=qbr(write_page->y)+write_page->view_offset_y;
     }
     if (x2>=write_page->view_x1){ if (x2<=write_page->view_x2){
-	if (y2>=write_page->view_y1){ if (y2<=write_page->view_y2){
-	    pset(x2,y2,col);
-	  }}}}
+    if (y2>=write_page->view_y1){ if (y2<=write_page->view_y2){
+        pset(x2,y2,col);
+      }}}}
     return;
   }else{
     x2=qbr(write_page->x); if (x2>=0){ if (x2<write_page->width){
-	y2=qbr(write_page->y); if (y2>=0){ if (y2<write_page->height){
-	    pset(x2,y2,col);
-	  }}}}
+    y2=qbr(write_page->y); if (y2>=0){ if (y2<write_page->height){
+        pset(x2,y2,col);
+      }}}}
   }
   return;
 }
@@ -11602,35 +11602,35 @@ void printchr(int32 character){
       //int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
       //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
       ok=FontRenderTextASCII(font[f],(uint8*)&character,1,1,
-			     &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+                 &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
       if (!ok) return;
 
       w=rt_w;
 
       switch(im->print_mode){
       case 3:
-	for (y2=0;y2<h;y2++){
-	  cp=rt_data+y2*w;
-	  for (x2=0;x2<w;x2++){
-	    if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){
+      cp=rt_data+y2*w;
+      for (x2=0;x2<w;x2++){
+        if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
+      }}
+    break;
       case 1:
-	for (y2=0;y2<h;y2++){
-	  cp=rt_data+y2*w;
-	  for (x2=0;x2<w;x2++){
-	    if (*cp++) pset(x+x2,y+y2,color);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){
+      cp=rt_data+y2*w;
+      for (x2=0;x2<w;x2++){
+        if (*cp++) pset(x+x2,y+y2,color);
+      }}
+    break;
       case 2:
-	for (y2=0;y2<h;y2++){
-	  cp=rt_data+y2*w;
-	  for (x2=0;x2<w;x2++){
-	    if (!(*cp++)) pset(x+x2,y+y2,background_color);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){
+      cp=rt_data+y2*w;
+      for (x2=0;x2<w;x2++){
+        if (!(*cp++)) pset(x+x2,y+y2,background_color);
+      }}
+    break;
       default:
-	break;
+    break;
       }
 
       free(rt_data);
@@ -11648,7 +11648,7 @@ void printchr(int32 character){
     //int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
     //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
     ok=FontRenderTextASCII(font[f],(uint8*)&character,1,0,
-			   &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+               &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
     if (!ok) return;
 
     w=rt_w;
@@ -11669,42 +11669,42 @@ void printchr(int32 character){
       static float d;
  
       for (y2=0;y2<h;y2++){
-	cp=rt_data+y2*w;
-	for (x2=0;x2<w;x2++){
+    cp=rt_data+y2*w;
+    for (x2=0;x2<w;x2++){
 
-	  d=*cp++;
-	  d=255-d;
-	  d/=255.0;
-	  static float r3,g3,b3,alpha3;
-	  alpha3=alpha1+da*d;
-	  d*=cw; if (d>1.0) d=1.0;
-	  r3=r1+dr*d;
-	  g3=g1+dg*d;
-	  b3=b1+db*d;
-	  static int32 r4,g4,b4,alpha4;
-	  r4=qbr_float_to_long(r3);
-	  g4=qbr_float_to_long(g3);
-	  b4=qbr_float_to_long(b3);
-	  alpha4=qbr_float_to_long(alpha3);
-	  pset(x+x2,y+y2,b4+(g4<<8)+(r4<<16)+(alpha4<<24));
+      d=*cp++;
+      d=255-d;
+      d/=255.0;
+      static float r3,g3,b3,alpha3;
+      alpha3=alpha1+da*d;
+      d*=cw; if (d>1.0) d=1.0;
+      r3=r1+dr*d;
+      g3=g1+dg*d;
+      b3=b1+db*d;
+      static int32 r4,g4,b4,alpha4;
+      r4=qbr_float_to_long(r3);
+      g4=qbr_float_to_long(g3);
+      b4=qbr_float_to_long(b3);
+      alpha4=qbr_float_to_long(alpha3);
+      pset(x+x2,y+y2,b4+(g4<<8)+(r4<<16)+(alpha4<<24));
 
-	}}
+    }}
       break;
     case 1:
       for (y2=0;y2<h;y2++){
-	cp=rt_data+y2*w;
-	for (x2=0;x2<w;x2++){
-	  z3=*cp++;
-	  if (z3) pset(x+x2,y+y2,((z3*a)>>8<<24)+z);
-	}}
+    cp=rt_data+y2*w;
+    for (x2=0;x2<w;x2++){
+      z3=*cp++;
+      if (z3) pset(x+x2,y+y2,((z3*a)>>8<<24)+z);
+    }}
       break;
     case 2:
       for (y2=0;y2<h;y2++){
-	cp=rt_data+y2*w;
-	for (x2=0;x2<w;x2++){
-	  z3=*cp++;
-	  if (z3!=255) pset(x+x2,y+y2,(((255-z3)*a2)>>8<<24)+z2);
-	}}
+    cp=rt_data+y2*w;
+    for (x2=0;x2<w;x2++){
+      z3=*cp++;
+      if (z3!=255) pset(x+x2,y+y2,(((255-z3)*a2)>>8<<24)+z2);
+    }}
       break;
     default:
       break;
@@ -11721,17 +11721,17 @@ void printchr(int32 character){
   switch(im->print_mode){
   case 3:
     for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
-	if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
+    if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
       }}
     break;
   case 1:
     for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
-	if (*cp++) pset(x+x2,y+y2,color);
+    if (*cp++) pset(x+x2,y+y2,color);
       }}
     break;
   case 2:
     for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
-	if (!(*cp++)) pset(x+x2,y+y2,background_color);
+    if (!(*cp++)) pset(x+x2,y+y2,background_color);
       }}
     break;
   default:
@@ -11769,11 +11769,11 @@ int32 chrwidth(uint32 character){
 
   if ((fontflags[f]&32)){//UNICODE character
     ok=FontRenderTextUTF32(font[f],(uint32*)&character,1,render_option,
-			   &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+               &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
   }else{//ASCII character
     character&=255;
     ok=FontRenderTextASCII(font[f],(uint8*)&character,1,render_option,
-			   &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+               &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
   }
   if (!ok) return 0;
   free(rt_data);
@@ -11804,10 +11804,10 @@ void newline(){
       //text
       //move lines up
       memmove(
-	      write_page->offset+(write_page->top_row-1)*2*write_page->width,
-	      write_page->offset+ write_page->top_row   *2*write_page->width,
-	      (write_page->bottom_row-write_page->top_row)*2*write_page->width
-	      );
+          write_page->offset+(write_page->top_row-1)*2*write_page->width,
+          write_page->offset+ write_page->top_row   *2*write_page->width,
+          (write_page->bottom_row-write_page->top_row)*2*write_page->width
+          );
       //erase bottom line
       z2=(write_page->color&0xF)+(write_page->background_color&7)*16+(write_page->color&16)*8;
       z2<<=8;
@@ -11819,19 +11819,19 @@ void newline(){
       //graphics
       //move lines up
       memmove(
-	      write_page->offset+(write_page->top_row-1)*write_page->bytes_per_pixel*write_page->width*fontheight[write_page->font],
-	      write_page->offset+ write_page->top_row   *write_page->bytes_per_pixel*write_page->width*fontheight[write_page->font],
-	      (write_page->bottom_row-write_page->top_row)*write_page->bytes_per_pixel*write_page->width*fontheight[write_page->font]
-	      );
+          write_page->offset+(write_page->top_row-1)*write_page->bytes_per_pixel*write_page->width*fontheight[write_page->font],
+          write_page->offset+ write_page->top_row   *write_page->bytes_per_pixel*write_page->width*fontheight[write_page->font],
+          (write_page->bottom_row-write_page->top_row)*write_page->bytes_per_pixel*write_page->width*fontheight[write_page->font]
+          );
       //erase bottom line
       if (write_page->bytes_per_pixel==1){
-	memset(write_page->offset+(write_page->bottom_row-1)*write_page->width*fontheight[write_page->font],write_page->background_color,write_page->width*fontheight[write_page->font]);
+    memset(write_page->offset+(write_page->bottom_row-1)*write_page->width*fontheight[write_page->font],write_page->background_color,write_page->width*fontheight[write_page->font]);
       }else{
-	//assume 32-bit
-	z2=write_page->background_color;
-	lp=write_page->offset32+(write_page->bottom_row-1)*write_page->width*fontheight[write_page->font];
-	z=write_page->width*fontheight[write_page->font];
-	while(z--) *lp++=z2;
+    //assume 32-bit
+    z2=write_page->background_color;
+    lp=write_page->offset32+(write_page->bottom_row-1)*write_page->width*fontheight[write_page->font];
+    z=write_page->width*fontheight[write_page->font];
+    while(z--) *lp++=z2;
       }
     }//graphics
     write_page->cursor_y=write_page->bottom_row;
@@ -11873,7 +11873,7 @@ void tab(){
   text:
     if (write_page->cursor_x!=1){
       if (((write_page->cursor_x-1)%14)||(write_page->cursor_x>(write_page->width-13))){
-	if (write_page->cursor_x<write_page->width){qbs_print(singlespace,0); goto text;}
+    if (write_page->cursor_x<write_page->width){qbs_print(singlespace,0); goto text;}
       }
     }//!=1
     return;
@@ -11905,7 +11905,7 @@ void tab(){
   fixwid:
     if (write_page->cursor_x!=1){
       if (((write_page->cursor_x-1)%14)||(write_page->cursor_x>(w-13))){
-	if (write_page->cursor_x<w){qbs_print(singlespace,0); goto fixwid;}
+    if (write_page->cursor_x<w){qbs_print(singlespace,0); goto fixwid;}
       }
     }//!=1
 
@@ -12016,29 +12016,29 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
     if (character==28){
       //advance one cursor position
       if (lprint){
-	if (lpos<width_lprint) lpos++;
+    if (lpos<width_lprint) lpos++;
       }
       //can cursor advance?
       if (write_page->cursor_y>=write_page->bottom_row){
-	if (write_page->text){
-	  if (write_page->cursor_x>=write_page->width) goto skip;
-	}else{
-	  if (fontwidth[write_page->font]){
-	    if (write_page->cursor_x>=(write_page->width/fontwidth[write_page->font])) goto skip;
-	  }else{
-	    if (write_page->cursor_x>=write_page->width) goto skip;
-	  }
-	} 
+    if (write_page->text){
+      if (write_page->cursor_x>=write_page->width) goto skip;
+    }else{
+      if (fontwidth[write_page->font]){
+        if (write_page->cursor_x>=(write_page->width/fontwidth[write_page->font])) goto skip;
+      }else{
+        if (write_page->cursor_x>=write_page->width) goto skip;
+      }
+    } 
       }
       write_page->cursor_x++;
       if (write_page->text){
-	if (write_page->cursor_x>write_page->width){write_page->cursor_y++; write_page->cursor_x=1;}
+    if (write_page->cursor_x>write_page->width){write_page->cursor_y++; write_page->cursor_x=1;}
       }else{
-	if (fontwidth[write_page->font]){
-	  if (write_page->cursor_x>(write_page->width/fontwidth[write_page->font])){write_page->cursor_y++; write_page->cursor_x=1;}
-	}else{
-	  if (write_page->cursor_x>write_page->width){write_page->cursor_y++; write_page->cursor_x=1;}
-	}
+    if (fontwidth[write_page->font]){
+      if (write_page->cursor_x>(write_page->width/fontwidth[write_page->font])){write_page->cursor_y++; write_page->cursor_x=1;}
+    }else{
+      if (write_page->cursor_x>write_page->width){write_page->cursor_y++; write_page->cursor_x=1;}
+    }
       } 
       goto skip;
     }
@@ -12046,24 +12046,24 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
     if (character==29){
       //go back one cursor position
       if (lprint){
-	if (lpos>1) lpos--;
+    if (lpos>1) lpos--;
       }
       //can cursor go back?
       if ((write_page->cursor_y==write_page->top_row)||(write_page->cursor_y>write_page->bottom_row)){
-	if (write_page->cursor_x==1) goto skip;
+    if (write_page->cursor_x==1) goto skip;
       }
       write_page->cursor_x--;
       if (write_page->cursor_x<1){
-	write_page->cursor_y--;
-	if (write_page->text){
-	  write_page->cursor_x=write_page->width;
-	}else{
-	  if (fontwidth[write_page->font]){
-	    write_page->cursor_x=write_page->width/fontwidth[write_page->font];
-	  }else{
-	    write_page->cursor_x=write_page->width;
-	  }
-	} 
+    write_page->cursor_y--;
+    if (write_page->text){
+      write_page->cursor_x=write_page->width;
+    }else{
+      if (fontwidth[write_page->font]){
+        write_page->cursor_x=write_page->width/fontwidth[write_page->font];
+      }else{
+        write_page->cursor_x=write_page->width;
+      }
+    } 
       }
       goto skip;
     }
@@ -12072,7 +12072,7 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
       //previous row, same column
       //no change if cursor not within view print boundries
       if ((write_page->cursor_y>write_page->top_row)&&(write_page->cursor_y<=write_page->bottom_row)){
-	write_page->cursor_y--;
+    write_page->cursor_y--;
       }
       goto skip;
     }
@@ -12081,7 +12081,7 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
       //next row, same column
       //no change if cursor not within view print boundries
       if ((write_page->cursor_y>=write_page->top_row)&&(write_page->cursor_y<write_page->bottom_row)){
-	write_page->cursor_y++;
+    write_page->cursor_y++;
       }
       goto skip;
     }
@@ -12105,25 +12105,25 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
     if (character==9){
       //moves to next multiple of 8 (always advances at least one space)
       if (!fontwidth[write_page->font]){
-	//variable width!
-	x=write_page->cursor_x-1;
-	x2=(x/64+1)*64;//next position
-	if (x2>=write_page->width){//it doesn't fit on line
-	  //box fill x to end of line with background color
-	  fast_boxfill(x,(write_page->cursor_y-1)*fontheight[write_page->font],write_page->width-1,write_page->cursor_y*fontheight[write_page->font]-1,write_page->background_color);
-	  newline();
-	  entered_new_line=1;
-	}else{//fits on line
-	  //box fill x to x2-1 with background color
-	  fast_boxfill(x,(write_page->cursor_y-1)*fontheight[write_page->font],x2-1,write_page->cursor_y*fontheight[write_page->font]-1,write_page->background_color);
-	  write_page->cursor_x=x2;
-	}
-	goto skip;
+    //variable width!
+    x=write_page->cursor_x-1;
+    x2=(x/64+1)*64;//next position
+    if (x2>=write_page->width){//it doesn't fit on line
+      //box fill x to end of line with background color
+      fast_boxfill(x,(write_page->cursor_y-1)*fontheight[write_page->font],write_page->width-1,write_page->cursor_y*fontheight[write_page->font]-1,write_page->background_color);
+      newline();
+      entered_new_line=1;
+    }else{//fits on line
+      //box fill x to x2-1 with background color
+      fast_boxfill(x,(write_page->cursor_y-1)*fontheight[write_page->font],x2-1,write_page->cursor_y*fontheight[write_page->font]-1,write_page->background_color);
+      write_page->cursor_x=x2;
+    }
+    goto skip;
       }else{
-	if (write_page->cursor_x%8){//next cursor position not a multiple of 8
-	  i--;//more spaces will be required
-	}
-	character=32;//override character 9
+    if (write_page->cursor_x%8){//next cursor position not a multiple of 8
+      i--;//more spaces will be required
+    }
+    character=32;//override character 9
       }
     }//9
 
@@ -12147,8 +12147,8 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
     if (!fontwidth[write_page->font]){//unpredictable width
       w=chrwidth(character);
       if ((write_page->cursor_x+w)>write_page->width){
-	newline();
-	//entered_new_line not set, a character will follow
+    newline();
+    //entered_new_line not set, a character will follow
       }
     }
 
@@ -12159,10 +12159,10 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
     if (lprint){
       lpos++;
       if (lpos>width_lprint){
-	newline();
-	entered_new_line=1;
-	lpos=1;
-	goto skip;//skip cursor advancement and checking because new line entered
+    newline();
+    entered_new_line=1;
+    lpos=1;
+    goto skip;//skip cursor advancement and checking because new line entered
       }
     }
 
@@ -12178,28 +12178,28 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
       x=fontwidth[write_page->font]; if (!x) x=1;
       x2=x*(write_page->cursor_x-1);
       if (x2>(write_page->width-x)){
-	if (!finish_on_new_line){
-	  if (i==(str->len-1)){//last character
-	    //move horizontal cursor back to right-most valid position
-	    write_page->cursor_x=write_page->width/x;
-	    write_page->holding_cursor=1;
-	    goto held_cursor;
-	  }
-	}
-	newline();
-	entered_new_line=1;
+    if (!finish_on_new_line){
+      if (i==(str->len-1)){//last character
+        //move horizontal cursor back to right-most valid position
+        write_page->cursor_x=write_page->width/x;
+        write_page->holding_cursor=1;
+        goto held_cursor;
+      }
+    }
+    newline();
+    entered_new_line=1;
       }
     }else{//text
       if (write_page->cursor_x>write_page->width){
-	if (!finish_on_new_line){
-	  if (i==(str->len-1)){//last character
-	    write_page->cursor_x--;//move horizontal cursor back to right-most valid position
-	    write_page->holding_cursor=1;
-	    goto held_cursor;
-	  }
-	}
-	newline();
-	entered_new_line=1;
+    if (!finish_on_new_line){
+      if (i==(str->len-1)){//last character
+        write_page->cursor_x--;//move horizontal cursor back to right-most valid position
+        write_page->holding_cursor=1;
+        goto held_cursor;
+      }
+    }
+    newline();
+    entered_new_line=1;
       }
     }
   held_cursor:
@@ -12351,12 +12351,12 @@ void qbg_sub_window(float x1,float y1,float x2,float y2,int32 passed){
 
 
     if (x1==0){ if (y1==0){ if (x2==(write_page->width-1)){ if (y2==(write_page->height-1)){
-	    if ((write_page->scaling_x==1)&&(write_page->scaling_y==1)){
-	      if ((write_page->scaling_offset_x==0)&&(write_page->scaling_offset_y==0)){
-		goto qbg_sub_window_restore_default;
-	      }
-	    }
-	  }}}}
+        if ((write_page->scaling_x==1)&&(write_page->scaling_y==1)){
+          if ((write_page->scaling_offset_x==0)&&(write_page->scaling_offset_y==0)){
+        goto qbg_sub_window_restore_default;
+          }
+        }
+      }}}}
 
     //adjust qbg_x & qbg_y according to new window
     write_page->x=(old_x-write_page->scaling_offset_x)/write_page->scaling_x;
@@ -12373,10 +12373,10 @@ void qbg_sub_window(float x1,float y1,float x2,float y2,int32 passed){
     write_page->scaling_offset_y=0;
     write_page->window_x1=0; write_page->window_x2=write_page->width-1; write_page->window_y1=0; write_page->window_y2=write_page->height-1;
     if (write_page->view_x1==0){ if (write_page->view_y1==0){ if (write_page->view_x2==(write_page->width-1)){ if (write_page->view_y2==(write_page->height-1)){
-	    if (write_page->view_offset_x==0){ if (write_page->view_offset_y==0){
-		write_page->clipping_or_scaling=0;
-	      }}
-	  }}}}
+        if (write_page->view_offset_x==0){ if (write_page->view_offset_y==0){
+        write_page->clipping_or_scaling=0;
+          }}
+      }}}}
 
     //adjust qbg_x & qbg_y according to new window
     write_page->x=old_x;
@@ -12488,27 +12488,27 @@ void qbg_sub_view(int32 x1,int32 y1,int32 x2,int32 y2,int32 fillcolor,int32 bord
     by=write_page->view_y1-1;
     if ((by>=0)&&(by<write_page->height)){
       for (bx=write_page->view_x1-1;bx<=write_page->view_x2;bx++){
-	if ((bx>=0)&&(bx<write_page->width)){
-	  pset(bx,by,bordercolor);
-	}}}
+    if ((bx>=0)&&(bx<write_page->width)){
+      pset(bx,by,bordercolor);
+    }}}
     by=write_page->view_y2+1;
     if ((by>=0)&&(by<write_page->height)){
       for (bx=write_page->view_x1-1;bx<=write_page->view_x2;bx++){
-	if ((bx>=0)&&(bx<write_page->width)){
-	  pset(bx,by,bordercolor);
-	}}}
+    if ((bx>=0)&&(bx<write_page->width)){
+      pset(bx,by,bordercolor);
+    }}}
     bx=write_page->view_x1-1;
     if ((bx>=0)&&(bx<write_page->width)){
       for (by=write_page->view_y1-1;by<=write_page->view_y2;by++){
-	if ((by>=0)&&(by<write_page->height)){
-	  pset(bx,by,bordercolor);
-	}}}
+    if ((by>=0)&&(by<write_page->height)){
+      pset(bx,by,bordercolor);
+    }}}
     bx=write_page->view_x2+1;
     if ((bx>=0)&&(bx<write_page->width)){
       for (by=write_page->view_y1-1;by<=(write_page->view_y2+1);by++){
-	if ((by>=0)&&(by<write_page->height)){
-	  pset(bx,by,bordercolor);
-	}}}
+    if ((by>=0)&&(by<write_page->height)){
+      pset(bx,by,bordercolor);
+    }}}
   }
 
   return;
@@ -12571,19 +12571,19 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     }else{//graphics
       //graphics view port
       if (write_page->bytes_per_pixel==1){//8-bit
-	if (write_page->clipping_or_scaling){
-	  qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
-	}else{//fast method (no clipping/scaling)
-	  memset(write_page->offset,use_color,write_page->width*write_page->height);
-	}
+    if (write_page->clipping_or_scaling){
+      qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
+    }else{//fast method (no clipping/scaling)
+      memset(write_page->offset,use_color,write_page->width*write_page->height);
+    }
       }else{//32-bit
-	i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
-	if (write_page->clipping_or_scaling){
-	  qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
-	}else{//fast method (no clipping/scaling)
-	  fast_boxfill(0,0,write_page->width-1,write_page->height-1,use_color);
-	}
-	write_page->alpha_disabled=i;
+    i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
+    if (write_page->clipping_or_scaling){
+      qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
+    }else{//fast method (no clipping/scaling)
+      fast_boxfill(0,0,write_page->width-1,write_page->height-1,use_color);
+    }
+    write_page->alpha_disabled=i;
       }
     }
 
@@ -12608,11 +12608,11 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
       return;
     }else{
       if (write_page->bytes_per_pixel==1){
-	memset(write_page->offset,use_color,write_page->width*write_page->height);
+    memset(write_page->offset,use_color,write_page->width*write_page->height);
       }else{ 
-	i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
-	fast_boxfill(0,0,write_page->width-1,write_page->height-1,use_color);
-	write_page->alpha_disabled=i;
+    i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
+    fast_boxfill(0,0,write_page->width-1,write_page->height-1,use_color);
+    write_page->alpha_disabled=i;
       }
     }
 
@@ -12633,16 +12633,16 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     //graphics view port
     if (write_page->bytes_per_pixel==1){//8-bit
       if (write_page->clipping_or_scaling){
-	qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
+    qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
       }else{//fast method (no clipping/scaling)
-	memset(write_page->offset,use_color,write_page->width*write_page->height);
+    memset(write_page->offset,use_color,write_page->width*write_page->height);
       }
     }else{//32-bit
       i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
       if (write_page->clipping_or_scaling){
-	qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
+    qb32_boxfill(write_page->window_x1,write_page->window_y1,write_page->window_x2,write_page->window_y2,use_color);
       }else{//fast method (no clipping/scaling)
-	fast_boxfill(0,0,write_page->width-1,write_page->height-1,use_color);
+    fast_boxfill(0,0,write_page->width-1,write_page->height-1,use_color);
       }
       write_page->alpha_disabled=i;
     }
@@ -12670,11 +12670,11 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     }else{
       //text viewport
       if (write_page->bytes_per_pixel==1){//8-bit
-	memset(&write_page->offset[write_page->width*fontheight[write_page->font]*(write_page->top_row-1)],use_color,write_page->width*fontheight[write_page->font]*(write_page->bottom_row-write_page->top_row+1));
+    memset(&write_page->offset[write_page->width*fontheight[write_page->font]*(write_page->top_row-1)],use_color,write_page->width*fontheight[write_page->font]*(write_page->bottom_row-write_page->top_row+1));
       }else{//32-bit
-	i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
-	fast_boxfill(0,fontheight[write_page->font]*(write_page->top_row-1),write_page->width-1,fontheight[write_page->font]*write_page->bottom_row-1,use_color);
-	write_page->alpha_disabled=i;
+    i=write_page->alpha_disabled; write_page->alpha_disabled=1;  
+    fast_boxfill(0,fontheight[write_page->font]*(write_page->top_row-1),write_page->width-1,fontheight[write_page->font]*write_page->bottom_row-1,use_color);
+    write_page->alpha_disabled=i;
       }
       //should not and does not redraw KEY bar
       return;
@@ -12711,23 +12711,23 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
     if (row<write_page->top_row) goto error;
     if ((row!=h)&&(row>write_page->bottom_row)){
       if (width8050switch){//note: can assume WIDTH 80,25 as no SCREEN or WIDTH statements have been called
-	width8050switch=0;
-	if (row<=50){
-	  if (passed&2){
-	    if (column<1) goto error;
-	    if (column>w) goto error;
-	  }
-	  char *buffer;
-	  uint32 c,c2;
-	  buffer=(char*)malloc(80*25*2);
-	  c=write_page->color; c2=write_page->background_color;
-	  memcpy(buffer,&cmem[0xB8000],80*25*2);
-	  qbsub_width(0,80,50,3);
-	  memcpy(&cmem[0xB8000],buffer,80*25*2);
-	  write_page->color=c; write_page->background_color=c2;
-	  free(buffer);
-	  goto width8050switch_done;
-	}
+    width8050switch=0;
+    if (row<=50){
+      if (passed&2){
+        if (column<1) goto error;
+        if (column>w) goto error;
+      }
+      char *buffer;
+      uint32 c,c2;
+      buffer=(char*)malloc(80*25*2);
+      c=write_page->color; c2=write_page->background_color;
+      memcpy(buffer,&cmem[0xB8000],80*25*2);
+      qbsub_width(0,80,50,3);
+      memcpy(&cmem[0xB8000],buffer,80*25*2);
+      write_page->color=c; write_page->background_color=c2;
+      free(buffer);
+      goto width8050switch_done;
+    }
       }
       goto error;
     }
@@ -12762,7 +12762,7 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
     write_page->cursor_show=cursor;
     if (write_page->flags&IMG_SCREEN){//page-linked attribute
       for (i=0;i<pages;i++){
-	if (page[i]) img[i].cursor_show=cursor;
+    if (page[i]) img[i].cursor_show=cursor;
       }
     }//IMG_SCREEN
   }//passed&4
@@ -12781,10 +12781,10 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
   if (passed&(8+16)){
     if (write_page->flags&IMG_SCREEN){//page-linked attribute
       for (i=0;i<pages;i++){
-	if (page[i]){
-	  img[i].cursor_firstvalue=start;
-	  img[i].cursor_lastvalue=stop;
-	}
+    if (page[i]){
+      img[i].cursor_firstvalue=start;
+      img[i].cursor_lastvalue=stop;
+    }
       }//i
     }//IMG_SCREEN
   }
@@ -12832,11 +12832,11 @@ int32 hexoct2uint64(qbs* h){
       i2=h->chr[i];
       //          0  -      9             A  -      F             a  -      f
       if ( ((i2>=48)&&(i2<=57)) || ((i2>=65)&&(i2<=70)) || ((i2>=97)&&(i2<=102)) ){
-	if (i2>=97) i2-=32;
-	if (i2>=65) i2-=7;
-	i2-=48;
-	//i2 is now a values between 0 and 15
-	result+=i2;
+    if (i2>=97) i2-=32;
+    if (i2>=65) i2-=7;
+    i2-=48;
+    //i2 is now a values between 0 and 15
+    result+=i2;
       }else return 0;//invalid character
     }//i
     hexoct2uint64_value=result;
@@ -12855,8 +12855,8 @@ int32 hexoct2uint64(qbs* h){
       result<<=3;
       i2=h->chr[i];
       if ((i2>=48)&&(i2<=55)){//0-7
-	i2-=48;
-	result+=i2;
+    i2-=48;
+    result+=i2;
       }else return 0;//invalid character
     }//i
     hexoct2uint64_value=result;
@@ -12933,9 +12933,9 @@ void qbs_input(int32 numvariables,uint8 newline){
 
     if (qbs_input_variabletypes[i]&ISSTRING){//STRING
       if (((qbs*)qbs_input_variableoffsets[i])->fixed){
-	memset(((qbs*)qbs_input_variableoffsets[i])->chr,32,((qbs*)qbs_input_variableoffsets[i])->len);
+    memset(((qbs*)qbs_input_variableoffsets[i])->chr,32,((qbs*)qbs_input_variableoffsets[i])->len);
       }else{
-	((qbs*)qbs_input_variableoffsets[i])->len=0;
+    ((qbs*)qbs_input_variableoffsets[i])->len=0;
       }
     }
 
@@ -12965,28 +12965,28 @@ void qbs_input(int32 numvariables,uint8 newline){
 
     if (inpstr->chr[i]==44){//","
       if (i2!=1){//not in the middle of a string
-	if (!lineinput){
-	  i2=0;
-	  argn=argn+1;
-	  if (argn>numvariables){toomany=1; goto qbs_input_sep_arg_done;}
-	  qbs_input_arguements[argn]->len=0;
-	  firstchr=1;
-	  goto qbs_input_next_arg;
-	}
+    if (!lineinput){
+      i2=0;
+      argn=argn+1;
+      if (argn>numvariables){toomany=1; goto qbs_input_sep_arg_done;}
+      qbs_input_arguements[argn]->len=0;
+      firstchr=1;
+      goto qbs_input_next_arg;
+    }
       }
     }
 
     if (inpstr->chr[i]==34){//"
       if (firstchr){
-	if (!lineinput){
-	  i2=1;//requires closure
-	  firstchr=0;
-	  goto qbs_input_next_arg;
-	}
+    if (!lineinput){
+      i2=1;//requires closure
+      firstchr=0;
+      goto qbs_input_next_arg;
+    }
       }
       if (i2==1){
-	i2=2;
-	goto qbs_input_next_arg;
+    i2=2;
+    goto qbs_input_next_arg;
       }
     }
 
@@ -13024,93 +13024,93 @@ void qbs_input(int32 numvariables,uint8 newline){
   if ((qbs_input_variabletypes[argn]&ISSTRING)==0){
     if ((qbs_input_variabletypes[argn]&ISFLOAT)==0){
       if ((qbs_input_variabletypes[argn]&511)<=32){//cannot handle INTEGER64 variables using this method!
-	int64 finalvalue;
-	//it's an integer variable!
-	finalvalue=0;
-	if (l==0){completewith=48; goto typechecked_integer;}
-	//calculate max & max_neg (i4 used to store number of bits)
-	i4=qbs_input_variabletypes[argn]&511;
-	max=1;
-	max<<=i4;
-	max--;
+    int64 finalvalue;
+    //it's an integer variable!
+    finalvalue=0;
+    if (l==0){completewith=48; goto typechecked_integer;}
+    //calculate max & max_neg (i4 used to store number of bits)
+    i4=qbs_input_variabletypes[argn]&511;
+    max=1;
+    max<<=i4;
+    max--;
 
-	//check for hex/oct
-	if (i3=hexoct2uint64(qbs_input_arguements[argn])){
-	  hexvalue=hexoct2uint64_value;
-	  if (hexvalue>max){valid=0; goto typechecked;}
-	  //i. check max num of "digits" required to represent a value, if more exist cull excess
-	  //ii. set completewith value (if necessary)
-	  if (i3==1){
-	    value=max;
-	    i=0;
-	    for (i2=1;i2<=16;i2++){
-	      if (value&0xF) i=i2;
-	      value>>=4;
-	    }
-	    if (l>(2+i)){valid=0; goto typechecked;}
-	    if (l==1) completewith=72;//"H"
-	    if (l==2) completewith=48;//"0"
-	  }
-	  if (i3==2){
-	    value=max;
-	    i=0;
-	    for (i2=1;i2<=22;i2++){
-	      if (value&0x7) i=i2;
-	      value>>=3;
-	    }
-	    if (l>(2+i)){valid=0; goto typechecked;}
-	    if (l==1) completewith=111;//"O"
-	    if (l==2) completewith=48;//"0"
-	  }
-	  finalvalue=hexvalue;
-	  goto typechecked_integer;
-	}
+    //check for hex/oct
+    if (i3=hexoct2uint64(qbs_input_arguements[argn])){
+      hexvalue=hexoct2uint64_value;
+      if (hexvalue>max){valid=0; goto typechecked;}
+      //i. check max num of "digits" required to represent a value, if more exist cull excess
+      //ii. set completewith value (if necessary)
+      if (i3==1){
+        value=max;
+        i=0;
+        for (i2=1;i2<=16;i2++){
+          if (value&0xF) i=i2;
+          value>>=4;
+        }
+        if (l>(2+i)){valid=0; goto typechecked;}
+        if (l==1) completewith=72;//"H"
+        if (l==2) completewith=48;//"0"
+      }
+      if (i3==2){
+        value=max;
+        i=0;
+        for (i2=1;i2<=22;i2++){
+          if (value&0x7) i=i2;
+          value>>=3;
+        }
+        if (l>(2+i)){valid=0; goto typechecked;}
+        if (l==1) completewith=111;//"O"
+        if (l==2) completewith=48;//"0"
+      }
+      finalvalue=hexvalue;
+      goto typechecked_integer;
+    }
 
-	//max currently contains the largest UNSIGNED value possible, adjust as necessary
-	if (qbs_input_variabletypes[argn]&ISUNSIGNED){ 
-	  max_neg=0;
-	}else{
-	  max>>=1;
-	  max_neg=max+1;
-	}
-	//check for - sign
-	i2=0;
-	if ((qbs_input_variabletypes[argn]&ISUNSIGNED)==0){ 
-	  if (cp[i2]==45){//"-"
-	    if (l==1) {completewith=48; goto typechecked_integer;}
-	    i2++; neg=1;
-	  }
-	}
-	//after a leading 0 no other digits are possible, return an error if this is the case
-	if (cp[i2]==48){
-	  if (l>(i2+1)){valid=0; goto typechecked;}
-	}
-	//scan the "number"...
-	multiple=1;
-	value=0;
-	for (i=l-1;i>=i2;i--){
-	  i3=cp[i]-48;
-	  if ((i3>=0)&&(i3<=9)){
-	    value+=multiple*i3;
-	    if (qbs_input_variabletypes[argn]&ISUNSIGNED){ 
-	      if (value>max){valid=0; goto typechecked;}
-	    }else{
-	      if (neg){
-		if (value>max_neg){valid=0; goto typechecked;}
-	      }else{
-		if (value>max){valid=0; goto typechecked;}
-	      }
-	    }
-	  }else{valid=0; goto typechecked;}
-	  multiple*=10;
-	}//next i
-	if (neg) finalvalue=-value; else finalvalue=value;
+    //max currently contains the largest UNSIGNED value possible, adjust as necessary
+    if (qbs_input_variabletypes[argn]&ISUNSIGNED){ 
+      max_neg=0;
+    }else{
+      max>>=1;
+      max_neg=max+1;
+    }
+    //check for - sign
+    i2=0;
+    if ((qbs_input_variabletypes[argn]&ISUNSIGNED)==0){ 
+      if (cp[i2]==45){//"-"
+        if (l==1) {completewith=48; goto typechecked_integer;}
+        i2++; neg=1;
+      }
+    }
+    //after a leading 0 no other digits are possible, return an error if this is the case
+    if (cp[i2]==48){
+      if (l>(i2+1)){valid=0; goto typechecked;}
+    }
+    //scan the "number"...
+    multiple=1;
+    value=0;
+    for (i=l-1;i>=i2;i--){
+      i3=cp[i]-48;
+      if ((i3>=0)&&(i3<=9)){
+        value+=multiple*i3;
+        if (qbs_input_variabletypes[argn]&ISUNSIGNED){ 
+          if (value>max){valid=0; goto typechecked;}
+        }else{
+          if (neg){
+        if (value>max_neg){valid=0; goto typechecked;}
+          }else{
+        if (value>max){valid=0; goto typechecked;}
+          }
+        }
+      }else{valid=0; goto typechecked;}
+      multiple*=10;
+    }//next i
+    if (neg) finalvalue=-value; else finalvalue=value;
       typechecked_integer:
-	//set variable to finalvalue
-	if ((qbs_input_variabletypes[argn]&ISOFFSETINBITS)==0){//reg. numeric variable
-	  memcpy(qbs_input_variableoffsets[argn],&finalvalue,(qbs_input_variabletypes[argn]&511)>>3);
-	}
-	goto typechecked;
+    //set variable to finalvalue
+    if ((qbs_input_variabletypes[argn]&ISOFFSETINBITS)==0){//reg. numeric variable
+      memcpy(qbs_input_variableoffsets[argn],&finalvalue,(qbs_input_variabletypes[argn]&511)>>3);
+    }
+    goto typechecked;
       }
     }
   }
@@ -13129,72 +13129,72 @@ void qbs_input(int32 numvariables,uint8 newline){
   if ((qbs_input_variabletypes[argn]&ISSTRING)==0){
     if ((qbs_input_variabletypes[argn]&ISFLOAT)==0){
       if ((qbs_input_variabletypes[argn]&511)==64){
-	if (l==0){completewith=48; *(int64*)qbs_input_variableoffsets[argn]=0; goto typechecked;}
+    if (l==0){completewith=48; *(int64*)qbs_input_variableoffsets[argn]=0; goto typechecked;}
 
-	//check for hex/oct
-	if (i3=hexoct2uint64(qbs_input_arguements[argn])){
-	  hexvalue=hexoct2uint64_value;
-	  if (hexvalue>max){valid=0; goto typechecked;}
-	  //set completewith value (if necessary)
-	  if (i3==1) if (l==1) completewith=72;//"H"
-	  if (i3==2) if (l==1) completewith=111;//"O"
-	  if (l==2) completewith=48;//"0"
-	  *(uint64*)qbs_input_variableoffsets[argn]=hexvalue;
-	  goto typechecked;
-	}
+    //check for hex/oct
+    if (i3=hexoct2uint64(qbs_input_arguements[argn])){
+      hexvalue=hexoct2uint64_value;
+      if (hexvalue>max){valid=0; goto typechecked;}
+      //set completewith value (if necessary)
+      if (i3==1) if (l==1) completewith=72;//"H"
+      if (i3==2) if (l==1) completewith=111;//"O"
+      if (l==2) completewith=48;//"0"
+      *(uint64*)qbs_input_variableoffsets[argn]=hexvalue;
+      goto typechecked;
+    }
 
-	//check for - sign
-	i2=0;
-	if ((qbs_input_variabletypes[argn]&ISUNSIGNED)==0){ 
-	  if (cp[i2]==45){//"-"
-	    if (l==1) {completewith=48; *(int64*)qbs_input_variableoffsets[argn]=0; goto typechecked;}
-	    i2++; neg=1;
-	  }
-	}
-	//after a leading 0 no other digits are possible, return an error if this is the case
-	if (cp[i2]==48){
-	  if (l>(i2+1)){valid=0; goto typechecked;}
-	}
-	//count how many digits are in the number
-	i4=0;
-	for (i=l-1;i>=i2;i--){
-	  i3=cp[i]-48;
-	  if ((i3<0)||(i3>9)) {valid=0; goto typechecked;}
-	  i4++;
-	}//i
-	if (qbs_input_variabletypes[argn]&ISUNSIGNED){
-	  if (i4<20) goto typechecked_int64;
-	  if (i4>20) {valid=0; goto typechecked;}
+    //check for - sign
+    i2=0;
+    if ((qbs_input_variabletypes[argn]&ISUNSIGNED)==0){ 
+      if (cp[i2]==45){//"-"
+        if (l==1) {completewith=48; *(int64*)qbs_input_variableoffsets[argn]=0; goto typechecked;}
+        i2++; neg=1;
+      }
+    }
+    //after a leading 0 no other digits are possible, return an error if this is the case
+    if (cp[i2]==48){
+      if (l>(i2+1)){valid=0; goto typechecked;}
+    }
+    //count how many digits are in the number
+    i4=0;
+    for (i=l-1;i>=i2;i--){
+      i3=cp[i]-48;
+      if ((i3<0)||(i3>9)) {valid=0; goto typechecked;}
+      i4++;
+    }//i
+    if (qbs_input_variabletypes[argn]&ISUNSIGNED){
+      if (i4<20) goto typechecked_int64;
+      if (i4>20) {valid=0; goto typechecked;}
 
-	  cp2=(uint8*)uint64_max[0];
-	}else{
-	  if (i4<19) goto typechecked_int64;
-	  if (i4>19) {valid=0; goto typechecked;}
-	  if (neg) cp2=(uint8*)int64_max_neg[0]; else cp2=(uint8*)int64_max[0];
-	}
-	//number of digits valid, but exact value requires checking
-	cp=qbs_input_arguements[argn]->chr;
-	for (i=0;i<i4;i++){
-	  if (cp[i+i2]<cp2[i]) goto typechecked_int64;
-	  if (cp[i+i2]>cp2[i]) {valid=0; goto typechecked;}
-	}
+      cp2=(uint8*)uint64_max[0];
+    }else{
+      if (i4<19) goto typechecked_int64;
+      if (i4>19) {valid=0; goto typechecked;}
+      if (neg) cp2=(uint8*)int64_max_neg[0]; else cp2=(uint8*)int64_max[0];
+    }
+    //number of digits valid, but exact value requires checking
+    cp=qbs_input_arguements[argn]->chr;
+    for (i=0;i<i4;i++){
+      if (cp[i+i2]<cp2[i]) goto typechecked_int64;
+      if (cp[i+i2]>cp2[i]) {valid=0; goto typechecked;}
+    }
       typechecked_int64:
-	//add character 0 to end to make it a null terminated string
-	c->chr[0]=0; qbs_set(qbs_input_arguements[argn],qbs_add(qbs_input_arguements[argn],c));
-	if (qbs_input_variabletypes[argn]&ISUNSIGNED){
+    //add character 0 to end to make it a null terminated string
+    c->chr[0]=0; qbs_set(qbs_input_arguements[argn],qbs_add(qbs_input_arguements[argn],c));
+    if (qbs_input_variabletypes[argn]&ISUNSIGNED){
 #ifdef QB64_WINDOWS
-	  sscanf((char*)qbs_input_arguements[argn]->chr,"%I64u",(uint64*)qbs_input_variableoffsets[argn]);
+      sscanf((char*)qbs_input_arguements[argn]->chr,"%I64u",(uint64*)qbs_input_variableoffsets[argn]);
 #else
-	  sscanf((char*)qbs_input_arguements[argn]->chr,"%llu",(uint64*)qbs_input_variableoffsets[argn]);
+      sscanf((char*)qbs_input_arguements[argn]->chr,"%llu",(uint64*)qbs_input_variableoffsets[argn]);
 #endif
-	}else{
+    }else{
 #ifdef QB64_WINDOWS
-	  sscanf((char*)qbs_input_arguements[argn]->chr,"%I64i",(int64*)qbs_input_variableoffsets[argn]);
+      sscanf((char*)qbs_input_arguements[argn]->chr,"%I64i",(int64*)qbs_input_variableoffsets[argn]);
 #else
-	  sscanf((char*)qbs_input_arguements[argn]->chr,"%lli",(int64*)qbs_input_variableoffsets[argn]);
+      sscanf((char*)qbs_input_arguements[argn]->chr,"%lli",(int64*)qbs_input_variableoffsets[argn]);
 #endif
-	}
-	goto typechecked;
+    }
+    goto typechecked;
       }
     }
   }
@@ -13236,10 +13236,10 @@ void qbs_input(int32 numvariables,uint8 newline){
       transfer<<=32;
       transfer|=0xFFFFFFFF;
       while(hexvalue>transfer){
-	hexvalue-=transfer;
-	if ((qbs_input_variabletypes[argn]&511)==32) *(float*)qbs_input_variableoffsets[argn]+=transfer;
-	if ((qbs_input_variabletypes[argn]&511)==64) *(double*)qbs_input_variableoffsets[argn]+=transfer;
-	if ((qbs_input_variabletypes[argn]&511)==256) *(long double*)qbs_input_variableoffsets[argn]+=transfer;
+    hexvalue-=transfer;
+    if ((qbs_input_variabletypes[argn]&511)==32) *(float*)qbs_input_variableoffsets[argn]+=transfer;
+    if ((qbs_input_variabletypes[argn]&511)==64) *(double*)qbs_input_variableoffsets[argn]+=transfer;
+    if ((qbs_input_variabletypes[argn]&511)==256) *(long double*)qbs_input_variableoffsets[argn]+=transfer;
       }
       transfer=hexvalue;
       if ((qbs_input_variabletypes[argn]&511)==32) *(float*)qbs_input_variableoffsets[argn]+=transfer;
@@ -13257,20 +13257,20 @@ void qbs_input(int32 numvariables,uint8 newline){
     //if it starts with 0, it may only have one leading 0
     if (cp[i2]==48){
       if (l>(i2+1)){
-	i2++;
-	if (cp[i2]==46) goto decimal_point;
-	valid=0; goto typechecked;//expected a decimal point
-	//nb. of course, user could have typed D or E BUT there is no point
-	//    calculating 0 to the power of anything!
+    i2++;
+    if (cp[i2]==46) goto decimal_point;
+    valid=0; goto typechecked;//expected a decimal point
+    //nb. of course, user could have typed D or E BUT there is no point
+    //    calculating 0 to the power of anything!
       }else goto typechecked;//validate, as no other data is required
     }
     //scan digits before decimal place
     for (i=i2;i<l;i++){
       i3=cp[i];
       if ((i3==68)||(i3==(68+32))||(i3==69)||(i3==(69+32))){//d,D,e,E?
-	if (i==i2){valid=0; goto typechecked;}//cannot begin with d,D,e,E!
-	i2=i;
-	goto exponent;
+    if (i==i2){valid=0; goto typechecked;}//cannot begin with d,D,e,E!
+    i2=i;
+    goto exponent;
       }
       if (i3==46){i2=i; goto decimal_point;}//nb. it can begin with a decimal point!
       i3-=48;
@@ -13288,11 +13288,11 @@ void qbs_input(int32 numvariables,uint8 newline){
     for (i=i2;i<l;i++){
       i3=cp[i];
       if ((i3==68)||(i3==(68+32))||(i3==69)||(i3==(69+32))){//d,D,e,E?
-	if (num_significant_digits){
-	  if (i==i2){valid=0; goto typechecked;}//cannot begin with d,D,e,E just after a decimal point!
-	  i2=i;
-	  goto exponent;
-	}
+    if (num_significant_digits){
+      if (i==i2){valid=0; goto typechecked;}//cannot begin with d,D,e,E just after a decimal point!
+      i2=i;
+      goto exponent;
+    }
       }
       i3-=48;
       if ((i3<0)||(i3>9)){valid=0; goto typechecked;}
@@ -13300,7 +13300,7 @@ void qbs_input(int32 numvariables,uint8 newline){
       if (i4) zeros_after_point++;
       digits_after_point++;
       if ((num_significant_digits)||i3){
-	significant_digits[num_significant_digits]=i3+48; num_significant_digits++;
+    significant_digits[num_significant_digits]=i3+48; num_significant_digits++;
       }
     }//i
     goto assess_float;
@@ -13311,7 +13311,7 @@ void qbs_input(int32 numvariables,uint8 newline){
     if ((qbs_input_variabletypes[argn]&511)==32){//SINGLE
       i3=cp[i2];
       if ((i3==68)||(i3==(68+32))){//d/D
-	valid=0; goto typechecked;
+    valid=0; goto typechecked;
       }
     }
     //correct "D" notation for c++ scanf
@@ -13342,9 +13342,9 @@ void qbs_input(int32 numvariables,uint8 newline){
       i3=cp[i]-48;
       if ((i3>=0)&&(i3<=9)){
 
-	value+=multiple*i3;
+    value+=multiple*i3;
       }else{
-	valid=0; goto typechecked;
+    valid=0; goto typechecked;
       }
       multiple*=10;
     }//i
@@ -13359,8 +13359,8 @@ void qbs_input(int32 numvariables,uint8 newline){
       if (neg_power) value=-value;
       //special case->single 0 after point
       if ((zeros_after_point==1)&&(digits_after_point==1)){
-	digits_after_point=0;
-	zeros_after_point=0;
+    digits_after_point=0;
+    zeros_after_point=0;
       }
       //upper overflow check
       //i. check that value doesn't consist solely of 0's
@@ -13370,10 +13370,10 @@ void qbs_input(int32 numvariables,uint8 newline){
       i=digits_before_point;
       if (!i) i=-zeros_after_point;
       /*EXAMPLES:
-	1.0         i=1
-	12.0        i=2
-	0.1         i=0
-	0.01        i=-1
+    1.0         i=1
+    12.0        i=2
+    0.1         i=0
+    0.01        i=-1
       */
       i=i+value;//apply exponent
       if (i>39){valid=0; goto typechecked;}
@@ -13381,35 +13381,35 @@ void qbs_input(int32 numvariables,uint8 newline){
       //    to validate it
       //********IMPORTANT: if i==39 then the first 7 digits MUST be scanned!!!
       if (i==39){
-	cp2=(uint8*)single_max[0];
-	i2=num_significant_digits;
-	if (i2>7) i2=7;
-	for (i3=0;i3<i2;i3++){
-	  if (significant_digits[i3]>*cp2){valid=0; goto typechecked;}
-	  if (significant_digits[i3]<*cp2) break;
-	  cp2++;
-	}
+    cp2=(uint8*)single_max[0];
+    i2=num_significant_digits;
+    if (i2>7) i2=7;
+    for (i3=0;i3<i2;i3++){
+      if (significant_digits[i3]>*cp2){valid=0; goto typechecked;}
+      if (significant_digits[i3]<*cp2) break;
+      cp2++;
+    }
       }
       //check for pointless levels of precision (eg. 1.21351273512653625116212!)
       if (digits_after_point){
-	if (digits_before_point){
-	  if ((digits_after_point+digits_before_point)>8){valid=0; goto typechecked;}
-	}else{
-	  if ((digits_after_point-zeros_after_point)>8){valid=0; goto typechecked;}
-	}
+    if (digits_before_point){
+      if ((digits_after_point+digits_before_point)>8){valid=0; goto typechecked;}
+    }else{
+      if ((digits_after_point-zeros_after_point)>8){valid=0; goto typechecked;}
+    }
       }
       //check for "under-flow"
       if (i<-44){valid=0; goto typechecked;}
       //********IMPORTANT: if i==-44 then the first 7 digits MUST be scanned!!!
       if (i==-44){
-	cp2=(uint8*)single_max_neg[0];
-	i2=num_significant_digits;
-	if (i2>7) i2=7;
-	for (i3=0;i3<i2;i3++){
-	  if (significant_digits[i3]<*cp2){valid=0; goto typechecked;}
-	  if (significant_digits[i3]>*cp2) break;
-	  cp2++;
-	}
+    cp2=(uint8*)single_max_neg[0];
+    i2=num_significant_digits;
+    if (i2>7) i2=7;
+    for (i3=0;i3<i2;i3++){
+      if (significant_digits[i3]<*cp2){valid=0; goto typechecked;}
+      if (significant_digits[i3]>*cp2) break;
+      cp2++;
+    }
       }
     nooverflow_float:;
       c->chr[0]=0; qbs_set(qbs_input_arguements[argn],qbs_add(qbs_input_arguements[argn],c));
@@ -13427,8 +13427,8 @@ void qbs_input(int32 numvariables,uint8 newline){
       if (neg_power) value=-value;
       //special case->single 0 after point
       if ((zeros_after_point==1)&&(digits_after_point==1)){
-	digits_after_point=0;
-	zeros_after_point=0;
+    digits_after_point=0;
+    zeros_after_point=0;
       }
       //upper overflow check
       //i. check that value doesn't consist solely of 0's
@@ -13443,35 +13443,35 @@ void qbs_input(int32 numvariables,uint8 newline){
       //    to validate it
       //********IMPORTANT: if i==309 then the first 8 digits MUST be scanned!!!
       if (i==309){
-	cp2=(uint8*)double_max[0];
-	i2=num_significant_digits;
-	if (i2>8) i2=8;
-	for (i3=0;i3<i2;i3++){
-	  if (significant_digits[i3]>*cp2){valid=0; goto typechecked;}
-	  if (significant_digits[i3]<*cp2) break;
-	  cp2++;
-	}
+    cp2=(uint8*)double_max[0];
+    i2=num_significant_digits;
+    if (i2>8) i2=8;
+    for (i3=0;i3<i2;i3++){
+      if (significant_digits[i3]>*cp2){valid=0; goto typechecked;}
+      if (significant_digits[i3]<*cp2) break;
+      cp2++;
+    }
       }
       //check for pointless levels of precision (eg. 1.21351273512653625116212!)
       if (digits_after_point){
-	if (digits_before_point){
-	  if ((digits_after_point+digits_before_point)>16){valid=0; goto typechecked;}
-	}else{
-	  if ((digits_after_point-zeros_after_point)>16){valid=0; goto typechecked;}
-	}
+    if (digits_before_point){
+      if ((digits_after_point+digits_before_point)>16){valid=0; goto typechecked;}
+    }else{
+      if ((digits_after_point-zeros_after_point)>16){valid=0; goto typechecked;}
+    }
       }
       //check for "under-flow"
       if (i<-323){valid=0; goto typechecked;}
       //********IMPORTANT: if i==-323 then the first 7 digits MUST be scanned!!!
       if (i==-323){
-	cp2=(uint8*)double_max_neg[0];
-	i2=num_significant_digits;
-	if (i2>7) i2=7;
-	for (i3=0;i3<i2;i3++){
-	  if (significant_digits[i3]<*cp2){valid=0; goto typechecked;}
-	  if (significant_digits[i3]>*cp2) break;
-	  cp2++;
-	}
+    cp2=(uint8*)double_max_neg[0];
+    i2=num_significant_digits;
+    if (i2>7) i2=7;
+    for (i3=0;i3<i2;i3++){
+      if (significant_digits[i3]<*cp2){valid=0; goto typechecked;}
+      if (significant_digits[i3]>*cp2) break;
+      cp2++;
+    }
       }
     nooverflow_double:;
       c->chr[0]=0; qbs_set(qbs_input_arguements[argn],qbs_add(qbs_input_arguements[argn],c));
@@ -13530,12 +13530,12 @@ void qbs_input(int32 numvariables,uint8 newline){
       cw=fx; if ((write_page->font>=32)||(write_page->compatible_mode==256)||(write_page->compatible_mode==32)) cw=1;
       y2=(write_page->cursor_y-1)*fy;
       for (y=0;y<fy;y++){
-	x2=(write_page->cursor_x-1)*fx;
-	for (x=0;x<cw;x++){
-	  pset (x2,y2,point(x2,y2)^write_page->color);
-	  x2++;
-	}
-	y2++;
+    x2=(write_page->cursor_x-1)*fx;
+    for (x=0;x<cw;x++){
+      pset (x2,y2,point(x2,y2)^write_page->color);
+      x2++;
+    }
+    y2++;
       }
       write_page->alpha_disabled=alpha;
     }
@@ -13550,9 +13550,9 @@ void qbs_input(int32 numvariables,uint8 newline){
       qbs_set(key,qbs_new_txt(""));
       chr=fgetc(stdin);
       if (chr!=EOF){
-	if (chr=='\n') chr=13;
-	qbs_set(key,qbs_new_txt(" "));  
-	key->chr[0]=chr;  
+    if (chr=='\n') chr=13;
+    qbs_set(key,qbs_new_txt(" "));  
+    key->chr[0]=chr;  
       }else{SDL_Delay(10);}
     }else{
       SDL_Delay(10);
@@ -13576,12 +13576,12 @@ void qbs_input(int32 numvariables,uint8 newline){
       cw=fx; if ((write_page->font>=32)||(write_page->compatible_mode==256)||(write_page->compatible_mode==32)) cw=1;
       y2=(write_page->cursor_y-1)*fy;
       for (y=0;y<fy;y++){
-	x2=(write_page->cursor_x-1)*fx;
-	for (x=0;x<cw;x++){
-	  pset (x2,y2,point(x2,y2)^write_page->color);
-	  x2++;
-	}
-	y2++;
+    x2=(write_page->cursor_x-1)*fx;
+    for (x=0;x<cw;x++){
+      pset (x2,y2,point(x2,y2)^write_page->color);
+      x2++;
+    }
+    y2++;
       }
       write_page->alpha_disabled=alpha;
     }
@@ -13716,30 +13716,30 @@ long double func_val(qbs *s){
     if ((c>=48)&&(c<=57)){//0-9
 
       if (step<=1){//before decimal point
-	step=1;
-	if ((num_significant_digits)||(c>48)){
-	  most_significant_digit_position++;
-	  significant_digits[num_significant_digits]=c;
-	  num_significant_digits++;
-	  value=value*10+c-48;
-	}
+    step=1;
+    if ((num_significant_digits)||(c>48)){
+      most_significant_digit_position++;
+      significant_digits[num_significant_digits]=c;
+      num_significant_digits++;
+      value=value*10+c-48;
+    }
       }
 
       if (step==2){//after decimal point
-	if ((num_significant_digits==0)&&(c==48)) most_significant_digit_position--;
-	if ((num_significant_digits)||(c>48)){
-	  significant_digits[num_significant_digits]=c;
-	  num_significant_digits++;
-	}
+    if ((num_significant_digits==0)&&(c==48)) most_significant_digit_position--;
+    if ((num_significant_digits)||(c>48)){
+      significant_digits[num_significant_digits]=c;
+      num_significant_digits++;
+    }
       }
 
       if (step>=3){//exponent
-	step=4;
-	if ((num_exponent_digits)||(c>48)){
-	  if (num_exponent_digits>=18) goto finish;
-	  exponent_value*=10; exponent_value=exponent_value+c-48;//precalculate
-	  num_exponent_digits++;
-	}
+    step=4;
+    if ((num_exponent_digits)||(c>48)){
+      if (num_exponent_digits>=18) goto finish;
+      exponent_value*=10; exponent_value=exponent_value+c-48;//precalculate
+      num_exponent_digits++;
+    }
       }
 
       goto checked;
@@ -13810,13 +13810,13 @@ long double func_val(qbs *s){
     for (i=i+2;i<s->len;i++){
       c=s->chr[i];
       if ((c>=48)&&(c<=55)){//0-7
-	c-=48;
-	hex_value<<=3;
-	hex_value|=c;
-	if (hex_digits||c) hex_digits++; 
-	if (hex_digits>=22){
-	  if ((hex_digits>22)||(s->chr[i-21]>49)){error(6); return 0;}
-	}
+    c-=48;
+    hex_value<<=3;
+    hex_value|=c;
+    if (hex_digits||c) hex_digits++; 
+    if (hex_digits>=22){
+      if ((hex_digits>22)||(s->chr[i-21]>49)){error(6); return 0;}
+    }
       }else break;
     }//i
     return hex_value;
@@ -13827,14 +13827,14 @@ long double func_val(qbs *s){
     for (i=i+2;i<s->len;i++){
       c=s->chr[i];
       if ( ((c>=48)&&(c<=57)) || ((c>=65)&&(c<=70)) || ((c>=97)&&(c<=102)) ){//0-9 or A-F or a-f
-	if ((c>=48)&&(c<=57)) c-=48;
-	if ((c>=65)&&(c<=70)) c-=55;
+    if ((c>=48)&&(c<=57)) c-=48;
+    if ((c>=65)&&(c<=70)) c-=55;
 
-	if ((c>=97)&&(c<=102)) c-=87;
-	hex_value<<=4;
-	hex_value|=c;
-	if (hex_digits||c) hex_digits++;
-	if (hex_digits>16) {error(6); return 0;}
+    if ((c>=97)&&(c<=102)) c-=87;
+    hex_value<<=4;
+    hex_value|=c;
+    if (hex_digits||c) hex_digits++;
+    if (hex_digits>16) {error(6); return 0;}
       }else break;
     }//i
     return hex_value;
@@ -13874,16 +13874,16 @@ void sub_out(int32 port,int32 data){
     data=data&63;
     if (write_page->pal){//avoid NULL pointer
       if (H3C9_next==0){//red
-	write_page->pal[H3C8_palette_register_index]&=0xFF00FFFF;
-	write_page->pal[H3C8_palette_register_index]+=(qbr((double)data*4.063492f-0.4999999f)<<16);
+    write_page->pal[H3C8_palette_register_index]&=0xFF00FFFF;
+    write_page->pal[H3C8_palette_register_index]+=(qbr((double)data*4.063492f-0.4999999f)<<16);
       }
       if (H3C9_next==1){//green
-	write_page->pal[H3C8_palette_register_index]&=0xFFFF00FF;
-	write_page->pal[H3C8_palette_register_index]+=(qbr((double)data*4.063492f-0.4999999f)<<8);
+    write_page->pal[H3C8_palette_register_index]&=0xFFFF00FF;
+    write_page->pal[H3C8_palette_register_index]+=(qbr((double)data*4.063492f-0.4999999f)<<8);
       }
       if (H3C9_next==2){//blue
-	write_page->pal[H3C8_palette_register_index]&=0xFFFFFF00;
-	write_page->pal[H3C8_palette_register_index]+=qbr((double)data*4.063492f-0.4999999f);
+    write_page->pal[H3C8_palette_register_index]&=0xFFFFFF00;
+    write_page->pal[H3C8_palette_register_index]+=qbr((double)data*4.063492f-0.4999999f);
       }
     }
     H3C9_next=H3C9_next+1;
@@ -14192,15 +14192,15 @@ void sub_open(qbs *name,int32 type,int32 access,int32 sharing,int32 i,int64 reco
       static uint8 c;
       static int32 e;
       if (e=gfs_read(x,-1,&c,1)){
-	//if (e==-10) return -1;
-	//if (e==-2){error(258); return -2;}//invalid handle
-	//if (e==-3){error(54); return -2;}//bad file mode
-	//if (e==-4){error(5); return -2;}//illegal function call
-	if (e==-7){error(70); return;}//permission denied
-	error(75); return;//assume[-9]: path/file access error
+    //if (e==-10) return -1;
+    //if (e==-2){error(258); return -2;}//invalid handle
+    //if (e==-3){error(54); return -2;}//bad file mode
+    //if (e==-4){error(5); return -2;}//illegal function call
+    if (e==-7){error(70); return;}//permission denied
+    error(75); return;//assume[-9]: path/file access error
       }
       if (c==26){
-	gfs_file[x].eof_passed=1;//set EOF flag
+    gfs_file[x].eof_passed=1;//set EOF flag
       }
       gfs_setpos(x,0);
     }
@@ -14239,14 +14239,14 @@ void sub_close(int32 i2,int32 passed){
       x=-(i2+1);
       static special_handle_struct *sh; sh=(special_handle_struct*)list_get(special_handles,x); if (!sh) return;
       if (sh->type==1){//stream
-	static stream_struct *st; st=(stream_struct*)sh->index;
-	if (st->type==1){//connection
-	  connection_close(x);
-	}//connection
+    static stream_struct *st; st=(stream_struct*)sh->index;
+    if (st->type==1){//connection
+      connection_close(x);
+    }//connection
       }//stream
 
       if (sh->type==2){//host listener
-	connection_close(x);
+    connection_close(x);
       }//host listener
 
       return;
@@ -14373,7 +14373,7 @@ void sub_file_print(int32 i,qbs *str,int32 extraspace,int32 tab,int32 newline){
     if (x2>65535){header_byte=7; x3=4;}
     if (!newline){
       if (!tab){
-	header_byte|=128;
+    header_byte|=128;
       }
     }
     //build message
@@ -14624,11 +14624,11 @@ int32 n_int64(){
     i2=n_digits; if (i2>19) i2=19;//only scan integeral digits
     for (i=0;i<i2;i++){
       if (n_neg){
-	if (n_digit[i]>neg_max[i]) return 0;//overflow
-	if (n_digit[i]<neg_max[i]) break;
+    if (n_digit[i]>neg_max[i]) return 0;//overflow
+    if (n_digit[i]<neg_max[i]) break;
       }else{
-	if (n_digit[i]>max[i]) return 0;//overflow
-	if (n_digit[i]<max[i]) break;
+    if (n_digit[i]>max[i]) return 0;//overflow
+    if (n_digit[i]<max[i]) break;
       }
     }
   }
@@ -14776,11 +14776,11 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
       c=data[*data_offset];
       if (c==44){(*data_offset)++; goto gotnumber;}
       if ( ((c>=48)&&(c<=57)) || ((c>=65)&&(c<=70)) || ((c>=97)&&(c<=102)) ){//0-9 or A-F or a-f
-	if (n_digits==256) return 1;//Overflow
-	n_digit[n_digits]=c;
-	n_digits++;
-	n_hex=1;
-	goto nexthexchr;
+    if (n_digits==256) return 1;//Overflow
+    n_digit[n_digits]=c;
+    n_digits++;
+    n_hex=1;
+    goto nexthexchr;
       }
       return 3;//Syntax error
     }
@@ -14790,11 +14790,11 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
       c=data[*data_offset];
       if (c==44){(*data_offset)++; goto gotnumber;}
       if ((c>=48)&&(c<=55)){//0-7
-	if (n_digits==256) return 1;//Overflow
-	n_digit[n_digits]=c;
-	n_digits++;
-	n_hex=2;
-	goto nexthexchr2;
+    if (n_digits==256) return 1;//Overflow
+    n_digit[n_digits]=c;
+    n_digits++;
+    n_hex=2;
+    goto nexthexchr2;
       }
       return 3;//Syntax error
     }
@@ -14821,29 +14821,29 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
     if (step<=1){//before decimal point
       step=1;
       if (n_digits||(c>48)){
-	if (n_digits) n_exp++;
-	if (n_digits==256) return 1;//Overflow
-	n_digit[n_digits]=c;
-	n_digits++;
+    if (n_digits) n_exp++;
+    if (n_digits==256) return 1;//Overflow
+    n_digit[n_digits]=c;
+    n_digits++;
       }
     }
 
     if (step==2){//after decimal point
       if ((n_digits==0)&&(c==48)) n_exp--;
       if ((n_digits)||(c>48)){
-	if (n_digits==256) return 1;//Overflow
-	n_digit[n_digits]=c;
-	n_digits++;
+    if (n_digits==256) return 1;//Overflow
+    n_digit[n_digits]=c;
+    n_digits++;
       }
     }
 
     if (step>=3){//exponent
       step=4;
       if ((exponent_digits)||(c>48)){
-	if (exponent_digits==18) return 1;//Overflow
-	exponent_value*=10;
-	exponent_value=exponent_value+(c-48);
-	exponent_digits++;
+    if (exponent_digits==18) return 1;//Overflow
+    exponent_value*=10;
+    exponent_value=exponent_value+(c-48);
+    exponent_digits++;
       }
     }
 
@@ -14960,9 +14960,9 @@ int32 n_inputnumberfromfile(int32 fileno){
     if (x3==7) x4=4;
     if (x4){
       if (x2<(i+x4)){
-	if (ucbufsiz) free(ucbuf);
-	net_tcp[x].eof=2;
-	return 3;
+    if (ucbufsiz) free(ucbuf);
+    net_tcp[x].eof=2;
+    return 3;
       }//not enough data (for length descriptor)
       if (x4==1) x3=*((uint8*)(net_tcp[x].buffer+i));
       if (x4==2) x3=*((uint16*)(net_tcp[x].buffer+i));
@@ -15021,11 +15021,11 @@ int32 n_inputnumberfromfile(int32 fileno){
     nexthexchr:
       c=file_input_chr(fileno); if (c==-2) return 3;
       if ( ((c>=48)&&(c<=57)) || ((c>=65)&&(c<=70)) || ((c>=97)&&(c<=102)) ){//0-9 or A-F or a-f
-	if (n_digits==256) goto error;//overflow
-	n_digit[n_digits]=c;
-	n_digits++;
-	n_hex=1;
-	goto nexthexchr;
+    if (n_digits==256) goto error;//overflow
+    n_digit[n_digits]=c;
+    n_digits++;
+    n_hex=1;
+    goto nexthexchr;
       }
       goto gotnumber;
     }
@@ -15033,11 +15033,11 @@ int32 n_inputnumberfromfile(int32 fileno){
     nexthexchr2:
       c=file_input_chr(fileno); if (c==-2) return 3;
       if ((c>=48)&&(c<=55)){//0-7
-	if (n_digits==256) goto error;//overflow
-	n_digit[n_digits]=c;
-	n_digits++;
-	n_hex=2;
-	goto nexthexchr2;
+    if (n_digits==256) goto error;//overflow
+    n_digit[n_digits]=c;
+    n_digits++;
+    n_hex=2;
+    goto nexthexchr2;
       }
       goto gotnumber;
     }
@@ -15064,29 +15064,29 @@ int32 n_inputnumberfromfile(int32 fileno){
     if (step<=1){//before decimal point
       step=1;
       if (n_digits||(c>48)){
-	if (n_digits) n_exp++;
-	if (n_digits==256) goto error;//overflow
-	n_digit[n_digits]=c;
-	n_digits++;
+    if (n_digits) n_exp++;
+    if (n_digits==256) goto error;//overflow
+    n_digit[n_digits]=c;
+    n_digits++;
       }
     }
 
     if (step==2){//after decimal point
       if ((n_digits==0)&&(c==48)) n_exp--;
       if ((n_digits)||(c>48)){
-	if (n_digits==256) goto error;//overflow
-	n_digit[n_digits]=c;
-	n_digits++;
+    if (n_digits==256) goto error;//overflow
+    n_digit[n_digits]=c;
+    n_digits++;
       }
     }
 
     if (step>=3){//exponent
       step=4;
       if ((exponent_digits)||(c>48)){
-	if (exponent_digits==18) goto error;//overflow
-	exponent_value*=10;
-	exponent_value=exponent_value+(c-48);
-	exponent_digits++;
+    if (exponent_digits==18) goto error;//overflow
+    exponent_value*=10;
+    exponent_value=exponent_value+(c-48);
+    exponent_digits++;
       }
     }
 
@@ -15215,15 +15215,15 @@ void revert_input_check(){
     if (revert_input_bufsize){
       //expand buffer?
       if ((net_tcp[x].buffer_size+revert_input_bufsize)>net_tcp[x].buffer_space){
-	if (net_tcp[x].buffer==NULL){
-	  net_tcp[x].buffer=(uint8*)malloc(net_tcp[x].buffer_size+revert_input_bufsize);
-	}else{
-	  net_tcp[x].buffer=(uint8*)realloc(net_tcp[x].buffer,net_tcp[x].buffer_size+revert_input_bufsize);
-	}
-	net_tcp[x].buffer_space=net_tcp[x].buffer_size+revert_input_bufsize;
+    if (net_tcp[x].buffer==NULL){
+      net_tcp[x].buffer=(uint8*)malloc(net_tcp[x].buffer_size+revert_input_bufsize);
+    }else{
+      net_tcp[x].buffer=(uint8*)realloc(net_tcp[x].buffer,net_tcp[x].buffer_size+revert_input_bufsize);
+    }
+    net_tcp[x].buffer_space=net_tcp[x].buffer_size+revert_input_bufsize;
       }
       if (net_tcp[x].buffer_size){
-	memmove(net_tcp[x].buffer+revert_input_bufsize,net_tcp[x].buffer,net_tcp[x].buffer_size);
+    memmove(net_tcp[x].buffer+revert_input_bufsize,net_tcp[x].buffer,net_tcp[x].buffer_size);
       }
       memcpy(net_tcp[x].buffer,revert_input_buffer,revert_input_bufsize);
       net_tcp[x].buffer_size+=revert_input_bufsize;
@@ -15297,10 +15297,10 @@ void sub_file_input_string(int32 fileno,qbs *deststr){
     if (x3==7) x4=4;
     if (x4){
       if (x2<(i+x4)){
-	if (ucbufsiz) free(ucbuf);
-	deststr->len=0;
-	net_tcp[x].eof=2;
-	return;
+    if (ucbufsiz) free(ucbuf);
+    deststr->len=0;
+    net_tcp[x].eof=2;
+    return;
       }//not enough data (for length descriptor)
       if (x4==1) x3=*((uint8*)(net_tcp[x].buffer+i));
       if (x4==2) x3=*((uint16*)(net_tcp[x].buffer+i));
@@ -15530,7 +15530,7 @@ long double func_read_float(uint8 *data,ptrszint *data_offset,ptrszint data_size
 
     if (((typ&ISUNSIGNED)==0)&&n_hex){//signed hex/oct/...  
       if (  ( ((int64)1) << ((typ&511)-1) )  &value){//if top bit is set, set all bits above it to form a negative value
-	value=(maxval^((int64)-1))+value;
+    value=(maxval^((int64)-1))+value;
       }
     }
 
@@ -15635,7 +15635,7 @@ long double func_file_input_float(int32 fileno,int32 typ){
 
     if (((typ&ISUNSIGNED)==0)&&n_hex){//signed hex/oct/...  
       if (  ( ((int64)1) << ((typ&511)-1) )  &value){//if top bit is set, set all bits above it to form a negative value
-	value=(maxval^((int64)-1))+value;
+    value=(maxval^((int64)-1))+value;
       }
     }
 
@@ -15830,12 +15830,12 @@ void sub_get(int32 i,int64 offset,void *element,int32 passed){
   if (gfs->type==1){
     if (e!=-10){//note: seek index not advanced if record did not exist
       if (ele->length<gfs->record_length){
-	if (offset!=-1){
-	  e=gfs_setpos(i,offset+gfs->record_length);
-	}else{
-	  e=gfs_setpos(i,gfs_getpos(i)-ele->length+gfs->record_length);
-	}
-	if (e){error(54); return;}//assume[-3]: bad file mode
+    if (offset!=-1){
+      e=gfs_setpos(i,offset+gfs->record_length);
+    }else{
+      e=gfs_setpos(i,gfs_getpos(i)-ele->length+gfs->record_length);
+    }
+    if (e){error(54); return;}//assume[-3]: bad file mode
       }
     }//e!=-10
   }
@@ -15929,9 +15929,9 @@ void sub_get2(int32 i,int64 offset,qbs *str,int32 passed){
     if (gfs->record_length<8){//record length is too small to read the length!
       //restore seek to original location
       if (offset!=-1){
-	e=gfs_setpos(i,offset);
+    e=gfs_setpos(i,offset);
       }else{
-	e=gfs_setpos(i,gfs_getpos(i)-gfs->record_length);
+    e=gfs_setpos(i,gfs_getpos(i)-gfs->record_length);
       }
       error(59); free(data); return;//Bad record length
     }
@@ -16011,9 +16011,9 @@ void sub_put(int32 i,int64 offset,void *element,int32 passed){
   if (gfs->type==1){
     if (ele->length<gfs->record_length){
       if (offset!=-1){
-	e=gfs_setpos(i,offset+gfs->record_length);
+    e=gfs_setpos(i,offset+gfs->record_length);
       }else{
-	e=gfs_setpos(i,gfs_getpos(i)-ele->length+gfs->record_length);
+    e=gfs_setpos(i,gfs_getpos(i)-ele->length+gfs->record_length);
       }
       if (e) error(54); return;//assume[-3]: bad file mode
     }
@@ -16145,10 +16145,10 @@ void sub_graphics_get(float x1f,float y1f,float x2f,float y2f,void *element,uint
       col2=0;
       off=y*sx+x1;
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
-	if (col) col2|=z2;
-	z2>>=1; if (!z2){z2=128; *cp++=col2; col2=0;}
-	off++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
+    if (col) col2|=z2;
+    z2>>=1; if (!z2){z2=128; *cp++=col2; col2=0;}
+    off++;
       }
       if (z2!=128) *cp++=col2;
     }
@@ -16166,12 +16166,12 @@ void sub_graphics_get(float x1f,float y1f,float x2f,float y2f,void *element,uint
       x3=0;
       off=y*sx+x1;
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
-	byte<<=2;
-	byte|=col;
-	if ((x3&3)==3){*cp++=byte; byte=0;}
-	x3++;
-	off++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
+    byte<<=2;
+    byte|=col;
+    if ((x3&3)==3){*cp++=byte; byte=0;}
+    x3++;
+    off++;
       }
       if (x3&3) *cp++=col2;
     }
@@ -16194,13 +16194,13 @@ void sub_graphics_get(float x1f,float y1f,float x2f,float y2f,void *element,uint
       cp4=cp+y3*z*4+z*3;
       col1=0; col2=0; col3=0; col4=0;
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
-	if (col&1) col1|=z2;
-	if (col&2) col2|=z2;
-	if (col&4) col3|=z2;
-	if (col&8) col4|=z2;
-	z2>>=1; if (!z2){z2=128; *cp1++=col1; *cp2++=col2; *cp3++=col3; *cp4++=col4; col1=0; col2=0; col3=0; col4=0;}
-	off++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
+    if (col&1) col1|=z2;
+    if (col&2) col2|=z2;
+    if (col&4) col3|=z2;
+    if (col&8) col4|=z2;
+    z2>>=1; if (!z2){z2=128; *cp1++=col1; *cp2++=col2; *cp3++=col3; *cp4++=col4; col1=0; col2=0; col3=0; col4=0;}
+    off++;
       }
       if (z2!=128){*cp1=col1; *cp2=col2; *cp3=col3; *cp4=col4;}
       y3++;
@@ -16216,9 +16216,9 @@ void sub_graphics_get(float x1f,float y1f,float x2f,float y2f,void *element,uint
     for (y=y1;y<=y2;y++){
       off=y*sx+x1;
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
-	*cp++=col;
-	off++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset[off]; else col=mask;
+    *cp++=col;
+    off++;
       }}
     return;
   }//8
@@ -16230,9 +16230,9 @@ void sub_graphics_get(float x1f,float y1f,float x2f,float y2f,void *element,uint
     for (y=y1;y<=y2;y++){
       off=y*sx+x1;
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset32[off]; else col=mask;
-	*lp++=col;
-	off++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)) col=read_page->offset32[off]; else col=mask;
+    *lp++=col;
+    off++;
       }}
     return;
   }//32
@@ -16323,21 +16323,21 @@ void sub_graphics_put(float x1f,float y1f,void *element,int32 option,uint32 mask
       offp=(uint8*)write_page->offset+(y*sx+x1);
       x3=0;
       for (x=x1;x<=x2;x++){
-	if (!(x3--)){x3=7; col2=*cp++;}
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
-	  col=(col2>>x3)&1;
-	  if ((!passed)||(col!=mask)){
-	    switch(option){
-	    case 0: *offp^=col; break;
-	    case 1: *offp=col; break;
-	    case 2: *offp=(~col)&pixelmask; break;
-	    case 3: *offp&=col; break;
-	    case 4: *offp|=col; break;
-	    case 5: *offp^=col; break;
-	    }
-	  }//mask
-	}//bounds
-	offp++;
+    if (!(x3--)){x3=7; col2=*cp++;}
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
+      col=(col2>>x3)&1;
+      if ((!passed)||(col!=mask)){
+        switch(option){
+        case 0: *offp^=col; break;
+        case 1: *offp=col; break;
+        case 2: *offp=(~col)&pixelmask; break;
+        case 3: *offp&=col; break;
+        case 4: *offp|=col; break;
+        case 5: *offp^=col; break;
+        }
+      }//mask
+    }//bounds
+    offp++;
       }
       y3++;
     }
@@ -16351,21 +16351,21 @@ void sub_graphics_put(float x1f,float y1f,void *element,int32 option,uint32 mask
       offp=(uint8*)write_page->offset+(y*sx+x1);
       x3=0;
       for (x=x1;x<=x2;x++){
-	if (!(x3--)){x3=3; col2=*cp++;}
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
-	  col=(col2>>(x3<<1))&3;
-	  if ((!passed)||(col!=mask)){
-	    switch(option){
-	    case 0: *offp^=col; break;
-	    case 1: *offp=col; break;
-	    case 2: *offp=(~col)&pixelmask; break;
-	    case 3: *offp&=col; break;
-	    case 4: *offp|=col; break;
-	    case 5: *offp^=col; break;
-	    }
-	  }//mask
-	}//bounds
-	offp++;
+    if (!(x3--)){x3=3; col2=*cp++;}
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
+      col=(col2>>(x3<<1))&3;
+      if ((!passed)||(col!=mask)){
+        switch(option){
+        case 0: *offp^=col; break;
+        case 1: *offp=col; break;
+        case 2: *offp=(~col)&pixelmask; break;
+        case 3: *offp&=col; break;
+        case 4: *offp|=col; break;
+        case 5: *offp^=col; break;
+        }
+      }//mask
+    }//bounds
+    offp++;
       }
       y3++;
     }
@@ -16384,21 +16384,21 @@ void sub_graphics_put(float x1f,float y1f,void *element,int32 option,uint32 mask
       cp4=cp+y3*z*4+z*3;
       x3=0;
       for (x=x1;x<=x2;x++){
-	if (!(x3--)){x3=7; col1=*cp1++; col2=(*cp2++)<<1; col3=(*cp3++)<<2; col4=(*cp4++)<<3;}
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
-	  col=((col1>>x3)&1)|((col2>>x3)&2)|((col3>>x3)&4)|((col4>>x3)&8);
-	  if ((!passed)||(col!=mask)){
-	    switch(option){
-	    case 0: *offp^=col; break;
-	    case 1: *offp=col; break;
-	    case 2: *offp=(~col)&pixelmask; break;
-	    case 3: *offp&=col; break;
-	    case 4: *offp|=col; break;
-	    case 5: *offp^=col; break;
-	    }
-	  }//mask
-	}//bounds
-	offp++;
+    if (!(x3--)){x3=7; col1=*cp1++; col2=(*cp2++)<<1; col3=(*cp3++)<<2; col4=(*cp4++)<<3;}
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
+      col=((col1>>x3)&1)|((col2>>x3)&2)|((col3>>x3)&4)|((col4>>x3)&8);
+      if ((!passed)||(col!=mask)){
+        switch(option){
+        case 0: *offp^=col; break;
+        case 1: *offp=col; break;
+        case 2: *offp=(~col)&pixelmask; break;
+        case 3: *offp&=col; break;
+        case 4: *offp|=col; break;
+        case 5: *offp^=col; break;
+        }
+      }//mask
+    }//bounds
+    offp++;
       }
       y3++;
     }
@@ -16410,21 +16410,21 @@ void sub_graphics_put(float x1f,float y1f,void *element,int32 option,uint32 mask
     for (y=y1;y<=y2;y++){
       offp=(uint8*)write_page->offset+(y*sx+x1);
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
-	  col=*cp;
-	  if ((!passed)||(col!=mask)){
-	    switch(option){
-	    case 0: *offp^=col; break;
-	    case 1: *offp=col; break;
-	    case 2: *offp=(~col)&pixelmask; break;
-	    case 3: *offp&=col; break;
-	    case 4: *offp|=col; break;
-	    case 5: *offp^=col; break;
-	    }
-	  }//mask
-	}//bounds
-	offp++;
-	cp++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
+      col=*cp;
+      if ((!passed)||(col!=mask)){
+        switch(option){
+        case 0: *offp^=col; break;
+        case 1: *offp=col; break;
+        case 2: *offp=(~col)&pixelmask; break;
+        case 3: *offp&=col; break;
+        case 4: *offp|=col; break;
+        case 5: *offp^=col; break;
+        }
+      }//mask
+    }//bounds
+    offp++;
+    cp++;
       }}
     return;
   }//8
@@ -16433,21 +16433,21 @@ void sub_graphics_put(float x1f,float y1f,void *element,int32 option,uint32 mask
     for (y=y1;y<=y2;y++){
       off32p=(uint32*)write_page->offset32+(y*sx+x1);
       for (x=x1;x<=x2;x++){
-	if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
-	  col=*lp;
-	  if ((!passed)||(col!=mask)){
-	    switch(option){
-	    case 0: *off32p^=col; break;
-	    case 1: *off32p=col; break;
-	    case 2: *off32p=(~col)&pixelmask; break;
-	    case 3: *off32p&=col; break;
-	    case 4: *off32p|=col; break;
-	    case 5: *off32p^=col; break;
-	    }
-	  }//mask
-	}//bounds
-	off32p++;
-	lp++;
+    if ((x>=0)&&(y>=0)&&(x<sx)&&(y<sy)){
+      col=*lp;
+      if ((!passed)||(col!=mask)){
+        switch(option){
+        case 0: *off32p^=col; break;
+        case 1: *off32p=col; break;
+        case 2: *off32p=(~col)&pixelmask; break;
+        case 3: *off32p&=col; break;
+        case 4: *off32p|=col; break;
+        case 5: *off32p^=col; break;
+        }
+      }//mask
+    }//bounds
+    off32p++;
+    lp++;
       }}
     return;
   }//32
@@ -16972,19 +16972,19 @@ int32 func_inp(int32 port){
     if (write_page->pal){//avoid NULL pointer
       //convert 0-255 value to 0-63 value
       if (H3C9_read_next==0){//red
-	value=qbr_double_to_long((((double)((write_page->pal[H3C7_palette_register_read_index]>>16)&255))/3.984376-0.4999999f));
+    value=qbr_double_to_long((((double)((write_page->pal[H3C7_palette_register_read_index]>>16)&255))/3.984376-0.4999999f));
       }
       if (H3C9_read_next==1){//green
-	value=qbr_double_to_long((((double)((write_page->pal[H3C7_palette_register_read_index]>>8)&255))/3.984376-0.4999999f));
+    value=qbr_double_to_long((((double)((write_page->pal[H3C7_palette_register_read_index]>>8)&255))/3.984376-0.4999999f));
       }
       if (H3C9_read_next==2){//blue
-	value=qbr_double_to_long((((double)(write_page->pal[H3C7_palette_register_read_index]&255))/3.984376-0.4999999f));
+    value=qbr_double_to_long((((double)(write_page->pal[H3C7_palette_register_read_index]&255))/3.984376-0.4999999f));
       }
       H3C9_read_next=H3C9_read_next+1;
       if (H3C9_read_next==3){
-	H3C9_read_next=0;
-	H3C7_palette_register_read_index=H3C7_palette_register_read_index+1;
-	H3C7_palette_register_read_index&=0xFF;
+    H3C9_read_next=0;
+    H3C7_palette_register_read_index=H3C7_palette_register_read_index+1;
+    H3C7_palette_register_read_index&=0xFF;
       }
       return value;
     }//->pal
@@ -17102,12 +17102,12 @@ qbs *func_tab(int32 pos){
       div=1;
     }else{
       if (fontwidth[write_page->font]){
-	w=write_page->width/fontwidth[write_page->font];
-	div=1;
+    w=write_page->width/fontwidth[write_page->font];
+    div=1;
       }else{
-	//w=func__printwidth(singlespace,NULL,0);
-	w=write_page->width;
-	div=func__printwidth(singlespace,NULL,0);
+    //w=func__printwidth(singlespace,NULL,0);
+    w=write_page->width;
+    div=func__printwidth(singlespace,NULL,0);
       }
     }
     cursor=write_page->cursor_x;
@@ -17269,8 +17269,8 @@ uint32 func_screen(int32 y,int32 x,int32 returncol,int32 passed){
     for (x2=0;x2<fontwidth[read_page->font];x2++){
       col=point(x3,y3);
       if (col){
-	if (i3){i3=0;firstcol=col;}
-	col=255;
+    if (i3){i3=0;firstcol=col;}
+    col=255;
       }
       chr[i]=col;
       i++;
@@ -17521,11 +17521,11 @@ qbs *func_input(int32 n,int32 i,int32 passed){
     if (gfs->type==3){
       x=0;
       do{
-	c=file_input_chr(i);
-	if (c==-1){error(62); return str;}//Input past end of file
-	if (c==-2){error(75); return str;}//path/file access error
-	str->chr[x]=c;
-	x++;
+    c=file_input_chr(i);
+    if (c==-1){error(62); return str;}//Input past end of file
+    if (c==-2){error(75); return str;}//path/file access error
+    str->chr[x]=c;
+    x++;
       }while(x<n);
       return str;
     }
@@ -17539,14 +17539,14 @@ qbs *func_input(int32 n,int32 i,int32 passed){
       static int32 e;
       e=gfs_read(i,-1,str->chr,n);
       if (e){
-	if (e!=-10){//note: on eof, unread buffer area becomes NULL
-	  str->len=0;
-	  if (e==-2){error(258); return str;}//invalid handle
-	  if (e==-3){error(54); return str;}//bad file mode
-	  if (e==-4){error(5); return str;}//illegal function call
-	  if (e==-7){error(70); return str;}//permission denied
-	  error(75); return str;//assume[-9]: path/file access error
-	}
+    if (e!=-10){//note: on eof, unread buffer area becomes NULL
+      str->len=0;
+      if (e==-2){error(258); return str;}//invalid handle
+      if (e==-3){error(54); return str;}//bad file mode
+      if (e==-4){error(5); return str;}//illegal function call
+      if (e==-7){error(70); return str;}//permission denied
+      error(75); return str;//assume[-9]: path/file access error
+    }
       }
       str->len=gfs_read_bytes();//adjust if not enough data was available
       return str;
@@ -17625,17 +17625,17 @@ int32 cmd_ok(){
     ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
     if(
        CreateProcess(
-		     NULL,           // No module name (use command line)
-		     "cmd.exe /c ver",// Command line
-		     NULL,           // Process handle not inheritable
-		     NULL,           // Thread handle not inheritable
-		     FALSE,          // Set handle inheritance to FALSE
-		     CREATE_NO_WINDOW, // No creation flags
-		     NULL,           // Use parent's environment block
-		     NULL,           // Use parent's starting directory 
-		     &si,            // Pointer to STARTUPINFO structure
-		     &pi             // Pointer to PROCESS_INFORMATION structure
-		     )
+             NULL,           // No module name (use command line)
+             "cmd.exe /c ver",// Command line
+             NULL,           // Process handle not inheritable
+             NULL,           // Thread handle not inheritable
+             FALSE,          // Set handle inheritance to FALSE
+             CREATE_NO_WINDOW, // No creation flags
+             NULL,           // Use parent's environment block
+             NULL,           // Use parent's starting directory 
+             &si,            // Pointer to STARTUPINFO structure
+             &pi             // Pointer to PROCESS_INFORMATION structure
+             )
        ){
       WaitForSingleObject(pi.hProcess,INFINITE);
       CloseHandle(pi.hProcess);
@@ -17755,30 +17755,30 @@ int64 func_shell(qbs *str){
       qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
       shell_call_in_progress=1;
       /*
-	freopen("stdout.buf", "w", stdout);
-	freopen("stderr.buf", "w", stderr);
+    freopen("stdout.buf", "w", stdout);
+    freopen("stderr.buf", "w", stderr);
       */
       return_code=system((char*)strz->chr);
       /*
-	freopen("CON", "w", stdout);
-	freopen("CON", "w", stderr);
-	static char buf[1024];
-	static int buflen;
-	static int fd;
-	fd = open("stdout.buf", O_RDONLY);
-	while((buflen = read(fd, buf, 1024)) > 0)
-	{
-	write(1, buf, buflen);
-	}
-	close(fd);
-	fd = open("stderr.buf", O_RDONLY);
-	while((buflen = read(fd, buf, 1024)) > 0)
-	{
-	write(1, buf, buflen);
-	}
-	close(fd);
-	remove("stdout.buf");
-	remove("stderr.buf");
+    freopen("CON", "w", stdout);
+    freopen("CON", "w", stderr);
+    static char buf[1024];
+    static int buflen;
+    static int fd;
+    fd = open("stdout.buf", O_RDONLY);
+    while((buflen = read(fd, buf, 1024)) > 0)
+    {
+    write(1, buf, buflen);
+    }
+    close(fd);
+    fd = open("stderr.buf", O_RDONLY);
+    while((buflen = read(fd, buf, 1024)) > 0)
+    {
+    write(1, buf, buflen);
+    }
+    close(fd);
+    remove("stdout.buf");
+    remove("stderr.buf");
       */
       shell_call_in_progress=0;
       goto shell_complete;
@@ -17800,63 +17800,63 @@ int64 func_shell(qbs *str){
       if (!str1->len) goto shell_complete;//failed!
 
       if (!cmd_command(str1)){
-	//try directly, as is
-	qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &shi, sizeof(shi) );
-	shi.cbSize = sizeof(shi);
-	shi.lpFile=(char*)&str1z->chr[0];
-	shi.lpParameters=NULL;
-	shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
-	shi.nShow=SW_SHOW;
-	if(ShellExecuteEx(&shi)){
-	  shell_call_in_progress=1;
-	  // Wait until child process exits.
-	  WaitForSingleObject( shi.hProcess, INFINITE );
-	  GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
-	  CloseHandle(shi.hProcess);
-	  shell_call_in_progress=0;
-	  goto shell_complete;
-	}
+    //try directly, as is
+    qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &shi, sizeof(shi) );
+    shi.cbSize = sizeof(shi);
+    shi.lpFile=(char*)&str1z->chr[0];
+    shi.lpParameters=NULL;
+    shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+    shi.nShow=SW_SHOW;
+    if(ShellExecuteEx(&shi)){
+      shell_call_in_progress=1;
+      // Wait until child process exits.
+      WaitForSingleObject( shi.hProcess, INFINITE );
+      GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
+      CloseHandle(shi.hProcess);
+      shell_call_in_progress=0;
+      goto shell_complete;
+    }
       }
 
       x=0;
       quotes=0;
       while (x<str1->len){
-	if (str1->chr[x]==34){
-	  if (!quotes) quotes=1; else quotes=0;
-	}
-	if (str1->chr[x]==32){
-	  if (quotes==0){
-	    qbs_set(str2,qbs_right(str1,str1->len-x-1));
-	    qbs_set(str1,qbs_left(str1,x));
-	    goto split;
-	  }
-	}
-	x++;
+    if (str1->chr[x]==34){
+      if (!quotes) quotes=1; else quotes=0;
+    }
+    if (str1->chr[x]==32){
+      if (quotes==0){
+        qbs_set(str2,qbs_right(str1,str1->len-x-1));
+        qbs_set(str1,qbs_left(str1,x));
+        goto split;
+      }
+    }
+    x++;
       }
     split:
       if (!str1->len) goto shell_complete;//failed!
 
       if (str2->len){ if (!cmd_command(str1)){
-	  qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	  qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
-	  ZeroMemory( &shi, sizeof(shi) );
-	  shi.cbSize = sizeof(shi);
-	  shi.lpFile=(char*)&str1z->chr[0];
-	  shi.lpParameters=(char*)&str2z->chr[0];
-	  //if (str2->len<=1) shi.lpParameters=NULL;
-	  shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
-	  shi.nShow=SW_SHOW;
-	  if(ShellExecuteEx(&shi)){
-	    shell_call_in_progress=1;
-	    // Wait until child process exits.
-	    WaitForSingleObject( shi.hProcess, INFINITE );
-	    GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
-	    CloseHandle(shi.hProcess);
-	    shell_call_in_progress=0;
-	    goto shell_complete;
-	  }
-	}}
+      qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+      qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
+      ZeroMemory( &shi, sizeof(shi) );
+      shi.cbSize = sizeof(shi);
+      shi.lpFile=(char*)&str1z->chr[0];
+      shi.lpParameters=(char*)&str2z->chr[0];
+      //if (str2->len<=1) shi.lpParameters=NULL;
+      shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+      shi.nShow=SW_SHOW;
+      if(ShellExecuteEx(&shi)){
+        shell_call_in_progress=1;
+        // Wait until child process exits.
+        WaitForSingleObject( shi.hProcess, INFINITE );
+        GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
+        CloseHandle(shi.hProcess);
+        shell_call_in_progress=0;
+        goto shell_complete;
+      }
+    }}
 
       //failed, try cmd /c method...
       if (str2->len) qbs_set(str2,qbs_add(qbs_new_txt(" "),str2));
@@ -17870,20 +17870,20 @@ int64 func_shell(qbs *str){
       shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
       shi.nShow=SW_SHOW;
       if(ShellExecuteEx(&shi)){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( shi.hProcess, INFINITE );
-	GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
-	CloseHandle(shi.hProcess);
-	shell_call_in_progress=0;
-	goto shell_complete;
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( shi.hProcess, INFINITE );
+    GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
+    CloseHandle(shi.hProcess);
+    shell_call_in_progress=0;
+    goto shell_complete;
       }
 
       /*
-	qbs_set(strz,qbs_add(qbs_new_txt("cmd.exe /c "),str));
-	qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
-	if(CreateProcess(
+    qbs_set(strz,qbs_add(qbs_new_txt("cmd.exe /c "),str));
+    qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
+    if(CreateProcess(
         NULL,           // No module name (use command line)
         (char*)&strz->chr[0], // Command line
         NULL,           // Process handle not inheritable
@@ -17894,16 +17894,16 @@ int64 func_shell(qbs *str){
         NULL,           // Use parent's starting directory 
         &si,            // Pointer to STARTUPINFO structure
         &pi )           // Pointer to PROCESS_INFORMATION structure
-	){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( pi.hProcess, INFINITE );
-	// Close process and thread handles. 
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-	shell_call_in_progress=0;
-	goto shell_complete;
-	}
+    ){
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( pi.hProcess, INFINITE );
+    // Close process and thread handles. 
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+    shell_call_in_progress=0;
+    goto shell_complete;
+    }
       */
 
       return_code=1;
@@ -17915,25 +17915,25 @@ int64 func_shell(qbs *str){
       qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
       ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
       if(CreateProcess(
-		       NULL,           // No module name (use command line)
-		       (char*)&strz->chr[0], // Command line
-		       NULL,           // Process handle not inheritable
-		       NULL,           // Thread handle not inheritable
-		       FALSE,          // Set handle inheritance to FALSE
-		       CREATE_NEW_CONSOLE, // No creation flags
-		       NULL,           // Use parent's environment block
-		       NULL,           // Use parent's starting directory 
-		       &si,            // Pointer to STARTUPINFO structure
-		       &pi )           // Pointer to PROCESS_INFORMATION structure
-	 ){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( pi.hProcess, INFINITE );
-	// Close process and thread handles. 
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-	shell_call_in_progress=0;
-	goto shell_complete;
+               NULL,           // No module name (use command line)
+               (char*)&strz->chr[0], // Command line
+               NULL,           // Process handle not inheritable
+               NULL,           // Thread handle not inheritable
+               FALSE,          // Set handle inheritance to FALSE
+               CREATE_NEW_CONSOLE, // No creation flags
+               NULL,           // Use parent's environment block
+               NULL,           // Use parent's starting directory 
+               &si,            // Pointer to STARTUPINFO structure
+               &pi )           // Pointer to PROCESS_INFORMATION structure
+     ){
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( pi.hProcess, INFINITE );
+    // Close process and thread handles. 
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+    shell_call_in_progress=0;
+    goto shell_complete;
       }
       goto shell_complete;//failed
 
@@ -18028,13 +18028,13 @@ int64 func__shellhide(qbs *str){ //func _SHELLHIDE(...
       shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
       shi.nShow=SW_HIDE;
       if(ShellExecuteEx(&shi)){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( shi.hProcess, INFINITE );
-	GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
-	CloseHandle(shi.hProcess);
-	shell_call_in_progress=0;
-	goto shell_complete;
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( shi.hProcess, INFINITE );
+    GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
+    CloseHandle(shi.hProcess);
+    shell_call_in_progress=0;
+    goto shell_complete;
       }
     }
 
@@ -18042,14 +18042,14 @@ int64 func__shellhide(qbs *str){ //func _SHELLHIDE(...
     quotes=0;
     while (x<str1->len){
       if (str1->chr[x]==34){
-	if (!quotes) quotes=1; else quotes=0;
+    if (!quotes) quotes=1; else quotes=0;
       }
       if (str1->chr[x]==32){
-	if (quotes==0){
-	  qbs_set(str2,qbs_right(str1,str1->len-x-1));
-	  qbs_set(str1,qbs_left(str1,x));
-	  goto split;
-	}
+    if (quotes==0){
+      qbs_set(str2,qbs_right(str1,str1->len-x-1));
+      qbs_set(str1,qbs_left(str1,x));
+      goto split;
+    }
       }
       x++;
     }
@@ -18057,24 +18057,24 @@ int64 func__shellhide(qbs *str){ //func _SHELLHIDE(...
     if (!str1->len) {return_code=1; goto shell_complete;}//failed!
 
     if (str2->len){ if (!cmd_command(str1)){
-	qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &shi, sizeof(shi) );
-	shi.cbSize = sizeof(shi);
-	shi.lpFile=(char*)&str1z->chr[0];
-	shi.lpParameters=(char*)&str2z->chr[0];
-	//if (str2->len<=1) shi.lpParameters=NULL;
-	shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
-	shi.nShow=SW_HIDE;
-	if(ShellExecuteEx(&shi)){
-	  shell_call_in_progress=1;
-	  // Wait until child process exits.
-	  WaitForSingleObject( shi.hProcess, INFINITE );
-	  GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
-	  CloseHandle(shi.hProcess);
-	  shell_call_in_progress=0;
-	  goto shell_complete;
-	}
+    qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+    qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &shi, sizeof(shi) );
+    shi.cbSize = sizeof(shi);
+    shi.lpFile=(char*)&str1z->chr[0];
+    shi.lpParameters=(char*)&str2z->chr[0];
+    //if (str2->len<=1) shi.lpParameters=NULL;
+    shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+    shi.nShow=SW_HIDE;
+    if(ShellExecuteEx(&shi)){
+      shell_call_in_progress=1;
+      // Wait until child process exits.
+      WaitForSingleObject( shi.hProcess, INFINITE );
+      GetExitCodeProcess(shi.hProcess,(DWORD*)&return_code);
+      CloseHandle(shi.hProcess);
+      shell_call_in_progress=0;
+      goto shell_complete;
+    }
       }}
 
     //failed, try cmd /c method...
@@ -18135,16 +18135,16 @@ int64 func__shellhide(qbs *str){ //func _SHELLHIDE(...
     ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
     if(CreateProcess(
 
-		     NULL,           // No module name (use command line)
-		     (char*)&strz->chr[0], // Command line
-		     NULL,           // Process handle not inheritable
-		     NULL,           // Thread handle not inheritable
-		     FALSE,          // Set handle inheritance to FALSE
-		     CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
-		     NULL,           // Use parent's environment block
-		     NULL,           // Use parent's starting directory 
-		     &si,            // Pointer to STARTUPINFO structure
-		     &pi )           // Pointer to PROCESS_INFORMATION structure
+             NULL,           // No module name (use command line)
+             (char*)&strz->chr[0], // Command line
+             NULL,           // Process handle not inheritable
+             NULL,           // Thread handle not inheritable
+             FALSE,          // Set handle inheritance to FALSE
+             CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
+             NULL,           // Use parent's environment block
+             NULL,           // Use parent's starting directory 
+             &si,            // Pointer to STARTUPINFO structure
+             &pi )           // Pointer to PROCESS_INFORMATION structure
        ){
       shell_call_in_progress=1;
       // Wait until child process exits.
@@ -18254,30 +18254,30 @@ void sub_shell(qbs *str,int32 passed){
       qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
       shell_call_in_progress=1;
       /*
-	freopen("stdout.buf", "w", stdout);
-	freopen("stderr.buf", "w", stderr);
+    freopen("stdout.buf", "w", stdout);
+    freopen("stderr.buf", "w", stderr);
       */
       system((char*)strz->chr);
       /*
-	freopen("CON", "w", stdout);
-	freopen("CON", "w", stderr);
-	static char buf[1024];
-	static int buflen;
-	static int fd;
-	fd = open("stdout.buf", O_RDONLY);
-	while((buflen = read(fd, buf, 1024)) > 0)
-	{
-	write(1, buf, buflen);
-	}
-	close(fd);
-	fd = open("stderr.buf", O_RDONLY);
-	while((buflen = read(fd, buf, 1024)) > 0)
-	{
-	write(1, buf, buflen);
-	}
-	close(fd);
-	remove("stdout.buf");
-	remove("stderr.buf");
+    freopen("CON", "w", stdout);
+    freopen("CON", "w", stderr);
+    static char buf[1024];
+    static int buflen;
+    static int fd;
+    fd = open("stdout.buf", O_RDONLY);
+    while((buflen = read(fd, buf, 1024)) > 0)
+    {
+    write(1, buf, buflen);
+    }
+    close(fd);
+    fd = open("stderr.buf", O_RDONLY);
+    while((buflen = read(fd, buf, 1024)) > 0)
+    {
+    write(1, buf, buflen);
+    }
+    close(fd);
+    remove("stdout.buf");
+    remove("stderr.buf");
       */
       shell_call_in_progress=0;
       goto shell_complete;
@@ -18301,61 +18301,61 @@ void sub_shell(qbs *str,int32 passed){
       if (!str1->len) goto shell_complete;//failed!
 
       if (!cmd_command(str1)){
-	//try directly, as is
-	qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &shi, sizeof(shi) );
-	shi.cbSize = sizeof(shi);
-	shi.lpFile=(char*)&str1z->chr[0];
-	shi.lpParameters=NULL;
-	shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
-	shi.nShow=SW_SHOW;
-	if(ShellExecuteEx(&shi)){
-	  shell_call_in_progress=1;
-	  // Wait until child process exits.
-	  WaitForSingleObject( shi.hProcess, INFINITE );
-	  CloseHandle(shi.hProcess);
-	  shell_call_in_progress=0;
-	  goto shell_complete;
-	}
+    //try directly, as is
+    qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &shi, sizeof(shi) );
+    shi.cbSize = sizeof(shi);
+    shi.lpFile=(char*)&str1z->chr[0];
+    shi.lpParameters=NULL;
+    shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+    shi.nShow=SW_SHOW;
+    if(ShellExecuteEx(&shi)){
+      shell_call_in_progress=1;
+      // Wait until child process exits.
+      WaitForSingleObject( shi.hProcess, INFINITE );
+      CloseHandle(shi.hProcess);
+      shell_call_in_progress=0;
+      goto shell_complete;
+    }
       }
 
       x=0;
       quotes=0;
       while (x<str1->len){
-	if (str1->chr[x]==34){
-	  if (!quotes) quotes=1; else quotes=0;
-	}
-	if (str1->chr[x]==32){
-	  if (quotes==0){
-	    qbs_set(str2,qbs_right(str1,str1->len-x-1));
-	    qbs_set(str1,qbs_left(str1,x));
-	    goto split;
-	  }
-	}
-	x++;
+    if (str1->chr[x]==34){
+      if (!quotes) quotes=1; else quotes=0;
+    }
+    if (str1->chr[x]==32){
+      if (quotes==0){
+        qbs_set(str2,qbs_right(str1,str1->len-x-1));
+        qbs_set(str1,qbs_left(str1,x));
+        goto split;
+      }
+    }
+    x++;
       }
     split:
       if (!str1->len) goto shell_complete;//failed!
 
       if (str2->len){ if (!cmd_command(str1)){
-	  qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	  qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
-	  ZeroMemory( &shi, sizeof(shi) );
-	  shi.cbSize = sizeof(shi);
-	  shi.lpFile=(char*)&str1z->chr[0];
-	  shi.lpParameters=(char*)&str2z->chr[0];
-	  //if (str2->len<=1) shi.lpParameters=NULL;
-	  shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
-	  shi.nShow=SW_SHOW;
-	  if(ShellExecuteEx(&shi)){
-	    shell_call_in_progress=1;
-	    // Wait until child process exits.
-	    WaitForSingleObject( shi.hProcess, INFINITE );
-	    CloseHandle(shi.hProcess);
-	    shell_call_in_progress=0;
-	    goto shell_complete;
-	  }
-	}}
+      qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+      qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
+      ZeroMemory( &shi, sizeof(shi) );
+      shi.cbSize = sizeof(shi);
+      shi.lpFile=(char*)&str1z->chr[0];
+      shi.lpParameters=(char*)&str2z->chr[0];
+      //if (str2->len<=1) shi.lpParameters=NULL;
+      shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+      shi.nShow=SW_SHOW;
+      if(ShellExecuteEx(&shi)){
+        shell_call_in_progress=1;
+        // Wait until child process exits.
+        WaitForSingleObject( shi.hProcess, INFINITE );
+        CloseHandle(shi.hProcess);
+        shell_call_in_progress=0;
+        goto shell_complete;
+      }
+    }}
 
       //failed, try cmd /c method...
       if (str2->len) qbs_set(str2,qbs_add(qbs_new_txt(" "),str2));
@@ -18369,19 +18369,19 @@ void sub_shell(qbs *str,int32 passed){
       shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
       shi.nShow=SW_SHOW;
       if(ShellExecuteEx(&shi)){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( shi.hProcess, INFINITE );
-	CloseHandle(shi.hProcess);
-	shell_call_in_progress=0;
-	goto shell_complete;
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( shi.hProcess, INFINITE );
+    CloseHandle(shi.hProcess);
+    shell_call_in_progress=0;
+    goto shell_complete;
       }
 
       /*
-	qbs_set(strz,qbs_add(qbs_new_txt("cmd.exe /c "),str));
-	qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
-	if(CreateProcess(
+    qbs_set(strz,qbs_add(qbs_new_txt("cmd.exe /c "),str));
+    qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
+    if(CreateProcess(
         NULL,           // No module name (use command line)
         (char*)&strz->chr[0], // Command line
         NULL,           // Process handle not inheritable
@@ -18392,16 +18392,16 @@ void sub_shell(qbs *str,int32 passed){
         NULL,           // Use parent's starting directory 
         &si,            // Pointer to STARTUPINFO structure
         &pi )           // Pointer to PROCESS_INFORMATION structure
-	){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( pi.hProcess, INFINITE );
-	// Close process and thread handles. 
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-	shell_call_in_progress=0;
-	goto shell_complete;
-	}
+    ){
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( pi.hProcess, INFINITE );
+    // Close process and thread handles. 
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+    shell_call_in_progress=0;
+    goto shell_complete;
+    }
       */
 
       goto shell_complete;//failed
@@ -18412,25 +18412,25 @@ void sub_shell(qbs *str,int32 passed){
       qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
       ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
       if(CreateProcess(
-		       NULL,           // No module name (use command line)
-		       (char*)&strz->chr[0], // Command line
-		       NULL,           // Process handle not inheritable
-		       NULL,           // Thread handle not inheritable
-		       FALSE,          // Set handle inheritance to FALSE
-		       CREATE_NEW_CONSOLE, // No creation flags
-		       NULL,           // Use parent's environment block
-		       NULL,           // Use parent's starting directory 
-		       &si,            // Pointer to STARTUPINFO structure
-		       &pi )           // Pointer to PROCESS_INFORMATION structure
-	 ){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( pi.hProcess, INFINITE );
-	// Close process and thread handles. 
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-	shell_call_in_progress=0;
-	goto shell_complete;
+               NULL,           // No module name (use command line)
+               (char*)&strz->chr[0], // Command line
+               NULL,           // Process handle not inheritable
+               NULL,           // Thread handle not inheritable
+               FALSE,          // Set handle inheritance to FALSE
+               CREATE_NEW_CONSOLE, // No creation flags
+               NULL,           // Use parent's environment block
+               NULL,           // Use parent's starting directory 
+               &si,            // Pointer to STARTUPINFO structure
+               &pi )           // Pointer to PROCESS_INFORMATION structure
+     ){
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( pi.hProcess, INFINITE );
+    // Close process and thread handles. 
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+    shell_call_in_progress=0;
+    goto shell_complete;
       }
       goto shell_complete;//failed
 
@@ -18533,12 +18533,12 @@ void sub_shell2(qbs *str,int32 passed){ //HIDE
       shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
       shi.nShow=SW_HIDE;
       if(ShellExecuteEx(&shi)){
-	shell_call_in_progress=1;
-	// Wait until child process exits.
-	WaitForSingleObject( shi.hProcess, INFINITE );
-	CloseHandle(shi.hProcess);
-	shell_call_in_progress=0;
-	goto shell_complete;
+    shell_call_in_progress=1;
+    // Wait until child process exits.
+    WaitForSingleObject( shi.hProcess, INFINITE );
+    CloseHandle(shi.hProcess);
+    shell_call_in_progress=0;
+    goto shell_complete;
       }
     }
 
@@ -18546,14 +18546,14 @@ void sub_shell2(qbs *str,int32 passed){ //HIDE
     quotes=0;
     while (x<str1->len){
       if (str1->chr[x]==34){
-	if (!quotes) quotes=1; else quotes=0;
+    if (!quotes) quotes=1; else quotes=0;
       }
       if (str1->chr[x]==32){
-	if (quotes==0){
-	  qbs_set(str2,qbs_right(str1,str1->len-x-1));
-	  qbs_set(str1,qbs_left(str1,x));
-	  goto split;
-	}
+    if (quotes==0){
+      qbs_set(str2,qbs_right(str1,str1->len-x-1));
+      qbs_set(str1,qbs_left(str1,x));
+      goto split;
+    }
       }
       x++;
     }
@@ -18561,23 +18561,23 @@ void sub_shell2(qbs *str,int32 passed){ //HIDE
     if (!str1->len) goto shell_complete;//failed!
 
     if (str2->len){ if (!cmd_command(str1)){
-	qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &shi, sizeof(shi) );
-	shi.cbSize = sizeof(shi);
-	shi.lpFile=(char*)&str1z->chr[0];
-	shi.lpParameters=(char*)&str2z->chr[0];
-	//if (str2->len<=1) shi.lpParameters=NULL;
-	shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
-	shi.nShow=SW_HIDE;
-	if(ShellExecuteEx(&shi)){
-	  shell_call_in_progress=1;
-	  // Wait until child process exits.
-	  WaitForSingleObject( shi.hProcess, INFINITE );
-	  CloseHandle(shi.hProcess);
-	  shell_call_in_progress=0;
-	  goto shell_complete;
-	}
+    qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+    qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &shi, sizeof(shi) );
+    shi.cbSize = sizeof(shi);
+    shi.lpFile=(char*)&str1z->chr[0];
+    shi.lpParameters=(char*)&str2z->chr[0];
+    //if (str2->len<=1) shi.lpParameters=NULL;
+    shi.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+    shi.nShow=SW_HIDE;
+    if(ShellExecuteEx(&shi)){
+      shell_call_in_progress=1;
+      // Wait until child process exits.
+      WaitForSingleObject( shi.hProcess, INFINITE );
+      CloseHandle(shi.hProcess);
+      shell_call_in_progress=0;
+      goto shell_complete;
+    }
       }}
 
     //failed, try cmd /c method...
@@ -18636,16 +18636,16 @@ void sub_shell2(qbs *str,int32 passed){ //HIDE
     ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
     if(CreateProcess(
 
-		     NULL,           // No module name (use command line)
-		     (char*)&strz->chr[0], // Command line
-		     NULL,           // Process handle not inheritable
-		     NULL,           // Thread handle not inheritable
-		     FALSE,          // Set handle inheritance to FALSE
-		     CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
-		     NULL,           // Use parent's environment block
-		     NULL,           // Use parent's starting directory 
-		     &si,            // Pointer to STARTUPINFO structure
-		     &pi )           // Pointer to PROCESS_INFORMATION structure
+             NULL,           // No module name (use command line)
+             (char*)&strz->chr[0], // Command line
+             NULL,           // Process handle not inheritable
+             NULL,           // Thread handle not inheritable
+             FALSE,          // Set handle inheritance to FALSE
+             CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
+             NULL,           // Use parent's environment block
+             NULL,           // Use parent's starting directory 
+             &si,            // Pointer to STARTUPINFO structure
+             &pi )           // Pointer to PROCESS_INFORMATION structure
        ){
       shell_call_in_progress=1;
       // Wait until child process exits.
@@ -18740,7 +18740,7 @@ void sub_shell3(qbs *str,int32 passed){//_DONTWAIT
       shi.fMask=SEE_MASK_FLAG_NO_UI;
       shi.nShow=SW_SHOW;
       if(ShellExecuteEx(&shi)){
-	goto shell_complete;
+    goto shell_complete;
       }
     }
 
@@ -18748,14 +18748,14 @@ void sub_shell3(qbs *str,int32 passed){//_DONTWAIT
     quotes=0;
     while (x<str1->len){
       if (str1->chr[x]==34){
-	if (!quotes) quotes=1; else quotes=0;
+    if (!quotes) quotes=1; else quotes=0;
       }
       if (str1->chr[x]==32){
-	if (quotes==0){
-	  qbs_set(str2,qbs_right(str1,str1->len-x-1));
-	  qbs_set(str1,qbs_left(str1,x));
-	  goto split;
-	}
+    if (quotes==0){
+      qbs_set(str2,qbs_right(str1,str1->len-x-1));
+      qbs_set(str1,qbs_left(str1,x));
+      goto split;
+    }
       }
       x++;
     }
@@ -18763,18 +18763,18 @@ void sub_shell3(qbs *str,int32 passed){//_DONTWAIT
     if (!str1->len) goto shell_complete;//failed!
 
     if (str2->len){ if (!cmd_command(str1)){
-	qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &shi, sizeof(shi) );
-	shi.cbSize = sizeof(shi);
-	shi.lpFile=(char*)&str1z->chr[0];
-	shi.lpParameters=(char*)&str2z->chr[0];
-	//if (str2->len<=1) shi.lpParameters=NULL;
-	shi.fMask=SEE_MASK_FLAG_NO_UI;
-	shi.nShow=SW_SHOW;
-	if(ShellExecuteEx(&shi)){
-	  goto shell_complete;
-	}
+    qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+    qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &shi, sizeof(shi) );
+    shi.cbSize = sizeof(shi);
+    shi.lpFile=(char*)&str1z->chr[0];
+    shi.lpParameters=(char*)&str2z->chr[0];
+    //if (str2->len<=1) shi.lpParameters=NULL;
+    shi.fMask=SEE_MASK_FLAG_NO_UI;
+    shi.nShow=SW_SHOW;
+    if(ShellExecuteEx(&shi)){
+      goto shell_complete;
+    }
       }}
 
     //failed, try cmd /c method...
@@ -18823,16 +18823,16 @@ void sub_shell3(qbs *str,int32 passed){//_DONTWAIT
     qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
     ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
     if(CreateProcess(
-		     NULL,           // No module name (use command line)
-		     (char*)&strz->chr[0], // Command line
-		     NULL,           // Process handle not inheritable
-		     NULL,           // Thread handle not inheritable
-		     FALSE,          // Set handle inheritance to FALSE
-		     CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
-		     NULL,           // Use parent's environment block
-		     NULL,           // Use parent's starting directory 
-		     &si,            // Pointer to STARTUPINFO structure
-		     &pi )           // Pointer to PROCESS_INFORMATION structure
+             NULL,           // No module name (use command line)
+             (char*)&strz->chr[0], // Command line
+             NULL,           // Process handle not inheritable
+             NULL,           // Thread handle not inheritable
+             FALSE,          // Set handle inheritance to FALSE
+             CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
+             NULL,           // Use parent's environment block
+             NULL,           // Use parent's starting directory 
+             &si,            // Pointer to STARTUPINFO structure
+             &pi )           // Pointer to PROCESS_INFORMATION structure
        ){
       //ref: The created process remains in the system until all threads within the process have terminated and all handles to the process and any of its threads have been closed through calls to CloseHandle. The handles for both the process and the main thread must be closed through calls to CloseHandle. If these handles are not needed, it is best to close them immediately after the process is created. 
       CloseHandle( pi.hProcess );
@@ -18927,7 +18927,7 @@ void sub_shell4(qbs *str,int32 passed){//_DONTWAIT & _HIDE
       shi.fMask=SEE_MASK_FLAG_NO_UI;
       shi.nShow=SW_HIDE;
       if(ShellExecuteEx(&shi)){
-	goto shell_complete;
+    goto shell_complete;
       }
     }
 
@@ -18935,14 +18935,14 @@ void sub_shell4(qbs *str,int32 passed){//_DONTWAIT & _HIDE
     quotes=0;
     while (x<str1->len){
       if (str1->chr[x]==34){
-	if (!quotes) quotes=1; else quotes=0;
+    if (!quotes) quotes=1; else quotes=0;
       }
       if (str1->chr[x]==32){
-	if (quotes==0){
-	  qbs_set(str2,qbs_right(str1,str1->len-x-1));
-	  qbs_set(str1,qbs_left(str1,x));
-	  goto split;
-	}
+    if (quotes==0){
+      qbs_set(str2,qbs_right(str1,str1->len-x-1));
+      qbs_set(str1,qbs_left(str1,x));
+      goto split;
+    }
       }
       x++;
     }
@@ -18950,18 +18950,18 @@ void sub_shell4(qbs *str,int32 passed){//_DONTWAIT & _HIDE
     if (!str1->len) goto shell_complete;//failed!
 
     if (str2->len){ if (!cmd_command(str1)){
-	qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
-	qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
-	ZeroMemory( &shi, sizeof(shi) );
-	shi.cbSize = sizeof(shi);
-	shi.lpFile=(char*)&str1z->chr[0];
-	shi.lpParameters=(char*)&str2z->chr[0];
-	//if (str2->len<=1) shi.lpParameters=NULL;
-	shi.fMask=SEE_MASK_FLAG_NO_UI;
-	shi.nShow=SW_HIDE;
-	if(ShellExecuteEx(&shi)){
-	  goto shell_complete;
-	}
+    qbs_set(str1z,qbs_add(str1,qbs_new_txt_len("\0",1)));
+    qbs_set(str2z,qbs_add(str2,qbs_new_txt_len("\0",1)));
+    ZeroMemory( &shi, sizeof(shi) );
+    shi.cbSize = sizeof(shi);
+    shi.lpFile=(char*)&str1z->chr[0];
+    shi.lpParameters=(char*)&str2z->chr[0];
+    //if (str2->len<=1) shi.lpParameters=NULL;
+    shi.fMask=SEE_MASK_FLAG_NO_UI;
+    shi.nShow=SW_HIDE;
+    if(ShellExecuteEx(&shi)){
+      goto shell_complete;
+    }
       }}
 
     //failed, try cmd /c method...
@@ -19010,16 +19010,16 @@ void sub_shell4(qbs *str,int32 passed){//_DONTWAIT & _HIDE
     qbs_set(strz,qbs_add(strz,qbs_new_txt_len("\0",1)));
     ZeroMemory( &si, sizeof(si) ); si.cb = sizeof(si); ZeroMemory( &pi, sizeof(pi) );
     if(CreateProcess(
-		     NULL,           // No module name (use command line)
-		     (char*)&strz->chr[0], // Command line
-		     NULL,           // Process handle not inheritable
-		     NULL,           // Thread handle not inheritable
-		     FALSE,          // Set handle inheritance to FALSE
-		     CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
-		     NULL,           // Use parent's environment block
-		     NULL,           // Use parent's starting directory 
-		     &si,            // Pointer to STARTUPINFO structure
-		     &pi )           // Pointer to PROCESS_INFORMATION structure
+             NULL,           // No module name (use command line)
+             (char*)&strz->chr[0], // Command line
+             NULL,           // Process handle not inheritable
+             NULL,           // Thread handle not inheritable
+             FALSE,          // Set handle inheritance to FALSE
+             CREATE_NEW_CONSOLE, //note: cannot hide new console, but can preserve existing one
+             NULL,           // Use parent's environment block
+             NULL,           // Use parent's starting directory 
+             &si,            // Pointer to STARTUPINFO structure
+             &pi )           // Pointer to PROCESS_INFORMATION structure
        ){
       //ref: The created process remains in the system until all threads within the process have terminated and all handles to the process and any of its threads have been closed through calls to CloseHandle. The handles for both the process and the main thread must be closed through calls to CloseHandle. If these handles are not needed, it is best to close them immediately after the process is created. 
       CloseHandle( pi.hProcess );
@@ -19092,9 +19092,9 @@ void sub_kill(qbs *str){
     if ((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0){
       qbs_set(strfullz,qbs_add(strpath,qbs_new_txt_len(fd.cFileName,strlen(fd.cFileName)+1)));
       if (!DeleteFile((char*)strfullz->chr)){
-	i=GetLastError();
-	if ((i==5)||(i==19)||(i==33)||(i==32)){FindClose(hFind); error(55); return;}//file already open
-	FindClose(hFind); error(53); return;//file not found
+    i=GetLastError();
+    if ((i==5)||(i==19)||(i==33)||(i==32)){FindClose(hFind); error(55); return;}//file already open
+    FindClose(hFind); error(53); return;//file not found
       }
       count++;
     }//not a directory
@@ -19286,9 +19286,9 @@ void sub_mkdir(qbs *str){
 #endif
     if (full_screen){
       if (mousemovementfix_state){//disable fix if active
-	mousemovementfix_state=0;
-	if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-	//note: mouse show state is not reverted
+    mousemovementfix_state=0;
+    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
+    //note: mouse show state is not reverted
       }
       return;
     }
@@ -19312,9 +19312,9 @@ void sub_mkdir(qbs *str){
 
     if (full_screen){
       if (mousemovementfix_state){//disable fix if active
-	mousemovementfix_state=0;
-	if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-	//note: mouse show state is not reverted
+    mousemovementfix_state=0;
+    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
+    //note: mouse show state is not reverted
       }
       return;
     }
@@ -19499,45 +19499,45 @@ void sub_mkdir(qbs *str){
     if (i==0x33){
 
       if (cpu.ax==0){
-	cpu.ax=0xFFFF;//mouse installed
-	cpu.bx=2;
-	return;
+    cpu.ax=0xFFFF;//mouse installed
+    cpu.bx=2;
+    return;
       }
 
       if (cpu.ax==1){sub__mouseshow(NULL,0); return;}
       if (cpu.ax==2){sub__mousehide(); return;}
       if (cpu.ax==3){
-	//return the current mouse status
-	//buttons
-	cpu.bx=mouse_messages[last_mouse_message].buttons&1;
-	if (mouse_messages[last_mouse_message].buttons&4) cpu.bx+=2;
-	//x,y offsets
-	static int32 current_mouse_message_backup;
-	current_mouse_message_backup=current_mouse_message;
-	current_mouse_message=last_mouse_message;
-	static float mx,my;
-	mx=func__mousex(); my=func__mousey();
-	current_mouse_message=current_mouse_message_backup;
-	cpu.cx=mx; cpu.dx=my;
-	//double x-axis value for modes 1,7,13
-	if ((display_page->compatible_mode==1)||(display_page->compatible_mode==7)||(display_page->compatible_mode==13)) cpu.cx*=2;
-	if (display_page->text){
-	  //note: a range from 0 to columns*8-1 is returned regardless of the number of actual pixels
-	  cpu.cx=(mx-0.5)*8.0;
-	  if (cpu.cx>=(display_page->width*8)) cpu.cx=(display_page->width*8)-1;
-	  //note: a range from 0 to rows*8-1 is returned regardless of the number of actual pixels
-	  //obselete line of code: cpu.dx=(((float)cpu.dx)/((float)(display_page->height*fontheight[display_page->font])))*((float)(display_page->height*8));//(mouse_y/height_in_pixels)*(rows*8)
-	  cpu.dx=(my-0.5)*8.0;
-	  if (cpu.dx>=(display_page->height*8)) cpu.dx=(display_page->height*8)-1;
-	}
-	return;
+    //return the current mouse status
+    //buttons
+    cpu.bx=mouse_messages[last_mouse_message].buttons&1;
+    if (mouse_messages[last_mouse_message].buttons&4) cpu.bx+=2;
+    //x,y offsets
+    static int32 current_mouse_message_backup;
+    current_mouse_message_backup=current_mouse_message;
+    current_mouse_message=last_mouse_message;
+    static float mx,my;
+    mx=func__mousex(); my=func__mousey();
+    current_mouse_message=current_mouse_message_backup;
+    cpu.cx=mx; cpu.dx=my;
+    //double x-axis value for modes 1,7,13
+    if ((display_page->compatible_mode==1)||(display_page->compatible_mode==7)||(display_page->compatible_mode==13)) cpu.cx*=2;
+    if (display_page->text){
+      //note: a range from 0 to columns*8-1 is returned regardless of the number of actual pixels
+      cpu.cx=(mx-0.5)*8.0;
+      if (cpu.cx>=(display_page->width*8)) cpu.cx=(display_page->width*8)-1;
+      //note: a range from 0 to rows*8-1 is returned regardless of the number of actual pixels
+      //obselete line of code: cpu.dx=(((float)cpu.dx)/((float)(display_page->height*fontheight[display_page->font])))*((float)(display_page->height*8));//(mouse_y/height_in_pixels)*(rows*8)
+      cpu.dx=(my-0.5)*8.0;
+      if (cpu.dx>=(display_page->height*8)) cpu.dx=(display_page->height*8)-1;
+    }
+    return;
       }
 
       if (cpu.ax==7){//horizontal min/max
-	return;
+    return;
       }
       if (cpu.ax==8){//vertical min/max
-	return;
+    return;
       }
 
       //MessageBox2(NULL,"Unknown MOUSE Sub-function","Call Interrupt Error",MB_OK|MB_SYSTEMMODAL);
@@ -19575,7 +19575,7 @@ void sub_mkdir(qbs *str){
     if (!passed){
       //adopt palette
       if (write_page->pal){
-	memcpy(img[i].pal,write_page->pal,1024);
+    memcpy(img[i].pal,write_page->pal,1024);
       }
       //adopt font
       sub__font(write_page->font,-i,1);
@@ -19616,11 +19616,11 @@ void sub_mkdir(qbs *str){
 
     if (passed&1){
       if (mode!=s->compatible_mode){
-	if (mode!=33||s->compatible_mode!=32){error(5); return -1;}
-	//create new buffered hardware image
-	i2=new_hardware_img(s->width, s->height, (uint32*)s->offset32,
-			    NEW_HARDWARE_IMG__BUFFER_CONTENT | NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER);
-	return i2+HARDWARE_IMG_HANDLE_OFFSET;
+    if (mode!=33||s->compatible_mode!=32){error(5); return -1;}
+    //create new buffered hardware image
+    i2=new_hardware_img(s->width, s->height, (uint32*)s->offset32,
+                NEW_HARDWARE_IMG__BUFFER_CONTENT | NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER);
+    return i2+HARDWARE_IMG_HANDLE_OFFSET;
       }
     }
 
@@ -19651,35 +19651,35 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed){
       if (i>=0){//validate i
-	error(5); return;//The SCREEN's pages cannot be freed!
+    error(5); return;//The SCREEN's pages cannot be freed!
       }else{
 
-	static hardware_img_struct *himg;  
-	if (himg=get_hardware_img(i)){
+    static hardware_img_struct *himg;  
+    if (himg=get_hardware_img(i)){
 
-	  //add command to free image
-	  //create new command handle & structure
-	  int32 hgch=list_add(hardware_graphics_command_handles);
-	  hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
-	  hgc->remove=0;
-	  //set command values
-	  hgc->command=HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST;
-	  hgc->src_img=get_hardware_img_index(i);
-	  himg->valid=0;
-	  //queue the command
-	  hgc->next_command=0;
-	  hgc->order=display_frame_order_next;
-	  if (last_hardware_command_added){
-	    hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
-	    hgc2->next_command=hgch;
-	  }
-	  last_hardware_command_added=hgch;
-	  if (first_hardware_command==0) first_hardware_command=hgch;
+      //add command to free image
+      //create new command handle & structure
+      int32 hgch=list_add(hardware_graphics_command_handles);
+      hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
+      hgc->remove=0;
+      //set command values
+      hgc->command=HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST;
+      hgc->src_img=get_hardware_img_index(i);
+      himg->valid=0;
+      //queue the command
+      hgc->next_command=0;
+      hgc->order=display_frame_order_next;
+      if (last_hardware_command_added){
+        hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+        hgc2->next_command=hgch;
+      }
+      last_hardware_command_added=hgch;
+      if (first_hardware_command==0) first_hardware_command=hgch;
     
-	  return;
-	}
+      return;
+    }
 
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=write_page_index;
@@ -19697,9 +19697,9 @@ void sub_mkdir(qbs *str){
     //note: handles 0 & -1(1) are reserved
     for (i=2;i<nextimg;i++){
       if (img[i].valid){
-	if ((img[i].flags&IMG_SCREEN)==0){//The SCREEN's pages cannot be freed!
-	  sub__freeimage(-i,1);
-	}
+    if ((img[i].flags&IMG_SCREEN)==0){//The SCREEN's pages cannot be freed!
+      sub__freeimage(-i,1);
+    }
       }//valid
     }//i
   }
@@ -19744,14 +19744,14 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	static hardware_img_struct *himg;  
-	if (himg=get_hardware_img(i)){
-	  himg->alpha_disabled=0;
-	  return;
-	}
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
+    static hardware_img_struct *himg;  
+    if (himg=get_hardware_img(i)){
+      himg->alpha_disabled=0;
+      return;
+    }
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
       }
     }else{
       i=write_page_index;
@@ -19764,18 +19764,18 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	static hardware_img_struct *himg;  
-	if (himg=get_hardware_img(i)){
-	  himg->alpha_disabled=1;
-	  return;
-	}
-	i=-i;
-	if (i>=nextimg){error(258); return;}
-	if (!img[i].valid){
-	  error(258); return;
-	} 
+    static hardware_img_struct *himg;  
+    if (himg=get_hardware_img(i)){
+      himg->alpha_disabled=1;
+      return;
+    }
+    i=-i;
+    if (i>=nextimg){error(258); return;}
+    if (!img[i].valid){
+      error(258); return;
+    } 
       }
     }else{
       i=write_page_index;
@@ -19796,9 +19796,9 @@ void sub_mkdir(qbs *str){
     static uint8 *cp,*clast,v;
     if (passed&4){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
       }
     }else{
       i=write_page_index;
@@ -19812,9 +19812,9 @@ void sub_mkdir(qbs *str){
     //palette?
     if (im->pal){
       if (passed&1){
-	if (passed&2){error(5); return;}//invalid options
-	im->transparent_color=-1;
-	return;
+    if (passed&2){error(5); return;}//invalid options
+    im->transparent_color=-1;
+    return;
       }
       if (!(passed&2)){error(5); return;}//invalid options
       if (c>255){error(5); return;}//invalid color
@@ -19851,9 +19851,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed&2){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;} 
       }
     }else{
       i=write_page_index;
@@ -19875,14 +19875,14 @@ void sub_mkdir(qbs *str){
       z=im->width*im->height;
     setalpha:
       if (z--){
-	v=*cp; if (v<=b_max&&v>=b_min){
-	  v=*(cp+1); if (v<=g_max&&v>=g_min){
-	    v=*(cp+2); if (v<=r_max&&v>=r_min){
-	      v=*(cp+3); if (v<=a_max&&v>=a_min){
-		*(cp+3)=a;
-	      }}}}
-	cp+=4;
-	goto setalpha;
+    v=*cp; if (v<=b_max&&v>=b_min){
+      v=*(cp+1); if (v<=g_max&&v>=g_min){
+        v=*(cp+2); if (v<=r_max&&v>=r_min){
+          v=*(cp+3); if (v<=a_max&&v>=a_min){
+        *(cp+3)=a;
+          }}}}
+    cp+=4;
+    goto setalpha;
       }
       return;
     }
@@ -19893,9 +19893,9 @@ void sub_mkdir(qbs *str){
       lp=im->offset32-1;
       last=im->offset32+im->width*im->height-1;
       while (lp<last){
-	if (*++lp==c){
-	  *lp=(*lp&0xFFFFFF)|c2;
-	}
+    if (*++lp==c){
+      *lp=(*lp&0xFFFFFF)|c2;
+    }
       }
       return;
     }
@@ -19912,13 +19912,13 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	static hardware_img_struct *himg;  
-	if (himg=get_hardware_img(i)){
-	  return himg->w;
-	}
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    static hardware_img_struct *himg;  
+    if (himg=get_hardware_img(i)){
+      return himg->w;
+    }
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -19930,13 +19930,13 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	static hardware_img_struct *himg;  
-	if (himg=get_hardware_img(i)){
-	  return himg->h;
-	}
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    static hardware_img_struct *himg;  
+    if (himg=get_hardware_img(i)){
+      return himg->h;
+    }
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -19948,9 +19948,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -19965,9 +19965,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -19981,9 +19981,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -19998,9 +19998,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -20012,9 +20012,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -20028,9 +20028,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -20044,9 +20044,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=write_page_index;
@@ -20060,9 +20060,9 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed&1){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=read_page_index;
@@ -20071,9 +20071,9 @@ void sub_mkdir(qbs *str){
     swap(i,i2);
     if (passed&2){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=write_page_index;
@@ -20089,16 +20089,24 @@ void sub_mkdir(qbs *str){
     if (new_error) return;
     if (passed&2){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=write_page_index;
     }
     static img_struct *im;
     im=&img[i];
-    if (im->text){error(5); return;}//graphics modes only
+    if (!text->len) return;
+    if (im->text){
+      int oldx = func_pos(0), oldy = func_csrlin();
+      qbg_sub_locate(y, x, 0, 0, 0, 3);
+      qbs_print(text, 0);
+      qbg_sub_locate(oldy, oldx, 0, 0, 0, 3);
+      return;
+    }
+    //graphics modes only
     if (!text->len) return;
     //Step?
     if (passed&1){im->x+=x; im->y+=y;}else{im->x=x; im->y=y;}
@@ -20106,10 +20114,10 @@ void sub_mkdir(qbs *str){
     static int32 x2,y2;
     if (im->clipping_or_scaling){
       if (im->clipping_or_scaling==2){
-	x2=qbr_float_to_long(im->x*im->scaling_x+im->scaling_offset_x)+im->view_offset_x;
-	y2=qbr_float_to_long(im->y*im->scaling_y+im->scaling_offset_y)+im->view_offset_y;
+    x2=qbr_float_to_long(im->x*im->scaling_x+im->scaling_offset_x)+im->view_offset_x;
+    y2=qbr_float_to_long(im->y*im->scaling_y+im->scaling_offset_y)+im->view_offset_y;
       }else{
-	x2=qbr_float_to_long(im->x)+im->view_offset_x; y2=qbr_float_to_long(im->y)+im->view_offset_y;
+    x2=qbr_float_to_long(im->x)+im->view_offset_x; y2=qbr_float_to_long(im->y)+im->view_offset_y;
       }
     }else{
       x2=qbr_float_to_long(im->x); y2=qbr_float_to_long(im->y); 
@@ -20133,46 +20141,46 @@ void sub_mkdir(qbs *str){
       //8-bit / alpha-disabled 32-bit / dont-blend(alpha may still be applied)
       if ((im->bytes_per_pixel==1)||((im->bytes_per_pixel==4)&&(im->alpha_disabled))||(fontflags[f]&8)){
 
-	//render character
-	static int32 ok;
-	static uint8 *rt_data;
-	static int32 rt_w,rt_h,rt_pre_x,rt_post_x;
-	//int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
-	//                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
-	ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,1,
-			       &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
-	if (!ok) return;
+    //render character
+    static int32 ok;
+    static uint8 *rt_data;
+    static int32 rt_w,rt_h,rt_pre_x,rt_post_x;
+    //int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
+    //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
+    ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,1,
+                   &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+    if (!ok) return;
 
-	w=rt_w;
+    w=rt_w;
 
-	switch(im->print_mode){
-	case 3:
-	  for (y2=0;y2<h;y2++){
-	    cp=rt_data+y2*w;
-	    for (x2=0;x2<w;x2++){
-	      if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
-	    }}
-	  break;
-	case 1:
-	  for (y2=0;y2<h;y2++){
-	    cp=rt_data+y2*w;
-	    for (x2=0;x2<w;x2++){
-	      if (*cp++) pset(x+x2,y+y2,color);
-	    }}
-	  break;
-	case 2:
-	  for (y2=0;y2<h;y2++){
-	    cp=rt_data+y2*w;
-	    for (x2=0;x2<w;x2++){
-	      if (!(*cp++)) pset(x+x2,y+y2,background_color);
-	    }}
-	  break;
-	default:
-	  break;
-	}
+    switch(im->print_mode){
+    case 3:
+      for (y2=0;y2<h;y2++){
+        cp=rt_data+y2*w;
+        for (x2=0;x2<w;x2++){
+          if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
+        }}
+      break;
+    case 1:
+      for (y2=0;y2<h;y2++){
+        cp=rt_data+y2*w;
+        for (x2=0;x2<w;x2++){
+          if (*cp++) pset(x+x2,y+y2,color);
+        }}
+      break;
+    case 2:
+      for (y2=0;y2<h;y2++){
+        cp=rt_data+y2*w;
+        for (x2=0;x2<w;x2++){
+          if (!(*cp++)) pset(x+x2,y+y2,background_color);
+        }}
+      break;
+    default:
+      break;
+    }
 
-	free(rt_data);
-	return;
+    free(rt_data);
+    return;
       }//1-8 bit
       //assume 32-bit blended
 
@@ -20186,7 +20194,7 @@ void sub_mkdir(qbs *str){
       //int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
       //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
       ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,0,
-			     &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+                 &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
 
       if (!ok) return;
 
@@ -20195,59 +20203,59 @@ void sub_mkdir(qbs *str){
       switch(im->print_mode){
       case 3:
 
-	static float r1,g1,b1,alpha1,r2,g2,b2,alpha2;
-	alpha1=(color>>24)&255; r1=(color>>16)&255; g1=(color>>8)&255; b1=color&255;
-	alpha2=(background_color>>24)&255; r2=(background_color>>16)&255; g2=(background_color>>8)&255; b2=background_color&255;
-	static float dr,dg,db,da;
+    static float r1,g1,b1,alpha1,r2,g2,b2,alpha2;
+    alpha1=(color>>24)&255; r1=(color>>16)&255; g1=(color>>8)&255; b1=color&255;
+    alpha2=(background_color>>24)&255; r2=(background_color>>16)&255; g2=(background_color>>8)&255; b2=background_color&255;
+    static float dr,dg,db,da;
 
-	dr=r2-r1;
-	dg=g2-g1;
-	db=b2-b1;
-	da=alpha2-alpha1;
-	static float cw;//color weight multiplier, avoids seeing black when transitioning from RGBA(?,?,?,255) to RGBA(0,0,0,0)
-	if (alpha1) cw=alpha2/alpha1; else cw=100000;
-	static float d;
+    dr=r2-r1;
+    dg=g2-g1;
+    db=b2-b1;
+    da=alpha2-alpha1;
+    static float cw;//color weight multiplier, avoids seeing black when transitioning from RGBA(?,?,?,255) to RGBA(0,0,0,0)
+    if (alpha1) cw=alpha2/alpha1; else cw=100000;
+    static float d;
  
-	for (y2=0;y2<h;y2++){
-	  cp=rt_data+y2*w;
-	  for (x2=0;x2<w;x2++){
+    for (y2=0;y2<h;y2++){
+      cp=rt_data+y2*w;
+      for (x2=0;x2<w;x2++){
 
-	    d=*cp++;
-	    d=255-d;
-	    d/=255.0;
-	    static float r3,g3,b3,alpha3;
-	    alpha3=alpha1+da*d;
-	    d*=cw; if (d>1.0) d=1.0;
-	    r3=r1+dr*d;
-	    g3=g1+dg*d;
-	    b3=b1+db*d;
-	    static int32 r4,g4,b4,alpha4;
-	    r4=qbr_float_to_long(r3);
-	    g4=qbr_float_to_long(g3);
-	    b4=qbr_float_to_long(b3);
-	    alpha4=qbr_float_to_long(alpha3);
-	    pset(x+x2,y+y2,b4+(g4<<8)+(r4<<16)+(alpha4<<24));
+        d=*cp++;
+        d=255-d;
+        d/=255.0;
+        static float r3,g3,b3,alpha3;
+        alpha3=alpha1+da*d;
+        d*=cw; if (d>1.0) d=1.0;
+        r3=r1+dr*d;
+        g3=g1+dg*d;
+        b3=b1+db*d;
+        static int32 r4,g4,b4,alpha4;
+        r4=qbr_float_to_long(r3);
+        g4=qbr_float_to_long(g3);
+        b4=qbr_float_to_long(b3);
+        alpha4=qbr_float_to_long(alpha3);
+        pset(x+x2,y+y2,b4+(g4<<8)+(r4<<16)+(alpha4<<24));
 
-	  }}
-	break;
+      }}
+    break;
       case 1:
-	for (y2=0;y2<h;y2++){
-	  cp=rt_data+y2*w;
-	  for (x2=0;x2<w;x2++){
-	    z3=*cp++;
-	    if (z3) pset(x+x2,y+y2,((z3*a)>>8<<24)+z);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){
+      cp=rt_data+y2*w;
+      for (x2=0;x2<w;x2++){
+        z3=*cp++;
+        if (z3) pset(x+x2,y+y2,((z3*a)>>8<<24)+z);
+      }}
+    break;
       case 2:
-	for (y2=0;y2<h;y2++){
-	  cp=rt_data+y2*w;
-	  for (x2=0;x2<w;x2++){
-	    z3=*cp++;
-	    if (z3!=255) pset(x+x2,y+y2,(((255-z3)*a2)>>8<<24)+z2);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){
+      cp=rt_data+y2*w;
+      for (x2=0;x2<w;x2++){
+        z3=*cp++;
+        if (z3!=255) pset(x+x2,y+y2,(((255-z3)*a2)>>8<<24)+z2);
+      }}
+    break;
       default:
-	break;
+    break;
       }
       free(rt_data);
       return;
@@ -20262,22 +20270,22 @@ void sub_mkdir(qbs *str){
       if (im->font==16) cp=&charset8x16[character][0][0];
       switch(im->print_mode){
       case 3:
-	for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
-	    if (*cp++) pset_and_clip(x+x2,y+y2,color); else pset_and_clip(x+x2,y+y2,background_color);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
+        if (*cp++) pset_and_clip(x+x2,y+y2,color); else pset_and_clip(x+x2,y+y2,background_color);
+      }}
+    break;
       case 1:
-	for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
-	    if (*cp++) pset_and_clip(x+x2,y+y2,color);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
+        if (*cp++) pset_and_clip(x+x2,y+y2,color);
+      }}
+    break;
       case 2:
-	for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
-	    if (!(*cp++)) pset_and_clip(x+x2,y+y2,background_color);
-	  }}
-	break;
+    for (y2=0;y2<h;y2++){ for (x2=0;x2<8;x2++){
+        if (!(*cp++)) pset_and_clip(x+x2,y+y2,background_color);
+      }}
+    break;
       default:
-	break;
+    break;
       }
       x+=8;
     }//z
@@ -20301,12 +20309,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     else {
       screenhandle = -screenhandle; 
       if (screenhandle >= nextimg) {
-	error(258); 
-	return 0;
+    error(258); 
+    return 0;
       } 
       if (!img[screenhandle].valid) {
-	error(258); 
-	return 0;
+    error(258); 
+    return 0;
       }
     }
   }
@@ -20345,9 +20353,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -20359,17 +20367,17 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (f>=32){//custom font
       //8-bit / alpha-disabled 32-bit / dont-blend(alpha may still be applied)
       if ((im->bytes_per_pixel==1)||((im->bytes_per_pixel==4)&&(im->alpha_disabled))||(fontflags[f]&8)){
-	//render
-	static int32 ok;
-	static uint8 *rt_data;
-	static int32 rt_w,rt_h,rt_pre_x,rt_post_x;
-	//int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
-	//                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
-	ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,1,
-			       &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
-	if (!ok) return 0;
-	free(rt_data);
-	return rt_w;
+    //render
+    static int32 ok;
+    static uint8 *rt_data;
+    static int32 rt_w,rt_h,rt_pre_x,rt_post_x;
+    //int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
+    //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
+    ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,1,
+                   &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+    if (!ok) return 0;
+    free(rt_data);
+    return rt_w;
       }//1-8 bit
       //assume 32-bit blended
       //render
@@ -20379,7 +20387,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
       //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
       ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,0,
-			     &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+                 &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
       if (!ok) return 0;
       free(rt_data);
       return rt_w;
@@ -20410,26 +20418,26 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     memset(r,0,32);
     if (passed){
       if (requirements->len){
-	i=1;
-	qbs_set(req,qbs_ucase(requirements));//convert tmp str to perm str
+    i=1;
+    qbs_set(req,qbs_ucase(requirements));//convert tmp str to perm str
       nextrequirement:
-	i2=func_instr(i,req,qbs_new_txt(","),1);
-	if (i2){
-	  qbs_set(s1,func_mid(req,i,i2-i,1));
-	}else{
-	  qbs_set(s1,func_mid(req,i,req->len-i+1,1));
-	}
-	qbs_set(s1,qbs_rtrim(qbs_ltrim(s1)));
-	if (qbs_equal(s1,qbs_new_txt("BOLD"))){r[0]++; goto valid;}
-	if (qbs_equal(s1,qbs_new_txt("ITALIC"))){r[1]++; goto valid;}
-	if (qbs_equal(s1,qbs_new_txt("UNDERLINE"))){r[2]++; goto valid;}
-	if (qbs_equal(s1,qbs_new_txt("DONTBLEND"))){r[3]++; goto valid;}
-	if (qbs_equal(s1,qbs_new_txt("MONOSPACE"))){r[4]++; goto valid;}
-	if (qbs_equal(s1,qbs_new_txt("UNICODE"))){r[5]++; goto valid;}
-	error(5); return NULL;//invalid requirements
+    i2=func_instr(i,req,qbs_new_txt(","),1);
+    if (i2){
+      qbs_set(s1,func_mid(req,i,i2-i,1));
+    }else{
+      qbs_set(s1,func_mid(req,i,req->len-i+1,1));
+    }
+    qbs_set(s1,qbs_rtrim(qbs_ltrim(s1)));
+    if (qbs_equal(s1,qbs_new_txt("BOLD"))){r[0]++; goto valid;}
+    if (qbs_equal(s1,qbs_new_txt("ITALIC"))){r[1]++; goto valid;}
+    if (qbs_equal(s1,qbs_new_txt("UNDERLINE"))){r[2]++; goto valid;}
+    if (qbs_equal(s1,qbs_new_txt("DONTBLEND"))){r[3]++; goto valid;}
+    if (qbs_equal(s1,qbs_new_txt("MONOSPACE"))){r[4]++; goto valid;}
+    if (qbs_equal(s1,qbs_new_txt("UNICODE"))){r[5]++; goto valid;}
+    error(5); return NULL;//invalid requirements
       valid:
-	if (i2){i=i2+1; goto nextrequirement;}
-	for (i=0;i<32;i++) if (r[i]>1){error(5); return NULL;}//cannot define requirements twice
+    if (i2){i=i2+1; goto nextrequirement;}
+    for (i=0;i<32;i++) if (r[i]>1){error(5); return NULL;}//cannot define requirements twice
       }//->len
     }//passed
     static int32 options;
@@ -20531,9 +20539,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return;
     if (passed&1){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=write_page_index;
@@ -20559,26 +20567,26 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //      iii) update of the data being displayed
     if (im->text){
       if (im->flags&IMG_SCREEN){
-	//lock display
-	if (autodisplay){
-	  if (lock_display==0) lock_display=1;//request lock
-	  while (lock_display!=2) Sleep(0);
-	}
-	//force update of data
-	screen_last_valid=0;//ignore cache used to update the screen on next update
-	//apply change across all video pages
-	for(i=0;i<pages;i++){
-	  if(page[i]){
-	    im=&img[page[i]];
-	    im->font=f;
-	    //note: moving the cursor is unnecessary
-	  }
-	}
-	//unlock
-	if (autodisplay){
-	  if (lock_display_required) lock_display=0;//release lock
-	}
-	return;
+    //lock display
+    if (autodisplay){
+      if (lock_display==0) lock_display=1;//request lock
+      while (lock_display!=2) Sleep(0);
+    }
+    //force update of data
+    screen_last_valid=0;//ignore cache used to update the screen on next update
+    //apply change across all video pages
+    for(i=0;i<pages;i++){
+      if(page[i]){
+        im=&img[page[i]];
+        im->font=f;
+        //note: moving the cursor is unnecessary
+      }
+    }
+    //unlock
+    if (autodisplay){
+      if (lock_display_required) lock_display=0;//release lock
+    }
+    return;
       }
     }//text
 
@@ -20600,7 +20608,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (f==14) i2=1;
       if (f==16) i2=1;
       if (f>=32&&f<=lastfont){
-	if (font[f]) i2=1;
+    if (font[f]) i2=1;
       }
       if (!i2){error(258); return 0;}
     }else{
@@ -20619,7 +20627,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (f==14) i2=1;
       if (f==16) i2=1;
       if (f>=32&&f<=lastfont){
-	if (font[f]) i2=1;
+    if (font[f]) i2=1;
       }
       if (!i2){error(258); return 0;}
     }else{
@@ -20632,9 +20640,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -20654,7 +20662,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //check all surfaces, no surface can be using the font
     for (i=1;i<nextimg;i++){
       if (img[i].valid){
-	if (img[i].font==f){error(5); return;}
+    if (img[i].font==f){error(5); return;}
       }
     }
     //remove font
@@ -20666,9 +20674,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
     }else{
       i=write_page_index;
@@ -20685,9 +20693,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
     }else{
       i=write_page_index;
@@ -20707,9 +20715,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       c=*p++;
       v2=abs(b-(c&0xFF))+abs(g-(c>>8&0xFF))+abs(r-(c>>16&0xFF));
       if (v2<v){
-	if (!v2) return n;//perfect match
-	v=v2;
-	best=n;
+    if (!v2) return n;//perfect match
+    v=v2;
+    best=n;
       }
     }//n
     return best;
@@ -20726,9 +20734,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       c=*p++;
       v2=abs(b-(c&0xFF))+abs(g-(c>>8&0xFF))+abs(r-(c>>16&0xFF));
       if (v2<v){
-	if (!v2) return n;//perfect match
-	v=v2;
-	best=n;
+    if (!v2) return n;//perfect match
+    v=v2;
+    best=n;
       }
     }//n
     return best;
@@ -20744,20 +20752,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (b>255) b=255;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
       if (img[i].bytes_per_pixel==4){
-	return (r<<16)+(g<<8)+b|0xFF000000;
+    return (r<<16)+(g<<8)+b|0xFF000000;
       }else{//==4
-	return matchcol(r,g,b,i);
+    return matchcol(r,g,b,i);
       }//==4
     }else{
       if (write_page->bytes_per_pixel==4){
-	return (r<<16)+(g<<8)+b|0xFF000000;
+    return (r<<16)+(g<<8)+b|0xFF000000;
       }else{//==4
-	return matchcol(r,g,b);
+    return matchcol(r,g,b);
       }//==4
     }//passed
   }//rgb
@@ -20774,24 +20782,24 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (a>255) a=255;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
       if (img[i].bytes_per_pixel==4){
-	return (a<<24)+(r<<16)+(g<<8)+b;
+    return (a<<24)+(r<<16)+(g<<8)+b;
       }else{//==4
-	//error(5); return 0;
-	if ((!a)&&(img[i].transparent_color!=-1)) return img[i].transparent_color;
-	return matchcol(r,g,b,i);
+    //error(5); return 0;
+    if ((!a)&&(img[i].transparent_color!=-1)) return img[i].transparent_color;
+    return matchcol(r,g,b,i);
       }//==4
     }else{
       if (write_page->bytes_per_pixel==4){
-	return (a<<24)+(r<<16)+(g<<8)+b;
+    return (a<<24)+(r<<16)+(g<<8)+b;
       }else{//==4
-	//error(5); return 0;
-	if ((!a)&&(write_page->transparent_color!=-1)) return write_page->transparent_color;
-	return matchcol(r,g,b);
+    //error(5); return 0;
+    if ((!a)&&(write_page->transparent_color!=-1)) return write_page->transparent_color;
+    return matchcol(r,g,b);
       }//==4
     }//passed
   }//rgba
@@ -20800,26 +20808,26 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
       if (img[i].bytes_per_pixel==4){
-	return col>>24;
+    return col>>24;
       }else{//==4
-	//error(5); return 0; 
-	if ((col<0)||(col>(img[i].mask))){error(5); return 0;} 
-	if (img[i].transparent_color==col) return 0;
-	return 255;
+    //error(5); return 0; 
+    if ((col<0)||(col>(img[i].mask))){error(5); return 0;} 
+    if (img[i].transparent_color==col) return 0;
+    return 255;
       }//==4
     }else{
       if (write_page->bytes_per_pixel==4){
-	return col>>24;
+    return col>>24;
       }else{//==4
-	//error(5); return 0; 
-	if ((col<0)||(col>(write_page->mask))){error(5); return 0;} 
-	if (write_page->transparent_color==col) return 0;
-	return 255;
+    //error(5); return 0; 
+    if ((col<0)||(col>(write_page->mask))){error(5); return 0;} 
+    if (write_page->transparent_color==col) return 0;
+    return 255;
       }//==4
     }//passed
   }
@@ -20828,22 +20836,22 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
       if (img[i].bytes_per_pixel==4){
-	return col>>16&0xFF;
+    return col>>16&0xFF;
       }else{//==4
-	if ((col<0)||(col>(img[i].mask))){error(5); return 0;}
-	return img[i].pal[col]>>16&0xFF;
+    if ((col<0)||(col>(img[i].mask))){error(5); return 0;}
+    return img[i].pal[col]>>16&0xFF;
       }//==4
     }else{
       if (write_page->bytes_per_pixel==4){
-	return col>>16&0xFF;
+    return col>>16&0xFF;
       }else{//==4
-	if ((col<0)||(col>(write_page->mask))){error(5); return 0;}
-	return write_page->pal[col]>>16&0xFF;
+    if ((col<0)||(col>(write_page->mask))){error(5); return 0;}
+    return write_page->pal[col]>>16&0xFF;
       }//==4
     }//passed
   }
@@ -20852,22 +20860,22 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
       }
       if (img[i].bytes_per_pixel==4){
-	return col>>8&0xFF;
+    return col>>8&0xFF;
       }else{//==4
-	if ((col<0)||(col>(img[i].mask))){error(5); return 0;}
-	return img[i].pal[col]>>8&0xFF;
+    if ((col<0)||(col>(img[i].mask))){error(5); return 0;}
+    return img[i].pal[col]>>8&0xFF;
       }//==4
     }else{
       if (write_page->bytes_per_pixel==4){
-	return col>>8&0xFF;
+    return col>>8&0xFF;
       }else{//==4
-	if ((col<0)||(col>(write_page->mask))){error(5); return 0;}
-	return write_page->pal[col]>>8&0xFF;
+    if ((col<0)||(col>(write_page->mask))){error(5); return 0;}
+    return write_page->pal[col]>>8&0xFF;
       }//==4
     }//passed
   }
@@ -20876,23 +20884,23 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (new_error) return 0;
     if (passed){
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
+    i=-i; if (i>=nextimg){error(258); return 0;} if (!img[i].valid){error(258); return 0;}
 
       }
       if (img[i].bytes_per_pixel==4){
-	return col&0xFF;
+    return col&0xFF;
       }else{//==4
-	if ((col<0)||(col>(img[i].mask))){error(5); return 0;}
-	return img[i].pal[col]&0xFF;
+    if ((col<0)||(col>(img[i].mask))){error(5); return 0;}
+    return img[i].pal[col]&0xFF;
       }//==4
     }else{
       if (write_page->bytes_per_pixel==4){
-	return col&0xFF;
+    return col&0xFF;
       }else{//==4
-	if ((col<0)||(col>(write_page->mask))){error(5); return 0;}
-	return write_page->pal[col]&0xFF;
+    if ((col<0)||(col>(write_page->mask))){error(5); return 0;}
+    return write_page->pal[col]&0xFF;
       }//==4
     }//passed
   }
@@ -20912,9 +20920,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //2. VIEW PRINT bottomline,bottomline
       static int32 y;
       if (write_page->text){
-	y=write_page->height;
+    y=write_page->height;
       }else{
-	y=write_page->height/fontheight[write_page->font];
+    y=write_page->height/fontheight[write_page->font];
       }
       qbg_sub_view_print(y,y,1|2);
       //3. PRINT 'clears the line without having to worry about its contents/size
@@ -20925,14 +20933,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       autodisplay=1;
       int sec=7;
       while(sec--){
-	evnt(1);
-	SDL_Delay(1000);
-	qbs_print(qbs_new_txt("."),0);
+    evnt(1);
+    SDL_Delay(1000);
+    qbs_print(qbs_new_txt("."),0);
       }
       sec=3;
       while(sec--){
-	SDL_Delay(1000);
-	evnt(1);
+    SDL_Delay(1000);
+    evnt(1);
       }
 
       close_program=1;
@@ -20946,9 +20954,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //2. VIEW PRINT bottomline,bottomline
       static int32 y;
       if (write_page->text){
-	y=write_page->height;
+    y=write_page->height;
       }else{
-	y=write_page->height/fontheight[write_page->font];
+    y=write_page->height/fontheight[write_page->font];
       }
       qbg_sub_view_print(y,y,1|2);
       //3. PRINT 'clears the line without having to worry about its contents/size
@@ -20959,23 +20967,23 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static uint32 qbs_tmp_base;
       qbs_tmp_base=qbs_tmp_list_nexti;
       while(qbs_cleanup(qbs_tmp_base,qbs_notequal(qbs_inkey(),qbs_new_txt("")))){
-	SDL_Delay(0);
+    SDL_Delay(0);
       }
       //6. Enable autodisplay
       autodisplay=1;
       //7. Wait for a new keypress
       /*do{
-	SDL_Delay(0);
-	if (stop_program) end();
-	}while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),qbs_new_txt(""))));*/
+    SDL_Delay(0);
+    if (stop_program) end();
+    }while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),qbs_new_txt(""))));*/
       sub_sleep(NULL, 0);
 
     }else{
       if (console){
-	//screen is hidden, console is visible
-	cout<<"\nPress enter to continue";
-	static int32 ignore;
-	ignore=fgetc(stdin);
+    //screen is hidden, console is visible
+    cout<<"\nPress enter to continue";
+    static int32 ignore;
+    ignore=fgetc(stdin);
       }
     }
     close_program=1;
@@ -21037,84 +21045,84 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       if ((stage>=2)&&(stage<=4)){
 
-	if (c==43){//+
-	  trailing_plus=1; x++; goto numeric_spacer;
-	}
+    if (c==43){//+
+      trailing_plus=1; x++; goto numeric_spacer;
+    }
 
-	if (c==45){//-
-	  trailing_minus=1; x++; goto numeric_spacer;
-	}
+    if (c==45){//-
+      trailing_minus=1; x++; goto numeric_spacer;
+    }
 
       }//stage>=2 & stage<=4
 
       if ((stage>=2)&&(stage<=3)){
 
-	if (chrsleft>=5){
-	  if ((c==94)&&(f->chr[x+1]==94)&&(f->chr[x+2]==94)&&(f->chr[x+3]==94)&&(f->chr[x+4]==94)){//^^^^^
-	    exponent_digits=3; stage=4; x+=4; goto nextchar;
-	  }
-	}//5
+    if (chrsleft>=5){
+      if ((c==94)&&(f->chr[x+1]==94)&&(f->chr[x+2]==94)&&(f->chr[x+3]==94)&&(f->chr[x+4]==94)){//^^^^^
+        exponent_digits=3; stage=4; x+=4; goto nextchar;
+      }
+    }//5
 
-	if (chrsleft>=4){
-	  if ((c==94)&&(f->chr[x+1]==94)&&(f->chr[x+2]==94)&&(f->chr[x+3]==94)){//^^^^
-	    exponent_digits=2; stage=4; x+=3; goto nextchar;
-	  }
-	}//4
+    if (chrsleft>=4){
+      if ((c==94)&&(f->chr[x+1]==94)&&(f->chr[x+2]==94)&&(f->chr[x+3]==94)){//^^^^
+        exponent_digits=2; stage=4; x+=3; goto nextchar;
+      }
+    }//4
 
       }//stage>=2 & stage<=3
 
       if (stage==3){
 
-	if (c==35){//#
-	  digits_after_point++; goto nextchar;
-	}
+    if (c==35){//#
+      digits_after_point++; goto nextchar;
+    }
 
       }//stage==3
 
       if (stage==2){
 
-	if (c==44){//,
-	  commas=1; digits_before_point++; goto nextchar;
-	}
+    if (c==44){//,
+      commas=1; digits_before_point++; goto nextchar;
+    }
 
       }//stage==2
 
       if (stage<=2){
 
-	if (c==35){//#
-	  digits_before_point++; stage=2; goto nextchar;
-	}
+    if (c==35){//#
+      digits_before_point++; stage=2; goto nextchar;
+    }
 
-	if (c==46){//.
-	  decimal_point=1; stage=3; goto nextchar;
-	}
+    if (c==46){//.
+      decimal_point=1; stage=3; goto nextchar;
+    }
 
       }//stage<=2
 
       if (stage<=1){
 
-	if (chrsleft>=3){
-	  if ((c==42)&&(f->chr[x+1]==42)&&(f->chr[x+2]==36)){//**$
-	    asterisk_spaces=1; digits_before_point=2; dollar_sign=1; stage=2; x+=2; goto nextchar;
-	  }
-	}//3
+    if (chrsleft>=3){
+      if ((c==42)&&(f->chr[x+1]==42)&&(f->chr[x+2]==36)){//**$
+        asterisk_spaces=1; digits_before_point=2; dollar_sign=1; stage=2; x+=2; goto nextchar;
+      }
+    }//3
 
-	if (chrsleft>=2){
-	  if ((c==42)&&(f->chr[x+1]==42)){//**
-	    asterisk_spaces=1; digits_before_point=2; stage=2; x++; goto nextchar;
-	  }
-	  if ((c==36)&&(f->chr[x+1]==36)){//$$
-	    dollar_sign=1; digits_before_point=1; stage=2; x++; goto nextchar;
-	  }
-	}//2
+    if (chrsleft>=2){
+      if ((c==42)&&(f->chr[x+1]==42)){//**
+        asterisk_spaces=1; digits_before_point=2; stage=2; x++; goto nextchar;
+      }
+      if ((c==36)&&(f->chr[x+1]==36)){//$$
+        dollar_sign=1; digits_before_point=1; stage=2; x++; goto nextchar;
+      }
+    }//2
 
       }//stage 1
 
       if (stage==0){
 
-	if (c==43){//+
-	  leading_plus=1; stage=1; goto nextchar;
-	}
+    if (c==43){//+
+      leading_plus=1; stage=1; goto nextchar;
+    }
 
       }//stage 0
 
@@ -21136,22 +21144,22 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     extra_sign_space=0;
     if (exponent_digits){
       if ((leading_plus==0)&&(trailing_plus==0)&&(trailing_minus==0)){
-	digits_before_point--;
-	if (digits_before_point==-1){
-	  digits_after_point--; digits_before_point=0;
-	  if (digits_after_point==0){decimal_point=0; digits_before_point++;}
-	}
-	extra_sign_space=1;
+    digits_before_point--;
+    if (digits_before_point==-1){
+      digits_after_point--; digits_before_point=0;
+      if (digits_after_point==0){decimal_point=0; digits_before_point++;}
+    }
+    extra_sign_space=1;
       }
     }else{
       //the following doesn't occur if using an exponent
       if (pu_neg){
-	if ((leading_plus==0)&&(trailing_plus==0)&&(trailing_minus==0)){digits_before_point--; extra_sign_space=1;}
+    if ((leading_plus==0)&&(trailing_plus==0)&&(trailing_minus==0)){digits_before_point--; extra_sign_space=1;}
       }
       if (commas){
-	digits_and_commas_before_point=digits_before_point;
-	ii=digits_before_point/4;//for every 4 digits, one digit will be used up by a comma
-	digits_before_point-=ii;
+    digits_and_commas_before_point=digits_before_point;
+    ii=digits_before_point/4;//for every 4 digits, one digit will be used up by a comma
+    digits_before_point-=ii;
       }
     }
 
@@ -21159,9 +21167,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (digits_before_point==0){//no digits allowed before decimal point
       //note: pu_ndig=256, pu_dp=-255
       if ((pu_ndig+pu_dp)==1){//1 digit exists in front of the decimal point
-	if (pu_dig[0]==48){//is it 0?
-	  pu_dp--;//moves decimal point left one position
-	}//0
+    if (pu_dig[0]==48){//is it 0?
+      pu_dp--;//moves decimal point left one position
+    }//0
       }
     }
 
@@ -21170,21 +21178,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (exponent_digits){
       //give back extra_sign_space?
       if (extra_sign_space){
-	if (!pu_neg){
-	  if (digits_before_point<=0){
-	    extra_sign_space=0;
-	    digits_before_point++;//will become 0 or 1
-	    //force 0 in recovered digit?
-	    if ((digits_before_point==1)&&(digits_after_point>0)){
-	      digits_before_point--;
-	      extra_sign_space=2;//2=put 0 instead of blank space
-	    }
-	  }
-	}
+    if (!pu_neg){
+      if (digits_before_point<=0){
+        extra_sign_space=0;
+        digits_before_point++;//will become 0 or 1
+        //force 0 in recovered digit?
+        if ((digits_before_point==1)&&(digits_after_point>0)){
+          digits_before_point--;
+          extra_sign_space=2;//2=put 0 instead of blank space
+        }
+      }
+    }
       }
       if ((digits_before_point==0)&&(digits_after_point==0)){
-	cant_fit=1;
-	digits_before_point=1;//give back removed (for extra sign space) digit
+    cant_fit=1;
+    digits_before_point=1;//give back removed (for extra sign space) digit
       }
       //but does the exponent fit?
       z2=pu_ndig+pu_dp-1;//calc exponent of most significant digit
@@ -21201,8 +21209,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       z2=0;
       z=pu_ndig+pu_dp;//calc number of digits required before decimal places
       if (digits_before_point<z){
-	digits_before_point=z; cant_fit=1;
-	if (commas) digits_and_commas_before_point=digits_before_point+(digits_before_point-1)/3;
+    digits_before_point=z; cant_fit=1;
+    if (commas) digits_and_commas_before_point=digits_before_point+(digits_before_point-1)/3;
       }
     }
 
@@ -21238,57 +21246,57 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (dollar_sign) {*cp++=36; count++;}//$
       //add - sign? (as sign space was not specified)
       if (extra_sign_space){
-	if (pu_neg){
-	  *cp++=45;
-	}else{
-	  if (extra_sign_space==2) *cp++=48; else *cp++=32;
-	}
-	count++;
+    if (pu_neg){
+      *cp++=45;
+    }else{
+      if (extra_sign_space==2) *cp++=48; else *cp++=32;
+    }
+    count++;
       }
       //add digits left of decimal point
       for (z3=0;z3<digits_before_point;z3++){
-	if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
-	count++;
+    if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
+    count++;
       }
       //add decimal point
       if (decimal_point){*cp++=46; count++;}
       //add digits right of decimal point
       for (z3=0;z3<digits_after_point;z3++){
-	if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
-	count++;
+    if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
+    count++;
 
       }
       //round last digit (requires a repass)
       if (!rounded){
-	if (ii<pu_ndig){
-	  if (pu_dig[ii]>=53){//>="5" (round 5 up)
-	    z=ii-1;
-	    //round up pu (by adding 1 from digit at character position z)
-	    //note: pu_dig is rebuilt one character to the right so highest digit can flow over into next character
-	    rounded=1;
-	    memmove(&pu_dig[1],&pu_dig[0],pu_ndig); pu_dig[0]=48; z++;
-	  puround2:
-	    pu_dig[z]++;
-	    if (pu_dig[z]>57) {pu_dig[z]=48; z--; goto puround2;}
-	    if (pu_dig[0]!=48){//was extra character position necessary?
-	      pu_ndig++; //note: pu_dp does not require any changes  
-	    }else{
-	      memmove(&pu_dig[0],&pu_dig[1],pu_ndig);
-	    }
-	    goto rounded_repass;
-	  }
-	}
+    if (ii<pu_ndig){
+      if (pu_dig[ii]>=53){//>="5" (round 5 up)
+        z=ii-1;
+        //round up pu (by adding 1 from digit at character position z)
+        //note: pu_dig is rebuilt one character to the right so highest digit can flow over into next character
+        rounded=1;
+        memmove(&pu_dig[1],&pu_dig[0],pu_ndig); pu_dig[0]=48; z++;
+      puround2:
+        pu_dig[z]++;
+        if (pu_dig[z]>57) {pu_dig[z]=48; z--; goto puround2;}
+        if (pu_dig[0]!=48){//was extra character position necessary?
+          pu_ndig++; //note: pu_dp does not require any changes  
+        }else{
+          memmove(&pu_dig[0],&pu_dig[1],pu_ndig);
+        }
+        goto rounded_repass;
+      }
+    }
       }
       //add exponent...
       *cp++=pu_exp_char; count++; //add exponent D/E/F (set and restored by calling function as necessary)
       if (z>=0) {*cp++=43; count++;} else {*cp++=45; count++;} //+/- exponent's sign
       //add exponent's leading 0s (if any)
       for (z3=0;z3<(exponent_digits-z2);z3++){
-	*cp++=48; count++;
+    *cp++=48; count++;
       }
       //add exponent's value
       for (z3=0;z3<z2;z3++){
-	*cp++=pu_buf[z3]; count++;
+    *cp++=pu_buf[z3]; count++;
       }
     }else{
       //"print" everything before the point
@@ -21309,45 +21317,45 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (leading_zero){*cp++=48; count++;}//0
       //add digits left of decimal point
       for (z3=0;z3<z;z3++){
-	if ((commas!=0)&&(((z-z3)&3)==0)){
-	  *cp++=44;
-	}else{
-	  if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
-	}
-	count++;
+    if ((commas!=0)&&(((z-z3)&3)==0)){
+      *cp++=44;
+    }else{
+      if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
+    }
+    count++;
       }
       //add decimal point
       if (decimal_point){*cp++=46; count++;}
       //add digits right of decimal point
       for (z3=0;z3<digits_after_point;z3++){
-	if (z4){
-	  z4--;
-	  *cp++=48;
-	}else{
-	  if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
-	}
-	count++;
+    if (z4){
+      z4--;
+      *cp++=48;
+    }else{
+      if (ii<pu_ndig) *cp++=pu_dig[ii++]; else *cp++=48;
+    }
+    count++;
       }
       //round last digit (requires a repass)
       if (!rounded){
-	if (ii<pu_ndig){
-	  if (pu_dig[ii]>=53){//>="5" (round 5 up)
-	    z=ii-1;
-	    //round up pu (by adding 1 from digit at character position z)
-	    //note: pu_dig is rebuilt one character to the right so highest digit can flow over into next character
-	    rounded=1;  
-	    memmove(&pu_dig[1],&pu_dig[0],pu_ndig); pu_dig[0]=48; z++;
-	  puround1: 
-	    pu_dig[z]++;
-	    if (pu_dig[z]>57) {pu_dig[z]=48; z--; goto puround1;}
-	    if (pu_dig[0]!=48){//was extra character position necessary?
-	      pu_ndig++; //note: pu_dp does not require any changes  
-	    }else{
-	      memmove(&pu_dig[0],&pu_dig[1],pu_ndig);  
-	    }
-	    goto rounded_repass;
-	  } 
-	}
+    if (ii<pu_ndig){
+      if (pu_dig[ii]>=53){//>="5" (round 5 up)
+        z=ii-1;
+        //round up pu (by adding 1 from digit at character position z)
+        //note: pu_dig is rebuilt one character to the right so highest digit can flow over into next character
+        rounded=1;  
+        memmove(&pu_dig[1],&pu_dig[0],pu_ndig); pu_dig[0]=48; z++;
+      puround1: 
+        pu_dig[z]++;
+        if (pu_dig[z]>57) {pu_dig[z]=48; z--; goto puround1;}
+        if (pu_dig[0]!=48){//was extra character position necessary?
+          pu_ndig++; //note: pu_dp does not require any changes  
+        }else{
+          memmove(&pu_dig[0],&pu_dig[1],pu_ndig);  
+        }
+        goto rounded_repass;
+      } 
+    }
       }
     }//exponent_digits
 
@@ -21381,35 +21389,35 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (c==38) string_size=-1; //"&" (all of string)
       if (c==33) string_size=1; //"!" (first character only)
       if (c==92){ //"\" first n characters
-	z=1;
-	x++;
+    z=1;
+    x++;
       get_str_fmt:
-	if (x>=len) goto invalid_string_format;
-	c=f->chr[x];
-	z++;
-	if (c==32){x++; goto get_str_fmt;}
-	if (c!=92) goto invalid_string_format;
-	string_size=z;
+    if (x>=len) goto invalid_string_format;
+    c=f->chr[x];
+    z++;
+    if (c==32){x++; goto get_str_fmt;}
+    if (c!=92) goto invalid_string_format;
+    string_size=z;
       }//c==47
       if (string_size){
-	if (type==0) return s; //s is the beginning of a new format but item has already been added to dest
-	if (type==1){//expected numeric format, not string format
-	  error(13);//type mismatch
-	  return 0;
-	}
-	if (string_size!=-1){
-	  s+=string_size;
-	  for (z=0;z<string_size;z++){
-	    if (z<pu_str->len) qbs1->chr[0]=pu_str->chr[z]; else qbs1->chr[0]=32;
-	    qbs_set(dest,qbs_add(dest,qbs1));
-	  }//z 
-	}else{
-	  qbs_set(dest,qbs_add(dest,pu_str));
-	  s++;
-	}
-	type=0;//passed type added
-	if (s>=len) return 0;//end of format line encountered and passed item added
-	goto scan;
+    if (type==0) return s; //s is the beginning of a new format but item has already been added to dest
+    if (type==1){//expected numeric format, not string format
+      error(13);//type mismatch
+      return 0;
+    }
+    if (string_size!=-1){
+      s+=string_size;
+      for (z=0;z<string_size;z++){
+        if (z<pu_str->len) qbs1->chr[0]=pu_str->chr[z]; else qbs1->chr[0]=32;
+        qbs_set(dest,qbs_add(dest,qbs1));
+      }//z 
+    }else{
+      qbs_set(dest,qbs_add(dest,pu_str));
+      s++;
+    }
+    type=0;//passed type added
+    if (s>=len) return 0;//end of format line encountered and passed item added
+    goto scan;
       }//string_size
     }//x<len
   invalid_string_format:
@@ -21427,8 +21435,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (type==0) return s;//end of format line encountered and passed item added
       //illegal format? (format has been passed from start (s2=0) to end and has no numeric/string identifiers
       if (s2==0){
-	error(5);//illegal function call
-	return 0;
+    error(5);//illegal function call
+    return 0;
       }
     }
     goto scan;
@@ -21756,9 +21764,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (ii==1) i=handle_icon;
       if (ii==2) i=handle_window_icon;
       if (i>=0){//validate i
-	validatepage(i); i=page[i];
+    validatepage(i); i=page[i];
       }else{
-	i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
       }
       if (img[i].text){error(5); return;}
       if (ii==1) handle_icon=i;
@@ -21773,65 +21781,65 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       for (ii=1;ii<=2;ii++){
 
-	if (ii==1){i=handle_icon; w=GetSystemMetrics(SM_CXICON); h=GetSystemMetrics(SM_CYICON);}
-	if (ii==2){i=handle_window_icon; w=GetSystemMetrics(SM_CXSMICON); h=GetSystemMetrics(SM_CYSMICON);}
+    if (ii==1){i=handle_icon; w=GetSystemMetrics(SM_CXICON); h=GetSystemMetrics(SM_CYICON);}
+    if (ii==2){i=handle_window_icon; w=GetSystemMetrics(SM_CXSMICON); h=GetSystemMetrics(SM_CYSMICON);}
 
-	//source[http://support.microsoft.com/kb/318876]
-	ICONINFO iinfo;
-	HDC hdc;
-	BITMAPV5HEADER bi;
-	HBITMAP hBitmap, hOldBitmap;
-	void *lpBits;
-	HCURSOR hAlphaCursor = NULL;
-	ZeroMemory(&bi,sizeof(BITMAPV5HEADER));
-	bi.bV5Size           = sizeof(BITMAPV5HEADER);
-	bi.bV5Width           = w;
-	bi.bV5Height          = h;
-	bi.bV5Planes = 1;
-	bi.bV5BitCount = 32;
-	bi.bV5Compression = BI_BITFIELDS;
-	// The following mask specification specifies a supported 32 BPP
-	// alpha format for Windows XP.
-	bi.bV5RedMask   =  0x00FF0000;
-	bi.bV5GreenMask =  0x0000FF00;
-	bi.bV5BlueMask  =  0x000000FF;
-	bi.bV5AlphaMask =  0xFF000000; 
-	hdc = GetDC(NULL);
-	// Create the DIB section with an alpha channel.
-	hBitmap = CreateDIBSection(hdc, (BITMAPINFO *)&bi, DIB_RGB_COLORS, 
-				   (void **)&lpBits, NULL, (DWORD)0);
-	ReleaseDC(NULL,hdc);
+    //source[http://support.microsoft.com/kb/318876]
+    ICONINFO iinfo;
+    HDC hdc;
+    BITMAPV5HEADER bi;
+    HBITMAP hBitmap, hOldBitmap;
+    void *lpBits;
+    HCURSOR hAlphaCursor = NULL;
+    ZeroMemory(&bi,sizeof(BITMAPV5HEADER));
+    bi.bV5Size           = sizeof(BITMAPV5HEADER);
+    bi.bV5Width           = w;
+    bi.bV5Height          = h;
+    bi.bV5Planes = 1;
+    bi.bV5BitCount = 32;
+    bi.bV5Compression = BI_BITFIELDS;
+    // The following mask specification specifies a supported 32 BPP
+    // alpha format for Windows XP.
+    bi.bV5RedMask   =  0x00FF0000;
+    bi.bV5GreenMask =  0x0000FF00;
+    bi.bV5BlueMask  =  0x000000FF;
+    bi.bV5AlphaMask =  0xFF000000; 
+    hdc = GetDC(NULL);
+    // Create the DIB section with an alpha channel.
+    hBitmap = CreateDIBSection(hdc, (BITMAPINFO *)&bi, DIB_RGB_COLORS, 
+                   (void **)&lpBits, NULL, (DWORD)0);
+    ReleaseDC(NULL,hdc);
 
-	i2=func__newimage(w,h,32,1);
-	sub__dontblend(i2,1);
-	sub__putimage(NULL,NULL,NULL,NULL,-i,i2,NULL,NULL,NULL,NULL,8+32);
+    i2=func__newimage(w,h,32,1);
+    sub__dontblend(i2,1);
+    sub__putimage(NULL,NULL,NULL,NULL,-i,i2,NULL,NULL,NULL,NULL,8+32);
 
-	o=img[-i2].offset32;
-	o2=(uint32*)lpBits;
-	for (y=0;y<h;y++){
-	  for (x=0;x<w;x++){
-	    c=o[(h-1-y)*w+x];
-	    o2[y*w+x]=c;
-	  }}
+    o=img[-i2].offset32;
+    o2=(uint32*)lpBits;
+    for (y=0;y<h;y++){
+      for (x=0;x<w;x++){
+        c=o[(h-1-y)*w+x];
+        o2[y*w+x]=c;
+      }}
 
-	sub__freeimage(i2,1);
+    sub__freeimage(i2,1);
 
-	// Create an empty mask bitmap.
-	HBITMAP hMonoBitmap = CreateBitmap(w,h,1,1,NULL);
+    // Create an empty mask bitmap.
+    HBITMAP hMonoBitmap = CreateBitmap(w,h,1,1,NULL);
 
-	iinfo.fIcon = TRUE;  // Change fIcon to TRUE to create an alpha icon
-	iinfo.xHotspot = 0;
-	iinfo.yHotspot = 0;
-	iinfo.hbmMask = hMonoBitmap;
-	iinfo.hbmColor = hBitmap;
-	// Create the alpha cursor with the alpha DIB section.
-	hAlphaCursor = CreateIconIndirect(&iinfo);
+    iinfo.fIcon = TRUE;  // Change fIcon to TRUE to create an alpha icon
+    iinfo.xHotspot = 0;
+    iinfo.yHotspot = 0;
+    iinfo.hbmMask = hMonoBitmap;
+    iinfo.hbmColor = hBitmap;
+    // Create the alpha cursor with the alpha DIB section.
+    hAlphaCursor = CreateIconIndirect(&iinfo);
 
-	DeleteObject(hBitmap);
-	DeleteObject(hMonoBitmap);
+    DeleteObject(hBitmap);
+    DeleteObject(hMonoBitmap);
 
-	if (ii==1) SendMessage( window_handle, WM_SETICON, ICON_BIG,   (LPARAM)hAlphaCursor );
-	if (ii==2) SendMessage( window_handle, WM_SETICON, ICON_SMALL, (LPARAM)hAlphaCursor );
+    if (ii==1) SendMessage( window_handle, WM_SETICON, ICON_BIG,   (LPARAM)hAlphaCursor );
+    if (ii==2) SendMessage( window_handle, WM_SETICON, ICON_SMALL, (LPARAM)hAlphaCursor );
 
       }//ii
 
@@ -21886,15 +21894,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       sub_draw_i+=3;
       vptr=0;
       /*
-	'BYTE=1
-	'INTEGER=2
-	'STRING=3 (unsupported)
-	'SINGLE=4
-	'INT64=5
-	'FLOAT=6
-	'DOUBLE=8
-	'LONG=20
-	'BIT=64+n (unsupported)
+    'BYTE=1
+    'INTEGER=2
+    'STRING=3 (unsupported)
+    'SINGLE=4
+    'INT64=5
+    'FLOAT=6
+    'DOUBLE=8
+    'LONG=20
+    'BIT=64+n (unsupported)
       */
       if (c==1){d=*((int8*)(&cmem[1280+offset])); goto nextcharv;}
       if (c==(1+128)){d=*((uint8*)(&cmem[1280+offset])); goto nextcharv;}
@@ -21920,10 +21928,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if ((c>=48)&&(c<=57)){
       c-=48;
       if (dp){
-	d+=(((double)c)*dp_mult);
-	dp_mult/=10.0;
+    d+=(((double)c)*dp_mult);
+    dp_mult/=10.0;
       }else{
-	d=(d*10)+c;
+    d=(d*10)+c;
       }
       draw_num_undefined=0;
       draw_num_invalid=0;
@@ -22065,11 +22073,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //convert x,y image position into a pixel coordinate
     if (write_page->clipping_or_scaling){
       if (write_page->clipping_or_scaling==2){
-	px=write_page->x*write_page->scaling_x+write_page->scaling_offset_x+write_page->view_offset_x;
-	py=write_page->y*write_page->scaling_y+write_page->scaling_offset_y+write_page->view_offset_y;
+    px=write_page->x*write_page->scaling_x+write_page->scaling_offset_x+write_page->view_offset_x;
+    py=write_page->y*write_page->scaling_y+write_page->scaling_offset_y+write_page->view_offset_y;
       }else{
-	px=write_page->x+write_page->view_offset_x;
-	py=write_page->y+write_page->view_offset_y;
+    px=write_page->x+write_page->view_offset_x;
+    py=write_page->y+write_page->view_offset_y;
       }
     }else{
       px=write_page->x;
@@ -22090,20 +22098,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //revert from X-stack
       if (stacksize){
-	stacksize--; sub_draw_cp=stack_s[stacksize]; sub_draw_len=stack_len[stacksize]; sub_draw_i=stack_i[stacksize];//restore state
-	//continue
-	goto nextchar;
+    stacksize--; sub_draw_cp=stack_s[stacksize]; sub_draw_len=stack_len[stacksize]; sub_draw_i=stack_i[stacksize];//restore state
+    //continue
+    goto nextchar;
       }
 
       //revert px,py to image->x,y offsets
       if (write_page->clipping_or_scaling){
-	if (write_page->clipping_or_scaling==2){
-	  px=(px-write_page->view_offset_x-write_page->scaling_offset_x)/write_page->scaling_x;
-	  py=(py-write_page->view_offset_y-write_page->scaling_offset_y)/write_page->scaling_y;
-	}else{
-	  px=px-write_page->view_offset_x;
-	  py=py-write_page->view_offset_y;
-	}
+    if (write_page->clipping_or_scaling==2){
+      px=(px-write_page->view_offset_x-write_page->scaling_offset_x)/write_page->scaling_x;
+      py=(py-write_page->view_offset_y-write_page->scaling_offset_y)/write_page->scaling_y;
+    }else{
+      px=px-write_page->view_offset_x;
+      py=py-write_page->view_offset_y;
+    }
       }
       write_page->x=px; write_page->y=py;
       return;
@@ -22127,7 +22135,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       py2=draw_num();
       if (draw_num_invalid||draw_num_undefined){error(5); return;}
       if (x){//relative positioning
-	xx=(px2*ir)*hx-(py2*ir)*vx; yy=px2*hy-py2*vy; px2=px+xx*draw_scale; py2=py+yy*draw_scale;
+    xx=(px2*ir)*hx-(py2*ir)*vx; yy=px2*hy-py2*vy; px2=px+xx*draw_scale; py2=py+yy*draw_scale;
       }
       if (!prefix_b) fast_line(qbr(px),qbr(py),qbr(px2),qbr(py2),col);
       if (!prefix_n){px=px2; py=py2;}//update position
@@ -22235,16 +22243,16 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //if (c64>c64b){error(5); return;}
       //revert px,py to x,y offsets
       if (write_page->clipping_or_scaling){
-	if (write_page->clipping_or_scaling==2){
-	  xx=(px-write_page->view_offset_x-write_page->scaling_offset_x)/write_page->scaling_x;
-	  yy=(py-write_page->view_offset_y-write_page->scaling_offset_y)/write_page->scaling_y;
-	}else{
-	  xx=px-write_page->view_offset_x;
-	  yy=py-write_page->view_offset_y;
-	}
+    if (write_page->clipping_or_scaling==2){
+      xx=(px-write_page->view_offset_x-write_page->scaling_offset_x)/write_page->scaling_x;
+      yy=(py-write_page->view_offset_y-write_page->scaling_offset_y)/write_page->scaling_y;
+    }else{
+      xx=px-write_page->view_offset_x;
+      yy=py-write_page->view_offset_y;
+    }
       }else{
-	xx=px;
-	yy=py;
+    xx=px;
+    yy=py;
       }
       sub_paint(xx,yy,c64c,c64,NULL,2+4);
       col=c64c;
@@ -22423,8 +22431,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //Ref. from 'winsock.h': typedef u_int SOCKET;
     static SOCKET listeningSocket;
     listeningSocket = socket(AF_INET,       // Go over TCP/IP
-			     SOCK_STREAM,       // This is a stream-oriented socket
-			     IPPROTO_TCP);      // Use TCP rather than UDP
+                 SOCK_STREAM,       // This is a stream-oriented socket
+                 IPPROTO_TCP);      // Use TCP rather than UDP
     if (listeningSocket==INVALID_SOCKET) return NULL;
     static SOCKADDR_IN serverInfo;
     serverInfo.sin_family=AF_INET;
@@ -22473,8 +22481,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //Ref. from 'winsock.h': typedef u_int SOCKET;
     static SOCKET theSocket;
     theSocket = socket(AF_INET,     // Go over TCP/IP
-		       SOCK_STREAM,     // This is a stream-oriented socket
-		       IPPROTO_TCP);    // Use TCP rather than UDP
+               SOCK_STREAM,     // This is a stream-oriented socket
+               IPPROTO_TCP);    // Use TCP rather than UDP
     if (theSocket==INVALID_SOCKET) return NULL;
     static SOCKADDR_IN serverInfo;
     serverInfo.sin_family=AF_INET;
@@ -22482,8 +22490,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     serverInfo.sin_port=htons(port);
     static int nret;
     nret = connect(theSocket,
-		   (LPSOCKADDR)&serverInfo,
-		   sizeof(struct sockaddr));
+           (LPSOCKADDR)&serverInfo,
+           sizeof(struct sockaddr));
     if (nret==SOCKET_ERROR){closesocket(theSocket); return NULL;}
     //Reference: http://msdn.microsoft.com/en-us/library/windows/desktop/ms738573%28v=vs.85%29.aspx
     // Set the socket I/O mode: In this case FIONBIO
@@ -22517,8 +22525,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     sa_size=sizeof(sa);
     static SOCKET new_socket;
     new_socket = accept(host->socket,
-			&sa,             // Optionally, address of a SOCKADDR_IN struct
-			&sa_size);       //             sizeof ( struct SOCKADDR_IN )                        
+            &sa,             // Optionally, address of a SOCKADDR_IN struct
+            &sa_size);       //             sizeof ( struct SOCKADDR_IN )                        
     if (new_socket==INVALID_SOCKET) return NULL;
     static u_long iMode;
     iMode=1;
@@ -22551,9 +22559,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static tcp_connection *tcp; tcp=(tcp_connection*)connection;
     static int nret;
     nret = send(tcp->socket,
-		(char*)offset,
-		bytes,
-		0);
+        (char*)offset,
+        bytes,
+        0);
 #endif
 
   }
@@ -22578,9 +22586,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static connection_struct *co; co=(connection_struct*)st->index;
       if ((co->type==1)||(co->type==3)){//client or host's connection from a client
 
-	if (co->protocol==1){//TCP/IP
-	  tcp_out((void*)co->connection,offset,bytes);
-	}
+    if (co->protocol==1){//TCP/IP
+      tcp_out((void*)co->connection,offset,bytes);
+    }
       }//client or host's connection from a client
     }//Network
   }//stream_out
@@ -22612,8 +22620,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
     bytes = recv(tcp->socket,(char*)(stream->in+stream->in_size),
-		 stream->in_limit-stream->in_size,
-		 0);
+         stream->in_limit-stream->in_size,
+         0);
     if (bytes==SOCKET_ERROR){
       //Known error codes:
       //10035 WSAEWOULDBLOCK Resource temporarily unavailable. This error is returned from operations on nonblocking sockets that cannot be completed immediately, for example recv when no data is queued to be read from the socket. It is a nonfatal error, and the operation should be retried later. It is normal for WSAEWOULDBLOCK to be reported as the result from calling connect on a nonblocking SOCK_STREAM socket, since some time must elapse for the connection to be established.
@@ -22650,12 +22658,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (sh->type==1){//stream
       static stream_struct *ss; ss=(stream_struct*)sh->index;
       if (ss->type==1){//network
-	static connection_struct *cs; cs=(connection_struct*)ss->index;
-	if (cs->protocol==1) tcp_close(cs->connection);
-	list_remove(connection_handles,list_get_index(connection_handles,cs));
-	stream_free(ss);
-	list_remove(special_handles,list_get_index(special_handles,sh));
-	return;
+    static connection_struct *cs; cs=(connection_struct*)ss->index;
+    if (cs->protocol==1) tcp_close(cs->connection);
+    list_remove(connection_handles,list_get_index(connection_handles,cs));
+    stream_free(ss);
+    list_remove(special_handles,list_get_index(special_handles,sh));
+    return;
       }//network
     }//stream
 
@@ -22696,9 +22704,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     next_part:
       x=func_instr(i,info,str,1);
       if (x){
-	parts++; qbs_set(info_part[parts],func_mid(info,i,x-i,1));
-	i=x+1;
-	goto next_part;
+    parts++; qbs_set(info_part[parts],func_mid(info,i,x-i,1));
+    i=x+1;
+    goto next_part;
       }
       parts++; qbs_set(info_part[parts],func_mid(info,i,NULL,NULL));
     }//split info string
@@ -22715,66 +22723,66 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       port=qbr_double_to_long(d);//***assume*** port number is within valid range
 
       if (method==0){//_OPENCLIENT
-	if (parts!=3) return -1;
+    if (parts!=3) return -1;
 
-	if (cloud_app){
-	  if (port==cloud_port_redirect) port=cloud_port[1];
-	}
+    if (cloud_app){
+      if (port==cloud_port_redirect) port=cloud_port[1];
+    }
 
-	static void *connection;
-	qbs_set(str,qbs_add(info_part[3],strz));
-	connection=tcp_client_open(str->chr,port);
-	if (!connection) return 0;
+    static void *connection;
+    qbs_set(str,qbs_add(info_part[3],strz));
+    connection=tcp_client_open(str->chr,port);
+    if (!connection) return 0;
 
-	static int32 my_handle; my_handle=list_add(special_handles);
-	static special_handle_struct *my_handle_struct; my_handle_struct=(special_handle_struct*)list_get(special_handles,my_handle);
-	static int32 my_stream; my_stream=list_add(stream_handles);
-	static stream_struct *my_stream_struct; my_stream_struct=(stream_struct*)list_get(stream_handles,my_stream);
-	static int32 my_connection; my_connection=list_add(connection_handles);
-	static connection_struct *my_connection_struct; my_connection_struct=(connection_struct*)list_get(connection_handles,my_connection);
-	my_handle_struct->type=1;//stream
-	my_handle_struct->index=(ptrszint)my_stream_struct;
-	my_stream_struct->type=1;//network
-	my_stream_struct->index=(ptrszint)my_connection_struct;
-	my_connection_struct->protocol=1;//tcp/ip
-	my_connection_struct->type=1;//client
-	my_connection_struct->connection=connection;
-	my_connection_struct->port=port;
+    static int32 my_handle; my_handle=list_add(special_handles);
+    static special_handle_struct *my_handle_struct; my_handle_struct=(special_handle_struct*)list_get(special_handles,my_handle);
+    static int32 my_stream; my_stream=list_add(stream_handles);
+    static stream_struct *my_stream_struct; my_stream_struct=(stream_struct*)list_get(stream_handles,my_stream);
+    static int32 my_connection; my_connection=list_add(connection_handles);
+    static connection_struct *my_connection_struct; my_connection_struct=(connection_struct*)list_get(connection_handles,my_connection);
+    my_handle_struct->type=1;//stream
+    my_handle_struct->index=(ptrszint)my_stream_struct;
+    my_stream_struct->type=1;//network
+    my_stream_struct->index=(ptrszint)my_connection_struct;
+    my_connection_struct->protocol=1;//tcp/ip
+    my_connection_struct->type=1;//client
+    my_connection_struct->connection=connection;
+    my_connection_struct->port=port;
 
-	//init stream
-	my_stream_struct->in=NULL; my_stream_struct->in_size=0; my_stream_struct->in_limit=0;
+    //init stream
+    my_stream_struct->in=NULL; my_stream_struct->in_size=0; my_stream_struct->in_limit=0;
 
-	return my_handle;
+    return my_handle;
       }//client
 
 
       if (method==1){//_OPENHOST
-	if (parts!=2) return -1;
+    if (parts!=2) return -1;
 
-	if (cloud_app){
-	  if (port==cloud_port[1]) goto gotcloudport;
-	  if (port==cloud_port[2]) goto gotcloudport;
-	  if ((port>=1)&&(port<=2)){port=cloud_port[port]; goto gotcloudport;}
-	  cloud_port_redirect=port;
-	  port=cloud_port[1];//unknown values default to primary hosting port
-	}
+    if (cloud_app){
+      if (port==cloud_port[1]) goto gotcloudport;
+      if (port==cloud_port[2]) goto gotcloudport;
+      if ((port>=1)&&(port<=2)){port=cloud_port[port]; goto gotcloudport;}
+      cloud_port_redirect=port;
+      port=cloud_port[1];//unknown values default to primary hosting port
+    }
       gotcloudport:
 
-	static void *connection;
-	connection=tcp_host_open(port);
-	if (!connection) return 0;
+    static void *connection;
+    connection=tcp_host_open(port);
+    if (!connection) return 0;
 
-	static int32 my_handle; my_handle=list_add(special_handles);
-	static special_handle_struct *my_handle_struct; my_handle_struct=(special_handle_struct*)list_get(special_handles,my_handle);
-	static int32 my_connection; my_connection=list_add(connection_handles);
-	static connection_struct *my_connection_struct; my_connection_struct=(connection_struct*)list_get(connection_handles,my_connection);
-	my_handle_struct->type=2;//host listener
-	my_handle_struct->index=(ptrszint)my_connection_struct;
-	my_connection_struct->protocol=1;//tcp/ip
-	my_connection_struct->type=2;//host(listening)
-	my_connection_struct->connection=connection;
-	my_connection_struct->port=port;
-	return my_handle;
+    static int32 my_handle; my_handle=list_add(special_handles);
+    static special_handle_struct *my_handle_struct; my_handle_struct=(special_handle_struct*)list_get(special_handles,my_handle);
+    static int32 my_connection; my_connection=list_add(connection_handles);
+    static connection_struct *my_connection_struct; my_connection_struct=(connection_struct*)list_get(connection_handles,my_connection);
+    my_handle_struct->type=2;//host listener
+    my_handle_struct->index=(ptrszint)my_connection_struct;
+    my_connection_struct->protocol=1;//tcp/ip
+    my_connection_struct->type=2;//host(listening)
+    my_connection_struct->connection=connection;
+    my_connection_struct->port=port;
+    return my_handle;
 
       }
     }//0 or 1
@@ -22858,47 +22866,47 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static special_handle_struct *sh; sh=(special_handle_struct*)list_get(special_handles,x); if (!sh){error(52); goto error;}
 
       if (sh->type==2){//host listener
-	static connection_struct *cs; cs=(connection_struct*)sh->index;
-	if (cs->protocol==1){//TCP/IP
-	  qbs_set(str,qbs_new_txt("TCP/IP:"));//network type
-	  qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(cs->port))));//port
-	  qbs_set(str,qbs_add(str,qbs_new_txt(":")));
-	  tqbs2=WHATISMYIP();
-	  if (tqbs2->len){qbs_set(str,qbs_add(str,tqbs2));
-	  }else{
-	    qbs_set(str,qbs_add(str,qbs_new_txt("127.0.0.1")));//localhost
-	  }
-	  return str;
-	}//TCP/IP
+    static connection_struct *cs; cs=(connection_struct*)sh->index;
+    if (cs->protocol==1){//TCP/IP
+      qbs_set(str,qbs_new_txt("TCP/IP:"));//network type
+      qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(cs->port))));//port
+      qbs_set(str,qbs_add(str,qbs_new_txt(":")));
+      tqbs2=WHATISMYIP();
+      if (tqbs2->len){qbs_set(str,qbs_add(str,tqbs2));
+      }else{
+        qbs_set(str,qbs_add(str,qbs_new_txt("127.0.0.1")));//localhost
+      }
+      return str;
+    }//TCP/IP
       }//host listener
 
       //client or connection to host
       if (sh->type==1){//stream
-	static stream_struct *ss; ss=(stream_struct*)sh->index;
-	if (ss->type==1){//network
-	  static connection_struct *cs; cs=(connection_struct*)ss->index;
-	  if (cs->protocol==1){//TCP/IP
-	    if (cs->type==1||cs->type==3){//1=client, 2=host(listening), 3=host's connection from a client
+    static stream_struct *ss; ss=(stream_struct*)sh->index;
+    if (ss->type==1){//network
+      static connection_struct *cs; cs=(connection_struct*)ss->index;
+      if (cs->protocol==1){//TCP/IP
+        if (cs->type==1||cs->type==3){//1=client, 2=host(listening), 3=host's connection from a client
 
-	      static tcp_connection *tcp; tcp=(tcp_connection*)cs->connection;
-	      qbs_set(str,qbs_new_txt("TCP/IP:"));//network type
-	      qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->port))));//port
-	      qbs_set(str,qbs_add(str,qbs_new_txt(":")));
-	      if (cs->type==3){
-		qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[0]))));//ip
-		qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-		qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[1]))));//ip
-		qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-		qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[2]))));//ip
-		qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-		qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[3]))));//ip
-	      }else{
-		qbs_set(str,qbs_add(str,qbs_new_txt((char*)tcp->hostname)));
-	      }
-	      return str;
-	    }
-	  }//TCP/IP
-	}//network
+          static tcp_connection *tcp; tcp=(tcp_connection*)cs->connection;
+          qbs_set(str,qbs_new_txt("TCP/IP:"));//network type
+          qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->port))));//port
+          qbs_set(str,qbs_add(str,qbs_new_txt(":")));
+          if (cs->type==3){
+        qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[0]))));//ip
+        qbs_set(str,qbs_add(str,qbs_new_txt(".")));
+        qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[1]))));//ip
+        qbs_set(str,qbs_add(str,qbs_new_txt(".")));
+        qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[2]))));//ip
+        qbs_set(str,qbs_add(str,qbs_new_txt(".")));
+        qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(tcp->ip4[3]))));//ip
+          }else{
+        qbs_set(str,qbs_add(str,qbs_new_txt((char*)tcp->hostname)));
+          }
+          return str;
+        }
+      }//TCP/IP
+    }//network
       }//stream
 
     }//i<0
@@ -22918,8 +22926,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     int nError=WSAGetLastError();
     if(nError!=WSAEWOULDBLOCK&&nError!=0)
       {
-	return 0;
-      }	
+    return 0;
+      } 
     if (nError==0){
       if (length==0) return 0;
     }
@@ -22935,21 +22943,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static special_handle_struct *sh; sh=(special_handle_struct*)list_get(special_handles,x); if (!sh) goto error;
 
       if (sh->type==2){//host listener
-	static connection_struct *cs; cs=(connection_struct*)sh->index;
-	if (cs->protocol==1){//TCP/IP
-	  return -1;
-	}//TCP/IP
+    static connection_struct *cs; cs=(connection_struct*)sh->index;
+    if (cs->protocol==1){//TCP/IP
+      return -1;
+    }//TCP/IP
       }//host listener
 
       //client or connection to host
       if (sh->type==1){//stream
-	static stream_struct *ss; ss=(stream_struct*)sh->index;
-	if (ss->type==1){//network
-	  static connection_struct *cs; cs=(connection_struct*)ss->index;
-	  if (cs->protocol==1){//TCP/IP
-	    return tcp_connected(cs->connection);
-	  }//TCP/IP
-	}//network
+    static stream_struct *ss; ss=(stream_struct*)sh->index;
+    if (ss->type==1){//network
+      static connection_struct *cs; cs=(connection_struct*)ss->index;
+      if (cs->protocol==1){//TCP/IP
+        return tcp_connected(cs->connection);
+      }//TCP/IP
+    }//network
       }//stream
 
     }//i<0
@@ -23299,29 +23307,29 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (sdlevent->type==SDL_SYSWMEVENT){ 
       x11event=sdlevent->syswm.msg->event.xevent;
       if (x11event.type==SelectionRequest){
-	x11request=&x11event.xselectionrequest;
-	x11selectionevent.type=SelectionNotify;
-	x11selectionevent.serial=x11event.xany.send_event;
-	x11selectionevent.send_event=True;
-	x11selectionevent.display=syswminfo.info.x11.display;
-	x11selectionevent.requestor=x11request->requestor;
-	x11selectionevent.selection=x11request->selection;
-	x11selectionevent.target=None;
-	x11selectionevent.property=x11request->property;
-	x11selectionevent.time=x11request->time;
-	if (x11request->target==targets){
-	  XChangeProperty(syswminfo.info.x11.display,x11request->requestor,x11request->property,XA_ATOM,32,PropModeReplace,(unsigned char*)mytargets,3);
-	}else{
-	  if (x11request->target==compoundtext||x11request->target==utf8string||x11request->target==XA_STRING){
-	    cp=XFetchBytes(syswminfo.info.x11.display,&i);
-	    XChangeProperty(syswminfo.info.x11.display,x11request->requestor,x11request->property,x11request->target,8,PropModeReplace,(unsigned char*)cp,i);
-	    XFree(cp);
-	  }else{
-	    x11selectionevent.property=None;
-	  }
-	}
-	XSendEvent(x11request->display,x11request->requestor,0,NoEventMask,(XEvent*)&x11selectionevent);
-	XSync(syswminfo.info.x11.display,False);
+    x11request=&x11event.xselectionrequest;
+    x11selectionevent.type=SelectionNotify;
+    x11selectionevent.serial=x11event.xany.send_event;
+    x11selectionevent.send_event=True;
+    x11selectionevent.display=syswminfo.info.x11.display;
+    x11selectionevent.requestor=x11request->requestor;
+    x11selectionevent.selection=x11request->selection;
+    x11selectionevent.target=None;
+    x11selectionevent.property=x11request->property;
+    x11selectionevent.time=x11request->time;
+    if (x11request->target==targets){
+      XChangeProperty(syswminfo.info.x11.display,x11request->requestor,x11request->property,XA_ATOM,32,PropModeReplace,(unsigned char*)mytargets,3);
+    }else{
+      if (x11request->target==compoundtext||x11request->target==utf8string||x11request->target==XA_STRING){
+        cp=XFetchBytes(syswminfo.info.x11.display,&i);
+        XChangeProperty(syswminfo.info.x11.display,x11request->requestor,x11request->property,x11request->target,8,PropModeReplace,(unsigned char*)cp,i);
+        XFree(cp);
+      }else{
+        x11selectionevent.property=None;
+      }
+    }
+    XSendEvent(x11request->display,x11request->requestor,0,NoEventMask,(XEvent*)&x11selectionevent);
+    XSync(syswminfo.info.x11.display,False);
       }
     }
     return 1;
@@ -23369,20 +23377,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       syswminfo.info.x11.unlock_func();
       i=0;
       while (i==0){
-	SDL_WaitEvent(&sdlevent);
-	if (sdlevent.type==SDL_SYSWMEVENT){
-	  x11event=sdlevent.syswm.msg->event.xevent;
-	  if ((x11event.xselection.requestor==syswminfo.info.x11.window)&&(x11event.type==SelectionNotify)) i=1;
-	}
+    SDL_WaitEvent(&sdlevent);
+    if (sdlevent.type==SDL_SYSWMEVENT){
+      x11event=sdlevent.syswm.msg->event.xevent;
+      if ((x11event.xselection.requestor==syswminfo.info.x11.window)&&(x11event.type==SelectionNotify)) i=1;
+    }
       }
       syswminfo.info.x11.lock_func();
       XGetWindowProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard,0,0,False,AnyPropertyType,&type,&format,&data_items,&bytes_remaining,&cp2);
       if (cp2){XFree(cp2); cp2=NULL;}
       if (bytes_remaining){
-	if (XGetWindowProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard,0,bytes_remaining,False,AnyPropertyType,&type,&format,&data_items, &ignore,&cp2)==Success){
-	  cp=strdup((char*)cp2);
-	  XFree(cp2);
-	}
+    if (XGetWindowProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard,0,bytes_remaining,False,AnyPropertyType,&type,&format,&data_items, &ignore,&cp2)==Success){
+      cp=strdup((char*)cp2);
+      XFree(cp2);
+    }
       }  
       XDeleteProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard);
     }
@@ -23403,12 +23411,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (OpenClipboard(NULL)){
       EmptyClipboard();
       h=GlobalAlloc(GMEM_MOVEABLE,text->len+1); if (h){
-	textz=(uint8*)GlobalLock(h); if (textz){
-	  memcpy(textz,text->chr,text->len);
-	  textz[text->len]=0;
-	  GlobalUnlock(h);
-	  SetClipboardData(CF_TEXT,h);
-	}
+    textz=(uint8*)GlobalLock(h); if (textz){
+      memcpy(textz,text->chr,text->len);
+      textz[text->len]=0;
+      GlobalUnlock(h);
+      SetClipboardData(CF_TEXT,h);
+    }
       }
       CloseClipboard();
     }
@@ -23425,7 +23433,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       return;
     }
     CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, text->chr, 
-						 text->len, kCFAllocatorNull);
+                         text->len, kCFAllocatorNull);
     if (data == NULL) {
       CFRelease(clipboard);
       return;
@@ -23465,15 +23473,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static HGLOBAL h;
     if (OpenClipboard(NULL)){
       if (IsClipboardFormatAvailable(CF_TEXT)){
-	h=GetClipboardData(CF_TEXT); if (h){
-	  textz=(uint8*)GlobalLock(h); if (textz){
-	    text=qbs_new(strlen((char*)textz),1);
-	    memcpy(text->chr,textz,text->len);
-	    GlobalUnlock(h);
-	    CloseClipboard();
-	    return text;
-	  }
-	}
+    h=GetClipboardData(CF_TEXT); if (h){
+      textz=(uint8*)GlobalLock(h); if (textz){
+        text=qbs_new(strlen((char*)textz),1);
+        memcpy(text->chr,textz,text->len);
+        GlobalUnlock(h);
+        CloseClipboard();
+        return text;
+      }
+    }
       }
       CloseClipboard();
     }
@@ -23703,10 +23711,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (i32!=0) qbg_screen(i32,0,0,0,0,1);
       generic_get(i,-1,(uint8*)&i32,4);
       if (i32==258){
-	generic_get(i,-1,(uint8*)&i32,4); i32b=i32;
-	generic_get(i,-1,(uint8*)&i32,4);
-	qbsub_width(0,i32b,i32,1+2);
-	generic_get(i,-1,(uint8*)&i32,4);
+    generic_get(i,-1,(uint8*)&i32,4); i32b=i32;
+    generic_get(i,-1,(uint8*)&i32,4);
+    qbsub_width(0,i32b,i32,1+2);
+    generic_get(i,-1,(uint8*)&i32,4);
       }
     }
 
@@ -23750,8 +23758,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if (i32==262){
       for (x=0;x<=255;x++){
-	generic_get(i,-1,(uint8*)&i32,4);
-	sub__palettecolor(x,i32,0,1);
+    generic_get(i,-1,(uint8*)&i32,4);
+    sub__palettecolor(x,i32,0,1);
       }
       generic_get(i,-1,(uint8*)&i32,4);
     }
@@ -23770,10 +23778,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       i32=256; generic_put(i,-1,(uint8*)&i32,4);
       i32=i0->compatible_mode; generic_put(i,-1,(uint8*)&i32,4);
       if (i0->text){
-	//[258][WIDTH:X][Y]
-	i32=258; generic_put(i,-1,(uint8*)&i32,4);
-	i32=i0->width; generic_put(i,-1,(uint8*)&i32,4);
-	i32=i0->height; generic_put(i,-1,(uint8*)&i32,4);
+    //[258][WIDTH:X][Y]
+    i32=258; generic_put(i,-1,(uint8*)&i32,4);
+    i32=i0->width; generic_put(i,-1,(uint8*)&i32,4);
+    i32=i0->height; generic_put(i,-1,(uint8*)&i32,4);
       }
     }else{
       //[257][mode][X][Y]
@@ -23793,16 +23801,16 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     x2=-1;
     for (x=0;x<pages;x++){
       if (page[x]){
-	if (page[x]!=write_page_index){
-	save_write_page:
-	  ix=&img[page[x]];
-	  i32=260; generic_put(i,-1,(uint8*)&i32,4);
-	  i32=x; generic_put(i,-1,(uint8*)&i32,4);
-	  generic_put(i,-1,ix->offset,ix->width*ix->height*ix->bytes_per_pixel);
-	  //save structure (specific parts will be reincorporated)
-	  generic_put(i,-1,(uint8*)ix,sizeof(img_struct));
-	  if (x==x2) break;
-	}else x2=x;
+    if (page[x]!=write_page_index){
+    save_write_page:
+      ix=&img[page[x]];
+      i32=260; generic_put(i,-1,(uint8*)&i32,4);
+      i32=x; generic_put(i,-1,(uint8*)&i32,4);
+      generic_put(i,-1,ix->offset,ix->width*ix->height*ix->bytes_per_pixel);
+      //save structure (specific parts will be reincorporated)
+      generic_put(i,-1,(uint8*)ix,sizeof(img_struct));
+      if (x==x2) break;
+    }else x2=x;
       }
     }
     if ((x2!=-1)&&(x!=x2)){x=x2; goto save_write_page;}
@@ -23824,7 +23832,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (i0->bytes_per_pixel!=4){
       i32=262; generic_put(i,-1,(uint8*)&i32,4);
       for (x=0;x<=255;x++){
-	i32=func__palettecolor(x,0,1); generic_put(i,-1,(uint8*)&i32,4);
+    i32=func__palettecolor(x,0,1); generic_put(i,-1,(uint8*)&i32,4);
       }
     }
 
@@ -23991,8 +23999,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (c==58) goto comstatment;
       if ((c<48)||(c>57)) return 0;//not 0-9
       if (v==-1){
-	if (c==48) return 0;//first digit 0
-	v=0;
+    if (c==48) return 0;//first digit 0
+    v=0;
       }
       v=v*10+(c-48);
     }
@@ -24030,128 +24038,128 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     str_or_num=1; strv=0; v=-1;
     for (i=i+1;i<str->len;i++){ c=str->chr[i];
       if (c!=44){
-	if ((c<48)||((c>57)&&(c<65))||(c>90)) return -1;//invalid character
-	if ((str_or_num==2)&&(c>=65)) return -1;//invalid character
-	if (c<65) str_or_num=2;//ABC->123
-	if ((str_or_num==1)||(stage==4)){//note: stage 4 is interpreted as a string
-	  if (strv&0xFF0000) strv=strv|(c<<24); else
-	    if (strv&0x00FF00) strv=strv|(c<<16); else
-	      if (strv&0x0000FF) strv=strv|(c<<8); else
-		strv=strv=c;
-	  if (strv>16777216) return -1;//string option too long (max 3 characters)
-	}else{
-	  if ((c>48)&&(c<=57)){
-	    if (v==-2) return -1;//leading 0s are invalid
-	    if (v==-1) v=0;
-	    v=v*10+(c-48);
-	  }else{//0
-	    if (v==-2) return -1;//leading 0s are invalid
-	    if (v==-1) v=-2;//0...
-	    if (v>0) v=v*10; 
-	  }
-	  if (v>2147483647) return -1;//numeric value too large (LONG values only)
-	}
+    if ((c<48)||((c>57)&&(c<65))||(c>90)) return -1;//invalid character
+    if ((str_or_num==2)&&(c>=65)) return -1;//invalid character
+    if (c<65) str_or_num=2;//ABC->123
+    if ((str_or_num==1)||(stage==4)){//note: stage 4 is interpreted as a string
+      if (strv&0xFF0000) strv=strv|(c<<24); else
+        if (strv&0x00FF00) strv=strv|(c<<16); else
+          if (strv&0x0000FF) strv=strv|(c<<8); else
+        strv=strv=c;
+      if (strv>16777216) return -1;//string option too long (max 3 characters)
+    }else{
+      if ((c>48)&&(c<=57)){
+        if (v==-2) return -1;//leading 0s are invalid
+        if (v==-1) v=0;
+        v=v*10+(c-48);
+      }else{//0
+        if (v==-2) return -1;//leading 0s are invalid
+        if (v==-1) v=-2;//0...
+        if (v>0) v=v*10; 
+      }
+      if (v>2147483647) return -1;//numeric value too large (LONG values only)
+    }
       }//c!=44
       if ((c==44)||(i==str->len-1)){
-	if (v==-2) v=0;
-	//note: v==-1 means omit
-	if (stage==1){
-	  if (f->com_baud_rate!=-1) return -1;
-	  if (strv) return -1;
-	  if (v==0) return -1;
-	  if (v==-1) v=300;
-	  f->com_baud_rate=v;
-	  stage++; goto done_stage;
-	}
-	if (stage==2){
-	  if (f->com_parity!=-1) return -1;
-	  if (v!=-1) return -1;
-	  x=-1;
-	  if (strv==78) x=0;//N
-	  if (strv==0) x=1;//E*
-	  if (strv==69) x=1;//E
-	  if (strv==79) x=2;//O
-	  if (strv==83) x=3;//S
-	  if (strv==77) x=4;//M
-	  if (strv==17744) x=5;//PE
-	  if (x==-1) return -1;
-	  f->com_parity=x;
-	  stage++; goto done_stage;
-	}
-	if (stage==3){
-	  if (f->com_data_bits_per_byte!=-1) return -1;
-	  if (strv) return -1;
-	  x=-1;
-	  if (v==-1) x=7;
-	  if (v==5) x=5;
-	  if (v==6) x=6;
-	  if (v==7) x=7;
-	  if (v==8) x=8;
-	  if (x==-1) return -1;
-	  f->com_data_bits_per_byte=x;
-	  stage++; goto done_stage;
-	}
-	if (stage==4){
-	  if (f->com_stop_bits!=-1) return -1;
-	  if (v!=-1) return -1;
-	  x=-1;
-	  if (strv==0){
-	    x=10;
-	    if (f->com_baud_rate<=110){
-	      x=20;
-	      if (f->com_data_bits_per_byte==5) x=15;
-	    }
-	  }//0
-	  if (strv==49) x=10;//"1"
-	  if (strv==3485233) x=15;//"1.5"
-	  if (strv==50) x=20;//"2"
-	  if (x==-1) return -1;
-	  f->com_stop_bits=x;
-	  stage++; goto done_stage;
-	}
-	//stage>4
-	if (!strv) return -1;//all options after 4 require a string
-	if (strv==21330){ if (f->com_rs!=-1) return -1;//RS
-	  f->com_rs=1; 
-	  goto done_stage;}
-	if (strv==5130562){ if (f->com_bin_asc!=-1) return -1;//BIN
-	  f->com_bin_asc=0;
-	  goto done_stage;}
-	if (strv==4412225){ if (f->com_bin_asc!=-1) return -1;//ASC
-	  f->com_bin_asc=1;
-	  goto done_stage;}
-	if (strv==16980){ if (com_tb_used) return -1;//TB
-	  com_tb_used=1;
-	  goto done_stage;}
-	if (strv==16978){ if (com_rb_used) return -1;//RB
-	  com_rb_used=1;
-	  goto done_stage;}
-	if (strv==17996){ if (f->com_asc_lf!=-1) return -1;//LF
-	  f->com_asc_lf=1;
-	  goto done_stage;}
-	if (strv==17475){ if (f->com_cd_x!=-1) return -1;//CD
-	  if (v==-1) v=0;
-	  if (v>65535) return -1;
-	  f->com_cd_x=v;
-	  goto done_stage;}
-	if (strv==21315){ if (f->com_cs_x!=-1) return -1;//CS
-	  if (v==-1) v=1000;
-	  if (v>65535) return -1;
-	  f->com_cs_x=v;
-	  goto done_stage;}
-	if (strv==21316){ if (f->com_ds_x!=-1) return -1;//DS
-	  if (v==-1) v=1000;
-	  if (v>65535) return -1;
-	  f->com_ds_x=v;
-	  goto done_stage;}
-	if (strv==20559){ if (f->com_op_x!=-1) return -1;//OP
-	  if (v==-1) v=10000;
-	  if (v>65535) return -1;
-	  f->com_op_x=v;
-	  goto done_stage;}
-	return -1;//invalid option
+    if (v==-2) v=0;
+    //note: v==-1 means omit
+    if (stage==1){
+      if (f->com_baud_rate!=-1) return -1;
+      if (strv) return -1;
+      if (v==0) return -1;
+      if (v==-1) v=300;
+      f->com_baud_rate=v;
+      stage++; goto done_stage;
+    }
+    if (stage==2){
+      if (f->com_parity!=-1) return -1;
+      if (v!=-1) return -1;
+      x=-1;
+      if (strv==78) x=0;//N
+      if (strv==0) x=1;//E*
+      if (strv==69) x=1;//E
+      if (strv==79) x=2;//O
+      if (strv==83) x=3;//S
+      if (strv==77) x=4;//M
+      if (strv==17744) x=5;//PE
+      if (x==-1) return -1;
+      f->com_parity=x;
+      stage++; goto done_stage;
+    }
+    if (stage==3){
+      if (f->com_data_bits_per_byte!=-1) return -1;
+      if (strv) return -1;
+      x=-1;
+      if (v==-1) x=7;
+      if (v==5) x=5;
+      if (v==6) x=6;
+      if (v==7) x=7;
+      if (v==8) x=8;
+      if (x==-1) return -1;
+      f->com_data_bits_per_byte=x;
+      stage++; goto done_stage;
+    }
+    if (stage==4){
+      if (f->com_stop_bits!=-1) return -1;
+      if (v!=-1) return -1;
+      x=-1;
+      if (strv==0){
+        x=10;
+        if (f->com_baud_rate<=110){
+          x=20;
+          if (f->com_data_bits_per_byte==5) x=15;
+        }
+      }//0
+      if (strv==49) x=10;//"1"
+      if (strv==3485233) x=15;//"1.5"
+      if (strv==50) x=20;//"2"
+      if (x==-1) return -1;
+      f->com_stop_bits=x;
+      stage++; goto done_stage;
+    }
+    //stage>4
+    if (!strv) return -1;//all options after 4 require a string
+    if (strv==21330){ if (f->com_rs!=-1) return -1;//RS
+      f->com_rs=1; 
+      goto done_stage;}
+    if (strv==5130562){ if (f->com_bin_asc!=-1) return -1;//BIN
+      f->com_bin_asc=0;
+      goto done_stage;}
+    if (strv==4412225){ if (f->com_bin_asc!=-1) return -1;//ASC
+      f->com_bin_asc=1;
+      goto done_stage;}
+    if (strv==16980){ if (com_tb_used) return -1;//TB
+      com_tb_used=1;
+      goto done_stage;}
+    if (strv==16978){ if (com_rb_used) return -1;//RB
+      com_rb_used=1;
+      goto done_stage;}
+    if (strv==17996){ if (f->com_asc_lf!=-1) return -1;//LF
+      f->com_asc_lf=1;
+      goto done_stage;}
+    if (strv==17475){ if (f->com_cd_x!=-1) return -1;//CD
+      if (v==-1) v=0;
+      if (v>65535) return -1;
+      f->com_cd_x=v;
+      goto done_stage;}
+    if (strv==21315){ if (f->com_cs_x!=-1) return -1;//CS
+      if (v==-1) v=1000;
+      if (v>65535) return -1;
+      f->com_cs_x=v;
+      goto done_stage;}
+    if (strv==21316){ if (f->com_ds_x!=-1) return -1;//DS
+      if (v==-1) v=1000;
+      if (v>65535) return -1;
+      f->com_ds_x=v;
+      goto done_stage;}
+    if (strv==20559){ if (f->com_op_x!=-1) return -1;//OP
+      if (v==-1) v=10000;
+      if (v>65535) return -1;
+      f->com_op_x=v;
+      goto done_stage;}
+    return -1;//invalid option
       done_stage:
-	str_or_num=1; strv=0; v=-1;
+    str_or_num=1; strv=0; v=-1;
       }
     }//i
 
@@ -24162,8 +24170,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (f->com_stop_bits==-1){
       x=10;
       if (f->com_baud_rate<=110){
-	x=20;
-	if (f->com_data_bits_per_byte==5) x=15;
+    x=20;
+    if (f->com_data_bits_per_byte==5) x=15;
       }
       f->com_stop_bits=x; 
     }
@@ -24228,25 +24236,25 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }
     if (how){
       if (!f->file_handle->is_open()){//couldn't open file, so attempt creation
-	f->file_handle_o=new ofstream();
-	f->file_handle_o->open(fixdir(filenamez),ios::out);
-	if (f->file_handle_o->is_open()){//created new file
-	  f->file_handle_o->close();
-	  //retry open 
-	  f->file_handle->clear();
-	  if (how==2){
-	    //with truncate
-	    if (access==1) f->file_handle->open(fixdir(filenamez),ios::in|ios::binary|ios::trunc);
-	    if (access==2) f->file_handle->open(fixdir(filenamez),ios::out|ios::binary|ios::trunc);
-	    if (access==3) f->file_handle->open(fixdir(filenamez),ios::in|ios::out|ios::binary|ios::trunc);
-	  }else{
-	    //without truncate
-	    if (access==1) f->file_handle->open(fixdir(filenamez),ios::in|ios::binary);
-	    if (access==2) f->file_handle->open(fixdir(filenamez),ios::out|ios::binary|ios::app);
-	    if (access==3) f->file_handle->open(fixdir(filenamez),ios::in|ios::out|ios::binary);
-	  }
-	}
-	delete f->file_handle_o;
+    f->file_handle_o=new ofstream();
+    f->file_handle_o->open(fixdir(filenamez),ios::out);
+    if (f->file_handle_o->is_open()){//created new file
+      f->file_handle_o->close();
+      //retry open 
+      f->file_handle->clear();
+      if (how==2){
+        //with truncate
+        if (access==1) f->file_handle->open(fixdir(filenamez),ios::in|ios::binary|ios::trunc);
+        if (access==2) f->file_handle->open(fixdir(filenamez),ios::out|ios::binary|ios::trunc);
+        if (access==3) f->file_handle->open(fixdir(filenamez),ios::in|ios::out|ios::binary|ios::trunc);
+      }else{
+        //without truncate
+        if (access==1) f->file_handle->open(fixdir(filenamez),ios::in|ios::binary);
+        if (access==2) f->file_handle->open(fixdir(filenamez),ios::out|ios::binary|ios::app);
+        if (access==3) f->file_handle->open(fixdir(filenamez),ios::in|ios::out|ios::binary);
+      }
+    }
+    delete f->file_handle_o;
       }
     }//how 
     if (!f->file_handle->is_open()){//couldn't open file
@@ -24284,13 +24292,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static COMMTIMEOUTS ct;
       ZeroMemory(&ct,sizeof(COMMTIMEOUTS));
       /*dump port state and return "file not found" (used for debugging only)
-	if (!GetCommTimeouts(f_w->file_handle,&ct)){CloseHandle(f_w->file_handle); gfs_free(i); return -8;}//device unavailable
-	ofstream mydump("f:\\comdump.bin");
-	mydump.write((char*)&cs,sizeof(cs));
-	mydump.write((char*)&ct,sizeof(ct));
-	mydump.close();
-	CloseHandle(f_w->file_handle); gfs_free(i);
-	return -4;
+    if (!GetCommTimeouts(f_w->file_handle,&ct)){CloseHandle(f_w->file_handle); gfs_free(i); return -8;}//device unavailable
+    ofstream mydump("f:\\comdump.bin");
+    mydump.write((char*)&cs,sizeof(cs));
+    mydump.write((char*)&ct,sizeof(ct));
+    mydump.close();
+    CloseHandle(f_w->file_handle); gfs_free(i);
+    return -4;
       */
       cs.BaudRate=f->com_baud_rate;
       x=f->com_stop_bits;
@@ -24313,14 +24321,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       cs.EofChar=26;
       if(!SetCommState(f_w->file_handle,&cs)){CloseHandle(f_w->file_handle); gfs_free(i); return -8;}//device unavailable
       if (f->com_ds_x==0){
-	//A value of MAXDWORD, combined with zero values for both the ReadTotalTimeoutConstant and ReadTotalTimeoutMultiplier members, specifies that the read operation is to return immediately with the characters that have already been received, even if no characters have been received.
-	ct.ReadIntervalTimeout=MAXDWORD;
-	ct.ReadTotalTimeoutMultiplier=0;
-	ct.ReadTotalTimeoutConstant=0;
+    //A value of MAXDWORD, combined with zero values for both the ReadTotalTimeoutConstant and ReadTotalTimeoutMultiplier members, specifies that the read operation is to return immediately with the characters that have already been received, even if no characters have been received.
+    ct.ReadIntervalTimeout=MAXDWORD;
+    ct.ReadTotalTimeoutMultiplier=0;
+    ct.ReadTotalTimeoutConstant=0;
       }else{
-	ct.ReadIntervalTimeout=0;
-	ct.ReadTotalTimeoutMultiplier=0;
-	ct.ReadTotalTimeoutConstant=f->com_ds_x;
+    ct.ReadIntervalTimeout=0;
+    ct.ReadTotalTimeoutMultiplier=0;
+    ct.ReadTotalTimeoutConstant=f->com_ds_x;
       }
       ct.WriteTotalTimeoutMultiplier=0;
       ct.WriteTotalTimeoutConstant=f->com_cs_x;
@@ -24343,21 +24351,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (f_w->file_handle==INVALID_HANDLE_VALUE){
 
       if (how==3){
-	//attempt read access only
-	x=GENERIC_READ;
-	f->read=1;
-	f->write=0;
-	how++;
-	goto undefined_retry;
+    //attempt read access only
+    x=GENERIC_READ;
+    f->read=1;
+    f->write=0;
+    how++;
+    goto undefined_retry;
       }
 
       if (how==4){
-	//attempt write access only
-	x=GENERIC_WRITE;
-	f->read=0;
-	f->write=1;
-	how++;
-	goto undefined_retry;
+    //attempt write access only
+    x=GENERIC_WRITE;
+    f->read=0;
+    f->write=1;
+    how++;
+    goto undefined_retry;
       }
 
       gfs_free(i);
@@ -24376,21 +24384,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static DWORD GetFileSize_low,GetFileSize_high;
       GetFileSize_low=GetFileSize(f_w->file_handle,&GetFileSize_high);
       if (GetFileSize_low||GetFileSize_high){
-	CloseHandle(f_w->file_handle);
-	x3=TRUNCATE_EXISTING;
-	f_w->file_handle=CreateFile(fixdir(filenamez),x,x2,NULL,x3,FILE_ATTRIBUTE_NORMAL,NULL);
+    CloseHandle(f_w->file_handle);
+    x3=TRUNCATE_EXISTING;
+    f_w->file_handle=CreateFile(fixdir(filenamez),x,x2,NULL,x3,FILE_ATTRIBUTE_NORMAL,NULL);
 
-	if (f_w->file_handle==INVALID_HANDLE_VALUE){
-	  gfs_free(i);
-	  e=GetLastError();
-	  if (e==3) return -6;
-	  if ((e==4)||(e==29)||(e==30)) return -9;
-	  if ((e==5)||(e==19)||(e==33)||(e==32)) return -7;
-	  if ((e==15)||(e==21)) return -8;
-	  if (e==2) return -5;
-	  //showvalue(e);
-	  return -5;//assume (2)
-	}//invalid handle
+    if (f_w->file_handle==INVALID_HANDLE_VALUE){
+      gfs_free(i);
+      e=GetLastError();
+      if (e==3) return -6;
+      if ((e==4)||(e==29)||(e==30)) return -9;
+      if ((e==5)||(e==19)||(e==33)||(e==32)) return -7;
+      if ((e==15)||(e==21)) return -8;
+      if (e==2) return -5;
+      //showvalue(e);
+      return -5;//assume (2)
+    }//invalid handle
 
       }
     }//how==2
@@ -24430,7 +24438,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     f_w=&gfs_file_win[i];
     if (SetFilePointer(f_w->file_handle,(int32)position,(long*)(((int32*)&position)+1),FILE_BEGIN)==0xFFFFFFFF){/*Note that it is not an error to set the file pointer to a position beyond the end of the file. The size of the file does not increase until you call the SetEndOfFile, WriteFile, or WriteFileEx function.*/
       if (GetLastError()!=NO_ERROR){
-	return -3;//bad file mode
+    return -3;//bad file mode
       }
     }
     f->pos=position;
@@ -24476,15 +24484,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int64 written=0;
     while(size){
       if (size>4294967295){
-	size2=4294967295;
-	size-=4294967295;
+    size2=4294967295;
+    size-=4294967295;
       }else{
-	size2=size; size=0;
+    size2=size; size=0;
       }
       if (!WriteFile(f_w->file_handle,data,size2,(unsigned long*)&written,NULL)){
-	e=GetLastError();
-	if ((e==5)||(e==33)) return -7;//permission denied
-	return -9;//assume: path/file access error
+    e=GetLastError();
+    if ((e==5)||(e==33)) return -7;//permission denied
+    return -9;//assume: path/file access error
       }
       data+=written; f->pos+=written;
       if (written!=size2) return -1;
@@ -24540,24 +24548,24 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int64 bytesread=0;
     while(size){
       if (size>4294967295){
-	size2=4294967295;
-	size-=4294967295;
+    size2=4294967295;
+    size-=4294967295;
       }else{
-	size2=size; size=0;
+    size2=size; size=0;
       }
 
       if (ReadFile(f_w->file_handle,data,size2,(unsigned long*)&bytesread,NULL)){
-	data+=bytesread; f->pos+=bytesread; gfs_read_bytes_value+=bytesread;
-	if (bytesread!=size2){   
-	  ZeroMemory(data,size+(size2-bytesread));//nullify remaining buffer
-	  f->eof_passed=1; return -10;
-	}//eof passed
+    data+=bytesread; f->pos+=bytesread; gfs_read_bytes_value+=bytesread;
+    if (bytesread!=size2){   
+      ZeroMemory(data,size+(size2-bytesread));//nullify remaining buffer
+      f->eof_passed=1; return -10;
+    }//eof passed
       }else{
-	//error
-	e=GetLastError();
-	if ((e==5)||(e==33)) return -7;//permission denied
-	//showvalue(e);
-	return -9;//assume: path/file access error
+    //error
+    e=GetLastError();
+    if ((e==5)||(e==33)) return -7;//permission denied
+    //showvalue(e);
+    return -9;//assume: path/file access error
       }
     }
     f->eof_passed=0;
@@ -24774,11 +24782,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if (hdc2){
       if ((w!=bx)||(h!=by)){
-	DeleteObject(bitmap);
-	ReleaseDC(NULL,hdc2);
-	hdc2=CreateCompatibleDC(hdc);
-	bitmap=CreateCompatibleBitmap(hdc,w,h); bx=w; by=h;
-	SelectObject(hdc2,bitmap);
+    DeleteObject(bitmap);
+    ReleaseDC(NULL,hdc2);
+    hdc2=CreateCompatibleDC(hdc);
+    bitmap=CreateCompatibleBitmap(hdc,w,h); bx=w; by=h;
+    SelectObject(hdc2,bitmap);
       }
     }else{
       hdc2=CreateCompatibleDC(hdc);
@@ -24789,11 +24797,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     init=1;
 
     BitBlt(        hdc2, 
-		   0,0, 
-		   w,h,
-		   hdc, 
-		   x1,y1,
-		   SRCCOPY);
+           0,0, 
+           w,h,
+           hdc, 
+           x1,y1,
+           SRCCOPY);
 
     static BITMAPFILEHEADER   bmfHeader;  
     static BITMAPINFOHEADER   bi;
@@ -24993,9 +25001,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int32 setup=0;
     if (!setup)
       {
-	setup=1;
-	SDL_VERSION(&syswminfo.version);
-	SDL_GetWMInfo (&syswminfo);
+    setup=1;
+    SDL_VERSION(&syswminfo.version);
+    SDL_GetWMInfo (&syswminfo);
       }
     dpy = syswminfo.info.x11.display;
     syswminfo.info.x11.lock_func ();
@@ -25078,15 +25086,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 #ifdef QB64_MACOSX
     CGEventRef click1_down = CGEventCreateMouseEvent(
-						     NULL, kCGEventLeftMouseDown,
-						     CGPointMake(x, y),
-						     kCGMouseButtonLeft
-						     );
+                             NULL, kCGEventLeftMouseDown,
+                             CGPointMake(x, y),
+                             kCGMouseButtonLeft
+                             );
     CGEventRef click1_up = CGEventCreateMouseEvent(
-						   NULL, kCGEventLeftMouseUp,
-						   CGPointMake(x, y),
-						   kCGMouseButtonLeft
-						   );
+                           NULL, kCGEventLeftMouseUp,
+                           CGPointMake(x, y),
+                           kCGMouseButtonLeft
+                           );
     CGEventPost(kCGHIDEventTap, click1_down);
     CGEventPost(kCGHIDEventTap, click1_up);
     CFRelease(click1_up);
@@ -25664,135 +25672,135 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //static int32 i,s,x,vk,c;
 
       /*
-	CONTROL+{A-Z} 
-	The following 'x' letters cannot be simulated this way because they map to implemented control code (8,9,13) functionality:
-	ABCDEFGHIJKLMNOPQRSTUVWXYZ
-	.......xx...x.............
-	Common/standard CTRL+? combinations for copying, pasting, undoing, cutting, etc. are available
+    CONTROL+{A-Z} 
+    The following 'x' letters cannot be simulated this way because they map to implemented control code (8,9,13) functionality:
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    .......xx...x.............
+    Common/standard CTRL+? combinations for copying, pasting, undoing, cutting, etc. are available
       */
 
       if ((c>=1)&&(c<=26)){ if ((c!=8)&&(c!=9)&&(c!=13)){
-	  //Note: Under MacOSX, COMMAND is used instead of control for general tasks
-	  vk=ASCII_TO_MACVK[c+96]>>8;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Command,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventSetFlags(e, kCGEventFlagMaskCommand);
-	  CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Command,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  goto special_character;
-	}}
+      //Note: Under MacOSX, COMMAND is used instead of control for general tasks
+      vk=ASCII_TO_MACVK[c+96]>>8;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Command,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventSetFlags(e, kCGEventFlagMaskCommand);
+      CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Command,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      goto special_character;
+    }}
 
       //custom extended characters
       if (c==0){
-	if (i==(txt->len-1)) goto special_character;
-	i++;
-	c=txt->chr[i];
-	if (c==15){//SHIFT+TAB
-	  vk=MACVK_Tab;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventSetFlags(e, kCGEventFlagMaskShift);
-	  CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	//4 arrows
-	if (c==75){
-	  vk=MACVK_LeftArrow;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==77){
-	  vk=MACVK_RightArrow;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==72){
-	  vk=MACVK_UpArrow;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==80){
-	  vk=MACVK_DownArrow;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	//6 control keys
-	if (c==82){
-	  vk=MACVK_Help;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==71){
-	  vk=MACVK_Home;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==83){
-	  vk=MACVK_ForwardDelete;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==79){
-	  vk=MACVK_End;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==81){
-	  vk=MACVK_PageDown;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	if (c==73){
-	  vk=MACVK_PageUp;
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
-	//...
-	//todo: F1-F12, shift/control/alt+above
-	goto special_character;
+    if (i==(txt->len-1)) goto special_character;
+    i++;
+    c=txt->chr[i];
+    if (c==15){//SHIFT+TAB
+      vk=MACVK_Tab;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventSetFlags(e, kCGEventFlagMaskShift);
+      CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    //4 arrows
+    if (c==75){
+      vk=MACVK_LeftArrow;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==77){
+      vk=MACVK_RightArrow;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==72){
+      vk=MACVK_UpArrow;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==80){
+      vk=MACVK_DownArrow;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    //6 control keys
+    if (c==82){
+      vk=MACVK_Help;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==71){
+      vk=MACVK_Home;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==83){
+      vk=MACVK_ForwardDelete;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==79){
+      vk=MACVK_End;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==81){
+      vk=MACVK_PageDown;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    if (c==73){
+      vk=MACVK_PageUp;
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
+    //...
+    //todo: F1-F12, shift/control/alt+above
+    goto special_character;
       }
 
       //standard ASCII character output
       x=ASCII_TO_MACVK[c];
       if (x&127){//available character
-	vk=x>>8;
-	if (x&128){
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventSetFlags(e, kCGEventFlagMaskShift);
-	  CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}else{
-	  es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
-	  CFRelease(es);
-	}
+    vk=x>>8;
+    if (x&128){
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventSetFlags(e, kCGEventFlagMaskShift);
+      CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)MACVK_Shift,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }else{
+      es=CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,1); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      e=CGEventCreateKeyboardEvent(es,(CGKeyCode)vk,0); CGEventPost(kCGAnnotatedSessionEventTap,e); CFRelease(e);
+      CFRelease(es);
+    }
       }//available character
 
     special_character:;
@@ -25820,43 +25828,43 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //...
 
       /*
-	CONTROL+{A-Z} 
-	The following 'x' letters cannot be simulated this way because they map to above functionality:
-	ABCDEFGHIJKLMNOPQRSTUVWXYZ
-	.......xx...x.............
-	Common/standard CTRL+? combinations for copying, pasting, undoing, cutting, etc. are available
+    CONTROL+{A-Z} 
+    The following 'x' letters cannot be simulated this way because they map to above functionality:
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    .......xx...x.............
+    Common/standard CTRL+? combinations for copying, pasting, undoing, cutting, etc. are available
       */
       if ((c>=1)&&(c<=26)){
-	ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_CONTROL; SendInput(1,&input,sizeof(INPUT));
-	ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VkKeyScan(64+c)&255; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
-	ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_CONTROL; input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
-	goto special_character;
+    ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_CONTROL; SendInput(1,&input,sizeof(INPUT));
+    ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VkKeyScan(64+c)&255; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
+    ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_CONTROL; input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
+    goto special_character;
       }
 
       //custom extended characters
       if (c==0){
-	if (i==(txt->len-1)) goto special_character;
-	i++;
-	c=txt->chr[i];
-	if (c==15){//SHIFT+TAB
-	  ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_SHIFT; SendInput(1,&input,sizeof(INPUT));
-	  ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_TAB; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
-	  ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_SHIFT; input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
-	}
-	if (c==75){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_LEFT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==77){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_RIGHT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==72){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_UP; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==80){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_DOWN; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==82){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_INSERT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==71){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_HOME; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==83){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_DELETE; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==79){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_END; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==81){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_NEXT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	if (c==73){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_PRIOR; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
-	//...
-	//todo: F1-F12, shift/control/alt+above
+    if (i==(txt->len-1)) goto special_character;
+    i++;
+    c=txt->chr[i];
+    if (c==15){//SHIFT+TAB
+      ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_SHIFT; SendInput(1,&input,sizeof(INPUT));
+      ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_TAB; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
+      ZeroMemory(&input,sizeof(INPUT)); input.type=INPUT_KEYBOARD; input.ki.wVk=VK_SHIFT; input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));
+    }
+    if (c==75){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_LEFT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==77){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_RIGHT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==72){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_UP; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==80){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_DOWN; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==82){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_INSERT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==71){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_HOME; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==83){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_DELETE; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==79){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_END; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==81){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_NEXT; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    if (c==73){ZeroMemory(&input,sizeof(INPUT)); input.ki.wVk=VK_PRIOR; input.type=INPUT_KEYBOARD; SendInput(1,&input,sizeof(INPUT)); input.ki.dwFlags = KEYEVENTF_KEYUP; SendInput(1,&input,sizeof(INPUT));}
+    //...
+    //todo: F1-F12, shift/control/alt+above
 
-	goto special_character;
+    goto special_character;
       }
 
       if ((c>126)||(c<32)) goto special_character;
@@ -25869,10 +25877,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //2 Either CTRL key is pressed. 
       //4 Either ALT key is pressed. 
       if (s&1){
-	ZeroMemory(&input,sizeof(INPUT));
-	input.type=INPUT_KEYBOARD;
-	input.ki.wVk=VK_SHIFT;
-	SendInput(1,&input,sizeof(INPUT));
+    ZeroMemory(&input,sizeof(INPUT));
+    input.type=INPUT_KEYBOARD;
+    input.ki.wVk=VK_SHIFT;
+    SendInput(1,&input,sizeof(INPUT));
       }
 
       ZeroMemory(&input,sizeof(INPUT));
@@ -25887,11 +25895,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       SendInput(1,&input,sizeof(INPUT));
 
       if (s&1){
-	ZeroMemory(&input,sizeof(INPUT));
-	input.type=INPUT_KEYBOARD;
-	input.ki.wVk=VK_SHIFT;
-	input.ki.dwFlags = KEYEVENTF_KEYUP;
-	SendInput(1,&input,sizeof(INPUT));
+    ZeroMemory(&input,sizeof(INPUT));
+    input.type=INPUT_KEYBOARD;
+    input.ki.wVk=VK_SHIFT;
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1,&input,sizeof(INPUT));
       }
 
     special_character:;
@@ -26017,10 +26025,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (i2){
       i2=GetShortPathName((char*)curdir,(char*)curdir2,4096);
       if (i2){
-	qbs_set(strz2,qbs_ucase(qbs_new_txt_len((char*)curdir2,i2)));
-	qbs_print(strz2,1);
+    qbs_set(strz2,qbs_ucase(qbs_new_txt_len((char*)curdir2,i2)));
+    qbs_print(strz2,1);
       }else{
-	error(5); return;
+    error(5); return;
       }
     }else{
       error(5); return;
@@ -26031,28 +26039,28 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     do{
 
       if (!fd.cAlternateFileName[0]){//no alternate filename exists
-	qbs_set(strz2,qbs_ucase(qbs_new_txt_len(fd.cFileName,strlen(fd.cFileName))));
+    qbs_set(strz2,qbs_ucase(qbs_new_txt_len(fd.cFileName,strlen(fd.cFileName))));
       }else{
-	qbs_set(strz2,qbs_ucase(qbs_new_txt_len(fd.cAlternateFileName,strlen(fd.cAlternateFileName))));
+    qbs_set(strz2,qbs_ucase(qbs_new_txt_len(fd.cAlternateFileName,strlen(fd.cAlternateFileName))));
       }
 
       if (strz2->len<12){//padding required
-	qbs_set(strz2,qbs_add(strz2,func_space(12-strz2->len)));
-	i2=0;
-	for (i=0;i<12;i++){
-	  if (strz2->chr[i]==46){
-	    memmove(&strz2->chr[8],&strz2->chr[i],4);
-	    memset(&strz2->chr[i],32,8-i);
-	    break;
-	  }
-	}//i
+    qbs_set(strz2,qbs_add(strz2,func_space(12-strz2->len)));
+    i2=0;
+    for (i=0;i<12;i++){
+      if (strz2->chr[i]==46){
+        memmove(&strz2->chr[8],&strz2->chr[i],4);
+        memset(&strz2->chr[i],32,8-i);
+        break;
+      }
+    }//i
       }//padding
 
       //add "      " or "<DIR> "
       if (fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
-	qbs_set(strz2,qbs_add(strz2,qbs_new_txt_len("<DIR> ",6)));
+    qbs_set(strz2,qbs_add(strz2,qbs_new_txt_len("<DIR> ",6)));
       }else{
-	qbs_set(strz2,qbs_add(strz2,func_space(6)));
+    qbs_set(strz2,qbs_add(strz2,func_space(6)));
       }
 
       makefit(strz2);
@@ -26129,12 +26137,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 #ifdef QB64_IME
 
   static int message_loop(
-			  SDL_Event event,
-			  SDL_Surface *screen,
-			  SDL_Surface *back,
-			  int *inputedWidth,
-			  Uint16 *inputedString,
-			  TTF_Font *font);
+              SDL_Event event,
+              SDL_Surface *screen,
+              SDL_Surface *back,
+              int *inputedWidth,
+              Uint16 *inputedString,
+              TTF_Font *font);
 
   static int GetUnicodeStringLength(Uint16 *unicodeString);
   static Uint16 *CatUnicodeString(Uint16 *dest, Uint16 *src);
@@ -26243,8 +26251,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
   int DrawMessageBlock(
-		       SDL_Surface *back, TTF_Font *font, Uint16 *string,
-		       int drawStartWidth, SDL_Color fg, SDL_Color bg, int cursorPosition)
+               SDL_Surface *back, TTF_Font *font, Uint16 *string,
+               int drawStartWidth, SDL_Color fg, SDL_Color bg, int cursorPosition)
     {
       SDL_Rect rect;
       SDL_Surface *surface;
@@ -26265,7 +26273,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         nowWidth = surface->w;
         SDL_FreeSurface(surface);
 
-	ime_DrawMessageBlock_lastpixeloffset=drawStartWidth+nowWidth;
+    ime_DrawMessageBlock_lastpixeloffset=drawStartWidth+nowWidth;
         return nowWidth;
       }
     
@@ -26277,7 +26285,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         needSize = (cursorPosition + 1) * sizeof(Uint16);
         splitString = (Uint16*)calloc(needSize, 1);
         if (splitString == NULL) {
-	  return -1;
+      return -1;
         }
         memcpy(splitString, string, cursorPosition * sizeof(Uint16));
         rect.x = drawStartWidth + nowWidth;
@@ -26300,7 +26308,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         needSize = (stringLength + 1) * sizeof(Uint16);
         splitString = (Uint16*)calloc(needSize, 1);
         if (splitString == NULL) {
-	  return -1;
+      return -1;
         }
         splitString = string + cursorPosition;
         rect.x = drawStartWidth + nowWidth;
@@ -26325,9 +26333,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       ///SDL_Color bg = {0x00, 0x00, 0x00};
 
       /*ref
-	int DrawMessageBlock(
-	SDL_Surface *back, TTF_Font *font, Uint16 *string,
-	int drawStartWidth, SDL_Color fg, SDL_Color bg, int cursorPosition)
+    int DrawMessageBlock(
+    SDL_Surface *back, TTF_Font *font, Uint16 *string,
+    int drawStartWidth, SDL_Color fg, SDL_Color bg, int cursorPosition)
       */
 
 
@@ -26355,184 +26363,184 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     
       if (InputMethod_GetCurrentCompositionLength() == 0) {
         DrawMessageBlock(
-			 back, font, InputMethod_GetCurrentEditingString(),
-			 inputedWidth, fg, bg, InputMethod_GetCurrentCursorPosition());
+             back, font, InputMethod_GetCurrentEditingString(),
+             inputedWidth, fg, bg, InputMethod_GetCurrentCursorPosition());
 
 
 
       } else if (
-		 InputMethod_GetCurrentCompositionPosition() == 0 &&
-		 compositionLastPosition >= stringLength
-		 ) {
+         InputMethod_GetCurrentCompositionPosition() == 0 &&
+         compositionLastPosition >= stringLength
+         ) {
         DrawMessageBlock(
-			 back, font, InputMethod_GetCurrentEditingString(),
-			 inputedWidth, bg, fg, InputMethod_GetCurrentCursorPosition());
+             back, font, InputMethod_GetCurrentEditingString(),
+             inputedWidth, bg, fg, InputMethod_GetCurrentCursorPosition());
 
       } else if (InputMethod_GetCurrentCompositionPosition() == 0) {
         needSize =
-	  (InputMethod_GetCurrentCompositionLength() + 1)
-	  * sizeof(Uint16);
+      (InputMethod_GetCurrentCompositionLength() + 1)
+      * sizeof(Uint16);
         firstString = (Uint16*)malloc(needSize);
         if (firstString == NULL) {
-	  return 0;
+      return 0;
         }
         needSize =
-	  (stringLength - InputMethod_GetCurrentCompositionLength() + 1)
-	  * sizeof(Uint16);
+      (stringLength - InputMethod_GetCurrentCompositionLength() + 1)
+      * sizeof(Uint16);
         lastString = (Uint16*)malloc(needSize);
         if (lastString == NULL) {
-	  free(firstString);
-	  return 0;
+      free(firstString);
+      return 0;
         }
         CopyNumUnicodeString(
-			     firstString,
-			     InputMethod_GetCurrentEditingString(),
-			     InputMethod_GetCurrentCompositionLength());
+                 firstString,
+                 InputMethod_GetCurrentEditingString(),
+                 InputMethod_GetCurrentCompositionLength());
         CopyNumUnicodeString(
-			     lastString,
-			     InputMethod_GetCurrentEditingString() +
-			     InputMethod_GetCurrentCompositionLength(),
-			     stringLength - InputMethod_GetCurrentCompositionLength());
+                 lastString,
+                 InputMethod_GetCurrentEditingString() +
+                 InputMethod_GetCurrentCompositionLength(),
+                 stringLength - InputMethod_GetCurrentCompositionLength());
         if (
             InputMethod_GetCurrentCursorPosition() <=
             InputMethod_GetCurrentCompositionLength()
-	    ) {
-	  firstStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition();
-	  lastStringCursorPosition = -1;
+        ) {
+      firstStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition();
+      lastStringCursorPosition = -1;
         } else {
-	  firstStringCursorPosition = -1;
-	  lastStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition() -
-	    InputMethod_GetCurrentCompositionPosition();
+      firstStringCursorPosition = -1;
+      lastStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition() -
+        InputMethod_GetCurrentCompositionPosition();
         }
         width = DrawMessageBlock(
-				 back, font, firstString,
-				 inputedWidth, bg, fg, firstStringCursorPosition);
+                 back, font, firstString,
+                 inputedWidth, bg, fg, firstStringCursorPosition);
         DrawMessageBlock(
-			 back, font, lastString,
-			 inputedWidth + width, fg, bg, lastStringCursorPosition);
+             back, font, lastString,
+             inputedWidth + width, fg, bg, lastStringCursorPosition);
         free(firstString);
         free(lastString);
       } else if (compositionLastPosition >= stringLength) {
         needSize =
-	  (InputMethod_GetCurrentCompositionPosition() + 1)
-	  * sizeof(Uint16);
+      (InputMethod_GetCurrentCompositionPosition() + 1)
+      * sizeof(Uint16);
         firstString = (Uint16*)malloc(needSize);
         if (firstString == NULL) {
-	  return 0;
+      return 0;
         }
         needSize =
-	  (InputMethod_GetCurrentCompositionLength() + 1)
-	  * sizeof(Uint16);
+      (InputMethod_GetCurrentCompositionLength() + 1)
+      * sizeof(Uint16);
         lastString = (Uint16*)malloc(needSize);
         if (lastString == NULL) {
-	  free(firstString);
-	  return 0;
+      free(firstString);
+      return 0;
         }
         CopyNumUnicodeString(
-			     firstString,
-			     InputMethod_GetCurrentEditingString(),
-			     InputMethod_GetCurrentCompositionPosition());
+                 firstString,
+                 InputMethod_GetCurrentEditingString(),
+                 InputMethod_GetCurrentCompositionPosition());
         CopyNumUnicodeString(
-			     lastString,
-			     InputMethod_GetCurrentEditingString() +
-			     InputMethod_GetCurrentCompositionPosition(),
-			     InputMethod_GetCurrentCompositionLength());
+                 lastString,
+                 InputMethod_GetCurrentEditingString() +
+                 InputMethod_GetCurrentCompositionPosition(),
+                 InputMethod_GetCurrentCompositionLength());
         if (
             InputMethod_GetCurrentCursorPosition() <=
             InputMethod_GetCurrentCompositionPosition()
-	    ) {
-	  firstStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition();
-	  lastStringCursorPosition = -1;
+        ) {
+      firstStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition();
+      lastStringCursorPosition = -1;
         } else {
-	  firstStringCursorPosition = -1;
-	  lastStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition() -
-	    InputMethod_GetCurrentCompositionPosition();
+      firstStringCursorPosition = -1;
+      lastStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition() -
+        InputMethod_GetCurrentCompositionPosition();
         }
         width = DrawMessageBlock(
-				 back, font, firstString,
-				 inputedWidth, fg, bg, firstStringCursorPosition);
+                 back, font, firstString,
+                 inputedWidth, fg, bg, firstStringCursorPosition);
         DrawMessageBlock(
-			 back, font, lastString,
-			 inputedWidth + width, bg, fg, lastStringCursorPosition);
+             back, font, lastString,
+             inputedWidth + width, bg, fg, lastStringCursorPosition);
         free(firstString);
         free(lastString);
       } else {
         needSize =
-	  (InputMethod_GetCurrentCompositionPosition() + 1)
-	  * sizeof(Uint16);
+      (InputMethod_GetCurrentCompositionPosition() + 1)
+      * sizeof(Uint16);
         firstString = (Uint16*)malloc(needSize);
         if (firstString == NULL) {
-	  return 0;
+      return 0;
         }
         needSize =
-	  (InputMethod_GetCurrentCompositionLength() + 1)
-	  * sizeof(Uint16);
+      (InputMethod_GetCurrentCompositionLength() + 1)
+      * sizeof(Uint16);
         middleString = (Uint16*)malloc(needSize);
         if (middleString == NULL) {
-	  free(firstString);
-	  return 0;
+      free(firstString);
+      return 0;
         }
         needSize =
-	  (stringLength - compositionLastPosition + 1)
-	  * sizeof(Uint16);
+      (stringLength - compositionLastPosition + 1)
+      * sizeof(Uint16);
         lastString = (Uint16*)malloc(needSize);
         if (lastString == NULL) {
-	  free(firstString);
-	  free(middleString);
-	  return 0;
+      free(firstString);
+      free(middleString);
+      return 0;
         }
         CopyNumUnicodeString(
-			     firstString,
-			     InputMethod_GetCurrentEditingString(),
-			     InputMethod_GetCurrentCompositionPosition());
+                 firstString,
+                 InputMethod_GetCurrentEditingString(),
+                 InputMethod_GetCurrentCompositionPosition());
         CopyNumUnicodeString(
-			     middleString,
-			     InputMethod_GetCurrentEditingString() +
-			     InputMethod_GetCurrentCompositionPosition(),
-			     InputMethod_GetCurrentCompositionLength());
+                 middleString,
+                 InputMethod_GetCurrentEditingString() +
+                 InputMethod_GetCurrentCompositionPosition(),
+                 InputMethod_GetCurrentCompositionLength());
         CopyNumUnicodeString(
-			     lastString,
-			     InputMethod_GetCurrentEditingString() +
-			     compositionLastPosition,
-			     stringLength - compositionLastPosition);
+                 lastString,
+                 InputMethod_GetCurrentEditingString() +
+                 compositionLastPosition,
+                 stringLength - compositionLastPosition);
         if (
             InputMethod_GetCurrentCursorPosition() <=
             InputMethod_GetCurrentCompositionPosition()
-	    ) {
-	  firstStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition();
-	  middleStringCursorPosition = -1;
-	  lastStringCursorPosition = -1;
+        ) {
+      firstStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition();
+      middleStringCursorPosition = -1;
+      lastStringCursorPosition = -1;
         } else if (
-		   InputMethod_GetCurrentCursorPosition() <=
-		   InputMethod_GetCurrentCompositionPosition() +
-		   InputMethod_GetCurrentCompositionLength()
-		   ) {
-	  firstStringCursorPosition = -1;
-	  middleStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition();
-	  lastStringCursorPosition = -1;
+           InputMethod_GetCurrentCursorPosition() <=
+           InputMethod_GetCurrentCompositionPosition() +
+           InputMethod_GetCurrentCompositionLength()
+           ) {
+      firstStringCursorPosition = -1;
+      middleStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition();
+      lastStringCursorPosition = -1;
         } else {
-	  firstStringCursorPosition = -1;
-	  middleStringCursorPosition = -1;
-	  lastStringCursorPosition =
-	    InputMethod_GetCurrentCursorPosition() -
-	    (InputMethod_GetCurrentCompositionPosition() +
-	     InputMethod_GetCurrentCompositionLength());
+      firstStringCursorPosition = -1;
+      middleStringCursorPosition = -1;
+      lastStringCursorPosition =
+        InputMethod_GetCurrentCursorPosition() -
+        (InputMethod_GetCurrentCompositionPosition() +
+         InputMethod_GetCurrentCompositionLength());
         }
         width = DrawMessageBlock(
-				 back, font, firstString,
-				 inputedWidth, fg, bg, firstStringCursorPosition);
+                 back, font, firstString,
+                 inputedWidth, fg, bg, firstStringCursorPosition);
         width += DrawMessageBlock(
-				  back, font, middleString,
-				  inputedWidth + width, bg, fg, middleStringCursorPosition);
+                  back, font, middleString,
+                  inputedWidth + width, bg, fg, middleStringCursorPosition);
         DrawMessageBlock(
-			 back, font, lastString,
-			 inputedWidth + width, fg, bg, lastStringCursorPosition);
+             back, font, lastString,
+             inputedWidth + width, fg, bg, lastStringCursorPosition);
         free(firstString);
         free(lastString);
       }
@@ -26618,7 +26626,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //fix length if necessary
       if (str->len!=str->field->size){
-	if (str->len>str->field->size) str->len=str->field->size; else qbs_set(str,qbs_new(str->field->size,1));
+    if (str->len>str->field->size) str->len=str->field->size; else qbs_set(str,qbs_new(str->field->size,1));
       }
 
       //copy data from field into string
@@ -26677,9 +26685,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     for (i=0;i<gfs->field_strings_n;i++){
       str2=gfs->field_strings[i];
       if (str==str2){//match found
-	//truncate list
-	memmove(&(gfs->field_strings[i]),&(gfs->field_strings[i+1]),(gfs->field_strings_n-i-1)*ptrsz);
-	goto remove;
+    //truncate list
+    memmove(&(gfs->field_strings[i]),&(gfs->field_strings[i+1]),(gfs->field_strings_n-i-1)*ptrsz);
+    goto remove;
       }
     }//i
 
@@ -26763,11 +26771,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     e=gfs_read(i,offset,gfs->field_buffer,gfs->record_length);
     if (e){
       if (e!=-10){//note: on eof, unread buffer area becomes NULL
-	if (e==-2){error(258); return;}//invalid handle
-	if (e==-3){error(54); return;}//bad file mode
-	if (e==-4){error(5); return;}//illegal function call
-	if (e==-7){error(70); return;}//permission denied
-	error(75); return;//assume[-9]: path/file access error
+    if (e==-2){error(258); return;}//invalid handle
+    if (e==-3){error(54); return;}//bad file mode
+    if (e==-4){error(5); return;}//illegal function call
+    if (e==-7){error(70); return;}//permission denied
+    error(75); return;//assume[-9]: path/file access error
       }
     }
 
@@ -26908,26 +26916,26 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       win=info.window;
       Sleep(100);//IMPORTANT: Release CPU so SDL/OS can fully create window or following calls may not work
       if (passed&2){
-	SetWindowPos(win,NULL,x,y,NULL,NULL,SWP_NOSIZE);
+    SetWindowPos(win,NULL,x,y,NULL,NULL,SWP_NOSIZE);
       }else{
-	//_MIDDLE method
-	win2=GetDesktopWindow();
+    //_MIDDLE method
+    win2=GetDesktopWindow();
       retry:
-	GetWindowRect(win, &r);
-	GetClientRect(win, &r3);
-	//find the additional size of the window frame
-	x2=r.right-r.left; y2=r.bottom-r.top;
-	x2=x2-(r3.right-r3.left); y2=y2-(r3.bottom-r3.top);
-	if ((x2<0)||(y2<0)) goto retry;//OS was in process of creating window
-	//find the offsets to apply so that border & title bar are not included in the centering process
-	x3=x2/2; y3=y2-x3;
-	//find the size of our display page
-	x=display_page->width; y=display_page->height;
-	if (display_page->text){x*=fontwidth[display_page->font]; y*=fontheight[display_page->font];}
-	GetWindowRect(win2, &r2);
-	x=((r2.right-r2.left)/2)-(x/2)-x3;
-	y=((r2.bottom-r2.top)/2)-(y/2)-y3;
-	SetWindowPos(win,NULL,x,y,NULL,NULL,SWP_NOSIZE);
+    GetWindowRect(win, &r);
+    GetClientRect(win, &r3);
+    //find the additional size of the window frame
+    x2=r.right-r.left; y2=r.bottom-r.top;
+    x2=x2-(r3.right-r3.left); y2=y2-(r3.bottom-r3.top);
+    if ((x2<0)||(y2<0)) goto retry;//OS was in process of creating window
+    //find the offsets to apply so that border & title bar are not included in the centering process
+    x3=x2/2; y3=y2-x3;
+    //find the size of our display page
+    x=display_page->width; y=display_page->height;
+    if (display_page->text){x*=fontwidth[display_page->font]; y*=fontheight[display_page->font];}
+    GetWindowRect(win2, &r2);
+    x=((r2.right-r2.left)/2)-(x/2)-x3;
+    y=((r2.bottom-r2.top)/2)-(y/2)-y3;
+    SetWindowPos(win,NULL,x,y,NULL,NULL,SWP_NOSIZE);
       }
     }
 #endif
@@ -26968,9 +26976,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (i->compatible_mode){
       h=i->height/fontheight[i->font];
       if (fontwidth[i->font]){
-	w=i->width/fontwidth[i->font];
+    w=i->width/fontwidth[i->font];
       }else{
-	w=write_page->width;
+    w=write_page->width;
       }
     }else{
       h=i->height;
@@ -26984,7 +26992,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //clear bottom row using background color
     if (i->text){
       for (x2=1;x2<=i->width;x2++){
-	str2->chr[0]=32; qbs_print(str2,0);
+    str2->chr[0]=32; qbs_print(str2,0);
       }
       i->cursor_x=1; i->cursor_y=h; i->holding_cursor=0;
     }else{
@@ -26997,25 +27005,25 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     leeway_x=0;
     if (i->compatible_mode){
       if (fontwidth[i->font]){
-	item_x=w/12; row_limit=item_x*12;
-	if (item_x<8){//cannot fit min. width
-	  item_x=8; row_limit=(w/8)*8;
-	  if (item_x>w){item_x=w; row_limit=w;}//can't even fit 1!
-	}
+    item_x=w/12; row_limit=item_x*12;
+    if (item_x<8){//cannot fit min. width
+      item_x=8; row_limit=(w/8)*8;
+      if (item_x>w){item_x=w; row_limit=w;}//can't even fit 1!
+    }
       }else{
-	leeway_x=fontheight[i->font];
-	item_x=w/12; row_limit=item_x*12-leeway_x;
-	x2=((float)fontheight[i->font])*0.5;//estimate the average character width (it's OK for this to be wrong)
-	if (item_x<(x2*8+leeway_x)){//cannot fit min. width
-	  item_x=(x2*8+leeway_x); row_limit=(w/(x2*8+leeway_x))*(x2*8+leeway_x)-leeway_x;
-	  if (item_x>w){item_x=w; row_limit=w-leeway_x;}//can't even fit 1!
-	}  
+    leeway_x=fontheight[i->font];
+    item_x=w/12; row_limit=item_x*12-leeway_x;
+    x2=((float)fontheight[i->font])*0.5;//estimate the average character width (it's OK for this to be wrong)
+    if (item_x<(x2*8+leeway_x)){//cannot fit min. width
+      item_x=(x2*8+leeway_x); row_limit=(w/(x2*8+leeway_x))*(x2*8+leeway_x)-leeway_x;
+      if (item_x>w){item_x=w; row_limit=w-leeway_x;}//can't even fit 1!
+    }  
       }
     }else{
       item_x=w/12; row_limit=item_x*12;
       if (item_x<8){//cannot fit min. width
-	item_x=8; row_limit=(w/8)*8;
-	if (item_x>w){item_x=w; row_limit=w;}//can't even fit 1!
+    item_x=8; row_limit=(w/8)*8;
+    if (item_x>w){item_x=w; row_limit=w;}//can't even fit 1!
       }
     }
 
@@ -27033,77 +27041,77 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //number string
       if (fontwidth[i->font]){
-	qbs_set(str,qbs_ltrim(qbs_str(f)));
+    qbs_set(str,qbs_ltrim(qbs_str(f)));
       }else{
-	qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(")")));
+    qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(")")));
       }
       for (z=0;z<str->len;z++){
-	if (i->cursor_x>=row_limit) row_final_chr=1;
-	if (i->cursor_x>limit_x) goto done_f;
-	if (i->cursor_x>=limit_x) final_chr=1;
-	str2->chr[0]=str->chr[z]; qbs_print(str2,0);
-	if (final_chr) goto done_f;
+    if (i->cursor_x>=row_limit) row_final_chr=1;
+    if (i->cursor_x>limit_x) goto done_f;
+    if (i->cursor_x>=limit_x) final_chr=1;
+    str2->chr[0]=str->chr[z]; qbs_print(str2,0);
+    if (final_chr) goto done_f;
       }
 
       //text
       static int32 fi;
       fi=f; if (f>10) fi=f-11+30;
       if (onkey[fi].text){
-	qbs_set(str,onkey[fi].text);
-	if (i->text){
-	  if (i->background_color){
-	    i->color=7; i->background_color=0;
-	  }else{
-	    i->color=0; i->background_color=7;
-	  }
-	}
+    qbs_set(str,onkey[fi].text);
+    if (i->text){
+      if (i->background_color){
+        i->color=7; i->background_color=0;
       }else{
-	str->len=0;
+        i->color=0; i->background_color=7;
+      }
+    }
+      }else{
+    str->len=0;
       }
       z=0;
       while(i->cursor_x<limit_x){
-	static int32 c;
+    static int32 c;
 
-	if (z>=str->len){
-	  if (!onkey[fi].text) goto done_f;
-	  c=32;
-	}else{
-	  c=str->chr[z++];
-	}
+    if (z>=str->len){
+      if (!onkey[fi].text) goto done_f;
+      c=32;
+    }else{
+      c=str->chr[z++];
+    }
 
-	if (i->cursor_x>=row_limit) row_final_chr=1;
-	if (i->cursor_x>limit_x) goto done_f;
-	if (i->cursor_x>=limit_x) final_chr=1;
-	/*
-	  7->14
-	  8->254
-	  9->26
-	  10->60
-	  11->127
-	  12->22
-	  13->27
-	  28->16
-	  29->17
-	  30->24
-	  31->25
-	  KEY LIST puts spaces instead of non-printables
-	  QBASIC's KEY LIST differs from QBX in this regard
-	  CHR$(13) is also turned into a space in KEY LIST, even if it is at the end
-	*/
-	if (c==7) c=14;
-	if (c==8) c=254;
-	if (c==9) c=26;
-	if (c==10) c=60;
-	if (c==11) c=127;
-	if (c==12) c=22;
-	if (c==13) c=27;
-	if (c==28) c=16;
-	if (c==29) c=17;
-	if (c==30) c=24;
-	if (c==31) c=25;
-	str2->chr[0]=c;
-	no_control_characters=1; qbs_print(str2,0); no_control_characters=0;
-	if (final_chr) goto done_f;
+    if (i->cursor_x>=row_limit) row_final_chr=1;
+    if (i->cursor_x>limit_x) goto done_f;
+    if (i->cursor_x>=limit_x) final_chr=1;
+    /*
+      7->14
+      8->254
+      9->26
+      10->60
+      11->127
+      12->22
+      13->27
+      28->16
+      29->17
+      30->24
+      31->25
+      KEY LIST puts spaces instead of non-printables
+      QBASIC's KEY LIST differs from QBX in this regard
+      CHR$(13) is also turned into a space in KEY LIST, even if it is at the end
+    */
+    if (c==7) c=14;
+    if (c==8) c=254;
+    if (c==9) c=26;
+    if (c==10) c=60;
+    if (c==11) c=127;
+    if (c==12) c=22;
+    if (c==13) c=27;
+    if (c==28) c=16;
+    if (c==29) c=17;
+    if (c==30) c=24;
+    if (c==31) c=25;
+    str2->chr[0]=c;
+    no_control_characters=1; qbs_print(str2,0); no_control_characters=0;
+    if (final_chr) goto done_f;
       }
 
     done_f:;
@@ -27137,17 +27145,17 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //F-number & spacer
       if (fontwidth[i->font]){
-	if (f<10){
-	  qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt("  ")));
-	}else{
-	  qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(" ")));
-	}
+    if (f<10){
+      qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt("  ")));
+    }else{
+      qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(" ")));
+    }
       }else{
-	if ((f<10)&&(mono==1)){
-	  qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(")  ")));
-	}else{
-	  qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(") ")));
-	}
+    if ((f<10)&&(mono==1)){
+      qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(")  ")));
+    }else{
+      qbs_set(str,qbs_add(qbs_ltrim(qbs_str(f)),qbs_new_txt(") ")));
+    }
       }
       qbs_set(str,qbs_add(qbs_new_txt("F"),str));
 
@@ -27155,35 +27163,35 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //text
       fi=f; if (f>10) fi=f-11+30;
       if (onkey[fi].text){
-	qbs_print(str,0);
-	/*
-	  7->14
-	  8->254
-	  9->26
-	  10->60
-	  11->127
-	  12->22
-	  13->27
-	  28->16
-	  29->17
-	  30->24
-	  31->25
-	  KEY LIST puts spaces instead of non-printables
-	  QBASIC's KEY LIST differs from QBX in this regard
-	  CHR$(13) is also turned into a space in KEY LIST, even if it is at the end
-	*/
-	str->len=1;
-	static int32 x,c;
-	for (x=0;x<onkey[fi].text->len;x++){
-	  c=onkey[fi].text->chr[x];
-	  if ((c>=7)&&(c<=13)) c=32;
-	  if ((c>=28)&&(c<=31)) c=32;
-	  str->chr[0]=c;
-	  qbs_print(str,0);
-	}
-	str->len=0; qbs_print(str,1);
+    qbs_print(str,0);
+    /*
+      7->14
+      8->254
+      9->26
+      10->60
+      11->127
+      12->22
+      13->27
+      28->16
+      29->17
+      30->24
+      31->25
+      KEY LIST puts spaces instead of non-printables
+      QBASIC's KEY LIST differs from QBX in this regard
+      CHR$(13) is also turned into a space in KEY LIST, even if it is at the end
+    */
+    str->len=1;
+    static int32 x,c;
+    for (x=0;x<onkey[fi].text->len;x++){
+      c=onkey[fi].text->chr[x];
+      if ((c>=7)&&(c<=13)) c=32;
+      if ((c>=28)&&(c<=31)) c=32;
+      str->chr[0]=c;
+      qbs_print(str,0);
+    }
+    str->len=0; qbs_print(str,1);
       }else{
-	qbs_print(str,1);
+    qbs_print(str,1);
       }
 
     }//f
@@ -27203,12 +27211,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if ((i>=15)&&(i<=29)){//user defined key
       if (str->len==0){
-	onkey[i].key_scancode=0;
+    onkey[i].key_scancode=0;
       }else{
-	x=str->chr[str->len-1];
-	x2=0; for (i2=0;i2<str->len-1;i2++) x2|=str->chr[i2];
-	onkey[i].key_scancode=x;
-	onkey[i].key_flags=x2;
+    x=str->chr[str->len-1];
+    x2=0; for (i2=0;i2<str->len-1;i2++) x2|=str->chr[i2];
+    onkey[i].key_scancode=x;
+    onkey[i].key_flags=x2;
       }
       return;
     }//user defined key
@@ -27234,8 +27242,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (bits==16){c=*i16; i16++;}else{c=*i32; i32++;}
       if (c<-1) goto error;
       if (c!=-1){
-	qbg_palette(i,c,1);
-	if (new_error) return;
+    qbg_palette(i,c,1);
+    if (new_error) return;
       }
     }
     return;
@@ -27277,8 +27285,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       raw_playing = 0;
       raw_reader = raw_writer = 0;
       if (raw_dontfree == 0) {
-	free(raw_data);
-	raw_size = 0;
+    free(raw_data);
+    raw_size = 0;
       }
       return;
     }
@@ -27345,11 +27353,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (passed){
         sample = right;
         if (sample >= 1.0)
-	  clipped = 32767;
+      clipped = 32767;
         else if (sample <= -1.0)
-	  clipped = -32768;
+      clipped = -32768;
         else
-	  clipped = floor(sample * 32767.99999);
+      clipped = floor(sample * 32767.99999);
       }
 
       //right
@@ -27359,14 +27367,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (raw_writer % (CHUNKSIZE * CHANNELS) == 0) {
         SDL_LockAudio();
         if (raw_writer >= raw_size)
-	  raw_writer = 0;
+      raw_writer = 0;
         if (raw_bytes() == 0)
-	  raw_grow();
+      raw_grow();
 
         //ensure a reasonable amount is queued before commencing
         if (!raw_playing && raw_bytes() >= CHUNKSIZE * SAMP_BYTES * CHANNELS * 4) {
-	  raw_playing = 1;
-	  Mix_HookMusic(raw_fill, NULL);
+      raw_playing = 1;
+      Mix_HookMusic(raw_fill, NULL);
         }
         SDL_UnlockAudio();
       }
@@ -27411,9 +27419,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //get/validate src/dst images
     if (passed&2){
       if (si>=0){//validate si
-	validatepage(si); si=page[si];
+    validatepage(si); si=page[si];
       }else{
-	si=-si; if (si>=nextimg){error(258); return;} if (!img[si].valid){error(258); return;}
+    si=-si; if (si>=nextimg){error(258); return;} if (!img[si].valid){error(258); return;}
       }
       src=&img[si];
     }else{
@@ -27421,9 +27429,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }
     if (passed&4){
       if (di>=0){//validate di
-	validatepage(di); di=page[di];
+    validatepage(di); di=page[di];
       }else{
-	di=-di; if (di>=nextimg){error(258); return;} if (!img[di].valid){error(258); return;}
+    di=-di; if (di>=nextimg){error(258); return;} if (!img[di].valid){error(258); return;}
       }
       dst=&img[di];
     }else{
@@ -27534,54 +27542,54 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         //shift texture coords right
         v = ((lhs + 1) / -swidth2 + 1) * swidth2; //offset to move by
         for(i=1;i<=3;i++){
-	  tp=&p[i];
-	  tp->tx = tp->tx + v;
-	  z = 1;
+      tp=&p[i];
+      tp->tx = tp->tx + v;
+      z = 1;
         }
       }else{
         if(lhs >= swidth2){
-	  //shift texture coords left
-	  z = 1;
-	  v = (lhs / swidth2) * swidth2; //offset to move by
-	  for(i=1;i<=3;i++){
-	    tp=&p[i];
-	    tp->tx = tp->tx - v;
-	    z = 1;
-	  }
+      //shift texture coords left
+      z = 1;
+      v = (lhs / swidth2) * swidth2; //offset to move by
+      for(i=1;i<=3;i++){
+        tp=&p[i];
+        tp->tx = tp->tx - v;
+        z = 1;
+      }
         }
       }
       if(top < 0){
         //shift texture coords down
         v = ((top + 1) / -sheight2 + 1) * sheight2; //offset to move by
         for(i=1;i<=3;i++){
-	  tp=&p[i];
-	  tp->ty = tp->ty + v;
-	  z = 1;
+      tp=&p[i];
+      tp->ty = tp->ty + v;
+      z = 1;
         }
       }else{
         if(top >= swidth2){
-	  //shift texture coords up
-	  v = (top / sheight2) * sheight2; //offset to move by
-	  for(i=1;i<=3;i++){
-	    tp=&p[i];
-	    tp->ty = tp->ty - v;
-	    z = 1;
+      //shift texture coords up
+      v = (top / sheight2) * sheight2; //offset to move by
+      for(i=1;i<=3;i++){
+        tp=&p[i];
+        tp->ty = tp->ty - v;
+        z = 1;
 
-	  }
-	  z = 1;
+      }
+      z = 1;
         }
       }
       if(z){
         //reassess need for tiling
         z = 0;
         for(i=1;i<=3;i++){
-	  tp=&p[i];
-	  v = tp->tx; if(v < 16 | v >= swidth2 - 16){
-	    z = 1; break;
-	  }
-	  v = tp->ty; if(v < 16 | v >= sheight2 - 16){
-	    z = 1; break;
-	  }
+      tp=&p[i];
+      v = tp->tx; if(v < 16 | v >= swidth2 - 16){
+        z = 1; break;
+      }
+      v = tp->ty; if(v < 16 | v >= sheight2 - 16){
+        z = 1; break;
+      }
         }
         if(z == 0) tile = 0; //remove tiling flag, this will greatly improve blit speed
       }
@@ -27655,10 +27663,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if(flats == 1){
         //select the only 2 non-flat gradients available
         if(flatg == 1){
-	  tempg = g1; g1 = g3; g3 = tempg;
+      tempg = g1; g1 = g3; g3 = tempg;
         }
         if(flatg == 2){
-	  tempg = g2; g2 = g3; g3 = tempg;
+      tempg = g2; g2 = g3; g3 = tempg;
         }
         final = 1; //don't check for continuation
       }else{
@@ -27668,13 +27676,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         lhs = 2147483647;
         rhs = -2147483648;
         for(ti=1;ti<=3;ti++){
-	  x = p[ti].x;
-	  if(x <= lhs){
-	    lhs = x; lhsi = ti;
-	  }
-	  if(x >= rhs){
-	    rhs = x; rhsi = ti;
-	  }
+      x = p[ti].x;
+      if(x <= lhs){
+        lhs = x; lhsi = ti;
+      }
+      if(x >= rhs){
+        rhs = x; rhsi = ti;
+      }
         }
         //build (dummy) gradients
         g[1].x = lhs;
@@ -27701,14 +27709,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       dst_offset32=dst->offset32;
       src_offset32=src->offset32;
       if (src->alpha_disabled||dst->alpha_disabled){
-	if (tile){
+    if (tile){
 #include "mtri1t.cpp"
-	}
+    }
 #include "mtri1.cpp"
       }else{
-	if (tile){
+    if (tile){
 #include "mtri2t.cpp"
-	}
+    }
 #include "mtri2.cpp"
       }
     }//4
@@ -27755,17 +27763,17 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     for(di=1;di<=device_last;di++){
       d=&devices[di];
       if (d->type==1){
-	if (i==i2){
-	  if (axis<d->lastaxis){
-	    f=*(float*)(d->events+(d->event_size*(d->queued_events-1))+d->lastbutton+axis*4);
-	    if (f>-0.01&&f<=0.01) f=0;
-	    v=qbr_float_to_long(f*127.0)+127;
-	    if (v>254) v=254;
-	    if (v<1) v=1;
-	    return v;
-	  }//axis valid
-	}
-	i2++;
+    if (i==i2){
+      if (axis<d->lastaxis){
+        f=*(float*)(d->events+(d->event_size*(d->queued_events-1))+d->lastbutton+axis*4);
+        if (f>-0.01&&f<=0.01) f=0;
+        v=qbr_float_to_long(f*127.0)+127;
+        if (v>254) v=254;
+        if (v<1) v=1;
+        return v;
+      }//axis valid
+    }
+    i2++;
       }//type==1
     }//di
     return 128;
@@ -27790,25 +27798,25 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     for(di=1;di<=device_last;di++){
       d=&devices[di];
       if (d->type==1){
-	if (c==controller){
-	  if (button<=d->lastbutton){//button exists
-	    if (method==1){
-	      //method 1: pressed since last call
-	      if (button>0&&button<=256){
-		if (d->STRIG_button_pressed[button-1]){
-		  d->STRIG_button_pressed[button-1]=0;
-		  return -1;
-		}
-	      }
-	      return 0;
-	    }else{
-	      //method 2: currently down
-	      v=*(d->events+(d->event_size*(d->queued_events-1))+(button-1));
-	      if (v) return -1; else return 0;
-	    }
-	  }//button exists
-	}//c==controller
-	c++;
+    if (c==controller){
+      if (button<=d->lastbutton){//button exists
+        if (method==1){
+          //method 1: pressed since last call
+          if (button>0&&button<=256){
+        if (d->STRIG_button_pressed[button-1]){
+          d->STRIG_button_pressed[button-1]=0;
+          return -1;
+        }
+          }
+          return 0;
+        }else{
+          //method 2: currently down
+          v=*(d->events+(d->event_size*(d->queued_events-1))+(button-1));
+          if (v) return -1; else return 0;
+        }
+      }//button exists
+    }//c==controller
+    c++;
       }//type==1
     }//di
     return 0;
@@ -27871,21 +27879,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //turn on
       if (!console_active){
 #ifdef QB64_WINDOWS
-	if (console_child){
-	  ShowWindow( GetConsoleWindow(), SW_SHOWNOACTIVATE );
-	}
+    if (console_child){
+      ShowWindow( GetConsoleWindow(), SW_SHOWNOACTIVATE );
+    }
 #endif
-	console_active=1;
+    console_active=1;
       }
     }else{
       //turn off
       if (console_active){
 #ifdef QB64_WINDOWS
-	if (console_child){
-	  ShowWindow( GetConsoleWindow(), SW_HIDE );
-	}
+    if (console_child){
+      ShowWindow( GetConsoleWindow(), SW_HIDE );
+    }
 #endif
-	console_active=0;
+    console_active=0;
       }
     }
 
@@ -27919,7 +27927,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     qbs_set(sz,qbs_add(s,cz));
     if (console){ if (console_active){
 #ifdef QB64_WINDOWS
-	SetConsoleTitle((char*)sz->chr);
+    SetConsoleTitle((char*)sz->chr);
 #endif
       }}
   }
@@ -27987,11 +27995,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       mem_lock_tmp->type=0;
     }else{
       if (!bytes){
-	b.offset=1;//non-zero=success
-	b.size=0;
+    b.offset=1;//non-zero=success
+    b.size=0;
       }else{
-	b.offset=(ptrszint)malloc(bytes);
-	if (!b.offset){b.size=0; mem_lock_tmp->type=0;} else {b.size=bytes; mem_lock_tmp->type=1; mem_lock_tmp->offset=(void*)b.offset;}
+    b.offset=(ptrszint)malloc(bytes);
+    if (!b.offset){b.size=0; mem_lock_tmp->type=0;} else {b.size=bytes; mem_lock_tmp->type=1; mem_lock_tmp->offset=(void*)b.offset;}
       }
     }
     return b;
@@ -28009,14 +28017,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static img_struct *im;
     if (passed){
       if (i>=0){
-	validatepage(i); im=&img[image_handle=page[i]]; 
-	image_handle=-image_handle;
+    validatepage(i); im=&img[image_handle=page[i]]; 
+    image_handle=-image_handle;
       }else{
-	image_handle=i;
-	i=-i;
-	if (i>=nextimg){error(258); goto error;}
-	im=&img[i];
-	if (!im->valid){error(258); goto error;}
+    image_handle=i;
+    i=-i;
+    if (i>=nextimg){error(258); goto error;}
+    im=&img[i];
+    if (!im->valid){error(258); goto error;}
       }
     }else{
       im=write_page;
@@ -28061,9 +28069,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if ( ((mem_block*)(blk))->lock_offset==NULL ){error(309); goto fail;}
     //checking B
     if ( 
-	off< ((mem_block*)(blk))->offset || (off+bytes)> (((mem_block*)(blk))->offset+((mem_block*)(blk))->size) ||
-	((mem_lock*)(((mem_block*)(blk))->lock_offset))->id!=((mem_block*)(blk))->lock_id
-	 ){
+    off< ((mem_block*)(blk))->offset || (off+bytes)> (((mem_block*)(blk))->offset+((mem_block*)(blk))->size) ||
+    ((mem_lock*)(((mem_block*)(blk))->lock_offset))->id!=((mem_block*)(blk))->lock_id
+     ){
       //error reporting
       if ( ((mem_lock*)(((mem_block*)(blk))->lock_offset))->id!=((mem_block*)(blk))->lock_id ){error(308); goto fail;}
       error(300); goto fail;
@@ -28191,20 +28199,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }
     //checking B
     if ( bytes<0 ||
-	 soff< ((mem_block*)(sblk))->offset || (soff+bytes)> (((mem_block*)(sblk))->offset+((mem_block*)(sblk))->size) ||
-	 doff< ((mem_block*)(dblk))->offset || (doff+bytes)> (((mem_block*)(dblk))->offset+((mem_block*)(dblk))->size) ||
-	 ((mem_lock*)(((mem_block*)(sblk))->lock_offset))->id!=((mem_block*)(sblk))->lock_id ||
-	 ((mem_lock*)(((mem_block*)(dblk))->lock_offset))->id!=((mem_block*)(dblk))->lock_id
-	 ){
+     soff< ((mem_block*)(sblk))->offset || (soff+bytes)> (((mem_block*)(sblk))->offset+((mem_block*)(sblk))->size) ||
+     doff< ((mem_block*)(dblk))->offset || (doff+bytes)> (((mem_block*)(dblk))->offset+((mem_block*)(dblk))->size) ||
+     ((mem_lock*)(((mem_block*)(sblk))->lock_offset))->id!=((mem_block*)(sblk))->lock_id ||
+     ((mem_lock*)(((mem_block*)(dblk))->lock_offset))->id!=((mem_block*)(dblk))->lock_id
+     ){
       //error reporting
       if (((mem_lock*)(((mem_block*)(sblk))->lock_offset))->id!=((mem_block*)(sblk))->lock_id && ((mem_lock*)(((mem_block*)(dblk))->lock_offset))->id!=((mem_block*)(dblk))->lock_id){error(313); return;}
       if (((mem_lock*)(((mem_block*)(sblk))->lock_offset))->id!=((mem_block*)(sblk))->lock_id){error(305); return;}
       if (((mem_lock*)(((mem_block*)(dblk))->lock_offset))->id!=((mem_block*)(dblk))->lock_id){error(306); return;}
       if (bytes<0){error(301); return;}
       if ( soff< ((mem_block*)(sblk))->offset || (soff+bytes)> (((mem_block*)(sblk))->offset+((mem_block*)(sblk))->size) ){
-	if ( doff< ((mem_block*)(dblk))->offset || (doff+bytes)> (((mem_block*)(dblk))->offset+((mem_block*)(dblk))->size) ){error(304); return;}
-	error(302);
-	return;
+    if ( doff< ((mem_block*)(dblk))->offset || (doff+bytes)> (((mem_block*)(dblk))->offset+((mem_block*)(dblk))->size) ){error(304); return;}
+    error(302);
+    return;
       }
       error(303); return;
     }
@@ -28267,12 +28275,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //return;
       //}
       if (key==10){
-	key=13;
-	goto ctrl_mod;
+    key=13;
+    goto ctrl_mod;
       }//10
       if ((key>=1)&&(key<=26)){
-	if (mod&1) key=key-1+65; else key=key-1+97;//assume caps lock off
-	goto ctrl_mod;
+    if (mod&1) key=key-1+65; else key=key-1+97;//assume caps lock off
+    goto ctrl_mod;
       }//1-26
     }
   ctrl_mod:
@@ -28286,7 +28294,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       key=127;
     }else{
       if (key==127){
-	key=8;
+    key=8;
       }
     }
 
@@ -28555,14 +28563,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       environment_2d__screen_smooth=fullscreen_smooth;
     }else{//windowed
       if (resize_auto>0){//1=STRETCH,2=SMOOTH
-	can_scale=1;
-	if (resize_auto==2) environment_2d__screen_smooth=1;
-	//note: screen will fix its aspect ratio automatically, so there is no need to enforce squarepixels
+    can_scale=1;
+    if (resize_auto==2) environment_2d__screen_smooth=1;
+    //note: screen will fix its aspect ratio automatically, so there is no need to enforce squarepixels
       } 
     }
 
     if (environment_2d__screen_width==environment__window_width &&
-	environment_2d__screen_height==environment__window_height){
+    environment_2d__screen_height==environment__window_height){
       //screen size matches window
       environment_2d__screen_x1=0;
       environment_2d__screen_y1=0;
@@ -28581,49 +28589,49 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       window_ratio=(float)environment__window_width/(float)environment__window_height;
       screen_ratio=(float)environment_2d__screen_width/(float)environment_2d__screen_height;
       if (can_scale==0){
-	//screen will appear in the top-left of the window with blank space on the bottom & right
-	environment_2d__screen_x1=0;
-	environment_2d__screen_y1=0;
-	environment_2d__screen_x2=environment_2d__screen_width-1;
-	environment_2d__screen_y2=environment_2d__screen_height-1;
-	goto cant_scale;
+    //screen will appear in the top-left of the window with blank space on the bottom & right
+    environment_2d__screen_x1=0;
+    environment_2d__screen_y1=0;
+    environment_2d__screen_x2=environment_2d__screen_width-1;
+    environment_2d__screen_y2=environment_2d__screen_height-1;
+    goto cant_scale;
       }
       if (need_square_pixels==0||(window_ratio==screen_ratio)){
-	//can stretch, no 'letter-box' required
-	environment_2d__screen_x1=0;
-	environment_2d__screen_y1=0;
-	environment_2d__screen_x2=environment__window_width-1;
-	environment_2d__screen_y2=environment__window_height-1;
+    //can stretch, no 'letter-box' required
+    environment_2d__screen_x1=0;
+    environment_2d__screen_y1=0;
+    environment_2d__screen_x2=environment__window_width-1;
+    environment_2d__screen_y2=environment__window_height-1;
       }else{
-	//'letter-box' required
-	//this section needs revision
-	static float x_scale,y_scale;
-	static int32 x1,y1,x2,y2,z,x_limit,y_limit,x_offset,y_offset;
-	//x_scale=(float)environment_2d__screen_width/(float)environment__window_width;
-	//y_scale=(float)environment_2d__screen_height/(float)environment__window_height;
-	//x_offset=0; y_offset=0;
+    //'letter-box' required
+    //this section needs revision
+    static float x_scale,y_scale;
+    static int32 x1,y1,x2,y2,z,x_limit,y_limit,x_offset,y_offset;
+    //x_scale=(float)environment_2d__screen_width/(float)environment__window_width;
+    //y_scale=(float)environment_2d__screen_height/(float)environment__window_height;
+    //x_offset=0; y_offset=0;
 
-	x1=0; y1=0; x2=environment__window_width-1; y2=environment__window_height-1;
-	//x_limit=x2; y_limit=y2;
-	if (window_ratio>screen_ratio){
-	  //pad sides
-	  z=(float)environment__window_height*screen_ratio;//new width
-	  x1=environment__window_width/2-z/2;
-	  x2=x1+z-1;
-	  environment_2d__letterbox=1;//vertical black stripes required
-	  //x_offset=-x1; x_scale=(float)environment_2d__screen_width/(float)z; x_limit=z-1;
-	}else{
-	  //pad top/bottom
-	  z=(float)environment__window_width/screen_ratio;//new height
-	  y1=environment__window_height/2-z/2;
-	  y2=y1+z-1;
-	  environment_2d__letterbox=2;//horizontal black stripes required
-	  //y_offset=-y1; y_scale=(float)environment_2d__screen_height/(float)z; y_limit=z-1;
-	}
-	environment_2d__screen_x1=x1;
-	environment_2d__screen_y1=y1;
-	environment_2d__screen_x2=x2;
-	environment_2d__screen_y2=y2;
+    x1=0; y1=0; x2=environment__window_width-1; y2=environment__window_height-1;
+    //x_limit=x2; y_limit=y2;
+    if (window_ratio>screen_ratio){
+      //pad sides
+      z=(float)environment__window_height*screen_ratio;//new width
+      x1=environment__window_width/2-z/2;
+      x2=x1+z-1;
+      environment_2d__letterbox=1;//vertical black stripes required
+      //x_offset=-x1; x_scale=(float)environment_2d__screen_width/(float)z; x_limit=z-1;
+    }else{
+      //pad top/bottom
+      z=(float)environment__window_width/screen_ratio;//new height
+      y1=environment__window_height/2-z/2;
+      y2=y1+z-1;
+      environment_2d__letterbox=2;//horizontal black stripes required
+      //y_offset=-y1; y_scale=(float)environment_2d__screen_height/(float)z; y_limit=z-1;
+    }
+    environment_2d__screen_x1=x1;
+    environment_2d__screen_y1=y1;
+    environment_2d__screen_x2=x2;
+    environment_2d__screen_y2=y2;
       }
     cant_scale:
       environment_2d__screen_scaled_width=environment_2d__screen_x2-environment_2d__screen_x1+1;
@@ -28677,11 +28685,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   int32 hardware_img__current_src=-1;
   int32 hardware_img__current_dst=-1;
   void hardware_img_put(int32 dst_x1,int32 dst_y1,int32 dst_x2,int32 dst_y2,
-			int32 src_img,int32 dst_img,
-			int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,
-			int32 use_alpha,
-			int32 smooth
-			){
+            int32 src_img,int32 dst_img,
+            int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,
+            int32 use_alpha,
+            int32 smooth
+            ){
 
     if (dst_img<0) dst_img=0;
 
@@ -28715,28 +28723,28 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //does it have a dest context? if not create one
       if (dst_hardware_img->dest_context_handle==0){
-	static GLuint framebuffer_handle;
-	framebuffer_handle=0;
-	glGenFramebuffersEXT(1, &framebuffer_handle);
-	glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
-	dst_hardware_img->dest_context_handle=framebuffer_handle;
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
+    static GLuint framebuffer_handle;
+    framebuffer_handle=0;
+    glGenFramebuffersEXT(1, &framebuffer_handle);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
+    dst_hardware_img->dest_context_handle=framebuffer_handle;
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
       }else{
-	if (hardware_img__current_dst!=dst_img){
-	  glBindFramebufferEXT(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
-	  glMatrixMode(GL_PROJECTION);
-	  glLoadIdentity();
-	  gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
-	  glMatrixMode(GL_MODELVIEW);
-	  glLoadIdentity();
-	  glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
-	}
+    if (hardware_img__current_dst!=dst_img){
+      glBindFramebufferEXT(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+      glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
+    }
       }
 
       dst_w=dst_hardware_img->w;
@@ -28748,15 +28756,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       dst_h=environment__window_height;
 
       if (hardware_img__current_dst!=dst_img){
-	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glScalef(1, -1, 1);//flip vertically
-	glTranslatef(0, -dst_h, 0);//move to new vertical position
-	glViewport(0,0,dst_w,dst_h);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glScalef(1, -1, 1);//flip vertically
+    glTranslatef(0, -dst_h, 0);//move to new vertical position
+    glViewport(0,0,dst_w,dst_h);
       }
 
       environment_2d__window_rect_struct *rect;
@@ -28772,18 +28780,18 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //texture is potentially bound to fbo, so if soure or dest changes it must be reloaded
       glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
       /* The following line is not required, but kept for reference purposes
-	 glClientActiveTexture(src_hardware_img->texture_handle);
+     glClientActiveTexture(src_hardware_img->texture_handle);
       */
     }
 
     //adjust source texture options (if changed)
     if (src_hardware_img->will_smooth!=smooth){
       if (smooth){
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       }else{
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       }
       src_hardware_img->will_smooth=smooth;
     }
@@ -28884,7 +28892,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     last_i=-1;
     for (i2=0;i2<=2;i2++){
       if (display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING){
-	last_i=i2;
+    last_i=i2;
       }
     }
     i=-1;
@@ -28893,8 +28901,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (last_i!=-1) highest_order=display_frame[last_i].order;//avoid any frames below the current one
     for (i2=0;i2<=2;i2++){
       if (display_frame[i2].state==DISPLAY_FRAME_STATE__READY&&display_frame[i2].order>highest_order){
-	highest_order=display_frame[i2].order;
-	i=i2;
+    highest_order=display_frame[i2].order;
+    i=i2;
       }
     }
     if (i==-1) i=last_i;
@@ -28904,7 +28912,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }
     if (i!=last_i){ 
       for (i2=0; i2<=2;i2++){
-	if (display_frame[i2].order<display_frame[i].order&&(display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING||display_frame[i2].state==DISPLAY_FRAME_STATE__READY)) display_frame[i2].state=DISPLAY_FRAME_STATE__EMPTY;
+    if (display_frame[i2].order<display_frame[i].order&&(display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING||display_frame[i2].state==DISPLAY_FRAME_STATE__READY)) display_frame[i2].state=DISPLAY_FRAME_STATE__EMPTY;
       }
       display_frame[i].state=DISPLAY_FRAME_STATE__DISPLAYING;
     }
@@ -28920,24 +28928,24 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //if no new software frame, only proceed if there is _GL content to render
     if (last_rendered_hardware_display_frame_order==last_hardware_display_frame_order){
       if (i==last_i){
-	if (full_screen_set==-1){//no pending full-screen changes
-	  if (os_resize_event==0){//no resize events
+    if (full_screen_set==-1){//no pending full-screen changes
+      if (os_resize_event==0){//no resize events
 #ifndef DEPENDENCY_GL //we aren't using SUB _GL 
-	    in_GLUT_DISPLAY_REQUEST=0;
-	    return;
+        in_GLUT_DISPLAY_REQUEST=0;
+        return;
 #endif
-	    if (displayorder_glrender==0){
-	      in_GLUT_DISPLAY_REQUEST=0;
-	      return;
-	    }
-	    if (first_command_prev_order){
-	      rerender_prev_hardware_frame=1;
-	      //reset next command to prev hardware frame's handle (if any)
-	      last_hardware_command_rendered=first_command_prev_order;
-	    }
+        if (displayorder_glrender==0){
+          in_GLUT_DISPLAY_REQUEST=0;
+          return;
+        }
+        if (first_command_prev_order){
+          rerender_prev_hardware_frame=1;
+          //reset next command to prev hardware frame's handle (if any)
+          last_hardware_command_rendered=first_command_prev_order;
+        }
 
-	  }
-	}
+      }
+    }
       }
     }
 
@@ -28977,45 +28985,45 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
       if (resize_auto){
-	//maintain aspect ratio
-	static float ar;
-	ar=(float)display_x/(float)display_y;
-	if ((ar!=resize_auto_accept_aspect)&&(ar!=resize_auto_ideal_aspect)){
-	  //set new size
-	  static int32 x,y;
-	  if (display_x_prev==display_x){
-	    y=display_y;
-	    x=(float)y*resize_auto_ideal_aspect;
-	  }
-	  if (display_y_prev==display_y){
-	    x=display_x;
-	    y=(float)x/resize_auto_ideal_aspect;
-	  }
-	  if ((display_y_prev!=display_y)&&(display_x_prev!=display_x)){
-	    if (abs(display_y_prev-display_y)<abs(display_x_prev-display_x)){
-	      x=display_x;
-	      y=(float)x/resize_auto_ideal_aspect;
-	    }else{
-	      y=display_y;
-	      x=(float)y*resize_auto_ideal_aspect;
-	    }
-	  }
-	  resize_auto_accept_aspect=(float)x/(float)y;
-	  resize_pending=1;
-	  glutReshapeWindow(x,y);
-	  glutPostRedisplay();
-	  goto auto_resized; 
-	}
+    //maintain aspect ratio
+    static float ar;
+    ar=(float)display_x/(float)display_y;
+    if ((ar!=resize_auto_accept_aspect)&&(ar!=resize_auto_ideal_aspect)){
+      //set new size
+      static int32 x,y;
+      if (display_x_prev==display_x){
+        y=display_y;
+        x=(float)y*resize_auto_ideal_aspect;
+      }
+      if (display_y_prev==display_y){
+        x=display_x;
+        y=(float)x/resize_auto_ideal_aspect;
+      }
+      if ((display_y_prev!=display_y)&&(display_x_prev!=display_x)){
+        if (abs(display_y_prev-display_y)<abs(display_x_prev-display_x)){
+          x=display_x;
+          y=(float)x/resize_auto_ideal_aspect;
+        }else{
+          y=display_y;
+          x=(float)y*resize_auto_ideal_aspect;
+        }
+      }
+      resize_auto_accept_aspect=(float)x/(float)y;
+      resize_pending=1;
+      glutReshapeWindow(x,y);
+      glutPostRedisplay();
+      goto auto_resized; 
+    }
       }//resize_auto
 
 
 
       if ((display_required_x!=display_x)||(display_required_y!=display_y)){
-	if (resize_snapback||framesize_changed){
-	  glutReshapeWindow(display_required_x,display_required_y);
-	  glutPostRedisplay();
-	  resize_pending=1;
-	}
+    if (resize_snapback||framesize_changed){
+      glutReshapeWindow(display_required_x,display_required_y);
+      glutPostRedisplay();
+      resize_pending=1;
+    }
       }
 
 
@@ -29027,22 +29035,22 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //Pseudo-Fullscreen
     if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
       if (full_screen_set!=-1){//full screen mode change requested 
-	if (full_screen_set==0){
-	  if (full_screen!=0){
-	    //exit full screen
-	    resize_pending=1;
-	    glutReshapeWindow(display_frame[i].w,display_frame[i].h);
-	    glutPostRedisplay();
-	  }
-	  full_screen=0;
-	  full_screen_set=-1;
-	}else{
-	  if (full_screen==0){
-	    glutFullScreen();
-	  }
-	  full_screen=full_screen_set;
-	  full_screen_set=-1;
-	}//enter full screen
+    if (full_screen_set==0){
+      if (full_screen!=0){
+        //exit full screen
+        resize_pending=1;
+        glutReshapeWindow(display_frame[i].w,display_frame[i].h);
+        glutPostRedisplay();
+      }
+      full_screen=0;
+      full_screen_set=-1;
+    }else{
+      if (full_screen==0){
+        glutFullScreen();
+      }
+      full_screen=full_screen_set;
+      full_screen_set=-1;
+    }//enter full screen
       }//full_screen_set check
     }//size pending check
 
@@ -29205,421 +29213,421 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static int32 x1,y1,x2,y2;
 
       if (level==0){
-	glClear(GL_COLOR_BUFFER_BIT);
-	hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
-	hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
-	hardware_img__current_src=-1;
-	hardware_img__current_dst=-1;
+    glClear(GL_COLOR_BUFFER_BIT);
+    hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
+    hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
+    hardware_img__current_src=-1;
+    hardware_img__current_dst=-1;
       }else{
 
-	if (level==displayorder_glrender){
+    if (level==displayorder_glrender){
 #ifdef DEPENDENCY_GL
 
-	  //reset possible dependencies
-	  glColor4f(1.f, 1.f, 1.f, 1.f);
-	  glBindTexture (GL_TEXTURE_2D, 0);
-	  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	  glDisable(GL_TEXTURE_2D);
-	  glDisable(GL_ALPHA_TEST);
-	  glDisable(GL_BLEND);
-	  glDisable(GL_COLOR_MATERIAL);
-	  glDisable(GL_DEPTH_TEST);
-	  glDisable(GL_LIGHTING);
-	  glDisableClientState(GL_VERTEX_ARRAY);
-	  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      //reset possible dependencies
+      glColor4f(1.f, 1.f, 1.f, 1.f);
+      glBindTexture (GL_TEXTURE_2D, 0);
+      glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+      glDisable(GL_TEXTURE_2D);
+      glDisable(GL_ALPHA_TEST);
+      glDisable(GL_BLEND);
+      glDisable(GL_COLOR_MATERIAL);
+      glDisable(GL_DEPTH_TEST);
+      glDisable(GL_LIGHTING);
+      glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 
-	  glClear(GL_DEPTH_BUFFER_BIT);
-	  glMatrixMode(GL_PROJECTION);
-	  glLoadIdentity();
-	  glMatrixMode(GL_MODELVIEW);
-	  glLoadIdentity();
+      glClear(GL_DEPTH_BUFFER_BIT);
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
 
-	  if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
-	  display_lock_request++;
-	  while (display_lock_confirmed<display_lock_request){
-	    if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
-	    qbevent=1; Sleep(0);
-	  }
-	  sub_gl_called=1;
-	  SUB__GL();
-	  sub_gl_called=0;
-	abort_gl:;
-	  display_lock_released=display_lock_confirmed;
+      if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
+      display_lock_request++;
+      while (display_lock_confirmed<display_lock_request){
+        if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
+        qbevent=1; Sleep(0);
+      }
+      sub_gl_called=1;
+      SUB__GL();
+      sub_gl_called=0;
+    abort_gl:;
+      display_lock_released=display_lock_confirmed;
 
-	  //there is no way to know what was selected/changed, so set state as unknown
-	  hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
-	  hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
-	  hardware_img__current_src=-1;
-	  hardware_img__current_dst=-1;
+      //there is no way to know what was selected/changed, so set state as unknown
+      hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
+      hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
+      hardware_img__current_src=-1;
+      hardware_img__current_dst=-1;
 
 #endif //DEPENDENCY_GL
-	}//level==displayorder_glrender
-
-
-	if (level==displayorder_screen){
-
-	  if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-
-	    glColor4f(1.f, 1.f, 1.f, 1.f);
-	    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	    glDisable(GL_ALPHA_TEST);
-	    glDisable(GL_BLEND);
-	    glDisable(GL_COLOR_MATERIAL);
-	    glDisable(GL_DEPTH_TEST);
-	    glDisable(GL_LIGHTING);
-	    glEnable(GL_TEXTURE_2D);
-	    glEnableClientState(GL_VERTEX_ARRAY);
-	    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	    static int dst_w;
-	    dst_w=environment__window_width;
-	    static int dst_h;
-	    dst_h=environment__window_height;
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
-	    glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-	    glMatrixMode(GL_MODELVIEW);
-	    glLoadIdentity();
-	    glScalef(1, -1, 1);//flip vertically
-	    glTranslatef(0, -dst_h, 0);//move to new vertical position
-	    glViewport(0,0,dst_w,dst_h);
-	    hardware_render_state=HARDWARE_RENDER_STATE__2D;
-	    hardware_img__current_dst=0;
-
-
-	  }
-
-	  if (software_screen_hardware_frame!=0&&i!=last_i){
-	    free_hardware_img(software_screen_hardware_frame);
-	  }
-	  if (i!=last_i||software_screen_hardware_frame==0){
-	    software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
-	  }
-	  static hardware_img_struct* f1;
-	  f1=(hardware_img_struct*)list_get(hardware_img_handles,software_screen_hardware_frame);
-	  if (software_screen_hardware_frame==0){
-	    alert("Invalid software_screen_hardware_frame!!");
-	  }
-	  if (f1==NULL) alert("Invalid software_screen_hardware_frame!");
-
-	  static int32 use_alpha;
-	  use_alpha=0; if (level>1) use_alpha=1; 
-
-	  //put the software screen
-	  hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
-			   software_screen_hardware_frame, 0,
-			   0,0,f1->w-1,f1->h-1,
-			   use_alpha,environment_2d__screen_smooth);
-
-	}
-
-
-	if (level==displayorder_hardware||level==displayorder_hardware1){
-
-	  static int32 dst;
-	  dst=0; if (level==displayorder_hardware1) dst=-1;
-
-	  if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-
-	    glColor4f(1.f, 1.f, 1.f, 1.f);
-	    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	    glDisable(GL_ALPHA_TEST);
-	    glDisable(GL_BLEND);
-	    glDisable(GL_COLOR_MATERIAL);
-	    glDisable(GL_DEPTH_TEST);
-	    glDisable(GL_LIGHTING);
-	    glEnable(GL_TEXTURE_2D);
-	    glEnableClientState(GL_VERTEX_ARRAY);
-	    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	    static int dst_w;
-	    dst_w=environment__window_width;
-	    static int dst_h;
-	    dst_h=environment__window_height;
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
-	    glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-	    glMatrixMode(GL_MODELVIEW);
-	    glLoadIdentity();
-	    glScalef(1, -1, 1);//flip vertically
-	    glTranslatef(0, -dst_h, 0);//move to new vertical position
-	    glViewport(0,0,dst_w,dst_h);
-	    hardware_render_state=HARDWARE_RENDER_STATE__2D;
-	    hardware_img__current_dst=0;
-	  }
-
-	  static int32 command;
-	  command=0;
-
-	  if (first_hardware_layer_rendered==0){
-
-	    if (first_hardware_command){
-
-	      if (last_hardware_command_rendered){
-		if (rerender_prev_hardware_frame){
-		  command=last_hardware_command_rendered;
-		}else{
-		  hardware_graphics_command_struct* last_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_rendered);
-		  if (last_hgc==NULL) alert("Rendering: Last HGC is NULL!");
-		  command=last_hgc->next_command;
-		}
-	      }else{
-		command=first_hardware_command;
-	      }
+    }//level==displayorder_glrender
+
+
+    if (level==displayorder_screen){
+
+      if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
+
+        glColor4f(1.f, 1.f, 1.f, 1.f);
+        glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+        glDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_COLOR_MATERIAL);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_LIGHTING);
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        static int dst_w;
+        dst_w=environment__window_width;
+        static int dst_h;
+        dst_h=environment__window_height;
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glScalef(1, -1, 1);//flip vertically
+        glTranslatef(0, -dst_h, 0);//move to new vertical position
+        glViewport(0,0,dst_w,dst_h);
+        hardware_render_state=HARDWARE_RENDER_STATE__2D;
+        hardware_img__current_dst=0;
+
+
+      }
+
+      if (software_screen_hardware_frame!=0&&i!=last_i){
+        free_hardware_img(software_screen_hardware_frame);
+      }
+      if (i!=last_i||software_screen_hardware_frame==0){
+        software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
+      }
+      static hardware_img_struct* f1;
+      f1=(hardware_img_struct*)list_get(hardware_img_handles,software_screen_hardware_frame);
+      if (software_screen_hardware_frame==0){
+        alert("Invalid software_screen_hardware_frame!!");
+      }
+      if (f1==NULL) alert("Invalid software_screen_hardware_frame!");
+
+      static int32 use_alpha;
+      use_alpha=0; if (level>1) use_alpha=1; 
+
+      //put the software screen
+      hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
+               software_screen_hardware_frame, 0,
+               0,0,f1->w-1,f1->h-1,
+               use_alpha,environment_2d__screen_smooth);
+
+    }
+
+
+    if (level==displayorder_hardware||level==displayorder_hardware1){
+
+      static int32 dst;
+      dst=0; if (level==displayorder_hardware1) dst=-1;
+
+      if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
+
+        glColor4f(1.f, 1.f, 1.f, 1.f);
+        glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+        glDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_COLOR_MATERIAL);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_LIGHTING);
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        static int dst_w;
+        dst_w=environment__window_width;
+        static int dst_h;
+        dst_h=environment__window_height;
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glScalef(1, -1, 1);//flip vertically
+        glTranslatef(0, -dst_h, 0);//move to new vertical position
+        glViewport(0,0,dst_w,dst_h);
+        hardware_render_state=HARDWARE_RENDER_STATE__2D;
+        hardware_img__current_dst=0;
+      }
+
+      static int32 command;
+      command=0;
+
+      if (first_hardware_layer_rendered==0){
+
+        if (first_hardware_command){
+
+          if (last_hardware_command_rendered){
+        if (rerender_prev_hardware_frame){
+          command=last_hardware_command_rendered;
+        }else{
+          hardware_graphics_command_struct* last_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_rendered);
+          if (last_hgc==NULL) alert("Rendering: Last HGC is NULL!");
+          command=last_hgc->next_command;
+        }
+          }else{
+        command=first_hardware_command;
+          }
 
-	      //process/skip pending hardware puts before this frame's order value
-	      while (command){
-		hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
-		if (hgc->order<order){
+          //process/skip pending hardware puts before this frame's order value
+          while (command){
+        hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
+        if (hgc->order<order){
 
-		  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE){
-		    free_hardware_img(hgc->src_img);
-		  }
+          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE){
+            free_hardware_img(hgc->src_img);
+          }
 
-		  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
-		    if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
-		      hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
-				       hgc->src_img, hgc->dst_img,
-				       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,
-				       hgc->use_alpha,hgc->smooth);
-		    }
-		  }
+          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
+            if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
+              hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
+                       hgc->src_img, hgc->dst_img,
+                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,
+                       hgc->use_alpha,hgc->smooth);
+            }
+          }
 
-		  last_hardware_command_rendered=command;
-		  if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;
-		  command=hgc->next_command;
-		  hgc->remove=1;
-		}else{
-		  goto found_command_from_current_order;
-		}
-	      }
-	    found_command_from_current_order:;
+          last_hardware_command_rendered=command;
+          if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;
+          command=hgc->next_command;
+          hgc->remove=1;
+        }else{
+          goto found_command_from_current_order;
+        }
+          }
+        found_command_from_current_order:;
 
-	    }//first_hardware_command
+        }//first_hardware_command
 
 
-	    first_hardware_layer_command=command;
-	  }else{
-	    command=first_hardware_layer_command;
-	  }
+        first_hardware_layer_command=command;
+      }else{
+        command=first_hardware_layer_command;
+      }
 
-	  //process pending hardware puts for this frame's order value
-	  while (command){
-	    hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
-	    if (hgc==NULL){
+      //process pending hardware puts for this frame's order value
+      while (command){
+        hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
+        if (hgc==NULL){
 
-	      hardware_graphics_command_struct* hgcx=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,next_hardware_command_to_remove);
-	      alert(order);
-	      alert(hgcx->order);
-	      alert(command);
-	      alert ("Renderer: Command does not exist.");
-	    }
-	    if (hgc->order==order){
-	      if (first_command_prev_order==0) first_command_prev_order=command;
+          hardware_graphics_command_struct* hgcx=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,next_hardware_command_to_remove);
+          alert(order);
+          alert(hgcx->order);
+          alert(command);
+          alert ("Renderer: Command does not exist.");
+        }
+        if (hgc->order==order){
+          if (first_command_prev_order==0) first_command_prev_order=command;
 
-	      if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE&&rerender_prev_hardware_frame==0&&first_hardware_layer_rendered==0){
-		free_hardware_img(hgc->src_img);
-	      }
+          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE&&rerender_prev_hardware_frame==0&&first_hardware_layer_rendered==0){
+        free_hardware_img(hgc->src_img);
+          }
 
-	      if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
-		if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
-		  if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
-		    hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
-				     hgc->src_img, hgc->dst_img,
-				     hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2, 
-				     hgc->use_alpha,hgc->smooth);
-		  }
-		}
-	      }
+          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
+        if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
+          if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
+            hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
+                     hgc->src_img, hgc->dst_img,
+                     hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2, 
+                     hgc->use_alpha,hgc->smooth);
+          }
+        }
+          }
 
-	      last_hardware_command_rendered=command;
-	      if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;//!!!! should be prev to this command
-	      command=hgc->next_command;
-	      hgc->remove=1;
-	    }else{
-	      goto finished_all_commands_for_current_frame;
-	    }
+          last_hardware_command_rendered=command;
+          if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;//!!!! should be prev to this command
+          command=hgc->next_command;
+          hgc->remove=1;
+        }else{
+          goto finished_all_commands_for_current_frame;
+        }
 
 
-	  }
-	finished_all_commands_for_current_frame:;
+      }
+    finished_all_commands_for_current_frame:;
 
-	  first_hardware_layer_rendered=1;
+      first_hardware_layer_rendered=1;
 
 
 
 
 
 
-	  /*
+      /*
 
 
 
-	    }else{
-	    //no scaling
+        }else{
+        //no scaling
 
 
 
-	    #ifdef QB64_GL1
+        #ifdef QB64_GL1
 
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
-	    glMatrixMode(GL_MODELVIEW);
-	    glLoadIdentity();
-	    glViewport(0,0,display_x,display_y);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glViewport(0,0,display_x,display_y);
 
 
-	    glOrtho(0, display_x, display_y,0, -1.0, 1.0);
-	    glRasterPos2f(0, 0);
-	    glPixelZoom(1.0f, -1.0f);
+        glOrtho(0, display_x, display_y,0, -1.0, 1.0);
+        glRasterPos2f(0, 0);
+        glPixelZoom(1.0f, -1.0f);
 
-	    x_offset=0; y_offset=0;
-	    x_scale=1; y_scale=1;
-	    x_limit=display_frame[i].w-1; y_limit=display_frame[i].h-1;
+        x_offset=0; y_offset=0;
+        x_scale=1; y_scale=1;
+        x_limit=display_frame[i].w-1; y_limit=display_frame[i].h-1;
 
 
-	    if (level==3){
-	    //glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.5); //(test below is better)
-	    glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	    }
+        if (level==3){
+        //glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.5); //(test below is better)
+        glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
 
 
 
-	    //if (software_screen_hardware_frame){
-	    // free_hardware_frame(software_screen_hardware_frame);
-	    //}
-	    //software_screen_hardware_frame=new_hardware_frame_from_software_frame(display_frame[i].bgra,display_frame[i].w, display_frame[i].h);
+        //if (software_screen_hardware_frame){
+        // free_hardware_frame(software_screen_hardware_frame);
+        //}
+        //software_screen_hardware_frame=new_hardware_frame_from_software_frame(display_frame[i].bgra,display_frame[i].w, display_frame[i].h);
 
 
-	    glDrawPixels(display_frame[i].w,display_frame[i].h,GL_BGRA,GL_UNSIGNED_BYTE,display_frame[i].bgra);
+        glDrawPixels(display_frame[i].w,display_frame[i].h,GL_BGRA,GL_UNSIGNED_BYTE,display_frame[i].bgra);
 
 
-	    #else
+        #else
 
-	    //generate new texture handle
-	    static GLuint mTextureNameWorkspace[100];
-	    static int th=-100;
-	    if (th==-100){
-	    glGenTextures(1, mTextureNameWorkspace);
-	    th=mTextureNameWorkspace[0];
-	    }
+        //generate new texture handle
+        static GLuint mTextureNameWorkspace[100];
+        static int th=-100;
+        if (th==-100){
+        glGenTextures(1, mTextureNameWorkspace);
+        th=mTextureNameWorkspace[0];
+        }
 
-	    //bind texture handle
-	    glBindTexture (GL_TEXTURE_2D, th);
+        //bind texture handle
+        glBindTexture (GL_TEXTURE_2D, th);
 
-	    //set filters
-	    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //set filters
+        glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	    //set states
-	    glShadeModel(GL_FLAT);
-	    glEnable(GL_TEXTURE_2D);
-	    glDisable(GL_DEPTH_TEST);
-	    glDisable(GL_DITHER);
-	    glDisable(GL_LIGHTING);
-	    glDisable(GL_BLEND);
+        //set states
+        glShadeModel(GL_FLAT);
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_DITHER);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_BLEND);
 
-	    glViewport( 0, 0, display_x,display_y );
-	    glMatrixMode( GL_PROJECTION );
-	    glLoadIdentity();  
-	    glOrthof(0.0f, display_x, 0.0f, 0.0f, display_y, 1.0f);
+        glViewport( 0, 0, display_x,display_y );
+        glMatrixMode( GL_PROJECTION );
+        glLoadIdentity();  
+        glOrthof(0.0f, display_x, 0.0f, 0.0f, display_y, 1.0f);
 
-	    glColor4f(1, 1, 1, 1);
+        glColor4f(1, 1, 1, 1);
 
-	    glMatrixMode( GL_MODELVIEW );
-	    glLoadIdentity();
+        glMatrixMode( GL_MODELVIEW );
+        glLoadIdentity();
 
-	    //rebind
-	    glActiveTexture(th);
-	    glClientActiveTexture(th);
-	    glBindTexture (GL_TEXTURE_2D, th);
+        //rebind
+        glActiveTexture(th);
+        glClientActiveTexture(th);
+        glBindTexture (GL_TEXTURE_2D, th);
 
-	    GLint coords [] = {0, display_y, display_x, -display_y};
-	    glTexParameteriv( GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, coords );
+        GLint coords [] = {0, display_y, display_x, -display_y};
+        glTexParameteriv( GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, coords );
 
-	    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, display_frame[i].w, display_frame[i].h, 0,  GL_RGBA, GL_UNSIGNED_BYTE, display_frame[i].bgra);
+        glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, display_frame[i].w, display_frame[i].h, 0,  GL_RGBA, GL_UNSIGNED_BYTE, display_frame[i].bgra);
 
-	    glDrawTexiOES( 0, 0, 0, display_x, display_y );
+        glDrawTexiOES( 0, 0, 0, display_x, display_y );
 
-	    #endif //QB64_GL1
+        #endif //QB64_GL1
 
-	    }//scaling
+        }//scaling
 
-	  */
-	  //2014 big skip
+      */
+      //2014 big skip
 
 
-	}//level==displayorder_hardware||level==displayorder_hardware1
+    }//level==displayorder_hardware||level==displayorder_hardware1
 
 
-	if (level==5){
+    if (level==5){
 
-	  if (environment_2d__letterbox){
+      if (environment_2d__letterbox){
 
-	    if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
+        if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
 
-	      glColor4f(1.f, 1.f, 1.f, 1.f);
-	      glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	      glDisable(GL_ALPHA_TEST);
-	      glDisable(GL_BLEND);
-	      glDisable(GL_COLOR_MATERIAL);
-	      glDisable(GL_DEPTH_TEST);
-	      glDisable(GL_LIGHTING);
-	      glEnable(GL_TEXTURE_2D);
-	      glEnableClientState(GL_VERTEX_ARRAY);
-	      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+          glColor4f(1.f, 1.f, 1.f, 1.f);
+          glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+          glDisable(GL_ALPHA_TEST);
+          glDisable(GL_BLEND);
+          glDisable(GL_COLOR_MATERIAL);
+          glDisable(GL_DEPTH_TEST);
+          glDisable(GL_LIGHTING);
+          glEnable(GL_TEXTURE_2D);
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	      static int dst_w;
-	      dst_w=environment__window_width;
-	      static int dst_h;
-	      dst_h=environment__window_height;
-	      glMatrixMode(GL_PROJECTION);
-	      glLoadIdentity();
-	      glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-	      glMatrixMode(GL_MODELVIEW);
-	      glLoadIdentity();
-	      glScalef(1, -1, 1);//flip vertically
-	      glTranslatef(0, -dst_h, 0);//move to new vertical position
-	      glViewport(0,0,dst_w,dst_h);
-	      hardware_render_state=HARDWARE_RENDER_STATE__2D;
-	      hardware_img__current_dst=0;
-	    }
+          static int dst_w;
+          dst_w=environment__window_width;
+          static int dst_h;
+          dst_h=environment__window_height;
+          glMatrixMode(GL_PROJECTION);
+          glLoadIdentity();
+          glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+          glMatrixMode(GL_MODELVIEW);
+          glLoadIdentity();
+          glScalef(1, -1, 1);//flip vertically
+          glTranslatef(0, -dst_h, 0);//move to new vertical position
+          glViewport(0,0,dst_w,dst_h);
+          hardware_render_state=HARDWARE_RENDER_STATE__2D;
+          hardware_img__current_dst=0;
+        }
 
-	    //create a black texture (if not yet created)
-	    static uint32 black_pixel=0;
-	    static int32 black_texture=0;
-	    if (black_texture==0){
-	      black_texture=new_hardware_img(1,1,&black_pixel,NULL);
-	    }
+        //create a black texture (if not yet created)
+        static uint32 black_pixel=0;
+        static int32 black_texture=0;
+        if (black_texture==0){
+          black_texture=new_hardware_img(1,1,&black_pixel,NULL);
+        }
 
-	    if (environment_2d__letterbox==1){
-	      //vertical stripes
-	      hardware_img_put(((float)-environment_2d__screen_x1)/environment_2d__screen_x_scale-1.0f,0,-1,environment_2d__screen_height-1,
-			       black_texture, 0,
-			       0,0,0,0,
-			       0,0);
-	      hardware_img_put(environment_2d__screen_width,0,(((float)-environment_2d__screen_x1)+(float)environment__window_width-1.0f)/environment_2d__screen_x_scale+1.0f,environment_2d__screen_height-1,
-			       black_texture, 0,
-			       0,0,0,0,
-			       0,0);
-	    }else{
-	      //horizontal stripes
-	      hardware_img_put(0,((float)-environment_2d__screen_y1)/environment_2d__screen_y_scale-1.0f,environment_2d__screen_width-1,-1,
-			       black_texture, 0,
-			       0,0,0,0,
-			       0,0);
-	      hardware_img_put(0,environment_2d__screen_height,environment_2d__screen_width-1,(((float)-environment_2d__screen_y1)+(float)environment__window_height-1.0f)/environment_2d__screen_y_scale+1.0f,
-			       black_texture, 0,
-			       0,0,0,0,
-			       0,0);
-	    }
+        if (environment_2d__letterbox==1){
+          //vertical stripes
+          hardware_img_put(((float)-environment_2d__screen_x1)/environment_2d__screen_x_scale-1.0f,0,-1,environment_2d__screen_height-1,
+                   black_texture, 0,
+                   0,0,0,0,
+                   0,0);
+          hardware_img_put(environment_2d__screen_width,0,(((float)-environment_2d__screen_x1)+(float)environment__window_width-1.0f)/environment_2d__screen_x_scale+1.0f,environment_2d__screen_height-1,
+                   black_texture, 0,
+                   0,0,0,0,
+                   0,0);
+        }else{
+          //horizontal stripes
+          hardware_img_put(0,((float)-environment_2d__screen_y1)/environment_2d__screen_y_scale-1.0f,environment_2d__screen_width-1,-1,
+                   black_texture, 0,
+                   0,0,0,0,
+                   0,0);
+          hardware_img_put(0,environment_2d__screen_height,environment_2d__screen_width-1,(((float)-environment_2d__screen_y1)+(float)environment__window_height-1.0f)/environment_2d__screen_y_scale+1.0f,
+                   black_texture, 0,
+                   0,0,0,0,
+                   0,0);
+        }
 
-	  }//letterbox
+      }//letterbox
 
-	}//level==5
+    }//level==5
 
 
       }//level!=0
@@ -29665,29 +29673,29 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     last_mouse_message=i;
     if (device_last){//core devices required?
       if ((button>=1)&&(button<=3)){
-	button--;
-	static device_struct *d;
-	d=&devices[2];//mouse
-	static uint8 *cp,*cp2;
-	if (d->queued_events==d->max_events){//expand/shift event buffer
-	  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	    //discard base message
-	    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	    d->queued_events--;
-	  }else{
-	    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	    cp2=d->events;
-	    d->events=cp;
-	    free(cp2);
-	    d->max_events*=2;
-	  }
-	}
-	memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	//make required changes
-	*(d->events+(d->queued_events*d->event_size)+button)=0;
-	d->queued_events++;
+    button--;
+    static device_struct *d;
+    d=&devices[2];//mouse
+    static uint8 *cp,*cp2;
+    if (d->queued_events==d->max_events){//expand/shift event buffer
+      if (d->max_events>=QUEUED_EVENTS_LIMIT){
+        //discard base message
+        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+        d->queued_events--;
+      }else{
+        cp=(uint8*)calloc(d->max_events*2,d->event_size);
+        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+        cp2=d->events;
+        d->events=cp;
+        free(cp2);
+        d->max_events*=2;
+      }
+    }
+    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+    //make required changes
+    *(d->events+(d->queued_events*d->event_size)+button)=0;
+    d->queued_events++;
       }//valid range
     }//core devices required
 
@@ -29716,78 +29724,78 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     last_mouse_message=i;
     if (device_last){//core devices required?
       if ((button>=1)&&(button<=3)){
-	button--;
-	static device_struct *d;
-	d=&devices[2];//mouse
-	static uint8 *cp,*cp2;
-	if (d->queued_events==d->max_events){//expand/shift event buffer
-	  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	    //discard base message
-	    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	    d->queued_events--;
-	  }else{
-	    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	    cp2=d->events;
-	    d->events=cp;
-	    free(cp2);
-	    d->max_events*=2;
-	  }
-	}
-	memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	//make required changes
-	*(d->events+(d->queued_events*d->event_size)+button)=1;
-	d->queued_events++;
-	//1-3
+    button--;
+    static device_struct *d;
+    d=&devices[2];//mouse
+    static uint8 *cp,*cp2;
+    if (d->queued_events==d->max_events){//expand/shift event buffer
+      if (d->max_events>=QUEUED_EVENTS_LIMIT){
+        //discard base message
+        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+        d->queued_events--;
       }else{
-	//not 1-3
-	//mouse wheel?
-	if ((button>=4)&&(button<=5)){
-	  static float f;
-	  if (button==4) f=-1; else f=1;
-	  static device_struct *d;
-	  d=&devices[2];//mouse
-	  static uint8 *cp,*cp2;
-	  if (d->queued_events==d->max_events){//expand/shift event buffer
-	    if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	      //discard base message
-	      memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	      d->queued_events--;
-	    }else{
-	      cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	      memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	      cp2=d->events;
-	      d->events=cp;
-	      free(cp2);
-	      d->max_events*=2;
-	    }
-	  }
-	  memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	  *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	  //make required changes
-	  *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
-	  d->queued_events++;
-	  if (d->queued_events==d->max_events){//expand/shift event buffer
-	    if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	      //discard base message
-	      memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	      d->queued_events--;
-	    }else{
-	      cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	      memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	      cp2=d->events;
-	      d->events=cp;
-	      free(cp2);
-	      d->max_events*=2;
-	    }
-	  }
-	  memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	  *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	  //make required changes
-	  *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
-	  d->queued_events++;
-	}//4-5
+        cp=(uint8*)calloc(d->max_events*2,d->event_size);
+        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+        cp2=d->events;
+        d->events=cp;
+        free(cp2);
+        d->max_events*=2;
+      }
+    }
+    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+    //make required changes
+    *(d->events+(d->queued_events*d->event_size)+button)=1;
+    d->queued_events++;
+    //1-3
+      }else{
+    //not 1-3
+    //mouse wheel?
+    if ((button>=4)&&(button<=5)){
+      static float f;
+      if (button==4) f=-1; else f=1;
+      static device_struct *d;
+      d=&devices[2];//mouse
+      static uint8 *cp,*cp2;
+      if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+      }
+      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+      //make required changes
+      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
+      d->queued_events++;
+      if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+      }
+      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+      //make required changes
+      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
+      d->queued_events++;
+    }//4-5
       }//not 1-3
     }//core devices required
 #endif
@@ -29832,98 +29840,98 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     last_mouse_message=i;
     if (device_last){//core devices required?
       if (!device_mouse_relative){
-	static device_struct *d;
-	d=&devices[2];//mouse
-	static uint8 *cp,*cp2;
+    static device_struct *d;
+    d=&devices[2];//mouse
+    static uint8 *cp,*cp2;
 
-	if (d->queued_events==d->max_events){//expand/shift event buffer
-	  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	    //discard base message
-	    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	    d->queued_events--;
-	  }else{
-	    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	    cp2=d->events;
-	    d->events=cp;
-	    free(cp2);
-	    d->max_events*=2;
-	  }
-	}
-	memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	//make required changes
-	static float fx,fy;
-	static int32 z;
-	fx=x;
-	fx-=x_offset;
-	z=x_monitor-x_offset*2;
-	if (fx<0) fx=0;
-	if (fx>=z) fx=z-1;
-	fx=fx/(float)(z-1);//0 to 1
-	fx*=2.0;//0 to 2
-	fx-=1.0;//-1 to 1
-	fy=y;
-	fy-=y_offset;
-	z=y_monitor-y_offset*2;
-	if (fy<0) fy=0;
-	if (fy>=z) fy=z-1;
-	fy=fy/(float)(z-1);//0 to 1
-	fy*=2.0;//0 to 2
-	fy-=1.0;//-1 to 1
-	*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
-	*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
-	d->queued_events++;
+    if (d->queued_events==d->max_events){//expand/shift event buffer
+      if (d->max_events>=QUEUED_EVENTS_LIMIT){
+        //discard base message
+        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+        d->queued_events--;
       }else{
-	static device_struct *d;
-	d=&devices[2];//mouse
-	static uint8 *cp,*cp2;
-	if (d->queued_events==d->max_events){//expand/shift event buffer
-	  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	    //discard base message
-	    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	    d->queued_events--;
-	  }else{
-	    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	    cp2=d->events;
-	    d->events=cp;
-	    free(cp2);
-	    d->max_events*=2;
-	  }
-	}
-	memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	//make required changes
-	static float fx,fy;
-	static int32 z;
-	fx=xrel;
-	fy=yrel;
-	*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-	*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-	d->queued_events++;
-	if (d->queued_events==d->max_events){//expand/shift event buffer
-	  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-	    //discard base message
-	    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-	    d->queued_events--;
-	  }else{
-	    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-	    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-	    cp2=d->events;
-	    d->events=cp;
-	    free(cp2);
-	    d->max_events*=2;
-	  }
-	}
-	memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	//make required changes
-	fx=0;
-	fy=0;
-	*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-	*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-	d->queued_events++;
+        cp=(uint8*)calloc(d->max_events*2,d->event_size);
+        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+        cp2=d->events;
+        d->events=cp;
+        free(cp2);
+        d->max_events*=2;
+      }
+    }
+    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+    //make required changes
+    static float fx,fy;
+    static int32 z;
+    fx=x;
+    fx-=x_offset;
+    z=x_monitor-x_offset*2;
+    if (fx<0) fx=0;
+    if (fx>=z) fx=z-1;
+    fx=fx/(float)(z-1);//0 to 1
+    fx*=2.0;//0 to 2
+    fx-=1.0;//-1 to 1
+    fy=y;
+    fy-=y_offset;
+    z=y_monitor-y_offset*2;
+    if (fy<0) fy=0;
+    if (fy>=z) fy=z-1;
+    fy=fy/(float)(z-1);//0 to 1
+    fy*=2.0;//0 to 2
+    fy-=1.0;//-1 to 1
+    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
+    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
+    d->queued_events++;
+      }else{
+    static device_struct *d;
+    d=&devices[2];//mouse
+    static uint8 *cp,*cp2;
+    if (d->queued_events==d->max_events){//expand/shift event buffer
+      if (d->max_events>=QUEUED_EVENTS_LIMIT){
+        //discard base message
+        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+        d->queued_events--;
+      }else{
+        cp=(uint8*)calloc(d->max_events*2,d->event_size);
+        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+        cp2=d->events;
+        d->events=cp;
+        free(cp2);
+        d->max_events*=2;
+      }
+    }
+    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+    //make required changes
+    static float fx,fy;
+    static int32 z;
+    fx=xrel;
+    fy=yrel;
+    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
+    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
+    d->queued_events++;
+    if (d->queued_events==d->max_events){//expand/shift event buffer
+      if (d->max_events>=QUEUED_EVENTS_LIMIT){
+        //discard base message
+        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+        d->queued_events--;
+      }else{
+        cp=(uint8*)calloc(d->max_events*2,d->event_size);
+        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+        cp2=d->events;
+        d->events=cp;
+        free(cp2);
+        d->max_events*=2;
+      }
+    }
+    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+    //make required changes
+    fx=0;
+    fy=0;
+    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
+    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
+    d->queued_events++;
       }
     }//core devices required
   }
@@ -30071,7 +30079,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (console){
       LPDWORD plist=(LPDWORD)malloc(1000);
       if (GetConsoleProcessList(plist,256)==1){
-	console_child=1;//only this program is using the console
+    console_child=1;//only this program is using the console
       }
     }
 #endif
@@ -30115,8 +30123,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     for (i2=i-1;i2>=0;i2--){
       x=exepath[i2];
       if ((x==92)||(x==47)||(x==58)){
-	if (x==58) exepath[i2+1]=0; else exepath[i2]=0;
-	break;
+    if (x==58) exepath[i2+1]=0; else exepath[i2]=0;
+    break;
       }
     }
     chdir(exepath);
@@ -30277,16 +30285,16 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //calculate required size of COMMAND$ string
       i2=0;
       for (i=1;i<argc;i++){
-	i2+=strlen(argv[i]);
-	if (i!=1) i2++;//for a space
+    i2+=strlen(argv[i]);
+    if (i!=1) i2++;//for a space
       }
       //create COMMAND$ string
       func_command_str=qbs_new(i2,0);
       //build COMMAND$ string
       i3=0;
       for (i=1;i<argc;i++){
-	if (i!=1){func_command_str->chr[i3]=32; i3++;}
-	memcpy(&func_command_str->chr[i3],argv[i],strlen(argv[i])); i3+=strlen(argv[i]);
+    if (i!=1){func_command_str->chr[i3]=32; i3++;}
+    memcpy(&func_command_str->chr[i3],argv[i],strlen(argv[i])); i3+=strlen(argv[i]);
       }
     }else{
       func_command_str=qbs_new(0,0);
@@ -30311,9 +30319,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (console){
 
       /*
-	FILE * ctt = fopen("CON", "w" );
-	freopen( "CON", "w", stdout );
-	freopen( "CON", "w", stderr );
+    FILE * ctt = fopen("CON", "w" );
+    freopen( "CON", "w", stdout );
+    freopen( "CON", "w", stderr );
       */
 
 
@@ -30325,9 +30333,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       /* BESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBEST
 
-	 FILE * ctt = fopen("CON", "w" );//***Do not remove ever!***
-	 freopen("CON", "w", stdout);
-	 freopen("CON", "w", stderr);
+     FILE * ctt = fopen("CON", "w" );//***Do not remove ever!***
+     freopen("CON", "w", stdout);
+     freopen("CON", "w", stderr);
 
       */
 
@@ -30379,39 +30387,39 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
       /*
-	HANDLE hConsoleIn;
-	hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
-	if (hConsoleIn == INVALID_HANDLE_VALUE) exit(0);
+    HANDLE hConsoleIn;
+    hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
+    if (hConsoleIn == INVALID_HANDLE_VALUE) exit(0);
 
-	//ReadConsole hConsoleIn, ConsoleReadLine, Len(ConsoleReadLine), vbNull, vbNull
-	char rcbuffer[10000];
-	DWORD rcchrtoread;
-	DWORD rcchrread;
+    //ReadConsole hConsoleIn, ConsoleReadLine, Len(ConsoleReadLine), vbNull, vbNull
+    char rcbuffer[10000];
+    DWORD rcchrtoread;
+    DWORD rcchrread;
 
-	//this input works for the loaded console...yeah!
-	//note: this does block.
+    //this input works for the loaded console...yeah!
+    //note: this does block.
 
-	ReadConsole(
-	hConsoleIn,
-	&rcbuffer[0],
-	1,
-	&rcchrread,
-	NULL
-	);
-	//****readline might be a better choice for crossplatform compatibility
+    ReadConsole(
+    hConsoleIn,
+    &rcbuffer[0],
+    1,
+    &rcchrread,
+    NULL
+    );
+    //****readline might be a better choice for crossplatform compatibility
 
-	//if (rcbuffer[0]==65) exit(0);
-	error_erl=rcbuffer[0];
+    //if (rcbuffer[0]==65) exit(0);
+    error_erl=rcbuffer[0];
       */
 
       /*
-	BOOL WINAPI ReadConsole(
-	__in      HANDLE hConsoleInput,
-	__out     LPVOID lpBuffer,
-	__in      DWORD nNumberOfCharsToRead,
-	__out     LPDWORD lpNumberOfCharsRead,
-	__in_opt  LPVOID pInputControl
-	);
+    BOOL WINAPI ReadConsole(
+    __in      HANDLE hConsoleInput,
+    __out     LPVOID lpBuffer,
+    __in      DWORD nNumberOfCharsToRead,
+    __out     LPDWORD lpNumberOfCharsRead,
+    __in_opt  LPVOID pInputControl
+    );
       */
 
 
@@ -30430,10 +30438,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //getline (cin, mystr);
 
       /*
-	DWORD cmode;
-	GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),&cmode);
-	cmode=cmode|ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT;
-	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),cmode);
+    DWORD cmode;
+    GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),&cmode);
+    cmode=cmode|ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT;
+    SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),cmode);
       */
 
 
@@ -30460,7 +30468,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //note: time() returns the time as seconds elapsed since midnight, January 1, 1970, or -1 in the case of an error. 
     if (qb64_tm_val_old!=-1){
       do{
-	time(&qb64_tm_val);
+    time(&qb64_tm_val);
       }while(qb64_tm_val==qb64_tm_val_old);
     }else{
       qb64_tm_val=0;//time unknown! (set to midnight, January 1, 1970)
@@ -30551,11 +30559,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //count modes
     if(sdl_modes){
       if(sdl_modes==(SDL_Rect **)-1){
-	anymode=1;//*unhandled!
+    anymode=1;//*unhandled!
       }else{
-	for(i=0;sdl_modes[i];++i){
-	  nmodes++;
-	}
+    for(i=0;sdl_modes[i];++i){
+      nmodes++;
+    }
       }
     }//modes
     modes=(SDL_Rect*)malloc(nmodes*sizeof(SDL_Rect));
@@ -30738,7 +30746,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if (!glutGet(GLUT_DISPLAY_MODE_POSSIBLE))//must be called on Linux or GLUT crashes
       { 
-	exit(1);
+    exit(1);
       }
 
     if (!window_title){
@@ -30751,7 +30759,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     GLenum err = glewInit();
     if (GLEW_OK != err)
       {
-	alert( (char*)glewGetErrorString(err));
+    alert( (char*)glewGetErrorString(err));
       }
     //alert( (char*)glewGetString(GLEW_VERSION));
 
@@ -30833,9 +30841,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if (shell_call_in_progress){
       if (shell_call_in_progress!=-1){
-	shell_call_in_progress=-1;
-	//NO_S_D_L//if (key_repeat_on){SDL_EnableKeyRepeat(0,0); key_repeat_on=0;}
-	goto update_display_only;
+    shell_call_in_progress=-1;
+    //NO_S_D_L//if (key_repeat_on){SDL_EnableKeyRepeat(0,0); key_repeat_on=0;}
+    goto update_display_only;
       }
       Sleep(64);
       goto main_loop;
@@ -30877,84 +30885,84 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       sprintf(filename, "input_%d.txt\0", qloud_next_input_index);
       pFile = fopen ( filename , "rb" );
       if (pFile!=NULL) {
-	// obtain file size:
-	fseek (pFile , 0 , SEEK_END);
-	lSize = ftell (pFile);
-	rewind (pFile);
-	if (lSize>0){
-	  // allocate memory to contain the whole file:
-	  buffer = (char*) calloc (1,sizeof(char)*lSize+1);
-	  if (buffer != NULL) {
-	    // copy the file into the buffer:
-	    result = fread (buffer,1,lSize,pFile);
-	    if (result == lSize) {
+    // obtain file size:
+    fseek (pFile , 0 , SEEK_END);
+    lSize = ftell (pFile);
+    rewind (pFile);
+    if (lSize>0){
+      // allocate memory to contain the whole file:
+      buffer = (char*) calloc (1,sizeof(char)*lSize+1);
+      if (buffer != NULL) {
+        // copy the file into the buffer:
+        result = fread (buffer,1,lSize,pFile);
+        if (result == lSize) {
 
-	      if (buffer[lSize-1]==42){ //"*" terminator
+          if (buffer[lSize-1]==42){ //"*" terminator
 
-		int start,stop;
-		start=0;
+        int start,stop;
+        start=0;
 
-		int bi;
+        int bi;
 
-	      nextcommand:
+          nextcommand:
 
-		for (bi=start;bi<lSize;bi++){
-		  if (buffer[bi]==0) goto doneall;
-		  if (buffer[bi]==58) goto gotcolon;
-		}
-		goto doneall;
-	      gotcolon:
+        for (bi=start;bi<lSize;bi++){
+          if (buffer[bi]==0) goto doneall;
+          if (buffer[bi]==58) goto gotcolon;
+        }
+        goto doneall;
+          gotcolon:
 
-		int code;
-		int v1,v2;
+        int code;
+        int v1,v2;
 
 
-		code=buffer[start];
-		start++;
+        code=buffer[start];
+        start++;
 
-		if (code==77){//M (mousemove)
-		  sscanf (buffer+start,"%d,%d",&v1,&v2);
-		  GLUT_MOTION_FUNC(v1,v2);
-		}//M
+        if (code==77){//M (mousemove)
+          sscanf (buffer+start,"%d,%d",&v1,&v2);
+          GLUT_MOTION_FUNC(v1,v2);
+        }//M
 
-		if (code==76){//L (left mouse button)
-		  sscanf (buffer+start,"%d,%d",&v1,&v2);
-		  GLUT_MouseButton_Down(GLUT_LEFT_BUTTON,v1,v2);
-		}
-		if (code==108){//l (left mouse button up)
-		  sscanf (buffer+start,"%d,%d",&v1,&v2);
-		  GLUT_MouseButton_Up(GLUT_LEFT_BUTTON,v1,v2);
-		}
+        if (code==76){//L (left mouse button)
+          sscanf (buffer+start,"%d,%d",&v1,&v2);
+          GLUT_MouseButton_Down(GLUT_LEFT_BUTTON,v1,v2);
+        }
+        if (code==108){//l (left mouse button up)
+          sscanf (buffer+start,"%d,%d",&v1,&v2);
+          GLUT_MouseButton_Up(GLUT_LEFT_BUTTON,v1,v2);
+        }
 
-		if (code==68){//D (key down)
-		  sscanf (buffer+start,"%d",&v1);
-		  keydown_vk(v1);
-		}//D
-		if (code==85){//U (key up)
-		  sscanf (buffer+start,"%d",&v1);
-		  keyup_vk(v1);
-		}//U
+        if (code==68){//D (key down)
+          sscanf (buffer+start,"%d",&v1);
+          keydown_vk(v1);
+        }//D
+        if (code==85){//U (key up)
+          sscanf (buffer+start,"%d",&v1);
+          keyup_vk(v1);
+        }//U
 
-		start=bi+1;
-		goto nextcommand;
+        start=bi+1;
+        goto nextcommand;
 
-	      doneall:
+          doneall:
 
-		qloud_next_input_index++;
+        qloud_next_input_index++;
 
-		free (buffer);
-		fclose (pFile);
+        free (buffer);
+        fclose (pFile);
 
-		goto qloud_input_recheck;
+        goto qloud_input_recheck;
 
-	      }//* terminator
+          }//* terminator
 
-	    }//read correct number of bytes
+        }//read correct number of bytes
 
-	    free (buffer);
-	  }//could allocate buffer
-	}//file has content
-	fclose (pFile);
+        free (buffer);
+      }//could allocate buffer
+    }//file has content
+    fclose (pFile);
       }//not null
 
       //}//qloud_input_frame_count
@@ -30972,19 +30980,19 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //(safe even if sndsetup not called)
     if (sndqueue_first!=sndqueue_next){
       if (sndqueue_played==0){
-	//note: this only happens the first time a sound is ever played (through this queue)
-	sndqueue_played=1;
-	if (sndqueue_first==sndqueue_wait){suspend_program^=2; sndqueue_wait=-1;}
-	sub__sndplay(sndqueue[sndqueue_first]);
-	sndqueue_first++;
+    //note: this only happens the first time a sound is ever played (through this queue)
+    sndqueue_played=1;
+    if (sndqueue_first==sndqueue_wait){suspend_program^=2; sndqueue_wait=-1;}
+    sub__sndplay(sndqueue[sndqueue_first]);
+    sndqueue_first++;
       }else{
-	i=sndqueue_first-1; if (i==-1) i=sndqueue_lastindex;
-	if (!func__sndplaying(sndqueue[i])){
-	  sub__sndclose(sndqueue[i]);
-	  if (sndqueue_first==sndqueue_wait){suspend_program^=2; sndqueue_wait=-1;}
-	  sub__sndplay(sndqueue[sndqueue_first]);
-	  sndqueue_first++; if (sndqueue_first>sndqueue_lastindex) sndqueue_first=0;
-	}
+    i=sndqueue_first-1; if (i==-1) i=sndqueue_lastindex;
+    if (!func__sndplaying(sndqueue[i])){
+      sub__sndclose(sndqueue[i]);
+      if (sndqueue_first==sndqueue_wait){suspend_program^=2; sndqueue_wait=-1;}
+      sub__sndplay(sndqueue[sndqueue_first]);
+      sndqueue_first++; if (sndqueue_first>sndqueue_lastindex) sndqueue_first=0;
+    }
       }
     }
 
@@ -30993,15 +31001,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (!lprint){//not currently performing an LPRINT operation
       lprint_locked=1;
       if (lprint_buffered){
-	if (fabs(func_timer(0.001,1)-lprint_last)>=10.0){//10 seconds elapsed since last LPRINT operation
-	  sub__printimage(lprint_image);
-	  lprint_buffered=0;
-	  static int32 old_dest;
-	  old_dest=func__dest();
-	  sub__dest(lprint_image);
-	  sub_cls(NULL,15,2);
-	  sub__dest(old_dest);
-	}
+    if (fabs(func_timer(0.001,1)-lprint_last)>=10.0){//10 seconds elapsed since last LPRINT operation
+      sub__printimage(lprint_image);
+      lprint_buffered=0;
+      static int32 old_dest;
+      old_dest=func__dest();
+      sub__dest(lprint_image);
+      sub_cls(NULL,15,2);
+      sub__dest(old_dest);
+    }
       }
       lprint_locked=0;
     }
@@ -31033,10 +31041,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static int32 state;
       state=SDL_GetAppState();
       if ( (!(state&SDL_APPINPUTFOCUS)) || (!(state&SDL_APPACTIVE)) ){//lost focus
-	if (key_repeat_on){SDL_EnableKeyRepeat(0,0); key_repeat_on=0;}
+    if (key_repeat_on){SDL_EnableKeyRepeat(0,0); key_repeat_on=0;}
       }else{
-	//active
-	if (!key_repeat_on){SDL_EnableKeyRepeat(500,30); key_repeat_on=1;}
+    //active
+    if (!key_repeat_on){SDL_EnableKeyRepeat(500,30); key_repeat_on=1;}
       }
 
 #endif //NO_S_D_L
@@ -31046,176 +31054,176 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //main loop
 
       if (qb64_ime_reading){//load font when required
-	if (ime_font==NULL){
-	  static int32 x,failed=0;
-	  if (!failed){
-	    x=fontopen(imefontname,29,0);
-	    if (x==-1){
-	      x=fontopen(imefontname2,29,0);
-	    }
-	    if (x==-1){
-	      x=fontopen(imefontname3,29,0);
-	    }
-	    if (x==-1){
-	      x=fontopen(imefontname4,29,0);
-	    }
-	    if (x!=-1) ime_font=font[x]; else failed=1;
-	  }
-	}
+    if (ime_font==NULL){
+      static int32 x,failed=0;
+      if (!failed){
+        x=fontopen(imefontname,29,0);
+        if (x==-1){
+          x=fontopen(imefontname2,29,0);
+        }
+        if (x==-1){
+          x=fontopen(imefontname3,29,0);
+        }
+        if (x==-1){
+          x=fontopen(imefontname4,29,0);
+        }
+        if (x!=-1) ime_font=font[x]; else failed=1;
+      }
+    }
       }
 
       if (InputMethod_GetEventNumber() > 0) {
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = 2048;
-	rect.h = 32;                
-	SDL_FillRect(ime_back, &rect, 0xFFFFFFFF);
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 2048;
+    rect.h = 32;                
+    SDL_FillRect(ime_back, &rect, 0xFFFFFFFF);
 
-	static int32 len;
-	static uint32 *buf=(uint32*)malloc(2);
-	static int32 bufsize=1;
+    static int32 len;
+    static uint32 *buf=(uint32*)malloc(2);
+    static int32 bufsize=1;
                 
-	switch (InputMethod_GetCurrentMessage()) {
-	case INPUT_METHOD_MESSAGE_ON:
-	  /*                    
-				rect.x = 0;
-				rect.y = 100;
-				rect.w = 640;
-				rect.h = 100;
-				SDL_FillRect(ime_back, &rect, 0x00000000);
-				surface = TTF_RenderUTF8_Shaded(
-				ime_font, "IME: ON", fg, bg);
-				SDL_BlitSurface(surface, NULL, ime_back, &rect);
-				SDL_FreeSurface(surface);
-				DrawCursor(ime_back, ime_font, inputedWidth);
-	  */
-	  break;
-	case INPUT_METHOD_MESSAGE_CHANGE:
-	  if (ime_font){
-	    MessageChange(ime_back, ime_font, inputedWidth);
-	  }
-	  break;
-	case INPUT_METHOD_MESSAGE_RESULT:
+    switch (InputMethod_GetCurrentMessage()) {
+    case INPUT_METHOD_MESSAGE_ON:
+      /*                    
+                rect.x = 0;
+                rect.y = 100;
+                rect.w = 640;
+                rect.h = 100;
+                SDL_FillRect(ime_back, &rect, 0x00000000);
+                surface = TTF_RenderUTF8_Shaded(
+                ime_font, "IME: ON", fg, bg);
+                SDL_BlitSurface(surface, NULL, ime_back, &rect);
+                SDL_FreeSurface(surface);
+                DrawCursor(ime_back, ime_font, inputedWidth);
+      */
+      break;
+    case INPUT_METHOD_MESSAGE_CHANGE:
+      if (ime_font){
+        MessageChange(ime_back, ime_font, inputedWidth);
+      }
+      break;
+    case INPUT_METHOD_MESSAGE_RESULT:
 
-	  //send UNICODE string to qb64 key handler
-	  len=GetUnicodeStringLength(InputMethod_GetCurrentEditingString())*2;
-	  if (len>bufsize){free(buf); buf=(uint32*)malloc(len*4+4);}
-	  len=convert_unicode(16,InputMethod_GetCurrentEditingString(),len,32,buf);
-	  len/=4;
-	  for (i=0;i<len;i++){
-	    keydown_unicode(buf[i]);
-	    keyup_unicode(buf[i]);
-	  }
+      //send UNICODE string to qb64 key handler
+      len=GetUnicodeStringLength(InputMethod_GetCurrentEditingString())*2;
+      if (len>bufsize){free(buf); buf=(uint32*)malloc(len*4+4);}
+      len=convert_unicode(16,InputMethod_GetCurrentEditingString(),len,32,buf);
+      len/=4;
+      for (i=0;i<len;i++){
+        keydown_unicode(buf[i]);
+        keyup_unicode(buf[i]);
+      }
 
-	  //don't let it concatenate!
-	  /*
-
-
+      //don't let it concatenate!
+      /*
 
 
-	    stringLength =
-	    GetUnicodeStringLength(inputedString) +
-	    GetUnicodeStringLength(
 
-	    InputMethod_GetCurrentEditingString());
-	    needSize = stringLength * sizeof(Uint16) + sizeof(Uint16);
-	    inputedString = (Uint16*)realloc(inputedString, needSize);
-	    CatUnicodeString(
-	    inputedString,
-	    InputMethod_GetCurrentEditingString());
+
+        stringLength =
+        GetUnicodeStringLength(inputedString) +
+        GetUnicodeStringLength(
+
+        InputMethod_GetCurrentEditingString());
+        needSize = stringLength * sizeof(Uint16) + sizeof(Uint16);
+        inputedString = (Uint16*)realloc(inputedString, needSize);
+        CatUnicodeString(
+        inputedString,
+        InputMethod_GetCurrentEditingString());
                     
 
-	    {
-	    long i;
-	    for (i=0;i<stringLength;i++){
-	    //showvalue(inputedString[i]);
-	    }
-	    }
+        {
+        long i;
+        for (i=0;i<stringLength;i++){
+        //showvalue(inputedString[i]);
+        }
+        }
 
 
 
-	    surface = TTF_RenderUNICODE_Shaded(
-	    font, inputedString, gfg, bg);
-	    inputedWidth = surface->w;
-	    SDL_BlitSurface(surface, NULL, ime_back, NULL);
-	    SDL_FreeSurface(surface);
-	    DrawCursor(ime_back, font, inputedWidth);
-	  */
+        surface = TTF_RenderUNICODE_Shaded(
+        font, inputedString, gfg, bg);
+        inputedWidth = surface->w;
+        SDL_BlitSurface(surface, NULL, ime_back, NULL);
+        SDL_FreeSurface(surface);
+        DrawCursor(ime_back, font, inputedWidth);
+      */
 
 
-	  break;
-	case INPUT_METHOD_MESSAGE_CHAR:
-	  /*
-	    stringLength =
-	    GetUnicodeStringLength(inputedString) + 1;
-	    needSize = stringLength * sizeof(Uint16) + sizeof(Uint16);
-	    inputedString = (Uint16*)realloc(inputedString, needSize);
-	    inputedString[stringLength - 1] =
-	    InputMethod_GetCurrentChar();
-	    inputedString[stringLength] = 0x0000;
+      break;
+    case INPUT_METHOD_MESSAGE_CHAR:
+      /*
+        stringLength =
+        GetUnicodeStringLength(inputedString) + 1;
+        needSize = stringLength * sizeof(Uint16) + sizeof(Uint16);
+        inputedString = (Uint16*)realloc(inputedString, needSize);
+        inputedString[stringLength - 1] =
+        InputMethod_GetCurrentChar();
+        inputedString[stringLength] = 0x0000;
                     
-	    surface = TTF_RenderUNICODE_Shaded(
-	    ime_font, inputedString, rfg, bg);
-	    inputedWidth = surface->w;
-	    SDL_BlitSurface(surface, NULL, ime_back, NULL);
-	    SDL_FreeSurface(surface);
-	    DrawCursor(ime_back, ime_font, inputedWidth);
-	  */
-	  break;
-	case INPUT_METHOD_MESSAGE_OFF:
-	  /*
-	    rect.x = 0;
-	    rect.y = 100;
-	    rect.w = 640;
-	    rect.h = 100;
-	    SDL_FillRect(ime_back, &rect, 0x00000000);
-	    surface = TTF_RenderUTF8_Shaded(
-	    ime_font, "IME: OFF", fg, bg);
-	    SDL_BlitSurface(surface, NULL, ime_back, &rect);
-	    SDL_FreeSurface(surface);
-	  */
-	  break;
-	default:
-	  break;
-	}
-	InputMethod_MoveNextEvent();
-	eventExpose.type = SDL_VIDEOEXPOSE;
-	SDL_PushEvent(&eventExpose);
+        surface = TTF_RenderUNICODE_Shaded(
+        ime_font, inputedString, rfg, bg);
+        inputedWidth = surface->w;
+        SDL_BlitSurface(surface, NULL, ime_back, NULL);
+        SDL_FreeSurface(surface);
+        DrawCursor(ime_back, ime_font, inputedWidth);
+      */
+      break;
+    case INPUT_METHOD_MESSAGE_OFF:
+      /*
+        rect.x = 0;
+        rect.y = 100;
+        rect.w = 640;
+        rect.h = 100;
+        SDL_FillRect(ime_back, &rect, 0x00000000);
+        surface = TTF_RenderUTF8_Shaded(
+        ime_font, "IME: OFF", fg, bg);
+        SDL_BlitSurface(surface, NULL, ime_back, &rect);
+        SDL_FreeSurface(surface);
+      */
+      break;
+    default:
+      break;
+    }
+    InputMethod_MoveNextEvent();
+    eventExpose.type = SDL_VIDEOEXPOSE;
+    SDL_PushEvent(&eventExpose);
       }
 #endif
 
       static int32 scancode;
       static const uint8 QBVK_2_scancode[] = {
-	0,0,0,0,0,0,0,0,14,15,0,0,0,28,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,57,0,0,0,0,0,0,40,0,0,0,0,51,12,52,53,11,2,3,4,5,6,7,8,9,10,0,39,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,43,27,0,0,41,30,48,46,32,18,33,34,35,23,36,37,38,50,49,24,25,16,19,31,20,22,47,17,45,21,44,0,0,0,0,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,79,80,81,75,76,77,71,72,73,83,53,55,74,78,28,0,72,80,77,75,82,71,79,73,81,59,60,61,62,63,64,65,66,67,68,133,134,0,0,0,0,0,0,69,58,70,54,42,29,29,56,56,0,0,91,92,0,0,0,0,55,197,93,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    0,0,0,0,0,0,0,0,14,15,0,0,0,28,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,57,0,0,0,0,0,0,40,0,0,0,0,51,12,52,53,11,2,3,4,5,6,7,8,9,10,0,39,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,43,27,0,0,41,30,48,46,32,18,33,34,35,23,36,37,38,50,49,24,25,16,19,31,20,22,47,17,45,21,44,0,0,0,0,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,79,80,81,75,76,77,71,72,73,83,53,55,74,78,28,0,72,80,77,75,82,71,79,73,81,59,60,61,62,63,64,65,66,67,68,133,134,0,0,0,0,0,0,69,58,70,54,42,29,29,56,56,0,0,91,92,0,0,0,0,55,197,93,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
       };
 
 #ifdef QB64_WINDOWS 
       //manage important external keyboard lock/state changes
       if ((GetKeyState(VK_SCROLL)&1)!=keyheld(QBK+QBK_SCROLL_LOCK_MODE)){
-	if (keyheld(QBK+QBK_SCROLL_LOCK_MODE)){
-	  keyheld_remove(QBK+QBK_SCROLL_LOCK_MODE);
-	}else{
-	  keyheld_add(QBK+QBK_SCROLL_LOCK_MODE);
-	}
-	update_shift_state();
+    if (keyheld(QBK+QBK_SCROLL_LOCK_MODE)){
+      keyheld_remove(QBK+QBK_SCROLL_LOCK_MODE);
+    }else{
+      keyheld_add(QBK+QBK_SCROLL_LOCK_MODE);
+    }
+    update_shift_state();
       }
       if ((GetKeyState(VK_CAPITAL)&1)!=keyheld(VK+QBVK_CAPSLOCK)){
-	if (keyheld(VK+QBVK_CAPSLOCK)){
-	  bindkey=QBVK_CAPSLOCK; keyup_vk(VK+QBVK_CAPSLOCK);
-	}else{
-	  bindkey=QBVK_CAPSLOCK; keydown_vk(VK+QBVK_CAPSLOCK);
-	}
-	update_shift_state();
+    if (keyheld(VK+QBVK_CAPSLOCK)){
+      bindkey=QBVK_CAPSLOCK; keyup_vk(VK+QBVK_CAPSLOCK);
+    }else{
+      bindkey=QBVK_CAPSLOCK; keydown_vk(VK+QBVK_CAPSLOCK);
+    }
+    update_shift_state();
       }
       if ((GetKeyState(VK_NUMLOCK)&1)!=keyheld(VK+QBVK_NUMLOCK)){
-	if (keyheld(VK+QBVK_NUMLOCK)){
-	  bindkey=QBVK_NUMLOCK; keyup_vk(VK+QBVK_NUMLOCK);
-	}else{
-	  bindkey=QBVK_NUMLOCK; keydown_vk(VK+QBVK_NUMLOCK);
-	}
-	update_shift_state();
+    if (keyheld(VK+QBVK_NUMLOCK)){
+      bindkey=QBVK_NUMLOCK; keyup_vk(VK+QBVK_NUMLOCK);
+    }else{
+      bindkey=QBVK_NUMLOCK; keydown_vk(VK+QBVK_NUMLOCK);
+    }
+    update_shift_state();
       }
 #endif
 
@@ -31251,804 +31259,804 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
 
-	case SDL_JOYBALLMOTION:
-	  {//scope
-	    static int32 di;
-	    for(di=1;di<=device_last;di++){
-	      static device_struct *d;
-	      d=&devices[di];
-	      if (d->used==1){
-		if (d->type==1){
-		  if (d->SDL_js_index==event.jball.which){
-		    static uint8 *cp,*cp2;
-		    static float f;
-		    static int32 o;
+    case SDL_JOYBALLMOTION:
+      {//scope
+        static int32 di;
+        for(di=1;di<=device_last;di++){
+          static device_struct *d;
+          d=&devices[di];
+          if (d->used==1){
+        if (d->type==1){
+          if (d->SDL_js_index==event.jball.which){
+            static uint8 *cp,*cp2;
+            static float f;
+            static int32 o;
 
-		    if (d->queued_events==d->max_events){//expand/shift event buffer
-		      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-			//discard base message
-			memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-			d->queued_events--;
-		      }else{
-			cp=(uint8*)calloc(d->max_events*2,d->event_size);
-			memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-			cp2=d->events;
-			d->events=cp;
-			free(cp2);
-			d->max_events*=2;
-		      }
-		    }
-		    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		    //make required changes
-		    f=event.jball.xrel;
-		    o=d->lastbutton+d->lastaxis*4+event.jball.ball*8;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-		    f=event.jball.yrel;
-		    o=d->lastbutton+d->lastaxis*4+event.jball.ball*8+4;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-		    d->queued_events++;
+            if (d->queued_events==d->max_events){//expand/shift event buffer
+              if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+              }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+              }
+            }
+            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+            //make required changes
+            f=event.jball.xrel;
+            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
+            f=event.jball.yrel;
+            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8+4;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
+            d->queued_events++;
 
-		    //add dummy message to clear relative motion
-		    if (d->queued_events==d->max_events){//expand/shift event buffer
-		      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-			//discard base message
-			memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-			d->queued_events--;
-		      }else{
-			cp=(uint8*)calloc(d->max_events*2,d->event_size);
-			memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-			cp2=d->events;
-			d->events=cp;
-			free(cp2);
-			d->max_events*=2;
-		      }
-		    }
-		    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		    //make required changes
-		    f=0;
-		    o=d->lastbutton+d->lastaxis*4+event.jball.ball*8;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-		    f=0;
-		    o=d->lastbutton+d->lastaxis*4+event.jball.ball*8+4;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-		    d->queued_events++;
+            //add dummy message to clear relative motion
+            if (d->queued_events==d->max_events){//expand/shift event buffer
+              if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+              }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+              }
+            }
+            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+            //make required changes
+            f=0;
+            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
+            f=0;
+            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8+4;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
+            d->queued_events++;
 
-		  }//js index
-		}//type==1
-	      }//used
-	    }//di
-	  }//scope
-	  break;
+          }//js index
+        }//type==1
+          }//used
+        }//di
+      }//scope
+      break;
 
-	case SDL_JOYHATMOTION:
-	  {//scope
-	    static int32 di;
-	    for(di=1;di<=device_last;di++){
-	      static device_struct *d;
-	      d=&devices[di];
-	      if (d->used==1){
-		if (d->type==1){
-		  if (d->SDL_js_index==event.jaxis.which){
-		    static uint8 *cp,*cp2;
-		    if (d->queued_events==d->max_events){//expand/shift event buffer
-		      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-			//discard base message
-			memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-			d->queued_events--;
-		      }else{
-			cp=(uint8*)calloc(d->max_events*2,d->event_size);
-			memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-			cp2=d->events;
-			d->events=cp;
-			free(cp2);
-			d->max_events*=2;
-		      }
-		    }
-		    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		    //make required changes
-		    static int32 v;
-		    static float fx,fy;
-		    v=event.jhat.value;
-		    fx=0; fy=0;
-		    if (v&SDL_HAT_UP) fy=fy-1.0;
-		    if (v&SDL_HAT_DOWN) fy=fy+1.0;
-		    if (v&SDL_HAT_LEFT) fx=fx-1.0;
-		    if (v&SDL_HAT_RIGHT) fx=fx+1.0;
-		    static int32 o;
-		    o=d->lastbutton+d->SDL_axes*4+event.jhat.hat*8;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=fx;
-		    o=d->lastbutton+d->SDL_axes*4+event.jhat.hat*8+4;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=fy;
-		    d->queued_events++;
-		  }//js index
-		}//type==1
-	      }//used
-	    }//di
-	  }//scope
-	  break;
+    case SDL_JOYHATMOTION:
+      {//scope
+        static int32 di;
+        for(di=1;di<=device_last;di++){
+          static device_struct *d;
+          d=&devices[di];
+          if (d->used==1){
+        if (d->type==1){
+          if (d->SDL_js_index==event.jaxis.which){
+            static uint8 *cp,*cp2;
+            if (d->queued_events==d->max_events){//expand/shift event buffer
+              if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+              }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+              }
+            }
+            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+            //make required changes
+            static int32 v;
+            static float fx,fy;
+            v=event.jhat.value;
+            fx=0; fy=0;
+            if (v&SDL_HAT_UP) fy=fy-1.0;
+            if (v&SDL_HAT_DOWN) fy=fy+1.0;
+            if (v&SDL_HAT_LEFT) fx=fx-1.0;
+            if (v&SDL_HAT_RIGHT) fx=fx+1.0;
+            static int32 o;
+            o=d->lastbutton+d->SDL_axes*4+event.jhat.hat*8;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=fx;
+            o=d->lastbutton+d->SDL_axes*4+event.jhat.hat*8+4;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=fy;
+            d->queued_events++;
+          }//js index
+        }//type==1
+          }//used
+        }//di
+      }//scope
+      break;
 
-	case SDL_JOYAXISMOTION:
-	  {//scope
-	    static int32 di;
-	    for(di=1;di<=device_last;di++){
-	      static device_struct *d;
-	      d=&devices[di];
-	      if (d->used==1){
-		if (d->type==1){
-		  if (d->SDL_js_index==event.jaxis.which){
-		    static uint8 *cp,*cp2;
-		    if (d->queued_events==d->max_events){//expand/shift event buffer
-		      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-			//discard base message
-			memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-			d->queued_events--;
-		      }else{
-			cp=(uint8*)calloc(d->max_events*2,d->event_size);
-			memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-			cp2=d->events;
-			d->events=cp;
-			free(cp2);
-			d->max_events*=2;
-		      }
-		    }
-		    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		    //make required changes
-		    static float f;
-		    f=event.jaxis.value;
-		    if (f==-32768) f=-32767;
-		    f/=32767.0;
-		    if (f>1.0) f=1.0;
-		    if (f<-1.0) f=-1.0;
-		    static int32 o;
-		    o=d->lastbutton+event.jaxis.axis*4;
-		    *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-		    d->queued_events++;
-		  }//js index
-		}//type==1
-	      }//used
-	    }//di
-	  }//scope
-	  break;
+    case SDL_JOYAXISMOTION:
+      {//scope
+        static int32 di;
+        for(di=1;di<=device_last;di++){
+          static device_struct *d;
+          d=&devices[di];
+          if (d->used==1){
+        if (d->type==1){
+          if (d->SDL_js_index==event.jaxis.which){
+            static uint8 *cp,*cp2;
+            if (d->queued_events==d->max_events){//expand/shift event buffer
+              if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+              }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+              }
+            }
+            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+            //make required changes
+            static float f;
+            f=event.jaxis.value;
+            if (f==-32768) f=-32767;
+            f/=32767.0;
+            if (f>1.0) f=1.0;
+            if (f<-1.0) f=-1.0;
+            static int32 o;
+            o=d->lastbutton+event.jaxis.axis*4;
+            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
+            d->queued_events++;
+          }//js index
+        }//type==1
+          }//used
+        }//di
+      }//scope
+      break;
 
-	case SDL_JOYBUTTONDOWN:
-	  {//scope
-	    static int32 di,controller;
-	    controller=0;
-	    for(di=1;di<=device_last;di++){
-	      static device_struct *d;
-	      d=&devices[di];
-	      if (d->used==1){
-		if (d->type==1){
-		  controller++;
-		  if (d->SDL_js_index==event.jbutton.which){
+    case SDL_JOYBUTTONDOWN:
+      {//scope
+        static int32 di,controller;
+        controller=0;
+        for(di=1;di<=device_last;di++){
+          static device_struct *d;
+          d=&devices[di];
+          if (d->used==1){
+        if (d->type==1){
+          controller++;
+          if (d->SDL_js_index==event.jbutton.which){
 
-		    //ON STRIG event
-		    static int32 i;
-		    if (controller<=256&&event.jbutton.button<=255){//within supported range
-		      i=(controller-1)*256+event.jbutton.button;
-		      if (onstrig[i].active){
-			if (onstrig[i].id){
-			  if (onstrig[i].active==1){//(1)ON
-			    onstrig[i].state++;
-			  }else{//(2)STOP
-			    onstrig[i].state=1;
-			  }
-			  qbevent=1;
-			}
-		      }
-		    }//within supported range
+            //ON STRIG event
+            static int32 i;
+            if (controller<=256&&event.jbutton.button<=255){//within supported range
+              i=(controller-1)*256+event.jbutton.button;
+              if (onstrig[i].active){
+            if (onstrig[i].id){
+              if (onstrig[i].active==1){//(1)ON
+                onstrig[i].state++;
+              }else{//(2)STOP
+                onstrig[i].state=1;
+              }
+              qbevent=1;
+            }
+              }
+            }//within supported range
 
-		    static uint8 *cp,*cp2;
-		    if (d->queued_events==d->max_events){//expand/shift event buffer
-		      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-			//discard base message
-			memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-			d->queued_events--;
-		      }else{
-			cp=(uint8*)calloc(d->max_events*2,d->event_size);
-			memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-			cp2=d->events;
-			d->events=cp;
-			free(cp2);
-			d->max_events*=2;
-		      }
-		    }
-		    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		    //make required changes
-		    *(d->events+(d->queued_events*d->event_size)+event.jbutton.button)=1;
-		    d->queued_events++;
-		    //set STRIG_button_pressed for button
-		    if (event.jbutton.button>=0&&event.jbutton.button<=255){
-		      d->STRIG_button_pressed[event.jbutton.button]=1;
-		    }
-		  }//js index
-		}//type==1
-	      }//used
-	    }//di
-	  }//scope
-	  break;
+            static uint8 *cp,*cp2;
+            if (d->queued_events==d->max_events){//expand/shift event buffer
+              if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+              }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+              }
+            }
+            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+            //make required changes
+            *(d->events+(d->queued_events*d->event_size)+event.jbutton.button)=1;
+            d->queued_events++;
+            //set STRIG_button_pressed for button
+            if (event.jbutton.button>=0&&event.jbutton.button<=255){
+              d->STRIG_button_pressed[event.jbutton.button]=1;
+            }
+          }//js index
+        }//type==1
+          }//used
+        }//di
+      }//scope
+      break;
 
-	case SDL_JOYBUTTONUP:
-	  {//scope
-	    static int32 di;
-	    for(di=1;di<=device_last;di++){
-	      static device_struct *d;
-	      d=&devices[di];
-	      if (d->used==1){
-		if (d->type==1){
-		  if (d->SDL_js_index==event.jbutton.which){
-		    static uint8 *cp,*cp2;
-		    if (d->queued_events==d->max_events){//expand/shift event buffer
-		      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-			//discard base message
-			memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-			d->queued_events--;
-		      }else{
-			cp=(uint8*)calloc(d->max_events*2,d->event_size);
-			memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-			cp2=d->events;
-			d->events=cp;
-			free(cp2);
-			d->max_events*=2;
-		      }
-		    }
-		    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		    //make required changes
-		    *(d->events+(d->queued_events*d->event_size)+event.jbutton.button)=0;
-		    d->queued_events++;
-		  }//js index
-		}//type==1
-	      }//used
-	    }//di
-	  }//scope
-	  break;
+    case SDL_JOYBUTTONUP:
+      {//scope
+        static int32 di;
+        for(di=1;di<=device_last;di++){
+          static device_struct *d;
+          d=&devices[di];
+          if (d->used==1){
+        if (d->type==1){
+          if (d->SDL_js_index==event.jbutton.which){
+            static uint8 *cp,*cp2;
+            if (d->queued_events==d->max_events){//expand/shift event buffer
+              if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+              }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+              }
+            }
+            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+            //make required changes
+            *(d->events+(d->queued_events*d->event_size)+event.jbutton.button)=0;
+            d->queued_events++;
+          }//js index
+        }//type==1
+          }//used
+        }//di
+      }//scope
+      break;
 
-	  /*
-	    case SDL_ACTIVEEVENT:
-	    #ifdef QB64_WINDOWS
-	    if (shell_call_in_progress){
-	    if (event.active.gain==0){//lost focus
-	    if (full_screen){ 
-	    SDL_WM_IconifyWindow();
-	    }//full screen
-	    }//lost focus
-	    }//shell
-	    #endif
-	    break;
-	  */
+      /*
+        case SDL_ACTIVEEVENT:
+        #ifdef QB64_WINDOWS
+        if (shell_call_in_progress){
+        if (event.active.gain==0){//lost focus
+        if (full_screen){ 
+        SDL_WM_IconifyWindow();
+        }//full screen
+        }//lost focus
+        }//shell
+        #endif
+        break;
+      */
 
-	case SDL_KEYUP:
-	  {//new scope
+    case SDL_KEYUP:
+      {//new scope
 
-	    if (device_last){//core devices required?
-	      static int32 code,special;
-	      special=0;
-	      code=event.key.keysym.sym;
-	      if ((code==300)||(code==301)) special=1;
-	      if ((code>0)&&(scancode<=512)){
-		code=(((512-code)^341)&511)+1;//switch indexing
-		static device_struct *d;
-		d=&devices[1];//keyboard
-		if ((*(d->events+((d->queued_events-1)*d->event_size)+(code-1))!=0)||special){
-		keyup_special:
-		  static uint8 *cp,*cp2;
-		  if (d->queued_events==d->max_events){//expand/shift event buffer
-		    if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
-		      //discard base message
-		      memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		      d->queued_events--;
-		    }else{
-		      cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		      memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		      cp2=d->events;
-		      d->events=cp;
-		      free(cp2);
-		      d->max_events*=2;
-		    }
-		  }
-		  memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		  *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		  //make required changes
-		  if (special){*(d->events+(d->queued_events*d->event_size)+(code-1))=1; special=0; d->queued_events++; goto keyup_special;}
-		  *(d->events+(d->queued_events*d->event_size)+(code-1))=0;
-		  d->queued_events++;
-		}//not 0
-	      }//valid range
-	    }//core devices required
+        if (device_last){//core devices required?
+          static int32 code,special;
+          special=0;
+          code=event.key.keysym.sym;
+          if ((code==300)||(code==301)) special=1;
+          if ((code>0)&&(scancode<=512)){
+        code=(((512-code)^341)&511)+1;//switch indexing
+        static device_struct *d;
+        d=&devices[1];//keyboard
+        if ((*(d->events+((d->queued_events-1)*d->event_size)+(code-1))!=0)||special){
+        keyup_special:
+          static uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
+              //discard base message
+              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+              d->queued_events--;
+            }else{
+              cp=(uint8*)calloc(d->max_events*2,d->event_size);
+              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+              cp2=d->events;
+              d->events=cp;
+              free(cp2);
+              d->max_events*=2;
+            }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          if (special){*(d->events+(d->queued_events*d->event_size)+(code-1))=1; special=0; d->queued_events++; goto keyup_special;}
+          *(d->events+(d->queued_events*d->event_size)+(code-1))=0;
+          d->queued_events++;
+        }//not 0
+          }//valid range
+        }//core devices required
 
-	    if (qb64_ime_reading){
-	      if (qb64_ime_reading==3) qb64_ime_reading=0;
-	      goto skip_keyup;
-	    }
-
-
-	    static uint32 x;
-	    x=event.key.keysym.sym;
-
-	    //ALT+number(ascii-code)
-	    //note: "Compose" an ASCII code for digits typed on the numeric keypad while ALT is held down. The code is the number (modulo 256).
-	    static int32 altvalue;
-	    altvalue=-1;
-	    if (asciicode_reading){
-	      if ((x==QBVK_LALT)||(x==QBVK_RALT)){
-		if (asciicode_reading==2){
-		  altvalue=asciicode_value&255;
-		}
-		asciicode_reading=0;
-	      }
-	    }
-
-	    if (x) keyheld_unbind(x);
-
-	    if (altvalue!=-1){keydown_ascii(altvalue); keyup_ascii(altvalue);}
-
-	  skip_keyup:;
-	  }//end scope
-	  break;
-
-	case SDL_KEYDOWN:
-	  {//new scope
-
-	    if (device_last){//core devices required?
-	      static int32 code,special;
-	      special=0;
-	      code=event.key.keysym.sym;
-	      if ((code==300)||(code==301)) special=2;
-	      if ((code>0)&&(scancode<=512)){
-		code=(((512-code)^341)&511)+1;//switch indexing
-	      keydown_special:
-		static device_struct *d;
-		d=&devices[1];//keyboard
-		if ((*(d->events+((d->queued_events-1)*d->event_size)+(code-1))!=1)||special){
-		  static uint8 *cp,*cp2;
-		  if (d->queued_events==d->max_events){//expand/shift event buffer
-		    if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
-		      //discard base message
-		      memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		      d->queued_events--;
-		    }else{
-		      cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		      memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		      cp2=d->events;
-		      d->events=cp;
-		      free(cp2);
-		      d->max_events*=2;
-		    }
-		  }
-		  memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		  *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		  //make required changes
-		  *(d->events+(d->queued_events*d->event_size)+(code-1))=1;
-		  if (special==2){special=1; d->queued_events++; goto keydown_special;}
-		  if (special==1) *(d->events+(d->queued_events*d->event_size)+(code-1))=0;
-		  d->queued_events++;
-		}//not 1
-	      }//valid range
-	    }//core devices required
-
-	    if (qb64_ime_reading){
-	      if (qb64_ime_reading==2) qb64_ime_reading=3;
-	      goto skip_key;
-	    }
+        if (qb64_ime_reading){
+          if (qb64_ime_reading==3) qb64_ime_reading=0;
+          goto skip_keyup;
+        }
 
 
-	    static uint32 x,x2;
-	    x=event.key.keysym.sym;//SDL VK code
+        static uint32 x;
+        x=event.key.keysym.sym;
 
-	    //ALT+number(ascii-code)
-	    //note: "Compose" an ASCII code for digits typed on the numeric keypad while ALT is held down. The code is the number (modulo 256).
-	    if ((x==QBVK_LALT)||(x==QBVK_RALT)){
-	      if ((keyheld(VK+QBVK_LALT)==0)&&(keyheld(VK+QBVK_RALT)==0)){
-		asciicode_reading=1;
-		asciicode_value=0;
-	      }
-	    }
-	    /* Numeric keypad
-	       QBVK_KP0        = 256,
-	       ...
-	       QBVK_KP9        = 265,*/
-	    if (asciicode_reading){
-	      if ((x>=QBVK_KP0)&&(x<=QBVK_KP9)){
-		asciicode_reading=2;
-		asciicode_value*=10;
-		asciicode_value+=(x-QBVK_KP0);
-	      }else{
-		if ((x!=QBVK_LALT)&&(x!=QBVK_RALT)) asciicode_reading=0;//sequence broken
-	      }
-	    }
+        //ALT+number(ascii-code)
+        //note: "Compose" an ASCII code for digits typed on the numeric keypad while ALT is held down. The code is the number (modulo 256).
+        static int32 altvalue;
+        altvalue=-1;
+        if (asciicode_reading){
+          if ((x==QBVK_LALT)||(x==QBVK_RALT)){
+        if (asciicode_reading==2){
+          altvalue=asciicode_value&255;
+        }
+        asciicode_reading=0;
+          }
+        }
 
-	    bindkey=x;
+        if (x) keyheld_unbind(x);
 
-	    x2=event.key.keysym.unicode;
+        if (altvalue!=-1){keydown_ascii(altvalue); keyup_ascii(altvalue);}
 
-	    //qbs_print(qbs_str((int32)x),1);
-	    //qbs_print(qbs_str((int32)x2),1);
+      skip_keyup:;
+      }//end scope
+      break;
+
+    case SDL_KEYDOWN:
+      {//new scope
+
+        if (device_last){//core devices required?
+          static int32 code,special;
+          special=0;
+          code=event.key.keysym.sym;
+          if ((code==300)||(code==301)) special=2;
+          if ((code>0)&&(scancode<=512)){
+        code=(((512-code)^341)&511)+1;//switch indexing
+          keydown_special:
+        static device_struct *d;
+        d=&devices[1];//keyboard
+        if ((*(d->events+((d->queued_events-1)*d->event_size)+(code-1))!=1)||special){
+          static uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
+              //discard base message
+              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+              d->queued_events--;
+            }else{
+              cp=(uint8*)calloc(d->max_events*2,d->event_size);
+              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+              cp2=d->events;
+              d->events=cp;
+              free(cp2);
+              d->max_events*=2;
+            }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          *(d->events+(d->queued_events*d->event_size)+(code-1))=1;
+          if (special==2){special=1; d->queued_events++; goto keydown_special;}
+          if (special==1) *(d->events+(d->queued_events*d->event_size)+(code-1))=0;
+          d->queued_events++;
+        }//not 1
+          }//valid range
+        }//core devices required
+
+        if (qb64_ime_reading){
+          if (qb64_ime_reading==2) qb64_ime_reading=3;
+          goto skip_key;
+        }
+
+
+        static uint32 x,x2;
+        x=event.key.keysym.sym;//SDL VK code
+
+        //ALT+number(ascii-code)
+        //note: "Compose" an ASCII code for digits typed on the numeric keypad while ALT is held down. The code is the number (modulo 256).
+        if ((x==QBVK_LALT)||(x==QBVK_RALT)){
+          if ((keyheld(VK+QBVK_LALT)==0)&&(keyheld(VK+QBVK_RALT)==0)){
+        asciicode_reading=1;
+        asciicode_value=0;
+          }
+        }
+        /* Numeric keypad
+           QBVK_KP0        = 256,
+           ...
+           QBVK_KP9        = 265,*/
+        if (asciicode_reading){
+          if ((x>=QBVK_KP0)&&(x<=QBVK_KP9)){
+        asciicode_reading=2;
+        asciicode_value*=10;
+        asciicode_value+=(x-QBVK_KP0);
+          }else{
+        if ((x!=QBVK_LALT)&&(x!=QBVK_RALT)) asciicode_reading=0;//sequence broken
+          }
+        }
+
+        bindkey=x;
+
+        x2=event.key.keysym.unicode;
+
+        //qbs_print(qbs_str((int32)x),1);
+        //qbs_print(qbs_str((int32)x2),1);
 
 #ifdef QB64_MACOSX
-	    if ((x2>=0xF700)&&(x2<=0xF8FF)){//within MacOSX UNICODE reserved range
-	      if (x) x2=0;//ignore unicode value and refer to keysym only
-	    }
+        if ((x2>=0xF700)&&(x2<=0xF8FF)){//within MacOSX UNICODE reserved range
+          if (x) x2=0;//ignore unicode value and refer to keysym only
+        }
 #endif
-	    if ((x2==127)&&(x==8)) x2=8;//remap UNICODE 127 to UNICODE 8 when linked to SDL backspace key's keysym
-	    if ((x2==127)&&(x==127)) x2=0;//remap UNICODE 127/KEYSYM 127 to NON-UNICODE KEYSYM 127 (Linux)
+        if ((x2==127)&&(x==8)) x2=8;//remap UNICODE 127 to UNICODE 8 when linked to SDL backspace key's keysym
+        if ((x2==127)&&(x==127)) x2=0;//remap UNICODE 127/KEYSYM 127 to NON-UNICODE KEYSYM 127 (Linux)
 
-	    if (x2){
+        if (x2){
 
-	      if ((x>=QBVK_KP0)&&(x<=QBVK_KP_ENTER)){//NUMPAD specific
-		keydown_vk(VK+x);
-		goto skip_key;
-	      }
+          if ((x>=QBVK_KP0)&&(x<=QBVK_KP_ENTER)){//NUMPAD specific
+        keydown_vk(VK+x);
+        goto skip_key;
+          }
 
-	      //revert any CTRL+? keys
-	      if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)){//CTRL held
-		if (x2==0x7F) if (x==QBVK_BACKSPACE) {keydown_ascii(8); goto skip_key;}
-		if (x2==0x0A) if (x==QBVK_RETURN) {keydown_ascii(13); goto skip_key;}
-		if (x2==0x1B) if (x==QBVK_ESCAPE) {keydown_ascii(27); goto skip_key;}
-		if (x2==0x20) if (x==QBVK_SPACE) {keydown_ascii(32); goto skip_key;}
-		if (x2==0x1E) if (x==QBVK_6) {keydown_ascii(54); goto skip_key;}
-		if (x2==0x1B) if (x==QBVK_LEFTBRACKET) {keydown_ascii(91); goto skip_key;}
-		if (x2==0x1C) if (x==QBVK_BACKSLASH) {keydown_ascii(92); goto skip_key;}
-		if (x2==0x1D) if (x==QBVK_RIGHTBRACKET) {keydown_ascii(93); goto skip_key;}
-		if ((x2>=1)&&(x2<=26)){
-		  static int32 x3;
-		  x3=keyheld(VK+QBVK_CAPSLOCK);
-		  x3=x3+(keyheld(VK+QBVK_LSHIFT)|keyheld(VK+QBVK_RSHIFT));
-		  if (x3&1){//uppercase?
-		    keydown_ascii(64+x2); goto skip_key;
-		  }
-		  keydown_ascii(96+x2); goto skip_key;
-		}
-	      }
+          //revert any CTRL+? keys
+          if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)){//CTRL held
+        if (x2==0x7F) if (x==QBVK_BACKSPACE) {keydown_ascii(8); goto skip_key;}
+        if (x2==0x0A) if (x==QBVK_RETURN) {keydown_ascii(13); goto skip_key;}
+        if (x2==0x1B) if (x==QBVK_ESCAPE) {keydown_ascii(27); goto skip_key;}
+        if (x2==0x20) if (x==QBVK_SPACE) {keydown_ascii(32); goto skip_key;}
+        if (x2==0x1E) if (x==QBVK_6) {keydown_ascii(54); goto skip_key;}
+        if (x2==0x1B) if (x==QBVK_LEFTBRACKET) {keydown_ascii(91); goto skip_key;}
+        if (x2==0x1C) if (x==QBVK_BACKSLASH) {keydown_ascii(92); goto skip_key;}
+        if (x2==0x1D) if (x==QBVK_RIGHTBRACKET) {keydown_ascii(93); goto skip_key;}
+        if ((x2>=1)&&(x2<=26)){
+          static int32 x3;
+          x3=keyheld(VK+QBVK_CAPSLOCK);
+          x3=x3+(keyheld(VK+QBVK_LSHIFT)|keyheld(VK+QBVK_RSHIFT));
+          if (x3&1){//uppercase?
+            keydown_ascii(64+x2); goto skip_key;
+          }
+          keydown_ascii(96+x2); goto skip_key;
+        }
+          }
 
-	      keydown_unicode(x2);
-	      if (!x) keyup_unicode(x2);//simulate release for unbindable key
-	      goto skip_key;
-	    }
-	    if (x){
+          keydown_unicode(x2);
+          if (!x) keyup_unicode(x2);//simulate release for unbindable key
+          goto skip_key;
+        }
+        if (x){
 
-	      //if ((x!=QBVK_LCTRL)&&(x!=QBVK_LALT)&&(x!=QBVK_LSHIFT)) showvalue(x);
+          //if ((x!=QBVK_LCTRL)&&(x!=QBVK_LALT)&&(x!=QBVK_LSHIFT)) showvalue(x);
 
-	      if ((x>=QBVK_KP0)&&(x<=QBVK_KP_PERIOD)){//NUMPAD specific #1
-		keydown_vk(QBK+(x-QBVK_KP0));
-		goto skip_key;
-	      }
-	      if ((x>=QBVK_KP_DIVIDE)&&(x<=QBVK_KP_ENTER)){//NUMPAD specific #2
-		//handles operators (/,-,*,+) which are not set as UNICODE values when CTRL is held
-		keydown_vk(VK+x);
-		goto skip_key;
-	      }
+          if ((x>=QBVK_KP0)&&(x<=QBVK_KP_PERIOD)){//NUMPAD specific #1
+        keydown_vk(QBK+(x-QBVK_KP0));
+        goto skip_key;
+          }
+          if ((x>=QBVK_KP_DIVIDE)&&(x<=QBVK_KP_ENTER)){//NUMPAD specific #2
+        //handles operators (/,-,*,+) which are not set as UNICODE values when CTRL is held
+        keydown_vk(VK+x);
+        goto skip_key;
+          }
 
-	      //remap SDL_VKs to CHR$(0)+CHR$(x) combination VKs
-	      if ((x>=QBVK_F1)&&(x<=QBVK_F10)){keydown_vk((x-QBVK_F1+59)<<8);goto skip_key;}
-	      if ((x>=QBVK_F11)&&(x<=QBVK_F12)){keydown_vk((x-QBVK_F11+133)<<8);goto skip_key;}
-	      if (x==QBVK_HOME){keydown_vk(71<<8);goto skip_key;}
-	      if (x==QBVK_UP){keydown_vk(72<<8);goto skip_key;}
-	      if (x==QBVK_PAGEUP){keydown_vk(73<<8);goto skip_key;}
-	      if (x==QBVK_LEFT){keydown_vk(75<<8);goto skip_key;}
-	      //??? center  /   76 ,      0x4C,    0x4C00,      0x35,         0,         0,      0x35,    0x4C00,      0x35,    0x4C00,
-	      if (x==QBVK_RIGHT){keydown_vk(77<<8);goto skip_key;}
-	      if (x==QBVK_END){keydown_vk(79<<8);goto skip_key;}
-	      if (x==QBVK_DOWN){keydown_vk(80<<8);goto skip_key;}
-	      if (x==QBVK_PAGEDOWN){keydown_vk(81<<8);goto skip_key;}
-	      if (x==QBVK_INSERT){keydown_vk(82<<8);goto skip_key;}
-	      if (x==QBVK_DELETE){keydown_vk(83<<8);goto skip_key;}
+          //remap SDL_VKs to CHR$(0)+CHR$(x) combination VKs
+          if ((x>=QBVK_F1)&&(x<=QBVK_F10)){keydown_vk((x-QBVK_F1+59)<<8);goto skip_key;}
+          if ((x>=QBVK_F11)&&(x<=QBVK_F12)){keydown_vk((x-QBVK_F11+133)<<8);goto skip_key;}
+          if (x==QBVK_HOME){keydown_vk(71<<8);goto skip_key;}
+          if (x==QBVK_UP){keydown_vk(72<<8);goto skip_key;}
+          if (x==QBVK_PAGEUP){keydown_vk(73<<8);goto skip_key;}
+          if (x==QBVK_LEFT){keydown_vk(75<<8);goto skip_key;}
+          //??? center  /   76 ,      0x4C,    0x4C00,      0x35,         0,         0,      0x35,    0x4C00,      0x35,    0x4C00,
+          if (x==QBVK_RIGHT){keydown_vk(77<<8);goto skip_key;}
+          if (x==QBVK_END){keydown_vk(79<<8);goto skip_key;}
+          if (x==QBVK_DOWN){keydown_vk(80<<8);goto skip_key;}
+          if (x==QBVK_PAGEDOWN){keydown_vk(81<<8);goto skip_key;}
+          if (x==QBVK_INSERT){keydown_vk(82<<8);goto skip_key;}
+          if (x==QBVK_DELETE){keydown_vk(83<<8);goto skip_key;}
 
-	      //revert any CTRL+? keys which did not map to UNICODE
-	      if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)){//CTRL held
-		if ((x>=QBVK_SPACE)&&(x<=QBVK_BACKQUOTE)){//32-96
-		  keydown_ascii(x); goto skip_key;
-		}//32-96
-		if (x==8){keydown_ascii(x); goto skip_key;}
-		if (x==9){keydown_ascii(x); goto skip_key;}
-		if (x==13){keydown_ascii(13); goto skip_key;}
-		if (x==27){keydown_ascii(13); goto skip_key;}
-	      }//CTRL
+          //revert any CTRL+? keys which did not map to UNICODE
+          if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)){//CTRL held
+        if ((x>=QBVK_SPACE)&&(x<=QBVK_BACKQUOTE)){//32-96
+          keydown_ascii(x); goto skip_key;
+        }//32-96
+        if (x==8){keydown_ascii(x); goto skip_key;}
+        if (x==9){keydown_ascii(x); goto skip_key;}
+        if (x==13){keydown_ascii(13); goto skip_key;}
+        if (x==27){keydown_ascii(13); goto skip_key;}
+          }//CTRL
 
-	      if ((x>=(QBVK_a))&&(x<=QBVK_z)){
-		//note: handles instances such as CTRL+ALT+"a"
-		x=x-97;
-		static int32 x3;
-		x3=keyheld(VK+QBVK_CAPSLOCK);
-		x3=x3+(keyheld(VK+QBVK_LSHIFT)|keyheld(VK+QBVK_RSHIFT));
-		if (x3&1){//uppercase?
-		  keydown_ascii(65+x); goto skip_key;
-		}
-		keydown_ascii(97+x); goto skip_key;
-	      }
+          if ((x>=(QBVK_a))&&(x<=QBVK_z)){
+        //note: handles instances such as CTRL+ALT+"a"
+        x=x-97;
+        static int32 x3;
+        x3=keyheld(VK+QBVK_CAPSLOCK);
+        x3=x3+(keyheld(VK+QBVK_LSHIFT)|keyheld(VK+QBVK_RSHIFT));
+        if (x3&1){//uppercase?
+          keydown_ascii(65+x); goto skip_key;
+        }
+        keydown_ascii(97+x); goto skip_key;
+          }
 
-	      if ((x>=32)&&(x<=127)){//skip possible dead-key
-		bindkey=0;
-		goto skip_key;
-	      }
+          if ((x>=32)&&(x<=127)){//skip possible dead-key
+        bindkey=0;
+        goto skip_key;
+          }
 
-	      keydown_vk(VK+x);
+          keydown_vk(VK+x);
 
-	    }
+        }
 
-	  skip_key:;
-	  }//end scope
-	  break;
+      skip_key:;
+      }//end scope
+      break;
 
-	case SDL_MOUSEMOTION:
+    case SDL_MOUSEMOTION:
 
-	  //message #1
-	  i=(last_mouse_message+1)&65535;
-	  if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-	  mouse_messages[i].x=event.motion.x;
-	  mouse_messages[i].y=event.motion.y;
-	  if (mouseinput_ignoremovement){
-	    mouseinput_ignoremovement--;
-	    mouse_messages[i].movementx=0;
-	    mouse_messages[i].movementy=0;
-	  }else{
-	    mouse_messages[i].movementx=event.motion.xrel;
-	    mouse_messages[i].movementy=event.motion.yrel;
-	  }
-	  mouse_messages[i].buttons=event.motion.state;
-	  last_mouse_message=i;
+      //message #1
+      i=(last_mouse_message+1)&65535;
+      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
+      mouse_messages[i].x=event.motion.x;
+      mouse_messages[i].y=event.motion.y;
+      if (mouseinput_ignoremovement){
+        mouseinput_ignoremovement--;
+        mouse_messages[i].movementx=0;
+        mouse_messages[i].movementy=0;
+      }else{
+        mouse_messages[i].movementx=event.motion.xrel;
+        mouse_messages[i].movementy=event.motion.yrel;
+      }
+      mouse_messages[i].buttons=event.motion.state;
+      last_mouse_message=i;
 
-	  //message #2 (clears movement values to avoid confusion)
-	  i=(last_mouse_message+1)&65535;
-	  if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-	  mouse_messages[i].x=event.motion.x;
-	  mouse_messages[i].y=event.motion.y;
-	  mouse_messages[i].movementx=0;
-	  mouse_messages[i].movementy=0;
-	  mouse_messages[i].buttons=event.motion.state;
-	  last_mouse_message=i;
+      //message #2 (clears movement values to avoid confusion)
+      i=(last_mouse_message+1)&65535;
+      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
+      mouse_messages[i].x=event.motion.x;
+      mouse_messages[i].y=event.motion.y;
+      mouse_messages[i].movementx=0;
+      mouse_messages[i].movementy=0;
+      mouse_messages[i].buttons=event.motion.state;
+      last_mouse_message=i;
 
-	  if (device_last){//core devices required?
-	    if (!device_mouse_relative){
+      if (device_last){//core devices required?
+        if (!device_mouse_relative){
 
-	      static device_struct *d;
-	      d=&devices[2];//mouse
-	      static uint8 *cp,*cp2;
-	      if (d->queued_events==d->max_events){//expand/shift event buffer
-		if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		  //discard base message
-		  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		  d->queued_events--;
-		}else{
-		  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		  cp2=d->events;
-		  d->events=cp;
-		  free(cp2);
-		  d->max_events*=2;
-		}
-	      }
-	      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	      //make required changes
-	      static float fx,fy;
-	      static int32 z;
-	      fx=event.motion.x;
-	      fx-=x_offset;
-	      z=x_monitor-x_offset*2;
-	      if (fx<0) fx=0;
-	      if (fx>=z) fx=z-1;
-	      fx=fx/(float)(z-1);//0 to 1
-	      fx*=2.0;//0 to 2
-	      fx-=1.0;//-1 to 1
-	      fy=event.motion.y;
-	      fy-=y_offset;
-	      z=y_monitor-y_offset*2;
-	      if (fy<0) fy=0;
-	      if (fy>=z) fy=z-1;
-	      fy=fy/(float)(z-1);//0 to 1
+          static device_struct *d;
+          d=&devices[2];//mouse
+          static uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          static float fx,fy;
+          static int32 z;
+          fx=event.motion.x;
+          fx-=x_offset;
+          z=x_monitor-x_offset*2;
+          if (fx<0) fx=0;
+          if (fx>=z) fx=z-1;
+          fx=fx/(float)(z-1);//0 to 1
+          fx*=2.0;//0 to 2
+          fx-=1.0;//-1 to 1
+          fy=event.motion.y;
+          fy-=y_offset;
+          z=y_monitor-y_offset*2;
+          if (fy<0) fy=0;
+          if (fy>=z) fy=z-1;
+          fy=fy/(float)(z-1);//0 to 1
 
-	      fy*=2.0;//0 to 2
-	      fy-=1.0;//-1 to 1
-	      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
-	      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
-	      d->queued_events++;
+          fy*=2.0;//0 to 2
+          fy-=1.0;//-1 to 1
+          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
+          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
+          d->queued_events++;
 
-	    }else{
+        }else{
 
-	      static device_struct *d;
-	      d=&devices[2];//mouse
-	      static uint8 *cp,*cp2;
-	      if (d->queued_events==d->max_events){//expand/shift event buffer
-		if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		  //discard base message
-		  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		  d->queued_events--;
-		}else{
-		  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		  cp2=d->events;
-		  d->events=cp;
-		  free(cp2);
-		  d->max_events*=2;
-		}
-	      }
-	      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	      //make required changes
-	      static float fx,fy;
-	      static int32 z;
-	      fx=event.motion.xrel;
-	      fy=event.motion.yrel;
-	      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-	      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-	      d->queued_events++;
-	      if (d->queued_events==d->max_events){//expand/shift event buffer
-		if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		  //discard base message
-		  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		  d->queued_events--;
-		}else{
-		  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		  cp2=d->events;
-		  d->events=cp;
-		  free(cp2);
-		  d->max_events*=2;
-		}
-	      }
-	      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	      //make required changes
-	      fx=0;
-	      fy=0;
-	      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-	      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-	      d->queued_events++;
+          static device_struct *d;
+          d=&devices[2];//mouse
+          static uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          static float fx,fy;
+          static int32 z;
+          fx=event.motion.xrel;
+          fy=event.motion.yrel;
+          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
+          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
+          d->queued_events++;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          fx=0;
+          fy=0;
+          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
+          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
+          d->queued_events++;
 
-	    }
-	  }//core devices required
+        }
+      }//core devices required
 
-	  break;
+      break;
 
-	case SDL_MOUSEBUTTONUP:
-	  i=(last_mouse_message+1)&65535;
-	  if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-	  mouse_messages[i].movementx=0;
-	  mouse_messages[i].movementy=0;
-	  mouse_messages[i].x=event.button.x;
-	  mouse_messages[i].y=event.button.y;
-	  mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-	  if (mouse_messages[i].buttons&(1<<(event.button.button-1))) mouse_messages[i].buttons^=(1<<(event.button.button-1));
-	  last_mouse_message=i;
+    case SDL_MOUSEBUTTONUP:
+      i=(last_mouse_message+1)&65535;
+      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
+      mouse_messages[i].movementx=0;
+      mouse_messages[i].movementy=0;
+      mouse_messages[i].x=event.button.x;
+      mouse_messages[i].y=event.button.y;
+      mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
+      if (mouse_messages[i].buttons&(1<<(event.button.button-1))) mouse_messages[i].buttons^=(1<<(event.button.button-1));
+      last_mouse_message=i;
 
-	  if (device_last){//core devices required?
-	    static int32 button;
-	    button=event.button.button;
-	    if ((button>=1)&&(button<=3)){
-	      button--;
-	      static device_struct *d;
-	      d=&devices[2];//mouse
-	      static uint8 *cp,*cp2;
-	      if (d->queued_events==d->max_events){//expand/shift event buffer
-		if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		  //discard base message
-		  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		  d->queued_events--;
-		}else{
-		  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		  cp2=d->events;
-		  d->events=cp;
-		  free(cp2);
-		  d->max_events*=2;
-		}
-	      }
-	      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	      //make required changes
-	      *(d->events+(d->queued_events*d->event_size)+button)=0;
-	      d->queued_events++;
-	    }//valid range
-	  }//core devices required
+      if (device_last){//core devices required?
+        static int32 button;
+        button=event.button.button;
+        if ((button>=1)&&(button<=3)){
+          button--;
+          static device_struct *d;
+          d=&devices[2];//mouse
+          static uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          *(d->events+(d->queued_events*d->event_size)+button)=0;
+          d->queued_events++;
+        }//valid range
+      }//core devices required
 
-	  break;
+      break;
 
-	case SDL_MOUSEBUTTONDOWN:
-	  i=(last_mouse_message+1)&65535;
-	  if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-	  mouse_messages[i].movementx=0;
-	  mouse_messages[i].movementy=0;
-	  mouse_messages[i].x=event.button.x;
-	  mouse_messages[i].y=event.button.y;
-	  mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-	  mouse_messages[i].buttons|=(1<<(event.button.button-1));
-	  last_mouse_message=i;
+    case SDL_MOUSEBUTTONDOWN:
+      i=(last_mouse_message+1)&65535;
+      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
+      mouse_messages[i].movementx=0;
+      mouse_messages[i].movementy=0;
+      mouse_messages[i].x=event.button.x;
+      mouse_messages[i].y=event.button.y;
+      mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
+      mouse_messages[i].buttons|=(1<<(event.button.button-1));
+      last_mouse_message=i;
 
-	  if (device_last){//core devices required?
-	    static int32 button;
-	    button=event.button.button;
+      if (device_last){//core devices required?
+        static int32 button;
+        button=event.button.button;
 
-	    if ((button>=1)&&(button<=3)){
-	      button--;
-	      static device_struct *d;
-	      d=&devices[2];//mouse
-	      static uint8 *cp,*cp2;
-	      if (d->queued_events==d->max_events){//expand/shift event buffer
-		if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		  //discard base message
-		  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		  d->queued_events--;
-		}else{
-		  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		  cp2=d->events;
-		  d->events=cp;
-		  free(cp2);
-		  d->max_events*=2;
-		}
-	      }
-	      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-	      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-	      //make required changes
-	      *(d->events+(d->queued_events*d->event_size)+button)=1;
-	      d->queued_events++;
-	      //1-3
-	    }else{
-	      //not 1-3
-	      //mouse wheel?
-	      if ((button>=4)&&(button<=5)){
-		static float f;
-		if (button==4) f=-1; else f=1;
-		static device_struct *d;
-		d=&devices[2];//mouse
-		static uint8 *cp,*cp2;
-		if (d->queued_events==d->max_events){//expand/shift event buffer
-		  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		    //discard base message
-		    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		    d->queued_events--;
-		  }else{
-		    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		    cp2=d->events;
-		    d->events=cp;
-		    free(cp2);
-		    d->max_events*=2;
-		  }
-		}
-		memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		//make required changes
-		*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
-		d->queued_events++;
-		if (d->queued_events==d->max_events){//expand/shift event buffer
-		  if (d->max_events>=QUEUED_EVENTS_LIMIT){
-		    //discard base message
-		    memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-		    d->queued_events--;
-		  }else{
-		    cp=(uint8*)calloc(d->max_events*2,d->event_size);
-		    memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-		    cp2=d->events;
-		    d->events=cp;
-		    free(cp2);
-		    d->max_events*=2;
-		  }
-		}
-		memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-		*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-		//make required changes
-		*(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
-		d->queued_events++;
-	      }//4-5
-	    }//not 1-3
-	  }//core devices required
+        if ((button>=1)&&(button<=3)){
+          button--;
+          static device_struct *d;
+          d=&devices[2];//mouse
+          static uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+        if (d->max_events>=QUEUED_EVENTS_LIMIT){
+          //discard base message
+          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+          d->queued_events--;
+        }else{
+          cp=(uint8*)calloc(d->max_events*2,d->event_size);
+          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+          cp2=d->events;
+          d->events=cp;
+          free(cp2);
+          d->max_events*=2;
+        }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          *(d->events+(d->queued_events*d->event_size)+button)=1;
+          d->queued_events++;
+          //1-3
+        }else{
+          //not 1-3
+          //mouse wheel?
+          if ((button>=4)&&(button<=5)){
+        static float f;
+        if (button==4) f=-1; else f=1;
+        static device_struct *d;
+        d=&devices[2];//mouse
+        static uint8 *cp,*cp2;
+        if (d->queued_events==d->max_events){//expand/shift event buffer
+          if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+          }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+          }
+        }
+        memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+        *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+        //make required changes
+        *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
+        d->queued_events++;
+        if (d->queued_events==d->max_events){//expand/shift event buffer
+          if (d->max_events>=QUEUED_EVENTS_LIMIT){
+            //discard base message
+            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+            d->queued_events--;
+          }else{
+            cp=(uint8*)calloc(d->max_events*2,d->event_size);
+            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+            cp2=d->events;
+            d->events=cp;
+            free(cp2);
+            d->max_events*=2;
+          }
+        }
+        memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+        *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+        //make required changes
+        *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
+        d->queued_events++;
+          }//4-5
+        }//not 1-3
+      }//core devices required
 
-	  break;
+      break;
 
-	case SDL_QUIT:
-	  if (exit_blocked) exit_value|=1; else goto end_program;
-	  break;
+    case SDL_QUIT:
+      if (exit_blocked) exit_value|=1; else goto end_program;
+      break;
 
 
 
-	}
+    }
       }
 
 #endif //NO_S_D_L
@@ -32061,13 +32069,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //safe even if sndsetup not called
       static double pos;
       if (stream_limited){
-	if (stream_loaded){
-	  if (stream_playing){//worth checking?
-	    pos=func__sndgetpos(1);
-	    if (pos>=stream_limit){
-	      sub__sndstop(1);
-	      stream_limited=0;
-	    }}}}
+    if (stream_loaded){
+      if (stream_playing){//worth checking?
+        pos=func__sndgetpos(1);
+        if (pos>=stream_limit){
+          sub__sndstop(1);
+          stream_limited=0;
+        }}}}
 
 #endif //NO_S_D_L
 
@@ -32100,10 +32108,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (cloud_app){
       FILE *f = fopen("..\\final.txt", "w");
       if (f != NULL)
-	{
-	  fprintf(f, "Program exited normally");
-	  fclose(f);
-	}
+    {
+      fprintf(f, "Program exited normally");
+      fclose(f);
+    }
       exit(0);//should log error
     }
 
@@ -32177,20 +32185,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static int64 lowest_order;
       lowest_order=display_frame_order_next;
       for (i=0;i<=2;i++){
-	if (display_frame[i].order<lowest_order&&display_frame[i].state==DISPLAY_FRAME_STATE__READY){
-	  lowest_order=display_frame[i].order;
-	  frame_i=i;
-	}
+    if (display_frame[i].order<lowest_order&&display_frame[i].state==DISPLAY_FRAME_STATE__READY){
+      lowest_order=display_frame[i].order;
+      frame_i=i;
+    }
       }
       //or preferably an unused frame if possible (note: this check happens 2nd for threading reasons)
       for (i=0;i<=2;i++){
-	if (display_frame[i].state==DISPLAY_FRAME_STATE__EMPTY){
-	  frame_i=i;	
-	}
+    if (display_frame[i].state==DISPLAY_FRAME_STATE__EMPTY){
+      frame_i=i;    
+    }
       }
       if (frame_i==-1){
-	alert("Software frame buffer: Failed to find available frame");
-	return;
+    alert("Software frame buffer: Failed to find available frame");
+    return;
       }
       display_frame[frame_i].state=DISPLAY_FRAME_STATE__BUILDING;
       display_frame[frame_i].order=display_frame_order_next++;
@@ -32199,13 +32207,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
       if (cloud_app){
-	static double cloud_timer_value=0;
-	static double cloud_timer_now=0;
-	cloud_timer_now=func_timer(0.001,1);
-	if (fabs(cloud_timer_value-cloud_timer_now)<0.25){
-	  goto cloud_skip_frame;
-	}
-	cloud_timer_value=cloud_timer_now;
+    static double cloud_timer_value=0;
+    static double cloud_timer_now=0;
+    cloud_timer_now=func_timer(0.001,1);
+    if (fabs(cloud_timer_value-cloud_timer_now)<0.25){
+      goto cloud_skip_frame;
+    }
+    cloud_timer_value=cloud_timer_now;
       }
 
 
@@ -32218,12 +32226,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       x=display_page->width; y=display_page->height;
 
       if (display_page->compatible_mode==0){
-	x=display_page->width*fontwidth[display_page->font]; y=display_page->height*fontheight[display_page->font];
+    x=display_page->width*fontwidth[display_page->font]; y=display_page->height*fontheight[display_page->font];
       }
 
       //check for y-stretch flag?
       if (x<=512&&y<=384){
-	x*=2; y*=2;
+    x*=2; y*=2;
       }
 
       static int32 mode_square,mode_stretch;
@@ -32236,121 +32244,121 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       z2=0x7FFFFFFF; z3=0x7FFFFFFF;
       for (i=0;i<nmodes;i++){
-	if (modes[i].w>=640){
-	  if (modes[i].w>=x&&modes[i].h>=y){
-	    z=modes[i].w-x+modes[i].h-y;
-	    //square
-	    if (z<=z2){
-	      //is it square?
-	      if (modes[i].w/4==modes[i].h/3){
-		mode_square=i; z2=z;
-	      }//square
-	    }//z2<=z
-	    //stretch
-	    if (z<=z3){
-	      mode_stretch=i; z3=z;
-	    }//z<=z3
-	  }//>x,>y
-	}//ignore?
+    if (modes[i].w>=640){
+      if (modes[i].w>=x&&modes[i].h>=y){
+        z=modes[i].w-x+modes[i].h-y;
+        //square
+        if (z<=z2){
+          //is it square?
+          if (modes[i].w/4==modes[i].h/3){
+        mode_square=i; z2=z;
+          }//square
+        }//z2<=z
+        //stretch
+        if (z<=z3){
+          mode_stretch=i; z3=z;
+        }//z<=z3
+      }//>x,>y
+    }//ignore?
       }//i
 
 #endif //NO_S_D_L
 
 
       /* commented out 2013
-	 static int32 full_screen_change;
-	 full_screen_change=0;
+     static int32 full_screen_change;
+     full_screen_change=0;
 
-	 if (full_screen_set!=-1){
-	 if (full_screen_set==0) goto full_screen0;
-	 if (full_screen_set==1) goto full_screen1;
-	 if (full_screen_set==2) goto full_screen2;
-	 }
+     if (full_screen_set!=-1){
+     if (full_screen_set==0) goto full_screen0;
+     if (full_screen_set==1) goto full_screen1;
+     if (full_screen_set==2) goto full_screen2;
+     }
 
-	 if (full_screen_toggle){
-	 full_screen_toggle--;
+     if (full_screen_toggle){
+     full_screen_toggle--;
 
-	 if (full_screen==0){
-	 full_screen1:
-	 if (mode_stretch>-1){//can be displayed
-	 full_screen=1;
-	 if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
-	 full_screen_change=1;
-	 screen_last_valid=0;
+     if (full_screen==0){
+     full_screen1:
+     if (mode_stretch>-1){//can be displayed
+     full_screen=1;
+     if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
+     full_screen_change=1;
+     screen_last_valid=0;
 
-	 if (!mouse_hideshow_called){
-	 #ifdef QB64_LINUX
-	 if (autodisplay!=1){
-	 lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-	 }
-	 #endif
-	 //NO_S_D_L//SDL_ShowCursor(0);
-	 #ifdef QB64_LINUX
-	 if (autodisplay!=1){ 
-	 lock_mainloop=0; Sleep(1);//unlock
-	 } 
-	 #endif
-	 }
+     if (!mouse_hideshow_called){
+     #ifdef QB64_LINUX
+     if (autodisplay!=1){
+     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
+     }
+     #endif
+     //NO_S_D_L//SDL_ShowCursor(0);
+     #ifdef QB64_LINUX
+     if (autodisplay!=1){ 
+     lock_mainloop=0; Sleep(1);//unlock
+     } 
+     #endif
+     }
 
-	 }
-	 goto full_screen_toggle_done;
-	 }
+     }
+     goto full_screen_toggle_done;
+     }
 
-	 if (full_screen==1){
-	 full_screen2:
-	 if (mode_square>-1&&mode_square!=mode_stretch){//usable 1:1 mode exists (that isn't same as stretched mode)
-	 full_screen=2;
-	 if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
-	 full_screen_change=1;
-	 screen_last_valid=0;
+     if (full_screen==1){
+     full_screen2:
+     if (mode_square>-1&&mode_square!=mode_stretch){//usable 1:1 mode exists (that isn't same as stretched mode)
+     full_screen=2;
+     if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
+     full_screen_change=1;
+     screen_last_valid=0;
 
-	 if (!mouse_hideshow_called){
-	 #ifdef QB64_LINUX
-	 if (autodisplay!=1){
-	 lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-	 }
-	 #endif
-	 //NO_S_D_L//SDL_ShowCursor(0);
-	 #ifdef QB64_LINUX
-	 if (autodisplay!=1){ 
-	 lock_mainloop=0; Sleep(1);//unlock
-	 } 
-	 #endif
-	 }
+     if (!mouse_hideshow_called){
+     #ifdef QB64_LINUX
+     if (autodisplay!=1){
+     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
+     }
+     #endif
+     //NO_S_D_L//SDL_ShowCursor(0);
+     #ifdef QB64_LINUX
+     if (autodisplay!=1){ 
+     lock_mainloop=0; Sleep(1);//unlock
+     } 
+     #endif
+     }
 
-	 goto full_screen_toggle_done;
-	 }
-	 }
-	 //back to windowed mode
-	 full_screen0:
-	 full_screen=0;
-	 full_screen_change=1;
-	 screen_last_valid=0;
+     goto full_screen_toggle_done;
+     }
+     }
+     //back to windowed mode
+     full_screen0:
+     full_screen=0;
+     full_screen_change=1;
+     screen_last_valid=0;
 
-	 if (!mouse_hideshow_called){
-	 #ifdef QB64_LINUX
-	 if (autodisplay!=1){
-	 lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-	 }
-	 #endif
-	 //NO_S_D_L//SDL_ShowCursor(1);
-	 #ifdef QB64_LINUX
-	 if (autodisplay!=1){ 
-	 lock_mainloop=0; Sleep(1);//unlock
-	 } 
-	 #endif
-	 }
+     if (!mouse_hideshow_called){
+     #ifdef QB64_LINUX
+     if (autodisplay!=1){
+     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
+     }
+     #endif
+     //NO_S_D_L//SDL_ShowCursor(1);
+     #ifdef QB64_LINUX
+     if (autodisplay!=1){ 
+     lock_mainloop=0; Sleep(1);//unlock
+     } 
+     #endif
+     }
 
-	 }
-	 full_screen_toggle_done:
-	 full_screen_set=-1;
+     }
+     full_screen_toggle_done:
+     full_screen_set=-1;
       */
 
 
 
       x=display_page->width; y=display_page->height;
       if (display_page->compatible_mode==0){
-	x=display_page->width*fontwidth[display_page->font]; y=display_page->height*fontheight[display_page->font];
+    x=display_page->width*fontwidth[display_page->font]; y=display_page->height*fontheight[display_page->font];
       }
       x_monitor=x; y_monitor=y;
 
@@ -32364,12 +32372,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       conversion_required=0;
 #ifndef NO_S_D_L
       if ((display_surface->format->Bmask!=255)||(display_surface->format->Gmask!=65280)||(display_surface->format->Rmask!=16711680)){
-	//non-BGR(A) format!
-	//create conversion layer
-	conversion_required=1;
-	conversion_layer=(uint32*)realloc(conversion_layer,x_monitor*y_monitor*4);
-	memset(conversion_layer,0,x_monitor*y_monitor*4);
-	display_surface_offset=conversion_layer;//redirect to conversion layer
+    //non-BGR(A) format!
+    //create conversion layer
+    conversion_required=1;
+    conversion_layer=(uint32*)realloc(conversion_layer,x_monitor*y_monitor*4);
+    memset(conversion_layer,0,x_monitor*y_monitor*4);
+    display_surface_offset=conversion_layer;//redirect to conversion layer
       }
 #endif //NO_S_D_L
 
@@ -32394,352 +32402,352 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       if (!display_page->compatible_mode){//text
 
-	static int32 show_flashing_last=0;
-	static int32 show_cursor_last=0;
-	static int32 check_last;
-	static uint8 *cp,*cp2,*cp_last;
-	static uint32 *lp;
-	static int32 cx,cy;
-	static int32 cx_last=-1,cy_last=-1;
-	static int32 show_cursor;
-	static int32 show_flashing;
-	static uint8 chr,col,chr_last,col_last;
-	static int32 qbg_y_offset;
+    static int32 show_flashing_last=0;
+    static int32 show_cursor_last=0;
+    static int32 check_last;
+    static uint8 *cp,*cp2,*cp_last;
+    static uint32 *lp;
+    static int32 cx,cy;
+    static int32 cx_last=-1,cy_last=-1;
+    static int32 show_cursor;
+    static int32 show_flashing;
+    static uint8 chr,col,chr_last,col_last;
+    static int32 qbg_y_offset;
 
-	static int32 f,f_pitch,f_width,f_height;//font info
-	f=display_page->font; f_width=fontwidth[f]; f_height=fontheight[f];
+    static int32 f,f_pitch,f_width,f_height;//font info
+    f=display_page->font; f_width=fontwidth[f]; f_height=fontheight[f];
 
-	static int32 content_changed;
-
-
-	check_last=screen_last_valid;//If set, modify the previous pixelbuffer's contents
-	content_changed=0;
-
-	//Realloc pixel-buffer if necessary
-	i=display_page->width*display_page->height*2;
-	if (screen_last_size!=i){
-	  free(screen_last);
-	  screen_last=(uint8*)malloc(i);
-	  screen_last_size=i;
-	  check_last=0;
-	}
-
-	//Check/Prepare palette-buffer
-	if (!check_last){
-	  //set pal_last (no prev pal was avilable to compare to)
-	  memcpy(&paldata,display_page->pal,256*4);
-	}else{
-	  //if palette has changed, update paldata and draw all characters
-	  if (memcmp(&paldata[0],display_page->pal,256*4)){
-	    //Different palette
-	    memcpy(&paldata[0],display_page->pal,256*4);
-	    check_last=0;
-	  }
-	}
-
-	//Check/Prepare content
-	if (check_last){
-	  //i=display_frame_end;
-	  if (memcmp(screen_last,display_page->offset,screen_last_size)){
-	    //Different content
-	    content_changed=1;
-	  }
-	}
-
-	//Note: frame is a global variable incremented ~32 times per second [2013]
-	if (frame&8) show_cursor=1; else show_cursor=0;//[2013]halved cursor blink rate from 8 changes p/sec -> 4 changes p/sec
-	if (frame&8) show_flashing=1; else show_flashing=0;
-	if (cloud_app){
-	  static double cloud_timer_flash;
-	  cloud_timer_flash=func_timer(0.001,1)/2.0;
-	  static int64 cloud_timer_flash_int;
-	  cloud_timer_flash_int=cloud_timer_flash;
-	  if (cloud_timer_flash_int&1) show_cursor=1; else show_cursor=0;
-	  if (cloud_timer_flash_int&1) show_flashing=1; else show_flashing=0;
-	  //static int qloud_show_cursor=0;
-	  //qloud_show_cursor++; if (qloud_show_cursor&1) show_cursor=1; else show_cursor=0;
-	}
+    static int32 content_changed;
 
 
+    check_last=screen_last_valid;//If set, modify the previous pixelbuffer's contents
+    content_changed=0;
+
+    //Realloc pixel-buffer if necessary
+    i=display_page->width*display_page->height*2;
+    if (screen_last_size!=i){
+      free(screen_last);
+      screen_last=(uint8*)malloc(i);
+      screen_last_size=i;
+      check_last=0;
+    }
+
+    //Check/Prepare palette-buffer
+    if (!check_last){
+      //set pal_last (no prev pal was avilable to compare to)
+      memcpy(&paldata,display_page->pal,256*4);
+    }else{
+      //if palette has changed, update paldata and draw all characters
+      if (memcmp(&paldata[0],display_page->pal,256*4)){
+        //Different palette
+        memcpy(&paldata[0],display_page->pal,256*4);
+        check_last=0;
+      }
+    }
+
+    //Check/Prepare content
+    if (check_last){
+      //i=display_frame_end;
+      if (memcmp(screen_last,display_page->offset,screen_last_size)){
+        //Different content
+        content_changed=1;
+      }
+    }
+
+    //Note: frame is a global variable incremented ~32 times per second [2013]
+    if (frame&8) show_cursor=1; else show_cursor=0;//[2013]halved cursor blink rate from 8 changes p/sec -> 4 changes p/sec
+    if (frame&8) show_flashing=1; else show_flashing=0;
+    if (cloud_app){
+      static double cloud_timer_flash;
+      cloud_timer_flash=func_timer(0.001,1)/2.0;
+      static int64 cloud_timer_flash_int;
+      cloud_timer_flash_int=cloud_timer_flash;
+      if (cloud_timer_flash_int&1) show_cursor=1; else show_cursor=0;
+      if (cloud_timer_flash_int&1) show_flashing=1; else show_flashing=0;
+      //static int qloud_show_cursor=0;
+      //qloud_show_cursor++; if (qloud_show_cursor&1) show_cursor=1; else show_cursor=0;
+    }
 
 
-	//calculate cursor position (base 0)
-	cx=display_page->cursor_x-1; cy=display_page->cursor_y-1;
-	if (display_page->holding_cursor==2){//special case
-	  if (cy<(display_page->height-1)){cy++; cx=0;}
-	}
-
-	if (check_last){
-	  if (show_flashing!=show_flashing_last) content_changed=1;
-	  if (show_cursor!=show_cursor_last) content_changed=1;
-	  if ((cx!=cx_last)||(cy!=cy_last)) content_changed=1;
-	}
-
-	if (!check_last) content_changed=1;
-
-	if (!content_changed){
-	  //No content has changed, so skip the generation & display of this frame
-	  goto no_new_frame;
-	}
-
-	static int64 last_frame_i=0;
-
-	//################################ Setup new frame ################################
-	{
-	  static int32 new_size_bytes;
-	  new_size_bytes=x_monitor*y_monitor*4;
-	  if (new_size_bytes>display_frame[frame_i].bytes){
-	    free(display_frame[frame_i].bgra);
-	    display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
-	    display_frame[frame_i].bytes=new_size_bytes;
-	  }
-	  display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
-	}
-
-	display_surface_offset=display_frame[frame_i].bgra;
-
-	//If a compare & update changes method will be used copy the previous content to the new buffer
-
-	if (check_last){
-	  //find the most recently published page to compare with
-	  //(the most recent READY or DISPLAYING page)
-	  static int64 highest_order;
-	  highest_order=0;
-	  i2=-1;
-	  for (i3=0;i3<=2;i3++){
-	    if ((display_frame[i3].state==DISPLAY_FRAME_STATE__DISPLAYING||
-		 display_frame[i3].state==DISPLAY_FRAME_STATE__READY)
-		&&display_frame[i3].order>highest_order){
-	      highest_order=display_frame[i3].order;
-	      i2=i3;
-	    }
-	  } 
-	  if (i2!=-1){
-	    memcpy(display_frame[frame_i].bgra,display_frame[i2].bgra,display_frame[frame_i].w*display_frame[frame_i].h*4);
-	  }else{
-	    alert("Text Screen Update: Failed to locate previous frame's data for comparison"); 
-	    check_last=0;//never occurs, safe-guard only
-	  }
-	}
-
-	qbg_y_offset=0;//the screen base offset
-	cp=display_page->offset;//read from
-	cp_last=screen_last;//written to for future comparisons
 
 
-	if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
+    //calculate cursor position (base 0)
+    cx=display_page->cursor_x-1; cy=display_page->cursor_y-1;
+    if (display_page->holding_cursor==2){//special case
+      if (cy<(display_page->height-1)){cy++; cx=0;}
+    }
 
-	//outer loop
-	y2=0;
-	for (y=0;y<display_page->height;y++){
-	  x2=0;
-	  for (x=0;x<display_page->width;x++){
+    if (check_last){
+      if (show_flashing!=show_flashing_last) content_changed=1;
+      if (show_cursor!=show_cursor_last) content_changed=1;
+      if ((cx!=cx_last)||(cy!=cy_last)) content_changed=1;
+    }
 
-	    chr=*cp; cp++; col=*cp; cp++;
+    if (!check_last) content_changed=1;
 
-	    //can be skipped?
-	    chr_last=*cp_last; cp_last++; col_last=*cp_last; cp_last++;
+    if (!content_changed){
+      //No content has changed, so skip the generation & display of this frame
+      goto no_new_frame;
+    }
 
-	    if (check_last){
-	      if (chr==chr_last){//same character
-		if (col==col_last){//same colours
-		  if (col&128) if (show_flashing!=show_flashing_last) goto cantskip;//same flash
-		  if (x==cx) if (y==cy) if (show_cursor!=show_cursor_last) goto cantskip;//same cursor
-		  if (x==cx_last){ if (y==cy_last){
-		      if ((cx!=cx_last)||(cy!=cy_last)) goto cantskip;//fixup old cursor's location
-		    }}
-		  goto skip;
-		}}}
-	  cantskip:
-	    cp_last-=2; *cp_last=chr; cp_last++; *cp_last=col; cp_last++;
+    static int64 last_frame_i=0;
 
-	    //set cp2 to the character's data
-	    z2=0;//double-width if set
+    //################################ Setup new frame ################################
+    {
+      static int32 new_size_bytes;
+      new_size_bytes=x_monitor*y_monitor*4;
+      if (new_size_bytes>display_frame[frame_i].bytes){
+        free(display_frame[frame_i].bgra);
+        display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
+        display_frame[frame_i].bytes=new_size_bytes;
+      }
+      display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
+    }
 
-	    if (f>=32){//custom font
+    display_surface_offset=display_frame[frame_i].bgra;
 
-	      static uint32 chr_utf32;
-	      chr_utf32=codepage437_to_unicode16[chr];
+    //If a compare & update changes method will be used copy the previous content to the new buffer
 
-	      static uint8 *rt_data_last=NULL;
-	      static int32 render_option;
-	      static int32 ok;
-	      static uint8 *rt_data;
-	      static int32 rt_w,rt_h,rt_pre_x,rt_post_x;
-	      render_option=1;
-	      if (rt_data_last) free(rt_data_last);
-	      ok=FontRenderTextUTF32(font[f],&chr_utf32,1,render_option,
-				     &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
-	      rt_data_last=rt_data;
-	      cp2=rt_data;
-	      f_pitch=0;
+    if (check_last){
+      //find the most recently published page to compare with
+      //(the most recent READY or DISPLAYING page)
+      static int64 highest_order;
+      highest_order=0;
+      i2=-1;
+      for (i3=0;i3<=2;i3++){
+        if ((display_frame[i3].state==DISPLAY_FRAME_STATE__DISPLAYING||
+         display_frame[i3].state==DISPLAY_FRAME_STATE__READY)
+        &&display_frame[i3].order>highest_order){
+          highest_order=display_frame[i3].order;
+          i2=i3;
+        }
+      } 
+      if (i2!=-1){
+        memcpy(display_frame[frame_i].bgra,display_frame[i2].bgra,display_frame[frame_i].w*display_frame[frame_i].h*4);
+      }else{
+        alert("Text Screen Update: Failed to locate previous frame's data for comparison"); 
+        check_last=0;//never occurs, safe-guard only
+      }
+    }
 
-	    }else{//default font
-	      f_pitch=0;
-	      if (f==8) cp2=&charset8x8[chr][0][0];
-	      if (f==14) cp2=&charset8x16[chr][1][0];
-	      if (f==16) cp2=&charset8x16[chr][0][0];
-	      if (f==(8+1)) {cp2=&charset8x8[chr][0][0]; z2=1;}
-	      if (f==(14+1)) {cp2=&charset8x16[chr][1][0]; z2=1;}
-	      if (f==(16+1)) {cp2=&charset8x16[chr][0][0]; z2=1;}
-	    }
-	    c=col&0xF;//foreground col
-	    c2=(col>>4)&7;//background col
-	    c3=col>>7;//flashing?
-	    if (c3&&show_flashing) c=c2;
-	    i2=paldata[c];
-	    i3=paldata[c2];
-	    lp=display_surface_offset+qbg_y_offset+y2*x_monitor+x2;
-	    z=x_monitor-fontwidth[display_page->font];
+    qbg_y_offset=0;//the screen base offset
+    cp=display_page->offset;//read from
+    cp_last=screen_last;//written to for future comparisons
 
-	    //inner loop
-	    for (y3=0;y3<f_height;y3++){
-	      for (x3=0;x3<f_width;x3++){
-		if (*cp2) *lp=i2; else *lp=i3;
-		if (z2){
-		  if (x3&z2) cp2++;
-		}else{
-		  cp2++;
-		}
-		lp++;
-	      }
-	      lp+=z;
-	      cp2+=f_pitch;
-	    }//y3,x3
 
-	    //draw cursor
-	    if (display_page->cursor_show&&show_cursor&&(cx==x)&&(cy==y)){
-	      static int32 v1,v2;
-	      static uint8 from_bottom;//bottom is the 2nd bottom scanline in width ?x25
-	      static uint8 half_cursor;//if set, overrides all following values
-	      static uint8 size;//if 0, no cursor is drawn, if 255, from begin to bottom
-	      static uint8 begin;//only relevant if from_bottom was not specified
-	      v1=display_page->cursor_firstvalue;
-	      v2=display_page->cursor_lastvalue;
-	      from_bottom=0;
-	      half_cursor=0;
-	      size=0;
-	      begin=0;
-	      //RULE: IF V2=0, NOTHING (UNLESS V1=0)
-	      if (v2==0){
-		if (v1==0){size=1; goto cursor_created;}
-		goto nocursor;//no cursor!
-	      }
-	      //RULE: IF V2<V1, FROM V2 TO BOTTOM
-	      if (v2<v1){begin=v2; size=255; goto cursor_created;}
-	      //RULE: IF V1=V2, SINGLE SCANLINE AT V1 (OR BOTTOM IF V1>=4)
-	      if (v1==v2){
-		if (v1<=3){begin=v1; size=1; goto cursor_created;}
-		from_bottom=1; size=1; goto cursor_created;
-	      }
-	      //NOTE: V2 MUST BE LARGER THAN V1!
-	      //RULE: IF V1>=3, CALC. DIFFERENCE BETWEEN V1 & V2
-	      //                IF DIFF=1, 2 SCANLINES AT BOTTOM
-	      //                IF DIFF=2, 3 SCANLINES AT BOTTOM
-	      //                OTHERWISE HALF CURSOR
-	      if (v1>=3){
-		if ((v2-v1)==1){from_bottom=1; size=2; goto cursor_created;}
-		if ((v2-v1)==2){from_bottom=1; size=3; goto cursor_created;}
-		half_cursor=1; goto cursor_created;
-	      }
-	      //RULE: IF V1<=1, IF V2<=3 FROM V1 TO V3 ELSE FROM V1 TO BOTTOM
-	      if (v1<=1){
-		if (v2<=3){begin=v1;size=v2-v1+1; goto cursor_created;} 
-		begin=v1;size=255; goto cursor_created;
-	      }
-	      //RULE: IF V1=2, IF V2=3, 2 TO 3
-	      //               IF V2=4, 3 SCANLINES AT BOTTOM
-	      //               IF V2>=5, FROM 2 TO BOTTOM
-	      //(assume V1=2)
-	      if (v2==3){begin=2;size=2; goto cursor_created;}
-	      if (v2==4){from_bottom=1; size=3; goto cursor_created;}
-	      begin=2;size=255;
-	    cursor_created:
-	      static int32 cw,ch;
-	      cw=fontwidth[display_page->font]; ch=fontheight[display_page->font];
-	      if (half_cursor){
-		//half cursor
-		y3=ch-1;
-		size=ch/2;
-		c=col&0xF;//foreground col
-		i2=paldata[c];
-	      draw_half_curs:
-		lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
-		for (x3=0;x3<cw;x3++){
-		  *lp=i2;
-		  lp++;
-		}
-		y3--;
-		size--;
-		if (size) goto draw_half_curs;
-	      }else{
-		if (from_bottom){
-		  //cursor from bottom
-		  y3=ch-1;
-		  if (y3==15) y3=14;//leave bottom line blank in 8x16 char set
-		  c=col&0xF;//foreground col
-		  i2=paldata[c];
-		draw_curs_from_bottom:
-		  lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
-		  for (x3=0;x3<cw;x3++){
-		    *lp=i2;
-		    lp++;
-		  }
-		  y3--;
-		  size--;
-		  if (size) goto draw_curs_from_bottom;
-		}else{
-		  //cursor from begin using size
-		  if (begin<ch){
-		    y3=begin;
-		    c=col&0xF;//foreground col
-		    i2=paldata[c];
-		    if (size==255) size=ch-begin;
-		  draw_curs_from_begin:
-		    lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
-		    for (x3=0;x3<cw;x3++){
-		      *lp=i2;
-		      lp++;
-		    }
-		    y3++;
-		    size--;
-		    if (size) goto draw_curs_from_begin;
-		  }
-		}
-	      }
-	    }//draw cursor?
-	  nocursor:
+    if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
 
-	    //outer loop
-	  skip:
-	    x2=x2+fontwidth[display_page->font];
-	  }
-	  y2=y2+fontheight[display_page->font];
+    //outer loop
+    y2=0;
+    for (y=0;y<display_page->height;y++){
+      x2=0;
+      for (x=0;x<display_page->width;x++){
 
-	}
+        chr=*cp; cp++; col=*cp; cp++;
 
-	show_flashing_last=show_flashing;
-	show_cursor_last=show_cursor;
-	cx_last=cx;
-	cy_last=cy;
-	screen_last_valid=1;
+        //can be skipped?
+        chr_last=*cp_last; cp_last++; col_last=*cp_last; cp_last++;
 
-	if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
+        if (check_last){
+          if (chr==chr_last){//same character
+        if (col==col_last){//same colours
+          if (col&128) if (show_flashing!=show_flashing_last) goto cantskip;//same flash
+          if (x==cx) if (y==cy) if (show_cursor!=show_cursor_last) goto cantskip;//same cursor
+          if (x==cx_last){ if (y==cy_last){
+              if ((cx!=cx_last)||(cy!=cy_last)) goto cantskip;//fixup old cursor's location
+            }}
+          goto skip;
+        }}}
+      cantskip:
+        cp_last-=2; *cp_last=chr; cp_last++; *cp_last=col; cp_last++;
 
-	/*
-	//backup for reuse in next frame
-	i=display_frame[frame_i].w*display_frame[frame_i].h*4;
-	if (i!=pixeldatasize){
-	free(pixeldata);
-	pixeldata=(uint8*)malloc(i);
-	pixeldatasize=i;
-	}
-	memcpy(pixeldata,display_frame[frame_i].bgra,i);
-	*/
+        //set cp2 to the character's data
+        z2=0;//double-width if set
 
-	last_frame_i=frame_i;
+        if (f>=32){//custom font
 
-	goto screen_refreshed;
+          static uint32 chr_utf32;
+          chr_utf32=codepage437_to_unicode16[chr];
+
+          static uint8 *rt_data_last=NULL;
+          static int32 render_option;
+          static int32 ok;
+          static uint8 *rt_data;
+          static int32 rt_w,rt_h,rt_pre_x,rt_post_x;
+          render_option=1;
+          if (rt_data_last) free(rt_data_last);
+          ok=FontRenderTextUTF32(font[f],&chr_utf32,1,render_option,
+                     &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
+          rt_data_last=rt_data;
+          cp2=rt_data;
+          f_pitch=0;
+
+        }else{//default font
+          f_pitch=0;
+          if (f==8) cp2=&charset8x8[chr][0][0];
+          if (f==14) cp2=&charset8x16[chr][1][0];
+          if (f==16) cp2=&charset8x16[chr][0][0];
+          if (f==(8+1)) {cp2=&charset8x8[chr][0][0]; z2=1;}
+          if (f==(14+1)) {cp2=&charset8x16[chr][1][0]; z2=1;}
+          if (f==(16+1)) {cp2=&charset8x16[chr][0][0]; z2=1;}
+        }
+        c=col&0xF;//foreground col
+        c2=(col>>4)&7;//background col
+        c3=col>>7;//flashing?
+        if (c3&&show_flashing) c=c2;
+        i2=paldata[c];
+        i3=paldata[c2];
+        lp=display_surface_offset+qbg_y_offset+y2*x_monitor+x2;
+        z=x_monitor-fontwidth[display_page->font];
+
+        //inner loop
+        for (y3=0;y3<f_height;y3++){
+          for (x3=0;x3<f_width;x3++){
+        if (*cp2) *lp=i2; else *lp=i3;
+        if (z2){
+          if (x3&z2) cp2++;
+        }else{
+          cp2++;
+        }
+        lp++;
+          }
+          lp+=z;
+          cp2+=f_pitch;
+        }//y3,x3
+
+        //draw cursor
+        if (display_page->cursor_show&&show_cursor&&(cx==x)&&(cy==y)){
+          static int32 v1,v2;
+          static uint8 from_bottom;//bottom is the 2nd bottom scanline in width ?x25
+          static uint8 half_cursor;//if set, overrides all following values
+          static uint8 size;//if 0, no cursor is drawn, if 255, from begin to bottom
+          static uint8 begin;//only relevant if from_bottom was not specified
+          v1=display_page->cursor_firstvalue;
+          v2=display_page->cursor_lastvalue;
+          from_bottom=0;
+          half_cursor=0;
+          size=0;
+          begin=0;
+          //RULE: IF V2=0, NOTHING (UNLESS V1=0)
+          if (v2==0){
+        if (v1==0){size=1; goto cursor_created;}
+        goto nocursor;//no cursor!
+          }
+          //RULE: IF V2<V1, FROM V2 TO BOTTOM
+          if (v2<v1){begin=v2; size=255; goto cursor_created;}
+          //RULE: IF V1=V2, SINGLE SCANLINE AT V1 (OR BOTTOM IF V1>=4)
+          if (v1==v2){
+        if (v1<=3){begin=v1; size=1; goto cursor_created;}
+        from_bottom=1; size=1; goto cursor_created;
+          }
+          //NOTE: V2 MUST BE LARGER THAN V1!
+          //RULE: IF V1>=3, CALC. DIFFERENCE BETWEEN V1 & V2
+          //                IF DIFF=1, 2 SCANLINES AT BOTTOM
+          //                IF DIFF=2, 3 SCANLINES AT BOTTOM
+          //                OTHERWISE HALF CURSOR
+          if (v1>=3){
+        if ((v2-v1)==1){from_bottom=1; size=2; goto cursor_created;}
+        if ((v2-v1)==2){from_bottom=1; size=3; goto cursor_created;}
+        half_cursor=1; goto cursor_created;
+          }
+          //RULE: IF V1<=1, IF V2<=3 FROM V1 TO V3 ELSE FROM V1 TO BOTTOM
+          if (v1<=1){
+        if (v2<=3){begin=v1;size=v2-v1+1; goto cursor_created;} 
+        begin=v1;size=255; goto cursor_created;
+          }
+          //RULE: IF V1=2, IF V2=3, 2 TO 3
+          //               IF V2=4, 3 SCANLINES AT BOTTOM
+          //               IF V2>=5, FROM 2 TO BOTTOM
+          //(assume V1=2)
+          if (v2==3){begin=2;size=2; goto cursor_created;}
+          if (v2==4){from_bottom=1; size=3; goto cursor_created;}
+          begin=2;size=255;
+        cursor_created:
+          static int32 cw,ch;
+          cw=fontwidth[display_page->font]; ch=fontheight[display_page->font];
+          if (half_cursor){
+        //half cursor
+        y3=ch-1;
+        size=ch/2;
+        c=col&0xF;//foreground col
+        i2=paldata[c];
+          draw_half_curs:
+        lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
+        for (x3=0;x3<cw;x3++){
+          *lp=i2;
+          lp++;
+        }
+        y3--;
+        size--;
+        if (size) goto draw_half_curs;
+          }else{
+        if (from_bottom){
+          //cursor from bottom
+          y3=ch-1;
+          if (y3==15) y3=14;//leave bottom line blank in 8x16 char set
+          c=col&0xF;//foreground col
+          i2=paldata[c];
+        draw_curs_from_bottom:
+          lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
+          for (x3=0;x3<cw;x3++){
+            *lp=i2;
+            lp++;
+          }
+          y3--;
+          size--;
+          if (size) goto draw_curs_from_bottom;
+        }else{
+          //cursor from begin using size
+          if (begin<ch){
+            y3=begin;
+            c=col&0xF;//foreground col
+            i2=paldata[c];
+            if (size==255) size=ch-begin;
+          draw_curs_from_begin:
+            lp=display_surface_offset+qbg_y_offset+(y2+y3)*x_monitor+x2;
+            for (x3=0;x3<cw;x3++){
+              *lp=i2;
+              lp++;
+            }
+            y3++;
+            size--;
+            if (size) goto draw_curs_from_begin;
+          }
+        }
+          }
+        }//draw cursor?
+      nocursor:
+
+        //outer loop
+      skip:
+        x2=x2+fontwidth[display_page->font];
+      }
+      y2=y2+fontheight[display_page->font];
+
+    }
+
+    show_flashing_last=show_flashing;
+    show_cursor_last=show_cursor;
+    cx_last=cx;
+    cy_last=cy;
+    screen_last_valid=1;
+
+    if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
+
+    /*
+    //backup for reuse in next frame
+    i=display_frame[frame_i].w*display_frame[frame_i].h*4;
+    if (i!=pixeldatasize){
+    free(pixeldata);
+    pixeldata=(uint8*)malloc(i);
+    pixeldatasize=i;
+    }
+    memcpy(pixeldata,display_frame[frame_i].bgra,i);
+    */
+
+    last_frame_i=frame_i;
+
+    goto screen_refreshed;
 
       }//text
 
@@ -32767,85 +32775,85 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       if (display_page->bits_per_pixel==32){
 
-	//note: as software->hardware should be avoided at all costs, pixeldata is
-	//      still backed up for comparison purposes because in the very likely
-	//      event the data has not changed there is no point generating a 
-	//      new hardware surface from the software frame when the old hardware surface 
-	//      can be reused. It also saves on BGRA->RGBA conversion on some platforms.
+    //note: as software->hardware should be avoided at all costs, pixeldata is
+    //      still backed up for comparison purposes because in the very likely
+    //      event the data has not changed there is no point generating a 
+    //      new hardware surface from the software frame when the old hardware surface 
+    //      can be reused. It also saves on BGRA->RGBA conversion on some platforms.
 
-	if (!BGRA_to_RGBA){
-	  //find the most recently published page to compare with
-	  //(the most recent READY or DISPLAYING page)
-	  static int64 highest_order;
-	  highest_order=0;
-	  i2=-1;
-	  for (i3=0;i3<=2;i3++){
-	    if ((display_frame[i3].state==DISPLAY_FRAME_STATE__DISPLAYING||
-		 display_frame[i3].state==DISPLAY_FRAME_STATE__READY)
-		&&display_frame[i3].order>highest_order){
-	      highest_order=display_frame[i3].order;
-	      i2=i3;
-	    }
-	  } 
+    if (!BGRA_to_RGBA){
+      //find the most recently published page to compare with
+      //(the most recent READY or DISPLAYING page)
+      static int64 highest_order;
+      highest_order=0;
+      i2=-1;
+      for (i3=0;i3<=2;i3++){
+        if ((display_frame[i3].state==DISPLAY_FRAME_STATE__DISPLAYING||
+         display_frame[i3].state==DISPLAY_FRAME_STATE__READY)
+        &&display_frame[i3].order>highest_order){
+          highest_order=display_frame[i3].order;
+          i2=i3;
+        }
+      } 
  
-	  if (force_display_update) goto update_display32b; //force update
-	  if (i2!=-1){  
-	    i=display_page->width*display_page->height*4;
-	    if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;  
-	    if (!screen_last_valid) goto update_display32b; //force update because of mode change?
-	    if (qb64_ime_reading==1) goto screen_refreshed;
-	    goto no_new_frame;//no need to update display
-	  }
-	update_display32b:;
-	}else{
-	  i=display_page->width*display_page->height*4;
-	  if (i!=pixeldatasize){
-	    free(pixeldata);
-	    pixeldata=(uint8*)malloc(i);
-	    pixeldatasize=i;
-	    goto update_display32;
-	  }
-	  if (force_display_update) goto update_display32; //force update
-	  if (memcmp(pixeldata,display_page->offset,i)) goto update_display32;
-	  if (!screen_last_valid) goto update_display32; //force update because of mode change?
-	  if (qb64_ime_reading==1) goto screen_refreshed;
-	  goto no_new_frame;//no need to update display
-	update_display32:
-	  memcpy(pixeldata,display_page->offset,i);
-	}
+      if (force_display_update) goto update_display32b; //force update
+      if (i2!=-1){  
+        i=display_page->width*display_page->height*4;
+        if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;  
+        if (!screen_last_valid) goto update_display32b; //force update because of mode change?
+        if (qb64_ime_reading==1) goto screen_refreshed;
+        goto no_new_frame;//no need to update display
+      }
+    update_display32b:;
+    }else{
+      i=display_page->width*display_page->height*4;
+      if (i!=pixeldatasize){
+        free(pixeldata);
+        pixeldata=(uint8*)malloc(i);
+        pixeldatasize=i;
+        goto update_display32;
+      }
+      if (force_display_update) goto update_display32; //force update
+      if (memcmp(pixeldata,display_page->offset,i)) goto update_display32;
+      if (!screen_last_valid) goto update_display32; //force update because of mode change?
+      if (qb64_ime_reading==1) goto screen_refreshed;
+      goto no_new_frame;//no need to update display
+    update_display32:
+      memcpy(pixeldata,display_page->offset,i);
+    }
 
 
-	//################################ Setup new frame ################################
-	{
-	  static int32 new_size_bytes;
-	  new_size_bytes=x_monitor*y_monitor*4;
-	  if (new_size_bytes>display_frame[frame_i].bytes){
-	    free(display_frame[frame_i].bgra);
-	    display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
-	    display_frame[frame_i].bytes=new_size_bytes;
-	  }
-	  display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
-	}
+    //################################ Setup new frame ################################
+    {
+      static int32 new_size_bytes;
+      new_size_bytes=x_monitor*y_monitor*4;
+      if (new_size_bytes>display_frame[frame_i].bytes){
+        free(display_frame[frame_i].bgra);
+        display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
+        display_frame[frame_i].bytes=new_size_bytes;
+      }
+      display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
+    }
 
-	if (!BGRA_to_RGBA){
-	  memcpy(display_frame[frame_i].bgra,display_page->offset,display_frame[frame_i].w*display_frame[frame_i].h*4);
-	}else{
-	  static uint32 col;
-	  static uint32 *src_pos;
-	  static uint32 *dst_pos;
-	  src_pos=(uint32*)pixeldata;
-	  dst_pos=display_frame[frame_i].bgra;
-	  static int32 pixels;
-	  pixels=display_frame[frame_i].w*display_frame[frame_i].h;
-	  if (pixels>0){
-	    while(pixels--){
-	      col=*src_pos++;
-	      *dst_pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
-	    }
-	  }
-	}
+    if (!BGRA_to_RGBA){
+      memcpy(display_frame[frame_i].bgra,display_page->offset,display_frame[frame_i].w*display_frame[frame_i].h*4);
+    }else{
+      static uint32 col;
+      static uint32 *src_pos;
+      static uint32 *dst_pos;
+      src_pos=(uint32*)pixeldata;
+      dst_pos=display_frame[frame_i].bgra;
+      static int32 pixels;
+      pixels=display_frame[frame_i].w*display_frame[frame_i].h;
+      if (pixels>0){
+        while(pixels--){
+          col=*src_pos++;
+          *dst_pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
+        }
+      }
+    }
 
-	goto screen_refreshed;
+    goto screen_refreshed;
       }//32
 
 
@@ -32864,11 +32872,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //assume <=256 colors using palette
 
       if (display_page->compatible_mode==10){//update SCREEN 10 palette
-	i2=GetTicks()&512;
-	if (i2) i2=1;
-	for (i=0;i<=3;i++){
-	  display_page->pal[i]=pal_mode10[i2][display_page->pal[i+4]];//pal_mode10[0-1][0-8]
-	}
+    i2=GetTicks()&512;
+    if (i2) i2=1;
+    for (i=0;i<=3;i++){
+      display_page->pal[i]=pal_mode10[i2][display_page->pal[i+4]];//pal_mode10[0-1][0-8]
+    }
       }
 
       i=display_page->width*display_page->height;
@@ -32876,10 +32884,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //data changed?
       if (i!=pixeldatasize){
-	free(pixeldata);
-	pixeldata=(uint8*)malloc(i);
-	pixeldatasize=i;
-	goto update_display;
+    free(pixeldata);
+    pixeldata=(uint8*)malloc(i);
+    pixeldatasize=i;
+    goto update_display;
       }
 
       if (force_display_update) goto update_display; //force update
@@ -32898,14 +32906,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //################################ Setup new frame ################################
       {
-	static int32 new_size_bytes;
-	new_size_bytes=x_monitor*y_monitor*4;
-	if (new_size_bytes>display_frame[frame_i].bytes){
-	  free(display_frame[frame_i].bgra);
-	  display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
-	  display_frame[frame_i].bytes=new_size_bytes;
-	}
-	display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
+    static int32 new_size_bytes;
+    new_size_bytes=x_monitor*y_monitor*4;
+    if (new_size_bytes>display_frame[frame_i].bytes){
+      free(display_frame[frame_i].bgra);
+      display_frame[frame_i].bgra=(uint32*)malloc(new_size_bytes);
+      display_frame[frame_i].bytes=new_size_bytes;
+    }
+    display_frame[frame_i].w=x_monitor; display_frame[frame_i].h=y_monitor;
       }
 
       display_surface_offset=display_frame[frame_i].bgra;
@@ -32922,9 +32930,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       x2=display_page->width;
       y2=display_page->height;
       for (y=0;y<y2;y++){
-	for (x=0;x<x2;x++){
-	  *lp2++=paldata[*cp++];
-	}//x
+    for (x=0;x<x2;x++){
+      *lp2++=paldata[*cp++];
+    }//x
       }//y
       if (BGRA_to_RGBA) swap_paldata_BGRA_with_RGBA();
 
@@ -32946,17 +32954,17 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 #ifdef QB64_IME
       //display
       if (qb64_ime_reading==1){
-	static SDL_Rect drect;
-	drect.x = display_surface->w-ime_DrawMessageBlock_lastpixeloffset;
-	drect.y = 0;
-	drect.w = ime_DrawMessageBlock_lastpixeloffset;
-	drect.h = 32;
-	static SDL_Rect srect;
-	srect.x = 0;
-	srect.y = 0;
-	srect.w = ime_DrawMessageBlock_lastpixeloffset;
-	srect.h = 32;
-	SDL_BlitSurface(ime_back, &srect, display_surface, &drect);
+    static SDL_Rect drect;
+    drect.x = display_surface->w-ime_DrawMessageBlock_lastpixeloffset;
+    drect.y = 0;
+    drect.w = ime_DrawMessageBlock_lastpixeloffset;
+    drect.h = 32;
+    static SDL_Rect srect;
+    srect.x = 0;
+    srect.y = 0;
+    srect.w = ime_DrawMessageBlock_lastpixeloffset;
+    srect.h = 32;
+    SDL_BlitSurface(ime_back, &srect, display_surface, &drect);
       }
 #endif
 #endif //NO_S_D_L
@@ -32974,52 +32982,52 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
       if (cloud_app){
-	if (cloud_chdir_complete){
+    if (cloud_chdir_complete){
 
 #ifdef QB64_WINDOWS
-	  /*
-	    static FILE *cloud_screenshot_file_handle=NULL;
-	    if (cloud_screenshot_file_handle==NULL) cloud_screenshot_file_handle=fopen("output_image.raw","w+b");
-	    fseek ( cloud_screenshot_file_handle , 0 , SEEK_SET );//reset file pointer to beginning of file
-	    static int32 w,h;
-	    w=display_frame[frame_i].w;
-	    h=display_frame[frame_i].h;
-	    static int32 wh[2];
-	    wh[0]=w;
-	    wh[1]=h;
-	    fwrite (&wh[0] , 8, 1, cloud_screenshot_file_handle);
-	    fwrite (display_frame[frame_i].bgra , w*h*4, 1, cloud_screenshot_file_handle);
-	    fflush(cloud_screenshot_file_handle);
-	  */
+      /*
+        static FILE *cloud_screenshot_file_handle=NULL;
+        if (cloud_screenshot_file_handle==NULL) cloud_screenshot_file_handle=fopen("output_image.raw","w+b");
+        fseek ( cloud_screenshot_file_handle , 0 , SEEK_SET );//reset file pointer to beginning of file
+        static int32 w,h;
+        w=display_frame[frame_i].w;
+        h=display_frame[frame_i].h;
+        static int32 wh[2];
+        wh[0]=w;
+        wh[1]=h;
+        fwrite (&wh[0] , 8, 1, cloud_screenshot_file_handle);
+        fwrite (display_frame[frame_i].bgra , w*h*4, 1, cloud_screenshot_file_handle);
+        fflush(cloud_screenshot_file_handle);
+      */
 
-	  static HANDLE cloud_screenshot_file_handle=NULL;
-	  if (cloud_screenshot_file_handle==NULL) cloud_screenshot_file_handle=CreateFile("output_image.raw", GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 
-											  /*FILE_ATTRIBUTE_NORMAL*/FILE_FLAG_WRITE_THROUGH, NULL);
-
-
-	  //fseek ( cloud_screenshot_file_handle , 0 , SEEK_SET );//reset file pointer to beginning of file
+      static HANDLE cloud_screenshot_file_handle=NULL;
+      if (cloud_screenshot_file_handle==NULL) cloud_screenshot_file_handle=CreateFile("output_image.raw", GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 
+                                              /*FILE_ATTRIBUTE_NORMAL*/FILE_FLAG_WRITE_THROUGH, NULL);
 
 
-	  static int32 w,h,index=0;
-	  w=display_frame[frame_i].w;
-	  h=display_frame[frame_i].h;
-	  index++;
-	  static int32 header[3];
-	  header[0]=index;
-	  header[1]=w;
-	  header[2]=h;
-
-	  SetFilePointer(cloud_screenshot_file_handle,12,0,FILE_BEGIN);
-	  WriteFile(cloud_screenshot_file_handle, display_frame[frame_i].bgra, w*h*4, NULL, NULL);
-	  FlushFileBuffers(cloud_screenshot_file_handle);
-	  SetFilePointer(cloud_screenshot_file_handle,0,0,FILE_BEGIN);
-	  WriteFile(cloud_screenshot_file_handle, &header[0], 12, NULL, NULL);
+      //fseek ( cloud_screenshot_file_handle , 0 , SEEK_SET );//reset file pointer to beginning of file
 
 
-	  //CloseHandle(cloud_screenshot_file_handle);
+      static int32 w,h,index=0;
+      w=display_frame[frame_i].w;
+      h=display_frame[frame_i].h;
+      index++;
+      static int32 header[3];
+      header[0]=index;
+      header[1]=w;
+      header[2]=h;
+
+      SetFilePointer(cloud_screenshot_file_handle,12,0,FILE_BEGIN);
+      WriteFile(cloud_screenshot_file_handle, display_frame[frame_i].bgra, w*h*4, NULL, NULL);
+      FlushFileBuffers(cloud_screenshot_file_handle);
+      SetFilePointer(cloud_screenshot_file_handle,0,0,FILE_BEGIN);
+      WriteFile(cloud_screenshot_file_handle, &header[0], 12, NULL, NULL);
+
+
+      //CloseHandle(cloud_screenshot_file_handle);
 
 #endif
-	}
+    }
       }
 
     no_new_frame:;
@@ -33029,8 +33037,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //cancel frame if not built
       if (display_frame[frame_i].state==DISPLAY_FRAME_STATE__BUILDING){
-	last_hardware_display_frame_order=display_frame[frame_i].order;
-	display_frame[frame_i].state=DISPLAY_FRAME_STATE__EMPTY;
+    last_hardware_display_frame_order=display_frame[frame_i].order;
+    display_frame[frame_i].state=DISPLAY_FRAME_STATE__EMPTY;
       }
 
 
@@ -33205,45 +33213,45 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       x2=x;
       //check multimapped NUMPAD keys
       if ((x>=(VK+QBVK_KP0))&&(x<=(VK+QBVK_KP_ENTER))){
-	numpadkey=4294967296ll;
-	if ((x>=(VK+QBVK_KP0))&&(x<=(VK+QBVK_KP9))){x2=x-(VK+QBVK_KP0)+48; goto onnumpad;}
-	if (x==(VK+QBVK_KP_PERIOD)){x2=46; goto onnumpad;}
-	if (x==(VK+QBVK_KP_DIVIDE)){x2=47; goto onnumpad;}
-	if (x==(VK+QBVK_KP_MULTIPLY)){x2=42; goto onnumpad;}
-	if (x==(VK+QBVK_KP_MINUS)){x2=45; goto onnumpad;}
-	if (x==(VK+QBVK_KP_PLUS)){x2=43; goto onnumpad;}
-	if (x==(VK+QBVK_KP_ENTER)){x2=13; goto onnumpad;}
+    numpadkey=4294967296ll;
+    if ((x>=(VK+QBVK_KP0))&&(x<=(VK+QBVK_KP9))){x2=x-(VK+QBVK_KP0)+48; goto onnumpad;}
+    if (x==(VK+QBVK_KP_PERIOD)){x2=46; goto onnumpad;}
+    if (x==(VK+QBVK_KP_DIVIDE)){x2=47; goto onnumpad;}
+    if (x==(VK+QBVK_KP_MULTIPLY)){x2=42; goto onnumpad;}
+    if (x==(VK+QBVK_KP_MINUS)){x2=45; goto onnumpad;}
+    if (x==(VK+QBVK_KP_PLUS)){x2=43; goto onnumpad;}
+    if (x==(VK+QBVK_KP_ENTER)){x2=13; goto onnumpad;}
       }
       if ((x>=(QBK+0))&&(x<=(QBK+10))){
-	numpadkey=4294967296ll;
-	x2=x-QBK;
-	if (x2==0){x2=82<<8; goto onnumpad;}
-	if (x2==1){x2=79<<8; goto onnumpad;}
-	if (x2==2){x2=80<<8; goto onnumpad;}
-	if (x2==3){x2=81<<8; goto onnumpad;}
-	if (x2==4){x2=75<<8; goto onnumpad;}
-	if (x2==5){x2=76<<8; goto onnumpad;}
-	if (x2==6){x2=77<<8; goto onnumpad;}
-	if (x2==7){x2=71<<8; goto onnumpad;}
-	if (x2==8){x2=72<<8; goto onnumpad;}
-	if (x2==9){x2=73<<8; goto onnumpad;}
-	if (x2==10){x2=83<<8; goto onnumpad;}
+    numpadkey=4294967296ll;
+    x2=x-QBK;
+    if (x2==0){x2=82<<8; goto onnumpad;}
+    if (x2==1){x2=79<<8; goto onnumpad;}
+    if (x2==2){x2=80<<8; goto onnumpad;}
+    if (x2==3){x2=81<<8; goto onnumpad;}
+    if (x2==4){x2=75<<8; goto onnumpad;}
+    if (x2==5){x2=76<<8; goto onnumpad;}
+    if (x2==6){x2=77<<8; goto onnumpad;}
+    if (x2==7){x2=71<<8; goto onnumpad;}
+    if (x2==8){x2=72<<8; goto onnumpad;}
+    if (x2==9){x2=73<<8; goto onnumpad;}
+    if (x2==10){x2=83<<8; goto onnumpad;}
       }
     onnumpad:;
 
       static int32 i;
       for (i=0;i<=keyup_mask_last;i++){
-	if (x==keyup_mask[i]){
-	  keyup_mask[i]=0;
-	  goto key_handled;
-	}
+    if (x==keyup_mask[i]){
+      keyup_mask[i]=0;
+      goto key_handled;
+    }
       }
 
       //add x2 to keyhit buffer
       static int32 z;
       z=(keyhit_nextfree+1)&0x1FFF;
       if (z==keyhit_next){//remove oldest message when cyclic buffer is full
-	keyhit_next=(keyhit_next+1)&0x1FFF;
+    keyhit_next=(keyhit_next+1)&0x1FFF;
       }
       static int32 sx;
       sx=x2; sx=-sx; x2=sx;//negate x2
@@ -33278,7 +33286,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (scancode_lookup[r*10+2]) scancodeup(scancode_lookup[r*10+1]);
 
       if (x==0x5200){//INSERT lock emulation
-	update_shift_state();
+    update_shift_state();
       }
 
       goto key_handled;
@@ -33345,10 +33353,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     //note: On early keyboards without a Pause key (before the introduction of 101-key keyboards) the Pause function was assigned to Ctrl+NumLock, and the Break function to Ctrl+ScrLock; these key-combinations still work with most programs, even on modern PCs with modern keyboards.
     //CTRL+BREAK handling
     if (
-	(x==(VK+QBVK_BREAK))
-	|| ((x==(VK+QBVK_SCROLLOCK))&&(keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL))) 
-	|| ((x==(VK+QBVK_F15))&&(keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL))) 
-	){
+    (x==(VK+QBVK_BREAK))
+    || ((x==(VK+QBVK_SCROLLOCK))&&(keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL))) 
+    || ((x==(VK+QBVK_F15))&&(keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL))) 
+    ){
       if (exit_blocked){exit_value|=2; goto key_handled;}
       close_program=1;
       goto key_handled;
@@ -33362,31 +33370,31 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       goto key_handled;
     }else{
       if (suspend_program&1){
-	suspend_program^=1;
-	goto key_handled;
+    suspend_program^=1;
+    goto key_handled;
       }
     }
 
     //ALT+ENTER
     if (keyheld(VK+QBVK_RALT)||keyheld(VK+QBVK_LALT)){
       if (x==13){
-	static int32 fs_mode,fs_smooth;
-	fs_mode=full_screen_set;
-	if (fs_mode==-1) fs_mode=full_screen;
-	fs_smooth=fullscreen_smooth;
-	if (fs_mode==2&&fs_smooth==1){
-	  fs_mode=0;
-	}else{
-	  if (fs_smooth==0&&fs_mode!=0){
-	    fullscreen_smooth=1;
-	  }else{
-	    fs_mode++;
-	    fullscreen_smooth=0;   
-	  }
-	} 
-	if (full_screen!=fs_mode) full_screen_set=fs_mode;
-	force_display_update=1;
-	goto key_handled;
+    static int32 fs_mode,fs_smooth;
+    fs_mode=full_screen_set;
+    if (fs_mode==-1) fs_mode=full_screen;
+    fs_smooth=fullscreen_smooth;
+    if (fs_mode==2&&fs_smooth==1){
+      fs_mode=0;
+    }else{
+      if (fs_smooth==0&&fs_mode!=0){
+        fullscreen_smooth=1;
+      }else{
+        fs_mode++;
+        fullscreen_smooth=0;   
+      }
+    } 
+    if (full_screen!=fs_mode) full_screen_set=fs_mode;
+    force_display_update=1;
+    goto key_handled;
       }
     }
 
@@ -33399,29 +33407,29 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       x2=x;
       //check multimapped NUMPAD keys
       if ((x>=(VK+QBVK_KP0))&&(x<=(VK+QBVK_KP_ENTER))){
-	numpadkey=4294967296ll;
-	if ((x>=(VK+QBVK_KP0))&&(x<=(VK+QBVK_KP9))){x2=x-(VK+QBVK_KP0)+48; goto onnumpad;}
-	if (x==(VK+QBVK_KP_PERIOD)){x2=46; goto onnumpad;}
-	if (x==(VK+QBVK_KP_DIVIDE)){x2=47; goto onnumpad;}
-	if (x==(VK+QBVK_KP_MULTIPLY)){x2=42; goto onnumpad;}
-	if (x==(VK+QBVK_KP_MINUS)){x2=45; goto onnumpad;}
-	if (x==(VK+QBVK_KP_PLUS)){x2=43; goto onnumpad;}
-	if (x==(VK+QBVK_KP_ENTER)){x2=13; goto onnumpad;}
+    numpadkey=4294967296ll;
+    if ((x>=(VK+QBVK_KP0))&&(x<=(VK+QBVK_KP9))){x2=x-(VK+QBVK_KP0)+48; goto onnumpad;}
+    if (x==(VK+QBVK_KP_PERIOD)){x2=46; goto onnumpad;}
+    if (x==(VK+QBVK_KP_DIVIDE)){x2=47; goto onnumpad;}
+    if (x==(VK+QBVK_KP_MULTIPLY)){x2=42; goto onnumpad;}
+    if (x==(VK+QBVK_KP_MINUS)){x2=45; goto onnumpad;}
+    if (x==(VK+QBVK_KP_PLUS)){x2=43; goto onnumpad;}
+    if (x==(VK+QBVK_KP_ENTER)){x2=13; goto onnumpad;}
       }
       if ((x>=(QBK+0))&&(x<=(QBK+10))){
-	numpadkey=4294967296ll;
-	x2=x-QBK;
-	if (x2==0){x2=82<<8; goto onnumpad;}
-	if (x2==1){x2=79<<8; goto onnumpad;}
-	if (x2==2){x2=80<<8; goto onnumpad;}
-	if (x2==3){x2=81<<8; goto onnumpad;}
-	if (x2==4){x2=75<<8; goto onnumpad;}
-	if (x2==5){x2=76<<8; goto onnumpad;}
-	if (x2==6){x2=77<<8; goto onnumpad;}
-	if (x2==7){x2=71<<8; goto onnumpad;}
-	if (x2==8){x2=72<<8; goto onnumpad;}
-	if (x2==9){x2=73<<8; goto onnumpad;}
-	if (x2==10){x2=83<<8; goto onnumpad;}
+    numpadkey=4294967296ll;
+    x2=x-QBK;
+    if (x2==0){x2=82<<8; goto onnumpad;}
+    if (x2==1){x2=79<<8; goto onnumpad;}
+    if (x2==2){x2=80<<8; goto onnumpad;}
+    if (x2==3){x2=81<<8; goto onnumpad;}
+    if (x2==4){x2=75<<8; goto onnumpad;}
+    if (x2==5){x2=76<<8; goto onnumpad;}
+    if (x2==6){x2=77<<8; goto onnumpad;}
+    if (x2==7){x2=71<<8; goto onnumpad;}
+    if (x2==8){x2=72<<8; goto onnumpad;}
+    if (x2==9){x2=73<<8; goto onnumpad;}
+    if (x2==10){x2=83<<8; goto onnumpad;}
       }
     onnumpad:;
 
@@ -33431,235 +33439,235 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
       //ON KEY trapping
       {//new scope
-	static int32 block_onkey=0;
-	static int32 f,x3,scancode,extended,c,flags_mask;
-	int32 i,i2;//must not be static!
+    static int32 block_onkey=0;
+    static int32 f,x3,scancode,extended,c,flags_mask;
+    int32 i,i2;//must not be static!
 
-	//establish scancode (if any)
-	scancode=0;
-	if (x<=255){scancode=scancode_lookup[x*10+1]; goto onkey_gotscancode;}
-	//*check for 2 byte scancodes here
-	x3=x;
-	if ((x3>=(VK+QBVK_KP0))&&(x3<=(VK+QBVK_KP_ENTER))){
-	  x3=(x3-(VK+QBVK_KP0)+256)*256;
-	  goto onkey_numpadkey;
-	}
-	if ((x3>=(QBK+0))&&(x3<=(QBK+0+(QBVK_KP_PERIOD-QBVK_KP0)))){
-	  x3=(x3-(QBK+0)+256)*256;
-	  goto onkey_numpadkey;
-	}
-	if (x3<=65535){
-	onkey_numpadkey:
-	  i=(x3>>8)+256;
-	  if (scancode_lookup[i*10+2]) scancode=scancode_lookup[i*10+1];
-	}
+    //establish scancode (if any)
+    scancode=0;
+    if (x<=255){scancode=scancode_lookup[x*10+1]; goto onkey_gotscancode;}
+    //*check for 2 byte scancodes here
+    x3=x;
+    if ((x3>=(VK+QBVK_KP0))&&(x3<=(VK+QBVK_KP_ENTER))){
+      x3=(x3-(VK+QBVK_KP0)+256)*256;
+      goto onkey_numpadkey;
+    }
+    if ((x3>=(QBK+0))&&(x3<=(QBK+0+(QBVK_KP_PERIOD-QBVK_KP0)))){
+      x3=(x3-(QBK+0)+256)*256;
+      goto onkey_numpadkey;
+    }
+    if (x3<=65535){
+    onkey_numpadkey:
+      i=(x3>>8)+256;
+      if (scancode_lookup[i*10+2]) scancode=scancode_lookup[i*10+1];
+    }
       onkey_gotscancode:
 
-	//check modifier keys
-	if (x==(VK+QBVK_LSHIFT)){
-	  scancode=42;
-	  flags_mask=3;
-	}
-	if (x==(VK+QBVK_RSHIFT)){
-	  scancode=54;
-	  flags_mask=3;
-	}
-	if (x==(VK+QBVK_LALT)){
-	  scancode=56;
-	  flags_mask=8;
-	}
-	if (x==(VK+QBVK_RALT)){
-	  scancode=56;
-	  flags_mask=8;
-	}
-	if (x==(VK+QBVK_LCTRL)){
-	  scancode=29;
-	  flags_mask=4;
-	}
-	if (x==(VK+QBVK_RCTRL)){
-	  scancode=29;
-	  flags_mask=4;
-	}
-	if (x==(VK+QBVK_NUMLOCK)){
-	  scancode=69;
-	  flags_mask=32;
-	}
-	if (x==(VK+QBVK_CAPSLOCK)){
-	  scancode=58;
-	  flags_mask=64;
-	}
-	if (x==(VK+QBVK_SCROLLOCK)){
-	  scancode=70;
-	  //note: no mask required
-	}
+    //check modifier keys
+    if (x==(VK+QBVK_LSHIFT)){
+      scancode=42;
+      flags_mask=3;
+    }
+    if (x==(VK+QBVK_RSHIFT)){
+      scancode=54;
+      flags_mask=3;
+    }
+    if (x==(VK+QBVK_LALT)){
+      scancode=56;
+      flags_mask=8;
+    }
+    if (x==(VK+QBVK_RALT)){
+      scancode=56;
+      flags_mask=8;
+    }
+    if (x==(VK+QBVK_LCTRL)){
+      scancode=29;
+      flags_mask=4;
+    }
+    if (x==(VK+QBVK_RCTRL)){
+      scancode=29;
+      flags_mask=4;
+    }
+    if (x==(VK+QBVK_NUMLOCK)){
+      scancode=69;
+      flags_mask=32;
+    }
+    if (x==(VK+QBVK_CAPSLOCK)){
+      scancode=58;
+      flags_mask=64;
+    }
+    if (x==(VK+QBVK_SCROLLOCK)){
+      scancode=70;
+      //note: no mask required
+    }
 
-	//establish if key is an extended key
-	extended=0;
-	//arrow-pad (note: num-pad is ignored because x is a QB64 pure key value and only refers to the arrow-pad)
-	if (x==0x4B00)extended=1;
-	if (x==0x4800)extended=1;
-	if (x==0x4D00)extended=1;
-	if (x==0x5000)extended=1;
-	//num-pad extended keys
-	if (x==VK+QBVK_KP_DIVIDE)extended=1;
-	if (x==VK+QBVK_KP_ENTER)extended=1;
-	//ins/del/hom/end/pgu/pgd pad
-	if (x==0x5200)extended=1;
-	if (x==0x4700)extended=1;
-	if (x==0x4900)extended=1;
-	if (x==0x5300)extended=1;
-	if (x==0x4F00)extended=1;
-	if (x==0x5100)extended=1;
-	//right alt/right control
-	if (x==VK+QBVK_RCTRL)extended=1;
-	if (x==VK+QBVK_RALT)extended=1;
+    //establish if key is an extended key
+    extended=0;
+    //arrow-pad (note: num-pad is ignored because x is a QB64 pure key value and only refers to the arrow-pad)
+    if (x==0x4B00)extended=1;
+    if (x==0x4800)extended=1;
+    if (x==0x4D00)extended=1;
+    if (x==0x5000)extended=1;
+    //num-pad extended keys
+    if (x==VK+QBVK_KP_DIVIDE)extended=1;
+    if (x==VK+QBVK_KP_ENTER)extended=1;
+    //ins/del/hom/end/pgu/pgd pad
+    if (x==0x5200)extended=1;
+    if (x==0x4700)extended=1;
+    if (x==0x4900)extended=1;
+    if (x==0x5300)extended=1;
+    if (x==0x4F00)extended=1;
+    if (x==0x5100)extended=1;
+    //right alt/right control
+    if (x==VK+QBVK_RCTRL)extended=1;
+    if (x==VK+QBVK_RALT)extended=1;
 
-	if (!block_onkey){
+    if (!block_onkey){
 
-	  //priority #1: user defined keys
-	  if (scancode){
-	    for (i=0;i<=31;i++){
-	      if (onkey[i].key_scancode==scancode){
-		if (onkey[i].active){
-		  if (onkey[i].id){
-		    //check keyboard flags
-		    f=onkey[i].key_flags;
-		    //0 No keyboard flag, 1-3 Either Shift key, 4 Ctrl key, 8 Alt key,32 NumLock key,64 Caps Lock key, 128 Extended keys on a 101-key keyboard
-		    //To specify multiple shift states, add the values together. For example, a value of 12 specifies that the user-defined key is used in combination with the Ctrl and Alt keys.
-		    if ((flags_mask&3)==0){
-		      if (f&3){
-			if (keyheld(VK+QBVK_LSHIFT)==0&&keyheld(VK+QBVK_RSHIFT)==0) goto wrong_flags;
-		      }else{
-			if (keyheld(VK+QBVK_LSHIFT)||keyheld(VK+QBVK_RSHIFT)) goto wrong_flags;
-		      }
-		    }
-		    if ((flags_mask&4)==0){
-		      if (f&4){
-			if (keyheld(VK+QBVK_LCTRL)==0&&keyheld(VK+QBVK_RCTRL)==0) goto wrong_flags;
-		      }else{
-			if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) goto wrong_flags;
-		      }
-		    }
-		    if ((flags_mask&8)==0){
-		      if (f&8){
-			if (keyheld(VK+QBVK_LALT)==0&&keyheld(VK+QBVK_RALT)==0) goto wrong_flags;
-		      }else{
-			if (keyheld(VK+QBVK_LALT)||keyheld(VK+QBVK_RALT)) goto wrong_flags;
-		      }
-		    }
-		    if ((flags_mask&32)==0){
-		      if (f&32){
-			if (keyheld(VK+QBVK_NUMLOCK)==0) goto wrong_flags;
-			//*revise
-		      }
-		    }
-		    if ((flags_mask&64)==0){
-		      if (f&64){
-			if (keyheld(VK+QBVK_CAPSLOCK)==0) goto wrong_flags;
-			//*revise
-		      }
-		    }
-		    if ((flags_mask&128)==0){
-		      if (((f&128)/128)!=extended) goto wrong_flags;
-		    }
-		    if (onkey[i].active==1){//(1)ON
-		      onkey[i].state++;
-		    }else{//(2)STOP
-		      onkey[i].state=1;
-		    }
+      //priority #1: user defined keys
+      if (scancode){
+        for (i=0;i<=31;i++){
+          if (onkey[i].key_scancode==scancode){
+        if (onkey[i].active){
+          if (onkey[i].id){
+            //check keyboard flags
+            f=onkey[i].key_flags;
+            //0 No keyboard flag, 1-3 Either Shift key, 4 Ctrl key, 8 Alt key,32 NumLock key,64 Caps Lock key, 128 Extended keys on a 101-key keyboard
+            //To specify multiple shift states, add the values together. For example, a value of 12 specifies that the user-defined key is used in combination with the Ctrl and Alt keys.
+            if ((flags_mask&3)==0){
+              if (f&3){
+            if (keyheld(VK+QBVK_LSHIFT)==0&&keyheld(VK+QBVK_RSHIFT)==0) goto wrong_flags;
+              }else{
+            if (keyheld(VK+QBVK_LSHIFT)||keyheld(VK+QBVK_RSHIFT)) goto wrong_flags;
+              }
+            }
+            if ((flags_mask&4)==0){
+              if (f&4){
+            if (keyheld(VK+QBVK_LCTRL)==0&&keyheld(VK+QBVK_RCTRL)==0) goto wrong_flags;
+              }else{
+            if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) goto wrong_flags;
+              }
+            }
+            if ((flags_mask&8)==0){
+              if (f&8){
+            if (keyheld(VK+QBVK_LALT)==0&&keyheld(VK+QBVK_RALT)==0) goto wrong_flags;
+              }else{
+            if (keyheld(VK+QBVK_LALT)||keyheld(VK+QBVK_RALT)) goto wrong_flags;
+              }
+            }
+            if ((flags_mask&32)==0){
+              if (f&32){
+            if (keyheld(VK+QBVK_NUMLOCK)==0) goto wrong_flags;
+            //*revise
+              }
+            }
+            if ((flags_mask&64)==0){
+              if (f&64){
+            if (keyheld(VK+QBVK_CAPSLOCK)==0) goto wrong_flags;
+            //*revise
+              }
+            }
+            if ((flags_mask&128)==0){
+              if (((f&128)/128)!=extended) goto wrong_flags;
+            }
+            if (onkey[i].active==1){//(1)ON
+              onkey[i].state++;
+            }else{//(2)STOP
+              onkey[i].state=1;
+            }
 
-		    qbevent=1;
+            qbevent=1;
 
-		    //mask trigger key
-		    for (i=0;i<=keyup_mask_last;i++){
-		      if (!keyup_mask[i]){
-			keyup_mask[i]=x;  
-			break;
-		      }
-		    }
-		    if (i==keyup_mask_last+1){
-		      if (keyup_mask_last<255){
-			keyup_mask[i]=x;
-			keyup_mask_last++;
-		      }
-		    }
+            //mask trigger key
+            for (i=0;i<=keyup_mask_last;i++){
+              if (!keyup_mask[i]){
+            keyup_mask[i]=x;  
+            break;
+              }
+            }
+            if (i==keyup_mask_last+1){
+              if (keyup_mask_last<255){
+            keyup_mask[i]=x;
+            keyup_mask_last++;
+              }
+            }
 
-		    goto key_handled;
+            goto key_handled;
 
-		  }//id
-		}//active
-	      }//scancode==
-	    wrong_flags:;
-	    }//i
-	  }//scancode
+          }//id
+        }//active
+          }//scancode==
+        wrong_flags:;
+        }//i
+      }//scancode
 
-	  //priority #2: fixed index F1-F12, arrows
-	  for (i=0;i<=31;i++){
-	    if (onkey[i].active){
-	      if (onkey[i].id){
-		if ((x2==onkey[i].keycode)||x==onkey[i].keycode_alternate){
-		  if (onkey[i].active==1){//(1)ON
-		    onkey[i].state++;
-		  }else{//(2)STOP
-		    onkey[i].state=1;
-		  }
-		  qbevent=1;
+      //priority #2: fixed index F1-F12, arrows
+      for (i=0;i<=31;i++){
+        if (onkey[i].active){
+          if (onkey[i].id){
+        if ((x2==onkey[i].keycode)||x==onkey[i].keycode_alternate){
+          if (onkey[i].active==1){//(1)ON
+            onkey[i].state++;
+          }else{//(2)STOP
+            onkey[i].state=1;
+          }
+          qbevent=1;
 
-		  //mask trigger key
-		  for (i=0;i<=keyup_mask_last;i++){
-		    if (!keyup_mask[i]){
-		      keyup_mask[i]=x;  
-		      break;
-		    }
-		  }
-		  if (i==keyup_mask_last+1){
-		    if (keyup_mask_last<255){
-		      keyup_mask[i]=x;
-		      keyup_mask_last++;
-		    }
-		  }
+          //mask trigger key
+          for (i=0;i<=keyup_mask_last;i++){
+            if (!keyup_mask[i]){
+              keyup_mask[i]=x;  
+              break;
+            }
+          }
+          if (i==keyup_mask_last+1){
+            if (keyup_mask_last<255){
+              keyup_mask[i]=x;
+              keyup_mask_last++;
+            }
+          }
 
-		  goto key_handled;
-		}//keycode
-	      }//id
-	    }//active
-	  }//i
+          goto key_handled;
+        }//keycode
+          }//id
+        }//active
+      }//i
 
-	}//block_onkey
+    }//block_onkey
 
-	//priority #3: string insertion
-	for (i=0;i<=31;i++){
-	  if (onkey[i].text){
-	    if (onkey[i].text->len){
-	      if ((x2==onkey[i].keycode)||x==onkey[i].keycode_alternate){
+    //priority #3: string insertion
+    for (i=0;i<=31;i++){
+      if (onkey[i].text){
+        if (onkey[i].text->len){
+          if ((x2==onkey[i].keycode)||x==onkey[i].keycode_alternate){
 
-		//mask trigger key
-		{//scope
-		  static int32 i;
-		  for (i=0;i<=keyup_mask_last;i++){
-		    if (!keyup_mask[i]){
-		      keyup_mask[i]=x;  
-		      break;
-		    }
-		  }
-		  if (i==keyup_mask_last+1){
-		    if (keyup_mask_last<255){
-		      keyup_mask[i]=x;
-		      keyup_mask_last++;
-		    }
-		  }
-		}//descope
+        //mask trigger key
+        {//scope
+          static int32 i;
+          for (i=0;i<=keyup_mask_last;i++){
+            if (!keyup_mask[i]){
+              keyup_mask[i]=x;  
+              break;
+            }
+          }
+          if (i==keyup_mask_last+1){
+            if (keyup_mask_last<255){
+              keyup_mask[i]=x;
+              keyup_mask_last++;
+            }
+          }
+        }//descope
 
-		for (i2=0;i2<onkey[i].text->len;i2++){
-		  block_onkey=1;
-		  keydown_ascii(onkey[i].text->chr[i2]);
-		  keyup_ascii(onkey[i].text->chr[i2]);
-		  block_onkey=0;
-		}//i2
-		goto key_handled;
-	      }//keycode
-	    }}//text
-	}//i
+        for (i2=0;i2<onkey[i].text->len;i2++){
+          block_onkey=1;
+          keydown_ascii(onkey[i].text->chr[i2]);
+          keyup_ascii(onkey[i].text->chr[i2]);
+          block_onkey=0;
+        }//i2
+        goto key_handled;
+          }//keycode
+        }}//text
+    }//i
 
       }//descope
 
@@ -33677,7 +33685,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static int32 z;
       z=(keyhit_nextfree+1)&0x1FFF;
       if (z==keyhit_next){//remove oldest message when cyclic buffer is full
-	keyhit_next=(keyhit_next+1)&0x1FFF;
+    keyhit_next=(keyhit_next+1)&0x1FFF;
       }
       keyhit[keyhit_nextfree]=x2|numpadkey;
       keyhit_nextfree=z;
@@ -33693,7 +33701,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       static int32 b1,b2,z,o;
       b1=x;
       if (b2=scancode_lookup[x*10+1]){//table entry exists
-	scancodedown(b2);
+    scancodedown(b2);
 
 
 
@@ -33701,25 +33709,25 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
 
-	//check for relevent table modifiers
-	shift=0; if (keyheld(VK+QBVK_LSHIFT)||keyheld(VK+QBVK_RSHIFT)) shift=1;
-	ctrl=0; if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) ctrl=1;
-	alt=0; if (keyheld(VK+QBVK_LALT)||keyheld(VK+QBVK_RALT)) alt=1;
-	o=0;
-	if (shift) o=1;
-	if (ctrl) o=2;
-	if (alt) o=3;
-	if (glyph){
-	  if ((keyheld(VK+QBVK_LALT)==0)&&(keyheld(VK+QBVK_RCTRL)==0)&&keyheld(VK+QBVK_LCTRL)&&keyheld(VK+QBVK_RALT)) o=0;//assume alt-gr combo-key
-	}
-	z=scancode_lookup[x*10+2+o];
-	if (!z) goto key_handled;//not possible
-	if (z&0xFF00){
-	  b1=0;
-	  b2=z>>8;
-	}else{
-	  b1=z;
-	}
+    //check for relevent table modifiers
+    shift=0; if (keyheld(VK+QBVK_LSHIFT)||keyheld(VK+QBVK_RSHIFT)) shift=1;
+    ctrl=0; if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) ctrl=1;
+    alt=0; if (keyheld(VK+QBVK_LALT)||keyheld(VK+QBVK_RALT)) alt=1;
+    o=0;
+    if (shift) o=1;
+    if (ctrl) o=2;
+    if (alt) o=3;
+    if (glyph){
+      if ((keyheld(VK+QBVK_LALT)==0)&&(keyheld(VK+QBVK_RCTRL)==0)&&keyheld(VK+QBVK_LCTRL)&&keyheld(VK+QBVK_RALT)) o=0;//assume alt-gr combo-key
+    }
+    z=scancode_lookup[x*10+2+o];
+    if (!z) goto key_handled;//not possible
+    if (z&0xFF00){
+      b1=0;
+      b2=z>>8;
+    }else{
+      b1=z;
+    }
       }//b2
       static int32 i,i2,i3;
       i=cmem[0x41a];
@@ -33727,9 +33735,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       i3=i2+2;
       if (i3==62) i3=30;
       if (i!=i3){//fits in buffer
-	cmem[0x400+i2]=b1;
-	cmem[0x400+i2+1]=b2;//(scancode)
-	cmem[0x41c]=i3;//fix tail location
+    cmem[0x400+i2]=b1;
+    cmem[0x400+i2+1]=b2;//(scancode)
+    cmem[0x41c]=i3;//fix tail location
       }
       goto key_handled;
     }//x<=255
@@ -33751,41 +33759,41 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       b1=0; b2=x>>8;
       r=(x>>8)+256;
       if (scancode_lookup[r*10+2]){
-	scancodedown(scancode_lookup[r*10+1]);
-	//check relevent modifiers
-	shift=0; if (keyheld(VK+QBVK_LSHIFT)||keyheld(VK+QBVK_RSHIFT)) shift=1;
-	ctrl=0; if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) ctrl=1;
-	alt=0; if (keyheld(VK+QBVK_LALT)||keyheld(VK+QBVK_RALT)) alt=1;
+    scancodedown(scancode_lookup[r*10+1]);
+    //check relevent modifiers
+    shift=0; if (keyheld(VK+QBVK_LSHIFT)||keyheld(VK+QBVK_RSHIFT)) shift=1;
+    ctrl=0; if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) ctrl=1;
+    alt=0; if (keyheld(VK+QBVK_LALT)||keyheld(VK+QBVK_RALT)) alt=1;
 
-	if (x==0x5200){//INSERT lock emulation
-	  if (insert_held==0){//nullify effects of key repeats
-	    if ((alt==0)&&(shift==0)&&(ctrl==0)){
-	      //toggle insert mode
-	      if (keyheld(QBK+QBK_INSERT_MODE)){
-		keyheld_remove(QBK+QBK_INSERT_MODE);
-	      }else{
-		keyheld_add(QBK+QBK_INSERT_MODE);
-	      }
-	      update_shift_state();
-	    }
-	  }
-	}
+    if (x==0x5200){//INSERT lock emulation
+      if (insert_held==0){//nullify effects of key repeats
+        if ((alt==0)&&(shift==0)&&(ctrl==0)){
+          //toggle insert mode
+          if (keyheld(QBK+QBK_INSERT_MODE)){
+        keyheld_remove(QBK+QBK_INSERT_MODE);
+          }else{
+        keyheld_add(QBK+QBK_INSERT_MODE);
+          }
+          update_shift_state();
+        }
+      }
+    }
 
-	o=0;
-	if (shift) o=1;
-	if (numlock) o=4;
-	if (numlock&&shift) o=7;
-	if (ctrl) o=2;
-	if (alt) o=3;
-	z=scancode_lookup[r*10+2+o];
-	if (!z) goto key_handled;//invalid combination
-	if (z&0xFF00){
-	  b1=0;
-	  b2=z>>8;
-	}else{
-	  b1=z;
-	  b2=scancode_lookup[r*10+1];
-	}
+    o=0;
+    if (shift) o=1;
+    if (numlock) o=4;
+    if (numlock&&shift) o=7;
+    if (ctrl) o=2;
+    if (alt) o=3;
+    z=scancode_lookup[r*10+2+o];
+    if (!z) goto key_handled;//invalid combination
+    if (z&0xFF00){
+      b1=0;
+      b2=z>>8;
+    }else{
+      b1=z;
+      b2=scancode_lookup[r*10+1];
+    }
       }//z
       static int32 i,i2,i3;
       i=cmem[0x41a];
@@ -33793,9 +33801,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       i3=i2+2;
       if (i3==62) i3=30;
       if (i!=i3){//fits in buffer
-	cmem[0x400+i2]=b1;
-	cmem[0x400+i2+1]=b2;//(scancode)
-	cmem[0x41c]=i3;//fix tail location
+    cmem[0x400+i2]=b1;
+    cmem[0x400+i2+1]=b2;//(scancode)
+    cmem[0x41c]=i3;//fix tail location
       }
       goto key_handled;
     }//x<=65536
@@ -33836,15 +33844,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       scancodedown(70);
 
       if (scroll_lock_held==0){//nullify effects of key repeats
-	ctrl=0; if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) ctrl=1;
-	if (ctrl==0){
-	  //toggle insert mode
-	  if (keyheld(QBK+QBK_SCROLL_LOCK_MODE)){
-	    keyheld_remove(QBK+QBK_SCROLL_LOCK_MODE);
-	  }else{
-	    keyheld_add(QBK+QBK_SCROLL_LOCK_MODE);
-	  }
-	}
+    ctrl=0; if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)) ctrl=1;
+    if (ctrl==0){
+      //toggle insert mode
+      if (keyheld(QBK+QBK_SCROLL_LOCK_MODE)){
+        keyheld_remove(QBK+QBK_SCROLL_LOCK_MODE);
+      }else{
+        keyheld_add(QBK+QBK_SCROLL_LOCK_MODE);
+      }
+    }
       }
 
       update_shift_state();
@@ -33882,12 +33890,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }//close
     if (event==QB64_EVENT_KEY){
       if (v1==VK+QBVK_PAUSE){
-	if (v2>0) keydown_vk(v1); else keyup_vk(v1);
-	return NULL;
+    if (v2>0) keydown_vk(v1); else keyup_vk(v1);
+    return NULL;
       }
       if (v1==VK+QBVK_BREAK){
-	if (v2>0) keydown_vk(v1); else keyup_vk(v1);
-	return NULL;
+    if (v2>0) keydown_vk(v1); else keyup_vk(v1);
+    return NULL;
       }
       return -1;
     }//key
