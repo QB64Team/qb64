@@ -26414,7 +26414,7 @@ END FUNCTION
 FUNCTION getfilepath$ (f$)
 FOR i = LEN(f$) TO 1 STEP -1
     a$ = MID$(f$, i, 1)
-    IF a$ = pathsep$ THEN
+    IF a$ = "/" OR a$ = "\" THEN
         getfilepath$ = LEFT$(f$, i)
         EXIT FUNCTION
     END IF
