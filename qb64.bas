@@ -29316,6 +29316,8 @@ DO
     a$ = idegetline(idecy)
     IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
 
+    IF K$ = CHR$(27) GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing  in the IDE
+
     IF ideinsert THEN
         a2$ = RIGHT$(a$, LEN(a$) - idecx + 1)
         IF LEN(a2$) THEN a2$ = RIGHT$(a$, LEN(a$) - idecx)
@@ -32783,13 +32785,14 @@ FOR y = 0 TO (idewy - 9)
 
     inquote = 0
     comment = 0
+    metacommand = 0
     FOR k = 1 TO idesx 'First check the part of the line that's off screen to the left
         SELECT CASE MID$(a$, k, 1)
             CASE CHR$(34)
                 inquote = NOT inquote
             CASE "'"
                 IF inquote = 0 THEN
-                    comment = -1
+                    IF MID$(a$, m, 2) = "'$" THEN metacommand = -1 ELSE comment = -1
                 END IF
         END SELECT
     NEXT k
@@ -32799,16 +32802,13 @@ FOR y = 0 TO (idewy - 9)
                 inquote = NOT inquote
             CASE "'"
                 IF inquote = 0 THEN
-                    comment = -1
+                    IF MID$(a$, m, 2) = "'$" THEN metacommand = -1 ELSE comment = -1
                 END IF
         END SELECT
-        IF comment THEN
-            COLOR 11
-        ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
-            COLOR 14
-        ELSE
-            COLOR 15
-        END IF
+        COLOR 15
+        IF comment THEN COLOR 11
+        IF metacommand THEN COLOR 10
+        IF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN COLOR 14
         LOCATE y + 3, 2 + m - 1
         PRINT MID$(a2$, m, 1);
     NEXT m
