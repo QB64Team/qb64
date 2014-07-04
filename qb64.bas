@@ -28599,6 +28599,20 @@ DO
     END IF
 
 
+    IF KALT AND KB >= 48 AND KB <= 57 THEN
+        STATIC ASCvalue$
+        ASCvalue$ = ASCvalue$ + CHR$(KB)
+        GOTO specialchar
+    END IF
+    IF NOT KALT THEN
+        IF LEN(ASCvalue$) THEN
+            KB = VAL(RIGHT$(ASCvalue$, 3))
+            ASCvalue$ = ""
+            IF KB > 0 AND KB < 256 THEN K$ = CHR$(KB) ELSE GOTO specialchar
+        END IF
+    END IF
+
+
     IF mCLICK THEN
         IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
             ideselect = 1
