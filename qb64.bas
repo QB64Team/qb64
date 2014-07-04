@@ -14,6 +14,7 @@ FileName = "internal/MathEval/Math Evaluator User Variables.bin"
 
 Set_OrderOfOperations 'This will also make certain our directories are valid, and if not make them.
 
+DIM SHARED AltSpecial AS _BYTE
 '### END OF STEVE EDIT
 
 '
@@ -28599,19 +28600,7 @@ DO
     END IF
 
 
-    IF KALT AND KB >= 48 AND KB <= 57 THEN
-        STATIC ASCvalue$
-        ASCvalue$ = ASCvalue$ + CHR$(KB)
-        GOTO specialchar
-    END IF
-    IF NOT KALT THEN
-        IF LEN(ASCvalue$) THEN
-            KB = VAL(RIGHT$(ASCvalue$, 3))
-            ASCvalue$ = ""
-            IF KB > 0 AND KB < 256 THEN K$ = CHR$(KB) ELSE GOTO specialchar
-        END IF
-    END IF
-
+    IF KALT AND KB >= 48 AND KB <= 57 THEN GOTO specialchar ' Steve Edit on 07-04-2014 to add support for ALT-numkey combos to produce ASCII codes
 
     IF mCLICK THEN
         IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
@@ -29330,7 +29319,7 @@ DO
     a$ = idegetline(idecy)
     IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
 
-    IF K$ = CHR$(27) GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing  in the IDE
+    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing  in the IDE
 
     IF ideinsert THEN
         a2$ = RIGHT$(a$, LEN(a$) - idecx + 1)
@@ -29343,6 +29332,8 @@ DO
     idesetline idecy, a$
     idecx = idecx + LEN(K$)
     specialchar:
+
+    AltSpecial = 0
 
 LOOP
 
@@ -37055,6 +37046,8 @@ Error_Message = a$
 END SUB
 
 SUB GetInput
+STATIC ASCvalue$
+
 IF iCHECKLATER THEN iCHECKLATER = 0: EXIT SUB
 'Clear/Update immediate return values
 iCHANGED = 0
@@ -37068,6 +37061,30 @@ KOALT = KALT: KALTPRESS = 0: KALTRELEASE = 0
 DO: LOOP UNTIL INKEY$ = ""
 'Keyboard event?
 k = _KEYHIT
+
+'Steve Edit on 07-04-2014 to add extended ASCII creation with ALT-plus numkeys
+IF (_KEYDOWN(100307) OR _KEYDOWN(100308)) AND (k >= -57 AND k <= -48) THEN
+    ASCvalue$ = ASCvalue$ + CHR$(-k)
+END IF
+IF NOT _KEYDOWN(100307) AND NOT _KEYDOWN(100308) THEN
+    IF LEN(ASCvalue$) THEN
+        KB = VAL(RIGHT$(ASCvalue$, 3))
+        IF KB > 0 AND KB < 256 THEN
+            K$ = CHR$(KB)
+            k = KB
+            iCHANGED = -1
+            AltSpecial = -1
+        END IF
+        ASCvalue$ = ""
+        EXIT SUB
+    END IF
+END IF
+
+
+
+
+
+
 IF k THEN
     IF k < 0 THEN k = -k: release = 1
     'modifiers
@@ -37076,7 +37093,11 @@ IF k THEN
         iCHANGED = -1: KSTATECHANGED = -1
     END IF
     IF k = KEY_LALT OR k = KEY_RALT THEN
-        IF release = 1 THEN KALT = 0: KALTRELEASE = -1 ELSE KALT = -1: KALTPRESS = -1
+        IF release = 1 THEN
+            KALT = 0: KALTRELEASE = -1
+        ELSE
+            KALT = -1: KALTPRESS = -1
+        END IF
         iCHANGED = -1: KSTATECHANGED = -1
     END IF
     IF k = KEY_LCTRL OR k = KEY_RCTRL THEN
