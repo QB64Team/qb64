@@ -5660,6 +5660,16 @@ DO
         END IF
     END IF
 
+    'Steve Edit on 07-05-2014 to generate an error message if someone inserts code between SELECT CASE and CASE such as:
+    'SELECT CASE x
+    'm = 3
+    'CASE 1
+    'END SELECT
+    'The above used to give no errors, but this one line fix should correct that.  (I hope)
+    IF n >= 1 AND firstelement$ <> "CASE" AND controltype(controllevel) >= 10 AND controltype(controllevel) < 17 THEN a$ = "Expected CASE expression": GOTO errmes
+    'End of Edit
+
+
     'CASE
     IF n >= 1 THEN
         IF firstelement$ = "CASE" THEN
@@ -27575,7 +27585,6 @@ DO
         END IF
 
     ELSE 'alt not held
-
         IF idealthighlight = 1 THEN
             'remove highlight
             idealthighlight = 0
@@ -29333,8 +29342,12 @@ DO
     idecx = idecx + LEN(K$)
     specialchar:
 
-    AltSpecial = 0
-
+    IF AltSpecial THEN
+        AltSpecial = 0
+        ideentermenu = 0
+        KALT = 0
+        LOCATE 1, 1: COLOR 0, 7: PRINT menubar$
+    END IF
 LOOP
 
 '--------------------------------------------------------------------------------
@@ -37079,7 +37092,7 @@ IF NOT _KEYDOWN(100307) AND NOT _KEYDOWN(100308) THEN
         EXIT SUB
     END IF
 END IF
-
+'End of Edit
 
 
 
@@ -37805,7 +37818,7 @@ DO
     c = c + 1
     SELECT CASE MID$(exp$, c, 1)
         CASE "0" TO "9", ".", "-" 'At this point, we should only have number values left.
-        CASE ELSE: exp$ = "ERROR - Unknown Diagnosis: (" + exp$ + ") "
+        CASE ELSE: Evaluate_Expression$ = "ERROR - Unknown Diagnosis: (" + exp$ + ") ": EXIT SUB
     END SELECT
 LOOP UNTIL c >= LEN(exp$)
 
@@ -38428,6 +38441,7 @@ DO
         FOR i = 1 TO UBOUND(OName)
             IF MID$(t$, l + 1, LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
         NEXT
+        IF MID$(t$, l + 1, 1) = ")" THEN good = -1
         IF NOT good THEN e$ = "ERROR - Improper operations after ).": EXIT SUB
         l = l + 1
     END IF
