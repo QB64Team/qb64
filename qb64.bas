@@ -28910,7 +28910,7 @@ DO
         GOTO copy2clip
     END IF
 
-    IF KB = KEY_DELETE AND ideselect = 1 THEN 'delete selection
+    IF (KB = KEY_DELETE OR KB = 8) AND ideselect = 1 THEN 'delete selection
         IF ideselecty1 <> idecy OR ideselectx1 <> idecx THEN
             idechangemade = 1
             GOSUB delselect
@@ -32809,24 +32809,22 @@ FOR y = 0 TO (idewy - 9)
             CASE CHR$(34)
                 inquote = NOT inquote
             CASE "'"
-                IF inquote = 0 THEN
-                    IF MID$(a$, m, 2) = "'$" THEN metacommand = -1 ELSE comment = -1
-                END IF
+                IF inquote = 0 AND MID$(a$, k, 2) = "'$" THEN metacommand = -1 ELSE comment = -1
         END SELECT
     NEXT k
     FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
         SELECT CASE MID$(a$, m + idesx - 1, 1)
-            CASE CHR$(34)
-                inquote = NOT inquote
-            CASE "'"
-                IF inquote = 0 THEN
-                    IF MID$(a$, m, 2) = "'$" THEN metacommand = -1 ELSE comment = -1
-                END IF
+            CASE CHR$(34): inquote = NOT inquote
+            CASE "'": IF inquote = 0 AND metacommand = 0 THEN comment = -1
         END SELECT
         COLOR 15
-        IF comment THEN COLOR 11
-        IF metacommand THEN COLOR 10
-        IF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN COLOR 14
+        IF comment THEN
+            COLOR 11
+        ELSEIF metacommand THEN
+            COLOR 10
+        ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
+            COLOR 14
+        END IF
         LOCATE y + 3, 2 + m - 1
         PRINT MID$(a2$, m, 1);
     NEXT m
@@ -37809,6 +37807,7 @@ DO
         eval$ = LTRIM$(RTRIM$(eval$))
         IF LEFT$(eval$, 5) = "ERROR" THEN Evaluate_Expression$ = eval$: EXIT SUB
         exp$ = DWD(LEFT$(exp$, s - 2) + eval$ + MID$(exp$, Eval_E + 1))
+        IF MID$(exp$, 1, 1) = "N" THEN MID$(exp$, 1) = "-"
 
         temppp$ = DWD(LEFT$(exp$, s - 2) + " ## " + eval$ + " ## " + MID$(exp$, E + 1))
     END IF
@@ -37853,6 +37852,7 @@ END FUNCTION
 SUB ParseExpression (exp$)
 DIM num(10) AS STRING
 'We should now have an expression with no () to deal with
+IF MID$(exp$, 2, 1) = "-" THEN exp$ = "0+" + MID$(exp$, 2)
 FOR J = 1 TO 250
     lowest = 0
     DO UNTIL lowest = LEN(exp$)
@@ -37881,7 +37881,7 @@ FOR J = 1 TO 250
             c = LEN(OName(OpOn)) - 1
             DO
                 SELECT CASE MID$(exp$, op + c + 1, 1)
-                    CASE "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".": numset = -1 'Valid digit
+                    CASE "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "N": numset = -1 'Valid digit
                     CASE "-" 'We need to check if it's a minus or a negative
                         IF OName(OpOn) = "PI" OR numset THEN EXIT DO
                     CASE ELSE 'Not a valid digit, we found our separator
@@ -37895,7 +37895,7 @@ FOR J = 1 TO 250
             DO
                 c = c + 1
                 SELECT CASE MID$(exp$, op - c, 1)
-                    CASE "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "." 'Valid digit
+                    CASE "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "N" 'Valid digit
                     CASE "-" 'We need to check if it's a minus or a negative
                         c1 = c
                         bad = 0
@@ -37917,7 +37917,10 @@ FOR J = 1 TO 250
             s = op - c
             num(1) = MID$(exp$, s + 1, op - s - 1) 'Get our first number
             num(2) = MID$(exp$, op + LEN(OName(OpOn)), E - op - LEN(OName(OpOn)) + 1) 'Get our second number
+            IF MID$(num(1), 1, 1) = "N" THEN MID$(num(1), 1) = "-"
+            IF MID$(num(2), 1, 1) = "N" THEN MID$(num(2), 1) = "-"
             num(3) = EvaluateNumbers(OpOn, num())
+            IF MID$(num(3), 1, 1) = "-" THEN MID$(num(3), 1) = "N"
             'PRINT "*************"
             'PRINT num(1), OName(OpOn), num(2), num(3), exp$
             IF LEFT$(num(3), 5) = "ERROR" THEN exp$ = num(3): EXIT SUB

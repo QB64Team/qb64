@@ -2,8 +2,8 @@
 #QB64 Installer -- Shell Script -- Matt Kilgore 2013
 #Version 4 -- April 4, 2013
 #Compiles:
-#	GL : .978
-#	SDL: .954
+#   GL : .978
+#   SDL: .954
 
 
 #This checks the currently installed packages for the one's QB64 needs
@@ -67,16 +67,16 @@ fi
 
 #Outputs from lsb_command:
 
-#Arch Linux	 = arch
-#Debian    	 = debian
-#Fedora		 = Fedora
-#KUbuntu	 = ubuntu
-#LUbuntu  	 = ubuntu
-#Linux Mint	 = linuxmint
-#Ubuntu		 = ubuntu
-#Slackware	 = slackware
-#XUbuntu	 = ubuntu
-#Zorin  	 = Zorin
+#Arch Linux  = arch
+#Debian      = debian
+#Fedora      = Fedora
+#KUbuntu     = ubuntu
+#LUbuntu     = ubuntu
+#Linux Mint  = linuxmint
+#Ubuntu      = ubuntu
+#Slackware   = slackware
+#XUbuntu     = ubuntu
+#Zorin       = Zorin
 if [ -n "$lsb_command" ]; then
   DISTRO=`$lsb_command -si | tr '[:upper:]' '[:lower:]'`
 elif [ -e /etc/arch-release ]; then
@@ -182,7 +182,7 @@ else
   cd ../../../../../..
 
   echo "Building 'QB64'"
-  cp ./internal/source/* ./internal/temp/
+  cp -r ./internal/source/* ./internal/temp/
   cd internal/c
   g++ -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -o ../../qb64
   cd ../..
