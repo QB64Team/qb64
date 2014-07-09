@@ -3484,10 +3484,6 @@ void AllocConsole(){
 void FreeConsole(){
   return;
 }
-
- 
-int32 errno;
- 
 #endif
 
 int MessageBox2(int ignore,char* message,char* title,int type){

@@ -11966,10 +11966,10 @@ ws = _NEWIMAGE(640, 480, 32)
 SCREEN temp
 DIM CurrentASC(1 TO 16, 1 TO 16)
 DIM CurrentOne AS INTEGER
-CLS , _RGB(100, 0, 200)
-COLOR , _RGB(100, 0, 200)
-FOR x = 1 TO 16
-    FOR y = 1 TO 16
+CLS , _RGB(0, 0, 170)
+COLOR , _RGB(0, 0, 170)
+FOR y = 1 TO 16
+    FOR x = 1 TO 16
         LINE (x * 40, 0)-(x * 40, 480), _RGB32(255, 255, 0)
         LINE (0, y * 30)-(640, y * 30), _RGB32(255, 255, 0)
         IF counter THEN _PRINTSTRING (x * 40 - 28, y * 30 - 23), CHR$(counter)
@@ -11978,11 +11978,11 @@ FOR x = 1 TO 16
 NEXT
 
 _DEST temp1
-CLS , _RGB(100, 0, 200)
-COLOR , _RGB(100, 0, 200)
+CLS , _RGB(0, 0, 170)
+COLOR , _RGB(0, 0, 170)
 counter = 0
-FOR x = 1 TO 16
-    FOR y = 1 TO 16
+FOR y = 1 TO 16
+    FOR x = 1 TO 16
         LINE (x * 40, 0)-(x * 40, 480), _RGB32(255, 255, 0)
         LINE (0, y * 30)-(640, y * 30), _RGB32(255, 255, 0)
         text$ = LTRIM$(STR$(counter))
@@ -12003,17 +12003,17 @@ DO
 
     x = _MOUSEX \ 40 + 1 'If mouse moved, where are we now?
     y = _MOUSEY \ 30 + 1
-    num = (x - 1) * 16 + y - 1
+    num = (y - 1) * 16 + x - 1
     IF num = 0 THEN
         text$ = ""
     ELSE
         flashcounter = flashcounter + 1
         IF flashcounter > 30 THEN
-            COLOR _RGB32(255, 255, 255), _RGB(100, 0, 200)
+            COLOR _RGB32(255, 255, 255), _RGB(0, 0, 170)
             text$ = CHR$(num)
             IF LEN(text$) = 1 THEN text$ = " " + text$ + " "
         ELSE
-            COLOR _RGB32(255, 0, 0), _RGB(100, 0, 200)
+            COLOR _RGB32(255, 255, 255), _RGB(0, 0, 170)
             text$ = RTRIM$(LTRIM$(STR$(num)))
         END IF
     END IF
@@ -12043,9 +12043,16 @@ DO
     IF y < 1 THEN y = 1
     IF y > 16 THEN y = 16
     _DISPLAY
+    Ex = _EXIT
+    IF Ex THEN
+        _AUTODISPLAY
+        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        IF _RESIZE THEN donothing = atall
+        EXIT FUNCTION
+    END IF
 LOOP UNTIL _MOUSEBUTTON(1)
 
-ret% = (x - 1) * 16 + y - 1
+ret% = (y - 1) * 16 + x - 1
 IF ret% > 0 AND ret% < 255 THEN
     l = idecy
     a$ = idegetline(l)
