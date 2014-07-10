@@ -175,17 +175,19 @@ id.args = 0
 id.ret = LONGTYPE - ISPOINTER
 regid
 
-clearid
-id.n = "_SHOWWINDOW"
-id.subfunc = 2
-id.callname = "glutShowWindow"
-regid
+'Removed for command redundancy.  Galleon has these already as _SCREENSHOW and _SCREENHIDE
+'I just forgot about them.  :P  At least they're easy to remove!  ;)
+'clearid
+'id.n = "_SHOWWINDOW"
+'id.subfunc = 2
+'id.callname = "glutShowWindow"
+'regid
 
-clearid
-id.n = "_HIDEWINDOW"
-id.subfunc = 2
-id.callname = "glutHideWindow"
-regid
+'clearid
+'id.n = "_HIDEWINDOW"
+'id.subfunc = 2
+'id.callname = "glutHideWindow"
+'regid
 
 clearid
 id.n = "_ICONIFYWINDOW"
