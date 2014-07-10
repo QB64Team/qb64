@@ -26899,46 +26899,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (!passed) goto error;
     if (passed==3) goto error;
     if (full_screen) return;
-
-#ifndef NO_S_D_L
-
-#ifdef QB64_WINDOWS
-    static SDL_SysWMinfo info;
-    static HWND win,win2;
-    static RECT r,r2,r3;
-    static int32 x2,y2,x3,y3,x4,y4;
-    SDL_VERSION(&info.version);
-    if (SDL_GetWMInfo(&info)){
-      win=info.window;
-      Sleep(100);//IMPORTANT: Release CPU so SDL/OS can fully create window or following calls may not work
-      if (passed&2){
-    SetWindowPos(win,NULL,x,y,NULL,NULL,SWP_NOSIZE);
-      }else{
-    //_MIDDLE method
-    win2=GetDesktopWindow();
-      retry:
-    GetWindowRect(win, &r);
-    GetClientRect(win, &r3);
-    //find the additional size of the window frame
-    x2=r.right-r.left; y2=r.bottom-r.top;
-    x2=x2-(r3.right-r3.left); y2=y2-(r3.bottom-r3.top);
-    if ((x2<0)||(y2<0)) goto retry;//OS was in process of creating window
-    //find the offsets to apply so that border & title bar are not included in the centering process
-    x3=x2/2; y3=y2-x3;
-    //find the size of our display page
-    x=display_page->width; y=display_page->height;
-    if (display_page->text){x*=fontwidth[display_page->font]; y*=fontheight[display_page->font];}
-    GetWindowRect(win2, &r2);
-    x=((r2.right-r2.left)/2)-(x/2)-x3;
-    y=((r2.bottom-r2.top)/2)-(y/2)-y3;
-    SetWindowPos(win,NULL,x,y,NULL,NULL,SWP_NOSIZE);
-      }
+	
+	if (passed==2){
+		glutPositionWindow (x,y);}
+	else{
+		int32 SW, SH, WW, WH;
+			SW = glutGet(GLUT_SCREEN_WIDTH);
+			SH = glutGet(GLUT_SCREEN_HEIGHT);
+			WW = glutGet(GLUT_WINDOW_WIDTH);
+			WH = glutGet(GLUT_WINDOW_HEIGHT);
+			x = (SW - WW)/2;
+			y = (SH - WH)/2;
+			glutPositionWindow (x,y);
     }
-#endif
+	return;
 
-#endif //NO_S_D_L
-
-    return;
   error:
     error(5);
   }

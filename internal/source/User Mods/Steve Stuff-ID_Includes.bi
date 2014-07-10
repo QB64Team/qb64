@@ -159,3 +159,36 @@ id.args = 0
 id.ret = DOUBLETYPE - ISPOINTER
 regid
 
+clearid
+id.n = "_SCREENHEIGHT"
+id.subfunc = 1
+id.callname = "func_screenheight"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SCREENWIDTH"
+id.subfunc = 1
+id.callname = "func_screenwidth"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SHOWWINDOW"
+id.subfunc = 2
+id.callname = "glutShowWindow"
+regid
+
+clearid
+id.n = "_HIDEWINDOW"
+id.subfunc = 2
+id.callname = "glutHideWindow"
+regid
+
+clearid
+id.n = "_ICONIFYWINDOW"
+id.subfunc = 2
+id.callname = "glutIconifyWindow"
+regid
