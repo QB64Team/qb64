@@ -572,7 +572,13 @@ static uint16 codepage437_to_unicode16[] = {
 
 
 int64 GetTicks(){
+#if defined QB64_LINUX && !defined QB64_MACOSX && !defined QB64_ANDROID
+  struct timespec tp;
+  clock_gettime(CLOCK_MONOTONIC, &tp);
+  return tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
+#else
   return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );
+#endif
 }
 
 

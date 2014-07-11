@@ -3,15 +3,15 @@ if(_FUNC_CHKSUM_INTEGER64_CHKSUM==NULL){
 _FUNC_CHKSUM_INTEGER64_CHKSUM=(int64*)mem_static_malloc(8);
 *_FUNC_CHKSUM_INTEGER64_CHKSUM=0;
 }
-qbs*oldstr4565=NULL;
+qbs*oldstr9573=NULL;
 if(_FUNC_CHKSUM_STRING_F->tmp||_FUNC_CHKSUM_STRING_F->fixed||_FUNC_CHKSUM_STRING_F->readonly){
-oldstr4565=_FUNC_CHKSUM_STRING_F;
-if (oldstr4565->cmem_descriptor){
-_FUNC_CHKSUM_STRING_F=qbs_new_cmem(oldstr4565->len,0);
+oldstr9573=_FUNC_CHKSUM_STRING_F;
+if (oldstr9573->cmem_descriptor){
+_FUNC_CHKSUM_STRING_F=qbs_new_cmem(oldstr9573->len,0);
 }else{
-_FUNC_CHKSUM_STRING_F=qbs_new(oldstr4565->len,0);
+_FUNC_CHKSUM_STRING_F=qbs_new(oldstr9573->len,0);
 }
-memcpy(_FUNC_CHKSUM_STRING_F->chr,oldstr4565->chr,oldstr4565->len);
+memcpy(_FUNC_CHKSUM_STRING_F->chr,oldstr9573->chr,oldstr9573->len);
 }
 int64 *_FUNC_CHKSUM_INTEGER64_C=NULL;
 if(_FUNC_CHKSUM_INTEGER64_C==NULL){
@@ -30,20 +30,20 @@ _FUNC_CHKSUM_INTEGER64_B=(int64*)mem_static_malloc(8);
 }
 qbs *_FUNC_CHKSUM_STRING_A=NULL;
 if (!_FUNC_CHKSUM_STRING_A)_FUNC_CHKSUM_STRING_A=qbs_new(0,0);
-byte_element_struct *byte_element_4566=NULL;
-if (!byte_element_4566){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4566=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4566=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_9574=NULL;
+if (!byte_element_9574){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_9574=(byte_element_struct*)(mem_static_pointer-12); else byte_element_9574=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_CHKSUM_LONG_I=NULL;
 if(_FUNC_CHKSUM_LONG_I==NULL){
 _FUNC_CHKSUM_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_CHKSUM_LONG_I=0;
 }
-int64 fornext_value4568;
-int64 fornext_finalvalue4568;
-int64 fornext_step4568;
-uint8 fornext_step_negative4568;
-byte_element_struct *byte_element_4569=NULL;
-if (!byte_element_4569){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4569=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4569=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value9576;
+int64 fornext_finalvalue9576;
+int64 fornext_step9576;
+uint8 fornext_step_negative9576;
+byte_element_struct *byte_element_9577=NULL;
+if (!byte_element_9577){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_9577=(byte_element_struct*)(mem_static_pointer-12); else byte_element_9577=(byte_element_struct*)mem_static_malloc(12);
 }

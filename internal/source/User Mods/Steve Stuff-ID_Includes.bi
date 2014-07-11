@@ -160,7 +160,7 @@ id.ret = DOUBLETYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_SCREENHEIGHT"
+id.n = "_DESKTOPHEIGHT"
 id.subfunc = 1
 id.callname = "func_screenheight"
 id.args = 0
@@ -168,7 +168,7 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_SCREENWIDTH"
+id.n = "_DESKTOPWIDTH"
 id.subfunc = 1
 id.callname = "func_screenwidth"
 id.args = 0
@@ -190,7 +190,7 @@ regid
 'regid
 
 clearid
-id.n = "_ICONIFYWINDOW"
+id.n = "_SCREENICON"     'name change to from _ICONIFYWINDOW to _SCREENICON to match the screenshow and screenhide
 id.subfunc = 2
 id.callname = "glutIconifyWindow"
 regid
