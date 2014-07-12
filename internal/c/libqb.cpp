@@ -26861,43 +26861,17 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   }
 
   int32 func__screenx(){
-
-#ifndef NO_S_D_L
-#ifdef QB64_WINDOWS
-    static SDL_SysWMinfo info;
-    static HWND win;
-    static RECT r;
-    SDL_VERSION(&info.version);
-    if (SDL_GetWMInfo(&info)){
-      win =info.window;
-      GetWindowRect(win,&r);
-      return r.left;
-    }
-#endif
-#endif //NO_S_D_L
-
-    return 0;
+	  #ifdef QB64_WINDOWS
+	      return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
+      #endif
+		  return 0; //if not windows then return 0
   }
 
   int32 func__screeny(){
-
-#ifndef NO_S_D_L
-
-#ifdef QB64_WINDOWS
-    static SDL_SysWMinfo info;
-    static HWND win;
-    static RECT r;
-    SDL_VERSION(&info.version);
-    if (SDL_GetWMInfo(&info)){
-      win =info.window;
-      GetWindowRect(win,&r);
-      return r.top;
-    }
-#endif
-
-#endif //NO_S_D_L
-
-    return 0;
+	  #ifdef QB64_WINDOWS
+           return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
+      #endif
+		  return 0; //if not windows then return 0
   }
 
   void sub__screenmove(int32 x,int32 y,int32 passed){
