@@ -23,11 +23,9 @@
 void alert(int32 x);
 void alert(char *x);
 
-
+int32 framebufferobjects_supported=0;
 
 int32 force_display_update=0;
-
-
 
 int32 environment_2d__screen_width=0; //the size of the software SCREEN
 int32 environment_2d__screen_height=0;
@@ -479,11 +477,27 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
     hardware_img->software_pixel_buffer=NULL;
     hardware_img->texture_handle=new_texture_handle();
     glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
+
+//non-power of 2 dimensions fallback support
+static int glerrorcode;
+glerrorcode=glGetError();//clear any previous errors
+glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
+glerrorcode=glGetError();
+
+if (glerrorcode!=0){
+gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGBA, x,y, GL_BGRA, GL_UNSIGNED_BYTE, pixels );
+//glTexImage2D (GL_TEXTURE_RECTANGLE, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}else{
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
   }
   return handle;
 }
@@ -494,12 +508,25 @@ void hardware_img_buffer_to_texture(int32 handle){
   if (hardware_img->texture_handle==0){
     hardware_img->texture_handle=new_texture_handle();
     glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
-
+    
+//non-power of 2 dimensions fallback support
+static int glerrorcode;
+glerrorcode=glGetError();//clear any previous errors
+glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
+glerrorcode=glGetError();
+if (glerrorcode!=0){
+gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hardware_img->w, hardware_img->h, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);
+//glTexImage2D (GL_TEXTURE_RECTANGLE, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}else{
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
 
     free(hardware_img->software_pixel_buffer);
   }
@@ -28707,7 +28734,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       dst_h=environment__window_height;
 
       if (hardware_img__current_dst!=dst_img){
-    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
@@ -29177,7 +29206,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       //reset possible dependencies
       glColor4f(1.f, 1.f, 1.f, 1.f);
       glBindTexture (GL_TEXTURE_2D, 0);
-      glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
       glDisable(GL_TEXTURE_2D);
       glDisable(GL_ALPHA_TEST);
       glDisable(GL_BLEND);
@@ -29221,7 +29250,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
 
         glColor4f(1.f, 1.f, 1.f, 1.f);
-        glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
         glDisable(GL_ALPHA_TEST);
         glDisable(GL_BLEND);
         glDisable(GL_COLOR_MATERIAL);
@@ -29282,7 +29311,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
 
         glColor4f(1.f, 1.f, 1.f, 1.f);
-        glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
         glDisable(GL_ALPHA_TEST);
         glDisable(GL_BLEND);
         glDisable(GL_COLOR_MATERIAL);
@@ -29521,7 +29550,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
 
           glColor4f(1.f, 1.f, 1.f, 1.f);
-          glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
           glDisable(GL_ALPHA_TEST);
           glDisable(GL_BLEND);
           glDisable(GL_COLOR_MATERIAL);
@@ -30714,6 +30743,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       }
     //alert( (char*)glewGetString(GLEW_VERSION));
 
+    if (glewIsSupported("GL_EXT_framebuffer_object")) framebufferobjects_supported=1;
 
     glutDisplayFunc(GLUT_DISPLAY_REQUEST);
 
