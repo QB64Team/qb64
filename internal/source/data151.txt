@@ -1,29 +1,29 @@
 qbs *_FUNC_COMPRESS_1_RLE_STRING_COMPRESS_1_RLE=NULL;
 if (!_FUNC_COMPRESS_1_RLE_STRING_COMPRESS_1_RLE)_FUNC_COMPRESS_1_RLE_STRING_COMPRESS_1_RLE=qbs_new(0,0);
-qbs*oldstr9540=NULL;
+qbs*oldstr4532=NULL;
 if(_FUNC_COMPRESS_1_RLE_STRING_A->tmp||_FUNC_COMPRESS_1_RLE_STRING_A->fixed||_FUNC_COMPRESS_1_RLE_STRING_A->readonly){
-oldstr9540=_FUNC_COMPRESS_1_RLE_STRING_A;
-if (oldstr9540->cmem_descriptor){
-_FUNC_COMPRESS_1_RLE_STRING_A=qbs_new_cmem(oldstr9540->len,0);
+oldstr4532=_FUNC_COMPRESS_1_RLE_STRING_A;
+if (oldstr4532->cmem_descriptor){
+_FUNC_COMPRESS_1_RLE_STRING_A=qbs_new_cmem(oldstr4532->len,0);
 }else{
-_FUNC_COMPRESS_1_RLE_STRING_A=qbs_new(oldstr9540->len,0);
+_FUNC_COMPRESS_1_RLE_STRING_A=qbs_new(oldstr4532->len,0);
 }
-memcpy(_FUNC_COMPRESS_1_RLE_STRING_A->chr,oldstr9540->chr,oldstr9540->len);
+memcpy(_FUNC_COMPRESS_1_RLE_STRING_A->chr,oldstr4532->chr,oldstr4532->len);
 }
 int32 *_FUNC_COMPRESS_1_RLE_LONG_N=NULL;
 if(_FUNC_COMPRESS_1_RLE_LONG_N==NULL){
 _FUNC_COMPRESS_1_RLE_LONG_N=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_1_RLE_LONG_N=0;
 }
-byte_element_struct *byte_element_9541=NULL;
-if (!byte_element_9541){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_9541=(byte_element_struct*)(mem_static_pointer-12); else byte_element_9541=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4533=NULL;
+if (!byte_element_4533){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4533=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4533=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_COMPRESS_1_RLE_STRING_H=NULL;
 if (!_FUNC_COMPRESS_1_RLE_STRING_H)_FUNC_COMPRESS_1_RLE_STRING_H=qbs_new(0,0);
-byte_element_struct *byte_element_9542=NULL;
-if (!byte_element_9542){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_9542=(byte_element_struct*)(mem_static_pointer-12); else byte_element_9542=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4534=NULL;
+if (!byte_element_4534){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4534=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4534=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_COMPRESS_1_RLE_LONG_HP=NULL;
 if(_FUNC_COMPRESS_1_RLE_LONG_HP==NULL){
@@ -55,10 +55,10 @@ if(_FUNC_COMPRESS_1_RLE_LONG_I2==NULL){
 _FUNC_COMPRESS_1_RLE_LONG_I2=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_1_RLE_LONG_I2=0;
 }
-int64 fornext_value9545;
-int64 fornext_finalvalue9545;
-int64 fornext_step9545;
-uint8 fornext_step_negative9545;
+int64 fornext_value4537;
+int64 fornext_finalvalue4537;
+int64 fornext_step4537;
+uint8 fornext_step_negative4537;
 int32 *_FUNC_COMPRESS_1_RLE_LONG_REPS=NULL;
 if(_FUNC_COMPRESS_1_RLE_LONG_REPS==NULL){
 _FUNC_COMPRESS_1_RLE_LONG_REPS=(int32*)mem_static_malloc(4);
@@ -74,7 +74,7 @@ if(_FUNC_COMPRESS_1_RLE_LONG_I3==NULL){
 _FUNC_COMPRESS_1_RLE_LONG_I3=(int32*)mem_static_malloc(4);
 *_FUNC_COMPRESS_1_RLE_LONG_I3=0;
 }
-int64 fornext_value9547;
-int64 fornext_finalvalue9547;
-int64 fornext_step9547;
-uint8 fornext_step_negative9547;
+int64 fornext_value4539;
+int64 fornext_finalvalue4539;
+int64 fornext_step4539;
+uint8 fornext_step_negative4539;
