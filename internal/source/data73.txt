@@ -1,60 +1,43 @@
-qbs*oldstr3254=NULL;
-if(_SUB_XWRITE_STRING_CA->tmp||_SUB_XWRITE_STRING_CA->fixed||_SUB_XWRITE_STRING_CA->readonly){
-oldstr3254=_SUB_XWRITE_STRING_CA;
-if (oldstr3254->cmem_descriptor){
-_SUB_XWRITE_STRING_CA=qbs_new_cmem(oldstr3254->len,0);
-}else{
-_SUB_XWRITE_STRING_CA=qbs_new(oldstr3254->len,0);
+int32 *_SUB_SET_ORDEROFOPERATIONS_LONG_I=NULL;
+if(_SUB_SET_ORDEROFOPERATIONS_LONG_I==NULL){
+_SUB_SET_ORDEROFOPERATIONS_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_SET_ORDEROFOPERATIONS_LONG_I=0;
 }
-memcpy(_SUB_XWRITE_STRING_CA->chr,oldstr3254->chr,oldstr3254->len);
+int32 *_SUB_SET_ORDEROFOPERATIONS_LONG_F=NULL;
+if(_SUB_SET_ORDEROFOPERATIONS_LONG_F==NULL){
+_SUB_SET_ORDEROFOPERATIONS_LONG_F=(int32*)mem_static_malloc(4);
+*_SUB_SET_ORDEROFOPERATIONS_LONG_F=0;
 }
-qbs *_SUB_XWRITE_STRING_L=NULL;
-if (!_SUB_XWRITE_STRING_L)_SUB_XWRITE_STRING_L=qbs_new(0,0);
-qbs *_SUB_XWRITE_STRING_U=NULL;
-if (!_SUB_XWRITE_STRING_U)_SUB_XWRITE_STRING_U=qbs_new(0,0);
-int32 pass3255;
-int32 *_SUB_XWRITE_LONG_B=NULL;
-if(_SUB_XWRITE_LONG_B==NULL){
-_SUB_XWRITE_LONG_B=(int32*)mem_static_malloc(4);
-*_SUB_XWRITE_LONG_B=0;
+int32 *_SUB_SET_ORDEROFOPERATIONS_LONG_C=NULL;
+if(_SUB_SET_ORDEROFOPERATIONS_LONG_C==NULL){
+_SUB_SET_ORDEROFOPERATIONS_LONG_C=(int32*)mem_static_malloc(4);
+*_SUB_SET_ORDEROFOPERATIONS_LONG_C=0;
 }
-qbs *_SUB_XWRITE_STRING_E=NULL;
-if (!_SUB_XWRITE_STRING_E)_SUB_XWRITE_STRING_E=qbs_new(0,0);
-int32 *_SUB_XWRITE_LONG_LAST=NULL;
-if(_SUB_XWRITE_LONG_LAST==NULL){
-_SUB_XWRITE_LONG_LAST=(int32*)mem_static_malloc(4);
-*_SUB_XWRITE_LONG_LAST=0;
+int64 fornext_value3138;
+int64 fornext_finalvalue3138;
+int64 fornext_step3138;
+uint8 fornext_step_negative3138;
+int64 fornext_value3140;
+int64 fornext_finalvalue3140;
+int64 fornext_step3140;
+uint8 fornext_step_negative3140;
+int32 *_SUB_SET_ORDEROFOPERATIONS_LONG_COUNTER=NULL;
+if(_SUB_SET_ORDEROFOPERATIONS_LONG_COUNTER==NULL){
+_SUB_SET_ORDEROFOPERATIONS_LONG_COUNTER=(int32*)mem_static_malloc(4);
+*_SUB_SET_ORDEROFOPERATIONS_LONG_COUNTER=0;
 }
-int32 *_SUB_XWRITE_LONG_I=NULL;
-if(_SUB_XWRITE_LONG_I==NULL){
-_SUB_XWRITE_LONG_I=(int32*)mem_static_malloc(4);
-*_SUB_XWRITE_LONG_I=0;
+int64 fornext_value3142;
+int64 fornext_finalvalue3142;
+int64 fornext_step3142;
+uint8 fornext_step_negative3142;
+int32 *_SUB_SET_ORDEROFOPERATIONS_LONG_LENGTH=NULL;
+if(_SUB_SET_ORDEROFOPERATIONS_LONG_LENGTH==NULL){
+_SUB_SET_ORDEROFOPERATIONS_LONG_LENGTH=(int32*)mem_static_malloc(4);
+*_SUB_SET_ORDEROFOPERATIONS_LONG_LENGTH=0;
 }
-int64 fornext_value3258;
-int64 fornext_finalvalue3258;
-int64 fornext_step3258;
-uint8 fornext_step_negative3258;
-qbs *_SUB_XWRITE_STRING_A2=NULL;
-if (!_SUB_XWRITE_STRING_A2)_SUB_XWRITE_STRING_A2=qbs_new(0,0);
-int32 *_SUB_XWRITE_LONG_NEWLINE=NULL;
-if(_SUB_XWRITE_LONG_NEWLINE==NULL){
-_SUB_XWRITE_LONG_NEWLINE=(int32*)mem_static_malloc(4);
-*_SUB_XWRITE_LONG_NEWLINE=0;
+byte_element_struct *byte_element_3143=NULL;
+if (!byte_element_3143){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3143=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3143=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_SUB_XWRITE_STRING_EBAK=NULL;
-if (!_SUB_XWRITE_STRING_EBAK)_SUB_XWRITE_STRING_EBAK=qbs_new(0,0);
-int32 *_SUB_XWRITE_LONG_REEVALED=NULL;
-if(_SUB_XWRITE_LONG_REEVALED==NULL){
-_SUB_XWRITE_LONG_REEVALED=(int32*)mem_static_malloc(4);
-*_SUB_XWRITE_LONG_REEVALED=0;
-}
-int32 *_SUB_XWRITE_LONG_TYP=NULL;
-if(_SUB_XWRITE_LONG_TYP==NULL){
-_SUB_XWRITE_LONG_TYP=(int32*)mem_static_malloc(4);
-*_SUB_XWRITE_LONG_TYP=0;
-}
-int32 pass3259;
-byte_element_struct *byte_element_3264=NULL;
-if (!byte_element_3264){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3264=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3264=(byte_element_struct*)mem_static_malloc(12);
-}
+qbs *_SUB_SET_ORDEROFOPERATIONS_STRING_T=NULL;
+if (!_SUB_SET_ORDEROFOPERATIONS_STRING_T)_SUB_SET_ORDEROFOPERATIONS_STRING_T=qbs_new(0,0);

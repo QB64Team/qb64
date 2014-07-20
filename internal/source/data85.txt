@@ -1,9 +1,36 @@
-int32 *_SUB_IDEBOX_LONG_Y2=NULL;
-if(_SUB_IDEBOX_LONG_Y2==NULL){
-_SUB_IDEBOX_LONG_Y2=(int32*)mem_static_malloc(4);
-*_SUB_IDEBOX_LONG_Y2=0;
+int32 *_FUNC_HASHFIND_LONG_HASHFIND=NULL;
+if(_FUNC_HASHFIND_LONG_HASHFIND==NULL){
+_FUNC_HASHFIND_LONG_HASHFIND=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_HASHFIND=0;
 }
-int64 fornext_value3837;
-int64 fornext_finalvalue3837;
-int64 fornext_step3837;
-uint8 fornext_step_negative3837;
+qbs*oldstr3328=NULL;
+if(_FUNC_HASHFIND_STRING_A->tmp||_FUNC_HASHFIND_STRING_A->fixed||_FUNC_HASHFIND_STRING_A->readonly){
+oldstr3328=_FUNC_HASHFIND_STRING_A;
+if (oldstr3328->cmem_descriptor){
+_FUNC_HASHFIND_STRING_A=qbs_new_cmem(oldstr3328->len,0);
+}else{
+_FUNC_HASHFIND_STRING_A=qbs_new(oldstr3328->len,0);
+}
+memcpy(_FUNC_HASHFIND_STRING_A->chr,oldstr3328->chr,oldstr3328->len);
+}
+int32 *_FUNC_HASHFIND_LONG_I=NULL;
+if(_FUNC_HASHFIND_LONG_I==NULL){
+_FUNC_HASHFIND_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_I=0;
+}
+qbs *_FUNC_HASHFIND_STRING_UA=NULL;
+if (!_FUNC_HASHFIND_STRING_UA)_FUNC_HASHFIND_STRING_UA=qbs_new(0,0);
+byte_element_struct *byte_element_3329=NULL;
+if (!byte_element_3329){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3329=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3329=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_HASHFIND_LONG_F=NULL;
+if(_FUNC_HASHFIND_LONG_F==NULL){
+_FUNC_HASHFIND_LONG_F=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_F=0;
+}
+int32 *_FUNC_HASHFIND_LONG_I2=NULL;
+if(_FUNC_HASHFIND_LONG_I2==NULL){
+_FUNC_HASHFIND_LONG_I2=(int32*)mem_static_malloc(4);
+*_FUNC_HASHFIND_LONG_I2=0;
+}

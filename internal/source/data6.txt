@@ -1,12 +1,47 @@
-qbs *_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME=NULL;
-if (!_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME)_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME=qbs_new(0,0);
-qbs*oldstr1893=NULL;
-if(_FUNC_BACK2BACKNAME_STRING_A->tmp||_FUNC_BACK2BACKNAME_STRING_A->fixed||_FUNC_BACK2BACKNAME_STRING_A->readonly){
-oldstr1893=_FUNC_BACK2BACKNAME_STRING_A;
-if (oldstr1893->cmem_descriptor){
-_FUNC_BACK2BACKNAME_STRING_A=qbs_new_cmem(oldstr1893->len,0);
+qbs*oldstr1940=NULL;
+if(_SUB_ASSIGN_STRING_A->tmp||_SUB_ASSIGN_STRING_A->fixed||_SUB_ASSIGN_STRING_A->readonly){
+oldstr1940=_SUB_ASSIGN_STRING_A;
+if (oldstr1940->cmem_descriptor){
+_SUB_ASSIGN_STRING_A=qbs_new_cmem(oldstr1940->len,0);
 }else{
-_FUNC_BACK2BACKNAME_STRING_A=qbs_new(oldstr1893->len,0);
+_SUB_ASSIGN_STRING_A=qbs_new(oldstr1940->len,0);
 }
-memcpy(_FUNC_BACK2BACKNAME_STRING_A->chr,oldstr1893->chr,oldstr1893->len);
+memcpy(_SUB_ASSIGN_STRING_A->chr,oldstr1940->chr,oldstr1940->len);
 }
+int32 *_SUB_ASSIGN_LONG_I=NULL;
+if(_SUB_ASSIGN_LONG_I==NULL){
+_SUB_ASSIGN_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_ASSIGN_LONG_I=0;
+}
+int64 fornext_value1942;
+int64 fornext_finalvalue1942;
+int64 fornext_step1942;
+uint8 fornext_step_negative1942;
+int32 *_SUB_ASSIGN_LONG_C=NULL;
+if(_SUB_ASSIGN_LONG_C==NULL){
+_SUB_ASSIGN_LONG_C=(int32*)mem_static_malloc(4);
+*_SUB_ASSIGN_LONG_C=0;
+}
+int32 *_SUB_ASSIGN_LONG_B=NULL;
+if(_SUB_ASSIGN_LONG_B==NULL){
+_SUB_ASSIGN_LONG_B=(int32*)mem_static_malloc(4);
+*_SUB_ASSIGN_LONG_B=0;
+}
+qbs *_SUB_ASSIGN_STRING_A2=NULL;
+if (!_SUB_ASSIGN_STRING_A2)_SUB_ASSIGN_STRING_A2=qbs_new(0,0);
+int32 pass1943;
+int32 pass1944;
+qbs *_SUB_ASSIGN_STRING_L=NULL;
+if (!_SUB_ASSIGN_STRING_L)_SUB_ASSIGN_STRING_L=qbs_new(0,0);
+int32 *_SUB_ASSIGN_LONG_TRY=NULL;
+if(_SUB_ASSIGN_LONG_TRY==NULL){
+_SUB_ASSIGN_LONG_TRY=(int32*)mem_static_malloc(4);
+*_SUB_ASSIGN_LONG_TRY=0;
+}
+int32 *_SUB_ASSIGN_LONG_TYP=NULL;
+if(_SUB_ASSIGN_LONG_TYP==NULL){
+_SUB_ASSIGN_LONG_TYP=(int32*)mem_static_malloc(4);
+*_SUB_ASSIGN_LONG_TYP=0;
+}
+int32 pass1946;
+int32 pass1947;

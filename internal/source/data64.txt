@@ -1,5 +1,27 @@
-int32 *_FUNC_UNIQUENUMBER_LONG_UNIQUENUMBER=NULL;
-if(_FUNC_UNIQUENUMBER_LONG_UNIQUENUMBER==NULL){
-_FUNC_UNIQUENUMBER_LONG_UNIQUENUMBER=(int32*)mem_static_malloc(4);
-*_FUNC_UNIQUENUMBER_LONG_UNIQUENUMBER=0;
+qbs *_FUNC_GETFILEPATH_STRING_GETFILEPATH=NULL;
+if (!_FUNC_GETFILEPATH_STRING_GETFILEPATH)_FUNC_GETFILEPATH_STRING_GETFILEPATH=qbs_new(0,0);
+qbs*oldstr3070=NULL;
+if(_FUNC_GETFILEPATH_STRING_F->tmp||_FUNC_GETFILEPATH_STRING_F->fixed||_FUNC_GETFILEPATH_STRING_F->readonly){
+oldstr3070=_FUNC_GETFILEPATH_STRING_F;
+if (oldstr3070->cmem_descriptor){
+_FUNC_GETFILEPATH_STRING_F=qbs_new_cmem(oldstr3070->len,0);
+}else{
+_FUNC_GETFILEPATH_STRING_F=qbs_new(oldstr3070->len,0);
 }
+memcpy(_FUNC_GETFILEPATH_STRING_F->chr,oldstr3070->chr,oldstr3070->len);
+}
+int32 *_FUNC_GETFILEPATH_LONG_I=NULL;
+if(_FUNC_GETFILEPATH_LONG_I==NULL){
+_FUNC_GETFILEPATH_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_GETFILEPATH_LONG_I=0;
+}
+int64 fornext_value3072;
+int64 fornext_finalvalue3072;
+int64 fornext_step3072;
+uint8 fornext_step_negative3072;
+byte_element_struct *byte_element_3073=NULL;
+if (!byte_element_3073){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3073=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3073=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_GETFILEPATH_STRING_A=NULL;
+if (!_FUNC_GETFILEPATH_STRING_A)_FUNC_GETFILEPATH_STRING_A=qbs_new(0,0);
