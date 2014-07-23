@@ -237,7 +237,7 @@ DIM SHARED tempfolderindexstr2 AS STRING
 IF tempfolderindex <> 1 THEN tempfolderindexstr$ = "(" + str2$(tempfolderindex) + ")": tempfolderindexstr2$ = str2$(tempfolderindex)
 
 
-
+DIM SHARED idedebuginfo
 DIM SHARED seperateargs_error
 DIM SHARED seperateargs_error_message AS STRING
 
