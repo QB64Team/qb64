@@ -1,14 +1,14 @@
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION)_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=qbs_new(0,0);
-qbs*oldstr3104=NULL;
+qbs*oldstr3103=NULL;
 if(_FUNC_EVALUATE_EXPRESSION_STRING_E->tmp||_FUNC_EVALUATE_EXPRESSION_STRING_E->fixed||_FUNC_EVALUATE_EXPRESSION_STRING_E->readonly){
-oldstr3104=_FUNC_EVALUATE_EXPRESSION_STRING_E;
-if (oldstr3104->cmem_descriptor){
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr3104->len,0);
+oldstr3103=_FUNC_EVALUATE_EXPRESSION_STRING_E;
+if (oldstr3103->cmem_descriptor){
+_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr3103->len,0);
 }else{
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr3104->len,0);
+_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr3103->len,0);
 }
-memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr3104->chr,oldstr3104->len);
+memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr3103->chr,oldstr3103->len);
 }
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_T=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_T)_FUNC_EVALUATE_EXPRESSION_STRING_T=qbs_new(0,0);
@@ -40,16 +40,16 @@ qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVAL)_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=qbs_new(0,0);
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP)_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP=qbs_new(0,0);
-static qbs *sc_3109=qbs_new(0,0);
+static qbs *sc_3108=qbs_new(0,0);
+byte_element_struct *byte_element_3109=NULL;
+if (!byte_element_3109){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3109=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3109=(byte_element_struct*)mem_static_malloc(12);
+}
 byte_element_struct *byte_element_3110=NULL;
 if (!byte_element_3110){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3110=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3110=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_3111=NULL;
-if (!byte_element_3111){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3111=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3111=(byte_element_struct*)mem_static_malloc(12);
-}
-static int32 sc_3112;
+static int32 sc_3111;
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_V=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_V)_FUNC_EVALUATE_EXPRESSION_STRING_V=qbs_new(0,0);
 int32 *_FUNC_EVALUATE_EXPRESSION_LONG_INDEX=NULL;
@@ -67,14 +67,18 @@ if(_FUNC_EVALUATE_EXPRESSION_LONG_COUNTER==NULL){
 _FUNC_EVALUATE_EXPRESSION_LONG_COUNTER=(int32*)mem_static_malloc(4);
 *_FUNC_EVALUATE_EXPRESSION_LONG_COUNTER=0;
 }
-int64 fornext_value3114;
-int64 fornext_finalvalue3114;
-int64 fornext_step3114;
-uint8 fornext_step_negative3114;
+int64 fornext_value3113;
+int64 fornext_finalvalue3113;
+int64 fornext_step3113;
+uint8 fornext_step_negative3113;
 int32 *_FUNC_EVALUATE_EXPRESSION_LONG_LENGTH=NULL;
 if(_FUNC_EVALUATE_EXPRESSION_LONG_LENGTH==NULL){
 _FUNC_EVALUATE_EXPRESSION_LONG_LENGTH=(int32*)mem_static_malloc(4);
 *_FUNC_EVALUATE_EXPRESSION_LONG_LENGTH=0;
+}
+byte_element_struct *byte_element_3114=NULL;
+if (!byte_element_3114){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3114=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3114=(byte_element_struct*)mem_static_malloc(12);
 }
 byte_element_struct *byte_element_3115=NULL;
 if (!byte_element_3115){
@@ -83,8 +87,4 @@ if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3115=(byte_element_s
 byte_element_struct *byte_element_3116=NULL;
 if (!byte_element_3116){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3116=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3116=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3117=NULL;
-if (!byte_element_3117){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3117=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3117=(byte_element_struct*)mem_static_malloc(12);
 }
