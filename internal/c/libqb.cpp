@@ -26889,6 +26889,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   int32 func__screenx(){
 	  #ifdef QB64_WINDOWS
+	      while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
 	      return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
       #endif
 		  return 0; //if not windows then return 0
@@ -26896,6 +26897,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   int32 func__screeny(){
 	  #ifdef QB64_WINDOWS
+	       while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
            return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
       #endif
 		  return 0; //if not windows then return 0
@@ -26907,6 +26909,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (passed==3) goto error;
     if (full_screen) return;
 	
+	while (!window_exists){Sleep(100);} //wait for window to be created before moving it.
 	if (passed==2){
 		glutPositionWindow (x,y);}
 	else{

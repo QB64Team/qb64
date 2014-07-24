@@ -6210,14 +6210,15 @@ FOR y = 0 TO (idewy - 9)
             CASE CHR$(34)
                 inquote = NOT inquote
             CASE "'"
-                IF inquote = 0 AND MID$(a$, k, 2) = "'$" THEN metacommand = -1 ELSE comment = -1
+                IF inquote = 0 AND MID$(a$, k, 2) = "'$" THEN comment = -1
         END SELECT
     NEXT k
     FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
         SELECT CASE MID$(a$, m + idesx - 1, 1)
             CASE CHR$(34): inquote = NOT inquote
-            CASE "'": IF inquote = 0 AND metacommand = 0 THEN comment = -1
+            CASE "'": IF inquote = 0 THEN comment = -1
         END SELECT
+        IF left$(ltrim$(a$),2) = "'$" THEN metacommand = -1  : comment = 0
         COLOR 15
         IF comment THEN
             COLOR 11
