@@ -21002,11 +21002,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       autodisplay=1;
       //7. Wait for a new keypress
       do{
-    //SDL_Delay(0);
 	Sleep(100);
     if (stop_program) end();
     }while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),qbs_new_txt(""))));
-      //sub_sleep(NULL, 0);
+
 
     }else{
       if (console){
