@@ -28923,6 +28923,343 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   }
 
 
+
+
+
+
+  void hardware_img_tri2d(int32 dst_x1,int32 dst_y1,int32 dst_x2,int32 dst_y2,int32 dst_x3,int32 dst_y3,
+            int32 src_img,int32 dst_img,
+            int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,int32 src_x3,int32 src_y3,
+            int32 use_alpha,
+            int32 smooth
+            ){
+
+    //calc source texture co-ordinates
+    float x1f,y1f,x2f,y2f,x3f,y3f;
+
+
+    if (dst_img<0) dst_img=0;
+
+    static hardware_img_struct* src_hardware_img;
+    static hardware_img_struct* dst_hardware_img;
+
+    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
+
+    if (src_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(src_img);
+
+    static int32 dst_w,dst_h;
+    static int32 src_h,src_w;
+
+    src_h=src_hardware_img->h;
+    src_w=src_hardware_img->w;
+
+    if (dst_img){
+      dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
+      if (dst_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(dst_img);
+
+      //does it have a dest context? if not create one
+      if (dst_hardware_img->dest_context_handle==0){
+    static GLuint framebuffer_handle;
+    framebuffer_handle=0;
+    glGenFramebuffersEXT(1, &framebuffer_handle);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
+    dst_hardware_img->dest_context_handle=framebuffer_handle;
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
+      }else{
+    if (hardware_img__current_dst!=dst_img){
+      glBindFramebufferEXT(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+      glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
+    }
+      }
+
+      dst_w=dst_hardware_img->w;
+      dst_h=dst_hardware_img->h;
+
+//SEAMLESS adjustments:
+//reduce texture co-ordinates (maintaining top-left)
+//(todo)
+
+//NON-SEAMLESS adjustments:
+//Extend rhs/bottom row to fill extra pixel space
+//calculate extents
+int32 rx1;
+float tx1;
+int32 rx2;
+float tx2;
+rx1=dst_x1; tx1=x1f;
+if (dst_x2<rx1){
+rx1=dst_x2; tx1=x2f;
+}
+if (dst_x3<rx1){
+rx1=dst_x3; tx1=x3f;
+}
+rx2=dst_x1; tx2=x1f;
+if (dst_x2>rx2){
+rx2=dst_x2; tx2=x2f;
+}
+if (dst_x3>rx2){
+rx2=dst_x3; tx2=x3f;
+}
+float xr;//the multiplier for where we should be (1=no change)
+if (rx1==rx2){
+xr=1.0f;
+}else{
+xr=((float)rx2-(float)rx1+1.0)/((float)rx2-(float)rx1);
+}
+
+int32 ry1;
+float ty1;
+int32 ry2;
+float ty2;
+ry1=dst_y1; ty1=y1f;
+if (dst_y2<ry1){
+ry1=dst_y2; ty1=y2f;
+}
+if (dst_y3<ry1){
+ry1=dst_y3; ty1=y3f;
+}
+ry2=dst_y1; ty2=y1f;
+if (dst_y2>ry2){
+ry2=dst_y2; ty2=y2f;
+}
+if (dst_y3>ry2){
+ry2=dst_y3; ty2=y3f;
+}
+float yr;//the multiplier for where we should be (1=no change)
+if (ry1==ry2){
+yr=1.0f;
+}else{
+yr=((float)ry2-(float)ry1+1.0f)/((float)ry2-(float)ry1);
+}
+
+//apply multipliers so right-most and bottom-most rows will be filled
+
+static int32 basex;
+basex=rx1;
+dst_x1=qbr_float_to_long(
+((float)(dst_x1-rx1))*xr+(float)basex
+);
+dst_x2=qbr_float_to_long(
+((float)(dst_x2-rx1))*xr+(float)basex
+);
+dst_x3=qbr_float_to_long(
+((float)(dst_x3-rx1))*xr+(float)basex
+);
+
+static int32 basey;
+basey=ry1;
+dst_y1=qbr_float_to_long(
+((float)(dst_y1-ry1))*yr+(float)basey
+);
+dst_y2=qbr_float_to_long(
+((float)(dst_y2-ry1))*yr+(float)basey
+);
+dst_y3=qbr_float_to_long(
+((float)(dst_y3-ry1))*yr+(float)basey
+);
+
+    }else{ //dest is 0
+
+      dst_w=environment__window_width;
+      dst_h=environment__window_height;
+
+      if (hardware_img__current_dst!=dst_img){
+
+if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glScalef(1, -1, 1);//flip vertically
+    glTranslatef(0, -dst_h, 0);//move to new vertical position
+    glViewport(0,0,dst_w,dst_h);
+      }
+
+//SEAMLESS adjustments:
+//reduce texture co-ordinates (maintaining top-left)
+//(todo)
+
+//NON-SEAMLESS adjustments:
+//Extend rhs/bottom row to fill extra pixel space
+//calculate extents
+int32 rx1;
+float tx1;
+int32 rx2;
+float tx2;
+rx1=dst_x1; tx1=x1f;
+if (dst_x2<rx1){
+rx1=dst_x2; tx1=x2f;
+}
+if (dst_x3<rx1){
+rx1=dst_x3; tx1=x3f;
+}
+rx2=dst_x1; tx2=x1f;
+if (dst_x2>rx2){
+rx2=dst_x2; tx2=x2f;
+}
+if (dst_x3>rx2){
+rx2=dst_x3; tx2=x3f;
+}
+float xr;//the multiplier for where we should be (1=no change)
+if (rx1==rx2){
+xr=1.0f;
+}else{
+xr=((float)rx2-(float)rx1+1.0)/((float)rx2-(float)rx1);
+}
+
+int32 ry1;
+float ty1;
+int32 ry2;
+float ty2;
+ry1=dst_y1; ty1=y1f;
+if (dst_y2<ry1){
+ry1=dst_y2; ty1=y2f;
+}
+if (dst_y3<ry1){
+ry1=dst_y3; ty1=y3f;
+}
+ry2=dst_y1; ty2=y1f;
+if (dst_y2>ry2){
+ry2=dst_y2; ty2=y2f;
+}
+if (dst_y3>ry2){
+ry2=dst_y3; ty2=y3f;
+}
+float yr;//the multiplier for where we should be (1=no change)
+if (ry1==ry2){
+yr=1.0f;
+}else{
+yr=((float)ry2-(float)ry1+1.0f)/((float)ry2-(float)ry1);
+}
+
+//apply multipliers so right-most and bottom-most rows will be filled
+
+static int32 basex;
+basex=
+qbr_float_to_long(
+((float)(rx1))*environment_2d__screen_x_scale+(float)environment_2d__screen_x1
+);
+dst_x1=
+basex+
+qbr_float_to_long(
+((float)(dst_x1-rx1))*environment_2d__screen_x_scale*xr
+);
+dst_x2=
+basex+
+qbr_float_to_long(
+((float)(dst_x2-rx1))*environment_2d__screen_x_scale*xr
+);
+dst_x3=
+basex+
+qbr_float_to_long(
+((float)(dst_x3-rx1))*environment_2d__screen_x_scale*xr
+);
+
+
+static int32 basey;
+basey=
+qbr_float_to_long(
+((float)(ry1))*environment_2d__screen_y_scale+(float)environment_2d__screen_y1
+);
+dst_y1=
+basey+
+qbr_float_to_long(
+((float)(dst_y1-ry1))*environment_2d__screen_y_scale*yr
+);
+dst_y2=
+basey+
+qbr_float_to_long(
+((float)(dst_y2-ry1))*environment_2d__screen_y_scale*yr
+);
+dst_y3=
+basey+
+qbr_float_to_long(
+((float)(dst_y3-ry1))*environment_2d__screen_y_scale*yr
+);
+
+
+    }
+
+    //select the source texture
+    if (hardware_img__current_src!=src_img||hardware_img__current_dst!=dst_img){
+      //texture is potentially bound to fbo, so if soure or dest changes it must be reloaded
+      glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
+      /* The following line is not required, but kept for reference purposes
+     glClientActiveTexture(src_hardware_img->texture_handle);
+      */
+    }
+
+    //adjust source texture options (if changed)
+    if (src_hardware_img->will_smooth!=smooth){
+      if (smooth){
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      }else{
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      }
+      src_hardware_img->will_smooth=smooth;
+    }
+
+    if (use_alpha){
+      glEnable (GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }else{
+      glDisable (GL_BLEND);
+    }
+
+x1f=((float)src_x1+0.5f)/(float)src_w;
+x2f=((float)src_x2+0.5f)/(float)src_w;
+x3f=((float)src_x3+0.5f)/(float)src_w;
+
+y1f=((float)src_y1+0.5f)/(float)src_h;
+y2f=((float)src_y2+0.5f)/(float)src_h;
+y3f=((float)src_y3+0.5f)/(float)src_h;
+
+    //render it
+
+    //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
+    static int vertices[6];
+    static float texcoords[6];
+    static int32 n;
+    //clockwise
+    n=0;
+    vertices[n++]=dst_x1; vertices[n++]=dst_y1;
+    vertices[n++]=dst_x2; vertices[n++]=dst_y2;
+    vertices[n++]=dst_x3; vertices[n++]=dst_y3;
+    n=0;
+    texcoords[n++]=x1f; texcoords[n++]=y1f;
+    texcoords[n++]=x2f; texcoords[n++]=y2f;
+    texcoords[n++]=x3f; texcoords[n++]=y3f;
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+    glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    hardware_img__current_src=src_img;
+    hardware_img__current_dst=dst_img;
+
+  }
+
+
 #define HARDWARE_RENDER_STATE__UNKNOWN -1
 #define HARDWARE_RENDER_STATE__2D 1
 #define HARDWARE_RENDER_STATE__3D 2 //not used yet
