@@ -1,0 +1,271 @@
+ ****************************************************************************
+ ************************** C A V E   R A I D E R ************* Version 1.4 *
+ ****************************************************************************
+ ******************* Copyright (c) 2004 by Paul  Redling ********************
+ ****************************************************************************
+
+Cave Raider ist ein unterhaltsames und verblüffendes ASCII-Abenteuerspiel.
+Ihr seid ein junger Mann oder eine junge Frau und betretet ein gefährliches
+Untergrund-Höhlensystem mit sechs aufeinander folgenden Höhlen. Ihr werdet
+in diesen Höhlen viel Gold finden, aber auch schreckliche Höhlenmonster, die
+dieses Gold bewachen. Eure Absicht ist es, eine Höhle nach der anderen zu
+überfallen, das ganze Gold zu holen und das Höhlensystem lebendig zu 
+verlassen. Die Ausgestaltung der einzelnen Höhlen wird zufällig generiert.
+Das bedeutet, dass euch jedes Spiel eine neue Herausforderung bietet!
+Außerdem könnt ihr zwischen drei Schwierigkeitsgraden (Einfach, Normal und
+Schwierig) auswählen. Wenn ihr etwas freie Zeit habt, dann probiert dieses
+Spiel aus. Die besten Höhlenräuber und Höhlenräuberinnen bekommen einen
+Eintrag in der Ruhmeshalle.
+
+Dieses Programm ist Freeware, d.h. ihr könnt es ohne Einschränkung benützen
+und weitergeben. Ihr müsst jedoch alle Dateien so belassen wie sie sind und
+dürft kein Geld für das Programm verlangen.
+
+CR.ZIP enthält die folgenden Dateien:
+
+  CR.EXE   - Das ausführbare Programm
+  CR-E.TXT - Die Dokumentation auf Englisch
+  CR-G.TXT - Die Dokumentation auf Deutsch
+  CR.BAS   - Der Quellcode
+
+Die Datei CR.DAT wird erstellt nachdem ihr CR.EXE ausführt. Sie wird für die
+Konfigurations-Daten und die Ruhmeshalle-Daten verwendet.
+
+Das Programm wurde mit Microsoft QBasic 1.1 geschrieben und mit Microsoft
+Basic PDS 7.1 kompiliert.
+
+Es wird ohne Garantie angeboten. Das Programm wurde getestet und sollte keine
+unerwünschte Funktionsweise verursachen. Ihr benützt es jedoch auf eigenes
+Risiko.
+
+
+Systemanforderungen
+-------------------
+
+Keine Sorge! Alles was ihr braucht ist ein Computer mit einer EGA/VGA-
+kompatiblen Grafikkarte. Das Spiel sollte sowohl unter DOS als auch unter
+Windows (einschließlich Windows NT/2000/XP) einwandfrei funktionieren.
+
+
+Das Spiel beginnen
+------------------
+
+DOS: Wechselt in das Verzeichnis, in dem ihr das Spiel installiert habt,
+     tippt "CR" ein und drückt dann EINGABE.
+
+Windows: Öffnet den Ordner, der das Spiel enthält, und klickt doppelt auf das
+         Icon "CR". Das Spiel sollte im Vollbildschirmmodus gespielt werden.
+
+
+Optionen
+--------
+
+  1) Cave Raider               - Männlich (gelb) oder Weiblich (rosa)
+
+  2) Schwierigkeitseinstellung - Einfach, Normal oder Schwierig
+
+  3) Sound                     - an/aus
+
+Wenn ihr eine Veränderung vornehmt, könnt ihr die neuen Einstellungen
+abspeichern. Wenn ihr die Tabelle in der Ruhmeshalle löschen wollt, dann geht
+dorthin und drückt F1.
+
+
+Tasten
+------
+
+  Die Pfeiltasten - Bewegen den Cave Raider
+
+  LEERTASTE       - Feuert eine Granate ab. Benützt die Pfeiltasten um eine
+                    Richtung zu wählen. Drückt erneut die LEERTASTE um eine
+                    sofortige Explosion der Granate zu verursachen.
+
+  M               - Magie (Stein-Zauberspruch)
+
+  S               - Sound an/aus
+
+  H               - Hilfe
+
+  Q               - Aufhören
+
+Jedes Mal wenn ihr ein neues Spiel beginnt, werdet ihr nach eurem Namen
+gefragt. Er kann eine maximale Länge von acht Zeichen haben (A-z, a-z und
+Leerzeichen). Benützt die RÜCKTASTE um ein Zeichen zu löschen. Drückt EINGABE
+wenn euer Name weniger als acht Zeichen hat.
+
+
+Symbole
+-------
+
+(Die wirklichen ASCII-Zeichen könnt ihr in der Anleitung im Spiel sehen.)
+
+  Smiley                  - Ihr
+
+  Felsen                  - Wenn ihr gegen ihn läuft, nimmt eure Gesundheit
+                            um 80 (Höhlenwand), 60 (Felsenformation) oder 40
+                            (beschädigte Felsenformation) ab. Wenn eure
+                            Gesundheit null ist, sterbt ihr.
+
+  Gold                    - 50 Punkte. Sobald ihr das ganze Gold eingesammelt
+                            habt, verschwindet die magische Wand ringsum der
+                            magischen Schriftrolle und ihr könnt die
+                            Schriftrolle holen.
+
+  Kiste mit Granaten      - Abhängig vom Schwierigkeitsgrad, bekommt ihr 5
+                            (Einfach), 3 (Normal) oder 2 (Schwierig)
+                            zusätzliche Granaten. Ihr beginnt auch ein Spiel
+                            mit 5, 3 oder 2 Granaten. Die Anzahl der Granaten
+                            ist der einzige Unterschied zwischen den drei
+                            Schwierigkeitsgraden, aber ihr werdet sehen, dass
+                            dieser Unterschied tatsächlich die Schwierigkeit
+                            des Spiels beeinflusst.
+
+  Granate                 - Ihr seid mit einem Granatenwerfer ausgerüstet.
+                            Benützt eine Granate um ein grünes oder ein rotes
+                            Monster zu vernichten oder um seinen Weg durch
+                            ein Zeichen zu blockieren. Eine Granate hat keine
+                            Auswirkung auf ein schwarzes Monster, aber ein
+                            Zeichen blockiert ebenfalls seinen Weg. Passt
+                            auf, dass ihr nicht ein Goldstück trefft. Wenn
+                            eine Granate ein Goldstück in die Luft jagt, 
+                            könnt ihr die magische Schriftrolle nicht mehr
+                            holen um die Höhle zu verlassen. Euer Abenteuer
+                            ist dann zu Ende. In seltenen Fällen müsst ihr
+                            entweder den ganz linken Felsen oder den ganz
+                            rechten Felsen einer Felsenformation sprengen um
+                            ein Goldstück zu holen. Diese zwei Felsen sind
+                            die einzigen, die durch eine Granate gesprengt
+                            werden können, vorausgesetzt es befindet sich
+                            kein Felsen unter ihnen. Alle anderen Felsen
+                            einer Felsenformation können durch eine Granate
+                            nur beschädigt werden. Eine Granate hat keine
+                            Auswirkung auf die Höhlenwände und auf alles,
+                            was von magischem Ursprung ist.
+
+  Explosion               - Wenn ihr in sie hineinläuft, sterbt ihr.
+
+  Zeichen                 - Ein weißer Stern auf blauem Hintergrund. Dieses
+                            Zeichen bleibt auf dem Boden zurück wenn ihr eine
+                            sofortige Explosion einer Granate verursacht,
+                            indem ihr einen Knopf (LEERTASTE) auf eurem
+                            Granatenwerfer drückt. Es ist absolut harmlos,
+                            aber die Höhlenmonster haben Angst davor und
+                            überqueren es nicht. Deshalb könnt ihr das
+                            Zeichen als Barriere benützen, z.B. an der
+                            magischen Tür.
+
+  Magischer Edelstein     - 100 Punkte. Er verleiht euch zwei Zaubersprüche.
+                            Drückt "M" um die roten Monster vorübergehend in
+                            Stein zu verwandeln. Das gilt auch für die
+                            schwarzen Monster. Ihr braucht den Edelstein um
+                            die Höhle durch die magische Tür zu verlassen.
+
+  Magische Schriftrolle   - 100 Punkte. Sie erzeugt alle paar Sekunden
+                            magische Treibsandfelder. Wenn ihr die
+                            Schriftrolle nehmt, verschwinden die magischen
+                            Treibsandfelder sofort und die magischen Monster,
+                            d.h. die schwarzen Monster, verwandeln sich in
+                            Edelsteine, die jeweils 100 Punkte wert sind. Ihr
+                            braucht die Schriftrolle um die Höhle durch die
+                            magische Tür zu verlassen.
+
+  Magische Wand           - Sie beschützt die magische Schriftrolle. Wenn ihr
+                            in sie hineinläuft, sterbt ihr.
+
+  Magisches Treibsandfeld - Es ist in der Nähe der magischen Schriftrolle und
+                            beschützt sie. Wenn ihr in eins hineinläuft,
+                            sterbt ihr.
+
+  Grünes Monster          - 60 Punkte. Maximale Anzahl: 10. Das grüne Monster
+                            ist langsam und nicht sehr intelligent, aber es
+                            bewegt sich in Richtung magische Tür und wenn es
+                            einmal sein Ziel erreicht, bleibt es dort und
+                            behindert eure Flucht. Wenn ihr im Weg seid,
+                            frisst es euch.
+
+  Rotes Monster           - 80 Punkte. Maximale Anzahl: 10. Das rote Monster
+                            ist immer in der gleichen Höhle wie das grüne
+                            Monster. Es ist ein geschickter und ziemlich
+                            schneller Jäger, der sich an die Geschwindigkeit
+                            von euren Bewegungen anpasst. Wenn es euch
+                            erwischt, frisst es euch.
+
+  Schwarzes Monster       - 100 Punkte als Edelstein. Maximale Anzahl: 15.
+                            Das schwarze Monster ist eine magische Kreatur,
+                            die nicht durch Granaten vernichtet werden kann.
+                            Sobald ihr jedoch die magische Schriftrolle
+                            nehmt, verwandelt sich das schwarze Monster in
+                            einen schwarzen Edelstein. Ähnlich wie das rote
+                            Monster ist das schwarze Monster ein geschickter
+                            Jäger, aber es bewegt sich kontinuierlich, in
+                            einem schnellen Tempo. Das bedeutet, dass ihr
+                            euch ebenfalls schnell bewegen solltet, wenn ihr
+                            nicht von ihm gefressen werden wollt.
+                            Glücklicherweise erscheint das schwarze Monster
+                            niemals zusammen mit grünen oder roten Monstern,
+                            weil es sich mit ihnen nicht versteht.
+
+  Magische Tür            - Ihr bekommt 200 Punkte wenn ihr eine von den
+                            ersten fünf Höhlen verlasst und 1000 Punkte wenn
+                            ihr die sechste Höhle verlasst, d.h. das
+                            Höhlensystem. Ihr braucht sowohl den magischen
+                            Edelstein als auch die magische Schriftrolle um
+                            eine Höhle zu verlassen. Außerdem darf sich kein
+                            Höhlenmonster an der magischen Tür befinden wenn
+                            ihr die Höhle verlassen wollt. Wenn diese
+                            Bedingungen nicht erfüllt sind und ihr in die
+                            magische Tür hineinläuft, sterbt ihr.
+
+
+Bemerkungen
+-----------
+
+1) Da ich die Möglichkeit wollte, aus dem Höhlensystem zu entkommen,
+   beschloss ich, dass es insgesamt sechs Höhlen und drei Schwierigkeitsgrade
+   (Einfach, Normal und Schwierig) geben sollte. Wenn ihr gut spielt, solltet
+   ihr in der Lage sein, im Einfach-Modus aus dem Höhlensystem zu entkommen.
+   Wenn ihr sehr gut spielt, sollte eine Flucht auch im Normal-Modus möglich
+   sein. Im Schwierig-Modus ist eine Flucht jedoch fast unmöglich. Wenn in
+   der Ruhmeshalle "Cave:X" steht, bedeutet das, dass er oder sie aus dem
+   Höhlensystem entkommen ist. Das ist großartig, aber denkt daran: Es gibt
+   immer ein nächstes Mal. Ihr könnt niemals sicher sein, ob ihr diese
+   gefährlichen Höhlen lebendig verlasst.
+
+2) Es gibt in diesem Spiel einen Mogelcode ("cheat code").
+
+
+Aktualisierungen des Programms
+------------------------------
+
+Version 1.4  01.12.2004
+
+   - Änderte das Verhalten der magischen Tür
+   - Verbesserte ein paar Routinen
+   - Machte ein paar Verbesserungen in der Dokumentation
+
+Version 1.2  24.10.2004
+
+   - Behob Fehler mit der Granate
+   - Optimierte mehrere Routinen
+
+Version 1.1  04.10.2004
+
+   - Behob Fehler mit den Anfangspositionen der Monster
+   - Behob ein paar andere Fehler
+   - Verbesserte die KI der Jäger
+   - Optimierte Teile des Codes
+   - Machte ein paar kleinere kosmetische Änderungen
+   - Verbesserte die Geschichte
+   - Überarbeitete die Dokumentation
+
+Version 1.0  04.08.2004
+
+   - Erste Veröffentlichung
+
+
+Kontakt
+-------
+
+E-Mail: paul.redling@gmx.net
+
+Ich begrüße eure Kommentare.

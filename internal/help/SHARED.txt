@@ -1,0 +1,70 @@
+The '''SHARED''' statement allows variables to be passed automatically to any [[SUB]] or [[FUNCTION]] procedure.
+
+
+
+{{PageSyntax}}
+:: DIM SHARED Qt AS STRING * 1
+
+
+* [[DIM]]ensioned variables are shared with all procedures in the program module.
+* When used with [[DIM]] in the main module, it eliminates the need to pass a parameter variable to a [[SUB]] or [[FUNCTION]]. 
+* Use [[COMMON SHARED]] to share a list of variable values with sub-procedures or other modules. See also: [[COMMON]]
+* SHARED ('''without [[DIM]]''') can share a list of variables inside of [[SUB]] or [[FUNCTION]] procedures with the main module only.
+:'''Note: SHARED variables in sub-procedures will not be passed to other sub-procedures, only the main module.'''
+
+
+''Example 1:'' Defining variable types with [[AS]] or type suffixes.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} Qt AS {{Cl|STRING}} * 1, price AS {{Cl|DOUBLE}}, ID AS {{Cl|INTEGER}}
+{{Cl|DIM}} {{Cl|SHARED}} Q$, prices#, IDs%
+{{CodeEnd}} '' ''
+
+
+''Example 2:'' The DIR$ function returns a filename or a list when more than one exist. The file spec can use a path and/or wildcards.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 2
+  {{Cl|LINE INPUT}} &quot;Enter a file spec: &quot;, spec$
+  file$ = DIR$(spec$)        'use a file spec ONCE to find the last file name listed
+  {{Cl|PRINT}} DIRCount%, file$,    'function can return the file count using SHARED variable 
+  {{Cl|DO}}
+    K$ = {{Cl|INPUT$}}(1)
+    file$ = DIR$(&quot;&quot;)         'use an empty string parameter to return a list of files!
+    {{Cl|PRINT}} file$,
+  {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(file$) = 0  'file list ends with an empty string
+{{Cl|NEXT}}
+{{Cl|END}}
+
+{{Cl|FUNCTION}} DIR$ (spec$)
+{{Cl|CONST}} TmpFile$ = &quot;DIR$INF0.INF&quot;, ListMAX% = 500  'change maximum to suit your needs
+{{Cl|SHARED}} DIRCount%                                 'returns file count if desired
+{{Cl|STATIC}} Ready%, Index%, DirList$()
+{{Cl|IF}} {{Cl|NOT}} Ready% {{Cl|THEN}} {{Cl|REDIM}} DirList$(ListMax%): Ready% = -1  'DIM array first use
+{{Cl|IF}} spec$ &gt; &quot;&quot; {{Cl|THEN}}                               'get file names when a spec is given
+  {{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR &quot; + spec$ + &quot; /b &gt; &quot; + TmpFile$
+  Index% = 0: DirList$(Index%) = &quot;&quot;: ff% = {{Cl|FREEFILE}}
+  {{Cl|OPEN}} TmpFile$ {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #ff%
+  size&amp; = {{Cl|LOF}}(ff%) 
+  {{Cl|CLOSE}} #ff%
+  {{Cl|IF}} size&amp; = 0 {{Cl|THEN}} {{Cl|KILL}} TmpFile$: {{Cl|EXIT FUNCTION}}
+  {{Cl|OPEN}} TmpFile$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #ff%     
+  {{Cl|DO}} {{Cl|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(ff%) {{Cl|AND (boolean)|AND}} Index% &lt; ListMAX%
+    Index% = Index% + 1
+    {{Cl|LINE INPUT (file statement)|LINE INPUT}} #ff%, DirList$(Index%)   
+  {{Cl|LOOP}}
+  DIRCount% = Index%                       'SHARED variable can return the file count
+  {{Cl|CLOSE}} #ff%
+  {{Cl|KILL}} TmpFile$
+{{Cl|ELSE}} {{Cl|IF}} Index% &gt; 0 {{Cl|THEN}} Index% = Index% - 1 'no spec sends next file name
+{{Cl|END IF}}                                      
+DIR$ = DirList$(Index%)
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}{{small|Code by Ted Weissgerber}}
+: ''Explanation:'' The SHARED variable value ''DIRcount%'' can tell the main program how many files were found using a wildcard spec.
+
+
+''See also:'' 
+* [[DIM]], [[REDIM]]
+* [[COMMON]], [[COMMON SHARED]]
+
+
+{{PageNavigation}}

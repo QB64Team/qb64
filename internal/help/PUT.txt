@@ -1,0 +1,91 @@
+The '''PUT #''' file or port statement writes data to a specific byte or record location.
+
+
+
+{{PageSyntax}}
+:: '''PUT #''filenumber%'',''' [''position''][, {''holdingvariable''|''holdingarray()''}]
+
+
+
+* File/port number is the number used in the [[OPEN]] statement. 
+* The [[INTEGER]] or [[LONG]] file byte ''position'' in a [[BINARY]] file or the record ''position'' in a [[RANDOM]] file '''must be greater than zero'''. 
+* The file byte or record ''position'' can be omitted if the [[PUT]] or [[GET]] is consecutive or when creating new file data sequentially. 
+* The ''holding variable'' [[TYPE|type]] determines byte size and the next byte position in the file when the ''position'' is ommitted.
+* The first byte or record position is 1. This may require adding one to an offset value when documentation uses that position as 0.
+* Both the file ''position'' and ''holding variable''(and comma) can be omitted when using a [[FIELD]] definition.
+* If a [[LEN]] = record length statement is omitted in an [[OPEN]] FOR [[RANDOM]]  statement the record size defaults to 128 bytes!
+* '''Warning: Not designating a PUT position can overwrite previous file data based on the current file ''position''!'''
+* When using a numeric ''holding variable'', values do NOT require conversion using [[MKI$]], [[MKL$]], [[MKS$]] or [[MKD$]].
+* '''QB64''' can load [[Arrays|array]] data directly(brackets required) to a [[BINARY]] file using '''one''' PUT to a [[BINARY]] file: '''{{text|PUT #1, , array()|green}}'''
+
+
+''Example 1:'' Using a [[TYPE]] record variable(Contact) to enter a new [[RANDOM]] record to a file.
+{{CodeStart}} '' ''
+{{Cl|TYPE}} ContactType
+  first {{Cl|AS}} {{Cl|STRING}} * 10
+  last {{Cl|AS}} {{Cl|STRING}} * 20
+  age {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|END}} {{Cl|TYPE}}
+{{Cl|DIM}} Contact {{Cl|AS}} ContactType
+
+{{Cl|INPUT}} &quot;Enter a first name: &quot;, Contact.first
+{{Cl|INPUT}} &quot;Enter a last name: &quot;, Contact.last
+{{Cl|INPUT}} &quot;Enter an age: &quot;, Contact.age
+
+{{Cl|OPEN}} &quot;Record.lst&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = {{Cl|LEN}}(Contact)
+NumRecords% = {{Cl|LOF}}(1) \ {{Cl|LEN}}(Contact)
+{{Cl|PRINT}} NumRecords%; &quot;previous records&quot;
+
+{{Cl|PUT}} #1, NumRecords% + 1, Contact ' add a new record {{Cl|TYPE}} record value
+{{Cl|CLOSE}} #1 '' ''
+{{CodeEnd}}
+: ''Note:'' The DOT record variable values were created or changed before the PUT. The record length is 32 bytes.
+
+
+''Example 2:'' Placing the contents of a numerical array into a [[BINARY]] file. You may want to put the array size at the beginning too.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} array(100) {{Cl|AS}} {{Cl|INTEGER}}
+
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 100
+  array(i) = i
+{{Cl|NEXT}}
+showme  'display array contents
+
+{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+
+{{Cl|PUT}} #1, , array()
+
+{{Cl|ERASE}} array 'clear element values from array and display empty
+showme
+{{Cl|CLOSE}} #1
+
+{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2
+{{Cl|GET}} #2, , array()
+{{Cl|CLOSE}} #2
+showme  'display array after transfer from file
+
+{{Cl|END}}
+
+{{Cl|SUB}} showme
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 100
+  {{Cl|PRINT}} array(i);
+{{Cl|NEXT}}
+{{Cl|PRINT}} &quot;done&quot;
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+: ''Note:'' Use empty brackets in QB64 when using [[GET]] to create an array or [[PUT]] to create a [[BINARY]] data file.
+
+
+''See Example:'' [[Program ScreenShots]]
+
+
+''See also:'' 
+* [[GET|GET #]] 
+* [[SEEK]], [[SEEK (statement)]] 
+* [[PRINT (file statement)|PRINT  #]] 
+* [[FIELD]] 
+* [[PUT (graphics statement)]]
+* [[PUT (TCP/IP statement)]]
+
+
+{{PageNavigation}}

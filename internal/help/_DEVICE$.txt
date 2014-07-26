@@ -1,0 +1,66 @@
+The '''_DEVICE$''' function returns a [[STRING]] value holding the controller type, name and input types of the input devices on a computer.
+
+
+{{PageSyntax}}
+::: device$ = _DEVICE$(''device_number'')
+
+
+* '''[[_DEVICES]] function MUST be read first to get the number of devices and to enable [[_DEVICE$]] and [[_DEVICEINPUT]].'''
+* The ''device_number'' parameter indicates the number of the controller device to be read.
+* Returns the [[STRING]] control type, name of the device and input types each can use included in brackets:
+::* Control type:
+::: [KEYBOARD] always listed as the first device when available.
+::: [MOUSE]] always listed as the second device when available.
+::: [CONTROLLER] subsequent devices are listed as controllers which include joysticks and game pads.
+::* When [CONTROLLER] is returned it may also give the [[STRING]] [[NAME] [device description]] of the controller.
+::* Returns the type of input after the device name as one or more of the following types:
+::: [{{KW|BUTTON}}] indicates there are button types of input. [[_LASTBUTTON]] can return the number of buttons available. 
+::: [{{KW|AXIS}}] indicates there are stick types of input. [[_LASTAXIS]] can return the number of axis available. 
+::: [{{KW|WHEEL}}] indicates that a scrolling input can be read. [[_LASTWHEEL]] can return the number of wheels available.
+
+* '''Device numbers above the number of [[_DEVICES|devices]] found will return an OS error!'''
+* Devices found include keyboard, mouse, joysticks, game pads and multiple stick game controllers.
+
+
+''Example 1:'' Checking for the system's input devices and the number of buttons available.
+{{CodeStart}} '' ''
+devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
+PRINT &quot;Number of input devices found =&quot;; devices
+FOR i = 1 TO devices
+  PRINT {{Cl|_DEVICE$}}(i)
+  PRINT &quot;Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;Wheels:&quot;; {{Cl|_LASTWHEEL}}(i)
+NEXT '' ''
+{{CodeEnd}}
+{{OutputStart}}Number of input devices found = 3
+[KEYBOARD][BUTTON]
+Buttons: 512 Axis: 0 Wheels: 0
+[MOUSE][BUTTON][AXIS][WHEEL]
+Buttons: 3 Axis: 2 Wheels: 3
+[CONTROLLER][[NAME][Microsoft Sidewinder Precision Pro (USB)]][BUTTON][AXIS]
+Buttons: 9 Axis: 6 Wheels: 0
+{{OutputEnd}}
+:Note: The [[STRIG]]/[[STICK]] commands won't read from the keyboard or mouse device the above example lists.
+
+
+''Example 2:'' Finding the number of mouse buttons available in QB64. This could also be used for other devices.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} d = 1 {{Cl|TO}} {{Cl|_DEVICES}}  'number of input devices found
+  dev$ = {{Cl|_DEVICE$}}(d)
+  {{Cl|IF...THEN|IF}} {{Cl|INSTR}}(dev$, &quot;[MOUSE]&quot;) {{Cl|THEN}} buttons = {{Cl|_LASTBUTTON}}(d): {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}}
+{{Cl|PRINT}} buttons; &quot;mouse buttons available&quot; '' ''
+{{CodeEnd}}
+
+
+''See also:''
+* [[_DEVICES]], [[_DEVICEINPUT]]
+* [[_LASTBUTTON]], [[_LASTAXIS]], [[_LASTWHEEL]]
+* [[_BUTTON]], [[_BUTTONCHANGE]]
+* [[_AXIS]], [[_WHEEL]]
+* [[_MOUSEBUTTON]]
+* [[STRIG]], [[STICK]]
+* [[ON STRIG(n)]], [[STRIG(n)]]
+* [[Controller Devices]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,62 @@
+The '''TIME$''' Function returns a [[STRING]] representation of the current computer time in a 24 hour format.
+
+
+{{PageSyntax}}
+:: PRINT &quot;Present time = &quot;; TIME$
+
+
+* Returns the present computer time in following hh:mm:ss 24 hour format: &quot;19:20:33&quot;
+* Uses 2 colon (:) separators between hours, minutes and seconds
+* Hour values range from &quot;00&quot; to &quot;23&quot; starting from midnite.
+* Minutes and seconds range from &quot;00&quot; to &quot;59&quot;
+* Continuous TIME$ calls may lag if a QBasic program is minimized to the taskbar!
+
+
+''Example 1:'' A simple clock using [[DRAW]] with Turn Angle.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|DO}}
+    {{Cl|CLS}}
+    t$ = {{Cl|TIME$}}: h = {{Cl|VAL}}(t$): m = {{Cl|VAL}}({{Cl|MID$}}(t$, 4, 2)): s = {{Cl|VAL}}({{Cl|MID$}}(t$, 7, 2))
+    {{Cl|PRINT}} t$
+    {{Cl|CIRCLE}} {{Cl|STEP}}(0, 0), 200, 8
+    {{Cl|DRAW}} &quot;c12ta&quot; + {{Cl|STR$}}((h {{Cl|MOD}} 12) * -30) + &quot;nu133&quot;
+    {{Cl|DRAW}} &quot;c14ta&quot; + {{Cl|STR$}}(m * -6) + &quot;nu200&quot;
+    {{Cl|DRAW}} &quot;c9ta&quot; + {{Cl|STR$}}(s * -6) + &quot;nu200&quot;
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 1
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}}
+
+
+''Example 2:'' The following Function converts TIME$ to normal 12 hour AM-PM digital clock  format.
+{{CodeStart}} '' ''
+PRINT TIME$
+PRINT Clock$
+
+{{Cl|FUNCTION}} Clock$
+hour$ = {{Cl|LEFT$}}(TIME$, 2): H% = {{Cl|VAL}}(hour$)
+min$ = {{Cl|MID$}}(TIME$, 3, 3)   
+IF H% &gt;= 12 THEN ampm$ = &quot; PM&quot; ELSE ampm$ = &quot; AM&quot; 
+IF H% &gt; 12 THEN
+  IF H% - 12 &lt; 10 THEN hour$ = {{Cl|STR$}}(H% - 12) ELSE hour$ = {{Cl|LTRIM$}}({{Cl|STR$}}(H% - 12))
+ELSEIF H% = 0 THEN hour$ = &quot;12&quot;          ' midnight hour
+ELSE : IF H% &lt; 10 THEN hour$ = {{Cl|STR$}}(H%)  ' eliminate leading zeros   
+END IF  
+Clock$ = hour$ + min$ + ampm$
+END FUNCTION '' ''
+{{CodeEnd}}
+{{OutputStart}}
+14:13:36
+ 2:13 PM
+{{OutputEnd}}
+:''Explanation:'' When hours are less than 10 (but not 0), {{KW|STR$}}(H%) alone keeps a space ahead of the hour. For 2 digit hours, {{KW|LTRIM$}} is used to remove that leading space. For the hours of 10 AM to 12 PM, the hour {{KW|STRING}} value is passed from {{KW|LEFT$}}(TIME$, 2) at the beginning of the function.
+
+
+''See also:'' 
+* [[TIME$ (statement)]], [[DATE$]], [[DATE$ (statement)]] 
+* [[VAL]], [[STR$]], [[LTRIM$]], [[MID$]], [[LEFT$]], [[IF...THEN]]
+
+
+{{PageNavigation}}

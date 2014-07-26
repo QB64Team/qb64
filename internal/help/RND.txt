@@ -1,0 +1,106 @@
+The '''RND''' function returns a random number with a value between 0 (inclusive) and 1 (exclusive).
+
+
+{{PageSyntax}} 
+:: result! = {{KW|RND}} [(n!)]
+
+
+{{PageDescription}}
+* n! is a numeric value that defines the behavior of the RND function but is NOT normally required:
+::n! omitted: Return next random number in the sequence.
+::n! = 0: Return the last value returned.
+::n! &lt; 0: Always returns the same value for any given n
+* Even if n! &gt; 0, the sequence of numbers generated will not change unless [[RANDOMIZE]] is initiated. 
+* The random numbers generated range from 0 to .9999999 [[SINGLE]] values that never equal 1.
+* To get values in a range larger than 1, multiply it with a number.
+* To get values starting at a certain number, add that number to the result.
+* If you need an integer range of numbers, like a dice roll, round it down to an {{KW|INT}}. Add 1 to the maximum number with INT.
+* The random sequence is 2^24 = 16,777,216 entries long, which can cause repeated patterns in some cases. For a more precise random number, you need to write your own [http://en.wikipedia.org/wiki/Linear_congruential_generator| random function].
+* Formulas for the [[INT|Integer]] or [[CINT|Closest Integer]] of ANY number range from ''min%''(lowest value) to ''max%''(greatest value): 
+::* Using [[INT]]: randNum% = INT(RND * (max% - min% + 1)) + min%
+::* Using [[CINT]]: randNum% = CINT(RND * (max% - min%)) + min%
+* Use [[RANDOMIZE]] [[TIMER]] for different random number results each time a program is run. 
+* [[RUN]] should reset the [[RANDOMIZE]] sequence to the starting [[RND]] function value.(Not yet in QB64)
+
+
+''Example 1:'' Generating a random integer value between 1 and 6 (inclusive) using INT.
+{{CodeStart}}
+dice% = {{Cl|INT}}({{Cl|RND}} * 6) + 1 '' '' 'add one as INT value never reaches 6 
+{{CodeEnd}}
+
+
+''Example 2:'' Using uniform random numbers to create random numbers with a gaussian distribution ([http://en.wikipedia.org/wiki/Marsaglia_polar_method| Marsaglia's polar method]).
+{{CodeStart}} '' ''
+{{Cl|DO}}
+  u! = {{Cl|RND}} * 2 - 1
+  v! = {{Cl|RND}} * 2 - 1
+  s! = u! * u! + v! * v!
+{{Cl|LOOP}} {{Cl|WHILE}} s! &gt;= 1 {{Cl|OR}} s! = 0
+s! = SQR(-2 * {{Cl|LOG}}(s!) / s!) * 0.5
+u! = u! * s!
+v! = v! * s! '' ''
+{{CodeEnd}}
+:''Explanation:'' Values ''u!'' and ''v!'' are now two independent random numbers with gaussian distribution, centered at 0.
+
+
+''Example 3:'' Random flashes from an explosion
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+BC = 120 ' BALL COUNT
+{{Cl|DIM}} ballx(1 {{Cl|TO}} BC)
+{{Cl|DIM}} bally(1 {{Cl|TO}} BC)
+{{Cl|DIM}} velx(1 {{Cl|TO}} BC)
+{{Cl|DIM}} vely(1 {{Cl|TO}} BC)
+{{Cl|DIM}} bsize(1 {{Cl|TO}} BC)
+Y = {{Cl|INT}}({{Cl|RND}} * (400 - 100 + 1)) + 100
+X0 = 325
+Y0 = 300
+Tmax = 150
+DO
+    {{Cl|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} BC
+        T = {{Cl|INT}}({{Cl|RND}} * (Tmax - 50 + 1)) + 50
+        X = {{Cl|INT}}({{Cl|RND}} * (1000 + 500 + 1)) - 500
+        velx(p) = (X - X0) / T '                       calculate velocity based on flight time
+        vely(p) = -1 * (Y - .05 * (T ^ 2 + 20 * Y0)) / (T) ' verticle velocity
+    {{Cl|NEXT}} p
+
+    {{Cl|FOR...NEXT|FOR}} w = 1 {{Cl|TO}} BC
+        bsize(w) = {{Cl|INT}}({{Cl|RND}} * (10 - 0 + 1)) + 0 'size
+    {{Cl|NEXT}} w
+
+    {{Cl|FOR...NEXT|FOR}} J = 1 {{Cl|TO}} Tmax
+        {{Cl|_LIMIT}} 60
+        {{Cl|CLS}}
+        '{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 255 {{Cl|STEP}} .5
+        '{{Cl|CIRCLE}} (X0, Y0), i, {{Cl|_RGB}}(255 - i, 0, 0), 0, 3.147
+        ' {{Cl|NEXT}} i
+
+        R = {{Cl|INT}}({{Cl|RND}} * (25 - 20 + 1)) + 20 'random glimmer
+        {{Cl|FOR...NEXT|FOR}} z = 1 {{Cl|TO}} BC
+            ballx(z) = X0 + velx(z) * J
+            bally(z) = Y0 - vely(z) * J + .5 * .1 * J ^ 2
+        {{Cl|NEXT}} z
+
+        {{Cl|FOR...NEXT|FOR}} d = 1 {{Cl|TO}} BC
+            RCOL = {{Cl|INT}}({{Cl|RND}} * (255 - 0 + 1)) 'color
+            {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} bsize(d) + 1 {{Cl|STEP}} .4 'draw balls
+                {{Cl|CIRCLE}} (ballx(d), bally(d)), i, {{Cl|_RGBA}}(255, RCOL - (R * i), RCOL - R * i, 255)
+            {{Cl|NEXT}} i
+        {{Cl|NEXT}} d
+
+        {{Cl|_DISPLAY}}
+
+    {{Cl|NEXT}} J
+
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; '' ''
+{{CodeEnd}} {{small|Code by Falcon}}
+
+
+{{PageSeeAlso}}
+* [[RANDOMIZE]]
+* [[TIMER]]
+* [[INT]]
+
+
+{{PageNavigation}}

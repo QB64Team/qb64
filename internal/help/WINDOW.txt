@@ -1,0 +1,48 @@
+The {{KW|WINDOW}} graphics statement defines the coordinate dimensions of the current graphics viewport.
+
+
+{{PageSyntax}}
+:{{KW|WINDOW}} [[SCREEN] (x1, y1)-(x2,y2)]
+
+
+{{PageDescription}}
+* The statement allows a program to create a custom graphic coordinate system independent of the [[SCREEN (statement)|SCREEN]] mode used.
+* The coordinate values are defined as [[SINGLE]] precision values.
+* If the SCREEN option is used, row values increase from top to bottom. Negative coordinates can be used to the screen center.
+* If the SCREEN option is not used, row coordinates use the Cartesian system with highest row at top to lowest row at bottom.
+* A [[VIEW]] statement can change the viewport area.
+* All subsequent graphics statements will use the new coordinate system.
+* If no statement parameters are used, the viewport area is disabled. 
+* Use [[CLS]] or [[CLS|CLS 1]] to clear the active WINDOW view port area. 
+* [[RUN]] or a [[SCREEN (statement)|SCREEN]] statement will also disable the window viewport.
+* Note: '''QB64''' can create a custom sized window using [[_NEWIMAGE]].
+
+
+''Example:'' Using a WINDOW to amplify circle sizes. [[PMAP]] finds the corresponding WINDOW co-ordinates.
+{{CodeStart}}
+{{Cl|SCREEN}} 12
+{{Cl|WINDOW}} (0, 0)-(10, 10)  'uses Cartesian row co-ordinates
+{{Cl|PRINT}} &quot;Click mouse to place a circle. Hit enter for next color.&quot;
+{{Cl|FOR...NEXT|FOR}} clr = 1 {{Cl|TO}} 15
+  {{Cl|DO}}
+    {{Cl|DO}}
+      {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}}        
+        x! = {{Cl|PMAP}}({{Cl|_MOUSEX}}, 2) ' Convert mouse screen co-ordinates to window co-ordinates.
+        y! = {{Cl|PMAP}}({{Cl|_MOUSEY}}, 3)
+        {{Cl|CIRCLE}} (x!, y!), .2, clr
+        {{Cl|PAINT}} {{Cl|STEP}}(0, 0), clr
+      {{Cl|END IF}}
+    {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(13)
+{{Cl|NEXT}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[PMAP]]
+* [[VIEW]] {{text|(graphics view port)}}
+* [[VIEW PRINT]] {{text|(text view port)}}
+* [[_NEWIMAGE]], [[_LOADIMAGE]]
+
+
+{{PageNavigation}}

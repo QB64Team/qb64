@@ -1,0 +1,99 @@
+The '''_MEM''' variable type can be used when working with memory blocks. It has no variable [[type]] suffix. Effective version ''.954''.
+
+
+{{PageSyntax}}
+:::  [[DIM]] m [[AS]] '''_MEM'''
+
+
+''Variable TYPE:''
+* Memory DOT values are actually part of the built in memory variable [[type]] in QB64. The following [[TYPE]] is built in:
+{{WhiteStart}}TYPE memory_type
+  OFFSET AS _OFFSET       'start location of block(changes with byte position)
+  SIZE AS _OFFSET         'size of block remaining at offset(changes with position)
+  TYPE AS LONG            'type description of variable used(never changes)
+  ELEMENTSIZE AS _OFFSET  'byte size of values inside the block(never changes)
+END TYPE
+
+{{text|The above [[TYPE]] is for clarification purposes only. It is not required to use _MEM!|red}}
+{{WhiteEnd}}
+
+
+''Usage:''
+* The _MEM type contains the following '''read only''' DOT elements where ''name'' is the variable name:
+:: ''name'''''.OFFSET''' is the current start position in the memory block AS [[_OFFSET]]. Add bytes to change position.
+:: ''name'''''.SIZE''' is the remaining size of the block at current position in bytes AS [[_OFFSET]]
+:: ''name'''''.TYPE''' is the type (represented as bits combined to form a value) AS [[LONG]]:
+:::* [bit 0] 1 byte. _MEM.ELEMENTSIZE = 1* = [[_BYTE]] 
+:::* [bit 1] 2 byte. _MEM.ELEMENTSIZE = 2* = [[INTEGER]]
+:::* [bit 2] 4 byte. _MEM.ELEMENTSIZE = 4* = [[LONG]] or [[SINGLE]]
+:::* [bit 3] 8 byte. _MEM.ELEMENTSIZE = 8* = [[DOUBLE]] or [[_INTEGER64]]
+:::* [bit 4] 16 byte. _MEM.ELEMENTSIZE = 16*
+:::* [bit 5] 32 byte. _MEM.ELEMENTSIZE = 32* = [[_FLOAT]]
+:::* [bit 6] 64 byte. _MEM.ELEMENTSIZE = 64*
+:::* [bit 7] 128 byte. _MEM.ELEMENTSIZE = 128*
+:::* [bit 8] 256 byte. _MEM.ELEMENTSIZE = 256*
+:::* [bit 9] 512 (total = 512 + bytes*) = all integer types: [[_BYTE]], [[INTEGER]], [[LONG]] or [[_INTEGER64]]
+:::* [bit 10] 1024 (total = 1024 + bytes*) = floating point types: [[SINGLE]], [[DOUBLE]], [[_FLOAT]]
+:::* [bit 11] 2048 = [[STRING]] types only
+:::* [bit 12] 4096 (total = 4096 + 512 + bytes*) = [[_UNSIGNED]]: [[_BYTE]], [[INTEGER]], [[LONG]] or [[_INTEGER64]]
+:::* [bit 13] 8192 = [[_MEM]] type only
+:::* [bit 14] 16384 = [[_OFFSET]] type only
+::: * Only used along with specific numerical types (currently [[INTEGER|whole]] or [[_FLOAT|floating decimal point]] [[type]]s)
+:::'''Note: If a future QB64 variable type doesn't have a byte size that matches a size bit value, it won't be set.'''
+
+:::'''Version .954 .TYPE METHOD ONLY:'''
+:::* 0 = unknown(eg. created with [[_MEMNEW]]) or [[TYPE|user-defined-types]]
+:::* 1 = Integer types such as [[_BYTE]], [[INTEGER]], [[LONG]], [[_INTEGER64]] or [[_OFFSET]]
+:::* 2 = [[_UNSIGNED]] variable types. Value must be added to the variable type value.(2 cannot be used by itself)
+:::* 3 = ALL [[_UNSIGNED]] [[INTEGER]] type values.(add 1 + 2)
+:::* 4 = Floating point types such as [[SINGLE]], [[DOUBLE]] or [[_FLOAT]]
+:::* 8 = [[STRING]] 
+:: ''name'''''.ELEMENTSIZE''' is the [[_BYTE]] size of the elements within the block AS [[_OFFSET]]
+:::* 1 = [[_BYTE]] or unfixed [[STRING]] values have a size of 1 byte.
+:::* 2 = [[INTEGER]] values have an element size of 2 bytes
+:::* 4 = [[LONG]] integer and [[SINGLE]] float values have an element size of 4 bytes
+:::* 8 = [[DOUBLE]] float and [[_INTEGER64]] values have an element size of 8 bytes
+:::* 32 = [[_FLOAT]] values have an element size of 32 bytes
+:::* [[LEN]] = [[_OFFSET]] and fixed length [[STRING]] byte sizes vary so use [[LEN]] for the number of bytes.
+
+* '''Note: [[_OFFSET]] values cannot be cast to other variable [[type]]s reliably! _MEM is a reserved custom variable [[type]]!'''
+* '''[[_MEM (function)|_MEM]] cannot reference variable length [[STRING]] variable values! String values must be designated as a fixed [[LEN]].'''
+
+
+''Example:'' Converts the current [[_DEST|destination]] [[SCREEN]] 13 image memory altered by [[PSET]] to a [[STRING]] value. SCREEN 13 only!
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13
+{{Cl|PSET}} (0, 0), {{Cl|ASC}}(&quot;H&quot;) 'top left corner of screen
+{{Cl|PSET}} (1, 0), {{Cl|ASC}}(&quot;E&quot;)
+{{Cl|PSET}} (2, 0), {{Cl|ASC}}(&quot;L&quot;)
+{{Cl|PSET}} (3, 0), {{Cl|ASC}}(&quot;L&quot;)
+{{Cl|PSET}} (4, 0), {{Cl|ASC}}(&quot;O&quot;)
+
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+m = {{Cl|_MEMIMAGE}}(0)  'copy the screen memory to m
+x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 5) 'get at block start position
+{{Cl|LOCATE}} 2, 1:{{Cl|PRINT}} {{Cl|LEN}}(x1$) 'prints 5 bytes as size is STRING * 5
+{{Cl|PRINT}} x1$ 'prints HELLO as ASCII character values
+{{Cl|PRINT}} m.OFFSET; m.SIZE; m.TYPE; m.ELEMENTSIZE
+{{Cl|_MEMFREE}} m '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ 5
+HELLO
+ 5448320  6400  4609  1
+{{OutputEnd}}
+: ''Explanation:'' When a numerical [[_BYTE]] value is converted to a [[STRING]], each byte is converted to an [[ASCII]] character. The QB64 [[IDE]] will capitalize _MEM dot values.
+{{WhiteStart}}                                        m.SIZE = 320 * 200 = 6400 bytes
+                                        m.TYPE = 4096 + 512 + 1 = 4609 (type = [[_UNSIGNED]] [[_BYTE]])
+                                        m.ELEMENTSIZE = 1 byte
+{{WhiteEnd}}
+
+''See also:''
+* [[_MEM (function)]]
+* [[_MEMELEMENT]], [[_MEMCOPY]]
+* [[_MEMIMAGE]], [[_MEMNEW]]
+* [[_MEMGET]], [[_MEMPUT]]
+* [[_MEMFILL]], [[_MEMFREE]]
+
+
+{{PageNavigation}}

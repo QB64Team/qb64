@@ -1,0 +1,95 @@
+The '''_LOADFONT''' function loads a TrueType font (.TTF) file of a specific size and style and returns a [[LONG]] font handle value &gt; 0.
+
+
+{{PageSyntax}}
+: handle&amp; = {{KW|_LOADFONT}} (''TTF_filename$'', ''size%''[, &quot;MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND&quot;])
+
+
+{{PageDescription}}
+* The assigned [[LONG]] font ''handle'' variable return value designates a font style to be used somewhere in a program.
+* ''TTF_filename$'' is the filename of '''truetype''' fonts only. Can include the path to the font file. Best to include font files with a program.
+* ''Size'' is the [[INTEGER]] height of the font. If the size is too large or small an [[ERROR Codes|error]] will occur!
+* ''Style'' parameter(s) used, if any, are literal [[STRING]]s(in quotes) or variable text parameters. 
+:* '''&quot;Monospace&quot; has limited font file selections and cannot be used with variable width fonts!
+:* '''&quot;DONTBLEND&quot;''' turns off [[_ALPHA]] blending of fonts. This can also be done with the [[_DONTBLEND]] statement.
+:* You can pass different font styles using different predefined [[STRING]] variable lists. You '''can''' include an empty style string!
+* '''Always check that font handle values are greater than 0 before using them or [[ERROR Codes|illegal function errors]] may occur!'''
+* '''NOTE: SCREEN 0 can only use ONE font on a screen page! Thus a style like underline would affect the entire page.'''
+* Font sizes can be found using the [[_FONTHEIGHT]] function. Font ''size''s can also affect [[SCREEN (statement)|SCREEN]] sizes! 
+* [[_FONTWIDTH]] can only measure MONOSPACE fonts! '''&quot;MONOSPACE&quot; cannot be used on a variable width font.'''
+* [[_PRINTWIDTH]] can measure the width of a string of text in '''graphics modes only'''. Use one character to get the font's width.
+
+
+&lt;center&gt; '''Font Handles'''&lt;/center&gt;
+* Multiple fonts will require multiple font variable handles unless used and freed consecutively.
+* Font handles with values greater than 0 that are '''no longer used''' should be freed using [[_FREEFONT]]. 
+* '''Predefined QB64''' font handle numbers can be substituted before freeing a font handle:
+**'''_FONT 8 ''' - default font for [[SCREEN (statement)|SCREEN]] 1, 2, 7, 8 or 13
+**'''_FONT 14''' - default font for [[SCREEN (statement)|SCREEN]] 9 or 10
+**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ({{KW|WIDTH}} 80, 25 text only), 11 or 12
+**'''_FONT 9, 15''' and '''17''' are the double width versions of 8, 14 and 16 respectively in text '''SCREEN 0 only'''.
+* Once the font is changed to a predefined value, the font handle value can be freed using [[_FREEFONT]] for another font type.
+* Font handle values of -1 (load failure) '''do not''' need to be freed! '''An [[ERROR Codes|error]] will occur if you try to free invalid handles!'''
+
+
+&lt;center&gt; '''Font File Specs'''&lt;/center&gt;
+* Windows users should find '''TTF''' font files in the C:\WINDOWS\FONTS folder, but don't depend on unusual ones being there. 
+* '''Check the font file name! The name in the &quot;viewer&quot; is NOT necessarily the file's name! Use the name in properties!'''
+* If a program is on a different drive than Windows, [[ENVIRON$]](&quot;SYSTEMROOT&quot;) will return the path to the &quot;WINDOWS&quot; folder. Normally &quot;C:\WINDOWS&quot;. Then add the &quot;\FONTS\&quot; folder and the font '''.TTF''' filename to the path [[STRING]].
+
+
+''Example 1:'' You need to know that if you are in a text mode (such as SCREEN 0 - the default) then you will only be able to use mono-spaced (fixed width) fonts.
+
+{{CodeStart}}
+rootpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;)          'normally &quot;C:\WINDOWS&quot;
+fontfile$ = rootpath$ + &quot;\Fonts\cour.ttf&quot;   'TTF file in Windows 
+style$ = &quot;monospace, italic, bold&quot;          'font style is not case sensitive
+f&amp; ={{Cl|_LOADFONT}}(fontfile$, 30, style$)
+{{Cl|_FONT}} f&amp;
+{{Cl|PRINT}} &quot;Hello!&quot;
+
+{{CodeEnd}}
+{{OutputStart}}
+
+'''''Hello!'''''
+
+{{OutputEnd}}
+
+''Note:'' 30 means each row of text (including vertical spacing) will be exactly 30 pixels high. This may make some program screens larger. If you don't want a style listed just use style$ = &quot;&quot; if using a [[STRING]] variable for different calls.
+
+
+
+''Example 2:'' In a 32-bit graphics mode you can alpha blend onto the background:
+
+{{CodeStart}}
+
+i&amp; ={{Cl|_NEWIMAGE}}(800,600,32)
+{{Cl|SCREEN (statement)|SCREEN}} i&amp;
+{{Cl|COLOR}} &amp;HC0FFFF00,&amp;H200000FF
+f&amp; ={{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\times.ttf&quot;, 25)  'normal style
+{{Cl|PRINT}} &quot;Hello!&quot;
+
+{{CodeEnd}}
+
+{{OutputStart}}
+
+Hello!
+
+{{OutputEnd}}
+
+
+:''Note:'' You can load a fixed width font file without using the &quot;monospace&quot; option and it will be treated as variable width. This can be useful because LOCATE treats the horizontal position as an offset in pixels for variable width fonts.
+
+
+
+''See also:''
+* [[_FONT]], [[_FONT (function)]]
+* [[_FREEFONT]] 
+* [[_PRINTSTRING]], [[_PRINTWIDTH]]
+* [[_PRINTMODE]], [[_PRINTMODE (function)]]
+* [[_FONTHEIGHT]], [[_FONTWIDTH]] 
+* [[Text Using Graphics]] {{text|(Demo)}}
+* [[Windows_Libraries#Font_Dialog_Box|Windows Font Dialog Box]]
+
+
+{{PageNavigation}}

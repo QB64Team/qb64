@@ -1,0 +1,19 @@
+The '''MKD$''' function converts a [[DOUBLE]] numerical value into an 8 byte [[ASCII]] [[STRING]] value.
+
+
+{{PageSyntax}}
+:: 8byte_string$ = MKD$(double_value)
+
+
+* The double precision number value is converted to eight ASCII characters. To prove this try: PRINT MKD$(12345678).
+* [[DOUBLE]] values can range up to 15 decimal point digits. Decimal point accuracy depends on whole value places taken.
+* The string value can be converted back to a DOUBLE numerical value using [[CVD]].
+* [[DOUBLE]] numerical variable values [[PUT]] into a [[BINARY]] file are automatically placed as an MKD$ [[ASCII]] string value.
+
+
+''See also:'' 
+* [[MKI$]], [[MKS$]], [[MKL$]]
+* [[CVI]], [[CVS]], [[CVL]], [[_CV]]
+
+
+{{PageNavigation}}

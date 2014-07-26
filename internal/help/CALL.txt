@@ -1,0 +1,63 @@
+{{KW|CALL}} sends code execution to a subroutine procedure in a program. In '''QB64''' the subroutine doesn't need to be declared.
+
+
+{{PageSyntax}}
+::: '''CALL {{Parameter|ProcedureName}}''' ['''('''{{Parameter|parameters}}, {{Parameter|passed}},...''')''']
+
+
+''Non-call Syntax:'' 
+
+::: '''{{Parameter|ProcedureName}}''' [{{Parameter|parameters}}, {{Parameter|passed}},...]
+
+
+* CALL requires that {{KW|SUB}} program parameters be enclosed in brackets(parenthesis).
+* CALL is NOT required to call a subprocedure. Use the SUB-procedure name and list any parameters without parenthesis.
+* Neither syntax can be used to call [[GOSUB]] linelabel sub procedures.
+* To pass by values, both syntaxes require that each of those variable names be enclosed in parenthesis.
+* PDS or Quickbasic 7 up can use [[BYVAL]] to pass by values instead of reference.
+* Quickbasic 4.5 can use [[BYVAL]] only for procedures created in Assembly or another language.
+* Qbasic requires [[CALL ABSOLUTE]] only. It does not have to be [[DECLARE]]d.
+
+
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|DIM}} a {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} {{Cl|SHARED}} b {{Cl|AS}} {{Cl|INTEGER}}
+a = 1
+b = 1
+{{Cl|CALL}} helloworld
+{{Cl|CALL}} helloworld
+
+{{Cl|SUB}} helloworld
+{{Cl|PRINT}} &quot;Hello World!&quot;
+{{Cl|PRINT}} a
+{{Cl|PRINT}} b
+a = a + 1
+b = b + 1
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+''Returns:''
+{{OutputStart}}Hello World!
+ 0
+ 1
+Hello World!
+ 0
+ 2 {{OutputEnd}}
+: ''Explanation:'' When the subroutine is [[CALL]]ed the code inside the subroutine is executed until it reaches the [[END SUB]] statement or an [[EXIT SUB]] statement. Since the variable {{Parameter|a}} that is outside of the subroutine isn't [[SHARED]] it will have no effect in the subroutine, the variable {{Parameter|a}} inside the subroutine is only valid inside the subroutine, and whatever value {{Parameter|a}} has outside of it makes no difference within the subroutine.
+
+:The variable {{Parameter|b}} on the other hand is [[SHARED]] with the subroutines and thus can be changed in the subroutine. The variable {{Parameter|a}} is initiated with 0 as default when created, thus it will return 0 since it wasn't changed within the subroutine.
+
+:''Note:'' CALL doesn't need to be used in order to call a subroutine. Adding the name of the sub to the code like this will do:
+
+::::::'''{{text|helloworld|green}}'''
+
+: Also; note that the variable {{Parameter|a}} outside of the subroutine is different from the variable {{Parameter|a}} inside the subroutine since {{Parameter|a}} isn't {{KW|SHARED}} through subroutines, variable {{Parameter|b}} on the other hand is {{KW|SHARED}} through subroutines and thus is the same within the subroutine as outside of it.
+
+
+{{PageSeeAlso}}
+* [[SUB]], [[FUNCTION]]
+* [[DECLARE]], [[DECLARE (non-BASIC statement)]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,31 @@
+The {{KW|WAIT}} statement waits until the value read from an I/O port has certain bits set.
+
+
+{{PageSyntax}}
+:{{KW|WAIT}} {{Parameter|port%}}, {{Parameter|andMask%}}[, {{Parameter|xorMask%}}]
+
+
+{{PageDescription}}
+* The {{KW|WAIT}} statement reads a value from {{Parameter|port%}} using {{KW|INP}}.
+* If {{Parameter|xorMask%}} is specified, the value is {{KW|XOR}}'d with {{Parameter|xorMask%}}. It has the effect of &quot;toggle these bits&quot;.
+* The value is then {{KW|AND}}'d with {{Parameter|andMask%}}. It has the effect of &quot;check if these bits are set&quot;.
+* If the final value is non-zero, {{KW|WAIT}} returns. Otherwise, another value is read from {{Parameter|port%}} and checked again.
+* The {{KW|WAIT}} statement returns immediately if {{Parameter|port%}} is not supported.
+
+
+{{PageExamples}}
+:Waiting for vertical retrace
+{{CodeStart}}' Either statement can be used to try to reduce screen flickering.
+' If both statements are used, try changing the order.
+
+WAIT &amp;H3DA, 8 ' finishes whenever the screen isn't being written to
+WAIT &amp;H3DA, 8, 8 ' finishes whenever the screen is being written to
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|INP}}, {{KW|OUT}}
+* [[Scancodes]]
+
+
+{{PageNavigation}}

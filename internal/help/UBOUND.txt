@@ -1,0 +1,35 @@
+The {{KW|UBOUND}} function returns the largest valid index (upper bound) of an array dimension.
+
+
+{{PageSyntax}}
+:''result%'' = {{KW|UBOUND}}(arrayName[, dimension%])
+
+
+{{PageDescription}}
+* {{Parameter|arrayName}} specifies the name of the array.
+
+* {{Parameter|dimension%}} specifies the dimension number, starting with &lt;code&gt;1&lt;/code&gt; for the first dimension.
+** If omitted, {{Parameter|dimension%}} is assumed to be &lt;code&gt;1&lt;/code&gt;.
+** If {{Parameter|dimension%}} is less than &lt;code&gt;1&lt;/code&gt; or is greater than the number of dimensions, a [[ERROR Codes|subscript out of range]] error occurs.
+
+* {{KW|UBOUND}}, along with {{KW|LBOUND}}, is used to determine the range of valid indexes of an array.
+
+
+{{PageExamples}}
+{{CodeStart}}{{Cl|DIM}} myArray(5) {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} myOtherArray(1 to 2, 3 to 4) {{Cl|AS}} {{Cl|INTEGER}}
+
+{{Cl|PRINT}} {{Cl|UBOUND}}(myArray)
+{{Cl|PRINT}} {{Cl|UBOUND}}(myOtherArray, 2)
+{{CodeEnd}}
+{{OutputStart}} 5
+ 4
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|Arrays}}, {{KW|LBOUND}}
+* {{KW|DIM}}, {{KW|COMMON}}, {{KW|STATIC}}, {{KW|SHARED}}
+
+
+{{PageNavigation}}

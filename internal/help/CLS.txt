@@ -1,0 +1,60 @@
+The {{KW|CLS}} statement clears the current write page.
+
+
+{{PageSyntax}} 
+::: '''CLS''' [{{Parameter|method%}}] [, {{Parameter|BGcolor&amp;}}]
+
+
+{{Parameters}}
+* {{Parameter|method%}} specifies which parts of the page to clear, and can have one of the following values:
+** CLS    - clears the active graphics or text viewport or the entire text screen and refreshes bottom function [[KEY LIST|KEY ON]] line.
+** CLS 0 - Clears the entire page of text and graphics. Print cursor is moved to row 1 at column 1.
+** CLS 1 - Clears only the graphics view port. Has no effect for text mode.
+** CLS 2 - Clears only the text view port. The print cursor is moved to the top row of the text view port at column 1.
+* The {{Parameter|BGcolor&amp;}} specifies the color attribute or palette index to use when clearing the screen in '''QB64 only'''.
+
+
+''Usage:''
+** In legacy [[SCREEN]] modes {{Parameter|BGcolor&amp;}} specifies the color attribute of the background.
+** For 32-bit graphics mode, {{Parameter|BGcolor&amp;}} specifies the [[_RGB]] or [[_RGBA]] color to use. 
+* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
+** If not specified, {{Parameter|BGcolor&amp;}} is assumed to be the current background color. 32 bit backgrounds will change to opaque!
+** If {{Parameter|BGColor&amp;}} is not a valid attribute, an [[ERROR Codes|illegal function call]] error will occur!
+* Use [[_PRINTMODE]] to allow the background colors to be visible through the text or the text background.
+
+
+''Example 1:'' Printing black text on a white background in QB64.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|CLS}} , 15
+{{Cl|_PRINTMODE }} _KEEPBACKGROUND        'keeps the text background visible
+{{Cl|COLOR}} 0: {{Cl|PRINT}} &quot;This is black text on a white background!&quot;
+K$ = {{Cl|INPUT$}}(1
+{{CodeEnd}}
+:''Explanation:'' [[_PRINTMODE]] can be used with [[PRINT]] or [[_PRINTSTRING]] to make the text or the text background transparent.
+
+
+''Example 2:'' You don't need to do anything special to use a .PNG image with alpha/transparency. Here's a simple example:
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+{{Cl|CLS}} , {{Cl|_RGB}}(0, 255, 0)
+i = {{Cl|_LOADIMAGE}}('''&quot;QB64.PNG&quot;''') 'see note below examples to get the image 
+{{Cl|_PUTIMAGE}} (0, 0), i ' places image at upper left corner of window w/o stretching it 
+'' ''
+{{CodeEnd}} '' ''
+
+: ''Explanation:'' When QB64 loads a 256 color .PNG file containing a transparent color, that color will be treated as transparent when _PUTIMAGE is used to put it onto another image. So actually, you can use a 256-color .PNG file containing transparency information in a 256 color screen mode in QB64. [[CLS]] sets the [[_CLEARCOLOR]] setting using [[_RGB]].
+
+&lt;center&gt;''Note:'' The ''QB64.PNG'' Bee image used can be copied from the top of the [http://www.qb64.net/forum/index.php Main Forum Page]&lt;/center&gt;
+
+
+{{PageSeeAlso}}
+
+* [[SCREEN]]
+* [[_RGB]], [[_RGBA]] 
+* [[VIEW PRINT]], [[VIEW]]
+* [[_CLEARCOLOR]]
+
+
+{{PageNavigation}}

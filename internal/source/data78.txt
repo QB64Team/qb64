@@ -1,0 +1,43 @@
+qbs*oldstr3206=NULL;
+if(_SUB_VERIFYSTRING_STRING_T->tmp||_SUB_VERIFYSTRING_STRING_T->fixed||_SUB_VERIFYSTRING_STRING_T->readonly){
+oldstr3206=_SUB_VERIFYSTRING_STRING_T;
+if (oldstr3206->cmem_descriptor){
+_SUB_VERIFYSTRING_STRING_T=qbs_new_cmem(oldstr3206->len,0);
+}else{
+_SUB_VERIFYSTRING_STRING_T=qbs_new(oldstr3206->len,0);
+}
+memcpy(_SUB_VERIFYSTRING_STRING_T->chr,oldstr3206->chr,oldstr3206->len);
+}
+int32 *_SUB_VERIFYSTRING_LONG_J=NULL;
+if(_SUB_VERIFYSTRING_LONG_J==NULL){
+_SUB_VERIFYSTRING_LONG_J=(int32*)mem_static_malloc(4);
+*_SUB_VERIFYSTRING_LONG_J=0;
+}
+qbs *_SUB_VERIFYSTRING_STRING_COMP=NULL;
+if (!_SUB_VERIFYSTRING_STRING_COMP)_SUB_VERIFYSTRING_STRING_COMP=qbs_new(0,0);
+int32 *_SUB_VERIFYSTRING_LONG_GOOD=NULL;
+if(_SUB_VERIFYSTRING_LONG_GOOD==NULL){
+_SUB_VERIFYSTRING_LONG_GOOD=(int32*)mem_static_malloc(4);
+*_SUB_VERIFYSTRING_LONG_GOOD=0;
+}
+int32 *_SUB_VERIFYSTRING_LONG_I=NULL;
+if(_SUB_VERIFYSTRING_LONG_I==NULL){
+_SUB_VERIFYSTRING_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_VERIFYSTRING_LONG_I=0;
+}
+int64 fornext_value3210;
+int64 fornext_finalvalue3210;
+int64 fornext_step3210;
+uint8 fornext_step_negative3210;
+byte_element_struct *byte_element_3211=NULL;
+if (!byte_element_3211){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3211=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3211=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3212=NULL;
+if (!byte_element_3212){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3212=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3212=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3213=NULL;
+if (!byte_element_3213){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3213=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3213=(byte_element_struct*)mem_static_malloc(12);
+}

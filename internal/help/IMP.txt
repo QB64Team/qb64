@@ -1,0 +1,23 @@
+The '''IMP''' logical operator converts the result of two comparative values and returns a bit result.
+
+
+{{PageSyntax}} 
+::first_value {{KW|IMP}} second_value
+
+
+{{PageDescription}}
+* Returns a different result than {{KW|AND}}, {{KW|OR}} or {{KW|XOR}} would.
+* Evaluates: first_value ''implies'' second_value.
+::If first_value is True then second_value must also be True.
+::So if first_value is True, and second_value False, then the condition is False, otherwise True (see table)
+
+
+{{Template:LogicalTruthTable}}
+
+
+{{PageSeeAlso}}
+* [[Binary]]
+* [[Boolean]]
+
+
+{{PageNavigation}}

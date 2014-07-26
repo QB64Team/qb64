@@ -1,0 +1,15 @@
+int32 *_FUNC_IDENEWTXT_LONG_IDENEWTXT=NULL;
+if(_FUNC_IDENEWTXT_LONG_IDENEWTXT==NULL){
+_FUNC_IDENEWTXT_LONG_IDENEWTXT=(int32*)mem_static_malloc(4);
+*_FUNC_IDENEWTXT_LONG_IDENEWTXT=0;
+}
+qbs*oldstr4122=NULL;
+if(_FUNC_IDENEWTXT_STRING_A->tmp||_FUNC_IDENEWTXT_STRING_A->fixed||_FUNC_IDENEWTXT_STRING_A->readonly){
+oldstr4122=_FUNC_IDENEWTXT_STRING_A;
+if (oldstr4122->cmem_descriptor){
+_FUNC_IDENEWTXT_STRING_A=qbs_new_cmem(oldstr4122->len,0);
+}else{
+_FUNC_IDENEWTXT_STRING_A=qbs_new(oldstr4122->len,0);
+}
+memcpy(_FUNC_IDENEWTXT_STRING_A->chr,oldstr4122->chr,oldstr4122->len);
+}

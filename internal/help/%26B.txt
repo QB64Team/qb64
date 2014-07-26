@@ -1,0 +1,137 @@
+The '''&amp;B''' prefix denotes that an integer value is expressed in a binary base 2 format using '''QB64''' only.
+
+
+{{PageSyntax}} 
+:::: a&amp; = &amp;B1110110000111111
+
+
+* The base 2 numbering system uses binary digit values of 1 or 0, or bits on or bits off in computer register switches or memory.
+* Leading zero values '''can''' be omitted as they add nothing to the byte return value.
+* Eight binary digits would represent a one byte value ranging from 0 to 255. Four digit values(&quot;nibbles&quot;) range from 0 to 15.
+* Decimal values returned can be any '''signed''' [[INTEGER]], [[LONG]] integer, or [[_INTEGER64]] value so use those type of variables when converting directly as shown in the Syntax. The program [[ERROR Codes|&quot;overflow&quot;]] error limits are listed as:
+** [[INTEGER]]: 16 binary digits or a decimal value range from -32,768 to 32,767
+** [[LONG]]: 32 binary digits or a decimal value range from -2,147,483,648 to 2,147,483,647
+** [[_INTEGER64]]: 64 binary digits or decimal values from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807.
+* [[LONG]] values can be returned by appending the &amp; or ~%([[_UNSIGNED]] [[INTEGER]]) symbols after the binary number.
+* [[VAL]] can '''NOT''' be used to convert &quot;&amp;B&quot; prefixed string values to decimal! You will have to make your own conversion function.
+
+&lt;center&gt;'''[[_BIT|BITS]]'''&lt;/center&gt;
+* The '''MSB''' is the most significant(largest) bit value and '''LSB''' is the least significant bit of a binary or register memory address value. The order in which the bits are read determines the binary or decimal byte value. There are two common ways to read a byte:
+
+:* '''&quot;Big-endian&quot;''': MSB is the first bit encountered, decreasing to the LSB as the last bit by position, memory address or time.
+:* '''&quot;Little-endian&quot;''': LSB is the first bit encountered, increasing to the MSB as the last bit by position, memory address or time.
+{{WhiteStart}}
+         '''Offset or Position:    0    1   2   3   4   5   6   7      Example: 11110000'''
+                              ----------------------------------             --------
+    '''Big-Endian Bit On Value:'''   128  64  32  16   8   4   2   1                 240
+ '''Little-Endian Bit On Value:'''    1    2   4   8  16  32  64  128                 15
+{{WhiteEnd}}
+::The big-endian method compares exponents of 2 &lt;sup&gt;7&lt;/sup&gt; down to 2 &lt;sup&gt;0&lt;/sup&gt; while the little-endian method does the opposite. 
+
+&lt;center&gt;'''[[_BYTE|BYTES]]'''&lt;/center&gt;
+* [[INTEGER]] values consist of 2 bytes called the '''HI''' and '''LO''' bytes. Anytime that the number of binary digits is a multiple of 16 (2bytes, 4 bytes, etc.) and the HI byte's MSB is on(1), the value returned will be negative. Even with [[SINGLE]] or [[DOUBLE]] values! 
+{{WhiteStart}}                                 '''16 BIT INTEGER OR REGISTER'''
+              '''AH (High Byte Bits)                         AL (Low Byte Bits)'''
+   BIT:    15    14   13   12   11   10   9   8  |   7   6    5   4    3    2   1    0
+          ---------------------------------------|--------------------------------------
+   HEX:   8000  4000 2000 1000  800 400  200 100 |  80   40  20   10   8    4   2    1
+                                                 |
+   DEC: -32768 16384 8192 4096 2048 1024 512 256 | 128   64  32   16   8    4   2    1
+{{WhiteEnd}}
+::The HI byte's '''MSB''' is often called the '''sign''' bit! When all 16 of the integer binary bits are on, the decimal return is -1.  
+
+
+{{TextStart}}                      '''Comparing the Base Numbering Systems'''
+
+     '''Decimal (base 10)    Binary (base 2)    Hexadecimal (base 16)    Octal (base 8)'''
+
+          0                  0000                  0                     0
+          1                  0001                  1                     1
+          2                  0010                  2                     2
+          3                  0011                  3                     3
+          4                  0100                  4                     4
+          5                  0101                  5                     5
+          6                  0110                  6                     6
+          7                  0111                  7                     7 -- maxed
+          8                  1000                  8                    10
+  maxed-- 9                  1001                  9                    11
+         10                  1010                  A                    12
+         11                  1011                  B                    13
+         12                  1100                  C                    14
+         13                  1101                  D                    15
+         14                  1110                  E                    16
+         15  -------------   1111 &lt;--- Match ---&gt;  F  ----------------  17 -- max 2
+         16                 10000                 10                    20
+        
+      When the Decimal value is 15, the other 2 base systems are all maxed out!
+      The Binary values can be compared to all of the HEX value digit values so
+      it is possible to convert between the two quite easily. To convert a HEX
+      value to Binary just add the 4 binary digits for each HEX digit place so:
+
+                        F      A      C      E 
+              &amp;HFACE = 1111 + 1010 + 1100 + 1101 = &amp;B1111101011001101
+
+      To convert a Binary value to HEX you just need to divide the number into
+      sections of four digits starting from the right(LSB) end. If one has less
+      than 4 digits on the left end you could add the leading zeros like below:
+ 
+             &amp;B101011100010001001 = 0010 1011 1000 1000 1001  
+                       hexadecimal =  2  + B  + 8 +  8  + 9 = &amp;H2B889 
+
+    See the Decimal to Binary conversion function that uses '''[[HEX$]]''' on the '''[[&amp;H]]''' page.
+ 
+{{TextEnd}}
+
+
+''Example 1:'' A Decimal to Binary [[STRING]] function that does not return leading zeroes.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} BIN$(255)      '1 byte(8 bits) maximum
+{{Cl|PRINT}} BIN$(32767)    'integer(2 byte, 15 bits) maximum
+{{Cl|PRINT}} BIN$(-32768)   'integer(2 byte, 16 bits) minimum
+{{Cl|PRINT}} BIN$(-1)       'all 16 bits on 
+
+{{Cl|FUNCTION}} BIN$ (n%)
+  max% = 8 * {{Cl|LEN}}(n%) ': MSB% = 1   'uncomment for 16 (32 or 64) bit returns
+  {{Cl|FOR...NEXT|FOR}} i = max% - 1 {{Cl|TO}} 0 {{Cl|STEP}} -1    'read as big-endian MSB to LSB
+    {{Cl|IF...THEN|IF}} (n% {{Cl|AND (boolean)|AND}} 2 ^ i) {{Cl|THEN}} MSB% = 1: B$ = B$ + &quot;1&quot; {{Cl|ELSE}} {{Cl|IF...THEN|IF}} MSB% {{Cl|THEN}} B$ = B$ + &quot;0&quot;
+  {{Cl|NEXT}}
+{{Cl|IF...THEN|IF}} B$ = &quot;&quot; {{Cl|THEN}} BIN$ = &quot;0&quot; {{Cl|ELSE}} BIN$ = B$    'check for empty string
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+{{OutputStart}}
+11111111
+111111111111111
+1000000000000000
+1111111111111111
+{{OutputEnd}}
+''Note:'' The The MSB% flag allows zeroes to be added. Uncomment the MSB% = 1 statement for returns with leading zero's.
+
+
+''Example 2:'' QB64 converts the binary values from the example above to [[INTEGER]] decimal values automatically.
+{{CodeStart}} '' ''
+{{Cl|DEFLNG}} A-Z
+a = &amp;B11111111
+b = &amp;B111111111111111
+c = &amp;B1000000000000000 '&amp; 'or ~%
+d = &amp;B1111111111111111 '&amp; 'or ~%
+
+{{Cl|PRINT}} a, b, c, d '' ''
+{{CodeEnd}}
+{{OutputStart}}
+255               32767              -32768              -1
+{{OutputEnd}}
+:''Bonus example:'' Add an '''&amp;''' symbol after the negative binary numbers to see the [[LONG]] decimal values below.
+{{OutputStart}}
+255               32767               32768               65535
+{{OutputEnd}}
+: ''Note:'' The [[LONG]] values returned are the same as the values you can get using [[_UNSIGNED]] [[INTEGER]] (~%).
+
+
+''See also:''
+* [[_BIT]], [[_BYTE]]
+* [[OCT$]], [[&amp;O]] {{text|(octal)}}
+* [[HEX$]], [[&amp;H]] {{text|(hexadecimal)}}
+
+
+{{PageNavigation}}

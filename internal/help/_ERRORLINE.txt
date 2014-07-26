@@ -1,0 +1,36 @@
+The '''_ERRORLINE''' function returns the source code line number that caused the most recent runtime error.
+
+
+
+
+{{PageSyntax}}
+:{{Parameter|e%}} = {{KW|_ERRORLINE}}
+
+
+{{PageDescription}}
+* Does not require that the program use line numbers as it counts the actual lines of code.
+* The code line can be found using the QB64 IDE or any other text editor such as Notepad.
+* Used in '''QB64''' program error troubleshooting ONLY.
+
+
+''Example:'' Displaying the current program line using a simulated [[ERROR]] code.
+{{CodeStart}} '' ''
+{{Cl|ON ERROR}} {{Cl|GOTO}} DebugLine 'can't use {{Cl|GOSUB}} 
+
+{{Cl|ERROR}} 250 'simulated error code 
+
+{{Cl|END}} 
+DebugLine: 
+{{Cl|PRINT}} {{Cl|_ERRORLINE}} 
+{{Cl|RESUME}} {{Cl|NEXT}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[ON ERROR]]
+* [[ERR]], [[ERL]]
+* [[ERROR]]
+* [[ERROR Codes]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,61 @@
+The {{KW|_TITLE}} statement provides the program name in the title bar of the QB64 program window.
+
+
+{{PageSyntax}}
+:&lt;code&gt;{{KW|_TITLE}} {{Parameter|Text$}}&lt;/code&gt;
+
+
+{{PageDescription}}
+* The text can be any literal or variable [[STRING]] or [[ASCII]] character value.
+* The title can be changed anywhere in a program procedure.
+* The title bar will say &quot;Untitled&quot; if a title is not used.
+
+
+''Example 1:'' How to create the window title bar.
+{{CodeStart}} '' ''
+{{Cl|_TITLE}} &quot;My New Program&quot; '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' How to find the currently running program module name and current path using a Windows API Library.
+{{CodeStart}} '' ''
+{{Cl|_TITLE}} &quot;My program&quot;
+{{Cl|_DELAY}} 5             '5 second delay
+
+{{Cl|_TITLE}} {{Cl|MID$}}(TITLE$, 1, {{Cl|INSTR}}(TITLE$, &quot;.&quot;) - 1)
+
+{{Cl|PRINT}} PATH$
+
+
+{{Cl|FUNCTION}} TITLE$ '=== SHOW CURRENT PROGRAM
+{{Cl|SHARED}} PATH$
+{{Cl|DECLARE LIBRARY}} 'Directory Information using KERNEL32 provided by Dav
+  {{Cl|FUNCTION}} GetModuleFileNameA ({{Cl|BYVAL}} Module {{Cl|AS}} {{Cl|LONG}}, FileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+FileName$ = {{Cl|SPACE$}}(256)
+Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
+{{Cl|IF...THEN|IF}} Result {{Cl|THEN}}
+  PATH$ = {{Cl|LEFT$}}(FileName$, Result)
+  start = 1
+  DO
+    posit = {{Cl|INSTR}}(start, PATH$, &quot;\&quot;)
+    {{Cl|IF...THEN|IF}} posit {{Cl|THEN}} last = posit
+    start = posit + 1
+  {{Cl|LOOP}} {{Cl|UNTIL}} posit = 0
+  TITLE$ = {{Cl|MID$}}(PATH$, last + 1)
+  PATH$ = {{Cl|LEFT$}}(PATH$, last)
+{{Cl|ELSE}} TITLE$ = &quot;&quot;: PATH$ = &quot;&quot;
+{{Cl|END IF}}
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+: ''Note:'' The actual module file name is returned. Not necessarily the Title value. The value returned can be used however.
+
+
+{{PageSeeAlso}}
+
+*[[_ICON]]
+*[[ASCII]]
+
+
+{{PageNavigation}}

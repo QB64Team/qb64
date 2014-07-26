@@ -1,0 +1,16 @@
+APPEND is used in an output type [[OPEN]] statement to add data to the end of a file.  
+
+
+{{PageSyntax}}
+::: OPEN FileName$ '''FOR APPEND''' AS #1
+
+
+* Creates an empty file using the filename if none exists.
+* Mode places new data after the previous data in the file.
+* Mode can use [[PRINT (file statement)]], [[WRITE (file statement)]] or [[PRINT USING (file statement)]] to output file data or text.
+
+
+''See also:'' [[OUTPUT]], [[RANDOM]], [[INPUT (file mode)]], [[BINARY]]
+
+
+{{PageNavigation}}

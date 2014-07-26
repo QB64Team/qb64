@@ -1,0 +1,65 @@
+The {{KW|_EXIT (function)|_EXIT}} function prevents a program user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.
+
+
+{{PageSyntax}}
+:{{Parameter|quit%}} = _EXIT
+
+
+{{PageDescription}}
+* Once the _EXIT function is used, the program user can no longer manually exit the program until it ends.
+* _EXIT returns any exit requests made AFTER the initial call as:
+:: 0 = no exit request has been made since EXIT monitoring began in the program.
+:: 1 = exit attempted by clicking the window X (close) box since last function call. (Bit 0 set)
+:: 2 = exit attempted with CTRL + BREAK since last call. (Bit 1 set)
+:: 3 = both CTRL + BREAK and the X box have been used since last call. (Bit 0 and 1 set)
+* If a return value is not 0 the program can handle an exit request at a more convenient time if necessary.
+* After a read, the _EXIT value is reset to 0 so store the value when a program delays an exit request.
+* '''Note: Once _EXIT has been used once, you MUST monitor your program by checking it for user EXIT requests!'''
+* Don't just use _EXIT once to prevent a user from exiting a program early! The user may NOT  appreciate that!
+
+
+''Example 1:'' Using an ON TIMER check to read the _EXIT request return values.
+{{CodeStart}} '' ''
+q = {{Cl|_EXIT (function)|_EXIT}} 'function read prevents any program exit at start of program
+{{Cl|ON TIMER (n)|ON TIMER}}(5) {{Cl|GOSUB}} quit
+{{Cl|TIMER}} ON
+{{Cl|PRINT}} &quot;  The Timer will check for exit request every 5 seconds.&quot;
+{{Cl|PRINT}} &quot;Click the X box and/or Ctrl - Break to see the {{Cl|_EXIT (function)|_EXIT}} return!&quot;
+{{Cl|PRINT}} &quot;                    Any Key Quits&quot;
+{{Cl|PRINT}}
+{{Cl|DO}}: {{Cl|_LIMIT}} 30
+  '                    ' simulated program loop
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|END}}
+
+quit:
+q = {{Cl|_EXIT (function)|_EXIT}}
+{{Cl|IF}} q {{Cl|THEN}} {{Cl|PRINT}} q;
+{{Cl|SELECT CASE}} q
+  {{Cl|CASE}} 1: {{Cl|PRINT}} &quot;= X button was clicked&quot;
+  {{Cl|CASE}} 2: {{Cl|PRINT}} &quot;= Ctrl + Break keypress&quot;
+  {{Cl|CASE}} 3: {{Cl|PRINT}} &quot;= Both X and Ctrl + Break!&quot;
+{{Cl|END SELECT}}
+{{Cl|RETURN}} '' ''
+
+{{CodeEnd}}
+
+
+''Example 2:'' Removing temporary files before closing a program upon a user's exit request.
+{{CodeStart}} '' ''
+x = {{Cl|_EXIT}}  'initial function call blocks a user exit
+OPEN &quot;t3mpdata.tmp&quot; FOR APPEND AS #1
+DO
+IF {{Cl|_EXIT}} THEN {{Cl|CLOSE}}: {{Cl|KILL}} &quot;t3mpdata.tmp&quot;: {{Cl|_DELAY}} 1: {{Cl|SYSTEM}} '' ''
+LOOP '' ''
+{{CodeEnd}}
+&lt;center&gt;{{text|Note: If you have a file named ''t3mpdata.tmp'' change the file name!|red}}&lt;/center&gt;
+
+
+{{PageSeeAlso}}
+* [[SYSTEM]] {{text|(ends a program without notice and closes the window in QB64 or a Qbasic program run from the command line.)}}
+* [[END]] {{text|(ends a program displaying &quot;Press any key to continue...&quot;.)}}
+* [[EXIT]] {{text|(ends a loop, SUB or FUNCTION)}}
+
+
+{{PageNavigation}}

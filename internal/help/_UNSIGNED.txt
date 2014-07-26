@@ -1,0 +1,74 @@
+{{KW|_UNSIGNED}} defines a numerical value as being positive using '''QB64''' only.
+
+
+''TYPE'' {{PageSyntax}} 
+::: [[DIM]] variable [[AS]] [{{KW|UNSIGNED}}] ''datatype''
+
+::: variable [[AS]] [{{KW|_UNSIGNED}}] ''datatype''
+
+''_DEFINE'' {{PageSyntax}}
+::: {{KW|_DEFINE}} {{Parameter|LetterRange}} {{KW|AS}} [{{KW|_UNSIGNED}}] {{Parameter|datatype}}
+
+
+{{PageDescription}}
+* When {{KW|_UNSIGNED}} values use negative values the result subtracts from the highest value of the number's type keeping it positive.
+* Datatype can be any of the following: [[INTEGER]], [[LONG]], [[_BIT]], [[_BYTE]], [[_INTEGER64]], [[_OFFSET]]
+*'''[[SINGLE]], [[DOUBLE]] and [[_FLOAT]] variable types cannot be _UNSIGNED!'''
+* {{KW|_UNSIGNED}} can be used in a {{KW|_DEFINE}} statement to set undefined variable name first letters as all positive only values.
+* Can also be used in {{KW|DIM}} statements or Subprocedure parameter definitions following {{KW|AS}}.
+* {{KW|_UNSIGNED}} allows larger positive numerical variable value limits than signed ones.
+* The Unsigned variable type suffix used is the '''tilde ~''' before the number's own type suffix: variablename~&amp;
+
+
+&lt;center&gt;How negative values affect the {{KW|_UNSIGNED}} value returned by a {{KW|_BYTE}} (8 bits). &lt;/center&gt;
+{{WhiteStart}}
+                        00000001 - unsigned &amp; signed are both 1    
+                        01111111 - unsigned &amp; signed are both 127  
+                        11111111 - unsigned is 255 but signed is -1
+                        11111110 - unsigned is 254 but signed is -2
+                        11111101 - unsigned is 253 but signed is -3
+{{WhiteEnd}}
+
+
+''Example:'' Demonstrating how _UNSIGNED variables expand the Integer range.
+{{CodeStart}}
+
+{{Cl|DIM}} n {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} pn {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|LOCATE}} 3, 6: {{Cl|PRINT}} &quot;Press Esc to exit loop&quot;
+{{Cl|FOR...NEXT|FOR}} n = 1 {{Cl|TO}} 80000
+  {{Cl|_LIMIT}} 10000 ' 6.5 second loop 
+  {{Cl|LOCATE}} 12, 37: {{Cl|PRINT}} n ' display current value
+  {{Cl|IF...THEN|IF}} n &gt; 0 {{Cl|THEN}} pn = n ' find highest value
+  {{Cl|IF...THEN|IF}} n = 0 {{Cl|THEN}} Count = Count + 1: {{Cl|LOCATE}} 14, 37: {{Cl|PRINT}} &quot;Count:&quot;; Count; &quot;Max:&quot;; pn
+  {{Cl|IF...THEN|IF}} {{Cl|INP}}(&amp;H60) = 1 {{Cl|THEN}} {{Cl|EXIT|EXIT FOR}} ' escape key exit
+{{Cl|NEXT}} n
+{{Cl|END}}
+
+{{CodeEnd}}
+{{OutputStart}}
+
+   Press Esc to exit loop
+
+
+
+
+                           65462
+
+                          Count: 13 Max: 65535
+
+
+{{OutputEnd}}
+''Explanation:'' The maximum value can only be 65535(32767 + 32768) so the FOR loop repeats itself. Remove the {{KW|_UNSIGNED}} parts and run it again.
+
+
+
+{{PageSeeAlso}}
+* [[DECLARE]], [[SUB]], [[FUNCTION]]
+* [[DIM]], [[_DEFINE]]
+* [[DEFSTR]], [[DEFLNG]], [[DEFINT]], [[DEFSNG]], [[DEFDBL]]
+* [[ABS]], [[SGN]]
+* [[Variable Types]]
+
+
+{{PageNavigation}}

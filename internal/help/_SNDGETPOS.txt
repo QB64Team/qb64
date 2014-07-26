@@ -1,0 +1,27 @@
+The {{KW|_SNDGETPOS}} function returns the current playing position in seconds using a handle from {{KW|_SNDOPEN}}.
+
+
+{{PageSyntax}}
+:{{Parameter|position}} = {{KW|_SNDGETPOS}}({{Parameter|handle&amp;}})
+
+
+{{PageDescription}}
+*Returns the currently playing position in seconds from sound files with the SETPOS capability.
+*If a sound isn't playing, it returns 0.
+*If a sound is paused, it returns the paused position.
+*For a looping sound, the value returned continues to increment and does not reset to 0 when the sound loops.
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|PRINT}} {{Cl|_SNDGETPOS}}(h&amp;)
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDSETPOS}}
+
+
+{{PageNavigation}}

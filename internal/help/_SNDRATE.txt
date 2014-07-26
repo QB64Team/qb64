@@ -1,0 +1,21 @@
+The '''_SNDRATE''' function returns the sample rate frequency per second of the current computer's sound card.
+
+
+{{PageSyntax}}
+::''SampleRate'' = _SNDRATE
+
+
+* The sample rate frequency per second value returned can be any [[INTEGER]] value. Often it is set at 22050.
+* When used with [[_SNDRAW]] it can determine the time that a raw sound has been made. Example: t = t + 1 / _SNDRATE
+* '''The sound card sample rate is determined by the sound card and it CANNOT be changed!'''
+
+
+''See [[_SNDRAW]] example.''
+
+
+''See also:''
+* [[_SNDRAW]]
+* [[_SNDRAWLEN]]
+
+
+{{PageNavigation}}

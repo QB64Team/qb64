@@ -1,0 +1,141 @@
+The '''PRESET''' graphic [[SCREEN]] statement turns a pixel at a coordinate to the background color or a designated color attribute.
+
+
+{{PageSyntax}}
+:: '''PRESET''' [STEP]'''(''column%'', ''row%'')'''[, color_attribute]
+
+
+''[[Parameters]]:''
+* Can use [[STEP]] when relative graphics coordinates are required.
+* ''column'' and ''row'' coordinates can be literal ot variable [[INTEGER]] values which can be offscreen. 
+* If the ''color attribute'' is omitted, a PRESET will be the background color, normally black.
+
+
+''Usage:''
+* Color attributes are limited to those available in the [[SCREEN]] mode used. [[PSET]] can be used to adopt previously used colors.
+* Any color value other than 0 will be white in monochrome [[SCREEN]] modes 2 and 11 where the [[COLOR]] statement cannot be used.
+* PRESET can invisibly locate other graphics objects like [[CIRCLE]]s and add color to subsequent graphic objects and [[DRAW]] when used.
+* The PRESET action can be used in a graphics [[PUT (graphics statement)|PUT]] to produce a color inverted image on any background. See Example 2.
+* '''PRESET can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
+
+
+''Example 1:'' Using PRESET to locate a [[DRAW]] statement that draws a box that is bright red.
+{{CodeStart}} '' ''
+SCREEN 12
+{{Cl|PRESET}}(100, 100)
+{{Cl|DRAW}} &quot;C12 U20 R20 D20 L20&quot; '' ''
+{{CodeEnd}}
+:''Explanation:'' The [[DRAW]] string required a color designation as PRESET defaulted to the black background color. 
+
+
+
+''Example 2:'' Displays the flags of countries that use simple horizontal or vertical color blocks using a highlighted arrow key selection menu.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} c$(21), x$(21), gg%(477)
+
+ARRAY
+SETUP
+SELECTION
+TERMINATE
+
+{{Cl|END}}
+
+{{Cl|SUB}} ARRAY
+c$(1) = &quot;Armenia H040914&quot;
+c$(2) = &quot;Austria H041504&quot;
+c$(3) = &quot;Belgium V001404&quot;
+c$(4) = &quot;Bulgaria H150204&quot;
+c$(5) = &quot;Chad V011404&quot;
+c$(6) = &quot;C“te D'Ivoire V061502&quot;
+c$(7) = &quot;Estonia H090015&quot;
+c$(8) = &quot;France V011504&quot;
+c$(9) = &quot;Germany H000414&quot;
+c$(10) = &quot;Hungary H041502&quot;
+c$(11) = &quot;Ireland V021506&quot;
+c$(12) = &quot;Italy V021504&quot;
+c$(13) = &quot;Lithuania H140204&quot;
+c$(14) = &quot;Luxembourg H041509&quot;
+c$(15) = &quot;Mali V021404&quot;
+c$(16) = &quot;Netherlands H041501&quot;
+c$(17) = &quot;Nigeria V021502&quot;
+c$(18) = &quot;Romania V091404&quot;
+c$(19) = &quot;Russia H150104&quot;
+c$(20) = &quot;Sierra Leone H021509&quot;
+c$(21) = &quot;Yemen H041500&quot;
+{{Cl|END SUB}}
+
+{{Cl|SUB}} DISPLAY.FLAG (calc%)
+f% = {{Cl|VAL}}({{Cl|MID$}}(x$(calc%), 2, 2))
+s% = {{Cl|VAL}}({{Cl|MID$}}(x$(calc%), 4, 2))
+t% = {{Cl|VAL}}({{Cl|MID$}}(x$(calc%), 6, 2))
+
+{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(x$(calc%), 1) = &quot;V&quot; {{Cl|THEN}}
+  {{Cl|LINE}} (120, 225)-(253, 465), f%, BF
+  {{Cl|LINE}} (254, 225)-(385, 465), s%, BF
+  {{Cl|LINE}} (386, 225)-(519, 465), t%, BF
+{{Cl|END IF}}
+
+{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(x$(calc%), 1) = &quot;H&quot; {{Cl|THEN}}
+  {{Cl|LINE}} (120, 225)-(519, 305), f%, BF
+  {{Cl|LINE}} (120, 306)-(519, 386), s%, BF
+  {{Cl|LINE}} (120, 387)-(519, 465), t%, BF
+{{Cl|END IF}}
+{{Cl|END SUB}}
+
+{{Cl|SUB}} SELECTION 'menu selection using arrow keys
+x% = 2: y% = 4
+
+DO
+  {{Cl|WHILE}} (x% &lt;&gt; prevx% {{Cl|OR (boolean)|OR}} y% &lt;&gt; prevy%) {{Cl|AND (boolean)|AND}} k$ &lt;&gt; {{Cl|CHR$}}(27)
+    k$ = {{Cl|INKEY$}}
+    x% = x% + (k$ = ({{Cl|CHR$}}(0) + &quot;K&quot;) {{Cl|AND (boolean)|AND}} x% &gt; 1) + {{Cl|ABS}}(k$ = ({{Cl|CHR$}}(0) + &quot;M&quot;) {{Cl|AND (boolean)|AND}} x% &lt; 3)
+    y% = y% + (k$ = ({{Cl|CHR$}}(0) + &quot;H&quot;) {{Cl|AND (boolean)|AND}} y% &gt; 1) + {{Cl|ABS}}(k$ = ({{Cl|CHR$}}(0) + &quot;P&quot;) {{Cl|AND (boolean)|AND}} y% &lt; 7)
+    calc% = (x% - 1) * 7 + y%: {{Cl|LOCATE}} 14, 18: {{Cl|PRINT}} c$(calc%); {{Cl|SPACE$}}(10)
+    x1% = 140 + (x% - 1) * 128
+    x2% = x1% + {{Cl|LEN}}(c$(calc%)) * 8 + 7
+    y1% = 48 + y% * 16
+    {{Cl|IF...THEN|IF}} x1% &lt;&gt; prevx1% {{Cl|OR (boolean)|OR}} y1% &lt;&gt; prevy1% {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} g% {{Cl|THEN}} {{Cl|PUT (graphics statement)|PUT}}(prevx1%, prevy1%), gg%(), {{Cl|PSET}}
+      {{Cl|GET (graphics statement)|GET}}(x1%, y1%)-(x2%, y1% + 16), gg%(): g% = 1
+      {{Cl|PUT (graphics statement)|PUT}}(x1%, y1%), gg%(), {{Cl|PRESET}}
+      prevx1% = x1%: prevx2% = x2%: prevy1% = y1%
+      DISPLAY.FLAG calc%
+    {{Cl|END IF}}
+  {{Cl|WEND}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27)
+{{Cl|END SUB}}
+
+{{Cl|SUB}} SETUP
+{{Cl|SCREEN}} 12
+{{Cl|COLOR}} 6
+c% = 1
+
+{{Cl|FOR...NEXT|FOR}} x% = 11 {{Cl|TO}} 50 {{Cl|STEP}} 16
+  {{Cl|FOR...NEXT|FOR}} y% = 1 {{Cl|TO}} 7
+    x$(c%) = {{Cl|RIGHT$}}(c$(c%), 7)
+    c$(c%) = {{Cl|RTRIM$}}({{Cl|LEFT$}}(c$(c%), {{Cl|LEN}}(c$(c%)) - 7))
+    {{Cl|LOCATE}} y% + 4, x% + 8: {{Cl|PRINT}} c$(c%)
+    c% = c% + 1
+{{Cl|NEXT}} y%, x%
+
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 3, 20: {{Cl|PRINT}} &quot;Use the Cursor Keys to Select a Country:&quot;
+{{Cl|LINE}} (119, 224)-(520, 466), 7, B
+{{Cl|END SUB}}
+
+{{Cl|SUB}} TERMINATE
+{{Cl|FOR...NEXT|FOR}} c% = 1 {{Cl|TO}} 219
+  {{Cl|LINE}} (116 + c%, 29 + c%)-(523 - c%, 469 - c%), 0, B
+{{Cl|NEXT}}
+{{Cl|END SUB}}
+{{CodeEnd}}{{small|Code by AlGoreIthm}}
+: ''Explanation:'' Using the [[PUT (graphics statement)|PUT]] PRESET action highlights the menu selection in graphic screen modes by returning a negative image.
+ 
+
+''See also:'' 
+
+* [[PUT (graphics statement)]]
+* [[GET (graphics statement)]]
+* [[CIRCLE]], [[LINE]], [[PSET]]
+
+
+{{PageNavigation}}

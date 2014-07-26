@@ -1,0 +1,18 @@
+ERDEV$ is a string function that returns the name of the last device to declare an error. 
+
+
+{{PageSyntax}}
+::device$ = ERDEV$
+
+
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* It will contain the 8-byte character device name if the error was declared by a character device (such as a printer), while it will contain the 2-byte block name (A:, B:, etc.) if the device was not a character device.
+* It is set when [[ERDEV]] is set, meaning that DOS has encountered a error that prevents it from continuing.
+
+
+''See also:'' 
+* [[ERDEV]] 
+* [[ERROR]]
+
+
+{{PageNavigation}}

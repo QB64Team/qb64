@@ -1,0 +1,68 @@
+'''KEY(n)''' assigns, enables, disables or suspends event trapping of a keypress by setting the flag [[ON]], [[STOP]] or [[OFF]].
+
+
+
+{{PageSyntax}}
+:: KEY(''number'') {[[ON]] | [[OFF]] | [[STOP]]}
+
+
+* Predefined and user defined KEY event number assignments to use with KEY(n): 
+{{WhiteStart}}     '''1 to 10'''.............Reserved '''F1 to F10''' function keys only.
+     '''11, 12, 13 and 14'''...Reserved '''Up, Left, Right and Down''' numeric keypad arrows only
+     '''15 to 29'''............'''user-defined keys''' using value: [[CHR$]](keyflag)  + [[CHR$]]([[Keyboard scancodes|scancode]])
+     '''30 and 31'''...........Reserved '''F11 and F12''' function keys only.
+{{WhiteEnd}}
+* Keypresses can be read during [[INKEY$]], [[INPUT$]] or [[INPUT]] procedures without losing the input. 
+* Key event reads will also interrupt [[SLEEP]]. 
+* [[KEY(n)]] specific status modes are:
+::*'''ON''' enables specific keypress events to be monitored. 
+::*'''STOP''' suspends specific keypress reads, but remembers them. When re-enabled the key presses will be returned.
+::*'''OFF''' disables specified keypress reads and will not remember the event.
+
+
+''Example 1:'' How to trap the LEFT direction keys on both the dedicated cursor keypad and the numeric keypad.
+{{CodeStart}} '' ''
+{{Cl|KEY n|KEY}} 15, {{Cl|CHR$}}(128) + {{Cl|CHR$}}(75) ' Assign trap for LEFT arrow key on the cursor keypad
+{{Cl|ON KEY(n)|ON KEY(15)}} {{Cl|GOSUB}} CursorPad     
+{{Cl|KEY(n)|KEY(15)}} {{Cl|ON}} ' enable event trapping                   
+
+{{Cl|ON KEY(n)|ON KEY(12)}} {{Cl|GOSUB}} NumericPad ' Trap LEFT key on number pad
+{{Cl|KEY(n)|KEY(12)}} {{Cl|ON}} ' enable event trapping                      
+
+DO
+LOOP UNTIL UCASE$(INKEY$) = &quot;Q&quot; ' Idle loop for demo
+{{Cl|SYSTEM}}
+
+CursorPad:
+PRINT &quot;Pressed LEFT key on cursor keypad.&quot;
+{{Cl|RETURN}}
+
+NumericPad:
+PRINT &quot;Pressed LEFT key on numeric keypad.&quot;
+RETURN '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Trapping the F5 keypress.
+{{CodeStart}} '' ''
+{{Cl|KEY(n)|KEY(5)}} {{Cl|ON}}
+{{Cl|ON KEY(n)|ON KEY(5)}} {{Cl|GOSUB}} execute
+{{Cl|PRINT}} &quot;Press F5 (or ESC) to quit!)&quot;
+{{Cl|DO}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) ' idle loop
+{{Cl|SYSTEM}}
+execute:
+PRINT &quot;You pressed the F5 key...&quot;
+{{Cl|SLEEP}} 1
+PRINT &quot;Press any key to continue...&quot;
+SLEEP '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+* [[ON KEY(n)]], [[KEY n]] {{text|(softkeys)}}
+* [[_KEYHIT]], [[_KEYDOWN]]
+* [[Keyboard scancodes]]
+
+
+{{PageNavigation}}

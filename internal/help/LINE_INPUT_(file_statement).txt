@@ -1,0 +1,43 @@
+The '''LINE INPUT #''' file statement reads an entire file line as one string variable value.
+
+
+
+{{PageSyntax}}
+:: LINE INPUT #filenumber%, linereturn$
+
+
+
+* Reads a file using the filenumber [[OPEN]]ed in the [[INPUT (file mode)]] as one file string value.
+* Returns [[STRING]] values so it must use one string variable.
+* Can be used with [[EOF]] to count the number of lines of data (records) in a file using a loop.
+* Use the [[EOF]] function to avoid going past the end of a file and creating an error.
+* LINE INPUT # can even retain the original quotation marks in text.
+* '''NOTE: If QB64 or QB 4.5 give &quot;Input past End of file&quot; errors, check for CHR$(26) in the files being read!'''
+* '''Warning! Files must exist to open them in INPUT mode! Use [[_FILEEXISTS]] to avoid program [[ERROR Codes|errors]]!'''
+
+
+''Example:'' Finding the number of filenames listed in a file to dimension an array to hold them.
+{{CodeStart}} '' ''
+{{Cl|REDIM}} FileArray$(100) 'create {{Cl|$DYNAMIC|dynamic}} array
+{{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR /B *.* &gt; D0S-DATA.INF&quot;  
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(&quot;D0S-DATA.INF&quot;) THEN 
+  {{Cl|OPEN}} &quot;D0S-DATA.INF&quot; FOR {{Cl|INPUT (file mode)|INPUT}} AS #1 
+  DO UNTIL {{Cl|EOF}}(1)
+    {{Cl|LINE INPUT}} #1, file$        'read entire text file line
+    filecount% = filecount% + 1
+  LOOP
+  {{Cl|CLOSE}} #1
+{{Cl|END IF}}
+{{Cl|REDIM}} FileArray$(filecount%)
+{{Cl|PRINT}} filecount% '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+* [[INPUT (file mode)]], [[INPUT (file statement)|INPUT #]], [[INPUT$]] {{text|(file input)}}
+* [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
+* [[_FILEEXISTS]], [[_DIREXISTS]]
+* [[FILELIST$]] (Function replacement for [[FILES]])
+
+
+{{PageNavigation}}

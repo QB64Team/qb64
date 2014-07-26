@@ -1,0 +1,102 @@
+The '''_DEVICEINPUT''' function returns the device number when a controller device button, wheel or axis event occurs.
+
+
+{{PageSyntax}}
+::: device% = _DEVICEINPUT[(''device_number%'')]
+
+
+
+* Use [[_DEVICES]] to find the number of controller devices available BEFORE using this function!
+* Use the ''device'' [[INTEGER]] value returned to find the number of the controller device being used.
+* An optional literal ''device_number'' parameter can be used to return a -1 true value for one device. {{text|WHILE _DEVICEINPUT(2)|green}} 
+* [[_DEVICE$]] can be used to list the device names and control types using valid [[_DEVICES]] numbers.
+* When a device button is pressed or a scroll wheel or axis is moved, the device number will be returned.
+* Devices are numbered as 1 for keyboard and 2 for the mouse. Other devices will follow if installed.
+* [[_LASTBUTTON]], [[_LASTAXIS]], or [[_LASTWHEEL]] will indicate the number of functions available with the specified ''device'' number. 
+* User input events can be monitored reading valid numbered [[_AXIS]], [[_BUTTON]], [[_BUTTONCHANGE]] or [[_WHEEL]] functions.
+* ''Note:'' [[ON...GOSUB|ON _DEVICEINPUT GOSUB]] keyboard, mouse, gamecontrol can be used to control the devices 1,2 and 3, etc. 
+
+
+''Example 1:'' Checking device controller interfaces and finding out what devices are being used.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
+  {{Cl|PRINT}} {{Cl|STR$}}(i) + &quot;) &quot; + {{Cl|_DEVICE$}}(i)
+  {{Cl|PRINT}} &quot;Button:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;,Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;,Wheel:&quot;; {{Cl|_LASTWHEEL}}(i)
+{{Cl|NEXT}}
+
+{{Cl|PRINT}}
+DO
+  x = {{Cl|_DEVICEINPUT}}
+  {{Cl|IF...THEN|IF}} x {{Cl|THEN}} {{Cl|PRINT}} &quot;Device =&quot;; x;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}[KEYBOARD][BUTTON]
+Buttons: 512 Axis: 0 Wheels: 0
+[MOUSE][BUTTON][AXIS][WHEEL]
+Buttons: 3 Axis: 2 Wheels: 3
+[CONTROLLER][[NAME][Microsoft Sidewinder Precision Pro (USB)]][BUTTON][AXIS]
+Buttons: 9 Axis: 6 Wheels: 0
+
+Device = 2 Device = 2
+{{OutputEnd}}
+: ''Note:'' Mouse events must be within the program screen area. Keyboard presses are registered only when program is in focus.
+
+
+''Example 2:'' Why does a mouse have 3 wheels? Relative x and y movements can be read using the first 2 [[_WHEEL]] reads.
+{{CodeStart}} '' ''
+ignore = {{Cl|_MOUSEMOVEMENTX}} 'dummy call to put mouse into relative movement mode
+
+{{Cl|PRINT}} &quot;Move your mouse and/or your mouse wheel (ESC to exit)&quot;
+
+d = {{Cl|_DEVICES}} '  always read number of devices to enable device input
+DO: {{Cl|_LIMIT}} 30  'main loop
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_DEVICEINPUT}}(2) 'loop only runs during a device 2 mouse event
+        {{Cl|PRINT}} {{Cl|_WHEEL}}(1), {{Cl|_WHEEL}}(2), {{Cl|_WHEEL}}(3)
+  {{Cl|LOOP}} 
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
+{{CodeEnd}}
+: ''Explanation:'' Referencing the [[_MOUSEMOVEMENTX]] function hides the mouse and sets the mouse to a relative movement mode which can be read by [[_WHEEL]]. [[_DEVICEINPUT]](2) returns -1 (true) only when the mouse is moved, scrolled or clicked.
+
+
+''Example 3:'' Using [[ON...GOSUB]] with the [[_DEVICEINPUT]] number to add keyboard, mouse and game controller event procedures.
+{{CodeStart}} '' ''
+n = {{Cl|_DEVICES}} 'required when reading devices
+{{Cl|PRINT}} &quot;Number of devices found =&quot;; n
+{{Cl|FOR...NEXT|FOR}} i = 1 TO n
+    PRINT i; _DEVICE$(i) ' 1 = keyboard, 2 = mouse, 3 = other controller, etc.
+{{Cl|NEXT}}
+{{Cl|PRINT}}
+
+{{Cl|DO...LOOP|DO}}: device = {{Cl|_DEVICEINPUT}}
+    {{Cl|ON...GOSUB|ON device GOSUB}} keyboard, mouse, controller  'must be inside program loop
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+{{Cl|END}}
+
+keyboard:
+{{Cl|PRINT}} device; &quot;Keyboard&quot;;
+{{Cl|RETURN}}
+
+mouse:
+{{Cl|PRINT}} device; &quot;Mouse &quot;;
+{{Cl|RETURN}}
+
+controller:
+{{Cl|PRINT}} device; &quot;Game control &quot;;
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+: ''Note:'' [[ON...GOSUB]] and [[ON...GOTO]] events require numerical values to match the order of line labels listed in the event used inside loops.
+
+
+''See also:''
+* [[_DEVICES]], [[_DEVICE$]]
+* [[_LASTBUTTON]], [[_LASTAXIS]], [[_LASTWHEEL]]
+* [[_BUTTON]], [[_AXIS]], [[_WHEEL]]
+* [[STRIG]], [[STICK]]
+* [[ON...GOSUB]] {{text|(numerical events)}}
+* [[Controller Devices]]
+
+
+{{PageNavigation}}
