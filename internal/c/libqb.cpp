@@ -421,10 +421,14 @@ struct hardware_graphics_command_struct{
   int32 src_y1;
   int32 src_x2;
   int32 src_y2;
+  int32 src_x3;
+  int32 src_y3;
   int32 dst_x1;
   int32 dst_y1;
   int32 dst_x2;
   int32 dst_y2;
+  int32 dst_x3;
+  int32 dst_y3;
   int32 smooth;//0 or 1 (whether to apply texture filtering)
   int32 use_alpha;//0 or 1 (whether to refer to the alpha component of pixel values)
   int32 remove;
@@ -433,6 +437,7 @@ list *hardware_graphics_command_handles=NULL;
 #define HARDWARE_GRAPHICS_COMMAND__PUTIMAGE 1
 #define HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST 2
 #define HARDWARE_GRAPHICS_COMMAND__FREEIMAGE 3
+#define HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE 4
 
 int32 new_texture_handle(){
   GLuint texture=0;
@@ -27397,6 +27402,80 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static uint32 col,destcol,transparent_color;
     static uint8* cp;
 
+ //hardware support
+  //is source a hardware handle?
+  if (si){
+    static int32 src,dst;//scope is a wonderful thing
+    src=si;
+    dst=di;
+    hardware_img_struct* src_himg=(hardware_img_struct*)list_get(hardware_img_handles,src-HARDWARE_IMG_HANDLE_OFFSET);
+    if (src_himg!=NULL){//source is hardware image
+      src-=HARDWARE_IMG_HANDLE_OFFSET;
+      //check dst
+      hardware_img_struct* dst_himg=NULL;
+      if (dst<0){
+        hardware_img_struct* dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
+        if (dst_himg==NULL){error(258); return;}
+	dst-=HARDWARE_IMG_HANDLE_OFFSET;
+      }else{
+        if (dst>1) {error(5); return;}
+        dst=-dst;
+      }
+
+    if (passed&1){error(5);return;}//seamless not supported yet
+
+    //create new command handle & structure
+    int32 hgch=list_add(hardware_graphics_command_handles);
+    hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
+
+    hgc->remove=0;
+ 
+    //set command values
+    hgc->command=HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE;
+ 
+    hgc->src_img=src;
+    hgc->src_x1=sx1;
+    hgc->src_y1=sy1;
+    hgc->src_x2=sx2;
+    hgc->src_y2=sy2;
+    hgc->src_x3=sx3;
+    hgc->src_y3=sy3;
+
+    hgc->dst_img=dst;
+    hgc->dst_x1=dx1;
+    hgc->dst_y1=dy1;
+    hgc->dst_x2=dx2;
+    hgc->dst_y2=dy2;
+    hgc->dst_x3=dx3;
+    hgc->dst_y3=dy3;
+
+    hgc->smooth=0;//unless specified, no filtering will be applied
+    if (passed&8) hgc->smooth=1;
+
+    hgc->use_alpha=1;
+    if (src_himg->alpha_disabled) hgc->use_alpha=0;
+    //note: at this point it isn't possible to specify not to blend on
+    //      on a hardware render layer, only by disabling blending on the source
+    if (dst_himg!=NULL){
+     if (dst_himg->alpha_disabled) hgc->use_alpha=0;
+    }
+
+    //queue the command
+    hgc->next_command=0;
+    hgc->order=display_frame_order_next;
+
+    if (last_hardware_command_added){
+      hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+      hgc2->next_command=hgch;
+    }
+    last_hardware_command_added=hgch;
+    if (first_hardware_command==0) first_hardware_command=hgch;
+
+    return;
+
+    }
+  }
+
     //get/validate src/dst images
     if (passed&2){
       if (si>=0){//validate si
@@ -29377,6 +29456,15 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
             }
           }
 
+	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE){
+            if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
+              hardware_img_tri2d(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,hgc->dst_x3,hgc->dst_y3,
+                       hgc->src_img, hgc->dst_img,
+                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
+                       hgc->use_alpha,hgc->smooth);
+            }
+          }
+
           last_hardware_command_rendered=command;
           if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;
           command=hgc->next_command;
@@ -29420,6 +29508,17 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
                      hgc->src_img, hgc->dst_img,
                      hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2, 
                      hgc->use_alpha,hgc->smooth);
+          }
+        }
+          }
+
+          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE){
+        if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
+          if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
+             hardware_img_tri2d(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,hgc->dst_x3,hgc->dst_y3,
+                       hgc->src_img, hgc->dst_img,
+                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
+                       hgc->use_alpha,hgc->smooth);
           }
         }
           }

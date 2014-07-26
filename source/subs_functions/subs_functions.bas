@@ -909,7 +909,7 @@ id.subfunc = 2
 id.callname = "sub__maptriangle"
 id.args = 14
 id.arg = MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{_SEAMLESS}](?,?)-(?,?)-(?,?)[,?]{TO}(?,?)-(?,?)-(?,?)[,?]"
+id.specialformat = "[{_SEAMLESS}](?,?)-(?,?)-(?,?)[,?]{TO}(?,?)-(?,?)-(?,?)[,[?][,{_SMOOTH}]]"
 regid
 
 clearid
