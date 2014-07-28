@@ -13,3 +13,7 @@ void sub_screenicon () {
 	glutIconifyWindow;
 	return;
 }
+
+int32 func_windowexists () {
+	return window_exists;
+}

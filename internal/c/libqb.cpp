@@ -8414,11 +8414,11 @@ int32 qbs_lessthan(qbs *str1,qbs *str2){
   static int32 i;
   if (str1->len<=str2->len){
     if (!str1->len) if (str2->len) return -1; else return 0;
-    i=memcmp(str1->chr,str2->chr,str1->len);
+    i=memcmp(str1->chr,str2->chr,str2->len);
     if (i<0) return -1;
     return 0;
   }else{
-    i=memcmp(str1->chr,str2->chr,str2->len);
+    i=memcmp(str1->chr,str2->chr,str1->len);
     if (i>=0) return 0;
     return -1;
   }

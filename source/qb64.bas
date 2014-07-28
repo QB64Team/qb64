@@ -34,7 +34,7 @@ DIM SHARED Refactor_Source AS STRING
 DIM SHARED Refactor_Dest AS STRING
 IF _FILEEXISTS("refactor.txt") THEN
     fh = FREEFILE
-    OPEN "refactor.txt" FOR INPUT AS #fh
+    OPEN "refactor.txt" FOR BINARY AS #fh
     LINE INPUT #fh, Refactor_Source
     LINE INPUT #fh, Refactor_Dest
     CLOSE fh
@@ -216,7 +216,7 @@ tempfolderindex = i
 IF i > 1 THEN
     'create modified version of qbx.cpp
     OPEN ".\internal\c\qbx" + str2$(i) + ".cpp" FOR OUTPUT AS #2
-    OPEN ".\internal\c\qbx.cpp" FOR INPUT AS #1
+    OPEN ".\internal\c\qbx.cpp" FOR BINARY AS #1
     DO UNTIL EOF(1)
         LINE INPUT #1, a$
         x = INSTR(a$, "..\\temp\\"): IF x THEN a$ = LEFT$(a$, x - 1) + "..\\temp" + str2$(i) + "\\" + RIGHT$(a$, LEN(a$) - (x + 9))
@@ -2488,7 +2488,7 @@ DO
             IF try = 2 THEN f$ = a$
             IF _FILEEXISTS(f$) THEN
                 qberrorhappened = -3
-		'We're using the faster LINE INPUT, which requires a BINARY open.
+                'We're using the faster LINE INPUT, which requires a BINARY open.
                 OPEN f$ FOR BINARY AS #fh
                 'And another line below edited
                 qberrorhappened3:
@@ -9802,7 +9802,7 @@ DO
                 IF try = 2 THEN f$ = a$
                 IF _FILEEXISTS(f$) THEN
                     qberrorhappened = -2 '***
-                    OPEN f$ FOR INPUT AS #fh
+                    OPEN f$ FOR BINARY AS #fh
                     qberrorhappened2: '***
                     IF qberrorhappened = -2 THEN EXIT FOR '***
                 END IF
@@ -10897,7 +10897,7 @@ IF os$ = "WIN" THEN
             SHELL _HIDE "internal\c\c_compiler\bin\nm.exe " + CHR$(34) + ResolveStaticFunction_File(x) + CHR$(34) + " --demangle -g >internal\temp\nm_output.txt"
             fh = FREEFILE
             s$ = " " + ResolveStaticFunction_Name(x) + "("
-            OPEN "internal\temp\nm_output.txt" FOR INPUT AS #fh
+            OPEN "internal\temp\nm_output.txt" FOR BINARY AS #fh
             DO UNTIL EOF(fh)
                 LINE INPUT #fh, a$
                 IF LEN(a$) THEN
@@ -10922,7 +10922,7 @@ IF os$ = "WIN" THEN
             IF n = 0 THEN 'attempt to locate simple function name without brackets
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x)
-                OPEN "internal\temp\nm_output.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -10952,7 +10952,7 @@ IF os$ = "WIN" THEN
                 SHELL _HIDE "internal\c\c_compiler\bin\nm " + CHR$(34) + ResolveStaticFunction_File(x) + CHR$(34) + " -D --demangle -g >.\internal\temp\nm_output_dynamic.txt"
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x) + "("
-                OPEN "internal\temp\nm_output_dynamic.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output_dynamic.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -10978,7 +10978,7 @@ IF os$ = "WIN" THEN
             IF n = 0 THEN 'a C dynamic object library?
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x)
-                OPEN "internal\temp\nm_output_dynamic.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output_dynamic.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -11010,7 +11010,7 @@ IF os$ = "WIN" THEN
 
     IF inline_DATA = 0 THEN
         IF DataOffset THEN
-            OPEN ".\internal\c\makedat_win.txt" FOR INPUT AS #150: LINE INPUT #150, a$: CLOSE #150
+            OPEN ".\internal\c\makedat_win.txt" FOR BINARY AS #150: LINE INPUT #150, a$: CLOSE #150
             a$ = a$ + " " + tmpdir2$ + "data.bin " + tmpdir2$ + "data.o"
             CHDIR ".\internal\c"
             SHELL _HIDE a$
@@ -11021,7 +11021,7 @@ IF os$ = "WIN" THEN
 
 
 
-    OPEN ".\internal\c\makeline_win.txt" FOR INPUT AS #150
+    OPEN ".\internal\c\makeline_win.txt" FOR BINARY AS #150
     LINE INPUT #150, a$: a$ = GDB_Fix(a$)
     CLOSE #150
     IF RIGHT$(a$, 7) = " ..\..\" THEN a$ = LEFT$(a$, LEN(a$) - 6) 'makeline.txt patch (line will become unrequired in later versions)
@@ -11126,7 +11126,7 @@ IF os$ = "LNX" THEN
             IF MacOSX = 0 THEN 'C++ name demangling not supported in MacOSX
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x) + "("
-                OPEN "internal\temp\nm_output.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -11153,7 +11153,7 @@ IF os$ = "LNX" THEN
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x): s2$ = s$
                 IF MacOSX THEN s$ = " _" + ResolveStaticFunction_Name(x) 'search for C mangled name
-                OPEN "internal\temp\nm_output.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -11184,7 +11184,7 @@ IF os$ = "LNX" THEN
                 SHELL _HIDE "nm " + CHR$(34) + ResolveStaticFunction_File(x) + CHR$(34) + " -D --demangle -g >./internal/temp/nm_output_dynamic.txt 2>./internal/temp/nm_error.txt"
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x) + "("
-                OPEN "internal\temp\nm_output_dynamic.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output_dynamic.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -11210,7 +11210,7 @@ IF os$ = "LNX" THEN
             IF n = 0 THEN 'a C dynamic object library?
                 fh = FREEFILE
                 s$ = " " + ResolveStaticFunction_Name(x)
-                OPEN "internal\temp\nm_output_dynamic.txt" FOR INPUT AS #fh
+                OPEN "internal\temp\nm_output_dynamic.txt" FOR BINARY AS #fh
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, a$
                     IF LEN(a$) THEN
@@ -11244,7 +11244,7 @@ IF os$ = "LNX" THEN
     IF inline_DATA = 0 THEN
         IF DataOffset THEN
             IF INSTR(_OS$, "[32BIT]") THEN b$ = "32" ELSE b$ = "64"
-            OPEN ".\internal\c\makedat_lnx" + b$ + ".txt" FOR INPUT AS #150: LINE INPUT #150, a$: CLOSE #150
+            OPEN ".\internal\c\makedat_lnx" + b$ + ".txt" FOR BINARY AS #150: LINE INPUT #150, a$: CLOSE #150
             a$ = a$ + " " + tmpdir2$ + "data.bin " + tmpdir2$ + "data.o"
             CHDIR ".\internal\c"
             SHELL _HIDE a$
@@ -21913,7 +21913,7 @@ CHDIR path$
 
 bfh = FREEFILE
 
-OPEN "build" + BATCHFILE_EXTENSION FOR INPUT AS #bfh
+OPEN "build" + BATCHFILE_EXTENSION FOR BINARY AS #bfh
 DO UNTIL EOF(bfh)
     LINE INPUT #bfh, c$
     use = 0
@@ -22765,7 +22765,7 @@ IF UCASE$(LEFT$(t$, 4)) = "RUN:" THEN
     CLOSE #f
     SHELL _HIDE "QB64.exe -c " + tempfile$ + ".txt"
     SHELL _HIDE tempfile$ + ".exe"
-    OPEN tempfile$ + ".txt" FOR INPUT AS #f
+    OPEN tempfile$ + ".txt" FOR BINARY AS #f
     LINE INPUT #f, e$
     CLOSE #f
     IF _FILEEXISTS(tempfile$ + ".txt") THEN KILL tempfile$ + ".txt"

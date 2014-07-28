@@ -180,3 +180,10 @@ id.n = "_SCREENICON"     'name change to from _ICONIFYWINDOW to _SCREENICON to m
 id.subfunc = 2
 id.callname = "sub_screenicon"
 regid
+
+clearid
+id.n = "_SCREENEXISTS"
+id.subfunc = 1
+id.callname = "func_windowexists"
+regid
+
