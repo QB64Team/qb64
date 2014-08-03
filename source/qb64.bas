@@ -72,25 +72,13 @@ DIM SHARED UseGL 'declared SUB _GL (no params)
 _TITLE "QB64"
 
 
-DIM SHARED Cloud 'set by the -q switch for building a restricted QB64 QLOUD app
-Cloud = 0
-
 DIM SHARED OS_BITS AS LONG
 OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
 
-DIM SHARED command2$
-command2$ = COMMAND$
+DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
+DIM SHARED CMDLineFile AS STRING
+CMDLineFile = ParseCMDLineArgs$
 
-DIM SHARED ConsoleMode
-DIM SHARED No_C_Compile_Mode
-
-a$ = LTRIM$(RTRIM$(command2$))
-a2$ = LCASE$(LEFT$(a$, 2))
-
-IF a2$ = "-q" THEN command2$ = "-x" + RIGHT$(a$, LEN(a$) - 2): Cloud = 1: a2$ = "-x"
-
-IF a2$ = "-z" THEN command2$ = "-c" + RIGHT$(a$, LEN(a$) - 2): No_C_Compile_Mode = 1: ConsoleMode = 1
-IF a2$ = "-x" THEN command2$ = "-c" + RIGHT$(a$, LEN(a$) - 2): ConsoleMode = 1
 IF ConsoleMode THEN
     _DEST _CONSOLE
 ELSE
@@ -947,14 +935,10 @@ gl_scan_header
 
 '-----------------------QB64 COMPILER ONCE ONLY SETUP CODE ENDS HERE---------------------------------------
 
-a$ = LTRIM$(RTRIM$(command2$))
-a2$ = LCASE$(LEFT$(a$, 2))
-IF a2$ = "-c" THEN command2$ = LTRIM$(RIGHT$(a$, LEN(a$) - 2)): GOTO noide
-'assume command2$ contains the name of a file to load/compile
-
+IF NoIDEMode THEN GOTO noide
 idemode = 1
 sendc$ = "" 'no initial message
-IF command2$ <> "" THEN sendc$ = CHR$(1) + command2$
+IF CMDLineFile <> "" THEN sendc$ = CHR$(1) + CMDLineFile
 sendcommand:
 idecommand$ = sendc$
 c = ide(0)
@@ -1202,10 +1186,10 @@ GOTO sendcommand
 noide:
 PRINT "QB64 COMPILER V" + Version$
 
-IF command2$ = "" THEN
+IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
 ELSE
-    f$ = command2$
+    f$ = CMDLineFile
 END IF
 
 f$ = LTRIM$(RTRIM$(f$))
@@ -11502,6 +11486,39 @@ PRINT "LINE " + str2(linenumber) + ":" + wholeline
 IF ConsoleMode THEN SYSTEM 1
 END 1
 
+FUNCTION ParseCMDLineArgs$ ()
+'Recall that COMMAND$ is a concatenation of argv[] elements, so we don't have
+'to worry about more than one space between things (unless they used quotes,
+'in which case they're simply asking for trouble).
+cmdline$ = LTRIM$(RTRIM$(COMMAND$))
+tpos = 1
+DO
+    token$ = MID$(cmdline$, tpos, 2) '))
+    SELECT CASE token$
+        CASE "-q" 'Building a Qloud program
+            Cloud = 1
+            ConsoleMode = 1 'Implies -x
+            NoIDEMode = 1 'Imples -c
+        CASE "-z" 'Not compiling C code
+            No_C_Compile_Mode = 1
+            ConsoleMode = 1 'Implies -x
+            NoIDEMode = 1 'Implies -c
+        CASE "-x" 'Use the console
+            ConsoleMode = 1
+            NoIDEMode = 1 'Implies -c
+        CASE "-c" 'Compile instead of edit
+            NoIDEMode = 1
+        CASE "--" 'Signifies the end of options; the rest of the line is a filename (allows compilation of -crapfile.bas and -xtreme.bas etc.)
+            tpos = tpos + 3 'Do it manually here
+            EXIT DO
+        CASE ELSE 'Something we don't recognise, assume it's a filename
+            EXIT DO
+    END SELECT
+    tpos = tpos + 3
+LOOP
+'tpos should now point to the filename (the rest of the command line). This means options *must* come before the file.
+ParseCMDLineArgs$ = MID$(cmdline$, tpos)
+END FUNCTION
 
 FUNCTION Type2MemTypeValue (t1)
 t = 0
