@@ -1,51 +1,27 @@
-qbs *_FUNC_ELEUCASE_STRING_ELEUCASE=NULL;
-if (!_FUNC_ELEUCASE_STRING_ELEUCASE)_FUNC_ELEUCASE_STRING_ELEUCASE=qbs_new(0,0);
-qbs*oldstr3074=NULL;
-if(_FUNC_ELEUCASE_STRING_A->tmp||_FUNC_ELEUCASE_STRING_A->fixed||_FUNC_ELEUCASE_STRING_A->readonly){
-oldstr3074=_FUNC_ELEUCASE_STRING_A;
-if (oldstr3074->cmem_descriptor){
-_FUNC_ELEUCASE_STRING_A=qbs_new_cmem(oldstr3074->len,0);
+qbs *_FUNC_GETFILEPATH_STRING_GETFILEPATH=NULL;
+if (!_FUNC_GETFILEPATH_STRING_GETFILEPATH)_FUNC_GETFILEPATH_STRING_GETFILEPATH=qbs_new(0,0);
+qbs*oldstr3068=NULL;
+if(_FUNC_GETFILEPATH_STRING_F->tmp||_FUNC_GETFILEPATH_STRING_F->fixed||_FUNC_GETFILEPATH_STRING_F->readonly){
+oldstr3068=_FUNC_GETFILEPATH_STRING_F;
+if (oldstr3068->cmem_descriptor){
+_FUNC_GETFILEPATH_STRING_F=qbs_new_cmem(oldstr3068->len,0);
 }else{
-_FUNC_ELEUCASE_STRING_A=qbs_new(oldstr3074->len,0);
+_FUNC_GETFILEPATH_STRING_F=qbs_new(oldstr3068->len,0);
 }
-memcpy(_FUNC_ELEUCASE_STRING_A->chr,oldstr3074->chr,oldstr3074->len);
+memcpy(_FUNC_GETFILEPATH_STRING_F->chr,oldstr3068->chr,oldstr3068->len);
 }
-byte_element_struct *byte_element_3075=NULL;
-if (!byte_element_3075){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3075=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3075=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_GETFILEPATH_LONG_I=NULL;
+if(_FUNC_GETFILEPATH_LONG_I==NULL){
+_FUNC_GETFILEPATH_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_GETFILEPATH_LONG_I=0;
 }
-int32 *_FUNC_ELEUCASE_LONG_I=NULL;
-if(_FUNC_ELEUCASE_LONG_I==NULL){
-_FUNC_ELEUCASE_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_ELEUCASE_LONG_I=0;
+int64 fornext_value3070;
+int64 fornext_finalvalue3070;
+int64 fornext_step3070;
+uint8 fornext_step_negative3070;
+byte_element_struct *byte_element_3071=NULL;
+if (!byte_element_3071){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3071=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3071=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_ELEUCASE_LONG_I2=NULL;
-if(_FUNC_ELEUCASE_LONG_I2==NULL){
-_FUNC_ELEUCASE_LONG_I2=(int32*)mem_static_malloc(4);
-*_FUNC_ELEUCASE_LONG_I2=0;
-}
-qbs *_FUNC_ELEUCASE_STRING_A2=NULL;
-if (!_FUNC_ELEUCASE_STRING_A2)_FUNC_ELEUCASE_STRING_A2=qbs_new(0,0);
-qbs *_FUNC_ELEUCASE_STRING_SP34=NULL;
-if (!_FUNC_ELEUCASE_STRING_SP34)_FUNC_ELEUCASE_STRING_SP34=qbs_new(0,0);
-byte_element_struct *byte_element_3076=NULL;
-if (!byte_element_3076){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3076=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3076=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_FUNC_ELEUCASE_LONG_I3=NULL;
-if(_FUNC_ELEUCASE_LONG_I3==NULL){
-_FUNC_ELEUCASE_LONG_I3=(int32*)mem_static_malloc(4);
-*_FUNC_ELEUCASE_LONG_I3=0;
-}
-byte_element_struct *byte_element_3078=NULL;
-if (!byte_element_3078){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3078=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3078=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3079=NULL;
-if (!byte_element_3079){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3079=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3079=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3080=NULL;
-if (!byte_element_3080){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3080=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3080=(byte_element_struct*)mem_static_malloc(12);
-}
+qbs *_FUNC_GETFILEPATH_STRING_A=NULL;
+if (!_FUNC_GETFILEPATH_STRING_A)_FUNC_GETFILEPATH_STRING_A=qbs_new(0,0);

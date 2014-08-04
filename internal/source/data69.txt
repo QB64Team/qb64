@@ -1,31 +1,46 @@
-qbs*oldstr3097=NULL;
-if(_SUB_PATH_SLASH_CORRECT_STRING_A->tmp||_SUB_PATH_SLASH_CORRECT_STRING_A->fixed||_SUB_PATH_SLASH_CORRECT_STRING_A->readonly){
-oldstr3097=_SUB_PATH_SLASH_CORRECT_STRING_A;
-if (oldstr3097->cmem_descriptor){
-_SUB_PATH_SLASH_CORRECT_STRING_A=qbs_new_cmem(oldstr3097->len,0);
+qbs *_FUNC_GDB_FIX_STRING_GDB_FIX=NULL;
+if (!_FUNC_GDB_FIX_STRING_GDB_FIX)_FUNC_GDB_FIX_STRING_GDB_FIX=qbs_new(0,0);
+qbs*oldstr3088=NULL;
+if(_FUNC_GDB_FIX_STRING_G_COMMAND->tmp||_FUNC_GDB_FIX_STRING_G_COMMAND->fixed||_FUNC_GDB_FIX_STRING_G_COMMAND->readonly){
+oldstr3088=_FUNC_GDB_FIX_STRING_G_COMMAND;
+if (oldstr3088->cmem_descriptor){
+_FUNC_GDB_FIX_STRING_G_COMMAND=qbs_new_cmem(oldstr3088->len,0);
 }else{
-_SUB_PATH_SLASH_CORRECT_STRING_A=qbs_new(oldstr3097->len,0);
+_FUNC_GDB_FIX_STRING_G_COMMAND=qbs_new(oldstr3088->len,0);
 }
-memcpy(_SUB_PATH_SLASH_CORRECT_STRING_A->chr,oldstr3097->chr,oldstr3097->len);
+memcpy(_FUNC_GDB_FIX_STRING_G_COMMAND->chr,oldstr3088->chr,oldstr3088->len);
 }
-int32 *_SUB_PATH_SLASH_CORRECT_LONG_X=NULL;
-if(_SUB_PATH_SLASH_CORRECT_LONG_X==NULL){
-_SUB_PATH_SLASH_CORRECT_LONG_X=(int32*)mem_static_malloc(4);
-*_SUB_PATH_SLASH_CORRECT_LONG_X=0;
+qbs *_FUNC_GDB_FIX_STRING_C=NULL;
+if (!_FUNC_GDB_FIX_STRING_C)_FUNC_GDB_FIX_STRING_C=qbs_new(0,0);
+byte_element_struct *byte_element_3089=NULL;
+if (!byte_element_3089){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3089=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3089=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value3099;
-int64 fornext_finalvalue3099;
-int64 fornext_step3099;
-uint8 fornext_step_negative3099;
-byte_element_struct *byte_element_3100=NULL;
-if (!byte_element_3100){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3100=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3100=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_GDB_FIX_LONG_O=NULL;
+if(_FUNC_GDB_FIX_LONG_O==NULL){
+_FUNC_GDB_FIX_LONG_O=(int32*)mem_static_malloc(4);
+*_FUNC_GDB_FIX_LONG_O=0;
 }
-int64 fornext_value3102;
-int64 fornext_finalvalue3102;
-int64 fornext_step3102;
-uint8 fornext_step_negative3102;
-byte_element_struct *byte_element_3103=NULL;
-if (!byte_element_3103){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3103=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3103=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value3091;
+int64 fornext_finalvalue3091;
+int64 fornext_step3091;
+uint8 fornext_step_negative3091;
+qbs *_FUNC_GDB_FIX_STRING_O=NULL;
+if (!_FUNC_GDB_FIX_STRING_O)_FUNC_GDB_FIX_STRING_O=qbs_new(0,0);
+int32 *_FUNC_GDB_FIX_LONG_X=NULL;
+if(_FUNC_GDB_FIX_LONG_X==NULL){
+_FUNC_GDB_FIX_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_GDB_FIX_LONG_X=0;
+}
+byte_element_struct *byte_element_3092=NULL;
+if (!byte_element_3092){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3092=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3092=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3093=NULL;
+if (!byte_element_3093){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3093=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3093=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3094=NULL;
+if (!byte_element_3094){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3094=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3094=(byte_element_struct*)mem_static_malloc(12);
 }
