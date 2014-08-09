@@ -44,7 +44,10 @@ int32 environment_2d__letterbox=0;//1=vertical black stripes required, 2=horizon
 
 
 
-//forward ref
+//forward ref(s)
+void set_view(int32 new_mode);
+void set_render_source(int32 new_handle);
+void set_render_dest(int32 new_handle);
 void reinit_glut_callbacks();
 
 void sub__delay(double seconds);
@@ -388,20 +391,78 @@ void stream_out(stream_struct *st,void *offset,ptrszint bytes);
 void connection_close(ptrszint i);
 
 
+/********** Render State **********/
+/*
+Apart from 'glTexParameter' based settings (with are texture specific)
+all other OpenGL states are global.
+This means when switching between dest FBOs a complete state change is inevitable.
+*/
+struct RENDER_STATE_DEST{ //could be the primary render target or a FBO
+	int32 ignore;//at present no relevant states appear to be FBO specific
+};
+struct RENDER_STATE_SOURCE{ //texture states
+	int32 smooth_stretched;
+	int32 smooth_shrunk;
+	int32 texture_wrap;
+        int32 PO2_fix;
+};
+struct RENDER_STATE_GLOBAL{ //settings not bound to specific source/target
+	RENDER_STATE_DEST *dest;
+	RENDER_STATE_SOURCE *source;
+	int32 dest_handle;	
+	int32 source_handle;
+	int32 view_mode;
+	int32 use_alpha;
+	int32 depthbuffer_mode;
+	int32 cull_mode;
+};
+RENDER_STATE_GLOBAL render_state;
+RENDER_STATE_DEST dest_render_state0;
+#define VIEW_MODE__UNKNOWN 0
+#define VIEW_MODE__2D 1
+#define VIEW_MODE__3D 2
+#define VIEW_MODE__RESET 3
+#define ALPHA_MODE__UNKNOWN -1
+#define ALPHA_MODE__DONT_BLEND 0
+#define ALPHA_MODE__BLEND 1
+#define TEXTURE_WRAP_MODE__UNKNOWN -1
+#define TEXTURE_WRAP_MODE__DONT_WRAP 0
+#define TEXTURE_WRAP_MODE__WRAP 1
+#define SMOOTH_MODE__UNKNOWN -1
+#define SMOOTH_MODE__DONT_SMOOTH 0
+#define SMOOTH_MODE__SMOOTH 1
+#define PO2_FIX__OFF 0
+#define PO2_FIX__ON 1
+#define DEPTHBUFFER_MODE__UNKNOWN -1
+#define DEPTHBUFFER_MODE__OFF 0
+#define DEPTHBUFFER_MODE__ON 1
+#define DEPTHBUFFER_MODE__LOCKED 2
+#define DEPTHBUFFER_MODE__CLEAR 3
+#define CULL_MODE__UNKNOWN -1
+#define CULL_MODE__NONE 0
+#define CULL_MODE__CLOCKWISE_ONLY 1
+#define CULL_MODE__ANTICLOCKWISE_ONLY 2
+/********** Render State **********/
 
+int32 depthbuffer_mode0=DEPTHBUFFER_MODE__ON;
+int32 depthbuffer_mode1=DEPTHBUFFER_MODE__ON;
+
+#define INVALID_HARDWARE_HANDLE -1
 
 struct hardware_img_struct{
   int32 w;
   int32 h;
   int32 texture_handle;//if 0, imports from software_pixel_buffer automatically
   int32 dest_context_handle;//used when rendering other images onto this image
+  int32 depthbuffer_handle;//generated when 3D commands are called
   int32 pending_commands;//incremented with each command, decremented after command is processed
   int32 remove;//if =1, free immediately after all pending commands are processed
   uint32 *software_pixel_buffer;//if NULL, generates a blank texture
-  int32 alpha_disabled;
+  int32 alpha_disabled;//changed by _BLEND/_DONTBLEND commands
+  int32 depthbuffer_mode;//changed by _DEPTHBUFFER
   int32 valid;
-
-  int32 will_smooth; 
+  RENDER_STATE_SOURCE source_state;
+  RENDER_STATE_DEST dest_state;  
 };
 list *hardware_img_handles=NULL;
 
@@ -415,21 +476,32 @@ struct hardware_graphics_command_struct{
   int32 next_command;//the handle of the next hardware_graphics_command of the same display-order, of 0 if last
   int64 command;//the command type, actually a set of bit flags
   //Bit 00: Decimal value 000001: _PUTIMAGE
-  int32 src_img; //MUST be a hardware handle
-  int32 dst_img; //MUST be a hardware handle or 0 for the default 2D rendering context  
-  int32 src_x1;
-  int32 src_y1;
-  int32 src_x2;
-  int32 src_y2;
-  int32 src_x3;
-  int32 src_y3;
-  int32 dst_x1;
-  int32 dst_y1;
-  int32 dst_x2;
-  int32 dst_y2;
-  int32 dst_x3;
-  int32 dst_y3;
+  union{
+    int32 option;
+    int32 src_img; //MUST be a hardware handle
+  };
+  union{
+    int32 dst_img; //MUST be a hardware handle or 0 for the default 2D rendering context  
+    int32 target;
+  };
+  float src_x1;
+  float src_y1;
+  float src_x2;
+  float src_y2;
+  float src_x3;
+  float src_y3;
+  float dst_x1;
+  float dst_y1;
+  float dst_z1;
+  float dst_x2;
+  float dst_y2;
+  float dst_z2;
+  float dst_x3;
+  float dst_y3;
+  float dst_z3;
   int32 smooth;//0 or 1 (whether to apply texture filtering)
+  int32 cull_mode;
+  int32 depthbuffer_mode;
   int32 use_alpha;//0 or 1 (whether to refer to the alpha component of pixel values)
   int32 remove;
 };
@@ -438,6 +510,10 @@ list *hardware_graphics_command_handles=NULL;
 #define HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST 2
 #define HARDWARE_GRAPHICS_COMMAND__FREEIMAGE 3
 #define HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE 4
+#define HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D 5
+#define HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER 6
+
+//forward ref
 
 int32 new_texture_handle(){
   GLuint texture=0;
@@ -465,11 +541,17 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
   hardware_img->w=x;
   hardware_img->h=y;
   hardware_img->dest_context_handle=0;
+  hardware_img->depthbuffer_handle=0;
   hardware_img->pending_commands=0;
   hardware_img->remove=0;
-  hardware_img->will_smooth=0;
   hardware_img->alpha_disabled=0;
+  hardware_img->depthbuffer_mode=DEPTHBUFFER_MODE__ON;
   hardware_img->valid=1;
+  hardware_img->source_state.PO2_fix=PO2_FIX__OFF;
+  hardware_img->source_state.texture_wrap=TEXTURE_WRAP_MODE__UNKNOWN;
+  hardware_img->source_state.smooth_stretched=SMOOTH_MODE__UNKNOWN;
+  hardware_img->source_state.smooth_shrunk=SMOOTH_MODE__UNKNOWN;
+
   if (flags&NEW_HARDWARE_IMG__BUFFER_CONTENT){
     hardware_img->texture_handle=0;    
     if (flags&NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER){
@@ -482,27 +564,16 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
     hardware_img->software_pixel_buffer=NULL;
     hardware_img->texture_handle=new_texture_handle();
     glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
-
-//non-power of 2 dimensions fallback support
-static int glerrorcode;
-glerrorcode=glGetError();//clear any previous errors
-glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
-glerrorcode=glGetError();
-
-if (glerrorcode!=0){
-gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGBA, x,y, GL_BGRA, GL_UNSIGNED_BYTE, pixels );
-//glTexImage2D (GL_TEXTURE_RECTANGLE, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}else{
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-}
-
+    //non-power of 2 dimensions fallback support
+    static int glerrorcode;
+    glerrorcode=glGetError();//clear any previous errors
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
+    glerrorcode=glGetError();
+    if (glerrorcode!=0){
+	hardware_img->source_state.PO2_fix=PO2_FIX__ON;
+	gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGBA, x,y, GL_BGRA, GL_UNSIGNED_BYTE, pixels );
+    }
+    set_render_source(INVALID_HARDWARE_HANDLE);
   }
   return handle;
 }
@@ -512,29 +583,41 @@ void hardware_img_buffer_to_texture(int32 handle){
   hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
   if (hardware_img->texture_handle==0){
     hardware_img->texture_handle=new_texture_handle();
-    glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
-    
-//non-power of 2 dimensions fallback support
-static int glerrorcode;
-glerrorcode=glGetError();//clear any previous errors
-glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
-glerrorcode=glGetError();
-if (glerrorcode!=0){
-gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hardware_img->w, hardware_img->h, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);
-//glTexImage2D (GL_TEXTURE_RECTANGLE, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}else{
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle);    
+    //non-power of 2 dimensions fallback support
+    static int glerrorcode;
+    glerrorcode=glGetError();//clear any previous errors
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
+    glerrorcode=glGetError();
+    if (glerrorcode!=0){
+        hardware_img->source_state.PO2_fix=PO2_FIX__ON;
+	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hardware_img->w, hardware_img->h, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);
+    }
+    free(hardware_img->software_pixel_buffer);
+    set_render_source(INVALID_HARDWARE_HANDLE);
+  }
 }
 
-    free(hardware_img->software_pixel_buffer);
-  }
+void hardware_img_requires_depthbuffer(hardware_img_struct* hardware_img){
+if (hardware_img->depthbuffer_handle==0){
+  //inspiration... http://www.opengl.org/wiki/Framebuffer_Object_Examples#Color_texture.2C_Depth_texture
+  static GLuint depth_tex;
+  glGenTextures(1, &depth_tex);
+  glBindTexture(GL_TEXTURE_2D, depth_tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+  //NULL means reserve texture memory, but texels are undefined
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, hardware_img->w, hardware_img->h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_tex, 0/*mipmap level*/);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  hardware_img->depthbuffer_handle=depth_tex;
+  set_render_source(INVALID_HARDWARE_HANDLE);
+}
 }
 
 //note: only to be used by user functions, not internal functions
@@ -4784,6 +4867,8 @@ void flush_old_hardware_commands(){
       if (first_hardware_command==0) first_hardware_command=hgch;    
     }
 
+    
+
     old_command=old_hgc->next_command;
     next_hardware_command_to_remove=old_command;
     old_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,old_command);
@@ -4830,6 +4915,8 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     if (src_himg!=NULL){//source is hardware image
       src-=HARDWARE_IMG_HANDLE_OFFSET;
 
+      flush_old_hardware_commands();
+
       s_emu.width=src_himg->w;
       s_emu.height=src_himg->h;
       s_emu.clipping_or_scaling=0;
@@ -4839,7 +4926,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       //check dst
       hardware_img_struct* dst_himg=NULL;
       if (dst<0){
-    hardware_img_struct* dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
+    dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
     if (dst_himg==NULL){error(258); return;}
     dst-=HARDWARE_IMG_HANDLE_OFFSET;
 
@@ -4856,8 +4943,6 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     d=display_page;//use parameters from display page
 
       }
-
-      flush_old_hardware_commands();
 
       sbpp=4; dbpp=4;
       use_hardware=1;
@@ -8963,7 +9048,7 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       if (mode>13) goto error;
       //is mode changing?
       if (i2){
-    if (img[i2].compatible_mode!=mode) i=1;
+       if (img[i2].compatible_mode!=mode) i=1;
       }else i=1;
       //force update if special parameters passed
       //(at present, only SCREEN 0 is ever called with these overrides, so handling
@@ -19753,7 +19838,7 @@ void sub_mkdir(qbs *str){
 
     static hardware_img_struct *himg;  
     if (himg=get_hardware_img(i)){
-
+      
       //add command to free image
       //create new command handle & structure
       int32 hgch=list_add(hardware_graphics_command_handles);
@@ -19763,6 +19848,7 @@ void sub_mkdir(qbs *str){
       hgc->command=HARDWARE_GRAPHICS_COMMAND__FREEIMAGE_REQUEST;
       hgc->src_img=get_hardware_img_index(i);
       himg->valid=0;
+
       //queue the command
       hgc->next_command=0;
       hgc->order=display_frame_order_next;
@@ -27445,10 +27531,71 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 #endif //NO_S_D_L
 
-  void sub__maptriangle(float sx1,float sy1,float sx2,float sy2,float sx3,float sy3,long si,long dx1,long dy1,long dx2,long dy2,long dx3,long dy3,long di,long passed){
-    //"[{_SEAMLESS}](?,?)-(?,?)-(?,?)[,?]{TO}(?,?)-(?,?)-(?,?)[,?]"
-    //   &1                           &2                       &4
 
+void sub__depthbuffer(int32 options,int32 dst,int32 passed){
+//                    {ON|OFF|LOCK|_CLEAR}
+
+if (new_error) return;
+
+if ((passed&1)==0) dst=0;//the primary hardware surface is implied
+hardware_img_struct* dst_himg=NULL;
+if (dst<0){
+  dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
+  if (dst_himg==NULL){error(258); return;}
+  dst-=HARDWARE_IMG_HANDLE_OFFSET;
+}else{
+  if (dst>1) {error(5); return;}
+  dst=-dst;
+}
+
+if (options==4){
+    flush_old_hardware_commands();
+    int32 hgch=list_add(hardware_graphics_command_handles);
+    hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,hgch);
+    hgc->remove=0;
+    //set command values
+    hgc->command=HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER;
+    hgc->dst_img=dst;
+    //queue the command
+    hgc->next_command=0;
+    hgc->order=display_frame_order_next;
+    if (last_hardware_command_added){
+      hardware_graphics_command_struct* hgc2=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_added);
+      hgc2->next_command=hgch;
+    }
+    last_hardware_command_added=hgch;
+    if (first_hardware_command==0) first_hardware_command=hgch;
+    return;
+}
+
+int32 new_mode;
+if (options==1){
+	new_mode=DEPTHBUFFER_MODE__ON;
+}
+if (options==2){
+	new_mode=DEPTHBUFFER_MODE__OFF;
+}
+if (options==3){
+	new_mode=DEPTHBUFFER_MODE__LOCKED;
+}
+
+if (dst==0){
+int32 depthbuffer_mode0=new_mode;
+return;
+}
+if (dst==-1){
+int32 depthbuffer_mode1=new_mode;
+return;
+}
+dst_himg->depthbuffer_mode=new_mode;
+}
+
+void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2,float sx3,float sy3,int32 si,float fdx1,float fdy1,float fdz1,float fdx2,float fdy2,float fdz2,float fdx3,float fdy3,float fdz3,int32 di,int32 smooth_options,int32 passed){
+    //[{_CLOCKWISE|_ANTICLOCKWISE}][{_SEAMLESS}](?,?)-(?,?)-(?,?)[,?]{TO}(?,?[,?])-(?,?[,?])-(?,?[,?])[,[?][,{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]"
+    //  (1)       (2)              1                             2           4         8         16    32   (1)     (2)           (3)
+    
+    if (new_error) return;
+    
     static int32 dwidth,dheight,swidth,sheight,swidth2,sheight2;
     static int32 lhs,rhs,lhs1,lhs2,top,bottom,temp,flats,flatg,final,tile,no_edge_overlap;
     flats=0; final=0; tile=0; no_edge_overlap=0;
@@ -27468,16 +27615,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
  //hardware support
   //is source a hardware handle?
   if (si){
+
     static int32 src,dst;//scope is a wonderful thing
     src=si;
     dst=di;
     hardware_img_struct* src_himg=(hardware_img_struct*)list_get(hardware_img_handles,src-HARDWARE_IMG_HANDLE_OFFSET);
     if (src_himg!=NULL){//source is hardware image
       src-=HARDWARE_IMG_HANDLE_OFFSET;
+
+      flush_old_hardware_commands();
+
       //check dst
       hardware_img_struct* dst_himg=NULL;
       if (dst<0){
-        hardware_img_struct* dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
+        dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
         if (dst_himg==NULL){error(258); return;}
 	dst-=HARDWARE_IMG_HANDLE_OFFSET;
       }else{
@@ -27485,7 +27636,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
         dst=-dst;
       }
 
-    if (passed&1){error(5);return;}//seamless not supported yet
+    static int32 use3d;
+    use3d=0;
+    if (passed&(4+8+16)) use3d=1;
+
+    if ((passed&1)==1&&use3d==0){error(5);return;}//seamless not supported for 2D hardware version yet
 
     //create new command handle & structure
     int32 hgch=list_add(hardware_graphics_command_handles);
@@ -27494,8 +27649,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     hgc->remove=0;
  
     //set command values
-    hgc->command=HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE;
- 
+    if (use3d){
+        hgc->command=HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D;
+        hgc->cull_mode=CULL_MODE__NONE;
+        if (cull_options==1) hgc->cull_mode=CULL_MODE__CLOCKWISE_ONLY;
+	if (cull_options==2) hgc->cull_mode=CULL_MODE__ANTICLOCKWISE_ONLY;
+    }else{
+        hgc->command=HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE;
+    }
+
     hgc->src_img=src;
     hgc->src_x1=sx1;
     hgc->src_y1=sy1;
@@ -27505,15 +27667,24 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     hgc->src_y3=sy3;
 
     hgc->dst_img=dst;
-    hgc->dst_x1=dx1;
-    hgc->dst_y1=dy1;
-    hgc->dst_x2=dx2;
-    hgc->dst_y2=dy2;
-    hgc->dst_x3=dx3;
-    hgc->dst_y3=dy3;
+    hgc->dst_x1=fdx1;
+    hgc->dst_y1=fdy1;
+    hgc->dst_x2=fdx2;
+    hgc->dst_y2=fdy2;
+    hgc->dst_x3=fdx3;
+    hgc->dst_y3=fdy3;
+    if (use3d){
+        hgc->dst_z1=fdz1;
+        hgc->dst_z2=fdz2;
+        hgc->dst_z3=fdz3;
+    	if (dst==0) hgc->depthbuffer_mode=depthbuffer_mode0;
+	if (dst==-1) hgc->depthbuffer_mode=depthbuffer_mode1;
+	if (dst_himg!=NULL){
+	     hgc->depthbuffer_mode=dst_himg->depthbuffer_mode;
+        }        
+    }
 
-    hgc->smooth=0;//unless specified, no filtering will be applied
-    if (passed&8) hgc->smooth=1;
+    hgc->smooth=smooth_options;
 
     hgc->use_alpha=1;
     if (src_himg->alpha_disabled) hgc->use_alpha=0;
@@ -27522,6 +27693,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (dst_himg!=NULL){
      if (dst_himg->alpha_disabled) hgc->use_alpha=0;
     }
+
 
     //queue the command
     hgc->next_command=0;
@@ -27538,6 +27710,25 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     }
   }
+
+    if (passed&(4+8+16)){error(5);return;}//3D not supported using software surfaces
+
+    //recreate old calling convention
+    static int32 passed_original;
+    passed_original=passed;
+    passed=0;
+    if (passed_original&1) passed+=1;
+    if (passed_original&2) passed+=2;
+    if (passed_original&32) passed+=4;
+    if (passed_original&64) passed+=8;
+
+    static int32 dx1,dy1,dx2,dy2,dx3,dy3;
+    dx1=qbr_float_to_long(fdx1);
+    dy1=qbr_float_to_long(fdy1);
+    dx2=qbr_float_to_long(fdx2);
+    dy2=qbr_float_to_long(fdy2);
+    dx3=qbr_float_to_long(fdx3);
+    dy3=qbr_float_to_long(fdy3);
 
     //get/validate src/dst images
     if (passed&2){
@@ -28546,6 +28737,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     display_x=width; display_y=height;
     resize_pending=0;
     os_resize_event=1;
+    set_view(VIEW_MODE__UNKNOWN);
     //***glutReshapeWindow(...) has no effect if called
     //   within GLUT_RESHAPE_FUNC***
   }
@@ -28641,8 +28833,16 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       GLuint context=(GLuint)hardware_img->dest_context_handle;
       glDeleteFramebuffersEXT(1, &context);
     }
+    if (hardware_img->depthbuffer_handle){
+      GLuint depthbuffer_handle=(GLuint)hardware_img->depthbuffer_handle;
+      glDeleteFramebuffersEXT(1, &depthbuffer_handle);
+    }
     GLuint texture=(GLuint)hardware_img->texture_handle;
     glDeleteTextures(1, &texture); 
+
+    //if image has not been used, it may still have buffered pixel content
+    if (hardware_img->software_pixel_buffer!=NULL) free(hardware_img->software_pixel_buffer);
+    
     list_remove(hardware_img_handles,handle);
   }
 
@@ -28805,8 +29005,370 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     return &tmp_rect;
   }
 
-  int32 hardware_img__current_src=-1;
-  int32 hardware_img__current_dst=-1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void set_smooth(int32 new_mode_shrunk,int32 new_mode_stretched){
+static int32 current_mode_shrunk;
+current_mode_shrunk=render_state.source->smooth_shrunk;
+static int32 current_mode_stretched;
+current_mode_stretched=render_state.source->smooth_stretched;
+if (new_mode_shrunk==current_mode_shrunk&&new_mode_stretched==current_mode_stretched) return;
+if (new_mode_shrunk==SMOOTH_MODE__DONT_SMOOTH){
+	if (render_state.source->PO2_fix==PO2_FIX__ON){
+		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	}else{
+		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+}
+if (new_mode_shrunk==SMOOTH_MODE__SMOOTH){
+	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+}
+if (new_mode_stretched==SMOOTH_MODE__DONT_SMOOTH){
+	if (render_state.source->PO2_fix==PO2_FIX__ON){
+		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}else{
+		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+}
+if (new_mode_stretched==SMOOTH_MODE__SMOOTH){
+	glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+render_state.source->smooth_shrunk=new_mode_shrunk;
+render_state.source->smooth_stretched=new_mode_stretched;
+}
+
+void set_texture_wrap(int32 new_mode){
+static int32 current_mode;
+current_mode=render_state.source->texture_wrap;
+if (new_mode==current_mode) return;
+if (new_mode==TEXTURE_WRAP_MODE__DONT_WRAP){
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+if (new_mode==TEXTURE_WRAP_MODE__WRAP){
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+render_state.source->texture_wrap=new_mode;
+}
+
+void set_alpha(int32 new_mode){
+static int32 current_mode;
+current_mode=render_state.use_alpha;
+if (new_mode==current_mode) return;
+if (new_mode==ALPHA_MODE__DONT_BLEND){
+	glDisable(GL_BLEND);
+}
+if (new_mode==ALPHA_MODE__BLEND){
+	glEnable(GL_BLEND);
+	if (framebufferobjects_supported){
+		//glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+	}else{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+}
+render_state.use_alpha=new_mode;
+}
+
+void set_depthbuffer(int32 new_mode){
+static int32 current_mode;
+current_mode=render_state.depthbuffer_mode;
+if (new_mode==current_mode) return;
+if (new_mode==DEPTHBUFFER_MODE__OFF){
+	glDisable(GL_DEPTH_TEST);
+}
+if (new_mode==DEPTHBUFFER_MODE__ON){
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);	
+}
+if (new_mode==DEPTHBUFFER_MODE__LOCKED){
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+}
+render_state.depthbuffer_mode=new_mode;
+}
+
+void set_cull_mode(int32 new_mode){
+static int32 current_mode;
+current_mode=render_state.cull_mode;
+if (new_mode==current_mode) return;
+if (new_mode==CULL_MODE__NONE){
+	glDisable(GL_CULL_FACE);
+}
+if (new_mode==CULL_MODE__CLOCKWISE_ONLY){
+	glFrontFace(GL_CW);	
+	if (current_mode!=CULL_MODE__ANTICLOCKWISE_ONLY) glEnable(GL_CULL_FACE);
+}
+if (new_mode==CULL_MODE__ANTICLOCKWISE_ONLY){
+	glFrontFace(GL_CCW);
+	if (current_mode!=CULL_MODE__CLOCKWISE_ONLY) glEnable(GL_CULL_FACE);
+}
+render_state.cull_mode=new_mode;
+}
+
+void set_view(int32 new_mode){ //set view can only be called after the correct destination is chosen
+static int32 current_mode;
+current_mode=render_state.view_mode;
+if (new_mode==current_mode) return;
+if (new_mode==VIEW_MODE__RESET){
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+	glDisable(GL_LIGHTING);
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	glBindTexture (GL_TEXTURE_2D, 0);	
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glColor4f(1.f, 1.f, 1.f, 1.f);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+        //invalidate current states
+	set_alpha(ALPHA_MODE__UNKNOWN);
+        set_depthbuffer(DEPTHBUFFER_MODE__UNKNOWN);
+        set_cull_mode(CULL_MODE__UNKNOWN);
+	set_render_source(INVALID_HARDWARE_HANDLE);
+	set_render_dest(INVALID_HARDWARE_HANDLE);
+	new_mode=VIEW_MODE__UNKNOWN;//resets are performed before unknown operations are executed	
+}
+if (new_mode==VIEW_MODE__2D){
+	if (current_mode!=VIEW_MODE__3D){
+		glColor4f(1.f, 1.f, 1.f, 1.f);		
+	        glDisable(GL_COLOR_MATERIAL);
+	        glDisable(GL_LIGHTING);
+		set_alpha(ALPHA_MODE__BLEND);
+	        glEnable(GL_TEXTURE_2D);
+	        glEnableClientState(GL_VERTEX_ARRAY);
+	        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glCullFace(GL_BACK);
+	}
+
+	if (render_state.dest_handle==0){
+		static int32 dst_w,dst_h;
+		dst_w=environment__window_width;
+		dst_h=environment__window_height;
+
+//alert(dst_w);
+//alert(dst_h);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glScalef(1, -1, 1);//flip vertically
+		glTranslatef(0, -dst_h, 0);//move to new vertical position
+		glViewport(0,0,dst_w,dst_h);
+	}else{
+		static hardware_img_struct* hardware_img;
+		hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,render_state.dest_handle);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0, hardware_img->w, 0, hardware_img->h);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glViewport(0,0,hardware_img->w,hardware_img->h);
+	}
+}
+if (new_mode==VIEW_MODE__3D){
+	if (current_mode!=VIEW_MODE__2D){
+		glColor4f(1.f, 1.f, 1.f, 1.f);
+	        glDisable(GL_COLOR_MATERIAL);
+	        glDisable(GL_LIGHTING);
+		set_alpha(ALPHA_MODE__BLEND);
+	        glEnable(GL_TEXTURE_2D);
+	        glEnableClientState(GL_VERTEX_ARRAY);
+	        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glCullFace(GL_BACK);
+	}
+	if (render_state.dest_handle==0){
+		static int32 dst_w,dst_h;
+		dst_w=environment__window_width;
+		dst_h=environment__window_height;
+		glViewport(0, 0, (GLsizei)dst_w, (GLsizei)dst_h);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		//note: the max FOV is 90-degrees (this maximum applies to the longest screen dimension)
+		float fov;
+		if (environment_2d__screen_scaled_width>environment_2d__screen_scaled_height){
+			fov=90.0f*((float)environment__window_width/(float)environment_2d__screen_scaled_width);
+			//convert fov from horizontal to vertical
+			fov=fov*((float)dst_h/(float)dst_w);
+		}else{
+			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
+		}
+		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.5, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}else{
+
+		static hardware_img_struct* hardware_img;
+		hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,render_state.dest_handle);
+
+		static int32 dst_w,dst_h;
+		dst_w=hardware_img->w;
+		dst_h=hardware_img->h;
+		glViewport(0, 0, (GLsizei)dst_w, (GLsizei)dst_h);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glScalef (1.0, -1.0, 1.0);
+		//note: the max FOV is 90-degrees (this maximum applies to the longest screen dimension)
+		float fov;
+		if (environment_2d__screen_scaled_width>environment_2d__screen_scaled_height){
+			fov=90.0f*((float)environment__window_width/(float)environment_2d__screen_scaled_width);
+			//convert fov from horizontal to vertical
+			fov=fov*((float)dst_h/(float)dst_w);
+		}else{
+			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
+		}
+		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.5, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		//alert("3D rendering onto FBO not supported yet");
+	}
+}
+render_state.view_mode=new_mode;
+}//change_render_state
+
+
+void set_render_source(int32 new_handle){
+if (new_handle==INVALID_HARDWARE_HANDLE){
+	render_state.source_handle=INVALID_HARDWARE_HANDLE;
+	return;
+}
+static int32 current_handle;
+current_handle=render_state.source_handle;
+static hardware_img_struct* hardware_img;
+hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,new_handle);
+if (hardware_img->texture_handle==0) hardware_img_buffer_to_texture(new_handle);
+glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle);
+render_state.source_handle=new_handle;
+render_state.source=&hardware_img->source_state;
+}
+
+void set_render_dest(int32 new_handle){
+if (new_handle==INVALID_HARDWARE_HANDLE){
+	render_state.dest_handle=INVALID_HARDWARE_HANDLE;
+	set_view(VIEW_MODE__UNKNOWN);
+	return;
+}
+//0=primary surface
+static int32 current_handle;
+current_handle=render_state.dest_handle;
+if (new_handle==current_handle) return;
+set_view(VIEW_MODE__UNKNOWN);
+if (new_handle==0){
+	if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	render_state.dest=&dest_render_state0;
+}else{
+	static hardware_img_struct* hardware_img;
+	hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,new_handle);
+	//convert to regular texture first if necessary
+	if (hardware_img->texture_handle==0) hardware_img_buffer_to_texture(new_handle);
+	//does it have a dest context/FBO? if not create one
+	if (hardware_img->dest_context_handle==0){
+		
+		static GLuint framebuffer_handle;
+		framebuffer_handle=0;
+		glGenFramebuffersEXT(1, &framebuffer_handle);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
+		hardware_img->dest_context_handle=framebuffer_handle;
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hardware_img->texture_handle, 0);   
+
+                //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+                //glClear(GL_COLOR_BUFFER_BIT);
+                glColor4f(1.f, 1.f, 1.f, 1.f);
+
+                set_render_source(INVALID_HARDWARE_HANDLE);
+
+	}else{
+		glBindFramebufferEXT(GL_FRAMEBUFFER, hardware_img->dest_context_handle);
+	}
+	render_state.dest=&hardware_img->dest_state;
+}
+render_state.dest_handle=new_handle;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   void hardware_img_put(int32 dst_x1,int32 dst_y1,int32 dst_x2,int32 dst_y2,
             int32 src_img,int32 dst_img,
             int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,
@@ -28814,14 +29376,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
             int32 smooth
             ){
 
-    if (dst_img<0) dst_img=0;
-
-    static hardware_img_struct* src_hardware_img;
-    static hardware_img_struct* dst_hardware_img;
-
-    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
-
-    if (src_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(src_img);
+    if (dst_img<0) dst_img=0;//both layers render to the primary context
 
     //ensure dst_x1/y1 represent top-left co-ordinate of destination
     static int32 swap_tmp;
@@ -28834,64 +29389,14 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       swap_tmp=src_y2; src_y2=src_y1; src_y1=swap_tmp;
     }
 
-    static int32 dst_w,dst_h;
-    static int32 src_h,src_w;
-
-    src_h=src_hardware_img->h;
-    src_w=src_hardware_img->w;
+    set_render_dest(dst_img);
+    set_view(VIEW_MODE__2D);
 
     if (dst_img){
-      dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
-      if (dst_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(dst_img);
-
-      //does it have a dest context? if not create one
-      if (dst_hardware_img->dest_context_handle==0){
-    static GLuint framebuffer_handle;
-    framebuffer_handle=0;
-    glGenFramebuffersEXT(1, &framebuffer_handle);
-    glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
-    dst_hardware_img->dest_context_handle=framebuffer_handle;
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
-      }else{
-    if (hardware_img__current_dst!=dst_img){
-      glBindFramebufferEXT(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
-    }
-      }
-
-      dst_w=dst_hardware_img->w;
-      dst_h=dst_hardware_img->h;
-
+      //static hardware_img_struct* dst_hardware_img;
+      //dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
+      //(no specific action required here --area reserved for future use)
     }else{ //dest is 0
-
-      dst_w=environment__window_width;
-      dst_h=environment__window_height;
-
-      if (hardware_img__current_dst!=dst_img){
-
-if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glScalef(1, -1, 1);//flip vertically
-    glTranslatef(0, -dst_h, 0);//move to new vertical position
-    glViewport(0,0,dst_w,dst_h);
-      }
-
       environment_2d__window_rect_struct *rect;
       rect=environment_2d__screen_to_window_rect(dst_x1,dst_y1,dst_x2,dst_y2);
       dst_x1=rect->x1;
@@ -28900,39 +29405,36 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
       dst_y2=rect->y2;
     }
 
-    //select the source texture
-    if (hardware_img__current_src!=src_img||hardware_img__current_dst!=dst_img){
-      //texture is potentially bound to fbo, so if soure or dest changes it must be reloaded
-      glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
-      /* The following line is not required, but kept for reference purposes
-     glClientActiveTexture(src_hardware_img->texture_handle);
-      */
-    }
+    set_render_source(src_img);
 
-    //adjust source texture options (if changed)
-    if (src_hardware_img->will_smooth!=smooth){
-      if (smooth){
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      }else{
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      }
-      src_hardware_img->will_smooth=smooth;
+    static hardware_img_struct* src_hardware_img;
+    static int32 src_h,src_w;
+    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
+    src_h=src_hardware_img->h;
+    src_w=src_hardware_img->w;
+
+    if (smooth){
+	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
+    }else{
+	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
     }
 
     if (use_alpha){
-      glEnable (GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      set_alpha(ALPHA_MODE__BLEND);
     }else{
-      glDisable (GL_BLEND);
+      set_alpha(ALPHA_MODE__DONT_BLEND);
     }
+
+    set_depthbuffer(DEPTHBUFFER_MODE__OFF);
+    set_cull_mode(CULL_MODE__NONE);
+
+    set_texture_wrap(TEXTURE_WRAP_MODE__DONT_WRAP);
 
     //adjust for render (x2 & y2 need to be one greater than the destination offset)
     dst_x2++; dst_y2++;
 
     //calc source texture co-ordinates
-    float x1f,y1f,x2f,y2f;
-
+    static float x1f,y1f,x2f,y2f;
     if (src_x1<=src_x2){
       x1f=((float)src_x1+0.01f)/(float)src_w;
       x2f=((float)src_x2+0.99f)/(float)src_w;
@@ -28940,7 +29442,6 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
       x2f=((float)src_x2+0.01f)/(float)src_w;
       x1f=((float)src_x1+0.99f)/(float)src_w;
     }
-
     if (src_y1<=src_y2){
       y1f=((float)src_y1+0.01f)/(float)src_h;
       y2f=((float)src_y2+0.99f)/(float)src_h;
@@ -28948,18 +29449,6 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
       y2f=((float)src_y2+0.01f)/(float)src_h;
       y1f=((float)src_y1+0.99f)/(float)src_h;
     }
-
-    //render it
-
-    /*
-    //OpenGL 1.0 method - Not compatible with OpenGL-ES
-    glBegin(GL_QUADS);
-    glTexCoord2f (x1f,y1f); glVertex2f(dst_x1,dst_y1);
-    glTexCoord2f (x2f,y1f); glVertex2f(dst_x2,dst_y1);
-    glTexCoord2f (x2f,y2f); glVertex2f(dst_x2,dst_y2);
-    glTexCoord2f (x1f,y2f); glVertex2f(dst_x1,dst_y2);
-    glEnd();
-    */
 
     //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
     static int vertices[8];
@@ -28979,100 +29468,52 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
     glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
     glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    hardware_img__current_src=src_img;
-    hardware_img__current_dst=dst_img;
-
   }
 
 
 
 
 
-
-  void hardware_img_tri2d(int32 dst_x1,int32 dst_y1,int32 dst_x2,int32 dst_y2,int32 dst_x3,int32 dst_y3,
+  void hardware_img_tri2d(float dst_x1,float dst_y1,float dst_x2,float dst_y2,float dst_x3,float dst_y3,
             int32 src_img,int32 dst_img,
-            int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,int32 src_x3,int32 src_y3,
+            float src_x1,float src_y1,float src_x2,float src_y2,float src_x3,float src_y3,
             int32 use_alpha,
             int32 smooth
             ){
 
-    //calc source texture co-ordinates
-    float x1f,y1f,x2f,y2f,x3f,y3f;
+    if (dst_img<0) dst_img=0;//both layers render to the primary context
 
-
-    if (dst_img<0) dst_img=0;
-
-    static hardware_img_struct* src_hardware_img;
-    static hardware_img_struct* dst_hardware_img;
-
-    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
-
-    if (src_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(src_img);
-
-    static int32 dst_w,dst_h;
-    static int32 src_h,src_w;
-
-    src_h=src_hardware_img->h;
-    src_w=src_hardware_img->w;
+    set_render_dest(dst_img);
+    set_view(VIEW_MODE__2D);
 
     if (dst_img){
+      static hardware_img_struct* dst_hardware_img;
       dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
-      if (dst_hardware_img->texture_handle==0) hardware_img_buffer_to_texture(dst_img);
 
-      //does it have a dest context? if not create one
-      if (dst_hardware_img->dest_context_handle==0){
-    static GLuint framebuffer_handle;
-    framebuffer_handle=0;
-    glGenFramebuffersEXT(1, &framebuffer_handle);
-    glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
-    dst_hardware_img->dest_context_handle=framebuffer_handle;
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_hardware_img->texture_handle, 0);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
-      }else{
-    if (hardware_img__current_dst!=dst_img){
-      glBindFramebufferEXT(GL_FRAMEBUFFER, dst_hardware_img->dest_context_handle);
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      gluOrtho2D(0, dst_hardware_img->w, 0, dst_hardware_img->h);
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      glViewport(0,0,dst_hardware_img->w,dst_hardware_img->h);
-    }
-      }
-
-      dst_w=dst_hardware_img->w;
-      dst_h=dst_hardware_img->h;
-
+static int32 dst_w,dst_h;
+dst_w=dst_hardware_img->w;
+dst_h=dst_hardware_img->h;
 //SEAMLESS adjustments:
 //reduce texture co-ordinates (maintaining top-left)
 //(todo)
-
 //NON-SEAMLESS adjustments:
 //Extend rhs/bottom row to fill extra pixel space
 //calculate extents
 int32 rx1;
-float tx1;
 int32 rx2;
-float tx2;
-rx1=dst_x1; tx1=x1f;
+rx1=dst_x1;
 if (dst_x2<rx1){
-rx1=dst_x2; tx1=x2f;
+rx1=dst_x2;
 }
 if (dst_x3<rx1){
-rx1=dst_x3; tx1=x3f;
+rx1=dst_x3;
 }
-rx2=dst_x1; tx2=x1f;
+rx2=dst_x1;
 if (dst_x2>rx2){
-rx2=dst_x2; tx2=x2f;
+rx2=dst_x2;
 }
 if (dst_x3>rx2){
-rx2=dst_x3; tx2=x3f;
+rx2=dst_x3;
 }
 float xr;//the multiplier for where we should be (1=no change)
 if (rx1==rx2){
@@ -29080,24 +29521,21 @@ xr=1.0f;
 }else{
 xr=((float)rx2-(float)rx1+1.0)/((float)rx2-(float)rx1);
 }
-
 int32 ry1;
-float ty1;
 int32 ry2;
-float ty2;
-ry1=dst_y1; ty1=y1f;
+ry1=dst_y1;
 if (dst_y2<ry1){
-ry1=dst_y2; ty1=y2f;
+ry1=dst_y2;
 }
 if (dst_y3<ry1){
-ry1=dst_y3; ty1=y3f;
+ry1=dst_y3;
 }
-ry2=dst_y1; ty2=y1f;
+ry2=dst_y1;
 if (dst_y2>ry2){
-ry2=dst_y2; ty2=y2f;
+ry2=dst_y2;
 }
 if (dst_y3>ry2){
-ry2=dst_y3; ty2=y3f;
+ry2=dst_y3;
 }
 float yr;//the multiplier for where we should be (1=no change)
 if (ry1==ry2){
@@ -29105,9 +29543,7 @@ yr=1.0f;
 }else{
 yr=((float)ry2-(float)ry1+1.0f)/((float)ry2-(float)ry1);
 }
-
 //apply multipliers so right-most and bottom-most rows will be filled
-
 static int32 basex;
 basex=rx1;
 dst_x1=qbr_float_to_long(
@@ -29119,7 +29555,6 @@ dst_x2=qbr_float_to_long(
 dst_x3=qbr_float_to_long(
 ((float)(dst_x3-rx1))*xr+(float)basex
 );
-
 static int32 basey;
 basey=ry1;
 dst_y1=qbr_float_to_long(
@@ -29134,47 +29569,30 @@ dst_y3=qbr_float_to_long(
 
     }else{ //dest is 0
 
-      dst_w=environment__window_width;
-      dst_h=environment__window_height;
-
-      if (hardware_img__current_dst!=dst_img){
-
-if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glScalef(1, -1, 1);//flip vertically
-    glTranslatef(0, -dst_h, 0);//move to new vertical position
-    glViewport(0,0,dst_w,dst_h);
-      }
-
+static int32 dst_w,dst_h;
+dst_w=environment__window_width;
+dst_h=environment__window_height;
 //SEAMLESS adjustments:
 //reduce texture co-ordinates (maintaining top-left)
 //(todo)
-
 //NON-SEAMLESS adjustments:
 //Extend rhs/bottom row to fill extra pixel space
 //calculate extents
 int32 rx1;
-float tx1;
 int32 rx2;
-float tx2;
-rx1=dst_x1; tx1=x1f;
+rx1=dst_x1;
 if (dst_x2<rx1){
-rx1=dst_x2; tx1=x2f;
+rx1=dst_x2;
 }
 if (dst_x3<rx1){
-rx1=dst_x3; tx1=x3f;
+rx1=dst_x3;
 }
-rx2=dst_x1; tx2=x1f;
+rx2=dst_x1;
 if (dst_x2>rx2){
-rx2=dst_x2; tx2=x2f;
+rx2=dst_x2;
 }
 if (dst_x3>rx2){
-rx2=dst_x3; tx2=x3f;
+rx2=dst_x3;
 }
 float xr;//the multiplier for where we should be (1=no change)
 if (rx1==rx2){
@@ -29182,24 +29600,21 @@ xr=1.0f;
 }else{
 xr=((float)rx2-(float)rx1+1.0)/((float)rx2-(float)rx1);
 }
-
 int32 ry1;
-float ty1;
 int32 ry2;
-float ty2;
-ry1=dst_y1; ty1=y1f;
+ry1=dst_y1;
 if (dst_y2<ry1){
-ry1=dst_y2; ty1=y2f;
+ry1=dst_y2;
 }
 if (dst_y3<ry1){
-ry1=dst_y3; ty1=y3f;
+ry1=dst_y3;
 }
-ry2=dst_y1; ty2=y1f;
+ry2=dst_y1;
 if (dst_y2>ry2){
-ry2=dst_y2; ty2=y2f;
+ry2=dst_y2;
 }
 if (dst_y3>ry2){
-ry2=dst_y3; ty2=y3f;
+ry2=dst_y3;
 }
 float yr;//the multiplier for where we should be (1=no change)
 if (ry1==ry2){
@@ -29207,9 +29622,7 @@ yr=1.0f;
 }else{
 yr=((float)ry2-(float)ry1+1.0f)/((float)ry2-(float)ry1);
 }
-
 //apply multipliers so right-most and bottom-most rows will be filled
-
 static int32 basex;
 basex=
 qbr_float_to_long(
@@ -29230,8 +29643,6 @@ basex+
 qbr_float_to_long(
 ((float)(dst_x3-rx1))*environment_2d__screen_x_scale*xr
 );
-
-
 static int32 basey;
 basey=
 qbr_float_to_long(
@@ -29253,45 +29664,50 @@ qbr_float_to_long(
 ((float)(dst_y3-ry1))*environment_2d__screen_y_scale*yr
 );
 
-
     }
 
-    //select the source texture
-    if (hardware_img__current_src!=src_img||hardware_img__current_dst!=dst_img){
-      //texture is potentially bound to fbo, so if soure or dest changes it must be reloaded
-      glBindTexture (GL_TEXTURE_2D, src_hardware_img->texture_handle);
-      /* The following line is not required, but kept for reference purposes
-     glClientActiveTexture(src_hardware_img->texture_handle);
-      */
+    set_render_source(src_img);
+
+    static hardware_img_struct* src_hardware_img;
+    static int32 src_h,src_w;
+    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
+    src_h=src_hardware_img->h;
+    src_w=src_hardware_img->w;
+
+    if (smooth==0){
+	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
+    }
+    if (smooth==1){
+	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
+    }
+    if (smooth==2){
+	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
+    }
+    if (smooth==3){
+	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__SMOOTH);
     }
 
-    //adjust source texture options (if changed)
-    if (src_hardware_img->will_smooth!=smooth){
-      if (smooth){
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      }else{
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      }
-      src_hardware_img->will_smooth=smooth;
-    }
+    set_texture_wrap(TEXTURE_WRAP_MODE__WRAP);
 
     if (use_alpha){
-      glEnable (GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      set_alpha(ALPHA_MODE__BLEND);
     }else{
-      glDisable (GL_BLEND);
+      set_alpha(ALPHA_MODE__DONT_BLEND);
     }
 
-x1f=((float)src_x1+0.5f)/(float)src_w;
-x2f=((float)src_x2+0.5f)/(float)src_w;
-x3f=((float)src_x3+0.5f)/(float)src_w;
+    set_depthbuffer(DEPTHBUFFER_MODE__OFF);
+    set_cull_mode(CULL_MODE__NONE);
 
-y1f=((float)src_y1+0.5f)/(float)src_h;
-y2f=((float)src_y2+0.5f)/(float)src_h;
-y3f=((float)src_y3+0.5f)/(float)src_h;
 
-    //render it
+
+    //calc source texture co-ordinates
+    static float x1f,y1f,x2f,y2f,x3f,y3f;
+    x1f=((float)src_x1+0.5f)/(float)src_w;
+    x2f=((float)src_x2+0.5f)/(float)src_w;
+    x3f=((float)src_x3+0.5f)/(float)src_w;
+    y1f=((float)src_y1+0.5f)/(float)src_h;
+    y2f=((float)src_y2+0.5f)/(float)src_h;
+    y3f=((float)src_y3+0.5f)/(float)src_h;
 
     //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
     static int vertices[6];
@@ -29306,32 +29722,160 @@ y3f=((float)src_y3+0.5f)/(float)src_h;
     texcoords[n++]=x1f; texcoords[n++]=y1f;
     texcoords[n++]=x2f; texcoords[n++]=y2f;
     texcoords[n++]=x3f; texcoords[n++]=y3f;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
     glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
     glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+  }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+void clear_depthbuffer(int32 dst_img){
+ if (dst_img<0) dst_img=0;//both layers render to the primary context
+ set_render_dest(dst_img);
+ if (dst_img>0){
+  hardware_img_requires_depthbuffer((hardware_img_struct*)list_get(hardware_img_handles,dst_img));
+ }
+ glClear(GL_DEPTH_BUFFER_BIT);
+}
 
-    hardware_img__current_src=src_img;
-    hardware_img__current_dst=dst_img;
+  void hardware_img_tri3d(float dst_x1,float dst_y1,float dst_z1,float dst_x2,float dst_y2,float dst_z2,float dst_x3,float dst_y3,float dst_z3,
+            int32 src_img,int32 dst_img,
+            float src_x1,float src_y1,float src_x2,float src_y2,float src_x3,float src_y3,
+            int32 use_alpha,
+            int32 smooth,
+	    int32 cull_mode,
+	    int32 depthbuffer_mode
+            ){
+
+    if (dst_img<0) dst_img=0;//both layers render to the primary context
+
+    set_render_dest(dst_img);
+    set_view(VIEW_MODE__3D);
+
+    if (dst_img){
+      static hardware_img_struct* dst_hardware_img;
+      dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
+      hardware_img_requires_depthbuffer(dst_hardware_img);
+    }else{ //dest is 0      
+    }
+
+    set_render_source(src_img);
+
+    static hardware_img_struct* src_hardware_img;
+    static int32 src_h,src_w;
+    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
+    src_h=src_hardware_img->h;
+    src_w=src_hardware_img->w;
+
+    if (smooth==0){
+	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
+    }
+    if (smooth==1){
+	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
+    }
+    if (smooth==2){
+	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
+    }
+    if (smooth==3){
+	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__SMOOTH);
+    }
+
+    set_texture_wrap(TEXTURE_WRAP_MODE__WRAP);
+
+    if (use_alpha){
+      set_alpha(ALPHA_MODE__BLEND);
+    }else{
+      set_alpha(ALPHA_MODE__DONT_BLEND);
+    }
+
+    set_depthbuffer(depthbuffer_mode);
+
+    //on frame buffers the 3D perspective is flipped vertically reversing the cull direction
+    if (dst_img>0){
+	if (cull_mode==CULL_MODE__CLOCKWISE_ONLY){
+		cull_mode=CULL_MODE__ANTICLOCKWISE_ONLY;
+	}else{
+		if (cull_mode==CULL_MODE__ANTICLOCKWISE_ONLY) cull_mode=CULL_MODE__CLOCKWISE_ONLY;
+	}
+    }
+    
+    set_cull_mode(cull_mode);
+
+    //calc source texture co-ordinates
+    static float x1f,y1f,x2f,y2f,x3f,y3f;
+    x1f=((float)src_x1+0.5f)/(float)src_w;
+    x2f=((float)src_x2+0.5f)/(float)src_w;
+    x3f=((float)src_x3+0.5f)/(float)src_w;
+    y1f=((float)src_y1+0.5f)/(float)src_h;
+    y2f=((float)src_y2+0.5f)/(float)src_h;
+    y3f=((float)src_y3+0.5f)/(float)src_h;
+
+    //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
+    static float vertices[9];
+    static float texcoords[6];
+    static int32 n;
+    //clockwise
+    n=0;
+    vertices[n++]=dst_x1; vertices[n++]=dst_y1; vertices[n++]=dst_z1;
+    vertices[n++]=dst_x2; vertices[n++]=dst_y2; vertices[n++]=dst_z2;
+    vertices[n++]=dst_x3; vertices[n++]=dst_y3; vertices[n++]=dst_z3;
+    n=0;
+    texcoords[n++]=x1f; texcoords[n++]=y1f;
+    texcoords[n++]=x2f; texcoords[n++]=y2f;
+    texcoords[n++]=x3f; texcoords[n++]=y3f;
+    glVertexPointer(3, GL_FLOAT, 3*sizeof(GL_FLOAT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+    glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 
   }
 
 
-#define HARDWARE_RENDER_STATE__UNKNOWN -1
-#define HARDWARE_RENDER_STATE__2D 1
-#define HARDWARE_RENDER_STATE__3D 2 //not used yet
-  int32 hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
 
-#define HARDWARE_RENDER_ALPHA_MODE__UNKNOWN -1
-#define HARDWARE_RENDER_ALPHA_MODE__DONT_BLEND 1
-#define HARDWARE_RENDER_ALPHA_MODE__BLEND 2
-  int32 hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   static int32 software_screen_hardware_frame=0;
@@ -29474,6 +30018,9 @@ y3f=((float)src_y3+0.5f)/(float)src_h;
       resize_pending=1;
       glutReshapeWindow(x,y);
       glutPostRedisplay();
+
+      
+
       goto auto_resized; 
     }
       }//resize_auto
@@ -29515,6 +30062,11 @@ y3f=((float)src_y3+0.5f)/(float)src_h;
     }//enter full screen
       }//full_screen_set check
     }//size pending check
+
+
+
+
+
 
     //This code is deprecated but kept for reference purposes
     // 1) It was found to be unstable
@@ -29675,35 +30227,14 @@ y3f=((float)src_y3+0.5f)/(float)src_h;
       static int32 x1,y1,x2,y2;
 
       if (level==0){
-    glClear(GL_COLOR_BUFFER_BIT);
-    hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
-    hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
-    hardware_img__current_src=-1;
-    hardware_img__current_dst=-1;
+       set_render_dest(0);
+       glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
       }else{
 
     if (level==displayorder_glrender){
 #ifdef DEPENDENCY_GL
 
-      //reset possible dependencies
-      glColor4f(1.f, 1.f, 1.f, 1.f);
-      glBindTexture (GL_TEXTURE_2D, 0);
-if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-      glDisable(GL_TEXTURE_2D);
-      glDisable(GL_ALPHA_TEST);
-      glDisable(GL_BLEND);
-      glDisable(GL_COLOR_MATERIAL);
-      glDisable(GL_DEPTH_TEST);
-      glDisable(GL_LIGHTING);
-      glDisableClientState(GL_VERTEX_ARRAY);
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-
-      glClear(GL_DEPTH_BUFFER_BIT);
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
+      set_view(VIEW_MODE__RESET);
 
       if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
       display_lock_request++;
@@ -29717,48 +30248,11 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
     abort_gl:;
       display_lock_released=display_lock_confirmed;
 
-      //there is no way to know what was selected/changed, so set state as unknown
-      hardware_render_state=HARDWARE_RENDER_STATE__UNKNOWN;
-      hardware_render_alpha_mode=HARDWARE_RENDER_ALPHA_MODE__UNKNOWN;
-      hardware_img__current_src=-1;
-      hardware_img__current_dst=-1;
-
 #endif //DEPENDENCY_GL
     }//level==displayorder_glrender
 
 
     if (level==displayorder_screen){
-
-      if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-
-        glColor4f(1.f, 1.f, 1.f, 1.f);
-if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-        glDisable(GL_ALPHA_TEST);
-        glDisable(GL_BLEND);
-        glDisable(GL_COLOR_MATERIAL);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_LIGHTING);
-        glEnable(GL_TEXTURE_2D);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        static int dst_w;
-        dst_w=environment__window_width;
-        static int dst_h;
-        dst_h=environment__window_height;
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glScalef(1, -1, 1);//flip vertically
-        glTranslatef(0, -dst_h, 0);//move to new vertical position
-        glViewport(0,0,dst_w,dst_h);
-        hardware_render_state=HARDWARE_RENDER_STATE__2D;
-        hardware_img__current_dst=0;
-
-
-      }
 
       if (software_screen_hardware_frame!=0&&i!=last_i){
         free_hardware_img(software_screen_hardware_frame);
@@ -29782,42 +30276,13 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
                0,0,f1->w-1,f1->h-1,
                use_alpha,environment_2d__screen_smooth);
 
-    }
+    }//level==displayorder_screen
 
 
     if (level==displayorder_hardware||level==displayorder_hardware1){
 
       static int32 dst;
       dst=0; if (level==displayorder_hardware1) dst=-1;
-
-      if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-
-        glColor4f(1.f, 1.f, 1.f, 1.f);
-if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-        glDisable(GL_ALPHA_TEST);
-        glDisable(GL_BLEND);
-        glDisable(GL_COLOR_MATERIAL);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_LIGHTING);
-        glEnable(GL_TEXTURE_2D);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        static int dst_w;
-        dst_w=environment__window_width;
-        static int dst_h;
-        dst_h=environment__window_height;
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glScalef(1, -1, 1);//flip vertically
-        glTranslatef(0, -dst_h, 0);//move to new vertical position
-        glViewport(0,0,dst_w,dst_h);
-        hardware_render_state=HARDWARE_RENDER_STATE__2D;
-        hardware_img__current_dst=0;
-      }
 
       static int32 command;
       command=0;
@@ -29863,6 +30328,21 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
                        hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
                        hgc->use_alpha,hgc->smooth);
             }
+          }
+
+	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D){
+            if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
+              hardware_img_tri3d(hgc->dst_x1,hgc->dst_y1,hgc->dst_z1,hgc->dst_x2,hgc->dst_y2,hgc->dst_z2,hgc->dst_x3,hgc->dst_y3,hgc->dst_z3,
+                       hgc->src_img, hgc->dst_img,
+                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
+                       hgc->use_alpha,hgc->smooth,hgc->cull_mode,hgc->depthbuffer_mode);
+            }
+          }
+
+	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER){
+		if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
+			clear_depthbuffer(hgc->dst_img);
+		}
           }
 
           last_hardware_command_rendered=command;
@@ -29923,6 +30403,25 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
         }
           }
 
+	 if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D){
+        if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
+          if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
+             hardware_img_tri3d(hgc->dst_x1,hgc->dst_y1,hgc->dst_z1,hgc->dst_x2,hgc->dst_y2,hgc->dst_z2,hgc->dst_x3,hgc->dst_y3,hgc->dst_z3,
+                       hgc->src_img, hgc->dst_img,
+                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
+                       hgc->use_alpha,hgc->smooth,hgc->cull_mode,hgc->depthbuffer_mode);
+          }
+        }
+          }
+
+	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER){
+        	if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
+	        	if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
+				clear_depthbuffer(hgc->dst_img);
+			}
+		}
+          }
+
           last_hardware_command_rendered=command;
           if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;//!!!! should be prev to this command
           command=hgc->next_command;
@@ -29937,146 +30436,12 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
       first_hardware_layer_rendered=1;
 
-
-
-
-
-
-      /*
-
-
-
-        }else{
-        //no scaling
-
-
-
-        #ifdef QB64_GL1
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glViewport(0,0,display_x,display_y);
-
-
-        glOrtho(0, display_x, display_y,0, -1.0, 1.0);
-        glRasterPos2f(0, 0);
-        glPixelZoom(1.0f, -1.0f);
-
-        x_offset=0; y_offset=0;
-        x_scale=1; y_scale=1;
-        x_limit=display_frame[i].w-1; y_limit=display_frame[i].h-1;
-
-
-        if (level==3){
-        //glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.5); //(test below is better)
-        glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        }
-
-
-
-        //if (software_screen_hardware_frame){
-        // free_hardware_frame(software_screen_hardware_frame);
-        //}
-        //software_screen_hardware_frame=new_hardware_frame_from_software_frame(display_frame[i].bgra,display_frame[i].w, display_frame[i].h);
-
-
-        glDrawPixels(display_frame[i].w,display_frame[i].h,GL_BGRA,GL_UNSIGNED_BYTE,display_frame[i].bgra);
-
-
-        #else
-
-        //generate new texture handle
-        static GLuint mTextureNameWorkspace[100];
-        static int th=-100;
-        if (th==-100){
-        glGenTextures(1, mTextureNameWorkspace);
-        th=mTextureNameWorkspace[0];
-        }
-
-        //bind texture handle
-        glBindTexture (GL_TEXTURE_2D, th);
-
-        //set filters
-        glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        //set states
-        glShadeModel(GL_FLAT);
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_DITHER);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_BLEND);
-
-        glViewport( 0, 0, display_x,display_y );
-        glMatrixMode( GL_PROJECTION );
-        glLoadIdentity();  
-        glOrthof(0.0f, display_x, 0.0f, 0.0f, display_y, 1.0f);
-
-        glColor4f(1, 1, 1, 1);
-
-        glMatrixMode( GL_MODELVIEW );
-        glLoadIdentity();
-
-        //rebind
-        glActiveTexture(th);
-        glClientActiveTexture(th);
-        glBindTexture (GL_TEXTURE_2D, th);
-
-        GLint coords [] = {0, display_y, display_x, -display_y};
-        glTexParameteriv( GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, coords );
-
-        glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, display_frame[i].w, display_frame[i].h, 0,  GL_RGBA, GL_UNSIGNED_BYTE, display_frame[i].bgra);
-
-        glDrawTexiOES( 0, 0, 0, display_x, display_y );
-
-        #endif //QB64_GL1
-
-        }//scaling
-
-      */
-      //2014 big skip
-
-
     }//level==displayorder_hardware||level==displayorder_hardware1
 
 
     if (level==5){
 
       if (environment_2d__letterbox){
-
-        if (hardware_render_state!=HARDWARE_RENDER_STATE__2D){
-
-          glColor4f(1.f, 1.f, 1.f, 1.f);
-if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-          glDisable(GL_ALPHA_TEST);
-          glDisable(GL_BLEND);
-          glDisable(GL_COLOR_MATERIAL);
-          glDisable(GL_DEPTH_TEST);
-          glDisable(GL_LIGHTING);
-          glEnable(GL_TEXTURE_2D);
-          glEnableClientState(GL_VERTEX_ARRAY);
-          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-          static int dst_w;
-          dst_w=environment__window_width;
-          static int dst_h;
-          dst_h=environment__window_height;
-          glMatrixMode(GL_PROJECTION);
-          glLoadIdentity();
-          glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-          glMatrixMode(GL_MODELVIEW);
-          glLoadIdentity();
-          glScalef(1, -1, 1);//flip vertically
-          glTranslatef(0, -dst_h, 0);//move to new vertical position
-          glViewport(0,0,dst_w,dst_h);
-          hardware_render_state=HARDWARE_RENDER_STATE__2D;
-          hardware_img__current_dst=0;
-        }
 
         //create a black texture (if not yet created)
         static uint32 black_pixel=0;
@@ -30519,6 +30884,24 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
     static int32 z,z2,z3,z4;
     static float f,f2,f3,f4;
     static uint8 *cp,*cp2,*cp3,*cp4;
+
+
+
+
+
+
+/********** Render State **********/
+render_state.dest=NULL;
+render_state.source=NULL;
+render_state.dest_handle=INVALID_HARDWARE_HANDLE;
+render_state.source_handle=INVALID_HARDWARE_HANDLE;
+render_state.view_mode=VIEW_MODE__UNKNOWN;
+render_state.use_alpha=ALPHA_MODE__UNKNOWN;
+render_state.depthbuffer_mode=DEPTHBUFFER_MODE__UNKNOWN;
+render_state.cull_mode=CULL_MODE__UNKNOWN;
+/********** Render State **********/
+
+
 
 
     for (i=0;i<=2;i++){
@@ -32630,6 +33013,8 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   //display updates the visual page onto the visible window/monitor
   void display(){
 
+
+
     //general variables
     static int32 i,i2,i3,i4;
     static uint8 c,c2,c3,c4;
@@ -32659,6 +33044,7 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
     }
 
     if (lock_display==0){
+
 
 
       //Identify which display_frame to build
@@ -33278,17 +33664,18 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
           i2=i3;
         }
       } 
- 
       if (force_display_update) goto update_display32b; //force update
       if (i2!=-1){  
-        i=display_page->width*display_page->height*4;
-        if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;  
         if (!screen_last_valid) goto update_display32b; //force update because of mode change?
+        i=display_page->width*display_page->height*4;
+        if (i!=(display_frame[i2].w*display_frame[i2].h*4)) goto update_display32b;	
+	if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;
         if (qb64_ime_reading==1) goto screen_refreshed;
         goto no_new_frame;//no need to update display
       }
     update_display32b:;
     }else{
+      //BGRA_to_RGBA
       i=display_page->width*display_page->height*4;
       if (i!=pixeldatasize){
         free(pixeldata);
@@ -33367,10 +33754,10 @@ if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
       //data changed?
       if (i!=pixeldatasize){
-    free(pixeldata);
-    pixeldata=(uint8*)malloc(i);
-    pixeldatasize=i;
-    goto update_display;
+    	free(pixeldata);
+    	pixeldata=(uint8*)malloc(i);
+    	pixeldatasize=i;
+    	goto update_display;
       }
 
       if (force_display_update) goto update_display; //force update
