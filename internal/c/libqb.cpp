@@ -27580,11 +27580,11 @@ if (options==3){
 }
 
 if (dst==0){
-int32 depthbuffer_mode0=new_mode;
+depthbuffer_mode0=new_mode;
 return;
 }
 if (dst==-1){
-int32 depthbuffer_mode1=new_mode;
+depthbuffer_mode1=new_mode;
 return;
 }
 dst_himg->depthbuffer_mode=new_mode;
