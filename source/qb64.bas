@@ -5042,6 +5042,35 @@ DO
 
     IF n = 1 THEN
         IF firstelement$ = "ELSE" THEN
+
+            'Routine to add error checking for ELSE so we'll no longer be able to do things like the following:
+            'IF x = 1 THEN
+            '    SELECT CASE s
+            '        CASE 1
+            '    END SELECT ELSE y = 2
+            'END IF
+            'Notice the ELSE with the SELECT CASE?  Before this patch, commands like those were considered valid QB64 code.
+            temp$ = UCASE$(LTRIM$(RTRIM$(wholeline)))
+            goodelse = 0 'a check to see if it's a good else
+            IF LEFT$(temp$, 2) = "IF" THEN goodelse = -1: GOTO skipelsecheck 'If we have an IF, the else is probably good
+            IF LEFT$(temp$, 4) = "ELSE" THEN goodelse = -1: GOTO skipelsecheck 'If it's an else by itself,then we'll call it good too at this point and let the rest of the syntax checking check for us
+            DO
+                spacelocation = INSTR(temp$, " ")
+                IF spacelocation THEN temp$ = LEFT$(temp$, spacelocation - 1) + MID$(temp$, spacelocation + 1)
+            LOOP UNTIL spacelocation = 0
+            IF INSTR(temp$, ":ELSE") OR INSTR(temp$, ":IF") THEN goodelse = -1: GOTO skipelsecheck 'I personally don't like the idea of a :ELSE statement, but this checks for that and validates it as well.  YUCK!  (I suppose this might be useful if there's a label where the ELSE is, like thisline: ELSE
+            count = 0
+            DO
+                count = count + 1
+                SELECT CASE MID$(temp$, count, 1)
+                    CASE IS = "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ":"
+                    CASE ELSE: EXIT DO
+                END SELECT
+            LOOP UNTIL count >= LEN(temp$)
+            IF MID$(temp$, count, 4) = "ELSE" OR MID$(temp$, count, 2) = "IF" THEN goodelse = -1 'We only had numbers before our else
+            IF NOT goodelse THEN a$ = "Invalid Syntax for ELSE": GOTO errmes
+            skipelsecheck:
+            'End of ELSE Error checking
             FOR i = controllevel TO 1 STEP -1
                 t = controltype(i)
                 IF t = 1 THEN

@@ -622,8 +622,14 @@ idefocusline = 0
 DO
     ideloop:
 
+    idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
+    STATIC ForceResize
     '### STEVE WAS HERE 10/11/2013 ###
-    IF _RESIZE THEN
+    IF _RESIZE or ForceResize THEN
+      IF idesubwindow <> 0  THEN      'If there's a subwindow up, don't resize as it screws all sorts of things up.
+        ForceResize = -1
+      ELSE
+        ForceResize = 0
         f = FREEFILE
         OPEN ".\internal\temp\options.bin" FOR BINARY AS #f
         v% = _RESIZEWIDTH \ _FONTWIDTH: IF v% < 80 OR v% > 1000 THEN v% = 80
@@ -634,13 +640,14 @@ DO
         PUT #f, 9, v%
         CLOSE #f
         IF retval = 1 THEN 'screen dimensions have changed and everything must be redrawn/reapplied
+            tempf& = _font
             WIDTH idewx, idewy + idesubwindow
+            _font tempf&
             GOTO redraweverything
         END IF
+      END IF
     END IF
     '### END OF STEVE EDIT
-
-    idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
 
     IF skipdisplay = 0 THEN
 
