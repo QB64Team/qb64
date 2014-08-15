@@ -1,12 +1,12 @@
-qbs*oldstr3195=NULL;
+qbs*oldstr3199=NULL;
 if(_SUB_PARSESTRING_STRING_E->tmp||_SUB_PARSESTRING_STRING_E->fixed||_SUB_PARSESTRING_STRING_E->readonly){
-oldstr3195=_SUB_PARSESTRING_STRING_E;
-if (oldstr3195->cmem_descriptor){
-_SUB_PARSESTRING_STRING_E=qbs_new_cmem(oldstr3195->len,0);
+oldstr3199=_SUB_PARSESTRING_STRING_E;
+if (oldstr3199->cmem_descriptor){
+_SUB_PARSESTRING_STRING_E=qbs_new_cmem(oldstr3199->len,0);
 }else{
-_SUB_PARSESTRING_STRING_E=qbs_new(oldstr3195->len,0);
+_SUB_PARSESTRING_STRING_E=qbs_new(oldstr3199->len,0);
 }
-memcpy(_SUB_PARSESTRING_STRING_E->chr,oldstr3195->chr,oldstr3195->len);
+memcpy(_SUB_PARSESTRING_STRING_E->chr,oldstr3199->chr,oldstr3199->len);
 }
 qbs *_SUB_PARSESTRING_STRING_T=NULL;
 if (!_SUB_PARSESTRING_STRING_T)_SUB_PARSESTRING_STRING_T=qbs_new(0,0);
