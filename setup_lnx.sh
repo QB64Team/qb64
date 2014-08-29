@@ -30,6 +30,14 @@ DOWNLOAD=
 #Set this to 1 to compile SDL instead (Only works if DOWNLOAD=1)
 SDL=
 
+
+#Make sure we're not running as root
+if [ $EUID == "0" ]; then
+  echo "You are trying to run this script as root. This is highly unrecommended."
+  echo "This script will prompt you for your sudo password if needed to install packages."
+  exit 1
+fi
+
 if [ "$DOWNLOAD" == "1" ]; then
   #Various URL's for downloads
   QB64_URL="http://www.qb64.net/qb64v0978-lnx.tar.gz"
