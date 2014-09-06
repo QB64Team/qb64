@@ -20475,6 +20475,7 @@ void sub_mkdir(qbs *str){
     return;
   }
 
+int32 func__fontwidth(int32 f,int32 passed);
 int32 func__fontheight(int32 f,int32 passed);
 int32 func__font(int32 f,int32 passed);
 
@@ -20509,7 +20510,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     return text->len;
   }
   if (text->len == 0) return 0; //No point calculating an empty string
-  int32 fonthandle = func__font(screenhandle, 1); //Get the font used in screenhandle
+  int32 fonthandle = img[screenhandle].font; //Get the font used in screenhandle
+  int32 fwidth = func__fontwidth(fonthandle, 1); //Try and get the font width
+  if (fwidth != 0) return fwidth*(text->len); //if it's not a variable width font, return the width * the letter count
   int32 fheight = func__fontheight(fonthandle, 1); //Height of the font used in screenhandle
   int32 tempscreen = func__newimage(65535, fheight, 32, 1); //Just like calling _NEWIMAGE
   int32 oldwritepage = func__dest();
