@@ -187,3 +187,11 @@ id.subfunc = 1
 id.callname = "func_windowexists"
 regid
 
+clearid
+id.n = "_CONTROLCHR"
+id.subfunc = 1
+id.callname = "func__controlchr"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid
+

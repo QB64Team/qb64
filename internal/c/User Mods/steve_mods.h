@@ -17,3 +17,4 @@ extern double func_pi();
 extern int32 func_screenwidth();
 extern int32 func_screenheight();
 int32 func_windowexists ();
+int32 func__controlchr();

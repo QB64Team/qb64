@@ -22360,62 +22360,6 @@ REDIM _PRESERVE PL(i): PL(i) = 120
 i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "IMP"
 REDIM _PRESERVE PL(i): PL(i) = 130
 
-f = FREEFILE
-
-FOR c = ASC("A") TO ASC("Z") 'variables
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = CHR$(c) + "#"
-    REDIM _PRESERVE PL(i): PL(i) = 1
-NEXT c
-
-FOR c = ASC("A") TO ASC("Z") 'strings
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = CHR$(c) + "!"
-    REDIM _PRESERVE PL(i): PL(i) = 1000
-NEXT c
-
-OPEN FileName FOR BINARY AS #f
-counter = 0
-FOR c = 0 TO 26 'variables
-    GET #f, , length&
-    t$ = SPC(length&)
-    GET #f, , t$
-    vars(c) = t$
-NEXT c
-CLOSE #f
-
-
-
-'SPECIAL STRING Operators have PL 1000.  They shouldn't mix with lower value commands, as we handle them separate
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "DATE$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "TIME$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "COMMAND$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "WIKI"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "QB64"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "FORUMS"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "WEBCHAT"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "D2R$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "D2G$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "R2D$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "R2G$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "G2R$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "G2D$"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "RUN:"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "RETURN"
-REDIM _PRESERVE PL(i): PL(i) = 1000
-
 END SUB
 
 FUNCTION EvaluateNumbers$ (p, num() AS STRING)
@@ -22638,23 +22582,6 @@ DIM f AS _FLOAT
 
 t$ = e$
 
-'Check for High/Low Flag operations
-j = 1: highflag = 0: lowflag = 0
-DO
-    comp$ = UCASE$(MID$(t$, j, 1))
-    SELECT CASE comp$
-        CASE "0" TO "9", ".", "(", ")": j = j + 1
-        CASE ELSE
-            good = 0
-            FOR i = 1 TO UBOUND(OName)
-                IF UCASE$(MID$(t$, j, LEN(OName(i)))) = OName(i) AND PL(i) > 250 THEN highflag = -1
-            NEXT
-            IF i <= UBOUND(Oname) THEN j = j + LEN(OName(i)) ELSE j = j + 1
-    END SELECT
-LOOP UNTIL j > LEN(t$)
-IF highflag THEN ParseString t$
-
-IF QuickReturn THEN e$ = t$: EXIT SUB
 'First strip all spaces
 t$ = ""
 FOR i = 1 TO LEN(e$)
@@ -22662,13 +22589,7 @@ FOR i = 1 TO LEN(e$)
 NEXT
 
 t$ = UCASE$(t$)
-
-
-
-
-
-
-IF t$ = "" THEN e$ = "ERROR -- NULL string; nothing to evaluate"
+IF t$ = "" THEN e$ = "ERROR -- NULL string; nothing to evaluate": EXIT SUB
 
 'ERROR CHECK by counting our brackets
 l = 0
@@ -22789,167 +22710,6 @@ VerifyString t$
 
 e$ = t$
 END SUB
-
-SUB ParseString (e$)
-t$ = e$
-'Since these are string swaps going on, we don't plug them into a nice little working formula as we did before.
-'Instead, we write a separate routine for each method and evaluate on a command by command basis.
-
-'RUN -- Special "Do Anything" type command
-IF UCASE$(LEFT$(t$, 4)) = "RUN:" THEN
-    'Look for RETURN:
-    l = INSTR(UCASE$(t$), "RETURN")
-    IF l = 0 THEN e$ = "ERROR -- No RETURN after RUN": QuickReturn = -1: EXIT SUB
-    tempfile$ = "MathProcess" + DATE$
-    f = FREEFILE
-    OPEN tempfile$ + ".txt" FOR OUTPUT AS #f
-    PRINT #f, MID$(t$, 5, l - 5)
-    PRINT #f, "OPEN " + CHR$(34) + tempfile$ + ".txt" + CHR$(34) + " FOR OUTPUT AS #1"
-    PRINT #f, "PRINT #1, " + MID$(t$, l + 7)
-    PRINT #f, "CLOSE"
-    PRINT #f, "SYSTEM "
-    CLOSE #f
-    SHELL _HIDE "QB64.exe -c " + tempfile$ + ".txt"
-    SHELL _HIDE tempfile$ + ".exe"
-    OPEN tempfile$ + ".txt" FOR BINARY AS #f
-    LINE INPUT #f, e$
-    CLOSE #f
-    IF _FILEEXISTS(tempfile$ + ".txt") THEN KILL tempfile$ + ".txt"
-    IF _FILEEXISTS(tempfile$ + ".exe") THEN KILL tempfile$ + ".exe"
-    QuickReturn = -1: EXIT SUB
-END IF
-
-'Galleon: Direct interaction with the IDE should only occur when the IDE() function is called
-'         QUI violates this principle & doesn't allow compiler to be used independly of IDE module
-'         Revision required.
-'
-'QUI = 0 'Quick User Insert
-'FOR c = ASC("A") TO ASC("Z") 'Unless we evaluate to be a user set variable.
-'    IF INSTR(UCASE$(t$), CHR$(c) + "!") THEN
-'        f = FREEFILE
-'        IF _FILEEXISTS(DirName + CHR$(c) + "!.txt") THEN
-'            QUI = -1
-'            OPEN DirName + CHR$(c) + "!.txt" FOR INPUT AS #f
-'            t$ = ""
-'            count = 0
-'            DO UNTIL EOF(f)
-'                count = count + 1
-'                LINE INPUT #f, t1$
-'                t2$ = t2$ + t1$ + CHR$(13)
-'            LOOP
-'            CLOSE #f
-'        ELSE
-'            e$ = "ERROR --" + DirName + CHR$(c) + "!.txt is not a valid quickload file.": QuickReturn = -1: EXIT SUB
-'        END IF
-'    END IF
-'NEXT
-'IF QUI THEN
-'    SELECT CASE count
-'        CASE 0
-'            e$ = "ERROR --" + DirName + CHR$(c) + "!.txt is a blank quickload file.": QuickReturn = -1: EXIT SUB
-'        CASE 1
-'            'l = idecy
-'            'a$ = idegetline(l)
-'            'l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
-'            'text$ = l$ + t1$ + r$
-'            'textlen = LEN(text$)
-'            'l$ = LEFT$(idet$, ideli - 1)
-'            'm$ = MKL$(textlen) + text$ + MKL$(textlen)
-'            'r$ = RIGHT$(idet$, LEN(idet$) - ideli - LEN(a$) - 7)
-'            'idet$ = l$ + m$ + r$
-'            'idecx = idecx + LEN(t1$)
-'            e$ = t1$: QuickReturn = -1: EXIT SUB
-'        CASE ELSE
-'            a$ = t2$
-'            x3 = 1 'scan from position
-'            i = 0 'lines counter
-
-'            DO
-
-'                x = INSTR(x3, a$, CHR$(13))
-'                x2 = INSTR(x3, a$, CHR$(10))
-'                IF x = 0 THEN x = x2
-'                IF x2 = 0 THEN x2 = x
-'                IF x2 < x THEN SWAP x, x2
-'                IF x2 > x + 1 THEN x2 = x 'if seperated by more than one character, they are seperate line terminators
-'                'x to x2 is the range of the next line terminator (1 or 2 characters)
-
-'                IF x THEN
-'                    ''''''ideinsline idecy + i, converttabs$(MID$(a$, x3, x - x3))
-'                    i = i + 1
-'                    x3 = x2 + 1
-'                ELSE
-'                    ''''''ideinsline idecy + i, converttabs$(MID$(a$, x3, LEN(a$) - x3 + 1))
-'                    i = i + 1
-'                    x3 = LEN(a$) + 1
-'                END IF
-
-'            LOOP UNTIL x3 > LEN(a$)
-'            e$ = STR$(count) + " LINES INSERTED": QuickReturn = -1: EXIT SUB
-'    END SELECT
-'END IF
-
-'DATE$
-l = 0
-DO
-    l = INSTR(UCASE$(t$), "DATE$")
-    IF l THEN
-        t$ = LEFT$(t$, l - 1) + DATE$ + MID$(t$, l + 5)
-    END IF
-LOOP UNTIL l = 0
-
-'TIME$
-l = 0
-DO
-    l = INSTR(UCASE$(t$), "TIME$")
-    IF l THEN
-        t$ = LEFT$(t$, l - 1) + TIME$ + MID$(t$, l + 5)
-    END IF
-LOOP UNTIL l = 0
-
-'Commands that we should only process once and then be done with them.
-IF INSTR(UCASE$(t$), "WIKI") THEN SHELL _HIDE "http://qb64.net/wiki/index.php?title=Main_Page"
-IF INSTR(UCASE$(t$), "QB64") THEN SHELL _HIDE "http://www.qb64.net/"
-IF INSTR(UCASE$(t$), "FORUMS") THEN SHELL _HIDE "http://www.qb64.net/forum/index.php"
-IF INSTR(UCASE$(t$), "WEBCHAT") THEN SHELL _HIDE "http://webchat.freenode.net/"
-IF INSTR(UCASE$(t$), "COMMAND$") THEN t$ = LEFT$(t$, l - 1) + COMMAND$ + MID$(t$, l + 5)
-IF INSTR(UCASE$(t$), "D2R$") THEN t$ = LEFT$(t$, l - 1) + "FUNCTION D2R## (x AS _FLOAT): D2R = 0.0174532925 * x: END FUNCTION" + MID$(t$, l + 5)
-IF INSTR(UCASE$(t$), "D2G$") THEN t$ = LEFT$(t$, l - 1) + "FUNCTION D2G## (x AS _FLOAT): D2G = 1.1111111111 * x: END FUNCTION" + MID$(t$, l + 5)
-IF INSTR(UCASE$(t$), "R2G$") THEN t$ = LEFT$(t$, l - 1) + "FUNCTION R2D## (x AS _FLOAT): R2D = 57.2957795 * x: END FUNCTION" + MID$(t$, l + 5)
-IF INSTR(UCASE$(t$), "R2G$") THEN t$ = LEFT$(t$, l - 1) + "FUNCTION R2G## (x AS _FLOAT): R2G = 0.015707963 * x: END FUNCTION" + MID$(t$, l + 5)
-IF INSTR(UCASE$(t$), "G2D$") THEN t$ = LEFT$(t$, l - 1) + "FUNCTION G2D## (x AS _FLOAT): G2D = 0.9 * x: END FUNCTION" + MID$(t$, l + 5)
-IF INSTR(UCASE$(t$), "G2R$") THEN t$ = LEFT$(t$, l - 1) + "FUNCTION G2R## (x AS _FLOAT): G2R = 63.661977237 * x: END FUNCTION" + MID$(t$, l + 5)
-
-
-'Strip out the commands we only process once
-l = 0
-DO
-    l = INSTR(UCASE$(t$), "D2R$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "D2G$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "D2G$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "R2G$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "R2D$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "G2D$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "G2R$")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "WIKI")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "QB64")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "FORUMS")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "WEBCHAT")
-    IF l = 0 THEN l = INSTR(UCASE$(t$), "COMMAND$")
-    IF l THEN
-        t$ = LEFT$(t$, l - 1) + MID$(t$, l + 5)
-    END IF
-LOOP UNTIL l = 0
-e$ = t$: QuickReturn = -1
-END SUB
-
-
-
-
-
-
-
-
 
 
 

@@ -15,5 +15,9 @@ void sub_screenicon () {
 }
 
 int32 func_windowexists () {
-	return window_exists;
+	return -window_exists;
+}
+
+int32 func__controlchr () {
+  return -no_control_characters2;
 }

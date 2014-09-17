@@ -27025,7 +27025,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   qbs *func__os(){
     qbs *tqbs;
 #ifdef QB64_WINDOWS
+  #ifdef QB64_32
     tqbs=qbs_new_txt("[WINDOWS][32BIT]");
+  #else
+    tqbs=qbs_new_txt("[WINDOWS][64BIT]");
+  #endif
 #else
 #ifdef QB64_MACOSX
 #ifdef QB64_32
