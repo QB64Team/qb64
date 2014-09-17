@@ -23434,223 +23434,82 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
      2012 */ 
 
+int32 func__exit(){
+  exit_blocked=1;
+  static int32 x;
+  x=exit_value;
+  exit_value=0;
+  return x;
+}
 
 
 
+ qbs *internal_clipboard=NULL;//used only if clipboard services unavailable
+ int32 linux_clipboard_init=0;
 
-
-
-
-
-
-
-
-
-
-
-
-
-  int32 func__exit(){
-    exit_blocked=1;
-    static int32 x;
-    x=exit_value;
-    exit_value=0;
-    return x;
-  }
-
-
-
-#ifndef QB64_WINDOWS
-#ifndef QB64_MACOSX
-#define NO_CLIPBOARD
-#endif
-#endif
-
-#ifdef NO_CLIPBOARD
-  void sub__clipboard(qbs *text){
-    return;
-  }
-  qbs *func__clipboard(){
-    static qbs *text;
-    text=qbs_new(0,1);
-    return text;
-  }
-#else
-
-
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-  //X11 clipboard interface for Linux
-  SDL_SysWMinfo syswminfo;
-  Atom targets,utf8string,compoundtext,clipboard;
-  int x11filter(const SDL_Event *sdlevent){
-    static int i;
-    static char *cp;
-    static XEvent x11event;
-    static XSelectionRequestEvent *x11request;
-    static XSelectionEvent x11selectionevent;
-    static Atom mytargets[]={XA_STRING,utf8string,compoundtext};
-    if (sdlevent->type==SDL_SYSWMEVENT){ 
-      x11event=sdlevent->syswm.msg->event.xevent;
-      if (x11event.type==SelectionRequest){
-    x11request=&x11event.xselectionrequest;
-    x11selectionevent.type=SelectionNotify;
-    x11selectionevent.serial=x11event.xany.send_event;
-    x11selectionevent.send_event=True;
-    x11selectionevent.display=syswminfo.info.x11.display;
-    x11selectionevent.requestor=x11request->requestor;
-    x11selectionevent.selection=x11request->selection;
-    x11selectionevent.target=None;
-    x11selectionevent.property=x11request->property;
-    x11selectionevent.time=x11request->time;
-    if (x11request->target==targets){
-      XChangeProperty(syswminfo.info.x11.display,x11request->requestor,x11request->property,XA_ATOM,32,PropModeReplace,(unsigned char*)mytargets,3);
-    }else{
-      if (x11request->target==compoundtext||x11request->target==utf8string||x11request->target==XA_STRING){
-        cp=XFetchBytes(syswminfo.info.x11.display,&i);
-        XChangeProperty(syswminfo.info.x11.display,x11request->requestor,x11request->property,x11request->target,8,PropModeReplace,(unsigned char*)cp,i);
-        XFree(cp);
-      }else{
-        x11selectionevent.property=None;
-      }
-    }
-    XSendEvent(x11request->display,x11request->requestor,0,NoEventMask,(XEvent*)&x11selectionevent);
-    XSync(syswminfo.info.x11.display,False);
-      }
-    }
-    return 1;
-  }
-  void setupx11clipboard(){
-    static int32 setup=0;
-    if (!setup){
-      setup=1;
-      SDL_GetWMInfo(&syswminfo);
-      SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
-      SDL_SetEventFilter(x11filter);
-      syswminfo.info.x11.lock_func();
-      targets=XInternAtom(syswminfo.info.x11.display,"TARGETS",True);
-      utf8string=XInternAtom(syswminfo.info.x11.display,"UTF8_STRING",True);
-      compoundtext=XInternAtom(syswminfo.info.x11.display,"COMPOUND_TEXT",True);
-      clipboard=XInternAtom(syswminfo.info.x11.display,"CLIPBOARD",True);
-      syswminfo.info.x11.unlock_func();
-    }
-  }
-  void x11clipboardcopy(const char *text){
-    setupx11clipboard();
-    syswminfo.info.x11.lock_func();
-    XStoreBytes(syswminfo.info.x11.display,text,strlen(text)+1);
-    XSetSelectionOwner(syswminfo.info.x11.display,clipboard,syswminfo.info.x11.window,CurrentTime);
-    syswminfo.info.x11.unlock_func();
-    return; 
-  }
-  char *x11clipboardpaste(){
-    static int32 i;
-    static char *cp;
-    static unsigned char *cp2;
-    static Window x11selectionowner;
-    static SDL_Event sdlevent;
-    static XEvent x11event;
-    static unsigned long data_items,bytes_remaining,ignore;
-    static int format;
-    static Atom type;
-    cp=NULL; cp2=NULL;
-    setupx11clipboard();
-    syswminfo.info.x11.lock_func();
-    x11selectionowner=XGetSelectionOwner(syswminfo.info.x11.display,clipboard);
-    if (x11selectionowner!=None){
-      XConvertSelection(syswminfo.info.x11.display,clipboard,utf8string,clipboard,syswminfo.info.x11.window,CurrentTime);
-      XFlush(syswminfo.info.x11.display);
-      syswminfo.info.x11.unlock_func();
-      i=0;
-      while (i==0){
-    SDL_WaitEvent(&sdlevent);
-    if (sdlevent.type==SDL_SYSWMEVENT){
-      x11event=sdlevent.syswm.msg->event.xevent;
-      if ((x11event.xselection.requestor==syswminfo.info.x11.window)&&(x11event.type==SelectionNotify)) i=1;
-    }
-      }
-      syswminfo.info.x11.lock_func();
-      XGetWindowProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard,0,0,False,AnyPropertyType,&type,&format,&data_items,&bytes_remaining,&cp2);
-      if (cp2){XFree(cp2); cp2=NULL;}
-      if (bytes_remaining){
-    if (XGetWindowProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard,0,bytes_remaining,False,AnyPropertyType,&type,&format,&data_items, &ignore,&cp2)==Success){
-      cp=strdup((char*)cp2);
-      XFree(cp2);
-    }
-      }  
-      XDeleteProperty(syswminfo.info.x11.display,syswminfo.info.x11.window,clipboard);
-    }
-    syswminfo.info.x11.unlock_func();
-    return cp;
-  }
-#endif
-#endif
-
-  qbs *internal_clipboard=NULL;//used only if clipboard services unavailable
-  int32 linux_clipboard_init=0;
-
-  void sub__clipboard(qbs *text){
+ void sub__clipboard(qbs *text){
 
 #ifdef QB64_WINDOWS
-    static uint8 *textz;
-    static HGLOBAL h;
-    if (OpenClipboard(NULL)){
-      EmptyClipboard();
-      h=GlobalAlloc(GMEM_MOVEABLE,text->len+1); if (h){
-    textz=(uint8*)GlobalLock(h); if (textz){
-      memcpy(textz,text->chr,text->len);
-      textz[text->len]=0;
-      GlobalUnlock(h);
-      SetClipboardData(CF_TEXT,h);
-    }
-      }
-      CloseClipboard();
-    }
-    return;
+   static uint8 *textz;
+   static HGLOBAL h;
+   if (OpenClipboard(NULL)){
+     EmptyClipboard();
+     h=GlobalAlloc(GMEM_MOVEABLE,text->len+1); if (h){
+       textz=(uint8*)GlobalLock(h); if (textz){
+	 memcpy(textz,text->chr,text->len);
+	 textz[text->len]=0;
+	 GlobalUnlock(h);
+	 SetClipboardData(CF_TEXT,h);
+       }
+     }
+     CloseClipboard();
+   }
+   return;
 #endif
 
 #ifdef QB64_MACOSX
-    PasteboardRef clipboard;
-    if (PasteboardCreate(kPasteboardClipboard, &clipboard) != noErr) {
-      return;
-    }
-    if (PasteboardClear(clipboard) != noErr) {
-      CFRelease(clipboard);
-      return;
-    }
-    CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, text->chr, 
-                         text->len, kCFAllocatorNull);
-    if (data == NULL) {
-      CFRelease(clipboard);
-      return;
-    }
-    OSStatus err;
-    err = PasteboardPutItemFlavor(clipboard, NULL, kUTTypeUTF8PlainText, data, 0);
-    CFRelease(clipboard);
-    CFRelease(data);
-    return;
+   PasteboardRef clipboard;
+   if (PasteboardCreate(kPasteboardClipboard, &clipboard) != noErr) {
+     return;
+   }
+   if (PasteboardClear(clipboard) != noErr) {
+     CFRelease(clipboard);
+     return;
+   }
+   CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, text->chr, 
+						text->len, kCFAllocatorNull);
+   if (data == NULL) {
+     CFRelease(clipboard);
+     return;
+   }
+   OSStatus err;
+   err = PasteboardPutItemFlavor(clipboard, NULL, kUTTypeUTF8PlainText, data, 0);
+   CFRelease(clipboard);
+   CFRelease(data);
+   return;
 #endif
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
-    while (!display_surface) Sleep(1);
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-    if (!linux_clipboard_init){
+   //Need to find a way to get the clipboard working on Linux! (Hack freeGLUT, switch to GLFW, small 'helper' program?)
+   /*   while (!display_surface) Sleep(1);
+   lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
+   if (!linux_clipboard_init){
 
-      linux_clipboard_init=1;
-      setupx11clipboard();
-    }
-    static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
-    qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
-    x11clipboardcopy((char*)textz->chr);
-    lock_mainloop=0; Sleep(1);//unlock
-    return;
+     linux_clipboard_init=1;
+     setupx11clipboard();
+   }
+   static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
+   qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
+   x11clipboardcopy((char*)textz->chr);
+   lock_mainloop=0; Sleep(1);//unlock
+   return; */
 #endif
 #endif
 
-    if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
-    qbs_set(internal_clipboard,text);
-  }
+   if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
+   qbs_set(internal_clipboard,text);
+ }
 
   qbs *func__clipboard(){
 #ifdef QB64_WINDOWS
@@ -23723,24 +23582,6 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     text=qbs_new(0,1);
     return text;
     return NULL;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /*
       PasteboardRef inPasteboard;
@@ -23826,7 +23667,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
-    static char *cp;
+    //Linux clipboard not functional, see comment in sub__clipboard
+    /*    static char *cp;
     static qbs *text;
     while (!display_surface) Sleep(1);
     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
@@ -23843,18 +23685,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       free(cp);
     }
     lock_mainloop=0; Sleep(1);//unlock
-    return text;
+    return text; */
 #endif
 #endif
 
     if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
     return internal_clipboard;
   }
-
-
-
-  //#ifdef USE_CLIPBOARD is used above
-#endif
 
 
   int32 display_called=0;
