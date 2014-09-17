@@ -1,174 +1,136 @@
-int32 *_SUB_IDEASCIIBOX_LONG_W=NULL;
-if(_SUB_IDEASCIIBOX_LONG_W==NULL){
-_SUB_IDEASCIIBOX_LONG_W=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_W=0;
+qbs *_FUNC_IDEF1BOX_STRING_IDEF1BOX=NULL;
+if (!_FUNC_IDEF1BOX_STRING_IDEF1BOX)_FUNC_IDEF1BOX_STRING_IDEF1BOX=qbs_new(0,0);
+qbs*oldstr4617=NULL;
+if(_FUNC_IDEF1BOX_STRING_LNKS->tmp||_FUNC_IDEF1BOX_STRING_LNKS->fixed||_FUNC_IDEF1BOX_STRING_LNKS->readonly){
+oldstr4617=_FUNC_IDEF1BOX_STRING_LNKS;
+if (oldstr4617->cmem_descriptor){
+_FUNC_IDEF1BOX_STRING_LNKS=qbs_new_cmem(oldstr4617->len,0);
+}else{
+_FUNC_IDEF1BOX_STRING_LNKS=qbs_new(oldstr4617->len,0);
 }
-int32 *_SUB_IDEASCIIBOX_LONG_H=NULL;
-if(_SUB_IDEASCIIBOX_LONG_H==NULL){
-_SUB_IDEASCIIBOX_LONG_H=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_H=0;
+memcpy(_FUNC_IDEF1BOX_STRING_LNKS->chr,oldstr4617->chr,oldstr4617->len);
 }
-int32 *_SUB_IDEASCIIBOX_LONG_TEMP=NULL;
-if(_SUB_IDEASCIIBOX_LONG_TEMP==NULL){
-_SUB_IDEASCIIBOX_LONG_TEMP=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_TEMP=0;
+int32 *_FUNC_IDEF1BOX_LONG_FOCUS=NULL;
+if(_FUNC_IDEF1BOX_LONG_FOCUS==NULL){
+_FUNC_IDEF1BOX_LONG_FOCUS=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_FOCUS=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_TEMP1=NULL;
-if(_SUB_IDEASCIIBOX_LONG_TEMP1==NULL){
-_SUB_IDEASCIIBOX_LONG_TEMP1=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_TEMP1=0;
+void *_FUNC_IDEF1BOX_UDT_P=NULL;
+if(_FUNC_IDEF1BOX_UDT_P==NULL){
+_FUNC_IDEF1BOX_UDT_P=(void*)mem_static_malloc(20);
+memset(_FUNC_IDEF1BOX_UDT_P,0,20);
 }
-int32 *_SUB_IDEASCIIBOX_LONG_WS=NULL;
-if(_SUB_IDEASCIIBOX_LONG_WS==NULL){
-_SUB_IDEASCIIBOX_LONG_WS=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_WS=0;
-}
-ptrszint *_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC=NULL;
-if (!_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC){
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC=(ptrszint*)mem_static_malloc(13*ptrsz);
+ptrszint *_FUNC_IDEF1BOX_ARRAY_UDT_O=NULL;
+if (!_FUNC_IDEF1BOX_ARRAY_UDT_O){
+_FUNC_IDEF1BOX_ARRAY_UDT_O=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
 mem_lock_tmp->type=4;
-((ptrszint*)_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC)[12]=(ptrszint)mem_lock_tmp;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[2]=0;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[4]=2147483647;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[5]=0;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[6]=0;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[8]=2147483647;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[9]=0;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[10]=0;
-_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[0]=(ptrszint)nothingvalue;
+((ptrszint*)_FUNC_IDEF1BOX_ARRAY_UDT_O)[8]=(ptrszint)mem_lock_tmp;
+_FUNC_IDEF1BOX_ARRAY_UDT_O[2]=0;
+_FUNC_IDEF1BOX_ARRAY_UDT_O[4]=2147483647;
+_FUNC_IDEF1BOX_ARRAY_UDT_O[5]=0;
+_FUNC_IDEF1BOX_ARRAY_UDT_O[6]=0;
+_FUNC_IDEF1BOX_ARRAY_UDT_O[0]=(ptrszint)nothingvalue;
 }
-int16 *_SUB_IDEASCIIBOX_INTEGER_CURRENTONE=NULL;
-if(_SUB_IDEASCIIBOX_INTEGER_CURRENTONE==NULL){
-_SUB_IDEASCIIBOX_INTEGER_CURRENTONE=(int16*)mem_static_malloc(2);
-*_SUB_IDEASCIIBOX_INTEGER_CURRENTONE=0;
+void *_FUNC_IDEF1BOX_UDT_OO=NULL;
+if(_FUNC_IDEF1BOX_UDT_OO==NULL){
+_FUNC_IDEF1BOX_UDT_OO=(void*)mem_static_malloc(80);
+memset(_FUNC_IDEF1BOX_UDT_OO,0,80);
 }
-int32 *_SUB_IDEASCIIBOX_LONG_Y=NULL;
-if(_SUB_IDEASCIIBOX_LONG_Y==NULL){
-_SUB_IDEASCIIBOX_LONG_Y=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_Y=0;
+qbs *_FUNC_IDEF1BOX_STRING1_SEP=NULL;
+if(_FUNC_IDEF1BOX_STRING1_SEP==NULL){
+_FUNC_IDEF1BOX_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
+memset(_FUNC_IDEF1BOX_STRING1_SEP->chr,0,1);
 }
-int64 fornext_value4623;
-int64 fornext_finalvalue4623;
-int64 fornext_step4623;
-uint8 fornext_step_negative4623;
-int32 *_SUB_IDEASCIIBOX_LONG_X=NULL;
-if(_SUB_IDEASCIIBOX_LONG_X==NULL){
-_SUB_IDEASCIIBOX_LONG_X=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_X=0;
+int32 *_FUNC_IDEF1BOX_LONG_I=NULL;
+if(_FUNC_IDEF1BOX_LONG_I==NULL){
+_FUNC_IDEF1BOX_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_I=0;
 }
-int64 fornext_value4625;
-int64 fornext_finalvalue4625;
-int64 fornext_step4625;
-uint8 fornext_step_negative4625;
-int32 *_SUB_IDEASCIIBOX_LONG_COUNTER=NULL;
-if(_SUB_IDEASCIIBOX_LONG_COUNTER==NULL){
-_SUB_IDEASCIIBOX_LONG_COUNTER=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_COUNTER=0;
+int32 pass4618;
+int32 pass4619;
+int64 fornext_value4621;
+int64 fornext_finalvalue4621;
+int64 fornext_step4621;
+uint8 fornext_step_negative4621;
+int32 *_FUNC_IDEF1BOX_LONG_F=NULL;
+if(_FUNC_IDEF1BOX_LONG_F==NULL){
+_FUNC_IDEF1BOX_LONG_F=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_F=0;
 }
-int64 fornext_value4627;
-int64 fornext_finalvalue4627;
-int64 fornext_step4627;
-uint8 fornext_step_negative4627;
-int64 fornext_value4629;
-int64 fornext_finalvalue4629;
-int64 fornext_step4629;
-uint8 fornext_step_negative4629;
-qbs *_SUB_IDEASCIIBOX_STRING_TEXT=NULL;
-if (!_SUB_IDEASCIIBOX_STRING_TEXT)_SUB_IDEASCIIBOX_STRING_TEXT=qbs_new(0,0);
-byte_element_struct *byte_element_4630=NULL;
-if (!byte_element_4630){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4630=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4630=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDEF1BOX_LONG_CX=NULL;
+if(_FUNC_IDEF1BOX_LONG_CX==NULL){
+_FUNC_IDEF1BOX_LONG_CX=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_CX=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_OLDMOUSEX=NULL;
-if(_SUB_IDEASCIIBOX_LONG_OLDMOUSEX==NULL){
-_SUB_IDEASCIIBOX_LONG_OLDMOUSEX=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_OLDMOUSEX=0;
+int32 *_FUNC_IDEF1BOX_LONG_CY=NULL;
+if(_FUNC_IDEF1BOX_LONG_CY==NULL){
+_FUNC_IDEF1BOX_LONG_CY=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_CY=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_OLDMOUSEY=NULL;
-if(_SUB_IDEASCIIBOX_LONG_OLDMOUSEY==NULL){
-_SUB_IDEASCIIBOX_LONG_OLDMOUSEY=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_OLDMOUSEY=0;
+int64 fornext_value4624;
+int64 fornext_finalvalue4624;
+int64 fornext_step4624;
+uint8 fornext_step_negative4624;
+int32 *_FUNC_IDEF1BOX_LONG_LASTFOCUS=NULL;
+if(_FUNC_IDEF1BOX_LONG_LASTFOCUS==NULL){
+_FUNC_IDEF1BOX_LONG_LASTFOCUS=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_LASTFOCUS=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_NUM=NULL;
-if(_SUB_IDEASCIIBOX_LONG_NUM==NULL){
-_SUB_IDEASCIIBOX_LONG_NUM=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_NUM=0;
+int32 *_FUNC_IDEF1BOX_LONG_CHANGE=NULL;
+if(_FUNC_IDEF1BOX_LONG_CHANGE==NULL){
+_FUNC_IDEF1BOX_LONG_CHANGE=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_CHANGE=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_FLASHCOUNTER=NULL;
-if(_SUB_IDEASCIIBOX_LONG_FLASHCOUNTER==NULL){
-_SUB_IDEASCIIBOX_LONG_FLASHCOUNTER=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_FLASHCOUNTER=0;
+int32 *_FUNC_IDEF1BOX_LONG_MOUSEDOWN=NULL;
+if(_FUNC_IDEF1BOX_LONG_MOUSEDOWN==NULL){
+_FUNC_IDEF1BOX_LONG_MOUSEDOWN=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_MOUSEDOWN=0;
 }
-byte_element_struct *byte_element_4634=NULL;
-if (!byte_element_4634){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4634=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4634=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDEF1BOX_LONG_MOUSEUP=NULL;
+if(_FUNC_IDEF1BOX_LONG_MOUSEUP==NULL){
+_FUNC_IDEF1BOX_LONG_MOUSEUP=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_MOUSEUP=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_TOGGLE=NULL;
-if(_SUB_IDEASCIIBOX_LONG_TOGGLE==NULL){
-_SUB_IDEASCIIBOX_LONG_TOGGLE=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_TOGGLE=0;
+int32 *_FUNC_IDEF1BOX_LONG_ALT=NULL;
+if(_FUNC_IDEF1BOX_LONG_ALT==NULL){
+_FUNC_IDEF1BOX_LONG_ALT=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_ALT=0;
 }
-byte_element_struct *byte_element_4635=NULL;
-if (!byte_element_4635){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4635=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4635=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDEF1BOX_LONG_OLDALT=NULL;
+if(_FUNC_IDEF1BOX_LONG_OLDALT==NULL){
+_FUNC_IDEF1BOX_LONG_OLDALT=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_OLDALT=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_K1=NULL;
-if(_SUB_IDEASCIIBOX_LONG_K1==NULL){
-_SUB_IDEASCIIBOX_LONG_K1=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_K1=0;
+qbs *_FUNC_IDEF1BOX_STRING_ALTLETTER=NULL;
+if (!_FUNC_IDEF1BOX_STRING_ALTLETTER)_FUNC_IDEF1BOX_STRING_ALTLETTER=qbs_new(0,0);
+byte_element_struct *byte_element_4626=NULL;
+if (!byte_element_4626){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4626=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4626=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_SUB_IDEASCIIBOX_LONG_DONOTHING=NULL;
-if(_SUB_IDEASCIIBOX_LONG_DONOTHING==NULL){
-_SUB_IDEASCIIBOX_LONG_DONOTHING=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_DONOTHING=0;
+int32 *_FUNC_IDEF1BOX_LONG_K=NULL;
+if(_FUNC_IDEF1BOX_LONG_K==NULL){
+_FUNC_IDEF1BOX_LONG_K=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_K=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_ATALL=NULL;
-if(_SUB_IDEASCIIBOX_LONG_ATALL==NULL){
-_SUB_IDEASCIIBOX_LONG_ATALL=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_ATALL=0;
+int32 *_FUNC_IDEF1BOX_LONG_INFO=NULL;
+if(_FUNC_IDEF1BOX_LONG_INFO==NULL){
+_FUNC_IDEF1BOX_LONG_INFO=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_INFO=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_EX=NULL;
-if(_SUB_IDEASCIIBOX_LONG_EX==NULL){
-_SUB_IDEASCIIBOX_LONG_EX=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_EX=0;
+int64 fornext_value4628;
+int64 fornext_finalvalue4628;
+int64 fornext_step4628;
+uint8 fornext_step_negative4628;
+int32 *_FUNC_IDEF1BOX_LONG_T=NULL;
+if(_FUNC_IDEF1BOX_LONG_T==NULL){
+_FUNC_IDEF1BOX_LONG_T=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_T=0;
 }
-int16 *_SUB_IDEASCIIBOX_INTEGER_RET=NULL;
-if(_SUB_IDEASCIIBOX_INTEGER_RET==NULL){
-_SUB_IDEASCIIBOX_INTEGER_RET=(int16*)mem_static_malloc(2);
-*_SUB_IDEASCIIBOX_INTEGER_RET=0;
+int32 *_FUNC_IDEF1BOX_LONG_FOCUSOFFSET=NULL;
+if(_FUNC_IDEF1BOX_LONG_FOCUSOFFSET==NULL){
+_FUNC_IDEF1BOX_LONG_FOCUSOFFSET=(int32*)mem_static_malloc(4);
+*_FUNC_IDEF1BOX_LONG_FOCUSOFFSET=0;
 }
-int32 *_SUB_IDEASCIIBOX_LONG_L=NULL;
-if(_SUB_IDEASCIIBOX_LONG_L==NULL){
-_SUB_IDEASCIIBOX_LONG_L=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_L=0;
-}
-qbs *_SUB_IDEASCIIBOX_STRING_A=NULL;
-if (!_SUB_IDEASCIIBOX_STRING_A)_SUB_IDEASCIIBOX_STRING_A=qbs_new(0,0);
-qbs *_SUB_IDEASCIIBOX_STRING_L=NULL;
-if (!_SUB_IDEASCIIBOX_STRING_L)_SUB_IDEASCIIBOX_STRING_L=qbs_new(0,0);
-qbs *_SUB_IDEASCIIBOX_STRING_R=NULL;
-if (!_SUB_IDEASCIIBOX_STRING_R)_SUB_IDEASCIIBOX_STRING_R=qbs_new(0,0);
-byte_element_struct *byte_element_4637=NULL;
-if (!byte_element_4637){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4637=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4637=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_SUB_IDEASCIIBOX_LONG_TEXTLEN=NULL;
-if(_SUB_IDEASCIIBOX_LONG_TEXTLEN==NULL){
-_SUB_IDEASCIIBOX_LONG_TEXTLEN=(int32*)mem_static_malloc(4);
-*_SUB_IDEASCIIBOX_LONG_TEXTLEN=0;
-}
-byte_element_struct *byte_element_4638=NULL;
-if (!byte_element_4638){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4638=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4638=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_SUB_IDEASCIIBOX_STRING_M=NULL;
-if (!_SUB_IDEASCIIBOX_STRING_M)_SUB_IDEASCIIBOX_STRING_M=qbs_new(0,0);
-byte_element_struct *byte_element_4639=NULL;
-if (!byte_element_4639){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4639=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4639=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_4640=NULL;
-if (!byte_element_4640){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4640=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4640=(byte_element_struct*)mem_static_malloc(12);
-}
+qbs *_FUNC_IDEF1BOX_STRING_F=NULL;
+if (!_FUNC_IDEF1BOX_STRING_F)_FUNC_IDEF1BOX_STRING_F=qbs_new(0,0);
