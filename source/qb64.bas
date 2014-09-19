@@ -69,11 +69,13 @@ DIM SHARED DEPENDENCY(1 TO DEPENDENCY_LAST)
 
 DIM SHARED UseGL 'declared SUB _GL (no params)
 
-_TITLE "QB64"
+
 
 
 DIM SHARED OS_BITS AS LONG
 OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
+
+IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED CMDLineFile AS STRING
@@ -10268,11 +10270,19 @@ ELSE
 
     IF inline_DATA = 0 THEN
         IF os$ = "WIN" THEN
-            x$ = CHR$(0): PUT #16, , x$
-            PRINT #18, "extern " + CHR$(34) + "C" + CHR$(34) + "{"
-            PRINT #18, "extern char *binary_____temp" + tempfolderindexstr2$ + "__data_bin_start;"
-            PRINT #18, "}"
-            PRINT #18, "uint8 *data=(uint8*)&binary_____temp" + tempfolderindexstr2$ + "__data_bin_start;"
+            IF OS_BITS = 32 THEN
+                x$ = CHR$(0): PUT #16, , x$
+                PRINT #18, "extern " + CHR$(34) + "C" + CHR$(34) + "{"
+                PRINT #18, "extern char *binary_____temp" + tempfolderindexstr2$ + "__data_bin_start;"
+                PRINT #18, "}"
+                PRINT #18, "uint8 *data=(uint8*)&binary_____temp" + tempfolderindexstr2$ + "__data_bin_start;"
+            ELSE
+                x$ = CHR$(0): PUT #16, , x$
+                PRINT #18, "extern " + CHR$(34) + "C" + CHR$(34) + "{"
+                PRINT #18, "extern char *_binary_____temp" + tempfolderindexstr2$ + "__data_bin_start;"
+                PRINT #18, "}"
+                PRINT #18, "uint8 *data=(uint8*)&_binary_____temp" + tempfolderindexstr2$ + "__data_bin_start;"
+            END IF
         END IF
         IF os$ = "LNX" THEN
             x$ = CHR$(0): PUT #16, , x$
@@ -11023,7 +11033,11 @@ IF os$ = "WIN" THEN
 
     IF inline_DATA = 0 THEN
         IF DataOffset THEN
-            OPEN ".\internal\c\makedat_win.txt" FOR BINARY AS #150: LINE INPUT #150, a$: CLOSE #150
+            IF OS_BITS = 32 THEN
+                OPEN ".\internal\c\makedat_win32.txt" FOR BINARY AS #150: LINE INPUT #150, a$: CLOSE #150
+            ELSE
+                OPEN ".\internal\c\makedat_win64.txt" FOR BINARY AS #150: LINE INPUT #150, a$: CLOSE #150
+            END IF
             a$ = a$ + " " + tmpdir2$ + "data.bin " + tmpdir2$ + "data.o"
             CHDIR ".\internal\c"
             SHELL _HIDE a$
