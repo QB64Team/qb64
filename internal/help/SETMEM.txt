@@ -1,0 +1,28 @@
+The '''SETMEM''' function is used to increase, decrease or return the current &quot;far heap&quot; byte size.
+
+
+
+{{PageSyntax}}
+:: SETMEM(byte_size)
+
+
+
+''Description:''
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* SETMEM(0) returns the total number of bytes currently in the far heap memory area.
+* The byte size indicates the number of bytes to increase or decrease the far heap.
+:* If the byte size is negative, SETMEM decreases the far heap by the indicated number of bytes.
+:* If the byte size is positive, SETMEM '''attempts''' to increase the far heap space by the number of bytes.
+* If SETMEM cannot change the far heap by the requested number of bytes, it reallocates as many bytes as possible.
+* SETMEM can be used in mixed-language programming to decrease the far heap space so procedures in other languages can dynamically allocate far memory.
+
+
+:'''Note: A first call to SETMEM trying to increase the far heap has no effect because Basic'''
+::'''allocates as much memory as possible to the far heap when a program starts.'''
+
+
+''See also:'' 
+* [[DECLARE (non-BASIC statement)]]
+
+
+{{PageNavigation}}

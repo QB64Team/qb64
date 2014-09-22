@@ -1,0 +1,25 @@
+The {{KW|_DEST (function)|_DEST}} function returns the handle value of the current write page (the image used for drawing).
+
+
+{{PageSyntax}}
+:''result&amp;'' = {{KW|_DEST (function)|_DEST}}
+
+
+{{PageDescription}}
+* The current write page is where all drawing occurs by default.
+* The value returned is the same as the latest [[SCREEN]]'s handle when creating custom screen modes using [[_NEWIMAGE]].
+* Keep the _NEWIMAGE handle values when you move to another SCREEN mode so that you can return to that screen later. You can go to another screen mode and return without having to redo the screen! 
+* _DEST return values do not change in legacy screen modes. The value will not help restore them.
+
+
+
+
+
+{{PageSeeAlso}}
+* {{KW|_DEST}}
+* {{KW|_SOURCE (function)}}
+* {{KW|Screen Mode Function}} (screens 0 to 13)
+
+
+
+{{PageNavigation}}

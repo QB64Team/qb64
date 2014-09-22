@@ -1,0 +1,31 @@
+The {{KW|_SNDSETPOS}} statement changes the current/starting playing position of a sound in seconds.
+
+
+{{PageSyntax}}
+:{{KW|_SNDSETPOS}} ({{Parameter|handle&amp;}}, {{Parameter|position!}})
+
+
+{{PageDescription}}
+*Changes the current/starting playing position of a sound in seconds(a {{KW|SINGLE}} value).
+*If the seconds position is past the length of the sound the sound will stop playing.
+*Opened files must have the &quot;SETPOS&quot; capability to use this statement.
+*Function cannot be called while a looping({{KW|_SNDLOOP}}) sound is being played.
+
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|_SNDSETPOS}} h&amp;, 5.5
+
+{{CodeEnd}}
+
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDGETPOS}}, {{KW|_SNDLEN}}, {{KW|_SNDOPEN}}, {{KW|_SNDLIMIT}}
+
+
+{{PageNavigation}}

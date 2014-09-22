@@ -1,0 +1,23 @@
+The {{KW|IOCTL}} statement sends a message to an open IOCTL compatible device. 
+
+
+{{PageSyntax}}
+:{{KW|IOCTL}} [#]{{Parameter|fileNumber%}}, {{Parameter|message$}}
+
+
+{{PageDescription}}
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* {{Parameter|fileNumber%}} is the number of an open device
+* {{Parameter|message$}} is the message you want to send.
+* The device must first be opened with the {{KW|OPEN}} statement.
+* Use {{KW|IOCTL$}} to receive messages from the device.
+* The message sent is device-specific (read manual to see if it is {{KW|IOCTL}} compatible).
+* {{KW|IOCTL}} doesn't work with most devices, it doesn't work with BASIC devices (LPTn:, COMn:, SCRN:, CONS:) or DOS block devices (A: to Z:).
+
+
+{{PageSeeAlso}}
+* {{KW|IOCTL$}}
+* {{KW|OPEN}}
+
+
+{{PageNavigation}}

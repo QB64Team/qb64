@@ -1,0 +1,25 @@
+The '''DEFSNG''' statement defines all designated undefined variables AS [[SINGLE]] variables. 
+
+
+{{PageSyntax}}
+:: DEFSNG firstletters
+
+
+
+* The variable first letters can be from A-Z or any other range. 
+* You can also use commas for specific untyped variable first letters.
+* Variables [[DIM]]ensioned as another variable type or that use type suffixes are not defined otherwise.
+* DEFSNG is normally the Qbasic default assignment for undefined variables anyhow.
+* '''Qbasic's IDE may add DEF statements before any [[SUB]] or [[FUNCTION]]. QB64(like QB) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|&quot;Parameter Type Mismatch&quot;]] warning or adding the proper DEF statement to subsequent procedures! If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures!'''
+* '''Warning: Qbasic keyword names cannot be used as numerical variable names with or without the type suffix!'''
+
+
+''Example:'' DEFSNG A-D, S
+
+
+''See also:'' 
+* [[DEFINT]], [[DEFDBL]], [[DEFLNG]], [[DEFSTR]]
+* [[_DEFINE]]
+
+
+{{PageNavigation}}

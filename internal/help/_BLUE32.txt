@@ -1,0 +1,22 @@
+The {{KW|_BLUE32}} function ALWAYS returns the blue component intensity of a 32-bit ''RGBA'' color value.
+
+
+{{PageSyntax}}
+:{{Parameter|result&amp;}} = {{KW|_BLUE32}}({{Parameter|rgbaColor&amp;}})
+
+
+{{PageDescription}}
+* {{Parameter|rgbaColor&amp;}} is the 32-bit ''RGBA'' color value to retrieve the blue component intensity value from.
+* ''RGBA'' color values are returned by the {{KW|_PALETTECOLOR (function)|_PALETTECOLOR}}, {{KW|POINT}}, {{KW|_RGB}}, {{KW|_RGB32}}, {{KW|_RGBA}} or {{KW|_RGBA32}} functions.
+* [[LONG]] intensity values returned range from 0 (no intensity, not present) to 255 (full intensity). '''Do NOT use SINGLE variables!'''
+
+
+''See Example:'' [[POINT]]
+
+
+{{PageSeeAlso}}
+* {{KW|_RED32}}, {{KW|_GREEN32}}
+* {{KW|_RGB32}}, {{KW|_BLUE}}
+
+
+{{PageNavigation}}

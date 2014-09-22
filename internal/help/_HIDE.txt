@@ -1,0 +1,63 @@
+The '''_HIDE''' action statement is used to hide the DOS window opened by a {{KW|SHELL}} statement.
+
+
+{{PageSyntax}}
+:{{KW|SHELL}} {{KW|_HIDE}} {{Parameter|StringCommandLine$}}
+
+
+* Can only be used in the {{KW|SHELL}} statement when using '''QB64'''.
+* Allows any DOS command line window to be hidden from view without affecting the program.
+* {{KW|_HIDE}} MUST be used when sending(&quot;piping&quot;) screen information to a file!
+* '''Note:''' Some commands may not work without adding CMD /C to the start of the command line.
+
+
+''Example:'' Subprogram that displays long and short filenames using the DIR /X option(NT or above) in SCREEN 12:
+{{CodeStart}}
+'' ''
+SUB LFN
+ IF LEN({{Cl|ENVIRON$}}(&quot;OS&quot;)) = 0 THEN EXIT SUB   ' /X not available Win 9X and ME 
+ SHELL {{Cl|_HIDE}} &quot;cmd /c dir /x &gt; DOS-DATA.INF&quot; ' load display data to a file
+ OPEN &quot;DOS-DATA.INF&quot; FOR INPUT AS #1
+ IF {{Cl|LOF}}(1) THEN
+   Header$ = SPACE$(10) + &quot;Short&quot; + SPACE$(16) + &quot;Long&quot; + SPACE$(20) + &quot;Last Modified&quot;
+   tmp$ = &quot;\   \  \          \      &amp;&quot; ' print using template format
+   COLOR 14: LOCATE 2, 4: PRINT Header$
+   DO UNTIL EOF(1)
+    {{Cl|LINE INPUT}} #1, line$
+    IF LEN(line$) AND MID$(line$, 1, 1) &lt;&gt; SPACE$(1) THEN ' ignore other file data
+      cnt% = cnt% + 1
+      last$ = MID$(line$, 1, 20): DIR$ = MID$(line$, 26, 3)
+      IF MID$(line$, 40, 1) &lt;&gt; SPACE$(1) THEN ' found line with short and long name 
+        SHFN$ = MID$(line$, 40, INSTR(40, line$, SPACE$(1)) - 1)
+        LGFN$ = MID$(line$, 53)
+      ELSE : SHFN$ = MID$(line$, 53): LGFN$ = &quot;&quot; ' found short name only
+      END IF
+      IF cnt% MOD 25 = 0 THEN ' pause every 25 files
+        COLOR 14: LOCATE 29, 27 &quot;Press a key for more files!&quot;
+        DO: LOOP UNTIL INKEY$ &lt;&gt; &quot;&quot;
+        CLS: COLOR 14: LOCATE 2, 4: PRINT Header$
+      END IF
+      COLOR 11: LOCATE (cnt% MOD 25) + 3, 4
+      {{Cl|PRINT USING}} tmp$; DIR$; SHFN$; LGFN$
+      LOCATE (cnt% MOD 25) + 3, 58: PRINT last$
+    END IF
+   LOOP
+ END IF
+ COLOR 10: LOCATE {{Cl|CSRLIN}} + 1, 27 &quot;Total folders and files =&quot;; cnt%
+ CLOSE #1
+END SUB '' ''
+
+{{CodeEnd}}
+
+''Explanation:'' The above routine can also be used to place the filename info into string arrays by using the count variable cnt% to determine the index. Long filenames are normally returned by '''QB64'''. To keep older QBasic programs compatible, you may want to only use the short names when displaying the files on the screen.
+
+
+
+{{PageSeeAlso}}
+* [[SHELL]], [[_DONTWAIT]]
+
+* [[FILELIST$ (function)]] (a better [[FILES]] function)
+
+
+
+{{PageNavigation}}

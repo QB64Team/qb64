@@ -1,0 +1,86 @@
+The '''TIMER''' function returns the number of seconds past the previous midnite down to an accuracy of 1/18th of a second. 
+
+
+QB {{PageSyntax|}} 
+::: seconds! = TIMER
+
+'''QB64''' {{PageSyntax}} 
+::: seconds# = TIMER[(''accuracy!'')]
+
+
+* TIMER return values range from 0 at midnight to 86399! A comparison value must stay within that range!
+* [[INTEGER]] or [[LONG]] second values range from 0 at midnight to 86399 seconds each day.
+* Qbasic can return [[SINGLE]] values down to about .04 or 1/18th (one tick) of a second accurately. 
+* '''QB64''' can read [[DOUBLE]] ''accuracy'' down to 1 millisecond. Example: {{text|start# &lt;nowiki&gt;=&lt;/nowiki&gt; TIMER(.001)|green}} 
+* Use [[DOUBLE]] variables for millisecond accuracy as [[SINGLE]] values are only accurate to 100ths of a second later in the day!
+* TIMER loops should use a midnight adjustment to avoid non-ending loops in Qbasic. 
+* TIMER can also be used for timing program Events. See [[ON TIMER(n)]] or the [[TIMER (statement)]]
+* '''QB64''' can use a [[_DELAY]] down to .001(one millisecond) or [[_LIMIT]] loops per second. Both help limit program CPU usage.
+
+
+''Example 1:'' Delay SUB with a midnight correction for when TIMER returns to 0. '''QB64''' can use [[_DELAY]] for delays down to .001.
+{{CodeStart}} '' ''
+{{Cl|DO...LOOP|DO}}
+  {{Cl|PRINT}} &quot;Hello&quot;;
+  Delay .5  'accuracy down to .05 seconds or 1/18th of a second in Qbasic
+  {{Cl|PRINT}} &quot;World!&quot;;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
+
+{{Cl|END}}
+
+{{Cl|SUB}} Delay (dlay!)
+start! = {{Cl|TIMER}}
+{{Cl|DO...LOOP|DO}} {{Cl|WHILE}} start! + dlay! &gt;= {{Cl|TIMER}}
+  {{Cl|IF...THEN|IF}} start! &gt; {{Cl|TIMER}} {{Cl|THEN}} start! = start! - 86400
+{{Cl|LOOP}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+:''Explanation:'' When the delay time is added to the present TIMER value, it could be over the maximum number of 86399 seconds. So when TIMER becomes less than start it has reached midnight. The delay value then must be corrected by subtracting 86400.
+
+
+''Example 2:'' Looping one TIMER tick of 1/18th of a second (ticks per second can be changed)
+{{CodeStart}} '' ''
+{{Cl|DEF SEG}} = 0 ' set to {{Cl|PEEK}} and {{Cl|POKE}} {{Cl|TIMER}} Ticks
+{{Cl|DO...LOOP|DO}} ' main program loop
+  ' program code
+  {{Cl|POKE}} 1132, 0 ' zero Timer ticks
+  {{Cl|DO...LOOP|DO}} ' delay loop
+    x% = {{Cl|PEEK}}(1132)
+    {{Cl|IF...THEN|IF}} x% &lt;&gt; px% {{Cl|THEN}} {{Cl|PRINT}} x%;
+    px% = x%
+  {{Cl|LOOP}} {{Cl|UNTIL}} x% &gt;= 18 '18 ticks in one second
+  {{Cl|PRINT}} &quot;code &quot; ' program code
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+{{Cl|DEF SEG}} ' reset segment to default
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}} 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18 code
+ 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18 code
+ 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18 code
+{{OutputEnd}}
+:''Explanation:'' The [[POKE]] before the delay loop sets the tick count to 0. The [[PEEK]] count increases until the tick count returns 18 ticks and ends the loop. The same thing could be approximated by using a delay loop with: {{text|second! &lt;nowiki&gt;=&lt;/nowiki&gt; '''TIMER''' + 1|green}}
+
+
+''Example 3:'' Using a [[DOUBLE]] variable for [[TIMER]](.001) millisecond accuracy in '''QB64''' throughout the day.
+{{CodeStart}} '' ''
+ ts! = TIMER(.001)     'single variable
+ td# = TIMER(.001)     'double variable
+
+ PRINT &quot;Single =&quot;; ts!
+ PRINT &quot;Double =&quot;; td# '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ Single = 77073.09
+ Double = 77073.094 
+{{OutputEnd}}
+:''Explanation:'' [[SINGLE]] variables will cut off the millisecond accuracy returned so [[DOUBLE]] variables should be used. TIMER values will also exceed [[INTEGER]] limits. When displaying TIMER values, use [[LONG]] for seconds and [[DOUBLE]] for milliseconds.
+
+
+''See also:'' 
+* [[_DELAY]], [[_LIMIT]], [[SLEEP]]   
+* [[RANDOMIZE]], [[Scancodes]](example)
+* [[ON TIMER(n)]], [[TIMER (statement)]]
+
+
+{{PageNavigation}}

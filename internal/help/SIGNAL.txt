@@ -1,0 +1,52 @@
+The SIGNAL keyword was reserved for OS/2 systems (protected mode). See the example for more information about how and why it is used.
+
+
+{{PageSyntax}}
+:: [[ON]] SIGNAL(number) [[GOSUB]] line
+
+:: SIGNAL(number) [[ON]]
+
+
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+* It will only work with compiler 6.00 and 6.00b and Basic PDS 7.00 when compiling in protected mode under OS/2. In all other situations, a SIGNAL statement results in an &quot;Advanced feature unavailable&quot; error message. 
+
+
+''Example:''
+{{CodeStart}}
+'' ''
+{{Cl|PRINT}} &quot;This program traps CTRL+BREAK in OS/2. Try it.&quot;
+{{Cl|ON}} SIGNAL(4) {{Cl|GOSUB}} trap
+{{Cl|SIGNAL}}(4) {{Cl|ON}}
+10 a$ = {{Cl|INKEY$}}
+
+{{Cl|IF...THEN|IF}} a$ = &quot;&quot; {{Cl|THEN}} {{Cl|GOTO}} 10
+{{Cl|END}}
+trap:
+{{Cl|PRINT}} &quot;CTRL+BREAK trapped. Press any key to quit&quot;
+{{Cl|RETURN}} '' ''
+
+{{CodeEnd}}
+
+
+''Output:'' It returns the following when Ctrl-Break is pressed
+{{OutputStart}}
+This program traps CTRL+BREAK in OS/2. Try it.
+
+CTRL+BREAK trapped. Press any key to quit
+{{OutputEnd}}
+
+''Error message in QB4.5 if not using OS 2:''
+
+{{OutputStart}}
+Advanced feature unavailable
+{{OutputEnd}}
+
+
+''Source:'' Microsoft KB41389 [[http://support.microsoft.com/kb/41389]]
+
+
+''See also:'' 
+* [[ON KEY (n)]]
+
+
+{{PageNavigation}}

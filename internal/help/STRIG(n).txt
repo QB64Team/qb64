@@ -1,0 +1,48 @@
+The {{KW|STRIG(n)}} statement controls event trapping for a particular joystick or game pad device button.
+
+
+{{PageSyntax}}
+::STRIG({{Parameter|button%}}) {ON|OFF|STOP}
+
+
+QB64 {{PageSyntax}}
+::STRIG[(''button_function%''[, ''device_number%''])] {ON|OFF|STOP}
+
+
+{{PageDescription}}
+* {{Parameter|button function}} specifies the device's button function. Even functions record events while odd ones read the actual presses.
+* '''QB64''' can designate a button function and controller device number from 0 to 256.
+* When no parameters are used '''QB64''' enables, disables or suspends the reading of ALL button events.
+* [[STRIG(n)|ON]] specifies that event trapping is turned on for the specified button.
+* [[STRIG(n)|OFF]] specifies that event trapping is turned off for the specified button.
+* If {{KW|STRIG(n)|STOP}} is specified, event trapping is suspended for the specified button. Further joystick button events are remembered and trapped, in order, after the next {{KW|STRIG(n)|STRIG(n) ON}} statement is used.
+
+
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|ON STRIG(n)|ON STRIG}}(0) {{Cl|GOSUB}} 10
+{{Cl|STRIG(n)|STRIG}}(0)ON
+
+DO
+    {{Cl|PRINT}} &quot;.&quot;;
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|END}}
+
+10
+a$ = &quot;[STRIG 0 EVENT]&quot;
+{{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} {{Cl|LEN}}(a$)
+    {{Cl|PRINT}} {{Cl|MID$}}(a$, x, 1);
+    {{Cl|_DELAY}} 0.02
+{{Cl|NEXT}}
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[ON STRIG(n)]] {{text|(event statement)}}
+* [[STRIG]], [[STICK]] {{text|(functions)}}
+* [http://en.wikipedia.org/wiki/Analog_stick Single and Dual Stick Controllers]
+
+
+{{PageNavigation}}

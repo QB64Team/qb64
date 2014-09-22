@@ -1,0 +1,25 @@
+The '''DECLARE''' statement is used to tell Qbasic that a [[SUB]] or [[FUNCTION]] is to be used in the program with specific parameter types.
+
+
+{{PageSyntax}}
+
+:: DECLARE SUB ProcedureName ([parameters [[AS]] type])
+
+
+* '''QB64 ignores DECLARE statements, so define the parameter [[TYPE]]s in the SUB procedure!'''
+* Parameters MUST be placed in parenthesis separated by commas when necessary.
+* Empty parenthesis are required when no parameters are used.
+* Declarations should be placed at the top of the main program code after {{KW|Metacommand}} and {{KW|DEFINT|DEF}} statements if used.
+* Parameters can be defined in a DECLARE statement [[AS]] [[INTEGER]], [[SINGLE]], [[DOUBLE]], [[LONG]], [[STRING]] or [[ANY]].
+* The Qbasic IDE can automatically DECLARE a SUB or FUNCTION once the procedure is called and the module is Saved.
+* If a procedure is never called, it will not be automatically be DECLAREd by the Qbasic IDE when the program is saved.
+
+
+
+''See also:'' 
+
+* [[SUB]], [[FUNCTION]], [[BYVAL]]
+* [[DECLARE LIBRARY]] (QB64 ONLY)
+
+
+{{PageNavigation}}

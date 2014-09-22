@@ -1,0 +1,31 @@
+The '''OR''' coditional operator adds an alternative in a [[IF...THEN]] or [[Boolean]] statement.
+
+
+
+* OR adds an alternative to another conditional evaluation. IF True then the statement evaluation is True.
+* Parenthesis may be used to clarify an evaluation.
+* Can be confused with the [[OR]] numerical operator.
+
+
+{{Template:RelationalTable}}
+
+
+''Example:'' 
+{{CodeStart}}
+a% = 100
+b% = 50
+
+IF (a% &gt; b% AND a% &lt; 100) OR b% = 50 THEN PRINT &quot;True&quot;
+{{CodeEnd}}
+{{OutputStart}}
+True
+{{OutputEnd}}
+: ''Explanation:'' The first evaluation was False, but the OR evaluation made the statement true and the code was executed.
+
+
+
+''See also:'' 
+* [[AND (boolean)]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,41 @@
+'''CHAIN''' is used to change seamlessly from one module to another one in a program. Available in Quickbasic 4.0 and up.
+
+
+{{PageSyntax}}
+::: '''CHAIN {{Parameter|ModuleName$}}'''
+
+
+{{Parameters}}
+* The ''module'' name is a variable or a literal [[STRING]] value in quotation marks with the optional EXE or BAS file name extension.
+
+
+''Usage:''
+* CHAIN requires that both the invoking and called modules are of either .BAS or .EXE file types! 
+* In Windows, '''QB64''' will automatically compile a CHAIN referenced BAS file if there is no EXE file found.
+* CHAIN looks for a file extension that is the same as the invoking module's extension.
+* The module's filename extension is NOT required. To save editing at compile time just omit the extensions in the calls.
+* To pass data from one module to the other use [[COMMON SHARED]]. The COMMON list should match [[type]]s and names!
+* Compiled EXE files MUST include BRUN45.EXE in QuickBasic 4.5 when CHAIN is used with [[COMMON SHARED]].
+* Module screen modes will not change unless that is desired. '''QB64 currently does not retain the [[SCREEN]] mode!''' 
+* Use when modules are too large to compile(Over 100K approx.). Split the modules up. NOT necessary with '''QB64'''!
+* Variable data can be passed in files instead of using [[COMMON SHARED]] values. '''QB64''' uses files to pass [[COMMON]] lists.
+* '''NOTE: [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not currently available in Linux or Mac operating systems!]]'''
+
+
+''Example:'' CHAIN looks for same file type extension as program module (BAS or EXE) in QB 4.5.
+{{CodeStart}} '' ''
+ {{Cl|CHAIN}} &quot;Level1&quot; '' ''
+{{CodeEnd}}
+
+
+''Explanation:'' The file referred to is &quot;Level1.BAS&quot; if the program module using the call is a BAS file. If the program was compiled, it would look for &quot;Level1.EXE&quot;. QuickBasic4.5 requires that [[COMMON]] or [[COMMON SHARED]] data sharing programs be compiled with BRUN45.EXE being included with the program package(the EXE file will also be larger). '''QB64''' does not have that requirement as it creates data files to pass common data information.
+
+
+{{PageSeeAlso}} 
+* [[RUN]]
+* [[COMMON]], [[COMMON SHARED]]
+* [[SHARED]]
+* [[LINKed or Merged Modules]]
+
+
+{{PageNavigation}}

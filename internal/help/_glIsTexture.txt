@@ -1,0 +1,29 @@
+'''_glIsTexture:''' determine if a name corresponds to a texture
+
+
+{{PageSyntax}}
+
+  FUNCTION _glIsTexture~%% (BYVAL texture AS _UNSIGNED LONG)
+  GLboolean '''_glIsTexture'''(GLuint {{Parameter|texture}});
+
+
+; texture
+: Specifies a value that may be the name of a texture.
+
+
+{{PageDescription}}
+
+'''_glIsTexture''' returns {{KW|_GL_TRUE}} if {{Parameter|texture}} is currently the name of a texture. If {{Parameter|texture}} is zero, or is a non-zero value that is not currently the name of a texture, or if an error occurs, '''_glIsTexture''' returns {{KW|_GL_FALSE}}.
+
+A name returned by {{KW|_glGenTextures}}, but not yet associated with a texture by calling {{KW|_glBindTexture}}, is not the name of a texture.
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glBindTexture}}, {{KW|_glDeleteTextures}}, {{KW|_glGenTextures}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

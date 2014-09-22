@@ -1,0 +1,28 @@
+The {{KW|_SNDCLOSE}} statement frees and unloads an open sound using a {{KW|_SNDOPEN}} or {{KW|_SNDCOPY}} handle.
+
+
+{{PageSyntax}}
+:{{KW|_SNDCLOSE}} {{Parameter|handle&amp;}}
+
+
+{{PageDescription}}
+* If the sound is still playing, it will be freed after it finishes automatically.
+* Closing a looping/paused/etc. sound will mean it is never freed until the QB64 program terminates.
+* Non-SYNC sounds must be closed before another Non-SYNC sound can be opened.
+* When your QB64 program terminates, all sounds are automatically freed
+
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|_SNDCLOSE}} h&amp;
+
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDSTOP}}, {{KW|_SNDPAUSE}}
+
+
+{{PageNavigation}}

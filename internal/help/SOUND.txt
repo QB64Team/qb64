@@ -1,0 +1,132 @@
+'''SOUND''' sets frequency and duration of sounds from the internal PC speaker if the computer has one or the sound card in QB64.
+
+
+{{PageSyntax}}
+:: SOUND ''frequency'', ''duration''
+
+
+* ''Frequency'' is any literal or variable value from 37 to 32767, but 0 is allowed for delays.
+* ''Duration'' is any literal or variable number of [[TIMER]] ticks with a duration of 1/18th second. 18 = one second.
+* In '''QB64''' the sound comes from the soundcard and the volume can be adjusted through the OS.
+* Low ''frequency'' values between 0 and 37 will create an [[ERROR Codes|Illegal Function call error]].
+* '''Warning:''' SOUND may not work when the program is not in focus. Use SOUND 0, 0 at program start to set focus.
+* '''Note:''' SOUND may have clicks or pauses between the sounds generated.
+{{WhiteStart}}
+        '''                     The Seven Music Octaves ''' 
+      
+        ''' Note     Frequency      Note     Frequency      Note      Frequency'''
+       '''1'''* D#1 ...... 39           G3 ....... 196          A#5 ...... 932 
+          E1 ....... 41           G#3 ...... 208          B5 ....... 988 
+          F1 ....... 44           A3 ....... 220       '''6'''* C6 ....... 1047 
+          F#1 ...... 46           A#3 ...... 233          C#6 ...... 1109 
+          G1 ....... 49           B3 ....... 247          D6 ....... 1175 
+          G#1 ...... 51        '''4'''* C4 ....... 262          D#6 ...... 1245 
+          A1 ....... 55           C#4 ...... 277          E6 ....... 1318 
+          A#1 ...... 58           D4 ....... 294          F6 ....... 1397 
+          B1 ....... 62           D#4 ...... 311          F#6 ...... 1480 
+       '''2'''* C2 ....... 65           E4 ....... 330          G6 ....... 1568 
+          C#2 ...... 69           F4 ....... 349          G# ....... 1661 
+          D2 ....... 73           F#4 ...... 370          A6 ....... 1760 
+          D#2 ...... 78           G4 ....... 392          A#6 ...... 1865 
+          E2 ....... 82           G#4 ...... 415          B6 ....... 1976 
+          F2 ....... 87           A4 ....... 440       '''7'''* C7 ....... 2093 
+          F#2 ...... 92           A# ....... 466          C#7 ...... 2217 
+          G2 ....... 98           B4 ....... 494          D7 ....... 2349 
+          G#2 ...... 104       '''5'''* C5 ....... 523          D#7 ...... 2489 
+          A2 ....... 110          C#5 ...... 554          E7 ....... 2637 
+          A#2 ...... 117          D5 ....... 587          F7 ....... 2794 
+          B2 ....... 123          D#5 ...... 622          F#7 ...... 2960 
+       '''3'''* C3 ....... 131          E5 ....... 659          G7 ....... 3136 
+          C#3 ...... 139          F5 ....... 698          G#7 ...... 3322 
+          D3 ....... 147          F#5 ...... 740          A7 ....... 3520 
+          D#3 ...... 156          G5 ....... 784          A#7 ...... 3729 
+          E3 ....... 165          G#5 ...... 831          B7 ....... 3951 
+          F3 ....... 175          A5 ....... 880       '''8'''* C8 ....... 4186 
+          F#3 ...... 185  
+                                 '''# denotes sharp'''
+{{WhiteEnd}}
+
+
+''Example 1:'' Playing the seven octaves based on the base note DATA * 2 ^ (octave - 1).
+{{CodeStart}} '' ''
+notes$ = &quot;C C#D D#E F F#G G#A A#B &quot;
+{{Cl|COLOR}} 9:{{Cl|LOCATE}} 5, 20: PRINT &quot;Select an octave (1 - 7) to play (8 quits):&quot;
+{{Cl|DO}}			
+  {{Cl|DO}}: octa$ = {{Cl|INKEY$}}
+    {{Cl|IF...THEN|IF}} octa$ &lt;&gt; &quot;&quot; {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} {{Cl|ASC}}(octa$) &gt; 48 {{Cl|AND (boolean)|AND}} {{Cl|ASC}}(octa$) &lt; 58 {{Cl|THEN}} octave% = {{Cl|VAL}}(octa$): {{Cl|EXIT DO}}
+    {{Cl|END IF}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} octave% &gt; 7 
+  {{Cl|IF...THEN|IF}} octave% &gt; 0 {{Cl|AND (boolean)|AND}} octave% &lt; 8 {{Cl|THEN}}
+    {{Cl|LOCATE}} 15, 6: {{Cl|PRINT}} {{Cl|SPACE$}}(70)
+    {{Cl|LOCATE}} 16, 6: {{Cl|PRINT}} {{Cl|SPACE$}}(70)
+    {{Cl|COLOR}} 14: {{Cl|LOCATE}} 15, 6: {{Cl|PRINT}} &quot;Octave&quot;; octave%; &quot;:&quot;;
+    {{Cl|RESTORE}} Octaves
+    {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 12
+      {{Cl|READ}} note!
+      snd% = {{Cl|CINT}}(note! * (2 ^ (octave% - 1)))  'calculate note frequency
+      {{Cl|COLOR}} 14: {{Cl|PRINT}} {{Cl|STR$}}(snd%);
+      c0l = {{Cl|POS}}(0)
+      {{Cl|COLOR}} 11: {{Cl|LOCATE}} 16, c0l - 2: {{Cl|PRINT}} {{Cl|MID$}}(notes$, 1 + (2 * (i - 1)), 2)
+      {{Cl|LOCATE}} 15, c0l
+      {{Cl|IF...THEN|IF}} snd% &gt; 36 {{Cl|THEN}} {{Cl|SOUND}} snd%, 12  'error if sound value is &lt; 36
+      {{Cl|_DELAY}} .8
+    {{Cl|NEXT}}
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} octave% &gt; 7 
+{{Cl|END}}
+
+Octaves:
+{{Cl|DATA}} 32.7,34.65,36.71,38.9,41.2,43.65,46.25,49,51.91,55,58.27,61.74 '' ''
+{{CodeEnd}}
+{{small|Code adapted by Ted Weissgerber from code in [http://www.amazon.com/Running-MS-DOS-QBASIC-Michael-Halvorson/dp/1556153406 &quot;Running MS-DOS Qbasic&quot;] by Microsoft Press}}
+
+
+''Example 2:'' Playing a song called &quot;Bonnie&quot; with [[SOUND]] frequencies. 
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 13
+{{Cl|_FULLSCREEN}}
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 20
+{{Cl|COLOR}} 1
+{{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} 21
+  {{Cl|LOCATE}} 2 + i%, 2: {{Cl|PRINT}} {{Cl|CHR$}}(178)
+  {{Cl|LOCATE}} 2 + i%, 39: {{Cl|PRINT}} {{Cl|CHR$}}(178)
+{{Cl|NEXT}} i%
+{{Cl|FOR...NEXT|FOR}} i% = 2 {{Cl|TO}} 39
+  {{Cl|LOCATE}} 2, i%: {{Cl|PRINT}} {{Cl|CHR$}}(223)
+  {{Cl|LOCATE}} 23, i%: {{Cl|PRINT}} {{Cl|CHR$}}(220)
+{{Cl|NEXT}} i%
+{{Cl|COLOR}} 9
+{{Cl|LOCATE}} 3, 16: {{Cl|PRINT}} {{Cl|CHR$}}(34); &quot;MY BONNIE&quot;; {{Cl|CHR$}}(34)
+{{Cl|SLEEP}} 3
+{{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} 34
+  {{Cl|SELECT CASE}} i%
+    {{Cl|CASE}} 1: {{Cl|LOCATE}} 5, 5
+    {{Cl|CASE}} 10: {{Cl|LOCATE}} 10, 5
+    {{Cl|CASE}} 18: {{Cl|LOCATE}} 15, 5
+    {{Cl|CASE}} 27: {{Cl|LOCATE}} 20, 5
+  {{Cl|END SELECT}}
+  {{Cl|READ}} note%, duration%, word$
+  {{Cl|SOUND}} note%, duration%: {{Cl|PRINT}} word$;
+{{Cl|NEXT}} i%
+{{Cl|SLEEP}} 2
+{{Cl|LOCATE}} 23, 16: {{Cl|PRINT}} &quot;Thank You!&quot;
+{{Cl|SLEEP}} 4
+{{Cl|SYSTEM}}
+
+{{Cl|DATA}} 392,8,&quot;My &quot;,659,8,&quot;Bon-&quot;,587,8,&quot;nie &quot;,523,8,&quot;lies &quot;,587,8,&quot;O-&quot;,523,8,&quot;Ver &quot;,440,8,&quot;the &quot;
+{{Cl|DATA}} 392,8,&quot;O-&quot;,330,32,&quot;cean &quot;,392,8,&quot;My &quot;,659,8,&quot;Bon-&quot;,587,8,&quot;nie &quot;,523,8,&quot;lies &quot;
+{{Cl|DATA}} 523,8,&quot;O-&quot;,494,8,&quot;ver &quot;,523,8,&quot;the &quot;,587,40,&quot;sea &quot;,392,8,&quot;My &quot;,659,8,&quot;Bon-&quot;,587,8,&quot;nie&quot;
+{{Cl|DATA}} 523,8,&quot; lies &quot;,587,8,&quot;O-&quot;,523,8,&quot;ver &quot;,440,8,&quot;the &quot;,392,8,&quot;O-&quot;,330,32,&quot;cean &quot;,392,8,&quot;Oh &quot;
+{{Cl|DATA}} 440,8,&quot;bring &quot;,587,8,&quot;back &quot;,523,8,&quot;my &quot;,494,8,&quot;Bon-&quot;,440,8,&quot;nie &quot;,494,8,&quot;to &quot;,523,32,&quot;me..!&quot; '' ''
+{{CodeEnd}}
+{{small|Code adapted by Ted Weissgerber from code [http://www.amazon.com/Running-MS-DOS-QBASIC-Michael-Halvorson/dp/1556153406 &quot;Running MS-DOS Qbasic&quot;] by Microsoft Press}}
+
+
+''See also:'' 
+* [[PLAY]], [[BEEP]]
+* [[_SNDOPEN]] (play sound files)
+* [[_SNDRAW]]  (play frequency waves)
+
+
+{{PageNavigation}}

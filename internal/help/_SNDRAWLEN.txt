@@ -1,0 +1,23 @@
+The '''_SNDRAWLEN''' function returns the length, in seconds, of a [[_SNDRAW]] sound currently queued.
+
+
+{{PageSyntax}}
+:: length# = _SNDRAWLEN
+
+
+* Use the _SNDRAWLEN to determine the length of a sound queue during creation and when to stop playing the sound.
+* Ensure that _SNDRAWLEN is comfortably above 0 (until you've actually finished playing sound). 
+* If you are getting occasional random clicks, this generally means that _SNDRAWLEN has dropped to 0.
+* The [[_SNDRATE]] determines how many samples are played per second. However, the timing is achieved by the sound card and the _SNDRAWLEN, not your program! 
+* '''Do NOT attempt to use [[_TIMER]] or [[_DELAY]] or [[_LIMIT]] to control the timing of [[_SNDRAW]] sounds! You may use them as usual for delays or to limit your program's CPU usage, but the decision of how much sound to queue should only be based on the _SNDRAWLEN!'''
+
+
+''See Example in [[_SNDRAW]]''
+
+
+''See also:''
+* [[_SNDRAW]]
+* [[_SNDRATE]]
+
+
+{{PageNavigation}}

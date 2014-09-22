@@ -1,0 +1,78 @@
+The logical '''AND''' numerical operator compares two values in respect of their bits. If both bits at a certain position in both values are set, then that bit position is set in the result.
+
+
+{{PageSyntax}}
+:{{Parameter|result}} = '''{{Parameter|firstvalue}} AND {{Parameter|secondvalue}}'''
+
+
+
+{{PageDescription}}
+* AND compares the bits of the {{Parameter|firstvalue}} against the bits of the {{Parameter|secondvalue}}, the result is stored in the {{Parameter|result}} variable.
+* If both bits are on or binary 1 then the result is on or 1.
+* All other conditions return 0 or the bit is off.
+* AND is often used to see if a bit is on by comparing a value to an exponent of 2.
+* Can turn off a bit by subtracting the bit on value from 255 and using that value to AND a byte value.
+
+
+{{Template:LogicalTruthTable}}
+
+
+''Example 1:''
+{{WhiteStart}}
+         101
+         AND
+         011
+        -----
+         001
+{{WhiteEnd}}
+
+:The 101 bit pattern equals 5 and the 011 bit pattern equals 3, it returns the bit pattern 001 which equals 1. Only the Least Significant Bits(LSB) match. So decimal values 5 AND 3 = 1.
+
+
+''Example 2:''
+{{WhiteStart}}
+      11111011
+        AND
+      11101111
+     ----------
+      11101011
+{{WhiteEnd}}
+:Both bits have to be set for the resulting bit to be set. You can use the AND operator to get one byte of a two byte integer this way:
+
+:::::firstbyte = twobyteint AND 255
+
+:Since 255 is 11111111 in binary, it will represent the first byte completely when compared with AND.
+
+:To find the second(HI) byte's decimal value of two byte {{KW|INTEGER}}s use: secondbyte = twobyteint \ 256
+
+
+''Example 3:'' Finding the binary bits on in an [[INTEGER]] value. 
+{{CodeStart}}
+
+ DO
+  {{Cl|INPUT}} &quot;Enter Integer value from -32768 to 32767 (Enter quits): &quot;, INTvalue&amp; 
+  IF INTvalue&amp; &lt; -32768 OR INTvalue&amp; &gt; 32767 OR INTval&amp; = 0 THEN {{Cl|EXIT DO}}
+  {{Cl|FOR...NEXT|FOR}} exponent = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1
+    {{Cl|IF...THEN|IF}} (INTvalue&amp; {{Cl|AND}} 2 ^ exponent) {{Cl|THEN}} {{Cl|PRINT}} &quot;1&quot;; {{Cl|ELSE}} {{Cl|PRINT}} &quot;0&quot;;
+  {{Cl|NEXT}}
+  PRINT &quot; &quot;
+ LOOP UNTIL INTvalue&amp; = 0 'zero entry quits
+
+{{CodeEnd}}
+
+:Example output for 6055.
+{{OutputStart}}
+0001011110100111
+{{OutputEnd}}
+::''Note:'' The value of 32767 sets 15 bits. -1 sets all 16 bits. Negative values will all have the highest bit set. Use {{KW|LONG}} variables for input values to prevent overflow errors!
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|OR}} (operator), {{KW|XOR}} (operator), {{KW|NOT}} (operator)
+*{{KW|AND (boolean)}}
+*[[Binary]], [[Boolean]]
+
+
+{{PageNavigation}}

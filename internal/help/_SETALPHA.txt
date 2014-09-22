@@ -1,0 +1,65 @@
+The '''_SETALPHA''' statement sets the alpha channel transparency level of some or all of the pixels of an image.
+
+
+{{PageSyntax}}
+::: '''_SETALPHA ''alpha&amp;'''''[, ''colour1&amp;''][ {{KW|TO}} ''colour2&amp;''] [, ''imageHandle&amp;'']
+
+
+{{Parameters}}
+* {{Parameter|alpha&amp;}} is the new alpha level to set, ranging from 0 (transparent) to 255 (opaque).
+* ''co1or&amp;'' designates the 32 bit [[LONG]] color value or range of color values ''c1&amp;'' TO ''c2&amp;'' to set the transparency. 
+* If no color value or range of colors is given, the entire image's alpha is changed, including any [[_CLEARCOLOR]] settings.
+* If {{Parameter|imageHandle&amp;}} is omitted, it is assumed to be the current write page or [[_DEST|destination]] image.
+
+
+''Usage:''
+* In the first syntax, the alpha level of all pixels is set to {{Parameter|alpha&amp;}}.
+* In the second syntax, the alpha level of all pixels matching the color {{Parameter|c&amp;}} is set to {{Parameter|alpha&amp;}}.
+* In the third syntax, the alpha level of all pixels with red, green, blue and alpha channels in the range [{{Parameter|c1&amp;}} TO {{Parameter|c2&amp;}}] are set.
+* The [[_ALPHA]] setting makes a 32 bit color transparent, opaque or something in between. Zero is clear and 255 totally blocks underlying images. Use it to see through backgrounds or image colors.
+* If {{Parameter|alpha&amp;}} is outside that range, an [[ERROR Codes|illegal function call]] error will occur.
+* If the image specified by {{Parameter|imageHandle&amp;}} uses a palette, an [[ERROR Codes|invalid handle]] error will occur.
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|illegal function call]] error will occur.
+* '''NOTE: 32 bit [[_NEWIMAGE]] screen page backgrounds are transparent black or [[_ALPHA]] 0. Use [[_DONTBLEND]] or [[CLS]] for opaque!'''
+
+
+''Example:'' Using a _SETALPHA color range to fade an image in and out while not affecting the transparent white background.
+{{CodeStart}} '' ''
+main = {{Cl|_NEWIMAGE}}(640, 480, 32) 
+{{Cl|SCREEN}} main
+{{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
+
+Image1&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64bee.png&quot;) '&lt;&lt;&lt; PNG file with white background to hide
+{{Cl|_SOURCE}} Image1&amp;
+clr~&amp; = {{Cl|POINT}}(0, 0) 'find background color of image
+{{Cl|_CLEARCOLOR}} clr~&amp;, Image1&amp; 'set background color as transparent
+
+topclr~&amp; = clr~&amp; - {{Cl|_RGBA}}(1, 1, 1, 0)  'get topmost color range just below full white
+{{Cl|_DEST}} main
+
+a&amp; = 0
+d = 1
+DO
+  {{Cl|_LIMIT}} 10 'regulate speed of fade in and out
+  {{Cl|CLS}} ', {{Cl|_RGB}}(255, 0, 0)
+  a&amp; = a&amp; + d
+  {{Cl|IF...THEN|IF}} a&amp; = 255 {{Cl|THEN}} d = -d
+  {{Cl|_SETALPHA}} a&amp;, 0 {{Cl|TO}} topclr~&amp;, Image1&amp; 'affects all colors below bright white
+  {{Cl|_PUTIMAGE}} (0, 342), Image1&amp; 
+  {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} &quot;Alpha: &quot;; a&amp;
+  {{Cl|_DISPLAY}}
+{{Cl|LOOP}} {{Cl|UNTIL}} a&amp; = 0 '' ''
+{{CodeEnd}}
+: ''Explanation:'' The [[POINT]] value minus [[_RGBA]](1, 1, 1, 0) subtracts a small amount from the bright white color value so that the top [[_SETALPHA]] color range will not affect the [[_CLEARCOLOR]] transparency of the bright white PNG background. [https://dl.dropbox.com/u/8440706/QB64bee.png QB64bee.png].
+
+
+{{PageSeeAlso}}
+* [[_ALPHA]], [[_ALPHA32]] {{text|(read transparency level)}}
+* [[_RGBA]], [[_RGBA32]] {{text|(set color levels and alpha)}}
+* [[_CLEARCOLOR]] {{text|(sets a transparent color)}} 
+* [[_CLEARCOLOR (function)]] {{text|(finds transparent color)}}
+* [[_BLEND]], [[_DONTBLEND]] 
+* [[COLOR]], [[Images]]
+
+
+{{PageNavigation}}

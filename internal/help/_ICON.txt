@@ -1,0 +1,118 @@
+'''_ICON''' uses an image handle from [[_LOADIMAGE]] for a program header icon image.
+
+
+{{PageSyntax}}
+: [[_ICON]] {{Parameter|handle&amp;}}
+
+
+
+{{PageDescription}}
+*{{Parameter|handle}} is the [[LONG]] handle value of an image loaded with {{KW|_LOADIMAGE}}.
+*The image will automatically be resized to fit the icon size of 16 X 16 if smaller or larger.
+*Once the program's icon is set, the image can be discarded with [[_FREEIMAGE]].
+* It is IMPORTANT to free unused or uneeded images with [[_FREEIMAGE]] to prevent memory overflow errors!
+*'''SCREEN 0 mode requires a 32 bit palette to load images other than icons as title bar icons.'''
+* '''QB64 currently does not support icon files! An error will occur using [[_LOADIMAGE]]! See example 2 below.''' 
+
+
+''Example 1:'' Loading an image to a 32 bit palette in SCREEN 0 (the default screen mode).
+{{CodeStart}} '' ''
+i&amp; ={{Cl|_LOADIMAGE}}(&quot;RDSWU16.BMP&quot;,32) '&lt;&lt;&lt;&lt;&lt;&lt;&lt; use your image file name here
+
+{{Cl|IF}} i&amp; &lt; -1 THEN 
+  {{Cl|_ICON}} i&amp;
+  {{Cl|_FREEIMAGE}} i&amp; ' release image handle after setting icon
+{{Cl|END IF}}
+{{CodeEnd}}
+:''Note:'' _ICON images can be freed if the [[SCREEN]] mode stays the same. Freed image handles can on longer be referenced! 
+
+
+''Example 2:'' Function that converts an icon into a temporary bitmap for use in QB64. Function returns the available image count.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)
+{{Cl|_TITLE}} &quot;Icon Converter&quot;
+icon$ = &quot;daphne.ico&quot;     '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change icon file name
+bitmap$ = &quot;tempfile.bmp&quot;
+indx% = 6  '1 minimum &lt;&lt;&lt;&lt;&lt;&lt;&lt; higher values than count get highest entry image in icon file
+
+{{Cl|IF...THEN|IF}} Icon2BMP(icon$, bitmap$, indx%) {{Cl|THEN}}
+  img&amp; = {{Cl|_LOADIMAGE}}(bitmap$) '  use 32 as color mode in SCREEN 0
+  {{Cl|IF...THEN|IF}} img&amp; &lt; -1 {{Cl|THEN}} '           check that handle value is good before loading
+    {{Cl|_ICON}} img&amp; '                place image in header
+    {{Cl|_PUTIMAGE}} (300, 250), img&amp; 'place image on screen
+    {{Cl|_FREEIMAGE}} img&amp; '           always free unused handles to save memory
+    {{Cl|KILL}} bitmap$ '              comment out and/or rename to save the bitmaps 
+  {{Cl|END IF}}
+{{Cl|END IF}}
+{{Cl|END}}
+'                ----------------------------------------------------
+
+{{Cl|FUNCTION}} Icon2BMP% (filein {{Cl|AS}} {{Cl|STRING}}, fileout {{Cl|AS}} {{Cl|STRING}}, index {{Cl|AS}} {{Cl|INTEGER}})
+'function creates a bitmap of the icon and returns the icon count
+{{Cl|DIM}} byte {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}, word {{Cl|AS}} {{Cl|INTEGER}}, dword {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} wide {{Cl|AS}} {{Cl|LONG}}, high {{Cl|AS}} {{Cl|LONG}}, BM {{Cl|AS}} {{Cl|INTEGER}}, bpp {{Cl|AS}} {{Cl|INTEGER}}
+
+rf = {{Cl|FREEFILE}}
+{{Cl|IF...THEN|IF}} {{Cl|LCASE$}}({{Cl|RIGHT$}}(filein, 4)) = &quot;.ico&quot; {{Cl|THEN}} 'check file extension is ICO only
+  {{Cl|OPEN}} filein {{Cl|OPEN|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|ACCESS|READ}} {{Cl|AS}} rf 
+{{Cl|ELSE}} {{Cl|EXIT FUNCTION}}
+{{Cl|END IF}}
+{{Cl|GET}} rf, , word
+{{Cl|GET}} rf, , word: icon = word
+{{Cl|GET}} rf, , word: count = word
+{{Cl|IF...THEN|IF}} icon &lt;&gt; 1 {{Cl|OR (boolean)|OR}} count = 0 {{Cl|THEN}} {{Cl|CLOSE}} rf: {{Cl|EXIT FUNCTION}}
+'{{Cl|PRINT}} icon, count
+{{Cl|IF...THEN|IF}} index &gt; 0 {{Cl|AND (boolean)|AND}} index &lt;= count {{Cl|THEN}} entry = 16 * (index - 1) {{Cl|ELSE}} entry = 16 * (count - 1)
+{{Cl|SEEK}} rf, 1 + 6 + entry 'start of indexed Entry header
+{{Cl|GET}} rf, , byte: wide = byte ' use this unsigned for images over 127
+{{Cl|GET}} rf, , byte: high = byte ' use this unsigned because it isn't doubled
+{{Cl|GET}} rf, , word 'number of 4 BPP colors(256 &amp; 32 = 0) &amp; reserved bytes
+{{Cl|GET}} rf, , dword '2 hot spots both normally 0 in icons, used for cursors
+{{Cl|GET}} rf, , dword: size = dword 'this could be used, doesn't seem to matter
+{{Cl|GET}} rf, , dword: offset = dword 'find where the specific index BMP header is
+'{{Cl|PRINT}} wide; &quot;X&quot;; high, size, offset
+
+{{Cl|SEEK}} rf, 1 + offset + 14 'only read the BPP in BMP header
+{{Cl|GET}} rf, , word: bpp = word 
+{{Cl|IF...THEN|IF}} bpp = 0 {{Cl|THEN}} {{Cl|CLOSE}} rf: {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} bpp &lt;= 24 {{Cl|THEN}} pixelbytes = bpp / 8 {{Cl|ELSE}} pixelbytes = 3
+{{Cl|IF...THEN|IF}} bpp &gt; 1 {{Cl|AND (boolean)|AND}} bpp &lt;= 8 {{Cl|THEN}} palettebytes = 4 * (2 ^ bpp) {{Cl|ELSE}} palettebytes = 0
+datasize&amp; = (wide * high * pixelbytes) + palettebytes 'no padder should be necessary
+filesize&amp; = datasize&amp; + 14 + 40 '                      data and palette + header
+bmpoffset&amp; = palettebytes + 54 '                       data offset from start of bitmap
+readbytes&amp; = datasize&amp; + 28 ' (40 - 12) bytes left to read in BMP header and {{Cl|XOR}} mask only
+'{{Cl|PRINT}} bpp, bmpoffset&amp;, filesize&amp;
+
+BM = {{Cl|CVI}}(&quot;BM&quot;) 'this will create &quot;BM&quot; in file like {{Cl|MKI$}} would
+wf = {{Cl|FREEFILE}}
+{{Cl|OPEN}} fileout {{Cl|OPEN|FOR}} {{Cl|BINARY}} {{Cl|AS}} wf
+{{Cl|PUT}} wf, , BM
+{{Cl|PUT}} wf, , filesize&amp;
+dword = 0
+{{Cl|PUT}} wf, , dword
+{{Cl|PUT}} wf, , bmpoffset&amp; 'byte location of end of palette or BMP header
+dword = 40
+{{Cl|PUT}} wf, , dword '              start of 40 byte BMP header
+{{Cl|PUT}} wf, , wide
+{{Cl|PUT}} wf, , high
+{{Cl|SEEK}} rf, 1 + offset + 12 '     after 12 bytes start copy of BMP header starting at planes
+dat$ = {{Cl|STRING$}}(readbytes&amp;, 0) 'create string to hold remaining bytes needed w/o {{Cl|AND}} mask data
+{{Cl|GET}} rf, , dat$ '               copy lower header, palette(if used) and {{Cl|XOR}} mask
+{{Cl|PUT}} wf, , dat$ '               put all of the string data in the bitmap all at once
+{{Cl|CLOSE}} rf, wf
+Icon2BMP = count '             return the number of icons available in the icon file
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}{{small|Code by Ted Weissgerber}}
+: ''Note:'' Once the file has been loaded into memory, the image handle can still be used even after the file has been deleted.
+
+
+''See also:''
+* [[_TITLE]]
+* [[_LOADIMAGE]]
+* [[Creating Icon Bitmaps]] (member program)
+* [[Bitmaps]], [[Icons and Cursors]]
+* [[Resource_Table_extraction#Extract_Icon|Icon Extraction]]
+* [[Embedding Icons in EXE]] {{text|(Icons viewed in Windows Explorer)}}
+
+
+{{PageNavigation}}

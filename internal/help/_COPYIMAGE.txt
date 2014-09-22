@@ -1,0 +1,54 @@
+The [[_COPYIMAGE]] function creates an identical designated image in memory with a different negative [[LONG]] handle value.
+
+
+{{PageSyntax}}
+: newhandle&amp; = '''_COPYIMAGE'''[({{parameter|imageHandle&amp;}})]
+
+
+{{Parameters}}
+* The [[LONG]] ''newhandle'' value returned will be different than the source handle value supplied.
+* If ''imagehandle'' parameter is omitted the current [[_DEST]]ination screen or image is copied. Zero can be used to copy the current screen.
+
+
+''Usage:''
+* The function copies any image or screen handle to a new and unique negative [[LONG]] handle value.
+* Valid copy handles are less than -1. Invalid handles return -1 or 0 if it was never created.
+* Every attribute of the passed image or program screen is copied to a new handle value in memory.
+* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
+*  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
+* '''It is IMPORTANT to free discarded images with [[_FREEIMAGE]] to prevent PC memory allocation errors!'''
+* '''Do NOT try to free image handles currently being used as the active [[SCREEN]]! Change screen modes first.'''
+
+
+''Example:'' Restoring a Legacy SCREEN using the _COPYIMAGE return value.
+{{CodeStart}}'' ''
+
+{{Cl|SCREEN}} 13
+{{Cl|CIRCLE}} (160, 100), 100, 40
+DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+'backup screen before changing {{Cl|SCREEN}} mode
+oldmode&amp; = {{Cl|_COPYIMAGE}}(0)  'the 0 value designates the current destination {{Cl|SCREEN}}
+
+s&amp; = {{Cl|_NEWIMAGE}}(800, 600, 32)
+{{Cl|SCREEN}} s&amp;
+{{Cl|LINE}} (100, 100)-(500, 500), {{Cl|_RGB}}(0, 255, 255), BF
+DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+
+{{Cl|SCREEN}} oldmode&amp;        'restore original screen
+{{Cl|IF...THEN|IF}} s&amp; &lt; -1 THEN {{Cl|_FREEIMAGE}} s&amp;
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Note:'' Only free valid handle values with [[_FREEIMAGE]] AFTER a new [[SCREEN]] mode is being used by the program.
+
+
+
+{{PageSeeAlso}}
+* [[_LOADIMAGE]], [[_NEWIMAGE]]
+* [[_SOURCE]], [[_DEST]]
+* [[_FREEIMAGE]]
+* [[_FILELIST$ (function)]] {{text|(Demo of _COPYIMAGE)}}
+
+
+{{PageNavigation}}

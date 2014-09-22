@@ -1,0 +1,114 @@
+'''INP''' returns a value from a computer register or port values at a specified physical address. '''QB64 currently has limited access!'''
+
+
+{{PageSyntax}}
+:: i = INP(address)
+
+
+* Address can be a Decimal or Hexadecimal [[INTEGER]] value.
+* INP reads directly from a register or port address.
+* It does not require a [[DEF SEG]] memory segment address like [[PEEK]] or [[POKE]] do.
+* Reads color port intensity settings after ''[[OUT]] &amp;H3C7, attribute'' sets the starting attribute read mode.
+
+
+''Example 1:'' Reading the current RGB color settings used in a bitmap to an array.
+{{CodeStart}} '' ''
+ SCREEN 12
+ {{Cl|DIM}} Colors%(47)
+ {{Cl|OUT}} &amp;H3C7, 0 ' set color port for INP reads at attribute 0 to start
+ {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 47
+ Colors%(i) = {{Cl|INP}}(&amp;H3C9) ' moves to next color attribute every 3 loops
+ {{Cl|NEXT}} '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Reading the keyboard Scan Codes as an alternative to [[INKEY$]]
+{{CodeStart}} '' ''
+ {{Cl|DO}}: {{Cl|SLEEP}}
+    scancode% = {{Cl|INP}}(&amp;H60)
+    a$ = {{Cl|INKEY$}} ' clears keyboard buffer
+    {{Cl|PRINT}} scancode%; 
+ {{Cl|LOOP}} {{Cl|UNTIL}} scancode% = 1 ' [ESC] keypress exit '' ''
+{{CodeEnd}}
+
+
+''Example 3:'' A simple ping pong game using an array function to read multiple keys for two players.
+{{CodeStart}} '' ''
+{{Cl|DEFINT}} A-Z
+{{Cl|SCREEN}} 12
+{{Cl|DIM}} ball%(100)        ' Set aside enough space to hold the ball sprite
+{{Cl|CIRCLE}} (4, 3), 4, 4
+{{Cl|PAINT}} (4, 3), 12, 4   ' Draw a filled circle and fill for ball
+{{Cl|GET (graphics statement)|GET}} (0, 0)-(8, 7), ball%(0) ' Get the sprite into the Ball% array
+
+begin:
+xmin = 10: ymin = 10
+xmax = 630: ymax = 470
+x = 25: y = 25
+dx = 1: dy = 1
+LTpos = 50: RTpos = 50
+
+DO: {{Cl|_LIMIT}} 100 'adjust higher for faster
+{{Cl|CLS}}
+{{Cl|IF...THEN|IF}} ScanKey%(17) {{Cl|THEN}} LTpos = LTpos - 1
+{{Cl|IF...THEN|IF}} ScanKey%(31) {{Cl|THEN}} LTpos = LTpos + 1
+{{Cl|IF...THEN|IF}} ScanKey%(72) {{Cl|THEN}} RTpos = RTpos - 1
+{{Cl|IF...THEN|IF}} ScanKey%(80) {{Cl|THEN}} RTpos = RTpos + 1
+
+{{Cl|PRINT}} &quot;Player 1 : &quot;; ponescore; &quot; Player 2 : &quot;; ptwoscore
+
+{{Cl|IF...THEN|IF}} x &gt; xmax - 15 {{Cl|AND (boolean)|AND}} y &gt;= RTpos {{Cl|AND (boolean)|AND}} y &lt;= RTpos + 100 {{Cl|THEN}}
+dx = -1
+{{Cl|ELSEIF}} x &gt; xmax {{Cl|THEN}}
+ponescore = ponescore + 1
+{{Cl|GOSUB}} begin
+{{Cl|END IF}}
+
+{{Cl|IF...THEN|IF}} x &lt; xmin + 15 {{Cl|AND (boolean)|AND}} y &gt;= LTpos {{Cl|AND (boolean)|AND}} y &lt;= LTpos + 100 {{Cl|THEN}}
+dx = 1
+{{Cl|ELSEIF}} x &lt; xmin {{Cl|THEN}}
+ptwoscore = ptwoscore + 1
+{{Cl|GOSUB}} begin
+{{Cl|END IF}}
+
+{{Cl|IF...THEN|IF}} y &gt; ymax - 5 {{Cl|THEN}} dy = -1
+{{Cl|IF...THEN|IF}} y &lt; ymin + 5 {{Cl|THEN}} dy = 1
+' Display the sprite elsewhere on the screen
+
+x = x + dx
+y = y + dy
+
+{{Cl|PUT (graphics statement)|PUT}}(x, y), ball%(0)
+
+
+{{Cl|LINE}} (20, LTpos)-(20, LTpos + 100)
+{{Cl|LINE}} (620, RTpos)-(620, RTpos + 100)
+
+{{Cl|_DISPLAY}} 'shows completed screen every call
+
+{{Cl|LOOP}} {{Cl|UNTIL}} ScanKey%(1)
+{{Cl|END}}
+
+
+{{Cl|FUNCTION}} ScanKey% (scancode%)
+{{Cl|STATIC}} Ready%, keyflags%()
+{{Cl|IF...THEN|IF}} {{Cl|NOT}} Ready% {{Cl|THEN}} {{Cl|REDIM}} keyflags%(0 {{Cl|TO}} 127): Ready% = -1
+i% = {{Cl|INP}}({{Cl|&amp;H}}60) 'read keyboard states
+{{Cl|IF...THEN|IF}} (i% {{Cl|AND (boolean)|AND}} 128) {{Cl|THEN}} keyflags%(i% {{Cl|XOR (boolean)|XOR}} 128) = 0
+{{Cl|IF...THEN|IF}} (i% {{Cl|AND (boolean)|AND}} 128) = 0 {{Cl|THEN}} keyflags%(i%) = -1
+K$ = {{Cl|INKEY$}}
+ScanKey% = keyflags%(scancode%)
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+* [[OUT]] {{text|(write to register)}},  [[PEEK]] {{text|(read memory)}}
+* [[INKEY$]], [[_KEYHIT]], [[_KEYDOWN]]
+* [[Bitmaps]], [[Scancodes]] {{text|(keyboard)}}
+* [[Port Access Libraries]] {{text|(COM or LPT registers)}}
+* [http://en.wikipedia.org/wiki/Input/output_base_address#Common_I.2FO_base_address_device_assignments_in_IBM_PC_compatible_computers PC I/O base address device assignments]
+
+
+
+{{PageNavigation}}

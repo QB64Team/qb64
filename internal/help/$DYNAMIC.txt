@@ -1,0 +1,46 @@
+The '''$DYNAMIC''' Metacommand allows the creation of dynamic(changeable) array sizes.
+
+
+
+{{PageSyntax}} 
+::REM $DYNAMIC
+
+
+* Qbasic [[Metacommand]]s require a REM or apostrophy (') before them and are always placed at the start of the main module.
+* Dynamic arrays can be resized using [[REDIM]]. The array's type cannot be changed.
+* All data in the array will be lost when [[REDIM]]ensioned except when [[_PRESERVE]] is used in QB64 only.
+* [[REDIM]] [[_PRESERVE]] can preserve and may move the previous array data when the array boundaries change.
+* [[_PRESERVE]] allows the [[UBOUND|upper]] and [[LBOUND|lower]] boundaries of an array to be changed. The number of dimensions cannot change!
+* Dynamic arrays can also be resized by the program user's input if desired.
+* $DYNAMIC arrays MUST be [[REDIM]]ensioned if [[ERASE]] or [[CLEAR]] are used as the arrays are removed completely.
+
+
+''Example:'' [[REDIM]]ing a $DYNAMIC array using [[_PRESERVE]] to retain previous array values.
+{{CodeStart}} '' ''
+{{Cl|REM}} {{Cl|$DYNAMIC}}             'create dynamic arrays only
+{{Cl|DIM}} array(10)            'create array with 11 elements
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 10
+  array(i) = i: {{Cl|PRINT}} array(i); 'set and display element values
+{{Cl|NEXT}}
+{{Cl|PRINT}}
+{{Cl|REDIM}} {{Cl|_PRESERVE}} array(10 {{Cl|TO}} 20)
+{{Cl|FOR...NEXT|FOR}} i = 10 {{Cl|TO}} 20
+  {{Cl|PRINT}} array(i);
+{{Cl|NEXT}}
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}0  1  2  3  4  5  6  7  8  9  10
+
+0  1  2  3  4  5  6  7  8  9  10
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[$STATIC]], [[$INCLUDE]]
+* [[DIM]], [[REDIM]], [[_DEFINE]]
+* [[STATIC]]
+* [[ERASE]], [[CLEAR]]
+* [[Arrays]], [[Metacommand]]
+
+
+{{PageNavigation}}

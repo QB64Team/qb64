@@ -1,0 +1,52 @@
+The '''LOCATE''' statement locates the screen text row and column positions for a {{KW|PRINT}} or {{KW|INPUT}} procedure.
+
+
+{{PageSyntax}}
+::: '''LOCATE''' [''row%''][, ''column%''] [, ''cursor%''][, ''cursor_start%'', ''cursor_stop%'']
+
+
+{{Parameters}}
+* optional ''row'' [[INTEGER]] values are from 1 to the 25 in [[SCREEN]] 0 and most other graphic screen modes, except screens 11 and 12 which have 30.  
+* optional ''column'' [[INTEGER]] values are from 1 to the [[SCREEN]] mode text [[_WIDTH (function)|_WIDTH]] or [[WIDTH]] setting.
+* optional ''cursor'' value can be 0 to turn the cursor off or 1 to turn it on when using the [[INPUT$]] or [[INKEY$]] key entry functions only.
+* optional ''cursorstart'' and ''cursorstop'' values define the shape of the cursor by setting the start and stop scanline (0-8 pixels) for the cursor character.
+
+
+''Usage:''
+* In [[_NEWIMAGE]] graphic screen text ''rows'' are calculated as [[_HEIGHT]] \ 16 except when a [[_FONT]] is used. Use [[_FONTHEIGHT]] to calculate font rows.
+* [[_NEWIMAGE]] graphic screen text ''columns'' are calculated as [[_WIDTH (function)|_WIDTH]] \ 8 except when a [[_FONT]] is used. Use [[_PRINTWIDTH]] to measure a line of font text.
+* The text ''row'' position is not required if the [[PRINT]] is going to be on the next row. The [[comma]] and a ''column'' value are required to set the column.
+* If only the ''row'' parameter is given, then the column position remains the same. '''Neither ''row'' or ''column'' parameter can be 0!'''
+* When [[PRINT]]ing on the bottom 2 ''rows'', use a [[semicolon]] after the PRINT expression to avoid a screen roll.
+* If the ''cursor start'' line is given, the ''cursor stop'' line must also be given. A wider range between them produces a taller cursor.
+
+
+Example: Moving the cursor around (now you can finally create a Commodore 64 emulator!). '''Default SCREEN 0 ONLY!'''
+{{CodeStart}} '' ''
+crx = 10
+cry = 10
+DO
+  {{Cl|LOCATE}} cry, crx, 1, 0, 8
+  a$ = {{Cl|INKEY$}}
+  {{Cl|SELECT CASE}} a$
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;H&quot;: {{Cl|IF...THEN|IF}} cry &gt; 1 {{Cl|THEN}} cry = cry - 1 'up
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;P&quot;: {{Cl|IF...THEN|IF}} cry &lt; 25 {{Cl|THEN}} cry = cry + 1 'down
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;K&quot;: {{Cl|IF...THEN|IF}} crx &gt; 1 {{Cl|THEN}} crx = crx - 1 'left
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;M&quot;: {{Cl|IF...THEN|IF}} crx &lt; 80 {{Cl|THEN}} crx = crx + 1 'right
+     {{Cl|CASE}} {{Cl|CHR$}}(27): {{Cl|END}}
+  {{Cl|END SELECT}}
+LOOP '' ''
+{{CodeEnd}}
+
+: Explanation: The CHR$(0) + &quot;H&quot;, &quot;P&quot;, &quot;K&quot;, &quot;M&quot; represents the cursor arrow keys. start = 0, stop = 8 is the tallest cursor, experiment with the start and stop values for different effects (start = 8, stop = 8 is the default producing a _ cursor).
+
+
+
+
+{{PageSeeAlso}}
+* [[CSRLIN]], [[POS]] {{text|(cursor position)}}
+* [[SCREEN]], [[PRINT]], [[COLOR]]
+* [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
+
+
+{{PageNavigation}}

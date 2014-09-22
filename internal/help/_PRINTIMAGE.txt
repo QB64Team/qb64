@@ -1,0 +1,167 @@
+The '''_PRINTIMAGE''' statement prints a colored image on the printer (stretching it to full paper size first).
+ 
+
+{{PageSyntax}} 
+::: _PRINTIMAGE imagehandle&amp;
+
+
+
+* The imagehandle&amp; is created by the [[_LOADIMAGE]], [[_NEWIMAGE]] or [[_COPYIMAGE]] functions.
+* Use a WHITE background to save ink! [[CLS]] , 15 can be used to set the white background in any [[SCREEN]] mode.
+* The image may be stretched disproportionately using normal screen sizes! To compensate, use a [[_NEWIMAGE]] screen that is proportional to the paper size. EX: A 640 X 900 SCREEN page is roughly the same as 3 times a 210mm X 297mm paper size.
+* [[_NEWIMAGE]] or graphic screen pages can use [[_PRINTSTRING]] to print different sized text [[_FONT]]s.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+''Example 1:'' Shows how to transfer custom font text on screen pages to the printer in Windows. Change the font path for other OS's.
+{{CodeStart}}PageScale = 10
+PageHeight = 297 * PageScale 'A4 paper size is 210 X 297 mm
+PageWidth = 210 * PageScale
+Page&amp; = {{Cl|_NEWIMAGE}}(PageWidth, PageHeight, 32)
+{{Cl|_DEST}} Page&amp;: {{Cl|CLS}} , {{Cl|_RGB}}(255, 255, 255): {{Cl|_DEST}} 0  'make background white to save ink!
+CursorPosY = 0
+
+'example text to print
+PointSize = 12
+text$ = &quot;The rain in Spain falls mainly on the plain.&quot;
+{{Cl|GOSUB}} PrintText  
+
+PointSize = 50
+text$ = &quot;BUT!&quot;
+{{Cl|GOSUB}} PrintText
+
+PointSize = 12
+text$ = &quot;In Hartford, Hereford, and Hampshire, hurricanes hardly happen.&quot;
+{{Cl|GOSUB}} PrintText
+
+{{Cl|INPUT}} &quot;Preview (Y/N)?&quot;, i$                      'print preview of screen (optional)
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(i$) = &quot;Y&quot; {{Cl|THEN}}
+  Prev&amp; = {{Cl|_NEWIMAGE}}(600, 900, 32)               'print preview smaller image
+  _PUTIMAGE Page&amp;, Prev&amp;
+  {{Cl|SCREEN (statement)|SCREEN}} Prev&amp;
+  DO: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+  {{Cl|SCREEN (statement)|SCREEN}} 0
+{{Cl|END IF}}
+
+{{Cl|INPUT}} &quot;Print on printer (Y/N)?&quot;, i$             'print screen page on printer
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(i$) = &quot;Y&quot; {{Cl|THEN}}
+  {{Cl|_PRINTIMAGE}} Page&amp;
+{{Cl|END IF}}
+
+{{Cl|END}}
+
+PrintText:
+FontHeight = {{Cl|INT}}(PointSize * 0.3527 * PageScale)
+FontHandle = {{Cl|_LOADFONT}}(&quot;c:\windows\fonts\times.ttf&quot;, FontHeight)
+{{Cl|_DEST}} Page&amp;
+{{Cl|_FONT}} FontHandle
+{{Cl|COLOR}} {{Cl|_RGB}}(255, 0, 0), {{Cl|_RGBA}}(0, 0, 0, 0)        'RED text on clear black background
+{{Cl|_PRINTSTRING}} (0, CursorPosY), text$
+{{Cl|_FONT}} 16                               'change to the QB64 default font to free it
+{{Cl|_FREEFONT}} FontHandle
+{{Cl|_DEST}} 0
+CursorPosY = CursorPosY + FontHeight            'adjust print position down 
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}}
+:''Explanation:'' CLS with the color white makes sure that the background is NOT printed a color! The PrintText [[GOSUB]] sets the [[COLOR]] of the text to red with a transparent background using [[_RGBA]] to set the [[_ALPHA]] transparency to zero or clear black.
+
+
+''Example 2:'' Printing an old SCREEN 12 [[ASCII]] table using a deeper sized page to prevent stretching by [[_PRINTIMAGE]].
+{{CodeStart}} '' ''
+{{Cl|_TITLE}} &quot;Print Preview ASCII Table&quot;
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 900, 256)  'size is proportional to 210mm X 297mm(8-1/2 X 11) paper
+
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63 'white background saves ink! 
+
+Align 8, 2, &quot;ASCII and Extended Character Code Table using {{Cl|CHR$}}(n%)&quot;
+{{Cl|PRINT}} {{Cl|STRING$}}(80, 223)
+{{Cl|COLOR}} 40 
+{{Cl|PRINT}} &quot; &quot;;
+{{Cl|FOR...NEXT|FOR}} i% = 0 {{Cl|TO}} 13
+  {{Cl|PRINT}} i%;: SetCHR {{Cl|CSRLIN}}, {{Cl|POS}}(0), 40, i%
+  {{Cl|LOCATE}} {{Cl|CSRLIN}}, {{Cl|POS}}(0) + 1
+{{Cl|NEXT}} i%
+{{Cl|FOR...NEXT|FOR}} i% = 14 {{Cl|TO}} 16
+  {{Cl|PRINT}} i%; {{Cl|CHR$}}(i%);
+{{Cl|NEXT}}
+{{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 2
+{{Cl|FOR...NEXT|FOR}} i = 17 {{Cl|TO}} 27
+  {{Cl|PRINT}} i; {{Cl|CHR$}}(i);
+{{Cl|NEXT}}
+{{Cl|FOR...NEXT|FOR}} i% = 28 {{Cl|TO}} 31
+  {{Cl|PRINT}} i%;: SetCHR {{Cl|CSRLIN}}, {{Cl|POS}}(0), 40, i%
+  {{Cl|LOCATE}} {{Cl|CSRLIN}}, {{Cl|POS}}(0) + 1
+{{Cl|NEXT}} i%
+{{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 2
+{{Cl|COLOR}} 2: {{Cl|PRINT}} 32; {{Cl|CHR$}}(32);
+{{Cl|FOR...NEXT|FOR}} i% = 33 {{Cl|TO}} 255
+  {{Cl|SELECT CASE}} i%
+    {{Cl|CASE}} 45, 58, 71, 84: {{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 1
+    {{Cl|CASE}} {{Cl|IS}} &gt; 96: {{Cl|IF...THEN|IF}} (i% - 97) {{Cl|MOD}} 11 = 0 {{Cl|THEN}} {{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 1
+  {{Cl|END SELECT}}
+  {{Cl|SELECT CASE}} i%
+    {{Cl|CASE}} 48 {{Cl|TO}} 57: {{Cl|COLOR}} 9 'denotes number keys 48 to 57
+    {{Cl|CASE}} 65 {{Cl|TO}} 90: {{Cl|COLOR}} 5 ' A to Z keys 65 to 90
+    {{Cl|CASE}} 97 {{Cl|TO}} 122: {{Cl|COLOR}} 36 'a to z keys 97 to 122
+    {{Cl|CASE}} 127 {{Cl|TO}} 175: {{Cl|COLOR}} 42
+    {{Cl|CASE}} 176 {{Cl|TO}} 223: {{Cl|COLOR}} 6 'drawing characters 176 to 223
+    {{Cl|CASE}} {{Cl|IS}} &gt; 223: {{Cl|COLOR}} 42
+    {{Cl|CASE ELSE}}: {{Cl|COLOR}} 2
+  {{Cl|END SELECT}}
+  {{Cl|IF...THEN|IF}} i% = 98 {{Cl|OR (boolean)|OR}} i% = 99 {{Cl|OR (boolean)|OR}} i% = 100 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|SPACE$}}(1);
+  {{Cl|PRINT}} &quot; &quot;; i%; {{Cl|CHR$}}(i%);
+{{Cl|NEXT}} i%
+{{Cl|COLOR}} 3: {{Cl|PRINT}} &quot;= NBSP(Non-Breaking Space)&quot;
+{{Cl|COLOR}} 8: {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|CHR$}}(220))
+Border 8
+{{Cl|COLOR}} 4: {{Cl|LOCATE}} 27, 4: {{Cl|PRINT}} &quot;7) BELL, 8) Backspace, 9) Tab, 10) LineFeed(printer), 12) FormFeed(printer)&quot;
+{{Cl|LOCATE}} 28, 4: {{Cl|PRINT}} &quot;  13) Return, 26) End Of File, 27) Escape  30) Line up, 31) Line down &quot;
+
+Align 13, 29, &quot;Press Ctrl + P to PRINT!&quot;
+
+DO: {{Cl|SLEEP}}: K$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} K$ &lt;&gt; &quot;&quot;
+Align 13, 29, {{Cl|SPACE$}}(50)
+{{Cl|IF...THEN|IF}} K$ = {{Cl|CHR$}}(16) {{Cl|THEN}}
+  {{Cl|_PRINTIMAGE}} 0              '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; to PRINTER
+  Align 11, 29, &quot;Use the ASCII Table for a reference of the codes!&quot;
+  {{Cl|SOUND}} 700, 4
+{{Cl|END IF}}
+K$ = {{Cl|INPUT$}}(1)
+{{Cl|SYSTEM}}
+
+{{Cl|SUB}} Align (Tclr, Trow, txt$)
+Tcol = 41 - ({{Cl|LEN}}(txt$) \ 2)
+{{Cl|COLOR}} Tclr: {{Cl|LOCATE}} Trow, Tcol: {{Cl|PRINT}} txt$;
+{{Cl|END SUB}}
+
+{{Cl|SUB}} Border (clr%)
+{{Cl|COLOR}} clr%
+{{Cl|FOR...NEXT|FOR}} row = 1 {{Cl|TO}} 30
+  {{Cl|LOCATE}} row, 1: {{Cl|PRINT}} {{Cl|CHR$}}(179);
+  {{Cl|LOCATE}} row, 80: {{Cl|PRINT}} {{Cl|CHR$}}(179);
+{{Cl|NEXT}} row
+{{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} {{Cl|STRING$}}(80, 196);
+{{Cl|LOCATE}} 30, 1: {{Cl|PRINT}} {{Cl|STRING$}}(80, 196);
+{{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} {{Cl|CHR$}}(218);
+{{Cl|LOCATE}} 1, 80: {{Cl|PRINT}} {{Cl|CHR$}}(191);
+{{Cl|LOCATE}} 30, 1: {{Cl|PRINT}} {{Cl|CHR$}}(192);
+{{Cl|LOCATE}} 30, 80: {{Cl|PRINT}} {{Cl|CHR$}}(217);
+{{Cl|END SUB}}
+
+{{Cl|SUB}} SetCHR (Trow, Tcol, FG, ASCode)
+Srow = 16 * (Trow - 1): Scol = 8 * (Tcol - 1) 'convert text to graphic coordinates
+{{Cl|COLOR}} FG: {{Cl|_PRINTSTRING}} (Scol, Srow), {{Cl|CHR$}}(ASCode)
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' The [[ASCII]] character table was originally made in [[SCREEN]] 12 (640 X 480) and was adapted to 256 colors.
+
+
+''See also:''
+
+*[[_LOADIMAGE]], [[_NEWIMAGE]], [[_COPYIMAGE]]
+*[[LPRINT]]
+
+
+{{PageNavigation}}

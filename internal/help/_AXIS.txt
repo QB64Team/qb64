@@ -1,0 +1,50 @@
+The '''_AXIS''' function returns the relative position of a specified axis number on a controller device.
+
+
+{{PageSyntax}}
+::: move = _AXIS(''axis_number%'')
+
+
+* [[SINGLE]] values returned range between -1 and 1 as maximums and 0 indicating minimum or axis center.
+* When the mouse is moved on the program screen, moves left or above center are negative while below or right are positive.
+* The ''axis_number'' must be a number which does not exceed the number of axis found by the [[_LASTAXIS]] function.
+* '''The number of [[_DEVICES]] MUST be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTAXIS]]!'''
+
+
+''Example:'' Reading multiple controller device buttons, axis and wheels.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
+  {{Cl|PRINT}} {{Cl|STR$}}(i) + &quot;) &quot; + {{Cl|_DEVICE$}}(i) + &quot; Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;,Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;,Wheel:&quot;; {{Cl|_LASTWHEEL}}(i)
+{{Cl|NEXT}}
+
+{{Cl|DO...LOOP|DO}}
+  d&amp; = {{Cl|_DEVICEINPUT}}
+  {{Cl|IF...THEN|IF}} d&amp; {{Cl|THEN}} '             the device number cannot be zero!
+    {{Cl|PRINT}} &quot;Found&quot;; d&amp;;
+    {{Cl|FOR...NEXT|FOR}} b = 1 {{Cl|TO}} {{Cl|_LASTBUTTON}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_BUTTONCHANGE}}(b); {{Cl|_BUTTON}}(b);
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} a = 1 {{Cl|TO}} {{Cl|_LASTAXIS}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_AXIS}}(a);
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} w = 1 {{Cl|TO}} {{Cl|_LASTWHEEL}}(d&amp;)
+      {{Cl|PRINT}} {{Cl|_WHEEL}}(w);
+    {{Cl|NEXT}}
+    {{Cl|PRINT}}
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''Note:'' When there is no device control to read, a [[FOR...NEXT|FOR]] n = 1 TO 0 loop will not run thus avoiding a control function read error.
+
+
+''See also:''
+* [[_LASTWHEEL]], [[_LASTBUTTON]], [[_LASTAXIS]]
+* [[_WHEEL]], [[_BUTTON]], [[_BUTTONCHANGE]]
+* [[_DEVICE$]], [[_DEVICES]]
+* [[_MOUSEMOVEMENTX]], [[_MOUSEMOVEMENTY]] {{text|(relative movement)}}
+* [[Controller Devices]]
+
+
+{{PageNavigation}}

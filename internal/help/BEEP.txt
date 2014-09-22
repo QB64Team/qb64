@@ -1,0 +1,36 @@
+The '''BEEP''' statement produces a beeping sound through the sound card(QB64) or PC speaker(QB) if it has one.
+
+
+{{PageSyntax}}
+:: [[BEEP]]
+
+
+{{PageDescription}}
+* {{KW|BEEP}} can be placed anywhere to alert the user that there is something to do or an error has occurred.
+* [[ASCII]] control character 7 can also create a {{KW|BEEP}} sound when you {{KW|PRINT}} it (See [[CHR$]]).
+* In Windows it may produce a &quot;thunk&quot; warning sound when a Qbasic program is running in a  {{KW|SCREEN}} 0 window.
+* Newer PC's may not have an internal speaker to hear ANY Qbasic [[SOUND|sounds]]!
+* '''QB64''' produces the actual &quot;beep&quot; sound through the PC's stereo speakers.
+* To produce the BEEP sound character in a QBasic(.BAS) or a batch(.BAT) file using a '''DOS''' editor (or the QB IDE) press ''Ctrl + P'' then ''G.'' PRINT it inside of quotation marks to beep in QB. Use the character after ECHO in a batch file. '''Not in the QB64 IDE!'''
+
+
+{{PageExamples}}
+
+''Example:'' Creating two beep sounds using [[BEEP]] and [[PRINT|printing]] the [[ASCII]] control character 7.
+{{CodeStart}}'' ''
+{{Cl|BEEP}}
+{{Cl|PRINT}} {{Cl|CHR$}}(7) '' ''
+{{CodeEnd}}
+
+
+
+
+
+{{PageSeeAlso}}
+* {{KW|SOUND}}, {{KW|PLAY}}
+* {{KW|_SNDPLAY}} (play sound files)
+* {{KW|_SNDRAW}} (play frequency waves)
+* {{KW|CHR$}}, {{KW|ASCII}} (code table)
+
+
+{{PageNavigation}}

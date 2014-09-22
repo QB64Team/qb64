@@ -1,0 +1,56 @@
+The '''_OPENCONNECTION''' function open's a connection from a client that the host has detected and returns a status handle.
+
+
+
+
+{{PageSyntax}}
+:{{Parameter|connect_handle}} = {{KW|_OPENCONNECTION}}({{Parameter|host_handle}})
+
+
+
+
+{{PageDescription}} 
+* Valid handles returned are usually negative numbers.
+* If the syntax is correct but they fail to begin/connect a handle of 0 is returned. 
+* Always check if the handle returned is 0 (failed) before continuing.  
+* {{KW|CLOSE}} #{{Parameter|connect_handle}} closes the connection. Failed connections({{Parameter|connect_handle}} = 0) do not need to be closed.
+* As a '''Host''' you can check for new clients(users). Each will have a unique connection handle.
+* Creates an [[ERROR Codes|ILLEGAL FUNCTION CALL]] error if called with a string argument of the wrong syntax.
+* Handle values can be used as the open number by {{KW|INPUT (TCP/IP statement)|INPUT #}} or {{KW|GET (TCP/IP statement)|GET #}} read statements and {{KW|PUT (TCP/IP statement)|PUT #}} or {{KW|PRINT (TCP/IP statement)|PRINT #}} write statements.
+
+
+{{PageExamples}}
+''Example:'' Using the {{KW|_OPENCONNECTION}} new client return with {{KW|INPUT (TCP/IP statement)|INPUT}} # or {{KW|GET (TCP/IP statement)|GET}} # message or data reads.
+
+{{CodeStart}}
+
+ host = {{Cl|_OPENHOST}}(&quot;TCP/IP:8080&quot;)
+ {{Cl|DO}}
+   newclient = {{Cl|_OPENCONNECTION}}(host) ' monitor host connection
+   {{Cl|IF...THEN|IF}} newclient {{Cl|THEN}}
+     {{Cl|SLEEP}} 1 ' wait one second for data to arrive
+     {{Cl|INPUT (TCP/IP statement)|INPUT}} #newclient, a
+     {{Cl|PRINT}} a 
+     {{Cl|CLOSE}} #newclient ' close after each read
+   {{Cl|ELSE}} : {{Cl|_DELAY}} .05 ' share resources with other programs (20 loops per second)
+   {{Cl|END IF}}
+ {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; ' any keypress quits
+ {{Cl|CLOSE}} #host
+ {{Cl|SYSTEM}}
+
+{{CodeEnd}}
+
+''Explanation:'' The function finds new clients and waits one second to read a message or other data. If a message or data was sent, it displays it on the screen and closes the connection. 
+
+'''Note: When sending data, the client should wait about 3 seconds before closing their connection!'''
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|_OPENHOST}}, {{KW|_OPENCLIENT}}
+*{{KW|_CONNECTED}}, {{KW|_CONNECTIONADDRESS}}
+
+
+
+{{PageNavigation}}

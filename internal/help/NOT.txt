@@ -1,0 +1,46 @@
+'''NOT''' is a [[Boolean]] logical operator that will change a False statement to a True one and vise-versa. 
+
+
+{{PageSyntax}}
+:: True = -1: False = '''NOT''' True
+
+
+* In Qbasic, True = -1 and False = 0 in boolean logic and evaluation statements.
+* NOT evaluates ONE value and returns the opposite. Yes, NOT 0 = -1 in Basic.
+* Often called a negative logic operator, it returns the opposite of a value as true or false.
+
+{{Template:RelationalTable}}
+
+
+{{Template:LogicalTruthTable}}
+
+
+''Example 1:'' Alternating between two conditions in a program loop.
+{{CodeStart}}
+{{Cl|DO}}
+switch = {{Cl|NOT}} switch       '{{Cl|NOT}} changes value from -1 to 0 and vice-versa
+{{Cl|LOCATE}} 10, 38
+{{Cl|IF}} switch {{Cl|THEN}} {{Cl|PRINT}} &quot;True!&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;False&quot;
+{{Cl|SLEEP}}
+k$ = {{Cl|INKEY$}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27) ' escape key quit
+{{CodeEnd}}
+
+
+''Example 2:'' Reading a file until it reaches the End Of File.
+{{CodeStart}}
+DO WHILE NOT EOF(1) 
+  INPUT #1, data1, data2, data3
+LOOP '' ''
+{{CodeEnd}}
+:''Explanation:'' [[EOF]] will return 0 until a file ends. NOT converts 0 to -1 so that the loop continues to run. When EOF becomes -1, NOT converts it to 0 to end the loop.
+
+
+''See also:'' 
+*[[DO...LOOP]], [[WHILE...WEND]], 
+*[[IF...THEN]], [[AND]], [[XOR]]
+*[[OR]], [[Binary]], [[Boolean]] 
+*[[Mathematical Operations]]
+
+
+{{PageNavigation}}

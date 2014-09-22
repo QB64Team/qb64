@@ -1,0 +1,42 @@
+The '''_MEMGET''' statement reads a portion of a memory block at an OFFSET position into a variable, array or user defined type.
+
+
+{{PageSyntax}}
+::: '''_MEMGET ''memory_block'', ''memory_block.OFFSET''''' [+ ''bytes'']''', ''holding_variable'''''
+
+
+* ''memory block'' is a [[_MEM]] variable type name also used for the dot variable name.OFFSET position.
+* ''memory block.OFFSET'' is the dot [[OFFSET]] byte zero memory position where block data begins. 
+* ''holding variable'' is the variable to write the data to.
+
+
+''Example:'' Shows how to read the PSET color values from a program's [[SCREEN]] memory to an array.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13
+{{Cl|PSET}} (0, 0), 123
+{{Cl|PSET}} (1, 0), 222 'create screen image
+
+'here is an array
+{{Cl|DIM}} screen_array(319, 199) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}} 'use screen dimensions from 0
+
+'here's how we can copy the screen to our array
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+m = {{Cl|_MEMIMAGE}}  '0 or no handle necessary when accessing the current program screen
+{{Cl|_MEMGET}} m, m.OFFSET, screen_array()
+
+'here's the proof
+{{Cl|PRINT}} screen_array(0, 0) 'print 123
+{{Cl|PRINT}} screen_array(1, 0) 'print 222 
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+''See also:''
+* [[_MEMGET (function)]]
+* [[_MEMPUT]]
+* [[_MEM]]
+* [[_MEMIMAGE]]
+* [[_MEMFREE]]
+
+
+{{PageNavigation}}

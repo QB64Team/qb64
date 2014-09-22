@@ -1,0 +1,64 @@
+The '''VAL''' Function returns the decimal numerical equivalent value of a [[STRING]] numerical value.
+
+
+{{PageSyntax}}
+:: value = VAL(string_value$)
+
+
+* VAL converts string numbers to numerical values including decimal point values and prefixed &quot;[[&amp;H]]&quot; hexadecimal, &quot;[[&amp;O]]&quot; octal. 
+* VAL conversion stops at non-numeric characters except for letter &quot;D&quot; or &quot;E&quot; exponential notation values.
+:String values with &quot;D&quot; and &quot;E&quot; letters between numbers may be converted also! EX: '''{{text|VAL(&quot;9D4&quot;) &lt;nowiki&gt;=&lt;/nowiki&gt; 90000|green}}'''
+* If the first string character is not a number VAL returns 0. VAL may return erratic values with &quot;%&quot; or &quot;&amp;&quot; starting characters. 
+* Hexadecimal [[HEX$]] string values with the &quot;[[&amp;H]]&quot; prefix can be converted to a decimal value with digits 0 to 9 and letters A to F. 
+* Octal [[OCT$]] string values with the &quot;[[&amp;O]]&quot; prefix can be converted to a decimal value with digits from 0 to 7 only.
+* Presently VAL '''cannot''' convert QB64 binary [[&amp;B]] prefixed strings from binary to decimal in '''QB64'''.
+* For character values of [[ASCII]] data use [[ASC]] to get the value. 
+
+
+''Example 1:'' Converting a string with some number characters
+{{CodeStart}} '' ''
+ text$ = &quot;1.23Hello&quot;
+ number! = VAL(text$)
+ PRINT number! '' ''
+{{CodeEnd}}
+{{OutputStart}}
+1.23
+{{OutputEnd}}
+
+
+''Example 2:'' Converting literal and variable [[STRING|string]] values to numerical values.
+{{CodeStart}} '' ''
+ a$ = &quot;33&quot;
+ PRINT VAL(&quot;10&quot;) + VAL(a$) + 1 '' ''
+{{CodeEnd}}
+{{OutputStart}}
+44
+{{OutputEnd}}
+:''Explanation:'' 10 + 33 + 1 = 44, the strings were converted to values.
+
+:You have to convert the string to values in order to use them in a mathematical expression also since mixing strings with numbers isn't allowed. VAL will stop at a text letter so VAL(&quot;123G56) would return 123.
+
+:If VAL wasn't used the program would break with an error, as you can't add the value 1 to a string, if the 1 was a string (&quot;1&quot;) then the program would return &quot;10331&quot;, but now since we used VAL, the numbers were added as they should.
+
+
+''Example 3:'' Converting a hexadecimal value to decimal value using HEX$ with VAL.
+{{CodeStart}}
+ decnumber% = 96
+ hexnumber$ = &quot;&amp;H&quot; + {{Cl|HEX$}}(decnumber%)  'convert decimal value to hex and add hex prefix
+ PRINT hexnumber$
+ decimal% = {{Cl|VAL}}(hexnumber$)
+ PRINT decimal% '' ''
+{{CodeEnd}}
+{{OutputStart}}
+&amp;H60
+ 96
+{{OutputEnd}}
+: ''Explanation:'' [[HEX$]] converts a decimal number to hexadecimal, but [[VAL]] will only recognize it as a valid value with the &quot;&amp;H&quot; prefix. Especially since hexadecimal numbers can use &quot;A&quot; through &quot;F&quot; in them. Create a converter function from this code!
+
+
+''See also:'' 
+* [[STR$]], [[HEX$]]
+* [[OCT$]], [[ASC]]
+
+
+{{PageNavigation}}

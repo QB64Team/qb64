@@ -1,0 +1,24 @@
+A '''quotation mark''' delimits the start and end of a literal [[STRING]] value. 
+
+
+''Usage:'' string_value$ = &quot;This is a text STRING.&quot;
+
+
+* The quotation mark must delimit the ends of a string or text prompt in a [[PRINT]], [[WRITE]], [[INPUT]] or [[LINE INPUT]] statement. 
+* The IDE may add  a missing quotation mark at the end of a [[SUB|statement]] or [[FUNCTION|function]]. 
+* [[LINE INPUT]] allows quotation marks to be entered as user input. The [[LINE INPUT (file statement)]] can transfer quotation marks.
+* Quotation marks should be used when [[comma]]s are used in a literal [[WRITE]] or [[INPUT (file statement)]] text string. 
+* To insert quotation marks in a [[PRINT]] statement insert [[CHR$]](34) using string [[concatenation]] or [[semicolon]]s.
+* String values can be [[concatenation|concatenated]] or added using the plus ([[+]]) operator. Cannot be used to combine numerical values!
+* Concatenation MUST be used when combining literal [[STRING|string]] values in a variable definition.
+* String values can be combined with other string or numerical values using [[semicolon]]s or [[comma]] tabs in a PRINT statement.
+* Literal [[DATA]] strings do not require quotation marks unless the value is a keyword, uses commas or has end spaces.
+
+
+''See also:''
+
+* [[STRING]], [[PRINT]], [[WRITE]]
+* [[CHR$]], [[LINE INPUT]]
+
+
+{{PageNavigation}}

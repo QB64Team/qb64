@@ -1,0 +1,29 @@
+The '''ACCESS''' clause is used in a networking {{KW|OPEN}} statement. DOS 3.1 or above only!
+
+
+
+{{PageSyntax}}
+:OPEN &quot;file.dat&quot; FOR APPEND ['''ACCESS {READ|WRITE}'''] AS #1
+
+{{PageDescription}}
+
+
+''Valid Options:''
+*Default: When specified, all other processes are denied file access.
+*READ: When specified, read access is denied to other file procedures.
+*WRITE: When specified, write access is denied to other file procedures.
+*READ WRITE: When specified any access is denied to other file procedures.
+
+
+''Limitations:''
+* Requires that the DOS '''SHARED.EXE''' program be run for QBasic to use networking access modes.
+*If another process already has access to a specified file, program access is denied for that file OPEN access. A &quot;Permission Denied&quot; error 70 will be returned. A network program must be able to handle a denial of access error. 
+
+
+{{PageSeeAlso}}
+* [[LOCK]], [[LOCK (access)]]
+* [[OPEN]]
+* [[ON ERROR]]
+
+
+{{PageNavigation}}

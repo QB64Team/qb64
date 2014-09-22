@@ -1,0 +1,61 @@
+The [[WRITE (file statement)|WRITE #]] file statement writes a list of comma separated variable values to a sequential file or port.
+
+
+{{PageSyntax}}
+:{{KW|WRITE (file statement)|WRITE #}}{{Parameter|filenumber%}}[, {{Parameter|expressionList}}]
+
+
+{{PageDescription}}
+* {{Parameter|filenumber%}} is the number(1 to 255) of the file or device {{KW|OPEN}}ed in the {{KW|OUTPUT}} or {{KW|APPEND}} modes. See: {{KW|FREEFILE}}.
+* {{Parameter|expressionList}} is a comma-separated list of values to be written to the file or device.
+* WRITE can place any number and types of variable values needed in a file record separated by commas.
+* String values will have quotation marks although quotes are not required to read strings in CSV files with [[INPUT (file statement)|INPUT]] #.
+* Data files using WRITE normally will have the same number of values listed on each file line.
+* Data containing commas must be in quotation marks. Number commas are illegal!
+* WRITE created files are normally read with INPUT #.
+* CSV files created can be read by Excel using a .CSV file name extension. Strings may or may not include quotation marks.
+* [[Semicolon]]s cannot be used in or following the WRITE statement!
+
+
+''Example:'' Writes new data to a text file sequentially and reads it back to the program screen.
+{{CodeStart}} '' ''
+filename$ = &quot;testfile.dat&quot; 
+x = 1: y = 2: z$ = &quot;Three&quot; 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
+
+{{Cl|WRITE (file statement)|WRITE}} #1, x, y, z$ 
+
+{{Cl|CLOSE}} #1 
+
+{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+
+K$ = {{Cl|INPUT$}}(1) 'press a key 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #2 'opens a file to read it 
+
+{{Cl|INPUT (file statement)|INPUT}} #2, a, b, c$ 
+
+{{Cl|CLOSE}} #2 
+
+{{Cl|PRINT}} a, b, c$
+{{Cl|WRITE}} a, b, c$ 
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''File content:'' [[WRITE]] string values will include quotation marks, but they are not required to read the file.
+{{TextStart}}1,2,&quot;Three&quot; '' '' {{TextEnd}}
+: ''Screen output:'' [[PRINT]] string values will not display enclosing quotes. [[WRITE]] screen displays will.
+{{OutputStart}} 1           2          Three
+1,2,&quot;Three&quot;
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[PRINT (file statement)|PRINT #]]
+* [[INPUT (file statement)|INPUT #]]
+* [[LINE INPUT (file statement)|LINE INPUT #]]
+* [[SQL Client]] {{text|(library)}}
+
+
+{{PageNavigation}}

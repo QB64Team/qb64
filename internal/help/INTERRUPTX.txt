@@ -1,0 +1,48 @@
+The '''INTERRUPTX''' statement is an assembly routine for accessing computer information registers.
+
+
+
+{{PageSyntax}}
+:: [[CALL]] INTERRUPTX(intnum, inregs, outregs)
+
+
+*Available on QuickBasic versions 4 up, it requires the library to be loaded. Command line: QB.EXE /L in QB4.5 .
+* Interrupt number is the interrupt reference vector table address. See: [http://www.ctyme.com/intr/cat.htm Ralf Brown's Interrupt List]
+* Inregs are the values placed into the call and outregs are the register return values.
+* INTERRUPTX can use all of the TYPE values when they are required.
+* The [[TYPE]] definition below will work for both [[INTERRUPT]] and INTERRUPTX statement calls:
+
+
+''RegType.BI''   '$INCLUDE file can be used by INTERRUPT or INTERRUPTX
+{{TextStart}} '' ''
+{{Cb|TYPE}} RegTypeX
+   ax AS INTEGER
+   bx AS INTEGER
+   cx AS INTEGER
+   dx AS INTEGER
+   bp AS INTEGER
+   si AS INTEGER
+   di AS INTEGER
+   flags AS INTEGER
+   ds AS INTEGER
+   es AS INTEGER
+{{Cb|END TYPE}}
+{{TextEnd}}
+{{CodeStart}} '' ''
+{{Cl|REM}} {{Cl|$INCLUDE}}: 'RegType.BI'  'Use only with the RegType or {{Cl|QB.BI}} files
+
+{{Cl|DIM}} {{Cl|SHARED}} inregs {{Cl|AS}} RegTypeX, outregs AS RegTypeX
+{{CodeEnd}}
+
+
+
+''See also:'' 
+* [[$INCLUDE|$INCLUDE:]] 
+* [[QB.BI]], [[CALL ABSOLUTE]] 
+* [[INTERRUPT]]
+
+
+''Download Ethan Winer's FREE Qbasic Book and Programs:'' [http://www.ethanwiner.com/fullmoon.html WINER.ZIP]
+
+
+{{PageNavigation}}

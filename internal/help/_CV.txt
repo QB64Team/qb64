@@ -1,0 +1,47 @@
+The {{KW|_CV}} function is used to convert [[_MK$]], [[ASCII]], {{KW|STRING}} values to numerical values.
+
+
+{{PageSyntax}}
+:''result'' = {{KW|_CV}}({{Parameter|numericalType}}, {{Parameter|stringValue$}})
+
+
+{{PageDescription}}
+* {{Parameter|numericalType}} is any number type: {{KW|INTEGER}}, {{KW|LONG}}, {{KW|SINGLE}}, {{KW|DOUBLE}}, {{KW|_INTEGER64}}, {{KW|_BYTE}} or {{KW|_BIT}}.
+* Integer, Long, Byte and Bit values can be Signed or {{KW|_UNSIGNED}}.
+* The string number value type must match the numerical type parameter used. 
+* [[_MK$]] [[STRING|string]] values consist of [[ASCII]] characters in the same byte length as the number value type.
+
+
+''Example:'' Using the _MK$ and _CV functions:
+{{CodeStart}} '' ''
+{{Cl|DIM}} i64 {{Cl|AS}} {{Cl|_INTEGER64}}
+{{Cl|DIM}} i64str {{Cl|AS}} {{Cl|STRING}}
+
+i64 = 2 ^ 61
+i64str = {{Cl|_MK$}}({{Cl|_INTEGER64}}, i64)
+
+{{Cl|PRINT}} &quot;I64:&quot;; i64
+{{Cl|PRINT}} &quot;_MK$: &quot;; i64str
+
+i64 = {{Cl|_CV}}({{Cl|_INTEGER64}}, i64str)
+{{Cl|PRINT}} &quot;_CV:&quot;; i64 '' ''
+{{CodeEnd}}
+{{OutputStart}} 
+I64: 2305843009213693952
+_MK$:
+_CV: 2305843009213693952
+{{OutputEnd}}
+:The _MK$ string result may not print anything to the screen as this example proved.
+
+
+{{PageSeeAlso}}
+* [[MKI$]], [[CVI]], [[INTEGER]]
+* [[MKL$]], [[CVL]], [[LONG]]
+* [[MKS$]], [[CVS]], [[SINGLE]]
+* [[MKD$]], [[CVD]], [[DOUBLE]]
+* [[MKSMBF$]], [[CVSMBF]] {{text|(Microsoft Binary Format)}}
+* [[MKDMBF$]], [[CVDMBF]] {{text|(Microsoft Binary Format)}}
+* [[PDS(7.1) Procedures#CURRENCY|CURRENCY]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,37 @@
+The {{KW|_SNDBAL}} statement attempts to set the balance or 3D position of a sound.
+
+
+{{PageSyntax}}
+:{{KW|_SNDBAL}} {{Parameter|handle&amp;}}[, {{Parameter|x!}}][, {{Parameter|y!}}][, {{Parameter|z!}}]
+
+
+{{PageDescription}}
+*Attempts to position a sound in 3D space, or as close to it as the underlying software libraries allow. In some cases, this will be true 3D positioning, in others, a mere volume adjustment based on distance alone.
+:::*x distance values go from left(negative) to right(positive).
+:::*y distance values go from below(negative) to above(positive).
+:::*z distance values go from behind(negative) to in front(positive).
+*Omitted x, y or z {{KW|SINGLE}} values are set to 0.
+*By setting the x value to -1 or 1 it plays the sound at full volume from the appropriate speaker.
+*Sounds at a distance of 1 or -1 are played at full volume. Sounds further than a distance of 1000 cannot be heard.
+*The volume decreases linearly (at a constant gradient) over distance. Half volume = 500.
+* Opened sound files must have the &quot;VOL&quot; capability to use this statement.
+* The sound file should have the &quot;SYNC&quot; capability when more than one sound is being used at the same time!
+* An &quot;'''ILLEGAL FUNCTION CALL'''&quot; error can occur if another sound is using the primary or same channel position.
+
+
+{{PageExamples}}
+{{CodeStart}} '' ''
+h&amp; = {{Cl|_SNDOPEN}}(&quot;LOL.wav&quot;, &quot;SYNC,VOL&quot;)
+{{Cl|_SNDBAL}} h&amp;, 1
+{{Cl|_SNDPLAY}} h&amp; '' ''
+{{CodeEnd}}
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDOPEN}}, {{KW|_SNDVOL}}, {{KW|_SNDLIMIT}}
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,106 @@
+'''IF...THEN''' statements make Boolean True or False program evaluations to automate program decision making.
+
+
+
+{{PageSyntax}}
+:: IF ''condition'' THEN ''action'' {{Cb|ELSE}} evaluation = 0
+
+
+''Block {{PageSyntax}}
+:: IF ''condition statement'' [[THEN]]
+::: ''action''
+:: [[ELSEIF]] ''condition statement'' [[THEN]] ''action'' 
+:: [[ELSE]] ''action''
+:: [[END IF]]
+
+
+* The ''conditional'' evaluation by '''IF''' must be true(-1) or a non-zero numerical value for the THEN ''action'' statements to be executed.
+* Multiple conditional evaluations can be made using inclusive [[AND (boolean)|AND]] or alternative [[OR (boolean)|OR]] conditional expressions.
+* IF statements can also have alternative evaluations using [[ELSEIF]] and [[ELSE]] conditions. 
+* When the '''IF''' statement and/or code to be run is more than code line, an [[END IF]] statement '''MUST''' be used.
+* With multiple code lines to run, end the IF statement with THEN and place all of the code on lines below that line.
+* Multiple code line block statements require that the [[IF...THEN]], [[ELSEIF]], [[ELSE]] and [[END IF]] be on separate lines.
+* '''The IDE may return an error of [[NEXT]] without [[FOR]] or [[LOOP]] without [[DO...LOOP|DO]] when [[END IF]] does not end a statement block!'''
+* The '''QB64''' IDE may red line the IF THEN statement line until END IF closes the statement block.
+* Use '''[[colon]]s''' to execute multiple statements in a one line IF statement. You cannot use [[AND]] statements after [[THEN]]!
+* An '''[[underscore]]''' can be used anywhere after the code on one line to continue it to the next line in '''QB64 ONLY'''.
+
+
+
+{{Template:RelationalTable}}
+
+
+&lt;center&gt; When evaluating a number value, no IF value &gt; 0 operation is necessary for values not 0. Use: IF value THEN &lt;/center&gt;
+
+
+&lt;center&gt;'''Boolean Conditional Operators:'''&lt;/center&gt;
+
+
+:::::* [[AND (boolean)]] can be used to add extra conditions to a boolean statement evaluation.
+:::::* [[OR (boolean)]] can be used to add alternate conditions to a boolean statement evaluation.
+:::::* Parenthesis are allowed inside of boolean statements to clarify an evaluation.
+
+
+&lt;center&gt;'''Mathematical Logical operators:'''&lt;/center&gt;
+&lt;center&gt;* Truth table of the 6 BASIC Logical Operators:&lt;/center&gt;
+
+
+{{Template:LogicalTruthTable}}
+
+&lt;center&gt;* '''Note that Basic returns -1 for True and 0 for False.'''&lt;/center&gt;
+
+
+
+''Example 1:'' One line IF statement
+{{CodeStart}} '' ''
+IF x &gt; 100 THEN PRINT x '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' IF statement blocks require that the IF THEN and END IF statements be separate from the code executed.
+{{CodeStart}} '' ''
+IF x &gt; 100 THEN
+  y = 200
+  PRINT y
+  PRINT x
+END IF '' ''
+{{CodeEnd}}
+
+
+''Example 3:'' True or False evaluation of a numerical value executes only when the value is not 0. '''Cannot evaluate [[STRING]] values!'''
+{{CodeStart}} '' ''
+IF x THEN PRINT x  '' ''
+{{CodeEnd}}
+:Example will only print if a numerical value is True (positive or negative). (Equivalent to: IF x &gt; 0 OR x &lt; 0 THEN evaluation)
+
+
+''Example 4:'' Multiple evaluations using parenthesis to determine the order.
+{{CodeStart}} '' ''
+IF (value% &gt; 100 AND value% &lt; 200) OR value% = 50 THEN PRINT &quot;OK&quot; '' ''
+{{CodeEnd}}
+
+
+''Example 5:'' Using multiple IF options in a one line statement.
+{{CodeStart}} '' ''
+x = 100        'change x value to see other evaluations
+IF x &gt; 200 THEN PRINT &quot;High&quot; {{Cl|ELSEIF}} x &lt; 0 THEN PRINT &quot;Low&quot; {{Cl|ELSE}} PRINT &quot;OK&quot; '' ''
+{{CodeEnd}}
+
+
+''Example 6:'' [[STRING]] values can be compared using greater than, less than, not equal to or equal to operators only.
+{{CodeStart}} '' ''
+PRINT &quot;Press a letter key: &quot;;
+Key$ = {{Cl|INPUT$}}(1)
+PRINT Key$ 
+IF Key$ &gt;= {{Cl|CHR$}}(65) AND Key$ &lt;= {{Cl|CHR$}}(90) THEN PRINT &quot;A to Z&quot;
+{{CodeEnd}}
+: ''Explanation:'' Long [[STRING]] expression values are compared by their cumulative [[ASCII]] code values.
+
+
+''See also:'' 
+*[[ELSEIF]], [[ELSE]]
+*[[AND (boolean)]], [[OR (boolean)]] 
+*[[NOT]], [[SELECT CASE]], [[Boolean]]
+
+
+{{PageNavigation}}

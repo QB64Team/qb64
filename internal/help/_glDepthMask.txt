@@ -1,0 +1,37 @@
+'''_glDepthMask:''' enable or disable writing into the depth buffer
+
+
+{{PageSyntax}}
+
+  SUB _glDepthMask (BYVAL flag AS _UNSIGNED _BYTE)
+  void '''_glDepthMask'''(GLboolean {{Parameter|flag}});
+
+
+; flag
+: Specifies whether the depth buffer is enabled for writing. If {{Parameter|flag}} is {{KW|_GL_FALSE}}, depth buffer writing is disabled. Otherwise, it is enabled. Initially, depth buffer writing is enabled.
+
+
+{{PageDescription}}
+
+'''_glDepthMask''' specifies whether the depth buffer is enabled for writing. If {{Parameter|flag}} is {{KW|_GL_FALSE}}, depth buffer writing is disabled. Otherwise, it is enabled. Initially, depth buffer writing is enabled.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_DEPTH_WRITEMASK}}
+
+
+{{PageNotes}}
+
+Even if the depth buffer exists and the depth mask is non-zero, the depth buffer is not updated if the depth test is disabled. In order to unconditionally write to the depth buffer, the depth test should be enabled and set to {{KW|_GL_ALWAYS}} (see {{KW|_glDepthFunc}}).
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glColorMask}}, {{KW|_glClearBuffer}}, {{KW|_glDepthFunc}}, {{KW|_glDepthRange}}, {{KW|_glStencilMask}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. Copyright 2012 Khronos Group. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

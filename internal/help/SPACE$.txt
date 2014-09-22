@@ -1,0 +1,99 @@
+The {{KW|SPACE$}} function returns a {{KW|STRING}} consisting of a number of space characters.
+
+
+{{PageSyntax}}
+:''result$'' = '''SPACE$({{Parameter|count%}})'''
+
+
+{{Parameters}}
+* {{Parameter|count%}} is the number of space characters to repeat. Cannot use negative values!
+
+
+''Usage:''
+* Semicolons can be used to combine spaces with text [[STRING]] or numerical values.
+* [[Concatenation]] using + can be used to combine [[STRING]] text values only.
+* Spaces are often used to erase previous text PRINTs from the screen.
+* The function result can also be used to [[GET]] and [[PUT]] a number of bytes as zero characters: bytes$ = SPACE$(numbytes)
+* Spaces can also be made using [[SPC]], [[CHR$]](32) or [[STRING$]](n%, 32).
+
+
+''Example 1:'' How to space text in a [[PRINT]] statement using SPACE$ with string [[concatenation]].
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} count% = 0 {{Cl|FOR...NEXT|TO}} 3
+    {{Cl|PRINT}} &quot;abc&quot; + {{Cl|SPACE$}}( count% ) + &quot;def&quot;
+{{Cl|FOR...NEXT|NEXT}} count%
+{{CodeEnd}}
+{{OutputStart}}abcdef
+abc def
+abc  def
+abc   def
+{{OutputEnd}}
+
+
+''Example 2:'' In [[SCREEN]] 0 SPACE$ can be used to change the background color to make an American flag.
+{{CodeStart}}
+ USA flag centered on screen with thin horizontal red &amp; white stripes
+' blue corner field with randomly twinkling stars
+{{Cl|CLS}}
+{{Cl|LOCATE}} 25, 1
+{{Cl|PRINT}} &quot;Press any key to stop twinkling&quot;;
+{{Cl|COLOR}} , 4
+z = 15
+{{Cl|FOR...NEXT|FOR}} x = 5 {{Cl|TO}} 19          '13 red &amp; white stripes (x =5 to 21 for 15 stripes)
+    {{Cl|IF...THEN|IF}} z = 15 {{Cl|THEN}} z = 4 {{Cl|ELSE}} z = 15
+    {{Cl|COLOR}} , z
+    {{Cl|LOCATE}} x, 15
+    {{Cl|PRINT}} {{Cl|SPACE$}}(55)
+{{Cl|NEXT}} x
+{{Cl|FOR...NEXT|FOR}} x = 5 {{Cl|TO}} 11          'blue field in upper left quadrant (x = 5 to 13 to hold all 50 stars)
+    {{Cl|COLOR}} 15, 1            'sits above 4th white stripe
+    {{Cl|LOCATE}} x, 15
+    {{Cl|PRINT}} {{Cl|SPACE$}}(23)
+{{Cl|NEXT}} x
+DO
+    stop$ = {{Cl|INKEY$}}
+    {{Cl|FOR...NEXT|FOR}} x = 5 {{Cl|TO}} 10 {{Cl|STEP}} 2  '39 stars staggered across blue field (50 stars if x = 5 to 12)
+        w = 16
+        {{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 6      '5 rows of 6 stars
+            r = {{Cl|INT}}({{Cl|RND}} * 6)
+            {{Cl|IF...THEN|IF}} r = 0 {{Cl|THEN}} z = 31 {{Cl|ELSE}} z = 15
+            {{Cl|IF...THEN|IF}} stop$ = &quot;&quot; {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
+            {{Cl|LOCATE}} x, w
+            w = w + 4
+            {{Cl|PRINT}} &quot;*&quot;;
+        {{Cl|NEXT}} y
+        w = 18
+        {{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 5      '5 rows of 5 stars
+            r = {{Cl|INT}}({{Cl|RND}} * 6)
+            {{Cl|IF...THEN|IF}} r = 0 {{Cl|THEN}} z = 31 {{Cl|ELSE}} z = 15
+            {{Cl|IF...THEN|IF}} stop$ = &quot;&quot; {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
+            {{Cl|LOCATE}} x + 1, w
+            w = w + 4
+            {{Cl|PRINT}} &quot;*&quot;;
+        {{Cl|NEXT}} y
+    {{Cl|NEXT}} x
+    w = 16
+    {{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 6          '1 row of 6 stars
+            r = {{Cl|INT}}({{Cl|RND}} * 6)
+            {{Cl|IF...THEN|IF}} r = 0 {{Cl|THEN}} z = 31 {{Cl|ELSE}} z = 15
+        {{Cl|IF...THEN|IF}} stop$ = &quot;&quot; {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
+        {{Cl|LOCATE}} x, w
+        w = w + 4
+        {{Cl|PRINT}} &quot;*&quot;;
+    {{Cl|NEXT}} y
+    t = {{Cl|TIMER}}
+    {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} t + .2 &gt;= {{Cl|TIMER}}: {{Cl|LOOP}}
+{{Cl|LOOP}} {{Cl|WHILE}} stop$ = &quot;&quot;
+{{Cl|COLOR}} 7, 0
+{{Cl|END}}
+{{CodeEnd}}{{small|Code by Solitaire}}
+:''Explanation:'' In [[SCREEN]] 0, the background color is only placed with the the printed text and spaces. [[CLS]] can color the entire screen.
+
+
+{{PageSeeAlso}}
+* [[PRINT]], [[PRINT USING]]
+* [[STRING$]], [[CLS]]
+* [[SPC]], [[TAB]]
+
+
+{{PageNavigation}}

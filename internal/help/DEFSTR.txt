@@ -1,0 +1,23 @@
+The '''DEFSTR''' statement defines all designated undefined variables AS [[STRING]] variables instead of the [[SINGLE]] type default.
+
+
+{{PageSyntax}}
+:: DEFSTR firstletters
+
+
+
+* The variable first letters can be from A-Z or any other range. 
+* You can also use commas for specific undefined variable first letters.
+* Variables [[DIM]]ensioned as another variable type or that use type suffixes are not defined otherwise.
+* '''Qbasic's IDE may add DEF statements before any [[SUB]] or [[FUNCTION]]. QB64(like QB) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|&quot;Parameter Type Mismatch&quot;]] warning or adding the proper DEF statement to subsequent procedures! If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures!'''
+
+
+''Example:'' DEFSTR A-S, Z
+
+
+''See also:'' 
+* [[DEFINT]], [[DEFLNG]], [[DEFSNG]], [[DEFDBL]]
+* [[_DEFINE]]
+
+
+{{PageNavigation}}
