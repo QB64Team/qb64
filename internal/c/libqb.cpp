@@ -7922,7 +7922,7 @@ qbs *qbs_lcase(qbs *str){
   }
   unsigned char *c=tqbs->chr;
   for (int32 i=0;i<str->len; i++) {
-    if ((*c>='a')&&(*c<='z')) *c=*c|32;
+    if ((*c>='A')&&(*c<='Z')) *c=*c|32;
     c++;
   }
   if (tqbs!=str&&str->tmp) qbs_free(str);
