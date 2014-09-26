@@ -4996,6 +4996,59 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
   //quick references
   sw=s->width; sh=s->height; dw=d->width; dh=d->height;
 
+
+
+  //change coordinates according to step
+  if (passed&2){f_dx1=d->x+f_dx1; f_dy1=d->y+f_dy1;}
+  if (passed&16){f_dx2=f_dx1+f_dx2; f_dy2=f_dy1+f_dy2;}
+  if (passed&256){f_sx1=s->x+f_sx1; f_sy1=s->y+f_sy1;}
+  if (passed&1024){f_sx2=f_sx1+f_sx2; f_sy2=f_sy1+f_sy2;}
+
+  //Here we calculate what our final point is going to be and put that value into the _DEST x/y so we can get STEP back correctly on the next call.
+  //or something like that...  I have no idea how to explain what the heck I'm gdoing here!
+  //Basically I'm just trying to update the x/y point that we last plot to on our screen so we can pick it back up and use it again...
+  if (passed&4){
+	  //we entered both dest numbers.  Our last point plotted should be f_dx2/f_dy2
+	  d->x=f_dx2; 
+	  d->y=f_dy2;
+  }
+  else{
+	  if (passed&1){
+		  //we only sent it the first dest value.  We want to put our rectangle on a portion of the screen starting at this point
+		  if (passed&512) {
+			  //we have all the source values.  We want to put that rectangle over to dest starting at that point
+			  d->x=f_dx1+abs(f_sx2-f_sx1); 
+		      d->y=f_dy1+abs(f_sy2-f_sy1);
+	      }
+	      else{
+			  //we want to go from f_sx1,F_sx2 to the edge of the screen and put it over to dest starting at that point
+		      d->x=f_dx1+abs(sw-f_sx1); 
+		      d->y=f_dy1+abs(sh-f_sy1);
+	      }
+	  }
+	  else{
+		  //we never sent the first source value.  We want to put the image over the whole screen.
+		  d->x=dw; 
+		  d->y=dh;
+	  }
+  }
+
+  //And here we update our source page information so the STEP will work properly there as well.
+  //This seems a little simpler logic
+
+  if (passed&512){
+	  //we sent it the stop coordinate of where we're reading from
+	  s->x = f_sx2;
+	  s->y = f_sy2;
+  }
+  else{
+	  //we didn't and we need to have it copy from wherever the starting point is to the bottom right of the screen.
+	  //so our final point read will be the source width/height
+	  s->x = sw;
+	  s->y = sh;
+  }
+
+
   //resolve coordinates
   if (passed&1){//dx1,dy1
     if (d->clipping_or_scaling){
