@@ -1,0 +1,71 @@
+The '''DATE$''' Function returns the present computer date as a string in a month, day and 4 digit year format.
+
+
+:::::''Syntax:'' today$ = DATE$
+
+
+* Returns the present computer date in a mm-dd-yyyy format such as: &quot;12-25-2009&quot;
+* Returns &quot;-&quot; (dash) separators between month, day and year on most machines.
+* '''NOTE''': Older computers may just use the last two digit years!
+
+
+''Example:'' Displaying the weekday and current date.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} {{Cl|DATE$}} 
+month$ = {{Cl|LEFT$}}({{Cl|DATE$}}, 2): M = {{Cl|VAL}}(month$)
+day$ = {{Cl|MID$}}({{Cl|DATE$}}, 4, 2): D = {{Cl|VAL}}(day$)
+day$ = {{Cl|STR$}}(D)                  ' eliminate any leading zeros
+year$ = {{Cl|RIGHT$}}({{Cl|DATE$}}, 4): Y = {{Cl|VAL}}(year$)
+{{Cl|SELECT CASE}} M
+   {{Cl|CASE}} 1: Moon$ = &quot;January&quot;
+   {{Cl|CASE}} 2: Moon$ = &quot;February&quot;
+   {{Cl|CASE}} 3: Moon$ = &quot;March&quot;
+   {{Cl|CASE}} 4: Moon$ = &quot;April&quot;
+   {{Cl|CASE}} 5: Moon$ = &quot;May&quot;
+   {{Cl|CASE}} 6: Moon$ = &quot;June&quot;
+   {{Cl|CASE}} 7: Moon$ = &quot;July&quot;
+   {{Cl|CASE}} 8: Moon$ = &quot;August&quot;
+   {{Cl|CASE}} 9: Moon$ = &quot;September&quot;
+   {{Cl|CASE}} 10: Moon$ = &quot;October&quot;
+   {{Cl|CASE}} 11: Moon$ = &quot;November&quot;
+   {{Cl|CASE}} 12: Moon$ = &quot;December&quot;
+{{Cl|END SELECT}}
+{{Cl|PRINT}} &quot;Today is &quot; + WeekDay$(M, D, Y) + &quot;, &quot; + Moon$ + day$ + &quot;, &quot; + year$ + {{Cl|SPACE$}}(10)
+ 
+{{Cl|FUNCTION}} WeekDay$ (M, D, Y)            
+{{Cl|IF}} M &lt; 3 {{Cl|THEN}} M = M + 12: Y = Y - 1  'add 12 to Jan - Feb month, -1 year
+C = Y \ 100: Y = Y {{Cl|MOD}} 100           'split century and year number
+S1 = (C \ 4) - (2 * C) - 1           'century leap
+S2 = (5 * Y) \ 4                     '4 year leap
+S3 = 26 * (M + 1) \ 10               'days in months
+WkDay = (S1 + S2 + S3 + D) {{Cl|MOD}} 7     'weekday total remainder 
+{{Cl|IF}} WkDay &lt; 0 {{Cl|THEN}} WkDay = WkDay + 7  'Adjust negative results to 0 to 6
+{{Cl|SELECT CASE}} WkDay
+   {{Cl|CASE}} 0: day$ = &quot;Sunday&quot;
+   {{Cl|CASE}} 1: day$ = &quot;Monday&quot;
+   {{Cl|CASE}} 2: day$ = &quot;Tuesday&quot;
+   {{Cl|CASE}} 3: day$ = &quot;Wednesday&quot;
+   {{Cl|CASE}} 4: day$ = &quot;Thursday&quot;
+   {{Cl|CASE}} 5: day$ = &quot;Friday&quot;
+   {{Cl|CASE}} 6: day$ = &quot;Saturday&quot;
+{{Cl|END SELECT}}
+WeekDay$ = day$
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+{{OutputStart}}
+06-02-2010
+Today is Wednesday, June 2, 2010
+{{OutputEnd}}  
+:'''NOTE:''' When using {{KW|DEFINT}} A-Z in the main program, place DEFINT A-Z before FUNCTION WeekDay$ line. 
+
+
+''See also:'' 
+
+* [[DATE$ (statement)]], [[TIME$]], [[TIME$ (statement)]]
+
+* [[VAL]], [[STR$]], [[MID$]], [[LEFT$]], [[IF...THEN]]
+
+
+
+{{PageNavigation}}

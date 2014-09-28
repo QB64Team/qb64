@@ -1,0 +1,96 @@
+Assault v2
+By Glenn Powell
+Readme Text
+
+Files needed:
+
+	ASSAULT.TXT   - This file
+	ASSAULT.BAS   - Program File
+	ASSAULT.CFG   - Configuration file
+	ASSAULT.SPR   - Sprite file
+	ASSAULT.KEY   - Key file (Do Not Edit)
+	ASSAULT.FNT   - Font file (Do Not Edit)
+	*******.BCK  - Background files for environments (should be in BACKGRND folder)
+	*******.SPR  - Sprite files for environments (should be in BACKGRND folder)
+	*******.WAV  - Wave files for high-quality sounds (should be in SOUND folder)
+
+
+Installation:
+
+Just put these files in your qbasic programs folder.  Make sure the WAV and BCK files are in their appropriate folders
+within the root directory.  You must then edit the program file to change the line:
+
+	CHDIR "c:\glenn\qb45\assault"
+
+to whatever directory you put the program in.
+Then run it and enjoy.
+
+
+Game Play:
+
+This is a game of weapons and destruction that relies upon the properties of physics as well as your skill.
+There can be up to 4 players on up to 4 teams playing at one time.  Each player controls a tank that is equiped with 
+various weapons.  You can set the amount of ammo for each of these devices in the Configuration.  You can also use
+the Configuration to set the amount of health you start with, player names, teams, control keys, and other options.
+
+At the top of the screen is the current player's info bar.  At the left side is the player's name.  To the right, is
+that player's health meter.  Right of the meter is a long rectangle with an arrow underneith it.  The rectangle is the
+player's fire power meter.  The arrow is the current wind factor (Wind affects projectiles, but not players jumping).
+At the far right is a picture of the player's current weapon selection.  To the left of this image is the amount of ammo
+for the selected weapon.  Under the weapon's image is the current setting number for that weapon.
+
+You move your tank with the Left and Right keys.  You can adjust you gun's aim with the Up and Down keys.  To select
+a weapon you can press F1 through F7.  Once you select a weapon you can adjust the setting on it
+by pressing 1, 2, or 3.  Here is a chart showing each weapon and what the setting is used for:
+
++-----+-----------------+-----------------------------+-----------------------------+
+| Key	| Weapon		| Description			| Setting				|
++-----+-----------------+-----------------------------+-----------------------------+
+| F1	| Cannon		| Basic cannon			| # of bullets per fire *	|
++-----+-----------------+-----------------------------+-----------------------------+
+| F2	| Grenade		| Grennade that bounces	 	| # of sec's before detonation|
++-----+-----------------+-----------------------------+-----------------------------+
+| F3	| Mine		| Trip mine			 	| Distance to be tripped  **	|
++-----+-----------------+-----------------------------+-----------------------------+
+| F4	| Digger		| Strange digging bullet 	| Nothing				| <- I want to get rid of these.
++-----+-----------------+-----------------------------+-----------------------------+    They don't usually work.
+| F5	| Flame Thrower	| Frys anything in it's way	| Length of flame			|
++-----+-----------------+-----------------------------+-----------------------------+
+| F6	| Booster Jump	| You can jump in the air	| Nothing (Maybe later)		|
++-----+-----------------+-----------------------------+-----------------------------+
+| F7	| Cluster Bomb	| Explodes into bullets	 	| # of bullets *			|
++-----+-----------------+-----------------------------+-----------------------------+
+
+	* The explosions from these weapons are larger if the setting # is smaller
+	** The benefit from a smaller trip radius is it will inflict more damage because it's closer to the player
+
+The Fire key launches each weapon except the Booster jump.  To jump use the Jump key and then hit it again while
+you are in the air to get another boost (You must have the Booster Jump readied, so hit F6).
+
+For the projectile weapons (Cannon, grenade, digger, and cluster), you hit the Fire key once and then a meter in the info
+bar will immediately start to go up.  Hit Fire again to launch the projectile with the force of the meter (If you let the
+meter go all the way up, it will automatically fire with full force).
+
+There are various environments to fight in.  You can also make your own for levels to fight in.  If you
+can't figure out how to do this, e-mail me (powell98@pacbell.net) for instructions.  I have included an example level
+called "HILL", so check it out (Only edit the HILL.LVL file, the "HILL.TRF" is a BSAVE image).
+You can also e-mail me for any questions, comments, or just to chat.  I can help you to make changes such as new weapons
+which are actually really easy to implement.
+
+<!!! WARNING !!!>
+If the game uses too much memory, I have another low-grade version that uses a lot less.  There are no background images,
+or high-quality sounds, but it is still fun.  E-mail me for more info.
+
+
+Known Tweaks:
+
+(Sorry my code isn't commented, but I will comment it soon)
+
+- The grenades and player jumping work decently, but it would be nice if they worked better.
+
+- The digger needs a lot of work, but if you can figure this one out on your own, you are a god!  E-mail me for some
+tips and ideas.
+
+- E-mail me any other bugs that you find.
+
+Thanks, have fun!

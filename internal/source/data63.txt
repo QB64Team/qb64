@@ -1,0 +1,23 @@
+qbs*oldstr3074=NULL;
+if(_SUB_LINEINPUT3LOAD_STRING_F->tmp||_SUB_LINEINPUT3LOAD_STRING_F->fixed||_SUB_LINEINPUT3LOAD_STRING_F->readonly){
+oldstr3074=_SUB_LINEINPUT3LOAD_STRING_F;
+if (oldstr3074->cmem_descriptor){
+_SUB_LINEINPUT3LOAD_STRING_F=qbs_new_cmem(oldstr3074->len,0);
+}else{
+_SUB_LINEINPUT3LOAD_STRING_F=qbs_new(oldstr3074->len,0);
+}
+memcpy(_SUB_LINEINPUT3LOAD_STRING_F->chr,oldstr3074->chr,oldstr3074->len);
+}
+int32 *_SUB_LINEINPUT3LOAD_LONG_L=NULL;
+if(_SUB_LINEINPUT3LOAD_LONG_L==NULL){
+_SUB_LINEINPUT3LOAD_LONG_L=(int32*)mem_static_malloc(4);
+*_SUB_LINEINPUT3LOAD_LONG_L=0;
+}
+byte_element_struct *byte_element_3075=NULL;
+if (!byte_element_3075){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3075=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3075=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3076=NULL;
+if (!byte_element_3076){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3076=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3076=(byte_element_struct*)mem_static_malloc(12);
+}

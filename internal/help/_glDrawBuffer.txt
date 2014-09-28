@@ -1,0 +1,63 @@
+'''_glDrawBuffer:''' specify which color buffers are to be drawn into
+
+
+{{PageSyntax}}
+
+  SUB _glDrawBuffer (BYVAL mode AS _UNSIGNED LONG)
+  void '''_glDrawBuffer'''(GLenum {{Parameter|mode}});
+
+
+; mode
+: Specifies up to four color buffers to be drawn into. Symbolic constants {{KW|_GL_NONE}}, {{KW|_GL_FRONT_LEFT}}, {{KW|_GL_FRONT_RIGHT}}, {{KW|_GL_BACK_LEFT}}, {{KW|_GL_BACK_RIGHT}}, {{KW|_GL_FRONT}}, {{KW|_GL_BACK}}, {{KW|_GL_LEFT}}, {{KW|_GL_RIGHT}}, and {{KW|_GL_FRONT_AND_BACK}} are accepted. The initial value is {{KW|_GL_FRONT}} for single-buffered contexts, and {{KW|_GL_BACK}} for double-buffered contexts.
+
+
+{{PageDescription}}
+
+When colors are written to the frame buffer, they are written into the color buffers specified by '''_glDrawBuffer'''. The specifications are as follows:
+
+; {{KW|_GL_NONE}}
+: No color buffers are written.
+; {{KW|_GL_FRONT_LEFT}}
+: Only the front left color buffer is written.
+; {{KW|_GL_FRONT_RIGHT}}
+: Only the front right color buffer is written.
+; {{KW|_GL_BACK_LEFT}}
+: Only the back left color buffer is written.
+; {{KW|_GL_BACK_RIGHT}}
+: Only the back right color buffer is written.
+; {{KW|_GL_FRONT}}
+: Only the front left and front right color buffers are written. If there is no front right color buffer, only the front left color buffer is written.
+; {{KW|_GL_BACK}}
+: Only the back left and back right color buffers are written. If there is no back right color buffer, only the back left color buffer is written.
+; {{KW|_GL_LEFT}}
+: Only the front left and back left color buffers are written. If there is no back left color buffer, only the front left color buffer is written.
+; {{KW|_GL_RIGHT}}
+: Only the front right and back right color buffers are written. If there is no back right color buffer, only the front right color buffer is written.
+; {{KW|_GL_FRONT_AND_BACK}}
+: All the front and back color buffers (front left, front right, back left, back right) are written. If there are no back color buffers, only the front left and front right color buffers are written. If there are no right color buffers, only the front left and back left color buffers are written. If there are no right or back color buffers, only the front left color buffer is written.
+If more than one color buffer is selected for drawing, then blending or logical operations are computed and applied independently for each color buffer and can produce different results in each buffer.
+
+Monoscopic contexts include only ''left'' buffers, and stereoscopic contexts include both ''left'' and ''right'' buffers. Likewise, single-buffered contexts include only ''front'' buffers, and double-buffered contexts include both ''front'' and ''back'' buffers. The context is selected at GL initialization.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|mode}} is not an accepted value.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if none of the buffers indicated by {{Parameter|mode}} exists.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_DRAW_BUFFER}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glBindFramebuffer}}, {{KW|_glBlendFunc}}, {{KW|_glColorMask}}, {{KW|_glDrawBuffers}}, {{KW|_glLogicOp}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

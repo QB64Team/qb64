@@ -1,0 +1,74 @@
+The '''_MOUSEINPUT''' function MUST be used to monitor any new mouse positions, button presses or movements of the scroll wheel. 
+
+
+{{PageSyntax}}
+:{{Parameter|infoexist}} = '''_MOUSEINPUT'''
+
+
+''Usage:''
+* Returns -1 if new mouse information is available, otherwise it returns 0.
+* MUST be called to read ANY of the other mouse functions! The function will not miss any mouse input even during an [[INPUT]] entry.
+* Use in a loop to monitor the mouse buttons, scroll wheel and coordinate positions.
+* To clear all previous mouse data, use [[_MOUSEINPUT]] in a loop until it returns 0.
+
+
+''Example 1:'' How to use a _MOUSEINPUT loop to locate [[PSET]] positions on a screen using a right mouse button click.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+{{Cl|DO...LOOP|DO}} ' main program loop
+
+  ' your program code
+
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}'mouse status changes only
+    x = {{Cl|_MOUSEX}}
+    y = {{Cl|_MOUSEY}}
+    {{Cl|IF...THEN|IF}} x &gt; 0 {{Cl|AND (boolean)|AND}} x &lt; 640 {{Cl|AND (boolean)|AND}} y &gt; 0 {{Cl|AND (boolean)|AND}} y &lt; 480 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(2) {{Cl|THEN}}
+        {{Cl|PSET}} (x, y), 15
+        {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} x, y
+      {{Cl|END IF}}
+    {{Cl|END IF}}
+  {{Cl|LOOP}} 
+
+  ' your program code
+
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Clearing any mouse data read before or during an INPUT entry. Press &quot;I&quot; to enter INPUT.
+{{CodeStart}}
+{{Cl|PRINT}} &quot;Press I to enter input! Press Q to quit&quot;
+{{Cl|DO...LOOP|DO}} 
+  K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}) 
+  {{Cl|DO...LOOP|DO}}  
+    {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) = -1 {{Cl|THEN}} {{Cl|PRINT}} &quot;*&quot;    'indicates a mouse click event
+  {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+  {{Cl|IF...THEN|IF}} K$ = &quot;Q&quot; {{Cl|THEN}} {{Cl|END}} 
+  {{Cl|IF...THEN|IF}} K$ = &quot;I&quot; {{Cl|THEN}}                                          'press I to enter text
+    {{Cl|INPUT}} &quot;Click the mouse and enter something: &quot;, entry$   'enter some text 
+    {{Cl|GOSUB}} Clickcheck                                        'clear mouse data
+  {{Cl|END IF}} 
+{{Cl|LOOP}} 
+
+{{Cl|END}} 
+
+Clickcheck: 
+count = 0 
+{{Cl|DO...LOOP|DO}}  
+  count = count + 1 
+{{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+{{Cl|PRINT}} count        'returns the number of loops before mouse data is cleared
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+:''Explanation:'' Click the mouse a few times while entering [[INPUT]] text. When Enter is pressed, the number of loops are displayed.
+
+
+{{PageSeeAlso}}
+* [[_MOUSEX]], [[_MOUSEY]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
+* [[_MOUSESHOW]], [[_MOUSEHIDE]], [[_MOUSEMOVE]]
+* [[Controller_Devices]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,75 @@
+The [[PRINT (file statement)|PRINT #]] statement prints numeric or string expressions to a file, port or device.
+
+
+{{PageSyntax}}
+::: '''PRINT #''fileNumber%''''', [ [{{Parameter|expression}}] [{;|,] ... ]
+
+
+{{Parameters}}
+* {{Parameter|fileNumber%}} is the file number of a file or device opened for writing. See {{KW|OPEN}}.
+* {{Parameter|expression}} is a numeric or string expression to be written to the file. Quotes will be removed from strings.
+* The print statement can be followed by a [[semicolon]] to stop the print cursor or a [[comma]] to tab the next print.
+
+
+''Usage:''
+* [[STRING]] values will be stripped of leading and trailing quotation marks when printed to the file. Use [[CHR$]](34) to add quotes to a file.
+* {{Parameter|separator}} is used to separate multiple expressions and specifies how the file cursor is to be moved before writing the next expression. It can be one of the following:
+** semi-colon (;) - specifies that the print cursor stop immediately after the print. A subsequent print will start there.
+** comma (,) - specifies that the file cursor is to move to the next 14-column tab-stop. If the file cursor is at column 56 or greater, it is moved to the next file row at column 1.
+* If {{Parameter|separator}} is not used at the end of the expression list, the file cursor moves to the next file row at column 1.
+* PRINT # can use the '''+ concatenation''' operator or semicolons to combine strings.
+* [[SPC]]({{Parameter|n%}}) - specifies that {{Parameter|n%}} space characters will be written in a print.
+* [[TAB]]({{Parameter|column%}}) - specifies that the file cursor is to move to a column number {{Parameter|column%}}. If the file cursor is beyond that column, it is moved to that column on the next file row.
+* When printing literal or variable numerical values the following rules apply:
+** If the value is positive, the number is prefixed with a space character, otherwise, the number is prefixed with a negative sign (-).
+** If the value is an [[INTEGER]] (whole number), no decimal point or fractional part will be written.
+** If the value is not an integer (whole number) and has zero for a coefficient, no leading zero is written. For example, -0.123 is written as &quot;-.123 &quot;
+** If a numeric literal is in scientific notation, the number is also written in scientific notation. [[PRINT USING (file statement)|PRINT #, USING]] can return actual rounded numerical values in string form.
+** The numerical value is always followed by a space character unless [[STR$]] is used to convert it to a string value.
+* Whenever [[PRINT (file statement)|PRINT #]] moves the file cursor to a new file row, a carriage return character ({{KW|CHR$|CHR$(13)}}) followed by a line feed character ({{KW|CHR$|CHR$(10)}}) is written. The combination are referred to as the &quot;CRLF&quot; character.
+
+
+''Example:'' Prints data to a text file sequentially and reads it back to the program screen as one line of text.
+{{CodeStart}} '' ''
+filename$ = &quot;testfile.dat&quot; 
+x = 1: y = 2: z$ = &quot;Three&quot; 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
+
+{{Cl|PRINT (file statement)|PRINT}} #1, x, y, z$ 
+
+{{Cl|CLOSE}} #1 
+
+{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+
+K$ = {{Cl|INPUT$}}(1) 'press a key 
+
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #2 'opens a file to read it 
+
+{{Cl|LINE INPUT (file statement)|LINE INPUT}} #2, text$ 
+
+{{Cl|CLOSE}} #2 
+
+{{Cl|PRINT}} text$ 
+{{Cl|WRITE}} text$
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''File content:'' [[PRINT (file statement)|PRINT]] string file values will not include the enclosing quotation marks but can be read by [[LINE INPUT (file statement)|LINE INPUT]] as text.  
+{{TextStart}} 1             2            Three'' '' {{TextEnd}}
+: ''Screen output:'' [[PRINT]] string values will not display enclosing quotation marks. [[WRITE]] screen displays will.
+{{OutputStart}} 1             2            Three
+&quot; 1             2            Three&quot;
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[SPC]], [[SPACE$]], [[TAB]]
+* [[PRINT USING (file statement)|PRINT #, USING]]
+* [[PRINT]], [[PRINT (TCP/IP statement)]]
+* [[WRITE (file statement)|WRITE #]], [[INPUT (file statement)|INPUT #]]
+* [[LINE INPUT (file statement)|LINE INPUT #]]
+* [[OPEN]], [[LPRINT]], [[WRITE]]
+
+
+{{PageNavigation}}

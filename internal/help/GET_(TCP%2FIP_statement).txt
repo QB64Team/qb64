@@ -1,0 +1,48 @@
+GET (in regard to TCP/IP) reads unformatted(raw) data from an open connection, opened with [[_OPENCLIENT]], [[_OPENHOST]] or [[_OPENCONNECTION]] '''QB64''' functions.
+
+
+{{PageSyntax}}
+::::::::''Syntax 1:'' GET #handle, ,b$
+
+*Reads any available data into variable length string b$ (b$'s length is adjusted to the number of bytes read, so checking EOF is completely unnecessary) using the handle return value from the function used.
+
+
+::::::::''Syntax 2:'' GET #handle, ,x%
+
+*Reads an integer, if 2 bytes are available, they are read into x%, if not then nothing is read and EOF(handle) will return -1 (and x%'s value will be undefined) using the handle return value from the function used.
+
+
+:::::'''Communicating using unformatted/raw streamed data:'''
+* Benefit: Communicate with any TCP/IP compatible protocol (eg. FTP, HTTP, web-pages, etc)
+* Disadvantage: Streamed data has no 'message length' as such, just a continuous bunch of bytes all in a row. Some messages get fragmented and parts of messages can (and often do) arrive at different times. 
+* The position parameter(between the commas) is not used in TCP/IP statements.
+:::::'''Your program MUST cater for these situations manually.'''
+
+
+''Example:''
+
+{{CodeStart}}
+ {{Cl|PUT|PUT #}}c, , a$ ' sends data 
+ {{Cl|GET|GET #}}o, , b$ ' reads any available data into variable length string b$  
+ {{Cl|GET|GET #}}o, , x% ' if 2 bytes are available, they are read into x%
+{{CodeEnd}}
+
+''Explanation:'' 
+* Data could be a string, variable array, user defined [[TYPE]], etc.
+* b$'s length is adjusted to the number of bytes read. Checking [[EOF]](o) is  unnecessary. 
+* If 2 bytes are not available for the x% integer then nothing is read and [[EOF]](o) will return -1 
+
+
+
+''See the examples in [[_OPENCLIENT]] or [[Email Demo]].''
+
+
+
+''See also:'' 
+* [[PUT (TCP/IP statement)]], [[INPUT (TCP/IP statement)]]
+* [[_OPENCLIENT]], [[_OPENHOST]]
+* [[_OPENCONNECTION]], [[GET|GET #]]
+* [[IP Configuration]], [[WGET]] (HTTP and FTP file transfer)
+
+
+{{PageNavigation}}

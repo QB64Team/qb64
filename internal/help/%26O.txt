@@ -1,0 +1,41 @@
+The '''&amp;O''' prefix denotes that a integer value is expressed in an Octal base 8 format.
+
+
+{{PageSyntax}} a&amp; = &amp;O12345671234
+
+
+* The base eight numbering system only uses octal digit values of 0 to 7.
+* Leading zero values '''can''' be omitted as they add nothing to the return value.
+* Decimal values returned can be any '''signed''' [[INTEGER]], [[LONG]] integer, or [[_INTEGER64]] value so use those type of variables when converting directly as shown above. The program [[ERROR Codes|&quot;overflow&quot;]] error limits are listed as:
+:: * [[INTEGER]]: 6 octal digits or a decimal value range from -32,768 to 32,767
+:: * [[LONG]]: 11 octal digits or a decimal value range from -2,147,483,648 to 2,147,483,647
+:: * [[_INTEGER64]]: 22 octal digits or decimal values from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807.
+* [[LONG]] Octal values can be expressed by appending &amp; after the number. Example: &amp;O100000&amp; = 32768
+
+
+''Example:'' The maximum octal values of decimal value  -1 in each numerical type are:
+{{CodeStart}}
+c&amp;&amp; = -1: d&amp; = -1: e% = -1: f%% = -1
+oc$ = {{Cl|OCT$}}(f%%)
+{{Cl|PRINT}} &quot;Max octal {{Cl|_BYTE}} = &quot;; oc$; &quot; with&quot;; {{Cl|LEN}}(oc$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;O}}&quot; + oc$)
+oc$ = {{Cl|OCT$}}(e%)
+{{Cl|PRINT}} &quot;Max octal {{Cl|INTEGER}} = &quot;; oc$; &quot; with&quot;; {{Cl|LEN}}(oc$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;O}}&quot; + oc$)
+oc$ = {{Cl|OCT$}}(d&amp;)
+{{Cl|PRINT}} &quot;Max octal {{Cl|LONG}} = &quot;; oc$; &quot; with&quot;; {{Cl|LEN}}(oc$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;O}}&quot; + oc$)
+oc$ = {{Cl|OCT$}}(c&amp;&amp;)
+{{Cl|PRINT}} &quot;Max octal {{Cl|_INTEGER64}} = &quot;; oc$; &quot; with&quot;; {{Cl|LEN}}(oc$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;O}}&quot; + oc$) '' ''
+{{CodeEnd}}
+{{OutputStart}}Max octal _BYTE = 377 with 3 digits = 255
+Max octal INTEGER = 177777 with 6 digits = 65535
+Max octal LONG = 37777777777 with 11 digits = 4294967295
+Max octal _INTEGER64 = 1777777777777777777777 with 22 digits =-1
+{{OutputEnd}}
+
+
+''See also:''
+* [[OCT$]], [[HEX$]], [[VAL]]
+* [[&amp;B]] (binary), [[&amp;H]] (hexadecimal)
+* [[Base Comparisons]]
+
+
+{{PageNavigation}}

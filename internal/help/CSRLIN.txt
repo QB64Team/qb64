@@ -1,0 +1,46 @@
+The '''CSRLIN''' function returns the current text row position of the [[PRINT]] cursor.
+
+
+
+::::::::{{PageSyntax}} row% = CSRLIN
+
+
+{{PageDescription}}
+*  The value returned is within the range of 1 to the current number of rows in the [[SCREEN]] mode used.
+*  In screen modes that support page flipping, the [[CSRLIN]] function returns the vertical coordinate of the cursor on the active page.
+* x = [[POS]](0) returns the column location of the cursor.
+
+
+''Example:'' A semicolon stops the print cursor immediately after the print.
+{{CodeStart}} '' ''
+  LOCATE 5, 5: PRINT &quot;HELLO &quot;;
+  Y = {{Cl|CSRLIN}} 'save the row
+  X = {{Cl|POS}}(0) 'save the column  
+  LOCATE 10, 10: PRINT &quot;WORLD&quot;
+  LOCATE Y, X 'restore saved position
+  PRINT &quot;GOODBYE&quot; '' ''
+{{CodeEnd}}
+
+{{OutputStart}}
+
+
+
+
+         HELLO GOODBYE
+
+
+
+
+         WORLD
+
+
+{{OutputEnd}}
+:''Explanation:'' &quot;HELLO &quot; is printed and the semicolon stops the cursor immediately after the text. The '''CSRLIN''' variable records the current print cursor's text row in Y. The [[POS]] function records the current print cursor's text column in X. The second [[PRINT]] statement displays the comment &quot;WORLD&quot; on the 10th line of the screen. The last [[LOCATE]] statement restores the position of the cursor to the original line and column immediately after the first print.
+
+
+''See also:'' 
+* [[SCREEN]], [[LOCATE]], [[POS]]
+* [[_PRINTSTRING]] (graphic print)
+
+
+{{PageNavigation}}

@@ -1,0 +1,65 @@
+The {{KW|RMDIR}} statement deletes an empty directory using a designated path relative to the present path location.
+
+
+{{PageSyntax}}
+:{{KW|RMDIR}} {{Parameter|directory$}}
+
+
+{{PageDescription}}
+* {{Parameter|directory$}} is a relative path to the directory to delete.
+* Directory path must be a literal or variable [[STRING]] value designating the folder to be deleted.
+* If the directory contains files or folders, a [[ERROR Codes|file/path access error]] will occur.
+* If the directory path cannot be found, a [[ERROR Codes|path not found]] error occurs.
+* '''WARNING: Use this statement carefully! There is no prompt for permission to continue!'''
+
+
+{{PageExamples}}
+{{CodeStart}}
+
+{{Cl|ON ERROR|ON ERROR GOTO}} ErrorHandler
+ DO
+ ERRcode = 0
+ {{Cl|INPUT}} &quot;Enter path and name of directory to delete: &quot;; directory$
+ IF {{Cl|LEN}}(directory$) THEN      'valid user entry or quits
+   {{Cl|RMDIR}} directory$    'removes empty folder without a prompt
+   IF ERRcode = 0 THEN PRINT &quot;Folder &quot;; directory$; &quot; removed.&quot;
+ END IF
+ LOOP UNTIL ERRcode = 0 OR LEN(directory$) = 0
+{{Cl|SYSTEM}}
+
+
+ErrorHandler:
+ERRcode = {{Cl|ERR}}    'get error code returned
+{{Cl|SELECT CASE}} ERRcode
+{{Cl|CASE}} 75
+    {{Cl|PRINT}} directory$ + &quot; is not empty!&quot;
+{{Cl|CASE}} 76
+    {{Cl|PRINT}} directory$ + &quot; does not exist!&quot;
+{{Cl|CASE ELSE}}
+    {{Cl|PRINT}} &quot;Error&quot;; ERRcode; &quot;attempting to delete &quot; + directory$
+{{Cl|END SELECT}}
+{{Cl|PRINT}}
+{{Cl|RESUME|RESUME NEXT}}
+
+{{CodeEnd}}
+
+: This Windows-specific output from two runs of the above program is typical, though your output may vary. User-entered text is in italics.
+
+{{OutputStart}}
+
+Enter path and name of directory to delete: ''Some\Folder\That\Doesnt\Exist''
+Some\folder\That\Doesnt\Exist does not exist!
+
+Enter path and name of directory to delete: ''C:\temp''
+C:\temp is not empty!
+
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[MKDIR]], [[CHDIR]]
+* [[KILL]], [[FILES]]
+* [[DOS]], [[Batch Files]]
+
+
+{{PageNavigation}}

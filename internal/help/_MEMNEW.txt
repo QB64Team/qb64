@@ -1,0 +1,47 @@
+The '''_MEMNEW''' function allocates new memory and returns a [[_MEM]] memory block referring to it.
+
+
+{{PageSyntax}}
+::: memory_block = '''_MEMNEW(''byte_size'')'''
+
+
+* The ''memory block'' value created holds the starting OFFSET, SIZE, TYPE and ELEMENTSIZE. 
+* The ''byte size'' parameter is the desired byte size of the memory block.
+* All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable type.
+* When a new memory block is created the memory .TYPE value will be 0.(this may be changeable in the future)
+* '''If the read only memory block .SIZE is 0, the memory block was not created!'''
+
+
+
+''Example:'' Shows how [[SINGLE]] numerical values can be passed, but unfixed [[STRING]] lengths cannot get the value.
+{{CodeStart}} '' ''
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+{{Cl|DIM}} f {{Cl|AS}} {{Cl|STRING}} * 5
+m = {{Cl|_MEMNEW}}(5) 'create new memory block of 5 bytes
+a = 12345.6
+{{Cl|_MEMPUT}} m, m.OFFSET, a 'put single value
+{{Cl|_MEMGET}} m, m.OFFSET, b 'get single value
+{{Cl|PRINT}} &quot;b = &quot;; b
+c$ = &quot;Doggy&quot;
+{{Cl|_MEMPUT}} m, m.OFFSET, c$ 'put 5 byte string value
+{{Cl|_MEMGET}} m, m.OFFSET, d$ 'get unfixed length string value
+{{Cl|_MEMGET}} m, m.OFFSET, f  'get 5 byte string value
+e$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 5) 'get 5 byte string value
+{{Cl|PRINT}} &quot;d$ = &quot;; d$; {{Cl|LEN}}(d$) 'prints empty string
+{{Cl|PRINT}} &quot;e$ = &quot;; e$; {{Cl|LEN}}(e$)
+{{Cl|PRINT}} &quot;f = &quot;; f; {{Cl|LEN}}(f) '' ''
+{{CodeEnd}}
+{{OutputStart}}b =  12345.6
+d$ =  0
+e$ = Doggy 5
+f = Doggy 5 {{OutputEnd}}
+
+
+
+''See also:''
+* [[_MEM]], [[_MEMPUT]]
+* [[_MEMGET]], [[_MEMGET (function)]]
+* [[_MEMFREE]]
+
+
+{{PageNavigation}}

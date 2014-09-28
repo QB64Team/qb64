@@ -1,0 +1,69 @@
+The {{KW|CHDIR}} statement changes the program's location from one working directory to another by specifying a literal or variable [[STRING]] path.
+
+
+{{PageSyntax}}
+:{{KW|CHDIR}} {{Parameter|path$}}
+
+
+{{PageDescription}}
+* Path directory names must use the 8 letter maximum DOS name in Qbasic. '''QB64''' can use long path names.
+* {{Parameter|path$}} is the new directory path the program will work in.
+* {{Parameter|path$}} can be an absolute(starting from root drive) or relative(starting from the present program location) path.
+* If {{Parameter|path$}} specifies a non-existing path, a [[ERROR Codes|&quot;Path not found&quot;]] error will occur.
+* '''A QB64 [[SHELL]] statement cannot currently use &quot;CD &quot; or &quot;CHDIR &quot; + path$ to change the directory using DOS.'''
+* '''WARNING: The new program path location must have the relevant files the program requires to run properly!'''
+
+
+''Example 1:'' The following code is MS DOS and Windows-specific:
+{{CodeStart}} '' ''
+{{Cl|CHDIR}} &quot;C:\&quot;      'change to the root drive C (absolute path)
+
+{{Cl|CHDIR}} &quot;DOCUME~1&quot; 'change to &quot;C:\Documents and Settings&quot; from root drive (relative path) 
+
+{{Cl|CHDIR}} &quot;..\&quot;      'change back to previous folder one up '' ''
+{{CodeEnd}}
+:''Details:'' There is an 8 letter path folder name limit in Qbasic. For folder names longer than eight characters use the first 6 letters(remove spaces) with a tilde(~) and a number(normally 1). '''QB64''' can use long or short(8.3 notation) file and path names! ''Remember that the program location has actually been moved so files in the original location must be accessed using a path.''
+
+
+''Example 2:'' Using the Windows API to find the current program's name and root path. The PATH$ is a shared function value.
+{{CodeStart}} '' ''
+{{Cl|_TITLE}} &quot;My program&quot;
+
+{{Cl|PRINT}} TITLE$
+
+{{Cl|PRINT}} PATH$
+
+
+{{Cl|FUNCTION}} TITLE$ ''=== SHOW CURRENT PROGRAM
+{{Cl|SHARED}} PATH$           'optional path information shared with main module only
+{{Cl|DECLARE LIBRARY}}        'Directory Information using KERNEL32 provided by Dav
+  {{Cl|FUNCTION}} GetModuleFileNameA ({{Cl|BYVAL}} Module {{Cl|AS}} {{Cl|LONG}}, FileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+FileName$ = {{Cl|SPACE$}}(256)
+Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))  '0 designates the current program
+{{Cl|IF...THEN|IF}} Result {{Cl|THEN}}             'Result returns the length or bytes of the string information
+  PATH$ = {{Cl|LEFT$}}(FileName$, Result)
+  start = 1
+  DO
+    posit = {{Cl|INSTR}}(start, PATH$, &quot;\&quot;)
+    {{Cl|IF...THEN|IF}} posit {{Cl|THEN}} last = posit
+    start = posit + 1
+  {{Cl|LOOP}} {{Cl|UNTIL}} posit = 0
+  TITLE$ = {{Cl|MID$}}(PATH$, last + 1)
+  PATH$ = {{Cl|LEFT$}}(PATH$, last)
+{{Cl|ELSE}} TITLE$ = &quot;&quot;: PATH$ = &quot;&quot;
+{{Cl|END IF}}
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+: '''Note:''' The program's [[_TITLE]] name may be different from the actual program module's file name returned by Windows!
+
+
+{{PageSeeAlso}}
+* [[SHELL]], [[FILES]]
+* [[MKDIR]], [[RMDIR]]
+* [[DOS]], [[Batch Files]]
+* [[C_Libraries#Console_Window|C Console Library]]
+
+
+{{PageNavigation}}

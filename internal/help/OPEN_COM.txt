@@ -1,0 +1,102 @@
+The '''OPEN COM''' statement is used to access a computer's Serial port COM1 or COM2  address using an OPEN statement.
+
+
+
+{{PageSyntax}}
+: [[OPEN]] &quot;COMn: ''Speed'', ''Parity'', ''Bits'', ''Stopbit'', ['''Options''']&quot; [FOR mode] AS #''P'' [LEN = ''bytesize'']
+
+		   
+* '''QB64''' can open any [[COM(n)|COM''n'']] port number. Qbasic could only open COM1 or COM2, but 3 and 4 could be swapped.
+* See Windows System '''Device Manager''' for COM port numbers and port addresses &amp;H3F8, &amp;H2F8, &amp;H3E8 and &amp;H2E8.
+* Four commas are required after the Speed, Parity, Bits, and Stopbit, even if none of the Options are used.
+* ''Speed''(baud rate): 50, 150, 300, 600, 1200, 1800, 2400, '''9600'''(QB max), 19200 or '''115200'''('''QB64''' max) maximum.
+* ''Parity'': '''N''' (none), E (even), O (odd), S (space) or M (mark). Note: If 8 bits use parity N for numerical data!
+* ''Bits'' = number of bits/byte: Valid numbers: 5, 6, 7 or '''8'''
+* ''Stopbit'' = number of stop bits: Valid numbers: '''1''', 1.5 or 2
+* Other [[OPEN]] ''options'' are optional and in any order separated by commas within the OPEN command [[STRING|string]].(See list below)
+* The optional FOR access ''mode'' can be [[OUTPUT]], [[INPUT (file mode)|INPUT]] or [[RANDOM]] (default mode when no FOR statement is used). 
+* '''Currently, QB64 only supports [[OPEN]] FOR [[RANDOM]] access using the [[GET]]/[[PUT]] commands in [[BINARY|BIN]] mode!'''
+* '''Use the BIN option listed below for [[BINARY]] byte mode port access!'''
+* The [[LEN]] statement is also optional. The default record size is 512 bytes when not used.
+* Use the [[LOC]](portnumber) function to determine that there is data in the receive buffer when the value is greater than 0.
+* OPEN AS number can use a [[FREEFILE]] value. Numbers used by files already open '''cannot''' be used by OPEN COM!
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+&lt;center&gt;'''Additional COM port Options (separated by commas)'''&lt;/center&gt;
+::* ASC : [[ASCII]] byte mode. End of line = [[CHR$]](13). End of file = CHR$(26)
+::* BIN : [[Binary]] byte mode. Default mode if ASC is not used(option not required).
+:: ''Below m is the timeout in milliseconds 1 to 65535. Zero ignores a timeout. Default m = 1000 :''
+::* CD[m] : Time until timeout of DCD (Carrier Detect) line in. CD0 ignores timeouts.
+::* CS[m] : Time until timeout of CTS (Clear to Send) line in. CS0 ignores timeouts.
+::* DS[m] : Time until timeout of DSR (Data Set Ready) line in. DS0 ignores timeouts.
+::* OP[m] : Time until data lines become active. If timeout then OPEN fails! OP0 ignores timeouts.
+:::: '''If any timeouts occur the OPEN will fail or port access will stop!'''
+
+::* RB[b] : Size of receive buffer in bytes when used. Default when not used = 512 bytes
+::* TB[b] : Size of transmit buffer in bytes when used. Default when not used = 512 bytes
+::* RS  : Supress detection of Request to Send (RTS) line.
+
+
+&lt;center&gt;'''Qbasic Description NOT Currently supported in QB64!'''&lt;/center&gt;
+*[[INPUT (file mode)|INPUT]] mode can use [[INPUT (file statement)|INPUT #]] or [[INPUT$]]. [[OUTPUT]] mode can use [[PRINT (file statement)|PRINT #]] or [[PRINT USING (file statement)|PRINT #, USING]].  
+*[[RANDOM]] or [[BINARY|BIN]] modes can use [[INPUT (file statement)|INPUT #]], [[INPUT$]], [[PRINT (file statement)|PRINT #]], [[GET]] or [[PUT]]. BIN cannot set a buffer size!
+* Note: If random use [[LEN]] = to set size of random buffer(default LEN = 128). Use multiples of 128 for larger buffers.
+* NOTE: NT or XP computers need a program like [http://www.beyondlogic.org/porttalk/porttalk.htm PortTalk] to access COM or other ports with Qbasic only!
+
+
+''Example 1:'' Checking to see if a COM port exists. If the port does not exist Qbasic will cause a Windows access error! 
+{{CodeStart}} '' ''
+{{Cl|ON ERROR}} {{Cl|GOTO}} Handler 
+FF = {{Cl|FREEFILE}}
+comPort$ = &quot;COM1:&quot;                         'try a COM port number that does not exist
+{{Cl|CONST}} comMode$ = &quot;9600,N,8,1,CS0,DS0&quot;      'Use 0 to avoid timeouts 
+{{Cl|OPEN}} comPort$ + comMode$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} FF 
+{{Cl|IF...THEN|IF}} errnum = 0 {{Cl|THEN}} {{Cl|PRINT}} &quot;COM exists!
+
+K$ = {{Cl|INPUT$}}(1) 
+{{Cl|END}} 
+
+Handler: 
+errnum = {{Cl|ERR}} 
+{{Cl|PRINT}} &quot;Error:&quot;; errnum
+{{Cl|RESUME}} {{Cl|NEXT}} 
+{{CodeEnd}}
+: ''Explanation:'' QB64 may create error 68 if COM is not found. Use a zero CD, CS, DS or OP timeout value to avoid COM timeouts!
+
+
+''Example 2:'' Opening a COM port with the BIN, CS0 and DS0 options in '''QB64'''.
+{{CodeStart}} '' ''
+{{Cl|DIM}} bytestr {{Cl|AS}} {{Cl|STRING}} * 1  'one byte transfers
+{{Cl|INPUT}} &quot;{{Cl|COM}} port number #&quot;, port$  'any COM port number available
+
+{{Cl|OPEN}} &quot;{{Cl|COM}}&quot; + port$ + &quot;:9600,N,8,1,BIN,CS0,DS0&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1
+{{Cl|DO}} 'main loop
+    'receive data in buffer when LOC &gt; 0
+    {{Cl|IF}} {{Cl|LOC}}(1) {{Cl|THEN}} 
+       {{Cl|GET}} #1, , bytestr
+       {{Cl|PRINT}} &quot;[&quot; + bytestr + &quot;]&quot;;
+    {{Cl|END IF}}
+    'transmit (send)
+    k$ = {{Cl|INKEY$}}  
+    {{Cl|IF}} {{Cl|LEN}}(k$) = 1 {{Cl|THEN}}
+       k = {{Cl|ASC}}(k$)
+       {{Cl|IF}} k &gt;= 32 {{Cl|THEN}}     'ignore control key codes
+           {{Cl|PRINT}} &quot;&gt;&quot; + k$ + &quot;&lt;&quot;;
+           bytestr = k$: {{Cl|PUT}} #1, , bytestr
+       {{Cl|END IF}}
+    {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27)
+{{Cl|CLOSE}} #1: {{Cl|PRINT}} &quot;Finished!&quot; '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+* [[INPUT$]], [[PRINT (file statement)|PRINT #]]
+* [[LOC]], [[INKEY$]], [[OPEN]]
+* [[GET|GET #]], [[PUT|PUT #]]
+* [[Port Access Libraries]] {{text|(COM or LPT)}}
+* [[Windows_Libraries#Windows_Ports|Enumerating Windows Ports]]
+
+
+{{PageNavigation}}

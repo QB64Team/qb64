@@ -1,0 +1,49 @@
+The '''_CONTROLCHR''' metacommand can be used to turn OFF control character attributes and allow them to be printed.
+
+
+{{PageSyntax}}
+
+::: '''_CONTROLCHR''' {'''OFF'''|ON}
+
+
+{{Parameters}}
+* Keyword must be used with '''OFF''' or '''ON'''(default) if previously turned OFF.
+
+
+''Usage:''
+* The [[OFF]] statement allows control characters 0 to 31 to be printed or used as normal text characters.
+* The default [[ON]] statement allows control characters to be used as control commands. Some characters will not print.
+* If the command is never used in a QB64 program, control characters may format text or not print.
+* '''Note:''' File prints may be affected also when using Carriage Return or Line Feed/Form Feed formatting!
+
+
+''Example:'' Printing the 255 [[ASCII]] characters in [[SCREEN]] 0 with 32 colors.
+{{CodeStart}} '' ''
+{{Cl|DIM}} i {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+{{Cl|WIDTH}} 40, 25
+{{Cl|CLS}}
+{{Cl|_CONTROLCHR}} OFF
+i = 0
+DO
+ {{Cl|PRINT}} {{Cl|CHR$}}(i);
+ i = i + 1
+ {{Cl|IF...THEN|IF}} (i {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) = 0 {{Cl|THEN}} {{Cl|PRINT}}
+{{Cl|LOOP}} {{Cl|WHILE}} i
+{{Cl|LOCATE}} 1, 20
+DO
+ {{Cl|COLOR}} i {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F {{Cl|OR (boolean)|OR}} (i {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80) \ {{Cl|&amp;H}}8, (i {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}70) \ {{Cl|&amp;H}}10
+ {{Cl|PRINT}} {{Cl|CHR$}}(i);
+ i = i + 1
+ {{Cl|IF...THEN|IF}} (i {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) = 0 {{Cl|THEN}} {{Cl|LOCATE}} 1 + i \ {{Cl|&amp;H}}10, 20
+{{Cl|LOOP}} {{Cl|WHILE}} i
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+''See also:''
+* [[CHR$]], [[ASC]]
+* [[INKEY$]], [[_KEYHIT]]
+* [[ASCII]] {{text|(codes)}}
+
+
+{{PageNavigation}}

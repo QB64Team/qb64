@@ -1,0 +1,101 @@
+The {{KW|GET (graphics statement)|GET}} statement is used in graphics to store a box area image of the screen into an {{KW|INTEGER}} array.
+
+
+{{PageSyntax}} 
+::: '''GET (''column1'', ''row1'')-(''column2'', ''row2''), ''Array''('''[''index'']''')'''[, ''offscreen_color'']
+
+
+''[[Parameters]]:'' 
+* ''Column'' and ''row'' [[INTEGER]] coordinates for the box area must be on the screen except when using an ''offscreen color''.
+* [[INTEGER]] Array sizes must be large enough (use width * height of the box area + 4) to hold the data or an error will occur!
+* The [[arrays|array]] ''index'' offset is optional. If the offset is zero the brackets may be empty (Qbasic does not require the brackets).
+* The ''off screen color'' pixels will be returned as the designated color when part of an image is off screen in QB64 only.
+
+
+''Usage:''
+* A graphic screen mode MUST be used! See the [[SCREEN]] statement for graphic screen dimensions.
+* '''QB64''' GET statements can use coordinates off of the screen when an ''off screen color'' is designated.
+* The GET box coordinates are set just like a {{KW|LINE}} box statement is placed. You can use a box to find the correct GET area.
+* Once GET has placed the pixel image data in the array, PUT the image or BSAVE it to a file.
+* Once the image is stored in an array {{KW|PUT (graphics statement)|PUT}} can be used to place the image on the screen.
+* SCREEN 12 can only GET 1/3 of a full SCREEN 12 image (QB64 can save entire screen). Rows would increment 160 each GET. 
+* A [[_SOURCE]] [[handle]] can be set to GET image areas other than the ones on the current screen. Use [[_DEST]] to [[PUT (graphics statement)|PUT]] images there.
+* To GET more than one image to the same array, designate an offset index that is not being used and is large enough to hold the data.
+* The [[INTEGER]] array size can be calculated as slightly larger than the box area width times the height. A closer estimate can be done by reading the array indices from [[UBOUND]] to [[LBOUND]] after a [[GET (graphics statement)|GET]] of a white box area. In QB64 a [[LONG]] array can be used for large or full screen images.
+* RGB color settings can be embedded at the beginning of the array for transferring custom colors. ''Index'' the GET image data after the settings.
+* In QB64 [[_PUTIMAGE]] is recommended over PUT as it can also do the [[GET (graphics statement)|GET]] directly from the image source without requiring an array.
+* [[PUT]] and [[GET]] file statements can also write and read image array data using [[BINARY]] files instead of using [[BSAVE]] or [[BLOAD]].
+
+
+''Example 1:'' How to use GET and PUT to move a sprite with the arrow keys.
+{{CodeStart}} '' ''
+ {{Cl|DEFINT}} A-Z
+ {{Cl|DIM}} BG(300), Box(300), SC(127) ' BG holds background images. Box holds the Box image.
+ {{Cl|SCREEN (statement)|SCREEN}} 13 ' graphic coordinate minimums are 0 to 319 column or 199 row maximums.
+            ' set up screen background
+  {{Cl|COLOR}} 4: {{Cl|LOCATE}} 10, 5: {{Cl|PRINT}} &quot;Multikey Keyboard input routine&quot;
+  {{Cl|COLOR}} 10: {{Cl|LOCATE}} 12, 4: {{Cl|PRINT}} &quot;Use the arrow keys to move the box.&quot;
+  {{Cl|LOCATE}} 13, 4: {{Cl|PRINT}} &quot;Note that you can press two or more&quot;
+  {{Cl|LOCATE}} 14, 4: {{Cl|PRINT}} &quot;keys at once for diagonal movement!&quot;
+  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 16, 4: {{Cl|PRINT}} &quot; Also demonstrates how {{Cl|GET (graphics statement)|GET}} and PUT &quot;
+  {{Cl|LOCATE}} 17, 4: {{Cl|PRINT}} &quot;are used to preserve the background.&quot;
+  {{Cl|COLOR}} 11: {{Cl|LOCATE}} 20, 11: {{Cl|PRINT}} &quot;Press [Esc] to quit&quot;
+  x = 150: y = 50: PX = x: PY = y ' actual box starting position
+
+ {{Cl|GET (graphics statement)|GET}} (x, y)-(x + 15, y + 15), BG  ' {{Cl|GET (graphics statement)|GET}} original BG at start box position
+ {{Cl|LINE}} (x, y)-(x + 15, y + 15), 9, BF ' the plain blue box to move
+ {{Cl|GET (graphics statement)|GET}} (x, y)-(x + 15, y + 15), Box   ' {{Cl|GET (graphics statement)|GET}} to Box Array
+ 
+ {{Cl|DO...LOOP|DO}}  'main loop
+  t! = {{Cl|TIMER}} + .05
+  {{Cl|DO...LOOP|DO}}         ' 1 Tick (1/18th second) keypress scancode read loop
+    a$ = {{Cl|INKEY$}} ' So the keyboard buffer won't get full
+    code% = {{Cl|INP}}({{Cl|&amp;H}}60) ' Get keyboard scan code from port 96
+    {{Cl|IF...THEN|IF}} code% &lt; 128 {{Cl|THEN}} SC(code%) = 1 {{Cl|ELSE}} SC(code% - 128) = 0 'true/false values to array
+  {{Cl|LOOP}} {{Cl|UNTIL}}  {{Cl|TIMER}} &gt; t!' loop until one tick has passed
+
+  PX = x: PY = y  ' previous coordinates
+  {{Cl|IF...THEN|IF}} SC(75) = 1 {{Cl|THEN}} x = x - 5: {{Cl|IF...THEN|IF}} x &lt; 0 {{Cl|THEN}} x = 0
+  {{Cl|IF...THEN|IF}} SC(77) = 1 {{Cl|THEN}} x = x + 5: {{Cl|IF...THEN|IF}} x &gt; 304 {{Cl|THEN}} x = 304
+  {{Cl|IF...THEN|IF}} SC(72) = 1 {{Cl|THEN}} y = y - 5: {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|THEN}} y = 0
+  {{Cl|IF...THEN|IF}} SC(80) = 1 {{Cl|THEN}} y = y + 5: {{Cl|IF...THEN|IF}} y &gt; 184 {{Cl|THEN}} y = 184
+  {{Cl|IF...THEN|IF}} x &lt;&gt; PX {{Cl|OR (boolean)|OR}} y &lt;&gt; PY {{Cl|THEN}}             ' look for a changed coordinate value
+    {{Cl|WAIT}} 936, 8: {{Cl|PUT (graphics statement)|PUT}}(PX, PY), BG, {{Cl|PSET}}  ' replace previous BG first
+    {{Cl|GET (graphics statement)|GET}} (x, y)-(x + 15, y + 15), BG      ' {{Cl|GET (graphics statement)|GET}} BG at new position before box is set
+    {{Cl|PUT (graphics statement)|PUT}}(x, y), Box, {{Cl|PSET}}                ' PUT box image at new position
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} SC(1) = 1 ' main loop until [Esc] key (scan code 1) is pressed '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' How to GET graphics from an image other than the present screen.
+
+{{CodeStart}} '' ''
+{{Cl|DIM}} img(20 * 20 + 4) {{Cl|AS}} {{Cl|INTEGER}}  'create img array to hold image data
+a = {{Cl|_NEWIMAGE}}(800, 600, 13)      'image screen a emulates screen 13
+
+{{Cl|SCREEN (statement)|SCREEN}} 13     'program screen 13
+
+{{Cl|_DEST}} a                          'set desination as the image page a
+{{Cl|CIRCLE}} (700, 300), 10, 10        'draw green circle on image page
+
+{{Cl|_SOURCE}} a                        'set source as image page a
+{{Cl|GET}} (690, 290)-(710, 310), img()
+
+
+{{Cl|_DEST}} 0                          'set destination as the program screen
+{{Cl|PUT}} (100, 100), img() '' ''
+{{CodeEnd}}
+
+
+
+{{PageSeeAlso}}
+* [[_PUTIMAGE]], [[_LOADIMAGE]]
+* [[_MAPTRIANGLE]]
+* [[PUT (graphics statement)|PUT]], [[BSAVE]], [[BLOAD]]
+* [[Scancodes]], [[Creating Sprite Masks]] {{text|(for non-box shaped sprites)}}
+* [[Bitmaps]], [[GET and PUT Demo]]
+
+
+
+{{PageNavigation}}

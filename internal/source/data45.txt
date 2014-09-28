@@ -1,0 +1,48 @@
+qbs *_FUNC_TYP2CTYP_STRING_TYP2CTYP=NULL;
+if (!_FUNC_TYP2CTYP_STRING_TYP2CTYP)_FUNC_TYP2CTYP_STRING_TYP2CTYP=qbs_new(0,0);
+qbs*oldstr2768=NULL;
+if(_FUNC_TYP2CTYP_STRING_TSTR->tmp||_FUNC_TYP2CTYP_STRING_TSTR->fixed||_FUNC_TYP2CTYP_STRING_TSTR->readonly){
+oldstr2768=_FUNC_TYP2CTYP_STRING_TSTR;
+if (oldstr2768->cmem_descriptor){
+_FUNC_TYP2CTYP_STRING_TSTR=qbs_new_cmem(oldstr2768->len,0);
+}else{
+_FUNC_TYP2CTYP_STRING_TSTR=qbs_new(oldstr2768->len,0);
+}
+memcpy(_FUNC_TYP2CTYP_STRING_TSTR->chr,oldstr2768->chr,oldstr2768->len);
+}
+qbs *_FUNC_TYP2CTYP_STRING_CTYP=NULL;
+if (!_FUNC_TYP2CTYP_STRING_CTYP)_FUNC_TYP2CTYP_STRING_CTYP=qbs_new(0,0);
+int32 *_FUNC_TYP2CTYP_LONG_B=NULL;
+if(_FUNC_TYP2CTYP_LONG_B==NULL){
+_FUNC_TYP2CTYP_LONG_B=(int32*)mem_static_malloc(4);
+*_FUNC_TYP2CTYP_LONG_B=0;
+}
+int32 *_FUNC_TYP2CTYP_LONG_TYP=NULL;
+if(_FUNC_TYP2CTYP_LONG_TYP==NULL){
+_FUNC_TYP2CTYP_LONG_TYP=(int32*)mem_static_malloc(4);
+*_FUNC_TYP2CTYP_LONG_TYP=0;
+}
+qbs *_FUNC_TYP2CTYP_STRING_TS=NULL;
+if (!_FUNC_TYP2CTYP_STRING_TS)_FUNC_TYP2CTYP_STRING_TS=qbs_new(0,0);
+int32 *_FUNC_TYP2CTYP_LONG_UNSGN=NULL;
+if(_FUNC_TYP2CTYP_LONG_UNSGN==NULL){
+_FUNC_TYP2CTYP_LONG_UNSGN=(int32*)mem_static_malloc(4);
+*_FUNC_TYP2CTYP_LONG_UNSGN=0;
+}
+byte_element_struct *byte_element_2769=NULL;
+if (!byte_element_2769){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2769=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2769=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_TYP2CTYP_STRING_N=NULL;
+if (!_FUNC_TYP2CTYP_STRING_N)_FUNC_TYP2CTYP_STRING_N=qbs_new(0,0);
+byte_element_struct *byte_element_2770=NULL;
+if (!byte_element_2770){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2770=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2770=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_TYP2CTYP_STRING_S=NULL;
+if (!_FUNC_TYP2CTYP_STRING_S)_FUNC_TYP2CTYP_STRING_S=qbs_new(0,0);
+byte_element_struct *byte_element_2771=NULL;
+if (!byte_element_2771){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2771=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2771=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 pass2772;

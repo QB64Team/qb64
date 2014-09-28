@@ -1,0 +1,83 @@
+The '''PAINT''' statement is used to color enclosed graphic objects with a designated fill color and border {{KW|COLOR}}.
+
+
+{{PageSyntax}}
+: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''fillcolor%'''''[, ''bordercolor%''][,''background$'']
+
+
+{{Parameters}}
+* Can use the [[STEP]] keyword for relative coordinate placements. [[STEP]](0, 0) can be used after [[CIRCLE]] to fill it with color.
+* Graphic ''column'' and ''row'' [[INTEGER]] pixel coordinates should be inside of a fully enclosed border. 
+* [[INTEGER]] or [[LONG]] 32 bit ''Fillcolor'' is the color to paint the inside of an object. Colors limited to SCREEN mode used.
+* Optional [[INTEGER]] or [[LONG]] 32 bit ''border color'' is the color of the enclosed shape's border when different from the fill color. 
+* Optional ''background'' [[ASCII]] character sets the tiling style. Default = CHR$(0). Seldom used.
+
+
+''Usage:'' 
+* The enclosed border color must be one color value only. The object border must be fully enclosed!
+* PAINT coordinates MUST be inside of a closed shape to be colored. Paint will not do anything when placed on the border color.
+* If the border color does not enclose the area, PAINT may flood the screen or go beyond the border area.
+* If the shape is not totally enclosed, every color except the border color may be painted over.
+* [[DRAW]] shapes can be filled using the string &quot;P ''fillcolor'', ''bordercolor''&quot;. Use a &quot;B&quot; blind move to offset from shape's border.
+
+
+''Example 1:'' Painting a [[CIRCLE]] immediately after it is drawn using [[STEP]](0, 0) to paint from the circle's center point.
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+x = 200: y = 200
+{{Cl|CIRCLE}} (x, y), 100, 10
+{{Cl|PAINT}} {{Cl|STEP}}(0, 0), 2, 10 '' ''
+{{CodeEnd}}
+:''Results:'' A circle located at x and y with a bright green border filled in dark green. The last coordinate used was the circle's center point and PAINT used it also with the [[STEP]] relative coordinates being zero.
+
+
+''Example 2:'' Routine to check a [[DRAW]] string to make sure that the drawn shape is fully enclosed so that a PAINT does not bleed.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+drw$ = &quot;C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5R1BF4&quot;
+
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(drw$)
+  tmp$ = {{Cl|UCASE$}}({{Cl|MID$}}(drw$, i, 1))
+  check = 1
+  {{Cl|SELECT CASE}} tmp$
+    {{Cl|CASE}} &quot;U&quot;: ver = -1: hor = 0
+    {{Cl|CASE}} &quot;D&quot;: ver = 1: hor = 0
+    {{Cl|CASE}} &quot;E&quot;: ver = -1: hor = 1
+    {{Cl|CASE}} &quot;F&quot;: ver = 1: hor = 1
+    {{Cl|CASE}} &quot;G&quot;: ver = 1: hor = -1
+    {{Cl|CASE}} &quot;H&quot;: ver = -1: hor = -1
+    {{Cl|CASE}} &quot;L&quot;: ver = 0: hor = -1
+    {{Cl|CASE}} &quot;R&quot;: ver = 0: hor = 1
+    {{Cl|CASE ELSE}}: check = 0
+  {{Cl|END SELECT}}
+  {{Cl|IF...THEN|IF}} check {{Cl|THEN}}
+    snum$ = &quot;&quot;
+    {{Cl|FOR...NEXT|FOR}} j = i + 1 {{Cl|TO}} i + 4 'set for up to 4 digits and spaces
+      {{Cl|IF...THEN|IF}} j &gt; {{Cl|LEN}}(drw$) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+      n$ = {{Cl|MID$}}(drw$, j, 1)
+      num = {{Cl|ASC}}(n$)
+      {{Cl|IF...THEN|IF}} (num &gt; 47 {{Cl|AND (boolean)|AND}} num &lt; 58) {{Cl|OR (boolean)|OR}} num = 32 {{Cl|THEN}}
+        snum$ = snum$ + n$
+      {{Cl|ELSE}}: {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+      {{Cl|END IF}}
+    {{Cl|NEXT}}
+    vertical = vertical + (ver * {{Cl|VAL}}(snum$))
+    horizont = horizont + (hor * {{Cl|VAL}}(snum$))
+  {{Cl|END IF}}
+  {{Cl|PRINT}} tmp$, horizont, vertical
+  '{{Cl|SLEEP}}
+{{Cl|NEXT}}
+{{Cl|PSET}} (300, 300): {{Cl|DRAW}} drw$ '' ''
+{{CodeEnd}}
+: ''Explanation:'' If the [[DRAW]] string is enclosed, the end values should each be 0! In the example, the proper result should be 4, 4 as there is a BF4 offset for PAINT which cannot be on a border. The result is 4, 5 because the shape is not completely enclosed.
+
+
+
+
+{{PageSeeAlso}}
+* [[PSET]], [[PRESET]]
+* [[CIRCLE]], [[LINE]], [[DRAW]]
+* [[SCREEN (statement)]], [[CHR$]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,61 @@
+The '''ON UEVENT''' statement allows a program to use a user defined event procedure. 
+
+
+
+{{PageSyntax}}
+:: ON UEVENT GOSUB {linenumber | linelabel}
+
+
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]] NOTE: UEVENT procedures are only available in QuickBasic or PDS.'''
+* Any language(including assembly) compiler that can create interrupt service routines and uses code that can be linked with QuickBasic may be used.
+* Linenumber or linelabel argument is the line number or label of a [[GOSUB]] routine.
+* Allows your program to go to an event-handling routine when a user-defined event(often a hardware interrupt) occurs.
+* Once events have been defined with an ON event statement, they act like interrupts.
+* When [[UEVENT]] ON has been executed, the user-defined event can send the program to a GOSUB routine.
+* At least two or three code procedures are needed to set up the user-defined event.
+
+:# The first is the interrupt service routine using '''SetUEvent'''.
+:# The second is a routine to insert the address of the service routine into the interrupt vector table.(optional)
+:# The third is the GOSUB routine your program calls to retrieve the data or do another procedure.
+
+* If the initialization routine &quot;steals&quot; an interrupt used by another service routine, the original address MUST be restored before the program terminates.
+
+* Steps in creating a user-defined event:
+
+:# Write an event-handling routine using [[CALL]] '''SetUEvent''' and add it to your program.
+:# Use the ON UEVENT GOSUB statement to specify the user-defined event procedure.
+:# Use the UEVENT ON statement to enable event trapping.
+:# Call the interrupt-initialization routine to insert the address of the service routine into the interrupt vector table.
+
+* When the specified interrupt occurs, the execution is transferred to the interrupt service routine. The service routine collects and stores the data the user wants. It then calls '''SetUEvent'''. SetUEvent sets a flag checked by QuickBasic before going to the next code statement(or label if using BC.EXE compiler option /W instead of /V ). When the flag is set, control transfers to the event-handling routine in ON EVENT GOSUB.
+
+* The '''SetUEvent''' procedure is a part of QuickBasic, and is included in compiled programs or when the QuickBasic IDE is run with the /L command-line option. Your interrupt service routine must [[CALL]] SetUEvent.
+
+* If you want to return a value, you must write a procedure for your program to call. (It would usually be called by your event-handling routine.) The function MUST be [[DECLARE]]d!
+
+* Although ON UEVENT GOSUB ties an event-handling routine to a user-defined event, it does not enable the event trap. The [[UEVENT]] statement is used to enable, disable, and suspend user-defined event trapping.
+
+&lt;center&gt;(C) Microsoft Corporation 1988&lt;/center&gt;
+
+
+''Example:'' A simple user defined event.
+{{CodeStart}} '' ''
+{{Cl|ON UEVENT}} {{Cl|GOSUB}} Twenty ' set the procedure to enable 
+{{Cl|UEVENT}} ON ' turn on event handling
+{{Cl|INPUT}} &quot;Enter a number: &quot;, entry
+{{Cl|IF...THEN|IF}} entry = 20 {{Cl|THEN}} {{Cl|CALL}} SetUEvent ' trigger the event
+{{Cl|END}}
+
+Twenty:
+{{Cl|PRINT}} &quot;The user entered twenty!&quot;
+{{Cl|RETURN}} ' once an event is handled, return to last program procedure '' ''
+{{CodeEnd}}
+
+
+''See also:'' 
+* [[UEVENT]]
+* [[ON TIMER(n)]]
+* [[ON KEY(n)]]
+
+
+{{PageNavigation}}

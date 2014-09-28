@@ -1,0 +1,48 @@
+The '''^''' operation raises a numerical value to an exponential value.
+
+
+''Syntax:'' return_value = number ^ exponent
+
+
+{{PageDescription}}
+
+* The number value can be any type literal or variable numerical value.
+* Exponents can be any integer or fractional numerical value.
+* If the exponent is zero, the value returned is 1.
+* Fractional exponents enclosed in brackets will return the fractional exponential root of a value. 
+* Exponential operations are done first in the Qbasic order of operations.
+* The square root of a number can be returned by the [[SQR]] function or by using an exponent of (1 [[/]] 2). Brackets required.
+* Values returned may be expressed using exponential or [[Scientific notation]] using '''E''' for SINGLE or '''D''' for DOUBLE precision.
+* WARNING: Exponential returns may exceed numerical type limitations and create an [[ERROR Codes|overflow error]]! 
+
+
+''Example:'' Getting the cube root of a number.
+
+{{CodeStart}}
+  
+  {{Cl|INPUT}} &quot;Enter a number to calculate it's cube root: &quot;, num$
+  number! = {{Cl|VAL}}(num$)   'gets single number value
+  cuberoot# = number! {{Cl|^}} (1 {{Cl|/}} 3)
+  PRINT cuberoot#       'double type variable for accuracy
+
+{{CodeEnd}}
+
+''Details:'' The value returned will most likely be a [[SINGLE]] or [[DOUBLE]] value. Make sure that the return variable type matches the likely program operations!
+
+{{OutputStart}}
+
+Enter a number to calculate it's cube root: 144
+5.241482788417793
+
+{{OutputEnd}}
+
+
+
+
+''See also:''
+
+[[SQR]], [[Mathematical Operations]]
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,88 @@
+The '''RESTORE''' statement is used to reset the DATA pointer to the beginning of the data.
+
+
+{{PageSyntax}}
+:: RESTORE [datafield]
+
+
+* The datafield line label or number enables a labeled data field to be [[READ]] more than once as required. 
+* Datafield label names are not required when working with ONE or a progression of data fields in the main body of code.
+* Label multiple data fields to restore them to use them again when necessary.
+* If RESTORE is used with unlabeled data fields or no datafield is designated then the first data field is read.
+* Use RESTORE to avoid an [[ERROR Codes|&quot;Out of Data&quot; error]] when reading a data field!
+* See the [[DATA]] statement for [[STRING]] data value specifications.
+* '''Do not place [[DATA]] fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to [[RESTORE]] properly!'''
+: Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
+
+
+''Example:'' Restoring a labeled DATA field to avoid going past the end of DATA.
+{{CodeStart}}
+DO
+   {{Cl|INPUT}} &quot;Enter a month number(1 to 12): &quot;, monthnum%
+
+   {{Cl|RESTORE}} Months
+   FOR i = 1 TO monthnum%
+      {{Cl|READ}} month$, days%   'variables must match data field types
+   NEXT
+   {{Cl|PRINT}} &quot;The month &quot;; month$; &quot; has&quot;; days%; &quot;days.&quot;
+LOOP UNTIL monthnum% &lt; 1 OR monthnum% &gt; 12
+
+ Months:
+ {{Cl|DATA}} January, 31, February, 28, March, 31, April, 30, May, 31, June, 30
+ {{Cl|DATA}} July, 31, August, 31, September, 30, October, 31, November, 30, December, 31
+{{CodeEnd}}
+{{OutputStart}}
+Enter a month number(1 to 12): 6
+The month June has 30 days.
+{{OutputEnd}}
+:''Note:'' String DATA values do not require quotes unless they have commas, end spaces or Qbasic keywords in them.
+
+
+
+''Example:'' Using RESTORE to know the number of elements in the DATA in order to dimension and store the items in a array.
+{{CodeStart}}
+{{Cl|DO}}
+{{Cl|READ}} dummy$ 'we won't actually use this string for anything else than to know when there is no more DATA.
+count = count + 1
+{{Cl|LOOP}} {{Cl|UNTIL}} dummy$ = &quot;stop&quot; 'when dummy$ = &quot;stop&quot; then we know that it is the last entry so it only does the above loop until then.
+
+count = count - 1 'since the last string is &quot;stop&quot; and we don't want to store it in the array.
+
+{{Cl|PRINT}} &quot;The number of relevant entries are:&quot;; count
+
+{{Cl|DIM}} entry$(count) 'Now we know how many elements we need to make space for (DIM)
+
+{{Cl|RESTORE}} 'We restore it so that it begins reading from the first DATA again.
+
+
+{{Cl|FOR}} c = 1 {{Cl|TO}} count
+{{Cl|READ}} entry$(c) 'read the DATA and store it into the array.
+{{Cl|NEXT}}
+
+'we can now print the contents of the array:
+
+{{Cl|FOR}} c = 1 {{Cl|TO}} count 
+{{Cl|PRINT}} entry$(c)
+{{Cl|NEXT}}
+
+{{Cl|END}} 
+
+{{Cl|DATA}} &quot;entry1&quot;, &quot;entry2&quot;, &quot;entry3&quot;, &quot;stop&quot;
+{{CodeEnd}}
+{{small|Code By: Cyperium}}
+
+{{OutputStart}}
+The number of relevant entries are: 3
+entry1
+entry2
+entry3
+{{OutputEnd}}
+''Note:'' Now we can add any number of entries without further compensation to the code.
+
+
+
+''See also'' 
+* [[DATA]], [[READ]]
+
+
+{{PageNavigation}}

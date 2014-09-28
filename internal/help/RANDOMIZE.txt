@@ -1,0 +1,58 @@
+'''RANDOMIZE''' is used with a seed value to generate different random number sequences using the [[RND]] function.
+
+
+{{PageSyntax}}
+:: '''RANDOMIZE''' [USING] '''''seednumber'''''
+
+
+* The ''seed number'' can be any positive or negative numerical value. The [[TIMER]] value is often used to change [[RND]] output each run.
+* If the ''seed number'' is omitted, the program will display: '''Random-number seed (-32768 to 32767)?''' request on screen.
+* '''USING''' resets a ''seed number'' sequence to the start of the sequence as if the program just started using that seed in '''QB64 only'''.
+* '''Note:''' The RANDOMIZE USING ''seed number'' MUST be designated or a {{text|Name already in use|blue}} status error will occur! 
+* If the same initial seed number is used, the sequence of random numbers returned will be identical every program run.
+* The fact that random numbers would always be the same has been used for simple data encrytion.
+* Using a [[TIMER]] starting value ensures that the initial return sequence values are different almost every time the program is run!
+* [[RUN]] should reset the [[RANDOMIZE]] sequence to the starting [[RND]] function value.(Not yet in QB64)
+
+
+''Example 1:'' Using RANDOMIZE '''TIMER''' to set a different starting sequence of [[RND|random]] numbers every run.
+{{CodeStart}} '' ''
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+{{Cl|DO...LOOP|DO}}
+randnum% = INT({{Cl|RND}} * 11) + 2  'add one to multiplier as INT rounds down and never equals 10
+PRINT randnum%
+K$ = {{Cl|INPUT$}}(1)
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|UCASE$}}(K$) = &quot;Q&quot;  'q = quit
+{{Cl|END}} '' ''
+{{CodeEnd}}
+:''Explanation:'' Procedure generates random integer values from 2 to 12 like a pair of dice.
+
+
+''Example 2:'' Repeating a random number sequence with RANDOMIZE '''USING''' and a specific seed value in '''QB64''' only.
+{{CodeStart}} '' ''
+seed = 10
+{{Cl|RANDOMIZE}} seed
+Print7
+{{Cl|RANDOMIZE}} seed
+Print7
+{{Cl|PRINT}} &quot;Press a key to start sequence over!&quot;
+K$ = {{Cl|INPUT$}}(1) 
+{{Cl|RANDOMIZE}} '''USING''' seed
+Print7
+
+{{Cl|SUB}} Print7
+{{Cl|FOR...NEXT|FOR}} r = 1 TO 7
+  {{Cl|PRINT}} {{Cl|RND}};
+{{Cl|NEXT}}
+{{Cl|PRINT}}: {{Cl|PRINT}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' The second RANDOMIZE statement just continues the sequence where USING in the third restarts the sequence.
+
+
+''See also:'' 
+* [[RND]], [[INT]], [[CINT]]
+* [[TIMER]]
+
+
+{{PageNavigation}}

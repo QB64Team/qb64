@@ -1,0 +1,34 @@
+The '''PRINT #, USING''' statement is used to [[PRINT]] formatted data to a file.
+
+
+
+{{PageSyntax}}
+:: '''PRINT ''filenumber%,''''' [''text$''{;|,}] '''USING ''template$''; ''variable'''''[; ...][{;|,}]
+
+
+{{Parameters}}
+* [[INTEGER]] ''filenumber'' refers to the file number [[OPEN]]ed previously followed by a [[comma]].
+* Literal or variable [[STRING]] ''text$'' can be placed between PRINT and USING or it can be included in the ''template''.
+* A [[semicolon]] or [[comma]] may follow the ''text'' to stop or tab the print cursor before the ''template'' [[PRINT]].
+* The literal or variable [[STRING]] ''template'' should use the template symbols to display each variable [[type]] in the list following it.
+* The list of data ''variables'' used in the ''template'' are '''separated by semicolons''' after the template string value. 
+* A [[semicolon]] or [[comma]] may follow the variable list to stop or tab the print cursor for pending prints.
+
+
+''Usage:''
+* '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]] will occur!'''
+* The list of data variables used in the template are '''separated by semicolons''' after the template string value. 
+* The variables should be listed in the order that they are used in the template from left to right.
+* Normal text is allowed in the template also (see example).
+* '''NOTE:''' If the numerical value exceeds the template's integer digit range a % symbol will appear in the leftmost digit area.
+
+
+{{PrintUsing}}
+
+
+''See also:'' 
+* [[PRINT USING]], [[PRINT (file statement)|PRINT #]]
+* [[LPRINT USING]]
+
+
+{{PageNavigation}}

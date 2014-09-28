@@ -1,0 +1,40 @@
+The {{KW|_CLIPBOARD$ (statement)|_CLIPBOARD$}} statement sets the {{KW|STRING}} value in the system clipboard.
+
+
+{{PageSyntax}}
+:{{KW|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = {{Parameter|string_expression$}}
+
+
+{{PageDescription}}
+* {{Parameter|string_expression$}} is the string value sent to the clipboard.
+* The string value will replace everything previously in the clipboard.
+* Assemble long text into one string variable value before using this statement.
+* Add CHR$(13) + CHR$(10) CRLF characters to move to a new clipboard line.
+* When copying text files, end line CRLF characters 13 and 10 do not have to be added.
+* Numerical values can be converted to strings using [[STR$]], [[_MK$]], [[MKI$]], [[MKL$]], [[MKS$]], [[MKD$]], [[HEX$]] or [[OCT$]].
+* The clipboard can be used to copy, paste and communicate between running programs.
+
+
+''Example:'' Set 2 lines of text in the clipboard using a carriage return to end text lines
+{{CodeStart}} '' ''
+{{Cl|DIM}} CrLf AS {{Cl|STRING}} * 2            'define as 2 byte STRING
+CrLf = {{Cl|CHR$}}(13) + {{Cl|CHR$}}(10)        'carriage return &amp; line feed 
+
+{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;This is line 1&quot; + CrLf + &quot;This is line 2&quot; 
+{{Cl|PRINT}} {{Cl|_CLIPBOARD$}}                 'display what is in the clipboard
+'' ''
+{{CodeEnd}}
+{{OutputStart}}This is line 1
+
+This is line 2
+{{OutputEnd}}
+:''Note:'' The text in the clipboard could also be sent to a file using [[PRINT (file statement)|PRINT #1]] [[_CLIPBOARD$]].
+
+
+{{PageSeeAlso}}
+* {{KW|_CLIPBOARD$}} (function)
+* {{KW|CHR$}}, {{KW|ASCII}} (code table)
+
+
+
+{{PageNavigation}}

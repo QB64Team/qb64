@@ -1,0 +1,54 @@
+if(oldstr3199){
+if(oldstr3199->fixed)qbs_set(oldstr3199,_FUNC_BTEN_STRING_INTOP);
+qbs_free(_FUNC_BTEN_STRING_INTOP);
+}
+if(oldstr3200){
+if(oldstr3200->fixed)qbs_set(oldstr3200,_FUNC_BTEN_STRING_OP);
+qbs_free(_FUNC_BTEN_STRING_OP);
+}
+if(oldstr3201){
+if(oldstr3201->fixed)qbs_set(oldstr3201,_FUNC_BTEN_STRING_INBOT);
+qbs_free(_FUNC_BTEN_STRING_INBOT);
+}
+if (_FUNC_BTEN_ARRAY_LONG_RESULT[2]&1){
+if (_FUNC_BTEN_ARRAY_LONG_RESULT[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_BTEN_ARRAY_LONG_RESULT[0]));
+}else{
+free((void*)(_FUNC_BTEN_ARRAY_LONG_RESULT[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_BTEN_ARRAY_LONG_RESULT)[8] );
+qbs_free(_FUNC_BTEN_STRING_RETSTR);
+if (_FUNC_BTEN_ARRAY_LONG_TARRAY[2]&1){
+if (_FUNC_BTEN_ARRAY_LONG_TARRAY[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_BTEN_ARRAY_LONG_TARRAY[0]));
+}else{
+free((void*)(_FUNC_BTEN_ARRAY_LONG_TARRAY[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_BTEN_ARRAY_LONG_TARRAY)[8] );
+if (_FUNC_BTEN_ARRAY_LONG_BARRAY[2]&1){
+if (_FUNC_BTEN_ARRAY_LONG_BARRAY[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_BTEN_ARRAY_LONG_BARRAY[0]));
+}else{
+free((void*)(_FUNC_BTEN_ARRAY_LONG_BARRAY[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_BTEN_ARRAY_LONG_BARRAY)[8] );
+if (_FUNC_BTEN_ARRAY_DOUBLE_RESDBL[2]&1){
+if (_FUNC_BTEN_ARRAY_DOUBLE_RESDBL[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_BTEN_ARRAY_DOUBLE_RESDBL[0]));
+}else{
+free((void*)(_FUNC_BTEN_ARRAY_DOUBLE_RESDBL[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_BTEN_ARRAY_DOUBLE_RESDBL)[8] );
+if (_FUNC_BTEN_ARRAY_LONG_IARRAY[2]&1){
+if (_FUNC_BTEN_ARRAY_LONG_IARRAY[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_BTEN_ARRAY_LONG_IARRAY[0]));
+}else{
+free((void*)(_FUNC_BTEN_ARRAY_LONG_IARRAY[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_BTEN_ARRAY_LONG_IARRAY)[8] );
+qbs_free(_FUNC_BTEN_STRING_R);

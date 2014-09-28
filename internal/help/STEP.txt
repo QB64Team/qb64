@@ -1,0 +1,56 @@
+The '''STEP''' keyword is used in [[FOR...NEXT]] loops to skip through the count or to count down instead of up. Used in graphics to designate a relative coordinate position of a graphics object function.
+
+
+{{PageSyntax}}
+:: FOR counter_variable = start_point TO stop_point ['''STEP ''interval''''']
+
+:: CIRCLE '''STEP(0, 0)''', 10, 12
+
+
+* The FOR counter variable is used to designate and pass the current FOR incremented value. 
+* FOR loops without the optional STEP value increment by + 1 every loop.
+* The STEP increment value can be any literal or variable numerical type. It cannot be changed inside of the loop!
+* Start and stop point values can be any literal or variable type and they cannot be changed inside of the loop.
+* STEP interval designates the portion to add or subtract from the FOR variable value.
+:* When the STEP interval is positive, the start value should be less than the stop value ot the loop will be ignored.
+:* When the STEP interval is negative, the start value should be greater than the stop value or the loop will be ignored.
+* In graphics statements, STEP can be used before a pair of coordinate brackets to indicate that the coordinates are relative to the last graphics statement position. IE the position will be that number of pixels away from the last graphical object.
+
+
+''Example:'' Stepping down 2 in a FOR counter loop.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT}} i = 10 {{Cl|TO}} 0 {{Cl|STEP}} -2
+  {{Cl|PRINT}} i;
+{{Cl|NEXT}} '' ''
+{{CodeEnd}}
+{{OutputStart}} 
+10 8 6 4 2 0 
+{{OutputEnd}}
+:''Note:'' The value of i = -2 after the loop is done.
+
+
+
+::''Graphics Syntax:'' LINE STEP(column1%, row1%)-(column2%, row2%), color_attribute% 
+
+
+* STEP coordinate positions are relative positive or negative pixel moves from the previous graphics object's last coordinate. After a CIRCLE statement, the relative coordinates would be from its center.
+* STEP can be used before the [[LINE]], [[CIRCLE]], [[PSET]], [[PRESET]], [[PAINT]] or [[DRAW]] graphics object coordinates.
+
+
+
+''Graphics Example:'' Using STEP coordinates to PAINT a circle's interior.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|CIRCLE}} (100, 100), 50, 12
+{{Cl|PAINT}} {{Cl|STEP}}(0, 0), 13, 12 '' ''
+{{CodeEnd}}
+:''Explanation:'' PAINT uses the CIRCLE's center coordinate position to paint the interior.
+
+
+''See also:'' 
+* [[FOR...NEXT]]
+* [[DRAW]] (see the M relative move function)
+* [[LINE]], [[CIRCLE]], [[PSET]], [[PAINT]]
+
+
+{{PageNavigation}}

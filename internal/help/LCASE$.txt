@@ -1,0 +1,28 @@
+The {{KW|LCASE$}} function changes the uppercase letters of a {{KW|STRING}} to lowercase.
+
+
+{{PageSyntax}}
+:''result$'' = {{KW|LCASE$}}({{Parameter|text$}})
+
+
+{{PageDescription}}
+* Normally used to guarantee that user input is not capitalized.
+* Will not affect non alphabet string characters.
+
+
+{{PageExamples}}
+:The following code 
+{{CodeStart}}{{Cl|PRINT}} &quot;Do you want to continue? (y/n)&quot;
+
+{{Cl|DO...LOOP|DO}}
+    K$ = {{Cl|LCASE$}}({{Cl|INKEY$}})
+
+{{Cl|DO...LOOP|LOOP}} {{Cl|DO...LOOP|UNTIL}} K$ = &quot;y&quot; {{Cl|OR}} K$ = &quot;n&quot;
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|UCASE$}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,44 @@
+The '''CVL''' function converts 4 byte [[GET]] or [[MKL$]] [[STRING]] values to [[LONG]] numeric values.
+
+
+::::::''Syntax:'' CVL(''4-byte string'')
+
+
+* Numeric values read from a [[RANDOM]]-access or [[BINARY]] disk file must be converted from [[ASCII]] string characters back into numbers if they are to be arithmetically manipulated.
+* [[LONG]] Integer values can be from -2147483648 to 2147483647.
+* [[CVL]] converts a 4 byte string created by [[MKL$]] to a [[LONG]] integer numerical value.
+* [[CVI]] converts a 2-byte string created by [[MKI$]] to an [[INTEGER]] numerical value.
+* [[CVS]] converts a 4-byte string created by [[MKS$]] to a [[SINGLE]]-precision numerical value. 
+* [[CVD]] converts an 8-byte string created by [[MKD$]] to a [[DOUBLE]]-precision numerical value.
+* CV functions can only be used to convert values from [[MK$]] string function values or data from [[BINARY]] files!
+
+
+''Example 1: 4 byte [[ASCII]] character strings show how CVL multipliers convert [[MKL$]] values into a 4 byte [[LONG]] value.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} {{Cl|CVL}}({{Cl|CHR$}}(1) + {{Cl|STRING$}}(3, 0)) '{{Cl|ASC}}(CHR$(1)) * 1 = 1
+{{Cl|PRINT}} {{Cl|CVL}}({{Cl|CHR$}}(0) + {{Cl|CHR$}}(1) + {{Cl|STRING$}}(2, 0)) '{{Cl|ASC}}(CHR$(1)) * 256 = 256
+{{Cl|PRINT}} {{Cl|CVL}}({{Cl|STRING$}}(2, 0) + {{Cl|CHR$}}(1) + {{Cl|CHR$}}(0)) '{{Cl|ASC}}(CHR$(1)) * 256 * 256 = 65536
+{{Cl|PRINT}} {{Cl|CVL}}({{Cl|STRING$}}(3, 0) + {{Cl|CHR$}}(1)) '{{Cl|ASC}}(CHR$(1)) * 256 * 256 * 256 = 16777216 '' ''
+{{CodeEnd}}
+
+
+''Example 2:''
+{{CodeStart}} '' ''
+{{Cl|FIELD}} #1, 4 {{Cl|AS}} N$, 12 {{Cl|AS}} B$...
+{{Cl|GET}} #1
+Y&amp; = {{Cl|CVL}}(N$) '' ''
+{{CodeEnd}}
+:''Explanation:'' Reads a field from file #1, and converts the first four bytes (N$) into a long integer value assigned to the variable Y&amp;.
+
+:Since a long number can contain as many as ten ASCII characters (ten bytes), writing a file using [[MKL$]] conversion, and reading with the CVL conversion, as many as six bytes per number recorded are saved on the storage medium.
+
+
+''See also:'' 
+* [[MKL$]], [[MKI$]], [[MKS$]], [[MKD$]] 
+* [[CVI]], [[CVS]], [[CVD]]
+* [[_CV]], [[_MK$]]
+* [[Bitmaps]]
+
+
+
+{{PageNavigation}}

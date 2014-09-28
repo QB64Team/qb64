@@ -1,0 +1,84 @@
+The [[TAN]] function returns the ratio of [[SIN]]e to [[COS]]ine or tangent value of an angle measured in radians.
+
+
+{{PageSyntax}}
+:: tangent! = TAN(''radian_angle!'')
+
+
+* The ''radian_angle'' must be measured in radians. To convert from degrees to radians, multiply degrees * π/180.
+* TANGENT is the gradient or slope of the circle or arc at [[SIN]](&amp;theta;) / [[COS]](&amp;theta;). Do not use division when the [[COS]] = 0 to avoid [[ERROR Codes|errors]].
+
+
+''Example:'' Spiraling text using the [[SIN]] and [[TAN]] functions.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} text {{Cl|AS}} {{Cl|STRING}}
+text$ = &quot;S P I R A L&quot;
+{{Cl|DIM}} {{Cl|SHARED}} word(1 {{Cl|TO}} {{Cl|LEN}}(text$) * 8, 1 {{Cl|TO}} 16)
+
+{{Cl|CALL}} analyse
+{{Cl|CLS}}
+{{Cl|CALL}} redraw
+
+{{Cl|SUB}} analyse
+{{Cl|CLS}}
+{{Cl|SCREEN}} 12
+{{Cl|COLOR}} 2: {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} text$
+{{Cl|DIM}} px {{Cl|AS}} {{Cl|INTEGER}}, py {{Cl|AS}} {{Cl|INTEGER}}, cnt {{Cl|AS}} {{Cl|INTEGER}}, ltrcnt {{Cl|AS}} {{Cl|INTEGER}}
+px = 1: py = 1
+DO
+  word(px, py) = {{Cl|POINT}}(px, py)
+  {{Cl|PSET}} (px, py), 1
+  px = px + 1
+  {{Cl|IF...THEN|IF}} px = {{Cl|LEN}}(text$) * 8 {{Cl|THEN}}
+    px = 1
+    py = py + 1
+  {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} py = 16
+{{Cl|END SUB}}
+
+{{Cl|SUB}} redraw
+{{Cl|CLS}}
+{{Cl|DIM}} row {{Cl|AS}} {{Cl|INTEGER}}, cnt {{Cl|AS}} {{Cl|INTEGER}}, cstart {{Cl|AS}} {{Cl|SINGLE}}, cend {{Cl|AS}} {{Cl|SINGLE}}
+{{Cl|DIM}} xrot {{Cl|AS}} {{Cl|INTEGER}}, yrot {{Cl|AS}} {{Cl|INTEGER}}, SCALE {{Cl|AS}} {{Cl|INTEGER}}, pan {{Cl|AS}} {{Cl|INTEGER}}
+cstart = 0: cend = 6.2
+xrot = 6: yrot = 6: SCALE = 3: pan = 30
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 1: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 10: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 10: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 60
+DO
+  row = 2
+  DO
+    DO
+      {{Cl|FOR...NEXT|FOR}} i = cend {{Cl|TO}} cstart {{Cl|STEP}} -.03
+        x = (SCALE * 60 - (row * xrot / 4)) * {{Cl|TAN}}({{Cl|COS}}(i))
+        y = {{Cl|SIN}}(SCALE * 60 - (row * yrot)) * {{Cl|TAN}}({{Cl|SIN}}(i)) * pan
+        cnt = cnt + 1
+        {{Cl|IF...THEN|IF}} word(cnt, row) &gt; 0 {{Cl|THEN}} 
+          {{Cl|CIRCLE}} (x + 320, y + 220), SCALE + 1, 1              'circled letters
+          '{{Cl|LINE}} (x + 320, y + 220)-{{Cl|STEP}}(12, 12), 1, BF  'boxed letters
+        {{Cl|END IF}}
+        {{Cl|IF...THEN|IF}} cnt = {{Cl|LEN}}(text$) * 8 {{Cl|THEN}} cnt = 0: {{Cl|EXIT DO}}
+      {{Cl|NEXT}}
+    {{Cl|LOOP}}
+    row = row + 1
+  {{Cl|LOOP}} {{Cl|UNTIL}} row = 16
+  cend = cend + .1
+  cstart = cstart + .1
+  now! = {{Cl|TIMER}}
+  DO
+    newnow! = {{Cl|TIMER}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} newnow! - now! &gt;= .15
+  {{Cl|LINE}} (1, 100)-(639, 280), 0, BF
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Unseen Machine}}
+
+
+{{PageSeeAlso}}
+* [[SIN]], [[COS]]
+* [[ATN]] {{text|(arctangent)}}
+* [[Mathematical Operations]]
+* [[Text Using Graphics]]
+* [[Mathematical_Operations#Derived_Mathematical_Functions|Derived Mathematical Functions]]
+
+
+{{PageNavigation}}

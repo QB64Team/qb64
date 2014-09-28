@@ -1,0 +1,110 @@
+The '''_FULLSCREEN''' function returns the present full screen mode setting of the screen window.
+
+
+{{PageSyntax}}: full% = {{KW|_FULLSCREEN (function)|_FULLSCREEN}}
+
+
+
+* ''Function Returns:''
+** 0 = _OFF (any positive non-0 value means fullscreen is on)
+** 1 = _STRETCH
+** 2 = _SQUAREPIXELS
+
+
+It '''cannot''' be assumed that calling {{KW|_FULLSCREEN}} will succeed. It cannot be assumed that the type of full screen will match the requested one. '''Always check the _FULLSCREEN function return in your programs!'''
+
+
+'''Warning:''' Despite your software, the user's hardware, drivers and monitor may not function in some modes. Thus, it is highly recommended that you manually confirm with the user whether the switch to full screen was successful. This can be done &quot;quietly&quot; in some cases by getting the user to click on a button on screen with their mouse or press an unusual key. If the user does not respond after about 8 seconds, switch them back to windowed mode.
+&lt;center&gt;'''BEWARE: Using LARGE FONTS with [[_FULLSCREEN]] can cause monitor or Windows Desktop problems or kill a program!'''&lt;/center&gt;
+
+
+''Example:'' Shows how fonts and the _FULLSCREEN mode can resize a program window.
+{{CodeStart}}
+'' ''
+{{Cl|CLS}}
+fontpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;) + &quot;\fonts\lucon.ttf&quot; 'Find Windows Folder Path.
+f&amp; = {{Cl|_FONT (function)|_FONT}}: defaultf&amp; = f&amp;
+{{Cl|DO}}
+  {{Cl|INPUT}} &quot;1) DEFAULT  2) SIZE WINDOW  3) FULL SCREEN   4) FULL STRETCHED  Q) QUIT: &quot;, winmode$
+
+  {{Cl|IF}} {{Cl|UCASE$}}(winmode$) = &quot;Q&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+
+  style$ = &quot;MONOSPACE&quot;
+
+  {{Cl|SELECT CASE}} winmode$
+    {{Cl|CASE}} &quot;1&quot;
+      full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}  'get current full screen mode
+      {{Cl|IF}} full &lt;&gt; 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _OFF
+      {{Cl|GOSUB}} ChangeFont
+
+    {{Cl|CASE}} &quot;2&quot;
+      {{Cl|DO}}
+        {{Cl|PRINT}}
+        {{Cl|INPUT}} &quot;Enter a FONT SIZE 5 to 25: &quot;, fontsize%
+      {{Cl|LOOP}} {{Cl|UNTIL}} fontsize% &gt; 4 {{Cl|AND (boolean)|AND}} fontsize% &lt; 26
+
+      {{Cl|DO}}
+        {{Cl|PRINT}}
+        {{Cl|INPUT}} &quot;Enter (0) for REGULAR or (1) for ITALIC FONT: &quot;, italic%
+      {{Cl|LOOP}} {{Cl|UNTIL}} italic% = 0 or italic% = 1
+
+      {{Cl|DO}}
+        {{Cl|PRINT}}
+        {{Cl|INPUT}} &quot;Enter (0) for REGULAR or (1) for BOLD FONT: &quot;, bold%
+      {{Cl|LOOP}} {{Cl|UNTIL}} italic% = 0 or italic% = 1
+
+      {{Cl|IF}} italic% = 1 {{Cl|THEN}} style$ = style$ + &quot;, ITALIC&quot;
+      {{Cl|IF}} bold% = 1 {{Cl|THEN}} style$ = style$ + &quot;, BOLD&quot;
+      full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}  'get current full screen mode
+      {{Cl|IF}} full &lt;&gt; 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _OFF            
+      {{Cl|GOSUB}} ChangeFont
+
+    {{Cl|CASE}} &quot;3&quot;
+      {{Cl|GOSUB}} ChangeFont
+      {{Cl|_FULLSCREEN}} _SQUAREPIXELS
+      {{Cl|GOSUB}} CheckFull
+
+    {{Cl|CASE}} &quot;4&quot;
+      {{Cl|GOSUB}} ChangeFont
+      {{Cl|_FULLSCREEN}} _STRETCH
+      {{Cl|GOSUB}} CheckFull
+            
+    {{Cl|END SELECT}}
+
+    {{Cl|PRINT}}: {{Cl|PRINT}} &quot;_FullScreen mode =&quot;; {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
+    {{Cl|PRINT}}
+{{Cl|LOOP}}
+{{Cl|GOSUB}} ChangeFont
+{{Cl|END}}
+
+CheckFull:   '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; turn off full screen if function returns 0!
+full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}  'get current full screen mode 
+{{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _{{Cl|OFF}}: {{Cl|SOUND}} 100, .75
+{{Cl|RETURN}}
+
+ChangeFont:
+{{Cl|IF}} winmode$ &lt;&gt; &quot;2&quot; {{Cl|THEN}}
+  {{Cl|_FONT}} 16 'select inbuilt 8x16 default font
+    currentf&amp; = {{Cl|_FONT (function)|_FONT}}
+{{Cl|ELSE}}
+  currentf&amp; = {{Cl|_LOADFONT}}(fontpath$, fontsize%, style$)
+  {{Cl|_FONT}} currentf&amp;
+{{Cl|END IF}}
+
+{{Cl|IF}} currentf&amp; &lt;&gt; f&amp; {{Cl|AND (boolean)|AND}} f&amp; &lt;&gt; defaultf&amp; {{Cl|THEN}} {{Cl|_FREEFONT}} f&amp;
+f&amp; = currentf&amp;
+{{Cl|RETURN}} '' ''
+
+{{CodeEnd}}
+
+''Explanation:'' The '''_FULLSCREEN''' function can avoid screen display and monitor problems when used to monitor the success of the full screen operation! If a full screen mode is '''NOT''' achieved (the function will return 0), '''turn it OFF!'''
+
+
+{{PageSeeAlso}}
+
+* [[_FULLSCREEN]] (statement)
+* [[_SCREENMOVE]], [[_SCREENX]], [[_SCREENY]]
+
+
+
+{{PageNavigation}}

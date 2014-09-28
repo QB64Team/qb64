@@ -1,0 +1,30 @@
+The '''semicolon''' is used in a [[PRINT]] statement to stop the screen print cursor immediately after the printed value. 
+
+
+''Usage:'' COLOR 13: PRINT &quot;Value =&quot;; value1; value2; value3
+
+{{OutputStart}}{{text|1234  5678  9012|magenta}}{{OutputEnd}}
+
+
+* Positive numerical values [[PRINT|printed]] will include a space before and after each value printed. Strings will not have spacing.
+* Use the [[WRITE]] statement to print values with only commas between the values and no spacing.
+* A semicolon can append the next print when used at the end of a [[PRINT]] statement.
+* Use a semicolon after text that will be [[PRINT|printed]] on the last two text rows of a [[SCREEN (statement)|screen mode]] to prevent screen rolling.
+* [[INPUT]] statements can use the semicolon '''before''' the text to prevent screen rolling. '''INPUT ; &quot;text or question&quot;; variable'''.
+* A semicolon '''after''' the text will create a question mark and space after the [[INPUT]] text question. Use a comma for statements.
+* '''NOTE: Semicolons can NOT be used to combine string variables in a string variable definition!''' 
+* Use the '''+''' [[concatenation]] operator to combine [[STRING|string]] variable definition values only! 
+* [[Semicolon]]s cannot be used in or following a [[WRITE]] statement!
+
+
+''See also:''
+
+* [[Comma]]
+* [[PRINT]], [[PRINT USING]]
+* [[WRITE]]
+* [[INPUT]], [[LINE INPUT]]
+* [[STR$]] {{text|(convert number to string)}}
+* [[VAL]] {{text|(convert string to number)}}
+
+
+{{PageNavigation}}

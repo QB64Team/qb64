@@ -1,0 +1,104 @@
+'''_glLogicOp:''' specify a logical pixel operation for rendering
+
+
+{{PageSyntax}}
+
+  SUB _glLogicOp (BYVAL opcode AS _UNSIGNED LONG)
+  void '''_glLogicOp'''(GLenum {{Parameter|opcode}});
+
+
+; opcode
+: Specifies a symbolic constant that selects a logical operation. The following symbols are accepted: {{KW|_GL_CLEAR}}, {{KW|_GL_SET}}, {{KW|_GL_COPY}}, {{KW|_GL_COPY_INVERTED}}, {{KW|_GL_NOOP}}, {{KW|_GL_INVERT}}, {{KW|_GL_AND}}, {{KW|_GL_NAND}}, {{KW|_GL_OR}}, {{KW|_GL_NOR}}, {{KW|_GL_XOR}}, {{KW|_GL_EQUIV}}, {{KW|_GL_AND_REVERSE}}, {{KW|_GL_AND_INVERTED}}, {{KW|_GL_OR_REVERSE}}, and {{KW|_GL_OR_INVERTED}}. The initial value is {{KW|_GL_COPY}}.
+
+
+{{PageDescription}}
+
+'''_glLogicOp''' specifies a logical operation that, when enabled, is applied between the incoming RGBA color and the RGBA color at the corresponding location in the frame buffer. To enable or disable the logical operation, call {{KW|_glEnable}} and {{KW|_glDisable}} using the symbolic constant {{KW|_GL_COLOR_LOGIC_OP}}. The initial value is disabled.
+
+
+
+{|
+|+
+! '''Opcode'''
+! '''Resulting Operation'''
+|+
+| {{KW|_GL_CLEAR}}
+| 0
+|+
+| {{KW|_GL_SET}}
+| 1
+|+
+| {{KW|_GL_COPY}}
+| s
+|+
+| {{KW|_GL_COPY_INVERTED}}
+| ~s
+|+
+| {{KW|_GL_NOOP}}
+| d
+|+
+| {{KW|_GL_INVERT}}
+| ~d
+|+
+| {{KW|_GL_AND}}
+| s &amp;amp; d
+|+
+| {{KW|_GL_NAND}}
+| ~(s &amp;amp; d)
+|+
+| {{KW|_GL_OR}}
+| s | d
+|+
+| {{KW|_GL_NOR}}
+| ~(s | d)
+|+
+| {{KW|_GL_XOR}}
+| s ^ d
+|+
+| {{KW|_GL_EQUIV}}
+| ~(s ^ d)
+|+
+| {{KW|_GL_AND_REVERSE}}
+| s &amp;amp; ~d
+|+
+| {{KW|_GL_AND_INVERTED}}
+| ~s &amp;amp; d
+|+
+| {{KW|_GL_OR_REVERSE}}
+| s | ~d
+|+
+| {{KW|_GL_OR_INVERTED}}
+| ~s | d
+|}
+
+{{Parameter|opcode}} is a symbolic constant chosen from the list above. In the explanation of the logical operations, ''s'' represents the incoming color and ''d'' represents the color in the frame buffer. Standard C-language operators are used. As these bitwise operators suggest, the logical operation is applied independently to each bit pair of the source and destination colors.
+
+
+{{PageNotes}}
+
+When more than one RGBA color buffer is enabled for drawing, logical operations are performed separately for each enabled buffer, using for the destination value the contents of that buffer (see {{KW|_glDrawBuffer}}).
+
+Logic operations have no effect on floating point draw buffers. However, if {{KW|_GL_COLOR_LOGIC_OP}} is enabled, blending is still disabled in this case.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|opcode}} is not an accepted value.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_LOGIC_OP_MODE}}.
+
+{{KW|_glIsEnabled}} with argument {{KW|_GL_COLOR_LOGIC_OP}}.
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glEnable|(GL_COLOR_LOGIC_OP)}}, {{KW|_glDrawBuffer}}, {{KW|_glDrawBuffers}}, {{KW|_glStencilOp}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

@@ -1,0 +1,821 @@
+EasyBMP Cross-Platform Windows Bitmap Library: Change Log 
+
+Library Author(s): Paul Macklin 
+  Library License: BSD (revised). See the BSD_(revised)_license.txt 
+                   file for further information.
+        Copyright: 2005-6 by the EasyBMP Project 
+            Email: macklin01@users.sourceforge.net
+          Support: http://easybmp.sourceforge.net
+
+All changes by Paul Macklin unless otherwise noted.
+
+*--------------------------------------------------------------------*
+
+Version: 0.50
+   Date: 1-31-2005
+
+    None! (first release)
+
+*--------------------------------------------------------------------*
+
+Version: 0.51
+   Date: 2-14-2005    
+
+    Added full 32-bit BMP file support  
+
+    Took out annoying "colors: " message from BMP8 initialization 
+    from scratch  
+
+    Added more license and copyright info to each file  
+
+    Added change log to library  
+    
+    To do next:
+    Should update the error messages for the initializations  
+    Should simplify the reading and writing code  
+
+*--------------------------------------------------------------------*
+    
+Version: 0.52
+   Date: 2-19-2005
+
+    Fixed a minor bug in the MakeGreyscalePalette function where the 
+    0 color turned out to be (255,255,255), rather than (0,0,0)  
+
+    Updated standard colors for 4-bit, 8-bit, and 24-bit      
+    
+*--------------------------------------------------------------------*
+
+Version: 0.53
+   Date: 2-27-2005
+
+   Fixed unsigned / signed problem that VS.net shows          
+                                                 
+                                                              
+   Tried fix of line 186 in EasyBMP_BMP4.h file. If it works, 
+   I'll apply it consistently. I think that VS.net wants us   
+   to clear char* blah, then char = new blah [size], just     
+   like the old days for g++.                    
+                                                              
+   Removed EasyBMP_StandardColors.h from standard package     
+                                                              
+*--------------------------------------------------------------------*
+
+Version: 0.54
+   Date: 2-27-2005
+
+   The fix of line 186 in EasyBMP_BMP4.h file appears to have 
+   worked. I applied it through the remainder of the code.    
+   Hopefully, this should ensure Visual Studio.Net compati-   
+   bility.                                       
+                                                              
+   Fixed some typos in the comment lines         
+                                                              
+*--------------------------------------------------------------------*
+
+Version: 0.55
+   Date: 5-2-2005
+
+   Introduced RGBApixel struct.  
+   
+   Introduced BMFH, BMIH, and BMP classes.  
+   
+   Deprecated all old code to *_legacy.h.  
+   
+   Rewrote EasyBMP_VariousBMPutilities.h to use the new 
+   BMP class.  
+   
+*--------------------------------------------------------------------*
+
+Version: 0.56
+   Date: 5-4-2005
+
+   Made Width, Height, and BitDepth private members and added 
+   functions for accessing them.                 
+                                                              
+   Made a new function, SetBitDepth, as the only means to     
+   change the bit depth. It will create/resize a palette as   
+   necessary. This simplifies the WriteToFile code, as well as
+   any palette altering algorithms. (All algorithms can now   
+   assume that a properly-sized palette exists.) This will    
+   help improve code stability greatly.          
+                                                              
+   Made a new function, SetSize, as the only way to change the
+   width and height of the image.                 
+                                                              
+   Eliminated useless HasPalette and NumberOfColors members,  
+   and added TellNumberOfColors() function.      
+                                                              
+   Updated EasyBMP_VariousBMPutilities.h to respect privacy   
+   of data members.                              
+
+*--------------------------------------------------------------------*
+
+Version: 0.57
+   Date: 5-8-2005
+
+   Removed fclose(fp) lines from EasyBMP_BMP.h and 
+   EasyBMP_VariousBMPutilities.h whenever ( !fp ) occurs, 
+   to avoid a crash when trying to close a non-existant file. 
+    
+   
+   Added a line to set bmfh.bfType = 0; to getBMFH() routine 
+   in the case where ( !fp ) occurs, so that a nonexistant file
+   doesn't falsely show up as a bitmap file.  
+   
+   Made error messages in BMP::ReadFromFile(char*) more meaningful, 
+   since Argh! doesn't help much. :-)  
+   
+   Made ReadFromFile operations safer: can deal more effectively 
+   with corrupted and/or truncated files by adding the new 
+   SafeFread() wrapper function.  
+   
+   Moved all change-log entries to the change log to make the source
+   file tidier.  
+   
+   Removed all references to Palettes; renamed them to ColorTables. 
+   
+*--------------------------------------------------------------------*
+
+Version: 0.58
+   Date: 5-13-2005
+
+   Rewrote ReadFromFile() to fix program crashes on reading 4-bit 
+   files. (*grumble* I can't believe there was such a bug in such 
+   a late version! */grumble*)  
+
+   Added support to ReadFromFile() for reading 1-bit files. 
+
+   Rewrote ReadFromFile() to avoid trying to read bitmap files of 
+   depths other than 1, 4, 8, 24, and 32 bits.     
+   
+   Tested reading 4-bit files of width 0,1,2, and 3 (modulo 4),  
+   and 1-bit files of width 0,1,2,3,4,5,6, and 7 (modulo 8)   
+
+*--------------------------------------------------------------------*
+
+Version: 0.59
+   Date: 5-15-2005
+
+   Made ReadFromFile() more robust. Evidently, reading to the 
+   same temp variable all the time made it unstable when reading 
+   many files. I would never have guessed. I instead declare BMIH 
+   and BMFH objects and read directly to their members. This appears 
+   to be more stable when dealing with many ReadFromFile() calls.
+
+   On a related note, made sure to not call SetSize( Width,Height), 
+   which is a bit recursive, as well as SetBitDepth( BitDepth ). 
+   This appears to help stability, since these two functions were 
+   create precisely for the purpose of setting those variables 
+   values safely.  
+
+   Made use of the boolean return value in SafeFread() to detect 
+   when files are obviously corrupted. Used this to have an early 
+   catch in ReadFromFile() and set it to a 1x1 1-bit image and 
+   exit.  
+   
+   Made ReadFromFile() stricter, in that it only reads recognized 
+   bit depths (1,4,8,24,32). Any other bit depth will prompt the 
+   routine to terminate and set it to a 1x1 1-bit file.  
+
+   Added write support for 1-bit files.  
+   
+   Rewrote WriteToFile() for 4,8-bit files to match methods used 
+   for reading them.  
+   
+   Revised CreateStandardColorTable() and 
+   CreateGreyscaleColorTable() to add support for 1-bit files.  
+   
+   Rewrote WriteToFile() to be stricter in only writing known bit 
+   depths (1,4,8,24,32) and ignoring all others.  
+
+*--------------------------------------------------------------------*
+
+Version: 0.60
+   Date: 5-21-2005
+
+   Deprecated *_legacy.h files.  
+
+   Tested library extensivey in linux with good results.  
+
+   Made CreateGreyscaleColorTable() stricter, in that it exits 
+   if supplied a bit depth other than 1, 4, or 8.  
+
+   Made cosmetic changes in EasyBMP_DataStructures.h to 
+   improve readability.  
+
+   Made SetBitDepth() stricter, in that it will never allow a bitmap 
+   to be set to an unsupported bit depth. Only bit depths of 1, 4, 
+   8, 24, or 32 are accepted.  
+
+   Made SetSize() stricter, in that it will not allow negative 
+   widths or heights.  
+
+   Made cosmetic changes in EasyBMP_BMP.h to improve readability. 
+
+   Added a check in ReadFromFile() to see if the requested width or 
+   height is negative, a good sign of file corruption. In such a 
+   case, the file is set to a blank 1x1 1-bit file.  
+   
+   Added code to ReadFromFile() to set size to 1x1 and bit depth to 
+   1-bit if the file was not found.  
+   
+*--------------------------------------------------------------------*
+
+Version: 0.61
+   Date: 5-22-2005
+
+   Fixed awIndex typo in WriteToFile().  
+   
+   Replaced double BestDistance comparisons in WriteToFile() 
+   with int BestDistances (so as to do integer operations, 
+   rather than double operations). This gave a roughly 100% 
+   speedup in 8-bit, 4-bit, and 1-bit write operations on 
+   unoptimized (no compiler flags) code and a 30% speedup 
+   on optimized code.     
+
+   Removed checks like if( BestDistance < 1 ){ k=256; } .. from 
+   WriteToFile(), as they give more overhead than savings in my 
+   testing. For 8-bit files, there was a slight gain by putting 
+   it back in with another method: 
+   while( k < 256 && BestDistance > 0 ). 
+
+   Redefined StepSize in CreateGreyscaleColorTable() to give a 
+   better range of greys in 4-bit mode. As it was, white was not 
+   in the color table. (Colors were spaced by 256/16 = 16). Now, 
+   colors are spaced by (255-1)/(16-1) = 17, which gives the full 
+   range.  
+
+*--------------------------------------------------------------------*
+
+Version: 0.62
+   Date: 5-25-2005
+
+   Added endianess check function IsBigEndian() to 
+   EasyBMP_DataStructures.h file.  
+   
+   Added functions to swap bytes in WORD and DWORD multibyte 
+   variables to EasyBMP_DataStructures.h file for future big-endian 
+   support.  
+   
+   Added functions to switch endianess to BMFH and BMIH objects 
+   to EasyBMP_DataStructures.h file.  
+   
+   Added endianess checks to ReadFromFile() and WriteToFile() 
+   functions in EasyBMP_BMP.h file, along with endianess conversions 
+   where necessary.   
+   
+   Added endianess checks and conversions to GetBMFH() and GetBMIH() 
+   functions in EasyBMP_VariousBMPutilities.h file.  
+   
+   Rewrote GetBitmapInfo() function to use GetBMFH() and GetBMIH() 
+   functions instead. (In EasyBMP_VariousBMPutilities.h.) This 
+   cuts down on the redundancy in the code.  
+
+   Renamed GetBitmapInfo() to DisplayBitmapInfo() in the 
+   EasyBMP_VariousBMPutilities.h file.  
+   
+   With these changes, big-endian architectures should be supported, 
+   including IBM PowerPC, Sun Sparc, Motorola 86k, etc., and 
+   including Mac OSX.  
+   
+*--------------------------------------------------------------------*
+
+Version: 0.63
+   Date: 7-20-2005
+
+   Added IntPow(int,int) function to help compiling with std
+   namespace. Besides, integer operations are faster and more 
+   accurate. 
+   
+   Moved Square(double), IntSquare(int), and IntPow(int,int) to 
+   EasyBMP_DataStructures.h  
+   
+   Simplified and cleaned up code in 
+   Create4bitColorTable( RGBApixel**).
+   
+   Changed safety check in BMP.ReadFromFile(char*) to set size to 
+   1 x 1 if width or height is non-positive, rather than simply 
+   negative. 
+   
+   Added bounds checking to BMP.operator()(int,int) to automatically 
+   truncate requested pixel if out of bounds. Also added a warning
+   to cue the user in. :-)
+
+   Made error messages more consistent in format.  
+   
+   Simplified and cleaned up code in 
+   Create4bitColorTable( RGBApixel**).
+   
+   Added #include <iostream.h> to EasyBMP.h, since EasyBMP uses 
+   cout, etc.  
+
+   Simplified and cleaned up code in 
+   Create1bitColorTable( RGBApixel**).
+     
+   Changed BMP.SetSize(int,int) to disallow non-positive widths and 
+   heights, rather than simply negative widths and heights. Such 
+   function calls are now ignored.  
+
+*--------------------------------------------------------------------*
+
+Version: 0.64
+   Date: 8-2-2005
+
+   Changed "include <iostream.h>" to "include <iostream>" for
+   ANSI-C++ compliance, as well as for better compatibility with the
+   std namespace and VC++. (Thanks, Tommy Li!)  
+
+   Added some #ifndef pragmas to each header so that it should be
+   fine to incluce EasyBMP.h in multiple files in larger projects. 
+
+   Added "using namespace std" inside any function that used C++ 
+   math or I/O operations. I avoided putting "using namespace std"
+   anywhere with global scope for maximum compatibility with C++
+   software in the wild.  
+
+   Added includes for <cmath> and <cstdio> to EasyBMP.h  
+
+   Removed unused temporary variables (TempWORD and TempDWORD) from 
+   EasyBMP_BMP.h for cleaner compiling. If I see any more such 
+   unused variables, I'll remove them, too.  
+
+*--------------------------------------------------------------------*
+
+Version: 0.65
+   Date: 8-13-2005
+
+   Moved implementations of BMP::BMP(), BMP::~BMP(), and 
+   BMP::operator()(int,int) outside of the class. This should help 
+   for eventually moving everything into a separate cpp file. 
+   
+   Made RGBApixel** Pixels a private data member of the class 
+   BMP.  
+   
+   Added function void BMP::SetColor(int,RGBApixel) to BMP class 
+   to allow safe method of changing a color in the color table. 
+   
+   Added function RGBApixel BMP::GetColor(int) to BMP class 
+   to allow safe method of retrieving a color in the color 
+   table.  
+   
+   Cleaned up error messages in EasyBMP_BMP.h  
+   
+   Cleaned up error messages in EasyBMP_VariousBMPutilities.h 
+
+*--------------------------------------------------------------------*
+
+Version: 0.66
+   Date: 8-18-2005
+
+   EasyBMP_StandardColorTables.h was removed from the library. 
+   
+   CreateStandardColorTable(RGBApixel**,int) was changed to 
+   CreateStandardColorTable() and made a member function of BMP.
+   All other CreateStandardColorTable functions are now unnecessary 
+   and have been removed.  
+   
+   CreateGreyscaleColorTable(RGBApixel**,int) was changed to 
+   CreateStandardColorTable( BMP& ) and moved to 
+   EasyBMP_VariousBMPutilities.h.  
+   
+   RGBApixel* Colors was made a private data member of the BMP 
+   class.  
+
+   CreateGreyscaleColorTable( BMP& ) was renamed to 
+   CreateGrayscaleColorTable( BMP& ).  
+   
+*--------------------------------------------------------------------*
+
+Version: 0.67
+   Date: 9-14-2005
+
+   Made the EasyBMP custom math functions in 
+   EasyBMP_DataStructures.h inline. (Square,IntSquare,IntPow). 
+   This should make those function calls faster while improving 
+   compatibility with compiling DLL's. 
+   
+   Separated the code from SafeFread() in EasyBMP_BMP.h to 
+   improve compatibility with compiling DLL's.  
+
+   Removed #define _WINGDI_H from EasyBMP_DataStructures.h to 
+   improve compatibility with win32 applications. Instead, 
+   there's an extra #ifndef _SELF_DEFINED_BMP_DATA_TYPES 
+   conditional added.  
+   
+   _SELF_DEFINED_BMP_DATA_TYPES renamed to _SELF_DEFINED_WINGDI  
+   in EasyBMP_DataStructures.h.  
+   
+   All bit-flipping functions (IsBigEndian, FlipWORD, 
+   FlipDWORD) in EasyBMP_DataStructures.h were made inline 
+   to improve execution speed and improve compatibility with 
+   compiling DLL's.  
+   
+   All code was separated from function declarations in 
+   EasyBMP_VariousBMPutilities.h to improve compatibility 
+   with compiling DLL's.  
+
+   Updated and cleaned up layout of EasyBMP_ChangeLog.txt.
+
+   Updated contact and support information in library files. 
+
+   Corrected the LGPL license version. 
+
+*--------------------------------------------------------------------*
+
+Version: 0.68
+   Date: 10-9-2005
+
+   Changed references to FILE to std::FILE in the SafeFread function 
+   in EasyBMP_BMP.h to improve compatibility with Borland's compiler. 
+   
+   Removed a few assignments in EasyBMP_BMP.h that weren't used to 
+   improve efficiency and reduce Borland warnings. 
+   
+   Changed calls like NotCorrupted = SafeFread() to 
+   NotCorrupted &= SafeFread() in BMP::ReadFromFile() in EasyBMP_BMP.h
+   to improve robustness. Now, if the NotCorrupted bit is ever set 
+   to false, it stays false, meaning that the function won't "forget" 
+   that it encountered file corruption.
+   
+*--------------------------------------------------------------------*
+
+Version: 0.69
+   Date: 10-19-2005
+
+   Changed BMP::WriteToFile( char* ) to BMP::WriteToFile(const char*)
+   in EasyBMP_BMP.h to respond to a feature request. 
+
+   Changed BMP::ReadFromFile( char* ) to BMP::ReadToFile(const char*)
+   in EasyBMP_BMP.h to respond to a feature request. 
+
+   Made BMP::ReadFromFile() and BMP::WriteToFile() in EasyBMP_BMP.h 
+   return true/false to indicate success/failure in the operations. 
+   These functions previously returned void.
+
+   Made BMP::SetSize() and BMP::SetBitDepth() in EasyBMP_BMP.h 
+   return true/false to indicate success/failure in the operations.    
+   These functions previously returned void.
+
+   Made BMP::SetColor() and BMP::CreateStandardColorTable() in 
+   EasyBMP_BMP.h return true/false to indicate success/failure in the 
+   operations. These functions previously returned void.  
+
+   Made CreateGrayscaleColorTable() in EasyBMP_VariousBMPutilities.h 
+   return true/false to indicate success/failure in the operations. 
+   This function previously returned void.
+  
+   Changed the char* argument GetBMFH( char* ), GetBMIH( char* ), 
+   DisplayBitmapInfo( char* ), and GetBitmapColorDepth( char* ) in 
+   EasyBMP_VariousBMPutilities.h to const char* for cleaner, safer 
+   programming. 
+
+*--------------------------------------------------------------------*
+
+Version: 0.70
+   Date: 10-19-2005
+
+   Found and fixed error in BMP::ReadFromFile() in the check for only 
+   reading support bit depths.
+
+   Changed license from LGPL to BSD (revised/modified) to simplify 
+   licensing issues and resolve any lingering licensing questions.
+
+   Fixed compiler error when using MSVC++. 
+ 
+   Improved fix to allow compiling with Borland without breaking 
+   Borland support. 
+
+   Added a few lines to EasyBMP.h to make it easier to tailor code 
+   to specific compilers. (For future use as needed.)
+
+   Added a few lines to EasyBMP_BMP.h (in BMP::ReadFromFile(), 
+   BMP::WriteToFile(), and BMP::SetBitDepth()) to eventually add 
+   support for 16-bit files.
+
+*--------------------------------------------------------------------*
+
+Version: 0.71
+   Date: 11-01-2005
+
+   Cleaned up comments in BMP::ReadFromFile() in EasyBMP_BMP.h
+
+   Added endian-safe read support for 16-bit files that are in the 
+   standard 5-5-5 format (not specified in bit fields)
+
+   Added endian-safe read support for 16-bit files that use bit 
+   fields, including 5-6-5 files.
+
+   Added endian-safe write support for 16-bit files. Uses the 5-6-5 
+   encoding scheme to maximize the utility of the bits used. 
+
+   Added a check for compression in BMP::ReadFromFile(). Because 
+   file compression is beyond the scope of EasyBMP, such files are 
+   not supported, and EasyBMP now properly detects these situations 
+   and exits with an error. 
+
+   Added a check for files that attempt to use bit fields but are not 
+   16-bit files to BMP::ReadFromFile(). Such files are not supported. 
+
+   Added a check to BMP::ReadFromFile() for files that use unknown 
+   values of bmih.biCompression, such as old OS2 bitmaps. Such files 
+   are not supported. 
+
+   Removed "switching endianness" messages from EasyBMP_BMP.h 
+
+   Added support for indexed (1, 4, and 8-bit) files that don't 
+   specify all the colors. 
+
+   Added support for reading files that include extra meta data before
+   the pixels. This data is skipped. 
+ 
+   Added enclosing #ifndef EasyBMP ... lines to EasyBMP.h as a 
+   further safeguard when EasyBMP is included in multiple cpp 
+   files. 
+
+*--------------------------------------------------------------------*
+
+Version: 1.00
+   Date: 02-06-2006
+
+   First Production/Stable release.
+
+   Corrected typographical errors in the comment sections of all 
+   files.
+
+   Updated copyright on all files.
+
+   Removed extraneous comment in BMIH::BMIH() function in 
+   EasyBMP_DataStructures.h file.
+
+   Replaced instances of \n with the more modern endl in 
+   EasyBMP_DataStructures.h, EasyBMP_BMP.h, and 
+   EasyBMP_VariousBMPutilities.h.
+
+   Added placeholder MetaData1 and MetaData2 data members to the 
+   BMP class for potential future use.
+
+   Removed extraneous comments from EasyBMP_BMP.h.
+   
+   Removed warning messages for switching endianness from 
+   EasyBMP_VariousBMPutilities.h.
+
+   Updated copyright in EasyBMP_ChangeLog.txt file.
+
+   Fixed formatting issues in EasyBMP_ChangeLog.txt file.
+
+   Added DefaultXpelsPerMeter and DefaultYpelsPerMeter in 
+   EasyBMP.h. These will default to 96 dpi.
+
+   Changed BMP::WriteToFile() to use DefaultXpelsPerMeter and 
+   DefaultYpelsPerMeter when writing the BMIH structure.
+
+   Added XpelsPerMeter and YpelsPerMeter data members to BMP 
+   class so that horizontal and vertical resolution are handled
+   properly. Currently, upon reading a file, the stated resolutions 
+   are preserved, and upon writing, if no resolutions are given, 
+   the defaults (of 96 DPI) are used. 
+
+   Added function void BMP::SetDPI(int,int) to set the horizontal 
+   and vertical resolutions. 
+
+   Removed some unnecessary code from GetBitmapColorDepth() in 
+   EasyBMP_VariousBMPutilities.h.
+
+   Fixed a bug in RangedPixelToPixelCopyTransparent() and 
+   RangedPixelToPixelCopy() in EasyBMP_VariousBMPutilities.h which 
+   caused copies to be truncated by an extra row or column in 
+   certain circumstances.
+
+   Fixed a bug in RangedPixelToPixelCopyTransparent() and 
+   RangedPixelToPixelCopy() in EasyBMP_VariousBMPutilities.h which 
+   checked the wrong variable (FromT instead of FromB) to see if 
+   it was out of range. 
+
+   Added extra checks to RangedPixelToPixelCopyTransparent() and 
+   RangedPixelToPixelCopy() in EasyBMP_VariousBMPutilities.h to 
+   prevent attempted access of out-of-range pixels.
+
+*--------------------------------------------------------------------*
+
+Version: 1.01
+   Date: 03-31-2006
+
+   Made only the short functions Square, IntSquare, IsBigEndian, 
+   FlipWORD, and FlipDWORD inline functions in 
+   EasyBMP_DataStructures.h.
+   
+   Moved all code (other than inline functions) to EasyBMP.cpp.
+
+   Changed DefaultXPelsPerMeter and DefaultYPelsPerMeter to #define 
+   lines in EasyBMP.h to make the library compatible with 
+   with the header-code split. 
+   
+   Removed memory hole in ~BMP() where "delete Colors;" was used 
+   instead of "delete [] Colors;". Likewise with MetaData1 and 
+   MetaData2.
+   
+   Fixed memory leak in BMP::SetBitDepth() by changing to 
+   delete [] Colors;
+   
+   Removed potential memory leak in BMP::WriteToFile() in 24- and 
+   32-bit writing where szTemp wasn't delete at the end of a row.
+   
+   Fixed bug where XPelsPerMeter and YPelsPerMeter weren't 
+   properly initialized in the BMP::BMP() constructor, leading 
+   to strange horizontal and vertical resolutions. 
+   
+   Fixed memory leak in BMP::ReadFromFile() where TempSkipBYTE 
+   wasn't deleted.
+      
+   Fixed memory leak in BMP::ReadFromFile() where szTemp wasn't 
+   deleted.
+   
+   Added BMP::TellVerticalDPI() and BMP::TellHorizontalDPI() 
+   functions to give this information. If those values have 
+   not yet been set, then they are first set to the EasyBMP 
+   defaults of 96 dpi. 
+   
+   Set uninitialized RGBApixel values to white (255,255,255,0) 
+   in a few functions for the BMP class.
+
+   Added a sample cpp application and makefile.
+   
+*--------------------------------------------------------------------*
+
+Version: 1.02
+   Date: 05-29-2006
+
+   Inserted a line into EasyBMP.h to suppress the Visual Studio 
+   warnings. We'll keep using the C++ standard fopen for now 
+   until fopen_s becomes a real standard. 
+   
+   Moved the code sample and makefile to a subdirectory, so that 
+   unzipping EasyBMP#_##.zip into a project directory doesn't 
+   overwrite any crucial makefiles. 
+   
+   Improved SafeFread() to check if the proper amount of data 
+   could be read. 
+   
+   Dramatically cleaned up ReadFromFile() code for 1 and 4 
+   bpp files.
+   
+   Fixed a typo (draw.o) in the sample makefile.
+   
+   Modified ReadFromFile() to use buffering when reading the pixel 
+   data. This should substantially improve disk access performance.
+   Only 16 bpp files are read in the old, slower way. 
+   
+   Changed DWORD from unsigned long to unsigned int. This should 
+   fix the issue where 64-bit machines see DWORD as an 8-byte 
+   data type, rather than 4 bytes. (Thank you to Bas Wegh!)
+   
+   Renamed BYTE, WORD, and DWORD data types to ebmpBYTE, ebmpWORD, 
+   and ebmpDWORD to eliminate the possibility of conflict with 
+   windows applications, particularly with 64-bit windows, which 
+   likely uses 8 byte DWORDS. 
+   
+   Modified WriteToFile() to use buffering when reading the pixel 
+   data. This should substantially improve disk access performance.
+   Only 16 bpp files are read in the old, slower way. 
+   
+   Added new function, EasyBMPcheckDataSize(), to check that 
+   the ebmpBYTE, ebmpWORD, and ebmpDWORD types have the correct 
+   type. 
+   
+   Added some new macros of the EasyBMP version number for easier 
+   version checking. New versions include _EasyBMP_Version_ 
+   (a double), _EasyBMP_Version_String_ (a char* version), and 
+   _EasyBMP_Version_Integer_ (an integer version, e.g., 102).
+
+*--------------------------------------------------------------------*
+
+Version: 1.03
+   Date: 06-20-2006
+
+   Inserted a line into EasyBMP.h to suppress the Visual Studio 
+   
+   Added a check to BMP.SetColor() to ensure that the color table 
+   is defined before attempting to set a color entry. 
+
+   Added a check to BMP.GetColor() to ensure that the color table 
+   is defined before attempting to retrieve a color entry. 
+   
+   Simplified the conditional in BMP.WriteToFile() from  
+   if( BitDepth == 1 || BitDepth == 4 || ... ) to the simpler 
+   if( BitDepth != 16 ).
+   
+   Removed the old, unused code for writing 1- and 4-bit files 
+   from BMP.WriteToFile().
+   
+   Removed the line Colors = new RGBApixel [NumberOfColors]; in 
+   BMP.ReadFromFile(). This operation is already covered by the 
+   earlier SetBitDepth() call, and may contribute to a memory 
+   leak. Furthermore, for files that had fewer than expected 
+   number of colors (e.g., an 8-bit file with 236 colors), it 
+   lead to memory access errors in BMP.GetColor() and BMP.SetColor(). 
+   (In fact, this is the main motivation for release 1.03.) 
+   
+   Added a warning when BMP.ReadFromFile() encounters an under-
+   specified color table, and code to pad the table with white 
+   entries. 
+   
+   Added screen output on EasyBMP version and project website to 
+   the code sample.
+   
+*--------------------------------------------------------------------*
+
+Version: 1.04
+   Date: 07-22-2006
+
+   Removed the assignment to the integer i in IntPow() to eliminate a 
+   Borland compiler warning.    
+
+   Removed the assignment to the integer i in the Read##bitRow() 
+   functions to eliminate Borland compiler warnings.
+   
+   Removed the assignment to ZeroWORD in line 478 of EasyBMP.cpp in 
+   BMP::WriteToFile() to eliminate Borland compiler warnings.
+   
+   Removed the assignment to ZeroWORD in line 825 of EasyBMP.cpp in 
+   BMP::ReadFromFile() to eliminate Borland compiler warnings.   
+   
+   The Borland warnings about conditions always being false are 
+   incorrect. (Lines 1587, 1594, and 1601.) Likewise, the Borland 
+   warnings about unreachable code (lines 1589, 1596, and 1603) are 
+   incorrect. This code serves as a protection on unexpected hardware 
+   where the data types may not be of the correct size, and helps to 
+   future-proof EasyBMP. The first time this type of error was 
+   encountered was on 64-bit CPUs, where the size of the DWORD was 
+   larger than assumed when writing EasyBMP. Therefore, we will not 
+   "correct" these "errors" detected by Borland. If they bother you, 
+   compile with the -w-8008 and -w-8066 options.
+   
+   Borland issues warnings about argc and argv being unused in the 
+   sample project. These are silly warnings and will be ignored. If 
+   this warning bothers you, compile with the -w-8057 option.
+   
+   Modified the sample makefile so that EasyBMP.o depends upon 
+   EasyBMP.cpp and EasyBMP*.h in the current working directory, rather
+   than the parent directory.
+   
+   Added a global EasyBMPwarnings boolean variable, and functions 
+   SetEasyBMPwarningsOn() and SetEasyBMPwarningsOff() to enable and 
+   disable EasyBMP warnings and errors. Note that this will not 
+   disable error checking or any other EasyBMP behavior, other than 
+   cout output of the warning and error messages.
+   
+   Added the function GetEasyBMPwarningState() to query the EasyBMP 
+   warning state. (Either warnings are enabled or disabled.)
+
+   Removed old commented code (Write1bitRow()) from EasyBMP.cpp. 
+
+   Replaced the 24-bit EasyBMPbackground.bmp image in the code sample 
+   with a dithered 8-bit version to reduce the download size of the 
+   core library.
+    
+*--------------------------------------------------------------------*
+
+Version: 1.05
+   Date: 11-01-2006
+
+   Renamed BytesRead to ItemsRead in the SafeFread() function in 
+   EasyBMP.cpp for greater clarity.
+   
+   Added a copy constructor to the BMP class. However, note that 
+   passing by value is not recommended practice. (Passing by refer-
+   ence is much faster, and consumes less memory.) 
+   
+   Added a new function: 
+       bool Rescale( BMP& InputImage, char mode, int NewDimension );
+   to resize an image. The mode variables are as follows:
+    'P': resizes the image to a new percentage of the old size, 
+	     e.g., 42%, 13%, etc. 
+         example: Rescale( SomeImage, 'p', 42 );
+    'W': resizes the image such that the new width is as specified. 
+         example: Rescale( SomeImage, 'W', 100 );
+    'H': resizes the image such that the new height is as specified. 
+         example: Rescale( SomeImage, 'H', 100 );
+    'F': resizes the image to fit in a square of specified size. 
+         example: Rescale( SomeImage, 'F', 100 ); // fits in 100x100
+		                                          // box
+   All rescaling is done with bilinear interpolation. 
+
+*--------------------------------------------------------------------*
+
+Version: 1.06
+   Date: 12-01-2006
+
+   Added includes for <cctype> and <cstring> to EasyBMP.h. These are
+   used and should have been included all along. This should help 
+   with Intel icc compiling. 
+   
+   Fixed the && bug in the copy constructor. (Thank you to user 
+   fcnature!)
+   
+   Added image scaling to the supplied code sample.
+   
+   Added GetPixle() and SetPixel() functions for future use. These 
+   will be added to enable more careful use of the const keyword.
+   
+*--------------------------------------------------------------------*

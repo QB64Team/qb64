@@ -1,0 +1,78 @@
+'''_glCopyTexImage2D:''' copy pixels into a 2D texture image
+
+
+{{PageSyntax}}
+
+  SUB _glCopyTexImage2D (BYVAL target AS _UNSIGNED LONG, BYVAL level AS LONG, BYVAL internalFormat AS _UNSIGNED LONG, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG, BYVAL height AS LONG, BYVAL border AS LONG)
+  void '''_glCopyTexImage2D'''(GLenum {{Parameter|target}}, GLint {{Parameter|level}}, GLenum {{Parameter|internalformat}}, GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}}, GLsizei {{Parameter|height}}, GLint {{Parameter|border}});
+
+
+; target
+: Specifies the target texture. Must be {{KW|_GL_TEXTURE_2D}}, {{KW|_GL_TEXTURE_CUBE_MAP_POSITIVE_X}}, {{KW|_GL_TEXTURE_CUBE_MAP_NEGATIVE_X}}, {{KW|_GL_TEXTURE_CUBE_MAP_POSITIVE_Y}}, {{KW|_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y}}, {{KW|_GL_TEXTURE_CUBE_MAP_POSITIVE_Z}}, or {{KW|_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z}}.
+; level
+: Specifies the level-of-detail number. Level 0 is the base image level. Level ''n'' is the ''n''th mipmap reduction image.
+; internalformat
+: Specifies the internal format of the texture. Must be one of the following symbolic constants: {{KW|_GL_COMPRESSED_RED}}, {{KW|_GL_COMPRESSED_RG}}, {{KW|_GL_COMPRESSED_RGB}}, {{KW|_GL_COMPRESSED_RGBA}}. {{KW|_GL_COMPRESSED_SRGB}}, {{KW|_GL_COMPRESSED_SRGB_ALPHA}}. {{KW|_GL_DEPTH_COMPONENT}}, {{KW|_GL_DEPTH_COMPONENT16}}, {{KW|_GL_DEPTH_COMPONENT24}}, {{KW|_GL_DEPTH_COMPONENT32}}, {{KW|_GL_RED}}, {{KW|_GL_RG}}, {{KW|_GL_RGB}}, {{KW|_GL_R3_G3_B2}}, {{KW|_GL_RGB4}}, {{KW|_GL_RGB5}}, {{KW|_GL_RGB8}}, {{KW|_GL_RGB10}}, {{KW|_GL_RGB12}}, {{KW|_GL_RGB16}}, {{KW|_GL_RGBA}}, {{KW|_GL_RGBA2}}, {{KW|_GL_RGBA4}}, {{KW|_GL_RGB5_A1}}, {{KW|_GL_RGBA8}}, {{KW|_GL_RGB10_A2}}, {{KW|_GL_RGBA12}}, {{KW|_GL_RGBA16}}, {{KW|_GL_SRGB}}, {{KW|_GL_SRGB8}}, {{KW|_GL_SRGB_ALPHA}}, or {{KW|_GL_SRGB8_ALPHA8}}.
+; x, y
+: Specify the window coordinates of the lower left corner of the rectangular region of pixels to be copied.
+; width
+: Specifies the width of the texture image.
+; height
+: Specifies the height of the texture image.
+; border
+: This value must be 0.
+
+
+{{PageDescription}}
+
+'''_glCopyTexImage2D''' defines a two-dimensional texture image, or cube-map texture image with pixels from the current {{KW|_GL_READ_BUFFER}}.
+
+The screen-aligned pixel rectangle with lower left corner at ({{Parameter|x}}, {{Parameter|y}}) and with a width of {{Parameter|width}} and a height of {{Parameter|height}} defines the texture array at the mipmap level specified by {{Parameter|level}}. {{Parameter|internalformat}} specifies the internal format of the texture array.
+
+The pixels in the rectangle are processed exactly as if {{KW|_glReadPixels}} had been called, but the process stops just before final conversion. At this point all pixel component values are clamped to the range [0, 1] and then converted to the texture's internal format for storage in the texel array.
+
+Pixel ordering is such that lower x and y screen coordinates correspond to lower s and t texture coordinates.
+
+If any of the pixels within the specified rectangle of the current {{KW|_GL_READ_BUFFER}} are outside the window associated with the current rendering context, then the values obtained for those pixels are undefined.
+
+When {{Parameter|internalformat}} is one of the sRGB types, the GL does not automatically convert the source pixels to the sRGB color space. In this case, the '''_glPixelMap''' function can be used to accomplish the conversion.
+
+
+{{PageNotes}}
+
+1, 2, 3, and 4 are not accepted values for {{Parameter|internalformat}}.
+
+An image with height or width of 0 indicates a NULL texture.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|target}} is not {{KW|_GL_TEXTURE_2D}}, {{KW|_GL_TEXTURE_CUBE_MAP_POSITIVE_X}}, {{KW|_GL_TEXTURE_CUBE_MAP_NEGATIVE_X}}, {{KW|_GL_TEXTURE_CUBE_MAP_POSITIVE_Y}}, {{KW|_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y}}, {{KW|_GL_TEXTURE_CUBE_MAP_POSITIVE_Z}}, or {{KW|_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z}}.
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|level}} is less than 0.
+
+{{KW|_GL_INVALID_VALUE}} may be generated if {{Parameter|level}} is greater than log&amp;lt;sub&amp;gt;2&amp;lt;/sub&amp;gt;(max}, where max is the returned value of {{KW|_GL_MAX_TEXTURE_SIZE}}.
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|width}} is less than 0 or greater than {{KW|_GL_MAX_TEXTURE_SIZE}}.
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|border}} is not 0.
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|internalformat}} is not an accepted format.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{Parameter|internalformat}} is {{KW|_GL_DEPTH_COMPONENT}}, {{KW|_GL_DEPTH_COMPONENT16}}, {{KW|_GL_DEPTH_COMPONENT24}}, or {{KW|_GL_DEPTH_COMPONENT32}} and there is no depth buffer.
+
+
+{{PageUseWith}}
+
+{{KW|_glGetTexImage}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glActiveTexture}}, {{KW|_glBindTexture}}, {{KW|_glBindFramebuffer}}, {{KW|_glCopyTexImage1D}}, {{KW|_glCopyImageSubData}}, {{KW|_glCopyTexSubImage1D}}, {{KW|_glCopyTexSubImage2D}}, {{KW|_glReadBuffer}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

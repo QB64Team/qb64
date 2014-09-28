@@ -1,0 +1,300 @@
+'''PLAY''' is a statement that plays notes of sound through the sound card in QB64 using a command [[STRING]].
+
+
+{{PageSyntax}}
+::: '''PLAY ''commandstring$'''''
+
+
+{{Parameters}}
+* The ''commandstring'' can be any literal or variable [[STRING]] consisting of the following uppercase or lowercase commands:
+:*'''O'''n - Sets the current octave (from 0 to 6). Example: '''{{text|PLAY &quot;O3&quot;|green}}'''
+:*'''&lt;''' - Down one octave (cannot be below zero). Example: '''{{text|PLAY &quot;&lt;&lt;&quot;|green}}''' 'goes down two octaves.
+:*'''&gt;''' - Up one octave (cannot be above 6). Example: '''{{text|PLAY &quot;&gt;&gt;&quot;|green}}''' ' goes up two octaves.
+:*'''A''', '''B''', '''C''', '''D''', '''E''', '''F''' or '''G''' are the notes in the current octave. Can use the following suffixes:
+::*'''+''' or '''#''' for a sharp note. Example: '''{{text|PLAY &quot;C#&quot;}green}}'''
+::*'''-''' for a flat note. Example: '''{{text|PLAY &quot;C-&quot;|green}}'''
+:*'''N'''n - Plays a note n by number(n can be between 0 to 84 in the 7 octaves, where 0 is a rest). Example: '''{{text|PLAY &quot;N42&quot;|green}}'''
+:*'''L'''n - Sets length of a note (n can be 1 to 64 where 1 is a whole note and 4 is a quarter of a note etc.). Example: '''{{text|PLAY &quot;L4&quot;|green}}'''
+::*'''MS''' - Each note plays 3/4 of length set by L (staccato)
+::*'''MN''' - Each note plays 7/8 of length set by L (normal)
+::*'''ML''' - Each note plays full length set by L (legato)
+::*'''P'''n - Pause in the duration of n quarternotes (n can be 1 to 64) corresponding to L, Example: '''{{text|PLAY &quot;P32&quot;|green}}'''
+::*'''T'''n - Tempo sets number of L4 quarter notes per minute (n can be 32 to 255 where 120 is the default). Example: '''{{text|PLAY &quot;T180&quot;|green}}'''
+:::*''' .  '''  - period after a note plays 1½ times the note length determined by L * T.
+:::*'''.. '''  - two periods plays 1-3/4 times the note length determined by L * T.
+:*''',  '''  - '''commas in QB64''' stop play advancement to allow more than one note to be played simultaneously. Example: '''{{text|PLAY &quot;C,E,G,&quot;|green}}'''
+:*'''V'''n - Volume in '''QB64 only''' can be any volume from 0(none) to 100(full).  The default level is 50 when '''n''' is not specified. 
+:*'''MF''' - Play music in the foreground (each note must be completed before another can start).
+:*'''MB''' - Play music in the background while program code execution continues (QB64 has no note buffer limits).
+:*'''X''' '''+''' [[VARPTR$]](string-expression) - executes a command string variable. '''MUST be used with variables!'''.
+
+
+''Usage:''
+* MB will allow music to play while program code progresses. MF will wait for code to continue playing notes.
+* Command string values are not case sensitive. Use upper or lower case as desired.
+*'''NOTE: PLAY may NOT delay program progress! Use [[_DELAY]] and [[END]] to allow music completion.'''
+
+
+''Example 1:'' Plays a sound with the volume and note varying from 0 to 50. Maximum note can only be 84.
+{{CodeStart}} '' ''
+{{Cl|PLAY}} &quot;mll64&quot;
+{{Cl|DO}}
+    {{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} 50
+        a$ = a$ + &quot;v&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x)) + &quot;n&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x))
+    {{Cl|NEXT}}
+    {{Cl|FOR...NEXT|FOR}} x = 50 {{Cl|TO}} 1 {{Cl|STEP}} -1
+        a$ = a$ + &quot;v&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x)) + &quot;n&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x))
+    {{Cl|NEXT}}
+    {{Cl|PLAY}} a$
+    a$ = &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|PLAY}} &quot;v10l1c,l4egl2o5c,o4l4eg&quot; '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}}
+
+
+''Example 2:'' Plays &quot;Frosty the snowman&quot;. The lyric printing is not delayed by PLAY in QB64.
+{{CodeStart}} '' ''
+CLS : PRINT &quot;Frosty the Snow Man&quot; 
+{{Cl|FOR...NEXT|FOR}} X = 1 {{Cl|TO}} 2
+  PRINT
+  IF X = 1 THEN PRINT &quot;Fros-ty the Snow man was a jolly happy soul,&quot;
+  IF X = 2 THEN PRINT &quot;Fros-ty the Snow man knew the sun was hot that day&quot;
+  {{Cl|PLAY}} &quot;t140o2p4g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g2.&quot;   'MB removed to print song one line at a time
+  IF X = 1 THEN PRINT &quot;with a corn cob pipe and a button nose and two eyes made out of coal.&quot;
+  IF X = 2 THEN PRINT &quot;so he said Let's run and we'll have some fun now before I melt away.&quot;
+  {{Cl|PLAY}} &quot;o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4f4g2.&quot;
+  IF X = 1 THEN PRINT &quot;Fros-ty the Snow Man is a fair-y tale, they say,&quot;
+  IF X = 2 THEN PRINT &quot;Down to the vil-lage, with a broom-stick in his hand,&quot;
+  {{Cl|PLAY}} &quot;g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g2.&quot;
+  IF X = 1 THEN PRINT &quot;He was made of snow but the chil-dren knew how he come to life one day.&quot;
+  IF X = 2 THEN PRINT &quot;run-ning here and there all a-round the square, say-in' catch me if you can.&quot;
+  {{Cl|PLAY}} &quot;o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4d4c2.&quot;
+  IF X = 1 THEN PRINT &quot;There must have been some magic in that old silk hat they found.&quot;
+  IF X = 2 THEN PRINT &quot;He led them down the streets of town right to the traffic cop.&quot;
+  {{Cl|PLAY}} &quot;c4a4a4o3c4c4o2b4a4g4e4f4a4g4f4e2.&quot;
+  IF X = 1 THEN PRINT &quot;For when they placed it on his head he be-gan to dance a round.&quot;
+  IF X = 2 THEN PRINT &quot;And he on-ly paused a moment when he heard him hol-ler Stop!&quot;
+  {{Cl|PLAY}} &quot;e8e8d4d4g4g4b4b4o3d4d8o2b8o3d4c4o2b4a4g4p4&quot;
+  IF X = 1 THEN PRINT &quot;Oh, Fros-ty the Snow Man was a-live as he could be,&quot;
+  IF X = 2 THEN PRINT &quot;For, Fros-ty the Snow Man had to hur-ry on his way&quot;
+  {{Cl|PLAY}} &quot;g2g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g8g2.&quot;
+  IF X = 1 THEN PRINT &quot;and the chil-dren say he could laugh and play just the same as you and me.&quot;
+  IF X = 2 THEN PRINT &quot;but he waved good-bye say-in' Don't you cry, I'll be back a-gain some day.&quot;
+  {{Cl|PLAY}} &quot;o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4d4c2.p4&quot;
+NEXT X
+PRINT : PRINT &quot;Thump-et-y thump thump, thump-et-y thump thump, look at Fros-ty go.&quot;
+{{Cl|PLAY}} &quot;t180g8g8g4g4g4a8g8g4g4g4a4g4e4g4d1&quot;
+PRINT &quot;Thump-et-y thump thump, thump-et-y thump thump, ov-er the hills of snow.&quot;
+{{Cl|PLAY}} &quot;t180g8g8g4g4g4a8g8g4g4g4g8g8g4a4b4o3c2c4p1&quot; 
+{{Cl|END}}'' ''
+{{CodeEnd}}
+{{small|Greg Rismoen 12/09/84}}
+
+
+''Example 3:'' Clicking on the grid enables various notes to be played simultaneously. 
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} grid(16, 16), grid2(16, 16), cur
+{{Cl|CONST}} maxx = 512
+{{Cl|CONST}} maxy = 512
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(maxx, maxy, 32)
+{{Cl|_TITLE}} &quot;MusicGrid&quot;
+cleargrid
+{{Cl|DO}}
+    {{Cl|IF}} {{Cl|TIMER}} - t# &gt; 1 / 8 {{Cl|THEN}} cur = (cur + 1) {{Cl|AND (boolean)|AND}} 15: t# = {{Cl|TIMER}}
+    {{Cl|IF}} cur &lt;&gt; oldcur {{Cl|THEN}}
+        figuregrid
+        drawgrid
+        playgrid
+        oldcur = cur
+    {{Cl|END IF}}
+    domousestuff
+    in$ = {{Cl|INKEY$}}
+    {{Cl|IF}} in$ = &quot;C&quot; {{Cl|OR (boolean)|OR}} in$ = &quot;c&quot; {{Cl|THEN}} cleargrid
+{{Cl|LOOP}} {{Cl|UNTIL}} in$ = {{Cl|CHR$}}(27)
+
+{{Cl|SUB}} drawgrid
+scale! = maxx / 16
+scale2 = maxx \ 16 - 2
+{{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} 15
+    y1 = y * scale!
+    {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 15
+        x1 = x * scale!
+        c&amp; = {{Cl|_RGB32}}(grid2(x, y) * 64 + 64, 0, 0)
+        {{Cl|LINE}} (x1, y1)-(x1 + scale2, y1 + scale2), c&amp;, BF
+    {{Cl|NEXT}} x
+{{Cl|NEXT}} y
+{{Cl|END SUB}}
+
+{{Cl|SUB}} figuregrid
+{{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} 15
+    {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 15
+        grid2(x, y) = grid(x, y)
+    {{Cl|NEXT}} x
+{{Cl|NEXT}} y
+{{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 14
+    {{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} 14
+        {{Cl|IF}} grid(x, y) = 1 {{Cl|AND (boolean)|AND}} cur = x {{Cl|THEN}}
+            grid2(x, y) = 2
+            {{Cl|IF}} grid(x - 1, y) = 0 {{Cl|THEN}} grid2(x - 1, y) = 1
+            {{Cl|IF}} grid(x + 1, y) = 0 {{Cl|THEN}} grid2(x + 1, y) = 1
+            {{Cl|IF}} grid(x, y - 1) = 0 {{Cl|THEN}} grid2(x, y - 1) = 1
+            {{Cl|IF}} grid(x, y + 1) = 0 {{Cl|THEN}} grid2(x, y + 1) = 1
+        {{Cl|END IF}}
+    {{Cl|NEXT}} x
+{{Cl|NEXT}} y
+{{Cl|END SUB}}
+
+{{Cl|SUB}} domousestuff
+{{Cl|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+    {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}}
+        x = {{Cl|_MOUSEX}} \ (maxx \ 16)
+        y = {{Cl|_MOUSEY}} \ (maxy \ 16)
+        grid(x, y) = 1 - grid(x, y)
+    {{Cl|END IF}}
+{{Cl|LOOP}}
+{{Cl|END SUB}}
+
+{{Cl|SUB}} playgrid
+n$ = &quot;L16 &quot;
+'scale$ = &quot;O1CO1DO1EO1FO1GO1AO1BO2CO2DO2EO2FO2GO2AO2BO3CO3D&quot;
+scale$ = &quot;o1fo1go1ao2co2do2fo2go2ao3co3do3fo3go3ao4co4do4fo&quot;
+{{Cl|FOR...NEXT|FOR}} y = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1
+    {{Cl|IF}} grid(cur, y) = 1 {{Cl|THEN}}
+        note$ = {{Cl|MID$}}(scale$, 1 + (15 - y) * 3, 3)
+        n$ = n$ + note$ + &quot;,&quot;   'comma plays 2 or more column notes simultaneously
+    {{Cl|END IF}}
+{{Cl|NEXT}} y
+n$ = {{Cl|LEFT$}}(n$, {{Cl|LEN}}(n$) - 1)
+{{Cl|PLAY}} n$
+{{Cl|END SUB}}
+
+{{Cl|SUB}} cleargrid
+{{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} 15
+    {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 15
+        grid(x, y) = 0
+    {{Cl|NEXT}} x
+{{Cl|NEXT}} y
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by JP}}
+
+
+''Example 4:'' Play strings starting with MB allow program code to run while music plays in background.
+{{CodeStart}} '' ''
+' 2012, 2013 mennonite
+' license: creative commons cc0 1.0 universal
+' (public domain) http://creativecommons.org/publicdomain/zero/1.0/
+
+{{Cl|SCREEN}} 12 ' the following works in other screen modes, too
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+
+{{Cl|PLAY}} &quot;mb l4cf.l8el4fag.l8fl4gl8agl4f.l8fl4a&gt;cl2dl4dl4c.&lt;l8al4afg.l8fl4gl8agl4f.l8dl4dcl2f&gt;l4dc.&lt;l8al4afg.l8fl4g&gt;dc.&lt;l8al4a&gt;cl2dl4dc.&lt;l8al4afg.l8fl4gl8agl4f.l8dl4dcl1f&quot;
+
+{{Cl|DIM}} ccs(1 {{Cl|TO}} 9, 1 {{Cl|TO}} 2)
+ccs(1, 1) = 415: ccs(1, 2) = 289
+ccs(2, 1) = 185: ccs(2, 2) = 128
+ccs(3, 1) = 108: ccs(3, 2) = 75
+ccs(4, 1) = 70: ccs(4, 2) = 48
+ccs(5, 1) = 48: ccs(5, 2) = 32
+ccs(6, 1) = 32: ccs(6, 2) = 20
+ccs(7, 1) = 20: ccs(7, 2) = 12
+ccs(8, 1) = 10: ccs(8, 2) = 6
+ccs(9, 1) = 2: ccs(9, 2) = 2
+
+{{Cl|FOR...NEXT|FOR}} extra = 1 {{Cl|TO}} 23
+  {{Cl|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} 9
+    gcolor {{Cl|INT}}({{Cl|RND}} * 9 + 14 - 9)
+    {{Cl|_DELAY}} .04
+    {{Cl|CLS}}
+    gscale p
+    row = ccs(p, 1)
+    cl = ccs(p, 2)
+    glocate row, cl
+    gprint &quot;000000000000000000000000000000000000000000000000000000000000000000000&quot;
+    glocate row + 1, cl
+    gprint &quot;0x00x0xxxx0xxxx0xxxx0x0x000x00x0xxxx0x000x000x0x0xxxx0xxxx0xxxx000x00&quot;
+    glocate row + 2, cl
+    gprint &quot;0x00x0x00x0x00x0x00x0x0x000xx0x0x0000x000x000x0x0x0000x00x0x00x000x00&quot;
+    glocate row + 3, cl
+    gprint &quot;0xxxx0xxxx0xxxx0xxxx0x0x000x0xx0xxx00x0x0x000x0x0xxx00xxxx0xxxx000x00&quot;
+    glocate row + 4, cl
+    gprint &quot;0x00x0x00x0x0000x00000x0000x00x0x0000x0x0x0000x00x0000x00x0x0x0000000&quot;
+    glocate row + 5, cl
+    gprint &quot;0x00x0x00x0x0000x00000x0000x00x0xxxx0xx0xx0000x00xxxx0x00x0x00x000x00&quot;
+    glocate row + 6, cl
+    gprint &quot;000000000000000000000000000000000000000000000000000000000000000000000&quot;
+  {{Cl|NEXT}} p
+  {{Cl|SLEEP}} 1
+  {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}} extra
+
+{{Cl|END}}
+
+{{Cl|SUB}} gscale (s):
+{{Cl|SHARED}} gscalep
+gscalep = {{Cl|INT}}(s)
+{{Cl|END SUB}}
+
+{{Cl|SUB}} gcolor (c):
+{{Cl|SHARED}} gcolorp
+gcolorp = c
+{{Cl|END SUB}}
+
+{{Cl|SUB}} gbackcolor (c):
+{{Cl|SHARED}} gbackcolorp
+gbackcolorp = c
+{{Cl|END SUB}}
+
+{{Cl|SUB}} glocate (row, column):
+{{Cl|SHARED}} gposxp
+{{Cl|SHARED}} gposyp
+gposyp = row
+gposxp = column
+{{Cl|END SUB}}
+
+{{Cl|SUB}} gprint (p$):
+{{Cl|SHARED}} gscalep
+{{Cl|SHARED}} gposxp, gposyp
+{{Cl|SHARED}} gcolorp, gbackcolorp
+' # means &quot;use the foreground color here.&quot;
+' . means &quot;use the background color here.&quot;
+' _ means &quot;transparent - don't draw this block at all&quot; (you can layer!)
+' 0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f means &quot;do color attribute 0 to 15.&quot;
+' any letter after f: &quot;use the foreground color here.&quot;
+{{Cl|IF...THEN|IF}} gscalep &lt; 1 {{Cl|THEN}} gscalep = 1
+pcolorp = gcolorp
+{{Cl|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} {{Cl|LEN}}(p$):
+  {{Cl|SELECT CASE}} {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))
+    {{Cl|CASE}} &quot;#&quot;, &quot;g&quot;, &quot;h&quot;, &quot;i&quot;, &quot;j&quot;, &quot;k&quot;, &quot;l&quot;, &quot;m&quot;, &quot;n&quot;, &quot;o&quot;, &quot;p&quot;, &quot;q&quot;, &quot;r&quot;, &quot;s&quot;, &quot;t&quot;, &quot;u&quot;, &quot;v&quot;, &quot;w&quot;, &quot;x&quot;, &quot;y&quot;, &quot;z&quot;
+      pcolorp = gcolorp
+    {{Cl|CASE}} &quot;.&quot;
+      pcolorp = gbackcolorp
+    {{Cl|CASE}} &quot;_&quot;
+      pcolorp = -1
+    {{Cl|CASE}} &quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;, &quot;f&quot;
+      pcolorp = {{Cl|INSTR}}(&quot;0123456789abcdef&quot;, {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))) - 1
+  {{Cl|END SELECT}}
+  {{Cl|IF...THEN|IF}} {{Cl|NOT}} pcolorp = -1 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} gscalep &gt; 1 {{Cl|THEN}}
+      {{Cl|LINE}} ((gposxp - 1) * gscalep, (gposyp - 1) * gscalep)-{{Cl|STEP}}(gscalep - 1, gscalep - 1), pcolorp, BF
+    {{Cl|ELSE}}:
+      {{Cl|PSET}} (gposxp, gposyp), pcolorp
+    {{Cl|END IF}}
+  {{Cl|END IF}}
+  glocate gposyp, gposxp + 1
+{{Cl|NEXT}} p
+gposxp = 1
+glocate gposyp + 1, 1 'gposyp = gposyp + 1
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}{{small|Code by Mennonite}}
+
+
+''See also:''' 
+* [[PLAY(n)]], [[ON PLAY(n)]] 
+* [[SOUND]], [[DRAW]]
+* [[_SNDRAW]] (play frequency waves)
+* [[_SNDOPEN]] (play sound files)
+
+
+{{PageNavigation}}
