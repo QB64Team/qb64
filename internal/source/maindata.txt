@@ -769,19 +769,6 @@ __ARRAY_INTEGER_PL[5]=0;
 __ARRAY_INTEGER_PL[6]=0;
 __ARRAY_INTEGER_PL[0]=(ptrszint)nothingvalue;
 }
-if (!__ARRAY_STRING_VARS){
-__ARRAY_STRING_VARS=(ptrszint*)mem_static_malloc(9*ptrsz);
-new_mem_lock();
-mem_lock_tmp->type=4;
-((ptrszint*)__ARRAY_STRING_VARS)[8]=(ptrszint)mem_lock_tmp;
-__ARRAY_STRING_VARS[2]=0;
-__ARRAY_STRING_VARS[4]=2147483647;
-__ARRAY_STRING_VARS[5]=0;
-__ARRAY_STRING_VARS[6]=0;
-__ARRAY_STRING_VARS[0]=(ptrszint)&nothingstring;
-}
-if (!__STRING_FILENAME)__STRING_FILENAME=qbs_new(0,0);
-if (!__STRING_DIRNAME)__STRING_DIRNAME=qbs_new(0,0);
 if(__INTEGER_QUICKRETURN==NULL){
 __INTEGER_QUICKRETURN=(int16*)mem_static_malloc(2);
 *__INTEGER_QUICKRETURN=0;
