@@ -9,6 +9,8 @@
  #include <cmath>
 #endif
 
+#include "parts/user_mods/src.cpp"
+
 /* testing only
 #ifdef QB64_WINDOWS
 
@@ -89,24 +91,6 @@ ALCdevice *dev;
 ALCcontext *ctx;
 struct stat statbuf;
 */
-
-
-
-
-
- //*******************************************************
- //  
- //     Change to make user-defined additions easier to track inside their own headers
- //
- //********************************************************
-
-
- #ifdef QB64_BACKSLASH_FILESYSTEM
- #include "User Mods\user_list.h"
-#else
- #include "User Mods/user_list.h"
-#endif
-
 
 
 

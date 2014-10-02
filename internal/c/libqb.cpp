@@ -1,4 +1,5 @@
 #include "common.cpp"
+#include "libqb.h"
 
 #include "parts/core/glew/src/glew.c"
 
@@ -17066,8 +17067,8 @@ ptrszint func_ubound(ptrszint *array,int32 index,int32 num_indexes){
   return array[4*index]+array[4*index+1]-1;
 }
 
-static uint8 port60h_event[256];
-static int32 port60h_events=0;
+uint8 port60h_event[256];
+int32 port60h_events=0;
 
 
 int32 func_inp(int32 port){
@@ -34703,4 +34704,3 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
 #endif
   }
 
-#include "User Mods/Users Routines-List.cpp"

@@ -29,3 +29,7 @@ del parts\audio\out\os\lnx\temp\*.o
 del parts\video\font\ttf\os\win\src.o
 del parts\video\font\ttf\os\lnx\src.o
 
+del parts\user_mods\os\win\src.a
+del parts\user_mods\os\lnx\src.a
+del parts\user_mods\os\win\temp\*.o
+del parts\user_mods\os\lnx\temp\*.o

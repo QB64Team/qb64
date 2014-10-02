@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef QB64_WINDOWS
 #define SNCMP(x,y,z) _memicmp((char *)x, (char *)y, z)
 #else
@@ -19,7 +22,7 @@ int32 func__str_nc_compare(qbs *s1, qbs *s2) {
 	       if (i<0) return -1;
 	       if (i>0) return 1; 
 	       if (l1<l2) return -1; 
-	       if (l2>l1) return 1;
+	       if (l1>l2) return 1;
 	       return 0;
 	    }
         c1++;

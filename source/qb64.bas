@@ -59,7 +59,7 @@ CONST DEPENDENCY_AUDIO_DECODE = 3: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_AUDIO_OUT = 4: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_GL = 5: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_IMAGE_CODEC = 6: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
-
+CONST DEPENDENCY_USER_MODS = 7: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 
 DIM SHARED DEPENDENCY(1 TO DEPENDENCY_LAST)
 
@@ -10826,6 +10826,17 @@ IF DEPENDENCY(DEPENDENCY_AUDIO_OUT) THEN
     d2$ = d1$ + "\os\" + o$
     d3$ = "internal\c\" + d2$
     IF _FILEEXISTS(d3$ + "\src.a") = 0 THEN 'rebuild?
+        Build d3$
+    END IF
+    libs$ = libs$ + " " + d2$ + "\src.a"
+END IF
+
+IF DEPENDENCY(DEPENDENCY_USER_MODS) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_USER_MODS"
+    d1$ = "parts\user_mods"
+    d2$ = d1$ + "\os\" + o$
+    d3$ = "internal\c\" + d2$
+    IF _FILEEXISTS(d3$ + "\src.a") = 0 THEN
         Build d3$
     END IF
     libs$ = libs$ + " " + d2$ + "\src.a"

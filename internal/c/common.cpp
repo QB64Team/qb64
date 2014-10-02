@@ -1,3 +1,5 @@
+#ifndef INC_COMMON_CPP
+#define INC_COMMON_CPP
 #include "os.h"
 
 #ifdef QB64_ANDROID
@@ -399,16 +401,4 @@ struct mem_lock{
   void *offset;//used by malloc'ed blocks to free them
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif //INC_COMMON_CPP

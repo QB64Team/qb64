@@ -31,3 +31,7 @@ rm parts/audio/out/os/lnx/temp/*.o
 rm parts/video/font/ttf/os/win/src.o
 rm parts/video/font/ttf/os/lnx/src.o
 
+rm parts/user_mods/os/win/src.a
+rm parts/user_mods/os/lnx/src.a
+rm parts/user_mods/os/win/temp/*.o
+rm parts/user_mods/os/lnx/temp/*.o

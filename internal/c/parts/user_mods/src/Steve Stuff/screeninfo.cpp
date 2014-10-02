@@ -10,7 +10,7 @@ int32 func_screenheight () {
 
 void sub_screenicon () {
 	while (!window_exists){Sleep(100);}
-	glutIconifyWindow;
+	glutIconifyWindow();
 	return;
 }
 

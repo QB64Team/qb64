@@ -1,3 +1,9 @@
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include "libqb.h"
+#include "luke_mods.h"
+
 //Get Current Working Directory
 qbs *func__cwd(){
   qbs *final, *tqbs;
