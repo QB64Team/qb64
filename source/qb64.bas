@@ -16951,7 +16951,7 @@ FOR i = 1 TO n
                 s$ = ""
                 IF c = 45 THEN
                     s$ = "&&"
-                    IF (f3$ <= "-2147483648" AND LEN(f3$) = 11) OR LEN(f3$) < 11 THEN s$ = "&"
+                    IF (f3$ < "-2147483648" AND LEN(f3$) = 11) OR LEN(f3$) < 11 THEN s$ = "&"
                     IF (f3$ <= "-32768" AND LEN(f3$) = 6) OR LEN(f3$) < 6 THEN s$ = "%"
                 ELSE
                     s$ = "~&&"
