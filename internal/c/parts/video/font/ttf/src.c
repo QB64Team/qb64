@@ -13,6 +13,7 @@ int32 FontLoad (uint8 *content_original,int32 content_bytes,int32 default_pixel_
 int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,
                           uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){return NULL;}
 int32 FontWidth(int32 i){return NULL;}
+void FontFree(int32 i){return;}
 #else
 
 #ifdef QB64_BACKSLASH_FILESYSTEM
@@ -295,6 +296,12 @@ fonts[i].monospace=1;
 fonts[i].in_use=1;
 return i;
 
+}
+
+void FontFree(int32 i) {
+  FT_Done_Face(fonts[i].handle);
+  free(fonts[i].ttf_data);
+  fonts[i].in_use = 0;
 }
 
 int32 FontRenderTextASCII(int32 i,uint8*codepoint,int32 codepoints,int32 options,

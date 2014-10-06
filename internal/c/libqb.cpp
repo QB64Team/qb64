@@ -20890,8 +20890,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       }
     }
     //remove font
-    //NO_S_D_L//TTF_CloseFont(font[f]);
-    //NO_S_D_L//font[f]=NULL;
+    FontFree(font[f]);
+    font[f]=NULL;
   }
 
   void sub__printmode(int32 mode,int32 i,int32 passed){
