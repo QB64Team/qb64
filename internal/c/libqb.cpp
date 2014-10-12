@@ -20379,21 +20379,21 @@ void sub_mkdir(qbs *str){
       for (y2=0;y2<h;y2++){
         cp=rt_data+y2*w;
         for (x2=0;x2<w;x2++){
-          if (*cp++) pset(x+x2,y+y2,color); else pset(x+x2,y+y2,background_color);
+          if (*cp++) pset_and_clip(x+x2,y+y2,color); else pset_and_clip(x+x2,y+y2,background_color);
         }}
       break;
     case 1:
       for (y2=0;y2<h;y2++){
         cp=rt_data+y2*w;
         for (x2=0;x2<w;x2++){
-          if (*cp++) pset(x+x2,y+y2,color);
+          if (*cp++) pset_and_clip(x+x2,y+y2,color);
         }}
       break;
     case 2:
       for (y2=0;y2<h;y2++){
         cp=rt_data+y2*w;
         for (x2=0;x2<w;x2++){
-          if (!(*cp++)) pset(x+x2,y+y2,background_color);
+          if (!(*cp++)) pset_and_clip(x+x2,y+y2,background_color);
         }}
       break;
     default:
@@ -20455,7 +20455,7 @@ void sub_mkdir(qbs *str){
         g4=qbr_float_to_long(g3);
         b4=qbr_float_to_long(b3);
         alpha4=qbr_float_to_long(alpha3);
-        pset(x+x2,y+y2,b4+(g4<<8)+(r4<<16)+(alpha4<<24));
+        pset_and_clip(x+x2,y+y2,b4+(g4<<8)+(r4<<16)+(alpha4<<24));
 
       }}
     break;
@@ -20464,7 +20464,7 @@ void sub_mkdir(qbs *str){
       cp=rt_data+y2*w;
       for (x2=0;x2<w;x2++){
         z3=*cp++;
-        if (z3) pset(x+x2,y+y2,((z3*a)>>8<<24)+z);
+        if (z3) pset_and_clip(x+x2,y+y2,((z3*a)>>8<<24)+z);
       }}
     break;
       case 2:
@@ -20472,7 +20472,7 @@ void sub_mkdir(qbs *str){
       cp=rt_data+y2*w;
       for (x2=0;x2<w;x2++){
         z3=*cp++;
-        if (z3!=255) pset(x+x2,y+y2,(((255-z3)*a2)>>8<<24)+z2);
+        if (z3!=255) pset_and_clip(x+x2,y+y2,(((255-z3)*a2)>>8<<24)+z2);
       }}
     break;
       default:

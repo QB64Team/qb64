@@ -254,6 +254,8 @@ fonts=(fonts_struct*)realloc(fonts,sizeof(fonts_struct)*(fonts_last+1));
 fonts[i].in_use=0;
 got_index:
 
+memset(&fonts[i],0,sizeof(fonts_struct));
+
 //duplicate content
 static uint8* content;
 content=(uint8*)malloc(content_bytes);
