@@ -433,7 +433,10 @@ RENDER_STATE_DEST dest_render_state0;
 #define SMOOTH_MODE__DONT_SMOOTH 0
 #define SMOOTH_MODE__SMOOTH 1
 #define PO2_FIX__OFF 0
-#define PO2_FIX__ON 1
+#define PO2_FIX__EXPANDED 1
+#define PO2_FIX__MIPMAPPED 2
+
+
 #define DEPTHBUFFER_MODE__UNKNOWN -1
 #define DEPTHBUFFER_MODE__OFF 0
 #define DEPTHBUFFER_MODE__ON 1
@@ -464,6 +467,8 @@ struct hardware_img_struct{
   int32 valid;
   RENDER_STATE_SOURCE source_state;
   RENDER_STATE_DEST dest_state;  
+  int32 PO2_w;//if PO2_FIX__EXPANDED/MIPMAPPED, these are the texture size
+  int32 PO2_h;
 };
 list *hardware_img_handles=NULL;
 
@@ -514,7 +519,97 @@ list *hardware_graphics_command_handles=NULL;
 #define HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D 5
 #define HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER 6
 
-//forward ref
+int32 force_NPO2_fix=0;//This should only be set to 1 for debugging QB64
+
+uint32 *NPO2_buffer=(uint32*)malloc(4);
+int32 NPO2_buffer_size_in_pixels=1;
+
+uint32 *NPO2_texture_generate(int32 *px, int32 *py, uint32 *pixels){
+int32 ox=*px;
+int32 oy=*py;
+int32 nx=1;
+int32 ny=1;
+
+//assume not negative & not 0
+while ((ox&1)==0){
+	ox>>=1;
+	nx<<=1;
+}
+if (ox!=1){//x is not a power of 2
+	while (ox!=0){
+		ox>>=1;
+		nx<<=1;
+	}	
+	nx<<1;
+}
+while ((oy&1)==0){
+	oy>>=1;
+	ny<<=1;
+}
+if (oy!=1){//y is not a power of 2
+	while (oy!=0){
+		oy>>=1;
+		ny<<=1;
+	}	
+	ny<<1;
+}
+
+//reset original values
+ox=*px;
+oy=*py;
+
+if (nx==ox&&ny==oy){ //no action required
+	return pixels;
+}
+
+int32 size_in_pixels=nx*ny;
+if (size_in_pixels>NPO2_buffer_size_in_pixels){
+	NPO2_buffer=(uint32*)realloc(NPO2_buffer,size_in_pixels*4);
+	NPO2_buffer_size_in_pixels=size_in_pixels;
+}
+
+//copy source NPO2 rectangle into destination PO2 rectangle
+if (nx==ox){ //can copy as a single block
+	memcpy(NPO2_buffer,pixels,ox*oy*4);
+}else{
+	uint32 *dst_pixel_offset=NPO2_buffer;
+	uint32 *src_pixel_offset=pixels;
+	while (oy--){
+		memcpy(dst_pixel_offset,src_pixel_offset,ox*4);
+		dst_pixel_offset+=nx;
+		src_pixel_offset+=ox;
+	}
+	oy=*py;
+}
+
+//tidy edges - extend the right-most column and bottom-most row to avoid pixel/color bleeding
+//rhs column
+if (ox!=nx){
+for (int y=0;y<oy;y++){
+NPO2_buffer[ox+nx*y]=NPO2_buffer[ox+nx*y-1];
+}
+}
+//bottom row + 1 pixel for corner
+if (oy!=ny){
+for (int x=0;x<(ox+1);x++){
+NPO2_buffer[nx*oy+x]=NPO2_buffer[nx*oy+x-nx];
+}
+}
+
+//int maxtexsize;
+//glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtexsize);
+//alert(maxtexsize); 
+
+//alert(nx);
+//alert(ny);
+
+*px=nx;
+*py=ny;
+
+return NPO2_buffer;
+
+}
+
 
 int32 new_texture_handle(){
   GLuint texture=0;
@@ -565,14 +660,30 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
     hardware_img->software_pixel_buffer=NULL;
     hardware_img->texture_handle=new_texture_handle();
     glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
-    //non-power of 2 dimensions fallback support
+    //non-power of 2 dimensions fallback support    
     static int glerrorcode;
     glerrorcode=glGetError();//clear any previous errors
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
+    if (force_NPO2_fix==0) glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
     glerrorcode=glGetError();
-    if (glerrorcode!=0){
-	hardware_img->source_state.PO2_fix=PO2_FIX__ON;
-	gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGBA, x,y, GL_BGRA, GL_UNSIGNED_BYTE, pixels );
+    if (glerrorcode!=0||force_NPO2_fix==1){
+	int32 nx=x,ny=y;
+	uint32 *npixels=NPO2_texture_generate(&nx,&ny,pixels);
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0, GL_BGRA, GL_UNSIGNED_BYTE,npixels);
+	hardware_img->source_state.PO2_fix=PO2_FIX__EXPANDED;
+	hardware_img->PO2_w=nx;
+	hardware_img->PO2_h=ny;
+	glerrorcode=glGetError();	
+	if (glerrorcode){
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, x, y, GL_BGRA, GL_UNSIGNED_BYTE, pixels );
+		glerrorcode=glGetError();
+		if (glerrorcode){
+			alert("gluBuild2DMipmaps failed");
+			alert(glerrorcode);
+		}
+		hardware_img->source_state.PO2_fix=PO2_FIX__MIPMAPPED;
+		hardware_img->PO2_w=x;
+		hardware_img->PO2_h=y;
+	}
     }
     set_render_source(INVALID_HARDWARE_HANDLE);
   }
@@ -588,11 +699,28 @@ void hardware_img_buffer_to_texture(int32 handle){
     //non-power of 2 dimensions fallback support
     static int glerrorcode;
     glerrorcode=glGetError();//clear any previous errors
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
+    if (force_NPO2_fix==0) glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
     glerrorcode=glGetError();
-    if (glerrorcode!=0){
-        hardware_img->source_state.PO2_fix=PO2_FIX__ON;
-	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hardware_img->w, hardware_img->h, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);
+    if (glerrorcode!=0||force_NPO2_fix==1){
+        hardware_img->source_state.PO2_fix=PO2_FIX__EXPANDED;	
+	int32 x=hardware_img->w;
+	int32 y=hardware_img->h;
+	uint32 *pixels=NPO2_texture_generate(&x,&y,hardware_img->software_pixel_buffer);
+	hardware_img->PO2_w=x;
+	hardware_img->PO2_h=y;
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE,pixels);
+	glerrorcode=glGetError();	
+	if (glerrorcode){
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hardware_img->w, hardware_img->h, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);
+		glerrorcode=glGetError();
+		if (glerrorcode){
+			alert("gluBuild2DMipmaps failed");
+			alert(glerrorcode);
+		}
+		hardware_img->source_state.PO2_fix=PO2_FIX__MIPMAPPED;
+		hardware_img->PO2_w=hardware_img->w;
+		hardware_img->PO2_h=hardware_img->h;
+	}
     }
     free(hardware_img->software_pixel_buffer);
     set_render_source(INVALID_HARDWARE_HANDLE);
@@ -28927,6 +29055,33 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
 
 
+float *hardware_buffer_vertices=(float*)malloc(sizeof(float)*1);
+int32 *hardware_buffer_vertices_int;
+
+int32 hardware_buffer_vertices_max=1;
+int32 hardware_buffer_vertices_count=0;
+
+float *hardware_buffer_texcoords=(float*)malloc(sizeof(float)*1);
+int32 hardware_buffer_texcoords_max=1;
+int32 hardware_buffer_texcoords_count=0;
+ 
+void hardware_buffer_flush(){
+ if (hardware_buffer_vertices_count){
+  //ref: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
+  if (hardware_buffer_vertices_count==hardware_buffer_texcoords_count){
+   glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), (int32*)hardware_buffer_vertices); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+   glTexCoordPointer(2, GL_FLOAT, 2*sizeof(GL_FLOAT), hardware_buffer_texcoords); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
+   glDrawArrays(GL_TRIANGLES, 0, hardware_buffer_vertices_count/2);//start index, number of indexes
+  }else{
+   glVertexPointer(3, GL_FLOAT, 3*sizeof(GL_FLOAT), hardware_buffer_vertices); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+   glTexCoordPointer(2, GL_FLOAT, 2*sizeof(GL_FLOAT), hardware_buffer_texcoords); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
+   glDrawArrays(GL_TRIANGLES, 0, hardware_buffer_vertices_count/3);//start index, number of indexes
+  }
+  hardware_buffer_vertices_count=0;
+  hardware_buffer_texcoords_count=0;
+ }
+}
+
 
 
 
@@ -28936,8 +29091,9 @@ current_mode_shrunk=render_state.source->smooth_shrunk;
 static int32 current_mode_stretched;
 current_mode_stretched=render_state.source->smooth_stretched;
 if (new_mode_shrunk==current_mode_shrunk&&new_mode_stretched==current_mode_stretched) return;
+hardware_buffer_flush();
 if (new_mode_shrunk==SMOOTH_MODE__DONT_SMOOTH){
-	if (render_state.source->PO2_fix==PO2_FIX__ON){
+	if (render_state.source->PO2_fix==PO2_FIX__MIPMAPPED){
 		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}else{
 		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -28947,7 +29103,7 @@ if (new_mode_shrunk==SMOOTH_MODE__SMOOTH){
 	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 if (new_mode_stretched==SMOOTH_MODE__DONT_SMOOTH){
-	if (render_state.source->PO2_fix==PO2_FIX__ON){
+	if (render_state.source->PO2_fix==PO2_FIX__MIPMAPPED){
 		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}else{
 		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -28964,6 +29120,7 @@ void set_texture_wrap(int32 new_mode){
 static int32 current_mode;
 current_mode=render_state.source->texture_wrap;
 if (new_mode==current_mode) return;
+hardware_buffer_flush();
 if (new_mode==TEXTURE_WRAP_MODE__DONT_WRAP){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -28979,6 +29136,7 @@ void set_alpha(int32 new_mode){
 static int32 current_mode;
 current_mode=render_state.use_alpha;
 if (new_mode==current_mode) return;
+hardware_buffer_flush();
 if (new_mode==ALPHA_MODE__DONT_BLEND){
 	glDisable(GL_BLEND);
 }
@@ -28998,16 +29156,21 @@ void set_depthbuffer(int32 new_mode){
 static int32 current_mode;
 current_mode=render_state.depthbuffer_mode;
 if (new_mode==current_mode) return;
+hardware_buffer_flush();
 if (new_mode==DEPTHBUFFER_MODE__OFF){
 	glDisable(GL_DEPTH_TEST);
+	glAlphaFunc(GL_ALWAYS, 0);
 }
 if (new_mode==DEPTHBUFFER_MODE__ON){
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);	
+	glAlphaFunc(GL_GREATER, 0.001);
+     	glEnable(GL_ALPHA_TEST);
 }
 if (new_mode==DEPTHBUFFER_MODE__LOCKED){
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
+	glAlphaFunc(GL_ALWAYS, 0);
 }
 render_state.depthbuffer_mode=new_mode;
 }
@@ -29016,6 +29179,7 @@ void set_cull_mode(int32 new_mode){
 static int32 current_mode;
 current_mode=render_state.cull_mode;
 if (new_mode==current_mode) return;
+hardware_buffer_flush();
 if (new_mode==CULL_MODE__NONE){
 	glDisable(GL_CULL_FACE);
 }
@@ -29034,6 +29198,7 @@ void set_view(int32 new_mode){ //set view can only be called after the correct d
 static int32 current_mode;
 current_mode=render_state.view_mode;
 if (new_mode==current_mode) return;
+hardware_buffer_flush();
 if (new_mode==VIEW_MODE__RESET){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
@@ -29047,6 +29212,7 @@ if (new_mode==VIEW_MODE__RESET){
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glAlphaFunc(GL_ALWAYS, 0);
 	if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 	glBindTexture (GL_TEXTURE_2D, 0);	
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -29130,7 +29296,7 @@ if (new_mode==VIEW_MODE__3D){
 		}else{
 			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
 		}
-		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.5, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
+		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 	}else{
@@ -29154,7 +29320,7 @@ if (new_mode==VIEW_MODE__3D){
 		}else{
 			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
 		}
-		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.5, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
+		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
@@ -29167,21 +29333,35 @@ render_state.view_mode=new_mode;
 
 void set_render_source(int32 new_handle){
 if (new_handle==INVALID_HARDWARE_HANDLE){
+	hardware_buffer_flush();
 	render_state.source_handle=INVALID_HARDWARE_HANDLE;
 	return;
 }
-static int32 current_handle;
+int32 current_handle;
 current_handle=render_state.source_handle;
-static hardware_img_struct* hardware_img;
+
+if (current_handle==new_handle) return;
+
+hardware_buffer_flush();
+
+hardware_img_struct* hardware_img;
 hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,new_handle);
 if (hardware_img->texture_handle==0) hardware_img_buffer_to_texture(new_handle);
 glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle);
 render_state.source_handle=new_handle;
 render_state.source=&hardware_img->source_state;
+
+//note: some older systems require calling glTexParameterf after textures are rebound
+if (framebufferobjects_supported==0){
+	render_state.source->smooth_shrunk=SMOOTH_MODE__UNKNOWN;
+	render_state.source->smooth_stretched=SMOOTH_MODE__UNKNOWN;
+}
+
 }
 
 void set_render_dest(int32 new_handle){
 if (new_handle==INVALID_HARDWARE_HANDLE){
+	hardware_buffer_flush();
 	render_state.dest_handle=INVALID_HARDWARE_HANDLE;
 	set_view(VIEW_MODE__UNKNOWN);
 	return;
@@ -29190,6 +29370,7 @@ if (new_handle==INVALID_HARDWARE_HANDLE){
 static int32 current_handle;
 current_handle=render_state.dest_handle;
 if (new_handle==current_handle) return;
+hardware_buffer_flush();
 set_view(VIEW_MODE__UNKNOWN);
 if (new_handle==0){
 	if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
@@ -29222,8 +29403,6 @@ if (new_handle==0){
 }
 render_state.dest_handle=new_handle;
 }
-
-
 
 
 
@@ -29295,6 +29474,7 @@ render_state.dest_handle=new_handle;
     src_h=src_hardware_img->h;
     src_w=src_hardware_img->w;
 
+
     if (smooth){
 	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
     }else{
@@ -29312,8 +29492,15 @@ render_state.dest_handle=new_handle;
 
     set_texture_wrap(TEXTURE_WRAP_MODE__DONT_WRAP);
 
+
+
     //adjust for render (x2 & y2 need to be one greater than the destination offset)
     dst_x2++; dst_y2++;
+
+if (src_hardware_img->source_state.PO2_fix){
+	src_w=src_hardware_img->PO2_w;
+	src_h=src_hardware_img->PO2_h;
+} 
 
     //calc source texture co-ordinates
     static float x1f,y1f,x2f,y2f;
@@ -29332,24 +29519,34 @@ render_state.dest_handle=new_handle;
       y1f=((float)src_y1+0.99f)/(float)src_h;
     }
 
-    //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
-    static int vertices[8];
-    static float texcoords[8];
-    static int32 n;
-    //think "Z" pattern from top-left
-    n=0;
-    vertices[n++]=dst_x1; vertices[n++]=dst_y1;
-    vertices[n++]=dst_x2; vertices[n++]=dst_y1;
-    vertices[n++]=dst_x1; vertices[n++]=dst_y2;
-    vertices[n++]=dst_x2; vertices[n++]=dst_y2;
-    n=0;
-    texcoords[n++]=x1f; texcoords[n++]=y1f;
-    texcoords[n++]=x2f; texcoords[n++]=y1f;
-    texcoords[n++]=x1f; texcoords[n++]=y2f;
-    texcoords[n++]=x2f; texcoords[n++]=y2f;
-    glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
-    glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //expand buffers if necessary
+    if ((hardware_buffer_vertices_count+18)>hardware_buffer_vertices_max){
+        hardware_buffer_vertices_max=hardware_buffer_vertices_max*2+18;
+	hardware_buffer_vertices=(float*)realloc(hardware_buffer_vertices,hardware_buffer_vertices_max*sizeof(float));
+    }
+    if ((hardware_buffer_texcoords_count+12)>hardware_buffer_texcoords_max){
+        hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+12;
+	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
+    }
+    hardware_buffer_vertices_int=(int32*)hardware_buffer_vertices;
+  
+    //clockwise
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
+
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
+
+    //hardware_buffer_flush(); //uncomment for debugging only
+
   }
 
 
@@ -29580,7 +29777,10 @@ qbr_float_to_long(
     set_depthbuffer(DEPTHBUFFER_MODE__OFF);
     set_cull_mode(CULL_MODE__NONE);
 
-
+if (src_hardware_img->source_state.PO2_fix){
+	src_w=src_hardware_img->PO2_w;
+	src_h=src_hardware_img->PO2_h;
+} 
 
     //calc source texture co-ordinates
     static float x1f,y1f,x2f,y2f,x3f,y3f;
@@ -29591,25 +29791,34 @@ qbr_float_to_long(
     y2f=((float)src_y2+0.5f)/(float)src_h;
     y3f=((float)src_y3+0.5f)/(float)src_h;
 
-    //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
-    static int vertices[6];
-    static float texcoords[6];
-    static int32 n;
+
+    //expand buffers if necessary
+    if ((hardware_buffer_vertices_count+9)>hardware_buffer_vertices_max){
+        hardware_buffer_vertices_max=hardware_buffer_vertices_max*2+9;
+	hardware_buffer_vertices=(float*)realloc(hardware_buffer_vertices,hardware_buffer_vertices_max*sizeof(float));
+    }
+    if ((hardware_buffer_texcoords_count+6)>hardware_buffer_texcoords_max){
+        hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+6;
+	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
+    }
+    hardware_buffer_vertices_int=(int32*)hardware_buffer_vertices;
+
+
+    
     //clockwise
-    n=0;
-    vertices[n++]=dst_x1; vertices[n++]=dst_y1;
-    vertices[n++]=dst_x2; vertices[n++]=dst_y2;
-    vertices[n++]=dst_x3; vertices[n++]=dst_y3;
-    n=0;
-    texcoords[n++]=x1f; texcoords[n++]=y1f;
-    texcoords[n++]=x2f; texcoords[n++]=y2f;
-    texcoords[n++]=x3f; texcoords[n++]=y3f;
-    glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
-    glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x3; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y3;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x3f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y3f;
+
+    //hardware_buffer_flush(); //uncomment for debugging only
+
   }
 
 void clear_depthbuffer(int32 dst_img){
+ hardware_buffer_flush();
  if (dst_img<0) dst_img=0;//both layers render to the primary context
  set_render_dest(dst_img);
  if (dst_img>0){
@@ -29681,6 +29890,11 @@ void clear_depthbuffer(int32 dst_img){
     
     set_cull_mode(cull_mode);
 
+if (src_hardware_img->source_state.PO2_fix){
+	src_w=src_hardware_img->PO2_w;
+	src_h=src_hardware_img->PO2_h;
+} 
+
     //calc source texture co-ordinates
     static float x1f,y1f,x2f,y2f,x3f,y3f;
     x1f=((float)src_x1+0.5f)/(float)src_w;
@@ -29690,22 +29904,23 @@ void clear_depthbuffer(int32 dst_img){
     y2f=((float)src_y2+0.5f)/(float)src_h;
     y3f=((float)src_y3+0.5f)/(float)src_h;
 
-    //Method 'inspired' from: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
-    static float vertices[9];
-    static float texcoords[6];
-    static int32 n;
-    //clockwise
-    n=0;
-    vertices[n++]=dst_x1; vertices[n++]=dst_y1; vertices[n++]=dst_z1;
-    vertices[n++]=dst_x2; vertices[n++]=dst_y2; vertices[n++]=dst_z2;
-    vertices[n++]=dst_x3; vertices[n++]=dst_y3; vertices[n++]=dst_z3;
-    n=0;
-    texcoords[n++]=x1f; texcoords[n++]=y1f;
-    texcoords[n++]=x2f; texcoords[n++]=y2f;
-    texcoords[n++]=x3f; texcoords[n++]=y3f;
-    glVertexPointer(3, GL_FLOAT, 3*sizeof(GL_FLOAT), &vertices[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
-    glTexCoordPointer(2, GL_FLOAT,  2*sizeof(GL_FLOAT),  &texcoords[0]); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+    //expand buffers if necessary
+    if ((hardware_buffer_vertices_count+9)>hardware_buffer_vertices_max){
+        hardware_buffer_vertices_max=hardware_buffer_vertices_max*2+9;
+	hardware_buffer_vertices=(float*)realloc(hardware_buffer_vertices,hardware_buffer_vertices_max*sizeof(float));
+    }
+    if ((hardware_buffer_texcoords_count+6)>hardware_buffer_texcoords_max){
+        hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+6;
+	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
+    }
+    
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_z1;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_z2;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x3; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y3; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_z3;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
+    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x3f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y3f;
+    //hardware_buffer_flush(); //uncomment for debugging only
 
   }
 
@@ -30157,7 +30372,7 @@ void clear_depthbuffer(int32 dst_img){
                software_screen_hardware_frame, 0,
                0,0,f1->w-1,f1->h-1,
                use_alpha,environment_2d__screen_smooth);
-
+      hardware_buffer_flush();
     }//level==displayorder_screen
 
 
@@ -30318,6 +30533,9 @@ void clear_depthbuffer(int32 dst_img){
 
       first_hardware_layer_rendered=1;
 
+
+
+	hardware_buffer_flush();
     }//level==displayorder_hardware||level==displayorder_hardware1
 
 
@@ -30326,7 +30544,7 @@ void clear_depthbuffer(int32 dst_img){
       if (environment_2d__letterbox){
 
         //create a black texture (if not yet created)
-        static uint32 black_pixel=0;
+        static uint32 black_pixel=0x00000000;
         static int32 black_texture=0;
         if (black_texture==0){
           black_texture=new_hardware_img(1,1,&black_pixel,NULL);
@@ -30353,7 +30571,7 @@ void clear_depthbuffer(int32 dst_img){
                    0,0,0,0,
                    0,0);
         }
-
+      hardware_buffer_flush();
       }//letterbox
 
     }//level==5
