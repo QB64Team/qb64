@@ -1,3 +1,19 @@
+#ifndef DEPENDENCY_NO_SOCKETS
+ #define DEPENDENCY_SOCKETS
+#endif
+
+#ifndef DEPENDENCY_NO_PRINTER
+ #define DEPENDENCY_PRINTER
+#endif
+
+#ifndef DEPENDENCY_NO_ICON
+ #define DEPENDENCY_ICON
+#endif
+
+#ifndef DEPENDENCY_NO_SCREENIMAGE
+ #define DEPENDENCY_SCREENIMAGE
+#endif
+
 #ifndef INC_COMMON_CPP
 #define INC_COMMON_CPP
 #include "os.h"
@@ -19,7 +35,11 @@
 #endif
 #endif
 
-
+#ifdef DEPENDENCY_CONSOLE_ONLY
+ #undef QB64_GLUT
+#else
+ #define QB64_GUI
+#endif
 
 #define NO_S_D_L
 
@@ -34,6 +54,7 @@
 
 
 //core
+#ifdef QB64_GUI
 #ifdef QB64_GLUT
 #ifdef QB64_BACKSLASH_FILESYSTEM
 #include "parts\\core\\src.c"
@@ -41,10 +62,19 @@
 #include "parts/core/src.c"
 #endif
 #endif
+#endif
 
 #ifdef QB64_WINDOWS
-#include <winbase.h>
+
+#ifndef QB64_GUI
+ #undef int64 //definition of int64 from os.h conflicts with a definition within windows.h, temporarily undefine then redefine
+ #include <windows.h>
+ #define int64 __int64
+#endif
+
 #include <float.h>
+#include <winbase.h>
+
 #endif
 
 //common includes
@@ -57,15 +87,18 @@
 #include <string.h>
 #include <errno.h>
 
+
 //OS/compiler specific includes
 #ifdef QB64_WINDOWS
 #include <direct.h>
-#include <winspool.h>
+#ifdef DEPENDENCY_PRINTER
+ #include <winspool.h>
+#endif
 #include <csignal>
 #include <process.h> //required for multi-threading
-
-//2013 midi
-#include <mmsystem.h>
+#if defined DEPENDENCY_AUDIO_OUT || defined QB64_GUI
+ #include <mmsystem.h>
+#endif
 
 #else
 #include <sys/types.h>
@@ -79,13 +112,14 @@
 #endif
 #endif
 
-
+#ifdef QB64_GUI
 #ifdef QB64_GLUT
 #ifndef QB64_ANDROID
 #ifdef QB64_BACKSLASH_FILESYSTEM
 #include "parts\\core\\gl_headers\\opengl_org_registery\\glext.h"
 #else
 #include "parts/core/gl_headers/opengl_org_registery/glext.h"
+#endif
 #endif
 #endif
 #endif

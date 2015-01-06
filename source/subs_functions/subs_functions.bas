@@ -521,7 +521,7 @@ id.NoCloud = 1
 regid
 
 clearid
-id.n = "_PRINTIMAGE"
+id.n = "_PRINTIMAGE": id.Dependency = DEPENDENCY_PRINTER
 id.subfunc = 2
 id.callname = "sub__printimage"
 id.args = 1
@@ -552,7 +552,7 @@ id.NoCloud = 1
 regid
 
 clearid
-id.n = "_SCREENIMAGE"
+id.n = "_SCREENIMAGE": id.Dependency = DEPENDENCY_SCREENIMAGE
 id.subfunc = 1
 id.callname = "func__screenimage"
 id.args = 4
@@ -649,7 +649,7 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_OPENHOST"
+id.n = "_OPENHOST": id.Dependency = DEPENDENCY_SOCKETS
 id.subfunc = 1
 id.callname = "func__openhost"
 id.args = 1
@@ -686,7 +686,7 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_OPENCLIENT"
+id.n = "_OPENCLIENT": id.Dependency = DEPENDENCY_SOCKETS
 id.subfunc = 1
 id.callname = "func__openclient"
 id.args = 1
@@ -753,7 +753,7 @@ id.arg = MKL$(DOUBLETYPE - ISPOINTER)
 regid
 
 clearid
-id.n = "_ICON"
+id.n = "_ICON": id.Dependency = DEPENDENCY_ICON
 id.subfunc = 2
 id.callname = "sub__icon"
 id.args = 2
@@ -2722,7 +2722,7 @@ id.arg = MKL$(STRINGTYPE - ISPOINTER)
 regid
 
 clearid
-id.n = "LPRINT"
+id.n = "LPRINT": id.Dependency = DEPENDENCY_PRINTER
 id.subfunc = 2
 id.callname = "qbs_lprint" 'not called directly
 id.args = 1
@@ -2731,7 +2731,7 @@ id.NoCloud = 1
 regid
 
 clearid
-id.n = "LPOS"
+id.n = "LPOS": id.Dependency = DEPENDENCY_PRINTER
 id.subfunc = 1
 id.callname = "func_lpos"
 id.args = 1

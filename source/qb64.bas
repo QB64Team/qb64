@@ -60,6 +60,11 @@ CONST DEPENDENCY_AUDIO_OUT = 4: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_GL = 5: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_IMAGE_CODEC = 6: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_USER_MODS = 7: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
+CONST DEPENDENCY_CONSOLE_ONLY = 8: DEPENDENCY_LAST = DEPENDENCY_LAST + 1 '=2 if via -g switch, =1 if via metacommand $CONSOLE:ONLY
+CONST DEPENDENCY_SOCKETS = 9: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
+CONST DEPENDENCY_PRINTER = 10: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
+CONST DEPENDENCY_ICON = 11: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
+CONST DEPENDENCY_SCREENIMAGE = 12: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 
 DIM SHARED DEPENDENCY(1 TO DEPENDENCY_LAST)
 
@@ -1212,9 +1217,9 @@ file$ = f$
 
 fullrecompile:
 
-
-
-FOR i = 1 TO UBOUND(DEPENDENCY): DEPENDENCY(i) = 0: NEXT
+BU_DEPENDENCY_CONSOLE_ONLY = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY)
+FOR i = 1 TO UBOUND(Dependency): DEPENDENCY(i) = 0: NEXT
+DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = BU_DEPENDENCY_CONSOLE_ONLY AND 2 'Restore -g switch if used
 
 Error_Happened = 0
 
@@ -2685,6 +2690,13 @@ DO
         IF a3u$ = "$CONSOLE" THEN
             IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$CONSOLE"
+            Console = 1
+            GOTO finishednonexec
+        END IF
+
+        IF a3u$ = "$CONSOLE:ONLY" THEN
+            layout$ = "$CONSOLE:ONLY"
+            DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) OR 1
             Console = 1
             GOTO finishednonexec
         END IF
@@ -10761,6 +10773,35 @@ IF DEPENDENCY(DEPENDENCY_IMAGE_CODEC) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_IMAGE_CODEC"
 END IF
 
+IF DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_CONSOLE_ONLY"
+END IF
+
+IF DEPENDENCY(DEPENDENCY_SOCKETS) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_SOCKETS"
+ELSE
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_NO_SOCKETS"
+END IF
+
+IF DEPENDENCY(DEPENDENCY_PRINTER) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_PRINTER"
+ELSE
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_NO_PRINTER"
+END IF
+
+
+IF DEPENDENCY(DEPENDENCY_ICON) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_ICON"
+ELSE
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_NO_ICON"
+END IF
+
+IF DEPENDENCY(DEPENDENCY_SCREENIMAGE) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_SCREENIMAGE"
+ELSE
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_NO_SCREENIMAGE"
+END IF
+
 IF DEPENDENCY(DEPENDENCY_LOADFONT) THEN
     d$ = "internal\c\parts\video\font\ttf\"
     'rebuild?
@@ -11064,6 +11105,50 @@ IF os$ = "WIN" THEN
 
     IF Console THEN
         x = INSTR(a$, " -s"): a$ = LEFT$(a$, x - 1) + " -mconsole" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    IF DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) THEN
+        a$ = StrRemove(a$, "-mwindows")
+        a$ = StrRemove(a$, "-lopengl32")
+        a$ = StrRemove(a$, "-lglu32")
+        a$ = StrRemove(a$, "parts\core\os\win\src.a")
+        a$ = StrRemove(a$, "-D FREEGLUT_STATIC")
+        a$ = StrRemove(a$, "-D GLEW_STATIC")
+    END IF
+
+    a$ = StrRemove(a$, "-lws2_32")
+    IF DEPENDENCY(DEPENDENCY_SOCKETS) THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -lws2_32" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    a$ = StrRemove(a$, "-lwinspool")
+    IF DEPENDENCY(DEPENDENCY_PRINTER) THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -lwinspool" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    a$ = StrRemove(a$, "-lwinmm")
+    IF DEPENDENCY(DEPENDENCY_AUDIO_OUT) <> 0 OR DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = 0 THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -lwinmm" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    a$ = StrRemove(a$, "-lksguid")
+    IF DEPENDENCY(DEPENDENCY_AUDIO_OUT) THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -lksguid" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    a$ = StrRemove(a$, "-ldxguid")
+    IF DEPENDENCY(DEPENDENCY_AUDIO_OUT) THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -ldxguid" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    a$ = StrRemove(a$, "-lole32")
+    IF DEPENDENCY(DEPENDENCY_AUDIO_OUT) THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -lole32" + RIGHT$(a$, LEN(a$) - x + 1)
+    END IF
+
+    a$ = StrRemove(a$, "-lgdi32")
+    IF DEPENDENCY(DEPENDENCY_ICON) <> 0 OR DEPENDENCY(DEPENDENCY_SCREENIMAGE) <> 0 OR DEPENDENCY(DEPENDENCY_PRINTER) <> 0 THEN
+        x = INSTR(a$, " -o"): a$ = LEFT$(a$, x - 1) + " -lgdi32" + RIGHT$(a$, LEN(a$) - x + 1)
     END IF
 
     IF inline_DATA = 0 THEN
@@ -11545,6 +11630,10 @@ tpos = 1
 DO
     token$ = MID$(cmdline$, tpos, 2) '))
     SELECT CASE token$
+        CASE "-g" 'non-GUI environment ($CONSOLE:ONLY in effect)
+            DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) OR 2
+            NoIDEMode = 1 'Implies -c
+            Console = 1
         CASE "-q" 'Building a Qloud program
             Cloud = 1
             ConsoleMode = 1 'Implies -x
@@ -21072,7 +21161,7 @@ SUB xprint (a$, ca$, n)
 u$ = str2$(uniquenumber)
 
 l$ = "PRINT"
-IF ASC(a$) = 76 THEN lp = 1: lp$ = "l": l$ = "LPRINT": PRINT #12, "tab_LPRINT=1;" '"L"
+IF ASC(a$) = 76 THEN lp = 1: lp$ = "l": l$ = "LPRINT": PRINT #12, "tab_LPRINT=1;": DEPENDENCY(DEPENDENCY_PRINTER) = 1 '"L"
 
 'PRINT USING?
 IF n >= 2 THEN
@@ -23776,6 +23865,31 @@ SUB Give_Error (a$)
 Error_Happened = 1
 Error_Message = a$
 END SUB
+
+FUNCTION StrRemove$ (myString$, whatToRemove$) 'noncase sensitive
+a$ = myString$
+b$ = LCASE$(whatToRemove$)
+i = INSTR(LCASE$(a$), b$)
+DO WHILE i
+    a$ = LEFT$(a$, i - 1) + RIGHT$(a$, LEN(a$) - i - LEN(b$) + 1)
+    i = INSTR(LCASE$(a$), b$)
+LOOP
+StrRemove$ = a$
+END FUNCTION
+
+FUNCTION StrReplace$ (myString$, find$, replaceWith$) 'noncase sensitive
+IF LEN(myString$) = 0 THEN EXIT FUNCTION
+a$ = myString$
+b$ = LCASE$(find$)
+basei = 1
+i = INSTR(basei, LCASE$(a$), b$)
+DO WHILE i
+    a$ = LEFT$(a$, i - 1) + replaceWith$ + RIGHT$(a$, LEN(a$) - i - LEN(b$) + 1)
+    basei = i + LEN(replaceWith$)
+    i = INSTR(basei, LCASE$(a$), b$)
+LOOP
+StrReplace$ = a$
+END FUNCTION
 
 
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'

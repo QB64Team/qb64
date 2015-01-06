@@ -1,7 +1,9 @@
 #include "common.cpp"
 #include "libqb.h"
 
+#ifdef QB64_GUI
 #include "parts/core/glew/src/glew.c"
+#endif
 
 #ifdef QB64_ANDROID
 #include <cstdlib> //required for system()
@@ -21,35 +23,13 @@
 #include <X11/Xutil.h>
 #endif
 
+#include "libqb/printer.h"
+
 void alert(int32 x);
 void alert(char *x);
 
-int32 framebufferobjects_supported=0;
-
+//GUI notification variables
 int32 force_display_update=0;
-
-int32 environment_2d__screen_width=0; //the size of the software SCREEN
-int32 environment_2d__screen_height=0;
-int32 environment__window_width=0; //window may be larger or smaller than the SCREEN
-int32 environment__window_height=0;
-int32 environment_2d__screen_x1=0; //offsets of 'screen' within the window
-int32 environment_2d__screen_y1=0;
-int32 environment_2d__screen_x2=0;
-int32 environment_2d__screen_y2=0;
-int32 environment_2d__screen_scaled_width=0;
-int32 environment_2d__screen_scaled_height=0;
-float environment_2d__screen_x_scale=1.0f;
-float environment_2d__screen_y_scale=1.0f;
-int32 environment_2d__screen_smooth=0;//1(LINEAR) or 0(NEAREST)
-int32 environment_2d__letterbox=0;//1=vertical black stripes required, 2=horizontal black stripes required
-
-
-
-//forward ref(s)
-void set_view(int32 new_mode);
-void set_render_source(int32 new_handle);
-void set_render_dest(int32 new_handle);
-void reinit_glut_callbacks();
 
 void sub__delay(double seconds);
 
@@ -66,6 +46,32 @@ extern "C" void QB64_Window_Handle(void *handle){
 #endif
   //...
 }
+
+
+
+//forward references
+void set_view(int32 new_mode);
+void set_render_source(int32 new_handle);
+void set_render_dest(int32 new_handle);
+void reinit_glut_callbacks();
+
+int32 framebufferobjects_supported=0;
+
+int32 environment_2d__screen_width=0; //the size of the software SCREEN
+int32 environment_2d__screen_height=0;
+int32 environment__window_width=0; //window may be larger or smaller than the SCREEN
+int32 environment__window_height=0;
+int32 environment_2d__screen_x1=0; //offsets of 'screen' within the window
+int32 environment_2d__screen_y1=0;
+int32 environment_2d__screen_x2=0;
+int32 environment_2d__screen_y2=0;
+int32 environment_2d__screen_scaled_width=0;
+int32 environment_2d__screen_scaled_height=0;
+float environment_2d__screen_x_scale=1.0f;
+float environment_2d__screen_y_scale=1.0f;
+int32 environment_2d__screen_smooth=0;//1(LINEAR) or 0(NEAREST)
+int32 environment_2d__letterbox=0;//1=vertical black stripes required, 2=horizontal black stripes required
+
 
 
 
@@ -519,235 +525,19 @@ list *hardware_graphics_command_handles=NULL;
 #define HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D 5
 #define HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER 6
 
-int32 force_NPO2_fix=0;//This should only be set to 1 for debugging QB64
-
-uint32 *NPO2_buffer=(uint32*)malloc(4);
-int32 NPO2_buffer_size_in_pixels=1;
-
-uint32 *NPO2_texture_generate(int32 *px, int32 *py, uint32 *pixels){
-int32 ox=*px;
-int32 oy=*py;
-int32 nx=1;
-int32 ny=1;
-
-//assume not negative & not 0
-while ((ox&1)==0){
-	ox>>=1;
-	nx<<=1;
-}
-if (ox!=1){//x is not a power of 2
-	while (ox!=0){
-		ox>>=1;
-		nx<<=1;
-	}	
-	nx<<1;
-}
-while ((oy&1)==0){
-	oy>>=1;
-	ny<<=1;
-}
-if (oy!=1){//y is not a power of 2
-	while (oy!=0){
-		oy>>=1;
-		ny<<=1;
-	}	
-	ny<<1;
-}
-
-//reset original values
-ox=*px;
-oy=*py;
-
-if (nx==ox&&ny==oy){ //no action required
-	return pixels;
-}
-
-int32 size_in_pixels=nx*ny;
-if (size_in_pixels>NPO2_buffer_size_in_pixels){
-	NPO2_buffer=(uint32*)realloc(NPO2_buffer,size_in_pixels*4);
-	NPO2_buffer_size_in_pixels=size_in_pixels;
-}
-
-//copy source NPO2 rectangle into destination PO2 rectangle
-if (nx==ox){ //can copy as a single block
-	memcpy(NPO2_buffer,pixels,ox*oy*4);
-}else{
-	uint32 *dst_pixel_offset=NPO2_buffer;
-	uint32 *src_pixel_offset=pixels;
-	while (oy--){
-		memcpy(dst_pixel_offset,src_pixel_offset,ox*4);
-		dst_pixel_offset+=nx;
-		src_pixel_offset+=ox;
-	}
-	oy=*py;
-}
-
-//tidy edges - extend the right-most column and bottom-most row to avoid pixel/color bleeding
-//rhs column
-if (ox!=nx){
-for (int y=0;y<oy;y++){
-NPO2_buffer[ox+nx*y]=NPO2_buffer[ox+nx*y-1];
-}
-}
-//bottom row + 1 pixel for corner
-if (oy!=ny){
-for (int x=0;x<(ox+1);x++){
-NPO2_buffer[nx*oy+x]=NPO2_buffer[nx*oy+x-nx];
-}
-}
-
-//int maxtexsize;
-//glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtexsize);
-//alert(maxtexsize); 
-
-//alert(nx);
-//alert(ny);
-
-*px=nx;
-*py=ny;
-
-return NPO2_buffer;
-
-}
-
-
-int32 new_texture_handle(){
-  GLuint texture=0;
-  glGenTextures(1,&texture);
-  return (int32)texture;
-}
-
 int32 SOFTWARE_IMG_HANDLE_MIN=-8388608;
-
 int32 HARDWARE_IMG_HANDLE_OFFSET=-16777216;//added to all hardware image handles to avoid collision
                                            //the lowest integer value a single precision number can exactly represent,
                                            //because users put handles in SINGLEs
 #define NEW_HARDWARE_IMG__BUFFER_CONTENT 1
 #define NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER 2
-int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
-  //note: non power-of-2 dimensioned textures are supported on modern 3D cards and
-  //      even on some older cards, as long as mip-mapping is not being used
-  //      therefore, no attempt is made to convert the non-power-of-2 SCREEN sizes via software
-  //      to avoid the performance hit this would incur
-  //create hardware img
-  int32 handle;
-  hardware_img_struct* hardware_img;
-  handle=list_add(hardware_img_handles);
-  hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
-  hardware_img->w=x;
-  hardware_img->h=y;
-  hardware_img->dest_context_handle=0;
-  hardware_img->depthbuffer_handle=0;
-  hardware_img->pending_commands=0;
-  hardware_img->remove=0;
-  hardware_img->alpha_disabled=0;
-  hardware_img->depthbuffer_mode=DEPTHBUFFER_MODE__ON;
-  hardware_img->valid=1;
-  hardware_img->source_state.PO2_fix=PO2_FIX__OFF;
-  hardware_img->source_state.texture_wrap=TEXTURE_WRAP_MODE__UNKNOWN;
-  hardware_img->source_state.smooth_stretched=SMOOTH_MODE__UNKNOWN;
-  hardware_img->source_state.smooth_shrunk=SMOOTH_MODE__UNKNOWN;
 
-  if (flags&NEW_HARDWARE_IMG__BUFFER_CONTENT){
-    hardware_img->texture_handle=0;    
-    if (flags&NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER){
-      hardware_img->software_pixel_buffer=(uint32*)malloc(x*y*4);
-      memcpy(hardware_img->software_pixel_buffer,pixels,x*y*4);
-    }else{
-      hardware_img->software_pixel_buffer=pixels;
-    }
-  }else{
-    hardware_img->software_pixel_buffer=NULL;
-    hardware_img->texture_handle=new_texture_handle();
-    glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle); 
-    //non-power of 2 dimensions fallback support    
-    static int glerrorcode;
-    glerrorcode=glGetError();//clear any previous errors
-    if (force_NPO2_fix==0) glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels); 
-    glerrorcode=glGetError();
-    if (glerrorcode!=0||force_NPO2_fix==1){
-	int32 nx=x,ny=y;
-	uint32 *npixels=NPO2_texture_generate(&nx,&ny,pixels);
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0, GL_BGRA, GL_UNSIGNED_BYTE,npixels);
-	hardware_img->source_state.PO2_fix=PO2_FIX__EXPANDED;
-	hardware_img->PO2_w=nx;
-	hardware_img->PO2_h=ny;
-	glerrorcode=glGetError();	
-	if (glerrorcode){
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, x, y, GL_BGRA, GL_UNSIGNED_BYTE, pixels );
-		glerrorcode=glGetError();
-		if (glerrorcode){
-			alert("gluBuild2DMipmaps failed");
-			alert(glerrorcode);
-		}
-		hardware_img->source_state.PO2_fix=PO2_FIX__MIPMAPPED;
-		hardware_img->PO2_w=x;
-		hardware_img->PO2_h=y;
-	}
-    }
-    set_render_source(INVALID_HARDWARE_HANDLE);
-  }
-  return handle;
-}
+#include "libqb/gui.h"
 
-void hardware_img_buffer_to_texture(int32 handle){
-  static hardware_img_struct* hardware_img;
-  hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
-  if (hardware_img->texture_handle==0){
-    hardware_img->texture_handle=new_texture_handle();
-    glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle);    
-    //non-power of 2 dimensions fallback support
-    static int glerrorcode;
-    glerrorcode=glGetError();//clear any previous errors
-    if (force_NPO2_fix==0) glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, hardware_img->w, hardware_img->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);  
-    glerrorcode=glGetError();
-    if (glerrorcode!=0||force_NPO2_fix==1){
-        hardware_img->source_state.PO2_fix=PO2_FIX__EXPANDED;	
-	int32 x=hardware_img->w;
-	int32 y=hardware_img->h;
-	uint32 *pixels=NPO2_texture_generate(&x,&y,hardware_img->software_pixel_buffer);
-	hardware_img->PO2_w=x;
-	hardware_img->PO2_h=y;
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE,pixels);
-	glerrorcode=glGetError();	
-	if (glerrorcode){
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, hardware_img->w, hardware_img->h, GL_BGRA, GL_UNSIGNED_BYTE, hardware_img->software_pixel_buffer);
-		glerrorcode=glGetError();
-		if (glerrorcode){
-			alert("gluBuild2DMipmaps failed");
-			alert(glerrorcode);
-		}
-		hardware_img->source_state.PO2_fix=PO2_FIX__MIPMAPPED;
-		hardware_img->PO2_w=hardware_img->w;
-		hardware_img->PO2_h=hardware_img->h;
-	}
-    }
-    free(hardware_img->software_pixel_buffer);
-    set_render_source(INVALID_HARDWARE_HANDLE);
-  }
-}
-
-void hardware_img_requires_depthbuffer(hardware_img_struct* hardware_img){
-if (hardware_img->depthbuffer_handle==0){
-  //inspiration... http://www.opengl.org/wiki/Framebuffer_Object_Examples#Color_texture.2C_Depth_texture
-  static GLuint depth_tex;
-  glGenTextures(1, &depth_tex);
-  glBindTexture(GL_TEXTURE_2D, depth_tex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-  //NULL means reserve texture memory, but texels are undefined
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, hardware_img->w, hardware_img->h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_tex, 0/*mipmap level*/);
-  glClear(GL_DEPTH_BUFFER_BIT);
-  hardware_img->depthbuffer_handle=depth_tex;
-  set_render_source(INVALID_HARDWARE_HANDLE);
-}
-}
+  //these lock values increment
+  int64 display_lock_request=0;
+  int64 display_lock_confirmed=0;
+  int64 display_lock_released=0;
 
 //note: only to be used by user functions, not internal functions
 hardware_img_struct *get_hardware_img(int32 handle){
@@ -1221,7 +1011,7 @@ int32 width_lprint=80;
 void sub_shell4(qbs*,int32);//_DONTWAIT & _HIDE
 int32 func__source();
 int32 func_pos(int32 ignore);
-void sub__printimage(int32 i);
+
 double func_timer(double accuracy,int32 passed);
 int32 func__newimage(int32 x,int32 y,int32 bpp,int32 passed);
 void display();
@@ -19551,36 +19341,26 @@ void sub_mkdir(qbs *str){
   }
 
   void sub__mousehide(){
-
+    #ifdef QB64_GUI    
     if (!screen_hide){
-      while (!window_exists){Sleep(100);}
+      while (!window_exists){Sleep(100);}      
+      #ifdef QB64_GLUT
       glutSetCursor(GLUT_CURSOR_NONE);
+      #endif
     }
-
-
-#ifndef NO_S_D_L
-
-#ifdef QB64_LINUX
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-#endif
-    mouse_hideshow_called=1;
-    static int x,y;
-    SDL_GetMouseState(&x,&y);
-    SDL_WarpMouse(x,y);
-    SDL_ShowCursor(0);
-    SDL_WarpMouse(x,y);
-#ifdef QB64_LINUX
-    lock_mainloop=0; Sleep(1);//unlock
-#endif
-
-#endif //NO_S_D_L
-
+    #endif
   }
 
+#ifdef QB64_GLUT
   int mouse_cursor_style=GLUT_CURSOR_LEFT_ARROW;
+#else
+  int mouse_cursor_style=1;
+#endif
 
   void sub__mouseshow(qbs *style, int32 passed){
     if (new_error) return;
+
+#ifdef QB64_GLUT
 
     static qbs *str=NULL; if (str==NULL) str=qbs_new(0,0);
     if (passed){
@@ -19602,25 +19382,7 @@ void sub_mkdir(qbs *str){
       glutSetCursor(mouse_cursor_style);
     }
 
-
-#ifndef NO_S_D_L
-
-    device_mouse_relative=0;
-#ifdef QB64_LINUX
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
 #endif
-    mouse_hideshow_called=1;
-    static int x,y;
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-    SDL_GetMouseState(&x,&y);
-    SDL_WarpMouse(x,y);
-    SDL_ShowCursor(1);
-    SDL_WarpMouse(x,y);
-#ifdef QB64_LINUX
-    lock_mainloop=0; Sleep(1);//unlock
-#endif
-
-#endif //NO_S_D_L
 
   }
 
@@ -21300,6 +21062,10 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       exit(0);//<-- should never happen
     }
 
+#ifdef DEPENDENCY_CONSOLE_ONLY
+	screen_hide=1;
+#endif
+
     if (!screen_hide){
       //1. set the display page as the destination page
       sub__dest(func__display());
@@ -22097,6 +21863,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   }
 
+#ifdef DEPENDENCY_ICON
   void sub__icon(int32 handle_icon, int32 handle_window_icon, int32 passed){
 
     if (new_error) return;
@@ -22199,6 +21966,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }//!screen_hide
 
   }//sub__icon
+#endif //DEPENDENCY_ICON
 
   void sub__autodisplay(){
     autodisplay=1;
@@ -22753,7 +22521,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int32 init=0;
     if (!init){
       init=1;
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
       sockVersion = MAKEWORD(1, 1);
       WSAStartup(sockVersion, &wsaData);
 #endif
@@ -22761,13 +22529,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   }
 
   void tcp_done(){
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     WSACleanup();
 #endif
   }
 
   struct tcp_connection{
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     SOCKET socket;
 #endif
     int32 port;//connection to host & clients only
@@ -22779,7 +22547,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     tcp_init();
     if ((port<0)||(port>65535)) return NULL;
 
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     //Ref. from 'winsock.h': typedef u_int SOCKET;
     static SOCKET listeningSocket;
     listeningSocket = socket(AF_INET,       // Go over TCP/IP
@@ -22826,7 +22594,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if ((port<0)||(port>65535)) return NULL;
 
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     static LPHOSTENT hostEntry;
     hostEntry=gethostbyname((char*)host);
     if (!hostEntry) return NULL;
@@ -22870,7 +22638,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void *tcp_connection_open(void *host_tcp){
 
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     static tcp_connection *host; host=(tcp_connection*)host_tcp;
     static sockaddr sa;
     static int sa_size;
@@ -22897,7 +22665,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void tcp_close(void* connection){
     static tcp_connection *tcp=(tcp_connection*)connection;
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     shutdown(tcp->socket,SD_BOTH);
     closesocket(tcp->socket);
 #endif
@@ -22907,7 +22675,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void tcp_out(void *connection,void *offset,ptrszint bytes){
 
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     static tcp_connection *tcp; tcp=(tcp_connection*)connection;
     static int nret;
     nret = send(tcp->socket,
@@ -22948,7 +22716,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void stream_update(stream_struct *stream){
 
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     //assume tcp
 
     static connection_struct *connection;
@@ -23272,7 +23040,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   int32 tcp_connected (void *connection){
     static tcp_connection *tcp=(tcp_connection*)connection;
-#ifdef QB64_WINDOWS
+#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
     char buf;
     int length=recv(tcp->socket, &buf, 0, 0);
     int nError=WSAGetLastError();
@@ -24933,6 +24701,7 @@ int32 func__exit(){
 
   }
 
+#ifdef DEPENDENCY_SCREENIMAGE
   int32 func__screenimage(int32 x1,int32 y1,int32 x2,int32 y2,int32 passed){
     if (cloud_app) return func__newimage(1024,768,32,1);
 
@@ -25236,6 +25005,7 @@ int32 func__exit(){
 
     return -1;
   }
+#endif //DEPENDENCY_SCREENIMAGE
 
   void sub__screenclick(int32 x,int32 y){
 
@@ -26099,77 +25869,8 @@ int32 func__exit(){
 
   }
 
-  void sub__printimage(int32 i){
 
-#ifdef QB64_WINDOWS
-
-    static LPSTR szPrinterName=NULL;
-    DWORD dwNameLen;
-    HDC dc;
-    DOCINFO di;
-    uint32 w,h;
-    int32 x,y;
-    int32 i2;
-    BITMAPFILEHEADER bmfHeader;  
-    BITMAPINFOHEADER bi;
-    img_struct *s,*s2;
-
-    if (i>=0){
-      validatepage(i); s=&img[page[i]];
-    }else{
-      x=-i;
-      if (x>=nextimg){error(258); return;}
-      s=&img[x];
-      if (!s->valid){error(258); return;}
-    }
-
-    if (!szPrinterName) szPrinterName=(LPSTR)malloc(65536);
-    dwNameLen=65536;
-    GetDefaultPrinter(szPrinterName,&dwNameLen);
-    if((dc=CreateDC(TEXT("WINSPOOL"),szPrinterName,NULL,NULL))==NULL) goto failed;
-    ZeroMemory(&di,sizeof(DOCINFO));
-    di.cbSize=sizeof(DOCINFO);
-    di.lpszDocName=TEXT("Document");
-    if(StartDoc(dc,&di)<=0){DeleteDC(dc); goto failed;}
-    if(StartPage(dc)<=0){EndDoc(dc); DeleteDC(dc); goto failed;}
-
-    w=GetDeviceCaps(dc,HORZRES);
-    h=GetDeviceCaps(dc,VERTRES);
-
-    i2=func__newimage(w,h,32,1);
-    if (i2==-1){EndDoc(dc); DeleteDC(dc); goto failed;}
-    s2=&img[-i2];
-    sub__dontblend(i2,1);
-    sub__putimage(NULL,NULL,NULL,NULL,i,i2,NULL,NULL,NULL,NULL,8+32);
-
-    ZeroMemory(&bi,sizeof(BITMAPINFOHEADER));
-
-    bi.biSize = sizeof(BITMAPINFOHEADER);
-    bi.biWidth = w;
-    bi.biHeight = h;  
-    bi.biPlanes = 1;
-    bi.biBitCount = 32;
-    bi.biCompression = BI_RGB;
-    bi.biSizeImage = 0;  
-    bi.biXPelsPerMeter = 0;
-    bi.biYPelsPerMeter = 0;
-    bi.biClrUsed = 0;
-    bi.biClrImportant = 0;
-
-    for (y=0;y<h;y++){
-      SetDIBitsToDevice(dc,0,y,w,1,0,0,0,1,s2->offset32+(y*w),(BITMAPINFO*)&bi, DIB_RGB_COLORS);
-    }
-
-    sub__freeimage(i2,1);
-
-    if(EndPage(dc)<=0){EndDoc(dc); DeleteDC(dc); goto failed;}
-    if(EndDoc(dc)<=0){DeleteDC(dc); goto failed;}
-    DeleteDC(dc);
-  failed:;
-
-#endif
-
-  }
+#include "libqb/printer.cpp"
 
   void sub_files(qbs *str,int32 passed){
     if (new_error) return;
@@ -26183,6 +25884,8 @@ int32 func__exit(){
     }else{
       qbs_set(strz,qbs_new_txt_len("\0",1));
     }
+
+
 
 #ifdef QB64_WINDOWS
     static WIN32_FIND_DATA fd;
@@ -27052,19 +26755,27 @@ int32 func__exit(){
   }
 
   int32 func__screenx(){
-	  #ifdef QB64_WINDOWS
+	  #ifdef QB64_GUI
+          #ifdef QB64_WINDOWS
+          #ifdef QB64_GLUT
 	      while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
 	      return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
-      #endif
-		  return 0; //if not windows then return 0
+          #endif
+          #endif
+          #endif
+          return 0; //if not windows then return 0
   }
 
   int32 func__screeny(){
-	  #ifdef QB64_WINDOWS
-	       while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
-           return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
-      #endif
-		  return 0; //if not windows then return 0
+	  #ifdef QB64_GUI
+          #ifdef QB64_WINDOWS
+          #ifdef QB64_GLUT
+		while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
+		return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
+          #endif
+          #endif
+          #endif
+	  return 0; //if not windows then return 0
   }
 
   void sub__screenmove(int32 x,int32 y,int32 passed){
@@ -27072,7 +26783,9 @@ int32 func__exit(){
     if (!passed) goto error;
     if (passed==3) goto error;
     if (full_screen) return;
-	
+
+	#ifdef QB64_GUI        
+        #ifdef QB64_GLUT	
 	while (!window_exists){Sleep(100);} //wait for window to be created before moving it.
 	if (passed==2){
 		glutPositionWindow (x,y);}
@@ -27085,7 +26798,10 @@ int32 func__exit(){
 			x = (SW - WW)/2;
 			y = (SH - WH)/2;
 			glutPositionWindow (x,y);
-    }
+        }
+        #endif
+        #endif
+
 	return;
 
   error:
@@ -28738,2176 +28454,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
   }
 #endif
 
-
-
-  void GLUT_RESHAPE_FUNC(int width, int height){
-    resize_event_x=width; resize_event_y=height;
-    resize_event=-1;
-    display_x_prev=display_x,display_y_prev=display_y;
-    display_x=width; display_y=height;
-    resize_pending=0;
-    os_resize_event=1;
-    set_view(VIEW_MODE__UNKNOWN);
-    //***glutReshapeWindow(...) has no effect if called
-    //   within GLUT_RESHAPE_FUNC***
-  }
-
-
-
-
-  //displaycall is the window of time to update our display
-
-  //these lock values increment
-  int64 display_lock_request=0;
-  int64 display_lock_confirmed=0;
-  int64 display_lock_released=0;
-
-#ifdef DEPENDENCY_GL
-  extern void SUB__GL();
-#endif
-
-  int32 displayorder_screen=1;
-  int32 displayorder_hardware=2;
-  int32 displayorder_glrender=3;
-  int32 displayorder_hardware1=4;
-
-  //sub__displayorder( 1 , 2 , 4 , 3 );
-  //id.specialformat = "[{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SCREEN|_HARDWARE|_HARDWARE1|_GLRENDER}]]]]"
-  void sub__displayorder(int32 method1,int32 method2,int32 method3,int32 method4){
-
-    //check no value has been used twice
-    if (method1!=0) if (method1==method2||method1==method3||method1==method4){error(5); return;}
-    if (method2!=0) if (method2==method1||method2==method3||method2==method4){error(5); return;}
-    if (method3!=0) if (method3==method1||method3==method2||method3==method4){error(5); return;}
-    if (method4!=0) if (method4==method1||method4==method2||method4==method3){error(5); return;}
-    displayorder_screen=0;
-    displayorder_hardware=0;
-    displayorder_hardware1=0;
-    displayorder_glrender=0;
-    static int32 i,method;
-    for (i=1;i<=4;i++){ 
-      if (i==1) method=method1;
-      if (i==2) method=method2;
-      if (i==3) method=method3;
-      if (i==4) method=method4;
-      if (method==1) displayorder_screen=i;
-      if (method==2) displayorder_hardware=i;
-      if (method==3) displayorder_hardware1=i;
-      if (method==4) displayorder_glrender=i;
-    }
-  }
-
-  //int32 gl_render_method=2; //1=behind, 2=ontop[default], 3=only
-  void sub__glrender(int32 method){
-    //gl_render_method=method;
-    if (method==1) sub__displayorder(4,1,2,3);
-    if (method==2) sub__displayorder(1,2,4,3);
-    if (method==3) sub__displayorder(4,0,0,0);
-  }
-
-
-
-
-
-
-
-
-#define GL_BGR 0x80E0
-#define GL_BGRA 0x80E1
-
-
-
-  /* reference
-     struct hardware_img_struct{
-     int32 w;
-     int32 h;
-     int32 texture_handle;
-     int32 dest_context_handle;//used when rendering other images onto this image
-     int32 temp;//if =1, delete immediately after use
-     }
-     list *hardware_img_handles=NULL;
-  */
-
-
-
-  void free_hardware_img(int32 handle){
-
-    //alert("free_hardware_img: entered");
-
-    static hardware_img_struct* hardware_img;
-    hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
-
-    if (hardware_img==NULL) alert("free_hardware_img: image does not exist");
-
-    if (hardware_img->dest_context_handle){
-      GLuint context=(GLuint)hardware_img->dest_context_handle;
-      glDeleteFramebuffersEXT(1, &context);
-    }
-    if (hardware_img->depthbuffer_handle){
-      GLuint depthbuffer_handle=(GLuint)hardware_img->depthbuffer_handle;
-      glDeleteFramebuffersEXT(1, &depthbuffer_handle);
-    }
-    GLuint texture=(GLuint)hardware_img->texture_handle;
-    glDeleteTextures(1, &texture); 
-
-    //if image has not been used, it may still have buffered pixel content
-    if (hardware_img->software_pixel_buffer!=NULL) free(hardware_img->software_pixel_buffer);
-    
-    list_remove(hardware_img_handles,handle);
-  }
-
-
-  /*
-    int32 new_hardware_frame(int32 x, int32 y){
-    int32 handle=new_hardware_frame_handle();
-    glBindTexture (GL_TEXTURE_2D, handle);
-    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-    return handle;
-    }
-
-    void free_hardware_frame(int32 handle){
-    GLuint texture=(GLuint)handle;
-    glDeleteTextures(1, &texture);
-    }
-  */
-
-
-
-
-  void prepare_environment_2d(){//called prior to rendering 2D content
-
-    //precalculate critical dimensions, offsets & ratios
-
-    static int32 can_scale;//can the screen be scaled on the window
-    can_scale=0;
-    static int32 need_square_pixels;//do we need square_pixels? if not we can stretch the screen
-    need_square_pixels=0;
-
-    environment_2d__screen_smooth=0;
-
-    environment_2d__letterbox=0;
-
-    if (full_screen>0){//in full screen
-      //reference: ---int32 full_screen_set=-1;//0(windowed),1(stretched/closest),2(1:1)---
-      can_scale=1;
-      if (full_screen==2) need_square_pixels=1;
-      //note: 'letter-boxing' is only requred where the size of the window cannot be controlled, and the only place where this is the
-      //      case is full screen mode _SQUAREPIXELS
-      environment_2d__screen_smooth=fullscreen_smooth;
-    }else{//windowed
-      if (resize_auto>0){//1=STRETCH,2=SMOOTH
-    can_scale=1;
-    if (resize_auto==2) environment_2d__screen_smooth=1;
-    //note: screen will fix its aspect ratio automatically, so there is no need to enforce squarepixels
-      } 
-    }
-
-    if (environment_2d__screen_width==environment__window_width &&
-    environment_2d__screen_height==environment__window_height){
-      //screen size matches window
-      environment_2d__screen_x1=0;
-      environment_2d__screen_y1=0;
-      environment_2d__screen_x2=environment_2d__screen_width-1;
-      environment_2d__screen_y2=environment_2d__screen_height-1;
-      environment_2d__screen_x_scale=1.0f;
-      environment_2d__screen_y_scale=1.0f;
-      environment_2d__screen_scaled_width=environment_2d__screen_width;
-      environment_2d__screen_scaled_height=environment_2d__screen_height;
-      environment_2d__screen_smooth=0;//no smoothing required
-    }else{
-      //screen size does not match
-      //calculate ratios
-      static float window_ratio;
-      static float screen_ratio;
-      window_ratio=(float)environment__window_width/(float)environment__window_height;
-      screen_ratio=(float)environment_2d__screen_width/(float)environment_2d__screen_height;
-      if (can_scale==0){
-    //screen will appear in the top-left of the window with blank space on the bottom & right
-    environment_2d__screen_x1=0;
-    environment_2d__screen_y1=0;
-    environment_2d__screen_x2=environment_2d__screen_width-1;
-    environment_2d__screen_y2=environment_2d__screen_height-1;
-    goto cant_scale;
-      }
-      if (need_square_pixels==0||(window_ratio==screen_ratio)){
-    //can stretch, no 'letter-box' required
-    environment_2d__screen_x1=0;
-    environment_2d__screen_y1=0;
-    environment_2d__screen_x2=environment__window_width-1;
-    environment_2d__screen_y2=environment__window_height-1;
-      }else{
-    //'letter-box' required
-    //this section needs revision
-    static float x_scale,y_scale;
-    static int32 x1,y1,x2,y2,z,x_limit,y_limit,x_offset,y_offset;
-    //x_scale=(float)environment_2d__screen_width/(float)environment__window_width;
-    //y_scale=(float)environment_2d__screen_height/(float)environment__window_height;
-    //x_offset=0; y_offset=0;
-
-    x1=0; y1=0; x2=environment__window_width-1; y2=environment__window_height-1;
-    //x_limit=x2; y_limit=y2;
-    if (window_ratio>screen_ratio){
-      //pad sides
-      z=(float)environment__window_height*screen_ratio;//new width
-      x1=environment__window_width/2-z/2;
-      x2=x1+z-1;
-      environment_2d__letterbox=1;//vertical black stripes required
-      //x_offset=-x1; x_scale=(float)environment_2d__screen_width/(float)z; x_limit=z-1;
-    }else{
-      //pad top/bottom
-      z=(float)environment__window_width/screen_ratio;//new height
-      y1=environment__window_height/2-z/2;
-      y2=y1+z-1;
-      environment_2d__letterbox=2;//horizontal black stripes required
-      //y_offset=-y1; y_scale=(float)environment_2d__screen_height/(float)z; y_limit=z-1;
-    }
-    environment_2d__screen_x1=x1;
-    environment_2d__screen_y1=y1;
-    environment_2d__screen_x2=x2;
-    environment_2d__screen_y2=y2;
-      }
-    cant_scale:
-      environment_2d__screen_scaled_width=environment_2d__screen_x2-environment_2d__screen_x1+1;
-      environment_2d__screen_scaled_height=environment_2d__screen_y2-environment_2d__screen_y1+1;
-      environment_2d__screen_x_scale=(float)environment_2d__screen_scaled_width/(float)environment_2d__screen_width;
-      environment_2d__screen_y_scale=(float)environment_2d__screen_scaled_height/(float)environment_2d__screen_height;
-    } 
-
-  }//prepare_environment_2d
-
-
-  int32 environment_2d__get_window_x1_coord(int32 x){
-    return qbr_float_to_long(((float)x)*environment_2d__screen_x_scale)+environment_2d__screen_x1;
-  }
-  int32 environment_2d__get_window_y1_coord(int32 y){
-    return qbr_float_to_long((float)y*environment_2d__screen_y_scale)+environment_2d__screen_y1;
-  }
-  int32 environment_2d__get_window_x2_coord(int32 x){
-    return qbr_float_to_long(((float)x+1.0f)*environment_2d__screen_x_scale-1.0f)+environment_2d__screen_x1;
-  }
-
-  int32 environment_2d__get_window_y2_coord(int32 y){
-    return qbr_float_to_long(((float)y+1.0f)*environment_2d__screen_y_scale-1.0f)+environment_2d__screen_y1;
-  }
-
-  struct environment_2d__window_rect_struct{
-    int32 x1;
-    int32 y1;
-    int32 x2;
-    int32 y2;
-  };
-
-  //this functions returns a constant rect dimensions to stop warping of image
-  environment_2d__window_rect_struct tmp_rect;
-  environment_2d__window_rect_struct *environment_2d__screen_to_window_rect(int32 x1,int32 y1,int32 x2,int32 y2){
-    tmp_rect.x1=qbr_float_to_long(((float)x1)*environment_2d__screen_x_scale)+environment_2d__screen_x1;
-    tmp_rect.y1=qbr_float_to_long(((float)y1)*environment_2d__screen_y_scale)+environment_2d__screen_y1;
-    static int32 w,h;
-    w=abs(x2-x1)+1; h=abs(y2-y1)+1;
-    //force round upwards to correct gaps when tiling
-    w=((float)w)*environment_2d__screen_x_scale+0.99f;
-    h=((float)h)*environment_2d__screen_y_scale+0.99f;
-    tmp_rect.x2=w-1+tmp_rect.x1;
-    tmp_rect.y2=h-1+tmp_rect.y1;
-    //(code which doesn't support tiling)
-    //tmp_rect.x2=qbr_float_to_long(((float)w)*environment_2d__screen_x_scale-1.0f)+tmp_rect.x1;
-    //tmp_rect.y2=qbr_float_to_long(((float)h)*environment_2d__screen_y_scale-1.0f)+tmp_rect.y1;
-    return &tmp_rect;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-float *hardware_buffer_vertices=(float*)malloc(sizeof(float)*1);
-int32 *hardware_buffer_vertices_int;
-
-int32 hardware_buffer_vertices_max=1;
-int32 hardware_buffer_vertices_count=0;
-
-float *hardware_buffer_texcoords=(float*)malloc(sizeof(float)*1);
-int32 hardware_buffer_texcoords_max=1;
-int32 hardware_buffer_texcoords_count=0;
- 
-void hardware_buffer_flush(){
- if (hardware_buffer_vertices_count){
-  //ref: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
-  if (hardware_buffer_vertices_count==hardware_buffer_texcoords_count){
-   glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), (int32*)hardware_buffer_vertices); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
-   glTexCoordPointer(2, GL_FLOAT, 2*sizeof(GL_FLOAT), hardware_buffer_texcoords); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
-   glDrawArrays(GL_TRIANGLES, 0, hardware_buffer_vertices_count/2);//start index, number of indexes
-  }else{
-   glVertexPointer(3, GL_FLOAT, 3*sizeof(GL_FLOAT), hardware_buffer_vertices); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
-   glTexCoordPointer(2, GL_FLOAT, 2*sizeof(GL_FLOAT), hardware_buffer_texcoords); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
-   glDrawArrays(GL_TRIANGLES, 0, hardware_buffer_vertices_count/3);//start index, number of indexes
-  }
-  hardware_buffer_vertices_count=0;
-  hardware_buffer_texcoords_count=0;
- }
-}
-
-
-
-
-void set_smooth(int32 new_mode_shrunk,int32 new_mode_stretched){
-static int32 current_mode_shrunk;
-current_mode_shrunk=render_state.source->smooth_shrunk;
-static int32 current_mode_stretched;
-current_mode_stretched=render_state.source->smooth_stretched;
-if (new_mode_shrunk==current_mode_shrunk&&new_mode_stretched==current_mode_stretched) return;
-hardware_buffer_flush();
-if (new_mode_shrunk==SMOOTH_MODE__DONT_SMOOTH){
-	if (render_state.source->PO2_fix==PO2_FIX__MIPMAPPED){
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}else{
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
-}
-if (new_mode_shrunk==SMOOTH_MODE__SMOOTH){
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-}
-if (new_mode_stretched==SMOOTH_MODE__DONT_SMOOTH){
-	if (render_state.source->PO2_fix==PO2_FIX__MIPMAPPED){
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}else{
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-}
-if (new_mode_stretched==SMOOTH_MODE__SMOOTH){
-	glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-render_state.source->smooth_shrunk=new_mode_shrunk;
-render_state.source->smooth_stretched=new_mode_stretched;
-}
-
-void set_texture_wrap(int32 new_mode){
-static int32 current_mode;
-current_mode=render_state.source->texture_wrap;
-if (new_mode==current_mode) return;
-hardware_buffer_flush();
-if (new_mode==TEXTURE_WRAP_MODE__DONT_WRAP){
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-if (new_mode==TEXTURE_WRAP_MODE__WRAP){
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-}
-render_state.source->texture_wrap=new_mode;
-}
-
-void set_alpha(int32 new_mode){
-static int32 current_mode;
-current_mode=render_state.use_alpha;
-if (new_mode==current_mode) return;
-hardware_buffer_flush();
-if (new_mode==ALPHA_MODE__DONT_BLEND){
-	glDisable(GL_BLEND);
-}
-if (new_mode==ALPHA_MODE__BLEND){
-	glEnable(GL_BLEND);
-	if (framebufferobjects_supported){
-		//glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-	}else{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-}
-render_state.use_alpha=new_mode;
-}
-
-void set_depthbuffer(int32 new_mode){
-static int32 current_mode;
-current_mode=render_state.depthbuffer_mode;
-if (new_mode==current_mode) return;
-hardware_buffer_flush();
-if (new_mode==DEPTHBUFFER_MODE__OFF){
-	glDisable(GL_DEPTH_TEST);
-	glAlphaFunc(GL_ALWAYS, 0);
-}
-if (new_mode==DEPTHBUFFER_MODE__ON){
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);	
-	glAlphaFunc(GL_GREATER, 0.001);
-     	glEnable(GL_ALPHA_TEST);
-}
-if (new_mode==DEPTHBUFFER_MODE__LOCKED){
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
-	glAlphaFunc(GL_ALWAYS, 0);
-}
-render_state.depthbuffer_mode=new_mode;
-}
-
-void set_cull_mode(int32 new_mode){
-static int32 current_mode;
-current_mode=render_state.cull_mode;
-if (new_mode==current_mode) return;
-hardware_buffer_flush();
-if (new_mode==CULL_MODE__NONE){
-	glDisable(GL_CULL_FACE);
-}
-if (new_mode==CULL_MODE__CLOCKWISE_ONLY){
-	glFrontFace(GL_CW);	
-	if (current_mode!=CULL_MODE__ANTICLOCKWISE_ONLY) glEnable(GL_CULL_FACE);
-}
-if (new_mode==CULL_MODE__ANTICLOCKWISE_ONLY){
-	glFrontFace(GL_CCW);
-	if (current_mode!=CULL_MODE__CLOCKWISE_ONLY) glEnable(GL_CULL_FACE);
-}
-render_state.cull_mode=new_mode;
-}
-
-void set_view(int32 new_mode){ //set view can only be called after the correct destination is chosen
-static int32 current_mode;
-current_mode=render_state.view_mode;
-if (new_mode==current_mode) return;
-hardware_buffer_flush();
-if (new_mode==VIEW_MODE__RESET){
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_ALPHA_TEST);
-	glDisable(GL_BLEND);
-	glDisable(GL_COLOR_MATERIAL);
-	glDisable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
-	glDisable(GL_LIGHTING);
-	glFrontFace(GL_CCW);
-	glCullFace(GL_BACK);
-	glDisable(GL_CULL_FACE);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glAlphaFunc(GL_ALWAYS, 0);
-	if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	glBindTexture (GL_TEXTURE_2D, 0);	
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glColor4f(1.f, 1.f, 1.f, 1.f);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-        //invalidate current states
-	set_alpha(ALPHA_MODE__UNKNOWN);
-        set_depthbuffer(DEPTHBUFFER_MODE__UNKNOWN);
-        set_cull_mode(CULL_MODE__UNKNOWN);
-	set_render_source(INVALID_HARDWARE_HANDLE);
-	set_render_dest(INVALID_HARDWARE_HANDLE);
-	new_mode=VIEW_MODE__UNKNOWN;//resets are performed before unknown operations are executed	
-}
-if (new_mode==VIEW_MODE__2D){
-	if (current_mode!=VIEW_MODE__3D){
-		glColor4f(1.f, 1.f, 1.f, 1.f);		
-	        glDisable(GL_COLOR_MATERIAL);
-	        glDisable(GL_LIGHTING);
-		set_alpha(ALPHA_MODE__BLEND);
-	        glEnable(GL_TEXTURE_2D);
-	        glEnableClientState(GL_VERTEX_ARRAY);
-	        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glCullFace(GL_BACK);
-	}
-
-	if (render_state.dest_handle==0){
-		static int32 dst_w,dst_h;
-		dst_w=environment__window_width;
-		dst_h=environment__window_height;
-
-//alert(dst_w);
-//alert(dst_h);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0.0, dst_w, 0.0, dst_h, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glScalef(1, -1, 1);//flip vertically
-		glTranslatef(0, -dst_h, 0);//move to new vertical position
-		glViewport(0,0,dst_w,dst_h);
-	}else{
-		static hardware_img_struct* hardware_img;
-		hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,render_state.dest_handle);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluOrtho2D(0, hardware_img->w, 0, hardware_img->h);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glViewport(0,0,hardware_img->w,hardware_img->h);
-	}
-}
-if (new_mode==VIEW_MODE__3D){
-	if (current_mode!=VIEW_MODE__2D){
-		glColor4f(1.f, 1.f, 1.f, 1.f);
-	        glDisable(GL_COLOR_MATERIAL);
-	        glDisable(GL_LIGHTING);
-		set_alpha(ALPHA_MODE__BLEND);
-	        glEnable(GL_TEXTURE_2D);
-	        glEnableClientState(GL_VERTEX_ARRAY);
-	        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glCullFace(GL_BACK);
-	}
-	if (render_state.dest_handle==0){
-		static int32 dst_w,dst_h;
-		dst_w=environment__window_width;
-		dst_h=environment__window_height;
-		glViewport(0, 0, (GLsizei)dst_w, (GLsizei)dst_h);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		//note: the max FOV is 90-degrees (this maximum applies to the longest screen dimension)
-		float fov;
-		if (environment_2d__screen_scaled_width>environment_2d__screen_scaled_height){
-			fov=90.0f*((float)environment__window_width/(float)environment_2d__screen_scaled_width);
-			//convert fov from horizontal to vertical
-			fov=fov*((float)dst_h/(float)dst_w);
-		}else{
-			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
-		}
-		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}else{
-
-		static hardware_img_struct* hardware_img;
-		hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,render_state.dest_handle);
-
-		static int32 dst_w,dst_h;
-		dst_w=hardware_img->w;
-		dst_h=hardware_img->h;
-		glViewport(0, 0, (GLsizei)dst_w, (GLsizei)dst_h);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glScalef (1.0, -1.0, 1.0);
-		//note: the max FOV is 90-degrees (this maximum applies to the longest screen dimension)
-		float fov;
-		if (environment_2d__screen_scaled_width>environment_2d__screen_scaled_height){
-			fov=90.0f*((float)environment__window_width/(float)environment_2d__screen_scaled_width);
-			//convert fov from horizontal to vertical
-			fov=fov*((float)dst_h/(float)dst_w);
-		}else{
-			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
-		}
-		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		//alert("3D rendering onto FBO not supported yet");
-	}
-}
-render_state.view_mode=new_mode;
-}//change_render_state
-
-
-void set_render_source(int32 new_handle){
-if (new_handle==INVALID_HARDWARE_HANDLE){
-	hardware_buffer_flush();
-	render_state.source_handle=INVALID_HARDWARE_HANDLE;
-	return;
-}
-int32 current_handle;
-current_handle=render_state.source_handle;
-
-if (current_handle==new_handle) return;
-
-hardware_buffer_flush();
-
-hardware_img_struct* hardware_img;
-hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,new_handle);
-if (hardware_img->texture_handle==0) hardware_img_buffer_to_texture(new_handle);
-glBindTexture (GL_TEXTURE_2D, hardware_img->texture_handle);
-render_state.source_handle=new_handle;
-render_state.source=&hardware_img->source_state;
-
-//note: some older systems require calling glTexParameterf after textures are rebound
-if (framebufferobjects_supported==0){
-	render_state.source->smooth_shrunk=SMOOTH_MODE__UNKNOWN;
-	render_state.source->smooth_stretched=SMOOTH_MODE__UNKNOWN;
-}
-
-}
-
-void set_render_dest(int32 new_handle){
-if (new_handle==INVALID_HARDWARE_HANDLE){
-	hardware_buffer_flush();
-	render_state.dest_handle=INVALID_HARDWARE_HANDLE;
-	set_view(VIEW_MODE__UNKNOWN);
-	return;
-}
-//0=primary surface
-static int32 current_handle;
-current_handle=render_state.dest_handle;
-if (new_handle==current_handle) return;
-hardware_buffer_flush();
-set_view(VIEW_MODE__UNKNOWN);
-if (new_handle==0){
-	if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	render_state.dest=&dest_render_state0;
-}else{
-	static hardware_img_struct* hardware_img;
-	hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,new_handle);
-	//convert to regular texture first if necessary
-	if (hardware_img->texture_handle==0) hardware_img_buffer_to_texture(new_handle);
-	//does it have a dest context/FBO? if not create one
-	if (hardware_img->dest_context_handle==0){
-		
-		static GLuint framebuffer_handle;
-		framebuffer_handle=0;
-		glGenFramebuffersEXT(1, &framebuffer_handle);
-		glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
-		hardware_img->dest_context_handle=framebuffer_handle;
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hardware_img->texture_handle, 0);   
-
-                //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-                //glClear(GL_COLOR_BUFFER_BIT);
-                glColor4f(1.f, 1.f, 1.f, 1.f);
-
-                set_render_source(INVALID_HARDWARE_HANDLE);
-
-	}else{
-		glBindFramebufferEXT(GL_FRAMEBUFFER, hardware_img->dest_context_handle);
-	}
-	render_state.dest=&hardware_img->dest_state;
-}
-render_state.dest_handle=new_handle;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  void hardware_img_put(int32 dst_x1,int32 dst_y1,int32 dst_x2,int32 dst_y2,
-            int32 src_img,int32 dst_img,
-            int32 src_x1,int32 src_y1,int32 src_x2,int32 src_y2,
-            int32 use_alpha,
-            int32 smooth
-            ){
-
-    if (dst_img<0) dst_img=0;//both layers render to the primary context
-
-    //ensure dst_x1/y1 represent top-left co-ordinate of destination
-    static int32 swap_tmp;
-    if (dst_x2<dst_x1){
-      swap_tmp=dst_x2; dst_x2=dst_x1; dst_x1=swap_tmp;
-      swap_tmp=src_x2; src_x2=src_x1; src_x1=swap_tmp;
-    }
-    if (dst_y2<dst_y1){
-      swap_tmp=dst_y2; dst_y2=dst_y1; dst_y1=swap_tmp;
-      swap_tmp=src_y2; src_y2=src_y1; src_y1=swap_tmp;
-    }
-
-    set_render_dest(dst_img);
-    set_view(VIEW_MODE__2D);
-
-    if (dst_img){
-      //static hardware_img_struct* dst_hardware_img;
-      //dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
-      //(no specific action required here --area reserved for future use)
-    }else{ //dest is 0
-      environment_2d__window_rect_struct *rect;
-      rect=environment_2d__screen_to_window_rect(dst_x1,dst_y1,dst_x2,dst_y2);
-      dst_x1=rect->x1;
-      dst_y1=rect->y1;
-      dst_x2=rect->x2;
-      dst_y2=rect->y2;
-    }
-
-    set_render_source(src_img);
-
-    static hardware_img_struct* src_hardware_img;
-    static int32 src_h,src_w;
-    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
-    src_h=src_hardware_img->h;
-    src_w=src_hardware_img->w;
-
-
-    if (smooth){
-	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
-    }else{
-	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
-    }
-
-    if (use_alpha){
-      set_alpha(ALPHA_MODE__BLEND);
-    }else{
-      set_alpha(ALPHA_MODE__DONT_BLEND);
-    }
-
-    set_depthbuffer(DEPTHBUFFER_MODE__OFF);
-    set_cull_mode(CULL_MODE__NONE);
-
-    set_texture_wrap(TEXTURE_WRAP_MODE__DONT_WRAP);
-
-
-
-    //adjust for render (x2 & y2 need to be one greater than the destination offset)
-    dst_x2++; dst_y2++;
-
-if (src_hardware_img->source_state.PO2_fix){
-	src_w=src_hardware_img->PO2_w;
-	src_h=src_hardware_img->PO2_h;
-} 
-
-    //calc source texture co-ordinates
-    static float x1f,y1f,x2f,y2f;
-    if (src_x1<=src_x2){
-      x1f=((float)src_x1+0.01f)/(float)src_w;
-      x2f=((float)src_x2+0.99f)/(float)src_w;
-    }else{
-      x2f=((float)src_x2+0.01f)/(float)src_w;
-      x1f=((float)src_x1+0.99f)/(float)src_w;
-    }
-    if (src_y1<=src_y2){
-      y1f=((float)src_y1+0.01f)/(float)src_h;
-      y2f=((float)src_y2+0.99f)/(float)src_h;
-    }else{
-      y2f=((float)src_y2+0.01f)/(float)src_h;
-      y1f=((float)src_y1+0.99f)/(float)src_h;
-    }
-
-    //expand buffers if necessary
-    if ((hardware_buffer_vertices_count+18)>hardware_buffer_vertices_max){
-        hardware_buffer_vertices_max=hardware_buffer_vertices_max*2+18;
-	hardware_buffer_vertices=(float*)realloc(hardware_buffer_vertices,hardware_buffer_vertices_max*sizeof(float));
-    }
-    if ((hardware_buffer_texcoords_count+12)>hardware_buffer_texcoords_max){
-        hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+12;
-	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
-    }
-    hardware_buffer_vertices_int=(int32*)hardware_buffer_vertices;
-  
-    //clockwise
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
-
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
-
-    //hardware_buffer_flush(); //uncomment for debugging only
-
-  }
-
-
-
-
-
-  void hardware_img_tri2d(float dst_x1,float dst_y1,float dst_x2,float dst_y2,float dst_x3,float dst_y3,
-            int32 src_img,int32 dst_img,
-            float src_x1,float src_y1,float src_x2,float src_y2,float src_x3,float src_y3,
-            int32 use_alpha,
-            int32 smooth
-            ){
-
-    if (dst_img<0) dst_img=0;//both layers render to the primary context
-
-    set_render_dest(dst_img);
-    set_view(VIEW_MODE__2D);
-
-    if (dst_img){
-      static hardware_img_struct* dst_hardware_img;
-      dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
-
-static int32 dst_w,dst_h;
-dst_w=dst_hardware_img->w;
-dst_h=dst_hardware_img->h;
-//SEAMLESS adjustments:
-//reduce texture co-ordinates (maintaining top-left)
-//(todo)
-//NON-SEAMLESS adjustments:
-//Extend rhs/bottom row to fill extra pixel space
-//calculate extents
-int32 rx1;
-int32 rx2;
-rx1=dst_x1;
-if (dst_x2<rx1){
-rx1=dst_x2;
-}
-if (dst_x3<rx1){
-rx1=dst_x3;
-}
-rx2=dst_x1;
-if (dst_x2>rx2){
-rx2=dst_x2;
-}
-if (dst_x3>rx2){
-rx2=dst_x3;
-}
-float xr;//the multiplier for where we should be (1=no change)
-if (rx1==rx2){
-xr=1.0f;
-}else{
-xr=((float)rx2-(float)rx1+1.0)/((float)rx2-(float)rx1);
-}
-int32 ry1;
-int32 ry2;
-ry1=dst_y1;
-if (dst_y2<ry1){
-ry1=dst_y2;
-}
-if (dst_y3<ry1){
-ry1=dst_y3;
-}
-ry2=dst_y1;
-if (dst_y2>ry2){
-ry2=dst_y2;
-}
-if (dst_y3>ry2){
-ry2=dst_y3;
-}
-float yr;//the multiplier for where we should be (1=no change)
-if (ry1==ry2){
-yr=1.0f;
-}else{
-yr=((float)ry2-(float)ry1+1.0f)/((float)ry2-(float)ry1);
-}
-//apply multipliers so right-most and bottom-most rows will be filled
-static int32 basex;
-basex=rx1;
-dst_x1=qbr_float_to_long(
-((float)(dst_x1-rx1))*xr+(float)basex
-);
-dst_x2=qbr_float_to_long(
-((float)(dst_x2-rx1))*xr+(float)basex
-);
-dst_x3=qbr_float_to_long(
-((float)(dst_x3-rx1))*xr+(float)basex
-);
-static int32 basey;
-basey=ry1;
-dst_y1=qbr_float_to_long(
-((float)(dst_y1-ry1))*yr+(float)basey
-);
-dst_y2=qbr_float_to_long(
-((float)(dst_y2-ry1))*yr+(float)basey
-);
-dst_y3=qbr_float_to_long(
-((float)(dst_y3-ry1))*yr+(float)basey
-);
-
-    }else{ //dest is 0
-
-static int32 dst_w,dst_h;
-dst_w=environment__window_width;
-dst_h=environment__window_height;
-//SEAMLESS adjustments:
-//reduce texture co-ordinates (maintaining top-left)
-//(todo)
-//NON-SEAMLESS adjustments:
-//Extend rhs/bottom row to fill extra pixel space
-//calculate extents
-int32 rx1;
-int32 rx2;
-rx1=dst_x1;
-if (dst_x2<rx1){
-rx1=dst_x2;
-}
-if (dst_x3<rx1){
-rx1=dst_x3;
-}
-rx2=dst_x1;
-if (dst_x2>rx2){
-rx2=dst_x2;
-}
-if (dst_x3>rx2){
-rx2=dst_x3;
-}
-float xr;//the multiplier for where we should be (1=no change)
-if (rx1==rx2){
-xr=1.0f;
-}else{
-xr=((float)rx2-(float)rx1+1.0)/((float)rx2-(float)rx1);
-}
-int32 ry1;
-int32 ry2;
-ry1=dst_y1;
-if (dst_y2<ry1){
-ry1=dst_y2;
-}
-if (dst_y3<ry1){
-ry1=dst_y3;
-}
-ry2=dst_y1;
-if (dst_y2>ry2){
-ry2=dst_y2;
-}
-if (dst_y3>ry2){
-ry2=dst_y3;
-}
-float yr;//the multiplier for where we should be (1=no change)
-if (ry1==ry2){
-yr=1.0f;
-}else{
-yr=((float)ry2-(float)ry1+1.0f)/((float)ry2-(float)ry1);
-}
-//apply multipliers so right-most and bottom-most rows will be filled
-static int32 basex;
-basex=
-qbr_float_to_long(
-((float)(rx1))*environment_2d__screen_x_scale+(float)environment_2d__screen_x1
-);
-dst_x1=
-basex+
-qbr_float_to_long(
-((float)(dst_x1-rx1))*environment_2d__screen_x_scale*xr
-);
-dst_x2=
-basex+
-qbr_float_to_long(
-((float)(dst_x2-rx1))*environment_2d__screen_x_scale*xr
-);
-dst_x3=
-basex+
-qbr_float_to_long(
-((float)(dst_x3-rx1))*environment_2d__screen_x_scale*xr
-);
-static int32 basey;
-basey=
-qbr_float_to_long(
-((float)(ry1))*environment_2d__screen_y_scale+(float)environment_2d__screen_y1
-);
-dst_y1=
-basey+
-qbr_float_to_long(
-((float)(dst_y1-ry1))*environment_2d__screen_y_scale*yr
-);
-dst_y2=
-basey+
-qbr_float_to_long(
-((float)(dst_y2-ry1))*environment_2d__screen_y_scale*yr
-);
-dst_y3=
-basey+
-qbr_float_to_long(
-((float)(dst_y3-ry1))*environment_2d__screen_y_scale*yr
-);
-
-    }
-
-    set_render_source(src_img);
-
-    static hardware_img_struct* src_hardware_img;
-    static int32 src_h,src_w;
-    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
-    src_h=src_hardware_img->h;
-    src_w=src_hardware_img->w;
-
-    if (smooth==0){
-	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
-    }
-    if (smooth==1){
-	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
-    }
-    if (smooth==2){
-	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
-    }
-    if (smooth==3){
-	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__SMOOTH);
-    }
-
-    set_texture_wrap(TEXTURE_WRAP_MODE__WRAP);
-
-    if (use_alpha){
-      set_alpha(ALPHA_MODE__BLEND);
-    }else{
-      set_alpha(ALPHA_MODE__DONT_BLEND);
-    }
-
-    set_depthbuffer(DEPTHBUFFER_MODE__OFF);
-    set_cull_mode(CULL_MODE__NONE);
-
-if (src_hardware_img->source_state.PO2_fix){
-	src_w=src_hardware_img->PO2_w;
-	src_h=src_hardware_img->PO2_h;
-} 
-
-    //calc source texture co-ordinates
-    static float x1f,y1f,x2f,y2f,x3f,y3f;
-    x1f=((float)src_x1+0.5f)/(float)src_w;
-    x2f=((float)src_x2+0.5f)/(float)src_w;
-    x3f=((float)src_x3+0.5f)/(float)src_w;
-    y1f=((float)src_y1+0.5f)/(float)src_h;
-    y2f=((float)src_y2+0.5f)/(float)src_h;
-    y3f=((float)src_y3+0.5f)/(float)src_h;
-
-
-    //expand buffers if necessary
-    if ((hardware_buffer_vertices_count+9)>hardware_buffer_vertices_max){
-        hardware_buffer_vertices_max=hardware_buffer_vertices_max*2+9;
-	hardware_buffer_vertices=(float*)realloc(hardware_buffer_vertices,hardware_buffer_vertices_max*sizeof(float));
-    }
-    if ((hardware_buffer_texcoords_count+6)>hardware_buffer_texcoords_max){
-        hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+6;
-	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
-    }
-    hardware_buffer_vertices_int=(int32*)hardware_buffer_vertices;
-
-
-    
-    //clockwise
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x3; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y3;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x3f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y3f;
-
-    //hardware_buffer_flush(); //uncomment for debugging only
-
-  }
-
-void clear_depthbuffer(int32 dst_img){
- hardware_buffer_flush();
- if (dst_img<0) dst_img=0;//both layers render to the primary context
- set_render_dest(dst_img);
- if (dst_img>0){
-  hardware_img_requires_depthbuffer((hardware_img_struct*)list_get(hardware_img_handles,dst_img));
- }
- glClear(GL_DEPTH_BUFFER_BIT);
-}
-
-  void hardware_img_tri3d(float dst_x1,float dst_y1,float dst_z1,float dst_x2,float dst_y2,float dst_z2,float dst_x3,float dst_y3,float dst_z3,
-            int32 src_img,int32 dst_img,
-            float src_x1,float src_y1,float src_x2,float src_y2,float src_x3,float src_y3,
-            int32 use_alpha,
-            int32 smooth,
-	    int32 cull_mode,
-	    int32 depthbuffer_mode
-            ){
-
-    if (dst_img<0) dst_img=0;//both layers render to the primary context
-
-    set_render_dest(dst_img);
-    set_view(VIEW_MODE__3D);
-
-    if (dst_img){
-      static hardware_img_struct* dst_hardware_img;
-      dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
-      hardware_img_requires_depthbuffer(dst_hardware_img);
-    }else{ //dest is 0      
-    }
-
-    set_render_source(src_img);
-
-    static hardware_img_struct* src_hardware_img;
-    static int32 src_h,src_w;
-    src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src_img);
-    src_h=src_hardware_img->h;
-    src_w=src_hardware_img->w;
-
-    if (smooth==0){
-	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
-    }
-    if (smooth==1){
-	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
-    }
-    if (smooth==2){
-	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__DONT_SMOOTH);
-    }
-    if (smooth==3){
-	set_smooth(SMOOTH_MODE__DONT_SMOOTH,SMOOTH_MODE__SMOOTH);
-    }
-
-    set_texture_wrap(TEXTURE_WRAP_MODE__WRAP);
-
-    if (use_alpha){
-      set_alpha(ALPHA_MODE__BLEND);
-    }else{
-      set_alpha(ALPHA_MODE__DONT_BLEND);
-    }
-
-    set_depthbuffer(depthbuffer_mode);
-
-    //on frame buffers the 3D perspective is flipped vertically reversing the cull direction
-    if (dst_img>0){
-	if (cull_mode==CULL_MODE__CLOCKWISE_ONLY){
-		cull_mode=CULL_MODE__ANTICLOCKWISE_ONLY;
-	}else{
-		if (cull_mode==CULL_MODE__ANTICLOCKWISE_ONLY) cull_mode=CULL_MODE__CLOCKWISE_ONLY;
-	}
-    }
-    
-    set_cull_mode(cull_mode);
-
-if (src_hardware_img->source_state.PO2_fix){
-	src_w=src_hardware_img->PO2_w;
-	src_h=src_hardware_img->PO2_h;
-} 
-
-    //calc source texture co-ordinates
-    static float x1f,y1f,x2f,y2f,x3f,y3f;
-    x1f=((float)src_x1+0.5f)/(float)src_w;
-    x2f=((float)src_x2+0.5f)/(float)src_w;
-    x3f=((float)src_x3+0.5f)/(float)src_w;
-    y1f=((float)src_y1+0.5f)/(float)src_h;
-    y2f=((float)src_y2+0.5f)/(float)src_h;
-    y3f=((float)src_y3+0.5f)/(float)src_h;
-
-    //expand buffers if necessary
-    if ((hardware_buffer_vertices_count+9)>hardware_buffer_vertices_max){
-        hardware_buffer_vertices_max=hardware_buffer_vertices_max*2+9;
-	hardware_buffer_vertices=(float*)realloc(hardware_buffer_vertices,hardware_buffer_vertices_max*sizeof(float));
-    }
-    if ((hardware_buffer_texcoords_count+6)>hardware_buffer_texcoords_max){
-        hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+6;
-	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
-    }
-    
-    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_z1;
-    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_z2;
-    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x3; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y3; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_z3;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
-    hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x3f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y3f;
-    //hardware_buffer_flush(); //uncomment for debugging only
-
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  static int32 software_screen_hardware_frame=0;
-
-  static int32 in_GLUT_DISPLAY_REQUEST=0;
-
-  void GLUT_DISPLAY_REQUEST(){
-
-    if (in_GLUT_DISPLAY_REQUEST){
-      return;
-    }
-    in_GLUT_DISPLAY_REQUEST=1;
-
-    //general use variables
-    static int32 i,i2,i3;
-    static int32 x,y,x2,y2;
-
-    //determine which software frame to display
-    static int32 last_i;//the last software frame displayed
-    last_i=-1;
-    for (i2=0;i2<=2;i2++){
-      if (display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING){
-    last_i=i2;
-      }
-    }
-    i=-1;
-    static int64 highest_order;
-    highest_order=0;
-    if (last_i!=-1) highest_order=display_frame[last_i].order;//avoid any frames below the current one
-    for (i2=0;i2<=2;i2++){
-      if (display_frame[i2].state==DISPLAY_FRAME_STATE__READY&&display_frame[i2].order>highest_order){
-    highest_order=display_frame[i2].order;
-    i=i2;
-      }
-    }
-    if (i==-1) i=last_i;
-    if (i==-1){
-      in_GLUT_DISPLAY_REQUEST=0;
-      return;//no frames exist yet, so screen size cannot be determined, therefore no action possible
-    }
-    if (i!=last_i){ 
-      for (i2=0; i2<=2;i2++){
-    if (display_frame[i2].order<display_frame[i].order&&(display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING||display_frame[i2].state==DISPLAY_FRAME_STATE__READY)) display_frame[i2].state=DISPLAY_FRAME_STATE__EMPTY;
-      }
-      display_frame[i].state=DISPLAY_FRAME_STATE__DISPLAYING;
-    }
-
-
-    static int64 order;
-    order=last_hardware_display_frame_order;
-
-    static int32 first_command_prev_order=0;
-    static int32 rerender_prev_hardware_frame=0;
-    rerender_prev_hardware_frame=0;
-
-    //if no new software frame, only proceed if there is _GL content to render
-    if (last_rendered_hardware_display_frame_order==last_hardware_display_frame_order){
-      if (i==last_i){
-    if (full_screen_set==-1){//no pending full-screen changes
-      if (os_resize_event==0){//no resize events
-#ifndef DEPENDENCY_GL //we aren't using SUB _GL 
-        in_GLUT_DISPLAY_REQUEST=0;
-        return;
-#endif
-        if (displayorder_glrender==0){
-          in_GLUT_DISPLAY_REQUEST=0;
-          return;
-        }
-        if (first_command_prev_order){
-          rerender_prev_hardware_frame=1;
-          //reset next command to prev hardware frame's handle (if any)
-          last_hardware_command_rendered=first_command_prev_order;
-        }
-
-      }
-    }
-      }
-    }
-
-    first_command_prev_order=0;
-
-
-    //set environment variables
-    environment_2d__screen_width=display_frame[i].w;
-    environment_2d__screen_height=display_frame[i].h;
-
-
-
-
-
-
-
-
-
-
-
-    os_resize_event=0;//turn off flag which forces a render to take place even if no content has changed
-
-
-
-
-    if ((full_screen==0)&&(full_screen_set==-1)){//not in (or attempting to enter) full screen
-
-      display_required_x=display_frame[i].w; display_required_y=display_frame[i].h;
-      static int32 framesize_changed;
-      framesize_changed=0;
-      if ((display_required_x!=resize_snapback_x)||(display_required_y!=resize_snapback_y)) framesize_changed=1;
-
-
-      resize_auto_ideal_aspect=(float)display_frame[i].w/(float)display_frame[i].h;
-      resize_snapback_x=display_required_x; resize_snapback_y=display_required_y;
-
-
-
-      if (resize_auto){
-    //maintain aspect ratio
-    static float ar;
-    ar=(float)display_x/(float)display_y;
-    if ((ar!=resize_auto_accept_aspect)&&(ar!=resize_auto_ideal_aspect)){
-      //set new size
-      static int32 x,y;
-      if (display_x_prev==display_x){
-        y=display_y;
-        x=(float)y*resize_auto_ideal_aspect;
-      }
-      if (display_y_prev==display_y){
-        x=display_x;
-        y=(float)x/resize_auto_ideal_aspect;
-      }
-      if ((display_y_prev!=display_y)&&(display_x_prev!=display_x)){
-        if (abs(display_y_prev-display_y)<abs(display_x_prev-display_x)){
-          x=display_x;
-          y=(float)x/resize_auto_ideal_aspect;
-        }else{
-          y=display_y;
-          x=(float)y*resize_auto_ideal_aspect;
-        }
-      }
-      resize_auto_accept_aspect=(float)x/(float)y;
-      resize_pending=1;
-      glutReshapeWindow(x,y);
-      glutPostRedisplay();
-
-      
-
-      goto auto_resized; 
-    }
-      }//resize_auto
-
-
-
-      if ((display_required_x!=display_x)||(display_required_y!=display_y)){
-    if (resize_snapback||framesize_changed){
-      glutReshapeWindow(display_required_x,display_required_y);
-      glutPostRedisplay();
-      resize_pending=1;
-    }
-      }
-
-
-
-    auto_resized:;
-
-    }//not in (or attempting to enter) full screen
-
-    //Pseudo-Fullscreen
-    if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
-      if (full_screen_set!=-1){//full screen mode change requested 
-    if (full_screen_set==0){
-      if (full_screen!=0){
-        //exit full screen
-        resize_pending=1;
-        glutReshapeWindow(display_frame[i].w,display_frame[i].h);
-        glutPostRedisplay();
-      }
-      full_screen=0;
-      full_screen_set=-1;
-    }else{
-      if (full_screen==0){
-        glutFullScreen();
-      }
-      full_screen=full_screen_set;
-      full_screen_set=-1;
-    }//enter full screen
-      }//full_screen_set check
-    }//size pending check
-
-
-
-
-
-
-    //This code is deprecated but kept for reference purposes
-    // 1) It was found to be unstable
-    // 2) Switching modes means a high chance of losing pre-loaded OpenGL hardware textures/surfaces
-    /*
-      static int32 glut_window;
-      //fullscreen
-      if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
-      if (full_screen_set!=-1){//full screen mode change requested 
-      if (full_screen_set==0){
-      //exit full screen
-      glutLeaveGameMode();
-      glutSetWindow(glut_window);
-      reinit_glut_callbacks();
-      full_screen=0;
-      full_screen_set=-1;
-      return;
-      }else{
-      static char game_mode_string[1000];
-      static int32 game_mode_string_i;
-      game_mode_string_i=0;
-      game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", display_frame[i].w);
-      game_mode_string[game_mode_string_i++]=120;//"x"
-      game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", display_frame[i].h);
-      game_mode_string[game_mode_string_i++]=58;//":"
-      game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", 32);
-      glutGameModeString(game_mode_string);
-      if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
-      //full screen using native dimensions which match the frame size
-      if (full_screen==0) glut_window=glutGetWindow();
-      glutEnterGameMode();
-      fullscreen_width=display_frame[i].w; fullscreen_height=display_frame[i].h;
-      reinit_glut_callbacks();
-      full_screen=full_screen_set;//it's currently irrelavent if it is stretched or 1:1
-      full_screen_set=-1;
-      return;
-      }else{ //native dimensions not possible
-      //attempt full screen using desktop dimensions
-      static int32 w; w=glutGet(GLUT_SCREEN_WIDTH);
-      static int32 h; h=glutGet(GLUT_SCREEN_HEIGHT);
-      game_mode_string_i=0;
-      game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", w);
-      game_mode_string[game_mode_string_i++]=120;//"x"
-      game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", h);
-      game_mode_string[game_mode_string_i++]=58;//":"
-      game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", 32);
-      glutGameModeString(game_mode_string);
-      if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
-      //full screen using desktop dimensions  
-      if (full_screen==0) glut_window=glutGetWindow();
-      glutEnterGameMode();
-      fullscreen_width=w; fullscreen_height=h;
-      reinit_glut_callbacks();
-      screen_scale=full_screen_set;
-      full_screen=full_screen_set;
-      full_screen_set=-1;
-      return; 
-      }else{
-      //cannot enter full screen
-      full_screen=0;
-      full_screen_set=-1;
-      }
-      }
-      }//enter full screen
-      }//full_screen_set check
-      }//size pending check
-    */
-
-
-
-
-
-
-
-    //set window environment variables
-    environment__window_width=display_x;
-    environment__window_height=display_y;
-
-    prepare_environment_2d();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //need a few variables here
-
-
-
-
-    static int32 first_hardware_layer_rendered;
-    static int32 first_hardware_layer_command;
-    first_hardware_layer_rendered=0;
-    first_hardware_layer_command=0;
-
-    static int32 level; for (level=0; level<=5; level++){
-
-      static int32 x1,y1,x2,y2;
-
-      if (level==0){
-       set_render_dest(0);
-       glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-      }else{
-
-    if (level==displayorder_glrender){
-#ifdef DEPENDENCY_GL
-
-      set_view(VIEW_MODE__RESET);
-
-      if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
-      display_lock_request++;
-      while (display_lock_confirmed<display_lock_request){
-        if (close_program||dont_call_sub_gl||suspend_program||stop_program) goto abort_gl;
-        qbevent=1; Sleep(0);
-      }
-      sub_gl_called=1;
-      SUB__GL();
-      sub_gl_called=0;
-    abort_gl:;
-      display_lock_released=display_lock_confirmed;
-
-#endif //DEPENDENCY_GL
-    }//level==displayorder_glrender
-
-
-    if (level==displayorder_screen){
-
-      if (software_screen_hardware_frame!=0&&i!=last_i){
-        free_hardware_img(software_screen_hardware_frame);
-      }
-      if (i!=last_i||software_screen_hardware_frame==0){
-        software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
-      }
-      static hardware_img_struct* f1;
-      f1=(hardware_img_struct*)list_get(hardware_img_handles,software_screen_hardware_frame);
-      if (software_screen_hardware_frame==0){
-        alert("Invalid software_screen_hardware_frame!!");
-      }
-      if (f1==NULL) alert("Invalid software_screen_hardware_frame!");
-
-      static int32 use_alpha;
-      use_alpha=0; if (level>1) use_alpha=1; 
-
-      //put the software screen
-      hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
-               software_screen_hardware_frame, 0,
-               0,0,f1->w-1,f1->h-1,
-               use_alpha,environment_2d__screen_smooth);
-      hardware_buffer_flush();
-    }//level==displayorder_screen
-
-
-    if (level==displayorder_hardware||level==displayorder_hardware1){
-
-      static int32 dst;
-      dst=0; if (level==displayorder_hardware1) dst=-1;
-
-      static int32 command;
-      command=0;
-
-      if (first_hardware_layer_rendered==0){
-
-        if (first_hardware_command){
-
-          if (last_hardware_command_rendered){
-        if (rerender_prev_hardware_frame){
-          command=last_hardware_command_rendered;
-        }else{
-          hardware_graphics_command_struct* last_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_rendered);
-          if (last_hgc==NULL) alert("Rendering: Last HGC is NULL!");
-          command=last_hgc->next_command;
-        }
-          }else{
-        command=first_hardware_command;
-          }
-
-          //process/skip pending hardware puts before this frame's order value
-          while (command){
-        hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
-        if (hgc->order<order){
-
-          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE){
-            free_hardware_img(hgc->src_img);
-          }
-
-          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
-            if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
-              hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
-                       hgc->src_img, hgc->dst_img,
-                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,
-                       hgc->use_alpha,hgc->smooth);
-            }
-          }
-
-	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE){
-            if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
-              hardware_img_tri2d(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,hgc->dst_x3,hgc->dst_y3,
-                       hgc->src_img, hgc->dst_img,
-                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
-                       hgc->use_alpha,hgc->smooth);
-            }
-          }
-
-	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D){
-            if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
-              hardware_img_tri3d(hgc->dst_x1,hgc->dst_y1,hgc->dst_z1,hgc->dst_x2,hgc->dst_y2,hgc->dst_z2,hgc->dst_x3,hgc->dst_y3,hgc->dst_z3,
-                       hgc->src_img, hgc->dst_img,
-                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
-                       hgc->use_alpha,hgc->smooth,hgc->cull_mode,hgc->depthbuffer_mode);
-            }
-          }
-
-	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER){
-		if (hgc->dst_img>0){ //note: rendering to the old default surface is pointless, but renders onto maintained hardware images are still required
-			clear_depthbuffer(hgc->dst_img);
-		}
-          }
-
-          last_hardware_command_rendered=command;
-          if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;
-          command=hgc->next_command;
-          hgc->remove=1;
-        }else{
-          goto found_command_from_current_order;
-        }
-          }
-        found_command_from_current_order:;
-
-        }//first_hardware_command
-
-
-        first_hardware_layer_command=command;
-      }else{
-        command=first_hardware_layer_command;
-      }
-
-      //process pending hardware puts for this frame's order value
-      while (command){
-        hardware_graphics_command_struct* hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,command);
-        if (hgc==NULL){
-
-          hardware_graphics_command_struct* hgcx=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,next_hardware_command_to_remove);
-          alert(order);
-          alert(hgcx->order);
-          alert(command);
-          alert ("Renderer: Command does not exist.");
-        }
-        if (hgc->order==order){
-          if (first_command_prev_order==0) first_command_prev_order=command;
-
-          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE&&rerender_prev_hardware_frame==0&&first_hardware_layer_rendered==0){
-        free_hardware_img(hgc->src_img);
-          }
-
-          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
-        if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
-          if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
-            hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
-                     hgc->src_img, hgc->dst_img,
-                     hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2, 
-                     hgc->use_alpha,hgc->smooth);
-          }
-        }
-          }
-
-          if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE){
-        if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
-          if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
-             hardware_img_tri2d(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,hgc->dst_x3,hgc->dst_y3,
-                       hgc->src_img, hgc->dst_img,
-                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
-                       hgc->use_alpha,hgc->smooth);
-          }
-        }
-          }
-
-	 if (hgc->command==HARDWARE_GRAPHICS_COMMAND__MAPTRIANGLE3D){
-        if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
-          if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
-             hardware_img_tri3d(hgc->dst_x1,hgc->dst_y1,hgc->dst_z1,hgc->dst_x2,hgc->dst_y2,hgc->dst_z2,hgc->dst_x3,hgc->dst_y3,hgc->dst_z3,
-                       hgc->src_img, hgc->dst_img,
-                       hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,hgc->src_x3,hgc->src_y3,
-                       hgc->use_alpha,hgc->smooth,hgc->cull_mode,hgc->depthbuffer_mode);
-          }
-        }
-          }
-
-	  if (hgc->command==HARDWARE_GRAPHICS_COMMAND__CLEAR_DEPTHBUFFER){
-        	if (rerender_prev_hardware_frame==0||hgc->dst_img<=0){
-	        	if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
-				clear_depthbuffer(hgc->dst_img);
-			}
-		}
-          }
-
-          last_hardware_command_rendered=command;
-          if (next_hardware_command_to_remove==0) next_hardware_command_to_remove=command;//!!!! should be prev to this command
-          command=hgc->next_command;
-          hgc->remove=1;
-        }else{
-          goto finished_all_commands_for_current_frame;
-        }
-
-
-      }
-    finished_all_commands_for_current_frame:;
-
-      first_hardware_layer_rendered=1;
-
-
-
-	hardware_buffer_flush();
-    }//level==displayorder_hardware||level==displayorder_hardware1
-
-
-    if (level==5){
-
-      if (environment_2d__letterbox){
-
-        //create a black texture (if not yet created)
-        static uint32 black_pixel=0x00000000;
-        static int32 black_texture=0;
-        if (black_texture==0){
-          black_texture=new_hardware_img(1,1,&black_pixel,NULL);
-        }
-
-        if (environment_2d__letterbox==1){
-          //vertical stripes
-          hardware_img_put(((float)-environment_2d__screen_x1)/environment_2d__screen_x_scale-1.0f,0,-1,environment_2d__screen_height-1,
-                   black_texture, 0,
-                   0,0,0,0,
-                   0,0);
-          hardware_img_put(environment_2d__screen_width,0,(((float)-environment_2d__screen_x1)+(float)environment__window_width-1.0f)/environment_2d__screen_x_scale+1.0f,environment_2d__screen_height-1,
-                   black_texture, 0,
-                   0,0,0,0,
-                   0,0);
-        }else{
-          //horizontal stripes
-          hardware_img_put(0,((float)-environment_2d__screen_y1)/environment_2d__screen_y_scale-1.0f,environment_2d__screen_width-1,-1,
-                   black_texture, 0,
-                   0,0,0,0,
-                   0,0);
-          hardware_img_put(0,environment_2d__screen_height,environment_2d__screen_width-1,(((float)-environment_2d__screen_y1)+(float)environment__window_height-1.0f)/environment_2d__screen_y_scale+1.0f,
-                   black_texture, 0,
-                   0,0,0,0,
-                   0,0);
-        }
-      hardware_buffer_flush();
-      }//letterbox
-
-    }//level==5
-
-
-      }//level!=0
-    }//level loop
-
-    last_rendered_hardware_display_frame_order=last_hardware_display_frame_order;
-
-
-
-    if (suspend_program){ //Otherwise skipped SUB__GL content becomes "invisible"
-      //...
-    }else{
-      glutSwapBuffers();
-    }
-
-    in_GLUT_DISPLAY_REQUEST=0;
-
-  }//GLUT_DISPLAY_REQUEST
-
-
-
-
-
-  void GLUT_MouseButton_Up(int glut_button,int x,int y){
-#ifdef QB64_GLUT
-
-    int32 i;
-    int32 button;
-    button=1;//default
-    if (glut_button==GLUT_LEFT_BUTTON) button=1;
-    if (glut_button==GLUT_RIGHT_BUTTON) button=3;
-    if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==4) button=4;
-    if (glut_button==5) button=5;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-    if (mouse_messages[i].buttons&(1<<(button-1))) mouse_messages[i].buttons^=(1<<(button-1));
-    last_mouse_message=i;
-    if (device_last){//core devices required?
-      if ((button>=1)&&(button<=3)){
-    button--;
-    static device_struct *d;
-    d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    *(d->events+(d->queued_events*d->event_size)+button)=0;
-    d->queued_events++;
-      }//valid range
-    }//core devices required
-
-#endif
-  }
-
-  void GLUT_MouseButton_Down(int glut_button,int x,int y){
-#ifdef QB64_GLUT
-
-    int32 i;
-    int32 button;
-    button=1;//default
-    if (glut_button==GLUT_LEFT_BUTTON) button=1;
-    if (glut_button==GLUT_RIGHT_BUTTON) button=3;
-    if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==4) button=4;
-    if (glut_button==5) button=5;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-    mouse_messages[i].buttons|=(1<<(button-1));
-    last_mouse_message=i;
-    if (device_last){//core devices required?
-      if ((button>=1)&&(button<=3)){
-    button--;
-    static device_struct *d;
-    d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    *(d->events+(d->queued_events*d->event_size)+button)=1;
-    d->queued_events++;
-    //1-3
-      }else{
-    //not 1-3
-    //mouse wheel?
-    if ((button>=4)&&(button<=5)){
-      static float f;
-      if (button==4) f=-1; else f=1;
-      static device_struct *d;
-      d=&devices[2];//mouse
-      static uint8 *cp,*cp2;
-      if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-      }
-      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-      //make required changes
-      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
-      d->queued_events++;
-      if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-      }
-      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-      //make required changes
-      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
-      d->queued_events++;
-    }//4-5
-      }//not 1-3
-    }//core devices required
-#endif
-  }
-
-  void GLUT_MOUSE_FUNC(int glut_button,int state,int x,int y){
-#ifdef QB64_GLUT
-    if (state==GLUT_DOWN) GLUT_MouseButton_Down(glut_button,x,y);
-    if (state==GLUT_UP) GLUT_MouseButton_Up(glut_button,x,y);
-#endif
-  }
-
-  void GLUT_MOTION_FUNC(int x, int y){
-
-    static int32 i,last_i;
-    static int32 xrel=0,yrel=0;
-    //message #1
-    last_i=last_mouse_message;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    if (mouseinput_ignoremovement){
-      mouseinput_ignoremovement--;
-      mouse_messages[i].movementx=0;
-      mouse_messages[i].movementy=0;
-    }else{
-      mouse_messages[i].movementx=xrel;
-      mouse_messages[i].movementy=yrel;
-    }
-    mouse_messages[i].buttons=mouse_messages[last_i].buttons;
-    last_mouse_message=i;
-    //message #2 (clears movement values to avoid confusion)
-    last_i=last_mouse_message;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].buttons=mouse_messages[last_i].buttons;
-    last_mouse_message=i;
-    if (device_last){//core devices required?
-      if (!device_mouse_relative){
-    static device_struct *d;
-    d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    static float fx,fy;
-    static int32 z;
-    fx=x;
-    fx-=x_offset;
-    z=x_monitor-x_offset*2;
-    if (fx<0) fx=0;
-    if (fx>=z) fx=z-1;
-    fx=fx/(float)(z-1);//0 to 1
-    fx*=2.0;//0 to 2
-    fx-=1.0;//-1 to 1
-    fy=y;
-    fy-=y_offset;
-    z=y_monitor-y_offset*2;
-    if (fy<0) fy=0;
-    if (fy>=z) fy=z-1;
-    fy=fy/(float)(z-1);//0 to 1
-    fy*=2.0;//0 to 2
-    fy-=1.0;//-1 to 1
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
-    d->queued_events++;
-      }else{
-    static device_struct *d;
-    d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    static float fx,fy;
-    static int32 z;
-    fx=xrel;
-    fy=yrel;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-    d->queued_events++;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    fx=0;
-    fy=0;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-    d->queued_events++;
-      }
-    }//core devices required
-  }
-
-  void GLUT_PASSIVEMOTION_FUNC(int x, int y){
-    GLUT_MOTION_FUNC(x,y);
-  }
-
-
-  void GLUT_MOUSEWHEEL_FUNC(int wheel, int direction, int x, int y){
-#ifdef QB64_GLUT
-    //Note: freeglut specific, limited documentation existed so the following research was done:
-    //  qbs_print(qbs_str(wheel),NULL); <-- was always 0 [could 1 indicate horizontal wheel?]
-    //  qbs_print(qbs_str(direction),NULL); <-- 1(up) or -1(down)
-    //  qbs_print(qbs_str(x),NULL); <--mouse x,y co-ordinates
-    //  qbs_print(qbs_str(y),1);    <
-    if (direction>0){GLUT_MouseButton_Down(4,x,y); GLUT_MouseButton_Up(4,x,y);}
-    if (direction<0){GLUT_MouseButton_Down(5,x,y); GLUT_MouseButton_Up(5,x,y);}
-#endif
-  }
-
-
-
-
-
-
-
-
-
+#include "libqb/gui.cpp"
 
   void sub__title(qbs *title){
     if (new_error) return;
@@ -31689,6 +29236,13 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
 
     lock_display_required=1;
 
+#ifndef QB64_GUI
+    //normally MAIN_LOOP() is launched in a separate thread to reserve the primary thread for GLUT
+    //that is not required, so run MAIN_LOOP() in our primary thread
+    MAIN_LOOP();
+    exit(0);
+#endif    
+
 #ifdef QB64_WINDOWS
     _beginthread(MAIN_LOOP_WINDOWS,0,NULL);
 #else
@@ -31699,8 +29253,11 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
 #endif
 
     if (!screen_hide) create_window=1;
+    
     while (!create_window){Sleep(100);}
 
+
+#ifdef QB64_GLUT
     glutInit(&argc, argv);
 
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -31753,6 +29310,8 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
 
     glutMainLoop();
 
+#endif //QB64_GLUT
+
   }
 
 
@@ -31786,8 +29345,6 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
       if (!exit_blocked) goto end_program;
     }
 
-    //GLUT_DISPLAY_REQUEST();
-    //glutMainLoopEvent();
 
     //update timer bytes in cmem
     static uint32 cmem_ticks;
@@ -31886,9 +29443,11 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
         code=buffer[start];
         start++;
 
+        #ifdef QB64_GUI
+        
         if (code==77){//M (mousemove)
-          sscanf (buffer+start,"%d,%d",&v1,&v2);
-          GLUT_MOTION_FUNC(v1,v2);
+          sscanf (buffer+start,"%d,%d",&v1,&v2);          
+	  GLUT_MOTION_FUNC(v1,v2);
         }//M
 
         if (code==76){//L (left mouse button)
@@ -31900,6 +29459,7 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
           GLUT_MouseButton_Up(GLUT_LEFT_BUTTON,v1,v2);
         }
 
+
         if (code==68){//D (key down)
           sscanf (buffer+start,"%d",&v1);
           keydown_vk(v1);
@@ -31908,6 +29468,8 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
           sscanf (buffer+start,"%d",&v1);
           keyup_vk(v1);
         }//U
+
+        #endif
 
         start=bi+1;
         goto nextcommand;
