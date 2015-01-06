@@ -101,6 +101,8 @@
 #endif
 
 #else
+
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -108,8 +110,9 @@
 #include <stdint.h>
 #include <pthread.h>
 #ifndef QB64_MACOSX
-#include <dlfcn.h>
+ #include <dlfcn.h>
 #endif
+
 #endif
 
 #ifdef QB64_GUI
