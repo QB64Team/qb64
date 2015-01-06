@@ -1,15 +1,37 @@
-int32 *_FUNC_IDENEWTXT_LONG_IDENEWTXT=NULL;
-if(_FUNC_IDENEWTXT_LONG_IDENEWTXT==NULL){
-_FUNC_IDENEWTXT_LONG_IDENEWTXT=(int32*)mem_static_malloc(4);
-*_FUNC_IDENEWTXT_LONG_IDENEWTXT=0;
-}
-qbs*oldstr4098=NULL;
-if(_FUNC_IDENEWTXT_STRING_A->tmp||_FUNC_IDENEWTXT_STRING_A->fixed||_FUNC_IDENEWTXT_STRING_A->readonly){
-oldstr4098=_FUNC_IDENEWTXT_STRING_A;
-if (oldstr4098->cmem_descriptor){
-_FUNC_IDENEWTXT_STRING_A=qbs_new_cmem(oldstr4098->len,0);
+qbs*oldstr4097=NULL;
+if(_SUB_IDEINSLINE_STRING_TEXT->tmp||_SUB_IDEINSLINE_STRING_TEXT->fixed||_SUB_IDEINSLINE_STRING_TEXT->readonly){
+oldstr4097=_SUB_IDEINSLINE_STRING_TEXT;
+if (oldstr4097->cmem_descriptor){
+_SUB_IDEINSLINE_STRING_TEXT=qbs_new_cmem(oldstr4097->len,0);
 }else{
-_FUNC_IDENEWTXT_STRING_A=qbs_new(oldstr4098->len,0);
+_SUB_IDEINSLINE_STRING_TEXT=qbs_new(oldstr4097->len,0);
 }
-memcpy(_FUNC_IDENEWTXT_STRING_A->chr,oldstr4098->chr,oldstr4098->len);
+memcpy(_SUB_IDEINSLINE_STRING_TEXT->chr,oldstr4097->chr,oldstr4097->len);
+}
+int32 *_SUB_IDEINSLINE_LONG_B=NULL;
+if(_SUB_IDEINSLINE_LONG_B==NULL){
+_SUB_IDEINSLINE_LONG_B=(int32*)mem_static_malloc(4);
+*_SUB_IDEINSLINE_LONG_B=0;
+}
+int64 fornext_value4099;
+int64 fornext_finalvalue4099;
+int64 fornext_step4099;
+uint8 fornext_step_negative4099;
+int32 *_SUB_IDEINSLINE_LONG_Y=NULL;
+if(_SUB_IDEINSLINE_LONG_Y==NULL){
+_SUB_IDEINSLINE_LONG_Y=(int32*)mem_static_malloc(4);
+*_SUB_IDEINSLINE_LONG_Y=0;
+}
+int32 *_SUB_IDEINSLINE_LONG_TEXTLEN=NULL;
+if(_SUB_IDEINSLINE_LONG_TEXTLEN==NULL){
+_SUB_IDEINSLINE_LONG_TEXTLEN=(int32*)mem_static_malloc(4);
+*_SUB_IDEINSLINE_LONG_TEXTLEN=0;
+}
+byte_element_struct *byte_element_4100=NULL;
+if (!byte_element_4100){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4100=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4100=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_4101=NULL;
+if (!byte_element_4101){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4101=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4101=(byte_element_struct*)mem_static_malloc(12);
 }

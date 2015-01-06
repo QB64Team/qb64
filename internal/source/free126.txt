@@ -1,4 +1,10 @@
-if(oldstr4130){
-if(oldstr4130->fixed)qbs_set(oldstr4130,_SUB_IDEPAR_STRING_TITLE);
-qbs_free(_SUB_IDEPAR_STRING_TITLE);
+if (_SUB_IDENOMATCH_ARRAY_UDT_O[2]&1){
+if (_SUB_IDENOMATCH_ARRAY_UDT_O[2]&4){
+cmem_dynamic_free((uint8*)(_SUB_IDENOMATCH_ARRAY_UDT_O[0]));
+}else{
+free((void*)(_SUB_IDENOMATCH_ARRAY_UDT_O[0]));
 }
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_SUB_IDENOMATCH_ARRAY_UDT_O)[8] );
+qbs_free(_SUB_IDENOMATCH_STRING1_SEP);
+qbs_free(_SUB_IDENOMATCH_STRING_ALTLETTER);
