@@ -117,6 +117,9 @@ void TIMERTHREAD();
 //extern functions
 
 extern void sub__limit(double fps);
+
+extern void sub__fps(double fps, int32 passed);
+
 extern void sub__delay(double seconds);
 
 extern void sub__resize(int32 on_off,int32 stretch_smooth);
@@ -1344,309 +1347,40 @@ error(53); return;//file not found
 
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //note: index 0 is unused
 int32 device_last=0;//last used device
-int32 device_max=10;//number of allocated indexes
-device_struct *devices=(device_struct*)calloc(10+1,sizeof(device_struct));
-int32 SDL_js_subsystem=0;
+int32 device_max=1000;//number of allocated indexes
+device_struct *devices=(device_struct*)calloc(1000+1,sizeof(device_struct));
 
 int32 func__devices(){
-static int32 i,i2,i3,i4,i5,x,x2;
-static char *cp;
-lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-
-if (device_last==0){//setup core devices
-
-i=1;
-//keyboard
-devices[i].type=2;
-devices[i].name=qbs_new(0,0);
-qbs_set(devices[i].name,qbs_new_txt("[KEYBOARD][BUTTON]"));
-devices[i].lastbutton=512;
-//calculate queue message size
-x=512+8;
-devices[i].event_size=x;
-//create initial 'current' and 'previous' events
-devices[i].events=(uint8*)calloc(2,x);
-devices[i].max_events=2;
-devices[i].queued_events=2;
-devices[i].connected=1;
-devices[i].used=1;
-
-i++;
-//mouse
-devices[i].type=3;
-devices[i].name=qbs_new(0,0);
-qbs_set(devices[i].name,qbs_new_txt("[MOUSE][BUTTON][AXIS][WHEEL]"));
-devices[i].lastbutton=3;
-devices[i].lastaxis=2;
-devices[i].lastwheel=3;
-//calculate queue message size
-x=devices[i].lastbutton+devices[i].lastaxis*4+devices[i].lastwheel*4+8;
-devices[i].event_size=x;
-//create initial 'current' and 'previous' events
-devices[i].events=(uint8*)calloc(2,x);
-devices[i].max_events=2;
-devices[i].queued_events=2;
-devices[i].connected=1;
-devices[i].used=1;
-
-device_last=i;
-}//init core devices
-
-
-
-/////
-/*
-
-static SDL_Joystick *SDL_js;
-
-SDL_JoystickEventState(SDL_IGNORE);
-
-for (i=1;i<=device_last;i++){
-if (devices[i].used==1){
-if (devices[i].type==1){
-SDL_JoystickClose(devices[i].SDL_js);
-}}}
-if (SDL_js_subsystem) SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-
-SDL_InitSubSystem(SDL_INIT_JOYSTICK); SDL_js_subsystem=1;
-
-for (i=1;i<=device_last;i++){
-if (devices[i].used==1){
-if (devices[i].type==1){
- devices[i].used=0;
- //add [DISCONNECTED] to name
- if (devices[i].connected){
-  qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt("[DISCONNECTED]")));
-  devices[i].connected=0;
- }
-}}}
-
-//reattach/detach/add joystick entries
-i3=SDL_NumJoysticks();
-for (i2=0;i2<i3;i2++){
-SDL_js=SDL_JoystickOpen(i2);
-
-cp=(char*)SDL_JoystickName(i2);
-
-for (i=1;i<=device_last;i++){
-if (devices[i].type==1){
-if (!devices[i].used){//so same device index cannot be reacquired twice if name matches
-x=strlen(cp); x2=strlen((char*)devices[i].id); if (x2==x){//same name length
-if (strcmp(cp,(char*)devices[i].id)==0){//same name content
-if (devices[i].SDL_buttons==SDL_JoystickNumButtons(SDL_js)){
-if (devices[i].SDL_axes==SDL_JoystickNumAxes(SDL_js)){
-if (devices[i].SDL_balls==SDL_JoystickNumBalls(SDL_js)){
-if (devices[i].SDL_hats==SDL_JoystickNumHats(SDL_js)){
-//reacquire device
-devices[i].SDL_js=SDL_js;
-devices[i].SDL_js_index=i2;
-devices[i].used=1;
-if (!devices[i].connected){
-devices[i].connected=1;
-devices[i].name->len-=14;//remove [DISCONNECTED]
-}
-
-
-//create events to update any status changes lost from reopening of the device
-SDL_JoystickUpdate();
-static device_struct *d;
-static uint8 *ep;
-d=&devices[i];
-ep=d->events+(d->queued_events-1)*d->event_size;
-
-for (i4=0;i4<d->SDL_buttons;i4++){
-if ((*(ep+i4))!=SDL_JoystickGetButton(SDL_js,i4)){
-static uint8 *cp,*cp2;
-if (d->queued_events==d->max_events){//expand/shift event buffer
- if (d->max_events>=QUEUED_EVENTS_LIMIT){
-  //discard base message
-  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-  d->queued_events--;
- }else{
-  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-  cp2=d->events;
-  d->events=cp;
-  free(cp2);
-  d->max_events*=2;
- }
-}
-memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-//make required changes
-*(d->events+(d->queued_events*d->event_size)+i4)=SDL_JoystickGetButton(SDL_js,i4);
-d->queued_events++;
-}
-}//i4
-
-for (i4=0;i4<d->SDL_axes;i4++){
-static float f;
-f=SDL_JoystickGetAxis(SDL_js,i4);
-if (f==-32768) f=-32767;
-f/=32767.0;
-if (f>1.0) f=1.0;
-if (f<-1.0) f=-1.0;
-static int32 o;
-o=d->lastbutton+i4*4;
-if (*(float*)(ep+o)!=f){
-static uint8 *cp,*cp2;
-if (d->queued_events==d->max_events){//expand/shift event buffer
- if (d->max_events>=QUEUED_EVENTS_LIMIT){
-  //discard base message
-  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-  d->queued_events--;
- }else{
-  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-  cp2=d->events;
-  d->events=cp;
-  free(cp2);
-  d->max_events*=2;
- }
-}
-memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-//make required changes
-*(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-d->queued_events++;
-}//!=
-}//i4
-
-for (i4=0;i4<d->SDL_hats;i4++){
-static int32 v;
-static float fx,fy;
-v=SDL_JoystickGetHat(SDL_js,i4);
-fx=0; fy=0;
-if (v&SDL_HAT_UP) fy=fy-1.0;
-if (v&SDL_HAT_DOWN) fy=fy+1.0;
-if (v&SDL_HAT_LEFT) fx=fx-1.0;
-if (v&SDL_HAT_RIGHT) fx=fx+1.0;
-static int32 o;
-x=0;
-o=d->lastbutton+d->SDL_axes*4+i4*8;
-if (*(float*)(ep+o)!=fx) x=1;
-o=d->lastbutton+d->SDL_axes*4+i4*8+4;
-if (*(float*)(ep+o)!=fy) x=1;
-if (x){
-static uint8 *cp,*cp2;
-if (d->queued_events==d->max_events){//expand/shift event buffer
- if (d->max_events>=QUEUED_EVENTS_LIMIT){
-  //discard base message
-  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-  d->queued_events--;
- }else{
-  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-  cp2=d->events;
-  d->events=cp;
-  free(cp2);
-  d->max_events*=2;
- }
-}
-memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-//make required changes
-o=d->lastbutton+d->SDL_axes*4+i4*8;
-*(float*)(d->events+(d->queued_events*d->event_size)+o)=fx;
-o=d->lastbutton+d->SDL_axes*4+i4*8+4;
-*(float*)(d->events+(d->queued_events*d->event_size)+o)=fy;
-d->queued_events++;
-}//x
-}//i4
-
-for (i4=0;i4<d->SDL_balls;i4++){
-static int dx,dy;
-SDL_JoystickGetBall(SDL_js,i4,&dx,&dy);
-for (i5=0;i5<=1;i5++){
-static float f;
-static int32 o;
-if (i5==0){
-f=dx;
-o=d->lastbutton+d->lastaxis*4+i4*8;
-}else{
-f=dy;
-o=d->lastbutton+d->lastaxis*4+i4*8+4;
-}
-if (*(float*)(ep+o)!=f){
-static uint8 *cp,*cp2;
-if (d->queued_events==d->max_events){//expand/shift event buffer
- if (d->max_events>=QUEUED_EVENTS_LIMIT){
-  //discard base message
-  memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-  d->queued_events--;
- }else{
-  cp=(uint8*)calloc(d->max_events*2,d->event_size);
-  memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-  cp2=d->events;
-  d->events=cp;
-  free(cp2);
-  d->max_events*=2;
- }
-}
-memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-*(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-//make required changes
-*(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-}//!=
-}//i5
-}//i4
-
-goto SDL_js_reacquired;
-}}}}//same properties
-}//same name content
-}//same name length
-}//not used
-}//SDL_js
-}//i
-//name not found
-
-//add new device
-i=device_last+1;
-devices[i].type=1;
-x=strlen(cp)+1; memcpy(devices[i].id,cp,x);//get unique device name
-devices[i].SDL_js=SDL_js;
-devices[i].SDL_js_index=i2;
-
-//generate QB64 device name
-devices[i].name=qbs_new(0,0);
-qbs_set(devices[i].name,qbs_new_txt("[CONTROLLER]"));
-qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt("[[NAME][")));
-qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt(cp)));
-qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt("]]")));
-devices[i].SDL_buttons=SDL_JoystickNumButtons(SDL_js);
-devices[i].SDL_axes=SDL_JoystickNumAxes(SDL_js);
-devices[i].SDL_balls=SDL_JoystickNumBalls(SDL_js);
-devices[i].SDL_hats=SDL_JoystickNumHats(SDL_js);
-devices[i].lastbutton=devices[i].SDL_buttons;
-devices[i].lastaxis=devices[i].SDL_axes+devices[i].SDL_hats*2;
-devices[i].lastwheel=devices[i].SDL_balls*2;
-if (devices[i].lastbutton) qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt("[BUTTON]")));
-if (devices[i].lastaxis) qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt("[AXIS]")));
-if (devices[i].lastwheel) qbs_set(devices[i].name,qbs_add(devices[i].name,qbs_new_txt("[WHEEL]")));
-
-//calculate queue message size
-x=devices[i].lastbutton+(devices[i].lastaxis+devices[i].lastwheel)*4+8;
-devices[i].event_size=x;
-//create initial 'current' and 'previous' events
-devices[i].events=(uint8*)calloc(2,x);
-devices[i].max_events=2;
-devices[i].queued_events=2;
-devices[i].connected=1;
-devices[i].used=1;
-if (i>device_last) device_last=i;
-SDL_js_reacquired:;
-
-}//i2
-if (i3) SDL_JoystickEventState(SDL_ENABLE);//begin polling for changes
-
-lock_mainloop=0; Sleep(1);//unlock
-
-*/
-/////
-
-return device_last;
+ return device_last;
 }
 
 int32 device_selected=0;
@@ -1654,10 +1388,10 @@ int32 device_selected=0;
 qbs *func__device(int32 i,int32 passed){
 if (!passed) i=device_selected;
 if (i<1||i>device_last){
- static qbs *tstr;
- tstr=qbs_new(0,1); error(5); return tstr;
+ error(5); 
+ return qbs_new(0,1);
 }
-return devices[i].name;
+return qbs_new_txt(devices[i].name);
 }
 
 
@@ -2147,10 +1881,6 @@ if(new_error){
 }
 
 uint8 *redim_preserve_cmem_buffer=(uint8*)malloc(65536);//used for temporary storage only (move to libqbx?)
-
-
-
-
 
 #include "myip.cpp"
 
