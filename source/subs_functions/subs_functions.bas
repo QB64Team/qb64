@@ -289,7 +289,7 @@ regid
 'QB64 DEVICE interface
 
 clearid
-id.n = "STICK"
+id.n = "STICK": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func_stick"
 id.args = 2
@@ -299,7 +299,7 @@ id.specialformat = "?[,?]"
 regid
 
 clearid
-id.n = "STRIG"
+id.n = "STRIG": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func_strig"
 id.args = 2
@@ -309,7 +309,7 @@ id.specialformat = "?[,?]"
 regid
 
 clearid
-id.n = "STRIG"
+id.n = "STRIG": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 2
 id.callname = "sub_strig"
 id.args = 3
@@ -321,14 +321,14 @@ regid
 
 
 clearid
-id.n = "_DEVICES"
+id.n = "_DEVICES": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__devices"
 id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_DEVICE"
+id.n = "_DEVICE": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.musthave = "$"
 id.subfunc = 1
 id.callname = "func__device"
@@ -339,7 +339,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_DEVICEINPUT"
+id.n = "_DEVICEINPUT": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__deviceinput"
 id.args = 1
@@ -349,7 +349,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_LASTBUTTON"
+id.n = "_LASTBUTTON": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__lastbutton"
 id.args = 1
@@ -359,7 +359,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_LASTAXIS"
+id.n = "_LASTAXIS": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__lastaxis"
 id.args = 1
@@ -369,7 +369,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_LASTWHEEL"
+id.n = "_LASTWHEEL": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__lastwheel"
 id.args = 1
@@ -379,7 +379,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_BUTTON"
+id.n = "_BUTTON": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__button"
 id.args = 1
@@ -389,7 +389,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_BUTTONCHANGE"
+id.n = "_BUTTONCHANGE": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__buttonchange"
 id.args = 1
@@ -399,7 +399,7 @@ id.specialformat = "[?]"
 regid
 
 clearid
-id.n = "_AXIS"
+id.n = "_AXIS": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__axis"
 id.args = 1
@@ -410,7 +410,7 @@ regid
 
 
 clearid
-id.n = "_WHEEL"
+id.n = "_WHEEL": id.Dependency=DEPENDENCY_DEVICEINPUT
 id.subfunc = 1
 id.callname = "func__wheel"
 id.args = 1
@@ -559,7 +559,6 @@ id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?,?,?,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.Dependency = DEPENDENCY_IMAGE_CODEC 'used by OSX to read in screen capture files
 id.NoCloud = 1
 regid
 
@@ -735,13 +734,21 @@ id.subfunc = 2
 id.callname = "sub__autodisplay"
 regid
 
-
 clearid
 id.n = "_LIMIT"
 id.subfunc = 2
 id.callname = "sub__limit"
 id.args = 1
 id.arg = MKL$(DOUBLETYPE - ISPOINTER)
+regid
+
+clearid
+id.n = "_FPS"
+id.subfunc = 2
+id.callname = "sub__fps"
+id.args = 1
+id.arg = MKL$(DOUBLETYPE - ISPOINTER)
+id.specialformat = "[{_AUTO}][?]"
 regid
 
 clearid
@@ -793,14 +800,13 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_LOADIMAGE"
+id.n = "_LOADIMAGE": id.Dependency = DEPENDENCY_IMAGE_CODEC
 id.subfunc = 1
 id.callname = "func__loadimage"
 id.args = 2
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.Dependency = DEPENDENCY_IMAGE_CODEC
 regid
 
 clearid
@@ -1035,14 +1041,13 @@ regid
 'FONT SUPPORT
 
 clearid
-id.n = "_LOADFONT"
+id.n = "_LOADFONT": id.Dependency = DEPENDENCY_LOADFONT
 id.subfunc = 1
 id.callname = "func__loadfont"
 id.args = 3
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "?,?[,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.Dependency = DEPENDENCY_LOADFONT
 regid
 
 clearid

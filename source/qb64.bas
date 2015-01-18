@@ -51,7 +51,6 @@ END IF
 
 DIM SHARED Include_GDB_Debugging_Info 'set using "options.bin"
 
-
 DIM SHARED DEPENDENCY_LAST
 CONST DEPENDENCY_LOADFONT = 1: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_AUDIO_CONVERSION = 2: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
@@ -65,12 +64,14 @@ CONST DEPENDENCY_SOCKETS = 9: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_PRINTER = 10: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_ICON = 11: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
 CONST DEPENDENCY_SCREENIMAGE = 12: DEPENDENCY_LAST = DEPENDENCY_LAST + 1
+CONST DEPENDENCY_DEVICEINPUT = 13: DEPENDENCY_LAST = DEPENDENCY_LAST + 1 'removes support for gamepad input if not present
+
+
+
 
 DIM SHARED DEPENDENCY(1 TO DEPENDENCY_LAST)
 
 DIM SHARED UseGL 'declared SUB _GL (no params)
-
-
 
 
 DIM SHARED OS_BITS AS LONG
@@ -944,12 +945,12 @@ sendc$ = "" 'no initial message
 IF CMDLineFile <> "" THEN sendc$ = CHR$(1) + CMDLineFile
 sendcommand:
 idecommand$ = sendc$
-c = ide(0)
+C = ide(0)
 ideerror = 0
-IF c = 0 THEN idemode = 0: GOTO noide
+IF C = 0 THEN idemode = 0: GOTO noide
 c$ = idereturn$
 
-IF c = 2 THEN 'begin
+IF C = 2 THEN 'begin
     ideerrorline = 0 'addresses invalid prepass error line numbers being reported
     idepass = 1
     GOTO fullrecompile
@@ -961,7 +962,7 @@ IF c = 2 THEN 'begin
     GOTO sendcommand
 END IF
 
-IF c = 4 THEN 'next line
+IF C = 4 THEN 'next line
     IF idepass = 1 THEN
         wholeline$ = c$
         GOTO ideprepass
@@ -976,7 +977,7 @@ IF c = 4 THEN 'next line
     GOTO sendcommand
 END IF
 
-IF c = 5 THEN 'end of program reached
+IF C = 5 THEN 'end of program reached
     IF idepass = 1 THEN
         'prepass complete
         idepass = 2
@@ -994,7 +995,7 @@ IF c = 5 THEN 'end of program reached
     GOTO sendcommand
 END IF
 
-IF c = 9 THEN 'run
+IF C = 9 THEN 'run
 
     IF idecompiled = 0 THEN 'exe needs to be compiled
         file$ = c$
@@ -5862,6 +5863,7 @@ DO
 
     IF n >= 2 THEN
         IF firstelement$ = "ON" AND secondelement$ = "STRIG" THEN
+            DEPENDENCY(DEPENDENCY_DEVICEINPUT) = 1
             i = 3
             IF i > n THEN a$ = "Expected (": GOTO errmes
             a2$ = getelement$(ca$, i): i = i + 1
@@ -10769,6 +10771,10 @@ IF DEPENDENCY(DEPENDENCY_GL) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_GL"
 END IF
 
+IF DEPENDENCY(DEPENDENCY_SCREENIMAGE) THEN
+    DEPENDENCY(DEPENDENCY_IMAGE_CODEC) = 1 'used by OSX to read in screen capture files
+END IF
+
 IF DEPENDENCY(DEPENDENCY_IMAGE_CODEC) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_IMAGE_CODEC"
 END IF
@@ -10788,7 +10794,6 @@ IF DEPENDENCY(DEPENDENCY_PRINTER) THEN
 ELSE
     defines$ = defines$ + defines_header$ + "DEPENDENCY_NO_PRINTER"
 END IF
-
 
 IF DEPENDENCY(DEPENDENCY_ICON) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_ICON"
@@ -10810,6 +10815,17 @@ IF DEPENDENCY(DEPENDENCY_LOADFONT) THEN
     END IF
     defines$ = defines$ + defines_header$ + "DEPENDENCY_LOADFONT"
     libs$ = libs$ + " " + "parts\video\font\ttf\os\" + o$ + "\src.o"
+END IF
+
+localpath$ = "internal\c\"
+
+IF DEPENDENCY(DEPENDENCY_DEVICEINPUT) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_DEVICEINPUT"
+    libname$ = "input\game_controller"
+    libpath$ = "parts\" + libname$ + "\os\" + o$
+    libfile$ = libpath$ + "\src.a"
+    IF _FILEEXISTS(localpath$ + libfile$) = 0 THEN Build localpath$ + libpath$ 'rebuild?
+    libs$ = libs$ + " " + libfile$
 END IF
 
 IF DEPENDENCY(DEPENDENCY_AUDIO_DECODE) THEN DEPENDENCY(DEPENDENCY_AUDIO_CONVERSION) = 1
@@ -11630,7 +11646,7 @@ tpos = 1
 DO
     token$ = MID$(cmdline$, tpos, 2) '))
     SELECT CASE token$
-        CASE "-g" 'non-GUI environment ($CONSOLE:ONLY in effect)
+        CASE "-g" 'non-GUI environment (uses $CONSOLE:ONLY)
             DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) OR 2
             NoIDEMode = 1 'Implies -c
             Console = 1

@@ -385,9 +385,10 @@ struct device_struct{
   int32 used;
   int32 type;
   //0=Unallocated
-  //1=SDL joystick interface
-  //2=?
-  qbs *name;
+  //1=Joystick/Gamepad
+  //2=Keybaord
+  //3=Mouse  
+  char *name;
   int32 connected;
   int32 lastbutton;
   int32 lastaxis;
@@ -400,13 +401,15 @@ struct device_struct{
   //--------------
   uint8 STRIG_button_pressed[256];//checked and cleared by the STRIG function
   //--------------
-  uint8 id[1024];
-  /////SDL_Joystick *SDL_js;
-  int32 SDL_js_index;
-  int32 SDL_buttons;
-  int32 SDL_axes;
-  int32 SDL_balls;
-  int32 SDL_hats;
+  void *handle_pointer;//handle as pointer
+  int64 handle_int;//handle as integer
+  char *description;//description provided by manufacturer
+  int64 product_id;
+  int64 vendor_id;
+  int32 buttons;
+  int32 axes;
+  int32 balls;
+  int32 hats;
 };
 #define QUEUED_EVENTS_LIMIT 1024
 

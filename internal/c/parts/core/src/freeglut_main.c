@@ -1,8 +1,56 @@
 #ifndef FREEGLUT_STATIC
-#define FREEGLUT_STATIC
+	#define FREEGLUT_STATIC
 #endif
 
-int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
+/*
+ * freeglut_main.c
+ *
+ * The windows message processing methods.
+ *
+ * Copyright (c) 1999-2000 Pawel W. Olszta. All Rights Reserved.
+ * Written by Pawel W. Olszta, <olszta@sourceforge.net>
+ * Creation date: Fri Dec 3 1999
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * PAWEL W. OLSZTA BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include "freeglut.h"
+#include "freeglut_internal.h"
+#ifdef HAVE_ERRNO_H
+#    include <errno.h>
+#endif
+#include <stdarg.h>
+#ifdef  HAVE_VFPRINTF
+#    define VFPRINTF(s,f,a) vfprintf((s),(f),(a))
+#elif defined(HAVE__DOPRNT)
+#    define VFPRINTF(s,f,a) _doprnt((f),(a),(s))
+#else
+#    define VFPRINTF(s,f,a)
+#endif
+
+int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
+#ifdef TARGET_HOST_MS_WINDOWS
+ LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info);
+#endif
+#if TARGET_HOST_POSIX_X11
+ void qb64_os_event_linux(XEvent *event, int *qb64_os_event_info);
+#endif
+
 #define QB64_EVENT_CLOSE 1
 #define QB64_EVENT_KEY 2
 #define QB64_EVENT_RELATIVE_MOUSE_MOVEMENT 3
@@ -294,46 +342,6 @@ typedef enum {
 #define KMOD_ALT    (KMOD_LALT|KMOD_RALT)
 #define KMOD_META   (KMOD_LMETA|KMOD_RMETA)
 
-/*
- * freeglut_main.c
- *
- * The windows message processing methods.
- *
- * Copyright (c) 1999-2000 Pawel W. Olszta. All Rights Reserved.
- * Written by Pawel W. Olszta, <olszta@sourceforge.net>
- * Creation date: Fri Dec 3 1999
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * PAWEL W. OLSZTA BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-#include "freeglut.h"
-#include "freeglut_internal.h"
-#ifdef HAVE_ERRNO_H
-#    include <errno.h>
-#endif
-#include <stdarg.h>
-#ifdef  HAVE_VFPRINTF
-#    define VFPRINTF(s,f,a) vfprintf((s),(f),(a))
-#elif defined(HAVE__DOPRNT)
-#    define VFPRINTF(s,f,a) _doprnt((f),(a),(s))
-#else
-#    define VFPRINTF(s,f,a)
-#endif
 
 #ifdef _WIN32_WCE
 
@@ -1287,6 +1295,9 @@ void FGAPIENTRY glutMainLoopEvent( void )
     window->State.MouseX = event.a.x;            \
     window->State.MouseY = event.a.y;
 
+
+
+
     FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutMainLoopEvent" );
 
     while( XPending( fgDisplay.Display ) )
@@ -1295,6 +1306,12 @@ void FGAPIENTRY glutMainLoopEvent( void )
 #if _DEBUG
         fghPrintEvent( &event );
 #endif
+
+	int qb64_os_event_info=0;
+
+	qb64_os_event_info=1;
+	qb64_os_event_linux(&event, &qb64_os_event_info);
+	if (qb64_os_event_info==3) return; 
 
         switch( event.type )
         {
@@ -1747,6 +1764,11 @@ void FGAPIENTRY glutMainLoopEvent( void )
             #endif
             break;
         }
+
+	qb64_os_event_info=2;
+	qb64_os_event_linux(&event, &qb64_os_event_info);
+	if (qb64_os_event_info==3) return;//(although we would return anyway)
+
     }
 
 #elif TARGET_HOST_MS_WINDOWS
@@ -1897,6 +1919,16 @@ static int fghGetWin32Modifiers (void)
 LRESULT CALLBACK fgWindowProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                LPARAM lParam )
 {
+
+    int qb64_os_event_info=0;
+    LRESULT qb64_os_event_return=1;
+
+    qb64_os_event_info=1;
+    qb64_os_event_return=qb64_os_event_windows(
+	hWnd, uMsg, wParam,lParam, &qb64_os_event_info
+    );
+    if (qb64_os_event_info==3) return qb64_os_event_return; 
+
     static unsigned char lControl = 0, rControl = 0, lShift = 0,
                          rShift = 0, lAlt = 0, rAlt = 0;
 
@@ -2198,7 +2230,7 @@ LRESULT CALLBACK fgWindowProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         if ( fgState.ActionOnWindowClose != GLUT_ACTION_CONTINUE_EXECUTION )
             PostQuitMessage(0);
 */
-        QB64_Custom_Event(QB64_EVENT_CLOSE,0,0,0,0,0,0,0,0,NULL,NULL);
+        qb64_custom_event(QB64_EVENT_CLOSE,0,0,0,0,0,0,0,0,NULL,NULL);
 
         break;
 
@@ -2227,7 +2259,7 @@ if (raw_setup){
         {
             int xPosRelative = raw->data.mouse.lLastX;
             int yPosRelative = raw->data.mouse.lLastY;
-            if (xPosRelative||yPosRelative) QB64_Custom_Event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
+            if (xPosRelative||yPosRelative) qb64_custom_event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
         }
 
 }
@@ -2475,11 +2507,11 @@ if (raw_setup){
 
 //QB64
 if (wParam==VK_PAUSE){
- QB64_Custom_Event(QB64_EVENT_KEY,VK+QBVK_PAUSE,1,0,0,0,0,0,0,NULL,NULL);
+ qb64_custom_event(QB64_EVENT_KEY,VK+QBVK_PAUSE,1,0,0,0,0,0,0,NULL,NULL);
  break;
 }
 if (wParam==VK_CANCEL){
- QB64_Custom_Event(QB64_EVENT_KEY,VK+QBVK_BREAK,1,0,0,0,0,0,0,NULL,NULL);
+ qb64_custom_event(QB64_EVENT_KEY,VK+QBVK_BREAK,1,0,0,0,0,0,0,NULL,NULL);
  break;
 }
 
@@ -2580,11 +2612,11 @@ if (wParam==VK_CANCEL){
 
 //QB64
 if (wParam==VK_PAUSE){
- QB64_Custom_Event(QB64_EVENT_KEY,VK+QBVK_PAUSE,-1,0,0,0,0,0,0,NULL,NULL);
+ qb64_custom_event(QB64_EVENT_KEY,VK+QBVK_PAUSE,-1,0,0,0,0,0,0,NULL,NULL);
  break;
 }
 if (wParam==VK_CANCEL){
- QB64_Custom_Event(QB64_EVENT_KEY,VK+QBVK_BREAK,-1,0,0,0,0,0,0,NULL,NULL);
+ qb64_custom_event(QB64_EVENT_KEY,VK+QBVK_BREAK,-1,0,0,0,0,0,0,NULL,NULL);
  break;
 }
 
@@ -2879,6 +2911,12 @@ if (wParam==VK_CANCEL){
         lRet = DefWindowProc( hWnd, uMsg, wParam, lParam );
         break;
     }
+
+    qb64_os_event_info=2;
+    qb64_os_event_return=qb64_os_event_windows(
+	hWnd, uMsg, wParam,lParam, &qb64_os_event_info
+    );
+    if (qb64_os_event_info==3) return qb64_os_event_return; 
 
     return lRet;
 }

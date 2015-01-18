@@ -23,6 +23,7 @@
 #include <X11/Xutil.h>
 #endif
 
+
 #include "libqb/printer.h"
 
 void alert(int32 x);
@@ -81,6 +82,8 @@ int32 window_exists=0;
 int32 create_window=0;
 uint8 *window_title=NULL;
 
+double max_fps=60;//60 is the default
+int32 auto_fps=0;//set to 1 to make QB64 auto-adjust fps based on load
 
 int32 os_resize_event=0;
 
@@ -111,16 +114,23 @@ int32 sub_gl_called=0;
 
 extern void evnt(uint32 linenumber);
 
+extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
+#ifdef QB64_WINDOWS
+  extern "C" LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info);
+#endif
 
+#ifdef QB64_LINUX
+#ifdef QB64_GUI //Cannot have X11 events without a GUI
+#ifndef QB64_MACOSX
+  extern "C" void qb64_os_event_linux(XEvent *event, int *qb64_os_event_info);
+#endif
+#endif
+#endif
 
-
-extern "C" int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #define QB64_EVENT_CLOSE 1
 #define QB64_EVENT_KEY 2
 #define QB64_EVENT_RELATIVE_MOUSE_MOVEMENT 3
 #define QB64_EVENT_KEY_PAUSE 1000
-
-
 
 static int32 image_qbicon16_handle;
 static int32 image_qbicon32_handle;
@@ -198,7 +208,7 @@ int32 dont_call_sub_gl=0;
 
 void GLUT_DISPLAY_REQUEST();
 
-void timerCB(int millisec)
+void timerCB(int millisec)//not currently being used
 {
 #ifdef QB64_GLUT
   glutPostRedisplay();
@@ -1060,9 +1070,23 @@ void key_update();
 int32 key_display_state=0;
 int32 key_display=0;
 int32 key_display_redraw=0;
+
 extern int32 device_last;
 extern int32 device_max;
 extern device_struct *devices;
+
+extern ontimer_struct *ontimer;
+extern onkey_struct *onkey;
+extern int32 onkey_inprogress;
+extern onstrig_struct *onstrig;
+extern int32 onstrig_inprogress;
+
+extern uint32 qbevent;
+
+#ifdef DEPENDENCY_DEVICEINPUT
+#include "parts/input/game_controller/src.c"
+#endif
+
 extern int32 console;
 extern int32 screen_hide_startup;
 //...
@@ -6792,7 +6816,7 @@ uint32 qb64_firsttimervalue;//based on time of day
 uint32 clock_firsttimervalue;//based on program launch time
 
 
-extern uint32 qbevent;
+
 
 uint8 wait_needed=1;
 
@@ -14085,6 +14109,22 @@ void sub__delay(double seconds){
       Sleep(wait);
     }
   }
+}
+
+void sub__fps(double fps, int32 passed){
+//passed=1 means _AUTO
+//passed=2 means use fps
+if (new_error) return;
+if (passed!=1 && passed!=2){error(5); return;}
+if (passed==1){
+  auto_fps=1;//_AUTO
+}
+if (passed==2){
+  if (fps<1){error(5); return;}
+  if (fps>200) fps=200;
+  max_fps=fps;
+  auto_fps=0;
+}
 }
 
 void sub__limit(double fps){
@@ -21786,12 +21826,6 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     return start;
   }
 
-  extern ontimer_struct *ontimer;
-  extern onkey_struct *onkey;
-  extern int32 onkey_inprogress;
-  extern onstrig_struct *onstrig;
-  extern int32 onstrig_inprogress;
-
   void sub_run_init(){
     //Reset ON KEY trapping
     //note: KEY bar F-key bindings are not affected
@@ -28442,14 +28476,18 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
   void GLUT_TIMER_EVENT(int ignore){
 #ifdef QB64_GLUT
     glutPostRedisplay();
-    glutTimerFunc(8,GLUT_TIMER_EVENT,0);
+    int32 msdelay=1000.0/max_fps;
+    if (msdelay<1) msdelay=1;
+    glutTimerFunc(msdelay,GLUT_TIMER_EVENT,0);
 #endif
   }
 #else
   void GLUT_IDLEFUNC(){
 #ifdef QB64_GLUT
     glutPostRedisplay();
-    Sleep(8);//<=125hz
+    int32 msdelay=1000.0/max_fps;
+    if (msdelay<1) msdelay=1;
+    Sleep(msdelay);
 #endif
   }
 #endif
@@ -28531,7 +28569,6 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     static int32 z,z2,z3,z4;
     static float f,f2,f3,f4;
     static uint8 *cp,*cp2,*cp3,*cp4;
-
 
 
 
@@ -29182,6 +29219,46 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
 
 
 
+
+//Init _DEVICEs
+i=1;
+//keyboard
+devices[i].type=2;
+devices[i].name="[KEYBOARD][BUTTON]";
+devices[i].lastbutton=512;
+//calculate queue message size
+x=512+8;
+devices[i].event_size=x;
+//create initial 'current' and 'previous' events
+devices[i].events=(uint8*)calloc(2,x);
+devices[i].max_events=2;
+devices[i].queued_events=2;
+devices[i].connected=1;
+devices[i].used=1;
+devices[i].description="Keyboard";
+i++;
+//mouse
+devices[i].type=3;
+devices[i].name="[MOUSE][BUTTON][AXIS][WHEEL]";
+devices[i].lastbutton=3;
+devices[i].lastaxis=2;
+devices[i].lastwheel=3;
+//calculate queue message size
+x=devices[i].lastbutton+devices[i].lastaxis*4+devices[i].lastwheel*4+8;
+devices[i].event_size=x;
+//create initial 'current' and 'previous' events
+devices[i].events=(uint8*)calloc(2,x);
+devices[i].max_events=2;
+devices[i].queued_events=2;
+devices[i].connected=1;
+devices[i].used=1;
+devices[i].description="Mouse";
+device_last=i;
+
+#ifdef DEPENDENCY_DEVICEINPUT
+QB64_GAMEPAD_INIT();
+#endif
+
 #ifdef QB64_WINDOWS
     _beginthread(QBMAIN_WINDOWS,0,NULL);
 #else
@@ -29333,8 +29410,10 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     int32 update=0;//0=update input,1=update display
 
   main_loop:
-
-
+    
+#ifdef DEPENDENCY_DEVICEINPUT
+QB64_GAMEPAD_POLL();
+#endif
 
     if (lock_mainloop==1){
       lock_mainloop=2;
@@ -30618,28 +30697,29 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     //NO_S_D_L//SDL_WaitThread(thread, NULL);
 #endif
     while (exit_ok!=3) Sleep(16);
+
     if (lprint_buffered){
       sub__printimage(lprint_image);//print any pending content
     }
+
+    //close all open files
     sub_close(NULL,0);
 
-
-    //NO_S_D_L//SDL_ShowCursor(0);
-    //NO_S_D_L//SDL_FreeCursor(mycursor);
+    //shutdown device interface
+    #ifdef DEPENDENCY_DEVICEINPUT
+    QB64_GAMEPAD_SHUTDOWN();
+    #endif
 
     if (!cloud_app){
       snd_un_init();
-
-      //program ends here
     }
 
     if (cloud_app){
       FILE *f = fopen("..\\final.txt", "w");
-      if (f != NULL)
-    {
-      fprintf(f, "Program exited normally");
-      fclose(f);
-    }
+      if (f != NULL){        
+        fprintf(f, "Program exited normally");
+        fclose(f);
+      }
       exit(0);//should log error
     }
 
@@ -32413,9 +32493,153 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     port60h_events++;
   }
 
+  #define OS_EVENT_PRE_PROCESSING 1
+  #define OS_EVENT_POST_PROCESSING 2
+  #define OS_EVENT_RETURN_IMMEDIATELY 3
+
+  #ifdef QB64_WINDOWS
+  extern "C" LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info){
+    if (*qb64_os_event_info==OS_EVENT_PRE_PROCESSING){
+	//example usage
+        /*
+	if (uMsg==WM_CLOSE){
+          alert("goodbye");
+	  *qb64_os_event_info=OS_EVENT_RETURN_IMMEDIATELY;
+        }
+	*/
 
 
-  extern "C" int QB64_Custom_Event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2){
+	if (uMsg==WM_KEYDOWN){
+
+	if (device_last){//core devices required?
+	
+	/*
+	16-23	The scan code. The value depends on the OEM.
+	24	Indicates whether the key is an extended key, such as the right-hand ALT and CTRL keys that appear on an enhanced 101- or 102-key keyboard. The value is 1 if it is an extended key; otherwise, it is 0.
+	*/
+
+          static int32 code,special;
+          special=0;//set to 2 for keys which we cannot detect a release for
+          code=(lParam>>16)&511;          
+
+        keydown_special:
+        static device_struct *d;
+        d=&devices[1];//keyboard
+        if (*(d->events+((d->queued_events-1)*d->event_size)+code)!=1){//don't add message if already on
+          uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
+              //discard base message
+              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+              d->queued_events--;
+            }else{
+              cp=(uint8*)calloc(d->max_events*2,d->event_size);
+              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+              cp2=d->events;
+              d->events=cp;
+              free(cp2);
+              d->max_events*=2;
+            }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          *(d->events+(d->queued_events*d->event_size)+code)=1;
+          if (special==2){special=1; d->queued_events++; goto keydown_special;}
+          if (special==1) *(d->events+(d->queued_events*d->event_size)+code)=0;
+          d->queued_events++;
+        }//not 1          
+        }//core devices required
+
+}//WM_KEYDOWN
+
+
+	if (uMsg==WM_KEYUP){
+
+	if (device_last){//core devices required?
+	
+	/*
+	16-23	The scan code. The value depends on the OEM.
+	24	Indicates whether the key is an extended key, such as the right-hand ALT and CTRL keys that appear on an enhanced 101- or 102-key keyboard. The value is 1 if it is an extended key; otherwise, it is 0.
+	*/
+
+          static int32 code;
+
+          code=(lParam>>16)&511;          
+
+        static device_struct *d;
+        d=&devices[1];//keyboard
+        if (*(d->events+((d->queued_events-1)*d->event_size)+code)!=0){//don't add message if already on
+          uint8 *cp,*cp2;
+          if (d->queued_events==d->max_events){//expand/shift event buffer
+            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
+              //discard base message
+              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
+              d->queued_events--;
+            }else{
+              cp=(uint8*)calloc(d->max_events*2,d->event_size);
+              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
+              cp2=d->events;
+              d->events=cp;
+              free(cp2);
+              d->max_events*=2;
+            }
+          }
+          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
+          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
+          //make required changes
+          *(d->events+(d->queued_events*d->event_size)+code)=0;
+          d->queued_events++;
+        }//not 1          
+        }//core devices required
+
+}//WM_KEYUP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+    if (*qb64_os_event_info==OS_EVENT_POST_PROCESSING){
+
+
+
+    }
+    return 0;
+  }
+  #endif
+
+  #ifdef QB64_LINUX
+  #ifdef QB64_GUI //Cannot have X11 events without a GUI
+  #ifndef QB64_MACOSX
+  extern "C" void qb64_os_event_linux(XEvent *event, int *qb64_os_event_info){
+    if (*qb64_os_event_info==OS_EVENT_PRE_PROCESSING){
+
+
+
+    }
+    if (*qb64_os_event_info==OS_EVENT_POST_PROCESSING){
+
+
+
+    }
+    return;
+  }
+  #endif
+  #endif
+  #endif
+
+  extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2){
     if (event==QB64_EVENT_CLOSE){
       exit_value|=1;
       return NULL;
@@ -32432,7 +32656,7 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
       return -1;
     }//key
 
-    if (event==QB64_EVENT_RELATIVE_MOUSE_MOVEMENT){ //QB64_Custom_Event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
+    if (event==QB64_EVENT_RELATIVE_MOUSE_MOVEMENT){ //qb64_custom_event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
       static int32 i;
       //message #1
       i=(last_mouse_message+1)&65535;
@@ -32456,7 +32680,7 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     }//QB64_EVENT_RELATIVE_MOUSE_MOVEMENT
 
     return -1;//Unknown command (use for debugging purposes only)
-  }//QB64_Custom_Event
+  }//qb64_custom_event
 
   void reinit_glut_callbacks(){
 
