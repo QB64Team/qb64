@@ -28477,6 +28477,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 #ifdef QB64_GLUT
     glutPostRedisplay();
     int32 msdelay=1000.0/max_fps;
+    Sleep(4); msdelay-=4;//this forces GLUT to relinquish some CPU time to other threads but still allow for _FPS 100+ 
     if (msdelay<1) msdelay=1;
     glutTimerFunc(msdelay,GLUT_TIMER_EVENT,0);
 #endif
