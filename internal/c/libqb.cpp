@@ -18,6 +18,10 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
+#ifdef QB64_LINUX
+#include <pthread.h>
+#endif
+
 #ifdef QB64_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -293,8 +297,9 @@ int64 last_hardware_display_frame_order=0;
 struct MUTEX{
   #ifdef QB64_WINDOWS
     HANDLE handle;
-  #else
-    ptrszint todo;
+  #endif
+  #ifdef QB64_LINUX
+    pthread_mutex_t handle;
   #endif
 };
 
@@ -306,6 +311,9 @@ MUTEX* new_mutex(){
         FALSE,             // initially not owned
         NULL);             // unnamed mutex
   #endif
+  #ifdef QB64_LINUX
+    pthread_mutex_init(&m->handle, NULL);
+  #endif
 }
 
 void free_mutex(MUTEX *mutex){
@@ -313,15 +321,25 @@ void free_mutex(MUTEX *mutex){
 }
 
 void lock_mutex(MUTEX *m){
-if (m==NULL) return;
-WaitForSingleObject(
+  if (m==NULL) return;
+  #ifdef QB64_WINDOWS
+    WaitForSingleObject(
             m->handle,    // handle to mutex
             INFINITE);  // no time-out interval
+  #endif
+  #ifdef QB64_LINUX
+    pthread_mutex_lock(&m->handle);
+  #endif
 }
 
 void unlock_mutex(MUTEX *m){
   if (m==NULL) return;
-  ReleaseMutex(m->handle);
+  #ifdef QB64_WINDOWS
+    ReleaseMutex(m->handle);
+  #endif
+  #ifdef QB64_LINUX
+    pthread_mutex_unlock(&m->handle);
+  #endif
 }
 
 
@@ -1427,12 +1445,12 @@ static const int32 scancode_lookup[]={
   /* ?       */   31 ,         0,         0,         0,         0,         0,         0,         0,         0,         0,
   /* space   */   32 ,      0x39,      0x20,      0x20,      0x20,         0,         0,         0,         0,         0,
   /* 1 !     */   33 ,      0x02,      0x21,      0x21,         0,    0x7800,         0,         0,         0,         0,
-  /* ‘ “     */   34 ,      0x28,      0x22,      0x22,         0,    0x2800,         0,         0,         0,         0,
+  /* \91 \93     */   34 ,      0x28,      0x22,      0x22,         0,    0x2800,         0,         0,         0,         0,
   /* 3 #     */   35 ,      0x04,      0x23,      0x23,         0,    0x7A00,         0,         0,         0,         0,
   /* 4 $     */   36 ,      0x05,      0x24,      0x24,         0,    0x7B00,         0,         0,         0,         0,
   /* 5 %     */   37 ,      0x06,      0x25,      0x25,         0,    0x7C00,         0,         0,         0,         0,
   /* 7 &     */   38 ,      0x08,      0x26,      0x26,         0,    0x7E00,         0,         0,         0,         0,
-  /* ‘ “     */   39 ,      0x28,      0x27,      0x27,         0,    0x2800,         0,         0,         0,         0,
+  /* \91 \93     */   39 ,      0x28,      0x27,      0x27,         0,    0x2800,         0,         0,         0,         0,
   /* 9 (     */   40 ,      0x0A,      0x28,      0x28,         0,    0x8000,         0,         0,         0,         0,
   /* 0 )     */   41 ,      0x0B,      0x29,      0x29,         0,    0x8100,         0,         0,         0,         0,
   /* 8 *     */   42 ,      0x09,      0x2A,      0x2A,         0,    0x7F00,         0,         0,         0,         0,
@@ -2028,7 +2046,7 @@ void keydown_unicode(uint32 x){
   //note: some UNICODE values map directly to CP437 values found in the extended ASCII set
   static uint32 x2; if (x2=unicode_to_cp437(x)){keydown_ascii(x2); return;}
   //note: full width latin characters will be mapped to their normal width equivalents
-  //Wikipedia note: Range U+FF01–FF5E reproduces the characters of ASCII 21 to 7E as fullwidth forms, that is, a fixed width form used in CJK computing. This is useful for typesetting Latin characters in a CJK  environment. U+FF00 does not correspond to a fullwith ASCII 20 (space character), since that role is already fulfilled by U+3000 "ideographic space."
+  //Wikipedia note: Range U+FF01\96FF5E reproduces the characters of ASCII 21 to 7E as fullwidth forms, that is, a fixed width form used in CJK computing. This is useful for typesetting Latin characters in a CJK  environment. U+FF00 does not correspond to a fullwith ASCII 20 (space character), since that role is already fulfilled by U+3000 "ideographic space."
   if ((x>=0x0000FF01)&&(x<=0x0000FF5E)){keydown_ascii(x-0x0000FF01+0x21); return;}
   if (x==0x3000){keydown_ascii(32); return;}
   x|=UC;
@@ -2046,7 +2064,7 @@ void keyup_unicode(uint32 x){
   //note: some UNICODE values map directly to CP437 values found in the extended ASCII set
   static uint32 x2; if (x2=unicode_to_cp437(x)){keyup_ascii(x2); return;}
   //note: full width latin characters will be mapped to their normal width equivalents
-  //Wikipedia note: Range U+FF01–FF5E reproduces the characters of ASCII 21 to 7E as fullwidth forms, that is, a fixed width form used in CJK computing. This is useful for typesetting Latin characters in a CJK  environment. U+FF00 does not correspond to a fullwith ASCII 20 (space character), since that role is already fulfilled by U+3000 "ideographic space."
+  //Wikipedia note: Range U+FF01\96FF5E reproduces the characters of ASCII 21 to 7E as fullwidth forms, that is, a fixed width form used in CJK computing. This is useful for typesetting Latin characters in a CJK  environment. U+FF00 does not correspond to a fullwith ASCII 20 (space character), since that role is already fulfilled by U+3000 "ideographic space."
   if ((x>=0x0000FF01)&&(x<=0x0000FF5E)){keyup_ascii(x-0x0000FF01+0x21); return;}
   if (x==0x3000){keyup_ascii(32); return;}
   x|=UC;
@@ -4184,8 +4202,8 @@ void restorepalette(img_struct* im){
   case 1:
     /*
       SCREEN Mode 1 Syntax:  COLOR [background][,palette]
-      ¦ background is the screen color (range = 0-15)
-      ¦ palette is a three-color palette (range = 0-1)
+      \A6 background is the screen color (range = 0-15)
+      \A6 palette is a three-color palette (range = 0-1)
       0 = green, red, and brown         1 = cyan, magenta, and bright white
       Note: option 1 is the default, palette can override these though
       OPTION 1:*DEFAULT*
@@ -9246,9 +9264,9 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
 
       /*
     Screen 11
-    ¦ 640 x 480 graphics
-    ¦ 80 x 30 or 80 x 60 text format, character box size of 8 x 16 or 8 x 8
-    ¦ Assignment of up to 256K colors to 2 attributes
+    \A6 640 x 480 graphics
+    \A6 80 x 30 or 80 x 60 text format, character box size of 8 x 16 or 8 x 8
+    \A6 Assignment of up to 256K colors to 2 attributes
       */
       if (mode==11){
     i=imgnew(640,480,11);
@@ -9257,9 +9275,9 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       }//11
 
       //SCREEN 10: 640 x 350 graphics, monochrome monitor only
-      //  ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-      //  ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
-      //  ¦ Up to 9 pseudocolors assigned to 4 attributes
+      //  \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+      //  \A6 128K page size, page range is 0 (128K) or 0-1 (256K)
+      //  \A6 Up to 9 pseudocolors assigned to 4 attributes
       /*
     'colors swap every half second!
     'using PALETTE does NOT swap color indexes
@@ -9287,10 +9305,10 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
 
       /*
     SCREEN 9: 640 x 350 graphics
-    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-    ¦ 64K page size, page range is 0 (64K);
+    \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    \A6 64K page size, page range is 0 (64K);
     128K page size, page range is 0 (128K) or 0-1 (256K)
-    ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+    \A6 16 colors assigned to 4 attributes (64K adapter memory), or
     64 colors assigned to 16 attributes (more than 64K adapter memory)
       */
       if (mode==9){
@@ -9301,9 +9319,9 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
 
       /*
     SCREEN 8: 640 x 200 graphics
-    ¦ 80 x 25 text format, 8 x 8 character box
-    ¦ 64K page size, page ranges are 0 (64K), 0-1 (128K), or 0-3 (246K)
-    ¦ Assignment of 16 colors to any of 16 attributes
+    \A6 80 x 25 text format, 8 x 8 character box
+    \A6 64K page size, page ranges are 0 (64K), 0-1 (128K), or 0-3 (246K)
+    \A6 Assignment of 16 colors to any of 16 attributes
       */
       if (mode==8){
     i=imgnew(640,200,8);
@@ -9312,9 +9330,9 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
 
       /*
     SCREEN 7: 320 x 200 graphics
-    ¦ 40 x 25 text format, character box size 8 x 8
-    ¦ 32K page size, page ranges are 0-1 (64K), 0-3 (128K), or 0-7 (256K)
-    ¦ Assignment of 16 colors to any of 16 attributes
+    \A6 40 x 25 text format, character box size 8 x 8
+    \A6 32K page size, page ranges are 0-1 (64K), 0-3 (128K), or 0-7 (256K)
+    \A6 Assignment of 16 colors to any of 16 attributes
       */
       if (mode==7){
     i=imgnew(320,200,7);
@@ -9323,29 +9341,29 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
 
       /*
     SCREEN 4:
-    ¦ Supports Olivetti (R) Personal Computers models M24, M240, M28,
+    \A6 Supports Olivetti (R) Personal Computers models M24, M240, M28,
     M280, M380, M380/C, M380/T and AT&T (R) Personal Computers 6300
     series
-    ¦ 640 x 400 graphics
-    ¦ 80 x 25 text format, 8 x 16 character box
-    ¦ 1 of 16 colors assigned as the foreground color (selected by the
+    \A6 640 x 400 graphics
+    \A6 80 x 25 text format, 8 x 16 character box
+    \A6 1 of 16 colors assigned as the foreground color (selected by the
     COLOR statement); background is fixed at black.
       */
       //Note: QB64 will not support SCREEN 4
 
       /*
     SCREEN 3: Hercules adapter required, monochrome monitor only
-    ¦ 720 x 348 graphics
-    ¦ 80 x 25 text format, 9 x 14 character box
-    ¦ 2 screen pages (1 only if a second display adapter is installed)
-    ¦ PALETTE statement not supported
+    \A6 720 x 348 graphics
+    \A6 80 x 25 text format, 9 x 14 character box
+    \A6 2 screen pages (1 only if a second display adapter is installed)
+    \A6 PALETTE statement not supported
       */
       //Note: QB64 will not support SCREEN 3
 
       /*
     SCREEN 2: 640 x 200 graphics
-    ¦ 80 x 25 text format with character box size of 8 x 8
-    ¦ 16 colors assigned to 2 attributes with EGA or VGA
+    \A6 80 x 25 text format with character box size of 8 x 8
+    \A6 16 colors assigned to 2 attributes with EGA or VGA
       */
       if (mode==2){
     i=imgnew(640,200,2);
@@ -9354,10 +9372,10 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
 
       /*
     SCREEN 1: 320 x 200 graphics
-    ¦ 40 x 25 text format, 8 x 8 character box
-    ¦ 16 background colors and one of two sets of 3 foreground colors assigned
+    \A6 40 x 25 text format, 8 x 8 character box
+    \A6 16 background colors and one of two sets of 3 foreground colors assigned
     using COLOR statement with CGA
-    ¦ 16 colors assigned to 4 attributes with EGA or VGA
+    \A6 16 colors assigned to 4 attributes with EGA or VGA
       */
       if (mode==1){
     i=imgnew(320,200,1);
@@ -9367,11 +9385,11 @@ void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_pag
       /*
     MDPA, CGA, EGA, or VGA Adapter Boards
     SCREEN 0: Text mode only
-    ¦ Either 40 x 25, 40 x 43, 40 x 50, 80 x 25, 80 x 43, or 80 x 50 text format
+    \A6 Either 40 x 25, 40 x 43, 40 x 50, 80 x 25, 80 x 43, or 80 x 50 text format
     with 8 x 8 character box size (8 x 14, 9 x 14, or 9 x 16 with EGA or VGA)
-    ¦ 16 colors assigned to 2 attributes
-    ¦ 16 colors assigned to any of 16 attributes (with CGA or EGA)
-    ¦ 64 colors assigned to any of 16 attributes (with EGA or VGA)
+    \A6 16 colors assigned to 2 attributes
+    \A6 16 colors assigned to any of 16 attributes (with CGA or EGA)
+    \A6 64 colors assigned to any of 16 attributes (with EGA or VGA)
       */
       /*
     granularity from &HB800
@@ -9717,15 +9735,15 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
 
       /*
     SCREEN 9: 640 x 350 graphics
-    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-    ¦ 64K page size, page range is 0 (64K);
+    \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    \A6 64K page size, page range is 0 (64K);
     128K page size, page range is 0 (128K) or 0-1 (256K)
-    ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+    \A6 16 colors assigned to 4 attributes (64K adapter memory), or
     64 colors assigned to 16 attributes (more than 64K adapter memory)
     SCREEN 10: 640 x 350 graphics, monochrome monitor only
-    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-    ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
-    ¦ Up to 9 pseudocolors assigned to 4 attributes
+    \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    \A6 128K page size, page range is 0 (128K) or 0-1 (256K)
+    \A6 Up to 9 pseudocolors assigned to 4 attributes
       */
       if ((write_page->compatible_mode>=9)&&(write_page->compatible_mode<=10)){
     f=0;
@@ -9842,15 +9860,15 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
 
       /*
     SCREEN 9: 640 x 350 graphics
-    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-    ¦ 64K page size, page range is 0 (64K);
+    \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    \A6 64K page size, page range is 0 (64K);
     128K page size, page range is 0 (128K) or 0-1 (256K)
-    ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+    \A6 16 colors assigned to 4 attributes (64K adapter memory), or
     64 colors assigned to 16 attributes (more than 64K adapter memory)
     SCREEN 10: 640 x 350 graphics, monochrome monitor only
-    ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-    ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
-    ¦ Up to 9 pseudocolors assigned to 4 attributes
+    \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+    \A6 128K page size, page range is 0 (128K) or 0-1 (256K)
+    \A6 Up to 9 pseudocolors assigned to 4 attributes
       */
       if ((write_page->compatible_mode>=9)&&(write_page->compatible_mode<=10)){
     f=0;
@@ -9966,15 +9984,15 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
 
     /*
       SCREEN 9: 640 x 350 graphics
-      ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-      ¦ 64K page size, page range is 0 (64K);
+      \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+      \A6 64K page size, page range is 0 (64K);
       128K page size, page range is 0 (128K) or 0-1 (256K)
-      ¦ 16 colors assigned to 4 attributes (64K adapter memory), or
+      \A6 16 colors assigned to 4 attributes (64K adapter memory), or
       64 colors assigned to 16 attributes (more than 64K adapter memory)
       SCREEN 10: 640 x 350 graphics, monochrome monitor only
-      ¦ 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
-      ¦ 128K page size, page range is 0 (128K) or 0-1 (256K)
-      ¦ Up to 9 pseudocolors assigned to 4 attributes
+      \A6 80 x 25 or 80 x 43 text format, 8 x 14 or 8 x 8 character box size
+      \A6 128K page size, page range is 0 (128K) or 0-1 (256K)
+      \A6 Up to 9 pseudocolors assigned to 4 attributes
     */
     if ((write_page->compatible_mode>=9)&&(write_page->compatible_mode<=10)){
       f=0;
@@ -13328,7 +13346,7 @@ void qbs_input(int32 numvariables,uint8 newline){
   }
 
   //INTEGER64 type
-  //int64 range:          –9223372036854775808 to  9223372036854775807
+  //int64 range:          \969223372036854775808 to  9223372036854775807
   //uint64 range: 0                    to 18446744073709551615
   if ((qbs_input_variabletypes[argn]&ISSTRING)==0){
     if ((qbs_input_variabletypes[argn]&ISFLOAT)==0){
@@ -13557,9 +13575,9 @@ void qbs_input(int32 numvariables,uint8 newline){
     //nb. 0.???? means digits_before_point==0
 
     if ((qbs_input_variabletypes[argn]&511)==32){//SINGLE
-      //QB:           ±3.402823    E+38 to ±1.401298    E-45
-      //WIKIPEDIA:    ±3.4028234   E+38 to ?
-      //OTHER SOURCE: ±3.402823466 E+38 to ±1.175494351 E-38
+      //QB:           \B13.402823    E+38 to \B11.401298    E-45
+      //WIKIPEDIA:    \B13.4028234   E+38 to ?
+      //OTHER SOURCE: \B13.402823466 E+38 to \B11.175494351 E-38
       if (neg_power) value=-value;
       //special case->single 0 after point
       if ((zeros_after_point==1)&&(digits_after_point==1)){
@@ -13622,9 +13640,9 @@ void qbs_input(int32 numvariables,uint8 newline){
     }
 
     if ((qbs_input_variabletypes[argn]&511)==64){//DOUBLE
-      //QB: Double (15-digit) precision ±1.7976931 D+308 to ±4.940656 D-324
-      //WIKIPEDIA:    ±1.7976931348623157 D+308 to ???
-      //OTHER SOURCE: ±1.7976931348623157 D+308 to ±2.2250738585072014E-308
+      //QB: Double (15-digit) precision \B11.7976931 D+308 to \B14.940656 D-324
+      //WIKIPEDIA:    \B11.7976931348623157 D+308 to ???
+      //OTHER SOURCE: \B11.7976931348623157 D+308 to \B12.2250738585072014E-308
 
 
 
@@ -17026,7 +17044,7 @@ qbs *func_oct_float(long double value){
   static int64 ivalue;
   static int64 uivalue;
   //ref: uint64 0-18446744073709551615
-  //      int64 –9223372036854775808 to 9223372036854775807
+  //      int64 \969223372036854775808 to 9223372036854775807
   if ((value>=9.223372036854776E18)||(value<=-9.223372036854776E18)){
     //note: ideally, the following line would be used, however, qbr_longdouble_to_uint64 just does the same as qbr
     //if ((value>=1.844674407370956E19)||(value<=-9.223372036854776E18)){
@@ -17098,7 +17116,7 @@ qbs *func_hex_float(long double value){
   static int64 ivalue;
   static int64 uivalue;
   //ref: uint64 0-18446744073709551615
-  //      int64 –9223372036854775808 to 9223372036854775807
+  //      int64 \969223372036854775808 to 9223372036854775807
   if ((value>=9.223372036854776E18)||(value<=-9.223372036854776E18)){
     //note: ideally, the following line would be used, however, qbr_longdouble_to_uint64 just does the same as qbr
     //if ((value>=1.844674407370956E19)||(value<=-9.223372036854776E18)){
