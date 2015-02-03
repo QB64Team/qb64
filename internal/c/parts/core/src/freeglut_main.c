@@ -45,7 +45,7 @@
 
 int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #if TARGET_HOST_POSIX_X11
- void qb64_os_event_linux(XEvent *event, int *qb64_os_event_info);
+ void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info);
 #else
  LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info);
 #endif
@@ -1309,7 +1309,7 @@ void FGAPIENTRY glutMainLoopEvent( void )
 	int qb64_os_event_info=0;
 
 	qb64_os_event_info=1;
-	qb64_os_event_linux(&event, &qb64_os_event_info);
+	qb64_os_event_linux(&event, fgDisplay.Display, &qb64_os_event_info);
 	if (qb64_os_event_info==3) return; 
 
         switch( event.type )
@@ -1765,7 +1765,7 @@ void FGAPIENTRY glutMainLoopEvent( void )
         }
 
 	qb64_os_event_info=2;
-	qb64_os_event_linux(&event, &qb64_os_event_info);
+	qb64_os_event_linux(&event, fgDisplay.Display, &qb64_os_event_info);
 	if (qb64_os_event_info==3) return;//(although we would return anyway)
 
     }

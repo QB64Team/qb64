@@ -248,7 +248,7 @@ void hardware_img_buffer_to_texture(int32 handle){
 	}
     }
     free(hardware_img->software_pixel_buffer);
-    hardware_img->software_pixel_buffer=NULL;
+    hardware_img->software_pixel_buffer=NULL;//2015 critical bug fix
     set_render_source(INVALID_HARDWARE_HANDLE);
   }
 }

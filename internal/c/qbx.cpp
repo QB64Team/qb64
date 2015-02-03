@@ -1690,42 +1690,40 @@ return NULL;
 }
 #endif
 void TIMERTHREAD(){
-static int32 i,z=0;
+static int32 i;
 static double time_now=100000;
 while(1){
 quick_lock:
 if (ontimerthread_lock==1) ontimerthread_lock=2;//mutex, verify lock
 if (!ontimerthread_lock){//mutex
-time_now=((double)GetTicks())*0.001;
-for (i=0;i<ontimer_nextfree;i++){
-if (ontimer[i].allocated){
-if (ontimer[i].id){
-if (ontimer[i].active){
-if (!ontimer[i].state){
-if (time_now-ontimer[i].last_time>ontimer[i].seconds){
-if (!ontimer[i].last_time){
- ontimer[i].last_time=time_now;
-}else{
- //keep measured time for accurate number of calls overall
- ontimer[i].last_time+=ontimer[i].seconds;
- //if difference between actual time and measured time is beyond 'seconds' set measured to actual
- if (fabs(time_now-ontimer[i].last_time)>=ontimer[i].seconds) ontimer[i].last_time=time_now;
- ontimer[i].state=1;
- qbevent=1;
-}
-}//time check
-}//state==0
-}//active
-}//id
-}//allocated
-if (ontimerthread_lock==1) goto quick_lock;
-}//i
-z++; if (z==4){Sleep(1); z=0;} else Sleep(0);
-}else{//mutex
-Sleep(0);
-}
+ time_now=((double)GetTicks())*0.001;
+ for (i=0;i<ontimer_nextfree;i++){
+ if (ontimer[i].allocated){
+ if (ontimer[i].id){
+ if (ontimer[i].active){
+ if (!ontimer[i].state){
+ if (time_now-ontimer[i].last_time>ontimer[i].seconds){
+ if (!ontimer[i].last_time){
+  ontimer[i].last_time=time_now;
+ }else{
+  //keep measured time for accurate number of calls overall
+  ontimer[i].last_time+=ontimer[i].seconds;
+  //if difference between actual time and measured time is beyond 'seconds' set measured to actual
+  if (fabs(time_now-ontimer[i].last_time)>=ontimer[i].seconds) ontimer[i].last_time=time_now;
+  ontimer[i].state=1;
+  qbevent=1;
+ }
+ }//time check
+ }//state==0
+ }//active
+ }//id
+ }//allocated
+ if (ontimerthread_lock==1) goto quick_lock;
+ }//i
+}//not locked
+Sleep(1);
 if (stop_program){exit_ok|=2; return;}//close thread #2
-}
+}//while(1)
 return;
 }
 

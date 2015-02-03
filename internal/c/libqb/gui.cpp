@@ -97,14 +97,14 @@
 
 
 
-  void free_hardware_img(int32 handle){
+  void free_hardware_img(int32 handle, int32 caller_id){    
 
-    //alert("free_hardware_img: entered");
-
-    static hardware_img_struct* hardware_img;
+    hardware_img_struct* hardware_img;
     hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
 
-    if (hardware_img==NULL) alert("free_hardware_img: image does not exist");
+    if (hardware_img==NULL){
+	alert("free_hardware_img: image does not exist");
+    }
 
     if (hardware_img->dest_context_handle){
       GLuint context=(GLuint)hardware_img->dest_context_handle;
@@ -117,10 +117,18 @@
     GLuint texture=(GLuint)hardware_img->texture_handle;
     glDeleteTextures(1, &texture); 
 
+//test reasset of hardware+img
+//hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
+//if (hardware_img==NULL) alert("free_hardware_img: image does not exist");
+
     //if image has not been used, it may still have buffered pixel content
-    if (hardware_img->software_pixel_buffer!=NULL) free(hardware_img->software_pixel_buffer);
-    
+
+    if (hardware_img->software_pixel_buffer!=NULL){
+     free(hardware_img->software_pixel_buffer);
+    }
+
     list_remove(hardware_img_handles,handle);
+
   }
 
 
@@ -362,8 +370,8 @@ hardware_buffer_flush();
 if (new_mode_shrunk==SMOOTH_MODE__DONT_SMOOTH){
 	if (render_state.source->PO2_fix==PO2_FIX__MIPMAPPED){
 		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}else{
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}else{		
+		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//Use _MAPTRIANGLE's _SMOOTHSHRUNK to apply linear filtering here
 	}
 }
 if (new_mode_shrunk==SMOOTH_MODE__SMOOTH){
@@ -580,17 +588,16 @@ if (new_mode==VIEW_MODE__3D){
 		glScalef (1.0, -1.0, 1.0);
 		//note: the max FOV is 90-degrees (this maximum applies to the longest screen dimension)
 		float fov;
-		if (environment_2d__screen_scaled_width>environment_2d__screen_scaled_height){
-			fov=90.0f*((float)environment__window_width/(float)environment_2d__screen_scaled_width);
+		if (dst_w>dst_h){
+			fov=90.0f;
 			//convert fov from horizontal to vertical
 			fov=fov*((float)dst_h/(float)dst_w);
 		}else{
-			fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
+			fov=90.0f;
 		}
 		gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-
 		//alert("3D rendering onto FBO not supported yet");
 	}
 }
@@ -1619,7 +1626,7 @@ if (src_hardware_img->source_state.PO2_fix){
     if (level==displayorder_screen){
 
       if (software_screen_hardware_frame!=0&&i!=last_i){
-        free_hardware_img(software_screen_hardware_frame);
+        free_hardware_img(software_screen_hardware_frame, 847001);
       }
       if (i!=last_i||software_screen_hardware_frame==0){
         software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
@@ -1651,20 +1658,29 @@ if (src_hardware_img->source_state.PO2_fix){
       static int32 command;
       command=0;
 
+      static int32 caller_flag;
+      caller_flag=0;
+
       if (first_hardware_layer_rendered==0){
 
         if (first_hardware_command){
 
           if (last_hardware_command_rendered){
+
         if (rerender_prev_hardware_frame){
           command=last_hardware_command_rendered;
+          caller_flag=100;
         }else{
           hardware_graphics_command_struct* last_hgc=(hardware_graphics_command_struct*)list_get(hardware_graphics_command_handles,last_hardware_command_rendered);
           if (last_hgc==NULL) alert("Rendering: Last HGC is NULL!");
           command=last_hgc->next_command;
+          caller_flag=200;
         }
+
           }else{
+
         command=first_hardware_command;
+          caller_flag=300;
           }
 
           //process/skip pending hardware puts before this frame's order value
@@ -1673,7 +1689,7 @@ if (src_hardware_img->source_state.PO2_fix){
         if (hgc->order<order){
 
           if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE){
-            free_hardware_img(hgc->src_img);
+            free_hardware_img(hgc->src_img, 847002+caller_flag);
           }
 
           if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){
@@ -1742,7 +1758,7 @@ if (src_hardware_img->source_state.PO2_fix){
           if (first_command_prev_order==0) first_command_prev_order=command;
 
           if (hgc->command==HARDWARE_GRAPHICS_COMMAND__FREEIMAGE&&rerender_prev_hardware_frame==0&&first_hardware_layer_rendered==0){
-        free_hardware_img(hgc->src_img);
+        free_hardware_img(hgc->src_img, 847003);
           }
 
           if (hgc->command==HARDWARE_GRAPHICS_COMMAND__PUTIMAGE){

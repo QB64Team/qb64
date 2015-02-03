@@ -21,7 +21,51 @@
 #ifdef QB64_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
+
+Display *X11_display=NULL;
+Window X11_window;
+int32 x11_locked=0;
+int32 x11_lock_request=0;
+
+void x11_lock(){
+  x11_lock_request=1; while (x11_locked==0) Sleep(1);
+}
+void x11_unlock(){
+  x11_locked=0;
+}
+
 #endif
+
+/*
+Logging for QB64 developers (when an alert() just isn't enough)
+	1) Temporarily set allow_logging=1
+        2) Call log with a string or number:
+		log_event("this is a char* string");
+		log_event(12345);
+	3) 'log.txt' is created in the same folder as your executable
+	* 'log.txt' is truncated every time your program runs on the first call to log_event(...)
+*/
+int32 allow_logging=1;
+std::ofstream log_file;
+int32 log_file_opened=0;
+void open_log_file(){
+  if (log_file_opened==0){
+    log_file.open("log.txt", std::ios_base::out|std::ios_base::trunc);
+    log_file_opened=1;    
+  }
+}
+void log_event(char *x){
+  open_log_file();
+  log_file << x;  
+}
+void log_event(int32 x){
+  open_log_file();
+  char str[1000];
+  memset(&str[0],0,1000);
+  sprintf(str, "%d", x);
+  log_file << &str[0];
+}
 
 
 #include "libqb/printer.h"
@@ -122,7 +166,7 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
 #ifdef QB64_LINUX
 #ifdef QB64_GUI //Cannot have X11 events without a GUI
 #ifndef QB64_MACOSX
-  extern "C" void qb64_os_event_linux(XEvent *event, int *qb64_os_event_info);
+  extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info);
 #endif
 #endif
 #endif
@@ -244,6 +288,41 @@ int64 last_hardware_display_frame_order=0;
 
 
 
+//Mutex support (Windows only atm)
+
+struct MUTEX{
+  #ifdef QB64_WINDOWS
+    HANDLE handle;
+  #else
+    ptrszint todo;
+  #endif
+};
+
+MUTEX* new_mutex(){
+  MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
+  #ifdef QB64_WINDOWS
+    m->handle=CreateMutex(
+        NULL,              // default security attributes
+        FALSE,             // initially not owned
+        NULL);             // unnamed mutex
+  #endif
+}
+
+void free_mutex(MUTEX *mutex){
+  //todo
+}
+
+void lock_mutex(MUTEX *m){
+if (m==NULL) return;
+WaitForSingleObject(
+            m->handle,    // handle to mutex
+            INFINITE);  // no time-out interval
+}
+
+void unlock_mutex(MUTEX *m){
+  if (m==NULL) return;
+  ReleaseMutex(m->handle);
+}
 
 
 
@@ -257,87 +336,115 @@ struct list{
   ptrszint structures;
   ptrszint structures_last;
   ptrszint *structure_freed;//quickly re-reference available structures after they have been removed
+  ptrszint *structure_freed_cleanup;//the previous *structure_freed memory block
   ptrszint structures_freed;
   ptrszint structures_freed_last;
   ptrszint structure_base[64];//every time the 'structure' block is full a new and larger block is allocated
+  //because the list doubles each time, 64 entries will never be exceeded
   ptrszint structure_bases;
   ptrszint *index;//pointers to the structures referred to by each index value
+  ptrszint *index_cleanup;
   ptrszint indexes;
   ptrszint indexes_last;
-  uint8 lock_freed_list;
-  uint8 lock_index_list;
+  MUTEX *lock_add;
+  MUTEX *lock_remove;
 };
+
+//fwd refs
+void *list_get(list *L, ptrszint i);
+
+
 
 list *list_new(ptrszint structure_size){
   list *L;
   L=(list*)calloc(1,sizeof(list));
-  L->structure=(uint8*)malloc(1);
+  L->structure=(uint8*)malloc(sizeof(uint8*));
   L->structure_base[1]=(ptrszint)L->structure;
   L->structure_bases=1;
-  L->structure_freed=(ptrszint*)malloc(1);
+  L->structure_freed=(ptrszint*)malloc(sizeof(ptrszint*));
+  L->index=(ptrszint*)malloc(sizeof(ptrszint*));
   L->user_structure_size=structure_size;
-  L->internal_structure_size=structure_size+sizeof(ptrszint);
+  L->internal_structure_size=structure_size+sizeof(ptrszint);  
   return L;
 }
 
-ptrszint list_add(list *L){
+list *list_new_threadsafe(ptrszint structure_size){
+  list *L=list_new(structure_size);
+  L->lock_add=new_mutex();
+  L->lock_remove=new_mutex();
+  return L;
+}
+
+ptrszint list_add(list *L){  
+  lock_mutex(L->lock_add);
   ptrszint i;
-  if (L->structures_freed){//retrieve index from freed list if possible
-    if (L->lock_freed_list){  
-    still_locked:
-      Sleep(0);
-      if (L->lock_freed_list) goto still_locked;
-    }
+  if(L->structures_freed){//retrieve index from freed list if possible
+    lock_mutex(L->lock_remove);
     i=L->structure_freed[L->structures_freed--];
     uint8* structure;
     structure=(uint8*)L->index[i];
     memset(structure,0,L->user_structure_size);
     *(ptrszint*)(structure+L->user_structure_size)=i;
+    unlock_mutex(L->lock_remove);
   }else{
     //create new buffer?
     if ((L->structures+1)>L->structures_last){
       ptrszint new_structures_last;
       new_structures_last=(L->structures_last*2)+1;
+      //note: L->structure is only modified by list_add
       L->structure=(uint8*)calloc(1,L->internal_structure_size*(new_structures_last+1));
       if (L->structure==NULL){ alert("list_add: failed to allocate new buffer, structure size:"); alert(L->internal_structure_size);}
       L->structures_last=new_structures_last;
       L->structures=0;
       L->structure_base[++L->structure_bases]=(ptrszint)L->structure;
     }
-    i=++L->indexes;
-    *(ptrszint*)(L->structure+(L->internal_structure_size*(++L->structures))+L->user_structure_size)=i;
+    i=++L->indexes;    
+    *(ptrszint*)(L->structure+(L->internal_structure_size*(++L->structures))+L->user_structure_size)=i;      
     //allocate new index
     if (L->indexes>L->indexes_last){
-      L->lock_index_list=1;
-      L->indexes_last=(L->indexes_last*2)+1; L->index=(ptrszint*)realloc(L->index,sizeof(ptrszint)*(L->indexes_last+1));
-      L->lock_index_list=0;
-    }
-    L->index[i]=(ptrszint)( L->structure + (L->internal_structure_size*L->structures) );
+      if (L->index_cleanup!=NULL) free(L->index_cleanup);
+      L->index_cleanup=L->index;
+      int32 new_indexes_last=(L->indexes_last*2)+1;
+      ptrszint* temp=(ptrszint*)malloc(sizeof(ptrszint)*(new_indexes_last+1));
+      memcpy(temp,L->index,sizeof(ptrszint)*(L->indexes_last+1));
+      L->index=temp;
+      L->index[i]=(ptrszint)( L->structure + (L->internal_structure_size*L->structures) );
+      L->indexes_last=new_indexes_last;
+    }else{
+      L->index[i]=(ptrszint)( L->structure + (L->internal_structure_size*L->structures) );
+    }  
   }
+  unlock_mutex(L->lock_add);
   return i;
 }//list_add
 
 ptrszint list_remove(list *L,ptrszint i){//returns -1 on success, 0 on failure
-  if ((i<1)||(i>L->indexes)) return 0;
-  uint8* structure;
-  if (L->lock_index_list){  
-  still_locked:
-    Sleep(0);
-    if (L->lock_index_list) goto still_locked;
+  lock_mutex(L->lock_remove);
+  if ((i<1)||(i>L->indexes)){
+    unlock_mutex(L->lock_remove);
+    return 0;
   }
+  uint8* structure;
   structure=(uint8*)(L->index[i]);
-  if (!*(ptrszint*)(structure+L->user_structure_size)) return 0;
-  *(ptrszint*)(structure+L->user_structure_size)=0;
+  if (!*(ptrszint*)(structure+L->user_structure_size)){
+    unlock_mutex(L->lock_remove);
+    return 0;
+  }  
   //expand buffer?
-  if ((L->structures_freed+1)>L->structures_freed_last){
-    L->lock_freed_list=1;
+  if ((L->structures_freed+1)>L->structures_freed_last){        
     ptrszint new_structures_freed_last;
     new_structures_freed_last=(L->structures_freed_last*2)+1;
-    L->structure_freed=(ptrszint*)realloc(L->structure_freed,sizeof(ptrszint)*(new_structures_freed_last+1));
+    ptrszint *temp=(ptrszint*)malloc(sizeof(ptrszint)*(new_structures_freed_last+1));
+    memcpy(temp, L->structure_freed, sizeof(ptrszint)*(L->structures_freed+1));
+    if (L->structure_freed_cleanup!=NULL) free(L->structure_freed_cleanup);
+    L->structure_freed_cleanup=L->structure_freed;
+    L->structure_freed=temp;
     L->structures_freed_last=new_structures_freed_last;
-    L->lock_freed_list=0;
   }
-  L->structure_freed[++L->structures_freed]=i;
+  L->structure_freed[L->structures_freed+1]=i;  
+  *(ptrszint*)(structure+L->user_structure_size)=0;
+  L->structures_freed++;
+  unlock_mutex(L->lock_remove);
   return -1;
 };
 
@@ -352,20 +459,18 @@ void list_destroy(list *L){
 }
 
 void *list_get(list *L, ptrszint i){//Returns a pointer to an index's structure
-  if ((i<1)||(i>L->indexes)) return NULL;
-  uint8* structure;
-  if (L->lock_index_list){
-  still_locked:
-    Sleep(0);
-    if (L->lock_index_list) goto still_locked;
+  if ((i<1)||(i>L->indexes)){
+    return NULL;
   }
+  uint8* structure;
   structure=(uint8*)(L->index[i]);
   if (!*(ptrszint*)(structure+L->user_structure_size)) return NULL;
   return (void*)structure;
 }
 
 ptrszint list_get_index(list *L,void *structure){//Retrieves the index value of a structure
-  return *(ptrszint*) ( ((uint8*)structure) + L->user_structure_size );
+  ptrszint i=*(ptrszint*) ( ((uint8*)structure) + L->user_structure_size );
+  return i;
 }
 
 //Special Handle system
@@ -551,7 +656,7 @@ int32 HARDWARE_IMG_HANDLE_OFFSET=-16777216;//added to all hardware image handles
 
 //note: only to be used by user functions, not internal functions
 hardware_img_struct *get_hardware_img(int32 handle){
-  static hardware_img_struct *img;
+  hardware_img_struct *img;
   if (handle<HARDWARE_IMG_HANDLE_OFFSET||handle>=SOFTWARE_IMG_HANDLE_MIN) return NULL;
   img=(hardware_img_struct*)list_get(hardware_img_handles,handle-HARDWARE_IMG_HANDLE_OFFSET);
   if (img==NULL) return NULL;
@@ -3576,11 +3681,11 @@ void alert(int32 x){
   MessageBox(0,&str[0], "Alert", MB_OK );
 }
 
+
+
 void alert(char *x){
   MessageBox(0,x, "Alert", MB_OK );
 }
-
-
 
 
 
@@ -4763,7 +4868,6 @@ int32 imgload(char *filename,int32 bpp){
 
 
 void flush_old_hardware_commands(){
-
   static int32 old_command;
   static int32 command_to_remove;
   static hardware_graphics_command_struct* last_rendered_hgc;
@@ -4820,6 +4924,7 @@ void flush_old_hardware_commands(){
     goto remove_next_hgc;
 
   cant_remove:;
+
 
   }//next_hardware_command_to_remove&&last_hardware_command_rendered
 }//flush_old_hardware_commands
@@ -19806,7 +19911,7 @@ void sub_mkdir(qbs *str){
 
     static hardware_img_struct *himg;  
     if (himg=get_hardware_img(i)){
-      
+      flush_old_hardware_commands();
       //add command to free image
       //create new command handle & structure
       int32 hgch=list_add(hardware_graphics_command_handles);
@@ -19838,7 +19943,7 @@ void sub_mkdir(qbs *str){
     if (img[i].flags&IMG_SCREEN){error(5); return;}//The SCREEN's pages cannot be freed!
     if (write_page_index==i) sub__dest(-display_page_index);
     if (read_page_index==i) sub__source(-display_page_index);
-    if (img[i].flags&IMG_FREEMEM) free(img[i].offset);//free pixel data
+    if (img[i].flags&IMG_FREEMEM) free(img[i].offset);//free pixel data (potential crash here)
     if (img[i].flags&IMG_FREEPAL) free(img[i].pal);//free palette
     freeimg(i);
   }
@@ -22555,7 +22660,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int32 init=0;
     if (!init){
       init=1;
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
       sockVersion = MAKEWORD(1, 1);
       WSAStartup(sockVersion, &wsaData);
 #endif
@@ -22563,13 +22668,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   }
 
   void tcp_done(){
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     WSACleanup();
 #endif
   }
 
   struct tcp_connection{
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     SOCKET socket;
 #endif
     int32 port;//connection to host & clients only
@@ -22581,7 +22686,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     tcp_init();
     if ((port<0)||(port>65535)) return NULL;
 
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     //Ref. from 'winsock.h': typedef u_int SOCKET;
     static SOCKET listeningSocket;
     listeningSocket = socket(AF_INET,       // Go over TCP/IP
@@ -22628,7 +22733,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     if ((port<0)||(port>65535)) return NULL;
 
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     static LPHOSTENT hostEntry;
     hostEntry=gethostbyname((char*)host);
     if (!hostEntry) return NULL;
@@ -22672,7 +22777,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void *tcp_connection_open(void *host_tcp){
 
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     static tcp_connection *host; host=(tcp_connection*)host_tcp;
     static sockaddr sa;
     static int sa_size;
@@ -22699,7 +22804,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void tcp_close(void* connection){
     static tcp_connection *tcp=(tcp_connection*)connection;
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     shutdown(tcp->socket,SD_BOTH);
     closesocket(tcp->socket);
 #endif
@@ -22709,7 +22814,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void tcp_out(void *connection,void *offset,ptrszint bytes){
 
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     static tcp_connection *tcp; tcp=(tcp_connection*)connection;
     static int nret;
     nret = send(tcp->socket,
@@ -22750,7 +22855,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void stream_update(stream_struct *stream){
 
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     //assume tcp
 
     static connection_struct *connection;
@@ -23074,7 +23179,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   int32 tcp_connected (void *connection){
     static tcp_connection *tcp=(tcp_connection*)connection;
-#if defined(QB64_WINDOWS) && defined(QB64_SOCKETS)
+#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
     char buf;
     int length=recv(tcp->socket, &buf, 0, 0);
     int nError=WSAGetLastError();
@@ -23412,6 +23517,156 @@ int32 func__exit(){
 
 
 
+
+
+
+
+
+
+#ifdef QB64_LINUX
+#ifndef QB64_MACOSX
+
+//X11 clipboard interface for Linux
+//SDL_SysWMinfo syswminfo;
+Atom targets,utf8string,compoundtext,clipboard;
+
+int x11filter(XEvent *x11event){
+static int i;
+static char *cp;
+static XSelectionRequestEvent *x11request;
+static XSelectionEvent x11selectionevent;
+static Atom mytargets[]={XA_STRING,utf8string,compoundtext};
+ if (x11event->type==SelectionRequest){
+  x11request=&x11event->xselectionrequest;
+  x11selectionevent.type=SelectionNotify;
+  x11selectionevent.serial=x11event->xany.send_event;
+  x11selectionevent.send_event=True;
+  x11selectionevent.display=X11_display;
+  x11selectionevent.requestor=x11request->requestor;
+  x11selectionevent.selection=x11request->selection;
+  x11selectionevent.target=None;
+  x11selectionevent.property=x11request->property;
+  x11selectionevent.time=x11request->time;
+  if (x11request->target==targets){
+   XChangeProperty(X11_display,x11request->requestor,x11request->property,XA_ATOM,32,PropModeReplace,(unsigned char*)mytargets,3);
+  }else{
+   if (x11request->target==compoundtext||x11request->target==utf8string||x11request->target==XA_STRING){
+    cp=XFetchBytes(X11_display,&i);
+    XChangeProperty(X11_display,x11request->requestor,x11request->property,x11request->target,8,PropModeReplace,(unsigned char*)cp,i);
+    XFree(cp);
+   }else{
+    x11selectionevent.property=None;
+   }
+  }
+  XSendEvent(x11request->display,x11request->requestor,0,NoEventMask,(XEvent*)&x11selectionevent);
+  XSync(X11_display,False);
+ }
+return 1;
+}
+
+void setupx11clipboard(){
+static int32 setup=0;
+if (!setup){
+ setup=1;
+ //SDL_GetWMInfo(&syswminfo);
+ //SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
+ //SDL_SetEventFilter(x11filter);
+ x11_lock();
+ targets=XInternAtom(X11_display,"TARGETS",True);
+ utf8string=XInternAtom(X11_display,"UTF8_STRING",True);
+ compoundtext=XInternAtom(X11_display,"COMPOUND_TEXT",True);
+ clipboard=XInternAtom(X11_display,"CLIPBOARD",True);
+ x11_unlock();
+}
+}
+
+void x11clipboardcopy(const char *text){
+setupx11clipboard();
+x11_lock();
+XStoreBytes(X11_display,text,strlen(text)+1);
+XSetSelectionOwner(X11_display,clipboard,X11_window,CurrentTime);
+x11_unlock();
+return; 
+}
+
+char *x11clipboardpaste(){
+static int32 i;
+static char *cp;
+static unsigned char *cp2;
+static Window x11selectionowner;
+static XEvent x11event;
+static unsigned long data_items,bytes_remaining,ignore;
+static int format;
+static Atom type;
+cp=NULL; cp2=NULL;
+setupx11clipboard();
+//syswminfo.info.x11.lock_func();
+x11_lock();
+x11selectionowner=XGetSelectionOwner(X11_display,clipboard);
+if (x11selectionowner!=None){
+ //The XGetSelectionOwner() function returns the window ID associated with the window
+ if (x11selectionowner==X11_window){//we are the provider, so just return buffered content
+  x11_unlock();
+  int bytes;
+  cp=XFetchBytes(X11_display,&bytes);
+  return cp;
+ }
+ XConvertSelection(X11_display,clipboard,utf8string,clipboard,X11_window,CurrentTime);
+ XFlush(X11_display);
+    bool gotReply = false;
+    int timeoutMs = 10000;//10sec
+    do {
+      XEvent event;
+      gotReply = XCheckTypedWindowEvent(X11_display, X11_window, SelectionNotify, &event);
+      if (gotReply) {
+        if (event.xselection.property == clipboard) {
+           XGetWindowProperty(X11_display,X11_window,clipboard,0,0,False,AnyPropertyType,&type,&format,&data_items,&bytes_remaining,&cp2);
+ if (cp2){XFree(cp2); cp2=NULL;}
+ if (bytes_remaining){
+  if (XGetWindowProperty(X11_display,X11_window,clipboard,0,bytes_remaining,False,AnyPropertyType,&type,&format,&data_items, &ignore,&cp2)==Success){
+   cp=strdup((char*)cp2);
+   XFree(cp2);
+   XDeleteProperty(X11_display,X11_window,clipboard);
+   x11_unlock();
+   return cp;  
+  }
+ }  
+          x11_unlock();
+          return NULL;
+
+        } else {
+          x11_unlock();
+          return NULL;
+        }
+      }      
+      Sleep(1);
+      timeoutMs -= 1;
+    } while (timeoutMs > 0);    
+}//x11selectionowner!=None
+    x11_unlock();
+    return NULL;
+}
+
+#endif
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  qbs *internal_clipboard=NULL;//used only if clipboard services unavailable
  int32 linux_clipboard_init=0;
 
@@ -23459,6 +23714,11 @@ int32 func__exit(){
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
+   static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
+   qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
+   x11clipboardcopy((char*)textz->chr);
+   return;
+
    //Need to find a way to get the clipboard working on Linux! (Hack freeGLUT, switch to GLFW, small 'helper' program?)
    /*   while (!display_surface) Sleep(1);
    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
@@ -23635,6 +23895,109 @@ int32 func__exit(){
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
+
+    qbs *text;
+    char *cp=x11clipboardpaste();
+    cp=x11clipboardpaste();
+    if (!cp){
+      text=qbs_new(0,1);
+    }else{
+      text=qbs_new(strlen(cp),1);
+      memcpy(text->chr,cp,text->len);
+      free(cp);
+    }
+    return text;
+
+
+    //char *XFetchBytes(display, nbytes_return)
+    //Display *display;
+    
+
+/*
+Atom a1, a2, type;
+int format, result;
+unsigned long len, bytes_left, dummy;
+unsigned char *data;
+Window Sown;
+Display *dpy=X11_display;
+
+x11_lock_request=1; while (x11_locked==0) Sleep(1);
+
+Sown = XGetSelectionOwner (dpy, XA_PRIMARY);
+//printf ("Selection owner%i\n", (int)Sown);
+if (Sown != None) {
+
+XConvertSelection (dpy, XA_PRIMARY, XA_STRING, None,
+Sown, CurrentTime);
+XFlush (dpy);
+
+//
+// Do not get any data, see how much data is there
+//
+
+XGetWindowProperty (dpy, Sown,
+XA_STRING, // Tricky..
+0, 0, // offset - len
+0, // Delete 0==FALSE
+AnyPropertyType, //flag
+&type, // return type
+&format, // return format
+&len, &bytes_left, //that
+&data);
+//printf ("type:%i len:%i format:%i byte_left:%i\n",
+//(int)type, len, format, bytes_left);
+// DATA is There
+
+
+
+if (bytes_left > 0)
+{
+result = XGetWindowProperty (dpy, Sown,
+XA_STRING, 0,bytes_left,0,
+AnyPropertyType, &type,&format,
+&len, &dummy, &data);
+if (result == Success){
+//printf ("DATA IS HERE!!```%s'''\n",
+//data);
+//XFree (data);
+x11_locked=0;
+return qbs_new_txt((const char*)data);
+}
+else
+{ //printf ("FAIL\n");
+//XFree (data);
+}
+}//bytes_left
+}//Sown != None
+
+x11_locked=0;
+return qbs_new(0,1);
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+    int bytes;
+    char *data=XFetchBytes(X11_display, &bytes);
+    if (bytes==0) return qbs_new(0,1);
+    return qbs_new_txt_len(data, bytes);
+*/
+
     //Linux clipboard not functional, see comment in sub__clipboard
     /*    static char *cp;
     static qbs *text;
@@ -28485,6 +28848,13 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 #else
   void GLUT_IDLEFUNC(){
 #ifdef QB64_GLUT
+
+    if (x11_lock_request){     
+     x11_locked=1;
+     x11_lock_request=0;
+     while (x11_locked) Sleep(1);
+    }
+
     glutPostRedisplay();
     int32 msdelay=1000.0/max_fps;
     if (msdelay<1) msdelay=1;
@@ -28557,6 +28927,12 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
   int main( int argc, char* argv[] ){
 
+
+
+
+
+
+
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
     XInitThreads();
@@ -28614,8 +28990,10 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     stream_handles=list_new(sizeof(stream_struct));
     connection_handles=list_new(sizeof(connection_struct));
 
-    hardware_img_handles=list_new(sizeof(hardware_img_struct));
+    hardware_img_handles=list_new_threadsafe(sizeof(hardware_img_struct));
     hardware_graphics_command_handles=list_new(sizeof(hardware_graphics_command_struct));
+
+
 
     if (!cloud_app){
       snd_init();
@@ -29261,7 +29639,10 @@ QB64_GAMEPAD_INIT();
 #endif
 
 #ifdef QB64_WINDOWS
-    _beginthread(QBMAIN_WINDOWS,0,NULL);
+    {
+      uintptr_t thread_handle = _beginthread(QBMAIN_WINDOWS,0,NULL);
+      SetThreadPriority((HANDLE)thread_handle, THREAD_PRIORITY_NORMAL);
+    }    
 #else
     {
       static pthread_t thread_handle;
@@ -29269,8 +29650,11 @@ QB64_GAMEPAD_INIT();
     }
 #endif
 
-#ifdef QB64_WINDOWS
-    _beginthread(TIMERTHREAD_WINDOWS,0,NULL);
+#ifdef QB64_WINDOWS    
+    {
+      uintptr_t thread_handle = _beginthread(TIMERTHREAD_WINDOWS,0,NULL);
+      SetThreadPriority((HANDLE)thread_handle, THREAD_PRIORITY_NORMAL);
+    }
 #else
     {
       static pthread_t thread_handle;
@@ -29283,7 +29667,7 @@ QB64_GAMEPAD_INIT();
 
 
 
-    //_beginthread(GLUT_MAINLOOP_THREAD,0,NULL);
+    
 
 
 
@@ -29322,7 +29706,10 @@ QB64_GAMEPAD_INIT();
 #endif    
 
 #ifdef QB64_WINDOWS
-    _beginthread(MAIN_LOOP_WINDOWS,0,NULL);
+    {
+      uintptr_t thread_handle = _beginthread(MAIN_LOOP_WINDOWS,0,NULL);
+      SetThreadPriority((HANDLE)thread_handle, THREAD_PRIORITY_NORMAL);
+    }
 #else
     {
       static pthread_t thread_handle;
@@ -31044,6 +31431,11 @@ QB64_GAMEPAD_POLL();
       check_last=0;
     }
 
+    if (displayorder_screen==0 && check_last==1){
+      //a valid frame of the correct dimensions exists and we are not required to display software content
+      goto no_new_frame;
+    }
+
     //Check/Prepare palette-buffer
     if (!check_last){
       //set pal_last (no prev pal was avilable to compare to)
@@ -31411,14 +31803,21 @@ QB64_GAMEPAD_POLL();
       if (i2!=-1){  
         if (!screen_last_valid) goto update_display32b; //force update because of mode change?
         i=display_page->width*display_page->height*4;
-        if (i!=(display_frame[i2].w*display_frame[i2].h*4)) goto update_display32b;	
+        if (i!=(display_frame[i2].w*display_frame[i2].h*4)) goto update_display32b;
+
+        if (displayorder_screen==0){
+          //a valid frame of the correct dimensions exists and we are not required to display software content
+          goto no_new_frame;
+        }
+	
 	if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;
         if (qb64_ime_reading==1) goto screen_refreshed;
         goto no_new_frame;//no need to update display
       }
     update_display32b:;
     }else{
-      //BGRA_to_RGBA
+ 
+     //BGRA_to_RGBA
       i=display_page->width*display_page->height*4;
       if (i!=pixeldatasize){
         free(pixeldata);
@@ -31427,6 +31826,12 @@ QB64_GAMEPAD_POLL();
         goto update_display32;
       }
       if (force_display_update) goto update_display32; //force update
+
+      if (displayorder_screen==0){
+        //a valid frame of the correct dimensions exists and we are not required to display software content
+        goto no_new_frame;
+      }
+
       if (memcmp(pixeldata,display_page->offset,i)) goto update_display32;
       if (!screen_last_valid) goto update_display32; //force update because of mode change?
       if (qb64_ime_reading==1) goto screen_refreshed;
@@ -31504,6 +31909,11 @@ QB64_GAMEPAD_POLL();
       }
 
       if (force_display_update) goto update_display; //force update
+
+      if (displayorder_screen==0){
+        //a valid frame of the correct dimensions exists and we are not required to display software content
+        goto no_new_frame;
+      }
 
       if (memcmp(pixeldata,display_page->offset,i)) goto update_display;
       //palette changed?
@@ -32623,8 +33033,141 @@ QB64_GAMEPAD_POLL();
   #ifdef QB64_LINUX
   #ifdef QB64_GUI //Cannot have X11 events without a GUI
   #ifndef QB64_MACOSX
-  extern "C" void qb64_os_event_linux(XEvent *event, int *qb64_os_event_info){
+
+
+
+  extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info){
     if (*qb64_os_event_info==OS_EVENT_PRE_PROCESSING){
+
+	if (X11_display==NULL){
+	 X11_display=display;
+	 X11_window=event->xexpose.window;
+        }
+
+	x11filter(event);//handles clipboard request events from other applications
+
+/*
+Atom a1, a2, type;
+int format, result;
+unsigned long len, bytes_left, dummy;
+unsigned char *data;
+Window Sown;
+Display *dpy=X11_display;
+
+Sown = XGetSelectionOwner (dpy, XA_PRIMARY);
+//printf ("Selection owner%i\n", (int)Sown);
+if (Sown != None) {
+
+
+XConvertSelection (dpy, XA_PRIMARY, XA_STRING, None,
+Sown, CurrentTime);
+*/
+
+
+////XFlush (dpy);
+
+//
+// Do not get any data, see how much data is there
+//
+
+/*
+XGetWindowProperty (dpy, Sown,
+XA_STRING, // Tricky..
+0, 0, // offset - len
+0, // Delete 0==FALSE
+AnyPropertyType, //flag
+&type, // return type
+&format, // return format
+&len, &bytes_left, //that
+&data);
+//printf ("type:%i len:%i format:%i byte_left:%i\n",
+//(int)type, len, format, bytes_left);
+// DATA is There
+
+
+
+if (bytes_left > 0)
+{
+result = XGetWindowProperty (dpy, Sown,
+XA_STRING, 0,bytes_left,0,
+AnyPropertyType, &type,&format,
+&len, &dummy, &data);
+if (result == Success){
+//printf ("DATA IS HERE!!```%s'''\n",
+//data);
+
+XFree (data);
+//return qbs_new_txt((const char*)data);
+}else{
+ XFree (data);
+}
+}
+//return qbs_new(0,1);
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+	//if (event->type==KeyPress){		
+	//}
+
+/*
+
+    XGenericEventCookie *cookie = &event->xcookie;
+    XIRawEvent      *re;
+
+    Window dpy=event->xexpose.window;
+
+    //out
+    Window          root_ret, child_ret;
+    int         root_x, root_y;
+    int         win_x, win_y;
+    unsigned int        mask;
+
+    if (cookie->type != GenericEvent ||
+        cookie->extension != xi_opcode ||
+        !XGetEventData(dpy, cookie))
+{
+}
+else{
+    switch (cookie->evtype) {
+    case XI_RawMotion:
+        re = (XIRawEvent *) cookie->data;
+        XQueryPointer(dpy, DefaultRootWindow(dpy),
+                  &root_ret, &child_ret, &root_x, &root_y, &win_x, &win_y, &mask);
+        //cout<<re->raw_values[0];
+        //printf ("raw %g,%g root %d,%d\n",
+        //    re->raw_values[0], re->raw_values[1],
+        //    root_x, root_y);
+        break;
+    }
+    XFreeEventData(dpy, cookie);
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
