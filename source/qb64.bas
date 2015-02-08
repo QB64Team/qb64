@@ -10857,8 +10857,16 @@ END IF
 IF DEPENDENCY(DEPENDENCY_AUDIO_DECODE) THEN
     'General decoder
     defines$ = defines$ + defines_header$ + "DEPENDENCY_AUDIO_DECODE"
-    'MP3 decoder
+    'MP3 decoder (deprecated)
     d1$ = "parts\audio\decode\mp3"
+    d2$ = d1$ + "\os\" + o$
+    d3$ = "internal\c\" + d2$
+    IF _FILEEXISTS(d3$ + "\src.a") = 0 THEN 'rebuild?
+        Build d3$
+    END IF
+    libs$ = libs$ + " " + d2$ + "\src.a"
+    'MINI_MP3 decoder
+    d1$ = "parts\audio\decode\mp3_mini"
     d2$ = d1$ + "\os\" + o$
     d3$ = "internal\c\" + d2$
     IF _FILEEXISTS(d3$ + "\src.a") = 0 THEN 'rebuild?

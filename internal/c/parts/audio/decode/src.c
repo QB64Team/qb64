@@ -8,8 +8,8 @@
 #define DEPENDENCY_AUDIO_DECODE_WAV
 
 #ifdef QB64_BACKSLASH_FILESYSTEM
- #ifdef DEPENDENCY_AUDIO_DECODE_MP3
-  #include "mp3\\src.c"
+ #ifdef DEPENDENCY_AUDIO_DECODE_MP3  
+  #include "mp3_mini\\src.c"
  #endif
  #ifdef DEPENDENCY_AUDIO_DECODE_WAV
   #include "wav\\src.c"
@@ -19,7 +19,7 @@
  #endif
 #else
  #ifdef DEPENDENCY_AUDIO_DECODE_MP3
-  #include "mp3/src.c"
+  #include "mp3_mini/src.c"
  #endif
  #ifdef DEPENDENCY_AUDIO_DECODE_WAV
   #include "wav/src.c"
@@ -133,6 +133,9 @@ incorrect_format=0;
 if (seq->bits_per_sample!=16) incorrect_format=1;
 if (seq->is_unsigned) incorrect_format=1;
 //todo... if (seq->endian==???)
+
+//this section does not fix the frequency, only the bits per sample
+//and signed-ness of the data
 if (incorrect_format){
  static int32 bps; bps=seq->bits_per_sample/8;
  static int32 samples; samples=seq->data_size/bps;
@@ -193,13 +196,13 @@ if (seq->sample_rate!=snd_frequency){
  s.data_out=f_out;
  s.output_frames=out_samples_max;//limit
  s.src_ratio=ratio;//Equal to output_sample_rate / input_sample_rate.
- /*
-          SRC_SINC_BEST_QUALITY       = 0,
-          SRC_SINC_MEDIUM_QUALITY     = 1,
-          SRC_SINC_FASTEST            = 2,
-          SRC_ZERO_ORDER_HOLD         = 3,
-          SRC_LINEAR                  = 4
- */
+ //
+ //         SRC_SINC_BEST_QUALITY       = 0,
+ //         SRC_SINC_MEDIUM_QUALITY     = 1,
+ //         SRC_SINC_FASTEST            = 2,
+ //         SRC_ZERO_ORDER_HOLD         = 3,
+ //         SRC_LINEAR                  = 4
+ //
  if (src_simple(&s,SRC_LINEAR,channels)){
   //error!
   free(seq->data);
@@ -214,6 +217,7 @@ if (seq->sample_rate!=snd_frequency){
  //update seq info
  seq->sample_rate=snd_frequency;
 }
+
 
 if (seq->channels==1){
 seq->data_mono=seq->data;
