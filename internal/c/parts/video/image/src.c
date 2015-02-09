@@ -7,10 +7,12 @@
  #include "decode\\jpg\\src.c"
  #include "decode\\png\\src.c"
  #include "decode\\bmp\\src.c"
+ #include "decode\\other\\src.c" //PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM(PPM/PGM)
 #else
  #include "decode/jpg/src.c"
  #include "decode/png/src.c"
  #include "decode/bmp/src.c"
+ #include "decode/other/src.c" //PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM(PPM/PGM)
 #endif
 
 int32 func__loadimage(qbs *f,int32 bpp,int32 passed){
@@ -43,7 +45,6 @@ if (result<0){free(content); return -1;}
  static int32 format;
 format=0;
 
-
 //'.png'
 if (lof>=8){
 if ((content[0]==0x89)&&(content[1]==0x50)&&(content[2]==0x4E)&&(content[3]==0x47)&&
@@ -65,12 +66,18 @@ if (lof>=2){
 if ((content[0]==0xFF)&&(content[1]==0xD8)){format=1; goto got_format;}//JP[E]G
 }//2
 
-free(content); return -1;//Unknown format
+//GIF is handled by our "other" library
+//'.gif' "GIF"
+//if (lof>=3){
+//if ((content[0]==71)&&(content[1]==73)&&(content[2]==70)){format=4; goto got_format;}//GIF
+//}//3
+
 got_format:
 
 static uint8 *pixels;
 static int32 x,y;
 
+if (format==0) pixels=image_decode_other(content,lof,&result,&x,&y);
 if (format==1) pixels=image_decode_jpg(content,lof,&result,&x,&y);
 if (format==2) pixels=image_decode_png(content,lof,&result,&x,&y);
 if (format==3) pixels=image_decode_bmp(content,lof,&result,&x,&y);
