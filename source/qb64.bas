@@ -8449,19 +8449,21 @@ DO
                 END IF
                 'check for array assignment
                 IF n > 2 THEN
-                    IF getelement$(a$, 2) = "(" THEN
-                        B = 1
-                        FOR i = 3 TO n
-                            e$ = getelement$(a$, i)
-                            IF e$ = "(" THEN B = B + 1
-                            IF e$ = ")" THEN
-                                B = B - 1
-                                IF B = 0 THEN
-                                    IF i = n THEN EXIT FOR
-                                    IF getelement$(a$, i + 1) = "=" THEN GOTO notsubcall
+                    IF firstelement$ <> "PRINT" AND firstelement$ <> "LPRINT" THEN
+                        IF getelement$(a$, 2) = "(" THEN
+                            B = 1
+                            FOR i = 3 TO n
+                                e$ = getelement$(a$, i)
+                                IF e$ = "(" THEN B = B + 1
+                                IF e$ = ")" THEN
+                                    B = B - 1
+                                    IF B = 0 THEN
+                                        IF i = n THEN EXIT FOR
+                                        IF getelement$(a$, i + 1) = "=" THEN GOTO notsubcall
+                                    END IF
                                 END IF
-                            END IF
-                        NEXT
+                            NEXT
+                        END IF
                     END IF
                 END IF
 
@@ -18592,23 +18594,27 @@ IF c = 32 OR c = 9 THEN i = i + 1: GOTO lineformatnext
 '--------single characters--------
 IF lfsinglechar(c) THEN
 
+    count = 0
+    DO
+        count = count + 1
+    LOOP UNTIL ASC(a$, i + count) <> 32
+    c2 = ASC(a$, i + count)
     IF c = 60 THEN '<
-        c2 = ASC(a$, i + 1)
-        IF c2 = 61 THEN a2$ = a2$ + sp + "<=": i = i + 2: GOTO lineformatnext
-        IF c2 = 62 THEN a2$ = a2$ + sp + "<>": i = i + 2: GOTO lineformatnext
+        IF c2 = 61 THEN a2$ = a2$ + sp + "<=": i = i + count + 1: GOTO lineformatnext
+        IF c2 = 62 THEN a2$ = a2$ + sp + "<>": i = i + count + 1: GOTO lineformatnext
     END IF
     IF c = 62 THEN '>
-        c2 = ASC(a$, i + 1)
-        IF c2 = 61 THEN a2$ = a2$ + sp + ">=": i = i + 2: GOTO lineformatnext
-        IF c2 = 60 THEN a2$ = a2$ + sp + "<>": i = i + 2: GOTO lineformatnext '>< to <>
+        IF c2 = 61 THEN a2$ = a2$ + sp + ">=": i = i + count + 1: GOTO lineformatnext
+        IF c2 = 60 THEN a2$ = a2$ + sp + "<>": i = i + count + 1: GOTO lineformatnext '>< to <>
     END IF
     IF c = 61 THEN '=
         c2 = ASC(a$, i + 1)
-        IF c2 = 62 THEN a2$ = a2$ + sp + ">=": i = i + 2: GOTO lineformatnext '=> to >=
-        IF c2 = 60 THEN a2$ = a2$ + sp + "<=": i = i + 2: GOTO lineformatnext '=< to <=
+        IF c2 = 62 THEN a2$ = a2$ + sp + ">=": i = i + count + 1: GOTO lineformatnext '=> to >=
+        IF c2 = 60 THEN a2$ = a2$ + sp + "<=": i = i + count + 1: GOTO lineformatnext '=< to <=
     END IF
 
     IF c = 36 AND LEN(a2$) THEN GOTO badusage '$
+
 
     a2$ = a2$ + sp + CHR$(c)
     i = i + 1
