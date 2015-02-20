@@ -1,0 +1,45 @@
+The {{KW|ASC (statement)|ASC}} statement allows a '''QB64''' program to change a character at any position of a predefined {{KW|STRING}}.
+
+
+
+{{PageSyntax}} 
+::: '''ASC({{Parameter|string_expression$}}'''[, {{Parameter|position%}}]''') =''' {{Parameter|code%}}
+
+
+{{PageDescription}}
+* The ''string expression'' variable must have been previously defined and cannot be an empty string(&quot;&quot;).
+* The ''position'' parameter is optional. If no position is used, the left-most position(1) is assumed.
+* The ''position'' cannot be zero or greater than the string's length [[LEN]] or an [[ERROR Codes|Illegal function error]] will occur.
+* The [[ASCII]] replacement ''code%'' value can be any [[INTEGER]] value from 0 to 255.
+* Some [[ASCII]] control characters will not [[PRINT]] a character or may format the [[SCREEN]]. [[_PRINTSTRING]] can print them graphically.
+
+
+''Example:'' Demonstrates how to change existing text characters one letter at a time.
+{{CodeStart}}
+ a$ = &quot;YZC&quot;
+ {{Cl|ASC (statement)|ASC}}(a$) = 65                 ' CHR$(65) = &quot;A&quot;
+ {{Cl|ASC (statement)|ASC}}(a$, 2) = 66              ' CHR$(66) = &quot;B&quot;
+ {{Cl|PRINT}} a$ 'ABC
+
+ {{Cl|ASC (statement)|ASC}}(a$, 2) = 0               ' CHR$(0) = &quot; &quot; 
+ {{Cl|PRINT}} a$
+
+ {{Cl|ASC (statement)|ASC}}(a$, 2) = {{Cl|ASC}}(&quot;S&quot;)        ' get code value from ASC function
+ {{Cl|PRINT}} a$
+{{CodeEnd}}
+
+{{OutputStart}}
+ ABC
+ A C
+ ASC
+{{OutputEnd}}
+
+
+''See also:''
+* [[ASC]] {{text|(function)}}
+* [[MID$ (statement)]]
+* [[_PRINTSTRING]]
+* [[INKEY$]], [[ASCII]]
+
+
+{{PageNavigation}}

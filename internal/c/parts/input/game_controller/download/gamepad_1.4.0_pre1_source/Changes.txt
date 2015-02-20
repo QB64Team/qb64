@@ -1,0 +1,47 @@
+1.4.0 (2014-04-06)
+ * Windows implementation completely redone to use DirectInput and XInput instead of joyGetPosEx
+ * Added MSVC support
+
+1.3.1 (2014-02-01)
+ * Gamepad_init() on Mac OS X now detects devices immediately rather than waiting until the next run loop cycle
+ * Gamepad_detectDevices() and Gamepad_processEvents() now work on Mac OS X in applicactions that call them outside the main CF/NSRunLoop
+ * Fixed a bug on Mac OS X that could cause a crash on Gamepad_shutdown()
+ * Removed all remaining stem library dependencies (shell, glutshell, and glgraphics for testharness)
+
+1.3.0 (2013-09-01)
+ * Gamepad callbacks now include context pointers
+ * Axis move callback now reports previous axis value in addition to current one
+ * Fixed a major bug (introduced in 1.2.0) that caused button up events never to be reported on Windows
+
+1.2.0 (2013-07-18)
+ * Removed dependencies on utilities and stemobject. Library is now completely standalone, though test harness still requires shell and glutshell.
+ * Gamepad API no longer uses EventDispatcher, instead providing GLUT-style callback registration for all previous event types
+
+1.1.6 (2013-07-17)
+ * Added 64-bit Windows and Linux support
+
+1.1.5 (2011-11-16)
+ * Gamepad_detectDevices() significantly sped up on Linux
+
+1.1.4 (2011-11-08)
+ * Gamepad_processEvents() will now do nothing if called from within itself
+
+1.1.3 (2011-09-29)
+ * Updated event dispatching to work with utilities 1.5.0
+
+1.1.2 (2011-09-20)
+ * Updated dependencies: utilities 1.4.0 -> 1.4.2
+
+1.1.1 (2011-08-24)
+ * Fixed crashes from retrieving gamepad description strings
+ * Fixed a memory leak
+ * Fixed a potential thread deadlock on Linux
+ * Removed leftover joystick debug code
+
+1.1.0 (2010-01-28)
+ * Added vendor and product ID fields to Gamepad_device
+ * Worked around a crash on the Mac with Sixaxis controllers
+ * Fixed a problem that caused Saitek X52 hat switches to report incorrect values on Mac OS X
+
+1.0.0 (2010-01-19)
+ * Initial version

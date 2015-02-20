@@ -1,0 +1,86 @@
+[[CASE]] is used within a [[SELECT CASE]] block to specify a conditional value of the compared variable.
+
+
+{{PageSyntax}}
+
+:: '''CASE comparison_value(s)'''[:] execute_code_line_or_block
+
+
+{{PageDescription}}
+
+*{{Parameter|value}} can be any literal string or number, depending on the value specified in the {{KW|SELECT CASE}} statement.
+*Code is executed until the next case, so each case can handle multiple lines of code.
+*CASE conditions normally are listed in some logical order going down the page. 
+*CASE order can affect the SELECT CASE code execution when more than one CASE can be true! This is specially true when multiple conditional operators, CASE IS or TO ranges are used!
+* CASE lists can also be listed horizontally by using colon separators between cases.
+* Supports individual CASE values and ranges or lists of values as below:
+:* CASE value
+:* CASE value1 [[TO]] value2
+:* CASE value1, value2, value3
+:* [[CASE IS]] value1 &gt; value2
+:* [[CASE ELSE]]
+
+
+''Relational Operators:'' Used in {{KW|CASE}} {{KW|IS}} evaluations Only.
+
+* &gt; is Greater than 
+* &lt; is Less than
+* = is Equal to
+* &gt;= is Greater than or Equal to
+* &lt;= is Less than or Equal to
+* &lt;&gt; is Not Equal to
+
+
+''Multiple Conditional Operators:'' Used in {{KW|CASE}} {{KW|IS}} Only.
+
+* {{KW|AND (boolean)|AND}} can be used to add extra conditions to a {{KW|CASE}} {{KW|IS}} statement evaluation.
+* {{KW|OR (boolean)|OR}} can be used to add alternate conditions to a {{KW|CASE}} {{KW|IS}} statement evaluation.
+* Parenthesis are allowed in {{KW|CASE}} {{KW|IS}} statements to clarify an evaluation.
+* The FIRST time a {{KW|CASE}} value matches the compared variable's value, that {{KW|CASE}} code is executed and {{KW|SELECT CASE}} is exited.
+
+
+''Example:''
+
+{{CodeStart}}
+
+a = 100
+{{Cl|SELECT CASE}} a
+   {{Cl|CASE}} 1, 3, 5, 7, 9: {{Cl|PRINT}} &quot;Odd values under 10 will be shown.&quot;
+   {{Cl|CASE}} 10: {{Cl|PRINT}} &quot;10 will be shown.&quot;
+   {{Cl|CASE}} 50: {{Cl|PRINT}} &quot;50 will be shown.&quot;
+   {{Cl|CASE}} 100: {{Cl|PRINT}} &quot;This will be shown. (a is 100)&quot;
+             {{Cl|PRINT}} &quot;(and this)&quot;
+   {{Cl|CASE}} 150: {{Cl|PRINT}} &quot;150 will be shown.&quot;
+   {{Cl|CASE IS}} &lt; 150: {{Cl|PRINT}} &quot;Less than 150 will be shown. (a which is 100 is under 150)&quot;
+   {{Cl|CASE}} 50 {{Cl|TO}} 150: {{Cl|PRINT}} &quot;50 to 150 will be shown. (a which is 100 is between 50 TO 150)&quot;
+{{Cl|END SELECT}}
+
+{{CodeEnd}}
+
+''Returns:''
+
+{{OutputStart}}
+
+ This will be shown. (a is 100)
+ (and this)
+
+{{OutputEnd}}
+: ''Explanation:'' [[SELECT CASE]] compares the variable's value to each descending {{KW|CASE}} until ONE is true, executes the [[CASE]] code and exits the SELECT CASE. [[CASE]] statements should be placed in a increasing or decreasing order for the best results.
+
+: What happens is that since 5 isn't 100 then the code until the next CASE is ignored, the same obviously goes for 10 and 50 but then comes 100 which is what {{Parameter|a}} is so the code in that [[CASE]] is executed.
+
+:* A [[CASE]] can list several values separated by commas for the same program option to be executed.
+
+:* [[CASE IS]] is used when we need to compare the value to a conditional expression range such as a value is &quot;=&quot; equal to, &quot;&lt;&quot; less than, &quot;&gt;&quot; greater than, &quot;&lt;&gt;&quot; not equal to or [[NOT]] a value. 
+
+:* A [[CASE]] range can be specified (in the example; 50 {{KW|TO}} 150) if needed.
+&lt;center&gt;''Note:'' A {{KW|SELECT CASE}} block has to end with [[END SELECT]].&lt;/center&gt;
+
+
+{{PageSeeAlso}}
+* [[CASE ELSE]], [[CASE IS]]
+* [[SELECT CASE]], [[END SELECT]]
+* [[IF...THEN]]
+
+
+{{PageNavigation}}

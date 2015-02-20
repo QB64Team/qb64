@@ -1,0 +1,27 @@
+The {{KW|_PRINTMODE (function)|_PRINTMODE}} function returns the present {{KW|_PRINTMODE}} status as a numerical value from 1 to 3 in graphic screen modes only.
+
+
+
+{{PageSyntax}}
+:{{Parameter|status%}} = _PRINTMODE[({{Parameter|image_handle}})]
+
+
+
+{{PageDescription}}
+* If no ''image_handle'' parameter is given the current destination [[SCREEN]] page or image is assumed to be the image surface.
+* Returns a status value from 1 to 3 designating the current mode setting:
+
+::::'''1''': mode is _KEEPBACKGROUND
+::::'''2''': mode is _ONLYBACKGROUND
+::::'''3''': mode is _FILLBACKGROUND (default)
+* '''NOTE: The _PRINTMODE statement and function can only be used in graphic screen modes, NOT SCREEN 0'''
+
+
+{{PageSeeAlso}}
+* [[_PRINTMODE]]
+* [[_LOADFONT]]
+* [[_NEWIMAGE]]
+* [[_PRINTSTRING]]
+
+
+{{PageNavigation}}

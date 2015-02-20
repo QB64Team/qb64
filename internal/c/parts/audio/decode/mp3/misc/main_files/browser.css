@@ -1,0 +1,209 @@
+#prefs { margin-top: -0.6em }
+* html #prefs { width: 34em } /* Set width only for IE */
+#prefs fieldset { margin: 0; }
+#prefs fieldset label { display: block }
+#prefs .buttons { margin-top: -2.3em }
+#prefs .choice { 
+ float: left; 
+ margin: 0 .6em 0 .3em;
+ border-right: 1px dotted #d7d7d7;
+}
+
+#file-legend { margin-top: 3em; }
+
+/* Browser */
+h1 { margin: 0; padding: 0 0 .5em }
+h1 :link, h1 :visited, h1 .filename { border: none; padding: 0 .2em }
+h1 :link, h1 :visited { color: #b00 }
+h1 .first:link, h1 .first:visited { color: #998 }
+h1 .sep { color: #666; padding: 0 .1em }
+h1 .pathentry { float: left }
+
+#jumprev, #jumploc { float: right; font-size: 10px; margin: 0 0 0.6em }
+#jumprev form, #jumploc form { margin: 0 }
+#jumprev input, #jumploc select, #jumploc input { 
+  font-size: 10px; 
+  margin: 0; 
+}
+#jumploc div.buttons { margin: 0;}
+#jumploc { margin-right: 2em;}
+
+/* Browser file annotations */
+table.code th.blame { width: 5em; }
+table.code th.blame a { color: #ddd; }
+
+div.message { 
+  background: #f7f7f0;
+  border: 3px double #d7d7d7;
+  margin: 0;
+  padding: 8px; 
+  /* Note: border width and padding must be compensated for in the placement */
+}
+
+div.message div.inlinebuttons { float: right;  }
+
+/* Styles for the directory entries table
+   (extends the styles for "table.listing") */
+table.dirlist { margin-top: 0 }
+table.dirlist td.rev, table.dirlist td.age, table.dirlist td.author, table.dirlist td.change {
+ color: #888;
+ white-space: nowrap;
+ vertical-align: middle;
+}
+table.dirlist td.rev {
+ font-family: monospace;
+ letter-spacing: -0.08em;
+ font-size: 90%;
+ text-align: right;
+}
+table.dirlist td.size {  
+ color: #888;
+ white-space: nowrap;
+ text-align: right;
+ vertical-align: middle;
+ font-size: 70%;
+}
+table.dirlist td.age {
+ border-width: 0 2px 0 0;
+ border-style: solid;
+ font-size: 85%;
+}
+table.dirlist td.name { width: 100% }
+table.dirlist td.name a, table.dirlist td.name span {
+ background-position: 0% 50%;
+ background-repeat: no-repeat;
+ padding-left: 20px;
+}
+table.dirlist td.name a.parent { background-image: url(../parent.png) }
+table.dirlist td.name div { white-space: pre }
+table.dirlist tr span.expander { 
+  background-image: url(../expander_normal.png); 
+  cursor: pointer; 
+  padding-left: 8px; 
+  margin-left: 4px; 
+}
+table.dirlist tr span.expander:hover { 
+  background-image: url(../expander_normal_hover.png); 
+}
+table.dirlist tr.expanded span.expander { 
+  background-image: url(../expander_open.png); 
+  padding-left: 12px; 
+  margin-left: 0; 
+}
+table.dirlist tr.expanded span.expander:hover { 
+  background-image: url(../expander_open_hover.png); 
+}
+table.dirlist td.name a.dir { background-image: url(../folder.png) }
+table.dirlist td.name a.file { background-image: url(../file.png); display: block }
+table.dirlist td.name a, table.dirlist td.rev a { border-bottom: none }
+table.dirlist td.author, table.dirlist td.change { font-size: 85% }
+table.dirlist td.rev a.chgset { 
+  background-repeat: no-repeat;
+  background-image: url(../changeset.png); 
+  background-position: 100% 50%;
+  padding: 0 0 0 5px; 
+  margin: 0 5px 0 0; 
+}
+table.dirlist td.description { padding-left: 2em }
+table.dirlist td.description > :first-child { margin-top: 0 }
+table.dirlist td.description > :last-child { margin-bottom: 0 }
+
+table.dirlist td span.loading { 
+  background-image: url(../loading.gif); 
+  font-style: italic 
+}
+
+#content.browser div.description { padding: 0 0.5em }
+
+/* Style for the ''View Changes'' button and the diff preparation form */
+#anydiff { margin: 0 0 1em; float: left }
+#anydiff form, #anydiff div, #anydiff h2 { display: inline }
+#anydiff form th { text-align: right }
+#anydiff input {  vertical-align: baseline; margin: 0 -0.5em 0 1em }
+@media print {
+ #anydiff form { display:  none }
+}
+
+/* Log */
+tr.diff input { padding: 0 1em; margin: 0 }
+
+@media print { 
+ th.diff, td.diff { display: none }
+}
+
+/* Styles for the revision log table (extends the styles for "table.listing") */
+table.chglist { margin-top: 0 }
+.chglist td.diff, .chglist td.rev, .chglist td.age, 
+.chglist td.author, .chglist td.change {
+ white-space: nowrap;
+ vertical-align: middle;
+}
+.chglist td.author { color: #888 }
+.chglist td.change span { 
+ border: 1px solid #999;
+ display: block;
+ margin: .2em .5em 0 0;
+ width: .8em; height: .8em;
+}
+.chglist td.diff { padding: 1px }
+.chglist td.change .comment { display: none }
+.chglist td.age { font-size: 85% }
+.chglist td.author { font-size: 85% }
+.chglist td.rev { 
+ font-family: monospace;  
+ letter-spacing: -0.08em;
+ font-size: 90%;
+ text-align: right; 
+}
+.chglist td.rev a { border-bottom: none }
+.chglist td.rev a.chgset {
+  background-repeat: no-repeat;
+  background-image: url(../changeset.png); 
+  background-position: 100% 50%;
+  padding: 0 0 0 5px; 
+  margin: 0 5px 0 0; 
+}
+
+.chglist td.summary, .chglist td.log { 
+ width: 100%; 
+ font-size: 85%; 
+ vertical-align: middle; 
+}
+.chglist td.summary *, .chglist td.log * { margin-top: 0 }
+/* verbose mode */
+.chglist tr.verbose { border-top: none }
+.chglist tr.verbose td.filler, .chglist tr.verbose td.log {
+ border: none;
+ border-bottom: 1px solid #ddd;
+ color: #333;
+}
+.chglist tr.verbose td { border: none; }
+.chglist tr.verbose td.diff, .chglist tr.verbose td.filler {
+ border-left: 1px solid #ddd; 
+}
+.chglist tr.verbose td.summary, .chglist tr.verbose td.log {
+ border-right: 1px solid #ddd; 
+}
+
+#paging { margin: 1em 0 }
+
+/* Styles for the revision info in the file view (see also trac.css) */
+#info { margin: 0; }
+#info .props {
+ color: #666;
+ list-style: square;
+ margin: 0 0 .4em 1.6em;
+ padding: 0;
+}
+#info .props > li { padding: 2px 0; overflow: auto; }
+.trac-toggledeleted {
+ display: none;
+ margin-left: 3em;
+ white-space: nowrap;
+}
+
+/* Styles for the HTML preview */
+#preview { background: #fff; clear: both; margin: 0 }
+#preview .code-block { border-top: 1px solid #999; margin: 0 }
+#preview .image-file { overflow: hidden }
+#preview .image-file img { max-width: 100% }

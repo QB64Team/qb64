@@ -1,0 +1,72 @@
+qbs *_FUNC_N2S_STRING_N2S=NULL;
+if (!_FUNC_N2S_STRING_N2S)_FUNC_N2S_STRING_N2S=qbs_new(0,0);
+qbs*oldstr3297=NULL;
+if(_FUNC_N2S_STRING_EXP->tmp||_FUNC_N2S_STRING_EXP->fixed||_FUNC_N2S_STRING_EXP->readonly){
+oldstr3297=_FUNC_N2S_STRING_EXP;
+if (oldstr3297->cmem_descriptor){
+_FUNC_N2S_STRING_EXP=qbs_new_cmem(oldstr3297->len,0);
+}else{
+_FUNC_N2S_STRING_EXP=qbs_new(oldstr3297->len,0);
+}
+memcpy(_FUNC_N2S_STRING_EXP->chr,oldstr3297->chr,oldstr3297->len);
+}
+qbs *_FUNC_N2S_STRING_T=NULL;
+if (!_FUNC_N2S_STRING_T)_FUNC_N2S_STRING_T=qbs_new(0,0);
+qbs *_FUNC_N2S_STRING_SIGN=NULL;
+if (!_FUNC_N2S_STRING_SIGN)_FUNC_N2S_STRING_SIGN=qbs_new(0,0);
+int32 *_FUNC_N2S_LONG_DP=NULL;
+if(_FUNC_N2S_LONG_DP==NULL){
+_FUNC_N2S_LONG_DP=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_DP=0;
+}
+int32 *_FUNC_N2S_LONG_DM=NULL;
+if(_FUNC_N2S_LONG_DM==NULL){
+_FUNC_N2S_LONG_DM=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_DM=0;
+}
+int32 *_FUNC_N2S_LONG_EP=NULL;
+if(_FUNC_N2S_LONG_EP==NULL){
+_FUNC_N2S_LONG_EP=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_EP=0;
+}
+int32 *_FUNC_N2S_LONG_EM=NULL;
+if(_FUNC_N2S_LONG_EM==NULL){
+_FUNC_N2S_LONG_EM=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_EM=0;
+}
+int32 *_FUNC_N2S_LONG_CHECK1=NULL;
+if(_FUNC_N2S_LONG_CHECK1==NULL){
+_FUNC_N2S_LONG_CHECK1=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_CHECK1=0;
+}
+int32 *_FUNC_N2S_LONG_L=NULL;
+if(_FUNC_N2S_LONG_L==NULL){
+_FUNC_N2S_LONG_L=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_L=0;
+}
+qbs *_FUNC_N2S_STRING_L=NULL;
+if (!_FUNC_N2S_STRING_L)_FUNC_N2S_STRING_L=qbs_new(0,0);
+qbs *_FUNC_N2S_STRING_R=NULL;
+if (!_FUNC_N2S_STRING_R)_FUNC_N2S_STRING_R=qbs_new(0,0);
+int64 *_FUNC_N2S_INTEGER64_R=NULL;
+if(_FUNC_N2S_INTEGER64_R==NULL){
+_FUNC_N2S_INTEGER64_R=(int64*)mem_static_malloc(8);
+*_FUNC_N2S_INTEGER64_R=0;
+}
+byte_element_struct *byte_element_3299=NULL;
+if (!byte_element_3299){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3299=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3299=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_N2S_LONG_I=NULL;
+if(_FUNC_N2S_LONG_I==NULL){
+_FUNC_N2S_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_N2S_LONG_I=0;
+}
+int64 fornext_value3302;
+int64 fornext_finalvalue3302;
+int64 fornext_step3302;
+uint8 fornext_step_negative3302;
+int64 fornext_value3304;
+int64 fornext_finalvalue3304;
+int64 fornext_step3304;
+uint8 fornext_step_negative3304;

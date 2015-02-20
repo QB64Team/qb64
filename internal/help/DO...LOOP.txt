@@ -1,0 +1,140 @@
+'''DO...LOOP''' statements are used in programs to repeat code or return to the start of a procedure.
+
+
+{{PageSyntax}}
+:{{KW|DO}} [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
+:.
+:.
+:.
+:{{KW|LOOP}} [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
+
+
+{{PageDescription}}
+* DO UNTIL or DO WHILE used with LOOP. The DO will evaluate the condition before running the loop code:
+::[[UNTIL]] checks if the condition is False each time before running code.
+::[[WHILE]] checks if the condition is True each time before running code.
+* DO used with LOOP UNTIL or LOOP WHILE. The loop code will run at least once:
+::[[UNTIL]] checks if the condition is False before running loop code again.
+::[[WHILE]] checks if the condition is True before running loop code again.
+* NOTE: You cannot use a condition after both the DO and LOOP statements at the same time!  
+* Use '''[[EXIT]] DO''' to exit a DO loop within the loop code.
+* If a loop has no exit condition, it will never stop!
+
+
+{{Template:RelationalTable}}
+
+
+
+
+{{PageExamples}}
+:''Example 1:'' Using WHILE to clear the keyboard buffer.
+
+{{CodeStart}}
+
+DO WHILE {{Cl|INKEY$}} &lt;&gt; &quot;&quot;: LOOP ' checks evaluation before running loop code
+
+DO: LOOP WHILE INKEY$ &lt;&gt; &quot;&quot; ' checks evaluation after one run of loop code
+
+{{CodeEnd}}
+
+
+:''Example 2:'' Using UNTIL to clear the keyboard buffer.
+
+{{CodeStart}}
+
+DO UNTIL {{Cl|INKEY$}} = &quot;&quot;: LOOP ' checks evaluation before running loop code
+
+DO: LOOP UNTIL {{Cl|INKEY$}} = &quot;&quot; ' checks evaluation after one run of loop code
+
+{{CodeEnd}}
+
+
+:''Example 3:'' Using a one time DO loop to exit ANY of several FOR LOOPs, without using [[GOTO]]. SUB reads header contents of a [[BSAVE]] file that may include embedded RGB color settings before the image.
+
+{{CodeStart}} '' ''
+{{Cl|DEFINT}} A-Z
+{{Cl|SUB}} CheckScreen        'find Screen mode (12 or 13) and image dimensions
+   DIM Bsv AS {{Cl|STRING}} * 1
+   DIM Header AS STRING * 6
+
+   Scr = 0: MaxColors = 0
+   {{Cl|OPEN}} Filename$ FOR {{Cl|BINARY}} AS #1
+
+   {{Cl|GET}} #1, , Bsv           '1 check for small 2 character
+   GET #1, , Header        '2 - 7 rest of file header
+
+   IF Bsv &lt;&gt; {{Cl|CHR$}}(253) THEN   ' small 2 character denotes a {{Cl|BSAVE}} file
+      COLOR 12: LOCATE 15, 33: PRINT &quot;Not a BSAVE file!&quot;: SLEEP 3: {{Cl|EXIT}} SUB
+   END IF
+
+   GET #1, , widN           '8 no color info bmp sizes
+   GET #1, , depN           '9   &quot;        &quot;      &quot;
+
+DO
+  IF widN &gt; 63 OR depN &gt; 63 THEN {{Cl|EXIT DO}}  ' width and depth already found
+
+  FOR i = 10 TO 55       'check for Screen 12 embedded colors
+    GET #1, , RGB
+    tot12&amp; = tot12&amp; + RGB
+    'PRINT i; RGB; : SOUND 300, 1         'test sound slows loop in QB
+    IF RGB &gt; 63 OR RGB &lt; 0 THEN {{Cl|EXIT DO}}
+    IF i = 55 AND tot12&amp; = 0 THEN {{Cl|EXIT DO}}
+  NEXT
+
+  GET #1, , wid12          '56
+  GET #1, , dep12          '57
+  IF wid12 &gt; 63 OR dep12 &gt; 63 THEN {{Cl|EXIT DO}}
+
+  FOR i = 58 TO 775      'check for Screen 13 embedded colors
+    GET #1, , RGB
+    tot13&amp; = tot13&amp; + RGB
+    'PRINT i; RGB; : SOUND 300, 1          'test
+    IF RGB &gt; 63 OR RGB &lt; 0 THEN {{Cl|EXIT DO}}
+    IF i = 775 AND tot13&amp; = 0 THEN {{Cl|EXIT DO}}
+  NEXT
+  GET #1, , wid13          '776
+  GET #1, , dep13          '777
+LOOP {{Cl|UNTIL}} 1 = 1    'TRUE statement exits one-time LOOP
+CLOSE #1
+
+COLOR 14: LOCATE 10, 25
+{{Cl|SELECT CASE}} i
+  {{Cl|CASE IS}} &lt; 56:
+   IF widN &gt; 640 THEN
+       Scr = 13: MaxColors = 0
+       PRINT &quot;Default Screen 13:&quot;; widN \ 8; &quot;X&quot;; depN
+   ELSE
+    LOCATE 10, 15
+    PRINT &quot;Screen 12 (&quot;; widN; &quot;X&quot;; depN; &quot;) OR 13 (&quot;; widN \ 8; &quot;X&quot;; depN; &quot;)&quot; 
+    DO: SOUND 600, 4
+       COLOR 13: LOCATE 12, 23  'ask if no data found. Prevents ERROR opening in wrong mode
+       {{Cl|INPUT}} &quot;Enter a Screen mode 12 or 13 : &quot;, Scrn$  
+       Scr = VAL(Scrn$)
+    LOOP UNTIL Scr = 12 OR Scr = 13
+   END IF
+   IF Scr = 12 THEN MaxColors = 0: PWidth = widN: PDepth = depN
+   IF Scr = 13 THEN MaxColors = 0: PWidth = widN \ 8: PDepth = depN
+  {{Cl|CASE}} 56 TO 775
+     PRINT &quot;Custom Screen 12:&quot;; wid12; &quot;X&quot;; dep12
+     Scr = 12: MaxColors = 16: PWidth = wid12: PDepth = dep12
+  {{Cl|CASE}} 776: PRINT &quot;Custom Screen 13:&quot;; wid13 \ 8; &quot;X&quot;; dep13
+     Scr = 13: MaxColors = 256: PWidth = wid13 \ 8: PDepth = dep13
+{{Cl|END SELECT}}
+
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+''Explanation:'' The SUB procedure reads a file that was [[BSAVE]]d previously. If the RGB colors are stored before the image, the values can only be between 0 and 63. Higher values indicate that the image width and height are located there and that there are no stored color values to be read. SUB later displays the dimensions of the file image that [[GET (graphics statement)|GET]] placed in the file array. The loop is set to only run once by creating '''a TRUE [[UNTIL]] statement''' such as 1 = 1. When a screen mode cannot be determined, the user must select one.
+
+
+Dimensions and location of width and height information indicates the screen mode as [[SCREEN (statement)|SCREEN]] 13 if it has 768 RGB values and dimensions of 320 X 200 max. If the file only holds 64 settings and/or is larger than 320 X 200, it uses SCREEN 12 or 9. The procedure [[EXIT]]s the DO LOOP early when the image size is found with or without custom color settings. 
+Divide SCREEN 13 [[GET (graphics statement)|GET]] widths by 8.
+
+
+{{PageSeeAlso}}
+* {{KW|EXIT DO}}
+* {{KW|WHILE...WEND}}
+* {{KW|FOR...NEXT}}
+
+
+{{PageNavigation}}

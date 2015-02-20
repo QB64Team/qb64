@@ -1,0 +1,127 @@
+The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]] and [[FUNCTION]] procedures supported by QB64.
+
+
+{{PageSyntax}}
+::: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [{''&quot;Library_filename&quot;''|''&quot;Headerfile&quot;''}]
+::: {[[SUB]]|[[FUNCTION]]} [''procedure_name'' {{KW|ALIAS}}] ''library_procedure'' ([{{KW|BYVAL}}] ''parameter {{KW|AS}}'', ...)
+::::.
+::::. 'other SUBs or Functions as required
+::::.
+::: END DECLARE
+
+
+* '''This QB64 procedure is available in the Dec 3, 2010 WINDOWS version .923 or later ONLY!'''
+* The declaration can be used with C++ sub-procedures, Windows API, the QB64 SDL Library and '''QB64''' Dynamic Link Libraries.
+* The ''Library name'' is only necessary if a Library is NOT already loaded by QB64. Do not include the ''.DLL'' or ''.H'' file name extension.
+* ''Library filename''s can be listed to combine more than one DLL or Header file name or path into one DECLARE LIBRARY block.
+* C procedures can use a header file name. File code must be included with program code. Do not include the ''.h'' extension.
+* ''Procedure_name'' is any program procedure name you want to designate by using [[ALIAS]] with the ''Library_procedure'' name. 
+* ''Library procedure'' is the actual procedure name used inside of the library or header file.
+* ''Parameters'' used by the Library procedure must be passed by value ([[BYVAL]]) except for [[STRING]] characters.
+* When using a procedure from an '''unsupported''' Dynamic Link Library (DLL file) use [[DECLARE DYNAMIC LIBRARY]].
+* '''CUSTOMTYPE''' is already implied when using [[DECLARE DYNAMIC LIBRARY]]. This type of library just allows the same flexibility to apply when referencing STATIC libraries that are used to refer to dynamic libraries.
+* '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't really use shared libraries (DLLs are a bit different) this does not affect Windows users.
+* The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
+* Declarations can be made inside of [[SUB]] or [[FUNCTION]] procedures. Declarations do not need to be at program start.
+* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that ANY procedure will work and cannot quarantee ANY troubleshooting help!'''
+
+
+''Example 1:'' Using a QB64 SDL library procedure as a program SUB procedure to move the mouse pointer to a designated position.
+{{CodeStart}} '' ''
+{{Cl|DECLARE LIBRARY}}
+  {{Cl|SUB}} SDL_WarpMouse ({{Cl|BYVAL}} column {{Cl|AS}} {{Cl|LONG}}, {{Cl|BYVAL}} row {{Cl|AS}} {{Cl|LONG}}) 'SDL procedure name
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)  'simulate screen 12 with 256 colors
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+
+DO
+  {{Cl|_DELAY}} 1
+  x = {{Cl|RND}} * 640: y = {{Cl|RND}} * 480
+  {{Cl|LINE}} (x, y)-{{Cl|STEP}}(10, 10), {{Cl|RND}} * 100 + 32, BF
+  MouseMove x + 5, y + 5
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}({{Cl|INKEY$}})  'any keypress quits
+{{Cl|END}}
+
+{{Cl|SUB}} MouseMove (x {{Cl|AS}} {{Cl|LONG}}, y {{Cl|AS}} {{Cl|LONG}})
+SDL_WarpMouse x, y     'call SDL library procedure
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Galleon}}
+:''Explanation:'' The SDL Library is already included and loaded with QB64, so these procedures are directly available for use. 
+
+&lt;center&gt;'''Using ALIAS to create a program SUB or FUNCTION'''&lt;/center&gt;
+{{CodeStart}} '' ''
+{{Cl|DECLARE LIBRARY}}
+  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} column&amp;, {{Cl|BYVAL}} row&amp;) 
+{{Cl|DECLARE LIBRARY|END DECLARE}} '' ''
+{{CodeEnd}}
+:''Explanation:'' When a Library procedure is used to represent another procedure name use [[ALIAS]] instead. Saves creating a SUB!
+
+
+''Example 2:'' Don't know if a C function is defined by C++ or QB64? Try using empty quotes.
+{{CodeStart}} '' ''
+{{Cl|DECLARE LIBRARY}} &quot;&quot;
+    {{Cl|FUNCTION}} addone&amp; ({{Cl|BYVAL}} value&amp;)
+{{Cl|END}} DECLARE '' ''
+{{CodeEnd}}
+:''Explanation:'' The C function 'addone' exists in a library QB64 already links to, but it hasn't been defined as a C function or a QB64 function. By using &quot;&quot; we are telling QB64 the function exists in a library which is already linked to and that it must define the C function before calling it, as well as allowing QB64 code to call it. Trying the above code without the &quot;&quot; will fail.
+
+: '''Note: What libraries are or aren't automatically used in the linking process is not formally defined, nor is it guaranteed to stay that way in future versions of QB64.'''
+
+
+''Example 3:'' For this next example, download the file 'add.lib' and place it in you QB64 folder: http://www.qb64.net/add.lib
+{{CodeStart}} '' ''
+{{Cl|DECLARE LIBRARY}} &quot;add&quot;
+    {{Cl|FUNCTION}} addtwo&amp; ({{Cl|BYVAL}} value&amp;)
+{{Cl|END}} DECLARE
+PRINT addtwo(1) '' ''
+{{CodeEnd}}
+:''Explanation:'' Here, we tell QB64 to link to '''add.lib''' (QB64 searches for '''add.lib''', '''add.a''', and '''add.o''' in that order and uses the first that it finds). The function '''addtwo''' exists inside the library file '''add.lib''' but isn't defined anywhere else. QB64 creates the C definition for the function '''addtwo''' so that it can be called from our QB64 code.
+
+: '''Note: If the C function definition auto-created by QB64 does not exactly match the definition in the library file, it will not work. As a result of this it is often better to provide the C function definitions in the form of a C header file, such as in the following example.'''
+
+
+''Example 4:'' NTport is a commercial library hosted at http://www.zealsoftstudio.com/ntport/, but it does provide an evaluation version (it has a 3 second wait pop-up window) which we will use here. You don't need to download NTport, just download the following 3 files and put them in your QB64 folder:
+&lt;center&gt;[http://www.qb64.net/ntport/ntport.lib NTport.lib]            [http://www.qb64.net/ntport/ntport.h NTport.h]               [http://www.qb64.net/ntport/ntport.dll Ntport.dll]&lt;/center&gt;
+:'''IMPORTANT:''' The DLL is loaded automatically by the static library, we are not linking directly to the DLL, we are '''static linking''' (NOT directly or dynamically linking). This is an important concept to understand!
+{{CodeStart}}
+DECLARE LIBRARY &quot;ntport&quot;
+    FUNCTION GetLPTPortAddress% (BYVAL PortNo%)
+END DECLARE
+PRINT &quot;&amp;H&quot; + HEX$(GetLPTPortAddress%(1))
+{{CodeEnd}}
+:''Explanation:'' DECLARE LIBRARY also searches for C header files with a '''.h''' extension. So in this case it is using the header '''ntport.h''' and linking with '''ntport.lib''' just by specifying &quot;NTPORT&quot;. The C function definitions are stored in '''ntport.h''' so even if our QB64 functions don't exactly match (eg. LONG instead of INTEGER) it will still work.
+
+:If you look inside ''''ntport.h'''' you'll find the following line containing the C function definition of the command we used:
+{{TextStart}} WORD WINAPI GetLPTPortAddress(WORD PortNo);
+{{TextEnd}}
+
+
+&lt;center&gt;'''SDL Library Documentation'''&lt;/center&gt;
+:Library documentation is downloadable here in PS format: Use either [http://get.adobe.com/reader/ Acrobat Reader] or [http://download.cnet.com/PDF-XChange-Viewer/3000-10743_4-10598377.html PDF XChange Viewer] 
+
+&lt;center&gt;[http://www.libsdl.org/archives/sdldoc-ps.zip SDL Library Ebook Documentation Download]&lt;/center&gt;
+
+: Note: Unzip the downloaded &quot;SDLdoc.PS&quot; file and click on it. Make it into an Ebook in top choice box where it says Screen.
+
+&lt;center&gt;[http://www.libsdl.org/archives/sdldoc-html.zip SDL Library HTML Browser References]&lt;/center&gt;
+
+
+&lt;center&gt;Galleon's '''OpenGL''' Library with demo program download: http://www.qb64.net/gl_package.zip&lt;/center&gt;
+
+
+&lt;center&gt;'''Note: QB64 requires all DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder!'''&lt;/center&gt;
+
+
+''See also:''
+* [[DECLARE DYNAMIC LIBRARY]]
+* [[SUB]], [[FUNCTION]]
+* [[BYVAL]], [[ALIAS]]
+* [[C Libraries]], [[SDL Libraries]], [[DLL Libraries]], [[Windows Libraries]]
+* [[Port Access Libraries]]
+* [[OpenGL Libraries]]
+* [[SFML Libraries]]
+* [[SQL Client]]
+
+
+{{PageNavigation}}

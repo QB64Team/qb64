@@ -1,0 +1,49 @@
+'''ON...GOSUB''' is a control-flow statement that branches to a line or label in a list depending on a numerical expression.
+
+
+{{PageSyntax}}
+:: '''ON''' ''numerical-expression'' '''GOSUB''' ''lineornumber[,lineornumber][,...]''
+
+
+* The ''numerical-expression represents'' the ''line'' or ''label'' that it should branch to, 1 branches to the first line or label, 2 branches to the second, etc.
+* In QB 4.5 the list can contain a maximum of 60 line numbers or labels, while QB64 has no limit.
+* The procedure must be used after the number value is determined or in a loop to monitor current user events. 
+* [[RETURN]] returns to the next code statement after the ON...GOSUB statement. [[END]] or [[SYSTEM]] can be used to end program.
+* '''Note:''' [[SELECT CASE]] provides a much more convenient way of doing this task.
+
+
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|CLS}}
+a = 2
+''ON'' a '''GOSUB''' hello, hereweare, 143
+{{Cl|PRINT}} &quot;Also notice the RETURN statement that can be used with GOSUB!&quot;
+{{Cl|END}}
+
+hello:
+{{Cl|PRINT}} &quot;Hello, with a = 1 you get to see this!&quot;
+{{Cl|END}}
+
+hereweare:
+{{Cl|PRINT}} &quot;with a = 2 here we are...return to line after ON.&quot;
+{{Cl|RETURN}}
+
+143
+{{Cl|PRINT}} &quot;Line 143, with a = 3 you get to see this!&quot;
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+with a = 2 here we are...return to line after ON.
+Also notice the RETURN statement that can be used with GOSUB!
+{{OutputEnd}}
+
+:''Explanation:'' Since a equals to 2 it goes to the second item in the list (hereweare) and branches the program to there. Try changing 'a' to 1 or 3!
+
+
+''See also:'' 
+* [[ON...GOTO]]
+* [[GOSUB]], [[GOTO]] 
+* [[SELECT CASE]], [[RETURN]]
+
+
+{{PageNavigation}}

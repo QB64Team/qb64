@@ -1,0 +1,43 @@
+The '''AS''' keyword defines a variable value's [[type]]. 
+
+
+* AS defines the variable or array type AS [[_BIT]], [[_BYTE]], [[INTEGER]], [[LONG]], [[_INTEGER64]], [[SINGLE]], [[DOUBLE]], [[_FLOAT]], [[STRING]] or [[ANY]].
+
+* Specifies a variable's [[type]] in a declarative statement or parameter list using:
+
+
+:::::[[DIM]] or [[REDIM]]
+
+:::::[[DECLARE]]
+
+:::::[[SUB]]
+
+:::::[[FUNCTION]]
+
+:::::[[TYPE]]
+
+:::::[[DEF FN]]
+
+:::::[[SHARED]]
+
+:::::[[COMMON SHARED]]
+
+:::::[[STATIC]]
+
+
+* Specifies a '''[[parameter]]''' variable's type in a [[SUB]] or [[FUNCTION]] procedure. '''Cannot be used to define a function's [[TYPE]]!'''
+* Specifies an element's type in a user-defined data type: [[TYPE]]
+* Assigns a file number to a file or device in an [[OPEN]] statement:
+* Specifies a field name in a random-access record: [[FIELD]]
+* Specifies a new file name when you rename a file: [[NAME]]
+* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
+
+
+''See also:''
+* [[DIM]], [[REDIM]]
+* [[_DEFINE]] 
+* [[BYVAL]], [[TYPE]]
+* [[Variable Types]]
+
+
+{{PageNavigation}}

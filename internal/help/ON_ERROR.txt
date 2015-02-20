@@ -1,0 +1,69 @@
+'''ON ERROR''' is used with [[GOTO]] to designate a way to handle a program error.
+
+
+
+{{PageSyntax}}
+:: ON ERROR GOTO {linenumber| linelabel}
+
+
+* ON ERROR statements can be in the main module code or in [[SUB]] or [[FUNCTION]] procedures. 
+* ON ERROR statements take precedence in the order they are encountered. It will also handle any subroutine errors!
+* Use a [[GOTO]] line label or line number in the main module assigned to clean up or ignore an error.
+* '''ON ERROR GOTO 0''' can be used to ignore an error without an error handling procedure. 
+* A subsequent ON ERROR statement will override the previous one.
+* [[GOTO]] is required in the statement. Cannot use [[GOSUB]] !
+* Comment out ON ERROR to find specific error locations. QB64 can return the file line position with [[_ERRORLINE]]
+* Note: QB64 does NOT support the PDS(QuickBasic 7) ON ERROR RESUME NEXT statement!
+
+
+
+''Example 1:'' Using an error handler that ignores any error.
+
+{{CodeStart}} '' ''
+ {{Cl|ON ERROR}} {{Cl|GOTO}} Errhandler
+   ' Main module program error simulation code
+ {{Cl|ERROR}} 7           ' simulate an Out of Memory Error
+ PRINT &quot;Error handled...ending program&quot;
+ {{Cl|SLEEP}} 4
+ {{Cl|SYSTEM}}            ' end of program code
+
+ Errhandler:              'error handler sub program line label
+  PRINT &quot;Error&quot;; {{Cl|ERR}}; &quot;on program file line&quot;; {{Cl|_ERRORLINE}}
+  {{Cl|BEEP}}             ' warning beep
+ {{Cl|RESUME}} NEXT       ' moves program to code following the error. '' ''
+{{CodeEnd}}
+{{OutputStart}}
+Error 7 on program file line 3 
+Error handled...ending program
+{{OutputEnd}}
+:''Explanation:'' The ON ERROR statement is normally placed at the beginning of the main module code.  Errhandle is the line label sub referred to in the statement. The handler prints the error code and attempts to use the next line of code using [[RESUME]] NEXT which is only used in error handling procedures. [[_ERRORLINE]] returns the program file's actual text line count found in the [[IDE]].
+
+
+''Example 2:'' Using an error handler in a [[SUB]] procedure.
+{{CodeStart}} '' ''
+{{Cl|DECLARE}} {{Cl|SUB}} s ()
+s
+{{Cl|END}}
+
+hand:
+{{Cl|PRINT}} &quot;got error!&quot;
+{{Cl|RESUME}} {{Cl|NEXT}}
+
+{{Cl|SUB}} s
+{{Cl|ON ERROR}} {{Cl|GOTO}} hand
+{{Cl|ERROR}} 1
+{{Cl|ON ERROR}} {{Cl|GOTO}} 0
+{{Cl|PRINT}} &quot;Done!&quot;
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' The [[GOTO]] procedure must be in the main code area after [[END]] to avoid a [[RESUME]] error later. Use GOTO 0 to clear the ON ERROR set in the sub so that later errors are not handled by it.
+
+
+''See also:'' 
+* [[ERR]], [[ERL]], [[RESUME]]
+* [[ON...GOTO]], [[_ERRORLINE]]
+* [[ERROR]]
+* [[ERROR Codes]]
+
+
+{{PageNavigation}}

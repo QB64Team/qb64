@@ -1,0 +1,47 @@
+The {{KW|_DISPLAY (function)|_DISPLAY}} function returns the handle of the current image that is displayed on the screen.
+
+
+{{PageSyntax}}
+:''currentimage&amp;'' = '''_DISPLAY'''
+
+
+''Usage:''
+* Returns the current image handle value that is being displayed. Will return 0 if in the default image.
+* Not to be confused with the {{KW|_DISPLAY}} statement that displays the screen when not using {{KW|_AUTODISPLAY}}.
+
+
+''Example:'' Creating a mouse cursor using a page number that '''you create''' in memory without setting up page flipping.
+{{CodeStart}}
+{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) 'any graphics mode should work without setting up pages
+{{Cl|_MOUSEHIDE}}
+SetupCursor
+{{Cl|PRINT}} &quot;Hello World!&quot;
+{{Cl|DO}}: {{Cl|_LIMIT}} 30
+  {{Cl|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}: {{Cl|LOOP}} 'main loop must contain _MOUSEINPUT   
+'       other program code    
+{{Cl|LOOP}}
+
+{{Cl|SUB}} SetupCursor
+{{Cl|ON TIMER(n)|ON TIMER}}(0.02) UpdateCursor
+{{Cl|TIMER}} ON
+{{Cl|END SUB}}
+
+{{Cl|SUB}} UpdateCursor
+{{Cl|PCOPY}} {{Cl|_DISPLAY (function)|_DISPLAY}}, 100  'any page number as desination with the _DISPLAY function as source
+{{Cl|PSET}} ({{Cl|_MOUSEX}}, {{Cl|_MOUSEY}}), {{Cl|_RGB}}(0, 255, 0)
+{{Cl|DRAW}} &quot;ND10F10L3F5L4H5L3&quot;
+{{Cl|_DISPLAY}}                  'statement shows image
+{{Cl|PCOPY}} 100, {{Cl|_DISPLAY (function)|_DISPLAY}} 'with the function return as destination page
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+''Note:'' Works with the '''_DISPLAY function''' return as the other page. If mouse reads are not crucial, put the [[_MOUSEINPUT]] loop inside of the UpdateCursor Sub.
+
+
+{{PageSeeAlso}}
+* [[SCREEN]] {{text|(note the QB64 use of SCREEN to set which image to display)}}
+* [[PCOPY]]
+* [[_DISPLAY]] {{text|(statement)}}
+* [[_AUTODISPLAY]] {{text|(default mode)}}
+
+
+{{PageNavigation}}

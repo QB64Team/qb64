@@ -1,0 +1,58 @@
+{{KW|BSAVE}} saves the contents of an image array to a {{KW|BINARY}} file.
+
+
+{{PageSyntax}}
+::: '''BSAVE}} {{Parameter|savefile$}}, [[VARPTR]]({{Parameter|Array(index)}}), {{Parameter|Filesize&amp;}}'''
+
+
+
+{{PageDescription}}
+* To place image data into the array, use {{KW|GET (graphics statement)|GET}} to store a box area image of the screen.
+* {{KW|SCREEN}} 12 can only GET 1/3 of the screen image at one time using a 26K array. 
+* Image arrays are {{KW|DIM}}ensioned as {{KW|INTEGER}}. Use {{KW|DEFINT}} when working with large graphic arrays.
+* Any arrays can be saved, but Image arrays are most common.
+* {{KW|DEF SEG}} = {{KW|VARSEG}} must be used to designate the array segment position in memory.
+* {{KW|VARPTR}} returns the Array index offset of the memory segment. Array sizes are limited to 32767 Integer elements due to the use of {{KW|VARPTR}} in QB and '''QB64'''!.
+* '''QB64''' can load larger arrays directly to and from binary files using {{KW|PUT}} # and {{KW|GET}} #. 
+* Filesize must be twice the size of the elements used in an {{KW|INTEGER}} [[Arrays|array]]. 
+* {{KW|BSAVE}} files can later be opened with {{KW|BLOAD}}.
+
+
+''Example 1:'' Saving array data to a file quickly.
+{{CodeStart}} '' ''
+ LB% = {{Cl|LBOUND}}(Array)
+ bytes% = {{Cl|LEN}}(Array(LB%))
+ filesize&amp; = (({{Cl|UBOUND}}(Array) - LB%) + 1) * bytes% 
+ {{Cl|DEF SEG}} = {{Cl|VARSEG}}(Array(0))
+  {{Cl|BSAVE}} filename$, {{Cl|VARPTR}}(Array(LB%)), filesize&amp;  ' changeable index
+ {{Cl|DEF SEG}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' Procedure determines the filesize from the array size automatically. {{KW|LBOUND}} is used with {{KW|UBOUND}} to determine array size and byte size. Works with any type of array except variable length Strings. Great for saving program data fast!
+
+
+
+''Example 2:'' {{KW|BSAVE}}ing a bitmap and calculating the file size
+{{CodeStart}} '' ''
+ {{Cl|DEF SEG}} = {{Cl|VARSEG}}(Image(0))
+ {{Cl|PSET}}(BMPHead.PWidth - 1, BMPHead.PDepth - 1)  'color lower right corner if black
+ {{Cl|GET (graphics statement)|GET}} (0, 0)-(BMPHead.PWidth - 1, BMPHead.PDepth - 1), Image(NColors * 3) ' for 16 or 256 colors
+ {{Cl|FOR...NEXT|FOR}} a&amp; = 26000 {{Cl|TO}} 0 {{Cl|STEP}} -1
+   {{Cl|IF...THEN|IF}} Image(a&amp;) {{Cl|THEN}} ArraySize&amp; = a&amp;: {{Cl|EXIT FOR}}
+ {{Cl|NEXT}}
+ {{Cl|BSAVE}} SaveName$, {{Cl|VARPTR}}(Image(0)), (2 * ArraySize&amp;) + 200 'file size
+ {{Cl|DEF SEG}} '' ''
+{{CodeEnd}}
+
+: ''Explanation:'' The {{KW|FOR...NEXT|FOR}} loop reads backwards through the image array until it finds a value not 0. The {{KW|LONG}} {{Parameter|ArraySize&amp;}} value is doubled and 200 is added. {{Parameter|BMPhead.PWidth}} and {{Parameter|BMPhead.PDepth}} are found by reading the bitmap's information header using a {{KW|TYPE}} definition. See [[Bitmaps]].
+
+
+{{PageSeeAlso}}
+* [[BLOAD]], [[OPEN]], [[BINARY]]
+* [[GET]], [[PUT]] {{text|(file statements)}}
+* [[GET (graphics statement)]], [[PUT (graphics statement)]]
+* [[VARSEG]], [[VARPTR]]
+* [[DEF SEG]], [[TYPE]]
+* [[Text Using Graphics]]
+
+
+{{PageNavigation}}

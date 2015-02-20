@@ -1,0 +1,48 @@
+The [[_ALPHA32]] function returns the alpha transparency level of a 32 bit color value only.
+
+
+{{PageSyntax}}
+:{{Parameter|alpha&amp;}} = '''_ALPHA32({{Parameter|colour32~&amp;}})'''
+
+
+{{Parameters}}
+* {{Parameter|colour32&amp;}} is the [[_UNSIGNED]] [[LONG]] 32 bit color value used to retrieve the alpha level.
+** Color values that are set as a [[_CLEARCOLOR]] always have an alpha level of 0 (transparent).
+** [[_SETALPHA]] can set any alpha level from 0 or fully transparent to 255 or opaque.
+** Normal color values that are set by [[_RGB]] or [[_RGB32]] always have an alpha level of 255(opaque).
+
+
+''Usage:''
+* In 4(16 color) or 8(256 color) bit palette screens the function will return 0.
+* [[_RED32]], [[_GREEN32]], [[_BLUE32]] and [[_ALPHA32]] are all equivalent to [[_RED]], [[_GREEN]], [[_BLUE]] and [[_ALPHA]] but they are highly optimized and only accept a 32-bit color (RGBA) value. Using these in your code (opposed to dividing then ANDing 32-bit color values) makes code easy to read.
+* '''NOTE: 32 bit [[_NEWIMAGE]] screen page backgrounds are transparent black or [[_ALPHA]] 0. Use [[_DONTBLEND]] or [[CLS]] for opaque!'''
+
+
+''Example:'' Finding the alpha transparency level in a 32 bit screen using an [[_RGBA]]  [[_UNSIGNED]] [[LONG]] color value.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+
+clr~&amp; = {{Cl|_RGBA}}(255, 0, 255, 192)
+{{Cl|PRINT}} &quot;Color:&quot;; clr~&amp;
+
+{{Cl|COLOR}} clr~&amp;
+{{Cl|PRINT}} &quot;Alpha32:&quot;; {{Cl|_ALPHA32}}(clr~&amp;)
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}{{text|Color: 3237937407|#FFFFFF}}
+{{text|Alpha32: 192|#FF00FF}}
+{{OutputEnd}}
+: ''Notes:'' The color value is equivalent to [[&amp;H|hexadecimal]] &amp;HC0FF00FF where &amp;HC0 equals 192. [[_RGB]] alphas are always &amp;HFF(255).
+
+
+{{PageSeeAlso}}
+* [[_ALPHA]], [[_SETALPHA]]
+* [[_RGBA]], [[_RGBA32]] {{text|(set color with alpha)}}
+* [[_RED]], [[_GREEN]], [[_BLUE]]
+* [[_RED32]], [[_GREEN32]]. [[_BLUE32]]
+* [[_CLEARCOLOR]], [[_CLEARCOLOR (function)]]
+* [[Images]]
+
+
+{{PageNavigation}}

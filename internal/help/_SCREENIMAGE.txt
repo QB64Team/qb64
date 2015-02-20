@@ -1,0 +1,49 @@
+The {{KW|_SCREENIMAGE}} function stores the current desktop image or a portion of it and returns a handle value to reference.
+
+
+{{PageSyntax}}
+:: handle&amp; = _SCREENIMAGE[(''column1'', ''row1'', ''column2'', ''row2'')]
+
+
+{{PageDescription}}
+* The handle&amp; value is the desktop image reference in memory of the present user's desktop.
+* The optional screen ''column'' and ''row'' positions can be used to get only a portion of the desktop image.
+* The desktop image or partial image is always a 32-bit image. 
+* The current screen resolution or width-to-height aspect ratio can be measured using the handle with [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]].
+* Can be used to take screen shots of the desktop or used with [[_PRINTIMAGE]] to print them.
+* It is IMPORTANT to free unused or uneeded image handles with [[_FREEIMAGE]] to prevent memory overflow errors!
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+''Example:'' Determining the present screen resolution of user's PC for a screensaver program.
+{{CodeStart}}
+ desktop&amp; = {{Cl|_SCREENIMAGE}}
+ MaxScreenX&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(desktop&amp;)
+ MaxScreenY&amp; = {{Cl|_HEIGHT}}(desktop&amp;)
+ {{Cl|_FREEIMAGE}} desktop&amp; 'free image after measuring screen(it is not displayed)
+ {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(MaxScreenX&amp;, MaxScreenY&amp;, 256) 'program window is sized to fit '' ''
+ {{Cl|_SCREENMOVE}} _MIDDLE
+{{CodeEnd}}
+
+
+
+''Screen image savers:'' 
+
+*{{KW|SAVEIMAGE}} (QB64 Image to Bitmap SUB by Galleon)
+
+*{{KW|Program ScreenShots}} (Member program for legacy screen modes)
+
+* {{KW|ThirtyTwoBit SUB}} (QB64 Image area to bitmap)
+
+
+
+{{PageSeeAlso}}
+* [[_SCREENCLICK]], [[_SCREENPRINT]]
+* [[_SCREENMOVE]], [[_SCREENX]], [[_SCREENY]]
+* [[_WIDTH (function)|_WIDTH]], [[_HEIGHT]]
+* [[_FULLSCREEN]], [[_PRINTIMAGE]]
+* [[SAVEIMAGE]] {{text|(save image to bitmap program)}}
+* [[Screen Saver Programs]]
+
+
+{{PageNavigation}}

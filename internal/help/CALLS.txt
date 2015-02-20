@@ -1,0 +1,24 @@
+{{KW|CALLS}} is a statement that transfers control to a procedure written in a different programming language.
+
+
+{{PageSyntax}}
+:{{KW|CALLS}} {{Parameter|name}} [({{Parameter|argumentlist}})]
+
+
+* [[Keywords currently not supported by QB64|Currently NOT supported in QB64]]
+* The arguments are passed by reference as far addresses, unlike {{KW|CALL}} which passes arguments by value as default. You cannot use {{KW|BYVAL}} or {{KW|SEG}} in a {{KW|CALLS}} argumentlist.
+
+
+
+{{KW|CALLS}} is the same as using {{KW|CALL}} with a {{KW|SEG}} before each argument.
+
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|DECLARE (non-BASIC statement)}}
+*{{KW|CALL}}
+
+
+{{PageNavigation}}

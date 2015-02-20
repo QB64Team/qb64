@@ -1,0 +1,31 @@
+'''COMMON''' shares common variable values with other Linked or [[CHAIN]]ed modules.
+
+
+::::::''Syntax:'' COMMON [SHARED] [/blockname/] variablelist 
+
+
+* COMMON must be called before any executable statements.
+
+* [[SHARED]] makes the variables shared within [[SUB]] and [[FUNCTION]] procedures within that module.
+
+* /blockname/ gives the ability to name a block of variables (ex. COMMON /thename/ a, b, c), this name can later be referenced in the module to only give access to those variables. As such, many COMMON statements can be issued with different names to be shared in different modules.
+
+* Variablelist is the list of common variables made available separated by commas.
+
+* Remember to keep the variable type ''order'' the same in all modules, as the variables names don't matter.
+
+* [[COMMON SHARED]] is most commonly used to share the variables with subs and functions of that module.
+
+* In Qbasic, Common variables can only be passed by [[CHAIN]] using compiled modules if BRUN45.EXE is included with the program.
+
+* Linked files are compiled first and linked with LINK.EXE in QB. '''QB64''' cannot link files presently!
+* '''Note: Values assigned to shared variables used as procedure call parameters will not be passed to other procedures! The shared variable value MUST be assigned INSIDE of the [[SUB]] or [[FUNCTION]] procedure to be passed!'''
+
+
+''See also:'' 
+* [[COMMON SHARED]], [[CHAIN]]
+* [[DIM]], [[REDIM]], [[SHARED]]
+* [[DEFSTR]], [[DEFLNG]], [[DEFINT]], [[DEFSNG]], [[DEFDBL]]
+
+
+{{PageNavigation}}

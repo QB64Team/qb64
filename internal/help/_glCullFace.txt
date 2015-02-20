@@ -1,0 +1,46 @@
+'''_glCullFace:''' specify whether front- or back-facing facets can be culled
+
+
+{{PageSyntax}}
+
+  SUB _glCullFace (BYVAL mode AS _UNSIGNED LONG)
+  void '''_glCullFace'''(GLenum {{Parameter|mode}});
+
+
+; mode
+: Specifies whether front- or back-facing facets are candidates for culling. Symbolic constants {{KW|_GL_FRONT}}, {{KW|_GL_BACK}}, and {{KW|_GL_FRONT_AND_BACK}} are accepted. The initial value is {{KW|_GL_BACK}}.
+
+
+{{PageDescription}}
+
+'''_glCullFace''' specifies whether front- or back-facing facets are culled (as specified by ''mode'') when facet culling is enabled. Facet culling is initially disabled. To enable and disable facet culling, call the {{KW|_glEnable}} and {{KW|_glDisable}} commands with the argument {{KW|_GL_CULL_FACE}}. Facets include triangles, quadrilaterals, polygons, and rectangles.
+
+{{KW|_glFrontFace}} specifies which of the clockwise and counterclockwise facets are front-facing and back-facing. See {{KW|_glFrontFace}}.
+
+
+{{PageNotes}}
+
+If {{Parameter|mode}} is {{KW|_GL_FRONT_AND_BACK}}, no facets are drawn, but other primitives such as points and lines are drawn.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|mode}} is not an accepted value.
+
+
+{{PageUseWith}}
+
+{{KW|_glIsEnabled}} with argument {{KW|_GL_CULL_FACE}}
+
+{{KW|_glGet}} with argument {{KW|_GL_CULL_FACE_MODE}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glEnable|(GL_CULL_FACE)}}, {{KW|_glFrontFace}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

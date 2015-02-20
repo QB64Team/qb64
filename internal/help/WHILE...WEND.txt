@@ -1,0 +1,48 @@
+The {{KW|WHILE...WEND}} statement is used to repeat a block of statements while the condition is met.
+
+
+{{PageSyntax}}
+:{{KW|WHILE}} {{Parameter|condition}}
+:.
+:.
+:.
+:{{KW|WEND}}
+
+
+{{PageDescription}}
+* {{Parameter|condition}} is a numeric expression used to determine if the loop will execute.
+* {{Parameter|statements}} will execute repeatedly while {{Parameter|condition}} is a non-zero value.
+* [[EXIT]] WHILE can be used for emergency exits from the loop in QB64 only.
+* A [[DO...LOOP]] can use the same DO WHILE condition to get the same results.
+* WHILE loops only run if the WHILE condition is True.
+
+
+{{Template:RelationalTable}}
+
+
+{{PageExamples}}
+''Example 1:'' Reading an entire file. Example assumes the program has a [[OPEN|file opened]] as #1
+
+{{CodeStart}}  '' ''
+{{Cl|OPEN}} &quot;Readme.txt&quot; FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
+{{Cl|WHILE...WEND|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(1)
+    {{Cl|_LIMIT}} 1                                    'limit line prints to one per second 
+    {{Cl|LINE INPUT (file statement)|LINE INPUT #}}1, text$
+    IF {{Cl|INKEY$}} = {{Cl|CHR$}}(27) THEN {{Cl|EXIT}} {{Cl|WHILE}}        'ESC key exits
+    {{Cl|PRINT}} text$
+{{Cl|WEND}} '' ''
+{{CodeEnd}}
+
+''Example 2:'' Clearing the keyboard buffer.
+{{CodeStart}} '' ''
+{{Cl|WHILE}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; : {{Cl|WEND}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[DO...LOOP]]
+* [[FOR...NEXT]]
+* [[UNTIL]] (condition)
+
+
+{{PageNavigation}}

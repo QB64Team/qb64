@@ -1,0 +1,38 @@
+The '''_PRINTMODE''' statement sets the text or [[_FONT]] printing mode on a background image when using [[PRINT]] or [[_PRINTSTRING]].
+
+
+
+{{PageSyntax}}
+:{{KW|_PRINTMODE}} {{Parameter|mode}}[,{{Parameter|image_handle}}]
+
+
+{{PageDescription}}
+* If the image handle is omitted it will use the current destination image background.
+* One of 3 mode keywords is '''mandatory''' when using this statement to deal with the text background.
+
+:*'''_KEEPBACKGROUND''' (mode 1): Text background transparent. Only the text is displayed over anything behind it.
+:*'''_ONLYBACKGROUND''' (mode 2): Text background is only displayed. Text is transparent to anything behind it.
+:*'''_FILLBACKGROUND''' (mode 3): Text and background block anything behind them like a normal [[PRINT]]. Default setting.
+* Use the [[_PRINTMODE (function)]] to find the current _PRINTMODE setting mode number.
+* '''NOTE: The _PRINTMODE statement and function can only be used in graphic screen modes, NOT SCREEN 0'''
+
+
+''Example:'' Using _PRINTMODE with [[PRINT]] in a graphic screen mode. The background used is CHR$(219) = █
+{{CodeStart}} '' ''
+{{Cl|SCREEN (statement)|SCREEN}} 12
+{{Cl|COLOR}} 8: {{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} {{Cl|STRING$}}(3, 219) 'background 
+{{Cl|_PRINTMODE}} _KEEPBACKGROUND
+{{Cl|COLOR}} 15: {{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} {{Cl|_PRINTMODE}} 
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_LOADFONT]]
+* [[_NEWIMAGE]]
+* [[_PRINTSTRING]]
+* [[_PRINTMODE (function)]]
+
+
+
+{{PageNavigation}}

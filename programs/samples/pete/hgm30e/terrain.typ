@@ -1,0 +1,45 @@
+infertile
+0.2
+1
+0
+14
+lean soil
+3
+3
+0
+10
+fertile plain
+6
+4
+0
+2
+swamp
+2
+2
+0.5
+3
+lake
+2
+2
+0
+9
+hills
+2
+5
+0.3
+6
+mountains
+1
+3
+0.7
+8
+high mount.
+0.2
+2
+1
+7
+snow
+1
+1
+0.5
+15

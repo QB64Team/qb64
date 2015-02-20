@@ -1,0 +1,98 @@
+The {{KW|STATIC}} keyword is used in declaration statements to control where variables are stored.
+
+
+{{PageSyntax}}
+:{{KW|STATIC}} {{Parameter|variableName}}[()] [{{KW|AS}} {{Parameter|dataType}}][, ...]
+
+{{PageSyntax}}
+:{[[SUB]]|[[FUNCTION]]} {{Parameter|procedureName}} [({{Parameter|parameterList}})] STATIC
+
+
+{{PageDescription}}
+* A STATIC list can be used in [[SUB]] and [[FUNCTION]] procedures to designate one or more variables to retain their values. 
+* Variables and arrays with static storage will retain their values in between procedure calls. The values may also be used recursively.
+:* {{Parameter|variableName}} may include a type suffix or use [[AS]] to specify a type other than the default [[SINGLE]] type.
+:* Arrays with static storage are declared by specifying empty parenthesis following the array name. See [[Arrays]]
+* STATIC can be used after the name of a [[SUB]] or [[FUNCTION]] in the procedure to force all variables to retain their values.
+* '''Recursive procedures may be required to be STATIC to avoid a Stack Overflow! QB64 programs may just close!'''
+* [[$STATIC]] defined program [[arrays]] cannot be [[REDIM|re-sized]] or use [[_PRESERVE]].
+
+
+''Example 1: Finding the binary bit settings from a 32 bit [[LONG]] register return using recursion.
+{{CodeStart}} '' ''
+{{Cl|INPUT}} &quot;Enter a numerical value to see binary value: &quot;, num&amp;
+{{Cl|PRINT}} Bin$(num&amp;)
+
+{{Cl|END}}
+
+{{Cl|FUNCTION}} Bin$ (n&amp;) {{Cl|STATIC}} 'comment out STATIC to see what happens!
+{{Cl|DIM}} p%, s$
+{{Cl|IF...THEN|IF}} 2 ^ p% &gt; n&amp; {{Cl|THEN}}
+  p% = 0
+{{Cl|ELSE}}
+  {{Cl|IF...THEN|IF}} n&amp; {{Cl|AND (boolean)|AND}} 2 ^ p% {{Cl|THEN}} s$ = &quot;1&quot; + s$ {{Cl|ELSE}} s$ = &quot;0&quot; + s$
+  {{Cl|IF...THEN|IF}} n&amp; &gt; 2 ^ p% {{Cl|THEN}}
+    p% = p% + 1
+    s$ = Bin$(n&amp;) 'recursive call to itself
+  {{Cl|ELSE}}: p% = 0
+  {{Cl|END IF}}
+{{Cl|END IF}}
+{{Cl|IF...THEN|IF}} s$ = &quot;&quot; {{Cl|THEN}} Bin$ = &quot;0&quot; {{Cl|ELSE}} Bin$ = s$
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' The [[FUNCTION]] above returns a [[STRING]] value representing the bits ON in an [[INTEGER]] value. The string can be printed to the screen to see what is happening in a port register. '''STATIC''' keeps the function from overloading the memory &quot;Stack&quot; and is normally REQUIRED when recursive calls are used in Qbasic! '''QB64 procedures will close without warning or error!'''
+
+
+''Example 2:'' Using a static array to cache factorials, speeding up repeated calculations:
+{{CodeStart}}
+
+{{Cl|PRINT}} Factorial(0)
+{{Cl|PRINT}} Factorial(5)
+{{Cl|PRINT}} Factorial(50
+
+{{Cl|FUNCTION}} Factorial# ( n {{Cl|AS}} {{Cl|DOUBLE}} )
+    {{Cl|CONST}} maxNToCache = 50
+    {{Cl|STATIC}} resultCache() {{Cl|AS}} {{Cl|DOUBLE}}
+    {{Cl|STATIC}} firstCall {{Cl|AS}} {{Cl|INTEGER}}
+    
+    ' The lookup table is initially empty, so re-size it..
+    {{Cl|IF...THEN|IF}} firstCall = 0 {{Cl|IF...THEN|THEN}}
+        firstCall = -1
+        {{Cl|REDIM}} resultCache(maxNToCache) {{Cl|AS}} {{Cl|DOUBLE}}
+        
+        ' ..and pre-calculate some factorials.
+        resultCache(0) = 1
+        resultCache(1) = 1
+        resultCache(2) = 2
+    {{Cl|IF...THEN|END IF}}
+    
+    ' See if we have the result cached. If so, we're done.
+    {{Cl|IF...THEN|IF}} n &lt;= maxNToCache {{Cl|IF...THEN|THEN}}
+        {{Cl|IF...THEN|IF}} resultCache(n) &lt;&gt; 0 {{Cl|IF...THEN|THEN}}
+            Factorial = resultCache(n)
+            {{Cl|EXIT FUNCTION}}
+        {{Cl|IF...THEN|END IF}}
+    {{Cl|IF...THEN|END IF}}
+    
+    ' If not, we use recursion to calculate the result, then cache it for later use:
+    resultCache(n) = {{Cl|INT}}(n) * Factorial({{Cl|INT}}(n) - 1)
+    Factorial = resultCache(n)
+{{Cl|END FUNCTION}}
+
+{{CodeEnd}}
+{{OutputStart}} 
+ 1
+ 120
+ 3.041409320171338D+64
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[DIM]], [[REDIM]], [[COMMON]]
+* [[SUB]], [[FUNCTION]]
+* [[TYPE]], [[Arrays]]
+* [[$STATIC]], [[$DYNAMIC]] {{text|([[Metacommand]]s)}}
+* [[Data types]]
+
+
+{{PageNavigation}}

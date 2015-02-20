@@ -1,0 +1,25 @@
+The {{KW|LPRINT}} statement sends string text or numerical values to a parallel port(&lt;tt&gt;LPT1&lt;/tt&gt;) printer in Qbasic or a USB printer in '''QB64'''.
+
+
+{{PageSyntax}}
+:{{KW|LPRINT}} [{{Parameter|text$}}] [{;|,}]
+
+
+{{PageDescription}}
+* {{Parameter|expressionList}} is one or more expressions separated by a semi-colon (;) or comma (,).
+* Syntax is the same as [[PRINT]], but cannot use a port number.
+* Program does not have to [[OPEN]] the LPT1: parallel port. In fact that is NOT recommended!
+* Assumes a 80 character wide page unless a {{KW|WIDTH|WIDTH LPRINT}} statement is used.
+* [[LPRINT USING]] can print formatted data to a page, similar to [[PRINT USING]].
+* [[COLOR]]ed text and images can be printed using [[_PRINTIMAGE]] which stretches them to fit the default printer's paper size.
+* LPRINT will only print to the DEFAULT USB or LPT printer that works in Windows.
+*'''[[Keywords currently not supported by QB64|WIDTH LPRINT is currently NOT supported in QB64!]]'''
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+{{PageSeeAlso}}
+* {{KW|LPRINT USING}}, {{KW| _PRINTIMAGE}} {{text|(prints color images)}}
+* {{KW|PRINT}}, {{KW|PRINT USING}}
+
+
+{{PageNavigation}}

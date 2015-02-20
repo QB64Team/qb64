@@ -1,0 +1,21 @@
+The {{KW|_SCREENCLICK}} statement simulates clicking on a pixel coordinate on the desktop screen with the left mouse button.
+
+
+{{PageSyntax}}
+:{{KW|_SCREENCLICK}} {{Parameter|column%}}, {{Parameter|row%}}
+
+
+{{PageDescription}}
+* {{Parameter|column%}} is the horizontal pixel coordinate position on the screen.
+* {{Parameter|row%}} is the vertical pixel coordinate position on the screen.
+* Coordinates can range from 0 to the [[_WIDTH]] and [[_HEIGHT]] of the image handle returned by the [[_SCREENIMAGE]] function. The desktop image can be used to map the coordinates required.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+
+
+{{PageSeeAlso}}
+
+* [[_SCREENIMAGE]], [[_SCREENPRINT]]
+* [[_SCREENMOVE]], [[_SCREENX]], [[_SCREENY]]
+
+
+{{PageNavigation}}

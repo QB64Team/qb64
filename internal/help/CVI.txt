@@ -1,0 +1,68 @@
+The '''CVI''' function converts 2 byte [[GET]] or [[MKI$]] [[STRING]] values to [[INTEGER]] numeric values.
+
+
+::::::''Syntax:'' CVI(''2-byte string'')
+
+
+* Numeric values read from a [[RANDOM]]-access or [[BINARY]] disk file must be converted from [[ASCII]] string characters back into numbers if they are to be arithmetically manipulated.
+* [[INTEGER]] values can range from -32768 to 32767.
+* [[CVI]] converts a 2-byte string created by [[MKI$]] to an [[INTEGER]] numerical value.
+* [[CVL]] converts a 4 byte string created by [[MKL$]] to a [[LONG]] integer numerical value.
+* [[CVS]] converts a 4-byte string created by [[MKS$]] to a [[SINGLE]]-precision numerical value. 
+* [[CVD]] converts an 8-byte string created by [[MKD$]] to a [[DOUBLE]]-precision numerical value.
+* CV functions can only be used to convert values from [[MK$]] string function values or data from [[BINARY]] files!
+
+
+''Example 1:''
+{{CodeStart}} '' ''
+{{Cl|FIELD}} #1, 2 {{Cl|AS}} N$, 12 {{Cl|AS}} B$...
+{{Cl|GET}} #1     'GET does not need a position or variable with successive FIELD buffer reads
+Y = {{Cl|CVI}}(N$) '' ''
+{{CodeEnd}}
+:''Explanation:'' Reads a field from file #1, and converts the first two bytes (N$) into an integer number assigned to the variable Y.
+
+:Since an integer number can contain as many as five ASCII characters (five bytes), writing a file using [[MKI$]] conversion, and reading with the CVI conversion, as many as three bytes per number recorded are saved on the storage medium. 
+
+
+''Example 2:'' How CVI converts the ASCII code values created by the MKI$ function.
+{{CodeStart}}
+{{Cl|SCREEN (statement)|SCREEN}} 12             '_PRINTSTRING requires a graphic screen mode
+{{Cl|DIM}} Q {{Cl|AS}} {{Cl|STRING}} * 1
+Q = {{Cl|CHR$}}(34)
+' create Print using templates to align the values returned 
+tmp1$ = &quot;1st character code = ### * 1   =   ### &quot;
+tmp2$ = &quot;2nd character code = ### * 256 = ##### &quot;
+tmp3$ = &quot;                                 &amp;  &quot;
+tmp4$ = &quot;                     CVI Total = ##### &quot;
+
+{{Cl|DO...LOOP|DO}}
+  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 13, 20: {{Cl|INPUT}} &quot;Enter an Integer from 1 to 32767(0 quits): &quot;, number%
+  {{Cl|IF...THEN|IF}} number% &lt; 1 {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|CLS}}
+  ASCII$ = {{Cl|MKI$}}(number%)     ' create the 2 byte character string
+  {{Cl|COLOR}} 11
+  {{Cl|_PRINTSTRING}} (152, 240), &quot;{{Cl|MKI$}} creates 2 byte ASCII string: &quot; + Q + ASCII$ + Q ' displays character(s)
+
+  asc1% = {{Cl|ASC}}(ASCII$)        ' find the ASCII code values of each character
+  asc2% = {{Cl|ASC}}(ASCII$, 2)     ' '''QB64''' allows ASC to read specific characters in a string
+ 
+  {{Cl|LOCATE}} 18, 20: {{Cl|PRINT USING}} tmp1$; asc1%; asc1%
+  {{Cl|LOCATE}} 19, 20: {{Cl|PRINT USING}} tmp2$; asc2%; asc2% * 256
+  {{Cl|LOCATE}} 20, 20: {{Cl|PRINT USING}} tmp3$; &quot;-----&quot;
+  {{Cl|LOCATE}} 21, 20: {{Cl|PRINT USING}} tmp4$; asc1% + (256 * asc2%)
+{{Cl|LOOP}}
+{{Cl|SYSTEM}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' All [[ASCII]] characters can be displayed using [[_PRINTSTRING]] . The routine gets the [[ASCII]] code, which is the actual value needed by [[CVI]]. The first byte code is always between 0 and 255. The second byte can return 0 thru 127 and CVI multiplies that value by 256. This proves that you cannot just feed a string number value to [[CVI]] and get the result desired! &quot;90&quot; = 12345.
+
+
+''See also:'' 
+* [[MKI$]], [[ASC]]
+* [[MKL$]], [[CVL]]
+* [[MKS$]], [[CVS]]
+* [[MKD$]], [[CVD]]
+* [[Bitmaps]]
+
+
+{{PageNavigation}}

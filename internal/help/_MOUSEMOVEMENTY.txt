@@ -1,0 +1,42 @@
+The '''_MOUSEMOVEMENTY''' function returns the relative vertical position of the mouse cursor as positive or negative values. 
+
+
+{{PageSyntax}} 
+::: verticalmove = '''_MOUSEMOVEMENTY''' 
+
+
+* Returns the relative vertical cursor pixel position compared to the previous cursor position. Negative values are up moves.
+* '''Hides the mouse cursor''' once inside the program window area. This may lead to some ''&quot;confusion&quot;'' by the user!
+* '''Note:''' A [[_MOUSESHOW]] statement will disable [[_MOUSEMOVEMENTX]] or [[_MOUSEMOVEMENTY]] relative mouse movement reads.
+* Can also be used to check for any mouse movements to enable a program or close [[Screen Saver Programs]].
+
+
+''Example:'' MOD is used to keep vertical movement of circle and cursor inside of the SCREEN 13 window(200). 
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13, , 1, 0
+{{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 200
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
+    x = x + {{Cl|_MOUSEMOVEMENTX}}
+    y = y + {{Cl|_MOUSEMOVEMENTY}}
+  {{Cl|LOOP}}
+  x = (x + 320) {{Cl|MOD}} 320 'keeps object on screen
+  y = (y + 200) {{Cl|MOD}} 200 'remove if off screen moves are desired
+  {{Cl|CLS}}
+  {{Cl|CIRCLE}} (x, y), 20
+  {{Cl|PCOPY}} 1, 0
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; 'press any key to exit '' ''
+{{CodeEnd}}
+: '''NOTE:''' When using the function this way, give the user a keypress exit option! Make sure the user has some way to exit that is not dependent on clicking the X button. 
+
+
+''See also:''
+* [[_MOUSEMOVEMENTY]]
+* [[_MOUSEINPUT]], [[_MOUSEX]]
+* [[_DEVICES]], [[_DEVICEINPUT]]
+* [[_WHEEL]], [[_LASTWHEEL]]
+* [[_AXIS]], [[_LASTAXIS]] 
+* [[_MOUSESHOW]], [[_MOUSEHIDE]]
+* [[Screen Saver Programs]]
+
+
+{{PageNavigation}}

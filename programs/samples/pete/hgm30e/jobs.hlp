@@ -1,0 +1,54 @@
+Professions
+===========
+
+The population's potential activities are:
+  - agriculture
+  - fishing
+  - industrial work
+  - trading
+  - serving in the army
+  - being unemployed
+
+You determine only the number of soldiers directly, but indirectly you can
+influence all of the professions. It is very important because the various
+activites provide different incomes, and thus the tax revenues are affected
+as well. Provided that all sciences have the same level, the ratio of revenues
+are following:
+      unemployed : peasant : fisher : worker : merchant
+            0    :    1    :   1    :    2   :    4
+And of course we shouldn't forget that unemployment spoils the morale. To be a
+bit more exact: The morale is multiplied by the employment rate.
+
+
+What factors (and in which sequence) influence the professions?
+---------------------------------------------------------------
+
+1. Soldiers
+     You can set their number exactly by recruiting and demobilizing.
+2. Merchants
+     Their number is calculated by the following formula:
+       (2% of the population) * (science level of trade) * (trading area)
+      The size of trading area depends on the position of the countries you
+      trade with, and on the strength of your fleet:
+       - neighbouring empires count with 100% of their land area
+       - the land areas of empires that can be reached by sea are modified by
+         the proportion of your territorial waters
+       - unapproachable (or neutral or enemy) countries don't count at all
+     The proportion of merchants cannot exceed 20% of the population.
+3. Workers
+     Their number:
+       (10% of the population) * (science level of industry)
+     Maximum limit: 50% of population
+4. Peasants
+     The rest of your subjects is divided between peasants and fishermen in the
+     ratio of the food producing potential of your land and sea territories.
+     The maximum number of peasants:
+       (food potential of your lands) * (level of agriculture) * 80
+5. Fishermen
+     Their maximum number:
+       (length of coast) * (1 + sea proportion) * (level of sailing) * 25
+6. Unemployed
+     If some people still don't have a job, they remain unemployed.
+
+So to make a long story short, the best way to decrease unemployment is to 
+develop the various branches of science - with exception of medicine! 

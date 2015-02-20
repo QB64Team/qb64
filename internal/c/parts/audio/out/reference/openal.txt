@@ -1,0 +1,80 @@
+diff --git a/Alc/ALc.c b/Alc/ALc.c
+index 938f83f..92df86e 100644
+--- a/Alc/ALc.c
++++ b/Alc/ALc.c
+@@ -377,7 +377,7 @@ static FILE *LogFile;
+ 
+ ///////////////////////////////////////////////////////
+ // ALC Related helper functions
+-#ifdef _WIN32
++#if defined(_WIN32) && !defined(_WIN32_STATIC)
+ static void alc_init(void);
+ static void alc_deinit(void);
+ 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c629c42..8c7769f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -119,11 +119,11 @@ ELSE()
+         "Flags used by the compiler during debug builds."
+         FORCE)
+ 
++    CHECK_C_SOURCE_COMPILES("int foo() __attribute__((destructor));
++                             int main() {return 0;}" HAVE_GCC_DESTRUCTOR)
++
+     # Set visibility options if available
+     IF(NOT WIN32)
+-        CHECK_C_SOURCE_COMPILES("int foo() __attribute__((destructor));
+-                                 int main() {return 0;}" HAVE_GCC_DESTRUCTOR)
+-
+         CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAVE_VISIBILITY_SWITCH)
+         IF(HAVE_VISIBILITY_SWITCH)
+             CHECK_C_SOURCE_COMPILES("int foo() __attribute__((visibility(\"default\")));
+@@ -471,6 +471,9 @@ SET_TARGET_PROPERTIES(${LIBNAME} PROPERTIES DEFINE_SYMBOL AL_BUILD_LIBRARY
+                                             SOVERSION ${LIB_MAJOR_VERSION})
+ IF(WIN32)
+     SET_TARGET_PROPERTIES(${LIBNAME} PROPERTIES PREFIX "")
++    IF(LIBTYPE STREQUAL "STATIC")
++        ADD_DEFINITIONS("-D_WIN32_STATIC")
++    ENDIF()
+ ENDIF()
+ 
+ TARGET_LINK_LIBRARIES(${LIBNAME} ${EXTRA_LIBS})
+diff --git a/include/AL/al.h b/include/AL/al.h
+index c409701..c373616 100644
+--- a/include/AL/al.h
++++ b/include/AL/al.h
+@@ -6,10 +6,12 @@ extern "C" {
+ #endif
+ 
+ #if defined(_WIN32) && !defined(_XBOX)
+- #if defined(AL_BUILD_LIBRARY)
++ #if defined(AL_BUILD_LIBRARY) && !defined(_WIN32_STATIC)
+   #define AL_API __declspec(dllexport)
+- #else
++ #elif defined(_MSVC) && !defined(_WIN32_STATIC)
+   #define AL_API __declspec(dllimport)
++ #else
++  #define AL_API extern
+  #endif
+ #else
+  #if defined(AL_BUILD_LIBRARY) && defined(HAVE_GCC_VISIBILITY)
+diff --git a/include/AL/alc.h b/include/AL/alc.h
+index 4e84af4..b4fbb13 100644
+--- a/include/AL/alc.h
++++ b/include/AL/alc.h
+@@ -6,10 +6,12 @@ extern "C" {
+ #endif
+ 
+ #if defined(_WIN32) && !defined(_XBOX)
+- #if defined(AL_BUILD_LIBRARY)
++ #if defined(AL_BUILD_LIBRARY) && !defined(_WIN32_STATIC)
+   #define ALC_API __declspec(dllexport)
+- #else
++ #elif defined(_MSVC) && !defined(_WIN32_STATIC)
+   #define ALC_API __declspec(dllimport)
++ #else
++  #define ALC_API extern
+  #endif
+ #else
+  #if defined(AL_BUILD_LIBRARY) && defined(HAVE_GCC_VISIBILITY)

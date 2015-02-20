@@ -1,0 +1,47 @@
+The '''_CLIP''' option is used in a QB64 graphics [[PUT (graphics statement)|PUT]] to allow placement of an image partially off of the screen.
+
+
+{{PageSyntax}}
+:{{KW|PUT (graphics statement)|PUT}} [{{KW|STEP}}](column, row), ''image''[, {{KW|_CLIP}}] [{XOR|PSET|AND|OR|PRESET}][, ''omitcolor'']]
+
+
+{{PageDescription}}
+* _CLIP should be placed immediately before the PUT action if used. XOR is default when not used.
+* The offscreen portions of the image will be the omit color.
+* {{KW|GET (graphics statement)|GET}} can get portions of the images offscreen in '''QB64'''.
+
+
+''Example:'' Placing an image partially or fully offscreen.
+{{CodeStart}}'' ''
+{{Cl|DIM}} mypic(500)
+{{Cl|SCREEN}} 13
+
+{{Cl|CLS}}
+{{Cl|CIRCLE}} (10,10),10
+{{Cl|GET (graphics statement)|GET}} (0,0)-(20,20), mypic(0)
+
+{{Cl|PRINT}} &quot;This program puts an image off screen.&quot;
+{{Cl|PRINT}} &quot;Select which option you'd like to try.&quot;
+{{Cl|PRINT}} &quot;1 will produce an illegal function call.&quot;
+{{Cl|PRINT}} &quot;1 is putting without _CLIP.&quot;
+{{Cl|PRINT}} &quot;2 is putting with _CLIP PSET.&quot;
+{{Cl|PRINT}} &quot;3 is putting with _CLIP XOR.&quot;
+{{Cl|PRINT}} &quot;4 is putting with _CLIP PSET, 4.&quot;
+
+{{Cl|INPUT}} sel
+{{Cl|IF...THEN|IF}} sel = 1 {{Cl|THEN}} {{Cl|PUT (graphics statement)|PUT}} (-10, 10), mypic(0), PSET ' this causes an illegal function call
+{{Cl|IF...THEN|IF}} sel = 2 {{Cl|THEN}} {{Cl|PUT (graphics statement)|PUT}} (-10, 10), mypic(0), {{Cl|_CLIP}} PSET ' allows graphic to be drawn off-screen
+{{Cl|IF...THEN|IF}} sel = 3 {{Cl|THEN}} {{Cl|PUT (graphics statement)|PUT}} (-10, 10), mypic(0), {{Cl|_CLIP}} ' uses the default PUT XOR operation
+{{Cl|IF...THEN|IF}} sel = 4 {{Cl|THEN}} {{Cl|PUT (graphics statement)|PUT}} (-10, 10), mypic(0), {{Cl|_CLIP}} PSET, 4 ' doesn't draw red pixels
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|PUT (graphics statement)}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,73 @@
+'''RETURN''' is used in [[GOSUB]] procedures to return to the original call code line or a specified line label.
+
+
+{{PageSyntax}}
+:: '''RETURN''' [{''linelabel''|''linenumber''}]
+
+
+{{Parameters}}
+* RETURN without parameters returns to the code immediately following the original [[GOSUB]] call.
+* ''line number'' or ''linelabel'' after the RETURN statement returns code execution to that label.
+
+
+''Usage:''
+* Normally required at the end of a [[GOSUB]] procedure unless the procedure returns using a loop.
+* RETURN is not used in error handling procedures. Error procedures use [[RESUME]] ''line number'' or [[RESUME|RESUME NEXT]].
+* GOSUB procedures use line numbers or line labels designated with a colon after the number or label.
+* If RETURN is encountered without a previous [[GOSUB]] call a [[ERROR Codes|&quot;RETURN without GOSUB&quot; error]] is produced. 
+* To avoid errors, place [[GOSUB]] procedures AFTER the main program code [[END]] or after an [[EXIT SUB]] or [[EXIT FUNCTION]] call.
+
+
+
+''Example 1:'' Returns after a Gosub.
+{{CodeStart}}
+{{Cl|FOR...NEXT|FOR}} a = 1 {{Cl|TO}} 10
+{{Cl|PRINT}} a
+{{Cl|IF...THEN|IF}} a = 5 {{Cl|THEN}} {{Cl|GOSUB}} five
+{{Cl|NEXT}}
+{{Cl|END}}       'END or SYSTEM stop the program before the execution of a sub procedure
+
+five:
+{{Cl|PRINT}} &quot;Aha! Five!&quot;
+{{Cl|RETURN}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ 1
+ 2
+ 3
+ 4
+ 5
+Aha! Five!
+ 6
+ 7
+ 8
+ 9
+ 10
+{{OutputEnd}}
+
+
+''Example 2:'' Returns to a specific line label.
+{{CodeStart}}
+{{Cl|GOSUB}} hey 
+{{Cl|PRINT}} &quot;it didn't go here.&quot; 
+hoho: 
+{{Cl|PRINT}} &quot;it went here.&quot; 
+{{Cl|END}} 
+
+hey: 
+{{Cl|RETURN}} hoho 
+{{CodeEnd}}
+{{small|Code by Cyperium}}
+{{OutputStart}}
+it went here.
+{{OutputEnd}}
+
+
+
+
+''See also:'' 
+* [[GOSUB]], [[GOTO]]
+* [[RESUME]]
+
+
+{{PageNavigation}}

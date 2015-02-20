@@ -1,0 +1,40 @@
+The '''PUT #'''  TCP/IP statement sends unformatted(raw) data to an open connection using a user's handle.
+
+
+{{PageSyntax}}
+:: PUT #handle, , data
+
+
+*Sends data (this could be a string, variable array, user defined type, etc) to a connection handle returned by the [[_OPENCLIENT]], [[_OPENHOST]] or [[_OPENCONNECTION]] '''QB64''' functions.
+
+
+:::::'''Communicating using unformatted/raw streamed data:'''
+* Benefit: Communicate with any TCP/IP compatible protocol (eg. FTP, HTTP, web-pages, etc)
+* Disadvantage: Streamed data has no 'message length' as such, just a continuous bunch of bytes all in a row. Some messages get fragmented and parts of messages can (and often do) arrive at different times. 
+* The position parameter(between the commas) is not used in TCP/IP statements.
+:::::'''Your program MUST cater for these situations manually.'''
+
+''Example: ''
+
+{{CodeStart}}
+ '''PUT #'''c, , a$ 'sends data (this could be a string, variable array, user defined type, etc)
+ {{Cl|GET (TCP/IP statement)|GET}} #o, , b$ 'reads any available data into variable length string b$ 
+ '''GET #'''o, , x% 
+{{CodeEnd}}
+
+
+''Explanation:'' b$'s length is adjusted to the number of bytes read. Checking [[EOF]](o) is unnecessary. If 2 bytes are available, they are read into x%, if not then nothing is read and [[EOF]](o) will return -1
+
+
+
+
+''See the example in [[_OPENCLIENT]]''
+
+
+''See also:'' 
+* [[GET (TCP/IP statement)]], [[PRINT (TCP/IP statement)]], [[INPUT (TCP/IP statement)]], [[PUT|PUT #]]
+* [[_OPENCLIENT]], [[_OPENHOST]], [[_OPENCONNECTION]] 
+* [[IP Configuration]]
+
+
+{{PageNavigation}}
