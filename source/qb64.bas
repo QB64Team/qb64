@@ -18593,24 +18593,23 @@ IF c = 32 OR c = 9 THEN i = i + 1: GOTO lineformatnext
 '----------------symbols----------------
 '--------single characters--------
 IF lfsinglechar(c) THEN
-
-    count = 0
-    DO
-        count = count + 1
-    LOOP UNTIL ASC(a$, i + count) <> 32
-    c2 = ASC(a$, i + count)
-    IF c = 60 THEN '<
-        IF c2 = 61 THEN a2$ = a2$ + sp + "<=": i = i + count + 1: GOTO lineformatnext
-        IF c2 = 62 THEN a2$ = a2$ + sp + "<>": i = i + count + 1: GOTO lineformatnext
-    END IF
-    IF c = 62 THEN '>
-        IF c2 = 61 THEN a2$ = a2$ + sp + ">=": i = i + count + 1: GOTO lineformatnext
-        IF c2 = 60 THEN a2$ = a2$ + sp + "<>": i = i + count + 1: GOTO lineformatnext '>< to <>
-    END IF
-    IF c = 61 THEN '=
-        c2 = ASC(a$, i + 1)
-        IF c2 = 62 THEN a2$ = a2$ + sp + ">=": i = i + count + 1: GOTO lineformatnext '=> to >=
-        IF c2 = 60 THEN a2$ = a2$ + sp + "<=": i = i + count + 1: GOTO lineformatnext '=< to <=
+    IF (c = 60) OR (c = 61) OR (c = 62) THEN
+        count = 0
+        DO
+            count = count + 1
+        LOOP UNTIL ASC(a$, i + count) <> 32
+        c2 = ASC(a$, i + count)
+        IF c = 60 THEN '<
+            IF c2 = 61 THEN a2$ = a2$ + sp + "<=": i = i + count + 1: GOTO lineformatnext
+            IF c2 = 62 THEN a2$ = a2$ + sp + "<>": i = i + count + 1: GOTO lineformatnext
+        ELSEIF c = 62 THEN '>
+            IF c2 = 61 THEN a2$ = a2$ + sp + ">=": i = i + count + 1: GOTO lineformatnext
+            IF c2 = 60 THEN a2$ = a2$ + sp + "<>": i = i + count + 1: GOTO lineformatnext '>< to <>
+        ELSEIF c = 61 THEN '=
+            c2 = ASC(a$, i + 1)
+            IF c2 = 62 THEN a2$ = a2$ + sp + ">=": i = i + count + 1: GOTO lineformatnext '=> to >=
+            IF c2 = 60 THEN a2$ = a2$ + sp + "<=": i = i + count + 1: GOTO lineformatnext '=< to <=
+        END IF
     END IF
 
     IF c = 36 AND LEN(a2$) THEN GOTO badusage '$
