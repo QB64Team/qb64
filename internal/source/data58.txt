@@ -1,18 +1,18 @@
-qbs*oldstr3034=NULL;
+qbs*oldstr3033=NULL;
 if(_SUB_XWRITE_STRING_CA->tmp||_SUB_XWRITE_STRING_CA->fixed||_SUB_XWRITE_STRING_CA->readonly){
-oldstr3034=_SUB_XWRITE_STRING_CA;
-if (oldstr3034->cmem_descriptor){
-_SUB_XWRITE_STRING_CA=qbs_new_cmem(oldstr3034->len,0);
+oldstr3033=_SUB_XWRITE_STRING_CA;
+if (oldstr3033->cmem_descriptor){
+_SUB_XWRITE_STRING_CA=qbs_new_cmem(oldstr3033->len,0);
 }else{
-_SUB_XWRITE_STRING_CA=qbs_new(oldstr3034->len,0);
+_SUB_XWRITE_STRING_CA=qbs_new(oldstr3033->len,0);
 }
-memcpy(_SUB_XWRITE_STRING_CA->chr,oldstr3034->chr,oldstr3034->len);
+memcpy(_SUB_XWRITE_STRING_CA->chr,oldstr3033->chr,oldstr3033->len);
 }
 qbs *_SUB_XWRITE_STRING_L=NULL;
 if (!_SUB_XWRITE_STRING_L)_SUB_XWRITE_STRING_L=qbs_new(0,0);
 qbs *_SUB_XWRITE_STRING_U=NULL;
 if (!_SUB_XWRITE_STRING_U)_SUB_XWRITE_STRING_U=qbs_new(0,0);
-int32 pass3035;
+int32 pass3034;
 int32 *_SUB_XWRITE_LONG_B=NULL;
 if(_SUB_XWRITE_LONG_B==NULL){
 _SUB_XWRITE_LONG_B=(int32*)mem_static_malloc(4);
@@ -30,10 +30,10 @@ if(_SUB_XWRITE_LONG_I==NULL){
 _SUB_XWRITE_LONG_I=(int32*)mem_static_malloc(4);
 *_SUB_XWRITE_LONG_I=0;
 }
-int64 fornext_value3038;
-int64 fornext_finalvalue3038;
-int64 fornext_step3038;
-uint8 fornext_step_negative3038;
+int64 fornext_value3037;
+int64 fornext_finalvalue3037;
+int64 fornext_step3037;
+uint8 fornext_step_negative3037;
 qbs *_SUB_XWRITE_STRING_A2=NULL;
 if (!_SUB_XWRITE_STRING_A2)_SUB_XWRITE_STRING_A2=qbs_new(0,0);
 int32 *_SUB_XWRITE_LONG_NEWLINE=NULL;
@@ -53,8 +53,8 @@ if(_SUB_XWRITE_LONG_TYP==NULL){
 _SUB_XWRITE_LONG_TYP=(int32*)mem_static_malloc(4);
 *_SUB_XWRITE_LONG_TYP=0;
 }
-int32 pass3039;
-byte_element_struct *byte_element_3044=NULL;
-if (!byte_element_3044){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3044=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3044=(byte_element_struct*)mem_static_malloc(12);
+int32 pass3038;
+byte_element_struct *byte_element_3043=NULL;
+if (!byte_element_3043){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3043=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3043=(byte_element_struct*)mem_static_malloc(12);
 }
