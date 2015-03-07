@@ -26,12 +26,12 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
-
 Display *X11_display=NULL;
 Window X11_window;
+#endif
+
 int32 x11_locked=0;
 int32 x11_lock_request=0;
-
 void x11_lock(){
   x11_lock_request=1; while (x11_locked==0) Sleep(1);
 }
@@ -39,7 +39,7 @@ void x11_unlock(){
   x11_locked=0;
 }
 
-#endif
+
 
 /*
 Logging for QB64 developers (when an alert() just isn't enough)
@@ -314,6 +314,7 @@ MUTEX* new_mutex(){
   #ifdef QB64_LINUX
     pthread_mutex_init(&m->handle, NULL);
   #endif
+  return m;
 }
 
 void free_mutex(MUTEX *mutex){

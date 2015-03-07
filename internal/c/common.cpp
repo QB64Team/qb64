@@ -79,7 +79,11 @@
 
 //common includes
 #include <stdio.h>
-#include <math.h>
+#ifdef QB64_MACOSX
+	#include <cmath>
+#else
+	#include <math.h>
+#endif
 #include <time.h>
 #include <iostream>
 #include <fstream>
