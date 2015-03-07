@@ -3,19 +3,19 @@ if(_FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE==NULL){
 _FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE=(int32*)mem_static_malloc(4);
 *_FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE=0;
 }
-qbs*oldstr2634=NULL;
+qbs*oldstr2635=NULL;
 if(_FUNC_SYMBOLTYPE_STRING_S->tmp||_FUNC_SYMBOLTYPE_STRING_S->fixed||_FUNC_SYMBOLTYPE_STRING_S->readonly){
-oldstr2634=_FUNC_SYMBOLTYPE_STRING_S;
-if (oldstr2634->cmem_descriptor){
-_FUNC_SYMBOLTYPE_STRING_S=qbs_new_cmem(oldstr2634->len,0);
+oldstr2635=_FUNC_SYMBOLTYPE_STRING_S;
+if (oldstr2635->cmem_descriptor){
+_FUNC_SYMBOLTYPE_STRING_S=qbs_new_cmem(oldstr2635->len,0);
 }else{
-_FUNC_SYMBOLTYPE_STRING_S=qbs_new(oldstr2634->len,0);
+_FUNC_SYMBOLTYPE_STRING_S=qbs_new(oldstr2635->len,0);
 }
-memcpy(_FUNC_SYMBOLTYPE_STRING_S->chr,oldstr2634->chr,oldstr2634->len);
+memcpy(_FUNC_SYMBOLTYPE_STRING_S->chr,oldstr2635->chr,oldstr2635->len);
 }
-byte_element_struct *byte_element_2635=NULL;
-if (!byte_element_2635){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2635=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2635=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2636=NULL;
+if (!byte_element_2636){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2636=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2636=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_SYMBOLTYPE_LONG_A=NULL;
 if(_FUNC_SYMBOLTYPE_LONG_A==NULL){
@@ -27,9 +27,9 @@ if(_FUNC_SYMBOLTYPE_LONG_L==NULL){
 _FUNC_SYMBOLTYPE_LONG_L=(int32*)mem_static_malloc(4);
 *_FUNC_SYMBOLTYPE_LONG_L=0;
 }
-byte_element_struct *byte_element_2636=NULL;
-if (!byte_element_2636){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2636=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2636=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2637=NULL;
+if (!byte_element_2637){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2637=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2637=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_SYMBOLTYPE_LONG_N=NULL;
 if(_FUNC_SYMBOLTYPE_LONG_N==NULL){
