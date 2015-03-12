@@ -10937,7 +10937,7 @@ IF _FILEEXISTS("internal\c\" + LTRIM$(RTRIM$(libqb$))) = 0 THEN
         SHELL _HIDE GDB_Fix("cmd /c c_compiler\bin\g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb\os\" + o$ + "\libqb_" + depstr$ + ".o")
     ELSE
         IF mac THEN
-            SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.cpp " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o")
+            SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.mm " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o")
         ELSE
             SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o")
         END IF

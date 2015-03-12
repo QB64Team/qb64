@@ -16,7 +16,19 @@
 
 #ifdef QB64_MACOSX
 #include <ApplicationServices/ApplicationServices.h>
+
+#include "Cocoa/Cocoa.h"
+#include <CoreFoundation/CoreFoundation.h>
+#include <objc/objc.h>
+#include <objc/objc-runtime.h>
+
+
+
 #endif
+
+
+
+
 
 #ifdef QB64_LINUX
 #include <pthread.h>
@@ -735,9 +747,27 @@ static uint16 codepage437_to_unicode16[] = {
 #include "parts/video/font/ttf/src.c"
 #endif
 
-
-
-
+#ifdef QB64_MACOSX
+#include <mach/mach_time.h>
+#define ORWL_NANO (+1.0E-9)
+#define ORWL_GIGA UINT64_C(1000000000)
+static double orwl_timebase = 0.0;
+static uint64_t orwl_timestart = 0;
+int64 orwl_gettime(void) {
+	if (!orwl_timestart) {
+		mach_timebase_info_data_t tb = { 0 };
+		mach_timebase_info(&tb);
+		orwl_timebase = tb.numer;
+		orwl_timebase /= tb.denom;
+		orwl_timestart = mach_absolute_time();
+	}
+	struct timespec t;
+	double diff = (mach_absolute_time() - orwl_timestart) * orwl_timebase;
+	t.tv_sec = diff * ORWL_NANO;
+	t.tv_nsec = diff - (t.tv_sec * ORWL_GIGA);		
+    return t.tv_sec * 1000 + t.tv_nsec / 1000000;		
+}
+#endif
 
 int64 GetTicks(){
 #if defined QB64_LINUX && !defined QB64_MACOSX && !defined QB64_ANDROID
@@ -745,17 +775,13 @@ int64 GetTicks(){
   clock_gettime(CLOCK_MONOTONIC, &tp);
   return tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
 #else
-  return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );
+ #ifdef QB64_MACOSX
+    return orwl_gettime();
+ #else
+	return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );	
+ #endif	
 #endif
 }
-
-
-
-
-
-
-
-
 
 #define QBK 200000
 #define VK 100000
@@ -28698,7 +28724,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     mod=glutGetModifiers();//shift=1, control=2, alt=4
 
 #ifndef CORE_FREEGLUT
-
+    /*
     if (mod&GLUT_ACTIVE_SHIFT){
       keydown_vk(VK+QBVK_LSHIFT);
     }else{
@@ -28716,10 +28742,11 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     }else{
       keyup_vk(VK+QBVK_LALT);
     }
-
+    */
 #endif 
 
-#ifdef CORE_FREEGLUT
+//Note: The following is required regardless of whether FREEGLUT is/isn't being used	  
+//#ifdef CORE_FREEGLUT	  
     //Is CTRL key down? If so, unencode character (applying shift as required)
     if (mod&2){
       //if (key==127){ //Removed: Might clash with CTRL+DELETE
@@ -28740,7 +28767,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
       }//1-26
     }
   ctrl_mod:
-#endif
+//#endif
 
 #ifdef QB64_MACOSX
 
@@ -28766,6 +28793,10 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
   void GLUT_KEYBOARD_FUNC(unsigned char key,int x, int y){
 
+	  
+ 
+	  
+	  
 
     //glutPostRedisplay();
 
@@ -28782,7 +28813,8 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
 #ifdef QB64_GLUT
 #ifndef CORE_FREEGLUT
-    static int32 mod;
+    /*
+	static int32 mod;
     mod=glutGetModifiers();//shift=1, control=2, alt=4
     if (mod&GLUT_ACTIVE_SHIFT){
       keydown_vk(VK+QBVK_LSHIFT);
@@ -28801,8 +28833,9 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     }else{
       keyup_vk(VK+QBVK_LALT);
     }
-
+	*/
 #endif
+	  
     static int32 vk;
     vk=-1;
     if (key==GLUT_KEY_F1){vk=0x3B00;}
@@ -28866,6 +28899,15 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
   }
 #else
   void GLUT_IDLEFUNC(){
+
+#ifdef QB64_MACOSX	  
+#ifdef DEPENDENCY_DEVICEINPUT
+	  //must be in same thread as GLUT for OSX
+	  QB64_GAMEPAD_POLL();
+	  //[[[[NSApplication sharedApplication] mainWindow] standardWindowButton:NSWindowCloseButton] setEnabled:YES];
+#endif	 
+#endif
+	  
 #ifdef QB64_GLUT
 
     if (x11_lock_request){     
@@ -29653,6 +29695,7 @@ devices[i].used=1;
 devices[i].description="Mouse";
 device_last=i;
 
+
 #ifdef DEPENDENCY_DEVICEINPUT
 QB64_GAMEPAD_INIT();
 #endif
@@ -29744,6 +29787,117 @@ QB64_GAMEPAD_INIT();
 #ifdef QB64_GLUT
     glutInit(&argc, argv);
 
+	  
+#ifdef QB64_MACOSX  
+	  //This is a global keydown handler for OSX, it requires assistive devices in asseccibility to be enabled
+	  //becuase of security concerns (QB64 will not use this)
+	  /*
+	  [NSEvent addGlobalMonitorForEventsMatchingMask:NSKeyDownMask
+											 handler:^(NSEvent *event){
+	   NSString *chars = [[event characters] lowercaseString];
+	   unichar character = [chars characterAtIndex:0];
+	   NSLog(@"keydown globally! Which key? This key: %c", character);
+       }];
+	  */
+	   	  
+	  /*
+	  [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask handler:^NSEvent* (NSEvent* event){
+	   //NSString *keyPressed = event.charactersIgnoringModifiers;
+	   //[self.keystrokes appendString:keyPressed];
+	   NSString *chars = [[event characters] lowercaseString];
+	   unichar character = [chars characterAtIndex:0];
+	   NSLog(@"keydown locally! Which key? This key: %c", character);
+	   return event;
+	   }];
+      */
+
+      //[[[[NSApplication sharedApplication] mainWindow] standardWindowButton:NSWindowCloseButton] setEnabled:YES];
+	  
+	  [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^NSEvent* (NSEvent* event){
+	   
+	   //notes on bitfields:
+	   //if ([event modifierFlags] == 131330) keydown_vk(VK+QBVK_LSHIFT);// 100000000100000010
+	   //if ([event modifierFlags] == 131332) keydown_vk(VK+QBVK_RSHIFT);// 100000000100000100	   	   
+	   //if ([event modifierFlags] == 262401) keydown_vk(VK+QBVK_LCTRL); //1000000000100000001
+	   //if ([event modifierFlags] == 270592) keydown_vk(VK+QBVK_RCTRL); //1000010000100000000	   
+	   //if ([event modifierFlags] == 524576) keydown_vk(VK+QBVK_LALT); //10000000000100100000
+	   //if ([event modifierFlags] == 524608) keydown_vk(VK+QBVK_RALT); //10000000000101000000
+       //caps lock                                                      //   10000000100000000
+	   
+	   int x=[event modifierFlags];
+	   
+	   if (x&(1<<0)){
+	   if (!keyheld(VK+QBVK_LCTRL)) keydown_vk(VK+QBVK_LCTRL);
+	   }else{
+	   if (keyheld(VK+QBVK_LCTRL)) keyup_vk(VK+QBVK_LCTRL);
+	   }
+	   if (x&(1<<13)){
+	   if (!keyheld(VK+QBVK_RCTRL)) keydown_vk(VK+QBVK_RCTRL);
+	   }else{
+	   if (keyheld(VK+QBVK_RCTRL)) keyup_vk(VK+QBVK_RCTRL);
+	   }
+	   
+	   if (x&(1<<1)){
+	   if (!keyheld(VK+QBVK_LSHIFT)) keydown_vk(VK+QBVK_LSHIFT);
+	   }else{
+	   if (keyheld(VK+QBVK_LSHIFT)) keyup_vk(VK+QBVK_LSHIFT);
+	   }
+	   if (x&(1<<2)){
+	   if (!keyheld(VK+QBVK_RSHIFT)) keydown_vk(VK+QBVK_RSHIFT);
+	   }else{
+	   if (keyheld(VK+QBVK_RSHIFT)) keyup_vk(VK+QBVK_RSHIFT);
+	   }
+	   
+	   if (x&(1<<5)){
+	   if (!keyheld(VK+QBVK_LALT)) keydown_vk(VK+QBVK_LALT);
+	   }else{
+	   if (keyheld(VK+QBVK_LALT)) keyup_vk(VK+QBVK_LALT);
+	   }
+	   if (x&(1<<6)){
+	   if (!keyheld(VK+QBVK_RALT)) keydown_vk(VK+QBVK_RALT);
+	   }else{
+	   if (keyheld(VK+QBVK_RALT)) keyup_vk(VK+QBVK_RALT);
+	   }
+	   
+	   if (x&(1<<16)){
+	   if (!keyheld(VK+QBVK_CAPSLOCK)) keydown_vk(VK+QBVK_CAPSLOCK);
+	   }else{
+	   if (keyheld(VK+QBVK_CAPSLOCK)) keyup_vk(VK+QBVK_CAPSLOCK);
+	   }
+	   
+	   return event;
+	   }];
+	  
+       /*
+	  [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask|NSFlagsChangedMask handler:^NSEvent *(NSEvent *incomingEvent) {
+	   if (incomingEvent.type == NSFlagsChanged && (incomingEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask)) {
+	   NSLog(@"modifier key down");
+	   } else if (incomingEvent.type == NSKeyDown) {
+	   NSLog(@"other key down");
+	   }	   
+	   return incomingEvent;
+       }];
+       */	  
+	  	  
+	  /*
+	  if (NSApp){
+		  NSMenu      *menu;
+		  NSMenuItem  *menuItem;  
+		  
+		  [NSApp setMainMenu:[[NSMenu alloc] init]];
+		  
+		  menu = [[NSMenu alloc] initWithTitle:@""];
+		  [menu addItemWithTitle:@"About..." action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""]; 
+		  
+		  menuItem = [[NSMenuItem alloc] initWithTitle:@"Apple" action:nil keyEquivalent:@""];
+		  [menuItem setSubmenu:menu];
+		  [[NSApp mainMenu] addItem:menuItem];
+		  [NSApp setAppleMenu:menu];
+     }  
+	 */
+
+#endif 
+	  
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
     glutInitWindowSize(640,400);//cannot be changed unless display_x(etc) are modified
@@ -29818,9 +29972,11 @@ QB64_GAMEPAD_INIT();
 
   main_loop:
     
-#ifdef DEPENDENCY_DEVICEINPUT
-QB64_GAMEPAD_POLL();
-#endif
+	#ifdef DEPENDENCY_DEVICEINPUT
+		#ifndef QB64_MACOSX 
+			QB64_GAMEPAD_POLL();
+		#endif
+	#endif	
 
     if (lock_mainloop==1){
       lock_mainloop=2;

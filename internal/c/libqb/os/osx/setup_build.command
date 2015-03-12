@@ -1,3 +1,3 @@
 cd "$(dirname "$0")"
-g++ -c -w -Wall ../../../libqb.cpp -D DEPENDENCY_LOADFONT -o libqb_setup.o
+g++ -c -w -Wall ../../../libqb.mm -D DEPENDENCY_LOADFONT -o libqb_setup.o
 
