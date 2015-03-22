@@ -30,6 +30,8 @@
 #include "alThunk.h"
 #include "alError.h"
 
+//forward ref
+AL_API ALvoid AL_APIENTRY alDeleteEffects(ALsizei n, const ALuint *effects);
 
 ALboolean DisabledEffects[MAX_EFFECTS];
 

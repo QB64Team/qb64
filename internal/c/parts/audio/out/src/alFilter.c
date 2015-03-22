@@ -29,6 +29,8 @@
 #include "alThunk.h"
 #include "alError.h"
 
+//forward ref
+AL_API ALvoid AL_APIENTRY alDeleteFilters(ALsizei n, const ALuint *filters);
 
 static void InitFilterParams(ALfilter *filter, ALenum type);
 

@@ -35,6 +35,8 @@
 static ALenum ResizeEffectSlotArray(ALCcontext *Context, ALsizei count);
 static ALvoid RemoveEffectSlotArray(ALCcontext *Context, ALeffectslot *val);
 
+//forward ref
+AL_API ALvoid AL_APIENTRY alDeleteAuxiliaryEffectSlots(ALsizei n, const ALuint *effectslots);
 
 AL_API ALvoid AL_APIENTRY alGenAuxiliaryEffectSlots(ALsizei n, ALuint *effectslots)
 {
