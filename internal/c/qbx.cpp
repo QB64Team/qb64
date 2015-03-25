@@ -116,6 +116,9 @@ void TIMERTHREAD();
 
 //extern functions
 
+extern qbs *func__cwd();
+extern qbs *func__startdir();
+
 extern void sub__limit(double fps);
 
 extern void sub__fps(double fps, int32 passed);

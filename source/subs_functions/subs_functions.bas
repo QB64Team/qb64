@@ -2744,3 +2744,21 @@ id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
 id.NoCloud = 1
 regid
+
+'Get Current Working Directory
+clearid
+id.n = "_CWD"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__cwd"
+id.ret = STRINGTYPE - ISPOINTER
+regid
+
+'Get the directory the program was started from (before the currenct directory is automatically changed to the executables directory)
+clearid
+id.n = "_STARTDIR"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__startdir"
+id.ret = STRINGTYPE - ISPOINTER
+regid

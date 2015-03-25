@@ -28980,8 +28980,65 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     return resize_event_y;
   }
 
+//Get Current Working Directory
+qbs *func__cwd(){
+  qbs *final, *tqbs;
+  int length;
+  char *buf, *ret;
 
+#if defined QB64_WINDOWS
+  length = GetCurrentDirectoryA(0, NULL);
+  buf = (char *)malloc(length);
+  if (!buf) {
+    error(7); //"Out of memory"
+    return tqbs;
+  }
+  if (GetCurrentDirectoryA(length, buf) != --length) { //Sanity check
+    free(buf); //It's good practice
+    tqbs = qbs_new(0, 1);
+    error(51); //"Internal error"
+    return tqbs;
+  }
+#elif defined QB64_LINUX
+  length = 512;
+  while(1) {
+    buf = (char *)malloc(length);
+    if (!buf) {
+      tqbs = qbs_new(0, 1);
+      error(7);
+      return tqbs;
+    }
+    ret = getcwd(buf, length);
+    if (ret) break;
+    if (errno != ERANGE) {
+      tqbs = qbs_new(0, 1);
+      error(51);
+      return tqbs;
+    }
+    free(buf);
+    length += 512;
+  }
+  length = strlen(ret);
+  ret = (char *)realloc(ret, length); //Chops off the null byte
+  if (!ret) {
+    tqbs = qbs_new(0, 1);
+    error(7);
+    return tqbs;
+  }
+  buf = ret;
+#endif
+  final = qbs_new(length, 1);
+  memcpy(final->chr, buf, length);
+  free(buf);
+  return final;
+}
 
+qbs *startDir=NULL;//set on startup
+qbs *func__startdir(){
+	qbs *temp=qbs_new(0, 1);
+	qbs_set(temp, startDir);
+	return temp;
+}
 
   extern void set_dynamic_info();
 
@@ -29103,22 +29160,10 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     ontimer[0].state=0;
     ontimer[0].active=0;
 
-    //switch to directory of this EXE file
-#ifdef QB64_WINDOWS
-#ifndef QB64_MICROSOFT
-    static char *exepath=(char*)malloc(65536);
-    GetModuleFileName(NULL,exepath,65536);
-    i=strlen(exepath);
-    for (i2=i-1;i2>=0;i2--){
-      x=exepath[i2];
-      if ((x==92)||(x==47)||(x==58)){
-    if (x==58) exepath[i2+1]=0; else exepath[i2]=0;
-    break;
-      }
-    }
-    chdir(exepath);
-#endif
-#endif
+
+
+
+
 
 
     {
@@ -29262,6 +29307,45 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     nothingstring=qbs_new_cmem(0,0);
     singlespace=qbs_new_cmem(1,0);
     singlespace->chr[0]=32;
+
+//store _CWD$ for recall using _STARTDIR$ in startDir
+startDir=qbs_new(0,0);
+qbs_set(startDir,func__cwd());
+
+//switch to directory of this EXE file
+//http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
+#ifdef QB64_WINDOWS
+#ifndef QB64_MICROSOFT
+    static char *exepath=(char*)malloc(65536);
+    GetModuleFileName(NULL,exepath,65536);
+    i=strlen(exepath);
+    for (i2=i-1;i2>=0;i2--){
+      x=exepath[i2];
+      if ((x==92)||(x==47)||(x==58)){
+    if (x==58) exepath[i2+1]=0; else exepath[i2]=0;
+    break;
+      }
+    }
+    chdir(exepath);
+#endif
+#endif
+#ifdef QB64_LINUX
+	#ifdef QB64_MACOSX
+		{
+			char pathbuf[65536];
+			uint32_t pathbufsize = sizeof(pathbuf);
+			_NSGetExecutablePath(pathbuf, &pathbufsize)			
+			chdir(pathbuf);
+		}
+	#else
+		{
+			char pathbuf[65536];
+			memset(pathbuf, 0, sizeof(pathbuf));
+			readlink("/proc/self/exe", pathbuf, 65535);
+			chdir(pathbuf);
+		}
+	#endif
+#endif
 
     unknown_opcode_mess=qbs_new(0,0);
     qbs_set(unknown_opcode_mess,qbs_new_txt_len("Unknown Opcode (  )\0",20));
