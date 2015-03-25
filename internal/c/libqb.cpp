@@ -32,6 +32,7 @@
 
 #ifdef QB64_LINUX
 #include <pthread.h>
+#include <libgen.h> //required for dirname()
 #endif
 
 #ifdef QB64_X11
@@ -29335,14 +29336,14 @@ qbs_set(startDir,func__cwd());
 			char pathbuf[65536];
 			uint32_t pathbufsize = sizeof(pathbuf);
 			_NSGetExecutablePath(pathbuf, &pathbufsize)			
-			chdir(pathbuf);
+			chdir(dirname(pathbuf));
 		}
 	#else
 		{
 			char pathbuf[65536];
 			memset(pathbuf, 0, sizeof(pathbuf));
 			readlink("/proc/self/exe", pathbuf, 65535);
-			chdir(pathbuf);
+			chdir(dirname(pathbuf));
 		}
 	#endif
 #endif
