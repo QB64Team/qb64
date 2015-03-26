@@ -22,7 +22,7 @@
 #include <objc/objc.h>
 #include <objc/objc-runtime.h>
 
-
+#include <mach-o/dyld.h> //required for _NSGetExecutablePath
 
 #endif
 
@@ -29335,7 +29335,7 @@ qbs_set(startDir,func__cwd());
 		{
 			char pathbuf[65536];
 			uint32_t pathbufsize = sizeof(pathbuf);
-			_NSGetExecutablePath(pathbuf, &pathbufsize)			
+			_NSGetExecutablePath(pathbuf, &pathbufsize);			
 			chdir(dirname(pathbuf));
 		}
 	#else
