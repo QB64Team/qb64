@@ -6162,6 +6162,44 @@ idet$ = LEFT$(idet$, ideli - 1) + MKL$(textlen) + text$ + MKL$(textlen) + RIGHT$
 END SUB
 
 SUB ideshowtext
+static IdeShowTextInit as integer
+STATIC CommentColor as _unsigned long, QuoteColor as _unsigned Long
+STATIC MetaCommandColor as _unsigned long, TextColor as _unsigned long
+
+if IdeShowTextInit <> -1 then
+    IdeShowTextInit = -1
+    If _fileexists("internal\IDEcolor.txt") then
+        f = freefile
+        open "internal\IDEcolor.txt" for Input as #f
+        input #1, r, g, b :        line input #1, junk$
+        CommentColor = _RGB32(r, g,b)
+        input #1, r, g, b :        line input #1, junk$
+        MetaCommandColor = _RGB32(r, g, b)
+        input #1, r, g, b :        line input #1, junk$
+        QuoteColor = _RGB32(r, g, b)
+        input #1, r, g, b :        line input #1, junk$
+        TextColor = _RGB32(r, g, b)
+        close #f
+    else
+        f = freefile
+        open "internal\IDEcolor.txt" for Output as #f
+        print #f, "85, 255, 255,  'Comment RGB Color"
+        print #f, "85, 255, 85,   'MetaCommand RGB Color"
+        print #f, "255, 255, 85,  'Quote RGB Color"
+        print #f, "255, 255, 255, 'Text RGB Color"
+        close #f
+        CommentColor = _RGB32(85, 255,255)
+        MetaCommandColor = _RGB32(85, 255, 85)
+        QuoteColor = _RGB32(255, 255, 85)
+        TextColor = _RGB32(255, 255,255)
+    end if
+end if
+
+    _palettecolor 11, CommentColor, 0
+    _palettecolor 10, MetaCommandColor, 0
+    _palettecolor 14, QuoteColor, 0
+    _palettecolor 15, TextColor, 0
+
 
 cc = -1
 
@@ -6227,6 +6265,7 @@ FOR y = 0 TO (idewy - 9)
         END SELECT
         IF left$(ltrim$(a$),2) = "'$" THEN metacommand = -1  : comment = 0
         COLOR 15
+
         IF comment THEN
             COLOR 11
         ELSEIF metacommand THEN
