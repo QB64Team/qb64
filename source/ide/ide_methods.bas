@@ -6193,12 +6193,12 @@ if IdeShowTextInit <> -1 then
         QuoteColor = _RGB32(255, 255, 85)
         TextColor = _RGB32(255, 255,255)
     end if
-end if
-
     _palettecolor 11, CommentColor, 0
     _palettecolor 10, MetaCommandColor, 0
     _palettecolor 14, QuoteColor, 0
-    _palettecolor 15, TextColor, 0
+    _palettecolor 13, TextColor, 0
+end if
+
 
 
 cc = -1
@@ -6255,7 +6255,7 @@ FOR y = 0 TO (idewy - 9)
             CASE CHR$(34)
                 inquote = NOT inquote
             CASE "'"
-                IF inquote = 0 AND MID$(a$, k, 2) = "'$" THEN comment = -1
+                IF inquote = 0 THEN comment = -1
         END SELECT
     NEXT k
     FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
@@ -6263,8 +6263,8 @@ FOR y = 0 TO (idewy - 9)
             CASE CHR$(34): inquote = NOT inquote
             CASE "'": IF inquote = 0 THEN comment = -1
         END SELECT
-        IF left$(ltrim$(a$),2) = "'$" THEN metacommand = -1  : comment = 0
-        COLOR 15
+        IF left$(ltrim$(a$),2) = "'$" or left$(ltrim$(a$),1) = "$" THEN metacommand = -1  : comment = 0
+        COLOR 13
 
         IF comment THEN
             COLOR 11
