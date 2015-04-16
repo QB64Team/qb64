@@ -3877,6 +3877,9 @@ struct gfs_file_struct{//info applicable to all files
   //                 10 times the CD or    10000 ms       0 - 65,535 milliseconds
   //                 DS timeout value,
   //                 whichever is greater
+
+  //SCRN: support follows
+  uint8 scrn; //0 = not a file opened as "SCRN:"
 };
 
 #ifdef GFS_WINDOWS
@@ -14493,7 +14496,6 @@ void sub_open_gwbasic(qbs *typestr,int32 i,qbs *name,int64 record_length,int32 p
   }
 }
 
-
 void sub_close(int32 i2,int32 passed){
   if (new_error) return;
   int32 i,x;//<--RECURSIVE function - do not make this static
@@ -14518,6 +14520,7 @@ void sub_close(int32 i2,int32 passed){
       return;
     }//special handle
 
+	
     if (gfs_fileno_valid(i2)==1) gfs_close(gfs_fileno[i2]);
     return;
 
@@ -14664,6 +14667,12 @@ void sub_file_print(int32 i,qbs *str,int32 extraspace,int32 tab,int32 newline){
   i=gfs_fileno[i];//convert fileno to gfs index
   static gfs_file_struct *gfs;
   gfs=&gfs_file[i];
+
+  if (gfs->scrn==1) {
+	qbs_print (str, newline);
+	return;
+  };
+
   if (gfs->type!=4){error(54); return;}//Bad file mode
   if (!gfs->write){error(75); return;}//Path/file access error
 
@@ -24268,6 +24277,7 @@ return qbs_new(0,1);
 
   int32 gfs_validhandle(int32 i){
     if ((i<0)||(i>=gfs_n)) return 0;
+	if (gfs_file[i].scrn) return 1;
     if (gfs_file[i].open) return 1;
     return 0;
   }
@@ -24306,7 +24316,8 @@ return qbs_new(0,1);
   }
 
   int32 gfs_free(int32 i){
-    if (!gfs_validhandle(i)) return -2;//invalid handle
+    
+	if (!gfs_validhandle(i)) return -2;//invalid handle    
     if (gfs_freed_size<=gfs_freed_n){
       gfs_freed_size++;
       gfs_freed=(int32*)realloc(gfs_freed,gfs_freed_size*4);
@@ -24607,6 +24618,32 @@ return qbs_new(0,1);
     i=gfs_new();
     static gfs_file_struct *f;
     f=&gfs_file[i];
+
+	//if(strcmp(filenamez->chr, "SCRN:")!==0) {
+	int32 v1;
+	unsigned char *c1=filename->chr;
+	v1=*c1;
+	if (v1==83||v1==115) {  //S
+		c1++;
+		v1=*c1;
+	    if (v1==67||v1==99) {  //C
+	        c1++;
+		    v1=*c1;
+	        if (v1==82||v1==114) {  //R
+			    c1++;
+		        v1=*c1;
+	            if (v1==78||v1==110) {  //N
+				    c1++;
+        	        v1=*c1;
+	                if (v1==58) {  //:
+						f->scrn=1;
+		                return i;
+					};
+				};
+			};
+	    };
+	};
+
     if (access&1) f->read=1;
     if (access&2) f->write=1;
     if (restrictions&1) f->lock_read=1;
@@ -24618,6 +24655,10 @@ return qbs_new(0,1);
       if (x==-1){gfs_free(i); return -11;}//-11 bad file name
       //note: each GFS implementation will handle COM communication differently
     }
+
+
+
+
 
 #ifdef GFS_C
     //note: GFS_C ignores restrictions/locking

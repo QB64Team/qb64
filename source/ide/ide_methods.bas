@@ -6193,11 +6193,11 @@ if IdeShowTextInit <> -1 then
         QuoteColor = _RGB32(255, 255, 85)
         TextColor = _RGB32(255, 255,255)
     end if
-    _palettecolor 11, CommentColor, 0
-    _palettecolor 10, MetaCommandColor, 0
-    _palettecolor 14, QuoteColor, 0
-    _palettecolor 13, TextColor, 0
 end if
+_palettecolor 11, CommentColor, 0
+_palettecolor 10, MetaCommandColor, 0
+_palettecolor 14, QuoteColor, 0
+_palettecolor 13, TextColor, 0
 
 
 
