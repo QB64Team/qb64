@@ -14430,6 +14430,7 @@ void sub_open(qbs *name,int32 type,int32 access,int32 sharing,int32 i,int64 reco
     if (x==-7){error(70); return;}
     if (x==-8){error(68); return;}
     if (x==-11){error(64); return;}
+    if (x==-12){error(54); return;}
     error(53); return;//default assumption: 'file not found'
   }
 
@@ -17623,6 +17624,7 @@ int64 func_lof(int32 i){
   if (size<0){
     if (size==-2){error(258); return 0;}//invalid handle
     if (size==-3){error(54); return 0;}//bad file mode
+    if (size==-4){error(5); return 0;}//illegal function call
     error(75); return 0;//assume[-9]: path/file access error
   }
   return size;
@@ -17646,6 +17648,7 @@ int32 func_eof(int32 i){
   i=gfs_fileno[i];//convert fileno to gfs index
   static gfs_file_struct *gfs;
   gfs=&gfs_file[i];
+  if (gfs->scrn){error(5); return 0;}
   if (gfs->type!=3){  //uint8 type;//qb access method (1=RANDOM,2=BINARY,3=INPUT,4=OUTPUT)
     if (gfs_eof_passed(i)==1) return -1;
   }else{
@@ -17685,6 +17688,7 @@ int64 func_seek(int32 i){
   i=gfs_fileno[i];//convert fileno to gfs index
   static gfs_file_struct *gfs;
   gfs=&gfs_file[i];
+  if (gfs->scrn) return 0;
   if (gfs->type==1){//RANDOM
     return gfs_getpos(i)/gfs->record_length+1;
   }
@@ -17696,7 +17700,8 @@ int64 func_loc(int32 i){
   i=gfs_fileno[i];//convert fileno to gfs index
   static gfs_file_struct *gfs;
   gfs=&gfs_file[i];
-
+  
+  if (gfs->scrn){error(5); return 0;}
   if (gfs->com_port){
 #ifdef QB64_WINDOWS
     static gfs_file_win_struct *f_w;
@@ -24333,9 +24338,10 @@ return qbs_new(0,1);
     static int32 x;
     if (x=gfs_free(i)) return x;
 
+    if (gfs_file[i].scrn) return 0; //No further action needed
     if (gfs_file[i].field_buffer){free(gfs_file[i].field_buffer); gfs_file[i].field_buffer=NULL;}
     if (gfs_file[i].field_strings){free(gfs_file[i].field_strings); gfs_file[i].field_strings=NULL;}
-
+    
 #ifdef GFS_C
     static gfs_file_struct *f;
     f=&gfs_file[i];
@@ -24358,7 +24364,7 @@ return qbs_new(0,1);
     if (!gfs_validhandle(i)) return -2;//invalid handle
     static gfs_file_struct *f;
     f=&gfs_file[i];
-
+    if (f->scrn) return -4;
 #ifdef GFS_C
     f->file_handle->clear();
     if (f->read){
@@ -24613,36 +24619,26 @@ return qbs_new(0,1);
     //      3=create(if it doesn't exist)+undefined access[get whatever access is available]
     static int32 i,x,x2,x3,e;
     static qbs *filenamez=NULL;
-    if (!filenamez) filenamez=qbs_new(0,0);
-    qbs_set(filenamez,qbs_add(filename,qbs_new_txt_len("\0",1)));
-    i=gfs_new();
+    static qbs *scrn=NULL;
     static gfs_file_struct *f;
-    f=&gfs_file[i];
+    
+    if (!filenamez) filenamez=qbs_new(0,0);
+    if (!scrn) scrn=qbs_new_txt_len("SCRN:\0", 6);
 
-	//if(strcmp(filenamez->chr, "SCRN:")!==0) {
-	int32 v1;
-	unsigned char *c1=filename->chr;
-	v1=*c1;
-	if (v1==83||v1==115) {  //S
-		c1++;
-		v1=*c1;
-	    if (v1==67||v1==99) {  //C
-	        c1++;
-		    v1=*c1;
-	        if (v1==82||v1==114) {  //R
-			    c1++;
-		        v1=*c1;
-	            if (v1==78||v1==110) {  //N
-				    c1++;
-        	        v1=*c1;
-	                if (v1==58) {  //:
-						f->scrn=1;
-		                return i;
-					};
-				};
-			};
-	    };
-	};
+    qbs_set(filenamez,qbs_add(filename,qbs_new_txt_len("\0",1)));
+
+    i=gfs_new();
+    f=&gfs_file[i];
+    if (qbs_equal(qbs_ucase(filenamez), scrn)) {
+      //FOR INPUT?
+      if (access == 1) {gfs_free(i); return -12;} //Bad file mode
+      f->scrn = 1;
+      return i;
+    }
+    else {
+      f->scrn = 0;
+    }
+
 
     if (access&1) f->read=1;
     if (access&2) f->write=1;
@@ -24655,9 +24651,6 @@ return qbs_new(0,1);
       if (x==-1){gfs_free(i); return -11;}//-11 bad file name
       //note: each GFS implementation will handle COM communication differently
     }
-
-
-
 
 
 #ifdef GFS_C
