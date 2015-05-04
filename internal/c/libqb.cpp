@@ -24619,17 +24619,17 @@ return qbs_new(0,1);
     //      3=create(if it doesn't exist)+undefined access[get whatever access is available]
     static int32 i,x,x2,x3,e;
     static qbs *filenamez=NULL;
-    static qbs *scrn=NULL;
     static gfs_file_struct *f;
+	qbs *scrn;
     
     if (!filenamez) filenamez=qbs_new(0,0);
-    if (!scrn) scrn=qbs_new_txt_len("SCRN:\0", 6);
-
+	scrn=qbs_new_txt("SCRN:");
     qbs_set(filenamez,qbs_add(filename,qbs_new_txt_len("\0",1)));
 
-    i=gfs_new();
+	i=gfs_new();
     f=&gfs_file[i];
-    if (qbs_equal(qbs_ucase(filenamez), scrn)) {
+
+    if (qbs_equal(qbs_ucase(filename), scrn)) {
       //FOR INPUT?
       if (access == 1) {gfs_free(i); return -12;} //Bad file mode
       f->scrn = 1;
