@@ -24620,24 +24620,36 @@ return qbs_new(0,1);
     static int32 i,x,x2,x3,e;
     static qbs *filenamez=NULL;
     static gfs_file_struct *f;
-	qbs *scrn;
     
     if (!filenamez) filenamez=qbs_new(0,0);
-	scrn=qbs_new_txt("SCRN:");
     qbs_set(filenamez,qbs_add(filename,qbs_new_txt_len("\0",1)));
 
 	i=gfs_new();
     f=&gfs_file[i];
 
-    if (qbs_equal(qbs_ucase(filename), scrn)) {
-      //FOR INPUT?
-      if (access == 1) {gfs_free(i); return -12;} //Bad file mode
-      f->scrn = 1;
-      return i;
-    }
-    else {
-      f->scrn = 0;
-    }
+	    int32 v1;		
+		unsigned char *c1=filename->chr;		
+		v1=*c1;		
+		if (v1==83||v1==115) {  //S		
+			c1++;		
+			v1=*c1;		
+		    if (v1==67||v1==99) {  //C		
+		        c1++;		
+			    v1=*c1;		
+		        if (v1==82||v1==114) {  //R		
+				    c1++;		
+			        v1=*c1;		
+		            if (v1==78||v1==110) {  //N		
+					    c1++;		
+	        	        v1=*c1;		
+		                if (v1==58) {  //:		
+							f->scrn=1;		
+			                return i;		
+						};		
+					};		
+				};		
+		    };		
+		};
 
 
     if (access&1) f->read=1;
