@@ -513,7 +513,8 @@ extern int32 func__sndplaying(int32 handle);
 extern void sub__sndclose(int32 handle);
 extern void sub__sndplayfile(qbs *filename,int32 sync,double volume,int32 passed);
 extern void sub__sndplaycopy(int32 handle,double volume,int32 passed);
-extern qbs *func_command();
+extern qbs *func_command(int32 index,int32 passed);
+extern int32 func__commandcount();
 extern void sub_kill(qbs *str);
 extern void sub_name(qbs *oldname,qbs *newname);
 extern void sub_chdir(qbs *str);
@@ -1044,11 +1045,11 @@ void chain_input(){
 //check if command$ contains a tmp chain directive
 int32 FF;
 
-if ((func_command())->len>= 32 ){
-if (qbs_equal(qbs_right(func_command(), 4 ),qbs_new_txt_len(".tmp",4))){
-if (qbs_equal(func_mid(func_command(),(func_command())->len- 31 , 25 ,1),qbs_new_txt_len("(unique-tag:=/@*$+-)chain",25))){
+if ((func_command(0, 0))->len>= 32 ){
+if (qbs_equal(qbs_right(func_command(0, 0), 4 ),qbs_new_txt_len(".tmp",4))){
+if (qbs_equal(func_mid(func_command(0, 0),(func_command(0, 0))->len- 31 , 25 ,1),qbs_new_txt_len("(unique-tag:=/@*$+-)chain",25))){
 FF=func_freefile();
-sub_open(func_mid(func_command(),(func_command())->len- 11 , 12 ,1), 2 ,NULL,NULL,FF,NULL,0);
+sub_open(func_mid(func_command(0, 0),(func_command(0, 0))->len- 11 , 12 ,1), 2 ,NULL,NULL,FF,NULL,0);
 
 static int32 int32val,int32val2;
 static int64 int64val,int64val2;
@@ -1077,7 +1078,7 @@ sub_get(FF,NULL,byte_element((uint64)&int32val,4),0);
 
 sub_close(FF,1);
 
-sub_kill(func_mid(func_command(),(func_command())->len- 11 , 12 ,1));
+sub_kill(func_mid(func_command(0, 0),(func_command(0, 0))->len- 11 , 12 ,1));
 
 chdir((char*)chdir_data);
 

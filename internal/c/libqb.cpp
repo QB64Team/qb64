@@ -17950,11 +17950,28 @@ double func_sqr(double value){
 
 
 qbs *func_command_str=NULL;
-qbs *func_command(){
+char **func_command_array = NULL;
+int32 func_command_count = 0;
+
+qbs *func_command(int32 index, int32 passed){
   static qbs *tqbs;
-  tqbs=qbs_new(func_command_str->len,1);
-  memcpy(tqbs->chr,func_command_str->chr,func_command_str->len);
+  if (passed) { //Get specific parameter
+    //If out of bounds or error getting cmdline args (on Android, perhaps), return empty string.
+    if (index >= func_command_count || index < 0 || func_command_array==NULL) {tqbs = qbs_new(0, 1); return tqbs;}
+    int len = strlen(func_command_array[index]);
+    //Create new temp qbs and copy data into it.
+    tqbs=qbs_new(len, 1);
+    memcpy(tqbs->chr, func_command_array[index], len);
+  }
+  else { //Legacy support; return whole commandline
+    tqbs=qbs_new(func_command_str->len,1);
+    memcpy(tqbs->chr,func_command_str->chr,func_command_str->len);
+  }
   return tqbs;
+}
+
+int32 func__commandcount(){
+  return func_command_count - 1;
 }
 
 int32 shell_call_in_progress=0;
@@ -29399,6 +29416,8 @@ qbs_set(startDir,func__cwd());
 
 #ifdef QB64_ANDROID
     func_command_str=qbs_new(0,0);
+    func_command_array = NULL;
+    func_command_count = 0;
 #else
     i=argc;
     if (i>1){
@@ -29419,6 +29438,9 @@ qbs_set(startDir,func__cwd());
     }else{
       func_command_str=qbs_new(0,0);
     }
+
+    func_command_count = argc;
+    func_command_array = argv;
 #endif
 
 

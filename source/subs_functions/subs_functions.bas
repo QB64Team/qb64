@@ -1466,10 +1466,20 @@ id.n = "COMMAND"
 id.musthave = "$"
 id.subfunc = 1
 id.callname = "func_command"
-id.args = 0
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
+id.specialformat = "[?]"
 id.NoCloud = 1
 regid
+
+clearid
+id.n = "_COMMANDCOUNT"
+id.subfunc = 1
+id.callname = "func__commandcount"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
 
 'QB64 AUDIO
 
