@@ -1489,7 +1489,7 @@ if (bytes_left<0) goto done;
 if (followup==6){//T...
 if (!number_entered){error(5); return;}
 number_entered=0;
-if (number<32||number>255){error(5); return;}
+if (number<32||number>255){number=255;}
 t=number;
 length=1.0/(t/60.0)*(4.0/l);
 followup=0; if (bytes_left<0) goto done;
