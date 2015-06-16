@@ -25,6 +25,8 @@ Set_OrderOfOperations 'This will also make certain our directories are valid, an
 
 DIM SHARED MakeAndroid 'build an Android project (refer to SUB UseAndroid)
 
+REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
+
 'refactor patch
 DIM SHARED Refactor_Source AS STRING
 DIM SHARED Refactor_Dest AS STRING
@@ -1450,6 +1452,7 @@ arrayprocessinghappened = 0
 stringprocessinghappened = 0
 subfuncn = 0
 subfunc = ""
+SelectCaseCounter = 0
 
 ''create a type for storing memory blocks
 ''UDT
@@ -5209,12 +5212,24 @@ DO
     IF n >= 1 THEN
         IF firstelement$ = "SELECT" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            SelectCaseCounter = SelectCaseCounter + 1
+            IF UBOUND(EveryCaseSet) <= SelectCaseCounter THEN REDIM _PRESERVE EveryCaseSet(SelectCaseCounter)
 
-            IF n = 1 OR secondelement$ <> "CASE" THEN a$ = "Expected CASE": GOTO errmes
-            IF n = 2 THEN a$ = "Expected SELECT CASE expression": GOTO errmes
-            e$ = fixoperationorder(getelements$(ca$, 3, n))
-            IF Error_Happened THEN GOTO errmes
-            l$ = "SELECT" + sp + "CASE" + sp + tlayout$
+            IF secondelement$ = "EVERYCASE" THEN
+                EveryCaseSet(SelectCaseCounter) = -1
+                IF n = 2 THEN a$ = "Expected SELECT CASE expression": GOTO errmes
+                e$ = fixoperationorder(getelements$(ca$, 3, n))
+                IF Error_Happened THEN GOTO errmes
+                l$ = "SELECT EVERYCASE " + tlayout$
+            ELSE
+                EveryCaseSet(SelectCaseCounter) = 0
+                IF n = 1 OR secondelement$ <> "CASE" THEN a$ = "Expected CASE or EVERYCASE": GOTO errmes
+                IF n = 2 THEN a$ = "Expected SELECT CASE expression": GOTO errmes
+                e$ = fixoperationorder(getelements$(ca$, 3, n))
+                IF Error_Happened THEN GOTO errmes
+                l$ = "SELECT CASE " + tlayout$
+            END IF
+
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             e$ = evaluate(e$, typ)
             IF Error_Happened THEN GOTO errmes
@@ -5222,8 +5237,6 @@ DO
 
             controllevel = controllevel + 1
             controlvalue(controllevel) = 0 'id
-
-
 
             t$ = ""
             IF (typ AND ISSTRING) THEN
@@ -5285,7 +5298,8 @@ DO
             controlref(controllevel) = linenumber
             controltype(controllevel) = 10 + t
             controlid(controllevel) = u
-
+            IF EveryCaseSet(SelectCaseCounter) THEN PRINT #13, "int32 sc_" + str2$(controlid(controllevel)) + "_var;"
+            IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_var=0;"
             GOTO finishedline
         END IF
     END IF
@@ -5294,22 +5308,22 @@ DO
     'END SELECT
     IF n = 2 THEN
         IF firstelement$ = "END" AND secondelement$ = "SELECT" THEN
-
-
             'complete current case if necessary
             '18=CASE (awaiting END SELECT/CASE/CASE ELSE)
             '19=CASE ELSE (awaiting END SELECT)
             IF controltype(controllevel) = 18 THEN
                 controllevel = controllevel - 1
-                PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
+                IF EveryCaseSet(SelectCaseCounter) = 0 THEN PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
                 PRINT #12, "}"
             END IF
             IF controltype(controllevel) = 19 THEN
                 controllevel = controllevel - 1
+                IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "} /* End of SELECT EVERYCASE ELSE */"
             END IF
             PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_end:;"
             IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "END SELECT without SELECT CASE": GOTO errmes
             controllevel = controllevel - 1
+            SelectCaseCounter = SelectCaseCounter - 1
             l$ = "END" + sp + "SELECT"
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             GOTO finishednonexec '***no error causing code, event checking done by SELECT CASE***
@@ -5338,7 +5352,11 @@ DO
             IF controltype(controllevel) = 18 THEN
                 lhscontrollevel = lhscontrollevel - 1
                 controllevel = controllevel - 1
-                PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
+                IF EveryCaseSet(SelectCaseCounter) = 0 THEN
+                    PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
+                ELSE
+                    PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_var=-1;"
+                END IF
                 PRINT #12, "}"
                 'following line fixes problem related to RESUME after error
                 'statementn = statementn + 1
@@ -5402,6 +5420,7 @@ DO
             'CASE ELSE
             IF n = 2 THEN
                 IF getelement$(a$, 2) = "C-EL" THEN
+                    IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "if (sc_" + str2$(controlid(controllevel)) + "_var==0) {"
                     controllevel = controllevel + 1: controltype(controllevel) = 19
                     controlref(controllevel) = controlref(controllevel - 1)
                     l$ = l$ + sp + "ELSE"
@@ -23925,3 +23944,4 @@ END FUNCTION
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
+
