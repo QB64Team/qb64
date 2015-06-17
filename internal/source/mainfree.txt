@@ -155,6 +155,14 @@ free((void*)(__ARRAY_INTEGER_PL[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_PL)[8] );
+if (__ARRAY_LONG_EVERYCASESET[2]&1){
+if (__ARRAY_LONG_EVERYCASESET[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_LONG_EVERYCASESET[0]));
+}else{
+free((void*)(__ARRAY_LONG_EVERYCASESET[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_EVERYCASESET)[8] );
 qbs_free(__STRING_REFACTOR_SOURCE);
 qbs_free(__STRING_REFACTOR_DEST);
 if (__ARRAY_LONG_DEPENDENCY[2]&1){
