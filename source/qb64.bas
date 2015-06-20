@@ -6757,9 +6757,10 @@ DO
             stringvariable$ = evaluatetotyp(stringvariable$, ISSTRING)
             IF Error_Happened THEN GOTO errmes
 
-            start$ = evaluatetotyp(fixoperationorder$(start$), 32&)
+            start$ = fixoperationorder$(start$)
             IF Error_Happened THEN GOTO errmes
             l$ = l$ + sp2 + "," + sp + tlayout$
+            start$ = evaluatetotyp((start$), 32&)
 
             stringexpression$ = fixoperationorder$(stringexpression$)
             IF Error_Happened THEN GOTO errmes
