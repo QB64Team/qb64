@@ -18491,6 +18491,11 @@ IF (c >= 65 AND c <= 90) OR c = 95 THEN 'A-Z(a-z) or _
         IF n2 = 3 THEN
             IF a3$ = "REM" THEN
                 i = i + n2
+                IF i < n THEN
+                    c = ASC(a$, i)
+                    IF c = 46 THEN a2$ = a2$ + sp + MID$(ca$, i - n2, n2): GOTO extcheck 'data.Variable is a valid variable name in QB45
+                END IF
+
                 'note: In QBASIC 'IF cond THEN REM comment' counts as a single line IF statement, however use of ' instead of REM does not
                 IF UCASE$(RIGHT$(a2$, 5)) = sp + "THEN" THEN a2$ = a2$ + sp + "'" 'add nop
                 layoutcomment = "REM"
@@ -18513,6 +18518,8 @@ IF (c >= 65 AND c <= 90) OR c = 95 THEN 'A-Z(a-z) or _
                 nextdatachr:
                 IF i < n THEN
                     c = ASC(a$, i)
+
+                    IF c = 46 THEN a2$ = a2$ + sp + MID$(ca$, i - n2, n2): GOTO extcheck 'data.Variable is a valid variable name in QB45
 
                     IF c = 9 OR c = 32 THEN
                         IF scan = 0 THEN GOTO skipwhitespace
