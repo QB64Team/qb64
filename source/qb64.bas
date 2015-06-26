@@ -16705,6 +16705,18 @@ n = numelements(a$) 'n is maintained throughout function
 
 IF fooindwel = 1 THEN 'actions to take on initial call only
 
+    'Quick check for duplicate binary operations
+    uppercasea$ = UCASE$(a$) 'capitalize it once to reduce calls to ucase over and over
+    FOR i = 1 TO n - 1
+        temp1$ = getelement(uppercasea$, i)
+        temp2$ = getelement(uppercasea$, i + 1)
+        IF temp1$ = "AND" AND temp2$ = "AND" THEN Give_Error "Error: AND AND": EXIT FUNCTION
+        IF temp1$ = "OR" AND temp2$ = "OR" THEN Give_Error "Error: OR OR": EXIT FUNCTION
+        IF temp1$ = "XOR" AND temp2$ = "XOR" THEN Give_Error "Error: XOR XOR": EXIT FUNCTION
+        IF temp1$ = "IMP" AND temp2$ = "IMP" THEN Give_Error "Error: IMP IMP": EXIT FUNCTION
+        IF temp1$ = "EQV" AND temp2$ = "EQV" THEN Give_Error "Error: EQV EQV": EXIT FUNCTION
+    NEXT
+
     '----------------A. 'Quick' mismatched brackets check----------------
     b = 0
     a2$ = sp + a$ + sp
