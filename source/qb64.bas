@@ -1341,6 +1341,7 @@ HashAdd "DO", f - HASHFLAG_XELEMENTNAME, 0
 HashAdd "ERROR", f - HASHFLAG_XELEMENTNAME, 0 '(ON ...)
 HashAdd "ELSE", f, 0
 HashAdd "ELSEIF", f, 0
+HashAdd "ENDIF", f, 0
 HashAdd "EXIT", f - HASHFLAG_XELEMENTNAME, 0
 'F
 HashAdd "FIELD", f - HASHFLAG_XELEMENTNAME, 0
@@ -5182,6 +5183,23 @@ DO
             THENGOTO = 1 'possible: IF a=1 THEN 10
             GOTO finishedline2
         END IF
+    END IF
+
+    'ENDIF
+    IF n = 1 AND getelement(a$, 1) = "ENDIF" THEN
+        IF controltype(controllevel) <> 1 THEN a$ = "END IF without IF": GOTO errmes
+        layoutdone = 1
+        IF impliedendif = 0 THEN
+            l$ = "END IF"
+            IF LEN(layout$) = 0 THEN layout$ = l$ ELSE layout$ = layout$ + sp + l$
+        END IF
+
+        PRINT #12, "}"
+        FOR i = 1 TO controlvalue(controllevel)
+            PRINT #12, "}"
+        NEXT
+        controllevel = controllevel - 1
+        GOTO finishednonexec '***no error causing code, event checking done by IF***
     END IF
 
 
