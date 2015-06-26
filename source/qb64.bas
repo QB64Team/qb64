@@ -8904,12 +8904,49 @@ DO
                 END IF '"print"
 
                 IF firstelement$ = "PRINT" OR firstelement$ = "LPRINT" THEN
+                    elementon = 2
+                    redosemi:
+                    FOR i = elementon TO n - 1
+                        nextchar$ = getelement$(a$, i + 1)
+                        IF nextchar$ <> ";" AND nextchar$ <> "," AND nextchar$ <> "+" AND nextchar$ <> ")" THEN
+                            temp1$ = getelement$(a$, i)
+                            beginpoint = INSTR(beginpoint, temp1$, CHR$(34))
+                            endpoint = INSTR(beginpoint + 1, temp1$, CHR$(34) + ",")
+                            IF beginpoint <> 0 AND endpoint <> 0 THEN 'if we have both positions
+                                'Quote without semicolon check (like PRINT "abc"123)
+                                textlength = endpoint - beginpoint - 1
+                                textvalue$ = MID$(temp1$, endpoint + 2, LEN(LTRIM$(STR$(textlength))))
+                                IF VAL(textvalue$) = textlength THEN
+                                    insertelements a$, i, ";"
+                                    insertelements ca$, i, ";"
+                                    n = n + 1
+                                    elementon = i + 2 'just a easy way to reduce redundant calls to the routine
+                                    GOTO redosemi
+                                END IF
+                            END IF
+                            'Values before Quote check will go here once my brain stops smoking from sorting out the other half
+                            'This will fix things like PRINT 123"xyz" to make it PRINT 123; xyz once it's implemented.
+                            'Brain smoke clear; let's finish this up!
+                            IF LEFT$(LTRIM$(nextchar$), 1) = CHR$(34) THEN
+                                IF temp1$ <> ";" AND temp1$ <> "," AND temp1$ <> "+" AND temp1$ <> "(" THEN
+                                    insertelements a$, i, ";"
+                                    insertelements ca$, i, ";"
+                                    n = n + 1
+                                    elementon = i + 2 'just a easy way to reduce redundant calls to the routine
+                                    GOTO redosemi
+                                END IF
+                            END IF
+                        END IF
+                    NEXT
+
                     xprint a$, ca$, n
                     IF Error_Happened THEN GOTO errmes
                     l$ = tlayout$
                     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                     GOTO finishedline
                 END IF
+
+
 
                 IF firstelement$ = "CLEAR" THEN
                     IF subfunc$ <> "" THEN a$ = "CLEAR cannot be used inside a SUB/FUNCTION": GOTO errmes
