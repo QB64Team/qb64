@@ -8049,7 +8049,7 @@ DO
                 e$ = fixoperationorder$(var$): IF Error_Happened THEN GOTO errmes
                 l$ = l$ + sp2 + "," + sp + tlayout$
 
-                test$ = evaluate(e$, t)
+                test$ = evaluate(e$, t): IF Error_Happened THEN GOTO errmes
                 IF (t AND ISREFERENCE) = 0 AND (t AND ISSTRING) THEN
                     PRINT #12, "g_tmp_str=" + test$ + ";"
                     varsize$ = "g_tmp_str->len"
