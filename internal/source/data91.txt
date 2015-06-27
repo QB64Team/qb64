@@ -1,16 +1,16 @@
 qbs *_FUNC_REMOVECAST_STRING_REMOVECAST=NULL;
 if (!_FUNC_REMOVECAST_STRING_REMOVECAST)_FUNC_REMOVECAST_STRING_REMOVECAST=qbs_new(0,0);
-qbs*oldstr3331=NULL;
+qbs*oldstr3344=NULL;
 if(_FUNC_REMOVECAST_STRING_A->tmp||_FUNC_REMOVECAST_STRING_A->fixed||_FUNC_REMOVECAST_STRING_A->readonly){
-oldstr3331=_FUNC_REMOVECAST_STRING_A;
-if (oldstr3331->cmem_descriptor){
-_FUNC_REMOVECAST_STRING_A=qbs_new_cmem(oldstr3331->len,0);
+oldstr3344=_FUNC_REMOVECAST_STRING_A;
+if (oldstr3344->cmem_descriptor){
+_FUNC_REMOVECAST_STRING_A=qbs_new_cmem(oldstr3344->len,0);
 }else{
-_FUNC_REMOVECAST_STRING_A=qbs_new(oldstr3331->len,0);
+_FUNC_REMOVECAST_STRING_A=qbs_new(oldstr3344->len,0);
 }
-memcpy(_FUNC_REMOVECAST_STRING_A->chr,oldstr3331->chr,oldstr3331->len);
+memcpy(_FUNC_REMOVECAST_STRING_A->chr,oldstr3344->chr,oldstr3344->len);
 }
-byte_element_struct *byte_element_3332=NULL;
-if (!byte_element_3332){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3332=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3332=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3345=NULL;
+if (!byte_element_3345){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3345=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3345=(byte_element_struct*)mem_static_malloc(12);
 }
