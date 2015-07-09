@@ -1,49 +1,68 @@
-int32 *_SUB_IDEMAKEFILEMENU_LONG_M=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_M==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_M=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_M=0;
+qbs*oldstr4619=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_STRING_F2->tmp||_SUB_IDEIMPORTBOOKMARKS_STRING_F2->fixed||_SUB_IDEIMPORTBOOKMARKS_STRING_F2->readonly){
+oldstr4619=_SUB_IDEIMPORTBOOKMARKS_STRING_F2;
+if (oldstr4619->cmem_descriptor){
+_SUB_IDEIMPORTBOOKMARKS_STRING_F2=qbs_new_cmem(oldstr4619->len,0);
+}else{
+_SUB_IDEIMPORTBOOKMARKS_STRING_F2=qbs_new(oldstr4619->len,0);
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_I=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_I==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_I=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_I=0;
+memcpy(_SUB_IDEIMPORTBOOKMARKS_STRING_F2->chr,oldstr4619->chr,oldstr4619->len);
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_FH=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_FH==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_FH=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_FH=0;
+qbs *_SUB_IDEIMPORTBOOKMARKS_STRING_F=NULL;
+if (!_SUB_IDEIMPORTBOOKMARKS_STRING_F)_SUB_IDEIMPORTBOOKMARKS_STRING_F=qbs_new(0,0);
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_FH=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_FH==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_FH=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_FH=0;
 }
-qbs *_SUB_IDEMAKEFILEMENU_STRING_A=NULL;
-if (!_SUB_IDEMAKEFILEMENU_STRING_A)_SUB_IDEMAKEFILEMENU_STRING_A=qbs_new(0,0);
-byte_element_struct *byte_element_4634=NULL;
-if (!byte_element_4634){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4634=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4634=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_IDEIMPORTBOOKMARKS_STRING_A=NULL;
+if (!_SUB_IDEIMPORTBOOKMARKS_STRING_A)_SUB_IDEIMPORTBOOKMARKS_STRING_A=qbs_new(0,0);
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_X=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_X==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_X=0;
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_R=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_R==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_R=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_R=0;
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_L=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_L==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_L=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_L=0;
 }
-int64 fornext_value4636;
-int64 fornext_finalvalue4636;
-int64 fornext_step4636;
-uint8 fornext_step_negative4636;
-int32 *_SUB_IDEMAKEFILEMENU_LONG_AI=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_AI==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_AI=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_AI=0;
+byte_element_struct *byte_element_4620=NULL;
+if (!byte_element_4620){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4620=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4620=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_SUB_IDEMAKEFILEMENU_STRING_F=NULL;
-if (!_SUB_IDEMAKEFILEMENU_STRING_F)_SUB_IDEMAKEFILEMENU_STRING_F=qbs_new(0,0);
-byte_element_struct *byte_element_4637=NULL;
-if (!byte_element_4637){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4637=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4637=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_X1=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_X1==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_X1=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_X1=0;
 }
-byte_element_struct *byte_element_4638=NULL;
-if (!byte_element_4638){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4638=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4638=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4621=NULL;
+if (!byte_element_4621){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4621=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4621=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_4639=NULL;
-if (!byte_element_4639){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4639=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4639=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_IDEIMPORTBOOKMARKS_STRING_D=NULL;
+if (!_SUB_IDEIMPORTBOOKMARKS_STRING_D)_SUB_IDEIMPORTBOOKMARKS_STRING_D=qbs_new(0,0);
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_N=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_N==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_N=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_N=0;
+}
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_I=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_I==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_I=0;
+}
+int64 fornext_value4623;
+int64 fornext_finalvalue4623;
+int64 fornext_step4623;
+uint8 fornext_step_negative4623;
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_BY=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_BY==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_BY=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_BY=0;
+}
+int32 *_SUB_IDEIMPORTBOOKMARKS_LONG_BX=NULL;
+if(_SUB_IDEIMPORTBOOKMARKS_LONG_BX==NULL){
+_SUB_IDEIMPORTBOOKMARKS_LONG_BX=(int32*)mem_static_malloc(4);
+*_SUB_IDEIMPORTBOOKMARKS_LONG_BX=0;
 }

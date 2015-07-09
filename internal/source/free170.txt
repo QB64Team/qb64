@@ -1,19 +1,6 @@
-if (_SUB_MATHBOX_ARRAY_UDT_O[2]&1){
-if (_SUB_MATHBOX_ARRAY_UDT_O[2]&4){
-cmem_dynamic_free((uint8*)(_SUB_MATHBOX_ARRAY_UDT_O[0]));
-}else{
-free((void*)(_SUB_MATHBOX_ARRAY_UDT_O[0]));
+if(oldstr4659){
+if(oldstr4659->fixed)qbs_set(oldstr4659,_SUB_IDEADDSEARCHED_STRING_S2);
+qbs_free(_SUB_IDEADDSEARCHED_STRING_S2);
 }
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_SUB_MATHBOX_ARRAY_UDT_O)[8] );
-qbs_free(_SUB_MATHBOX_STRING1_SEP);
-qbs_free(_SUB_MATHBOX_STRING_TITLESTR);
-qbs_free(_SUB_MATHBOX_STRING_MESSAGESTR);
-qbs_free(_SUB_MATHBOX_STRING_ALTLETTER);
-qbs_free(_SUB_MATHBOX_STRING_TEMP);
-qbs_free(_SUB_MATHBOX_STRING_EV);
-qbs_free(_SUB_MATHBOX_STRING_A);
-qbs_free(_SUB_MATHBOX_STRING_L);
-qbs_free(_SUB_MATHBOX_STRING_R);
-qbs_free(_SUB_MATHBOX_STRING_TEXT);
-qbs_free(_SUB_MATHBOX_STRING_M);
+qbs_free(_SUB_IDEADDSEARCHED_STRING_S);
+qbs_free(_SUB_IDEADDSEARCHED_STRING_A);

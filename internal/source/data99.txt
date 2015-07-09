@@ -1,34 +1,105 @@
-qbs *_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT=NULL;
-if (!_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT)_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT=qbs_new(0,0);
-qbs*oldstr3376=NULL;
-if(_FUNC_GL2QB_TYPE_CONVERT_STRING_A->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_A->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_A->readonly){
-oldstr3376=_FUNC_GL2QB_TYPE_CONVERT_STRING_A;
-if (oldstr3376->cmem_descriptor){
-_FUNC_GL2QB_TYPE_CONVERT_STRING_A=qbs_new_cmem(oldstr3376->len,0);
+qbs*oldstr3380=NULL;
+if(_SUB_WRITECONFIGSETTING_STRING_HEADING->tmp||_SUB_WRITECONFIGSETTING_STRING_HEADING->fixed||_SUB_WRITECONFIGSETTING_STRING_HEADING->readonly){
+oldstr3380=_SUB_WRITECONFIGSETTING_STRING_HEADING;
+if (oldstr3380->cmem_descriptor){
+_SUB_WRITECONFIGSETTING_STRING_HEADING=qbs_new_cmem(oldstr3380->len,0);
 }else{
-_FUNC_GL2QB_TYPE_CONVERT_STRING_A=qbs_new(oldstr3376->len,0);
+_SUB_WRITECONFIGSETTING_STRING_HEADING=qbs_new(oldstr3380->len,0);
 }
-memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_A->chr,oldstr3376->chr,oldstr3376->len);
+memcpy(_SUB_WRITECONFIGSETTING_STRING_HEADING->chr,oldstr3380->chr,oldstr3380->len);
 }
-qbs*oldstr3377=NULL;
-if(_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->readonly){
-oldstr3377=_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL;
-if (oldstr3377->cmem_descriptor){
-_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL=qbs_new_cmem(oldstr3377->len,0);
+qbs*oldstr3381=NULL;
+if(_SUB_WRITECONFIGSETTING_STRING_ITEM->tmp||_SUB_WRITECONFIGSETTING_STRING_ITEM->fixed||_SUB_WRITECONFIGSETTING_STRING_ITEM->readonly){
+oldstr3381=_SUB_WRITECONFIGSETTING_STRING_ITEM;
+if (oldstr3381->cmem_descriptor){
+_SUB_WRITECONFIGSETTING_STRING_ITEM=qbs_new_cmem(oldstr3381->len,0);
 }else{
-_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL=qbs_new(oldstr3377->len,0);
+_SUB_WRITECONFIGSETTING_STRING_ITEM=qbs_new(oldstr3381->len,0);
 }
-memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->chr,oldstr3377->chr,oldstr3377->len);
+memcpy(_SUB_WRITECONFIGSETTING_STRING_ITEM->chr,oldstr3381->chr,oldstr3381->len);
 }
-qbs*oldstr3378=NULL;
-if(_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->readonly){
-oldstr3378=_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP;
-if (oldstr3378->cmem_descriptor){
-_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP=qbs_new_cmem(oldstr3378->len,0);
+qbs*oldstr3382=NULL;
+if(_SUB_WRITECONFIGSETTING_STRING_VALUE->tmp||_SUB_WRITECONFIGSETTING_STRING_VALUE->fixed||_SUB_WRITECONFIGSETTING_STRING_VALUE->readonly){
+oldstr3382=_SUB_WRITECONFIGSETTING_STRING_VALUE;
+if (oldstr3382->cmem_descriptor){
+_SUB_WRITECONFIGSETTING_STRING_VALUE=qbs_new_cmem(oldstr3382->len,0);
 }else{
-_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP=qbs_new(oldstr3378->len,0);
+_SUB_WRITECONFIGSETTING_STRING_VALUE=qbs_new(oldstr3382->len,0);
 }
-memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->chr,oldstr3378->chr,oldstr3378->len);
+memcpy(_SUB_WRITECONFIGSETTING_STRING_VALUE->chr,oldstr3382->chr,oldstr3382->len);
 }
-qbs *_FUNC_GL2QB_TYPE_CONVERT_STRING_B=NULL;
-if (!_FUNC_GL2QB_TYPE_CONVERT_STRING_B)_FUNC_GL2QB_TYPE_CONVERT_STRING_B=qbs_new(0,0);
+qbs *_SUB_WRITECONFIGSETTING_STRING_CRLF=NULL;
+if (!_SUB_WRITECONFIGSETTING_STRING_CRLF)_SUB_WRITECONFIGSETTING_STRING_CRLF=qbs_new(0,0);
+int32 *_SUB_WRITECONFIGSETTING_LONG_INFILE=NULL;
+if(_SUB_WRITECONFIGSETTING_LONG_INFILE==NULL){
+_SUB_WRITECONFIGSETTING_LONG_INFILE=(int32*)mem_static_malloc(4);
+*_SUB_WRITECONFIGSETTING_LONG_INFILE=0;
+}
+int32 *_SUB_WRITECONFIGSETTING_LONG_OUTFILE=NULL;
+if(_SUB_WRITECONFIGSETTING_LONG_OUTFILE==NULL){
+_SUB_WRITECONFIGSETTING_LONG_OUTFILE=(int32*)mem_static_malloc(4);
+*_SUB_WRITECONFIGSETTING_LONG_OUTFILE=0;
+}
+int32 *_SUB_WRITECONFIGSETTING_LONG_PLACED=NULL;
+if(_SUB_WRITECONFIGSETTING_LONG_PLACED==NULL){
+_SUB_WRITECONFIGSETTING_LONG_PLACED=(int32*)mem_static_malloc(4);
+*_SUB_WRITECONFIGSETTING_LONG_PLACED=0;
+}
+qbs *_SUB_WRITECONFIGSETTING_STRING_JUNK=NULL;
+if (!_SUB_WRITECONFIGSETTING_STRING_JUNK)_SUB_WRITECONFIGSETTING_STRING_JUNK=qbs_new(0,0);
+byte_element_struct *byte_element_3385=NULL;
+if (!byte_element_3385){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3385=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3385=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_SUB_WRITECONFIGSETTING_LONG_L=NULL;
+if(_SUB_WRITECONFIGSETTING_LONG_L==NULL){
+_SUB_WRITECONFIGSETTING_LONG_L=(int32*)mem_static_malloc(4);
+*_SUB_WRITECONFIGSETTING_LONG_L=0;
+}
+qbs *_SUB_WRITECONFIGSETTING_STRING_OUT=NULL;
+if (!_SUB_WRITECONFIGSETTING_STRING_OUT)_SUB_WRITECONFIGSETTING_STRING_OUT=qbs_new(0,0);
+qbs *_SUB_WRITECONFIGSETTING_STRING_TEMP=NULL;
+if (!_SUB_WRITECONFIGSETTING_STRING_TEMP)_SUB_WRITECONFIGSETTING_STRING_TEMP=qbs_new(0,0);
+int32 *_SUB_WRITECONFIGSETTING_LONG_L1=NULL;
+if(_SUB_WRITECONFIGSETTING_LONG_L1==NULL){
+_SUB_WRITECONFIGSETTING_LONG_L1=(int32*)mem_static_malloc(4);
+*_SUB_WRITECONFIGSETTING_LONG_L1=0;
+}
+byte_element_struct *byte_element_3388=NULL;
+if (!byte_element_3388){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3388=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3388=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3389=NULL;
+if (!byte_element_3389){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3389=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3389=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3390=NULL;
+if (!byte_element_3390){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3390=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3390=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_SUB_WRITECONFIGSETTING_STRING_R=NULL;
+if (!_SUB_WRITECONFIGSETTING_STRING_R)_SUB_WRITECONFIGSETTING_STRING_R=qbs_new(0,0);
+byte_element_struct *byte_element_3391=NULL;
+if (!byte_element_3391){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3391=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3391=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3392=NULL;
+if (!byte_element_3392){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3392=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3392=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3393=NULL;
+if (!byte_element_3393){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3393=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3393=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3394=NULL;
+if (!byte_element_3394){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3394=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3394=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3395=NULL;
+if (!byte_element_3395){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3395=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3395=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3396=NULL;
+if (!byte_element_3396){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3396=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3396=(byte_element_struct*)mem_static_malloc(12);
+}

@@ -3,28 +3,28 @@ if(_FUNC_ISVALIDVARIABLE_LONG_ISVALIDVARIABLE==NULL){
 _FUNC_ISVALIDVARIABLE_LONG_ISVALIDVARIABLE=(int32*)mem_static_malloc(4);
 *_FUNC_ISVALIDVARIABLE_LONG_ISVALIDVARIABLE=0;
 }
-qbs*oldstr2524=NULL;
+qbs*oldstr2528=NULL;
 if(_FUNC_ISVALIDVARIABLE_STRING_A->tmp||_FUNC_ISVALIDVARIABLE_STRING_A->fixed||_FUNC_ISVALIDVARIABLE_STRING_A->readonly){
-oldstr2524=_FUNC_ISVALIDVARIABLE_STRING_A;
-if (oldstr2524->cmem_descriptor){
-_FUNC_ISVALIDVARIABLE_STRING_A=qbs_new_cmem(oldstr2524->len,0);
+oldstr2528=_FUNC_ISVALIDVARIABLE_STRING_A;
+if (oldstr2528->cmem_descriptor){
+_FUNC_ISVALIDVARIABLE_STRING_A=qbs_new_cmem(oldstr2528->len,0);
 }else{
-_FUNC_ISVALIDVARIABLE_STRING_A=qbs_new(oldstr2524->len,0);
+_FUNC_ISVALIDVARIABLE_STRING_A=qbs_new(oldstr2528->len,0);
 }
-memcpy(_FUNC_ISVALIDVARIABLE_STRING_A->chr,oldstr2524->chr,oldstr2524->len);
+memcpy(_FUNC_ISVALIDVARIABLE_STRING_A->chr,oldstr2528->chr,oldstr2528->len);
 }
 int32 *_FUNC_ISVALIDVARIABLE_LONG_I=NULL;
 if(_FUNC_ISVALIDVARIABLE_LONG_I==NULL){
 _FUNC_ISVALIDVARIABLE_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_ISVALIDVARIABLE_LONG_I=0;
 }
-int64 fornext_value2526;
-int64 fornext_finalvalue2526;
-int64 fornext_step2526;
-uint8 fornext_step_negative2526;
-byte_element_struct *byte_element_2527=NULL;
-if (!byte_element_2527){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2527=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2527=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value2530;
+int64 fornext_finalvalue2530;
+int64 fornext_step2530;
+uint8 fornext_step_negative2530;
+byte_element_struct *byte_element_2531=NULL;
+if (!byte_element_2531){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2531=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2531=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_ISVALIDVARIABLE_LONG_C=NULL;
 if(_FUNC_ISVALIDVARIABLE_LONG_C==NULL){
@@ -43,11 +43,11 @@ _FUNC_ISVALIDVARIABLE_LONG_N=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_ISVALIDVARIABLE_STRING_E=NULL;
 if (!_FUNC_ISVALIDVARIABLE_STRING_E)_FUNC_ISVALIDVARIABLE_STRING_E=qbs_new(0,0);
-byte_element_struct *byte_element_2528=NULL;
-if (!byte_element_2528){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2528=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2528=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2532=NULL;
+if (!byte_element_2532){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2532=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2532=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_2529=NULL;
-if (!byte_element_2529){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2529=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2529=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2533=NULL;
+if (!byte_element_2533){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2533=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2533=(byte_element_struct*)mem_static_malloc(12);
 }

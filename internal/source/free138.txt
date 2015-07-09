@@ -1,0 +1,17 @@
+if (_FUNC_IDESUBS_ARRAY_UDT_O[2]&1){
+if (_FUNC_IDESUBS_ARRAY_UDT_O[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_IDESUBS_ARRAY_UDT_O[0]));
+}else{
+free((void*)(_FUNC_IDESUBS_ARRAY_UDT_O[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDESUBS_ARRAY_UDT_O)[8] );
+qbs_free(_FUNC_IDESUBS_STRING1_SEP);
+qbs_free(_FUNC_IDESUBS_STRING_LY);
+qbs_free(_FUNC_IDESUBS_STRING_L);
+qbs_free(_FUNC_IDESUBS_STRING_A);
+qbs_free(_FUNC_IDESUBS_STRING_NCA);
+qbs_free(_FUNC_IDESUBS_STRING_SF);
+qbs_free(_FUNC_IDESUBS_STRING_N);
+qbs_free(_FUNC_IDESUBS_STRING_ARGS);
+qbs_free(_FUNC_IDESUBS_STRING_ALTLETTER);
