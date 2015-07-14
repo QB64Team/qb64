@@ -624,22 +624,28 @@ DO
 
     idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
     STATIC ForceResize
-    '### STEVE WAS HERE 10/11/2013 ###
+    if IDE_AutoPosition then
+        IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition" , str$(_SCREENY)
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition" , str$(_SCREENX)
+            IDE_TopPosition = _SCREENY: IDE_LeftPosition = _SCREENX
+        END IF
+    end if
+
     IF _RESIZE or ForceResize THEN
       IF idesubwindow <> 0  THEN      'If there's a subwindow up, don't resize as it screws all sorts of things up.
         ForceResize = -1
       ELSE
         ForceResize = 0
-        f = FREEFILE
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #f
         v% = _RESIZEWIDTH \ _FONTWIDTH: IF v% < 80 OR v% > 1000 THEN v% = 80
         IF v% <> idewx THEN retval = 1: idewx = v%
-        PUT #f, 7, v%
         v% = _RESIZEHEIGHT \ _FONTHEIGHT: IF v% < 25 OR v% > 1000 THEN v% = 25
         IF v% <> idewy THEN retval = 1: idewy = v%
-        PUT #f, 9, v%
-        CLOSE #f
+
         IF retval = 1 THEN 'screen dimensions have changed and everything must be redrawn/reapplied
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", str$(idewx)
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", str$(idewy)
+
             tempf& = _font
             WIDTH idewx, idewy + idesubwindow
             _font tempf&
@@ -647,7 +653,6 @@ DO
         END IF
       END IF
     END IF
-    '### END OF STEVE EDIT
 
     IF skipdisplay = 0 THEN
 
@@ -6638,16 +6643,9 @@ DO 'main loop
             _MAPUNICODE u TO x
         NEXT
 
-        'SEEK 1049
-        '[2]   codepage(=0)
-        'total bytes: 1050
-
         'save changes
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #150
-        SEEK #150, 1049
-        v% = y: PUT #150, , v%: idecpindex = v%
-        CLOSE #150
-
+        v% = y: idecpindex = v%
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CodePage", str$(idecpindex)
         EXIT FUNCTION
     END IF
 
@@ -7564,23 +7562,33 @@ DO 'main loop
     IF K$ = CHR$(27) OR (focus = 5 AND info <> 0) THEN EXIT FUNCTION
     IF K$ = CHR$(13) OR (focus = 4 AND info <> 0) THEN
         'save changes
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #150
         v% = o(1).sel: IF v% <> 0 THEN v% = 1 'ideautolayout
-        PUT #150, , v%
+
         IF ideautolayout <> v% THEN ideautolayout = v%: idelayoutbox = 1
         v% = o(2).sel: IF v% <> 0 THEN v% = 1 'ideautoindent
-        PUT #150, , v%
+
         IF ideautoindent <> v% THEN ideautoindent = v%: idelayoutbox = 1
         v$ = idetxt(o(3).txt) 'ideautoindentsize
         IF v$ = "" THEN v$ = "4"
         v% = VAL(v$)
         IF v% < 0 OR v% > 64 THEN v% = 4
-        PUT #150, , v%
         IF ideautoindentsize <> v% THEN
             ideautoindentsize = v%
             IF ideautoindent <> 0 THEN idelayoutbox = 1
         END IF
-        CLOSE #150
+
+if ideautolayout then
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
+else
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "FALSE"
+end if
+if ideautoindent then
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "TRUE"
+else
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "FALSE"
+end if
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", str$(ideautoindentsize)
+
         EXIT FUNCTION
     END IF
 
@@ -7723,8 +7731,6 @@ DO 'main loop
 
     IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
         'save changes
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #150
-        SEEK #150, 1051
         v$ = idetxt(o(1).txt) 'idebackupsize
         v& = VAL(v$)
         IF v& < 10 THEN v& = 10
@@ -7737,8 +7743,7 @@ DO 'main loop
         END IF
 
         idebackupsize = v&
-        PUT #150, , v&
-        CLOSE #150
+        WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", str$(v&) + " 'in MB"
         idebackupbox = 1
         EXIT FUNCTION
     END IF
@@ -8029,13 +8034,16 @@ DO 'main loop
 
     IF K$ = CHR$(13) OR (focus = 1 AND info <> 0) THEN 'close
         'save changes
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #150
 
         'update idedebuginfo?
         v% = o(2).sel: IF v% <> 0 THEN v% = 1
         IF v% <> idedebuginfo THEN
-            SEEK #150, 1055: PUT #150, , v%
             idedebuginfo = v%
+        if idedebuginfo then
+                 WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+        else
+                 WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+        end if
             Include_GDB_Debugging_Info = idedebuginfo
             IF os$ = "WIN" THEN
                 CHDIR "internal\c"
@@ -8057,7 +8065,6 @@ DO 'main loop
 
         '...
 
-        CLOSE #150
 
         EXIT FUNCTION
     END IF
@@ -8477,12 +8484,14 @@ DO 'main loop
         v3$ = idetxt(o(3 - 1).txt)
         IF LEN(v3$) > 256 THEN v3$ = LEFT$(v3$, 256)
         IF LEN(v3$) < 256 THEN v3$ = v3$ + SPACE$(256 - LEN(v3$))
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #150
-        SEEK #150, 1057
-        PUT #150, , v%
-        PUT #150, , v$
-        PUT #150, , v3$
-        CLOSE #150
+            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$",  v3$
+            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidStartScript$", v$
+        if v% then
+            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "TRUE"
+        ELSE
+            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "FALSE"
+        end if
+
         IdeAndroidMenu = o(1).sel
         IdeAndroidStartScript = "" 'idetxt(o(2).txt)
         IdeAndroidMakeScript = idetxt(o(3 - 1).txt)
@@ -8732,44 +8741,47 @@ DO 'main loop
         END IF
 
         'save changes
-        OPEN ".\internal\temp\options.bin" FOR BINARY AS #150
-
-        SEEK #150, 7
-
         v$ = idetxt(o(1).txt): IF v$ = "" THEN v$ = "0"
         v% = VAL(v$)
         IF v% < 80 THEN v% = 80
         IF v% > 999 THEN v% = 999
-        PUT #150, , v%
         IF v% <> idewx THEN idedisplaybox = 1
         idewx = v%
+
 
         v$ = idetxt(o(2).txt): IF v$ = "" THEN v$ = "0"
         v% = VAL(v$)
         IF v% < 25 THEN v% = 25
         IF v% > 999 THEN v% = 999
-        PUT #150, , v%
         IF v% <> idewy THEN idedisplaybox = 1
         idewy = v% - idesubwindow
+
         v% = o(3).sel
         IF v% <> 0 THEN v% = 1
-        PUT #150, , v%
         idecustomfont = v%
 
         v$ = idetxt(o(4).txt)
         IF LEN(v$) > 1024 THEN v$ = LEFT$(v$, 1024)
         idecustomfontfile$ = v$
         v$ = v$ + SPACE$(1024 - LEN(v$))
-        PUT #150, , v$
 
         v$ = idetxt(o(5).txt): IF v$ = "" THEN v$ = "0"
         v% = VAL(v$)
         IF v% < 8 THEN v% = 8
         IF v% > 99 THEN v% = 99
-        PUT #150, , v%
         idecustomfontheight = v%
 
-        CLOSE #150
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", str$(idewx)
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", str$(idewy)
+        IF idecustomfont THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "TRUE"
+        ELSE
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+        END IF
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", idecustomfontfile$
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFontSize", str$(idecustomfontheight)
+
+
         EXIT FUNCTION
     END IF
 
