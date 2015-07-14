@@ -8904,40 +8904,42 @@ DO
                 END IF '"print"
 
                 IF firstelement$ = "PRINT" OR firstelement$ = "LPRINT" THEN
-                    elementon = 2
-                    redosemi:
-                    FOR i = elementon TO n - 1
-                        nextchar$ = getelement$(a$, i + 1)
-                        IF nextchar$ <> ";" AND nextchar$ <> "," AND nextchar$ <> "+" AND nextchar$ <> ")" THEN
-                            temp1$ = getelement$(a$, i)
-                            beginpoint = INSTR(beginpoint, temp1$, CHR$(34))
-                            endpoint = INSTR(beginpoint + 1, temp1$, CHR$(34) + ",")
-                            IF beginpoint <> 0 AND endpoint <> 0 THEN 'if we have both positions
-                                'Quote without semicolon check (like PRINT "abc"123)
-                                textlength = endpoint - beginpoint - 1
-                                textvalue$ = MID$(temp1$, endpoint + 2, LEN(LTRIM$(STR$(textlength))))
-                                IF VAL(textvalue$) = textlength THEN
-                                    insertelements a$, i, ";"
-                                    insertelements ca$, i, ";"
-                                    n = n + 1
-                                    elementon = i + 2 'just a easy way to reduce redundant calls to the routine
-                                    GOTO redosemi
+                    IF secondelement$ <> "USING" THEN 'check to see if we need to auto-add semicolons
+                        elementon = 2
+                        redosemi:
+                        FOR i = elementon TO n - 1
+                            nextchar$ = getelement$(a$, i + 1)
+                            IF nextchar$ <> ";" AND nextchar$ <> "," AND nextchar$ <> "+" AND nextchar$ <> ")" THEN
+                                temp1$ = getelement$(a$, i)
+                                beginpoint = INSTR(beginpoint, temp1$, CHR$(34))
+                                endpoint = INSTR(beginpoint + 1, temp1$, CHR$(34) + ",")
+                                IF beginpoint <> 0 AND endpoint <> 0 THEN 'if we have both positions
+                                    'Quote without semicolon check (like PRINT "abc"123)
+                                    textlength = endpoint - beginpoint - 1
+                                    textvalue$ = MID$(temp1$, endpoint + 2, LEN(LTRIM$(STR$(textlength))))
+                                    IF VAL(textvalue$) = textlength THEN
+                                        insertelements a$, i, ";"
+                                        insertelements ca$, i, ";"
+                                        n = n + 1
+                                        elementon = i + 2 'just a easy way to reduce redundant calls to the routine
+                                        GOTO redosemi
+                                    END IF
+                                END IF
+                                'Values before Quote check will go here once my brain stops smoking from sorting out the other half
+                                'This will fix things like PRINT 123"xyz" to make it PRINT 123; xyz once it's implemented.
+                                'Brain smoke clear; let's finish this up!
+                                IF LEFT$(LTRIM$(nextchar$), 1) = CHR$(34) THEN
+                                    IF temp1$ <> ";" AND temp1$ <> "," AND temp1$ <> "+" AND temp1$ <> "(" THEN
+                                        insertelements a$, i, ";"
+                                        insertelements ca$, i, ";"
+                                        n = n + 1
+                                        elementon = i + 2 'just a easy way to reduce redundant calls to the routine
+                                        GOTO redosemi
+                                    END IF
                                 END IF
                             END IF
-                            'Values before Quote check will go here once my brain stops smoking from sorting out the other half
-                            'This will fix things like PRINT 123"xyz" to make it PRINT 123; xyz once it's implemented.
-                            'Brain smoke clear; let's finish this up!
-                            IF LEFT$(LTRIM$(nextchar$), 1) = CHR$(34) THEN
-                                IF temp1$ <> ";" AND temp1$ <> "," AND temp1$ <> "+" AND temp1$ <> "(" THEN
-                                    insertelements a$, i, ";"
-                                    insertelements ca$, i, ";"
-                                    n = n + 1
-                                    elementon = i + 2 'just a easy way to reduce redundant calls to the routine
-                                    GOTO redosemi
-                                END IF
-                            END IF
-                        END IF
-                    NEXT
+                        NEXT
+                    END IF
 
                     xprint a$, ca$, n
                     IF Error_Happened THEN GOTO errmes
@@ -18493,7 +18495,7 @@ IF (c >= 65 AND c <= 90) OR c = 95 THEN 'A-Z(a-z) or _
                 i = i + n2
                 IF i < n THEN
                     c = ASC(a$, i)
-                    IF c = 46 THEN a2$ = a2$ + sp + MID$(ca$, i - n2, n2): GOTO extcheck 'data.Variable is a valid variable name in QB45
+                    IF c = 46 THEN a2$ = a2$ + sp + MID$(ca$, i - n2, n2): GOTO extcheck 'rem.Variable is a valid variable name in QB45
                 END IF
 
                 'note: In QBASIC 'IF cond THEN REM comment' counts as a single line IF statement, however use of ' instead of REM does not
@@ -18508,6 +18510,11 @@ IF (c >= 65 AND c <= 90) OR c = 95 THEN 'A-Z(a-z) or _
             IF a3$ = "DATA" THEN
                 x$ = ""
                 i = i + n2
+                IF i < n THEN
+                    c = ASC(a$, i)
+                    IF c = 46 THEN a2$ = a2$ + sp + MID$(ca$, i - n2, n2): GOTO extcheck 'data.Variable is a valid variable name in QB45
+                END IF
+
                 scan = 0
                 speechmarks = 0
                 commanext = 0
@@ -18518,9 +18525,6 @@ IF (c >= 65 AND c <= 90) OR c = 95 THEN 'A-Z(a-z) or _
                 nextdatachr:
                 IF i < n THEN
                     c = ASC(a$, i)
-
-                    IF c = 46 THEN a2$ = a2$ + sp + MID$(ca$, i - n2, n2): GOTO extcheck 'data.Variable is a valid variable name in QB45
-
                     IF c = 9 OR c = 32 THEN
                         IF scan = 0 THEN GOTO skipwhitespace
                     END IF
@@ -24016,27 +24020,36 @@ END FUNCTION
 
 SUB WriteConfigSetting (heading$, item$, value$)
 SHARED ConfigFile$, ConfigBak$
-DIM CRLF AS STRING
-IF INSTR(os$, "WIN") THEN CRLF = CHR$(13) + CHR$(10) ELSE CRLF = CHR$(10)
 
 InFile = FREEFILE: OPEN ConfigFile$ FOR BINARY AS #InFile
 OutFile = FREEFILE: OPEN ConfigBak$ FOR OUTPUT AS #OutFile
 placed = 0
+
+'check for quotes where needed for strings
+IF RIGHT$(RTRIM$(item$), 1) = "$" THEN
+    IF LEFT$(value$, 1) <> CHR$(34) THEN value$ = CHR$(34) + value$
+    IF RIGHT$(value$, 1) <> CHR$(34) THEN value$ = value$ + CHR$(34)
+END IF
+
 IF LOF(InFile) THEN
     DO UNTIL EOF(InFile)
         LINE INPUT #InFile, junk$
         'we really don't care about heading$ here; it's only used to make things easier for the user to locate in the config file
         junk$ = LTRIM$(RTRIM$(junk$))
-        IF _STRICMP(LEFT$(junk$, LEN(item$)), item$) = 0 THEN
+        l = INSTR(junk$, "=") 'compare the values to the left of the equal sign
+        compare$ = RTRIM$(LEFT$(junk$, l - 1))
+
+        IF UCASE$(compare$) = UCASE$(item$) THEN 'if it's a match, replace it
             PRINT #OutFile, item$; " = "; value$
             placed = -1
         ELSE
-            PRINT #OutFile, junk$
+            PRINT #OutFile, junk$ 'otherwise put that line back and check the next one
         END IF
     LOOP
 END IF
 
 CLOSE #InFile, #OutFile
+KILL ConfigFile$
 IF NOT placed THEN 'we didn't find the proper setting already in the file somewhere.
     'Either the file was corrupted, or the user deleted this particulat setting sometime in the past.
     'Now we look to see if the heading exists in the file or not.
@@ -24044,45 +24057,42 @@ IF NOT placed THEN 'we didn't find the proper setting already in the file somewh
     'If not then we write that heading to the end of the file to make it easier for the user to locate in the future
     'and then we write it below there.
     OPEN ConfigBak$ FOR BINARY AS #InFile
-    l = LOF(InFile)
-    out$ = item$ + " = " + value$ + CRLF
-    temp$ = SPACE$(l)
-    GET #InFile, 1, temp$
-
-    l1 = INSTR(temp$, heading$)
-    IF l1 THEN
-        l1 = l1 + LEN(heading$) + LEN(CRLF)
-        PUT #InFile, l1 + 1, out$
-        r$ = MID$(temp$, l1 + 1)
-        PUT #InFile, l1 + LEN(out$) + 1, r$
-        placed = -1
+    OPEN "internal/config.tmp" FOR OUTPUT AS #OutFile
+    out$ = item$ + " = " + value$
+    DO UNTIL EOF(InFile) OR LOF(InFile) = 0
+        LINE INPUT #InFile, temp$
+        PRINT #OutFile, temp$
+        IF INSTR(temp$, heading$) THEN PRINT #OutFile, out$: placed = -1 'If we have the heading, we want to print the item after it
+    LOOP
+    IF NOT placed THEN 'If the heading doesn't exist already then we'll make the heading and the item
+        PRINT #OutFile, ""
+        PRINT #OutFile, heading$
+        PRINT #OutFile, out$
     END IF
-    IF NOT placed THEN
-        PUT #InFile, l + 1, CRLF
-        PUT #InFile, , heading$
-        PUT #InFile, , CRLF
-        PUT #InFile, , out$
-    END IF
-    CLOSE InFile
+    CLOSE #InFile, #OutFile
+    KILL ConfigBak$
+    NAME "internal/config.tmp" AS ConfigFile$
+ELSE
+    NAME ConfigBak$ AS ConfigFile$
 END IF
-KILL ConfigFile$
-NAME ConfigBak$ AS ConfigFile$
 END SUB
 
 FUNCTION ReadConfigSetting (item$, value$)
 SHARED ConfigFile$
 value$ = "" 'We start by blanking the value$ as a default return state
 InFile = FREEFILE: OPEN ConfigFile$ FOR BINARY AS #InFile
+
 IF LOF(InFile) THEN
     found = 0
     DO UNTIL EOF(InFile)
         LINE INPUT #InFile, temp$
         temp$ = LTRIM$(RTRIM$(temp$))
-        IF LEFT$(UCASE$(temp$), LEN(item$)) = UCASE$(item$) THEN found = -1: EXIT DO
+        l = INSTR(temp$, "=")
+        compare$ = LTRIM$(RTRIM$(LEFT$(temp$, l - 1)))
+        IF UCASE$(compare$) = UCASE$(item$) THEN found = -1: EXIT DO
     LOOP
     CLOSE InFile
     IF found THEN 'we found what we're looking for
-        l = INSTR(temp$, "=") 'return the value after the = sign
         IF l THEN
             value$ = MID$(temp$, l + 1)
             l = INSTR(value$, CHR$(13)) 'we only want what's before a CR
@@ -24091,6 +24101,11 @@ IF LOF(InFile) THEN
             'These are basic text files; they shouldn't have stray CHR$(10) or CHR$(13) characters in them!
             IF l THEN value$ = LEFT$(value$, l)
             value$ = LTRIM$(RTRIM$(value$))
+            'check for quotes where needed for strings and remove them so our return value doesn't contain them
+            IF RIGHT$(RTRIM$(item$), 1) = "$" THEN
+                IF LEFT$(value$, 1) = CHR$(34) THEN value$ = MID$(value$, 2)
+                IF RIGHT$(value$, 1) = CHR$(34) THEN value$ = LEFT$(value$, LEN(value$) - 1)
+            END IF
             ReadConfigSetting = -1
             EXIT FUNCTION
         END IF
