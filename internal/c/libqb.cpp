@@ -17933,11 +17933,9 @@ double func_sqr(double value){
 
 #ifdef QB64_BACKSLASH_FILESYSTEM
 #include "parts\\audio\\conversion\\src.c"
-#include "parts\\audio\\libresample\\src.c"
 #include "parts\\audio\\decode\\src.c"
 #else
 #include "parts/audio/conversion/src.c"
-#include "parts/audio/libresample/src.c"
 #include "parts/audio/decode/src.c"
 #endif
 

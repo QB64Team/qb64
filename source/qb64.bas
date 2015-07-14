@@ -10804,15 +10804,6 @@ IF DEPENDENCY(DEPENDENCY_AUDIO_CONVERSION) THEN
         Build d3$
     END IF
     libs$ = libs$ + " " + d2$ + "\src.a"
-
-    d1$ = "parts\audio\libresample"
-    d2$ = d1$ + "\os\" + o$
-    d3$ = "internal\c\" + d2$
-    IF _FILEEXISTS(d3$ + "\src.a") = 0 THEN 'rebuild?
-        Build d3$
-    END IF
-    libs$ = libs$ + " " + d2$ + "\src.a"
-
 END IF
 
 IF DEPENDENCY(DEPENDENCY_AUDIO_DECODE) THEN

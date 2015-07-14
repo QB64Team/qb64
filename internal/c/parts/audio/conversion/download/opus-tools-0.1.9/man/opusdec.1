@@ -1,0 +1,122 @@
+.\" Process this file with
+.\" groff -man -Tascii opusdec.1
+.\"
+.TH opusdec 1 2012-08-31 "Xiph.Org Foundation" "opus-tools"
+
+.SH NAME
+opusdec \- decode audio from Opus format to WAV (or simple audio output)
+
+.SH SYNOPSIS
+.B opusdec
+[
+.B -hV
+] [
+.B --rate Hz
+] [
+.B --gain dB
+] [
+.B --no-dither
+] [
+.B --float
+] [
+.B --force-wav
+] [
+.B --packet-loss pct
+] [
+.B --save-range file
+]
+.B input.opus
+[
+.B output.wav
+]
+
+.SH DESCRIPTION
+
+.B opusdec
+decodes Opus files into PCM Wave (uncompressed) files.
+
+If the input file is specified as
+.B "-"
+, then
+.B opusdec
+will read from stdin. Likewise, an output filename of
+.B "-"
+will cause output to be to stdout.
+
+If no output is specified
+.B opusdec
+will attempt to play the audio in realtime if it supports
+audio playback on your system.
+
+.SH "OPTIONS"
+.IP "-h, --help"
+Print help message
+.IP "-V, --version"
+Display version information
+.IP "--quiet"
+Suppresses program output
+.IP "--rate"
+.br
+Force decoding at sampling rate n Hz
+.IP "--gain"
+.br
+Adjust the output volume n dB, negative values make the signal quieter.
+.IP "--no-dither"
+Do not dither 16-bit output
+.IP "--float"
+32-bit floating-point files instead of 16-bit files
+.IP "--force-wav"
+Force including a wav header on output (e.g. for non-wav extensions and stdout)
+.IP "--packet-loss"
+Simulate n % random Opus packet loss
+.IP "--save-range"
+Saves check values for every frame to a file
+
+.SH EXAMPLES
+Decode a file
+.B input.opus
+to
+.B output.wav
+.RS
+opusdec input.opus output.wav
+.RE
+
+Play a file
+.B input.opus
+and force output at 48000 regardless of
+the original sampling rate
+.br
+.I (48kHz output may be faster, due to avoiding resampling and some sound hardware produces higher quality output when run at 48kHz)
+.RS
+opusdec --rate 48000 input.opus
+.RE
+
+Re-encode a high bitrate Opus file to a lower rate
+.RS
+opusdec --force-wav input.opus - | opusenc --bitrate 64 - output.opus
+.RE
+
+Play an http stream
+.B http://icecast.somwhere.org:8000/stream.opus
+with the help of curl on a system with pulseaudio
+.br
+.I (press ctrl-c to quit)
+.RS
+curl http://icecast.somwhere.org:8000/stream.opus | padsp opusdec -
+.RE
+
+.SH AUTHORS
+.br
+Jean-Marc Valin <jmvalin@jmvalin.ca>
+.br
+Gregory Maxwell <greg@xiph.org>
+
+.SH BUGS
+
+Opusdec does not currently reject all invalid files which it should reject.
+It also doesn't provide very helpful output for the corrupted files it
+does reject. Use \fBopusinfo\fR(1) for somewhat better diagnostics.
+
+.SH SEE ALSO
+.BR opusenc (1),
+.BR opusinfo (1)

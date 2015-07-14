@@ -4,9 +4,9 @@
 #else
 
 #ifdef QB64_BACKSLASH_FILESYSTEM
- #include "src\\samplerate.h"
+ #include "src\\speex_resampler.h"
 #else
- #include "src/samplerate.h"
+ #include "src/speex_resampler.h"
 #endif
 
 #endif

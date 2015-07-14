@@ -1,0 +1,360 @@
+.\" Process this file with
+.\" groff -man -Tascii opusenc.1
+.\"
+.TH opusenc 1 2012-08-31 "Xiph.Org Foundation" "opus-tools"
+
+.SH NAME
+opusenc \- encode audio into the Opus format
+
+.SH SYNOPSIS
+.B opusenc
+[
+.B -h
+] [
+.B -V
+] [
+.B --bitrate
+.I kbit/sec
+] [
+.B --vbr
+] [
+.B --cvbr
+] [
+.B --hard-cbr
+] [
+.B --comp
+.I complexity
+] [
+.B --framesize
+.I 2.5, 5, 10, 20, 40, 60
+] [
+.B --expect-loss
+.I pct
+] [
+.B --downmix-mono
+] [
+.B --downmix-stereo
+] [
+.B --max-delay
+.I ms
+] [
+.B --serial
+.I serial number
+] [
+.B --save-range
+.I file
+] [
+.B --set-ctl-int
+.I ctl=value
+] [
+.B --comment
+.I tag=value
+] [
+.B --artist
+.I author
+] [
+.B --title
+.I 'track title'
+] [
+.B --album
+.I 'album title'
+] [
+.B --date
+.I YYYY-MM-DD
+] [
+.B --genre
+.I genre
+] [
+.B --picture
+.IB filename | specification
+] [
+.B --padding
+.I n
+] [
+.B --discard-comments
+] [
+.B --discard-pictures
+] [
+.B --raw
+] [
+.B --raw-bits
+.I bits/sample
+] [
+.B --raw-rate
+.I Hz
+] [
+.B --raw-chan
+.I N
+] [
+.B --raw-endianness
+.I flag
+] [
+.B --ignorelength
+]
+.I input.wav
+.I output.opus
+
+.SH DESCRIPTION
+.B opusenc
+reads audio data in either raw, Wave, or AIFF format and encodes it into an
+Opus stream. If the input file is "-" audio data is read from stdin.
+Likewise, if the output file is "-" opus data is written to stdout.
+
+Unless quieted
+.B opusenc
+displays fancy statistics about the encoding progress.
+
+.SH OPTIONS
+.IP "-h, --help"
+Show command help
+.IP "-V, --version"
+Show the version number
+.IP "--bitrate N.nnn"
+Target bitrate in kbit/sec (6-256 per channel)
+
+In VBR mode this specifies the average rate for a large and diverse
+collection of audio. In CVBR and Hard-CBR mode it specifies the specific
+output bitrate.
+
+Default for >=44.1kHz input is 64kbps per mono stream, 96kbps per coupled pair.
+
+.IP "--vbr"
+Use variable bitrate encoding (default)
+
+In VBR mode the bitrate may go up and down freely depending on the content
+to achieve more consistent quality.
+
+.IP "--cvbr"
+Use constrained variable bitrate encoding.
+
+Outputs to a specific bitrate. This mode is analogous to CBR in AAC/MP3
+encoders and managed mode in vorbis coders. This delivers less consistent
+quality than VBR mode but consistent bitrate.
+.IP "--hard-cbr"
+Use hard constant bitrate encoding.
+
+With hard-cbr every frame will be exactly the same size, similar to how
+speech codecs work. This delivers lower overall quality but is useful
+ where bitrate changes might leak data in encrypted channels or on
+synchronous transports.
+.IP "--comp N"
+Encoding computational complexity (0-10, default: 10). Zero gives the
+fastest encodes but lower quality, while 10 gives the highest quality
+but slower encoding.
+.IP "--framesize N"
+Maximum frame size in milliseconds (2.5, 5, 10, 20, 40, 60, default: 20)
+.br
+Smaller framesizes achieve lower latency but less quality at a given
+bitrate.
+.br
+Sizes greater than 20ms are only interesting at fairly low
+bitrates.
+.IP "--expect-loss N"
+Percentage packet loss to expect (default: 0)
+.IP "--downmix-mono"
+Downmix to mono
+.IP "--downmix-stereo"
+Downmix to stereo (if >2 channels input)
+.IP "--max-delay N"
+Maximum container delay in milliseconds (0-1000, default: 1000)
+.IP "--serial n"
+Forces the stream serial number to a specified value (instead of being random).
+This is used to make the encoder deterministic for testing and is not generally recommended.
+.IP "--save-range file"
+Saves check values for every frame to a file
+.IP "--set-ctl-int x=y"
+Pass the encoder control x with value y (advanced)
+Preface with s: to direct the ctl to multistream s
+.br
+This may be used multiple times
+
+.IP "--comment tag=value"
+Add an extra comment.  This may be used multiple times, and all
+instances will be added to each of the input files specified. The argument
+should be in the form "tag=value".
+See the vorbis-comment specification for well known tag names:
+http://www.xiph.org/vorbis/doc/v-comment.html
+.IP "--artist artist"
+Set the artist comment field to
+.I artist.
+This may be used multiple times to list contributing artists individually.
+Note that some playback software does not display multiple artists gracefully.
+.IP "--title title"
+Set the track title comment field to
+.I title
+.IP "--album album"
+Set the album or collection title field to
+.I album
+.IP "--date YYYY-MM-DD"
+Set the date comment field to
+.I YYYY-MM-DD
+.IP "--genre genre"
+Set the genre comment field to
+.I genre.
+This option may be specified multiple times to tag a track with
+multiple overlapping genres.
+.IP "--picture filename|specification"
+Attach album art for the track.
+
+Either a
+.I filename
+for the artwork or a more complete
+.I specification
+form can be used.
+The picture is added to a
+.B METADATA_BLOCK_PICTURE
+comment field similar to what is used in
+.SM FLAC.
+The
+.I specification
+is a string whose parts are separated by | (pipe) characters.
+Some parts may be left empty to invoke default values.
+Passing a plain filename is just shorthand for the "||||filename"
+specification.
+
+The format of
+.I specification
+is [\fBtype\fR]|[\fBmime-type\fR]|[\fBdescription\fR]|[\fBwidth\fRx\fBheight\fRx\fBdepth\fR[/\fBcolors\fR]]|\fBfilename\fR
+
+.I type
+is an optional number describing the nature of the picture.
+Defined values are from one of:
+
+  0: Other
+.br
+  1: 32x32 pixel 'file icon' (PNG only)
+.br
+  2: Other file icon
+.br
+  3: Cover (front)
+.br
+  4: Cover (back)
+.br
+  5: Leaflet page
+.br
+  6: Media (e.g., label side of a CD)
+.br
+  7: Lead artist/lead performer/soloist
+.br
+  8: Artist/performer
+.br
+  9: Conductor
+.br
+ 10: Band/Orchestra
+.br
+ 11: Composer
+.br
+ 12: Lyricist/text writer
+.br
+ 13: Recording location
+.br
+ 14: During recording
+.br
+ 15: During performance
+.br
+ 16: Movie/video screen capture
+.br
+ 17: A bright colored fish
+.br
+ 18: Illustration
+.br
+ 19: Band/artist logotype
+.br
+ 20: Publisher/studio logotype
+
+The default is 3 (front cover).
+More than one --picture option can be specified to attach multiple pictures.
+There may only be one picture each of type 1 and 2 in a file.
+
+.I mime-type
+is optional. If left blank, it will be detected from the file. For
+best compatibility with players, use pictures with a
+.I mime-type
+of image/jpeg or image/png. The
+.I mime-type
+can also be "-->" to mean that
+.I filename
+is actually a URL to an image, though this use is discouraged.
+The file at the URL will not be fetched.
+The URL itself is stored in the comment field.
+
+.I description
+is optional. The default is an empty string.
+
+The next part specifies the resolution and color information. If the
+.I mime-type
+is image/jpeg, image/png, or image/gif, you can usually leave this empty and
+they can be detected from the file. Otherwise, you must specify the width in
+pixels, height in pixels, and color depth in bits-per-pixel. If the image has
+indexed colors you should also specify the number of colors used. If possible,
+these are checked against the file for accuracy.
+
+.I filename
+is the path to the picture file to be imported, or the URL if the
+.I mime-type
+is -->.
+.IP "--padding n"
+Reserve
+.I n
+extra bytes for metadata tags. This can make later tag editing more
+efficient. Defaults to 512.
+.IP "--discard-comments"
+Don't propagate metadata tags from the input file.
+.IP "--discard-pictures"
+Don't propagate pictures or art from the input file.
+
+.IP "--raw"
+Raw (headerless) PCM input
+.IP "--raw-bits N"
+Set bits/sample for raw input (default: 16)
+.IP "--raw-rate N"
+Set sampling rate for raw input (default: 48000)
+.IP "--raw-chan N"
+Set number of channels for raw input (default: 2)
+.IP "--raw-endianness [0/1]"
+Set the endianness for raw input: 1 for bigendian, 0 for little (defaults to 0)
+.IP "--ignorelength"
+Always ignore the datalength in Wave headers. Opusenc automatically ignores
+the length when its implausible (very small or very large) but some STDIN
+usage may still need this option to avoid truncation.
+
+.SH EXAMPLES
+
+Simplest usage. Take input as input.wav and produce output as output.opus:
+.RS
+opusenc input.wav output.opus
+.RE
+.PP
+
+Produce a very high quality encode with a target rate of 160kbps:
+.RS
+opusenc --bitrate 160 input.wav output.opus
+.RE
+.PP
+
+Record and send a live stream to an Icecast HTTP streaming server using oggfwd:
+.RS
+arecord -c 2 -r 48000 -twav - | opusenc --bitrate 96 -  - | oggfwd icecast.somewhere.org 8000 password /stream.opus
+.RE
+.PP
+
+.SH NOTES
+
+While it is possible to use opusenc for low latency streaming (e.g. with --max-delay set to 0
+and netcat instead of Icecast) it's not really designed for this, and the Ogg container
+and TCP transport aren't the best tools for that application. Shell
+pipelines themselves will often have high buffering. The ability to set
+framesizes as low as 2.5 ms in opusenc mostly exists to try out the quality
+of the format with low latency settings, but not really for actual low
+latency usage.
+.br
+Interactive usage should use UDP/RTP directly.
+
+.SH AUTHORS
+.br
+Gregory Maxwell <greg@xiph.org>
+
+.SH SEE ALSO
+.BR opusdec (1),
+.BR opusinfo (1),
+.BR oggfwd (1)

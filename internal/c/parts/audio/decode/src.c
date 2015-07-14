@@ -177,47 +177,51 @@ if (incorrect_format){
 
 
 //2. samplerate conversion
-if (seq->sample_rate!=snd_frequency){
- static float *f_in;
- static float *f_out;
- static int32 in_samples,channels;
- channels=seq->channels;
- in_samples=seq->data_size/channels/2;
- f_in=(float*)malloc(in_samples*channels*sizeof(float));
- src_short_to_float_array((int16*)seq->data,f_in,in_samples*channels);
- static double ratio;
- ratio=((double)snd_frequency)/((double)seq->sample_rate);//output/input
- static int32 out_samples_max;
- out_samples_max=((double)in_samples)*(ratio+0.1)+100;//10%+100 extra samples as a buffer-zone
- f_out=(float*)malloc(out_samples_max*channels*sizeof(float));
- static SRC_DATA s;
- s.data_in=f_in;
- s.input_frames=in_samples;
- s.data_out=f_out;
- s.output_frames=out_samples_max;//limit
- s.src_ratio=ratio;//Equal to output_sample_rate / input_sample_rate.
- //
- //         SRC_SINC_BEST_QUALITY       = 0,
- //         SRC_SINC_MEDIUM_QUALITY     = 1,
- //         SRC_SINC_FASTEST            = 2,
- //         SRC_ZERO_ORDER_HOLD         = 3,
- //         SRC_LINEAR                  = 4
- //
- if (src_simple(&s,SRC_LINEAR,channels)){
-  //error!
-  free(seq->data);
-  //***todo***remove the seq
-  return 0;
- }
- //old seq->data is the wrong size, so resize it
- free(seq->data);
- seq->data_size=s.output_frames_gen*channels*2;
- seq->data=(uint8*)malloc(seq->data_size);
- src_float_to_short_array(f_out,(int16*)seq->data,s.output_frames_gen*channels);
- //update seq info
- seq->sample_rate=snd_frequency;
+if (seq->sample_rate != snd_frequency) { //need to resample seq->data
+  //create new resampler
+  SpeexResamplerState *state;
+  state = speex_resampler_init(seq->channels, seq->sample_rate, snd_frequency, SPEEX_RESAMPLER_QUALITY_MIN, NULL);
+  if (!state) { //NULL means failure
+    free(seq->data);
+    return 0;
+  }
+  
+  //allocate new memory for output
+  int32 out_samples_max = ((double)seq->data_size / seq->channels / 2) * ((((double)snd_frequency) / ((double)seq->sample_rate)) + 0.1) + 100;//10%+100 extra samples as a buffer-zone
+  int16 *resampled = (int16 *)malloc(out_samples_max * seq->channels * sizeof(int16));
+  if (!resampled) {
+    free(seq->data);
+    return 0;
+  }
+  
+  //establish data sizes
+  //in_len will be set by the resampler to number of samples processed
+  spx_uint32_t in_len = seq->data_size / seq->channels / 2; // divide by 2 because 2byte samples, divive by #channels because function wants it per-channel
+  //out_len will be set to the number of samples written
+  spx_uint32_t out_len;
+  
+  //resample!
+  if (speex_resampler_process_interleaved_int(state, (spx_int16_t *)seq->data, &in_len, (spx_int16_t *)resampled, &out_len) != RESAMPLER_ERR_SUCCESS) {
+    //Error
+    free(resampled);
+    free(seq->data);
+    speex_resampler_destroy(state);
+    return 0;
+  }
+  
+  //destroy the resampler anyway
+  speex_resampler_destroy(state);
+  
+  //establish real size of new data and update seq
+  free(seq->data); //That was the old data
+  seq->data_size = out_len * seq->channels * 2; //remember out_len is perchannel, and each sample is 2 bytes
+  seq->data = (uint8_t *)realloc(resampled, seq->data_size); //we overestimated the array size before, so make it the correct size now
+  if (!seq->data) { //realloc could fail
+    free(resampled);
+    return 0;
+  }
+  seq->sample_rate = snd_frequency;
 }
-
 
 if (seq->channels==1){
 seq->data_mono=seq->data;

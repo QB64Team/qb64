@@ -1,0 +1,64 @@
+#Opus-tools should be built with autotools, not this makefile.
+#Run ./configure to run autotools/autoconf.
+#This makefile exists as a fallback where autotools isn't working.
+
+-include package_version
+
+#CC=gcc
+CFLAGS := -O2 -g -c -Wall -Wextra -DHAVE_LIBFLAC $(CFLAGS)
+INCLUDES := -I../opus/include -I/usr/include/FLAC
+
+ifneq (,$(findstring mingw,$(CC)))
+  INCLUDES += -Iwin32
+  COMMON_OBJS += win32/unicode_support.o
+  CFLAGS += -DHAVE_WINMM
+  LIBS += -lwinmm
+endif
+
+PROGS := opusenc opusdec opusinfo
+all: $(PROGS)
+
+clean:
+	rm -f src/*.o win32/*.o $(PROGS) opusrtp
+
+.PHONY: all clean
+
+
+VERSIONED_OBJS = src/opusenc.o src/opusdec.o src/opusinfo.o src/opusrtp.o \
+  src/wave_out.o
+
+$(VERSIONED_OBJS): CFLAGS += -DPACKAGE_NAME='"opus-tools"' -DPACKAGE_VERSION='$(PACKAGE_VERSION)'
+$(VERSIONED_OBJS): package_version
+
+RESAMPLER_CPPFLAGS = -DSPX_RESAMPLE_EXPORT= -DRANDOM_PREFIX=opustools -DOUTSIDE_SPEEX -DFLOATING_POINT
+
+src/opusdec.o src/resample.o src/audio-in.o: CFLAGS += $(RESAMPLER_CPPFLAGS)
+
+src/info_opus.o: CFLAGS += -DOPUSTOOLS
+
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
+
+opusenc: src/opus_header.o src/opusenc.o src/resample.o src/audio-in.o src/diag_range.o src/lpc.o src/flac.o src/picture.o $(COMMON_OBJS)
+	$(CC) $(LDFLAGS) $^ -o $@ ../opus/.libs/libopus.a -lm -logg -lFLAC $(LIBS)
+
+opusdec: src/opus_header.o src/wav_io.o src/wave_out.o src/opusdec.o src/resample.o src/diag_range.o $(COMMON_OBJS)
+	$(CC) $(LDFLAGS) $^ -o $@ ../opus/.libs/libopus.a -lm -logg $(LIBS)
+
+opusinfo: src/opus_header.o src/opusinfo.o src/info_opus.o src/picture.o $(COMMON_OBJS)
+	$(CC) $(LDFLAGS) $^ -o $@ -logg $(LIBS)
+
+opusrtp: src/opusrtp.o
+	$(CC) $(LDFLAGS) $^ -o $@ ../opus/.libs/libopus.a -logg -lm
+
+
+package_version: force
+	@if [ -x ./update_version ]; then \
+		./update_version || true; \
+	elif [ ! -e ./package_version ]; then \
+		echo 'PACKAGE_VERSION="unknown"' > ./package_version; \
+	fi
+
+force:
+
