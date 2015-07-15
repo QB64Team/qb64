@@ -6167,6 +6167,8 @@ idet$ = LEFT$(idet$, ideli - 1) + MKL$(textlen) + text$ + MKL$(textlen) + RIGHT$
 END SUB
 
 SUB ideshowtext
+
+_palettecolor 1, IDEBackgroundColor, 0
 _palettecolor 11, IDECommentColor, 0
 _palettecolor 10, IDEMetaCommandColor, 0
 _palettecolor 14, IDEQuoteColor, 0

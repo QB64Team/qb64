@@ -1,5 +1,6 @@
 DIM SHARED IDECommentColor AS _UNSIGNED LONG, IDEMetaCommandColor AS _UNSIGNED LONG
 DIM SHARED IDEQuoteColor AS _UNSIGNED LONG, IDETextColor AS _UNSIGNED LONG
+DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
@@ -69,11 +70,20 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("TextColor", value$)
     IF result THEN
-        IDETextColor = VRGBS(value$, _RGB32(255, 255, 2555))
+        IDETextColor = VRGBS(value$, _RGB32(255, 255, 255))
     ELSE
         IDETextColor = _RGB32(255, 255, 255)
         WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(255,255,255)"
     END IF
+
+    result = ReadConfigSetting("BackgroundColor", value$)
+    IF result THEN
+        IDEBackGroundColor = VRGBS(value$, _RGB32(0, 0, 170))
+    ELSE
+        IDEBackGroundColor = _RGB32(0, 0, 170)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
+    END IF
+
 
     IF INSTR(_OS$, "WIN") THEN
 
@@ -167,8 +177,8 @@ IF LoadedIDESettings = 0 THEN
     IF idecpindex < 0 OR idecpindex > idecpnum THEN idecpindex = 0: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CodePage", "0"
 
     result = ReadConfigSetting("BackupSize", value$)
-    idebackupdize = VAL(value$)
-    IF idebackupsize < 10 OR idebackupsize > 2000 THEN idebackupize = 100: WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
+    idebackupsize = VAL(value$)
+    IF idebackupsize < 10 OR idebackupsize > 2000 THEN idebackupsize = 100: WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
 
     result = ReadConfigSetting("DeBugInfo", value$)
     idedebuginfo = VAL(value$)
@@ -202,6 +212,7 @@ IF LoadedIDESettings = 0 THEN
             IF INSTR(_OS$, "WIN") THEN WriteConfigSetting "'[GENERAL SETTINGS]", "AllowIndependentSettings", "FALSE"
             WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
             WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+            WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "CommentColor", "_RGB32(85,255,255)"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "MetaCommandColor", "_RGB32(85,255,85)"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "QuoteColor", "_RGB32(255,255,85)"
