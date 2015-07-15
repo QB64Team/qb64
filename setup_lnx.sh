@@ -183,6 +183,12 @@ else
   ./setup_build.sh
   cd ../../../../../../../..
 
+  echo "Building User Additions"
+  cd internal/c/parts/user_mods/os/lnx
+  rm -f src.a
+  ./setup_build.sh
+  cd ../../../../../..
+
   echo "Building library 'Core:FreeGLUT'"
   cd internal/c/parts/core/os/lnx
   rm -f src.a
@@ -192,7 +198,7 @@ else
   echo "Building 'QB64'"
   cp -r ./internal/source/* ./internal/temp/
   cd internal/c
-  g++ -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -o ../../qb64
+  g++ -w qbx.cpp parts/user_mods/os/lnx/src.a libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -DDEPENDENCY_USER_MODS -o ../../qb64
   cd ../..
 fi
 
