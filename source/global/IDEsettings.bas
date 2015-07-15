@@ -138,7 +138,7 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("IDE_Height", value$)
     idewy = VAL(value$)
-    IF idewx < 25 OR idewx > 1000 THEN idewx = 25: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", "25"
+    IF idewy < 25 OR idewy > 1000 THEN idewy = 25: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", "25"
 
     result = ReadConfigSetting("IDE_AutoFormat", value$)
     ideautolayout = VAL(value$)
