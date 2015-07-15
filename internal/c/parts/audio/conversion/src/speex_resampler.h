@@ -39,7 +39,9 @@
 #ifndef SPEEX_RESAMPLER_H
 #define SPEEX_RESAMPLER_H
 
+#ifndef OUTSIDE_SPEEX
 #define OUTSIDE_SPEEX
+#endif
 
 #ifdef OUTSIDE_SPEEX
 
