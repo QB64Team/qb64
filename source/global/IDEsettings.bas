@@ -6,18 +6,18 @@ DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
 
 IF LoadedIDESettings = 0 THEN
-    'We only want to load the file once when QB64 first starts
-    'Other changes should occur to our settings when we change them in their appropiate routines.
-    'There's no reason to open and close and open and close the same file a million times.
+'We only want to load the file once when QB64 first starts
+'Other changes should occur to our settings when we change them in their appropiate routines.
+'There's no reason to open and close and open and close the same file a million times.
 
-    LoadedIDESettings = -1
+LoadedIDESettings = -1
 
-    ConfigFile$ = "internal/config.txt"
-    ConfigBak$ = "internal/config.bak"
+ConfigFile$ = "internal/config.txt"
+ConfigBak$ = "internal/config.bak"
 
-    GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
+GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
 
-    IF INSTR(_OS$, "WIN") THEN
+IF INSTR(_OS$, "WIN") THEN
 
         result = ReadConfigSetting("AllowIndependentSettings", value$)
         IF result THEN
@@ -145,7 +145,12 @@ IF LoadedIDESettings = 0 THEN
     IF UCASE$(value$) = "TRUE" OR ideautolayout <> 0 THEN
         ideautolayout = 1
     ELSE
-        IF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
+        IF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
+            ideautolayout = 1
+        else
+            ideautolayout = 0
+        end if
     END IF
 
     result = ReadConfigSetting("IDE_AutoIndent", value$)
@@ -153,20 +158,39 @@ IF LoadedIDESettings = 0 THEN
     IF UCASE$(value$) = "TRUE" OR ideautoindent <> 0 THEN
         ideautoindent = 1
     ELSE
-        IF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "TRUE"
+        IF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "TRUE"
+            ideautoindent = 1
+        else
+            ideautoindent = 0
+        end if
     END IF
 
     result = ReadConfigSetting("IDE_IndentSize", value$)
     ideautoindentsize = VAL(value$)
-    IF ideautoindentsize < 0 OR ideautoindentsize > 64 THEN ideautoindentsize = 4: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", "4"
+    if result = 0 then
+        ideautoindentsize = 4
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", "4"
+    else
+        IF ideautoindentsize < 0 OR ideautoindentsize > 64 THEN ideautoindentsize = 4
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", "4"
+    end if
 
     result = ReadConfigSetting("IDE_CustomFont", value$)
     idecustomfont = VAL(value$)
-    IF UCASE$(value$) = "TRUE" OR idecustomfont <> 0 THEN idecustomfont = 1 ELSE WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+    IF UCASE$(value$) = "TRUE" OR idecustomfont <> 0 THEN
+       idecustomfont = 1
+    ELSE
+       WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+       idecustomfont = 0
+    END IF
 
     result = ReadConfigSetting("IDE_CustomFont$", value$)
     idecustomfontfile$ = value$
-    IF idecustomfontfile$ = "" THEN WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", "c:\windows\fonts\lucon.ttf"
+    if result = 0 OR idecustomfont$ = "" then
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", "c:\windows\fonts\lucon.ttf"
+        idecustomfontfile$ = "c:\windows\fonts\lucon.ttf"
+    end if
 
     result = ReadConfigSetting("IDE_CustomFontSize", value$)
     idecustomfontheight = VAL(value$)
@@ -183,7 +207,10 @@ IF LoadedIDESettings = 0 THEN
     result = ReadConfigSetting("DeBugInfo", value$)
     idedebuginfo = VAL(value$)
     IF UCASE$(LEFT$(value$, 4)) = "TRUE" THEN idedebuginfo = 1
-    IF idedebuginfo = 0 THEN WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+    IF result = 0 OR idedebuginfo <> 1 THEN
+        WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+        idedebuginfo = 0
+    END IF
     Include_GDB_Debugging_Info = idedebuginfo
 
     result = ReadConfigSetting("IDE_AndroidMenu", value$)
