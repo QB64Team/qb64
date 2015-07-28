@@ -6246,6 +6246,8 @@ FOR y = 0 TO (idewy - 9)
         ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
             COLOR 14
         END IF
+        If InValidLine(l) and 1 then color 7
+
         LOCATE y + 3, 2 + m - 1
         PRINT MID$(a2$, m, 1);
     NEXT m
