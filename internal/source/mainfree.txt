@@ -163,6 +163,36 @@ free((void*)(__ARRAY_LONG_EVERYCASESET[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_EVERYCASESET)[8] );
+if (__ARRAY_LONG_EXECLEVEL[2]&1){
+if (__ARRAY_LONG_EXECLEVEL[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_LONG_EXECLEVEL[0]));
+}else{
+free((void*)(__ARRAY_LONG_EXECLEVEL[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_EXECLEVEL)[8] );
+if (__ARRAY_STRING_USERDEFINE[2]&1){
+tmp_long=__ARRAY_STRING_USERDEFINE[5]*__ARRAY_STRING_USERDEFINE[9];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_USERDEFINE[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_USERDEFINE[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_USERDEFINE)[12] );
+if (__ARRAY_BIT1_INVALIDLINE[2]&1){
+if (__ARRAY_BIT1_INVALIDLINE[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_BIT1_INVALIDLINE[0]));
+}else{
+free((void*)(__ARRAY_BIT1_INVALIDLINE[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BIT1_INVALIDLINE)[8] );
+if (__ARRAY_BYTE_DEFINEELSE[2]&1){
+if (__ARRAY_BYTE_DEFINEELSE[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_BYTE_DEFINEELSE[0]));
+}else{
+free((void*)(__ARRAY_BYTE_DEFINEELSE[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BYTE_DEFINEELSE)[8] );
 qbs_free(__STRING_REFACTOR_SOURCE);
 qbs_free(__STRING_REFACTOR_DEST);
 if (__ARRAY_LONG_DEPENDENCY[2]&1){
@@ -765,6 +795,10 @@ qbs_free(__STRING_FILE_NAMESPACE);
 qbs_free(__STRING_MYLIB);
 qbs_free(__STRING_MYLIBOPT);
 qbs_free(__STRING_WHOLESTV);
+qbs_free(__STRING_L);
+qbs_free(__STRING_R);
+qbs_free(__STRING_L1);
+qbs_free(__STRING_R1);
 qbs_free(__STRING_CWHOLELINE);
 qbs_free(__STRING_E);
 qbs_free(__STRING_CA);
@@ -776,7 +810,6 @@ qbs_free(__STRING_SIZ);
 qbs_free(__STRING_N);
 qbs_free(__STRING_T);
 qbs_free(__STRING_HASHNAME);
-qbs_free(__STRING_L);
 qbs_free(__STRING_RED);
 qbs_free(__STRING_GREEN);
 qbs_free(__STRING_BLUE);
@@ -817,7 +850,6 @@ qbs_free(__STRING_X2);
 qbs_free(__STRING_DLLNAME);
 qbs_free(__STRING_EE);
 qbs_free(__STRING_SUBFUNCRET);
-qbs_free(__STRING_R);
 qbs_free(__STRING_T3);
 qbs_free(__STRING_CALLNAME);
 qbs_free(__STRING_TYP);

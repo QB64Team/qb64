@@ -1,14 +1,14 @@
 qbs *_FUNC_GETELEMENT_STRING_GETELEMENT=NULL;
 if (!_FUNC_GETELEMENT_STRING_GETELEMENT)_FUNC_GETELEMENT_STRING_GETELEMENT=qbs_new(0,0);
-qbs*oldstr2475=NULL;
+qbs*oldstr2490=NULL;
 if(_FUNC_GETELEMENT_STRING_A->tmp||_FUNC_GETELEMENT_STRING_A->fixed||_FUNC_GETELEMENT_STRING_A->readonly){
-oldstr2475=_FUNC_GETELEMENT_STRING_A;
-if (oldstr2475->cmem_descriptor){
-_FUNC_GETELEMENT_STRING_A=qbs_new_cmem(oldstr2475->len,0);
+oldstr2490=_FUNC_GETELEMENT_STRING_A;
+if (oldstr2490->cmem_descriptor){
+_FUNC_GETELEMENT_STRING_A=qbs_new_cmem(oldstr2490->len,0);
 }else{
-_FUNC_GETELEMENT_STRING_A=qbs_new(oldstr2475->len,0);
+_FUNC_GETELEMENT_STRING_A=qbs_new(oldstr2490->len,0);
 }
-memcpy(_FUNC_GETELEMENT_STRING_A->chr,oldstr2475->chr,oldstr2475->len);
+memcpy(_FUNC_GETELEMENT_STRING_A->chr,oldstr2490->chr,oldstr2490->len);
 }
 int32 *_FUNC_GETELEMENT_LONG_N=NULL;
 if(_FUNC_GETELEMENT_LONG_N==NULL){
@@ -25,7 +25,7 @@ if(_FUNC_GETELEMENT_LONG_I==NULL){
 _FUNC_GETELEMENT_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_GETELEMENT_LONG_I=0;
 }
-byte_element_struct *byte_element_2476=NULL;
-if (!byte_element_2476){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2476=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2476=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2491=NULL;
+if (!byte_element_2491){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2491=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2491=(byte_element_struct*)mem_static_malloc(12);
 }
