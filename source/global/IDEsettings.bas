@@ -4,20 +4,21 @@ DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
+DIM SHARED MouseButtonSwapped AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
-'We only want to load the file once when QB64 first starts
-'Other changes should occur to our settings when we change them in their appropiate routines.
-'There's no reason to open and close and open and close the same file a million times.
+    'We only want to load the file once when QB64 first starts
+    'Other changes should occur to our settings when we change them in their appropiate routines.
+    'There's no reason to open and close and open and close the same file a million times.
 
-LoadedIDESettings = -1
+    LoadedIDESettings = -1
 
-ConfigFile$ = "internal/config.txt"
-ConfigBak$ = "internal/config.bak"
+    ConfigFile$ = "internal/config.txt"
+    ConfigBak$ = "internal/config.bak"
 
-GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
+    GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
 
-IF INSTR(_OS$, "WIN") THEN
+    IF INSTR(_OS$, "WIN") THEN
 
         result = ReadConfigSetting("AllowIndependentSettings", value$)
         IF result THEN
@@ -84,6 +85,16 @@ IF INSTR(_OS$, "WIN") THEN
         WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
     END IF
 
+    result = ReadConfigSetting("SwapMouseButton", value$)
+    if value$ = "TRUE" or val(value$) = -1 then
+        MouseButtonSwapped = -1
+        WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "TRUE"
+    else
+        MouseButtonSwapped = 0
+        WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
+    end if
+
+
 
     IF INSTR(_OS$, "WIN") THEN
 
@@ -132,6 +143,8 @@ IF INSTR(_OS$, "WIN") THEN
         IDE_TopPosition = 0
         IDE_LeftPosition = 0
     END IF
+
+
     result = ReadConfigSetting("IDE_Width", value$)
     idewx = VAL(value$)
     IF idewx < 80 OR idewx > 1000 THEN idewx = 80: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", "80"
@@ -225,6 +238,7 @@ IF INSTR(_OS$, "WIN") THEN
     result = ReadConfigSetting("IDE_AndroidMakeScript$", value$)
     IdeAndroidMakeScript$ = value$ 'no default values in case this fails??
     IF result = 0 THEN WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$", "programs\android\start_android.bat"
+    IF result = 0 THEN WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$", "programs\android\start_android.bat"
 
 
     GOTO SkipCheckConfigFileExists
@@ -258,6 +272,7 @@ IF INSTR(_OS$, "WIN") THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", "c:\windows\fonts\lucon.ttf"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CodePage", "0"
+            WriteConfigSetting "'[MOUSE SETTINGS]", "Mouse_Orentation$", "RIGHT"
         ELSE
             'use the main config file as the default values and just copy it over to the new file
             f = FREEFILE

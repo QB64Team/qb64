@@ -239,6 +239,7 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Backup/Undo...": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Advanced...": i = i + 1
+    menu$(m, i) = "#Swap Mouse Buttons": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Google Android...": i = i + 1
 
@@ -3147,6 +3148,20 @@ DO
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
         END IF
+
+
+        IF menu$(m, s) = "#Swap Mouse Buttons" THEN
+            PCOPY 2, 0
+            MouseButtonSwapped = NOT MouseButtonSwapped
+            if MouseButtonSwapped then
+                WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "TRUE"
+            else
+                WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
+            end if
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
 
         IF menu$(m, s) = "#Code layout..." THEN
             PCOPY 2, 0
@@ -8898,7 +8913,11 @@ IF k THEN
 END IF
 DO WHILE _MOUSEINPUT
     iCHANGED = 1
-    mB = _MOUSEBUTTON(1): mB2 = _MOUSEBUTTON(2)
+    if MouseButtonSwapped then
+        mB = _MOUSEBUTTON(2): mB2 = _MOUSEBUTTON(1)
+    else
+        mB = _MOUSEBUTTON(1): mB2 = _MOUSEBUTTON(2)
+    end if
     mWHEEL = mWHEEL + _MOUSEWHEEL
     mX = _MOUSEX: mY = _MOUSEY
     IF mB <> 0 AND mOB = 0 THEN mCLICK = -1: EXIT SUB
@@ -9507,6 +9526,12 @@ DO
     LINE (x * 40 - 40, y * 30 - 30)-(x * 40, y * 30), _RGBA32(255, 255, 255, 150), BF
 
     k1 = _KEYHIT
+    MouseClick = 0: MouseExit = 0
+    if MouseButtonSwapped then
+        mouseclick = _mousebutton(2): mouseexit = _mousebutton(1)
+    else
+        mouseclick = _mousebutton(1): mouseexit = _mousebutton(2)
+    end if
     SELECT CASE k1
         CASE 13: EXIT DO
         CASE 27
@@ -9533,7 +9558,14 @@ DO
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
-LOOP UNTIL _MOUSEBUTTON(1)
+    IF MouseExit THEN
+        _AUTODISPLAY
+        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        IF _RESIZE THEN donothing = atall
+        EXIT FUNCTION
+    END IF
+
+LOOP UNTIL mouseclick
 
 ret% = (y - 1) * 16 + x - 1
 IF ret% > 0 AND ret% < 255 THEN
