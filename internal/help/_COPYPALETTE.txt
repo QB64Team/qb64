@@ -1,0 +1,28 @@
+The {{KW|_COPYPALETTE}} statement copies the color palette intensities from one 4 or 8 BPP image to another image or a [[_NEWIMAGE]] screen page using 256 or less colors.
+
+
+{{PageSyntax}}
+:{{KW|_COPYPALETTE}} [{{Parameter|sourceImageHandle&amp;}}[, {{Parameter|destinationImageHandle&amp;}}]]
+
+
+{{PageDescription}}
+* Palette Intensity settings are '''NOT''' used by 24/32 bit images! '''Only use with 4 or 8 BPP images!'''
+* [[_PIXELSIZE]] function returns of 1 indicate that _COPYPALETTE can be used. 4 indicates 24/32 bit!
+* If {{Parameter|sourceImageHandle&amp;}} is omitted, it is assumed to be the current read page.
+* If {{Parameter|destinationImageHandle&amp;}} is omitted, it is assumed to be the current write page.
+* If either of the images specified by {{Parameter|sourceImageHandle&amp;}} or {{Parameter|destinationImageHandle&amp;}} do not use a palette, an [[ERROR Codes|illegal function call]] error is returned.
+* If either {{Parameter|sourceImageHandle&amp;}} or {{Parameter|destinationImageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error is returned.
+* When loading 4 or 8 BPP image files, it is necessary to adopt the color palette of the image or it may not have the correct colors!
+
+
+''See Example:'' [[SAVEIMAGE]]
+
+
+{{PageSeeAlso}}
+* {{KW|_LOADIMAGE}}
+* {{KW|_PIXELSIZE}}
+* {{KW|_PALETTECOLOR}}, {{KW|_PALETTECOLOR (function)}}
+* {{KW|PALETTE}}, [[Images]]
+
+
+{{PageNavigation}}

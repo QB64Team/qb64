@@ -1,0 +1,38 @@
+The {{KW|RTRIM$}} function removes trailing space characters from a {{KW|STRING}} value.
+
+
+{{PageSyntax}}
+:{{parameter|return$}} = {{KW|RTRIM$}}({{Parameter|value$}})
+
+
+{{PageDescription}}
+* {{Parameter|value$}} is the {{KW|STRING}} value to trim.
+* If {{Parameter|value$}} contains no trailing space characters, {{Parameter|value$}} is returned unchanged.
+* Convert fixed length {{KW|STRING}} values by using a different {{parameter|return$}} variable.
+
+
+
+{{PageExamples}}
+Trimming a fixed length string value for use by another string variable:
+{{CodeStart}}
+name$ = {{Cl|RTRIM$}}(contact.name) ' trims spaces from end of fixed length {{Cl|TYPE}} value.
+{{CodeEnd}} 
+
+Trimming text string ends:
+{{CodeStart}}{{Cl|PRINT}} {{Cl|RTRIM$}}(&quot;some text&quot;) + &quot;.&quot;
+{{Cl|PRINT}} {{Cl|RTRIM$}}(&quot;some text   &quot;) + &quot;.&quot;
+{{Cl|PRINT}} {{Cl|RTRIM$}}(&quot;Tommy    &quot;)
+{{CodeEnd}}
+{{OutputStart}}some text.
+some text.
+Tommy
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* {{KW|LTRIM$}}, {{KW|STR$}}
+
+* {{KW|LSET}}, {{KW|RSET}}
+
+
+{{PageNavigation}}

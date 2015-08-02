@@ -1,0 +1,18 @@
+The '''FREEFILE''' function returns an unused file access number.
+
+
+{{PageSyntax}}
+:: file1% = FREEFILE
+
+
+* FREEFILE values should be given to unique variables so that each file has a specific variable value assigned to it.
+* The file number variable can later be used to read, write or [[CLOSE]] that file.
+* [[OPEN]] each file number after each FREEFILE return or the values returned may be the same!
+* [[OPEN COM]] statements cannot use any number assigned to files already OPEN!
+
+
+''See also:'' 
+* [[GET]], [[PUT]], [[CLOSE]]
+
+
+{{PageNavigation}}

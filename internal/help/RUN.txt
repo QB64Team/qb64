@@ -1,0 +1,88 @@
+'''RUN''' is a control flow statement that clears and restarts the program currently in memory or executes another specified program.
+
+
+
+{{PageSyntax}}
+:: '''RUN''' [{''line_number'' | ''filespec$''}] [''command_parameter(s)'']
+
+
+{{Parameters}}
+* ''line number'' specifies a line number in the main module code. 
+* An optional ''filespec'' specifies a program to load into memory and run. 
+: * BAS or EXE extensions are assumed to be the same as the calling module's extension, EXE or BAS (Qbasic only).
+: * ''file names specs'' with other extensions must use the full filename. No extension requires a dot.
+* In '''QB64''' ''command line parameters'' can follow the program file name and be read using the [[COMMAND$]] function later.
+
+
+''Usage:''
+* The starting [[line number]] MUST be one used in the main module code! Even with [[SUB]] or [[FUNCTION]] references. 
+* If no line number is given the currently loaded program runs from the first executable line.
+* In '''QB64''' RUN can open any kind of executable program and provide case sensitive program specific parameters. 
+* RUN does not return to the calling procedure if the program called is not a Qbasic procedure!
+* RUN closes all open files and closes the invoking program module before the called program starts. (Cannot use Basica's R) 
+* If you do NOT want opened files to be closed use [[CHAIN]] instead.
+* In Qbasic '''/RUN''' can also be used to run a program module in a command line. Example: QB.EXE /L /RUN Module1.BAS
+* RUN should reset the [[RANDOMIZE]] sequence to the starting [[RND]] function value.(Not yet in QB64) 
+* Note: Qbasic also allowed /RUN in a command line call to run a BAS file with the interpreter. QB64 cannot run BAS files!
+* '''Note: RUN causes a stack leak in QB64 if it is called from within a [[SUB]] or [[FUNCTION]]. Avoid when possible!'''
+* '''NOTE: [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions |Not currently available in Linux or Mac operating systems!]]'''
+
+
+''Example 1:'' Shows how RUN can reference multiple line numbers in the main module code. No line number executes first code line.
+{{CodeStart}} '' ''
+PRINT &quot; A&quot;, &quot; B&quot;, &quot; C&quot;, &quot; D&quot;
+10 A = 1
+20 B = 2
+30 C = 3
+40 D = 4
+50 {{Cl|PRINT}} A, B, C, D
+60 {{Cl|IF...THEN|IF}} A = 0 {{Cl|THEN}} 70 {{Cl|ELSE}} {{Cl|RUN}} 20    'RUN clears all values
+70 {{Cl|IF...THEN|IF}} B = 0 {{Cl|THEN}} 80 {{Cl|ELSE}} {{Cl|RUN}} 30
+80 {{Cl|IF...THEN|IF}} C = 0 {{Cl|THEN}} 90 {{Cl|ELSE}} {{Cl|RUN}} 40
+90 {{Cl|IF...THEN|IF}} D = 0 {{Cl|THEN}} 100 {{Cl|ELSE}} {{Cl|RUN}} 50
+100 {{Cl|PRINT}}
+{{Cl|INPUT}} &quot;Do you want to quit?(Y/N)&quot;, quit$
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(quit$) = &quot;Y&quot; {{Cl|THEN}} {{Cl|END}} {{Cl|ELSE}} {{Cl|RUN}}  'RUN without line number executes at first code line
+'' ''
+{{CodeEnd}} 
+{{OutputStart}}A       B       C       D
+1       2       3       4
+0       2       3       4
+0       0       3       4
+0       0       0       4
+0       0       0       0
+
+Do you want to quit?(Y/N)_
+{{OutputEnd}}
+
+
+''Example 2:'' Compile both programs below with QB64. ProgramA [[RUN]]s ProgramB with a parameter passed following the filename: 
+{{CodeStart}} '            ================ ProgramA.BAS ===================
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramA&quot;
+
+{{Cl|LOCATE}} 23, 25: {{Cl|PRINT}} &quot;Press any key to run ProgramB&quot;
+K$ = {{Cl|INPUT$}}(1)
+{{Cl|RUN}} &quot;ProgramB FS&quot;  'pass FS parameter to ProgramB in QB64 ONLY
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+: ''ProgramB'' checks for fullscreen parameter pass in QB64 and goes full screen. 
+{{CodeStart}} '            ================ ProgramB.BAS ===================
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramB&quot;
+parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}})
+{{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} &quot;Parameter = &quot; + parameter$
+{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = &quot;FS&quot; {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+{{OutputStart}}                              Parameter = FS.EXE
+{{OutputEnd}}
+: '''Note:''' The above RUN procedure will NOT work in Qbasic! Qbasic cannot pass [[COMMAND$]] parameters with RUN!
+
+
+''See also:'' 
+* [[CHAIN]], [[SHELL]]
+* [[COMMAND$]]
+
+
+{{PageNavigation}}

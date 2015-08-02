@@ -1,0 +1,55 @@
+The {{KW|LTRIM$}} function removes leading space characters from a {{KW|STRING}} value.
+
+
+{{PageSyntax}}
+:''return$'' = {{KW|LTRIM$}}({{Parameter|value$}})
+
+
+{{PageDescription}}
+* {{Parameter|value$}} is the {{KW|STRING}} value to trim.
+* If {{Parameter|value$}} contains no leading space characters, {{Parameter|value$}} is returned unchanged.
+* Convert fixed length {{KW|STRING}} values by using a different {{parameter|return$}} variable.
+* Can be used to trim the leading space of a positive numerical value converted to a string value by {{KW|STR$}}.
+
+
+''Example 1:'' Trimming a positive string number.
+{{CodeStart}}
+value = 12345
+number$ = {{Cl|LTRIM$}}({{Cl|STR$}}(value)) 'converting number to string removes right PRINT space
+{{Cl|PRINT}} &quot;[&quot; + number$ + &quot;]&quot; '' ''
+{{CodeEnd}}
+{{OutputStart}}[12345]
+{{OutputEnd}}
+
+
+''Example 2:'' Trimming leading spaces from text strings.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} {{Cl|LTRIM$}}(&quot;some text&quot;)
+{{Cl|PRINT}} {{Cl|LTRIM$}}(&quot;   some text&quot;) '' ''
+{{CodeEnd}}
+{{OutputStart}}some text
+some text
+{{OutputEnd}}
+
+
+''Example 3:'' A TRIM$ function to trim spaces off of both ends of a string.
+{{codeStart}} '' ''
+text$ = &quot;        Text String           &quot;
+trimmed$ = TRIM$(text$)
+{{Cl|PRINT}} {{Cl|CHR$}}(26) + trimmed$ + {{Cl|CHR$}}(27) '' ''
+
+{{Cl|FUNCTION}} TRIM$(text$)
+TRIM$ = {{Cl|LTRIM$}}({{Cl|RTRIM$}}(text$))
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{OutputStart}}→Text String←
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[RTRIM$]], [[STR$]]
+* [[LEFT$]], [[RIGHT$]]
+* [[HEX$]], [[MID$]]
+
+
+{{PageNavigation}}

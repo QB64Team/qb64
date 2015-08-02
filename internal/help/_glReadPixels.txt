@@ -1,0 +1,201 @@
+'''_glReadPixels:''' read a block of pixels from the frame buffer
+
+
+{{PageSyntax}}
+
+  SUB _glReadPixels (BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG, BYVAL height AS LONG, BYVAL format AS _UNSIGNED LONG, BYVAL type AS _UNSIGNED LONG, pixels AS _OFFSET)
+  void '''_glReadPixels'''(GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}}, GLsizei {{Parameter|height}}, GLenum {{Parameter|format}}, GLenum {{Parameter|type}}, GLvoid * {{Parameter|data}});
+
+
+; x, y
+: Specify the window coordinates of the first pixel that is read from the frame buffer. This location is the lower left corner of a rectangular block of pixels.
+; width, height
+: Specify the dimensions of the pixel rectangle. {{Parameter|width}} and {{Parameter|height}} of one correspond to a single pixel.
+{{Template:Glapi pixeltransferupparams|read=|}}
+
+
+{{PageDescription}}
+
+'''_glReadPixels''' returns pixel data from the frame buffer, starting with the pixel whose lower left corner is at location ({{Parameter|x}}, {{Parameter|y}}), into client memory starting at location {{Parameter|data}}. Several parameters control the processing of the pixel data before it is placed into client memory. These parameters are set with {{KW|_glPixelStore}}. This reference page describes the effects on '''_glReadPixels''' of most, but not all of the parameters specified by these three commands.
+
+If a non-zero named buffer object is bound to the {{KW|_GL_PIXEL_PACK_BUFFER}} target (see {{KW|_glBindBuffer}}) while a block of pixels is requested, {{Parameter|data}} is treated as a byte offset into the buffer object's data store rather than a pointer to client memory.
+
+'''_glReadPixels''' returns values from each pixel with lower left corner at (''x'' + ''i'', ''y'' + ''j'') for 0 &amp;amp;le; ''i'' &amp;lt; ''width'' and 0 &amp;amp;le; ''j'' &amp;lt; ''height''. This pixel is said to be the ''i''th pixel in the ''j''th row. Pixels are returned in row order from the lowest to the highest row, left to right in each row.
+
+{{Parameter|format}} specifies the format for the returned pixel values; accepted values are:
+
+; {{KW|_GL_STENCIL_INDEX}}
+: Stencil values are read from the stencil buffer. Each index is converted to fixed point, shifted left or right depending on the value and sign of {{KW|_GL_INDEX_SHIFT}}, and added to {{KW|_GL_INDEX_OFFSET}}. If {{KW|_GL_MAP_STENCIL}} is {{KW|_GL_TRUE}}, indices are replaced by their mappings in the table {{KW|_GL_PIXEL_MAP_S_TO_S}}.
+; {{KW|_GL_DEPTH_COMPONENT}}
+: Depth values are read from the depth buffer. Each component is converted to floating point such that the minimum depth value maps to 0 and the maximum value maps to 1. Each component is then multiplied by {{KW|_GL_DEPTH_SCALE}}, added to {{KW|_GL_DEPTH_BIAS}}, and finally clamped to the range [0, 1].
+; {{KW|_GL_DEPTH_STENCIL}}
+: Values are taken from both the depth and stencil buffers. The {{Parameter|type}} parameter must be {{KW|_GL_UNSIGNED_INT_24_8}} or {{KW|_GL_FLOAT_32_UNSIGNED_INT_24_8_REV}}.
+; {{KW|_GL_RED}}
+; {{KW|_GL_GREEN}}
+; {{KW|_GL_BLUE}}
+; {{KW|_GL_RGB}}
+; {{KW|_GL_BGR}}
+; {{KW|_GL_RGBA}}
+; {{KW|_GL_BGRA}}
+: Finally, the indices or components are converted to the proper format, as specified by {{Parameter|type}}. If {{Parameter|format}} is {{KW|_GL_STENCIL_INDEX}} and {{Parameter|type}} is not {{KW|_GL_FLOAT}}, each index is masked with the mask value given in the following table. If {{Parameter|type}} is {{KW|_GL_FLOAT}}, then each integer index is converted to single-precision floating-point format.
+
+If {{Parameter|format}} is {{KW|_GL_RED}}, {{KW|_GL_GREEN}}, {{KW|_GL_BLUE}}, {{KW|_GL_RGB}}, {{KW|_GL_BGR}}, {{KW|_GL_RGBA}}, or {{KW|_GL_BGRA}} and {{Parameter|type}} is not {{KW|_GL_FLOAT}}, each component is multiplied by the multiplier shown in the following table. If type is {{KW|_GL_FLOAT}}, then each component is passed as is (or converted to the client's single-precision floating-point format if it is different from the one used by the GL).
+
+{| class=&amp;quot;wikitable&amp;quot;
+|+
+! {{Parameter|type}}
+! '''Index Mask'''
+! '''Component Conversion'''
+|+
+| {{KW|_GL_UNSIGNED_BYTE}}
+| 2&amp;lt;sup&amp;gt;8&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^8 - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_BYTE}}
+| 2&amp;lt;sup&amp;gt;7&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;\tfrac{(2^8 - 1)c - 1}{2}&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT}}
+| 2&amp;lt;sup&amp;gt;16&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^{16} - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_SHORT}}
+| 2&amp;lt;sup&amp;gt;15&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;\tfrac{(2^{16} - 1)c - 1}{2}&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT}}
+| 2&amp;lt;sup&amp;gt;32&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^{32} - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_INT}}
+| 2&amp;lt;sup&amp;gt;31&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;\tfrac{(2^{32} - 1)c - 1}{2}&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_HALF_FLOAT}}
+| none
+| ''c''
+|+
+| {{KW|_GL_FLOAT}}
+| none
+| ''c''
+|+
+| {{KW|_GL_UNSIGNED_BYTE_3_3_2}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_BYTE_2_3_3_REV}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT_5_6_5}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT_5_6_5_REV}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT_4_4_4_4}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT_4_4_4_4_REV}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT_5_5_5_1}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_SHORT_1_5_5_5_REV}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT_8_8_8_8}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT_8_8_8_8_REV}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT_10_10_10_2}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT_2_10_10_10_REV}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT_24_8}}
+| 2&amp;lt;sup&amp;gt;N&amp;lt;/sup&amp;gt; - 1
+| &amp;lt;math&amp;gt;(2^N - 1)c&amp;lt;/math&amp;gt;
+|+
+| {{KW|_GL_UNSIGNED_INT_10F_11F_11F_REV}}
+| --
+| Special
+|+
+| {{KW|_GL_UNSIGNED_INT_5_9_9_9_REV}}
+| --
+| Special
+|+
+| {{KW|_GL_FLOAT_32_UNSIGNED_INT_24_8_REV}}
+| none
+| ''c'' (Depth Only)
+|}
+
+Return values are placed in memory as follows. If {{Parameter|format}} is {{KW|_GL_STENCIL_INDEX}}, {{KW|_GL_DEPTH_COMPONENT}}, {{KW|_GL_RED}}, {{KW|_GL_GREEN}}, or {{KW|_GL_BLUE}}, a single value is returned and the data for the ''i''th pixel in the ''j''th row is placed in location ''j'' * ''width'' + ''i''. {{KW|_GL_RGB}} and {{KW|_GL_BGR}} return three values, {{KW|_GL_RGBA}} and {{KW|_GL_BGRA}} return four values for each pixel, with all values corresponding to a single pixel occupying contiguous space in {{Parameter|data}}. Storage parameters set by {{KW|_glPixelStore}}, such as {{KW|_GL_PACK_LSB_FIRST}} and {{KW|_GL_PACK_SWAP_BYTES}}, affect the way that data is written into memory. See {{KW|_glPixelStore}} for a description.
+
+
+{{PageNotes}}
+
+Values for pixels that lie outside the window connected to the current GL context are undefined.
+
+If an error is generated, no change is made to the contents of {{Parameter|data}}.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|format}} or {{Parameter|type}} is not an accepted value.
+
+{{KW|_GL_INVALID_VALUE}} is generated if either {{Parameter|width}} or {{Parameter|height}} is negative.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{Parameter|format}} is {{KW|_GL_STENCIL_INDEX}} and there is no stencil buffer.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{Parameter|format}} is {{KW|_GL_DEPTH_COMPONENT}} and there is no depth buffer.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{Parameter|format}} is {{KW|_GL_DEPTH_STENCIL}} and there is no depth buffer or if there is no stencil buffer.
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|format}} is {{KW|_GL_DEPTH_STENCIL}} and {{Parameter|type}} is not {{KW|_GL_UNSIGNED_INT_24_8}} or {{KW|_GL_FLOAT_32_UNSIGNED_INT_24_8_REV}}.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{Parameter|type}} is one of {{KW|_GL_UNSIGNED_BYTE_3_3_2}}, {{KW|_GL_UNSIGNED_BYTE_2_3_3_REV}}, {{KW|_GL_UNSIGNED_SHORT_5_6_5}}, or {{KW|_GL_UNSIGNED_SHORT_5_6_5_REV}} and {{Parameter|format}} is not {{KW|_GL_RGB}}.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{Parameter|type}} is one of {{KW|_GL_UNSIGNED_SHORT_4_4_4_4}}, {{KW|_GL_UNSIGNED_SHORT_4_4_4_4_REV}}, {{KW|_GL_UNSIGNED_SHORT_5_5_5_1}}, {{KW|_GL_UNSIGNED_SHORT_1_5_5_5_REV}}, {{KW|_GL_UNSIGNED_INT_8_8_8_8}}, {{KW|_GL_UNSIGNED_INT_8_8_8_8_REV}}, {{KW|_GL_UNSIGNED_INT_10_10_10_2}}, or {{KW|_GL_UNSIGNED_INT_2_10_10_10_REV}} and {{Parameter|format}} is neither {{KW|_GL_RGBA}} nor {{KW|_GL_BGRA}}.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if a non-zero buffer object name is bound to the {{KW|_GL_PIXEL_PACK_BUFFER}} target and the buffer object's data store is currently mapped.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if a non-zero buffer object name is bound to the {{KW|_GL_PIXEL_PACK_BUFFER}} target and the data would be packed to the buffer object such that the memory writes required would exceed the data store size.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if a non-zero buffer object name is bound to the {{KW|_GL_PIXEL_PACK_BUFFER}} target and {{Parameter|data}} is not evenly divisible into the number of bytes needed to store in memory a datum indicated by {{Parameter|type}}.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if {{KW|_GL_READ_FRAMEBUFFER_BINDING}} is non-zero, the read framebuffer is complete, and the value of {{KW|_GL_SAMPLE_BUFFERS}} for the read framebuffer is greater than zero.
+
+
+{{PageUseWith}}
+
+{{KW|_glGet}} with argument {{KW|_GL_INDEX_MODE}}
+
+{{KW|_glGet}} with argument {{KW|_GL_PIXEL_PACK_BUFFER_BINDING}}
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glBindFramebuffer}}, {{KW|_glClampColor}}, {{KW|_glDrawBuffers}}, {{KW|_glDrawBuffers}}, {{KW|_glPixelStore}}
+
+[[Pixel Transfer]], [[Pixel Buffer Object]]
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

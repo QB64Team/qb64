@@ -1,0 +1,43 @@
+The '''PEN''' function returns requested information about the lightpen device used.
+
+
+
+{{PageSyntax}}
+:: PEN(n)
+
+
+''Description:''
+
+*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
+
+* The lightpen was a device that detected the current position when the screen was drawn. It sends a signal when it is detected, from that the x and y coordinates of the pen relative to the screen is known. '''Seldom used today!''' (mainly because of the pain in the arm because of the constant lift of the pen to the screen and I suspect it left the screen rather dirty)
+
+
+* n is a numerical expression that can have one of these request numbers:
+
+::0 = Whether the pen was drawn since the last function call (-1 yes, 0 no).
+
+::1 = x-coordinate of the last pen press.
+
+::2 = y-coordinate of the last pen press.
+
+::3 = current pen switch status (-1 down, 0 up).
+
+::4 = last known valid x-coordinate.
+
+::5 = last known valid y-coordinate.
+
+::6 = character row of last pen press.
+
+::7 = character column of last pen press.
+
+::8 = character row of last pen position.
+
+::9 = character column of last pen position.
+
+
+''See also:'' 
+* [[PEN (statement)]], [[ON PEN]]
+
+
+{{PageNavigation}}

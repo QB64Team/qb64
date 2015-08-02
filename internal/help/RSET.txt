@@ -1,0 +1,43 @@
+The '''RSET''' statement right-justifies a string according to length of the string expression. 
+
+
+{{PageSyntax}}
+:: RSET string_variable = string_expression
+
+
+
+* If the ''string_expression'' is longer than a fixed length string variable the value is truncated from the right side in [[LSET]] or RSET.
+* If the ''string_expression'' is smaller than the fixed length, spaces will occupy the extra positions in the string. 
+* RSET can be used with a [[FIELD]] or [[TYPE]] string definition to set the buffer position before a [[PUT]].
+
+
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|CLS}}
+{{Cl|DIM}} thestring {{Cl|AS}} {{Cl|STRING}} * 10
+{{Cl|PRINT}} &quot;12345678901234567890
+{{Cl|RSET}} thestring = &quot;Hello!&quot;
+{{Cl|PRINT}} thestring
+anystring$ = {{Cl|SPACE$}}(20)
+{{Cl|RSET}} anystring$ = &quot;Hello again!&quot;
+{{Cl|PRINT}} anystring$
+{{Cl|RSET}} thestring = &quot;Over ten characters long&quot;
+{{Cl|PRINT}} thestring '' ''
+{{CodeEnd}}
+{{OutputStart}}
+12345678901234567890
+    Hello!
+        Hello Again!
+Over ten c
+{{OutputEnd}}
+
+:''Explanation:'' Notice how &quot;Hello!&quot; ends at the tenth position because the length of ''thestring'' is 10. When we used SPACE$(20) the length of ''anystring$'' became 20 so &quot;Hello Again!&quot; ended at the 20th position. That is right-justified. The last line &quot;Over ten c&quot; is truncated as it didn't fit into ''thestring'''s length of only 10 characters.
+
+
+''See also:'' 
+* [[RTRIM$]], [[FIELD]]
+* [[LSET]], [[LTRIM$]]
+* [[PUT]], [[GET]]
+
+
+{{PageNavigation}}

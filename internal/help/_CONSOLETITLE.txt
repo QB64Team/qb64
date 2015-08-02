@@ -1,0 +1,30 @@
+The '''_CONSOLETITLE''' statement creates the title of the console window using a literal or variable [[STRING|string]].
+
+
+{{PageSyntax}}
+::: _CONSOLETITLE ''text$''
+
+
+* The ''text$'' used can be a literal or variable [[STRING]] value.
+
+
+''Example:'' Hiding the main program window while displaying the console window with a title.
+{{CodeStart}} '' ''
+{{Cl|$SCREENHIDE}}
+{{Cl|_DELAY}} 4
+{{Cl|$CONSOLE}}
+{{Cl|_CONSOLETITLE}} &quot;Error Log&quot;
+
+{{Cl|_DEST}} {{Cl|_CONSOLE}}
+{{Cl|PRINT}} &quot;Errors go here! (fyi, this line is not an error)&quot;
+{{Cl|END}}
+{{CodeEnd}}
+
+
+''See also:''
+* [[$CONSOLE]], [[_CONSOLE]]
+* [[$SCREENHIDE]], [[$SCREENSHOW]]
+* [[_SCREENHIDE]], [[_SCREENSHOW]]
+
+
+{{PageNavigation}}

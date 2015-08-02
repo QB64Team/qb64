@@ -1,0 +1,64 @@
+The {{KW|_PRESERVE}} action preserves the current contents of a [[$DYNAMIC|dynamic]] [[Arrays|array]],  when [[REDIM|resizing]] it.
+
+
+
+{{PageSyntax}} 
+:::{{KW|REDIM}} {{KW|_PRESERVE}} Array(100)
+
+
+{{PageDescription}}
+* [[REDIM]] or the [[$DYNAMIC]] metacommand must be used when the array is first created to be able to resize it!
+* If [[_PRESERVE]] is not used, the present contents of the array are cleared by [[REDIM]]!
+:* All element values of an array are preserved if the array size is increased.
+:* The remaining elements of the array are preserved if the array size is decreased.
+:* If the new index range is different from the original, all values will be moved to the new corresponding indices.
+* Can also be used to preserve the data in multi-dimensional arrays, but '''the [[TYPE]] and number of dimensions cannot be changed'''.
+* [[SUB]] or [[FUNCTION]] arrays created using [[REDIM]] require that they be recreated to be used after they are [[ERASE]]d.
+* '''Warning! Do not use negative array upper bound index values as OS access or &quot;Out of Memory&quot; [[ERROR Codes|errors]] will occur!'''
+* Use _PRESERVE before SHARED or an &quot;invalid variable name&quot; error will occur in QB64.
+
+
+{{PageExamples}}
+''Example 1:'' Changing the upper and lower array bounds
+
+{{CodeStart}} '' ''
+{{Cl|REDIM}} a(5 {{Cl|TO}} 10) ' create array as dynamic using REDIM
+a(5) = 123
+{{Cl|REDIM}} {{Cl|_PRESERVE}} a(20 {{Cl|TO}} 40) 
+{{Cl|PRINT}} a(20)
+{{CodeEnd}}
+:''Explanation:'' a(20) is now the 123 value a(5) was. The upper or lower bounds of arrays can be changed, but the type cannot. New array indices like a(40) are null(0) or empty strings. If the array element count is not reduced, all of the data will be preserved.
+
+
+''Example 2:'' Sizing an array while storing file data.
+
+{{CodeStart}} '' ''
+{{Cl|REDIM}} Array$(1)                'create a dynamic string array
+filename$ = &quot;Readme.txt&quot;       'Qb64 information text file
+{{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+{{Cl|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1)
+  count = count + 1
+  {{Cl|IF}} count &gt; {{Cl|UBOUND}}(Array$) {{Cl|THEN}}
+    {{Cl|REDIM}} {{Cl|_PRESERVE}} Array$(count * 3 / 2)'increase array's size by 50% without losing data
+  {{cl|END IF}}
+
+  {{Cl|LINE INPUT (file statement)|LINE INPUT}} #1, textline$
+  Array$(count) = textline$
+{{Cl|LOOP}}
+{{Cl|CLOSE}} #1 
+{{Cl|FOR...NEXT|FOR}} c = 1 {{Cl|TO}} count
+{{Cl|PRINT}} Array$(c)
+{{Cl|IF...THEN|IF}} c {{Cl|MOD}} 20 = 0 {{Cl|THEN}} k$ = {{Cl|INPUT$}}(1)
+{{Cl|NEXT}} 
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+
+{{PageSeeAlso}}
+* {{KW|REDIM}}, {{KW|DIM}}
+* {{KW|$DYNAMIC}}
+* {{KW|Arrays}}
+
+
+{{PageNavigation}}

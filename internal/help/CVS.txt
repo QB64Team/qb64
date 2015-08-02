@@ -1,0 +1,35 @@
+The '''CVS''' function converts 2 byte [[GET]] or [[MKS$]] [[STRING]] values to [[SINGLE]] floating decimal numerical values.
+
+
+
+::::::''Syntax:'' CVS(''2-byte string'')
+
+
+
+* Numeric values read in from a [[RANDOM]]-access or [[BINARY]] disk file must be converted from [[ASCII]] string characters back into numbers if they are to be arithmetically manipulated.
+* [[SINGLE]] values can range up to 7 decimal point digits. Decimal point accuracy depends on whole value places taken.
+* [[CVS]] converts a 4-byte string created by [[MKS$]] to a [[SINGLE]]-precision numerical value. 
+* [[CVD]] converts an 8-byte string created by [[MKD$]] to a [[DOUBLE]]-precision numerical value.
+* [[CVI]] converts a 2-byte string created by [[MKI$]] to an [[INTEGER]] numerical value.
+* [[CVL]] converts a 4 byte string created by [[MKL$]] to a [[LONG]] integer numerical value.
+* CV functions can only be used to convert values from [[MK$]] string function values or data from [[BINARY]] files!
+
+
+''Examples:''
+{{CodeStart}} '' ''
+{{Cl|FIELD}} #1, 4 {{Cl|AS}} N$, 12 {{Cl|AS}} B$...
+{{Cl|GET}} #1
+Y = {{Cl|CVS}}(N$) '' ''
+{{CodeEnd}}
+:''Explanation:'' Reads a field from file #1, and converts the first four bytes (N$) into a single-precision number assigned to the variable Y.
+
+:Since a single-precision number can contain as many as seven ASCII characters (seven bytes), writing a file using [[MKS$]] conversion, and reading with the [[CVS]] conversion, as many as three bytes per number recorded are saved on the storage medium. Even more may be saved if double-precision numbers are required. [[MKD$]] and [[CVD]] conversions would be used in this case.
+
+
+''See also:'' 
+* [[MKS$]], [[MKI$]], [[MKL$]], [[MKD$]]
+* [[CVI]], [[CVL]], [[CVD]], [[_CV]]
+* [[_MK$]], [[_CV]]
+
+
+{{PageNavigation}}

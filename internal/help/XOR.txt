@@ -1,0 +1,50 @@
+The '''XOR''' numerical operator returns the bitwise exclusive OR.  
+
+
+{{PageSyntax}}
+:: return% = value1% XOR value2%
+
+
+* Given two integer-typed values XOR returns a new integer with the property that the result in each bit position is 1 if the two bits are different, and 0 if they are the same. This can be used to alternate bit states every time XOR is used.
+* Returns 0 if both of the bit values compared are off or on.
+* Returns 1 if only one of the two values has a corresponding bit on.
+* XOR is used to turn off bits that are on or turn on bits that are off. Like toggling the bit values.
+* Byte (8 bit) values can be from 0 to 255. 0 = all bits off. 255 = all bits on.
+
+
+{{Template:LogicalTruthTable}}
+
+
+''Example 1:'' Comparing the results of XOR, AND and OR value comparisons on one byte number values up to 255.
+{{WhiteStart}}
+
+                    '  bit#  76543210   also the exponent of 2 value on
+                    '        --------             
+  a% = 233          ' binary 11101001   values used
+  b% = 111          ' binary 01101111
+                    '        --------
+  result1% = a% XOR b%     ' 10000110 binary ''Result1% ='' 134
+
+  result2% = a% AND b%     ' 01101001 binary ''Result2% ='' 105           
+
+  result3% = a% OR b%      ' 11101111 binary ''Result3% ='' 239           
+
+{{WhiteEnd}}
+:''Explanation:'' Look down the columns to see how the bits are changed. The three values returned by XOR, AND and OR are relational. If you add the values returned by XOR(134) and AND(105) the result is the value of the OR operation, 239.
+
+
+''Example 2:'' Using XOR to turn a parallel port's data register bits on or off
+{{CodeStart}}
+address% = 888
+ByteValue% = {{Cl|INP}}(address%)
+{{Cl|OUT}} address%, ByteValue% {{Cl|XOR}} 7
+{{CodeEnd}}
+:''Explanation:'' Only the first 3 Bits are affected. If on then turned off. If off then turned on. Each time the OUT statement above is used, the bit values alternate. That is because the value of 7 compares the bit's status to an on only value.
+
+
+''See also:'' 
+* [[AND]], [[OR]]
+* [[Binary]], [[Boolean]]
+
+
+{{PageNavigation}}

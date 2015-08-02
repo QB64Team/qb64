@@ -1,0 +1,33 @@
+The {{KW|_SNDLOOP}} statement is like {{KW|_SNDPLAY}} but the sound is looped. Uses a handle from the {{KW|_SNDOPEN}} function.
+
+
+{{PageSyntax}}
+:{{KW|_SNDLOOP}} ({{Parameter|handle&amp;}})
+
+
+{{PageDescription}}
+*Plays the sound, looping it.
+*{{KW|_SNDSETPOS}} cannot be called while a looping sound is being played.
+
+
+''Example:'' Loading a sound or music file and playing it in a loop until a key is pressed.
+{{CodeStart}} '' ''
+bg = {{Cl|_SNDOPEN}}(&quot;back.mid&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change to your sound file name
+{{Cl|_SNDLOOP}} bg
+
+DO
+    {{Cl|_LIMIT}} 10   'keep CPU resources used low
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; 'key press program exit
+{{Cl|_SNDSTOP}} bg
+{{Cl|_SNDCLOSE}} bg '' ''
+{{CodeEnd}}
+
+
+
+
+
+{{PageSeeAlso}}
+*{{KW|_SNDOPEN}}, {{KW|_SNDSTOP}}
+
+
+{{PageNavigation}}

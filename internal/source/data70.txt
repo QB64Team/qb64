@@ -1,0 +1,31 @@
+qbs*oldstr3119=NULL;
+if(_SUB_PATH_SLASH_CORRECT_STRING_A->tmp||_SUB_PATH_SLASH_CORRECT_STRING_A->fixed||_SUB_PATH_SLASH_CORRECT_STRING_A->readonly){
+oldstr3119=_SUB_PATH_SLASH_CORRECT_STRING_A;
+if (oldstr3119->cmem_descriptor){
+_SUB_PATH_SLASH_CORRECT_STRING_A=qbs_new_cmem(oldstr3119->len,0);
+}else{
+_SUB_PATH_SLASH_CORRECT_STRING_A=qbs_new(oldstr3119->len,0);
+}
+memcpy(_SUB_PATH_SLASH_CORRECT_STRING_A->chr,oldstr3119->chr,oldstr3119->len);
+}
+int32 *_SUB_PATH_SLASH_CORRECT_LONG_X=NULL;
+if(_SUB_PATH_SLASH_CORRECT_LONG_X==NULL){
+_SUB_PATH_SLASH_CORRECT_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_PATH_SLASH_CORRECT_LONG_X=0;
+}
+int64 fornext_value3121;
+int64 fornext_finalvalue3121;
+int64 fornext_step3121;
+uint8 fornext_step_negative3121;
+byte_element_struct *byte_element_3122=NULL;
+if (!byte_element_3122){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3122=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3122=(byte_element_struct*)mem_static_malloc(12);
+}
+int64 fornext_value3124;
+int64 fornext_finalvalue3124;
+int64 fornext_step3124;
+uint8 fornext_step_negative3124;
+byte_element_struct *byte_element_3125=NULL;
+if (!byte_element_3125){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3125=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3125=(byte_element_struct*)mem_static_malloc(12);
+}

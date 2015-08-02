@@ -1,0 +1,48 @@
+The '''BYVAL''' statement is used to pass a parameter's value with {{KW|SUB}} programs made in other programming languages.
+
+
+{{PageSyntax}}
+:: Procedure_Name ('''BYVAL''' ''variable1'', '''BYVAL''' ''variable2'')
+
+
+{{PageDescription}}
+* QB64 supports keyword only with [[DECLARE LIBRARY]] [[SUB]] and [[FUNCTION]] procedure declarations. 
+* Passing by value assures that the original variable value is not changed by another procedure.
+* '''QB64''' can use BYVAL in [[DECLARE LIBRARY]] procedures that add SDL libraries or DLL functions.
+* Use [[parenthesis]] around [[SUB]] or [[FUNCTION]] parameters passed BY VALUE in Qbasic or QB64. Ex: ''CALL Procedure ((x&amp;), (y&amp;))''
+* Qbasic versions below 7 do not use {{KW|BYVAL}} unless the {{KW|SUB}} program referred to is from a different programming language.
+* PDS versions can use {{KW|BYVAL}} as it is intended in any {{KW|SUB}} or {{KW|FUNCTION}} parameters.
+*'''BYVAL''' can also be used with [[ABSOLUTE]] in Qbasic but not in QB64 currently.
+* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
+
+
+''Example:'' Passing parameters &quot;by value&quot; using [[parenthesis|brackets]] when calling a [[SUB]] or [[FUNCTION]] in Qbasic or QB64.
+{{CodeStart}} '' ''
+{{Cl|CALL}} MySUB (a%, (b%), (c%)) 'CALL SUB
+
+MySUB a%, b%, (c%)          'call SUB again without CALL
+  
+{{Cl|PRINT}} &quot;Outside procedure: &quot;; a%, b%, c%
+
+{{Cl|SUB}} MySUB (a%, b%, c%)
+a% = a% + 1: b% = b% + 1: c% = c% + 1
+{{Cl|PRINT}} &quot;Inside procedure:  &quot;; a%, b%, c%
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{OutputStart}}
+Inside procedure:  1         1          1
+Inside procedure:  2         1          1
+Outside procedure: 2         1          0
+{{OutputEnd}}
+:''Explanation:'' Both SUB calls pass just the '''values''' of b% and c% to the procedure. The first variable, a%, is passed by '''reference''' (the default) so the value was changed by the SUB procedure. Brackets can only be used in the [[CALL]] or function reference!
+
+
+{{PageSeeAlso}}
+* [[DECLARE LIBRARY]]
+* [[SUB]], [[FUNCTION]]
+* [[DECLARE]], [[DECLARE (non-BASIC statement)]]
+* [[CALL]]
+* [[Libraries#C++_Variable_Types|C++ Variable Types]]
+
+
+{{PageNavigation}}

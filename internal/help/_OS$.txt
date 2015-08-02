@@ -1,0 +1,30 @@
+The '''_OS$''' function returns the QB64 compiler version in which the program was compiled. This allows programs to be created and compiled on multiple operating systems using any OS  version of QB64.
+
+
+''Syntax:'' OperatingSystem$ = _OS$
+
+
+* Allows a BAS program to be compiled with QB64 in Windows, Linux or MacOSX using different language specifications.
+* Use the return to specify the current OS code to use when a program is compiled using another version of the QB64 compiler.
+* Returns a [[STRING]] listing the OS as [WINDOWS], [LINUX] or [MACOSX] and the bit format of [32BIT] or [64BIT]. 
+:::Example: [WINDOWS][32BIT] QB64 should run on either 32 or 64 bit formats.
+ 
+
+''Example:'' Using different file path separators in different Operating Systems.
+{{CodeStart}} '' ''
+OS$ = _OS$
+IF {{Cl|INSTR}}(OS$, &quot;[LINUX]&quot;) THEN slash$ = &quot;/&quot;
+IF {{Cl|INSTR}}(OS$, &quot;[WINDOWS]&quot;) THEN slash$ = &quot;\&quot;
+IF {{Cl|INSTR}}(OS$, &quot;[MACOSX]&quot;) THEN slash$ = &quot;/&quot;
+
+PRINT &quot;Current system uses a &quot; + slash$ + &quot; separator in file paths.&quot; '' ''
+{{CodeEnd}}
+
+
+''See also:
+* [[ENVIRON$]]
+* [[_DEVICES]], [[_DEVICE$]]
+* [[SysWOW64]] {{text|(64 bit Windows system folder)}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,42 @@
+'''_DEFINE''' defines a range of variable names according to their first character as a datatype.
+
+
+{{PageSyntax}}
+:{{KW|_DEFINE}} {{Parameter|range or letter}}[, {{Parameter|range2 or letter2}}[, {{Parameter|range3 or letter3}}[, ...]]] {{KW|AS}} [{{KW|_UNSIGNED}}] {{Parameter|datatype}}
+
+
+{{PageDescription}}
+* Variable start letter range is in the form firstletter-endingletter (like A-C) or just a single letter.
+* Datatypes: [[INTEGER]], [[SINGLE]], [[DOUBLE]], [[LONG]], [[STRING]], [[_BIT]], [[_BYTE]], [[_INTEGER64]], [[_FLOAT]], [[_OFFSET]], [[_MEM]]  
+* Can also use the [[_UNSIGNED]] definition for positive numerical values only.
+* '''When a variable has not been defined or has no type suffix, the value defaults to [[SINGLE]].'''
+* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
+* '''Qbasic's IDE''' may add DEF statements before any [[SUB]] or [[FUNCTION]]. QB64(like QB) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|&quot;Parameter Type Mismatch&quot;]] warning or adding the proper DEF statement to subsequent procedures! If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures!
+
+
+
+''Example:'' Defining variables that start with the letters A, B, C or F as unsigned integers, including the ''Add2'' [[FUNCTION]].
+{{CodeStart}} '' ''
+{{Cl|_DEFINE}} A-C, F {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+
+{{Cl|PRINT}} Add2(-1.1, -2.2)
+
+{{Cl|END}}
+
+{{Cl|FUNCTION}} Add2 (one, two)
+Add2 = one + two
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{OutputStart}}65533
+{{OutputEnd}}
+: ''Explanation:'' Unsigned integers can only return positive values while ordinary [[INTEGER|integers]] can also return negative values.
+
+
+{{PageSeeAlso}}
+* [[DEFSTR]], [[DEFLNG]], [[DEFINT]], [[DEFSNG]], [[DEFDBL]]
+* [[DIM]], [[REDIM]]
+* [[COMMON]], [[SHARED]]
+* [[_UNSIGNED]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,96 @@
+The {{KW|_OPENCLIENT}} function connects to a Host on the Internet as a Client and returns the Client status handle.
+
+
+{{PageSyntax}}
+:{{Parameter|client_handle}} = {{KW|_OPENCLIENT}}(&quot;TCP/IP:8080:12:30:1:10&quot;)
+
+
+
+{{PageDescription}}
+* [[ERROR Codes|ILLEGAL FUNCTION CALL]] error if called with a string argument of the wrong syntax.
+* Connects to a host somewhere on the internet as a client.
+* Valid client handles are negative values. 0 means that the connection failed! Always check that the handle returned is NOT 0!  
+* {{KW|CLOSE}} client_handle closes the client. A failed handle of value 0 does not need to be closed.
+
+
+{{PageExamples}}
+''Example 1:'' Attempting to connect to a local host(your host) as a client. A zero return indicates failure.
+{{CodeStart}}
+
+client = {{Cl|_OPENCLIENT}}(&quot;TCP/IP:7319:localhost&quot;)
+{{Cl|IF...THEN|IF}} client {{Cl|THEN}} 
+   {{Cl|PRINT}} &quot;[Connected to &quot; + {{Cl|_CONNECTIONADDRESS}}(client) + &quot;]&quot; 
+{{Cl|ELSE}} {{Cl|PRINT}} &quot;[Connection Failed!]&quot;
+{{Cl|END IF}} '' ''
+
+{{CodeEnd}}
+:'''NOTE:''' Try a valid TCP/IP port setting to test this routine!
+
+
+''Example 2:'' Using a &quot;raw&quot; Download function to download the QB64 bee image and displays it.
+{{CodeStart}}
+'' ''
+{{Cl|IF...THEN|IF}} Download(&quot;www.qb64.net/qb64.png&quot;, &quot;qb64logo.png&quot;, 10) {{Cl|THEN}} ' timelimit = 10 seconds
+ {{Cl|SCREEN}} {{Cl|_LOADIMAGE}}(&quot;qb64logo.png&quot;,32)
+{{Cl|ELSE}}: {{Cl|PRINT}} &quot;Couldn't download QB64 logo.&quot;
+{{Cl|END IF}}
+{{Cl|SLEEP}}
+{{Cl|SYSTEM}}
+' ---------- program end -----------
+
+{{Cl|FUNCTION}} Download (url$, file$, timelimit) ' returns -1 if successful, 0 if not
+url2$ = url$
+x = {{Cl|INSTR}}(url2$, &quot;/&quot;)
+{{Cl|IF...THEN|IF}} x {{Cl|THEN}} url2$ = {{Cl|LEFT$}}(url$, x - 1)
+client = {{Cl|_OPENCLIENT}}(&quot;TCP/IP:80:&quot; + url2$)
+{{Cl|IF...THEN|IF}} client = 0 {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
+e$ = {{Cl|CHR$}}(13) + {{Cl|CHR$}}(10) ' end of line characters
+url3$ = {{Cl|RIGHT$}}(url$, {{Cl|LEN}}(url$) - x + 1)
+x$ = &quot;GET &quot; + url3$ + &quot; HTTP/1.1&quot; + e$
+x$ = x$ + &quot;Host: &quot; + url2$ + e$ + e$
+{{Cl|PUT (TCP/IP statement)|PUT}} #client, , x$
+t! = {{Cl|TIMER}} ' start time
+{{Cl|DO}}
+    {{Cl|_DELAY}} 0.05 ' 50ms delay (20 checks per second)
+    {{Cl|GET (TCP/IP statement)|GET}} #client, , a2$
+    a$ = a$ + a2$
+    i = {{Cl|INSTR}}(a$, &quot;Content-Length:&quot;)
+    {{Cl|IF...THEN|IF}} i {{Cl|THEN}}
+      i2 = {{Cl|INSTR}}(i, a$, e$)
+      {{Cl|IF...THEN|IF}} i2 {{Cl|THEN}}
+      l = {{Cl|VAL}}({{Cl|MID$}}(a$, i + 15, i2 - i -14))
+      i3 = {{Cl|INSTR}}(i2, a$, e$ + e$)
+        {{Cl|IF...THEN|IF}} i3 {{Cl|THEN}}
+          i3 = i3 + 4 'move i3 to start of data
+          {{Cl|IF...THEN|IF}} ({{Cl|LEN}}(a$) - i3 + 1) = l {{Cl|THEN}}
+            {{Cl|CLOSE}} client ' CLOSE CLIENT
+            d$ = {{Cl|MID$}}(a$, i3, l)
+            fh = {{Cl|FREEFILE}}
+            {{Cl|OPEN}} file$ {{Cl|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #fh: {{Cl|CLOSE}} #fh ' erase existing file?
+
+            {{Cl|OPEN}} file$ {{Cl|FOR}} {{Cl|BINARY}} {{Cl|AS}} #fh
+            {{Cl|PUT}} #fh, , d$
+            {{Cl|CLOSE}} #fh
+            Download = -1 'indicates download was successfull
+            {{Cl|EXIT FUNCTION}}
+          {{Cl|END IF}} ' availabledata = l
+        {{Cl|END IF}} ' i3
+      {{Cl|END IF}} ' i2
+    {{Cl|END IF}} ' i
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|TIMER}} &gt; t! + timelimit ' (in seconds)
+{{Cl|CLOSE}} client
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}} 
+
+
+
+{{PageSeeAlso}}
+* [[_OPENHOST]], [[_OPENCONNECTION]]
+* [[_CONNECTED]], [[_CONNECTIONADDRESS$]]
+* [[Email Demo]], [[Inter-Program Data Sharing Demo]] 
+* [[Computer File Sharing Demo]]
+* [[IP Configuration]], [[WGET]] {{text|(HTTP and FTP file transfer)}}
+* [[Downloading Files]]
+
+
+{{PageNavigation}}

@@ -1,0 +1,20 @@
+The '''POS''' function returns the current print cursor text column position.
+
+
+{{PageSyntax}}
+:: column% = POS(0)
+
+
+* The value in parenthesis should be 0, but any value could be used with same results. Don't ask why...
+* When a semicolon ends the previous PRINT statement the cursor column position will be after the last character printed.
+* If [[TAB]] or a comma is used the column position will be immediately after the tabbed position.
+* If a [[PRINT]] statement does not use a semicolon or comma at the end, the return value will be 1 on the next row.
+* Return can be saved to return later to a previous print position using [[LOCATE]].
+
+
+''See also:'' 
+* [[CSRLIN]], [[LOCATE]], [[PRINT]]
+* [[_PRINTSTRING]] {{text|(graphic position print)}}
+
+
+{{PageNavigation}}

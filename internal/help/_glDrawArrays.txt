@@ -1,0 +1,51 @@
+'''_glDrawArrays:''' render primitives from array data
+
+
+{{PageSyntax}}
+
+  SUB _glDrawArrays (BYVAL mode AS _UNSIGNED LONG, BYVAL first AS LONG, BYVAL count AS LONG)
+  void '''_glDrawArrays'''(GLenum {{Parameter|mode}}, GLint {{Parameter|first}}, GLsizei {{Parameter|count}});
+
+
+; mode
+: Specifies what kind of primitives to render. Symbolic constants {{KW|_GL_POINTS}}, {{KW|_GL_LINE_STRIP}}, {{KW|_GL_LINE_LOOP}}, {{KW|_GL_LINES}}, {{KW|_GL_LINE_STRIP_ADJACENCY}}, {{KW|_GL_LINES_ADJACENCY}}, {{KW|_GL_TRIANGLE_STRIP}}, {{KW|_GL_TRIANGLE_FAN}}, {{KW|_GL_TRIANGLES}}, {{KW|_GL_TRIANGLE_STRIP_ADJACENCY}}, {{KW|_GL_TRIANGLES_ADJACENCY}} and {{KW|_GL_PATCHES}} are accepted.
+; first
+: Specifies the starting index in the enabled arrays.
+; count
+: Specifies the number of indices to be rendered.
+
+
+{{PageDescription}}
+
+'''_glDrawArrays''' specifies multiple geometric primitives with very few subroutine calls. Instead of calling a GL procedure to pass each individual vertex, normal, texture coordinate, edge flag, or color, you can prespecify separate arrays of vertices, normals, and colors and use them to construct a sequence of primitives with a single call to '''_glDrawArrays'''.
+
+When '''_glDrawArrays''' is called, it uses {{Parameter|count}} sequential elements from each enabled array to construct a sequence of geometric primitives, beginning with element {{Parameter|first}}. {{Parameter|mode}} specifies what kind of primitives are constructed and how the array elements construct those primitives.
+
+Vertex attributes that are modified by '''_glDrawArrays''' have an unspecified value after '''_glDrawArrays''' returns. Attributes that aren't modified remain well defined.
+
+
+{{PageNotes}}
+
+{{KW|_GL_LINE_STRIP_ADJACENCY}}, {{KW|_GL_LINES_ADJACENCY}}, {{KW|_GL_TRIANGLE_STRIP_ADJACENCY}} and {{KW|_GL_TRIANGLES_ADJACENCY}} are available only if the GL version is 3.2 or greater.
+
+
+{{PageErrors}}
+
+{{KW|_GL_INVALID_ENUM}} is generated if {{Parameter|mode}} is not an accepted value.
+
+{{KW|_GL_INVALID_VALUE}} is generated if {{Parameter|count}} is negative.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if a non-zero buffer object name is bound to an enabled array and the buffer object's data store is currently mapped.
+
+{{KW|_GL_INVALID_OPERATION}} is generated if a geometry shader is active and {{Parameter|mode}} is incompatible with the input primitive type of the geometry shader in the currently installed program object.
+
+
+{{PageSeeAlso}}
+
+{{KW|_GL}}
+{{KW|_glBindVertexArray}}, {{KW|_glDrawArraysIndirect}}, {{KW|_glDrawArraysInstanced}}, {{KW|_glDrawArraysInstancedBaseInstance}}, {{KW|_glMultiDrawArrays}}, {{KW|_glMultiDrawArraysIndirect}}
+
+
+{{PageCopyright}}
+
+Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

@@ -1,0 +1,24 @@
+The '''ENVIRON''' statement is used to temporarily set or change an environmental string value.
+
+
+
+{{PageSyntax}}
+:: ENVIRON string_expression$
+
+
+* [[Keywords_currently_not_supported_by_QB64]]
+* The string expression must include the environmental parameter ID and the setting two ways:
+: * Using an = : ENVIRON parameterID=setting
+: * Using a space: ENVIRON parameterID setting 
+* If the parameter ID did not previously exist in the environmental string table, it is appended to the end of the table.
+* If a parameter ID did exist, it is deleted and the new value is appended to end of the list.
+* DOS discards any changes when your program ends so the program must set them when run!
+* '''WARNING:''' The amount of space in a environmental table is limited and may create memory errors.
+
+
+''See also:'' 
+* [[ENVIRON$]]
+* [[Windows Environment]]
+
+
+{{PageNavigation}}

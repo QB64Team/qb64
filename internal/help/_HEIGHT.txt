@@ -1,0 +1,34 @@
+The {{KW|_HEIGHT}} function returns the height of an image handle or current write page.
+
+
+{{PageSyntax}}
+:''result&amp;'' = {{KW|_HEIGHT}}[({{Parameter|imageHandle&amp;}})]
+
+
+{{PageDescription}}
+* If {{Parameter|imageHandle&amp;}} is omitted, it's assumed to be the handle of the current write page.
+* To get the width of the current program window use zero for the handle value: depth&amp; = _HEIGHT(0)
+* If the image specified by {{Parameter|imageHandle&amp;}} is in text mode, the number of characters per column is returned.
+* If the image specified by {{Parameter|imageHandle&amp;}} is in graphics mode, the number of pixels per column is returned.
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, then an [[ERROR Codes|invalid handle]] error will occur.
+* The maximum pixel coordinate of a program [[SCREEN|screen]] is one less than what the function returns.
+
+
+''Example:'' Displays the current program window area.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+wide = {{Cl|_WIDTH (function)|_WIDTH}}
+deep = {{Cl|_HEIGHT}}
+
+{{Cl|PRINT}} &quot;The program screen is&quot;; wide; &quot;X&quot;; deep '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_WIDTH (function)]]
+* [[_LOADIMAGE]]
+* [[_FONTHEIGHT]]
+* [[Bitmaps]]
+
+
+{{PageNavigation}}

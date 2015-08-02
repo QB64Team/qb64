@@ -1,0 +1,62 @@
+INPUT reads a formatted message from an opened connection using the [[_OPENHOST]], [[_OPENCLIENT]] or [[_OPENCONNECTION]] '''QB64''' function handle returns.
+
+
+{{PageSyntax}}
+:: INPUT #connection_handle, data1[, data2, ...etc]
+
+
+* Use INPUT # to avoid reading fragmented data messages.
+* If any part of the INPUT # process doesn't complete, then [[EOF]](handle) will return -1.
+* INPUT # can read multiple data in one read. GET # would need a [[TYPE]] variable to read multiple values.
+
+::::::'''Communicating using QB64 Formatted messages:'''
+* Benefit: QB64 handles sending and receiving data in messages. It knows how long each message is and waits for the full message to arrive, avoiding partial messages which have been fragmented from being returned.
+* Disadvantage: Really only useful for communicating with other QB64 programs (or other programs aware of QB64's header format).
+
+::::'''See''' [[TCP/IP Message Format]] '''for the QB64 header information'''
+
+
+:'''NOTE:''' In the following examples 'h' denotes the host's handle, 'c' the client's handle and 'o' as other handle.
+
+
+''Example 1:'' Host sends 2 messages to client and reads data from others.
+
+{{CodeStart}} '' ''
+ {{Cl|PRINT (TCP/IP statement)|PRINT}} #c, a$ ' sends the string value a$ (size is calculated by an INPUT)
+ PRINT #c, x% ' if x was equal to 5, this would send &quot; 5 &quot; (without the quotation marks)
+'''INPUT #'''o, a$ ' reads the next available message (if arrived) or sets a$'s length to 0 '' ''
+{{CodeEnd}}
+
+:''Explanation:'' INPUT #o,x% 'effectively reads the next message, performs the VAL function upon it and stores the result in x%. If any part of this process doesn't work then EOF(o) will return -1.
+
+* INPUT of multiple QB64 formatted messages in the one statement will only succeed if every variable can be filled with valid data from the input buffer, if not, EOF returns -1 (failed), any read data is reverted to the buffer and the values of every variable become undefined. However, multiple INPUT can be very beneficial in the aid of communicating multiple data items in the one message. For example:
+
+
+''Example 2:'' Note how variables need not be sent together.
+{{CodeStart}} '' ''
+ {{Cl|PRINT (TCP/IP statement)|PRINT}} #myclient, a%
+ PRINT #myclient, b#, c$ '' ''
+{{CodeEnd}}
+
+
+''Example 3:'' Using multiple INPUT variables in the same command.
+{{CodeStart}} '' ''
+ t! = TIMER + 3 'wait 3 seconds
+ DO 
+   '''INPUT #'''myhost, aa%, bb#, cc$ 'when all variables are filled, EOF(myhost) returns 0
+   IF TIMER &gt; t! THEN EXIT DO ' 3 second timeout
+ LOOP WHILE {{Cl|EOF}}(myhost) '' ''
+{{CodeEnd}}
+:''Explanation:'' Note that communications MUST be set up in advance for the host and user to know that more than one piece of data is available! Data timing also may affect those communications. Data could be missed using [[GET (TCP/IP statement)]] or [[PUT (TCP/IP statement)]]s as data lengths are unknown.
+
+
+::::::See the example in [[_OPENCONNECTION]].
+
+
+''See also:'' 
+* [[PRINT (TCP/IP statement)]], [[GET (TCP/IP statement)]], [[PUT (TCP/IP statement)]]
+* [[_OPENHOST]], [[_OPENCLIENT]], [[_OPENCONNECTION]], [[INPUT (file statement)]]
+* [[TCP/IP Message Format]]
+
+
+{{PageNavigation}}

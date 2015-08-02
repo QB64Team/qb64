@@ -1,0 +1,59 @@
+The '''FOR''' statement creates a counter loop using specified start and stop numerical boundaries. The default increment is + 1.
+
+
+
+{{PageSyntax}} 
+:: '''FOR ''counter_variable'' = ''start_value'' TO ''stop_value''''' [STEP ''increment'']
+:: .
+:: . 
+:: .
+:: '''NEXT''' [''counter_variable'']
+
+
+* The FOR ''counter_variable'' name is required to define the counter span and may also be used after the NEXT keyword.
+* The ''start_value'' [[TO]] ''stop_value'' can be any literal or variable numerical type. BOTH values are  required!
+* Avoid changing the FOR ''counter_variable'''s value inside of the loop. This obfuscates code and is a poor programming practice!
+* Once the loop has been started, changing the ''start_value'', ''stop_value'' or ''increment'' value will not affect loop execution.
+* Use '''[[EXIT]] FOR''' to leave a FOR loop early when a certain condition is met inside of the loop.
+* [[STEP]] can be used for a loop ''increment'' other than the default 1 and can be any literal or variable numerical value. 
+* '''If the [[STEP]] ''increment'' value does not match the ''start_value'' [[TO]] ''stop_value'' the FOR loop block will be ignored!'''
+:* If ''start_value'' is less than ''stop_value'', use default increment or positive [[STEP]] value or the loop will NOT be executed.
+:* If ''start_value'' is more than ''stop_value'', use a negative [[STEP]] interval or the loop will NOT be executed.
+:* The [[STEP]] ''increment'' value cannot be changed inside of the loop!
+* '''NOTE: The counter value AFTER a FOR loop will be incremented one more than the ''stop_value'' requested by the loop!'''
+
+
+
+''Example 1:'' Adding all of the even numbers from 10 to 0.
+{{CodeStart}} '' ''
+FOR i = 10 TO 0 {{Cl|STEP}} -2
+  totaleven% = i + totaleven%
+  PRINT totaleven%;
+NEXT
+PRINT &quot;After loop, i =&quot;; i '' ''
+{{CodeEnd}}
+{{OutputStart}}10 18 24 28 30 30 After loop, i = -2
+{{OutputEnd}}
+:''Explanation:'' The loop counts down from 10 to every even value below it. The counter keeps stepping down until the FOR stop limit is reached or exceeded. Note that the value of i is -2 after the loop is exited. [[NEXT]] always increments the counter one last time.
+
+
+''Example 2:'' How an entire FOR loop block is ignored when the start and stop limits do not match the default or [[STEP]] increment.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} &quot;hi&quot;
+
+{{Cl|FOR...NEXT|FOR}} i = 10 {{Cl|TO}} 1 'requires a negative {{Cl|STEP}} value
+  {{Cl|PRINT}} &quot;lo&quot;
+{{Cl|NEXT}}
+
+{{Cl|PRINT}} &quot;bye&quot;
+{{CodeEnd}}
+{{OutputStart}}hi
+bye {{OutputEnd}}
+
+
+''See also:'' 
+* [[NEXT]], [[STEP]] 
+* [[DO...LOOP]], [[WHILE...WEND]]
+
+
+{{PageNavigation}}

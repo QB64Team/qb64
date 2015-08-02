@@ -1,0 +1,50 @@
+The '''INPUT''' file mode can only [[OPEN]] existing files with data in them for program [[INPUT (file statement)|INPUT]].
+
+
+{{PageSyntax}}
+:: OPEN filename$ FOR INPUT AS #filenumber%
+
+
+* If the filename does not exist, INPUT will create a program [[ERROR Codes|file error]]! Use [[_FILEEXISTS]] in QB64 to avoid errors.
+* The file number can be determined automatically by using a [[FREEFILE]] variable value.
+* Mode can use [[INPUT (file statement)|INPUT]] #, [[LINE INPUT (file statement)|LINE INPUT]] # or [[INPUT$]] to read the file data.
+* Use the [[EOF]] function to avoid reading data past the end of a file and creating an [[ERROR Codes|INPUT error]]!
+* Input file statements will use the same filenumber as the OPEN statement.
+* The INPUT mode allows the same file to be opened in another mode with a different number.
+
+
+''Example:'' Avoiding an INPUT mode or [[INPUT (file statement)|INPUT #]] read error using a FileExist function. QB64 can use the [[_FILEEXISTS]] function.
+
+{{CodeStart}} '' ''
+ DIM Fdata$(100)
+ INPUT &quot;Enter data file name: &quot;, datafile$ 
+ IF FileExist%(datafile$) THEN
+    D% = {{Cl|FREEFILE}}: count = 0
+    {{Cl|OPEN}} datafile$ FOR {{Cl|INPUT (file mode)|INPUT}} AS #D%
+    DO UNTIL {{Cl|EOF}}(D%)
+     count = count + 1
+     {{Cl|INPUT (file statement)|LINE INPUT}} #D%, Fdata$(count)
+     IF count = 100 THEN {{Cl|EXIT}} DO  ' don't exceed {{Cl|Arrays|array}} size!
+    LOOP
+  {{Cl|CLOSE}} #D%
+ ELSE : PRINT &quot;File not found!&quot;
+ END IF
+
+ {{Cl|FUNCTION}} FileExist% (filename$)
+   f% = {{Cl|FREEFILE}}  
+   {{Cl|OPEN}} filename$ FOR {{Cl|APPEND}} AS #f% ' check that file exists
+   IF {{Cl|LOF}}(f%) THEN FileExist% = -1 {{Cl|ELSE}} {{Cl|CLOSE}} #f%: {{Cl|KILL}} filename$
+   {{Cl|CLOSE}} #f%
+ {{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' The function opens the filename in [[APPEND]] mode to see if there is data in the file. It also creates the file if it did not exist. [[LOF]] will return 0 if the file is empty and cannot be read. In fact you can [[KILL]] the file if it is empty. If it is not empty then the function returns -1 and the existing file can be opened for INPUT and read by the program. [[_FILEEXISTS]] doesn't create any files.
+
+
+''See also:'' 
+* [[INPUT (file statement)|INPUT #]], [[LINE INPUT (file statement)|LINE INPUT #]], [[INPUT$]] {{text|(file input)}}
+* [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
+* [[APPEND]], [[RANDOM]], [[OUTPUT]], [[BINARY]]
+* [[_FILEEXISTS]], [[_DIREXISTS]]
+
+
+{{PageNavigation}}

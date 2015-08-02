@@ -1,0 +1,30 @@
+qbs*oldstr3316=NULL;
+if(_SUB_HASHADD_STRING_A->tmp||_SUB_HASHADD_STRING_A->fixed||_SUB_HASHADD_STRING_A->readonly){
+oldstr3316=_SUB_HASHADD_STRING_A;
+if (oldstr3316->cmem_descriptor){
+_SUB_HASHADD_STRING_A=qbs_new_cmem(oldstr3316->len,0);
+}else{
+_SUB_HASHADD_STRING_A=qbs_new(oldstr3316->len,0);
+}
+memcpy(_SUB_HASHADD_STRING_A->chr,oldstr3316->chr,oldstr3316->len);
+}
+int32 *_SUB_HASHADD_LONG_I=NULL;
+if(_SUB_HASHADD_LONG_I==NULL){
+_SUB_HASHADD_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_I=0;
+}
+int32 *_SUB_HASHADD_LONG_X=NULL;
+if(_SUB_HASHADD_LONG_X==NULL){
+_SUB_HASHADD_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_X=0;
+}
+int32 *_SUB_HASHADD_LONG_I2=NULL;
+if(_SUB_HASHADD_LONG_I2==NULL){
+_SUB_HASHADD_LONG_I2=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_I2=0;
+}
+int32 *_SUB_HASHADD_LONG_I3=NULL;
+if(_SUB_HASHADD_LONG_I3==NULL){
+_SUB_HASHADD_LONG_I3=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_I3=0;
+}

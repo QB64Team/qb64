@@ -1,0 +1,78 @@
+The '''PRINT #''' statement sends QB64 formatted data to an open connection handle. 
+
+
+{{PageSyntax}}
+:: PRINT #connection_handle, value
+
+
+* A handle is opened using the [[_OPENHOST]], [[_OPENCLIENT]] or [[_OPENCONNECTION]] '''QB64''' function returns.
+* There is no way to verify that the information has been sent.
+* Always check connections to handles before sending data.
+
+
+:::::'''Communicating using QB64 Formatted messages:'''
+
+* Benefit: QB64 handles sending and receiving data in messages. It knows how long each message is and waits for the full message to arrive, avoiding partial messages which have been fragmented from being returned.
+* Disadvantage: Really only useful for communicating with other QB64 programs (or programs aware of QB64's [[TCP/IP Message Format]]).
+
+::::'''See''' [[TCP/IP Message Format]] '''for the QB64 header information'''
+
+
+
+:'''NOTE:''' In the following examples 'h' denotes the host's handle, 'c' the client's handle and 'o' as other handles.
+
+
+''Example 1:'' Host sends one variable value at a time while reading other messages. 
+{{CodeStart}}
+ '''PRINT #'''c, a$ ' sends the string a$ (size is known to INPUT #)
+ '''PRINT #'''c, x% ' if x was equal to 5, this would send ' 5 ' (without the quotes)
+ {{Cl|INPUT (TCP/IP statement)|INPUT}} #o, a$ ' reads the next available message (if arrived) or sets a$ = &quot;&quot;
+{{CodeEnd}}
+
+''Explanation:'' INPUT #o, x% effectively reads the next message, performs the VAL function upon it and stores the result in x% (if any part of this process isn't complete then [[EOF]](o) will return -1.
+
+
+
+''Example 2:'' Host sends multiple values using PRINT #.
+{{CodeStart}}
+ '''PRINT #'''c, 3; &quot;Hello &quot;; &quot;World&quot;; ' client sends data
+ '''PRINT #'''c, &quot;!&quot;
+{{CodeEnd}}
+
+
+''Example 3:'' Client reads host's Example 2 data as one value using [[LEN]].
+
+{{CodeStart}}
+ t! = {{Cl|TIMER}} + 3
+ DO
+ {{Cl|_LIMIT}} 1000 'limits CPU usage 
+ {{Cl|INPUT (TCP/IP statement)|INPUT}} #h, a$ 
+ LOOP UNTIL {{Cl|LEN}}(a$) OR TIMER &gt; t! 
+{{CodeEnd}}
+
+''Explanation:'' The loop runs 3 seconds or until the full data arrives. The value of a$ is &quot; 3 Hello World!&quot; or &quot;&quot; if all 4 messages haven't arrived yet. 
+
+
+''Example 4:'' Client reads host's Example 2 data as one value using [[EOF]].
+{{CodeStart}}
+ t! = {{Cl|TIMER}} + 3
+ DO
+   {{Cl|_LIMIT}} 1000 'limits CPU usage
+   {{Cl|INPUT (TCP/IP statement)|INPUT}} #h, a%,b$,c$,d$ ' reads data from host until EOF(h) = 0
+   IF TIMER &gt; t! THEN {{Cl|EXIT DO}} ' timeout read if over 3 seconds
+ LOOP WHILE {{Cl|EOF}}(h) 
+{{CodeEnd}}
+
+''Explanation:'' EOF returns -1 until all variables have been filled with their appropriate data. The 3 second TIMER loop allows other code execution.
+
+
+::::::::''See the example in [[_OPENHOST]].''
+
+
+{{PageSeeAlso}}
+* [[INPUT (TCP/IP statement)]], [[PUT (TCP/IP statement)]], [[GET (TCP/IP statement)]]
+* [[_OPENHOST]], [[_OPENCLIENT]], [[_OPENCONNECTION]], [[PRINT (file statement)]]
+* [[TCP/IP Message Format]]
+
+
+{{PageNavigation}}

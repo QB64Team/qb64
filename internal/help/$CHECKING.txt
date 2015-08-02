@@ -1,0 +1,31 @@
+The $CHECKING metacommand turns C++ event checking ON or OFF.
+
+
+''Syntax:'' $CHECKING:OFF
+
+
+* The Metacommand does '''NOT''' require a comment or REM before it! There is no space after the colon.
+* The OFF action turns event checking off and should '''ONLY be used when running stable, errorless code!''' 
+* The default $CHECKING:ON action is only required when checking has been turned OFF previously.
+* When $CHECKING:OFF is used, all error code and the reporting code is removed from the EXE program.
+* '''WARNING! Turning OFF error checking could create a General Protection Fault!'''
+
+
+''Explanation:'' After every QB64 command a C++ check as follows is performed: If (qbevent){...
+
+: Using [[ON TIMER (n)]] merely sets qbevent when appropriate, causing little/no difference to the speed your program runs. Unless you are using the QB64 direct meta-command to avoid this:
+
+:::$CHECKING:OFF
+
+:But turning checking off is only designed for 100% stable, error-less sections of code, where every CPU cycle saved counts. Such as in a software 3D texture mapper.
+
+
+''See also:''
+
+* [[ON TIMER(n)]]
+* [[ON ERROR]]
+* [[Metacommand]]
+* [[ERROR Codes]]
+
+
+{{PageNavigation}}
