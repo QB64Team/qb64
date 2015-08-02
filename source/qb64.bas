@@ -9012,16 +9012,15 @@ DO
                                         GOTO redosemi
                                     END IF
                                 END IF
-                                'Values before Quote check will go here once my brain stops smoking from sorting out the other half
-                                'This will fix things like PRINT 123"xyz" to make it PRINT 123; xyz once it's implemented.
-                                'Brain smoke clear; let's finish this up!
-                                IF LEFT$(LTRIM$(nextchar$), 1) = CHR$(34) THEN
-                                    IF temp1$ <> ";" AND temp1$ <> "," AND temp1$ <> "+" AND temp1$ <> "(" THEN
-                                        insertelements a$, i, ";"
-                                        insertelements ca$, i, ";"
-                                        n = n + 1
-                                        elementon = i + 2 'just a easy way to reduce redundant calls to the routine
-                                        GOTO redosemi
+                                IF temp1$ <> "USING" THEN
+                                    IF LEFT$(LTRIM$(nextchar$), 1) = CHR$(34) THEN
+                                        IF temp1$ <> ";" AND temp1$ <> "," AND temp1$ <> "+" AND temp1$ <> "(" THEN
+                                            insertelements a$, i, ";"
+                                            insertelements ca$, i, ";"
+                                            n = n + 1
+                                            elementon = i + 2 'just a easy way to reduce redundant calls to the routine
+                                            GOTO redosemi
+                                        END IF
                                     END IF
                                 END IF
                             END IF

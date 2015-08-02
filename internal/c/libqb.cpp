@@ -28464,6 +28464,8 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     screen_hide=1;
   }
 
+  int32 func__screenhide(){return -screen_hide;}
+
   void sub__consoletitle(qbs* s){
     if (new_error) return;
     static qbs *sz=NULL; if (!sz) sz=qbs_new(0,0);

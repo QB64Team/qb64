@@ -242,6 +242,15 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_SCREENHIDE"
+id.subfunc = 1
+id.callname = "func__screenhide"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+
+clearid
 id.n = "_CONSOLE"
 id.subfunc = 1
 id.callname = "func__console"

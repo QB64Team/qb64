@@ -183,6 +183,7 @@ extern void sub_shell3(qbs *str,int32 passed);
 extern void sub__consoletitle(qbs*);
 extern void sub__screenshow();
 extern void sub__screenhide();
+extern int32 func__screenhide();
 extern void sub__console(int32);
 extern int32 func__console();
 extern void sub__controlchr(int32);
