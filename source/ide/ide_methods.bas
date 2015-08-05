@@ -113,6 +113,7 @@ IF ideerror THEN
     IF ideerror = 2 THEN ideerrormessage "File not found"
     IF ideerror = 3 THEN ideerrormessage "File access error": CLOSE #150
     IF ideerror = 4 THEN ideerrormessage "Path not found"
+                         ideerrormessage str$(err) + "on line "+ str$(_errorline)
 END IF
 ideerror = 1 'unknown IDE error
 
@@ -6263,6 +6264,9 @@ FOR y = 0 TO (idewy - 9)
         ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
             COLOR 14
         END IF
+        DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
+            REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT '   to the end of a program before the IDE has finished
+        LOOP '                                                      verifying the code and growing the array during the IDE passes.
         If InValidLine(l) and 1 then color 7
 
         LOCATE y + 3, 2 + m - 1

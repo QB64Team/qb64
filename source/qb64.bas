@@ -1353,7 +1353,7 @@ subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 6
-REDIM SHARED InValidLine(10000) AS _BIT
+
 
 ''create a type for storing memory blocks
 ''UDT
@@ -1509,7 +1509,9 @@ DO
 
     linenumber = linenumber + 1
 
-    IF linenumber > UBOUND(InValidLine) THEN REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT 'color information flag for each line
+    DO UNTIL linenumber < UBOUND(InValidLine) 'color information flag for each line
+        REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+    LOOP
     InValidLine(linenumber) = 0
 
     IF LEN(wholeline$) THEN
@@ -1638,7 +1640,10 @@ DO
 
 
         IF ExecLevel(ExecCounter) THEN
-            IF linenumber > UBOUND(InValidLine) THEN REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 10000) AS _BIT
+            DO UNTIL linenumber < UBOUND(InValidLine)
+                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+            LOOP
+
             InValidLine(linenumber) = -1
             GOTO finishedlinepp 'we don't check for anything inside lines that we've marked for skipping
         END IF
@@ -24097,7 +24102,8 @@ LOOP
 StrReplace$ = a$
 END FUNCTION
 
-SUB WriteConfigSetting (heading$, item$, value$)
+SUB WriteConfigSetting (heading$, item$, tvalue$)
+value$ = tvalue$
 SHARED ConfigFile$, ConfigBak$
 
 InFile = FREEFILE: OPEN ConfigFile$ FOR BINARY AS #InFile
