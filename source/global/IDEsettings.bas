@@ -200,7 +200,7 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("IDE_CustomFont$", value$)
     idecustomfontfile$ = value$
-    if result = 0 OR idecustomfont$ = "" then
+    if result = 0 OR idecustomfontfile$ = "" then
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", "c:\windows\fonts\lucon.ttf"
         idecustomfontfile$ = "c:\windows\fonts\lucon.ttf"
     end if

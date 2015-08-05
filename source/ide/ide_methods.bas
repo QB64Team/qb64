@@ -626,11 +626,13 @@ DO
     idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
     STATIC ForceResize
     if IDE_AutoPosition then
+      if _SCreenhide = 0 then
         IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition" , str$(_SCREENY)
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition" , str$(_SCREENX)
             IDE_TopPosition = _SCREENY: IDE_LeftPosition = _SCREENX
         END IF
+     end if
     end if
 
     IF _RESIZE or ForceResize THEN

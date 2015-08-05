@@ -20788,6 +20788,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int32 fh,result;
     static int64 bytes;
     fh=gfs_open(f,1,0,0);
+
+	#ifdef QB64_WINDOWS //rather than just immediately tossing an error, let's try looking in the default OS folder for the font first in case the use left off the filepath.
+	    if (fh<0) {fh=gfs_open(qbs_add(qbs_new_txt_len("C:/Windows/Fonts/",17),f),1,0,0);}
+    #endif
+
     if (fh<0) return -1;
     bytes=gfs_lof(fh);
     static uint8* content;
