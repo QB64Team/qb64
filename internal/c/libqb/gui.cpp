@@ -1890,8 +1890,8 @@ if (src_hardware_img->source_state.PO2_fix){
     if (glut_button==GLUT_LEFT_BUTTON) button=1;
     if (glut_button==GLUT_RIGHT_BUTTON) button=3;
     if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==4) button=4;
-    if (glut_button==5) button=5;
+    if (glut_button==3) button=4;
+    if (glut_button==4) button=5;
     i=(last_mouse_message+1)&65535;
     if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
     mouse_messages[i].movementx=0;
@@ -1941,8 +1941,8 @@ if (src_hardware_img->source_state.PO2_fix){
     if (glut_button==GLUT_LEFT_BUTTON) button=1;
     if (glut_button==GLUT_RIGHT_BUTTON) button=3;
     if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==4) button=4;
-    if (glut_button==5) button=5;
+    if (glut_button==3) button=4;
+    if (glut_button==4) button=5;
     i=(last_mouse_message+1)&65535;
     if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
     mouse_messages[i].movementx=0;
@@ -2169,27 +2169,6 @@ if (src_hardware_img->source_state.PO2_fix){
   void GLUT_PASSIVEMOTION_FUNC(int x, int y){
     GLUT_MOTION_FUNC(x,y);
   }
-
-
-  void GLUT_MOUSEWHEEL_FUNC(int wheel, int direction, int x, int y){
-#ifdef QB64_GLUT
-    //Note: freeglut specific, limited documentation existed so the following research was done:
-    //  qbs_print(qbs_str(wheel),NULL); <-- was always 0 [could 1 indicate horizontal wheel?]
-    //  qbs_print(qbs_str(direction),NULL); <-- 1(up) or -1(down)
-    //  qbs_print(qbs_str(x),NULL); <--mouse x,y co-ordinates
-    //  qbs_print(qbs_str(y),1);    <
-    if (direction>0){GLUT_MouseButton_Down(4,x,y); GLUT_MouseButton_Up(4,x,y);}
-    if (direction<0){GLUT_MouseButton_Down(5,x,y); GLUT_MouseButton_Up(5,x,y);}
-#endif
-  }
-
-
-
-
-
-
-
-
 
 
 #endif
