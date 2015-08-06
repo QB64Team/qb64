@@ -30095,10 +30095,6 @@ QB64_GAMEPAD_INIT();
     glutPassiveMotionFunc(GLUT_PASSIVEMOTION_FUNC);
     glutReshapeFunc(GLUT_RESHAPE_FUNC);
 
-#ifdef CORE_FREEGLUT
-    glutMouseWheelFunc(GLUT_MOUSEWHEEL_FUNC);
-#endif
-
     glutMainLoop();
 
 #endif //QB64_GLUT
@@ -33573,9 +33569,6 @@ else{
     glutMotionFunc(GLUT_MOTION_FUNC);
     glutPassiveMotionFunc(GLUT_PASSIVEMOTION_FUNC);
     glutReshapeFunc(GLUT_RESHAPE_FUNC);
-#ifdef CORE_FREEGLUT
-    glutMouseWheelFunc(GLUT_MOUSEWHEEL_FUNC);
-#endif
 
 #endif
   }

@@ -1,12 +1,12 @@
 === IMPORTANT LICENSING NOTE FOR QB64 PROGRAMMERS ===
-All executables created with QB64 are subject to the LGPL licence conditions.
-All executables which read sound files are subject to the GPL license as well (due to incorporation of libsamplerate).
-When distributing your program as an executable all license requirements can be met by:
-i) Making your program's source code (.BAS) available and declaring it to be GPL as well as
-ii) Including this entire license folder distributed with QB64
-It should be noted that the above is not the sole method one could use to abide by the license conditions
-and that creating closed source QB64 programs is possible when LGPL (not GPL) code is dynamically
-linked to, not embedded within your executable.
+All executables which perform any kind of sound operation are subject to the LGPL license (due to incorporation of mpglibdll and OpenAL).
+Other components are licensed under various permissive licences.
+When sound components are included (thus the LGPL is in effect), the easiest way to meet terms of the LGPL is to make your program's source code (.BAS) available.
+If you are not using sound components, you do not need to release the program's source.
+If you are using fonts, you are bound by the terms of FreeType's license. Somewhere in your software package should include a notice that your program includes the FreeType library (see licence_freetype_ftl.txt for details)
+In all cases, you should distribute the LICENSE folder with your program.
+
+It should be noted that providing source code is not the only way to meet the conditions of the LGPL (eg dynamic linking) but it is by far the easiest from a technical point of view at this current time.
 =====================================================
 
 The license requirements for components of QB64 are as follows:
@@ -36,8 +36,7 @@ License: BSD 2-clause license
 License Website: http://opensource.org/licenses/BSD-2-Clause
 License File: license_opus.txt
 Location in QB64 distribution: internal/c/parts/audio/conversion/
-Note that Opusinfo, which is included in the Opus Tools download, is licensed under the GPL but QB64 does not use those files (hence the appended GPL in the licence file).
-They are distributed in the download/ folder as source only, for the sake of keeping the original download package whole.
+OpusInfo, which is under a GPL licence, was included in Opus Tools but has been removed from the QB64 distribution.
 
 Software/Library Name: mpglibdll
 Website(s):
@@ -57,13 +56,6 @@ License: Placed in the public domain April 2007 by the author: no copyright is c
 License Website: N/A - public domain
 License File: license_stbvorbis.txt
 Location in QB64 distribution: internal/c/parts/audio/decode/ogg/
-
-Software/Library Name: OpenAL-soft
-Website:http://kcat.strangesoft.net/openal.html
-License: LGPL 2
-License Website: http://www.gnu.org/licenses/licenses.html#LGPL
-License File: license_gnu_lgpl_2.txt
-Location in QB64 distribution: internal/c/parts/audio/out/
 
 Software/Library Name: OpenAL-soft
 Website:http://kcat.strangesoft.net/openal.html
