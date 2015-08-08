@@ -319,3 +319,12 @@ id.ret = FLOATTYPE - ISPOINTER
 id.Dependency = DEPENDENCY_USER_MODS
 regid
 
+clearid
+id.n = "_SCREENICON"
+id.subfunc =  1
+id.callname = "func_screenicon"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+id.Dependency = DEPENDENCY_USER_MODS
+regid
+

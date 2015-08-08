@@ -31,3 +31,4 @@ double func_coth (double num);
 double func_sec (double num);
 double func_csc (double num);
 double func_cot (double num);
+int32 func_screenicon ();
