@@ -272,7 +272,7 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", "c:\windows\fonts\lucon.ttf"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CodePage", "0"
-            WriteConfigSetting "'[MOUSE SETTINGS]", "Mouse_Orentation$", "RIGHT"
+            WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
         ELSE
             'use the main config file as the default values and just copy it over to the new file
             f = FREEFILE

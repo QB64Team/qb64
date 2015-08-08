@@ -14074,6 +14074,22 @@ long double func_val(qbs *s){
     }//i
     return hex_value;
   }
+  if ((c==66)||(c==98)){//"B"or"b"
+      hex_digits=0;
+      hex_value=0;
+      for (i=i+2;i<s->len;i++){
+      c=s->chr[i];
+      if ((c>47)&&(c<50)){//0-1
+          c-=48;
+          hex_value<<=1;
+          hex_value|=c;
+          if (hex_digits||c) hex_digits++; 
+          if (hex_digits>64){error(6); return 0;}
+      }else 
+	      break;
+      }//i
+      return hex_value;
+  }
   if ((c==72)||(c==104)){//"H"or"h"
     hex_digits=0;
     hex_value=0;
