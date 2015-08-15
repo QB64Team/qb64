@@ -14015,6 +14015,9 @@ long double func_val(qbs *s){
  finish:;
 
   if (num_significant_digits==0) return 0;
+  //adjust exponent value appropriately
+  //if most_significant_digit_position=1, then no change need occur
+  exponent_value=exponent_value+most_significant_digit_position-1;
 
   if (exponent_value==0){
     if (num_significant_digits==most_significant_digit_position){
@@ -14032,9 +14035,6 @@ long double func_val(qbs *s){
       built_number[i]=significant_digits[i2]; i++;
     }
     built_number[i]=69; i++;//E
-    //adjust exponent value appropriately
-    //if most_significant_digit_position=1, then no change need occur
-    exponent_value=exponent_value+most_significant_digit_position-1;
     //add exponent's value
 #ifdef QB64_WINDOWS
     i2=sprintf((char*)&built_number[i],"%I64i",exponent_value);

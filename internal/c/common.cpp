@@ -231,7 +231,15 @@ struct img_struct{
 extern void error(int32 error_number); //declare the erorr handler so we can call it if needed.
 
 #ifdef QB64_NOT_X86
-inline int64 qbr(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+inline int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f<=-9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
+  if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  if (f<0) i=f-0.5f; else i=f+0.5f;
+  if (temp) return i|0x8000000000000000;//+9223372036854775808;
+  return i;
+}
 inline uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
 inline int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
 inline int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
@@ -240,7 +248,7 @@ inline int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f
 #ifdef QB64_MICROSOFT
 inline int64 qbr(long double f){
   int64 i; int temp=0;
-  if (f<=9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
+  if (f<=-9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
   if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
   if (f>9223372036854775807) {temp=1;f=f-9223372036854775808;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
   __asm{
@@ -280,7 +288,7 @@ inline int32 qbr_double_to_long(double f){
 //FLDT=load long double
 inline int64 qbr(long double f){
   int64 i; int temp=0;
-  if (f<=9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
+  if (f<=-9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
   if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
   if (f>9223372036854775807) {temp=1;f=f-9223372036854775808;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
   __asm__ (
