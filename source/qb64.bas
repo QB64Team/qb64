@@ -1,6 +1,8 @@
 'All variables will be of type LONG unless explicitly defined
 DEFLNG A-Z
 
+deleteThis$="testAutoBuildProcessGitHub"
+
 'All arrays will be dynamically allocated so they can be REDIM-ed
 '$DYNAMIC
 
