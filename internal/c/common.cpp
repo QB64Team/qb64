@@ -228,6 +228,8 @@ struct img_struct{
 #define IMG_SCREEN 2 //img is linked to other screen pages
 #define IMG_FREEMEM 4 //if set, it means memory must be freed
 
+extern void error(int32 error_number); //declare the erorr handler so we can call it if needed.
+
 #ifdef QB64_NOT_X86
 inline int64 qbr(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
 inline uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
@@ -237,11 +239,15 @@ inline int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f
 //QBASIC compatible rounding via FPU:
 #ifdef QB64_MICROSOFT
 inline int64 qbr(long double f){
-  int64 i;
+  int64 i; int temp=0;
+  if (f<=9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
+  if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
   __asm{
-    fld   f
+	  fld   f
       fistp i
       }
+  if (temp) return i|0x8000000000000000;//+9223372036854775808;
   return i;
 }
 inline uint64 qbr_longdouble_to_uint64(long double f){
@@ -273,13 +279,17 @@ inline int32 qbr_double_to_long(double f){
 //FLDL=load double
 //FLDT=load long double
 inline int64 qbr(long double f){
-  int64 i;
+  int64 i; int temp=0;
+  if (f<=9223372036854775808.5) {error(6); return 0;} // if the float is smaller than what an integer 64 could possible hold, toss an overflow error.
+  if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
   __asm__ (
 	   "fldt %1;"
 	   "fistpll %0;"              
 	   :"=m" (i)
 	   :"m" (f)
 	   );
+  if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
   return i;
 }
 inline uint64 qbr_longdouble_to_uint64(long double f){
