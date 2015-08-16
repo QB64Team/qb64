@@ -13923,7 +13923,8 @@ void qbs_input(int32 numvariables,uint8 newline){
 }//qbs_input
 
 long double func_val(qbs *s){
-  static int32 i,i2,step,c,num_significant_digits,most_significant_digit_position;
+  char c;
+  static int32 i,i2,step,num_significant_digits,most_significant_digit_position;
   static int32 num_exponent_digits;
   static int32 negate,negate_exponent;
   static uint8 significant_digits[256];
@@ -13945,97 +13946,127 @@ long double func_val(qbs *s){
 
   i=0;
   for (i=0;i<s->len;i++){
-    c=s->chr[i];
+    c=(char)s->chr[i];
+    switch (c) {
+    case ' ':
+    case '\t':
+      goto whitespace;
+      break;
 
-    if ((c==32)||(c==9)) goto whitespace;
-
-    if (c==38){//&
+    case '&':
       if (step==0) goto hex;
       goto finish;
-    }
+      break;
 
-    if (c==45){//-
-      if (step==0){negate=1; step=1; goto checked;}
-      if (step==3){negate_exponent=1; step=4; goto checked;}
+    case '-':
+      if (step==0) {
+	negate = 1;
+	step = 1;
+	goto checked;
+      }
+      else if (step==3) {
+	negate_exponent = 1;
+	step = 4;
+	goto checked;
+      }
       goto finish;
-    }
+      break;
 
-    if (c==43){//+
-      if (step==0){step=1; goto checked;}
-      if (step==3){step=4; goto checked;}
+    case '+':
+      if (step==0 || step==3) {
+	step++;
+	goto checked;
+      }
       goto finish;
-    }
+      break;
 
-    if ((c>=48)&&(c<=57)){//0-9
-
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
       if (step<=1){//before decimal point
-    step=1;
-    if ((num_significant_digits)||(c>48)){
-      most_significant_digit_position++;
-      significant_digits[num_significant_digits]=c;
-      num_significant_digits++;
-      value=value*10+c-48;
-    }
+	step=1;
+	if ((num_significant_digits)||(c>48)){
+	  most_significant_digit_position++;
+	  significant_digits[num_significant_digits]=c;
+	  num_significant_digits++;
+	  value=value*10+c-48;
+	}
+      }      
+      else if (step==2){//after decimal point
+	if ((num_significant_digits==0)&&(c==48)) most_significant_digit_position--;
+	if ((num_significant_digits)||(c>48)){
+	  significant_digits[num_significant_digits]=c;
+	  num_significant_digits++;
+	}
       }
-
-      if (step==2){//after decimal point
-    if ((num_significant_digits==0)&&(c==48)) most_significant_digit_position--;
-    if ((num_significant_digits)||(c>48)){
-      significant_digits[num_significant_digits]=c;
-      num_significant_digits++;
-    }
+      
+      else if (step>=3){//exponent
+	step=4;
+	if ((num_exponent_digits)||(c>48)){
+	  if (num_exponent_digits>=18) goto finish;
+	  exponent_value*=10; exponent_value=exponent_value+c-48;//precalculate
+	  num_exponent_digits++;
+	}
       }
-
-      if (step>=3){//exponent
-    step=4;
-    if ((num_exponent_digits)||(c>48)){
-      if (num_exponent_digits>=18) goto finish;
-      exponent_value*=10; exponent_value=exponent_value+c-48;//precalculate
-      num_exponent_digits++;
-    }
-      }
-
       goto checked;
-    }
+      break;
 
-    if (c==46){//.
+    case '.':
       if (step>1) goto finish;
       step=2; goto checked;
-    }
-
-    if ((c==68)||(c==69)||(c==100)||(c==101)){//D,E,d,e
+      break;
+      
+    case 'D':
+    case 'E':
+    case 'd':
+    case 'e':
       if (step>2) goto finish;
       step=3; goto checked;
-    }
+      break;
 
+    default:
     goto finish;//invalid character
+    break;
+    }
+    
   checked:
   whitespace:;
   }
  finish:;
 
+  //Check for all-zero mantissa
   if (num_significant_digits==0) return 0;
-  //adjust exponent value appropriately
-  //if most_significant_digit_position=1, then no change need occur
-  exponent_value=exponent_value+most_significant_digit_position-1;
 
-  if (exponent_value==0){
-    if (num_significant_digits==most_significant_digit_position){
-      if (negate) value=-value;
-      return value;
-    }
+  //If no exponent (or E0) and no decimal part and no chance of overflowing value, return straight away
+  if (exponent_value==0 && num_significant_digits==most_significant_digit_position && num_significant_digits < 19){
+    return negate ? -value : value;
   }
+  
+  //normalise number (change 123.456E2 to 1.23456E4, or 123.456 to 1.23456E2)
+  exponent_value=exponent_value+most_significant_digit_position-1;
 
   if (negate_exponent) exponent_value=-exponent_value;
   i=0;
+  //we are now building a floating point number in ascii characters
   if (negate) {built_number[i]=45; i++;}//-
   if (num_significant_digits){
+    //build nomalised mantissa 
     for (i2=0;i2<num_significant_digits;i2++){
-      if (i2==1){built_number[i]=46; i++;}
+      if (i2==1){
+	built_number[i]=46;
+	i++;
+      }
       built_number[i]=significant_digits[i2]; i++;
     }
     built_number[i]=69; i++;//E
-    //add exponent's value
+    //add exponent
 #ifdef QB64_WINDOWS
     i2=sprintf((char*)&built_number[i],"%I64i",exponent_value);
 #else
