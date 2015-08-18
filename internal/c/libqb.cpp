@@ -3608,7 +3608,7 @@ int MessageBox(int ignore,char* message, char* header, int type )
   CFStringRef header_ref      = CFStringCreateWithCString( NULL, header,     kCFStringEncodingASCII );
   CFStringRef message_ref  = CFStringCreateWithCString( NULL, message, kCFStringEncodingASCII );
   CFOptionFlags result;
-  if (type|MB_SYSTEMMODAL) type-=MB_SYSTEMMODAL;
+  if (type&MB_SYSTEMMODAL) type-=MB_SYSTEMMODAL;
   if (type==MB_YESNO){ 
     CFUserNotificationDisplayAlert(
                    0, // no timeout
@@ -3653,7 +3653,7 @@ int MessageBox(int ignore,char* message, char* header, int type )
 #else
 int MessageBox(int ignore,char* message,char* title,int type){
   static qbs *s=NULL; if (!s) s=qbs_new(0,0);
-  if (type|MB_SYSTEMMODAL) type-=MB_SYSTEMMODAL;
+  if (type&MB_SYSTEMMODAL) type-=MB_SYSTEMMODAL;
   if (type==MB_YESNO){
     qbs_set(s,qbs_new_txt("xmessage -center -title "));
     qbs_set(s,qbs_add(s,qbs_new_txt("?"))); s->chr[s->len-1]=34;
