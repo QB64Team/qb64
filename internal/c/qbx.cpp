@@ -114,7 +114,16 @@ extern void *malloc2(int x);
 void QBMAIN(void *);
 void TIMERTHREAD();
 
+extern int32 requestedKeyboardOverlayImage;
+void requestKeyboardOverlayImage(int32 handle){
+	requestedKeyboardOverlayImage=handle;
+}
+
+
 //extern functions
+
+extern int32 func__scaledwidth();
+extern int32 func__scaledheight();
 
 extern qbs *func__cwd();
 extern qbs *func__startdir();
@@ -222,8 +231,8 @@ extern int32 func__keyhit();
 extern void sub_files(qbs *str,int32 passed);
 extern int32 func_lpos(int32);
 extern void sub__printimage(int32 i);
-extern float func__mousemovementx();
-extern float func__mousemovementy();
+extern float func__mousemovementx(int32 context, int32 passed);
+extern float func__mousemovementy(int32 context, int32 passed);
 extern void sub__screenprint(qbs *txt);
 extern void sub__screenclick(int32 x,int32 y);
 extern int32 func__screenimage(int32 x1,int32 y1,int32 x2,int32 y2,int32 passed);
@@ -525,11 +534,16 @@ extern long double pow2(long double x,long double y);
 extern int32 func_freefile();
 extern void sub__mousehide();
 extern void sub__mouseshow(qbs *style, int32 passed);
-extern float func__mousex();
-extern float func__mousey();
-extern int32 func__mouseinput();
-extern int32 func__mousebutton(int32 i);
-extern int32 func__mousewheel();
+extern float func__mousex(int32 context, int32 passed);
+extern float func__mousey(int32 context, int32 passed);
+extern int32 func__mouseinput(int32 context, int32 passed);
+extern int32 func__mousebutton(int32 i, int32 context, int32 passed);
+extern int32 func__mousewheel(int32 context, int32 passed);
+
+extern int32 func__mousepipeopen();
+extern void sub__mouseinputpipe(int32 context);
+extern void sub__mousepipeclose(int32 context);
+
 extern void call_absolute(int32 args,uint16 offset);
 extern void call_interrupt(int32 i);
 extern void sub_play(qbs *str);
@@ -1854,9 +1868,12 @@ extern int64 display_lock_request;
 extern int64 display_lock_confirmed;
 extern int64 display_lock_released;
 
+extern int32 disableEvents;
 
 uint32 r;
 void evnt(uint32 linenumber){
+if (disableEvents) return;
+
 qbevent=0;
 
 if (sub_gl_called==0){

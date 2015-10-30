@@ -19,12 +19,13 @@
 #include "os.h"
 
 #ifdef QB64_ANDROID
-#define QB64_GLES1
-#define QB64_NOT_X86
-#define QB64_GLUT
+ #define QB64_GLES
+ #define QB64_GLES1
+ #define QB64_NOT_X86
+ #define QB64_GLUT
 #else
-#define QB64_GL1
-#define QB64_GLUT
+ #define QB64_GL1
+ #define QB64_GLUT
 #endif
 
 #ifdef QB64_LINUX
@@ -82,7 +83,8 @@
 #ifdef QB64_MACOSX
 	#include <cmath>
 #else
-	#include <math.h>
+	//#include <math.h> //<-causes overloading abs conflicts in Windows
+	#include <cmath>
 #endif
 #include <time.h>
 #include <iostream>

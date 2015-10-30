@@ -627,7 +627,7 @@ DO
     idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
     STATIC ForceResize
     if IDE_AutoPosition then
-      if _SCreenhide = 0 then
+     if _SCreenhide = 0 then
         IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition" , str$(_SCREENY)
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition" , str$(_SCREENX)
@@ -8370,7 +8370,7 @@ sep = CHR$(0)
 '-------- init --------
 i = 0
 
-idepar p, 75, 15 - 4, "Google Android Options"
+idepar p, 75, 15 - 4 - 4, "Google Android Options"
 
 i = i + 1
 o(i).typ = 4 'check box
@@ -8388,18 +8388,18 @@ o(i).sel = IdeAndroidMenu
 'o(i).v1 = LEN(a2$)
 
 
-a2$ = IdeAndroidMakeScript
-IF a2$ = "" THEN a2$ = "programs\android\make_android.bat"
-i = i + 1
-o(i).typ = 1
-o(i).y = 11 - 4
-o(i).nam = idenewtxt(CHR$(34) + "Make Android Project Only" + CHR$(34) + " Script")
-o(i).txt = idenewtxt(a2$)
-o(i).v1 = LEN(a2$)
+'a2$ = IdeAndroidMakeScript
+'IF a2$ = "" THEN a2$ = "programs\android\make_android.bat"
+'i = i + 1
+'o(i).typ = 1
+'o(i).y = 11 - 4
+'o(i).nam = idenewtxt(CHR$(34) + "Make Android Project Only" + CHR$(34) + " Script")
+'o(i).txt = idenewtxt(a2$)
+'o(i).v1 = LEN(a2$)
 
 i = i + 1
 o(i).typ = 3
-o(i).y = 15 - 4
+o(i).y = 15 - 4 - 4
 o(i).txt = idenewtxt("OK" + sep + "#Cancel")
 o(i).dft = 1
 '-------- end of init --------
@@ -8434,7 +8434,7 @@ DO 'main loop
     PRINT "bas_file_name_without_extension";
     COLOR 8, 7: PRINT "\";
     '    COLOR 8, 7: LOCATE p.y + 9, p.x + 4: PRINT "Script file is launched from within project's folder";
-    COLOR 8, 7: LOCATE p.y + 13 - 4, p.x + 4: PRINT "Script file is launched from within project's folder";
+    'COLOR 8, 7: LOCATE p.y + 13 - 4, p.x + 4: PRINT "Script file is launched from within project's folder";
 
     '-------- end of custom display changes --------
 
@@ -8493,8 +8493,8 @@ DO 'main loop
     IF LEN(a$) > 256 THEN a$ = LEFT$(a$, 256)
     idetxt(o(3).txt) = a$
 
-    IF K$ = CHR$(27) OR (focus = 5 - 1 AND info <> 0) THEN EXIT FUNCTION
-    IF K$ = CHR$(13) OR (focus = 4 - 1 AND info <> 0) THEN
+    IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN EXIT FUNCTION
+    IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
         v% = o(1).sel
         IF v% < IdeAndroidMenu THEN
             menusize(5) = menusize(5) - 2
@@ -8502,24 +8502,25 @@ DO 'main loop
         IF v% > IdeAndroidMenu THEN
             menusize(5) = menusize(5) + 2
         END IF
-        'v$ = idetxt(o(2).txt)
-        v$ = ""
-        IF LEN(v$) > 256 THEN v$ = LEFT$(v$, 256)
-        IF LEN(v$) < 256 THEN v$ = v$ + SPACE$(256 - LEN(v$))
-        v3$ = idetxt(o(3 - 1).txt)
-        IF LEN(v3$) > 256 THEN v3$ = LEFT$(v3$, 256)
-        IF LEN(v3$) < 256 THEN v3$ = v3$ + SPACE$(256 - LEN(v3$))
-            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$",  v3$
-            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidStartScript$", v$
-        if v% then
+	if v% then
             WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "TRUE"
         ELSE
             WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "FALSE"
         end if
+        
+        'v$ = ""
+        'IF LEN(v$) > 256 THEN v$ = LEFT$(v$, 256)
+        'IF LEN(v$) < 256 THEN v$ = v$ + SPACE$(256 - LEN(v$))
+        'v3$ = idetxt(o(3 - 1).txt)
+        'IF LEN(v3$) > 256 THEN v3$ = LEFT$(v3$, 256)
+        'IF LEN(v3$) < 256 THEN v3$ = v3$ + SPACE$(256 - LEN(v3$))
+        '    WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$",  v3$
+        '    WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidStartScript$", v$
 
         IdeAndroidMenu = o(1).sel
-        IdeAndroidStartScript = "" 'idetxt(o(2).txt)
-        IdeAndroidMakeScript = idetxt(o(3 - 1).txt)
+        'IdeAndroidStartScript = "" 'idetxt(o(2).txt)
+        'IdeAndroidMakeScript = idetxt(o(3 - 1).txt)
+
         EXIT FUNCTION
     END IF
 

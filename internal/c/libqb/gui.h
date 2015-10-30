@@ -1,3 +1,6 @@
+//Common
+int32 requestedKeyboardOverlayImage=0;
+
 #ifndef QB64_GUI //begin stubs
 
 //STUB: simulate generating a hardware surface
@@ -178,6 +181,16 @@ int32 new_hardware_img(int32 x, int32 y, uint32 *pixels, int32 flags){
     if (flags&NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER){
       hardware_img->software_pixel_buffer=(uint32*)malloc(x*y*4);
       memcpy(hardware_img->software_pixel_buffer,pixels,x*y*4);
+      #ifdef QB64_ANDROID
+	//BGRA->RGBA
+        uint32 *pos=(uint32*)hardware_img->software_pixel_buffer;
+        int32 numPixels=x*y;
+        uint32 col;
+        while(numPixels--){
+          col=*pos;
+          *pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
+        }
+      #endif
     }else{
       hardware_img->software_pixel_buffer=pixels;
     }
@@ -257,6 +270,7 @@ void hardware_img_requires_depthbuffer(hardware_img_struct* hardware_img){
 if (hardware_img->depthbuffer_handle==0){
   //inspiration... http://www.opengl.org/wiki/Framebuffer_Object_Examples#Color_texture.2C_Depth_texture
   static GLuint depth_tex;
+#ifndef QB64_GLES
   glGenTextures(1, &depth_tex);
   glBindTexture(GL_TEXTURE_2D, depth_tex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -266,9 +280,15 @@ if (hardware_img->depthbuffer_handle==0){
   glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-  //NULL means reserve texture memory, but texels are undefined
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, hardware_img->w, hardware_img->h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_tex, 0/*mipmap level*/);
+#else
+  glGenRenderbuffers(1, &depth_tex);    
+  glBindRenderbuffer(GL_RENDERBUFFER, depth_tex);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, hardware_img->w, hardware_img->h);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_tex);
+#endif
+  //NULL means reserve texture memory, but texels are undefined
   glClear(GL_DEPTH_BUFFER_BIT);
   hardware_img->depthbuffer_handle=depth_tex;
   set_render_source(INVALID_HARDWARE_HANDLE);

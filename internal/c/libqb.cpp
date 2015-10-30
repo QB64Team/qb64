@@ -2,12 +2,54 @@
 #include "libqb.h"
 
 #ifdef QB64_GUI
-#include "parts/core/glew/src/glew.c"
+ #ifndef QB64_GLES
+  #include "parts/core/glew/src/glew.c"
+ #else
+  //GLEW does not appear to support GLES, so "wrangle" the required functionality here
+  #define glGenFramebuffers glGenFramebuffersOES
+  #define glGenFramebuffersEXT glGenFramebuffersOES
+  #define glDeleteFramebuffers glDeleteFramebuffersOES
+  #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+  #define glBindFramebuffer glBindFramebufferOES
+  #define glBindFramebufferEXT glBindFramebufferOES
+  #define glFramebufferTexture2D glFramebufferTexture2DOES
+  #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
+  #define glFramebufferRenderbuffer glFramebufferRenderbufferOES
+  #define glCheckFramebufferStatus glCheckFramebufferStatusOES
+  #define GL_FRAMEBUFFER GL_FRAMEBUFFER_OES
+  #define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_OES
+  #define glGenRenderbuffers glGenRenderbuffersOES
+  #define glDeleteRenderbuffers glDeleteRenderbuffersOES
+  #define glBindRenderbuffer glBindRenderbufferOES
+  #define glRenderbufferTexture2D glRenderbufferTexture2DOES
+  #define glRenderbufferTexture2DEXT glRenderbufferTexture2DOES
+  #define glRenderbufferRenderbuffer glRenderbufferRenderbufferOES
+  #define glGetRenderbufferParameteriv glGetRenderbufferParameterivOES
+  #define glRenderbufferStorage glRenderbufferStorageOES
+  #define GL_RENDERBUFFER GL_RENDERBUFFER_OES
+  #define GL_RENDERBUFFER_WIDTH GL_RENDERBUFFER_WIDTH_OES
+  #define GL_RENDERBUFFER_HEIGHT GL_RENDERBUFFER_HEIGHT_OES
+  #define GL_RENDERBUFFER_INTERNAL_FORMAT GL_RENDERBUFFER_INTERNAL_FORMAT_OES
+  #define GL_MAX_RENDERBUFFER_SIZE GL_MAX_RENDERBUFFER_SIZE_OES
+  #define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
+  #define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_OES
+  #define GL_DEPTH_COMPONENT16 GL_DEPTH_COMPONENT16_OES
+  #define glOrtho glOrthof
+  //...
+  
+  #define GL_BGRA GL_RGBA //this is to prevent errors and ensure RGBA is used even when BGRA is supported
+
+ #endif
 #endif
 
+
 #ifdef QB64_ANDROID
-#include <cstdlib> //required for system()
+  #include <cstdlib> //required for system()
+  struct android_app* android_state;
+  JavaVM* android_vm;
+  JNIEnv* android_env;
 #endif
+
 
 #ifdef QB64_WINDOWS
 #include <fcntl.h>
@@ -27,7 +69,7 @@
 #endif
 
 
-
+int32 disableEvents=0;
 
 
 #ifdef QB64_LINUX
@@ -116,6 +158,7 @@ void set_view(int32 new_mode);
 void set_render_source(int32 new_handle);
 void set_render_dest(int32 new_handle);
 void reinit_glut_callbacks();
+void showErrorOnScreen(char *errorMessage, int32 errorNumber, int32 lineNumber);//display error message on screen and enter infinite loop
 
 int32 framebufferobjects_supported=0;
 
@@ -127,8 +170,8 @@ int32 environment_2d__screen_x1=0; //offsets of 'screen' within the window
 int32 environment_2d__screen_y1=0;
 int32 environment_2d__screen_x2=0;
 int32 environment_2d__screen_y2=0;
-int32 environment_2d__screen_scaled_width=0;
-int32 environment_2d__screen_scaled_height=0;
+int32 environment_2d__screen_scaled_width=640;//inital values prevent _SCALEDWIDTH/_SCALEDHEIGHT returning 0
+int32 environment_2d__screen_scaled_height=400;
 float environment_2d__screen_x_scale=1.0f;
 float environment_2d__screen_y_scale=1.0f;
 int32 environment_2d__screen_smooth=0;//1(LINEAR) or 0(NEAREST)
@@ -183,7 +226,9 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
 #ifdef QB64_LINUX
 #ifdef QB64_GUI //Cannot have X11 events without a GUI
 #ifndef QB64_MACOSX
+#ifndef QB64_ANDROID
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info);
+#endif
 #endif
 #endif
 #endif
@@ -771,7 +816,7 @@ int64 orwl_gettime(void) {
 #endif
 
 int64 GetTicks(){
-#if defined QB64_LINUX && !defined QB64_MACOSX && !defined QB64_ANDROID
+#if defined QB64_LINUX && !defined QB64_MACOSX // && !defined QB64_ANDROID //NOTE: ANDROID MUST USE THIS TOO
   struct timespec tp;
   clock_gettime(CLOCK_MONOTONIC, &tp);
   return tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
@@ -3707,13 +3752,17 @@ int MessageBox2(int ignore,char* message,char* title,int type){
     FILE *f = fopen("..\\final.txt", "w");
     if (f != NULL)
       {
-    fprintf(f, title);
+    fprintf(f, "%s", title);
     fprintf(f, "\n");
-    fprintf(f, message);
+    fprintf(f, "%s", message);
     fclose(f);
       }
     exit(0);//should log error
   }
+
+  #ifdef QB64_ANDROID
+    showErrorOnScreen(message, 0, 0);//display error message on screen and enter infinite loop
+  #endif
 
   return MessageBox(NULL,message,title,type);
 }
@@ -3726,8 +3775,6 @@ void alert(int32 x){
   sprintf(str, "%d", x);
   MessageBox(0,&str[0], "Alert", MB_OK );
 }
-
-
 
 void alert(char *x){
   MessageBox(0,x, "Alert", MB_OK );
@@ -5007,8 +5054,10 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
   use_hardware=0;
 
   //is source a hardware handle?
+hardware_img_struct* dst_himg=NULL;
+hardware_img_struct* src_himg=NULL;
   if (src){
-    hardware_img_struct* src_himg=(hardware_img_struct*)list_get(hardware_img_handles,src-HARDWARE_IMG_HANDLE_OFFSET);
+    src_himg=(hardware_img_struct*)list_get(hardware_img_handles,src-HARDWARE_IMG_HANDLE_OFFSET);
     if (src_himg!=NULL){//source is hardware image
       src-=HARDWARE_IMG_HANDLE_OFFSET;
 
@@ -5020,8 +5069,7 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
       s_emu.alpha_disabled=src_himg->alpha_disabled;
       s=&s_emu;
 
-      //check dst
-      hardware_img_struct* dst_himg=NULL;
+      //check dst      
       if (dst<0){
     dst_himg=(hardware_img_struct*)list_get(hardware_img_handles,dst-HARDWARE_IMG_HANDLE_OFFSET);
     if (dst_himg==NULL){error(258); return;}
@@ -5267,7 +5315,11 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     if (passed&128) hgc->smooth=1;
 
     hgc->use_alpha=1;
-    if (s->alpha_disabled||d->alpha_disabled) hgc->use_alpha=0;
+    if (s->alpha_disabled) hgc->use_alpha=0;
+    //only consider dest alpha setting if it is a hardware image    
+    if (dst_himg){
+        if (d->alpha_disabled) hgc->use_alpha=0;
+    }
 
     //queue the command
     hgc->next_command=0;
@@ -6181,6 +6233,9 @@ uint32 frame=0;
 
 extern uint8 cmem[1114099];//16*65535+65535+3 (enough for highest referencable dword in conv memory)
 
+
+int32 mouse_hideshow_called=0;
+
 struct mouse_message{
   int16 x;
   int16 y;
@@ -6188,10 +6243,29 @@ struct mouse_message{
   int16 movementx;
   int16 movementy;
 };
+
+/*
 mouse_message mouse_messages[65536];//a circular buffer of mouse messages
 int32 last_mouse_message=0;
 int32 current_mouse_message=0;
-int32 mouse_hideshow_called=0;
+*/
+
+//Mouse message queue system
+//--------------------------
+struct mouse_message_queue_struct{
+	mouse_message *queue;
+	int32 lastIndex;
+	int32 current;
+	int32 first;
+	int32 last;
+	int32 child;
+	int32 parent;
+};
+list *mouse_message_queue_handles=NULL;
+int32 mouse_message_queue_first; //the first queue to populate from input source
+int32 mouse_message_queue_default;//the default queue (for int33h and default _MOUSEINPUT operations)
+
+
 
 
 
@@ -7211,6 +7285,11 @@ void fix_error(){
 
     i2=sprintf(&errtitle[i],"%u",new_error); i=i+i2;
     errtitle[i]=0;
+
+//Android cannot halt threads, so the easiest compromise is to just display the error
+#ifdef QB64_ANDROID
+	showErrorOnScreen(cp, new_error, ercl);
+#endif
 
     if (prevent_handling){
       v=MessageBox2(NULL,errmess,errtitle,MB_OK);
@@ -13119,6 +13198,7 @@ int32 hexoct2uint64(qbs* h){
 }
 
 
+extern void SUB_VKUPDATE();
 
 //input method (complex, calls other qbs functions)
 const char *uint64_max[] =    {"18446744073709551615"};
@@ -13810,6 +13890,12 @@ void qbs_input(int32 numvariables,uint8 newline){
     }else{
       SDL_Delay(10);
       qbs_set(key,qbs_inkey());
+      
+      disableEvents=1;//we don't want the ON TIMER bound version of VKUPDATE to fire during a call to itself!
+      //SDL_Delay(10);
+      SUB_VKUPDATE();
+      disableEvents=0;
+
     }
 
     qbs_cleanup(qbs_tmp_base,0);
@@ -17849,7 +17935,11 @@ qbs *func_input(int32 n,int32 i,int32 passed){
     }
     qbs_free(str2);
     if (stop_program) return str;
-    if (x<n){SDL_Delay(1); goto waitforinput;}
+    if (x<n){
+	evnt(0);//check for new events
+        Sleep(10);
+	goto waitforinput;
+    }
     return str;
   }
 }
@@ -19612,7 +19702,9 @@ void sub_mkdir(qbs *str){
     if (!screen_hide){
       while (!window_exists){Sleep(100);}      
       #ifdef QB64_GLUT
+      #ifndef QB64_ANDROID
       glutSetCursor(GLUT_CURSOR_NONE);
+      #endif
       #endif
     }
     #endif
@@ -19646,7 +19738,9 @@ void sub_mkdir(qbs *str){
 
     if (!screen_hide){
       while (!window_exists){Sleep(100);}
+      #ifndef QB64_ANDROID
       glutSetCursor(mouse_cursor_style);
+      #endif
     }
 
 #endif
@@ -19705,11 +19799,21 @@ void sub_mkdir(qbs *str){
   }
 
 
-  float func__mousemovementx(){
-    return mouse_messages[current_mouse_message].movementx;
+  float func__mousemovementx(int32 context, int32 passed){
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    return queue->queue[queue->current].movementx;
   }
-  float func__mousemovementy(){
-    return mouse_messages[current_mouse_message].movementy;
+  float func__mousemovementy(int32 context, int32 passed){
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    return queue->queue[queue->current].movementy;
   }
 
   void sub__mousemove(float x,float y){
@@ -19745,12 +19849,17 @@ void sub_mkdir(qbs *str){
     error(5);
   }
 
-  float func__mousex(){
+  float func__mousex(int32 context, int32 passed){
 
     static int32 x,x2;
     static float f;
 
-    x=mouse_messages[current_mouse_message].x;
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    x=queue->queue[queue->current].x;
 
     /*
       if (cloud_app){
@@ -19784,12 +19893,17 @@ void sub_mkdir(qbs *str){
     return x;
   }
 
-  float func__mousey(){
+  float func__mousey(int32 context, int32 passed){
 
     static int32 y,y2;
     static float f;
 
-    y=mouse_messages[current_mouse_message].y;
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    y=queue->queue[queue->current].y;
 
     /*
       if (cloud_app){
@@ -19824,16 +19938,83 @@ void sub_mkdir(qbs *str){
   }
 
 
+int32 func__mousepipeopen(){
+    //creates a new mouse pipe, routing all mouse input into it before any preceeding pipes receive access to the data
 
+    //create new queue
+    int32 context=list_add(mouse_message_queue_handles);
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,context);
+    queue->lastIndex=65535;
+    queue->queue=(mouse_message*)calloc(1,sizeof(mouse_message)*(queue->lastIndex+1));
 
+    //link new queue to child queue
+    int32 child_context=mouse_message_queue_first;
+    mouse_message_queue_struct *child_queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,child_context);
+    queue->child=child_context;
+    child_queue->parent=context;
 
-  int32 func__mouseinput(){
-    if (current_mouse_message==last_mouse_message) return 0;
-    current_mouse_message=(current_mouse_message+1)&65535;
+    //set new queue and primary queue
+    mouse_message_queue_first=context;
+
+    return context;
+}
+
+void sub__mouseinputpipe(int32 context){
+    //pushes the current _MOUSEINPUT event to the lower pipe, effectively sharing the input with the lower pipe
+    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,context);
+    if (queue==NULL){error(258); return;}
+
+    if (context==mouse_message_queue_default){error(5); return;} //cannot pipe input from the default queue
+
+    int32 child_context=queue->child;
+    mouse_message_queue_struct *child_queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,child_context);
+
+    //create new event in child queue
+    int32 i=child_queue->last+1; if (i>child_queue->lastIndex) i=0;
+    if (i==child_queue->current){
+      int32 nextIndex=child_queue->last+1; if (nextIndex>child_queue->lastIndex) nextIndex=0;
+      child_queue->current=nextIndex;
+    }
+
+    int32 i2=queue->current;
+
+    //copy event to child queue
+    child_queue->queue[i].x=queue->queue[i2].x;
+    child_queue->queue[i].y=queue->queue[i2].y;
+    child_queue->queue[i].movementx=queue->queue[i2].movementx;
+    child_queue->queue[i].movementy=queue->queue[i2].movementy;
+    child_queue->queue[i].buttons=queue->queue[i2].buttons;
+    child_queue->last=i;
+
+}
+
+void sub__mousepipeclose(int32 context){
+    //closes an existing pipe and reverts the new route the pipe created
+
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,context);
+    if (queue==NULL){error(258); return;}
+    if (context==mouse_message_queue_default){error(5); return;} //cannot delete default queue
+
+    //todo!
+
+}
+
+ 
+  int32 func__mouseinput(int32 context, int32 passed){
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    if (queue->current==queue->last) return 0;
+    int32 newIndex=queue->current+1;
+    if (newIndex>queue->lastIndex) newIndex=0;
+    queue->current=newIndex;
     return -1;
   }
 
-  int32 func__mousebutton(int32 i){
+  int32 func__mousebutton(int32 i, int32 context, int32 passed){
     if (i<1){error(5); return 0;}
     if (i>3) return 0;//current SDL only supports 3 mouse buttons!
     //swap indexes 2&3
@@ -19842,13 +20023,23 @@ void sub_mkdir(qbs *str){
     }else{
       if (i==3) i=2;
     }
-    if (mouse_messages[current_mouse_message].buttons&(1<<(i-1))) return -1;
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    if (queue->queue[queue->current].buttons&(1<<(i-1))) return -1;
     return 0;
   }
 
-  int32 func__mousewheel(){
+  int32 func__mousewheel(int32 context, int32 passed){
     static uint32 x;
-    x=mouse_messages[current_mouse_message].buttons;
+    int32 handle;
+    handle=mouse_message_queue_default;
+    if (passed) handle=context;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+    if (queue==NULL){error(258); return 0;}
+    x=queue->queue[queue->current].buttons;
     if ((x&(8+16))==(8+16)) return 0;//cancelled out change
     if (x&8) return -1;//up
     if (x&16) return 1;//down
@@ -19886,15 +20077,28 @@ void sub_mkdir(qbs *str){
       if (cpu.ax==3){
     //return the current mouse status
     //buttons
-    cpu.bx=mouse_messages[last_mouse_message].buttons&1;
-    if (mouse_messages[last_mouse_message].buttons&4) cpu.bx+=2;
-    //x,y offsets
-    static int32 current_mouse_message_backup;
-    current_mouse_message_backup=current_mouse_message;
-    current_mouse_message=last_mouse_message;
+    
+    int32 handle;
+    handle=mouse_message_queue_default;    
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+
+    //buttons
+    cpu.bx=queue->queue[queue->last].buttons&1;
+    if (queue->queue[queue->last].buttons&4) cpu.bx+=2;
+
+    //x,y offsets    
     static float mx,my;
-    mx=func__mousex(); my=func__mousey();
-    current_mouse_message=current_mouse_message_backup;
+
+    //temp override current message index to the most recent event
+    static int32 current_mouse_message_backup;
+    current_mouse_message_backup=queue->current;
+    queue->current=queue->last;
+
+    mx=func__mousex(0,0); my=func__mousey(0,0);
+
+    //restore "current" message index
+    queue->current=current_mouse_message_backup;
+
     cpu.cx=mx; cpu.dx=my;
     //double x-axis value for modes 1,7,13
     if ((display_page->compatible_mode==1)||(display_page->compatible_mode==7)||(display_page->compatible_mode==13)) cpu.cx*=2;
@@ -23653,6 +23857,8 @@ int32 func__exit(){
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
 
+#ifdef QB64_X11
+
 //X11 clipboard interface for Linux
 //SDL_SysWMinfo syswminfo;
 Atom targets,utf8string,compoundtext,clipboard;
@@ -23776,6 +23982,7 @@ if (x11selectionowner!=None){
 
 #endif
 #endif
+#endif
 
 
 
@@ -23841,6 +24048,7 @@ if (x11selectionowner!=None){
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
+#ifdef QB64_X11
    static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
    qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
    x11clipboardcopy((char*)textz->chr);
@@ -23859,6 +24067,7 @@ if (x11selectionowner!=None){
    x11clipboardcopy((char*)textz->chr);
    lock_mainloop=0; Sleep(1);//unlock
    return; */
+#endif
 #endif
 #endif
 
@@ -24022,7 +24231,7 @@ if (x11selectionowner!=None){
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
-
+#ifdef QB64_X11
     qbs *text;
     char *cp=x11clipboardpaste();
     cp=x11clipboardpaste();
@@ -24144,6 +24353,7 @@ return qbs_new(0,1);
     }
     lock_mainloop=0; Sleep(1);//unlock
     return text; */
+#endif
 #endif
 #endif
 
@@ -26537,30 +26747,8 @@ return qbs_new(0,1);
 #endif
   }
 
-  void mouseinput_flush(){
 
-#ifndef NO_S_D_L
 
-    static int32 i;
-    static int int_x,int_y;
-    SDL_GetMouseState(&int_x,&int_y);
-    //create initial message
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].x=int_x;
-    mouse_messages[i].y=int_y;
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-    last_mouse_message=i;
-    //set current mouse message to new mouse message (skipping any buffered messages)
-    current_mouse_message=i;
-
-#endif //NO_S_D_L
-
-  }
-
-  int32 mouseinput_ignoremovement=1;
 
 
 
@@ -27970,12 +28158,10 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
     hgc->use_alpha=1;
     if (src_himg->alpha_disabled) hgc->use_alpha=0;
-    //note: at this point it isn't possible to specify not to blend on
-    //      on a hardware render layer, only by disabling blending on the source
+    //only consider dest alpha setting if it is a hardware image
     if (dst_himg!=NULL){
      if (dst_himg->alpha_disabled) hgc->use_alpha=0;
     }
-
 
     //queue the command
     hgc->next_command=0;
@@ -29080,7 +29266,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
   }
 
-  extern int32 func__resize(){
+  int32 func__resize(){
     if (resize_snapback) return 0; //resize must be enabled
     if (resize_event){
       resize_event=0;
@@ -29089,12 +29275,21 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     return 0;
   }
 
-  extern int32 func__resizewidth(){
+  int32 func__resizewidth(){
     return resize_event_x;
   }
-  extern int32 func__resizeheight(){
+  int32 func__resizeheight(){
     return resize_event_y;
   }
+
+  int32 func__scaledwidth(){
+    return environment_2d__screen_scaled_width;
+  }
+  int32 func__scaledheight(){
+    return environment_2d__screen_scaled_height;
+  }
+
+
 
 //Get Current Working Directory
 qbs *func__cwd(){
@@ -29159,17 +29354,196 @@ qbs *func__startdir(){
   extern void set_dynamic_info();
 
 
-  int main( int argc, char* argv[] ){
+
+#ifdef QB64_ANDROID
+
+	void android_get_file_asset(AAssetManager* mgr, char *filename){
+		AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
+		char buf[BUFSIZ];
+		int nb_read = 0;
+		FILE* out = fopen(filename, "w");
+		while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)	fwrite(buf, nb_read, 1, out);
+		fclose(out);
+		AAsset_close(asset);
+        }
+
+	//notes:
+	// * Actual entry point is in fg_runtime_android.c which has been modified to pass 'android_app' to us
+
+	int main(int argc, char* argv[], struct android_app* android_state_in) {
+
+	android_state=android_state_in;
+	android_vm=android_state->activity->vm;
+	android_env=android_state->activity->env;
+
+	struct android_app* app=android_state_in;
+  	JNIEnv* env = app->activity->env;
+	JavaVM* vm = app->activity->vm;
+	vm->AttachCurrentThread( &env, NULL);
+
+	// Get a handle on our calling NativeActivity class
+	jclass activityClass = env->GetObjectClass( app->activity->clazz);
+	// Get path to files dir
+	jmethodID getFilesDir = env->GetMethodID( activityClass, "getFilesDir", "()Ljava/io/File;");
+	jobject file = env->CallObjectMethod( app->activity->clazz, getFilesDir);
+	jclass fileClass = env->FindClass( "java/io/File");
+	jmethodID getAbsolutePath = env->GetMethodID( fileClass, "getAbsolutePath", "()Ljava/lang/String;");
+	jstring jpath = (jstring)env->CallObjectMethod( file, getAbsolutePath);
+	const char* app_dir = env->GetStringUTFChars( jpath, NULL);
+	// chdir in the application files directory
+	LOGI("app_dir: %s", app_dir);
+	chdir(app_dir);
+	env->ReleaseStringUTFChars( jpath, app_dir);
+	// Pre-extract assets, to avoid Android-specific file opening
+
+		
+	AAssetManager* mgr = app->activity->assetManager;
+	
+	/* Old code which pulled all root directory assets, in QB64 assets are specified in code so this just wastes time
+	AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
+	const char* filename = (const char*)NULL;	
+	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
+		android_get_file_asset(mgr,filename);
+        }
+	AAssetDir_close(assetDir);
+	*/
+
+	#include "../temp/assets.txt"
+
+
+
+//JavaVMAttachArgs args = { JNI_VERSION_1_6, NULL, NULL };
+//vm->AttachCurrentThread( &env, &args );
+
+//not sure why we do this...
+
+
+//jmethodID activityConstructor =  env->GetMethodID(app->activity->clazz, "<init>", "()V");
+//jobject object = env->NewObject(app->activity->clazz, activityConstructor);
+
+//jmethodID toastID = env->GetMethodID(app->activity->clazz, "toast", "(Ljava/lang/String;)V");
+//jstring message1 = env->NewStringUTF("This comes from jni.");
+//env->CallVoidMethod(object, toastID, message1);
+//vm->DetachCurrentThread();
+
+
+//jstring jstr = env->NewStringUTF("This comes from jni.");
+//    jmethodID messageMe = env->GetMethodID(app->activity->clazz, "toast", "(Ljava/lang/String;)V");
+//    jobject result = env->CallObjectMethod(obj, messageMe, jstr);
+
+//    const char* str = (*env)->GetStringUTFChars(env,(jstring) result, NULL); // should be released but what a heck, it's a tutorial :)
+//    printf("%s\n", str);
+
+//    return (*env)->NewStringUTF(env, str);
+
+
+//JNIEXPORT void JNICALL Java_com_example_jnitoast_MainActivity_displayToast
+  //(JNIEnv *pEnv, jobject thiz, jobject txt, jint time)
+//{
+
+/*
+	jclass Toast = NULL;
+	jobject toast = NULL;
+	jmethodID makeText = NULL;
+	jmethodID show = NULL;
+
+	Toast = env->FindClass("android/widget/Toast");
+	if(NULL == Toast)
+	{
+		LOGI("FindClass failed");
+		return;
+	}
+
+	makeText = env->GetStaticMethodID(Toast,"makeText", "(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;");
+	if( NULL == makeText )
+	{
+		LOGI("FindStaticMethod failed");
+		return;
+	}
+
+
+	//toast = env->CallStaticObjectMethod(Toast, makeText, thiz, txt, time);
+	toast = env->CallStaticObjectMethod(Toast, makeText, thiz, txt, time);
+	if ( NULL == toast) 
+	{
+		LOGI("CALLSTATICOBJECT FAILED");
+		return;
+	}
+*/
+/*
+	show = env->GetMethodID(pEnv,Toast,"show","()V");
+	if ( NULL == show )
+	{
+		LOGI("GetMethodID Failed");
+		return;
+	}
+	env->CallVoidMethod(pEnv,toast,show);
+*/
 
 
 
 
 
 
+
+
+
+	/*
+	AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
+	char buf[BUFSIZ];
+	int nb_read = 0;
+	FILE* out = fopen(filename, "w");
+	while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+	fwrite(buf, nb_read, 1, out);
+	fclose(out);
+	AAsset_close(asset);
+        }
+	*/
+
+
+
+/*	
+	// Get a handle on our calling NativeActivity class
+	jclass activityClass = env->GetObjectClass( app->activity->clazz);
+	// Get path to files dir
+	jmethodID getFilesDir = env->GetMethodID( activityClass, "getFilesDir", "()Ljava/io/File;");
+	jobject file = env->CallObjectMethod( app->activity->clazz, getFilesDir);
+	jclass fileClass = env->FindClass( "java/io/File");
+	jmethodID getAbsolutePath = env->GetMethodID( fileClass, "getAbsolutePath", "()Ljava/lang/String;");
+	jstring jpath = (jstring)env->CallObjectMethod( file, getAbsolutePath);
+	const char* app_dir = env->GetStringUTFChars( jpath, NULL);
+	// chdir in the application files directory
+	LOGI("app_dir: %s", app_dir);
+	chdir(app_dir);
+	env->ReleaseStringUTFChars( jpath, app_dir);
+	// Pre-extract assets, to avoid Android-specific file opening
+	{
+	AAssetManager* mgr = app->activity->assetManager;
+	AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
+	const char* filename = (const char*)NULL;
+	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
+	AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
+	char buf[BUFSIZ];
+	int nb_read = 0;
+	FILE* out = fopen(filename, "w");
+	while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+	fwrite(buf, nb_read, 1, out);
+	fclose(out);
+	AAsset_close(asset);
+        }
+	AAssetDir_close(assetDir);
+    	}
+*/
+	
+#else
+	int main( int argc, char* argv[] ){
+#endif
 
 #ifdef QB64_LINUX
 #ifndef QB64_MACOSX
+#ifdef X11
     XInitThreads();
+#endif
 #endif
 #endif
 
@@ -29220,6 +29594,7 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
 
 
     //setup lists
+    mouse_message_queue_handles=list_new(sizeof(mouse_message_queue_struct));
     special_handles=list_new(sizeof(special_handle_struct));
     stream_handles=list_new(sizeof(stream_struct));
     connection_handles=list_new(sizeof(connection_struct));
@@ -29227,7 +29602,12 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
     hardware_img_handles=list_new_threadsafe(sizeof(hardware_img_struct));
     hardware_graphics_command_handles=list_new(sizeof(hardware_graphics_command_struct));
 
-
+    //setup default mouse message queue
+    mouse_message_queue_first=list_add(mouse_message_queue_handles);
+    mouse_message_queue_default=mouse_message_queue_first;
+    mouse_message_queue_struct *this_mouse_message_queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,mouse_message_queue_default);
+    this_mouse_message_queue->lastIndex=65535;
+    this_mouse_message_queue->queue=(mouse_message*)calloc(1,sizeof(mouse_message)*(this_mouse_message_queue->lastIndex+1));
 
     if (!cloud_app){
       snd_init();
@@ -29430,6 +29810,7 @@ qbs_set(startDir,func__cwd());
 
 //switch to directory of this EXE file
 //http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
+#ifndef QB64_ANDROID
 #ifdef QB64_WINDOWS
 #ifndef QB64_MICROSOFT
     static char *exepath=(char*)malloc(65536);
@@ -29461,6 +29842,7 @@ qbs_set(startDir,func__cwd());
 			chdir(dirname(pathbuf));
 		}
 	#endif
+#endif
 #endif
 
     unknown_opcode_mess=qbs_new(0,0);
@@ -29745,52 +30127,6 @@ qbs_set(startDir,func__cwd());
     cmem[0x41a]=30; cmem[0x41b]=0; //head
     cmem[0x41c]=30; cmem[0x41d]=0; //tail
 
-    int int_x,int_y;
-
-#ifndef NO_S_D_L
-
-    sdl_modes=SDL_ListModes(NULL,SDL_FULLSCREEN|SDL_HWSURFACE);
-    //count modes
-    if(sdl_modes){
-      if(sdl_modes==(SDL_Rect **)-1){
-    anymode=1;//*unhandled!
-      }else{
-    for(i=0;sdl_modes[i];++i){
-      nmodes++;
-    }
-      }
-    }//modes
-    modes=(SDL_Rect*)malloc(nmodes*sizeof(SDL_Rect));
-    for(i=0;sdl_modes[i];++i){
-      modes[i]=*sdl_modes[i];
-
-    }
-
-    //set key repeat rate
-    SDL_EnableKeyRepeat(500,30); key_repeat_on=1;
-    //safer to use default key repeat rates which aren't dissimilar to those used above
-
-    //enable unicode
-    SDL_EnableUNICODE(1);
-
-    SDL_WM_SetCaption("Untitled",NULL);
-
-    //SDL_Cursor * mycursor=SDL_CreateCursor
-    //(Uint8 *data, Uint8 *mask, int w, int h, int hot_x, int hot_y);
-    SDL_Cursor * mycursor=init_system_cursor(arrow);
-    SDL_SetCursor(mycursor);
-
-    SDL_GetMouseState(&int_x,&int_y);
-
-#endif //NO_S_D_L
-
-    mouse_messages[0].x=int_x;
-    mouse_messages[0].y=int_y;
-    mouse_messages[0].buttons=0;
-    mouse_messages[0].movementx=0;
-    mouse_messages[0].movementy=0;
-
-
     ifstream fh;
 
     //default 256 color palette
@@ -29992,7 +30328,11 @@ QB64_GAMEPAD_INIT();
 #ifdef QB64_GLUT
     glutInit(&argc, argv);
 
-	  
+#ifdef QB64_ANDROID
+   //Note: GLUT_ACTION_CONTINUE_EXECUTION is not supported in Android
+   glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+#endif
+
 #ifdef QB64_MACOSX  
 	  //This is a global keydown handler for OSX, it requires assistive devices in asseccibility to be enabled
 	  //becuase of security concerns (QB64 will not use this)
@@ -30121,6 +30461,16 @@ QB64_GAMEPAD_INIT();
     }
     window_exists=1;
 
+
+//alert("hello");
+
+
+//no segfault here
+
+
+ #ifdef QB64_GLES
+  framebufferobjects_supported=1;
+ #else
     GLenum err = glewInit();
     if (GLEW_OK != err)
       {
@@ -30129,6 +30479,10 @@ QB64_GAMEPAD_INIT();
     //alert( (char*)glewGetString(GLEW_VERSION));
 
     if (glewIsSupported("GL_EXT_framebuffer_object")) framebufferobjects_supported=1;
+#endif
+
+//no segfault here
+
 
     glutDisplayFunc(GLUT_DISPLAY_REQUEST);
 
@@ -30146,6 +30500,10 @@ QB64_GAMEPAD_INIT();
     glutMotionFunc(GLUT_MOTION_FUNC);
     glutPassiveMotionFunc(GLUT_PASSIVEMOTION_FUNC);
     glutReshapeFunc(GLUT_RESHAPE_FUNC);
+
+#ifdef CORE_FREEGLUT
+    glutMouseWheelFunc(GLUT_MOUSEWHEEL_FUNC);
+#endif
 
     glutMainLoop();
 
@@ -30598,857 +30956,7 @@ QB64_GAMEPAD_INIT();
       }
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifndef NO_S_D_L
-
-      static SDL_Event event;
-
-      while ( SDL_PollEvent(&event) ) {
-
-
-        switch (event.type) {
-
-
-
-
-    case SDL_JOYBALLMOTION:
-      {//scope
-        static int32 di;
-        for(di=1;di<=device_last;di++){
-          static device_struct *d;
-          d=&devices[di];
-          if (d->used==1){
-        if (d->type==1){
-          if (d->SDL_js_index==event.jball.which){
-            static uint8 *cp,*cp2;
-            static float f;
-            static int32 o;
-
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            f=event.jball.xrel;
-            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-            f=event.jball.yrel;
-            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8+4;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-            d->queued_events++;
-
-            //add dummy message to clear relative motion
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            f=0;
-            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-            f=0;
-            o=d->lastbutton+d->lastaxis*4+event.jball.ball*8+4;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-            d->queued_events++;
-
-          }//js index
-        }//type==1
-          }//used
-        }//di
-      }//scope
-      break;
-
-    case SDL_JOYHATMOTION:
-      {//scope
-        static int32 di;
-        for(di=1;di<=device_last;di++){
-          static device_struct *d;
-          d=&devices[di];
-          if (d->used==1){
-        if (d->type==1){
-          if (d->SDL_js_index==event.jaxis.which){
-            static uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            static int32 v;
-            static float fx,fy;
-            v=event.jhat.value;
-            fx=0; fy=0;
-            if (v&SDL_HAT_UP) fy=fy-1.0;
-            if (v&SDL_HAT_DOWN) fy=fy+1.0;
-            if (v&SDL_HAT_LEFT) fx=fx-1.0;
-            if (v&SDL_HAT_RIGHT) fx=fx+1.0;
-            static int32 o;
-            o=d->lastbutton+d->SDL_axes*4+event.jhat.hat*8;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=fx;
-            o=d->lastbutton+d->SDL_axes*4+event.jhat.hat*8+4;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=fy;
-            d->queued_events++;
-          }//js index
-        }//type==1
-          }//used
-        }//di
-      }//scope
-      break;
-
-    case SDL_JOYAXISMOTION:
-      {//scope
-        static int32 di;
-        for(di=1;di<=device_last;di++){
-          static device_struct *d;
-          d=&devices[di];
-          if (d->used==1){
-        if (d->type==1){
-          if (d->SDL_js_index==event.jaxis.which){
-            static uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            static float f;
-            f=event.jaxis.value;
-            if (f==-32768) f=-32767;
-            f/=32767.0;
-            if (f>1.0) f=1.0;
-            if (f<-1.0) f=-1.0;
-            static int32 o;
-            o=d->lastbutton+event.jaxis.axis*4;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-            d->queued_events++;
-          }//js index
-        }//type==1
-          }//used
-        }//di
-      }//scope
-      break;
-
-    case SDL_JOYBUTTONDOWN:
-      {//scope
-        static int32 di,controller;
-        controller=0;
-        for(di=1;di<=device_last;di++){
-          static device_struct *d;
-          d=&devices[di];
-          if (d->used==1){
-        if (d->type==1){
-          controller++;
-          if (d->SDL_js_index==event.jbutton.which){
-
-            //ON STRIG event
-            static int32 i;
-            if (controller<=256&&event.jbutton.button<=255){//within supported range
-              i=(controller-1)*256+event.jbutton.button;
-              if (onstrig[i].active){
-            if (onstrig[i].id){
-              if (onstrig[i].active==1){//(1)ON
-                onstrig[i].state++;
-              }else{//(2)STOP
-                onstrig[i].state=1;
-              }
-              qbevent=1;
-            }
-              }
-            }//within supported range
-
-            static uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            *(d->events+(d->queued_events*d->event_size)+event.jbutton.button)=1;
-            d->queued_events++;
-            //set STRIG_button_pressed for button
-            if (event.jbutton.button>=0&&event.jbutton.button<=255){
-              d->STRIG_button_pressed[event.jbutton.button]=1;
-            }
-          }//js index
-        }//type==1
-          }//used
-        }//di
-      }//scope
-      break;
-
-    case SDL_JOYBUTTONUP:
-      {//scope
-        static int32 di;
-        for(di=1;di<=device_last;di++){
-          static device_struct *d;
-          d=&devices[di];
-          if (d->used==1){
-        if (d->type==1){
-          if (d->SDL_js_index==event.jbutton.which){
-            static uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            *(d->events+(d->queued_events*d->event_size)+event.jbutton.button)=0;
-            d->queued_events++;
-          }//js index
-        }//type==1
-          }//used
-        }//di
-      }//scope
-      break;
-
-      /*
-        case SDL_ACTIVEEVENT:
-        #ifdef QB64_WINDOWS
-        if (shell_call_in_progress){
-        if (event.active.gain==0){//lost focus
-        if (full_screen){ 
-        SDL_WM_IconifyWindow();
-        }//full screen
-        }//lost focus
-        }//shell
-        #endif
-        break;
-      */
-
-    case SDL_KEYUP:
-      {//new scope
-
-        if (device_last){//core devices required?
-          static int32 code,special;
-          special=0;
-          code=event.key.keysym.sym;
-          if ((code==300)||(code==301)) special=1;
-          if ((code>0)&&(scancode<=512)){
-        code=(((512-code)^341)&511)+1;//switch indexing
-        static device_struct *d;
-        d=&devices[1];//keyboard
-        if ((*(d->events+((d->queued_events-1)*d->event_size)+(code-1))!=0)||special){
-        keyup_special:
-          static uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
-              //discard base message
-              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-              d->queued_events--;
-            }else{
-              cp=(uint8*)calloc(d->max_events*2,d->event_size);
-              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-              cp2=d->events;
-              d->events=cp;
-              free(cp2);
-              d->max_events*=2;
-            }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          if (special){*(d->events+(d->queued_events*d->event_size)+(code-1))=1; special=0; d->queued_events++; goto keyup_special;}
-          *(d->events+(d->queued_events*d->event_size)+(code-1))=0;
-          d->queued_events++;
-        }//not 0
-          }//valid range
-        }//core devices required
-
-        if (qb64_ime_reading){
-          if (qb64_ime_reading==3) qb64_ime_reading=0;
-          goto skip_keyup;
-        }
-
-
-        static uint32 x;
-        x=event.key.keysym.sym;
-
-        //ALT+number(ascii-code)
-        //note: "Compose" an ASCII code for digits typed on the numeric keypad while ALT is held down. The code is the number (modulo 256).
-        static int32 altvalue;
-        altvalue=-1;
-        if (asciicode_reading){
-          if ((x==QBVK_LALT)||(x==QBVK_RALT)){
-        if (asciicode_reading==2){
-          altvalue=asciicode_value&255;
-        }
-        asciicode_reading=0;
-          }
-        }
-
-        if (x) keyheld_unbind(x);
-
-        if (altvalue!=-1){keydown_ascii(altvalue); keyup_ascii(altvalue);}
-
-      skip_keyup:;
-      }//end scope
-      break;
-
-    case SDL_KEYDOWN:
-      {//new scope
-
-        if (device_last){//core devices required?
-          static int32 code,special;
-          special=0;
-          code=event.key.keysym.sym;
-          if ((code==300)||(code==301)) special=2;
-          if ((code>0)&&(scancode<=512)){
-        code=(((512-code)^341)&511)+1;//switch indexing
-          keydown_special:
-        static device_struct *d;
-        d=&devices[1];//keyboard
-        if ((*(d->events+((d->queued_events-1)*d->event_size)+(code-1))!=1)||special){
-          static uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
-              //discard base message
-              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-              d->queued_events--;
-            }else{
-              cp=(uint8*)calloc(d->max_events*2,d->event_size);
-              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-              cp2=d->events;
-              d->events=cp;
-              free(cp2);
-              d->max_events*=2;
-            }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          *(d->events+(d->queued_events*d->event_size)+(code-1))=1;
-          if (special==2){special=1; d->queued_events++; goto keydown_special;}
-          if (special==1) *(d->events+(d->queued_events*d->event_size)+(code-1))=0;
-          d->queued_events++;
-        }//not 1
-          }//valid range
-        }//core devices required
-
-        if (qb64_ime_reading){
-          if (qb64_ime_reading==2) qb64_ime_reading=3;
-          goto skip_key;
-        }
-
-
-        static uint32 x,x2;
-        x=event.key.keysym.sym;//SDL VK code
-
-        //ALT+number(ascii-code)
-        //note: "Compose" an ASCII code for digits typed on the numeric keypad while ALT is held down. The code is the number (modulo 256).
-        if ((x==QBVK_LALT)||(x==QBVK_RALT)){
-          if ((keyheld(VK+QBVK_LALT)==0)&&(keyheld(VK+QBVK_RALT)==0)){
-        asciicode_reading=1;
-        asciicode_value=0;
-          }
-        }
-        /* Numeric keypad
-           QBVK_KP0        = 256,
-           ...
-           QBVK_KP9        = 265,*/
-        if (asciicode_reading){
-          if ((x>=QBVK_KP0)&&(x<=QBVK_KP9)){
-        asciicode_reading=2;
-        asciicode_value*=10;
-        asciicode_value+=(x-QBVK_KP0);
-          }else{
-        if ((x!=QBVK_LALT)&&(x!=QBVK_RALT)) asciicode_reading=0;//sequence broken
-          }
-        }
-
-        bindkey=x;
-
-        x2=event.key.keysym.unicode;
-
-        //qbs_print(qbs_str((int32)x),1);
-        //qbs_print(qbs_str((int32)x2),1);
-
-#ifdef QB64_MACOSX
-        if ((x2>=0xF700)&&(x2<=0xF8FF)){//within MacOSX UNICODE reserved range
-          if (x) x2=0;//ignore unicode value and refer to keysym only
-        }
-#endif
-        if ((x2==127)&&(x==8)) x2=8;//remap UNICODE 127 to UNICODE 8 when linked to SDL backspace key's keysym
-        if ((x2==127)&&(x==127)) x2=0;//remap UNICODE 127/KEYSYM 127 to NON-UNICODE KEYSYM 127 (Linux)
-
-        if (x2){
-
-          if ((x>=QBVK_KP0)&&(x<=QBVK_KP_ENTER)){//NUMPAD specific
-        keydown_vk(VK+x);
-        goto skip_key;
-          }
-
-          //revert any CTRL+? keys
-          if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)){//CTRL held
-        if (x2==0x7F) if (x==QBVK_BACKSPACE) {keydown_ascii(8); goto skip_key;}
-        if (x2==0x0A) if (x==QBVK_RETURN) {keydown_ascii(13); goto skip_key;}
-        if (x2==0x1B) if (x==QBVK_ESCAPE) {keydown_ascii(27); goto skip_key;}
-        if (x2==0x20) if (x==QBVK_SPACE) {keydown_ascii(32); goto skip_key;}
-        if (x2==0x1E) if (x==QBVK_6) {keydown_ascii(54); goto skip_key;}
-        if (x2==0x1B) if (x==QBVK_LEFTBRACKET) {keydown_ascii(91); goto skip_key;}
-        if (x2==0x1C) if (x==QBVK_BACKSLASH) {keydown_ascii(92); goto skip_key;}
-        if (x2==0x1D) if (x==QBVK_RIGHTBRACKET) {keydown_ascii(93); goto skip_key;}
-        if ((x2>=1)&&(x2<=26)){
-          static int32 x3;
-          x3=keyheld(VK+QBVK_CAPSLOCK);
-          x3=x3+(keyheld(VK+QBVK_LSHIFT)|keyheld(VK+QBVK_RSHIFT));
-          if (x3&1){//uppercase?
-            keydown_ascii(64+x2); goto skip_key;
-          }
-          keydown_ascii(96+x2); goto skip_key;
-        }
-          }
-
-          keydown_unicode(x2);
-          if (!x) keyup_unicode(x2);//simulate release for unbindable key
-          goto skip_key;
-        }
-        if (x){
-
-          //if ((x!=QBVK_LCTRL)&&(x!=QBVK_LALT)&&(x!=QBVK_LSHIFT)) showvalue(x);
-
-          if ((x>=QBVK_KP0)&&(x<=QBVK_KP_PERIOD)){//NUMPAD specific #1
-        keydown_vk(QBK+(x-QBVK_KP0));
-        goto skip_key;
-          }
-          if ((x>=QBVK_KP_DIVIDE)&&(x<=QBVK_KP_ENTER)){//NUMPAD specific #2
-        //handles operators (/,-,*,+) which are not set as UNICODE values when CTRL is held
-        keydown_vk(VK+x);
-        goto skip_key;
-          }
-
-          //remap SDL_VKs to CHR$(0)+CHR$(x) combination VKs
-          if ((x>=QBVK_F1)&&(x<=QBVK_F10)){keydown_vk((x-QBVK_F1+59)<<8);goto skip_key;}
-          if ((x>=QBVK_F11)&&(x<=QBVK_F12)){keydown_vk((x-QBVK_F11+133)<<8);goto skip_key;}
-          if (x==QBVK_HOME){keydown_vk(71<<8);goto skip_key;}
-          if (x==QBVK_UP){keydown_vk(72<<8);goto skip_key;}
-          if (x==QBVK_PAGEUP){keydown_vk(73<<8);goto skip_key;}
-          if (x==QBVK_LEFT){keydown_vk(75<<8);goto skip_key;}
-          //??? center  /   76 ,      0x4C,    0x4C00,      0x35,         0,         0,      0x35,    0x4C00,      0x35,    0x4C00,
-          if (x==QBVK_RIGHT){keydown_vk(77<<8);goto skip_key;}
-          if (x==QBVK_END){keydown_vk(79<<8);goto skip_key;}
-          if (x==QBVK_DOWN){keydown_vk(80<<8);goto skip_key;}
-          if (x==QBVK_PAGEDOWN){keydown_vk(81<<8);goto skip_key;}
-          if (x==QBVK_INSERT){keydown_vk(82<<8);goto skip_key;}
-          if (x==QBVK_DELETE){keydown_vk(83<<8);goto skip_key;}
-
-          //revert any CTRL+? keys which did not map to UNICODE
-          if (keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL)){//CTRL held
-        if ((x>=QBVK_SPACE)&&(x<=QBVK_BACKQUOTE)){//32-96
-          keydown_ascii(x); goto skip_key;
-        }//32-96
-        if (x==8){keydown_ascii(x); goto skip_key;}
-        if (x==9){keydown_ascii(x); goto skip_key;}
-        if (x==13){keydown_ascii(13); goto skip_key;}
-        if (x==27){keydown_ascii(13); goto skip_key;}
-          }//CTRL
-
-          if ((x>=(QBVK_a))&&(x<=QBVK_z)){
-        //note: handles instances such as CTRL+ALT+"a"
-        x=x-97;
-        static int32 x3;
-        x3=keyheld(VK+QBVK_CAPSLOCK);
-        x3=x3+(keyheld(VK+QBVK_LSHIFT)|keyheld(VK+QBVK_RSHIFT));
-        if (x3&1){//uppercase?
-          keydown_ascii(65+x); goto skip_key;
-        }
-        keydown_ascii(97+x); goto skip_key;
-          }
-
-          if ((x>=32)&&(x<=127)){//skip possible dead-key
-        bindkey=0;
-        goto skip_key;
-          }
-
-          keydown_vk(VK+x);
-
-        }
-
-      skip_key:;
-      }//end scope
-      break;
-
-    case SDL_MOUSEMOTION:
-
-      //message #1
-      i=(last_mouse_message+1)&65535;
-      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-      mouse_messages[i].x=event.motion.x;
-      mouse_messages[i].y=event.motion.y;
-      if (mouseinput_ignoremovement){
-        mouseinput_ignoremovement--;
-        mouse_messages[i].movementx=0;
-        mouse_messages[i].movementy=0;
-      }else{
-        mouse_messages[i].movementx=event.motion.xrel;
-        mouse_messages[i].movementy=event.motion.yrel;
-      }
-      mouse_messages[i].buttons=event.motion.state;
-      last_mouse_message=i;
-
-      //message #2 (clears movement values to avoid confusion)
-      i=(last_mouse_message+1)&65535;
-      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-      mouse_messages[i].x=event.motion.x;
-      mouse_messages[i].y=event.motion.y;
-      mouse_messages[i].movementx=0;
-      mouse_messages[i].movementy=0;
-      mouse_messages[i].buttons=event.motion.state;
-      last_mouse_message=i;
-
-      if (device_last){//core devices required?
-        if (!device_mouse_relative){
-
-          static device_struct *d;
-          d=&devices[2];//mouse
-          static uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          static float fx,fy;
-          static int32 z;
-          fx=event.motion.x;
-          fx-=x_offset;
-          z=x_monitor-x_offset*2;
-          if (fx<0) fx=0;
-          if (fx>=z) fx=z-1;
-          fx=fx/(float)(z-1);//0 to 1
-          fx*=2.0;//0 to 2
-          fx-=1.0;//-1 to 1
-          fy=event.motion.y;
-          fy-=y_offset;
-          z=y_monitor-y_offset*2;
-          if (fy<0) fy=0;
-          if (fy>=z) fy=z-1;
-          fy=fy/(float)(z-1);//0 to 1
-
-          fy*=2.0;//0 to 2
-          fy-=1.0;//-1 to 1
-          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
-          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
-          d->queued_events++;
-
-        }else{
-
-          static device_struct *d;
-          d=&devices[2];//mouse
-          static uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          static float fx,fy;
-          static int32 z;
-          fx=event.motion.xrel;
-          fy=event.motion.yrel;
-          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-          d->queued_events++;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          fx=0;
-          fy=0;
-          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-          *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-          d->queued_events++;
-
-        }
-      }//core devices required
-
-      break;
-
-    case SDL_MOUSEBUTTONUP:
-      i=(last_mouse_message+1)&65535;
-      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-      mouse_messages[i].movementx=0;
-      mouse_messages[i].movementy=0;
-      mouse_messages[i].x=event.button.x;
-      mouse_messages[i].y=event.button.y;
-      mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-      if (mouse_messages[i].buttons&(1<<(event.button.button-1))) mouse_messages[i].buttons^=(1<<(event.button.button-1));
-      last_mouse_message=i;
-
-      if (device_last){//core devices required?
-        static int32 button;
-        button=event.button.button;
-        if ((button>=1)&&(button<=3)){
-          button--;
-          static device_struct *d;
-          d=&devices[2];//mouse
-          static uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          *(d->events+(d->queued_events*d->event_size)+button)=0;
-          d->queued_events++;
-        }//valid range
-      }//core devices required
-
-      break;
-
-    case SDL_MOUSEBUTTONDOWN:
-      i=(last_mouse_message+1)&65535;
-      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-      mouse_messages[i].movementx=0;
-      mouse_messages[i].movementy=0;
-      mouse_messages[i].x=event.button.x;
-      mouse_messages[i].y=event.button.y;
-      mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-      mouse_messages[i].buttons|=(1<<(event.button.button-1));
-      last_mouse_message=i;
-
-      if (device_last){//core devices required?
-        static int32 button;
-        button=event.button.button;
-
-        if ((button>=1)&&(button<=3)){
-          button--;
-          static device_struct *d;
-          d=&devices[2];//mouse
-          static uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          *(d->events+(d->queued_events*d->event_size)+button)=1;
-          d->queued_events++;
-          //1-3
-        }else{
-          //not 1-3
-          //mouse wheel?
-          if ((button>=4)&&(button<=5)){
-        static float f;
-        if (button==4) f=-1; else f=1;
-        static device_struct *d;
-        d=&devices[2];//mouse
-        static uint8 *cp,*cp2;
-        if (d->queued_events==d->max_events){//expand/shift event buffer
-          if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-          }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-          }
-        }
-        memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-        *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-        //make required changes
-        *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
-        d->queued_events++;
-        if (d->queued_events==d->max_events){//expand/shift event buffer
-          if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-          }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-          }
-        }
-        memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-        *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-        //make required changes
-        *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
-        d->queued_events++;
-          }//4-5
-        }//not 1-3
-      }//core devices required
-
-      break;
-
-    case SDL_QUIT:
-      if (exit_blocked) exit_value|=1; else goto end_program;
-      break;
-
-
-
-    }
-      }
-
-#endif //NO_S_D_L
-
       if (shell_call_in_progress) goto main_loop;
-
-
-#ifndef NO_S_D_L
-
-      //safe even if sndsetup not called
-      static double pos;
-      if (stream_limited){
-    if (stream_loaded){
-      if (stream_playing){//worth checking?
-        pos=func__sndgetpos(1);
-        if (pos>=stream_limit){
-          sub__sndstop(1);
-          stream_limited=0;
-        }}}}
-
-#endif //NO_S_D_L
 
     }//update==0
 
@@ -31738,11 +31246,6 @@ QB64_GAMEPAD_INIT();
       x_monitor=x; y_monitor=y;
 
       z=0; //?
-
-      //?
-      mouseinput_ignoremovement=65536;
-      mouseinput_flush();
-      mouseinput_ignoremovement=4;
 
       conversion_required=0;
 #ifndef NO_S_D_L
@@ -33409,7 +32912,7 @@ QB64_GAMEPAD_INIT();
   #ifdef QB64_LINUX
   #ifdef QB64_GUI //Cannot have X11 events without a GUI
   #ifndef QB64_MACOSX
-
+  #ifndef QB64_ANDROID
 
 
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info){
@@ -33558,6 +33061,7 @@ else{
   #endif
   #endif
   #endif
+  #endif
 
   extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2){
     if (event==QB64_EVENT_CLOSE){
@@ -33576,28 +33080,39 @@ else{
       return -1;
     }//key
 
+
     if (event==QB64_EVENT_RELATIVE_MOUSE_MOVEMENT){ //qb64_custom_event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
       static int32 i;
+      int32 handle;
+      handle=mouse_message_queue_first;
+      mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
       //message #1
-      i=(last_mouse_message+1)&65535;
-      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-      mouse_messages[i].x=mouse_messages[last_mouse_message].x;
-      mouse_messages[i].y=mouse_messages[last_mouse_message].y;
-      mouse_messages[i].movementx=v1;
-      mouse_messages[i].movementy=v2;
-      mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-      last_mouse_message=i;
+      i=queue->last+1; if (i>queue->lastIndex) i=0;
+      if (i==queue->current){
+        int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+        queue->current=nextIndex;
+      }
+      queue->queue[i].x=queue->queue[queue->last].x;
+      queue->queue[i].y=queue->queue[queue->last].y;
+      queue->queue[i].movementx=v1;
+      queue->queue[i].movementy=v2;
+      queue->queue[i].buttons=queue->queue[queue->last].buttons;
+      queue->last=i;
       //message #2 (clears movement values to avoid confusion)
-      i=(last_mouse_message+1)&65535;
-      if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-      mouse_messages[i].x=mouse_messages[last_mouse_message].x;
-      mouse_messages[i].y=mouse_messages[last_mouse_message].y;
-      mouse_messages[i].movementx=0;
-      mouse_messages[i].movementy=0;
-      mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-      last_mouse_message=i;
+      i=queue->last+1; if (i>queue->lastIndex) i=0;
+      if (i==queue->current){
+        int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+        queue->current=nextIndex;
+      }
+      queue->queue[i].x=queue->queue[queue->last].x;
+      queue->queue[i].y=queue->queue[queue->last].y;
+      queue->queue[i].movementx=0;
+      queue->queue[i].movementy=0;
+      queue->queue[i].buttons=queue->queue[queue->last].buttons;
+      queue->last=i;
       return NULL;
     }//QB64_EVENT_RELATIVE_MOUSE_MOVEMENT
+
 
     return -1;//Unknown command (use for debugging purposes only)
   }//qb64_custom_event
@@ -33621,7 +33136,56 @@ else{
     glutMotionFunc(GLUT_MOTION_FUNC);
     glutPassiveMotionFunc(GLUT_PASSIVEMOTION_FUNC);
     glutReshapeFunc(GLUT_RESHAPE_FUNC);
+#ifdef CORE_FREEGLUT
+    glutMouseWheelFunc(GLUT_MOUSEWHEEL_FUNC);
+#endif
 
 #endif
   }
 
+void showErrorOnScreen(char *errorMessage, int32 errorNumber, int32 lineNumber){//display error message on screen and enter infinite loop
+new_error=0;//essential or the following commands won't be called
+qbs *tqbs;
+qbg_screen(func__newimage( 80 , 25 , 0 ,1),NULL,NULL,NULL,NULL,1);
+sub__fullscreen( 3 ,1);//squarepixels+smooth for a beautiful error message
+sub__displayorder( 1 ,NULL,NULL,NULL);
+qbg_sub_color( 15 , 4 ,NULL,3);
+sub_cls(NULL,NULL,0);
+if (errorNumber!=0){
+tqbs=qbs_new(0,0);
+qbs_set(tqbs,qbs_new_txt_len("Unhandled Error #",17));
+makefit(tqbs);
+qbs_print(tqbs,0);
+qbs_free(tqbs);
+tqbs=qbs_new(0,0);
+qbs_set(tqbs,qbs_ltrim(qbs_str((int32)(errorNumber))));
+makefit(tqbs);
+qbs_print(tqbs,0);
+qbs_free(tqbs);
+qbs_print(nothingstring,1);
+}
+if (lineNumber!=0){
+tqbs=qbs_new(0,0);
+qbs_set(tqbs,qbs_new_txt_len("Line:",5));
+makefit(tqbs);
+qbs_print(tqbs,0);
+qbs_free(tqbs);
+tqbs=qbs_new(0,0);
+qbs_set(tqbs,qbs_str((int32)(lineNumber)));
+makefit(tqbs);
+qbs_print(tqbs,0);
+qbs_free(tqbs);
+qbs_print(nothingstring,1);
+}
+tqbs=qbs_new(0,0);
+qbs_set(tqbs,qbs_new_txt(errorMessage));
+makefit(tqbs);
+qbs_print(tqbs,0);
+qbs_free(tqbs);
+qbs_print(nothingstring,1);
+do{
+sub__limit( 10 );
+sub__display();
+}while(1);
+//infinite loop (this function never exits)
+}

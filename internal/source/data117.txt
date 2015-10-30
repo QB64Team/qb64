@@ -1,157 +1,20 @@
-qbs *_SUB_IDEDRAWOBJ_STRING1_SEP=NULL;
-if(_SUB_IDEDRAWOBJ_STRING1_SEP==NULL){
-_SUB_IDEDRAWOBJ_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
-memset(_SUB_IDEDRAWOBJ_STRING1_SEP->chr,0,1);
+qbs*oldstr3497=NULL;
+if(_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE->tmp||_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE->fixed||_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE->readonly){
+oldstr3497=_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE;
+if (oldstr3497->cmem_descriptor){
+_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE=qbs_new_cmem(oldstr3497->len,0);
+}else{
+_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE=qbs_new(oldstr3497->len,0);
 }
-int32 *_SUB_IDEDRAWOBJ_LONG_X=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_X==NULL){
-_SUB_IDEDRAWOBJ_LONG_X=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_X=0;
+memcpy(_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_FILE->chr,oldstr3497->chr,oldstr3497->len);
 }
-int32 *_SUB_IDEDRAWOBJ_LONG_Y=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_Y==NULL){
-_SUB_IDEDRAWOBJ_LONG_Y=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_Y=0;
+qbs*oldstr3498=NULL;
+if(_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER->tmp||_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER->fixed||_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER->readonly){
+oldstr3498=_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER;
+if (oldstr3498->cmem_descriptor){
+_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER=qbs_new_cmem(oldstr3498->len,0);
+}else{
+_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER=qbs_new(oldstr3498->len,0);
 }
-qbs *_SUB_IDEDRAWOBJ_STRING_A=NULL;
-if (!_SUB_IDEDRAWOBJ_STRING_A)_SUB_IDEDRAWOBJ_STRING_A=qbs_new(0,0);
-int32 *_SUB_IDEDRAWOBJ_LONG_X2=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_X2==NULL){
-_SUB_IDEDRAWOBJ_LONG_X2=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_X2=0;
-}
-int32 pass4050;
-int32 pass4051;
-int32 pass4052;
-byte_element_struct *byte_element_4053=NULL;
-if (!byte_element_4053){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4053=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4053=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_4054=NULL;
-if (!byte_element_4054){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4054=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4054=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_CX=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_CX==NULL){
-_SUB_IDEDRAWOBJ_LONG_CX=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_CX=0;
-}
-byte_element_struct *byte_element_4055=NULL;
-if (!byte_element_4055){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4055=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4055=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_TX=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_TX==NULL){
-_SUB_IDEDRAWOBJ_LONG_TX=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_TX=0;
-}
-int32 pass4057;
-int32 pass4058;
-int32 *_SUB_IDEDRAWOBJ_LONG_W=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_W==NULL){
-_SUB_IDEDRAWOBJ_LONG_W=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_W=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_M=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_M==NULL){
-_SUB_IDEDRAWOBJ_LONG_M=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_M=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_S=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_S==NULL){
-_SUB_IDEDRAWOBJ_LONG_S=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_S=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_N=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_N==NULL){
-_SUB_IDEDRAWOBJ_LONG_N=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_N=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_V1=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_V1==NULL){
-_SUB_IDEDRAWOBJ_LONG_V1=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_V1=0;
-}
-qbs *_SUB_IDEDRAWOBJ_STRING_A3=NULL;
-if (!_SUB_IDEDRAWOBJ_STRING_A3)_SUB_IDEDRAWOBJ_STRING_A3=qbs_new(0,0);
-int32 *_SUB_IDEDRAWOBJ_LONG_I2=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_I2==NULL){
-_SUB_IDEDRAWOBJ_LONG_I2=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_I2=0;
-}
-int64 fornext_value4060;
-int64 fornext_finalvalue4060;
-int64 fornext_step4060;
-uint8 fornext_step_negative4060;
-byte_element_struct *byte_element_4061=NULL;
-if (!byte_element_4061){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4061=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4061=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_SUB_IDEDRAWOBJ_STRING_A2=NULL;
-if (!_SUB_IDEDRAWOBJ_STRING_A2)_SUB_IDEDRAWOBJ_STRING_A2=qbs_new(0,0);
-byte_element_struct *byte_element_4062=NULL;
-if (!byte_element_4062){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4062=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4062=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_TNUM=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_TNUM==NULL){
-_SUB_IDEDRAWOBJ_LONG_TNUM=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_TNUM=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_TSEL=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_TSEL==NULL){
-_SUB_IDEDRAWOBJ_LONG_TSEL=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_TSEL=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_Q=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_Q==NULL){
-_SUB_IDEDRAWOBJ_LONG_Q=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_Q=0;
-}
-int32 pass4064;
-int32 pass4065;
-int32 *_SUB_IDEDRAWOBJ_LONG_C=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_C==NULL){
-_SUB_IDEDRAWOBJ_LONG_C=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_C=0;
-}
-int64 fornext_value4067;
-int64 fornext_finalvalue4067;
-int64 fornext_step4067;
-uint8 fornext_step_negative4067;
-byte_element_struct *byte_element_4068=NULL;
-if (!byte_element_4068){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4068=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4068=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_WHITESPACE=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_WHITESPACE==NULL){
-_SUB_IDEDRAWOBJ_LONG_WHITESPACE=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_WHITESPACE=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_SPACING=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_SPACING==NULL){
-_SUB_IDEDRAWOBJ_LONG_SPACING=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_SPACING=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_F2=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_F2==NULL){
-_SUB_IDEDRAWOBJ_LONG_F2=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_F2=0;
-}
-int32 *_SUB_IDEDRAWOBJ_LONG_N2=NULL;
-if(_SUB_IDEDRAWOBJ_LONG_N2==NULL){
-_SUB_IDEDRAWOBJ_LONG_N2=(int32*)mem_static_malloc(4);
-*_SUB_IDEDRAWOBJ_LONG_N2=0;
-}
-int64 fornext_value4070;
-int64 fornext_finalvalue4070;
-int64 fornext_step4070;
-uint8 fornext_step_negative4070;
-byte_element_struct *byte_element_4071=NULL;
-if (!byte_element_4071){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4071=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4071=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_4072=NULL;
-if (!byte_element_4072){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4072=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4072=(byte_element_struct*)mem_static_malloc(12);
+memcpy(_SUB_CREATEANDROIDPROJECT_RESTOREFILE_STRING_PROJECTFOLDER->chr,oldstr3498->chr,oldstr3498->len);
 }

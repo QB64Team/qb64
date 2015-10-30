@@ -57,7 +57,7 @@
 extern int32_t handle_input(struct android_app* app, AInputEvent* event);
 extern void handle_cmd(struct android_app* app, int32_t cmd);
 
-extern int main(int argc, char* argv[]);
+extern int main(int argc, char* argv[], struct android_app* app);
 
 /** NativeActivity Callbacks **/
 /* Caution: they are called in the native_activity thread, not the
@@ -87,17 +87,22 @@ static void onNativeWindowRedrawNeeded(ANativeActivity* activity, ANativeWindow*
  * accessed using accessed.
  * TODO: parse directories recursively
  */
+
+
+/*
+
+//Not used. QB64 uses a custom assets extraction system
+
 static void extract_assets(struct android_app* app) {
-  /* Get usable JNI context */
+  // Get usable JNI context
   JNIEnv* env = app->activity->env;
   JavaVM* vm = app->activity->vm;
-  (*vm)->AttachCurrentThread(vm, &env, NULL);
-  
+  (*vm)->AttachCurrentThread(vm, &env, NULL);  
   {
-    /* Get a handle on our calling NativeActivity class */
+    // Get a handle on our calling NativeActivity class
     jclass activityClass = (*env)->GetObjectClass(env, app->activity->clazz);
     
-    /* Get path to cache dir (/data/data/org.myapp/cache) */
+    // Get path to cache dir (/data/data/org.myapp/cache)
     jmethodID getCacheDir = (*env)->GetMethodID(env, activityClass, "getCacheDir", "()Ljava/io/File;");
     jobject file = (*env)->CallObjectMethod(env, app->activity->clazz, getCacheDir);
     jclass fileClass = (*env)->FindClass(env, "java/io/File");
@@ -105,12 +110,12 @@ static void extract_assets(struct android_app* app) {
     jstring jpath = (jstring)(*env)->CallObjectMethod(env, file, getAbsolutePath);
     const char* app_dir = (*env)->GetStringUTFChars(env, jpath, NULL);
     
-    /* chdir in the application cache directory */
+    // chdir in the application cache directory
     LOGI("app_dir: %s", app_dir);
     chdir(app_dir);
     (*env)->ReleaseStringUTFChars(env, jpath, app_dir);
     
-    /* Pre-extract assets, to avoid Android-specific file opening */
+    // Pre-extract assets, to avoid Android-specific file opening
     {
       AAssetManager* mgr = app->activity->assetManager;
       AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
@@ -129,6 +134,7 @@ static void extract_assets(struct android_app* app) {
     }
   }
 }
+*/
 
 /**
  * This is the main entry point of a native application that is using
@@ -138,9 +144,6 @@ static void extract_assets(struct android_app* app) {
 void android_main(struct android_app* app) {
   LOGI("android_main");
 
-
-  
-
   // Register window resize callback
   app->activity->callbacks->onNativeWindowResized = onNativeWindowResized;
   app->activity->callbacks->onContentRectChanged = onContentRectChanged;
@@ -149,13 +152,14 @@ void android_main(struct android_app* app) {
   app->onAppCmd = handle_cmd;
   app->onInputEvent = handle_input;
 
-  extract_assets(app);
+  //QB64 uses a custom asset extraction system
+  //extract_assets(app);
 
   /* Call user's main */
   {
     char progname[5] = "self";
     char* argv[] = {progname, NULL};
-    main(1, argv);
+    main(1, argv, app);
   }
 
   LOGI("android_main: end");

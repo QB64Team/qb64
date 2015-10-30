@@ -1,3 +1,4 @@
+
   int32 displayorder_screen=1;
   int32 displayorder_hardware=2;
   int32 displayorder_glrender=3;
@@ -328,11 +329,9 @@
 
 
 
-
+ 
 
 float *hardware_buffer_vertices=(float*)malloc(sizeof(float)*1);
-int32 *hardware_buffer_vertices_int;
-
 int32 hardware_buffer_vertices_max=1;
 int32 hardware_buffer_vertices_count=0;
 
@@ -344,7 +343,7 @@ void hardware_buffer_flush(){
  if (hardware_buffer_vertices_count){
   //ref: http://stackoverflow.com/questions/5009014/draw-square-with-opengl-es-for-ios
   if (hardware_buffer_vertices_count==hardware_buffer_texcoords_count){
-   glVertexPointer(2, GL_INT, 2*sizeof(GL_INT), (int32*)hardware_buffer_vertices); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
+   glVertexPointer(2, GL_FLOAT, 2*sizeof(GL_FLOAT), hardware_buffer_vertices); //http://www.opengl.org/sdk/docs/man2/xhtml/glVertexPointer.xml
    glTexCoordPointer(2, GL_FLOAT, 2*sizeof(GL_FLOAT), hardware_buffer_texcoords); //http://www.opengl.org/sdk/docs/man2/xhtml/glTexCoordPointer.xml
    glDrawArrays(GL_TRIANGLES, 0, hardware_buffer_vertices_count/2);//start index, number of indexes
   }else{
@@ -418,8 +417,12 @@ if (new_mode==ALPHA_MODE__DONT_BLEND){
 if (new_mode==ALPHA_MODE__BLEND){
 	glEnable(GL_BLEND);
 	if (framebufferobjects_supported){
-		//glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+		#ifndef QB64_GLES
+			//glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFuncSeparateEXT(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+		#else
+			glBlendFuncSeparateOES(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+		#endif
 	}else{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
@@ -428,6 +431,7 @@ render_state.use_alpha=new_mode;
 }
 
 void set_depthbuffer(int32 new_mode){
+
 static int32 current_mode;
 current_mode=render_state.depthbuffer_mode;
 if (new_mode==current_mode) return;
@@ -506,7 +510,7 @@ if (new_mode==VIEW_MODE__RESET){
 }
 if (new_mode==VIEW_MODE__2D){
 	if (current_mode!=VIEW_MODE__3D){
-		glColor4f(1.f, 1.f, 1.f, 1.f);		
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);		
 	        glDisable(GL_COLOR_MATERIAL);
 	        glDisable(GL_LIGHTING);
 		set_alpha(ALPHA_MODE__BLEND);
@@ -515,6 +519,9 @@ if (new_mode==VIEW_MODE__2D){
 	        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glCullFace(GL_BACK);
 	}
+
+
+
 
 	if (render_state.dest_handle==0){
 		static int32 dst_w,dst_h;
@@ -532,6 +539,8 @@ if (new_mode==VIEW_MODE__2D){
 		glScalef(1, -1, 1);//flip vertically
 		glTranslatef(0, -dst_h, 0);//move to new vertical position
 		glViewport(0,0,dst_w,dst_h);
+
+
 	}else{
 		static hardware_img_struct* hardware_img;
 		hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,render_state.dest_handle);
@@ -725,7 +734,11 @@ render_state.dest_handle=new_handle;
     }
 
     set_render_dest(dst_img);
+
+
     set_view(VIEW_MODE__2D);
+
+
 
     if (dst_img){
       //static hardware_img_struct* dst_hardware_img;
@@ -749,6 +762,7 @@ render_state.dest_handle=new_handle;
     src_w=src_hardware_img->w;
 
 
+
     if (smooth){
 	set_smooth(SMOOTH_MODE__SMOOTH,SMOOTH_MODE__SMOOTH);
     }else{
@@ -765,8 +779,6 @@ render_state.dest_handle=new_handle;
     set_cull_mode(CULL_MODE__NONE);
 
     set_texture_wrap(TEXTURE_WRAP_MODE__DONT_WRAP);
-
-
 
     //adjust for render (x2 & y2 need to be one greater than the destination offset)
     dst_x2++; dst_y2++;
@@ -802,22 +814,22 @@ if (src_hardware_img->source_state.PO2_fix){
         hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+12;
 	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
     }
-    hardware_buffer_vertices_int=(int32*)hardware_buffer_vertices;
   
     //clockwise
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y2;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
 
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y2;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
+
 
     //hardware_buffer_flush(); //uncomment for debugging only
 
@@ -1075,14 +1087,13 @@ if (src_hardware_img->source_state.PO2_fix){
         hardware_buffer_texcoords_max=hardware_buffer_texcoords_max*2+6;
 	hardware_buffer_texcoords=(float*)realloc(hardware_buffer_texcoords,hardware_buffer_texcoords_max*sizeof(float));
     }
-    hardware_buffer_vertices_int=(int32*)hardware_buffer_vertices;
 
 
     
     //clockwise
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y1;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y2;
-    hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_x3; hardware_buffer_vertices_int[hardware_buffer_vertices_count++]=dst_y3;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x1; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y1;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x2; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y2;
+    hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_x3; hardware_buffer_vertices[hardware_buffer_vertices_count++]=dst_y3;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x1f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y1f;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x2f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y2f;
     hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=x3f; hardware_buffer_texcoords[hardware_buffer_texcoords_count++]=y3f;
@@ -1348,6 +1359,7 @@ if (src_hardware_img->source_state.PO2_fix){
 
 
 
+
     if ((full_screen==0)&&(full_screen_set==-1)){//not in (or attempting to enter) full screen
 
       display_required_x=display_frame[i].w; display_required_y=display_frame[i].h;
@@ -1583,6 +1595,7 @@ if (src_hardware_img->source_state.PO2_fix){
 
 
 
+
     //need a few variables here
 
 
@@ -1623,7 +1636,7 @@ if (src_hardware_img->source_state.PO2_fix){
     }//level==displayorder_glrender
 
 
-    if (level==displayorder_screen){
+    if (level==displayorder_screen){//defaults to 1
 
       if (software_screen_hardware_frame!=0&&i!=last_i){
         free_hardware_img(software_screen_hardware_frame, 847001);
@@ -1631,6 +1644,7 @@ if (src_hardware_img->source_state.PO2_fix){
       if (i!=last_i||software_screen_hardware_frame==0){
         software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
       }
+      
       static hardware_img_struct* f1;
       f1=(hardware_img_struct*)list_get(hardware_img_handles,software_screen_hardware_frame);
       if (software_screen_hardware_frame==0){
@@ -1641,12 +1655,16 @@ if (src_hardware_img->source_state.PO2_fix){
       static int32 use_alpha;
       use_alpha=0; if (level>1) use_alpha=1; 
 
-      //put the software screen
+
+
+      //put the software screen      
       hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
                software_screen_hardware_frame, 0,
                0,0,f1->w-1,f1->h-1,
                use_alpha,environment_2d__screen_smooth);
       hardware_buffer_flush();
+
+
     }//level==displayorder_screen
 
 
@@ -1863,6 +1881,23 @@ if (src_hardware_img->source_state.PO2_fix){
       }//level!=0
     }//level loop
 
+    if (requestedKeyboardOverlayImage){
+	int32 src=requestedKeyboardOverlayImage-HARDWARE_IMG_HANDLE_OFFSET;
+	hardware_img_struct* src_hardware_img;
+    	src_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,src);
+	/*
+        hardware_img_put(0,0,src_hardware_img->w-1,src_hardware_img->h-1,
+                     src, 0,
+                     0,0,src_hardware_img->w-1,src_hardware_img->h-1,
+                     1,0);
+	*/
+        hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
+                     src, 0,
+                     0,0,src_hardware_img->w-1,src_hardware_img->h-1,
+                     1,0);
+        hardware_buffer_flush();
+    }
+
     last_rendered_hardware_display_frame_order=last_hardware_display_frame_order;
 
 
@@ -1890,17 +1925,26 @@ if (src_hardware_img->source_state.PO2_fix){
     if (glut_button==GLUT_LEFT_BUTTON) button=1;
     if (glut_button==GLUT_RIGHT_BUTTON) button=3;
     if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==3) button=4;
-    if (glut_button==4) button=5;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-    if (mouse_messages[i].buttons&(1<<(button-1))) mouse_messages[i].buttons^=(1<<(button-1));
-    last_mouse_message=i;
+    if (glut_button==4) button=4;
+    if (glut_button==5) button=5;
+
+    int32 handle;
+    handle=mouse_message_queue_first;
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+
+    i=queue->last+1; if (i>queue->lastIndex) i=0;
+    if (i==queue->current){
+      int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+      queue->current=nextIndex;
+    }
+    queue->queue[i].x=x;
+    queue->queue[i].y=y;
+    queue->queue[i].movementx=0;
+    queue->queue[i].movementy=0;
+    queue->queue[i].buttons=queue->queue[queue->last].buttons;
+    if (queue->queue[i].buttons&(1<<(button-1))) queue->queue[i].buttons^=(1<<(button-1));
+    queue->last=i;
+
     if (device_last){//core devices required?
       if ((button>=1)&&(button<=3)){
     button--;
@@ -1941,17 +1985,26 @@ if (src_hardware_img->source_state.PO2_fix){
     if (glut_button==GLUT_LEFT_BUTTON) button=1;
     if (glut_button==GLUT_RIGHT_BUTTON) button=3;
     if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==3) button=4;
-    if (glut_button==4) button=5;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    mouse_messages[i].buttons=mouse_messages[last_mouse_message].buttons;
-    mouse_messages[i].buttons|=(1<<(button-1));
-    last_mouse_message=i;
+    if (glut_button==4) button=4;
+    if (glut_button==5) button=5;
+
+    int32 handle;
+    handle=mouse_message_queue_first;
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+
+    i=queue->last+1; if (i>queue->lastIndex) i=0;
+    if (i==queue->current){
+      int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+      queue->current=nextIndex;
+    }
+    queue->queue[i].x=x;
+    queue->queue[i].y=y;
+    queue->queue[i].movementx=0;
+    queue->queue[i].movementy=0;
+    queue->queue[i].buttons=queue->queue[queue->last].buttons;
+    queue->queue[i].buttons|=(1<<(button-1));
+    queue->last=i;
+
     if (device_last){//core devices required?
       if ((button>=1)&&(button<=3)){
     button--;
@@ -2042,32 +2095,39 @@ if (src_hardware_img->source_state.PO2_fix){
 
     static int32 i,last_i;
     static int32 xrel=0,yrel=0;
+
+    int32 handle;
+    handle=mouse_message_queue_first;
+    mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
+
     //message #1
-    last_i=last_mouse_message;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    if (mouseinput_ignoremovement){
-      mouseinput_ignoremovement--;
-      mouse_messages[i].movementx=0;
-      mouse_messages[i].movementy=0;
-    }else{
-      mouse_messages[i].movementx=xrel;
-      mouse_messages[i].movementy=yrel;
+    last_i=queue->last;
+    i=queue->last+1; if (i>queue->lastIndex) i=0;
+    if (i==queue->current){
+      int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+      queue->current=nextIndex;
     }
-    mouse_messages[i].buttons=mouse_messages[last_i].buttons;
-    last_mouse_message=i;
+    queue->queue[i].x=x;
+    queue->queue[i].y=y;
+    queue->queue[i].movementx=xrel;
+    queue->queue[i].movementy=yrel;
+    queue->queue[i].buttons=queue->queue[last_i].buttons;
+    queue->last=i;
+
     //message #2 (clears movement values to avoid confusion)
-    last_i=last_mouse_message;
-    i=(last_mouse_message+1)&65535;
-    if (i==current_mouse_message) current_mouse_message=(current_mouse_message+1)&65535;//if buffer full, skip oldest message
-    mouse_messages[i].x=x;
-    mouse_messages[i].y=y;
-    mouse_messages[i].movementx=0;
-    mouse_messages[i].movementy=0;
-    mouse_messages[i].buttons=mouse_messages[last_i].buttons;
-    last_mouse_message=i;
+    last_i=queue->last;
+    i=queue->last+1; if (i>queue->lastIndex) i=0;
+    if (i==queue->current){
+      int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+      queue->current=nextIndex;
+    }
+    queue->queue[i].x=x;
+    queue->queue[i].y=y;
+    queue->queue[i].movementx=0;
+    queue->queue[i].movementy=0;
+    queue->queue[i].buttons=queue->queue[last_i].buttons;
+    queue->last=i;
+
     if (device_last){//core devices required?
       if (!device_mouse_relative){
     static device_struct *d;
@@ -2169,6 +2229,27 @@ if (src_hardware_img->source_state.PO2_fix){
   void GLUT_PASSIVEMOTION_FUNC(int x, int y){
     GLUT_MOTION_FUNC(x,y);
   }
+
+
+  void GLUT_MOUSEWHEEL_FUNC(int wheel, int direction, int x, int y){
+#ifdef QB64_GLUT
+    //Note: freeglut specific, limited documentation existed so the following research was done:
+    //  qbs_print(qbs_str(wheel),NULL); <-- was always 0 [could 1 indicate horizontal wheel?]
+    //  qbs_print(qbs_str(direction),NULL); <-- 1(up) or -1(down)
+    //  qbs_print(qbs_str(x),NULL); <--mouse x,y co-ordinates
+    //  qbs_print(qbs_str(y),1);    <
+    if (direction>0){GLUT_MouseButton_Down(4,x,y); GLUT_MouseButton_Up(4,x,y);}
+    if (direction<0){GLUT_MouseButton_Down(5,x,y); GLUT_MouseButton_Up(5,x,y);}
+#endif
+  }
+
+
+
+
+
+
+
+
 
 
 #endif

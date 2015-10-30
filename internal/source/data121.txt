@@ -1,157 +1,162 @@
-qbs *_FUNC_IDEFIND_STRING_IDEFIND=NULL;
-if (!_FUNC_IDEFIND_STRING_IDEFIND)_FUNC_IDEFIND_STRING_IDEFIND=qbs_new(0,0);
-int32 *_FUNC_IDEFIND_LONG_FOCUS=NULL;
-if(_FUNC_IDEFIND_LONG_FOCUS==NULL){
-_FUNC_IDEFIND_LONG_FOCUS=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_FOCUS=0;
+qbs*oldstr3507=NULL;
+if(_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2->tmp||_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2->fixed||_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2->readonly){
+oldstr3507=_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2;
+if (oldstr3507->cmem_descriptor){
+_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2=qbs_new_cmem(oldstr3507->len,0);
+}else{
+_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2=qbs_new(oldstr3507->len,0);
 }
-void *_FUNC_IDEFIND_UDT_P=NULL;
-if(_FUNC_IDEFIND_UDT_P==NULL){
-_FUNC_IDEFIND_UDT_P=(void*)mem_static_malloc(20);
-memset(_FUNC_IDEFIND_UDT_P,0,20);
+memcpy(_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME2->chr,oldstr3507->chr,oldstr3507->len);
 }
-ptrszint *_FUNC_IDEFIND_ARRAY_UDT_O=NULL;
-if (!_FUNC_IDEFIND_ARRAY_UDT_O){
-_FUNC_IDEFIND_ARRAY_UDT_O=(ptrszint*)mem_static_malloc(9*ptrsz);
-new_mem_lock();
-mem_lock_tmp->type=4;
-((ptrszint*)_FUNC_IDEFIND_ARRAY_UDT_O)[8]=(ptrszint)mem_lock_tmp;
-_FUNC_IDEFIND_ARRAY_UDT_O[2]=0;
-_FUNC_IDEFIND_ARRAY_UDT_O[4]=2147483647;
-_FUNC_IDEFIND_ARRAY_UDT_O[5]=0;
-_FUNC_IDEFIND_ARRAY_UDT_O[6]=0;
-_FUNC_IDEFIND_ARRAY_UDT_O[0]=(ptrszint)nothingvalue;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME)_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAME=qbs_new(0,0);
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEI=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEI==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEI=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEI=0;
 }
-void *_FUNC_IDEFIND_UDT_OO=NULL;
-if(_FUNC_IDEFIND_UDT_OO==NULL){
-_FUNC_IDEFIND_UDT_OO=(void*)mem_static_malloc(80);
-memset(_FUNC_IDEFIND_UDT_OO,0,80);
+int64 fornext_value3509;
+int64 fornext_finalvalue3509;
+int64 fornext_step3509;
+uint8 fornext_step_negative3509;
+byte_element_struct *byte_element_3510=NULL;
+if (!byte_element_3510){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3510=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3510=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_IDEFIND_STRING1_SEP=NULL;
-if(_FUNC_IDEFIND_STRING1_SEP==NULL){
-_FUNC_IDEFIND_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
-memset(_FUNC_IDEFIND_STRING1_SEP->chr,0,1);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAMEA=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAMEA)_SUB_CREATEANDROIDPROJECT_STRING_PROJECTNAMEA=qbs_new(0,0);
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEASC=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEASC==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEASC=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEASC=0;
 }
-qbs *_FUNC_IDEFIND_STRING_A=NULL;
-if (!_FUNC_IDEFIND_STRING_A)_FUNC_IDEFIND_STRING_A=qbs_new(0,0);
-qbs *_FUNC_IDEFIND_STRING_A2=NULL;
-if (!_FUNC_IDEFIND_STRING_A2)_FUNC_IDEFIND_STRING_A2=qbs_new(0,0);
-int32 *_FUNC_IDEFIND_LONG_SX1=NULL;
-if(_FUNC_IDEFIND_LONG_SX1==NULL){
-_FUNC_IDEFIND_LONG_SX1=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_SX1=0;
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEAVALID=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEAVALID==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEAVALID=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_PROJECTNAMEAVALID=0;
 }
-int32 *_FUNC_IDEFIND_LONG_SX2=NULL;
-if(_FUNC_IDEFIND_LONG_SX2==NULL){
-_FUNC_IDEFIND_LONG_SX2=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_SX2=0;
+byte_element_struct *byte_element_3511=NULL;
+if (!byte_element_3511){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3511=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3511=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_X=NULL;
-if(_FUNC_IDEFIND_LONG_X==NULL){
-_FUNC_IDEFIND_LONG_X=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_X=0;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_PROJECTVERSION=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_PROJECTVERSION)_SUB_CREATEANDROIDPROJECT_STRING_PROJECTVERSION=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_PROJECTFOLDER=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_PROJECTFOLDER)_SUB_CREATEANDROIDPROJECT_STRING_PROJECTFOLDER=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_CFOLDER=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_CFOLDER)_SUB_CREATEANDROIDPROJECT_STRING_CFOLDER=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_VERSIONFILE=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_VERSIONFILE)_SUB_CREATEANDROIDPROJECT_STRING_VERSIONFILE=qbs_new(0,0);
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_SAMEVERSION=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_SAMEVERSION==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_SAMEVERSION=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_SAMEVERSION=0;
 }
-int64 fornext_value4109;
-int64 fornext_finalvalue4109;
-int64 fornext_step4109;
-uint8 fornext_step_negative4109;
-byte_element_struct *byte_element_4110=NULL;
-if (!byte_element_4110){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4110=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4110=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_NEWPROJECT=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_NEWPROJECT==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_NEWPROJECT=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_NEWPROJECT=0;
 }
-int32 *_FUNC_IDEFIND_LONG_I=NULL;
-if(_FUNC_IDEFIND_LONG_I==NULL){
-_FUNC_IDEFIND_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_I=0;
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_FH=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_FH==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_FH=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_FH=0;
 }
-int32 pass4111;
-int32 pass4112;
-byte_element_struct *byte_element_4113=NULL;
-if (!byte_element_4113){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4113=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4113=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_A=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_A)_SUB_CREATEANDROIDPROJECT_STRING_A=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_DELSTR=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_DELSTR)_SUB_CREATEANDROIDPROJECT_STRING_DELSTR=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_THISFILE=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_THISFILE)_SUB_CREATEANDROIDPROJECT_STRING_THISFILE=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_A2=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_A2)_SUB_CREATEANDROIDPROJECT_STRING_A2=qbs_new(0,0);
+byte_element_struct *byte_element_3525=NULL;
+if (!byte_element_3525){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3525=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3525=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value4115;
-int64 fornext_finalvalue4115;
-int64 fornext_step4115;
-uint8 fornext_step_negative4115;
-int32 *_FUNC_IDEFIND_LONG_F=NULL;
-if(_FUNC_IDEFIND_LONG_F==NULL){
-_FUNC_IDEFIND_LONG_F=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_F=0;
+byte_element_struct *byte_element_3526=NULL;
+if (!byte_element_3526){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3526=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3526=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_CX=NULL;
-if(_FUNC_IDEFIND_LONG_CX==NULL){
-_FUNC_IDEFIND_LONG_CX=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_CX=0;
+int32 pass3528;
+int32 pass3530;
+int32 pass3531;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_DIRCODE=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_DIRCODE)_SUB_CREATEANDROIDPROJECT_STRING_DIRCODE=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_FILECODE=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_FILECODE)_SUB_CREATEANDROIDPROJECT_STRING_FILECODE=qbs_new(0,0);
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_F=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_F==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_F=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_F=0;
 }
-int32 *_FUNC_IDEFIND_LONG_CY=NULL;
-if(_FUNC_IDEFIND_LONG_CY==NULL){
-_FUNC_IDEFIND_LONG_CY=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_CY=0;
+int64 fornext_value3534;
+int64 fornext_finalvalue3534;
+int64 fornext_step3534;
+uint8 fornext_step_negative3534;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_P=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_P)_SUB_CREATEANDROIDPROJECT_STRING_P=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_BASPATH=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_BASPATH)_SUB_CREATEANDROIDPROJECT_STRING_BASPATH=qbs_new(0,0);
+byte_element_struct *byte_element_3535=NULL;
+if (!byte_element_3535){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3535=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3535=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value4118;
-int64 fornext_finalvalue4118;
-int64 fornext_step4118;
-uint8 fornext_step_negative4118;
-int32 *_FUNC_IDEFIND_LONG_LASTFOCUS=NULL;
-if(_FUNC_IDEFIND_LONG_LASTFOCUS==NULL){
-_FUNC_IDEFIND_LONG_LASTFOCUS=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_LASTFOCUS=0;
+byte_element_struct *byte_element_3536=NULL;
+if (!byte_element_3536){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3536=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3536=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_CHANGE=NULL;
-if(_FUNC_IDEFIND_LONG_CHANGE==NULL){
-_FUNC_IDEFIND_LONG_CHANGE=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_CHANGE=0;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_PATH=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_PATH)_SUB_CREATEANDROIDPROJECT_STRING_PATH=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_DESTPATH=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_DESTPATH)_SUB_CREATEANDROIDPROJECT_STRING_DESTPATH=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_TP=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_TP)_SUB_CREATEANDROIDPROJECT_STRING_TP=qbs_new(0,0);
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_II=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_II==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_II=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_II=0;
 }
-int32 *_FUNC_IDEFIND_LONG_MOUSEDOWN=NULL;
-if(_FUNC_IDEFIND_LONG_MOUSEDOWN==NULL){
-_FUNC_IDEFIND_LONG_MOUSEDOWN=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_MOUSEDOWN=0;
+int32 *_SUB_CREATEANDROIDPROJECT_LONG_I=NULL;
+if(_SUB_CREATEANDROIDPROJECT_LONG_I==NULL){
+_SUB_CREATEANDROIDPROJECT_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_CREATEANDROIDPROJECT_LONG_I=0;
 }
-int32 *_FUNC_IDEFIND_LONG_MOUSEUP=NULL;
-if(_FUNC_IDEFIND_LONG_MOUSEUP==NULL){
-_FUNC_IDEFIND_LONG_MOUSEUP=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_MOUSEUP=0;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_TP2=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_TP2)_SUB_CREATEANDROIDPROJECT_STRING_TP2=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_D=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_D)_SUB_CREATEANDROIDPROJECT_STRING_D=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_ANDROIDPATH=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_ANDROIDPATH)_SUB_CREATEANDROIDPROJECT_STRING_ANDROIDPATH=qbs_new(0,0);
+byte_element_struct *byte_element_3538=NULL;
+if (!byte_element_3538){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3538=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3538=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_ALT=NULL;
-if(_FUNC_IDEFIND_LONG_ALT==NULL){
-_FUNC_IDEFIND_LONG_ALT=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_ALT=0;
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_F=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_F)_SUB_CREATEANDROIDPROJECT_STRING_F=qbs_new(0,0);
+qbs *_SUB_CREATEANDROIDPROJECT_STRING_LF=NULL;
+if (!_SUB_CREATEANDROIDPROJECT_STRING_LF)_SUB_CREATEANDROIDPROJECT_STRING_LF=qbs_new(0,0);
+byte_element_struct *byte_element_3541=NULL;
+if (!byte_element_3541){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3541=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3541=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_OLDALT=NULL;
-if(_FUNC_IDEFIND_LONG_OLDALT==NULL){
-_FUNC_IDEFIND_LONG_OLDALT=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_OLDALT=0;
+int64 fornext_value3543;
+int64 fornext_finalvalue3543;
+int64 fornext_step3543;
+uint8 fornext_step_negative3543;
+byte_element_struct *byte_element_3544=NULL;
+if (!byte_element_3544){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3544=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3544=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_IDEFIND_STRING_ALTLETTER=NULL;
-if (!_FUNC_IDEFIND_STRING_ALTLETTER)_FUNC_IDEFIND_STRING_ALTLETTER=qbs_new(0,0);
-byte_element_struct *byte_element_4120=NULL;
-if (!byte_element_4120){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4120=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4120=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3545=NULL;
+if (!byte_element_3545){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3545=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3545=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_K=NULL;
-if(_FUNC_IDEFIND_LONG_K==NULL){
-_FUNC_IDEFIND_LONG_K=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_K=0;
+byte_element_struct *byte_element_3547=NULL;
+if (!byte_element_3547){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3547=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3547=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEFIND_LONG_INFO=NULL;
-if(_FUNC_IDEFIND_LONG_INFO==NULL){
-_FUNC_IDEFIND_LONG_INFO=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_INFO=0;
+byte_element_struct *byte_element_3550=NULL;
+if (!byte_element_3550){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3550=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3550=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value4122;
-int64 fornext_finalvalue4122;
-int64 fornext_step4122;
-uint8 fornext_step_negative4122;
-int32 *_FUNC_IDEFIND_LONG_T=NULL;
-if(_FUNC_IDEFIND_LONG_T==NULL){
-_FUNC_IDEFIND_LONG_T=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_T=0;
-}
-int32 *_FUNC_IDEFIND_LONG_FOCUSOFFSET=NULL;
-if(_FUNC_IDEFIND_LONG_FOCUSOFFSET==NULL){
-_FUNC_IDEFIND_LONG_FOCUSOFFSET=(int32*)mem_static_malloc(4);
-*_FUNC_IDEFIND_LONG_FOCUSOFFSET=0;
-}
-qbs *_FUNC_IDEFIND_STRING_S=NULL;
-if (!_FUNC_IDEFIND_STRING_S)_FUNC_IDEFIND_STRING_S=qbs_new(0,0);

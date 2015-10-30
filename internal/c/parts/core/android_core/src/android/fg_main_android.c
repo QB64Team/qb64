@@ -218,7 +218,8 @@ int32_t handle_input(struct android_app* app, AInputEvent* event) {
     
     /* Virtual arrows PAD */
     // Don't interfere with existing mouse move event
-    if (!touchscreen.in_mmotion) {
+    //if (!touchscreen.in_mmotion) {
+    if (1==0) {//QB64 uses its own virtual KB and this interferes with QB64's mouse input
       struct vpad_state prev_vpad = touchscreen.vpad;
       touchscreen.vpad.left = touchscreen.vpad.right
 	= touchscreen.vpad.up = touchscreen.vpad.down = false;

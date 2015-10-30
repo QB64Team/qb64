@@ -110,6 +110,20 @@ id.callname = "func__resizeheight"
 id.ret = LONGTYPE - ISPOINTER
 regid
 
+clearid
+id.n = "_SCALEDWIDTH"
+id.subfunc = 1
+id.callname = "func__scaledwidth"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SCALEDHEIGHT"
+id.subfunc = 1
+id.callname = "func__scaledheight"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
 
 clearid
 id.n = "_GLRENDER"
@@ -1310,6 +1324,9 @@ id.n = "_MOUSEINPUT"
 id.subfunc = 1
 id.callname = "func__mouseinput"
 id.ret = LONGTYPE - ISPOINTER
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
@@ -1317,14 +1334,19 @@ id.n = "_MOUSEX"
 id.subfunc = 1
 id.callname = "func__mousex"
 id.ret = SINGLETYPE - ISPOINTER
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
 id.n = "_MOUSEY"
-
 id.subfunc = 1
 id.callname = "func__mousey"
 id.ret = SINGLETYPE - ISPOINTER
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
@@ -1332,6 +1354,9 @@ id.n = "_MOUSEMOVEMENTX"
 id.subfunc = 1
 id.callname = "func__mousemovementx"
 id.ret = SINGLETYPE - ISPOINTER
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
@@ -1339,15 +1364,19 @@ id.n = "_MOUSEMOVEMENTY"
 id.subfunc = 1
 id.callname = "func__mousemovementy"
 id.ret = SINGLETYPE - ISPOINTER
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
 id.n = "_MOUSEBUTTON"
 id.subfunc = 1
 id.callname = "func__mousebutton"
-id.args = 1
-id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER)+MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
+id.specialformat = "?[,?]"
 regid
 
 clearid
@@ -1355,6 +1384,33 @@ id.n = "_MOUSEWHEEL"
 id.subfunc = 1
 id.callname = "func__mousewheel"
 id.ret = LONGTYPE - ISPOINTER
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
+regid
+
+
+clearid
+id.n = "_MOUSEPIPEOPEN"
+id.subfunc = 1
+id.callname = "func__mousepipeopen"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_MOUSEINPUTPIPE"
+id.subfunc = 2
+id.callname = "sub__mouseinputpipe"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+regid
+
+clearid
+id.n = "_MOUSEPIPECLOSE"
+id.subfunc = 2
+id.callname = "sub__mousepipeclose"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
 regid
 
 clearid
