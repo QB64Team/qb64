@@ -1,8 +1,6 @@
 'All variables will be of type LONG unless explicitly defined
 DEFLNG A-Z
 
-deleteThis$ = "testAutoBuildProcessGitHub"
-
 'All arrays will be dynamically allocated so they can be REDIM-ed
 '$DYNAMIC
 
@@ -1553,7 +1551,9 @@ DO
 
     wholeline$ = lineinput3$
     IF wholeline$ = CHR$(13) THEN EXIT DO
+
     ideprepass:
+    prepassLastLine:
 
     IF lastLine <> 0 OR firstLine <> 0 THEN
         lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
@@ -2685,6 +2685,15 @@ DO
 
     IF idemode THEN GOTO ideret2
 LOOP
+
+'add final line
+IF lastLineReturn = 0 THEN
+    lastLineReturn = 1
+    lastLine = 1
+    wholeline$ = ""
+    GOTO prepassLastLine
+END IF
+
 IF definingtype THEN definingtype = 0 'ignore this error so that auto-formatting can be performed and catch it again later
 IF declaringlibrary THEN declaringlibrary = 0 'ignore this error so that auto-formatting can be performed and catch it again later
 
@@ -2695,13 +2704,15 @@ lineinput3index = 1 'reset input line
 'ide specific
 ide3:
 
-
 addmetainclude$ = "" 'reset stray meta-includes
 
 'reset altered variables
 DataOffset = 0
 inclevel = 0
 subfuncn = 0
+lastLineReturn = 0
+lastLine = 0
+firstLine = 1
 
 FOR i = 0 TO constlast: constdefined(i) = 0: NEXT 'undefine constants
 
@@ -2776,6 +2787,7 @@ IF idemode THEN GOTO ideret3
 DO
     ide4:
     includeline:
+    mainpassLastLine:
 
     IF lastLine <> 0 OR firstLine <> 0 THEN
         lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
@@ -10341,6 +10353,14 @@ DO
     'layout is not currently used by the compiler (as appose to the IDE), if it was it would be used here
     skipide4:
 LOOP
+
+'add final line
+IF lastLineReturn = 0 THEN
+    lastLineReturn = 1
+    lastLine = 1
+    wholeline$ = ""
+    GOTO mainpassLastLine
+END IF
 
 ide5:
 linenumber = 0
