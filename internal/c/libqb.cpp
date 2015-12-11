@@ -18208,8 +18208,7 @@ int64 func_shell(qbs *str){
   if (new_error) return 1;
   if (cloud_app){error(262); return 1;}
 
-  static int64 return_code;
-  return_code=0;
+  int64 return_code;
 
   //exit full screen mode if necessary
   static int32 full_screen_mode;
@@ -18440,6 +18439,10 @@ int64 func_shell(qbs *str){
     shell_call_in_progress=1;
     return_code = system((char*)strz->chr);
     shell_call_in_progress=0;
+    if (return_code == -1) {/* do nothing */}
+    else {
+      return_code = WEXITSTATUS(return_code);
+    }
 
 #endif
 
