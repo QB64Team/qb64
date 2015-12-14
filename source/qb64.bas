@@ -4384,6 +4384,11 @@ DO
                 GOTO errmes
             END IF
 
+	    if ideindentsubs then
+	        controllevel = controllevel + 1
+	    	controltype(controllevel) = 32
+	    end if
+
             subfunc = RTRIM$(id.callname) 'SUB_..."
             subfuncn = subfuncn + 1
             subfuncid = targetid
@@ -4851,7 +4856,7 @@ DO
                 IF LEN(subfunc) = 0 THEN a$ = "END " + secondelement$ + " without " + secondelement$: GOTO errmes
 
                 'check for open controls (copy #3)
-                IF controllevel <> 0 AND controltype(controllevel) <> 6 THEN 'It's OK for subs to be inside $IF blocks
+                IF controllevel <> 0 AND controltype(controllevel) <> 6 AND controltype(controllevel) <> 32 THEN 'It's OK for subs to be inside $IF blocks
                     x = controltype(controllevel)
                     IF x = 1 THEN a$ = "IF without END IF"
                     IF x = 2 THEN a$ = "FOR without NEXT"
@@ -4860,6 +4865,11 @@ DO
                     IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
                     linenumber = controlref(controllevel)
                     GOTO errmes
+                END IF
+
+                IF controltype(controllevel) = 32 and ideindentsubs THEN
+                    controltype(controllevel) = 0
+                    controllevel = controllevel - 1
                 END IF
 
                 l$ = firstelement$ + sp + secondelement$

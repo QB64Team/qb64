@@ -7491,6 +7491,12 @@ o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
 
 i = i + 1
+o(i).typ = 4
+o(i).y = 6
+o(i).nam = idenewtxt("Indent #SUBs and FUNCTIONs")
+o(i).sel = ideindentsubs
+
+i = i + 1
 o(i).typ = 3
 o(i).y = 7
 o(i).txt = idenewtxt("OK" + sep + "#Cancel")
@@ -7584,8 +7590,8 @@ DO 'main loop
     END IF
     idetxt(o(3).txt) = a$
 
-    IF K$ = CHR$(27) OR (focus = 5 AND info <> 0) THEN EXIT FUNCTION
-    IF K$ = CHR$(13) OR (focus = 4 AND info <> 0) THEN
+    IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN EXIT FUNCTION
+    IF K$ = CHR$(13) OR (focus = 5 AND info <> 0) THEN
         'save changes
         v% = o(1).sel: IF v% <> 0 THEN v% = 1 'ideautolayout
 
@@ -7602,6 +7608,9 @@ DO 'main loop
             IF ideautoindent <> 0 THEN idelayoutbox = 1
         END IF
 
+	v% = o(4).sel: IF v% <> 0 THEN v% = 1 'ideindentsubs
+	IF ideindentsubs <> v% THEN ideindentsubs = v%: idelayoutbox = 1
+
 if ideautolayout then
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
 else
@@ -7613,7 +7622,11 @@ else
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "FALSE"
 end if
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", str$(ideautoindentsize)
-
+if ideindentsubs then
+   	WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "TRUE"
+else
+   	WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "FALSE"
+end if
         EXIT FUNCTION
     END IF
 
