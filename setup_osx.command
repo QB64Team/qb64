@@ -45,9 +45,9 @@ fi
 cd ../../../../../../../..
 
 echo "Building User Additions"
-cd internal/c/parts/user_mods/os/lnx
+cd internal/c/parts/user_mods/os/osx
 rm -f src.a
-./setup_build.sh
+./setup_build.command
 if [ ! -f ./src.a ]; then
   echo "Compilation of ./internal/c/parts/user_mods/os/osx/src.a failed!"
   Pause
