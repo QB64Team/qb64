@@ -6366,6 +6366,7 @@ sep = CHR$(0)
 '-------- init --------
 
 ly$ = MKL$(1)
+CurrentlyViewingWhichSUBFUNC = 1
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
 FOR y = 1 TO iden
@@ -6380,6 +6381,14 @@ FOR y = 1 TO iden
             a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
         END IF
         ly$ = ly$ + MKL$(y)
+
+        'Check if the cursor is currently inside this SUB/FUNCTION to position the
+        'selection properly in the list.
+        IF idecy >= y THEN
+            CurrentlyViewingWhichSUBFUNC = (LEN(ly$) / 4)
+        END IF
+        'End of current SUB/FUNCTION check
+
         IF sf = 1 THEN
             a$ = RIGHT$(a$, LEN(a$) - 4)
         ELSE
@@ -6426,7 +6435,7 @@ o(i).y = 1
 '68
 o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
 o(i).txt = idenewtxt(l$)
-o(i).sel = 1
+o(i).sel = CurrentlyViewingWhichSUBFUNC
 o(i).nam = idenewtxt("Program Items")
 
 
@@ -7608,8 +7617,8 @@ DO 'main loop
             IF ideautoindent <> 0 THEN idelayoutbox = 1
         END IF
 
-	v% = o(4).sel: IF v% <> 0 THEN v% = 1 'ideindentsubs
-	IF ideindentsubs <> v% THEN ideindentsubs = v%: idelayoutbox = 1
+    v% = o(4).sel: IF v% <> 0 THEN v% = 1 'ideindentsubs
+    IF ideindentsubs <> v% THEN ideindentsubs = v%: idelayoutbox = 1
 
 if ideautolayout then
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
@@ -7623,9 +7632,9 @@ else
 end if
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", str$(ideautoindentsize)
 if ideindentsubs then
-   	WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "TRUE"
+    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "TRUE"
 else
-   	WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "FALSE"
+    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "FALSE"
 end if
         EXIT FUNCTION
     END IF
@@ -8515,12 +8524,12 @@ DO 'main loop
         IF v% > IdeAndroidMenu THEN
             menusize(5) = menusize(5) + 2
         END IF
-	if v% then
+    if v% then
             WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "TRUE"
         ELSE
             WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "FALSE"
         end if
-        
+
         'v$ = ""
         'IF LEN(v$) > 256 THEN v$ = LEFT$(v$, 256)
         'IF LEN(v$) < 256 THEN v$ = v$ + SPACE$(256 - LEN(v$))
@@ -9977,3 +9986,4 @@ idecx = idecx + LEN(messagestr$)
 END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'
+
