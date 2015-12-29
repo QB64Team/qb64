@@ -6411,10 +6411,31 @@ DIM sep AS STRING * 1
 sep = CHR$(0)
 '-------- end of generic dialog box header --------
 
+'------- identify word or character at current cursor position - copied/adapted from FUNCTION ide2:
+a$ = idegetline(idecy)
+x = idecx
+IF x <= LEN(a$) THEN
+    IF alphanumeric(ASC(a$, x)) THEN
+        x1 = x
+        DO WHILE x1 > 1
+            IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
+        LOOP
+        x2 = x
+        DO WHILE x2 < LEN(a$)
+            IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
+        LOOP
+        a2$ = MID$(a$, x1, x2 - x1 + 1)
+    ELSE
+        a2$ = CHR$(ASC(a$, x))
+    END IF
+    a2$ = UCASE$(a2$) 'a2$ now holds the word or character at current cursor position
+END IF
+
 '-------- init --------
 
 ly$ = MKL$(1)
 CurrentlyViewingWhichSUBFUNC = 1
+PreferCurrentCursorSUBFUNC = 0
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
 FOR y = 1 TO iden
@@ -6451,6 +6472,11 @@ FOR y = 1 TO iden
             n$ = a$
             args$ = ""
         END IF
+
+        'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
+        'instead of the currently in edition, for a quick link functionality:
+        IF a2$ = UCASE$(n$) THEN PreferCurrentCursorSUBFUNC = (LEN(ly$) / 4)
+
         IF LEN(n$) <= 20 THEN
             n$ = n$ + SPACE$(20 - LEN(n$))
         ELSE
@@ -6483,7 +6509,11 @@ o(i).y = 1
 '68
 o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
 o(i).txt = idenewtxt(l$)
-o(i).sel = CurrentlyViewingWhichSUBFUNC
+IF PreferCurrentCursorSUBFUNC <> 0 THEN
+    o(i).sel = PreferCurrentCursorSUBFUNC
+ELSE
+    o(i).sel = CurrentlyViewingWhichSUBFUNC
+END IF
 o(i).nam = idenewtxt("Program Items")
 
 
