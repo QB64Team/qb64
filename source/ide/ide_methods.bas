@@ -662,10 +662,58 @@ DO
 
         LOCATE , , 0
 
+        'Get the currently being edited SUB/FUNCTION name to show after the main window title
+        '(standard QB4.5 behavior). The FOR...NEXT loop was taken and adapted from FUNCTION
+        'idesubs$, but it goes backwards from the current line to the start of the program
+        'to see if we're inside a SUB/FUNCTION. EXITs FOR once that is figured.
+        sfname$ = ""
+        FOR currSF_CHECK = idecy to 1 STEP -1
+            thisline$ = idegetline(currSF_CHECK)
+            thisline$ = LTRIM$(RTRIM$(thisline$))
+            isSF = 0
+            ncthisline$ = UCASE$(thisline$)
+            IF LEFT$(ncthisline$, 4) = "SUB " THEN isSF = 1
+            IF LEFT$(ncthisline$, 9) = "FUNCTION " THEN isSF = 2
+            IF isSF THEN
+                IF RIGHT$(ncthisline$, 7) = " STATIC" THEN
+                    thisline$ = RTRIM$(LEFT$(thisline$, LEN(thisline$) - 7))
+                END IF
+
+                IF isSF = 1 THEN
+                    thisline$ = RIGHT$(thisline$, LEN(thisline$) - 4)
+                ELSE
+                    thisline$ = RIGHT$(thisline$, LEN(thisline$) - 9)
+                END IF
+                thisline$ = LTRIM$(RTRIM$(thisline$))
+                checkargs = INSTR(thisline$, "(")
+                IF checkargs THEN
+                    sfname$ = RTRIM$(LEFT$(thisline$, checkargs - 1))
+                ELSE
+                    sfname$ = thisline$
+                END IF
+
+                'But what if we're past the end of this module's SUBs and FUNCTIONs,
+                'and all that's left is a bunch of comments or $INCLUDES?
+                'We'll also check for that:
+                for endSF_CHECK = idecy to iden
+                    thisline$ = idegetline(endSF_CHECK)
+                    thisline$ = LTRIM$(RTRIM$(thisline$))
+                    endedSF = 0
+                    ncthisline$ = UCASE$(thisline$)
+                    IF LEFT$(ncthisline$, 7) = "END SUB" THEN endedSF = 1: EXIT FOR
+                    IF LEFT$(ncthisline$, 12) = "END FUNCTION" THEN endedSF = 2: EXIT FOR
+                next
+                if endedSF = 0 then sfname$ = ""
+                EXIT FOR
+            END IF
+        NEXT
+
         'update title of main window
         COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, "Ä");
         IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
-        a$ = " " + a$ + " "
+        a$ = " " + a$
+        if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
+        a$ = a$ + " "
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
