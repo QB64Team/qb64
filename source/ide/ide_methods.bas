@@ -662,10 +662,45 @@ DO
 
         LOCATE , , 0
 
+        'Get the currently being edited SUB/FUNCTION name to show after the main window title
+        '(standard QB4.5 behavior). The FOR...NEXT loop was taken and adapted from FUNCTION
+        'idesubs$, but it goes backwards from the current line to the start of the program
+        'to see if we're inside a SUB/FUNCTION. EXITs FOR once that is figured.
+        sfname$ = ""
+        FOR currSF_CHECK = idecy to 1 STEP -1
+            thisline$ = idegetline(currSF_CHECK)
+            thisline$ = LTRIM$(RTRIM$(thisline$))
+            isSF = 0
+            ncthisline$ = UCASE$(thisline$)
+            IF LEFT$(ncthisline$, 4) = "SUB " THEN isSF = 1
+            IF LEFT$(ncthisline$, 9) = "FUNCTION " THEN isSF = 2
+            IF isSF THEN
+                IF RIGHT$(ncthisline$, 7) = " STATIC" THEN
+                    thisline$ = RTRIM$(LEFT$(thisline$, LEN(thisline$) - 7))
+                END IF
+
+                IF isSF = 1 THEN
+                    thisline$ = RIGHT$(thisline$, LEN(thisline$) - 4)
+                ELSE
+                    thisline$ = RIGHT$(thisline$, LEN(thisline$) - 9)
+                END IF
+                thisline$ = LTRIM$(RTRIM$(thisline$))
+                checkargs = INSTR(thisline$, "(")
+                IF checkargs THEN
+                    sfname$ = RTRIM$(LEFT$(thisline$, checkargs - 1))
+                ELSE
+                    sfname$ = thisline$
+                END IF
+                EXIT FOR
+            END IF
+        NEXT
+
         'update title of main window
         COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, "Ä");
         IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
-        a$ = " " + a$ + " "
+        a$ = " " + a$
+        if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
+        a$ = a$ + " "
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
@@ -9491,6 +9526,7 @@ SUB ideASCIIbox
 'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
 
 w = _WIDTH: h = _HEIGHT
+font = _FONT
 temp = _NEWIMAGE(640, 480, 32)
 temp1 = _NEWIMAGE(640, 480, 32)
 ws = _NEWIMAGE(640, 480, 32)
@@ -9565,7 +9601,7 @@ DO
         CASE 13: EXIT DO
         CASE 27
             _AUTODISPLAY
-            SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+            SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
             IF _RESIZE THEN donothing = atall
             EXIT SUB
         CASE 32: toggle = NOT toggle
@@ -9583,13 +9619,13 @@ DO
     Ex = _EXIT
     IF Ex THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
     IF MouseExit THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
@@ -9612,7 +9648,9 @@ END IF
 
 _AUTODISPLAY
 
-SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+SCREEN 0: WIDTH w, h
+_FONT font
+_DEST 0: _DELAY .2
 IF _RESIZE THEN donothing = atall
 
 END FUNCTION
