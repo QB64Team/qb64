@@ -691,6 +691,19 @@ DO
                 ELSE
                     sfname$ = thisline$
                 END IF
+
+                'But what if we're past the end of this module's SUBs and FUNCTIONs,
+                'and all that's left is a bunch of comments or $INCLUDES?
+                'We'll also check for that:
+                for endSF_CHECK = idecy to iden
+                    thisline$ = idegetline(endSF_CHECK)
+                    thisline$ = LTRIM$(RTRIM$(thisline$))
+                    endedSF = 0
+                    ncthisline$ = UCASE$(thisline$)
+                    IF LEFT$(ncthisline$, 7) = "END SUB" THEN endedSF = 1: EXIT FOR
+                    IF LEFT$(ncthisline$, 12) = "END FUNCTION" THEN endedSF = 2: EXIT FOR
+                next
+                if endedSF = 0 then sfname$ = ""
                 EXIT FOR
             END IF
         NEXT
