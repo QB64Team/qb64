@@ -9526,7 +9526,6 @@ SUB ideASCIIbox
 'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
 
 w = _WIDTH: h = _HEIGHT
-font = _FONT
 temp = _NEWIMAGE(640, 480, 32)
 temp1 = _NEWIMAGE(640, 480, 32)
 ws = _NEWIMAGE(640, 480, 32)
@@ -9601,7 +9600,7 @@ DO
         CASE 13: EXIT DO
         CASE 27
             _AUTODISPLAY
-            SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
+            SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
             IF _RESIZE THEN donothing = atall
             EXIT SUB
         CASE 32: toggle = NOT toggle
@@ -9619,13 +9618,13 @@ DO
     Ex = _EXIT
     IF Ex THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
     IF MouseExit THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
@@ -9648,9 +9647,7 @@ END IF
 
 _AUTODISPLAY
 
-SCREEN 0: WIDTH w, h
-_FONT font
-_DEST 0: _DELAY .2
+SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
 IF _RESIZE THEN donothing = atall
 
 END FUNCTION
