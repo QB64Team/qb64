@@ -185,7 +185,7 @@ IF LoadedIDESettings = 0 THEN
         ideindentsubs = 1
     elseif result = 0 then
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "FALSE"
-	ideindentsubs = 0
+        ideindentsubs = 0
     ELSEIF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "TRUE"
             ideindentsubs = 1

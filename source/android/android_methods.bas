@@ -195,14 +195,14 @@ SUB CreateAndroidProject (projectName2 AS STRING)
 'sanitise project name
 dim projectName as string
 for projectNameI=1 to len(projectName2)
-	projectNameA$=LCASE$(mid$(projectName2,projectNameI,1))
-	projectNameAsc=ASC(projectNameA$)
-	projectNameAValid=0
-	if projectNameAsc>=97 and projectNameAsc<122 then projectNameAValid=1
-	if len(projectName)>=1 then
-		if projectNameAsc>=48 and projectNameAsc<=57 then projectNameAValid=1
-	end if
-	if projectNameAValid then projectName=projectName+projectNameA$
+        projectNameA$=LCASE$(mid$(projectName2,projectNameI,1))
+        projectNameAsc=ASC(projectNameA$)
+        projectNameAValid=0
+        if projectNameAsc>=97 and projectNameAsc<122 then projectNameAValid=1
+        if len(projectName)>=1 then
+                if projectNameAsc>=48 and projectNameAsc<=57 then projectNameAValid=1
+        end if
+        if projectNameAValid then projectName=projectName+projectNameA$
 next
 if projectName="" then projectName="untitled"
 

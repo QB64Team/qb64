@@ -6,7 +6,7 @@ DIM SHARED sp AS STRING * 1, sp2 AS STRING * 1, sp3 AS STRING * 1
 sp = CHR$(13): sp2 = CHR$(10): sp3 = CHR$(26)
 DIM SHARED sp_asc AS LONG, sp2_asc AS LONG, sp3_asc AS LONG
 sp_asc = ASC(sp): sp2_asc = ASC(sp2): sp3_asc = ASC(sp3)
-IF Debug THEN sp = CHR$(250): sp2 = CHR$(249): sp3 = "³" 'makes debug output more readable
+IF Debug THEN sp = CHR$(250): sp2 = CHR$(249): sp3 = CHR$(179) 'makes debug output more readable
 
 'ASCII codes
 CONST ASC_BACKSLASH = 92

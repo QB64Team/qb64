@@ -524,7 +524,7 @@ IF role$ = "EDIT" THEN
     IF VK(i).locked = 1 THEN
         VkResetMenu
     ELSE
-    	VkHide = 0 'do not hide keybaord when editing
+        VkHide = 0 'do not hide keybaord when editing
         VkResetMenu
         i = VkByRole(role$)
         VK(i).locked = 1
@@ -670,27 +670,27 @@ IF role$ = "RSET" THEN
     VkFile$=""
     if _FILEEXISTS(appRootPath$+"virtual_keyboard_layout_default.txt") then VkFile$=appRootPath$+"virtual_keyboard_layout_default.txt"
     if VkFile$<>"" then
-	fh = FREEFILE
-	OPEN VkFile$ FOR INPUT AS #fh
-	LINE INPUT #fh, json$
-	CLOSE #fh
-	root = QB_NODESET_deserialize(json$, "json")
-	DIM oldVkWidthInUnits AS LONG
+    fh = FREEFILE
+    OPEN VkFile$ FOR INPUT AS #fh
+    LINE INPUT #fh, json$
+    CLOSE #fh
+    root = QB_NODESET_deserialize(json$, "json")
+    DIM oldVkWidthInUnits AS LONG
         oldVkWidthInUnits=VkWidthInUnits
         VkWidthInUnits=90
-	DIM rootValueNode AS LONG
+    DIM rootValueNode AS LONG
         rootValueNode=QB_NODE_withLabel(root, "width")
-	if rootValueNode then VkWidthInUnits=QB_NODE_valueOfLabel_long(root, "width")
+    if rootValueNode then VkWidthInUnits=QB_NODE_valueOfLabel_long(root, "width")
         if VkWidthInUnits<>oldVkWidthInUnits then
-	        FOR i3 = 1 TO VkLast
-	            IF VK(i3).active THEN		
-        	        VK(i3).reDraw = 1
-	            END IF
-        	NEXT
-	        VkReset = 1
+            FOR i3 = 1 TO VkLast
+                IF VK(i3).active THEN
+                    VK(i3).reDraw = 1
+                END IF
+            NEXT
+            VkReset = 1
         END IF
-	VkLoadKeys QB_NODESET_node(QB_NODESET_label_equal(QB_NODESET_children(root), "keys")), 0
-	QB_NODE_destroy root
+    VkLoadKeys QB_NODESET_node(QB_NODESET_label_equal(QB_NODESET_children(root), "keys")), 0
+    QB_NODE_destroy root
     end if
     VkResetMenu
     EXIT SUB
@@ -701,8 +701,8 @@ IF role$ = "SCUP" THEN
     if VkWidthInUnits<90-6*7 then VkWidthInUnits=90-6*7
     'force all keys to be redrawn
     FOR i3 = 1 TO VkLast
-        IF VK(i3).active THEN		
-                VK(i3).reDraw = 1
+        IF VK(i3).active THEN
+            VK(i3).reDraw = 1
         END IF
     NEXT
     VkReset = 1
@@ -714,7 +714,7 @@ IF role$ = "SCDN" THEN
     if VkWidthInUnits>90+6*20 then VkWidthInUnits=90+6*20
     'force all keys to be redrawn
     FOR i3 = 1 TO VkLast
-        IF VK(i3).active THEN		
+        IF VK(i3).active THEN
                 VK(i3).reDraw = 1
         END IF
     NEXT
@@ -760,7 +760,7 @@ IF role$ = "SIZE" THEN
 
         oy = oy + 1
         i2 = VkNew
-        VkReLabel i2, "ÄÄ"
+        VkReLabel i2, chr$(17) + chr$(196) + chr$(196) + chr$(16)
         VK(i2).parent = VK(i).parent
         VK(i2).offsetX = ox
         VK(i2).offsetY = -oy * VkUnitStepY
@@ -770,7 +770,7 @@ IF role$ = "SIZE" THEN
 
         oy = oy + 1
         i2 = VkNew
-        VkReLabel i2, "ÄÄ"
+        VkReLabel i2, chr$(196) + chr$(16) + chr$(17) + chr$(196)
         VK(i2).parent = VK(i).parent
         VK(i2).offsetX = ox
         VK(i2).offsetY = -oy * VkUnitStepY
@@ -1333,9 +1333,9 @@ END SUB
 SUB VkUpdate
 
 if VkDelay>0 then
-	VkTimeNow#=TIMER(0.001)
-	if VkTimeNow#<VkDelayStartTime OR VkTimeNow#>=VkDelayStartTime+VkDelay THEN VkDelay=0
-	exit sub
+    VkTimeNow#=TIMER(0.001)
+    if VkTimeNow#<VkDelayStartTime OR VkTimeNow#>=VkDelayStartTime+VkDelay THEN VkDelay=0
+    exit sub
 end if
 
 if vkExited then
@@ -1403,7 +1403,7 @@ IF winX <> VkWinX OR winY <> VkWinY THEN
     VkWinY = winY
     'clear overlay image (if one exists yet)
     if VkOverlay then
-	    _PUTIMAGE , VkClearTex, VkOverlay
+        _PUTIMAGE , VkClearTex, VkOverlay
     end if
     'beging a delay (wait until screen has fully repositioned)
     VkDelayStartTime=TIMER(0.001)
@@ -1954,8 +1954,8 @@ DO
     mUp = 0
     mEvent = 0
 
-if VkMousePipe=0 then	
-	VkMousePipe=_MOUSEPIPEOPEN 'create new pipe
+if VkMousePipe=0 then   
+    VkMousePipe=_MOUSEPIPEOPEN 'create new pipe
 end if
 
 '    IF VkSharedInputMode THEN
@@ -2000,14 +2000,14 @@ end if
             mx = _MOUSEX(VkMousePipe)
             my = _MOUSEY(VkMousePipe)
 
-	    sw=_width(0)
-	    sh=_height(0)
+        sw=_width(0)
+        sh=_height(0)
 
             IF _PIXELSIZE = 0 THEN 'screen 0 adjustment
                 mx = mx * 8 - 4
                 my = my * 16 - 8
-		sw=sw*8
-		sh=sh*16
+        sw=sw*8
+        sh=sh*16
             END IF
 
             mx = CINT(mx*(_SCALEDWIDTH/sw))
@@ -2015,16 +2015,16 @@ end if
 
             IF mb = -1 AND omb = 0 THEN mDown = -1: mEvent = 1: EXIT DO
 
-	    if VkMousePipeCapture=0 then
+        if VkMousePipeCapture=0 then
                 _MOUSEINPUTPIPE VkMousePipe
-	    end if
+        end if
 
             IF mb = 0 AND omb = -1 THEN
-		VkMousePipeCapture=0
-		mUp = -1
-		mEvent = 1
-		EXIT DO
-	    end if
+        VkMousePipeCapture=0
+        mUp = -1
+        mEvent = 1
+        EXIT DO
+        end if
 
         LOOP
         omb = mb
@@ -2033,7 +2033,7 @@ end if
     rootId = VkByRole("ROOT")
     editMode = VK(rootId).locked
 
-    IF mDown THEN	
+    IF mDown THEN   
         mDownX = mx
         mDownY = my
         i2 = 0
@@ -2042,20 +2042,20 @@ end if
             FOR i = VkLast TO 1 STEP -1
                 IF VK(i).active THEN
                     IF VK(i).internal = internal THEN
-			if internal=1 or VkHide=0 then
-        	                x = VK(i).x * VkUnitSize
-	                        y = VK(i).y * VkUnitSize
-                	        w = VK(i).w
-        	                h = VK(i).h
-	                        x1 = INT(x)
-                	        x2 = INT(x + VkUnitSize * w) - 1
-        	                y1 = sy - 1 - INT(y)
-	                        y2 = sy - 1 - INT(y + VkUnitSize * h) + 1
-                        	IF mx >= x1 AND mx <= x2 AND my >= y2 AND my <= y1 THEN
-                	            i2 = i
-        	                    EXIT FOR
-	                        END IF
-			end if
+            if internal=1 or VkHide=0 then
+                            x = VK(i).x * VkUnitSize
+                            y = VK(i).y * VkUnitSize
+                            w = VK(i).w
+                            h = VK(i).h
+                            x1 = INT(x)
+                            x2 = INT(x + VkUnitSize * w) - 1
+                            y1 = sy - 1 - INT(y)
+                            y2 = sy - 1 - INT(y + VkUnitSize * h) + 1
+                            IF mx >= x1 AND mx <= x2 AND my >= y2 AND my <= y1 THEN
+                                i2 = i
+                                EXIT FOR
+                            END IF
+            end if
                     END IF
                 END IF
             NEXT
@@ -2069,7 +2069,7 @@ end if
             VKstart = TIMER(0.001)
             'VK(i2).held = -1
             VkKeyDown i2
-	    VkMousePipeCapture=1
+        VkMousePipeCapture=1
         END IF
         if VkMousePipeCapture=0 then _MOUSEINPUTPIPE VkMousePipe
     END IF
@@ -2219,8 +2219,8 @@ _DEST subOldDest
 _SOURCE subOldSource
 
 if VkExiting=2 then
-	VkExiting=0
-	VkExited=1	
+    VkExiting=0
+    VkExited=1  
 end if
 
 END SUB
@@ -2716,27 +2716,27 @@ VkFile$=""
 if _FILEEXISTS(appRootPath$+"virtual_keyboard_layout_default.txt") then VkFile$=appRootPath$+"virtual_keyboard_layout_default.txt"
 if _FILEEXISTS(appRootPath$+"virtual_keyboard_layout_current.txt") then VkFile$=appRootPath$+"virtual_keyboard_layout_current.txt"
 if VkFile$<>"" then
-	fh = FREEFILE
-	OPEN VkFile$ FOR INPUT AS #fh
-	LINE INPUT #fh, json$
-	CLOSE #fh
-	root = QB_NODESET_deserialize(json$, "json")
-	DIM oldVkWidthInUnits AS LONG
+    fh = FREEFILE
+    OPEN VkFile$ FOR INPUT AS #fh
+    LINE INPUT #fh, json$
+    CLOSE #fh
+    root = QB_NODESET_deserialize(json$, "json")
+    DIM oldVkWidthInUnits AS LONG
         oldVkWidthInUnits=VkWidthInUnits
         VkWidthInUnits=90
-	DIM rootValueNode AS LONG
+    DIM rootValueNode AS LONG
         rootValueNode=QB_NODE_withLabel(root, "width")
-	if rootValueNode then VkWidthInUnits=QB_NODE_valueOfLabel_long(root, "width")
+    if rootValueNode then VkWidthInUnits=QB_NODE_valueOfLabel_long(root, "width")
         if VkWidthInUnits<>oldVkWidthInUnits then
-	        FOR i3 = 1 TO VkLast
-	            IF VK(i3).active THEN		
-        	        VK(i3).reDraw = 1
-	            END IF
-        	NEXT
-	        VkReset = 1
+            FOR i3 = 1 TO VkLast
+                IF VK(i3).active THEN       
+                    VK(i3).reDraw = 1
+                END IF
+            NEXT
+            VkReset = 1
         END IF
-	VkLoadKeys QB_NODESET_node(QB_NODESET_label_equal(QB_NODESET_children(root), "keys")), 0
-	QB_NODE_destroy root
+    VkLoadKeys QB_NODESET_node(QB_NODESET_label_equal(QB_NODESET_children(root), "keys")), 0
+    QB_NODE_destroy root
 end if
 END SUB
 
@@ -2797,11 +2797,11 @@ FOR diff = 0 TO 1000
         END IF
         IF size >= 0 AND size <= UBOUND(vkfontAllow) THEN
             IF vkFontAllow(size) THEN
-		if vkFonts(size)=0 then vkFonts(size)=_LOADFONT(appRootPath$+"cyberbit.ttf", size)
-		if vkFonts(size)=0 then 'font failed to load, so use inbuilt font instead
-			vkFonts(size)=16
-			if size<16 then vkFonts(size)=8
-		end if
+        if vkFonts(size)=0 then vkFonts(size)=_LOADFONT(appRootPath$+"cyberbit.ttf", size)
+        if vkFonts(size)=0 then 'font failed to load, so use inbuilt font instead
+            vkFonts(size)=16
+            if size<16 then vkFonts(size)=8
+        end if
                 VkFindFont& = vkFonts(size)
                 EXIT FUNCTION
             END IF

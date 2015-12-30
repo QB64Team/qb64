@@ -37,7 +37,7 @@ END IF
 
 IF Help_Recaching = 0 THEN
     a$ = "Downloading '" + PageName$ + "' page..."
-    IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + "úúú"
+    IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + STRING$(3, 250)
     IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
 
     COLOR 0, 3: LOCATE idewy + idesubwindow, 2
@@ -530,24 +530,24 @@ DO WHILE i <= n
 
         IF c$(3) = "** " THEN
             i = i + 2
-            Help_AddTxt "    þ ", col, 0
+            Help_AddTxt "    " + CHR$(254) + " ", col, 0
             Help_NewLineIndent = Help_NewLineIndent + 6
             GOTO Special
         END IF
         IF c$(2) = "* " THEN
             i = i + 1
-            Help_AddTxt "þ ", col, 0
+            Help_AddTxt CHR$(254) + " ", col, 0
             Help_NewLineIndent = Help_NewLineIndent + 2
             GOTO Special
         END IF
         IF c$(2) = "**" THEN
             i = i + 1
-            Help_AddTxt "    þ ", col, 0
+            Help_AddTxt "    " + CHR$(254) + " ", col, 0
             Help_NewLineIndent = Help_NewLineIndent + 6
             GOTO Special
         END IF
         IF c$ = "*" THEN
-            Help_AddTxt "þ ", col, 0
+            Help_AddTxt CHR$(254) + " ", col, 0
             Help_NewLineIndent = Help_NewLineIndent + 2
             GOTO Special
         END IF
@@ -569,7 +569,7 @@ DO WHILE i <= n
         GOTO Special
     END IF
 
-    IF c$ = CHR$(226) THEN 'UNICODE UTF8 extender "â", it's a very good bet the following 2 characters will be 2 bytes of UNICODE
+    IF c$ = CHR$(226) THEN 'UNICODE UTF8 extender, it's a very good bet the following 2 characters will be 2 bytes of UNICODE
         i = i + 2
         GOTO Special
     END IF
@@ -603,7 +603,7 @@ DO WHILE i <= n
 
     IF c$(4) = "----" THEN
         i = i + 3
-        Help_AddTxt "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", 8, 0
+        Help_AddTxt STRING$(100, 196), 8, 0
         GOTO Special
     END IF
 

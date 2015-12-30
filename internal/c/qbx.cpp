@@ -116,7 +116,7 @@ void TIMERTHREAD();
 
 extern int32 requestedKeyboardOverlayImage;
 void requestKeyboardOverlayImage(int32 handle){
-	requestedKeyboardOverlayImage=handle;
+        requestedKeyboardOverlayImage=handle;
 }
 
 
@@ -832,7 +832,7 @@ error(6); return 0;
 
 //CLNG
 //func_clng_single uses func_clng_double
-//–2147483648 to 2147483647
+//-2147483648 to 2147483647
 inline int32 func_clng_double(double value){
 if ((value<2147483647.5)&&(value>=-2147483648.5)){
 return qbr_double_to_long(value);

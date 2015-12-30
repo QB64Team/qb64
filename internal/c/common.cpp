@@ -81,10 +81,10 @@
 //common includes
 #include <stdio.h>
 #ifdef QB64_MACOSX
-	#include <cmath>
+  #include <cmath>
 #else
-	//#include <math.h> //<-causes overloading abs conflicts in Windows
-	#include <cmath>
+  //#include <math.h> //<-causes overloading abs conflicts in Windows
+  #include <cmath>
 #endif
 #include <time.h>
 #include <iostream>
@@ -254,7 +254,7 @@ inline int64 qbr(long double f){
   if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
   if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
   __asm{
-	  fld   f
+      fld   f
       fistp i
       }
   if (temp) return i|0x8000000000000000;//+9223372036854775808;
@@ -294,42 +294,42 @@ inline int64 qbr(long double f){
   if (f>=18446744073709551615.5) {error(6); return 0;} // same result if the number is larger than what an integer 64 could possibly hold.
   if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
   __asm__ (
-	   "fldt %1;"
-	   "fistpll %0;"              
-	   :"=m" (i)
-	   :"m" (f)
-	   );
+           "fldt %1;"
+           "fistpll %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
   if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
   return i;
 }
 inline uint64 qbr_longdouble_to_uint64(long double f){
   uint64 i;
   __asm__ (
-	   "fldt %1;"
-	   "fistpll %0;"              
-	   :"=m" (i)
-	   :"m" (f)
-	   );
+           "fldt %1;"
+           "fistpll %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
   return i;
 }
 inline int32 qbr_float_to_long(float f){
   int32 i;
   __asm__ (
-	   "flds %1;"
-	   "fistpl %0;"              
-	   :"=m" (i)
-	   :"m" (f)
-	   );
+           "flds %1;"
+           "fistpl %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
   return i;
 }
 inline int32 qbr_double_to_long(double f){
   int32 i;
   __asm__ (
-	   "fldl %1;"
-	   "fistpl %0;"              
-	   :"=m" (i)
-	   :"m" (f)
-	   );
+           "fldl %1;"
+           "fistpl %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
   return i;
 }
 #endif
