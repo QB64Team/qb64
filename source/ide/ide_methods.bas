@@ -6772,6 +6772,7 @@ LOOP
 END FUNCTION
 
 SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, mousedown, mouseup, mx, my, info, mw)
+STATIC SearchTerm$, LastKeybInput as single
 DIM sep AS STRING * 1
 sep = CHR$(0)
 
@@ -6976,50 +6977,71 @@ IF t = 2 THEN 'list box
         END IF
 
         IF LEN(kk$) = 1 THEN
+            ResetKeybTimer = 0
+            IF TIMER - LastKeybInput > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+            LastKeybInput = TIMER
             k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
 
-            old_sel = o.sel
+            'Populate ListBoxITEMS:
             a$ = idetxt(o.txt)
-
-            retryfind:
-            n = 1
-            x = 1
-            x2 = INSTR(x, a$, sep)
-            IF LEN(a$) THEN again = 1 ELSE again = 0
-            DO WHILE x2 <> 0 OR again <> 0
-                IF x2 THEN
-                    ca2$ = MID$(a$, x, x2 - x)
-                    a2$ = UCASE$(ca2$)
+            redim ListBoxITEMS(0) as string
+            if len(a$) > 0 then
+                n = 0: x = 1
+                do
+                    x2 = INSTR(x, a$, sep)
+                    if x2 > 0 then
+                        n = n + 1
+                        redim _preserve ListBoxITEMS(1 to n) as string
+                        ListBoxITEMS(n) = mid$(a$, x, x2 - x)
+                    else
+                        n = n + 1
+                        redim _preserve ListBoxITEMS(1 to n) as string
+                        ListBoxITEMS(n) = right$(a$, len(a$) - x + 1)
+                        exit do
+                    end if
                     x = x2 + 1
-                    again = 1
-                ELSE
-                    ca2$ = RIGHT$(a$, LEN(a$) - x + 1)
-                    a2$ = UCASE$(ca2$)
-                    again = 0
-                END IF
+                loop
+            end if
 
-                IF n > old_sel THEN
-                    match = 0
-                    FOR ai = 1 TO LEN(a2$)
-                        aa = ASC(a2$, ai)
-                        IF aa > 126 OR (k <> 95 AND aa = 95) THEN
-                            'ignore
-                        ELSE
-                            IF aa = k THEN match = 1
-                            EXIT FOR
-                        END IF
-                    NEXT
-                    IF match = 1 THEN
-                        o.sel = n
-                        GOTO selected
+            if k = 255 then
+                if o.sel > 0 then idetxt(o.stx) = ListBoxITEMS(o.sel)
+                goto selected 'Search is not performed if kk$ isn't a printable character
+            else
+                SearchTerm$ = SearchTerm$ + UCASE$(kk$)
+            END IF
+
+            if len(SearchTerm$) = 2 and left$(SearchTerm$, 1) = right$(SearchTerm$, 1) then
+                'if the user is pressing the same letter again, we deduce the search
+                'is only for the initials
+                ResetKeybTimer = -1
+                SearchTerm$ = ucase$(kk$)
+            end if
+
+            SearchPass = 1
+            if not ResetKeybTimer then StartSearch = abs(o.sel) else StartSearch = abs(o.sel) + 1
+            if StartSearch < 1 or StartSearch > n then StartSearch = 1
+            retryfind:
+            if SearchPass > 2 then goto selected
+            for findMatch = StartSearch to n
+                validCHARS$ = ""
+                FOR ai = 1 TO LEN(ListBoxITEMS(FindMatch))
+                    aa = ASC(ucase$(ListBoxITEMS(findMatch)), ai)
+                    IF aa > 126 OR (k <> 95 AND aa = 95) THEN
+                        'ignore
+                    ELSE
+                        validCHARS$ = validCHARS$ + CHR$(aa)
                     END IF
-                END IF
-
-                IF n = o.sel THEN idetxt(o.stx) = ca2$
-                n = n + 1
-                x2 = INSTR(x, a$, sep)
-            LOOP
-            IF old_sel THEN old_sel = 0: GOTO retryfind
+                NEXT
+                if findMatch = o.sel then idetxt(o.stx) = ListBoxITEMS(FindMatch)
+                IF left$(validCHARS$, len(SearchTerm$)) = SearchTerm$ THEN
+                    o.sel = findMatch
+                    GOTO selected
+                end if
+            next findMatch
+            'No match, try again:
+            StartSearch = 1
+            SearchPass = SearchPass + 1
+            goto retryfind
             selected:
         END IF
 
