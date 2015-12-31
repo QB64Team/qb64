@@ -708,6 +708,15 @@ DO
             END IF
         NEXT
 
+        'attempt to cleanse sfname$, just in case there are any comments or other unwanted stuff
+        for CleanseSFNAME = 1 to len(sfname$)
+            select case mid$(sfname$, CleanseSFNAME, 1)
+                case " ", "'", ":"
+                    sfname$ = left$(sfname$, CleanseSFNAME - 1)
+                    exit for
+            end select
+        next
+
         'update title of main window
         COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, "Ä");
         IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
@@ -6476,6 +6485,15 @@ FOR y = 1 TO iden
         'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
         'instead of the currently in edition, for a quick link functionality:
         IF a2$ = UCASE$(n$) THEN PreferCurrentCursorSUBFUNC = (LEN(ly$) / 4)
+
+        'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+        for CleanseN = 1 to len(n$)
+            select case mid$(n$, CleanseN, 1)
+                case " ", "'", ":"
+                    n$ = left$(n$, CleanseN - 1)
+                    exit for
+            end select
+        next
 
         IF LEN(n$) <= 20 THEN
             n$ = n$ + SPACE$(20 - LEN(n$))
