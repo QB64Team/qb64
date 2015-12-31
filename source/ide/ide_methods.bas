@@ -723,6 +723,7 @@ DO
         a$ = " " + a$
         if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
         a$ = a$ + " "
+        if len(a$) > idewx - 5 then a$ = left$(a$, idewx - 11) + string$(3, 250) + " "
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
