@@ -316,12 +316,12 @@ IF idelaunched = 0 THEN
 
     COLOR 7, 1: idebox 1, idewy - 4, idewx, 5
     'edit corners
-    COLOR 7, 1: LOCATE idewy - 4, 1: PRINT "Ã";: LOCATE idewy - 4, idewx: PRINT "´";
+    COLOR 7, 1: LOCATE idewy - 4, 1: PRINT chr$(195);: LOCATE idewy - 4, idewx: PRINT chr$(180);
 
     IF idehelp = 1 THEN
         COLOR 7, 0: idebox 1, idewy, idewx, idesubwindow + 1
-        COLOR 7, 0: LOCATE idewy, 1: PRINT "Ã";: LOCATE idewy, idewx: PRINT "´";
-        COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT "´XÃ";
+        COLOR 7, 0: LOCATE idewy, 1: PRINT chr$(195);: LOCATE idewy, idewx: PRINT chr$(180);
+        COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT chr$(180) + "X" + chr$(195);
     END IF
 
     'add status title
@@ -718,7 +718,7 @@ DO
         next
 
         'update title of main window
-        COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, "Ä");
+        COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, chr$(196));
         IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
         a$ = " " + a$
         if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
@@ -728,12 +728,12 @@ DO
 
         'update search bar
         LOCATE 2, idewx - 30
-        COLOR 7, 1: PRINT "´";
-        COLOR 3, 1: PRINT "Find[                     ]";
-        COLOR 7, 1: PRINT "Ã";
+        COLOR 7, 1: PRINT chr$(180);
+        COLOR 3, 1: PRINT "Find[                     " + chr$(18) + "]";
+        COLOR 7, 1: PRINT chr$(195);
         f$ = idefindtext
         IF LEN(f$) > 20 THEN
-            f$ = "úúú" + RIGHT$(f$, 17)
+            f$ = string$(3, 250) + RIGHT$(f$, 17)
         END IF
         LOCATE 2, idewx - 28 + 4: COLOR 3, 1: PRINT f$
         findtext$ = f$
@@ -833,14 +833,14 @@ DO
                     PRINT CHR$(a);
                 ELSE
                     COLOR 7, 0
-                    PRINT "Ä";
+                    PRINT chr$(196);
                 END IF
             NEXT
             'Help_Search_Str
             a$ = ""
             IF LEN(Help_Search_Str) THEN
                 a$ = Help_Search_Str
-                IF LEN(a$) > 20 THEN a$ = "úúú" + RIGHT$(a$, 17)
+                IF LEN(a$) > 20 THEN a$ = string$(3, 250) + RIGHT$(a$, 17)
                 a$ = "[" + a$ + "](DELETE=next)"
             END IF
             IdeInfo$ = a$
@@ -864,7 +864,7 @@ DO
 
         'show info message (if any)
         a$ = IdeInfo$
-        IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + "úúú"
+        IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + string$(3, 250)
         IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
         COLOR 0, 3: LOCATE idewy + idesubwindow, 2
         PRINT a$;
@@ -1590,7 +1590,7 @@ DO
                 '        PRINT CHR$(a);
                 '    ELSE
                 '        COLOR 7, 0
-                '        PRINT "Ä";
+                '        PRINT chr$(196);
                 '    END IF
                 'NEXT
 
@@ -2834,7 +2834,7 @@ DO
     a$ = idegetline(idecy)
     IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
 
-    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing  in the IDE
+    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing chr$(27) in the IDE
 
     IF ideinsert THEN
         a2$ = RIGHT$(a$, LEN(a$) - idecx + 1)
@@ -2976,7 +2976,7 @@ DO
     FOR i = 1 TO menusize(m)
         m$ = menu$(m, i)
         IF m$ = "-" THEN
-            COLOR 0, 7: LOCATE i + 2, xx - 2: PRINT "Ã" + STRING$(w + 2, "Ä") + "´";
+            COLOR 0, 7: LOCATE i + 2, xx - 2: PRINT chr$(195) + STRING$(w + 2, chr$(196)) + chr$(180);
         ELSE
             IF r = i THEN LOCATE i + 2, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
             LOCATE i + 2, xx
@@ -3868,20 +3868,20 @@ LOOP
 END FUNCTION
 
 SUB idebox (x, y, w, h)
-LOCATE y, x: PRINT "Ú" + STRING$(w - 2, "Ä") + "¿";
+LOCATE y, x: PRINT chr$(218) + STRING$(w - 2, 196) + chr$(191);
 FOR y2 = y + 1 TO y + h - 2
-    LOCATE y2, x: PRINT "³" + SPACE$(w - 2) + "³";
+    LOCATE y2, x: PRINT chr$(179) + SPACE$(w - 2) + chr$(179);
 NEXT
-LOCATE y + h - 1, x: PRINT "À" + STRING$(w - 2, "Ä") + "Ù";
+LOCATE y + h - 1, x: PRINT chr$(192) + STRING$(w - 2, 196) + chr$(217);
 END SUB
 
 SUB ideboxshadow (x, y, w, h)
 
-LOCATE y, x: PRINT "Ú" + STRING$(w - 2, "Ä") + "¿";
+LOCATE y, x: PRINT chr$(218) + STRING$(w - 2, 196) + chr$(191);
 FOR y2 = y + 1 TO y + h - 2
-    LOCATE y2, x: PRINT "³" + SPACE$(w - 2) + "³";
+    LOCATE y2, x: PRINT chr$(179) + SPACE$(w - 2) + chr$(179);
 NEXT
-LOCATE y + h - 1, x: PRINT "À" + STRING$(w - 2, "Ä") + "Ù";
+LOCATE y + h - 1, x: PRINT chr$(192) + STRING$(w - 2, 196) + chr$(217);
 'shadow
 COLOR 8, 0
 FOR y2 = y + 1 TO y + h - 1
@@ -5148,12 +5148,12 @@ i = i2: n = n2
 'LOCATE y, x: PRINT CHR$(27);
 'LOCATE y, x + w - 1: PRINT CHR$(26);
 'FOR x2 = x + 1 TO x + w - 2
-'LOCATE y, x2: PRINT "°";
+'LOCATE y, x2: PRINT chr$(176);
 'NEXT
 'IF w > 3 THEN
 'p2! = w - 2 - .00001
 'x2 = x + 1 + INT(p2! * p!)
-'LOCATE y, x2: PRINT "Û";
+'LOCATE y, x2: PRINT chr$(219);
 'END IF
 
 
@@ -5164,7 +5164,7 @@ COLOR 0, 7
 LOCATE y, x: PRINT CHR$(27);
 LOCATE y, x + h - 1: PRINT CHR$(26);
 FOR x2 = x + 1 TO x + h - 2
-    LOCATE y, x2: PRINT "°";
+    LOCATE y, x2: PRINT chr$(176);
 NEXT
 
 'draw slider
@@ -5193,7 +5193,7 @@ IF h = 4 THEN
         'show whichever is closer of the two positions
         p! = (i - 1) / (n - 1)
         IF p! < .5 THEN x2 = x + 1 ELSE x2 = x + 2
-        LOCATE y, x2: PRINT "Û";
+        LOCATE y, x2: PRINT chr$(219);
         idehbar = x2
         EXIT FUNCTION
     END IF
@@ -5207,13 +5207,13 @@ IF h > 4 THEN
     END IF
     IF i = 1 THEN
         x2 = x + 1
-        LOCATE y, x2: PRINT "Û";
+        LOCATE y, x2: PRINT chr$(219);
         idehbar = x2
         EXIT FUNCTION
     END IF
     IF i = n THEN
         x2 = x + h - 2
-        LOCATE y, x2: PRINT "Û";
+        LOCATE y, x2: PRINT chr$(219);
         idehbar = x2
         EXIT FUNCTION
     END IF
@@ -5221,7 +5221,7 @@ IF h > 4 THEN
     p! = (i - 1) / (n - 1)
     p! = p! * (h - 4)
     x2 = x + 2 + INT(p!)
-    LOCATE y, x2: PRINT "Û";
+    LOCATE y, x2: PRINT chr$(219);
     idehbar = x2
     EXIT FUNCTION
 END IF
@@ -5618,7 +5618,7 @@ DO 'main loop
     COLOR 0, 7: LOCATE p.y + 4, p.x + 2: PRINT "Path: ";
     a$ = path$
     w = p.w - 8
-    IF LEN(a$) > w - 3 THEN a$ = "úúú" + RIGHT$(a$, w - 3)
+    IF LEN(a$) > w - 3 THEN a$ = string$(3, 250) + RIGHT$(a$, w - 3)
     PRINT a$;
     '-------- end of custom display changes --------
 
@@ -6001,7 +6001,7 @@ DO 'main loop
     COLOR 0, 7: LOCATE p.y + 4, p.x + 2: PRINT "Path: ";
     a$ = path$
     w = p.w - 8
-    IF LEN(a$) > w - 3 THEN a$ = "úúú" + RIGHT$(a$, w - 3)
+    IF LEN(a$) > w - 3 THEN a$ = string$(3, 250) + RIGHT$(a$, w - 3)
     PRINT a$;
     '-------- end of custom display changes --------
 
@@ -6383,7 +6383,7 @@ COLOR 7, 1
 FOR b = 1 TO IdeBmkN
     y = IdeBmk(b).y
     IF y >= idesy AND y <= idesy + (idewy - 9) THEN
-        LOCATE 3 + y - idesy, 1: PRINT "Å";
+        LOCATE 3 + y - idesy, 1: PRINT chr$(197);
     END IF
 NEXT
 
@@ -6499,21 +6499,21 @@ FOR y = 1 TO iden
         IF LEN(n$) <= 20 THEN
             n$ = n$ + SPACE$(20 - LEN(n$))
         ELSE
-            n$ = LEFT$(n$, 17) + "úúú"
+            n$ = LEFT$(n$, 17) + string$(3, 250)
         END IF
         IF LEN(args$) <= (idewx - 41) THEN
             args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
         ELSE
-            args$ = LEFT$(args$, (idewx - 44)) + "úúú"
+            args$ = LEFT$(args$, (idewx - 44)) + string$(3, 250)
         END IF
-        l$ = l$ + sep + "ÃÄ" + n$ + " " + sf$ + args$
+        l$ = l$ + sep + chr$(195) + chr$(196) + n$ + " " + sf$ + args$
 
     END IF
 NEXT
 
 FOR x = LEN(l$) TO 1 STEP -1
     a$ = MID$(l$, x, 1)
-    IF a$ = "Ã" THEN MID$(l$, x, 1) = "À": EXIT FOR
+    IF a$ = chr$(195) THEN MID$(l$, x, 1) = chr$(192): EXIT FOR
 NEXT
 
 
@@ -7239,7 +7239,7 @@ COLOR 0, 7
 LOCATE y, x: PRINT CHR$(24);
 LOCATE y + h - 1, x: PRINT CHR$(25);
 FOR y2 = y + 1 TO y + h - 2
-    LOCATE y2, x: PRINT "°";
+    LOCATE y2, x: PRINT chr$(176);
 NEXT
 
 'draw slider
@@ -7268,7 +7268,7 @@ IF h = 4 THEN
         'show whichever is closer of the two positions
         p! = (i - 1) / (n - 1)
         IF p! < .5 THEN y2 = y + 1 ELSE y2 = y + 2
-        LOCATE y2, x: PRINT "Û";
+        LOCATE y2, x: PRINT chr$(219);
         idevbar = y2
         EXIT FUNCTION
     END IF
@@ -7282,13 +7282,13 @@ IF h > 4 THEN
     END IF
     IF i = 1 THEN
         y2 = y + 1
-        LOCATE y2, x: PRINT "Û";
+        LOCATE y2, x: PRINT chr$(219);
         idevbar = y2
         EXIT FUNCTION
     END IF
     IF i = n THEN
         y2 = y + h - 2
-        LOCATE y2, x: PRINT "Û";
+        LOCATE y2, x: PRINT chr$(219);
         idevbar = y2
         EXIT FUNCTION
     END IF
@@ -7296,7 +7296,7 @@ IF h > 4 THEN
     p! = (i - 1) / (n - 1)
     p! = p! * (h - 4)
     y2 = y + 2 + INT(p!)
-    LOCATE y2, x: PRINT "Û";
+    LOCATE y2, x: PRINT chr$(219);
     idevbar = y2
     EXIT FUNCTION
 END IF
@@ -9094,7 +9094,7 @@ COLOR 7, 0
 'CLS
 'FOR y = Help_wy1 - 1 TO Help_wy2 + 1
 '    FOR x = Help_wx1 - 1 TO Help_wx2 + 1
-'        LOCATE y, x: PRINT "Û";
+'        LOCATE y, x: PRINT chr$(219);
 '    NEXT
 'NEXT
 
@@ -9566,7 +9566,7 @@ FOR r = 1 TO 5
         f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
         IF r <= 4 THEN IdeRecentLink(r, 2) = f$
         IF r = 5 THEN f$ = "#Recent..."
-        IF LEN(f$) > 25 THEN f$ = "úúú" + RIGHT$(f$, 22)
+        IF LEN(f$) > 25 THEN f$ = string$(3, 250) + RIGHT$(f$, 22)
         IF r <= 4 THEN IdeRecentLink(r, 1) = f$
         menu$(m, i) = f$: i = i + 1
     END IF
@@ -9608,8 +9608,9 @@ END SUB
 
 SUB ideASCIIbox
 'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
-
+'(code to fix font and arrow keys also written by Steve)
 w = _WIDTH: h = _HEIGHT
+font = _FONT
 temp = _NEWIMAGE(640, 480, 32)
 temp1 = _NEWIMAGE(640, 480, 32)
 ws = _NEWIMAGE(640, 480, 32)
@@ -9650,9 +9651,12 @@ oldmousex = _MOUSEX: oldmousey = _MOUSEY
 DO
     _LIMIT 60
     DO: LOOP WHILE _MOUSEINPUT
+    if oldx <> _mousex and oldy <> _mousey then
+        x = _MOUSEX \ 40 + 1 'If mouse moved, where are we now?
+        y = _MOUSEY \ 30 + 1
+    end if
+    oldx = _mousex: oldy = _mousey
 
-    x = _MOUSEX \ 40 + 1 'If mouse moved, where are we now?
-    y = _MOUSEY \ 30 + 1
     num = (y - 1) * 16 + x - 1
     IF num = 0 THEN
         text$ = ""
@@ -9684,7 +9688,7 @@ DO
         CASE 13: EXIT DO
         CASE 27
             _AUTODISPLAY
-            SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+            SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
             IF _RESIZE THEN donothing = atall
             EXIT SUB
         CASE 32: toggle = NOT toggle
@@ -9702,13 +9706,13 @@ DO
     Ex = _EXIT
     IF Ex THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
     IF MouseExit THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
@@ -9731,7 +9735,9 @@ END IF
 
 _AUTODISPLAY
 
-SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+SCREEN 0: WIDTH w, h
+_FONT font
+_DEST 0: _DELAY .2
 IF _RESIZE THEN donothing = atall
 
 END FUNCTION
