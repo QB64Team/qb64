@@ -708,12 +708,22 @@ DO
             END IF
         NEXT
 
+        'attempt to cleanse sfname$, just in case there are any comments or other unwanted stuff
+        for CleanseSFNAME = 1 to len(sfname$)
+            select case mid$(sfname$, CleanseSFNAME, 1)
+                case " ", "'", ":"
+                    sfname$ = left$(sfname$, CleanseSFNAME - 1)
+                    exit for
+            end select
+        next
+
         'update title of main window
         COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, chr$(196));
         IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
         a$ = " " + a$
         if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
         a$ = a$ + " "
+        if len(a$) > idewx - 5 then a$ = left$(a$, idewx - 11) + string$(3, 250) + " "
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
@@ -6411,10 +6421,31 @@ DIM sep AS STRING * 1
 sep = CHR$(0)
 '-------- end of generic dialog box header --------
 
+'------- identify word or character at current cursor position - copied/adapted from FUNCTION ide2:
+a$ = idegetline(idecy)
+x = idecx
+IF x <= LEN(a$) THEN
+    IF alphanumeric(ASC(a$, x)) THEN
+        x1 = x
+        DO WHILE x1 > 1
+            IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
+        LOOP
+        x2 = x
+        DO WHILE x2 < LEN(a$)
+            IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
+        LOOP
+        a2$ = MID$(a$, x1, x2 - x1 + 1)
+    ELSE
+        a2$ = CHR$(ASC(a$, x))
+    END IF
+    a2$ = UCASE$(a2$) 'a2$ now holds the word or character at current cursor position
+END IF
+
 '-------- init --------
 
 ly$ = MKL$(1)
 CurrentlyViewingWhichSUBFUNC = 1
+PreferCurrentCursorSUBFUNC = 0
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
 FOR y = 1 TO iden
@@ -6451,6 +6482,20 @@ FOR y = 1 TO iden
             n$ = a$
             args$ = ""
         END IF
+
+        'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
+        'instead of the currently in edition, for a quick link functionality:
+        IF a2$ = UCASE$(n$) THEN PreferCurrentCursorSUBFUNC = (LEN(ly$) / 4)
+
+        'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+        for CleanseN = 1 to len(n$)
+            select case mid$(n$, CleanseN, 1)
+                case " ", "'", ":"
+                    n$ = left$(n$, CleanseN - 1)
+                    exit for
+            end select
+        next
+
         IF LEN(n$) <= 20 THEN
             n$ = n$ + SPACE$(20 - LEN(n$))
         ELSE
@@ -6483,7 +6528,11 @@ o(i).y = 1
 '68
 o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
 o(i).txt = idenewtxt(l$)
-o(i).sel = CurrentlyViewingWhichSUBFUNC
+IF PreferCurrentCursorSUBFUNC <> 0 THEN
+    o(i).sel = PreferCurrentCursorSUBFUNC
+ELSE
+    o(i).sel = CurrentlyViewingWhichSUBFUNC
+END IF
 o(i).nam = idenewtxt("Program Items")
 
 
@@ -6742,6 +6791,7 @@ LOOP
 END FUNCTION
 
 SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, mousedown, mouseup, mx, my, info, mw)
+STATIC SearchTerm$, LastKeybInput as single
 DIM sep AS STRING * 1
 sep = CHR$(0)
 
@@ -6946,50 +6996,71 @@ IF t = 2 THEN 'list box
         END IF
 
         IF LEN(kk$) = 1 THEN
+            ResetKeybTimer = 0
+            IF TIMER - LastKeybInput > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+            LastKeybInput = TIMER
             k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
 
-            old_sel = o.sel
+            'Populate ListBoxITEMS:
             a$ = idetxt(o.txt)
-
-            retryfind:
-            n = 1
-            x = 1
-            x2 = INSTR(x, a$, sep)
-            IF LEN(a$) THEN again = 1 ELSE again = 0
-            DO WHILE x2 <> 0 OR again <> 0
-                IF x2 THEN
-                    ca2$ = MID$(a$, x, x2 - x)
-                    a2$ = UCASE$(ca2$)
+            redim ListBoxITEMS(0) as string
+            if len(a$) > 0 then
+                n = 0: x = 1
+                do
+                    x2 = INSTR(x, a$, sep)
+                    if x2 > 0 then
+                        n = n + 1
+                        redim _preserve ListBoxITEMS(1 to n) as string
+                        ListBoxITEMS(n) = mid$(a$, x, x2 - x)
+                    else
+                        n = n + 1
+                        redim _preserve ListBoxITEMS(1 to n) as string
+                        ListBoxITEMS(n) = right$(a$, len(a$) - x + 1)
+                        exit do
+                    end if
                     x = x2 + 1
-                    again = 1
-                ELSE
-                    ca2$ = RIGHT$(a$, LEN(a$) - x + 1)
-                    a2$ = UCASE$(ca2$)
-                    again = 0
-                END IF
+                loop
+            end if
 
-                IF n > old_sel THEN
-                    match = 0
-                    FOR ai = 1 TO LEN(a2$)
-                        aa = ASC(a2$, ai)
-                        IF aa > 126 OR (k <> 95 AND aa = 95) THEN
-                            'ignore
-                        ELSE
-                            IF aa = k THEN match = 1
-                            EXIT FOR
-                        END IF
-                    NEXT
-                    IF match = 1 THEN
-                        o.sel = n
-                        GOTO selected
+            if k = 255 then
+                if o.sel > 0 then idetxt(o.stx) = ListBoxITEMS(o.sel)
+                goto selected 'Search is not performed if kk$ isn't a printable character
+            else
+                SearchTerm$ = SearchTerm$ + UCASE$(kk$)
+            END IF
+
+            if len(SearchTerm$) = 2 and left$(SearchTerm$, 1) = right$(SearchTerm$, 1) then
+                'if the user is pressing the same letter again, we deduce the search
+                'is only for the initials
+                ResetKeybTimer = -1
+                SearchTerm$ = ucase$(kk$)
+            end if
+
+            SearchPass = 1
+            if not ResetKeybTimer then StartSearch = abs(o.sel) else StartSearch = abs(o.sel) + 1
+            if StartSearch < 1 or StartSearch > n then StartSearch = 1
+            retryfind:
+            if SearchPass > 2 then goto selected
+            for findMatch = StartSearch to n
+                validCHARS$ = ""
+                FOR ai = 1 TO LEN(ListBoxITEMS(FindMatch))
+                    aa = ASC(ucase$(ListBoxITEMS(findMatch)), ai)
+                    IF aa > 126 OR (k <> 95 AND aa = 95) THEN
+                        'ignore
+                    ELSE
+                        validCHARS$ = validCHARS$ + CHR$(aa)
                     END IF
-                END IF
-
-                IF n = o.sel THEN idetxt(o.stx) = ca2$
-                n = n + 1
-                x2 = INSTR(x, a$, sep)
-            LOOP
-            IF old_sel THEN old_sel = 0: GOTO retryfind
+                NEXT
+                if findMatch = o.sel then idetxt(o.stx) = ListBoxITEMS(FindMatch)
+                IF left$(validCHARS$, len(SearchTerm$)) = SearchTerm$ THEN
+                    o.sel = findMatch
+                    GOTO selected
+                end if
+            next findMatch
+            'No match, try again:
+            StartSearch = 1
+            SearchPass = SearchPass + 1
+            goto retryfind
             selected:
         END IF
 
@@ -9537,8 +9608,9 @@ END SUB
 
 SUB ideASCIIbox
 'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
-
+'(code to fix font and arrow keys also written by Steve)
 w = _WIDTH: h = _HEIGHT
+font = _FONT
 temp = _NEWIMAGE(640, 480, 32)
 temp1 = _NEWIMAGE(640, 480, 32)
 ws = _NEWIMAGE(640, 480, 32)
@@ -9579,9 +9651,12 @@ oldmousex = _MOUSEX: oldmousey = _MOUSEY
 DO
     _LIMIT 60
     DO: LOOP WHILE _MOUSEINPUT
+    if oldx <> _mousex and oldy <> _mousey then
+        x = _MOUSEX \ 40 + 1 'If mouse moved, where are we now?
+        y = _MOUSEY \ 30 + 1
+    end if
+    oldx = _mousex: oldy = _mousey
 
-    x = _MOUSEX \ 40 + 1 'If mouse moved, where are we now?
-    y = _MOUSEY \ 30 + 1
     num = (y - 1) * 16 + x - 1
     IF num = 0 THEN
         text$ = ""
@@ -9613,7 +9688,7 @@ DO
         CASE 13: EXIT DO
         CASE 27
             _AUTODISPLAY
-            SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+            SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
             IF _RESIZE THEN donothing = atall
             EXIT SUB
         CASE 32: toggle = NOT toggle
@@ -9631,13 +9706,13 @@ DO
     Ex = _EXIT
     IF Ex THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
     IF MouseExit THEN
         _AUTODISPLAY
-        SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+        SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
         IF _RESIZE THEN donothing = atall
         EXIT FUNCTION
     END IF
@@ -9660,7 +9735,9 @@ END IF
 
 _AUTODISPLAY
 
-SCREEN 0: WIDTH w, h: _DEST 0: _DELAY .2
+SCREEN 0: WIDTH w, h
+_FONT font
+_DEST 0: _DELAY .2
 IF _RESIZE THEN donothing = atall
 
 END FUNCTION
