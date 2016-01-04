@@ -4112,6 +4112,10 @@ o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Find What")
 o(i).txt = idenewtxt(a2$)
+if len(a2$) > 0 then
+    o(i).issel = -1
+    o(i).sx1 = 0
+end if
 o(i).v1 = LEN(a2$)
 
 i = i + 1
@@ -4119,6 +4123,10 @@ o(i).typ = 1
 o(i).y = 5
 o(i).nam = idenewtxt("Change #To")
 o(i).txt = idenewtxt(idechangeto)
+if len(idechangeto) > 0 then
+    o(i).issel = -1
+    o(i).sx1 = 0
+end if
 o(i).v1 = LEN(idechangeto)
 
 i = i + 1
@@ -4601,6 +4609,7 @@ IF o.typ = 1 THEN
     IF o.v1 > LEN(a$) THEN o.v1 = LEN(a$) 'new
     cx = o.v1
 
+    tx = 1
     IF LEN(a$) > o.w THEN
         IF o.foc = 0 THEN
             tx = o.v1 - o.w + 1
@@ -4612,8 +4621,21 @@ IF o.typ = 1 THEN
         END IF
     END IF
 
+    sx1 = o.sx1: sx2 = o.v1
+    if sx1 > sx2 then SWAP sx1, sx2
+
     x = x + 2
-    LOCATE y, x: PRINT a$;
+    'apply selection color change if necessary
+    IF o.issel = 0 or o.foc <> 0 THEN
+        LOCATE y, x: PRINT a$;
+    ELSE
+        FOR ColorCHAR = 1 to len(a$)
+            if ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 7, 0 ELSE COLOR 0,7
+            LOCATE y, x - 1 + ColorCHAR
+            PRINT mid$(a$, ColorCHAR, 1);
+        NEXT
+    END IF
+
     IF o.foc = 0 THEN o.cx = x + cx: o.cy = y
     f = f + 1
 END IF '#1
@@ -5036,6 +5058,10 @@ o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Find What")
 o(i).txt = idenewtxt(a2$)
+if len(a2$) > 0 then
+    o(i).issel = -1
+    o(i).sx1 = 0
+end if
 o(i).v1 = LEN(a2$)
 
 
@@ -5477,6 +5503,8 @@ o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Name")
 o(i).txt = idenewtxt(a2$)
+if len(a2$) > 0 then o(i).issel = -1
+o(i).sx1 = 0
 o(i).v1 = LEN(a2$)
 
 i = i + 1
@@ -6120,6 +6148,8 @@ o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("File #Name")
 o(i).txt = idenewtxt(programname$)
+o(i).issel = -1
+o(i).sx1 = 0
 o(i).v1 = LEN(programname$)
 
 'i = i + 1
@@ -7124,6 +7154,7 @@ IF t = 1 THEN 'text field
                             o.v1 = 0
                         ELSE
                             IF x <= LEN(a$) THEN o.v1 = x ELSE o.v1 = LEN(a$)
+                            o.issel = 0
                         END IF
                     END IF
                 END IF
@@ -7135,11 +7166,42 @@ IF t = 1 THEN 'text field
         IF LEN(kk$) = 1 THEN
             k = ASC(kk$)
             IF k = 8 AND o.v1 > 0 THEN
-                a1$ = LEFT$(a$, o.v1 - 1)
-                IF o.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - o.v1) ELSE a2$ = ""
-                a$ = a1$ + a2$: o.v1 = o.v1 - 1
+                if o.issel THEN
+                    sx1 = o.sx1: sx2 = o.v1
+                    if sx1 > sx2 then SWAP sx1, sx2
+                    if sx2 - sx1 > 0 then
+                        'delete selection
+                        a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                        idetxt(o.txt) = a$
+                        o.issel = 0
+                    end if
+                else
+                    a1$ = LEFT$(a$, o.v1 - 1)
+                    IF o.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - o.v1) ELSE a2$ = ""
+                    a$ = a1$ + a2$: o.v1 = o.v1 - 1
+                end if
+            ELSEIF k = 8 and o.issel THEN
+                sx1 = o.sx1: sx2 = o.v1
+                if sx1 > sx2 then SWAP sx1, sx2
+                if sx2 - sx1 > 0 then
+                    'delete selection
+                    a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                    idetxt(o.txt) = a$
+                    o.issel = 0
+                end if
             END IF
             IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 THEN
+                if o.issel THEN
+                    sx1 = o.sx1: sx2 = o.v1
+                    if sx1 > sx2 then SWAP sx1, sx2
+                    if sx2 - sx1 > 0 then
+                        'replace selection
+                        a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                        idetxt(o.txt) = a$
+                        o.issel = 0
+                        o.v1 = sx1
+                    end if
+                end if
                 IF o.v1 > 0 THEN a1$ = LEFT$(a$, o.v1) ELSE a1$ = ""
                 IF o.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - o.v1) ELSE a2$ = ""
                 a$ = a1$ + kk$ + a2$: o.v1 = o.v1 + 1
@@ -7147,10 +7209,22 @@ IF t = 1 THEN 'text field
             idetxt(o.txt) = a$
         END IF
         IF kk$ = CHR$(0) + "S" THEN 'DEL
-            IF o.v1 > 0 THEN a1$ = LEFT$(a$, o.v1) ELSE a1$ = ""
-            IF o.v1 < LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - o.v1 - 1) ELSE a2$ = ""
-            a$ = a1$ + a2$
-            idetxt(o.txt) = a$
+            if o.issel THEN
+                sx1 = o.sx1: sx2 = o.v1
+                if sx1 > sx2 then SWAP sx1, sx2
+                if sx2 - sx1 > 0 then
+                    'delete selection
+                    a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                    idetxt(o.txt) = a$
+                    o.v1 = sx1
+                    o.issel = 0
+                end if
+            else
+                IF o.v1 > 0 THEN a1$ = LEFT$(a$, o.v1) ELSE a1$ = ""
+                IF o.v1 < LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - o.v1 - 1) ELSE a2$ = ""
+                a$ = a1$ + a2$
+                idetxt(o.txt) = a$
+            end if
         END IF
 
         IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
@@ -7171,12 +7245,13 @@ IF t = 1 THEN 'text field
         END IF
 
         'cursor control
-        IF kk$ = CHR$(0) + "K" THEN o.v1 = o.v1 - 1
-        IF kk$ = CHR$(0) + "M" THEN o.v1 = o.v1 + 1
-        IF kk$ = CHR$(0) + "G" THEN o.v1 = 0
-        IF kk$ = CHR$(0) + "O" THEN o.v1 = LEN(a$)
+        if kk$ = CHR$(0) + "K" THEN GOSUB selectcheck: o.v1 = o.v1 - 1
+        IF kk$ = CHR$(0) + "M" THEN GOSUB selectcheck: o.v1 = o.v1 + 1
+        IF kk$ = CHR$(0) + "G" THEN GOSUB selectcheck: o.v1 = 0
+        IF kk$ = CHR$(0) + "O" THEN GOSUB selectcheck: o.v1 = LEN(a$)
         IF o.v1 < 0 THEN o.v1 = 0
         IF o.v1 > LEN(a$) THEN o.v1 = LEN(a$)
+        IF o.v1 = o.sx1 then o.issel = 0
     END IF
     'hot-key focus
     IF LEN(altletter$) THEN
@@ -7351,7 +7426,7 @@ IF t = 2 THEN 'list box
                 validCHARS$ = ""
                 FOR ai = 1 TO LEN(ListBoxITEMS(FindMatch))
                     aa = ASC(ucase$(ListBoxITEMS(findMatch)), ai)
-                    IF aa > 126 OR (k <> 95 AND aa = 95) THEN
+                    IF aa > 126 OR (k <> 95 AND aa = 95) OR (k <> 42 AND aa = 42) THEN
                         'ignore
                     ELSE
                         validCHARS$ = validCHARS$ + CHR$(aa)
@@ -7459,7 +7534,7 @@ IF t = 3 THEN 'buttons (eg. OK, Cancel)
 
     IF focusoffset >= 0 AND focusoffset < n THEN
         f2 = f + focusoffset
-        IF kk$ = CHR$(13) THEN
+        IF kk$ = CHR$(13) or kk$ = " " THEN
             info = focusoffset + 1
         END IF
     END IF
@@ -7532,7 +7607,11 @@ IF t = 4 THEN 'checkbox
     f = f + 1
 END IF '4
 
-
+EXIT SUB
+    selectcheck:
+    IF KSHIFT AND o.issel = 0 THEN o.issel = -1: o.sx1 = o.v1
+    IF KSHIFT = 0 THEN o.issel = 0
+    RETURN
 END SUB
 
 FUNCTION idevbar (x, y, h, i2, n2)
