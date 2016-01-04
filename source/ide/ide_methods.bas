@@ -103,6 +103,7 @@ ide = ide2(0)
 END FUNCTION
 
 FUNCTION ide2 (ignore)
+STATIC MenuLocations as STRING
 
 c$ = idecommand$
 
@@ -178,14 +179,14 @@ IF idelaunched = 0 THEN
 
     m = m + 1: i = 0
     menu$(m, i) = "Edit": i = i + 1
-    menu$(m, i) = "Cu#t  Shift+Del or CTRL+X": i = i + 1
-    menu$(m, i) = "#Copy  Ctrl+Ins or CTRL+C": i = i + 1
-    menu$(m, i) = "#Paste  Shift+Ins or CTRL+V": i = i + 1
+    menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+    menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
     menu$(m, i) = "Cl#ear  Del": i = i + 1
-    menu$(m, i) = "Select #All  CTRL+A": i = i + 1
+    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "#Undo  CTRL+Z": i = i + 1
-    menu$(m, i) = "#Redo  CTRL+Y": i = i + 1
+    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
@@ -201,13 +202,13 @@ IF idelaunched = 0 THEN
 
     m = m + 1: i = 0
     menu$(m, i) = "Search": i = i + 1
-    menu$(m, i) = "#Find...": i = i + 1
+    menu$(m, i) = "#Find...  Ctrl+F3": i = i + 1
     menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
     menu$(m, i) = "#Change...": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Add/Remove #Bookmark  ALT+Left": i = i + 1
-    menu$(m, i) = "#Next Bookmark  ALT+Down": i = i + 1
-    menu$(m, i) = "#Previous Bookmark  ALT+Up": i = i + 1
+    menu$(m, i) = "Add/Remove #Bookmark  Alt+Left": i = i + 1
+    menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
+    menu$(m, i) = "#Previous Bookmark  Alt+Up": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Go to line...": i = i + 1
 
@@ -261,9 +262,11 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#About...": i = i + 1
     menusize(m) = i - 1
 
-
-
     menus = m
+
+    'Hidden contextual menu (ID is retrieved for later use; allows expansion of the original menu system above):
+    m = m + 1
+    idecontextualmenuID = m
 
     IF os$ = "WIN" THEN
         idepathsep$ = "\"
@@ -294,10 +297,13 @@ IF idelaunched = 0 THEN
 
 
     menubar$ = "   "
+    MenuLocations = ""
     FOR i = 1 TO menus - 1
+        MenuLocations = MenuLocations + MKI$(LEN(menubar$))
         menubar$ = menubar$ + menu$(i, 0) + "  "
     NEXT
     menubar$ = menubar$ + SPACE$(idewx - LEN(menubar$) - LEN(menu$(i, 0)) - 2)
+    MenuLocations = MenuLocations + MKI$(LEN(menubar$))
     menubar$ = menubar$ + menu$(i, 0) + "  "
 
 
@@ -623,7 +629,7 @@ idefocusline = 0
 'main loop
 DO
     ideloop:
-
+    idecontextualmenu = 0
     idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
     STATIC ForceResize
     if IDE_AutoPosition then
@@ -1462,7 +1468,7 @@ DO
     END IF
 
     IF idehelp = 1 THEN 'switch windows?
-        IF mCLICK THEN
+        IF mCLICK OR mCLICK2 THEN
             IF IdeSystem = 3 THEN
                 IF mY >= 2 AND mY < idewy THEN
                     IdeSystem = 1
@@ -1523,9 +1529,10 @@ DO
             GOTO specialchar
         END IF
 
-        IF mCLICK THEN
+        IF mCLICK or mCLICK2 THEN
             IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                 IdeSystem = 1
+                if mCLICK2 THEN goto invokecontextualmenu ELSE goto ideloop
             END IF
         END IF
 
@@ -1938,6 +1945,7 @@ DO
 
 
     IF KB = KEY_F1 THEN
+        contextualhelp:
         'identify word or character at current cursor position
         a$ = idegetline(idecy)
         x = idecx
@@ -2079,7 +2087,7 @@ DO
 
     IF KALT AND (KB = KEY_DOWN OR KB = KEY_UP) THEN
         IF IdeBmkN = 0 THEN
-            idemessagebox "Bookmarks", "No bookmarks exist (Use ALT+Left to create a bookmark)"
+            idemessagebox "Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)"
             SCREEN , , 3, 0: idewait4mous: idewait4alt
             idealthighlight = 0
             LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
@@ -2125,6 +2133,68 @@ DO
             IF idecy > iden THEN idecy = iden
             ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
             idemouseselect = 1
+        END IF
+    END IF
+
+    IF mCLICK2 THEN 'Second mouse button pressed.
+        invokecontextualmenu:
+        IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
+            if ideselect = 0 then 'Right click only positions the cursor if no selection is active
+                idecx = mX - 1 + idesx - 1
+                idecy = mY - 2 + idesy - 1
+                IF idecy > iden THEN idecy = iden
+            else 'A selection is reported but it may be that the user only clicked the screen. Let's check:
+                IF ideselecty1 = idecy THEN 'single line selected
+                    a$ = idegetline(idecy)
+                    a2$ = ""
+                    sx1 = ideselectx1: sx2 = idecx
+                    IF sx2 < sx1 THEN SWAP sx1, sx2
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                    NEXT
+                    IF a2$ = "" THEN
+                        'Told ya.
+                        ideselect = 0
+                        idecx = mX - 1 + idesx - 1
+                        idecy = mY - 2 + idesy - 1
+                        IF idecy > iden THEN idecy = iden
+                    ELSE
+                        'Ok, there is a selection. But we'll override it if the click was outside it
+                        IF mX - 1 + idesx - 1 < sx1 OR mX - 1 + idesx - 1 > sx2 THEN
+                            ideselect = 0
+                            idecx = mX - 1 + idesx - 1
+                            idecy = mY - 2 + idesy - 1
+                            IF idecy > iden THEN idecy = iden
+                            ideshowtext
+                            PCOPY 3, 0
+                        END IF
+                        IF mY - 2 + idesy - 1 < idecy OR mY - 2 + idesy - 1 > idecy THEN
+                            ideselect = 0
+                            idecx = mX - 1 + idesx - 1
+                            idecy = mY - 2 + idesy - 1
+                            IF idecy > iden THEN idecy = iden
+                            ideshowtext
+                            PCOPY 3, 0
+                        END IF
+                    END IF
+                ELSE 'Multiple lines selected
+                    'We'll override the selection if the click was outside it
+                    sy1 = ideselecty1
+                    sy2 = idecy
+                    IF sy1 > sy2 THEN SWAP sy1, sy2
+                    IF mY - 2 + idesy - 1 < sy1 OR mY - 2 + idesy - 1 > sy2 THEN
+                        ideselect = 0
+                        idecx = mX - 1 + idesx - 1
+                        idecy = mY - 2 + idesy - 1
+                        IF idecy > iden THEN idecy = iden
+                        ideshowtext
+                        PCOPY 3, 0
+                    END IF
+                END IF
+            end if
+            idecontextualmenu = 1
+            IdeMakeContextualMenu
+            GOTO showmenu
         END IF
     END IF
 
@@ -2880,6 +2950,20 @@ DO
         lastaltheld = altheld
 
         GetInput
+            if oldmx <> mX or oldmy <> mY then
+                IF mY = 1 and idecontextualmenu = 0 THEN 'Check if we're hovering on menu bar
+                    lastm = m
+                    FOR i = 1 to menus
+                        x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
+                        x2 = CVI(MID$(MenuLocations, i * 2 - 1, 2)) + len(menu$(i, 0))
+                        IF mX >= x and mX < x2 THEN
+                            m = i
+                            if m <> lastm then EXIT DO 'Update the menu bar to reflect the current mouse hover
+                        END IF
+                    NEXT
+                END IF
+                oldmx = mX: oldmy = mY
+            end if
         IF iCHANGED = 0 THEN _LIMIT 100
 
         IF KALT THEN altheld = 1 ELSE altheld = 0
@@ -2891,20 +2975,20 @@ DO
 
         IF mCLICK THEN
             IF mY = 1 THEN
-                x = 3
-                FOR i = 1 TO menus
-                    x2 = LEN(menu$(i, 0)) + 2
-                    IF mX >= x AND mX < x + x2 THEN
+                FOR i = 1 to menus
+                    x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
+                    x2 = CVI(MID$(MenuLocations, i * 2 - 1, 2)) + len(menu$(i, 0))
+                    IF mX >= x and mX < x2 THEN
                         m = i
                         LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                         PCOPY 3, 0
                         GOTO showmenu
                     END IF
-                    x = x + x2
                 NEXT
             END IF 'my=1
             KB = KEY_ESC 'exit menu selection
         END IF
+
     LOOP UNTIL KB
 
     K$ = UCASE$(K$)
@@ -2925,7 +3009,7 @@ DO
         GOTO ideloop
     END IF
     IF m < 1 THEN m = menus
-    IF m > menus THEN m = 1
+    IF m > menus and idecontextualmenu = 0 THEN m = 1
     IF KB = KEY_UP OR KB = KEY_DOWN OR KB = KEY_ENTER THEN
         LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
         PCOPY 3, 0
@@ -2950,14 +3034,18 @@ altheld = 1
 PCOPY 0, 2
 SCREEN , , 1, 0
 r = 1
+IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
+oldmy = mY: oldmx = mX
 DO
     PCOPY 2, 1
 
-    'find pos of menu m
-    x = 4: FOR i = 1 TO m - 1: x = x + LEN(menu$(i, 0)) + 2
-        IF i = menus - 1 THEN x = idewx - LEN(menu$(menus, 0)) - 1
-    NEXT: xx = x
-    LOCATE 1, xx - 1: COLOR 7, 0: PRINT " " + menu$(m, 0) + " "
+    if idecontextualmenu = 0 then
+        'find pos of menu m
+        x = 4: FOR i = 1 TO m - 1: x = x + LEN(menu$(i, 0)) + 2
+            IF i = menus - 1 THEN x = idewx - LEN(menu$(menus, 0)) - 1
+        NEXT: xx = x
+        LOCATE 1, xx - 1: COLOR 7, 0: PRINT " " + menu$(m, 0) + " "
+    END IF
     COLOR 0, 7
     'calculate menu width
     w = 0
@@ -2968,18 +3056,25 @@ DO
         IF INSTR(m$, "  ") THEN l = l + 2 'min 4 spacing
         IF l > w THEN w = l
     NEXT
+    yy = 2
+    IF idecontextualmenu = 1 THEN
+        xx = idectxmenuX
+        if xx < 3 then xx = 3
+        yy = idectxmenuY
+        if yy + menusize(m) + 2 > idewy then yy = idewy - 2 - menusize(m)
+    END IF
     IF xx > idewx - w - 3 THEN xx = idewx - w - 3
-    ideboxshadow xx - 2, 2, w + 4, menusize(m) + 2
 
+    ideboxshadow xx - 2, yy, w + 4, menusize(m) + 2
 
     'draw menu items
     FOR i = 1 TO menusize(m)
         m$ = menu$(m, i)
         IF m$ = "-" THEN
-            COLOR 0, 7: LOCATE i + 2, xx - 2: PRINT chr$(195) + STRING$(w + 2, chr$(196)) + chr$(180);
+            COLOR 0, 7: LOCATE i + yy, xx - 2: PRINT chr$(195) + STRING$(w + 2, chr$(196)) + chr$(180);
         ELSE
-            IF r = i THEN LOCATE i + 2, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
-            LOCATE i + 2, xx
+            IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
+            LOCATE i + yy, xx
             h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
             x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
             FOR x = 1 TO LEN(m$)
@@ -3008,7 +3103,11 @@ DO
         IF iCHANGED THEN
             IF KB THEN change = 1
             IF mCLICK THEN change = 1: mousedown = 1
+            IF mCLICK2 THEN change = 1
             IF mRELEASE THEN change = 1: mouseup = 1
+            IF mWHEEL THEN change = 1
+            IF mX THEN change = 1
+            IF mY THEN change = 1
         END IF
         IF mB THEN change = 1
         'revert to previous menuwhen alt pressed again
@@ -3022,29 +3121,74 @@ DO
 
     s = 0
 
+    IF mWHEEL THEN
+        PCOPY 3, 0: SCREEN , , 3, 0
+        GOTO ideloop
+    END IF
+
+    IF mCLICK2 AND idecontextualmenu THEN 'A new right click in the text area repositions the contextual menu
+        IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN
+            PCOPY 3, 0: SCREEN , , 3, 0
+            GOTO invokecontextualmenu
+        ELSE
+            PCOPY 3, 0: SCREEN , , 3, 0
+            GOTO ideloop
+        END IF
+    END IF
+
     'mouse selection
     IF mouseup THEN
-        'uses pre-calc xx & w
         IF mX >= xx - 2 AND mX < xx - 2 + w + 4 THEN
-            IF mY > 2 AND mY <= menusize(m) + 2 THEN
-                y = mY - 2
+            IF mY > yy AND mY <= menusize(m) + yy THEN
+                y = mY - yy
                 IF menu$(m, y) <> "-" THEN
                     s = r
                 END IF
             END IF
         END IF
 
-        IF mX < xx - 2 OR mX >= xx - 2 + w + 4 OR mY > menusize(m) + 3 THEN
+        IF mX < xx - 2 OR mX >= xx - 2 + w + 4 OR mY > yy + menusize(m) + 1 or (mY < yy and idecontextualmenu) THEN
             PCOPY 3, 0: SCREEN , , 3, 0
             GOTO ideloop
         END IF
-
+    END IF
+    IF not mouseup and not mousedown THEN 'Check if we're hovering on menu options
+      if oldmy <> mY then
+        IF mX >= xx - 2 AND mX < xx - 2 + w + 4 THEN
+            IF mY > yy AND mY <= menusize(m) + yy THEN
+                y = mY - yy
+                IF menu$(m, y) <> "-" THEN
+                    r = y
+                END IF
+            END IF
+        ELSE
+            IF mY = 1 THEN GOTO checkmenubarhover
+        END IF
+        oldmy = mY
+      end if
+      if oldmx <> mX then
+        checkmenubarhover:
+        IF mY = 1 and idecontextualmenu = 0 THEN 'Check if we're hovering on menu bar
+            lastm = m
+            FOR i = 1 to menus
+                x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
+                x2 = CVI(MID$(MenuLocations, i * 2 - 1, 2)) + len(menu$(i, 0))
+                IF mX >= x and mX < x2 THEN
+                    m = i
+                    r = 1
+                    EXIT FOR
+                END IF
+            NEXT
+        END IF
+        oldmx = mX
+      end if
     END IF
 
     IF mB THEN
 
         'top row
         IF mY = 1 THEN
+            idecontextualmenu = 0
             lastm = m
             x = 3
             FOR i = 1 TO menus
@@ -3062,18 +3206,18 @@ DO
 
         'uses pre-calc xx & w
         IF mX >= xx - 2 AND mX < xx - 2 + w + 4 THEN
-            IF mY > 2 AND mY <= menusize(m) + 2 THEN
-                y = mY - 2
+            IF mY > yy AND mY <= menusize(m) + yy THEN
+                y = mY - yy
                 IF menu$(m, y) <> "-" THEN r = y
             END IF
         END IF
 
     END IF 'mb
 
-    IF KB = KEY_LEFT THEN m = m - 1: r = 1
-    IF KB = KEY_RIGHT THEN m = m + 1: r = 1
+    IF KB = KEY_LEFT AND idecontextualmenu = 0 THEN m = m - 1: r = 1
+    IF KB = KEY_RIGHT AND idecontextualmenu = 0 THEN m = m + 1: r = 1
     IF m < 1 THEN m = menus
-    IF m > menus THEN m = 1
+    IF m > menus AND idecontextualmenu = 0 THEN m = 1
     IF KB = KEY_ESC THEN
         PCOPY 3, 0: SCREEN , , 3, 0
         GOTO ideloop
@@ -3232,7 +3376,7 @@ DO
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "Add/Remove #Bookmark  ALT+Left" THEN
+        IF menu$(m, s) = "Add/Remove #Bookmark  Alt+Left" THEN
             PCOPY 2, 0
             bmkremoved = 0
             bmkremoveb:
@@ -3258,10 +3402,10 @@ DO
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "#Next Bookmark  ALT+Down" OR menu$(m, s) = "#Previous Bookmark  ALT+Up" THEN
+        IF menu$(m, s) = "#Next Bookmark  Alt+Down" OR menu$(m, s) = "#Previous Bookmark  Alt+Up" THEN
             PCOPY 2, 0
             IF IdeBmkN = 0 THEN
-                idemessagebox "Bookmarks", "No bookmarks exist (Use ALT+Left to create a bookmark)"
+                idemessagebox "Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)"
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -3273,7 +3417,7 @@ DO
                 END IF
             END IF
             l = idecy
-            z = 0: IF menu$(m, s) = "#Next Bookmark  ALT+Down" THEN z = 1
+            z = 0: IF menu$(m, s) = "#Next Bookmark  Alt+Down" THEN z = 1
             DO
                 IF z = 1 THEN l = l + 1 ELSE l = l - 1
                 IF l < 1 THEN l = iden
@@ -3325,6 +3469,11 @@ DO
             retval = 1
             GOTO redraweverything2
             GOTO ideloop
+        END IF
+
+        IF left$(menu$(m, s), 10) = "#Help on '" THEN  'Contextual menu Help
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO contextualhelp
         END IF
 
         IF menu$(m, s) = "#Contents page" THEN
@@ -3475,14 +3624,14 @@ DO
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "New #SUB..." THEN
+        IF LEFT$(menu$(m, s), 8) = "New #SUB" THEN
             PCOPY 2, 0
             idenewsf "SUB"
             ideselect = 0
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
         END IF
-        IF menu$(m, s) = "New #FUNCTION..." THEN
+        IF LEFT$(menu$(m, s), 13) = "New #FUNCTION" THEN
             PCOPY 2, 0
             idenewsf "FUNCTION"
             ideselect = 0
@@ -3499,15 +3648,20 @@ DO
             GOTO ideloop
         END IF
 
-
-
-        IF menu$(m, s) = "#Find..." THEN
+        IF menu$(m, s) = "#Find...  Ctrl+F3" THEN
             PCOPY 2, 0
             idefindjmp:
             r$ = idefind
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             '...
             GOTO ideloop
+        END IF
+
+        IF left$(menu$(m, s), 6) = "Find '" THEN  'Contextual menu Find
+            idefindtext = idecontextualSearch$
+            IdeAddSearched idefindtext
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO idemf3
         END IF
 
         IF menu$(m, s) = "#Change..." THEN
@@ -3670,18 +3824,18 @@ DO
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "#Paste  Shift+Ins or CTRL+V" THEN
+        IF menu$(m, s) = "#Paste  Shift+Ins or Ctrl+V" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO idempaste
         END IF
 
-        IF menu$(m, s) = "#Copy  Ctrl+Ins or CTRL+C" THEN
+        IF menu$(m, s) = "#Copy  Ctrl+Ins or Ctrl+C" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             IF ideselect = 1 THEN GOTO copy2clip
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "Cu#t  Shift+Del or CTRL+X" THEN
+        IF menu$(m, s) = "Cu#t  Shift+Del or Ctrl+X" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             IF ideselect = 1 THEN
                 K$ = CHR$(0) + "S" 'tricks handler into del after copy
@@ -3690,23 +3844,23 @@ DO
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "#Undo  CTRL+Z" THEN
+        IF menu$(m, s) = "#Undo  Ctrl+Z" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO idemundo
         END IF
 
-        IF menu$(m, s) = "#Redo  CTRL+Y" THEN
+        IF menu$(m, s) = "#Redo  Ctrl+Y" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO idemredo
         END IF
 
 
-        IF menu$(m, s) = "Select #All  CTRL+A" THEN
+        IF menu$(m, s) = "Select #All  Ctrl+A" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO idemselectall
         END IF
 
-        menu$(m, i) = "Select #All  CTRL+A": i = i + 1
+        menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
 
         IF menu$(m, s) = "#Start  F5" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -9713,6 +9867,96 @@ CLOSE #fh
 menu$(m, i) = "-": i = i + 1
 menu$(m, i) = "E#xit": i = i + 1
 menusize(m) = i - 1
+END SUB
+
+SUB IdeMakeContextualMenu
+    m = idecontextualmenuID: i = 0
+    menu$(m, i) = "Contextual": i = i + 1
+
+    'Figure out if the user wants to search for a selected term -- copied from idefind$
+    IF ideselect THEN
+        IF ideselecty1 = idecy THEN 'single line selected
+            a$ = idegetline(idecy)
+            a2$ = ""
+            sx1 = ideselectx1: sx2 = idecx
+            IF sx2 < sx1 THEN SWAP sx1, sx2
+            FOR x = sx1 TO sx2 - 1
+                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+            NEXT
+        END IF
+        IF len(a2$) > 0 THEN
+            sela2$ = ucase$(a2$)
+            idecontextualSearch$ = a2$
+            IF LEN(a2$) > 22 THEN
+                a2$ = LEFT$(a2$, 19) + string$(3, 250)
+            END IF
+            menu$(m, i) = "Find '" + a2$ + "'": i = i + 1
+        END IF
+    END IF
+        'identify if word or character at current cursor position is in the help system -- copied from ide2
+        a$ = idegetline(idecy)
+        x = idecx
+        HelpOnSelection = 0
+        IF x <= LEN(a$) THEN
+            IF alphanumeric(ASC(a$, x)) THEN
+                x1 = x
+                DO WHILE x1 > 1
+                    IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
+                LOOP
+                x2 = x
+                DO WHILE x2 < LEN(a$)
+                    IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
+                LOOP
+                a2$ = MID$(a$, x1, x2 - x1 + 1)
+            ELSE
+                a2$ = CHR$(ASC(a$, x))
+            END IF
+            a2$ = UCASE$(a2$)
+            'check if F1 is in help links
+            fh = FREEFILE
+            OPEN "internal\help\links.bin" FOR INPUT AS #fh
+            lnks = 0: lnks$ = CHR$(0)
+            DO UNTIL EOF(fh)
+                LINE INPUT #fh, l$
+                c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
+                IF a2$ = UCASE$(l1$) THEN
+                    IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
+                        lnks = lnks + 1
+                        EXIT DO
+                    END IF
+                END IF
+            LOOP
+            CLOSE #fh
+
+            IF lnks THEN
+                IF LEN(l2$) > 15 THEN
+                    l2$ = LEFT$(l2$, 12) + string$(3, 250)
+                END IF
+                if instr(l2$, "Parenthesis") = 0 then
+                    menu$(m, i) = "#Help on '" + l2$ + "'": i = i + 1
+                end if
+            END IF
+        END IF
+
+    IF i > 1 THEN
+        menu$(m, i) = "-": i = i + 1
+    END IF
+
+    menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+    menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+    menu$(m, i) = "Cl#ear  Del": i = i + 1
+    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "Comment (add ')": i = i + 1
+    menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "New #SUB...": i = i + 1
+    menu$(m, i) = "New #FUNCTION...": i = i + 1
+    menusize(m) = i - 1
 END SUB
 
 SUB IdeAddRecent (f2$)
