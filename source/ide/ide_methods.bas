@@ -733,7 +733,7 @@ DO
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
-        LOCATE 2, idewx - 30
+        LOCATE idewy - 4, idewx - 30
         COLOR 7, 1: PRINT chr$(180);
         COLOR 3, 1: PRINT "Find[                     " + chr$(18) + "]";
         COLOR 7, 1: PRINT chr$(195);
@@ -741,7 +741,7 @@ DO
         IF LEN(f$) > 20 THEN
             f$ = string$(3, 250) + RIGHT$(f$, 17)
         END IF
-        LOCATE 2, idewx - 28 + 4: COLOR 3, 1: PRINT f$
+        LOCATE idewy - 4, idewx - 28 + 4: COLOR 3, 1: PRINT f$
         findtext$ = f$
 
         'alter cursor style to match insert mode
@@ -854,7 +854,7 @@ DO
 
         IF IdeSystem = 2 THEN 'override cursor position
             SCREEN , , 0, 0
-            LOCATE 2, idewx - 28 + 4 + LEN(findtext$)
+            LOCATE idewy - 4, idewx - 28 + 4 + LEN(findtext$)
             SCREEN , , 3, 0
         END IF
 
@@ -1268,6 +1268,15 @@ DO
         END IF
     NEXT
 
+    IF KCTRL AND UCASE$(K$) = "F" THEN
+        K$ = ""
+        IdeSystem = 2
+    END IF
+
+    IF KCTRL AND KB = KEY_F3 THEN
+        IF IdeSystem = 3 THEN IdeSystem = 1
+        GOTO idefindjmp
+    END IF
 
     IF KB = KEY_F3 THEN
         IF IdeSystem = 3 THEN IdeSystem = 1
@@ -1430,8 +1439,8 @@ DO
 
     'IdeSystem specific code goes here
 
-    IF mCLICK THEN
-        IF mY = 2 AND mX > idewx - 30 AND mX < idewx - 1 THEN 'inside text box
+    IF mCLICK THEN 'Find [...] search field
+        IF mY = idewy - 4 AND mX > idewx - 30 AND mX < idewx - 1 THEN 'inside text box
             IF mX <= idewx - 28 + 2 THEN
                 IF LEN(idefindtext) = 0 THEN
                     IdeSystem = 2 'no search string, so begin editing
@@ -1441,10 +1450,14 @@ DO
                 END IF
             ELSE
                 IF mX = idewx - 3 THEN
+                    showrecentlysearchedbox:
                     PCOPY 0, 3
                     f$ = idesearchedbox
                     IF LEN(f$) THEN idefindtext = f$
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    idealthighlight = 0
+                    LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+                    IdeSystem = 1
                     IF LEN(f$) THEN GOTO idemf3 'F3 functionality
                     GOTO ideloop
                 ELSE
@@ -1483,6 +1496,7 @@ DO
 
     IF IdeSystem = 2 THEN 'certain keys transfer control
         z = 0
+        IF (KALT AND KB = KEY_UP) OR (KALT AND KB = KEY_DOWN) THEN GOTO showrecentlysearchedbox
         IF KB = KEY_UP THEN z = 1
         IF KB = KEY_DOWN THEN z = 1
         IF KB = KEY_PAGEUP THEN z = 1
@@ -9514,14 +9528,14 @@ CLOSE #fh
 
 '72,19
 
-h = idewy + idesubwindow - 6
+h = idewy + idesubwindow - 9
 IF ln < h THEN h = ln
 IF h < 3 THEN h = 3
 
 i = 0
 idepar p, 20, h, ""
 p.x = idewx - 24
-p.y = 3
+p.y = idewy - 6 - h
 
 i = i + 1
 o(i).typ = 2
