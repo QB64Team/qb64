@@ -174,6 +174,7 @@ free((void*)(__ARRAY_LONG_MENUSIZE[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_MENUSIZE)[8] );
 qbs_free(__STRING_MENUBAR);
+qbs_free(__STRING_IDECONTEXTUALSEARCH);
 qbs_free(__STRING_IDECUSTOMFONTFILE);
 qbs_free(__STRING_IDEANDROIDSTARTSCRIPT);
 qbs_free(__STRING_IDEANDROIDMAKESCRIPT);
@@ -969,5 +970,6 @@ qbs_free(__STRING_D3);
 qbs_free(__STRING_DEPSTR);
 qbs_free(__STRING_LIBQB);
 qbs_free(__STRING_B);
+qbs_free(_FUNC_IDE2_STRING_MENULOCATIONS);
 qbs_free(_SUB_IDEOBJUPDATE_STRING_SEARCHTERM);
 qbs_free(_SUB_GETINPUT_STRING_ASCVALUE);
