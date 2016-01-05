@@ -209,6 +209,8 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
     menu$(m, i) = "#Change...": i = i + 1
     menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "Clear search #history...": i = i + 1
+    menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Add/Remove #Bookmark  Alt+Left": i = i + 1
     menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
     menu$(m, i) = "#Previous Bookmark  Alt+Up": i = i + 1
@@ -3979,6 +3981,18 @@ DO
             GOTO ideloop
         END IF '#Change...
 
+        IF menu$(m, s) = "Clear search #history..." THEN
+            PCOPY 2, 0
+            r$ = ideclearsearch$
+            IF r$ = "Y" THEN
+                fh = FREEFILE
+                OPEN ".\internal\temp\searched.bin" FOR OUTPUT AS #fh: CLOSE #fh
+                idefindtext = ""
+            END IF
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
         IF menu$(m, s) = "#Repeat Last Find  (Shift+) F3" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO idemf3
@@ -6360,6 +6374,118 @@ DO 'main loop
 
     IF info THEN
         IF info = 1 THEN iderestore$ = "Y" ELSE iderestore$ = "N"
+        EXIT FUNCTION
+    END IF
+
+    'end of custom controls
+    mousedown = 0
+    mouseup = 0
+LOOP
+
+END FUNCTION
+
+FUNCTION ideclearsearch$
+
+'-------- generic dialog box header --------
+PCOPY 3, 0
+PCOPY 0, 2
+PCOPY 0, 1
+SCREEN , , 1, 0
+focus = 1
+DIM p AS idedbptype
+DIM o(1 TO 100) AS idedbotype
+DIM oo AS idedbotype
+DIM sep AS STRING * 1
+sep = CHR$(0)
+'-------- end of generic dialog box header --------
+
+'-------- init --------
+i = 0
+'idepar p, 30, 6, "File already exists. Overwrite?"
+idepar p, 48, 4, ""
+i = i + 1
+o(i).typ = 3
+o(i).y = 4
+o(i).txt = idenewtxt("#Yes" + sep + "#No")
+o(i).dft = 1
+'-------- end of init --------
+
+'-------- generic init --------
+FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+'-------- end of generic init --------
+
+DO 'main loop
+
+    '-------- generic display dialog box & objects --------
+    idedrawpar p
+    f = 1: cx = 0: cy = 0
+    FOR i = 1 TO 100
+        IF o(i).typ THEN
+            'prepare object
+            o(i).foc = focus - f 'focus offset
+            o(i).cx = 0: o(i).cy = 0
+            idedrawobj o(i), f 'display object
+            IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+        END IF
+    NEXT i
+    lastfocus = f - 1
+    '-------- end of generic display dialog box & objects --------
+
+    '-------- custom display changes --------
+    COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "This cannot be undone. Clear search history?";
+    '-------- end of custom display changes --------
+
+    'update visual page and cursor position
+    PCOPY 1, 0
+    IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+    '-------- read input --------
+    change = 0
+    DO
+        GetInput
+        IF mWHEEL THEN change = 1
+        IF KB THEN change = 1
+        IF mCLICK THEN mousedown = 1: change = 1
+        IF mRELEASE THEN mouseup = 1: change = 1
+        IF mB THEN change = 1
+        alt = KALT: IF alt <> oldalt THEN change = 1
+        oldalt = alt
+        _LIMIT 100
+    LOOP UNTIL change
+    IF alt THEN idehl = 1 ELSE idehl = 0
+    'convert "alt+letter" scancode to letter's ASCII character
+    altletter$ = ""
+    IF alt THEN
+        IF LEN(K$) = 1 THEN
+            k = ASC(UCASE$(K$))
+            IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+        END IF
+    END IF
+    SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+    '-------- end of read input --------
+
+    IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
+    IF UCASE$(K$) = "N" THEN altletter$ = "N"
+
+    '-------- generic input response --------
+    info = 0
+    IF K$ = "" THEN K$ = CHR$(255)
+    IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF focus < 1 THEN focus = lastfocus
+    IF focus > lastfocus THEN focus = 1
+    f = 1
+    FOR i = 1 TO 100
+        t = o(i).typ
+        IF t THEN
+            focusoffset = focus - f
+            ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+        END IF
+    NEXT
+    '-------- end of generic input response --------
+
+    IF info THEN
+        IF info = 1 THEN ideclearsearch$ = "Y" ELSE ideclearsearch$ = "N"
         EXIT FUNCTION
     END IF
 
