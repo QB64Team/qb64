@@ -177,6 +177,8 @@ TYPE idedbotype
     foc AS LONG
     sel AS LONG 'selected item no.
     stx AS LONG 'selected item in string form
+    issel AS _BYTE 'selection indicator (for text boxes only)
+    sx1 AS LONG 'selection start (for text boxes only)
     v1 AS LONG
     num AS LONG
 END TYPE
@@ -185,11 +187,11 @@ DIM SHARED idefocusline 'simply stores the location of the line to highlight in 
 DIM SHARED ideautorun
 DIM SHARED menu$(1 TO 10, 0 TO 20)
 DIM SHARED menusize(1 TO 10)
-DIM SHARED menus AS INTEGER
-DIM SHARED menubar$
+DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
+DIM SHARED menubar$, idecontextualSearch$
 DIM SHARED ideundocombo, ideundocombochr, idenoundo, idemergeundo
 DIM SHARED idealthighlight, ideentermenu
-DIM SHARED ideautolayout, ideautoindent, ideautoindentsize, ideindentsubs, idebackupsize
+DIM SHARED ideautolayout, ideautoindent, ideautoindentsize, ideindentsubs, idebackupsize, idesortsubs
 DIM SHARED idewx, idewy, idecustomfont, idecustomfontfile$, idecustomfontheight, idecustomfonthandle
 DIM SHARED iderunmode
 'IDE MODULE SECTION END: shared data & definitions
