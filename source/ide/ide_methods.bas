@@ -7197,10 +7197,66 @@ IF t = 1 THEN 'text field
             END IF
         END IF
     END IF 'mousedown
+
+    a$ = idetxt(o.txt)
     IF focusoffset = 0 THEN
-        a$ = idetxt(o.txt)
         IF LEN(kk$) = 1 THEN
             k = ASC(kk$)
+            IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(kk$) = "V") THEN 'paste from clipboard
+                clip$ = _CLIPBOARD$ 'read clipboard
+                x = INSTR(clip$, CHR$(13))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                x = INSTR(clip$, CHR$(10))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                IF LEN(clip$) THEN
+                    IF o.issel THEN
+                        sx1 = o.sx1: sx2 = o.v1
+                        if sx1 > sx2 then SWAP sx1, sx2
+                        if sx2 - sx1 > 0 then
+                            a$ = left$(a$, sx1) + clip$ + right$(a$, len(a$) - sx2)
+                            o.v1 = sx1
+                            o.issel = 0
+                        end if
+                    ELSE
+                        a$ = left$(a$, o.v1) + clip$ + right$(a$, len(a$) - o.v1)
+                    END IF
+                END IF
+                k = 255
+            END IF
+
+            IF (KCONTROL AND UCASE$(kk$) = "A") THEN 'select all
+                if len(a$) > 0 then
+                    o.issel = -1
+                    o.sx1 = 0
+                    o.v1 = len(a$)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(kk$) = "C")) THEN 'copy to clipboard
+                IF o.issel THEN
+                    sx1 = o.sx1: sx2 = o.v1
+                    if sx1 > sx2 then SWAP sx1, sx2
+                    if sx2 - sx1 > 0 then _CLIPBOARD$ = mid$(a$, sx1 + 1, sx2 - sx1)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(kk$) = "X")) THEN 'cut to clipboard
+                IF o.issel THEN
+                    sx1 = o.sx1: sx2 = o.v1
+                    if sx1 > sx2 then SWAP sx1, sx2
+                    if sx2 - sx1 > 0 then
+                        _CLIPBOARD$ = mid$(a$, sx1 + 1, sx2 - sx1)
+                        'delete selection
+                        a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                        o.v1 = sx1
+                        o.issel = 0
+                    end if
+                END IF
+                k = 255
+            END IF
+
             IF k = 8 AND o.v1 > 0 THEN
                 if o.issel THEN
                     sx1 = o.sx1: sx2 = o.v1
@@ -7208,7 +7264,6 @@ IF t = 1 THEN 'text field
                     if sx2 - sx1 > 0 then
                         'delete selection
                         a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
-                        idetxt(o.txt) = a$
                         o.issel = 0
                     end if
                 else
@@ -7222,7 +7277,6 @@ IF t = 1 THEN 'text field
                 if sx2 - sx1 > 0 then
                     'delete selection
                     a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
-                    idetxt(o.txt) = a$
                     o.issel = 0
                 end if
             END IF
@@ -7261,23 +7315,6 @@ IF t = 1 THEN 'text field
                 a$ = a1$ + a2$
                 idetxt(o.txt) = a$
             end if
-        END IF
-
-        IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
-            clip$ = _CLIPBOARD$ 'read clipboard
-            x = INSTR(clip$, CHR$(13))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            x = INSTR(clip$, CHR$(10))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            IF LEN(clip$) THEN
-                a$ = clip$
-                idetxt(o.txt) = a$
-                o.v1 = LEN(a$)
-            END IF
-        END IF
-
-        IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
-            _CLIPBOARD$ = idetxt(o.txt)
         END IF
 
         'cursor control
