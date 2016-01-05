@@ -3099,6 +3099,7 @@ startmenu:
 m = 1
 startmenu2:
 altheld = 1
+if IdeSystem = 2 then IdeSystem = 1: GOSUB UpdateSearchBar
 
 DO
 
@@ -3198,6 +3199,7 @@ LOOP
 
 showmenu:
 altheld = 1
+if IdeSystem = 2 then IdeSystem = 1: GOSUB UpdateSearchBar
 PCOPY 0, 2
 SCREEN , , 1, 0
 r = 1
