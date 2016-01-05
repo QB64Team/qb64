@@ -1314,8 +1314,8 @@ DO
                 idesystem2.sx1 = 0
                 idesystem2.v1 = len(idefindtext)
                 idesystem2.issel = -1
-                GOSUB UpdateSearchBar
             end if
+            GOSUB UpdateSearchBar
             IF KSHIFT THEN idefindinvert = 1
             IdeAddSearched idefindtext
             idefindagain
@@ -1487,6 +1487,7 @@ DO
                 IF mX = idewx - 3 THEN
                     showrecentlysearchedbox:
                     PCOPY 0, 3
+                    GOSUB UpdateSearchBar
                     f$ = idesearchedbox
                     IF LEN(f$) THEN idefindtext = f$
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -1496,9 +1497,22 @@ DO
                     IF LEN(f$) THEN GOTO idemf3 'F3 functionality
                     GOTO ideloop
                 ELSE
-                    IF IdeSystem = 2 THEN idefindtext = "" 'clicking on the text field again clears text
-                    IdeSystem = 2
-                    if len(idefindtext) then idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext)
+                    IF IdeSystem = 2 THEN
+                        if idesystem2.issel then idesystem2.issel = 0
+
+                        if len(idefindtext) <= idesystem2.w THEN
+                            idesystem2.v1 = mX - (idewx - (idesystem2.w + 4))
+                        else
+                            if idesystem2.v1 > idesystem2.w then
+                                idesystem2.v1 = (mX - (idewx - (idesystem2.w + 4))) + (idesystem2.v1 - idesystem2.w)
+                            else
+                                idesystem2.v1 = mX - (idewx - (idesystem2.w + 4))
+                            end if
+                        END IF
+                    ELSE
+                        IdeSystem = 2
+                        if len(idefindtext) then idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext)
+                    END IF
                 END IF
             END IF
         END IF
