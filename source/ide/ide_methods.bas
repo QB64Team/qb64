@@ -4262,7 +4262,7 @@ END IF
 END SUB
 
 FUNCTION idechange$
-
+REDIM SearchHistory(0) AS STRING
 
 '-------- generic dialog box header --------
 PCOPY 0, 2
@@ -4293,6 +4293,23 @@ END IF
 IF a2$ = "" THEN
     a2$ = idefindtext
 END IF
+
+'retrieve search history
+ln = 0
+fh = FREEFILE
+OPEN ".\internal\temp\searched.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+CLOSE #fh
+a$ = RIGHT$(a$, LEN(a$) - 2)
+DO WHILE LEN(a$)
+    ai = INSTR(a$, CRLF)
+    IF ai THEN
+        f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+        ln = ln + 1
+        REDIM _PRESERVE SearchHistory(1 to ln)
+        SearchHistory(ln) = f$
+    END IF
+LOOP
+ln = 0
 
 i = 0
 idepar p, 60, 12, "Change"
@@ -4425,8 +4442,25 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
+    if ubound(SearchHistory) > 0 then
+        IF K$ = CHR$(0) + CHR$(72) AND focus = 1 THEN 'Up
+            IF ln < ubound(SearchHistory) THEN
+                ln = ln + 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
 
-
+        IF K$ = CHR$(0) + CHR$(80) AND focus = 1 THEN 'Down
+            IF ln > 1 THEN
+                ln = ln - 1
+            ELSE
+                ln = 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
+    end if
 
     IF focus = 7 AND info <> 0 THEN 'change all
         idefindcasesens = o(3).sel
@@ -5208,7 +5242,7 @@ END FUNCTION
 
 FUNCTION idefind$
 
-
+REDIM SearchHistory(0) AS STRING
 '-------- generic dialog box header --------
 PCOPY 0, 2
 PCOPY 0, 1
@@ -5239,6 +5273,22 @@ IF a2$ = "" THEN
     a2$ = idefindtext
 END IF
 
+'retrieve search history
+ln = 0
+fh = FREEFILE
+OPEN ".\internal\temp\searched.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+CLOSE #fh
+a$ = RIGHT$(a$, LEN(a$) - 2)
+DO WHILE LEN(a$)
+    ai = INSTR(a$, CRLF)
+    IF ai THEN
+        f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+        ln = ln + 1
+        REDIM _PRESERVE SearchHistory(1 to ln)
+        SearchHistory(ln) = f$
+    END IF
+LOOP
+ln = 0
 
 i = 0
 idepar p, 60, 9, "Find"
@@ -5370,6 +5420,25 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
+    if ubound(SearchHistory) > 0 then
+        IF K$ = CHR$(0) + CHR$(72) AND focus = 1 THEN 'Up
+            IF ln < ubound(SearchHistory) THEN
+                ln = ln + 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
+
+        IF K$ = CHR$(0) + CHR$(80) AND focus = 1 THEN 'Down
+            IF ln > 1 THEN
+                ln = ln - 1
+            ELSE
+                ln = 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
+    end if
     'end of custom controls
 
 
@@ -9830,6 +9899,10 @@ DO WHILE LEN(a$)
     END IF
 LOOP
 CLOSE #fh
+
+if ln = 0 then
+    l$ = sep
+end if
 
 '72,19
 
