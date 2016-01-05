@@ -759,38 +759,7 @@ DO
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
-        LOCATE idewy - 4, idewx - (idesystem2.w + 10)
-        COLOR 7, 1: PRINT chr$(180);
-        COLOR 3, 1: PRINT "Find[" + SPACE$(idesystem2.w + 1) + chr$(18) + "]";
-        COLOR 7, 1: PRINT chr$(195);
-
-        a$ = idefindtext
-        tx = 1
-        IF LEN(a$) > idesystem2.w THEN
-            IF IdeSystem = 2 THEN
-                tx = idesystem2.v1 - idesystem2.w + 1
-                IF tx < 1 THEN tx = 1
-                a$ = MID$(a$, tx, idesystem2.w)
-            ELSE
-                a$ = LEFT$(a$, idesystem2.w)
-            END IF
-        END IF
-
-        sx1 = idesystem2.sx1: sx2 = idesystem2.v1
-        if sx1 > sx2 then SWAP sx1, sx2
-
-        x = x + 2
-        'apply selection color change if necessary
-        IF idesystem2.issel = 0 or IdeSystem <> 2 THEN
-            COLOR 3, 1
-            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4: PRINT a$;
-        ELSE
-            FOR ColorCHAR = 1 to len(a$)
-                if ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 1, 3 ELSE COLOR 3, 1
-                LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 - 1 + ColorCHAR
-                PRINT mid$(a$, ColorCHAR, 1);
-            NEXT
-        END IF
+        GOSUB UpdateSearchBar
 
         'alter cursor style to match insert mode
         IF ideinsert THEN LOCATE , , , 0, 31 ELSE LOCATE , , , 8, 8
@@ -1338,8 +1307,13 @@ DO
     IF KB = KEY_F3 THEN
         IF IdeSystem = 3 THEN IdeSystem = 1
         idemf3:
-        IF idefindtext$ <> "" THEN
-            if IdeSystem = 2 then idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext): idesystem2.issel = -1
+        IF idefindtext <> "" THEN
+            if IdeSystem = 2 then
+                idesystem2.sx1 = 0
+                idesystem2.v1 = len(idefindtext)
+                idesystem2.issel = -1
+                GOSUB UpdateSearchBar
+            end if
             IF KSHIFT THEN idefindinvert = 1
             IdeAddSearched idefindtext
             idefindagain
@@ -1651,7 +1625,10 @@ DO
                 GOTO specialchar
             END IF
             IF k = 13 THEN
-                IF LEN(idefindtext) THEN IdeAddSearched idefindtext: GOTO idemf3 'F3 functionality
+                IF LEN(idefindtext) THEN
+                    IdeAddSearched idefindtext
+                    GOTO idemf3 'F3 functionality
+                END IF
                 GOTO specialchar
             END IF
             IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 THEN
@@ -4208,7 +4185,41 @@ DO
 LOOP
 
 '--------------------------------------------------------------------------------
+EXIT FUNCTION
+UpdateSearchBar:
+        LOCATE idewy - 4, idewx - (idesystem2.w + 10)
+        COLOR 7, 1: PRINT chr$(180);
+        COLOR 3, 1: PRINT "Find[" + SPACE$(idesystem2.w + 1) + chr$(18) + "]";
+        COLOR 7, 1: PRINT chr$(195);
 
+        a$ = idefindtext
+        tx = 1
+        IF LEN(a$) > idesystem2.w THEN
+            IF IdeSystem = 2 THEN
+                tx = idesystem2.v1 - idesystem2.w + 1
+                IF tx < 1 THEN tx = 1
+                a$ = MID$(a$, tx, idesystem2.w)
+            ELSE
+                a$ = LEFT$(a$, idesystem2.w)
+            END IF
+        END IF
+
+        sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+        if sx1 > sx2 then SWAP sx1, sx2
+
+        x = x + 2
+        'apply selection color change if necessary
+        IF idesystem2.issel = 0 or IdeSystem <> 2 THEN
+            COLOR 3, 1
+            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4: PRINT a$;
+        ELSE
+            FOR ColorCHAR = 1 to len(a$)
+                if ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 1, 3 ELSE COLOR 3, 1
+                LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 - 1 + ColorCHAR
+                PRINT mid$(a$, ColorCHAR, 1);
+            NEXT
+        END IF
+RETURN
 END FUNCTION
 
 SUB idebox (x, y, w, h)
