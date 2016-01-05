@@ -104,6 +104,11 @@ END FUNCTION
 
 FUNCTION ide2 (ignore)
 STATIC MenuLocations as STRING
+STATIC idesystem2.issel AS _BYTE
+STATIC idesystem2.sx1 AS LONG
+STATIC idesystem2.v1 AS LONG
+
+CONST idesystem2.w = 20
 
 c$ = idecommand$
 
@@ -117,8 +122,6 @@ IF ideerror THEN
                          ideerrormessage str$(err) + "on line "+ str$(_errorline)
 END IF
 ideerror = 1 'unknown IDE error
-
-
 
 IF LEFT$(c$, 1) = CHR$(12) THEN
     f$ = RIGHT$(c$, LEN(c$) - 1)
@@ -756,16 +759,7 @@ DO
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
-        LOCATE idewy - 4, idewx - 30
-        COLOR 7, 1: PRINT chr$(180);
-        COLOR 3, 1: PRINT "Find[                     " + chr$(18) + "]";
-        COLOR 7, 1: PRINT chr$(195);
-        f$ = idefindtext
-        IF LEN(f$) > 20 THEN
-            f$ = string$(3, 250) + RIGHT$(f$, 17)
-        END IF
-        LOCATE idewy - 4, idewx - 28 + 4: COLOR 3, 1: PRINT f$
-        findtext$ = f$
+        GOSUB UpdateSearchBar
 
         'alter cursor style to match insert mode
         IF ideinsert THEN LOCATE , , , 0, 31 ELSE LOCATE , , , 8, 8
@@ -877,7 +871,15 @@ DO
 
         IF IdeSystem = 2 THEN 'override cursor position
             SCREEN , , 0, 0
-            LOCATE idewy - 4, idewx - 28 + 4 + LEN(findtext$)
+            tx = idesystem2.v1
+            IF LEN(idefindtext) > idesystem2.w THEN
+                IF idesystem2.v1 > idesystem2.w THEN
+                    tx = idesystem2.w
+                ELSE
+                    tx = idesystem2.v1
+                END IF
+            END IF
+            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 + tx
             SCREEN , , 3, 0
         END IF
 
@@ -1294,6 +1296,7 @@ DO
     IF KCTRL AND UCASE$(K$) = "F" THEN
         K$ = ""
         IdeSystem = 2
+        if len(idefindtext) then idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext)
     END IF
 
     IF KCTRL AND KB = KEY_F3 THEN
@@ -1304,7 +1307,13 @@ DO
     IF KB = KEY_F3 THEN
         IF IdeSystem = 3 THEN IdeSystem = 1
         idemf3:
-        IF idefindtext$ <> "" THEN
+        IF idefindtext <> "" THEN
+            if IdeSystem = 2 then
+                idesystem2.sx1 = 0
+                idesystem2.v1 = len(idefindtext)
+                idesystem2.issel = -1
+                GOSUB UpdateSearchBar
+            end if
             IF KSHIFT THEN idefindinvert = 1
             IdeAddSearched idefindtext
             idefindagain
@@ -1462,11 +1471,12 @@ DO
 
     'IdeSystem specific code goes here
 
-    IF mCLICK THEN 'Find [...] search field
-        IF mY = idewy - 4 AND mX > idewx - 30 AND mX < idewx - 1 THEN 'inside text box
-            IF mX <= idewx - 28 + 2 THEN
+    IF mCLICK THEN 'Find [...] search field (IdeSystem = 2)
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
+            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
                 IF LEN(idefindtext) = 0 THEN
                     IdeSystem = 2 'no search string, so begin editing
+                    idesystem2.issel = 0: idesystem2.v1 = 0
                 ELSE
                     IdeAddSearched idefindtext
                     IdeSystem = 1: GOTO idemf3 'F3 functionality
@@ -1486,6 +1496,7 @@ DO
                 ELSE
                     IF IdeSystem = 2 THEN idefindtext = "" 'clicking on the text field again clears text
                     IdeSystem = 2
+                    if len(idefindtext) then idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext)
                 END IF
             END IF
         END IF
@@ -1529,42 +1540,143 @@ DO
     END IF
 
     IF IdeSystem = 2 THEN
-
-        IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
-            clip$ = _CLIPBOARD$ 'read clipboard
-            x = INSTR(clip$, CHR$(13))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            x = INSTR(clip$, CHR$(10))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            IF LEN(clip$) THEN
-                idefindtext = clip$
-                GOTO specialchar
-            END IF
-        END IF
-
-        IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
-            IF LEN(idefindtext) THEN _CLIPBOARD$ = idefindtext
-            GOTO specialchar
-        END IF
-
+        a$ = idefindtext
         IF LEN(K$) = 1 THEN
-            IF K$ = CHR$(27) THEN
+            k = ASC(K$)
+            IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
+                clip$ = _CLIPBOARD$ 'read clipboard
+                x = INSTR(clip$, CHR$(13))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                x = INSTR(clip$, CHR$(10))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                IF LEN(clip$) THEN
+                    IF idesystem2.issel THEN
+                        sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                        IF sx1 > sx2 THEN SWAP sx1, sx2
+                        IF sx2 - sx1 > 0 THEN
+                            a$ = LEFT$(a$, sx1) + clip$ + RIGHT$(a$, LEN(a$) - sx2)
+                            idesystem2.v1 = sx1
+                            idesystem2.issel = 0
+                        END IF
+                    ELSE
+                        a$ = LEFT$(a$, idesystem2.v1) + clip$ + RIGHT$(a$, LEN(a$) - idesystem2.v1)
+                    END IF
+                END IF
+                k = 255
+            END IF
+
+            IF (KCONTROL AND UCASE$(K$) = "A") THEN 'select all
+                IF LEN(a$) > 0 THEN
+                    idesystem2.issel = -1
+                    idesystem2.sx1 = 0
+                    idesystem2.v1 = LEN(a$)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN _CLIPBOARD$ = MID$(a$, sx1 + 1, sx2 - sx1)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X")) THEN 'cut to clipboard
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN
+                        _CLIPBOARD$ = MID$(a$, sx1 + 1, sx2 - sx1)
+                        'delete selection
+                        a$ = LEFT$(a$, sx1) + RIGHT$(a$, LEN(a$) - sx2)
+                        idesystem2.v1 = sx1
+                        idesystem2.issel = 0
+                    END IF
+                END IF
+                k = 255
+            END IF
+
+            IF k = 8 THEN
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN
+                        'delete selection
+                        a$ = LEFT$(a$, sx1) + RIGHT$(a$, LEN(a$) - sx2)
+                        idefindtext = a$
+                        idesystem2.v1 = sx1
+                        idesystem2.issel = 0
+                    END IF
+                ELSEIF idesystem2.v1 > 0 THEN
+                    a1$ = LEFT$(a$, idesystem2.v1 - 1)
+                    IF idesystem2.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - idesystem2.v1) ELSE a2$ = ""
+                    a$ = a1$ + a2$: idesystem2.v1 = idesystem2.v1 - 1
+                    idefindtext = a$
+                END IF
+            END IF
+            IF k = 27 THEN
                 IdeSystem = 1
                 GOTO specialchar
             END IF
-            IF ASC(K$) = 13 THEN
-                IF LEN(idefindtext) THEN IdeAddSearched idefindtext: GOTO idemf3 'F3 functionality
+            IF k = 9 THEN
+                IdeSystem = 1
                 GOTO specialchar
             END IF
-            IF ASC(K$) = 8 THEN
-                IF LEN(idefindtext) THEN idefindtext = LEFT$(idefindtext, LEN(idefindtext) - 1)
+            IF k = 13 THEN
+                IF LEN(idefindtext) THEN
+                    IdeAddSearched idefindtext
+                    GOTO idemf3 'F3 functionality
+                END IF
                 GOTO specialchar
             END IF
-            IF ASC(K$) < 32 THEN GOTO specialchar 'block control characters
-
-            idefindtext = idefindtext + K$
-            GOTO specialchar
+            IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 THEN
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN
+                        'replace selection
+                        a$ = LEFT$(a$, sx1) + RIGHT$(a$, LEN(a$) - sx2)
+                        idefindtext = a$
+                        idesystem2.issel = 0
+                        idesystem2.v1 = sx1
+                    end if
+                end if
+                IF idesystem2.v1 > 0 THEN a1$ = LEFT$(a$, idesystem2.v1) ELSE a1$ = ""
+                IF idesystem2.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - idesystem2.v1) ELSE a2$ = ""
+                a$ = a1$ + K$ + a2$: idesystem2.v1 = idesystem2.v1 + 1
+            END IF
+            idefindtext = a$
         END IF
+
+        IF K$ = CHR$(0) + "S" THEN 'DEL
+            if idesystem2.issel THEN
+                sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                if sx1 > sx2 then SWAP sx1, sx2
+                if sx2 - sx1 > 0 then
+                    'delete selection
+                    a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                    idefindtext = a$
+                    idesystem2.v1 = sx1
+                    idesystem2.issel = 0
+                end if
+            else
+                IF idesystem2.v1 > 0 THEN a1$ = LEFT$(a$, idesystem2.v1) ELSE a1$ = ""
+                IF idesystem2.v1 < LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - idesystem2.v1 - 1) ELSE a2$ = ""
+                a$ = a1$ + a2$
+                idefindtext = a$
+            end if
+        END IF
+
+        'cursor control
+        if K$ = CHR$(0) + "K" THEN GOSUB selectcheck: idesystem2.v1 = idesystem2.v1 - 1
+        IF K$ = CHR$(0) + "M" THEN GOSUB selectcheck: idesystem2.v1 = idesystem2.v1 + 1
+        IF K$ = CHR$(0) + "G" THEN GOSUB selectcheck: idesystem2.v1 = 0
+        IF K$ = CHR$(0) + "O" THEN GOSUB selectcheck: idesystem2.v1 = LEN(a$)
+        IF idesystem2.v1 < 0 THEN idesystem2.v1 = 0
+        IF idesystem2.v1 > LEN(a$) THEN idesystem2.v1 = LEN(a$)
+        IF idesystem2.v1 = idesystem2.sx1 then idesystem2.issel = 0
 
         IF mCLICK or mCLICK2 THEN
             IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
@@ -2795,8 +2907,13 @@ DO
     GOTO skipgosubs
 
     selectcheck:
-    IF KSHIFT AND ideselect = 0 THEN ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
-    IF KSHIFT = 0 THEN ideselect = 0
+    IF IdeSystem = 1 THEN
+        IF KSHIFT AND ideselect = 0 THEN ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
+        IF KSHIFT = 0 THEN ideselect = 0
+    ELSEIF IdeSystem = 2 THEN
+        IF KSHIFT AND idesystem2.issel = 0 THEN idesystem2.issel = -1: idesystem2.sx1 = idesystem2.v1
+        IF KSHIFT = 0 THEN idesystem2.issel = 0
+    END IF
     RETURN
 
     delselect:
@@ -2982,6 +3099,7 @@ startmenu:
 m = 1
 startmenu2:
 altheld = 1
+if IdeSystem = 2 then IdeSystem = 1: GOSUB UpdateSearchBar
 
 DO
 
@@ -3081,6 +3199,7 @@ LOOP
 
 showmenu:
 altheld = 1
+if IdeSystem = 2 then IdeSystem = 1: GOSUB UpdateSearchBar
 PCOPY 0, 2
 SCREEN , , 1, 0
 r = 1
@@ -4068,7 +4187,41 @@ DO
 LOOP
 
 '--------------------------------------------------------------------------------
+EXIT FUNCTION
+UpdateSearchBar:
+        LOCATE idewy - 4, idewx - (idesystem2.w + 10)
+        COLOR 7, 1: PRINT chr$(180);
+        COLOR 3, 1: PRINT "Find[" + SPACE$(idesystem2.w + 1) + chr$(18) + "]";
+        COLOR 7, 1: PRINT chr$(195);
 
+        a$ = idefindtext
+        tx = 1
+        IF LEN(a$) > idesystem2.w THEN
+            IF IdeSystem = 2 THEN
+                tx = idesystem2.v1 - idesystem2.w + 1
+                IF tx < 1 THEN tx = 1
+                a$ = MID$(a$, tx, idesystem2.w)
+            ELSE
+                a$ = LEFT$(a$, idesystem2.w)
+            END IF
+        END IF
+
+        sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+        if sx1 > sx2 then SWAP sx1, sx2
+
+        x = x + 2
+        'apply selection color change if necessary
+        IF idesystem2.issel = 0 or IdeSystem <> 2 THEN
+            COLOR 3, 1
+            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4: PRINT a$;
+        ELSE
+            FOR ColorCHAR = 1 to len(a$)
+                if ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 1, 3 ELSE COLOR 3, 1
+                LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 - 1 + ColorCHAR
+                PRINT mid$(a$, ColorCHAR, 1);
+            NEXT
+        END IF
+RETURN
 END FUNCTION
 
 SUB idebox (x, y, w, h)
