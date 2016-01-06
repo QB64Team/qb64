@@ -128,40 +128,7 @@ IF (ideerror = 2 or ideerror = 3 or ideerror = 4) AND (AttemptToLoadRecent = -1)
     PCOPY 2, 0
     r$ = ideclearhistory$("INVALID")
     IF r$ = "Y" THEN
-        l$ = "": ln = 0
-        REDIM RecentFilesList(0) AS STRING
-        fh = FREEFILE
-        OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
-        CLOSE #fh
-        a$ = RIGHT$(a$, LEN(a$) - 2)
-        DO WHILE LEN(a$)
-            ai = INSTR(a$, CRLF)
-            IF ai THEN
-                f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
-                IF _FILEEXISTS(f$) THEN
-                    ln = ln + 1
-                    REDIM _PRESERVE RecentFilesList(1 to ln)
-                    RecentFilesList(ln) = f$
-                END IF
-            END IF
-        LOOP
-
-        fh = FREEFILE
-        OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
-
-        If ln > 0 THEN
-            f$ = ""
-            for ln = 1 to ubound(RecentFilesList)
-                f$ = f$ + CRLF + RecentFilesList(ln) + CRLF
-            next
-            fh = FREEFILE
-            OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh
-            PUT #fh, 1, f$
-            CLOSE #fh
-        END IF
-
-        ERASE RecentFilesList
-        IdeMakeFileMenu
+        GOSUB CleanUpRecentList
     END IF
     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
 END IF
@@ -4211,6 +4178,9 @@ DO
                 ELSE
                     goto ideshowrecentbox
                 END IF
+            ELSEIF f$ = "<R>" THEN
+                GOSUB CleanUpRecentList
+                GOTO ideshowrecentbox
             END IF
             IF LEN(f$) THEN
                 IdeOpenFile$ = f$
@@ -4328,6 +4298,43 @@ UpdateSearchBar:
                 PRINT mid$(a$, ColorCHAR, 1);
             NEXT
         END IF
+RETURN
+
+CleanUpRecentList:
+l$ = "": ln = 0
+REDIM RecentFilesList(0) AS STRING
+fh = FREEFILE
+OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+CLOSE #fh
+a$ = RIGHT$(a$, LEN(a$) - 2)
+DO WHILE LEN(a$)
+    ai = INSTR(a$, CRLF)
+    IF ai THEN
+        f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+        IF _FILEEXISTS(f$) THEN
+            ln = ln + 1
+            REDIM _PRESERVE RecentFilesList(1 to ln)
+            RecentFilesList(ln) = f$
+        END IF
+    END IF
+LOOP
+
+fh = FREEFILE
+OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+
+If ln > 0 THEN
+    f$ = ""
+    for ln = 1 to ubound(RecentFilesList)
+        f$ = f$ + CRLF + RecentFilesList(ln) + CRLF
+    next
+    fh = FREEFILE
+    OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh
+    PUT #fh, 1, f$
+    CLOSE #fh
+END IF
+
+ERASE RecentFilesList
+IdeMakeFileMenu
 RETURN
 END FUNCTION
 
@@ -10358,7 +10365,7 @@ o(i).nam = idenewtxt("Recent Programs")
 i = i + 1
 o(i).typ = 3
 o(i).y = idewy + idesubwindow - 6
-o(i).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "Clea#r list")
+o(i).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "Clea#r list" + sep + "#Remove broken links")
 o(i).dft = 1
 
 '-------- end of init --------
@@ -10447,6 +10454,11 @@ DO 'main loop
 
     IF (K$ = CHR$(13) AND focus = 4) OR (focus = 4 AND info <> 0) OR (info = 1 AND focus = 4) THEN
         iderecentbox$ = "<C>"
+        EXIT FUNCTION
+    END IF
+
+    IF (K$ = CHR$(13) AND focus = 5) OR (focus = 5 AND info <> 0) OR (info = 1 AND focus = 5) THEN
+        iderecentbox$ = "<R>"
         EXIT FUNCTION
     END IF
 
