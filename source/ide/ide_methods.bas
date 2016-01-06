@@ -181,22 +181,8 @@ IF idelaunched = 0 THEN
     IdeMakeFileMenu
 
     m = m + 1: i = 0
-    menu$(m, i) = "Edit": i = i + 1
-    menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-    menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-    menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
-    menu$(m, i) = "Cl#ear  Del": i = i + 1
-    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
-    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Comment (add ')": i = i + 1
-    menu$(m, i) = "Uncomment (remove ')": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "New #SUB...": i = i + 1
-    menu$(m, i) = "New #FUNCTION...": i = i + 1
-    menusize(m) = i - 1
+    ideeditmenuID = m
+    IdeMakeEditMenu
 
     m = m + 1: i = 0
     menu$(m, i) = "View": i = i + 1
@@ -3220,6 +3206,7 @@ PCOPY 0, 2
 SCREEN , , 1, 0
 r = 1
 IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
+IdeMakeEditMenu
 oldmy = mY: oldmx = mX
 DO
     PCOPY 2, 1
@@ -3238,6 +3225,7 @@ DO
         m$ = menu$(m, i)
         l = LEN(m$)
         IF INSTR(m$, "#") THEN l = l - 1
+        IF LEFT$(m$, 1) = "~" THEN l = l - 1
         IF INSTR(m$, "  ") THEN l = l + 2 'min 4 spacing
         IF l > w THEN w = l
     NEXT
@@ -3257,6 +3245,16 @@ DO
         m$ = menu$(m, i)
         IF m$ = "-" THEN
             COLOR 0, 7: LOCATE i + yy, xx - 2: PRINT chr$(195) + STRING$(w + 2, chr$(196)) + chr$(180);
+        ELSEIF left$(m$, 1) = "~" THEN
+            m$ = right$(m$, len(m$) - 1) 'Remove the tilde before printing
+            IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
+            LOCATE i + yy, xx
+            h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
+            x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
+            FOR x = 1 TO LEN(m$)
+                IF r = i THEN COLOR 8, 0 ELSE COLOR 8, 7
+                PRINT MID$(m$, x, 1);
+            NEXT
         ELSE
             IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
             LOCATE i + yy, xx
@@ -3269,7 +3267,6 @@ DO
                     IF r = i THEN COLOR 7, 0 ELSE COLOR 0, 7
                 END IF
                 PRINT MID$(m$, x, 1);
-
             NEXT
 
 
@@ -4202,7 +4199,9 @@ DO
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
         END IF
 
-
+        IF left$(menu$(m, s),1) = "~" THEN 'Ignore disabled items (starting with "~")
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+        END IF
 
 
         SCREEN , , 0, 0
@@ -10481,6 +10480,44 @@ SUB IdeMakeContextualMenu
     IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
 
     if ideselect then menu$(m, i) = "Cl#ear  Del": i = i + 1
+    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "Comment (add ')": i = i + 1
+    menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "New #SUB...": i = i + 1
+    menu$(m, i) = "New #FUNCTION...": i = i + 1
+    menusize(m) = i - 1
+END SUB
+
+SUB IdeMakeEditMenu
+    m = ideeditmenuID: i = 0
+    menu$(m, i) = "Edit": i = i + 1
+
+    if ideselect then
+        menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    else
+        menu$(m, i) = "~Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menu$(m, i) = "~#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    end if
+
+    clip$ = _CLIPBOARD$ 'read clipboard
+    IF LEN(clip$) THEN
+        menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+    else
+        menu$(m, i) = "~#Paste  Shift+Ins or Ctrl+V": i = i + 1
+    end if
+
+    if ideselect then
+        menu$(m, i) = "Cl#ear  Del": i = i + 1
+    else
+        menu$(m, i) = "~Cl#ear  Del": i = i + 1
+    end if
+
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
