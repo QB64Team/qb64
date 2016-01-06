@@ -6536,7 +6536,7 @@ DO 'main loop
     SELECT CASE WhichHistory$
         CASE "SEARCH": PRINT  "This cannot be undone. Clear search history?";
         CASE "FILES": PRINT   " This cannot be undone. Clear recent files?";
-        CASE "INVALID": PRINT "  Remove invalid links from recent files?";
+        CASE "INVALID": PRINT "  Remove broken links from recent files?";
     END SELECT
     '-------- end of custom display changes --------
 
