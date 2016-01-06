@@ -107,6 +107,7 @@ STATIC MenuLocations as STRING
 STATIC idesystem2.issel AS _BYTE
 STATIC idesystem2.sx1 AS LONG
 STATIC idesystem2.v1 AS LONG
+STATIC AttemptToLoadRecent AS _BYTE
 
 CONST idesystem2.w = 20
 
@@ -119,9 +120,54 @@ IF ideerror THEN
     IF ideerror = 2 THEN ideerrormessage "File not found"
     IF ideerror = 3 THEN ideerrormessage "File access error": CLOSE #150
     IF ideerror = 4 THEN ideerrormessage "Path not found"
-                         ideerrormessage str$(err) + "on line "+ str$(_errorline)
+                         ideerrormessage str$(err) + " on line" + str$(_errorline)
 END IF
+
+IF (ideerror = 2 or ideerror = 3 or ideerror = 4) AND (AttemptToLoadRecent = -1) THEN
+    'Offer to cleanup recent file list, removing invalid entries
+    PCOPY 2, 0
+    r$ = ideclearhistory$("INVALID")
+    IF r$ = "Y" THEN
+        l$ = "": ln = 0
+        REDIM RecentFilesList(0) AS STRING
+        fh = FREEFILE
+        OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+        CLOSE #fh
+        a$ = RIGHT$(a$, LEN(a$) - 2)
+        DO WHILE LEN(a$)
+            ai = INSTR(a$, CRLF)
+            IF ai THEN
+                f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+                IF _FILEEXISTS(f$) THEN
+                    ln = ln + 1
+                    REDIM _PRESERVE RecentFilesList(1 to ln)
+                    RecentFilesList(ln) = f$
+                END IF
+            END IF
+        LOOP
+
+        fh = FREEFILE
+        OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+
+        If ln > 0 THEN
+            f$ = ""
+            for ln = 1 to ubound(RecentFilesList)
+                f$ = f$ + CRLF + RecentFilesList(ln) + CRLF
+            next
+            fh = FREEFILE
+            OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh
+            PUT #fh, 1, f$
+            CLOSE #fh
+        END IF
+
+        ERASE RecentFilesList
+        IdeMakeFileMenu
+    END IF
+    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+END IF
+
 ideerror = 1 'unknown IDE error
+AttemptToLoadRecent = 0
 
 IF LEFT$(c$, 1) = CHR$(12) THEN
     f$ = RIGHT$(c$, LEN(c$) - 1)
@@ -4134,10 +4180,12 @@ DO
             GOTO ideloop
         END IF
 
+        AttemptToLoadRecent = 0
         FOR ml = 1 TO 4
             IF LEN(IdeRecentLink(ml, 1)) THEN
                 IF menu$(m, s) = IdeRecentLink(ml, 1) THEN
                     IdeOpenFile$ = IdeRecentLink(ml, 2)
+                    AttemptToLoadRecent = -1
                     GOTO directopen
                 END IF
             END IF
@@ -4166,6 +4214,7 @@ DO
             END IF
             IF LEN(f$) THEN
                 IdeOpenFile$ = f$
+                AttemptToLoadRecent = -1
                 GOTO directopen
             END IF
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -6478,8 +6527,9 @@ DO 'main loop
     '-------- custom display changes --------
     COLOR 0, 7: LOCATE p.y + 2, p.x + 3
     SELECT CASE WhichHistory$
-        CASE "SEARCH": PRINT "This cannot be undone. Clear search history?";
-        CASE "FILES": PRINT "This cannot be undone. Clear recent files?";
+        CASE "SEARCH": PRINT  "This cannot be undone. Clear search history?";
+        CASE "FILES": PRINT   " This cannot be undone. Clear recent files?";
+        CASE "INVALID": PRINT "  Remove invalid links from recent files?";
     END SELECT
     '-------- end of custom display changes --------
 
