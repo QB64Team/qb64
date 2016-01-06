@@ -4165,10 +4165,7 @@ DO
             f$ = iderecentbox
             IF f$ = "<C>" THEN
                 f$ = ""
-                PCOPY 3, 4
-                PCOPY 1, 3
                 r$ = ideclearhistory$("FILES")
-                PCOPY 4, 3
                 IF r$ = "Y" THEN
                     fh = FREEFILE
                     OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
@@ -4307,6 +4304,7 @@ fh = FREEFILE
 OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
 CLOSE #fh
 a$ = RIGHT$(a$, LEN(a$) - 2)
+FoundBrokenLink = 0
 DO WHILE LEN(a$)
     ai = INSTR(a$, CRLF)
     IF ai THEN
@@ -4315,14 +4313,19 @@ DO WHILE LEN(a$)
             ln = ln + 1
             REDIM _PRESERVE RecentFilesList(1 to ln)
             RecentFilesList(ln) = f$
+        ELSE
+            FoundBrokenLink = -1
         END IF
     END IF
 LOOP
 
-fh = FREEFILE
-OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+If not FoundBrokenLink THEN
+    ideerrormessage "All files in the list are accessible."
+END IF
 
-If ln > 0 THEN
+If ln > 0 AND FoundBrokenLink THEN
+    fh = FREEFILE
+    OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
     f$ = ""
     for ln = 1 to ubound(RecentFilesList)
         f$ = f$ + CRLF + RecentFilesList(ln) + CRLF
