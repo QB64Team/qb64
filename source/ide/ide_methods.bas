@@ -10474,10 +10474,13 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
     END IF
 
-    menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-    menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-    menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
-    menu$(m, i) = "Cl#ear  Del": i = i + 1
+    if ideselect then menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+    if ideselect then menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+
+    clip$ = _CLIPBOARD$ 'read clipboard
+    IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+
+    if ideselect then menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
