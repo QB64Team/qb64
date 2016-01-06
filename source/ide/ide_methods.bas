@@ -3994,7 +3994,7 @@ DO
 
         IF menu$(m, s) = "Clear search #history..." THEN
             PCOPY 2, 0
-            r$ = ideclearsearch$
+            r$ = ideclearhistory$("SEARCH")
             IF r$ = "Y" THEN
                 fh = FREEFILE
                 OPEN ".\internal\temp\searched.bin" FOR OUTPUT AS #fh: CLOSE #fh
@@ -4146,10 +4146,41 @@ DO
 
         IF menu$(m, s) = "#Recent..." THEN
             PCOPY 2, 0
+            ideshowrecentbox:
             f$ = iderecentbox
+            IF f$ = "<C>" THEN
+                f$ = ""
+                PCOPY 3, 4
+                PCOPY 1, 3
+                r$ = ideclearhistory$("FILES")
+                PCOPY 4, 3
+                IF r$ = "Y" THEN
+                    fh = FREEFILE
+                    OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+                    IdeMakeFileMenu
+                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    GOTO ideloop
+                ELSE
+                    goto ideshowrecentbox
+                END IF
+            END IF
             IF LEN(f$) THEN
                 IdeOpenFile$ = f$
                 GOTO directopen
+            END IF
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
+        IF menu$(m, s) = "Clear #recent..." THEN
+            PCOPY 2, 0
+            r$ = ideclearhistory$("FILES")
+            IF r$ = "Y" THEN
+                fh = FREEFILE
+                OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+                IdeMakeFileMenu
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
             END IF
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
@@ -6397,7 +6428,7 @@ LOOP
 
 END FUNCTION
 
-FUNCTION ideclearsearch$
+FUNCTION ideclearhistory$(WhichHistory$)
 
 '-------- generic dialog box header --------
 PCOPY 3, 0
@@ -6445,7 +6476,11 @@ DO 'main loop
     '-------- end of generic display dialog box & objects --------
 
     '-------- custom display changes --------
-    COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "This cannot be undone. Clear search history?";
+    COLOR 0, 7: LOCATE p.y + 2, p.x + 3
+    SELECT CASE WhichHistory$
+        CASE "SEARCH": PRINT "This cannot be undone. Clear search history?";
+        CASE "FILES": PRINT "This cannot be undone. Clear recent files?";
+    END SELECT
     '-------- end of custom display changes --------
 
     'update visual page and cursor position
@@ -6498,7 +6533,7 @@ DO 'main loop
     '-------- end of generic input response --------
 
     IF info THEN
-        IF info = 1 THEN ideclearsearch$ = "Y" ELSE ideclearsearch$ = "N"
+        IF info = 1 THEN ideclearhistory$ = "Y" ELSE ideclearhistory$ = "N"
         EXIT FUNCTION
     END IF
 
@@ -10273,7 +10308,7 @@ o(i).nam = idenewtxt("Recent Programs")
 i = i + 1
 o(i).typ = 3
 o(i).y = idewy + idesubwindow - 6
-o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
+o(i).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "Clea#r list")
 o(i).dft = 1
 
 '-------- end of init --------
@@ -10354,9 +10389,14 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
-    IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
+    IF (K$ = CHR$(13) AND focus = 1) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
         f$ = idetxt(o(1).stx)
         iderecentbox$ = f$
+        EXIT FUNCTION
+    END IF
+
+    IF (K$ = CHR$(13) AND focus = 4) OR (focus = 4 AND info <> 0) OR (info = 1 AND focus = 4) THEN
+        iderecentbox$ = "<C>"
         EXIT FUNCTION
     END IF
 
@@ -10395,6 +10435,9 @@ FOR r = 1 TO 5
     END IF
 NEXT
 CLOSE #fh
+IF menu$(m, i - 1) <> "#Recent..." and menu$(m, i - 1) <> "Save #As..." THEN
+    menu$(m, i) = "Clear #recent...": i = i + 1
+END IF
 menu$(m, i) = "-": i = i + 1
 menu$(m, i) = "E#xit": i = i + 1
 menusize(m) = i - 1
