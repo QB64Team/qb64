@@ -3623,6 +3623,17 @@ DO
             IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockDecreaseIndent
         END IF
 
+        IF menu$(m, s) = "~Decrease indent  Shift+TAB" OR menu$(m, s) = "~Increase indent  TAB" THEN
+            IF ideautoindent <> 0 THEN
+                ideerrormessage "Not available when auto indent is active (Options/Code Layout)."
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            ELSE
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+        END IF
+
         IF menu$(m, s) = "#Language..." THEN
             PCOPY 2, 0
             retval = idelanguagebox
