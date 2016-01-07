@@ -3173,6 +3173,8 @@ DO
         END IF
     END IF
 
+    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing chr$(27) in the IDE
+
     'standard character
     IF ideselect THEN GOSUB delselect
     idechangemade = 1
@@ -3194,8 +3196,6 @@ DO
 
     a$ = idegetline(idecy)
     IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-
-    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing chr$(27) in the IDE
 
     IF ideinsert THEN
         a2$ = RIGHT$(a$, LEN(a$) - idecx + 1)
