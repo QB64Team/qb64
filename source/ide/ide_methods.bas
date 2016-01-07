@@ -10723,7 +10723,6 @@ SUB IdeMakeContextualMenu
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
-    menu$(m, i) = "-": i = i + 1
     IF ideselect AND ideautoindent = 0 THEN
         y1 = idecy
         y2 = ideselecty1
@@ -10745,6 +10744,8 @@ SUB IdeMakeContextualMenu
             menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
             menu$(m, i) = "-": i = i + 1
         END IF
+    else
+        menu$(m, i) = "-": i = i + 1
     end if
     menu$(m, i) = "New #SUB...": i = i + 1
     menu$(m, i) = "New #FUNCTION...": i = i + 1
@@ -10783,7 +10784,6 @@ SUB IdeMakeEditMenu
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
-    menu$(m, i) = "-": i = i + 1
     IF ideselect AND ideautoindent = 0 THEN
         y1 = idecy
         y2 = ideselecty1
