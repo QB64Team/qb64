@@ -3059,9 +3059,118 @@ DO
     ideforceinput:
 
     IF K$ = CHR$(9) THEN
-        x = 4
-        IF ideautoindent <> 0 AND ideautoindentsize <> 0 THEN x = ideautoindentsize
-        K$ = SPACE$(x - ((idecx - 1) MOD x))
+        IF ideselect AND ideautoindent = 0 THEN
+            'Block indentation code copied/adapted from block comment/uncomment:
+            IF KSHIFT THEN
+                IdeBlockDecreaseIndent:
+                BlockIndentLevel = 4
+                IF ideautoindentsize <> 0 THEN BlockIndentLevel = ideautoindentsize
+                y1 = idecy
+                y2 = ideselecty1
+
+                IF y1 = y2 THEN 'single line selected
+                    a$ = idegetline(idecy)
+                    a2$ = ""
+                    sx1 = ideselectx1: sx2 = idecx
+                    IF sx2 < sx1 THEN SWAP sx1, sx2
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                    NEXT
+                    IF a2$ = "" THEN
+                        GOTO SkipBlockIndent
+                    END IF
+                END IF
+
+                IF y1 > y2 THEN SWAP y1, y2
+                IF idecy > ideselecty1 AND idecx = 1 THEN y2 = y2 - 1
+                'calculate lhs
+                lhs = 10000000
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        ta$ = LTRIM$(a$)
+                        t = LEN(a$) - LEN(ta$)
+                        IF t < lhs THEN lhs = t
+                    END IF
+                NEXT
+                'edit lines
+                'Unless any of the block lines already starts at the beginning of the line
+                IF lhs > 0 THEN
+                    IF lhs < BlockIndentLevel then BlockIndentLevel = lhs
+                    FOR y = y1 TO y2
+                        a$ = idegetline(y)
+                        IF LEN(a$) THEN
+                            a$ = right$(a$, LEN(a$) - BlockIndentLevel)
+                            idesetline y, a$
+                            idechangemade = 1
+                        END IF
+                    NEXT
+                END IF
+                if (y1 = y2) AND idechangemade then
+                    ideselectx1 = ideselectx1 - BlockIndentLevel
+                    idecx = idecx - BlockIndentLevel
+                    if idecx < 1 then idecx = 1: ideselectx1 = idecx
+                end if
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            ELSE
+                IdeBlockIncreaseIndent:
+                BlockIndentLevel = 4
+                IF ideautoindentsize <> 0 THEN BlockIndentLevel = ideautoindentsize
+                y1 = idecy
+                y2 = ideselecty1
+
+                IF y1 = y2 THEN 'single line selected
+                    a$ = idegetline(idecy)
+                    a2$ = ""
+                    sx1 = ideselectx1: sx2 = idecx
+                    IF sx2 < sx1 THEN SWAP sx1, sx2
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                    NEXT
+                    IF a2$ = "" THEN
+                        GOTO SkipBlockIndent
+                    END IF
+                END IF
+
+                IF y1 > y2 THEN SWAP y1, y2
+                IF idecy > ideselecty1 AND idecx = 1 THEN y2 = y2 - 1
+                'calculate lhs
+                lhs = 10000000
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        ta$ = LTRIM$(a$)
+                        t = LEN(a$) - LEN(ta$)
+                        IF t < lhs THEN lhs = t
+                    END IF
+                NEXT
+                'edit lines
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        a$ = LEFT$(a$, lhs) + SPACE$(BlockIndentLevel) + RIGHT$(a$, LEN(a$) - lhs)
+                        idesetline y, a$
+                        idechangemade = 1
+                    END IF
+                NEXT
+                if (y1 = y2) AND idechangemade then
+                    ideselectx1 = ideselectx1 + BlockIndentLevel
+                    idecx = idecx + BlockIndentLevel
+                end if
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+        ELSE
+            SkipBlockIndent:
+            IF KSHIFT = 0 THEN
+                x = 4
+                IF ideautoindent <> 0 AND ideautoindentsize <> 0 THEN x = ideautoindentsize
+                K$ = SPACE$(x - ((idecx - 1) MOD x))
+            ELSE
+                K$ = ""
+            END IF
+        END IF
     END IF
 
     'standard character
@@ -3504,6 +3613,14 @@ DO
             NEXT
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
+        END IF
+
+        IF menu$(m, s) = "Increase indent  TAB" THEN
+            IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockIncreaseIndent
+        END IF
+
+        IF menu$(m, s) = "Decrease indent  Shift+TAB" THEN
+            IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockDecreaseIndent
         END IF
 
         IF menu$(m, s) = "#Language..." THEN
@@ -10596,6 +10713,28 @@ SUB IdeMakeContextualMenu
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
     menu$(m, i) = "-": i = i + 1
+    IF ideselect AND ideautoindent = 0 THEN
+        y1 = idecy
+        y2 = ideselecty1
+        IF y1 = y2 THEN 'single line selected
+            a$ = idegetline(idecy)
+            a2$ = ""
+            sx1 = ideselectx1: sx2 = idecx
+            IF sx2 < sx1 THEN SWAP sx1, sx2
+            FOR x = sx1 TO sx2 - 1
+                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+            NEXT
+            IF a2$ <> "" THEN
+                menu$(m, i) = "Increase indent  TAB": i = i + 1
+                menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+                menu$(m, i) = "-": i = i + 1
+            END IF
+        ELSE
+            menu$(m, i) = "Increase indent  TAB": i = i + 1
+            menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+            menu$(m, i) = "-": i = i + 1
+        END IF
+    end if
     menu$(m, i) = "New #SUB...": i = i + 1
     menu$(m, i) = "New #FUNCTION...": i = i + 1
     menusize(m) = i - 1
@@ -10633,6 +10772,33 @@ SUB IdeMakeEditMenu
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    IF ideselect AND ideautoindent = 0 THEN
+        y1 = idecy
+        y2 = ideselecty1
+        IF y1 = y2 THEN 'single line selected
+            a$ = idegetline(idecy)
+            a2$ = ""
+            sx1 = ideselectx1: sx2 = idecx
+            IF sx2 < sx1 THEN SWAP sx1, sx2
+            FOR x = sx1 TO sx2 - 1
+                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+            NEXT
+            IF a2$ = "" THEN
+                menu$(m, i) = "~Increase indent  TAB": i = i + 1
+                menu$(m, i) = "~Decrease indent  Shift+TAB": i = i + 1
+            ELSE
+                menu$(m, i) = "Increase indent  TAB": i = i + 1
+                menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+            END IF
+        ELSE
+            menu$(m, i) = "Increase indent  TAB": i = i + 1
+            menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+        END IF
+    else
+        menu$(m, i) = "~Increase indent  TAB": i = i + 1
+        menu$(m, i) = "~Decrease indent  Shift+TAB": i = i + 1
+    end if
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "New #SUB...": i = i + 1
     menu$(m, i) = "New #FUNCTION...": i = i + 1
