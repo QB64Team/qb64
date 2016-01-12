@@ -104,6 +104,12 @@ END FUNCTION
 
 FUNCTION ide2 (ignore)
 STATIC MenuLocations as STRING
+STATIC idesystem2.issel AS _BYTE
+STATIC idesystem2.sx1 AS LONG
+STATIC idesystem2.v1 AS LONG
+STATIC AttemptToLoadRecent AS _BYTE
+
+CONST idesystem2.w = 20
 
 c$ = idecommand$
 
@@ -114,11 +120,21 @@ IF ideerror THEN
     IF ideerror = 2 THEN ideerrormessage "File not found"
     IF ideerror = 3 THEN ideerrormessage "File access error": CLOSE #150
     IF ideerror = 4 THEN ideerrormessage "Path not found"
-                         ideerrormessage str$(err) + "on line "+ str$(_errorline)
+                         ideerrormessage str$(err) + " on line" + str$(_errorline)
 END IF
+
+IF (ideerror = 2 or ideerror = 3 or ideerror = 4) AND (AttemptToLoadRecent = -1) THEN
+    'Offer to cleanup recent file list, removing invalid entries
+    PCOPY 2, 0
+    r$ = ideclearhistory$("INVALID")
+    IF r$ = "Y" THEN
+        GOSUB CleanUpRecentList
+    END IF
+    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+END IF
+
 ideerror = 1 'unknown IDE error
-
-
+AttemptToLoadRecent = 0
 
 IF LEFT$(c$, 1) = CHR$(12) THEN
     f$ = RIGHT$(c$, LEN(c$) - 1)
@@ -178,22 +194,8 @@ IF idelaunched = 0 THEN
     IdeMakeFileMenu
 
     m = m + 1: i = 0
-    menu$(m, i) = "Edit": i = i + 1
-    menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-    menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-    menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
-    menu$(m, i) = "Cl#ear  Del": i = i + 1
-    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
-    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Comment (add ')": i = i + 1
-    menu$(m, i) = "Uncomment (remove ')": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "New #SUB...": i = i + 1
-    menu$(m, i) = "New #FUNCTION...": i = i + 1
-    menusize(m) = i - 1
+    ideeditmenuID = m
+    IdeMakeEditMenu
 
     m = m + 1: i = 0
     menu$(m, i) = "View": i = i + 1
@@ -205,6 +207,8 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Find...  Ctrl+F3": i = i + 1
     menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
     menu$(m, i) = "#Change...": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "Clear search #history...": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Add/Remove #Bookmark  Alt+Left": i = i + 1
     menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
@@ -756,16 +760,7 @@ DO
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
         'update search bar
-        LOCATE idewy - 4, idewx - 30
-        COLOR 7, 1: PRINT chr$(180);
-        COLOR 3, 1: PRINT "Find[                     " + chr$(18) + "]";
-        COLOR 7, 1: PRINT chr$(195);
-        f$ = idefindtext
-        IF LEN(f$) > 20 THEN
-            f$ = string$(3, 250) + RIGHT$(f$, 17)
-        END IF
-        LOCATE idewy - 4, idewx - 28 + 4: COLOR 3, 1: PRINT f$
-        findtext$ = f$
+        GOSUB UpdateSearchBar
 
         'alter cursor style to match insert mode
         IF ideinsert THEN LOCATE , , , 0, 31 ELSE LOCATE , , , 8, 8
@@ -877,7 +872,15 @@ DO
 
         IF IdeSystem = 2 THEN 'override cursor position
             SCREEN , , 0, 0
-            LOCATE idewy - 4, idewx - 28 + 4 + LEN(findtext$)
+            tx = idesystem2.v1
+            IF LEN(idefindtext) > idesystem2.w THEN
+                IF idesystem2.v1 > idesystem2.w THEN
+                    tx = idesystem2.w
+                ELSE
+                    tx = idesystem2.v1
+                END IF
+            END IF
+            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 + tx
             SCREEN , , 3, 0
         END IF
 
@@ -1294,6 +1297,7 @@ DO
     IF KCTRL AND UCASE$(K$) = "F" THEN
         K$ = ""
         IdeSystem = 2
+        if len(idefindtext) then idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext)
     END IF
 
     IF KCTRL AND KB = KEY_F3 THEN
@@ -1304,7 +1308,13 @@ DO
     IF KB = KEY_F3 THEN
         IF IdeSystem = 3 THEN IdeSystem = 1
         idemf3:
-        IF idefindtext$ <> "" THEN
+        IF idefindtext <> "" THEN
+            if IdeSystem = 2 then
+                idesystem2.sx1 = 0
+                idesystem2.v1 = len(idefindtext)
+                idesystem2.issel = -1
+            end if
+            GOSUB UpdateSearchBar
             IF KSHIFT THEN idefindinvert = 1
             IdeAddSearched idefindtext
             idefindagain
@@ -1462,11 +1472,12 @@ DO
 
     'IdeSystem specific code goes here
 
-    IF mCLICK THEN 'Find [...] search field
-        IF mY = idewy - 4 AND mX > idewx - 30 AND mX < idewx - 1 THEN 'inside text box
-            IF mX <= idewx - 28 + 2 THEN
+    IF mCLICK THEN 'Find [...] search field (IdeSystem = 2)
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
+            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
                 IF LEN(idefindtext) = 0 THEN
                     IdeSystem = 2 'no search string, so begin editing
+                    idesystem2.issel = 0: idesystem2.v1 = 0
                 ELSE
                     IdeAddSearched idefindtext
                     IdeSystem = 1: GOTO idemf3 'F3 functionality
@@ -1475,6 +1486,7 @@ DO
                 IF mX = idewx - 3 THEN
                     showrecentlysearchedbox:
                     PCOPY 0, 3
+                    GOSUB UpdateSearchBar
                     f$ = idesearchedbox
                     IF LEN(f$) THEN idefindtext = f$
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -1484,8 +1496,22 @@ DO
                     IF LEN(f$) THEN GOTO idemf3 'F3 functionality
                     GOTO ideloop
                 ELSE
-                    IF IdeSystem = 2 THEN idefindtext = "" 'clicking on the text field again clears text
-                    IdeSystem = 2
+                    IF IdeSystem = 2 THEN
+                        if idesystem2.issel then idesystem2.issel = 0
+
+                        if len(idefindtext) <= idesystem2.w THEN
+                            idesystem2.v1 = mX - (idewx - (idesystem2.w + 4))
+                        else
+                            if idesystem2.v1 > idesystem2.w then
+                                idesystem2.v1 = (mX - (idewx - (idesystem2.w + 4))) + (idesystem2.v1 - idesystem2.w)
+                            else
+                                idesystem2.v1 = mX - (idewx - (idesystem2.w + 4))
+                            end if
+                        END IF
+                    ELSE
+                        IdeSystem = 2
+                        if len(idefindtext) then idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = len(idefindtext)
+                    END IF
                 END IF
             END IF
         END IF
@@ -1529,42 +1555,143 @@ DO
     END IF
 
     IF IdeSystem = 2 THEN
-
-        IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
-            clip$ = _CLIPBOARD$ 'read clipboard
-            x = INSTR(clip$, CHR$(13))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            x = INSTR(clip$, CHR$(10))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            IF LEN(clip$) THEN
-                idefindtext = clip$
-                GOTO specialchar
-            END IF
-        END IF
-
-        IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
-            IF LEN(idefindtext) THEN _CLIPBOARD$ = idefindtext
-            GOTO specialchar
-        END IF
-
+        a$ = idefindtext
         IF LEN(K$) = 1 THEN
-            IF K$ = CHR$(27) THEN
+            k = ASC(K$)
+            IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
+                clip$ = _CLIPBOARD$ 'read clipboard
+                x = INSTR(clip$, CHR$(13))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                x = INSTR(clip$, CHR$(10))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                IF LEN(clip$) THEN
+                    IF idesystem2.issel THEN
+                        sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                        IF sx1 > sx2 THEN SWAP sx1, sx2
+                        IF sx2 - sx1 > 0 THEN
+                            a$ = LEFT$(a$, sx1) + clip$ + RIGHT$(a$, LEN(a$) - sx2)
+                            idesystem2.v1 = sx1
+                            idesystem2.issel = 0
+                        END IF
+                    ELSE
+                        a$ = LEFT$(a$, idesystem2.v1) + clip$ + RIGHT$(a$, LEN(a$) - idesystem2.v1)
+                    END IF
+                END IF
+                k = 255
+            END IF
+
+            IF (KCONTROL AND UCASE$(K$) = "A") THEN 'select all
+                IF LEN(a$) > 0 THEN
+                    idesystem2.issel = -1
+                    idesystem2.sx1 = 0
+                    idesystem2.v1 = LEN(a$)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN _CLIPBOARD$ = MID$(a$, sx1 + 1, sx2 - sx1)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X")) THEN 'cut to clipboard
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN
+                        _CLIPBOARD$ = MID$(a$, sx1 + 1, sx2 - sx1)
+                        'delete selection
+                        a$ = LEFT$(a$, sx1) + RIGHT$(a$, LEN(a$) - sx2)
+                        idesystem2.v1 = sx1
+                        idesystem2.issel = 0
+                    END IF
+                END IF
+                k = 255
+            END IF
+
+            IF k = 8 THEN
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN
+                        'delete selection
+                        a$ = LEFT$(a$, sx1) + RIGHT$(a$, LEN(a$) - sx2)
+                        idefindtext = a$
+                        idesystem2.v1 = sx1
+                        idesystem2.issel = 0
+                    END IF
+                ELSEIF idesystem2.v1 > 0 THEN
+                    a1$ = LEFT$(a$, idesystem2.v1 - 1)
+                    IF idesystem2.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - idesystem2.v1) ELSE a2$ = ""
+                    a$ = a1$ + a2$: idesystem2.v1 = idesystem2.v1 - 1
+                    idefindtext = a$
+                END IF
+            END IF
+            IF k = 27 THEN
                 IdeSystem = 1
                 GOTO specialchar
             END IF
-            IF ASC(K$) = 13 THEN
-                IF LEN(idefindtext) THEN IdeAddSearched idefindtext: GOTO idemf3 'F3 functionality
+            IF k = 9 THEN
+                IdeSystem = 1
                 GOTO specialchar
             END IF
-            IF ASC(K$) = 8 THEN
-                IF LEN(idefindtext) THEN idefindtext = LEFT$(idefindtext, LEN(idefindtext) - 1)
+            IF k = 13 THEN
+                IF LEN(idefindtext) THEN
+                    IdeAddSearched idefindtext
+                    GOTO idemf3 'F3 functionality
+                END IF
                 GOTO specialchar
             END IF
-            IF ASC(K$) < 32 THEN GOTO specialchar 'block control characters
-
-            idefindtext = idefindtext + K$
-            GOTO specialchar
+            IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 THEN
+                IF idesystem2.issel THEN
+                    sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                    IF sx1 > sx2 THEN SWAP sx1, sx2
+                    IF sx2 - sx1 > 0 THEN
+                        'replace selection
+                        a$ = LEFT$(a$, sx1) + RIGHT$(a$, LEN(a$) - sx2)
+                        idefindtext = a$
+                        idesystem2.issel = 0
+                        idesystem2.v1 = sx1
+                    end if
+                end if
+                IF idesystem2.v1 > 0 THEN a1$ = LEFT$(a$, idesystem2.v1) ELSE a1$ = ""
+                IF idesystem2.v1 <= LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - idesystem2.v1) ELSE a2$ = ""
+                a$ = a1$ + K$ + a2$: idesystem2.v1 = idesystem2.v1 + 1
+            END IF
+            idefindtext = a$
         END IF
+
+        IF K$ = CHR$(0) + "S" THEN 'DEL
+            if idesystem2.issel THEN
+                sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+                if sx1 > sx2 then SWAP sx1, sx2
+                if sx2 - sx1 > 0 then
+                    'delete selection
+                    a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                    idefindtext = a$
+                    idesystem2.v1 = sx1
+                    idesystem2.issel = 0
+                end if
+            else
+                IF idesystem2.v1 > 0 THEN a1$ = LEFT$(a$, idesystem2.v1) ELSE a1$ = ""
+                IF idesystem2.v1 < LEN(a$) THEN a2$ = RIGHT$(a$, LEN(a$) - idesystem2.v1 - 1) ELSE a2$ = ""
+                a$ = a1$ + a2$
+                idefindtext = a$
+            end if
+        END IF
+
+        'cursor control
+        if K$ = CHR$(0) + "K" THEN GOSUB selectcheck: idesystem2.v1 = idesystem2.v1 - 1
+        IF K$ = CHR$(0) + "M" THEN GOSUB selectcheck: idesystem2.v1 = idesystem2.v1 + 1
+        IF K$ = CHR$(0) + "G" THEN GOSUB selectcheck: idesystem2.v1 = 0
+        IF K$ = CHR$(0) + "O" THEN GOSUB selectcheck: idesystem2.v1 = LEN(a$)
+        IF idesystem2.v1 < 0 THEN idesystem2.v1 = 0
+        IF idesystem2.v1 > LEN(a$) THEN idesystem2.v1 = LEN(a$)
+        IF idesystem2.v1 = idesystem2.sx1 then idesystem2.issel = 0
 
         IF mCLICK or mCLICK2 THEN
             IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
@@ -2795,8 +2922,13 @@ DO
     GOTO skipgosubs
 
     selectcheck:
-    IF KSHIFT AND ideselect = 0 THEN ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
-    IF KSHIFT = 0 THEN ideselect = 0
+    IF IdeSystem = 1 THEN
+        IF KSHIFT AND ideselect = 0 THEN ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
+        IF KSHIFT = 0 THEN ideselect = 0
+    ELSEIF IdeSystem = 2 THEN
+        IF KSHIFT AND idesystem2.issel = 0 THEN idesystem2.issel = -1: idesystem2.sx1 = idesystem2.v1
+        IF KSHIFT = 0 THEN idesystem2.issel = 0
+    END IF
     RETURN
 
     delselect:
@@ -2927,10 +3059,121 @@ DO
     ideforceinput:
 
     IF K$ = CHR$(9) THEN
-        x = 4
-        IF ideautoindent <> 0 AND ideautoindentsize <> 0 THEN x = ideautoindentsize
-        K$ = SPACE$(x - ((idecx - 1) MOD x))
+        IF ideselect AND ideautoindent = 0 THEN
+            'Block indentation code copied/adapted from block comment/uncomment:
+            IF KSHIFT THEN
+                IdeBlockDecreaseIndent:
+                BlockIndentLevel = 4
+                IF ideautoindentsize <> 0 THEN BlockIndentLevel = ideautoindentsize
+                y1 = idecy
+                y2 = ideselecty1
+
+                IF y1 = y2 THEN 'single line selected
+                    a$ = idegetline(idecy)
+                    a2$ = ""
+                    sx1 = ideselectx1: sx2 = idecx
+                    IF sx2 < sx1 THEN SWAP sx1, sx2
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                    NEXT
+                    IF a2$ = "" THEN
+                        GOTO SkipBlockIndent
+                    END IF
+                END IF
+
+                IF y1 > y2 THEN SWAP y1, y2
+                IF idecy > ideselecty1 AND idecx = 1 THEN y2 = y2 - 1
+                'calculate lhs
+                lhs = 10000000
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        ta$ = LTRIM$(a$)
+                        t = LEN(a$) - LEN(ta$)
+                        IF t < lhs THEN lhs = t
+                    END IF
+                NEXT
+                'edit lines
+                'Unless any of the block lines already starts at the beginning of the line
+                IF lhs > 0 THEN
+                    IF lhs < BlockIndentLevel then BlockIndentLevel = lhs
+                    FOR y = y1 TO y2
+                        a$ = idegetline(y)
+                        IF LEN(a$) THEN
+                            a$ = right$(a$, LEN(a$) - BlockIndentLevel)
+                            idesetline y, a$
+                            idechangemade = 1
+                        END IF
+                    NEXT
+                END IF
+                if (y1 = y2) AND idechangemade then
+                    ideselectx1 = ideselectx1 - BlockIndentLevel
+                    idecx = idecx - BlockIndentLevel
+                    if idecx < 1 then idecx = 1: ideselectx1 = idecx
+                end if
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            ELSE
+                IdeBlockIncreaseIndent:
+                BlockIndentLevel = 4
+                IF ideautoindentsize <> 0 THEN BlockIndentLevel = ideautoindentsize
+                y1 = idecy
+                y2 = ideselecty1
+
+                IF y1 = y2 THEN 'single line selected
+                    a$ = idegetline(idecy)
+                    a2$ = ""
+                    sx1 = ideselectx1: sx2 = idecx
+                    IF sx2 < sx1 THEN SWAP sx1, sx2
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                    NEXT
+                    IF a2$ = "" THEN
+                        GOTO SkipBlockIndent
+                    END IF
+                END IF
+
+                IF y1 > y2 THEN SWAP y1, y2
+                IF idecy > ideselecty1 AND idecx = 1 THEN y2 = y2 - 1
+                'calculate lhs
+                lhs = 10000000
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        ta$ = LTRIM$(a$)
+                        t = LEN(a$) - LEN(ta$)
+                        IF t < lhs THEN lhs = t
+                    END IF
+                NEXT
+                'edit lines
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        a$ = LEFT$(a$, lhs) + SPACE$(BlockIndentLevel) + RIGHT$(a$, LEN(a$) - lhs)
+                        idesetline y, a$
+                        idechangemade = 1
+                    END IF
+                NEXT
+                if (y1 = y2) AND idechangemade then
+                    ideselectx1 = ideselectx1 + BlockIndentLevel
+                    idecx = idecx + BlockIndentLevel
+                end if
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+        ELSE
+            SkipBlockIndent:
+            IF KSHIFT = 0 THEN
+                x = 4
+                IF ideautoindent <> 0 AND ideautoindentsize <> 0 THEN x = ideautoindentsize
+                K$ = SPACE$(x - ((idecx - 1) MOD x))
+            ELSE
+                K$ = ""
+            END IF
+        END IF
     END IF
+
+    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing chr$(27) in the IDE
 
     'standard character
     IF ideselect THEN GOSUB delselect
@@ -2953,8 +3196,6 @@ DO
 
     a$ = idegetline(idecy)
     IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-
-    IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing chr$(27) in the IDE
 
     IF ideinsert THEN
         a2$ = RIGHT$(a$, LEN(a$) - idecx + 1)
@@ -2982,6 +3223,7 @@ startmenu:
 m = 1
 startmenu2:
 altheld = 1
+if IdeSystem = 2 then IdeSystem = 1: GOSUB UpdateSearchBar
 
 DO
 
@@ -3081,10 +3323,12 @@ LOOP
 
 showmenu:
 altheld = 1
+if IdeSystem = 2 then IdeSystem = 1: GOSUB UpdateSearchBar
 PCOPY 0, 2
 SCREEN , , 1, 0
 r = 1
 IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
+IdeMakeEditMenu
 oldmy = mY: oldmx = mX
 DO
     PCOPY 2, 1
@@ -3103,6 +3347,7 @@ DO
         m$ = menu$(m, i)
         l = LEN(m$)
         IF INSTR(m$, "#") THEN l = l - 1
+        IF LEFT$(m$, 1) = "~" THEN l = l - 1
         IF INSTR(m$, "  ") THEN l = l + 2 'min 4 spacing
         IF l > w THEN w = l
     NEXT
@@ -3122,6 +3367,16 @@ DO
         m$ = menu$(m, i)
         IF m$ = "-" THEN
             COLOR 0, 7: LOCATE i + yy, xx - 2: PRINT chr$(195) + STRING$(w + 2, chr$(196)) + chr$(180);
+        ELSEIF left$(m$, 1) = "~" THEN
+            m$ = right$(m$, len(m$) - 1) 'Remove the tilde before printing
+            IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
+            LOCATE i + yy, xx
+            h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
+            x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
+            FOR x = 1 TO LEN(m$)
+                IF r = i THEN COLOR 8, 0 ELSE COLOR 8, 7
+                PRINT MID$(m$, x, 1);
+            NEXT
         ELSE
             IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
             LOCATE i + yy, xx
@@ -3134,7 +3389,6 @@ DO
                     IF r = i THEN COLOR 7, 0 ELSE COLOR 0, 7
                 END IF
                 PRINT MID$(m$, x, 1);
-
             NEXT
 
 
@@ -3359,6 +3613,25 @@ DO
             NEXT
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
+        END IF
+
+        IF menu$(m, s) = "Increase indent  TAB" THEN
+            IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockIncreaseIndent
+        END IF
+
+        IF menu$(m, s) = "Decrease indent  Shift+TAB" THEN
+            IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockDecreaseIndent
+        END IF
+
+        IF menu$(m, s) = "~Decrease indent  Shift+TAB" OR menu$(m, s) = "~Increase indent  TAB" THEN
+            IF ideautoindent <> 0 THEN
+                ideerrormessage "Not available when auto indent is active (Options/Code Layout)."
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            ELSE
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
         END IF
 
         IF menu$(m, s) = "#Language..." THEN
@@ -3860,6 +4133,18 @@ DO
             GOTO ideloop
         END IF '#Change...
 
+        IF menu$(m, s) = "Clear search #history..." THEN
+            PCOPY 2, 0
+            r$ = ideclearhistory$("SEARCH")
+            IF r$ = "Y" THEN
+                fh = FREEFILE
+                OPEN ".\internal\temp\searched.bin" FOR OUTPUT AS #fh: CLOSE #fh
+                idefindtext = ""
+            END IF
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
         IF menu$(m, s) = "#Repeat Last Find  (Shift+) F3" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO idemf3
@@ -3990,10 +4275,12 @@ DO
             GOTO ideloop
         END IF
 
+        AttemptToLoadRecent = 0
         FOR ml = 1 TO 4
             IF LEN(IdeRecentLink(ml, 1)) THEN
                 IF menu$(m, s) = IdeRecentLink(ml, 1) THEN
                     IdeOpenFile$ = IdeRecentLink(ml, 2)
+                    AttemptToLoadRecent = -1
                     GOTO directopen
                 END IF
             END IF
@@ -4002,10 +4289,42 @@ DO
 
         IF menu$(m, s) = "#Recent..." THEN
             PCOPY 2, 0
+            ideshowrecentbox:
             f$ = iderecentbox
+            IF f$ = "<C>" THEN
+                f$ = ""
+                r$ = ideclearhistory$("FILES")
+                IF r$ = "Y" THEN
+                    fh = FREEFILE
+                    OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+                    IdeMakeFileMenu
+                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    GOTO ideloop
+                ELSE
+                    goto ideshowrecentbox
+                END IF
+            ELSEIF f$ = "<R>" THEN
+                GOSUB CleanUpRecentList
+                GOTO ideshowrecentbox
+            END IF
             IF LEN(f$) THEN
                 IdeOpenFile$ = f$
+                AttemptToLoadRecent = -1
                 GOTO directopen
+            END IF
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
+        IF menu$(m, s) = "Clear #recent..." THEN
+            PCOPY 2, 0
+            r$ = ideclearhistory$("FILES")
+            IF r$ = "Y" THEN
+                fh = FREEFILE
+                OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+                IdeMakeFileMenu
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
             END IF
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
@@ -4055,7 +4374,9 @@ DO
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
         END IF
 
-
+        IF left$(menu$(m, s),1) = "~" THEN 'Ignore disabled items (starting with "~")
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+        END IF
 
 
         SCREEN , , 0, 0
@@ -4068,7 +4389,84 @@ DO
 LOOP
 
 '--------------------------------------------------------------------------------
+EXIT FUNCTION
+UpdateSearchBar:
+        LOCATE idewy - 4, idewx - (idesystem2.w + 10)
+        COLOR 7, 1: PRINT chr$(180);
+        COLOR 3, 1: PRINT "Find[" + SPACE$(idesystem2.w + 1) + chr$(18) + "]";
+        COLOR 7, 1: PRINT chr$(195);
 
+        a$ = idefindtext
+        tx = 1
+        IF LEN(a$) > idesystem2.w THEN
+            IF IdeSystem = 2 THEN
+                tx = idesystem2.v1 - idesystem2.w + 1
+                IF tx < 1 THEN tx = 1
+                a$ = MID$(a$, tx, idesystem2.w)
+            ELSE
+                a$ = LEFT$(a$, idesystem2.w)
+            END IF
+        END IF
+
+        sx1 = idesystem2.sx1: sx2 = idesystem2.v1
+        if sx1 > sx2 then SWAP sx1, sx2
+
+        x = x + 2
+        'apply selection color change if necessary
+        IF idesystem2.issel = 0 or IdeSystem <> 2 THEN
+            COLOR 3, 1
+            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4: PRINT a$;
+        ELSE
+            FOR ColorCHAR = 1 to len(a$)
+                if ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 1, 3 ELSE COLOR 3, 1
+                LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 - 1 + ColorCHAR
+                PRINT mid$(a$, ColorCHAR, 1);
+            NEXT
+        END IF
+RETURN
+
+CleanUpRecentList:
+l$ = "": ln = 0
+REDIM RecentFilesList(0) AS STRING
+fh = FREEFILE
+OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+CLOSE #fh
+a$ = RIGHT$(a$, LEN(a$) - 2)
+FoundBrokenLink = 0
+DO WHILE LEN(a$)
+    ai = INSTR(a$, CRLF)
+    IF ai THEN
+        f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+        IF _FILEEXISTS(f$) THEN
+            ln = ln + 1
+            REDIM _PRESERVE RecentFilesList(1 to ln)
+            RecentFilesList(ln) = f$
+        ELSE
+            FoundBrokenLink = -1
+        END IF
+    END IF
+LOOP
+
+If not FoundBrokenLink THEN
+    ideerrormessage "All files in the list are accessible."
+END IF
+
+If ln > 0 AND FoundBrokenLink THEN
+    fh = FREEFILE
+    OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
+    f$ = ""
+    for ln = 1 to ubound(RecentFilesList)
+        f$ = f$ + CRLF + RecentFilesList(ln) + CRLF
+    next
+    fh = FREEFILE
+    OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh
+    PUT #fh, 1, f$
+    CLOSE #fh
+END IF
+
+ERASE RecentFilesList
+IdeMakeFileMenu
+RETURN
 END FUNCTION
 
 SUB idebox (x, y, w, h)
@@ -4109,7 +4507,7 @@ END IF
 END SUB
 
 FUNCTION idechange$
-
+REDIM SearchHistory(0) AS STRING
 
 '-------- generic dialog box header --------
 PCOPY 0, 2
@@ -4140,6 +4538,23 @@ END IF
 IF a2$ = "" THEN
     a2$ = idefindtext
 END IF
+
+'retrieve search history
+ln = 0
+fh = FREEFILE
+OPEN ".\internal\temp\searched.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+CLOSE #fh
+a$ = RIGHT$(a$, LEN(a$) - 2)
+DO WHILE LEN(a$)
+    ai = INSTR(a$, CRLF)
+    IF ai THEN
+        f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+        ln = ln + 1
+        REDIM _PRESERVE SearchHistory(1 to ln)
+        SearchHistory(ln) = f$
+    END IF
+LOOP
+ln = 0
 
 i = 0
 idepar p, 60, 12, "Change"
@@ -4272,8 +4687,25 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
+    if ubound(SearchHistory) > 0 then
+        IF K$ = CHR$(0) + CHR$(72) AND focus = 1 THEN 'Up
+            IF ln < ubound(SearchHistory) THEN
+                ln = ln + 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
 
-
+        IF K$ = CHR$(0) + CHR$(80) AND focus = 1 THEN 'Down
+            IF ln > 1 THEN
+                ln = ln - 1
+            ELSE
+                ln = 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
+    end if
 
     IF focus = 7 AND info <> 0 THEN 'change all
         idefindcasesens = o(3).sel
@@ -5055,7 +5487,7 @@ END FUNCTION
 
 FUNCTION idefind$
 
-
+REDIM SearchHistory(0) AS STRING
 '-------- generic dialog box header --------
 PCOPY 0, 2
 PCOPY 0, 1
@@ -5086,6 +5518,22 @@ IF a2$ = "" THEN
     a2$ = idefindtext
 END IF
 
+'retrieve search history
+ln = 0
+fh = FREEFILE
+OPEN ".\internal\temp\searched.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
+CLOSE #fh
+a$ = RIGHT$(a$, LEN(a$) - 2)
+DO WHILE LEN(a$)
+    ai = INSTR(a$, CRLF)
+    IF ai THEN
+        f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+        ln = ln + 1
+        REDIM _PRESERVE SearchHistory(1 to ln)
+        SearchHistory(ln) = f$
+    END IF
+LOOP
+ln = 0
 
 i = 0
 idepar p, 60, 9, "Find"
@@ -5217,6 +5665,25 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
+    if ubound(SearchHistory) > 0 then
+        IF K$ = CHR$(0) + CHR$(72) AND focus = 1 THEN 'Up
+            IF ln < ubound(SearchHistory) THEN
+                ln = ln + 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
+
+        IF K$ = CHR$(0) + CHR$(80) AND focus = 1 THEN 'Down
+            IF ln > 1 THEN
+                ln = ln - 1
+            ELSE
+                ln = 1
+            END IF
+            idetxt(o(1).txt) = SearchHistory(ln)
+            o(1).issel = -1: o(1).sx1 = 0: o(1).v1 = len(idetxt(o(1).txt))
+        END IF
+    end if
     'end of custom controls
 
 
@@ -6138,6 +6605,123 @@ DO 'main loop
 
     IF info THEN
         IF info = 1 THEN iderestore$ = "Y" ELSE iderestore$ = "N"
+        EXIT FUNCTION
+    END IF
+
+    'end of custom controls
+    mousedown = 0
+    mouseup = 0
+LOOP
+
+END FUNCTION
+
+FUNCTION ideclearhistory$(WhichHistory$)
+
+'-------- generic dialog box header --------
+PCOPY 3, 0
+PCOPY 0, 2
+PCOPY 0, 1
+SCREEN , , 1, 0
+focus = 1
+DIM p AS idedbptype
+DIM o(1 TO 100) AS idedbotype
+DIM oo AS idedbotype
+DIM sep AS STRING * 1
+sep = CHR$(0)
+'-------- end of generic dialog box header --------
+
+'-------- init --------
+i = 0
+'idepar p, 30, 6, "File already exists. Overwrite?"
+idepar p, 48, 4, ""
+i = i + 1
+o(i).typ = 3
+o(i).y = 4
+o(i).txt = idenewtxt("#Yes" + sep + "#No")
+o(i).dft = 1
+'-------- end of init --------
+
+'-------- generic init --------
+FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+'-------- end of generic init --------
+
+DO 'main loop
+
+    '-------- generic display dialog box & objects --------
+    idedrawpar p
+    f = 1: cx = 0: cy = 0
+    FOR i = 1 TO 100
+        IF o(i).typ THEN
+            'prepare object
+            o(i).foc = focus - f 'focus offset
+            o(i).cx = 0: o(i).cy = 0
+            idedrawobj o(i), f 'display object
+            IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+        END IF
+    NEXT i
+    lastfocus = f - 1
+    '-------- end of generic display dialog box & objects --------
+
+    '-------- custom display changes --------
+    COLOR 0, 7: LOCATE p.y + 2, p.x + 3
+    SELECT CASE WhichHistory$
+        CASE "SEARCH": PRINT  "This cannot be undone. Clear search history?";
+        CASE "FILES": PRINT   " This cannot be undone. Clear recent files?";
+        CASE "INVALID": PRINT "  Remove broken links from recent files?";
+    END SELECT
+    '-------- end of custom display changes --------
+
+    'update visual page and cursor position
+    PCOPY 1, 0
+    IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+    '-------- read input --------
+    change = 0
+    DO
+        GetInput
+        IF mWHEEL THEN change = 1
+        IF KB THEN change = 1
+        IF mCLICK THEN mousedown = 1: change = 1
+        IF mRELEASE THEN mouseup = 1: change = 1
+        IF mB THEN change = 1
+        alt = KALT: IF alt <> oldalt THEN change = 1
+        oldalt = alt
+        _LIMIT 100
+    LOOP UNTIL change
+    IF alt THEN idehl = 1 ELSE idehl = 0
+    'convert "alt+letter" scancode to letter's ASCII character
+    altletter$ = ""
+    IF alt THEN
+        IF LEN(K$) = 1 THEN
+            k = ASC(UCASE$(K$))
+            IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+        END IF
+    END IF
+    SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+    '-------- end of read input --------
+
+    IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
+    IF UCASE$(K$) = "N" THEN altletter$ = "N"
+
+    '-------- generic input response --------
+    info = 0
+    IF K$ = "" THEN K$ = CHR$(255)
+    IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF focus < 1 THEN focus = lastfocus
+    IF focus > lastfocus THEN focus = 1
+    f = 1
+    FOR i = 1 TO 100
+        t = o(i).typ
+        IF t THEN
+            focusoffset = focus - f
+            ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+        END IF
+    NEXT
+    '-------- end of generic input response --------
+
+    IF info THEN
+        IF info = 1 THEN ideclearhistory$ = "Y" ELSE ideclearhistory$ = "N"
         EXIT FUNCTION
     END IF
 
@@ -7197,10 +7781,66 @@ IF t = 1 THEN 'text field
             END IF
         END IF
     END IF 'mousedown
+
+    a$ = idetxt(o.txt)
     IF focusoffset = 0 THEN
-        a$ = idetxt(o.txt)
         IF LEN(kk$) = 1 THEN
             k = ASC(kk$)
+            IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(kk$) = "V") THEN 'paste from clipboard
+                clip$ = _CLIPBOARD$ 'read clipboard
+                x = INSTR(clip$, CHR$(13))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                x = INSTR(clip$, CHR$(10))
+                IF x THEN clip$ = LEFT$(clip$, x - 1)
+                IF LEN(clip$) THEN
+                    IF o.issel THEN
+                        sx1 = o.sx1: sx2 = o.v1
+                        if sx1 > sx2 then SWAP sx1, sx2
+                        if sx2 - sx1 > 0 then
+                            a$ = left$(a$, sx1) + clip$ + right$(a$, len(a$) - sx2)
+                            o.v1 = sx1
+                            o.issel = 0
+                        end if
+                    ELSE
+                        a$ = left$(a$, o.v1) + clip$ + right$(a$, len(a$) - o.v1)
+                    END IF
+                END IF
+                k = 255
+            END IF
+
+            IF (KCONTROL AND UCASE$(kk$) = "A") THEN 'select all
+                if len(a$) > 0 then
+                    o.issel = -1
+                    o.sx1 = 0
+                    o.v1 = len(a$)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(kk$) = "C")) THEN 'copy to clipboard
+                IF o.issel THEN
+                    sx1 = o.sx1: sx2 = o.v1
+                    if sx1 > sx2 then SWAP sx1, sx2
+                    if sx2 - sx1 > 0 then _CLIPBOARD$ = mid$(a$, sx1 + 1, sx2 - sx1)
+                END IF
+                k = 255
+            END IF
+
+            IF ((KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(kk$) = "X")) THEN 'cut to clipboard
+                IF o.issel THEN
+                    sx1 = o.sx1: sx2 = o.v1
+                    if sx1 > sx2 then SWAP sx1, sx2
+                    if sx2 - sx1 > 0 then
+                        _CLIPBOARD$ = mid$(a$, sx1 + 1, sx2 - sx1)
+                        'delete selection
+                        a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
+                        o.v1 = sx1
+                        o.issel = 0
+                    end if
+                END IF
+                k = 255
+            END IF
+
             IF k = 8 AND o.v1 > 0 THEN
                 if o.issel THEN
                     sx1 = o.sx1: sx2 = o.v1
@@ -7208,7 +7848,6 @@ IF t = 1 THEN 'text field
                     if sx2 - sx1 > 0 then
                         'delete selection
                         a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
-                        idetxt(o.txt) = a$
                         o.issel = 0
                     end if
                 else
@@ -7222,7 +7861,6 @@ IF t = 1 THEN 'text field
                 if sx2 - sx1 > 0 then
                     'delete selection
                     a$ = left$(a$, sx1) + right$(a$, len(a$) - sx2)
-                    idetxt(o.txt) = a$
                     o.issel = 0
                 end if
             END IF
@@ -7261,23 +7899,6 @@ IF t = 1 THEN 'text field
                 a$ = a1$ + a2$
                 idetxt(o.txt) = a$
             end if
-        END IF
-
-        IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
-            clip$ = _CLIPBOARD$ 'read clipboard
-            x = INSTR(clip$, CHR$(13))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            x = INSTR(clip$, CHR$(10))
-            IF x THEN clip$ = LEFT$(clip$, x - 1)
-            IF LEN(clip$) THEN
-                a$ = clip$
-                idetxt(o.txt) = a$
-                o.v1 = LEN(a$)
-            END IF
-        END IF
-
-        IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
-            _CLIPBOARD$ = idetxt(o.txt)
         END IF
 
         'cursor control
@@ -9641,6 +10262,10 @@ DO WHILE LEN(a$)
 LOOP
 CLOSE #fh
 
+if ln = 0 then
+    l$ = sep
+end if
+
 '72,19
 
 h = idewy + idesubwindow - 9
@@ -9871,7 +10496,7 @@ o(i).nam = idenewtxt("Recent Programs")
 i = i + 1
 o(i).typ = 3
 o(i).y = idewy + idesubwindow - 6
-o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
+o(i).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "Clea#r list" + sep + "#Remove broken links")
 o(i).dft = 1
 
 '-------- end of init --------
@@ -9952,9 +10577,19 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
-    IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
+    IF (K$ = CHR$(13) AND focus = 1) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
         f$ = idetxt(o(1).stx)
         iderecentbox$ = f$
+        EXIT FUNCTION
+    END IF
+
+    IF (K$ = CHR$(13) AND focus = 4) OR (focus = 4 AND info <> 0) OR (info = 1 AND focus = 4) THEN
+        iderecentbox$ = "<C>"
+        EXIT FUNCTION
+    END IF
+
+    IF (K$ = CHR$(13) AND focus = 5) OR (focus = 5 AND info <> 0) OR (info = 1 AND focus = 5) THEN
+        iderecentbox$ = "<R>"
         EXIT FUNCTION
     END IF
 
@@ -9993,6 +10628,9 @@ FOR r = 1 TO 5
     END IF
 NEXT
 CLOSE #fh
+IF menu$(m, i - 1) <> "#Recent..." and menu$(m, i - 1) <> "Save #As..." THEN
+    menu$(m, i) = "Clear #recent...": i = i + 1
+END IF
 menu$(m, i) = "-": i = i + 1
 menu$(m, i) = "E#xit": i = i + 1
 menusize(m) = i - 1
@@ -10071,10 +10709,13 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
     END IF
 
-    menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-    menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-    menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
-    menu$(m, i) = "Cl#ear  Del": i = i + 1
+    if ideselect then menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+    if ideselect then menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+
+    clip$ = _CLIPBOARD$ 'read clipboard
+    IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+
+    if ideselect then menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
@@ -10082,6 +10723,93 @@ SUB IdeMakeContextualMenu
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    IF ideselect AND ideautoindent = 0 THEN
+        y1 = idecy
+        y2 = ideselecty1
+        IF y1 = y2 THEN 'single line selected
+            a$ = idegetline(idecy)
+            a2$ = ""
+            sx1 = ideselectx1: sx2 = idecx
+            IF sx2 < sx1 THEN SWAP sx1, sx2
+            FOR x = sx1 TO sx2 - 1
+                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+            NEXT
+            IF a2$ <> "" THEN
+                menu$(m, i) = "Increase indent  TAB": i = i + 1
+                menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+                menu$(m, i) = "-": i = i + 1
+            END IF
+        ELSE
+            menu$(m, i) = "Increase indent  TAB": i = i + 1
+            menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+            menu$(m, i) = "-": i = i + 1
+        END IF
+    else
+        menu$(m, i) = "-": i = i + 1
+    end if
+    menu$(m, i) = "New #SUB...": i = i + 1
+    menu$(m, i) = "New #FUNCTION...": i = i + 1
+    menusize(m) = i - 1
+END SUB
+
+SUB IdeMakeEditMenu
+    m = ideeditmenuID: i = 0
+    menu$(m, i) = "Edit": i = i + 1
+
+    if ideselect then
+        menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    else
+        menu$(m, i) = "~Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menu$(m, i) = "~#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    end if
+
+    clip$ = _CLIPBOARD$ 'read clipboard
+    IF LEN(clip$) THEN
+        menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+    else
+        menu$(m, i) = "~#Paste  Shift+Ins or Ctrl+V": i = i + 1
+    end if
+
+    if ideselect then
+        menu$(m, i) = "Cl#ear  Del": i = i + 1
+    else
+        menu$(m, i) = "~Cl#ear  Del": i = i + 1
+    end if
+
+    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+    menu$(m, i) = "Comment (add ')": i = i + 1
+    menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    IF ideselect AND ideautoindent = 0 THEN
+        y1 = idecy
+        y2 = ideselecty1
+        IF y1 = y2 THEN 'single line selected
+            a$ = idegetline(idecy)
+            a2$ = ""
+            sx1 = ideselectx1: sx2 = idecx
+            IF sx2 < sx1 THEN SWAP sx1, sx2
+            FOR x = sx1 TO sx2 - 1
+                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+            NEXT
+            IF a2$ = "" THEN
+                menu$(m, i) = "~Increase indent  TAB": i = i + 1
+                menu$(m, i) = "~Decrease indent  Shift+TAB": i = i + 1
+            ELSE
+                menu$(m, i) = "Increase indent  TAB": i = i + 1
+                menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+            END IF
+        ELSE
+            menu$(m, i) = "Increase indent  TAB": i = i + 1
+            menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+        END IF
+    else
+        menu$(m, i) = "~Increase indent  TAB": i = i + 1
+        menu$(m, i) = "~Decrease indent  Shift+TAB": i = i + 1
+    end if
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "New #SUB...": i = i + 1
     menu$(m, i) = "New #FUNCTION...": i = i + 1
