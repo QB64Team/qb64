@@ -6725,6 +6725,11 @@ DO 'main loop
         EXIT FUNCTION
     END IF
 
+    IF K$ = CHR$(27) THEN
+        ideclearhistory$ = "N"
+        EXIT FUNCTION
+    END IF
+
     'end of custom controls
     mousedown = 0
     mouseup = 0
