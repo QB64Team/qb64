@@ -2769,7 +2769,7 @@ DO
         ELSE
             GOSUB selectcheck
             idecy = idecy + 1
-            IF idecy < idesy THEN idecy = idesy
+            IF idecy > iden THEN idecy = iden
             GOTO specialchar
         END IF
     END IF
