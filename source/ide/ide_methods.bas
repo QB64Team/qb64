@@ -3619,11 +3619,11 @@ DO
             IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockIncreaseIndent
         END IF
 
-        IF menu$(m, s) = "Decrease indent  Shift+TAB" THEN
+        IF LEFT$(menu$(m, s), 15) = "Decrease indent" THEN
             IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockDecreaseIndent
         END IF
 
-        IF menu$(m, s) = "~Decrease indent  Shift+TAB" OR menu$(m, s) = "~Increase indent  TAB" THEN
+        IF LEFT$(menu$(m, s), 16) = "~Decrease indent" OR menu$(m, s) = "~Increase indent  TAB" THEN
             IF ideautoindent <> 0 THEN
                 ideerrormessage "Not available when auto indent is active (Options/Code Layout)."
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -10739,12 +10739,20 @@ SUB IdeMakeContextualMenu
             NEXT
             IF a2$ <> "" THEN
                 menu$(m, i) = "Increase indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+                menu$(m, i) = "Decrease indent"
+                $IF WIN OR MAC THEN
+                    menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                $END IF
+                i = i + 1
                 menu$(m, i) = "-": i = i + 1
             END IF
         ELSE
             menu$(m, i) = "Increase indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+            menu$(m, i) = "Decrease indent"
+            $IF WIN OR MAC THEN
+                menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+            $END IF
+            i = i + 1
             menu$(m, i) = "-": i = i + 1
         END IF
     else
@@ -10800,18 +10808,34 @@ SUB IdeMakeEditMenu
             NEXT
             IF a2$ = "" THEN
                 menu$(m, i) = "~Increase indent  TAB": i = i + 1
-                menu$(m, i) = "~Decrease indent  Shift+TAB": i = i + 1
+                menu$(m, i) = "~Decrease indent"
+                $IF WIN OR MAC THEN
+                    menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                $END IF
+                i = i + 1
             ELSE
                 menu$(m, i) = "Increase indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+                menu$(m, i) = "Decrease indent"
+                $IF WIN OR MAC THEN
+                    menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                $END IF
+                i = i + 1
             END IF
         ELSE
             menu$(m, i) = "Increase indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease indent  Shift+TAB": i = i + 1
+            menu$(m, i) = "Decrease indent"
+            $IF WIN OR MAC THEN
+                menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+            $END IF
+            i = i + 1
         END IF
     else
         menu$(m, i) = "~Increase indent  TAB": i = i + 1
-        menu$(m, i) = "~Decrease indent  Shift+TAB": i = i + 1
+        menu$(m, i) = "~Decrease indent"
+        $IF WIN OR MAC THEN
+            menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+        $END IF
+        i = i + 1
     end if
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "New #SUB...": i = i + 1
