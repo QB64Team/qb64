@@ -3058,10 +3058,10 @@ DO
     IF block_chr(ASC(K$)) THEN GOTO specialchar
     ideforceinput:
 
-    IF K$ = CHR$(9) THEN
+    IF K$ = CHR$(9) OR (K$ = CHR$(25) AND INSTR(_OS$, "MAC") > 0) THEN
         IF ideselect AND ideautoindent = 0 THEN
             'Block indentation code copied/adapted from block comment/uncomment:
-            IF KSHIFT THEN
+            IF KSHIFT OR K$ = CHR$(25) THEN
                 IdeBlockDecreaseIndent:
                 BlockIndentLevel = 4
                 IF ideautoindentsize <> 0 THEN BlockIndentLevel = ideautoindentsize
