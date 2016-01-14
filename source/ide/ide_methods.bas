@@ -7356,10 +7356,7 @@ FOR y = 1 TO iden
         TotalSUBs = TotalSUBs + 1
         ListItemLength = LEN(n$ + " " + sf$ + args$)
         REDIM _PRESERVE SortedSubsList(1 to TotalSUBs) as string * 998
-        REDIM _PRESERVE CaseBkpSubsList(1 to TotalSUBs) as string * 998
-        CaseBkpSubsList(TotalSUBs) = n$ + " " + sf$ + args$
-        SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
-        MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+        SortedSubsList(TotalSUBs) = n$ + " " + sf$ + args$
         MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
     END IF
 NEXT
@@ -7376,12 +7373,7 @@ if TotalSUBs > 1 then
     FOR x = 1 to TotalSUBs
         ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
         lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
-        for RestoreCaseBkp = 1 to TotalSUBs
-            IF MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) = MID$(CaseBkpSubsList(RestoreCaseBkp), LEN(CaseBkpSubsList(RestoreCaseBkp)) - 6, 4) THEN
-                lSorted$ = lSorted$ + sep + chr$(195) + chr$(196) + left$(CaseBkpSubsList(RestoreCaseBkp), ListItemLength)
-                EXIT FOR
-            END IF
-        next
+        lSorted$ = lSorted$ + sep + chr$(195) + chr$(196) + left$(SortedSubsList(x), ListItemLength)
     NEXT
 
     FOR x = LEN(lSorted$) TO 1 STEP -1
@@ -11517,7 +11509,7 @@ SELECT CASE DataType
                 o1 = m.OFFSET + (i + gap) * ES
                 _MEMGET m, o, T7a
                 _MEMGET m, o1, T7b
-                IF T7a > T7b THEN
+                IF _STRICMP(T7a, T7b) = 1 THEN
                     T7c = T7b
                     _MEMPUT m, o1, T7a
                     _MEMPUT m, o, T7c
