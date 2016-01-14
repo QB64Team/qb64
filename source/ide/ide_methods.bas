@@ -7279,7 +7279,7 @@ InsideDECLARE = 0
 FoundExternalSUBFUNC = 0
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
-lSorted$ = l$
+IF INSTR(_OS$, "MAC") = 0 THEN lSorted$ = l$
 
 TotalSUBs = 0
 FOR y = 1 TO iden
@@ -7353,11 +7353,13 @@ FOR y = 1 TO iden
         l$ = l$ + sep + chr$(195) + chr$(196) + n$ + " " + sf$ + args$
 
         'Populate SortedSubsList()
-        TotalSUBs = TotalSUBs + 1
-        ListItemLength = LEN(n$ + " " + sf$ + args$)
-        REDIM _PRESERVE SortedSubsList(1 to TotalSUBs) as string * 998
-        SortedSubsList(TotalSUBs) = n$ + " " + sf$ + args$
-        MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+        IF INSTR(_OS$, "MAC") = 0 THEN
+            TotalSUBs = TotalSUBs + 1
+            ListItemLength = LEN(n$ + " " + sf$ + args$)
+            REDIM _PRESERVE SortedSubsList(1 to TotalSUBs) as string * 998
+            SortedSubsList(TotalSUBs) = n$ + " " + sf$ + args$
+            MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+        END IF
     END IF
 NEXT
 
@@ -7366,24 +7368,28 @@ FOR x = LEN(l$) TO 1 STEP -1
     IF a$ = chr$(195) THEN MID$(l$, x, 1) = chr$(192): EXIT FOR
 NEXT
 
-if TotalSUBs > 1 then
-    DIM m as _MEM
-    m = _MEM(SortedSubsList())
-    Sort m 'Steve's sorting routine
-    FOR x = 1 to TotalSUBs
-        ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
-        lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
-        lSorted$ = lSorted$ + sep + chr$(195) + chr$(196) + left$(SortedSubsList(x), ListItemLength)
-    NEXT
+IF INSTR(_OS$, "MAC") = 0 THEN
+    if TotalSUBs > 1 then
+        DIM m as _MEM
+        m = _MEM(SortedSubsList())
+        Sort m 'Steve's sorting routine
+        FOR x = 1 to TotalSUBs
+            ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
+            lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
+            lSorted$ = lSorted$ + sep + chr$(195) + chr$(196) + left$(SortedSubsList(x), ListItemLength)
+        NEXT
 
-    FOR x = LEN(lSorted$) TO 1 STEP -1
-        a$ = MID$(lSorted$, x, 1)
-        IF a$ = chr$(195) THEN MID$(lSorted$, x, 1) = chr$(192): EXIT FOR
-    NEXT
-    SortedSubsFlag = idesortsubs
-else
-    SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
-end if
+        FOR x = LEN(lSorted$) TO 1 STEP -1
+            a$ = MID$(lSorted$, x, 1)
+            IF a$ = chr$(195) THEN MID$(lSorted$, x, 1) = chr$(192): EXIT FOR
+        NEXT
+        SortedSubsFlag = idesortsubs
+    else
+        SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
+    end if
+ELSE
+    SortedSubsFlag = 0
+END IF
 
 '72,19
 i = 0
