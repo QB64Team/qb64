@@ -7272,16 +7272,20 @@ END IF
 '-------- init --------
 
 ly$ = MKL$(1)
-lySorted$ = ly$
 CurrentlyViewingWhichSUBFUNC = 1
 PreferCurrentCursorSUBFUNC = 0
 InsideDECLARE = 0
 FoundExternalSUBFUNC = 0
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
-IF INSTR(_OS$, "MAC") = 0 THEN lSorted$ = l$
+IF INSTR(_OS$, "WIN") THEN
+    lySorted$ = ly$
+    lSorted$ = l$
+END IF
 
 TotalSUBs = 0
+SortedSubsFlag = idesortsubs
+
 FOR y = 1 TO iden
     a$ = idegetline(y)
     a$ = LTRIM$(RTRIM$(a$))
@@ -7352,8 +7356,8 @@ FOR y = 1 TO iden
         END IF
         l$ = l$ + sep + chr$(195) + chr$(196) + n$ + " " + sf$ + args$
 
-        'Populate SortedSubsList()
-        IF INSTR(_OS$, "MAC") = 0 THEN
+        IF INSTR(_OS$, "WIN") THEN
+            'Populate SortedSubsList()
             TotalSUBs = TotalSUBs + 1
             ListItemLength = LEN(n$ + " " + sf$ + args$)
             REDIM _PRESERVE SortedSubsList(1 to TotalSUBs) as string * 998
@@ -7368,7 +7372,7 @@ FOR x = LEN(l$) TO 1 STEP -1
     IF a$ = chr$(195) THEN MID$(l$, x, 1) = chr$(192): EXIT FOR
 NEXT
 
-IF INSTR(_OS$, "MAC") = 0 THEN
+IF INSTR(_OS$, "WIN") THEN
     if TotalSUBs > 1 then
         DIM m as _MEM
         m = _MEM(SortedSubsList())
@@ -7383,7 +7387,6 @@ IF INSTR(_OS$, "MAC") = 0 THEN
             a$ = MID$(lSorted$, x, 1)
             IF a$ = chr$(195) THEN MID$(lSorted$, x, 1) = chr$(192): EXIT FOR
         NEXT
-        SortedSubsFlag = idesortsubs
     else
         SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
     end if
@@ -7434,13 +7437,15 @@ o(i).y = idewy + idesubwindow - 6
 o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
 o(i).dft = 1
 
-If TotalSUBs > 1 then
-    i = i + 1
-    o(i).typ = 4 'check box
-    o(i).x = idewx - 22
-    o(i).y = idewy + idesubwindow - 6
-    o(i).nam = idenewtxt("#Sorted A-Z")
-    o(i).sel = SortedSubsFLAG
+IF INSTR(_OS$, "WIN") THEN
+    If TotalSUBs > 1 then
+        i = i + 1
+        o(i).typ = 4 'check box
+        o(i).x = idewx - 22
+        o(i).y = idewy + idesubwindow - 6
+        o(i).nam = idenewtxt("#Sorted A-Z")
+        o(i).sel = SortedSubsFLAG
+    END IF
 END IF
 
 
@@ -11651,6 +11656,5 @@ SELECT CASE DataType
         LOOP UNTIL gap = 1 AND swapped = 0
 END SELECT
 END SUB
-
 
 '$INCLUDE:'wiki\wiki_methods.bas'
