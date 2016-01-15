@@ -10745,18 +10745,14 @@ SUB IdeMakeContextualMenu
             IF a2$ <> "" THEN
                 menu$(m, i) = "Increase indent  TAB": i = i + 1
                 menu$(m, i) = "Decrease indent"
-                $IF WIN OR MAC THEN
-                    menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-                $END IF
+                IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
                 menu$(m, i) = "-": i = i + 1
             END IF
         ELSE
             menu$(m, i) = "Increase indent  TAB": i = i + 1
             menu$(m, i) = "Decrease indent"
-            $IF WIN OR MAC THEN
-                menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-            $END IF
+            IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
             menu$(m, i) = "-": i = i + 1
         END IF
@@ -10814,32 +10810,24 @@ SUB IdeMakeEditMenu
             IF a2$ = "" THEN
                 menu$(m, i) = "~Increase indent  TAB": i = i + 1
                 menu$(m, i) = "~Decrease indent"
-                $IF WIN OR MAC THEN
-                    menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-                $END IF
+                IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             ELSE
                 menu$(m, i) = "Increase indent  TAB": i = i + 1
                 menu$(m, i) = "Decrease indent"
-                $IF WIN OR MAC THEN
-                    menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-                $END IF
+                IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             END IF
         ELSE
             menu$(m, i) = "Increase indent  TAB": i = i + 1
             menu$(m, i) = "Decrease indent"
-            $IF WIN OR MAC THEN
-                menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-            $END IF
+            IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
         END IF
     else
         menu$(m, i) = "~Increase indent  TAB": i = i + 1
         menu$(m, i) = "~Decrease indent"
-        $IF WIN OR MAC THEN
-            menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-        $END IF
+        IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
         i = i + 1
     end if
     menu$(m, i) = "-": i = i + 1
