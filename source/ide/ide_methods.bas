@@ -7278,7 +7278,7 @@ InsideDECLARE = 0
 FoundExternalSUBFUNC = 0
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
-IF INSTR(_OS$, "WIN") THEN
+IF INSTR(_OS$, "WIN") OR (INSTR(_OS$, "LINUX") AND INSTR(_OS$, "32BIT")) THEN
     lySorted$ = ly$
     lSorted$ = l$
 END IF
@@ -7356,7 +7356,7 @@ FOR y = 1 TO iden
         END IF
         l$ = l$ + sep + chr$(195) + chr$(196) + n$ + " " + sf$ + args$
 
-        IF INSTR(_OS$, "WIN") THEN
+        IF INSTR(_OS$, "WIN") OR (INSTR(_OS$, "LINUX") AND INSTR(_OS$, "32BIT")) THEN
             'Populate SortedSubsList()
             TotalSUBs = TotalSUBs + 1
             ListItemLength = LEN(n$ + " " + sf$ + args$)
@@ -7372,7 +7372,7 @@ FOR x = LEN(l$) TO 1 STEP -1
     IF a$ = chr$(195) THEN MID$(l$, x, 1) = chr$(192): EXIT FOR
 NEXT
 
-IF INSTR(_OS$, "WIN") THEN
+IF INSTR(_OS$, "WIN") OR (INSTR(_OS$, "LINUX") AND INSTR(_OS$, "32BIT")) THEN
     if TotalSUBs > 1 then
         DIM m as _MEM
         m = _MEM(SortedSubsList())
@@ -7437,7 +7437,7 @@ o(i).y = idewy + idesubwindow - 6
 o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
 o(i).dft = 1
 
-IF INSTR(_OS$, "WIN") THEN
+IF INSTR(_OS$, "WIN") OR (INSTR(_OS$, "LINUX") AND INSTR(_OS$, "32BIT")) THEN
     If TotalSUBs > 1 then
         i = i + 1
         o(i).typ = 4 'check box
