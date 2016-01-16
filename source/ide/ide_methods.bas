@@ -7272,16 +7272,14 @@ END IF
 '-------- init --------
 
 ly$ = MKL$(1)
+lySorted$ = ly$
 CurrentlyViewingWhichSUBFUNC = 1
 PreferCurrentCursorSUBFUNC = 0
 InsideDECLARE = 0
 FoundExternalSUBFUNC = 0
 l$ = ideprogname$
 IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
-IF INSTR(_OS$, "WIN") > 0 OR (INSTR(_OS$, "LINUX") > 0 AND INSTR(_OS$, "32BIT") > 0) THEN
-    lySorted$ = ly$
-    lSorted$ = l$
-END IF
+lSorted$ = l$
 
 TotalSUBs = 0
 SortedSubsFlag = idesortsubs
@@ -7356,14 +7354,15 @@ FOR y = 1 TO iden
         END IF
         l$ = l$ + sep + chr$(195) + chr$(196) + n$ + " " + sf$ + args$
 
-        IF INSTR(_OS$, "WIN") > 0 OR (INSTR(_OS$, "LINUX") > 0 AND INSTR(_OS$, "32BIT") > 0) THEN
-            'Populate SortedSubsList()
-            TotalSUBs = TotalSUBs + 1
-            ListItemLength = LEN(n$ + " " + sf$ + args$)
-            REDIM _PRESERVE SortedSubsList(1 to TotalSUBs) as string * 998
-            SortedSubsList(TotalSUBs) = n$ + " " + sf$ + args$
-            MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
-        END IF
+        'Populate SortedSubsList()
+        TotalSUBs = TotalSUBs + 1
+        ListItemLength = LEN(n$ + " " + sf$ + args$)
+        REDIM _PRESERVE SortedSubsList(1 to TotalSUBs) as string * 998
+        REDIM _PRESERVE CaseBkpSubsList(1 to TotalSUBs) as string * 998
+        CaseBkpSubsList(TotalSUBs) = n$ + " " + sf$ + args$
+        SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
+        MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+        MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
     END IF
 NEXT
 
@@ -7372,27 +7371,29 @@ FOR x = LEN(l$) TO 1 STEP -1
     IF a$ = chr$(195) THEN MID$(l$, x, 1) = chr$(192): EXIT FOR
 NEXT
 
-IF INSTR(_OS$, "WIN") > 0 OR (INSTR(_OS$, "LINUX") > 0 AND INSTR(_OS$, "32BIT") > 0) THEN
-    if TotalSUBs > 1 then
-        DIM m as _MEM
-        m = _MEM(SortedSubsList())
-        Sort m 'Steve's sorting routine
-        FOR x = 1 to TotalSUBs
-            ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
-            lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
-            lSorted$ = lSorted$ + sep + chr$(195) + chr$(196) + left$(SortedSubsList(x), ListItemLength)
-        NEXT
+if TotalSUBs > 1 then
+    DIM m as _MEM
+    m = _MEM(SortedSubsList())
+    IF INSTR(_OS$, "64BIT") = 0 THEN Sort m 'Steve's sorting routine
+    FOR x = 1 to TotalSUBs
+        ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
+        lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
+        for RestoreCaseBkp = 1 to TotalSUBs
+            IF MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) = MID$(CaseBkpSubsList(RestoreCaseBkp), LEN(CaseBkpSubsList(RestoreCaseBkp)) - 6, 4) THEN
+                lSorted$ = lSorted$ + sep + chr$(195) + chr$(196) + left$(CaseBkpSubsList(RestoreCaseBkp), ListItemLength)
+                EXIT FOR
+            END IF
+        next
+    NEXT
 
-        FOR x = LEN(lSorted$) TO 1 STEP -1
-            a$ = MID$(lSorted$, x, 1)
-            IF a$ = chr$(195) THEN MID$(lSorted$, x, 1) = chr$(192): EXIT FOR
-        NEXT
-    else
-        SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
-    end if
-ELSE
-    SortedSubsFlag = 0
-END IF
+    FOR x = LEN(lSorted$) TO 1 STEP -1
+        a$ = MID$(lSorted$, x, 1)
+        IF a$ = chr$(195) THEN MID$(lSorted$, x, 1) = chr$(192): EXIT FOR
+    NEXT
+    SortedSubsFlag = idesortsubs
+else
+    SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
+end if
 
 '72,19
 i = 0
@@ -7437,15 +7438,13 @@ o(i).y = idewy + idesubwindow - 6
 o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
 o(i).dft = 1
 
-IF INSTR(_OS$, "WIN") > 0 OR (INSTR(_OS$, "LINUX") > 0 AND INSTR(_OS$, "32BIT") > 0) THEN
-    If TotalSUBs > 1 then
-        i = i + 1
-        o(i).typ = 4 'check box
-        o(i).x = idewx - 22
-        o(i).y = idewy + idesubwindow - 6
-        o(i).nam = idenewtxt("#Sorted A-Z")
-        o(i).sel = SortedSubsFLAG
-    END IF
+If TotalSUBs > 1 AND INSTR(_OS$, "64BIT") = 0 then
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = idewx - 22
+    o(i).y = idewy + idesubwindow - 6
+    o(i).nam = idenewtxt("#Sorted A-Z")
+    o(i).sel = SortedSubsFLAG
 END IF
 
 
@@ -11532,7 +11531,7 @@ SELECT CASE DataType
                 o1 = m.OFFSET + (i + gap) * ES
                 _MEMGET m, o, T7a
                 _MEMGET m, o1, T7b
-                IF _STRICMP(T7a, T7b) = 1 THEN
+                IF T7a > T7b THEN
                     T7c = T7b
                     _MEMPUT m, o1, T7a
                     _MEMPUT m, o, T7c
