@@ -5150,6 +5150,12 @@ IF o.typ = 2 THEN
                     a3$ = " " + a3$ + SPACE$(o.w)
                     a3$ = LEFT$(a3$, o.w)
                     PRINT a3$;
+                    'customization specific for the SUBs list, when there are external procedures:
+                    if instr(a3$, chr$(196)+"*") > 0 THEN
+                        IF o.sel = n THEN COLOR 8, 0 ELSE COLOR 8, 7
+                        LOCATE o.par.y + o.y + y, o.par.x + o.x + 4
+                        PRINT "*";
+                    end if
                     y = y + 1
                 END IF
             END IF
