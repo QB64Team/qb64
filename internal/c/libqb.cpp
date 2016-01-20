@@ -23845,7 +23845,7 @@ int32 func__exit(){
   exit_blocked=1;
   static int32 x;
   x=exit_value;
-  exit_value=0;
+  if (x) exit_value = 0;
   return x;
 }
 

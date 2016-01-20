@@ -1323,8 +1323,8 @@ void FGAPIENTRY glutMainLoopEvent( void )
             if( (Atom) event.xclient.data.l[ 0 ] == fgDisplay.DeleteWindow )
             {
                 GETWINDOW( xclient );
-
-                fgDestroyWindow ( window );
+		qb64_custom_event(QB64_EVENT_CLOSE,0,0,0,0,0,0,0,0,NULL,NULL);
+		/*                fgDestroyWindow ( window );
 
                 if( fgState.ActionOnWindowClose == GLUT_ACTION_EXIT )
                 {
@@ -1333,8 +1333,8 @@ void FGAPIENTRY glutMainLoopEvent( void )
                 }
                 else if( fgState.ActionOnWindowClose == GLUT_ACTION_GLUTMAINLOOP_RETURNS )
                     fgState.ExecState = GLUT_EXEC_STATE_STOP;
-
                 return;
+		*/
             }
             break;
 
