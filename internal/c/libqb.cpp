@@ -52,7 +52,6 @@
 
 
 #ifdef QB64_WINDOWS
-#include <fcntl.h>
 #include <shellapi.h>
 #endif
 
@@ -22983,6 +22982,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #endif
 
 
@@ -22994,22 +22994,32 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static int32 init=0;
     if (!init){
       init=1;
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+#elif defined(QB64_WINDOWS)
       sockVersion = MAKEWORD(1, 1);
       WSAStartup(sockVersion, &wsaData);
+#elif defined(QB64_LINUX)
+#else
 #endif
     }
   }
 
   void tcp_done(){
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+#elif defined(QB64_WINDOWS)
     WSACleanup();
+#elif defined(QB64_LINUX)
+#else
 #endif
   }
 
   struct tcp_connection{
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+#elif defined(QB64_WINDOWS)
     SOCKET socket;
+#elif defined(QB64_LINUX)
+    int socket;
+#else
 #endif
     int32 port;//connection to host & clients only
     uint8 ip4[4];//connection to host only
@@ -23019,8 +23029,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   void *tcp_host_open(int64 port){
     tcp_init();
     if ((port<0)||(port>65535)) return NULL;
-
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+    return NULL;
+#elif defined(QB64_WINDOWS)
     //Ref. from 'winsock.h': typedef u_int SOCKET;
     static SOCKET listeningSocket;
     listeningSocket = socket(AF_INET,       // Go over TCP/IP
@@ -23048,9 +23059,43 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=listeningSocket;
     return (void*)connection;
-#endif
+#elif defined(QB64_LINUX)
+    struct addrinfo hints, *servinfo, *p;
+    int sockfd;
+    char str_port[6];
+    int yes = 1;
+    snprintf(str_port, 6, "%d", port);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    if (getaddrinfo(NULL, str_port, &hints, &servinfo) != 0) return NULL;
+    for(p = servinfo; p != NULL; p = p->ai_next) {
+      sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+      if (sockfd == -1) continue;
+      setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+      if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+            close(sockfd);
+            continue;
+      }
+      break; //if we get here, all is good
+    }
+    freeaddrinfo(servinfo);
+    if (p == NULL) return NULL; //indicates none of the entries succeeded
+    fcntl(sockfd, F_SETFL, O_NONBLOCK); //make socket non-blocking
+    
+    if (listen(sockfd, SOMAXCONN) == -1) {
+      close(sockfd);
+      return NULL;
+    }    
 
+    tcp_connection *connection;
+    connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
+    connection->socket=sockfd;
+    return (void*)connection;
+#else
     return NULL;
+#endif
   }
 
 
@@ -23066,8 +23111,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     tcp_init();
 
     if ((port<0)||(port>65535)) return NULL;
-
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+    return NULL;
+#elif defined(QB64_WINDOWS)
     static LPHOSTENT hostEntry;
     hostEntry=gethostbyname((char*)host);
     if (!hostEntry) return NULL;
@@ -23100,18 +23146,49 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=theSocket;
     connection->port=port;
-    connection->hostname=(uint8*)malloc(strlen((char*)host));
+    connection->hostname=(uint8*)malloc(strlen((char*)host)+1);
     memcpy(connection->hostname,host,strlen((char*)host)+1);
     return (void*)connection;
-#endif
+#elif defined(QB64_LINUX)
+    struct addrinfo hints, *servinfo, *p;
+    int sockfd;
+    char str_port[6];
+    snprintf(str_port, 6, "%d", port);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    if (getaddrinfo((char*)host, str_port, &hints, &servinfo) != 0) return NULL;
+    for(p = servinfo; p != NULL; p = p->ai_next) {
+      sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+      if (sockfd == -1) continue;
+      if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+            close(sockfd);
+            continue;
+      }
+      break; //if we get here, all is good
+    }
+    freeaddrinfo(servinfo);
+    if (p == NULL) return NULL; //indicates none of the entries succeeded
+    fcntl(sockfd, F_SETFL, O_NONBLOCK); //make socket non-blocking
 
+    //now we just need to create a struct tcp_connection to return
+    tcp_connection *connection;
+    connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
+    connection->socket=sockfd;
+    connection->port=port;
+    connection->hostname=(uint8*)malloc(strlen((char*)host)+1);
+    memcpy(connection->hostname,host,strlen((char*)host)+1);
+    return (void*)connection;
+#else
     return NULL;
+#endif
   }
 
 
   void *tcp_connection_open(void *host_tcp){
-
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+    return NULL;
+#elif defined(QB64_WINDOWS)
     static tcp_connection *host; host=(tcp_connection*)host_tcp;
     static sockaddr sa;
     static int sa_size;
@@ -23131,30 +23208,57 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     connection->port=*((uint16*)sa.sa_data);
     *((uint32*)(connection->ip4))=*((uint32*)(sa.sa_data+2));
     return (void*)connection;
-#endif
+#elif defined(QB64_LINUX)
+    tcp_connection *host; host=(tcp_connection*)host_tcp;
+    struct sockaddr remote_addr;
+    socklen_t addr_size;
+    int fd;
+    
+    addr_size = sizeof(remote_addr);
+    fd = accept(host->socket, &remote_addr, &addr_size);
+    if (fd == -1) return NULL;
+    fcntl(fd, F_SETFL, O_NONBLOCK); //make socket non-blocking
 
-    return NULL;
+    tcp_connection *connection;
+    connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
+    connection->socket=fd;
+    //IPv4: port,port,ip,ip,ip,ip
+    connection->port=*((uint16*)remote_addr.sa_data);
+    *((uint32*)(connection->ip4))=*((uint32*)(remote_addr.sa_data+2));
+    return (void*)connection;
+#else
+    return NULL:
+#endif
   }
 
   void tcp_close(void* connection){
-    static tcp_connection *tcp=(tcp_connection*)connection;
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
-    shutdown(tcp->socket,SD_BOTH);
-    closesocket(tcp->socket);
+    tcp_connection *tcp=(tcp_connection*)connection;
+    if (tcp->socket) {
+#if !defined(DEPENDENCY_SOCKETS)
+#elif defined(QB64_WINDOWS)
+      shutdown(tcp->socket,SD_BOTH);
+      closesocket(tcp->socket);
+#elif defined(QB64_LINUX)
+      shutdown(tcp->socket, SHUT_RDWR);
+      close(tcp->socket);
 #endif
+    }
     if (tcp->hostname) free(tcp->hostname);
     free(tcp);
   }
 
   void tcp_out(void *connection,void *offset,ptrszint bytes){
-
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
     static tcp_connection *tcp; tcp=(tcp_connection*)connection;
     static int nret;
+    //should check nret to make sure all data is sent
+    //MSG_NOSIGNAL?
     nret = send(tcp->socket,
         (char*)offset,
         bytes,
         0);
+#else
 #endif
 
   }
@@ -23188,8 +23292,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
   void stream_update(stream_struct *stream){
-
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
     //assume tcp
 
     static connection_struct *connection;
@@ -23215,20 +23319,22 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     bytes = recv(tcp->socket,(char*)(stream->in+stream->in_size),
          stream->in_limit-stream->in_size,
          0);
+#ifdef QB64_WINDOWS
     if (bytes==SOCKET_ERROR){
-      //Known error codes:
-      //10035 WSAEWOULDBLOCK Resource temporarily unavailable. This error is returned from operations on nonblocking sockets that cannot be completed immediately, for example recv when no data is queued to be read from the socket. It is a nonfatal error, and the operation should be retried later. It is normal for WSAEWOULDBLOCK to be reported as the result from calling connect on a nonblocking SOCK_STREAM socket, since some time must elapse for the connection to be established.
       static ptrszint e;
       e=WSAGetLastError();
       return;
     }
+#else
+    if (bytes == -1) return;
+#endif    
     if (bytes<=0) return;
     stream->in_size+=bytes;
 
 
     if (stream->in_size==stream->in_limit) goto expand_and_retry;
-#endif
-
+#else
+#endif    
   }
 
 
@@ -23513,7 +23619,9 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   int32 tcp_connected (void *connection){
     static tcp_connection *tcp=(tcp_connection*)connection;
-#if defined(QB64_WINDOWS) && defined(DEPENDENCY_SOCKETS)
+#if !defined(DEPENDENCY_SOCKETS)
+    return 0;
+#elif defined(QB64_WINDOWS)
     char buf;
     int length=recv(tcp->socket, &buf, 0, 0);
     int nError=WSAGetLastError();
@@ -23524,8 +23632,12 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     if (nError==0){
       if (length==0) return 0;
     }
-#endif
     return -1;
+#elif defined(QB64_LINUX)
+    return -1;
+#else
+    return 0;
+#endif
   }
 
   int32 func__connected(int32 i){

@@ -92,7 +92,7 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
-
+#include <fcntl.h>
 
 //OS/compiler specific includes
 #ifdef QB64_WINDOWS
