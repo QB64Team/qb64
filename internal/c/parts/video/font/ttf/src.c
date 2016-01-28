@@ -226,6 +226,7 @@ free(data1);
 *out_y=h2;
 //Note: '*out_x_pre_increment' is set above
 *out_x_post_increment=0;
+if (codepoints > 1) free(render);
 return 1;
 }
 
