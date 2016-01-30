@@ -22975,6 +22975,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 
   //Referenced: http://johnnie.jerrata.com/winsocktutorial/
+  //Much of the unix sockets code based on http://beej.us/guide/bgnet/
 #ifdef QB64_WINDOWS
 #include <winsock2.h>
   WSADATA wsaData;
@@ -23250,20 +23251,21 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   void tcp_out(void *connection,void *offset,ptrszint bytes){
 #if !defined(DEPENDENCY_SOCKETS)
 #elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
-    static tcp_connection *tcp; tcp=(tcp_connection*)connection;
-    static int nret;
-    //should check nret to make sure all data is sent
-    //MSG_NOSIGNAL?
-    nret = send(tcp->socket,
-        (char*)offset,
-        bytes,
-        0);
+    tcp_connection *tcp; tcp=(tcp_connection*)connection;
+    int total = 0;        // how many bytes we've sent
+    int bytesleft = bytes; // how many we have left to send
+    int n;
+
+    while(total < bytes) {
+      n = send(tcp->socket, (char*)(offset + total), bytesleft, 0);
+      if (n == -1) break;
+      total += n;
+      bytesleft -= n;
+    }
+    //if (n == -1) error occured.
 #else
 #endif
-
   }
-
-
 
   int32 cloud_port_redirect=-1;
   struct connection_struct{
