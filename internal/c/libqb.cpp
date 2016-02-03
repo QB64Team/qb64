@@ -23025,6 +23025,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     int32 port;//connection to host & clients only
     uint8 ip4[4];//connection to host only
     uint8* hostname;//clients only
+    int connected;
   };
 
   void *tcp_host_open(int64 port){
@@ -23059,6 +23060,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     static tcp_connection *connection;
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=listeningSocket;
+    connection->connected = -1;
     return (void*)connection;
 #elif defined(QB64_LINUX)
     struct addrinfo hints, *servinfo, *p;
@@ -23093,6 +23095,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     tcp_connection *connection;
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=sockfd;
+    connection->connected = -1;
     return (void*)connection;
 #else
     return NULL;
@@ -23147,6 +23150,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=theSocket;
     connection->port=port;
+    connection->connected = -1;
     connection->hostname=(uint8*)malloc(strlen((char*)host)+1);
     memcpy(connection->hostname,host,strlen((char*)host)+1);
     return (void*)connection;
@@ -23177,6 +23181,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=sockfd;
     connection->port=port;
+    connection->connected = -1;
     connection->hostname=(uint8*)malloc(strlen((char*)host)+1);
     memcpy(connection->hostname,host,strlen((char*)host)+1);
     return (void*)connection;
@@ -23207,6 +23212,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     connection->socket=new_socket;
     //IPv4: port,port,ip,ip,ip,ip
     connection->port=*((uint16*)sa.sa_data);
+    connection->connected = -1;
     *((uint32*)(connection->ip4))=*((uint32*)(sa.sa_data+2));
     return (void*)connection;
 #elif defined(QB64_LINUX)
@@ -23223,6 +23229,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     tcp_connection *connection;
     connection=(tcp_connection*)calloc(sizeof(tcp_connection),1);
     connection->socket=fd;
+    connection->connected = -1;
     //IPv4: port,port,ip,ip,ip,ip
     connection->port=*((uint16*)remote_addr.sa_data);
     *((uint32*)(connection->ip4))=*((uint32*)(remote_addr.sa_data+2));
@@ -23258,11 +23265,13 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     while(total < bytes) {
       n = send(tcp->socket, (char*)(offset + total), bytesleft, 0);
-      if (n == -1) break;
+      if (n < 0) {
+	tcp->connected = 0;
+	return;
+      }
       total += n;
       bytesleft -= n;
     }
-    //if (n == -1) error occured.
 #else
 #endif
   }
@@ -23313,28 +23322,29 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   expand_and_retry:
 
     //expand buffer if 'in' stream is full
+    //also guarantees that bytes requested from recv() is not 0
     if (stream->in_size==stream->in_limit){
       stream->in_limit*=2; stream->in=(uint8*)realloc(stream->in,stream->in_limit);
     }
 
 
     bytes = recv(tcp->socket,(char*)(stream->in+stream->in_size),
-         stream->in_limit-stream->in_size,
-         0);
+		 stream->in_limit-stream->in_size,
+		 0);
+    if (bytes < 0) { //some kind of error
 #ifdef QB64_WINDOWS
-    if (bytes==SOCKET_ERROR){
-      static ptrszint e;
-      e=WSAGetLastError();
-      return;
-    }
+      if (WSAGetLastError() != WSAEWOULDBLOCK) tcp->connected = 0; //fatal error
 #else
-    if (bytes == -1) return;
-#endif    
-    if (bytes<=0) return;
-    stream->in_size+=bytes;
-
-
-    if (stream->in_size==stream->in_limit) goto expand_and_retry;
+      if (errno != EAGAIN && errno != EWOULDBLOCK) tcp->connected = 0;
+#endif
+    }
+    else if (bytes == 0) { //graceful shutdown occured
+      tcp->connected = 0;
+    }
+    else {
+      stream->in_size+=bytes;
+      if (stream->in_size==stream->in_limit) goto expand_and_retry;
+    }
 #else
 #endif    
   }
@@ -23620,23 +23630,11 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
   }
 
   int32 tcp_connected (void *connection){
-    static tcp_connection *tcp=(tcp_connection*)connection;
+    tcp_connection *tcp=(tcp_connection*)connection;
 #if !defined(DEPENDENCY_SOCKETS)
     return 0;
-#elif defined(QB64_WINDOWS)
-    char buf;
-    int length=recv(tcp->socket, &buf, 0, 0);
-    int nError=WSAGetLastError();
-    if(nError!=WSAEWOULDBLOCK&&nError!=0)
-      {
-    return 0;
-      } 
-    if (nError==0){
-      if (length==0) return 0;
-    }
-    return -1;
-#elif defined(QB64_LINUX)
-    return -1;
+#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
+    return tcp->connected;
 #else
     return 0;
 #endif
