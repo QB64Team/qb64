@@ -23241,16 +23241,18 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
   void tcp_close(void* connection){
     tcp_connection *tcp=(tcp_connection*)connection;
-    if (tcp->socket) {
 #if !defined(DEPENDENCY_SOCKETS)
 #elif defined(QB64_WINDOWS)
+    if (tcp->socket) {
       shutdown(tcp->socket,SD_BOTH);
       closesocket(tcp->socket);
+    }
 #elif defined(QB64_LINUX)
+    if (tcp->socket) {
       shutdown(tcp->socket, SHUT_RDWR);
       close(tcp->socket);
-#endif
     }
+#endif
     if (tcp->hostname) free(tcp->hostname);
     free(tcp);
   }
