@@ -3353,10 +3353,14 @@ DO
     NEXT
     yy = 2
     IF idecontextualmenu = 1 THEN
+        actual.idewy = idewy
+        if idesubwindow <> 0 then
+            actual.idewy = idewy + idesubwindow
+        end if
         xx = idectxmenuX
         if xx < 3 then xx = 3
         yy = idectxmenuY
-        if yy + menusize(m) + 2 > idewy then yy = idewy - 2 - menusize(m)
+        if yy + menusize(m) + 2 > actual.idewy then yy = actual.idewy - 2 - menusize(m)
     END IF
     IF xx > idewx - w - 3 THEN xx = idewx - w - 3
 
