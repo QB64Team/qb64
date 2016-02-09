@@ -23266,7 +23266,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     int n;
 
     while(total < bytes) {
-      n = send(tcp->socket, (char*)(offset + total), bytesleft, 0);
+      n = send(tcp->socket, (char*)((char *)offset + total), bytesleft, 0);
       if (n < 0) {
 	tcp->connected = 0;
 	return;
