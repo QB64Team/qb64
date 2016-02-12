@@ -5254,7 +5254,7 @@ SUB idedrawpar (p AS idedbptype)
 COLOR 0, 7: ideboxshadow p.x, p.y, p.w + 2, p.h + 2
 IF p.nam THEN
     x = LEN(idetxt(p.nam)) + 2
-    COLOR 0, 7: LOCATE p.y, (idewx \ 2) - (x - 1) \ 2: PRINT " " + idetxt(p.nam) + " ";
+    COLOR 0, 7: LOCATE p.y, p.x + (p.w \ 2) - (x - 1) \ 2: PRINT " " + idetxt(p.nam) + " ";
 END IF
 END SUB
 
