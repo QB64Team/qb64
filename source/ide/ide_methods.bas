@@ -9757,7 +9757,7 @@ i = 0
 p.x = (80 \ 2) - 60 \ 2
 p.y = (25 \ 2) - 16 \ 2
 p.w = 60
-p.h = 16
+p.h = 18
 p.nam = idenewtxt("Display")
 
 a2$ = str2$(idewx)
@@ -9781,6 +9781,12 @@ o(i).v1 = LEN(a2$)
 i = i + 1
 o(i).typ = 4 'check box
 o(i).y = 8
+o(i).nam = idenewtxt("Restore window #position at startup")
+if IDE_AutoPosition then o(i).sel = 1
+
+i = i + 1
+o(i).typ = 4 'check box
+o(i).y = 10
 o(i).nam = idenewtxt("Custom #Font:")
 o(i).sel = idecustomfont
 
@@ -9788,7 +9794,7 @@ a2$ = idecustomfontfile$
 i = i + 1
 o(i).typ = 1
 o(i).x = 10
-o(i).y = 10
+o(i).y = 12
 o(i).nam = idenewtxt("File #Name")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
@@ -9797,14 +9803,14 @@ a2$ = str2$(idecustomfontheight)
 i = i + 1
 o(i).typ = 1
 o(i).x = 10
-o(i).y = 13
+o(i).y = 15
 o(i).nam = idenewtxt("#Row Height (Pixels)")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
 
 i = i + 1
 o(i).typ = 3
-o(i).y = 16
+o(i).y = 18
 o(i).txt = idenewtxt("OK" + sep + "#Cancel")
 o(i).dft = 1
 '-------- end of init --------
@@ -9834,7 +9840,7 @@ DO 'main loop
 
     '-------- custom display changes --------
     COLOR 0, 7: LOCATE p.y + 2, p.x + 2: PRINT "Window Size -";
-    COLOR 0, 7: LOCATE p.y + 9, p.x + 29: PRINT " Monospace TTF Font ";
+    COLOR 0, 7: LOCATE p.y + 10, p.x + 29: PRINT " Monospace TTF Font ";
     '-------- end of custom display changes --------
 
     'update visual page and cursor position
@@ -9911,11 +9917,11 @@ DO 'main loop
     END IF
     idetxt(o(2).txt) = a$
 
-    a$ = idetxt(o(4).txt)
-    IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
-    idetxt(o(4).txt) = a$
-
     a$ = idetxt(o(5).txt)
+    IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
+    idetxt(o(5).txt) = a$
+
+    a$ = idetxt(o(6).txt)
     IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
     FOR i = 1 TO LEN(a$)
         a = ASC(a$, i)
@@ -9926,24 +9932,24 @@ DO 'main loop
         IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
         IF a < 8 THEN a$ = "8"
     END IF
-    idetxt(o(5).txt) = a$
+    idetxt(o(6).txt) = a$
 
 
 
-    IF K$ = CHR$(27) OR (focus = 7 AND info <> 0) THEN EXIT FUNCTION
-    IF K$ = CHR$(13) OR (focus = 6 AND info <> 0) THEN
+    IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN EXIT FUNCTION
+    IF K$ = CHR$(13) OR (focus = 7 AND info <> 0) THEN
 
         x = 0 'change to custom font
 
         'get size in v%
-        v$ = idetxt(o(5).txt): IF v$ = "" THEN v$ = "0"
+        v$ = idetxt(o(6).txt): IF v$ = "" THEN v$ = "0"
         v% = VAL(v$)
         IF v% < 8 THEN v% = 8
         IF v% > 99 THEN v% = 99
         IF v% <> idecustomfontheight THEN x = 1
 
-        IF o(3).sel <> idecustomfont THEN
-            IF o(3).sel = 0 THEN
+        IF o(4).sel <> idecustomfont THEN
+            IF o(4).sel = 0 THEN
                 _FONT 16
                 _FREEFONT idecustomfonthandle
             ELSE
@@ -9952,14 +9958,14 @@ DO 'main loop
         END IF
 
 
-        v$ = idetxt(o(4).txt): IF v$ <> idecustomfontfile$ THEN x = 1
+        v$ = idetxt(o(5).txt): IF v$ <> idecustomfontfile$ THEN x = 1
 
-        IF o(3).sel = 1 AND x = 1 THEN
+        IF o(4).sel = 1 AND x = 1 THEN
             oldhandle = idecustomfonthandle
             idecustomfonthandle = _LOADFONT(v$, v%, "MONOSPACE")
             IF idecustomfonthandle = -1 THEN
                 'failed! - revert to default settings
-                o(3).sel = 0: idetxt(o(4).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(5).txt) = "21": _FONT 16
+                o(4).sel = 0: idetxt(o(5).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(6).txt) = "21": _FONT 16
             ELSE
                 _FONT idecustomfonthandle
             END IF
@@ -9983,19 +9989,24 @@ DO 'main loop
         idewy = v% - idesubwindow
 
         v% = o(3).sel
+        IF v% <> 0 THEN v% = -1
+        IDE_AutoPosition = v%
+
+        v% = o(4).sel
         IF v% <> 0 THEN v% = 1
         idecustomfont = v%
 
-        v$ = idetxt(o(4).txt)
+        v$ = idetxt(o(5).txt)
         IF LEN(v$) > 1024 THEN v$ = LEFT$(v$, 1024)
         idecustomfontfile$ = v$
         v$ = v$ + SPACE$(1024 - LEN(v$))
 
-        v$ = idetxt(o(5).txt): IF v$ = "" THEN v$ = "0"
+        v$ = idetxt(o(6).txt): IF v$ = "" THEN v$ = "0"
         v% = VAL(v$)
         IF v% < 8 THEN v% = 8
         IF v% > 99 THEN v% = 99
         idecustomfontheight = v%
+
 
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", str$(idewx)
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", str$(idewy)
@@ -10003,6 +10014,11 @@ DO 'main loop
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "TRUE"
         ELSE
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+        END IF
+        IF IDE_AutoPosition THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
+        ELSE
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
         END IF
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", idecustomfontfile$
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFontSize", str$(idecustomfontheight)
