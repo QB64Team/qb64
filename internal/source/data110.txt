@@ -1,32 +1,32 @@
-qbs*oldstr3459=NULL;
-if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->tmp||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->fixed||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->readonly){
-oldstr3459=_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE;
-if (oldstr3459->cmem_descriptor){
-_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE=qbs_new_cmem(oldstr3459->len,0);
-}else{
-_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE=qbs_new(oldstr3459->len,0);
-}
-memcpy(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->chr,oldstr3459->chr,oldstr3459->len);
-}
-qbs*oldstr3460=NULL;
-if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->tmp||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->fixed||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->readonly){
-oldstr3460=_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND;
-if (oldstr3460->cmem_descriptor){
-_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND=qbs_new_cmem(oldstr3460->len,0);
-}else{
-_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND=qbs_new(oldstr3460->len,0);
-}
-memcpy(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->chr,oldstr3460->chr,oldstr3460->len);
-}
 qbs*oldstr3461=NULL;
-if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->tmp||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->fixed||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->readonly){
-oldstr3461=_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH;
+if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->tmp||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->fixed||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->readonly){
+oldstr3461=_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE;
 if (oldstr3461->cmem_descriptor){
-_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH=qbs_new_cmem(oldstr3461->len,0);
+_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE=qbs_new_cmem(oldstr3461->len,0);
 }else{
-_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH=qbs_new(oldstr3461->len,0);
+_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE=qbs_new(oldstr3461->len,0);
 }
-memcpy(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->chr,oldstr3461->chr,oldstr3461->len);
+memcpy(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_THISFILE->chr,oldstr3461->chr,oldstr3461->len);
+}
+qbs*oldstr3462=NULL;
+if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->tmp||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->fixed||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->readonly){
+oldstr3462=_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND;
+if (oldstr3462->cmem_descriptor){
+_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND=qbs_new_cmem(oldstr3462->len,0);
+}else{
+_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND=qbs_new(oldstr3462->len,0);
+}
+memcpy(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_FIND->chr,oldstr3462->chr,oldstr3462->len);
+}
+qbs*oldstr3463=NULL;
+if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->tmp||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->fixed||_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->readonly){
+oldstr3463=_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH;
+if (oldstr3463->cmem_descriptor){
+_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH=qbs_new_cmem(oldstr3463->len,0);
+}else{
+_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH=qbs_new(oldstr3463->len,0);
+}
+memcpy(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_STRING_REPLACEWITH->chr,oldstr3463->chr,oldstr3463->len);
 }
 int32 *_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_LONG_FH=NULL;
 if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_LONG_FH==NULL){
@@ -45,14 +45,6 @@ if(_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_LONG_I==NULL){
 _SUB_CREATEANDROIDPROJECT_REPLACEINFILE_LONG_I=(int32*)mem_static_malloc(4);
 *_SUB_CREATEANDROIDPROJECT_REPLACEINFILE_LONG_I=0;
 }
-byte_element_struct *byte_element_3463=NULL;
-if (!byte_element_3463){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3463=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3463=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3464=NULL;
-if (!byte_element_3464){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3464=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3464=(byte_element_struct*)mem_static_malloc(12);
-}
 byte_element_struct *byte_element_3465=NULL;
 if (!byte_element_3465){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3465=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3465=(byte_element_struct*)mem_static_malloc(12);
@@ -60,4 +52,12 @@ if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3465=(byte_element_s
 byte_element_struct *byte_element_3466=NULL;
 if (!byte_element_3466){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3466=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3466=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3467=NULL;
+if (!byte_element_3467){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3467=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3467=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3468=NULL;
+if (!byte_element_3468){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3468=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3468=(byte_element_struct*)mem_static_malloc(12);
 }
