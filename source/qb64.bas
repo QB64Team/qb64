@@ -20563,6 +20563,7 @@ IF typ AND ISUDT THEN
         IF method = 0 THEN e$ = evaluatetotyp(e$, STRINGTYPE - ISPOINTER)
         IF Error_Happened THEN EXIT SUB
         PRINT #12, "qbs_set(" + r$ + "," + e$ + ");"
+        PRINT #12, cleanupstringprocessingcall$ + "0);"
     ELSE
         typ = typ - ISUDT - ISREFERENCE - ISPOINTER
         IF typ AND ISARRAY THEN typ = typ - ISARRAY
@@ -20608,7 +20609,7 @@ IF id.arraytype THEN
             END IF
             PRINT #12, l$
         END IF
-        stringprocessinghappened = 1
+        PRINT #12, cleanupstringprocessingcall$ + "0);"
         tlayout$ = tl$
         EXIT SUB
     END IF
