@@ -3803,6 +3803,26 @@ DO
             GOTO contextualhelp
         END IF
 
+        IF left$(menu$(m, s), 10) = "#Go to SUB" OR left$(menu$(m, s), 15) = "#Go to FUNCTION" THEN  'Contextual menu Goto
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
+            idesy = idecy
+            idecx = 1
+            idesx = 1
+            ideselect = 0
+            GOTO ideloop
+        END IF
+
+        IF left$(menu$(m, s), 12) = "#Go to label" THEN  'Contextual menu Goto label
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            idecy = CVL(MID$(SubFuncLIST(ubound(SubFuncLIST)), 1, 4))
+            idesy = idecy
+            idecx = 1
+            idesx = 1
+            ideselect = 0
+            GOTO ideloop
+        END IF
+
         IF menu$(m, s) = "#Contents page" THEN
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             lnk$ = "QB64 Help Menu"
@@ -10670,6 +10690,9 @@ menusize(m) = i - 1
 END SUB
 
 SUB IdeMakeContextualMenu
+    REDIM SubFuncLIST(0) AS STRING
+    DIM Selection$
+
     m = idecontextualmenuID: i = 0
     menu$(m, i) = "Contextual": i = i + 1
 
@@ -10691,12 +10714,65 @@ SUB IdeMakeContextualMenu
                 a2$ = LEFT$(a2$, 19) + string$(3, 250)
             END IF
             menu$(m, i) = "Find '" + a2$ + "'": i = i + 1
+            Selection$ = a2$
         END IF
     END IF
-        'identify if word or character at current cursor position is in the help system -- copied from ide2
+        'build SUB/FUNCTION list:
+        TotalSF = 0
+        FOR y = 1 TO iden
+            a$ = idegetline(y)
+            a$ = LTRIM$(RTRIM$(a$))
+            sf = 0
+            nca$ = UCASE$(a$)
+            IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB  "
+            IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC "
+            IF sf THEN
+                IF RIGHT$(nca$, 7) = " STATIC" THEN
+                    a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                END IF
+
+                IF sf = 1 THEN
+                    a$ = RIGHT$(a$, LEN(a$) - 4)
+                ELSE
+                    a$ = RIGHT$(a$, LEN(a$) - 9)
+                END IF
+
+                a$ = LTRIM$(RTRIM$(a$))
+                x = INSTR(a$, "(")
+                IF x THEN
+                    n$ = RTRIM$(LEFT$(a$, x - 1))
+                ELSE
+                    n$ = a$
+                END IF
+
+                'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                for CleanseN = 1 to len(n$)
+                    select case mid$(n$, CleanseN, 1)
+                        case " ", "'", ":"
+                            n$ = left$(n$, CleanseN - 1)
+                            exit for
+                    end select
+                next
+
+                n2$ = n$
+                if len(n2$) > 1 then
+                    do until alphanumeric(asc(right$(n2$, 1)))
+                        n2$ = left$(n$, len(n2$) - 1)  'removes sigil, if any
+                    loop
+                end if
+
+                'Populate SubFuncLIST()
+                TotalSF = TotalSF + 1
+                REDIM _PRESERVE SubFuncLIST(1 to TotalSF) AS STRING
+                SubFuncLIST(TotalSF) = MKL$(y) + CHR$(sf) + n2$
+            END IF
+        NEXT
+
+        'identify if word or character at current cursor position is in the help system OR a sub/func
+        '(copied/adapted from ide2)
         a$ = idegetline(idecy)
+        a2$ = ""
         x = idecx
-        HelpOnSelection = 0
         IF x <= LEN(a$) THEN
             IF alphanumeric(ASC(a$, x)) THEN
                 x1 = x
@@ -10712,6 +10788,68 @@ SUB IdeMakeContextualMenu
                 a2$ = CHR$(ASC(a$, x))
             END IF
             a2$ = UCASE$(a2$)
+        END IF
+
+        'check if cursor is on sub/func/label name
+        if len(Selection$) > 0 then
+            do until alphanumeric(asc(right$(Selection$, 1)))
+                Selection$ = left$(Selection$, len(Selection$) - 1)  'removes sigil, if any
+            loop
+            Selection$ = ltrim$(rtrim$(Selection$))
+        end if
+
+        if right$(a2$, 1) = "$" then a3$ = left$(a2$, len(a2$) - 1) else a3$ = a2$ 'creates a new version without $
+
+        if len(a3$) > 0 or len(Selection$) > 0 THEN
+
+            for CheckSF = 1 to TotalSF
+                if a3$ = ucase$(mid$(SubFuncLIST(CheckSF), 6)) or ucase$(Selection$) = ucase$(mid$(SubFuncLIST(CheckSF),6)) then
+                    CurrSF$ = FindCurrentSF$(idecy)
+                    if len(CurrSF$) = 0 then goto SkipCheckCurrSF
+
+                    do until alphanumeric(asc(right$(CurrSF$, 1)))
+                        CurrSF$ = left$(CurrSF$, len(CurrSF$) - 1)  'removes sigil, if any
+                    loop
+                    CurrSF$ = ucase$(CurrSF$)
+
+                    SkipCheckCurrSF:
+                    if asc(SubFuncLIST(CheckSF), 5) = 1 THEN
+                        CursorSF$ = "SUB "
+                    else
+                        CursorSF$ = "FUNCTION "
+                    end if
+                    CursorSF$ = CursorSF$ + mid$(SubFuncLIST(CheckSF),6)
+
+                    if ucase$(CursorSF$) = CurrSF$ THEN
+                        exit for
+                    else
+                        menu$(m, i) = "#Go to " + CursorSF$: i = i + 1
+                        SubFuncLIST(1) = SubFuncLIST(CheckSF)
+                        exit for
+                    end if
+                end if
+            next CheckSF
+
+            v = 0
+            CurrSF$ = FindCurrentSF$(idecy)
+            if not Error_Happened then v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
+            CheckThisLabel:
+            if v then
+                LabelLineNumber = Labels(r).SourceLineNumber
+                ThisLabelScope$ = FindCurrentSF$(LabelLineNumber)
+                if ThisLabelScope$ <> CurrSF$ AND v = 2 then
+                    v = HashFindCont(ignore, r)
+                    goto CheckThisLabel
+                end if
+                if LabelLineNumber > 0 and LabelLineNumber <> idecy then
+                    menu$(m, i) = "#Go to label " + rtrim$(Labels(r).cn): i = i + 1
+                    REDIM _PRESERVE SubFuncLIST(1 to ubound(SubFuncLIST) + 1) AS STRING
+                    SubFuncLIST(ubound(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
+                end if
+            end if
+        end if
+
+        if len(a2$) > 0 then
             'check if F1 is in help links
             fh = FREEFILE
             OPEN "internal\help\links.bin" FOR INPUT AS #fh
@@ -10736,7 +10874,7 @@ SUB IdeMakeContextualMenu
                     menu$(m, i) = "#Help on '" + l2$ + "'": i = i + 1
                 end if
             END IF
-        END IF
+        end if
 
     IF i > 1 THEN
         menu$(m, i) = "-": i = i + 1
@@ -11669,5 +11807,53 @@ SELECT CASE DataType
         LOOP UNTIL gap = 1 AND swapped = 0
 END SELECT
 END SUB
+
+FUNCTION FindCurrentSF$(whichline)
+    'Get the name of the SUB/FUNCTION whichline is in.
+
+    sfname$ = ""
+    IF whichline > 0 THEN
+        FOR currSF_CHECK = whichline TO 1 STEP -1
+            thisline$ = idegetline(currSF_CHECK)
+            thisline$ = ltrim$(RTRIM$(thisline$))
+            isSF = 0
+            ncthisline$ = UCASE$(thisline$)
+            IF LEFT$(ncthisline$, 4) = "SUB " THEN isSF = 1
+            IF LEFT$(ncthisline$, 9) = "FUNCTION " THEN isSF = 2
+            IF isSF > 0 THEN
+                IF RIGHT$(ncthisline$, 7) = " STATIC" THEN
+                    thisline$ = RTRIM$(LEFT$(thisline$, LEN(thisline$) - 7))
+                END IF
+
+                thisline$ = RTRIM$(LTRIM$(thisline$))
+                checkargs = INSTR(thisline$, "(")
+                IF checkargs > 0 THEN
+                    sfname$ = RTRIM$(LEFT$(thisline$, checkargs - 1))
+                ELSE
+                    sfname$ = thisline$
+                END IF
+
+                'It could be that SUB or FUNCTION is inside a DECLARE LIBRARY.
+                'In such case, it must be ignored:
+                InsideDECLARE = 0
+                FOR declib_CHECK = currSF_CHECK TO 1 STEP -1
+                    thisline$ = idegetline(declib_CHECK)
+                    thisline$ = rtrim$(lTRIM$(thisline$))
+                    ncthisline$ = UCASE$(thisline$)
+                    IF LEFT$(ncthisline$, 8) = "DECLARE " AND INSTR(ncthisline$, " LIBRARY") > 0 THEN InsideDECLARE = -1: EXIT FOR
+                    IF LEFT$(ncthisline$, 11) = "END DECLARE" THEN EXIT FOR
+                NEXT
+
+                IF InsideDECLARE = -1 THEN
+                    sfname$ = ""
+                END IF
+                EXIT FOR
+            END IF
+        NEXT
+    END IF
+
+    FindCurrentSF$ = sfname$
+END FUNCTION
+
 
 '$INCLUDE:'wiki\wiki_methods.bas'

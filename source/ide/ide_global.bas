@@ -152,6 +152,7 @@ DIM SHARED idechangeto AS STRING
 DIM SHARED idechangemade AS INTEGER
 DIM SHARED ideinsert AS INTEGER
 DIM SHARED idepathsep AS STRING * 1
+DIM SHARED SubFuncLIST(0) AS STRING
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype

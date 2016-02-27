@@ -407,6 +407,7 @@ TYPE Label_Type
     Data_Referenced AS _UNSIGNED _BYTE 'set to 1 if data is referenced (data_offset will be used to create the data offset variable)
     Error_Line AS LONG 'the line number to reference on errors
     Scope_Restriction AS LONG 'cannot exist inside this scope (post checked)
+    SourceLineNumber AS LONG
 END TYPE
 DIM SHARED nLabels, Labels_Ubound
 Labels_Ubound = 100
@@ -3191,7 +3192,7 @@ DO
                 addlabaq:
                 Labels(r).State = 1
                 Labels(r).Data_Offset = linedataoffset
-
+                Labels(r).SourceLineNumber = linenumber
 
                 IF LEN(layout$) THEN layout$ = layout$ + sp + tlayout$ + ":" ELSE layout$ = tlayout$ + ":"
 
