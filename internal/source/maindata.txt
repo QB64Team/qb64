@@ -704,6 +704,17 @@ if(__STRING1_IDEPATHSEP==NULL){
 __STRING1_IDEPATHSEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
 memset(__STRING1_IDEPATHSEP->chr,0,1);
 }
+if (!__ARRAY_STRING_SUBFUNCLIST){
+__ARRAY_STRING_SUBFUNCLIST=(ptrszint*)mem_static_malloc(9*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)__ARRAY_STRING_SUBFUNCLIST)[8]=(ptrszint)mem_lock_tmp;
+__ARRAY_STRING_SUBFUNCLIST[2]=0;
+__ARRAY_STRING_SUBFUNCLIST[4]=2147483647;
+__ARRAY_STRING_SUBFUNCLIST[5]=0;
+__ARRAY_STRING_SUBFUNCLIST[6]=0;
+__ARRAY_STRING_SUBFUNCLIST[0]=(ptrszint)&nothingstring;
+}
 if(__LONG_IDEFOCUSLINE==NULL){
 __LONG_IDEFOCUSLINE=(int32*)mem_static_malloc(4);
 *__LONG_IDEFOCUSLINE=0;
@@ -1534,8 +1545,8 @@ __ARRAY_UDT_LABELS[6]=0;
 __ARRAY_UDT_LABELS[0]=(ptrszint)nothingvalue;
 }
 if(__UDT_EMPTY_LABEL==NULL){
-__UDT_EMPTY_LABEL=(void*)mem_static_malloc(278);
-memset(__UDT_EMPTY_LABEL,0,278);
+__UDT_EMPTY_LABEL=(void*)mem_static_malloc(282);
+memset(__UDT_EMPTY_LABEL,0,282);
 }
 if (!__STRING_POSSIBLESUBNAMELABELS)__STRING_POSSIBLESUBNAMELABELS=qbs_new(0,0);
 if (!__STRING_SUBNAMELABELS)__STRING_SUBNAMELABELS=qbs_new(0,0);

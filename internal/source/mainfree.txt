@@ -159,6 +159,12 @@ qbs_free(__STRING_IDEPATH);
 qbs_free(__STRING_IDEFINDTEXT);
 qbs_free(__STRING_IDECHANGETO);
 qbs_free(__STRING1_IDEPATHSEP);
+if (__ARRAY_STRING_SUBFUNCLIST[2]&1){
+tmp_long=__ARRAY_STRING_SUBFUNCLIST[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_SUBFUNCLIST[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_SUBFUNCLIST[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_SUBFUNCLIST)[8] );
 if (__ARRAY_STRING_MENU[2]&1){
 tmp_long=__ARRAY_STRING_MENU[5]*__ARRAY_STRING_MENU[9];
 while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_MENU[0]))[tmp_long]);

@@ -498,6 +498,25 @@ __STRING_IDECHANGETO->len=0;
 *__INTEGER_IDECHANGEMADE=0;
 *__INTEGER_IDEINSERT=0;
 memset((void*)(__STRING1_IDEPATHSEP->chr),0,1);
+if (__ARRAY_STRING_SUBFUNCLIST[2]&1){
+if (__ARRAY_STRING_SUBFUNCLIST[2]&2){
+tmp_long=__ARRAY_STRING_SUBFUNCLIST[5];
+while(tmp_long--){
+((qbs*)(((uint64*)(__ARRAY_STRING_SUBFUNCLIST[0]))[tmp_long]))->len=0;
+}
+}else{
+tmp_long=__ARRAY_STRING_SUBFUNCLIST[5];
+while(tmp_long--){
+qbs_free((qbs*)(((uint64*)(__ARRAY_STRING_SUBFUNCLIST[0]))[tmp_long]));
+}
+free((void*)(__ARRAY_STRING_SUBFUNCLIST[0]));
+__ARRAY_STRING_SUBFUNCLIST[2]^=1;
+__ARRAY_STRING_SUBFUNCLIST[4]=2147483647;
+__ARRAY_STRING_SUBFUNCLIST[5]=0;
+__ARRAY_STRING_SUBFUNCLIST[6]=0;
+__ARRAY_STRING_SUBFUNCLIST[0]=(ptrszint)&nothingstring;
+}
+}
 *__LONG_IDEFOCUSLINE=0;
 *__LONG_IDEAUTORUN=0;
 if (__ARRAY_STRING_MENU[2]&1){
@@ -1206,7 +1225,7 @@ __ARRAY_LONG_HASHTABLE[0]=(ptrszint)nothingvalue;
 *__LONG_LABELS_UBOUND=0;
 if (__ARRAY_UDT_LABELS[2]&1){
 if (__ARRAY_UDT_LABELS[2]&2){
-memset((void*)(__ARRAY_UDT_LABELS[0]),0,__ARRAY_UDT_LABELS[5]*278);
+memset((void*)(__ARRAY_UDT_LABELS[0]),0,__ARRAY_UDT_LABELS[5]*282);
 }else{
 if (__ARRAY_UDT_LABELS[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_UDT_LABELS[0]));
@@ -1220,7 +1239,7 @@ __ARRAY_UDT_LABELS[6]=0;
 __ARRAY_UDT_LABELS[0]=(ptrszint)nothingvalue;
 }
 }
-memset((void*)__UDT_EMPTY_LABEL,0,278);
+memset((void*)__UDT_EMPTY_LABEL,0,282);
 __STRING_POSSIBLESUBNAMELABELS->len=0;
 __STRING_SUBNAMELABELS->len=0;
 *__LONG_CREATINGLABEL=0;
