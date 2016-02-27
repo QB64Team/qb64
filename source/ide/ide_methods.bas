@@ -3813,7 +3813,7 @@ DO
             GOTO ideloop
         END IF
 
-        IF left$(menu$(m, s), 12) = "#Go to label" THEN  'Contextual menu Goto label
+        IF left$(menu$(m, s), 12) = "Go to #label" THEN  'Contextual menu Goto label
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             idecy = CVL(MID$(SubFuncLIST(ubound(SubFuncLIST)), 1, 4))
             idesy = idecy
@@ -10842,7 +10842,7 @@ SUB IdeMakeContextualMenu
                     goto CheckThisLabel
                 end if
                 if LabelLineNumber > 0 and LabelLineNumber <> idecy then
-                    menu$(m, i) = "#Go to label " + rtrim$(Labels(r).cn): i = i + 1
+                    menu$(m, i) = "Go to #label " + rtrim$(Labels(r).cn): i = i + 1
                     REDIM _PRESERVE SubFuncLIST(1 to ubound(SubFuncLIST) + 1) AS STRING
                     SubFuncLIST(ubound(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
                 end if
