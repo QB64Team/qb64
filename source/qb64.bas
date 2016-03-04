@@ -12074,7 +12074,13 @@ END
 errmes: 'set a$ to message
 IF Error_Happened THEN a$ = Error_Message: Error_Happened = 0
 layout$ = "": layoutok = 0 'invalidate layout
-IF inclevel > 0 THEN a$ = a$ + incerror$
+
+IF forceIncludingFile THEN 'If we're to the point where we're adding the automatic QB64 includes, we don't need to report the $INCLUDE information
+    IF INSTR(a$, "END SUB/FUNCTION before") THEN a$ = "SUB without END SUB" 'Just a simple rewrite of the error message to be less confusing for SUB/FUNCTIONs
+ELSE 'We want to let the user know which module the error occurred in
+    IF inclevel > 0 THEN a$ = a$ + incerror$
+END IF
+
 IF idemode THEN
     ideerrorline = linenumber
     idemessage$ = a$
