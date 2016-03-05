@@ -17891,6 +17891,12 @@ qbs *func_input(int32 n,int32 i,int32 passed){
     if (c==-1){error(62); return str;}//Input past end of file
     if (c==-2){error(75); return str;}//path/file access error
     str->chr[x]=c;
+
+	if (gfs_file[i].eof_passed!=1) { //If we haven't declared the End of the File, check to see if the next byte is an EOF byte
+		c=file_input_chr(i); //read the next byte
+		if (gfs_file[i].eof_passed!=1) {gfs_setpos(i,gfs_getpos(i)-1);} //and if it's not EOF, move our position back to where it should be
+	}
+
     x++;
       }while(x<n);
       return str;
