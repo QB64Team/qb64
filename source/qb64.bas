@@ -2870,6 +2870,94 @@ DO
 
         a3u$ = UCASE$(a3$)
 
+        'precompiler commands should always be executed FIRST.
+
+        IF LEFT$(a3u$, 5) = "$LET " THEN GOTO finishednonexec 'we dealt with this basically in the prepass
+        '                   so we could define CONST and such and have them available for later IDE passes
+
+        IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
+            IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
+            DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
+            ExecCounter = ExecCounter - 1
+            layout$ = "$END IF"
+            controltype(controllevel) = 0
+            controllevel = controllevel - 1
+            GOTO finishednonexec
+        END IF
+
+        IF LEFT$(a3u$, 4) = "$IF " THEN
+            temp$ = LTRIM$(MID$(a3u$, 4)) 'strip off the $IF and extra spaces
+            temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
+            temp = INSTR(temp$, "=")
+
+            ExecCounter = ExecCounter + 1
+            ExecLevel(ExecCounter) = -1 'default to a skip value
+            DefineElse(ExecCounter) = 1 '1 says we have an $IF statement at this level
+            result = EvalPreIF(temp$, a$)
+            IF a$ <> "" THEN GOTO errmes
+            IF result <> 0 THEN
+                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
+                IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
+            END IF
+
+            controllevel = controllevel + 1
+            controltype(controllevel) = 6
+            IF temp = 0 THEN layout$ = "$IF " + temp$ + " THEN": GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
+            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
+            layout$ = "$IF " + l$ + " = " + r$ + " THEN"
+            GOTO finishednonexec
+        END IF
+
+        IF a3u$ = "$ELSE" THEN
+            IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE without $IF": GOTO errmes
+            IF DefineElse(ExecCounter) AND 2 THEN a$ = "$IF block already has $ELSE statement in it": GOTO errmes
+            DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 2 'set the flag to declare an $ELSE already in this block
+            IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
+                ExecLevel(ExecCounter) = -1 'So we inherit the execlevel from above
+            ELSE
+                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'If we were processing code before, code after this segment is going to be SKIPPED
+            END IF
+            layout$ = "$ELSE"
+            lhscontrollevel = lhscontrollevel - 1
+            GOTO finishednonexec
+        END IF
+
+        IF LEFT$(a3u$, 5) = "$ELSE" THEN
+            temp$ = LTRIM$(MID$(a3u$, 6))
+            IF LEFT$(temp$, 3) = "IF " THEN
+                IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE IF without $IF": GOTO errmes
+                IF DefineElse(ExecCounter) AND 2 THEN a$ = "$ELSE IF cannot follow $ELSE": GOTO errmes
+                IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$ELSE IF without THEN": GOTO errmes
+                IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
+                    ExecLevel(ExecCounter) = -1
+                ELSE
+                    temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
+                    temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
+                    result = EvalPreIF(temp$, a$)
+                    IF a$ <> "" THEN GOTO errmes
+                    IF result <> 0 THEN
+                        ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
+                        IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
+                    END IF
+                END IF
+
+
+                lhscontrollevel = lhscontrollevel - 1
+                temp = INSTR(temp$, "=")
+                IF temp = 0 THEN layout$ = "$ELSEIF " + temp$ + " THEN": GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
+                l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
+                layout$ = "$ELSEIF " + l$ + " = " + r$ + " THEN"
+                GOTO finishednonexec
+            END IF
+        END IF
+
+        IF ExecLevel(ExecCounter) THEN  'don't check for any more metacommands except the one's which worth with the precompiler
+            layoutdone = 0
+            GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
+        END IF
+
+
+
         '$INSTALLFILES [src_relative_to_bas_path_like_include]  [IN dst_relative_to_application_root]
         '$INSTALLFOLDER  [src_relative_to_bas_path_like_include]  [IN dst_relative_to_application_root]
         metacommand$ = ""
@@ -3030,52 +3118,15 @@ DO
             GOTO finishednonexec
         END IF
 
-        IF LEFT$(a3u$, 5) = "$LET " THEN GOTO finishednonexec 'we dealt with this basically in the prepass
-        '                   so we could define CONST and such and have them available for later IDE passes
-
-        IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
-            layout$ = "$END IF"
-            controltype(controllevel) = 0
-            controllevel = controllevel - 1
-            GOTO finishednonexec
-        END IF
-
-        IF LEFT$(a3u$, 4) = "$IF " THEN
-            temp$ = LTRIM$(MID$(a3u$, 4)) 'strip off the $IF and extra spaces
-            temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-            temp = INSTR(temp$, "=")
-            controllevel = controllevel + 1
-            controltype(controllevel) = 6
-            IF temp = 0 THEN layout$ = "$IF " + temp$ + " THEN": GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
-            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
-            layout$ = "$IF " + l$ + " = " + r$ + " THEN"
-            GOTO finishednonexec
-        END IF
-
-        IF a3u$ = "$ELSE" THEN
-            layout$ = "$ELSE"
-            lhscontrollevel = lhscontrollevel - 1
-            GOTO finishednonexec
-        END IF
-
-        IF LEFT$(a3u$, 5) = "$ELSE" THEN
-            temp$ = LTRIM$(MID$(a3u$, 6))
-            IF LEFT$(temp$, 3) = "IF " THEN
-                lhscontrollevel = lhscontrollevel - 1
-                temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
-                temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-                temp = INSTR(temp$, "=")
-                IF temp = 0 THEN layout$ = "$ELSE IF " + temp$ + " THEN": GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
-                l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
-                layout$ = "$ELSE IF " + l$ + " = " + r$ + " THEN"
-                GOTO finishednonexec
-            END IF
-        END IF
 
 
 
     END IF 'QB64 Metacommands
 
+    IF ExecLevel(ExecCounter) THEN
+        layoutdone = 0
+        GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
+    END IF
 
 
     linedataoffset = DataOffset
