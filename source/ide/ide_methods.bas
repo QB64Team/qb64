@@ -3785,7 +3785,7 @@ DO
 
         IF menu$(m, s) = "#About..." THEN
             PCOPY 2, 0
-            idemessagebox "About", "QB64 Version " + Version$
+            idemessagebox "About", "QB64 Version " + Version$ + " (" + BuildNum$ + ")"
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
         END IF
