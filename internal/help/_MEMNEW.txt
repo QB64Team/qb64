@@ -1,3 +1,4 @@
+{{DISPLAYTITLE:_MEMNEW}}
 The '''_MEMNEW''' function allocates new memory and returns a [[_MEM]] memory block referring to it.
 
 
@@ -5,12 +6,17 @@ The '''_MEMNEW''' function allocates new memory and returns a [[_MEM]] memory bl
 ::: memory_block = '''_MEMNEW(''byte_size'')'''
 
 
+{{Parameters}}
+* The ''byte size'' parameter is the desired byte size of the memory block based on the variable [[type]] it will hold.
+
+
+''Usage:''
 * The ''memory block'' value created holds the starting OFFSET, SIZE, TYPE and ELEMENTSIZE. 
-* The ''byte size'' parameter is the desired byte size of the memory block.
-* All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable type.
+* _MEMNEW does not clear the data previously in the memory block it allocates for speed purposes.
+* To clear previous data from a new memory block, use [[_MEMFILL]] with a zero byte value,
 * When a new memory block is created the memory .TYPE value will be 0.(this may be changeable in the future)
 * '''If the read only memory block .SIZE is 0, the memory block was not created!'''
-
+* '''All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable.'''
 
 
 ''Example:'' Shows how [[SINGLE]] numerical values can be passed, but unfixed [[STRING]] lengths cannot get the value.
@@ -41,7 +47,7 @@ f = Doggy 5 {{OutputEnd}}
 ''See also:''
 * [[_MEM]], [[_MEMPUT]]
 * [[_MEMGET]], [[_MEMGET (function)]]
-* [[_MEMFREE]]
+* [[_MEMFILL]], [[_MEMFREE]]
 
 
 {{PageNavigation}}

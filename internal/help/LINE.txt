@@ -3,26 +3,49 @@ The '''LINE''' statement is used in graphics [[SCREEN (statement)|SCREEN]] modes
 
 
 {{PageSyntax}}
-: LINE [STEP](column1, row1)-[STEP](column2, row2), color%[, [{B|BF}]][, style%]
+: '''LINE''' [STEP] [(''column1'', ''row1'')]'''-'''[STEP] '''('''''column2'', ''row2'''''),''' ''color''[, [{B|BF}], style%]
 
 
-* Can use [[STEP]] keyword for graphics coordinates relative to a previously placed objects.
+{{Parameters}}
+* Can use [[STEP]] keyword for graphics coordinates relative to the previously placed object before either set of coordinates.
+* The optional parameters (''column1'', ''row1'') set the first coordinate or use the last previous object coordinate when omitted.
+* The dash and second coordinate parameters (''column2'', ''row2'') must be designated to complete the line or box.
+* The [[INTEGER]] ''color'' attribute or [[LONG]] [[_RGB32]] 32 bit color value sets the line, box or full box color.
+* Optional '''B''' creates a box outline using the start and end coordinates as diagonal corners. '''BF''' creates a filled box. 
+* The ''style'' [[INTEGER]] value sets dashed lines with varying patterns when using values from 0 to 32767.
+
+
+{{PageDescription}}
 * Creates a colored line from coordinate1 to coordinate2 if the box options(B or BF) are omitted. Can be drawn partially offscreen.
-* Creates a colored box outline if the '''B''' option is used.
-* Creates a color filled box if the '''BF''' option is used.
-* Style is any [[INTEGER]] value from 0 to 32767. It creates dashed lines or box outlines. The Box comma is required with style even when not creating a box. The lines are created where the style value's bits are on. '''BF cannot be used with style.'''
+* '''B''' creates a box outline with each side parallel to the program screen sides. '''BF''' creates an identical filled box. 
+* '''B''' can be used with style to create a dash pattern on all 4 box sides. '''BF cannot be used with style.'''
+* Both commas are required with style even when not creating a box. The lines are created where the style determines.
+* The QB64 and QB graphic cursor is set to the center of the program window on program start.
 * '''LINE can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
 
 
-''Example:'' Creating styled lines and boxes with the LINE statement. Different style values create different dashed line spacing.
+''Example 1:'' Following one line with another by omitting the second line's first coordinate parameter bracket entirely:
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+{{Cl|LINE}} (100, 100)-(200, 200), 10    'creates a line
+{{Cl|LINE}} -(400, 200), 12              'creates a second line from end of first
+
+{{Cl|END}} '' ''
+{{CodeEnd}}
+:''Explanation:'' The full equivalent LINE statement would be: '''{{text|LINE(200, 200)-(400, 200), 12|green}}'''
+
+
+''Example 2:'' Creating styled lines and boxes with the LINE statement. Different style values create different dashed line spacing.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 
 {{Cl|LINE}} (100, 100)-(300, 300), 10, , 63    'creates a styled line
-{{Cl|LINE}} (100, 100)-(300, 300), 12, B , 255 'creates styled box shape
+{{Cl|LINE}} (100, 100)-(300, 300), 12, B, 255  'creates styled box shape
 
 {{Cl|END}} '' ''
 {{CodeEnd}}
+:''Explanation:'' The first diagonal dashed green line bisects the red dashed square from Top Left to Bottom Right Corners.
 
 
 ''See also:'' 

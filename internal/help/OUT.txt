@@ -1,26 +1,36 @@
-'''OUT''' writes values to register or port hardware addresses. '''QB64 currently has limited access to registers!'''
+'''OUT''' writes values to register and port hardware addresses. '''QB64 currently has limited access to registers!'''
 
 
 
 {{PageSyntax}}
-:: OUT address%, value%
+:: '''OUT''' ''register_address%''''',''' ''value%''
 
 
-* The ''address'' is an integer value expressed as decimal or Hexadecimal.
-* '''WARNING!''' Be sure that the address is useable. OUT accesses directly unlike [[POKE]] and can cause permanent PC damage!
-* Values sent are normally only 0 to 255 per one byte register(8 bits) address.
+{{Parameters}}
+* The ''register address'' is a value expressed as a decimal [[INTEGER]] or [[&amp;H|Hexadecimal]].
+* The [[INTEGER]] ''value'' sent is normally only 0 to 255 per one byte register(8 bit) address.
+
+
+{{PageDescription}}
+* OUT can be used to change color port and a limited number of other port settings in QB64.
+* Some settings may be set in a specific order to gain access to settings and [[INP]] reads.
+* [[SCREEN]] modes determine the number of available color palette attributes from 2 to 256 in SCREEN 13.
+* Windows NT may block access to Parallel printer and Serial ports! See [[Port Access Libraries]] or other DLL's.
+* '''WARNING!''' Be sure that the address is useable. OUT accesses directly unlike [[POKE]] and '''can cause PC damage!'''
 * [[_PALETTECOLOR]] can also be used to set RGB intensity values using [[_RGB32|32 bit color]] values.
 
 
-:::::::'''Color Port access using OUT'''
+:::::::'''Color Port Palette access using OUT'''
 
-:::::OUT &amp;H3C7, attribute : Set port to read RGB settings
-:::::OUT &amp;H3C8, attribute : Set port to write RGB settings
-:::::OUT &amp;H3C9, color_intensity : Writes settings
-:::::[[INP]] &amp;H3C9, color_intensity : Reads settings
-::::* Every 3 reads or writes, changes to next color attribute
-::::* Color setting is Red, Green and Blue intensities in order
-::::* Color attribute intensity values range from 0 to 63 only
+:::::OUT &amp;H3C7, attribute : Set port to read RGB settings for start attribute
+:::::[[INP]] &amp;H3C9, color_intensity : Reads RGB color intensity settings in order
+
+:::::OUT &amp;H3C8, attribute : Set port to write RGB settings for start attribute
+:::::OUT &amp;H3C9, color_intensity : Writes RGB color intensity settings in order
+
+::::* Every 3 reads or writes, changes to next color attribute without a set
+::::* Color setting is Red, Green and Blue attribute intensities in order. 
+::::* Color attribute intensity values range from 0 to 63 only. NOT 64!
 ::::* Some [[DAC]] color attribute intensities cannot be changed using OUT.
 
 
@@ -40,7 +50,7 @@ PRINT red%, green%, blue% '' ''
 
 ''Example 2:'' Changing the color intensity settings of the [[SCREEN]] background [[COLOR]] 0 to bright white.
 {{CodeStart}} '' ''
-{{Cl|OUT}} &amp;H3C8, 0
+{{Cl|OUT}} &amp;H3C8, 0  'attribute number. 0 for black screen background
 {{Cl|OUT}} &amp;H3C9, 63 'red
 {{Cl|OUT}} &amp;H3C9, 63 'green
 {{Cl|OUT}} &amp;H3C9, 63 'blue '' ''
@@ -62,10 +72,12 @@ PRINT red%, green%, blue% '' ''
 
 
 ''See also:'' 
-* [[INP]] {{text|(read register)}}, [[POKE]] {{text|(write to memory)}}
-* [[PALETTE]], [[COLOR]], [[SCREEN]] 
+* [[PALETTE]], [[_PALETTECOLOR]]
+* [[INP]] {{text|(read register)}}
+* [[PEEK]] {{text|(read memory)}} 
+* [[POKE]] {{text|(write to memory)}}
+* [[COLOR]], [[SCREEN]] 
 * [[BSAVE]], [[BLOAD]]
-* [[_PALETTECOLOR]]
 * [[Port Access Libraries]] {{text|(COM or LPT registers)}}
 * [http://en.wikipedia.org/wiki/Input/output_base_address#Common_I.2FO_base_address_device_assignments_in_IBM_PC_compatible_computers PC I/O base address device assignments]
 

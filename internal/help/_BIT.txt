@@ -1,13 +1,12 @@
+{{DISPLAYTITLE:_BIT}}
 The '''_BIT''' datatype can return only values of 0 (bit off) and -1 (bit on). 
 
 
 {{PageSyntax}}
-:{{Parameter|variable}} AS [[[_UNSIGNED]]] '''_BIT''' {{Parameter|* numberofbits}}
+:: [[DIM]] variable AS [_UNSIGNED] '''_BIT''' [* numberofbits]
 
 
-::''Syntax, for example in regard to _DEFINE:'' [[_DEFINE]] LetterRange AS [_UNSIGNED] '''_BIT''' [*numberofbits]
-
-::''Syntax, for example in regard to DIM:'' [[DIM]] Variable AS [_UNSIGNED] '''_BIT''' [* numberofbits]
+:: [[_DEFINE]] Letter[-Range|,...] AS [_UNSIGNED] '''_BIT''' [* numberofbits]
 
 
 ''More information:''
@@ -86,6 +85,7 @@ RShift = {{Cl|INT}}(n / (2 ^ RS))
 * [[DIM]]
 * [[Binary]], [[Boolean]]
 * [[Variable Types]]
+* [[Converting Bytes to Bits]]
 
 
 {{PageNavigation}}

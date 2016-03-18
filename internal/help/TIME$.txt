@@ -2,10 +2,10 @@ The '''TIME$''' Function returns a [[STRING]] representation of the current comp
 
 
 {{PageSyntax}}
-:: PRINT &quot;Present time = &quot;; TIME$
+:: PRINT &quot;Present time = &quot;; '''TIME$'''
 
 
-* Returns the present computer time in following hh:mm:ss 24 hour format: &quot;19:20:33&quot;
+* Returns the present computer time in hh:mm:ss 24 hour format: &quot;19:20:33&quot;
 * Uses 2 colon (:) separators between hours, minutes and seconds
 * Hour values range from &quot;00&quot; to &quot;23&quot; starting from midnite.
 * Minutes and seconds range from &quot;00&quot; to &quot;59&quot;
@@ -28,6 +28,7 @@ The '''TIME$''' Function returns a [[STRING]] representation of the current comp
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}
+: Explanation: Note that [[VAL]](TIME$) can just return the hour number 0 to 23 as the read stops at the first colon.
 
 
 ''Example 2:'' The following Function converts TIME$ to normal 12 hour AM-PM digital clock  format.
@@ -55,8 +56,11 @@ END FUNCTION '' ''
 
 
 ''See also:'' 
-* [[TIME$ (statement)]], [[DATE$]], [[DATE$ (statement)]] 
-* [[VAL]], [[STR$]], [[LTRIM$]], [[MID$]], [[LEFT$]], [[IF...THEN]]
+* [[TIME$ (statement)]], [[TIMER]]
+* [[DATE$]], [[DATE$ (statement)]] 
+* [[VAL]], [[STR$]], [[HEX]] 
+* [[LTRIM$]], [[MID$]], [[LEFT$]]
+* [[IF...THEN]]
 
 
 {{PageNavigation}}

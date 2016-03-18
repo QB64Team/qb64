@@ -1,26 +1,30 @@
-The {{KW|_SNDLIMIT}} statement stops playing a sound after it has been playing for a set number of seconds. 
+{{DISPLAYTITLE:_SNDLIMIT}}
+The [[_SNDLIMIT]] statement stops playing a sound after it has been playing for a set number of seconds. 
 
 
 {{PageSyntax}}
-:{{KW|_SNDLIMIT}} ({{Parameter|handle&amp;}}, {{Parameter|limit!}})
+::: '''_SNDLIMIT''' {{Parameter|handle&amp;}}, {{Parameter|numberofseconds!}}
+
+
+{{Parameters}}
+* The ''handle&amp;'' variable name is created using the [[_SNDOPEN]] function from a loaded sound file.
+* The ''numberofseconds'' is a [[SINGLE]] value of seconds that the sound will play.
 
 
 {{PageDescription}}
 *Sets how long a sound will be played in seconds.
-*Set limit to 0 to remove the limit.
+*Set the limit to 0 seconds to remove the limit.
 *Cannot be set for playing a looping sound.
 
 
 {{PageExamples}}
-{{CodeStart}}
-
-{{Cl|_SNDLIMIT}} h&amp;, 5.5
-
+{{CodeStart}} '' ''
+{{Cl|_SNDLIMIT}} h&amp;, 5.5 '' ''
 {{CodeEnd}}
 
 
 {{PageSeeAlso}}
-*{{KW|_SNDOPEN}}, {{KW|_SNDLEN}}
+* [[_SNDOPEN]], [[_SNDLEN]]
 
 
 {{PageNavigation}}

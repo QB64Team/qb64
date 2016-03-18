@@ -1,0 +1,41 @@
+The '''INSTR''' function searches for the first occurance of a search [[STRING]] within a string and returns the position it was found.
+
+
+{{PageSyntax}}
+:: position% = INSTR([start%,] basestring$, searchstring$)
+
+
+* The basestring position of the first character of the searchstring is returned by the function if found.
+* Position returned will be 0 if the search found no matches in the base string.
+* Start [[INTEGER]] position is optional. Must be at least 1 (start of a string) when used or an [[ERROR Codes|Illegal function call]] will occur. 
+* The Start position is useful when making multiple searches in the same string. Otherwise it starts at the beginning again!
+* Base string and search string are any literal or variable [[STRING]] values.
+* The search string should be smaller than the base string! 
+* Non-zero position return values can be used as a new start position by adding 1 to re-search the base string. 
+* In a loop, INSTR can search an entire file for occurences of certain words. See the [[MID$ (statement)|MID$]] statement example.
+
+
+''Example:'' Reading more than one instance of a word in a string using the INSTR return value as the start value plus 1.
+{{CodeStart}} '' ''
+text$ = &quot;The cats and dogs where playing, even though dogs don't like cats.&quot;
+{{Cl|DO...LOOP|DO}}
+  findcats% = {{Cl|INSTR}}(findcats% + 1, text$, &quot;cats&quot;) ' find another occurance after
+  {{Cl|IF...THEN|IF}} findcats% {{Cl|THEN}} {{Cl|PRINT}} &quot;There is 'cats' in the string at position:&quot;; findcats%
+{{Cl|LOOP}} {{Cl|UNTIL}} findcats% = 0
+
+findmonkey% = {{Cl|INSTR}}(text$, &quot;monkeys&quot;)  ' find any occurance?
+PRINT findmonkey%; &quot;'monkeys' were found so it returned:&quot;; findmonkey% '' ''
+{{CodeEnd}}
+{{OutputStart}}There is 'cats' in the string at position: 5
+There is 'cats' in the string at position: 62
+ 0 'monkeys' were found so INSTR returned: 0
+{{OutputEnd}}
+: ''Explanation:'' When the INSTR return value is 0 there are no more instances of a string in a string so the search loop is exited.
+
+
+''See also:'' 
+* [[MID$]], [[MID$ (statement)]]
+* [[LEFT$]], [[RIGHT$]]
+
+
+{{PageNavigation}}

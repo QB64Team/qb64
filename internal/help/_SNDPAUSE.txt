@@ -1,29 +1,41 @@
-The {{KW|_SNDPAUSE}} statement pauses a sound using a handle from the {{KW|_SNDOPEN}} function.
-
+{{DISPLAYTITLE:_SNDPAUSE}}
+The [[_SNDPAUSE]] statement pauses a sound using a handle from the [[_SNDOPEN]] function.
 
 
 {{PageSyntax}}
-:{{KW|_SNDPAUSE}} {{Parameter|handle&amp;}}
+::: [[_SNDPAUSE]] {{Parameter|handle&amp;}}
 
 
 {{PageDescription}}
-* Sound must be playing or will not do anything
-* Sound files opened must have the &quot;PAUSE&quot; capability to use this statement.
-* Continue playing by calling {{KW|_SNDPLAY}}
-* Calling {{KW|_SNDPAUSE}} again will not continue playing!
+* Sound must be playing or statement will not do anything!
+* Continue playing by calling [[_SNDPLAY]]
+* Sound files opened must have the &quot;PAUSE&quot; capability to use this statement and '''still may not pause'''.
+* '''Calling _SNDPAUSE again will not continue playing!'''
+
+{{TextStart}}    QB64 supports the following sound file formats ('''Bold is a guaranteed capability'''):
+
+             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
+             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
+             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             MID = &quot;'''VOL'''&quot;
+             MOD = &quot;VOL,PAUSE&quot;
+             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
+
+        ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
+{{TextEnd}}
 
 
-{{PageExamples}}
-{{CodeStart}}
-
-{{Cl|_SNDPAUSE}} h&amp;
-
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|_SNDPAUSE}} h&amp; '' ''
 {{CodeEnd}}
 
 
 {{PageSeeAlso}}
-*{{KW|_SNDPLAY}}, {{KW|_SNDSTOP}}
-*{{KW|_SNDPAUSED}}
+* [[_SNDPLAY]], [[_SNDSTOP]]
+* [[_SNDPAUSED]]
 
 
 {{PageNavigation}}

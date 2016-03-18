@@ -1,28 +1,28 @@
-The {{KW|UCASE$}} function changes the lowercase letters of a {{KW|STRING}} to uppercase.
+The '''UCASE$''' function changes the lowercase letters of a {{KW|STRING}} to uppercase.
 
 
 {{PageSyntax}}
-:''result$'' = {{KW|UCASE$}}({{Parameter|text$}})
+:''result$'' = '''UCASE$('''{{Parameter|text$}}''')'''
 
 
 {{PageDescription}}
-* Normally used to guarantee that user input is capitalized.
-* Will not affect non alphabet string characters.
+* Used to guarantee that all alphabetical letters in a [[STRING]] are capitalized.
+* Will not affect non alphabet string characters. Will not shift key characters.
 
 
-{{PageExamples}}
-:The following code 
+''Example:'' The following code guarantees that all letter key entries are capitalized:
 {{CodeStart}}{{Cl|PRINT}} &quot;Do you want to continue? (y/n)&quot;
 
 {{Cl|DO...LOOP|DO}}
     K$ = {{Cl|UCASE$}}({{Cl|INKEY$}})
-
 {{Cl|DO...LOOP|LOOP}} {{Cl|DO...LOOP|UNTIL}} K$ = &quot;Y&quot; {{Cl|OR}} K$ = &quot;N&quot;
 {{CodeEnd}}
 
 
 {{PageSeeAlso}}
-* {{KW|LCASE$}}
+* [[LCASE$]] {{text|(lower case)}}
+* [[INKEY$]]
+* [[INPUT$]]
 
 
 {{PageNavigation}}

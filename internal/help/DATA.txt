@@ -10,7 +10,7 @@ The '''DATA''' statement creates a line of fixed program information separated b
 * DATA is best placed after the main program code. '''QB64 DATA can be placed inside a [[SUB]] or  [[FUNCTION]] procedures!'''
 * [[RESTORE]] will only read the first data field if the DATA is not labeled or RESTORE call uses no label.
 * When using multiple DATA fields, label each data field with a line label so that '''each''' data pointer can be reset for multiple reads with [[RESTORE]] ''linelabel''. Otherwise RESTORE will only read the '''first''' data field!
-* Comma separations are flexible to allow column alignments when creating them. Spaces are ignored unless inside of quotes.
+* QB comma separations were flexible to allow column alignments when creating them. QB64 removes spacing between commas.
 * [[STRING]] DATA values with end spaces, QB keywords and commas in them '''require''' quotation marks.
 * DATA fields can only be created by the programmer and cannot be changed by a user or lost.
 * Comments after a data line require a colon before the comment.

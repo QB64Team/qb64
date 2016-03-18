@@ -2,22 +2,21 @@
 
 
 {{PageSyntax}}
-:: '''RANDOMIZE''' [USING] '''''seednumber'''''
+:: '''RANDOMIZE''' [USING] '''{''seednumber''|TIMER}'''
 
 
-* The ''seed number'' can be any positive or negative numerical value. The [[TIMER]] value is often used to change [[RND]] output each run.
+* The ''seed number'' can be ANY positive or negative numerical type value. The [[TIMER]] value is often used to change [[RND]] output each run.
 * If the ''seed number'' is omitted, the program will display: '''Random-number seed (-32768 to 32767)?''' request on screen.
 * '''USING''' resets a ''seed number'' sequence to the start of the sequence as if the program just started using that seed in '''QB64 only'''.
 * '''Note:''' The RANDOMIZE USING ''seed number'' MUST be designated or a {{text|Name already in use|blue}} status error will occur! 
 * If the same initial seed number is used, the sequence of random numbers returned will be identical every program run.
-* The fact that random numbers would always be the same has been used for simple data encrytion.
+* The fact that random numbers would always be the same has been used for simple data encryption and decryption.
 * Using a [[TIMER]] starting value ensures that the initial return sequence values are different almost every time the program is run!
 * [[RUN]] should reset the [[RANDOMIZE]] sequence to the starting [[RND]] function value.(Not yet in QB64)
 
 
 ''Example 1:'' Using RANDOMIZE '''TIMER''' to set a different starting sequence of [[RND|random]] numbers every run.
-{{CodeStart}} '' ''
-{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+{{CodeStart}}{{Cl|RANDOMIZE}} {{Cl|TIMER}}
 {{Cl|DO...LOOP|DO}}
 randnum% = INT({{Cl|RND}} * 11) + 2  'add one to multiplier as INT rounds down and never equals 10
 PRINT randnum%
@@ -29,8 +28,7 @@ K$ = {{Cl|INPUT$}}(1)
 
 
 ''Example 2:'' Repeating a random number sequence with RANDOMIZE '''USING''' and a specific seed value in '''QB64''' only.
-{{CodeStart}} '' ''
-seed = 10
+{{CodeStart}}seed = 10
 {{Cl|RANDOMIZE}} seed
 Print7
 {{Cl|RANDOMIZE}} seed
@@ -48,6 +46,54 @@ Print7
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 : ''Explanation:'' The second RANDOMIZE statement just continues the sequence where USING in the third restarts the sequence.
+
+
+''Example 3:'' Random fireworks explosions:
+{{CodeStart}}{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+{{Cl|DEFINT}} A-Z
+
+{{Cl|TYPE}} ftype
+    vx {{Cl|AS}} {{Cl|SINGLE}}
+    vy {{Cl|AS}} {{Cl|SINGLE}}
+{{Cl|END}} {{Cl|TYPE}}
+{{Cl|DIM}} frag(500) {{Cl|AS}} ftype 'fragments
+
+{{Cl|DIM}} pi {{Cl|AS}} {{Cl|SINGLE}}
+pi = 3.141593
+
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|SINGLE}}, y {{Cl|AS}} {{Cl|SINGLE}}
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|SINGLE}}, g {{Cl|AS}} {{Cl|SINGLE}}, p {{Cl|AS}} {{Cl|SINGLE}}
+t = 0
+g = 0.4 'gravity
+p = 15 'explosion power
+
+sw = 800
+sh = 600
+
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(sw, sh, 32)
+
+DO
+    {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} {{Cl|UBOUND}}(frag)
+        frag(i).vx = {{Cl|RND}} * {{Cl|COS}}(2 * pi * {{Cl|RND}})
+        frag(i).vy = {{Cl|RND}} * {{Cl|SIN}}(2 * pi * {{Cl|RND}})
+    {{Cl|NEXT}}
+
+    x = sw * {{Cl|RND}}
+    y = sh * {{Cl|RND}}
+
+    {{Cl|FOR...NEXT|FOR}} t = 0 {{Cl|TO}} 25 {{Cl|STEP}} 0.1
+        {{Cl|LINE}} (0, 0)-(sw, sh), {{Cl|_RGB}}(0, 0, 0), BF
+        {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} {{Cl|UBOUND}}(frag)
+            {{Cl|PSET}} (x + t * p * frag(i).vx, y + t * p * frag(i).vy + g * t * t), {{Cl|_RGB}}(255, 255, 0)
+        {{Cl|NEXT}}
+        {{Cl|_DISPLAY}}
+        {{Cl|_LIMIT}} 150
+
+        {{Cl|IF...THEN|IF}} {{Cl|_KEYHIT}} = -27 {{Cl|THEN}} {{Cl|EXIT DO}}
+    {{Cl|NEXT}}
+{{Cl|LOOP}}
+{{Cl|SYSTEM}}
+{{CodeEnd}}{{small|Code by Ben}}
 
 
 ''See also:'' 

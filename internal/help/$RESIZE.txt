@@ -1,0 +1,21 @@
+The '''$RESIZE''' metacommand determines if a program window can be resized by the user in '''QB64 GL''' only.
+
+
+{{PageSyntax}}
+
+::: '''$RESIZE:'''{ON|OFF|STRETCH|SMOOTH}
+
+
+* $RESIZE:ON is used to allow the program window to be resized by a program user. Otherwise it cannot be changed.
+* $RESIZE:OFF (default) is used when the program's window size cannot be changed by the user.
+* $RESIZE:STRETCH the screen will be stretched to fit the new window size with a 1 to 1 ratio of width and height.
+* $RESIZE:SMOOTH the screen will be stretched also, but with linear filtering applied to the pixels.
+* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
+
+
+''See also:''
+* [[_RESIZE]], [[_RESIZE (function)]]
+* [[_RESIZEWIDTH]], [[_RESIZEHEIGHT]] {{text|(functions return the requested dimensions)}}
+
+
+{{PageNavigation}}

@@ -1,0 +1,50 @@
+{{DISPLAYTITLE:_CWD$}}
+
+The [[_CWD$]] function returns the current working directory path as a string value with the path separator of the [[_OS$|OS]] used (\ on Windows, / on Linux/Mac).
+
+
+{{PageSyntax}} 
+::: workingdirectory$ = '''_CWD$'''
+
+
+{{PageDescription}}
+* By default, the initial working directory path is usually the same as the directory of the executable file run.
+* The current working directory can be changed with the [[CHDIR]] or [[SHELL]] command; CHDIR sets it, _CWD$ returns it.
+* Path returns will change only when the working path has changed.  When in C:\ and run QB64\cwd.exe, it will still return C:\
+* The current working directory string can be used in [[OPEN]] statements and [[SHELL]] commands that deal with files.
+* Works in Windows, MAC OSX and Linux. [[_OS$]] can be used by a program to predict the proper slash separations in different OS's.
+
+
+{{PageErrors}}
+* If an error occurs while obtaining the working directory from the operating system, [[ERROR Codes|error code]] 51 (Internal Error) will be generated.
+
+
+
+''Example:'' Get the current working directory, and move around the file system:
+{{CodeStart}} '' ''
+startdir$ = _CWD$
+{{Cl|PRINT}} &quot;We started at &quot;; startdir$
+{{Cl|MKDIR}} &quot;a_temporary_dir&quot;
+{{Cl|CHDIR}} &quot;a_temporary_dir&quot;
+{{Cl|PRINT}} &quot;We are now in &quot;; _CWD$
+{{Cl|CHDIR}} startdir$
+{{Cl|PRINT}} &quot;And now we're back in &quot;; _CWD$
+{{Cl|RMDIR}} &quot;a_temporary_dir&quot;
+{{CodeEnd}}
+
+{{OutputStart}}We started at C:\QB64
+We are now in C:\QB64\a_temporary_dir
+And now we're back in C:\QB64
+{{OutputEnd}}
+
+
+''See also:''
+* [[CHDIR]] {{text|(Change the current working directory)}}
+* [[RMDIR]] {{text|(Remove a directory in the file system)}}
+* [[KILL]] {{text|(Delete a file in the file system)}}
+* [[MKDIR]] {{text|(Create a directory in the file system)}}
+* [[_OS$]] {{text|(returns current OS to program)}}
+* [[_STARTDIR$]] {{text|(returns path the user called program from)}} 
+
+
+{{PageNavigation}}

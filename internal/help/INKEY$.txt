@@ -88,23 +88,24 @@ The '''INKEY$''' Function returns user input as [[ASCII]] [[STRING]] character(s
 
 ==Examples==
 
-''Example 1:'' Clearing the keyboard buffer
-{{CodeStart}} '' ''
-DO: LOOP UNTIL INKEY$ = &quot;&quot; '' ''
+''Example 1:'' Clearing the keyboard buffer after [[SLEEP]] delays for later [[INPUT]].
+{{CodeStart}}{{Cl|PRINT}} &quot;Press any keyboard typing key to end SLEEP&quot;
+{{Cl|SLEEP}}
+{{Cl|DO}}: K$ = {{Cl|INKEY$}}: {{Cl|PRINT}} K$: {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;&quot; '' ''
 {{CodeEnd}}
+:''Explanation:'' [[SLEEP]] key presses will be kept in the keyboard buffer and may be added into an [[INPUT]] later! 
 
 
-''Example 2:'' Entering a Ctrl + letter keypress combination.
-{{CodeStart}}
-{{Cl|PRINT}} &quot;Press Ctrl + P to Print!&quot;
-
-DO: K$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} K$ &lt;&gt; &quot;&quot;
-{{Cl|IF...THEN|IF}} K$ = {{Cl|CHR$}}(16) {{Cl|THEN}} {{Cl|PRINT}} &quot;Ctrl + P was pressed! &quot; + K$ {{Cl|ELSE}} {{Cl|PRINT}} K$ '' ''
+''Example 2:'' Entering a Ctrl + letter keypress combination will print [[ASCII]] Control characters 1 to 26. .
+{{CodeStart}}DO
+    K$ = {{Cl|INKEY$}}
+    {{Cl|IF...THEN|IF}} K$ &lt;&gt; &quot;&quot; {{Cl|THEN}} {{Cl|PRINT}} K$; &quot; &quot;;
+{{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(27) 'Esc key exit '' ''
 {{CodeEnd}}
-: ''Note:'' Other control key + letter combinations will print other [[ASCII]] control characters. 
+: ''Note:'' The above code will print Esc arrow, Backspace symbol, and 2 byte characters led by CHR$(0) in addition to normal keys.  
 
 
-''Example 3:'' In a keyboard read loop looking for uppercase &quot;Y&quot; or &quot;N&quot;.
+''Example 3:'' Use [[UCASE$]](INKEY$) in a keyboard read loop looking for uppercase &quot;Y&quot; or &quot;N&quot; user inputs to avoid multiple IF statements.
 {{CodeStart}} '' ''
 {{Cl|DO...LOOP|DO}}
   {{Cl|PRINT}} &quot;Do you want to continue? (Y/N): &quot;;  'semicolon saves position for user entry
@@ -134,6 +135,64 @@ DO: K$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} K$ &lt;&gt; &quot;&quot;
 {{CodeEnd}}
 
 : ''Explanation:'' [[SLEEP]] waits for a keypress. It also allows background programs to share the processor and it leaves the keypress in the buffer for INKEY$. Keyboard string number characters range from [[ASCII]] codes 48 to 57. Any other entry is ignored by the IF statement. A decimal point (code 46) entry is allowed once in the input. The flag value stops further decimal point additions. Backspacing (code 8) is also allowed if the entry has at least one character. The cursor column returned by [[POS]](0) reverts too after the end of the entry when printed each loop. The loop exits when [Enter] (code 13) is pressed and the entry has a length.
+
+
+''Example 5:'' Using arrow keys to move a text character. A change from a previous position tells program when to PRINT:
+{{CodeStart}}movey = 1: movex = 1 'text coordinates can never be 0
+at$ = &quot;@&quot;  'text sprite could be almost any ASCII character
+{{Cl|LOCATE}} movey, movex: {{Cl|PRINT}} at$;
+DO
+    px = movex: py = movey 'previous positions
+    B$ = {{Cl|INKEY$}}
+    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(72) {{Cl|AND (boolean)|AND}} movey &gt; 1 {{Cl|THEN}} movey = movey - 1 'rows 1 to 23 only
+    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(80) {{Cl|AND (boolean)|AND}} movey &lt; 23 {{Cl|THEN}} movey = movey + 1
+    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(75) {{Cl|AND (boolean)|AND}} movex &gt; 1 {{Cl|THEN}} movex = movex - 1 'columns 1 to 80 only
+    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(77) {{Cl|AND (boolean)|AND}} movex &lt; 80 {{Cl|THEN}} movex = movex + 1 
+    
+    {{Cl|IF...THEN|IF}} px &lt;&gt; movex {{Cl|OR (boolean)|OR}} py &lt;&gt; movey {{Cl|THEN}} 'only changes when needed
+        {{Cl|LOCATE}} py, px: {{Cl|PRINT}} {{Cl|SPACE$}}(1); 'erase old sprite
+        {{Cl|LOCATE}} movey, movex: {{Cl|PRINT}} at$; 'show new position
+    {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} B$ = {{Cl|CHR$}}(27) 'ESCape key exit
+{{Cl|END}}
+{{CodeEnd}}
+
+
+''Example 6:'' Using INKEY$ with the arrow or WASD keys to move the QB64 bee image sprite with [[_PUTIMAGE]]:
+{{CodeStart}} '' ''
+{{Cl|DIM}} image {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} y {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} Keypress {{Cl|AS}} {{Cl|STRING}}
+
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
+
+x = 0
+y = 0
+image = {{Cl|_LOADIMAGE}}(&quot;QB64bee.png&quot;) 'Here I actually used the QB64 icon
+
+DO
+  {{Cl|_PUTIMAGE}} (x, y), image
+  DO
+    Keypress = {{Cl|UCASE$}}({{Cl|INKEY$}})
+    ' ***** The following line detects the arrow keys *****
+    {{Cl|IF...THEN|IF}} {{Cl|LEN}}(Keypress) &gt; 1 {{Cl|THEN}} Keypress = {{Cl|RIGHT$}}(Keypress, 1)
+  {{Cl|LOOP}} {{Cl|UNTIL}} Keypress &gt; &quot;&quot;
+
+  {{Cl|CLS}} ' blank screen after valid key press to avoid smearing image on page
+
+  {{Cl|SELECT CASE}} Keypress
+    {{Cl|CASE}} &quot;W&quot;, &quot;H&quot;: y = y - 10 'Up
+    {{Cl|CASE}} &quot;A&quot;, &quot;K&quot;: x = x - 10 'Left
+    {{Cl|CASE}} &quot;S&quot;, &quot;P&quot;: y = y + 10 'Down
+    {{Cl|CASE}} &quot;D&quot;, &quot;M&quot;: x = x + 10 'Right
+    {{Cl|CASE}} &quot;Q&quot;, {{Cl|CHR$}}(27): {{Cl|END}} 'Q or Esc Ends prog.
+  {{Cl|END SELECT}}
+  {{Cl|_PUTIMAGE}} (x, y), image 
+{{Cl|LOOP}} '' ''
+{{CodeEnd}} {{small|Adapted from code by Daniel}}
+: ''Note:'' The image can be placed off of the screen without error! The image moves 10 pixels to move faster. [[CLS]] eliminates any background.
+
 
 
 ''See also:'' 

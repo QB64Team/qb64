@@ -3,8 +3,9 @@
 
 {{PageSyntax}}
 
-  SUB _glCopyTexSubImage2D (BYVAL target AS _UNSIGNED LONG, BYVAL level AS LONG, BYVAL xoffset AS LONG, BYVAL yoffset AS LONG, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG, BYVAL height AS LONG)
-  void '''_glCopyTexSubImage2D'''(GLenum {{Parameter|target}}, GLint {{Parameter|level}}, GLint {{Parameter|xoffset}}, GLint {{Parameter|yoffset}}, GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}}, GLsizei {{Parameter|height}});
+:  SUB _glCopyTexSubImage2D (BYVAL target AS _UNSIGNED LONG, BYVAL level AS LONG, BYVAL xoffset AS LONG, BYVAL yoffset AS LONG, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG, BYVAL height AS LONG)
+
+:  void '''_glCopyTexSubImage2D'''(GLenum {{Parameter|target}}, GLint {{Parameter|level}}, GLint {{Parameter|xoffset}}, GLint {{Parameter|yoffset}}, GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}}, GLsizei {{Parameter|height}});
 
 
 ; target
@@ -70,5 +71,3 @@ No change is made to the ''internalformat'', ''width'', ''height'', or ''border'
 
 
 {{PageCopyright}}
-
-Copyright 1991-2006 Silicon Graphics, Inc. Copyright 2012 Khronos Group. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

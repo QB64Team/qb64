@@ -1,8 +1,9 @@
-'''_MOUSEBUTTON''' Function returns the button status of a specified mouse button when read after [[_MOUSEINPUT]].
+{{DISPLAYTITLE:_MOUSEBUTTON}}
+The '''_MOUSEBUTTON''' Function returns the button status of a specified mouse button when read after [[_MOUSEINPUT]].
 
 
 {{PageSyntax}}
-:: buttonstatus% = '''_MOUSEBUTTON(''button_number'')'''
+:: buttonstatus% = '''_MOUSEBUTTON('''''button_number''''')'''
 
 
 {{Parameters}}
@@ -106,6 +107,58 @@ y = {{Cl|_MOUSEY}}
 {{Cb|END SUB}} '' ''
 {{TextEnd}}
 : The above procedure can be used to catch up after [[INPUT]], [[LINE INPUT]] or [[INPUT$]] delays when mouse input may accumulate.
+
+
+''Example 5:'' Combining mouse button or keyboard selections in a menu or test:
+{{CodeStart}} '' ''
+{{Cl|DO...LOOP|DO}} 'main program loop in demo only
+  {{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} &quot;A&quot; 'position A, B &amp; C in same position on every question
+  {{Cl|LOCATE}} 12, 10: {{Cl|PRINT}} &quot;B&quot;
+  {{Cl|LOCATE}} 14, 10: {{Cl|PRINT}} &quot;C&quot; 'demo only
+
+  {{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 10 'get user answer loop
+    {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}: {{Cl|LOOP}} 'read mouse
+    K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}) 'read keypresses also
+    x% = {{Cl|_MOUSEX}}
+    y% = {{Cl|_MOUSEY}}
+    Lclick = {{Cl|_MOUSEBUTTON}}(1)
+
+    {{Cl|LOCATE}} 20, 10: {{Cl|PRINT}} x%, y%, Lclick 'only used to find mouse coordinates
+    {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 10 {{Cl|AND (boolean)|AND}} Lclick {{Cl|THEN}} 'position clicked
+      DO
+        i = {{Cl|_MOUSEINPUT}}
+        x% = {{Cl|_MOUSEX}}
+        y% = {{Cl|_MOUSEY}}
+      {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEBUTTON}}(1)
+      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 10 {{Cl|THEN}} K$ = &quot;A&quot; 'position released
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 12 {{Cl|AND (boolean)|AND}} Lclick {{Cl|THEN}} 'position clicked
+      DO
+        i = {{Cl|_MOUSEINPUT}}
+        x% = {{Cl|_MOUSEX}}
+        y% = {{Cl|_MOUSEY}}
+      {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEBUTTON}}(1)
+      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 12 {{Cl|THEN}} K$ = &quot;B&quot; 'position released
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 14 {{Cl|AND (boolean)|AND}} Lclick {{Cl|THEN}} 'position clicked
+      DO
+        i = {{Cl|_MOUSEINPUT}}
+        x% = {{Cl|_MOUSEX}}
+        y% = {{Cl|_MOUSEY}}
+      {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEBUTTON}}(1)
+      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 14 {{Cl|THEN}} K$ = &quot;C&quot; 'position released
+    {{Cl|END IF}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;A&quot; {{Cl|OR (boolean)|OR}} K$ = &quot;B&quot; {{Cl|OR (boolean)|OR}} K$ = &quot;C&quot; '{{Cl|GOTO}} next question
+
+  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(K$) {{Cl|THEN}} 'DEMO ONLY
+    {{Cl|LOCATE}} 22, 35: {{Cl|PRINT}} &quot;  Answer = &quot;; K$ 'display user answer at location
+    {{Cl|_DELAY}} 2 'allow time for user to view answer
+    {{Cl|LOCATE}} 22, 35: {{Cl|PRINT}} &quot;SELECT AGAIN&quot;
+    K$ = &quot;&quot; 'reset K$
+  {{Cl|END IF}}
+{{Cl|LOOP}} 'DEMO only loop use red X box to quit '' ''
+{{CodeEnd}} {{small|Code by Ted Weissgerber}}
+: ''Explanation:'' User can cancel letter selection by moving pointer off letter before releasing the left mouse button.
 
 
 {{PageSeeAlso}}

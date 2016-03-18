@@ -1,18 +1,30 @@
-'''_ICON''' uses an image handle from [[_LOADIMAGE]] for a program header icon image.
+{{DISPLAYTITLE:_ICON}}
+The '''_ICON''' statement uses an image handle from [[_LOADIMAGE]] for the program header and GL icon image in the OS.
 
 
 {{PageSyntax}}
-: [[_ICON]] {{Parameter|handle&amp;}}
+: [[_ICON]] [''mainimagehandle&amp;''[, ''smallimagehandle&amp;'']]
 
+
+{{Parameters}}
+* ''mainimagehandle''  is the [[LONG]] handle value of the OS icon and title bar image pre-loaded with [[_LOADIMAGE]] when used alone.
+* ''smallimagehandle'' is the [[LONG]] handle value of a different title bar image pre-loaded with [[_LOADIMAGE]] when used.
 
 
 {{PageDescription}}
-*{{Parameter|handle}} is the [[LONG]] handle value of an image loaded with {{KW|_LOADIMAGE}}.
-*The image will automatically be resized to fit the icon size of 16 X 16 if smaller or larger.
+* Older SDL versions must use a valid image handle created by [[_LOADIMAGE]]. The default QB64 icon will appear otherwise.
+* In '''QB64 GL''' no image handle denotes that the default QB64 program icon should be used. 
+:::''mainimagehandle'' will create the image as the icon in the OS and the image in the program header.
+:::''smallimagehandle'' can be used for a different image in the program header bar.
+*The header image will automatically be resized to fit the icon size of 16 X 16 if smaller or larger.
 *Once the program's icon is set, the image can be discarded with [[_FREEIMAGE]].
+
+
+{{PageErrors}}
+* '''NOTE: QB64 SDL does not support icon files! An error will occur using [[_LOADIMAGE]]! See Example 2.''' 
+* Images used can be smaller or larger than 32 X 32 pixels, but image resolution may be affected.
 * It is IMPORTANT to free unused or uneeded images with [[_FREEIMAGE]] to prevent memory overflow errors!
-*'''SCREEN 0 mode requires a 32 bit palette to load images other than icons as title bar icons.'''
-* '''QB64 currently does not support icon files! An error will occur using [[_LOADIMAGE]]! See example 2 below.''' 
+*'''SCREEN 0 text mode requires a 32 bit palette in [[_LOADIMAGE]] to load images other than icons as program icons.'''
 
 
 ''Example 1:'' Loading an image to a 32 bit palette in SCREEN 0 (the default screen mode).

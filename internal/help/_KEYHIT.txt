@@ -1,14 +1,16 @@
+{{DISPLAYTITLE:_KEYHIT}}
 The '''_KEYHIT''' function returns [[ASCII]] one and two byte, SDL Virtual Key and Unicode keyboard key press codes.
 
 
-{{PageSyntax}} keycode&amp; = _KEYHIT
+{{PageSyntax}} keycode&amp; = '''_KEYHIT'''
 
 
 * Return values range up to &amp;H40000000 so use a [[LONG]] or [[_INTEGER64]] variable type! See the [[_KEYDOWN]] code list:
 :* 0-255: [[ASCII]] values (Refer to [http://en.wikipedia.org/wiki/Code_page_437 CP437]).
 :* 256-65535: [[ASCII#Two_Byte_Codes|2-byte]] character codes : code = [[CVI]]([[CHR$]](0) + [[CHR$]](scancode)) (unaffected by SHIFT/ALT/CTRL modifiers).
-:* 65536-&amp;H40000000: QB64-specific Virtual Key codes (designated with + for 100000 on keyboard below)
-:* '''Negative [[LONG]] values returned indicate that a key was released or a lock function key has been turned off.'''
+:* 65536-&amp;H40000000: [[_KEYDOWN|QB64-specific Virtual Key codes]] (designated with + for 100000 on keyboard below)
+:* '''Negative''' [[LONG]] values returned indicate that a key was released or a lock function key has been turned off.
+* '''Note: _KEYHIT can only return one value at a time so use the [[_KEYDOWN]] keyhit value to find key combinations.'''
 {{WhiteStart}}'                                '''_KEYHIT Keyboard Codes'''
 '
 ''''Esc  F1    F2    F3    F4    F5    F6    F7    F8    F9    F10   F11   F12   Sys  ScL Pause'''                  

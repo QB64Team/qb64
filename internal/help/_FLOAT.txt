@@ -1,8 +1,9 @@
+{{DISPLAYTITLE:_FLOAT}}
 '''_FLOAT''' numerical values offer the maximum floating-point decimal precision available using '''QB64'''.
 
 
 {{PageSyntax}} 
-::[[DIM]] {{Parameter|variable}} AS _FLOAT
+::[[DIM]] {{Parameter|variable}} AS '''_FLOAT'''
 
 
 {{PageDescription}}
@@ -15,6 +16,7 @@
 * Floating decimal point numerical values cannot be {{KW|_UNSIGNED}}!
 * Values can be converted to 32 byte [[ASCII]] strings using [[_MK$]] and back with [[_CV]].
 * '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
+* Note: A _GL_FLOAT is a [[SINGLE]] (4 byte) floating point number, a QB64 _FLOAT is a 10-byte floating point number.
 
 
 {{PageSeeAlso}}

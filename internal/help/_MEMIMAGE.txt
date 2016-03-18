@@ -1,3 +1,4 @@
+{{DISPLAYTITLE:_MEMIMAGE}}
 The '''_MEMIMAGE''' function returns a [[_MEM]] value referring to an image's memory using a designated image handle.
 
 
@@ -11,11 +12,12 @@ The '''_MEMIMAGE''' function returns a [[_MEM]] value referring to an image's me
 
 
 ''Usage:''
-* Use the function to place images into memory blocks for faster data access.
-* All values created by this function MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable type.
+* Use the function to place images into memory access blocks for faster data access.
+* All values created by this function MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] [[type]] variable.
+* Image handle values and the memory used must still be freed using [[_FREEIMAGE]] when no longer required.
 
 
-''Example 1:'' Darkening an image using memory with [[$CHECKING]]:OFF for greater speed.
+''Example 1:'' Darkening an image using memory with [[$CHECKING]]:OFF for greater speed. Use any 24 bit image file name on the second code line.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1024, 768, 32)
 i&amp; = {{Cl|_LOADIMAGE}}(&quot;turtle.jpg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; use any 24 bit image file
@@ -35,14 +37,16 @@ i&amp; = {{Cl|_LOADIMAGE}}(&quot;turtle.jpg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;
 {{Cl|DIM}} O {{Cl|AS}} {{Cl|_OFFSET}}, O_Last {{Cl|AS}} {{Cl|_OFFSET}}
 O = Buffer.OFFSET 'We start at this offset
 O_Last = Buffer.OFFSET + {{Cl|_WIDTH (function)|_WIDTH}}(Image) * {{Cl|_HEIGHT}}(Image) * 4 'We stop when we get to this offset
-{{Cl|$CHECKING}}:OFF 'use on error free code ONLY!
+'use on error free code ONLY!
+{{Cl|$CHECKING}}:OFF 
 DO
     {{Cl|_MEMPUT}} Buffer, O, {{Cl|_MEMGET (function)|_MEMGET}}(Buffer, O, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) * Frac_Value \ 65536 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
     {{Cl|_MEMPUT}} Buffer, O + 1, {{Cl|_MEMGET (function)|_MEMGET}}(Buffer, O + 1, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) * Frac_Value \ 65536 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
     {{Cl|_MEMPUT}} Buffer, O + 2, {{Cl|_MEMGET (function)|_MEMGET}}(Buffer, O + 2, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) * Frac_Value \ 65536 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
     O = O + 4
 {{Cl|LOOP}} {{Cl|UNTIL}} O = O_Last
-{{Cl|$CHECKING}}:ON 'turn checking back on when done!
+'turn checking back on when done!
+{{Cl|$CHECKING}}:ON 
 {{Cl|_MEMFREE}} Buffer
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}{{small|Code by Galleon}}
@@ -67,6 +71,7 @@ DO
 {{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
 m = {{Cl|_MEMIMAGE}}
 x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 11) 'convert numbers to ASCII text characters
+{{Cl|_MEMFREE}} m 'free memory when done
 {{Cl|LOCATE}} 10, 1: {{Cl|PRINT}} {{Cl|LEN}}(x1$) 'prints 11 as byte length
 {{Cl|PRINT}} x1$ 'prints HELLO WORLD
 {{Cl|END}} '' ''
@@ -80,6 +85,7 @@ x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 11) 'conver
 * [[_MEMGET]], [[_MEMPUT]]
 * [[_MEMFREE]]
 * [[$CHECKING]]
+* [http://www.qb64.net/forum/index.php?topic=11052.0 Reading pixel colors faster using _MEMIMAGE]
 
 
 {{PageNavigation}}

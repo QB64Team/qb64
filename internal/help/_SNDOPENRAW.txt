@@ -1,0 +1,34 @@
+{{DISPLAYTITLE:_SNDOPENRAW}}
+'''_SNDOPENRAW''' function opens a new channel to shove _SNDRAW content into to manage multiple dynamically generated sounds.
+
+
+{{PageSyntax}}
+::::: pipehandle = '''_SNDOPENRAW'''
+
+
+* You can manage multiple dynamically generated sounds at once without having to worry about mixing.
+* Use [[_SNDCLOSE]] to remove the pipe sound handles from memory.
+
+
+''Example:'' Combining 2 sounds without worrying about mixing:
+{{CodeStart}} '' ''
+a = {{Cl|_SNDOPENRAW}}
+b = {{Cl|_SNDOPENRAW}}
+
+{{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} 100000
+    {{Cl|_SNDRAW}} {{Cl|SIN}}(x / 10), , a 'fill with a tone
+    {{Cl|_SNDRAW}} {{Cl|RND}} * 1 - 0.5, , b 'fill with static
+{{Cl|NEXT}}
+
+{{Cl|_SNDCLOSE}} a
+{{Cl|_SNDCLOSE}} b '' ''
+{{CodeEnd}}{{small|Code by Galleon}}
+
+
+{{PageSeeAlso}}
+* [[_SNDRAWDONE]] {{text|(GL only)}}
+* [[_SNDRAW]]
+* [[_SNDCLOSE]]
+
+
+{{PageNavigation}}

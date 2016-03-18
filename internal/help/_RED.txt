@@ -1,8 +1,9 @@
-The {{KW|_RED}} function returns the palette index OR the red component intensity of a 32-bit screen only.
+{{DISPLAYTITLE:_RED}}
+The [[_RED]] function returns the palette index or the red component intensity of a 32-bit image color.
 
 
 {{PageSyntax}}
-:{{Parameter|result&amp;}} = {{KW|_RED}}({{Parameter|rgbaColorIndex&amp;}}[, {{Parameter|imageHandle&amp;}}])
+:: redintensity&amp; = '''_RED('''{{Parameter|rgbaColorIndex&amp;}}[, {{Parameter|imageHandle&amp;}}]''')'''
 
 
 {{PageDescription}}
@@ -17,13 +18,14 @@ The {{KW|_RED}} function returns the palette index OR the red component intensit
 * An image handle is optional.
 
 
-''See Example:'' [[POINT]]
+''See Example:'' 
+* [[POINT]]
 
 
 {{PageSeeAlso}}
-* {{KW|_GREEN}}, {{KW|_BLUE}}
-* {{KW|_RGB}}, {{KW|RGB32}}
-* {{KW|_LOADIMAGE}} &lt;!-- why have this link ? --&gt;
+* [[_GREEN]], [[_BLUE]]
+* [[_RGB]], [[RGB32]]
+* [[_LOADIMAGE]]
 
 
 {{PageNavigation}}

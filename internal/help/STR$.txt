@@ -1,17 +1,19 @@
-The {{KW|STR$}} function returns the {{KW|STRING}} representation of a numerical value.
+The '''STR$''' function returns the [[STRING]] representation of a numerical value.
 
 
 {{PageSyntax}}
-:''result$'' = {{KW|STR$}}({{Parameter|number}})
+:: result$ = '''STR$('''{{Parameter|number}}''')'''
+
+
+{{Parameters}}
+* {{Parameter|number}} is any numerical type value to convert.
 
 
 {{PageDescription}}
-
-* {{Parameter|number}} is any numerical type value to convert.
-* If {{Parameter|number}} is positive, the {{KW|STRING}} value returned will have a leading space character. The leading space can be removed using {{KW|LTRIM$}}.
-* If {{Parameter|number}} is negative, the minus sign will precede the number instead of a space.
-* Returns any type number value with decimal point when needed.
-* Trimming a number using {{KW|RTRIM$}} is not required as STR$ removes the undocumented trailing PRINT number space.
+* Returns any type number value with leading sign(space/minus) or decimal point when one exists in the numerical value.
+* If {{Parameter|number}} is positive, the [[STRING]] value returned will have a leading space character which can be removed using [[LTRIM$]].
+* If {{Parameter|number}} is negative, the minus sign will precede the number instead of a space which [[LTRIM$]] will not remove.
+* Trimming a STR$ string number using [[RTRIM$]] is not required as [[PRINT]] creates the undocumented trailing number space.
 
 
 {{PageExamples}}
@@ -35,8 +37,10 @@ a = 33
 
 
 {{PageSeeAlso}}
-* {{KW|VAL}}
-* {{KW|LTRIM$}}
-* {{KW|HEX$}}
+* [[VAL]], [[STRING]]
+* [[LTRIM$]], [[MID$]]
+* [[RIGHT$]], [[LEFT$]]
+* [[HEX$]], [[OCT$]]
+
 
 {{PageNavigation}}

@@ -3,17 +3,18 @@ The '''INPUT #''' file or port statement reads sequential data using one variabl
 
 
 {{PageSyntax}} 
-:: '''INPUT #''filenumber%'', ''variable_type'''''[, listof!, variables$,...]
+:: '''INPUT #''filenumber&amp;'', ''variable'''''[, listof!, variables$,...]
 
 
 {{Parameters}}
-* ''filenumber'' is an [[INTEGER]] number value used to [[OPEN]] the file FOR [[INPUT (file mode)|INPUT]] mode only. 
-* ''variable'' and [[type]] define the value or list of values to be returned from the file. Numeric types must match the values returned.
+* ''filenumber'' is a positive [[LONG]] integer value used to [[OPEN]] the file FOR [[INPUT (file mode)|INPUT]] mode only. 
+* The [[type]] of the ''variable'' define the value or list of values to be returned from the file. Numeric types must match the values returned.
+* As reflected in the syntax you can list a number of variables with different types seperated by a comma and they will hold the values in the file (keep in mind that the information in the file should reflect the variable types used).
 
 
 ''Usage:''
 * The file number can be determined by the programmer or an unused number can be returned by the [[FREEFILE]] function.
-* INPUT # reads file data from a filenumber% [[OPEN]]ed in the [[INPUT (file mode)|INPUT]] file mode.
+* INPUT # reads file data from a filenumber&amp; [[OPEN]]ed in the [[INPUT (file mode)|INPUT]] file mode.
 * INPUT # can read one variable at a time from a list or read the entire list by [[comma]] separating a list of input variables.
 * Variable types MUST match the numerical [[type]]s being read! [[STRING]] variables can return numeric values not in quotes.
 * Leading or trailing spaces of [[STRING]] values must be inside of quotes. [[WRITE (file statement)|WRITE #]] writes strings inside of quotes automatically. [[PRINT (file statement)|PRINT #]] removes quotes.

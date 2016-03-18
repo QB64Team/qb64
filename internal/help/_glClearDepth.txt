@@ -3,10 +3,9 @@
 
 {{PageSyntax}}
 
-  SUB _glClearDepth (BYVAL depth AS DOUBLE)
-  void '''_glClearDepth'''(GLdouble {{Parameter|depth}});
-
-  void '''_glClearDepthf'''(GLfloat {{Parameter|depth}});
+:: SUB _glClearDepth (BYVAL depth AS DOUBLE)
+:: void '''_glClearDepth'''(GLdouble {{Parameter|depth}});
+:: void '''_glClearDepthf'''(GLfloat {{Parameter|depth}});
 
 ; depth
 : Specifies the depth value used when the depth buffer is cleared. The initial value is 1.
@@ -33,5 +32,3 @@ The type of the {{Parameter|depth}} parameter was changed from GLclampf to GLflo
 
 
 {{PageCopyright}}
-
-Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

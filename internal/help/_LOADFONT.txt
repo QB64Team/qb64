@@ -1,16 +1,19 @@
+{{DISPLAYTITLE:_LOADFONT}}
 The '''_LOADFONT''' function loads a TrueType font (.TTF) file of a specific size and style and returns a [[LONG]] font handle value &gt; 0.
 
 
 {{PageSyntax}}
-: handle&amp; = {{KW|_LOADFONT}} (''TTF_filename$'', ''size%''[, &quot;MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND&quot;])
+: handle&amp; = '''_LOADFONT ('''''TTF_filename$'', ''size%''[, &quot;{MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND}&quot;]''')'''
 
 
 {{PageDescription}}
 * The assigned [[LONG]] font ''handle'' variable return value designates a font style to be used somewhere in a program.
 * ''TTF_filename$'' is the filename of '''truetype''' fonts only. Can include the path to the font file. Best to include font files with a program.
 * ''Size'' is the [[INTEGER]] height of the font. If the size is too large or small an [[ERROR Codes|error]] will occur!
-* ''Style'' parameter(s) used, if any, are literal [[STRING]]s(in quotes) or variable text parameters. 
-:* '''&quot;Monospace&quot; has limited font file selections and cannot be used with variable width fonts!
+* Optional comma separated ''style'' parameter(s) used are literal [[STRING]]s(in quotes) or can be contained in variable(s). 
+:* '''&quot;MONOSPACE&quot; has limited font file selections and cannot be used with variable width fonts!'''
+:* '''&quot;BOLD&quot;, &quot;ITALIC&quot;''' or '''&quot;UNDERLINE&quot;''' create bold, italic or underlined fonts when available in font.
+:* '''&quot;UNICODE&quot;''' loads Unicode fonts such as ''cyberbit.ttf'' which is included in the QB64 downloads. 
 :* '''&quot;DONTBLEND&quot;''' turns off [[_ALPHA]] blending of fonts. This can also be done with the [[_DONTBLEND]] statement.
 :* You can pass different font styles using different predefined [[STRING]] variable lists. You '''can''' include an empty style string!
 * '''Always check that font handle values are greater than 0 before using them or [[ERROR Codes|illegal function errors]] may occur!'''
@@ -62,24 +65,59 @@ f&amp; ={{Cl|_LOADFONT}}(fontfile$, 30, style$)
 ''Example 2:'' In a 32-bit graphics mode you can alpha blend onto the background:
 
 {{CodeStart}}
-
 i&amp; ={{Cl|_NEWIMAGE}}(800,600,32)
 {{Cl|SCREEN (statement)|SCREEN}} i&amp;
 {{Cl|COLOR}} &amp;HC0FFFF00,&amp;H200000FF
 f&amp; ={{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\times.ttf&quot;, 25)  'normal style
 {{Cl|PRINT}} &quot;Hello!&quot;
-
 {{CodeEnd}}
 
-{{OutputStart}}
-
-Hello!
-
+{{OutputStart}}Hello!
 {{OutputEnd}}
 
 
 :''Note:'' You can load a fixed width font file without using the &quot;monospace&quot; option and it will be treated as variable width. This can be useful because LOCATE treats the horizontal position as an offset in pixels for variable width fonts.
 
+
+''Example 3:'' Loading a [[Unicode]] font, ''cyberbit.ttf'', which was downloaded with QB64:
+{{CodeStart}}{{Cl|SCREEN}} 12
+
+{{Cl|DECLARE DYNAMIC LIBRARY|DECLARE CUSTOMTYPE LIBRARY}} 'Directory Information using KERNEL32 provided by Dav
+    {{Cl|FUNCTION}} GetModuleFileNameA&amp; ({{Cl|BYVAL}} hModule {{Cl|AS}} {{Cl|LONG}}, lpFileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+    {{Cl|FUNCTION}} GetModuleFileNameW&amp; ({{Cl|BYVAL}} hModule {{Cl|AS}} {{Cl|LONG}}, lpFileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+'=== SHOW CURRENT PROGRAM
+FileName$ = {{Cl|SPACE$}}(512)
+
+Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
+{{Cl|IF...THEN|IF}} Result {{Cl|THEN}} {{Cl|PRINT}} &quot;CURRENT PROGRAM (ASCII): &quot;; {{Cl|LEFT$}}(FileName$, Result)
+
+'load a unicode font
+f = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
+{{Cl|_FONT}} f
+Result = GetModuleFileNameW(0, FileName$, {{Cl|LEN}}(FileName$) \ 2)
+{{Cl|LOCATE}} 2, 1
+{{Cl|PRINT}} QuickCP437toUTF32$(&quot;CURRENT PROGRAM (UTF): &quot;) + QuickUTF16toUTF32$({{Cl|LEFT$}}(FileName$, Result * 2))
+{{Cl|_FONT}} 16 'restore CP437 font
+
+{{Cl|FUNCTION}} QuickCP437toUTF32$ (a$)
+b$ = {{Cl|STRING$}}({{Cl|LEN}}(a$) * 4, 0)
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(a$)
+    {{Cl|ASC}}(b$, i * 4 - 3) = {{Cl|ASC}}(a$, i)
+{{Cl|NEXT}}
+QuickCP437toUTF32$ = b$
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} QuickUTF16toUTF32$ (a$)
+b$ = {{Cl|STRING$}}({{Cl|LEN}}(a$) * 2, 0)
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(a$) \ 2
+    {{Cl|ASC}}(b$, i * 4 - 3) = {{Cl|ASC}}(a$, i * 2 - 1)
+    {{Cl|ASC}}(b$, i * 4 - 2) = {{Cl|ASC}}(a$, i * 2)
+{{Cl|NEXT}}
+QuickUTF16toUTF32$ = b$
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
 
 
 ''See also:''

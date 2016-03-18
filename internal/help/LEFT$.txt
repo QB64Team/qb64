@@ -3,14 +3,18 @@ The '''LEFT$''' string function returns a part of a [[STRING]] from the start a 
 
 
 {{PageSyntax}}
-:: LEFT$(stringvalue$, numberofcharacters%)
+:: '''LEFT$('''''stringvalue$'', ''numberofcharacters%''''')'''
 
 
+{{Parameters}}
+* The ''stringvalue$'' can be any [[STRING]]  variable of [[ASCII]] text characters.
+* The ''numberofcharacters'' [[INTEGER]] value determines the number of characters to return from left end of string.
 
-* The string value can be any string of [[ASCII]] characters as a string variable.
-* If the number of characters exceeds the string length the entire string is returned.
-* Number of characters cannot be a negative value.
-* LEFT$ returns always starts at the first character of the string, even when a space. [[LTRIM$]] can remove leading spaces.
+
+{{PageDescription}}
+* If the number of characters exceeds the string length the entire string is returned. Use [[LEN]] to determine a string length.
+* LEFT$ returns always start at the first character of the string, even when a space. [[LTRIM$]] can remove leading spaces.
+* '''The Number of characters cannot be a negative value.'''
 
 
 ''Example 1:'' Getting the left portion of a string value. 
@@ -59,7 +63,7 @@ This is your sentence to change your words.{{OutputEnd}}
 * [[RIGHT$]], [[MID$]]
 * [[LTRIM$]], [[RTRIM$]]
 * [[MID$ (statement)]]
-* [[INSTR]]
+* [[INSTR]], [[LEN]]
 
 
 {{PageNavigation}}

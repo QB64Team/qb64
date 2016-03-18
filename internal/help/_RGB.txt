@@ -1,11 +1,12 @@
+{{DISPLAYTITLE:_RGB}}
 The [[_RGB]] function returns the closest palette attribute index OR the [[LONG]] 32 bit color value in 32 bit screens only. 
 
 
-:{{Parameter|colorindex~&amp;}} = [[_RGB]]'''({{Parameter|red}}, {{Parameter|green}}, {{Parameter|blue}}'''[, {{Parameter|image_handle}}]''')'''
+:colorindex~&amp; = '''_RGB('''{{Parameter|red}}, {{Parameter|green}}, {{Parameter|blue}}[, {{Parameter|image_handle}}]''')'''
 
 
 * The value returned is either the closest color attribute number or a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
-* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!'''
+* '''Return variable types MUST be [[LONG]] or resulting color may lose the [[_BLUE]] value!'''
 * {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
 * {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
 * {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.

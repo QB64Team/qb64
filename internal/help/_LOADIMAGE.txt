@@ -1,25 +1,34 @@
+{{DISPLAYTITLE:_LOADIMAGE}}
 The '''_LOADIMAGE''' function loads an image into memory and returns valid [[LONG]] image handle values that are less than -1. 
 
 
 {{PageSyntax}}
-: handle&amp; = _LOADIMAGE&amp; (''filename$''[, ''mode&amp;''])
+:: handle&amp; = '''_LOADIMAGE&amp; ('''''filename$''[, ''mode&amp;'']''')'''
+
+
+{{Parameters}}
+* ''filename'' is literal or variable [[STRING]] file name value.
+* Optional ''mode'' [[INTEGER]] values can be any valid screen mode except zero, 256 color, 32 bit or 33 hardware image.
 
 
 {{PageDescription}}
 * File types supported:  BMP, JPG, PNG, GIF, PNM, XPM, XCF, PCX, TIF, LBM, and TGA. A path can also be given.
-* The ''Mode&amp;'' can designate 256(8 bit) or 32 bit color. Omit to use the current graphic screen settings.
-* Some images may not load when a ''mode'' value is designated. Try loading it without a ''mode'' designation.
+* The ''mode&amp;'' can designate 256(8 bit), 32 bit color or 33 in GL. Omit to use the current graphic screen settings.
+* '''QB64GL''' mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ([[_NEWIMAGE]] will later)
 * Loaded images can be read invisibly using [[POINT]]. Image coordinates start at 0 up to the [[_WIDTH (function)|_WIDTH]] - 1 and [[_HEIGHT]] - 1.
 * Images can be made into a program [[SCREEN (statement)|SCREEN]] or page adopting the size and palette settings or placed using [[_PUTIMAGE]].
-* '''In text [[SCREEN]] 0 ''mode&amp;'' 32 must be designated!''' When loading an [[_ICON]] image use 32 for the mode also.
 * Returns -1 as an invalid handle if it could not load the image. Valid {{KW|LONG}} handle returns are less than -1.
 * Valid images only need to be loaded ONCE! The handle can be used repeatedly until freed.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
+
+
+{{PageErrors}}
+* Some picture file images may not load when a ''mode'' value is designated. Try loading it without a ''mode'' designation.
 * '''It is IMPORTANT to free unused or discarded images with [[_FREEIMAGE]] to prevent CPU memory overflow errors!'''
-* '''QB64 currently does not support icon files! A bad handle value will occur using _LOADIMAGE! See [[_ICON]] example 2.''' 
+* '''In text [[SCREEN]] 0 ''mode&amp;'' 32 must be designated!''' When loading an [[_ICON]] image use 32 for the mode also.
+* '''QB64 SDL does not support icon files! A bad handle value will occur using _LOADIMAGE! See [[_ICON]] example 2.''' 
 
 
-{{PageExamples}}
 ''Example 1:''  Already in SCREEN 13 and want computer to match the 32-bit jpg/etc. 
 colors to the current palette:
 {{CodeStart}} '' ''
@@ -75,18 +84,22 @@ DO
 
 
 ''See Examples:''
-*{{KW|SAVEIMAGE}} (QB64 Image to Bitmap SUB by Galleon)
+* [[SAVEIMAGE]] (QB64 Image to Bitmap SUB by Galleon)
 
-*{{KW|Program ScreenShots}} (Member program for legacy screen modes)
+* [[Program ScreenShots]] (Member program for legacy screen modes)
 
-* {{KW|ThirtyTwoBit SUB}} (QB64 Image area to bitmap)
+* [[ThirtyTwoBit SUB]] (QB64 Image area to bitmap)
 
 
 {{PageSeeAlso}}
-*[[_FREEIMAGE]], [[_PUTIMAGE]], [[_NEWIMAGE]], [[_COPYIMAGE]], [[_PRINTIMAGE]] (printer)
-*[[_PALETTECOLOR (function)]], [[_COPYPALETTE]], [[_ICON]]
-*[[SCREEN (statement)]]
-*[[Bitmaps]], [[Icons and Cursors]], [[GIF Images]]
+* [[_FREEIMAGE]], [[_ICON]] {{text|(Icons can be used in GL only!)}}
+* [[_PUTIMAGE]], [[_MAPTRIANGLE]]
+* [[_NEWIMAGE]], [[_COPYIMAGE]] 
+* [[_PRINTIMAGE]] (printer)
+* [[_PALETTECOLOR (function)]], [[_COPYPALETTE]], [[_ICON]]
+* [[SCREEN (statement)]]
+* [[Hardware images]]
+* [[Bitmaps]], [[Icons and Cursors]], [[GIF Images]]
 
 
 {{PageNavigation}}

@@ -1,20 +1,22 @@
-The '''PAINT''' statement is used to color enclosed graphic objects with a designated fill color and border {{KW|COLOR}}.
+The '''PAINT''' statement is used to color enclosed graphic objects with a designated fill color up to a  border [[COLOR]].
 
 
 {{PageSyntax}}
-: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''fillcolor%'''''[, ''bordercolor%''][,''background$'']
+: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''fillcolor'''''[, ''bordercolor%''][,''background$'']
 
 
 {{Parameters}}
 * Can use the [[STEP]] keyword for relative coordinate placements. [[STEP]](0, 0) can be used after [[CIRCLE]] to fill it with color.
 * Graphic ''column'' and ''row'' [[INTEGER]] pixel coordinates should be inside of a fully enclosed border. 
-* [[INTEGER]] or [[LONG]] 32 bit ''Fillcolor'' is the color to paint the inside of an object. Colors limited to SCREEN mode used.
+* The ''fillcolor'' can be either a numerical or a [[STRING|string]] value:
+:* [[INTEGER]] or [[LONG]] 32 bit ''Fillcolor'' is the color to paint the inside of an object. Colors limited to [[SCREEN]] mode used.
+:* A [[STRING]] paint argument has PAINT do &quot;tiling,&quot; a process that paints a pattern rather than a solid color.
 * Optional [[INTEGER]] or [[LONG]] 32 bit ''border color'' is the color of the enclosed shape's border when different from the fill color. 
 * Optional ''background'' [[ASCII]] character sets the tiling style. Default = CHR$(0). Seldom used.
 
 
 ''Usage:'' 
-* The enclosed border color must be one color value only. The object border must be fully enclosed!
+* The enclosed border color must be one color value only. The object border should be fully enclosed!
 * PAINT coordinates MUST be inside of a closed shape to be colored. Paint will not do anything when placed on the border color.
 * If the border color does not enclose the area, PAINT may flood the screen or go beyond the border area.
 * If the shape is not totally enclosed, every color except the border color may be painted over.
@@ -77,7 +79,7 @@ drw$ = &quot;C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5
 {{PageSeeAlso}}
 * [[PSET]], [[PRESET]]
 * [[CIRCLE]], [[LINE]], [[DRAW]]
-* [[SCREEN (statement)]], [[CHR$]]
+* [[SCREEN]], [[CHR$]]
 
 
 {{PageNavigation}}

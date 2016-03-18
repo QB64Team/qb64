@@ -3,8 +3,9 @@
 
 {{PageSyntax}}
 
-  SUB _glCopyTexSubImage1D (BYVAL target AS _UNSIGNED LONG, BYVAL level AS LONG, BYVAL xoffset AS LONG, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG)
-  void '''_glCopyTexSubImage1D'''(GLenum {{Parameter|target}}, GLint {{Parameter|level}}, GLint {{Parameter|xoffset}}, GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}});
+:  SUB _glCopyTexSubImage1D (BYVAL target AS _UNSIGNED LONG, BYVAL level AS LONG, BYVAL xoffset AS LONG, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL width AS LONG)
+
+:  void '''_glCopyTexSubImage1D'''(GLenum {{Parameter|target}}, GLint {{Parameter|level}}, GLint {{Parameter|xoffset}}, GLint {{Parameter|x}}, GLint {{Parameter|y}}, GLsizei {{Parameter|width}});
 
 
 ; target
@@ -62,5 +63,3 @@ The {{KW|_glPixelStore}} mode affects texture images.
 
 
 {{PageCopyright}}
-
-Copyright 1991-2006 Silicon Graphics, Inc. This document is licensed under the SGI Free Software B License. For details, see [http://oss.sgi.com/projects/FreeB/ http://oss.sgi.com/projects/FreeB/].

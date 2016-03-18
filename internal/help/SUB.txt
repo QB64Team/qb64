@@ -1,37 +1,52 @@
 A '''SUB''' procedure is a procedure within a program that can calculate and return multiple parameter values just like a full program.
 
 
-
 {{PageSyntax}}
-:: SUB Procedure_name [(''parameter''[, ''list''])]
+:: '''SUB Procedure_name''' [(''parameter''[, ''list''...])]
+:: ...
+:: ... 'procedure variable definitions and statements
+:: ...
+:: '''END SUB'''
 
 
+{{Parameters}}
+* Parameters passed after the procedure call must match the variable types in he SUB parameters in order.
 * If there are no ''parameter''s passed or they are [[SHARED]] the parameters and parenthesis are not required in the procedure.
-* [[Variable]] names within the procedure do not have to match the names used in the [[CALL]], just the value types.
-* The [[IDE]] can create the SUB and [[END SUB]] lines for you. Use the Make SUB option in the Edit Menu. A box will come up for you to enter a name for the SUB. Enter the procedure code between the SUB and [[END SUB]] lines created. '''Code lines before or after the procedure are not permitted except for a DEF default variable [[TYPE]] declaration before the SUB line.'''
-* All [[$DYNAMIC|dynamic]] [[variable]] values return to 0 or null strings when the procedure is exited except for [[STATIC]] variable values. 
+* Parameter [[Variable]] names in the procedure do not have to match the names used in the [[CALL]], just the value types.
+
+
+{{PageDescription}}
+* All [[$DYNAMIC|dynamic]] [[variable]] values return to 0 or null strings when the procedure is exited except for [[STATIC]] variable values.
 * SUB procedures can return multiple values through the parameters unlike functions.
+* SUB procedures return to the next code statement after the call in the main or other procedures.
 * [[EXIT]] SUB can be used to exit early or to exit before [[GOSUB]] procedures using [[RETURN]].
+* [[TYPE]] and [[DECLARE LIBRARY]] declarations can be made inside of SUB procedures in QB64 only.
 * SUB procedures can save program memory as all memory used in a SUB is released on procedure exit except for [[STATIC]] values.
-* [[$INCLUDE]] text library files with needed SUB and [[FUNCTION]] procedures can be included in programs after other sub-procedures.
-* '''SUB procedures cannot have [[ON]] events, [[DATA]] or [[ON ERROR]] statements inside of them.''' Procedure code can use [[GOSUB]] and [[GOTO]] linenumbers and linelabels inside of the procedure only. '''QB64''' allows [[TYPE]]s and [[DECLARE LIBRARY]] declarations.
-* The Qbasic [[IDE]] will [[DECLARE]] a SUB at the top of the module code after it has been [[CALL|referenced]] and the BAS file is saved. 
-* Qbasic's [[IDE]] may place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the SUB line if it is used in the main module. It may even be the wrong variable type needed. It can be removed or changed if necessary. 
-* An uncalled SUB will not be [[DECLARE]]d in Qbasic if it is not used. 
+* [[_DEFINE]] can be used to define all new or old QB64 variable [[TYPE]] definitions instead of DEF***.
+* [[$INCLUDE]] text library files with needed SUB and [[FUNCTION]] procedures can be included in programs after all sub-procedures.
 * '''QB64 ignores all procedural [[DECLARE]] statements!''' Define all ''parameter'' [[TYPE]]s in the SUB procedure.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
-* '''WARNING! Do not place DATA fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to compile properly!'''
-: Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
 
 
-''Example:'' Text [[PRINT]] screen centering using [[PEEK]] to find the SCREEN mode width. Call and SUB procedure code:
+&lt;center&gt;'''Qbasic'''&lt;/center&gt;   
+* The [[IDE]] can create the SUB and [[END SUB]] lines for you. Use the Make SUB option in the Edit Menu. A box will come up for you to enter a name for the SUB. Enter the procedure code between the SUB and [[END SUB]] lines created.                      
+* '''Qbasic SUB procedures could not have [[ON]] events, [[DATA]], [[TYPE]] or [[ON ERROR]] statements inside of them.''' 
+* Procedure code can use [[GOSUB]] and [[GOTO]] linenumbers and linelabels inside of the procedure only. 
+* The Qbasic [[IDE]] will [[DECLARE]] a SUB at the top of the module code after it has been [[CALL|referenced]] and the BAS file is saved. 
+* '''Only [[DEFINT]], [[DEFSNG]], [[DEFLNG]] or [[DEFDBL]] default variable [[TYPE|type]] declarations are allowed before the SUB block.''' 
+* Qbasic's [[IDE]] may place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the SUB line if it is used in the main module. It may even be the wrong variable type needed. It can be removed or changed if necessary. 
+* An uncalled SUB will not be [[DECLARE]]d in Qbasic if it is not used. 
+* Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other sub-procedures.
+
+
+''Example 1:'' Text [[PRINT]] screen centering using [[PEEK]] to find the SCREEN mode width. Call and SUB procedure code:
 {{CodeStart}} '' ''
 {{Cl|DEFINT}} A-Z
 {{Cl|SCREEN}} 13
 Center 10, 15, &quot;This text is centered.&quot; ' example module sub call
 {{Cl|END}}
 
-DEFINT A-Z ' only code allowed before SUB line is a DEF statement or a comment
+{{Cl|DEFINT}} A-Z ' only code allowed before SUB line is a DEF statement or a comment
 {{Cl|SUB}} Center (Tclr, Trow, Text$)
 {{Cl|DEF SEG}} = &amp;H40
 Columns = {{Cl|PEEK}}(&amp;H4A)
@@ -43,6 +58,32 @@ Tcol = Middle - ({{Cl|LEN}}(Text$) \ 2)
 {{CodeEnd}}
 
 :''Explanation:'' The procedure centers text printed to the screen. The parameters are the text color, row and the text itself as a string or string variable. The maximum width of the screenmode is found and divided in half to find the center point. The text string's length is also divided in half and subtracted from the screen's center position. The procedure will also work when the [[WIDTH]] statement has been used. When adding variables to Text$ use the + concatenation operator. Not semicolons!
+
+
+''Example 2:'' SUB and [[FUNCTION]] procedures always return to the place they were called in the main or other sub-procedures:
+{{CodeStart}} '' ''
+a = 10
+Add1 a
+{{Cl|PRINT}} a  'Add1 returns final 'a' value here
+
+{{Cl|END}}
+
+{{Cl|SUB}} Add1 (n)
+n = n + 1
+Add2 n
+{{Cl|PRINT}} &quot;exit 1&quot;
+{{Cl|END SUB}}
+
+{{Cl|SUB}} Add2 (m)
+m = m + 2
+{{Cl|PRINT}} &quot;exit 2&quot;
+{{Cl|END SUB}}
+{{CodeEnd}}
+{{OutputStart}}exit 2
+exit 1
+ 13
+{{OutputEnd}}
+: ''Note:'' Parameter '''a''' is used to call the sub-procedures even though parameters '''n''' and '''m''' are used internally.
 
 
 ''See also:'' 

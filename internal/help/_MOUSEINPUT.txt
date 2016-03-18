@@ -1,3 +1,4 @@
+{{DISPLAYTITLE:_MOUSEINPUT}}
 The '''_MOUSEINPUT''' function MUST be used to monitor any new mouse positions, button presses or movements of the scroll wheel. 
 
 
@@ -12,7 +13,18 @@ The '''_MOUSEINPUT''' function MUST be used to monitor any new mouse positions, 
 * To clear all previous mouse data, use [[_MOUSEINPUT]] in a loop until it returns 0.
 
 
-''Example 1:'' How to use a _MOUSEINPUT loop to locate [[PSET]] positions on a screen using a right mouse button click.
+''Example 1:'' Mouse coordinate, click and scroll events are returned sequentially inside of a _MOUSEINPUT loop.
+{{CodeStart}} '' ''
+DO
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}} '      Check the mouse status
+    {{Cl|PRINT}} {{Cl|_MOUSEX}}, {{Cl|_MOUSEY}}, {{Cl|_MOUSEBUTTON}}(1), {{Cl|_MOUSEWHEEL}}
+  {{Cl|LOOP}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; '' ''
+{{CodeEnd}}
+: ''Explanation:'' The latest mouse function status can be read after the loop. [[_LIMIT]] and [[_DELAY]] loops will slow returns down.
+
+
+''Example 2:'' How to use a _MOUSEINPUT loop to locate [[PSET]] positions on a screen using a right mouse button click.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 
@@ -37,7 +49,7 @@ The '''_MOUSEINPUT''' function MUST be used to monitor any new mouse positions, 
 {{CodeEnd}}
 
 
-''Example 2:'' Clearing any mouse data read before or during an INPUT entry. Press &quot;I&quot; to enter INPUT.
+''Example 3:'' Clearing any mouse data read before or during an [[INPUT]] entry. Press &quot;I&quot; to enter input:
 {{CodeStart}}
 {{Cl|PRINT}} &quot;Press I to enter input! Press Q to quit&quot;
 {{Cl|DO...LOOP|DO}} 

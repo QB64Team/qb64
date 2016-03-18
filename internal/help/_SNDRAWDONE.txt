@@ -1,0 +1,23 @@
+{{DISPLAYTITLE:_SNDRAWDONE}}
+_SNDRAWDONE ensures that the final buffer portion is played in short sound effects even if it is incomplete. 
+
+
+
+{{PageSyntax}}
+::: [[_SNDRAWDONE]]
+
+
+''Details:''
+* It's not necessary to call this at all because the size of a buffer section is about 1/10th of a second.
+* For long sound effect it will probably make no difference. 
+* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
+
+
+''See also:''
+* [[_SNDOPENRAW]] {{text|(GL only)}}
+* [[_SNDRAW]]
+* [[_SNDRAWLEN]]
+* [[_SNDRATE]]
+
+
+{{PageNavigation}}

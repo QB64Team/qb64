@@ -11,6 +11,7 @@ A {{KW|REDIM}} statement can re-dimension one [[$DYNAMIC|dynamic]](flexible) [[A
 * The [[_PRESERVE]] option also allows the ''element'' range values to be moved upward or downward in '''QB64 only!'''
 * {{Parameter|Array}} is the name of the array to be dimensioned or re-dimensioned.
 * {{Parameter|elements}} is the number of elements the array should hold. Use the optional [[TO]] {{Parameter|elements2}} to set a range.
+* '''Always use the same array [[TYPE]] suffix ([[AS]] type) or a new array type with the same name may be created.'''
 * REDIM cannot change [[$STATIC]] arrays created with a [[DIM]] statement unless the [[$DYNAMIC]] [[Metacommand]] is used! 
 * To create a dynamic array use the [[$DYNAMIC]] metacommand or use [[REDIM]] rather than [[DIM]] when first creating the array.
 * Use REDIM [[_PRESERVE]] to change the range or number of array elements without losing the remaining elements. Data may move up or down to accommodate those boundary changes.  

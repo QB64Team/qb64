@@ -1,4 +1,5 @@
-{{KW|_UNSIGNED}} defines a numerical value as being positive using '''QB64''' only.
+{{DISPLAYTITLE:_UNSIGNED}}
+[[_UNSIGNED]] defines a numerical value as being positive using '''QB64''' only.
 
 
 ''TYPE'' {{PageSyntax}} 
@@ -30,9 +31,26 @@
 {{WhiteEnd}}
 
 
-''Example:'' Demonstrating how _UNSIGNED variables expand the Integer range.
-{{CodeStart}}
+''Example 1:'' When a signed '''QB64''' [[INTEGER]] value exceeds 32767, the value may become a negative value:
+{{CodeStart}} '' ''
+i% = 38000
+{{Cl|PRINT}} i% '' ''
+{{CodeEnd}}{{OutputStart}}-27536
+{{OutputEnd}}
+:''Explanation:'' Use an [[_UNSIGNED]] [[INTEGER]] or a ~% variable type suffix for only positive integer values up to 65535.
 
+
+''Example 2:'' In '''QB64''' [[_UNSIGNED]] [[INTEGER]] values greater than 65535 cycle over again from zero:
+{{CodeStart}} '' ''
+i~% = 70000
+{{Cl|PRINT}} i~% '' ''
+{{CodeEnd}}{{OutputStart}} 4464
+{{OutputEnd}}
+:''Explanation:'' In QB64 an unsigned integer value of 65536 would be 0 with values increasing by the value minus 65536. 
+
+
+''Example 3:'' Demonstrating how _UNSIGNED variables expand the [[INTEGER]] range.
+{{CodeStart}} '' ''
 {{Cl|DIM}} n {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
 {{Cl|DIM}} pn {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
 {{Cl|LOCATE}} 3, 6: {{Cl|PRINT}} &quot;Press Esc to exit loop&quot;
@@ -43,8 +61,7 @@
   {{Cl|IF...THEN|IF}} n = 0 {{Cl|THEN}} Count = Count + 1: {{Cl|LOCATE}} 14, 37: {{Cl|PRINT}} &quot;Count:&quot;; Count; &quot;Max:&quot;; pn
   {{Cl|IF...THEN|IF}} {{Cl|INP}}(&amp;H60) = 1 {{Cl|THEN}} {{Cl|EXIT|EXIT FOR}} ' escape key exit
 {{Cl|NEXT}} n
-{{Cl|END}}
-
+{{Cl|END}} '' ''
 {{CodeEnd}}
 {{OutputStart}}
 
@@ -59,7 +76,7 @@
 
 
 {{OutputEnd}}
-''Explanation:'' The maximum value can only be 65535(32767 + 32768) so the FOR loop repeats itself. Remove the {{KW|_UNSIGNED}} parts and run it again.
+''Explanation:'' The maximum value can only be 65535(32767 + 32768) so the FOR loop repeats itself. Remove the [[_UNSIGNED]] parts and run it again.
 
 
 
@@ -67,6 +84,7 @@
 * [[DECLARE]], [[SUB]], [[FUNCTION]]
 * [[DIM]], [[_DEFINE]]
 * [[DEFSTR]], [[DEFLNG]], [[DEFINT]], [[DEFSNG]], [[DEFDBL]]
+* [[INTEGER]], [[LONG]], [[_INTEGER64]]
 * [[ABS]], [[SGN]]
 * [[Variable Types]]
 

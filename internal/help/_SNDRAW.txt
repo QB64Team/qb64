@@ -1,11 +1,18 @@
+{{DISPLAYTITLE:_SNDRAW}}
 The '''_SNDRAW''' statement plays sound wave sample frequencies created by a program. 
 
 
 {{PageSyntax}}
-::_SNDRAW ''left_sample''[, ''right_sample'']
+::'''_SNDRAW''' ''left_sample''[, ''right_sample''][, ''pipehandle'']
 
 
-* The ''sample'' value(s) can be any [[SINGLE]] or [[DOUBLE]] literal or variable frequency value between -1.0 and 1.0.
+{{Parameters}}
+* The ''sample'' value(s) can be any [[SINGLE]] or [[DOUBLE]] literal or variable frequency value from -1.0 to 1.0.
+* The ''pipehandle'' argument '''only works in QB64 GL''', it must have been opened using [[_SNDOPENRAW]]. 
+
+
+{{PageDescription}}
+* The GL ''pipehandle'' argument allows sound to be played through two or more channels at the same time.
 * If only one ''sample'' value is used, the sound will come out of both speakers.
 * Using _SNDRAW will pause any currently playing music. (You'll have to generate your own .)
 * _SNDRAW is designed for continuous play. It will not produce any sound until a significant number of samples have been queued. Do not expect to hear anything if you only queue one or two samples.
@@ -13,6 +20,7 @@ The '''_SNDRAW''' statement plays sound wave sample frequencies created by a pro
 * _SNDRAW is not intended to queue up many minutes worth of sound! It will probably work but will chew up a lot of memory (and if it gets swapped to disk, your sound could be interrupted abruptly).
 * [[_SNDRATE]] determines how many samples are played per second, but timing is done by the sound card, not your program. 
 * '''Do not attempt to use [[_TIMER]] or [[_DELAY]] or [[_LIMIT]] to control the timing of _SNDRAW. You may use them for delays or to limit your program's CPU usage, but how much to queue should only be based on the [[_SNDRAWLEN]].'''
+
 
 
 ''Example 1:'' Sound using a sine wave with _SNDRAW Amplitude * SIN(8 * ATN(1) * Duration * (Frequency / _SNDRATE))
@@ -98,7 +106,8 @@ SndLoop! = 0
 
 ''See also:''
 * [[_SNDRATE]], [[_SNDRAWLEN]]
-* [[_SNDOPEN]] (play sound files)
+* [[_SNDOPENRAW]], [[_SNDRAWDONE]] {{text|(GL only)}}
+* [[_SNDOPEN]] {{text|(play sound files)}}
 * [[PLAY]], [[BEEP]]
 * [[DTMF Phone Demo]]
 

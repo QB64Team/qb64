@@ -1,0 +1,32 @@
+{{DISPLAYTITLE:_CEIL}}
+The '''_CEIL''' function rounds a numeric value up to the next whole number or [[INTEGER]] value. 
+
+
+{{PageSyntax}}
+:: result = [[_CEIL]](''expression'')
+
+
+* [[_CEIL]] returns he smallest integral value that is greater than the numerical ''expression'' (as a floating-point value).
+* This means that [[_CEIL]] rounds up for both positive and negative numbers.
+
+*(Only available in QB64-GL, from Dirty Builds after 06/20/2014. Previous versions of QB64 don't support this command.)
+
+
+''Example:'' Displaying the rounding behavior of [[INT]], [[CINT]] and [[FIX]] vs [[_CEIL]].
+{{CodeStart}}
+PRINT INT(2.5), CINT(2.5), FIX(2.5), _CEIL(2.5)
+PRINT INT(-2.5), CINT(-2.5), FIX(-2.5), _CEIL(-2.5)
+{{CodeEnd}}
+{{OutputStart}} 2        2         2         3
+-3       -2        -2        -2
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[INT]], [[FIX]]
+* [[CINT]], [[CLNG]], 
+* [[CSNG]], [[CDBL]]
+* [[_ROUND]]
+
+
+{{PageNavigation}}

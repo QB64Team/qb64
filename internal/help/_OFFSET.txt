@@ -1,3 +1,4 @@
+{{DISPLAYTITLE:_OFFSET}}
 The '''_OFFSET''' variable type stores the location of a value in memory. The byte size varies as required by the system.
 
 
@@ -26,7 +27,7 @@ hwnd&amp; = FindWindow(0, &quot;Super Window&quot; + {{Cl|CHR$}}(0))
 
 {{Cl|TYPE}} BROWSEINFO  'typedef struct _browseinfo '[http://msdn.microsoft.com/en-us/library/bb773205%28v=vs.85%29.aspx Microsoft MSDN]
   hwndOwner {{Cl|AS}} {{Cl|LONG}} '              '  HWND 
-  pidlRoot {{Cl|AS}} {{Cl|_OFFSET}} '             '  PCIDLIST_ABSOLUTE
+  pidlRoot {{Cl|AS}} {{Cl|_OFFSET}} '            '  PCIDLIST_ABSOLUTE
   pszDisplayName {{Cl|AS}} {{Cl|_OFFSET}} '      '  LPTSTR 
   lpszTitle {{Cl|AS}} {{Cl|_OFFSET}} '           '  LPCTSTR       
   ulFlags {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}        '  UINT   
@@ -61,10 +62,10 @@ o = SHBrowseForFolder(b)
 
 
 ''See also:''
-* [[_OFFSET (function)]]
+* [[Using _OFFSET]]
+* [[_OFFSET (function)]], [[_MEM]]
 * [[DECLARE LIBRARY]]
 * [[DECLARE DYNAMIC LIBRARY]]
-* [[Using _OFFSET]]
 * [[Variable Types]]
 
 

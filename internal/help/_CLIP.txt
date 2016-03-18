@@ -1,14 +1,15 @@
+{{DISPLAYTITLE:_CLIP}}
 The '''_CLIP''' option is used in a QB64 graphics [[PUT (graphics statement)|PUT]] to allow placement of an image partially off of the screen.
 
 
 {{PageSyntax}}
-:{{KW|PUT (graphics statement)|PUT}} [{{KW|STEP}}](column, row), ''image''[, {{KW|_CLIP}}] [{XOR|PSET|AND|OR|PRESET}][, ''omitcolor'']]
+:[[PUT (graphics statement)|PUT]] [STEP](column, row), ''image_array(start)''[, '''_CLIP'''] [{XOR|PSET|AND|OR|PRESET}][, ''omitcolor'']
 
 
 {{PageDescription}}
 * _CLIP should be placed immediately before the PUT action if used. XOR is default when not used.
 * The offscreen portions of the image will be the omit color.
-* {{KW|GET (graphics statement)|GET}} can get portions of the images offscreen in '''QB64'''.
+* [[GET (graphics statement)|GET]] can get portions of the images off screen in '''QB64'''.
 
 
 ''Example:'' Placing an image partially or fully offscreen.
@@ -41,7 +42,9 @@ The '''_CLIP''' option is used in a QB64 graphics [[PUT (graphics statement)|PUT
 
 
 {{PageSeeAlso}}
-*{{KW|PUT (graphics statement)}}
+* [[PUT (graphics statement)]]
+* [[GET (graphics statement)]]
+* [[STEP]]
 
 
 {{PageNavigation}}

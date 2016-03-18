@@ -19,7 +19,7 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 ''Usage:'' 
 * No SCREEN statement in a program defaults to [[SCREEN]] 0 text ONLY mode.
 * A SCREEN statement that changes screen modes also clears the screen like [[CLS]]. Nothing on the screen is retained.
-* Some screen mode text sizes are adjustable with [[WIDTH]] and all '''QB54''' screens support [[PCOPY]] and page flipping.  
+* Some screen mode text sizes are adjustable with [[WIDTH]] and all '''QB64''' screens support [[PCOPY]] and page flipping.  
 
 {{WhiteStart}}                       '''LEGACY SCREEN MODES AT A GLANCE'''
 
@@ -217,11 +217,13 @@ col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'finds current pa
 * [[_NEWIMAGE]], [[_LOADIMAGE]], [[_SCREENIMAGE]]
 * [[_LOADFONT]], [[_FONT]]
 * [[_DISPLAY]], [[_COPYIMAGE]], [[_SCREENMOVE]]
+* [[_SCREENHIDE]], [[_SCREENSHOW]], [[_SCREENICON]]
 * [[PALETTE]], [[OUT]], [[PCOPY]], 
 * [[GET (graphics statement)|GET]], [[PUT (graphics statement)|PUT]] {{text|(graphics)}}
 * [[VIEW]], [[WINDOW]] {{text|(graphic viewport)}}, [[VIEW PRINT]] {{text|(text view port)}}
 * [[SCREEN (function)]] {{text|(text only)}}, [[POINT]] {{text|(graphic pixel colors)}}
 * [[Screen Memory]], [[Screen Saver Programs]]
+* [[_CONSOLE]]
 
 
 {{PageNavigation}}

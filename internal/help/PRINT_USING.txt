@@ -2,7 +2,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 
 
 {{PageSyntax}}
-:: '''PRINT''' [''text$''{;|,}] '''USING ''template$''; ''variable'''''[; ...][{;|,}]
+:: '''PRINT''' [''text$''{;|,}] '''USING''' ''template$''; ''variable''[; ...][{;|,}]
 
 
 {{Parameters}}
@@ -10,7 +10,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 * A [[semicolon]] or [[comma]] may follow the ''text'' to stop or tab the print cursor before the ''template'' [[PRINT]].
 * The literal or variable [[STRING]] ''template'' should use the template symbols to display each variable [[type]] in the list following it.
 * The list of data ''variables'' used in the ''template'' are '''separated by semicolons''' after the template string value. 
-* A [[semicolon]] or [[comma]] may follow the variable list to stop or tab the print cursor for pending prints.
+* In '''QB64''' ONE [[semicolon]] or [[comma]] may follow the variable list to stop the print cursor for pending prints. QB only allowed a semicolon.
 
 
 ''Usage:''
@@ -19,6 +19,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 * No more than 25 # digit places are allowed in a template number or an [[ERROR Codes|error]] will occur.
 * Can convert numerical exponential or [[scientific notation]] values to normal decimal point values using less digits.
 * '''NOTE:''' If the numerical value exceeds the template's digit range a % symbol will appear in the leftmost digit area.
+* '''WARNING: The numbers displayed are rounded so the actual values are never changed and are actually more accurate.'''
 
 
 {{PrintUsing}}

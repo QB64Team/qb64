@@ -2,7 +2,7 @@ The {{KW|GET (graphics statement)|GET}} statement is used in graphics to store a
 
 
 {{PageSyntax}} 
-::: '''GET (''column1'', ''row1'')-(''column2'', ''row2''), ''Array''('''[''index'']''')'''[, ''offscreen_color'']
+::: '''GET''' [STEP] '''(''column1'', ''row1'')-'''[STEP]'''(''column2'', ''row2''),''' ''Array''([''index''])[, ''offscreen_color'']
 
 
 ''[[Parameters]]:'' 
@@ -13,8 +13,9 @@ The {{KW|GET (graphics statement)|GET}} statement is used in graphics to store a
 
 
 ''Usage:''
+* The [[STEP]] keyword can be used to for coordinates relative to the last graphic coordinates used.
 * A graphic screen mode MUST be used! See the [[SCREEN]] statement for graphic screen dimensions.
-* '''QB64''' GET statements can use coordinates off of the screen when an ''off screen color'' is designated.
+* '''QB64''' GET statements can use coordinates off of the screen when an ''off screen color'' is designated. [[STEP]] can be used for relative coordinates.
 * The GET box coordinates are set just like a {{KW|LINE}} box statement is placed. You can use a box to find the correct GET area.
 * Once GET has placed the pixel image data in the array, PUT the image or BSAVE it to a file.
 * Once the image is stored in an array {{KW|PUT (graphics statement)|PUT}} can be used to place the image on the screen.
@@ -68,34 +69,34 @@ The {{KW|GET (graphics statement)|GET}} statement is used in graphics to store a
 {{CodeEnd}}
 
 
-''Example 2:'' How to GET graphics from an image other than the present screen.
+''Example 2:'' How to GET graphics from an image other than the present screen using [[_SOURCE]] and [[_DEST]]ination.
 
 {{CodeStart}} '' ''
-{{Cl|DIM}} img(20 * 20 + 4) {{Cl|AS}} {{Cl|INTEGER}}  'create img array to hold image data
-a = {{Cl|_NEWIMAGE}}(800, 600, 13)      'image screen a emulates screen 13
+{{Cl|DIM}} img(20 * 20 + 4) {{Cl|AS}} {{Cl|INTEGER}}  'create img% array to hold 20 by 20 image data 
+a&amp; = {{Cl|_NEWIMAGE}}(800, 600, 13)     'larger surface a&amp; emulates screen 13 colors &amp; resolution
 
 {{Cl|SCREEN (statement)|SCREEN}} 13     'program screen 13
 
-{{Cl|_DEST}} a                          'set desination as the image page a
+{{Cl|_DEST}} a&amp;                         'set desination as the image page a&amp;
 {{Cl|CIRCLE}} (700, 300), 10, 10        'draw green circle on image page
 
-{{Cl|_SOURCE}} a                        'set source as image page a
-{{Cl|GET}} (690, 290)-(710, 310), img()
+{{Cl|_SOURCE}} a&amp;                       'set source as image page a&amp;
+{{Cl|GET}} (690, 290)-(710, 310), img() 'GET a square screen area similar to a LINE Box.
 
 
 {{Cl|_DEST}} 0                          'set destination as the program screen
-{{Cl|PUT}} (100, 100), img() '' ''
+{{Cl|PUT}} (100, 100), img()            'PUT the Top Left Corner of box area to pixel 100, 100
 {{CodeEnd}}
-
+: ''Notes:'' A [[_LOADIMAGE]] handle could also be used as a [[_SOURCE|source]] to GET a portion or all of an image file.
 
 
 {{PageSeeAlso}}
 * [[_PUTIMAGE]], [[_LOADIMAGE]]
 * [[_MAPTRIANGLE]]
-* [[PUT (graphics statement)|PUT]], [[BSAVE]], [[BLOAD]]
+* [[PUT (graphics statement)|PUT]], [[STEP]] 
+* [[BSAVE]], [[BLOAD]]
 * [[Scancodes]], [[Creating Sprite Masks]] {{text|(for non-box shaped sprites)}}
 * [[Bitmaps]], [[GET and PUT Demo]]
-
 
 
 {{PageNavigation}}

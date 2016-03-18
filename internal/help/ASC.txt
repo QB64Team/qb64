@@ -2,15 +2,22 @@ The '''ASC''' function returns the {{KW|ASCII}} code number of a certain {{KW|ST
 
 
 {{PageSyntax}}
-:: code% = '''ASC(''text$'''''[, ''position'']''')'''
+:: code% = '''ASC('''''text$''[, ''position%'']''')'''
 
 
 * String ''text'' [[STRING|string]] character parameter must have a length of at least 1 byte or an error occurs. 
-* '''In QB64''' a new ''position'' parameter is allowed. The ASCII code of the character in a string position specified will be returned by the function (if omitted ASC will return the code of the first character).
-* If the string used with ASC has more than one character, the first byte character code is returned.
-* [[ASCII]] code [[INTEGER]] values returned will range from 0 to 255 only. 
-* If the function is used to read an empty string value an [[ERROR Codes|error]] will occur! [[INKEY$]] returns an empty string when a key is not pressed.
-* ASC returns 0 when reading 2 byte codes returned by [[INKEY$]] when the arrow, F function, Home\Page keys are used. Use QB64's position parameter to read the second byte.
+* '''In QB64''' an optional byte ''position'' [[INTEGER]] parameter greater than 0 can specify the ASCII code of any character in a string to be returned.
+* If the optional position parameter is omitted, ASC will return the [[ASCII]] code of the '''first''' [[STRING]] character only.
+* [[ASCII]] code [[INTEGER]] or [[_UNSIGNED]] [[_BYTE]] values returned will range from 0 to 255 only. 
+* ASC returns 0 when reading [[ASCII]] 2 byte codes returned by [[INKEY$]] when the arrow, F function, Home\Page keys are used. 
+:: Use QB64's position parameter to read the second byte if necessary. {{Text|IF ASC(key$) &lt;nowiki&gt;=&lt;/nowiki&gt; 0 THEN byte2 &lt;nowiki&gt;=&lt;/nowiki&gt; ASC(key$, 2)|green}}
+* In '''QB64''' ASC string byte position reads are about '''5 times faster''' than [[MID$]] when parsing strings. See [[MID$]] ''Example 2''.
+
+
+{{PageErrors}}
+* If the function is used to read an '''empty string value''' an illegal function call [[ERROR Codes|error]] will occur! [[INKEY$]] returns an empty string when a key is not pressed.
+* '''QB64''' ''position'' parameters must range from 1 to the [[LEN|length]] of the string being read or an illegal function call [[ERROR Codes|error]] will occur.
+
 
 {{WhiteStart}}'                                '''ASCII Keyboard Codes'''
 '
@@ -152,7 +159,7 @@ DO
 ''See also:'' 
 * [[ASC (statement)]] {{text|(QB64 only)}}
 * [[_KEYHIT]], [[_KEYDOWN]]
-* [[CHR$]], [[INKEY$]]
+* [[MID$]], [[CHR$]], [[INKEY$]]
 * [[VAL]], [[STRING$]]
 * [[ASCII]], [[_MAPUNICODE]]
 * [[Scancodes]]

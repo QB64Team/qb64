@@ -1,10 +1,15 @@
 The '''OR''' coditional operator adds an alternative in a [[IF...THEN]] or [[Boolean]] statement.
 
 
+{{PageSyntax}}
+:: IF a = 1 '''OR''' a = 2 THEN a = 0
+
 
 * OR adds an alternative to another conditional evaluation. IF True then the statement evaluation is True.
-* Parenthesis may be used to clarify an evaluation.
-* Can be confused with the [[OR]] numerical operator.
+* Parenthesis may be used to clarify the order of comparisons in an evaluation.
+* [[AND]] and '''OR''' cannot be used to combine command line operations.
+* '''A double OR syntax error may be ignored and create a QB64 compiler error!'''
+* Not to be confused with the [[AND]] and [[OR]] numerical operations.
 
 
 {{Template:RelationalTable}}
@@ -23,9 +28,9 @@ True
 : ''Explanation:'' The first evaluation was False, but the OR evaluation made the statement true and the code was executed.
 
 
-
 ''See also:'' 
-* [[AND (boolean)]]
+* [[AND (boolean)]], [[XOR (boolean)]]
+* [[IF...THEN]]
 
 
 {{PageNavigation}}

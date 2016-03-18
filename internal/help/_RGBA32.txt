@@ -1,13 +1,14 @@
-The {{KW|_RGBA32}} function ALWAYS returns the 32-bit ''RGBA'' color value with specified red, green, blue and alpha component intensities.
+{{DISPLAYTITLE:_RGBA32}}
+The [[_RGBA32]] function ALWAYS returns the 32-bit ''RGBA'' color value with specified red, green, blue and alpha component intensities.
 
 
 {{PageSyntax}}
-:{{Parameter|result~&amp;}} = [[_RGBA32]]'''({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}, {{Parameter|alpha&amp;}})'''
+:color32value~&amp; = '''_RGBA32('''{{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}, {{Parameter|alpha&amp;}}''')'''
 
 
 {{PageDescription}}
 * The value returned is ALWAYS a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
-* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!'''
+* '''Return variable types MUST be [[LONG]] or resulting color may lose the [[_BLUE]] value!'''
 * {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
 * {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
 * {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.

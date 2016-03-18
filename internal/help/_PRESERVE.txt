@@ -1,21 +1,26 @@
-The {{KW|_PRESERVE}} action preserves the current contents of a [[$DYNAMIC|dynamic]] [[Arrays|array]],  when [[REDIM|resizing]] it.
+{{DISPLAYTITLE:_PRESERVE}}
+The [[_PRESERVE]] [[REDIM]] action preserves the current contents of [[$DYNAMIC|dynamic]] [[arrays]], when re-sizing or changing indices.
 
 
 
 {{PageSyntax}} 
-:::{{KW|REDIM}} {{KW|_PRESERVE}} Array(100)
+::: REDIM '''_PRESERVE''' Array(100 [TO 200]) [AS variabletype]
 
 
 {{PageDescription}}
-* [[REDIM]] or the [[$DYNAMIC]] metacommand must be used when the array is first created to be able to resize it!
+* [[REDIM]] or the [[$DYNAMIC]] metacommand must be used when the array is first created to be able to re-size and preserve!
 * If [[_PRESERVE]] is not used, the present contents of the array are cleared by [[REDIM]]!
 :* All element values of an array are preserved if the array size is increased.
 :* The remaining elements of the array are preserved if the array size is decreased.
 :* If the new index range is different from the original, all values will be moved to the new corresponding indices.
-* Can also be used to preserve the data in multi-dimensional arrays, but '''the [[TYPE]] and number of dimensions cannot be changed'''.
-* [[SUB]] or [[FUNCTION]] arrays created using [[REDIM]] require that they be recreated to be used after they are [[ERASE]]d.
-* '''Warning! Do not use negative array upper bound index values as OS access or &quot;Out of Memory&quot; [[ERROR Codes|errors]] will occur!'''
-* Use _PRESERVE before SHARED or an &quot;invalid variable name&quot; error will occur in QB64.
+* '''REDIM [[_PRESERVE]] cannot change the number of array dimensions, but can change the number of elements'''
+* '''Always use the same array [[TYPE]] suffix ([[AS]] type) or a new array type with the same name may be created.'''
+
+
+''Errors:'' 
+* [[SUB]] or [[FUNCTION]] arrays created using [[REDIM]] require that they be recreated to be used after arrays are [[ERASE]]d.
+* '''Warning! Do not use negative upper bound array index values as OS access or &quot;Out of Memory&quot; [[ERROR Codes|errors]] will occur!'''
+* Use _PRESERVE before [[SHARED]] or an &quot;invalid variable name&quot; error will occur in QB64.
 
 
 {{PageExamples}}
@@ -56,9 +61,9 @@ filename$ = &quot;Readme.txt&quot;       'Qb64 information text file
 
 
 {{PageSeeAlso}}
-* {{KW|REDIM}}, {{KW|DIM}}
-* {{KW|$DYNAMIC}}
-* {{KW|Arrays}}
+* [[REDIM]]
+* [[$DYNAMIC]]
+* [[Arrays]]
 
 
 {{PageNavigation}}

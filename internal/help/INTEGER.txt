@@ -8,6 +8,7 @@
 * Integers do not use decimal point values but will round those off to the nearest even whole number.
 * Qbasic Integer values can range from -32768 to 32767 without an &quot;overflow&quot; error.
 * For larger Integer values Qbasic can use the [[LONG]] Integer values.
+* '''QB64''' INTEGER values greater than 32767 may become negative signed values as the top bit designates a negative value.
 * '''QB64''' [[_UNSIGNED]] Integers can range from  0 to 65535.
 * '''QB64''' _UNSIGNED [[_INTEGER64]] values range from 0 to 18446744073709551615
 * Many Graphic programs require INTEGER arrays or DEFINT.
@@ -18,11 +19,39 @@
 * '''Warning: Qbasic keyword names cannot be used as numerical variable names with or without the type suffix!'''
 
 
+''Example 1:'' Qbasic signed integers were limited from -32768 to 32767, but could not exceed 32767 or it would error:
+{{CodeStart}} '' ''
+{{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 2000
+  i% = i% + 1
+  {{Cl|PRINT}} i%
+{{Cl|LOOP}} {{Cl|UNTIL}} i% = 0 '' ''
+{{CodeEnd}}
+:''Explanation:'' In '''QB64''' the count will go to 32767, then count up from -32768 to 0 before repeating the process without error. 
+
+
+''Example 2:'' When a signed '''QB64''' INTEGER value exceeds 32767, the value may become a negative value:
+{{CodeStart}} '' ''
+i% = 38000
+{{Cl|PRINT}} i% '' ''
+{{CodeEnd}}{{OutputStart}}-27536
+{{OutputEnd}}
+:''Explanation:'' Use an [[_UNSIGNED]] INTEGER or a ~% variable type suffix for only positive integer values up to 65535.
+
+
+''Example 3:'' In '''QB64''' [[_UNSIGNED]] INTEGER values greater than 65535 cycle over again from zero:
+{{CodeStart}} '' ''
+i~% = 70000
+{{Cl|PRINT}} i~% '' ''
+{{CodeEnd}}{{OutputStart}} 4464
+{{OutputEnd}}
+:''Explanation:'' In QB64 an unsigned integer value of 65536 would be 0 with values increasing by the value minus 65536. 
+
+
 ''See also:'' 
 * [[DIM]], [[DEFINT]]
 * [[LONG]], [[_INTEGER64]]
 * [[LEN]], [[MKI$]], [[CVI]]
-* [[_UNSIGNED]]
+* [[_DEFINE]], [[_UNSIGNED]]
 * [[Variable Types]]
 * [[&amp;B]] (binary), [[&amp;O]] (octal), [[&amp;H]] (hexadecimal)
 * [[\|Integer Division]], [[MOD]] (Integer remainder division)

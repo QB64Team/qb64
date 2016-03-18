@@ -2,31 +2,39 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 
 
 {{PageSyntax}}
-::: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [{''&quot;Library_filename&quot;''|''&quot;Headerfile&quot;''}]
+::: '''DECLARE''' [DYNAMIC|CUSTOMTYPE|STATIC] '''LIBRARY''' [{''&quot;Library_filename&quot;''|''&quot;Headerfile&quot;''}]
 ::: {[[SUB]]|[[FUNCTION]]} [''procedure_name'' {{KW|ALIAS}}] ''library_procedure'' ([{{KW|BYVAL}}] ''parameter {{KW|AS}}'', ...)
 ::::.
 ::::. 'other SUBs or Functions as required
 ::::.
-::: END DECLARE
+::: '''END DECLARE'''
 
 
-* '''This QB64 procedure is available in the Dec 3, 2010 WINDOWS version .923 or later ONLY!'''
-* The declaration can be used with C++ sub-procedures, Windows API, the QB64 SDL Library and '''QB64''' Dynamic Link Libraries.
-* The ''Library name'' is only necessary if a Library is NOT already loaded by QB64. Do not include the ''.DLL'' or ''.H'' file name extension.
-* ''Library filename''s can be listed to combine more than one DLL or Header file name or path into one DECLARE LIBRARY block.
-* C procedures can use a header file name. File code must be included with program code. Do not include the ''.h'' extension.
+{{Parameters}}
+* The ''Library name'' is needed if a Library is NOT already loaded by QB64. Do not include the ''.DLL'', ''LIB'' or ''.H'' file extension.
 * ''Procedure_name'' is any program procedure name you want to designate by using [[ALIAS]] with the ''Library_procedure'' name. 
 * ''Library procedure'' is the actual procedure name used inside of the library or header file.
+
+
+''Library Types:''
+* '''[[DECLARE DYNAMIC LIBRARY|DYNAMIC]]''' links a program to functions in dynamically linkable libraries. At present, only .DLL files are supported
+* '''CUSTOMTYPE''' is already implied when using [[DECLARE DYNAMIC LIBRARY]]. This type of library just allows the same flexibility to apply when referencing STATIC libraries that are used to refer to dynamic libraries. Supports shared object (*.so) libraries
+* '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't use shared libraries (DLLs are different) this does not affect Windows users.
+
+
+{{PageDescription}}
+* The declaration can be used with C++ sub-procedures, Windows API and QB64 SDL Libraries.
+* ''Library filename''s can be listed to combine more than one DLL or Header file name or path into one DECLARE LIBRARY block.
+* C procedures can use a header file name. File code must be included with program code. Do not include the ''.h'' extension.
 * ''Parameters'' used by the Library procedure must be passed by value ([[BYVAL]]) except for [[STRING]] characters.
 * When using a procedure from an '''unsupported''' Dynamic Link Library (DLL file) use [[DECLARE DYNAMIC LIBRARY]].
-* '''CUSTOMTYPE''' is already implied when using [[DECLARE DYNAMIC LIBRARY]]. This type of library just allows the same flexibility to apply when referencing STATIC libraries that are used to refer to dynamic libraries.
-* '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't really use shared libraries (DLLs are a bit different) this does not affect Windows users.
+
 * The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
 * Declarations can be made inside of [[SUB]] or [[FUNCTION]] procedures. Declarations do not need to be at program start.
 * '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that ANY procedure will work and cannot quarantee ANY troubleshooting help!'''
 
 
-''Example 1:'' Using a QB64 SDL library procedure as a program SUB procedure to move the mouse pointer to a designated position.
+''Example 1:'' Using a '''QB64 SDL ONLY''' library procedure as a program SUB procedure to move the mouse pointer to a coordinate.
 {{CodeStart}} '' ''
 {{Cl|DECLARE LIBRARY}}
   {{Cl|SUB}} SDL_WarpMouse ({{Cl|BYVAL}} column {{Cl|AS}} {{Cl|LONG}}, {{Cl|BYVAL}} row {{Cl|AS}} {{Cl|LONG}}) 'SDL procedure name
@@ -49,11 +57,17 @@ SDL_WarpMouse x, y     'call SDL library procedure
 {{small|Code by Galleon}}
 :''Explanation:'' The SDL Library is already included and loaded with QB64, so these procedures are directly available for use. 
 
-&lt;center&gt;'''Using ALIAS to create a program SUB or FUNCTION'''&lt;/center&gt;
+&lt;center&gt;'''Using [[ALIAS]] to create a program SUB or FUNCTION''' using '''QB64 SDL ONLY'''&lt;/center&gt;
 {{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
 {{Cl|DECLARE LIBRARY}}
-  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} column&amp;, {{Cl|BYVAL}} row&amp;) 
-{{Cl|DECLARE LIBRARY|END DECLARE}} '' ''
+  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} column&amp;, {{Cl|BYVAL}} row&amp;)
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+{{Cl|_DELAY}} 2
+MouseMove 100, 100
+{{Cl|_DELAY}} 2
+MouseMove 200, 200 '' ''
 {{CodeEnd}}
 :''Explanation:'' When a Library procedure is used to represent another procedure name use [[ALIAS]] instead. Saves creating a SUB!
 
@@ -122,6 +136,7 @@ PRINT &quot;&amp;H&quot; + HEX$(GetLPTPortAddress%(1))
 * [[OpenGL Libraries]]
 * [[SFML Libraries]]
 * [[SQL Client]]
+* [http://www.qb64.net/forum/index.php?topic=11810.msg102081#msg102081 DECLARE LIBRARY and C++ Variable Types]
 
 
 {{PageNavigation}}

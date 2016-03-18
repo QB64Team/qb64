@@ -6,10 +6,11 @@
 
 
 {{PageDescription}}
-* BINARY creates the file if the filename$ does not exist.
+* [[OPEN]] FOR BINARY creates the file if the filename$ does not exist.
 * {{Parameter|filename$}} is the name of the file to open, but could also configure a port.
 * {{Parameter|#filenumber%}} is the number that will represent the file when performing file operations.
-* BINARY files use [[GET]] and [[PUT]] to read or write the file at any byte position.
+* BINARY files use [[GET|GET #]] and [[PUT|PUT #]] to read or write the file at any byte position.
+* '''QB64-GL''' allows [[LINE INPUT]] to be used for faster access to text file data.
 * The number of bytes read or written depends on the byte [[LEN|length]] of the variable type used.
 * When [[PUT]] is used with a variable, numerical values are converted to [[ASCII]] string types [[MKI$]], [[MKL$]], [[MKS$]], [[MKD$]] or [[_MK$]].
 * One byte [[ASCII]] {{KW|STRING}} data character values can be read as number values using {{KW|ASC}}(values from 0 to 255).
@@ -74,11 +75,11 @@ DO: {{Cl|_LIMIT}} 100
 
 
 {{PageSeeAlso}}
-* {{KW|CLOSE}}
-* {{KW|GET}}, {{KW|PUT}}
-* {{KW|SEEK}} (function), {{KW|SEEK (statement)}}
-* {{KW|RANDOM}}, {{KW|INPUT (file mode)}}, {{KW|APPEND}}, {{KW|OUTPUT}}
-* {{KW|Bitmaps}}, {{KW|Binary}}(numbers)
+* [[OPEN]], [[CLOSE]]
+* [[GET]], [[PUT]], [[LINE INPUT]]
+* [[SEEK]] (function), [[SEEK (statement)]]
+* [[INPUT (file mode)]], [[RANDOM]], [[APPEND]], [[OUTPUT]]
+* [[Bitmaps]], [[Binary]] (numbers)
 
 
 {{PageNavigation}}

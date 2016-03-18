@@ -1,15 +1,24 @@
+{{DISPLAYTITLE:_MEMPUT}}
 The '''_MEMPUT''' statement writes data to a portion of a designated memory block at an OFFSET position.
 
 
 {{PageSyntax}}
-::: '''_MEMPUT ''memory_block'', ''memory_block.OFFSET''''' [+ ''bytes'']''', ''source_variable''''' [AS ''type'']
+::: '''_MEMPUT''' ''memory_block'', ''byte_position'', ''source_variable'' [AS ''type'']
 
 
+{{Parameters}}
+* ''memory block'' is a [[_MEM]] variable type memory block name created by [[_MEMNEW]] or the [[_MEM (function)|_MEM]] function.
+* ''byte_position'' is the ''memory block.[[OFFSET]]'' start position plus any bytes needed to read specific values. 
+* The ''source variable'' type designates the size and ''byte position'' it should be written to. It can be a variable, [[arrays|array]] or user defined type.
+* The ''source variable'' can be converted [[AS]] a specific variable ''[[TYPE|type]]'' before being written to the ''memory block offset'' as bytes.
 
-* ''memory block'' is a [[_MEM]] variable type name.
-* ''memory block.OFFSET'' is the dot [[OFFSET]] byte zero memory position where block data begins. 
-* The ''source variable'' designates the size and place it will be read from. It can be a variable, array or user defined type.
-* The ''source variable'' is converted to a specific variable ''[[TYPE|type]]'' before it is copied to the ''memory block offset'' as bytes.
+
+''Usage:'' 
+* The _MEMPUT statement is similar to the [[PUT]] file statement, but the ''byte position'' is required.
+* The memory block name.[[OFFSET]] returns the starting byte position of the block. Add bytes to move into the block.
+* The variable type held in the memory block can determine the next ''byte position'' to write a value. 
+* [[LEN]](variable) can determine the byte size of numerical or user defined variable [[type]]s irregardless of the value held.
+* [[STRING]] values should be of a defined length. Variable length strings can actually move around in memory and not be found.
 
 
 ''Example:'' _MEMPUT can be used just like [[POKE]] without [[DEF SEG]].

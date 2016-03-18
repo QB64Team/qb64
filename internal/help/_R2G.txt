@@ -1,0 +1,31 @@
+{{DISPLAYTITLE:_R2G}}
+The '''_R2G''' function converts a RADIAN value into a GRADIENT value. 
+
+
+{{PageSyntax}}
+:: result = [[_R2G]](''num'')
+
+
+*(Only available in QB64-GL, from Dirty Builds after 06/20/2014. Previous versions of QB64 don't support this command.)
+
+
+''Example:'' Coverting Radian into Gradient.
+{{CodeStart}}
+INPUT &quot;Give me an angle in Radians &quot;, D
+R = _R2G(D)
+PRINT &quot;That angle in Gradient is &quot;; R
+{{CodeEnd}}
+{{OutputStart}}
+Give me an angle in Radians 0.5
+That angle in Gradient is   31.83099
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[_D2G]], [[_D2R]]
+* [[_G2D]], [[_G2R]]
+* [[_R2D]]
+
+
+
+{{PageNavigation}}

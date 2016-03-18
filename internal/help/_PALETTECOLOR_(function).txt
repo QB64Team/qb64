@@ -1,8 +1,9 @@
-The {{KW|PALETTECOLOR}} function is used to return the 32 bit attribute color setting of an image or screen page handle's palette.
+{{DISPLAYTITLE:_PALETTECOLOR (function)}}
+The [[PALETTECOLOR]] function is used to return the 32 bit attribute color setting of an image or screen page handle's palette.
 
 
 {{PageSyntax}}
-:{{Parameter|color32value&amp;}} = {{KW|_PALETTECOLOR}}({{Parameter|attribute_number%}}, {{Parameter|handle&amp;}})
+: color32value&amp; = '''_PALETTECOLOR('''{{Parameter|attribute_number%}}, {{Parameter|handle&amp;}}''')'''
 
 
 
@@ -40,14 +41,10 @@ END '' ''
 :''Explanation:'' To save a bitmap or other image you need the RGB color settings or the colors will look all wrong. You can store that information into a larger image array and [[GET (graphics statement)|GET]] the image AFTER the color settings. Just GET the image starting at Array(48).
 
 
-
-
-
 {{PageSeeAlso}}
 * [[_PALETTECOLOR]] (statement)
 * [[_NEWIMAGE]], [[_LOADIMAGE]]
 * [[SAVEIMAGE]] (example code)
-
 
 
 {{PageNavigation}}

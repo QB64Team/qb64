@@ -2,30 +2,33 @@ A '''FUNCTION''' block statement is used when creating a function procedure to r
 
 
 {{PageSyntax}}
-:: '''FUNCTION name'''[type-suffix] [(''parameters'')]
-:: .
-:: .
-:: .
+:: '''FUNCTION procedure_name'''[type-suffix] [(''parameters'')]
+:: ...
+:: ... 'variable definitions and procedure statements
+:: ...
 :: '''END FUNCTION'''
 
 
-* The function type can be any variable type that it will return to the program and is represented by the type suffix. '''Currently cannot use FUNCTION name [[AS]] type!'''  
+* The function type can be any variable type that it will return to the program and is represented by the type suffix. 
+* '''QB64 currently cannot use FUNCTION name [[AS]] type!''' This VB functionality is promised in the future.  
 * Functions hold ONE return value in the function's name which is a variable type. Other values can be passed through ''parameter(s)''.
+* Functions are often referred to in program calculations, not called like SUB procedures. [[CALL]] cannot be used with functions!
 * If there are no parameters passed or they are [[SHARED]] the ''parameters'' and parenthesis are not required.
 * The [[IDE]] may '''require''' that an '''intermediate variable''' be used when calculations define the function's value more than once! In those cases, make the Function's name equal to the intermediate variable's value at the end of the Function.
 * Variable names within the procedure do not have to match the names used in the reference parameters, just the value types.
-* A Function needs to return the value to something such as a variable or as a argument for a sub, function or statement.
 * All [[$DYNAMIC|dynamic]] variable values return to 0 or null strings when the procedure is exited except when a variable or the entire function is [[STATIC]]. This can save program memory as all [[$DYNAMIC|dynamic]] memory used in a FUNCTION is released on procedure exit.
 * FUNCTION procedure code can use [[GOSUB]] and [[GOTO]] line numbers or labels inside of the procedure when necessary. 
 * For early function exits use [[EXIT]] [[FUNCTION]] before [[END FUNCTION]] and [[GOSUB]] procedures using [[RETURN]].
-* Once a FUNCTION is created and used, the Qbasic IDE will [[DECLARE]] it when the file is saved. QB64 doesn't need them!
-* Functions are often referred to in program calculations, not called like SUB procedures. [[CALL]] cannot be used!
-* The [[IDE]] can create the FUNCTION and END FUNCTION lines for you. Use the Make FUNCTION option in the Edit Menu. A box will come up for you to enter a name for the FUNCTION. Enter all code between the FUNCTION and [[END FUNCTION]] lines.
 * '''QB64 ignores all procedural [[DECLARE]] statements!''' Define all ''parameter'' [[TYPE]]s in the FUNCTION procedure.
-* Qbasic's IDE may place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the FUNCTION line if it is used in the main module. It may even be the wrong variable type needed. It can be changed or removed when necessary. 
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
-* '''WARNING! Do not place DATA fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to compile properly!'''
-: Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
+* '''Recursive Functions will require a parameter to repeat internal references currently in QB64.'''
+
+
+&lt;center&gt;'''Qbasic'''&lt;/center&gt;
+* Once a FUNCTION is created and used, the Qbasic IDE will [[DECLARE]] it when the file is saved. QB64 doesn't need them!
+* The [[IDE]] can create the FUNCTION and END FUNCTION lines for you. Use the Make FUNCTION option in the Edit Menu. A box will come up for you to enter a name for the FUNCTION. Enter all code between the FUNCTION and [[END FUNCTION]] lines.
+* Qbasic's IDE may place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the FUNCTION line if it is used in the main module. It may even be the wrong variable type needed. It can be changed or removed when necessary. 
+* Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
 
 
 ''Example 1:'' A simple function that returns the current path. Place [[FUNCTION]] or [[SUB]] procedures after the program [[END]].

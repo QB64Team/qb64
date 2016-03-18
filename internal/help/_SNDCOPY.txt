@@ -1,27 +1,40 @@
-The {{KW|_SNDCOPY}} function copies a sound to a new handle so that two or more of the same sound can be played at once. The passed handle parameter is from the {{KW|_SNDOPEN}} function.
+{{DISPLAYTITLE:_SNDCOPY}}
+The [[_SNDCOPY]] function copies a sound to a new handle so that two or more of the same sound can be played at once. The passed handle parameter is from the [[_SNDOPEN]] function.
 
 
 {{PageSyntax}}
-:{{Parameter|copy_handle&amp;}} = {{KW|_SNDCOPY}} ({{Parameter|handle&amp;}})
+::: copy_handle&amp; = '''_SNDCOPY('''{{Parameter|handle&amp;}}''')'''
 
 
 {{PageDescription}}
-*Opened sound files must have the &quot;SYNC&quot; capability to use this function. (Currently WAV, OGG, AIF, RIF and VOC)
-*Returns a new handle to the same sound data referred to by the source handle.
-*No changes to the source handle (such as a volume change) are inherited.
-*The sound data referred to by the handle and its copies is not freed until all of them are closed.
+* Opened sound files must have the &quot;SYNC&quot; capability to use this function. (Currently WAV, OGG, AIF, RIF and VOC)
+* Returns a new handle to the same sound data referred to by the source handle.
+* No changes to the source handle (such as a volume change) are inherited.
+* The sound data referred to by the handle and its copies are not freed until all of them are closed.
+{{TextStart}}    QB64 supports the following sound file formats ('''Bold is a guaranteed capability'''):
+
+             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
+             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
+             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             MID = &quot;'''VOL'''&quot;
+             MOD = &quot;VOL,PAUSE&quot;
+             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
+
+        ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
+{{TextEnd}}
 
 
-{{PageExamples}}
-{{CodeStart}}
-
-h2&amp; = {{Cl|_SNDCOPY}}(h&amp;)
-
+''Example:''
+{{CodeStart}} '' ''
+h2&amp; = {{Cl|_SNDCOPY}}(h&amp;) '' ''
 {{CodeEnd}}
 
 
 {{PageSeeAlso}}
-*{{KW|_SNDPLAYCOPY}}
+* [[_SNDPLAYCOPY]]
+* [[_SNDOPEN]]
 
 
 {{PageNavigation}}

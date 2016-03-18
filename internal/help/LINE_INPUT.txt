@@ -22,6 +22,7 @@ The '''LINE INPUT''' statement requests a [[STRING]] keyboard entry from a progr
 * LINE INPUT does not trim off leading or trailing spaces in the string entry like [[INPUT]] string returns.
 * Use [[VAL]] to convert string numbers and [[&amp;O]](octal) or [[&amp;H]](hexadecimal) prefixed entries into numerical values. 
 * Use [[_DEST]] [[_CONSOLE]] before LINE INPUT statements to be used in a [[$CONSOLE|console]] window.
+* '''Note: QB64''' will NOT remove CHR$(0) from the end of LINE INPUT string return values like Qbasic did.
 
 
 ''Example:'' Preventing screen roll after an input entry on the bottom 2 screen rows. 
@@ -43,7 +44,7 @@ n$ = {{Cl|UCASE$}}(name$) '                 convert search name to upper case
 
 
 ''See also:'' 
-* [[INPUT (file mode)]], [[INPUT (file statement)|INPUT #]] [[LINE INPUT (file statement)|LINE INPUT #]], [[INPUT$]] {{text|(file input)}}
+* [[INPUT (file mode)]], [[INPUT (file statement)|INPUT #]], [[LINE INPUT (file statement)|LINE INPUT #]]
 * [[INPUT]], [[INPUT$]] {{text|(keyboard input)}}
 * [[COLOR]], [[LOCATE]] 
 * [[INKEY$]]

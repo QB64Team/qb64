@@ -1,15 +1,16 @@
-The '''^''' operation raises a numerical value to an exponential value.
+The '''^''' operation raises a numerical value to an exponential value expressing how many times the value is multiplied by itself.
 
 
-''Syntax:'' return_value = number ^ exponent
+{{PageSyntax}}
+::'' return_value = number '''^''' {whole_exponent|(fractional_exponent)}
 
 
 {{PageDescription}}
 
 * The number value can be any type literal or variable numerical value.
-* Exponents can be any integer or fractional numerical value.
+* Exponents can be any positive or negative integer or fractional numerical value inside of parenthesis brackets.
 * If the exponent is zero, the value returned is 1.
-* Fractional exponents enclosed in brackets will return the fractional exponential root of a value. 
+* Fractional(or decimal point) exponents MUST be enclosed in '''() brackets''' and will return the fractional exponential root of a value. 
 * Exponential operations are done first in the Qbasic order of operations.
 * The square root of a number can be returned by the [[SQR]] function or by using an exponent of (1 [[/]] 2). Brackets required.
 * Values returned may be expressed using exponential or [[Scientific notation]] using '''E''' for SINGLE or '''D''' for DOUBLE precision.

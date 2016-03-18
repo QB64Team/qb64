@@ -1,0 +1,28 @@
+{{DISPLAYTITLE:$VIRTUALKEYBOARD}}
+The '''$VIRTUALKEYBOARD''' QB64 GL Metacommand turns the virtual keyboard ON or OFF in Android device programs.
+
+
+{{PageSyntax}}
+::: '''$VIRTUALKEYBOARD:'''{ON|OFF}
+
+
+{{PageDescription}}
+* If you haven't got an Android device and just want to try out the virtual keyboard add the following meta-command: $VIRTUALKEYBOARD:ON
+
+
+
+{{PageErrors}}
+
+
+''Example:'' 
+{{CodeStart}}
+{{Cl|$VIRTUALKEYBOARD}}:ON
+
+{{Cl|DO}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+
+
+{{PageNavigation}}

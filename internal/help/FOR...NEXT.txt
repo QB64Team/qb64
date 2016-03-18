@@ -3,24 +3,32 @@ The '''FOR''' statement creates a counter loop using specified start and stop nu
 
 
 {{PageSyntax}} 
-:: '''FOR ''counter_variable'' = ''start_value'' TO ''stop_value''''' [STEP ''increment'']
+:: '''FOR ''counter_variable'' = ''start_value'' [[TO]] ''stop_value''''' [{{KW|STEP}} ''increment'']
 :: .
 :: . 
 :: .
 :: '''NEXT''' [''counter_variable'']
 
 
+{{Parameters}}
 * The FOR ''counter_variable'' name is required to define the counter span and may also be used after the NEXT keyword.
 * The ''start_value'' [[TO]] ''stop_value'' can be any literal or variable numerical type. BOTH values are  required!
+* [[STEP]] can be used for a loop ''increment'' other than the default plus 1 and can be any positive or negative literal or variable numerical value as long as the STEP value corresponds to the loop's ''start value'' and ''stop value''s.
+* [[NEXT]] ends the FOR loop code block and increments the counter to the next value even when it exceeds the stop limit. 
+
+
+''Usage:''
+* FOR NEXT counter loops must be within the proper start, stop and increment values or the entire loop code block will not be executed. 
 * Avoid changing the FOR ''counter_variable'''s value inside of the loop. This obfuscates code and is a poor programming practice!
 * Once the loop has been started, changing the ''start_value'', ''stop_value'' or ''increment'' value will not affect loop execution.
-* Use '''[[EXIT]] FOR''' to leave a FOR loop early when a certain condition is met inside of the loop.
-* [[STEP]] can be used for a loop ''increment'' other than the default 1 and can be any literal or variable numerical value. 
 * '''If the [[STEP]] ''increment'' value does not match the ''start_value'' [[TO]] ''stop_value'' the FOR loop block will be ignored!'''
 :* If ''start_value'' is less than ''stop_value'', use default increment or positive [[STEP]] value or the loop will NOT be executed.
 :* If ''start_value'' is more than ''stop_value'', use a negative [[STEP]] interval or the loop will NOT be executed.
 :* The [[STEP]] ''increment'' value cannot be changed inside of the loop!
+* Use '''[[EXIT]] FOR''' to leave a FOR loop early when a certain condition is met inside of the loop.
+* The [[NEXT]] counter variable name is not required. NEXT loop increments can be separated by colons in nested FOR loops. 
 * '''NOTE: The counter value AFTER a FOR loop will be incremented one more than the ''stop_value'' requested by the loop!'''
+* '''Beware of FOR loop counts that EXCEED the count variable's type limits and may repeat without error in QB64!'''
 
 
 
@@ -49,6 +57,10 @@ PRINT &quot;After loop, i =&quot;; i '' ''
 {{CodeEnd}}
 {{OutputStart}}hi
 bye {{OutputEnd}}
+
+
+''See Example:'' 
+* [http://qb64.net/wiki/index.php?title=Controller_Devices#Example Example that shows how ignoring bad FOR loops can work to a program's advantage without errors.]
 
 
 ''See also:'' 

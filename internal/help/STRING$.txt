@@ -2,29 +2,33 @@ The {{KW|STRING$}} function returns a {{KW|STRING}} consisting of a single chara
 
 
 {{PageSyntax}}
-: result$ = STRING$(''count%'', {''character$'' | ''ASCIIcode%''} )
+: result$ = STRING$(''count&amp;'', {''character$'' | ''ASCIIcode%''} )
 
 
 {{PageDescription}}
 &lt;!-- Stylin --&gt;
-* {{Parameter|count%}} is the number of times the character specified by {{Parameter|character}} is repeated.
+* {{Parameter|count&amp;}} is the number of times the character specified by {{Parameter|character}} is repeated.
 * Character is a literal string character, a string variable or an [[ASCII]] code number.
-* If {{Parameter|count%}} is negative, an [[ERROR Codes|illegal function call]] error will occur. The count can be zero.
+* If {{Parameter|count&amp;}} is negative, an [[ERROR Codes|illegal function call]] error will occur. The count can be zero.
 * If {{Parameter|character}} is a [[STRING]] value and its length is zero, an [[ERROR Codes|illegal function call]] error will occur.
 * If more than one string character value is used, the first character will be repeated. 
 * A [[STRING]] statement can be added to a string value with the + [[concatenation]] operator. 
 * The function result can also be used to [[GET]] and [[PUT]] a number of bytes as zero characters: bytes$ = STRING(numbytes, 0)
 
 
+''Differences between QB64 and QB 4.5:''
+* '''QB64''' can use [[LONG]] values for a count up to 2,147,483,647 while '''QB 4.5''' could only use [[INTEGER]] values up to 32,767.
+
+
 {{PageExamples}}
-:Printing 40 asterisks across the screen using an ASCII character value.
+:Printing 40 asterisks across the screen using an ASCII character code instead of [[CHR$]](42).
 {{CodeStart}}{{Cl|PRINT}} {{Cl|STRING$}}(40, 42)
 {{CodeEnd}}
 {{OutputStart}}****************************************
 {{OutputEnd}}
 
 
-:Using a {{KW|STRING}} to specify the repeated character.
+:Using a [[STRING]] to specify the repeated character.
 {{CodeStart}}text$ = &quot;B&quot; + {{Cl|STRING$}}(40, &quot;A&quot;) + &quot;D&quot;
 {{Cl|PRINT}} text$
 {{CodeEnd}}

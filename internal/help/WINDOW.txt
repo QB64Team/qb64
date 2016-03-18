@@ -1,21 +1,26 @@
-The {{KW|WINDOW}} graphics statement defines the coordinate dimensions of the current graphics viewport.
+The [[WINDOW]] graphics statement defines the coordinate dimensions of the current graphics view port or closes it.
 
 
-{{PageSyntax}}
-:{{KW|WINDOW}} [[SCREEN] (x1, y1)-(x2,y2)]
+{{PageSyntax}}'''
+: '''WINDOW''' [[SCREEN] (''column1'', ''row1'')-(''column2'', ''row2'')]
+
+
+{{Parameters}}
+* If no statement parameters are used, the previous WINDOW view port area is disabled. 
+* The SCREEN option inverts Cartesian row values to increase from negative to 0 to positive. Columns unchanged.   
+* If the SCREEN option is not used, rows use the Cartesian system with highest row at top to lowest row at bottom.
+* Optional coordinate values redefine the [[SINGLE]] negative or positive port dimension values when desired.
 
 
 {{PageDescription}}
-* The statement allows a program to create a custom graphic coordinate system independent of the [[SCREEN (statement)|SCREEN]] mode used.
-* The coordinate values are defined as [[SINGLE]] precision values.
-* If the SCREEN option is used, row values increase from top to bottom. Negative coordinates can be used to the screen center.
-* If the SCREEN option is not used, row coordinates use the Cartesian system with highest row at top to lowest row at bottom.
+* The statement allows a program to create a custom graphic coordinate system independent of the [[SCREEN]] mode used.
+* WINDOW dimensions can be greater than the [[SCREEN]] mode size to create larger images for pictures.
 * A [[VIEW]] statement can change the viewport area.
 * All subsequent graphics statements will use the new coordinate system.
-* If no statement parameters are used, the viewport area is disabled. 
 * Use [[CLS]] or [[CLS|CLS 1]] to clear the active WINDOW view port area. 
 * [[RUN]] or a [[SCREEN (statement)|SCREEN]] statement will also disable the window viewport.
 * Note: '''QB64''' can create a custom sized window using [[_NEWIMAGE]].
+* '''Note: QB64 [[RUN]] statements will not close [[VIEW PRINT]], [[VIEW]] or [[WINDOW]] view ports presently!'''
 
 
 ''Example:'' Using a WINDOW to amplify circle sizes. [[PMAP]] finds the corresponding WINDOW co-ordinates.
@@ -43,6 +48,7 @@ The {{KW|WINDOW}} graphics statement defines the coordinate dimensions of the cu
 * [[VIEW]] {{text|(graphics view port)}}
 * [[VIEW PRINT]] {{text|(text view port)}}
 * [[_NEWIMAGE]], [[_LOADIMAGE]]
+* [https://en.wikipedia.org/wiki/Cartesian_coordinate_system Cartesian coordinate system]
 
 
 {{PageNavigation}}

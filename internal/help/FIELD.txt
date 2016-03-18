@@ -2,7 +2,7 @@ The '''FIELD''' statement creates a [[STRING]] type definition for a [[RANDOM|ra
 
 
 {{PageSyntax}}
-:{{KW|FIELD}} [#]{{Parameter|fileNumber%}} {{Parameter|fieldWidth1%}} AS {{Parameter|variable1$}}[, {{Parameter|fieldWidthN%}} AS {{Parameter|variableN$}}]
+:{{KW|FIELD}} [#]{{Parameter|fileNumber&amp;}} {{Parameter|fieldWidth1%}} AS {{Parameter|variable1$}}[, {{Parameter|fieldWidthN%}} AS {{Parameter|variableN$}}]
 
 
 {{PageDescription}}
@@ -15,9 +15,7 @@ The '''FIELD''' statement creates a [[STRING]] type definition for a [[RANDOM|ra
 * Do NOT re-assign a field defined variable value or use it in an [[INPUT]] statement if you want the variable to remain a field!
 
 
-''Example:'' Comparing a TYPE definition with a FIELD {{KW|STRING|string}} definition.
-
-Demo using a TYPE definition to create a file:
+''Example:'' Comparing a [[TYPE]] definition with a FIELD [[STRING|string]] definition. Demo using a [[TYPE]] definition to create a file:
 {{CodeStart}} '' ''
 {{Cl|TYPE}} ClientType
    CName {{Cl|AS}} {{Cl|STRING}} * 30     '30 bytes
@@ -83,9 +81,9 @@ Demo using the FIELD statement to read the file:
 
 
 {{PageSeeAlso}}
-* {{KW|OPEN}}
-* {{KW|GET}}, {{KW|PUT}}
-* {{KW|LSET}}, {{KW|RSET}}
+* [[OPEN]], [[TYPE]]
+* [[GET]], [[PUT]]
+* [[LSET]], [[RSET]]
 
 
 {{PageNavigation}}

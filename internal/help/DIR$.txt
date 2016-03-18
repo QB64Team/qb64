@@ -1,0 +1,61 @@
+The '''DIR$''' function below is '''NOT A QB64 FUNCTION!''' This page supplies equivalent QB code:
+
+
+{{PageSyntax}}
+::: filename$ = '''DIR$('''{filespec$|&quot;&quot;}''')'''
+
+
+The DIR$ function used in PDS(7.1) returns a filename or a list when more than one exist. The file spec can use a path and/or wildcards.
+{{CodeStart}} '' ''
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 2
+  {{Cl|PRINT}}
+  {{Cl|LINE INPUT}} &quot;Enter a file spec: &quot;, spec$
+  file$ = DIR$(spec$) 'use a file spec ONCE to find the last file name listed
+  {{Cl|PRINT}} DIRCount%, file$, 'function can return the file count using {{Cl|SHARED}} variable
+  {{Cl|IF...THEN|IF}} DIRCount% &gt; 1 {{Cl|THEN}}
+    DO
+      K$ = {{Cl|INPUT$}}(1)
+      file$ = DIR$(&quot;&quot;) ''''use an empty string parameter to return a list of files!'''
+      {{Cl|PRINT}} file$,
+    {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(file$) = 0 'file list ends with an empty string
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+
+{{Cl|END}}
+
+{{Cl|FUNCTION}} DIR$ (spec$)
+{{Cl|CONST}} TmpFile$ = &quot;DIR$INF0.INF&quot;, ListMAX% = 500 'change maximum to suit your needs
+{{Cl|SHARED}} DIRCount% 'returns file count if desired
+{{Cl|STATIC}} Ready%, Index%, DirList$()
+{{Cl|IF...THEN|IF}} {{Cl|NOT}} Ready% {{Cl|THEN}} {{Cl|REDIM}} DirList$(ListMAX%): Ready% = -1 '{{Cl|DIM}} array first use
+{{Cl|IF...THEN|IF}} spec$ &gt; &quot;&quot; {{Cl|THEN}} 'get file names when a spec is given
+  {{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR &quot; + spec$ + &quot; /b &gt; &quot; + TmpFile$
+  Index% = 0: DirList$(Index%) = &quot;&quot;: ff% = {{Cl|FREEFILE}}
+  {{Cl|OPEN}} TmpFile$ {{Cl|FOR...NEXT|FOR}} {{Cl|APPEND}} {{Cl|AS}} #ff%
+  size&amp; = {{Cl|LOF}}(ff%)
+  {{Cl|CLOSE}} #ff%
+  {{Cl|IF...THEN|IF}} size&amp; = 0 {{Cl|THEN}} {{Cl|KILL}} TmpFile$: {{Cl|EXIT FUNCTION}}
+  {{Cl|OPEN}} TmpFile$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #ff%
+  {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(ff%) {{Cl|AND (boolean)|AND}} Index% &lt; ListMAX%
+    Index% = Index% + 1
+    {{Cl|LINE INPUT (file statement)|LINE INPUT}} #ff%, DirList$(Index%)
+  {{Cl|LOOP}}
+  DIRCount% = Index% '{{Cl|SHARED}} variable can return the file count
+  {{Cl|CLOSE}} #ff%
+  {{Cl|KILL}} TmpFile$
+{{Cl|ELSE}} {{Cl|IF...THEN|IF}} Index% &gt; 0 {{Cl|THEN}} Index% = Index% - 1 'no spec sends next file name
+{{Cl|END IF}}
+DIR$ = DirList$(Index%)
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+:''Explanation:'' The function will verify that a file exists (even if it is empty) by returning it's name or it returns an empty string if no file exists. It can return a list of file names by using an empty string parameter(&quot;&quot;) after sending a wildcard spec to get the first file name. The number of file names found is returned by using the SHARED variable, '''DIRCount%'''. Unlike the PDS DIR$ function, '''it MUST use an empty string parameter until QB64 supports optional parameters!''' The function does NOT delete empty files.
+
+
+''See also:''
+* [[FILES]]
+* [[KILL]]
+* [[SHELL]]
+
+
+{{PageNavigation}}

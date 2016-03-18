@@ -1,14 +1,17 @@
+{{DISPLAYTITLE:_MOUSEX}}
 The '''_MOUSEX''' function returns the current horizontal(column) mouse cursor position when read after [[_MOUSEINPUT]].
 
 
 {{PageSyntax}}
-::: column% = '''_MOUSEX'''
+::: pixelcolumn% = '''_MOUSEX'''
 
 
 ''Usage:''
-* SCREEN 0 returns the [[SINGLE]] horizontal text column position. Graphic screens return the [[INTEGER]] pixel columns.
-* To calculate text columns in graphic modes divide the return by 8 or the [[_PRINTWIDTH]] of one [[_FONT]] character.
+* [[SCREEN]] 0 returns the [[SINGLE]] horizontal text column position. Use [[INTEGER]] variables to avoid floating decimal returns.
+* Graphic screen modes 1, 2 and 7 to 13 and [[_NEWIMAGE]] 32 bit return the [[INTEGER]] pixel columns.
+* To calculate text columns in graphic modes, divide the return by 8 or the [[_FONTWIDTH]] of [[_FONT]] characters.
 * [[_MOUSEINPUT]] MUST be used to detect any changes in the mouse position and is '''required''' for any coordinate returns.
+* '''Note:''' In [[SCREEN]] 0, Qbasic's [[ABSOLUTE]] returned graphic coordinates. QB64 mouse functions return the text coordinates. 
 
 
 ''Example:'' A simple mouse drawing board using _MOUSEX and [[_MOUSEY]] coordinate values. 

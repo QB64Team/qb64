@@ -1,4 +1,5 @@
-The {{KW|_CONNECTED}} function returns the status of a TCP/IP connection handle.
+{{DISPLAYTITLE:_CONNECTED}}
+The [[_CONNECTED]] function returns the status of a TCP/IP connection handle.
 
 
 {{PageSyntax}}
@@ -13,25 +14,23 @@ The {{KW|_CONNECTED}} function returns the status of a TCP/IP connection handle.
 * If this function indicates the handle is not connected, any unread messages can still be read using {{KW|INPUT (TCP/IP statement)|INPUT #}} or {{KW|GET (TCP/IP statement)|GET #}}.
 * Even if this function indicates the handle is not connected, it is important to {{KW|CLOSE}} the connection anyway or important resources cannot be reallocated. 
 
-
-''Example:'' Updating the [[_OPENHOST|_OPENHOST chat program example]] to manage the Users array when users are no longer connected.
-{{CodeStart}}
-'' ''
-{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} numclients ' distribute incoming messages to all clients
-  {{Cl|IF...THEN|IF}} Users(i) {{Cl|THEN}} ' check for non-existing handle values(rare)
-      {{Cl|INPUT (TCP/IP statement)|INPUT #}}Users(i), message$
-      {{Cl|IF...THEN|IF}} message$ &lt;&gt; &quot;&quot; {{Cl|THEN}}
-        {{Cl|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} numclients
-          {{Cl|IF...THEN|IF}} Users(p) {{Cl|THEN}} {{Cl|PRINT (TCP/IP statement)|PRINT #}}Users(p), message$
-        {{Cl|NEXT}} p
-      {{Cl|END IF}}
-      {{Cl|IF...THEN|IF}} {{Cl|_CONNECTED}}(Users(i)) {{Cl|IF...THEN|THEN}}
+''Snippet:'' Updating the [[_OPENHOST|_OPENHOST chat program example]] to manage the Users array when users are no longer connected.
+{{TextStart}} '' ''
+{{Cb|FOR...NEXT|FOR}} i = 1 {{Cb|TO}} numclients ' distribute incoming messages to all clients
+  {{Cb|IF...THEN|IF}} Users(i) {{Cb|THEN}} ' check for non-existing handle values(rare)
+      {{Cb|INPUT (TCP/IP statement)|INPUT #}}Users(i), message$
+      {{Cb|IF...THEN|IF}} message$ &lt;&gt; &quot;&quot; {{Cb|THEN}}
+        {{Cb|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} numclients
+          {{Cb|IF...THEN|IF}} Users(p) {{Cb|THEN}} {{Cb|PRINT (TCP/IP statement)|PRINT #}}Users(p), message$
+        {{Cb|NEXT}} p
+      {{Cb|END IF}}
+      {{Cb|IF...THEN|IF}} {{Cb|_CONNECTED}}(Users(i)) {{Cl|IF...THEN|THEN}}
         n = n + 1 ' new consecutive connected index 
         Users(n) = Users(i) ' assign handle value to consecutive index
-      {{Cl|ELSE}} : {{Cl|CLOSE}} #(Users(i)): Users(i) = 0 ' close and clear index
-      {{Cl|END IF}} ' if connected
-  {{Cl|END IF}} ' array handle exist
-{{Cl|NEXT}} i
+      {{Cb|ELSE}} : {{Cb|CLOSE}} #(Users(i)): Users(i) = 0 ' close and clear index
+      {{Cb|END IF}} ' if connected
+  {{Cb|END IF}} ' array handle exist
+{{Cb|NEXT}} i
 numclients = n: n = 0 '' ''
 
 {{CodeEnd}}

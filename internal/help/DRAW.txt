@@ -3,18 +3,18 @@
 
 
 {{PageSyntax}}
-:: DRAW draw_string$
+:: '''DRAW''' draw_string$
 
 
 * The draw string can be a draw value in quotation marks or a [[STRING]] variable using DRAW function letters.
-* DRAW starting coordinates can be set using [[PSET]], [[PRESET]], [[CIRCLE]] or [[LINE]] ending positions.
-* Other graphic objects can be located at or relative to the last DRAW position. 
+* DRAW starting coordinates can be set using [[PSET]], [[PRESET]], [[CIRCLE]] or [[LINE]] ending positions. [[PSET]] or [[PRESET]] colors pass too.
+* Other graphic objects can be located at or relative to the last DRAW position using [[STEP]]. 
 * DRAW can adopt colors from other graphics objects such as [[PSET]], [[LINE]] and [[CIRCLE]] statements.
 * Draw strings use letters followed by the number of pixels to move, an angle, coordinate or a color value.
-* Draw strings are flexible with spacing. Spacing is not required! DRAW will look for a number value when needed.
+* Draw strings are flexible with spacing. '''Spacing is not required!''' DRAW will look for a number value after a valid letter.
 * DRAW statements are not Case sensitive. Use upper or lower case.
-:* &quot;'''C''' n&quot; designates the color n to be used in the draw statement string following use. [[PSET]] or [[PRESET]] colors work too.
 :* &quot;'''B'''&quot; (Blind) before a line move designates that the line move will be hidden. Use to offset from a &quot;P&quot; or [[PAINT]] border. 
+:* &quot;'''C''' n&quot; designates the color attribute or [[_RGB]] [[STR$|string]] numerical color value to be used in the draw statement immediately after. 
 :* &quot;'''M''' x, y&quot; can move to another coordinate area of the screen. When a + or - sign is used before a coordinate, 
 ::it is a relative coordinate move similar to using the [[STEP]] graphics keyword. DRAW &quot;M+=&quot; + [[VARPTR$]](variable%)
 :* &quot;'''N'''&quot; before a line move designates that the drawn line will return to the line start position. Saves moves!
@@ -23,18 +23,16 @@
 :* &quot;'''X'''&quot; + [[VARPTR$]](value) can draw another substring.
 
 * Certain letter designations create line moves on the SCREEN. Each move is followed by the number of pixels:
-
-:* &quot;'''U''' n&quot; draws a line UP n pixels.
-:* &quot;'''D''' n&quot; draws a line DOWN n pixels.
-:* &quot;'''L''' n&quot; draws a line LEFT n pixels.
-:* &quot;'''R''' n&quot; draws a line RIGHT n pixels.
+:* &quot;'''D''' n&quot; draws a line vertically DOWN n pixels.
 :* &quot;'''E''' n&quot; draws a diagonal / line going UP and RIGHT n pixels each direction.
 :* &quot;'''F''' n&quot; draws a diagonal \ line going DOWN and RIGHT n pixels each direction.
 :* &quot;'''G''' n&quot; draws a diagonal / LINE going DOWN and LEFT n pixels each direction.
 :* &quot;'''H''' n&quot; draws a diagonal \ LINE going UP and LEFT n pixels each direction.
+:* &quot;'''L''' n&quot; draws a line horizontally LEFT n pixels.
+:* &quot;'''R''' n&quot; draws a line horizontally RIGHT n pixels.
+:* &quot;'''U''' n&quot; draws a line vertically UP n pixels.
 
-* Angles are used to rotate the draw moves following their use. U could become a down move. 
-
+* Angles are used to rotate ALL draw moves following their use. U could become a down move or even rotate. 
 :* &quot;'''A''' n&quot; can use values of 1 to 3 to rotate up to 3 90 degree(270) angles.
 :* '''TA''' n&quot; can use any n angle from -360 to 0 to 360 to rotate a DRAW (Turn Angle). &quot;TA0&quot; resets to normal.
 :* When [[VARPTR$]] is used DRAW functions such as '''TA''' angles use an equal sign: &quot;TA=&quot; + VARPTR$(angle%)
@@ -73,7 +71,7 @@
 ''Explanation:'' To place 12 circles in a circle each move is 30 degrees. PSET sets the center of the circular path every loop. TA moves counter-clockwise with positive degree angles. Once TA sets the angle a blind Up move is at that angle. The hour circles use the end point of the blind line as centers using the STEP relative coordinates of 0. After the circles are drawn, a draw &quot;P&quot; string paints the circle centers. DRAW paint strings use the last coordinate position also.
 
 
-''Example 3:'' Creating a moving second hand for the clock above (SCREEN 12).
+''Example 3:'' Creating a moving second hand for the clock above (SCREEN 12). (See [[TIME$]] example 1)
 
 {{CodeStart}}
  DO: sec$ = {{Cl|RIGHT$}}({{Cl|TIME$}}, 2) ' get actual seconds from TIME$ function
@@ -91,7 +89,7 @@
 ''Explanation:'' The degrees to move from the original UP line move is calculated by dividing 360/60 seconds in a full rotation. That value of 6 is made negative to use TA correctly and multiplied by the [[VAL]]ue of seconds from the TIME$ function. The degree angle is converted by [[STR$]] to a string and added to the DRAW string using the [[STRING]] '''concatenation +''' operator. DO NOT USE SEMICOLONS to create DRAW strings! Once the second hand is placed on the screen, a loop waits for the second value to change. It then erases the hand and it repeats the process again.
 
 
-''Example 4:'' Creating digital displays using DRAW format strings to create the LED segments.
+''Example 4:'' Creating digital displays using DRAW format strings to create the LED segments. (See [[SELECT CASE|SELECT EVERYCASE]] example 5)
 {{CodeStart}}
 {{Cl|SCREEN}} 12
 DO
@@ -137,10 +135,35 @@ DO
 :''Explanation:'' The DRAW strings can be used more than once with different [[PSET]] positions to create more digits.
 
 
+''Example 5:'' Using 32 bit or [[_RGB]] color [[STR$|string]] values when using the DRAW C text statement
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 800, 12)
+{{Cl|PRINT}} {{Cl|_ALPHA}}(10), {{Cl|_RED}}(10), {{Cl|_GREEN}}(10), {{Cl|_BLUE}}(10)
+
+{{Cl|SLEEP}}
+
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 800, 32) 'comment out this line to use the non-32 bit screen mode 12
+{{Cl|PRINT}} {{Cl|_ALPHA}}(10), {{Cl|_RED}}(10), {{Cl|_GREEN}}(10), {{Cl|_BLUE}}(10)
+
+{{Cl|PSET}} (400, 400), 0 ' move to 320, 240... draw will start where pset leaves off
+c = 14
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+k = {{Cl|_RGB}}(80, 255, 80)
+{{Cl|FOR...NEXT|FOR}} repeat = 1 {{Cl|TO}} 16
+  {{Cl|FOR...NEXT|FOR}} p = 0 {{Cl|TO}} 359
+    c = c + 1: d = c / 14
+    {{Cl|DRAW}} &quot;c&quot; + {{Cl|STR$}}(k) + &quot; ta&quot; + {{Cl|STR$}}(p) + &quot; bu &quot; + {{Cl|STR$}}(d) + &quot;l7 u7 r7 d7 bd &quot; + {{Cl|STR$}}(d)
+  {{Cl|NEXT}} p
+{{Cl|NEXT}} repeat
+{{CodeEnd}}
+: ''Explanation:'' DRAW strings will ignore spaces between letters and numbers so string trimming is not necessary.
+
+
 ''See also:'' 
 * [[LINE]], [[PSET]], [[PRESET]], [[CIRCLE]]
 * [[PAINT]], [[SCREEN (statement)|SCREEN]]
 * [[COLOR]], [[PLAY]]
+* [[TIME$]]
 
 
 {{PageNavigation}}

@@ -1,0 +1,99 @@
+The '''_MOUSEPIPEOPEN''' function creates a pipe handle value for a mouse when using a virtual keyboard.
+
+
+{{PageSyntax}}
+::: VkMousePipe = '''_MOUSEPIPEOPEN'''
+
+
+{{PageDescription}}
+* The pipe handle value can be used optionally with [[_MOUSEINPUT]], [[_MOUSEX]], [[_MOUSEY]], and [[_MOUSEBUTTON]] when required.
+
+
+''Example:'' Here's how it looks in my program...(warning: completely useless code snippet)
+{{CodeStart}}
+    mDown = 0
+    mUp = 0
+    mEvent = 0
+
+{{Cl|IF...THEN|IF}} VkMousePipe = 0 {{Cl|THEN}}	
+	VkMousePipe = {{Cl|_MOUSEPIPEOPEN}} 'create new pipe
+{{Cl|END IF}}
+
+        {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}(VkMousePipe)
+            mb = {{Cl|_MOUSEBUTTON}}(1, VkMousePipe)
+
+            mx = {{Cl|_MOUSEX}}(VkMousePipe)
+            my = {{Cl|_MOUSEY}}(VkMousePipe)
+
+            {{Cl|IF...THEN|IF}} {{Cl|_PIXELSIZE}} = 0 {{Cl|THEN}} 'screen 0 adjustment
+                mx = mx * 8 - 4
+                my = my * 16 - 8
+            {{Cl|END IF}}
+            {{Cl|IF...THEN|IF}} mb = -1 {{Cl|AND (boolean)|AND}} omb = 0 {{Cl|THEN}} mDown = -1: mEvent = 1: {{Cl|EXIT DO}}
+
+	    if VkMousePipeCapture=0 then
+                {{Cl|_MOUSEINPUTPIPE}} VkMousePipe
+	    end if
+
+            {{Cl|IF...THEN|IF}} mb = 0 {{Cl|AND (boolean)|AND}} omb = -1 {{Cl|THEN}}
+		VkMousePipeCapture=0
+		mUp = -1
+		mEvent = 1
+		{{Cl|EXIT DO}}
+	    end if
+
+        {{Cl|LOOP}}
+        omb = mb
+
+
+    rootId = VkByRole(&quot;ROOT&quot;)
+    editMode = VK(rootId).locked
+
+    {{Cl|IF...THEN|IF}} mDown {{Cl|THEN}}	
+        mDownX = mx
+        mDownY = my
+        i2 = 0
+
+        {{Cl|FOR...NEXT|FOR}} internal = 1 {{Cl|TO}} 0 {{Cl|STEP}} -1
+            {{Cl|FOR...NEXT|FOR}} i = VkLast {{Cl|TO}} 1 {{Cl|STEP}} -1
+                {{Cl|IF...THEN|IF}} VK(i).active {{Cl|THEN}}
+                    {{Cl|IF...THEN|IF}} VK(i).internal = internal {{Cl|THEN}}
+                        x = VK(i).x * VkUnitSize
+                        y = VK(i).y * VkUnitSize
+                        w = VK(i).w
+                        h = VK(i).h
+                        x1 = {{Cl|INT}}(x)
+                        x2 = {{Cl|INT}}(x + VkUnitSize * w) - 1
+                        y1 = sy - 1 - {{Cl|INT}}(y)
+                        y2 = sy - 1 - {{Cl|INT}}(y + VkUnitSize * h) + 1
+                        {{Cl|IF...THEN|IF}} mx &gt;= x1 {{Cl|AND (boolean)|AND}} mx &lt;= x2 {{Cl|AND (boolean)|AND}} my &gt;= y2 {{Cl|AND (boolean)|AND}} my &lt;= y1 {{Cl|THEN}}
+                            i2 = i
+                            {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+                        {{Cl|END IF}}
+                    {{Cl|END IF}}
+                {{Cl|END IF}}
+            {{Cl|NEXT}}
+            {{Cl|IF...THEN|IF}} i2 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+        {{Cl|NEXT}}
+        {{Cl|IF...THEN|IF}} i2 {{Cl|THEN}}
+            VkI = i2
+            VKoldX = VK(i2).x
+            VKoldY = VK(i2).y
+            VKdragging = 0
+            VKstart = {{Cl|TIMER (statement)|TIMER}}(0.001)
+            'VK(i2).held = -1
+            VkKeyDown i2
+	    VkMousePipeCapture=1
+        {{Cl|END IF}}
+        IF VkMousePipeCapture = 0 THEN {{Cl|_MOUSEINPUTPIPE}} VkMousePipe
+    {{Cl|END}} I
+
+{{CodeEnd}}
+: When I'm using the virtual keyboard the keyboard captures mouse input appropriately whilst selectively letting presses originating on non-key areas of the screen filter through to the default mouse queue.
+
+
+''See Also:''
+
+
+
+{{PageNavigation}}

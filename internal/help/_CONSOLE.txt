@@ -1,4 +1,5 @@
-The [[_CONSOLE]] statement can be used to turn OFF a console window or turn it on after it has been OFF.
+{{DISPLAYTITLE:_CONSOLE}}
+The [[_CONSOLE]] statement can be used to turn OFF a console window or turn it ON after it has been OFF.
 
 
 {{PageSyntax}}
@@ -7,14 +8,16 @@ The [[_CONSOLE]] statement can be used to turn OFF a console window or turn it o
 
 
 * _CONSOLE OFF or ON must be used after the [[$CONSOLE]] [[Metacommand]] has established that a console window is desired.
-* _CONSOLE OFF turns the console window off once a console has been established using [[$CONSOLE]].
+* _CONSOLE OFF turns the console window off once a console has been established using [[$CONSOLE]]:ON or ONLY.
 * _CONSOLE ON should only be used AFTER the console window has been turned OFF previously.
 * [[_DEST]] [[_CONSOLE]] can be used to send screen output to the console window using QB64 commands such as [[PRINT]].
 * [[_SCREENHIDE]] or [[_SCREENSHOW]] can be used to hide or display the main program window.
 * The [[$SCREENHIDE]] [[Metacommand]] can hide the main program window throughout a program when only the console is used.
+* '''Note:''' Text can be copied partially or totally from console screens in Windows by highlighting and using the title bar menu. 
+:: To copy console text output, right click the title bar and select ''Edit'' for ''Mark'' to highlight and repeat to ''Copy''  
 
 
-''Example:'' Hiding and displaying a console window. Use [[_DELAY]] to place console in front of main program window.
+''Example 1:'' Hiding and displaying a console window. Use [[_DELAY]] to place console in front of main program window.
 {{CodeStart}} '' ''
 {{Cl|$CONSOLE}}
 {{Cl|_CONSOLE}} OFF 'close original console
@@ -30,6 +33,22 @@ The [[_CONSOLE]] statement can be used to turn OFF a console window or turn it o
 {{Cl|END}} '' ''
 {{CodeEnd}}
 : ''Explanation:'' The [[_DEST|destination]] must be changed with [[_DEST]] [[_CONSOLE]] to get [[INPUT]] from the [[$CONSOLE]] screen.
+
+
+''Example 2:'' [[SHELL]] &quot;title...&quot; can be used to create a console title, but it must be redone every time it is restored once turned off:
+{{CodeStart}} '' ''
+{{Cl|$CONSOLE}}
+
+{{Cl|SHELL}} &quot;title firstone&quot;
+{{Cl|_DELAY}} 10
+
+{{Cl|_CONSOLE}} OFF
+{{Cl|_DELAY}} 10
+
+{{Cl|_CONSOLE}} ON
+{{Cl|SHELL}} &quot;title secondone&quot;
+{{CodeEnd}}
+: ''Note:'' Some versions of Windows may display the program path or Administrator: prefix in console title bars.
 
 
 ''See also:''

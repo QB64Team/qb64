@@ -1,19 +1,19 @@
 The ''CLEAR''' statement clears all variable and array element values in a program. It does not affect constant values! 
 
 
-''Syntax:'' CLEAR [, ''stacksize&amp;'' , ''stackspace&amp;'']
+''Syntax:'' '''CLEAR''' [, ''stacksize&amp;'' , ''stackspace&amp;'']
 
 
 {{PageDescription}}
-* Optional ''stacksize'' parameter was not required as Qbasic managed that. '''All three parameters are ignored by QB64!'''
+* Optional ''stacksize'' parameter was not required as Qbasic managed that. '''All parameters and commas are ignored by QB64!'''
 * The ''stackspace'' parameter sets the stack space to be added to the stack. Two commas kept Qbasic compatible with BASICA.
 * Normally used to clear all program variable and [[Arrays|array]] values where numerical values become zero and string values become null.
 * It does not clear [[CONST|constant]] values.
 * Closes all opened files also.
-* [[$DYNAMIC]] arrays will need to be [[REDIM|re-dimensioned]] or an [[ERROR Codes|error]] will occur when referenced because the array is removed.
+* [[$DYNAMIC]] or [[REDIM]] arrays will need to be [[REDIM|re-dimensioned]] or an [[ERROR Codes|error]] will occur when referenced because it was removed.
 
 
-''Example:'' Using CLEAR to clear array elements.
+''Example:'' Using CLEAR to clear array elements from [[STATIC|static]] arrays or arrays created using [[DIM]].
 {{CodeStart}} '' ''
 {{Cl|CLS}}
 {{Cl|DIM}} array(10)   'create a {{Cl|$STATIC}} array
@@ -29,9 +29,10 @@ array(5) = 23
 
 
 {{PageSeeAlso}}
-* [[ERASE]]
-* [[REDIM]]
-* [[Arrays]]
+* [[ERASE]] {{text|(array names only)}}
+* [[REDIM]] {{text|(array sizes only)}}
+* [[_PRESERVE]] {{text|(REDIM arrays only)}}
+* [[Arrays]], [[&amp;B|_BIT arrays]]
 
 
 {{PageNavigation}}

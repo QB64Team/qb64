@@ -6,10 +6,12 @@ An '''underscore''' can be used at the end of a line of code to continue a code 
 :::PRINT x + y
 
 
-* The underscore can be anywhere after the code on that line to continue it to the next line.
-* Multiple underscores can be used for the same line of code.
-* Variables and user defined procedures can use underscores in the middle of the name. Only QB64 keywords can use a leading underscore!
-* The underscore is NOT compatible with Qbasic! The Qbasic IDE will remove or hide them.
+* '''Only QB64 keywords can use a leading underscore! Leading underscores are reserved for QB64 procedure names only!'''
+* The underscore can be anywhere after the code on that line to continue the code to the next line in QB64.
+* Multiple underscores can be used for the same line of code in QB64 only.
+* Underscores can be used in the middle of variable, sub procedure or [[CONST|constant]] names.
+* '''The underscore is NOT compatible with Qbasic! The Qbasic IDE will remove or move code with leading underscores!'''
+* In [[PRINT USING]] an underscore can precede a formatting character to display that character as text in a template [[STRING]].
 
 
 ''See also:''

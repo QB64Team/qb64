@@ -1,13 +1,13 @@
-The {{KW|_RGBA}} function returns the closest palette index OR the 32 bit [[LONG]] color value in 32 bit screens.
-
+{{DISPLAYTITLE:_RGBA}}
+The [[_RGBA]] function returns the closest palette index OR the 32 bit [[LONG]] color value in 32 bit screens.
 
 
 {{PageSyntax}}
-:{{Parameter|colorindex~&amp;}} = '''_RGBA({{Parameter|red}}, {{Parameter|green}}, {{Parameter|blue}}, {{Parameter|alpha}}'''[, {{Parameter|image_handle}}]''')'''
+:colorindex~&amp; = '''_RGBA('''{{Parameter|red}}, {{Parameter|green}}, {{Parameter|blue}}, {{Parameter|alpha}}[, {{Parameter|image_handle}}]''')'''
 
 
 * The value returned is either the closest color attribute number or a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
-* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!''''
+* '''Return variable types MUST be [[LONG]] or redulting color may lose the [[_BLUE]] value!''''
 * {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
 * {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
 * {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.

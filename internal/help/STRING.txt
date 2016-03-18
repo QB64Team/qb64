@@ -1,0 +1,110 @@
+'''STRING''' variables or literal values are one byte per character length text or [[ASCII]] characters.
+
+
+{{PageSyntax}}
+:: DIM variable AS STRING [* byte_length]
+
+
+* ''Byte length'' is optional in [[DIM]] statements, but is required in [[TYPE]] definitions as a literal or [[CONST|constant]] [[INTEGER]] value.
+* Literal strings are defined by quotation marks on each end. The quotes will not [[PRINT]] to the screen.
+* Quotation marks cannot be placed inside of literal string values! Use [[CHR$]](34) to display &quot; quotes.
+* Semicolons and commas outside of the string can be used to combine strings in a [[PRINT]] statement only. 
+* [[LEN]] determines the number of bytes and number of string characters that are in a particular string.
+* Literal string ends are designated by quotation marks such as: &quot;text&quot;. Use [[CHR$]](34) to add quotes to string values.
+* Variable suffix type definition is $ such as: text$.
+* STRING values are compared according to the [[ASCII]] code values from left to right until one string code value exceeds the other.
+* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
+
+
+:::::'''Creating a fixed length STRING variable in Qbasic:'''
+
+:* Variable$ = &quot; &quot; ' 1 space creates a one [[_BYTE|byte]] string length in a procedure(not fixed)
+:* Variable$ = SPACE$(n%) ' defined as a n% length string in a procedure(not fixed)
+:* [[DIM]] variable AS STRING * n% ' fixed string length cannot be changed later
+:* Variable AS STRING * n% ' fixed string length in a [[SUB]] parameter or [[TYPE]] definition.
+:* [[CONST]] variables can also be used after the constant value is defined.
+
+
+:::::'''QB64 fixed length string type suffixes'''
+
+* A number after the string variable name $ suffix denotes the fixed string length: '''X$2''' denotes a 2 byte string.
+
+
+::::::'''String [[Concatenation]] (addition)'''
+::::''Must be used when defining a string variable's literal value!''
+
+* Concatenation uses the + addition symbol to add literal or variable parts to a string variable value.
+* Quotation marks cannot be added. Use [[CHR$]](34) as quotes are used to define the ends of strings.
+* Numerical values added must be converted to strings in string variable definitions. See the [[STR$]] function.
+* Concatenation can be used in PRINT statements along with semicolons and commas used by {{KW|PRINT}} ONLY.
+* Semicolons or commas outside of quotes cannot be used to make a string variable's literal string value!
+
+
+''Example 1:'' Using a string type suffix with a fixed length byte size in QB64 only. The number designates the fixed string length.
+{{CodeStart}} '' ''
+var$5 = &quot;1234567&quot;
+
+PRINT var$5 '' ''
+{{CodeEnd}}
+{{OutputStart}}12345{{OutputEnd}}
+:''Note:'' The suffix must keep the same byte length or it is considered a different string variable with a different value!
+
+
+''Example 2:'' Creating a string variable value by adding variable and literal string values. This procedure is called string [[concatenation]].
+{{CodeStart}} '' ''
+age% = 10
+a$ = &quot;I am &quot; + {{Cl|CHR$}}(34) + {{Cl|LTRIM$}}({{Cl|STR$}}(age%)) + {{Cl|CHR$}}(34) + &quot; years old.&quot;
+b$ = &quot;How old are you?&quot;
+question$ = a$ + {{Cl|SPACE$}}(1) + b$
+{{Cl|PRINT}} question$
+{{CodeEnd}}
+{{OutputStart}}
+I am &quot;10&quot; years old. How old are you? '' ''
+{{OutputEnd}}
+:''Note:'' Since quotation marks are used to denote the ends of literal strings, [[CHR$]](34) must be used to place quotes inside them.
+
+
+''Example 3:'' How QB64 string type suffixes can fix the length by adding a number of bytes after it.
+{{CodeStart}} '' ''
+strings$5 = &quot;Hello world&quot;
+
+PRINT strings$5 '' ''
+{{CodeEnd}}{{OutputStart}}Hello{{OutputEnd}}
+
+
+''Example 4:'' STRING values can be compared by the [[ASC]] code value according to [[ASCII]].
+{{CodeStart}} '' ''
+{{Cl|PRINT}} &quot;Enter a letter, number or punctuation mark from the keyboard: &quot;;
+valu$ = {{Cl|INPUT$}}(1)
+{{Cl|PRINT}} value$
+value1$ = &quot;A&quot;
+value2$ = &quot;m&quot;
+value3$ = &quot;z&quot;
+
+{{Cl|SELECT CASE}} value$
+  {{Cl|CASE}} value1$: {{Cl|PRINT}} &quot;A only&quot;
+  {{Cl|CASE}} value1$ {{Cl|TO}} value2$: {{Cl|PRINT}} &quot;B to m&quot; 'A is already evaluated
+  {{Cl|CASE}} value1$, value2$, value3$: {{Cl|PRINT}} &quot;z only&quot; 'A and m are already evaluated
+  {{Cl|CASE IS}} &gt; value2$: {{Cl|PRINT}} &quot;greater than m but not z&quot; 'z is already evaluated
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} &quot;other value&quot; 'key entry below A including all numbers
+{{Cl|END SELECT}} '' ''
+{{CodeEnd}}
+: ''Notes:'' [[STRING]] values using multiple characters will be compared by the [[ASCII]] code values sequentially from left to right. Once the equivalent code value of one string is larger than the other the evaluation stops. This allows string values to be compared and sorted alphabetically using [[Greater Than|&gt;]] or [[Less Than|&lt;]] and to [[SWAP]] values in [[arrays]] irregardless of the string lengths.
+
+
+''See also:'' 
+* [[DIM]], [[DEFSTR]] 
+* [[CHR$]], [[ASC]]
+* [[LEFT$]], [[RIGHT$]], [[MID$]]
+* [[LTRIM$]], [[RTRIM$]] 
+* [[LCASE$]], [[UCASE$]] 
+* [[STR$]] {{text|(decimal to string value)}}
+* [[HEX$]] {{text|(decimal to [[&amp;H|hexadecimal]] string value)}}
+* [[MKI$]], [[MKL$]], [[MKS$]], [[MKD$]], [[_MK$]] {{text|(numerical to [[ASCII]] string)}}
+* [[CVI]], [[CVL]], [[CVS]], [[CVD]], [[_CV]] {{text|([[ASCII]] string to numerical value)}}
+* [[LEN]], [[VAL]] {{text|(function converts string to numerical value)}}
+* [[ASCII]], [[DRAW]]
+* [[PRINT]], [[PRINT USING]], [[WRITE]]
+
+
+{{PageNavigation}}

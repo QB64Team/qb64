@@ -3,7 +3,11 @@ The '''GOTO''' statement sends the procedure to a line label or a line number in
 
 
 {{PageSyntax}} 
-::GOTO {linenumber|linelabel}
+::GOTO {line_number|line_label}
+
+
+''IF GOTO {{PageSyntax}}
+:: IF x &gt; 0 [[GOTO]] {line_number|line_label}
 
 
 * Codeline is a ''[[line number|linenumber]]'' or ''linelabel'' in a procedure. Keep line numbers and labels inside of the main or sub-procedure body!
@@ -37,7 +41,9 @@ second line
 * [[GOSUB]], [[ON ERROR]]
 * [[ON...GOTO]], [[ON...GOSUB]]
 * [[DO...LOOP]], [[FOR...NEXT]]
-* [[Line number]] {{text|(removal program)}}
+* [[IF...THEN]], [[SELECT CASE]] 
+* [[line number]] /label
+* [[Line number|Line number removal program]]
 
 
 {{PageNavigation}}

@@ -1,8 +1,9 @@
-The '''_HIDE''' action statement is used to hide the DOS window opened by a {{KW|SHELL}} statement.
+{{DISPLAYTITLE:_HIDE}}
+The '''_HIDE''' action is used to hide the DOS window opened by a [[SHELL]] statement.
 
 
 {{PageSyntax}}
-:{{KW|SHELL}} {{KW|_HIDE}} {{Parameter|StringCommandLine$}}
+::: [[SHELL]] ['''_HIDE'''] {{Parameter|StringCommandLine$}}
 
 
 * Can only be used in the {{KW|SHELL}} statement when using '''QB64'''.
@@ -49,15 +50,12 @@ END SUB '' ''
 
 {{CodeEnd}}
 
-''Explanation:'' The above routine can also be used to place the filename info into string arrays by using the count variable cnt% to determine the index. Long filenames are normally returned by '''QB64'''. To keep older QBasic programs compatible, you may want to only use the short names when displaying the files on the screen.
-
+''Explanation:'' The above routine can also be used to place the file name info into string arrays by using the count variable cnt% to determine the index. Long file names are normally returned by '''QB64'''. To keep older QBasic programs compatible, you may want to only use the short names when displaying the files on the screen.
 
 
 {{PageSeeAlso}}
 * [[SHELL]], [[_DONTWAIT]]
-
-* [[FILELIST$ (function)]] (a better [[FILES]] function)
-
+* [[FILELIST$ (function)]] (member [[FILES]] function)
 
 
 {{PageNavigation}}

@@ -1,12 +1,17 @@
-The '''COS''' function returns the cosine of an angle measured in radians.
+The '''COS''' function returns the horizontal component or the cosine of an angle measured in radians.
 
 
 
-::::::''Syntax:'' value! = COS(''radian_angle!'')
+{{PageSyntax}} 
+::: value! = '''COS('''''radian_angle!''''')'''
 
 
+{{Parameters}}
+* The ''radian_angle'' must be measured in radians. 
 
-* The ''radian_angle'' must be measured in radians. To convert from degrees to radians, multiply degrees * π/180.
+
+{{PageDescription}}
+* To convert from degrees to radians, multiply degrees * π/180.
 * [[COS]]INE is the horizontal component of a unit vector in the direction theta (&amp;theta;).
 * COS(x) can be calculated in either [[SINGLE]] or [[DOUBLE]] precision depending on its argument.  
 ::: COS(4) = -.6536436 ...... COS(4#) = -.6536436208636119
@@ -90,6 +95,7 @@ DEGREES% = RADIANS * 180 / PI = 45
  
 
 ''See also:'' 
+* [[_PI]] {{text|(QB64 function)}}
 * [[SIN]] {{text|(sine)}}
 * [[ATN]] {{text|(arctangent)}}
 * [[TAN]] {{text|(tangent)}}

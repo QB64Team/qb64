@@ -19,40 +19,41 @@
 * Qbasic requires [[CALL ABSOLUTE]] only. It does not have to be [[DECLARE]]d.
 
 
-''Example:''
+''Example:'' How parameters are passed in two [[SUB]] calls, one with CALL using brackets and one without CALL or brackets:
 {{CodeStart}} '' ''
-{{Cl|DIM}} a {{Cl|AS}} {{Cl|INTEGER}}
-{{Cl|DIM}} {{Cl|SHARED}} b {{Cl|AS}} {{Cl|INTEGER}}
+{{Cl|DIM}} a {{Cl|AS}} {{Cl|INTEGER}} 'value not shared with SUB
+{{Cl|DIM}} {{Cl|SHARED}} b {{Cl|AS}} {{Cl|INTEGER}} 'value shared with any SUB
 a = 1
-b = 1
-{{Cl|CALL}} helloworld
-{{Cl|CALL}} helloworld
+b = 2
+c = 3
 
-{{Cl|SUB}} helloworld
+{{Cl|CALL}} helloworld (a) 'a passed to c parameter with CALL
+helloworld a        'a passed to c parameter w/o CALL
+
+{{Cl|END}}
+
+{{Cl|SUB}} helloworld (c) 'SUB parameter variables are always inside of brackets in SUB code
 {{Cl|PRINT}} &quot;Hello World!&quot;
-{{Cl|PRINT}} a
-{{Cl|PRINT}} b
-a = a + 1
-b = b + 1
+{{Cl|PRINT}} a,  b, c
+a = a + 1 'a is a SUB value of 0 when printed which may increase inside SUB only 
+b = b + 1 'b is a shared value which can increase anywhere
+c = c + 1 'c is a SUB parameter value from a in calls which may increase inside SUB only
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 
 ''Returns:''
 {{OutputStart}}Hello World!
- 0
- 1
+ 0            2            1
 Hello World!
- 0
- 2 {{OutputEnd}}
-: ''Explanation:'' When the subroutine is [[CALL]]ed the code inside the subroutine is executed until it reaches the [[END SUB]] statement or an [[EXIT SUB]] statement. Since the variable {{Parameter|a}} that is outside of the subroutine isn't [[SHARED]] it will have no effect in the subroutine, the variable {{Parameter|a}} inside the subroutine is only valid inside the subroutine, and whatever value {{Parameter|a}} has outside of it makes no difference within the subroutine.
+ 0            3            1 
+{{OutputEnd}}
+: ''Explanation:'' Variable '''{{Parameter|a}}''' that is outside of the subroutine isn't [[SHARED]] so it will have no effect inside the subroutine, the variable {{Parameter|a}} inside the subroutine is only valid inside the subroutine, and whatever value {{Parameter|a}} has outside of it makes no difference within the subroutine.
 
-:The variable {{Parameter|b}} on the other hand is [[SHARED]] with the subroutines and thus can be changed in the subroutine. The variable {{Parameter|a}} is initiated with 0 as default when created, thus it will return 0 since it wasn't changed within the subroutine.
+:The variable '''{{Parameter|b}}''' on the other hand is [[SHARED]] with the subroutines and thus can be changed in the subroutine. The variable {{Parameter|a}} is initiated with 0 as default when created, thus it will return 0 since it wasn't changed within the subroutine.
 
-:''Note:'' CALL doesn't need to be used in order to call a subroutine. Adding the name of the sub to the code like this will do:
+:The variable '''{{Parameter|c}}''' is the [[SUB]] parameter variable that passes values into the sub. Its value could be changed by the passed parameter value or inside of the subroutine. The un-shared '''{{Parameter|c}}''' variable value outside of the sub is irrelevant within the subroutine.
 
-::::::'''{{text|helloworld|green}}'''
-
-: Also; note that the variable {{Parameter|a}} outside of the subroutine is different from the variable {{Parameter|a}} inside the subroutine since {{Parameter|a}} isn't {{KW|SHARED}} through subroutines, variable {{Parameter|b}} on the other hand is {{KW|SHARED}} through subroutines and thus is the same within the subroutine as outside of it.
+:''Note:'' CALL doesn't need to be used in order to call a subroutine. Just using the name of the sub with parameters and no brackets will do: '''{{text|helloworld a|green}}'''
 
 
 {{PageSeeAlso}}

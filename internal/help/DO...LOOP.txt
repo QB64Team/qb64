@@ -2,11 +2,17 @@
 
 
 {{PageSyntax}}
-:{{KW|DO}} [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
+:'''[[DO]]''' [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
 :.
 :.
 :.
-:{{KW|LOOP}} [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
+:'''[[LOOP]]''' 
+
+:'''[[DO]]'''
+:.
+:.
+:.
+:'''[[LOOP]]''' [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
 
 
 {{PageDescription}}
@@ -18,17 +24,15 @@
 ::[[WHILE]] checks if the condition is True before running loop code again.
 * NOTE: You cannot use a condition after both the DO and LOOP statements at the same time!  
 * Use '''[[EXIT]] DO''' to exit a DO loop within the loop code.
-* If a loop has no exit condition, it will never stop!
+* If a loop never meets an exit condition requirement, it will never stop!
+* '''Condition expressions are required after WHILE or UNTIL or QB64 will return a compiler error!'''
 
 
 {{Template:RelationalTable}}
 
 
 
-
-{{PageExamples}}
-:''Example 1:'' Using WHILE to clear the keyboard buffer.
-
+''Example 1:'' Using WHILE to clear the keyboard buffer.
 {{CodeStart}}
 
 DO WHILE {{Cl|INKEY$}} &lt;&gt; &quot;&quot;: LOOP ' checks evaluation before running loop code
@@ -38,8 +42,7 @@ DO: LOOP WHILE INKEY$ &lt;&gt; &quot;&quot; ' checks evaluation after one run of
 {{CodeEnd}}
 
 
-:''Example 2:'' Using UNTIL to clear the keyboard buffer.
-
+''Example 2:'' Using UNTIL to clear the keyboard buffer.
 {{CodeStart}}
 
 DO UNTIL {{Cl|INKEY$}} = &quot;&quot;: LOOP ' checks evaluation before running loop code
@@ -49,11 +52,17 @@ DO: LOOP UNTIL {{Cl|INKEY$}} = &quot;&quot; ' checks evaluation after one run of
 {{CodeEnd}}
 
 
-:''Example 3:'' Using a one time DO loop to exit ANY of several FOR LOOPs, without using [[GOTO]]. SUB reads header contents of a [[BSAVE]] file that may include embedded RGB color settings before the image.
-
+''Example 3:'' Using a one time DO loop to exit ANY of several FOR LOOPs, without using [[GOTO]]. 
+:SUB reads header contents of a [[BSAVE]] file that may include embedded RGB color settings before the image.
 {{CodeStart}} '' ''
 {{Cl|DEFINT}} A-Z
-{{Cl|SUB}} CheckScreen        'find Screen mode (12 or 13) and image dimensions
+{{Cl|INPUT}} &quot;Enter a BSAVE file name to read the file for screen mode:&quot;', filenm$
+CheckScreen filenm$
+
+{{Cl|END}}
+
+{{Cl|DEFINT}} A-Z
+{{Cl|SUB}} CheckScreen (Filename$)        'find Screen mode (12 or 13) and image dimensions
    DIM Bsv AS {{Cl|STRING}} * 1
    DIM Header AS STRING * 6
 
@@ -124,17 +133,17 @@ COLOR 14: LOCATE 10, 25
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-''Explanation:'' The SUB procedure reads a file that was [[BSAVE]]d previously. If the RGB colors are stored before the image, the values can only be between 0 and 63. Higher values indicate that the image width and height are located there and that there are no stored color values to be read. SUB later displays the dimensions of the file image that [[GET (graphics statement)|GET]] placed in the file array. The loop is set to only run once by creating '''a TRUE [[UNTIL]] statement''' such as 1 = 1. When a screen mode cannot be determined, the user must select one.
+:''Explanation:'' The SUB procedure reads a file that was [[BSAVE]]d previously. If the RGB colors are stored before the image, the values can only be between 0 and 63. Higher values indicate that the image width and height are located there and that there are no stored color values to be read. SUB later displays the dimensions of the file image that [[GET (graphics statement)|GET]] placed in the file array. The loop is set to only run once by creating '''a TRUE [[UNTIL]] statement''' such as 1 = 1. When a screen mode cannot be determined, the user must select one.
 
+:Dimensions and location of width and height information indicates the screen mode as [[SCREEN (statement)|SCREEN]] 13 if it has 768 RGB values and dimensions of 320 X 200 max. If the file only holds 64 settings and/or is larger than 320 X 200, it uses SCREEN 12 or 9. The procedure [[EXIT]]s the DO LOOP early when the image size is found with or without custom color settings. 
 
-Dimensions and location of width and height information indicates the screen mode as [[SCREEN (statement)|SCREEN]] 13 if it has 768 RGB values and dimensions of 320 X 200 max. If the file only holds 64 settings and/or is larger than 320 X 200, it uses SCREEN 12 or 9. The procedure [[EXIT]]s the DO LOOP early when the image size is found with or without custom color settings. 
-Divide SCREEN 13 [[GET (graphics statement)|GET]] widths by 8.
+: Divide SCREEN 13 [[GET (graphics statement)|GET]] widths by 8.
 
 
 {{PageSeeAlso}}
-* {{KW|EXIT DO}}
-* {{KW|WHILE...WEND}}
-* {{KW|FOR...NEXT}}
+* [[EXIT DO]]
+* [[WHILE...WEND]]
+* [[FOR...NEXT]]
 
 
 {{PageNavigation}}

@@ -1,0 +1,39 @@
+{{DISPLAYTITLE:_ATAN2}}
+The '''_ATAN2''' function returns the radian angle between the positive x-axis of a plane and the point given by the coordinates (x, y).
+
+
+{{PageSyntax}}
+::: angle! = '''_ATAN2(''' ''y'', ''x''''')'''
+
+
+{{Parameters}}
+* ''y'' is the vertical axis position(row) as a positive, zero or negative floating point value.
+* ''x'' is the horizontal axis position(column) as a positive, zero or negative floating point value. 
+
+
+{{PageDescription}}
+
+* The [[DOUBLE]] radian angle returned is '''positive''' for upper row values where y &gt; 0.
+::* _ATAN2(y, x) = [[ATN]](y# / x#) when x &gt; 0
+::* _ATAN2(y, x) = [[ATN]](y# / x#) + [[_PI]] when x &lt; 0
+::* _ATAN2(y, x) = [[_PI]] / 2 when x = 0
+* The [[DOUBLE]] radian angle returned is 0 when x &gt; 0 and [[_PI]] when x &lt; 0 where y = 0 
+* The [[DOUBLE]] radian angle returned is '''negative''' for lower row values where y &lt; 0.
+::* _ATAN2(y, x) = [[ATN]](y# / x#) when x &gt; 0
+::* _ATAN2(y, x) = [[ATN]](y# / x#) - [[_PI]] when x &lt; 0
+::* _ATAN2(y, x) = -[[_PI]] / 2 when x = 0
+* _ATAN2(0, 0) is undefined and the function returns 0 instead of a division error.
+
+
+{{PageErrors}}
+* Note: With [[ATN]](y / x), x can never be 0 as that would create a Division by Zero [[ERROR Codes|error]] 11 or #IND.
+
+
+{{PageSeeAlso}}
+* [[ATN]] {{text|(arctangent)}}
+* [[_PI]] {{text|(QB64 function)}}
+* [[Mathematical Operations]]
+* [https://en.wikipedia.org/wiki/Atan2 Atan2 reference]
+
+
+{{PageNavigation}}

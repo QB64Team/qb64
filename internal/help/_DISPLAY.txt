@@ -1,17 +1,20 @@
-The {{KW|_DISPLAY}} statement turns off automatic display while only displaying the screen changes when called. 
+{{DISPLAYTITLE:_DISPLAY}}
+The [[_DISPLAY]] statement turns off the automatic display while only displaying the screen changes when called. 
 
 
 {{PageSyntax}} 
-::: '''_DISPLAY''
+::: '''_DISPLAY'''
 
 
 ''Usage:''
-* '''_DISPLAY''' turns off the default [[_AUTODISPLAY]] when used. Prevents screen flickering.
+* '''_DISPLAY''' turns off the auto refresh screen default [[_AUTODISPLAY]] when used. Prevents screen flickering.
 * Call _DISPLAY each time the screen graphics are to be displayed. Place call after the image has been changed.
-* Re-enable the automatic display by calling [[_AUTODISPLAY]]. If it isn't re-enabled, things may not be displayed later!
+* Re-enable automatic display refreshing by calling [[_AUTODISPLAY]]. If it isn't re-enabled, things may not be displayed later!
+* _DISPLAY tells '''QB64GL''' to render all of the hardware [[_PUTIMAGE]] commands loaded into the buffer previously.
+* '''QB64GL''' can set the graphic rendering order of _SOFTWARE, _HARDWARE, and _GLRENDER with [[_DISPLAYORDER]].
 
 
-''Examples:'' Displaying a circle bouncing around the screen.
+''Example 1:'' Displaying a circle bouncing around the screen.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12
 x = 21: y =31              'start position
@@ -31,10 +34,47 @@ dx = 3: dy = 3             'number of pixel moves per loop
 :''Explanation:'' The loop is set with [[_LIMIT]] to 100 frames per second to limit CPU usage and the speed of the ball. Each loop a circle is drawn while the previous one is erased when the coordinates change. _DISPLAY only shows the new circle position once each loop. The '''_DISPLAY''' routine eliminates the need for setting [[SCREEN (statement)|SCREEN]] swap pages, [[CLS]] and [[PCOPY]]. _DISPLAY keeps the image off of the screen until the changes have all completed. Drawing 40 circles every loop helps slow down the ball.
 
 
+''Example 2:'' In ''QB64GL''' [[_DISPLAY]] must be used to render hardware images placed with [[_PUTIMAGE]].
+{{CodeStart}} '' ''
+{{Cl|CONST}} MenuHeight = 200
+
+
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+'{{Cl|SLEEP}} 1
+{{Cl|LOCATE}} 20
+DO
+    {{Cl|_LIMIT}} 30
+    DisplayMenu
+    k = {{Cl|_KEYHIT}}
+    {{Cl|IF...THEN|IF}} k &lt;&gt; 0 {{Cl|THEN}} {{Cl|PRINT}} k,
+{{Cl|LOOP}} {{Cl|UNTIL}} k = 32 {{Cl|OR (boolean)|OR}} k = 27
+
+
+{{Cl|SUB}} DisplayMenu
+{{Cl|STATIC}} init, MS_HW {{Cl|AS}} {{Cl|LONG}}
+{{Cl|IF...THEN|IF}} {{Cl|NOT}} init {{Cl|THEN}}
+    init = -1
+    MS = {{Cl|_NEWIMAGE}}(640, MenuHeight, 32) 'MenuScreen image
+    D = {{Cl|_DEST}}: {{Cl|_DEST}} MS
+    {{Cl|CLS}} , {{Cl|&amp;H}}FFAAAAAA 'background color gray
+    {{Cl|_PRINTSTRING}} (20, 2), &quot;Menu Test&quot; 'image text
+    MS_HW = {{Cl|_COPYIMAGE}}(MS, 33) 'create the MenuScreen_HardWare image
+    {{Cl|_FREEIMAGE}} MS
+    {{Cl|_DEST}} D
+{{Cl|END IF}}
+{{Cl|_PUTIMAGE}} (0, 0)-(640, MenuHeight), MS_HW
+{{Cl|_DISPLAY}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}{{small|Code adapted by Galleon}}
+: ''Notes:'' When _DISPLAY is commented out, the hardware Menu Test screen portion will blink and key codes may be seen underneath.
+
+
 {{PageSeeAlso}}
-* [[_AUTODISPLAY]] {{text|(default mode)}}
-* [[PCOPY]]
 * [[_DISPLAY (function)]]
+* [[_DISPLAYORDER]] {{text|(QB64GL only)}}
+* [[_AUTODISPLAY]] {{text|(default display mode)}}
+* [[_PUTIMAGE]]
+* [[PCOPY]]
 
 
 {{PageNavigation}}

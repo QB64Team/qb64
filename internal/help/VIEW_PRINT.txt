@@ -1,18 +1,22 @@
-The {{KW|VIEW PRINT}} statement defines the boundaries of a text viewport {{KW|PRINT}} area.
+The [[VIEW PRINT]] statement defines the boundaries of a text viewport {{KW|PRINT}} area.
 
 
 {{PageSyntax}}
-:{{KW|VIEW PRINT}} [{{Parameter|topRow%}} TO {{Parameter|bottomRow%}}]
+: '''VIEW PRINT''' [{{Parameter|topRow%}} '''TO''' {{Parameter|bottomRow%}}]
+
+
+{{Parameters}}
+* {{Parameter|topRow%}} and {{Parameter|bottomRow%}} specify the upper and lower rows of the text viewport. 
+* If {{Parameter|topRow%}} and {{Parameter|bottomRow%}} are not specified when first used, the text viewport is defined to be the entire screen.
 
 
 {{PageDescription}}
-* {{Parameter|topRow%}} and {{Parameter|bottomRow%}} specify the upper and lower rows of the text viewport. 
-* If {{Parameter|topRow%}} and {{Parameter|bottomRow%}} are not specified when first used, the text viewport is defined to be the entire screen. 
-* A second {{KW|VIEW PRINT}} statement without parameters can also disable a viewport when no longer needed.  
+* A second [[VIEW PRINT]] statement without parameters can also disable a viewport when no longer needed.  
 * [[CLS]] or [[CLS|CLS 2]] statement will clear the active text viewport area only, and reset the cursor location to {{Parameter|topRow%}}.
 * A {{KW|SCREEN}} mode change or {{KW|RUN}} statement can also clear and disable viewports.
 * After active viewport is disabled, normal screen printing and clearing can begin.
 * Row coordinates may vary when a [[WIDTH]] statement has been used.
+* '''Note: QB64 [[RUN]] statements will not close [[VIEW PRINT]], [[VIEW]] or [[WINDOW]] view ports presently!'''
 
 
 ''Example:'' Demonstrates how text scrolls within the text viewport.
@@ -48,6 +52,7 @@ The {{KW|VIEW PRINT}} statement defines the boundaries of a text viewport {{KW|P
 
 {{PageSeeAlso}}
 * [[CLS]]
+* [[WINDOW]]
 * [[VIEW]] {{text|(graphics view port)}}
 * [[LOCATE]], [[PRINT]]
 

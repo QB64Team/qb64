@@ -1,31 +1,45 @@
-The {{KW|_SNDSETPOS}} statement changes the current/starting playing position of a sound in seconds.
+{{DISPLAYTITLE:_SNDSETPOS}}
+The [[_SNDSETPOS]] statement changes the current/starting playing position of a sound in seconds.
 
 
 {{PageSyntax}}
-:{{KW|_SNDSETPOS}} ({{Parameter|handle&amp;}}, {{Parameter|position!}})
+::: [[_SNDSETPOS]] {{Parameter|handle&amp;}}''',''' {{Parameter|position!}}
 
 
 {{PageDescription}}
-*Changes the current/starting playing position of a sound in seconds(a {{KW|SINGLE}} value).
+*Changes the current/starting playing position of a sound in seconds(a [[SINGLE]] value).
 *If the seconds position is past the length of the sound the sound will stop playing.
-*Opened files must have the &quot;SETPOS&quot; capability to use this statement.
-*Function cannot be called while a looping({{KW|_SNDLOOP}}) sound is being played.
+*Function cannot be called while a looping ([[_SNDLOOP]]) sound is being played.
+*Opened '''MP3''' files must have the &quot;SETPOS&quot; capability to use this statement. Not all do!
+{{TextStart}}    QB64 supports the following sound file formats ('''Bold is a guaranteed capability'''):
+
+             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
+             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
+             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
+             MID = &quot;'''VOL'''&quot;
+             MOD = &quot;VOL,PAUSE&quot;
+             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
+
+        ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
+{{TextEnd}}
 
 
-
-{{PageExamples}}
-{{CodeStart}}
-
-{{Cl|_SNDSETPOS}} h&amp;, 5.5
-
+''Example:''To check MP3 files for the SETPOS capability, use [[_SNDPLAY]] with [[_SNDGETPOS]] printed in a loop
+{{CodeStart}} '' ''
+SoundFile&amp; = {{Cl|_SNDOPEN}}(&quot;YourSoundFile.mp3&quot;, &quot;VOL,SETPOS,PAUSE&quot;) '&lt;&lt;&lt; your MP3 sound file here!
+{{Cl|_SNDSETPOS}} SoundFile&amp;, 5.5   'set to play sound 5 1/2 seconds into music 
+{{Cl|_SNDPLAY}} SoundFile&amp;  'play sound 
+Do: {{Cl|_LIMIT}} 60     
+   LOCATE 5, 2: PRINT &quot;Current play position&gt; &quot;; {{Cl|_SNDGETPOS}}(SoundFile&amp;)
+LOOP UNTIL {{Cl|_KEYDOWN}}(27) OR {{Cl|NOT}} {{Cl|_SNDPLAYING}}(SoundFile&amp;) 'ESC or end of sound exit
 {{CodeEnd}}
 
 
-
-
-
 {{PageSeeAlso}}
-*{{KW|_SNDGETPOS}}, {{KW|_SNDLEN}}, {{KW|_SNDOPEN}}, {{KW|_SNDLIMIT}}
+* [[_SNDGETPOS]], [[_SNDLEN]] 
+* [[_SNDOPEN]], [[_SNDLIMIT]]
 
 
 {{PageNavigation}}

@@ -1,16 +1,20 @@
+{{DISPLAYTITLE:_RGB32}}
 The [[_RGB32]] function ALWAYS returns the 32-bit ''RGBA'' color value with specified red, green and blue component intensities.
 
 
 {{PageSyntax}}
-:{{Parameter|colorvalue~&amp;}} = [[_RGB32]]'''({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}})'''
+:{{Parameter|color32value~&amp;}} = '''_RGB32('''{{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}''')'''
+
+
+{{Parameters}
+* {{Parameter|red&amp;}} specifies the red [[LONG]] component intensity from 0 to 255.
+* {{Parameter|green&amp;}} specifies the green [[LONG]] component intensity from 0 to 255.
+* {{Parameter|blue&amp;}} specifies the blue [[LONG]] component intensity from 0 to 255.
 
 
 {{PageDescription}}
-* The value returned is ALWAYS a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
-* '''Return variable types MUST be [[LONG]] or you may lose the [[_BLUE]] value!'''
-* {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
-* {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
-* {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.
+* The value returned is ALWAYS a 32 bit [[_UNSIGNED]] [[LONG]] color value as is the [[POINT]] value. 
+* '''Return variable types MUST be [[LONG]] or resulting color may lose the [[_BLUE]] value!'''
 * Color intensity values outside of the 0 to 255 range are clipped.
 * Returns [[LONG]] 32 bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with full [[_ALPHA]] only.
 * When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]](colorvalue&amp;), 3) to place 3 colors.
@@ -18,7 +22,7 @@ The [[_RGB32]] function ALWAYS returns the 32-bit ''RGBA'' color value with spec
 * '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
 
 
-''Example:'' Converting the color port RGB intensity palette values 0 to 63 to 32 bit hexadecimal values. 
+''Example 1:'' Converting the color port RGB intensity palette values 0 to 63 to 32 bit hexadecimal values. 
 {{CodeStart}}
 {{Cl|SCREEN}} 12
 {{Cl|DIM}} hex32$(15)
@@ -49,6 +53,37 @@ The [[_RGB32]] function ALWAYS returns the 32-bit ''RGBA'' color value with spec
 {{text|COLOR 15 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFCFC|#FCFCFC}}
 {{OutputEnd}}
 :''Note:'' This procedure also shows how the returns from [[_RGB]] and [[_RGB32]] differ in a non-32 bit screen mode.
+
+
+''Example 2:'' Working with 32 bit colors.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
+
+{{Cl|CLS}} , {{Cl|_RGB32}}(0, 0, 128) 'deep blue background
+
+{{Cl|LINE}} (100, 100)-(540, 380), {{Cl|_RGB}}(255, 0, 0), BF ' a red box
+{{Cl|LINE}} (200, 200)-(440, 280), {{Cl|_RGB}}(0, 255, 0), BF ' a green box
+
+
+{{Cl|SLEEP}} 'Just so we can see our pretty background before we print anything on it.
+
+
+{{Cl|COLOR}} {{Cl|_RGB32}}(255, 255, 255), 0 'White on NO BACKGROUND
+
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 10
+    {{Cl|PRINT}} &quot;This is just a whole bunch of happy nothing!  Happy World!!&quot;
+{{Cl|NEXT}}
+{{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}}:
+
+{{Cl|COLOR}} 0, {{Cl|_RGB32}}(0, 0, 0) 'And here, we're going with NO {{Cl|COLOR}} text, with a BLACK background.
+'Notice how this doesn't change the color on the screen at all, where the text is, but does toss a black background to it.
+
+{{Cl|LOCATE}} , 15: {{Cl|PRINT}} &quot;NOTICE HOW OUR 0 {{Cl|COLOR}} WORKS?&quot;
+{{Cl|PRINT}}
+{{Cl|LOCATE}} , 15: {{Cl|PRINT}} &quot;NEAT, HUH?&quot;
+{{Cl|SLEEP}}
+SYSTEM '' ''
+{{CodeEnd}}{{small|Code by Steve McNeill}}
 
 
 {{PageSeeAlso}}

@@ -3,7 +3,7 @@ The {{KW|CIRCLE}} statement is used in graphics {{KW|SCREEN (statement)|SCREEN}}
 
 
 {{PageSyntax}}
-: '''CIRCLE''' [{{KW|STEP}}]'''({{Parameter|Column}}, {{Parameter|Row}}), {{Parameter|radius%}}[, {{Parameter|colour%}}][,''' {{Parameter|startRadian!}}, {{Parameter|stopRadian!}}] [, {{Parameter|aspect!}}]
+: '''CIRCLE''' [{{KW|STEP}}]'''('''{{Parameter|Column}}''',''' {{Parameter|Row}}'''),''' {{Parameter|radius%}}''',''' [{{Parameter|colour%}}][, {{Parameter|startRadian!}}, {{Parameter|stopRadian!}}] [, {{Parameter|aspect!}}]
 
 
 {{Parameters}}
@@ -20,10 +20,103 @@ The {{KW|CIRCLE}} statement is used in graphics {{KW|SCREEN (statement)|SCREEN}}
 * Radians move in a counter clockwise direction from 0 to 2 * Pi. Zero and 2 * Pi are the same circle radian at 3 o'clock.
 * Negative radian values can be used to draw lines from the end of an arc or partial ellipse to the circle center.
 * Commas after the {{Parameter|colour%}} parameter are not required when creating a normal circle. Color can also be omitted.
+* The QB64 and QB graphic cursor is set to the center of the program window on program start.
 * '''CIRCLE can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
 
 
-''Example:'' Program illustrates how the CIRCLE command using a negative radian value can be used to create the hands of a clock.
+&lt;center&gt;'''Circle.BI Include file or [[SUB]] to use when using [[PAINT]] with pie charts or arc slices:'''&lt;/center&gt;
+{{TextStart}} 'CIRCLE.BI
+'**
+'** QB64 temporary replacement CIRCLE command.
+'**
+'** The CIRCLE command in QB64 has a few bugs listed below:
+'**
+'** - radian end points are not calculate properly when creating arcs
+'** - center line to radian end points do not close properly due to previous bug listed
+'**
+'** This circle command replacement works very similiarly to the native CIRCLE command:
+'**
+'** SYNTAX: CIRCLES x%, y%, radius!, color~&amp;, start_radian!, end_radian!, aspect_ratio!
+'**
+'**   x%            - center X coordinate of circle
+'**   y%            - center Y coordinate of circle
+'**   radius!       - the radius of the circle
+'**   color~&amp;       - the circle's color
+'**   start_radian! - the radian on circle curcunference to begin drawing at
+'**   end_radian!   - the radian on circle circumference to end drawing at
+'**   aspect_ratio! - the aspect ratio of the circle
+'**
+'** '''NOTE: unlike the native CIRCLE command, all arguments MUST be supplied.''' For example,
+'**       with the native command this will draw a perfect circle with the default color,
+'**       start radian, end radian and aspect ratio:
+'**
+'**       CIRCLE (319, 239), 100
+'**
+'**       To do the same thing with this replacement command you must supply everything:
+'**
+'**       CIRCLES 319, 239, 100, _RGB32(255, 255, 255), 0, 0, 0
+'**
+'** ACKNOWLEGEMENTS: The FOR/NEXT step formula was was written by Codeguy for Unseen
+'**                  Machine's Visual library EllipseXS command. Specifically:
+'**                         MinStep! = 1 / (2 * 3.1415926535 * Radius!)
+'**
+'**
+'** Includes performance tweaks made by SMcNeill on 02/02/13 - specifically removing a few redundant * -1
+'** statements and converting the FOR/NEXT loop to a DO loop for a ~3% increase in performance.
+'**
+'** Corrected bug in which variables being passed in were being modified and passed back - 02/02/13
+'**
+'''SUB CIRCLES (cx%, cy%, r!, c~&amp;, s!, e!, a!)'''
+DIM s%, e%, nx%, ny%, xr!, yr!, st!, en!, asp! '     local variables used
+
+st! = s! '                                           copy start radian to local variable
+en! = e! '                                           copy end radian to local variable
+asp! = a! '                                          copy aspect ratio to local variable
+IF asp! &lt;= 0 THEN asp! = 1 '                         keep aspect ratio between 0 and 4
+IF asp! &gt; 4 THEN asp! = 4
+IF asp! &lt; 1 THEN xr! = r! * asp! * 4 ELSE xr! = r! ' calculate x/y radius based on aspect ratio
+IF asp! &gt; 1 THEN yr! = r! * asp! ELSE yr! = r!
+IF st! &lt; 0 THEN s% = -1: st! = -st! '                remember if line needs drawn from center to start radian
+IF en! &lt; 0 THEN e% = -1: en! = -en! '                remember if line needs drawn from center to end radian
+IF s% THEN '                                         draw line from center to start radian?
+    nx% = cx% + xr! * COS(st!) '                     yes, compute starting point on circle's circumference
+    ny% = cy% + yr! * -SIN(st!)
+    LINE (cx%, cy%)-(nx%, ny%), c~&amp; '                draw line from center to radian
+END IF
+IF en! &lt;= st! THEN en! = en! + 6.2831852 '           come back around to proper location (draw counterclockwise)
+stepp! = 0.159154945806 / r!
+c! = st! '                                           cycle from start radian to end radian
+DO
+    nx% = cx% + xr! * COS(c!) '                      compute next point on circle's circumfrerence
+    ny% = cy% + yr! * -SIN(c!)
+    PSET (nx%, ny%), c~&amp; '                           draw the point
+    c! = c! + stepp!
+LOOP UNTIL c! &gt;= en!
+IF e% THEN LINE -(cx%, cy%), c~&amp; '                   draw line from center to end radian if needed
+'''END SUB'''
+{{TextEnd}}
+
+
+''Example 1:'' Finding when the mouse is inside of a circular area:
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+r&amp; = 200 'radius    change circle size and position here
+cx&amp; = 320 'center x horizontal
+cy&amp; = 240 'center y vertical
+
+DO
+  i = {{Cl|_MOUSEINPUT}}
+  x&amp; = {{Cl|_MOUSEX}}
+  y&amp; = {{Cl|_MOUSEY}}
+  xy&amp; = ((x&amp; - cx&amp;) ^ 2) + ((y&amp; - cy&amp;) ^ 2) 'Pythagorean theorem
+  {{Cl|IF...THEN|IF}} r&amp; ^ 2 &gt;= xy&amp; {{Cl|THEN}} {{Cl|CIRCLE}} (cx&amp;, cy&amp;), r&amp;, 10 {{Cl|ELSE}} {{Cl|CIRCLE}} (cx&amp;, cy&amp;), r&amp;, 12
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit '' ''
+{{CodeEnd}}
+: ''Explanation:'' The square of the circle radius will be greater than or equal to the sum of the square of the mouse coordinates minus the center position when the pointer is inside of the circle. In this example the circle color will change from red to green.
+
+
+''Example 2:'' Program illustrates how the CIRCLE command using a negative radian value can be used to create the hands of a clock.
 {{CodeStart}} '' ''
 {{Cl|CONST}} PI = 3.141593 'The mathematical value of PI to six places
 {{Cl|DIM}} clock(60)             'A dimensioned array to hold 60 radian points
@@ -117,9 +210,9 @@ previoushour% = hours% 'hold current hour for later use
 
 
 {{PageSeeAlso}}
-* {{KW|STEP}}
-* {{KW|LINE}}
-* {{KW|SCREEN (statement)}}
+* [[STEP]], [[DRAW]]
+* [[LINE]], [[PSET]], [[PRESET]]
+* [[SCREEN]], [[SCREEN (function)]]
 
 
 {{PageNavigation}}

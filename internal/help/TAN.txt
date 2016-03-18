@@ -2,10 +2,15 @@ The [[TAN]] function returns the ratio of [[SIN]]e to [[COS]]ine or tangent valu
 
 
 {{PageSyntax}}
-:: tangent! = TAN(''radian_angle!'')
+::: tangent! = '''TAN('''''radian_angle!''''')'''
 
 
-* The ''radian_angle'' must be measured in radians. To convert from degrees to radians, multiply degrees * π/180.
+{{Parameters}}
+* The ''radian_angle'' must be measured in radians. 
+
+
+{{PageDescription}}
+* To convert from degrees to radians, multiply degrees * π/180.
 * TANGENT is the gradient or slope of the circle or arc at [[SIN]](&amp;theta;) / [[COS]](&amp;theta;). Do not use division when the [[COS]] = 0 to avoid [[ERROR Codes|errors]].
 
 
@@ -74,6 +79,7 @@ DO
 
 
 {{PageSeeAlso}}
+* [[_PI]] {{text|(QB64 function)}}
 * [[SIN]], [[COS]]
 * [[ATN]] {{text|(arctangent)}}
 * [[Mathematical Operations]]

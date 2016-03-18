@@ -2,7 +2,7 @@ The '''VIEW''' statement creates a graphics view port area by defining the coord
 
 
 {{PageSyntax}}
-:: VIEW [[SCREEN] (column1, row1)-(column2, row2)[, color][, border]]]
+:: '''VIEW''' [[SCREEN] (column1, row1)-(column2, row2)[, color][, border]]]
 
 
 * When the SCREEN option is used, all coordinates are absolute and only graphics within the viewport area are plotted.
@@ -12,6 +12,7 @@ The '''VIEW''' statement creates a graphics view port area by defining the coord
 * Border requires any valid color attribute to draw a line around the VIEW area if there is room for it.
 * VIEW without any parameters disables the previous viewport. [[RUN]] and [[SCREEN]] can also disable any VIEW port.
 * [[CLS]] or [[CLS|CLS 1]] clears the active graphics VIEW port area only. Disable a viewport before attempting to clear the entire screen!
+* '''Note: QB64 [[RUN]] statements will not close [[VIEW PRINT]], [[VIEW]] or [[WINDOW]] view ports presently!'''
 
 
 ''Example 1:'' Using SCREEN option with absolute screen coordinates.

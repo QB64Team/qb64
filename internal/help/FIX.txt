@@ -3,11 +3,17 @@ The '''FIX''' function rounds a numerical value to the next whole number closest
 
 
 {{PageSyntax}}
-:: result = [[FIX]](''expression'')
+:: result = '''FIX('''''expression''''')'''
 
 
+{{Parameters}}
+* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+
+
+{{PageDescription}}
 * [[FIX]] effectively truncates (removes) the fractional part of ''expression'', returning the integer part.
 * This means that [[FIX]] rounds down for positive values and up for negative values.
+* Use [[INT]] to round down negative values. Positive values are rounded down by both.
 
 
 ''Example 1:'' Showing the behavior of [[FIX]] with positive and negative decimal point values.
@@ -43,9 +49,10 @@ The '''FIX''' function rounds a numerical value to the next whole number closest
 
 
 ''See also:'' 
-
-* [[CINT]], [[CLNG]], [[_ROUND]]
+* [[INT]], [[CINT]]
+* [[CLNG]], [[_ROUND]]
 * [[MOD]], [[\|Integer Division]]
 * [[/|Normal division]]
+
 
 {{PageNavigation}}

@@ -1,8 +1,10 @@
-The {{KW|_PUTIMAGE}} statement puts an area of a source image to an area of a destination image in one operation like [[GET (graphics statement)|GET]] and [[PUT (graphics statement)|PUT]].
+{{DISPLAYTITLE:_PUTIMAGE}}
+The [[_PUTIMAGE]] statement puts an area of a source image to an area of a destination image in one operation like [[GET (graphics statement)|GET]] and [[PUT (graphics statement)|PUT]].
 
 
 {{PageSyntax}} 
-::'''_PUTIMAGE''' [(''dx1'', ''dy1'')[-(''dx2'', ''dy2'')]][, ''source_handle''][, ''dest_handle''][, (''sx1'', ''sy1'')[-(''sx2'', ''sy2'')]]
+
+'''_PUTIMAGE''' [STEP] [(''dx1'', ''dy1'')-[STEP][(''dx2'', ''dy2'')]][, ''source_handle''][, ''dest_handle''][, ][STEP][(''sx1'', ''sy1'')[-STEP][(''sx2'', ''sy2'')]][_SMOOTH]
 
 :::or…
 
@@ -25,6 +27,7 @@ The {{KW|_PUTIMAGE}} statement puts an area of a source image to an area of a de
 
 
 {{Parameters}}
+* Relative coordinates to a previous '''GL''' graphical object can be designated using [[STEP]] as opposed to literal surface coordinates.
 * Coordinates ''dx'' and ''dy'' map the box area of the [[_DEST|destination]] area to use. When omitted the entire desination area is used. If only one coordinate is used, the source is placed with its original dimensions. Coordinates can be set to flip or resize the image.
 :* {{Parameter|dx1}} = the column coordinate at which the insertion of the source will begin(left-most): When larger than ''dx2'' reverses image.
 :* {{Parameter|dy1}} = the row coordinate at which the insertion of the source will begin(top-most): When larger than ''dy2'' inverts image.
@@ -37,6 +40,7 @@ The {{KW|_PUTIMAGE}} statement puts an area of a source image to an area of a de
 :* {{Parameter|sy1}} = the row coordinate of the upper-most pixel to include of the source. When omitted the entire image is used
 :* {{Parameter|sx2}} = the column coordinate of the right-most pixel to include of the source. Can be omitted to get rest of image.
 :* {{Parameter|sy2}} = the row coordinate of the bottom-most pixel to include of the source. Can be omitted to get rest of image.
+* Supports an optional final argument called '''_SMOOTH''' which applies linear filtering in '''QB64GL'''.
 
 &lt;center&gt;'''Note: The [[PUT (graphics statement)|PUT]] options PSET, PRESET, AND, OR and XOR are not available with _PUTIMAGE. QB64 can use [[_ALPHA|transparency]] of colors to do those things.'''&lt;/center&gt;
 
@@ -47,6 +51,7 @@ The {{KW|_PUTIMAGE}} statement puts an area of a source image to an area of a de
 * If the area of the source is bigger or smaller than the area of the destination then the image is adjusted to fit that area.
 * Supports 32 bit alpha blending, color key transparency, true type fonts, stretching, mirroring/flipping, and a variety of graphics file formats including gif, png, bmp &amp; jpg. '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] and are transparent when placed over other surfaces.''' Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
 * All graphical surfaces, including screen pages, can be acted upon in the same manner, and are referred to as &quot;images&quot;.
+* '''Hardware images''' (created using mode '''33''' via [[_LOADIMAGE]] or [[_COPYIMAGE]]) can be used as the source or destination.
 * Handles are used to identify graphical surfaces. Positive values are used to refer to screen pages. -1 (negative one) indicates an invalid surface. It is recommended that image handles be stored in LONG variables. Passing an invalid handle generates an [[ERROR Codes|&quot;Invalid handle&quot;]] error. Font handles also use -1 to indicate an invalid font.
 * When handles are not passed (or cannot be passed) to subs/functions then the default destination image or source image is referenced. These are set to the active page when the SCREEN statement is called, but can be changed to any image. So it is possible to read from one image using [[POINT]] and write to a different one with [[PSET]].
 * '''[[PRINT]]ed text cannot be transferred and positioned accurately!''' Use [[_PRINTSTRING]] for graphical text or font placement.
@@ -184,8 +189,9 @@ h&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256)
 {{PageSeeAlso}}
 * [[_LOADIMAGE]], [[_NEWIMAGE]]
 * [[_COPYIMAGE]], [[_SCREENIMAGE]]
+* [[_MAPTRIANGLE]], [[STEP]]
 * [[_DEST]], [[_SOURCE]], [[_FREEIMAGE]]
-
+* [[Hardware images]]
 
 
 {{PageNavigation}}

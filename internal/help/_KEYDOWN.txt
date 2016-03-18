@@ -1,12 +1,13 @@
+{{DISPLAYTITLE:_KEYDOWN}}
 The '''_KEYDOWN''' function returns whether modifying keys like CTRL, ALT, SHIFT, and any other keys are pressed.
 
 
 {{PageSyntax}}
-:: return% = _KEYDOWN(''code&amp;'')
+:: return% = '''_KEYDOWN('''''code&amp;''''')'''
 
 
 * The ''return'' value is -1 if a specified key is pressed or 0 if it was not pressed. It can be used to monitor key combinations.
-* The [[LONG]] ''code'' value can be from any function key that needs to be monitored in a key press combination. 
+* The  POSITIVE [[LONG]] ''code'' value can be from any function key that needs to be monitored in a key press combination. 
 * Unicode references:
 :* 1) What is the glyph represented by that UNICODE value: [http://www.fileformat.info/info/unicode/char/search.htm Unicode Format Info]
 :* 2) Which fonts support the characters I want to use: [http://en.wikipedia.org/wiki/Unicode_typefaces#Comparison_of_fonts Unicode Fonts]
@@ -49,7 +50,7 @@ The '''_KEYDOWN''' function returns whether modifying keys like CTRL, ALT, SHIFT
 {{small|NOTE: The above commented table can be copied and pasted directly into the QB64 IDE}}
 
 
-{{WhiteStart}}         '''65536-&amp;H40000000''': QB64-specific Virtual Key codes:
+{{WhiteStart}}         '''65536-&amp;H40000000: QB64-specific Virtual Key codes:'''
 
                         CONST KEY_PAUSE&amp; = 100019
                         CONST KEY_NUMLOCK&amp; = 100300

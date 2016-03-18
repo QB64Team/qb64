@@ -14,13 +14,8 @@
 * '''NOTE: QB64 does not currently support INT 33h mouse functions above 3 or {{KW|BYVAL}} in an ABSOLUTE statement!'''
 
 
-{{PageExamples}}
-:::''Typical ABSOLUTE mouse program demonstrates the AX% mouse functions:''
-::: (Copy only the code not marked as Demo Code to use it in your program.)
-
-:::::''Can also be used in QuickBASIC 4.x and QBasic 1.x''
+''Example 1:'' Typical ABSOLUTE mouse program demonstrates the AX% mouse functions in QuickBASIC 4.x and QBasic 1.x:
 {{CodeStart}}
-
 {{Cl|DECLARE}} {{Cl|SUB}} MouseDriver (AX%, BX%, CX%, DX%, LB%, RB%, EX%)
 {{Cl|DIM}} {{Cl|SHARED}} mouse$ ' Hardware communications resource string (created in SUB MouseDriver)
 {{Cl|DIM}} {{Cl|SHARED}} CX%, DX%, LB%, RB% ' CX = column, DX = row, LB and RB are left and right buttons
@@ -155,8 +150,7 @@ MouseData:
 ''Explanation:'' The circle isn't shown in this output screen, but when you run the example you can move the mouse into a circle in the middle of the screen and the text will change color to reflect that you are inside the circle, you can also use the mousebuttons and the color will change.
 
 
-:::::---------------------------------------------------------------------
-&lt;center&gt;'''An Absolute substitution for INTERRUPT that can be used by all QB versions including PDS(7.1)'''&lt;/center&gt;
+''Example 2:'' An Absolute substitution for INTERRUPT that can be used by all QB versions including PDS(7.1):
 
 {{CodeStart}}
 

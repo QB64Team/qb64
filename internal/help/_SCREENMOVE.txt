@@ -1,8 +1,9 @@
+{{DISPLAYTITLE:_SCREENMOVE}}
 The '''_SCREENMOVE''' statement positions the program window on the desktop using designated coordinates or the _MIDDLE function.
 
 
 {{PageSyntax}}
-:: '''_SCREENMOVE''' {'''''column&amp;'', ''row&amp;'''''|_MIDDLE}
+:: '''_SCREENMOVE'''{''column&amp;'', ''row&amp;'')|_MIDDLE}
 
 
 {{Parameters}}
@@ -14,7 +15,8 @@ The '''_SCREENMOVE''' statement positions the program window on the desktop usin
 * The program's [[SCREEN]] dimensions may influence the desktop position that can be used to keep the entire window on the screen. 
 * Use [[_SCREENIMAGE]] handle with [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] to find the current Windows desktop resolution to place the program's window.
 * On dual monitors a negative ''column'' position or a value greater than the main screen width can be used to position a window left or right.
-* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
+* '''A small delay may be necessary when a program first starts up to properly orient the screen on the desktop properly!'''
+* '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''
 
 
 ''Example 1:'' Calculating the border and header offsets by comparing a coordinate move with MIDDLE by using trial and error.
@@ -68,9 +70,10 @@ high2&amp; = {{Cl|_HEIGHT}}(img2&amp;)
 
 
 ''See also:''
-* [[_SCREENIMAGE]]
-* [[_NEWIMAGE]], [[SCREEN (statement)]]
 * [[_SCREENX]], [[_SCREENY]]
+* [[_SCREENIMAGE]]
+* [[_SCREENPRINT]]
+* [[_NEWIMAGE]], [[SCREEN (statement)]]
 
 
 

@@ -7,17 +7,37 @@ The '''SCREEN''' function returns the [[ASCII]] code of a text character or the 
 
 {{Parameters}}
 * ''row'' and ''column'' are the [[INTEGER]] text coordinates of the [[SCREEN]] mode used.
-* Optional ''colorflag'' [[INTEGER]] value can be zero for [[ASCII]] code values or 1 for colors.
+* Optional ''colorflag'' [[INTEGER]] value can be omitted or 0 for [[ASCII]] code values or 1 for color attributes.
+
 
 
 ''Usage:''
 * The ''code'' value returned is the [[ASCII]] code from 0 to 255. Returns 32([[SPACE$|space]]) when no character is found at a coordinate.
 * If the ''colorflag'' value is omitted or it is 0, the function returns the [[ASCII]] code of the text character at the position designated.
-* When the ''flag'' value is greater than 0, the function returns the foreground color attribute of the text character position.
+* When the ''flag'' value is greater than 0 in '''SCREEN 0''', the function returns the foreground and background color attribute of text position.
+:: * The foreground color(0 to 15) is the returned SCREEN color value AND 15: '''{{text|FG &lt;nowiki&gt;=&lt;/nowiki&gt; SCREEN(1, 1, 1) AND 15|green}}'''
+:: * The background color(0 to 7) is the returned SCREEN color value \ 16: '''{{text|BG &lt;nowiki&gt;=&lt;/nowiki&gt; SCREEN(1, 1, 1) \ 16|green}}'''
 * '''QB64''' can return color values in screen modes other than [[SCREEN]] 0. Qbasic returned the wrong color values in graphic screen modes!
 
 
-''Example 1:'' Reading the [[ASCII]] code and color of a text character using the SCREEN function. Graphic screen colors were not reliable in Qbasic!
+''Example 1:'' Finding the text foreground and background colors in SCREEN 0 only:
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0
+{{Cl|COLOR}} 0, 15
+{{Cl|CLS}}
+
+{{Cl|PRINT}} &quot;{{Cl|SCREEN}} =&quot;; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1)
+{{Cl|PRINT}} &quot;FG color:&quot;; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1) {{Cl|AND (boolean)|AND}} 15 'low nibble
+{{Cl|PRINT}} &quot;BG color:&quot;; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1) \ 16 'high nibble '' ''
+{{CodeEnd}}
+{{TextStart}}'''SCREEN = 112'''
+'''FG color: 0'''
+'''BG color: 7'''
+{{TextEnd}}
+: ''Note:'' How the SCREEN 0 background color can only be changed to colors 0 through 7! 7 * 16 = 112.
+
+
+''Example 2:'' Reading the [[ASCII]] code and color of a text character using the SCREEN function. Graphic colors were not reliable in Qbasic!
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12
 row = 10: column = 10
@@ -36,37 +56,6 @@ attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1)   ' character color re
 {{Text|         ASCII: 72     COLOR: 9|yellow}}
 {{OutputEnd}}
 :''Explanation:'' The SCREEN function returns the [[ASCII]] code for &quot;H&quot; and the color 9.
-
-
-''Example 2:'' SCREEN 0 will return the values for both foreground and background colors. The combined color attribute value is returned.
-{{CodeStart}} '' ''
-{{Cl|SCREEN}} 0
-row = 10: column = 10
-
-{{Cl|COLOR}} 9, 10: {{Cl|LOCATE}} row, column: {{Cl|PRINT}} &quot;Hello&quot; 'use the background color of bright green
-code% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 0) ' character code return parameter 0
-attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1) ' character color return parameter 1
-{{Cl|COLOR}} 14, 0: {{Cl|LOCATE}} 15, 10: {{Cl|PRINT}} &quot;ASCII:&quot;; code%, &quot;{{Cl|COLOR}}:&quot;; attrib%
-
-fg% = (attrib% {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) 'get the lower nibble
-bg% = (attrib% {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F0) / 16 'get the upper nibble
-{{Cl|IF...THEN|IF}} bg% &gt; 7 {{Cl|THEN}} 'MSB set in the bg% nibble indicates blinking fg%
-  fg% = fg% + 16
-  bg% = bg% - 8
-{{Cl|END IF}}
-{{Cl|LOCATE}} 20, 10:{{Cl|PRINT}} &quot;FG:&quot;; fg%, &quot;BG:&quot;; bg% '' ''
-{{CodeEnd}}{{small|Contributed by RhoSigma}}
-{{OutputStart}}
-{{Text|         Hello|blue}}
-
-
-
-{{Text|         ASCII: 72     COLOR: 41|yellow}}
-
-
-{{text|         FG: 9         BG: 2|yellow}}
-{{OutputEnd}}
-:''Note:'' SCREEN 0 background colors are limited to colors 0 to 7 so [[COLOR]] 10 is converted to attribute 2 (8 less than the high intensity background color value of 10).
 
 
 ''Example 3:'' Finding the current program path placed on the screen using [[FILES]] and the SCREEN function in SCREEN 0.

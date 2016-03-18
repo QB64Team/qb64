@@ -1,0 +1,31 @@
+{{DISPLAYTITLE:_D2G}}
+The '''_D2G''' function converts a DEGREE value into a GRADIENT value. 
+
+
+{{PageSyntax}}
+:: result = [[_D2G]](''num'')
+
+
+*(Only available in QB64-GL, from Dirty Builds after 06/20/2014. Previous versions of QB64 don't support this command.)
+
+
+''Example:'' Coverting Degrees into Gradient.
+{{CodeStart}}
+INPUT &quot;Give me an angle in Degrees &quot;, D
+R = _D2G(D)
+PRINT &quot;That angle in Gradient is &quot;; R
+{{CodeEnd}}
+{{OutputStart}}
+Give me an angle in Degrees 60
+That angle in Gradient is  66.66666
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[_D2R]]
+* [[_G2D]], [[_G2R]]
+* [[_R2D]], [[_R2G]]
+
+
+
+{{PageNavigation}}

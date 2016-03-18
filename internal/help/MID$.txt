@@ -16,27 +16,90 @@ The '''MID$''' function returns a portion of a [[STRING]]'s value from any posit
 * Number of character ''bytes'' should be within the string's [[LEN|length]] from the start position, but will only return the string's remainder when exceeded.
 * If the ''bytes'' value is 0 or the ''start position'' is 0 or greater than the [[LEN|length]] of the string, nothing is returned (no error).
 * In QBasic the ''start position'' cannot be zero(0) or an [[ERROR Codes|Illegal function call error]] will occur.
+* In '''QB64''' [[ASC]] string byte position reads are about '''5 times faster''' than MID$ when parsing strings. See ''Example 2'' below.
 
 
-''Example:'' Getting the hour and minutes from [[TIME$]]
+''Example 1:'' Getting the hour and minutes from [[TIME$]]
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|TIME$}}
 
 hour$ = {{Cl|LEFT$}}({{Cl|TIME$}}, 2)
-minutes$ = {{Cl|MID$}}({{Cl|TIME$}}, 4, 2) ' skip hours and the colon (3 characters)
+minutes$ = {{Cl|MID$}}({{Cl|TIME$}}, 4, 2) ' skip hours and the colon (first 3 characters)
 
 {{Cl|PRINT}} &quot;hour = &quot;; hour$; &quot;: minutes = &quot;; minutes$ '' ''
 {{CodeEnd}} 
-
-{{OutputStart}}
-11:23:30
+{{OutputStart}}11:23:30
 hour = 11: minutes = 23
 {{OutputEnd}}
 
 
+''Example 2:'' Comparing MID$, the '''QB64''' byte position version of [[ASC]] and [[_MEMGET]] speeds parsing string characters:
+{{CodeStart}} '' ''
+{{Cl|_TITLE}} &quot;String Speed Test&quot;
+{{Cl|DEFLNG}} A-Z
+
+'First let's build a string for testing.
+Limit = 100000 'the size of the string
+LoopCount = 1000 'the number of times we want to deconstruct it
+
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} Limit
+  t$ = t$ + {{Cl|CHR$}}({{Cl|RND}} * 255)
+{{Cl|NEXT}}
+
+'now for some times
+
+t1# = {{Cl|TIMER}}
+{{Cl|FOR...NEXT|FOR}} j = 1 {{Cl|TO}} LoopCount
+  {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} Limit
+    m$ = {{Cl|MID$}}(t$, i, 1)
+  {{Cl|NEXT}}
+{{Cl|NEXT}}
+t2# = {{Cl|TIMER}}
+{{Cl|FOR...NEXT|FOR}} j = 1 {{Cl|TO}} LoopCount
+  {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} Limit
+    m = {{Cl|ASC}}(t$, i)
+  {{Cl|NEXT}}
+{{Cl|NEXT}}
+
+t3# = {{Cl|TIMER}}
+{{Cl|$CHECKING}}:OFF
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}, m1 {{Cl|AS}} {{Cl|STRING}} * 1, m2 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+m = {{Cl|_MEMNEW}}(Limit) 'create new memory space for string
+{{Cl|_MEMPUT}} m, m.OFFSET, t$ 'put string t$ into memory space
+{{Cl|FOR...NEXT|FOR}} j = 1 {{Cl|TO}} LoopCount
+  {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} Limit
+    {{Cl|_MEMGET}} m, m.OFFSET + i - 1, m1
+  {{Cl|NEXT}}
+{{Cl|NEXT}}
+t4# = {{Cl|TIMER}}
+{{Cl|FOR...NEXT|FOR}} j = 1 {{Cl|TO}} LoopCount
+  {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} Limit
+    {{Cl|_MEMGET}} m, m.OFFSET + i - 1, m2
+  {{Cl|NEXT}}
+{{Cl|NEXT}}
+t5# = {{Cl|TIMER}}
+
+'results
+
+{{Cl|PRINT USING}} &quot;##.###### seconds for MID$&quot;; t2# - t1#
+{{Cl|PRINT USING}} &quot;##.###### seconds for ASC&quot;; t3# - t2#
+{{Cl|PRINT USING}} &quot;##.###### seconds for _MEMGET String&quot;; t4# - t3#
+{{Cl|PRINT USING}} &quot;##.###### seconds for _MEMGET Byte&quot;; t5# - t4# '' ''
+{{CodeEnd}} {{small|Code by Steve McNeill}}
+{{OutputStart}}6.593750 seconds for MID$
+1.044922 seconds for ASC
+0.494141 seconds for _MEMGET String
+0.494141 seconds for _MEMGET Byte
+{{OutputEnd}}
+: ''Note:'' [[_MEMGET]] can be used with [[$CHECKING]]:OFF to cut the parsing speed even more! [[STRING]] * 1 or [[_BYTE]] are similar speeds.
+
+
 ''See also:''
-* [[MID$ (statement)]], [[LEFT$]], [[RIGHT$]]
-* [[LTRIM$]], [[RTRIM$]], [[INSTR]], [[LEN]] 
+* [[MID$ (statement)]], [[ASC]]
+* [[LEFT$]], [[RIGHT$]]
+* [[LTRIM$]], [[RTRIM$]] 
+* [[INSTR]], [[LEN]]
+* [[_MEMPUT]], [[_MEMGET]] 
 
 
 {{PageNavigation}}

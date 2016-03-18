@@ -3,13 +3,18 @@ The '''RIGHT$''' function returns a set number of characters in a [[STRING]] var
 
 
 {{PageSyntax}}
-:: RIGHT$(stringvalue$, numberofcharacters%)
+:: '''RIGHT$('''''stringvalue$, numberofcharacters%''''')'''
 
 
-* The string value can be any string of [[ASCII]] characters as a string variable.
+{{Parameters}}
+* The ''stringvalue$'' can be any string of [[ASCII]] characters as a [[STRING]] variable.
+* The ''numberofcharacters'' [[INTEGER]] value determines the number of characters to return from the right end of the string.
+
+
+{{PageDescription}}
 * If the number of characters exceeds the string length([[LEN]]) the entire string is returned.
-* Number of characters cannot be a negative value.
 * RIGHT$ returns always start at the last character of the string, even if a space. [[RTRIM$]] can remove ending spaces.
+* '''Number of characters cannot be a negative value.'''
 
 
 ''Example 1:'' Getting the right portion of a string value such as a person's last name. 

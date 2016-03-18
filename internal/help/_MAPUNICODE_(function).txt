@@ -1,9 +1,10 @@
+{{DISPLAYTITLE:_MAPUNICODE (function)}}
 The '''_MAPUNICODE''' function returns the [[Unicode]](UTF32) code point value of a mapped [[ASCII]] character code.
 
 
 
 {{PageSyntax}}
-:: UTFvalue&amp; = _MAPUNICODE(Ascii_code%)
+:: UTFvalue&amp; = '''_MAPUNICODE('''''Ascii_code%''''')'''
 
 
 * The UTF32 values have 4 byte encoding so the return variable should be [[LONG]].
@@ -28,11 +29,8 @@ Unicode&amp;(ascii) = {{Cl|_MAPUNICODE (function)|_MAPUNICODE}}(ascii)     'read
 
 
 ''See also:''
-
 * [[_MAPUNICODE]] (statement)
-
 * [[Unicode]], [[Code Pages]] (by region)
-
 * [[ASCII]], [[CHR$]], [[ASC]]
 
 

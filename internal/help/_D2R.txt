@@ -1,0 +1,31 @@
+{{DISPLAYTITLE:_D2R}}
+The '''_D2R''' function converts a DEGREE value into a RADIAN value. 
+
+
+{{PageSyntax}}
+:: result = [[_D2R]](''num'')
+
+
+*(Only available in QB64-GL, from Dirty Builds after 06/20/2014. Previous versions of QB64 don't support this command.)
+
+
+''Example:'' Coverting Degrees into Radians.
+{{CodeStart}}
+INPUT &quot;Give me an angle in Degrees &quot;, D
+R = _D2R(D)
+PRINT &quot;That angle in Radians is &quot;; R
+{{CodeEnd}}
+{{OutputStart}}
+Give me an angle in Degrees 60
+That angle in Radians is 1.047198
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[_D2G]], [[_D2R]]
+* [[_G2D]], [[_G2R]]
+* [[_R2D]], [[_R2G]]
+
+
+
+{{PageNavigation}}

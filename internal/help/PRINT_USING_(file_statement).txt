@@ -1,4 +1,4 @@
-The '''PRINT #, USING''' statement is used to [[PRINT]] formatted data to a file.
+The '''PRINT #, USING''' statement is used to [[PRINT]] formatted text data to a file.
 
 
 
@@ -12,7 +12,7 @@ The '''PRINT #, USING''' statement is used to [[PRINT]] formatted data to a file
 * A [[semicolon]] or [[comma]] may follow the ''text'' to stop or tab the print cursor before the ''template'' [[PRINT]].
 * The literal or variable [[STRING]] ''template'' should use the template symbols to display each variable [[type]] in the list following it.
 * The list of data ''variables'' used in the ''template'' are '''separated by semicolons''' after the template string value. 
-* A [[semicolon]] or [[comma]] may follow the variable list to stop or tab the print cursor for pending prints.
+* In '''QB64''' ONE [[semicolon]] or [[comma]] may follow the variable list to stop the print cursor for pending prints. QB only allowed a semicolon.
 
 
 ''Usage:''
@@ -21,6 +21,7 @@ The '''PRINT #, USING''' statement is used to [[PRINT]] formatted data to a file
 * The variables should be listed in the order that they are used in the template from left to right.
 * Normal text is allowed in the template also (see example).
 * '''NOTE:''' If the numerical value exceeds the template's integer digit range a % symbol will appear in the leftmost digit area.
+* '''WARNING: The numbers displayed are rounded so the actual values are never changed and are actually more accurate.'''
 
 
 {{PrintUsing}}

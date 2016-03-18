@@ -1,0 +1,22 @@
+{{DISPLAYTITLE:_RESIZE (function)}}
+The '''_RESIZE''' function returns -1 when a user has attempted to resize the program window and [[$RESIZE]]:ON has allowed it.
+
+
+{{PageSyntax}}
+::: IF '''_RESIZE''' THEN rx&amp; = [[_RESIZEWIDTH]]: ry&amp; = [[_RESIZEHEIGHT]]
+
+
+''Details:''
+* The function returns -1 if a program screen re-size was attempted by the user. 
+* After the function returns -1, [[_RESIZEWIDTH]] and [[_RESIZEHEIGHT]] can return the new dimensions in pixels.
+* The [[$RESIZE]]:ON [[metacommand]] must be used so the program is created with a user resizable window.
+* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
+
+
+''See also:''
+* [[$RESIZE]] {{text|(metacommand)}}
+* [[_RESIZE]]
+* [[_RESIZEWIDTH]], [[_RESIZEHEIGHT]] {{text|(requested pixel dimensions)}}
+
+
+{{PageNavigation}}

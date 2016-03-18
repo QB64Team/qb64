@@ -3,16 +3,32 @@ The '''OPEN COM''' statement is used to access a computer's Serial port COM1 or 
 
 
 {{PageSyntax}}
-: [[OPEN]] &quot;COMn: ''Speed'', ''Parity'', ''Bits'', ''Stopbit'', ['''Options''']&quot; [FOR mode] AS #''P'' [LEN = ''bytesize'']
+: '''OPEN &quot;COMn:''' ''Speed'', ''Parity'', ''Bits'', ''Stopbit'', [''Options'']&quot; [FOR {[[RANDOM]]|[[BINARY]]|[[OUTPUT]]|[[INPUT (file mode)|INPUT]]}] AS #''P'' [LEN = ''bytesize'']
 
-		   
-* '''QB64''' can open any [[COM(n)|COM''n'']] port number. Qbasic could only open COM1 or COM2, but 3 and 4 could be swapped.
-* See Windows System '''Device Manager''' for COM port numbers and port addresses &amp;H3F8, &amp;H2F8, &amp;H3E8 and &amp;H2E8.
-* Four commas are required after the Speed, Parity, Bits, and Stopbit, even if none of the Options are used.
-* ''Speed''(baud rate): 50, 150, 300, 600, 1200, 1800, 2400, '''9600'''(QB max), 19200 or '''115200'''('''QB64''' max) maximum.
+
+{{Parameters}}
+* ''Speed'' (baud rate): 50, 150, 300, 600, 1200, 1800, 2400, '''9600''' (QB max), 19200 or '''115200''' ('''QB64''' max) maximum.
 * ''Parity'': '''N''' (none), E (even), O (odd), S (space) or M (mark). Note: If 8 bits use parity N for numerical data!
 * ''Bits'' = number of bits/byte: Valid numbers: 5, 6, 7 or '''8'''
 * ''Stopbit'' = number of stop bits: Valid numbers: '''1''', 1.5 or 2
+* Optional COM port ''Options'' (separated by commas):
+::* ASC : [[ASCII]] byte mode. End of line = [[CHR$]](13). End of file = CHR$(26)
+::* BIN : [[Binary]] byte mode. Default mode if ASC is not used(option not required).
+:: ''Below ms is the timeout in milliseconds 1 to 65535. Zero ignores a timeout. Default without ms = 1000 :''
+::* CD[ms] : Time until timeout of DCD (Carrier Detect) line in. CD0 ignores timeouts.
+::* CS[ms] : Time until timeout of CTS (Clear to Send) line in. CS0 ignores timeouts.
+::* DS[ms] : Time until timeout of DSR (Data Set Ready) line in. DS0 ignores timeouts.
+::* OP[ms] : Time until data lines become active. If timeout then OPEN fails! OP0 ignores timeouts.
+::* RB[b] : Size of receive buffer in bytes when used. Default when not used = 512 bytes
+::* TB[b] : Size of transmit buffer in bytes when used. Default when not used = 512 bytes
+::* RS  : Supress detection of Request to Send (RTS) line.
+
+
+{{PageDescription}}
+* '''If any optional CD, CS, DS or OP timeouts occur the OPEN will fail or port access will stop! Try 0 to ignore.'''		   
+* '''QB64''' can open any [[COM(n)|COM''n'']] port number. Qbasic could only open COM1 or COM2, but 3 and 4 could be swapped.
+* See Windows System '''Device Manager''' for COM port numbers and port addresses &amp;H3F8, &amp;H2F8, &amp;H3E8 and &amp;H2E8.
+* Four commas are required after the Speed, Parity, Bits, and Stopbit, even if none of the Options are used.
 * Other [[OPEN]] ''options'' are optional and in any order separated by commas within the OPEN command [[STRING|string]].(See list below)
 * The optional FOR access ''mode'' can be [[OUTPUT]], [[INPUT (file mode)|INPUT]] or [[RANDOM]] (default mode when no FOR statement is used). 
 * '''Currently, QB64 only supports [[OPEN]] FOR [[RANDOM]] access using the [[GET]]/[[PUT]] commands in [[BINARY|BIN]] mode!'''
@@ -21,21 +37,6 @@ The '''OPEN COM''' statement is used to access a computer's Serial port COM1 or 
 * Use the [[LOC]](portnumber) function to determine that there is data in the receive buffer when the value is greater than 0.
 * OPEN AS number can use a [[FREEFILE]] value. Numbers used by files already open '''cannot''' be used by OPEN COM!
 * [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
-
-
-&lt;center&gt;'''Additional COM port Options (separated by commas)'''&lt;/center&gt;
-::* ASC : [[ASCII]] byte mode. End of line = [[CHR$]](13). End of file = CHR$(26)
-::* BIN : [[Binary]] byte mode. Default mode if ASC is not used(option not required).
-:: ''Below m is the timeout in milliseconds 1 to 65535. Zero ignores a timeout. Default m = 1000 :''
-::* CD[m] : Time until timeout of DCD (Carrier Detect) line in. CD0 ignores timeouts.
-::* CS[m] : Time until timeout of CTS (Clear to Send) line in. CS0 ignores timeouts.
-::* DS[m] : Time until timeout of DSR (Data Set Ready) line in. DS0 ignores timeouts.
-::* OP[m] : Time until data lines become active. If timeout then OPEN fails! OP0 ignores timeouts.
-:::: '''If any timeouts occur the OPEN will fail or port access will stop!'''
-
-::* RB[b] : Size of receive buffer in bytes when used. Default when not used = 512 bytes
-::* TB[b] : Size of transmit buffer in bytes when used. Default when not used = 512 bytes
-::* RS  : Supress detection of Request to Send (RTS) line.
 
 
 &lt;center&gt;'''Qbasic Description NOT Currently supported in QB64!'''&lt;/center&gt;
@@ -91,11 +92,44 @@ errnum = {{Cl|ERR}}
 {{CodeEnd}}
 
 
-''See also:'' 
+''Example 3:'' Sending string data from one COM port to another requires predefined length strings:
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|SHARED}} ByteIn {{Cl|AS}} {{Cl|STRING}} * 1 'One byte transfers
+{{Cl|DIM}} {{Cl|SHARED}} Byte4 {{Cl|AS}} {{Cl|STRING}} * 4 'Four byte transfers
+
+Byte4 = {{Cl|CHR$}}(254) + {{Cl|CHR$}}(175) + {{Cl|CHR$}}(0) + {{Cl|CHR$}}(3) 'Command code to query all 4 banks of switch input board.
+
+{{Cl|OPEN}} &quot;COM1:115200,N,8,1,BIN,CS0,DS0&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 'Open port used to send commands.
+{{Cl|OPEN}} &quot;COM2:115200,N,8,1,BIN,CS0,DS0&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 'Open port used to receive commands.
+
+{{Cl|PUT}} #1, , Byte4 'Send the 4 byte command.
+
+Start# = {{Cl|TIMER}}
+{{Cl|DO...LOOP|DO}} {{Cl|UNTIL}} {{Cl|LOC}}(2) &lt;&gt; 0 'Check if there is data received at com2
+    {{Cl|IF...THEN|IF}} {{Cl|TIMER}} - Start# &gt; .5 {{Cl|THEN}} {{Cl|EXIT DO}} 'Exit loop if no data arrives within .5 seconds.
+{{Cl|LOOP}}
+
+{{Cl|IF...THEN|IF}} {{Cl|LOC}}(2) = 0 {{Cl|THEN}} 'If no data was received.....
+    {{Cl|PRINT}} &quot;No data received from COM port.&quot;
+    {{Cl|END}}
+{{Cl|END IF}}
+
+{{Cl|PRINT}} &quot;Received from COM2:&quot;;
+
+{{Cl|DO...LOOP|DO}} {{Cl|UNTIL}} {{Cl|LOC}}(2) = 0 'Read data from COM2 until there is no more data.
+    {{Cl|GET}} #2, , ByteIn
+    {{Cl|PRINT}} {{Cl|ASC}}(ByteIn);
+{{Cl|LOOP}}
+{{Cl|END}} '' ''
+{{CodeEnd}}{{small|Code courtesy of Hydrofoiler}}
+
+
+''See also:''
+* [[BINARY]], [[RANDOM]] 
 * [[INPUT$]], [[PRINT (file statement)|PRINT #]]
 * [[LOC]], [[INKEY$]], [[OPEN]]
 * [[GET|GET #]], [[PUT|PUT #]]
-* [[Port Access Libraries]] {{text|(COM or LPT)}}
+* [[Port Access Libraries]] {{text|(Includes full LPT and COM port descriptions with downloadable DLL library)}}
 * [[Windows_Libraries#Windows_Ports|Enumerating Windows Ports]]
 
 

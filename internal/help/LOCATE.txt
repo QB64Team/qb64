@@ -6,13 +6,14 @@ The '''LOCATE''' statement locates the screen text row and column positions for 
 
 
 {{Parameters}}
-* optional ''row'' [[INTEGER]] values are from 1 to the 25 in [[SCREEN]] 0 and most other graphic screen modes, except screens 11 and 12 which have 30.  
-* optional ''column'' [[INTEGER]] values are from 1 to the [[SCREEN]] mode text [[_WIDTH (function)|_WIDTH]] or [[WIDTH]] setting.
+* optional text ''row'' [[INTEGER]] values are from 1 to the 25, 43 or 50 in [[SCREEN]] 0 and  25 in most other graphic screen modes, except screens 11 and 12 which can have 30 or 60.  
+* optional ''column'' [[INTEGER]] values are from 1 to 40 or 80 in [[SCREEN]] 0 and 80 in all other legacy screen modes.
 * optional ''cursor'' value can be 0 to turn the cursor off or 1 to turn it on when using the [[INPUT$]] or [[INKEY$]] key entry functions only.
 * optional ''cursorstart'' and ''cursorstop'' values define the shape of the cursor by setting the start and stop scanline (0-8 pixels) for the cursor character.
 
 
 ''Usage:''
+* [[WIDTH]] statement can be used to determine the text width and height in [[SCREEN]] 0 and height of 30 or 60 in [[SCREEN]] 11 or 12.
 * In [[_NEWIMAGE]] graphic screen text ''rows'' are calculated as [[_HEIGHT]] \ 16 except when a [[_FONT]] is used. Use [[_FONTHEIGHT]] to calculate font rows.
 * [[_NEWIMAGE]] graphic screen text ''columns'' are calculated as [[_WIDTH (function)|_WIDTH]] \ 8 except when a [[_FONT]] is used. Use [[_PRINTWIDTH]] to measure a line of font text.
 * The text ''row'' position is not required if the [[PRINT]] is going to be on the next row. The [[comma]] and a ''column'' value are required to set the column.
@@ -47,6 +48,7 @@ LOOP '' ''
 * [[CSRLIN]], [[POS]] {{text|(cursor position)}}
 * [[SCREEN]], [[PRINT]], [[COLOR]]
 * [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
+* [[WIDTH]], [[INPUT$]], [[INKEY$]]
 
 
 {{PageNavigation}}

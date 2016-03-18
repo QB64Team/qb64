@@ -15,7 +15,8 @@ The '''PSET''' grahics [[SCREEN (statement)|SCREEN]] statement sets a pixel to a
 * ''Color attributes'' are limited to the SCREEN mode used. Any color value other than 0 will be white in [[SCREEN (statement)|SCREEN]]s 2 or 11.
 * PSET can locate other graphics objects and color [[DRAW]] statements.
 * The PSET action can be used in a graphics [[PUT (graphics statement)|PUT]] to produce an identical image on any background.
-* '''PSET can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
+* The QB64 and QB graphic cursor is set to the center of the program window on program start.
+* '''PSET can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only! (Or in any _NEWIMAGE(x, y, 0) screens which are text only as well.)''' 
 
 
 ''Example:'' Using PSET to locate and color a [[DRAW]] statement.

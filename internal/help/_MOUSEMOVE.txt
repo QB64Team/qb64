@@ -1,8 +1,9 @@
+{{DISPLAYTITLE:_MOUSEMOVE}}
 The '''_MOUSEMOVE''' statement moves the mouse pointer to a new position on the screen as determined by the column and row coordinates.
 
 
 {{PageSyntax}} 
-:::'''_MOUSEMOVE ''column%'', ''row%'''''
+:::'''_MOUSEMOVE''' ''column%'', ''row%''
 
 
 {{Parameters}}
@@ -10,31 +11,34 @@ The '''_MOUSEMOVE''' statement moves the mouse pointer to a new position on the 
 * [[INTEGER]] ''row'' is the vertical pixel position to place the mouse pointer and can be any value from 0 to [[_HEIGHT]](0) - 1
 
 
-''Usage:''
+{{PageDescription}}
 * Maximum coordinate values are based on a program's current [[SCREEN]] mode resolution or the pixel size set by [[_NEWIMAGE]].
 * [[SCREEN]] 0 uses text block coordinates. '''Coordinates off of the screen will create an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]]!'''
 * Can be used to position the pointer to a default dialog button or move the cursor away from a button so it is not clicked twice.
-* Does NOT require [[_MOUSEINPUT]] to be used, but all moves will be remembered by it.
+* Does NOT require [[_MOUSEINPUT]] to be used, but all moves will be remembered and can be read by mouse functions.
 
 
 ''Example:'' How to move the mouse cursor using remembered mouse movements. Press any key to quit.
 {{CodeStart}}
-i = {{Cl|_MOUSEINPUT}}
-{{Cl|PRINT}} 
+{{Cl|SCREEN}} 12
+i = {{Cl|_MOUSEINPUT}} 'start reading mouse events before INPUT to hold in memory
+{{Cl|PRINT}}
 {{Cl|INPUT}} &quot;Move the mouse pointer and make a few clicks, then press Enter!&quot;, dummy$
 {{Cl|_MOUSEMOVE}} 1, 1
-DO
-  count = count + 1
-  i = {{Cl|_MOUSEINPUT}}
-  x = {{Cl|_MOUSEX}}: y = {{Cl|_MOUSEY}}
-  {{Cl|PRINT}} count, x, y, {{Cl|_MOUSEBUTTON}}(1)
-  {{Cl|_MOUSEMOVE}} x, y
-  {{Cl|_DELAY}} .05
+DO: {{Cl|_LIMIT}} 30
+    count = count + 1
+    i = {{Cl|_MOUSEINPUT}}
+    x = {{Cl|_MOUSEX}}: y = {{Cl|_MOUSEY}}
+    b = {{Cl|_MOUSEBUTTON}}(1)
+    {{Cl|PRINT}} count, x, y, b
+    {{Cl|_MOUSEMOVE}} x, y
 {{Cl|LOOP}} {{Cl|UNTIL}} i = 0 {{Cl|OR (boolean)|OR}} {{Cl|INKEY$}} &gt; &quot;&quot;
 {{Cl|PRINT}} &quot;Done!&quot; '' ''
 {{CodeEnd}}
 : ''Explanation:'' The [[_MOUSEINPUT]] function will hold previous and _MOUSEMOVE events so press any key when you want to quit.
 
+: '''Note: [[INPUT]], [[INPUT$]] and [[LINE INPUT]] will allow continued reading of mouse events while awaiting program user input!'''
+: It is recommended that a [[WHILE]] [[_MOUSEINPUT]]: [[WEND]] loop be used immediately after to clear stored mouse events.
 
 
 ''See also:''

@@ -1,0 +1,21 @@
+{{DISPLAYTITLE:_RESIZEWIDTH}}
+The [[_RESIZEWIDTH]] finction returns the user re-sized screen pixel width if [[$RESIZE]]:ON allows it and [[_RESIZE (function)|_RESIZE]] returns -1 
+
+
+{{PageSyntax}}
+::: newWidth&amp; = '''_RESIZEWIDTH'''
+
+
+''Details:''
+* [[_RESIZE (function)|_RESIZE]] function must return -1 before the requested screen dimensions can be returned by the function.
+* The program should decide if the request is allowable for proper program interactions and view-ability.
+* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
+
+
+''See also:''
+* [[$RESIZE]] {{text|(ON allows user to resize)}}
+* [[_RESIZE (function)]] {{text|(returns user resize request)}}
+* [[_RESIZEHEIGHT]]
+
+
+{{PageNavigation}}

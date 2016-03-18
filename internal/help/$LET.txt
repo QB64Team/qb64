@@ -1,0 +1,40 @@
+'''$LET''' is precompiler command, which is now usable by modern day [[cavemen]] to help include and exclude which sections of code compiles in their program based on OS/bit-size or other predefined conditions.
+
+
+{{PageSyntax}}
+:: $LET variable = expression
+
+
+* $LET a = 12 sets a precompiler variable &quot;a&quot; to the value of 12.   This variable is ONLY valid for the precompiler itself and does NOTHING to affect the values of any variable/constant which might also be called &quot;a&quot; in the program.
+* Variable names can contain numbers, letters, and periods -- in any order!   $LET 3.2 = TRUE  is a perfectly valid variable and expression.
+* Expressions can contain one set of leading and/or trailing quotes; and any number of numbers, letters, and periods, in any order.   $LET 3.2 = &quot;TRUE&quot; is also perfectly, but $LET 3.2 = &quot;&quot;TRUE&quot;&quot; will error.  (See the double quotes?)
+
+''Example 1:'' 
+{{CodeStart}} '' ''
+{{Cl|$LET}} ScreenMode = 32
+{{Cl|$IF}} ScreenMode = 0 THEN
+    {{Cl|CONST}} Red = 4
+{{Cl|$ELSEIF}} ScreenMode = 32 THEN
+    {{Cl|CONST}} Red = _RGB32(255,0,0)
+{{Cl|$END IF}}
+
+{{Cl|COLOR}} Red
+{{Cl|PRINT}} &quot;Hello World&quot;
+{{CodeEnd}}
+
+Explaination:
+If you look at the code above, you'll see that we have the same CONST defined inside the program.  Normally, we get an error if we try to define a CONST more than once, but the $IF condition here is CHOOSING which CONST we want inside our program.
+
+AS long as Screenmode is 0, the program will exclude the code where CONST Red is defined as color 4.  If Screenmode is 32, CONST Red will be defined as _RGB32(255, 0, 0).
+
+The $LET and $IF statements let us control the code that actually gets compiled, while excluding the other blocks completely.
+
+
+''See also:'' 
+* [[Cavemen]]
+* [[$IF]]
+* [[$ELSE]]
+* [[$ELSEIF]]
+* [[$END IF]]
+
+{{PageNavigation}}

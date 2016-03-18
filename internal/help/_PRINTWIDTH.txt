@@ -1,9 +1,10 @@
-The {{KW|_PRINTWIDTH}} function returns the width in pixels of the [[_FONT]] or text [[STRING|string]] that a program will print.
+{{DISPLAYTITLE:_PRINTWIDTH}}{{DISPLAYTITLE:}}
+The [[_PRINTWIDTH]] function returns the width in pixels of the [[_FONT]] or text [[STRING|string]] that a program will print.
 
 
 
 {{PageSyntax}}
-:{{Parameter|pixel_width}} = {{KW|_PRINTWIDTH}}({{Parameter|text_to_print$}}[, {{Parameter|destination_handle&amp;}}])
+::: pixel_width = '''_PRINTWIDTH('''{{Parameter|text_to_print$}}[, {{Parameter|destination_handle&amp;}}]''')'''
 
 
 {{PageDescription}}
@@ -11,7 +12,8 @@ The {{KW|_PRINTWIDTH}} function returns the width in pixels of the [[_FONT]] or 
 * If the {{Parameter|destination_handle&amp;}} is omitted, the current destination image or screen page is used.
 * Useful to find the width of the font print [[STRING|string]] before actually printing it.
 * Can be used with '''variable''' width fonts or '''no font''' at all unlike [[_FONTWIDTH]] which requires MONOSPACE fonts only.
-* '''_PRINTWIDTH cannot be used in SCREEN 0!'''
+* '''_PRINTWIDTH cannot be used in SCREEN 0 in QB64-SDL version.'''  
+* '''QB64-GL''' does support SCREEN 0 use of _PRINTWIDTH which will return the character length of text exactly as [[LEN]](text$) would.
 
 
 ''Example:'' SUB returns font or screen mode's text block size using _PRINTWIDTH and [[_FONTHEIGHT]] without a handle parameter.

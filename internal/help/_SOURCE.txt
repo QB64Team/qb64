@@ -1,19 +1,20 @@
-The {{KW|_SOURCE}} statement establishes the image SOURCE using a handle created by {{KW|_LOADIMAGE}} or {{KW|_NEWIMAGE}}.
+{{DISPLAYTITLE:_SOURCE}}
+The [[_SOURCE]] statement establishes the image SOURCE using a handle created by [[_LOADIMAGE]] or [[_NEWIMAGE]].
 
 
 {{PageSyntax}}
-:{{KW|_SOURCE}} {{Parameter|handle&amp;}}
+::: [[_SOURCE]] {{Parameter|handle&amp;}}
 
 
 {{PageDescription}}
-* The handle is a {{KW|LONG}} integer value from the {{KW|_SOURCE (function)|_SOURCE}} function or a handle created by {{KW|_NEWIMAGE}}. 
-* If the handle is designated as 0, it refers to the current {{KW|SCREEN (statement)|SCREEN}} image.
+* The handle is a {{KW|LONG}} integer value from the {{KW|_SOURCE (function)|_SOURCE}} function or a handle created by [[_NEWIMAGE]]. 
+* If the handle is designated as 0, it refers to the current [[SCREEN]] image.
 * A source image can only supply information to a program. [[POINT]] and [[GET (graphics statement)|GET]] might require a source other than the present one.
 
 
 {{PageExamples}}
 {{CodeStart}} '' ''
-{{Cl|SCREEN (statement)|SCREEN}} 13
+{{Cl|SCREEN}} 13
 a = {{Cl|_NEWIMAGE}}(320,200,13)
 {{Cl|_DEST}} a
 {{Cl|PSET}} (100, 100), 15
@@ -36,6 +37,7 @@ a = {{Cl|_NEWIMAGE}}(320,200,13)
 {{PageSeeAlso}}
 * [[_DEST]]
 * [[_SOURCE (function)]]
+* [[POINT]], [[GET (graphics statement)]]
 
 
 {{PageNavigation}}

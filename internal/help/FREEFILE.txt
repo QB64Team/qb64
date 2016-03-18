@@ -1,4 +1,4 @@
-The '''FREEFILE''' function returns an unused file access number.
+The '''FREEFILE''' function returns an [[INTEGER]] value that is an unused file access number.
 
 
 {{PageSyntax}}
@@ -6,7 +6,9 @@ The '''FREEFILE''' function returns an unused file access number.
 
 
 * FREEFILE values should be given to unique variables so that each file has a specific variable value assigned to it.
-* The file number variable can later be used to read, write or [[CLOSE]] that file.
+* Once the number is assigned in an [[OPEN]] statement, the file number can later be used to read, write or [[CLOSE]] that file.
+* Files numbers [[CLOSE]]d are made available to FREEFILE for reuse immediately. 
+* FREEFILE returns are normally sequential starting with 1. Only file numbers in use will not be returned.
 * [[OPEN]] each file number after each FREEFILE return or the values returned may be the same!
 * [[OPEN COM]] statements cannot use any number assigned to files already OPEN!
 

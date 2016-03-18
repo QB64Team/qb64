@@ -10,7 +10,7 @@ The {{KW|HEX$}} function returns the base 16 hexadecimal representation of an [[
 * If the parameter is not an Integer, it will be converted to one by HEX$.
 * The function does not return a leading sign space so [[LTRIM$]] is not necessary.
 * Can be used in place of [[STR$]] to trim both sides of positive decimal values 0 to 9 only.
-* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with &quot;&amp;H&quot;.
+* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with &quot;&amp;H&quot;, like; dec = VAL(&quot;&amp;H&quot; + hexvar$).
 
 
 ''Example:'' Comparing decimal, hexadecimal and octal string values 0 to 15.
@@ -44,6 +44,20 @@ NEXT n% '' ''
                        15    |     F       |    17
 {{OutputEnd}}
 ''Note:'' Decimal [[STR$]] values contain a leading sign space so values require an extra space in the template using the slash format.
+
+
+''Example:'' Converting hex value to decimal.
+{{CodeStart}}
+h$ = {{Cl|HEX$}}(255)
+{{Cl|PRINT}} &quot;Hex: &quot;; h$
+{{Cl|PRINT}} &quot;Converting Hex value to Decimal:&quot;; {{Cl|VAL}}(&quot;&amp;H&quot; + h$)
+{{CodeEnd}}
+
+{{OutputStart}}
+Hex: FF
+Converting Hex value to Decimal: 255
+{{OutputEnd}}
+
 
 
 {{PageSeeAlso}}

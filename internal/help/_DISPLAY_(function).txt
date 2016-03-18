@@ -1,4 +1,5 @@
-The {{KW|_DISPLAY (function)|_DISPLAY}} function returns the handle of the current image that is displayed on the screen.
+{{DISPLAYTITLE:_DISPLAY (function)}}
+The '''_DISPLAY''' function returns the handle of the current image that is displayed on the screen.
 
 
 {{PageSyntax}}
@@ -6,13 +7,13 @@ The {{KW|_DISPLAY (function)|_DISPLAY}} function returns the handle of the curre
 
 
 ''Usage:''
-* Returns the current image handle value that is being displayed. Will return 0 if in the default image.
-* Not to be confused with the {{KW|_DISPLAY}} statement that displays the screen when not using {{KW|_AUTODISPLAY}}.
+* Returns the current image handle value that is being displayed. Will return 0 if in the default [[SCREEN|screen]] image.
+* Not to be confused with the [[_DISPLAY]] statement that displays the screen when not using {{KW|_AUTODISPLAY}}.
 
 
 ''Example:'' Creating a mouse cursor using a page number that '''you create''' in memory without setting up page flipping.
 {{CodeStart}}
-{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) 'any graphics mode should work without setting up pages
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) 'any graphics mode should work without setting up pages
 {{Cl|_MOUSEHIDE}}
 SetupCursor
 {{Cl|PRINT}} &quot;Hello World!&quot;
@@ -42,6 +43,7 @@ SetupCursor
 * [[PCOPY]]
 * [[_DISPLAY]] {{text|(statement)}}
 * [[_AUTODISPLAY]] {{text|(default mode)}}
+* [[_DISPLAYORDER]] {{text|(GL statement)}}
 
 
 {{PageNavigation}}

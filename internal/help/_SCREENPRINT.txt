@@ -1,10 +1,9 @@
-The {{KW|_SCREENPRINT}} statement simulates typing text into a Windows program using the keyboard.
-
+{{DISPLAYTITLE:_SCREENPRINT}}
+The [[_SCREENPRINT]] statement simulates typing text into a Windows focused program using the keyboard.
 
 
 {{PageSyntax}}
-:&lt;code&gt;{{KW|_SCREENPRINT}} {{Parameter|text$}}&lt;/code&gt;
-
+::: [[_SCREENPRINT]] {{Parameter|text$}}
 
 
 {{PageDescription}}
@@ -17,10 +16,10 @@ The {{KW|_SCREENPRINT}} statement simulates typing text into a Windows program u
 {{WhiteStart}} CTRL + A = CHR$(1)   ☺  StartHeader (SOH)    CTRL + B = CHR$(2)   ☻  StartText         (STX)
  CTRL + C = CHR$(3)   ♥  EndText     (ETX)    CTRL + D = CHR$(4)   ♦  EndOfTransmit     (EOT)
  CTRL + E = CHR$(5)   ♣  Enquiry     (ENQ)    CTRL + F = CHR$(6)   ♠  Acknowledge       (ACK)
- CTRL + G = CHR$(7)   •  [[BEEP]]        (BEL)    CTRL + H = CHR$(8)   ◘  [Backspace]       (BS)
- CTRL + I = CHR$(9)   ○  Horiz.Tab   [Tab]    CTRL + J = CHR$(10)  ◙  LineFeed(printer) (LF)
+ CTRL + G = CHR$(7)   •  [[BEEP]]        (BEL)    CTRL + H = CHR$(8)   ◘  '''[Backspace]'''       (BS)
+ CTRL + I = CHR$(9)   ○  Horiz.Tab   '''[Tab]'''    CTRL + J = CHR$(10)  ◙  LineFeed(printer) (LF)
  CTRL + K = CHR$(11)  ♂  Vert. Tab   (VT)     CTRL + L = CHR$(12)  ♀  FormFeed(printer) (FF)
- CTRL + M = CHR$(13)  ♪  [Enter]     (CR)     CTRL + N = CHR$(14)  ♫  ShiftOut          (SO)
+ CTRL + M = CHR$(13)  ♪  '''[Enter]'''     (CR)     CTRL + N = CHR$(14)  ♫  ShiftOut          (SO)
  CTRL + O = CHR$(15)  ☼  ShiftIn     (SI)     CTRL + P = CHR$(16)  ►  DataLinkEscape    (DLE)
  CTRL + Q = CHR$(17)  ◄  DevControl1 (DC1)    CTRL + R = CHR$(18)  ↕  DeviceControl2    (DC2)
  CTRL + S = CHR$(19)  ‼  DevControl3 (DC3)    CTRL + T = CHR$(20)  ¶  DeviceControl4    (DC4)
@@ -79,7 +78,7 @@ The {{KW|_SCREENPRINT}} statement simulates typing text into a Windows program u
 {{PageSeeAlso}}
 * [[_SCREENIMAGE]], [[_SCREENCLICK]]
 * [[_SCREENMOVE]], [[_SCREENX]], [[_SCREENY]]
-
+* [[ASCII]]
 
 
 {{PageNavigation}}

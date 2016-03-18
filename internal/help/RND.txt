@@ -2,20 +2,23 @@ The '''RND''' function returns a random number with a value between 0 (inclusive
 
 
 {{PageSyntax}} 
-:: result! = {{KW|RND}} [(n!)]
+:: result! = [[RND]] [(''n'')]
+
+
+{{Parameters}}
+* ''n'' is a [[SINGLE]] numeric value that defines the behavior of the RND function but is '''NOT normally required''':
+::n parameter omitted: Returns next random number in the sequence.
+::n = 0: Return the last value returned.
+::n &lt; 0: Always returns the same value for any given n
+::n &gt; 0: the sequence of numbers generated will not change unless [[RANDOMIZE]] is initiated. 
 
 
 {{PageDescription}}
-* n! is a numeric value that defines the behavior of the RND function but is NOT normally required:
-::n! omitted: Return next random number in the sequence.
-::n! = 0: Return the last value returned.
-::n! &lt; 0: Always returns the same value for any given n
-* Even if n! &gt; 0, the sequence of numbers generated will not change unless [[RANDOMIZE]] is initiated. 
-* The random numbers generated range from 0 to .9999999 [[SINGLE]] values that never equal 1.
-* To get values in a range larger than 1, multiply it with a number.
-* To get values starting at a certain number, add that number to the result.
-* If you need an integer range of numbers, like a dice roll, round it down to an {{KW|INT}}. Add 1 to the maximum number with INT.
-* The random sequence is 2^24 = 16,777,216 entries long, which can cause repeated patterns in some cases. For a more precise random number, you need to write your own [http://en.wikipedia.org/wiki/Linear_congruential_generator| random function].
+* The random numbers generated range from 0 minimum to .9999999 maximum  [[SINGLE]] values that never equal 1.
+* To get values in a range larger than 1, multiply RND with a number to get returns up to but not including that numerical value.
+* To get values starting at a certain number, add that number to the RND result as RND minimums can be 0.
+* If you need an integer range of numbers, like a dice roll, round it down to an [[INT]]. Add 1 to the maximum number with [[INT]].
+* The random sequence is 2 ^ 24 or 16,777,216 entries long, which can allow repeated patterns in some procedures.
 * Formulas for the [[INT|Integer]] or [[CINT|Closest Integer]] of ANY number range from ''min%''(lowest value) to ''max%''(greatest value): 
 ::* Using [[INT]]: randNum% = INT(RND * (max% - min% + 1)) + min%
 ::* Using [[CINT]]: randNum% = CINT(RND * (max% - min%)) + min%
@@ -98,9 +101,8 @@ DO
 
 
 {{PageSeeAlso}}
-* [[RANDOMIZE]]
-* [[TIMER]]
-* [[INT]]
+* [[RANDOMIZE]], [[TIMER]]
+* [[INT]], [[CINT]], [[FIX]]
 
 
 {{PageNavigation}}

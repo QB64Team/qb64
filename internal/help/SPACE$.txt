@@ -2,11 +2,11 @@ The {{KW|SPACE$}} function returns a {{KW|STRING}} consisting of a number of spa
 
 
 {{PageSyntax}}
-:''result$'' = '''SPACE$({{Parameter|count%}})'''
+:''result$'' = '''SPACE$({{Parameter|count&amp;}})'''
 
 
 {{Parameters}}
-* {{Parameter|count%}} is the number of space characters to repeat. Cannot use negative values!
+* {{Parameter|count&amp;}} is the number of space characters to repeat. Cannot use negative values!
 
 
 ''Usage:''
@@ -15,6 +15,10 @@ The {{KW|SPACE$}} function returns a {{KW|STRING}} consisting of a number of spa
 * Spaces are often used to erase previous text PRINTs from the screen.
 * The function result can also be used to [[GET]] and [[PUT]] a number of bytes as zero characters: bytes$ = SPACE$(numbytes)
 * Spaces can also be made using [[SPC]], [[CHR$]](32) or [[STRING$]](n%, 32).
+
+
+''Differences between QB64 and QB 4.5:''
+* '''QB64''' can use [[LONG]] values for count up to 2,147,483,647 while '''QB 4.5''' could only use [[INTEGER]] values up to 32,767.
 
 
 ''Example 1:'' How to space text in a [[PRINT]] statement using SPACE$ with string [[concatenation]].

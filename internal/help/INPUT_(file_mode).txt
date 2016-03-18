@@ -11,6 +11,7 @@ The '''INPUT''' file mode can only [[OPEN]] existing files with data in them for
 * Use the [[EOF]] function to avoid reading data past the end of a file and creating an [[ERROR Codes|INPUT error]]!
 * Input file statements will use the same filenumber as the OPEN statement.
 * The INPUT mode allows the same file to be opened in another mode with a different number.
+* '''NOTE: [[LINE INPUT (file statement)|LINE INPUT]] will work faster in [[BINARY]] than INPUT mode in QB64 to stay compatible with QB.'''
 
 
 ''Example:'' Avoiding an INPUT mode or [[INPUT (file statement)|INPUT #]] read error using a FileExist function. QB64 can use the [[_FILEEXISTS]] function.

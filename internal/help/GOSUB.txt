@@ -15,7 +15,30 @@
 
 
 {{PageExamples}}
-''Example:''
+
+''Example:'' Simple usage of GOSUB
+{{CodeStart}}
+{{Cl|PRINT}} &quot;1. It goes to the subroutine.&quot;
+{{Cl|GOSUB}} subroutine
+{{Cl|PRINT}} &quot;3. And it returns.&quot;
+{{Cl|END}}
+
+subroutine:
+{{Cl|PRINT}} &quot;2. It is at the subroutine.&quot;
+{{Cl|RETURN}}
+
+{{CodeEnd}}
+{{small|Code by Cyperium}}
+{{OutputStart}}
+1. It goes to the subroutine.
+2. It is at the subroutine.
+3. And it returns.
+{{OutputEnd}}
+
+
+
+
+''Example:'' What happens if two GOSUB executes then two RETURN's?
 {{CodeStart}}
 start: 
  

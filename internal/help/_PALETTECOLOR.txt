@@ -1,20 +1,46 @@
+{{DISPLAYTITLE:_PALETTECOLOR}}
 The _PALETTECOLOR statement sets the color value of a palette entry of an image using 256 color modes or less (4 or 8 BPP).
 
 
 {{PageSyntax}}
-:[[_PALETTECOLOR]] {{Parameter|index%}}, {{Parameter|colour&amp;}}[, {{Parameter|imageHandle&amp;}}]
+:[[_PALETTECOLOR]] {{Parameter|attribute%}}, {{Parameter|colour&amp;}}[, {{Parameter|Dest_Handle&amp;}}]
 
 
 {{PageDescription}}
-* The {{Parameter|index%}} is the palette index(attribute) of the color to set, ranging from 0 to 15 (4 bit) or 0 to 255 (8 bit) color modes.
+* The {{Parameter|attribute%}} is the palette index number of the color to set, ranging from 0 to 15 (4 bit) or 0 to 255 (8 bit) color modes.
 * The [[LONG]] {{Parameter|colour&amp;}} is the new color value to set using [[_RGB32]] or [[_RGBA32]] values or using [[HEX$ 32 Bit Values]].
-* If {{Parameter|imageHandle&amp;}} is omitted, it is assumed to be the current write page.
-* If {{Parameter|index%}} is outside of image or screen mode attribute range, an [[ERROR Codes|illegal function call]] error will occur.
-* If {{Parameter|imageHandle&amp;}} does not use a palette, an [[ERROR Codes|illegal function call]] error occurs. '''Will not work in 24/32 bit color palette modes!'''
-* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs.
+* If {{Parameter|imageHandle&amp;}} is omitted, [[_DEST|destination]] is assumed to be the current write page or screen surface.
+* If {{Parameter|index%}} is outside of image or [[SCREEN|screen]] mode attribute range(0 to 15 or 0 to 255), an [[ERROR Codes|illegal function call]] error will occur.
+* If {{Parameter|DestHandle&amp;}} does not use a palette, an [[ERROR Codes|illegal function call]] error occurs. '''Will not work in 24/32 bit color palette modes!'''
+* If {{Parameter|imageHandle&amp;}} is an invalid handle value, an [[ERROR Codes|invalid handle]] error occurs.
 
 
-''Example:'' Creating custom background colors in SCREEN 0 that follow the text.
+&lt;center&gt;'''Basic's 16 Default Color Attributes (non-[[DAC]])'''&lt;/center&gt;
+{{OutputStart}}{{text|     Attribute        Description     Red   Green   Blue   32 HEX    HTML Name |Gold}}
+         0            Black            0      0       0    000000    Black
+{{text|         1            Dark Blue        0      0      42    00008B    DarkBlue|#00208B}}   
+{{text|         2            Dark Green       0     42       0    006400    DarkGreen|#006400}}  
+{{text|         3            Dark Cyan        0     42      42    008B8B    DarkCyan|#008B8B}}
+{{text|         4            Dark Red        42      0       0    8B0000    DarkRed|#8B0000}}
+{{text|         5            Dark Magenta    42      0      42    8B008B    DarkMagenta|#8B008B}}
+{{text|         6            Dark Yellow     42     21       0    DAA520    GoldenRod|#DAA520}}
+{{text|         7            Light Grey      42     42      42    D3D3D3    LightGrey|#D3D3D3}}
+{{text|         8            Dark Grey       21     21      21    696969    DimGray|#696969}}
+{{text|         9            Blue            21     21      63    0000FF    Blue|#1515FF}}
+{{text|        10            Green           21     63      21    15FF15    Lime|#15FF15}}
+{{text|        11            Cyan            21     63      63    15FFFF    Cyan|#15FFFF}}
+{{text|        12            Red             63     21      21    FF1515    Red|#FF1515}}
+{{text|        13            Magenta         63     21      63    FF15FF    Magenta|#FF15FF}}
+{{text|        14            Yellow          63     63      21    FFFF00    Yellow|#FFFF00}}
+{{text|        15            White           63     63      63    FFFFFF    White|#FFFFFF}} '' ''
+{{OutputEnd}}
+&lt;center&gt;[http://www.w3schools.com/html/html_colornames.asp HTML Color Table Values and Names] or [http://www.tayloredmktg.com/rgb/#OR Other RGB colors]&lt;/center&gt;
+::: ''Note:'' '''QB64''' 32 bit color intensity values from 0 to 255 can be found by multiplying above values by 4.
+
+''Summary:'' The red, green, and blue intensity values can be changed using [[OUT]] or [[PALETTE]] statements. Some '''Qbasic''' RGB color attribute values can be changed in [[DAC]] {{KW|SCREEN (statement)|SCREEN}} modes and the [[DAC]] RGB intensity settings may be different. 
+
+
+''Example:'' Creating custom background colors in SCREEN 0 that follow the text. [[CLS]] makes entire background one color.
 {{CodeStart}}
 {{Cl|_PALETTECOLOR}} 1, {{Cl|_RGB32}}(255, 255, 255) ' white.
 {{Cl|_PALETTECOLOR}} 2, {{Cl|_RGB32}}(255, 170, 170) ' lighter red.
@@ -33,12 +59,14 @@ The _PALETTECOLOR statement sets the color value of a palette entry of an image 
 {{Cl|COLOR}} 1, 6: {{Cl|PRINT}} &quot;white on darker red&quot;
 {{Cl|COLOR}} 2, 6: {{Cl|PRINT}} &quot;ligher red on darker red&quot; '' ''
 {{CodeEnd}}
-: ''Note:'' _PALLETCOLOR expects [[LONG]] 32 bit color values, NOT [[_RGB]] or [[_RGBA]] palette attribute values.
+
+: ''Note:'' _PALLETCOLOR expects [[LONG]] [[_RGB32]] or [[_RGBA32]] 32 bit color values, NOT [[_RGB]] or [[_RGBA]] palette attribute values.
 
 
 {{PageSeeAlso}}
+* [[COLOR]], [[_RGB32]], [[_RGBA32]]
 * [[_PALETTECOLOR (function)]]
-* [[PALETTE]], [[OUT]]
+* [[PALETTE]], [[OUT]], [[INP]]
 * [[Images]]
 * [[HEX$ 32 Bit Values]]
 

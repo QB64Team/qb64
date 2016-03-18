@@ -9,13 +9,23 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 * VAL conversion stops at non-numeric characters except for letter &quot;D&quot; or &quot;E&quot; exponential notation values.
 :String values with &quot;D&quot; and &quot;E&quot; letters between numbers may be converted also! EX: '''{{text|VAL(&quot;9D4&quot;) &lt;nowiki&gt;=&lt;/nowiki&gt; 90000|green}}'''
 * If the first string character is not a number VAL returns 0. VAL may return erratic values with &quot;%&quot; or &quot;&amp;&quot; starting characters. 
-* Hexadecimal [[HEX$]] string values with the &quot;[[&amp;H]]&quot; prefix can be converted to a decimal value with digits 0 to 9 and letters A to F. 
+* Hexadecimal [[HEX$]] string values with the &quot;[[&amp;H]]&quot; prefix can be converted to a decimal value with digits 0 to 9 and letters A to F, like; dec = VAL(&quot;&amp;H&quot;+hexvar$). 
 * Octal [[OCT$]] string values with the &quot;[[&amp;O]]&quot; prefix can be converted to a decimal value with digits from 0 to 7 only.
 * Presently VAL '''cannot''' convert QB64 binary [[&amp;B]] prefixed strings from binary to decimal in '''QB64'''.
 * For character values of [[ASCII]] data use [[ASC]] to get the value. 
+* In QB64 use an [[INTEGER]] return variable to hold integer values  returned by VAL [[HEX$|Hex]] strings: '''{{text|value% &lt;nowiki&gt;= VAL(&quot;&amp;HFFFF&quot;) =&lt;/nowiki&gt; -1|green}}'''
 
 
-''Example 1:'' Converting a string with some number characters
+''Example 1:'' Differences in values returned with Qbasic and QB64:
+{{CodeStart}} '' ''
+{{Cl|PRINT}} {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot;) '203 in QB, 0 in QB64
+{{Cl|PRINT}} {{Cl|VAL}}(&quot;{{Cl|&amp;H}}FFFF&quot;) ' -1 QB, 65535 in QB64
+{{Cl|PRINT}} {{Cl|VAL}}(&quot;{{Cl|&amp;H}}FFFF&amp;&quot;) '65535 in both '' ''
+{{CodeEnd}}
+:''Explanation:'' A quirk in Qbasic returned VAL values of 203 for &quot;&amp;&quot; and &quot;&amp;H&quot; that was never fixed until PDS(7.1).
+
+
+''Example 2:'' Converting a string with some number characters
 {{CodeStart}} '' ''
  text$ = &quot;1.23Hello&quot;
  number! = VAL(text$)
@@ -26,7 +36,7 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 {{OutputEnd}}
 
 
-''Example 2:'' Converting literal and variable [[STRING|string]] values to numerical values.
+''Example 3:'' Converting literal and variable [[STRING|string]] values to numerical values.
 {{CodeStart}} '' ''
  a$ = &quot;33&quot;
  PRINT VAL(&quot;10&quot;) + VAL(a$) + 1 '' ''
@@ -41,7 +51,7 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 :If VAL wasn't used the program would break with an error, as you can't add the value 1 to a string, if the 1 was a string (&quot;1&quot;) then the program would return &quot;10331&quot;, but now since we used VAL, the numbers were added as they should.
 
 
-''Example 3:'' Converting a hexadecimal value to decimal value using HEX$ with VAL.
+''Example 4:'' Converting a hexadecimal value to decimal value using HEX$ with VAL.
 {{CodeStart}}
  decnumber% = 96
  hexnumber$ = &quot;&amp;H&quot; + {{Cl|HEX$}}(decnumber%)  'convert decimal value to hex and add hex prefix

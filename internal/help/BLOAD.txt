@@ -2,21 +2,24 @@
 
 
 {{PageSyntax}}
-::: '''BLOAD {{Parameter|Filename$}}, {{KW|VARPTR}}({{Parameter|ImageArray%(index)}})'''
+::: '''BLOAD''' {{Parameter|Filename$}}''', [[VARPTR]]('''{{Parameter|ImageArray%(index)}}''')'''
 
+
+
+{{Parameters}}
+* {{Parameter|Filename$}} is the name of the file that the image should be [[BSAVE]]d to.
+* {{Parameter|ImageArray%(index)}} is the Integer [[arrays|array]] start index that holds the image you want to save.
 
 
 {{PageDescription}}
-* {{Parameter|Filename$}} is the name of the file that the image should be saved to.
-* {{Parameter|ImageArray%(index)}} is the Integer array that holds the image you want to save.
 * There MUST be an Integer array of adequate size (up to 26K) to hold the graphic data!
-* A {{KW|DEF SEG}} pointing to the array is required. {{KW|DEF SEG}} = {{KW|VARSEG}}(ImageArray%(index))
+* A [[DEF SEG]] pointing to the array is required. [[DEF SEG]] = [[VARSEG]](ImageArray%(index))
 * {{Parameter|index}} is the starting image element of the Array. Can also include RGB color settings at the start index.
-* Fullscreen images in {{KW|SCREEN}} 12 require 3 file {{KW|BLOAD}}s. A 26K array can hold 1/3 of screen.
+* Fullscreen images in [[SCREEN]] 12 require 3 file BLOADs. A 26K array can hold 1/3 of screen.
 * Custom RGB color settings can be embedded(indexed) at the start of the image array. 
-* {{KW|BLOAD}} Can be used to load any arrays that was saved with {{KW|BSAVE}}, not just graphics.
-* Array sizes are limited to 32767 Integer elements due to use of {{KW|VARPTR}} in QB and '''QB64'''!.
-* '''QB64''' can load larger arrays directly to and from binary files using {{KW|PUT}} # and {{KW|GET}} #. 
+* BLOAD can be used to load any array that was saved with [[BSAVE]], not just graphics.
+* Array sizes are limited to 32767 Integer elements due to use of [[VARPTR]] in QB and '''QB64'''!.
+* '''QB64''' can load larger arrays directly to and from binary files using [[PUT]] # and [[GET]] # without BLOAD. 
 
 
 ''Example 1:'' Loading data to an array from a BSAVED file.

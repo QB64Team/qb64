@@ -31,8 +31,8 @@
 
 ''Usage:''
 * MB will allow music to play while program code progresses. MF will wait for code to continue playing notes.
-* Command string values are not case sensitive. Use upper or lower case as desired.
-*'''NOTE: PLAY may NOT delay program progress! Use [[_DELAY]] and [[END]] to allow music completion.'''
+* Command string values are not case sensitive and spacing is ignored. Use upper or lower case as desired.
+*'''NOTE: In QB64, PLAY may NOT delay program progress! Use [[_DELAY]] and [[END]] to allow music completion.'''
 
 
 ''Example 1:'' Plays a sound with the volume and note varying from 0 to 50. Maximum note can only be 84.
@@ -288,6 +288,41 @@ gposxp = 1
 glocate gposyp + 1, 1 'gposyp = gposyp + 1
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}{{small|Code by Mennonite}}
+
+
+''Example 5:'' This example uses [[PRINT]] to good effect as string spacing is ignored by PLAY:
+{{CodeStart}} '' ''
+{{Cl|WIDTH}} 59, 28
+{{Cl|PRINT}} &lt;nowiki&gt;
+x$ = x$ + &quot;   o3    l4         t         0120c    ml&lt;f1   ,a      1,  &quot;
+x$ = x$ + &quot;   &gt;c    1,        mnf        .e  8f   am  l&lt;   e1    ,g   &quot;
+x$ = x$ + &quot;   1,    &gt;c       1, mn       g.   f8  ga   8g   8m  l&lt;    &quot;
+x$ = x$ + &quot;   f2.,a2.,      &gt;c   2.      ,m  nf   .f  8a     ml&lt;f     &quot;
+x$ = x$ + &quot;   ,a,&gt;c,mn     &gt;cd2.,&lt;f2     .,d2     .,&lt;b        -2      &quot;
+x$ = x$ + &quot;   .m    lb    -,&gt;d,f,mn&gt;d    ml       &lt;c          1,      &quot;
+x$ = x$ + &quot;   &lt;a    1,   f1         ,m   n&gt;       &gt;c          .&lt;      &quot;
+x$ = x$ + &quot;   a8    af  ml           c1  ,&lt;       e1          ,g      &quot;
+x$ = x$ + &quot;                                                           &quot;
+x$ = x$ + &quot;      1,m      n&gt;  g.f8ga8g8m  l&lt;                   f1     &quot;
+x$ = x$ + &quot;      ,d1,     &lt;b  -1           ,m                 n&gt;      &quot;
+x$ = x$ + &quot;      &gt;f .d    8d  c&lt;            f2               .,       &quot;
+x$ = x$ + &quot;      a2  .,   c2  .,&gt;f2.         ml      &lt;      b-        &quot;
+x$ = x$ + &quot;      ,&gt;   d,  f,  mn&gt;dml          &lt;c    1,&lt;    a1         &quot;
+x$ = x$ + &quot;      ,f    1, mn  &gt;&gt;               c.  &lt;a 8a  fm          &quot;
+x$ = x$ + &quot;      lc     2.,&lt;  e2                .,g2   .,mn           &quot;
+x$ = x$ + &quot;      &gt;g      .f8  gml&lt;b-,&gt;d,         f,     mn            &quot;
+x$ = x$ + &quot;                                                           &quot;
+x$ = x$ + &quot;&gt;d      ml  &lt;&lt;f2.,a2.,         &gt;         c2.,m       n&gt;  c.&quot;
+x$ = x$ + &quot; &lt;a    8a   ml                &lt;e,        g,  &gt;c      ,m  n&gt;&quot;
+x$ = x$ + &quot;  cm  l&lt;    &lt;b               -2 .,       &gt;d   2.     ,f  2.&quot;
+x$ = x$ + &quot;   ,mn&gt;     d2.ml&lt;          &lt;b   -,      &gt;d  ,f      ,m  n&gt;&quot;
+x$ = x$ + &quot;    dm      l&lt;&lt;f1,         a1,&gt;c1,mn     &gt;c.&lt;a       8a  fm&quot;
+x$ = x$ + &quot;    lc      1,            &lt;e1,g1,mn&gt;g    .f  8g      a8  g8&quot;
+x$ = x$ + &quot;    ml      &lt;&lt;           b-         1,   &gt;d   1,           &quot;
+x$ = x$ + &quot;    f1      ,mn&gt;f.d8dc  l1           ml  f,    c,    &lt;a  ,f&quot;&lt;/nowiki&gt;
+{{Cl|PRINT}} x$;
+{{Cl|PLAY}} x '' ''
+{{CodeEnd}}{{small|Code by Johnny B}}
 
 
 ''See also:''' 

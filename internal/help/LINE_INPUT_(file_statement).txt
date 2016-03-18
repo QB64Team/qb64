@@ -3,16 +3,25 @@ The '''LINE INPUT #''' file statement reads an entire file line as one string va
 
 
 {{PageSyntax}}
-:: LINE INPUT #filenumber%, linereturn$
+:: '''LINE INPUT''' '''#'''''filenumber&amp;''''',''' ''textlinereturn$''
 
 
+{{Parameters}}
+* ''filenumber'' is the [[INTEGER]] number of the file previously opened [[AS]].
+* Statement [[STRING]] variable returns ''text line'' of the file being read ending at [[ASCII#Control_Characters|CRLF]] characters.
 
-* Reads a file using the filenumber [[OPEN]]ed in the [[INPUT (file mode)]] as one file string value.
-* Returns [[STRING]] values so it must use one string variable.
+
+''Description:''
+* Reads a file using the filenumber [[OPEN]]ed in the [[INPUT (file mode)]] or GL [[BINARY]] file mode as one file line text string.
 * Can be used with [[EOF]] to count the number of lines of data (records) in a file using a loop.
 * Use the [[EOF]] function to avoid going past the end of a file and creating an error.
 * LINE INPUT # can even retain the original quotation marks in text.
-* '''NOTE: If QB64 or QB 4.5 give &quot;Input past End of file&quot; errors, check for CHR$(26) in the files being read!'''
+* '''Note: QB64''' will NOT remove CHR$(0) from the end of LINE INPUT # string return values like Qbasic did.
+* '''NOTE: [[LINE INPUT (file statement)|LINE INPUT]] will work faster in [[BINARY]] than [[INPUT (file mode)|INPUT]] mode in QB64 to stay compatible with QB.'''
+
+
+{{PageErrors}}
+* '''If QB64 or QB 4.5 give &quot;Input past End of file&quot; errors, check for CHR$(26) in the files being read!'''
 * '''Warning! Files must exist to open them in INPUT mode! Use [[_FILEEXISTS]] to avoid program [[ERROR Codes|errors]]!'''
 
 
@@ -34,6 +43,7 @@ The '''LINE INPUT #''' file statement reads an entire file line as one string va
 
 
 ''See also:'' 
+* [[OPEN]], [[CLOSE]]
 * [[INPUT (file mode)]], [[INPUT (file statement)|INPUT #]], [[INPUT$]] {{text|(file input)}}
 * [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
 * [[_FILEEXISTS]], [[_DIREXISTS]]

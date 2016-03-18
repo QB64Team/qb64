@@ -1,15 +1,24 @@
+{{DISPLAYTITLE:_MEMGET (function)}}
 The '''_MEMGET''' function returns a value from a specific memory block name at the specified OFFSET using a certain variable type.
 
 
 {{PageSyntax}}
-::: value = '''_MEMGET(''memory_block'', ''memory_block.OFFSET''''' [+ ''bytes'']''', ''variable_type'')'''
+::: returnvalue = '''_MEMGET(''memory_block'', ''byte_position'', ''variable_type'')'''
 
 
+{{Parameters}}
 * Returns a value of the ''variable type'' designated. The holding variable must match that [[TYPE]]!
-* ''memblock'' is the [[_MEM]] variable type name assigned to the block of memory.
-* ''memory block.OFFSET'' is the dot [[OFFSET]] byte zero memory position where block data begins. 
+* ''memory block'' is a [[_MEM]] variable type memory block name created by [[_MEMNEW]] or the [[_MEM (function)|_MEM]] function.
+* mandatory ''byte_position'' is the ''memory_block.[[OFFSET]]'' memory start position plus any bytes to move into the block. 
 * ''variable type'' is a variable [[TYPE]] like [[_BYTE]], [[INTEGER]], [[SINGLE]], [[DOUBLE]], etc.
-* All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable.
+
+
+''Usage:''
+* The memory block name.[[OFFSET]] returns the starting byte position of the block. Add bytes to move into the block.
+* The variable type held in the memory block can determine the next ''byte position'' to read. 
+* [[LEN]](variable) can determine the byte size of numerical or user defined variable [[type]]s irregardless of the value held.
+* [[STRING]] values should be of a defined length. Variable length strings can actually move around in memory and not be found.
+* '''_MEMGET variable values that are assigned a variable [[type]] other than a memory type do not need to be freed!'''
 
 
 ''Example:'' [[DEF SEG]] and [[VARPTR]] are no longer necessary to do things in memory just like [[POKE]] and [[PEEK]] do.
@@ -20,12 +29,13 @@ o = {{Cl|_MEM (function)|_MEM}}(d&amp;) 'OLD... o% = VARPTR(d&amp;)
 v = {{Cl|_MEMGET (function)|_MEMGET}}(o, o.OFFSET + 1, {{Cl|_UNSIGNED}} {{Cl|_BYTE}}) 'a PEEK
 {{Cl|PRINT}} v     'prints 3
 {{Cl|PRINT}} d&amp;    'prints 768 because the 2nd byte of d&amp; has been set to 3 or 3 * 256
+{{Cl|_MEMFREE}} o
 {{CodeEnd}}
 :''Explanation:'' The memory block and OFFSET are given by [[_MEMPUT]] and the _MEMGET function, with the designated type.
 
 
 ''See also:''
-* [[_MEM]]
+* [[_MEM]], [[MEM (function)]]
 * [[_MEMGET]], [[_MEMPUT]]
 * [[_MEMNEW]], [[_MEMFILL]]
 * [[_MEMCOPY]]

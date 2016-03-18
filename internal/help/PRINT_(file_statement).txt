@@ -1,12 +1,12 @@
-The [[PRINT (file statement)|PRINT #]] statement prints numeric or string expressions to a file, port or device.
+The [[PRINT (file statement)|PRINT #]] statement prints numeric or string expressions to a sequential file, IO port or device.
 
 
 {{PageSyntax}}
-::: '''PRINT #''fileNumber%''''', [ [{{Parameter|expression}}] [{;|,] ... ]
+::: '''PRINT #''fileNumber&amp;''''', [ [{{Parameter|expression}}] [{;|,] ... ]
 
 
 {{Parameters}}
-* {{Parameter|fileNumber%}} is the file number of a file or device opened for writing. See {{KW|OPEN}}.
+* {{Parameter|fileNumber&amp;}} is the file number of a file or device opened for writing. See {{KW|OPEN}}.
 * {{Parameter|expression}} is a numeric or string expression to be written to the file. Quotes will be removed from strings.
 * The print statement can be followed by a [[semicolon]] to stop the print cursor or a [[comma]] to tab the next print.
 
@@ -27,6 +27,7 @@ The [[PRINT (file statement)|PRINT #]] statement prints numeric or string expres
 ** If a numeric literal is in scientific notation, the number is also written in scientific notation. [[PRINT USING (file statement)|PRINT #, USING]] can return actual rounded numerical values in string form.
 ** The numerical value is always followed by a space character unless [[STR$]] is used to convert it to a string value.
 * Whenever [[PRINT (file statement)|PRINT #]] moves the file cursor to a new file row, a carriage return character ({{KW|CHR$|CHR$(13)}}) followed by a line feed character ({{KW|CHR$|CHR$(10)}}) is written. The combination are referred to as the &quot;CRLF&quot; character.
+* '''Note: [[RANDOM]] and [[BINARY]] files are not affected by PRINT # statements to them and will create a syntax error in QB64!'''
 
 
 ''Example:'' Prints data to a text file sequentially and reads it back to the program screen as one line of text.

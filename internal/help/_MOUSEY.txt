@@ -1,14 +1,17 @@
+{{DISPLAYTITLE:_MOUSEY}}
 '''_MOUSEY''' Function returns the current vertical(row) mouse cursor position when read after [[_MOUSEINPUT]].
 
 
 {{PageSyntax}}
-::: row% = {{KW|_MOUSEY}}
+::: pixelrow% = [[_MOUSEY]]
 
 
 ''Usage:''
-* [[SCREEN]] 0 returns the [[SINGLE]] vertical text row position. Graphic screens return the [[INTEGER]] pixel row.
+* [[SCREEN]] 0 returns the [[SINGLE]] horizontal text row position. Use [[INTEGER]] variables to avoid floating decimal returns.
+* Graphic screen modes 1, 2 and 7 to 13 and [[_NEWIMAGE]] 32 bit return the [[INTEGER]] pixel columns.
 * To calculate text rows in graphic modes divide the return by 16 or the [[_FONTHEIGHT]] of [[_FONT]] characters.
 * [[_MOUSEINPUT]] MUST be used to detect any changes in the mouse position and is '''required''' for any coordinate returns.
+* '''Note:''' In [[SCREEN]] 0, Qbasic's [[ABSOLUTE]] returned graphic coordinates. QB64 mouse functions return the text coordinates. 
 
 
 ''Example:'' Highlighting a row of text in Screen 0.

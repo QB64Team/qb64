@@ -1,0 +1,31 @@
+{{DISPLAYTITLE:_G2D}}
+The '''_G2D''' function converts a GRADIENT value into a DEGREE value. 
+
+
+{{PageSyntax}}
+:: result = [[_G2D]](''num'')
+
+
+*(Only available in QB64-GL, from Dirty Builds after 06/20/2014. Previous versions of QB64 don't support this command.)
+
+
+''Example:'' Coverting Gradients into Degree.
+{{CodeStart}}
+INPUT &quot;Give me an angle in Gradients &quot;, D
+R = _G2D(D)
+PRINT &quot;That angle in Degrees is &quot;; R
+{{CodeEnd}}
+{{OutputStart}}
+Give me an angle in Gradients 60
+That angle in Degrees is     54
+{{OutputEnd}}
+
+
+''See also:'' 
+* [[_D2G]], [[_D2R]]
+* [[_G2R]]
+* [[_R2D]], [[_R2G]]
+
+
+
+{{PageNavigation}}

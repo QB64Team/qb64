@@ -1,0 +1,34 @@
+{{DISPLAYTITLE: _PI}}
+The '''_PI''' [[FUNCTION|function]] returns '''π''' as a [[_FLOAT]] value with an optional multiplier parameter.
+
+
+{{PageSyntax}}
+::: circumference = '''_PI'''[(''multiplier'')] 
+
+
+{{Parameters}}
+* Optional ''multiplier'' (''2 * radius'' in above syntax) allows multiplication of the π value.
+
+
+{{PageDescription}}
+* Function can be used in '''QB64''' only to supply π or multiples in a program.
+* Accuracy is determined by the return variable type [[AS]] [[SINGLE]], [[DOUBLE]] or [[_FLOAT]].
+* The π value can also be derived using 4 * [[ATN]](1) for a [[SINGLE]] value.
+
+
+''Example:'' Calculating the area of a circle using a [[SINGLE]] variable in this case.
+{{CodeStart}}radius = 5
+circlearea = {{Cl|_PI}}(radius ^ 2)
+PRINT circlearea
+{{CodeEnd}} 
+{{OutputStart}} 78.53982
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[_ATAN2]], [[TAN]]
+* [[ATN]] {{text|(arctangent)}}
+* [[SIN]], [[COS]]
+
+
+{{PageNavigation}}

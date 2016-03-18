@@ -1,3 +1,4 @@
+{{DISPLAYTITLE:_DEVICE$}}
 The '''_DEVICE$''' function returns a [[STRING]] value holding the controller type, name and input types of the input devices on a computer.
 
 
@@ -9,8 +10,8 @@ The '''_DEVICE$''' function returns a [[STRING]] value holding the controller ty
 * The ''device_number'' parameter indicates the number of the controller device to be read.
 * Returns the [[STRING]] control type, name of the device and input types each can use included in brackets:
 ::* Control type:
-::: [KEYBOARD] always listed as the first device when available.
-::: [MOUSE]] always listed as the second device when available.
+::: [KEYBOARD] always listed as first device when keyboard(s) available. Only one keyboard will show.
+::: [MOUSE]] always listed as second device when keyboard(s) and mouse(mice) are available. Only one mouse will show.
 ::: [CONTROLLER] subsequent devices are listed as controllers which include joysticks and game pads.
 ::* When [CONTROLLER] is returned it may also give the [[STRING]] [[NAME] [device description]] of the controller.
 ::* Returns the type of input after the device name as one or more of the following types:
@@ -39,7 +40,7 @@ Buttons: 3 Axis: 2 Wheels: 3
 [CONTROLLER][[NAME][Microsoft Sidewinder Precision Pro (USB)]][BUTTON][AXIS]
 Buttons: 9 Axis: 6 Wheels: 0
 {{OutputEnd}}
-:Note: The [[STRIG]]/[[STICK]] commands won't read from the keyboard or mouse device the above example lists.
+:Note: The [[STRIG]]/[[STICK]] commands won't read from the keyboard or mouse device the above example lists. They will only work on controllers.
 
 
 ''Example 2:'' Finding the number of mouse buttons available in QB64. This could also be used for other devices.

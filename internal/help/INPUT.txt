@@ -3,26 +3,32 @@ The '''INPUT''' statement requests a [[STRING]] or numerical keyboard entry from
 
 
 {{PageSyntax}}
-:: '''INPUT''' [;] '''&quot;'''[Question or statement text]'''&quot;{,|;}''' '''''variable[[type]]'''''[, ...]
-:: '''INPUT ; ''variable[[type]]'''''[, ...]
+:: '''INPUT''' [;] '''&quot;'''[Question or statement text]'''&quot;{,|;}''' '''''variable'''''[, ...]
+:: '''INPUT ; ''variable'''''[, ...]
 
 
 ''[[Parameters]]:''
 * [[semicolon]] after the INPUT keyword keeps the entry on the same row after enter is pressed  and prevents screen roll. 
-* [[Quotation mark]]s are required except when just a semicolon follows INPUT. Just a question mark will appear before the entry cursor.
-* The text MUST be a literal [[STRING|string]] created by the programmer if used. '''Use a [[PRINT]] before INPUT to create text using variables.'''
+* The quoted text or question MUST be a literal [[STRING|string]] created by the programmer if used. '''Quoted text cannot use variables!'''
+* [[Quotation mark]]s are required except when a semicolon follows INPUT. A question mark will appear before entry cursor.
 * [[semicolon]] immediately after the text statement will display a ? mark with a space after it. Use a [[comma]] for input statements.
-* ''variable [[type]]'' determines the allowable numerical value entries in QB64. Text can't be entered for numerical values except D, E or [[HEX$]].
+* ''variable [[type]]'' determines the allowable numerical value entries in QB64. Text numerical entries limited to D, E, [[&amp;H]], [[&amp;O]] or [[&amp;B]].
 
 
 ''Usage:''
 * '''QB64 will not return Redo from start errors''' as user input is limited to input within the scope of the variable [[type]] used.
-* INPUT is capable of returning more than one ''variable'' value by separating input variables with commas in the statement. The user will have to know to separate each entry value with a comma when they use it. '''Use [[LINE INPUT]] for text entries that may contain commas!'''
-* [[STRING|String]] and numerical variables can both be used in multiple entry requests. Text cannot be entered as numerical variable values! 
+:: Text entries can use any entry including numerical. '''QB64 will ignore commas in single variable text entries!'''
+:: Numerical entries can use numbers only up to the input variable's numerical [[TYPE]] limit.
+:: [[INTEGER]], [[LONG]], and [[_INTEGER64]] entries will ignore decimal points entered and will use all numbers.
+* INPUT is capable of returning more than one ''variable'' value by separating input variables with commas in the statement. 
+::The program user will have to know to separate each entry value with a comma when they use it.
+:: [[STRING|String]] and numerical variables can both be used in multiple entry requests separated by commas.
+:: '''QB64 will allow comma separated entries to not be entered by the user without error!'''
+* '''Use [[LINE INPUT]] for text input entries that may contain commas such as address or name entries!'''  
 * The user must press enter for the INPUT procedure to end. Multiple entries can be skipped.
 * Will accept the [[scientific notation]] letter D or E inside of [[SINGLE]] or [[DOUBLE]] numerical values.
 * Numerical entries starting with [[&amp;H]], [[&amp;O]] and [[&amp;B]] can be made also.
-* INPUT removes all spaces preceeding or following a string value entry. QB64 doesn't remove the spaces
+* INPUT removes all leading or trailing spaces in a string value entry. '''QB64 does NOT remove those spaces!'''
 * The statement stops a program until enter is pressed. Not good in programs using a mouse (see [[INKEY$]] loops).
 * Use [[_DEST]] [[_CONSOLE]] before INPUT statements to be used in a [[$CONSOLE|console]] window.
 
@@ -55,8 +61,8 @@ You can drink beer!
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 
-{{Cl|COLOR}} 14: {{Cl|LOCATE}} 29, 2 '          place dursor at beginning of prompt liine
-{{Cl|PRINT}} &quot;Enter a name to search for... &quot;; 'print prompt on screen
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 29, 2 '          place cursor at beginning of prompt line
+{{Cl|PRINT}} &quot;Enter a name to search for... &quot;; 'print prompt on screen with input to follow
 {{Cl|COLOR}} 15: {{Cl|INPUT}} {{text|;|red}} &quot;&quot;, name$ '       get search name from user
 {{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} {{Cl|SPC}}(78); '       erase previous prompt
 n$ = {{Cl|UCASE$}}(name$) '                 convert search name to upper case

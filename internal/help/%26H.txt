@@ -18,6 +18,7 @@ The '''&amp;H''' prefix denotes that an integer value is expressed in a Hexadeci
 * [[LONG]] 32 bit [[_RGB]] values can be made using hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with full [[_ALPHA]] only.
 * [[LONG]] 32 bit [[_RGBA]] values can be made using hexadecimal values from '''&amp;H00{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with any [[_ALPHA]].
 * Hexadecimal '''0x''' is often used to prefix [[HEX$]] port addresses in documentation. Replace 0x with [[&amp;H]] in QB64 or QBasic.
+* To convert hex strings returned from [[HEX$]] with [[VAL]] you need to prefix the string with &amp;H (for example; if the string is &quot;FF&quot; you should do VAL(&quot;&amp;HFF&quot;) or VAL(&quot;&amp;H&quot; + hexvalue$).
 
 
 ''Example 1:'' The maximum octal values of decimal value -1 in each numerical type are:
