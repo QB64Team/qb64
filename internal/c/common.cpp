@@ -73,6 +73,9 @@
  #define int64 __int64
 #endif
 
+//#include <Shlobj.h>
+#include <shfolder.h>
+
 #include <float.h>
 #include <winbase.h>
 
@@ -92,7 +95,7 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
-#include <fcntl.h>
+
 
 //OS/compiler specific includes
 #ifdef QB64_WINDOWS
@@ -435,7 +438,23 @@ struct device_struct{
   int32 balls;
   int32 hats;
 };
+
+//device_struct constants
 #define QUEUED_EVENTS_LIMIT 1024
+#define DEVICETYPE_CONTROLLER 1
+#define DEVICETYPE_KEYBOARD 2
+#define DEVICETYPE_MOUSE 3
+
+
+
+
+
+
+
+
+
+
+
 
 struct mem_block{
   ptrszint offset;

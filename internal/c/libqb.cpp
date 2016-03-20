@@ -52,6 +52,7 @@
 
 
 #ifdef QB64_WINDOWS
+#include <fcntl.h>
 #include <shellapi.h>
 #endif
 
@@ -1165,7 +1166,9 @@ int32 mem_lock_freed_max=1000;//number of allocated entries
 int32 mem_lock_freed_n=0;//number of entries
 ptrszint *mem_lock_freed=(ptrszint*)malloc(sizeof(ptrszint)*mem_lock_freed_max);
 
-inline void new_mem_lock(){
+//inline removed because it is incompatible with Android studio x86 build
+
+void new_mem_lock(){
   if (mem_lock_freed_n){
     mem_lock_tmp=(mem_lock*)mem_lock_freed[--mem_lock_freed_n];
   }else{
@@ -1175,7 +1178,7 @@ inline void new_mem_lock(){
   mem_lock_tmp->id=++mem_lock_id;
 }
 
-inline void free_mem_lock(mem_lock *lock){
+void free_mem_lock(mem_lock *lock){
   lock->id=0;//invalidate lock
   if (lock->type==1) free(lock->offset);//malloc type
   //add to freed list
@@ -1269,6 +1272,18 @@ int32 key_display_redraw=0;
 extern int32 device_last;
 extern int32 device_max;
 extern device_struct *devices;
+
+extern uint8 getDeviceEventButtonValue(device_struct *device, int32 eventIndex, int32 objectIndex);
+extern void setDeviceEventButtonValue(device_struct *device, int32 eventIndex, int32 objectIndex, uint8 value);
+extern float getDeviceEventAxisValue(device_struct *device, int32 eventIndex, int32 objectIndex);
+extern void setDeviceEventAxisValue(device_struct *device, int32 eventIndex, int32 objectIndex, float value);
+extern float getDeviceEventWheelValue(device_struct *device, int32 eventIndex, int32 objectIndex);
+extern void setDeviceEventWheelValue(device_struct *device, int32 eventIndex, int32 objectIndex, float value);
+extern void setupDevice(device_struct *device);
+extern int32 createDeviceEvent(device_struct *device);
+extern void commitDeviceEvent(device_struct *device);
+
+
 
 extern ontimer_struct *ontimer;
 extern onkey_struct *onkey;
@@ -7414,6 +7429,7 @@ extern uint8 *mem_static_pointer;
 extern uint8 *mem_static_limit;
 
 uint8 *mem_static_malloc(uint32 size){
+  size+=7; size-=(size&7);//align to 8 byte boundry
   if ((mem_static_pointer+=size)<mem_static_limit) return mem_static_pointer-size;
   mem_static_size=(mem_static_size<<1)+size;
   mem_static=(uint8*)malloc(mem_static_size);
@@ -28670,7 +28686,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
       if (d->type==1){
     if (i==i2){
       if (axis<d->lastaxis){
-        f=*(float*)(d->events+(d->event_size*(d->queued_events-1))+d->lastbutton+axis*4);
+	f=getDeviceEventAxisValue(d,d->queued_events-1,axis);
         if (f>-0.01&&f<=0.01) f=0;
         v=qbr_float_to_long(f*127.0)+127;
         if (v>254) v=254;
@@ -28716,7 +28732,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
           return 0;
         }else{
           //method 2: currently down
-          v=*(d->events+(d->event_size*(d->queued_events-1))+(button-1));
+	  v=getDeviceEventButtonValue(d,d->queued_events-1,button-1);
           if (v) return -1; else return 0;
         }
       }//button exists
@@ -29474,6 +29490,155 @@ qbs *func__startdir(){
         return temp;
 }
 
+qbs *rootDir=NULL;//the dir moved to when program begins
+
+char *android_dir_downloads=NULL;
+char *android_dir_documents=NULL;
+char *android_dir_pictures=NULL;
+char *android_dir_music=NULL;
+char *android_dir_video=NULL;
+char *android_dir_dcim=NULL;
+
+qbs *func__dir(qbs* context_in){
+    
+    	static qbs *context=NULL;
+	if (!context){context=qbs_new(0,0);}
+
+	qbs_set(context,qbs_ucase(context_in));
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("TEXT"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DOCUMENT"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DOCUMENTS"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY DOCUMENTS"))){
+		#ifdef QB64_ANDROID
+            mkdir(android_dir_documents,0770);
+			return qbs_new_txt(android_dir_documents);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,5,NULL,0,osPath))){ //Documents
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+	
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("MUSIC"))||qbs_equal(qbs_ucase(context),qbs_new_txt("AUDIO"))||qbs_equal(qbs_ucase(context),qbs_new_txt("SOUND"))||qbs_equal(qbs_ucase(context),qbs_new_txt("SOUNDS"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY MUSIC"))){
+		#ifdef QB64_ANDROID
+            mkdir(android_dir_music,0770);
+			return qbs_new_txt(android_dir_music);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,13,NULL,0,osPath))){ //Music
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("PICTURE"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PICTURES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("IMAGE"))||qbs_equal(qbs_ucase(context),qbs_new_txt("IMAGES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY PICTURES"))){
+		#ifdef QB64_ANDROID
+            		mkdir(android_dir_pictures,0770);
+			return qbs_new_txt(android_dir_pictures);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,39,NULL,0,osPath))){//Pictures
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("DCIM"))||qbs_equal(qbs_ucase(context),qbs_new_txt("CAMERA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("CAMERA ROLL"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PHOTO"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PHOTOS"))){
+		#ifdef QB64_ANDROID
+            		mkdir(android_dir_dcim,0770);
+			return qbs_new_txt(android_dir_dcim);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,39,NULL,0,osPath))){//Pictures
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("MOVIE"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MOVIES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("VIDEO"))||qbs_equal(qbs_ucase(context),qbs_new_txt("VIDEOS"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY VIDEOS"))){
+		#ifdef QB64_ANDROID
+			mkdir(android_dir_video,0770);
+			return qbs_new_txt(android_dir_video);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,14,NULL,0,osPath))){ //Videos
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("DOWNLOAD"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DOWNLOADS"))){
+		#ifdef QB64_ANDROID
+	        	mkdir(android_dir_downloads,0770);
+			return qbs_new_txt(android_dir_downloads);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x0028,NULL,0,osPath))){//user folder
+				//XP & SHGetFolderPathA do not support the concept of a Downloads folder, however it can be constructed
+				mkdir((char*)((qbs_add(qbs_new_txt(osPath),qbs_new_txt_len("\\Downloads\0",11)))->chr));
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\Downloads\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("DESKTOP"))){
+		#ifdef QB64_ANDROID
+			mkdir(android_dir_downloads,0770);
+			return qbs_new_txt(android_dir_downloads);
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0,NULL,0,osPath))){ //Desktop
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("APPDATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("APPLICATION DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DATA"))){
+		#ifdef QB64_ANDROID			
+			return qbs_add(rootDir,qbs_new_txt("/"));
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x001a,NULL,0,osPath))){ //CSIDL_APPDATA (%APPDATA%)
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("LOCALAPPDATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("LOCAL APPLICATION DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("LOCAL PROGRAM DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("LOCAL DATA"))){
+		#ifdef QB64_ANDROID
+			return qbs_add(rootDir,qbs_new_txt("/"));
+		#endif
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x001c,NULL,0,osPath))){ //CSIDL_LOCAL_APPDATA (%LOCALAPPDATA%)
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+			}
+		#endif
+	}
+
+	//general fallback location
+	#ifdef QB64_WINDOWS
+		CHAR osPath[MAX_PATH];
+		if(SUCCEEDED(SHGetFolderPathA(NULL,0,NULL,0,osPath))){ //desktop
+			return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+		}
+		return qbs_new_txt(".\\");//current location
+	#else
+		#ifdef QB64_ANDROID
+            		mkdir(android_dir_downloads,0770);
+			return qbs_new_txt(android_dir_downloads);
+		#endif
+		return qbs_new_txt("./");//current location
+	#endif
+}
+
   extern void set_dynamic_info();
 
 
@@ -29519,7 +29684,6 @@ qbs *func__startdir(){
         env->ReleaseStringUTFChars( jpath, app_dir);
         // Pre-extract assets, to avoid Android-specific file opening
 
-                
         AAssetManager* mgr = app->activity->assetManager;
         
         /* Old code which pulled all root directory assets, in QB64 assets are specified in code so this just wastes time
@@ -29533,12 +29697,77 @@ qbs *func__startdir(){
 
         #include "../temp/assets.txt"
 
+	//get _DIR$(...) paths
+	{//upscope
+
+	jfieldID fieldId;
+	jclass envClass = env->FindClass("android/os/Environment");
+	char** targetString;
+	jstring jstrParam;
+	char* s;
+	jstring sType;
+	for (int i=1;i<=6;i++){
+
+		if (i==1){
+			targetString=&android_dir_dcim;
+			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DCIM", "Ljava/lang/String;");
+		}
+		if (i==2){
+			targetString=&android_dir_downloads;
+			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DOWNLOADS", "Ljava/lang/String;");
+		}
+		if (i==3){
+			targetString=&android_dir_documents;
+			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DOCUMENTS", "Ljava/lang/String;");
+		}
+		if (i==4){
+			targetString=&android_dir_pictures;
+			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_PICTURES", "Ljava/lang/String;");
+		}
+		if (i==5){
+			targetString=&android_dir_music;
+			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_MUSIC", "Ljava/lang/String;");
+		}
+		if (i==6){
+			targetString=&android_dir_video;
+			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_MOVIES", "Ljava/lang/String;");
+		}
+		
+
+		//retrieve jstring representation of environment variable
+		jstrParam = (jstring)env->GetStaticObjectField(envClass, fieldId);
+		s = env->GetStringUTFChars(jstrParam, NULL);
+		LOGI("String name of Environment.Variable: %s", s);
+		env->ReleaseStringUTFChars(jstrParam, s);
+
+		//use jstring representation to retrieve folder name
+		sType=jstrParam;
+		jmethodID midEnvironmentGetExternalStoragePublicDirectory = env->GetStaticMethodID(envClass, "getExternalStoragePublicDirectory", "(Ljava/lang/String;)Ljava/io/File;");
+		jobject oExternalStorageDirectory = NULL;
+		oExternalStorageDirectory = env->CallStaticObjectMethod(envClass, midEnvironmentGetExternalStoragePublicDirectory, sType);
+		jclass cFile = env->GetObjectClass(oExternalStorageDirectory);
+		jmethodID midFileGetAbsolutePath = env->GetMethodID(cFile, "getAbsolutePath", "()Ljava/lang/String;");
+		env->DeleteLocalRef(cFile);
+		jstring extStoragePath = (jstring)env->CallObjectMethod(oExternalStorageDirectory, midFileGetAbsolutePath);
+		const char* extStoragePathString = env->GetStringUTFChars(extStoragePath, NULL);
+		LOGI("Path: %s", extStoragePathString);// /storage/emulated/0/Download
+		
+		*targetString=(char*)calloc(1,strlen(extStoragePathString)+2);
+		memcpy(*targetString,extStoragePathString,strlen(extStoragePathString));
+		(*targetString)[strlen(extStoragePathString)]=47;//append "/"
+
+		env->ReleaseStringUTFChars(extStoragePath, extStoragePathString);
+		env->DeleteLocalRef(sType);
+	}
+
+	}//downscope
+
+
+
 
 
 //JavaVMAttachArgs args = { JNI_VERSION_1_6, NULL, NULL };
 //vm->AttachCurrentThread( &env, &args );
-
-//not sure why we do this...
 
 
 //jmethodID activityConstructor =  env->GetMethodID(app->activity->clazz, "<init>", "()V");
@@ -29968,6 +30197,9 @@ qbs_set(startDir,func__cwd());
 #endif
 #endif
 
+rootDir=qbs_new(0,0);
+qbs_set(rootDir,func__cwd());
+
     unknown_opcode_mess=qbs_new(0,0);
     qbs_set(unknown_opcode_mess,qbs_new_txt_len("Unknown Opcode (  )\0",20));
 
@@ -30324,39 +30556,27 @@ qbs_set(startDir,func__cwd());
 
 
 
-//Init _DEVICEs
-i=1;
+//setup default _DEVICE(s)
+i=0;
+
 //keyboard
-devices[i].type=2;
+i++;
+devices[i].type=DEVICETYPE_KEYBOARD;
 devices[i].name="[KEYBOARD][BUTTON]";
 devices[i].lastbutton=512;
-//calculate queue message size
-x=512+8;
-devices[i].event_size=x;
-//create initial 'current' and 'previous' events
-devices[i].events=(uint8*)calloc(2,x);
-devices[i].max_events=2;
-devices[i].queued_events=2;
-devices[i].connected=1;
-devices[i].used=1;
 devices[i].description="Keyboard";
-i++;
+setupDevice(&devices[i]);
+
 //mouse
-devices[i].type=3;
+i++;
+devices[i].type=DEVICETYPE_MOUSE;
 devices[i].name="[MOUSE][BUTTON][AXIS][WHEEL]";
 devices[i].lastbutton=3;
 devices[i].lastaxis=2;
 devices[i].lastwheel=3;
-//calculate queue message size
-x=devices[i].lastbutton+devices[i].lastaxis*4+devices[i].lastwheel*4+8;
-devices[i].event_size=x;
-//create initial 'current' and 'previous' events
-devices[i].events=(uint8*)calloc(2,x);
-devices[i].max_events=2;
-devices[i].queued_events=2;
-devices[i].connected=1;
-devices[i].used=1;
 devices[i].description="Mouse";
+setupDevice(&devices[i]);
+
 device_last=i;
 
 
@@ -32938,29 +33158,14 @@ QB64_GAMEPAD_INIT();
         keydown_special:
         static device_struct *d;
         d=&devices[1];//keyboard
-        if (*(d->events+((d->queued_events-1)*d->event_size)+code)!=1){//don't add message if already on
-          uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
-              //discard base message
-              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-              d->queued_events--;
-            }else{
-              cp=(uint8*)calloc(d->max_events*2,d->event_size);
-              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-              cp2=d->events;
-              d->events=cp;
-              free(cp2);
-              d->max_events*=2;
-            }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          *(d->events+(d->queued_events*d->event_size)+code)=1;
-          if (special==2){special=1; d->queued_events++; goto keydown_special;}
-          if (special==1) *(d->events+(d->queued_events*d->event_size)+code)=0;
-          d->queued_events++;
+        if (getDeviceEventButtonValue(d,d->queued_events-1,code)!=1){//don't add message if already on
+
+	  int32 eventIndex=createDeviceEvent(d);
+	  setDeviceEventButtonValue(d,eventIndex,code,1);
+          if (special==2){special=1; commitDeviceEvent(d); goto keydown_special;}//jump to ~5 lines above to add a 2nd key event
+          if (special==1) setDeviceEventButtonValue(d,eventIndex,code,0);
+          commitDeviceEvent(d);
+
         }//not 1          
         }//core devices required
 
@@ -32982,27 +33187,12 @@ QB64_GAMEPAD_INIT();
 
         static device_struct *d;
         d=&devices[1];//keyboard
-        if (*(d->events+((d->queued_events-1)*d->event_size)+code)!=0){//don't add message if already on
-          uint8 *cp,*cp2;
-          if (d->queued_events==d->max_events){//expand/shift event buffer
-            if (d->max_events>=(QUEUED_EVENTS_LIMIT/4)){//note: default event limit divied by 4
-              //discard base message
-              memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-              d->queued_events--;
-            }else{
-              cp=(uint8*)calloc(d->max_events*2,d->event_size);
-              memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-              cp2=d->events;
-              d->events=cp;
-              free(cp2);
-              d->max_events*=2;
-            }
-          }
-          memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-          *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-          //make required changes
-          *(d->events+(d->queued_events*d->event_size)+code)=0;
-          d->queued_events++;
+        if (getDeviceEventButtonValue(d,d->queued_events-1,code)!=0){//don't add message if already off
+
+	  int32 eventIndex=createDeviceEvent(d);
+	  setDeviceEventButtonValue(d,eventIndex,code,0);
+          commitDeviceEvent(d);
+
         }//not 1          
         }//core devices required
 

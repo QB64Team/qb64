@@ -1950,26 +1950,11 @@ if (src_hardware_img->source_state.PO2_fix){
     button--;
     static device_struct *d;
     d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    *(d->events+(d->queued_events*d->event_size)+button)=0;
-    d->queued_events++;
+    
+    int32 eventIndex=createDeviceEvent(d);
+    setDeviceEventButtonValue(d,eventIndex,button,0);
+    commitDeviceEvent(d);
+
       }//valid range
     }//core devices required
 
@@ -2010,26 +1995,11 @@ if (src_hardware_img->source_state.PO2_fix){
     button--;
     static device_struct *d;
     d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
-    *(d->events+(d->queued_events*d->event_size)+button)=1;
-    d->queued_events++;
+
+    int32 eventIndex=createDeviceEvent(d);
+    setDeviceEventButtonValue(d,eventIndex,button,1);
+    commitDeviceEvent(d);
+
     //1-3
       }else{
     //not 1-3
@@ -2039,45 +2009,15 @@ if (src_hardware_img->source_state.PO2_fix){
       if (button==4) f=-1; else f=1;
       static device_struct *d;
       d=&devices[2];//mouse
-      static uint8 *cp,*cp2;
-      if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-      }
-      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-      //make required changes
-      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=f;
-      d->queued_events++;
-      if (d->queued_events==d->max_events){//expand/shift event buffer
-        if (d->max_events>=QUEUED_EVENTS_LIMIT){
-          //discard base message
-          memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-          d->queued_events--;
-        }else{
-          cp=(uint8*)calloc(d->max_events*2,d->event_size);
-          memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-          cp2=d->events;
-          d->events=cp;
-          free(cp2);
-          d->max_events*=2;
-        }
-      }
-      memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-      *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-      //make required changes
-      *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+(3-1)*4)=0;
-      d->queued_events++;
+
+      int32 eventIndex=createDeviceEvent(d);
+      setDeviceEventWheelValue(d,eventIndex,2,f);
+      commitDeviceEvent(d);
+
+      eventIndex=createDeviceEvent(d);
+      setDeviceEventWheelValue(d,eventIndex,2,0);
+      commitDeviceEvent(d);
+
     }//4-5
       }//not 1-3
     }//core devices required
@@ -2132,25 +2072,8 @@ if (src_hardware_img->source_state.PO2_fix){
       if (!device_mouse_relative){
     static device_struct *d;
     d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
 
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
+    int32 eventIndex=createDeviceEvent(d);
     static float fx,fy;
     static int32 z;
     fx=x;
@@ -2169,59 +2092,30 @@ if (src_hardware_img->source_state.PO2_fix){
     fy=fy/(float)(z-1);//0 to 1
     fy*=2.0;//0 to 2
     fy-=1.0;//-1 to 1
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton)=fx;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+4)=fy;
-    d->queued_events++;
+    setDeviceEventAxisValue(d,eventIndex,0,fx);
+    setDeviceEventAxisValue(d,eventIndex,1,fy);    
+    commitDeviceEvent(d);
+
       }else{
     static device_struct *d;
     d=&devices[2];//mouse
-    static uint8 *cp,*cp2;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
+
+    int32 eventIndex=createDeviceEvent(d);
     static float fx,fy;
     static int32 z;
     fx=xrel;
     fy=yrel;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-    d->queued_events++;
-    if (d->queued_events==d->max_events){//expand/shift event buffer
-      if (d->max_events>=QUEUED_EVENTS_LIMIT){
-        //discard base message
-        memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-        d->queued_events--;
-      }else{
-        cp=(uint8*)calloc(d->max_events*2,d->event_size);
-        memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-        cp2=d->events;
-        d->events=cp;
-        free(cp2);
-        d->max_events*=2;
-      }
-    }
-    memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-    *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-    //make required changes
+    setDeviceEventWheelValue(d,eventIndex,0,fx);
+    setDeviceEventWheelValue(d,eventIndex,1,fy);    
+    commitDeviceEvent(d);
+
+    eventIndex=createDeviceEvent(d);
     fx=0;
     fy=0;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4)=fx;
-    *(float*)(d->events+(d->queued_events*d->event_size)+d->lastbutton+d->lastaxis*4+4)=fy;
-    d->queued_events++;
+    setDeviceEventWheelValue(d,eventIndex,0,fx);
+    setDeviceEventWheelValue(d,eventIndex,1,fy);
+    commitDeviceEvent(d);
+
       }
     }//core devices required
   }

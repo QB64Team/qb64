@@ -122,6 +122,9 @@ void requestKeyboardOverlayImage(int32 handle){
 
 //extern functions
 
+extern qbs *func__dir(qbs* context);
+
+
 extern int32 func__scaledwidth();
 extern int32 func__scaledheight();
 
@@ -1398,6 +1401,64 @@ int32 device_last=0;//last used device
 int32 device_max=1000;//number of allocated indexes
 device_struct *devices=(device_struct*)calloc(1000+1,sizeof(device_struct));
 
+//device_struct helper functions
+uint8 getDeviceEventButtonValue(device_struct *device, int32 eventIndex, int32 objectIndex){
+	return *(device->events+eventIndex*device->event_size+device->lastaxis*4+device->lastwheel*4+objectIndex);
+}
+void setDeviceEventButtonValue(device_struct *device, int32 eventIndex, int32 objectIndex, uint8 value){
+	*(device->events+eventIndex*device->event_size+device->lastaxis*4+device->lastwheel*4+objectIndex)=value;
+}
+float getDeviceEventAxisValue(device_struct *device, int32 eventIndex, int32 objectIndex){
+	return *(float*)(device->events+eventIndex*device->event_size+objectIndex*4);
+}
+void setDeviceEventAxisValue(device_struct *device, int32 eventIndex, int32 objectIndex, float value){
+	*(float*)(device->events+eventIndex*device->event_size+objectIndex*4)=value;
+}
+float getDeviceEventWheelValue(device_struct *device, int32 eventIndex, int32 objectIndex){
+	return *(float*)(device->events+eventIndex*device->event_size+device->lastaxis*4+objectIndex*4);
+}
+void setDeviceEventWheelValue(device_struct *device, int32 eventIndex, int32 objectIndex, float value){
+	*(float*)(device->events+eventIndex*device->event_size+device->lastaxis*4+objectIndex*4)=value;
+}
+void setupDevice(device_struct *device){
+	int32 size=device->lastaxis*4+device->lastwheel*4+device->lastbutton;
+	size+=8;//for appended ordering index
+	size+=7; size=size-(size&7);//align to closest 8-byte boundary	
+	device->event_size=size;
+	device->events=(uint8*)calloc(2,device->event_size);//create initial 'current' and 'previous' events
+	device->max_events=2;
+	device->queued_events=2;
+	device->connected=1;
+	device->used=1;
+}
+int32 createDeviceEvent(device_struct *device){
+	uint8 *cp,*cp2;
+	if (device->queued_events==device->max_events){//expand/shift event buffer
+		if (device->max_events>=QUEUED_EVENTS_LIMIT){
+			//discard base message
+			memmove(device->events,device->events+device->event_size,(device->queued_events-1)*device->event_size);
+			device->queued_events--;
+		}else{
+			cp=(uint8*)calloc(device->max_events*2,device->event_size);//create new buffer
+			memcpy(cp,device->events,device->queued_events*device->event_size);//copy events from old buffer into new buffer
+			cp2=device->events;
+			device->events=cp;
+			device->max_events*=2;
+			free(cp2);
+		}
+	}
+	//copy previous event data into new event
+	memmove(device->events+device->queued_events*device->event_size,device->events+(device->queued_events-1)*device->event_size,device->event_size);
+	*(int64*)(device->events+(device->queued_events*device->event_size)+(device->event_size-8))=device_event_index++;//set global event index
+	int32 eventIndex=device->queued_events;
+	return eventIndex;
+}
+void commitDeviceEvent(device_struct *device){
+	device->queued_events++;
+}
+
+
+
 int32 func__devices(){
  return device_last;
 }
@@ -1458,7 +1519,7 @@ if (device_selected<1||device_selected>device_last){error(5); return 0;}
 static device_struct *d; d=&devices[device_selected];
 if (!passed) i=1;
 if (i<1||i>d->lastbutton){error(5); return 0;}
-if (*(d->events+d->event_size+(i-1))) return -1;
+if (getDeviceEventButtonValue(d,1,i-1)) return -1;
 return 0;
 }
 
@@ -1468,8 +1529,8 @@ static device_struct *d; d=&devices[device_selected];
 if (!passed) i=1;
 if (i<1||i>d->lastbutton){error(5); return 0;}
 static int32 old_value,value;
-value=*(d->events+d->event_size+(i-1));
-old_value=*(d->events+(i-1));
+value=getDeviceEventButtonValue(d,1,i-1);
+old_value=getDeviceEventButtonValue(d,0,i-1);
 if (value>old_value) return -1;
 if (value<old_value) return 1;
 return 0;
@@ -1480,7 +1541,7 @@ if (device_selected<1||device_selected>device_last){error(5); return 0;}
 static device_struct *d; d=&devices[device_selected];
 if (!passed) i=1;
 if (i<1||i>d->lastaxis){error(5); return 0;}
-return *(float*)(d->events+d->event_size+d->lastbutton+(i-1)*4);
+return getDeviceEventAxisValue(d,1,i-1);
 }
 
 float func__wheel(int32 i,int32 passed){
@@ -1488,7 +1549,7 @@ if (device_selected<1||device_selected>device_last){error(5); return 0;}
 static device_struct *d; d=&devices[device_selected];
 if (!passed) i=1;
 if (i<1||i>d->lastwheel){error(5); return 0;}
-return *(float*)(d->events+d->event_size+d->lastbutton+d->lastaxis*4+(i-1)*4);
+return getDeviceEventWheelValue(d,1,i-1);
 }
 
 int32 func__lastbutton(int32 di,int32 passed){

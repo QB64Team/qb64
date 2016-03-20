@@ -73,26 +73,10 @@ void onButtonDown(struct Gamepad_device * device, unsigned int buttonID, double 
               }
             }//within supported range
 
-            uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            *(d->events+(d->queued_events*d->event_size)+button)=1;
-            d->queued_events++;
+	    int32 eventIndex=createDeviceEvent(d);
+	    setDeviceEventButtonValue(d,eventIndex,button,1);
+            commitDeviceEvent(d);
+
             //set STRIG_button_pressed for button
             if (button>=0&&button<=255){
               d->STRIG_button_pressed[button]=1;
@@ -120,26 +104,11 @@ void onButtonUp(struct Gamepad_device * device, unsigned int buttonID, double ti
           if (d->used==1){
         if (d->type==1){
 	  if (d->handle_int==device->deviceID){
-            uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes
-            *(d->events+(d->queued_events*d->event_size)+button)=0;
-            d->queued_events++;
+
+	    int32 eventIndex=createDeviceEvent(d);
+	    setDeviceEventButtonValue(d,eventIndex,button,0);
+            commitDeviceEvent(d);
+
           }//js index
         }//type==1
           }//used
@@ -163,24 +132,7 @@ void onAxisMoved(struct Gamepad_device * device, unsigned int axisID, float valu
           if (d->used==1){
         if (d->type==1){
 	  if (d->handle_int==device->deviceID){
-            uint8 *cp,*cp2;
-            if (d->queued_events==d->max_events){//expand/shift event buffer
-              if (d->max_events>=QUEUED_EVENTS_LIMIT){
-            //discard base message
-            memmove(d->events,d->events+d->event_size,(d->queued_events-1)*d->event_size);
-            d->queued_events--;
-              }else{
-            cp=(uint8*)calloc(d->max_events*2,d->event_size);
-            memcpy(cp,d->events,d->queued_events*d->event_size);//copy existing events
-            cp2=d->events;
-            d->events=cp;
-            free(cp2);
-            d->max_events*=2;
-              }
-            }
-            memmove(d->events+d->queued_events*d->event_size,d->events+(d->queued_events-1)*d->event_size,d->event_size);//duplicate last event
-            *(int64*)(d->events+(d->queued_events*d->event_size)+(d->event_size-8))=device_event_index++;//store global event index
-            //make required changes	    
+
             float f;
             f=value;
 	    /*
@@ -189,10 +141,11 @@ void onAxisMoved(struct Gamepad_device * device, unsigned int axisID, float valu
 	    */
             if (f>1.0) f=1.0;
             if (f<-1.0) f=-1.0;
-            int32 o;
-            o=d->lastbutton+axis*4;
-            *(float*)(d->events+(d->queued_events*d->event_size)+o)=f;
-            d->queued_events++;
+
+	    int32 eventIndex=createDeviceEvent(d);
+	    setDeviceEventAxisValue(d,eventIndex,axis,f);
+            commitDeviceEvent(d);
+
           }//js index
         }//type==1
           }//used
@@ -248,7 +201,7 @@ if (i>device_max){
 	device_max*=2;
 }
 memset(&devices[i],0,sizeof(device_struct));
-devices[i].type=1;
+devices[i].type=DEVICETYPE_CONTROLLER;
 devices[i].description=strdup(device->description);
 devices[i].handle_int=device->deviceID;
 devices[i].buttons=device->numButtons;
@@ -265,15 +218,9 @@ if (devices[i].lastbutton) strcat (name,"[BUTTON]");
 if (devices[i].lastaxis) strcat (name,"[AXIS]");
 if (devices[i].lastwheel) strcat (name,"[WHEEL]");
 devices[i].name=strdup(name);
-//calculate queue message size
-x=devices[i].lastbutton+(devices[i].lastaxis+devices[i].lastwheel)*4+8;
-devices[i].event_size=x;
-//create initial 'current' and 'previous' events
-devices[i].events=(uint8*)calloc(2,x);
-devices[i].max_events=2;
-devices[i].queued_events=2;
-devices[i].connected=1;
-devices[i].used=1;
+
+setupDevice(&devices[i]);
+
 device_last=i;
 
 }

@@ -1,8 +1,12 @@
 APP_PLATFORM := android-10
 #APP_PLATFORM := android-9
 
-#APP_ABI := armeabi-v7a
-APP_ABI := armeabi
+#APP_ABI := armeabi
+# Android 4+ (Ice Cream Sandwich) requires an ARMv7 processor. (Some custom versions of Android 4+ have been made for ARMv6)
+# Therefore, there isn't much point producing armeabi binaries
+
+APP_ABI := armeabi-v7a
+APP_ABI += x86
 
 APP_STL := gnustl_static
 

@@ -2837,3 +2837,14 @@ id.subfunc = 1
 id.callname = "func__startdir"
 id.ret = STRINGTYPE - ISPOINTER
 regid
+
+'Return a path that best represents the context provided e.g. _DIR$("DESKTOP")
+clearid
+id.n = "_DIR"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__dir"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.ret = STRINGTYPE - ISPOINTER
+regid
