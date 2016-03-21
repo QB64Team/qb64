@@ -2928,11 +2928,11 @@ DO
                 IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE IF without $IF": GOTO errmes
                 IF DefineElse(ExecCounter) AND 2 THEN a$ = "$ELSE IF cannot follow $ELSE": GOTO errmes
                 IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$ELSE IF without THEN": GOTO errmes
+                temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
+                temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
                 IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
                     ExecLevel(ExecCounter) = -1
                 ELSE
-                    temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
-                    temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
                     result = EvalPreIF(temp$, a$)
                     IF a$ <> "" THEN GOTO errmes
                     IF result <> 0 THEN
