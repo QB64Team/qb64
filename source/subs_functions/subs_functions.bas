@@ -746,6 +746,14 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
+id.n = "_INCLERRORLINE"
+id.subfunc = 1
+id.callname = "func__inclerrorline"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+
+clearid
 id.n = "_DISPLAY"
 id.subfunc = 2
 id.callname = "sub__display"

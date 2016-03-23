@@ -216,7 +216,7 @@ extern "C" int QB64_Resizable(){
 
 int32 sub_gl_called=0;
 
-extern void evnt(uint32 linenumber);
+extern void evnt(uint32 linenumber, uint32 inclinenumber = 0);
 
 extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #ifdef QB64_WINDOWS
@@ -4135,6 +4135,7 @@ void convert_text_to_utf16(int32 fonthandle,void *buf,int32 size){
 qbs *unknown_opcode_mess;
 
 extern uint32 ercl;
+extern uint32 inclercl;
 
 int32 exit_blocked=0;
 int32 exit_value=0;
@@ -7188,7 +7189,7 @@ const char fixerr_strcont[]="\nContinue?";
 const char fixerr_strunhan[]="Unhandled Error #";
 const char fixerr_strcrit[]="Critical Error #";
 
-void fix_error(){
+void fix_error(uint32 inclinenumber = 0){
   static char errtitle[256];//builds message
   static char errmess[256];//builds message
   static char *cp;
@@ -7284,7 +7285,7 @@ void fix_error(){
 
     i=0;
     memcpy(&errmess[i],&fixerr_strline[0],strlen(fixerr_strline)); i=i+strlen(fixerr_strline);
-    i2=sprintf(&errmess[i],"%u\n",ercl); i=i+i2;
+    i2=sprintf(&errmess[i],"%u (included line: %u)\n",ercl,inclercl); i=i+i2;
     memcpy(&errmess[i],cp,strlen(cp)); i=i+strlen(cp);
     if (!prevent_handling) {memcpy(&errmess[i],&fixerr_strcont[0],strlen(fixerr_strcont)); i=i+strlen(fixerr_strcont);}
     errmess[i]=0;

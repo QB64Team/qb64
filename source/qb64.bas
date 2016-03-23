@@ -10262,7 +10262,11 @@ DO
             dynscope = 0
             PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + ");if(r)goto S_" + str2$(statementn) + ";}"
         ELSE
-            PRINT #12, "if(!qbevent)break;evnt(" + str2$(linenumber) + ");}while(r);"
+            inclinenump$ = ""
+            IF inclinenumber(inclevel) THEN
+                inclinenump$ = ", " + str2$(inclinenumber(inclevel))
+            END IF
+            PRINT #12, "if(!qbevent)break;evnt(" + str2$(linenumber) + inclinenump$ + ");}while(r);"
         END IF
     END IF
 

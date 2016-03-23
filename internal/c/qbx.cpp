@@ -286,7 +286,7 @@ extern uint32 *rm32();
 extern void cpu_call();
 extern int64 build_int64(uint32 val2,uint32 val1);
 extern uint64 build_uint64(uint32 val2,uint32 val1);
-extern void fix_error();
+extern void fix_error(uint32 inclinenumber = 0);
 extern double get_error_erl();
 extern uint32 get_error_err();
 extern void end();
@@ -655,6 +655,7 @@ int32 key_event_id=0;
 int32 strig_event_occurred=0;//inc/dec as each GOSUB to QBMAIN () begins/ends
 int32 strig_event_id=0;
 uint32 ercl;
+uint32 inclercl;
 uint16 call_absolute_offsets[256];
 uint32 dbgline;
 uint32 qbs_cmem_sp=256;
@@ -1054,6 +1055,10 @@ int32 func__errorline(){
 return ercl;
 }
 
+
+int32 func__inclerrorline(){
+return inclercl;
+}
 
 
 void chain_input(){
@@ -1932,7 +1937,7 @@ extern int64 display_lock_released;
 extern int32 disableEvents;
 
 uint32 r;
-void evnt(uint32 linenumber){
+void evnt(uint32 linenumber, uint32 inclinenumber = 0){
 if (disableEvents) return;
 
 qbevent=0;
@@ -1953,7 +1958,8 @@ Sleep(10);
 
 if(new_error){
  ercl=linenumber;
- fix_error();
+ inclercl=inclinenumber;
+ fix_error(inclinenumber);
  if (error_retry){error_retry=0; r=1;}
 }else{
  if (sub_gl_called==0) events();
