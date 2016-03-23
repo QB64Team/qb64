@@ -116,11 +116,21 @@ c$ = idecommand$
 'report any IDE errors which have occurred
 IF ideerror THEN
     mustdisplay = 1
-    IF ideerror = 1 THEN ideerrormessage "IDE module error"
-    IF ideerror = 2 THEN ideerrormessage "File not found"
-    IF ideerror = 3 THEN ideerrormessage "File access error": CLOSE #150
-    IF ideerror = 4 THEN ideerrormessage "Path not found"
-                         ideerrormessage str$(err) + " on line" + str$(_errorline)
+    IF ideerror = 1 THEN ideerrormessageTITLE$ = "IDE module error"
+    IF ideerror = 2 THEN ideerrormessageTITLE$ = "File not found"
+    IF ideerror = 3 THEN ideerrormessageTITLE$ = "File access error": CLOSE #150
+    IF ideerror = 4 THEN ideerrormessageTITLE$ =  "Path not found"
+    errorat$ = "On line: " + str2$(_errorline)
+    inclerrorline = _inclerrorline
+    if inclerrorline then errorat$ = errorat$ + " (included line: " + str2$(inclerrorline) + ")"
+    qberrorcode = err
+    if qberrorcode then
+        ideerrormessageTITLE$ = "Error " + str2$(qberrorcode) + ": " + ideerrormessageTITLE$
+    else
+        ideerrormessageTITLE$ = "Error: " + ideerrormessageTITLE$
+    endif
+    PCOPY 3, 0
+    idemessagebox ideerrormessageTITLE$, errorat$
 END IF
 
 IF (ideerror = 2 or ideerror = 3 or ideerror = 4) AND (AttemptToLoadRecent = -1) THEN
