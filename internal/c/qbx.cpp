@@ -286,7 +286,7 @@ extern uint32 *rm32();
 extern void cpu_call();
 extern int64 build_int64(uint32 val2,uint32 val1);
 extern uint64 build_uint64(uint32 val2,uint32 val1);
-extern void fix_error(uint32 inclinenumber = 0);
+extern void fix_error();
 extern double get_error_erl();
 extern uint32 get_error_err();
 extern void end();
@@ -1959,7 +1959,7 @@ Sleep(10);
 if(new_error){
  ercl=linenumber;
  inclercl=inclinenumber;
- fix_error(inclinenumber);
+ fix_error();
  if (error_retry){error_retry=0; r=1;}
 }else{
  if (sub_gl_called==0) events();

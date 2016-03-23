@@ -7189,7 +7189,7 @@ const char fixerr_strcont[]="\nContinue?";
 const char fixerr_strunhan[]="Unhandled Error #";
 const char fixerr_strcrit[]="Critical Error #";
 
-void fix_error(uint32 inclinenumber = 0){
+void fix_error(){
   static char errtitle[256];//builds message
   static char errmess[256];//builds message
   static char *cp;
@@ -7285,7 +7285,11 @@ void fix_error(uint32 inclinenumber = 0){
 
     i=0;
     memcpy(&errmess[i],&fixerr_strline[0],strlen(fixerr_strline)); i=i+strlen(fixerr_strline);
-    i2=sprintf(&errmess[i],"%u (included line: %u)\n",ercl,inclercl); i=i+i2;
+	if (inclercl) {
+	  i2=sprintf(&errmess[i],"%u (included line: %u)\n",ercl,inclercl); i=i+i2;
+	}else{
+	  i2=sprintf(&errmess[i],"%u\n",ercl); i=i+i2;
+	}
     memcpy(&errmess[i],cp,strlen(cp)); i=i+strlen(cp);
     if (!prevent_handling) {memcpy(&errmess[i],&fixerr_strcont[0],strlen(fixerr_strcont)); i=i+strlen(fixerr_strcont);}
     errmess[i]=0;

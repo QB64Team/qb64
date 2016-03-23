@@ -3197,8 +3197,12 @@ DO
             IF INSTR(label$, "p") THEN MID$(label$, INSTR(label$, "p"), 1) = "."
             IF RIGHT$(label$, 1) = "d" OR RIGHT$(label$, 1) = "s" THEN label$ = LEFT$(label$, LEN(label$) - 1)
             PRINT #12, "last_line=" + label$ + ";"
+            inclinenump$ = ""
+            IF inclinenumber(inclevel) THEN
+                inclinenump$ = "," + str2$(inclinenumber(inclevel))
+            END IF
             IF NoChecks = 0 THEN
-                PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + ");r=0;}"
+                PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
             END IF
             IF n = 1 THEN GOTO finishednonexec
             entireline$ = getelements(entireline$, 2, n): u$ = UCASE$(entireline$): n = n - 1
@@ -3248,8 +3252,12 @@ DO
                 IF LEN(layout$) THEN layout$ = layout$ + sp + tlayout$ + ":" ELSE layout$ = tlayout$ + ":"
 
                 PRINT #12, "LABEL_" + a$ + ":;"
+                inclinenump$ = ""
+                IF inclinenumber(inclevel) THEN
+                    inclinenump$ = "," + str2$(inclinenumber(inclevel))
+                END IF
                 IF NoChecks = 0 THEN
-                    PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + ");r=0;}"
+                    PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
                 END IF
                 entireline$ = RIGHT$(entireline$, LEN(entireline$) - x3): u$ = UCASE$(entireline$)
                 n = numelements(entireline$): IF n = 0 THEN GOTO finishednonexec
@@ -8032,7 +8040,11 @@ DO
             e$ = fixoperationorder$(e$): IF Error_Happened THEN GOTO errmes
             l2$ = tlayout$
             e$ = evaluatetotyp(e$, ISINTEGER64): IF Error_Happened THEN GOTO errmes
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + ");}" 'non-resumable error check (cannot exit without handling errors)
+            inclinenump$ = ""
+            IF inclinenumber(inclevel) THEN
+                inclinenump$ = "," + str2$(inclinenumber(inclevel))
+            END IF
+            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
         END IF
@@ -8048,7 +8060,11 @@ DO
             e$ = fixoperationorder$(e$): IF Error_Happened THEN GOTO errmes
             l2$ = tlayout$
             e$ = evaluatetotyp(e$, ISINTEGER64): IF Error_Happened THEN GOTO errmes
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + ");}" 'non-resumable error check (cannot exit without handling errors)
+            inclinenump$ = ""
+            IF inclinenumber(inclevel) THEN
+                inclinenump$ = "," + str2$(inclinenumber(inclevel))
+            END IF
+            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
         END IF
@@ -10257,15 +10273,15 @@ DO
 
     IF arrayprocessinghappened = 1 THEN arrayprocessinghappened = 0
 
+    inclinenump$ = ""
+    IF inclinenumber(inclevel) THEN
+        inclinenump$ = "," + str2$(inclinenumber(inclevel))
+    END IF
     IF NoChecks = 0 THEN
         IF dynscope THEN
             dynscope = 0
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + ");if(r)goto S_" + str2$(statementn) + ";}"
+            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");if(r)goto S_" + str2$(statementn) + ";}"
         ELSE
-            inclinenump$ = ""
-            IF inclinenumber(inclevel) THEN
-                inclinenump$ = ", " + str2$(inclinenumber(inclevel))
-            END IF
             PRINT #12, "if(!qbevent)break;evnt(" + str2$(linenumber) + inclinenump$ + ");}while(r);"
         END IF
     END IF
