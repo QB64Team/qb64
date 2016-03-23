@@ -3282,6 +3282,7 @@ byte_element_struct *byte_element_318=NULL;
 if (!byte_element_318){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_318=(byte_element_struct*)(mem_static_pointer-12); else byte_element_318=(byte_element_struct*)mem_static_malloc(12);
 }
+if (!__STRING_INCLINENUMP)__STRING_INCLINENUMP=qbs_new(0,0);
 int32 pass321;
 byte_element_struct *byte_element_322=NULL;
 if (!byte_element_322){
