@@ -166,6 +166,14 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_SUBFUNCLIST[0]))[tmp_
 free((void*)(__ARRAY_STRING_SUBFUNCLIST[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_SUBFUNCLIST)[8] );
+if (__ARRAY_LONG_QUICKNAVHISTORY[2]&1){
+if (__ARRAY_LONG_QUICKNAVHISTORY[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_LONG_QUICKNAVHISTORY[0]));
+}else{
+free((void*)(__ARRAY_LONG_QUICKNAVHISTORY[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_QUICKNAVHISTORY)[8] );
 if (__ARRAY_STRING_MENU[2]&1){
 tmp_long=__ARRAY_STRING_MENU[5]*__ARRAY_STRING_MENU[9];
 while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_MENU[0]))[tmp_long]);
