@@ -1212,7 +1212,7 @@ DO
     IF mCLICK THEN
         IF mX >= 2 AND mX <= idewx AND mY >= idewy - 3 AND mY <= idewy - 1 THEN
             IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN
-                IF idefocusline THEN idecx = 1: idecy = idefocusline: ideselect = 0: GOTO specialchar
+                IF idefocusline THEN idecx = 1: AddQuickNavHistory idecy: idecy = idefocusline: ideselect = 0: GOTO specialchar
             END IF
         END IF
     END IF
