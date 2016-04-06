@@ -1118,6 +1118,28 @@ DO
     IF mB = 0 THEN idemouseselect = 0: idembmonitor = 0
 
 
+    'Draw navigation buttons (QuickNav)
+    GOSUB DrawQuickNav
+
+    'Hover/click (QuickNav)
+    IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
+        IF mY = 2 THEN
+            IF mX >= 4 AND mX <= 6 AND QuickNavTotal >= 1 THEN
+                LOCATE 2, 4
+                COLOR 15, 3
+                PRINT " " + CHR$(17) + " ";
+                PCOPY 3, 0
+                IF mB THEN
+                    idecy = QuickNavHistory(QuickNavTotal)
+                    QuickNavTotal = QuickNavTotal - 1
+                    _DELAY .2
+                    GOTO waitforinput
+                END IF
+            END IF
+        END IF
+    END IF
+    PCOPY 3, 0
+
     IF KALT THEN 'alt held
 
         IF idealthighlight = 0 AND KALTPRESS = -1 THEN
@@ -2288,6 +2310,7 @@ DO
                 IF IdeBmk(b).y = l THEN EXIT DO
             NEXT
         LOOP
+        AddQuickNavHistory idecy
         idecy = l
         idecx = IdeBmk(b).x
         ideselect = 0
@@ -3765,6 +3788,7 @@ DO
                     IF IdeBmk(b).y = l THEN EXIT DO
                 NEXT
             LOOP
+            AddQuickNavHistory idecy
             idecy = l
             idecx = IdeBmk(b).x
             ideselect = 0
@@ -3817,6 +3841,7 @@ DO
 
         IF left$(menu$(m, s), 10) = "#Go to SUB" OR left$(menu$(m, s), 15) = "#Go to FUNCTION" THEN  'Contextual menu Goto
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            AddQuickNavHistory idecy
             idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
             idesy = idecy
             idecx = 1
@@ -3827,6 +3852,7 @@ DO
 
         IF left$(menu$(m, s), 12) = "Go to #label" THEN  'Contextual menu Goto label
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            AddQuickNavHistory idecy
             idecy = CVL(MID$(SubFuncLIST(ubound(SubFuncLIST)), 1, 4))
             idesy = idecy
             idecx = 1
@@ -4305,6 +4331,7 @@ DO
             idecy = 1
             ideselect = 0
             ideprogname$ = ""
+            QuickNavTotal = 0
             _TITLE "QB64"
             idechangemade = 1
             ideundobase = 0 'reset
@@ -4385,7 +4412,7 @@ DO
                 END IF '"Y"
             END IF 'unsaved
             r$ = ideopen
-            IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0
+            IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
         END IF
 
@@ -4426,6 +4453,18 @@ LOOP
 
 '--------------------------------------------------------------------------------
 EXIT FUNCTION
+DrawQuickNav:
+IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
+    LOCATE 2, 4
+    COLOR 15, 7
+    PRINT " " + CHR$(17) + " ";
+ELSE
+    COLOR 7, 1
+    LOCATE 2, 4
+    PRINT STRING$(3, 196);
+END IF
+RETURN
+
 UpdateSearchBar:
         LOCATE idewy - 4, idewx - (idesystem2.w + 10)
         COLOR 7, 1: PRINT chr$(180);
@@ -7575,6 +7614,7 @@ DO 'main loop
     IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
         y = o(1).sel
         IF y < 1 THEN y = -y
+        AddQuickNavHistory idecy
         if SortedSubsFLAG = 0 THEN
             idecy = CVL(MID$(ly$, y * 4 - 3, 4))
         ELSE
@@ -9019,6 +9059,7 @@ END FUNCTION
 
 
 FUNCTION idegotobox
+STATIC idegotobox_LastLineNum AS LONG
 
 '-------- generic dialog box header --------
 PCOPY 0, 2
@@ -9036,13 +9077,17 @@ sep = CHR$(0)
 i = 0
 idepar p, 30, 5, "Go To Line"
 
-a2$ = ""
+IF idegotobox_LastLineNum > 0 THEN a2$ = str2$(idegotobox_LastLineNum) ELSE a2$ = ""
 i = i + 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Line")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
+if o(i).v1 > 0 then
+    o(i).issel = -1
+    o(i).sx1 = 0
+end if
 
 i = i + 1
 o(i).typ = 3
@@ -9145,6 +9190,8 @@ DO 'main loop
         v& = VAL(v$)
         IF v& < 1 THEN v& = 1
         IF v& > iden THEN v& = iden
+        idegotobox_LastLineNum = v&
+        AddQuickNavHistory idecy
         idecy = v&
         ideselect = 0
         EXIT FUNCTION
@@ -11867,5 +11914,17 @@ FUNCTION FindCurrentSF$(whichline)
     FindCurrentSF$ = sfname$
 END FUNCTION
 
+SUB AddQuickNavHistory(LineNumber&)
+
+    IF QuickNavTotal > 0 THEN
+        IF QuickNavHistory(QuickNavTotal) = LineNumber& THEN EXIT SUB
+    END IF
+
+    QuickNavTotal = QuickNavTotal + 1
+    REDIM _PRESERVE QuickNavHistory(1 TO QuickNavTotal) AS LONG
+
+    QuickNavHistory(QuickNavTotal) = LineNumber&
+END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'
+
