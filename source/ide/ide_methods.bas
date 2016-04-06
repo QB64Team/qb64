@@ -7149,6 +7149,7 @@ END SUB
 SUB ideshowtext
 
 _palettecolor 1, IDEBackgroundColor, 0
+_palettecolor 3, IDEBackgroundColor2, 0
 _palettecolor 11, IDECommentColor, 0
 _palettecolor 10, IDEMetaCommandColor, 0
 _palettecolor 14, IDEQuoteColor, 0
@@ -7173,7 +7174,13 @@ FOR y = 0 TO (idewy - 9)
     LOCATE y + 3, 1
     COLOR 7, 1
     PRINT CHR$(179); 'clear prev bookmarks from lhs
-    IF l = idefocusline AND idecy <> l THEN COLOR 7, 4 ELSE COLOR 7, 1
+    IF l = idefocusline AND idecy <> l THEN
+        COLOR 7, 4
+    ELSEIF idecy = l THEN
+        COLOR 7, 3
+    ELSE
+        COLOR 7, 1
+    END IF
 
     IF l <= iden THEN
         a$ = idegetline(l)

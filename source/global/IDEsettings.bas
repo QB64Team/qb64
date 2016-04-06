@@ -1,6 +1,7 @@
 DIM SHARED IDECommentColor AS _UNSIGNED LONG, IDEMetaCommandColor AS _UNSIGNED LONG
 DIM SHARED IDEQuoteColor AS _UNSIGNED LONG, IDETextColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
+DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
@@ -83,6 +84,14 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         IDEBackGroundColor = _RGB32(0, 0, 170)
         WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
+    END IF
+
+    result = ReadConfigSetting("BackgroundColor2", value$)
+    IF result THEN
+        IDEBackGroundColor2 = VRGBS(value$, _RGB32(0, 0, 128))
+    ELSE
+        IDEBackGroundColor2 = _RGB32(0, 0, 128)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor2", "_RGB32(0,0,128)"
     END IF
 
     result = ReadConfigSetting("SwapMouseButton", value$)
