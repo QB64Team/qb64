@@ -7149,7 +7149,7 @@ END SUB
 SUB ideshowtext
 
 _palettecolor 1, IDEBackgroundColor, 0
-_palettecolor 3, IDEBackgroundColor2, 0
+_palettecolor 6, IDEBackgroundColor2, 0
 _palettecolor 11, IDECommentColor, 0
 _palettecolor 10, IDEMetaCommandColor, 0
 _palettecolor 14, IDEQuoteColor, 0
@@ -7177,7 +7177,7 @@ FOR y = 0 TO (idewy - 9)
     IF l = idefocusline AND idecy <> l THEN
         COLOR 7, 4
     ELSEIF idecy = l THEN
-        COLOR 7, 3
+        COLOR 7, 6
     ELSE
         COLOR 7, 1
     END IF
