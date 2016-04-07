@@ -697,6 +697,11 @@ if(_FUNC_IDE2_LONG_MOY==NULL){
 _FUNC_IDE2_LONG_MOY=(int32*)mem_static_malloc(4);
 *_FUNC_IDE2_LONG_MOY=0;
 }
+int32 *_FUNC_IDE2_LONG_QUICKNAVHOVER=NULL;
+if(_FUNC_IDE2_LONG_QUICKNAVHOVER==NULL){
+_FUNC_IDE2_LONG_QUICKNAVHOVER=(int32*)mem_static_malloc(4);
+*_FUNC_IDE2_LONG_QUICKNAVHOVER=0;
+}
 int64 fornext_value3758;
 int64 fornext_finalvalue3758;
 int64 fornext_step3758;
