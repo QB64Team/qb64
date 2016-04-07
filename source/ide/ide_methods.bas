@@ -771,6 +771,9 @@ DO
         if len(a$) > idewx - 5 then a$ = left$(a$, idewx - 11) + string$(3, 250) + " "
         COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 
+        'Draw navigation buttons (QuickNav)
+        GOSUB DrawQuickNav
+
         'update search bar
         GOSUB UpdateSearchBar
 
@@ -1117,14 +1120,11 @@ DO
     IF mB <> 0 AND idembmonitor = 1 THEN change = 1
     IF mB = 0 THEN idemouseselect = 0: idembmonitor = 0
 
-
-    'Draw navigation buttons (QuickNav)
-    GOSUB DrawQuickNav
-
     'Hover/click (QuickNav)
     IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
         IF mY = 2 THEN
-            IF mX >= 4 AND mX <= 6 AND QuickNavTotal >= 1 THEN
+            IF mX >= 4 AND mX <= 6 THEN
+                QuickNavHover = -1
                 LOCATE 2, 4
                 COLOR 15, 3
                 PRINT " " + CHR$(17) + " ";
@@ -1135,10 +1135,13 @@ DO
                     _DELAY .2
                     GOTO waitforinput
                 END IF
+            ELSE
+                IF QuickNavHover = -1 THEN QuickNavHover = 0: GOSUB DrawQuickNav: PCOPY 3, 0
             END IF
+        ELSE
+            IF QuickNavHover = -1 THEN QuickNavHover = 0: GOSUB DrawQuickNav: PCOPY 3, 0
         END IF
     END IF
-    PCOPY 3, 0
 
     IF KALT THEN 'alt held
 
@@ -7170,13 +7173,47 @@ sx2 = idecx
 IF sx1 > sx2 THEN SWAP sx1, sx2
 
 l = idesy
+
+idecy_multilinestart = 0
+idecy_multilineend = 0
+a$ = idegetline(idecy)
+IF RIGHT$(a$, 1) = "_" THEN
+    'Find the beginning of the multiline
+    FOR idecy_i = idecy - 1 TO 1 STEP -1
+        b$ = idegetline(idecy_i)
+        IF RIGHT$(b$, 1) <> "_" THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
+    NEXT
+    IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
+
+    'Find the end of the multiline
+    FOR idecy_i = idecy + 1 TO iden
+        b$ = idegetline(idecy_i)
+        IF RIGHT$(b$, 1) <> "_" THEN idecy_multilineend = idecy_i: EXIT FOR
+    NEXT
+    IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
+ELSE
+    IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
+    IF RIGHT$(b$, 1) = "_" THEN
+        idecy_multilineend = idecy
+
+        'Find the beginning of the multiline
+        FOR idecy_i = idecy - 1 TO 1 STEP -1
+            b$ = idegetline(idecy_i)
+            IF RIGHT$(b$, 1) <> "_" THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
+        NEXT
+        IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
+    END IF
+END IF
+
+IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
+
 FOR y = 0 TO (idewy - 9)
     LOCATE y + 3, 1
     COLOR 7, 1
     PRINT CHR$(179); 'clear prev bookmarks from lhs
     IF l = idefocusline AND idecy <> l THEN
         COLOR 7, 4
-    ELSEIF idecy = l THEN
+    ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
         COLOR 7, 6
     ELSE
         COLOR 7, 1
@@ -7184,7 +7221,6 @@ FOR y = 0 TO (idewy - 9)
 
     IF l <= iden THEN
         a$ = idegetline(l)
-
         IF l = idecy THEN
             IF idecx <= LEN(a$) THEN
                 cc = ASC(a$, idecx)
