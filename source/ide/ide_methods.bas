@@ -4295,7 +4295,12 @@ DO
                 IF r$ = "C" THEN GOTO ideloop
                 IF r$ = "Y" THEN
                     IF ideprogname = "" THEN
-                        r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        ProposedTitle$ = FindProposedTitle$
+                        IF ProposedTitle$ = "" THEN
+                            r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        ELSE
+                            r$ = idesaveas$(ProposedTitle$ + ".bas")
+                        END IF
                         IF r$ = "C" THEN
                             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
                         END IF
@@ -4317,7 +4322,12 @@ DO
                 IF r$ = "C" THEN GOTO ideloop
                 IF r$ = "Y" THEN
                     IF ideprogname = "" THEN
-                        r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        ProposedTitle$ = FindProposedTitle$
+                        IF ProposedTitle$ = "" THEN
+                            r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        ELSE
+                            r$ = idesaveas$(ProposedTitle$ + ".bas")
+                        END IF
                         PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                         IF r$ = "C" THEN GOTO ideloop
                     ELSE
@@ -4406,7 +4416,12 @@ DO
                 IF r$ = "C" THEN GOTO ideloop
                 IF r$ = "Y" THEN
                     IF ideprogname = "" THEN
-                        r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        ProposedTitle$ = FindProposedTitle$
+                        IF ProposedTitle$ = "" THEN
+                            r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        ELSE
+                            r$ = idesaveas$(ProposedTitle$ + ".bas")
+                        END IF
                         IF r$ = "C" THEN GOTO ideloop
                     ELSE
                         idesave idepath$ + idepathsep$ + ideprogname$
@@ -4422,7 +4437,12 @@ DO
         IF menu$(m, s) = "#Save" THEN
             PCOPY 2, 0
             IF ideprogname = "" THEN
-                a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                ProposedTitle$ = FindProposedTitle$
+                IF ProposedTitle$ = "" THEN
+                    a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                ELSE
+                    a$ = idesaveas$(ProposedTitle$ + ".bas")
+                END IF
             ELSE
                 idesave idepath$ + idepathsep$ + ideprogname$
             END IF
@@ -4433,7 +4453,12 @@ DO
         IF menu$(m, s) = "Save #As..." THEN
             PCOPY 2, 0
             IF ideprogname = "" THEN
-                a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                ProposedTitle$ = FindProposedTitle$
+                IF ProposedTitle$ = "" THEN
+                    a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                ELSE
+                    a$ = idesaveas$(ProposedTitle$ + ".bas")
+                END IF
             ELSE
                 a$ = idesaveas$(ideprogname$)
             END IF
@@ -11909,6 +11934,40 @@ SELECT CASE DataType
         LOOP UNTIL gap = 1 AND swapped = 0
 END SELECT
 END SUB
+
+FUNCTION FindProposedTitle$
+    'Finds the first occurence of _TITLE to suggest a file name
+    'when saving for the first time or saving as.
+
+    FOR find_TITLE = 1 TO iden
+        thisline$ = idegetline(find_TITLE)
+        thisline$ = LTRIM$(RTRIM$(thisline$))
+        found_TITLE = INSTR(UCASE$(thisline$), "_TITLE " + CHR$(34))
+        IF found_TITLE > 0 THEN
+            InQuote%% = 0
+            FOR check_quotes = 1 to found_TITLE
+                IF MID$(thisline$, check_quotes, 1) = CHR$(34) THEN InQuote%% = NOT InQuote%%
+            NEXT check_quotes
+            IF NOT InQuote%% THEN
+                Find_ClosingQuote = INSTR(found_TITLE + 8, thisline$, CHR$(34))
+                IF Find_ClosingQuote > 0 THEN
+                    TempFound_TITLE$ = MID$(thisline$, found_TITLE + 8, (Find_ClosingQuote - found_TITLE) - 8)
+                END IF
+                EXIT FOR
+            END IF
+        END IF
+    NEXT
+
+    InvalidChars$ = ":/\?*><|" + CHR$(34)
+    FOR wipe_INVALID = 1 to LEN(TempFound_TITLE$)
+        ThisChar$ = MID$(TempFound_TITLE$, wipe_INVALID, 1)
+        IF INSTR(InvalidChars$, ThisChar$) = 0 THEN
+            Found_TITLE$ = Found_TITLE$ + ThisChar$
+        END IF
+    NEXT wipe_INVALID
+
+    FindProposedTitle$ = LTRIM$(RTRIM$(Found_TITLE$))
+END FUNCTION
 
 FUNCTION FindCurrentSF$(whichline)
     'Get the name of the SUB/FUNCTION whichline is in.
