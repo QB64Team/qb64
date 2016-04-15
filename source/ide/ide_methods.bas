@@ -9151,6 +9151,7 @@ i = 0
 idepar p, 65, 5, "Modify COMMAND$"
 
 a2$ = ModifyCOMMAND$
+if len(a2$) > 0 then a2$ = MID$(a2$, 2)
 i = i + 1
 o(i).typ = 1
 o(i).y = 2
@@ -9246,7 +9247,8 @@ DO 'main loop
     IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN EXIT FUNCTION
 
     IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
-        ModifyCOMMAND$ = idetxt(o(1).txt)
+        ModifyCOMMAND$ = " " + idetxt(o(1).txt)
+        IF LTRIM$(RTRIM$(ModifyCOMMAND$)) = "" THEN ModifyCOMMAND$ = ""
         EXIT FUNCTION
     END IF
 
