@@ -1104,11 +1104,11 @@ IF C = 9 THEN 'run
     'execute program
 
     IF iderunmode = 1 THEN
-        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + file$ + extension$ + CHR$(34))
-        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$("./" + file$ + extension$)
+        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + file$ + extension$ + CHR$(34)) + " " + ModifyCOMMAND$
+        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$("./" + file$ + extension$) + " " + ModifyCOMMAND$
     ELSE
-        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + file$ + extension$ + CHR$(34))
-        IF os$ = "LNX" THEN SHELL QuotedFilename$("./" + file$ + extension$)
+        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + file$ + extension$ + CHR$(34)) + " " + ModifyCOMMAND$
+        IF os$ = "LNX" THEN SHELL QuotedFilename$("./" + file$ + extension$) + " " + ModifyCOMMAND$
     END IF
 
     sendc$ = CHR$(6) 'ready

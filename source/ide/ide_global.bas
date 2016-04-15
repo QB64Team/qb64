@@ -155,6 +155,7 @@ DIM SHARED idepathsep AS STRING * 1
 DIM SHARED SubFuncLIST(0) AS STRING
 DIM SHARED QuickNavTotal AS LONG
 DIM SHARED QuickNavHistory(0) AS LONG
+DIM SHARED ModifyCOMMAND$
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype
