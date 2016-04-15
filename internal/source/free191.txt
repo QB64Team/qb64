@@ -1,15 +1,13 @@
-if(oldstr5010){
-if(oldstr5010->fixed)qbs_set(oldstr5010,_FUNC_IDEF1BOX_STRING_LNKS);
-qbs_free(_FUNC_IDEF1BOX_STRING_LNKS);
-}
-if (_FUNC_IDEF1BOX_ARRAY_UDT_O[2]&1){
-if (_FUNC_IDEF1BOX_ARRAY_UDT_O[2]&4){
-cmem_dynamic_free((uint8*)(_FUNC_IDEF1BOX_ARRAY_UDT_O[0]));
+if (_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[2]&1){
+if (_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[2]&4){
+cmem_dynamic_free((uint8*)(_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[0]));
 }else{
-free((void*)(_FUNC_IDEF1BOX_ARRAY_UDT_O[0]));
+free((void*)(_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC[0]));
 }
 }
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDEF1BOX_ARRAY_UDT_O)[8] );
-qbs_free(_FUNC_IDEF1BOX_STRING1_SEP);
-qbs_free(_FUNC_IDEF1BOX_STRING_ALTLETTER);
-qbs_free(_FUNC_IDEF1BOX_STRING_F);
+free_mem_lock( (mem_lock*)((ptrszint*)_SUB_IDEASCIIBOX_ARRAY_LONG_CURRENTASC)[12] );
+qbs_free(_SUB_IDEASCIIBOX_STRING_TEXT);
+qbs_free(_SUB_IDEASCIIBOX_STRING_A);
+qbs_free(_SUB_IDEASCIIBOX_STRING_L);
+qbs_free(_SUB_IDEASCIIBOX_STRING_R);
+qbs_free(_SUB_IDEASCIIBOX_STRING_M);
