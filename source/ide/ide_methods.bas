@@ -251,6 +251,7 @@ IF idelaunched = 0 THEN
     m = m + 1: i = 0
     menu$(m, i) = "Options": i = i + 1
     menu$(m, i) = "#Display...": i = i + 1
+    menu$(m, i) = "C#olors...": i = i + 1
     menu$(m, i) = "#Language...": i = i + 1
     menu$(m, i) = "#Code layout...": i = i + 1
     menu$(m, i) = "#Backup/Undo...": i = i + 1
@@ -3711,6 +3712,14 @@ DO
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
         END IF
+
+        IF menu$(m, s) = "C#olors..." THEN
+            PCOPY 2, 0
+            retval = idechoosecolorsbox 'retval is ignored
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
 
         IF menu$(m, s) = "#Advanced..." THEN
             PCOPY 2, 0
@@ -10314,6 +10323,358 @@ DO 'main loop
 LOOP
 END FUNCTION
 
+FUNCTION idechoosecolorsbox
+DIM bkpIDECommentColor AS _UNSIGNED LONG, bkpIDEMetaCommandColor AS _UNSIGNED LONG
+DIM bkpIDEQuoteColor AS _UNSIGNED LONG, bkpIDETextColor AS _UNSIGNED LONG
+DIM bkpIDEBackgroundColor AS _UNSIGNED LONG
+DIM bkpIDEBackgroundColor2 AS _UNSIGNED LONG
+DIM SelectionIndicator$(1 to 6)
+
+bkpIDECommentColor = IDECommentColor
+bkpIDEMetaCommandColor = IDEMetaCommandColor
+bkpIDEQuoteColor = IDEQuoteColor
+bkpIDETextColor = IDETextColor
+bkpIDEBackgroundColor = IDEBackgroundColor
+bkpIDEBackgroundColor2 = IDEBackgroundColor2
+
+clipBefore$ = _CLIPBOARD$
+
+'-------- generic dialog box header --------
+PCOPY 0, 2
+PCOPY 0, 1
+SCREEN , , 1, 0
+focus = 1
+DIM p AS idedbptype
+DIM o(1 TO 100) AS idedbotype
+DIM oo AS idedbotype
+DIM sep AS STRING * 1
+sep = CHR$(0)
+'-------- end of generic dialog box header --------
+
+'-------- init --------
+i = 0
+idepar p, 60, 13, "Colors"
+
+l$ = CHR$(16) + "Normal Text"
+l$ = l$ + sep + " Strings"
+l$ = l$ + sep + " Metacommands"
+l$ = l$ + sep + " Comments"
+l$ = l$ + sep + " Background"
+l$ = l$ + sep + " Current line background"
+
+i = i + 1
+o(i).typ = 2
+o(i).y = 1
+o(i).w = 27: o(i).h = 7
+o(i).txt = idenewtxt(l$)
+o(i).sel = 1
+SelectedITEM = 1
+PrevFocus = 1
+o(i).nam = idenewtxt("#Item:")
+
+a2$ = str2$(_RED32(IDETextColor))
+i = i + 1
+o(i).typ = 1
+o(i).x = 33
+o(i).y = 2
+o(i).nam = idenewtxt("#R")
+o(i).txt = idenewtxt(a2$)
+o(i).v1 = LEN(a2$)
+o(i).issel = -1
+o(i).sx1 = 0
+
+a2$ = str2$(_GREEN32(IDETextColor))
+i = i + 1
+o(i).typ = 1
+o(i).x = 33
+o(i).y = 5
+o(i).nam = idenewtxt("#G")
+o(i).txt = idenewtxt(a2$)
+o(i).v1 = LEN(a2$)
+o(i).issel = -1
+o(i).sx1 = 0
+
+a2$ = str2$(_BLUE32(IDETextColor))
+i = i + 1
+o(i).typ = 1
+o(i).x = 33
+o(i).y = 8
+o(i).nam = idenewtxt("#B")
+o(i).txt = idenewtxt(a2$)
+o(i).v1 = LEN(a2$)
+o(i).issel = -1
+o(i).sx1 = 0
+
+i = i + 1
+o(i).typ = 3
+o(i).y = 13
+o(i).txt = idenewtxt("#OK" + sep + "Restore #defaults" + sep + "#Cancel")
+o(i).dft = 1
+'-------- end of init --------
+
+'-------- generic init --------
+FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+'-------- end of generic init --------
+
+DO 'main loop
+
+    '-------- generic display dialog box & objects --------
+    idedrawpar p
+    f = 1: cx = 0: cy = 0
+    FOR i = 1 TO 100
+        IF o(i).typ THEN
+
+            'prepare object
+            o(i).foc = focus - f 'focus offset
+            o(i).cx = 0: o(i).cy = 0
+            idedrawobj o(i), f 'display object
+            IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+        END IF
+    NEXT i
+    lastfocus = f - 1
+    '-------- end of generic display dialog box & objects --------
+
+    '-------- custom display changes --------
+    _palettecolor 1, IDEBackgroundColor, 0
+    _palettecolor 6, IDEBackgroundColor2, 0
+    _palettecolor 11, IDECommentColor, 0
+    _palettecolor 10, IDEMetaCommandColor, 0
+    _palettecolor 14, IDEQuoteColor, 0
+    _palettecolor 13, IDETextColor, 0
+
+    SELECT CASE SelectedITEM
+        CASE 1: COLOR 13, 1 'Normal text
+        CASE 2: COLOR 14, 1 'Strings
+        CASE 3: COLOR 10, 1 'Metacommands
+        CASE 4: COLOR 11, 1 'Comments
+        CASE 5: COLOR 1, 1 'Background
+        CASE 6: COLOR 6, 6 'Current line background
+    END SELECT
+
+    LOCATE p.y + 11, p.x + 13: PRINT " Enter new RGB values for the item ";
+    '-------- end of custom display changes --------
+
+    'update visual page and cursor position
+    PCOPY 1, 0
+    IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+    '-------- read input --------
+    change = 0
+    DO
+        GetInput
+        IF mWHEEL THEN change = 1
+        IF KB THEN change = 1
+        IF mCLICK THEN mousedown = 1: change = 1
+        IF mRELEASE THEN mouseup = 1: change = 1
+        IF mB THEN change = 1
+        alt = KALT: IF alt <> oldalt THEN change = 1
+        oldalt = alt
+
+        'Monitor _CLIPBOARD$; If a new RGB value is copied to memory in a format
+        'like (0, 0, 0) it'll be used for the current item (useful for copying
+        'from color pickers elsewhere, like http://www.w3schools.com/colors/colors_picker.asp)
+        clipNow$ = _CLIPBOARD$
+        IF clipNow$ <> clipBefore$ THEN
+            clipBefore$ = clipNow$
+            'Parse new clipboard contents for ###, ###, ###
+            FindComma1 = INSTR(clipNow$, ",")
+            IF FindComma1 > 0 THEN
+                FindComma2 = INSTR(FindComma1 + 1, clipNow$, ",")
+                IF FindComma2 > 0 THEN
+                    r$ = "": g$ = "": b$ = ""
+                    FOR i = FindComma1 - 1 TO 1 STEP -1
+                        IF ASC(clipNow$, i) >= 48 AND ASC(clipNow$, i) <= 57 THEN
+                            r$ = MID$(clipNow$, i, 1) + r$
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    FOR i = FindComma1 + 1 TO FindComma2 - 1
+                        IF ASC(clipNow$, i) = 32 OR (ASC(clipNow$, i) >= 48 AND ASC(clipNow$, i) <= 57) THEN
+                            g$ = g$ + MID$(clipNow$, i, 1)
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    FOR i = FindComma2 + 1 TO LEN(clipNow$)
+                        IF ASC(clipNow$, i) = 32 OR (ASC(clipNow$, i) >= 48 AND ASC(clipNow$, i) <= 57) THEN
+                            b$ = b$ + MID$(clipNow$, i, 1)
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    idetxt(o(2).txt) = str2$(VAL(r$))
+                    idetxt(o(3).txt) = str2$(VAL(g$))
+                    idetxt(o(4).txt) = str2$(VAL(b$))
+                    change = 1
+                END IF
+            END IF
+        END IF
+        _LIMIT 100
+    LOOP UNTIL change
+    IF alt THEN idehl = 1 ELSE idehl = 0
+    'convert "alt+letter" scancode to letter's ASCII character
+    altletter$ = ""
+    IF alt THEN
+        IF LEN(K$) = 1 THEN
+            k = ASC(UCASE$(K$))
+            IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+        END IF
+    END IF
+    SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+    '-------- end of read input --------
+
+    '-------- generic input response --------
+    info = 0
+    IF K$ = "" THEN K$ = CHR$(255)
+    IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF focus < 1 THEN focus = lastfocus
+    IF focus > lastfocus THEN focus = 1
+    f = 1
+    FOR i = 1 TO 100
+        t = o(i).typ
+        IF t THEN
+            focusoffset = focus - f
+            ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+        END IF
+    NEXT
+    '-------- end of generic input response --------
+
+    'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with RGB values selected upon getting focus
+        PrevFocus = focus
+        IF focus >= 2 AND focus <= 4 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
+
+    IF K$ = CHR$(0) + CHR$(72) AND (focus = 2 OR focus = 3 OR focus = 4) THEN 'Up
+        idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) + 1)
+        o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
+    END IF
+
+    IF K$ = CHR$(0) + CHR$(80) AND (focus = 2 OR focus = 3 OR focus = 4) THEN 'Down
+        idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) - 1)
+        o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
+    END IF
+
+    IF SelectedITEM <> o(1).sel AND o(1).sel > 0 THEN
+        SelectedITEM = o(1).sel
+        FOR i = 1 to 6: SelectionIndicator$(i) = " ": NEXT i
+        SelectionIndicator$(SelectedITEM) = CHR$(16)
+
+        i = 0
+        i = i + 1: l$ = SelectionIndicator$(i) + "Normal Text"
+        i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Strings"
+        i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Metacommands"
+        i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Comments"
+        i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Background"
+        i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Current line background"
+        idetxt(o(1).txt) = l$
+
+        ChangeTextBoxes:
+        SELECT CASE SelectedITEM
+            CASE 1: CurrentColor~& = IDETextColor
+            CASE 2: CurrentColor~& = IDEQuoteColor
+            CASE 3: CurrentColor~& = IDEMetaCommandColor
+            CASE 4: CurrentColor~& = IDECommentColor
+            CASE 5: CurrentColor~& = IDEBackgroundColor
+            CASE 6: CurrentColor~& = IDEBackgroundColor2
+        END SELECT
+        idetxt(o(2).txt) = str2$(_RED32(CurrentColor~&))
+        idetxt(o(3).txt) = str2$(_GREEN32(CurrentColor~&))
+        idetxt(o(4).txt) = str2$(_BLUE32(CurrentColor~&))
+    END IF
+
+    'Check RGB values range (0-255)
+    FOR checkRGB = 2 to 4
+        a$ = idetxt(o(checkRGB).txt)
+        IF LEN(a$) > 3 THEN a$ = LEFT$(a$, 3) '3 character limit
+        FOR i = 1 TO LEN(a$)
+            a = ASC(a$, i)
+            IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
+            IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
+        NEXT
+        IF LEN(a$) THEN
+            a = VAL(a$)
+            IF a > 255 THEN a$ = "255"
+            IF a < 0 THEN a$ = "0"
+        ELSE
+            a$ = "0"
+        END IF
+        idetxt(o(checkRGB).txt) = a$
+    NEXT checkRGB
+
+    CurrentColor~& = _RGB32(VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)), VAL(idetxt(o(4).txt)))
+    SELECT CASE SelectedITEM
+        CASE 1: IDETextColor = CurrentColor~& 'Normal text
+        CASE 2: IDEQuoteColor = CurrentColor~& 'Strings
+        CASE 3: IDEMetaCommandColor = CurrentColor~& 'Metacommands
+        CASE 4: IDECommentColor = CurrentColor~& 'Comments
+        CASE 5: IDEBackgroundColor = CurrentColor~& 'Background
+        CASE 6: IDEBackgroundColor2 = CurrentColor~& 'Current line background
+    END SELECT
+
+    IF K$ = CHR$(27) OR (focus = 7 AND info <> 0) THEN
+        IDECommentColor = bkpIDECommentColor
+        IDEMetaCommandColor = bkpIDEMetaCommandColor
+        IDEQuoteColor = bkpIDEQuoteColor
+        IDETextColor = bkpIDETextColor
+        IDEBackgroundColor = bkpIDEBackgroundColor
+        IDEBackgroundColor2 = bkpIDEBackgroundColor2
+        EXIT FUNCTION
+    END IF
+
+    IF (focus = 6 AND info <> 0) THEN
+        IDECommentColor = _RGB32(85, 255, 255)
+        IDEMetaCommandColor = _RGB32(85, 255, 85)
+        IDEQuoteColor = _RGB32(255, 255, 85)
+        IDETextColor = _RGB32(255, 255, 255)
+        IDEBackgroundColor = _RGB32(0, 0, 170)
+        IDEBackgroundColor2 = _RGB32(0, 0, 128)
+        info = 0
+        GOTO ChangeTextBoxes
+    END IF
+
+    IF (focus = 5 AND info <> 0) OR _
+       (focus = 1 AND K$ = CHR$(13)) OR _
+       (focus = 2 AND K$ = CHR$(13)) OR _
+       (focus = 3 AND K$ = CHR$(13)) OR _
+       (focus = 4 AND K$ = CHR$(13)) OR _
+       (focus = 5 AND K$ = CHR$(13)) THEN
+        'save changes
+        FOR i = 1 TO 6
+            SELECT CASE i
+                CASE 1: CurrentColor~& = IDETextColor: colorid$ = "TextColor"
+                CASE 2: CurrentColor~& = IDEQuoteColor: colorid$ = "QuoteColor"
+                CASE 3: CurrentColor~& = IDEMetaCommandColor: colorid$ = "MetaCommandColor"
+                CASE 4: CurrentColor~& = IDECommentColor: colorid$ = "CommentColor"
+                CASE 5: CurrentColor~& = IDEBackgroundColor: colorid$ = "BackgroundColor"
+                CASE 6: CurrentColor~& = IDEBackgroundColor2: colorid$ = "BackgroundColor2"
+            END SELECT
+            r$ = str2$(_RED32(CurrentColor~&))
+            g$ = str2$(_GREEN32(CurrentColor~&))
+            b$ = str2$(_BLUE32(CurrentColor~&))
+
+            RGBString$ = "_RGB32(" + r$ + "," + g$ + "," + b$ + ")"
+            WriteConfigSetting "'[IDE COLOR SETTINGS]", colorid$, RGBString$
+        NEXT i
+        EXIT FUNCTION
+    END IF
+
+    'end of custom controls
+
+    mousedown = 0
+    mouseup = 0
+LOOP
+END FUNCTION
 
 
 
