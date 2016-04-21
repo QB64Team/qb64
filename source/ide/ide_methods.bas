@@ -10555,14 +10555,17 @@ DO 'main loop
         END IF
     END IF
 
+    ChangedWithKeys = 0
     IF K$ = CHR$(0) + CHR$(72) AND (focus = 2 OR focus = 3 OR focus = 4) THEN 'Up
         idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) + 1)
         o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
+        ChangedWithKeys = -1
     END IF
 
     IF K$ = CHR$(0) + CHR$(80) AND (focus = 2 OR focus = 3 OR focus = 4) THEN 'Down
         idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) - 1)
         o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
+        ChangedWithKeys = -1
     END IF
 
     IF SelectedITEM <> o(1).sel AND o(1).sel > 0 THEN
@@ -10607,7 +10610,7 @@ DO 'main loop
             IF a > 255 THEN a$ = "255"
             IF a < 0 THEN a$ = "0"
         ELSE
-            a$ = "0"
+            IF ChangedWithKeys = -1 THEN a$ = "0"
         END IF
         idetxt(o(checkRGB).txt) = a$
     NEXT checkRGB
