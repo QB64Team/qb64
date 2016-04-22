@@ -10353,7 +10353,7 @@ sep = CHR$(0)
 
 '-------- init --------
 i = 0
-idepar p, 60, 13, "Colors"
+idepar p, 45, 13, "Colors"
 
 l$ = CHR$(16) + "Normal Text"
 l$ = l$ + sep + " Strings"
@@ -10451,7 +10451,7 @@ DO 'main loop
         CASE 6: COLOR 6, 6 'Current line background
     END SELECT
 
-    LOCATE p.y + 11, p.x + 13: PRINT " Enter new RGB values for the item ";
+    LOCATE p.y + 11, p.x + 5: PRINT " Enter new RGB values for the item ";
     '-------- end of custom display changes --------
 
     'update visual page and cursor position
