@@ -1132,6 +1132,7 @@ DO
                 PRINT " " + CHR$(17) + " ";
                 PCOPY 3, 0
                 IF mB THEN
+                    ideselect = 0
                     idecy = QuickNavHistory(QuickNavTotal)
                     QuickNavTotal = QuickNavTotal - 1
                     _DELAY .2
