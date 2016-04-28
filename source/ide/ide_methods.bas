@@ -10354,7 +10354,7 @@ sep = CHR$(0)
 
 '-------- init --------
 i = 0
-idepar p, 45, 13, "Colors"
+idepar p, 70, 13, "Colors"
 
 l$ = CHR$(16) + "Normal Text"
 l$ = l$ + sep + " Strings"
@@ -10376,9 +10376,8 @@ o(i).nam = idenewtxt("#Item:")
 a2$ = str2$(_RED32(IDETextColor))
 i = i + 1
 o(i).typ = 1
-o(i).x = 33
+o(i).x = 63
 o(i).y = 2
-o(i).nam = idenewtxt("#R")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
 o(i).issel = -1
@@ -10387,9 +10386,8 @@ o(i).sx1 = 0
 a2$ = str2$(_GREEN32(IDETextColor))
 i = i + 1
 o(i).typ = 1
-o(i).x = 33
+o(i).x = 63
 o(i).y = 5
-o(i).nam = idenewtxt("#G")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
 o(i).issel = -1
@@ -10398,9 +10396,8 @@ o(i).sx1 = 0
 a2$ = str2$(_BLUE32(IDETextColor))
 i = i + 1
 o(i).typ = 1
-o(i).x = 33
+o(i).x = 63
 o(i).y = 8
-o(i).nam = idenewtxt("#B")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
 o(i).issel = -1
@@ -10443,6 +10440,30 @@ DO 'main loop
     _palettecolor 14, IDEQuoteColor, 0
     _palettecolor 13, IDETextColor, 0
 
+    LOCATE p.y + 2, p.x + 33: PRINT "R: ";
+    COLOR 4: PRINT STRING$(26, 196);
+    slider$ = CHR$(197)
+    T = VAL(idetxt(o(2).txt)): r = ((T / 255) * 26)
+    IF T = 0 THEN slider$ = CHR$(195)
+    IF T = 255 THEN slider$ = CHR$(180)
+    LOCATE p.y + 2, p.x + 35 + r: PRINT slider$;
+
+    COLOR 0: LOCATE p.y + 5, p.x + 33: PRINT "G: ";
+    COLOR 2: PRINT STRING$(26, 196);
+    slider$ = CHR$(197)
+    T = VAL(idetxt(o(3).txt)): r = ((T / 255) * 26)
+    IF T = 0 THEN slider$ = CHR$(195)
+    IF T = 255 THEN slider$ = CHR$(180)
+    LOCATE p.y + 5, p.x + 35 + r: PRINT slider$;
+
+    COLOR 0: LOCATE p.y + 8, p.x + 33: PRINT "B: ";
+    COLOR 9: PRINT STRING$(26, 196);
+    slider$ = CHR$(197)
+    T = VAL(idetxt(o(4).txt)): r = ((T / 255) * 26)
+    IF T = 0 THEN slider$ = CHR$(195)
+    IF T = 255 THEN slider$ = CHR$(180)
+    LOCATE p.y + 8, p.x + 35 + r: PRINT slider$;
+
     SELECT CASE SelectedITEM
         CASE 1: COLOR 13, 1 'Normal text
         CASE 2: COLOR 14, 1 'Strings
@@ -10452,7 +10473,7 @@ DO 'main loop
         CASE 6: COLOR 6, 6 'Current line background
     END SELECT
 
-    LOCATE p.y + 11, p.x + 5: PRINT " Enter new RGB values for the item ";
+    LOCATE p.y + 11, p.x + p.w \ 2 - 17: PRINT " Enter new RGB values for the item ";
     '-------- end of custom display changes --------
 
     'update visual page and cursor position
@@ -10554,6 +10575,33 @@ DO 'main loop
             o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
+    END IF
+
+    IF mB AND mY = p.y + 2 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
+        newValue = (mX - p.x - 35) * (255 / 26)
+        idetxt(o(2).txt) = str2$(newValue)
+        focus = 2
+        o(focus).v1 = LEN(idetxt(o(focus).txt))
+        o(focus).issel = -1
+        o(focus).sx1 = 0
+    END IF
+
+    IF mB AND mY = p.y + 5 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
+        newValue = (mX - p.x - 35) * (255 / 26)
+        idetxt(o(3).txt) = str2$(newValue)
+        focus = 3
+        o(focus).v1 = LEN(idetxt(o(focus).txt))
+        o(focus).issel = -1
+        o(focus).sx1 = 0
+    END IF
+
+    IF mB AND mY = p.y + 8 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
+        newValue = (mX - p.x - 35) * (255 / 26)
+        idetxt(o(4).txt) = str2$(newValue)
+        focus = 4
+        o(focus).v1 = LEN(idetxt(o(focus).txt))
+        o(focus).issel = -1
+        o(focus).sx1 = 0
     END IF
 
     ChangedWithKeys = 0
