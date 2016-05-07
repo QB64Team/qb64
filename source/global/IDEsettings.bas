@@ -6,6 +6,7 @@ DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPositi
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
 DIM SHARED MouseButtonSwapped AS _BYTE
+DIM SHARED PasteCursorAtEnd AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
   'We only want to load the file once when QB64 first starts
@@ -103,7 +104,18 @@ IF LoadedIDESettings = 0 THEN
         WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
     end if
 
-
+    result = ReadConfigSetting("PasteCursorAtEnd", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            PasteCursorAtEnd = -1
+        ELSE
+            PasteCursorAtEnd = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
+        PasteCursorAtEnd = 0
+    END IF
 
     IF INSTR(_OS$, "WIN") THEN
 

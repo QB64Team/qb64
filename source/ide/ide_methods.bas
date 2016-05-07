@@ -248,7 +248,7 @@ IF idelaunched = 0 THEN
     IF IdeAndroidMenu THEN menusize(m) = i - 1
 
 
-    m = m + 1: i = 0
+    m = m + 1: i = 0: OptionsMenuID = m
     menu$(m, i) = "Options": i = i + 1
     menu$(m, i) = "#Display...": i = i + 1
     menu$(m, i) = "C#olors...": i = i + 1
@@ -257,7 +257,19 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Backup/Undo...": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Advanced...": i = i + 1
-    menu$(m, i) = "#Swap Mouse Buttons": i = i + 1
+
+    OptionsMenuSwapMouse = i
+    menu$(m, i) = menu$(m, i) + "#Swap Mouse Buttons": i = i + 1
+    IF MouseButtonSwapped THEN
+        menu$(OptionsMenuID, OptionsMenuSwapMouse) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuSwapMouse)
+    ENDIF
+
+    OptionsMenuPasteCursor = i
+    menu$(m, i) = menu$(m, i) + "Cursor after #pasted content": i = i + 1
+    IF PasteCursorAtEnd THEN
+        menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuPasteCursor)
+    ENDIF
+
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "#Google Android...": i = i + 1
 
@@ -1309,7 +1321,7 @@ DO
     LOCATE , , 0
     LOCATE , , , 8, 8
 
-    IF mCLICK AND idemouseselect = 0 THEN
+    IF (mCLICK OR mCLICK2) AND idemouseselect = 0 THEN
         IF mY = 1 THEN
             x = 3
             FOR i = 1 TO menus
@@ -2741,6 +2753,11 @@ DO
 
                 IF x3 <= LEN(a$) GOTO fullpastenextline
 
+                IF PasteCursorAtEnd THEN
+                    'Place the cursor at the end of the pasted content:
+                    idecy = idecy + i - 1
+                    idecx = LEN(idegetline(idecy)) + 1
+                END IF
             ELSE
 
                 'insert single line paste
@@ -2749,6 +2766,10 @@ DO
                 a$ = LEFT$(a$, idecx - 1) + clip$ + RIGHT$(a$, LEN(a$) - idecx + 1)
                 idesetline idecy, converttabs$(a$)
 
+                IF PasteCursorAtEnd THEN
+                    'Place the cursor at the end of the pasted content:
+                    idecx = idecx + len(clip$)
+                END IF
             END IF
 
             idechangemade = 1
@@ -3306,7 +3327,7 @@ DO
             KB = KEY_ESC
         END IF
 
-        IF mCLICK THEN
+        IF mCLICK OR mCLICK2 THEN
             IF mY = 1 THEN
                 FOR i = 1 to menus
                     x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
@@ -3389,6 +3410,7 @@ DO
         l = LEN(m$)
         IF INSTR(m$, "#") THEN l = l - 1
         IF LEFT$(m$, 1) = "~" THEN l = l - 1
+        IF LEFT$(m$, 1) = CHR$(7) THEN l = l - 1
         IF INSTR(m$, "  ") THEN l = l + 2 'min 4 spacing
         IF l > w THEN w = l
     NEXT
@@ -3424,7 +3446,7 @@ DO
             NEXT
         ELSE
             IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
-            LOCATE i + yy, xx
+            IF LEFT$(m$, 1) = CHR$(7) THEN LOCATE i + yy, xx - 1 ELSE LOCATE i + yy, xx
             h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
             x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
             FOR x = 1 TO LEN(m$)
@@ -3731,18 +3753,33 @@ DO
         END IF
 
 
-        IF menu$(m, s) = "#Swap Mouse Buttons" THEN
+        IF RIGHT$(menu$(m, s), 19) = "#Swap Mouse Buttons" THEN
             PCOPY 2, 0
             MouseButtonSwapped = NOT MouseButtonSwapped
             if MouseButtonSwapped then
                 WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "TRUE"
+                menu$(OptionsMenuID, OptionsMenuSwapMouse) = CHR$(7) + "#Swap Mouse Buttons"
             else
                 WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
+                menu$(OptionsMenuID, OptionsMenuSwapMouse) = "#Swap Mouse Buttons"
             end if
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
         END IF
 
+        IF RIGHT$(menu$(m, s), 28) = "Cursor after #pasted content" THEN
+            PCOPY 2, 0
+            PasteCursorAtEnd = NOT PasteCursorAtEnd
+            if PasteCursorAtEnd then
+                WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "TRUE"
+                menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + "Cursor after #pasted content"
+            else
+                WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
+                menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor after #pasted content"
+            end if
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
 
         IF menu$(m, s) = "#Code layout..." THEN
             PCOPY 2, 0
@@ -8814,7 +8851,7 @@ sep = CHR$(0)
 
 '-------- init --------
 i = 0
-idepar p, 60, 7, "Code Layout"
+idepar p, 60, 8, "Code Layout"
 
 i = i + 1
 o(i).typ = 4 'check box
@@ -8845,7 +8882,7 @@ o(i).sel = ideindentsubs
 
 i = i + 1
 o(i).typ = 3
-o(i).y = 7
+o(i).y = 8
 o(i).txt = idenewtxt("OK" + sep + "#Cancel")
 o(i).dft = 1
 '-------- end of init --------
