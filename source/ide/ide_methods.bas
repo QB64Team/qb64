@@ -91,11 +91,28 @@ IF ASC(idecommand$) = 3 THEN 'request next line (compiler->ide)
                     idecompiledline$ = idegetline(idecompiledline)
                     ide = 4
                     idereturn$ = idecompiledline$
+
+                    'Update compilation progress on the status bar
+                    IF IdeSystem <> 3 AND ideautorun <> 0 THEN
+                        status.progress$ = str2$(INT((idecompiledline * 100) / iden))
+                        status.progress$ = STRING$(3 - LEN(status.progress$), 32) + status.progress$ + "%)"
+                        IF prepass THEN
+                            status.progress$ = "Step 1/2 (" + status.progress$
+                        ELSE
+                            status.progress$ = "Step 2/2 (" + status.progress$
+                        END IF
+                        IdeInfo = status.progress$
+                    END IF
+                    UpdateIdeInfo
+
                     EXIT FUNCTION
                 END IF
                 IF iCHANGED THEN iCHECKLATER = 1
             END IF 'ideexit
         END IF 'not on screen
+    ELSE
+        IF IdeSystem <> 3 THEN IdeInfo = ""
+        UpdateIdeInfo
     END IF 'idecompiledline<iden
 END IF
 
@@ -832,6 +849,7 @@ DO
         IF idechangemade THEN
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
 
+            IF LEFT$(IdeInfo, 5) = "Step " THEN IdeInfo = ""
 
             LOCATE idewy - 3, 2: PRINT "..."; 'assume new compilation will begin
         END IF
@@ -890,13 +908,22 @@ DO
                 END IF
             NEXT
             'Help_Search_Str
-            a$ = ""
-            IF LEN(Help_Search_Str) THEN
-                a$ = Help_Search_Str
-                IF LEN(a$) > 20 THEN a$ = string$(3, 250) + RIGHT$(a$, 17)
-                a$ = "[" + a$ + "](DELETE=next)"
+            IF IdeSystem = 3 THEN
+                a$ = ""
+                IF LEN(Help_Search_Str) THEN
+                    a$ = Help_Search_Str
+                    IF LEN(a$) > 20 THEN a$ = string$(3, 250) + RIGHT$(a$, 17)
+                    a$ = "[" + a$ + "](DELETE=next)"
+                    IdeInfo = a$
+                ELSE
+                    IdeInfo = "Start typing to search for text in this help page"
+                END IF
+            ELSE
+                IdeInfo = ""
             END IF
-            IdeInfo$ = a$
+            UpdateIdeInfo
+        ELSE
+            Help_Search_Str = ""
         END IF
 
         IF IdeSystem = 2 THEN 'override cursor position
@@ -919,16 +946,6 @@ DO
             LOCATE Help_cy - Help_sy + Help_wy1, Help_cx - Help_sx + Help_wx1
             SCREEN , , 3, 0
         END IF
-
-
-        IF IdeSystem <> 3 THEN IdeInfo$ = ""
-
-        'show info message (if any)
-        a$ = IdeInfo$
-        IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + string$(3, 250)
-        IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
-        COLOR 0, 3: LOCATE idewy + idesubwindow, 2
-        PRINT a$;
 
         LOCATE , , 1
 
@@ -12609,6 +12626,16 @@ SUB AddQuickNavHistory(LineNumber&)
     REDIM _PRESERVE QuickNavHistory(1 TO QuickNavTotal) AS LONG
 
     QuickNavHistory(QuickNavTotal) = LineNumber&
+END SUB
+
+SUB UpdateIdeInfo
+    'show info message (if any)
+    a$ = IdeInfo
+    IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + string$(3, 250)
+    IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
+    COLOR 0, 3: LOCATE idewy + idesubwindow, 2
+    PRINT a$;
+    PCOPY 3, 0
 END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'
