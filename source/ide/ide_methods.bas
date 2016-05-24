@@ -813,6 +813,9 @@ DO
 
         'display error message (if necessary)
         IF failed THEN
+            IdeInfo = ""
+            UpdateIdeInfo
+
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
 
             'scrolling unavailable, but may span multiple lines
