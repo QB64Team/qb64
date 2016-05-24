@@ -1,12 +1,14 @@
-qbs *_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME=NULL;
-if (!_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME)_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME=qbs_new(0,0);
-qbs*oldstr5314=NULL;
-if(_FUNC_BACK2BACKNAME_STRING_A->tmp||_FUNC_BACK2BACKNAME_STRING_A->fixed||_FUNC_BACK2BACKNAME_STRING_A->readonly){
-oldstr5314=_FUNC_BACK2BACKNAME_STRING_A;
-if (oldstr5314->cmem_descriptor){
-_FUNC_BACK2BACKNAME_STRING_A=qbs_new_cmem(oldstr5314->len,0);
-}else{
-_FUNC_BACK2BACKNAME_STRING_A=qbs_new(oldstr5314->len,0);
+qbs *_SUB_UPDATEIDEINFO_STRING_A=NULL;
+if (!_SUB_UPDATEIDEINFO_STRING_A)_SUB_UPDATEIDEINFO_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_5312=NULL;
+if (!byte_element_5312){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5312=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5312=(byte_element_struct*)mem_static_malloc(12);
 }
-memcpy(_FUNC_BACK2BACKNAME_STRING_A->chr,oldstr5314->chr,oldstr5314->len);
+byte_element_struct *byte_element_5313=NULL;
+if (!byte_element_5313){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5313=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5313=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5314=NULL;
+if (!byte_element_5314){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5314=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5314=(byte_element_struct*)mem_static_malloc(12);
 }
