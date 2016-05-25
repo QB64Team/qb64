@@ -93,15 +93,15 @@ IF ASC(idecommand$) = 3 THEN 'request next line (compiler->ide)
                     idereturn$ = idecompiledline$
 
                     'Update compilation progress on the status bar
-                    IF IdeSystem <> 3 AND ideautorun <> 0 THEN
-                        status.progress$ = str2$(INT((idecompiledline * 100) / iden))
-                        status.progress$ = STRING$(3 - LEN(status.progress$), 32) + status.progress$ + "%)"
+                    IF ideautorun <> 0 THEN
                         IF prepass THEN
-                            status.progress$ = "Step 1/2 (" + status.progress$
+                            status.progress$ = str2$(INT((idecompiledline * 100) / (iden * 2)))
+                            status.progress$ = STRING$(3 - LEN(status.progress$), 32) + status.progress$ + "%"
                         ELSE
-                            status.progress$ = "Step 2/2 (" + status.progress$
+                            status.progress$ = str2$(INT(((iden + idecompiledline) * 100) / (iden * 2)))
+                            status.progress$ = STRING$(3 - LEN(status.progress$), 32) + status.progress$ + "%"
                         END IF
-                        IdeInfo = status.progress$
+                        IdeInfo = CHR$(0) + status.progress$
                     END IF
                     UpdateIdeInfo
 
@@ -852,7 +852,7 @@ DO
         IF idechangemade THEN
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
 
-            IF LEFT$(IdeInfo, 5) = "Step " THEN IdeInfo = ""
+            IdeInfo = ""
 
             LOCATE idewy - 3, 2: PRINT "..."; 'assume new compilation will begin
         END IF
@@ -911,7 +911,7 @@ DO
                 END IF
             NEXT
             'Help_Search_Str
-            IF IdeSystem = 3 THEN
+            IF IdeSystem = 3 AND LEFT$(IdeInfo, 1) <> CHR$(0) THEN
                 a$ = ""
                 IF LEN(Help_Search_Str) THEN
                     a$ = Help_Search_Str
@@ -921,10 +921,8 @@ DO
                 ELSE
                     IdeInfo = "Start typing to search for text in this help page"
                 END IF
-            ELSE
-                IdeInfo = ""
+                UpdateIdeInfo
             END IF
-            UpdateIdeInfo
         ELSE
             Help_Search_Str = ""
         END IF
@@ -12633,6 +12631,16 @@ END SUB
 
 SUB UpdateIdeInfo
     'show info message (if any)
+    IF LEN(IdeInfo) THEN
+        IF ASC(IdeInfo, 1) = 0 THEN
+            'Show progress bar
+            IdeInfo = MID$(IdeInfo, 2)
+            Percentage% = VAL(MID$(IdeInfo, 1, 3))
+            COLOR 13, 1
+            LOCATE idewy - 1, 2
+            PRINT STRING$(((idewx - 2) * Percentage%) / 100, "_");
+        END IF
+    END IF
     a$ = IdeInfo
     IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + string$(3, 250)
     IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
