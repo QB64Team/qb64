@@ -1641,10 +1641,14 @@ DO
                         IF sx2 - sx1 > 0 THEN
                             a$ = LEFT$(a$, sx1) + clip$ + RIGHT$(a$, LEN(a$) - sx2)
                             idesystem2.v1 = sx1
+                            IF PasteCursorAtEnd THEN
+                                idesystem2.v1 = sx1 + LEN(clip$)
+                            END IF
                             idesystem2.issel = 0
                         END IF
                     ELSE
                         a$ = LEFT$(a$, idesystem2.v1) + clip$ + RIGHT$(a$, LEN(a$) - idesystem2.v1)
+                        IF PasteCursorAtEnd THEN idesystem2.v1 = idesystem2.v1 + LEN(clip$)
                     END IF
                 END IF
                 k = 255
@@ -4737,6 +4741,7 @@ ln = 0
 i = 0
 idepar p, 60, 12, "Change"
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Find What")
@@ -4776,7 +4781,7 @@ o(i).sel = idefindbackwards
 
 i = i + 1
 o(i).typ = 3
-o(i).y = 11
+o(i).y = 12
 o(i).txt = idenewtxt("Find and #Verify" + sep + "#Change All" + sep + "Cancel")
 o(i).dft = 1
 '-------- end of init --------
@@ -4859,6 +4864,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 or focus = 2 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
         idechange$ = "C"
@@ -5722,6 +5736,7 @@ ln = 0
 i = 0
 idepar p, 60, 9, "Find"
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Find What")
@@ -5832,6 +5847,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
         idefind$ = "C"
@@ -6186,6 +6210,7 @@ i = 0
 idepar p, 60, 5, "New " + sf$
 
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Name")
@@ -6274,6 +6299,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
         EXIT SUB
@@ -6446,6 +6480,7 @@ pathlist$ = idezpathlist$(path$)
 i = 0
 idepar p, 70, idewy + idesubwindow - 7, "Open"
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("File #Name")
@@ -6562,6 +6597,15 @@ DO 'main loop
 
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     IF AllFiles = 1 AND o(4).sel <> 0 THEN
         AllFiles = 0
@@ -6953,6 +6997,7 @@ i = 0
 idepar p, 48, idewy + idesubwindow - 7, "Save As"
 
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("File #Name")
@@ -7058,6 +7103,15 @@ DO 'main loop
     NEXT
     '-------- end of generic input response --------
 
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
         idesaveas$ = "C"
@@ -8031,10 +8085,12 @@ IF t = 1 THEN 'text field
                         if sx2 - sx1 > 0 then
                             a$ = left$(a$, sx1) + clip$ + right$(a$, len(a$) - sx2)
                             o.v1 = sx1
+                            IF PasteCursorAtEnd THEN o.v1 = sx1 + LEN(clip$)
                             o.issel = 0
                         end if
                     ELSE
                         a$ = left$(a$, o.v1) + clip$ + right$(a$, len(a$) - o.v1)
+                        IF PasteCursorAtEnd THEN o.v1 = o.v1 + LEN(clip$)
                     END IF
                 END IF
                 k = 255
@@ -8978,6 +9034,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 3 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     a$ = idetxt(o(3).txt)
     IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
@@ -9064,11 +9129,16 @@ idepar p, 50, 5, "Backup/Undo"
 
 a2$ = str2$(idebackupsize)
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Undo buffer limit (10-2000MB)")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
+if o(i).v1 > 0 then
+    o(i).issel = -1
+    o(i).sx1 = 0
+end if
 
 i = i + 1
 o(i).typ = 3
@@ -9150,6 +9220,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     a$ = idetxt(o(1).txt)
     IF LEN(a$) > 4 THEN a$ = LEFT$(a$, 4) '4 character limit
@@ -9218,6 +9297,7 @@ idepar p, 65, 5, "Modify COMMAND$"
 a2$ = ModifyCOMMAND$
 if len(a2$) > 0 then a2$ = MID$(a2$, 2)
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Enter text for COMMAND$")
@@ -9308,6 +9388,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN EXIT FUNCTION
 
@@ -9345,6 +9434,7 @@ idepar p, 30, 5, "Go To Line"
 
 IF idegotobox_LastLineNum > 0 THEN a2$ = str2$(idegotobox_LastLineNum) ELSE a2$ = ""
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).y = 2
 o(i).nam = idenewtxt("#Line")
@@ -9435,6 +9525,15 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     a$ = idetxt(o(1).txt)
     IF LEN(a$) > 8 THEN a$ = LEFT$(a$, 8) '8 character limit
@@ -10107,12 +10206,17 @@ p.nam = idenewtxt("Display")
 
 a2$ = str2$(idewx)
 i = i + 1
+PrevFocus = 1
 o(i).typ = 1
 o(i).x = 16
 o(i).y = 2
 o(i).nam = idenewtxt("#Width")
 o(i).txt = idenewtxt(a2$)
 o(i).v1 = LEN(a2$)
+if o(i).v1 > 0 then
+    o(i).issel = -1
+    o(i).sx1 = 0
+end if
 
 a2$ = str2$(idewy + idesubwindow)
 i = i + 1
@@ -10235,6 +10339,16 @@ DO 'main loop
     '-------- end of generic input response --------
 
     'specific post controls
+
+    IF focus <> PrevFocus THEN
+        'Always start with TextBox values selected upon getting focus
+        PrevFocus = focus
+        IF focus = 1 or focus = 2 or focus = 5 or focus = 6 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
 
     a$ = idetxt(o(1).txt)
     IF LEN(a$) > 3 THEN a$ = LEFT$(a$, 3) '3 character limit
