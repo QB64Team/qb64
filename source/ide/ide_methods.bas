@@ -4869,7 +4869,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 or focus = 2 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -5852,7 +5852,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -6304,7 +6304,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -6602,7 +6602,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -7108,7 +7108,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -9039,7 +9039,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 3 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -9225,7 +9225,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -9393,7 +9393,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -9530,7 +9530,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -10345,7 +10345,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus = 1 or focus = 2 or focus = 5 or focus = 6 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
@@ -10741,7 +10741,7 @@ DO 'main loop
         PrevFocus = focus
         IF focus >= 2 AND focus <= 4 THEN
             o(focus).v1 = LEN(idetxt(o(focus).txt))
-            o(focus).issel = -1
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
             o(focus).sx1 = 0
         END IF
     END IF
