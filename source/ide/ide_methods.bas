@@ -4850,7 +4850,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -5073,7 +5073,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -5193,7 +5193,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -5533,7 +5533,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -5649,7 +5649,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -5833,7 +5833,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -6285,7 +6285,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -6428,7 +6428,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -6574,7 +6574,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -6818,7 +6818,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -6935,7 +6935,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -7090,7 +7090,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -7261,7 +7261,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -7789,7 +7789,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -7988,7 +7988,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9020,7 +9020,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9206,7 +9206,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9374,7 +9374,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9511,7 +9511,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9684,7 +9684,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9851,7 +9851,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -9965,7 +9965,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -10115,7 +10115,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -10325,7 +10325,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -10722,7 +10722,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -11247,7 +11247,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -11454,7 +11454,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -12103,7 +12103,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     f = 1
@@ -12228,7 +12228,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     IF K$ > CHR$(31) AND K$ < CHR$(123) THEN messagestr$ = messagestr$ + K$
@@ -12334,7 +12334,7 @@ DO 'main loop
     info = 0
     IF K$ = "" THEN K$ = CHR$(255)
     IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-    IF KSHIFT AND K$ = CHR$(9) THEN focus = focus - 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
     IF focus < 1 THEN focus = lastfocus
     IF focus > lastfocus THEN focus = 1
     IF K$ = "H" OR K$ = "h" THEN ev$ = "&H" + HEX$(VAL(ev$))
