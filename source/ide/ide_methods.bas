@@ -245,11 +245,19 @@ IF idelaunched = 0 THEN
 
     menusize(m) = i - 1
 
-    m = m + 1: i = 0
+    m = m + 1: i = 0: RunMenuID = m
     menu$(m, i) = "Run": i = i + 1
     menu$(m, i) = "#Start  F5": i = i + 1
     menu$(m, i) = "Modify #COMMAND$...": i = i + 1
     menu$(m, i) = "-": i = i + 1
+    IF INSTR(_OS$, "WIN") THEN
+        RunMenuSaveExeWithSource = i
+        menu$(m, i) = "Save EXE in the source #folder": i = i + 1
+        IF SaveExeWithSource THEN
+            menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
+        ENDIF
+        menu$(m, i) = "-": i = i + 1
+    END IF
     menu$(m, i) = "Start (#Detached)  Ctrl+F5": i = i + 1
     IF os$ = "LNX" THEN
         menu$(m, i) = "Make E#xecutable Only  F11": i = i + 1
@@ -263,7 +271,6 @@ IF idelaunched = 0 THEN
     '    menu$(m, i) = "Make Android #Project Only": i = i + 1
     menu$(m, i) = "Make #Android Project": i = i + 1
     IF IdeAndroidMenu THEN menusize(m) = i - 1
-
 
     m = m + 1: i = 0: OptionsMenuID = m
     menu$(m, i) = "Options": i = i + 1
@@ -633,6 +640,17 @@ IF skipdisplay = 0 THEN
                     PRINT "Executable file created";
                 ELSE
                     PRINT ".EXE file created";
+                    IF SaveExeWithSource THEN
+                        LOCATE idewy - 2, 2
+                        PRINT "Location: ";
+                        COLOR 11, 1
+                        IF path.exe$ = "" THEN path.exe$ = _STARTDIR$ + pathsep$
+                        IF POS(0) + LEN(path.exe$) > idewx THEN
+                            PRINT "..."; RIGHT$(path.exe$, idewx - 15);
+                        ELSE
+                            PRINT path.exe$;
+                        END IF
+                    END IF
                 END IF
             END IF
 
@@ -1249,6 +1267,7 @@ DO
         IF mX >= 2 AND mX <= idewx AND mY >= idewy - 3 AND mY <= idewy - 1 THEN
             IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN
                 IF idefocusline THEN idecx = 1: AddQuickNavHistory idecy: idecy = idefocusline: ideselect = 0: GOTO specialchar
+                SHELL _DONTWAIT "EXPLORER " + QuotedFilename$(path.exe$)
             END IF
         END IF
     END IF
@@ -3832,6 +3851,20 @@ DO
             else
                 WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
                 menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor after #pasted content"
+            end if
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
+
+        IF RIGHT$(menu$(m, s), 30) = "Save EXE in the source #folder" THEN
+            PCOPY 2, 0
+            SaveExeWithSource = NOT SaveExeWithSource
+            if SaveExeWithSource then
+                WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
+                menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Save EXE in the source #folder"
+            else
+                WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
+                menu$(RunMenuID, RunMenuSaveExeWithSource) = "Save EXE in the source #folder"
             end if
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop

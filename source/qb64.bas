@@ -205,6 +205,7 @@ NEXT
 
 
 DIM SHARED extension AS STRING
+DIM SHARED path.exe$
 extension$ = ".exe"
 IF os$ = "LNX" THEN extension$ = "" 'no extension under Linux
 
@@ -934,12 +935,18 @@ IF C = 9 THEN 'run
 
         'locate accessible file and truncate
         f$ = file$
+
+        path.exe$ = ""
+        IF SaveExeWithSource THEN
+            IF LEN(ideprogname) THEN path.exe$ = idepath$ + pathsep$
+        END IF
+
         i = 1
         nextexeindex:
-        IF _FILEEXISTS(file$ + extension$) THEN
+        IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN
             E = 0
             ON ERROR GOTO qberror_test
-            KILL file$ + extension$
+            KILL path.exe$ + file$ + extension$
             ON ERROR GOTO qberror
             IF E = 1 THEN
                 i = i + 1
@@ -947,6 +954,8 @@ IF C = 9 THEN 'run
                 GOTO nextexeindex
             END IF
         END IF
+
+        IF path.exe$ = "" THEN path.exe$ = "..\..\"
 
         'inform IDE of name change if necessary (IDE will respond with message 9 and corrected name)
         IF i <> 1 THEN
@@ -1104,10 +1113,10 @@ IF C = 9 THEN 'run
     'execute program
 
     IF iderunmode = 1 THEN
-        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
+        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
         IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$("./" + file$ + extension$) + ModifyCOMMAND$
     ELSE
-        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
+        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
         IF os$ = "LNX" THEN SHELL QuotedFilename$("./" + file$ + extension$) + ModifyCOMMAND$
     END IF
 
@@ -2951,7 +2960,7 @@ DO
             END IF
         END IF
 
-        IF ExecLevel(ExecCounter) THEN  'don't check for any more metacommands except the one's which worth with the precompiler
+        IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
             layoutdone = 0
             GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
         END IF
@@ -11739,7 +11748,7 @@ IF os$ = "WIN" THEN
         a$ = LEFT$(a$, x - 1) + libqb$ + RIGHT$(a$, LEN(a$) - x + 1)
     END IF
 
-    a$ = a$ + QuotedFilename$("..\..\" + file$ + extension$)
+    a$ = a$ + QuotedFilename$(path.exe$ + file$ + extension$)
 
     ffh = FREEFILE
     OPEN tmpdir$ + "recompile_win.bat" FOR OUTPUT AS #ffh
@@ -12077,7 +12086,8 @@ IF os$ = "LNX" THEN
 END IF
 
 IF No_C_Compile_Mode THEN compfailed = 0: GOTO No_C_Compile
-IF _FILEEXISTS(file$ + extension$) THEN compfailed = 0 ELSE compfailed = 1 'detect compilation failure
+IF LEFT$(path.exe$, 2) = ".." THEN path.exe$ = ""
+IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN compfailed = 0 ELSE compfailed = 1 'detect compilation failure
 
 IF compfailed THEN
     IF idemode THEN

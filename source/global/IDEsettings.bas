@@ -7,6 +7,7 @@ DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
 DIM SHARED MouseButtonSwapped AS _BYTE
 DIM SHARED PasteCursorAtEnd AS _BYTE
+DIM SHARED SaveExeWithSource AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
   'We only want to load the file once when QB64 first starts
@@ -117,8 +118,20 @@ IF LoadedIDESettings = 0 THEN
         PasteCursorAtEnd = 0
     END IF
 
-    IF INSTR(_OS$, "WIN") THEN
+    result = ReadConfigSetting("SaveExeWithSource", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            SaveExeWithSource = -1
+        ELSE
+            SaveExeWithSource = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
+        SaveExeWithSource = 0
+    END IF
 
+    IF INSTR(_OS$, "WIN") THEN
         result = ReadConfigSetting("IDE_AutoPosition", value$)
         IF result THEN
             IF UCASE$(value$) = "TRUE" OR ABS(VAL(value$)) = 1 THEN
