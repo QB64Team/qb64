@@ -250,14 +250,14 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Start  F5": i = i + 1
     menu$(m, i) = "Modify #COMMAND$...": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    IF INSTR(_OS$, "WIN") THEN
-        RunMenuSaveExeWithSource = i
-        menu$(m, i) = "Save EXE in the source #folder": i = i + 1
-        IF SaveExeWithSource THEN
-            menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
-        ENDIF
-        menu$(m, i) = "-": i = i + 1
-    END IF
+
+    RunMenuSaveExeWithSource = i
+    menu$(m, i) = "Save EXE in the source #folder": i = i + 1
+    IF SaveExeWithSource THEN
+        menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
+    ENDIF
+    menu$(m, i) = "-": i = i + 1
+
     menu$(m, i) = "Start (#Detached)  Ctrl+F5": i = i + 1
     IF os$ = "LNX" THEN
         menu$(m, i) = "Make E#xecutable Only  F11": i = i + 1
@@ -640,16 +640,18 @@ IF skipdisplay = 0 THEN
                     PRINT "Executable file created";
                 ELSE
                     PRINT ".EXE file created";
-                    IF SaveExeWithSource THEN
-                        LOCATE idewy - 2, 2
-                        PRINT "Location: ";
-                        COLOR 11, 1
-                        IF path.exe$ = "" THEN path.exe$ = _STARTDIR$ + pathsep$
-                        IF POS(0) + LEN(path.exe$) > idewx THEN
-                            PRINT "..."; RIGHT$(path.exe$, idewx - 15);
-                        ELSE
-                            PRINT path.exe$;
-                        END IF
+                END IF
+
+                IF SaveExeWithSource THEN
+                    LOCATE idewy - 2, 2
+                    PRINT "Location: ";
+                    COLOR 11, 1
+                    IF path.exe$ = "" THEN path.exe$ = getfilepath$(COMMAND$(0))
+                    IF RIGHT$(path.exe$, 1) <>  pathsep$ THEN path.exe$ = path.exe$ + pathsep$
+                    IF POS(0) + LEN(path.exe$) > idewx THEN
+                        PRINT "..."; RIGHT$(path.exe$, idewx - 15);
+                    ELSE
+                        PRINT path.exe$;
                     END IF
                 END IF
             END IF
@@ -1267,7 +1269,13 @@ DO
         IF mX >= 2 AND mX <= idewx AND mY >= idewy - 3 AND mY <= idewy - 1 THEN
             IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN
                 IF idefocusline THEN idecx = 1: AddQuickNavHistory idecy: idecy = idefocusline: ideselect = 0: GOTO specialchar
-                SHELL _DONTWAIT "EXPLORER " + QuotedFilename$(path.exe$)
+                IF INSTR(_OS$, "WIN") THEN
+                    SHELL _DONTWAIT "explorer " + QuotedFilename$(path.exe$)
+                ELSEIF INSTR(_OS$, "MAC") THEN
+                    SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
+                ELSE
+                    SHELL _DONTWAIT "xdg-open " + QuotedFilename$(path.exe$)
+                END IF
             END IF
         END IF
     END IF

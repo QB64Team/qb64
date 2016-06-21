@@ -955,7 +955,9 @@ IF C = 9 THEN 'run
             END IF
         END IF
 
-        IF path.exe$ = "" THEN path.exe$ = "..\..\"
+        IF path.exe$ = "" THEN
+            IF INSTR(_OS$, "WIN") THEN path.exe$ = "..\..\" ELSE path.exe$ = "../../"
+        END IF
 
         'inform IDE of name change if necessary (IDE will respond with message 9 and corrected name)
         IF i <> 1 THEN
@@ -1114,10 +1116,12 @@ IF C = 9 THEN 'run
 
     IF iderunmode = 1 THEN
         IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
-        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$("./" + file$ + extension$) + ModifyCOMMAND$
+        IF path.exe$ = "" THEN path.exe$ = "./"
+        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
     ELSE
         IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
-        IF os$ = "LNX" THEN SHELL QuotedFilename$("./" + file$ + extension$) + ModifyCOMMAND$
+        IF path.exe$ = "" THEN path.exe$ = "./"
+        IF os$ = "LNX" THEN SHELL QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
     END IF
 
     sendc$ = CHR$(6) 'ready
@@ -1151,9 +1155,11 @@ f$ = RemoveFileExtension$(f$)
 path.exe$ = ""
 IF SaveExeWithSource THEN
     path.exe$ = getfilepath$(sourcefile$)
-    IF RIGHT$(path.exe$, 1) <> pathsep$ then path.exe$ = path.exe$ + pathsep$
+    IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
 END IF
-IF path.exe$ = "" THEN path.exe$ = "..\..\"
+IF path.exe$ = "" THEN
+    IF INSTR(_OS$, "WIN") THEN path.exe$ = "..\..\" ELSE path.exe$ = "../../"
+END IF
 
 FOR x = LEN(f$) TO 1 STEP -1
     a$ = MID$(f$, x, 1)
@@ -11779,7 +11785,7 @@ IF os$ = "WIN" THEN
     PRINT #ffh, "echo Type 'quit' to exit"
     PRINT #ffh, "echo (the GDB debugger has many other useful commands, this advice is for beginners)"
     PRINT #ffh, "pause"
-    PRINT #ffh, "internal\c\c_compiler\bin\gdb.exe " + CHR$(34) + file$ + extension$ + CHR$(34)
+    PRINT #ffh, "internal\c\c_compiler\bin\gdb.exe " + CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)
     PRINT #ffh, "pause"
     CLOSE ffh
 
@@ -11991,7 +11997,7 @@ IF os$ = "LNX" THEN
 
 
 
-    a$ = a$ + QuotedFilename$("../../" + file$ + extension$)
+    a$ = a$ + QuotedFilename$(path.exe$ + file$ + extension$)
 
     IF INSTR(_OS$, "[MACOSX]") THEN
 
@@ -12020,7 +12026,7 @@ IF os$ = "LNX" THEN
         PRINT #ffh, "echo " + CHR_QUOTE + "After the debugger launches type 'run' to start your program" + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "echo " + CHR_QUOTE + "After your program crashes type 'list' to find where the problem is and fix/report it" + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "echo " + CHR_QUOTE + "(the GDB debugger has many other useful commands, this advice is for beginners)" + CHR_QUOTE + CHR$(10);
-        PRINT #ffh, "gdb " + CHR$(34) + "../../" + file$ + extension$ + CHR$(34) + CHR$(10);
+        PRINT #ffh, "gdb " + CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34) + CHR$(10);
         PRINT #ffh, "Pause" + CHR$(10);
         CLOSE ffh
         SHELL _HIDE "chmod +x " + tmpdir$ + "debug_osx.command"
@@ -12060,7 +12066,7 @@ IF os$ = "LNX" THEN
         PRINT #ffh, "echo " + CHR_QUOTE + "After the debugger launches type 'run' to start your program" + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "echo " + CHR_QUOTE + "After your program crashes type 'list' to find where the problem is and fix/report it" + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "echo " + CHR_QUOTE + "(the GDB debugger has many other useful commands, this advice is for beginners)" + CHR_QUOTE + CHR$(10);
-        PRINT #ffh, "gdb " + CHR$(34) + "../../" + file$ + extension$ + CHR$(34) + CHR$(10);
+        PRINT #ffh, "gdb " + CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34) + CHR$(10);
         PRINT #ffh, "Pause" + CHR$(10);
         CLOSE ffh
         SHELL _HIDE "chmod +x " + tmpdir$ + "debug_lnx.sh"
@@ -12075,7 +12081,8 @@ IF os$ = "LNX" THEN
 
     IF INSTR(_OS$, "[MACOSX]") THEN
         ff = FREEFILE
-        OPEN file$ + extension$ + "_start.command" FOR OUTPUT AS #ff
+        IF path.exe$ = "./" OR LEFT$(path.exe$, 2) = ".." THEN path.exe$ = ""
+        OPEN path.exe$ + file$ + extension$ + "_start.command" FOR OUTPUT AS #ff
         PRINT #ff, "cd " + CHR$(34) + "$(dirname " + CHR$(34) + "$0" + CHR$(34) + ")" + CHR$(34);
         PRINT #ff, CHR$(10);
         PRINT #ff, "./" + file$ + extension$ + " &";
@@ -12087,7 +12094,7 @@ IF os$ = "LNX" THEN
         PRINT #ff, "exit";
         PRINT #ff, CHR$(10);
         CLOSE #ff
-        SHELL _HIDE "chmod +x " + file$ + extension$ + "_start.command"
+        SHELL _HIDE "chmod +x " + path.exe$ + file$ + extension$ + "_start.command"
     END IF
 
 END IF
@@ -19819,8 +19826,8 @@ END SUB
 
 SUB reginternal
     reginternalsubfunc = 1
-    '$INCLUDE:'subs_functions\subs_functions.bas'
-    '$INCLUDE:'subs_functions\extensions\extension_list.bas'
+'$INCLUDE:'subs_functions\subs_functions.bas'
+'$INCLUDE:'subs_functions\extensions\extension_list.bas'
     reginternalsubfunc = 0
 END SUB
 
