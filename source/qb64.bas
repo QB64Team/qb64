@@ -1148,6 +1148,13 @@ sourcefile$ = f$
 'derive name from sourcefile
 f$ = RemoveFileExtension$(f$)
 
+path.exe$ = ""
+IF SaveExeWithSource THEN
+    path.exe$ = getfilepath$(sourcefile$)
+    IF RIGHT$(path.exe$, 1) <> pathsep$ then path.exe$ = path.exe$ + pathsep$
+END IF
+IF path.exe$ = "" THEN path.exe$ = "..\..\"
+
 FOR x = LEN(f$) TO 1 STEP -1
     a$ = MID$(f$, x, 1)
     IF a$ = "/" OR a$ = "\" THEN
