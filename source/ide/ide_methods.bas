@@ -3058,14 +3058,28 @@ DO
 
     IF K$ = CHR$(13) THEN
         ideselect = 0
+        desiredcolumn = 1
         idechangemade = 1
 
         a$ = idegetline(idecy)
         IF idecx > LEN(a$) THEN
             ideinsline idecy + 1, ""
+            IF ideautoindent = 0 THEN desiredcolumn = LEN(a$) - LEN(LTRIM$(a$)) + 1
         ELSE
             idesetline idecy, LEFT$(a$, idecx - 1)
-            ideinsline idecy + 1, RIGHT$(a$, LEN(a$) - idecx + 1)
+            IF ideautoindent = 0 THEN
+                desiredcolumn = LEN(a$) - LEN(LTRIM$(a$))
+                new.a$ = idegetline(idecy)
+                IF LEN(LTRIM$(RTRIM$(new.a$))) = 0 THEN desiredcolumn = 0
+            ELSE
+                desiredcolumn = 0
+            END IF
+            ideinsline idecy + 1, SPACE$(desiredcolumn) + RIGHT$(a$, LEN(a$) - idecx + 1)
+            IF ideautoindent = 0 THEN
+                IF desiredcolumn = 0 THEN desiredcolumn = 1 ELSE desiredcolumn = desiredcolumn + 1
+            ELSE
+                desiredcolumn = 1
+            END IF
         END IF
 
         IF idecx = 1 THEN
@@ -3075,7 +3089,7 @@ DO
         END IF
 
         idecy = idecy + 1
-        idecx = 1
+        idecx = desiredcolumn
         GOTO specialchar
     END IF
 
@@ -3119,11 +3133,31 @@ DO
             GOTO specialchar
         END IF
         IF idecx > LEN(a$) + 1 THEN
-            idecx = LEN(a$) + 1
+            IF LEN(LTRIM$(RTRIM$(a$))) > 0 THEN
+                idecx = LEN(a$) + 1
+            ELSE
+                GOTO CheckSpacesBehind
+            END IF
         ELSE
-            a$ = LEFT$(a$, idecx - 2) + RIGHT$(a$, LEN(a$) - idecx + 1)
-            idesetline idecy, a$
-            idecx = idecx - 1
+            CheckSpacesBehind:
+            IF LEN(RTRIM$(MID$(a$, 1, idecx - 1))) = 0 AND ideautoindent = 0 THEN
+                'Only spaces behind. If we're on a tab stop, let's go back in tabs.
+                x = 4
+                IF ideautoindentsize <> 0 THEN x = ideautoindentsize
+                IF FIX(LEN(MID$(a$, 1, idecx - 1)) / x) = LEN(MID$(a$, 1, idecx - 1)) / x THEN
+                    IF idecx - x < 1 then x = idecx - 1
+                    a$ = LEFT$(a$, idecx - (x + 1)) + RIGHT$(a$, LEN(a$) - idecx + 1)
+                    idesetline idecy, a$
+                    idecx = idecx - x
+                ELSE
+                    GOTO onebackspace
+                END IF
+            ELSE
+                onebackspace:
+                a$ = LEFT$(a$, idecx - 2) + RIGHT$(a$, LEN(a$) - idecx + 1)
+                idesetline idecy, a$
+                idecx = idecx - 1
+            END IF
         END IF
         GOTO specialchar
     END IF
@@ -3249,7 +3283,7 @@ DO
             SkipBlockIndent:
             IF KSHIFT = 0 THEN
                 x = 4
-                IF ideautoindent <> 0 AND ideautoindentsize <> 0 THEN x = ideautoindentsize
+                IF ideautoindentsize <> 0 THEN x = ideautoindentsize
                 K$ = SPACE$(x - ((idecx - 1) MOD x))
             ELSE
                 K$ = ""
