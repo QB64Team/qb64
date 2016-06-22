@@ -1118,10 +1118,12 @@ IF C = 9 THEN 'run
         IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
         IF path.exe$ = "" THEN path.exe$ = "./"
         IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
+        IF path.exe$ = "./" THEN path.exe$ = ""
     ELSE
         IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
         IF path.exe$ = "" THEN path.exe$ = "./"
         IF os$ = "LNX" THEN SHELL QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
+        IF path.exe$ = "./" THEN path.exe$ = ""
     END IF
 
     sendc$ = CHR$(6) 'ready
