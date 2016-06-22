@@ -4295,7 +4295,11 @@ DO
                             'static
                             IF LEN(libname$) THEN
                                 IF os$ = "WIN" THEN
-                                    mylib$ = mylib$ + " ..\..\" + libname$ + " "
+                                    IF MID$(libname$, 2, 1) = ":" OR LEFT$(libname$, 1) = "\" THEN
+                                        mylib$ = mylib$ + " " + libname$ + " "
+                                    ELSE
+                                        mylib$ = mylib$ + " ..\..\" + libname$ + " "
+                                    END IF
                                 END IF
                                 IF os$ = "LNX" THEN
                                     IF LEFT$(libname$, 1) = "/" THEN
@@ -4360,7 +4364,11 @@ DO
 
                         IF LEN(headername$) THEN
                             IF os$ = "WIN" THEN
-                                PRINT #17, "#include " + CHR$(34) + "..\\..\\" + headername$ + CHR$(34)
+                                IF MID$(headername$, 2, 1) = ":" OR LEFT$(headername$, 1) = "\" THEN
+                                    PRINT #17, "#include " + CHR$(34) + headername$ + CHR$(34)
+                                ELSE
+                                    PRINT #17, "#include " + CHR$(34) + "..\\..\\" + headername$ + CHR$(34)
+                                END IF
                             END IF
                             IF os$ = "LNX" THEN
 
