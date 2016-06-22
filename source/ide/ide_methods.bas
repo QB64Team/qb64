@@ -1270,7 +1270,7 @@ DO
             IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN
                 IF idefocusline THEN idecx = 1: AddQuickNavHistory idecy: idecy = idefocusline: ideselect = 0: GOTO specialchar
                 IF INSTR(_OS$, "WIN") THEN
-                    SHELL _DONTWAIT "explorer " + QuotedFilename$(path.exe$)
+                    SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
                 ELSEIF INSTR(_OS$, "MAC") THEN
                     SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
                 ELSE
