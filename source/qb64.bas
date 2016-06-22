@@ -3686,7 +3686,7 @@ DO
                         LOOP
                     END IF
 
-                    'Seperate path from name
+                    'Separate path from name
                     libpath$ = ""
                     FOR z = LEN(x$) TO 1 STEP -1
                         a = ASC(x$, z)
@@ -3696,6 +3696,17 @@ DO
                             EXIT FOR
                         END IF
                     NEXT
+
+                    'Accept ./ and .\ as a reference to the source file
+                    'folder, replacing it with the actual full path, if available
+                    IF libpath$ = "./" OR libpath$ = ".\" THEN
+                        libpath$ = ""
+                        IF NoIDEMode THEN
+                            IF LEFT$(path.exe$, 2) <> ".." THEN libpath$ = path.exe$
+                        ELSE
+                            IF LEN(ideprogname) THEN libpath$ = idepath$ + pathsep$
+                        END IF
+                    END IF
 
                     'Create a path which can be used for inline code (uses \\ instead of \)
                     libpath_inline$ = ""
