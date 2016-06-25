@@ -3426,6 +3426,7 @@ DO
             KB = KEY_ESC 'exit menu selection
         END IF
 
+        IF _EXIT THEN ideexit = 1: KB = KEY_ESC
     LOOP UNTIL KB
 
     K$ = UCASE$(K$)
