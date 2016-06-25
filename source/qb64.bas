@@ -11312,10 +11312,10 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
     ELSE
         PRINT "COMPILING C++ CODE INTO EXE..."
     END IF
-    IF _FILEEXISTS(file$ + extension$) THEN
+    IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN
         E = 0
         ON ERROR GOTO qberror_test
-        KILL file$ + extension$
+        KILL path.exe$ + file$ + extension$
         ON ERROR GOTO qberror
         IF E = 1 THEN
             a$ = "CANNOT CREATE " + CHR$(34) + file$ + extension$ + CHR$(34) + " BECAUSE THE FILE IS ALREADY IN USE!": GOTO errmes
