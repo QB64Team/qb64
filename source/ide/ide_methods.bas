@@ -3570,6 +3570,7 @@ DO
             PCOPY 3, 0: SCREEN , , 3, 0
             GOTO startmenu2
         END IF
+        IF _EXIT THEN ideexit = 1: GOTO ideloop
         _LIMIT 100
     LOOP UNTIL change
 
