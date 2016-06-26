@@ -110,15 +110,6 @@ IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED CMDLineFile AS STRING
-CMDLineFile = ParseCMDLineArgs$
-
-IF ConsoleMode THEN
-    _DEST _CONSOLE
-ELSE
-    _CONSOLE OFF
-    _SCREENSHOW
-    _ICON
-END IF
 
 DIM SHARED NoChecks
 
@@ -287,6 +278,18 @@ DIM SHARED ideerrorline AS LONG 'set by qb64-error(...) to the line number it wo
 DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to be reported, this
 'is later passed to the ide in message #8
 
+'$INCLUDE:'global\IDEsettings.bas'
+
+CMDLineFile = ParseCMDLineArgs$
+
+IF ConsoleMode THEN
+    _DEST _CONSOLE
+ELSE
+    _CONSOLE OFF
+    _SCREENSHOW
+    _ICON
+END IF
+
 'the function ?=ide(?) should always be passed 0, it returns a message code number, any further information
 'is passed back in idereturn
 
@@ -331,8 +334,6 @@ DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to 
 '255    A qb error happened in the IDE (compiler->ide)
 '   note: detected by the fact that ideerror was not set to 0
 '   [255]
-
-'$INCLUDE:'global\IDEsettings.bas'
 
 'hash table data
 TYPE HashListItem
@@ -12240,6 +12241,83 @@ FUNCTION ParseCMDLineArgs$ ()
     DO
         token$ = MID$(cmdline$, tpos, 2) '))
         SELECT CASE token$
+            CASE "-s" 'Settings
+                token$ = MID$(cmdline$, tpos)
+                _DEST _CONSOLE
+                PRINT "QB64 COMPILER V" + Version$
+                SELECT CASE token$
+                    CASE "-s"
+                        PRINT "debuginfo     = ";
+                        IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        PRINT "exewithsource = ";
+                        IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        SYSTEM
+                    CASE "-s:exewithsource"
+                        PRINT "exewithsource = ";
+                        IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        SYSTEM
+                    CASE "-s:exewithsource=true"
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
+                        PRINT "exewithsource = TRUE"
+                        SYSTEM
+                    CASE "-s:exewithsource=false"
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
+                        PRINT "exewithsource = FALSE"
+                        SYSTEM
+                    CASE "-s:debuginfo"
+                        PRINT "debuginfo = ";
+                        IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        SYSTEM
+                    CASE "-s:debuginfo=true"
+                        PRINT "debuginfo = TRUE"
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+                        idedebuginfo = 1
+                        Include_GDB_Debugging_Info = idedebuginfo
+                        IF os$ = "WIN" THEN
+                            CHDIR "internal\c"
+                            SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
+                            CHDIR "..\.."
+                        END IF
+                        IF os$ = "LNX" THEN
+                            CHDIR "./internal/c"
+
+                            IF INSTR(_OS$, "[MACOSX]") THEN
+                                SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                            ELSE
+                                SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
+                            END IF
+                            CHDIR "../.."
+                        END IF
+                        SYSTEM
+                    CASE "-s:debuginfo=false"
+                        PRINT "debuginfo = FALSE"
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+                        idedebuginfo = 0
+                        Include_GDB_Debugging_Info = idedebuginfo
+                        IF os$ = "WIN" THEN
+                            CHDIR "internal\c"
+                            SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
+                            CHDIR "..\.."
+                        END IF
+                        IF os$ = "LNX" THEN
+                            CHDIR "./internal/c"
+
+                            IF INSTR(_OS$, "[MACOSX]") THEN
+                                SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                            ELSE
+                                SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
+                            END IF
+                            CHDIR "../.."
+                        END IF
+                        SYSTEM
+                    CASE ELSE
+                        PRINT "INVALID SETTINGS SWITCH: "; token$
+                        PRINT
+                        PRINT "VALID SWITCHES:"
+                        PRINT "    debuginfo=true/false     (Embed C++ debug info into .EXE)"
+                        PRINT "    exewithsource=true/false (Save .EXE in the source folder)"
+                        SYSTEM
+                END SELECT
             CASE "-g" 'non-GUI environment (uses $CONSOLE:ONLY)
                 DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) OR 2
                 NoIDEMode = 1 'Implies -c
