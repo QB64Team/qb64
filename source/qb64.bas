@@ -12314,8 +12314,8 @@ FUNCTION ParseCMDLineArgs$ ()
                         PRINT "INVALID SETTINGS SWITCH: "; token$
                         PRINT
                         PRINT "VALID SWITCHES:"
-                        PRINT "    debuginfo=true/false     (Embed C++ debug info into .EXE)"
-                        PRINT "    exewithsource=true/false (Save .EXE in the source folder)"
+                        PRINT "    -s:debuginfo=true/false     (Embed C++ debug info into .EXE)"
+                        PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                         SYSTEM
                 END SELECT
             CASE "-g" 'non-GUI environment (uses $CONSOLE:ONLY)
