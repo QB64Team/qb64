@@ -1156,8 +1156,20 @@ f$ = RemoveFileExtension$(f$)
 
 path.exe$ = ""
 IF SaveExeWithSource THEN
+    currentdir$ = _CWD$
     path.exe$ = getfilepath$(sourcefile$)
-    IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
+    IF LEN(path.exe$) THEN
+        IF _DIREXISTS(path.exe$) = 0 THEN
+            PRINT
+            PRINT "CANNOT LOCATE SOURCE FILE:" + sourcefile$
+            IF ConsoleMode THEN SYSTEM 1
+            END 1
+        END IF
+        CHDIR path.exe$
+        path.exe$ = _CWD$
+        CHDIR currentdir$
+        IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
+    END IF
 END IF
 IF path.exe$ = "" THEN
     IF INSTR(_OS$, "WIN") THEN path.exe$ = "..\..\" ELSE path.exe$ = "../../"
@@ -19847,8 +19859,8 @@ END SUB
 
 SUB reginternal
     reginternalsubfunc = 1
-'$INCLUDE:'subs_functions\subs_functions.bas'
-'$INCLUDE:'subs_functions\extensions\extension_list.bas'
+    '$INCLUDE:'subs_functions\subs_functions.bas'
+    '$INCLUDE:'subs_functions\extensions\extension_list.bas'
     reginternalsubfunc = 0
 END SUB
 
