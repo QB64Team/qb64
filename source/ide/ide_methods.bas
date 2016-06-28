@@ -3089,10 +3089,23 @@ DO
 
     IF K$ = CHR$(13) THEN
         IF KSHIFT THEN
-            IF EnteringRGB THEN
+            IF EnteringRGB THEN 'The "Hit Shift+ENTER" message is being shown
                 retval$ = idecolorpicker$(0)
-                GOTO specialchar
+            ELSE
+                IF ideselect THEN
+                    IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
+                END IF
+
+                a$ = idegetline(idecy)
+                Found_RGB = 0
+                Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
+                Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
+                Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
+                Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
+                IF Found_RGB THEN retval$ = idecolorpicker$(-1)
             END IF
+            NoRGBFound:
+            GOTO specialchar
         ELSE
             ideselect = 0
             desiredcolumn = 1
@@ -7504,8 +7517,8 @@ FOR y = 0 TO (idewy - 9)
             'If the user is typing on the current line and has just inserted
             'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
             'color mixer.
+            a2$ = UCASE$(a$)
             IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
-                a2$ = UCASE$(a$)
                 IF RIGHT$(a2$, 5) = "_RGB(" OR _
                    RIGHT$(a2$, 7) = "_RGB32(" OR _
                    RIGHT$(a2$, 6) = "_RGBA(" OR _
@@ -7513,6 +7526,13 @@ FOR y = 0 TO (idewy - 9)
                    a$ = a$ + " 'Hit Shift+ENTER to open the RGB mixer"
                    EnteringRGB = -1
                END IF
+            ELSEIF idecx_comment + idecx_quote = 0 THEN
+                IF MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
+                   MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
+                   MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
+                   MID$(a2$, idecx - 8, 8) = "_RGBA32(" THEN
+                   IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
+                END IF
             END IF
         END IF 'l = idecy
 
