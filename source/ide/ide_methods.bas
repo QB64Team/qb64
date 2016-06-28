@@ -814,13 +814,7 @@ DO
         next
 
         'update title of main window
-        COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, chr$(196));
-        IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
-        a$ = " " + a$
-        if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
-        a$ = a$ + " "
-        if len(a$) > idewx - 5 then a$ = left$(a$, idewx - 11) + string$(3, 250) + " "
-        COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
+        GOSUB UpdateTitleOfMainWindow
 
         'Draw navigation buttons (QuickNav)
         GOSUB DrawQuickNav
@@ -1179,7 +1173,7 @@ DO
                 QuickNavHover = -1
                 LOCATE 2, 4
                 COLOR 15, 3
-                PRINT " " + CHR$(17) + " ";
+                PRINT " " + CHR$(17) + " back to line "; str2$(QuickNavHistory(QuickNavTotal));
                 PCOPY 3, 0
                 IF mB THEN
                     ideselect = 0
@@ -1189,10 +1183,20 @@ DO
                     GOTO waitforinput
                 END IF
             ELSE
-                IF QuickNavHover = -1 THEN QuickNavHover = 0: GOSUB DrawQuickNav: PCOPY 3, 0
+                IF QuickNavHover = -1 THEN
+                    QuickNavHover = 0
+                    GOSUB UpdateTitleOfMainWindow
+                    GOSUB DrawQuickNav
+                    PCOPY 3, 0
+                END IF
             END IF
         ELSE
-            IF QuickNavHover = -1 THEN QuickNavHover = 0: GOSUB DrawQuickNav: PCOPY 3, 0
+            IF QuickNavHover = -1 THEN
+                QuickNavHover = 0
+                GOSUB UpdateTitleOfMainWindow
+                GOSUB DrawQuickNav
+                PCOPY 3, 0
+            END IF
         END IF
     END IF
 
@@ -4650,6 +4654,16 @@ LOOP
 
 '--------------------------------------------------------------------------------
 EXIT FUNCTION
+UpdateTitleOfMainWindow:
+COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, chr$(196));
+IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
+a$ = " " + a$
+if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
+a$ = a$ + " "
+if len(a$) > idewx - 5 then a$ = left$(a$, idewx - 11) + string$(3, 250) + " "
+COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
+RETURN
+
 DrawQuickNav:
 IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
     LOCATE 2, 4
@@ -10179,7 +10193,7 @@ DO 'main loop
     '-------- custom display changes --------
     COLOR 8, 7: LOCATE p.y + 3, p.x + 4: PRINT "Projects are created at:";
     COLOR 8, 7: LOCATE p.y + 4, p.x + 6: PRINT "qb64\programs\android\";
-    COLOR 3, 7
+    COLOR 9, 7
     PRINT "bas_file_name_without_extension";
     COLOR 8, 7: PRINT "\";
     '    COLOR 8, 7: LOCATE p.y + 9, p.x + 4: PRINT "Script file is launched from within project's folder";
@@ -12203,7 +12217,7 @@ SUB IdeMakeContextualMenu
         END IF
 
         'check if cursor is on sub/func/label name
-        if len(Selection$) > 0 then
+        if len(LTRIM$(RTRIM$(Selection$))) > 0 then
             do until alphanumeric(asc(right$(Selection$, 1)))
                 Selection$ = left$(Selection$, len(Selection$) - 1)  'removes sigil, if any
             loop
@@ -12358,6 +12372,10 @@ SUB IdeMakeEditMenu
     m = ideeditmenuID: i = 0
     menu$(m, i) = "Edit": i = i + 1
 
+    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+    menu$(m, i) = "-": i = i + 1
+
     if ideselect then
         menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
         menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
@@ -12380,9 +12398,6 @@ SUB IdeMakeEditMenu
     end if
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
-    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
