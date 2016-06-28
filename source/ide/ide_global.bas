@@ -156,6 +156,7 @@ DIM SHARED SubFuncLIST(0) AS STRING
 DIM SHARED QuickNavTotal AS LONG
 DIM SHARED QuickNavHistory(0) AS LONG
 DIM SHARED ModifyCOMMAND$
+DIM SHARED EnteringRGB AS _BYTE
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype

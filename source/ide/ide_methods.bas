@@ -275,7 +275,7 @@ IF idelaunched = 0 THEN
     m = m + 1: i = 0: OptionsMenuID = m
     menu$(m, i) = "Options": i = i + 1
     menu$(m, i) = "#Display...": i = i + 1
-    menu$(m, i) = "C#olors...": i = i + 1
+    menu$(m, i) = "IDE C#olors...": i = i + 1
     menu$(m, i) = "#Language...": i = i + 1
     menu$(m, i) = "#Code layout...": i = i + 1
     menu$(m, i) = "#Backup/Undo...": i = i + 1
@@ -3084,40 +3084,47 @@ DO
     skipgosubs:
 
     IF K$ = CHR$(13) THEN
-        ideselect = 0
-        desiredcolumn = 1
-        idechangemade = 1
-
-        a$ = idegetline(idecy)
-        IF idecx > LEN(a$) THEN
-            ideinsline idecy + 1, ""
-            IF ideautoindent = 0 THEN desiredcolumn = LEN(a$) - LEN(LTRIM$(a$)) + 1
+        IF KSHIFT THEN
+            IF EnteringRGB THEN
+                retval$ = idecolorpicker$(0)
+                GOTO specialchar
+            END IF
         ELSE
-            idesetline idecy, LEFT$(a$, idecx - 1)
-            IF ideautoindent = 0 THEN
-                desiredcolumn = LEN(a$) - LEN(LTRIM$(a$))
-                new.a$ = idegetline(idecy)
-                IF LEN(LTRIM$(RTRIM$(new.a$))) = 0 THEN desiredcolumn = 0
-            ELSE
-                desiredcolumn = 0
-            END IF
-            ideinsline idecy + 1, SPACE$(desiredcolumn) + RIGHT$(a$, LEN(a$) - idecx + 1)
-            IF ideautoindent = 0 THEN
-                IF desiredcolumn = 0 THEN desiredcolumn = 1 ELSE desiredcolumn = desiredcolumn + 1
-            ELSE
-                desiredcolumn = 1
-            END IF
-        END IF
+            ideselect = 0
+            desiredcolumn = 1
+            idechangemade = 1
 
-        IF idecx = 1 THEN
-            FOR b = 1 TO IdeBmkN
-                IF IdeBmk(b).y = idecy THEN IdeBmk(b).y = IdeBmk(b).y + 1
-            NEXT
-        END IF
+            a$ = idegetline(idecy)
+            IF idecx > LEN(a$) THEN
+                ideinsline idecy + 1, ""
+                IF ideautoindent = 0 THEN desiredcolumn = LEN(a$) - LEN(LTRIM$(a$)) + 1
+            ELSE
+                idesetline idecy, LEFT$(a$, idecx - 1)
+                IF ideautoindent = 0 THEN
+                    desiredcolumn = LEN(a$) - LEN(LTRIM$(a$))
+                    new.a$ = idegetline(idecy)
+                    IF LEN(LTRIM$(RTRIM$(new.a$))) = 0 THEN desiredcolumn = 0
+                ELSE
+                    desiredcolumn = 0
+                END IF
+                ideinsline idecy + 1, SPACE$(desiredcolumn) + RIGHT$(a$, LEN(a$) - idecx + 1)
+                IF ideautoindent = 0 THEN
+                    IF desiredcolumn = 0 THEN desiredcolumn = 1 ELSE desiredcolumn = desiredcolumn + 1
+                ELSE
+                    desiredcolumn = 1
+                END IF
+            END IF
 
-        idecy = idecy + 1
-        idecx = desiredcolumn
-        GOTO specialchar
+            IF idecx = 1 THEN
+                FOR b = 1 TO IdeBmkN
+                    IF IdeBmk(b).y = idecy THEN IdeBmk(b).y = IdeBmk(b).y + 1
+                NEXT
+            END IF
+
+            idecy = idecy + 1
+            idecx = desiredcolumn
+            GOTO specialchar
+        END IF
     END IF
 
     IF KB = KEY_DELETE THEN
@@ -3821,13 +3828,19 @@ DO
             GOTO ideloop
         END IF
 
-        IF menu$(m, s) = "C#olors..." THEN
+        IF menu$(m, s) = "IDE C#olors..." THEN
             PCOPY 2, 0
             retval = idechoosecolorsbox 'retval is ignored
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             GOTO ideloop
         END IF
 
+        IF menu$(m, s) = "Open _RGB color mi#xer" THEN
+            PCOPY 2, 0
+            retval$ = idecolorpicker$(-1) 'retval is ignored
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            GOTO ideloop
+        END IF
 
         IF menu$(m, s) = "#Advanced..." THEN
             PCOPY 2, 0
@@ -7404,6 +7417,7 @@ sx2 = idecx
 IF sx1 > sx2 THEN SWAP sx1, sx2
 
 l = idesy
+EnteringRGB = 0
 
 idecy_multilinestart = 0
 idecy_multilineend = 0
@@ -7443,11 +7457,11 @@ FOR y = 0 TO (idewy - 9)
     COLOR 7, 1
     PRINT CHR$(179); 'clear prev bookmarks from lhs
     IF l = idefocusline AND idecy <> l THEN
-        COLOR 7, 4
+        COLOR 7, 4 'Line with error gets a red background
     ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
-        COLOR 7, 6
+        COLOR 7, 6 'Highlight the current line
     ELSE
-        COLOR 7, 1
+        COLOR 7, 1 'Regular text color
     END IF
 
     IF l <= iden THEN
@@ -7458,6 +7472,20 @@ FOR y = 0 TO (idewy - 9)
                 IF cc = 32 THEN
                     IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
                 END IF
+            END IF
+
+            'If the user is typing on the current line and has just inserted
+            'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
+            'color mixer.
+            IF idecx = LEN(a$) + 1 THEN
+                a2$ = UCASE$(a$)
+                IF RIGHT$(a2$, 5) = "_RGB(" OR _
+                   RIGHT$(a2$, 7) = "_RGB32(" OR _
+                   RIGHT$(a2$, 6) = "_RGBA(" OR _
+                   RIGHT$(a2$, 8) = "_RGBA32(" THEN
+                   a$ = a$ + " 'Hit Shift+ENTER to open the RGB mixer"
+                   EnteringRGB = -1
+               END IF
             END IF
         END IF
 
@@ -10599,8 +10627,10 @@ sep = CHR$(0)
 '-------- end of generic dialog box header --------
 
 '-------- init --------
+_palettecolor 5, &HFF00A800, 0 'Original green may have been changed by the Help System, so 5 is now green
+
 i = 0
-idepar p, 70, 13, "Colors"
+idepar p, 70, 13, "IDE Colors"
 
 l$ = CHR$(16) + "Normal Text"
 l$ = l$ + sep + " Strings"
@@ -10695,7 +10725,7 @@ DO 'main loop
     LOCATE p.y + 2, p.x + 35 + r: PRINT slider$;
 
     COLOR 0: LOCATE p.y + 5, p.x + 33: PRINT "G: ";
-    COLOR 2: PRINT STRING$(26, 196);
+    COLOR 5: PRINT STRING$(26, 196);
     slider$ = CHR$(197)
     T = VAL(idetxt(o(3).txt)): r = ((T / 255) * 26)
     IF T = 0 THEN slider$ = CHR$(195)
@@ -10974,6 +11004,469 @@ DO 'main loop
 LOOP
 END FUNCTION
 
+
+FUNCTION idecolorpicker$(editing)
+'-------- generic dialog box header --------
+PCOPY 0, 2
+PCOPY 0, 1
+SCREEN , , 1, 0
+focus = 1
+DIM p AS idedbptype
+DIM o(1 TO 100) AS idedbotype
+DIM oo AS idedbotype
+DIM sep AS STRING * 1
+sep = CHR$(0)
+'-------- end of generic dialog box header --------
+
+'-------- init --------
+i = 0
+
+idepar p, 70, 11, "RGB Color Mixer"
+
+a2$ = "127"
+i = i + 1
+o(i).typ = 1
+o(i).x = 63
+o(i).y = 2
+o(i).txt = idenewtxt(a2$)
+o(i).v1 = LEN(a2$)
+o(i).issel = -1
+o(i).sx1 = 0
+
+a2$ = "127"
+i = i + 1
+o(i).typ = 1
+o(i).x = 63
+o(i).y = 5
+o(i).txt = idenewtxt(a2$)
+o(i).v1 = LEN(a2$)
+o(i).issel = -1
+o(i).sx1 = 0
+
+a2$ = "127"
+i = i + 1
+o(i).typ = 1
+o(i).x = 63
+o(i).y = 8
+o(i).txt = idenewtxt(a2$)
+o(i).v1 = LEN(a2$)
+o(i).issel = -1
+o(i).sx1 = 0
+
+i = i + 1
+o(i).typ = 3
+o(i).y = 11
+o(i).txt = idenewtxt("#Insert" + sep + "C#opy" + sep + "#Cancel")
+o(i).dft = 1
+
+prev.ideselect = ideselect
+
+IF editing THEN
+    'Parse selection for RGB values:
+    a$ = ""
+    a2$ = ""
+    IF ideselect THEN
+        IF ideselecty1 = idecy THEN 'single line selected
+            a$ = idegetline(idecy)
+            sx1 = ideselectx1: sx2 = idecx
+            IF sx2 < sx1 THEN SWAP sx1, sx2
+            FOR x = sx1 TO sx2 - 1
+                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE EXIT FOR
+            NEXT
+        END IF
+    END IF
+    a2$ = UCASE$(LTRIM$(RTRIM$(a2$)))
+
+    IF LEN(a2$) = 0 THEN
+        RGB_Lookup:
+        'No selection found. Let's look for RGB values in the current line
+        All_RGB$ = ""
+        CurrentLine$ = idegetline(idecy)
+        a$ = UCASE$(CurrentLine$)
+
+        'In case there are multiple RGB values, we'll stick to the
+        'one closer to the cursor.
+        Found_RGB = 0
+        DO
+            Found_RGB = INSTR(Found_RGB + 1, a$, "_RGB")
+            IF Found_RGB = 0 THEN EXIT DO
+            FindBracket1 = INSTR(Found_RGB, a$, "(")
+            FindBracket2 = INSTR(FindBracket1, a$, ")")
+            IF FindBracket1 > 0 AND FindBracket2 > 0 THEN
+                'Check the number of commas in the brackets.
+                '2 or 3 are accepted.
+                RGBArgs$ = MID$(a$, FindBracket1 + 1, FindBracket2 - FindBracket1 - 1)
+                TotalCommas = CountItems(RGBArgs$, ",")
+                IF TotalCommas = 2 OR TotalCommas = 3 THEN All_RGB$ = All_RGB$ + MKI$(Found_RGB)
+            END IF
+        LOOP
+
+        IF LEN(All_RGB$) = 0 THEN GOTO NoRGBFound
+
+        IF LEN(All_RGB$) = 2 THEN
+            'IF only one RGB reference was found in the current line, then this is it
+            a2$ = MID$(a$, CVI(All_RGB$))
+            InsertRGBAt = CVI(All_RGB$)
+        ELSE
+            Check_RGB = 1
+            DO
+                IF idecx >= CVI(MID$(All_RGB$, (Check_RGB + 1) * 2 - 1, 2)) THEN
+                    Check_RGB = Check_RGB + 1
+                    IF Check_RGB = LEN(All_RGB$) \ 2 THEN EXIT DO
+                ELSE
+                    EXIT DO
+                END IF
+            LOOP
+            a2$ = MID$(a$, CVI(MID$(All_RGB$, Check_RGB * 2 - 1, 2)))
+            InsertRGBAt = CVI(MID$(All_RGB$, Check_RGB * 2 - 1, 2))
+        END IF
+    END IF
+
+    'Read RGB values and fill the textboxes
+    IF LEFT$(a2$, 5) = "_RGB(" OR _
+       LEFT$(a2$, 7) = "_RGB32(" OR _
+       LEFT$(a2$, 6) = "_RGBA(" OR _
+       LEFT$(a2$, 8) = "_RGBA32(" THEN
+        IF InsertRGBAt = 0 THEN InsertRGBAt = sx1
+        FindComma1 = INSTR(a2$, ",")
+        IF FindComma1 > 0 THEN
+            FindComma2 = INSTR(FindComma1 + 1, a2$, ",")
+            IF FindComma2 > 0 THEN
+                r$ = "": g$ = "": b$ = ""
+                FOR i = FindComma1 - 1 TO 1 STEP -1
+                    IF ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57 THEN
+                        r$ = MID$(a2$, i, 1) + r$
+                    ELSE
+                        EXIT FOR
+                    END IF
+                NEXT i
+
+                FOR i = FindComma1 + 1 TO FindComma2 - 1
+                    IF ASC(a2$, i) = 32 OR (ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57) THEN
+                        g$ = g$ + MID$(a2$, i, 1)
+                    ELSE
+                        EXIT FOR
+                    END IF
+                NEXT i
+
+                FOR i = FindComma2 + 1 TO LEN(a2$)
+                    IF ASC(a2$, i) = 32 OR (ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57) THEN
+                        b$ = b$ + MID$(a2$, i, 1)
+                    ELSE
+                        EXIT FOR
+                    END IF
+                NEXT i
+
+                r = VAL(r$): IF r < 0 THEN r = 0
+                             IF r > 255 THEN r = 255
+                g = VAL(g$): IF g < 0 THEN g = 0
+                             IF g > 255 THEN g = 255
+                b = VAL(b$): IF b < 0 THEN b = 0
+                             IF b > 255 THEN b = 255
+
+                idetxt(o(1).txt) = str2$(r)
+                idetxt(o(2).txt) = str2$(g)
+                idetxt(o(3).txt) = str2$(b)
+
+                FOR i = 1 TO 3
+                    o(i).sx1 = 0
+                    o(i).v1 = LEN(idetxt(o(i).txt))
+                    IF o(i).v1 > 0 THEN o(i).issel = -1
+                NEXT i
+            END IF
+        END IF
+    ELSE
+        'If a selection if present, it spans only one line, but
+        'no _RGB is selected, let's try to find some _RGB around.
+        IF ideselect AND ideselecty1 = idecy THEN
+            ideselect = 0
+            GOTO RGB_Lookup
+        END IF
+    END IF
+END IF
+NoRGBFound:
+CurrentColor~& = _RGB32(VAL(idetxt(o(1).txt)), VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)))
+_PALETTECOLOR 12, CurrentColor~&, 0
+_PALETTECOLOR 5, &HFF00A800, 0 'Original green may have been changed by the Help System, so 5 is now green
+'-------- end of init --------
+
+'-------- generic init --------
+FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+'-------- end of generic init --------
+
+DO 'main loop
+
+    '-------- generic display dialog box & objects --------
+    idedrawpar p
+    f = 1: cx = 0: cy = 0
+    FOR i = 1 TO 100
+        IF o(i).typ THEN
+
+            'prepare object
+            o(i).foc = focus - f 'focus offset
+            o(i).cx = 0: o(i).cy = 0
+            idedrawobj o(i), f 'display object
+            IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+        END IF
+    NEXT i
+    lastfocus = f - 1
+    '-------- end of generic display dialog box & objects --------
+
+    '-------- custom display changes --------
+    LOCATE p.y + 2, p.x + 13: PRINT "R: ";
+    COLOR 4: PRINT STRING$(46, 196);
+    slider$ = CHR$(197)
+    T = VAL(idetxt(o(1).txt)): r = ((T / 255) * 46)
+    IF T = 0 THEN slider$ = CHR$(195)
+    IF T = 255 THEN slider$ = CHR$(180)
+    LOCATE p.y + 2, p.x + 15 + r: PRINT slider$;
+
+    COLOR 0: LOCATE p.y + 5, p.x + 13: PRINT "G: ";
+    COLOR 5: PRINT STRING$(46, 196);
+    slider$ = CHR$(197)
+    T = VAL(idetxt(o(2).txt)): r = ((T / 255) * 46)
+    IF T = 0 THEN slider$ = CHR$(195)
+    IF T = 255 THEN slider$ = CHR$(180)
+    LOCATE p.y + 5, p.x + 15 + r: PRINT slider$;
+
+    COLOR 0: LOCATE p.y + 8, p.x + 13: PRINT "B: ";
+    COLOR 9: PRINT STRING$(46, 196);
+    slider$ = CHR$(197)
+    T = VAL(idetxt(o(3).txt)): r = ((T / 255) * 46)
+    IF T = 0 THEN slider$ = CHR$(195)
+    IF T = 255 THEN slider$ = CHR$(180)
+    LOCATE p.y + 8, p.x + 15 + r: PRINT slider$;
+
+    COLOR 12
+    FOR i = 2 TO 8
+        LOCATE p.y + i, p.x + 2
+        PRINT STRING$(10, 219);
+    NEXT i
+    '-------- end of custom display changes --------
+
+    'update visual page and cursor position
+    PCOPY 1, 0
+    IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+    '-------- read input --------
+    change = 0
+    DO
+        GetInput
+        IF mWHEEL THEN change = 1
+        IF KB THEN change = 1
+        IF mCLICK THEN mousedown = 1: change = 1
+        IF mRELEASE THEN mouseup = 1: change = 1
+        IF mB THEN change = 1
+        alt = KALT: IF alt <> oldalt THEN change = 1
+        oldalt = alt
+        _LIMIT 100
+    LOOP UNTIL change
+    IF alt THEN idehl = 1 ELSE idehl = 0
+    'convert "alt+letter" scancode to letter's ASCII character
+    altletter$ = ""
+    IF alt THEN
+        IF LEN(K$) = 1 THEN
+            k = ASC(UCASE$(K$))
+            IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+        END IF
+    END IF
+    SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+    '-------- end of read input --------
+
+    '-------- generic input response --------
+    info = 0
+    IF K$ = "" THEN K$ = CHR$(255)
+    IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+    IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+    IF focus < 1 THEN focus = lastfocus
+    IF focus > lastfocus THEN focus = 1
+    f = 1
+    FOR i = 1 TO 100
+        t = o(i).typ
+        IF t THEN
+            focusoffset = focus - f
+            ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+        END IF
+    NEXT
+    '-------- end of generic input response --------
+
+    'specific post controls
+    IF focus <> PrevFocus THEN
+        'Always start with RGB values selected upon getting focus
+        PrevFocus = focus
+        IF focus >= 1 AND focus <= 3 THEN
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            IF o(focus).v1 > 0 THEN o(focus).issel = -1
+            o(focus).sx1 = 0
+        END IF
+    END IF
+
+    IF mB AND mY = p.y + 2 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
+        newValue = (mX - p.x - 15) * (255 / 46)
+        idetxt(o(1).txt) = str2$(newValue)
+        focus = 1
+        o(focus).v1 = LEN(idetxt(o(focus).txt))
+        o(focus).issel = -1
+        o(focus).sx1 = 0
+    END IF
+
+    IF mB AND mY = p.y + 5 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
+        newValue = (mX - p.x - 15) * (255 / 46)
+        idetxt(o(2).txt) = str2$(newValue)
+        focus = 2
+        o(focus).v1 = LEN(idetxt(o(focus).txt))
+        o(focus).issel = -1
+        o(focus).sx1 = 0
+    END IF
+
+    IF mB AND mY = p.y + 8 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
+        newValue = (mX - p.x - 15) * (255 / 46)
+        idetxt(o(3).txt) = str2$(newValue)
+        focus = 3
+        o(focus).v1 = LEN(idetxt(o(focus).txt))
+        o(focus).issel = -1
+        o(focus).sx1 = 0
+    END IF
+
+    ChangedWithKeys = 0
+    IF K$ = CHR$(0) + CHR$(72) AND (focus = 1 OR focus = 2 OR focus = 3) THEN 'Up
+        idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) + 1)
+        o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
+        ChangedWithKeys = -1
+    END IF
+
+    IF K$ = CHR$(0) + CHR$(80) AND (focus = 1 OR focus = 2 OR focus = 3) THEN 'Down
+        idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) - 1)
+        o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
+        ChangedWithKeys = -1
+    END IF
+
+    'Check RGB values range (0-255)
+    FOR checkRGB = 1 to 3
+        a$ = idetxt(o(checkRGB).txt)
+        IF LEN(a$) > 3 THEN a$ = LEFT$(a$, 3) '3 character limit
+        FOR i = 1 TO LEN(a$)
+            a = ASC(a$, i)
+            IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
+            IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
+        NEXT
+        IF LEN(a$) THEN
+            a = VAL(a$)
+            IF a > 255 THEN a$ = "255"
+            IF a < 0 THEN a$ = "0"
+        ELSE
+            IF ChangedWithKeys = -1 THEN a$ = "0"
+        END IF
+        idetxt(o(checkRGB).txt) = a$
+    NEXT checkRGB
+
+    CurrentColor~& = _RGB32(VAL(idetxt(o(1).txt)), VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)))
+    CurrentRGB$ = idetxt(o(1).txt) + ", "+ idetxt(o(2).txt) + ", " + idetxt(o(3).txt)
+    _PALETTECOLOR 12, CurrentColor~&, 0
+
+    IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
+        ideselect = prev.ideselect
+        EXIT FUNCTION
+    END IF
+
+    IF (focus = 5 AND info <> 0) THEN
+        _CLIPBOARD$ = CurrentRGB$
+        idecolorpicker$ = CurrentRGB$
+        ideselect = prev.ideselect
+        EXIT FUNCTION
+    END IF
+
+    IF (focus = 4 AND info <> 0) OR _
+       (focus = 1 AND K$ = CHR$(13)) OR _
+       (focus = 2 AND K$ = CHR$(13)) OR _
+       (focus = 3 AND K$ = CHR$(13)) OR _
+       (focus = 4 AND K$ = CHR$(13)) THEN
+        IF CurrentLine$ = "" THEN CurrentLine$ = idegetline(idecy)
+        IF editing THEN
+            'If we're changing an existing statement, let's insert the values
+            IF InsertRGBAt > 0 THEN
+                FindBracket1 = INSTR(InsertRGBAt, CurrentLine$, "(")
+                FindBracket2 = INSTR(FindBracket1, CurrentLine$, ")")
+                OldRGB$ = MID$(CurrentLine$, FindBracket1, FindBracket2 - FindBracket1 + 1)
+                IF CountItems(OldRGB$, ",") = 3 THEN 'If the current statement has the ALPHA parameter
+                    FOR i = FindBracket2 TO FindBracket1 STEP -1
+                        IF ASC(CurrentLine$, i) = 44 THEN FindBracket2 = i: EXIT FOR
+                    NEXT i
+                END IF
+                NewLine$ = LEFT$(CurrentLine$, FindBracket1)
+                IF FindBracket2 = 0 THEN FindBracket2 = FindBracket1
+                NewLine$ = NewLine$ + CurrentRGB$
+                NewLine$ = NewLine$ + MID$(CurrentLine$, FindBracket2)
+                idechangemade = 1
+                idesetline idecy, NewLine$
+
+                'Select the inserted bit
+                ideselectx1 = FindBracket1 + 1
+                idecx = ideselectx1 + LEN(CurrentRGB$)
+                ideselecty1 = idecy
+                prev.ideselect = 1
+            ELSE
+                detail$ = "no _RGB statement found"
+                IF ideselect AND ideselecty1 <> idecy THEN
+                    detail$ = "can't insert - multiple lines"
+                END IF
+                _CLIPBOARD$ = CurrentRGB$
+                ideerrormessage "Copied to the clipboard (" + detail$ + ")."
+            END IF
+        ELSE
+            IF ideselect THEN
+                IF ideselecty1 <> idecy THEN
+                    _CLIPBOARD$ = CurrentRGB$
+                    ideerrormessage "Copied to the clipboard (can't insert - multiple lines)."
+                ELSE
+                    'Delete selection and insert current RGB values
+                    sx1 = ideselectx1: sx2 = idecx
+                    if sx1 > sx2 THEN SWAP sx1, sx2
+                    NewLine$ = LEFT$(CurrentLine$, sx1 - 1)
+                    NewLine$ = NewLine$ + CurrentRGB$
+                    NewLine$ = NewLine$ + MID$(CurrentLine$, sx2)
+                    idechangemade = 1
+                    idesetline idecy, NewLine$
+
+                    'Select the inserted bit
+                    ideselectx1 = sx1
+                    idecx = ideselectx1 + LEN(CurrentRGB$)
+                    ideselecty1 = idecy
+                    prev.ideselect = 1
+                END IF
+            ELSE
+                'Insert current RGB values at the cursor
+                NewLine$ = LEFT$(CurrentLine$, idecx - 1)
+                NewLine$ = NewLine$ + CurrentRGB$
+                NewLine$ = NewLine$ + MID$(CurrentLine$, idecx)
+                idechangemade = 1
+                idesetline idecy, NewLine$
+
+                idecx = idecx + LEN(CurrentRGB$)
+                prev.ideselect = 0
+            END IF
+        END IF
+        'Return the current RGB string
+        idecolorpicker$ = CurrentRGB$
+        ideselect = prev.ideselect
+        EXIT FUNCTION
+    END IF
+
+    'end of custom controls
+
+    mousedown = 0
+    mouseup = 0
+LOOP
+END FUNCTION
+
+FUNCTION CountItems (SearchString$, Item$)
+    DO
+        Found = INSTR(Found + 1, SearchString$, Item$)
+        IF Found = 0 THEN EXIT DO
+        Total = Total + 1
+    LOOP
+    CountItems = Total
+END FUNCTION
 
 
 SUB iderestrict417 (p417)
@@ -11799,6 +12292,24 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
     END IF
 
+    '--------- Check if _RGB mixer should be offered: -----------------------------------------
+    a$ = idegetline(idecy)
+    IF ideselect THEN
+        IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
+    END IF
+
+    Found_RGB = 0
+    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
+    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
+    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
+    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
+    IF Found_RGB THEN
+        menu$(m, i) = "Open _RGB color mi#xer": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+    END IF
+    NoRGBFound:
+    '--------- _RGB mixer check done.              --------------------------------------------
+
     if ideselect then menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
     if ideselect then menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
 
@@ -11807,9 +12318,6 @@ SUB IdeMakeContextualMenu
 
     if ideselect then menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
-    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
