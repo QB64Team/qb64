@@ -1173,7 +1173,7 @@ DO
                 QuickNavHover = -1
                 LOCATE 2, 4
                 COLOR 15, 3
-                PRINT " " + CHR$(17) + " back to line"; QuickNavHistory(QuickNavTotal); " ";
+                PRINT " " + CHR$(17) + " back to line "; str2$(QuickNavHistory(QuickNavTotal)); " ";
                 PCOPY 3, 0
                 IF mB THEN
                     ideselect = 0
