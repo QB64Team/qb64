@@ -7488,10 +7488,23 @@ FOR y = 0 TO (idewy - 9)
                 END IF
             END IF
 
+            'Check if the cursor is positioned inside a comment or
+            'quotation marks:
+            idecx_comment = 0
+            idecx_quote = 0
+            FOR k = 1 TO idecx
+                SELECT CASE MID$(a$, k, 1)
+                    CASE CHR$(34)
+                        idecx_quote = NOT idecx_quote
+                    CASE "'"
+                        IF idecx_quote = 0 THEN idecx_comment = -1: EXIT FOR
+                END SELECT
+            NEXT k
+
             'If the user is typing on the current line and has just inserted
             'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
             'color mixer.
-            IF idecx = LEN(a$) + 1 THEN
+            IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
                 a2$ = UCASE$(a$)
                 IF RIGHT$(a2$, 5) = "_RGB(" OR _
                    RIGHT$(a2$, 7) = "_RGB32(" OR _
@@ -7501,7 +7514,7 @@ FOR y = 0 TO (idewy - 9)
                    EnteringRGB = -1
                END IF
             END IF
-        END IF
+        END IF 'l = idecy
 
         a2$ = SPACE$(idesx + (idewx - 3))
         MID$(a2$, 1) = a$
