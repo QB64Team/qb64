@@ -707,6 +707,7 @@ DIM SHARED cleanupstringprocessingcall AS STRING
 DIM SHARED recompile AS INTEGER 'forces recompilation
 'COMMON SHARED cmemlist() AS INTEGER
 DIM SHARED optionbase AS INTEGER
+DIM SHARED optionexplicit AS _BYTE
 
 DIM SHARED addmetastatic AS INTEGER
 DIM SHARED addmetadynamic AS INTEGER
@@ -1276,6 +1277,7 @@ HashAdd "MOD", f, 0
 f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
 HashAdd "LIST", f, 0
 HashAdd "BASE", f, 0
+HashAdd "_EXPLICIT", f, 0
 HashAdd "AS", f, 0
 HashAdd "IS", f, 0
 HashAdd "OFF", f, 0
@@ -1426,6 +1428,7 @@ addmetastatic = 0
 addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
+optionexplicit = 0
 DataOffset = 0
 statementn = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
@@ -9581,14 +9584,25 @@ DO
                 END IF
 
                 IF firstelement$ = "OPTION" THEN
-                    IF n <> 3 THEN a$ = "Expected OPTION BASE 0 or 1": GOTO errmes
-                    IF getelement$(a$, 2) <> "BASE" THEN a$ = "Expected OPTION BASE 0 or 1": GOTO errmes
-                    l$ = getelement$(a$, 3)
-                    IF l$ <> "0" AND l$ <> "1" THEN a$ = "Expected OPTION BASE 0 or 1": GOTO errmes
-                    IF l$ = "1" THEN optionbase = 1 ELSE optionbase = 0
-                    l$ = "OPTION" + sp + "BASE" + sp + l$
-                    layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
-                    GOTO finishedline
+                    IF n = 1 THEN a$ = "Expected OPTION BASE or OPTION _EXPLICIT": GOTO errmes
+                    e$ = getelement$(a$, 2)
+                    SELECT CASE e$
+                        CASE "BASE"
+                            l$ = getelement$(a$, 3)
+                            IF l$ <> "0" AND l$ <> "1" THEN a$ = "Expected OPTION BASE 0 or 1": GOTO errmes
+                            IF l$ = "1" THEN optionbase = 1 ELSE optionbase = 0
+                            l$ = "OPTION" + sp + "BASE" + sp + l$
+                            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                            GOTO finishedline
+                        CASE "_EXPLICIT"
+                            IF linenumber > 1 THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
+                            optionexplicit = -1
+                            l$ = "OPTION" + sp + "_EXPLICIT"
+                            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                            GOTO finishedline
+                        CASE ELSE
+                            a$ = "Expected OPTION BASE or OPTION _EXPLICIT": GOTO errmes
+                    END SELECT
                 END IF
 
                 'any other "unique" subs can be processed above
@@ -14573,6 +14587,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                             NEXT
                             fakee$ = "10": FOR i2 = 2 TO nume: fakee$ = fakee$ + sp + "," + sp + "10": NEXT
                             IF Debug THEN PRINT #9, "evaluate:creating undefined array using dim2(" + l$ + "," + dtyp$ + ",1," + fakee$ + ")"
+                            IF optionexplicit THEN Give_Error "Array not defined": EXIT FUNCTION
                             IF Error_Happened THEN EXIT FUNCTION
                             olddimstatic = dimstatic
                             method = 1
@@ -14793,6 +14808,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     LOOP
 
                     IF Debug THEN PRINT #9, "CREATING VARIABLE:" + x$
+                    IF optionexplicit THEN Give_Error "Variable not defined": EXIT FUNCTION
                     retval = dim2(x$, typ$, 1, "")
                     IF Error_Happened THEN EXIT FUNCTION
 
