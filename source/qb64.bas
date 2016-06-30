@@ -2873,6 +2873,7 @@ DO
     IF idemode = 0 AND inclevel = 0 THEN a3$ = lineinput3$
     IF a3$ = CHR$(13) THEN EXIT DO
     linenumber = linenumber + 1
+    IF linenumber = 1 THEN opex_comments = -1
 
     IF InValidLine(linenumber) THEN
         layoutok = 1
@@ -2906,10 +2907,19 @@ DO
     'No need to go over those lines again.
     'IF InValidLine(linenumber) THEN goto skipide4 'layoutdone = 0: GOTO finishednonexec
 
+    a3u$ = UCASE$(a3$)
+
+    IF LEFT$(a3u$, 4) = "REM " OR LEFT$(a3u$, 1) = "'" OR LEFT$(a3u$, 16) = "OPTION _EXPLICIT" THEN
+        'It's a comment or an empty line, alright.
+        IF LEFT$(a3u$, 4) = "REM " THEN i = 5 ELSE i = 2
+        IF LEFT$(LTRIM$(MID$(a3u$, i)), 8) = "$INCLUDE" THEN opex_comments = 0
+    ELSE
+        'As soon as a line isn't a comment anymore, it can't come before OPTION _EXPLICIT
+        opex_comments = 0
+    END IF
+
     'QB64 Metacommands
     IF ASC(a3$) = 36 THEN '$
-
-        a3u$ = UCASE$(a3$)
 
         'precompiler commands should always be executed FIRST.
 
@@ -9597,7 +9607,7 @@ DO
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
                         CASE "_EXPLICIT"
-                            IF linenumber > 1 THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
+                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
                             optionexplicit = -1
                             l$ = "OPTION" + sp + "_EXPLICIT"
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -14589,7 +14599,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                             NEXT
                             fakee$ = "10": FOR i2 = 2 TO nume: fakee$ = fakee$ + sp + "," + sp + "10": NEXT
                             IF Debug THEN PRINT #9, "evaluate:creating undefined array using dim2(" + l$ + "," + dtyp$ + ",1," + fakee$ + ")"
-                            IF optionexplicit THEN Give_Error "Array not defined": EXIT FUNCTION
+                            IF optionexplicit THEN Give_Error "Array '" + l$ + "' not defined": EXIT FUNCTION
                             IF Error_Happened THEN EXIT FUNCTION
                             olddimstatic = dimstatic
                             method = 1
@@ -14810,7 +14820,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     LOOP
 
                     IF Debug THEN PRINT #9, "CREATING VARIABLE:" + x$
-                    IF optionexplicit THEN Give_Error "Variable not defined": EXIT FUNCTION
+                    IF optionexplicit THEN Give_Error "Variable '" + x$ + "' not defined": EXIT FUNCTION
                     retval = dim2(x$, typ$, 1, "")
                     IF Error_Happened THEN EXIT FUNCTION
 
