@@ -196,7 +196,7 @@ NEXT
 
 
 DIM SHARED extension AS STRING
-DIM SHARED path.exe$
+DIM SHARED path.exe$, path.source$
 extension$ = ".exe"
 IF os$ = "LNX" THEN extension$ = "" 'no extension under Linux
 
@@ -1157,21 +1157,22 @@ sourcefile$ = f$
 f$ = RemoveFileExtension$(f$)
 
 path.exe$ = ""
-IF SaveExeWithSource THEN
-    currentdir$ = _CWD$
-    path.exe$ = getfilepath$(sourcefile$)
-    IF LEN(path.exe$) THEN
-        IF _DIREXISTS(path.exe$) = 0 THEN
-            PRINT
-            PRINT "CANNOT LOCATE SOURCE FILE:" + sourcefile$
-            IF ConsoleMode THEN SYSTEM 1
-            END 1
-        END IF
-        CHDIR path.exe$
-        path.exe$ = _CWD$
-        CHDIR currentdir$
-        IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
+currentdir$ = _CWD$
+path.source$ = getfilepath$(sourcefile$)
+IF LEN(path.source$) THEN
+    IF _DIREXISTS(path.source$) = 0 THEN
+        PRINT
+        PRINT "CANNOT LOCATE SOURCE FILE:" + sourcefile$
+        IF ConsoleMode THEN SYSTEM 1
+        END 1
     END IF
+    CHDIR path.source$
+    path.source$ = _CWD$
+    CHDIR currentdir$
+END IF
+IF SaveExeWithSource THEN
+    path.exe$ = path.source$
+    IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
 END IF
 IF path.exe$ = "" THEN
     IF INSTR(_OS$, "WIN") THEN path.exe$ = "..\..\" ELSE path.exe$ = "../../"
@@ -3720,7 +3721,8 @@ DO
                     IF libpath$ = "./" OR libpath$ = ".\" THEN
                         libpath$ = ""
                         IF NoIDEMode THEN
-                            IF LEFT$(path.exe$, 2) <> ".." THEN libpath$ = path.exe$
+                            libpath$ = path.source$
+                            IF LEN(libpath$) > 0 AND RIGHT$(libpath$, 1) <> pathsep$ THEN libpath$ = libpath$ + pathsep$
                         ELSE
                             IF LEN(ideprogname) THEN libpath$ = idepath$ + pathsep$
                         END IF
