@@ -1,12 +1,12 @@
-qbs*oldstr3132=NULL;
+qbs*oldstr3134=NULL;
 if(_SUB_BUILD_STRING_PATH->tmp||_SUB_BUILD_STRING_PATH->fixed||_SUB_BUILD_STRING_PATH->readonly){
-oldstr3132=_SUB_BUILD_STRING_PATH;
-if (oldstr3132->cmem_descriptor){
-_SUB_BUILD_STRING_PATH=qbs_new_cmem(oldstr3132->len,0);
+oldstr3134=_SUB_BUILD_STRING_PATH;
+if (oldstr3134->cmem_descriptor){
+_SUB_BUILD_STRING_PATH=qbs_new_cmem(oldstr3134->len,0);
 }else{
-_SUB_BUILD_STRING_PATH=qbs_new(oldstr3132->len,0);
+_SUB_BUILD_STRING_PATH=qbs_new(oldstr3134->len,0);
 }
-memcpy(_SUB_BUILD_STRING_PATH->chr,oldstr3132->chr,oldstr3132->len);
+memcpy(_SUB_BUILD_STRING_PATH->chr,oldstr3134->chr,oldstr3134->len);
 }
 int32 *_SUB_BUILD_LONG_DEPTH=NULL;
 if(_SUB_BUILD_LONG_DEPTH==NULL){
@@ -18,13 +18,13 @@ if(_SUB_BUILD_LONG_X==NULL){
 _SUB_BUILD_LONG_X=(int32*)mem_static_malloc(4);
 *_SUB_BUILD_LONG_X=0;
 }
-int64 fornext_value3134;
-int64 fornext_finalvalue3134;
-int64 fornext_step3134;
-uint8 fornext_step_negative3134;
-byte_element_struct *byte_element_3135=NULL;
-if (!byte_element_3135){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3135=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3135=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value3136;
+int64 fornext_finalvalue3136;
+int64 fornext_step3136;
+uint8 fornext_step_negative3136;
+byte_element_struct *byte_element_3137=NULL;
+if (!byte_element_3137){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3137=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3137=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_SUB_BUILD_LONG_BFH=NULL;
 if(_SUB_BUILD_LONG_BFH==NULL){
@@ -38,13 +38,13 @@ if(_SUB_BUILD_LONG_USE==NULL){
 _SUB_BUILD_LONG_USE=(int32*)mem_static_malloc(4);
 *_SUB_BUILD_LONG_USE=0;
 }
-byte_element_struct *byte_element_3138=NULL;
-if (!byte_element_3138){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3138=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3138=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3140=NULL;
+if (!byte_element_3140){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3140=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3140=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_SUB_BUILD_STRING_RETURN_PATH=NULL;
 if (!_SUB_BUILD_STRING_RETURN_PATH)_SUB_BUILD_STRING_RETURN_PATH=qbs_new(0,0);
-int64 fornext_value3140;
-int64 fornext_finalvalue3140;
-int64 fornext_step3140;
-uint8 fornext_step_negative3140;
+int64 fornext_value3142;
+int64 fornext_finalvalue3142;
+int64 fornext_step3142;
+uint8 fornext_step_negative3142;
