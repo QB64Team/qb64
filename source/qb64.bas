@@ -2909,8 +2909,12 @@ DO
 
     a3u$ = UCASE$(a3$)
 
-    IF LEFT$(a3u$, 4) = "REM " OR LEFT$(a3u$, 1) = "'" OR LEFT$(a3u$, 16) = "OPTION _EXPLICIT" THEN
-        'It's a comment or an empty line, alright.
+    IF LEFT$(a3u$, 4) = "REM " OR _
+        (LEFT$(a3u$, 3) = "REM" AND LEN(a3u$) = 3) OR _
+        LEFT$(a3u$, 1) = "'" OR _
+        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = "_EXPLICIT") THEN
+        'It's a comment or OPTION _EXPLICIT itself, alright.
+        'But even being a comment, there could be an $INCLUDE in there, let's check:
         IF LEFT$(a3u$, 4) = "REM " THEN i = 5 ELSE i = 2
         IF LEFT$(LTRIM$(MID$(a3u$, i)), 8) = "$INCLUDE" THEN opex_comments = 0
     ELSE
@@ -9596,7 +9600,8 @@ DO
                 END IF
 
                 IF firstelement$ = "OPTION" THEN
-                    IF n = 1 THEN a$ = "Expected OPTION BASE or OPTION _EXPLICIT": GOTO errmes
+                    IF optionexplicit = 0 THEN e$ = " or OPTION _EXPLICIT" ELSE e$ = ""
+                    IF n = 1 THEN a$ = "Expected OPTION BASE" + e$: GOTO errmes
                     e$ = getelement$(a$, 2)
                     SELECT CASE e$
                         CASE "BASE"
@@ -9607,13 +9612,16 @@ DO
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
                         CASE "_EXPLICIT"
+                            IF optionexplicit = -1 THEN a$ = "Duplicate OPTION _EXPLICIT": GOTO errmes
+                            IF LEN(layout$) THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
                             IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
                             optionexplicit = -1
                             l$ = "OPTION" + sp + "_EXPLICIT"
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
                         CASE ELSE
-                            a$ = "Expected OPTION BASE or OPTION _EXPLICIT": GOTO errmes
+                            IF optionexplicit = 0 THEN e$ = " or OPTION _EXPLICIT" ELSE e$ = ""
+                            a$ = "Expected OPTION BASE" + e$: GOTO errmes
                     END SELECT
                 END IF
 
