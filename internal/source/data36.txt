@@ -1,12 +1,12 @@
-qbs*oldstr2666=NULL;
+qbs*oldstr2674=NULL;
 if(_SUB_REMOVEELEMENTS_STRING_A->tmp||_SUB_REMOVEELEMENTS_STRING_A->fixed||_SUB_REMOVEELEMENTS_STRING_A->readonly){
-oldstr2666=_SUB_REMOVEELEMENTS_STRING_A;
-if (oldstr2666->cmem_descriptor){
-_SUB_REMOVEELEMENTS_STRING_A=qbs_new_cmem(oldstr2666->len,0);
+oldstr2674=_SUB_REMOVEELEMENTS_STRING_A;
+if (oldstr2674->cmem_descriptor){
+_SUB_REMOVEELEMENTS_STRING_A=qbs_new_cmem(oldstr2674->len,0);
 }else{
-_SUB_REMOVEELEMENTS_STRING_A=qbs_new(oldstr2666->len,0);
+_SUB_REMOVEELEMENTS_STRING_A=qbs_new(oldstr2674->len,0);
 }
-memcpy(_SUB_REMOVEELEMENTS_STRING_A->chr,oldstr2666->chr,oldstr2666->len);
+memcpy(_SUB_REMOVEELEMENTS_STRING_A->chr,oldstr2674->chr,oldstr2674->len);
 }
 qbs *_SUB_REMOVEELEMENTS_STRING_A2=NULL;
 if (!_SUB_REMOVEELEMENTS_STRING_A2)_SUB_REMOVEELEMENTS_STRING_A2=qbs_new(0,0);
@@ -20,11 +20,11 @@ if(_SUB_REMOVEELEMENTS_LONG_I==NULL){
 _SUB_REMOVEELEMENTS_LONG_I=(int32*)mem_static_malloc(4);
 *_SUB_REMOVEELEMENTS_LONG_I=0;
 }
-int64 fornext_value2668;
-int64 fornext_finalvalue2668;
-int64 fornext_step2668;
-uint8 fornext_step_negative2668;
-byte_element_struct *byte_element_2669=NULL;
-if (!byte_element_2669){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2669=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2669=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value2676;
+int64 fornext_finalvalue2676;
+int64 fornext_step2676;
+uint8 fornext_step_negative2676;
+byte_element_struct *byte_element_2677=NULL;
+if (!byte_element_2677){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2677=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2677=(byte_element_struct*)mem_static_malloc(12);
 }

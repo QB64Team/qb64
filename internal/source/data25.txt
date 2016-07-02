@@ -3,32 +3,32 @@ if(_FUNC_ISNUMBER_LONG_ISNUMBER==NULL){
 _FUNC_ISNUMBER_LONG_ISNUMBER=(int32*)mem_static_malloc(4);
 *_FUNC_ISNUMBER_LONG_ISNUMBER=0;
 }
-qbs*oldstr2527=NULL;
+qbs*oldstr2535=NULL;
 if(_FUNC_ISNUMBER_STRING_A->tmp||_FUNC_ISNUMBER_STRING_A->fixed||_FUNC_ISNUMBER_STRING_A->readonly){
-oldstr2527=_FUNC_ISNUMBER_STRING_A;
-if (oldstr2527->cmem_descriptor){
-_FUNC_ISNUMBER_STRING_A=qbs_new_cmem(oldstr2527->len,0);
+oldstr2535=_FUNC_ISNUMBER_STRING_A;
+if (oldstr2535->cmem_descriptor){
+_FUNC_ISNUMBER_STRING_A=qbs_new_cmem(oldstr2535->len,0);
 }else{
-_FUNC_ISNUMBER_STRING_A=qbs_new(oldstr2527->len,0);
+_FUNC_ISNUMBER_STRING_A=qbs_new(oldstr2535->len,0);
 }
-memcpy(_FUNC_ISNUMBER_STRING_A->chr,oldstr2527->chr,oldstr2527->len);
+memcpy(_FUNC_ISNUMBER_STRING_A->chr,oldstr2535->chr,oldstr2535->len);
 }
-byte_element_struct *byte_element_2528=NULL;
-if (!byte_element_2528){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2528=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2528=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2536=NULL;
+if (!byte_element_2536){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2536=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2536=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_ISNUMBER_LONG_I=NULL;
 if(_FUNC_ISNUMBER_LONG_I==NULL){
 _FUNC_ISNUMBER_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_ISNUMBER_LONG_I=0;
 }
-int64 fornext_value2530;
-int64 fornext_finalvalue2530;
-int64 fornext_step2530;
-uint8 fornext_step_negative2530;
-byte_element_struct *byte_element_2531=NULL;
-if (!byte_element_2531){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2531=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2531=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value2538;
+int64 fornext_finalvalue2538;
+int64 fornext_step2538;
+uint8 fornext_step_negative2538;
+byte_element_struct *byte_element_2539=NULL;
+if (!byte_element_2539){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2539=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2539=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_ISNUMBER_LONG_A=NULL;
 if(_FUNC_ISNUMBER_LONG_A==NULL){
