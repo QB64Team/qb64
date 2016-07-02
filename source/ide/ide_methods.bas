@@ -111,7 +111,7 @@ IF ASC(idecommand$) = 3 THEN 'request next line (compiler->ide)
             END IF 'ideexit
         END IF 'not on screen
     ELSE
-        IF IdeSystem <> 3 THEN IdeInfo = ""
+        IF IdeSystem <> 3 OR LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
         UpdateIdeInfo
     END IF 'idecompiledline<iden
 END IF
@@ -827,7 +827,7 @@ DO
 
         'display error message (if necessary)
         IF failed THEN
-            IdeInfo = ""
+            IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
             UpdateIdeInfo
 
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
@@ -3377,6 +3377,24 @@ DO
     idesetline idecy, a$
     idecx = idecx + LEN(K$)
     specialchar:
+    'In case there is a selection, let's show the number of
+    'selected characters on the status bar:
+    IF (IdeInfo = "" OR LEFT$(IdeInfo, 19) = "Selection length = ") THEN
+        IF idecy = ideselecty1 THEN 'selection is in only one line
+            sx1 = ideselectx1: sx2 = idecx
+            if sx1 > sx2 THEN SWAP sx1, sx2
+            IF ideselect = 1 AND (sx2 - sx1) > 0 THEN
+                IdeInfo = "Selection length = " + str2$(sx2 - sx1)
+                UpdateIdeInfo
+            ELSE
+                IdeInfo = ""
+                UpdateIdeInfo
+            END IF
+        ELSE
+            IdeInfo = ""
+            UpdateIdeInfo
+        END IF
+    END IF
 
     IF AltSpecial THEN
         AltSpecial = 0
