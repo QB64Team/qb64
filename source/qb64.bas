@@ -1171,12 +1171,10 @@ IF LEN(path.source$) THEN
     END IF
     CHDIR path.source$
     path.source$ = _CWD$
+    IF RIGHT$(path.source$, 1) <> pathsep$ THEN path.source$ = path.source$ + pathsep$
     CHDIR currentdir$
 END IF
-IF SaveExeWithSource THEN
-    path.exe$ = path.source$
-    IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
-END IF
+IF SaveExeWithSource THEN path.exe$ = path.source$
 IF path.exe$ = "" THEN
     IF INSTR(_OS$, "WIN") THEN path.exe$ = "..\..\" ELSE path.exe$ = "../../"
 END IF
@@ -11383,6 +11381,8 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
             SaveExeWithSource = -1 'Override the global setting if an output file was specified
         END IF
     END IF
+    t.path.exe$ = path.exe$
+    IF path.exe$ = "../../" OR path.exe$ = "..\..\" THEN path.exe$ = ""
     IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN
         E = 0
         ON ERROR GOTO qberror_test
@@ -11392,6 +11392,7 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
             a$ = "CANNOT CREATE " + CHR$(34) + file$ + extension$ + CHR$(34) + " BECAUSE THE FILE IS ALREADY IN USE!": GOTO errmes
         END IF
     END IF
+    path.exe$ = t.path.exe$
 END IF
 
 
@@ -12201,6 +12202,8 @@ IF compfailed THEN
         GOTO ideerror
     END IF
     IF compfailed THEN PRINT "C++ COMPILATION FAILED!"
+ELSE
+    IF idemode = 0 THEN PRINT "OUTPUT: "; path.exe$ + file$ + extension$
 END IF
 
 
