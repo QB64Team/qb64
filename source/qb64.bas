@@ -12300,6 +12300,28 @@ FUNCTION ParseCMDLineArgs$ ()
     FOR i = 1 TO _COMMANDCOUNT
         token$ = COMMAND$(i)
         SELECT CASE LCASE$(LEFT$(token$, 2))
+            CASE "/?", "-?", "-h" 'Command-line help
+                _DEST _CONSOLE
+                PRINT "QB64 COMPILER V" + Version$
+                PRINT
+                IF LCASE$(token$) <> "-help" AND LCASE$(token$) <> "-h" AND token$ <> "-?" AND token$ <> "/?" THEN
+                    'Ended up being a filename?
+                    PassedFileName$ = token$
+                    GOTO NextCase
+                END IF
+                PRINT "USAGE: qb64 [switches] <inputs>"
+                PRINT
+                PRINT "OPTIONS:"
+                PRINT "  <file>                  Source file to load"
+                PRINT "  -c                      Compile instead of edit"
+                PRINT "  -x                      Compile instead of edit and output the result to the console"
+                PRINT "  -z                      Generate C code without compiling to executable"
+                'PRINT "  -g                      Non-GUI environment (uses $CONSOLE:ONLY - for G-WAN compilation)"
+                PRINT "  -o <file>               Write output executable to <file>"
+                PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration mandatory (per-compilation; doesn't affect the source file or global settings)"
+                PRINT "  -s[:switch=true/false]  View/edit compiler settings"
+                PRINT
+                SYSTEM
             CASE "-s" 'Settings
                 _DEST _CONSOLE
                 PRINT "QB64 COMPILER V" + Version$
@@ -12400,6 +12422,7 @@ FUNCTION ParseCMDLineArgs$ ()
             CASE ELSE 'Something we don't recognise, assume it's a filename
                 PassedFileName$ = token$
         END SELECT
+        NextCase:
     NEXT i
 
     IF LEN(PassedFileName$) THEN ParseCMDLineArgs$ = PassedFileName$
