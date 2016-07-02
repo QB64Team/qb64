@@ -278,6 +278,10 @@ DIM SHARED ideerrorline AS LONG 'set by qb64-error(...) to the line number it wo
 DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to be reported, this
 'is later passed to the ide in message #8
 
+DIM SHARED optionexplicit AS _BYTE
+DIM SHARED optionexplicit_cmd AS _BYTE
+DIM SHARED outputfile_cmd$
+
 '$INCLUDE:'global\IDEsettings.bas'
 
 CMDLineFile = ParseCMDLineArgs$
@@ -707,7 +711,6 @@ DIM SHARED cleanupstringprocessingcall AS STRING
 DIM SHARED recompile AS INTEGER 'forces recompilation
 'COMMON SHARED cmemlist() AS INTEGER
 DIM SHARED optionbase AS INTEGER
-DIM SHARED optionexplicit AS _BYTE
 
 DIM SHARED addmetastatic AS INTEGER
 DIM SHARED addmetadynamic AS INTEGER
@@ -1162,7 +1165,7 @@ path.source$ = getfilepath$(sourcefile$)
 IF LEN(path.source$) THEN
     IF _DIREXISTS(path.source$) = 0 THEN
         PRINT
-        PRINT "CANNOT LOCATE SOURCE FILE:" + sourcefile$
+        PRINT "CANNOT LOCATE SOURCE FILE: " + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     END IF
@@ -1429,7 +1432,7 @@ addmetastatic = 0
 addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
-optionexplicit = 0
+optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
 DataOffset = 0
 statementn = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
@@ -9612,7 +9615,7 @@ DO
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
                         CASE "_EXPLICIT"
-                            IF optionexplicit = -1 THEN a$ = "Duplicate OPTION _EXPLICIT": GOTO errmes
+                            IF optionexplicit = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION _EXPLICIT": GOTO errmes
                             IF LEN(layout$) THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
                             IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
                             optionexplicit = -1
@@ -11359,6 +11362,27 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
     ELSE
         PRINT "COMPILING C++ CODE INTO EXE..."
     END IF
+    IF LEN(outputfile_cmd$) THEN
+        'resolve relative path for output file
+        path.out$ = getfilepath$(outputfile_cmd$)
+        f$ = MID$(outputfile_cmd$, LEN(path.out$) + 1)
+        file$ = RemoveFileExtension$(f$)
+        IF LEN(path.out$) THEN
+            IF _DIREXISTS(path.out$) = 0 THEN
+                PRINT
+                PRINT "CAN'T CREATE OUTPUT EXECUTABLE - PATH NOT FOUND: " + path.out$
+                IF ConsoleMode THEN SYSTEM 1
+                END 1
+            END IF
+            currentdir$ = _CWD$
+            CHDIR path.out$
+            path.out$ = _CWD$
+            CHDIR currentdir$
+            IF RIGHT$(path.out$, 1) <> pathsep$ THEN path.out$ = path.out$ + pathsep$
+            path.exe$ = path.out$
+            SaveExeWithSource = -1 'Override the global setting if an output file was specified
+        END IF
+    END IF
     IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN
         E = 0
         ON ERROR GOTO qberror_test
@@ -12149,7 +12173,7 @@ IF os$ = "LNX" THEN
 
     IF INSTR(_OS$, "[MACOSX]") THEN
         ff = FREEFILE
-        IF path.exe$ = "./" OR LEFT$(path.exe$, 2) = ".." THEN path.exe$ = ""
+        IF path.exe$ = "./" OR path.exe$ = "../../" OR path.exe$ = "..\..\" THEN path.exe$ = ""
         OPEN path.exe$ + file$ + extension$ + "_start.command" FOR OUTPUT AS #ff
         PRINT #ff, "cd " + CHR$(34) + "$(dirname " + CHR$(34) + "$0" + CHR$(34) + ")" + CHR$(34);
         PRINT #ff, CHR$(10);
@@ -12168,7 +12192,7 @@ IF os$ = "LNX" THEN
 END IF
 
 IF No_C_Compile_Mode THEN compfailed = 0: GOTO No_C_Compile
-IF LEFT$(path.exe$, 2) = ".." THEN path.exe$ = ""
+IF path.exe$ = "../../" OR path.exe$ = "..\..\" THEN path.exe$ = ""
 IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN compfailed = 0 ELSE compfailed = 1 'detect compilation failure
 
 IF compfailed THEN
@@ -12270,16 +12294,13 @@ FUNCTION ParseCMDLineArgs$ ()
     'Recall that COMMAND$ is a concatenation of argv[] elements, so we don't have
     'to worry about more than one space between things (unless they used quotes,
     'in which case they're simply asking for trouble).
-    cmdline$ = LTRIM$(RTRIM$(COMMAND$))
-    tpos = 1
-    DO
-        token$ = MID$(cmdline$, tpos, 2) '))
-        SELECT CASE token$
+    FOR i = 1 TO _COMMANDCOUNT
+        token$ = COMMAND$(i)
+        SELECT CASE LCASE$(LEFT$(token$, 2))
             CASE "-s" 'Settings
-                token$ = MID$(cmdline$, tpos)
                 _DEST _CONSOLE
                 PRINT "QB64 COMPILER V" + Version$
-                SELECT CASE token$
+                SELECT CASE LCASE$(token$)
                     CASE "-s"
                         PRINT "debuginfo     = ";
                         IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
@@ -12360,6 +12381,8 @@ FUNCTION ParseCMDLineArgs$ ()
                 Cloud = 1
                 ConsoleMode = 1 'Implies -x
                 NoIDEMode = 1 'Imples -c
+            CASE "-e" 'Option Explicit
+                optionexplicit_cmd = -1
             CASE "-z" 'Not compiling C code
                 No_C_Compile_Mode = 1
                 ConsoleMode = 1 'Implies -x
@@ -12369,16 +12392,14 @@ FUNCTION ParseCMDLineArgs$ ()
                 NoIDEMode = 1 'Implies -c
             CASE "-c" 'Compile instead of edit
                 NoIDEMode = 1
-            CASE "--" 'Signifies the end of options; the rest of the line is a filename (allows compilation of -crapfile.bas and -xtreme.bas etc.)
-                tpos = tpos + 3 'Do it manually here
-                EXIT DO
+            CASE "-o" 'Specify an output file
+                IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
             CASE ELSE 'Something we don't recognise, assume it's a filename
-                EXIT DO
+                PassedFileName$ = token$
         END SELECT
-        tpos = tpos + 3
-    LOOP
-    'tpos should now point to the filename (the rest of the command line). This means options *must* come before the file.
-    ParseCMDLineArgs$ = MID$(cmdline$, tpos)
+    NEXT i
+
+    IF LEN(PassedFileName$) THEN ParseCMDLineArgs$ = PassedFileName$
 END FUNCTION
 
 FUNCTION Type2MemTypeValue (t1)
