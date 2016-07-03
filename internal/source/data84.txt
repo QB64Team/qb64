@@ -1,12 +1,12 @@
-qbs*oldstr3355=NULL;
+qbs*oldstr3371=NULL;
 if(_SUB_HASHADD_STRING_A->tmp||_SUB_HASHADD_STRING_A->fixed||_SUB_HASHADD_STRING_A->readonly){
-oldstr3355=_SUB_HASHADD_STRING_A;
-if (oldstr3355->cmem_descriptor){
-_SUB_HASHADD_STRING_A=qbs_new_cmem(oldstr3355->len,0);
+oldstr3371=_SUB_HASHADD_STRING_A;
+if (oldstr3371->cmem_descriptor){
+_SUB_HASHADD_STRING_A=qbs_new_cmem(oldstr3371->len,0);
 }else{
-_SUB_HASHADD_STRING_A=qbs_new(oldstr3355->len,0);
+_SUB_HASHADD_STRING_A=qbs_new(oldstr3371->len,0);
 }
-memcpy(_SUB_HASHADD_STRING_A->chr,oldstr3355->chr,oldstr3355->len);
+memcpy(_SUB_HASHADD_STRING_A->chr,oldstr3371->chr,oldstr3371->len);
 }
 int32 *_SUB_HASHADD_LONG_I=NULL;
 if(_SUB_HASHADD_LONG_I==NULL){
