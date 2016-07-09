@@ -216,7 +216,7 @@ extern "C" int QB64_Resizable(){
 
 int32 sub_gl_called=0;
 
-extern void evnt(uint32 linenumber, uint32 inclinenumber = 0);
+extern void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename = NULL);
 
 extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #ifdef QB64_WINDOWS
@@ -4136,6 +4136,7 @@ qbs *unknown_opcode_mess;
 
 extern uint32 ercl;
 extern uint32 inclercl;
+extern char* includedfilename;
 
 int32 exit_blocked=0;
 int32 exit_value=0;
@@ -7184,126 +7185,106 @@ extern uint32 error_goto_line;
 extern uint32 error_handling;
 extern uint32 error_retry;
 
-const char fixerr_strline[]="Line:";
-const char fixerr_strcont[]="\nContinue?";
-const char fixerr_strunhan[]="Unhandled Error #";
-const char fixerr_strcrit[]="Critical Error #";
-
 void fix_error(){
-  static char errtitle[256];//builds message
-  static char errmess[256];//builds message
-  static char *cp;
+  char *errtitle = NULL, *errmess = NULL, *cp;
+  int prevent_handling = 0, len, v;
+  if ((new_error >= 300) && (new_error <= 313)) prevent_handling = 1;
+  if (!error_goto_line || error_handling || prevent_handling) {
+    switch (new_error) {
+      case 1: cp="NEXT without FOR"; break;
+      case 2: cp="Syntax error"; break;
+      case 3: cp="RETURN without GOSUB"; break;
+      case 4: cp="Out of DATA"; break;
+      case 5: cp="Illegal function call"; break;
+      case 6: cp="Overflow"; break;
+      case 7: cp="Out of memory"; break;
+      case 8: cp="Label not defined"; break;
+      case 9: cp="Subscript out of range"; break;
+      case 10: cp="Duplicate definition"; break;
+      case 12: cp="Illegal in direct mode"; break;
+      case 13: cp="Type mismatch"; break;
+      case 14: cp="Out of string space"; break;
+        //error 15 undefined
+      case 16: cp="String formula too complex"; break;
+      case 17: cp="Cannot continue"; break;
+      case 18: cp="Function not defined"; break;
+      case 19: cp="No RESUME"; break;
+      case 20: cp="RESUME without error"; break;
+        //error 21-23 undefined
+      case 24: cp="Device timeout"; break;
+      case 25: cp="Device fault"; break;
+      case 26: cp="FOR without NEXT"; break;
+      case 27: cp="Out of paper"; break;
+        //error 28 undefined
+      case 29: cp="WHILE without WEND"; break;
+      case 30: cp="WEND without WHILE"; break;
+        //error 31-32 undefined
+      case 33: cp="Duplicate label"; break;
+        //error 34 undefined
+      case 35: cp="Subprogram not defined"; break;
+        //error 36 undefined
+      case 37: cp="Argument-count mismatch"; break;
+      case 38: cp="Array not defined"; break;
+      case 40: cp="Variable required"; break;
+      case 50: cp="FIELD overflow"; break;
+      case 51: cp="Internal error"; break;
+      case 52: cp="Bad file name or number"; break;
+      case 53: cp="File not found"; break;
+      case 54: cp="Bad file mode"; break;
+      case 55: cp="File already open"; break;
+      case 56: cp="FIELD statement active"; break;
+      case 57: cp="Device I/O error"; break;
+      case 58: cp="File already exists"; break;
+      case 59: cp="Bad record length"; break;
+      case 61: cp="Disk full"; break;
+      case 62: cp="Input past end of file"; break;
+      case 63: cp="Bad record number"; break;
+      case 64: cp="Bad file name"; break;
+      case 67: cp="Too many files"; break;
+      case 68: cp="Device unavailable"; break;
+      case 69: cp="Communication-buffer overflow"; break;
+      case 70: cp="Permission denied"; break;
+      case 71: cp="Disk not ready"; break;
+      case 72: cp="Disk-media error"; break;
+      case 73: cp="Feature unavailable"; break;
+      case 74: cp="Rename across disks"; break;
+      case 75: cp="Path/File access error"; break;
+      case 76: cp="Path not found"; break;
+      case 258: cp="Invalid handle"; break;
 
-  static int32 prevent_handling;
-  prevent_handling=0;
-  if ((new_error>=300)&&(new_error<=313)) prevent_handling=1;
-
-  if ((!error_goto_line)||error_handling||prevent_handling){
-    int32 v,i,i2;//stores response
-    v=0;
-
-    cp=NULL;
-    if (new_error==1) cp="NEXT without FOR";
-    if (new_error==2) cp="Syntax error";
-    if (new_error==3) cp="RETURN without GOSUB";
-    if (new_error==4) cp="Out of DATA";
-    if (new_error==5) cp="Illegal function call";
-    if (new_error==6) cp="Overflow";
-    if (new_error==7) cp="Out of memory";
-    if (new_error==8) cp="Label not defined";
-    if (new_error==9) cp="Subscript out of range";
-    if (new_error==10) cp="Duplicate definition";
-    if (new_error==12) cp="Illegal in direct mode";
-    if (new_error==13) cp="Type mismatch";
-    if (new_error==14) cp="Out of string space";
-    //error 15 undefined
-    if (new_error==16) cp="String formula too complex";
-    if (new_error==17) cp="Cannot continue";
-    if (new_error==18) cp="Function not defined";
-    if (new_error==19) cp="No RESUME";
-    if (new_error==20) cp="RESUME without error";
-    //error 21-23 undefined
-    if (new_error==24) cp="Device timeout";
-    if (new_error==25) cp="Device fault";
-    if (new_error==26) cp="FOR without NEXT";
-    if (new_error==27) cp="Out of paper";
-    //error 28 undefined
-    if (new_error==29) cp="WHILE without WEND";
-    if (new_error==30) cp="WEND without WHILE";
-    //error 31-32 undefined
-    if (new_error==33) cp="Duplicate label";
-    //error 34 undefined
-    if (new_error==35) cp="Subprogram not defined";
-    if (new_error==37) cp="Argument-count mismatch";
-    if (new_error==38) cp="Array not defined";
-    if (new_error==40) cp="Variable required";
-    if (new_error==50) cp="FIELD overflow";
-    if (new_error==51) cp="Internal error";
-    if (new_error==52) cp="Bad file name or number";
-    if (new_error==53) cp="File not found";
-    if (new_error==54) cp="Bad file mode";
-    if (new_error==55) cp="File already open";
-    if (new_error==56) cp="FIELD statement active";
-    if (new_error==57) cp="Device I/O error";
-    if (new_error==58) cp="File already exists";
-    if (new_error==59) cp="Bad record length";
-    if (new_error==61) cp="Disk full";
-    if (new_error==62) cp="Input past end of file";
-    if (new_error==63) cp="Bad record number";
-    if (new_error==64) cp="Bad file name";
-    if (new_error==67) cp="Too many files";
-    if (new_error==68) cp="Device unavailable";
-    if (new_error==69) cp="Communication-buffer overflow";
-    if (new_error==70) cp="Permission denied";
-    if (new_error==71) cp="Disk not ready";
-    if (new_error==72) cp="Disk-media error";
-    if (new_error==73) cp="Feature unavailable";
-    if (new_error==74) cp="Rename across disks";
-    if (new_error==75) cp="Path/File access error";
-    if (new_error==76) cp="Path not found";
-    if (new_error==258) cp="Invalid handle";
-
-
-    if (new_error==300) cp="Memory region out of range";
-    if (new_error==301) cp="Invalid size";
-    if (new_error==302) cp="Source memory region out of range";
-    if (new_error==303) cp="Destination memory region out of range";
-    if (new_error==304) cp="Source and destination memory regions out of range";
-    if (new_error==305) cp="Source memory has been freed";
-    if (new_error==306) cp="Destination memory has been freed";
-    if (new_error==307) cp="Memory already freed";
-    if (new_error==308) cp="Memory has been freed";
-    if (new_error==309) cp="Memory not initialized";
-    if (new_error==310) cp="Source memory not initialized";
-    if (new_error==311) cp="Destination memory not initialized";
-    if (new_error==312) cp="Source and destination memory not initialized";
-    if (new_error==313) cp="Source and destination memory have been freed";
-
-
-
-    if (!cp) cp="Unprintable error";
-
-    i=0;
-    memcpy(&errmess[i],&fixerr_strline[0],strlen(fixerr_strline)); i=i+strlen(fixerr_strline);
-	if (inclercl) {
-	  i2=sprintf(&errmess[i],"%u (included line: %u)\n",ercl,inclercl); i=i+i2;
-	}else{
-	  i2=sprintf(&errmess[i],"%u\n",ercl); i=i+i2;
-	}
-    memcpy(&errmess[i],cp,strlen(cp)); i=i+strlen(cp);
-    if (!prevent_handling) {memcpy(&errmess[i],&fixerr_strcont[0],strlen(fixerr_strcont)); i=i+strlen(fixerr_strcont);}
-    errmess[i]=0;
-
-    i=0;
-
-    if (prevent_handling){
-      memcpy(&errtitle[i],&fixerr_strcrit[0],strlen(fixerr_strcrit)); i=i+strlen(fixerr_strcrit);
-    }else{
-      memcpy(&errtitle[i],&fixerr_strunhan[0],strlen(fixerr_strunhan)); i=i+strlen(fixerr_strunhan);
+      case 300: cp="Memory region out of range"; break;
+      case 301: cp="Invalid size"; break;
+      case 302: cp="Source memory region out of range"; break;
+      case 303: cp="Destination memory region out of range"; break;
+      case 304: cp="Source and destination memory regions out of range"; break;
+      case 305: cp="Source memory has been freed"; break;
+      case 306: cp="Destination memory has been freed"; break;
+      case 307: cp="Memory already freed"; break;
+      case 308: cp="Memory has been freed"; break;
+      case 309: cp="Memory not initialized"; break;
+      case 310: cp="Source memory not initialized"; break;
+      case 311: cp="Destination memory not initialized"; break;
+      case 312: cp="Source and destination memory not initialized"; break;
+      case 313: cp="Source and destination memory have been freed"; break;
+      default: cp="Unprintable error"; break;
     }
 
-    i2=sprintf(&errtitle[i],"%u",new_error); i=i+i2;
-    errtitle[i]=0;
+#define FIXERRMSG_TITLE "%s%u"
+#define FIXERRMSG_BODY "Line: %u (in %s)\n%s%s"
+#define FIXERRMSG_MAINFILE "main module"
+#define FIXERRMSG_CONT "\nContinue?"
+#define FIXERRMSG_UNHAND "Unhandled Error #"
+#define FIXERRMSG_CRIT "Critical Error #"
+
+    len = snprintf(errmess, 0, FIXERRMSG_BODY, (inclercl ? inclercl : ercl), (inclercl ? includedfilename : FIXERRMSG_MAINFILE), cp, (!prevent_handling ? FIXERRMSG_CONT : ""));
+    errmess = (char*)malloc(len + 1);
+    if (!errmess) exit(0); //At this point we just give up
+    snprintf(errmess, len + 1, FIXERRMSG_BODY, (inclercl ? inclercl : ercl), (inclercl ? includedfilename : FIXERRMSG_MAINFILE), cp, (!prevent_handling ? FIXERRMSG_CONT : ""));
+
+    len = snprintf(errtitle, 0, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
+    errtitle = (char*)malloc(len + 1);
+    if (!errtitle) exit(0); //At this point we just give up
+    snprintf(errtitle, len + 1, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
 
 //Android cannot halt threads, so the easiest compromise is to just display the error
 #ifdef QB64_ANDROID

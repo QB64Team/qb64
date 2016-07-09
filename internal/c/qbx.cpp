@@ -656,6 +656,7 @@ int32 strig_event_occurred=0;//inc/dec as each GOSUB to QBMAIN () begins/ends
 int32 strig_event_id=0;
 uint32 ercl;
 uint32 inclercl;
+char* includedfilename;
 uint16 call_absolute_offsets[256];
 uint32 dbgline;
 uint32 qbs_cmem_sp=256;
@@ -1060,6 +1061,9 @@ int32 func__inclerrorline(){
 return inclercl;
 }
 
+qbs *func__inclerrorfile(){
+return qbs_new_txt(includedfilename);
+}
 
 void chain_input(){
 //note: common data or not, every program must check for chained data,
@@ -1937,7 +1941,7 @@ extern int64 display_lock_released;
 extern int32 disableEvents;
 
 uint32 r;
-void evnt(uint32 linenumber, uint32 inclinenumber = 0){
+void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename = NULL){
 if (disableEvents) return;
 
 qbevent=0;
@@ -1959,6 +1963,7 @@ Sleep(10);
 if(new_error){
  ercl=linenumber;
  inclercl=inclinenumber;
+ includedfilename=(char*)incfilename;
  fix_error();
  if (error_retry){error_retry=0; r=1;}
 }else{
