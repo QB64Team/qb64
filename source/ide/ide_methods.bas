@@ -133,19 +133,33 @@ c$ = idecommand$
 'report any IDE errors which have occurred
 IF ideerror THEN
     mustdisplay = 1
-    IF ideerror = 1 THEN ideerrormessageTITLE$ = "IDE module error"
-    IF ideerror = 2 THEN ideerrormessageTITLE$ = "File not found"
-    IF ideerror = 3 THEN ideerrormessageTITLE$ = "File access error": CLOSE #150
-    IF ideerror = 4 THEN ideerrormessageTITLE$ =  "Path not found"
-    errorat$ = "On line: " + str2$(_errorline)
-    inclerrorline = _inclerrorline
-    if inclerrorline then errorat$ = errorat$ + " (included line: " + str2$(inclerrorline) + ")"
+    IF ideerror = 1 THEN errorat$ = "IDE module error"
+    IF ideerror = 2 THEN errorat$ = "File not found"
+    IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
+    IF ideerror = 4 THEN errorat$ = "Path not found"
+
     qberrorcode = err
     if qberrorcode then
-        ideerrormessageTITLE$ = "Error " + str2$(qberrorcode) + ": " + ideerrormessageTITLE$
+        ideerrormessageTITLE$ = "Error " + str2$(qberrorcode)
     else
-        ideerrormessageTITLE$ = "Error: " + ideerrormessageTITLE$
+        ideerrormessageTITLE$ = "Error"
     endif
+
+    IF (ideerror = 2 or ideerror = 3 or ideerror = 4) THEN
+        'Don't show too much detail if user just tried loading an invalid file
+        ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_errorline) + "-" + str2$(_INCLERRORLINE) + ")"
+    ELSE
+        'a more serious error; let's report something that'll help bug reporting
+        inclerrorline = _inclerrorline
+        if inclerrorline then
+            errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(module: " + _
+                       RemoveFileExtension$(LEFT$(_INCLERRORFILE$, 60))
+            errorat$ = errorat$ + ", on line: " + str2$(inclerrorline) + ")"
+        else
+            errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(on line: " + str2$(_errorline) + ")"
+        end if
+    END IF
+
     PCOPY 3, 0
     idemessagebox ideerrormessageTITLE$, errorat$
 END IF
@@ -3093,7 +3107,7 @@ DO
                 retval$ = idecolorpicker$(0)
             ELSE
                 IF ideselect THEN
-                    IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
+                    IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
                 END IF
 
                 a$ = idegetline(idecy)
@@ -3104,7 +3118,6 @@ DO
                 Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
                 IF Found_RGB THEN retval$ = idecolorpicker$(-1)
             END IF
-            NoRGBFound:
             GOTO specialchar
         ELSE
             ideselect = 0
@@ -9948,15 +9961,34 @@ sep = CHR$(0)
 '-------- end of generic dialog box header --------
 
 '-------- init --------
+MessageLines = 1
+DIM FullMessage$(1 TO 4)
+PrevScan = 1
+DO
+    NextScan = INSTR(NextScan + 1, messagestr$, CHR$(10))
+    IF NextScan > 0 THEN
+        FullMessage$(MessageLines) = MID$(messagestr$, PrevScan, NextScan - PrevScan)
+        tw = LEN(FullMessage$(MessageLines)) + 2
+        IF tw > w THEN w = tw
+        PrevScan = NextScan + 1
+        MessageLines = MessageLines + 1
+        IF MessageLines > UBOUND(FullMessage$) THEN EXIT DO
+    ELSE
+        FullMessage$(MessageLines) = MID$(messagestr$, PrevScan)
+        tw = LEN(FullMessage$(MessageLines)) + 2
+        IF tw > w THEN w = tw
+        EXIT DO
+    END IF
+LOOP
+
 i = 0
-w = LEN(messagestr$) + 2
 w2 = LEN(titlestr$) + 4
 IF w < w2 THEN w = w2
-idepar p, w, 4, titlestr$
+idepar p, w, 3 + MessageLines, titlestr$
 
 i = i + 1
 o(i).typ = 3
-o(i).y = 4
+o(i).y = 3 + MessageLines
 o(i).txt = idenewtxt("OK")
 o(i).dft = 1
 '-------- end of init --------
@@ -9985,7 +10017,11 @@ DO 'main loop
     '-------- end of generic display dialog box & objects --------
 
     '-------- custom display changes --------
-    COLOR 0, 7: LOCATE p.y + 2, p.x + 2: PRINT messagestr$;
+    COLOR 0, 7
+    FOR i = 1 TO MessageLines
+        LOCATE p.y + 1 + i, p.x + (w \ 2 - LEN(FullMessage$(i)) \ 2) + 1
+        PRINT FullMessage$(i);
+    NEXT i
     '-------- end of custom display changes --------
 
     'update visual page and cursor position
@@ -12271,6 +12307,7 @@ SUB IdeMakeContextualMenu
         if len(LTRIM$(RTRIM$(Selection$))) > 0 then
             do until alphanumeric(asc(right$(Selection$, 1)))
                 Selection$ = left$(Selection$, len(Selection$) - 1)  'removes sigil, if any
+                IF LEN(Selection$) = 0 THEN EXIT DO
             loop
             Selection$ = ltrim$(rtrim$(Selection$))
         end if
@@ -12286,6 +12323,7 @@ SUB IdeMakeContextualMenu
 
                     do until alphanumeric(asc(right$(CurrSF$, 1)))
                         CurrSF$ = left$(CurrSF$, len(CurrSF$) - 1)  'removes sigil, if any
+                        IF LEN(CurrSF$) = 0 THEN EXIT DO
                     loop
                     CurrSF$ = ucase$(CurrSF$)
 
