@@ -255,7 +255,7 @@ IF idelaunched = 0 THEN
     menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
     menu$(m, i) = "#Previous Bookmark  Alt+Up": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "#Go to line...": i = i + 1
+    menu$(m, i) = "#Go to line...  Ctrl+G": i = i + 1
 
     menusize(m) = i - 1
 
@@ -2617,6 +2617,14 @@ DO
         GOTO specialchar
     END IF
 
+    IF KCONTROL AND UCASE$(K$) = "G" THEN 'goto line
+        retval = idegotobox
+        'retval is ignored
+        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+        GOTO specialchar
+    END IF
+
+
     IF K$ = CHR$(0) + CHR$(60) THEN 'F2
         GOTO idesubsjmp
     END IF
@@ -4012,7 +4020,7 @@ DO
 
 
 
-        IF menu$(m, s) = "#Go to line..." THEN
+        IF menu$(m, s) = "#Go to line...  Ctrl+G" THEN
             PCOPY 2, 0
             retval = idegotobox
             'retval is ignored
