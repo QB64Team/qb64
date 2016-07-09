@@ -2856,3 +2856,13 @@ id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
 regid
+
+'Return the name of the included file in which the last error occurred
+clearid
+id.n = "_INCLERRORFILE"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__inclerrorfile"
+id.ret = STRINGTYPE - ISPOINTER
+regid
+

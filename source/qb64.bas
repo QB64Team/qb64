@@ -3256,6 +3256,9 @@ DO
             inclinenump$ = ""
             IF inclinenumber(inclevel) THEN
                 inclinenump$ = "," + str2$(inclinenumber(inclevel))
+                thisincname$ = getfilepath$(incname$(inclevel))
+                thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
             IF NoChecks = 0 THEN
                 PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
@@ -3311,6 +3314,9 @@ DO
                 inclinenump$ = ""
                 IF inclinenumber(inclevel) THEN
                     inclinenump$ = "," + str2$(inclinenumber(inclevel))
+                    thisincname$ = getfilepath$(incname$(inclevel))
+                    thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                    inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
                 END IF
                 IF NoChecks = 0 THEN
                     PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
@@ -8119,6 +8125,9 @@ DO
             inclinenump$ = ""
             IF inclinenumber(inclevel) THEN
                 inclinenump$ = "," + str2$(inclinenumber(inclevel))
+                thisincname$ = getfilepath$(incname$(inclevel))
+                thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
             PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
@@ -8139,6 +8148,9 @@ DO
             inclinenump$ = ""
             IF inclinenumber(inclevel) THEN
                 inclinenump$ = "," + str2$(inclinenumber(inclevel))
+                thisincname$ = getfilepath$(incname$(inclevel))
+                thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
             PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
@@ -10367,6 +10379,9 @@ DO
     inclinenump$ = ""
     IF inclinenumber(inclevel) THEN
         inclinenump$ = "," + str2$(inclinenumber(inclevel))
+        thisincname$ = getfilepath$(incname$(inclevel))
+        thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+        inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
     END IF
     IF NoChecks = 0 THEN
         IF dynscope THEN
