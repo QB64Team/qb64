@@ -1,9 +1,9 @@
-if(oldstr4897){
-if(oldstr4897->fixed)qbs_set(oldstr4897,_SUB_IDEMESSAGEBOX_STRING_TITLESTR);
+if(oldstr4899){
+if(oldstr4899->fixed)qbs_set(oldstr4899,_SUB_IDEMESSAGEBOX_STRING_TITLESTR);
 qbs_free(_SUB_IDEMESSAGEBOX_STRING_TITLESTR);
 }
-if(oldstr4898){
-if(oldstr4898->fixed)qbs_set(oldstr4898,_SUB_IDEMESSAGEBOX_STRING_MESSAGESTR);
+if(oldstr4900){
+if(oldstr4900->fixed)qbs_set(oldstr4900,_SUB_IDEMESSAGEBOX_STRING_MESSAGESTR);
 qbs_free(_SUB_IDEMESSAGEBOX_STRING_MESSAGESTR);
 }
 if (_SUB_IDEMESSAGEBOX_ARRAY_UDT_O[2]&1){
@@ -15,4 +15,10 @@ free((void*)(_SUB_IDEMESSAGEBOX_ARRAY_UDT_O[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)_SUB_IDEMESSAGEBOX_ARRAY_UDT_O)[8] );
 qbs_free(_SUB_IDEMESSAGEBOX_STRING1_SEP);
+if (_SUB_IDEMESSAGEBOX_ARRAY_STRING_FULLMESSAGE[2]&1){
+tmp_long=_SUB_IDEMESSAGEBOX_ARRAY_STRING_FULLMESSAGE[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(_SUB_IDEMESSAGEBOX_ARRAY_STRING_FULLMESSAGE[0]))[tmp_long]);
+free((void*)(_SUB_IDEMESSAGEBOX_ARRAY_STRING_FULLMESSAGE[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_SUB_IDEMESSAGEBOX_ARRAY_STRING_FULLMESSAGE)[8] );
 qbs_free(_SUB_IDEMESSAGEBOX_STRING_ALTLETTER);
