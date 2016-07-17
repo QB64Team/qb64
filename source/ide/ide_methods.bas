@@ -185,8 +185,10 @@ IF LEFT$(c$, 1) = CHR$(12) THEN
 
     'Darken the interface while compilation is taking place,
     'to give a sense of temporary unavailability:
-    TempDarkerColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
-    _PALETTECOLOR 1, TempDarkerColor~&, 0
+    TempDarkerBGColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
+    TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
+    _PALETTECOLOR 1, TempDarkerBGColor~&, 0
+    _PALETTECOLOR 13, TempDarkerFGColor~&, 0
 
     IF os$ = "LNX" THEN
         PRINT "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
@@ -1347,8 +1349,10 @@ DO
             ELSE
                 'Darken the interface while compilation is taking place,
                 'to give a sense of temporary unavailability:
-                TempDarkerColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
-                _PALETTECOLOR 1, TempDarkerColor~&, 0
+                TempDarkerBGColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
+                TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
+                _PALETTECOLOR 1, TempDarkerBGColor~&, 0
+                _PALETTECOLOR 13, TempDarkerFGColor~&, 0
 
                 IF os$ = "LNX" THEN
                     LOCATE idewy - 3, 2: PRINT "Creating executable file...";

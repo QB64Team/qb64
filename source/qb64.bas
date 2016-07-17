@@ -11902,8 +11902,9 @@ IF os$ = "WIN" THEN
         SHELL _HIDE a$
         CHDIR "..\.."
         IF idemode THEN
-            'Restore background color
+            'Restore fg/bg colors
             _PALETTECOLOR 1, IDEBackgroundColor, 0
+            _PALETTECOLOR 13, IDETextColor, 0
         END IF
     END IF 'No_C_Compile_Mode=0
 
@@ -12190,8 +12191,9 @@ IF os$ = "LNX" THEN
         SHELL _HIDE a$
         CHDIR "../.."
         IF idemode THEN
-            'Restore background color
+            'Restore fg/bg colors
             _PALETTECOLOR 1, IDEBackgroundColor, 0
+            _PALETTECOLOR 13, IDETextColor, 0
         END IF
     END IF
 
