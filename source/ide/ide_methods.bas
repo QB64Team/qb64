@@ -3144,21 +3144,21 @@ DO
             a$ = idegetline(idecy)
             IF idecx > LEN(a$) THEN
                 ideinsline idecy + 1, ""
-                IF ideautoindent = 0 THEN desiredcolumn = LEN(a$) - LEN(LTRIM$(a$)) + 1
-            ELSE
-                idesetline idecy, LEFT$(a$, idecx - 1)
-                IF ideautoindent = 0 THEN
-                    desiredcolumn = LEN(a$) - LEN(LTRIM$(a$))
-                    new.a$ = idegetline(idecy)
-                    IF LEN(LTRIM$(RTRIM$(new.a$))) = 0 THEN desiredcolumn = 0
+                IF LEN(a$) = 0 THEN
+                    desiredcolumn = idecx
                 ELSE
-                    desiredcolumn = 0
+                    desiredcolumn = LEN(a$) - LEN(LTRIM$(a$)) + 1
                 END IF
-                ideinsline idecy + 1, SPACE$(desiredcolumn) + RIGHT$(a$, LEN(a$) - idecx + 1)
-                IF ideautoindent = 0 THEN
+            ELSE
+                a2$ = LEFT$(a$, idecx - 1)
+                idesetline idecy, a2$
+                IF LEN(LTRIM$(a2$)) > 0 THEN
+                    IF idecx > 1 THEN desiredcolumn = LEN(a$) - LEN(LTRIM$(a$)) ELSE desiredcolumn = 0
+                    ideinsline idecy + 1, SPACE$(desiredcolumn) + RIGHT$(a$, LEN(a$) - idecx + 1)
                     IF desiredcolumn = 0 THEN desiredcolumn = 1 ELSE desiredcolumn = desiredcolumn + 1
                 ELSE
-                    desiredcolumn = 1
+                    desiredcolumn = idecx
+                    ideinsline idecy + 1, SPACE$(desiredcolumn - 1) + RIGHT$(a$, LEN(a$) - idecx + 1)
                 END IF
             END IF
 
@@ -3206,10 +3206,28 @@ DO
         IF idecx = 1 THEN
             IF idecy > 1 THEN
                 a2$ = idegetline(idecy - 1)
-                idesetline idecy - 1, a2$ + a$
-                idedelline idecy
-                idecx = LEN(a2$) + 1
-                idecy = idecy - 1
+                IF LEN(a2$) > 0 THEN
+                    'If the previous line has any content, let's just append this line to it
+                    RegularBackupToPrevLine:
+                    idesetline idecy - 1, a2$ + a$
+                    idedelline idecy
+                    idecx = LEN(a2$) + 1
+                    idecy = idecy - 1
+                ELSE
+                    'Or else, if it's an empty line, let's try to follow the
+                    'next line's indentation.
+                    'First, get indentation level of next line, if any.
+                    IF idecy < iden THEN
+                        a3$ = idegetline(idecy + 1)
+                        desiredcolumn = LEN(a3$) - LEN(LTRIM$(a3$))
+                        idesetline idecy - 1, SPACE$(desiredcolumn) + a$
+                        idedelline idecy
+                        idecx = desiredcolumn + 1
+                        idecy = idecy - 1
+                    ELSE
+                        GOTO RegularBackupToPrevLine
+                    END IF
+                END IF
             END IF
             GOTO specialchar
         END IF
@@ -3221,11 +3239,12 @@ DO
             END IF
         ELSE
             CheckSpacesBehind:
-            IF LEN(RTRIM$(MID$(a$, 1, idecx - 1))) = 0 AND ideautoindent = 0 THEN
+            IF LEN(RTRIM$(MID$(a$, 1, idecx - 1))) = 0 THEN
                 'Only spaces behind. If we're on a tab stop, let's go back in tabs.
                 x = 4
                 IF ideautoindentsize <> 0 THEN x = ideautoindentsize
-                IF FIX(LEN(MID$(a$, 1, idecx - 1)) / x) = LEN(MID$(a$, 1, idecx - 1)) / x THEN
+                check.tabstop! = (idecx - 1) / x
+                IF check.tabstop! = FIX(check.tabstop!) THEN
                     IF idecx - x < 1 then x = idecx - 1
                     a$ = LEFT$(a$, idecx - (x + 1)) + RIGHT$(a$, LEN(a$) - idecx + 1)
                     idesetline idecy, a$
