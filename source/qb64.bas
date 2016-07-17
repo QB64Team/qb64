@@ -1129,6 +1129,7 @@ IF C = 9 THEN 'run
         IF path.exe$ = "" THEN path.exe$ = "./"
         IF os$ = "LNX" THEN SHELL QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
         IF path.exe$ = "./" THEN path.exe$ = ""
+        _KEYCLEAR
     END IF
 
     sendc$ = CHR$(6) 'ready
