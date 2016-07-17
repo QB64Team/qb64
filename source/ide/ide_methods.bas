@@ -3277,7 +3277,7 @@ DO
     ideforceinput:
 
     IF K$ = CHR$(9) OR (K$ = CHR$(25) AND INSTR(_OS$, "MAC") > 0) THEN
-        IF ideselect AND ideautoindent = 0 THEN
+        IF ideselect THEN
             'Block indentation code copied/adapted from block comment/uncomment:
             IF KSHIFT OR K$ = CHR$(25) THEN
                 IdeBlockDecreaseIndent:
