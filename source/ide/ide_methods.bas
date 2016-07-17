@@ -183,12 +183,8 @@ IF LEFT$(c$, 1) = CHR$(12) THEN
     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
     LOCATE idewy - 3, 2
 
-    'Darken the interface while compilation is taking place,
-    'to give a sense of temporary unavailability:
-    TempDarkerBGColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
-    TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
-    _PALETTECOLOR 1, TempDarkerBGColor~&, 0
-    _PALETTECOLOR 13, TempDarkerFGColor~&, 0
+    DarkenFGBG -1
+    color 5
 
     IF os$ = "LNX" THEN
         PRINT "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
@@ -1345,15 +1341,12 @@ DO
                     GOTO specialchar
                 END IF
 
+                DarkenFGBG -1
+                COLOR 5
                 LOCATE idewy - 3, 2: PRINT "Starting program...";
             ELSE
-                'Darken the interface while compilation is taking place,
-                'to give a sense of temporary unavailability:
-                TempDarkerBGColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
-                TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
-                _PALETTECOLOR 1, TempDarkerBGColor~&, 0
-                _PALETTECOLOR 13, TempDarkerFGColor~&, 0
-
+                DarkenFGBG -1
+                color 5
                 IF os$ = "LNX" THEN
                     LOCATE idewy - 3, 2: PRINT "Creating executable file...";
                 ELSE
@@ -13490,6 +13483,33 @@ SUB UpdateIdeInfo
     COLOR 0, 3: LOCATE idewy + idesubwindow, 2
     PRINT a$;
     PCOPY 3, 0
+END SUB
+
+SUB DarkenFGBG(Action AS _BYTE)
+    'Darken the interface while compilation is taking place,
+    'to give a sense of temporary unavailability:
+    IF Action = -1 THEN
+        TempDarkerBGColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
+        TempDarkerBG2Color~& = _RGB32(_RED32(IDEBackgroundColor2) * .5, _GREEN32(IDEBackgroundColor2) * .5, _BLUE32(IDEBackgroundColor2) * .5)
+        TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
+        TempDarkerCommentColor~& = _RGB32(_RED32(IDECommentColor) * .5, _GREEN32(IDECommentColor) * .5, _BLUE32(IDECommentColor) * .5)
+        TempDarkerMetaColor~& = _RGB32(_RED32(IDEMetaCommandColor) * .5, _GREEN32(IDEMetaCommandColor) * .5, _BLUE32(IDEMetaCommandColor) * .5)
+        TempDarkerQuoteColor~& = _RGB32(_RED32(IDEQuoteColor) * .5, _GREEN32(IDEQuoteColor) * .5, _BLUE32(IDEQuoteColor) * .5)
+        _PALETTECOLOR 1, TempDarkerBGColor~&, 0
+        _PALETTECOLOR 13, TempDarkerFGColor~&, 0
+        _PALETTECOLOR 6, TempDarkerBG2Color~&, 0
+        _PALETTECOLOR 11, TempDarkerCommentColor~&, 0
+        _PALETTECOLOR 10, TempDarkerMetaColor~&, 0
+        _PALETTECOLOR 14, TempDarkerQuoteColor~&, 0
+        _PALETTECOLOR 5, _RGB32(255, 255, 255), 0
+    ELSE
+        _PALETTECOLOR 1, IDEBackgroundColor, 0
+        _PALETTECOLOR 6, IDEBackgroundColor2, 0
+        _PALETTECOLOR 11, IDECommentColor, 0
+        _PALETTECOLOR 10, IDEMetaCommandColor, 0
+        _PALETTECOLOR 14, IDEQuoteColor, 0
+        _PALETTECOLOR 13, IDETextColor, 0
+    ENDIF
 END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'

@@ -1114,6 +1114,11 @@ IF C = 9 THEN 'run
 
     'hack! (a new message should be sent to the IDE stating C++ compilation was successful)
     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+    IF idemode THEN
+        'Darken fg/bg colors
+        DarkenFGBG -1
+        COLOR 5
+    END IF
     LOCATE idewy - 3, 2: PRINT "Starting program...";
     PCOPY 3, 0
 
@@ -1130,6 +1135,11 @@ IF C = 9 THEN 'run
         IF os$ = "LNX" THEN SHELL QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
         IF path.exe$ = "./" THEN path.exe$ = ""
         _KEYCLEAR
+    END IF
+
+    IF idemode THEN
+        'Darken fg/bg colors
+        DarkenFGBG 0
     END IF
 
     sendc$ = CHR$(6) 'ready
@@ -11904,8 +11914,7 @@ IF os$ = "WIN" THEN
         CHDIR "..\.."
         IF idemode THEN
             'Restore fg/bg colors
-            _PALETTECOLOR 1, IDEBackgroundColor, 0
-            _PALETTECOLOR 13, IDETextColor, 0
+            DarkenFGBG 0
         END IF
     END IF 'No_C_Compile_Mode=0
 
@@ -12193,8 +12202,7 @@ IF os$ = "LNX" THEN
         CHDIR "../.."
         IF idemode THEN
             'Restore fg/bg colors
-            _PALETTECOLOR 1, IDEBackgroundColor, 0
-            _PALETTECOLOR 13, IDETextColor, 0
+            DarkenFGBG 0
         END IF
     END IF
 
