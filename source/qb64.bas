@@ -11901,6 +11901,10 @@ IF os$ = "WIN" THEN
         CHDIR ".\internal\c"
         SHELL _HIDE a$
         CHDIR "..\.."
+        IF idemode THEN
+            'Restore background color
+            _PALETTECOLOR 1, IDEBackgroundColor, 0
+        END IF
     END IF 'No_C_Compile_Mode=0
 
 END IF
@@ -12185,6 +12189,10 @@ IF os$ = "LNX" THEN
         CHDIR "./internal/c"
         SHELL _HIDE a$
         CHDIR "../.."
+        IF idemode THEN
+            'Restore background color
+            _PALETTECOLOR 1, IDEBackgroundColor, 0
+        END IF
     END IF
 
     IF INSTR(_OS$, "[MACOSX]") THEN

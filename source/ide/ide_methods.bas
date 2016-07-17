@@ -183,6 +183,11 @@ IF LEFT$(c$, 1) = CHR$(12) THEN
     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
     LOCATE idewy - 3, 2
 
+    'Darken the interface while compilation is taking place,
+    'to give a sense of temporary unavailability:
+    TempDarkerColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
+    _PALETTECOLOR 1, TempDarkerColor~&, 0
+
     IF os$ = "LNX" THEN
         PRINT "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
     ELSE
@@ -1340,6 +1345,10 @@ DO
 
                 LOCATE idewy - 3, 2: PRINT "Starting program...";
             ELSE
+                'Darken the interface while compilation is taking place,
+                'to give a sense of temporary unavailability:
+                TempDarkerColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
+                _PALETTECOLOR 1, TempDarkerColor~&, 0
 
                 IF os$ = "LNX" THEN
                     LOCATE idewy - 3, 2: PRINT "Creating executable file...";
