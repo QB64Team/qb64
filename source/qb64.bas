@@ -1134,7 +1134,8 @@ IF C = 9 THEN 'run
         IF path.exe$ = "" THEN path.exe$ = "./"
         IF os$ = "LNX" THEN SHELL QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
         IF path.exe$ = "./" THEN path.exe$ = ""
-        _KEYCLEAR
+        DO: LOOP UNTIL INKEY$ = ""
+        DO: LOOP UNTIL _KEYHIT = 0
     END IF
 
     IF idemode THEN
