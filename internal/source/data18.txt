@@ -3,15 +3,15 @@ if(_FUNC_FINDARRAY_LONG_FINDARRAY==NULL){
 _FUNC_FINDARRAY_LONG_FINDARRAY=(int32*)mem_static_malloc(4);
 *_FUNC_FINDARRAY_LONG_FINDARRAY=0;
 }
-qbs*oldstr2405=NULL;
+qbs*oldstr2407=NULL;
 if(_FUNC_FINDARRAY_STRING_SECURE->tmp||_FUNC_FINDARRAY_STRING_SECURE->fixed||_FUNC_FINDARRAY_STRING_SECURE->readonly){
-oldstr2405=_FUNC_FINDARRAY_STRING_SECURE;
-if (oldstr2405->cmem_descriptor){
-_FUNC_FINDARRAY_STRING_SECURE=qbs_new_cmem(oldstr2405->len,0);
+oldstr2407=_FUNC_FINDARRAY_STRING_SECURE;
+if (oldstr2407->cmem_descriptor){
+_FUNC_FINDARRAY_STRING_SECURE=qbs_new_cmem(oldstr2407->len,0);
 }else{
-_FUNC_FINDARRAY_STRING_SECURE=qbs_new(oldstr2405->len,0);
+_FUNC_FINDARRAY_STRING_SECURE=qbs_new(oldstr2407->len,0);
 }
-memcpy(_FUNC_FINDARRAY_STRING_SECURE->chr,oldstr2405->chr,oldstr2405->len);
+memcpy(_FUNC_FINDARRAY_STRING_SECURE->chr,oldstr2407->chr,oldstr2407->len);
 }
 qbs *_FUNC_FINDARRAY_STRING_N=NULL;
 if (!_FUNC_FINDARRAY_STRING_N)_FUNC_FINDARRAY_STRING_N=qbs_new(0,0);
@@ -22,14 +22,6 @@ _FUNC_FINDARRAY_LONG_I=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_FINDARRAY_STRING_SC=NULL;
 if (!_FUNC_FINDARRAY_STRING_SC)_FUNC_FINDARRAY_STRING_SC=qbs_new(0,0);
-byte_element_struct *byte_element_2407=NULL;
-if (!byte_element_2407){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2407=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2407=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_2408=NULL;
-if (!byte_element_2408){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2408=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2408=(byte_element_struct*)mem_static_malloc(12);
-}
 byte_element_struct *byte_element_2409=NULL;
 if (!byte_element_2409){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2409=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2409=(byte_element_struct*)mem_static_malloc(12);
@@ -49,6 +41,14 @@ if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2412=(byte_element_s
 byte_element_struct *byte_element_2413=NULL;
 if (!byte_element_2413){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2413=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2413=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_2414=NULL;
+if (!byte_element_2414){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2414=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2414=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_2415=NULL;
+if (!byte_element_2415){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2415=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2415=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_FINDARRAY_STRING_N2=NULL;
 if (!_FUNC_FINDARRAY_STRING_N2)_FUNC_FINDARRAY_STRING_N2=qbs_new(0,0);
