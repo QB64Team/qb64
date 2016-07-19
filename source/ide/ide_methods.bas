@@ -125,6 +125,8 @@ STATIC idesystem2.issel AS _BYTE
 STATIC idesystem2.sx1 AS LONG
 STATIC idesystem2.v1 AS LONG
 STATIC AttemptToLoadRecent AS _BYTE
+STATIC old.mX, old.mY
+STATIC last.TBclick#
 
 CONST idesystem2.w = 20
 
