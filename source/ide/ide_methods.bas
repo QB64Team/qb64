@@ -932,9 +932,9 @@ DO
                 i = CVL(MID$(Back_Str_I$, (x - 1) * 4 + 1, 4))
                 a = ASC(Back_Str$, x)
                 IF a THEN
-                    COLOR 0, 7
-                    IF i < Help_Back_Pos THEN COLOR 9, 7
-                    IF i > Help_Back_Pos THEN COLOR 9, 7
+                    IF IdeSystem = 3 THEN COLOR 0, 7 ELSE COLOR 7, 0
+                    IF i < Help_Back_Pos THEN COLOR 9
+                    IF i > Help_Back_Pos THEN COLOR 9
                     PRINT CHR$(a);
                 ELSE
                     COLOR 7, 0
@@ -4767,7 +4767,8 @@ a$ = " " + a$
 if LEN(sfname$) > 0 then a$ = a$ + ":" + sfname$
 a$ = a$ + " "
 if len(a$) > idewx - 5 then a$ = left$(a$, idewx - 11) + string$(3, 250) + " "
-COLOR 1, 7: LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
+IF IdeSystem = 1 THEN COLOR 1, 7 ELSE COLOR 7, 1
+LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
 RETURN
 
 DrawQuickNav:
@@ -4785,7 +4786,10 @@ RETURN
 UpdateSearchBar:
         LOCATE idewy - 4, idewx - (idesystem2.w + 10)
         COLOR 7, 1: PRINT chr$(180);
-        COLOR 3, 1: PRINT "Find[" + SPACE$(idesystem2.w + 1) + chr$(18) + "]";
+        IF IdeSystem = 2 THEN COLOR 1, 3 ELSE COLOR 3, 1
+        PRINT "Find";
+        COLOR 3, 1
+        PRINT "[" + SPACE$(idesystem2.w + 1) + chr$(18) + "]";
         COLOR 7, 1: PRINT chr$(195);
 
         a$ = idefindtext
