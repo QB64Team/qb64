@@ -126,7 +126,9 @@ STATIC idesystem2.sx1 AS LONG
 STATIC idesystem2.v1 AS LONG
 STATIC AttemptToLoadRecent AS _BYTE
 STATIC old.mX, old.mY
-STATIC last.TBclick#
+STATIC last.TBclick#, wholeword.select AS _BYTE
+STATIC wholeword.selectx1, wholeword.idecx
+STATIC wholeword.selecty1, wholeword.idecy
 
 CONST idesystem2.w = 20
 
@@ -1183,7 +1185,7 @@ DO
         IF KSTATECHANGED THEN change = 1
     END IF
     IF mB <> 0 AND idembmonitor = 1 THEN change = 1
-    IF mB = 0 THEN idemouseselect = 0: idembmonitor = 0
+    IF mB = 0 THEN idemouseselect = 0: idembmonitor = 0: wholeword.select = 0
 
     'Hover/click (QuickNav)
     IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
@@ -2418,6 +2420,35 @@ DO
 
     IF KALT AND KB >= 48 AND KB <= 57 THEN GOTO specialchar ' Steve Edit on 07-04-2014 to add support for ALT-numkey combos to produce ASCII codes
 
+    char.sep$ = chr$(34) + " =<>+-/\^:;,*()."
+    IF ideselect = 1 AND wholeword.select = -1 THEN
+        'Mouse button has been held down since the last double-click word selection
+        'and the user has moved the mouse only horizontally. Attempt to keep
+        'selecting words to the left or right.
+        a$ = idegetline$(idecy)
+        newline = mY - 2 + idesy - 1
+        if newline < wholeword.selecty1 THEN wholeword.select = 0: idemouseselect = 1: GOTO DoneWholeWord
+        if newline > wholeword.idecy AND newline <= iden THEN wholeword.select = 0: idemouseselect = 1: GOTO DoneWholeWord
+        newposition = mX - 1 + idesx - 1
+        char.clicked$ = mid$(a$, newposition, 1)
+        if LEN(char.clicked$) > 0 THEN
+            IF newposition < wholeword.selectx1 THEN
+                'To the left, to the left.
+                FOR i = newposition TO 1 STEP -1
+                    IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
+                NEXT i
+                ideselectx1 = i + 1
+            ELSEIF newposition > wholeword.idecx THEN
+                'To the right.
+                FOR i = newposition TO LEN(a$)
+                    IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
+                NEXT i
+                idecx = i
+            END IF
+        END IF
+    END IF
+    DoneWholeWord:
+
     IF mCLICK THEN
         IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
             if old.mX = mX AND old.mY = mY THEN
@@ -2428,7 +2459,6 @@ DO
                 IF idecy > iden THEN
                     GOTO regularTextBox_click
                 ELSE
-                    char.sep$ = chr$(34) + " =<>+-/\^:;,*()."
                     a$ = idegetline$(idecy)
                     if len(a$) = 0 THEN goto regularTextBox_click
                     char.clicked$ = mid$(a$, idecx, 1)
@@ -2439,10 +2469,15 @@ DO
                             IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
                         NEXT i
                         ideselectx1 = i + 1
+                        wholeword.selectx1 = ideselectx1
                         FOR i = idecx TO LEN(a$)
                             IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
                         NEXT i
                         idecx = i
+                        wholeword.idecx = idecx
+                        wholeword.select = -1
+                        wholeword.idecy = idecy
+                        wholeword.selecty1 = ideselecty1
                     END IF
                 END IF
             else
