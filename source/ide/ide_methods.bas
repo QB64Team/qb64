@@ -2418,12 +2418,41 @@ DO
 
     IF mCLICK THEN
         IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
-            ideselect = 1
-            idecx = mX - 1 + idesx - 1
-            idecy = mY - 2 + idesy - 1
-            IF idecy > iden THEN idecy = iden
-            ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
-            idemouseselect = 1
+            if old.mX = mX AND old.mY = mY THEN
+                IF TIMER - last.TBclick# > .5 then GOTO regularTextBox_click
+                'Double-click on text box: attempt to select "word" clicked
+                idecx = mX - 1 + idesx - 1
+                idecy = mY - 2 + idesy - 1
+                IF idecy > iden THEN
+                    GOTO regularTextBox_click
+                ELSE
+                    char.sep$ = chr$(34) + " =<>+-/\^:;,*()."
+                    a$ = idegetline$(idecy)
+                    if len(a$) = 0 THEN goto regularTextBox_click
+                    char.clicked$ = mid$(a$, idecx, 1)
+                    ideselect = 1
+                    ideselecty1 = idecy
+                    if LEN(char.clicked$) > 0 AND char.clicked$ <> chr$(32) THEN
+                        FOR i = idecx TO 1 STEP -1
+                            IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
+                        NEXT i
+                        ideselectx1 = i + 1
+                        FOR i = idecx TO LEN(a$)
+                            IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
+                        NEXT i
+                        idecx = i
+                    END IF
+                END IF
+            else
+                regularTextBox_click:
+                old.mX = mX: old.mY = mY: last.TBclick# = TIMER
+                ideselect = 1
+                idecx = mX - 1 + idesx - 1
+                idecy = mY - 2 + idesy - 1
+                IF idecy > iden THEN idecy = iden
+                ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
+                idemouseselect = 1
+            end if
         END IF
     END IF
 
