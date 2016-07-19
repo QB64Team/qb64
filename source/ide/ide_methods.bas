@@ -360,7 +360,7 @@ IF idelaunched = 0 THEN
     idechangemade = 1
 
     redraweverything:
-
+    ideselect = 0
     idesx = 1
     idesy = 1
     idecx = 1
