@@ -2455,7 +2455,7 @@ DO
                 idecx = i
             END IF
         END IF
-    ELSEIF mY <> old.mY THEN
+    ELSEIF ideselect = 1 AND mY <> old.mY THEN
         idemouseselect = 1
         wholeword.select = -2
     END IF
@@ -2500,6 +2500,7 @@ DO
                 IF idecy > iden THEN idecy = iden
                 ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
                 idemouseselect = 1
+                wholeword.select = 0
             end if
         END IF
     END IF
