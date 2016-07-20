@@ -2421,24 +2421,33 @@ DO
     IF KALT AND KB >= 48 AND KB <= 57 THEN GOTO specialchar ' Steve Edit on 07-04-2014 to add support for ALT-numkey combos to produce ASCII codes
 
     char.sep$ = chr$(34) + " =<>+-/\^:;,*()."
-    IF ideselect = 1 AND wholeword.select = -1 THEN
+    IF ideselect = 1 AND wholeword.select < 0 AND mY = old.mY THEN
         'Mouse button has been held down since the last double-click word selection
         'and the user has moved the mouse only horizontally. Attempt to keep
         'selecting words to the left or right.
-        a$ = idegetline$(idecy)
-        newline = mY - 2 + idesy - 1
-        if newline < wholeword.selecty1 THEN wholeword.select = 0: idemouseselect = 1: GOTO DoneWholeWord
-        if newline > wholeword.idecy AND newline <= iden THEN wholeword.select = 0: idemouseselect = 1: GOTO DoneWholeWord
+        if wholeword.select = -2 THEN
+            'we had a snap selection but moved up or down.
+            'now we're back in the same line.
+            wholeword.select = -1
+            idemouseselect = 0
+            ideselectx1 = wholeword.selectx1
+            idecx = wholeword.idecx
+            ideselecty1 = wholeword.selecty1
+            idecy = wholeword.idecy
+        end if
         newposition = mX - 1 + idesx - 1
+        a$ = idegetline$(idecy)
+        IF newposition > LEN(a$) THEN idecx = newposition: GOTO DoneWholeWord
+        IF newposition = 1 THEN ideselectx1 = 1: GOTO DoneWholeWord
         char.clicked$ = mid$(a$, newposition, 1)
         if LEN(char.clicked$) > 0 THEN
-            IF newposition < wholeword.selectx1 THEN
+            IF newposition < wholeword.idecx THEN
                 'To the left, to the left.
                 FOR i = newposition TO 1 STEP -1
                     IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
                 NEXT i
                 ideselectx1 = i + 1
-            ELSEIF newposition > wholeword.idecx THEN
+            ELSEIF newposition > wholeword.selectx1 THEN
                 'To the right.
                 FOR i = newposition TO LEN(a$)
                     IF INSTR(char.sep$, mid$(a$, i, 1)) THEN exit for
@@ -2446,8 +2455,10 @@ DO
                 idecx = i
             END IF
         END IF
+    ELSEIF mY <> old.mY THEN
+        idemouseselect = 1
+        wholeword.select = -2
     END IF
-    DoneWholeWord:
 
     IF mCLICK THEN
         IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
@@ -2492,6 +2503,8 @@ DO
             end if
         END IF
     END IF
+
+    DoneWholeWord:
 
     IF mCLICK2 THEN 'Second mouse button pressed.
         invokecontextualmenu:
