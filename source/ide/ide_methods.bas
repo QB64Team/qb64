@@ -2455,7 +2455,7 @@ DO
                 idecx = i
             END IF
         END IF
-    ELSEIF ideselect = 1 AND mY <> old.mY THEN
+    ELSEIF ideselect = 1 AND wholeword.select = -1 AND mY <> old.mY THEN
         idemouseselect = 1
         wholeword.select = -2
     END IF
