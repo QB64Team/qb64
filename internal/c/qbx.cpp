@@ -393,6 +393,7 @@ extern void lprint_makefit(qbs *text);
 extern void tab();
 extern void qbs_print(qbs* str,int32 finish_on_new_line);
 extern void qbs_lprint(qbs* str,int32 finish_on_new_line);
+extern long double qbs_cleanup(uint32 base,long double passvalue);
 extern int32 qbs_cleanup(uint32 base,int32 passvalue);
 extern void qbg_sub_window(float x1,float y1,float x2,float y2,int32 passed);
 extern void qbg_sub_view_print(int32 topline,int32 bottomline,int32 passed);

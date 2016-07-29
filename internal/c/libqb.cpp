@@ -12640,6 +12640,10 @@ int32 qbs_cleanup(uint32 base,int32 passvalue){
   return passvalue;
 }
 
+long double qbs_cleanup(uint32 base,long double passvalue){
+  while (qbs_tmp_list_nexti>base) { qbs_tmp_list_nexti--; if(qbs_tmp_list[qbs_tmp_list_nexti]!=-1)qbs_free((qbs*)qbs_tmp_list[qbs_tmp_list_nexti]); }//clear any temp. strings created
+  return passvalue;
+}
 
 
 void qbg_sub_window(float x1,float y1,float x2,float y2,int32 passed){
