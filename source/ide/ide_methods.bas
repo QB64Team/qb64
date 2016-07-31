@@ -188,7 +188,9 @@ FUNCTION ide2 (ignore)
         LOCATE idewy - 3, 2
 
         DarkenFGBG -1
-        COLOR 5
+        BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+        COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+        COLOR 5, 1
 
         IF os$ = "LNX" THEN
             PRINT "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
@@ -403,8 +405,6 @@ FUNCTION ide2 (ignore)
             COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT CHR$(180) + "X" + CHR$(195);
         END IF
 
-        'add status title
-        COLOR 7, 1: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
         'status bar
         COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
         q = idevbar(idewx, idewy - 3, 3, 1, 1)
@@ -1346,11 +1346,15 @@ FUNCTION ide2 (ignore)
                     END IF
 
                     DarkenFGBG -1
-                    COLOR 5
+                    BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+                    COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+                    COLOR 5, 1
                     LOCATE idewy - 3, 2: PRINT "Starting program...";
                 ELSE
                     DarkenFGBG -1
-                    COLOR 5
+                    BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+                    COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+                    COLOR 5, 1
                     IF os$ = "LNX" THEN
                         LOCATE idewy - 3, 2: PRINT "Creating executable file...";
                     ELSE
@@ -1792,6 +1796,11 @@ FUNCTION ide2 (ignore)
                     a$ = a1$ + K$ + a2$: idesystem2.v1 = idesystem2.v1 + 1
                 END IF
                 idefindtext = a$
+            END IF
+
+            IF K$ = CHR$(0) + CHR$(60) THEN 'F2
+                IdeSystem = 1
+                GOTO idesubsjmp
             END IF
 
             IF K$ = CHR$(0) + "S" THEN 'DEL
@@ -2710,6 +2719,19 @@ FUNCTION ide2 (ignore)
             GOTO specialchar
         END IF
 
+        IF KCONTROL AND UCASE$(K$) = "S" THEN 'File -> #Save
+            IF ideprogname = "" THEN
+                ProposedTitle$ = FindProposedTitle$
+                IF ProposedTitle$ = "" THEN
+                    a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                ELSE
+                    a$ = idesaveas$(ProposedTitle$ + ".bas")
+                END IF
+            ELSE
+                idesave idepath$ + idepathsep$ + ideprogname$
+            END IF
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+        END IF
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
             GOTO idesubsjmp
@@ -3198,6 +3220,7 @@ FUNCTION ide2 (ignore)
         IF K$ = CHR$(13) THEN
             IF KSHIFT THEN
                 IF EnteringRGB THEN 'The "Hit Shift+ENTER" message is being shown
+                    HideBracketHighlight
                     retval$ = idecolorpicker$(0)
                 ELSE
                     IF ideselect THEN
@@ -3210,7 +3233,10 @@ FUNCTION ide2 (ignore)
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
-                    IF Found_RGB THEN retval$ = idecolorpicker$(-1)
+                    IF Found_RGB THEN
+                        HideBracketHighlight
+                        retval$ = idecolorpicker$(-1)
+                    END IF
                 END IF
                 GOTO specialchar
             ELSE
@@ -3936,22 +3962,20 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "Increase indent  TAB" THEN
-                IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockIncreaseIndent
+                IF ideselect THEN GOTO IdeBlockIncreaseIndent
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 15) = "Decrease indent" THEN
-                IF ideselect AND ideautoindent = 0 THEN GOTO IdeBlockDecreaseIndent
+                IF ideselect THEN GOTO IdeBlockDecreaseIndent
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 16) = "~Decrease indent" OR menu$(m, s) = "~Increase indent  TAB" THEN
-                IF ideautoindent <> 0 THEN
-                    ideerrormessage "Not available when auto indent is active (Options/Code Layout)."
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                    GOTO ideloop
-                ELSE
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                    GOTO ideloop
-                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Language..." THEN
@@ -3991,6 +4015,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "IDE C#olors..." THEN
                 PCOPY 2, 0
+                HideBracketHighlight
                 retval = idechoosecolorsbox 'retval is ignored
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -3998,6 +4023,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "Open _RGB color mi#xer" THEN
                 PCOPY 2, 0
+                HideBracketHighlight
                 retval$ = idecolorpicker$(-1) 'retval is ignored
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -4764,7 +4790,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Save" THEN
+            IF menu$(m, s) = "#Save  Ctrl+S" THEN
                 PCOPY 2, 0
                 IF ideprogname = "" THEN
                     ProposedTitle$ = FindProposedTitle$
@@ -4815,6 +4841,7 @@ FUNCTION ide2 (ignore)
     COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, CHR$(196));
     IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
     a$ = " " + a$
+    IF ideunsaved THEN a$ = a$ + "*"
     IF LEN(sfname$) > 0 THEN a$ = a$ + ":" + sfname$
     a$ = a$ + " "
     IF LEN(a$) > idewx - 5 THEN a$ = LEFT$(a$, idewx - 11) + STRING$(3, 250) + " "
@@ -4837,11 +4864,14 @@ FUNCTION ide2 (ignore)
     UpdateSearchBar:
     LOCATE idewy - 4, idewx - (idesystem2.w + 10)
     COLOR 7, 1: PRINT CHR$(180);
-    IF IdeSystem = 2 THEN COLOR 1, 3 ELSE COLOR 3, 1
-    PRINT "Find";
     COLOR 3, 1
+    PRINT "Find";
     PRINT "[" + SPACE$(idesystem2.w + 1) + CHR$(18) + "]";
     COLOR 7, 1: PRINT CHR$(195);
+
+    'add status title
+    IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
+    LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
 
     a$ = idefindtext
     tx = 1
@@ -7577,6 +7607,14 @@ SUB ideshowtext
     _PALETTECOLOR 14, IDEQuoteColor, 0
     _PALETTECOLOR 13, IDETextColor, 0
 
+    Bracket.r& = _RED32(IDEBackgroundColor2) * 2
+    Bracket.g& = _GREEN32(IDEBackgroundColor2) * 2
+    Bracket.b& = _BLUE32(IDEBackgroundColor2) * 2
+    _PALETTECOLOR 5, _RGB32(Bracket.r&, Bracket.g&, Bracket.b&), 0
+
+    BracketFG% = 10
+    IF (Bracket.r& + Bracket.g& + Bracket.b&) / 3 > 127 THEN BracketFG% = 1
+
     cc = -1
 
     IF idecx < idesx THEN idesx = idecx
@@ -7662,6 +7700,77 @@ SUB ideshowtext
                     END SELECT
                 NEXT k
 
+                'Check if we're on a bracket, to highlight it and its match
+                brackets = 0
+                bracket1 = 0
+                bracket2 = 0
+                IF idecx_comment + idecx_quote = 0 AND brackethighlight = -1 THEN
+                    inquote = 0
+                    comment = 0
+                    IF MID$(a$, idecx, 1) = "(" THEN
+                        brackets = 1
+                        bracket1 = idecx
+                        ScanBracket2:
+                        FOR k = bracket1 + 1 TO LEN(a$)
+                            SELECT CASE MID$(a$, k, 1)
+                                CASE CHR$(34)
+                                    inquote = NOT inquote
+                                CASE "'"
+                                    IF inquote = 0 THEN comment = -1: EXIT FOR
+                            END SELECT
+                            IF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                brackets = brackets - 1
+                                IF brackets = 0 THEN bracket2 = k: EXIT FOR
+                            ELSEIF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                brackets = brackets + 1
+                            END IF
+                        NEXT
+                    ELSEIF MID$(a$, idecx - 1, 1) = "(" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
+                        brackets = 1
+                        bracket1 = idecx - 1
+                        GOTO ScanBracket2
+                    ELSEIF MID$(a$, idecx, 1) = ")" THEN
+                        brackets = 1
+                        bracket2 = idecx
+                        ScanBracket1:
+                        FOR k = bracket2 - 1 TO 1 STEP -1
+                            SELECT CASE MID$(a$, k, 1)
+                                CASE CHR$(34)
+                                    inquote = NOT inquote
+                            END SELECT
+                            IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                brackets = brackets - 1
+                                IF brackets = 0 THEN bracket1 = k: EXIT FOR
+                            ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                brackets = brackets + 1
+                            END IF
+                        NEXT
+                    ELSEIF MID$(a$, idecx - 1, 1) = ")" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
+                        brackets = 1
+                        bracket2 = idecx - 1
+                        GOTO ScanBracket1
+                    ELSE
+                        'Maybe there isn't an open bracket immediately to our left,
+                        'but maybe we're typing a line and there's an orphan open
+                        'bracket to our left, somewhere. It'll be highlighted until closed.
+                        brackets = 1
+                        IF idecx >= LEN(a$) + 1 THEN
+                            FOR k = idecx - 1 TO 1 STEP -1
+                                SELECT CASE MID$(a$, k, 1)
+                                    CASE CHR$(34)
+                                        inquote = NOT inquote
+                                END SELECT
+                                IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                    brackets = brackets - 1
+                                    IF brackets = 0 THEN bracket1 = k: EXIT FOR
+                                ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                    brackets = brackets + 1
+                                END IF
+                            NEXT
+                        END IF
+                    END IF
+                END IF
+
                 'If the user is typing on the current line and has just inserted
                 'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
                 'color mixer.
@@ -7700,7 +7809,7 @@ SUB ideshowtext
         inquote = 0
         comment = 0
         metacommand = 0
-        FOR k = 1 TO idesx 'First check the part of the line that's off screen to the left
+        FOR k = 1 TO idesx - 1 'First check the part of the line that's off screen to the left
             SELECT CASE MID$(a$, k, 1)
                 CASE CHR$(34)
                     inquote = NOT inquote
@@ -7709,10 +7818,12 @@ SUB ideshowtext
             END SELECT
         NEXT k
         FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
-            SELECT CASE MID$(a$, m + idesx - 1, 1)
-                CASE CHR$(34): inquote = NOT inquote
-                CASE "'": IF inquote = 0 THEN comment = -1
-            END SELECT
+            IF comment = 0 THEN
+                SELECT CASE MID$(a$, m + idesx - 1, 1)
+                    CASE CHR$(34): inquote = NOT inquote
+                    CASE "'": IF inquote = 0 THEN comment = -1
+                END SELECT
+            END IF
             IF LEFT$(LTRIM$(a$), 2) = "'$" OR LEFT$(LTRIM$(a$), 1) = "$" THEN metacommand = -1: comment = 0
             COLOR 13
 
@@ -7723,6 +7834,11 @@ SUB ideshowtext
             ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
                 COLOR 14
             END IF
+
+            IF l = idecy AND (m + idesx - 1 = bracket1 OR m + idesx - 1 = bracket2) THEN
+                COLOR BracketFG%, 5
+            END IF
+
             DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
                 REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT '   to the end of a program before the IDE has finished
             LOOP '                                                      verifying the code and growing the array during the IDE passes.
@@ -7730,6 +7846,9 @@ SUB ideshowtext
 
             LOCATE y + 3, 2 + m - 1
             PRINT MID$(a2$, m, 1);
+
+            'Restore BG color in case a matching bracket was printed with different BG
+            IF l = idecy THEN COLOR , 6
         NEXT m
 
         '### END OF STEVE EDIT
@@ -10848,7 +10967,7 @@ FUNCTION idechoosecolorsbox
     _PALETTECOLOR 5, &HFF00A800, 0 'Original green may have been changed by the Help System, so 5 is now green
 
     i = 0
-    idepar p, 70, 13, "IDE Colors"
+    idepar p, 70, 14, "IDE Colors"
 
     l$ = CHR$(16) + "Normal Text"
     l$ = l$ + sep + " Strings"
@@ -10898,8 +11017,14 @@ FUNCTION idechoosecolorsbox
     o(i).sx1 = 0
 
     i = i + 1
+    o(i).typ = 4 'check box
+    o(i).y = 11
+    o(i).nam = idenewtxt("#Highlight brackets")
+    IF brackethighlight THEN o(i).sel = 1
+
+    i = i + 1
     o(i).typ = 3
-    o(i).y = 13
+    o(i).y = 14
     o(i).txt = idenewtxt("#OK" + sep + "Restore #defaults" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -10958,16 +11083,25 @@ FUNCTION idechoosecolorsbox
         IF T = 255 THEN slider$ = CHR$(180)
         LOCATE p.y + 8, p.x + 35 + r: PRINT slider$;
 
+        COLOR 7, 1
+        LOCATE p.y + 10, p.x + 36: PRINT CHR$(218); STRING$(25, 196);
+        LOCATE p.y + 11, p.x + 36: PRINT CHR$(179); SPACE$(25);
+        LOCATE p.y + 12, p.x + 36: PRINT CHR$(179); SPACE$(25);
+
         SELECT CASE SelectedITEM
-            CASE 1: COLOR 13, 1 'Normal text
-            CASE 2: COLOR 14, 1 'Strings
-            CASE 3: COLOR 10, 1 'Metacommands
-            CASE 4: COLOR 11, 1 'Comments
-            CASE 5: COLOR 1, 1 'Background
-            CASE 6: COLOR 6, 6 'Current line background
+            CASE 1: COLOR 13, 1: SampleText$ = "CLS: PRINT a$" 'Normal text
+            CASE 2: COLOR 14, 1: SampleText$ = SPACE$(6) + CHR$(34) + "Hello, world!" + CHR$(34) 'Strings
+            CASE 3: COLOR 10, 1: SampleText$ = "'$DYNAMIC" 'Metacommands
+            CASE 4: COLOR 11, 1: SampleText$ = "'TODO: review this block" 'Comments
+            CASE 5: COLOR 1, 1: SampleText$ = "" 'Background
+            CASE 6: COLOR 6, 6: SampleText$ = SPACE$(25) 'Current line background
         END SELECT
 
-        LOCATE p.y + 11, p.x + p.w \ 2 - 17: PRINT " Enter new RGB values for the item ";
+        LOCATE p.y + 11, p.x + 37: PRINT SampleText$;
+        IF SelectedITEM = 2 THEN
+            COLOR 13, 1
+            LOCATE p.y + 11, p.x + 37: PRINT "PRINT";
+        END IF
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -11168,7 +11302,7 @@ FUNCTION idechoosecolorsbox
             CASE 6: IDEBackgroundColor2 = CurrentColor~& 'Current line background
         END SELECT
 
-        IF K$ = CHR$(27) OR (focus = 7 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
             IDECommentColor = bkpIDECommentColor
             IDEMetaCommandColor = bkpIDEMetaCommandColor
             IDEQuoteColor = bkpIDEQuoteColor
@@ -11178,23 +11312,24 @@ FUNCTION idechoosecolorsbox
             EXIT FUNCTION
         END IF
 
-        IF (focus = 6 AND info <> 0) THEN
+        IF (focus = 7 AND info <> 0) THEN
             IDECommentColor = _RGB32(85, 255, 255)
             IDEMetaCommandColor = _RGB32(85, 255, 85)
             IDEQuoteColor = _RGB32(255, 255, 85)
             IDETextColor = _RGB32(255, 255, 255)
             IDEBackgroundColor = _RGB32(0, 0, 170)
-            IDEBackgroundColor2 = _RGB32(0, 0, 128)
+            IDEBackgroundColor2 = _RGB32(0, 108, 177)
             info = 0
             GOTO ChangeTextBoxes
         END IF
 
-    IF (focus = 5 AND info <> 0) OR _
+    IF (focus = 6 AND info <> 0) OR _
        (focus = 1 AND K$ = CHR$(13)) OR _
        (focus = 2 AND K$ = CHR$(13)) OR _
        (focus = 3 AND K$ = CHR$(13)) OR _
        (focus = 4 AND K$ = CHR$(13)) OR _
-       (focus = 5 AND K$ = CHR$(13)) THEN
+       (focus = 5 AND K$ = CHR$(13)) OR _
+       (focus = 6 AND K$ = CHR$(13)) THEN
             'save changes
             FOR i = 1 TO 6
                 SELECT CASE i
@@ -11212,6 +11347,17 @@ FUNCTION idechoosecolorsbox
                 RGBString$ = "_RGB32(" + r$ + "," + g$ + "," + b$ + ")"
                 WriteConfigSetting "'[IDE COLOR SETTINGS]", colorid$, RGBString$
             NEXT i
+
+            v% = o(5).sel
+            IF v% <> 0 THEN v% = -1
+            brackethighlight = v%
+
+            IF brackethighlight THEN
+                WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "TRUE"
+            ELSE
+                WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "FALSE"
+            END IF
+
             EXIT FUNCTION
         END IF
 
@@ -12292,7 +12438,7 @@ SUB IdeMakeFileMenu
     menu$(m, i) = "File": i = i + 1
     menu$(m, i) = "#New": i = i + 1
     menu$(m, i) = "#Open...": i = i + 1
-    menu$(m, i) = "#Save": i = i + 1
+    menu$(m, i) = "#Save  Ctrl+S": i = i + 1
     menu$(m, i) = "Save #As...": i = i + 1
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
@@ -12541,7 +12687,7 @@ SUB IdeMakeContextualMenu
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
-    IF ideselect AND ideautoindent = 0 THEN
+    IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
         IF y1 = y2 THEN 'single line selected
@@ -12607,7 +12753,7 @@ SUB IdeMakeEditMenu
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "Comment (add ')": i = i + 1
     menu$(m, i) = "Uncomment (remove ')": i = i + 1
-    IF ideselect AND ideautoindent = 0 THEN
+    IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
         IF y1 = y2 THEN 'single line selected
@@ -13593,6 +13739,18 @@ SUB DarkenFGBG (Action AS _BYTE)
         _PALETTECOLOR 10, IDEMetaCommandColor, 0
         _PALETTECOLOR 14, IDEQuoteColor, 0
         _PALETTECOLOR 13, IDETextColor, 0
+    END IF
+END SUB
+
+SUB HideBracketHighlight
+    'Restore the screen and hide any bracket highlights
+    'as we're limited to 16 colors and the highlight
+    'color will be used differently in this dialog.
+    IF brackethighlight THEN
+        brackethighlight = 0
+        SCREEN , , 0
+        ideshowtext
+        brackethighlight = -1
     END IF
 END SUB
 

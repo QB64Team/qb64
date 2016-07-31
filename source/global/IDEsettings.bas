@@ -10,18 +10,18 @@ DIM SHARED PasteCursorAtEnd AS _BYTE
 DIM SHARED SaveExeWithSource AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
-  'We only want to load the file once when QB64 first starts
-  'Other changes should occur to our settings when we change them in their appropiate routines.
-  'There's no reason to open and close and open and close the same file a million times.
+    'We only want to load the file once when QB64 first starts
+    'Other changes should occur to our settings when we change them in their appropiate routines.
+    'There's no reason to open and close and open and close the same file a million times.
 
-  LoadedIDESettings = -1
+    LoadedIDESettings = -1
 
-  ConfigFile$ = "internal/config.txt"
-  ConfigBak$ = "internal/config.bak"
+    ConfigFile$ = "internal/config.txt"
+    ConfigBak$ = "internal/config.bak"
 
-  GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
+    GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
 
-  IF INSTR(_OS$, "WIN") THEN
+    IF INSTR(_OS$, "WIN") THEN
 
         result = ReadConfigSetting("AllowIndependentSettings", value$)
         IF result THEN
@@ -90,10 +90,10 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("BackgroundColor2", value$)
     IF result THEN
-        IDEBackGroundColor2 = VRGBS(value$, _RGB32(0, 0, 128))
+        IDEBackGroundColor2 = VRGBS(value$, _RGB32(0, 108, 177))
     ELSE
-        IDEBackGroundColor2 = _RGB32(0, 0, 128)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor2", "_RGB32(0,0,128)"
+        IDEBackGroundColor2 = _RGB32(0, 108, 177)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor2", "_RGB32(0,108,177)"
     END IF
 
     result = ReadConfigSetting("SwapMouseButton", value$)
@@ -129,6 +129,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
         SaveExeWithSource = 0
+    END IF
+
+    result = ReadConfigSetting("BracketHighlight", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            brackethighlight = -1
+        ELSE
+            brackethighlight = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "TRUE"
+        brackethighlight = -1
     END IF
 
     IF INSTR(_OS$, "WIN") THEN
