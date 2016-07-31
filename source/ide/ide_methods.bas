@@ -10829,7 +10829,7 @@ FUNCTION idedisplaybox
             IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
             IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
         NEXT
-        IF focus <> 5 THEN
+        IF focus <> 6 THEN
             IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
             IF a < 8 THEN a$ = "8"
         END IF
