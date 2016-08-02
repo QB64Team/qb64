@@ -10964,10 +10964,11 @@ FUNCTION idechoosecolorsbox
     '-------- end of generic dialog box header --------
 
     '-------- init --------
+    LoadColorSchemes
     _PALETTECOLOR 5, &HFF00A800, 0 'Original green may have been changed by the Help System, so 5 is now green
 
     i = 0
-    idepar p, 70, 14, "IDE Colors"
+    idepar p, 70, 17, "IDE Colors"
 
     l$ = CHR$(16) + "Normal Text"
     l$ = l$ + sep + " Strings"
@@ -10975,10 +10976,9 @@ FUNCTION idechoosecolorsbox
     l$ = l$ + sep + " Comments"
     l$ = l$ + sep + " Background"
     l$ = l$ + sep + " Current line background"
-
     i = i + 1
     o(i).typ = 2
-    o(i).y = 1
+    o(i).y = 4
     o(i).w = 27: o(i).h = 7
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1
@@ -10990,7 +10990,7 @@ FUNCTION idechoosecolorsbox
     i = i + 1
     o(i).typ = 1
     o(i).x = 63
-    o(i).y = 2
+    o(i).y = 5
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
     o(i).issel = -1
@@ -11000,7 +11000,7 @@ FUNCTION idechoosecolorsbox
     i = i + 1
     o(i).typ = 1
     o(i).x = 63
-    o(i).y = 5
+    o(i).y = 8
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
     o(i).issel = -1
@@ -11010,7 +11010,7 @@ FUNCTION idechoosecolorsbox
     i = i + 1
     o(i).typ = 1
     o(i).x = 63
-    o(i).y = 8
+    o(i).y = 11
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
     o(i).issel = -1
@@ -11018,15 +11018,46 @@ FUNCTION idechoosecolorsbox
 
     i = i + 1
     o(i).typ = 4 'check box
-    o(i).y = 11
+    o(i).y = 14
     o(i).nam = idenewtxt("#Highlight brackets")
     IF brackethighlight THEN o(i).sel = 1
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = 14
+    o(i).y = 17
     o(i).txt = idenewtxt("#OK" + sep + "Restore #defaults" + sep + "#Cancel")
     o(i).dft = 1
+
+    result = ReadConfigSetting("SchemeID", value$)
+    SchemeID = VAL(value$)
+    IF SchemeID > TotalColorSchemes THEN SchemeID = 0
+
+    IF SchemeID = 0 THEN
+        a2$ = "User-defined"
+    ELSE
+        'Validate this scheme first
+        FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
+        IF FoundPipe > 0 THEN
+            IF LEN(MID$(ColorSchemes$(SchemeID), FoundPipe + 1)) = 54 THEN
+                a2$ = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+            ELSE
+                SchemeID = 0
+                a2$ = "User-defined"
+            END IF
+        ELSE
+            SchemeID = 0
+            a2$ = "User-defined"
+        END IF
+    END IF
+    i = i + 1
+    o(i).typ = 1
+    o(i).x = 9
+    o(i).y = 2
+    o(i).w = 35
+    o(i).nam = idenewtxt("#Scheme")
+    o(i).txt = idenewtxt(a2$)
+    o(i).v1 = LEN(a2$)
+
     '-------- end of init --------
 
     '-------- generic init --------
@@ -11052,6 +11083,26 @@ FUNCTION idechoosecolorsbox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
+        'Color scheme selection arrows:
+        LOCATE p.y + 2, p.x + 2
+        IF mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4 THEN COLOR 15, 8 ELSE COLOR 0, 7
+        IF SchemeID <= 1 THEN COLOR 8, 7
+        PRINT " " + CHR$(17) + " ";
+        IF mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7 THEN COLOR 15, 8 ELSE COLOR 0, 7
+        IF SchemeID = LastValidColorScheme THEN COLOR 8, 7
+        PRINT " " + CHR$(16) + " ";
+
+        'Color scheme Save and Erase buttons:
+        LOCATE p.y + 2, p.x + 57
+        IF mY = p.y + 2 AND mX >= p.x + 57 AND mX <= p.x + 62 THEN COLOR 15, 8 ELSE COLOR 0, 7
+        IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN COLOR 8, 7 'Disable if preset scheme
+        PRINT " Save ";
+        IF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN COLOR 15, 8 ELSE COLOR 0, 7
+        IF SchemeID <= PresetColorSchemes THEN COLOR 8, 7 'Disable if preset scheme or unsaved user-defined
+        PRINT " Erase ";
+
+        COLOR , 7
+
         _PALETTECOLOR 1, IDEBackgroundColor, 0
         _PALETTECOLOR 6, IDEBackgroundColor2, 0
         _PALETTECOLOR 11, IDECommentColor, 0
@@ -11059,34 +11110,34 @@ FUNCTION idechoosecolorsbox
         _PALETTECOLOR 14, IDEQuoteColor, 0
         _PALETTECOLOR 13, IDETextColor, 0
 
-        LOCATE p.y + 2, p.x + 33: PRINT "R: ";
+        COLOR 0: LOCATE p.y + 5, p.x + 33: PRINT "R: ";
         COLOR 4: PRINT STRING$(26, 196);
         slider$ = CHR$(197)
         T = VAL(idetxt(o(2).txt)): r = ((T / 255) * 26)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 2, p.x + 35 + r: PRINT slider$;
+        LOCATE p.y + 5, p.x + 35 + r: PRINT slider$;
 
-        COLOR 0: LOCATE p.y + 5, p.x + 33: PRINT "G: ";
+        COLOR 0: LOCATE p.y + 8, p.x + 33: PRINT "G: ";
         COLOR 5: PRINT STRING$(26, 196);
         slider$ = CHR$(197)
         T = VAL(idetxt(o(3).txt)): r = ((T / 255) * 26)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 5, p.x + 35 + r: PRINT slider$;
+        LOCATE p.y + 8, p.x + 35 + r: PRINT slider$;
 
-        COLOR 0: LOCATE p.y + 8, p.x + 33: PRINT "B: ";
+        COLOR 0: LOCATE p.y + 11, p.x + 33: PRINT "B: ";
         COLOR 9: PRINT STRING$(26, 196);
         slider$ = CHR$(197)
         T = VAL(idetxt(o(4).txt)): r = ((T / 255) * 26)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 8, p.x + 35 + r: PRINT slider$;
+        LOCATE p.y + 11, p.x + 35 + r: PRINT slider$;
 
         COLOR 7, 1
-        LOCATE p.y + 10, p.x + 36: PRINT CHR$(218); STRING$(25, 196);
-        LOCATE p.y + 11, p.x + 36: PRINT CHR$(179); SPACE$(25);
-        LOCATE p.y + 12, p.x + 36: PRINT CHR$(179); SPACE$(25);
+        LOCATE p.y + 13, p.x + 36: PRINT CHR$(218); STRING$(25, 196);
+        LOCATE p.y + 14, p.x + 36: PRINT CHR$(179); SPACE$(25);
+        LOCATE p.y + 15, p.x + 36: PRINT CHR$(179); SPACE$(25);
 
         SELECT CASE SelectedITEM
             CASE 1: COLOR 13, 1: SampleText$ = "CLS: PRINT a$" 'Normal text
@@ -11097,10 +11148,10 @@ FUNCTION idechoosecolorsbox
             CASE 6: COLOR 6, 6: SampleText$ = SPACE$(25) 'Current line background
         END SELECT
 
-        LOCATE p.y + 11, p.x + 37: PRINT SampleText$;
+        LOCATE p.y + 14, p.x + 37: PRINT SampleText$;
         IF SelectedITEM = 2 THEN
             COLOR 13, 1
-            LOCATE p.y + 11, p.x + 37: PRINT "PRINT";
+            LOCATE p.y + 14, p.x + 37: PRINT "PRINT";
         END IF
         '-------- end of custom display changes --------
 
@@ -11117,6 +11168,7 @@ FUNCTION idechoosecolorsbox
             IF mCLICK THEN mousedown = 1: change = 1
             IF mRELEASE THEN mouseup = 1: change = 1
             IF mB THEN change = 1
+            IF mX <> prev.mX OR mY <> prev.mY THEN change = 1: prev.mX = mX: prev.mY = mY
             alt = KALT: IF alt <> oldalt THEN change = 1
             oldalt = alt
 
@@ -11196,40 +11248,212 @@ FUNCTION idechoosecolorsbox
 
         'specific post controls
         IF focus <> PrevFocus THEN
-            'Always start with RGB values selected upon getting focus
+            'Always start with RGB values AND scheme name selected upon getting focus
             PrevFocus = focus
+            IF (focus >= 2 AND focus <= 4) OR focus = 9 THEN
+                IF focus = 9 THEN tfocus = 7 ELSE tfocus = focus
+                o(tfocus).v1 = LEN(idetxt(o(tfocus).txt))
+                IF o(tfocus).v1 > 0 THEN o(tfocus).issel = -1
+                o(tfocus).sx1 = 0
+                IF (tfocus >= 2 AND tfocus <= 4) THEN prevTB.value$ = idetxt(o(tfocus).txt)
+            END IF
+        ELSEIF focus = PrevFocus THEN
+            'Check if new values have been entered into textboxes
             IF focus >= 2 AND focus <= 4 THEN
-                o(focus).v1 = LEN(idetxt(o(focus).txt))
-                IF o(focus).v1 > 0 THEN o(focus).issel = -1
-                o(focus).sx1 = 0
+                IF prevTB.value$ <> idetxt(o(focus).txt) THEN
+                    GOSUB NewUserScheme
+                    prevTB.value$ = idetxt(o(focus).txt)
+                END IF
             END IF
         END IF
 
-        IF mB AND mY = p.y + 2 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
+        'Save and Erase color scheme (Buttons):
+        IF (SchemeID = 0 OR SchemeID > PresetColorSchemes) AND mB THEN
+            IF mY = p.y + 2 AND mX >= p.x + 57 AND mX <= p.x + 62 THEN
+                'Save
+                IF SchemeID = 0 THEN
+                    SaveNew:
+                    SchemeString$ = LTRIM$(RTRIM$(idetxt(o(7).txt)))
+                    IF LEN(SchemeString$) = 0 THEN SchemeString$ = "User-defined"
+                    'Find the next free scheme index
+                    i = 0
+                    DO
+                        i = i + 1
+                        result = ReadConfigSetting("Scheme" + str2$(i) + "$", value$)
+                        IF value$ = "" OR value$ = "0" THEN EXIT DO
+                    LOOP
+
+                    'Build scheme string
+                    SchemeString$ = SchemeString$ + "|"
+                    FOR j = 1 to 6
+                        SELECT CASE j
+                            CASE 1: CurrentColor~& = IDETextColor
+                            CASE 2: CurrentColor~& = IDEQuoteColor
+                            CASE 3: CurrentColor~& = IDEMetaCommandColor
+                            CASE 4: CurrentColor~& = IDECommentColor
+                            CASE 5: CurrentColor~& = IDEBackgroundColor
+                            CASE 6: CurrentColor~& = IDEBackgroundColor2
+                        END SELECT
+
+                        r$ = str2$(_RED32(CurrentColor~&)): r$ = STRING$(3 - LEN(r$), "0") + r$
+                        g$ = str2$(_GREEN32(CurrentColor~&)): g$ = STRING$(3 - LEN(g$), "0") + g$
+                        b$ = str2$(_BLUE32(CurrentColor~&)): b$ = STRING$(3 - LEN(b$), "0") + b$
+                        SchemeString$ = SchemeString$ + r$ + g$ + b$
+                    NEXT j
+
+                    'Save user scheme
+                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", SchemeString$
+                    LoadColorSchemes
+                    SchemeID = PresetColorSchemes + i
+                    ChangedScheme = -1
+                    GOTO ApplyScheme
+                ELSE
+                    FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
+                    SchemeString$ = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+
+                    IF SchemeString$ <> LTRIM$(RTRIM$(idetxt(o(7).txt))) THEN
+                        'User wants to save the current SchemeID under a different name
+                        GOTO SaveNew
+                    END IF
+
+                    i = SchemeID - PresetColorSchemes
+                    SchemeString$ = SchemeString$ + "|"
+
+                    'Build scheme string
+                    FOR j = 1 to 6
+                        SELECT CASE j
+                            CASE 1: CurrentColor~& = IDETextColor
+                            CASE 2: CurrentColor~& = IDEQuoteColor
+                            CASE 3: CurrentColor~& = IDEMetaCommandColor
+                            CASE 4: CurrentColor~& = IDECommentColor
+                            CASE 5: CurrentColor~& = IDEBackgroundColor
+                            CASE 6: CurrentColor~& = IDEBackgroundColor2
+                        END SELECT
+
+                        r$ = str2$(_RED32(CurrentColor~&)): r$ = STRING$(3 - LEN(r$), "0") + r$
+                        g$ = str2$(_GREEN32(CurrentColor~&)): g$ = STRING$(3 - LEN(g$), "0") + g$
+                        b$ = str2$(_BLUE32(CurrentColor~&)): b$ = STRING$(3 - LEN(b$), "0") + b$
+                        SchemeString$ = SchemeString$ + r$ + g$ + b$
+                    NEXT j
+
+                    'Save user scheme
+                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", SchemeString$
+                    LoadColorSchemes
+                    SchemeID = PresetColorSchemes + i
+                    ChangedScheme = -1
+                    GOTO ApplyScheme
+                END IF
+                o(7).v1 = LEN(idetxt(o(7).txt))
+                o(7).issel = -1
+                o(7).sx1 = 0
+            ELSEIF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN
+                'Erase
+                IF SchemeID > PresetColorSchemes THEN
+                    'No confirmation will be asked;
+                    i = SchemeID - PresetColorSchemes
+                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
+                    LoadColorSchemes
+                    SchemeID = SchemeID - 1
+                    ChangedScheme = -1
+                    SchemeArrow = -1
+                    GOTO ValidateScheme
+                END IF
+            END IF
+        END IF
+
+        'Scheme selection arrows:
+        ChangedScheme = 0
+        SchemeArrow = 0
+        IF mB AND mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4 THEN
+            SchemeArrow = -1
+            IF SchemeID = 0 THEN
+                ChangedScheme = -1
+                GOTO LoadDefaultScheme
+            ELSE
+                IF SchemeID > 1 THEN SchemeID = SchemeID - 1: ChangedScheme = -1
+            END IF
+        ELSEIF mB AND mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7 THEN
+            SchemeArrow = 1
+            IF SchemeID = 0 THEN
+                ChangedScheme = -1
+                GOTO LoadDefaultScheme
+            ELSE
+                IF SchemeID < TotalColorSchemes THEN SchemeID = SchemeID + 1: ChangedScheme = -1
+            END IF
+        END IF
+
+        IF ChangedScheme THEN
+            'Validate this scheme first
+            IF SchemeArrow = 0 THEN SchemeArrow = 1
+            ValidateScheme:
+            FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
+            IF FoundPipe > 0 THEN
+                IF LEN(MID$(ColorSchemes$(SchemeID), FoundPipe + 1)) = 54 THEN
+                    a2$ = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+                ELSE
+                    SchemeID = SchemeID + SchemeArrow
+                    IF SchemeID > TotalColorSchemes THEN SchemeID = TotalColorSchemes: SchemeArrow = -1
+                    IF SchemeID < 1 THEN SchemeID = 1
+                    GOTO ValidateScheme
+                END IF
+            ELSE
+                SchemeID = SchemeID + SchemeArrow
+                IF SchemeID > TotalColorSchemes THEN SchemeID = TotalColorSchemes: SchemeArrow = -1
+                IF SchemeID < 1 THEN SchemeID = 1
+                GOTO ValidateScheme
+            END IF
+            ApplyScheme:
+            FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
+            idetxt(o(7).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+            o(7).v1 = LEN(idetxt(o(7).txt))
+            o(7).issel = -1
+            o(7).sx1 = 0
+            ColorData$ = RIGHT$(ColorSchemes$(SchemeID), 54)
+            i = 1
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDETextColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDEQuoteColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDEMetaCommandColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDECommentColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDEBackgroundColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDEBackgroundColor2 = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            _DELAY .2
+            GOTO ChangeTextBoxes
+        END IF
+
+        IF mB AND mY = p.y + 5 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
             newValue = (mX - p.x - 35) * (255 / 26)
             idetxt(o(2).txt) = str2$(newValue)
             focus = 2
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
             o(focus).sx1 = 0
+            GOSUB NewUserScheme
         END IF
 
-        IF mB AND mY = p.y + 5 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
+        IF mB AND mY = p.y + 8 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
             newValue = (mX - p.x - 35) * (255 / 26)
             idetxt(o(3).txt) = str2$(newValue)
             focus = 3
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
             o(focus).sx1 = 0
+            GOSUB NewUserScheme
         END IF
 
-        IF mB AND mY = p.y + 8 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
+        IF mB AND mY = p.y + 11 AND mX >= p.x + 35 AND mX <= p.x + 35 + 26 THEN
             newValue = (mX - p.x - 35) * (255 / 26)
             idetxt(o(4).txt) = str2$(newValue)
             focus = 4
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
             o(focus).sx1 = 0
+            GOSUB NewUserScheme
         END IF
 
         ChangedWithKeys = 0
@@ -11237,12 +11461,14 @@ FUNCTION idechoosecolorsbox
             idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) + 1)
             o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
             ChangedWithKeys = -1
+            GOSUB NewUserScheme
         END IF
 
         IF K$ = CHR$(0) + CHR$(80) AND (focus = 2 OR focus = 3 OR focus = 4) THEN 'Down
             idetxt(o(focus).txt) = str2$(VAL(idetxt(o(focus).txt)) - 1)
             o(focus).issel = -1: o(focus).sx1 = 0: o(focus).v1 = LEN(idetxt(o(focus).txt))
             ChangedWithKeys = -1
+            GOSUB NewUserScheme
         END IF
 
         IF SelectedITEM <> o(1).sel AND o(1).sel > 0 THEN
@@ -11271,6 +11497,9 @@ FUNCTION idechoosecolorsbox
             idetxt(o(2).txt) = str2$(_RED32(CurrentColor~&))
             idetxt(o(3).txt) = str2$(_GREEN32(CurrentColor~&))
             idetxt(o(4).txt) = str2$(_BLUE32(CurrentColor~&))
+            IF focus >= 2 AND focus <= 4 AND ChangedScheme THEN
+                prevTB.value$ = idetxt(o(focus).txt)
+            END IF
         END IF
 
         'Check RGB values range (0-255)
@@ -11291,6 +11520,22 @@ FUNCTION idechoosecolorsbox
             END IF
             idetxt(o(checkRGB).txt) = a$
         NEXT checkRGB
+
+        'Check for valid scheme name
+        FoundPipe = INSTR(idetxt(o(7).txt), "|")
+        IF FoundPipe > 0 THEN
+            a2$ = LEFT$(idetxt(o(7).txt), FoundPipe - 1) + MID$(idetxt(o(7).txt), FoundPipe + 1)
+            idetxt(o(7).txt) = a2$
+            IF o(7).v1 >= FoundPipe THEN o(7).v1 = o(7).v1 - 1
+        END IF
+
+        IF SchemeID > 0 THEN
+            FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
+            IF RTRIM$(LTRIM$(idetxt(o(7).txt))) <> LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1) THEN
+                'A different scheme name is the beginning of editing a new one
+                SchemeID = 0
+            END IF
+        END IF
 
         CurrentColor~& = _RGB32(VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)), VAL(idetxt(o(4).txt)))
         SELECT CASE SelectedITEM
@@ -11313,12 +11558,17 @@ FUNCTION idechoosecolorsbox
         END IF
 
         IF (focus = 7 AND info <> 0) THEN
+            LoadDefaultScheme:
             IDECommentColor = _RGB32(85, 255, 255)
             IDEMetaCommandColor = _RGB32(85, 255, 85)
             IDEQuoteColor = _RGB32(255, 255, 85)
             IDETextColor = _RGB32(255, 255, 255)
             IDEBackgroundColor = _RGB32(0, 0, 170)
             IDEBackgroundColor2 = _RGB32(0, 108, 177)
+            SchemeID = 1
+            FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
+            idetxt(o(7).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+            IF ChangedScheme THEN _DELAY .2
             info = 0
             GOTO ChangeTextBoxes
         END IF
@@ -11331,6 +11581,7 @@ FUNCTION idechoosecolorsbox
        (focus = 5 AND K$ = CHR$(13)) OR _
        (focus = 6 AND K$ = CHR$(13)) THEN
             'save changes
+            WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", str2$(SchemeID)
             FOR i = 1 TO 6
                 SELECT CASE i
                     CASE 1: CurrentColor~& = IDETextColor: colorid$ = "TextColor"
@@ -11366,6 +11617,16 @@ FUNCTION idechoosecolorsbox
         mousedown = 0
         mouseup = 0
     LOOP
+    EXIT FUNCTION
+    NewUserScheme:
+    IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN
+        'If one of the preset schemes is currently selected,
+        'create a new one. User-defined types can be freely
+        'edited.
+        SchemeID = 0
+        idetxt(o(7).txt) = "User-defined"
+    END IF
+    RETURN
 END FUNCTION
 
 
@@ -13752,6 +14013,50 @@ SUB HideBracketHighlight
         ideshowtext
         brackethighlight = -1
     END IF
+END SUB
+
+SUB LoadColorSchemes
+    'Preset built-in schemes
+    PresetColorSchemes = 6
+    REDIM ColorSchemes$(1 TO PresetColorSchemes)
+    ColorSchemes$(1) = "QB64 Default|255255255255255085085255085085255255000000170000108177"
+    ColorSchemes$(2) = "Dark blue|255255255255177000085255085085255255000000069000088128"
+    ColorSchemes$(3) = "Camouflage|255255255255177000085255085029098020000039029098069020"
+    ColorSchemes$(4) = "Classic QB4.5|177177177177177177177177177177177177000000170000000170"
+    ColorSchemes$(5) = "Light green|051051051000134179167029093098147098234255234206255206"
+    ColorSchemes$(6) = "Plum|255255255255108000085186078085128255059000059088088128"
+    TotalColorSchemes = PresetColorSchemes
+    LastValidColorScheme = TotalColorSchemes
+
+    'Load user color schemes
+    i = 0
+    DO
+        i = i + 1
+        result = ReadConfigSetting("Scheme" + str2$(i) + "$", value$)
+        IF result THEN
+            TotalColorSchemes = TotalColorSchemes + 1
+            IF TotalColorSchemes > UBOUND(ColorSchemes$) THEN
+                REDIM _PRESERVE ColorSchemes$(1 TO UBOUND(ColorSchemes$) + 10)
+            END IF
+            ColorSchemes$(TotalColorSchemes) = value$
+            FoundPipe = INSTR(value$, "|")
+            IF FoundPipe > 0 THEN
+                IF LEN(MID$(value$, FoundPipe + 1)) = 54 THEN
+                    LastValidColorScheme = TotalColorSchemes
+                ELSE
+                    GOTO DiscardInvalid
+                END IF
+            ELSE
+                DiscardInvalid:
+                ColorSchemes$(TotalColorSchemes) = "0"
+                WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
+            END IF
+        ELSE
+            'No more schemes found
+            EXIT DO
+        END IF
+    LOOP
+    'End of color schemes
 END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'

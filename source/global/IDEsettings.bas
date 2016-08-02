@@ -325,6 +325,7 @@ IF LoadedIDESettings = 0 THEN
             IF INSTR(_OS$, "WIN") THEN WriteConfigSetting "'[GENERAL SETTINGS]", "AllowIndependentSettings", "FALSE"
             WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
             WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+            WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", "1"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "CommentColor", "_RGB32(85,255,255)"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "MetaCommandColor", "_RGB32(85,255,85)"
