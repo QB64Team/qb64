@@ -189,6 +189,12 @@ free((void*)(__ARRAY_LONG_MENUSIZE[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_MENUSIZE)[8] );
+if (__ARRAY_STRING_COLORSCHEMES[2]&1){
+tmp_long=__ARRAY_STRING_COLORSCHEMES[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_COLORSCHEMES[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_COLORSCHEMES[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_COLORSCHEMES)[8] );
 qbs_free(__STRING_MENUBAR);
 qbs_free(__STRING_IDECONTEXTUALSEARCH);
 qbs_free(__STRING_IDECUSTOMFONTFILE);
