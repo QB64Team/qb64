@@ -393,8 +393,6 @@ extern void lprint_makefit(qbs *text);
 extern void tab();
 extern void qbs_print(qbs* str,int32 finish_on_new_line);
 extern void qbs_lprint(qbs* str,int32 finish_on_new_line);
-extern long double qbs_cleanup(uint32 base,long double passvalue);
-extern int32 qbs_cleanup(uint32 base,int32 passvalue);
 extern void qbg_sub_window(float x1,float y1,float x2,float y2,int32 passed);
 extern void qbg_sub_view_print(int32 topline,int32 bottomline,int32 passed);
 extern void qbg_sub_view(int32 x1,int32 y1,int32 x2,int32 y2,int32 fillcolor,int32 bordercolor,int32 passed);
@@ -780,6 +778,11 @@ c=*a8;
 *a8++=*b8;
 *b8++=c;
 }
+}
+extern ptrszint *qbs_tmp_list;
+template <typename T> static T qbs_cleanup(uint32 base,T passvalue){ 
+      while (qbs_tmp_list_nexti>base) { qbs_tmp_list_nexti--; if(qbs_tmp_list[qbs_tmp_list_nexti]!=-1)qbs_free((qbs*)qbs_tmp_list[qbs_tmp_list_nexti]); }//clear any temp. strings created
+            return passvalue;
 }
 
 //CSNG
