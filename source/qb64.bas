@@ -12983,7 +12983,7 @@ FUNCTION allocarray (n2$, elements$, elementsize)
 
     IF autoary = 0 THEN
         IF dimoption = 3 THEN 'STATIC a(100) puts creation code in main
-            fh = FREEFILE: OPEN tmpdir$ + "maindata.txt" FOR APPEND AS #fh: PRINT #fh, f12$: CLOSE #fh
+            PRINT #13, f12$
         ELSE
             PRINT #12, f12$
         END IF
