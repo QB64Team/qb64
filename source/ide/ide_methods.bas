@@ -1,8 +1,8 @@
 FUNCTION ide (ignore)
     'Note: ide is a function which optimizes the interaction between the IDE and compiler (ide2)
     '      by avoiding unnecessary bloat associated with entering the main IDE function 'ide2'
-
-    IF ASC(idecommand$) = 3 THEN 'request next line (compiler->ide)
+    IF idecommand$ <> "" THEN cmd = ASC(idecommand$)
+    IF cmd = 3 THEN 'request next line (compiler->ide)
         IF idecompiledline < iden THEN
             IF idecompiledline < idesy OR idecompiledline > idesy + (idewy - 9) THEN 'off screen?
                 IF _EXIT AND 1 THEN ideexit = 1
