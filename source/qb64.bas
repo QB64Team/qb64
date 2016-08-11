@@ -17735,8 +17735,9 @@ FUNCTION fixoperationorder$ (savea$)
             IF pownegused THEN
                 b = 0
                 i = 0
-                DO WHILE i <= n
+                DO
                     i = i + 1
+                    IF i > n THEN EXIT DO
                     c = ASC(getelement(a$, i))
                     IF c = 41 OR c = 125 THEN b = b - 1
                     IF (c = 123 OR c = 125) AND b <> 0 THEN
