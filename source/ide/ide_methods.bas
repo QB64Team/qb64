@@ -7635,29 +7635,34 @@ SUB ideshowtext
     idecy_multilinestart = 0
     idecy_multilineend = 0
     a$ = idegetline(idecy)
-    IF RIGHT$(a$, 1) = "_" THEN
+    findquotecomment$ = a$: GOSUB FindQuoteComment
+    IF RIGHT$(a$, 1) = "_" AND ideshowtext_comment = 0 THEN
         'Find the beginning of the multiline
         FOR idecy_i = idecy - 1 TO 1 STEP -1
             b$ = idegetline(idecy_i)
-            IF RIGHT$(b$, 1) <> "_" THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
+            findquotecomment$ = b$: GOSUB FindQuoteComment
+            IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
         NEXT
         IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
 
         'Find the end of the multiline
         FOR idecy_i = idecy + 1 TO iden
             b$ = idegetline(idecy_i)
-            IF RIGHT$(b$, 1) <> "_" THEN idecy_multilineend = idecy_i: EXIT FOR
+            findquotecomment$ = b$: GOSUB FindQuoteComment
+            IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilineend = idecy_i: EXIT FOR
         NEXT
         IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
     ELSE
         IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
-        IF RIGHT$(b$, 1) = "_" THEN
+        findquotecomment$ = b$: GOSUB FindQuoteComment
+        IF RIGHT$(b$, 1) = "_" AND ideshowtext_comment = 0 THEN
             idecy_multilineend = idecy
 
             'Find the beginning of the multiline
             FOR idecy_i = idecy - 1 TO 1 STEP -1
                 b$ = idegetline(idecy_i)
-                IF RIGHT$(b$, 1) <> "_" THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
+                findquotecomment$ = b$: GOSUB FindQuoteComment
+                IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
             NEXT
             IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
         END IF
@@ -7689,16 +7694,9 @@ SUB ideshowtext
 
                 'Check if the cursor is positioned inside a comment or
                 'quotation marks:
-                idecx_comment = 0
-                idecx_quote = 0
-                FOR k = 1 TO idecx
-                    SELECT CASE MID$(a$, k, 1)
-                        CASE CHR$(34)
-                            idecx_quote = NOT idecx_quote
-                        CASE "'"
-                            IF idecx_quote = 0 THEN idecx_comment = -1: EXIT FOR
-                    END SELECT
-                NEXT k
+                findquotecomment$ = LEFT$(a$, idecx): GOSUB FindQuoteComment
+                idecx_comment = ideshowtext_comment
+                idecx_quote = ideshowtext_quote
 
                 'Check if we're on a bracket, to highlight it and its match
                 brackets = 0
@@ -7925,6 +7923,16 @@ SUB ideshowtext
 
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, idecx - idesx + 2: SCREEN , , 3, 0
 
+    EXIT SUB
+    FindQuoteComment:
+    ideshowtext_comment = 0: ideshowtext_quote = 0
+    FOR ideshowtext_k = 1 TO LEN(findquotecomment$)
+        SELECT CASE MID$(findquotecomment$, ideshowtext_k, 1)
+            CASE CHR$(34): ideshowtext_quote = NOT ideshowtext_quote
+            CASE "'": IF ideshowtext_quote = 0 THEN ideshowtext_comment = -1: EXIT FOR
+        END SELECT
+    NEXT ideshowtext_k
+    RETURN
 END SUB
 
 FUNCTION idesubs$
