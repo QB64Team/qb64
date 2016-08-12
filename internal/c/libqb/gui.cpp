@@ -1916,18 +1916,9 @@ if (src_hardware_img->source_state.PO2_fix){
 
 
 
-  void GLUT_MouseButton_Up(int glut_button,int x,int y){
+  void GLUT_MouseButton_Up(int button,int x,int y){
 #ifdef QB64_GLUT
-
     int32 i;
-    int32 button;
-    button=1;//default
-    if (glut_button==GLUT_LEFT_BUTTON) button=1;
-    if (glut_button==GLUT_RIGHT_BUTTON) button=3;
-    if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==4) button=4;
-    if (glut_button==5) button=5;
-
     int32 handle;
     handle=mouse_message_queue_first;
     mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
@@ -1961,18 +1952,10 @@ if (src_hardware_img->source_state.PO2_fix){
 #endif
   }
 
-  void GLUT_MouseButton_Down(int glut_button,int x,int y){
+  void GLUT_MouseButton_Down(int button,int x,int y){
 #ifdef QB64_GLUT
 
     int32 i;
-    int32 button;
-    button=1;//default
-    if (glut_button==GLUT_LEFT_BUTTON) button=1;
-    if (glut_button==GLUT_RIGHT_BUTTON) button=3;
-    if (glut_button==GLUT_MIDDLE_BUTTON) button=2;
-    if (glut_button==4) button=4;
-    if (glut_button==5) button=5;
-
     int32 handle;
     handle=mouse_message_queue_first;
     mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
@@ -2026,8 +2009,8 @@ if (src_hardware_img->source_state.PO2_fix){
 
   void GLUT_MOUSE_FUNC(int glut_button,int state,int x,int y){
 #ifdef QB64_GLUT
-    if (state==GLUT_DOWN) GLUT_MouseButton_Down(glut_button,x,y);
-    if (state==GLUT_UP) GLUT_MouseButton_Up(glut_button,x,y);
+    if (state==GLUT_DOWN) GLUT_MouseButton_Down(glut_button + 1,x,y);
+    if (state==GLUT_UP) GLUT_MouseButton_Up(glut_button + 1,x,y);
 #endif
   }
 
