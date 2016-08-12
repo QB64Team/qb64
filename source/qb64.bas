@@ -12260,6 +12260,24 @@ E = 1
 RESUME NEXT
 
 qberror:
+IF Debug THEN 'A more in-your-face error handler
+    _AUTODISPLAY
+    SCREEN _NEWIMAGE(80, 25, 0), , 0, 0
+    COLOR 7, 0
+    _CONTROLCHR OFF
+    PRINT "A QB error has occurred (and you have compiled in debugging support)."
+    PRINT "Some key information:"
+    PRINT "Error"; ERR
+    PRINT "Line"; _ERRORLINE
+    IF _INCLERRORLINE THEN
+        PRINT "Included line"; _INCLERRORLINE
+        PRINT "Included file "; _INCLERRORFILE$
+    END IF
+    PRINT "ideerror ="; ideerror; "qberrorhappened ="; qberrorhappened; "qberrorhappenedvalue ="; qberrorhappenedvalue; "linenumber ="; linenumber
+    PRINT "ca$ = {"; ca$; "}, idecommand$ = {"; idecommand$; "}"
+    PRINT "linefragment = {"; linefragment; "}"
+    END
+END IF
 
 IF ideerror THEN 'error happened inside the IDE
     fh = FREEFILE
