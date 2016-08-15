@@ -1116,7 +1116,7 @@ IF C = 9 THEN 'run
     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
     IF idemode THEN
         'Darken fg/bg colors
-        DarkenFGBG -1
+        dummy = DarkenFGBG(1)
         COLOR 5
     END IF
     LOCATE idewy - 3, 2: PRINT "Starting program...";
@@ -1140,7 +1140,7 @@ IF C = 9 THEN 'run
 
     IF idemode THEN
         'Darken fg/bg colors
-        DarkenFGBG 0
+        dummy = DarkenFGBG(0)
     END IF
 
     sendc$ = CHR$(6) 'ready
@@ -11915,7 +11915,7 @@ IF os$ = "WIN" THEN
         CHDIR "..\.."
         IF idemode THEN
             'Restore fg/bg colors
-            DarkenFGBG 0
+            dummy = DarkenFGBG(0)
         END IF
     END IF 'No_C_Compile_Mode=0
 
@@ -12203,7 +12203,7 @@ IF os$ = "LNX" THEN
         CHDIR "../.."
         IF idemode THEN
             'Restore fg/bg colors
-            DarkenFGBG 0
+            dummy = DarkenFGBG(0)
         END IF
     END IF
 

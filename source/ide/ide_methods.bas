@@ -187,7 +187,7 @@ FUNCTION ide2 (ignore)
         COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
         LOCATE idewy - 3, 2
 
-        DarkenFGBG -1
+        dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
         COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
         COLOR 5, 1
@@ -1345,13 +1345,13 @@ FUNCTION ide2 (ignore)
                         GOTO specialchar
                     END IF
 
-                    DarkenFGBG -1
+                    dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
                     COLOR 5, 1
                     LOCATE idewy - 3, 2: PRINT "Starting program...";
                 ELSE
-                    DarkenFGBG -1
+                    dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
                     COLOR 5, 1
@@ -13984,10 +13984,10 @@ SUB UpdateIdeInfo
     PCOPY 3, 0
 END SUB
 
-SUB DarkenFGBG (Action AS _BYTE)
+FUNCTION DarkenFGBG (Action AS _BYTE)
     'Darken the interface while compilation is taking place,
     'to give a sense of temporary unavailability:
-    IF Action = -1 THEN
+    IF Action = 1 THEN
         TempDarkerBGColor~& = _RGB32(_RED32(IDEBackgroundColor) * .5, _GREEN32(IDEBackgroundColor) * .5, _BLUE32(IDEBackgroundColor) * .5)
         TempDarkerBG2Color~& = _RGB32(_RED32(IDEBackgroundColor2) * .5, _GREEN32(IDEBackgroundColor2) * .5, _BLUE32(IDEBackgroundColor2) * .5)
         TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
