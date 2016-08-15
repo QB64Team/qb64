@@ -2587,6 +2587,10 @@ byte_element_struct *byte_element_46=NULL;
 if (!byte_element_46){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_46=(byte_element_struct*)(mem_static_pointer-12); else byte_element_46=(byte_element_struct*)mem_static_malloc(12);
 }
+if(__LONG_DUMMY==NULL){
+__LONG_DUMMY=(int32*)mem_static_malloc(4);
+*__LONG_DUMMY=0;
+}
 int8 pass50;
 int8 pass54;
 if (!__STRING_CURRENTDIR)__STRING_CURRENTDIR=qbs_new(0,0);
