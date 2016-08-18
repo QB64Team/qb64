@@ -111,6 +111,8 @@ IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED CMDLineFile AS STRING
 
+DIM SHARED ExeIconSet AS LONG
+
 DIM SHARED NoChecks
 
 DIM SHARED Console
@@ -1443,6 +1445,7 @@ addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
 optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
+ExeIconSet = 0
 DataOffset = 0
 statementn = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
@@ -3186,8 +3189,70 @@ DO
             GOTO finishednonexec
         END IF
 
+        IF LEFT$(a3u$, 8) = "$EXEICON" THEN
+            IF INSTR(_OS$, "WIN") THEN
+                IF ExeIconSet THEN a$ = "$EXEICON already defined": GOTO errmes
+                FirstDelimiter = INSTR(a3u$, "'")
+                IF FirstDelimiter = 0 THEN
+                    a$ = "Expected $EXEICON:'filename'": GOTO errmes
+                ELSE
+                    SecondDelimiter = INSTR(FirstDelimiter + 1, a3u$, "'")
+                    IF SecondDelimiter = 0 THEN a$ = "Expected $EXEICON:'filename'": GOTO errmes
+                END IF
+                ExeIconFile$ = RTRIM$(LTRIM$(MID$(a3$, FirstDelimiter + 1, SecondDelimiter - FirstDelimiter - 1)))
+                IF LEN(ExeIconFile$) = 0 THEN a$ = "Expected $EXEICON:'filename'": GOTO errmes
+                layout$ = "$EXEICON:'" + ExeIconFile$ + "'" + MID$(a3$, SecondDelimiter + 1)
 
+                'Expand relative path to full path:
+                IconPath$ = ""
+                IF LEFT$(ExeIconFile$, 2) = "./" OR LEFT$(ExeIconFile$, 2) = ".\" THEN
+                    'Relative to source file's folder
+                    IF NoIDEMode THEN
+                        IconPath$ = path.source$
+                        IF LEN(IconPath$) > 0 AND RIGHT$(IconPath$, 1) <> pathsep$ THEN IconPath$ = IconPath$ + pathsep$
+                    ELSE
+                        IF LEN(ideprogname) THEN IconPath$ = idepath$ + pathsep$
+                    END IF
+                    ExeIconFile$ = IconPath$ + MID$(ExeIconFile$, 3)
+                ELSEIF INSTR(ExeIconFile$, "/") OR INSTR(ExeIconFile$, "\") THEN
+                    FOR i = LEN(ExeIconFile$) TO 1 STEP -1
+                        IF MID$(ExeIconFile$, i, 1) = "/" OR MID$(ExeIconFile$, i, 1) = "\" THEN
+                            IconPath$ = LEFT$(ExeIconFile$, i)
+                            ExeIconFile$ = MID$(ExeIconFile$, i + 1)
+                            IF _DIREXISTS(IconPath$) = 0 THEN a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
+                            currentdir$ = _CWD$
+                            CHDIR IconPath$
+                            IconPath$ = _CWD$
+                            CHDIR currentdir$
+                            ExeIconFile$ = IconPath$ + pathsep$ + ExeIconFile$
+                            EXIT FOR
+                        END IF
+                    NEXT
+                END IF
 
+                IF _FILEEXISTS(ExeIconFile$) = 0 THEN
+                    IF LEN(IconPath$) THEN
+                        a$ = "File '" + MID$(ExeIconFile$, LEN(IconPath$) + 2) + "' not found": GOTO errmes
+                    ELSE
+                        a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
+                    END IF
+                ELSE
+                    iconfilehandle = FREEFILE
+                    E = 0
+                    ON ERROR GOTO qberror_test
+                    OPEN tmpdir$ + "icon.rc" FOR OUTPUT AS #iconfilehandle
+                    PRINT #iconfilehandle, "0 ICON " + QuotedFilename$(StrReplace$(ExeIconFile$, "\", "/"))
+                    CLOSE #iconfilehandle
+                    IF E = 1 THEN a$ = "Error creating icon resource file": GOTO errmes
+                    ON ERROR GOTO qberror
+
+                    ExeIconSet = linenumber
+                END IF
+            ELSE
+                a$ = "Feature not available (Windows only)": GOTO errmes
+            END IF
+            GOTO finishednonexec
+        END IF
 
     END IF 'QB64 Metacommands
 
@@ -11423,6 +11488,29 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
 END IF
 
 
+IF os$ = "WIN" THEN
+    'Prepare to embed icon into .EXE
+    IF ExeIconSet THEN
+        linenumber = ExeIconSet 'on error, this allows reporting the linenumber where $EXEICON was used
+        wholeline = " $EXEICON:'" + ExeIconFile$ + "'"
+        IF _FILEEXISTS(tmpdir$ + "icon.o") THEN
+            E = 0
+            ON ERROR GOTO qberror_test
+            KILL tmpdir$ + "icon.o"
+            IF E = 1 OR _FILEEXISTS(tmpdir$ + "icon.o") = -1 THEN a$ = "Error creating icon resource file": GOTO errmes
+            ON ERROR GOTO qberror
+        END IF
+        ffh = FREEFILE
+        OPEN tmpdir$ + "call_windres.bat" FOR OUTPUT AS #ffh
+        PRINT #ffh, "internal\c\c_compiler\bin\windres.exe -i " + tmpdir$ + "icon.rc -o " + tmpdir$ + "icon.o"
+        CLOSE #ffh
+        SHELL _HIDE tmpdir$ + "call_windres.bat"
+        IF _FILEEXISTS(tmpdir$ + "icon.o") = 0 THEN
+            a$ = "Error creating icon resource file": GOTO errmes
+        END IF
+    END IF
+END IF
+
 'Update dependencies
 
 o$ = LCASE$(os$)
@@ -11881,6 +11969,13 @@ IF os$ = "WIN" THEN
         a$ = LEFT$(a$, x - 1) + libqb$ + RIGHT$(a$, LEN(a$) - x + 1)
     END IF
 
+    'Add icon.o to the makeline
+    IF ExeIconSet THEN
+        IF x THEN 'Use the previous libqb insertion point
+            a$ = LEFT$(a$, x + LEN(libqb$)) + "..\..\" + tmpdir$ + "icon.o " + MID$(a$, x + LEN(libqb$) + 1)
+        END IF
+    END IF
+
     a$ = a$ + QuotedFilename$(path.exe$ + file$ + extension$)
 
     ffh = FREEFILE
@@ -12261,18 +12356,24 @@ RESUME NEXT
 
 qberror:
 IF Debug THEN 'A more in-your-face error handler
-    _AUTODISPLAY
-    SCREEN _NEWIMAGE(80, 25, 0), , 0, 0
-    COLOR 7, 0
+    IF ConsoleMode THEN
+        PRINT
+    ELSE
+        _AUTODISPLAY
+        SCREEN _NEWIMAGE(80, 25, 0), , 0, 0
+        COLOR 7, 0
+    END IF
     _CONTROLCHR OFF
     PRINT "A QB error has occurred (and you have compiled in debugging support)."
-    PRINT "Some key information:"
+    PRINT "Some key information (qb64.bas):"
     PRINT "Error"; ERR
     PRINT "Line"; _ERRORLINE
     IF _INCLERRORLINE THEN
         PRINT "Included line"; _INCLERRORLINE
         PRINT "Included file "; _INCLERRORFILE$
     END IF
+    PRINT
+    PRINT "Loaded source file details:"
     PRINT "ideerror ="; ideerror; "qberrorhappened ="; qberrorhappened; "qberrorhappenedvalue ="; qberrorhappenedvalue; "linenumber ="; linenumber
     PRINT "ca$ = {"; ca$; "}, idecommand$ = {"; idecommand$; "}"
     PRINT "linefragment = {"; linefragment; "}"

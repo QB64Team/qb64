@@ -22342,6 +22342,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 #ifdef DEPENDENCY_ICON
   void sub__icon(int32 handle_icon, int32 handle_window_icon, int32 passed){
+    static HANDLE ExeIcon;
 
     if (new_error) return;
 
@@ -22375,6 +22376,15 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 #ifdef QB64_WINDOWS
       while (!window_handle){Sleep(100);}
 
+      //Attempt to load the first icon embedded in the .exe
+      if (!ExeIcon) ExeIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(0), IMAGE_ICON,32, 32, 0);
+
+	  //If we have an embedded icon, we'll use it instead of QB64's default
+	  if (!(passed&1) && (ExeIcon)) {
+		  SendMessage( window_handle, WM_SETICON, ICON_SMALL, (LPARAM)ExeIcon );
+		  SendMessage( window_handle, WM_SETICON, ICON_BIG,   (LPARAM)ExeIcon );
+		  return;
+	  }
       for (ii=1;ii<=2;ii++){
 
     if (ii==1){i=handle_icon; w=GetSystemMetrics(SM_CXICON); h=GetSystemMetrics(SM_CYICON);}

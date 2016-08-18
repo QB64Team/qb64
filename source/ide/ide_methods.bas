@@ -185,13 +185,13 @@ FUNCTION ide2 (ignore)
         f$ = RIGHT$(c$, LEN(c$) - 1)
         LOCATE , , 0
         COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-        LOCATE idewy - 3, 2
 
         dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
         COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
         COLOR 5, 1
 
+        LOCATE idewy - 3, 2
         IF os$ = "LNX" THEN
             PRINT "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
         ELSE
