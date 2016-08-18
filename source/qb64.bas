@@ -3190,19 +3190,21 @@ DO
         END IF
 
         IF LEFT$(a3u$, 8) = "$EXEICON" THEN
-            IF INSTR(_OS$, "WIN") THEN
-                IF ExeIconSet THEN a$ = "$EXEICON already defined": GOTO errmes
-                FirstDelimiter = INSTR(a3u$, "'")
-                IF FirstDelimiter = 0 THEN
-                    a$ = "Expected $EXEICON:'filename'": GOTO errmes
-                ELSE
-                    SecondDelimiter = INSTR(FirstDelimiter + 1, a3u$, "'")
-                    IF SecondDelimiter = 0 THEN a$ = "Expected $EXEICON:'filename'": GOTO errmes
-                END IF
-                ExeIconFile$ = RTRIM$(LTRIM$(MID$(a3$, FirstDelimiter + 1, SecondDelimiter - FirstDelimiter - 1)))
-                IF LEN(ExeIconFile$) = 0 THEN a$ = "Expected $EXEICON:'filename'": GOTO errmes
-                layout$ = "$EXEICON:'" + ExeIconFile$ + "'" + MID$(a3$, SecondDelimiter + 1)
+            'Basic syntax check. Multi-platform.
+            IF ExeIconSet THEN a$ = "$EXEICON already defined": GOTO errmes
+            FirstDelimiter = INSTR(a3u$, "'")
+            IF FirstDelimiter = 0 THEN
+                a$ = "Expected $EXEICON:'filename'": GOTO errmes
+            ELSE
+                SecondDelimiter = INSTR(FirstDelimiter + 1, a3u$, "'")
+                IF SecondDelimiter = 0 THEN a$ = "Expected $EXEICON:'filename'": GOTO errmes
+            END IF
+            ExeIconFile$ = RTRIM$(LTRIM$(MID$(a3$, FirstDelimiter + 1, SecondDelimiter - FirstDelimiter - 1)))
+            IF LEN(ExeIconFile$) = 0 THEN a$ = "Expected $EXEICON:'filename'": GOTO errmes
+            layout$ = "$EXEICON:'" + ExeIconFile$ + "'" + MID$(a3$, SecondDelimiter + 1)
 
+            IF INSTR(_OS$, "WIN") THEN
+                'Actual metacommand processing. Windows only.
                 'Expand relative path to full path:
                 IconPath$ = ""
                 IF LEFT$(ExeIconFile$, 2) = "./" OR LEFT$(ExeIconFile$, 2) = ".\" THEN
@@ -3245,12 +3247,10 @@ DO
                     CLOSE #iconfilehandle
                     IF E = 1 THEN a$ = "Error creating icon resource file": GOTO errmes
                     ON ERROR GOTO qberror
-
-                    ExeIconSet = linenumber
                 END IF
-            ELSE
-                a$ = "Feature not available (Windows only)": GOTO errmes
             END IF
+
+            ExeIconSet = linenumber
             GOTO finishednonexec
         END IF
 
@@ -11506,7 +11506,7 @@ IF os$ = "WIN" THEN
         CLOSE #ffh
         SHELL _HIDE tmpdir$ + "call_windres.bat"
         IF _FILEEXISTS(tmpdir$ + "icon.o") = 0 THEN
-            a$ = "Error creating icon resource file": GOTO errmes
+            a$ = "Bad icon file": GOTO errmes
         END IF
     END IF
 END IF
