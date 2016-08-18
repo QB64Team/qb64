@@ -22342,7 +22342,6 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 #ifdef DEPENDENCY_ICON
   void sub__icon(int32 handle_icon, int32 handle_window_icon, int32 passed){
-    static HANDLE ExeIcon;
 
     if (new_error) return;
 
@@ -22375,6 +22374,8 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
 #ifdef QB64_WINDOWS
       while (!window_handle){Sleep(100);}
+
+      static HANDLE ExeIcon;
 
       //Attempt to load the first icon embedded in the .exe
       if (!ExeIcon) ExeIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(0), IMAGE_ICON,32, 32, 0);
