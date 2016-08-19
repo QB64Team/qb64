@@ -131,6 +131,7 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selecty1, wholeword.idecy
 
     CONST idesystem2.w = 20
+    char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
 
     c$ = idecommand$
 
@@ -2429,7 +2430,6 @@ FUNCTION ide2 (ignore)
 
         IF KALT AND KB >= 48 AND KB <= 57 THEN GOTO specialchar ' Steve Edit on 07-04-2014 to add support for ALT-numkey combos to produce ASCII codes
 
-        char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
         IF ideselect = 1 AND wholeword.select < 0 AND mY = old.mY THEN
             'Mouse button has been held down since the last double-click word selection
             'and the user has moved the mouse only horizontally. Attempt to keep
@@ -3277,7 +3277,7 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF KB = KEY_DELETE THEN
+        IF KB = KEY_DELETE AND KCONTROL = 0 THEN
             idechangemade = 1
             a$ = idegetline(idecy)
             IF idecx <= LEN(a$) THEN
@@ -3285,14 +3285,76 @@ FUNCTION ide2 (ignore)
                 idesetline idecy, a$
             ELSE
                 a$ = a$ + SPACE$(idecx - LEN(a$) - 1)
-                a$ = a$ + idegetline(idecy + 1)
+                a$ = a$ + LTRIM$(idegetline(idecy + 1))
                 idesetline idecy, a$
                 idedelline idecy + 1
             END IF
             GOTO specialchar
         END IF
 
-        IF K$ = CHR$(8) THEN
+        'Ctrl+Backspace erases a word at a time
+        'In Windows it's currently reported as Control+Delete;
+        'In Mac it's properly delivered as Control+Backspace.
+        'Key combo not yet supported in Linux.
+        IF (INSTR(_OS$, "WIN") > 0 AND KCONTROL AND K$ = CHR$(0) + CHR$(83)) OR _
+            (INSTR(_OS$, "MAC") > 0 AND K$ = CHR$(8) AND KCONTROL) THEN
+            ideselect = 0
+            idechangemade = 1
+
+            'undocombos
+            IF ideundocombochr <> 8 THEN
+                ideundocombo = 2
+            ELSE
+                ideundocombo = ideundocombo + 1
+                IF ideundocombo = 2 THEN idemergeundo = 1
+            END IF
+            ideundocombochr = 8
+
+            'Attempt to go back erasing a "word" at a time
+            a$ = idegetline(idecy)
+            IF idecx = 1 THEN GOTO RegularBackspaceIdecx1
+            IF idecx > LEN(a$) + 2 THEN
+                idecx = LEN(a$) + 1
+                GOTO specialchar
+            ELSEIF idecx = LEN(a$) + 2 THEN
+                idecx = LEN(a$) + 1
+            END IF
+
+            IF LEN(RTRIM$(MID$(a$, 1, idecx - 1))) = 0 THEN
+                'Erase all spaces behind at once if no text before the cursor
+                a$ = MID$(a$, idecx)
+                idesetline idecy, a$
+                idecx = 1
+                GOTO specialchar
+            END IF
+
+            'Go back in a$ and find the first non blank char
+            i = idecx
+            DO
+                i = i - 1
+                FirstChar$ = MID$(a$, i, 1)
+                IF FirstChar$ <> CHR$(32) THEN EXIT DO
+            LOOP
+            IF INSTR(char.sep$, FirstChar$) THEN
+                DO
+                    IF i = 0 THEN EXIT DO
+                    IF MID$(a$, i, 1) <> FirstChar$ THEN EXIT DO
+                    i = i - 1
+                LOOP
+            ELSE
+                DO
+                    IF i = 0 THEN EXIT DO
+                    i = i - 1
+                    IF INSTR(char.sep$, MID$(a$, i, 1)) THEN EXIT DO
+                LOOP
+            END IF
+            a$ = LEFT$(a$, i) + MID$(a$, idecx)
+            idecx = i + 1
+            idesetline idecy, a$
+            GOTO specialchar
+        END IF
+
+        IF K$ = CHR$(8) THEN 'Regular Backspace
             ideselect = 0
             idechangemade = 1
 
@@ -3307,6 +3369,7 @@ FUNCTION ide2 (ignore)
 
             a$ = idegetline(idecy)
             IF idecx = 1 THEN
+                RegularBackspaceIdecx1:
                 IF idecy > 1 THEN
                     a2$ = idegetline(idecy - 1)
                     IF LEN(a2$) > 0 THEN
@@ -3335,11 +3398,7 @@ FUNCTION ide2 (ignore)
                 GOTO specialchar
             END IF
             IF idecx > LEN(a$) + 1 THEN
-                IF LEN(LTRIM$(RTRIM$(a$))) > 0 THEN
-                    idecx = LEN(a$) + 1
-                ELSE
-                    GOTO CheckSpacesBehind
-                END IF
+                idecx = LEN(a$) + 1
             ELSE
                 CheckSpacesBehind:
                 IF LEN(RTRIM$(MID$(a$, 1, idecx - 1))) = 0 THEN
