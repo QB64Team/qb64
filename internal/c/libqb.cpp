@@ -22376,14 +22376,20 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
       while (!window_handle){Sleep(100);}
 
       static HANDLE ExeIcon;
+      static HANDLE ExeIcon16;
 
       //Attempt to load the first icon embedded in the .exe
       if (!ExeIcon) ExeIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(0), IMAGE_ICON,32, 32, 0);
+      if (!ExeIcon16) ExeIcon16 = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(0), IMAGE_ICON,16, 16, 0);
 
-	  //If we have an embedded icon, we'll use it instead of QB64's default
-	  if (!(passed&1) && (ExeIcon)) {
-		  SendMessage( window_handle, WM_SETICON, ICON_SMALL, (LPARAM)ExeIcon );
-		  SendMessage( window_handle, WM_SETICON, ICON_BIG,   (LPARAM)ExeIcon );
+      //If we have an embedded icon, we'll use it instead of QB64's default
+      if (!(passed&1) && (ExeIcon)) {
+          SendMessage( window_handle, WM_SETICON, ICON_BIG,   (LPARAM)ExeIcon );
+
+          if (ExeIcon16) {
+              SendMessage( window_handle, WM_SETICON, ICON_SMALL, (LPARAM)ExeIcon16 ); }
+          else {
+              SendMessage( window_handle, WM_SETICON, ICON_SMALL, (LPARAM)ExeIcon ); }
 		  return;
 	  }
       for (ii=1;ii<=2;ii++){
