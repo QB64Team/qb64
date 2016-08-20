@@ -3,13 +3,13 @@ if(_FUNC_IDENEWTXT_LONG_IDENEWTXT==NULL){
 _FUNC_IDENEWTXT_LONG_IDENEWTXT=(int32*)mem_static_malloc(4);
 *_FUNC_IDENEWTXT_LONG_IDENEWTXT=0;
 }
-qbs*oldstr4542=NULL;
+qbs*oldstr4544=NULL;
 if(_FUNC_IDENEWTXT_STRING_A->tmp||_FUNC_IDENEWTXT_STRING_A->fixed||_FUNC_IDENEWTXT_STRING_A->readonly){
-oldstr4542=_FUNC_IDENEWTXT_STRING_A;
-if (oldstr4542->cmem_descriptor){
-_FUNC_IDENEWTXT_STRING_A=qbs_new_cmem(oldstr4542->len,0);
+oldstr4544=_FUNC_IDENEWTXT_STRING_A;
+if (oldstr4544->cmem_descriptor){
+_FUNC_IDENEWTXT_STRING_A=qbs_new_cmem(oldstr4544->len,0);
 }else{
-_FUNC_IDENEWTXT_STRING_A=qbs_new(oldstr4542->len,0);
+_FUNC_IDENEWTXT_STRING_A=qbs_new(oldstr4544->len,0);
 }
-memcpy(_FUNC_IDENEWTXT_STRING_A->chr,oldstr4542->chr,oldstr4542->len);
+memcpy(_FUNC_IDENEWTXT_STRING_A->chr,oldstr4544->chr,oldstr4544->len);
 }
