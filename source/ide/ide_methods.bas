@@ -2252,7 +2252,9 @@ FUNCTION ide2 (ignore)
             'identify word or character at current cursor position
             a$ = idegetline(idecy)
             x = idecx
+            IF LEN(a$) > 0 AND x = LEN(a$) + 1 THEN x = x - 1
             IF x <= LEN(a$) THEN
+                IF MID$(a$, x, 1) = " " OR MID$(a$, x, 1) = "(" THEN x = x - 1
                 IF alphanumeric(ASC(a$, x)) THEN
                     x1 = x
                     DO WHILE x1 > 1
