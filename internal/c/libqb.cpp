@@ -19824,6 +19824,7 @@ void sub_mkdir(qbs *str){
   }
 
   void sub__mousemove(float x,float y){
+#ifdef QB64_GLUT
     int32 x2,y2,sx,sy;
     if (display_page->text){
       sx=fontwidth[display_page->font]*display_page->width; sy=fontheight[display_page->font]*display_page->height;
@@ -19850,10 +19851,12 @@ void sub_mkdir(qbs *str){
     //adjust for fullscreen position as necessary:
     x2*=x_scale; y2*=y_scale;
     x2+=x_offset; y2+=y_offset;
-    //NO_S_D_L//SDL_WarpMouse(x2,y2);
+    while (!window_exists){Sleep(100);} 
+    glutWarpPointer(x2, y2);
     return;
   error:
     error(5);
+#endif
   }
 
   float func__mousex(int32 context, int32 passed){
