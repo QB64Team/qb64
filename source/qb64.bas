@@ -2943,7 +2943,7 @@ DO
 
         'precompiler commands should always be executed FIRST.
 
-        IF LEFT$(a3u$, 5) = "$LET " THEN GOTO finishednonexec 'we dealt with this basically in the prepass
+        IF LEFT$(a3u$, 5) = "$LET " THEN layout$ = a3$: GOTO finishednonexec 'we dealt with this basically in the prepass
         '                   so we could define CONST and such and have them available for later IDE passes
 
         IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
