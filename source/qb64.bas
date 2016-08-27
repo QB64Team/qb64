@@ -7117,9 +7117,10 @@ DO
                 IF Error_Happened THEN GOTO errmes
             LOOP
             'unknown variable
-            IF a THEN a$ = "Array not defined": GOTO errmes
+            IF a THEN a$ = "Array '" + n$ + "' not defined": GOTO errmes
             'create variable
             IF LEN(s$) THEN typ$ = s$ ELSE typ$ = t$
+            IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
             retval = dim2(n$, typ$, method, "")
             IF Error_Happened THEN GOTO errmes
             'note: variable created!
@@ -14812,7 +14813,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                             NEXT
                             fakee$ = "10": FOR i2 = 2 TO nume: fakee$ = fakee$ + sp + "," + sp + "10": NEXT
                             IF Debug THEN PRINT #9, "evaluate:creating undefined array using dim2(" + l$ + "," + dtyp$ + ",1," + fakee$ + ")"
-                            IF optionexplicit THEN Give_Error "Array '" + l$ + "' not defined": EXIT FUNCTION
+                            IF optionexplicit THEN Give_Error "Array '" + l$ + "' (" + symbol2fulltypename$(dtyp$) + ") not defined": EXIT FUNCTION
                             IF Error_Happened THEN EXIT FUNCTION
                             olddimstatic = dimstatic
                             method = 1
@@ -15033,7 +15034,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     LOOP
 
                     IF Debug THEN PRINT #9, "CREATING VARIABLE:" + x$
-                    IF optionexplicit THEN Give_Error "Variable '" + x$ + "' not defined": EXIT FUNCTION
+                    IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
                     retval = dim2(x$, typ$, 1, "")
                     IF Error_Happened THEN EXIT FUNCTION
 
