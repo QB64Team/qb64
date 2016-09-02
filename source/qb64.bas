@@ -1153,6 +1153,17 @@ END IF
 PRINT "Invalid IDE message": END
 
 ideerror:
+IF INSTR(idemessage$, sp$) THEN
+    'Something went wrong here, so let's give a generic error message to the user.
+    '(No error message should contain sp$ - that is, CHR$(13), when not in Debug mode)
+    idemessage$ = "Compiler error (check for syntax errors) (Reference:"
+    IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
+    IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
+    IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)
+    idemessage$ = idemessage$ + ")"
+    IF inclevel > 0 THEN idemessage$ = idemessage$ + incerror$
+END IF
+
 sendc$ = CHR$(8) + idemessage$ + MKL$(ideerrorline)
 GOTO sendcommand
 
@@ -12402,7 +12413,11 @@ IF Debug THEN PRINT #9, "ERL="; ERL
 IF idemode AND qberrorhappenedvalue >= 0 THEN
     'real qb error occurred
     ideerrorline = linenumber
-    idemessage$ = "Compiler error (check for syntax errors) (Reference:" + str2$(ERR) + "-" + str2$(_ERRORLINE) + ")"
+    idemessage$ = "Compiler error (check for syntax errors) (Reference:"
+    IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
+    IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
+    IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)
+    idemessage$ = idemessage$ + ")"
     IF inclevel > 0 THEN idemessage$ = idemessage$ + incerror$
     RESUME ideerror
 END IF
