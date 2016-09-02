@@ -65,6 +65,7 @@ IF _FILEEXISTS("refactor.txt") THEN
     CLOSE fh
 END IF
 
+NoInternalFolder:
 IF _DIREXISTS("internal") = 0 THEN
     _SCREENSHOW
     PRINT "QB64 cannot locate the 'internal' folder"
