@@ -1,4 +1,4 @@
-$EXEICON:'.\qb64.ico'
+''$EXEICON:'.\qb64.ico'
 'All variables will be of type LONG unless explicitly defined
 DEFLNG A-Z
 
