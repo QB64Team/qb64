@@ -1,4 +1,4 @@
-''$EXEICON:'.\qb64.ico'
+$EXEICON:'.\qb64.ico'
 'All variables will be of type LONG unless explicitly defined
 DEFLNG A-Z
 
@@ -3234,13 +3234,7 @@ DO
                         IF MID$(ExeIconFile$, i, 1) = "/" OR MID$(ExeIconFile$, i, 1) = "\" THEN
                             IconPath$ = LEFT$(ExeIconFile$, i)
                             ExeIconFile$ = MID$(ExeIconFile$, i + 1)
-                            IF _DIREXISTS(IconPath$) = 0 THEN
-                                IF idemode THEN
-                                    a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
-                                ELSE
-                                    GOTO ExeIconWarning
-                                END IF
-                            END IF
+                            IF _DIREXISTS(IconPath$) = 0 THEN a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
                             currentdir$ = _CWD$
                             CHDIR IconPath$
                             IconPath$ = _CWD$
@@ -3252,14 +3246,10 @@ DO
                 END IF
 
                 IF _FILEEXISTS(ExeIconFile$) = 0 THEN
-                    IF idemode THEN
-                        IF LEN(IconPath$) THEN
-                            a$ = "File '" + MID$(ExeIconFile$, LEN(IconPath$) + 2) + "' not found": GOTO errmes
-                        ELSE
-                            a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
-                        END IF
+                    IF LEN(IconPath$) THEN
+                        a$ = "File '" + MID$(ExeIconFile$, LEN(IconPath$) + 2) + "' not found": GOTO errmes
                     ELSE
-                        GOTO ExeIconWarning
+                        a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
                     END IF
                 ELSE
                     iconfilehandle = FREEFILE
@@ -3268,25 +3258,12 @@ DO
                     OPEN tmpdir$ + "icon.rc" FOR OUTPUT AS #iconfilehandle
                     PRINT #iconfilehandle, "0 ICON " + QuotedFilename$(StrReplace$(ExeIconFile$, "\", "/"))
                     CLOSE #iconfilehandle
-                    IF E = 1 THEN
-                        IF idemode THEN
-                            a$ = "Error creating icon resource file": GOTO errmes
-                        ELSE
-                            GOTO ExeIconWarning
-                        END IF
-                    END IF
+                    IF E = 1 THEN a$ = "Error creating icon resource file": GOTO errmes
                     ON ERROR GOTO qberror
                 END IF
             END IF
 
             ExeIconSet = linenumber
-            GOTO finishednonexec
-
-            ExeIconWarning:
-            'If compiling via command line, just give a warning
-            'about the missing icon file:
-            PRINT
-            PRINT "WARNING: File '" + ExeIconFile$ + "' not found. $EXEICON disabled."
             GOTO finishednonexec
         END IF
 
@@ -11534,14 +11511,7 @@ IF os$ = "WIN" THEN
             E = 0
             ON ERROR GOTO qberror_test
             KILL tmpdir$ + "icon.o"
-            IF E = 1 OR _FILEEXISTS(tmpdir$ + "icon.o") = -1 THEN
-                IF idemode THEN
-                    a$ = "Error creating icon resource file": GOTO errmes
-                ELSE
-                    ExeIconSet = 0
-                    GOTO ExeIconWarning2
-                END IF
-            END IF
+            IF E = 1 OR _FILEEXISTS(tmpdir$ + "icon.o") = -1 THEN a$ = "Error creating icon resource file": GOTO errmes
             ON ERROR GOTO qberror
         END IF
         ffh = FREEFILE
@@ -11550,21 +11520,9 @@ IF os$ = "WIN" THEN
         CLOSE #ffh
         SHELL _HIDE tmpdir$ + "call_windres.bat"
         IF _FILEEXISTS(tmpdir$ + "icon.o") = 0 THEN
-            IF idemode THEN
-                a$ = "Bad icon file": GOTO errmes
-            ELSE
-                ExeIconSet = 0
-                GOTO ExeIconWarning2
-            END IF
+            a$ = "Bad icon file": GOTO errmes
         END IF
     END IF
-    GOTO SkipWarning2
-    ExeIconWarning2:
-    'If compiling via command line, just give a warning
-    'about the missing icon file:
-    PRINT
-    PRINT "WARNING: Icon injection failed. $EXEICON disabled."
-    SkipWarning2:
 END IF
 
 'Update dependencies
