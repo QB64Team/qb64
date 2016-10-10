@@ -75,8 +75,6 @@ out=stbi_load_from_memory(content,bytes,&w,&h,&comp,4);
 
 if (out==NULL) return NULL;
 
-if (comp!=4) return NULL;
-
 //RGBA->BGRA
 uint8* cp=out;
 int32 x2,y2;

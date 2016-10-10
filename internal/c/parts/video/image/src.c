@@ -30,8 +30,8 @@ bpp=-1;
 }
 if (!f->len) return -1;//return invalid handle if null length string
 //load the file
-static int32 fh,result;
-static int64 lof;
+int32 fh,result = 0;
+int64 lof;
 fh=gfs_open(f,1,0,0);
 if (fh<0) return -1;
 lof=gfs_lof(fh);
@@ -66,22 +66,17 @@ if (lof>=2){
 if ((content[0]==0xFF)&&(content[1]==0xD8)){format=1; goto got_format;}//JP[E]G
 }//2
 
-//GIF is handled by our "other" library
-//'.gif' "GIF"
-//if (lof>=3){
-//if ((content[0]==71)&&(content[1]==73)&&(content[2]==70)){format=4; goto got_format;}//GIF
-//}//3
-
 got_format:
 
 static uint8 *pixels;
 static int32 x,y;
 
-if (format==0) pixels=image_decode_other(content,lof,&result,&x,&y);
 if (format==1) pixels=image_decode_jpg(content,lof,&result,&x,&y);
 if (format==2) pixels=image_decode_png(content,lof,&result,&x,&y);
 if (format==3) pixels=image_decode_bmp(content,lof,&result,&x,&y);
-
+if (!(result & 1)) {
+  pixels=image_decode_other(content,lof,&result,&x,&y);
+}
 free(content);
 if (!(result&1)) return -1;
 
