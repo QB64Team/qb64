@@ -2079,6 +2079,12 @@ if(alGetError() != AL_NO_ERROR) exit(444);
 #ifdef QB64_WINDOWS
  signal(SIGFPE, division_by_zero_handler);
  //signal(SIGSEGV, SIGSEGV_handler);
+#else
+ struct sigaction sig_act;
+ sig_act.sa_handler = division_by_zero_handler;
+ sigemptyset(&(sig_act.sa_mask));
+ sig_act.sa_flags = 0;
+ sigaction(SIGFPE, &sig_act, NULL);
 #endif
 
 
