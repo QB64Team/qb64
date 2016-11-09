@@ -8728,7 +8728,7 @@ int32 qbs_lessorequal(qbs *str1,qbs *str2){
   //same process as lessthan, but we check to see if the lengths are equal here also.
   int32 i, limit, l1, l2;
     l1 = str1->len; l2 = str2->len; 
-        if (!l1) return 0;  //if the first string has no length then it HAS to be smaller or equal to the second
+        if (!l1) return -1;  //if the first string has no length then it HAS to be smaller or equal to the second
         if (l1<=l2) limit = l1; else limit = l2;
     i=memcmp(str1->chr,str2->chr,limit); 
         if (i<0) return -1;
@@ -8740,7 +8740,7 @@ int32 qbs_greaterorequal(qbs *str2,qbs *str1){
   //same process as for lessorequal; we just reverse the string order
   int32 i, limit, l1, l2;
     l1 = str1->len; l2 = str2->len; 
-        if (!l1) return 0;
+        if (!l1) return -1;
         if (l1<=l2) limit = l1; else limit = l2;
     i=memcmp(str1->chr,str2->chr,limit); 
         if (i<0) return -1;
