@@ -1,5 +1,6 @@
 if (!__STRING_VERSION)__STRING_VERSION=qbs_new(0,0);
 if (!__STRING_BUILDNUM)__STRING_BUILDNUM=qbs_new(0,0);
+if (!__STRING_AUTOBUILDMSG)__STRING_AUTOBUILDMSG=qbs_new(0,0);
 if(__STRING1_SP==NULL){
 __STRING1_SP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
 memset(__STRING1_SP->chr,0,1);
