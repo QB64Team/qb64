@@ -4230,7 +4230,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#About..." THEN
                 PCOPY 2, 0
-                idemessagebox "About", "QB64 Version " + Version$ + " (" + BuildNum$ + ")"
+                idemessagebox "About", "QB64 Version " + Version$ + CHR$(10) + "Revision " + BuildNum$ + AutoBuildMsg$
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
