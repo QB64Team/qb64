@@ -5,6 +5,7 @@
 # buildnum=`awk '$1=="BuildNum$" {split($3,A, /[\"\/]/); print A[3];}' < source/global/version.bas`
 TZ=UTC now=`date +"%F-%H-%M-%S"`
 filebase="/tmp/qb64_${now}_`echo ${TRAVIS_COMMIT} | sed 's/\(.......\).*$/\1/'`"
+rm -r .dpl
 
 cd ..
 tar --create --auto-compress --file ${filebase}_osx.tar.gz --exclude-from=qb64/.travis/common-exclusion.list --exclude-from=qb64/.travis/osx-exclusion.list qb64
