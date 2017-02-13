@@ -8038,12 +8038,17 @@ FUNCTION idesubs$
     '-------- init --------
 
     ly$ = MKL$(1)
+    lySorted$ = ly$
     CurrentlyViewingWhichSUBFUNC = 1
     PreferCurrentCursorSUBFUNC = 0
     InsideDECLARE = 0
     FoundExternalSUBFUNC = 0
     l$ = ideprogname$
     IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+    lSorted$ = l$
+
+    TotalSUBs = 0
+    SortedSubsFlag = idesortsubs
 
     FOR y = 1 TO iden
         a$ = idegetline(y)
@@ -8114,6 +8119,16 @@ FUNCTION idesubs$
                 args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
             END IF
             l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + " " + sf$ + args$
+
+            'Populate SortedSubsList()
+            TotalSUBs = TotalSUBs + 1
+            ListItemLength = LEN(n$ + " " + sf$ + args$)
+            REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
+            REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
+            CaseBkpSubsList(TotalSUBs) = n$ + " " + sf$ + args$
+            SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
+            MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+            MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
         END IF
     NEXT
 
@@ -8121,6 +8136,28 @@ FUNCTION idesubs$
         a$ = MID$(l$, x, 1)
         IF a$ = CHR$(195) THEN MID$(l$, x, 1) = CHR$(192): EXIT FOR
     NEXT
+
+    IF TotalSUBs > 1 THEN
+        sort SortedSubsList()
+        FOR x = 1 TO TotalSUBs
+            ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
+            lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
+            FOR RestoreCaseBkp = 1 TO TotalSUBs
+                IF MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) = MID$(CaseBkpSubsList(RestoreCaseBkp), LEN(CaseBkpSubsList(RestoreCaseBkp)) - 6, 4) THEN
+                    lSorted$ = lSorted$ + sep + CHR$(195) + CHR$(196) + LEFT$(CaseBkpSubsList(RestoreCaseBkp), ListItemLength)
+                    EXIT FOR
+                END IF
+            NEXT
+        NEXT
+
+        FOR x = LEN(lSorted$) TO 1 STEP -1
+            a$ = MID$(lSorted$, x, 1)
+            IF a$ = CHR$(195) THEN MID$(lSorted$, x, 1) = CHR$(192): EXIT FOR
+        NEXT
+        SortedSubsFlag = idesortsubs
+    ELSE
+        SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
+    END IF
 
     '72,19
     i = 0
@@ -8132,10 +8169,29 @@ FUNCTION idesubs$
     '68
     o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
     o(i).txt = idenewtxt(l$)
-    IF PreferCurrentCursorSUBFUNC <> 0 THEN
-        o(i).sel = PreferCurrentCursorSUBFUNC
+    IF SortedSubsFlag = 0 THEN
+        IF PreferCurrentCursorSUBFUNC <> 0 THEN
+            o(i).sel = PreferCurrentCursorSUBFUNC
+        ELSE
+            o(i).sel = CurrentlyViewingWhichSUBFUNC
+        END IF
     ELSE
-        o(i).sel = CurrentlyViewingWhichSUBFUNC
+        idetxt(o(i).txt) = lSorted$
+        IF PreferCurrentCursorSUBFUNC <> 0 THEN
+            FOR x = 1 TO TotalSUBs
+                IF MID$(ly$, PreferCurrentCursorSUBFUNC * 4 - 3, 4) = MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) THEN
+                    o(i).sel = x + 1 'The sorted list items array doesn't contain the first line (ideprogname$)
+                    EXIT FOR
+                END IF
+            NEXT
+        ELSE
+            FOR x = 1 TO TotalSUBs
+                IF MID$(ly$, CurrentlyViewingWhichSUBFUNC * 4 - 3, 4) = MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) THEN
+                    o(i).sel = x + 1 'The sorted list items array doesn't contain the first line (ideprogname$)
+                    EXIT FOR
+                END IF
+            NEXT
+        END IF
     END IF
     o(i).nam = idenewtxt("Program Items")
 
@@ -8145,6 +8201,16 @@ FUNCTION idesubs$
     o(i).y = idewy + idesubwindow - 6
     o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
     o(i).dft = 1
+
+    IF TotalSUBs > 1 THEN
+        i = i + 1
+        o(i).typ = 4 'check box
+        o(i).x = idewx - 22
+        o(i).y = idewy + idesubwindow - 6
+        o(i).nam = idenewtxt("#Sorted A-Z")
+        o(i).sel = SortedSubsFlag
+    END IF
+
 
     '-------- end of init --------
 
@@ -8224,6 +8290,7 @@ FUNCTION idesubs$
 
         IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
             idesubs$ = "C"
+            GOSUB SaveSortSettings
             EXIT FUNCTION
         END IF
 
@@ -8231,17 +8298,73 @@ FUNCTION idesubs$
             y = o(1).sel
             IF y < 1 THEN y = -y
             AddQuickNavHistory idecy
-            idecy = CVL(MID$(ly$, y * 4 - 3, 4))
+            IF SortedSubsFlag = 0 THEN
+                idecy = CVL(MID$(ly$, y * 4 - 3, 4))
+            ELSE
+                idecy = CVL(MID$(lySorted$, y * 4 - 3, 4))
+            END IF
             idesy = idecy
             idecx = 1
             idesx = 1
+
+            GOSUB SaveSortSettings
             EXIT FUNCTION
+        END IF
+
+        IF TotalSUBs > 1 THEN
+            IF o(3).sel <> SortedSubsFlag THEN
+                SortedSubsFlag = o(3).sel
+
+                IF SortedSubsFlag = 0 THEN
+                    'Replace list contents with unsorted version while mantaining current selection.
+                    PreviousSelection = -1
+                    IF o(1).sel > 0 THEN
+                        TargetSourceLine$ = MID$(lySorted$, o(1).sel * 4 - 3, 4)
+                        FOR x = 1 TO TotalSUBs
+                            IF MID$(ly$, x * 4 - 3, 4) = TargetSourceLine$ THEN
+                                PreviousSelection = x
+                            END IF
+                        NEXT
+                    END IF
+
+                    idetxt(o(1).txt) = l$
+                    o(1).sel = PreviousSelection
+                    focus = 1
+                ELSE
+                    'Replace list contents with sorted version while mantaining current selection.
+                    PreviousSelection = -1
+                    IF o(1).sel > 0 THEN
+                        TargetSourceLine$ = MID$(ly$, o(1).sel * 4 - 3, 4)
+                        FOR x = 1 TO TotalSUBs
+                            IF MID$(lySorted$, x * 4 - 3, 4) = TargetSourceLine$ THEN
+                                PreviousSelection = x
+                            END IF
+                        NEXT
+                    END IF
+
+                    idetxt(o(1).txt) = lSorted$
+                    o(1).sel = PreviousSelection
+                    focus = 1
+                END IF
+            END IF
         END IF
 
         'end of custom controls
         mousedown = 0
         mouseup = 0
     LOOP
+
+    EXIT FUNCTION
+    SaveSortSettings:
+    IF TotalSUBs > 1 AND idesortsubs <> SortedSubsFlag THEN
+        idesortsubs = SortedSubsFlag
+        IF idesortsubs THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "TRUE"
+        ELSE
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
+        END IF
+    END IF
+    RETURN
 
 END FUNCTION
 
@@ -13532,6 +13655,20 @@ SUB Mathbox
     r$ = RIGHT$(idet$, LEN(idet$) - ideli - LEN(a$) - 7)
     idet$ = l$ + m$ + r$
     idecx = idecx + LEN(messagestr$)
+END SUB
+
+'After Cormen, Leiserson, Rivest & Stein "Introduction To Algoritms" via Wikipedia
+SUB sort (arr() AS STRING * 998)
+FOR i& = LBOUND(arr) + 1 TO UBOUND(arr)
+    x$ = arr(i&)
+    j& = i& - 1
+    WHILE j& >= LBOUND(arr)
+        IF arr(j&) <= x$ THEN EXIT WHILE
+        arr$(j& + 1) = arr$(j&)
+        j& = j& - 1
+    WEND
+    arr$(j& + 1) = x$
+NEXT i&
 END SUB
 
 FUNCTION FindProposedTitle$
