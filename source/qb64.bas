@@ -3246,7 +3246,7 @@ DO
 
                 IF _FILEEXISTS(ExeIconFile$) = 0 THEN
                     IF LEN(IconPath$) THEN
-                        a$ = "File '" + MID$(ExeIconFile$, LEN(IconPath$) + 2) + "' not found": GOTO errmes
+                        a$ = "File '" + MID$(ExeIconFile$, LEN(IconPath$) + 1) + "' not found": GOTO errmes
                     ELSE
                         a$ = "File '" + ExeIconFile$ + "' not found": GOTO errmes
                     END IF
