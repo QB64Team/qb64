@@ -119,7 +119,7 @@ DIM SHARED VersionInfoSet AS _BYTE
 DIM SHARED viFileVersionNum$, viProductVersionNum$, viCompanyName$
 DIM SHARED viFileDescription$, viFileVersion$, viInternalName$
 DIM SHARED viLegalCopyright$, viLegalTrademarks$, viOriginalFilename$
-DIM SHARED viProductName$, viProductVersion$, viComments$
+DIM SHARED viProductName$, viProductVersion$, viComments$, viWeb$
 
 DIM SHARED NoChecks
 
@@ -1469,7 +1469,7 @@ VersionInfoSet = 0
 viFileVersionNum$ = "": viProductVersionNum$ = "": viCompanyName$ = ""
 viFileDescription$ = "": viFileVersion$ = "": viInternalName$ = ""
 viLegalCopyright$ = "": viLegalTrademarks$ = "": viOriginalFilename$ = ""
-viProductName$ = "": viProductVersion$ = "": viComments$ = ""
+viProductName$ = "": viProductVersion$ = "": viComments$ = "": viWeb$ = ""
 DataOffset = 0
 statementn = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
@@ -3264,8 +3264,11 @@ DO
                 CASE "COMMENTS"
                     viComments$ = VersionInfoValue$
                     layout$ = "$VERSIONINFO:Comments=" + VersionInfoValue$
+                CASE "WEB"
+                    viWeb$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:Web=" + VersionInfoValue$
                 CASE ELSE
-                    a$ = "Invalid key. (Use FILEVERSION#, PRODUCTVERSION#, CompanyName, FileDescription, FileVersion, InternalName, LegalCopyright, LegalTrademarks, OriginalFilename, ProductName, ProductVersion or Comments)"
+                    a$ = "Invalid key. (Use FILEVERSION#, PRODUCTVERSION#, CompanyName, FileDescription, FileVersion, InternalName, LegalCopyright, LegalTrademarks, OriginalFilename, ProductName, ProductVersion, Comments or Web)"
                     GOTO errmes
             END SELECT
 
@@ -11625,6 +11628,7 @@ IF os$ = "WIN" THEN
         PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("ProductName") + "," + QuotedFilename$(viProductName$ + "\0")
         PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("ProductVersion") + "," + QuotedFilename$(viProductVersion$ + "\0")
         PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Comments") + "," + QuotedFilename$(viComments$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Web") + "," + QuotedFilename$(viWeb$ + "\0")
         PRINT #iconfilehandle, "        END"
         PRINT #iconfilehandle, "    END"
         PRINT #iconfilehandle, "END"
