@@ -113,6 +113,13 @@ DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED CMDLineFile AS STRING
 
 DIM SHARED ExeIconSet AS LONG
+DIM SHARED VersionInfoSet AS _BYTE
+
+'Variables to handle $VERSIONINFO metacommand:
+DIM SHARED viFileVersionNum$, viProductVersionNum$, viCompanyName$
+DIM SHARED viFileDescription$, viFileVersion$, viInternalName$
+DIM SHARED viLegalCopyright$, viLegalTrademarks$, viOriginalFilename$
+DIM SHARED viProductName$, viProductVersion$, viComments$
 
 DIM SHARED NoChecks
 
@@ -1458,6 +1465,11 @@ DynamicMode = 0
 optionbase = 0
 optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
 ExeIconSet = 0
+VersionInfoSet = 0
+viFileVersionNum$ = "": viProductVersionNum$ = "": viCompanyName$ = ""
+viFileDescription$ = "": viFileVersion$ = "": viInternalName$ = ""
+viLegalCopyright$ = "": viLegalTrademarks$ = "": viOriginalFilename$ = ""
+viProductName$ = "": viProductVersion$ = "": viComments$ = ""
 DataOffset = 0
 statementn = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
@@ -1580,6 +1592,7 @@ END IF 'cloud = 0
 FOR closeall = 1 TO 255: CLOSE closeall: NEXT
 OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 
+ff = FREEFILE: OPEN tmpdir$ + "icon.rc" FOR OUTPUT AS #ff: CLOSE #ff
 
 IF Debug THEN CLOSE #9: OPEN tmpdir$ + "debug.txt" FOR APPEND AS #9
 
@@ -3199,6 +3212,78 @@ DO
             layout$ = "$RESIZE:SMOOTH"
             Resize = 1: Resize_Scale = 2
             GOTO finishednonexec
+        END IF
+
+        IF LEFT$(a3u$, 12) = "$VERSIONINFO" THEN
+            'Embed version info into the final binary (Windows only)
+            FirstDelimiter = INSTR(a3u$, ":")
+            SecondDelimiter = INSTR(FirstDelimiter + 1, a3u$, "=")
+            IF FirstDelimiter = 0 OR SecondDelimiter = 0 OR SecondDelimiter = FirstDelimiter + 1 THEN
+                a$ = "Expected $VERSIONINFO:key=value": GOTO errmes
+            END IF
+
+            VersionInfoKey$ = LTRIM$(RTRIM$(MID$(a3u$, FirstDelimiter + 1, SecondDelimiter - FirstDelimiter - 1)))
+            VersionInfoValue$ = StrReplace$(LTRIM$(RTRIM$(MID$(a3$, SecondDelimiter + 1))), CHR$(34), "'")
+
+            SELECT CASE VersionInfoKey$
+                CASE "FILEVERSION#"
+                    GOSUB ValidateVersion
+                    viFileVersionNum$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:FILEVERSION#=" + VersionInfoValue$
+                CASE "PRODUCTVERSION#"
+                    GOSUB ValidateVersion
+                    viProductVersionNum$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:PRODUCTVERSION#=" + VersionInfoValue$
+                CASE "COMPANYNAME"
+                    viCompanyName$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:CompanyName=" + VersionInfoValue$
+                CASE "FILEDESCRIPTION"
+                    viFileDescription$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:FileDescription=" + VersionInfoValue$
+                CASE "FILEVERSION"
+                    viFileVersion$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:FileVersion=" + VersionInfoValue$
+                CASE "INTERNALNAME"
+                    viInternalName$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:InternalName=" + VersionInfoValue$
+                CASE "LEGALCOPYRIGHT"
+                    viLegalCopyright$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:LegalCopyright=" + VersionInfoValue$
+                CASE "LEGALTRADEMARKS"
+                    viLegalTrademarks$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:LegalTrademarks=" + VersionInfoValue$
+                CASE "ORIGINALFILENAME"
+                    viOriginalFilename$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:OriginalFilename=" + VersionInfoValue$
+                CASE "PRODUCTNAME"
+                    viProductName$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:ProductName=" + VersionInfoValue$
+                CASE "PRODUCTVERSION"
+                    viProductVersion$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:ProductVersion=" + VersionInfoValue$
+                CASE "COMMENTS"
+                    viComments$ = VersionInfoValue$
+                    layout$ = "$VERSIONINFO:Comments=" + VersionInfoValue$
+                CASE ELSE
+                    a$ = "Invalid key. (Use FILEVERSION#, PRODUCTVERSION#, CompanyName, FileDescription, FileVersion, InternalName, LegalCopyright, LegalTrademarks, OriginalFilename, ProductName, ProductVersion or Comments)"
+                    GOTO errmes
+            END SELECT
+
+            VersionInfoSet = -1
+
+            GOTO finishednonexec
+
+            ValidateVersion:
+            'Check if only numbers and commas (4 comma-separated values)
+            IF LEN(VersionInfoValue$) = 0 THEN a$ = "Expected: $VERSIONINFO:" + VersionInfoKey$ + "=#,#,#,# (4 comma-separated numeric values: major, minor, revision and build)": GOTO errmes
+            viCommas = 0
+            FOR i = 1 TO LEN(VersionInfoValue$)
+                IF ASC(VersionInfoValue$, i) = 44 THEN viCommas = viCommas + 1
+                IF INSTR("0123456789,", MID$(VersionInfoValue$, i, 1)) = 0 OR (i = LEN(VersionInfoValue$) AND viCommas <> 3) OR RIGHT$(VersionInfoValue$, 1) = "," THEN
+                    a$ = "Expected: $VERSIONINFO:" + VersionInfoKey$ + "=#,#,#,# (4 comma-separated numeric values: major, minor, revision and build)": GOTO errmes
+                END IF
+            NEXT
+            RETURN
         END IF
 
         IF LEFT$(a3u$, 8) = "$EXEICON" THEN
@@ -11503,23 +11588,59 @@ END IF
 
 IF os$ = "WIN" THEN
     'Prepare to embed icon into .EXE
-    IF ExeIconSet THEN
-        linenumber = ExeIconSet 'on error, this allows reporting the linenumber where $EXEICON was used
-        wholeline = " $EXEICON:'" + ExeIconFile$ + "'"
+    IF ExeIconSet OR VersionInfoSet THEN
         IF _FILEEXISTS(tmpdir$ + "icon.o") THEN
             E = 0
             ON ERROR GOTO qberror_test
             KILL tmpdir$ + "icon.o"
-            IF E = 1 OR _FILEEXISTS(tmpdir$ + "icon.o") = -1 THEN a$ = "Error creating icon resource file": GOTO errmes
+            IF E = 1 OR _FILEEXISTS(tmpdir$ + "icon.o") = -1 THEN a$ = "Error creating resource file": GOTO errmes
             ON ERROR GOTO qberror
         END IF
+    END IF
+
+    IF ExeIconSet THEN
+        linenumber = ExeIconSet 'on error, this allows reporting the linenumber where $EXEICON was used
+        wholeline = " $EXEICON:'" + ExeIconFile$ + "'"
+    END IF
+
+    IF VersionInfoSet THEN
+        iconfilehandle = FREEFILE
+        OPEN tmpdir$ + "icon.rc" FOR APPEND AS #iconfilehandle
+        PRINT #iconfilehandle, ""
+        PRINT #iconfilehandle, "1 VERSIONINFO"
+        IF LEN(viFileVersionNum$) THEN PRINT #iconfilehandle, "FILEVERSION     "; viFileVersionNum$
+        IF LEN(viProductVersionNum$) THEN PRINT #iconfilehandle, "PRODUCTVERSION  "; viProductVersionNum$
+        PRINT #iconfilehandle, "BEGIN"
+        PRINT #iconfilehandle, "    BLOCK " + QuotedFilename$("StringFileInfo")
+        PRINT #iconfilehandle, "    BEGIN"
+        PRINT #iconfilehandle, "        BLOCK " + QuotedFilename$("040904E4")
+        PRINT #iconfilehandle, "        BEGIN"
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("CompanyName") + "," + QuotedFilename$(viCompanyName$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("FileDescription") + "," + QuotedFilename$(viFileDescription$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("FileVersion") + "," + QuotedFilename$(viFileVersion$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("InternalName") + "," + QuotedFilename$(viInternalName$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("LegalCopyright") + "," + QuotedFilename$(viLegalCopyright$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("LegalTrademarks") + "," + QuotedFilename$(viLegalTrademarks$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("OriginalFilename") + "," + QuotedFilename$(viOriginalFilename$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("ProductName") + "," + QuotedFilename$(viProductName$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("ProductVersion") + "," + QuotedFilename$(viProductVersion$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Comments") + "," + QuotedFilename$(viComments$ + "\0")
+        PRINT #iconfilehandle, "        END"
+        PRINT #iconfilehandle, "    END"
+        PRINT #iconfilehandle, "END"
+        CLOSE #iconfilehandle
+    END IF
+
+    IF ExeIconSet OR VersionInfoSet THEN
         ffh = FREEFILE
         OPEN tmpdir$ + "call_windres.bat" FOR OUTPUT AS #ffh
         PRINT #ffh, "internal\c\c_compiler\bin\windres.exe -i " + tmpdir$ + "icon.rc -o " + tmpdir$ + "icon.o"
         CLOSE #ffh
         SHELL _HIDE tmpdir$ + "call_windres.bat"
         IF _FILEEXISTS(tmpdir$ + "icon.o") = 0 THEN
-            a$ = "Bad icon file": GOTO errmes
+            a$ = "Bad icon file"
+            IF VersionInfoSet THEN a$ = a$ + " or invalid $VERSIONINFO values"
+            GOTO errmes
         END IF
     END IF
 END IF
@@ -11983,7 +12104,7 @@ IF os$ = "WIN" THEN
     END IF
 
     'Add icon.o to the makeline
-    IF ExeIconSet THEN
+    IF ExeIconSet OR VersionInfoSet THEN
         IF x THEN 'Use the previous libqb insertion point
             a$ = LEFT$(a$, x + LEN(libqb$)) + "..\..\" + tmpdir$ + "icon.o " + MID$(a$, x + LEN(libqb$) + 1)
         END IF
