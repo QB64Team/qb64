@@ -3,21 +3,21 @@ if(_FUNC_IDEHLEN_LONG_IDEHLEN==NULL){
 _FUNC_IDEHLEN_LONG_IDEHLEN=(int32*)mem_static_malloc(4);
 *_FUNC_IDEHLEN_LONG_IDEHLEN=0;
 }
-qbs*oldstr4517=NULL;
+qbs*oldstr4547=NULL;
 if(_FUNC_IDEHLEN_STRING_A->tmp||_FUNC_IDEHLEN_STRING_A->fixed||_FUNC_IDEHLEN_STRING_A->readonly){
-oldstr4517=_FUNC_IDEHLEN_STRING_A;
-if (oldstr4517->cmem_descriptor){
-_FUNC_IDEHLEN_STRING_A=qbs_new_cmem(oldstr4517->len,0);
+oldstr4547=_FUNC_IDEHLEN_STRING_A;
+if (oldstr4547->cmem_descriptor){
+_FUNC_IDEHLEN_STRING_A=qbs_new_cmem(oldstr4547->len,0);
 }else{
-_FUNC_IDEHLEN_STRING_A=qbs_new(oldstr4517->len,0);
+_FUNC_IDEHLEN_STRING_A=qbs_new(oldstr4547->len,0);
 }
-memcpy(_FUNC_IDEHLEN_STRING_A->chr,oldstr4517->chr,oldstr4517->len);
+memcpy(_FUNC_IDEHLEN_STRING_A->chr,oldstr4547->chr,oldstr4547->len);
 }
-byte_element_struct *byte_element_4518=NULL;
-if (!byte_element_4518){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4518=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4518=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4548=NULL;
+if (!byte_element_4548){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4548=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4548=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_4519=NULL;
-if (!byte_element_4519){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4519=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4519=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4549=NULL;
+if (!byte_element_4549){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4549=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4549=(byte_element_struct*)mem_static_malloc(12);
 }
