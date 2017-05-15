@@ -2480,6 +2480,14 @@ FUNCTION ide2 (ignore)
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN
                         GOTO regularTextBox_click
+                    ELSEIF ActiveINCLUDELink > 0 THEN
+                        'Double-click on an $INCLUDE statement launches that file in
+                        'a separate instance of QB64:
+                        p$ = idepath$ + pathsep$
+                        f$ = p$ + ActiveINCLUDELinkFile
+                        IF _FILEEXISTS(f$) THEN
+                            SHELL _DONTWAIT QuotedFilename$(COMMAND$(0)) + " " + QuotedFilename$(f$)
+                        END IF
                     ELSE
                         a$ = idegetline$(idecy)
                         IF LEN(a$) = 0 THEN GOTO regularTextBox_click
@@ -7731,6 +7739,8 @@ SUB ideshowtext
 
     IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
 
+    ActiveINCLUDELink = 0
+
     FOR y = 0 TO (idewy - 9)
         LOCATE y + 3, 1
         COLOR 7, 1
@@ -7745,6 +7755,7 @@ SUB ideshowtext
 
         IF l <= iden THEN
             a$ = idegetline(l)
+            link_idecx = 0
             IF l = idecy THEN
                 IF idecx <= LEN(a$) THEN
                     cc = ASC(a$, idecx)
@@ -7835,20 +7846,31 @@ SUB ideshowtext
                 'color mixer.
                 a2$ = UCASE$(a$)
                 IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
-                IF RIGHT$(a2$, 5) = "_RGB(" OR _
-                   RIGHT$(a2$, 7) = "_RGB32(" OR _
-                   RIGHT$(a2$, 6) = "_RGBA(" OR _
-                   RIGHT$(a2$, 8) = "_RGBA32(" THEN
+                    IF RIGHT$(a2$, 5) = "_RGB(" OR _
+                       RIGHT$(a2$, 7) = "_RGB32(" OR _
+                       RIGHT$(a2$, 6) = "_RGBA(" OR _
+                       RIGHT$(a2$, 8) = "_RGBA32(" THEN
                         a$ = a$ + " 'Hit Shift+ENTER to open the RGB mixer"
                         EnteringRGB = -1
                     END IF
                 ELSEIF idecx_comment + idecx_quote = 0 THEN
-                IF MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
-                   MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
-                   MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
-                   MID$(a2$, idecx - 8, 8) = "_RGBA32(" THEN
+                    IF MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
+                       MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
+                       MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
+                       MID$(a2$, idecx - 8, 8) = "_RGBA32(" THEN
                         IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
                     END IF
+                END IF
+
+                IF idecx_comment AND INSTR(a2$, "$INCLUDE:'") > 0 THEN
+                    link_idecx = LEN(a$)
+                    ActiveINCLUDELink = idecy
+                    FindApostrophe1 = INSTR(a$, ":'") + 1
+                    FindApostrophe2 = INSTR(FindApostrophe1 + 1, a$, "'")
+                    ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
+                    p$ = idepath$ + pathsep$
+                    f$ = p$ + ActiveINCLUDELinkFile
+                    IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open"
                 END IF
             END IF 'l = idecy
 
@@ -7885,6 +7907,8 @@ SUB ideshowtext
             END IF
             IF LEFT$(LTRIM$(a$), 2) = "'$" OR LEFT$(LTRIM$(a$), 1) = "$" THEN metacommand = -1: comment = 0
             COLOR 13
+
+            IF (link_idecx > 0 AND m > link_idecx) THEN metacommand = 0: comment = -1
 
             IF comment THEN
                 COLOR 11

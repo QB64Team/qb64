@@ -157,6 +157,8 @@ DIM SHARED QuickNavTotal AS LONG
 DIM SHARED QuickNavHistory(0) AS LONG
 DIM SHARED ModifyCOMMAND$
 DIM SHARED EnteringRGB AS _BYTE
+DIM SHARED ActiveINCLUDELink AS LONG
+DIM SHARED ActiveINCLUDELinkFile AS STRING
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype
