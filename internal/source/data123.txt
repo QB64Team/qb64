@@ -1147,6 +1147,8 @@ byte_element_struct *byte_element_4011=NULL;
 if (!byte_element_4011){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4011=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4011=(byte_element_struct*)mem_static_malloc(12);
 }
+qbs *_FUNC_IDE2_STRING_P=NULL;
+if (!_FUNC_IDE2_STRING_P)_FUNC_IDE2_STRING_P=qbs_new(0,0);
 byte_element_struct *byte_element_4012=NULL;
 if (!byte_element_4012){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4012=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4012=(byte_element_struct*)mem_static_malloc(12);
