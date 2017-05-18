@@ -221,19 +221,68 @@ DIM SHARED tmpdir AS STRING, tmpdir2 AS STRING
 IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp\": tmpdir2$ = "..\\temp\\"
 IF os$ = "LNX" THEN tmpdir$ = "./internal/temp/": tmpdir2$ = "../temp/"
 
+DECLARE LIBRARY
+    FUNCTION getpid& ()
+END DECLARE
+
+thisinstancepid = getpid&
 DIM SHARED tempfolderindex
-E = 0
-i = 1
-OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
-DO WHILE E
-    i = i + 1
-    IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END
-    MKDIR ".\internal\temp" + str2$(i)
-    IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp" + str2$(i) + "\": tmpdir2$ = "..\\temp" + str2$(i) + "\\"
-    IF os$ = "LNX" THEN tmpdir$ = "./internal/temp" + str2$(i) + "/": tmpdir2$ = "../temp" + str2$(i) + "/"
-    E = 0
+
+IF INSTR(_OS$, "LINUX") THEN
+    fh = FREEFILE
+    OPEN ".\internal\temp\tempfoldersearch.bin" FOR RANDOM AS #fh LEN = LEN(tempfolderindex)
+    tempfolderrecords = LOF(fh) / LEN(tempfolderindex)
+    i = 1
+    IF tempfolderrecords = 0 THEN
+        'first run ever?
+        PUT #fh, 1, thisinstancepid
+    ELSE
+        FOR i = 1 TO tempfolderrecords
+            'check if any of the temp folders is being used = pid still active
+            GET #fh, i, tempfoldersearch
+
+            SHELL _HIDE "ps -p " + STR$(tempfoldersearch) + " > /dev/null 2>&1; echo $? > internal/temp/checkpid.bin"
+            fh2 = FREEFILE
+            OPEN "internal/temp/checkpid.bin" FOR BINARY AS #fh2
+            LINE INPUT #fh2, checkpid$
+            CLOSE #fh2
+            IF VAL(checkpid$) = 1 THEN
+                'This temp folder was locked by an instance that's no longer active, so
+                'this will be our temp folder
+                PUT #fh, i, thisinstancepid
+                EXIT FOR
+            END IF
+        NEXT
+        IF i > tempfolderrecords THEN
+            'All indexes were busy. Let's initiate a new one:
+            PUT #fh, i, thisinstancepid
+        END IF
+    END IF
+    CLOSE #fh
+    IF i > 1 THEN
+        tmpdir$ = "./internal/temp" + str2$(i) + "/": tmpdir2$ = "../temp" + str2$(i) + "/"
+        IF _DIREXISTS(tmpdir$) = 0 THEN
+            MKDIR tmpdir$
+        END IF
+    END IF
     OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
-LOOP
+ELSE
+    ON ERROR GOTO qberror_test
+    E = 0
+    i = 1
+    OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
+    DO WHILE E
+        i = i + 1
+        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END
+        MKDIR ".\internal\temp" + str2$(i)
+        IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp" + str2$(i) + "\": tmpdir2$ = "..\\temp" + str2$(i) + "\\"
+        IF os$ = "LNX" THEN tmpdir$ = "./internal/temp" + str2$(i) + "/": tmpdir2$ = "../temp" + str2$(i) + "/"
+        E = 0
+        OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
+    LOOP
+END IF
+
+
 'temp folder established
 tempfolderindex = i
 IF i > 1 THEN
