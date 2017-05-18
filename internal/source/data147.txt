@@ -1,14 +1,14 @@
-qbs*oldstr4612=NULL;
+qbs*oldstr4621=NULL;
 if(_SUB_IDEPAR_STRING_TITLE->tmp||_SUB_IDEPAR_STRING_TITLE->fixed||_SUB_IDEPAR_STRING_TITLE->readonly){
-oldstr4612=_SUB_IDEPAR_STRING_TITLE;
-if (oldstr4612->cmem_descriptor){
-_SUB_IDEPAR_STRING_TITLE=qbs_new_cmem(oldstr4612->len,0);
+oldstr4621=_SUB_IDEPAR_STRING_TITLE;
+if (oldstr4621->cmem_descriptor){
+_SUB_IDEPAR_STRING_TITLE=qbs_new_cmem(oldstr4621->len,0);
 }else{
-_SUB_IDEPAR_STRING_TITLE=qbs_new(oldstr4612->len,0);
+_SUB_IDEPAR_STRING_TITLE=qbs_new(oldstr4621->len,0);
 }
-memcpy(_SUB_IDEPAR_STRING_TITLE->chr,oldstr4612->chr,oldstr4612->len);
+memcpy(_SUB_IDEPAR_STRING_TITLE->chr,oldstr4621->chr,oldstr4621->len);
 }
-byte_element_struct *byte_element_4613=NULL;
-if (!byte_element_4613){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4613=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4613=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4622=NULL;
+if (!byte_element_4622){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4622=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4622=(byte_element_struct*)mem_static_malloc(12);
 }
