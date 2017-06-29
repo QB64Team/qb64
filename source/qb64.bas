@@ -5471,6 +5471,7 @@ DO
                     simplenext:
                     IF controltype(controllevel) <> 2 THEN a$ = "NEXT without FOR": GOTO errmes
                     IF n <> 1 AND controlvalue(controllevel) <> currentid THEN a$ = "Incorrect variable after NEXT": GOTO errmes
+                    PRINT #12, "fornext_continue_" + str2$(controlid(controllevel)) + ":;"
                     PRINT #12, "}"
                     PRINT #12, "fornext_exit_" + str2$(controlid(controllevel)) + ":;"
                     controllevel = controllevel - 1
@@ -5526,6 +5527,7 @@ DO
 
 
             IF controltype(controllevel) <> 5 THEN a$ = "WEND without WHILE": GOTO errmes
+            PRINT #12, "ww_continue_" + str2$(controlid(controllevel)) + ":;"
             PRINT #12, "}"
             PRINT #12, "ww_exit_" + str2$(controlid(controllevel)) + ":;"
             controllevel = controllevel - 1
@@ -5593,8 +5595,10 @@ DO
                 IF Error_Happened THEN GOTO errmes
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
+                PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
+                PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
                 IF controltype(controllevel) = 4 THEN
                     PRINT #12, "}"
                 ELSE
@@ -8260,7 +8264,29 @@ DO
         END IF
     END IF
 
-
+    IF n = 1 THEN
+        IF firstelement$ = "_CONTINUE" THEN
+            l$ = "_CONTINUE"
+            'scan backwards until previous control level reached
+            FOR i = controllevel TO 1 STEP -1
+                t = controltype(i)
+                IF t = 2 THEN 'for...next
+                    PRINT #12, "goto fornext_continue_" + str2$(controlid(i)) + ";"
+                    layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                    GOTO finishedline
+                ELSEIF t = 3 OR t = 4 THEN 'do...loop
+                    PRINT #12, "goto dl_continue_" + str2$(controlid(i)) + ";"
+                    layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                    GOTO finishedline
+                ELSEIF t = 5 THEN 'while...wend
+                    PRINT #12, "goto ww_continue_" + str2$(controlid(i)) + ";"
+                    layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                    GOTO finishedline
+                END IF
+            NEXT
+            a$ = "_CONTINUE outside DO..LOOP/FOR..NEXT/WHILE..WEND block": GOTO errmes
+        END IF
+    END IF
 
     IF firstelement$ = "RUN" THEN 'RUN
         l$ = "RUN"

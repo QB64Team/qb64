@@ -78,6 +78,8 @@ clearid
 id.n = "_MEMPUT": id.subfunc = 2: id.callname = "sub_stub": regid
 clearid
 id.n = "_MEMFILL": id.subfunc = 2: id.callname = "sub_stub": regid
+clearid
+id.n = "_CONTINUE": id.subfunc = 2: id.callname = "sub_stub": regid
 
 
 clearid
