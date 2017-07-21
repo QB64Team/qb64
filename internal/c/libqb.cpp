@@ -20994,16 +20994,17 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     }//printwidth*/
 
 
-  int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
+int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     //f=_LOADFONT(ttf_filename$,height[,"bold,italic,underline,monospace,dontblend,unicode"])
 
     if (new_error) return NULL;
 
-    static qbs *s1=NULL; if (!s1) s1=qbs_new(0,0);
-    static qbs *req=NULL; if (!req) req=qbs_new(0,0);
-    static qbs *s3=NULL; if (!s3) s3=qbs_new(0,0);
-    static uint8 r[32];
-    static int32 i,i2,i3;
+    qbs *s1=NULL; s1=qbs_new(0,0);
+    qbs *req=NULL; req=qbs_new(0,0);
+    qbs *s3=NULL; s3=qbs_new(0,0);
+    uint8 r[32];
+    int32 i,i2,i3;
+	static int32 recall;
 
     //validate size
     if (size<1){error(5); return NULL;}
@@ -21035,7 +21036,7 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
     for (i=0;i<32;i++) if (r[i]>1){error(5); return NULL;}//cannot define requirements twice
       }//->len
     }//passed
-    static int32 options;
+    int32 options;
     options=r[0]+(r[1]<<1)+(r[2]<<2)+(r[3]<<3)+(r[4]<<4)+(r[5]<<5);
     //1 bold TTF_STYLE_BOLD
     //2 italic TTF_STYLE_ITALIC
@@ -21046,13 +21047,18 @@ int32 func__printwidth(qbs* text, int32 screenhandle, int32 passed){
 
     //load the file
     if (!f->len) return -1;//return invalid handle if null length string
-    static int32 fh,result;
-    static int64 bytes;
+    int32 fh,result;
+    int64 bytes;
     fh=gfs_open(f,1,0,0);
 
-        #ifdef QB64_WINDOWS //rather than just immediately tossing an error, let's try looking in the default OS folder for the font first in case the use left off the filepath.
-            if (fh<0) {fh=gfs_open(qbs_add(qbs_new_txt_len("C:/Windows/Fonts/",17),f),1,0,0);}
-    #endif
+        #ifdef QB64_WINDOWS //rather than just immediately tossing an error, let's try looking in the default OS folder for the font first in case the user left off the filepath.
+            if (fh<0&&recall==0) {
+			    recall=-1; //to set a flag so we don't get trapped endlessly recalling the routine when the font actually doesn't exist
+			    i=func__loadfont(qbs_add(qbs_new_txt("C:/Windows/Fonts/"),f), size, requirements,passed); //Look in the default windows font location
+				return i;
+			}
+		#endif
+	recall=0;
 
     if (fh<0) return -1;
     bytes=gfs_lof(fh);
