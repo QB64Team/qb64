@@ -1,14 +1,14 @@
 qbs *_FUNC_N2S_STRING_N2S=NULL;
 if (!_FUNC_N2S_STRING_N2S)_FUNC_N2S_STRING_N2S=qbs_new(0,0);
-qbs*oldstr3437=NULL;
+qbs*oldstr3449=NULL;
 if(_FUNC_N2S_STRING_EXP->tmp||_FUNC_N2S_STRING_EXP->fixed||_FUNC_N2S_STRING_EXP->readonly){
-oldstr3437=_FUNC_N2S_STRING_EXP;
-if (oldstr3437->cmem_descriptor){
-_FUNC_N2S_STRING_EXP=qbs_new_cmem(oldstr3437->len,0);
+oldstr3449=_FUNC_N2S_STRING_EXP;
+if (oldstr3449->cmem_descriptor){
+_FUNC_N2S_STRING_EXP=qbs_new_cmem(oldstr3449->len,0);
 }else{
-_FUNC_N2S_STRING_EXP=qbs_new(oldstr3437->len,0);
+_FUNC_N2S_STRING_EXP=qbs_new(oldstr3449->len,0);
 }
-memcpy(_FUNC_N2S_STRING_EXP->chr,oldstr3437->chr,oldstr3437->len);
+memcpy(_FUNC_N2S_STRING_EXP->chr,oldstr3449->chr,oldstr3449->len);
 }
 qbs *_FUNC_N2S_STRING_T=NULL;
 if (!_FUNC_N2S_STRING_T)_FUNC_N2S_STRING_T=qbs_new(0,0);
@@ -53,20 +53,20 @@ if(_FUNC_N2S_INTEGER64_R==NULL){
 _FUNC_N2S_INTEGER64_R=(int64*)mem_static_malloc(8);
 *_FUNC_N2S_INTEGER64_R=0;
 }
-byte_element_struct *byte_element_3439=NULL;
-if (!byte_element_3439){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3439=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3439=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3451=NULL;
+if (!byte_element_3451){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3451=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3451=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_N2S_LONG_I=NULL;
 if(_FUNC_N2S_LONG_I==NULL){
 _FUNC_N2S_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_N2S_LONG_I=0;
 }
-int64 fornext_value3442;
-int64 fornext_finalvalue3442;
-int64 fornext_step3442;
-uint8 fornext_step_negative3442;
-int64 fornext_value3444;
-int64 fornext_finalvalue3444;
-int64 fornext_step3444;
-uint8 fornext_step_negative3444;
+int64 fornext_value3454;
+int64 fornext_finalvalue3454;
+int64 fornext_step3454;
+uint8 fornext_step_negative3454;
+int64 fornext_value3456;
+int64 fornext_finalvalue3456;
+int64 fornext_step3456;
+uint8 fornext_step_negative3456;

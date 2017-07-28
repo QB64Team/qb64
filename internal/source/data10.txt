@@ -3,15 +3,15 @@ if(_FUNC_COUNTELEMENTS_LONG_COUNTELEMENTS==NULL){
 _FUNC_COUNTELEMENTS_LONG_COUNTELEMENTS=(int32*)mem_static_malloc(4);
 *_FUNC_COUNTELEMENTS_LONG_COUNTELEMENTS=0;
 }
-qbs*oldstr2102=NULL;
+qbs*oldstr2114=NULL;
 if(_FUNC_COUNTELEMENTS_STRING_A->tmp||_FUNC_COUNTELEMENTS_STRING_A->fixed||_FUNC_COUNTELEMENTS_STRING_A->readonly){
-oldstr2102=_FUNC_COUNTELEMENTS_STRING_A;
-if (oldstr2102->cmem_descriptor){
-_FUNC_COUNTELEMENTS_STRING_A=qbs_new_cmem(oldstr2102->len,0);
+oldstr2114=_FUNC_COUNTELEMENTS_STRING_A;
+if (oldstr2114->cmem_descriptor){
+_FUNC_COUNTELEMENTS_STRING_A=qbs_new_cmem(oldstr2114->len,0);
 }else{
-_FUNC_COUNTELEMENTS_STRING_A=qbs_new(oldstr2102->len,0);
+_FUNC_COUNTELEMENTS_STRING_A=qbs_new(oldstr2114->len,0);
 }
-memcpy(_FUNC_COUNTELEMENTS_STRING_A->chr,oldstr2102->chr,oldstr2102->len);
+memcpy(_FUNC_COUNTELEMENTS_STRING_A->chr,oldstr2114->chr,oldstr2114->len);
 }
 int32 *_FUNC_COUNTELEMENTS_LONG_N=NULL;
 if(_FUNC_COUNTELEMENTS_LONG_N==NULL){
@@ -28,10 +28,10 @@ if(_FUNC_COUNTELEMENTS_LONG_I==NULL){
 _FUNC_COUNTELEMENTS_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_COUNTELEMENTS_LONG_I=0;
 }
-int64 fornext_value2104;
-int64 fornext_finalvalue2104;
-int64 fornext_step2104;
-uint8 fornext_step_negative2104;
+int64 fornext_value2116;
+int64 fornext_finalvalue2116;
+int64 fornext_step2116;
+uint8 fornext_step_negative2116;
 qbs *_FUNC_COUNTELEMENTS_STRING_E=NULL;
 if (!_FUNC_COUNTELEMENTS_STRING_E)_FUNC_COUNTELEMENTS_STRING_E=qbs_new(0,0);
 int32 *_FUNC_COUNTELEMENTS_LONG_B=NULL;
