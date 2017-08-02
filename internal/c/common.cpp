@@ -453,7 +453,7 @@ struct mem_block{
   ptrszint size;
   int64 lock_id;//64-bit key, must be present at lock's offset or memory region is invalid
   ptrszint lock_offset;//pointer to lock
-  int32 type;
+  ptrszint type;
   /*
     memorytype (4 bytes, but only the first used, for flags):
     1 integer values
