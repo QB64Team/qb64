@@ -22470,6 +22470,7 @@ END IF
 b = 0
 e$ = ""
 last = 0
+PRINT #12, "tqbs=qbs_new(0,0);" 'initialize the temp string
 FOR i = 2 TO n
     a2$ = getelement(ca$, i)
     IF a2$ = "(" THEN b = b + 1
@@ -22501,12 +22502,10 @@ FOR i = 2 TO n
                 END IF
                 IF (typ AND ISREFERENCE) THEN e$ = refer(e$, typ, 0)
                 IF Error_Happened THEN EXIT SUB
-                PRINT #12, "tqbs=qbs_new(0,0);"
                 PRINT #12, "qbs_set(tqbs," + e$ + ");"
                 PRINT #12, "if (new_error) goto skip" + u$ + ";"
                 IF lp THEN PRINT #12, "lprint_makefit(tqbs);" ELSE PRINT #12, "makefit(tqbs);"
                 PRINT #12, "qbs_" + lp$ + "print(tqbs,0);"
-                PRINT #12, "qbs_free(tqbs);"
             ELSE
                 IF a2$ = "," THEN l$ = l$ + sp + a2$
                 IF a2$ = ";" THEN
@@ -22533,6 +22532,7 @@ NEXT
 IF LEN(e$) THEN a2$ = "": last = 1: GOTO printlast
 IF n = 1 THEN PRINT #12, "qbs_" + lp$ + "print(nothingstring,1);"
 PRINT #12, "skip" + u$ + ":"
+PRINT #12, "qbs_free(tqbs);"
 PRINT #12, cleanupstringprocessingcall$ + "0);"
 IF lp THEN PRINT #12, "tab_LPRINT=0;"
 tlayout$ = l$
