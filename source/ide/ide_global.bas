@@ -9,7 +9,7 @@ DIM SHARED AltSpecial AS _BYTE
 
 DIM SHARED IDEBuildModeChanged
 DIM SHARED IdeInfo AS STRING
-
+DIM SHARED IdeContextHelpSF AS _BYTE
 
 
 DIM SHARED IdeSystem AS LONG

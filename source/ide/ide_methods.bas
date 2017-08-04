@@ -2249,6 +2249,7 @@ FUNCTION ide2 (ignore)
 
         IF KB = KEY_F1 THEN
             contextualhelp:
+            IdeContextHelpSF = 0
             'identify word or character at current cursor position
             a$ = idegetline(idecy)
             x = idecx
@@ -2357,6 +2358,83 @@ FUNCTION ide2 (ignore)
                     WikiParse a$
                     IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
                     GOTO specialchar
+
+                ELSE
+                    'No help found; Does the user want help for a SUB or FUNCTION?
+
+                    DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
+                        a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
+                    LOOP
+
+                    FOR y = 1 TO iden
+                        a$ = idegetline(y)
+                        a$ = LTRIM$(RTRIM$(a$))
+                        sf = 0
+                        nca$ = UCASE$(a$)
+                        IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB "
+                        IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNCTION "
+                        IF sf THEN
+                            IF RIGHT$(nca$, 7) = " STATIC" THEN
+                                a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                            END IF
+
+                            IF sf = 1 THEN
+                                a$ = RIGHT$(a$, LEN(a$) - 4)
+                            ELSE
+                                a$ = RIGHT$(a$, LEN(a$) - 9)
+                            END IF
+                            a$ = LTRIM$(RTRIM$(a$))
+                            x = INSTR(a$, "(")
+                            IF x THEN
+                                n$ = RTRIM$(LEFT$(a$, x - 1))
+                                args$ = RIGHT$(a$, LEN(a$) - x + 1)
+                            ELSE
+                                n$ = a$
+                                args$ = ""
+                            END IF
+
+                            'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                            FOR CleanseN = 1 TO LEN(n$)
+                                SELECT CASE MID$(n$, CleanseN, 1)
+                                    CASE " ", "'", ":"
+                                        n$ = LEFT$(n$, CleanseN - 1)
+                                        EXIT FOR
+                                END SELECT
+                            NEXT
+
+                            backupn$ = n$
+
+                            DO UNTIL alphanumeric(ASC(RIGHT$(n$, 1)))
+                                n$ = LEFT$(n$, LEN(n$) - 1) 'removes sigil, if any
+                            LOOP
+
+                            IF UCASE$(n$) = a2$ THEN
+                                a$ = "'''" + backupn$ + "''' is a symbol that is used in your program as follows:"
+                                a$ = a$ + CHR$(10) + CHR$(10) + "{{PageSyntax}}" + CHR$(10)
+                                a$ = a$ + ": " + sf$ + "'''" + backupn$ + "''' " + args$
+                                a$ = a$ + CHR$(10) + "{{PageNavigation}}"
+
+                                IdeContextHelpSF = -1
+
+                                IF idehelp = 0 THEN
+                                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                                    idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
+                                    Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
+                                    WikiParse a$
+                                    idehelp = 1
+                                    skipdisplay = 0
+                                    IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                                    retval = 1: GOTO redraweverything2
+                                END IF
+
+                                WikiParse a$
+                                IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                                GOTO specialchar
+
+                                EXIT FOR
+                            END IF
+                        END IF
+                    NEXT
 
                 END IF 'lnks
 
@@ -12306,8 +12384,10 @@ SUB Help_ShowText
     STATIC setup
     IF setup = 0 AND UBOUND(back$) = 1 THEN
         setup = 1
-        a$ = Wiki(Back$(1))
-        WikiParse a$
+        IF IdeContextHelpSF = 0 THEN
+            a$ = Wiki(Back$(1))
+            WikiParse a$
+        END IF
     END IF
 
     REDIM Help_LineLen(Help_wh)
@@ -13801,8 +13881,8 @@ SUB UpdateIdeInfo
         END IF
     END IF
     a$ = IdeInfo
-    IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + STRING$(3, 250)
-    IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
+    IF LEN(a$) > (idewx - 20) THEN a$ = LEFT$(a$, (idewx - 23)) + STRING$(3, 250)
+    IF LEN(a$) < (idewx - 20) THEN a$ = a$ + SPACE$((idewx - 20) - LEN(a$))
     COLOR 0, 3: LOCATE idewy + idesubwindow, 2
     PRINT a$;
     PCOPY 3, 0
