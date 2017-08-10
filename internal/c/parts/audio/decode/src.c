@@ -234,9 +234,9 @@ got_seq:
         snd->bal_left_x = snd->bal_left_y = snd->bal_left_z = 0;
     }
     else if (seq->channels == 2) {
-        snd->bal_left_x = -1;
+        snd->bal_left_x = -0.01;
         snd->bal_left_y = snd->bal_left_z = 0;
-        snd->bal_right_x = 1;
+        snd->bal_right_x = 0.01;
         snd->bal_right_y = snd->bal_right_z = 0;
     }
     snd->bal_update = 1;
