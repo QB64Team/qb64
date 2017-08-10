@@ -60,7 +60,7 @@ static int32 seq_handle; seq_handle=list_add(snd_sequences);
 static snd_sequence_struct *seq; seq=(snd_sequence_struct*)list_get(snd_sequences,seq_handle);
 memset(seq,0,sizeof(snd_sequence_struct));
 seq->references=1;
-seq->data=(uint8*)sample_buffer;
+seq->data=(uint16*)sample_buffer;
 seq->data_size=bytes_out;
 seq->channels=info.channels;
 seq->endian=0;//native

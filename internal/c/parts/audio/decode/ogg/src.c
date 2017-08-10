@@ -36,7 +36,7 @@ snd_sequence_struct *snd_decode_ogg(uint8 *buffer,int32 bytes){
   seq->bits_per_sample=16;
   seq->endian=0;//native
   seq->is_unsigned=0;
-  seq->data=(uint8*)out;
+  seq->data=(uint16*)out;
   seq->data_size=result*2*channels;
   
   

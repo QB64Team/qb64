@@ -39,43 +39,7 @@ int32 func__sndopen(qbs* filename,qbs* requirements,int32 passed){
 
     static qbs *s1=NULL;
     if (!s1) s1=qbs_new(0,0);
-    static qbs *req=NULL;
-    if (!req) req=qbs_new(0,0);
-    static qbs *s3=NULL;
-    if (!s3) s3=qbs_new(0,0);
-
-    static uint8 r[32];
-    static int32 i,i2,i3;
-    //check requirements
-    memset(r,0,32);
-    if (passed){
-        if (requirements->len){
-            i=1;
-            qbs_set(req,qbs_ucase(requirements));//convert tmp str to perm str
-nextrequirement:
-            i2=func_instr(i,req,qbs_new_txt(","),1);
-            if (i2){
-                qbs_set(s1,func_mid(req,i,i2-i,1));
-            }else{
-                qbs_set(s1,func_mid(req,i,req->len-i+1,1));
-            }
-            qbs_set(s1,qbs_rtrim(qbs_ltrim(s1)));
-            if (qbs_equal(s1,qbs_new_txt("SYNC"))){r[0]++; goto valid;}
-            if (qbs_equal(s1,qbs_new_txt("VOL"))){r[1]++; goto valid;}
-            if (qbs_equal(s1,qbs_new_txt("PAUSE"))){r[2]++; goto valid;}
-            if (qbs_equal(s1,qbs_new_txt("LEN"))){r[3]++; goto valid;}
-            if (qbs_equal(s1,qbs_new_txt("SETPOS"))){r[4]++; goto valid;}
-            error(5); return 0;//invalid requirements
-valid:
-            if (i2){i=i2+1; goto nextrequirement;}
-            for (i=0;i<32;i++) if (r[i]>1){error(5); return 0;}//cannot define requirements twice
-        }//->len
-    }//passed
     qbs_set(s1,qbs_add(filename,qbs_new_txt_len("\0",1)));//s1=filename+CHR$(0)
-
-    if (!r[0]){//NOT SYNC
-        if (snd_stream_handle){error(5); return 0;}//stream in use
-    }
 
     //load file
     if (s1->len==1) return 0;//return invalid handle if null length string
@@ -143,7 +107,7 @@ got_seq:
         if (bps!=2){
             new_data=(uint8*)malloc(samples*2);
         }else{
-            new_data=seq->data;
+            new_data=(uint8*)seq->data;
         }
         static int32 i,v;
         for (i=0;i<samples;i++){
@@ -169,7 +133,7 @@ got_seq:
             //place new value into array
             ((int16*)new_data)[i]=v;
         }//i
-        if (bps!=2){free(seq->data); seq->data=new_data; seq->data_size=samples*2;}
+        if (bps!=2){free(seq->data); seq->data=(uint16*)new_data; seq->data_size=samples*2;}
         //update seq info
         seq->bits_per_sample=16;
         seq->is_unsigned=0;
@@ -215,7 +179,7 @@ got_seq:
         //establish real size of new data and update seq
         free(seq->data); //That was the old data
         seq->data_size = out_len * seq->channels * 2; //remember out_len is perchannel, and each sample is 2 bytes
-        seq->data = (uint8_t *)realloc(resampled, seq->data_size); //we overestimated the array size before, so make it the correct size now
+        seq->data = (uint16_t *)realloc(resampled, seq->data_size); //we overestimated the array size before, so make it the correct size now
         if (!seq->data) { //realloc could fail
             free(resampled);
             return 0;
@@ -223,15 +187,38 @@ got_seq:
         seq->sample_rate = snd_frequency;
     }
 
-    if (seq->channels==1){
-        seq->data_mono=seq->data;
-        seq->data_mono_size=seq->data_size;
+    //Unpack stereo data into separate left/right buffers
+    if (seq->channels == 1) {
+        seq->channels = 1;
+        seq->data_left = seq->data;
+        seq->data_left_size = seq->data_size;
+        seq->data_right = NULL;
+        seq->data_right_size = 0;
     }
-    if (seq->channels==2){
-        seq->data_stereo=seq->data;
-        seq->data_stereo_size=seq->data_size;
+    else if (seq->channels == 2) {
+        seq->data_left_size = seq->data_right_size = seq->data_size / 2;
+        seq->data_left = (uint16_t *)malloc(seq->data_size / 2);
+        if (!seq->data_left) {
+            free(seq->data);
+            return 0;
+        }
+        seq->data_right = (uint16_t *)malloc(seq->data_size / 2);
+        if (!seq->data_right) {
+            free(seq->data_left);
+            free(seq->data);
+            return 0;
+        }
+        for (int sample = 0; sample < seq->data_size / 4; sample++) {
+            seq->data_left[sample] = seq->data[sample * 2];
+            seq->data_right[sample] = seq->data[sample * 2 + 1];
+        }
+        free(seq->data);
+        seq->data = NULL;
     }
-    if (seq->channels>2) return 0;
+    else {
+        free(seq->data);
+        return 0;
+    } 
 
     //attach sequence to handle (& inc. refs)
     //create snd handle
@@ -242,12 +229,18 @@ got_seq:
     snd->type=2;
     snd->seq=seq;
     snd->volume=1.0;
-    snd->capability=r[0]*SND_CAPABILITY_SYNC+r[1]*SND_CAPABILITY_VOL+r[2]*SND_CAPABILITY_PAUSE+r[3]*SND_CAPABILITY_LEN+r[4]*SND_CAPABILITY_SETPOS;
-    if (!r[0]){
-        snd->streamed=1;//NOT SYNC
-        snd_stream_handle=handle;
-    }
 
+    if (seq->channels == 1) {
+        snd->bal_left_x = snd->bal_left_y = snd->bal_left_z = 0;
+    }
+    else if (seq->channels == 2) {
+        snd->bal_left_x = -1;
+        snd->bal_left_y = snd->bal_left_z = 0;
+        snd->bal_right_x = 1;
+        snd->bal_right_y = snd->bal_right_z = 0;
+    }
+    snd->bal_update = 1;
+    sndupdate(snd);
     return handle;
 }
 

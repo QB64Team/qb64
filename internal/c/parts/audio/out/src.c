@@ -130,19 +130,14 @@ error:
 }
 
 
-
-
-
-
-
 struct snd_sequence_struct{
-    uint8 *data;
+    uint16 *data;
     int32 data_size;
     uint8 channels;//note: more than 2 channels may be supported in the future
-    uint8 *data_stereo;//note: built/linked-to when available/required, otherwise NULL
-    int32 data_stereo_size;
-    uint8 *data_mono;//note: built/linked-to when available/required, otherwise NULL
-    int32 data_mono_size;
+    uint16 *data_left;
+    int32 data_left_size;
+    uint16 *data_right;
+    int32 data_right_size;
 
     //origins of data (only relevent before src)
     uint8 endian;//0=native, 1=little(Windows, x86), 2=big(Motorola, Xilinx Microblaze, IBM POWER)
@@ -159,27 +154,21 @@ list *snd_sequences=list_new(sizeof(snd_sequence_struct));
 struct snd_struct{
     uint8 internal;//1=internal
     uint8 type;//1=RAW, 2=SEQUENCE
-    uint8 streamed;//1(NOT SYNC) or 0(SYNC)
 
     //sequence
     snd_sequence_struct *seq;
     //----part specific variables----
-    ALuint al_seq_buffer;
+    ALuint al_seq_left_buffer;
+    ALuint al_seq_right_buffer;
     ALenum al_seq_format;
-    ALsizei al_seq_size;
     ALsizei al_seq_freq;
     ALboolean al_seq_loop;
-    ALvoid* al_seq_data;
-    ALuint al_seq_source;
+    ALuint al_seq_left_source;
+    ALuint al_seq_right_source;
     //-------------------------------
 
     float volume;
     uint8 volume_update;
-    //----part specific variables----
-    float al_volume;
-    //-------------------------------
-
-    uint8 use_mono;
 
     uint8 close;
 
@@ -193,12 +182,9 @@ struct snd_struct{
     uint8 setpos_update;
     float setpos;
 
-    float bal_x,bal_y,bal_z;
+    float bal_left_x,bal_left_y,bal_left_z;
+    float bal_right_x,bal_right_y,bal_right_z;
     uint8 bal_update;
-    //----part specific variables----
-    float al_bal_x,al_bal_y,al_bal_z;
-    //-------------------------------
-
 
     //usage of buffer depends heavily on type
     uint8 *buffer;
@@ -217,29 +203,11 @@ struct snd_struct{
 
     int64 raw_close_time;
 
-
     //The maximum number of buffers on iOS and on OS X is 1024.
     //The maximum number of sources is 32 on iOS and 256 on OS X.
     //therefore: inactive sources should be de-initialized & buffers should be 4
 
-
-    uint8 capability;
     uint8 state;
-
-    //old stuff below...sigh!
-    uint8 free;
-    uint8 playing;
-    uint8 paused;
-    float volume_mult1;
-    float posx;
-    float posy;
-    float posz;
-    uint32 start_time;
-    uint32 paused_time;
-    uint8 looping;
-    uint32 limit;
-    double len;
-
 
 };
 #define SND_STATE_STOPPED 0
@@ -248,12 +216,6 @@ struct snd_struct{
 
 
 list *snd_handles=list_new(sizeof(snd_struct));
-
-int32 snd_stream_handle=0;//only one sound can be streamed
-
-
-
-
 
 void sndsetup(){
 
@@ -325,7 +287,7 @@ void snd_init(){
 int32 snd_raw_channel=0;
 
 int32 func__sndopenraw(){
-
+/*
     static int32 handle; handle=list_add(snd_handles);
     static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
     snd->internal=0;
@@ -347,6 +309,7 @@ int32 func__sndopenraw(){
     snd->al_buffer_state=(uint8*)calloc(4,1);
     snd->al_buffer_index=(int32*)calloc(4,4);
     return handle;
+*/
 }
 
 
@@ -354,7 +317,7 @@ int32 func__sndopenraw(){
 
 
 void sub__sndraw(float left,float right,int32 handle,int32 passed){
-
+/*
     if (passed&2){
         if (handle==0) return;//note: this would be an invalid handle
     }else{
@@ -411,6 +374,7 @@ void sub__sndraw(float left,float right,int32 handle,int32 passed){
 error:
     error(5);
     return;
+*/
 }
 
 void snd_mainloop(){
@@ -419,352 +383,218 @@ void snd_mainloop(){
     t=-1;
 
     //scan through all sounds
-    static int32 list_index;
-    for (list_index=1;list_index<=snd_handles->indexes;list_index++){
-        static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,list_index);
-        if (snd){
+    int32 list_index;
+    for (list_index = 1; list_index<=snd_handles->indexes; list_index++) {
+        snd_struct *snd = (snd_struct*)list_get(snd_handles, list_index);
+        if (!snd) continue;
+        if (snd->type == 2){
+            if (snd->limit_state == 2){
+                if (t==-1) t = GetTicks();
+                if (t >= snd->limit_stop_point) {
+                    snd->limit_state=0;
+                    sub__sndstop(list_index);
+                }
+            }//limit_state==2
 
-            if (snd->type==2){
+            if (snd->close == 1){
+                //directly poll to check the sound's state
+                ALint al_state;
+                alGetSourcei(snd->al_seq_left_source,AL_SOURCE_STATE,&al_state);
+                if (al_state==AL_INITIAL) snd->state=SND_STATE_STOPPED;
+                if (al_state==AL_STOPPED) snd->state=SND_STATE_STOPPED;
+                if (al_state==AL_PLAYING) snd->state=SND_STATE_PLAYING;
+                if (al_state==AL_PAUSED) snd->state=SND_STATE_PAUSED;
+                if (snd->state!=SND_STATE_PLAYING) snd->close=2;
+            }//snd->close==1
 
-                if (snd->limit_state==2){
-                    if (t==-1) t=GetTicks();
-                    if (t>=snd->limit_stop_point){snd->limit_state=0; sub__sndstop(list_index);}
-                }//limit_state==2
+        }//2
 
-                if (snd->close==1){
-                    //directly poll to check the sound's state
+
+/*
+        if (snd->type==1){//RAW
+
+            if (snd->close!=2){
+
+                if (snd->stream_buffer_start){
+
+
+                    static int32 repeat;
+                    do{
+                        repeat=0; 
+
+                        //internal sndraw post padding
+                        //note: without post padding the final, incomplete buffer of sound data would not be played
+                        if (list_index==qb64_internal_sndraw_handle){//internal sound raw
+                            if (snd->stream_buffer_start==snd->stream_buffer_next){//on last source buffer
+                                if (snd->buffer_size>0){//partial size
+                                    if (GetTicks()>(qb64_internal_sndraw_lastcall+20)){//no input received for last 0.02 seconds
+                                        if (!qb64_sndraw_lock){//lock (or skip)
+                                            qb64_sndraw_lock=1;
+                                            if (qb64_internal_sndraw_postpad){//post-pad allowed
+                                                qb64_internal_sndraw_postpad=0;
+                                                while (snd->buffer_size<snd_buffer_size){
+                                                    *(int16*)(snd->buffer+snd->buffer_size)=0;
+                                                    snd->buffer_size+=2;
+                                                    *(int16*)(snd->buffer+snd->buffer_size)=0;
+                                                    snd->buffer_size+=2;
+                                                }
+                                                //detach buffer
+                                                static uint8 *buffer;
+                                                buffer=snd->buffer;
+                                                //create new buffer
+                                                snd->buffer=(uint8*)calloc(snd_buffer_size,1);
+                                                snd->buffer_size=0;
+                                                //attach detached buffer to stream (or discard it)
+                                                static int32 p,p2;
+                                                p=snd->stream_buffer_next; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
+                                                if (p2==snd->stream_buffer_start){
+                                                    free(buffer); //all buffers are full! (quietly ignore this buffer)
+                                                }else{
+                                                    snd->stream_buffer[p]=(ptrszint)buffer;
+                                                    snd->stream_buffer_next=p2;
+                                                }
+                                                //next sound command to prepad if necessary to begin sound
+                                                qb64_internal_sndraw_prepad=1;
+                                                //unlock
+                                                qb64_sndraw_lock=0;
+                                            }//post-pad allowed
+                                        }//lock (or skip)
+                                    }//no input received for last x seconds
+                                }//partial size
+                            }//on last source buffer
+                        }//internal sound raw
+
+
+                        if (snd->stream_buffer_start!=snd->stream_buffer_next){
+                            static int32 p,p2;
+                            static int32 i,i2;
+                            p=snd->stream_buffer_start; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
+
+                            //unqueue processed buffers (if any)
+                            static ALint buffers_processed;
+                            static ALuint buffers[4];
+                            alGetSourcei(snd->al_source, AL_BUFFERS_PROCESSED, &buffers_processed);
+                            if (buffers_processed){
+                                alSourceUnqueueBuffers(snd->al_source, buffers_processed, &buffers[0]);
+                                //free associated data
+                                for (i2=0;i2<buffers_processed;i2++){
+                                    for (i=0;i<=3;i++){
+                                        if (buffers[i2]==snd->al_buffers[i]){
+                                            free((void*)snd->stream_buffer[snd->al_buffer_index[i]]);
+                                            snd->al_buffer_state[i]=2;//"processed"
+                                        }
+                                    }
+                                }
+                            }
+
+                            //check for uninitiated buffers
+                            for (i=0;i<=3;i++){
+                                if (snd->al_buffer_state[i]==0){
+                                    snd->al_buffer_state[i]=1;//"processing"
+                                    snd->al_buffer_index[i]=p;
+                                    static ALuint frequency;
+                                    static ALenum format;
+                                    frequency=snd_frequency;
+                                    format=AL_FORMAT_STEREO16;
+                                    alBufferData(snd->al_buffers[i], format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
+                                    alSourceQueueBuffers(snd->al_source, 1, &snd->al_buffers[i]);
+                                    static ALint al_state;
+                                    alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
+                                    if (al_state!=AL_PLAYING){
+                                        alSourcePlay(snd->al_source);
+                                    }
+                                    goto gotbuffer;
+                                }
+                            }
+
+                            //check for finished buffers
+                            for (i=0;i<=3;i++){
+                                if (snd->al_buffer_state[i]==2){//"processed"
+                                    static ALuint buffer;
+                                    static ALuint frequency;
+                                    static ALenum format;
+                                    frequency=snd_frequency;
+                                    format=AL_FORMAT_STEREO16;
+                                    alBufferData(snd->al_buffers[i], format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
+                                    alSourceQueueBuffers(snd->al_source, 1, &snd->al_buffers[i]);
+                                    static ALint al_state;
+                                    alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
+                                    if (al_state!=AL_PLAYING){
+                                        alSourcePlay(snd->al_source);
+                                    }
+                                    snd->al_buffer_index[i]=p;
+                                    snd->al_buffer_state[i]=1;//"processing"
+                                    goto gotbuffer;
+                                }
+                            }
+
+                            i=-1;
+
+gotbuffer:
+                            if (i!=-1){
+                                repeat=1;
+                                snd->stream_buffer_start=p2;
+                            }
+
+                        }//queued buffer exists
+
+                    }while(repeat); 
+
+                }//started
+            }//close!=2
+
+
+
+            //close raw?
+            if (snd->close==1){
+                if (t==-1) t=GetTicks();
+                if (t>(snd->raw_close_time+3000)){
                     static ALint al_state;
-                    alGetSourcei(snd->al_seq_source,AL_SOURCE_STATE,&al_state);
+                    alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
                     if (al_state==AL_INITIAL) snd->state=SND_STATE_STOPPED;
                     if (al_state==AL_STOPPED) snd->state=SND_STATE_STOPPED;
                     if (al_state==AL_PLAYING) snd->state=SND_STATE_PLAYING;
                     if (al_state==AL_PAUSED) snd->state=SND_STATE_PAUSED;
-                    if (snd->state!=SND_STATE_PLAYING) snd->close=2;
-                }//snd->close==1
+                    if (snd->state!=SND_STATE_PLAYING){//not playing
+                        //note: hardware interface parts closed here, handles closed in sndclose_now
+                        if (snd->al_source){
+                            alDeleteSources(1,&snd->al_source); snd->al_source=0;
+                        }
+                        static int32 i;
+                        for (i=0;i<=3;i++){
+                            if (snd->al_buffers[i]) alDeleteBuffers(1,&snd->al_buffers[i]);
+                        }
+                        //remove the buffers
+                        //1)remove 4 AL buffers
+                        free(snd->al_buffers);
+                        free(snd->al_buffer_index);
+                        free(snd->al_buffer_state);
+                        //2)remove build buffer
+                        free(snd->buffer);
+                        //3)remove the 65536 pointers to potential buffers
+                        free(snd->stream_buffer);
+                        snd->close=2;
+                    }//not playing
+                }//time>3 secs
+            }//sndclose==1
 
-            }//2
-
-
-
-            if (snd->type==1){//RAW
-
-                if (snd->close!=2){
-
-                    if (snd->stream_buffer_start){
-
-
-                        static int32 repeat;
-                        do{
-                            repeat=0; 
-
-                            //internal sndraw post padding
-                            //note: without post padding the final, incomplete buffer of sound data would not be played
-                            if (list_index==qb64_internal_sndraw_handle){//internal sound raw
-                                if (snd->stream_buffer_start==snd->stream_buffer_next){//on last source buffer
-                                    if (snd->buffer_size>0){//partial size
-                                        if (GetTicks()>(qb64_internal_sndraw_lastcall+20)){//no input received for last 0.02 seconds
-                                            if (!qb64_sndraw_lock){//lock (or skip)
-                                                qb64_sndraw_lock=1;
-                                                if (qb64_internal_sndraw_postpad){//post-pad allowed
-                                                    qb64_internal_sndraw_postpad=0;
-                                                    while (snd->buffer_size<snd_buffer_size){
-                                                        *(int16*)(snd->buffer+snd->buffer_size)=0;
-                                                        snd->buffer_size+=2;
-                                                        *(int16*)(snd->buffer+snd->buffer_size)=0;
-                                                        snd->buffer_size+=2;
-                                                    }
-                                                    //detach buffer
-                                                    static uint8 *buffer;
-                                                    buffer=snd->buffer;
-                                                    //create new buffer
-                                                    snd->buffer=(uint8*)calloc(snd_buffer_size,1);
-                                                    snd->buffer_size=0;
-                                                    //attach detached buffer to stream (or discard it)
-                                                    static int32 p,p2;
-                                                    p=snd->stream_buffer_next; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
-                                                    if (p2==snd->stream_buffer_start){
-                                                        free(buffer); //all buffers are full! (quietly ignore this buffer)
-                                                    }else{
-                                                        snd->stream_buffer[p]=(ptrszint)buffer;
-                                                        snd->stream_buffer_next=p2;
-                                                    }
-                                                    //next sound command to prepad if necessary to begin sound
-                                                    qb64_internal_sndraw_prepad=1;
-                                                    //unlock
-                                                    qb64_sndraw_lock=0;
-                                                }//post-pad allowed
-                                            }//lock (or skip)
-                                        }//no input received for last x seconds
-                                    }//partial size
-                                }//on last source buffer
-                            }//internal sound raw
-
-
-                            if (snd->stream_buffer_start!=snd->stream_buffer_next){
-                                static int32 p,p2;
-                                static int32 i,i2;
-                                p=snd->stream_buffer_start; p2=p+1; if (p2>snd->stream_buffer_last) p2=1;
-
-                                //unqueue processed buffers (if any)
-                                static ALint buffers_processed;
-                                static ALuint buffers[4];
-                                alGetSourcei(snd->al_source, AL_BUFFERS_PROCESSED, &buffers_processed);
-                                if (buffers_processed){
-                                    alSourceUnqueueBuffers(snd->al_source, buffers_processed, &buffers[0]);
-                                    //free associated data
-                                    for (i2=0;i2<buffers_processed;i2++){
-                                        for (i=0;i<=3;i++){
-                                            if (buffers[i2]==snd->al_buffers[i]){
-                                                free((void*)snd->stream_buffer[snd->al_buffer_index[i]]);
-                                                snd->al_buffer_state[i]=2;//"processed"
-                                            }
-                                        }
-                                    }
-                                }
-
-                                //check for uninitiated buffers
-                                for (i=0;i<=3;i++){
-                                    if (snd->al_buffer_state[i]==0){
-                                        snd->al_buffer_state[i]=1;//"processing"
-                                        snd->al_buffer_index[i]=p;
-                                        static ALuint frequency;
-                                        static ALenum format;
-                                        frequency=snd_frequency;
-                                        format=AL_FORMAT_STEREO16;
-                                        alBufferData(snd->al_buffers[i], format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
-                                        alSourceQueueBuffers(snd->al_source, 1, &snd->al_buffers[i]);
-                                        static ALint al_state;
-                                        alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
-                                        if (al_state!=AL_PLAYING){
-                                            alSourcePlay(snd->al_source);
-                                        }
-                                        goto gotbuffer;
-                                    }
-                                }
-
-                                //check for finished buffers
-                                for (i=0;i<=3;i++){
-                                    if (snd->al_buffer_state[i]==2){//"processed"
-                                        static ALuint buffer;
-                                        static ALuint frequency;
-                                        static ALenum format;
-                                        frequency=snd_frequency;
-                                        format=AL_FORMAT_STEREO16;
-                                        alBufferData(snd->al_buffers[i], format, (void*)snd->stream_buffer[p], snd_buffer_size, frequency);
-                                        alSourceQueueBuffers(snd->al_source, 1, &snd->al_buffers[i]);
-                                        static ALint al_state;
-                                        alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
-                                        if (al_state!=AL_PLAYING){
-                                            alSourcePlay(snd->al_source);
-                                        }
-                                        snd->al_buffer_index[i]=p;
-                                        snd->al_buffer_state[i]=1;//"processing"
-                                        goto gotbuffer;
-                                    }
-                                }
-
-                                i=-1;
-
-gotbuffer:
-                                if (i!=-1){
-                                    repeat=1;
-                                    snd->stream_buffer_start=p2;
-                                }
-
-                            }//queued buffer exists
-
-                        }while(repeat); 
-
-                    }//started
-                }//close!=2
-
-
-
-                //close raw?
-                if (snd->close==1){
-                    if (t==-1) t=GetTicks();
-                    if (t>(snd->raw_close_time+3000)){
-                        static ALint al_state;
-                        alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
-                        if (al_state==AL_INITIAL) snd->state=SND_STATE_STOPPED;
-                        if (al_state==AL_STOPPED) snd->state=SND_STATE_STOPPED;
-                        if (al_state==AL_PLAYING) snd->state=SND_STATE_PLAYING;
-                        if (al_state==AL_PAUSED) snd->state=SND_STATE_PAUSED;
-                        if (snd->state!=SND_STATE_PLAYING){//not playing
-                            //note: hardware interface parts closed here, handles closed in sndclose_now
-                            if (snd->al_source){
-                                alDeleteSources(1,&snd->al_source); snd->al_source=0;
-                            }
-                            static int32 i;
-                            for (i=0;i<=3;i++){
-                                if (snd->al_buffers[i]) alDeleteBuffers(1,&snd->al_buffers[i]);
-                            }
-                            //remove the buffers
-                            //1)remove 4 AL buffers
-                            free(snd->al_buffers);
-                            free(snd->al_buffer_index);
-                            free(snd->al_buffer_state);
-                            //2)remove build buffer
-                            free(snd->buffer);
-                            //3)remove the 65536 pointers to potential buffers
-                            free(snd->stream_buffer);
-                            snd->close=2;
-                        }//not playing
-                    }//time>3 secs
-                }//sndclose==1
-
-            }//RAW
-
-
-
-        }//snd
+        }//RAW
+*/
     }//list_index loop
 
 
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-#define SND_CAPABILITY_SYNC 1
-#define SND_CAPABILITY_VOL 2
-#define SND_CAPABILITY_PAUSE 4
-#define SND_CAPABILITY_LEN 8
-#define SND_CAPABILITY_SETPOS 16
-
-/*
-   struct snd_struct{
-   uint32 handle;
-   Mix_Chunk *sample;
-   uint8 free;
-   uint8 playing;
-   uint8 paused;
-   float volume;
-   float volume_mult1;
-   float posx;
-   float posy;
-   float posz;
-   uint32 start_time;
-   uint32 paused_time;
-   uint8 looping;
-   uint32 limit;
-   double len;
-   uint8 capability;
-   };
-   snd_struct snd[AUDIO_CHANNELS];
-   Mix_Music *stream=NULL;
-   int32 stream_free=0;
-   int32 stream_loaded=0;
-   int32 stream_playing=0;
-   uint32 snd_free_handle=2;
-   int32 stream_type=0;
-   int32 stream_paused=0;
-   float stream_volume=1;
-   float stream_volume_mult1=1;
-   uint32 stream_start_time=0;
-   uint32 stream_paused_time=0;
-   double stream_setpos=0;
-   int32 stream_looping=0;
-   double stream_limit=0;
-   int32 stream_limited=0;
-   double stream_len=-1;
-   uint8 stream_capability;
-
-   void snd_check(){
-   sndsetup();
-   static int32 i,i2,i3;
-//check stream
-if (stream_loaded){
-if (stream_free){
-//still playing?
-if (stream_playing&&(!stream_looping)) if (!Mix_PlayingMusic()) stream_playing=0;
-if (!stream_playing){
-Mix_FreeMusic(stream);
-stream=NULL;
-}
-}
-}
-//check samples
-for (i=0;i<AUDIO_CHANNELS;i++){
-if (snd[i].handle){
-if (snd[i].free){
-//still playing?
-if (snd[i].playing&&(!snd[i].looping)) if (!Mix_Playing(i)) snd[i].playing=0;
-if (!snd[i].playing){
-snd[i].handle=0;
-//free sample data if unrequired by any other sample
-i3=1;
-for (i2=0;i2<AUDIO_CHANNELS;i2++){
-if (snd[i2].handle){
-if (snd[i2].sample==snd[i].sample){i3=0; break;}
-}}
-if (i3) Mix_FreeChunk(snd[i].sample);
-}//!stream_playing
-}//free
-}//handle
-}//i
-}//snd_check
-
-
-
-
-
-
-uint32 func__sndraw(uint8* data,uint32 bytes){
-    sndsetup();
-    //***unavailable to QB64 user***
-    static int32 i,i2,i3;
-    //find available index
-    for (i=0;i<AUDIO_CHANNELS;i++){
-        if (snd[i].handle==0){
-            memset(&snd[i],0,sizeof(snd_struct));//clear structure
-            Mix_Volume(i,128);//restore full volume
-            snd[i].volume=1;
-            snd[i].volume_mult1=1;
-            snd[i].sample=Mix_QuickLoad_RAW((Uint8*)data,bytes);
-            //length_in_sec=size_in_bytes/samples_per_sec/bytes_per_sample/channels
-            snd[i].len=((double)snd[i].sample->alen)/22050.0/2.0/2.0;
-            snd[i].handle=snd_free_handle; snd_free_handle++; if (snd_free_handle==0) snd_free_handle=2;
-            snd[i].capability=SND_CAPABILITY_SYNC;
-            return snd[i].handle;
-        }
-    }
-    return 0;//no free indexes
-}
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int32 sndupdate_dont_free_resources=0;
 void sndupdate(snd_struct *snd){
 
     if (snd->type==2){//seq type
         static snd_sequence_struct *seq; seq=snd->seq;
-        if (snd->al_seq_source){
+        if (snd->al_seq_left_source){
             //update state info
             static ALint al_state;
-            alGetSourcei(snd->al_seq_source,AL_SOURCE_STATE,&al_state);
+            alGetSourcei(snd->al_seq_left_source,AL_SOURCE_STATE,&al_state);
             //ref: Each source can be in one of four possible execution states: AL_INITIAL, AL_PLAYING, AL_PAUSED, AL_STOPPED
             if (al_state==AL_INITIAL) snd->state=SND_STATE_STOPPED;
             if (al_state==AL_STOPPED) snd->state=SND_STATE_STOPPED;
@@ -774,8 +604,12 @@ void sndupdate(snd_struct *snd){
                 if (!sndupdate_dont_free_resources){
                     if (snd->setpos_lock_release) goto no_release;
                     //###agressively free OpenAL resources (buffers & sources are very limited on some platforms)###
-                    alDeleteSources(1,&snd->al_seq_source); snd->al_seq_source=0;
-                    alDeleteBuffers(1,&snd->al_seq_buffer); snd->al_seq_buffer=0;
+                    alDeleteSources(1,&snd->al_seq_left_source); snd->al_seq_left_source=0;
+                    alDeleteBuffers(1,&snd->al_seq_left_buffer); snd->al_seq_left_buffer=0;
+                    if (snd->al_seq_right_source) {
+                        alDeleteSources(1, &snd->al_seq_right_source); snd->al_seq_right_source = 0;
+                        alDeleteBuffers(1, &snd->al_seq_right_buffer); snd->al_seq_right_buffer = 0;
+                    }
                     //flag updates
                     snd->volume_update=1;
                     snd->bal_update=1;
@@ -785,33 +619,13 @@ no_release:;
             if (snd->limit_state==2){
                 if (snd->state!=SND_STATE_PLAYING) snd->limit_state=0;//disable limit
             }
-            if (snd->al_seq_source){//still valid?
+            if (snd->al_seq_left_source){//still valid?
                 if (snd->bal_update){
                     snd->bal_update=0;
-                    if (snd->bal_y||snd->bal_z){
-                        snd->use_mono=1;
+                     alSource3f(snd->al_seq_left_source, AL_POSITION, snd->bal_left_x, snd->bal_left_y, snd->bal_left_z);
+                    if (snd->al_seq_right_source) {
+                        alSource3f(snd->al_seq_right_source, AL_POSITION, snd->bal_right_x, snd->bal_right_y, snd->bal_right_z);
                     }
-                    if ((!snd->use_mono)||(!seq->data_mono)){//2D repositioning
-                        if (seq->data_stereo){
-                            //note: OpenAL would ignore our call so use a volume change to simulate distance
-                            static double d;
-                            d=sqrt(snd->bal_x*snd->bal_x+snd->bal_y*snd->bal_y+snd->bal_z*snd->bal_z);
-                            if (d<1) d=0;
-                            if (d>1000) d=1000;
-                            d=1000-d;
-                            d=d/1000.0;//'d' is now a scaling factor from 0 to 1
-                            d=d*((double)snd->volume);
-                            alSourcef(snd->al_seq_source,AL_GAIN,d);
-                            snd->volume_update=0;//cancel possible volume update
-                            goto skip_bal_change;
-                        }
-                    }
-                    //rescale our audio co-ordinate system (-1000[-1] to [1]1000) to match OpenAL(-10[-0.01] to [0.01]10)
-                    snd->al_bal_x=snd->bal_x/100.0;
-                    snd->al_bal_y=snd->bal_y/100.0;
-                    snd->al_bal_z=-(snd->bal_z/100.0);
-                    alSource3f(snd->al_seq_source, AL_POSITION, snd->al_bal_x, snd->al_bal_y, snd->al_bal_z);
-skip_bal_change:;
                 /*
                    OpenAL -- like OpenGL -- uses a right-handed Cartesian coordinate system (RHS),
                    where in a frontal default view X (thumb) points right, Y (index finger) points up,
@@ -841,22 +655,10 @@ skip_bal_change:;
                 }//snd->bal_update
                 if (snd->volume_update){
                     snd->volume_update=0;
-                    snd->al_volume=snd->volume;
-                    if (snd->bal_x&&((!snd->use_mono)||(!seq->data_mono))){
-                        if (seq->data_stereo){
-                            static double d;
-                            d=sqrt(snd->al_bal_x*snd->al_bal_x+snd->al_bal_y*snd->al_bal_y+snd->al_bal_z*snd->al_bal_z);
-                            if (d<1) d=0;
-                            if (d>1000) d=1000;
-                            d=1000-d;
-                            d=d/1000.0;//'d' is now a scaling factor from 0 to 1
-                            d=d*((double)snd->volume);
-                            alSourcef(snd->al_seq_source,AL_GAIN,d);
-                            goto skip_regular_vol_change;
-                        }
+                    alSourcef(snd->al_seq_left_source, AL_GAIN, snd->volume);
+                    if (snd->al_seq_right_source) {
+                        alSourcef(snd->al_seq_right_source, AL_GAIN, snd->volume);
                     }
-                    alSourcef(snd->al_seq_source,AL_GAIN,snd->al_volume);
-skip_regular_vol_change:;
                 }//snd->volume_update
                 if (snd->setpos_lock_release){
                     if (snd->state!=SND_STATE_STOPPED){
@@ -865,13 +667,16 @@ skip_regular_vol_change:;
                 }
                 if (snd->setpos_update){
                     snd->setpos_update=0;
-                    alSourcef(snd->al_seq_source,AL_SEC_OFFSET,snd->setpos);
+                    alSourcef(snd->al_seq_left_source,AL_SEC_OFFSET,snd->setpos);
+                    if (snd->al_seq_right_source) {
+                        alSourcef(snd->al_seq_right_source, AL_SEC_OFFSET, snd->setpos);
+                    }
                     snd->setpos_lock_release=1;
                 }
             }//snd->al_seq_source still valid?
         }//snd->al_seq_source
     }//2
-
+/*
     if (snd->type==1){
         static ALint al_state;
         alGetSourcei(snd->al_source,AL_SOURCE_STATE,&al_state);
@@ -881,170 +686,155 @@ skip_regular_vol_change:;
         if (al_state==AL_PLAYING) snd->state=SND_STATE_PLAYING;
         if (al_state==AL_PAUSED) snd->state=SND_STATE_PAUSED;
     }
-
+*/
 }//sndupdate
 
 int32 func__sndcopy(int32 handle){
     if (new_error) return 0;
     sndsetup();
-    if (handle==0) return 0;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return 0;}
-    if (snd->internal){error(5); return 0;}
-    if (snd->type==2){
-        if (snd->streamed){error(5); return 0;}
+    if (handle == 0) return 0;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal) {
+        error(5);
+        return 0;
+    }
+    if (snd->type == 2){
         sndupdate(snd);
-        static snd_sequence_struct *seq; seq=snd->seq;
         //increment seq references
-        seq->references++;
-        static snd_struct *snd_source; snd_source=snd;
+        snd->seq->references++;
+        snd_struct *snd_source = snd;
         //create new snd handle
-        static int32 handle; handle=list_add(snd_handles);
-        static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
+        int32 handle = list_add(snd_handles);
+        snd_struct *snd = (snd_struct *)list_get(snd_handles, handle);
         //import all data
-        memcpy (snd,snd_source,sizeof(snd_struct));
+        memcpy (snd, snd_source, sizeof(snd_struct));
         //adjust data
-        snd->al_seq_buffer=0;//no buffer
-        snd->al_seq_source=0;//no source
-        snd->volume_update=1;
-        snd->state=0;
+        snd->al_seq_left_buffer = 0;//no buffer
+        snd->al_seq_left_source = 0;//no source
+        snd->al_seq_right_buffer = 0;
+        snd->al_seq_right_source = 0;
+        snd->volume_update = 1;
+        snd->state = 0;
         return handle;
     }//2
-    error(5); return 0;
-}//sndcopy
+    error(5);
+    return 0;
+}
 
 
 
 
 int32 sub__sndvol_error=0;
-void sub__sndvol(int32 handle,float volume){
+void sub__sndvol(int32 handle, float volume){
     if (new_error) return;
     sndsetup();
-    sub__sndvol_error=0;
-    if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    sub__sndvol_error=1;
-    if (!snd){error(5); return;}
-    if (snd->internal){error(5); return;}
-    if (!(snd->capability&SND_CAPABILITY_VOL)){error(5); return;}
-    snd->volume=volume; snd->volume_update=1;
+    sub__sndvol_error = 0;
+    if (handle == 0) return;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    sub__sndvol_error = 1;
+    if (!snd || snd->internal) {
+        error(5);
+        return;
+    }
+    snd->volume = volume;
+    snd->volume_update = 1;
     sndupdate(snd);
-    sub__sndvol_error=0;
+    sub__sndvol_error = 0;
 }
 
-void sub__sndpause(int32 handle){
+void sub__sndpause(int32 handle) {
     if (new_error) return;
     sndsetup();
-    if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (!(snd->capability&SND_CAPABILITY_PAUSE)){error(5); return;}
-    if (snd->internal){error(5); return;}
-    if (snd->type==2){
-        static snd_sequence_struct *seq; seq=snd->seq;
-        sndupdate(snd);
-        if (snd->al_seq_source){
-            if (snd->state==SND_STATE_PLAYING){
-                alSourcePause(snd->al_seq_source); snd->state=SND_STATE_PAUSED;
-                if (snd->limit_state==2) snd->limit_state=0;//disable limit
-            }
-        }//source
+    if (handle == 0) return;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal) {
+        error(5);
         return;
-    }//2
+    }
+    if (snd->type == 2){
+        sndupdate(snd);
+        if (snd->al_seq_left_source && snd->state == SND_STATE_PLAYING) {
+            const ALuint sources[2] = {snd->al_seq_left_source, snd->al_seq_right_source};
+            alSourcePausev(snd->al_seq_right_source ? 2 : 1, sources);
+            snd->state = SND_STATE_PAUSED;
+            if (snd->limit_state == 2) {
+                snd->limit_state = 0;
+            }
+        }
+        return;
+    }
     error(5);
-}//sndpause
+}
 
 
 
 void sub__sndstop(int32 handle){
     if (new_error) return;
     sndsetup();
-    if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (snd->internal){error(5); return;}
-    if (snd->type==2){
-        static snd_sequence_struct *seq; seq=snd->seq;
+    if (handle == 0) return;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal) {
+        error(5);
+        return;
+    }
+    if (snd->type == 2){
         sndupdate(snd);
-        if (snd->al_seq_source){
-            if (snd->state!=SND_STATE_STOPPED){
-                alSourceStop(snd->al_seq_source); snd->state=SND_STATE_STOPPED;
-                if (snd->limit_state==2) snd->limit_state=0;//disable limit
+        if (snd->al_seq_left_source && snd->state != SND_STATE_STOPPED) {
+            const ALuint sources[2] = {snd->al_seq_left_source, snd->al_seq_right_source};
+            alSourceStopv(snd->al_seq_right_source ? 2 : 1, sources);
+            if (snd->limit_state == 2) {
+                snd->limit_state = 0; //disable limit
             }
-        }//source
+        }
         return;
     }//2
     error(5);
-}//sndstop
+}
 
-void snd_seq_buildmono(snd_sequence_struct* seq){
-    if (!seq->data_mono){
-        //we know: its stereo, its 16-bit
-        //our plan: average out every 2nd sample
-        static int32 samples;
-        samples=seq->data_stereo_size/4;
-        static int16 *src;
-        static int16 *dst;
-        src=(int16*)seq->data_stereo;
-        dst=(int16*)malloc(samples*2);
-        static int32 i;
-        for (i=0;i<samples;i++){
-            dst[i]=(src[i*2]+src[i*2+1])/2;
-        }//i
-        seq->data_mono=(uint8*)dst;
-        seq->data_mono_size=samples*2;
-    }//no mono
-}//snd_seq_buildmono
 
 int32 sndplay_loop=0;
-
-
 void sub__sndplay(int32 handle){
     if (new_error) return;
     sndsetup();
-    if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (!snd_allow_internal){
-        if (snd->internal){error(5); return;}
+    if (handle == 0) return;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd){
+        error(5);
+        return;
     }
-    if (snd->type==2){
-        static snd_sequence_struct *seq; seq=snd->seq;
-switch_to_mono:
-        if (!snd->al_seq_buffer){
-            alGenBuffers(1,&snd->al_seq_buffer);
-            snd->al_seq_freq=snd_frequency;
-
-            static int32 mono;
-            mono=0;
-            if (!seq->data_stereo) mono=1;
-            if (seq->data_mono) mono=1;
-            if (mono){
-                snd->al_seq_data=(ALvoid*)seq->data_mono;
-                snd->al_seq_size=seq->data_mono_size;
-                snd->al_seq_format=AL_FORMAT_MONO16;
-            }else{
-                snd->al_seq_data=(ALvoid*)seq->data_stereo;
-                snd->al_seq_size=seq->data_stereo_size;
-                snd->al_seq_format=AL_FORMAT_STEREO16;
-            }
-            /* ref:
-#define AL_FORMAT_MONO8                           0x1100
-#define AL_FORMAT_MONO16                          0x1101
-#define AL_FORMAT_STEREO8                         0x1102
-#define AL_FORMAT_STEREO16                        0x1103
-             */
-            alBufferData(snd->al_seq_buffer,snd->al_seq_format,snd->al_seq_data,snd->al_seq_size,snd->al_seq_freq);
+    if (!snd_allow_internal){
+        if (snd->internal){
+            error(5);
+            return;
         }
-        if (!snd->al_seq_source){
-            alGenSources(1,&snd->al_seq_source);
-
-            alSourcef(snd->al_seq_source,AL_REFERENCE_DISTANCE,0.01);
-            alSourcef(snd->al_seq_source,AL_MAX_DISTANCE,10);
-            alSourcef(snd->al_seq_source,AL_ROLLOFF_FACTOR,1);
-
-
-            alSourcei(snd->al_seq_source,AL_BUFFER,snd->al_seq_buffer);
+    }
+    if (snd->type == 2){
+        snd_sequence_struct *seq; seq=snd->seq;
+        if (!snd->al_seq_left_buffer){
+            alGenBuffers(1, &snd->al_seq_left_buffer);
+            if (!snd->al_seq_right_buffer && seq->data_right) {
+                alGenBuffers(1, &snd->al_seq_right_buffer);
+            }
+            snd->al_seq_freq=snd_frequency;
+            snd->al_seq_format = AL_FORMAT_MONO16;
+            alBufferData(snd->al_seq_left_buffer, snd->al_seq_format, seq->data_left, seq->data_left_size, snd_frequency);
+            if (seq->data_right) {
+                alBufferData(snd->al_seq_right_buffer, snd->al_seq_format, seq->data_right, seq->data_right_size, snd_frequency);
+            }
+        }
+        if (!snd->al_seq_left_source){
+            alGenSources(1, &snd->al_seq_left_source);
+            alSourcef(snd->al_seq_left_source,AL_REFERENCE_DISTANCE,0.01);
+            alSourcef(snd->al_seq_left_source,AL_MAX_DISTANCE,10);
+            alSourcef(snd->al_seq_left_source,AL_ROLLOFF_FACTOR,1);
+            alSourcei(snd->al_seq_left_source,AL_BUFFER,snd->al_seq_left_buffer);
+        }
+        if (!snd->al_seq_right_source && seq->data_right) {
+            alGenSources(1, &snd->al_seq_right_source);
+            alSourcef(snd->al_seq_right_source,AL_REFERENCE_DISTANCE,0.01);
+            alSourcef(snd->al_seq_right_source,AL_MAX_DISTANCE,10);
+            alSourcef(snd->al_seq_right_source,AL_ROLLOFF_FACTOR,1);
+            alSourcei(snd->al_seq_right_source,AL_BUFFER,snd->al_seq_right_buffer);
         }
 
         sndupdate_dont_free_resources=1;
@@ -1056,23 +846,13 @@ switch_to_mono:
         sndupdate_dont_free_resources=0;
 
 
-        if (snd->state==SND_STATE_STOPPED){
-            if (snd->use_mono){
-                if (!seq->data_mono){//does a mono version exist?
-                    snd_seq_buildmono(seq);//create a mono version
-                    sndupdate(snd);//trigger destruction of current buffer, source and the update of states
-                    goto switch_to_mono;
-                }//create mono
-            }//needs mono
-        }//stopped
+        alSourcei(snd->al_seq_left_source, AL_LOOPING, sndplay_loop ? AL_TRUE : AL_FALSE);
+        alSourcei(snd->al_seq_right_source, AL_LOOPING, sndplay_loop ? AL_TRUE : AL_FALSE);
 
+        const ALuint sources[2] = {snd->al_seq_left_source, snd->al_seq_right_source};
+        alSourcePlayv(snd->al_seq_right_source ? 2 : 1, sources);
 
-        if (sndplay_loop){
-            alSourcei(snd->al_seq_source, AL_LOOPING, AL_TRUE);
-        }else{
-            alSourcei(snd->al_seq_source, AL_LOOPING, AL_FALSE);
-        }
-        alSourcePlay(snd->al_seq_source); snd->state=SND_STATE_PLAYING;
+        snd->state=SND_STATE_PLAYING;
 
         if (snd->limit_state==2) snd->limit_state=0;//disable limit
         if (snd->limit_state==1){
@@ -1095,74 +875,85 @@ int32 func__sndpaused(int32 handle){
     if (new_error) return 0;
     sndsetup();
     if (handle==0) return 0;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return 0;}
-    if (snd->internal){error(5); return 0;}
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal){
+        error(5);
+        return 0;
+    }
     sndupdate(snd);
-    if (snd->state==SND_STATE_PAUSED) return -1;
+    if (snd->state == SND_STATE_PAUSED) return -1;
     return 0;
-}//sndpaused
+}
 
 int32 func__sndplaying(int32 handle){
     if (new_error) return 0;
     sndsetup();
     if (handle==0) return 0;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return 0;}
-    if (snd->internal){error(5); return 0;}
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal){
+        error(5);
+        return 0;
+    }
     sndupdate(snd);
-    if (snd->state==SND_STATE_PLAYING) return -1;
+    if (snd->state == SND_STATE_PLAYING) return -1;
     return 0;
-}//func__sndplaying
+}
 
 double func__sndlen(int32 handle){
     if (new_error) return 0;
     sndsetup();
     if (handle==0) return 0;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return 0;}
-    if (!(snd->capability&SND_CAPABILITY_LEN)){error(5); return 0;}
-    if (snd->internal){error(5); return 0;}
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal){error(5); return 0;}
     if (snd->type==2){
-        static snd_sequence_struct *seq; seq=snd->seq;
-        static int32 samples; samples=seq->data_size/seq->channels/(seq->bits_per_sample/8);
-        static double seconds; seconds=((double)samples)/((double)seq->sample_rate);
+        snd_sequence_struct *seq = snd->seq;
+        int32 samples = seq->data_size / seq->channels / (seq->bits_per_sample / 8);
+        double seconds = samples/(double)seq->sample_rate;
         return seconds;
     }//2
     error(5); return 0;
 }
 
-void sub__sndbal(int32 handle,double x,double y,double z,int32 passed){
-    //note: any optional parameter not passed is assumed to be 0 (which is what NULL equates to)
+void sub__sndbal(int32 handle, double x, double y, double z, int32 channel, int32 passed){
     if (new_error) return;
     sndsetup();
-    if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (!(snd->capability&SND_CAPABILITY_VOL)){error(5); return;}
-    if (snd->internal){error(5); return;}
-    if (snd->type==2){
-        static snd_sequence_struct *seq; seq=snd->seq;
-        if (passed&(2+4)){
-            if ((y==0)&&(z==0)) z=0.001;//trigger 3D sound placement
-        }
-        snd->bal_x=x; snd->bal_y=y; snd->bal_z=z; snd->bal_update=1;
-        sndupdate(snd);
-    }//2
-    //...
-}//sndbal
+    if (handle == 0) return;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal || channel < 1 || channel > 2){
+        error(5);
+        return;
+    }
+    if (snd->type != 2) return;
+    if (!(passed & 8)) {
+        channel = 1;
+    }
+    if (channel == 1) {
+        if (passed & 1) snd->bal_left_x = x / 100;
+        if (passed & 2) snd->bal_left_y = y / 100;
+        if (passed & 4) snd->bal_left_z = z / 100;   
+    }
+    else if (channel == 2) {
+        if (passed & 1) snd->bal_right_x = x / 100;
+        if (passed & 2) snd->bal_right_y = y / 100;
+        if (passed & 4) snd->bal_right_z = z / 100;
+    }
+    snd->bal_update = 1;
+    sndupdate(snd);
+}
 
 double func__sndgetpos(int32 handle){
     if (new_error) return 0;
     sndsetup();
     if (handle==0) return 0;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return 0;}
-    if (snd->internal){error(5); return 0;}
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal) {
+        error(5);
+        return 0;
+    }
     if (snd->type==2){
-        if (snd->al_seq_source){
-            static float seconds;
-            alGetSourcef(snd->al_seq_source,AL_SEC_OFFSET,&seconds);
+        if (snd->al_seq_left_source){
+            float seconds;
+            alGetSourcef(snd->al_seq_left_source, AL_SEC_OFFSET, &seconds);
             return seconds;
         }
         return 0;
@@ -1172,16 +963,16 @@ double func__sndgetpos(int32 handle){
 
 void sub__sndsetpos(int32 handle,double seconds){
     if (new_error) return;
-    if (seconds<0){error(5); return;}
     sndsetup();
-    if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (!(snd->capability&SND_CAPABILITY_SETPOS)){error(5); return;}
-    if (snd->internal){error(5); return;}
-    if (snd->type==2){
-        snd->setpos=seconds;
-        snd->setpos_update=1;
+    if (handle == 0) return;//default response
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+        if (!snd || snd->internal || seconds < 0) {
+        error(5);
+        return;
+    }
+    if (snd->type == 2){
+        snd->setpos = seconds;
+        snd->setpos_update = 1;
         sndupdate(snd);
         return;
     }
@@ -1190,58 +981,57 @@ void sub__sndsetpos(int32 handle,double seconds){
 
 void sub__sndlimit(int32 handle,double limit){
     if (new_error) return;
-    if (limit<0){error(5); return;}
     sndsetup();
     if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (snd->internal){error(5); return;}
-    if (snd->type==2){
-        if (limit==0){snd->limit_state=0; return;}
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal || limit < 0) {
+        error(5);
+        return;
+    }
+    if (snd->type == 2){
+        if (limit == 0){
+            snd->limit_state = 0;
+            return;
+        }
         sndupdate(snd);
-        if (snd->state==SND_STATE_PLAYING){
+        if (snd->state == SND_STATE_PLAYING){
             //begin count immediately
-            snd->limit_stop_point=GetTicks()+(limit*1000.0);
-            snd->limit_state=2;
+            snd->limit_stop_point = GetTicks() + (limit * 1000.0);
+            snd->limit_state = 2;
         }else{
             //begin after play is called
-            snd->limit_duration=limit;
+            snd->limit_duration = limit;
             snd->limit_state=1;
         }
         return;
     }
-    error(5); return;
+    error(5);
 }
 
 //note: this is an internal command
 void sndclose_now(int32 handle){
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-
-    if (snd->streamed) snd_stream_handle=0;
-
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
     if (snd->type==2){
         //remove OpenAL content
-        if (snd->al_seq_source){
-            alDeleteSources(1,&snd->al_seq_source); snd->al_seq_source=0;
-            alDeleteBuffers(1,&snd->al_seq_buffer); snd->al_seq_buffer=0;
+        if (snd->al_seq_left_source){
+            alDeleteSources(1,&snd->al_seq_left_source); snd->al_seq_left_source=0;
+            alDeleteBuffers(1,&snd->al_seq_left_buffer); snd->al_seq_left_buffer=0;
         }
-        static snd_sequence_struct *seq; seq=snd->seq;
+        if (snd->al_seq_right_source){
+            alDeleteSources(1,&snd->al_seq_right_source); snd->al_seq_right_source=0;
+            alDeleteBuffers(1,&snd->al_seq_right_buffer); snd->al_seq_right_buffer=0;
+        }
         //remove sound handle
         list_remove(snd_handles,handle);
 
         //remove seq
-        if (seq->references>1){
-            seq->references--;
+        if (snd->seq->references > 1){
+            snd->seq->references--;
         }else{
-            free(seq->data);
-            if (seq->data_stereo){
-                if (seq->data_stereo!=seq->data) free(seq->data_stereo);
-            }
-            if (seq->data_mono){
-                if (seq->data_mono!=seq->data) free(seq->data_mono);
-            }
-            static int32 seq_handle; seq_handle=list_get_index(snd_sequences,seq);
-            list_remove(snd_sequences,seq_handle);
+            if (snd->seq->data) free(snd->seq->data);
+            if (snd->seq->data_left != snd->seq->data) free(snd->seq->data_left);
+            if (snd->seq->data_right) free(snd->seq->data_right);
+            list_remove(snd_sequences, list_get_index(snd_sequences, snd->seq));
         }
     }//2
 
@@ -1255,12 +1045,14 @@ void sub__sndclose(int32 handle){
     if (new_error) return;
     sndsetup();
     if (handle==0) return;//default response
-    static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
-    if (!snd){error(5); return;}
-    if (snd->internal){error(5); return;}
+    snd_struct *snd = (snd_struct*)list_get(snd_handles, handle);
+    if (!snd || snd->internal) {
+        error(5);
+        return;
+    }
     sndupdate(snd);
-    snd->internal=1;//switch to internal, no more commands related to this sound can be accepted
-    if (snd->type==2){
+    snd->internal = 1;//switch to internal, no more commands related to this sound can be accepted
+    if (snd->type == 2){
         if (snd->state==SND_STATE_PLAYING){
             snd->close=1;//close when finished playing
         }else{

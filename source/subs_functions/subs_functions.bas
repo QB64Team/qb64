@@ -1725,9 +1725,9 @@ clearid
 id.n = "_SNDBAL": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 2
 id.callname = "sub__sndbal"
-id.args = 4
-id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
-id.specialformat = "?,[?][,[?][,[?]]]"
+id.args = 5
+id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "?,[?][,[?][,[?][,[?]]]]"
 id.NoCloud = 1
 regid
 

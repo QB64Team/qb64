@@ -51,7 +51,7 @@ seq->sample_rate=*(uint32*)&buffer[24];
 seq->bits_per_sample=*(uint16*)&buffer[34];
 seq->endian=1;//little (Microsoft format)
 seq->is_unsigned=0; if (seq->bits_per_sample==8) seq->is_unsigned=1;
-seq->data=(uint8*)bufout;
+seq->data=(uint16*)bufout;
 seq->data_size=out_bytes;
 
 //qbs_print(qbs_str((int32)seq->channels),1);

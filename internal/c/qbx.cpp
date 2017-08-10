@@ -514,7 +514,7 @@ extern void sub__sndlimit(int32 handle,double limit);
 extern void sub__sndstop(int32 handle);
 extern void sub__sndsetpos(int32 handle,double sec);
 extern double func__sndgetpos(int32 handle);
-extern void sub__sndbal(int32 handle,double x,double y,double z,int32 passed);
+extern void sub__sndbal(int32 handle,double x, double y, double z, int32 channel, int32 passed);
 extern void sub__sndplay(int32 handle);
 extern void sub__sndloop(int32 handle);
 extern int32 func__sndcopy(int32 handle);
