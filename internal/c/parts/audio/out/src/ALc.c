@@ -1498,7 +1498,7 @@ static ALCvoid FreeContext(ALCcontext *context)
 
     if(context->SourceMap.size > 0)
     {
-        ERR("(%p) Deleting %d Source(s)\n", context, context->SourceMap.size);
+//        ERR("(%p) Deleting %d Source(s)\n", context, context->SourceMap.size);
         ReleaseALSources(context);
     }
     ResetUIntMap(&context->SourceMap);
