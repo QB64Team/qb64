@@ -245,28 +245,15 @@ got_seq:
 }
 
 
-void sub__sndplayfile(qbs *filename,int32 sync,double volume,int32 passed){
+void sub__sndplayfile(qbs *filename, int32 sync, double volume, int32 passed){
     if (new_error) return;
     sndsetup();
-    static int32 handle;
-    static int32 setvolume;
-    static qbs *syncstr=NULL; if (!syncstr) syncstr=qbs_new(0,0);
-    setvolume=0;
-    if (passed&2){
-        if ((volume<0)||(volume>1)){error(5); return;}
-        if (volume!=1) setvolume=1;
+    int32 handle;
+    handle = func__sndopen(filename, NULL, 0);
+    if (!handle) return;
+    if (passed & 2) {
+        sub__sndvol(handle, volume);
     }
-    if ((!setvolume)&&(!sync)) syncstr->len=0;
-    if ((setvolume)&&(!sync)) qbs_set(syncstr,qbs_new_txt("VOL"));
-    if ((!setvolume)&&(sync)) qbs_set(syncstr,qbs_new_txt("SYNC"));
-    if ((setvolume)&&(sync)) qbs_set(syncstr,qbs_new_txt("SYNC,VOL"));
-    if (syncstr->len){
-        handle=func__sndopen(filename,syncstr,1);
-    }else{
-        handle=func__sndopen(filename,NULL,0);
-    }
-    if (handle==0) return;
-    if (setvolume) sub__sndvol(handle,volume);
     sub__sndplay(handle);
     sub__sndclose(handle);
 }

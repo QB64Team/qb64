@@ -287,7 +287,6 @@ void snd_init(){
 int32 snd_raw_channel=0;
 
 int32 func__sndopenraw(){
-/*
     static int32 handle; handle=list_add(snd_handles);
     static snd_struct *snd; snd=(snd_struct*)list_get(snd_handles,handle);
     snd->internal=0;
@@ -309,7 +308,6 @@ int32 func__sndopenraw(){
     snd->al_buffer_state=(uint8*)calloc(4,1);
     snd->al_buffer_index=(int32*)calloc(4,4);
     return handle;
-*/
 }
 
 
@@ -317,7 +315,6 @@ int32 func__sndopenraw(){
 
 
 void sub__sndraw(float left,float right,int32 handle,int32 passed){
-/*
     if (passed&2){
         if (handle==0) return;//note: this would be an invalid handle
     }else{
@@ -374,7 +371,7 @@ void sub__sndraw(float left,float right,int32 handle,int32 passed){
 error:
     error(5);
     return;
-*/
+
 }
 
 void snd_mainloop(){
@@ -409,15 +406,9 @@ void snd_mainloop(){
 
         }//2
 
-
-/*
         if (snd->type==1){//RAW
-
             if (snd->close!=2){
-
                 if (snd->stream_buffer_start){
-
-
                     static int32 repeat;
                     do{
                         repeat=0; 
@@ -577,13 +568,8 @@ gotbuffer:
                     }//not playing
                 }//time>3 secs
             }//sndclose==1
-
         }//RAW
-*/
     }//list_index loop
-
-
-
 }
 
 int32 sndupdate_dont_free_resources=0;
