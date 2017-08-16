@@ -200,6 +200,7 @@ extern void sub__console(int32);
 extern int32 func__console();
 extern void sub__controlchr(int32);
 extern void sub__blink(int32);
+extern int32 func__blink();
 extern int32 func__fileexists(qbs*);
 extern int32 func__direxists(qbs*);
 extern int32 func_stick(int32 i,int32 axis_group,int32 passed);

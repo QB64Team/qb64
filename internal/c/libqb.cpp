@@ -14244,6 +14244,9 @@ void sub__blink(int32 onoff){
   if (onoff==1) H3C0_blink_enable=1; else H3C0_blink_enable=0;
 }
 
+int32 func__blink(){
+  return -H3C0_blink_enable;
+}
 
 void sub_out(int32 port,int32 data){
   if (new_error) return;

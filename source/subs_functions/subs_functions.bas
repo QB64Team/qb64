@@ -303,6 +303,13 @@ id.specialformat = "{ON|OFF}"
 regid
 
 clearid
+id.n = "_BLINK"
+id.subfunc = 1
+id.callname = "func__blink"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
 id.n = "_FILEEXISTS"
 id.subfunc = 1
 id.callname = "func__fileexists"

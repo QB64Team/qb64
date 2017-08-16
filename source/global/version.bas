@@ -4,4 +4,4 @@ DIM SHARED AutoBuildMsg AS STRING
 Version$ = "1.1"
 'BuildNum format is YYYYMMDD/id, where id is a ever-increasing
 'integer. If you make a change, update the date and increase the id!
-BuildNum$ = "20170811/60"
+BuildNum$ = "20170816/61"
