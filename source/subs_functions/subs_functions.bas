@@ -294,6 +294,15 @@ id.specialformat = "{ON|OFF}"
 regid
 
 clearid
+id.n = "_BLINK"
+id.subfunc = 2
+id.callname = "sub__blink"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "{ON|OFF}"
+regid
+
+clearid
 id.n = "_FILEEXISTS"
 id.subfunc = 1
 id.callname = "func__fileexists"

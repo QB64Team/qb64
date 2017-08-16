@@ -14238,6 +14238,13 @@ int32 H3C8_palette_register_index=0;
 int32 H3C9_next=0;
 int32 H3C9_read_next=0;
 
+int32 H3C0_blink_enable = 1;
+
+void sub__blink(int32 onoff){
+  if (onoff==1) H3C0_blink_enable=1; else H3C0_blink_enable=0;
+}
+
+
 void sub_out(int32 port,int32 data){
   if (new_error) return;
   unsupported_port_accessed=0;
@@ -31827,9 +31834,13 @@ QB64_GAMEPAD_INIT();
           if (f==(16+1)) {cp2=&charset8x16[chr][0][0]; z2=1;}
         }
         c=col&0xF;//foreground col
-        c2=(col>>4)&7;//background col
-        c3=col>>7;//flashing?
-        if (c3&&show_flashing) c=c2;
+        if (H3C0_blink_enable) {
+            c2=(col>>4)&7;//background col
+            c3=col>>7;//flashing?
+        } else {
+            c2=(col>>4);//background col
+        }
+        if (c3&&show_flashing && H3C0_blink_enable) c=c2;
         i2=paldata[c];
         i3=paldata[c2];
         lp=display_surface_offset+qbg_y_offset+y2*x_monitor+x2;
