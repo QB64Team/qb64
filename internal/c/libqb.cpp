@@ -14251,6 +14251,11 @@ void sub_out(int32 port,int32 data){
   port=port&65535;
   data=data&255;
 
+  if (port==0x3C0) {
+	  H3C0_blink_enable = data&(1<<3);
+	  goto done;
+  }
+  
   if (port==0x3C7){//&H3C7, set palette register read index
     H3C7_palette_register_read_index=data;
     H3C9_read_next=0;
