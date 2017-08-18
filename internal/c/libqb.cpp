@@ -19912,7 +19912,7 @@ void sub_mkdir(qbs *str){
       x2=qbr_float_to_long(f);
       if (x2>x) f-=0.001f;
       if (x2<x) f+=0.001f;
-      return f;
+      return floor(f + 0.5);
     }
 
     return x;
@@ -19956,7 +19956,7 @@ void sub_mkdir(qbs *str){
       y2=qbr_float_to_long(f);
       if (y2>y) f-=0.001f;
       if (y2<y) f+=0.001f;
-      return f;
+      return floor(f + 0.5);
     }
 
     return y;
