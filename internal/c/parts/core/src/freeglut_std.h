@@ -532,12 +532,6 @@ FGAPI void    FGAPIENTRY glutWireIcosahedron( void );
 FGAPI void    FGAPIENTRY glutSolidIcosahedron( void );
 
 /*
- * Teapot rendering functions, found in freeglut_teapot.c
- */
-FGAPI void    FGAPIENTRY glutWireTeapot( GLdouble size );
-FGAPI void    FGAPIENTRY glutSolidTeapot( GLdouble size );
-
-/*
  * Game mode functions, see freeglut_gamemode.c
  */
 FGAPI void    FGAPIENTRY glutGameModeString( const char* string );
