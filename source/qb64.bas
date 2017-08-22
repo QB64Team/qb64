@@ -5779,6 +5779,11 @@ DO
             'END IF
             'Notice the ELSE with the SELECT CASE?  Before this patch, commands like those were considered valid QB64 code.
             temp$ = UCASE$(LTRIM$(RTRIM$(wholeline)))
+            IF NoIDEMode THEN
+                DO WHILE INSTR(temp$, CHR$(9))
+                    ASC(temp$, INSTR(temp$, CHR$(9))) = 32
+                LOOP
+            END IF
             goodelse = 0 'a check to see if it's a good else
             IF LEFT$(temp$, 2) = "IF" THEN goodelse = -1: GOTO skipelsecheck 'If we have an IF, the else is probably good
             IF LEFT$(temp$, 4) = "ELSE" THEN goodelse = -1: GOTO skipelsecheck 'If it's an else by itself,then we'll call it good too at this point and let the rest of the syntax checking check for us
