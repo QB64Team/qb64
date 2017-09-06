@@ -249,6 +249,8 @@ extern void sub__fullscreen(int32 method,int32 passed);
 extern int32 func__fullscreen();
 extern void sub__clipboard(qbs*);
 extern qbs *func__clipboard();
+extern int32 func__clipboardimage();
+extern void sub__clipboardimage(int32 src);
 extern int32 func__exit();
 extern char *fixdir(qbs*);
 extern void revert_input_check();

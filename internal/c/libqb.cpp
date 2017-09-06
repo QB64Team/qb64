@@ -24238,6 +24238,143 @@ if (x11selectionowner!=None){
    qbs_set(internal_clipboard,text);
  }
 
+void sub__clipboardimage(int32 src) {
+#ifdef QB64_WINDOWS
+
+    if (new_error) return;
+
+    static int32 i,i2,ii,w,h;
+    static uint32 *o,*o2;
+    static int32 x,y,n,c,i3,c2;
+
+    //validation
+    i=src;
+    if (i>=0){//validate i
+        validatepage(i); i=page[i];
+    }else{
+        i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+    }
+    
+    if (img[i].text){error(5); return;}
+    //end of validation
+
+    w=img[i].width;
+    h=img[i].height;
+
+    //source[http://support.microsoft.com/kb/318876]
+    HDC hdc;
+    BITMAPV5HEADER bi;
+    HBITMAP hBitmap;
+    void *lpBits;
+    ZeroMemory(&bi,sizeof(BITMAPV5HEADER));
+    bi.bV5Size           = sizeof(BITMAPV5HEADER);
+    bi.bV5Width           = w;
+    bi.bV5Height          = h;
+    bi.bV5Planes = 1;
+    bi.bV5BitCount = 32;
+    bi.bV5Compression = BI_RGB;
+
+    hdc = GetDC(NULL);
+    // Create the DIB section with an alpha channel.
+    hBitmap = CreateDIBSection(hdc, (BITMAPINFO *)&bi, DIB_RGB_COLORS, 
+                   (void **)&lpBits, NULL, (DWORD)0);
+                   
+    //Transfer the source image to a new 32-bit image to avoid incompatible formats)
+    i2=func__newimage(w,h,32,1);
+    sub__putimage(NULL,NULL,NULL,NULL,-i,i2,NULL,NULL,NULL,NULL,8+32);
+
+    o=img[-i2].offset32;
+    o2=(uint32*)lpBits;
+    for (y=0;y<h;y++){
+      for (x=0;x<w;x++){
+        c=o[(h-1-y)*w+x];
+        o2[y*w+x]=c;
+      }}
+
+    sub__freeimage(i2,1);
+ 
+    //Create copy of hBitmap to send to the clipboard
+    HBITMAP bitmapCopy;
+    HDC hdc2, hdc3;
+    bitmapCopy = CreateCompatibleBitmap(hdc, w, h);
+    hdc2=CreateCompatibleDC(hdc);
+    hdc3=CreateCompatibleDC(hdc);
+    SelectObject(hdc2,bitmapCopy);
+    SelectObject(hdc3,hBitmap);
+    BitBlt(hdc2,0,0,w,h,hdc3,0,0,SRCCOPY);
+    
+    ReleaseDC(NULL,hdc);
+    ReleaseDC(NULL,hdc2);
+    ReleaseDC(NULL,hdc3);
+
+    //Send bitmapCopy to the clipboard
+    if (OpenClipboard(NULL)) {
+        EmptyClipboard();
+        SetClipboardData(CF_BITMAP, bitmapCopy);
+        CloseClipboard();
+    }
+
+    DeleteObject(hBitmap);
+    DeleteObject(bitmapCopy);
+#endif
+}
+
+int32 func__clipboardimage(){
+#ifdef QB64_WINDOWS
+    
+    if (new_error) return -1;
+    
+    static HBITMAP bitmap;
+    static BITMAP bitmapInfo;
+    static HDC hdc;
+    static int32 w, h;
+
+    if ( OpenClipboard(NULL) )
+    {        
+        if (IsClipboardFormatAvailable(CF_BITMAP) == 0) {
+            CloseClipboard();
+            return -1;
+        }
+        
+        bitmap = (HBITMAP)GetClipboardData(CF_BITMAP);
+        CloseClipboard();
+        GetObject(bitmap,sizeof( BITMAP ), &bitmapInfo);
+        h = bitmapInfo.bmHeight;
+        w = bitmapInfo.bmWidth;         
+
+        static BITMAPFILEHEADER   bmfHeader;  
+        static BITMAPINFOHEADER   bi;
+        bi.biSize = sizeof(BITMAPINFOHEADER);    
+        bi.biWidth = w;    
+        bi.biHeight = -h;
+        bi.biPlanes = 1;    
+        bi.biBitCount = 32;    
+        bi.biCompression = BI_RGB;    
+        bi.biSizeImage = 0;  
+        bi.biXPelsPerMeter = 0;    
+        bi.biYPelsPerMeter = 0;    
+        bi.biClrUsed = 0;    
+        bi.biClrImportant = 0;
+
+        static int32 i,i2;
+        i2=func__dest();
+        i=func__newimage(w,h,32,1);
+        sub__dest(i);
+
+        hdc=GetDC(NULL);
+        
+        GetDIBits(hdc,bitmap,0,h,write_page->offset,(BITMAPINFO*)&bi, DIB_RGB_COLORS);
+        sub__dest(i2);
+
+        ReleaseDC(NULL,hdc);
+        DeleteObject(bitmap);
+        return i;
+
+} else return -1;
+#endif
+return -1;
+}
+
   qbs *func__clipboard(){
 #ifdef QB64_WINDOWS
     static qbs *text;

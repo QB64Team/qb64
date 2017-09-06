@@ -682,6 +682,24 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_CLIPBOARDIMAGE"
+id.subfunc = 1
+id.callname = "func__clipboardimage"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_CLIPBOARDIMAGE"
+id.subfunc = 2
+id.callname = "sub__clipboardimage"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "=?"
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "_EXIT"
 id.subfunc = 1
 id.callname = "func__exit"
