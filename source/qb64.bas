@@ -3400,7 +3400,10 @@ DO
             END IF
 
             ExeIconSet = linenumber
-            GOTO finishednonexec
+            SetDependency DEPENDENCY_ICON
+            PRINT #12, "do{"
+            PRINT #12, "sub__icon(NULL,NULL,0);"
+            GOTO finishedline2
         END IF
 
     END IF 'QB64 Metacommands
