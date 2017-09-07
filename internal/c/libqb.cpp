@@ -24364,6 +24364,8 @@ int32 func__clipboardimage(){
         hdc=GetDC(NULL);
         
         GetDIBits(hdc,bitmap,0,h,write_page->offset,(BITMAPINFO*)&bi, DIB_RGB_COLORS);
+        sub__setalpha(255,NULL,NULL,NULL,0); // required as some images come
+                                             // with alpha 0 from the clipboard
         sub__dest(i2);
 
         ReleaseDC(NULL,hdc);
