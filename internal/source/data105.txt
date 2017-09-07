@@ -1,44 +1,44 @@
 qbs *_FUNC_READCHUNK_STRING_READCHUNK=NULL;
 if (!_FUNC_READCHUNK_STRING_READCHUNK)_FUNC_READCHUNK_STRING_READCHUNK=qbs_new(0,0);
-qbs*oldstr3571=NULL;
+qbs*oldstr3574=NULL;
 if(_FUNC_READCHUNK_STRING_A->tmp||_FUNC_READCHUNK_STRING_A->fixed||_FUNC_READCHUNK_STRING_A->readonly){
-oldstr3571=_FUNC_READCHUNK_STRING_A;
-if (oldstr3571->cmem_descriptor){
-_FUNC_READCHUNK_STRING_A=qbs_new_cmem(oldstr3571->len,0);
+oldstr3574=_FUNC_READCHUNK_STRING_A;
+if (oldstr3574->cmem_descriptor){
+_FUNC_READCHUNK_STRING_A=qbs_new_cmem(oldstr3574->len,0);
 }else{
-_FUNC_READCHUNK_STRING_A=qbs_new(oldstr3571->len,0);
+_FUNC_READCHUNK_STRING_A=qbs_new(oldstr3574->len,0);
 }
-memcpy(_FUNC_READCHUNK_STRING_A->chr,oldstr3571->chr,oldstr3571->len);
+memcpy(_FUNC_READCHUNK_STRING_A->chr,oldstr3574->chr,oldstr3574->len);
 }
-qbs*oldstr3572=NULL;
+qbs*oldstr3575=NULL;
 if(_FUNC_READCHUNK_STRING_LAST_CHARACTER->tmp||_FUNC_READCHUNK_STRING_LAST_CHARACTER->fixed||_FUNC_READCHUNK_STRING_LAST_CHARACTER->readonly){
-oldstr3572=_FUNC_READCHUNK_STRING_LAST_CHARACTER;
-if (oldstr3572->cmem_descriptor){
-_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new_cmem(oldstr3572->len,0);
+oldstr3575=_FUNC_READCHUNK_STRING_LAST_CHARACTER;
+if (oldstr3575->cmem_descriptor){
+_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new_cmem(oldstr3575->len,0);
 }else{
-_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new(oldstr3572->len,0);
+_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new(oldstr3575->len,0);
 }
-memcpy(_FUNC_READCHUNK_STRING_LAST_CHARACTER->chr,oldstr3572->chr,oldstr3572->len);
+memcpy(_FUNC_READCHUNK_STRING_LAST_CHARACTER->chr,oldstr3575->chr,oldstr3575->len);
 }
 int32 *_FUNC_READCHUNK_LONG_X=NULL;
 if(_FUNC_READCHUNK_LONG_X==NULL){
 _FUNC_READCHUNK_LONG_X=(int32*)mem_static_malloc(4);
 *_FUNC_READCHUNK_LONG_X=0;
 }
-int64 fornext_value3574;
-int64 fornext_finalvalue3574;
-int64 fornext_step3574;
-uint8 fornext_step_negative3574;
-byte_element_struct *byte_element_3575=NULL;
-if (!byte_element_3575){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3575=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3575=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value3577;
+int64 fornext_finalvalue3577;
+int64 fornext_step3577;
+uint8 fornext_step_negative3577;
+byte_element_struct *byte_element_3578=NULL;
+if (!byte_element_3578){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3578=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3578=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_READCHUNK_LONG_C=NULL;
 if(_FUNC_READCHUNK_LONG_C==NULL){
 _FUNC_READCHUNK_LONG_C=(int32*)mem_static_malloc(4);
 *_FUNC_READCHUNK_LONG_C=0;
 }
-byte_element_struct *byte_element_3576=NULL;
-if (!byte_element_3576){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3576=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3576=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3579=NULL;
+if (!byte_element_3579){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3579=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3579=(byte_element_struct*)mem_static_malloc(12);
 }
