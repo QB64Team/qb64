@@ -1577,7 +1577,11 @@ double func__sndrawlen(int32 handle,int32 passed){
     for (i=0;i<=3;i++){
         if (snd->al_buffer_state[i]==1) dest_buffers++;
     }
-    return ((double)((dest_buffers+source_buffers)*(snd_buffer_size/2/2)))/(double)snd_frequency;
+
+	static double result;
+	result = ((double)((dest_buffers+source_buffers)*(snd_buffer_size/2/2)))/(double)snd_frequency;
+	if (result < .375) result = 0; //hack to reenable _SNDRAWLEN, which gets stuck at .3715192763764172
+    return result;
 
 error:
     error(5);
