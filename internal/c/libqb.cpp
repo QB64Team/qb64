@@ -24238,6 +24238,7 @@ if (x11selectionowner!=None){
    qbs_set(internal_clipboard,text);
  }
 
+#ifdef DEPENDENCY_SCREENIMAGE
 void sub__clipboardimage(int32 src) {
 #ifdef QB64_WINDOWS
 
@@ -24318,7 +24319,9 @@ void sub__clipboardimage(int32 src) {
     DeleteObject(bitmapCopy);
 #endif
 }
+#endif
 
+#ifdef DEPENDENCY_SCREENIMAGE
 int32 func__clipboardimage(){
 #ifdef QB64_WINDOWS
     
@@ -24376,6 +24379,7 @@ int32 func__clipboardimage(){
 #endif
 return -1;
 }
+#endif
 
   qbs *func__clipboard(){
 #ifdef QB64_WINDOWS
