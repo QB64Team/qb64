@@ -17,16 +17,6 @@ extern uint32 matchcol(int32 r,int32 g,int32 b);
  #include "decode/other/src.c" //PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM(PPM/PGM)
 #endif
 
-inline int32 func__red32(uint32 col){
-return col>>16&0xFF;
-}
-inline int32 func__green32(uint32 col){
-return col>>8&0xFF;
-}
-inline int32 func__blue32(uint32 col){
-return col&0xFF;
-}
-
 int32 func__loadimage(qbs *f,int32 bpp,int32 passed){
 if (new_error) return 0;
 
