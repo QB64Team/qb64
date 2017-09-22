@@ -1,3 +1,5 @@
+extern uint32 matchcol(int32 r,int32 g,int32 b);
+
 #ifndef DEPENDENCY_IMAGE_CODEC
  //Stub(s):
  int32 func__loadimage(qbs *f,int32 bpp,int32 passed);
@@ -14,6 +16,16 @@
  #include "decode/bmp/src.c"
  #include "decode/other/src.c" //PNG, TGA, BMP, PSD, GIF, HDR, PIC, PNM(PPM/PGM)
 #endif
+
+inline int32 func__red32(uint32 col){
+return col>>16&0xFF;
+}
+inline int32 func__green32(uint32 col){
+return col>>8&0xFF;
+}
+inline int32 func__blue32(uint32 col){
+return col&0xFF;
+}
 
 int32 func__loadimage(qbs *f,int32 bpp,int32 passed){
 if (new_error) return 0;
@@ -83,9 +95,32 @@ if (!(result&1)) return -1;
 //...
 
 static int32 i;
-i=func__newimage(x,y,32,1);
-if (i==-1){free(pixels); return -1;}
-memcpy(img[-i].offset,pixels,x*y*4);
+static int32 prevDest;
+static uint16 scanX, scanY;
+static uint8 red, green, blue;
+
+if (bpp==256) {
+    i=func__newimage(x,y,256,1);
+    if (i==-1){free(pixels); return -1;}
+    prevDest=func__dest();
+    sub__dest(i);
+
+    for (scanY=0;scanY<y;scanY++){
+        for (scanX=0;scanX<x;scanX++){
+             blue=*pixels; pixels++;
+             green=*pixels; pixels++;
+             red=*pixels; pixels++;
+             pixels++; //skip alpha
+             pset(scanX,scanY,matchcol(red,green,blue));
+        }
+    }
+
+    sub__dest(prevDest);
+} else {
+    i=func__newimage(x,y,32,1);
+    if (i==-1){free(pixels); return -1;}
+    memcpy(img[-i].offset,pixels,x*y*4);
+}
 free(pixels);
 
 if (isHardware){
