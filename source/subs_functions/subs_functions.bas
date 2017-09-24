@@ -518,6 +518,15 @@ id.ret = STRINGTYPE - ISPOINTER
 regid
 
 clearid
+id.n = "_TITLE"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__title"
+id.ret = STRINGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "_MAPUNICODE"
 id.subfunc = 2
 id.callname = "sub__mapunicode"
@@ -549,6 +558,14 @@ id.n = "_KEYHIT"
 id.subfunc = 1
 id.callname = "func__keyhit"
 id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_WINDOWHANDLE"
+id.subfunc = 1
+id.callname = "func__handle"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
 regid
 
 clearid
@@ -658,6 +675,14 @@ clearid
 id.n = "_FULLSCREEN"
 id.subfunc = 1
 id.callname = "func__fullscreen"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_WINDOWHASFOCUS"
+id.subfunc = 1
+id.callname = "func__hasfocus"
 id.ret = LONGTYPE - ISPOINTER
 id.NoCloud = 1
 regid

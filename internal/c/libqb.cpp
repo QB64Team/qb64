@@ -3778,7 +3778,7 @@ int MessageBox2(int ignore,char* message,char* title,int type){
     showErrorOnScreen(message, 0, 0);//display error message on screen and enter infinite loop
   #endif
 
-  return MessageBox(NULL,message,title,type);
+  return MessageBox(window_handle,message,title,type);
 }
 
 
@@ -14246,6 +14246,35 @@ void sub__blink(int32 onoff){
 
 int32 func__blink(){
   return -H3C0_blink_enable;
+}
+
+int32 func__handle(){
+    #ifdef QB64_GUI
+        #ifdef QB64_WINDOWS
+            while (!window_handle){Sleep(100);}
+            return (int32)window_handle;
+        #endif
+    #endif
+
+    return 0;
+}
+
+qbs *func__title(){
+    if (!window_title){
+      return qbs_new_txt("");
+    }else{
+      return qbs_new_txt((char*)window_title);
+    }
+}
+
+int32 func__hasfocus() {
+    #ifdef QB64_GUI
+        #ifdef QB64_WINDOWS
+            while (!window_handle){Sleep(100);}
+            return -(window_handle==GetForegroundWindow());
+        #endif
+    #endif
+    return -1;
 }
 
 void sub_out(int32 port,int32 data){
@@ -26106,9 +26135,6 @@ return qbs_new(0,1);
     ZeroMemory(&input,sizeof(INPUT));
     input.type=INPUT_MOUSE;
     input.mi.dwFlags=MOUSEEVENTF_LEFTDOWN;
-    if (passed){
-
-    }
     SendInput(1,&input,sizeof(INPUT));
 
     ZeroMemory(&input,sizeof(INPUT));
