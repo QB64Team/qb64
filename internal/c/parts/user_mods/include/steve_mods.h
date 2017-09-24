@@ -33,4 +33,7 @@ double func_csc (double num);
 double func_cot (double num);
 int32 func_screenicon ();
 
-extern HWND window_handle;
+#ifdef QB64_WINDOWS
+    extern HWND window_handle;
+#endif
+
