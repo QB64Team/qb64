@@ -44,7 +44,7 @@
 
 
 #ifdef QB64_ANDROID
-  #include <cstdlib> //required for system()
+        #include <cstdlib> //required for system()
   struct android_app* android_state;
   JavaVM* android_vm;
   JNIEnv* android_env;
@@ -29469,12 +29469,23 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     if (key==GLUT_KEY_INSERT){vk=0x5200;}
 
 #ifdef CORE_FREEGLUT
-    if (key==112){vk=VK+QBVK_LSHIFT;}
-    if (key==113){vk=VK+QBVK_RSHIFT;}
-    if (key==114){vk=VK+QBVK_LCTRL;}
-    if (key==115){vk=VK+QBVK_RCTRL;}
-    if (key==116){vk=VK+QBVK_LALT;}
-    if (key==117){vk=VK+QBVK_RALT;}
+    #ifdef QB64_WINDOWS
+        if (window_handle==GetActiveWindow()) {
+            if (key==112){vk=VK+QBVK_LSHIFT;}
+            if (key==113){vk=VK+QBVK_RSHIFT;}
+            if (key==114){vk=VK+QBVK_LCTRL;}
+            if (key==115){vk=VK+QBVK_RCTRL;}
+            if (key==116){vk=VK+QBVK_LALT;}
+            if (key==117){vk=VK+QBVK_RALT;}
+        }
+    #else
+        if (key==112){vk=VK+QBVK_LSHIFT;}
+        if (key==113){vk=VK+QBVK_RSHIFT;}
+        if (key==114){vk=VK+QBVK_LCTRL;}
+        if (key==115){vk=VK+QBVK_RCTRL;}
+        if (key==116){vk=VK+QBVK_LALT;}
+        if (key==117){vk=VK+QBVK_RALT;}
+    #endif
 #endif
 
     if (vk!=-1){

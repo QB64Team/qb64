@@ -3,5 +3,6 @@
 
 #include "Steve Stuff/convert_angle.cpp"
 #include "Steve Stuff/extramath.cpp"
-#include "Steve Stuff/screeninfo.cpp"
 #include "Steve Stuff/stringcomp.cpp"
+#include "Steve Stuff/screeninfo.cpp"
+

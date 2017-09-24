@@ -32,3 +32,5 @@ double func_sec (double num);
 double func_csc (double num);
 double func_cot (double num);
 int32 func_screenicon ();
+
+extern HWND window_handle;
