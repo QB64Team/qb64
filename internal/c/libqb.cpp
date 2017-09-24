@@ -3778,7 +3778,11 @@ int MessageBox2(int ignore,char* message,char* title,int type){
     showErrorOnScreen(message, 0, 0);//display error message on screen and enter infinite loop
   #endif
 
-  return MessageBox(window_handle,message,title,type);
+  #ifdef QB64_WINDOWS
+    return MessageBox(window_handle,message,title,type);
+  #else
+    return MessageBox(NULL,message,title,type);
+  #endif
 }
 
 
