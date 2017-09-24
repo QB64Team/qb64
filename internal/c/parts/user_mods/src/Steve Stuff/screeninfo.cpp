@@ -61,3 +61,8 @@ int32 func_screenicon () {
          return 0; //if we get here and haven't exited already, we failed somewhere along the way.
       #endif
 }
+
+int32 func__autodisplay () {
+    if (autodisplay) {return -1;}
+    return 0;
+}

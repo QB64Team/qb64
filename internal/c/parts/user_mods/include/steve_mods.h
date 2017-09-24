@@ -37,3 +37,4 @@ int32 func_screenicon ();
     extern HWND window_handle;
 #endif
 
+int32 func__autodisplay ();
