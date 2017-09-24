@@ -578,8 +578,9 @@ clearid
 id.n = "_SCREENCLICK"
 id.subfunc = 2
 id.callname = "sub__screenclick"
-id.args = 2
-id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.args = 3
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "?,?[,?]"
 id.NoCloud = 1
 regid
 

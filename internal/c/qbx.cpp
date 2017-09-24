@@ -239,7 +239,7 @@ extern void sub__printimage(int32 i);
 extern float func__mousemovementx(int32 context, int32 passed);
 extern float func__mousemovementy(int32 context, int32 passed);
 extern void sub__screenprint(qbs *txt);
-extern void sub__screenclick(int32 x,int32 y);
+extern void sub__screenclick(int32 x,int32 y, int32 button, int32 passed);
 extern int32 func__screenimage(int32 x1,int32 y1,int32 x2,int32 y2,int32 passed);
 extern void sub_lock(int32 i,int64 start,int64 end,int32 passed);
 extern void sub_unlock(int32 i,int64 start,int64 end,int32 passed);

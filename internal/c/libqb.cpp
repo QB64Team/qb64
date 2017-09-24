@@ -26079,7 +26079,7 @@ return qbs_new(0,1);
   }
 #endif //DEPENDENCY_SCREENIMAGE
 
-  void sub__screenclick(int32 x,int32 y){
+  void sub__screenclick(int32 x,int32 y, int32 button, int32 passed){
 
     if (cloud_app){error(262); return;}
 
@@ -26106,11 +26106,36 @@ return qbs_new(0,1);
     ZeroMemory(&input,sizeof(INPUT));
     input.type=INPUT_MOUSE;
     input.mi.dwFlags=MOUSEEVENTF_LEFTDOWN;
+    if (passed){
+
+    }
     SendInput(1,&input,sizeof(INPUT));
 
     ZeroMemory(&input,sizeof(INPUT));
     input.type=INPUT_MOUSE;
-    input.mi.dwFlags=MOUSEEVENTF_LEFTUP;
+    
+    if (passed){
+        if (button==1) {input.mi.dwFlags=MOUSEEVENTF_LEFTDOWN;}
+        if (button==2) {input.mi.dwFlags=MOUSEEVENTF_RIGHTDOWN;}
+        if (button==3) {input.mi.dwFlags=MOUSEEVENTF_MIDDLEDOWN;}
+        SendInput(1,&input,sizeof(INPUT));
+
+        ZeroMemory(&input,sizeof(INPUT));
+        input.type=INPUT_MOUSE;
+
+        if (button==1) {input.mi.dwFlags=MOUSEEVENTF_LEFTUP;}
+        if (button==2) {input.mi.dwFlags=MOUSEEVENTF_RIGHTUP;}
+        if (button==3) {input.mi.dwFlags=MOUSEEVENTF_MIDDLEUP;}
+    }else {
+        input.mi.dwFlags=MOUSEEVENTF_LEFTDOWN;
+
+        SendInput(1,&input,sizeof(INPUT));
+
+        ZeroMemory(&input,sizeof(INPUT));
+        input.type=INPUT_MOUSE;
+
+        input.mi.dwFlags=MOUSEEVENTF_LEFTUP;
+    }
     SendInput(1,&input,sizeof(INPUT));
 
 #endif
