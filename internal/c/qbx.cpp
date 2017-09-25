@@ -353,6 +353,7 @@ extern qbs *qbs_rtrim(qbs *str);
 extern int32 func__str_nc_compare(qbs *s1, qbs *s2);
 extern int32 func__str_compare(qbs *s1, qbs *s2);
 extern qbs *qbs_inkey();
+extern void sub__keyclear(int32 buf, int32 passed);
 extern qbs *qbs_str(int64 value);
 extern qbs *qbs_str(int32 value);
 extern qbs *qbs_str(int16 value);
