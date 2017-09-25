@@ -9,8 +9,6 @@
  #include <cmath>
 #endif
 
-#include "parts/user_mods/src.cpp"
-
 /* testing only
 #ifdef QB64_WINDOWS
 
@@ -196,9 +194,15 @@ extern void sub__consoletitle(qbs*);
 extern void sub__screenshow();
 extern void sub__screenhide();
 extern int32 func__screenhide();
+extern int32 func_windowexists();
+extern int32 func_screenicon();
+extern int32 func_screenwidth();
+extern int32 func_screenheight();
+extern void sub_screenicon();
 extern void sub__console(int32);
 extern int32 func__console();
 extern void sub__controlchr(int32);
+extern int32 func__controlchr();
 extern void sub__blink(int32);
 extern int32 func__blink();
 extern int32 func__hasfocus();
@@ -346,6 +350,8 @@ extern void sub_mid(qbs *dest,int32 start,int32 l,qbs* src,int32 passed);
 extern qbs *func_mid(qbs *str,int32 start,int32 l,int32 passed);
 extern qbs *qbs_ltrim(qbs *str);
 extern qbs *qbs_rtrim(qbs *str);
+extern int32 func__str_nc_compare(qbs *s1, qbs *s2);
+extern int32 func__str_compare(qbs *s1, qbs *s2);
 extern qbs *qbs_inkey();
 extern qbs *qbs_str(int64 value);
 extern qbs *qbs_str(int32 value);
@@ -364,6 +370,22 @@ extern int32 qbs_greaterthan(qbs *str1,qbs *str2);
 extern int32 qbs_lessthan(qbs *str1,qbs *str2);
 extern int32 qbs_lessorequal(qbs *str1,qbs *str2);
 extern int32 qbs_greaterorequal(qbs *str1,qbs *str2);
+extern double func_deg2rad(double degree);
+extern double func_deg2grad(double degree);
+extern double func_rad2deg(double degree);
+extern double func_rad2grad(double degree);
+extern double func_grad2deg(double degree);
+extern double func_grad2rad(double degree);
+extern double func_arcsec (double num);
+extern double func_arccsc (double num);
+extern double func_arccot (double num);
+extern double func_sech (double num);
+extern double func_csch (double num);
+extern double func_coth (double num);
+extern double func_sec (double num);
+extern double func_csc (double num);
+extern double func_cot (double num);
+extern double func_pi(double multiplier,int32 passed);
 extern int32 qbs_asc(qbs*);
 extern int32 qbs_asc(qbs*,uint32);
 extern int32 qbs_len(qbs *str);
@@ -1058,6 +1080,7 @@ void sub__icon(int32 i, int32 i2, int32 passed);
 
 void sub__display();
 void sub__autodisplay();
+int32 func__autodisplay();
 
 
 

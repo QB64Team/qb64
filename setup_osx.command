@@ -44,17 +44,6 @@ if [ ! -f ./src.o ]; then
 fi
 cd ../../../../../../../..
 
-echo "Building User Additions"
-cd internal/c/parts/user_mods/os/osx
-rm -f src.a
-./setup_build.command
-if [ ! -f ./src.a ]; then
-  echo "Compilation of ./internal/c/parts/user_mods/os/osx/src.a failed!"
-  Pause
-  exit 1
-fi
-cd ../../../../../..
-
 echo "Building 'QB64' (~3 min)"
 cp ./internal/source/* ./internal/temp/
 cd internal/c

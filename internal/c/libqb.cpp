@@ -8460,6 +8460,49 @@ qbs *qbs_rtrim(qbs *str){
   return tqbs;
 }
 
+int32 func__str_nc_compare(qbs *s1, qbs *s2) {
+  int32 limit, l1, l2;
+  int32 v1, v2;
+  unsigned char *c1=s1->chr, *c2=s2->chr;
+  
+  l1 = s1->len; l2 = s2->len;  //no need to get the length of these strings multiple times.
+  if (!l1) {   
+    if (l2) return -1; else return 0;  //if one is a null string we known the answer already.
+  }
+  if (!l2) return 1;
+  if (l1<=l2) limit = l1; else limit = l2; //our limit is going to be the length of the smallest string.
+
+  for (int32 i=0;i<limit; i++) {  //check the length of our string
+    v1=*c1;v2=*c2;
+    if ((v1>64)&&(v1<91)) v1=v1|32;
+    if ((v2>64)&&(v2<91)) v2=v2|32;
+    if (v1<v2) return -1;
+    if (v1>v2) return 1;
+       c1++;
+     c2++;
+    }
+      
+    if (l1<l2) return -1; 
+  if (l2>l1) return 1;
+  return 0;
+}
+
+int32 func__str_compare(qbs *s1, qbs *s2) {
+  int32 i, limit, l1, l2;
+    l1 = s1->len; l2 = s2->len;  //no need to get the length of these strings multiple times.
+  if (!l1) {   
+    if (l2) return -1; else return 0;  //if one is a null string we known the answer already.
+  }
+  if (!l2) return 1;
+  if (l1<=l2) limit = l1; else limit = l2; 
+    i=memcmp(s1->chr,s2->chr,limit); 
+    if (i<0) return -1;
+    if (i>0) return 1; 
+    if (l1<l2) return -1; 
+    if (l1>l2) return 1;
+    return 0;
+}
+
 qbs *qbs_inkey(){
   if (new_error) return qbs_new(0,1);
   qbs *tqbs;
@@ -8483,6 +8526,26 @@ qbs *qbs_inkey(){
     tqbs->len=0;
   }
   return tqbs;
+}
+
+void sub__keyclear(int32 buf, int32 passed) {
+  if (new_error) return;
+  if (passed && (buf > 3 || buf < 1)) error(5);
+  //  Sleep(10);
+  if ((buf == 1 && passed) || !passed) {
+    //INKEY$ buffer
+    cmem[0x41a]=30; cmem[0x41b]=0; //head
+    cmem[0x41c]=30; cmem[0x41d]=0; //tail
+  }
+  if ((buf == 2 && passed) || !passed) {
+    //_KEYHIT buffer
+    keyhit_nextfree = 0;
+    keyhit_next = 0;
+  }
+  if ((buf == 3 && passed) || !passed) {
+    //INP(&H60) buffer
+    port60h_events = 0;
+  }
 }
 
 //STR() functions
@@ -12283,6 +12346,10 @@ int32 no_control_characters2=0;
 
 void sub__controlchr(int32 onoff){
   if (onoff==2) no_control_characters2=1; else no_control_characters2=0;
+}
+
+int32 func__controlchr () {
+  return -no_control_characters2;
 }
 
 void qbs_print(qbs* str,int32 finish_on_new_line){
@@ -22519,6 +22586,85 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
   }//sub__icon
 #endif //DEPENDENCY_ICON
 
+  int32 func_screenwidth () {
+  #ifdef QB64_GLUT
+    while (!window_exists){Sleep(100);}
+      #ifdef QB64_WINDOWS
+          while (!window_handle){Sleep(100);}
+      #endif
+      return glutGet(GLUT_SCREEN_WIDTH);
+  #else
+    return 0;
+  #endif
+  }
+
+  int32 func_screenheight () {
+  #ifdef QB64_GLUT
+    while (!window_exists){Sleep(100);}
+      #ifdef QB64_WINDOWS
+          while (!window_handle){Sleep(100);}
+      #endif
+      return glutGet(GLUT_SCREEN_HEIGHT);
+  #else
+      return 0;
+  #endif
+  }
+
+  void sub_screenicon () {
+  #ifdef QB64_GLUT
+    while (!window_exists){Sleep(100);}
+      #ifdef QB64_WINDOWS
+          while (!window_handle){Sleep(100);}
+      #endif  
+      glutIconifyWindow();
+    return;
+  #endif
+  }
+
+  int32 func_windowexists () {
+  #ifdef QB64_GLUT
+      #ifdef QB64_WINDOWS
+          if (!window_handle){return 0;}
+      #endif
+    return -window_exists;
+  #else
+    return -1;
+  #endif
+  }
+
+  int32 func_screenicon () {
+  #ifdef QB64_GLUT
+      while (!window_exists){Sleep(100);}
+      #ifdef QB64_WINDOWS
+          while (!window_handle){Sleep(100);}
+      #endif
+      extern int32 screen_hide;
+      if (screen_hide) {error(5); return 0;}
+          #ifdef QB64_WINDOWS
+                return -IsIconic(window_handle);
+          #else
+            /*     
+             Linux code not compiling for now
+             #include <X11/X.h>
+             #include <X11/Xlib.h>
+             extern Display *X11_display;
+             extern Window X11_window;
+             extern int32 screen_hide;
+             XWindowAttributes attribs;
+             while (!(X11_display && X11_window));
+             XGetWindowAttributes(X11_display, X11_window, &attribs);
+             if (attribs.map_state == IsUnmapped) return -1;
+             return 0;
+             #endif */
+           return 0; //if we get here and haven't exited already, we failed somewhere along the way.
+        #endif
+  #endif
+  }
+
+  int32 func__autodisplay () {
+      if (autodisplay) {return -1;}
+      return 0;
+  }
   void sub__autodisplay(){
     autodisplay=1;
   }
@@ -29376,7 +29522,82 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     return b;
   }
 
+  /* Extra maths functions - we do what we must because we can */
+  double func_deg2rad (double value) {
+    return (value * 0.01745329251994329576923690768489);
+  }
 
+  double func_rad2deg (double value) {
+    return (value * 57.29577951308232);
+  } 
+
+  double func_deg2grad (double value) {
+    return (value * 1.111111111111111);
+  }
+
+  double func_grad2deg (double value) {
+    return (value * 0.9);
+  }
+
+  double func_rad2grad (double value) {
+    return (value * 63.66197723675816);
+  } 
+
+  double func_grad2rad (double value) {
+    return (value * .01570796326794896);
+  } 
+
+  double func_pi (double multiplier,int32 passed) {
+    if (passed) {return 3.14159265358979323846264338327950288419716939937510582 * multiplier;}
+    return (3.14159265358979323846264338327950288419716939937510582);
+  }
+
+  double func_arcsec (double num) {
+    int sign = (num > 0) - (num < 0);
+    if (num<-1||num>1) {error(5);return 0;}
+    return atan(num / sqrt(1 - num * num)) + (sign - 1) * (2 * atan(1));
+  }
+
+  double func_arccsc (double num) {
+    int sign = (num > 0) - (num < 0);
+    if (num<-1||num>1) {error(5);return 0;}
+    return atan(num / sqrt(1 - num * num)) + (sign - 1) * (2 * atan(1));
+  }
+
+  double func_arccot (double num) {return 2 * atan(1) - atan(num);}
+
+  double func_sech (double num) {
+    if (num>88.02969) {error(5);return 0;}
+    if (exp(num) + exp(-num)==0) {error(5);return 0;}
+    return 2/ (exp(num) + exp(-num));
+  }
+
+  double func_csch (double num) {
+    if (num>88.02969) {error(5);return 0;}
+    if (exp(num) - exp(-num)==0) {error(5);return 0;}
+    return 2/ (exp(num) - exp(-num));
+  }
+
+  double func_coth (double num) {
+    if (num>44.014845) {error(5);return 0;}
+    if (2 * exp(num) - 1==0) {error(5);return 0;}
+    return 2 * exp(num) - 1;
+  }
+
+  double func_sec (double num) {
+    if (cos(num)==0) {error(5);return 0;}
+    return 1/cos(num);
+  }
+
+  double func_csc (double num) {
+    if (sin(num)==0) {error(5);return 0;}
+    return 1/sin(num);
+  }
+
+  double func_cot (double num) {
+    if (tan(num)==0) {error(5);return 0;}
+    return 1/tan(num);
+  }
 
 
   void GLUT_key_ascii(int32 key,int32 down){
