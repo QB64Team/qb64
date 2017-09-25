@@ -5597,7 +5597,7 @@ FUNCTION idechangeit$
     i = 0
     w = 45
     p.x = 40 - w \ 2
-    p.y = 21
+    p.y = idewy - 4
     p.w = w
     p.h = 2
     p.nam = idenewtxt("Change")
