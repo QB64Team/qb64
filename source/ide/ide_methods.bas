@@ -2812,6 +2812,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KCONTROL AND UCASE$(K$) = "O" THEN 'File -> #Open
+            IdeOpenFile$ = ""
             GOTO ctrlOpen
         END IF
 
@@ -4848,8 +4849,8 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#New  Ctrl+N" THEN
-                ctrlNew:
                 PCOPY 2, 0
+                ctrlNew:
                 IF ideunsaved = 1 THEN
                     r$ = idesavenow
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -4942,10 +4943,10 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Open...  Ctrl+O" THEN
-                ctrlOpen:
                 IdeOpenFile$ = ""
                 directopen:
                 PCOPY 2, 0
+                ctrlOpen:
                 IF ideunsaved THEN
                     r$ = idesavenow
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -8788,7 +8789,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                         o.issel = 0
                     END IF
                 END IF
-                IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 THEN
+                IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 AND KALT = 0 THEN
                     IF o.issel THEN
                         sx1 = o.sx1: sx2 = o.v1
                         IF sx1 > sx2 THEN SWAP sx1, sx2
