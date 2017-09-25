@@ -114,8 +114,8 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
         END IF
     ELSE
-        WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
-        PasteCursorAtEnd = 0
+        WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "TRUE"
+        PasteCursorAtEnd = -1
     END IF
 
     result = ReadConfigSetting("SaveExeWithSource", value$)
@@ -228,17 +228,16 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("IDE_IndentSUBs", value$)
     ideindentsubs = VAL(value$)
-    IF UCASE$(value$) = "TRUE" OR ideindentsubs <> 0 THEN
+    IF UCASE$(value$) = "TRUE" OR ideautoindent <> 0 THEN
         ideindentsubs = 1
-    elseif result = 0 then
-        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "FALSE"
-        ideindentsubs = 0
-    ELSEIF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN
+    ELSE
+        IF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "TRUE"
             ideindentsubs = 1
-    else
+        else
             ideindentsubs = 0
-    end if
+        end if
+    END IF
 
     result = ReadConfigSetting("IDE_IndentSize", value$)
     ideautoindentsize = VAL(value$)
