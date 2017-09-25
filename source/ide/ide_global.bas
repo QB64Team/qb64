@@ -135,6 +135,7 @@ DIM SHARED idecompiledline 'stores the number of the last line sent to the compi
 DIM SHARED idecompiledline$ 'stores the last line sent to the compiler
 DIM SHARED idesx, idesy, idecx, idecy
 DIM SHARED ideselect, ideselectx1, ideselecty1, idemouseselect, idembmonitor
+DIM SHARED ideCurrentSingleLineSelection AS STRING
 DIM SHARED ideunsaved
 DIM SHARED ideroot AS STRING
 DIM SHARED idetxt(1000) AS STRING
@@ -198,6 +199,7 @@ DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER
 DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMenuPasteCursor AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
+DIM SHARED multihighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
 DIM SHARED LastValidColorScheme AS INTEGER
 DIM SHARED menubar$, idecontextualSearch$

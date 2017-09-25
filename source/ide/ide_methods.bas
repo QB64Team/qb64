@@ -3699,14 +3699,27 @@ FUNCTION ide2 (ignore)
                 sx1 = ideselectx1: sx2 = idecx
                 IF sx1 > sx2 THEN SWAP sx1, sx2
                 IF ideselect = 1 AND (sx2 - sx1) > 0 THEN
+                    IF sx2 - sx1 > 1 THEN
+                        a$ = idegetline(idecy)
+                        ideCurrentSingleLineSelection = MID$(a$, sx1, sx2 - sx1)
+                        FOR i = 1 TO LEN(ideCurrentSingleLineSelection)
+                            IF INSTR(char.sep$, MID$(ideCurrentSingleLineSelection, i, 1)) > 0 THEN
+                                'separators in selection don't trigger multi-highlight
+                                ideCurrentSingleLineSelection = ""
+                                EXIT FOR
+                            END IF
+                        NEXT i
+                    END IF
                     IdeInfo = "Selection length = " + str2$(sx2 - sx1)
                     UpdateIdeInfo
                 ELSE
                     IdeInfo = ""
+                    ideCurrentSingleLineSelection = ""
                     UpdateIdeInfo
                 END IF
             ELSE
                 IdeInfo = ""
+                ideCurrentSingleLineSelection = ""
                 UpdateIdeInfo
             END IF
         END IF
@@ -7996,7 +8009,17 @@ SUB ideshowtext
                     IF inquote = 0 THEN comment = -1
             END SELECT
         NEXT k
+        DIM multiHighlightLength AS LONG
+        multiHighlightLength = 0
+        prevBG% = _BACKGROUNDCOLOR
         FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
+            IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
+                IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
+                    'the current selection was found at this spot. Multi-highlight takes place:
+                    multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                END IF
+            END IF
+
             IF comment = 0 THEN
                 SELECT CASE MID$(a$, m + idesx - 1, 1)
                     CASE CHR$(34): inquote = NOT inquote
@@ -8018,6 +8041,11 @@ SUB ideshowtext
 
             IF l = idecy AND (m + idesx - 1 = bracket1 OR m + idesx - 1 = bracket2) THEN
                 COLOR BracketFG%, 5
+            ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
+                multiHighlightLength = multiHighlightLength - 1
+                COLOR , 6
+            ELSE
+                COLOR , prevBG%
             END IF
 
             DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
@@ -11212,6 +11240,12 @@ FUNCTION idechoosecolorsbox
     IF brackethighlight THEN o(i).sel = 1
 
     i = i + 1
+    o(i).typ = 4 'check box
+    o(i).y = 15
+    o(i).nam = idenewtxt("#Multi-highlight")
+    IF multihighlight THEN o(i).sel = 1
+
+    i = i + 1
     o(i).typ = 3
     o(i).y = 17
     o(i).txt = idenewtxt("#OK" + sep + "Restore #defaults" + sep + "#Cancel")
@@ -11439,8 +11473,8 @@ FUNCTION idechoosecolorsbox
         IF focus <> PrevFocus THEN
             'Always start with RGB values AND scheme name selected upon getting focus
             PrevFocus = focus
-            IF (focus >= 2 AND focus <= 4) OR focus = 9 THEN
-                IF focus = 9 THEN tfocus = 7 ELSE tfocus = focus
+            IF (focus >= 2 AND focus <= 4) OR focus = 10 THEN
+                IF focus = 10 THEN tfocus = 8 ELSE tfocus = focus
                 o(tfocus).v1 = LEN(idetxt(o(tfocus).txt))
                 IF o(tfocus).v1 > 0 THEN o(tfocus).issel = -1
                 o(tfocus).sx1 = 0
@@ -11462,7 +11496,7 @@ FUNCTION idechoosecolorsbox
                 'Save
                 IF SchemeID = 0 THEN
                     SaveNew:
-                    SchemeString$ = LTRIM$(RTRIM$(idetxt(o(7).txt)))
+                    SchemeString$ = LTRIM$(RTRIM$(idetxt(o(8).txt)))
                     IF LEN(SchemeString$) = 0 THEN SchemeString$ = "User-defined"
                     'Find the next free scheme index
                     i = 0
@@ -11500,7 +11534,7 @@ FUNCTION idechoosecolorsbox
                     FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
                     SchemeString$ = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
 
-                    IF SchemeString$ <> LTRIM$(RTRIM$(idetxt(o(7).txt))) THEN
+                    IF SchemeString$ <> LTRIM$(RTRIM$(idetxt(o(8).txt))) THEN
                         'User wants to save the current SchemeID under a different name
                         GOTO SaveNew
                     END IF
@@ -11532,9 +11566,9 @@ FUNCTION idechoosecolorsbox
                     ChangedScheme = -1
                     GOTO ApplyScheme
                 END IF
-                o(7).v1 = LEN(idetxt(o(7).txt))
-                o(7).issel = -1
-                o(7).sx1 = 0
+                o(8).v1 = LEN(idetxt(o(8).txt))
+                o(8).issel = -1
+                o(8).sx1 = 0
             ELSEIF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN
                 'Erase
                 IF SchemeID > PresetColorSchemes THEN
@@ -11553,7 +11587,8 @@ FUNCTION idechoosecolorsbox
         'Scheme selection arrows:
         ChangedScheme = 0
         SchemeArrow = 0
-        IF mB AND mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4 THEN
+        IF (mB AND mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4) OR _
+           (K$ = CHR$(0) + CHR$(75) AND (focus = 1)) THEN
             SchemeArrow = -1
             IF SchemeID = 0 THEN
                 ChangedScheme = -1
@@ -11561,7 +11596,8 @@ FUNCTION idechoosecolorsbox
             ELSE
                 IF SchemeID > 1 THEN SchemeID = SchemeID - 1: ChangedScheme = -1
             END IF
-        ELSEIF mB AND mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7 THEN
+        ELSEIF (mB AND mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7) OR _
+               (K$ = CHR$(0) + CHR$(77) AND (focus = 1)) THEN
             SchemeArrow = 1
             IF SchemeID = 0 THEN
                 ChangedScheme = -1
@@ -11593,10 +11629,10 @@ FUNCTION idechoosecolorsbox
             END IF
             ApplyScheme:
             FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
-            idetxt(o(7).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
-            o(7).v1 = LEN(idetxt(o(7).txt))
-            o(7).issel = -1
-            o(7).sx1 = 0
+            idetxt(o(8).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+            o(8).v1 = LEN(idetxt(o(8).txt))
+            o(8).issel = -1
+            o(8).sx1 = 0
             ColorData$ = RIGHT$(ColorSchemes$(SchemeID), 54)
             i = 1
             r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
@@ -11711,16 +11747,16 @@ FUNCTION idechoosecolorsbox
         NEXT checkRGB
 
         'Check for valid scheme name
-        FoundPipe = INSTR(idetxt(o(7).txt), "|")
+        FoundPipe = INSTR(idetxt(o(8).txt), "|")
         IF FoundPipe > 0 THEN
-            a2$ = LEFT$(idetxt(o(7).txt), FoundPipe - 1) + MID$(idetxt(o(7).txt), FoundPipe + 1)
-            idetxt(o(7).txt) = a2$
-            IF o(7).v1 >= FoundPipe THEN o(7).v1 = o(7).v1 - 1
+            a2$ = LEFT$(idetxt(o(8).txt), FoundPipe - 1) + MID$(idetxt(o(8).txt), FoundPipe + 1)
+            idetxt(o(8).txt) = a2$
+            IF o(8).v1 >= FoundPipe THEN o(8).v1 = o(8).v1 - 1
         END IF
 
         IF SchemeID > 0 THEN
             FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
-            IF RTRIM$(LTRIM$(idetxt(o(7).txt))) <> LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1) THEN
+            IF RTRIM$(LTRIM$(idetxt(o(8).txt))) <> LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1) THEN
                 'A different scheme name is the beginning of editing a new one
                 SchemeID = 0
             END IF
@@ -11736,7 +11772,7 @@ FUNCTION idechoosecolorsbox
             CASE 6: IDEBackgroundColor2 = CurrentColor~& 'Current line background
         END SELECT
 
-        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 9 AND info <> 0) THEN
             IDECommentColor = bkpIDECommentColor
             IDEMetaCommandColor = bkpIDEMetaCommandColor
             IDEQuoteColor = bkpIDEQuoteColor
@@ -11746,7 +11782,7 @@ FUNCTION idechoosecolorsbox
             EXIT FUNCTION
         END IF
 
-        IF (focus = 7 AND info <> 0) THEN
+        IF (focus = 8 AND info <> 0) THEN
             LoadDefaultScheme:
             IDECommentColor = _RGB32(85, 255, 255)
             IDEMetaCommandColor = _RGB32(85, 255, 85)
@@ -11756,19 +11792,21 @@ FUNCTION idechoosecolorsbox
             IDEBackgroundColor2 = _RGB32(0, 108, 177)
             SchemeID = 1
             FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
-            idetxt(o(7).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
+            idetxt(o(8).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
             IF ChangedScheme THEN _DELAY .2
             info = 0
             GOTO ChangeTextBoxes
         END IF
 
-    IF (focus = 6 AND info <> 0) OR _
+    IF (focus = 7 AND info <> 0) OR _
        (focus = 1 AND K$ = CHR$(13)) OR _
        (focus = 2 AND K$ = CHR$(13)) OR _
        (focus = 3 AND K$ = CHR$(13)) OR _
        (focus = 4 AND K$ = CHR$(13)) OR _
        (focus = 5 AND K$ = CHR$(13)) OR _
-       (focus = 6 AND K$ = CHR$(13)) THEN
+       (focus = 6 AND K$ = CHR$(13)) OR _
+       (focus = 7 AND K$ = CHR$(13)) OR _
+       (focus = 10 AND K$ = CHR$(13)) THEN
             'save changes
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", str2$(SchemeID)
             FOR i = 1 TO 6
@@ -11798,6 +11836,16 @@ FUNCTION idechoosecolorsbox
                 WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "FALSE"
             END IF
 
+            v% = o(6).sel
+            IF v% <> 0 THEN v% = -1
+            multihighlight = v%
+
+            IF multihighlight THEN
+                WriteConfigSetting "'[GENERAL SETTINGS]", "MultiHighlight", "TRUE"
+            ELSE
+                WriteConfigSetting "'[GENERAL SETTINGS]", "MultiHighlight", "FALSE"
+            END IF
+
             EXIT FUNCTION
         END IF
 
@@ -11813,7 +11861,7 @@ FUNCTION idechoosecolorsbox
         'create a new one. User-defined types can be freely
         'edited.
         SchemeID = 0
-        idetxt(o(7).txt) = "User-defined"
+        idetxt(o(8).txt) = "User-defined"
     END IF
     RETURN
 END FUNCTION

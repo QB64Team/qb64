@@ -144,6 +144,19 @@ IF LoadedIDESettings = 0 THEN
         brackethighlight = -1
     END IF
 
+    result = ReadConfigSetting("MultiHighlight", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            multihighlight = -1
+        ELSE
+            multihighlight = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "MultiHighlight", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "MultiHighlight", "TRUE"
+        multihighlight = -1
+    END IF
+
     IF INSTR(_OS$, "WIN") THEN
         result = ReadConfigSetting("IDE_AutoPosition", value$)
         IF result THEN
