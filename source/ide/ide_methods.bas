@@ -2807,6 +2807,22 @@ FUNCTION ide2 (ignore)
             GOTO specialchar
         END IF
 
+        IF KCONTROL AND UCASE$(K$) = "N" THEN 'File -> #New
+            GOTO ctrlNew
+        END IF
+
+        IF KCONTROL AND UCASE$(K$) = "O" THEN 'File -> #Open
+            GOTO ctrlOpen
+        END IF
+
+        IF (NOT KSHIFT) AND KCONTROL AND UCASE$(K$) = "R" THEN 'Comment (add ') - R for REMark
+            GOTO ctrlAddComment
+        END IF
+
+        IF KSHIFT AND KCONTROL AND UCASE$(K$) = "R" THEN 'uncomment (remove ')
+            GOTO ctrlRemoveComment
+        END IF
+
         IF KCONTROL AND UCASE$(K$) = "S" THEN 'File -> #Save
             IF ideprogname = "" THEN
                 ProposedTitle$ = FindProposedTitle$
@@ -4052,7 +4068,8 @@ FUNCTION ide2 (ignore)
 
             IF KALT THEN idehl = 1 ELSE idehl = 0 'set idehl, a shared variable used by various dialogue boxes
 
-            IF menu$(m, s) = "Comment (add ')" THEN
+            IF menu$(m, s) = "Comment (add ')  Ctrl+R" THEN
+                ctrlAddComment:
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
                     y1 = ideselecty1
@@ -4082,7 +4099,8 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Uncomment (remove ')" THEN
+            IF menu$(m, s) = "Uncomment (remove ')  Ctrl+Shift+R" THEN
+                ctrlRemoveComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
@@ -4816,7 +4834,8 @@ FUNCTION ide2 (ignore)
                 SYSTEM
             END IF
 
-            IF menu$(m, s) = "#New" THEN
+            IF menu$(m, s) = "#New  Ctrl+N" THEN
+                ctrlNew:
                 PCOPY 2, 0
                 IF ideunsaved = 1 THEN
                     r$ = idesavenow
@@ -4909,7 +4928,8 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Open..." THEN
+            IF menu$(m, s) = "#Open...  Ctrl+O" THEN
+                ctrlOpen:
                 IdeOpenFile$ = ""
                 directopen:
                 PCOPY 2, 0
@@ -12868,8 +12888,8 @@ END FUNCTION
 SUB IdeMakeFileMenu
     m = 1: i = 0
     menu$(m, i) = "File": i = i + 1
-    menu$(m, i) = "#New": i = i + 1
-    menu$(m, i) = "#Open...": i = i + 1
+    menu$(m, i) = "#New  Ctrl+N": i = i + 1
+    menu$(m, i) = "#Open...  Ctrl+O": i = i + 1
     menu$(m, i) = "#Save  Ctrl+S": i = i + 1
     menu$(m, i) = "Save #As...": i = i + 1
     fh = FREEFILE
@@ -13117,8 +13137,8 @@ SUB IdeMakeContextualMenu
     IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Comment (add ')": i = i + 1
-    menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    menu$(m, i) = "Comment (add ')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Uncomment (remove ')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -13183,8 +13203,8 @@ SUB IdeMakeEditMenu
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Comment (add ')": i = i + 1
-    menu$(m, i) = "Uncomment (remove ')": i = i + 1
+    menu$(m, i) = "Comment (add ')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Uncomment (remove ')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
