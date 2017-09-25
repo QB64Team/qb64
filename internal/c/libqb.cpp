@@ -29525,7 +29525,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
 
 #ifdef CORE_FREEGLUT
     #ifdef QB64_WINDOWS
-        if (window_handle==GetActiveWindow()) {
+        if (window_handle==GetForegroundWindow()) {
             if (key==112){vk=VK+QBVK_LSHIFT;}
             if (key==113){vk=VK+QBVK_RSHIFT;}
             if (key==114){vk=VK+QBVK_LCTRL;}
