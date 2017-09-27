@@ -129,6 +129,7 @@ FUNCTION ide2 (ignore)
     STATIC last.TBclick#, wholeword.select AS _BYTE
     STATIC wholeword.selectx1, wholeword.idecx
     STATIC wholeword.selecty1, wholeword.idecy
+    STATIC ForceResize
 
     CONST idesystem2.w = 20
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
@@ -718,7 +719,6 @@ FUNCTION ide2 (ignore)
         ideloop:
         idecontextualmenu = 0
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
-        STATIC ForceResize
         IF IDE_AutoPosition THEN
             'if _SCreenhide = 0 then  'Screenhide currently does not work in Linux, so we need a different check
             IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
@@ -731,26 +731,72 @@ FUNCTION ide2 (ignore)
             'end if
         END IF
 
+        IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
+
         IF _RESIZE OR ForceResize THEN
             IF idesubwindow <> 0 THEN 'If there's a subwindow up, don't resize as it screws all sorts of things up.
                 ForceResize = -1
             ELSE
+                retval = 0
                 ForceResize = 0
-                v% = _RESIZEWIDTH \ _FONTWIDTH: IF v% < 80 OR v% > 1000 THEN v% = 80
-                IF v% <> idewx THEN retval = 1: idewx = v%
-                v% = _RESIZEHEIGHT \ _FONTHEIGHT: IF v% < 25 OR v% > 1000 THEN v% = 25
-                IF v% <> idewy THEN retval = 1: idewy = v%
+                DO
+                    tooSmall%% = 0
+                    v% = _RESIZEWIDTH \ _FONTWIDTH: IF v% < 80 OR v% > 1000 THEN v% = 80: tooSmall%% = -1
+                    IF v% <> idewx THEN retval = 1: idewx = v%
+                    v% = _RESIZEHEIGHT \ _FONTHEIGHT: IF v% < 25 OR v% > 1000 THEN v% = 25: tooSmall%% = -1
+                    IF v% <> idewy THEN retval = 1: idewy = v%
+
+                    tempf& = _FONT
+                    WIDTH idewx, idewy
+                    _FONT tempf&
+
+                    _PALETTECOLOR 1, IDEBackgroundColor, 0
+                    _PALETTECOLOR 14, IDEQuoteColor, 0
+                    _PALETTECOLOR 13, IDETextColor, 0
+
+                    'static background
+                    COLOR 0, 7
+                    LOCATE 1, 1: PRINT SPACE$(idewx);
+                    LOCATE 1, 1: PRINT LEFT$(menubar$, idewx);
+                    COLOR 7, 1: idebox 1, 2, idewx, idewy - 5
+
+                    COLOR 7, 1: idebox 1, idewy - 4, idewx, 5
+                    'edit corners
+                    COLOR 7, 1: LOCATE idewy - 4, 1: PRINT CHR$(195);: LOCATE idewy - 4, idewx: PRINT CHR$(180);
+
+                    GOSUB UpdateSearchBar
+
+                    'status bar
+                    COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
+                    q = idevbar(idewx, idewy - 3, 3, 1, 1)
+                    q = idevbar(idewx, 3, idewy - 8, 1, 1)
+                    q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
+
+                    GOSUB UpdateTitleOfMainWindow
+
+                    COLOR 7, 1
+                    _PRINTSTRING (2, idewy - 3), "Resizing..."
+                    IF tooSmall%% THEN
+                        COLOR 14, 1
+                        _PRINTSTRING (2, 3), "ERROR: Minimum window size is 80x25"
+                    ELSE
+                        ideshowtext
+                    END IF
+
+                    _DISPLAY
+                    _LIMIT 30
+                LOOP WHILE _RESIZE
 
                 IF retval = 1 THEN 'screen dimensions have changed and everything must be redrawn/reapplied
                     WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", STR$(idewx)
                     WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", STR$(idewy)
-
-                    tempf& = _FONT
-                    WIDTH idewx, idewy + idesubwindow
-                    _FONT tempf&
-                    GOTO redraweverything
                 END IF
+
+                retval = 1
+                GOTO redraweverything2
             END IF
+        ELSE
+            _AUTODISPLAY
         END IF
 
         IF skipdisplay = 0 THEN
@@ -1187,6 +1233,10 @@ FUNCTION ide2 (ignore)
         END IF
         IF mB <> 0 AND idembmonitor = 1 THEN change = 1
         IF mB = 0 THEN idemouseselect = 0: idembmonitor = 0: wholeword.select = 0
+
+        IF _RESIZE THEN
+            ForceResize = -1: skipdisplay = 0: GOTO ideloop
+        END IF
 
         'Hover/click (QuickNav)
         IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
@@ -4185,7 +4235,7 @@ FUNCTION ide2 (ignore)
                             _FONT 16
                         END IF
                         skipdisplay = 0
-                        GOTO redraweverything
+                        GOTO redraweverything2
                     END IF
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -7205,6 +7255,7 @@ SUB idepar (par AS idedbptype, w, h, title$)
     par.w = w
     par.h = h
     IF LEN(title$) THEN par.nam = idenewtxt(title$)
+    _RESIZE OFF
 END SUB
 
 FUNCTION iderestore$
@@ -8044,7 +8095,11 @@ SUB ideshowtext
                 COLOR BracketFG%, 5
             ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
                 multiHighlightLength = multiHighlightLength - 1
-                COLOR , 6
+                IF l = idecy THEN
+                    COLOR BracketFG%, 5
+                ELSE
+                    COLOR , 6
+                END IF
             ELSE
                 COLOR , prevBG%
             END IF
@@ -13988,12 +14043,14 @@ SUB HideBracketHighlight
     'Restore the screen and hide any bracket highlights
     'as we're limited to 16 colors and the highlight
     'color will be used differently in this dialog.
-    IF brackethighlight THEN
-        brackethighlight = 0
-        SCREEN , , 0
-        ideshowtext
-        brackethighlight = -1
-    END IF
+    oldBracketHighlightSetting = brackethighlight
+    oldMultiHighlightSetting = multihighlight
+    brackethighlight = 0
+    multihighlight = 0
+    SCREEN , , 0
+    ideshowtext
+    brackethighlight = oldBracketHighlightSetting
+    multihighlight = oldMultiHighlightSetting
 END SUB
 
 SUB LoadColorSchemes
