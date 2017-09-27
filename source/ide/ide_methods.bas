@@ -7847,6 +7847,8 @@ SUB ideshowtext
     BracketFG% = 10
     IF (Bracket.r& + Bracket.g& + Bracket.b&) / 3 > 127 THEN BracketFG% = 1
 
+    char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
+
     cc = -1
 
     IF idecx < idesx THEN idesx = idecx
@@ -8066,9 +8068,23 @@ SUB ideshowtext
         prevBG% = _BACKGROUNDCOLOR
         FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
             IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
+                'the current selection was found at this spot. Multi-highlight takes place:
                 IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
-                    'the current selection was found at this spot. Multi-highlight takes place:
-                    multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                    IF m > 1 THEN
+                        IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
+                            IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 THEN
+                                multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                            ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
+                                multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                            END IF
+                        END IF
+                    ELSE
+                        IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 THEN
+                            multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                        ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
+                            multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                        END IF
+                    END IF
                 END IF
             END IF
 
