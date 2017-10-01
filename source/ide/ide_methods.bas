@@ -461,6 +461,8 @@ FUNCTION ide2 (ignore)
                 '(copied from ideopen)
                 ideerror = 2
                 OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
+                PCOPY 3, 0
+                IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN GOTO skipload
                 ideerror = 3
                 idepath$ = path$
                 lineinput3load path$ + idepathsep$ + f$
@@ -7196,6 +7198,16 @@ FUNCTION ideopen$
             'check file exists
             ideerror = 2
             OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
+
+            IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN
+                IF LEN(IdeOpenFile) THEN
+                    ideopen$ = "C"
+                    EXIT FUNCTION
+                ELSE
+                    info = 0: GOTO ideopenloop
+                END IF
+            END IF
+
             'load file
             ideerror = 3
             idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
@@ -14112,6 +14124,111 @@ SUB LoadColorSchemes
     LOOP
     'End of color schemes
 END SUB
+
+FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
+
+    file$ = pathToCheck$ + pathSepToCheck$ + fileToCheck$
+
+    fh = FREEFILE
+    OPEN file$ FOR BINARY AS #fh
+    a$ = SPACE$(LOF(fh))
+    GET #fh, 1, a$
+    IF INSTR(a$, CHR$(0)) = 0 THEN CLOSE #fh: EXIT FUNCTION 'not a binary file
+    a$ = ""
+    GET #fh, 1, Format%
+    GET #fh, , Version%
+    CLOSE #fh
+
+    SELECT CASE Format%
+        CASE 2300 'VBDOS
+            idemessagebox "Invalid format", "VBDOS binary format not supported."
+            BinaryFormatCheck% = 1
+        CASE 764 'QBX 7.1
+            idemessagebox "Invalid format", "QBX 7.1 binary format not supported."
+            BinaryFormatCheck% = 1
+        CASE 252 'QuickBASIC 4.5
+            IF INSTR(_OS$, "WIN") THEN
+                convertUtility$ = "internal\utilities\QB45BIN.exe"
+            ELSE
+                convertUtility$ = "internal/utilities/QB45BIN"
+            END IF
+            IF _FILEEXISTS(convertUtility$) THEN
+                what$ = ideyesnobox("Binary format", "QuickBASIC 4.5 binary format detected. Convert to plain text?")
+                IF what$ = "Y" THEN
+                    ConvertIt:
+                    IF FileHasExtension(file$) THEN
+                        FOR i = LEN(file$) TO 1 STEP -1
+                            IF ASC(file$, i) = 46 THEN
+                                'keep previous extension
+                                ofile$ = LEFT$(file$, i - 1) + " (converted)" + MID$(file$, i)
+                                EXIT FOR
+                            END IF
+                        NEXT
+                    ELSE
+                        ofile$ = file$ + " (converted).bas"
+                    END IF
+
+                    SCREEN , , 3, 0
+                    dummy = DarkenFGBG(1)
+                    LOCATE idewy - 3, 2
+                    COLOR 5, 1
+                    PRINT "Converting...          "
+                    PCOPY 3, 0
+
+                    convertLine$ = convertUtility$ + " " + QuotedFilename$(file$) + " -o " + QuotedFilename$(ofile$)
+                    SHELL _HIDE convertLine$
+
+                    LOCATE idewy - 3, 2
+                    COLOR 5, 1
+                    PRINT "                       "
+                    dummy = DarkenFGBG(0)
+                    PCOPY 3, 0
+
+                    IF _FILEEXISTS(ofile$) = 0 THEN
+                        idemessagebox "Binary format", "Conversion failed."
+                        BinaryFormatCheck% = 2 'conversion failed
+                    ELSE
+                        pathToCheck$ = getfilepath$(ofile$)
+                        IF LEN(pathToCheck$) THEN
+                            fileToCheck$ = MID$(ofile$, LEN(pathToCheck$) + 1)
+                            pathToCheck$ = LEFT$(pathToCheck$, LEN(pathToCheck$) - 1) 'remove path separator
+                        ELSE
+                            fileToCheck$ = ofile$
+                        END IF
+                    END IF
+                ELSE
+                    BinaryFormatCheck% = 1
+                END IF
+            ELSE
+                IF _FILEEXISTS("source/utilities/QB45BIN.bas") = 0 THEN
+                    idemessagebox "Binary format", "Conversion utility not found. Cannot open QuickBASIC 4.5 binary format."
+                    BinaryFormatCheck% = 1
+                    EXIT FUNCTION
+                END IF
+                what$ = ideyesnobox("Binary format", "QuickBASIC 4.5 binary format detected. Convert to plain text?")
+                IF what$ = "Y" THEN
+                    'Compile the utility first, then convert the file
+                    IF _DIREXISTS("internal/utilities") = 0 THEN MKDIR "internal/utilities"
+                    PCOPY 3, 0
+                    SCREEN , , 3, 0
+                    dummy = DarkenFGBG(1)
+                    LOCATE idewy - 3, 2
+                    COLOR 5, 1
+                    PRINT "Preparing to convert..."
+                    PCOPY 3, 0
+                    SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                    IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
+                    LOCATE idewy - 3, 2
+                    COLOR 5, 1
+                    PRINT "                       "
+                    dummy = DarkenFGBG(0)
+                    PCOPY 3, 0
+                    idemessagebox "Binary format", "Error launching conversion utility."
+                END IF
+                BinaryFormatCheck% = 1
+            END IF
+    END SELECT
+END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'
 

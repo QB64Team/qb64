@@ -12761,10 +12761,6 @@ FOR i = 1 TO _COMMANDCOUNT
                     PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                     SYSTEM
             END SELECT
-        CASE "-g" 'non-GUI environment (uses $CONSOLE:ONLY)
-            DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) OR 2
-            NoIDEMode = 1 'Implies -c
-            Console = 1
         CASE "-q" 'Building a Qloud program
             Cloud = 1
             ConsoleMode = 1 'Implies -x
