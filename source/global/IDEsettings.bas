@@ -2,6 +2,7 @@ DIM SHARED IDECommentColor AS _UNSIGNED LONG, IDEMetaCommandColor AS _UNSIGNED L
 DIM SHARED IDEQuoteColor AS _UNSIGNED LONG, IDETextColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG
+DIM SHARED IDEKeywordColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
@@ -64,6 +65,14 @@ IF LoadedIDESettings = 0 THEN
         WriteConfigSetting "'[IDE COLOR SETTINGS]", "MetaCommandColor", "_RGB32(85,255,85)"
     END IF
 
+    result = ReadConfigSetting("KeywordColor", value$)
+    IF result THEN
+        IDEKeywordColor = VRGBS(value$, _RGB32(147, 196, 235))
+    ELSE
+        IDEKeywordColor = _RGB32(147, 196, 235)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "KeywordColor", "_RGB32(147,196,235)"
+    END IF
+
     result = ReadConfigSetting("QuoteColor", value$)
     IF result THEN
         IDEQuoteColor = VRGBS(value$, _RGB32(255, 255, 85))
@@ -74,10 +83,10 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("TextColor", value$)
     IF result THEN
-        IDETextColor = VRGBS(value$, _RGB32(255, 255, 255))
+        IDETextColor = VRGBS(value$, _RGB32(226, 226, 226))
     ELSE
-        IDETextColor = _RGB32(255, 255, 255)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(255,255,255)"
+        IDETextColor = _RGB32(226, 226, 226)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(226,226,226)"
     END IF
 
     result = ReadConfigSetting("BackgroundColor", value$)
@@ -142,6 +151,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "TRUE"
         brackethighlight = -1
+    END IF
+
+    result = ReadConfigSetting("KeywordHighlight", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            keywordHighlight = -1
+        ELSE
+            keywordHighlight = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "KeywordHighlight", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "KeywordHighlight", "TRUE"
+        keywordHighlight = -1
     END IF
 
     result = ReadConfigSetting("MultiHighlight", value$)
