@@ -2307,7 +2307,7 @@ FUNCTION ide2 (ignore)
             x = idecx
             IF LEN(a$) > 0 AND x = LEN(a$) + 1 THEN x = x - 1
             IF x <= LEN(a$) THEN
-                IF MID$(a$, x, 1) = " " OR MID$(a$, x, 1) = "(" THEN x = x - 1
+                IF (MID$(a$, x, 1) = " " OR MID$(a$, x, 1) = "(") AND x > 1 THEN x = x - 1
                 IF alphanumeric(ASC(a$, x)) THEN
                     x1 = x
                     DO WHILE x1 > 1
@@ -2413,81 +2413,82 @@ FUNCTION ide2 (ignore)
 
                 ELSE
                     'No help found; Does the user want help for a SUB or FUNCTION?
+                    a2$ = LTRIM$(RTRIM$(a2$))
+                    IF LEN(a2$) THEN
+                        DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
+                            a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
+                        LOOP
 
-                    DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
-                        a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
-                    LOOP
-
-                    FOR y = 1 TO iden
-                        a$ = idegetline(y)
-                        a$ = LTRIM$(RTRIM$(a$))
-                        sf = 0
-                        nca$ = UCASE$(a$)
-                        IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB "
-                        IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNCTION "
-                        IF sf THEN
-                            IF RIGHT$(nca$, 7) = " STATIC" THEN
-                                a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
-                            END IF
-
-                            IF sf = 1 THEN
-                                a$ = RIGHT$(a$, LEN(a$) - 4)
-                            ELSE
-                                a$ = RIGHT$(a$, LEN(a$) - 9)
-                            END IF
+                        FOR y = 1 TO iden
+                            a$ = idegetline(y)
                             a$ = LTRIM$(RTRIM$(a$))
-                            x = INSTR(a$, "(")
-                            IF x THEN
-                                n$ = RTRIM$(LEFT$(a$, x - 1))
-                                args$ = RIGHT$(a$, LEN(a$) - x + 1)
-                            ELSE
-                                n$ = a$
-                                args$ = ""
-                            END IF
-
-                            'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-                            FOR CleanseN = 1 TO LEN(n$)
-                                SELECT CASE MID$(n$, CleanseN, 1)
-                                    CASE " ", "'", ":"
-                                        n$ = LEFT$(n$, CleanseN - 1)
-                                        EXIT FOR
-                                END SELECT
-                            NEXT
-
-                            backupn$ = n$
-
-                            DO UNTIL alphanumeric(ASC(RIGHT$(n$, 1)))
-                                n$ = LEFT$(n$, LEN(n$) - 1) 'removes sigil, if any
-                            LOOP
-
-                            IF UCASE$(n$) = a2$ THEN
-                                a$ = "'''" + backupn$ + "''' is a symbol that is used in your program as follows:"
-                                a$ = a$ + CHR$(10) + CHR$(10) + "{{PageSyntax}}" + CHR$(10)
-                                a$ = a$ + ": " + sf$ + "'''" + backupn$ + "''' " + args$
-                                a$ = a$ + CHR$(10) + "{{PageNavigation}}"
-
-                                IdeContextHelpSF = -1
-
-                                IF idehelp = 0 THEN
-                                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
-                                    idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
-                                    Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
-                                    WikiParse a$
-                                    idehelp = 1
-                                    skipdisplay = 0
-                                    IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                                    retval = 1: GOTO redraweverything2
+                            sf = 0
+                            nca$ = UCASE$(a$)
+                            IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB "
+                            IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNCTION "
+                            IF sf THEN
+                                IF RIGHT$(nca$, 7) = " STATIC" THEN
+                                    a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
                                 END IF
 
-                                WikiParse a$
-                                IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                                GOTO specialchar
+                                IF sf = 1 THEN
+                                    a$ = RIGHT$(a$, LEN(a$) - 4)
+                                ELSE
+                                    a$ = RIGHT$(a$, LEN(a$) - 9)
+                                END IF
+                                a$ = LTRIM$(RTRIM$(a$))
+                                x = INSTR(a$, "(")
+                                IF x THEN
+                                    n$ = RTRIM$(LEFT$(a$, x - 1))
+                                    args$ = RIGHT$(a$, LEN(a$) - x + 1)
+                                ELSE
+                                    n$ = a$
+                                    args$ = ""
+                                END IF
 
-                                EXIT FOR
+                                'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                                FOR CleanseN = 1 TO LEN(n$)
+                                    SELECT CASE MID$(n$, CleanseN, 1)
+                                        CASE " ", "'", ":"
+                                            n$ = LEFT$(n$, CleanseN - 1)
+                                            EXIT FOR
+                                    END SELECT
+                                NEXT
+
+                                backupn$ = n$
+
+                                DO UNTIL alphanumeric(ASC(RIGHT$(n$, 1)))
+                                    n$ = LEFT$(n$, LEN(n$) - 1) 'removes sigil, if any
+                                LOOP
+
+                                IF UCASE$(n$) = a2$ THEN
+                                    a$ = "'''" + backupn$ + "''' is a symbol that is used in your program as follows:"
+                                    a$ = a$ + CHR$(10) + CHR$(10) + "{{PageSyntax}}" + CHR$(10)
+                                    a$ = a$ + ": " + sf$ + "'''" + backupn$ + "''' " + args$
+                                    a$ = a$ + CHR$(10) + "{{PageNavigation}}"
+
+                                    IdeContextHelpSF = -1
+
+                                    IF idehelp = 0 THEN
+                                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                                        idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
+                                        Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
+                                        WikiParse a$
+                                        idehelp = 1
+                                        skipdisplay = 0
+                                        IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                                        retval = 1: GOTO redraweverything2
+                                    END IF
+
+                                    WikiParse a$
+                                    IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                                    GOTO specialchar
+
+                                    EXIT FOR
+                                END IF
                             END IF
-                        END IF
-                    NEXT
-
+                        NEXT
+                    END IF
                 END IF 'lnks
 
             END IF
@@ -7869,7 +7870,7 @@ SUB ideshowtext
     BracketFG% = 10
     IF (Bracket.r& + Bracket.g& + Bracket.b&) / 3 > 127 THEN BracketFG% = 1
 
-    char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
+    char.sep$ = CHR$(34) + " =<>+-/\^:;,*().'"
 
     cc = -1
 
@@ -8049,11 +8050,12 @@ SUB ideshowtext
                     END IF
                 END IF
 
-                IF idecx_comment AND INSTR(a2$, "$INCLUDE:'") > 0 THEN
+                FindInclude = INSTR(a2$, "$INCLUDE")
+                IF FindInclude > 0 THEN
                     link_idecx = LEN(a$)
                     ActiveINCLUDELink = idecy
-                    FindApostrophe1 = INSTR(a$, ":'") + 1
-                    FindApostrophe2 = INSTR(FindApostrophe1 + 1, a$, "'")
+                    FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
+                    FindApostrophe2 = INSTR(FindApostrophe1 + 1, a2$, "'")
                     ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
                     p$ = idepath$ + pathsep$
                     f$ = p$ + ActiveINCLUDELinkFile
@@ -8063,33 +8065,22 @@ SUB ideshowtext
 
             a2$ = SPACE$(idesx + (idewx - 3))
             MID$(a2$, 1) = a$
-            a2$ = RIGHT$(a2$, (idewx - 2))
+            'a2$ = RIGHT$(a2$, (idewx - 2))
         ELSE
             a2$ = SPACE$((idewx - 2))
         END IF
 
         ' ### STEVE EDIT TO MAKE QUOTES AND COMMENTS STAND OUT WITH MINOR COLOR ADJUSTMENTS ###
 
-        'FOR x = 1 TO LEN(a2$)
-        '    PRINT CHR$(ASC(a2$, x));
-        'NEXT
-
         inquote = 0
-        comment = 0
         metacommand = 0
-        FOR k = 1 TO idesx - 1 'First check the part of the line that's off screen to the left
-            SELECT CASE MID$(a$, k, 1)
-                CASE CHR$(34)
-                    inquote = NOT inquote
-                CASE "'"
-                    IF inquote = 0 THEN comment = -1
-            END SELECT
-        NEXT k
-        DIM multiHighlightLength AS LONG
+        comment = 0
+        isKeyword = 0: oldChar$ = ""
         multiHighlightLength = 0
         prevBG% = _BACKGROUNDCOLOR
-        isKeyword = 0
+
         FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
+            IF m > idesx + idewx - 2 THEN EXIT FOR
             IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
                 'the current selection was found at this spot. Multi-highlight takes place:
                 IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
@@ -8112,47 +8103,51 @@ SUB ideshowtext
             END IF
 
             IF comment = 0 THEN
-                SELECT CASE MID$(a$, m + idesx - 1, 1)
+                SELECT CASE MID$(a2$, m, 1)
                     CASE CHR$(34): inquote = NOT inquote
                     CASE "'": IF inquote = 0 THEN comment = -1
                 END SELECT
             END IF
-            IF LEFT$(LTRIM$(a$), 2) = "'$" OR LEFT$(LTRIM$(a$), 1) = "$" THEN metacommand = -1: comment = 0
+
             COLOR 13
 
-            IF (link_idecx > 0 AND m > link_idecx) THEN metacommand = 0: comment = -1
-
             thisChar$ = MID$(a2$, m, 1)
-            IF (LEN(oldChar$) > 0 OR m = 1) AND comment = 0 AND metacommand = 0 AND inquote = 0 AND isKeyword = 0 THEN
+            IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
                 IF INSTR(char.sep$, oldChar$) > 0 AND INSTR(char.sep$, thisChar$) = 0 THEN
                     'a new "word" begins; check if it's an internal keyword
                     checkKeyword$ = ""
-                    isKeyword = 0
                     FOR i = m TO LEN(a2$)
                         IF INSTR(char.sep$, MID$(a2$, i, 1)) THEN EXIT FOR
                         checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                     NEXT
-                    IF INSTR(listOfKeywords$, ":" + UCASE$(checkKeyword$) + ":") > 0 THEN
+                    checkKeyword$ = UCASE$(checkKeyword$)
+                    IF INSTR(listOfKeywords$, ":" + checkKeyword$ + ":") > 0 THEN
                         isKeyword = LEN(checkKeyword$)
+                    ELSE
+                        checkKeyword$ = ""
                     END IF
                 END IF
             END IF
             oldChar$ = thisChar$
 
             IF isKeyword > 0 AND keywordHighlight THEN
-                COLOR 12
+                IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1 ELSE COLOR 12
                 isKeyword = isKeyword - 1
             END IF
 
+            IF link_idecx > 0 AND m > link_idecx AND metacommand THEN metacommand = 0 'back to default color
+
             IF comment THEN
                 COLOR 11
+                IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
+                    OR checkKeyword$ = "$STATIC") THEN COLOR 10
             ELSEIF metacommand THEN
                 COLOR 10
             ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
                 COLOR 14
             END IF
 
-            IF l = idecy AND (m + idesx - 1 = bracket1 OR m + idesx - 1 = bracket2) THEN
+            IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
                 COLOR BracketFG%, 5
             ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
                 multiHighlightLength = multiHighlightLength - 1
@@ -8170,8 +8165,10 @@ SUB ideshowtext
             LOOP '                                                      verifying the code and growing the array during the IDE passes.
             IF InValidLine(l) AND 1 THEN COLOR 7
 
-            LOCATE y + 3, 2 + m - 1
-            PRINT thisChar$;
+            IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
+                LOCATE y + 3, 2 + m - idesx
+                PRINT thisChar$;
+            END IF
 
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
@@ -8212,8 +8209,8 @@ SUB ideshowtext
                     LOCATE y + 3, 2
                     COLOR 1, 7
 
-                    FOR x = 1 TO LEN(a2$)
-                        PRINT CHR$(ASC(a2$, x));
+                    FOR x = idesx TO idesx + idewx - 2
+                        PRINT MID$(a2$, x, 1);
                     NEXT
 
                     COLOR 7, 1
@@ -14109,7 +14106,7 @@ SUB LoadColorSchemes
     PresetColorSchemes = 7
     REDIM ColorSchemes$(1 TO PresetColorSchemes)
     ColorSchemes$(1) = "QB64 Default|226226226147196235255255085085255085085255255000000170000108177"
-    ColorSchemes$(2) = "Dark blue|186186186255255255255177000085255085085255255000000069000088128"
+    ColorSchemes$(2) = "Dark blue|226226226147196235255177000085255085085118186000000069000088128"
     ColorSchemes$(3) = "Camouflage|196196196255255255255177000137177147147137020000039029098069020"
     ColorSchemes$(4) = "Classic QB4.5|177177177177177177177177177177177177177177177000000170000000170"
     ColorSchemes$(5) = "Light green|051051051000000216255157255147177093206206206234255234206255206"
