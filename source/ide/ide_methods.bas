@@ -8126,7 +8126,11 @@ SUB ideshowtext
                     checkKeyword$ = UCASE$(checkKeyword$)
                     IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 THEN
                         IF checkKeyword$ = "$END" THEN
-                            IF MID$(a2$, m, 7) = "$END IF" THEN checkKeyword$ = "$END IF"
+                            IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
+                        ELSEIF checkKeyword$ = "THEN" AND _
+                                (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
+                                UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
+                            metacommand = -1
                         END IF
                         isKeyword = LEN(checkKeyword$)
                     ELSE
@@ -8177,7 +8181,7 @@ SUB ideshowtext
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
             IF isKeyword > 0 THEN isKeyword = isKeyword - 1
-            if isKeyword = 0 THEN checkKeyword$ = ""
+            if isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0
         NEXT m
 
         '### END OF STEVE EDIT
