@@ -8131,11 +8131,9 @@ SUB ideshowtext
             oldChar$ = thisChar$
 
             IF isKeyword > 0 AND keywordHighlight THEN
-                IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1 ELSE COLOR 12
-                isKeyword = isKeyword - 1
+                COLOR 12
+                IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1
             END IF
-
-            IF link_idecx > 0 AND m > link_idecx AND metacommand THEN metacommand = 0 'back to default color
 
             IF comment THEN
                 COLOR 11
@@ -8172,6 +8170,8 @@ SUB ideshowtext
 
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
+            IF isKeyword > 0 THEN isKeyword = isKeyword - 1
+            if isKeyword = 0 THEN checkKeyword$ = ""
         NEXT m
 
         '### END OF STEVE EDIT
