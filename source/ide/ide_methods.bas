@@ -1274,6 +1274,10 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
+        IF KALT THEN
+            IF _WINDOWHASFOCUS = 0 THEN KALT = 0
+        END IF
+
         IF KALT THEN 'alt held
 
             IF idealthighlight = 0 AND KALTPRESS = -1 THEN
@@ -8070,8 +8074,7 @@ SUB ideshowtext
             a2$ = SPACE$((idewx - 2))
         END IF
 
-        ' ### STEVE EDIT TO MAKE QUOTES AND COMMENTS STAND OUT WITH MINOR COLOR ADJUSTMENTS ###
-
+        'Syntax highlighter
         inquote = 0
         metacommand = 0
         comment = 0
@@ -8079,7 +8082,7 @@ SUB ideshowtext
         multiHighlightLength = 0
         prevBG% = _BACKGROUNDCOLOR
 
-        FOR m = 1 TO LEN(a2$) 'continue checking, while printing to the screen
+        FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
             IF m > idesx + idewx - 2 THEN EXIT FOR
             IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
                 'the current selection was found at this spot. Multi-highlight takes place:
@@ -14106,7 +14109,7 @@ SUB LoadColorSchemes
     PresetColorSchemes = 7
     REDIM ColorSchemes$(1 TO PresetColorSchemes)
     ColorSchemes$(1) = "QB64 Default|226226226147196235255255085085255085085255255000000170000108177"
-    ColorSchemes$(2) = "Dark blue|226226226147196235255177000085255085085118186000000069000088128"
+    ColorSchemes$(2) = "Dark blue|226226226069147216255177000085255085049196196000000069000068108"
     ColorSchemes$(3) = "Camouflage|196196196255255255255177000137177147147137020000039029098069020"
     ColorSchemes$(4) = "Classic QB4.5|177177177177177177177177177177177177177177177000000170000000170"
     ColorSchemes$(5) = "Light green|051051051000000216255157255147177093206206206234255234206255206"
