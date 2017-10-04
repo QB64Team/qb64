@@ -3763,7 +3763,7 @@ FUNCTION ide2 (ignore)
                 sx1 = ideselectx1: sx2 = idecx
                 IF sx1 > sx2 THEN SWAP sx1, sx2
                 IF ideselect = 1 AND (sx2 - sx1) > 0 THEN
-                    IF sx2 - sx1 > 1 THEN
+                    IF sx2 - sx1 > 0 THEN
                         a$ = idegetline(idecy)
                         ideCurrentSingleLineSelection = MID$(a$, sx1, sx2 - sx1)
                         FOR i = 1 TO LEN(ideCurrentSingleLineSelection)
@@ -7866,13 +7866,19 @@ SUB ideshowtext
     _PALETTECOLOR 13, IDETextColor, 0
     _PALETTECOLOR 14, IDEQuoteColor, 0
 
-    Bracket.r& = _RED32(IDEBackgroundColor2) * 2
-    Bracket.g& = _GREEN32(IDEBackgroundColor2) * 2
-    Bracket.b& = _BLUE32(IDEBackgroundColor2) * 2
+    Bracket.r& = _RED32(IDEBackgroundColor2)
+    Bracket.g& = _GREEN32(IDEBackgroundColor2)
+    Bracket.b& = _BLUE32(IDEBackgroundColor2)
+    IF ((Bracket.r& + Bracket.g& + Bracket.b&) / 3) < 127 THEN
+        Bracket.r& = Bracket.r& * 1.5
+        Bracket.g& = Bracket.g& * 1.5
+        Bracket.b& = Bracket.b& * 1.5
+    ELSE
+        Bracket.r& = Bracket.r& / 1.5
+        Bracket.g& = Bracket.g& / 1.5
+        Bracket.b& = Bracket.b& / 1.5
+    END IF
     _PALETTECOLOR 5, _RGB32(Bracket.r&, Bracket.g&, Bracket.b&), 0
-
-    BracketFG% = 10
-    IF (Bracket.r& + Bracket.g& + Bracket.b&) / 3 > 127 THEN BracketFG% = 1
 
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*().'"
 
@@ -8156,14 +8162,10 @@ SUB ideshowtext
             END IF
 
             IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
-                COLOR BracketFG%, 5
+                COLOR , 5
             ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
                 multiHighlightLength = multiHighlightLength - 1
-                IF l = idecy THEN
-                    COLOR BracketFG%, 5
-                ELSE
-                    COLOR , 6
-                END IF
+                COLOR , 5
             ELSE
                 COLOR , prevBG%
             END IF
@@ -11510,6 +11512,9 @@ FUNCTION idechoosecolorsbox
         ELSEIF SelectedITEM = 3 THEN
             COLOR 12, 1
             LOCATE p.y + 14, p.x + 37: PRINT "PRINT";
+        ELSEIF SelectedITEM = 4 THEN
+            COLOR 11, 1
+            LOCATE p.y + 14, p.x + 37: PRINT "'";
         END IF
         '-------- end of custom display changes --------
 
