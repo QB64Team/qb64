@@ -1175,7 +1175,7 @@ IF C = 9 THEN 'run
     IF idemode THEN
         'Darken fg/bg colors
         dummy = DarkenFGBG(1)
-        COLOR 5
+        COLOR 15
     END IF
     LOCATE idewy - 3, 2: PRINT "Starting program...";
     PCOPY 3, 0

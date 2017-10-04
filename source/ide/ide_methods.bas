@@ -191,7 +191,7 @@ FUNCTION ide2 (ignore)
         dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
         COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
-        COLOR 5, 1
+        COLOR 15, 1
 
         LOCATE idewy - 3, 2
         IF os$ = "LNX" THEN
@@ -1027,7 +1027,6 @@ FUNCTION ide2 (ignore)
 
             IF IdeSystem = 3 THEN 'override cursor position
                 SCREEN , , 0, 0
-                _PALETTECOLOR 2, _RGB32(24, 24, 24)
                 LOCATE Help_cy - Help_sy + Help_wy1, Help_cx - Help_sx + Help_wx1
                 SCREEN , , 3, 0
             END IF
@@ -1405,13 +1404,13 @@ FUNCTION ide2 (ignore)
                     dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
-                    COLOR 5, 1
+                    COLOR 15, 1
                     LOCATE idewy - 3, 2: PRINT "Starting program...";
                 ELSE
                     dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
-                    COLOR 5, 1
+                    COLOR 15, 1
                     IF os$ = "LNX" THEN
                         LOCATE idewy - 3, 2: PRINT "Creating executable file...";
                     ELSE
@@ -1440,7 +1439,6 @@ FUNCTION ide2 (ignore)
             'correct status message
             LOCATE , , 0
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-
 
             LOCATE idewy - 3, 2: PRINT "Checking program... (editing program will cancel request)";
 
@@ -3959,7 +3957,7 @@ FUNCTION ide2 (ignore)
                 h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
                 x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
                 FOR x = 1 TO LEN(m$)
-                    IF r = i THEN COLOR 8, 0 ELSE COLOR 8, 7
+                    IF r = i THEN COLOR 2, 0 ELSE COLOR 2, 7
                     PRINT MID$(m$, x, 1);
                 NEXT
             ELSE
@@ -5209,7 +5207,7 @@ SUB ideboxshadow (x, y, w, h)
     NEXT
     LOCATE y + h - 1, x: PRINT CHR$(192) + STRING$(w - 2, 196) + CHR$(217);
     'shadow
-    COLOR 8, 0
+    COLOR 2, 0
     FOR y2 = y + 1 TO y + h - 1
         FOR x2 = x + w TO x + w + 1
             IF x2 <= idewx AND y2 <= idewy THEN
@@ -5886,7 +5884,7 @@ SUB idedrawobj (o AS idedbotype, f)
                         PRINT a3$;
                         'customization specific for the SUBs list, when there are external procedures:
                         IF INSTR(a3$, CHR$(196) + "*") > 0 THEN
-                            IF o.sel = n THEN COLOR 8, 0 ELSE COLOR 8, 7
+                            IF o.sel = n THEN COLOR 2, 0 ELSE COLOR 2, 7
                             LOCATE o.par.y + o.y + y, o.par.x + o.x + 4
                             PRINT "*";
                         END IF
@@ -7859,7 +7857,9 @@ END SUB
 SUB ideshowtext
 
     _PALETTECOLOR 1, IDEBackgroundColor, 0
+    _PALETTECOLOR 2, _RGB32(84, 84, 84) 'dark gray - help system and interface details
     _PALETTECOLOR 6, IDEBackgroundColor2, 0
+    _PALETTECOLOR 8, IDENumbersColor, 0
     _PALETTECOLOR 10, IDEMetaCommandColor, 0
     _PALETTECOLOR 11, IDECommentColor, 0
     _PALETTECOLOR 12, IDEKeywordColor, 0
@@ -8140,14 +8140,27 @@ SUB ideshowtext
                         END IF
                         isKeyword = LEN(checkKeyword$)
                     ELSE
-                        checkKeyword$ = ""
+                        is_Number = 0
+                        'maybe a number literal?
+                        IF isnumber(checkKeyword$) THEN
+                            is_Number = -1
+                        ELSEIF LEFT$(checkKeyword$, 2) = "&H" OR _
+                            LEFT$(checkKeyword$, 2) = "&O" OR _
+                            LEFT$(checkKeyword$, 2) = "&B" THEN
+                            is_Number = -1
+                        END IF
+                        IF is_Number THEN isKeyword = LEN(checkKeyword$) ELSE checkKeyword$ = ""
                     END IF
                 END IF
             END IF
             oldChar$ = thisChar$
 
             IF isKeyword > 0 AND keywordHighlight THEN
-                COLOR 12
+                IF is_Number THEN
+                    COLOR 8
+                ELSE
+                    COLOR 12
+                END IF
                 IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1
             END IF
 
@@ -8183,10 +8196,8 @@ SUB ideshowtext
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
             IF isKeyword > 0 THEN isKeyword = isKeyword - 1
-            if isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0
+            if isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0
         NEXT m
-
-        '### END OF STEVE EDIT
 
         'apply selection color change if necessary
         IF ideselect THEN
@@ -8514,7 +8525,7 @@ FUNCTION idesubs$
 
         '-------- custom display changes --------
         IF FoundExternalSUBFUNC = -1 THEN
-            COLOR 8, 7: LOCATE idewy + idesubwindow - 3, p.x + 2: PRINT "* external";
+            COLOR 2, 7: LOCATE idewy + idesubwindow - 3, p.x + 2: PRINT "* external";
         END IF
         '-------- end of custom display changes --------
 
@@ -10857,13 +10868,13 @@ FUNCTION ideandroidbox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 8, 7: LOCATE p.y + 3, p.x + 4: PRINT "Projects are created at:";
-        COLOR 8, 7: LOCATE p.y + 4, p.x + 6: PRINT "qb64\programs\android\";
+        COLOR 2, 7: LOCATE p.y + 3, p.x + 4: PRINT "Projects are created at:";
+        COLOR 2, 7: LOCATE p.y + 4, p.x + 6: PRINT "qb64\programs\android\";
         COLOR 0, 7
         PRINT "bas_file_name_without_extension";
-        COLOR 8, 7: PRINT "\";
-        '    COLOR 8, 7: LOCATE p.y + 9, p.x + 4: PRINT "Script file is launched from within project's folder";
-        'COLOR 8, 7: LOCATE p.y + 13 - 4, p.x + 4: PRINT "Script file is launched from within project's folder";
+        COLOR 2, 7: PRINT "\";
+        'COLOR 2, 7: LOCATE p.y + 9, p.x + 4: PRINT "Script file is launched from within project's folder";
+        'COLOR 2, 7: LOCATE p.y + 13 - 4, p.x + 4: PRINT "Script file is launched from within project's folder";
 
         '-------- end of custom display changes --------
 
@@ -11282,14 +11293,16 @@ FUNCTION idechoosecolorsbox
     DIM bkpIDECommentColor AS _UNSIGNED LONG, bkpIDEMetaCommandColor AS _UNSIGNED LONG
     DIM bkpIDEQuoteColor AS _UNSIGNED LONG, bkpIDETextColor AS _UNSIGNED LONG
     DIM bkpIDEBackgroundColor AS _UNSIGNED LONG, bkpIDEKeywordColor AS _UNSIGNED LONG
-    DIM bkpIDEBackgroundColor2 AS _UNSIGNED LONG
-    DIM SelectionIndicator$(1 TO 7)
+    DIM bkpIDEBackgroundColor2 AS _UNSIGNED LONG, bkpIDENumbersColor AS _UNSIGNED LONG
 
+    TotalItems = 8
+    DIM SelectionIndicator$(1 TO TotalItems)
     bkpIDECommentColor = IDECommentColor
     bkpIDEMetaCommandColor = IDEMetaCommandColor
     bkpIDEQuoteColor = IDEQuoteColor
     bkpIDETextColor = IDETextColor
     bkpIDEKeywordColor = IDEKeywordColor
+    bkpIDENumbersColor = IDENumbersColor
     bkpIDEBackgroundColor = IDEBackgroundColor
     bkpIDEBackgroundColor2 = IDEBackgroundColor2
 
@@ -11314,6 +11327,7 @@ FUNCTION idechoosecolorsbox
 
     l$ = CHR$(16) + "Normal Text"
     l$ = l$ + sep + " Keywords"
+    l$ = l$ + sep + " Numbers"
     l$ = l$ + sep + " Strings"
     l$ = l$ + sep + " Metacommands"
     l$ = l$ + sep + " Comments"
@@ -11322,7 +11336,7 @@ FUNCTION idechoosecolorsbox
     i = i + 1
     o(i).typ = 2
     o(i).y = 4
-    o(i).w = 27: o(i).h = 7
+    o(i).w = 27: o(i).h = 8
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1
     SelectedITEM = 1
@@ -11393,7 +11407,7 @@ FUNCTION idechoosecolorsbox
         'Validate this scheme first
         FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
         IF FoundPipe > 0 THEN
-            IF LEN(MID$(ColorSchemes$(SchemeID), FoundPipe + 1)) = 63 THEN
+            IF LEN(MID$(ColorSchemes$(SchemeID), FoundPipe + 1)) = 72 THEN
                 a2$ = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
             ELSE
                 SchemeID = 0
@@ -11441,25 +11455,27 @@ FUNCTION idechoosecolorsbox
         'Color scheme selection arrows:
         LOCATE p.y + 2, p.x + 2
         IF mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID <= 1 THEN COLOR 8, 7
+        IF SchemeID <= 1 THEN COLOR 2, 7
         PRINT " " + CHR$(17) + " ";
         IF mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID = LastValidColorScheme THEN COLOR 8, 7
+        IF SchemeID = LastValidColorScheme THEN COLOR 2, 7
         PRINT " " + CHR$(16) + " ";
 
         'Color scheme Save and Erase buttons:
         LOCATE p.y + 2, p.x + 57
         IF mY = p.y + 2 AND mX >= p.x + 57 AND mX <= p.x + 62 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN COLOR 8, 7 'Disable if preset scheme
+        IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN COLOR 2, 7 'Disable if preset scheme
         PRINT " Save ";
         IF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID <= PresetColorSchemes THEN COLOR 8, 7 'Disable if preset scheme or unsaved user-defined
+        IF SchemeID <= PresetColorSchemes THEN COLOR 2, 7 'Disable if preset scheme or unsaved user-defined
         PRINT " Erase ";
 
         COLOR , 7
 
         _PALETTECOLOR 1, IDEBackgroundColor, 0
+        _PALETTECOLOR 2, _RGB32(84, 84, 84) 'dark gray - help system and interface details
         _PALETTECOLOR 6, IDEBackgroundColor2, 0
+        _PALETTECOLOR 8, IDENumbersColor, 0
         _PALETTECOLOR 10, IDEMetaCommandColor, 0
         _PALETTECOLOR 11, IDECommentColor, 0
         _PALETTECOLOR 12, IDEKeywordColor, 0
@@ -11496,23 +11512,27 @@ FUNCTION idechoosecolorsbox
         LOCATE p.y + 15, p.x + 36: PRINT CHR$(179); SPACE$(25);
 
         SELECT CASE SelectedITEM
-            CASE 1: COLOR 13, 1: SampleText$ = "myVar% = 5" 'Normal text
+            CASE 1: COLOR 13, 1: SampleText$ = "myVar% = " 'Normal text
             CASE 2: COLOR 12, 1: SampleText$ = "CLS: PRINT" 'Keywords
-            CASE 3: COLOR 14, 1: SampleText$ = SPACE$(6) + CHR$(34) + "Hello, world!" + CHR$(34) 'Strings
-            CASE 4: COLOR 10, 1: SampleText$ = "'$DYNAMIC" 'Metacommands
-            CASE 5: COLOR 11, 1: SampleText$ = "'TODO: review this block" 'Comments
-            CASE 6: COLOR 1, 1: SampleText$ = "" 'Background
-            CASE 7: COLOR 6, 6: SampleText$ = SPACE$(25) 'Current line background
+            CASE 3: COLOR 13, 1: SampleText$ = "myVar% = " 'Normal text
+            CASE 4: COLOR 14, 1: SampleText$ = SPACE$(6) + CHR$(34) + "Hello, world!" + CHR$(34) 'Strings
+            CASE 5: COLOR 10, 1: SampleText$ = "'$DYNAMIC" 'Metacommands
+            CASE 6: COLOR 11, 1: SampleText$ = "'TODO: review this block" 'Comments
+            CASE 7: COLOR 1, 1: SampleText$ = "" 'Background
+            CASE 8: COLOR 6, 6: SampleText$ = SPACE$(25) 'Current line background
         END SELECT
 
         LOCATE p.y + 14, p.x + 37: PRINT SampleText$;
-        IF SelectedITEM = 2 THEN
+        IF SelectedITEM = 1 OR SelectedITEM = 3 THEN
+            COLOR 8, 1
+            LOCATE p.y + 14, p.x + 46: PRINT "5";
+        ELSEIF SelectedITEM = 2 THEN
             COLOR 13, 1
             LOCATE p.y + 14, p.x + 48: PRINT "myVar%";
-        ELSEIF SelectedITEM = 3 THEN
+        ELSEIF SelectedITEM = 4 THEN
             COLOR 12, 1
             LOCATE p.y + 14, p.x + 37: PRINT "PRINT";
-        ELSEIF SelectedITEM = 4 THEN
+        ELSEIF SelectedITEM = 5 THEN
             COLOR 11, 1
             LOCATE p.y + 14, p.x + 37: PRINT "'";
         END IF
@@ -11604,15 +11624,16 @@ FUNCTION idechoosecolorsbox
 
                     'Build scheme string
                     SchemeString$ = SchemeString$ + "|"
-                    FOR j = 1 to 7
+                    FOR j = 1 to 8
                         SELECT CASE j
                             CASE 1: CurrentColor~& = IDETextColor
                             CASE 2: CurrentColor~& = IDEKeywordColor
-                            CASE 3: CurrentColor~& = IDEQuoteColor
-                            CASE 4: CurrentColor~& = IDEMetaCommandColor
-                            CASE 5: CurrentColor~& = IDECommentColor
-                            CASE 6: CurrentColor~& = IDEBackgroundColor
-                            CASE 7: CurrentColor~& = IDEBackgroundColor2
+                            CASE 3: CurrentColor~& = IDENumbersColor
+                            CASE 4: CurrentColor~& = IDEQuoteColor
+                            CASE 5: CurrentColor~& = IDEMetaCommandColor
+                            CASE 6: CurrentColor~& = IDECommentColor
+                            CASE 7: CurrentColor~& = IDEBackgroundColor
+                            CASE 8: CurrentColor~& = IDEBackgroundColor2
                         END SELECT
 
                         r$ = str2$(_RED32(CurrentColor~&)): r$ = STRING$(3 - LEN(r$), "0") + r$
@@ -11640,15 +11661,16 @@ FUNCTION idechoosecolorsbox
                     SchemeString$ = SchemeString$ + "|"
 
                     'Build scheme string
-                    FOR j = 1 to 7
+                    FOR j = 1 to 8
                         SELECT CASE j
                             CASE 1: CurrentColor~& = IDETextColor
                             CASE 2: CurrentColor~& = IDEKeywordColor
-                            CASE 3: CurrentColor~& = IDEQuoteColor
-                            CASE 4: CurrentColor~& = IDEMetaCommandColor
-                            CASE 5: CurrentColor~& = IDECommentColor
-                            CASE 6: CurrentColor~& = IDEBackgroundColor
-                            CASE 7: CurrentColor~& = IDEBackgroundColor2
+                            CASE 3: CurrentColor~& = IDENumbersColor
+                            CASE 4: CurrentColor~& = IDEQuoteColor
+                            CASE 5: CurrentColor~& = IDEMetaCommandColor
+                            CASE 6: CurrentColor~& = IDECommentColor
+                            CASE 7: CurrentColor~& = IDEBackgroundColor
+                            CASE 8: CurrentColor~& = IDEBackgroundColor2
                         END SELECT
 
                         r$ = str2$(_RED32(CurrentColor~&)): r$ = STRING$(3 - LEN(r$), "0") + r$
@@ -11711,7 +11733,7 @@ FUNCTION idechoosecolorsbox
             ValidateScheme:
             FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
             IF FoundPipe > 0 THEN
-                IF LEN(MID$(ColorSchemes$(SchemeID), FoundPipe + 1)) = 63 THEN
+                IF LEN(MID$(ColorSchemes$(SchemeID), FoundPipe + 1)) = 72 THEN
                     a2$ = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
                 ELSE
                     SchemeID = SchemeID + SchemeArrow
@@ -11731,12 +11753,14 @@ FUNCTION idechoosecolorsbox
             o(9).v1 = LEN(idetxt(o(9).txt))
             o(9).issel = -1
             o(9).sx1 = 0
-            ColorData$ = RIGHT$(ColorSchemes$(SchemeID), 63)
+            ColorData$ = RIGHT$(ColorSchemes$(SchemeID), 72)
             i = 1
             r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
             IDETextColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
             r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
             IDEKeywordColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
+            r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
+            IDENumbersColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
             r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
             IDEQuoteColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
             r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
@@ -11798,12 +11822,13 @@ FUNCTION idechoosecolorsbox
 
         IF SelectedITEM <> o(1).sel AND o(1).sel > 0 THEN
             SelectedITEM = o(1).sel
-            FOR i = 1 TO 7: SelectionIndicator$(i) = " ": NEXT i
+            FOR i = 1 TO 8: SelectionIndicator$(i) = " ": NEXT i
             SelectionIndicator$(SelectedITEM) = CHR$(16)
 
             i = 0
             i = i + 1: l$ = SelectionIndicator$(i) + "Normal Text"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Keywords"
+            i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Numbers"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Strings"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Metacommands"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Comments"
@@ -11815,11 +11840,12 @@ FUNCTION idechoosecolorsbox
             SELECT CASE SelectedITEM
                 CASE 1: CurrentColor~& = IDETextColor
                 CASE 2: CurrentColor~& = IDEKeywordColor
-                CASE 3: CurrentColor~& = IDEQuoteColor
-                CASE 4: CurrentColor~& = IDEMetaCommandColor
-                CASE 5: CurrentColor~& = IDECommentColor
-                CASE 6: CurrentColor~& = IDEBackgroundColor
-                CASE 7: CurrentColor~& = IDEBackgroundColor2
+                CASE 3: CurrentColor~& = IDENumbersColor
+                CASE 4: CurrentColor~& = IDEQuoteColor
+                CASE 5: CurrentColor~& = IDEMetaCommandColor
+                CASE 6: CurrentColor~& = IDECommentColor
+                CASE 7: CurrentColor~& = IDEBackgroundColor
+                CASE 8: CurrentColor~& = IDEBackgroundColor2
             END SELECT
             idetxt(o(2).txt) = str2$(_RED32(CurrentColor~&))
             idetxt(o(3).txt) = str2$(_GREEN32(CurrentColor~&))
@@ -11867,12 +11893,13 @@ FUNCTION idechoosecolorsbox
         CurrentColor~& = _RGB32(VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)), VAL(idetxt(o(4).txt)))
         SELECT CASE SelectedITEM
             CASE 1: IDETextColor = CurrentColor~& 'Normal text
-            CASE 2: IDEKeywordColor = CurrentColor~& 'Strings
-            CASE 3: IDEQuoteColor = CurrentColor~& 'Strings
-            CASE 4: IDEMetaCommandColor = CurrentColor~& 'Metacommands
-            CASE 5: IDECommentColor = CurrentColor~& 'Comments
-            CASE 6: IDEBackgroundColor = CurrentColor~& 'Background
-            CASE 7: IDEBackgroundColor2 = CurrentColor~& 'Current line background
+            CASE 2: IDEKeywordColor = CurrentColor~& 'Keywords
+            CASE 3: IDENumbersColor = CurrentColor~& 'Numbers
+            CASE 4: IDEQuoteColor = CurrentColor~& 'Strings
+            CASE 5: IDEMetaCommandColor = CurrentColor~& 'Metacommands
+            CASE 6: IDECommentColor = CurrentColor~& 'Comments
+            CASE 7: IDEBackgroundColor = CurrentColor~& 'Background
+            CASE 8: IDEBackgroundColor2 = CurrentColor~& 'Current line background
         END SELECT
 
         IF K$ = CHR$(27) OR (focus = 10 AND info <> 0) THEN
@@ -11893,6 +11920,7 @@ FUNCTION idechoosecolorsbox
             IDEQuoteColor = _RGB32(255, 255, 85)
             IDETextColor = _RGB32(226, 226, 226)
             IDEKeywordColor = _RGB32(147, 196, 235)
+            IDENumbersColor = _RGB32(245, 128, 177)
             IDEBackgroundColor = _RGB32(0, 0, 170)
             IDEBackgroundColor2 = _RGB32(0, 108, 177)
             SchemeID = 1
@@ -11914,15 +11942,16 @@ FUNCTION idechoosecolorsbox
        (focus = 11 AND K$ = CHR$(13)) THEN
             'save changes
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", str2$(SchemeID)
-            FOR i = 1 TO 7
+            FOR i = 1 TO 8
                 SELECT CASE i
                     CASE 1: CurrentColor~& = IDETextColor: colorid$ = "TextColor"
                     CASE 2: CurrentColor~& = IDEKeywordColor: colorid$ = "KeywordColor"
-                    CASE 3: CurrentColor~& = IDEQuoteColor: colorid$ = "QuoteColor"
-                    CASE 4: CurrentColor~& = IDEMetaCommandColor: colorid$ = "MetaCommandColor"
-                    CASE 5: CurrentColor~& = IDECommentColor: colorid$ = "CommentColor"
-                    CASE 6: CurrentColor~& = IDEBackgroundColor: colorid$ = "BackgroundColor"
-                    CASE 7: CurrentColor~& = IDEBackgroundColor2: colorid$ = "BackgroundColor2"
+                    CASE 3: CurrentColor~& = IDENumbersColor: colorid$ = "NumbersColor"
+                    CASE 4: CurrentColor~& = IDEQuoteColor: colorid$ = "QuoteColor"
+                    CASE 5: CurrentColor~& = IDEMetaCommandColor: colorid$ = "MetaCommandColor"
+                    CASE 6: CurrentColor~& = IDECommentColor: colorid$ = "CommentColor"
+                    CASE 7: CurrentColor~& = IDEBackgroundColor: colorid$ = "BackgroundColor"
+                    CASE 8: CurrentColor~& = IDEBackgroundColor2: colorid$ = "BackgroundColor2"
                 END SELECT
                 r$ = str2$(_RED32(CurrentColor~&))
                 g$ = str2$(_GREEN32(CurrentColor~&))
@@ -14080,25 +14109,28 @@ FUNCTION DarkenFGBG (Action AS _BYTE)
         TempDarkerBG2Color~& = _RGB32(_RED32(IDEBackgroundColor2) * .5, _GREEN32(IDEBackgroundColor2) * .5, _BLUE32(IDEBackgroundColor2) * .5)
         TempDarkerFGColor~& = _RGB32(_RED32(IDETextColor) * .5, _GREEN32(IDETextColor) * .5, _BLUE32(IDETextColor) * .5)
         TempDarkerKWColor~& = _RGB32(_RED32(IDEKeywordColor) * .5, _GREEN32(IDEKeywordColor) * .5, _BLUE32(IDEKeywordColor) * .5)
+        TempDarkerNumColor~& = _RGB32(_RED32(IDENumbersColor) * .5, _GREEN32(IDENumbersColor) * .5, _BLUE32(IDENumbersColor) * .5)
         TempDarkerCommentColor~& = _RGB32(_RED32(IDECommentColor) * .5, _GREEN32(IDECommentColor) * .5, _BLUE32(IDECommentColor) * .5)
         TempDarkerMetaColor~& = _RGB32(_RED32(IDEMetaCommandColor) * .5, _GREEN32(IDEMetaCommandColor) * .5, _BLUE32(IDEMetaCommandColor) * .5)
         TempDarkerQuoteColor~& = _RGB32(_RED32(IDEQuoteColor) * .5, _GREEN32(IDEQuoteColor) * .5, _BLUE32(IDEQuoteColor) * .5)
         _PALETTECOLOR 1, TempDarkerBGColor~&, 0
-        _PALETTECOLOR 13, TempDarkerFGColor~&, 0
+        _PALETTECOLOR 5, TempDarkerBGColor~&, 0
         _PALETTECOLOR 6, TempDarkerBG2Color~&, 0
-        _PALETTECOLOR 11, TempDarkerCommentColor~&, 0
-        _PALETTECOLOR 12, TempDarkerKWColor~&
+        _PALETTECOLOR 8, TempDarkerNumColor~&, 0
         _PALETTECOLOR 10, TempDarkerMetaColor~&, 0
+        _PALETTECOLOR 11, TempDarkerCommentColor~&, 0
+        _PALETTECOLOR 12, TempDarkerKWColor~&, 0
+        _PALETTECOLOR 13, TempDarkerFGColor~&, 0
         _PALETTECOLOR 14, TempDarkerQuoteColor~&, 0
-        _PALETTECOLOR 5, _RGB32(255, 255, 255), 0
     ELSE
         _PALETTECOLOR 1, IDEBackgroundColor, 0
         _PALETTECOLOR 6, IDEBackgroundColor2, 0
+        _PALETTECOLOR 8, IDENumbersColor, 0
+        _PALETTECOLOR 10, IDEMetaCommandColor, 0
         _PALETTECOLOR 11, IDECommentColor, 0
         _PALETTECOLOR 12, IDEKeywordColor, 0
-        _PALETTECOLOR 10, IDEMetaCommandColor, 0
-        _PALETTECOLOR 14, IDEQuoteColor, 0
         _PALETTECOLOR 13, IDETextColor, 0
+        _PALETTECOLOR 14, IDEQuoteColor, 0
     END IF
 END SUB
 
@@ -14120,13 +14152,13 @@ SUB LoadColorSchemes
     'Preset built-in schemes
     PresetColorSchemes = 7
     REDIM ColorSchemes$(1 TO PresetColorSchemes)
-    ColorSchemes$(1) = "QB64 Default|226226226147196235255255085085255085085255255000000170000108177"
-    ColorSchemes$(2) = "Dark blue|226226226069147216255177000085255085049196196000000069000068108"
-    ColorSchemes$(3) = "Camouflage|196196196255255255255177000137177147147137020000039029098069020"
-    ColorSchemes$(4) = "Classic QB4.5|177177177177177177177177177177177177177177177000000170000000170"
-    ColorSchemes$(5) = "Light green|051051051000000216255157255147177093206206206234255234206255206"
-    ColorSchemes$(6) = "Plum|186186186255255255255108000085186078085186255059000059088088128"
-    ColorSchemes$(7) = "All white|051051051000000216206147000059177000206206206255255255245245245"
+    ColorSchemes$(1) = "QB64 Default|226226226147196235245128177255255085085255085085255255000000170000108177"
+    ColorSchemes$(2) = "Dark blue|226226226069147216245128177255177000085255085049196196000000069000068108"
+    ColorSchemes$(3) = "Camouflage|196196196255255255245128177255177000137177147147137020000039029098069020"
+    ColorSchemes$(4) = "Classic QB4.5|177177177177177177245128177177177177177177177177177177000000170000000170"
+    ColorSchemes$(5) = "Light green|051051051000000216245128177255157255147177093206206206234255234206255206"
+    ColorSchemes$(6) = "Plum|186186186255255255245128177255108000085186078085186255059000059088088128"
+    ColorSchemes$(7) = "All white|051051051000000216245128177206147000059177000206206206255255255245245245"
     TotalColorSchemes = PresetColorSchemes
     LastValidColorScheme = TotalColorSchemes
 
@@ -14143,7 +14175,7 @@ SUB LoadColorSchemes
             ColorSchemes$(TotalColorSchemes) = value$
             FoundPipe = INSTR(value$, "|")
             IF FoundPipe > 0 THEN
-                IF LEN(MID$(value$, FoundPipe + 1)) = 63 THEN
+                IF LEN(MID$(value$, FoundPipe + 1)) = 72 THEN
                     LastValidColorScheme = TotalColorSchemes
                 ELSE
                     GOTO DiscardInvalid
@@ -14207,7 +14239,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
                     LOCATE idewy - 3, 2
-                    COLOR 5, 1
+                    COLOR 15, 1
                     PRINT "Converting...          "
                     PCOPY 3, 0
 
@@ -14215,7 +14247,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     SHELL _HIDE convertLine$
 
                     LOCATE idewy - 3, 2
-                    COLOR 5, 1
+                    COLOR 15, 1
                     PRINT "                       "
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
@@ -14249,13 +14281,13 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
                     LOCATE idewy - 3, 2
-                    COLOR 5, 1
+                    COLOR 15, 1
                     PRINT "Preparing to convert..."
                     PCOPY 3, 0
                     SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
                     LOCATE idewy - 3, 2
-                    COLOR 5, 1
+                    COLOR 15, 1
                     PRINT "                       "
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
