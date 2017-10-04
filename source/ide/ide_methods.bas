@@ -8124,7 +8124,10 @@ SUB ideshowtext
                         checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                     NEXT
                     checkKeyword$ = UCASE$(checkKeyword$)
-                    IF INSTR(listOfKeywords$, ":" + checkKeyword$ + ":") > 0 THEN
+                    IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 THEN
+                        IF checkKeyword$ = "$END" THEN
+                            IF MID$(a2$, m, 7) = "$END IF" THEN checkKeyword$ = "$END IF"
+                        END IF
                         isKeyword = LEN(checkKeyword$)
                     ELSE
                         checkKeyword$ = ""
