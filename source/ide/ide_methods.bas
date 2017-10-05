@@ -7857,7 +7857,7 @@ END SUB
 SUB ideshowtext
 
     _PALETTECOLOR 1, IDEBackgroundColor, 0
-    _PALETTECOLOR 2, _RGB32(84, 84, 84) 'dark gray - help system and interface details
+    _PALETTECOLOR 2, _RGB32(84, 84, 84), 0 'dark gray - help system and interface details
     _PALETTECOLOR 6, IDEBackgroundColor2, 0
     _PALETTECOLOR 8, IDENumbersColor, 0
     _PALETTECOLOR 10, IDEMetaCommandColor, 0
@@ -11473,7 +11473,7 @@ FUNCTION idechoosecolorsbox
         COLOR , 7
 
         _PALETTECOLOR 1, IDEBackgroundColor, 0
-        _PALETTECOLOR 2, _RGB32(84, 84, 84) 'dark gray - help system and interface details
+        _PALETTECOLOR 2, _RGB32(84, 84, 84), 0 'dark gray - help system and interface details
         _PALETTECOLOR 6, IDEBackgroundColor2, 0
         _PALETTECOLOR 8, IDENumbersColor, 0
         _PALETTECOLOR 10, IDEMetaCommandColor, 0
