@@ -331,6 +331,8 @@ byte_element_struct *byte_element_5250=NULL;
 if (!byte_element_5250){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5250=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5250=(byte_element_struct*)mem_static_malloc(12);
 }
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_WHAT=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_WHAT)_FUNC_IDECHOOSECOLORSBOX_STRING_WHAT=qbs_new(0,0);
 int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW=NULL;
 if(_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW==NULL){
 _FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW=(int32*)mem_static_malloc(4);
