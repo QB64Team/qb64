@@ -753,8 +753,14 @@ FUNCTION ide2 (ignore)
                     _FONT tempf&
 
                     _PALETTECOLOR 1, IDEBackgroundColor, 0
-                    _PALETTECOLOR 14, IDEQuoteColor, 0
+                    _PALETTECOLOR 2, _RGB32(84, 84, 84), 0 'dark gray - help system and interface details
+                    _PALETTECOLOR 6, IDEBackgroundColor2, 0
+                    _PALETTECOLOR 8, IDENumbersColor, 0
+                    _PALETTECOLOR 10, IDEMetaCommandColor, 0
+                    _PALETTECOLOR 11, IDECommentColor, 0
+                    _PALETTECOLOR 12, IDEKeywordColor, 0
                     _PALETTECOLOR 13, IDETextColor, 0
+                    _PALETTECOLOR 14, IDEQuoteColor, 0
 
                     'static background
                     COLOR 0, 7
