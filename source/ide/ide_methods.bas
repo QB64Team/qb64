@@ -11460,20 +11460,20 @@ FUNCTION idechoosecolorsbox
         '-------- custom display changes --------
         'Color scheme selection arrows:
         LOCATE p.y + 2, p.x + 2
-        IF mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID <= 1 THEN COLOR 2, 7
+        IF mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4 THEN COLOR 15, 0 ELSE COLOR 15, 2
+        IF SchemeID <= 1 THEN COLOR 7, 2
         PRINT " " + CHR$(17) + " ";
-        IF mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID = LastValidColorScheme THEN COLOR 2, 7
+        IF mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7 THEN COLOR 15, 0 ELSE COLOR 15, 2
+        IF SchemeID = LastValidColorScheme THEN COLOR 7, 2
         PRINT " " + CHR$(16) + " ";
 
         'Color scheme Save and Erase buttons:
         LOCATE p.y + 2, p.x + 57
-        IF mY = p.y + 2 AND mX >= p.x + 57 AND mX <= p.x + 62 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN COLOR 2, 7 'Disable if preset scheme
+        IF mY = p.y + 2 AND mX >= p.x + 57 AND mX <= p.x + 62 THEN COLOR 15, 0 ELSE COLOR 15, 2
+        IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN COLOR 7, 2 'Disable if preset scheme
         PRINT " Save ";
-        IF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN COLOR 15, 8 ELSE COLOR 0, 7
-        IF SchemeID <= PresetColorSchemes THEN COLOR 2, 7 'Disable if preset scheme or unsaved user-defined
+        IF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN COLOR 15, 0 ELSE COLOR 15, 2
+        IF SchemeID <= PresetColorSchemes THEN COLOR 7, 2 'Disable if preset scheme or unsaved user-defined
         PRINT " Erase ";
 
         COLOR , 7
@@ -11698,14 +11698,16 @@ FUNCTION idechoosecolorsbox
             ELSEIF mY = p.y + 2 AND mX >= p.x + 63 AND mX <= p.x + 67 THEN
                 'Erase
                 IF SchemeID > PresetColorSchemes THEN
-                    'No confirmation will be asked;
-                    i = SchemeID - PresetColorSchemes
-                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
-                    LoadColorSchemes
-                    SchemeID = SchemeID - 1
-                    ChangedScheme = -1
-                    SchemeArrow = -1
-                    GOTO ValidateScheme
+                    what$ = ideyesnobox("Erase color scheme", "This cannot be undone. Erase scheme?")
+                    IF what$ = "Y" THEN
+                        i = SchemeID - PresetColorSchemes
+                        WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
+                        LoadColorSchemes
+                        SchemeID = SchemeID - 1
+                        ChangedScheme = -1
+                        SchemeArrow = -1
+                        GOTO ValidateScheme
+                    END IF
                 END IF
             END IF
         END IF
@@ -14183,6 +14185,16 @@ SUB LoadColorSchemes
             FoundPipe = INSTR(value$, "|")
             IF FoundPipe > 0 THEN
                 IF LEN(MID$(value$, FoundPipe + 1)) = 72 THEN
+                    'Extended schemes (8 colors):
+                    LastValidColorScheme = TotalColorSchemes
+                ELSEIF LEN(MID$(value$, FoundPipe + 1)) = 54 THEN
+                    'Version 1.1 schemes (only 6 colors)
+                    'Convert to extended scheme:
+                    temp$  = LEFT$(value$, FoundPipe)
+                    temp$ = temp$ + MID$(value$, FoundPipe + 1, 9) + "069147216245128177"
+                    temp$ = temp$ + MID$(value$, FoundPipe + 10)
+                    ColorSchemes$(TotalColorSchemes) = temp$
+                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", temp$
                     LastValidColorScheme = TotalColorSchemes
                 ELSE
                     GOTO DiscardInvalid
@@ -14190,7 +14202,6 @@ SUB LoadColorSchemes
             ELSE
                 DiscardInvalid:
                 ColorSchemes$(TotalColorSchemes) = "0"
-                WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
             END IF
         ELSE
             'No more schemes found
