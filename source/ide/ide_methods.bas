@@ -11699,6 +11699,7 @@ FUNCTION idechoosecolorsbox
                 'Erase
                 IF SchemeID > PresetColorSchemes THEN
                     what$ = ideyesnobox("Erase color scheme", "This cannot be undone. Erase scheme?")
+                    K$ = ""
                     IF what$ = "Y" THEN
                         i = SchemeID - PresetColorSchemes
                         WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
