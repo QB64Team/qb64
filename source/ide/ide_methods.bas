@@ -8142,6 +8142,7 @@ SUB ideshowtext
                         IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 OR MID$(a2$, i, 1) = "." THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
                         checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                     NEXT
+                    IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
                     checkKeyword$ = UCASE$(checkKeyword$)
                     IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 THEN
                         IF checkKeyword$ = "$END" THEN
@@ -8223,6 +8224,7 @@ SUB ideshowtext
                     END IF
                 END IF
             END IF
+            setOldChar:
             oldChar$ = thisChar$
 
             IF isKeyword > 0 AND keywordHighlight THEN
