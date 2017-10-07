@@ -3773,8 +3773,10 @@ FUNCTION ide2 (ignore)
                         FOR i = 1 TO LEN(ideCurrentSingleLineSelection)
                             IF INSTR(char.sep$, MID$(ideCurrentSingleLineSelection, i, 1)) > 0 THEN
                                 'separators in selection don't trigger multi-highlight
-                                ideCurrentSingleLineSelection = ""
-                                EXIT FOR
+                                IF MID$(ideCurrentSingleLineSelection, i, 1) <> "." THEN
+                                    ideCurrentSingleLineSelection = ""
+                                    EXIT FOR
+                                END IF
                             END IF
                         NEXT i
                     END IF
@@ -7886,7 +7888,7 @@ SUB ideshowtext
     END IF
     _PALETTECOLOR 5, _RGB32(Bracket.r&, Bracket.g&, Bracket.b&), 0
 
-    char.sep$ = CHR$(34) + " =<>+-/\^:;,*().'"
+    char.sep$ = CHR$(34) + " =<>+-/\^:;,*()'"
 
     cc = -1
 
@@ -8101,14 +8103,18 @@ SUB ideshowtext
                 IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
                     IF m > 1 THEN
                         IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
-                            IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 THEN
+                            IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
+                                (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
+                                 MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
                                 multiHighlightLength = LEN(ideCurrentSingleLineSelection)
                             ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
                                 multiHighlightLength = LEN(ideCurrentSingleLineSelection)
                             END IF
                         END IF
                     ELSE
-                        IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 THEN
+                        IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
+                            (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
+                             MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
                             multiHighlightLength = LEN(ideCurrentSingleLineSelection)
                         ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
                             multiHighlightLength = LEN(ideCurrentSingleLineSelection)
@@ -8131,8 +8137,9 @@ SUB ideshowtext
                 IF INSTR(char.sep$, oldChar$) > 0 AND INSTR(char.sep$, thisChar$) = 0 THEN
                     'a new "word" begins; check if it's an internal keyword
                     checkKeyword$ = ""
+                    right.sep$ = ""
                     FOR i = m TO LEN(a2$)
-                        IF INSTR(char.sep$, MID$(a2$, i, 1)) THEN EXIT FOR
+                        IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 OR MID$(a2$, i, 1) = "." THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
                         checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                     NEXT
                     checkKeyword$ = UCASE$(checkKeyword$)
@@ -8146,8 +8153,45 @@ SUB ideshowtext
                         END IF
                         isKeyword = LEN(checkKeyword$)
                     ELSE
-                        is_Number = 0
                         'maybe a number literal?
+                        readFullNumber:
+                        is_Number = 0
+                        extraChars = 0
+
+                        'Continue reading if checkKeyword$ ended in a "."
+                        IF right.sep$ = "." OR thisChar$ = "-" OR thisChar$ = "." THEN
+                            checkKeyword$ = checkKeyword$ + right.sep$
+                            FOR i = i + 1 TO LEN(a2$)
+                                IF INSTR(char.sep$, MID$(a2$, i, 1)) THEN
+                                    IF MID$(a2$, i, 1) = "." AND right.sep$ = "." THEN
+                                        'a number won't contain two ".", so this
+                                        'can be safely discarded
+                                        checkKeyword$ = ""
+                                    END IF
+                                    EXIT FOR
+                                END IF
+                                checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                            NEXT
+                        END IF
+
+                        'Remove eventual type sygils
+                        SELECT CASE RIGHT$(checkKeyword$, 1)
+                            CASE "`", "%", "&", "!", "#"
+                                checkKeyword$ = LEFT$(checkKeyword$, LEN(checkKeyword$) - 1)
+                                extraChars = 1
+                        END SELECT
+
+                        SELECT CASE RIGHT$(checkKeyword$, 1)
+                            CASE "~", "%", "&", "#"
+                                checkKeyword$ = LEFT$(checkKeyword$, LEN(checkKeyword$) - 1)
+                                extraChars = extraChars + 1
+                        END SELECT
+
+                        IF RIGHT$(checkKeyword$, 1) = "~" THEN
+                            checkKeyword$ = LEFT$(checkKeyword$, LEN(checkKeyword$) - 1)
+                            extraChars = extraChars + 1
+                        END IF
+
                         IF isnumber(checkKeyword$) THEN
                             is_Number = -1
                         ELSEIF LEFT$(checkKeyword$, 2) = "&H" OR _
@@ -8155,7 +8199,27 @@ SUB ideshowtext
                             LEFT$(checkKeyword$, 2) = "&B" THEN
                             is_Number = -1
                         END IF
-                        IF is_Number THEN isKeyword = LEN(checkKeyword$) ELSE checkKeyword$ = ""
+                        IF is_Number THEN isKeyword = LEN(checkKeyword$) + extraChars ELSE checkKeyword$ = ""
+                    END IF
+                ELSE
+                    'is this a negative number?
+                    IF thisChar$ = "-" AND LEN(oldChar$) > 0 AND INSTR(char.sep$, oldChar$) > 0 THEN
+                        nextChar$ = MID$(a2$, m + 1, 1)
+                        checkNegNumber:
+                        IF LEN(nextChar$) THEN
+                            IF (ASC(nextChar$) >= 48 AND ASC(nextChar$) <= 57) THEN
+                                'it's a number
+                                checkKeyword$ = "-"
+                                right.sep$ = ""
+                                i = m
+                                GOTO readFullNumber
+                            ELSEIF ASC(nextChar$) = 46 THEN
+                                nextChar$ = MID$(a2$, m + 2, 1)
+                                IF LEN(nextChar$) > 0 THEN
+                                    IF ASC(nextChar$) <> 46 THEN GOTO checkNegNumber
+                                END IF
+                            END IF
+                        END IF
                     END IF
                 END IF
             END IF
@@ -14257,6 +14321,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
 
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     LOCATE idewy - 3, 2
                     COLOR 15, 1
                     PRINT "Converting...          "
@@ -14265,9 +14330,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     convertLine$ = convertUtility$ + " " + QuotedFilename$(file$) + " -o " + QuotedFilename$(ofile$)
                     SHELL _HIDE convertLine$
 
-                    LOCATE idewy - 3, 2
-                    COLOR 15, 1
-                    PRINT "                       "
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
 
@@ -14299,15 +14362,14 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     PCOPY 3, 0
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     LOCATE idewy - 3, 2
                     COLOR 15, 1
                     PRINT "Preparing to convert..."
                     PCOPY 3, 0
                     SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
-                    LOCATE idewy - 3, 2
-                    COLOR 15, 1
-                    PRINT "                       "
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
                     idemessagebox "Binary format", "Error launching conversion utility."
