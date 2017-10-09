@@ -243,6 +243,13 @@ IF LoadedIDESettings = 0 THEN
         IDE_LeftPosition = 0
     END IF
 
+    result = ReadConfigSetting("IDE_NormalCursorStart", value$)
+    IDENormalCursorStart = VAL(value$)
+    IF IDENormalCursorStart < 0 OR IDENormalCursorStart > 31 OR result = 0 THEN IDENormalCursorStart = 8: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_NormalCursorStart", "8"
+
+    result = ReadConfigSetting("IDE_NormalCursorEnd", value$)
+    IDENormalCursorEnd = VAL(value$)
+    IF IDENormalCursorEnd < 0 OR IDENormalCursorEnd > 31 OR result = 0 THEN IDENormalCursorEnd = 8: WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_NormalCursorEnd", "8"
 
     result = ReadConfigSetting("IDE_Width", value$)
     idewx = VAL(value$)

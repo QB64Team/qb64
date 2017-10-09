@@ -390,7 +390,7 @@ FUNCTION ide2 (ignore)
 
 
 
-        LOCATE , , , 8, 8
+        LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
 
         'static background
         COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
@@ -900,7 +900,7 @@ FUNCTION ide2 (ignore)
             GOSUB UpdateSearchBar
 
             'alter cursor style to match insert mode
-            IF ideinsert THEN LOCATE , , , 0, 31 ELSE LOCATE , , , 8, 8
+            IF ideinsert THEN LOCATE , , , 0, 31 ELSE LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
 
             'display error message (if necessary)
             IF failed THEN
@@ -1465,7 +1465,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         LOCATE , , 0
-        LOCATE , , , 8, 8
+        LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
 
         IF (mCLICK OR mCLICK2) AND idemouseselect = 0 THEN
             IF mY = 1 THEN
