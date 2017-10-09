@@ -1,9 +1,10 @@
 DIM SHARED IDECommentColor AS _UNSIGNED LONG, IDEMetaCommandColor AS _UNSIGNED LONG
 DIM SHARED IDEQuoteColor AS _UNSIGNED LONG, IDETextColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
-DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG
+DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG, IDEBracketHighlightColor AS _UNSIGNED LONG
 DIM SHARED IDEKeywordColor AS _UNSIGNED LONG, IDENumbersColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
+DIM SHARED IDENormalCursorStart AS LONG, IDENormalCursorEnd AS LONG
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
 DIM SHARED MouseButtonSwapped AS _BYTE
@@ -71,6 +72,14 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         IDEKeywordColor = _RGB32(147, 196, 235)
         WriteConfigSetting "'[IDE COLOR SETTINGS]", "KeywordColor", "_RGB32(147,196,235)"
+    END IF
+
+    result = ReadConfigSetting("HighlightColor", value$)
+    IF result THEN
+        IDEBracketHighlightColor = VRGBS(value$, _RGB32(0, 147, 177))
+    ELSE
+        IDEBracketHighlightColor = _RGB32(0, 147, 177)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "HighlightColor", "_RGB32(0,147,177)"
     END IF
 
     result = ReadConfigSetting("NumbersColor", value$)

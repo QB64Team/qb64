@@ -165,7 +165,7 @@ DIM SHARED ModifyCOMMAND$
 DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
 DIM SHARED ActiveINCLUDELinkFile AS STRING
-
+DIM SHARED HideCurrentLineHighlight AS _BYTE
 '--------------------------------------------------------------------------------
 TYPE idedbptype
     x AS LONG
