@@ -3121,6 +3121,10 @@ FUNCTION ide2 (ignore)
                         'Place the cursor at the end of the pasted content:
                         idecy = idecy + i - 1
                         idecx = LEN(idegetline(idecy)) + 1
+                        IF RIGHT$(clip$, 1) = CHR$(10) THEN
+                            idecy = idecy + 1
+                            idecx = 1
+                        END IF
                     END IF
                 ELSE
 
@@ -3158,9 +3162,10 @@ FUNCTION ide2 (ignore)
                             IF x <= LEN(a$) THEN clip$ = clip$ + MID$(a$, x, 1) ELSE clip$ = clip$ + " "
                         NEXT
                     ELSE 'multiline select
-                        IF idecx = 1 AND y = sy2 AND idecy > sy1 THEN clip$ = clip$ + CHR$(13) + CHR$(10): GOTO nofinalcopy
-                        IF clip$ = "" THEN clip$ = a$ ELSE clip$ = clip$ + CHR$(13) + CHR$(10) + a$
+                        IF idecx = 1 AND y = sy2 AND idecy > sy1 THEN GOTO nofinalcopy
+                        clip$ = clip$ + a$ + CHR$(13) + CHR$(10)
                         nofinalcopy:
+                        IF y = sy2 AND idecx > 1 AND LEN(a$) > 0 THEN clip$ = LEFT$(clip$, LEN(clip$) - 2)
                     END IF
                 END IF
             NEXT
