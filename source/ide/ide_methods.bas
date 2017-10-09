@@ -1313,7 +1313,14 @@ FUNCTION ide2 (ignore)
                 idealthighlight = 0
                 LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                 IF ideentermenu = 1 AND KCONTROL = 0 THEN 'alt was pressed then released
-                    LOCATE , , , 8, 8: skipdisplay = 0: ideentermenu = 0: GOTO startmenu
+                    IF _WINDOWHASFOCUS THEN
+                        LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
+                        skipdisplay = 0
+                        ideentermenu = 0
+                        GOTO startmenu
+                    ELSE
+                        GOTO ideloop
+                    END IF
                 END IF
             END IF
 
@@ -3854,7 +3861,16 @@ FUNCTION ide2 (ignore)
             IF KALT THEN altheld = 1 ELSE altheld = 0
 
             IF altheld <> 0 AND lastaltheld = 0 THEN
-                DO: _LIMIT 1000: GetInput: LOOP UNTIL KALT = 0
+                DO
+                    _LIMIT 1000
+                    GetInput
+                    IF _WINDOWHASFOCUS = 0 THEN
+                        KALT = 0
+                        LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                        SCREEN , , 3, 0: PCOPY 3, 0
+                        GOTO ideloop
+                    END IF
+                LOOP UNTIL KALT = 0
                 KB = KEY_ESC
             END IF
 
@@ -4015,11 +4031,26 @@ FUNCTION ide2 (ignore)
             IF mB THEN change = 1
             'revert to previous menuwhen alt pressed again
             IF altheld <> 0 AND lastaltheld = 0 THEN
-                DO: _LIMIT 1000: GetInput: LOOP UNTIL KALT = 0 'wait till alt is released
+                DO
+                    _LIMIT 1000
+                    GetInput
+                    IF _WINDOWHASFOCUS = 0 THEN
+                        KALT = 0
+                        LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        GOTO ideloop
+                    END IF
+                LOOP UNTIL KALT = 0 'wait till alt is released
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO startmenu2
             END IF
             IF _EXIT THEN ideexit = 1: GOTO ideloop
+            IF _WINDOWHASFOCUS = 0 THEN
+                KALT = 0
+                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
             _LIMIT 100
         LOOP UNTIL change
 
@@ -12635,10 +12666,6 @@ SUB GetInput
         END IF
     END IF
     'End of Edit
-
-
-
-
 
     IF k THEN
         IF k < 0 THEN k = -k: release = 1
