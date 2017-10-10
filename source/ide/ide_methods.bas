@@ -1288,7 +1288,6 @@ FUNCTION ide2 (ignore)
             LOCATE , , 0
             _PALETTECOLOR 5, IDEBackgroundColor, 0
             _PALETTECOLOR 6, IDEBackgroundColor, 0
-            KALT = 0
         END IF
 
         IF KALT THEN 'alt held
@@ -3870,13 +3869,18 @@ FUNCTION ide2 (ignore)
                     _LIMIT 1000
                     GetInput
                     IF _WINDOWHASFOCUS = 0 THEN
-                        KALT = 0
                         LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                         SCREEN , , 3, 0: PCOPY 3, 0
                         GOTO ideloop
                     END IF
                 LOOP UNTIL KALT = 0
                 KB = KEY_ESC
+            END IF
+
+            IF _WINDOWHASFOCUS = 0 THEN
+                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                SCREEN , , 3, 0: PCOPY 3, 0
+                GOTO ideloop
             END IF
 
             IF mCLICK OR mCLICK2 THEN
@@ -4040,7 +4044,6 @@ FUNCTION ide2 (ignore)
                     _LIMIT 1000
                     GetInput
                     IF _WINDOWHASFOCUS = 0 THEN
-                        KALT = 0
                         LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
@@ -4051,7 +4054,6 @@ FUNCTION ide2 (ignore)
             END IF
             IF _EXIT THEN ideexit = 1: GOTO ideloop
             IF _WINDOWHASFOCUS = 0 THEN
-                KALT = 0
                 LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
