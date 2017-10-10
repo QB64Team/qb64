@@ -10,6 +10,10 @@ The '''PRINT #''' statement sends QB64 formatted data to an open connection hand
 * Always check connections to handles before sending data.
 
 
+''Availability:''
+* Version 0.954 and older. For version 1.000 and up use [[PUT (TCP/IP statement)]]
+
+
 :::::'''Communicating using QB64 Formatted messages:'''
 
 * Benefit: QB64 handles sending and receiving data in messages. It knows how long each message is and waits for the full message to arrive, avoiding partial messages which have been fragmented from being returned.

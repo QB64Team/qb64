@@ -1,17 +1,18 @@
-'''LSET''' left-justifies a fixed length string expression based on the size of the [[STRING]] variable and string expression.
-
+[[LSET]] left-justifies a fixed length string expression based on the size of the [[STRING]] variable and string expression.
 
 
 {{PageSyntax}}
-: LSET {string_variable = string_expression | string_expression1 = string_expression2}
+: [[LSET]] {stringVariable = stringExpression | stringExpression1 = stringExpression2}
 
 
+{{PageDescription}}
 * If the string expression is longer than a fixed length string variable the value is truncated from the right side in LSET or [[RSET]].
 * If the LSET string expression is smaller, spaces will occupy the extra positions to the right in the string. 
 * LSET can be used with a [[FIELD]] or [[TYPE]] definition to set the buffer position before a [[PUT]].
 
 
-''Example 1:'' Using LSET with a [[FIELD]] definition. Note: May create an empty(unchanged) file that can be deleted.
+{{PageExamples}}
+''Example 1:'' Using LSET with a [[FIELD]] definition. Note: May create an empty (unchanged) file that can be deleted.
 {{CodeStart}}
 '' ''
 {{Cl|OPEN}} &quot;testfile.dat&quot; FOR {{Cl|RANDOM}} AS #1 {{Cl|LEN}} = 15
@@ -53,9 +54,7 @@ you.head: ACHES
 {{OutputEnd}}
 
 
-
-
-''See also:'' 
+{{PageSeeAlso}}
 * [[RSET]], [[RTRIM$]]
 * [[FIELD]], [[TYPE]]
 

@@ -3,15 +3,15 @@ The [[_OPENCLIENT]] function connects to a Host on the Internet as a Client and 
 
 
 {{PageSyntax}}
-::: client_handle = '''_OPENCLIENT('''&quot;TCP/IP:8080:12:30:1:10&quot;''')'''
+: {{Parameter|clientHandle&amp;}} = [[_OPENCLIENT]]('''&quot;TCP/IP:8080:12:30:1:10&quot;''')
 
 
 
 {{PageDescription}}
-* [[ERROR Codes|ILLEGAL FUNCTION CALL]] error if called with a string argument of the wrong syntax.
+* An [[ERROR Codes|Illegal Function Call]] error will be triggered if the function is called with a string argument of the wrong syntax.
 * Connects to a host somewhere on the internet as a client.
-* Valid client handles are negative values. 0 means that the connection failed! Always check that the handle returned is NOT 0!  
-* {{KW|CLOSE}} client_handle closes the client. A failed handle of value 0 does not need to be closed.
+* Valid {{Parameter|clientHandle&amp;}} values are negative. 0 means that the connection failed. Always check that the handle returned is not 0. 
+* [[CLOSE]] client_handle closes the client. A failed handle of value 0 does not need to be closed.
 
 
 {{PageExamples}}

@@ -1,26 +1,28 @@
 {{DISPLAYTITLE:_FULLSCREEN}}
-The '''_FULLSCREEN''' statement attempts to make the program window fullscreen. 
+The [[_FULLSCREEN]] statement attempts to make the program window fullscreen. 
 
 
 {{PageSyntax}}
-:::'''_FULLSCREEN''' [{''_STRETCH | _SQUAREPIXELS| _OFF''}]
+:[[_FULLSCREEN]] [''_STRETCH | _SQUAREPIXELS| _OFF''][, ''_SMOOTH'']
 
 
-''Optional'' {{Parameters}}
+{{Parameters}}
 * {{Parameter|_STRETCH}} default first choice attempts to mimic QBasic's full screens if possible. [[_FULLSCREEN (function)]] returns 1.
 * {{Parameter|_SQUAREPIXELS}} alternate choice enlarges the pixels into squares on some monitors. [[_FULLSCREEN (function)|_FULLSCREEN]] returns 2
 * {{Parameter|_OFF}} turns _FULLSCREEN off after full screen has been enabled. [[_FULLSCREEN (function)]] returns 0.
+* Second optional parameter ''_SMOOTH'' applies antialiasing to the stretched screen.
 
 
 {{PageDescription}}
-* '''Set the [[SCREEN]] mode and text [[WIDTH]] when necessary FIRST!''' Otherwise there may be desktop view issues.
-* _FULLSCREEN alone chooses {{Parameter|_STRETCH}} or {{Parameter|_SQUAREPIXELS}} (prioritizes _STRETCH to mimic QBASIC if possible)
-* '''Check the fullscreen mode with the [[_FULLSCREEN (function)|_FULLSCREEN]] function in your programs when a method is required!
+* '''Set the [[SCREEN]] mode and text [[WIDTH]] when necessary first.''' Otherwise there may be desktop view issues.
+* _FULLSCREEN with no parameters chooses {{Parameter|_STRETCH}} or {{Parameter|_SQUAREPIXELS}} (prioritizes _STRETCH to mimic QBasic if possible)
+* '''Check the fullscreen mode with the [[_FULLSCREEN (function)|_FULLSCREEN]] function in your programs when a method is required.
 * It is advisable to get [[INPUT|input]] from the user to confirm that fullscreen was completed or there were possible monitor incompatibilities.
-* If fullscreen is '''not confirmed''' with a [[_FULLSCREEN (function)]] return '''greater than 0''', then disable with '''_FULLSCREEN _OFF'''!
-* '''NOTE:''' _FULLSCREEN can also be affected by custom [[_FONT]] size settings and make program screens too large!
+* If fullscreen is '''not confirmed''' with a [[_FULLSCREEN (function)]] return '''greater than 0''', then disable with '''_FULLSCREEN _OFF'''.
+* '''NOTE:''' _FULLSCREEN can also be affected by custom [[_FONT]] size settings and make program screens too large.
 
 
+{{PageExamples}}
 ''Example 1:'' Setting the screen mode first prevents enlargement of the desktop before the program window is set: 
 {{CodeStart}}
 {{Cl|SCREEN}} 12
@@ -96,7 +98,31 @@ ClearFont:
 {{CodeEnd}}
 
 
-
+''Example 3:'' Testing all fullscreen methods.
+{{CodeStart}}
+{{Cl|PRINT}} &quot;Hello, world!&quot;
+{{Cl|PRINT}} &quot;Hit 1 for windowed mode;
+{{Cl|PRINT}} &quot;    2 for _STRETCH&quot;
+{{Cl|PRINT}} &quot;    3 for _SQUAREPIXELS&quot;
+{{Cl|PRINT}} &quot;    4 for _STRETCH, _SMOOTH&quot;
+{{Cl|PRINT}} &quot;    5 for _SQUAREPIXELS, _SMOOTH&quot;
+{{Cl|DO}}
+    k$ = {{Cl|INKEY$}}
+    {{Cl|SELECT CASE}} {{Cl|VAL}}(k$)
+        {{Cl|CASE}} 1
+            {{Cl|_FULLSCREEN}} _OFF
+        {{Cl|CASE}} 2
+            {{Cl|_FULLSCREEN}} _STRETCH
+        {{Cl|CASE}} 3
+            {{Cl|_FULLSCREEN}} _SQUAREPIXELS
+        {{Cl|CASE}} 4
+            {{Cl|_FULLSCREEN}} _STRETCH, _SMOOTH
+        {{Cl|CASE}} 5
+            {{Cl|_FULLSCREEN}} _SQUAREPIXELS, _SMOOTH
+    {{Cl|END}} {{Cl|SELECT}}
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|_EXIT (function)|_EXIT}}
+{{Cl|SYSTEM}}{{CodeEnd}}
 
 
 {{PageSeeAlso}}

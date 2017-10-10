@@ -1,21 +1,22 @@
 {{DISPLAYTITLE:_WIDTH (function)}}
-The '''_WIDTH''' function returns the width of an image handle or current write page.
+The [[_WIDTH (function)|_WIDTH]] function returns the width of an image handle or of the current write page.
 
 
 {{PageSyntax}}
-::: columns&amp; = '''_WIDTH'''[({{Parameter|imageHandle&amp;}})]
+: {{Parameter|columns&amp;}} = [[_WIDTH (function)|_WIDTH]][({{Parameter|imageHandle&amp;}})]
 
 
 {{PageDescription}}
 * If {{Parameter|imageHandle&amp;}} is omitted, it's assumed to be the handle of the current [[SCREEN]] or write page.
-* To get the width of the current program [[SCREEN|screen]] window use zero for the handle value: wide&amp; = _WIDTH(0)
+* To get the width of the current program [[SCREEN|screen]] window use zero for the handle value or nothing: {{Parameter|columns&amp;}} = [[_WIDTH (function)|_WIDTH]](0) ''or'' {{Parameter|columns&amp;}} = [[_WIDTH (function)|_WIDTH]]
 * If the image specified by {{Parameter|imageHandle&amp;}} is in text only([[SCREEN]] 0) mode, the number of characters per row is returned.
 * If the image specified by {{Parameter|imageHandle&amp;}} is in graphics mode, the number of pixels per row is returned. 
 * If {{Parameter|imageHandle&amp;}} is an invalid handle, then an [[ERROR Codes|invalid handle error]] is returned.
-* The maximum pixel coordinate of a program [[SCREEN|screen]] is one less than what the function returns.
+* The last visible pixel coordinate of a program [[SCREEN|screen]] is '''[[_WIDTH (function)|_WIDTH]] - 1'''.
 
 
-''Example:'' A SUB program that centers text in any graphic screen mode except text mode [[SCREEN (statement)|SCREEN]] 0 using '''QB64'''.
+{{PageExamples}}
+''Example:'' A SUB program that centers text in any graphic screen mode except text mode [[SCREEN (statement)|SCREEN]] 0.
 
 {{CodeStart}}
 
@@ -32,17 +33,16 @@ The '''_WIDTH''' function returns the width of an image handle or current write 
 
 {{CodeEnd}}
 
-: ''Explanation:'' [[_NEWIMAGE]] enlarges a screen to 800 pixels wide which is what '''_WIDTH''' function will return. The center is 800 \ 2 or 400. Since the text width is 8 pixels, that is divided by 8 to get 50 as the center text column. Then half of the text length is subtracted to find the starting text print [[LOCATE]] column.
+: ''Explanation:'' [[_NEWIMAGE]] enlarges a screen to 800 pixels wide which is what [[_WIDTH (function)|_WIDTH]] function will return. The center is 800 \ 2 or 400. Since the text width is 8 pixels, that is divided by 8 to get 50 as the center text column. Then half of the text length is subtracted to find the starting text print [[LOCATE]] column.
 
 
-: ''Note:'' The screen handle parameter is required because using no handle could assume other page handles created by functions like [[_NEWIMAGE]] or [[_PUTIMAGE]]! Use the correct handle in the SUB call! When using SCREEN 0, the MaxCol variable is not needed because _WIDTH returns the number of text columns, not pixels. Use the center value and add 1. 
-&lt;center&gt;Tcol = (center&amp; + 1) - LEN(txt$) \ 2 &lt;/center&gt;
+: ''Note:'' The screen handle parameter is required because using no handle could assume other page handles created by functions like [[_NEWIMAGE]] or [[_PUTIMAGE]]. Use the correct handle in the SUB call! When using SCREEN 0, the MaxCol variable is not needed because _WIDTH returns the number of text columns, not pixels. Use the center value and add 1. '''Tcol = (center&amp; + 1) - LEN(txt$) \ 2'''
 
 
 
 {{PageSeeAlso}}
 * [[_HEIGHT]], [[_LOADIMAGE]], [[_NEWIMAGE]]
-* [[WIDTH]] {{text|(QB statement)}}
+* [[WIDTH]]
 * [[Bitmaps]]
 
 

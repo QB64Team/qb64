@@ -1,17 +1,18 @@
 {{DISPLAYTITLE:_AXIS}}
-The '''_AXIS''' function returns the relative position of a specified axis number on a controller device.
+The [[_AXIS]] function returns the relative position of a specified axis number on a controller device.
 
 
 {{PageSyntax}}
-::: move = _AXIS(''axis_number%'')
+: {{Parameter|move!}} = [[_AXIS]]({{Parameter|axis_number%}})
 
 
 * [[SINGLE]] values returned range between -1 and 1 as maximums and 0 indicating minimum or axis center.
 * When the mouse is moved on the program screen, moves left or above center are negative while below or right are positive.
 * The ''axis_number'' must be a number which does not exceed the number of axis found by the [[_LASTAXIS]] function.
-* '''The number of [[_DEVICES]] MUST be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTAXIS]]!'''
+* '''The number of [[_DEVICES]] must be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTAXIS]].'''
 
 
+{{PageExamples}}
 ''Example:'' Reading multiple controller device buttons, axis and wheels.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
@@ -40,7 +41,7 @@ The '''_AXIS''' function returns the relative position of a specified axis numbe
 : ''Note:'' When there is no device control to read, a [[FOR...NEXT|FOR]] n = 1 TO 0 loop will not run thus avoiding a control function read error.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_LASTWHEEL]], [[_LASTBUTTON]], [[_LASTAXIS]]
 * [[_WHEEL]], [[_BUTTON]], [[_BUTTONCHANGE]]
 * [[_DEVICE$]], [[_DEVICES]]

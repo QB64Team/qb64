@@ -1,18 +1,21 @@
 {{DISPLAYTITLE:_DESKTOPWIDTH}}
-The '''_DESKTOPWIDTH''' function returns the width of the users current desktop.
+The [[_DESKTOPWIDTH]] function returns the width of the users current desktop.
 
 
 {{PageSyntax}}
-::: x&amp; = '''_DESKTOPWIDTH'''
+: {{Parameter|x&amp;}} = [[_DESKTOPWIDTH]]
 
 
 {{PageDescription}}
 * No parameters are needed for this function.
 * This returns the width of the user's desktop, not the size of any screen or window which might be open on that desktop.
-* Only available for use in GL.  SDL version does not support this keyword.
 
 
+==Availability==
+* '''Version 1.000 and up.'''
 
+
+{{PageExamples}}
 {{CodeStart}}
 
  s&amp; = {{Cl|_NEWIMAGE}}(800, 600, 256)
@@ -22,9 +25,7 @@ The '''_DESKTOPWIDTH''' function returns the width of the users current desktop.
 
 {{CodeEnd}}
 
-: ''Explanation:'' This will print the size of the user desktop (in my case currently 1920, 1080), and then the size of the current screen (800,600).
-
-
+: ''Explanation:'' This will print the size of the user desktop (for example ''1920, 1080'' for a standard hdmi monitor), and then the size of the current [[SCREEN|screen]] (800, 600).
 
 
 {{PageSeeAlso}}

@@ -1,20 +1,19 @@
-The '''GET #''' file or port device statement reads data by bytes or record positions.
-
+The [[GET #]] statement reads data from a file or port device by bytes or record positions.
 
 
 {{PageSyntax}}
-:: '''GET #''filenumber&amp;'',''' [''position''][, {''holdingvariable''|''holdingarray()''}]
+: [[GET #]]{{Parameter|fileNumber&amp;}}, [{{Parameter|position}}][, {{{Parameter|targetVariable}}|{{Parameter|targetArray()}}}]
 
 
-
-* File/port number is the file number used in the [[OPEN]] AS [[BINARY]] or [[RANDOM]] statement. 
-* The [[INTEGER]] or [[LONG]] byte ''position'' in a [[BINARY]] file or the record ''position'' in a [[RANDOM]] file '''must be greater than zero'''.
-* The ''position'' can be omitted if the GETs are consecutive based on the ''holding variable'' [[TYPE]] byte size.
-* The ''holding variable'' [[TYPE]] or [[FIELD]] ''variable'' size determines the byte size and the next ''position'' in the file.
-* The first file position is 1. This may require adding one to an offset value when documentation uses that position as 0.
-* GET does NOT require a byte or record ''position'' or ''holding variable''(or comma) when using a [[FIELD]] statement!
-* '''QB64''' can [[PUT]] the entire contents of an array to a file and later GET those contents to a ''holding array''(include brackets).
-* '''GET can ignore an [[EOF]] statement and return bad data! [[EOF]] after a GET denotes that the data has ended!'''
+{{PageDescription}}
+* {{Parameter|fileNumber&amp;}} is the file or port number used in the [[OPEN]] AS [[BINARY]] or [[RANDOM]] statement. 
+* The [[INTEGER]] or [[LONG]] byte {{Parameter|position}} in a [[BINARY]] file or the record {{Parameter|position}} in a [[RANDOM]] file '''must be greater than zero'''.
+* The {{Parameter|position}} can be omitted if the GET operations are consecutive based on the {{Parameter|targetVariable}} [[TYPE]] byte size.
+* The {{Parameter|targetVariable}} [[Data types|type]] or [[FIELD]] ''variable'' size determines the byte size and the next {{Parameter|position}} in the file.
+* The first byte position in a file is 1. &lt;!-- giving the previous information is enough: This may require adding one to an offset value when documentation uses that position as 0. --&gt;
+* GET does not require a byte or record {{Parameter|position}} or {{Parameter|targetVariable}} (or comma) when using a [[FIELD]] statement.
+* '''QB64''' can [[PUT]] the entire contents of an array to a file and later GET those contents to a {{Parameter|targetArray()}} (include brackets).
+* '''GET may ignore the end of a file and return bad data. If the [[EOF]] function returns -1 after a GET operation, it indicates that the data has ended.'''
 {{TextStart}} DO UNTIL {{Cb|EOF}}(1)
    {{Cb|GET}} #1, , value%
    IF {{Cb|NOT}}({{Cb|EOF}}(1)) THEN {{Cb|PUT}} #2, , value%
@@ -22,6 +21,7 @@ The '''GET #''' file or port device statement reads data by bytes or record posi
 {{TextEnd}}
 
 
+{{PageExamples}}
 ''Example 1:'' Opening a RANDOM file using LEN to calculate and LEN = to designate the file record size.
 {{CodeStart}} '' ''
 {{Cl|TYPE}} variabletype
@@ -98,7 +98,7 @@ showme  'display array after transfer from file
 : ''Note:'' Use empty brackets in QB64 when using [[GET]] to create an array or [[PUT]] to create a [[BINARY]] data file.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[PUT|PUT #]], [[SEEK]], [[SEEK (statement)]] 
 * [[INPUT (file statement)|INPUT #]], [[GET (TCP/IP statement)]]
 * [[FIELD]], [[RANDOM]], [[BINARY]]

@@ -1,18 +1,18 @@
-The '''LOG''' math function returns the natural logarithm of a specified numerical value.
-
+The [[LOG]] math function returns the natural logarithm of a specified numerical value.
 
 
 {{PageSyntax}}
-:: logarithm = LOG(value)
+: {{Parameter|logarithm!}} = [[LOG]]({{Parameter|value}})
 
 
-
-* Value parameter MUST be greater than 0! [[ERROR Codes|&quot;Illegal function call&quot; error]] using negative or zero values!
+{{PageDescription}}
+* {{Parameter|value}} MUST be greater than 0. [[ERROR Codes|&quot;Illegal function call&quot; error]] occurs if negative or zero values are used.
 * The natural logarithm is the logarithm to the base '''e = 2.718282''' (approximately).
 * The natural logarithm of ''a'' is defined as the integral from 1 to ''a'' of dx/x.
 * Returns are default [[SINGLE]] precision unless the value parameter uses [[DOUBLE]] precision.
 
 
+{{PageExamples}}
 ''Example 1:'' [[FUNCTION]] to find the base ten logarithm of a numerical value.
 {{CodeStart}}
  FUNCTION Log10#(value AS DOUBLE) {{Cl|STATIC}}
@@ -37,8 +37,7 @@ END FUNCTION
 : ''Explanation:'' The LOG of a '''positive''' [[INTEGER]] value is divided by the LOG of 2 to determine the number of binary digits that will be returned. The FOR loop compares the value with the exponents of two and determines if a bit is ON or OFF as &quot;1&quot; or &quot;0&quot;. 
 
 
-''See also:'' 
-
+{{PageSeeAlso}}
 *[[EXP]], [[&amp;B]] (binary number)
 *[http://qb64.net/wiki/index.php?title=Mathematical_Operations#Derived_Mathematical_Functions Derived Trigonometric Functions]
 

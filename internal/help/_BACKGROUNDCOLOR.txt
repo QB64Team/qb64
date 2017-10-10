@@ -1,18 +1,31 @@
 {{DISPLAYTITLE:_BACKGROUNDCOLOR}}
-The {{KW|_BACKGROUNDCOLOR}} function returns the current background color.
+The [[_BACKGROUNDCOLOR]] function returns the current background color.
 
 
 {{PageSyntax}}
-:{{Parameter|BGcolor&amp;}} = {{KW|_BACKGROUNDCOLOR}}
+:{{Parameter|BGcolor&amp;}} = [[_BACKGROUNDCOLOR]]
 
 
 
 {{PageDescription}}
 * Use it to get the current background color to restore later in a program.
-* Will return the closest attribute value of the background color 
+* Returns the closest attribute value of the background color.
 
 
-''Example:'' Storing a background color for later use.
+{{PageExamples}}
+''Example 1:'' Storing a background color for later use.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 0
+{{Cl|COLOR}} 1, 3
+{{Cl|CLS}}
+BG% = {{Cl|_BACKGROUNDCOLOR}}
+{{Cl|PRINT}} BG%
+{{CodeEnd}}
+{{BlueStart}}3
+{{BlueEnd}}
+
+
+''Example 2:'' Understanding the function output
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0
 {{Cl|COLOR}} 1, 11

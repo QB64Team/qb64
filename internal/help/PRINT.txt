@@ -41,6 +41,7 @@ The {{KW|PRINT}} statement prints numeric or string expressions to the program s
 :* Use the [[_PRINTMODE (function)]] to find the current _PRINTMODE setting number.
 * [[WRITE]] can be used to print a list of comma separated data values to the screen with [[comma]]s between each value.
 * Use [[_DEST]] [[_CONSOLE]] before PRINT statements to be used in a [[$CONSOLE|console]] window.
+* Use [[_CONTROLCHR]] '''OFF''' to PRINT the unprintable lower [[ASCII]] control characters in QB64. 
 
 
 ''Example 1:'' Using semicolons, comma tabs or concatenation to insert [[ASCII]] characters and numbers in a PRINT:
@@ -79,7 +80,8 @@ Hello city!
 * [[CSRLIN]], [[POS]], [[SCREEN (function)]]
 * [[COLOR]], [[LOCATE]], [[VIEW PRINT]]
 * [[INPUT]], [[STR$]], [[CHR$]]
-* [[ASCII]] (character codes), [[Text Using Graphics]] (Demo)
+* [[ASCII]] (character codes), [[_CONTROLCHR]]
+* [[Text Using Graphics]] (Demo)
 
 
 {{PageNavigation}}

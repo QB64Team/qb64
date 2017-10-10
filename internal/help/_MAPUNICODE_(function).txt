@@ -1,18 +1,19 @@
 {{DISPLAYTITLE:_MAPUNICODE (function)}}
-The '''_MAPUNICODE''' function returns the [[Unicode]](UTF32) code point value of a mapped [[ASCII]] character code.
-
+The [[_MAPUNICODE]] function returns the [[Unicode]] (UTF-32) code point value of a mapped [[ASCII]] character code.
 
 
 {{PageSyntax}}
-:: UTFvalue&amp; = '''_MAPUNICODE('''''Ascii_code%''''')'''
+: {{Parameter|utfValue&amp;}} = [[_MAPUNICODE]]({{Parameter|asciiCode%}})
 
 
-* The UTF32 values have 4 byte encoding so the return variable should be [[LONG]].
-* The ''Ascii_code'' can be any [[INTEGER]] value from 0 to 255.
+{{PageDescription}}
+* UTF-32 values have 4-byte encoding so the return variable should be [[LONG]].
+* The {{Parameter|asciiCode%}} can be any [[INTEGER]] value from 0 to 255.
 * Returns can be used to verify or catalog the present Unicode mapping.
-* The function will return Unicode values for the control characters, CHR$(127) and extended characters '''without mapping''' them first.
+* The function returns Unicode values for the control characters, CHR$(127) and extended characters without mapping them first.
 
 
+{{PageExamples}}
 ''Example:'' Store function return values in an array for ASCII codes 0 to 255 to restore them later.
 {{CodeStart}}
 {{Cl|DIM}} Unicode&amp;(255)
@@ -28,10 +29,11 @@ Unicode&amp;(ascii) = {{Cl|_MAPUNICODE (function)|_MAPUNICODE}}(ascii)     'read
 {{CodeEnd}}
 
 
-''See also:''
-* [[_MAPUNICODE]] (statement)
-* [[Unicode]], [[Code Pages]] (by region)
+{{PageSeeAlso}}
+* [[_MAPUNICODE]] {{text|(statement)}}
+* [[Unicode]], [[Code Pages]] {{text|(by region)}}
 * [[ASCII]], [[CHR$]], [[ASC]]
+* [[Text Using Graphics]]
 
 
 {{PageNavigation}}

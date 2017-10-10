@@ -1,27 +1,29 @@
-The {{KW|CONST}} statement globally defines one or more named numeric or string values which will not change while a program is running.
+The [[CONST]] statement globally defines one or more named numeric or string values which will not change while the program is running.
 
 
 {{PageSyntax}}
-: '''CONST {{Parameter|constantName}} = {{Parameter|value}}'''[, ...]
+: [[CONST]] {{Parameter|constantName}} = {{Parameter|value}}[, ...]
 
 
 {{Parameters}}
 * {{Parameter|constantName}} is the constant name or list of names assigned by the programmer.
-* {{Parameter|value}} is the value to initialize the global constant which cannot change once defined:
+* {{Parameter|value}} is the value to initialize the global constant which cannot change once defined.
 ** If {{Parameter|constantName}} specifies a numeric type, {{Parameter|value}} must be a numeric expression containing literals and other constants.
 ** If {{Parameter|constantName}} specifies a string type, the {{Parameter|value}} must be a literal value.
 
 
-''Usage:''
-* The {{Parameter|constantName}} does not have to include a type suffix! The datatype can be determined by the {{Parameter|value}}.
-* Constant values cannot use a variable, [[SUB]] or [[FUNCTION]] return value when defined.
-* Constants cannot be re-assigned values. They retain the same value throughout all of the program procedures.
+{{PageDescription}}
+* The {{Parameter|constantName}} does not have to include a type suffix. The datatype is automatically infered by the compiler using the {{Parameter|value}}.
+* Constant values cannot reference a variable, [[SUB]] or [[FUNCTION]] return values when defined.
+** The exception to the above are color functions [[_RGB32]] and [[_RGBA32]], which can be used in a CONST statement. See ''Example 2'' below.
+* Constants cannot be reassigned values. They retain the same value throughout all of the program procedures.
 * Constants defined in module-level code have [[SHARED|shared]] scope, so they can also be used in [[SUB]] or [[FUNCTION]] procedures.
-* Constants defined in {{KW|SUB}} or {{KW|FUNCTION}} procedures are local to those procedures.
+* Constants defined in [[SUB]] or [[FUNCTION]] procedures are local to those procedures.
 * [[CLEAR]] will not affect or change constant values.
 
 
-''Example:'' Display the circumference and area of circles:
+{{PageExamples}}
+''Example 1:'' Display the circumference and area of circles:
 {{CodeStart}}' Declare a numeric constant approximately equal to the ratio of a circle's
 ' circumference to its diameter:
 {{Cl|CONST}} PI = 3.141593
@@ -48,12 +50,21 @@ The area of the circle is 47882.23
 
 Enter the radius of a circle or zero to quit? ''0''
 {{OutputEnd}}
-: ''Explanation:'' PI cannot change as it is a mathematical constant so it is fitting to define it as a constant. Trying to change PI will result in a programming error.
+: ''Explanation:'' PI cannot change as it is a mathematical constant so it is fitting to define it as a constant. Trying to change PI will result in a calculation error.
 
+
+''Example 2'': Using _RGB32 to set a constant's value.
+{{CodeStart}} '' ''
+{{Cl|CONST}} Red = _RGB32(255,0,0)
+
+{{Cl|COLOR}} Red
+{{Cl|PRINT}} &quot;Hello World&quot;
+{{CodeEnd}}
 
 {{PageSeeAlso}}
-* {{KW|DIM}}, {{KW|SHARED}}
-* {{KW|STATIC}}, {{KW|COMMON}}
+* [[DIM]], [[SHARED]]
+* [[STATIC]], [[COMMON]]
+* [[_PI]], [[_RGB32]], [[_RGBA32]]
 * [http://doc.pcsoft.fr/en-US/?6510001 Windows 32 API constant values]
 
 

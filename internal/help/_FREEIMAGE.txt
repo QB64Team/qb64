@@ -3,33 +3,28 @@ The '''_FREEIMAGE''' statement releases the designated file image created by the
 
 
 {{PageSyntax}}
-::: '''_FREEIMAGE''' [handle&amp;]
+: [[_FREEIMAGE]] [{{Parameter|handle&amp;}}]
 
 
 {{PageDescription}}
-*If {{Parameter|handle}} is omitted, the current destination image is freed from memory. '''Do NOT free the current program SCREEN mode!'''
+*If {{Parameter|handle&amp;}} is omitted, the current destination image is freed from memory.
 *Freeing the destination image or source image will result in the display page being selected instead.
-*'''Invalid image handle values of -1 or 0 cannot be freed or an [[ERROR Codes|&quot;Illegal Function&quot; error]] will occur!'''! Check the value!
-* '''[[SCREEN]] modes in use cannot be freed or an [[ERROR Codes|&quot;Illegal Function&quot; error]] will occur!''' Change SCREEN modes before freeing. 
+*'''Invalid image handle values of -1 or 0 cannot be freed or an [[ERROR Codes|&quot;Illegal Function&quot; error]] will occur.''' Check the handle value first.
+* '''[[SCREEN]] modes in use cannot be freed or an [[ERROR Codes|&quot;Illegal Function&quot; error]] will occur.''' Change SCREEN modes before freeing. 
 *Once a specific image handle is no longer used or referenced by your program, it can be freed with [[_FREEIMAGE]].
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
-* '''It is IMPORTANT to free unused or uneeded images with [[_FREEIMAGE]] to prevent memory overflow errors!'''
-* '''Do NOT try to free image handles currently being used as the active [[SCREEN]]! Change screen modes first.'''
+* '''It is important to free unused or unneeded images with [[_FREEIMAGE]] to prevent memory overflow errors.'''
+* '''Do not try to free image handles currently being used as the active [[SCREEN]]. Change screen modes first.'''
 
 
-
+{{PageExamples}}
 ''Example:'' Loading a program splash screen and freeing image when no longer necessary:
 {{CodeStart}} '' ''
 s&amp; = {{Cl|_LOADIMAGE}}(&quot;SPLASH.BMP&quot;,32)  'load 32 bit(24 BPP) image
-
 {{Cl|IF}} s&amp; &lt; -1 THEN {{Cl|SCREEN (statement)|SCREEN}} s&amp;   'use image as a 32 bit SCREEN 
-
 {{Cl|_DELAY}} 6                          'display splash screen for 6 seconds
-
 {{Cl|SCREEN (statement)|SCREEN}} 0       'MUST change screen mode before freeing a SCREEN image!
-
 {{Cl|IF}} s&amp; &lt; -1 THEN {{Cl|_FREEIMAGE}} s&amp;  'handle value MUST be less than -1 or error!
-
 {{Cl|CLS}} '' ''
 {{CodeEnd}}
 : ''Note:'' A valid image file name must be used by [[_LOADIMAGE]] or the invalid handle memory value will not need to be freed.

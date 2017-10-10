@@ -1,39 +1,29 @@
-The '''AS''' keyword defines a variable value's [[type]]. 
+The [[AS]] keyword defines a variable data [[type]]. 
 
 
-* AS defines the variable or array type AS [[_BIT]], [[_BYTE]], [[INTEGER]], [[LONG]], [[_INTEGER64]], [[SINGLE]], [[DOUBLE]], [[_FLOAT]], [[STRING]] or [[ANY]].
-
+{{PageDescription}}
+* AS defines the variable or array type AS [[_BIT]], [[_BYTE]], [[INTEGER]], [[LONG]], [[_INTEGER64]], [[SINGLE]], [[DOUBLE]], [[_FLOAT]] or [[STRING]].
 * Specifies a variable's [[type]] in a declarative statement or parameter list using:
+** [[DIM]] or [[REDIM]]
+** [[DECLARE LIBRARY]]
+** [[SUB]]
+** [[FUNCTION]]
+** [[TYPE]]
+** [[SHARED]]
+** [[COMMON SHARED]]
+** [[STATIC]]
 
 
-:::::[[DIM]] or [[REDIM]]
-
-:::::[[DECLARE]]
-
-:::::[[SUB]]
-
-:::::[[FUNCTION]]
-
-:::::[[TYPE]]
-
-:::::[[DEF FN]]
-
-:::::[[SHARED]]
-
-:::::[[COMMON SHARED]]
-
-:::::[[STATIC]]
+===Details===
+* Specifies a '''[[parameter]]''' variable's type in a [[SUB]] or [[FUNCTION]] procedure. '''Cannot be used to define a function's [[type]]'''
+* Specifies an element's type in a user-defined data [[TYPE]].
+* Assigns a file number to a file or device in an [[OPEN]] statement.
+* Specifies a field name in a random-access record (see [[FIELD]])
+* Specifies a new file name when you rename a file (see [[NAME]])
+* '''NOTE: Many QBasic keywords can be used as variable names if they are created as [[STRING]]s using the suffix '''$'''. You cannot use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements.'''
 
 
-* Specifies a '''[[parameter]]''' variable's type in a [[SUB]] or [[FUNCTION]] procedure. '''Cannot be used to define a function's [[TYPE]]!'''
-* Specifies an element's type in a user-defined data type: [[TYPE]]
-* Assigns a file number to a file or device in an [[OPEN]] statement:
-* Specifies a field name in a random-access record: [[FIELD]]
-* Specifies a new file name when you rename a file: [[NAME]]
-* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
-
-
-''See also:''
+{{PageSeeAlso}}
 * [[DIM]], [[REDIM]]
 * [[_DEFINE]] 
 * [[BYVAL]], [[TYPE]]

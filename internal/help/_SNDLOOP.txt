@@ -3,17 +3,17 @@ The [[_SNDLOOP]] statement is like [[_SNDPLAY]] but the sound is looped. Uses a 
 
 
 {{PageSyntax}}
-::: '''_SNDLOOP''' {{Parameter|handle&amp;}}
+: [[_SNDLOOP]] {{Parameter|handle&amp;}}
 
 
 {{PageDescription}}
-*Plays the sound, looping it.
-* [[_SNDSETPOS]] cannot be called while a looping sound is being played.
+*Plays the sound identified by {{Parameter|handle&amp;}} in a loop.
 
 
+{{PageExamples}}
 ''Example:'' Loading a sound or music file and playing it in a loop until a key is pressed.
 {{CodeStart}} '' ''
-bg = {{Cl|_SNDOPEN}}(&quot;back.mid&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change to your sound file name
+bg = {{Cl|_SNDOPEN}}(&quot;back.ogg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change to your sound file name
 {{Cl|_SNDLOOP}} bg
 
 DO

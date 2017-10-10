@@ -3,17 +3,19 @@ The [[_DISPLAY]] statement turns off the automatic display while only displaying
 
 
 {{PageSyntax}} 
-::: '''_DISPLAY'''
+: [[_DISPLAY]]
 
 
-''Usage:''
-* '''_DISPLAY''' turns off the auto refresh screen default [[_AUTODISPLAY]] when used. Prevents screen flickering.
+{{PageDescription}}
+* '''_DISPLAY''' turns off the auto refresh screen default [[_AUTODISPLAY]] behavior. Prevents screen flickering.
 * Call _DISPLAY each time the screen graphics are to be displayed. Place call after the image has been changed.
-* Re-enable automatic display refreshing by calling [[_AUTODISPLAY]]. If it isn't re-enabled, things may not be displayed later!
-* _DISPLAY tells '''QB64GL''' to render all of the hardware [[_PUTIMAGE]] commands loaded into the buffer previously.
-* '''QB64GL''' can set the graphic rendering order of _SOFTWARE, _HARDWARE, and _GLRENDER with [[_DISPLAYORDER]].
+* Re-enable automatic display refreshing by calling [[_AUTODISPLAY]]. If it isn't re-enabled, things may not be displayed later.
+* _DISPLAY tells '''QB64''' to render all of the hardware [[_PUTIMAGE]] commands loaded into the buffer previously.
+* The [[_AUTODISPLAY (function)]] can be used to detect the current display behavior.
+* '''QB64''' can set the graphic rendering order of _SOFTWARE, _HARDWARE, and _GLRENDER with [[_DISPLAYORDER]].
 
 
+{{PageExamples}}
 ''Example 1:'' Displaying a circle bouncing around the screen.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12
@@ -34,7 +36,7 @@ dx = 3: dy = 3             'number of pixel moves per loop
 :''Explanation:'' The loop is set with [[_LIMIT]] to 100 frames per second to limit CPU usage and the speed of the ball. Each loop a circle is drawn while the previous one is erased when the coordinates change. _DISPLAY only shows the new circle position once each loop. The '''_DISPLAY''' routine eliminates the need for setting [[SCREEN (statement)|SCREEN]] swap pages, [[CLS]] and [[PCOPY]]. _DISPLAY keeps the image off of the screen until the changes have all completed. Drawing 40 circles every loop helps slow down the ball.
 
 
-''Example 2:'' In ''QB64GL''' [[_DISPLAY]] must be used to render hardware images placed with [[_PUTIMAGE]].
+''Example 2:'' [[_DISPLAY]] must be used to render hardware images placed with [[_PUTIMAGE]] ('''version 1.000 and up''').
 {{CodeStart}} '' ''
 {{Cl|CONST}} MenuHeight = 200
 
@@ -71,8 +73,8 @@ DO
 
 {{PageSeeAlso}}
 * [[_DISPLAY (function)]]
-* [[_DISPLAYORDER]] {{text|(QB64GL only)}}
-* [[_AUTODISPLAY]] {{text|(default display mode)}}
+* [[_DISPLAYORDER]]
+* [[_AUTODISPLAY]], [[_AUTODISPLAY (function)]]
 * [[_PUTIMAGE]]
 * [[PCOPY]]
 

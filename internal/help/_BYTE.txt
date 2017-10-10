@@ -1,17 +1,17 @@
 {{DISPLAYTITLE:_BYTE}}
-A '''_BYTE''' variable can hold signed variable values from -128 to 127 (one byte or 8 [[_BIT]]s). [[_UNSIGNED|Unsigned]] from 0 to 255.
+A [[_BYTE]] variable can hold signed variable values from -128 to 127 (one byte or 8 [[_BIT]]s). [[_UNSIGNED|Unsigned]] from 0 to 255.
 
 
 {{PageSyntax}}
-:{{KW|DIM}} byte {{KW|AS}} [{{KW|_UNSIGNED}}] {{KW|_BYTE}}
+: [[DIM]] {{Parameter|byte}} [[AS]] [[[_UNSIGNED]]] [[_BYTE]]
 
 
 {{PageDescription}}
 * Signed _BYTE values can range from -128 to 127.
-* [[_UNSIGNED]] _BYTEs can hold values from 0 to 255. {{KW|_UNSIGNED}} expands the range of positive values.
+* [[_UNSIGNED]] _BYTEs can hold values from 0 to 255. [[_UNSIGNED]] expands the range of positive values.
 * Can be defined in a '''QB64''' [[_DEFINE]] statement using a starting letter range of variable names.
 * Also can be used in a subroutine parameter [[AS]] _BYTE variable definitions.
-* Define a byte using the suffix %% after the variable name: variable%% = -54
+* Define a byte using the suffix %% after the variable name: {{Parameter|variable%%}} = -54
 * Define an unsigned byte by adding the suffix ~%% after the variable name: variable~%% = 54
 * '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
 
@@ -45,7 +45,7 @@ A '''_BYTE''' variable can hold signed variable values from -128 to 127 (one byt
 
 
 {{PageExamples}}
-:How negative assignments affect the _UNSIGNED value returned by a byte(8 bits).
+:How negative assignments affect the _UNSIGNED value returned by a byte (8 bits).
 
 {{CodeStart}}
 {{Cl|DIM}} unsig {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}

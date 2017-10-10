@@ -1,11 +1,9 @@
 {{DISPLAYTITLE:_CLEARCOLOR}}
-The {{KW|_CLEARCOLOR}} statement sets a specific color to be treated as transparent when an image is later put (via [[_PUTIMAGE]]) onto another image. 
+The [[_CLEARCOLOR]] statement sets a specific color to be treated as transparent when an image is later put (via [[_PUTIMAGE]]) onto another image. 
 
 
 {{PageSyntax}}
-:::'''_CLEARCOLOR''' {''color&amp;''|_NONE}[, {{Parameter|Dest_Handle&amp;}}]
-
-
+:[[_CLEARCOLOR]] {{{Parameter|color&amp;}}|_NONE}[, {{Parameter|Dest_Handle&amp;}}]
 
 {{Parameters}}
 * In color modes using a palette, {{Parameter|color&amp;}} is the palette index of the new transparent color value or _NONE designates no clear colors.
@@ -14,18 +12,19 @@ The {{KW|_CLEARCOLOR}} statement sets a specific color to be treated as transpar
 * If {{Parameter|Dest_Handle&amp;}} is omitted, the destination is assumed to be the current write page. Zero can designate the current program screen.
 
 
-''Usage:''
-* If {{Parameter|Dest_Handle&amp;}} is an invalid handle, then an [[ERROR Codes|invalid handle]] error is returned. Check for bad handle values of -1 first!
+{{PageDescription}}
+* If {{Parameter|Dest_Handle&amp;}} is an invalid handle, then an [[ERROR Codes|invalid handle]] error is returned. Check for bad handle values of -1 first.
 * In 32-bit color modes, it simply sets the Alpha to 0 for all pixels matching the specified color.
 * In the second syntax, transparency is disabled for color modes using a palette.
-* '''Note:''' [[_SETALPHA]] can affect any _CLEARCOLOR alpha setting within the color range set!
-* '''NOTE: 32 bit [[_NEWIMAGE]] screen page backgrounds are transparent black or [[_ALPHA]] 0. Use [[_DONTBLEND]] or [[CLS]] for opaque!'''
+* '''Note:''' [[_SETALPHA]] can affect any _CLEARCOLOR alpha setting within the color range set.
+* '''NOTE: 32 bit [[_NEWIMAGE]] screen page backgrounds are transparent black or [[_ALPHA]] 0. Use [[_DONTBLEND]] or [[CLS]] for opaque.'''
 
 
+{{PageExamples}}
 ''Example 1:'' Using _CLEARCOLOR to &quot;mask&quot; the background color of an image.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 13
-img&amp; = {{Cl|_LOADIMAGE}}(&quot;QB64bee.png&quot;)
+img&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;)
 {{Cl|_PUTIMAGE}} , img&amp;, 0               'place actual image with background
 K$ = INPUT$(1)
 {{Cl|CLS}} , {{Cl|_RGB}}(255, 0, 0)             'clear screen with red background
@@ -34,7 +33,7 @@ K$ = INPUT$(1)
 {{Cl|PRINT}} {{Cl|_CLEARCOLOR}}(img&amp;)           'displays closest clear color attribute
 {{Cl|END}} '' ''
 {{CodeEnd}}
-: ''Note:'' The ''QB64.PNG'' image can be downloaded here: [https://dl.dropbox.com/u/8440706/QB64bee.png QB64bee.png]. Right click and Save as ''QB64bee.PNG''.
+: ''Note:'' The ''QB64.PNG'' image can be downloaded here: [http://www.qb64.net/qb64_trans.png qb64_trans.png]. Right click and Save as ''qb64_trans.png''.
 
 
 ''Example 2:'' Using a _CLEARCOLOR transparency with images created on a [[_NEWIMAGE]] page. Does not require an image file.
@@ -57,7 +56,7 @@ redball = {{Cl|_NEWIMAGE}}(101, 101, 32) ' create a new image page
 mainscreen = {{Cl|_NEWIMAGE}}(640, 480, 32) ' Main Screen (viewable)
 {{Cl|SCREEN}} mainscreen
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
-Image1&amp; = {{Cl|_LOADIMAGE}}(&quot;QB64bee.png&quot;) '&lt;&lt;&lt;&lt;&lt;&lt; any image with one background color to clear
+Image1&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;) '&lt;&lt;&lt;&lt;&lt;&lt; any image with one background color to clear
 
 {{Cl|IF...THEN|IF}} Image1&amp; &lt; -1 {{Cl|THEN}} 'check loaded image handle value before using!
   {{Cl|_SOURCE}} Image1&amp;
@@ -82,7 +81,7 @@ DO
 {{Cl|LOOP}} {{Cl|UNTIL}} a&amp; = 0
 {{Cl|END}}
 {{CodeEnd}}
-:''Note:'' If the _CLEARCOLOR [https://dl.dropbox.com/u/8440706/QB64bee.png QB64bee.png] background was not put onto a separate page, [[_SETALPHA]] would display it also.
+:''Note:'' If the _CLEARCOLOR [http://www.qb64.net/qb64_trans.png qb64_trans.png] background was not put onto a separate page, [[_SETALPHA]] would display it also.
 
 
 

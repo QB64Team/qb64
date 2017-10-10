@@ -1,36 +1,37 @@
-'''IF...THEN''' statements make Boolean True or False program evaluations to automate program decision making.
+[[IF...THEN]] statements make boolean (true or false) evaluations to automate program decision making.
+
+{{PageSyntax}}
+===Single-line===
+: [[IF]] {{Parameter|conditionStatement}} [[THEN]] ''{code}'' [[ELSE]] ''{alternativeCode}''
+: [[IF]] {{Parameter|conditionStatement}} [[GOTO]] ''lineLabel''
 
 
-
-''Line'' {{PageSyntax}}
-:: '''IF''' ''condition statement'' '''THEN''' ''action'' [[ELSE]] other_action
-:: '''IF''' ''condition statement'' [[GOTO]] ''linelabel''
-
-
-''Block'' {{PageSyntax}}
-:: '''IF''' ''condition statement'' '''[[THEN]]'''
-::: ''action''
-:: [[ELSEIF]] ''condition statement'' '''[[THEN]]''' ''action'' 
-:: [[ELSE]] ''action''
-:: '''END IF'''
-
-
-''GOTO {{PageSyntax}}
-:: '''IF''' x &gt; 0 [[GOTO]] {line_number|line_label}
+===Block===
+: [[IF]] {{Parameter|conditionStatement}} [[THEN]]
+:: ''{code}''
+:: ⋮
+: [[ELSEIF]] {{Parameter|conditionStatement2}} [[THEN]]
+:: ''{code}''
+:: ⋮
+: [[ELSE]]
+:: ''{code}''
+:: ⋮
+: [[END IF]]
 
 
-* The ''conditional'' evaluation by '''IF''' must be true(-1) or a '''non-zero numerical value''' for the THEN ''action'' statements to be executed.
+{{PageDescription}}
+* The {{Parameter|conditionStatement}} evaluation by [[IF]] must be true (-1) or a '''non-zero numerical value''' for the [[THEN]] ''{code}'' to be executed.
 * Multiple conditional evaluations can be made using inclusive [[AND (boolean)|AND]] or alternative [[OR (boolean)|OR]] conditional expressions.
 * [[THEN]] is not required when [[GOTO]] is used to send program flow to a line number or label.
-* IF statements can also have alternative evaluations using [[ELSEIF]] and [[ELSE]] conditions. 
-* When the '''IF''' statement and/or code to be run is more than code line, an [[END IF]] statement '''MUST''' be used.
+* [[IF]] statements can also have alternative evaluations using [[ELSEIF]] and [[ELSE]] conditions. 
+* When the [[IF]] statement and/or code to be run is more than code line, an [[END IF]] statement must be used.
 * With multiple code lines to run, end the IF statement with THEN and place all of the code on lines below that line.
 * Multiple code line block statements require that the [[IF...THEN]], [[ELSEIF]], [[ELSE]] and [[END IF]] be on separate lines.
-* '''The IDE may return an error of [[NEXT]] without [[FOR]] or [[LOOP]] without [[DO...LOOP|DO]] when [[END IF]] does not end a statement block!'''
-* The '''QB64''' IDE may red line the IF THEN statement line until END IF closes the statement block.
-* Use '''[[colon]]s''' to execute multiple statements in a one line IF statement. You cannot use [[AND]] statements after [[THEN]]!
-* An '''[[underscore]]''' can be used anywhere after the code on one line to continue it to the next line in '''QB64 ONLY'''.
-* '''NOTE:''' [[STRING]] values can only be evaluated in an IF statement if a value is compared to a literal or [[CHR$]] string value. '''QB64 may not compile literal IF string statements or indicate an [[IDE]] coding error!''' Use [[LEN]] or [[ASC]] to compare strings numerically.
+* '''The IDE may return an error of ''[[NEXT]] without [[FOR]]'' or ''[[LOOP]] without [[DO...LOOP|DO]]'' when [[END IF]] does not end a statement block.'''
+* The '''QB64''' IDE will indicate an error in the IF statement line until END IF closes the statement block.
+* Use [[colon]]s to execute multiple statements in a single-line IF statement.
+* An '''[[underscore]]''' can be used anywhere after the code on a single-line to continue it to the next line in '''QB64'''.
+* '''NOTE:''' [[STRING]] values can only be evaluated in an IF statement if a value is compared to a literal or [[CHR$]] string value. '''QB64 may not compile literal IF string statements or indicate an [[IDE]] coding error.''' Use [[LEN]] or [[ASC]] to compare strings numerically.
 
 
 
@@ -57,7 +58,7 @@
 &lt;center&gt;* '''Note that Basic returns -1 for True and 0 for False.'''&lt;/center&gt;
 
 
-
+{{PageExamples}}
 ''Example 1:'' In a one line IF statement, only [[REM]] can be used to comment out the action without an [[END IF]] error:
 {{CodeStart}} '' ''
 {{Cl|INPUT}} &quot;Enter a number over or under 100: &quot;, x
@@ -77,7 +78,7 @@
 {{CodeEnd}}
 
 
-''Example 3:'' True or False evaluation of a numerical value executes only when the value is not 0. '''Cannot evaluate [[STRING]] values!'''
+''Example 3:'' True or False evaluation of a numerical value executes only when the value is not 0. '''Cannot evaluate [[STRING]] values.'''
 {{CodeStart}} '' ''
 {{Cl|INPUT}} &quot;Enter a number or just hit Enter: &quot;, x
 {{Cl|IF...THEN|IF}} x {{Cl|THEN}} {{Cl|PRINT}} x '' ''
@@ -110,9 +111,9 @@ IF Key$ &gt;= {{Cl|CHR$}}(65) AND Key$ &lt;= {{Cl|CHR$}}(90) THEN PRINT &quot;A 
 : ''Explanation:'' Long [[STRING]] expression values are compared by their cumulative [[ASCII]] code values.
 
 
-&lt;center&gt;'''Qbasic decimal point value comparison errors'''&lt;/center&gt;
+&lt;center&gt;'''QBasic decimal point value comparison errors'''&lt;/center&gt;
 * Floating decimal point numerical values may not be compared as exactly the same value. QB64 will compare them the same.
-:''Example:'' Qbasic will print ''unequal'' in the IF comparison code below even though it is exactly the same value printed.
+:''Example:'' QBasic would print ''unequal'' in the IF comparison code below even though it is exactly the same value printed.
 {{CodeStart}} '' ''
 x# = 5 / 10
 y# = 6 / 10
@@ -123,12 +124,12 @@ z# = x# + y#
 : Note: QB64 will make the calculation correctly and print ''equal''. Change older program code that relies on the error accordingly.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[ELSEIF]], [[ELSE]]
 * [[AND (boolean)]], [[OR (boolean)]] 
 * [[NOT]], [[GOTO]]
 * [[SELECT CASE]]
-* [[Boolean]] {{text|(numerical comparisons return a True or False value)}}
+* [[Boolean]] {{text|(numerical comparisons return a true or false value)}}
 
 
 {{PageNavigation}}

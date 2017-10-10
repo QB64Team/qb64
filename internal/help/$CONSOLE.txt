@@ -1,21 +1,22 @@
-The '''$CONSOLE''' [[Metacommand]] creates a console window that can be used throughout a QB64 program module.
+The [[$CONSOLE]] [[Metacommand]] creates a console window that can be used throughout a QB64 program module.
 
 
 {{PageSyntax}}
-::: '''$CONSOLE''' {ON|OFF|ONLY}
+: [[$CONSOLE]][:ONLY]
 
 
-* [[_CONSOLE]] '''ON''' or '''OFF''' may be used to show or hide the console window. OFF can only be used after ON.
-* The '''ONLY''' option can be used when only a console window is desired without a program window.
+* [[_CONSOLE]] '''ON''' or '''OFF''' may be used to show or hide the console window at run time.
+* The ''':ONLY''' option can be used when only a console window is desired without a program window.
 * [[_DEST]] [[_CONSOLE]] may be used to send screen output to the console window.
 * [[_SCREENHIDE]] and [[_SCREENSHOW]] can be used to hide or show the main program window.
 * [[_DELAY]] or [[SLEEP]] can be used to allow the console window to be set in front of the main program window.
-* '''QB64 [[Metacommand]]s require that commenting or [[REM]] NOT be used anywhere on the Metacommand code line!'''
-* Change the title of the [[$CONSOLE]] windows created using: [[SHELL]] &quot;title consoletitle&quot;
+* '''QB64 [[Metacommand]]s are not commented out with ' or REM, differently from Qbasic metacommands'''
+* Change the title of the [[$CONSOLE]] windows created using [[_CONSOLETITLE]]
 * '''Note:''' Text can be copied partially or totally from console screens in Windows by highlighting and using the title bar menu. 
 :: To copy console text output, right click the title bar and select ''Edit'' for ''Mark'' to highlight and repeat to ''Copy'' 
 
 
+{{PageExamples}}
 ''Example 1:'' Hiding and displaying a console window. Use [[_DELAY]] to place console in front of main program window.
 {{CodeStart}} '' ''
 {{Cl|$CONSOLE}}
@@ -65,10 +66,11 @@ Max hex _INTEGER64 = FFFFFFFFFFFFFFFF with 16 digits =-1
 :''Copied text:'' The above text was copied after ''Select All'' was selected and the smaller area was re-highlighted with the mouse.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_CONSOLE]]
 * [[$SCREENHIDE]], [[$SCREENSHOW]] (QB64 [[Metacommand]]s)
 * [[_SCREENHIDE]], [[_SCREENSHOW]]
+* [[C_Libraries#Console_Window|C Console Library]]
 
 
 {{PageNavigation}}

@@ -1,7 +1,5 @@
 {{DISPLAYTITLE:_ERRORLINE}}
-The '''_ERRORLINE''' function returns the source code line number that caused the most recent runtime error.
-
-
+The [[_ERRORLINE]] function returns the source code line number that caused the most recent runtime error.
 
 
 {{PageSyntax}}
@@ -9,11 +7,12 @@ The '''_ERRORLINE''' function returns the source code line number that caused th
 
 
 {{PageDescription}}
+* Used in program error troubleshooting.
 * Does not require that the program use line numbers as it counts the actual lines of code.
-* The code line can be found using the QB64 IDE or any other text editor such as Notepad.
-* Used in '''QB64''' program error troubleshooting ONLY.
+* The code line can be found using the QB64 [[IDE]] (Use the shortcut '''Ctrl+G''' to go to a specific line) or any other text editor such as Notepad.
 
 
+{{PageExamples}}
 ''Example:'' Displaying the current program line using a simulated [[ERROR]] code.
 {{CodeStart}} '' ''
 {{Cl|ON ERROR}} {{Cl|GOTO}} DebugLine 'can't use {{Cl|GOSUB}} 
@@ -29,6 +28,7 @@ DebugLine:
 
 {{PageSeeAlso}}
 * [[ON ERROR]]
+* [[_INCLERRORLINE]], [[_INCLERRORFILE$]]
 * [[ERR]], [[ERL]]
 * [[ERROR]]
 * [[ERROR Codes]]

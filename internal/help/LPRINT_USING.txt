@@ -2,20 +2,20 @@ The [[LPRINT USING]] statement sends formatted data to LPT1, the parallel port p
 
 
 {{PageSyntax}}
-:: '''LPRINT''' [''text$''{;|,}] '''USING ''template$''; ''variable'''''[; ...][{;|,}]
+: '''LPRINT''' [''text$''{;|,}] '''USING''' {{Parameter|template$}}; {{Parameter|variable}}[; ...][{;|,}]
 
 
 {{Parameters}}
-* Literal or variable [[STRING]] ''text$'' can be placed between [[LPRINT]] and USING or it can be included in the ''template''.
-* A [[semicolon]] or [[comma]] may follow the ''text'' to stop or tab the print cursor before the ''template'' [[LPRINT]].
-* The literal or variable [[STRING]] ''template'' should use the template symbols to display each variable [[type]] in the list following it.
-* The list of data ''variables'' used in the ''template'' are '''separated by semicolons''' after the template string value. 
+* Literal or variable [[STRING]] ''text$'' can be placed between [[LPRINT]] and USING or it can be included in the {{Parameter|template$}}.
+* A [[semicolon]] or [[comma]] may follow the {{Parameter|text$}} to stop or tab the print cursor before the {{Parameter|template$}} [[LPRINT]].
+* The literal or variable [[STRING]] {{Parameter|template$}} should use the template symbols to display each variable [[type]] in the list following it.
+* The list of data ''variables'' used in the {{Parameter|template$}} are '''separated by semicolons''' after the template string value. 
 * A [[semicolon]] or [[comma]] may follow the variable list to stop or tab the print cursor for pending prints.
 
 
-''Usage:''
-* The ''variables'' should be listed in the order that they are used in the template from left to right.
-* '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]] will occur!'''
+{{PageDescription}}
+* The ''variable'' list should be listed in the order that they are used in the template from left to right.
+* '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]] will occur.'''
 * No more than 25 # digit places are allowed in a template number or an [[ERROR Codes|error]] will occur.
 * Can convert numerical exponential or [[scientific notation]] values to normal decimal point values using less digits.
 * '''NOTE:''' If the numerical value exceeds the template's digit range a % symbol will appear in the leftmost digit area.

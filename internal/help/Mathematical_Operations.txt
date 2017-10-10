@@ -5,10 +5,10 @@
 ==Basic and QB64 Numerical Types==
 &lt;center&gt;'''Qbasic Number Types'''&lt;/center&gt;
 
-* [[INTEGER]] ['''%''']: 2 Byte signed whole number values from -32768 to 32767. 0 to 65535 unsigned. (currently not checked in QB64) 
+* [[INTEGER]] ['''%''']: 2 Byte signed whole number values from -32768 to 32767. 0 to 65535 unsigned. (not checked in QB64) 
 * [[LONG]] ['''&amp;''']: 4 byte signed whole number values from -2147483648 to 2147483647. 0 to 4294967295 unsigned.
-* [[SINGLE]] ['''!''']: 4 byte signed floating decimal point values of up to 7 decimal place accuracy. '''Cannot be unsigned!''' 
-* [[DOUBLE]] [#]: 8 byte signed floating decimal point values of up to 15 decimal place accuracy. '''Cannot be unsigned!'''
+* [[SINGLE]] ['''!''']: 4 byte signed floating decimal point values of up to 7 decimal place accuracy. '''Cannot be unsigned.''' 
+* [[DOUBLE]] [#]: 8 byte signed floating decimal point values of up to 15 decimal place accuracy. '''Cannot be unsigned.'''
 * To get '''one byte''' values, can use an [[ASCII]] [[STRING]] character to represent values from 0 to 255 as in [[BINARY]] files.
 
 
@@ -17,8 +17,8 @@
 * [[_BIT]] ['''`''']: 1 bit signed whole number values of 0 or -1 signed or 0 or 1 unsigned. [[_BIT]] * 8 can hold a signed or unsigned [[_BYTE|byte]] value.
 * [[_BYTE]] ['''%%''']: 1 byte signed whole number values from -128 to 127. Unsigned values from 0 to 255.
 * [[_INTEGER64]] ['''&amp;&amp;''']: 8 byte signed whole number values from -9223372036854775808 to 9223372036854775807
-* [[_FLOAT]] [##]: currently set as 10 byte signed floating decimal point values up to 1.1897E+4932. '''Cannot be unsigned!'''
-* [[_OFFSET]] [%&amp;]: undefined flexable length integer offset values used in [[DECLARE DYNAMIC LIBRARY]] declarations ONLY. 
+* [[_FLOAT]] [##]: currently set as 10 byte signed floating decimal point values up to 1.1897E+4932. '''Cannot be unsigned.'''
+* [[_OFFSET]] [%&amp;]: undefined flexable length integer offset values used in [[DECLARE DYNAMIC LIBRARY]] declarations. 
 
 
 &lt;center&gt;'''Signed and Unsigned Integer Values'''&lt;/center&gt;
@@ -30,7 +30,7 @@ Negative (signed) numerical values can affect calculations when using any of the
 ::::* '''QB64:''' [[_UNSIGNED]] in a [[DIM]], [[AS]] or [[_DEFINE]] statement for only positive [[INTEGER]] values.
 
 
-::[[_UNSIGNED]] integer, byte and bit variable values can use the tilde ~ suffix before the type suffix to define the type.
+[[_UNSIGNED]] integer, byte and bit variable values can use the tilde ~ suffix before the type suffix to define the type.
 
 
 &lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
@@ -89,8 +89,9 @@ There is also an operator for '''exponential''' calculations. The exponential op
 |}
 
 
-:'''''Note: Exponent fractions should be enclosed in () brackets in order to be treated as a root  rather than as division!''''' 
-&lt;center&gt; '''Negative exponential values must be enclosed in () brackets with QB64 currently!'''&lt;/center&gt;
+===Notes===
+* Exponent fractions should be enclosed in () brackets in order to be treated as a root rather than as division.
+* Negative exponential values must be enclosed in () brackets in QB64.
 
 
 &lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
@@ -158,11 +159,11 @@ END FUNCTION '' ''
 {{TextEnd}}
 
 
-&lt;center&gt;'''The numerical value of n in the [[LOG]](n) evaluation MUST be a positive value!'''&lt;/center&gt;
+&lt;center&gt;'''The numerical value of n in the [[LOG]](n) evaluation must be a positive value.'''&lt;/center&gt;
 
-&lt;center&gt;'''The numerical value of n in the [[EXP]](n) evaluation MUST be LESS than or equal to 88.02969!'''&lt;/center&gt;
+&lt;center&gt;'''The numerical value of n in the [[EXP]](n) evaluation must be less than or equal to 88.02969.'''&lt;/center&gt;
 
-&lt;center&gt;'''The numerical value of n in the [[SQR]](n) evaluation can NOT be a negative value!'''&lt;/center&gt;
+&lt;center&gt;'''The numerical value of n in the [[SQR]](n) evaluation ''cannot'' be a negative value.'''&lt;/center&gt;
 
 
 &lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
@@ -299,7 +300,7 @@ END FUNCTION '' ''
 
 ==Mathematical Logical Operators==
 
-: The following logical operators compare numerical values using bitwise operations. The two numbers are compared by the number's [[Binary]] bits on and the result of the operation determines the value returned in decimal form. [[NOT]] checks one value and returns the opposite. It returns 0 if a value is not 0 and -1 if it is 0. See [[Binary]] for more on bitwise operations.
+The following logical operators compare numerical values using bitwise operations. The two numbers are compared by the number's [[Binary]] bits on and the result of the operation determines the value returned in decimal form. [[NOT]] checks one value and returns the opposite. It returns 0 if a value is not 0 and -1 if it is 0. See [[Binary]] for more on bitwise operations.
 
 
 &lt;center&gt;'''Truth table of the 6 BASIC Logical Operators'''&lt;/center&gt;
@@ -311,7 +312,6 @@ END FUNCTION '' ''
 
 
 &lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
-
 
 ==Relational Operators==
 Relational Operations are used to compare values in a Conditional [[IF...THEN]], [[SELECT CASE]], [[UNTIL]] or [[WHILE]] statement.
@@ -346,7 +346,8 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 | [[_ROUND]] || rounds to closest numerical integer value in '''QB64''' only.
 |}
 
-::: '''Note: Each of the above functions define the value's type in addition to rounding the values.'''
+===Note===
+* Each of the above functions define the value's type in addition to rounding the values.
 
 &lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
 
@@ -400,7 +401,9 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 
 &lt;center&gt;'''[[VAL]] converts [[STRING|string]] numbers to Decimal values.'''&lt;/center&gt;
 
-:VAL reads the string from left to right and converts numerical string values, - and . to decimal values until it finds a character other than those 3 characters. Commas are NOT read either! However HEXadecimal and OCTal base values can be read with [[&amp;H]] or [[&amp;O]].
+* VAL reads the string from left to right and converts numerical string values, - and . to decimal values until it finds a character other than those 3 characters. Commas are not read.
+* HEXadecimal and OCTal base values can be read with [[&amp;H]] or [[&amp;O]].
+
 
 &lt;center&gt;'''The [[OCT$]] [[STRING|string]] function return can be converted to a decimal value using [[VAL]](&quot;&amp;O&quot; + OCT$(n)).'''&lt;/center&gt;
 
@@ -412,6 +415,7 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 
 
 &lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+
 ==Bits and Bytes==
 
 &lt;center&gt;'''[[_BIT|BITS]]'''&lt;/center&gt;
@@ -428,7 +432,7 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 ::The big-endian method compares exponents of 2 &lt;sup&gt;7&lt;/sup&gt; down to 2 &lt;sup&gt;0&lt;/sup&gt; while the little-endian method does the opposite. 
 
 &lt;center&gt;'''[[_BYTE|BYTES]]'''&lt;/center&gt;
-* [[INTEGER]] values consist of 2 bytes called the '''HI''' and '''LO''' bytes. Anytime that the number of binary digits is a multiple of 16 (2bytes, 4 bytes, etc.) and the HI byte's MSB is on(1), the value returned will be negative. Even with [[SINGLE]] or [[DOUBLE]] values! 
+* [[INTEGER]] values consist of 2 bytes called the '''HI''' and '''LO''' bytes. Anytime that the number of binary digits is a multiple of 16 (2bytes, 4 bytes, etc.) and the HI byte's MSB is on(1), the value returned will be negative, even with [[SINGLE]] or [[DOUBLE]] values. 
 {{WhiteStart}}                                 '''16 BIT INTEGER OR REGISTER'''
               '''AH (High Byte Bits)                         AL (Low Byte Bits)'''
    BIT:    15    14   13   12   11   10   9   8  |   7   6    5   4    3    2   1    0
@@ -496,10 +500,10 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 * [[_OFFSET (function)]] returns the memory offset position as a flexible sized value for a designated variable. See [[Using _OFFSET]].
 
 
-&lt;center&gt;'''Warning: [[_OFFSET]] values cannot be reassigned to other variable [[TYPE|types]]!'''&lt;/center&gt;
+&lt;center&gt;'''Warning: [[_OFFSET]] values cannot be reassigned to other variable [[TYPE|types]].'''&lt;/center&gt;
 
 
-&lt;center&gt;'''[[_OFFSET]] values can currently only be used in conjunction with [[_MEM]]ory and [[DECLARE DYNAMIC LIBRARY]] procedures.'''&lt;/center&gt;
+&lt;center&gt;'''[[_OFFSET]] values can only be used in conjunction with [[_MEM]]ory and [[DECLARE DYNAMIC LIBRARY]] procedures.'''&lt;/center&gt;
 
 ==References==
 ''See also:''

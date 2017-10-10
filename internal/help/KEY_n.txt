@@ -1,28 +1,23 @@
-The '''KEY n''' statement is used to assign a &quot;softkey&quot; string or a flag and scan code to a key or display function soft key assignments. 
-
-{| align=&quot;Right&quot;
-  | __TOC__
-  |}
-
+The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a flag and scan code to a function key or display function soft key assignments. 
 
 {{PageSyntax}} 
 
-:: '''KEY ''n%'', ''text_string$'''''
+: '''KEY ''n%'', ''textString$'''''
 
-:: '''KEY ''n%'', CHR$(''keyflag%'') + CHR$(''scancode'')'''
+: '''KEY ''n%'', CHR$(''keyFlag%'') + CHR$(''scanCode'')'''
 
 
 ==Function Soft Key Strings (1 to 10, 30 &amp; 31)==
 
-&lt;center&gt;'''Assigning &quot;Softkey&quot; [[STRING]] values to Function key press events'''&lt;/center&gt;
+&lt;center&gt;'''Assigning &quot;Softkey&quot; [[STRING]] values to function key press events'''&lt;/center&gt;
 
-* n% is the number 1 to 10(F1 to F10), 30 or 31(F11 or F12) of the function key to assign the soft key string.
+* n% is the number 1 to 10 (F1 to F10), 30 or 31 (F11 or F12) of the function key to assign the soft key string.
 * Instead of using an [[ON KEY(n)]] [[GOSUB]] statement, Function keys F1 to F12 can be assigned a &quot;soft key&quot; string value to return.
-* '''KEY n, text$''' defines a literal or variable [[STRING]] &quot;soft key&quot; Function key return value.
+* {{InlineCode}}KEY n, text${{InlineCodeEnd}} defines a literal or variable [[STRING]] &quot;soft key&quot; function key return value.
 
 {{WhiteStart}}        '''KEY 1, &quot;Help&quot;''' 'returns the string &quot;Help&quot; to [[INPUT]] variable when F1 is pressed{{WhiteEnd}}
 
-* [[KEY LIST]] displays each of the 12 softkey '''function key'''(F1 to F12) string values going down left side of screen.
+* [[KEY LIST]] displays each of the 12 softkey '''function key''' (F1 to F12) string values going down left side of screen.
 * [[KEY LIST|KEY {ON|OFF}]] displays or hides the softkey values of function keys F1 to F10 at the bottom of the screen.
 
 
@@ -31,6 +26,7 @@ The '''KEY n''' statement is used to assign a &quot;softkey&quot; string or a fl
 * Arrow keys on the Number Pad are predefined KEY numbers 11 to 14 and only work with Number Lock off.
 * Soft Key [[STRING]]s cannot be assigned to these key numbers!
 * To use the extended arrow keys on a keyboard use the Extended Key Flag 128 with corresponding Scan code as User Defined Keys.
+
 
 ==User Defined Keys (15 to 29)==
 
@@ -79,7 +75,7 @@ The '''KEY n''' statement is used to assign a &quot;softkey&quot; string or a fl
 
 
 &lt;center&gt;'''Trapping Extended keys (Insert, Home, Page Up, Right Ctrl, R.Alt, and cursor arrow pad)'''&lt;/center&gt;
-* On a 101-key keyboard, you can trap any of the keys on the dedicated cursorpad by assigning the string to any of the keynumber values from 15 to 25 using the 128 keyboard flag. The cursor arrows are NOT the same as the pre-assigned number pad arrows:
+* On a 101-key keyboard, you can trap any of the keys on the dedicated cursorpad by assigning the string to any of the keynumber values from 15 to 25 using the 128 keyboard flag. The cursor arrows are not the same as the pre-assigned number pad arrows:
 {{WhiteStart}}      '''KEY n, [[CHR$]](128) + [[CHR$]](scancode) ' where n = 15 to 29. See: [[Scancodes]]'''
 
               KEY 15, CHR$(128) + CHR$(75)  'left arrow cursor pad 
@@ -94,6 +90,7 @@ The '''KEY n''' statement is used to assign a &quot;softkey&quot; string or a fl
 
 
 &lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+
 
 ==Examples==
 
@@ -205,8 +202,8 @@ COLOR 11: LOCATE 11, 26: PRINT &quot;Down number pad &quot;
 
 &lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
 
-==References==
-''See also:''  
+
+{{PageSeeAlso}} 
 * [[KEY LIST]], [[ON KEY(n)]] 
 * [[KEY(n)]], [[INKEY$]]
 * [[_KEYHIT]], [[_KEYDOWN]]

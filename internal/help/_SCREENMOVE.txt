@@ -1,32 +1,32 @@
 {{DISPLAYTITLE:_SCREENMOVE}}
-The '''_SCREENMOVE''' statement positions the program window on the desktop using designated coordinates or the _MIDDLE function.
+The [[_SCREENMOVE]] statement positions the program window on the desktop using designated coordinates.
 
 
 {{PageSyntax}}
-:: '''_SCREENMOVE'''{''column&amp;'', ''row&amp;'')|_MIDDLE}
+: [[_SCREENMOVE]] {{{Parameter|column&amp;}}, {{Parameter|row&amp;}}|_MIDDLE}
 
 
 {{Parameters}}
-* Positions the program window on the desktop using the ''column'' and ''row'' pixel coordinates for the upper left corner.
-* '''_MIDDLE''' can be used instead to automatically center the program window's position on the desktop in any screen resolution.
+* Positions the program window on the desktop using the {{Parameter|column&amp;}} and {{Parameter|row&amp;}} pixel coordinates for the upper left corner.
+* '''_MIDDLE''' can be used instead to automatically center the program window on the desktop, in any screen resolution.
 
 
-''Usage:''
+{{PageDescription}}
 * The program's [[SCREEN]] dimensions may influence the desktop position that can be used to keep the entire window on the screen. 
-* Use [[_SCREENIMAGE]] handle with [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] to find the current Windows desktop resolution to place the program's window.
-* On dual monitors a negative ''column'' position or a value greater than the main screen width can be used to position a window left or right.
-* '''A small delay may be necessary when a program first starts up to properly orient the screen on the desktop properly!'''
-* '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''
+* Use [[_DESKTOPWIDTH]] and [[_DESKTOPHEIGHT]] to find the current desktop resolution to place the program's window.
+* On dual monitors a negative {{Parameter|column&amp;}} position or a value greater than the main screen width can be used to position a window in another monitor.
+* '''A small delay may be necessary when a program first starts up to properly orient the screen on the desktop properly.''' See [[_SCREENEXISTS]].
+* '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword not supported in Linux or MAC versions]]'''
 
 
-''Example 1:'' Calculating the border and header offsets by comparing a coordinate move with MIDDLE by using trial and error.
-{{CodeStart}} '' ''
-user&amp; = {{Cl|_SCREENIMAGE}}
-userwidth&amp; = {{Cl|_WIDTH}}(user&amp;): userheight&amp; = {{Cl|_HEIGHT}}(user&amp;) 'get current screen resolution
+{{PageExamples}}
+''Example 1:'' Calculating the border and header offsets by comparing a coordinate move with _MIDDLE by using trial and error.
+{{CodeStart}}
+userwidth&amp; = {{Cl|_DESKTOPWIDTH}}: userheight&amp; = {{Cl|_DESKTOPHEIGHT}} 'get current screen resolution
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 256)
-scrnwidth&amp; = {{Cl|_WIDTH}}: scrnheight&amp; = {{Cl|_HEIGHT}}  'get the center of the program screen
+scrnwidth&amp; = {{Cl|_WIDTH}}: scrnheight&amp; = {{Cl|_HEIGHT}}  'get the dimensions of the program screen
 
-{{Cl|_SCREENMOVE}} (userwidth&amp; \ 2 - scrnwidth&amp; \ 2) - 3, (userheight \ 2 - scrnheight&amp; \ 2) - 29
+{{Cl|_SCREENMOVE}} (userwidth&amp; \ 2 - scrnwidth&amp; \ 2) - 3, (userheight&amp; \ 2 - scrnheight&amp; \ 2) - 29
 {{Cl|_DELAY}} 4
 {{Cl|_SCREENMOVE}} _MIDDLE  'check centering
 
@@ -36,10 +36,9 @@ scrnwidth&amp; = {{Cl|_WIDTH}}: scrnheight&amp; = {{Cl|_HEIGHT}}  'get the cente
 
 
 ''Example 2:'' Moving a program window to a second monitor positioned to the right of the main desktop.
-{{CodeStart}} '' ''
-img&amp; = {{Cl|_SCREENIMAGE}}
-wide&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(img&amp;)
-high&amp; = {{Cl|_HEIGHT}}(img&amp;)
+{{CodeStart}}
+wide&amp; = {{Cl|_DESKTOPWIDTH}}
+high&amp; = {{Cl|_DESKTOPHEIGHT}}
 
 {{Cl|PRINT}} wide&amp;; &quot;X&quot;; high&amp;
 
@@ -53,26 +52,16 @@ high2&amp; = {{Cl|_HEIGHT}}(img2&amp;)
 {{Cl|_DELAY}} 4
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}} 'moves program back to main monitor 1 '' ''
 {{CodeEnd}}
-: ''Notes:'' [[_SCREENIMAGE]] only returns the resolution of the main desktop. Change the [[_SCREENMOVE]] column to negative for a left monitor.
+: ''Notes:'' Change the [[_SCREENMOVE]] column to negative for a left monitor.
 
-{{WhiteStart}}                                     '''Setting up dual monitors'''
-
-     1) Turn off the computer and attach the second monitor to the computer
-     2) Restart computer and right click an empty desktop area and click ''Properties''.
-     3) In the Settings tab set the position of the monitor numbered 2 to left or right.
-     4) Set the resolution to match the main desktop resolution as closely as possible.
-     5) Save the settings before the prompt window times out.
-{{WhiteEnd}}
-&lt;center&gt;[http://www.geeks.com/techtips/2005/techtips-AUG18-05.htm Dual monitor setup]&lt;/center&gt;
+&lt;center&gt;'''[[_FULLSCREEN]] works in the primary monitor and may push all running programs to a monitor on the right.'''&lt;/center&gt;
 
 
-&lt;center&gt;'''[[_FULLSCREEN]] works in the primary monitor and may push all running programs to a monitor on the right!'''&lt;/center&gt;
-
-
-''See also:''
+{{PageSeeAlso}}
 * [[_SCREENX]], [[_SCREENY]]
-* [[_SCREENIMAGE]]
+* [[_SCREENIMAGE]], [[_DESKTOPWIDTH]], [[_DESKTOPHEIGHT]]
 * [[_SCREENPRINT]]
+* [[_SCREENEXISTS]]
 * [[_NEWIMAGE]], [[SCREEN (statement)]]
 
 

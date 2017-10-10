@@ -2,13 +2,13 @@ The '''PRESET''' graphic [[SCREEN]] statement turns a pixel at a coordinate to t
 
 
 {{PageSyntax}}
-:: '''PRESET''' [STEP]'''(''column%'', ''row%'')'''[, color_attribute]
+:: '''PRESET''' [STEP]'''('''''column%'', ''row%''''')'''[, colorAttribute]
 
 
 ''[[Parameters]]:''
 * Can use [[STEP]] when relative graphics coordinates are required.
 * ''column'' and ''row'' coordinates can be literal ot variable [[INTEGER]] values which can be offscreen. 
-* If the ''color attribute'' is omitted, a PRESET will be the background color, normally black.
+* If the ''colorAttribute'' is omitted, PRESET will use the current [[_DEST|destination]] page's [[_BACKGROUNDCOLOR]].
 
 
 ''Usage:''
@@ -16,7 +16,7 @@ The '''PRESET''' graphic [[SCREEN]] statement turns a pixel at a coordinate to t
 * Any color value other than 0 will be white in monochrome [[SCREEN]] modes 2 and 11 where the [[COLOR]] statement cannot be used.
 * PRESET can invisibly locate other graphics objects like [[CIRCLE]]s and add color to subsequent graphic objects and [[DRAW]] when used.
 * The PRESET action can be used in a graphics [[PUT (graphics statement)|PUT]] to produce a color inverted image on any background. See Example 2.
-* The QB64 and QB graphic cursor is set to the center of the program window on program start.
+* The graphic cursor is set to the center of the program window on program start for [[STEP]] relative coordinates.
 * '''PRESET can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
 
 
@@ -30,7 +30,7 @@ SCREEN 12
 
 
 
-''Example 2:'' Displays the flags of countries that use simple horizontal or vertical color blocks using a highlighted arrow key selection menu.
+''Example 2:'' Displays the flags of countries that use simple horizontal or vertical color blocks with a highlighted arrow key menu.
 {{CodeStart}} '' ''
 {{Cl|DIM}} {{Cl|SHARED}} c$(21), x$(21), gg%(477)
 

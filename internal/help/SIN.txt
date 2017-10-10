@@ -6,7 +6,7 @@ The {{KW|SIN}} function returns the vertical component or sine of an angle measu
 
 
 {{Parameters}}
-* The ''radian_angle'' must be measured in radians. 
+* The ''radian_angle'' must be measured in radians from 0 to 2 * Pi. 
 
 
 {{PageDescription}}
@@ -91,6 +91,7 @@ m = Teeth * G
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 Pi2! = 8 * {{Cl|ATN}}(1): sec! = Pi2! / 60  ' (2 * pi) / 60 movements per rotation 
+{{Cl|CIRCLE}} (320, 240), 80, 1
 {{Cl|DO}}
   {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} {{Cl|TIME$}}
   Seconds% = {{Cl|VAL}}({{Cl|RIGHT$}}({{Cl|TIME$}}, 2)) - 15 ' update seconds

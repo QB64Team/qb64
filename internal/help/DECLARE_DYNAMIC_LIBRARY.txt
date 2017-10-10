@@ -2,29 +2,37 @@
 
 
 {{PageSyntax}}
-::: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [''&quot;DLL_Library_file&quot;'', &quot;other_library...&quot;]
-::: {SUB|FUNCTION} [''procedure_name'' ALIAS] ''library_procedure'' (BYVAL ''parameter(s)'',...)
-::::.
-::::. 'other Library sub-procedures for named ''DLL''
-::::.
-::: END DECLARE
+: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [''&quot;DLL_Library_file&quot;'', &quot;other_library...&quot;]
+: {SUB|FUNCTION} [''procedure_name'' ALIAS] ''library_procedure'' (BYVAL ''parameter(s)'',...)
+::.
+::. 'other Library sub-procedures for named ''DLL''
+::.
+: END DECLARE
 
 
-* '''This QB64 procedure is available as of WINDOWS version .923 and Linux and Mac version 0.94 releases!'''
+{{PageDescription}}
 * The dynamic library file can be located in the QB64 folder (alongside your programs '.EXE'), in Windows' system32 folder, or in a relative/absolute path specified along with the library name.
-* '''Declarations MUST be made at the program start and only one ''.DLL'' file can be specified in each declaration block.'''
-* ''Library_file'' is the ''DLL'' file's name with a specified path when not in the QB64 or the WINDOWS\SYSTEM32 folder. No extension!
+* '''Declarations must be made at the program start and only one ''.DLL'' file can be specified in each declaration block.'''
+* ''Library_file'' is the ''DLL'' file's name with a specified path when not in the QB64 or the WINDOWS\SYSTEM32 folder. Don't add a file extension.
 * ''Library filename''s can be listed to combine more than one DLL or Header file name or path into one DECLARE LIBRARY block.
 * ''Procedure_name'' is any procedure name you want to designate by using [[ALIAS]] with the ''Library_procedure'' name following. 
 * ''Parameters'' used by the Library procedure must be passed by value ([[BYVAL]]) except for [[STRING]] values.
-* '''''.h'' header files cannot be used with DECLARE DYNAMIC LIBRARY. Existence of any ''.h'' file of the same name as the ''.DLL'' file will cause DECLARE DYNAMIC LIBRARY to fail!'''
-* '''IMPORTANT:''' [[DECLARE DYNAMIC LIBRARY]] let's you specify any SUB/FUNCTION calling format you wish, but '''if the size of the parameters does not match, the size expected within the library your code will probably cause a GPF(General Protection Fault)!''' It is important to understand that you are creating a 32-bit program (even under 64-bit Windows) so '''pointers (if required) will be 32-bits in size, the equivalent of a [[LONG]].'''
+* '''''.h'' header files cannot be used with DECLARE DYNAMIC LIBRARY. Existence of any ''.h'' file of the same name as the ''.DLL'' file will cause DECLARE DYNAMIC LIBRARY to fail.'''
+* '''IMPORTANT:''' [[DECLARE DYNAMIC LIBRARY]] let's you specify any SUB/FUNCTION calling format you wish, but '''if the size of the parameters does not match, the size expected within the library your code will probably cause a GPF (General Protection Fault).''' It is important to understand that you are creating a 32-bit program (even under 64-bit Windows) so '''pointers (if required) will be 32-bits in size, the equivalent of a [[LONG]].'''
 * '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't really use shared libraries (DLLs are a bit different) this does not affect Windows users.
 * The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
+* [[SUB]] procedures using DECLARE CUSTOMTYPE LIBRARY API procedures '''may error'''. Try DYNAMIC with the DLL name.
 * Declarations can be made inside of [[SUB]] or [[FUNCTION]] procedures. Declarations do not need to be at program start.
-* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that ANY procedure will work and cannot quarantee ANY troubleshooting help!'''
+* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use. QB64 cannot guarantee that any procedure will work and cannot quarantee any troubleshooting help.'''
 
 
+==Availability==
+* '''Version 0.923 and up (Windows)'''
+* '''Version 0.94 and up (Linux and macOS)'''
+
+
+
+{{PageExamples}}
 ''Example 1:'' This example plays Midi files using the ''playmidi32.dll'' documented here: [http://libertybasicuniversity.com/lbnews/nl110/midi3.htm Liberty Basic University].                         Download the following DLL file to your main QB64 folder: [http://www.qb64.net/playmidi32.dll PlayMidi32.dll]
 {{CodeStart}} '' ''
 {{Cl|DECLARE DYNAMIC LIBRARY}} &quot;playmidi32&quot;
@@ -77,8 +85,11 @@ QuickUTF16toUTF32$ = b$
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}} 
+: '''Note:''' SUB procedures using CUSTOMTYPE LIBRARY API procedures inside may error. Try DYNAMIC with &quot;KERNEL32&quot;.
 
-&lt;center&gt;'''Note: QB64 requires all DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder!'''&lt;/center&gt;
+
+&lt;center&gt;'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center&gt;
+&lt;center&gt;'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center&gt;
 
 
 ''See also:''

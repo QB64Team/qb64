@@ -1,24 +1,20 @@
 {{DISPLAYTITLE:_CONTROLCHR}}
-The '''_CONTROLCHR''' statement can be used to turn OFF control character attributes and allow them to be printed.
+The [[_CONTROLCHR]] statement can be used to turn OFF control character attributes and allow them to be printed.
 
 
 {{PageSyntax}}
-
-::: '''_CONTROLCHR''' {'''OFF'''|ON}
-
-
-{{Parameters}}
-* Keyword must be used with '''OFF''' or '''ON'''(default) if previously turned OFF.
+: [[_CONTROLCHR]] {OFF|ON}
 
 
-''Usage:''
-* The [[OFF]] statement allows control characters 0 to 31 to be printed and not format printing as normal text characters. 
-::For example: '''{{text|PRINT CHR$(7)|green}}''' 'will not [[BEEP]] and '''{{text|PRINT CHR$(9)|green}}''' 'will not tab. 
+{{PageDescription}}
+* The [[OFF]] clause allows control characters 0 to 31 to be printed and not format printing as normal text characters. 
+::For example: '''{{text|PRINT CHR$(13)|green}}''' 'will not move the cursor to the next line and '''{{text|PRINT CHR$(9)|green}}''' 'will not tab. 
 * The default [[ON]] statement allows [[ASCII#Control_Characters|Control Characters]] to be used as control commands where some will not print or will format prints.
-* '''Note:''' File prints may be affected also when using Carriage Return or Line Feed/Form Feed formatting!
+* '''Note:''' File prints may be affected also when using Carriage Return or Line Feed/Form Feed formatting.
 * The QB64 [[IDE]] may allow Alt + number pad character entries, but they must be inside of [[STRING]] values. Otherwise the [[IDE]] may not recognize them.
 
 
+{{PageExamples}}
 ''Example:'' Printing the 255 [[ASCII]] characters in [[SCREEN]] 0 with 32 colors.
 {{CodeStart}} '' ''
 {{Cl|DIM}} i {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
@@ -42,7 +38,7 @@ DO
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_CONTROLCHR (function)]]
 * [[CHR$]], [[ASC]]
 * [[INKEY$]], [[_KEYHIT]]

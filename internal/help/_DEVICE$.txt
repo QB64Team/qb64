@@ -3,11 +3,11 @@ The '''_DEVICE$''' function returns a [[STRING]] value holding the controller ty
 
 
 {{PageSyntax}}
-::: device$ = _DEVICE$(''device_number'')
+: {{Parameter|device$}} = _DEVICE$({{Parameter|device_number}})
 
 
-* '''[[_DEVICES]] function MUST be read first to get the number of devices and to enable [[_DEVICE$]] and [[_DEVICEINPUT]].'''
-* The ''device_number'' parameter indicates the number of the controller device to be read.
+* The '''[[_DEVICES]] function must be read first to get the number of devices and to enable [[_DEVICE$]] and [[_DEVICEINPUT]].'''
+* The {{Parameter|device_number}} parameter indicates the number of the controller device to be read.
 * Returns the [[STRING]] control type, name of the device and input types each can use included in brackets:
 ::* Control type:
 ::: [KEYBOARD] always listed as first device when keyboard(s) available. Only one keyboard will show.
@@ -19,10 +19,11 @@ The '''_DEVICE$''' function returns a [[STRING]] value holding the controller ty
 ::: [{{KW|AXIS}}] indicates there are stick types of input. [[_LASTAXIS]] can return the number of axis available. 
 ::: [{{KW|WHEEL}}] indicates that a scrolling input can be read. [[_LASTWHEEL]] can return the number of wheels available.
 
-* '''Device numbers above the number of [[_DEVICES|devices]] found will return an OS error!'''
+* '''Device numbers above the number of [[_DEVICES|devices]] found will return an OS error.'''
 * Devices found include keyboard, mouse, joysticks, game pads and multiple stick game controllers.
 
 
+{{PageExamples}}
 ''Example 1:'' Checking for the system's input devices and the number of buttons available.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
@@ -53,7 +54,7 @@ Buttons: 9 Axis: 6 Wheels: 0
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_DEVICES]], [[_DEVICEINPUT]]
 * [[_LASTBUTTON]], [[_LASTAXIS]], [[_LASTWHEEL]]
 * [[_BUTTON]], [[_BUTTONCHANGE]]

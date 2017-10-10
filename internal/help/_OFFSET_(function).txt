@@ -1,21 +1,22 @@
 {{DISPLAYTITLE:_OFFSET (function)}}
-The '''_OFFSET''' function returns the memory offset of/within a given variable.
+The [[_OFFSET]] function returns the memory offset of/within a given variable.
 
 
 {{PageSyntax}}
+: {{Parameter|offset%&amp;}} = [[_OFFSET]]({{Parameter|variable}})
 
-::: offset%&amp; = '''_OFFSET('''''variable''''')'''
 
-
-* The ''variable'' parameter can be any type of numerical or [[STRING|string]] variable name.
-* Application parameter or [[TYPE|type]] names may include lp, ptr or p which designates them as a pointer type.
+{{PageDescription}}
+* The {{Parameter|variable}} parameter can be any type of numerical or [[STRING|string]] variable name.
+* API [[DECLARE LIBRARY|LIBRARY]] parameter or [[TYPE|type]] names may include '''lp, ptr''' or '''p''' which designates them as a pointer type.
 * _OFFSET function return values should be stored in [[_OFFSET]] type variables. As no other variable type is 'elastic' like [[_OFFSET]], there can be no guarantee that any other variable type can hold the value of an _OFFSET.
 * Returns the memory offset of variables, user-defined-types &amp; elements, arrays &amp; indices and the base offset of [[STRING]]s.
 * Offset values are currently only useful when used in conjunction with [[_MEM]] or [[DECLARE LIBRARY]] procedures. 
-* OFFSET values are used as a part of the [[_MEM]] variable [[type]] in QB64. Variable.OFFSET returns or sets the current position in memory.
-* '''Warning:''' QB64 variable length strings can move about in memory AT ANY TIME. If you get the _OFFSET of a variable length sting on one line and use it on the next it may not be there anymore. '''To be safe, move variable length strings into fixed length strings first.'''
+* OFFSET values are used as a part of the [[_MEM]] variable [[type]] in QB64; {{Parameter|variable}}.OFFSET returns or sets the current position in memory.
+* '''Warning:''' QB64 variable length strings can move about in memory at any time. If you get the _OFFSET of a variable length sting on one line and use it on the next it may not be there anymore.''' To be safe, move variable length strings into fixed length strings first.'''
 
 
+{{PageExamples}}
 ''Example:'' Using memcpy with the _OFFSET function values as parameters.
 {{CodeStart}} '' ''
 {{Cl|DECLARE DYNAMIC LIBRARY|DECLARE CUSTOMTYPE LIBRARY}}
@@ -32,7 +33,7 @@ memcpy {{Cl|_OFFSET (function)|_OFFSET}}(a$) + 5, {{Cl|_OFFSET (function)|_OFFSE
 {{OutputEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_OFFSET]] {{text|(variable type)}}
 * [[DECLARE LIBRARY]]
 * [[DECLARE DYNAMIC LIBRARY]]

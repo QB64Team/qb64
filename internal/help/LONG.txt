@@ -1,22 +1,22 @@
-'''LONG''' defines a variable as a 4 byte number type definition for larger [[INTEGER]] values.
+[[LONG]] defines a variable as a 4 byte number type definition for larger [[INTEGER]] values.
 
 
 {{PageSyntax}}
-:: DIM ''variable'' AS LONG
+: [[DIM]] {{Parameter|variable}} AS [[LONG]]
 
 
-* Qbasic LONG Integer values can be from -2147483648 to 2147483647.
-* '''QB64''' [[_UNSIGNED]] Long Integer values range from 0 to 4294967295.
-* '''QB64''' [[_UNSIGNED]] [[_INTEGER64]] values can range from 0 to 18446744073709551615.
-* Decimal point values received will be rounded to the nearest whole number.
+* [[LONG]] integer values range from -2147483648 to 2147483647.
+* '''QB64''''s [[_UNSIGNED]] [[LONG]] integer values range from 0 to 4294967295.
+* '''QB64''' [[_UNSIGNED]] [[_INTEGER64]] values range from 0 to 18446744073709551615.
+* Decimal point values assigned to a [[LONG]] variable will be rounded to the nearest whole number.
 * The LONG variable type suffix is &amp; or ~&amp; for [[_UNSIGNED]]. Suffix can also be placed after a literal or hexadecimal numerical value.
 * [[_INTEGER64]] uses the '''&amp;&amp;''' or '''~&amp;&amp;''' [[_UNSIGNED]] suffix.
 * Values can be converted to 4 byte [[ASCII]] string values using [[MKL$]] and back with [[CVL]].
-* '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
-* '''Warning: Qbasic keyword names cannot be used as numerical variable names with or without the type suffix!'''
+* '''When a variable has not been assigned or has no type suffix, the type defaults to [[SINGLE]].'''
+* '''Warning: QBasic keyword names cannot be used as numerical variable names with or without the type suffix.'''
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[DIM]], [[DEFLNG]]
 * [[LEN]], [[CLNG]]
 * [[MKL$]], [[CVL]] 

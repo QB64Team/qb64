@@ -1,26 +1,25 @@
 {{DISPLAYTITLE:_PRINTMODE}}
-The '''_PRINTMODE''' statement sets the text or [[_FONT]] printing mode on a background image when using [[PRINT]] or [[_PRINTSTRING]].
+The [[_PRINTMODE]] statement sets the text or [[_FONT]] printing mode on a background image when using [[PRINT]] or [[_PRINTSTRING]].
 
 
 {{PageSyntax}}
-:: '''_PRINTMODE''' {''_KEEPBACKGROUND''|''_ONLYBACKGROUND''|''_FILLBACKGROUND''}[, {{Parameter|image_handle}}]
+: [[_PRINTMODE]] {''_KEEPBACKGROUND''|''_ONLYBACKGROUND''|''_FILLBACKGROUND''}[, {{Parameter|imageHandle&amp;}}]
 
 
 {{Parameters}}
-* One of 3 mode keywords is '''mandatory''' when using this statement to deal with the text background.
-
-:*''_KEEPBACKGROUND'' (mode 1): Text background transparent. Only the text is displayed over anything behind it.
-:*''_ONLYBACKGROUND'' (mode 2): Text background is only displayed. Text is transparent to anything behind it.
-:*''_FILLBACKGROUND'' (mode 3): Text and background block anything behind them like a normal [[PRINT]]. Default setting.
-* If the optional image handle is omitted it will use the current [[_DEST|destination]] image background.
-* If the optional image handle is 0 it will use the current program [[SCREEN]] image background.
+* One of 3 mode keywords is mandatory when using this statement to deal with the text background.
+**''_KEEPBACKGROUND'' (mode 1): Text background transparent. Only the text is displayed over anything behind it.
+**''_ONLYBACKGROUND'' (mode 2): Text background only is displayed. Text is transparent to anything behind it.
+**''_FILLBACKGROUND'' (mode 3): Text and background block anything behind them like a normal [[PRINT]]. '''Default setting.'''
+* If the optional {{Parameter|imageHandle&amp;}} is omitted or = 0) it will use the current [[_DEST|destination]] image background.
 
 
 {{PageDescription}}
-* Use the [[_PRINTMODE (function)]] to find the current _PRINTMODE setting mode number.
-* '''The _PRINTMODE statement and function can only be used in graphic screen modes, NOT SCREEN 0'''
+* Use the [[_PRINTMODE (function)]] to find the current [[_PRINTMODE]] setting mode number.
+* '''The _PRINTMODE statement and function can only be used in graphic screen modes, not SCREEN 0'''
 
 
+{{PageExamples}}
 ''Example:'' Using _PRINTMODE with [[PRINT]] in a graphic screen mode. The background used is CHR$(219) = █
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12

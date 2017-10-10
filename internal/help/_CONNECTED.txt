@@ -3,17 +3,19 @@ The [[_CONNECTED]] function returns the status of a TCP/IP connection handle.
 
 
 {{PageSyntax}}
-:''result&amp;'' = {{KW|_CONNECTED}}({{Parameter|connectionHandle&amp;}})
+:{{Parameter|result&amp;}} = [[_CONNECTED]]({{Parameter|connectionHandle&amp;}})
 
 
 {{PageDescription}}
-* The handle can come from the {{KW|_OPENHOST}}, {{KW|OPENCLIENT}} or {{KW|_OPENCONNECTION}} QB64 TCP/IP functions.
+* The handle can come from the [[_OPENHOST]], [[OPENCLIENT]] or [[_OPENCONNECTION]] QB64 TCP/IP functions.
 * Returns -1 if still connected or 0 if connection has ended/failed. 
-* Do not rely solely on this function to check for ending communication, 
-* Use &quot;time-out&quot; checking as well and {{KW|CLOSE}} any suspect connections.
-* If this function indicates the handle is not connected, any unread messages can still be read using {{KW|INPUT (TCP/IP statement)|INPUT #}} or {{KW|GET (TCP/IP statement)|GET #}}.
-* Even if this function indicates the handle is not connected, it is important to {{KW|CLOSE}} the connection anyway or important resources cannot be reallocated. 
+* Do not rely solely on this function to check for ending communication.
+* Use &quot;time-out&quot; checking as well and [[CLOSE]] any suspect connections.
+* If this function indicates the handle is not connected, any unread messages can still be read using [[INPUT (TCP/IP statement)|INPUT #]] or [[GET (TCP/IP statement)|GET #]].
+* Even if this function indicates the handle is not connected, it is important to [[CLOSE]] the connection anyway or important resources cannot be reallocated. 
 
+
+{{PageExamples}}
 ''Snippet:'' Updating the [[_OPENHOST|_OPENHOST chat program example]] to manage the Users array when users are no longer connected.
 {{TextStart}} '' ''
 {{Cb|FOR...NEXT|FOR}} i = 1 {{Cb|TO}} numclients ' distribute incoming messages to all clients
@@ -38,10 +40,10 @@ numclients = n: n = 0 '' ''
 
 
 {{PageSeeAlso}}
-* {{KW|_OPENCONNECTION}}
-* {{KW|_OPENHOST}}
-* {{KW|_OPENCLIENT}}
-* {{KW|_CONNECTIONADDRESS$}}
+* [[_OPENCONNECTION]]
+* [[_OPENHOST]]
+* [[_OPENCLIENT]]
+* [[_CONNECTIONADDRESS$]]
 * [[Downloading Files]]
 
 

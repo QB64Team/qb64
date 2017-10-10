@@ -1,24 +1,25 @@
 {{DISPLAYTITLE:_MEMGET}}
-The '''_MEMGET''' statement reads a portion of a memory block at an OFFSET position into a variable, array or user defined type.
+The [[_MEMGET]] statement reads a portion of a memory block at an OFFSET position into a variable, array or user defined type.
 
 
 {{PageSyntax}}
-::: '''_MEMGET ''memory_block'', ''byte_position'', ''holding_variable'''''
+: [[_MEMGET]] {{Parameter|memoryBlock}}, {{Parameter|bytePosition}}, {{Parameter|destinationVariable}}
 
 
-* ''memory block'' is a [[_MEM]] variable type memory block name created by [[_MEMNEW]] or the [[_MEM (function)|_MEM]] function.
-* mandatory ''byte_position'' is the ''memory_block.[[OFFSET]]'' memory start position plus any bytes to move into the block. 
-* ''holding variable'' is the variable assigned to hold the data. The number of bytes read is determined by the variable [[type]] used.
+* {{Parameter|memoryBlock}} is a [[_MEM]] variable type memory block name created by [[_MEMNEW]] or the [[_MEM (function)|_MEM]] function.
+* {{Parameter|bytePosition}} is the {{Parameter|memoryBlock}}.[[OFFSET]] memory start position plus any bytes to move into the block. 
+* {{Parameter|destinationVariable}} is the variable assigned to hold the data. The number of bytes read is determined by the variable [[type]] used.
 
 
-''Usage:'' 
-* The _MEMGET statement is similar to the [[GET]] statement used in files, but the position is required.
+{{PageDescription}}
+* The [[_MEMGET]] statement is similar to the [[GET]] statement used in files, but the position is required.
 * The memory block name.[[OFFSET]] returns the starting byte position of the block. Add bytes to move into the block.
-* The variable type held in the memory block can determine the next ''byte position'' to read. 
-* [[LEN]](variable) can determine the byte size of numerical or user defined variable [[type]]s irregardless of the value held.
+* The variable type held in the memory block can determine the next {{Parameter|bytePosition}} to read. 
+* [[LEN]] can be used to determine the byte size of numerical or user defined variable [[type]]s regardless of the value held.
 * [[STRING]] values should be of a defined length. Variable length strings can actually move around in memory and not be found.
 
 
+{{PageExamples]]
 ''Example:'' Shows how to read the PSET color values from a program's [[SCREEN]] memory to an array.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 13
@@ -40,7 +41,7 @@ m = {{Cl|_MEMIMAGE}}  '0 or no handle necessary when accessing the current progr
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MEMGET (function)]]
 * [[_MEMPUT]]
 * [[_MEM]]

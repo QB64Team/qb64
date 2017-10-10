@@ -1,17 +1,19 @@
 {{DISPLAYTITLE:_BUTTON}}
-The '''_BUTTON''' function returns -1 when specified button number on a controller device is pressed.
+The [[_BUTTON]] function returns -1 when specified button number on a controller device is pressed.
 
 
 {{PageSyntax}}
-::: press = _BUTTON(''button_number%'')
+: {{Parameter|press%%}} = [[_BUTTON]]({{Parameter|button_number%}})
 
 
+{{PageDescription}}
 * Values returned are -1 for a press and 0 when a button is released or not pressed.
-* The ''button_number'' must be a number which does not exceed the number of buttons found by the [[_LASTBUTTON]] function.
-* '''The number of [[_DEVICES]] MUST be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTBUTTON]]!'''
+* The {{Parameter|button_number%}} must be a number which does not exceed the number of buttons found by the [[_LASTBUTTON]] function.
+* '''The number of [[_DEVICES]] must be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTBUTTON]].'''
 * '''Note:''' The number 2 button is the center button in this device configuration. Center is also designated as [[_MOUSEBUTTON]](3).
 
 
+{{PageExamples}}
 ''Example:'' Reading multiple controller device buttons, axis and wheels.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
@@ -40,7 +42,7 @@ The '''_BUTTON''' function returns -1 when specified button number on a controll
 : ''Note:'' When there is no device control to read, a [[FOR...NEXT|FOR]] n = 1 TO 0 loop will not run thus avoiding a control function read error.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_LASTWHEEL]], [[_LASTBUTTON]], [[_LASTAXIS]]
 * [[_AXIS]], [[_WHEEL]], [[_BUTTONCHANGE]]
 * [[_DEVICE$]], [[_DEVICES]]

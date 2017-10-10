@@ -1,17 +1,18 @@
-The {{KW|LTRIM$}} function removes leading space characters from a {{KW|STRING}} value.
+The [[LTRIM$]] function removes leading space characters from a [[STRING]] value.
 
 
 {{PageSyntax}}
-:''return$'' = {{KW|LTRIM$}}({{Parameter|value$}})
+:{{Parameter|return$}} = [[LTRIM$]]({{Parameter|text$}})
 
 
 {{PageDescription}}
-* {{Parameter|value$}} is the {{KW|STRING}} value to trim.
-* If {{Parameter|value$}} contains no leading space characters, {{Parameter|value$}} is returned unchanged.
-* Convert fixed length {{KW|STRING}} values by using a different {{parameter|return$}} variable.
-* Can be used to trim the leading space of a positive numerical value converted to a string value by {{KW|STR$}}.
+* {{Parameter|text$}} is the [[STRING]] value to trim.
+* If {{Parameter|text$}} contains no leading space characters, it is returned unchanged.
+* Convert fixed length [[STRING]] values by using a different {{parameter|return$}} variable.
+* Can be used to trim the leading space of a positive numerical value converted to a string value by [[STR$]].
 
 
+{{PageExamples}}
 ''Example 1:'' Trimming a positive string number.
 {{CodeStart}}
 value = 12345

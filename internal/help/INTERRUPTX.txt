@@ -1,20 +1,24 @@
-The '''INTERRUPTX''' statement is an assembly routine for accessing computer information registers.
+The [[INTERRUPTX]] statement is an assembly routine for accessing computer information registers.
 
+
+==Legacy support==
+* Registers are emulated in '''QB64''' to allow older programs to be compiled. To enable mouse input in your programs, the recommended practice is to use [[_MOUSEINPUT]] and related functions.
 
 
 {{PageSyntax}}
-:: '''[[CALL]] INTERRUPTX('''intnum, inregs, outregs''')'''
+: [[CALL]] [[INTERRUPTX]]({{Parameter|intNum}}, {{Parameter|inRegs}}, {{Parameter|outRegs}})
 
 
-*Available on QuickBasic versions 4 up, it requires the library to be loaded. Command line: QB.EXE /L in QB4.5 .
-* Interrupt number is the interrupt reference vector table address. See: [http://www.ctyme.com/intr/cat.htm Ralf Brown's Interrupt List]
-* Inregs are the values placed into the call and outregs are the register return values.
-* INTERRUPTX can use all of the TYPE values when they are required.
-* '''NOTE: QB64 does not currently support INT 33h mouse functions above 3 or INT requests other than 33'''
-* The [[TYPE]] definition below will work for both [[INTERRUPT]] and INTERRUPTX statement calls:
+{{Parameters}}
+* Registers are emulated in QB64 and there is no support for {{Parameter|intNum}} 33h mouse functions above 3 or {{Parameter|intNum}} requests other than 33.
+* {{Parameter|inRegs}} are the values placed into the call and {{Parameter|outRegs}} are the register return values.
 
 
-''RegType.BI''   '$INCLUDE file can be used by INTERRUPT or INTERRUPTX
+==QBasic/QuickBASIC==
+* Available in QuickBASIC versions 4 and up and required an external library to be loaded. &lt;!-- Command line: QB.EXE /L in QB4.5 --&gt; '''QB64''' emulates the statement without an external library.
+* {{Parameter|intNum}} is the interrupt reference vector table address. For historic reference, see: [http://www.ctyme.com/intr/cat.htm Ralf Brown's Interrupt List]
+* The [[TYPE]] definition below will work for both [[INTERRUPT]] and INTERRUPTX statement calls
+* INTERRUPT can use all of the below TYPE elements when they are required.
 {{TextStart}} '' ''
 {{Cb|TYPE}} RegTypeX
    ax AS INTEGER
@@ -27,23 +31,19 @@ The '''INTERRUPTX''' statement is an assembly routine for accessing computer inf
    flags AS INTEGER
    ds AS INTEGER
    es AS INTEGER
-{{Cb|END TYPE}}
+{{Cb|END TYPE}} '' ''
 {{TextEnd}}
-{{CodeStart}} '' ''
-{{Cl|REM}} {{Cl|$INCLUDE}}: 'RegType.BI'  'Use only with the RegType or {{Cl|QB.BI}} files
-
-{{Cl|DIM}} {{Cl|SHARED}} inregs {{Cl|AS}} RegTypeX, outregs AS RegTypeX
+{{CodeStart}}
+{{Cl|DIM}} {{Cl|SHARED}} inregs {{Cl|AS}} RegTypeX, outregs {{Cl|AS}} RegTypeX
 {{CodeEnd}}
+: QBasic's ''RegType.BI'' $INCLUDE file can be used by INTERRUPT or [[INTERRUPTX]]
 
 
-
-''See also:'' 
-* [[$INCLUDE|$INCLUDE:]] 
-* [[QB.BI]], [[CALL ABSOLUTE]] 
+{{PageSeeAlso}}
+* [[$INCLUDE|$INCLUDE:]]
+* [[QB.BI]], [[CALL ABSOLUTE]]
 * [[INTERRUPT]]
-
-
-''Download Ethan Winer's FREE Qbasic Book and Programs:'' [http://www.ethanwiner.com/fullmoon.html WINER.ZIP]
+* Ethan Winer's free QBasic Book and Programs: [http://www.ethanwiner.com/fullmoon.html WINER.ZIP]
 
 
 {{PageNavigation}}

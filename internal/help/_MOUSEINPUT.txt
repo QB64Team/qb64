@@ -1,18 +1,19 @@
 {{DISPLAYTITLE:_MOUSEINPUT}}
-The '''_MOUSEINPUT''' function MUST be used to monitor any new mouse positions, button presses or movements of the scroll wheel. 
+The [[_MOUSEINPUT]] function is used to monitor any new mouse positions, button presses or movements of the scroll wheel. Must be called before other mouse information becomes available.
 
 
 {{PageSyntax}}
-:{{Parameter|infoexist}} = '''_MOUSEINPUT'''
+:{{Parameter|infoExists%%}} = [[_MOUSEINPUT]]
 
 
-''Usage:''
+{{PageDescription}}
 * Returns -1 if new mouse information is available, otherwise it returns 0.
-* MUST be called to read ANY of the other mouse functions! The function will not miss any mouse input even during an [[INPUT]] entry.
+* Must be called before reading any of the other mouse functions. The function will not miss any mouse input even during an [[INPUT]] entry.
 * Use in a loop to monitor the mouse buttons, scroll wheel and coordinate positions.
 * To clear all previous mouse data, use [[_MOUSEINPUT]] in a loop until it returns 0.
 
 
+{{PageExamples}}
 ''Example 1:'' Mouse coordinate, click and scroll events are returned sequentially inside of a _MOUSEINPUT loop.
 {{CodeStart}} '' ''
 DO
@@ -80,7 +81,7 @@ count = 0
 {{PageSeeAlso}}
 * [[_MOUSEX]], [[_MOUSEY]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
 * [[_MOUSESHOW]], [[_MOUSEHIDE]], [[_MOUSEMOVE]]
-* [[Controller_Devices]]
+* [[Controller Devices]]
 
 
 {{PageNavigation}}

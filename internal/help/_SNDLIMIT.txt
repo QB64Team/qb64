@@ -3,18 +3,18 @@ The [[_SNDLIMIT]] statement stops playing a sound after it has been playing for 
 
 
 {{PageSyntax}}
-::: '''_SNDLIMIT''' {{Parameter|handle&amp;}}, {{Parameter|numberofseconds!}}
+: [[_SNDLIMIT]] {{Parameter|handle&amp;}}, {{Parameter|numberOfSeconds!}}
 
 
 {{Parameters}}
-* The ''handle&amp;'' variable name is created using the [[_SNDOPEN]] function from a loaded sound file.
-* The ''numberofseconds'' is a [[SINGLE]] value of seconds that the sound will play.
+* The {{Parameter|handle&amp;}} variable name is created using the [[_SNDOPEN]] function from a loaded sound file.
+* {{Parameter|numberOfSeconds!}} is a [[SINGLE]] value of seconds that the sound will play.
 
 
 {{PageDescription}}
-*Sets how long a sound will be played in seconds.
-*Set the limit to 0 seconds to remove the limit.
-*Cannot be set for playing a looping sound.
+*Sets how long a sound will be played in seconds. If the limit is set after the sound is started, the timer starts counting down from when the limit is applied, not from the start of playing.
+*Set {{Parameter|numberOfSeconds!}} to 0 seconds to remove the limit.
+*Pausing or stopping the sound will also remove the limit.
 
 
 {{PageExamples}}

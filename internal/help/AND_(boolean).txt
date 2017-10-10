@@ -3,22 +3,22 @@ The [[AND (boolean)|AND]] conditonal operator is used to include another evaluat
 
 
 {{PageSyntax}}
-::: IF {{Parameter|condition}} '''AND''' {{Parameter|condition2}}
+: IF {{Parameter|condition}} [[AND (boolean)|AND]] {{Parameter|condition2}}
 
 
 {{PageDescription}}
-* If {{Parameter|condition}} [[AND (boolean)|AND]] {{Parameter|condition2}} are True then the evaluation returns True.
+* If {{Parameter|condition}} [[AND (boolean)|AND]] {{Parameter|condition2}} are true then the evaluation returns true (-1).
 * {{Parameter|condition}} and {{Parameter|condition2}} can also contain their own AND evaluations.
-* Both the IF evaluation and the AND evaluation must be True for the statement to be True.
+* Both the IF evaluation and the AND evaluation must be true for the statement to be true.
 * Statements can use parenthesis to clarify an evaluation.
-* [[AND]] and '''OR''' cannot be used to combine command line operations.
-* '''A double AND syntax error may be ignored and create a QB64 compiler error!'''
+* [[AND (boolean)]] and [[OR (boolean)]] cannot be used to combine command line operations.
 * Not to be confused with the [[AND]] and [[OR]] numerical operations.
 
 
 {{Template:RelationalTable}}
 
 
+{{PageExamples}}
 ''Example:'' Using AND in an IF statement.
 {{CodeStart}}
 
@@ -55,6 +55,7 @@ True
 
 
 {{PageSeeAlso}}
+* [[AND]], [[OR]] {{text|(logical operators)}}
 * [[OR (boolean)]], [[XOR (boolean)]]
 * [[IF...THEN]]
 

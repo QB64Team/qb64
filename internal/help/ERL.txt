@@ -1,8 +1,8 @@
-The {{KW|ERL}} function returns the closest previous line number before the last error.
+The [[ERL]] function returns the closest previous line number before the last error.
 
 
 {{PageSyntax}}
-:''result&amp;'' = {{KW|ERL}}
+: ''lastErrorLine&amp;'' = [[ERL]]
 
 
 {{PageDescription}}
@@ -11,6 +11,7 @@ The {{KW|ERL}} function returns the closest previous line number before the last
 * Use [[_ERRORLINE]] to return the actual code line position of an error in a QB64 program.
 
 
+{{PageExamples}}
 ''Example:'' Using a fake error code to return the line number position in a program.
 {{CodeStart}}
 {{Cl|ON ERROR}} {{Cl|GOTO}} errorfix
@@ -35,7 +36,7 @@ errorfix:
 * [[ERR]]
 * [[ERROR]]
 * [[ON ERROR]]
-* [[_ERRORLINE]]
+* [[_ERRORLINE]], [[_INCLERRORLINE]], [[_INCLERRORFILE$]]
 * [[ERROR Codes]]
 
 

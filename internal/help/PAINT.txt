@@ -1,8 +1,12 @@
 The '''PAINT''' statement is used to color enclosed graphic objects with a designated fill color up to a  border [[COLOR]].
 
 
-{{PageSyntax}}
-: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''fillcolor'''''[, ''bordercolor%''][,''background$'']
+Color {{PageSyntax}}
+: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''fillcolor'''''[, ''bordercolor%'']
+
+Tiling {{PageSyntax}}
+: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''background$'''''[, ''bordercolor%'']
+ 
 
 
 {{Parameters}}
@@ -12,7 +16,11 @@ The '''PAINT''' statement is used to color enclosed graphic objects with a desig
 :* [[INTEGER]] or [[LONG]] 32 bit ''Fillcolor'' is the color to paint the inside of an object. Colors limited to [[SCREEN]] mode used.
 :* A [[STRING]] paint argument has PAINT do &quot;tiling,&quot; a process that paints a pattern rather than a solid color.
 * Optional [[INTEGER]] or [[LONG]] 32 bit ''border color'' is the color of the enclosed shape's border when different from the fill color. 
-* Optional ''background'' [[ASCII]] character sets the tiling style. Default = CHR$(0). Seldom used.
+* Optional ''background'' [[ASCII]] character sets the tiling style. Omitted background Default is CHR$(0). 
+
+::PAINT(x, y), CHR$(arg1) + CHR$(arg2)... + CHR$(argn) 
+
+: Where the [[CHR$]] arguments are numerical values between 0 and 255, represented in binary form  across the x column axis. 
 
 
 ''Usage:'' 
@@ -20,6 +28,7 @@ The '''PAINT''' statement is used to color enclosed graphic objects with a desig
 * PAINT coordinates MUST be inside of a closed shape to be colored. Paint will not do anything when placed on the border color.
 * If the border color does not enclose the area, PAINT may flood the screen or go beyond the border area.
 * If the shape is not totally enclosed, every color except the border color may be painted over.
+
 * [[DRAW]] shapes can be filled using the string &quot;P ''fillcolor'', ''bordercolor''&quot;. Use a &quot;B&quot; blind move to offset from shape's border.
 
 
@@ -73,6 +82,28 @@ drw$ = &quot;C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5
 {{CodeEnd}}
 : ''Explanation:'' If the [[DRAW]] string is enclosed, the end values should each be 0! In the example, the proper result should be 4, 4 as there is a BF4 offset for PAINT which cannot be on a border. The result is 4, 5 because the shape is not completely enclosed.
 
+
+''Example 3:'' Tiling using PAINT to create a red brick pattern inside a yellow border:
+{{CodeStart}}
+{{Cl|DIM}} Row$(1 {{Cl|TO}} 8) 
+{{Cl|SCREEN}} 12
+ 
+   'make red-brick wall
+    Row$(1) = {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}FE) + {{Cl|CHR$}}({{Cl|&amp;H}}FE)
+    Row$(2) = Row$(1)
+    Row$(3) = Row$(1)
+    Row$(4) = {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}0)
+    Row$(5) = {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}0) + {{Cl|CHR$}}({{Cl|&amp;H}}EF) + {{Cl|CHR$}}({{Cl|&amp;H}}EF)
+    Row$(6) = Row$(5)
+    Row$(7) = Row$(5)
+    Row$(8) = Row$(4)
+    Tile$ = Row$(1) + Row$(2) + Row$(3) + Row$(4) + Row$(5) + Row$(6) + Row$(7) + Row$(8)
+ 
+    {{Cl|LINE}} (59, 124)-(581, 336), 14, B 'yellow box border to paint inside
+    {{Cl|PAINT}} (320, 240), Tile$, 14 'paints brick tiles within yellow border
+{{CodeEnd}}
+
+&lt;center&gt;'''Tiling currently does not work in QB64!'''&lt;/center&gt;
 
 
 

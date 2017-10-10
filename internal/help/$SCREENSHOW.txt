@@ -1,17 +1,18 @@
-The '''$SCREENSHOW''' [[Metacommand]] can be used to display the main program window throughout the program.
+The [[$SCREENSHOW]] [[Metacommand|metacommand]] can be used to display the main program window throughout the program.
 
 
 {{PageSyntax}}
-::: $SCREENSHOW
+: $SCREENSHOW
 
 
-* The Metacommand is intended to be used in a modular program when a screen surface is necessary in one or more modules.
-* $SCREENSHOW can only be used AFTER [[$SCREENHIDE]] or [[_SCREENHIDE]] have been used in another program module!
-* If [[$SCREENHIDE]] and $SCREENSHOW are used in the same program module the window will never be hidden.
-* '''QB64 [[Metacommand]]s require that commenting or [[REM]] NOT be used!'''
+{{PageDescription}}
+* The metacommand is intended to be used in a modular program when a screen surface is necessary in one or more modules.
+* $SCREENSHOW can only be used after [[$SCREENHIDE]] or [[_SCREENHIDE]] have been used in another program module.
+* If [[$SCREENHIDE]] and then [[$SCREENSHOW]] are used in the same program module the window will not be hidden.
+* '''QB64 [[Metacommand|metacommand]]s cannot be commented out with [[apostrophe]] or [[REM]].'''
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[$CONSOLE]], [[$SCREENHIDE]] (QB64 [[Metacommand]]s)
 * [[_SCREENHIDE]], [[_SCREENSHOW]]
 * [[_CONSOLE]]

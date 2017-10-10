@@ -1,14 +1,16 @@
 {{DISPLAYTITLE:_CONSOLETITLE}}
-The '''_CONSOLETITLE''' statement creates the title of the console window using a literal or variable [[STRING|string]].
+The [[_CONSOLETITLE]] statement creates the title of the console window using a literal or variable [[STRING|string]].
 
 
 {{PageSyntax}}
-::: '''_CONSOLETITLE''' ''text$''
+: [[_CONSOLETITLE]] {{Parameter|text$}}
 
 
+{{PageDescription}}
 * The ''text$'' used can be a literal or variable [[STRING]] value.
 
 
+{{PageExamples}}
 ''Example:'' Hiding the main program window while displaying the console window with a title.
 {{CodeStart}} '' ''
 {{Cl|$SCREENHIDE}}
@@ -20,6 +22,8 @@ The '''_CONSOLETITLE''' statement creates the title of the console window using 
 {{Cl|PRINT}} &quot;Errors go here! (fyi, this line is not an error)&quot;
 {{Cl|END}}
 {{CodeEnd}}
+
+:''Note:'' You can also use [[SHELL]] &quot;title consoletitle&quot; to set the title of the console window. However, '''the recommended practice is to use [[_CONSOLETITLE]]'''.
 
 
 ''See also:''

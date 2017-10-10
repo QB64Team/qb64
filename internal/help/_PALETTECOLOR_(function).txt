@@ -1,20 +1,20 @@
 {{DISPLAYTITLE:_PALETTECOLOR (function)}}
-The [[PALETTECOLOR]] function is used to return the 32 bit attribute color setting of an image or screen page handle's palette.
+The [[_PALETTECOLOR (function)|_PALETTECOLOR]] function is used to return the 32 bit attribute color setting of an image or screen page handle's palette.
 
 
 {{PageSyntax}}
-: color32value&amp; = '''_PALETTECOLOR('''{{Parameter|attribute_number%}}, {{Parameter|handle&amp;}}''')'''
-
+: {{Parameter|color32Value&amp;}} = [[_PALETTECOLOR (function)|_PALETTECOLOR]]({{Parameter|attributeNumber%}}, {{Parameter|imgHandle&amp;}})
 
 
 {{PageDescription}}
-* {{Parameter|attribute_number&amp;}} is the color attribute value from 0 to 255 for 1, 4 or 8 bit images.
-* {{Parameter|handle&amp;}} is the image handle being read for color data. Zero can be used to read the present screen mode palette.
+* {{Parameter|attributeNumber%}} is the color attribute value from 0 to 255 for 1, 4 or 8 bit images.
+* {{Parameter|imgHandle&amp;}} is the image handle being read for color data. Zero can be used to read the current screen mode palette.
 * Returns the 32 bit color value to be used by the 32 bit RGB functions.
-* For 32 bit images send the _PALETTECOLOR return value to {{KW|_RED32}}, {{KW|_GREEN32}} and {{KW|_BLUE32}} functions to get the Red, Green, and Blue intensity settings.
-* '''Although 32 bit palette values are returned, the function cannot be used with 32 bit images or screen modes!'''
+* For 32 bit images send the _PALETTECOLOR return value to [[_RED32]], [[_GREEN32]] and [[_BLUE32]] functions to get the red, green, and blue intensity values.
+* '''Although 32 bit palette values are returned, the function cannot be used with 32 bit images or screen modes.'''
 
 
+{{PageExamples}}
 ''Example:'' How _PALETTECOLOR works on 32 bit RGB compared to a 4 BPP(SCREEN 12) Qbasic procedure.
 {{CodeStart}} '' ''
 SCREEN 12                         'can use any Qbasic legacy screen mode

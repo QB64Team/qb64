@@ -1,19 +1,112 @@
-The '''$RESIZE''' metacommand determines if a program window can be resized by the user in '''QB64 GL''' only.
+The [[$RESIZE]] [[Metacommand|metacommand]] determines if a program window can be resized by the user.
 
 
 {{PageSyntax}}
+: [[$RESIZE]]:{ON|OFF|STRETCH|SMOOTH}
 
-::: '''$RESIZE:'''{ON|OFF|STRETCH|SMOOTH}
 
-
+{{PageDescription}}
 * $RESIZE:ON is used to allow the program window to be resized by a program user. Otherwise it cannot be changed.
-* $RESIZE:OFF (default) is used when the program's window size cannot be changed by the user.
+* $RESIZE:OFF ('''default''') is used when the program's window size cannot be changed by the user.
 * $RESIZE:STRETCH the screen will be stretched to fit the new window size with a 1 to 1 ratio of width and height.
 * $RESIZE:SMOOTH the screen will be stretched also, but with linear filtering applied to the pixels.
-* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
 
 
-''See also:''
+==Availability==
+* '''Version 1.000 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Resizing a program screen when the user changes it without clearing the entire screen image:
+{{CodeStart}}
+{{Cl|$RESIZE}}:ON
+
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(160, 140, 32)
+{{Cl|_DELAY}} 0.1
+{{Cl|_SCREENMOVE}} 20, 20
+{{Cl|_DISPLAY}}
+
+' CLEAR _RESIZE FLAG BY READING IT ONCE
+temp&amp; = {{Cl|_RESIZE (function)|_RESIZE}}
+
+DO
+
+    {{Cl|_LIMIT}} 60
+
+    {{Cl|IF...THEN|IF}} CheckResize({{Cl|_SOURCE}}) = -1 {{Cl|THEN}}
+        {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 10
+            {{Cl|CIRCLE}} ({{Cl|RND}} * {{Cl|_WIDTH (function)|_WIDTH}}(0) - 1, {{Cl|RND}} * {{Cl|_HEIGHT}}(0) - 1), {{Cl|RND}} * 100 + 5, {{Cl|_RGB32}}({{Cl|RND}} * 255, {{Cl|RND}} * 255, {{Cl|RND}} * 255)
+        {{Cl|NEXT}}
+    {{Cl|ELSE}}
+        {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 200
+            {{Cl|PSET}} ({{Cl|RND}} * {{Cl|_WIDTH (function)|_WIDTH}}(0) - 1, {{Cl|RND}} * {{Cl|_HEIGHT}}(0) - 1), {{Cl|_RGB32}}({{Cl|RND}} * 255, {{Cl|RND}} * 255, {{Cl|RND}} * 255)
+        {{Cl|NEXT}}
+    {{Cl|END IF}}
+
+    {{Cl|_DISPLAY}}
+
+    k&amp; = {{Cl|_KEYHIT}}
+
+{{Cl|LOOP}} {{Cl|UNTIL}} k&amp; = 27 {{Cl|OR (boolean)|OR}} k&amp; = 32
+
+{{Cl|SYSTEM}}
+
+
+
+' *************************************************************************************************
+' *                                                                                               *
+' *  CheckResize: This FUNCTION checks if the user resized the window, and if so, recreates the   *
+' *               ORIGINAL SCREEN image to the new window size.                                   *
+' *                                                                                               *
+' *               Developer Note: You must use $RESIZE:ON, $RESIZE:SMOOTH, or $RESIZE:SMOOTH at   *
+' *                               the beginning of your project for this to work.                 *
+' *                               This FUNCTION only works in QB64 version 1.000 and up.          *
+' *                                                                                               *
+' *************************************************************************************************
+{{Cl|FUNCTION}} CheckResize (CurrentScreen {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+
+    ' *** Define local variable for temporary screen
+    {{Cl|DIM}} TempScreen {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+    CheckResize = 0
+
+    ' *** Check to see if the user resized the window. If so, change the SCREEN image to the correct size.
+    {{Cl|IF...THEN|IF}} {{Cl|_RESIZE (function)|_RESIZE}} {{Cl|THEN}}
+
+        ' *** First, create a copy of the current {{Cl|SCREEN}} image.
+        TempScreen = {{Cl|_COPYIMAGE}}(CurrentScreen, 32)
+
+        ' *** Set the {{Cl|SCREEN}} to the copied image, releasing the current SCREEN image.
+        {{Cl|SCREEN}} TempScreen
+
+        ' *** Remove ({{Cl|TIMER (statement)|FREE}}) the original {{Cl|SCREEN}} image.
+        {{Cl|_FREEIMAGE}} CurrentScreen
+
+        ' *** Create a new &quot;original&quot; {{Cl|SCREEN}} image.
+        CurrentScreen = {{Cl|_NEWIMAGE}}({{Cl|_RESIZEWIDTH}}, {{Cl|_RESIZEHEIGHT}}, 32)
+
+        ' *** Set the {{Cl|SCREEN}} to the new &quot;original&quot; image, releasing the copied {{Cl|SCREEN}} image.
+        {{Cl|SCREEN}} CurrentScreen
+
+        '  {{Cl|DRAW}} PREVIOUS {{Cl|SCREEN}} ON THE NEW ONE
+        {{Cl|_PUTIMAGE}} (0, 0), TempScreen, CurrentScreen
+
+        {{Cl|_DISPLAY}}
+
+        ' *** Remove ({{Cl|TIMER (statement)|FREE}}) the copied {{Cl|SCREEN}} image.
+        {{Cl|_FREEIMAGE}} TempScreen
+
+        ' *** Tell the caller there was a resize
+        CheckResize = -1
+
+    {{Cl|END IF}}
+
+
+{{Cl|END FUNCTION}}
+{{CodeEnd}}{{small|Code by waltersmind}}
+
+
+{{PageSeeAlso}}
 * [[_RESIZE]], [[_RESIZE (function)]]
 * [[_RESIZEWIDTH]], [[_RESIZEHEIGHT]] {{text|(functions return the requested dimensions)}}
 

@@ -25,11 +25,6 @@
 :::: Offline WIKI Reference contributed by OlDosLover
 
 
-:If '''FIREFOX browser''' does not copy page example code correctly use another browser or:
-
-::::Download page: [[Mozilla FireFox Code Copy Add On]]
-
-
 :'''If code examples only display partial code, use the browser Refresh button!'''
 
 
@@ -86,6 +81,8 @@
 * [[_BACKGROUNDCOLOR]] (function) {{text|returns the current background color.}}
 * [[_BLEND]] (statement) {{text|turns on alpha blending for the current image or a specific one.}}
 * [[_BLEND (function)]] {{text|returns if blending is enabled or disabled for the current window or a specified image handle.}}
+* [[_BLINK]] (statement) {{text|statement turns blinking colors on/off in SCREEN 0}}
+* [[_BLINK (function)]] {{text|returns -1 if enabled or 0 if disabled by [[_BLINK]] statement.}}
 * [[_BLUE]] (function) {{text|returns the palette intensity OR the blue component intensity of a 32-bit image color.}}
 * [[_BLUE32]] (function) {{text|returns the blue component intensity of a 32-bit image color.}}
 * [[_CLEARCOLOR]] (statement) {{text|sets a specific color to be treated as transparent in an image}}
@@ -876,9 +873,10 @@ The following table describes the error codes that are reported by the '''QB64''
 &lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
 
 == Program Flow and Loops: ==
+* [[_CONTINUE]] (statement) {{text|skips the remaining lines in a control block (DO/LOOP, FOR/NEXT or WHILE/WEND)}}
 * [[_DEST]] (statement) {{text|sets the current write image or page. All graphics will go to this image.}}
 * [[_DEST (function)]] {{text|returns the current write destination image or page.}}
-*[[_EXIT (function)]] {{text|prevents a user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.}}
+* [[_EXIT (function)]] {{text|prevents a user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.}}
 * [[_SOURCE]] (statement) {{text|establishes the image SOURCE using a designated image handle}}
 * [[_SOURCE (function)]] {{text|returns the present image _SOURCE handle value.}}
 * [[_SHELLHIDE]] (function) {{text|returns the code sent by a program exit using [[END]] or [[SYSTEM]] followed by an [[INTEGER]] value.}}
@@ -918,7 +916,7 @@ The following table describes the error codes that are reported by the '''QB64''
 
 == Sounds and Music using Sound Card: ==
 
-* [[_SNDBAL]] (statement) {{text|attempts to set the balance or 3D position of a sound.}}
+* [[_SNDBAL]] (statement) {{text|sets the balance or 3D position of a sound.}}
 * [[_SNDCLOSE]] (statement) {{text|frees and unloads an open sound using a _SNDOPEN or _SNDCOPY handle.}}
 * [[_SNDCOPY]] (function) {{text|copies a sound to a new handle so that two or more of the same sound can be played at once.}}
 * [[_SNDGETPOS]] (function) {{text|returns the current playing position in seconds of a designated sound handle.}}
@@ -930,7 +928,7 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_SNDPAUSED]] (function) {{text|returns the pause status of a specified sound handle.}}
 * [[_SNDPLAY]] (statement) {{text|plays a designated sound file handle.}}
 * [[_SNDPLAYCOPY]] (statement) {{text|copies a sound, plays it and automatically closes the copy using a handle parameter}}
-* [[_SNDPLAYFILE]] (statement) {{text|a simple command to play a sound file with limited options for SYNC and volume.}}
+* [[_SNDPLAYFILE]] (statement) {{text|a simple command to play a sound file with limited options.}}
 * [[_SNDPLAYING]] (function) {{text|returns whether a sound handle is being played.}}
 * [[_SNDRATE]] (function) {{text|returns the sample rate frequency per second of the current computer's sound card.}}
 * [[_SNDRAW]] (statement) {{text|plays sound wave sample frequencies created by a program.}}

@@ -1,16 +1,18 @@
-'''INP''' returns a value from a computer register or port values at a specified physical address. '''QB64 currently has limited access!'''
+[[INP]] returns a value from a computer register or port values at a specified physical address.
 
 
 {{PageSyntax}}
-:: i = INP(address)
+: {{Parameter|i}} = [[INP]]({{Parameter|address}})
 
 
-* Address can be a Decimal or Hexadecimal [[INTEGER]] value.
-* INP reads directly from a register or port address.
+* '''QB64 has limited access to registers. VGA memory and registers are emulated.'''
+* Address can be a decimal or hexadecimal [[INTEGER]] value.
+* [[INP]] reads directly from a register or port address.
 * It does not require a [[DEF SEG]] memory segment address like [[PEEK]] or [[POKE]] do.
-* Reads color port intensity settings after ''[[OUT]] &amp;H3C7, attribute'' sets the starting attribute read mode.
+* Reads color port intensity settings after {{InlineCode}}[[OUT]] &amp;H3C7, attribute{{InlineCodeEnd}} sets the starting attribute read mode.
 
 
+{{PageExamples}}
 ''Example 1:'' Reading the current RGB color settings used in a bitmap to an array.
 {{CodeStart}} '' ''
  SCREEN 12
@@ -100,9 +102,10 @@ K$ = {{Cl|INKEY$}}
 ScanKey% = keyflags%(scancode%)
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
+: ''Note:'' [[_KEYDOWN]] can be used to read multiple keys simultaneously and is the '''recommended practice'''.
 
 
-''See also:'' 
+{{PageSeeAlso}} 
 * [[OUT]] {{text|(write to register)}},  [[PEEK]] {{text|(read memory)}}
 * [[INKEY$]], [[_KEYHIT]], [[_KEYDOWN]]
 * [[Bitmaps]], [[Scancodes]] {{text|(keyboard)}}

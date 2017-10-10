@@ -1,22 +1,23 @@
 {{DISPLAYTITLE:_MEMIMAGE}}
-The '''_MEMIMAGE''' function returns a [[_MEM]] value referring to an image's memory using a designated image handle.
+The [[_MEMIMAGE]] function returns a [[_MEM]] value referring to an image's memory using a designated image handle.
 
 
 {{PageSyntax}}
-::: image_block = '''_MEMIMAGE'''[(''image_handle'')]
+: {{Parameter|imageBlock}} = [[_MEMIMAGE]][({{Parameter|imageHandle&amp;}})]
 
 
 {{Parameters}}
-* The ''image block'' [[_MEM]] type variable holds the read only .OFFSET, .SIZE, .TYPE and .ELEMENTSIZE.
-* The optional ''image handle'' requires no parameter or 0 if the image desired is the current [[_DEST]]ination program screen image. 
+* The {{Parameter|imageBlock}} [[_MEM]] type variable holds the read-only elements .OFFSET, .SIZE, .TYPE and .ELEMENTSIZE.
+* If the optional {{Parameter|imageHandle&amp;}} isn't passed, it is assumed to be the current [[_DEST]]ination program screen image. 
 
 
-''Usage:''
+{{PageDescription}}
 * Use the function to place images into memory access blocks for faster data access.
-* All values created by this function MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] [[type]] variable.
+* All values created by this function must be freed using [[_MEMFREE]] with a valid [[_MEM]] [[type]] variable.
 * Image handle values and the memory used must still be freed using [[_FREEIMAGE]] when no longer required.
 
 
+{{PageExamples}}
 ''Example 1:'' Darkening an image using memory with [[$CHECKING]]:OFF for greater speed. Use any 24 bit image file name on the second code line.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1024, 768, 32)
@@ -79,13 +80,13 @@ x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 11) 'conver
 : ''Notes:'' The colors in the upper left corner are the text data used. An image could hold a hidden text message this way.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MEM]]
 * [[_MEMNEW]]
 * [[_MEMGET]], [[_MEMPUT]]
 * [[_MEMFREE]]
 * [[$CHECKING]]
-* [http://www.qb64.net/forum/index.php?topic=11052.0 Reading pixel colors faster using _MEMIMAGE]
+* [http://www.qb64.net/forum/index.php?topic=11052.0 Reading pixel colors faster using _MEMIMAGE] (forum post)
 
 
 {{PageNavigation}}

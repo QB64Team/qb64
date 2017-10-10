@@ -1,14 +1,15 @@
-The '''DATE$''' Function returns the present computer date as a string in a month, day and 4 digit year format.
+The [[DATE$]] function returns the current computer date as a string in the format &quot;mm-dd-yyyy&quot;.
 
 
-:::::''Syntax:'' today$ = DATE$
+{{PageSyntax}}
+: {{Parameter|today$}} = [[DATE$]]
 
 
-* Returns the present computer date in a mm-dd-yyyy format such as: &quot;12-25-2009&quot;
-* Returns &quot;-&quot; (dash) separators between month, day and year on most machines.
-* '''NOTE''': Older computers may just use the last two digit years!
+{{PageDescription}}
+* Returns the current computer date in the format &quot;mm-dd-yyyy&quot; (e.g., &quot;12-25-2009&quot;).
 
 
+{{PageExamples}}
 ''Example:'' Displaying the weekday and current date.
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|DATE$}} 
@@ -31,8 +32,9 @@ year$ = {{Cl|RIGHT$}}({{Cl|DATE$}}, 4): Y = {{Cl|VAL}}(year$)
    {{Cl|CASE}} 12: Moon$ = &quot;December&quot;
 {{Cl|END SELECT}}
 {{Cl|PRINT}} &quot;Today is &quot; + WeekDay$(M, D, Y) + &quot;, &quot; + Moon$ + day$ + &quot;, &quot; + year$ + {{Cl|SPACE$}}(10)
- 
-{{Cl|FUNCTION}} WeekDay$ (M, D, Y)            
+
+{{Cl|DEFINT}} A-Z
+{{Cl|FUNCTION}} WeekDay$ (M, D, Y)          
 {{Cl|IF}} M &lt; 3 {{Cl|THEN}} M = M + 12: Y = Y - 1  'add 12 to Jan - Feb month, -1 year
 C = Y \ 100: Y = Y {{Cl|MOD}} 100           'split century and year number
 S1 = (C \ 4) - (2 * C) - 1           'century leap
@@ -57,13 +59,10 @@ WeekDay$ = day$
 06-02-2010
 Today is Wednesday, June 2, 2010
 {{OutputEnd}}  
-:'''NOTE:''' When using {{KW|DEFINT}} A-Z in the main program, place DEFINT A-Z before FUNCTION WeekDay$ line. 
 
 
-''See also:'' 
-
+{{PageSeeAlso}}
 * [[DATE$ (statement)]], [[TIME$]], [[TIME$ (statement)]]
-
 * [[VAL]], [[STR$]], [[MID$]], [[LEFT$]], [[IF...THEN]]
 
 

@@ -1,24 +1,25 @@
 {{DISPLAYTITLE:_EXIT (function)}}
-The '''_EXIT''' function prevents a program user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.
+The [[_EXIT]] function prevents the user from closing a program and indicates if a user has clicked the close button in the window title ('''X''' button) or used CTRL + BREAK.
 
 
 {{PageSyntax}}
-:{{Parameter|quit%}} = _EXIT
+:{{Parameter|exitSignal%}} = [[_EXIT]]
 
 
 {{PageDescription}}
-* Once the _EXIT function is used, the program user can no longer manually exit the program until it ends.
-* _EXIT returns any exit requests made AFTER the initial call as:
-:: 0 = no exit request has been made since EXIT monitoring began in the program.
-:: 1 = exit attempted by clicking the window X (close) box since last function call. (Bit 0 set)
+* Once the [[_EXIT]] function is used, the user can no longer manually exit the program until it is ended with [[END]] or [[SYSTEM]].
+* [[_EXIT]] returns any exit requests made after the initial call as:
+:: 0 = no exit request has been made since _EXIT monitoring began in the program.
+:: 1 = exit attempted by clicking the window X (close) button since last function call. (Bit 0 set)
 :: 2 = exit attempted with CTRL + BREAK since last call. (Bit 1 set)
 :: 3 = both CTRL + BREAK and the X box have been used since last call. (Bit 0 and 1 set)
 * If a return value is not 0 the program can handle an exit request at a more convenient time if necessary.
-* After a read, the _EXIT value is reset to 0 so store the value when a program delays an exit request.
-* '''Note: Once _EXIT has been used once, you MUST monitor your program by checking it for user EXIT requests!'''
-* Don't just use _EXIT once to prevent a user from exiting a program early! The user may NOT  appreciate that!
+* After being read, the _EXIT value is reset to 0 so store the value when a program delays an exit request.
+* '''Note: Once _EXIT has been used once, you must monitor your program by checking it for user _EXIT requests.'''
+* Don't just use _EXIT once to prevent a user from exiting a program early, as that constitutes bad practice.
 
 
+{{PageExamples}}
 ''Example 1:'' Using an ON TIMER check to read the _EXIT request return values.
 {{CodeStart}} '' ''
 q = {{Cl|_EXIT (function)|_EXIT}} 'function read prevents any program exit at start of program
@@ -58,9 +59,9 @@ LOOP '' ''
 
 
 {{PageSeeAlso}}
-* [[SYSTEM]] {{text|(ends a program immediately and closes the window in QB64 or a Qbasic program run from the command line, not IDE.)}}
-* [[END]] {{text|(ends a program displaying &quot;Press any key to continue...&quot;.)}}
-* [[EXIT]] {{text|(exits a loop, SUB or FUNCTION when used before [[DO]], [[FOR]], [[WHILE]], [[SUB]] or [[FUNCTION]])}}
+* [[SYSTEM]]
+* [[END]]
+* [[EXIT]]
 
 
 {{PageNavigation}}

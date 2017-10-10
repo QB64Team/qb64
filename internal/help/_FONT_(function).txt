@@ -1,19 +1,18 @@
 {{DISPLAYTITLE:_FONT (function)}}
-The '''_FONT''' function creates a new alphablended font handle from a designated image handle created by {{KW|_NEWIMAGE}} in 32 bit color.
-
+The [[_FONT]] function retrieves the font handle from the specified image handle or the current [[_DEST]]ination page's font.
 
 
 {{PageSyntax}}
-:{{Parameter|font_handle}} = {{KW|_FONT}}[({{Parameter|image_handle}})]
+:{{Parameter|fontHandle&amp;}} = [[_FONT]][({{Parameter|imageHandle&amp;}})]
 
 
 {{PageDescription}}
-*font_handle is the newly created handle that points to the font.
-*image_handle is the handle to the image which you want to retrieve the font from.
+*imageHandle&amp; is the handle to the image which you want to retrieve the font from. If not specified, it is assumed to be the current [[_DEST]]ination page.
 
 
 {{PageSeeAlso}}
 *[[_LOADFONT]], [[_FONT]]
+*[[_DEST]]
 
 
 {{PageNavigation}}

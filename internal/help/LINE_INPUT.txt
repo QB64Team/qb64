@@ -1,30 +1,28 @@
-The '''LINE INPUT''' statement requests a [[STRING]] keyboard entry from a program user.
-
+The [[LINE INPUT]] statement requests a [[STRING]] keyboard entry from a program user.
 
 
 {{PageSyntax}}
-:: '''LINE INPUT''' [;] '''&quot;'''[text prompt or question]'''&quot;{,|;} string_variable$'''
-:: '''LINE INPUT ; string_variable$'''
+: [[LINE INPUT]] [;] &quot;[text prompt or question]&quot;{,|;} {{Parameter|stringVariable$}}
+: [[LINE INPUT]] ; {{Parameter|stringVariable$}}
 
 
-''[[Parameters]]:''
-* [[semicolon]] after LINE INPUT stops the cursor after the entry and prevents screen roll on lowest two screen rows.
-* ''text statement or question'' is optional, but quotes are necessary unless just a semicolon is used before the ''variable''.
-* [[comma]] separator for a statement or [[semicolon]] for a question mark following the text. 
-* No text with a semicolon displays a question mark with a space and keeps the cursor after the entry. 
-* Requires ONE [[STRING|string]] variable to hold the entire text entry.
+{{Parameters}}
+* A [[semicolon]] immediately after LINE INPUT stops the cursor after the entry and prevents screen roll on the lowest two screen rows.
+* ''text prompt or question'' is optional, but quotes are necessary unless just a semicolon is used before the {{Parameter|stringVariable$}}.
+* Requires only one [[STRING|string]] variable to hold the entire text entry.
 
 
-''Usage:'' 
-* Cannot use numerical [[type]] variables or [[comma]] separated variable lists for multiple entries!
+{{PageDescription}}
+* Cannot use numerical [[type]] variables or [[comma]] separated variable lists for multiple entries.
 * Allows [[comma]]s and [[quotation mark]]s in the user input, unlike [[INPUT]] where commas denote extra input values and quotes delimit strings. 
-* The statement stops the procedure until an entry is made. Pressing Enter ends the entry and code execution resumes.
+* The statement halts the program until an entry is made. Pressing Enter ends the entry and code execution resumes.
 * LINE INPUT does not trim off leading or trailing spaces in the string entry like [[INPUT]] string returns.
-* Use [[VAL]] to convert string numbers and [[&amp;O]](octal) or [[&amp;H]](hexadecimal) prefixed entries into numerical values. 
-* Use [[_DEST]] [[_CONSOLE]] before LINE INPUT statements to be used in a [[$CONSOLE|console]] window.
-* '''Note: QB64''' will NOT remove CHR$(0) from the end of LINE INPUT string return values like Qbasic did.
+* Use [[VAL]] to convert string numbers and [[&amp;O]] (octal), [[&amp;H]] (hexadecimal) or [[&amp;B]] (binary) prefixed entries into numerical values. 
+* Use [[_DEST]] [[_CONSOLE]] before LINE INPUT statements to receive input from a [[$CONSOLE|console]] window.
+* '''Note: QB64''' will not remove CHR$(0) from the end of LINE INPUT string return values like QBasic did.
 
 
+{{PageExamples}}
 ''Example:'' Preventing screen roll after an input entry on the bottom 2 screen rows. 
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12

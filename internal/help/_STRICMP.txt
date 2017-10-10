@@ -1,18 +1,18 @@
 {{DISPLAYTITLE:_STRICMP}}
 
-The '''_STRICMP''' function compares the relationship between two strings, without regard to upper or lower case letters.
+The [[_STRICMP]] function compares the relationship between two strings, ignoring upper or lower case letters.
 
 
 {{PageSyntax}}
-::: comparison% = '''_STRICMP('''''string1$, string2$''')'''
+: {{Parameter|comparison%}} = [[_STRICMP]]({{Parameter|string1$}}, {{Parameter|string2$}})
 
 
 {{PageDescription}}
-* Function returns -1 when ''string1$'' is less than ''string2$'', 0 when equal or 1 when ''string1$'' is greater than ''string2$''
+* Function returns -1 when {{Parameter|string1$}} is less than {{Parameter|string2$}}, 0 when equal or 1 when {{Parameter|string1$}} is greater than {{Parameter|string2$}}.
 * Alphabet comparisons will be evaluated without regard to the letter case in the 2 strings. 
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_STRCMP]]
 * [[STR$]]
 * [[STRING]]

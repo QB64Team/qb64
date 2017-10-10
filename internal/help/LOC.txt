@@ -1,17 +1,17 @@
-The '''LOC''' function returns the status of a Serial(COM) port receive buffer or the current byte position in a file.
-
+The [[LOC]] function returns the status of a serial (COM) port received buffer or the current byte position in an open file.
 
 
 {{PageSyntax}}
-:: bytes% = LOC(open_number)
+: {{Parameter|bytes%}} = LOC({{Parameter|fileOrPortNumber%}})
 
 
-* The parameter used is the number used in the port [[OPEN]] AS statement.
-* Returns 0 if the buffer is empty. Any value above 0 indicates COM has received data.
+* {{Parameter|fileOrPortNumber%}} is the number used in the port [[OPEN]] AS statement.
+* Returns 0 if the buffer is empty. Any value above 0 indicates the COM port has received data.
 * Use it in conjunction with [[INPUT$]] to get the data bytes received.
-* Can also be used for the current position in a file routine. See: [[SEEK]]
+* Can also be used to read the current position in a file routine. See [[SEEK]].
 
 
+{{PageExamples}}
 ''Example:'' Reading and writing from a COM port opened in Basic.
 {{CodeStart}} '' ''
 {{Cl|OPEN}} &quot;{{Cl|OPEN_COM|COM}}1: 9600,N,8,1,OP0&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = 2048 ' random mode = input and output
@@ -27,8 +27,8 @@ The '''LOC''' function returns the status of a Serial(COM) port receive buffer o
 {{CodeEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[PRINT]], [[OPEN COM]], [[PRINT (file statement)]]
-
+* [[SEEK]]
 
 {{PageNavigation}}

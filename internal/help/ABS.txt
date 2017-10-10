@@ -1,17 +1,18 @@
-The {{KW|ABS}} function returns the the unsigned numerical value of a variable or literal value.
+The [[ABS]] function returns the the unsigned numerical value of a variable or literal value.
 
 
 {{PageSyntax}}
-:{{Parameter|positive}} = '''ABS({{Parameter|numericalvalue}})'''
+:{{Parameter|positive}} = [[ABS]]({{Parameter|numericalValue}})
 
 
 {{PageDescription}}
-* ABS always returns positive numerical values. The value can be any numerical type.
+* [[ABS]] always returns positive numerical values. The value can be any numerical type.
 * Often used to keep a value positive when necessary in a program. 
-* Use [[SGN]] to determine a values sign when necessary.
-* '''QB64''' allows programs to return only positive [[_UNSIGNED]] variable values using a [[DIM]] or {{KW|_DEFINE}} statement.
+* Use [[SGN]] to determine a value's sign when necessary.
+* '''QB64''' allows programs to return only positive [[_UNSIGNED]] variable values using a [[DIM]] or [[_DEFINE]] statement.
 
 
+{{PageExamples}}
 ''Example:'' Finding the absolute value of positive and negative numerical values.
 {{CodeStart}} '' ''
 a = -6
@@ -28,7 +29,7 @@ c = {{Cl|ABS}}(c)
 
 {{PageSeeAlso}}
 * [[SGN]], [[DIM]]
-* [[_UNSIGNED]] {{text|(integer types only)}}
+* [[_UNSIGNED]]
 * [[_DEFINE]]
 * [[Mathematical Operations]]
 

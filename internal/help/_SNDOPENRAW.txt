@@ -1,15 +1,17 @@
 {{DISPLAYTITLE:_SNDOPENRAW}}
-'''_SNDOPENRAW''' function opens a new channel to shove _SNDRAW content into to manage multiple dynamically generated sounds.
+The [[_SNDOPENRAW]] function opens a new channel to fill with _SNDRAW content to manage multiple dynamically generated sounds.
 
 
 {{PageSyntax}}
-::::: pipehandle = '''_SNDOPENRAW'''
+: {{Parameter|pipeHandle&amp;}} = [[_SNDOPENRAW]]
 
 
+{{PageDescription}}
 * You can manage multiple dynamically generated sounds at once without having to worry about mixing.
 * Use [[_SNDCLOSE]] to remove the pipe sound handles from memory.
 
 
+{{PageExamples}}
 ''Example:'' Combining 2 sounds without worrying about mixing:
 {{CodeStart}} '' ''
 a = {{Cl|_SNDOPENRAW}}
@@ -26,7 +28,7 @@ b = {{Cl|_SNDOPENRAW}}
 
 
 {{PageSeeAlso}}
-* [[_SNDRAWDONE]] {{text|(GL only)}}
+* [[_SNDRAWDONE]]
 * [[_SNDRAW]]
 * [[_SNDCLOSE]]
 

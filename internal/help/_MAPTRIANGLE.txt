@@ -1,42 +1,43 @@
 {{DISPLAYTITLE:_MAPTRIANGLE}}
-The '''_MAPTRIANGLE''' statement maps a triangular portion of an image onto a destination image or screen page.
+The [[_MAPTRIANGLE]] statement maps a triangular portion of an image onto a destination image or screen page.
 
 
-{{PageSyntax}} 2D drawing
+{{PageSyntax}}
+===2D drawing===
+:[[_MAPTRIANGLE]] [{_SEAMLESS}] '''('''{{Parameter|sx1}}''',''' {{Parameter|sy1}}''')-('''{{Parameter|sx2}}''',''' {{Parameter|sy2}}''')-('''{{Parameter|sx3}}''',''' {{Parameter|sy3}}'''),''' {{Parameter|source&amp;}} '''TO ('''{{Parameter|dx1}}''',''' {{Parameter|dy1}}''')-('''{{Parameter|dx2}}''',''' {{Parameter|dy2}}''')-('''{{Parameter|dx3}}''',''' {{Parameter|dy3}}''')'''[, {{Parameter|destination&amp;}}][{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]
 
-'''_MAPTRIANGLE''' [{_SEAMLESS}] '''('''''sx1''''',''' ''sy1''''')-('''''sx2''''',''' ''sy2''''')-('''''sx3''''',''' ''sy3'''''),''' ''source&amp;'' '''TO ('''''dx1''''',''' ''dy1''''')-('''''dx2''''',''' ''dy2''''')-('''''dx3''''',''' ''dy3''''')'''[, ''destination&amp;''][{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]
 
+===3D drawing (hardware images only)===
 
-{{PageSyntax}} 3D drawing (hardware images only)
-
-'''_MAPTRIANGLE''' [{_CLOCKWISE|_ANTICLOCKWISE}] [{_SEAMLESS}] '''('''''sx1''''',''' ''sy1''''')-('''''sx2''''',''' ''sy2''''')-('''''sx3''''',''' ''sy3'''''),''' ''source&amp;'' '''TO ('''''dx1''''',''' ''dy1''''',''' ''dz1''''')-('''''dx2''''',''' ''dy2''''',''' ''dz2''''')-('''''dx3''''',''' ''dy3''''',''' ''dz3''''')'''[, ''destination&amp;''][{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]
+:[[_MAPTRIANGLE]] [{_CLOCKWISE|_ANTICLOCKWISE}] [{_SEAMLESS}] '''('''{{Parameter|sx1}}''',''' {{Parameter|sy1}}''')-('''{{Parameter|sx2}}''',''' {{Parameter|sy2}}''')-('''{{Parameter|sx3}}''',''' {{Parameter|sy3}}'''),''' {{Parameter|source&amp;}} '''TO ('''{{Parameter|dx1}}''',''' {{Parameter|dy1}}''',''' {{Parameter|dz1}}''')-('''{{Parameter|dx2}}''',''' {{Parameter|dy2}}''',''' {{Parameter|dz2}}''')-('''{{Parameter|dx3}}''',''' {{Parameter|dy3}}''',''' {{Parameter|dz3}}''')'''[, {{Parameter|destination&amp;}}][{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]
 
 
 {{Parameters}}
-* The '''_SEAMLESS''' option makes the triangle skip the right-most and bottom-most pixels of the triangle. When you make larger objects using several triangles, there can be a &quot;seam&quot; where they overlap when using alpha transparency and the seam would be twice as bright! '''_SEAMLESS''' is ignored when rendering 3D content and is not yet supported when drawing 2D hardware images.'''
+* The '''_SEAMLESS''' option makes the triangle skip the right-most and bottom-most pixels of the triangle. When you make larger objects using several triangles, there can be a &quot;seam&quot; where they overlap when using alpha transparency and the seam would be twice as bright. '''_SEAMLESS''' is ignored when rendering 3D content and is not yet supported when drawing 2D hardware images.'''
 * For 3D drawing use the '''_CLOCKWISE''' and '''_ANTICLOCKWISE''' arguments to only draw triangles in the correct direction. See ''Example 4''. 
 * Coordinates are [[SINGLE]] values where whole numbers represent the exact center of a pixel of the source texture. 
-* ''source'' and optional ''destination'' are [[LONG]] image or screen page handle values. 
-* Supports an optional final argument called '''_SMOOTH''' which applies linear filtering. See ''Example 3''. 
+* {{Parameter|source&amp;}} and optional {{Parameter|destination&amp;}} are [[LONG]] image or screen page handles. 
+* Supports an optional final argument '''_SMOOTH''' which applies linear filtering. See ''Example 3''. 
 * Use '''_SMOOTHSTRETCHED''' or '''_SMOOTHSHRUNK''' for when a pixelated/smooth effect is desirable but not both.
 
 
 {{PageDescription}}
 * This statement is used similar to [[_PUTIMAGE]] to place triangular sections of an image, but is more flexible.
 * The [[STEP]] keyword can be used to for coordinates relative to the last graphic coordinates used.
-* For 2D drawing, the destination coordinates are pixel co-ordinates either on-screen or on the destination image.
-* For 3D drawing, the destination coordinates represent left(-x) to right(+x), bottom(-y) to top(+y) &amp; furthest(-z) to nearest(z=-1). The center of the screen is therefore (0,0,-1). Note that a z value of 0 will not result in on-screen content. The furthest visible z value is -10,000.
+* For 2D drawing, the destination coordinates are pixel coordinates either on-screen or on the destination image.
+* For 3D drawing, the destination coordinates represent left (-x) to right (+x), bottom (-y) to top (+y) &amp; furthest (-z) to nearest (z=-1). The center of the screen is therefore (0,0,-1). Note that a z value of 0 will result in off-screen content. The furthest visible z value is -10,000.
 * When drawing '''software images''' coordinate positions are '''limited from -16383 to 16383'''
 * The source coordinates can be positioned outside the boundary of the ''source'' image to achieve a tiled effect.
-* If the ''destination'' image handle is the current [[SCREEN]] page, [[_DEST]] or hardware layer then it can be omitted.
+* If the {{Parameter|destination&amp;}} image handle is the current [[SCREEN]] page, [[_DEST]] or hardware layer, then it can be omitted.
 * '''Hardware images''' (created using mode 33 via [[_LOADIMAGE]] or [[_COPYIMAGE]]) can be used as the source or destination.
 
 
-''Example 1:'' Rotating the [https://dl.dropboxusercontent.com/u/8440706/QB64bee.png QB64bee] image using a rotation and zoom SUB with _MAPTRIANGLE.
+{{PageExamples}}
+''Example 1:'' Rotating the [http://www.qb64.net/qb64_trans.png QB64 bee] image using a rotation and zoom SUB with _MAPTRIANGLE.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 
-Image&amp; = {{Cl|_LOADIMAGE}}(&quot;Qb64bee.png&quot;)   '&lt;&lt;&lt; [http://www.qb64.net/forum/index.php Image from top of QB64 Forum]
+Image&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;)   '&lt;&lt;&lt; [http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
 
 {{Cl|DO}}
   {{Cl|CLS}}
@@ -71,7 +72,7 @@ sinr! = {{Cl|SIN}}(-Rotation / 57.2957795131): cosr! = {{Cl|COS}}(-Rotation / 57
 {{WhiteEnd}}
 
 
-''Example 2:'' A 3D Spinning Cube demo using the [https://dl.dropboxusercontent.com/u/8440706/QB64bee.png QB64bee] software image and [[_MAPTRIANGLE]]:
+''Example 2:'' A 3D Spinning Cube demo using the [http://www.qb64.net/qb64_trans.png QB64 bee] software image and [[_MAPTRIANGLE]]:
 {{CodeStart}} '' ''
 ' Copyright (C) 2011 by Andrew L. Ayers
 
@@ -150,7 +151,7 @@ PLANECOL(5) = 8
 '
 {{Cl|_TITLE}} &quot;QB64 _MAPTRIANGLE CUBE DEMO&quot;
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
-TextureImage&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64bee.png&quot;) ''''&lt;&lt;&lt;&lt; '''[http://www.qb64.net/forum/index.php Image from top of QB64 Forum]
+TextureImage&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;) ''''&lt;&lt;&lt;&lt; '''[http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
 '{{Cl|_PUTIMAGE}} , Image&amp;
 
 DO
@@ -360,7 +361,7 @@ DO
 {{CodeEnd}}{{small|Demo by Andrew L. Ayers}}
 
 
-''Example 3:'' A 3D Spinning Cube demo using the [https://dl.dropboxusercontent.com/u/8440706/QB64bee.png QB64bee] hardware image  and '''QB64GL''' hardware acceleration with [[_MAPTRIANGLE]]:
+''Example 3:'' A 3D Spinning Cube demo using the [http://www.qb64.net/qb64_trans.png QB64 bee] hardware image  and '''QB64GL''' hardware acceleration with [[_MAPTRIANGLE]]:
 {{CodeStart}} '' ''
 ' Copyright (C) 2011 by Andrew L. Ayers
 
@@ -440,7 +441,7 @@ PLANECOL(5) = 8
 {{Cl|_TITLE}} &quot;QB64 {{Cl|_MAPTRIANGLE}} CUBE DEMO&quot;
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 
-TextureImage&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64bee.png&quot;, 32)'&lt;&lt;&lt;&lt; Image from top of QB64 Forum http://www.qb64.net/forum/index.php
+TextureImage&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;, 32)'&lt;&lt;&lt;&lt; Image from top of QB64 Forum http://www.qb64.net/qb64_trans.png
 {{Cl|_SETALPHA}} 128, , TextureImage&amp;
 TextureImage&amp; = {{Cl|_COPYIMAGE}}(TextureImage&amp;, 33)'copy of hardware image
 
@@ -698,7 +699,7 @@ DO
 : '''Tip:''' If you are using Linux you might want to replace &quot;[[_SCREENIMAGE]]&quot; with a [[_LOADIMAGE]] command if you don't see anything.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_PUTIMAGE]]
 * [[_LOADIMAGE]]
 * [[_COPYIMAGE]]

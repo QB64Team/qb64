@@ -1,17 +1,23 @@
-'''ELSEIF''' is used in a block [[IF...THEN]] statement to offer an alternative condition.
+[[ELSEIF]] is used in an [[IF...THEN]] block statement to offer an alternative condition.
 
 
-''Block'' {{PageSyntax}}
-:: IF condition &gt; 0 THEN
-:: evaluation = -1
-:: [[ELSEIF]] condition &lt; 0 THEN evaluation = -1 
-:: [[ELSE]] evaluation = 0
-:: [[END IF]]
+{{PageSyntax}}
+: [[IF]] {{Parameter|condition}} [[THEN]]
+:: ''{code}''
+:: ⋮
+: [[ELSEIF]] {{Parameter|condition2}} [[THEN]]
+:: ''{code}''
+:: ⋮
+: [[ELSE]]
+:: ''{alternative-code}''
+:: ⋮
+: [[END IF]]
 
 
-* ELSEIF statements REQUIRE a '''separate''' code block line with [[THEN]] for each alternative condition.
+{{PageDescription}}
+* ELSEIF statements require a '''separate''' code block line with [[THEN]] for each alternative condition.
 * There can be more than one [[ELSE]] IF statement in a single-line IF statement.
-* If there is only ONE possible alternative condition(such as 0 or [[NOT]] 0), then use [[ELSE]] instead.
+* If there is only one possible alternative condition (such as 0 or [[NOT]] 0), use [[ELSE]] instead.
 * If the comparisons are based on multiple conditions being true, it may require many ELSEIF comparisons. ELSE could help cover some of those conditions.
 * You can use [[SELECT CASE]] when IF blocks have a long list of alterative ELSEIF conditions.
 
@@ -19,6 +25,7 @@
 {{Template:RelationalTable}}
 
 
+{{PageExamples}}
 ''Example 1:'' IF statement using ELSE IF in one statement line.
 {{CodeStart}}
 
@@ -40,13 +47,9 @@ END IF
 
 
 
-''See also:'' 
-
+{{PageSeeAlso}}
 *[[ELSE]], [[END IF]]
-
 *[[IF...THEN]]
-
-
 
 
 {{PageNavigation}}

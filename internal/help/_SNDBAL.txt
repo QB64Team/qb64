@@ -3,37 +3,29 @@ The [[_SNDBAL]] statement attempts to set the balance or 3D position of a sound.
 
 
 {{PageSyntax}}
-:::[[_SNDBAL]] {{Parameter|handle&amp;}}[, {{Parameter|x!}}][, {{Parameter|y!}}][, {{Parameter|z!}}]
+: [[_SNDBAL]] {{Parameter|handle&amp;}}[, {{Parameter|x!}}][, {{Parameter|y!}}][, {{Parameter|z!}}][, {{Parameter|channel&amp;}}]]
+
+
+{{Parameters}}
+* ''handle&amp;'' is a valid sound handle created by the [[_SNDOPEN]] function.
+* {{Parameter|x!}} distance values go from left (negative) to right (positive).
+* {{Parameter|y!}} distance values go from below (negative) to above (positive).
+* {{Parameter|z!}} distance values go from behind (negative) to in front (positive).
+* {{Parameter|channel&amp;}} value 1 denotes left (mono) and 2 denotes right (stereo) channel (beginning with '''build 20170811/60''')
 
 
 {{PageDescription}}
 *Attempts to position a sound in 3D space, or as close to it as the underlying software libraries allow. In some cases, this will be true 3D positioning, in others, a mere volume adjustment based on distance alone.
-:::*x distance values go from left(negative) to right(positive).
-:::*y distance values go from below(negative) to above(positive).
-:::*z distance values go from behind(negative) to in front(positive).
-*Omitted x, y or z {{KW|SINGLE}} values are set to 0.
-*By setting the x value to -1 or 1 it plays the sound at full volume from the appropriate speaker.
+*Omitted x!, y! or z! [[SINGLE]] values are set to 0 or not changed in '''build 20170811/60 onward'''.
+*By setting the x! value to -1 or 1 it plays the sound at full volume from the appropriate speaker.
 *Sounds at a distance of 1 or -1 are played at full volume. Sounds further than a distance of 1000 cannot be heard.
 *The volume decreases linearly (at a constant gradient) over distance. Half volume = 500.
-* Opened sound files must have the &quot;VOL&quot; capability to use this statement.
-* The sound file should have the &quot;SYNC&quot; capability when more than one sound is being used at the same time!
-* An &quot;'''ILLEGAL FUNCTION CALL'''&quot; error can occur if another sound is using the primary or same channel position.
-{{TextStart}}    QB64 supports the following sound file formats ('''Bold is a guaranteed capability'''):
-
-             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
-             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
-             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             MID = &quot;'''VOL'''&quot;
-             MOD = &quot;VOL,PAUSE&quot;
-             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
-
-        ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
-{{TextEnd}}
+* An &quot;'''Illegal Function Call'''&quot; error can occur if another sound is using the primary or same channel position.
+* Opened sound files must have the [[_SNDOPEN|&quot;VOL&quot;]] capability to use this statement in versions '''before build 20170811/60.'''
 
 
 {{PageExamples}}
+''Example 1:''
 {{CodeStart}} '' ''
 h&amp; = {{Cl|_SNDOPEN}}(&quot;LOL.wav&quot;, &quot;SYNC,VOL&quot;)
 {{Cl|_SNDBAL}} h&amp;, 1
@@ -41,8 +33,69 @@ h&amp; = {{Cl|_SNDOPEN}}(&quot;LOL.wav&quot;, &quot;SYNC,VOL&quot;)
 {{CodeEnd}}
 
 
+''Example:'' Loading a sound after '''build 20170811/60''' - no need to specify &quot;sound capabilities&quot; in [[_SNDOPEN]]. 
+{{CodeStart}}
+s&amp; = {{Cl|_SNDOPEN}}(&quot;song.ogg&quot;)
+{{Cl|PRINT}} &quot;{{Cl|READ}}Y&quot;; s&amp;
+{{Cl|_SNDPLAY}} s&amp;
+{{Cl|_SNDLOOP}} s&amp;
+
+
+xleft = -1
+xright = 1
+DO
+    k$ = {{Cl|INKEY$}}
+    {{Cl|SELECT CASE}} k$
+        {{Cl|CASE}} &quot;f&quot;
+            xleft = xleft - 0.1
+            {{Cl|_SNDBAL}} s&amp;, xleft, , , 1
+        {{Cl|CASE}} &quot;g&quot;
+            xleft = xleft + 0.1
+            {{Cl|_SNDBAL}} s&amp;, xleft, , , 1
+        {{Cl|CASE}} &quot;h&quot;
+            xright = xright - 0.1
+            {{Cl|_SNDBAL}} s&amp;, xright, , , 2
+        {{Cl|CASE}} &quot;j&quot;
+            xright = xright + 0.1
+            {{Cl|_SNDBAL}} s&amp;, xright, , , 2
+        {{Cl|CASE}} &quot;n&quot;
+            volume = volume - 0.1
+            {{Cl|_SNDVOL}} s&amp;, volume
+        {{Cl|CASE}} &quot;m&quot;
+            volume = volume + 0.1
+            {{Cl|_SNDVOL}} s&amp;, volume
+        {{Cl|CASE}} &quot;p&quot;
+            {{Cl|_SNDPAUSE}} s&amp;
+        {{Cl|CASE}} &quot; &quot;
+            {{Cl|_SNDPLAY}} s&amp;
+        {{Cl|CASE}} &quot;i&quot;
+            {{Cl|PRINT}} {{Cl|_SNDPLAYING}}(s&amp;)
+            {{Cl|PRINT}} {{Cl|_SNDPAUSED}}(s&amp;)
+            {{Cl|SLEEP}}
+        {{Cl|CASE}} &quot;b&quot;
+            {{Cl|_SNDSETPOS}} s&amp;, 110
+        {{Cl|CASE}} &quot;l&quot;
+            {{Cl|_SNDLIMIT}} s&amp;, 10
+            {{Cl|PRINT}} &quot;LIM&quot;
+            {{Cl|SLEEP}}
+        {{Cl|CASE}} &quot;k&quot;
+            {{Cl|_SNDSTOP}} s&amp;
+        {{Cl|CASE}} &quot;c&quot;
+            {{Cl|_SNDCLOSE}} s&amp;
+            {{Cl|SLEEP}}
+            s2&amp; = {{Cl|_SNDOPEN}}(&quot;song.ogg&quot;)
+        {{Cl|CASE}} &quot;d&quot;
+            s2&amp; = {{Cl|_SNDCOPY}}(s&amp;)
+            {{Cl|_SNDPLAY}} s2&amp;
+    {{Cl|END SELECT}}
+    {{Cl|LOCATE}} 1, 1
+    {{Cl|PRINT}} xleft, xright, volume, {{Cl|_SNDGETPOS}}(s&amp;); &quot;   &quot;
+LOOP
+{{CodeEnd}}{{small|Code by Johny B}}
+
+
 {{PageSeeAlso}}
-*{{KW|_SNDOPEN}}, {{KW|_SNDVOL}}, {{KW|_SNDLIMIT}}
+*[[_SNDOPEN]], [[_SNDVOL]], [[_SNDLIMIT]]
 
 
 {{PageNavigation}}

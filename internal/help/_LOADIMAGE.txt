@@ -1,34 +1,37 @@
 {{DISPLAYTITLE:_LOADIMAGE}}
-The '''_LOADIMAGE''' function loads an image into memory and returns valid [[LONG]] image handle values that are less than -1. 
+The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]] image handle values that are less than -1. 
 
 
 {{PageSyntax}}
-:: handle&amp; = '''_LOADIMAGE&amp; ('''''filename$''[, ''mode&amp;'']''')'''
+: {{Parameter|handle&amp;}} = [[_LOADIMAGE]]({{Parameter|filename$}}[, {{Parameter|mode%}}])
 
 
 {{Parameters}}
-* ''filename'' is literal or variable [[STRING]] file name value.
-* Optional ''mode'' [[INTEGER]] values can be any valid screen mode except zero, 256 color, 32 bit or 33 hardware image.
+* {{Parameter|filename$}} is literal or variable [[STRING]] file name value.
+* Optional {{Parameter|mode%}} [[INTEGER]] values can be '''any valid [[SCREEN|screen]] mode''' except zero, also:
+** 256 = 8-bit (256-color)
+** 32 = 32-bit
+** 33 = hardware image
 
 
 {{PageDescription}}
 * File types supported:  BMP, JPG, PNG, GIF, PNM, XPM, XCF, PCX, TIF, LBM, and TGA. A path can also be given.
-* The ''mode&amp;'' can designate 256(8 bit), 32 bit color or 33 in GL. Omit to use the current graphic screen settings.
-* '''QB64GL''' mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ([[_NEWIMAGE]] will later)
+* The {{Parameter|mode%}} can designate 256 (8 bit), 32 bit color or 33 ('''version 1.000 and up'''). Omit to use the current graphic screen settings.
+* Mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ('''version 1.000 and up''').
 * Loaded images can be read invisibly using [[POINT]]. Image coordinates start at 0 up to the [[_WIDTH (function)|_WIDTH]] - 1 and [[_HEIGHT]] - 1.
 * Images can be made into a program [[SCREEN (statement)|SCREEN]] or page adopting the size and palette settings or placed using [[_PUTIMAGE]].
-* Returns -1 as an invalid handle if it could not load the image. Valid {{KW|LONG}} handle returns are less than -1.
-* Valid images only need to be loaded ONCE! The handle can be used repeatedly until freed.
+* Returns -1 as an invalid handle if it can't load the image. Valid [[LONG]] handle returns are less than -1 ({{Parameter|handle&amp;}} &lt; -1).
+* Valid images only need to be loaded once. The handle can be used repeatedly until freed.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
 
 
 {{PageErrors}}
-* Some picture file images may not load when a ''mode'' value is designated. Try loading it without a ''mode'' designation.
-* '''It is IMPORTANT to free unused or discarded images with [[_FREEIMAGE]] to prevent CPU memory overflow errors!'''
-* '''In text [[SCREEN]] 0 ''mode&amp;'' 32 must be designated!''' When loading an [[_ICON]] image use 32 for the mode also.
-* '''QB64 SDL does not support icon files! A bad handle value will occur using _LOADIMAGE! See [[_ICON]] example 2.''' 
+* Some picture file images may not load when a {{Parameter|mode%}} value is designated. Try loading it without a {{Parameter|mode%}} designation.
+* '''It is important to free unused or discarded images with [[_FREEIMAGE]] to prevent CPU memory overflow errors.'''
+* '''In text-only [[SCREEN]] 0, {{Parameter|mode%}} 32 must be specified.''' When loading an [[_ICON]] image use 32 for the {{Parameter|mode%}} too.
 
 
+{{PageExamples}}
 ''Example 1:''  Already in SCREEN 13 and want computer to match the 32-bit jpg/etc. 
 colors to the current palette:
 {{CodeStart}} '' ''
@@ -83,16 +86,14 @@ DO
 :''NOTE:'' The ''QB64.PNG'' file picturing the QB64 bee can saved from the top of the [http://www.qb64.net/forum/index.php QB64 forum]. Speed varies with image size.
 
 
-''See Examples:''
+===More examples===
 * [[SAVEIMAGE]] (QB64 Image to Bitmap SUB by Galleon)
-
-* [[Program ScreenShots]] (Member program for legacy screen modes)
-
+* [[Program ScreenShots]] (Member-contributed program for legacy screen modes)
 * [[ThirtyTwoBit SUB]] (QB64 Image area to bitmap)
 
 
 {{PageSeeAlso}}
-* [[_FREEIMAGE]], [[_ICON]] {{text|(Icons can be used in GL only!)}}
+* [[_FREEIMAGE]], [[_ICON]]
 * [[_PUTIMAGE]], [[_MAPTRIANGLE]]
 * [[_NEWIMAGE]], [[_COPYIMAGE]] 
 * [[_PRINTIMAGE]] (printer)

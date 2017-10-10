@@ -1,22 +1,22 @@
-The '''LEFT$''' string function returns a part of a [[STRING]] from the start a set number of places.
-
+The [[LEFT$]] string function returns a number of characters from the left of a [[STRING]].
 
 
 {{PageSyntax}}
-:: '''LEFT$('''''stringvalue$'', ''numberofcharacters%''''')'''
+: [[LEFT$]]({{Parameter|stringValue$}}, {{Parameter|numberOfCharacters%}})
 
 
 {{Parameters}}
-* The ''stringvalue$'' can be any [[STRING]]  variable of [[ASCII]] text characters.
-* The ''numberofcharacters'' [[INTEGER]] value determines the number of characters to return from left end of string.
+* {{Parameter|stringValue$}} can be any [[STRING]] literal or variable.
+* {{Parameter|numberOfCharacters%}} [[INTEGER]] determines the number of characters to return from left of string.
 
 
 {{PageDescription}}
-* If the number of characters exceeds the string length the entire string is returned. Use [[LEN]] to determine a string length.
-* LEFT$ returns always start at the first character of the string, even when a space. [[LTRIM$]] can remove leading spaces.
-* '''The Number of characters cannot be a negative value.'''
+* If the number of characters exceeds the string length the entire string is returned. Use [[LEN]] to determine a string's length.
+* [[LEFT$]] returns always start at the first character of the string, even if it's a space. [[LTRIM$]] can remove leading spaces.
+* '''{{Parameter|numberOfCharacters%}} cannot be a negative value.'''
 
 
+{{PageExamples}}
 ''Example 1:'' Getting the left portion of a string value. 
 {{CodeStart}} '' ''
 name$ = &quot;Tom Williams&quot;
@@ -28,7 +28,7 @@ PRINT First$ '' ''
 {{OutputStart}}Tom {{OutputEnd}}
 
 
-''Example 2:'' A Replace function using LEFT$ and [[RIGHT$]] with [[INSTR]] to insert a different length word into an existing string. 
+''Example 2:'' A replace function using LEFT$ and [[RIGHT$]] with [[INSTR]] to insert a different length word into an existing string. 
 {{CodeStart}} '' ''
 text$ = &quot;This is my sentence to change my words.&quot;
 {{Cl|PRINT}} text$
@@ -59,7 +59,7 @@ This is your sentence to change your words.{{OutputEnd}}
 : ''Note:'' The [[MID$ (statement)|MID$]] statement can only substitute words or sections of the original string length. It cannot change the string length.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[RIGHT$]], [[MID$]]
 * [[LTRIM$]], [[RTRIM$]]
 * [[MID$ (statement)]]

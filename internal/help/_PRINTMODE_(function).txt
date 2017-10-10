@@ -1,22 +1,21 @@
 {{DISPLAYTITLE:_PRINTMODE (function)}}
-The '''_PRINTMODE''' function returns the present {{KW|_PRINTMODE}} status as a numerical value from 1 to 3 in graphic screen modes only.
+The  [[_PRINTMODE (function)|_PRINTMODE]] function returns the current [[_PRINTMODE]] status as a numerical value from 1 to 3 in graphic screen modes.
 
 
 {{PageSyntax}}
-:::current_print_mode = '''_PRINTMODE'''[({{Parameter|image_handle}})]
+: {{Parameter|currentPrintMode}} = [[_PRINTMODE (function)|_PRINTMODE]][({{Parameter|imageHandle&amp;}})]
 
 
 {{Parameters}}
-* If no brackets and ''image_handle'' parameter are given, the current [[_DEST|destination]] [[SCREEN]] page or image is assumed.
-* If the handle value enclosed in brackets is 0 then the current program [[SCREEN]] page is assumed.
+* If no {{Parameter|imageHandle&amp;}} is given, the current [[_DEST|destination]] [[SCREEN]] page or image is assumed.
 
 
 {{PageDescription}}
 * Returns a status value from 1 to 3 designating the current mode setting:
-::::'''1''': mode is _KEEPBACKGROUND
-::::'''2''': mode is _ONLYBACKGROUND
-::::'''3''': mode is _FILLBACKGROUND (default)
-* '''The _PRINTMODE statement and function can only be used in graphic screen modes, NOT SCREEN 0'''
+** '''1''': mode is _KEEPBACKGROUND
+** '''2''': mode is _ONLYBACKGROUND
+** '''3''': mode is _FILLBACKGROUND '''(default)'''
+* '''The [[_PRINTMODE]] statement and function can only be used in graphic screen modes, not SCREEN 0'''
 
 
 {{PageSeeAlso}}

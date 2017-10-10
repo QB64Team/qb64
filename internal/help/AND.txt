@@ -1,15 +1,14 @@
-The logical '''AND''' numerical operator compares two values in respect of their bits. If both bits at a certain position in both values are set, then that bit position is set in the result.
+The logical [[AND]] numerical operator compares two values in respect of their bits. If both bits at a certain position in both values are set, then that bit position is set in the result.
 
 
 {{PageSyntax}}
-:{{Parameter|result}} = '''{{Parameter|firstvalue}} AND {{Parameter|secondvalue}}'''
-
+:{{Parameter|result}} = {{Parameter|firstvalue}} AND {{Parameter|secondvalue}}
 
 
 {{PageDescription}}
-* AND compares the bits of the {{Parameter|firstvalue}} against the bits of the {{Parameter|secondvalue}}, the result is stored in the {{Parameter|result}} variable.
-* If both bits are on or binary 1 then the result is on or 1.
-* All other conditions return 0 or the bit is off.
+* [[AND]] compares the bits of the {{Parameter|firstvalue}} against the bits of the {{Parameter|secondvalue}}, the result is stored in the {{Parameter|result}} variable.
+* If both bits are on (1) then the result is on (1).
+* All other conditions return 0 (bit is off).
 * AND is often used to see if a bit is on by comparing a value to an exponent of 2.
 * Can turn off a bit by subtracting the bit on value from 255 and using that value to AND a byte value.
 
@@ -17,6 +16,7 @@ The logical '''AND''' numerical operator compares two values in respect of their
 {{Template:LogicalTruthTable}}
 
 
+{{PageExamples}}
 ''Example 1:''
 {{WhiteStart}}
          101
@@ -26,7 +26,7 @@ The logical '''AND''' numerical operator compares two values in respect of their
          001
 {{WhiteEnd}}
 
-:The 101 bit pattern equals 5 and the 011 bit pattern equals 3, it returns the bit pattern 001 which equals 1. Only the Least Significant Bits(LSB) match. So decimal values 5 AND 3 = 1.
+:The 101 bit pattern equals 5 and the 011 bit pattern equals 3, it returns the bit pattern 001 which equals 1. Only the Least Significant Bits (LSB) match. So decimal values 5 AND 3 = 1.
 
 
 ''Example 2:''
@@ -37,13 +37,13 @@ The logical '''AND''' numerical operator compares two values in respect of their
      ----------
       11101011
 {{WhiteEnd}}
-:Both bits have to be set for the resulting bit to be set. You can use the AND operator to get one byte of a two byte integer this way:
+:Both bits have to be set for the resulting bit to be set. You can use the [[AND]] operator to get one byte of a two byte integer this way:
 
-:::::firstbyte = twobyteint AND 255
+::firstbyte = twobyteint AND 255
 
 :Since 255 is 11111111 in binary, it will represent the first byte completely when compared with AND.
 
-:To find the second(HI) byte's decimal value of two byte {{KW|INTEGER}}s use: secondbyte = twobyteint \ 256
+:To find the second (HI) byte's decimal value of two byte [[INTEGER]]s use: secondbyte = twobyteint \ 256
 
 
 ''Example 3:'' Finding the binary bits on in an [[INTEGER]] value. 
@@ -64,15 +64,13 @@ The logical '''AND''' numerical operator compares two values in respect of their
 {{OutputStart}}
 0001011110100111
 {{OutputEnd}}
-::''Note:'' The value of 32767 sets 15 bits. -1 sets all 16 bits. Negative values will all have the highest bit set. Use {{KW|LONG}} variables for input values to prevent overflow errors!
-
-
+::''Note:'' The value of 32767 sets 15 bits. -1 sets all 16 bits. Negative values will all have the highest bit set. Use [[LONG]] variables for input values to prevent overflow errors.
 
 
 {{PageSeeAlso}}
-*{{KW|OR}} (operator), {{KW|XOR}} (operator), {{KW|NOT}} (operator)
-*{{KW|AND (boolean)}}
-*[[Binary]], [[Boolean]]
+* [[OR]], [[XOR]], [[NOT]] {{text|(logical operators)}}
+* [[AND (boolean)]]
+* [[Binary]], [[Boolean]]
 
 
 {{PageNavigation}}

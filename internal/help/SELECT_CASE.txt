@@ -1,36 +1,40 @@
-'''SELECT CASE''' is used to determine the program flow by comparing the value of a variable to specific CASE values.
+[[SELECT CASE]] is used to determine the program flow by comparing the value of a variable to specific CASE values.
 
 
 {{PageSyntax}}
-:::'''SELECT''' [EVERY]'''CASE''' ''checkvalue''
-::::[[CASE]]
-::::[[CASE IS]]
-::::[[CASE ELSE]]
-:::'''[[END SELECT]]''' 
+:'''SELECT''' [EVERY]'''CASE''' {{Parameter|testExpression}}
+::'''CASE''' {{Parameter|expressionList1}}
+:::[statement-block1]
+::['''CASE''' {{Parameter|expressionList2}}
+:::[statement-block2]]...
+::['''CASE ELSE'''
+:::[statementblock-n]]
+:'''END SELECT''' 
 
 
 
-* '''SELECT CASE''' evaluates a comparison ''checkvalue'' and executes the first matching [[CASE]] or [[CASE ELSE]] and exits.
-* '''SELECT EVERYCASE''' allows the execution of all matching [[CASE]] statements from top to bottom or [[CASE ELSE]].
-* The literal or variable or expression ''checkvalue'' comparison can result in any string or numerical type. 
-* '''Note:''' A ''checkvalue'' variable value can be changed inside of true CASE evaluations in SELECT EVERYCASE. 
-* A ''checkvalue'' derived from an expression or [[FUNCTION]] will only be determined once at the start of the block execution.
-* Supports individual CASE values and ranges or lists of literal values as below:
-:* [[CASE]] casevalue: code {{text|''''case compares one numerical or text value'''}}
-:* [[CASE]] casevalue1 [[TO]] casevalue2: code {{text|''''case compares a range of values '''}}
-:* [[CASE]] casevalue1, casevalue2, casevalue3: code {{text|''''case compares a list of values separated by commas'''}}
-:* [[CASE IS]] &gt; casevalue: code {{text|''''case compares a value as &lt;nowiki&gt; =, &lt;&gt;, &lt; or &gt; &lt;/nowiki&gt;'''}} 
-:* [[CASE ELSE]]: code {{text|''''bottom case statement executes only when no other CASE is executed.}}'''
-* The CASE values should cover the normal ranges of the comparison ''variable'' values. 
-* Use [[CASE ELSE]] before [[END SELECT]] if an alternative is necessary when no other case matches.
+* '''SELECT CASE''' evaluates {{Parameter|testExpression}} and executes the first matching [[CASE]] or [[CASE ELSE]] block and exits.
+* '''SELECT EVERYCASE''' allows the execution of all matching [[CASE]] blocks from top to bottom or the [[CASE ELSE]] block.
+* The literal, variable or expression {{Parameter|testExpression}} comparison can result in any string or numerical type. 
+* '''Note:''' A {{Parameter|testExpression}} variable value can be changed inside of true CASE evaluations in SELECT EVERYCASE. 
+* A {{Parameter|testExpression}} derived from an expression or [[FUNCTION]] will only be determined once at the start of the block execution.
+* &lt;span id=&quot;allCASES&quot;&gt;Supports individual CASE values and ranges or lists of literal values as below:&lt;/span&gt;
+** '''CASE''' casevalue: code {{text|''''case compares one numerical or text value'''}}
+** '''CASE''' casevalue1 [[TO]] casevalue2: code {{text|''''case compares a range of values '''}}
+** '''CASE''' casevalue1, casevalue2, casevalue3: code {{text|''''case compares a list of values separated by commas'''}}
+** '''CASE IS''' &gt; casevalue: code {{text|''''case compares a value as &lt;nowiki&gt; =, &lt;&gt;, &lt; or &gt; &lt;/nowiki&gt;'''}} 
+** '''CASE ELSE''': code {{text|''''bottom case statement executes only when no other CASE is executed.}}'''
+* The CASE values should cover the normal ranges of the comparison {{Parameter|testExpression}} values. 
+* Use '''CASE ELSE''' before '''END SELECT''' if an alternative is necessary when no other case matches.
 * CASEs should be listed in an ascending or descending values for best and fastest results.
 * [[STRING]] comparisons will be based on their respective [[ASCII]] code values where capital letters are valued less than lower case.
-* Use SELECT CASE when [[IF...THEN]] statements get too long or complicated.
-* SELECT CASE and EVERYCASE statement blocks must '''always''' be ended with [[END SELECT]]!
-* Use '''[[colon]]s''' to execute multiple statements in a one line statement. You cannot use [[AND]] for multiple statements!
-* An '''[[underscore]]''' can be used anywhere after the code on one line to continue it to the next line in '''QB64 ONLY'''.
+* Use '''SELECT CASE''' when [[IF...THEN]] statements get too long or complicated.
+* '''SELECT CASE''' and '''EVERYCASE''' statement blocks must '''always''' be ended with [[END SELECT]].
+* Use '''[[colon]]s''' to execute multiple statements in one line.
+* An '''[[underscore]]''' can be used anywhere after the code on one line to continue it to the next line in '''QB64'''.
 
 
+{{PageExamples}}
 ''Example 1:'' SELECT CASE can use literal or variable [[STRING]] or numerical values in CASE comparisons:
 {{CodeStart}} '' ''
 {{Cl|INPUT}} &quot;Enter a whole number value from 1 to 40: &quot;, value
@@ -126,10 +130,10 @@ value3$ = &quot;z&quot;
   {{Cl|CASE ELSE}}: {{Cl|PRINT}} &quot;other value&quot; 'key entry below A including all numbers
 {{Cl|END SELECT}} '' ''
 {{CodeEnd}}
-: ''Notes:'' [[STRING]] values using multiple characters will be compared by the [[ASCII]] code values sequentially from left to right. Once the equivalent code value of one string is larger than the other the evaluation stops. This allows string values to be compared and sorted alphabetically using [[Greater Than|&gt;]] or [[Less Than|&lt;]] and to [[SWAP]] values in [[arrays]] irregardless of the string lengths.
+: ''Notes:'' [[STRING]] values using multiple characters will be compared by the [[ASCII]] code values sequentially from left to right. Once the equivalent code value of one string is larger than the other the evaluation stops. This allows string values to be compared and sorted alphabetically using [[Greater Than|&gt;]] or [[Less Than|&lt;]] and to [[SWAP]] values in [[arrays]] regardless of the string lengths.
 
 
-''Example 5:'' EVERYCASE allows sections of digital numbers to be drawn in a simulated LED readout using numbers from 0 to 9:
+''Example 5:'' EVERYCASE is used to draw sections of digital numbers in a simulated LED readout using numbers from 0 to 9:
 {{CodeStart}}
 {{Cl|SCREEN}} 12
 DO
@@ -155,12 +159,10 @@ DO
   {{Cl|END SELECT}}
 {{Cl|LOOP}} {{Cl|UNTIL}} num &gt; 9 
 {{CodeEnd}}
-: '''Note:''' [[CASE ELSE]] will only execute if no other CASE is true! Changing the comparison value in a CASE may affect later CASE evaluations! '''Beware of duplicate variables inside of  cases affecting the comparison values and remaining cases!'''
+: '''Note:''' [[CASE ELSE]] will only execute if no other CASE is true! Changing the comparison value in a CASE may affect later CASE evaluations. '''Beware of duplicate variables inside of cases affecting the comparison values and remaining cases.'''
 
 
-''See also:'' 
-* [[CASE]], [[CASE IS]]
-* [[CASE ELSE]]
+{{PageSeeAlso}} 
 * [[IF...THEN]], [[Boolean]]
 
 

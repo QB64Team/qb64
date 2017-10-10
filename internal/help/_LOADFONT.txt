@@ -1,25 +1,28 @@
 {{DISPLAYTITLE:_LOADFONT}}
-The '''_LOADFONT''' function loads a TrueType font (.TTF) file of a specific size and style and returns a [[LONG]] font handle value &gt; 0.
+The [[_LOADFONT]] function loads a TrueType font (.TTF) or an OpenType font (.OTF) file in a specific size and style and returns a [[LONG]] font handle.
 
 
 {{PageSyntax}}
-: handle&amp; = '''_LOADFONT ('''''TTF_filename$'', ''size%''[, &quot;{MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND}&quot;]''')'''
+: {{Parameter|handle&amp;}} = [[_LOADFONT]]({{Parameter|fontFileName$}}, {{Parameter|size%}}[, &quot;{MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND}&quot;])
 
 
 {{PageDescription}}
-* The assigned [[LONG]] font ''handle'' variable return value designates a font style to be used somewhere in a program.
-* ''TTF_filename$'' is the filename of '''truetype''' fonts only. Can include the path to the font file. Best to include font files with a program.
-* ''Size'' is the [[INTEGER]] height of the font. If the size is too large or small an [[ERROR Codes|error]] will occur!
-* Optional comma separated ''style'' parameter(s) used are literal [[STRING]]s(in quotes) or can be contained in variable(s). 
-:* '''&quot;MONOSPACE&quot; has limited font file selections and cannot be used with variable width fonts!'''
-:* '''&quot;BOLD&quot;, &quot;ITALIC&quot;''' or '''&quot;UNDERLINE&quot;''' create bold, italic or underlined fonts when available in font.
-:* '''&quot;UNICODE&quot;''' loads Unicode fonts such as ''cyberbit.ttf'' which is included in the QB64 downloads. 
-:* '''&quot;DONTBLEND&quot;''' turns off [[_ALPHA]] blending of fonts. This can also be done with the [[_DONTBLEND]] statement.
-:* You can pass different font styles using different predefined [[STRING]] variable lists. You '''can''' include an empty style string!
-* '''Always check that font handle values are greater than 0 before using them or [[ERROR Codes|illegal function errors]] may occur!'''
-* '''NOTE: SCREEN 0 can only use ONE font on a screen page! Thus a style like underline would affect the entire page.'''
-* Font sizes can be found using the [[_FONTHEIGHT]] function. Font ''size''s can also affect [[SCREEN (statement)|SCREEN]] sizes! 
-* [[_FONTWIDTH]] can only measure MONOSPACE fonts! '''&quot;MONOSPACE&quot; cannot be used on a variable width font.'''
+* The assigned [[LONG]] font {{Parameter|handle&amp;}} variable return value designates a font style to be used somewhere in a program. Valid handle values are greater than 0 ('''{{Parameter|handle&amp;}} &gt; 0''').
+* {{Parameter|fontFileName$}} is the filename of a TrueType or OpenType font. Can include the path to the font file. Best practice is to include font files with a program.
+* If no path is specified for {{Parameter|fontFileName$}} and the font file isn't in the same folder as the resulting binary, QB64 attempts to load from the default ''C:\Windows\Fonts'' path.
+* {{Parameter|size%}} is the [[INTEGER]] height of the font. If the size is too large or small an [[ERROR Codes|error]] will occur.
+* Optional comma separated ''style'' parameter(s) used are literal [[STRING]]s (in quotes) or can be contained in variable(s). 
+** '''&quot;MONOSPACE&quot;''' loads a font with all characters occupying the same width. Results may be too spaced out for fonts that aren't designed for monospace use.
+** '''&quot;BOLD&quot;, &quot;ITALIC&quot;''' or '''&quot;UNDERLINE&quot;''' create bold, italic or underlined fonts when available in font.
+***(valid for QB64 versions prior to 1.000).
+***For '''QB64 1.000 or later''', you must specify the proper file name according to the desired attributes. For example, Courier New is in font '''cour.ttf''' while Courier New Bold is in font '''courbd.ttf''', as shipped with Windows.
+** '''&quot;UNICODE&quot;''' loads Unicode fonts such as ''cyberbit.ttf'' which is included in the QB64 downloads. 
+** '''&quot;DONTBLEND&quot;''' turns off [[_ALPHA]] blending of fonts. This can also be done with the [[_DONTBLEND]] statement.
+:* You can pass different font styles using different predefined [[STRING]] variable lists. You '''can''' include an empty style string.
+* '''Always check that font handle values are greater than 0 ('''{{Parameter|handle&amp;}} &gt; 0''') before using them or [[ERROR Codes|illegal function errors]] may occur.'''
+* '''NOTE: SCREEN 0 can only use ONE font on a screen page. Thus a style like underline would affect the entire page.'''
+* Font sizes can be found using the [[_FONTHEIGHT]] function. Font ''size''s can also affect [[SCREEN (statement)|SCREEN]] sizes.
+* [[_FONTWIDTH]] can only measure monospaced fonts. '''&quot;MONOSPACE&quot; can be used to load a variable width font as a monospace font.'''
 * [[_PRINTWIDTH]] can measure the width of a string of text in '''graphics modes only'''. Use one character to get the font's width.
 
 
@@ -29,24 +32,24 @@ The '''_LOADFONT''' function loads a TrueType font (.TTF) file of a specific siz
 * '''Predefined QB64''' font handle numbers can be substituted before freeing a font handle:
 **'''_FONT 8 ''' - default font for [[SCREEN (statement)|SCREEN]] 1, 2, 7, 8 or 13
 **'''_FONT 14''' - default font for [[SCREEN (statement)|SCREEN]] 9 or 10
-**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ({{KW|WIDTH}} 80, 25 text only), 11 or 12
+**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ([[WIDTH]] 80, 25 text only), 11 or 12
 **'''_FONT 9, 15''' and '''17''' are the double width versions of 8, 14 and 16 respectively in text '''SCREEN 0 only'''.
 * Once the font is changed to a predefined value, the font handle value can be freed using [[_FREEFONT]] for another font type.
-* Font handle values of -1 (load failure) '''do not''' need to be freed! '''An [[ERROR Codes|error]] will occur if you try to free invalid handles!'''
+* Font handle values of -1 (load failure) '''do not''' need to be freed. '''An [[ERROR Codes|error]] will occur if you try to free invalid handles.'''
 
 
 &lt;center&gt; '''Font File Specs'''&lt;/center&gt;
 * Windows users should find '''TTF''' font files in the C:\WINDOWS\FONTS folder, but don't depend on unusual ones being there. 
-* '''Check the font file name! The name in the &quot;viewer&quot; is NOT necessarily the file's name! Use the name in properties!'''
+* '''Check the font file name. The name in the &quot;viewer&quot; is not necessarily the file's name. Use the name in properties (right click a font listed and choose Properties in the contextual menu)'''
 * If a program is on a different drive than Windows, [[ENVIRON$]](&quot;SYSTEMROOT&quot;) will return the path to the &quot;WINDOWS&quot; folder. Normally &quot;C:\WINDOWS&quot;. Then add the &quot;\FONTS\&quot; folder and the font '''.TTF''' filename to the path [[STRING]].
 
 
+{{PageExamples}}
 ''Example 1:'' You need to know that if you are in a text mode (such as SCREEN 0 - the default) then you will only be able to use mono-spaced (fixed width) fonts.
-
 {{CodeStart}}
 rootpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;)          'normally &quot;C:\WINDOWS&quot;
 fontfile$ = rootpath$ + &quot;\Fonts\cour.ttf&quot;   'TTF file in Windows 
-style$ = &quot;monospace, italic, bold&quot;          'font style is not case sensitive
+style$ = &quot;monospace&quot;          'font style is not case sensitive
 f&amp; ={{Cl|_LOADFONT}}(fontfile$, 30, style$)
 {{Cl|_FONT}} f&amp;
 {{Cl|PRINT}} &quot;Hello!&quot;
@@ -54,7 +57,7 @@ f&amp; ={{Cl|_LOADFONT}}(fontfile$, 30, style$)
 {{CodeEnd}}
 {{OutputStart}}
 
-'''''Hello!'''''
+Hello!
 
 {{OutputEnd}}
 
@@ -120,7 +123,7 @@ QuickUTF16toUTF32$ = b$
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_FONT]], [[_FONT (function)]]
 * [[_FREEFONT]] 
 * [[_PRINTSTRING]], [[_PRINTWIDTH]]

@@ -1,13 +1,13 @@
 {{DISPLAYTITLE:_CLIPBOARD$ (statement)}}
-The [[_CLIPBOARD$ (statement)|_CLIPBOARD$]] statement sets the {{KW|STRING}} value in the system clipboard.
+The [[_CLIPBOARD$ (statement)|_CLIPBOARD$]] statement copies the [[STRING]] value into the system clipboard.
 
 
 {{PageSyntax}}
-:{{KW|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = {{Parameter|string_expression$}}
+:[[_CLIPBOARD$ (statement)|_CLIPBOARD$]] = {{Parameter|string_expression$}}
 
 
 {{PageDescription}}
-* {{Parameter|string_expression$}} is the string value sent to the clipboard.
+* {{Parameter|string_expression$}} is the string value to be sent to the clipboard.
 * The string value will replace everything previously in the clipboard.
 * Assemble long text into one string variable value before using this statement.
 * Add CHR$(13) + CHR$(10) CRLF characters to move to a new clipboard line.
@@ -16,6 +16,7 @@ The [[_CLIPBOARD$ (statement)|_CLIPBOARD$]] statement sets the {{KW|STRING}} val
 * The clipboard can be used to copy, paste and communicate between running programs.
 
 
+{{PageExamples}}
 ''Example:'' Set 2 lines of text in the clipboard using a carriage return to end text lines
 {{CodeStart}} '' ''
 {{Cl|DIM}} CrLf AS {{Cl|STRING}} * 2            'define as 2 byte STRING
@@ -33,8 +34,9 @@ This is line 2
 
 
 {{PageSeeAlso}}
-* {{KW|_CLIPBOARD$}} (function)
-* {{KW|CHR$}}, {{KW|ASCII}} (code table)
+* [[_CLIPBOARD$]] (function)
+* [[_CLIPBOARDIMAGE (function)]], [[_CLIPBOARDIMAGE]] (statement)
+* [[CHR$]], [[ASCII]] (code table)
 
 
 

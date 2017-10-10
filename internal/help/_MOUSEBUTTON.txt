@@ -1,28 +1,28 @@
 {{DISPLAYTITLE:_MOUSEBUTTON}}
-The '''_MOUSEBUTTON''' Function returns the button status of a specified mouse button when read after [[_MOUSEINPUT]].
+The [[_MOUSEBUTTON]] function returns the button status of a specified mouse button when read after [[_MOUSEINPUT]].
 
 
 {{PageSyntax}}
-:: buttonstatus% = '''_MOUSEBUTTON('''''button_number''''')'''
+: {{Parameter|buttonStatus%%}} = [[_MOUSEBUTTON]]({{Parameter|buttoNumber}})
 
 
 {{Parameters}}
-* [[INTEGER]] ''button number'' designates the mouse button to read (currently just the top 3).
-:* 1 = Left mouse button
-:* 2 = Right mouse button
-:* 3 = Center or scroll button 
+* [[INTEGER]] {{Parameter|buttoNumber}} designates the mouse button to read (See [[_DEVICES]] for more than 3).
+** 1 = Left mouse button
+** 2 = Right mouse button
+** 3 = Center or scroll button 
 
 
-''Usage:''
-* Returns -1 if the corresponding numbered ''button'' is pressed and zero when released. 
-* The ''button'' parameter is 1 for the Left button, 2 for the right and 3 for the center button. Other buttons are currently not available.
-* Read [[_MOUSEINPUT]] FIRST to return the current button up or down status. (See Example 2)
+{{PageDescription}}
+* Returns -1 if the corresponding {{Parameter|buttoNumber}} is pressed or zero when released. 
+* Read [[_MOUSEINPUT]] first to return the current button up or down status. (See Example 2)
 * Button clicks and mouse movements will be remembered and should be cleared after an [[INPUT]] statement or other interruption. 
 * To clear unread mouse input, use a [[_MOUSEINPUT]] loop that loops until it returns 0.
 * Use [[_DEVICE$]] to find the &quot;[MOUSE]&quot; [[_DEVICES]] number to find the number of buttons available using [[_LASTBUTTON]].
 * '''Note:''' The center mouse button can also be read as [[_BUTTON]](2) on [[_DEVICEINPUT]](2) when a mouse is present.
 
 
+{{PageExamples}}
 ''Example 1:'' Finding the number of mouse buttons available in QB64. This could also be used for other controller devices.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} d = 1 {{Cl|TO}} {{Cl|_DEVICES}}  'number of input devices found
@@ -167,8 +167,7 @@ y = {{Cl|_MOUSEY}}
 * [[_MOUSESHOW]], [[_MOUSEHIDE]]
 * [[_DEVICES]], [[_DEVICE$]], [[_LASTBUTTON]]
 * [[_BUTTON]], [[_BUTTONCHANGE]] {{text|([[DEVICES|devices]])}}
-* [[Controller_Devices]]
-* [[SDL_Libraries#Mouse_Button|SDL Mouse Button Down Library]]
+* [[Controller Devices]]
 
 
 {{PageNavigation}}

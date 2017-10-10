@@ -190,7 +190,7 @@ col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'finds current pa
 {{small|Code by Ted Weissgerber}}
 : ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the '''Search Menu'''.
 
-&lt;center&gt;[http://dl.dropbox.com/u/8440706/HOWIE.zip Download of Example 2 Bitmap images]&lt;/center&gt;
+&lt;center&gt;[https://www.dropbox.com/s/tcdik1ajegbeiz4/HOWIE.zip?dl=0 Download of Example 2 Bitmap images]&lt;/center&gt;
 
 
 &lt;center&gt;You can easily change PRINT to the PRINTS sub-procedure name in your code using the [[IDE]] ''Search''  Menu ''Change'' option.&lt;/center&gt;

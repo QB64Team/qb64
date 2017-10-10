@@ -1,42 +1,44 @@
 {{DISPLAYTITLE:_ICON}}
-The '''_ICON''' statement uses an image handle from [[_LOADIMAGE]] for the program header and GL icon image in the OS.
+The [[_ICON]] statement uses an image handle from [[_LOADIMAGE]] for the program header and icon image in the OS.
 
 
 {{PageSyntax}}
-: [[_ICON]] [''mainimagehandle&amp;''[, ''smallimagehandle&amp;'']]
+: [[_ICON]] [{{Parameter|mainImageHandle&amp;}}[, {{Parameter|smallImageHandle&amp;}}]]
 
 
 {{Parameters}}
-* ''mainimagehandle''  is the [[LONG]] handle value of the OS icon and title bar image pre-loaded with [[_LOADIMAGE]] when used alone.
-* ''smallimagehandle'' is the [[LONG]] handle value of a different title bar image pre-loaded with [[_LOADIMAGE]] when used.
+* {{Parameter|mainImageHandle&amp;}}  is the [[LONG]] handle value of the OS icon and title bar image pre-loaded with [[_LOADIMAGE]] when used alone.
+* {{Parameter|smallImageHandle&amp;}} is the [[LONG]] handle value of a different title bar image pre-loaded with [[_LOADIMAGE]] when used.
+* No image handle designates use of the default QB64 icon or the embedded icon set by [[$EXEICON]].
 
 
 {{PageDescription}}
-* Older SDL versions must use a valid image handle created by [[_LOADIMAGE]]. The default QB64 icon will appear otherwise.
-* In '''QB64 GL''' no image handle denotes that the default QB64 program icon should be used. 
-:::''mainimagehandle'' will create the image as the icon in the OS and the image in the program header.
-:::''smallimagehandle'' can be used for a different image in the program header bar.
+* If no image handle is passed, the default QB64 icon will be used (all versions). If the [[$EXEICON]] metacommand is used, [[_ICON]] without an image handle uses the embedded icon from the binary (Windows only).
+* Beginning with '''version 1.000''', the following is considered: 
+:::{{Parameter|mainImageHandle&amp;}} creates the image as the icon in the OS and the image in the program header (title bar).
+:::{{Parameter|smallImageHandle&amp;}} can be used for a different image in the program header bar.
 *The header image will automatically be resized to fit the icon size of 16 X 16 if smaller or larger.
-*Once the program's icon is set, the image can be discarded with [[_FREEIMAGE]].
+*Once the program's icon is set, the image handle can be discarded with [[_FREEIMAGE]].
 
 
 {{PageErrors}}
-* '''NOTE: QB64 SDL does not support icon files! An error will occur using [[_LOADIMAGE]]! See Example 2.''' 
+* '''NOTE: Icon files are not supported with [[_LOADIMAGE]] and an error will occur. See Example 2.''' 
 * Images used can be smaller or larger than 32 X 32 pixels, but image resolution may be affected.
-* It is IMPORTANT to free unused or uneeded images with [[_FREEIMAGE]] to prevent memory overflow errors!
-*'''SCREEN 0 text mode requires a 32 bit palette in [[_LOADIMAGE]] to load images other than icons as program icons.'''
+* It is important to free unused or uneeded images with [[_FREEIMAGE]] to prevent memory overflow errors.
+*In '''SCREEN 0''' (default text mode) you need to specify 32-bit mode in [[_LOADIMAGE]] to load images.'''
 
 
+{{PageExamples}}
 ''Example 1:'' Loading an image to a 32 bit palette in SCREEN 0 (the default screen mode).
 {{CodeStart}} '' ''
-i&amp; ={{Cl|_LOADIMAGE}}(&quot;RDSWU16.BMP&quot;,32) '&lt;&lt;&lt;&lt;&lt;&lt;&lt; use your image file name here
+i&amp; ={{Cl|_LOADIMAGE}}(&quot;RDSWU16.BMP&quot;, 32) '&lt;&lt;&lt;&lt;&lt;&lt;&lt; use your image file name here
 
 {{Cl|IF}} i&amp; &lt; -1 THEN 
   {{Cl|_ICON}} i&amp;
   {{Cl|_FREEIMAGE}} i&amp; ' release image handle after setting icon
 {{Cl|END IF}}
 {{CodeEnd}}
-:''Note:'' _ICON images can be freed if the [[SCREEN]] mode stays the same. Freed image handles can on longer be referenced! 
+:''Note:'' _ICON images can be freed if the [[SCREEN]] mode stays the same. Freed image handles can on longer be referenced. 
 
 
 ''Example 2:'' Function that converts an icon into a temporary bitmap for use in QB64. Function returns the available image count.
@@ -118,13 +120,13 @@ Icon2BMP = count '             return the number of icons available in the icon 
 : ''Note:'' Once the file has been loaded into memory, the image handle can still be used even after the file has been deleted.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_TITLE]]
 * [[_LOADIMAGE]]
-* [[Creating Icon Bitmaps]] (member program)
+* [[$EXEICON]], [[Embedding Icons in EXE|Manually Embedding Icons in .EXE]] {{text|(for versions of QB64 prior to 1.000)}}
+* [[Creating Icon Bitmaps]] {{text|(member-contributed program)}}
 * [[Bitmaps]], [[Icons and Cursors]]
 * [[Resource_Table_extraction#Extract_Icon|Icon Extraction]]
-* [[Embedding Icons in EXE]] {{text|(Icons viewed in Windows Explorer)}}
 
 
 {{PageNavigation}}

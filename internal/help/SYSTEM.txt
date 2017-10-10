@@ -1,4 +1,4 @@
-The {{KW|SYSTEM}} statement immediately closes a program and in DOS and can avoid returning to the QBasic [[IDE]]. 
+The {{KW|SYSTEM}} statement immediately closes a program and returns control to the operating system. 
 
 
 {{PageSyntax}}
@@ -12,9 +12,13 @@ The {{KW|SYSTEM}} statement immediately closes a program and in DOS and can avoi
 ''Usage:''
 * This command should be used to close a program quickly instead of pausing with [[END]] or nothing at all.
 * A code can be added after the statement to send a value to the [[SHELL (function)]] or [[_SHELLHIDE]] function in another module.
-* If a program BAS module is run from the IDE, stopped by Ctrl-Break or an error occurs the QB program will exit to the [[IDE]].
-* In '''QB64''' SYSTEM ends the program and closes the window immediately. The last screen image may not be displayed.
+* SYSTEM ends the program and closes the window immediately. The last screen image may not be displayed.
+
+
+
+''Qbasic or QuickBasic:''
 * '''Qbasic BAS files can be run like compiled programs without returning to the [[IDE]] when [[SYSTEM]] is used to [[END|end]] them!'''
+* If a program BAS module is run from the IDE, stopped by Ctrl-Break or an error occurs the QB program will exit to the [[IDE]].
 * To run a QuickBasic program without the [[IDE]] use the following [[DOS]] command line: {{text|QB.EXE /L /RUN filename.BAS|green}}
 
 

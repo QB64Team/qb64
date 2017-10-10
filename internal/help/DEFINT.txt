@@ -1,29 +1,41 @@
-The '''DEFINT''' statement defines all designated undefined variables AS [[INTEGER]] variables instead of the [[SINGLE]] type default.
+The [[DEFINT]] statement defines all variables with names starting with the specified letter (or letter range) AS [[INTEGER]] variables instead of the [[SINGLE]] type default.
+
+
+==Legacy support==
+* '''DEF''' statements ([[DEFDBL]], [[DEFSNG]], [[DEFLNG]], [[DEFINT]], [[DEFSTR]]) were used when storage space was a concern in older computers, as their usage could save up typing. Instead of {{InlineCode}}'''DIM a AS INTEGER, a2 AS INTEGER, a3 AS INTEGER'''{{InlineCodeEnd}}, simply having {{InlineCode}}'''DEFINT A'''{{InlineCodeEnd}} in the code before using variables starting with letter '''A''' would do the same job.
+* '''For clarity, it is recommended to declare variables with meaningful names'''.
 
 
 {{PageSyntax}}
-:: '''DEFSINT ''letter'''''[-''range'']
+: [[DEFINT]] {{Parameter|letter}}[-{{Parameter|range}}], {{Parameter|letter2}}[-{{Parameter|range2}}], [...]
 
 
-* The variable first letters can be from A-Z or any other range. 
-* You can also use commas for specific untyped variable first letters.
-* Variables [[DIM]]ensioned as another variable type or that use type suffixes are not defined otherwise.
-* DEFINT allows users to create larger graphical arrays up to the integer limits. 
-* The maximum value of a signed Integer variable is 32767. Minimum is -32768.
-* [[UNSIGNED]] Integer values from 0 to 65535 must use [[_DEFINE]]
-* DEFINT sets the [[type]] of all variable names with the starting letter(s) or letter ranges  when encountered in the progression of the program(even in conditional statement blocks not executed and subsequent [[SUB]] procedures). 
-* '''Qbasic's IDE may add DEF statements before any [[SUB]] or [[FUNCTION]]. QB64(like QB) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|&quot;Parameter Type Mismatch&quot;]] warning or adding the proper DEF statement to subsequent procedures! If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures!'''
-* '''Warning: Qbasic keyword names cannot be used as numerical variable names with or without the type suffix!'''
+{{PageDescription}}
+* {{Parameter|letter}} (or {{Parameter|range}}) can be from A-Z or any other range, like '''G-M'''.
+* You can also use commas for specific undefined variable first letters.
+* Variables [[DIM]]ensioned as another variable type or that use type suffixes are not affected by [[DEFINT]].
+* [[DEFINT]] sets the [[type]] of all variable names with the starting letter(s) or letter ranges when encountered in the progression of the program (even in conditional statement blocks not executed and subsequent [[SUB]] procedures).
+* For [[_UNSIGNED]] [[INTEGER]], use [[_DEFINE]]
+* '''Warning: QBasic keyword names cannot be used as numerical variable names with or without the type suffix.'''
 
 
-''Examples:'' 
-:: DEFINT A-Z
-:: DEFINT A-D, Z
-:: DEFINT A, I, O
+==QBasic/QuickBASIC==
+* QBasic's IDE would add DEF statements before any [[SUB]] or [[FUNCTION]]. QB64 (like QBasic) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|&quot;Parameter Type Mismatch&quot;]] warning or adding DEF statement to subsequent procedures. If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures.
 
 
-''See also:'' 
-* [[DEFSNG]], [[DEFLNG]], [[DEFDBL]], [[DEFSTR]], [[_DEFINE]]
+{{PageExamples}}
+{{CodeStart}}
+{{Cl|DEFINT}} A, F-H, M
+
+'With the above, all variables with names starting with A, F, G, H and M
+'will be of type INTEGER, unless they have a type suffix
+'indicating another type or they are {{Cl|DIM|dimensioned}} differently
+{{CodeEnd}}
+
+
+{{PageSeeAlso}} 
+* [[DEFSNG]], [[DEFLNG]], [[DEFDBL]], [[DEFSTR]]
+* [[_DEFINE]]
 
 
 {{PageNavigation}}

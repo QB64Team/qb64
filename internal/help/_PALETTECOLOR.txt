@@ -1,18 +1,18 @@
 {{DISPLAYTITLE:_PALETTECOLOR}}
-The _PALETTECOLOR statement sets the color value of a palette entry of an image using 256 color modes or less (4 or 8 BPP).
+The [[_PALETTECOLOR]] statement sets the color value of a palette entry of an image using 256 color modes or less (4 or 8 BPP).
 
 
 {{PageSyntax}}
-:[[_PALETTECOLOR]] {{Parameter|attribute%}}, {{Parameter|colour&amp;}}[, {{Parameter|Dest_Handle&amp;}}]
+:[[_PALETTECOLOR]] {{Parameter|attribute%}}, {{Parameter|newColor&amp;}}[, {{Parameter|destHandle&amp;}}]
 
 
 {{PageDescription}}
 * The {{Parameter|attribute%}} is the palette index number of the color to set, ranging from 0 to 15 (4 bit) or 0 to 255 (8 bit) color modes.
-* The [[LONG]] {{Parameter|colour&amp;}} is the new color value to set using [[_RGB32]] or [[_RGBA32]] values or using [[HEX$ 32 Bit Values]].
-* If {{Parameter|imageHandle&amp;}} is omitted, [[_DEST|destination]] is assumed to be the current write page or screen surface.
-* If {{Parameter|index%}} is outside of image or [[SCREEN|screen]] mode attribute range(0 to 15 or 0 to 255), an [[ERROR Codes|illegal function call]] error will occur.
-* If {{Parameter|DestHandle&amp;}} does not use a palette, an [[ERROR Codes|illegal function call]] error occurs. '''Will not work in 24/32 bit color palette modes!'''
-* If {{Parameter|imageHandle&amp;}} is an invalid handle value, an [[ERROR Codes|invalid handle]] error occurs.
+* The [[LONG]] {{Parameter|newColor&amp;}} is the new color value to set using [[_RGB32]] or [[_RGBA32]] values or using [[HEX$ 32 Bit Values]].
+* If {{Parameter|destHandle&amp;}} is omitted, [[_DEST|destination]] is assumed to be the current write page or screen surface.
+* If {{Parameter|attribute%}} is outside of image or [[SCREEN|screen]] mode attribute range (0 to 15 or 0 to 255), an [[ERROR Codes|illegal function call]] error will occur.
+* If {{Parameter|destHandle&amp;}} does not use a palette, an [[ERROR Codes|illegal function call]] error occurs. '''Will not work in 24/32 bit color palette modes.'''
+* If {{Parameter|destHandle&amp;}} is an invalid handle value, an [[ERROR Codes|invalid handle]] error occurs.
 
 
 &lt;center&gt;'''Basic's 16 Default Color Attributes (non-[[DAC]])'''&lt;/center&gt;
@@ -37,9 +37,10 @@ The _PALETTECOLOR statement sets the color value of a palette entry of an image 
 &lt;center&gt;[http://www.w3schools.com/html/html_colornames.asp HTML Color Table Values and Names] or [http://www.tayloredmktg.com/rgb/#OR Other RGB colors]&lt;/center&gt;
 ::: ''Note:'' '''QB64''' 32 bit color intensity values from 0 to 255 can be found by multiplying above values by 4.
 
-''Summary:'' The red, green, and blue intensity values can be changed using [[OUT]] or [[PALETTE]] statements. Some '''Qbasic''' RGB color attribute values can be changed in [[DAC]] {{KW|SCREEN (statement)|SCREEN}} modes and the [[DAC]] RGB intensity settings may be different. 
+''Summary:'' The red, green, and blue intensity values can be changed using [[OUT]] or [[PALETTE]] statements. Some '''QBasic''' RGB color attribute values can be changed in [[DAC]] [[SCREEN (statement)|SCREEN]] modes and the [[DAC]] RGB intensity settings may be different. 
 
 
+{{PageExamples}}
 ''Example:'' Creating custom background colors in SCREEN 0 that follow the text. [[CLS]] makes entire background one color.
 {{CodeStart}}
 {{Cl|_PALETTECOLOR}} 1, {{Cl|_RGB32}}(255, 255, 255) ' white.
@@ -60,7 +61,7 @@ The _PALETTECOLOR statement sets the color value of a palette entry of an image 
 {{Cl|COLOR}} 2, 6: {{Cl|PRINT}} &quot;ligher red on darker red&quot; '' ''
 {{CodeEnd}}
 
-: ''Note:'' _PALLETCOLOR expects [[LONG]] [[_RGB32]] or [[_RGBA32]] 32 bit color values, NOT [[_RGB]] or [[_RGBA]] palette attribute values.
+: ''Note:'' [[_PALETTECOLOR]] expects [[LONG]] [[_RGB32]] or [[_RGBA32]] 32 bit color values, not [[_RGB]] or [[_RGBA]] palette attribute values.
 
 
 {{PageSeeAlso}}

@@ -1,13 +1,14 @@
-{{KW|FOR (file statement)|FOR}} is used in a {{KW|OPEN}} statement to select the filemode to open the file with.
+#REDIRECT [[OPEN#File_Access_Modes]]
+
+[[FOR (file statement)|FOR]] is used in a [[OPEN]] statement to indicate the file mode with which to open a file.
 
 
 {{PageSyntax}}
-:{{KW|OPEN}} ... {{KW|FOR (file statement)|FOR}} {APPEND|BINARY|INPUT|OUTPUT|RANDOM}
+: [[OPEN]] ... [[FOR (file statement)|FOR]] {APPEND|BINARY|INPUT|OUTPUT|RANDOM}
 
 
 {{PageDescription}}
-
-* If {{KW|FOR (file statement)|FOR}} isn't used in a {{KW|OPEN}} statement then the default filemode {{KW|RANDOM}} is used.
+* If [[FOR (file statement)|FOR]] isn't used in an [[OPEN]] statement, the default file mode {{KW|RANDOM}} is used.
 ** {{KW|APPEND}} - Keeps the information of the file intact while you can insert information at the end of it, writing permission only.
 ** {{KW|BINARY}} - Opens the file in binary mode, use this with binary files.
 ** {{KW|INPUT (file mode)|INPUT}} - Opens the file for viewing only.
@@ -16,7 +17,7 @@
 
 
 {{PageExamples}}
-'''Warning:''' ''Make sure you don't have a file named test.tst before you run this! It will be overwritten if so!''
+'''Warning:''' Make sure you don't have a file named test.tst before you run this or it will be overwritten.
 
 {{CodeStart}}
 
@@ -50,13 +51,8 @@ It was overwritten with this and deleted.
 {{OutputEnd}}
 
 
-
-
-
 {{PageSeeAlso}}
-* {{KW|OPEN}}
-
-
+* [[OPEN]]
 
 
 {{PageNavigation}}

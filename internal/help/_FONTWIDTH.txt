@@ -1,14 +1,14 @@
 {{DISPLAYTITLE:_FONTWIDTH}}
-The '''_FONTWIDTH''' function returns the font width of a MONOSPACE font handle created by {{KW|_LOADFONT}}.
+The [[_FONTWIDTH]] function returns the font width of a MONOSPACE font handle created by [[_LOADFONT]].
 
 
 {{PageSyntax}}
-:{{Parameter|pixel_width%}} = {{KW|_FONTWIDTH}}[({{Parameter|font_handle}})]
+:{{Parameter|pixelWidth%}} = [[_FONTWIDTH]][({{Parameter|fontHandle&amp;}})]
 
 
-* Will return width of last font used if a handle is not designated.
-* '''Variable width fonts always return width 0.''' Even fixed width fonts will return 0 unless the &quot;MONOSPACE&quot; style option is used.
-* '''&quot;MONOSPACE&quot; cannot be used on a variable width font.'''
+* Returns the character width of the last font used if a handle is not specified.
+* '''Variable width fonts always return {{Parameter|pixelWidth%}} = 0.''' Even fixed width fonts return 0 unless the [[LOADFONT|&quot;MONOSPACE&quot;]] style option is used.
+* QB64 '''version 1.000 and up''' can load a variable width font as monospaced with the [[LOADFONT|&quot;MONOSPACE&quot;]] style parameter.
 * The font width is generally 3/4 of the [[_FONTHEIGHT]] specified when loading the font.
 * In '''graphics''' [[SCREEN (statement)|screen]] modes, [[_PRINTWIDTH]] can return the total '''pixel width''' of a literal or variable [[STRING|string]] of text.
 
@@ -18,7 +18,6 @@ The '''_FONTWIDTH''' function returns the font width of a MONOSPACE font handle 
 *[[_FONT]]
 * [[_LOADFONT]]
 * [[_PRINTWIDTH]]
-
 
 
 {{PageNavigation}}

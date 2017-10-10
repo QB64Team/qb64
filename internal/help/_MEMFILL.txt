@@ -1,23 +1,24 @@
 {{DISPLAYTITLE:_MEMFILL}}
-The '''_MEMFILL''' statement converts a value to a specified type then fills memory with that type including any non-whole remainder.
+The [[_MEMFILL]] statement converts a value to a specified type, then fills memory with that type including any non-whole remainder.
 
 
 {{PageSyntax}}
-::: '''_MEMFILL''' ''memory_block'', ''memory_block.OFFSET'', ''fill_bytes'', ''value''''' [AS variable_type]
+: [[_MEMFILL]] {{Parameter|memoryBlock}}, {{Parameter|memoryBlock.OFFSET}}, {{Parameter|fillBytes}}, {{Parameter|value}} [AS {{Parameter|variableType}}]
 
 
 {{Parameters}}
-* The ''memory block'' [[_MEM]] memory block is the block referenced to be filled.
-* The ''offset'' is the starting offset of the above referenced memory block.
-* The ''fill bytes'' is the number of bytes to fill the memory block.
-* The ''value'' is the value to place in the memory block at the designated OFFSET position. 
-* A literal or variable ''value'' can be optionally set [[AS]] a variable [[type]] appropriate for the memory block.
+* The {{Parameter|memoryBlock}} [[_MEM]] memory block is the block referenced to be filled.
+* {{Parameter|memoryBlock.OFFSET}} is the starting offset of the above referenced memory block.
+* The {{Parameter|fillBytes}} is the number of bytes to fill the memory block.
+* The {{Parameter|value}} is the value to place in the memory block at the designated OFFSET position. 
+* A literal or variable {{Parameter|value}} can be optionally set [[AS]] a variable [[type]] appropriate for the memory block.
 
 
-''Usage:''
-* To clear previous data from a [[_MEMNEW]] memory block, use _MEMFILL with a zero ''value''.
+{{PageDescription}}
+* To clear previous data from a [[_MEMNEW]] memory block, use _MEMFILL with a {{Parameter|value}} of 0.
 
 
+{{PageExamples}}
 ''Example:'' Filling array values quickly using FOR loops or a simple memory fill.
 {{CodeStart}} '' ''
 {{Cl|DIM}} a(100, 100) {{Cl|AS}} {{Cl|LONG}}
@@ -38,7 +39,7 @@ mema = {{Cl|_MEM (function)|_MEM}}(b())
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MEM]], [[_MEM (function)]]
 * [[_MEMIMAGE]], [[_MEMNEW]]
 * [[_MEMGET]], [[_MEMPUT]]

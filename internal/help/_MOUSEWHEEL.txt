@@ -1,18 +1,18 @@
 {{DISPLAYTITLE:_MOUSEWHEEL}}
-The '''_MOUSEWHEEL''' function returns a positive or negative [[INTEGER]] value indicating mouse scroll clicks since the last read.
+The [[_MOUSEWHEEL]] function returns a positive or negative [[INTEGER]] value indicating mouse scroll events since the last read of [[_MOUSEINPUT]].
 
 
 {{PageSyntax}}
-::: scroll% = '''_MOUSEWHEEL'''
+: {{Parameter|scrollAmount%}} = [[_MOUSEWHEEL]]
 
 
-''Usage:''
-* A return value of 1 represent one &quot;click&quot; the mouse scroll wheel was moved toward the user. 
-* A return value of -1 represent one &quot;click&quot; the mouse scroll wheel was moved away from the user.
-* After a &quot;click&quot; has been read, the value resets to 0 automatically so cumulative position values must be added.
-* If no movement on the wheel has occurred since the last [[_MOUSEINPUT]] read, _MOUSEWHEEL returns 0.
+{{PageDescription}}
+* Returns -1 when scrolling up and 1 when scrolling down with 0 indicating no movement since last read.
+* After an event has been read, the value resets to 0 automatically so cumulative position values must be added.
+* If no movement on the wheel has occurred since the last [[_MOUSEINPUT]] read, [[_MOUSEWHEEL]] returns 0.
 
 
+{{PageExamples}}
 ''Example 1:'' Reading the cumulative mouse wheel &quot;clicks&quot;.
 {{CodeStart}} '' ''
  DO: {{Cl|_LIMIT}} 100
@@ -53,14 +53,14 @@ DO
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot; '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-&lt;center&gt;Note: QB64 comes with a text file called ''readme.txt'' that is large enough for this example.&lt;/center&gt;
+&lt;center&gt;Note: You will need a text file that is large enough for this example.&lt;/center&gt;
 
 
 {{PageSeeAlso}}
 * [[_MOUSEX]], [[_MOUSEY]], [[_MOUSEBUTTON]]
 * [[_MOUSEINPUT]], [[_MOUSEMOVE]] 
 * [[_MOUSESHOW]], [[_MOUSEHIDE]]
-* [[Controller_Devices]]
+* [[Controller Devices]]
 
 
 {{PageNavigation}}

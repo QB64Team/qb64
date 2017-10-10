@@ -1,30 +1,28 @@
-The '''INPUT #''' file or port statement reads sequential data using one variable or a comma separated list of matching variable types.
-
+The [[INPUT #]] file or port statement reads sequential data using one variable or a comma separated list of matching variable types.
 
 
 {{PageSyntax}} 
-:: '''INPUT #''filenumber&amp;'', ''variable'''''[, listof!, variables$,...]
+: [[INPUT #]]{{Parameter|fileNumber&amp;}}, {{Parameter|variable1}}[, {{Parameter|variable2}}, ..., {{Parameter|variableN}}]
 
 
 {{Parameters}}
-* ''filenumber'' is a positive [[LONG]] integer value used to [[OPEN]] the file FOR [[INPUT (file mode)|INPUT]] mode only. 
-* The [[type]] of the ''variable'' define the value or list of values to be returned from the file. Numeric types must match the values returned.
-* As reflected in the syntax you can list a number of variables with different types seperated by a comma and they will hold the values in the file (keep in mind that the information in the file should reflect the variable types used).
+* {{Parameter|fileNumber&amp;}} is a positive [[LONG]] integer value used to [[OPEN]] the file FOR [[INPUT (file mode)|INPUT]] mode. 
+* The [[type]] of the ''variable'' used defines the value or list of values to be returned from the file. Numeric types must match the values returned.
+* As reflected in the syntax you can list a number of variables with different types seperated by a comma and they will hold the values in the file (keep in mind that the information in the file should match the variable types used).
 
 
-''Usage:''
-* The file number can be determined by the programmer or an unused number can be returned by the [[FREEFILE]] function.
-* INPUT # reads file data from a filenumber&amp; [[OPEN]]ed in the [[INPUT (file mode)|INPUT]] file mode.
-* INPUT # can read one variable at a time from a list or read the entire list by [[comma]] separating a list of input variables.
-* Variable types MUST match the numerical [[type]]s being read! [[STRING]] variables can return numeric values not in quotes.
+{{PageDescription}}
+* The file number can be determined by the programmer or be an unused number returned by the [[FREEFILE]] function.
+* Variable types must match the numerical [[type]]s being read. [[STRING]] variables can return unquoted numeric values.
 * Leading or trailing spaces of [[STRING]] values must be inside of quotes. [[WRITE (file statement)|WRITE #]] writes strings inside of quotes automatically. [[PRINT (file statement)|PRINT #]] removes quotes.
-* INPUT # will read each value until it encounters a comma for the next value in a list.
+* [[INPUT #]] will read each value until it encounters a comma for the next value in a list.
 * Use the [[EOF]] function to avoid reading past the end of a file.
-* Files created by [[WRITE (file statement)|WRITE #]] usually have the same number of values on each file line. If INPUT reads more or less values, it may read beyond the End of File or return bad data input!
-* Use the [[LINE INPUT (file statement)]] for files created by PRINT # or PRINT #, USING. 
-* '''INPUT can read Excel CSV files, but beware of unquoted text or numerical values containing commas!'''
+* Files created by [[WRITE (file statement)|WRITE #]] usually have the same number of values on each file line. If INPUT reads more or less values, it may read beyond the [[EOF|end of file]] or return bad data.
+* Use the [[LINE INPUT (file statement)]] for files created with PRINT # or PRINT #, USING. 
+* '''INPUT can read Excel CSV files, but beware of unquoted text or numerical values containing commas.'''
 
 
+{{PageExamples}}
 ''Example 1:'' Writes new data to a text file sequentially and reads it back to the program screen.
 {{CodeStart}} '' ''
 filename$ = &quot;testfile.dat&quot; 

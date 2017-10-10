@@ -1,21 +1,21 @@
-'''GOSUB''' sends the program to a sub program that uses a line number or label.
-
+[[GOSUB]] sends the program flow to a sub procedure identified by a line number or label.
 
 
 {{PageSyntax}}
-:: GOSUB label
+: GOSUB {{{Parameter|lineNumber}}|{{Parameter|label}}}
 
 
+{{PageDescription}}
+* Use [[RETURN]] in a sub procedure to return to the next line of code after the original [[GOSUB]] call. [[END]] or [[SYSTEM]] can also be used to end program.
+&lt;!-- needs clarification: * A procedure loop may be used to return automatically instead of using return. --&gt;
+* GOSUB and GOTO can be used '''within''' [[SUB]] or [[FUNCTION]] procedures, but cannot refer to a label located outside the procedure.
 
-* Label is any [[line number]] or line label designated with a colon after it. Don't use the colon in the call.
-* [[RETURN]] at the end of the procedure returns to the next code after the original call. [[END]] or [[SYSTEM]] can also be used to end program.
-* A procedure loop may be used to return automatically instead of using return.
-* GOSUB and GOTO can be used '''within''' [[SUB]] or [[FUNCTION]] procedures, but cannot refer to a label not in the procedure itself.
-* '''Note:''' Too many GOSUBs without a [[RETURN]] can eventually cause &quot;Out of Stack Errors&quot; in Qbasic as each GOSUB uses memory to store the location to return to. Each [[RETURN]] frees the memory of the GOSUB it returns to.
+
+==QBasic/QuickBASIC==
+* Too many GOSUBs without a [[RETURN]] can eventually cause &quot;Out of Stack Errors&quot; in QBasic as each GOSUB uses memory to store the location to return to. Each [[RETURN]] frees the memory of the GOSUB it returns to.
 
 
 {{PageExamples}}
-
 ''Example:'' Simple usage of GOSUB
 {{CodeStart}}
 {{Cl|PRINT}} &quot;1. It goes to the subroutine.&quot;
@@ -66,14 +66,12 @@ It returned to IF a = 1
 ''Explanation:'' When a = 1 it uses GOSUB to go to &quot;here:&quot;, then it uses GOTO to go back to &quot;start:&quot;. a is increased by one so when a = 2 it uses GOSUB to go to &quot;there:&quot;, and uses RETURN to go the last GOSUB (which is on the IF a = 2 line), it then encounters another RETURN which makes it return to the first GOSUB call we used on the IF a = 1 line.
 
 
-
-
-''See also:'' 
+{{PageSeeAlso}}
 * [[ON...GOSUB]]
 * [[ON...GOTO]], [[GOTO]]
-* [[ON ERROR]], [[RESUME]] {{text|{Error handlers only)}} 
+* [[ON ERROR]], [[RESUME]]
 * [[ON TIMER (n)]]
-* [[Line number]] {{text|(removal program)}}
+* [[Line number]]
 
 
 {{PageNavigation}}

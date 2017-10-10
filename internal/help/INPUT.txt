@@ -1,39 +1,39 @@
-The '''INPUT''' statement requests a [[STRING]] or numerical keyboard entry from a program user.
-
+The [[INPUT]] statement requests a [[STRING]] or numerical keyboard entry from the user.
 
 
 {{PageSyntax}}
-:: '''INPUT''' [;] '''&quot;'''[Question or statement text]'''&quot;{,|;}''' '''''variable'''''[, ...]
-:: '''INPUT ; ''variable'''''[, ...]
+: [[INPUT]] [;] &quot;[Question or statement text]&quot;{,|;} {{Parameter|variable}}[, ...]
+: [[INPUT]] ; {{Parameter|variable}}[, ...]
 
 
-''[[Parameters]]:''
-* [[semicolon]] after the INPUT keyword keeps the entry on the same row after enter is pressed  and prevents screen roll. 
-* The quoted text or question MUST be a literal [[STRING|string]] created by the programmer if used. '''Quoted text cannot use variables!'''
-* [[Quotation mark]]s are required except when a semicolon follows INPUT. A question mark will appear before entry cursor.
-* [[semicolon]] immediately after the text statement will display a ? mark with a space after it. Use a [[comma]] for input statements.
-* ''variable [[type]]'' determines the allowable numerical value entries in QB64. Text numerical entries limited to D, E, [[&amp;H]], [[&amp;O]] or [[&amp;B]].
+{{Parameters}}
+* A [[semicolon]] after the [[INPUT]] keyword keeps the entry on the same row after enter is pressed  and prevents the screen contents from rolling up.
+* The optional prompt &quot;Question or statement text&quot; must be a literal predefined [[STRING|string]]. '''The prompt cannot use a variable.'''
+* [[Quotation mark]]s are required except when a semicolon follows [[INPUT]]. A question mark will appear before the cursor.
+* A [[semicolon]] immediately after the text statement will display a question mark with a space after it. Use a [[comma]] for input statements.
 
 
-''Usage:''
-* '''QB64 will not return Redo from start errors''' as user input is limited to input within the scope of the variable [[type]] used.
-:: Text entries can use any entry including numerical. '''QB64 will ignore commas in single variable text entries!'''
-:: Numerical entries can use numbers only up to the input variable's numerical [[TYPE]] limit.
-:: [[INTEGER]], [[LONG]], and [[_INTEGER64]] entries will ignore decimal points entered and will use all numbers.
-* INPUT is capable of returning more than one ''variable'' value by separating input variables with commas in the statement. 
-::The program user will have to know to separate each entry value with a comma when they use it.
-:: [[STRING|String]] and numerical variables can both be used in multiple entry requests separated by commas.
-:: '''QB64 will allow comma separated entries to not be entered by the user without error!'''
-* '''Use [[LINE INPUT]] for text input entries that may contain commas such as address or name entries!'''  
-* The user must press enter for the INPUT procedure to end. Multiple entries can be skipped.
-* Will accept the [[scientific notation]] letter D or E inside of [[SINGLE]] or [[DOUBLE]] numerical values.
-* Numerical entries starting with [[&amp;H]], [[&amp;O]] and [[&amp;B]] can be made also.
-* INPUT removes all leading or trailing spaces in a string value entry. '''QB64 does NOT remove those spaces!'''
-* The statement stops a program until enter is pressed. Not good in programs using a mouse (see [[INKEY$]] loops).
-* Use [[_DEST]] [[_CONSOLE]] before INPUT statements to be used in a [[$CONSOLE|console]] window.
+{{PageDescription}}
+* '''QB64''' does not return ''Redo from start'' errors like QBasic did, as user input is limited to the scope of the variable [[Data types|type]] used.
+* Text entries (with a [[STRING]] variable]] can receive any characters, including numerical. '''QB64 will ignore commas in single variable text entries.'''
+* The [[Data types|type]] of the {{Parameter|variable}} used to store user input determines the valid numerical range for value entries in QB64, with non-numerical characters limited to D, E, [[&amp;H]], [[&amp;O]] or [[&amp;B]].
+** For example, if you use an [[INTEGER]] variable, as in {{InlineCode}}INPUT &quot;Initial value: &quot;, myValue%{{InlineCodeEnd}}, the valid range is -32768 to 32767.
+** [[INTEGER]], [[LONG]], and [[_INTEGER64]] entries will ignore decimal points entered and will use all numbers.
+* INPUT can be used to get more than one {{Parameter|variable}} value from the user. Do so by separating input variables with commas in the code.
+** The program must inform the user that more than one variable is requested, in order to enter each value separated with a comma at runtime.
+** [[STRING|String]] and numerical variables can both be used in multiple entry requests separated by commas.
+** '''QB64'''  allows comma separated entries to be skipped by the user without generating an error.
+* '''Use [[LINE INPUT]] for text input entries that may contain commas such as address or name entries.'''  
+* The user must press enter for the INPUT procedure to end. &lt;!-- redundant: Multiple entries can be skipped. --&gt;
+* [[INPUT]] accepts the [[scientific notation]] letters D or E in [[SINGLE]] or [[DOUBLE]] numerical values.
+* Numerical values starting with [[&amp;H]], [[&amp;O]] and [[&amp;B]] can also be entered.
+&lt;!-- not valid for QB64, not worth mentioning then denying: * INPUT removes all leading or trailing spaces in a string value entry. '''QB64 does NOT remove those spaces!''' --&gt;
+* The statement halts a program until enter is pressed, which may not be desired in programs using mouse input (see [[INKEY$]] loops).
+* Use [[_DEST]] [[_CONSOLE]] before INPUT statements to receive input from a [[$CONSOLE|console]] window.
 
 
-''Example 1:'' Using a variable in an input text message using PRINT. INPUT text cannot use variables!
+{{PageExamples}}
+''Example 1:'' Using a variable in an input text message using PRINT. INPUT prompts cannot use variables.
 {{CodeStart}} '' ''
 {{Cl|INPUT}} &quot;Enter your name: &quot;, name$
 {{Cl|PRINT}} name$ + &quot; please enter your age: &quot;;: {{Cl|INPUT}} &quot;&quot;, age% 'empty string with comma
@@ -42,7 +42,7 @@ The '''INPUT''' statement requests a [[STRING]] or numerical keyboard entry from
 :''Explanation:'' Use an empty string with a comma to eliminate the question mark that would appear without the string.
 
 
-''Example 2:'' How QB64 avoids a ''Redo from start'' multiple entry error. Use commas between values!
+''Example 2:'' How QB64 avoids a ''Redo from start'' multiple entry error. Use commas between values.
 {{CodeStart}} '' ''
 {{Cl|DO}} '' ''
   {{Cl|INPUT}} &quot;What is your name, age, and sex(M/F)&quot;; name$, age%, sex$
@@ -75,7 +75,7 @@ n$ = {{Cl|UCASE$}}(name$) '                 convert search name to upper case
 : ''Explanation:'' The {{text|red|red}} [[semicolon]] after INPUT acts like a semicolon after a [[PRINT]], which keeps the print cursor on the same row.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[INPUT$]], [[INKEY$]]
 * [[LINE INPUT]], [[LOCATE]]
 * [[INPUT (file statement)|INPUT #]], [[LINE INPUT (file statement)|LINE INPUT #]] {{text|(file input)}}

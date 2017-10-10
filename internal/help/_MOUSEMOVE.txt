@@ -1,23 +1,29 @@
 {{DISPLAYTITLE:_MOUSEMOVE}}
-The '''_MOUSEMOVE''' statement moves the mouse pointer to a new position on the screen as determined by the column and row coordinates.
+The [[_MOUSEMOVE]] statement moves the mouse pointer to a new position on the screen as determined by the column and row coordinates.
 
 
 {{PageSyntax}} 
-:::'''_MOUSEMOVE''' ''column%'', ''row%''
+:[[_MOUSEMOVE]] {{Parameter|column%}}, {{Parameter|row%}}
 
 
 {{Parameters}}
-* [[INTEGER]] ''column'' is the horizontal pixel coordinate to place the mouse pointer and can be any value from 0 to [[_WIDTH (function)|_WIDTH]](0) - 1.
-* [[INTEGER]] ''row'' is the vertical pixel position to place the mouse pointer and can be any value from 0 to [[_HEIGHT]](0) - 1
+* {{Parameter|column%}} is the horizontal pixel coordinate to place the mouse pointer and can be any value from 0 to [[_WIDTH (function)|_WIDTH]](0) - 1.
+* {{Parameter|row%}} is the vertical pixel position to place the mouse pointer and can be any value from 0 to [[_HEIGHT]](0) - 1
 
 
 {{PageDescription}}
 * Maximum coordinate values are based on a program's current [[SCREEN]] mode resolution or the pixel size set by [[_NEWIMAGE]].
-* [[SCREEN]] 0 uses text block coordinates. '''Coordinates off of the screen will create an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]]!'''
+* [[SCREEN]] 0 uses text block coordinates. '''Coordinates off the screen area will create an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]]'''
 * Can be used to position the pointer to a default dialog button or move the cursor away from a button so it is not clicked twice.
-* Does NOT require [[_MOUSEINPUT]] to be used, but all moves will be remembered and can be read by mouse functions.
+* Does not require [[_MOUSEINPUT]] to be used, but all moves will be remembered and can be read by mouse functions.
 
 
+==Availability==
+* '''Versions prior to 1.000''' (Version 1.000 had this function disabled for compatibility reasons.)
+* '''Version 1.1 and up'''
+
+
+{{PageExamples}}
 ''Example:'' How to move the mouse cursor using remembered mouse movements. Press any key to quit.
 {{CodeStart}}
 {{Cl|SCREEN}} 12
@@ -41,10 +47,9 @@ DO: {{Cl|_LIMIT}} 30
 : It is recommended that a [[WHILE]] [[_MOUSEINPUT]]: [[WEND]] loop be used immediately after to clear stored mouse events.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MOUSEX]], [[_MOUSEY]]
 * [[_NEWIMAGE]], [[_SCREENIMAGE]]
-* [[DECLARE LIBRARY|MouseMove]] {{text|(SDL Library Function)}}
 
 
 {{PageNavigation}}

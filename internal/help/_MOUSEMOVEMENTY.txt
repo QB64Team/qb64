@@ -1,13 +1,12 @@
 {{DISPLAYTITLE:_MOUSEMOVEMENTY}}
-The '''_MOUSEMOVEMENTY''' function returns the relative vertical position of the mouse cursor as positive or negative values. 
+The [[_MOUSEMOVEMENTY]] function returns the relative vertical position of the mouse cursor as positive or negative values. 
 
 
 {{PageSyntax}} 
-::: verticalmove = '''_MOUSEMOVEMENTY''' 
+: {{Parameter|verticalMove}} = [[_MOUSEMOVEMENTY]]
 
 
 * Returns the relative vertical cursor pixel position compared to the previous cursor position. Negative values are up moves.
-* '''Hides the mouse cursor''' once inside the program window area. This may lead to some ''&quot;confusion&quot;'' by the user!
 * '''Note:''' A [[_MOUSESHOW]] statement will disable [[_MOUSEMOVEMENTX]] or [[_MOUSEMOVEMENTY]] relative mouse movement reads.
 * Can also be used to check for any mouse movements to enable a program or close [[Screen Saver Programs]].
 * Sets the mouse to a relative movement mode which can be read by [[_WHEEL]] instead of [[_AXIS]] as mouse [[_DEVICES|device]] 2.
@@ -28,11 +27,11 @@ The '''_MOUSEMOVEMENTY''' function returns the relative vertical position of the
   {{Cl|PCOPY}} 1, 0
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; 'press any key to exit '' ''
 {{CodeEnd}}
-: '''NOTE:''' When using the function this way, give the user a keypress exit option! Make sure the user has some way to exit that is not dependent on clicking the X button. 
+: '''NOTE:''' When using the function this way, give the user a keypress exit option. Make sure the user has some way to exit that is not dependent on clicking the X button. 
 
 
-''See also:''
-* [[_MOUSEMOVEMENTY]]
+{{PageSeeAlso}}
+* [[_MOUSEMOVEMENTX]]
 * [[_MOUSEINPUT]], [[_MOUSEX]]
 * [[_DEVICES]], [[_DEVICEINPUT]]
 * [[_WHEEL]], [[_LASTWHEEL]]

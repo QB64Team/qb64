@@ -1,27 +1,25 @@
 {{DISPLAYTITLE:_SNDPLAYFILE}} 
-The [[_SNDPLAYFILE]] statement is a simple command to play a sound file with limited options.
+The [[_SNDPLAYFILE]] statement is used to play a sound file without generating a handle, automatically closing it after playback finishes.
 
 
 {{PageSyntax}}
-:'''_SNDPLAYFILE''' {{Parameter|filename$}}[, {{Parameter|sync%}}][, {{Parameter|volume!}}]
+:[[_SNDPLAYFILE]] {{Parameter|filename$}}[, {{Parameter|ignored%}}][, {{Parameter|volume!}}]
 
 
 {{PageDescription}}
-*Filename$ support for: WAVE, OGG, AIFF, RIFF, VOC, MP3, MIDI, MOD
-*If sync% is used an opened file must have the &quot;SYNC&quot; capability to play on a side channel. A  volume value MUST also be used!
-*If sync% is 0 or not used, the sound will be played on the main channel, so playing multiple copies of this sound at the same time won't be possible. (see the [[_SNDOPEN]] function for more information about the way QB64 manages channels)
-*If volume! is used an opened file must have the &quot;VOL&quot; capability.
-*Volume! is a [[SINGLE]] value from 0(silence) to 1(full volume). If not used, the sound will be played at full volume.
+* Supported file formats are '''WAV, OGG and MP3'''. See [[_SNDOPEN]].
+* {{Parameter|ignored%}} is an optional parameter , accepted for historical reasons.
+** In versions prior to '''build 20170811/60''', {{Parameter|ignored%}} identified if a sound was to be loaded with [[_SNDOPEN|&quot;SYNC&quot; capabilities]], (-1 for true, 0 for false). This is true for all sound files in the latest versions, making this parameter safe to be ignored.
+* {{Parameter|volume!}} is a [[SINGLE]] value from 0 (silence) to 1 (full volume). If not used or outside this range, the sound will be played at full volume.
 * [[_SNDPLAYFILE]] never creates an error. If the sound cannot be played it takes no further action.
-*Changing the usage of sync% and volume! can make a difference as to whether a sound can be played.
-*The sound is closed automatically after it finishes playing.
-* When a sound will be used often, open the file with {{KW|_SNDOPEN}} and use [[_SNDPLAYCOPY]] to play the handle instead to reduce the burden on a computer.
-* '''NOTE:''' Most of the QB64 sound statements and functions require a handle created by [[_SNDOPEN]] to be used.
+* The sound is closed automatically after it finishes playing.
+* When a sound will be used often, open the file with [[_SNDOPEN]] and use [[_SNDPLAYCOPY]] to play the handle instead to reduce the burden on the computer.
 
 
-''Example:'' Playing a song at half volume.
+{{PageExamples}}
+''Example:'' Playing a sound file at half volume.
 {{CodeStart}} '' ''
-{{Cl|_SNDPLAYFILE}} &quot;dog.wav&quot;, .5 '' ''
+{{Cl|_SNDPLAYFILE}} &quot;dog.wav&quot;, , .5 '' ''
 {{CodeEnd}}
 
 

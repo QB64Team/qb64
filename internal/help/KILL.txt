@@ -1,32 +1,30 @@
-The '''KILL''' statement deletes a file on a relative path designated by a [[STRING]] value or variable.
-
+The [[KILL]] statement deletes a file designated by a [[STRING]] value or variable.
 
 
 {{PageSyntax}}
-:: KILL filespec$
+: [[KILL]] {{Parameter|fileSpec$}}
 
 
-* Filespec is a literal or variable string path and filename. Wildcards * and ? can be used but '''be careful!'''
+* {{Parameter|fileSpec$}} is a literal or variable string path and filename. Wildcards * and ? can be used with caution.
 ::'''*''' denotes one or more wildcard letters of a name or extension
 ::'''?''' denotes one wildcard letter of a name or extension
 
-* Path can be relative to program's current location or use an absolute path from the root drive.
-* KILL cannot remove an [[OPEN]] file. The program MUST [[CLOSE]] it first.  
-* If the path or file does not exist, a &quot;File not found&quot; or &quot;Path not found&quot; [[ERROR Codes|error]] will result.
-* [[SHELL]] ''&quot;DEL /Q &quot; + filename$'' does the same without a prompt or verification for wildcard deletions.
-* [[SHELL]] ''&quot;DEL /P &quot; + filename$'' will ask for user verification. 
-* Cannot delete folders or directories! Use [[RMDIR]] to remove empty folders only!
-* '''Warning! Files deleted in DOS or QB64 will NOT go to the Recycle Bin and they CANNOT be restored!'''
+* {{Parameter|fileSpec$}} can include a path that can be either relative to the program's current location or absolute, from the root drive.
+* [[KILL]] cannot remove an [[OPEN]] file. The program must [[CLOSE]] it first.  
+* If the path or file does not exist, a &quot;File not found&quot; or &quot;Path not found&quot; [[ERROR Codes|error]] will result. See [[_FILEEXISTS]].
+* {{InlineCode}}[[SHELL]] &quot;DEL /Q &quot; + fileName${{InlineCodeEnd}} does the same without a prompt or verification for wildcard deletions.
+* {{InlineCode}}[[SHELL]] &quot;DEL /P &quot; + fileName${{InlineCodeEnd}} will ask for user verification. 
+* Cannot delete folders or directories. Use [[RMDIR]] to remove empty folders.
+* '''Warning: files deleted with [[KILL]] will not go to the Recycle Bin and they cannot be restored.'''
 
 
-
-''Example:'' 
+{{PageExamples}} 
 {{CodeStart}}
 KILL &quot;C:\Qbasic\data\2000data.dat&quot;
 {{CodeEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[RMDIR]], [[FILES]], [[SHELL]], [[OPEN]]
 * [[CHDIR]], [[MKDIR]], [[NAME]]
 * [[_FILEEXISTS]], [[_DIREXISTS]]

@@ -1,25 +1,26 @@
-'''INTEGER''' is a 2 byte number type definition that can hold whole numerical values.
+[[INTEGER]] is a 2-byte number type definition that can hold whole numerical values.
 
 
 {{PageSyntax}}
-:: DIM ''variable'' AS INTEGER
+: [[DIM]] ''variable'' AS [[INTEGER]]
 
 
 * Integers do not use decimal point values but will round those off to the nearest even whole number.
-* Qbasic Integer values can range from -32768 to 32767 without an &quot;overflow&quot; error.
-* For larger Integer values Qbasic can use the [[LONG]] Integer values.
-* '''QB64''' INTEGER values greater than 32767 may become negative signed values as the top bit designates a negative value.
-* '''QB64''' [[_UNSIGNED]] Integers can range from  0 to 65535.
+* QBasic integer values can range from -32768 to 32767 without an &quot;overflow&quot; error.
+* For larger integer values use the [[LONG]] integer type.
+* '''QB64''' [[INTEGER]] values greater than 32767 become negative signed values instead of throwing an &quot;overflow&quot; error, as the top bit designates a negative value. See example 1 below.
+* '''QB64''' [[_UNSIGNED]] integers can range from  0 to 65535.
 * '''QB64''' _UNSIGNED [[_INTEGER64]] values range from 0 to 18446744073709551615
-* Many Graphic programs require INTEGER arrays or DEFINT.
+* Many graphic programs require [[INTEGER]] arrays.
 * Variable type suffix is % or ~% for [[_UNSIGNED]]. Suffix can also be placed after a literal or hexadecimal numerical value.
 * [[LONG]] integers use the '''&amp;''' suffix and [[_INTEGER64]] use the '''&amp;&amp;''' suffix.
 * Values can be converted to 2 byte [[ASCII]] string values using [[MKI$]] and back with [[CVI]].
-* '''When a variable has not been assigned or has no type suffix, the value defaults to [[SINGLE]].'''
-* '''Warning: Qbasic keyword names cannot be used as numerical variable names with or without the type suffix!'''
+* '''When a variable has not been defined or has no type suffix, the value defaults to [[SINGLE]].'''
+* '''Warning: QBasic keyword names cannot be used as numerical variable names with or without the type suffix.'''
 
 
-''Example 1:'' Qbasic signed integers were limited from -32768 to 32767, but could not exceed 32767 or it would error:
+{{PageExamples}}
+''Example 1:'' QBasic signed integers were limited from -32768 to 32767, but could not exceed 32767 or it would error:
 {{CodeStart}} '' ''
 {{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 2000
   i% = i% + 1
@@ -47,7 +48,7 @@ i~% = 70000
 :''Explanation:'' In QB64 an unsigned integer value of 65536 would be 0 with values increasing by the value minus 65536. 
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[DIM]], [[DEFINT]]
 * [[LONG]], [[_INTEGER64]]
 * [[LEN]], [[MKI$]], [[CVI]]

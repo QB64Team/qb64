@@ -1,18 +1,19 @@
 {{DISPLAYTITLE:_LASTWHEEL}}
-The '''_LASTWHEEL''' function returns the number of wheels a specified number INPUT device on your computer has.
+The [[_LASTWHEEL]] function returns the number of wheels a specified number INPUT device on your computer has.
 
 
 {{PageSyntax}}
-::: wheel_count% = '''_LASTWHEEL('''''device_number''''')'''
+: {{Parameter|wheelCount%}} = [[_LASTWHEEL]]({{Parameter|deviceNumber}})
 
 
 * Returns the number of wheels that can be used on a specified device number within the number of [[_DEVICES]] found.
 * A valid number can be sent to the [[_WHEEL]] function to find any relative positive or negative wheel movements. 
-* The devices are listed in a numerical order determined by the OS and can be read by the [[DEVICE$]] function.
-* '''The [[_DEVICES]] function must be read BEFORE using _LASTWHEEL or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] may occur!'''
-* Devices include keyboard(1), mouse(2), joysticks, game pads and multiple stick game controllers.
+* The devices are listed in a numerical order determined by the OS and can be read by the [[_DEVICE$]] function.
+* '''The [[_DEVICES]] function must be read before using _LASTWHEEL or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] may occur.'''
+* Devices include keyboard (reported as 1), mouse (reported as 2), joysticks, game pads and multiple stick game controllers.
 
 
+{{PageExamples}}
 ''Example:'' Checking for the system's input devices and number of wheels available.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
@@ -30,7 +31,7 @@ Wheels: 3
 : ''Note:'' A mouse may have 3 wheels listed when there is only one scroll wheel.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_LASTBUTTON]], [[_LASTAXIS]]
 * [[_AXIS]], [[_BUTTON]], [[_WHEEL]]
 * [[_DEVICE$]], [[_DEVICES]]

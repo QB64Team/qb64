@@ -1,14 +1,16 @@
 {{DISPLAYTITLE:_R2D}}
-The '''_R2D''' function converts a RADIAN value into a DEGREE value. 
+The [[_R2D]] function converts a '''radian''' value into a '''degree''' value. 
 
 
 {{PageSyntax}}
-:: result = [[_R2D]](''num'')
+: {{Parameter|result!}} = [[_R2D]]({{Parameter|num}})
 
 
-*(Only available in QB64-GL, from Dirty Builds after 06/20/2014. Previous versions of QB64 don't support this command.)
+==Availability==
+* '''Version 1.000 and up.'''
 
 
+{{PageExamples}}
 ''Example:'' Coverting Radian into Degree.
 {{CodeStart}}
 INPUT &quot;Give me an angle in Radians &quot;, D
@@ -21,7 +23,7 @@ That angle in Degrees is    28.64789
 {{OutputEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[_D2G]], [[_D2R]]
 * [[_G2D]], [[_G2R]]
 * [[_R2G]]

@@ -1,18 +1,18 @@
-The '''INKEY$''' Function returns user input as [[ASCII]] [[STRING]] character(s) from the keyboard buffer.
+The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) from the keyboard buffer.
 
 
 {{PageSyntax}}
-:: keypress$ = '''INKEY$'''
+: {{Parameter|keypress$}} = [[INKEY$]]
 
 
-''Usage:''
+{{PageDescription}}
 * Returns [[ASCII]] character string values in upper or lower cases. See: [[UCASE$]] and [[LCASE$]]
 * Returns &quot;&quot; if no key has been pressed since the last keyboard read.
 * Some control keys cannot be read by INKEY$ or will return 2 byte [[ASCII]] codes.
-* INKEY$ can also clear a [[SLEEP]] keypress or the keyboard buffer in a loop.
+* INKEY$ can also be used to clear a [[SLEEP]] key press or the keyboard buffer in a loop.
 * Assign the INKEY$ return to a string variable to save the key entry.
-* [[LOCATE]] ,,1 displays the INKEY$ cursor. Use LOCATE ,,0 to turn it off.
-* Use [[_DEST]] [[_CONSOLE]] before INKEY$ statements to be used in a [[$CONSOLE|console]] window.
+* &lt;span style=&quot;font-family: Courier New, monospace, Courier; background: #dddddd&quot;&gt;[[LOCATE]] , , 1&lt;/span&gt; displays the INKEY$ cursor. Use &lt;span style=&quot;font-family: Courier New, monospace, Courier; background: #dddddd&quot;&gt;LOCATE , , 0&lt;/span&gt; to turn it off.
+* Use [[_DEST]] [[_CONSOLE]] before reading INKEY$ to receive input from a [[$CONSOLE|console]] window.
 * Returns can be evaluated as certain [[ASCII]] characters or codes.
 {{WhiteStart}}'                                '''ASCII Keyboard Codes'''
 '
@@ -40,7 +40,7 @@ The '''INKEY$''' Function returns user input as [[ASCII]] [[STRING]] character(s
 
 ==Two Byte Combinations==
 * INKEY$ 2 byte combinations always begin with [[CHR$]](0). [[ASC]] will always read the first byte code as zero. 
-* QB64 can read the second byte code using: '''{{text|code2 &lt;nowiki&gt;=&lt;/nowiki&gt; ASC(press$, 2)|green}}''' Qbasic can read it using: '''{{text|code2 &lt;nowiki&gt;=&lt;/nowiki&gt; ASC(RIGHT$(press$, 1))|green}}'''
+* Read the second byte code using: '''{{text|code2 &lt;nowiki&gt;=&lt;/nowiki&gt; ASC(press$, 2)|green}}'''
 
 
 &lt;center&gt;'''[[ASCII#Two_Byte_Codes|Two Byte Ctrl, Alt and Shift + Function key combinations]]'''&lt;/center&gt;
@@ -86,14 +86,15 @@ The '''INKEY$''' Function returns user input as [[ASCII]] [[STRING]] character(s
 {{WhiteEnd}}
 :In '''QB64''', [[CVI]] can be used to get the [[_KEYDOWN]] 2-byte code value. Example: '''{{text|status &lt;nowiki&gt;=&lt;/nowiki&gt; _KEYDOWN(CVI(CHR$(0) + &quot;P&quot;))|green}}'''
 
-==Examples==
 
+{{PageExamples}}
 ''Example 1:'' Clearing the keyboard buffer after [[SLEEP]] delays for later [[INPUT]].
 {{CodeStart}}{{Cl|PRINT}} &quot;Press any keyboard typing key to end SLEEP&quot;
 {{Cl|SLEEP}}
 {{Cl|DO}}: K$ = {{Cl|INKEY$}}: {{Cl|PRINT}} K$: {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;&quot; '' ''
 {{CodeEnd}}
-:''Explanation:'' [[SLEEP]] key presses will be kept in the keyboard buffer and may be added into an [[INPUT]] later! 
+:''Explanation:'' [[SLEEP]] key presses will be kept in the keyboard buffer and may be added into an [[INPUT]] later.
+:See also: [[_KEYCLEAR]]
 
 
 ''Example 2:'' Entering a Ctrl + letter keypress combination will print [[ASCII]] Control characters 1 to 26. .
@@ -191,16 +192,40 @@ DO
   {{Cl|_PUTIMAGE}} (x, y), image 
 {{Cl|LOOP}} '' ''
 {{CodeEnd}} {{small|Adapted from code by Daniel}}
-: ''Note:'' The image can be placed off of the screen without error! The image moves 10 pixels to move faster. [[CLS]] eliminates any background.
+: ''Note:'' The image can be placed off of the screen without error. The image moves 10 pixels to move faster. [[CLS]] eliminates any background.
+
+
+''Example 7:'' Creating upper [[ASCII]] characters in a QB program using '''Alt +''' three number keys:
+{{CodeStart}}
+DO
+    A$ = &quot;&quot;: {{Cl|WHILE}} A$ = &quot;&quot;: A$ = {{Cl|INKEY$}}: {{Cl|WEND}}
+    {{Cl|IF...THEN|IF}} {{Cl|LEN}}(A$) = 2 {{Cl|THEN}} '2 byte INKEY$ return
+        B$ = {{Cl|RIGHT$}}(A$, 1)  'read second byte
+        b% = {{Cl|ASC}}(B$)        'read second byte code 
+        {{Cl|IF...THEN|IF}} b% &gt; 119 {{Cl|AND (boolean)|AND}} b% &lt; 130 {{Cl|THEN}} ' Alt + number codes only
+           C% = b% - 119  ' convert to actual number
+           {{Cl|IF...THEN|IF}} C% &gt; 9 {{Cl|THEN}} C% = 0
+           num$ = num$ + {{Cl|LTRIM$}}({{Cl|STR$}}(C%))
+        {{Cl|END IF}}
+    {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(num$) = 3  ' 3 digit codes only
+
+{{Cl|PRINT}} num$
+{{Cl|PRINT}} {{Cl|CHR$}}({{Cl|VAL}}(num$)'' ''
+{{CodeEnd}}{{small|Code by Ted Weissgerber}}
+{{OutputStart}} 155 ¢ {{OutputEnd}}
+:''Explanation:'' Hold down Alt key and press 3 keyboard code number keys. '''Number pad keys may not work.''' Note that [[INKEY$]] cannot read Alt, Ctrl or Shift key presses without a key combination and the return is CHR$(0) + CHR$(code). 
+
 
 
 
 ''See also:'' 
 * [[_KEYHIT]], [[_KEYDOWN]], [[_MAPUNICODE]]
+* [[_KEYCLEAR]]
 * [[INPUT]], [[LINE INPUT]]
 * [[INPUT$]], [[INP]] 
 * [[CHR$]], [[ASCII]]
-* [[ASC]], [[Scancodes]](keyboard)
+* [[ASC]], [[Scancodes]] (keyboard)
 * [[Windows_Libraries#Hot_Keys_.28maximize.29|Windows hot keys]]
 
 

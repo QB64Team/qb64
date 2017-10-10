@@ -3,28 +3,14 @@ The [[_SNDPAUSED]] function checks if a sound is paused. Uses a handle parameter
 
 
 {{PageSyntax}}
-::: paused% = '''_SNDPAUSED('''{{Parameter|handle&amp;}}''')'''
+: {{Parameter|isPaused%%}} = [[_SNDPAUSED]]({{Parameter|handle&amp;}})
 
 
 {{PageDescription}}
-*Returns -1 if the sound is paused. 0 if not paused.
-*Sound files opened must have the &quot;PAUSE&quot; capability to use this function.
-{{TextStart}}    QB64 supports the following sound file formats ('''Bold is a guaranteed capability'''):
-
-             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
-             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
-             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             MID = &quot;'''VOL'''&quot;
-             MOD = &quot;VOL,PAUSE&quot;
-             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
-
-        ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
-{{TextEnd}}
+*Returns true (-1) if the sound is paused. False (0) if not paused.
 
 
-''Example:''
+{{PageExamples}}
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|_SNDPAUSED}}(h&amp;) '' ''
 {{CodeEnd}}

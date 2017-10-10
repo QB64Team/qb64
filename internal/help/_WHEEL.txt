@@ -1,18 +1,19 @@
 {{DISPLAYTITLE:_WHEEL}}
-The '''_WHEEL''' function returns the relative position of a specified wheel number on a controller device.
+The [[_WHEEL]] function returns the relative position of a specified wheel number on a controller device.
 
 
 {{PageSyntax}}
-::: move = _WHEEL(''wheel_number%'')
+: {{Parameter|move}} = [[_WHEEL]]({{Parameter|wheelNumber%}})
 
 
 * Returns -1 when scrolling up and 1 when scrolling down with 0 indicating no movement since last read.
 * Add consecutive wheel values to determine a cumulative value over time for scrolling or moving objects.
-* The ''wheel_number'' must be a number which does not exceed the number of wheels found by the [[_LASTWHEEL]] function.
+* {{Parameter|wheelNumber%}} must be a number which does not exceed the number of wheels found by the [[_LASTWHEEL]] function.
 * When a mouse indicates it has 3 wheels, the first two are for relative movement reads. The third wheel is for scrolling.
-* '''The number of [[_DEVICES]] MUST be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTWHEEL]]!'''
+* '''The number of [[_DEVICES]] must be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTWHEEL]].'''
 
 
+{{PageExamples}}
 ''Example 1:'' Reading multiple controller device buttons, axis and wheels.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
@@ -57,7 +58,8 @@ DO: {{Cl|_LIMIT}} 30  'main loop
 : ''Explanation:'' Referencing the [[_MOUSEMOVEMENTX]] function hides the mouse and sets the mouse to a relative movement mode which can be read by [[_WHEEL]]. [[_DEVICEINPUT]](2) returns -1 (true) only when the mouse is moved, scrolled or clicked.
 
 
-''See also:''
+{{PageSeeAlso}}
+* [[_MOUSEWHEEL]]
 * [[_LASTWHEEL]], [[_LASTBUTTON]], [[_LASTAXIS]]
 * [[_AXIS]], [[_BUTTON]], [[_BUTTONCHANGE]]
 * [[_DEVICES]], [[_DEVICE$]], [[_DEVICEINPUT]]

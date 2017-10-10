@@ -1,18 +1,18 @@
 {{DISPLAYTITLE:_OPENHOST}}
-The '''_OPENHOST''' function opens a Host which listens for new connections and returns a Host status handle.
+The [[_OPENHOST]] function opens a Host which listens for new connections and returns a Host status handle.
 
 
 {{PageSyntax}}
-::: host_handle = '''_OPENHOST('''&quot;TCP/IP:8080&quot;''')'''
+: {{Parameter|hostHandle}} = [[_OPENHOST]]('''&quot;TCP/IP:8080&quot;''')
 
 
 {{PageDescription}}
-* Creates an ILLEGAL FUNCTION CALL if called with a string argument of the wrong syntax.
+* Creates an [[ERROR Codes|Illegal Function Call]] error if called with a string argument of the wrong syntax.
 * The port used in the syntax example is 8080.
-* Valid handle values are usually negative number values.
-* If the syntax is correct but they fail to begin/connect a handle of 0 is returned.
+* Valid {{Parameter|hostHandle}} values are negative numbers.
+* If the syntax is correct but they fail to begin/connect a {{Parameter|hostHandle}} of 0 is returned.
 * Always check if the handle returned is 0 (failed) before continuing.  
-* {{KW|CLOSE}} {{Parameter|host_handle}} closes the host. A failed handle value of 0 does not need to be closed.
+* [[CLOSE]] {{Parameter|hostHandle}} closes the host. A failed handle value of 0 does not need to be closed.
 
 
 {{PageExamples}}
@@ -113,7 +113,7 @@ Mini Messenger
 Enter your name:_
 {{OutputEnd}}
 
-''Explanation:'' The SendMessage SUB program controls the program exit unless both Client and Host fail. Entering no message and hitting [Enter] or pressing the [Esc]] key closes the program. Both SUB programs allow a Client or Host to communicate with others simply. {{KW|INPUT (TCP/IP statement)|INPUT #}} is used to read messages and {{KW|PRINT (TCP/IP statement)|PRINT #}} is used to send messages. The client handle value is used as the port number. Keep in mind that this is just an example. A lot could be added like recording IP addresses!
+''Explanation:'' The SendMessage SUB program controls the program exit unless both Client and Host fail. Entering no message and hitting [Enter] or pressing the [Esc]] key closes the program. Both SUB programs allow a Client or Host to communicate with others simply. {{KW|INPUT (TCP/IP statement)|INPUT #}} is used to read messages and {{KW|PRINT (TCP/IP statement)|PRINT #}} is used to send messages. The client handle value is used as the port number. Keep in mind that this is just an example. A lot could be added, like recording IP addresses.
 &lt;center&gt;'''To manage the users array, see the [[_CONNECTED]] page example.'''&lt;/center&gt;
 
 

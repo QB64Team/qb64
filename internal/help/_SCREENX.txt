@@ -1,25 +1,25 @@
 {{DISPLAYTITLE:_SCREENX}}
-The '''_SCREENX''' function returns the current column pixel coordinate of the program window on the desktop.
+The [[_SCREENX]] function returns the current column pixel coordinate of the program window on the desktop.
 
 
 {{PageSyntax}}
-:: positionX&amp; = [[_SCREENX]]
+: {{Parameter|positionX&amp;}} = [[_SCREENX]]
 
 
+{{PageDescription}}
 * Function returns the current program window's upper left corner column position on the desktop.
-* Use [[_SCREENIMAGE]] to find the current user's Windows desktop resolution to adjust the position with [[_SCREENMOVE]].
+* Use [[_DESKTOPWIDTH]] and [[_DESKTOPHEIGHT]] to find the current Windows desktop resolution to adjust the position with [[_SCREENMOVE]].
 
 
+{{PageExamples}}
 ''Example:'' Clicks and opens program window header menu:
 {{CodeStart}}{{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
-
 {{Cl|_SCREENCLICK}} {{Cl|_SCREENX}} + 10, {{Cl|_SCREENY}} + 10
-
-{{Cl|PRINT}} &quot;Hello window!&quot; '' ''
+{{Cl|PRINT}} &quot;Hello window!&quot;
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_SCREENIMAGE]]
 * [[_SCREENCLICK]]
 * [[_SCREENPRINT]]

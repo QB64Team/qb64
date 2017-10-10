@@ -1,22 +1,23 @@
-The {{KW|ATN}} or arctangent function returns the angle in radians of a numerical [[TAN|tangent]] value.
+The [[ATN]] or arctangent function returns the angle in radians of a numerical [[TAN|tangent]] value.
 
 
 {{PageSyntax}}
-:: radian_angle = '''ATN(''tangent!'')'''
+: {{Parameter|radianAngle}} = [[ATN]]({{Parameter|tangent!}})
 
 
 {{Parameters}}
-* The return is that tangent value's ''angle'' in radians.
-* ''tangent'' [[SINGLE]] or [[DOUBLE]] values are use by the function. EX:'''{{text|Pi &lt;nowiki&gt;=&lt;/nowiki&gt; 4 * ATN(1)|green}}'''
+* The return is the {{Parameter|tangent!}}'s angle in '''radians'''.
+* {{Parameter|tangent!}} [[SINGLE]] or [[DOUBLE]] values are used by the function. EX:'''{{text|Pi &lt;nowiki&gt;=&lt;/nowiki&gt; 4 * ATN(1)|green}}'''
 
 
 {{PageDescription}}
 * To convert from radians to degrees, multiply radians * (180 / &amp;pi;).
-* The ''tangent'' value would be equal to the tangent value of an angle. EX: '''{{text|[[TAN]](ATN(1)) &lt;nowiki&gt;=&lt;/nowiki&gt; 1|green}}'''
+* The ''tangent'' value would be equal to the tangent value of an angle. Ex: '''{{text|[[TAN]](ATN(1)) &lt;nowiki&gt;=&lt;/nowiki&gt; 1|green}}'''
 * The function return value is between -&amp;pi; / 2 and &amp;pi; / 2.
 
 
-''Example 1:'' When the [[TAN]]gent value equals 1, the line is drawn at a 45 degree angle(.7853982 radians) where [[SIN]] / [[COS]] = 1.
+{{PageExamples}}
+''Example 1:'' When the [[TAN]]gent value equals 1, the line is drawn at a 45 degree angle (.7853982 radians) where [[SIN]] / [[COS]] = 1.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 x = 100 * {{Cl|COS}}({{Cl|ATN}}(1))
@@ -25,12 +26,13 @@ y = 100 * {{Cl|SIN}}({{Cl|ATN}}(1))
 {{CodeEnd}}
 
 
-''Example 2:'' {{KW|ATN}} can be used to define &amp;pi; in [[SINGLE]] or [[DOUBLE]] precision. The calculation can NOT be used as a [[CONST]]ant.
+''Example 2:'' [[ATN]] can be used to define &amp;pi; in [[SINGLE]] or [[DOUBLE]] precision. The calculation cannot be used as a [[CONST]]ant.
 {{CodeStart}} '' ''
 Pi = 4 * {{Cl|ATN}}(1)   '{{Cl|SINGLE}} precision
 Pi# = 4 * {{Cl|ATN}}(1#) '{{Cl|DOUBLE}} precision
 PRINT Pi, Pi# '' ''
 {{CodeEnd}}
+:''Note:'' You can use QB64's native [[_PI]] function.
 
 
 ''Example 3:'' Finds the angle from the center point to the mouse pointer. 

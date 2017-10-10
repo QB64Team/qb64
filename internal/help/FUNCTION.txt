@@ -1,49 +1,49 @@
-A '''FUNCTION''' block statement is used when creating a function procedure to return a calculated value to a program.
+A [[FUNCTION]] block statement is used to create a function procedure to return a calculated value to a program.
 
 
 {{PageSyntax}}
-:: '''FUNCTION procedure_name'''[type-suffix] [(''parameters'')]
-:: ...
-:: ... 'variable definitions and procedure statements
-:: ...
-:: '''END FUNCTION'''
+: '''FUNCTION procedureName'''[type-suffix] [(''parameters'')]
+:: ''{code}''
+:: 'variable definitions and procedure statements
+:: ⋮
+:: procedureName = returnValue
+: '''END FUNCTION'''
 
 
-* The function type can be any variable type that it will return to the program and is represented by the type suffix. 
-* '''QB64 currently cannot use FUNCTION name [[AS]] type!''' This VB functionality is promised in the future.  
-* Functions hold ONE return value in the function's name which is a variable type. Other values can be passed through ''parameter(s)''.
-* Functions are often referred to in program calculations, not called like SUB procedures. [[CALL]] cannot be used with functions!
+{{PageDescription}}
+* The function type can be any variable type that it will return to the program and is represented by the type suffix.
+* Functions hold one return value in the function's name which is a variable type. Other values can be passed through ''parameters''.
+* Functions are often referred to in program calculations, not called like SUB procedures. [[CALL]] cannot be used with functions.
 * If there are no parameters passed or they are [[SHARED]] the ''parameters'' and parenthesis are not required.
-* The [[IDE]] may '''require''' that an '''intermediate variable''' be used when calculations define the function's value more than once! In those cases, make the Function's name equal to the intermediate variable's value at the end of the Function.
 * Variable names within the procedure do not have to match the names used in the reference parameters, just the value types.
 * All [[$DYNAMIC|dynamic]] variable values return to 0 or null strings when the procedure is exited except when a variable or the entire function is [[STATIC]]. This can save program memory as all [[$DYNAMIC|dynamic]] memory used in a FUNCTION is released on procedure exit.
 * FUNCTION procedure code can use [[GOSUB]] and [[GOTO]] line numbers or labels inside of the procedure when necessary. 
 * For early function exits use [[EXIT]] [[FUNCTION]] before [[END FUNCTION]] and [[GOSUB]] procedures using [[RETURN]].
-* '''QB64 ignores all procedural [[DECLARE]] statements!''' Define all ''parameter'' [[TYPE]]s in the FUNCTION procedure.
+* '''QB64 ignores all procedural [[DECLARE]] statements.''' Define all ''parameter'' [[Data types|types]] in the FUNCTION procedure.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
-* '''Recursive Functions will require a parameter to repeat internal references currently in QB64.'''
+* The [[IDE]] can create the FUNCTION and END FUNCTION lines for you. Use the ''New FUNCTION...'' option in the Edit Menu. A box will come up for you to enter a name for the FUNCTION. Enter all code between the FUNCTION and [[END FUNCTION]] lines.
 
 
-&lt;center&gt;'''Qbasic'''&lt;/center&gt;
-* Once a FUNCTION is created and used, the Qbasic IDE will [[DECLARE]] it when the file is saved. QB64 doesn't need them!
-* The [[IDE]] can create the FUNCTION and END FUNCTION lines for you. Use the Make FUNCTION option in the Edit Menu. A box will come up for you to enter a name for the FUNCTION. Enter all code between the FUNCTION and [[END FUNCTION]] lines.
-* Qbasic's IDE may place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the FUNCTION line if it is used in the main module. It may even be the wrong variable type needed. It can be changed or removed when necessary. 
-* Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
+==QBasic/QuickBASIC==
+* Once a FUNCTION was created and used, the QBasic IDE would [[DECLARE]] it when the file was saved. '''QB64 doesn't need these declarations.'''
+* QBasic's IDE could place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the FUNCTION line if it is used in the main module. It may even be the wrong variable type needed.
+* QBasic allowed programmers to add DATA fields anywhere because the IDE separated the main code from other procedures.
 
 
+{{PageExamples}}
 ''Example 1:'' A simple function that returns the current path. Place [[FUNCTION]] or [[SUB]] procedures after the program [[END]].
 {{CodeStart}} '' ''
 {{Cl|PRINT}} &quot;Current path = &quot;; PATH$
 {{Cl|END}}
 
 {{Cl|FUNCTION}} PATH$
-f% = {{Cl|FREEFILE}}
-file$ = &quot;D0Spath.inf&quot; 'file name uses a zero to prevent an overwrite of existing file name
-{{Cl|SHELL}} {{Cl|_HIDE}} &quot;CD &gt; &quot; + file$ 'send screen information to a created text file
-{{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #f% 'file should exist with one line of text
-{{Cl|LINE INPUT (file statement)|LINE INPUT}} #f%, PATH$ 'read file path text to function name
-{{Cl|CLOSE}} #f%
-{{Cl|KILL}} file$
+    f% = {{Cl|FREEFILE}}
+    file$ = &quot;D0Spath.inf&quot; 'file name uses a zero to prevent an overwrite of existing file name
+    {{Cl|SHELL}} {{Cl|_HIDE}} &quot;CD &gt; &quot; + file$ 'send screen information to a created text file
+    {{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #f% 'file should exist with one line of text
+    {{Cl|LINE INPUT (file statement)|LINE INPUT}} #f%, PATH$ 'read file path text to function name
+    {{Cl|CLOSE}} #f%
+    {{Cl|KILL}} file$
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 
@@ -59,21 +59,21 @@ IntegerArray&amp; = ImageBufferSize&amp;(wide&amp;, deep&amp;, mode%) \ 2 ' retu
 
 {{Cl|DEFINT}} A-Z
 {{Cl|FUNCTION}} ImageBufferSize&amp; (Wide&amp;, Deep&amp;, ScreenMode%)
-{{Cl|SELECT CASE}} ScreenMode%
-  {{Cl|CASE}} 1: BPPlane = 2: Planes = 1
-  {{Cl|CASE}} 2, 3, 4, 11: BPPlane = 1: Planes = 1
-  {{Cl|CASE}} 7, 8, 9, 12: BPPlane = 1: Planes = 4
-  {{Cl|CASE}} 10: BPPlane = 1: Planes = 2
-  {{Cl|CASE}} 13: BPPlane = 8: Planes = 1
-  {{Cl|CASE ELSE}}: BPPlane = 0
-{{Cl|END SELECT}}
-ImageBufferSize&amp; = 4 + {{Cl|INT}}((Wide&amp; * BPPlane + 7) / 8) * (Deep&amp; * Planes) 'return the value to function name.
+    {{Cl|SELECT CASE}} ScreenMode%
+        {{Cl|CASE}} 1: BPPlane = 2: Planes = 1
+        {{Cl|CASE}} 2, 3, 4, 11: BPPlane = 1: Planes = 1
+        {{Cl|CASE}} 7, 8, 9, 12: BPPlane = 1: Planes = 4
+        {{Cl|CASE}} 10: BPPlane = 1: Planes = 2
+        {{Cl|CASE}} 13: BPPlane = 8: Planes = 1
+        {{Cl|CASE ELSE}}: BPPlane = 0
+    {{Cl|END SELECT}}
+    ImageBufferSize&amp; = 4 + {{Cl|INT}}((Wide&amp; * BPPlane + 7) / 8) * (Deep&amp; * Planes) 'return the value to function name.
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 :''Explanation:'' Function calculates the array byte size required when you [[GET (graphics statement)|GET]] an area of a graphics [[SCREEN]]. Each mode may require a different sized array. Since graphics uses [[INTEGER]] arrays, 2 byte elements, the size returned is divided by 2 in the IntegerArray&amp; calculation function reference. Function returns only 4 for [[SCREEN]] 0 which is a text only mode.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[SUB]], [[SCREEN (statement)]] 
 * [[DEF FN]]
 * [[EXIT]] (statement), [[END]]

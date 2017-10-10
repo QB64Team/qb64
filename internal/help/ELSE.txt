@@ -1,24 +1,32 @@
-'''ELSE''' is used in [[IF...THEN]] or [[SELECT CASE]] statements to offer an alternative to other conditional statements.
+[[ELSE]] is used in [[IF...THEN]] or [[SELECT CASE]] statements to offer an alternative to other conditional statements.
 
 
 {{PageSyntax}}
-:: IF condition &lt;&gt; 0 THEN evaluation = -1 [[ELSE]] evaluation = 0
+''Single-line syntax:''
+: [[IF]] {{Parameter|condition}} [[THEN]] ''{code}'' [[ELSE]] ''{alternative-code}''
 
 
-''Block {{PageSyntax}}
-:: IF condition &gt; 0 THEN
-:: evaluation = -1
-:: [[ELSEIF]] condition &lt; 0 THEN evaluation = -1 
-:: [[ELSE]] evaluation = 0
-:: [[END IF]]
+''Block syntax:''
+: [[IF]] {{Parameter|condition}} [[THEN]]
+:: ''{code}''
+:: ⋮
+: [[ELSEIF]] {{Parameter|condition2}} [[THEN]]
+:: ''{code}''
+:: ⋮
+: [[ELSE]]
+:: ''{alternative-code}''
+:: ⋮
+: [[END IF]]
 
 
-* ELSE is used in a IF block statement to cover any remaining conditions not covered in the block by IF or [[ELSEIF]].
+{{PageDescription}}
+* ELSE is used in a IF block statement to cover any remaining conditions not covered in the main block by IF or [[ELSEIF]].
 * [[CASE ELSE]] covers any remaining conditions not covered by the other CASE statements.
-* ELSE can also be used as a False comparison to a True IF statement when a condition will only be True or False.
+* ELSE can also be used as a false comparison to a true IF statement when a condition will only be true or false.
 * Other [[IF...THEN]] statements can be inside of an ELSE statement.
 
 
+{{PageExamples}}
 ''Example 1:'' One line IF statement
 {{CodeStart}}
 
@@ -46,7 +54,7 @@ IF a = 3 THEN a = 5 ELSE a = 3
 
 
 
-''See also:'' 
+{{PageSeeAlso}} 
 * [[ELSEIF]]
 * [[IF...THEN]]
 

@@ -1,41 +1,39 @@
-'''$INCLUDE''' is a metacommand that is used to insert a source code file into your program which is then executed at the point of the insertion.
+[[$INCLUDE]] is a metacommand that is used to insert a source code file into your program which is then executed at the point of the insertion.
 
 
 {{PageSyntax}}
-:: {[[REM]] | [[REM|']] } $INCLUDE: 'sourcefile'
+: {[[REM]] | [[REM|']] } $INCLUDE: '{{Parameter|sourceFile}}'
 
 
-* Qbasic required that a comment or REM preceded all [[Metacommand]]s at the start of the program.
-* The ''source file'' name MUST have REM or apostrophe comments around the text source file name. 
+{{PageDescription}}
+* QBasic [[Metacommand|metacommands]] must be commented with [[REM]] or an apostrophe.
+* The {{Parameter|sourceFile}} name must be enclosed in apostrophes and can include a path.
 * $INCLUDE is often used to add functions and subs from an external text QBasic code library.
-* The source file included can contain any BASIC statement except [[GOTO]] 
-* QB 4.5 can use [[DECLARE]] SUB in BI files such as [[QB.BI]]. '''QB64''' ignores Qbasic's [[DECLARE]] statements.
-* '''QB64 users can use all statements in their include files. See below.'''
-* The $INCLUDE metacommand should be the only statement on a line since execution progresses ''after'' the code line.
+* The $INCLUDE metacommand should be the only statement on a line.
 
 
-
-&lt;center&gt;'''How to $INCLUDE a BAS or Text file with a QB64 Program'''&lt;/center&gt;
-* '''QB64''' does not require a comment or [[REM]] before any [[Metacommand]]. '''Do NOT comment QB64 specific [[Metacommand]]s!'''
-* The ''source file'' name MUST have REM or apostrophe comments around the text source file name.
-* 1) Assemble your text code into a TEXT file and name it something with a '''.BI''' or '''.BM''' file name extension.
-* 2) $INCLUDE any [[DEFINT]], [[DIM]], [[CONST]], [[SHARED]] arrays or [[DATA]] at the very '''beginning''' of the main program code. 
-* 3) $INCLUDE [[SUB]]s or [[FUNCTION]]s at the very bottom of the main program code '''AFTER any SUB procedures.'''
-::: '''Note:''' [[TYPE]] definitions, [[DATA]] and [[DECLARE LIBRARY]] can be placed inside of sub-procedures.
-* 4) '''Compile''' the program with the included text files '''in the QB64 folder!''' Save the text files to use them like '''Library files'''.
-&lt;center&gt;'''Note: Once the program is compiled, the included text files are no longer needed with the program EXE.'''&lt;/center&gt;
-
-
-''Example:'' ''' '$INCLUDE:''' '[[QB.BI]]'
+===How to $INCLUDE a BAS or Text file with a QB64 Program===
+* Assemble the code to be reused into a file.
+* Common extensions are '''.BI''' (for declarations, usually included in the beginning of a program) or '''.BM''' (with SUBs and FUNCTIONs, usually included at the end of a program).
+** Any extension can be used, as long as the file contains code in plain text (binary files are not accepted).
+* $INCLUDE any [[DIM]], [[CONST]], [[SHARED]] arrays or [[DATA]] at the '''beginning''' of the main program code. 
+* $INCLUDE [[SUB]]s or [[FUNCTION]]s at the bottom of the main program code '''after any SUB procedures.'''
+** '''Note:''' [[TYPE]] definitions, [[DATA]] and [[DECLARE LIBRARY]] can be placed inside of sub-procedures.
+* '''Compile''' the program.
+*''Note: Once the program is compiled, the included text files are no longer needed with the program EXE.''
 
 
-''See Library Examples:'' 
-* [[SelectScreen]] (member $INCLUDE demo) 
-* [[FILELIST$ (function)]] (member FILE Search function)
+{{PageExamples}}
+{{CodeStart}}''' '$INCLUDE:''' 'QB.BI'{{CodeEnd}}
+
+
+===More examples===
+* [[SelectScreen]] (member-contributed $INCLUDE demo) 
+* [[FILELIST$]] (member-contributed file search function)
 * [[SAVEIMAGE]] (SUB program that creates bitmaps)
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[INTERRUPT]], [[INTERRUPTX]] 
 * [[TYPE]], [[DIM]]
 * [[Metacommand]]

@@ -1,20 +1,21 @@
 {{DISPLAYTITLE:_MAPUNICODE}}
-The '''_MAPUNICODE''' statement maps a [[Unicode]] value to an [[ASCII]] character code value.
+The [[_MAPUNICODE]] statement maps a [[Unicode]] value to an [[ASCII]] character code value.
 
 
 
 {{PageSyntax}}
-:: '''_MAPUNICODE''' Unicode&amp; '''TO''' ''ascii_code%'' 
+: [[_MAPUNICODE]] {{Parameter|unicode&amp;}} '''TO''' {{Parameter|asciiCode%}}
 
 
-* The [[LONG]] ''Unicode'' value is a [[HEX$|hexadecimal]] or decimal code value from a [[Unicode]] [[Code Pages|Code Page]]. 
-* The ''asciivalue%'' [[INTEGER]] parameter is any [[ASCII]] or Extended code value from 0 to 255.
+* The [[LONG]] {{Parameter|unicode&amp;}} value is a [[HEX$|hexadecimal]] or decimal code value from a [[Unicode]] [[Code Pages|Code Page]]. 
+* The {{Parameter|asciiCode%}} [[INTEGER]] parameter is any [[ASCII]] or Extended code value from 0 to 255.
 * Use the Unicode Page Table values listed here: [http://en.wikipedia.org/wiki/Category:DOS_code_pages DOS Code Pages] or [http://unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/ Windows Mapping]
 * Once the codes are mapped, key entries will display the unicode character in the '''monospace ''' [[_FONT|font]] selected.
 * The [[_MAPUNICODE (function)|_MAPUNICODE]] function can be used to verify or read the present [[Unicode]] UTF32 code point settings.
+* '''[[_MAPUNICODE]] can place the Unicode characters TO any [[ASCII]] code space you desire (0 to 255)'''.
 
 
-
+{{PageExamples}}
 ''Example:'' Converting the extended [[ASCII]] characters to other characters using DATA from the Unicode [[Code Pages]].
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0
@@ -48,12 +49,13 @@ Microsoft_pc_cpMIK:
 
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MAPUNICODE (function)]] 
 * [[ASCII]], [[Unicode]], [[_FONT]]
 * [[_KEYHIT]], [[_KEYDOWN]]
 * [[ASC]], [[INKEY$]], [[CHR$]]
-* [[Code Pages]] {{text|{by region)}}
+* [[Code Pages]] {{text|(by region)}}
+* [[Text Using Graphics]]
 
 
 {{PageNavigation}}

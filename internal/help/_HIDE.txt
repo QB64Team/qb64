@@ -1,18 +1,19 @@
 {{DISPLAYTITLE:_HIDE}}
-The '''_HIDE''' action is used to hide the DOS window opened by a [[SHELL]] statement.
+The [[_HIDE]] action is used to hide the console window opened by a [[SHELL]] statement.
 
 
 {{PageSyntax}}
-::: [[SHELL]] ['''_HIDE'''] {{Parameter|StringCommandLine$}}
+: [[SHELL]] ['''_HIDE'''] {{Parameter|StringCommandLine$}}
 
 
-* Can only be used in the {{KW|SHELL}} statement when using '''QB64'''.
-* Allows any DOS command line window to be hidden from view without affecting the program.
-* {{KW|_HIDE}} MUST be used when sending(&quot;piping&quot;) screen information to a file!
+{{PageDescription}}
+* Allows any command line window to be hidden from view without affecting the program.
+* [[_HIDE]] must be used when sending (&quot;piping&quot;) screen information to a file.
 * '''Note:''' Some commands may not work without adding CMD /C to the start of the command line.
 
 
-''Example:'' Subprogram that displays long and short filenames using the DIR /X option(NT or above) in SCREEN 12:
+{{PageExamples}}
+''Example:'' Subprogram that displays long and short filenames using the DIR /X option (WindowsNT or above) in SCREEN 12:
 {{CodeStart}}
 '' ''
 SUB LFN
@@ -55,7 +56,7 @@ END SUB '' ''
 
 {{PageSeeAlso}}
 * [[SHELL]], [[_DONTWAIT]]
-* [[FILELIST$ (function)]] (member [[FILES]] function)
+* [[FILELIST$ (function)]] ([[FILES]] function, member-contributed)
 
 
 {{PageNavigation}}

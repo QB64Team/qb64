@@ -1,19 +1,24 @@
-'''DEF SEG''' is used to define the area in memory to access QB64's emulated conventional memory.
+[[DEF SEG]] is used to define the area in memory to access QB64's emulated conventional memory.
+
+
+==Legacy support==
+* '''QB64 implements memory access using [[_MEM]] and related functions. For that reason, [[DEF SEG]] isn't recommended practice anymore and is supported to maintain compatibility with legacy code.'''
 
 
 {{PageSyntax}}
-:: DEF SEG [=][{segment|VARSEG(variable}]
+: [[DEF SEG]] [=][{segment|VARSEG(variable}]
 
 
+{{PageDescription}}
 * Used to set the pointer to a memory area of a variable/array or register.
 * [[PEEK]] and [[POKE]] require a segment memory address (often just 0) without using VARSEG.
 * Important segments using [[PEEK]] and [[POKE]] include &amp;HB800 (text segment) and &amp;HA000 (graphics segment).
 * [[BSAVE]] and [[BLOAD]] require a VARSEG reference to the grahic array(0 index) used.
-* ALWAYS use DEF SEG when the procedure is completed to reset the segment to Qbasic's default value!
-* '''Warning: DEF SEG, VARSEG , VARPTR, PEEK or POKE access QB64's emulated 16 bit conventional memory block!''' 
-: '''It is highly recommended that QB64's [[_MEM]] memory system be used to avoid running out of memory.'''
+* Always use DEF SEG when the procedure is completed, in order to reset the segment to QBasic's default value.
+* [[DEF SEG]], [[VARSEG]], [[VARPTR]], [[PEEK]] and [[POKE]] access QB64's emulated 16 bit conventional memory block. '''It is highly recommended to use QB64's [[_MEM]] memory system to avoid running out of memory.'''
 
-
+&lt;!--
+{{PageExamples}}
 ''Example:'' In a Qbasic(ONLY) file delete, '''SEG''' forces the parameter to be passed as a far pointer.
 {{CodeStart}} '' ''
 {{Cl|CONST}} file = &quot;trashme.tmp&quot;  'example temporary file name to delete
@@ -55,7 +60,7 @@ filename = file + {{Cl|CHR$}}(0)  'create zero string name for DOS
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{small|Code by Michael Calkins as Public Domain(2011)}}
-
+--&gt;
 
 ''See also:'' 
 * [[DEF SEG = 0]]

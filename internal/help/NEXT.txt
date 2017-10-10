@@ -1,25 +1,23 @@
-'''NEXT''' is used in a [[FOR...NEXT|FOR]] counter loop to progress through the loop count or to [[RESUME]] on the NEXT code line after an error.
+[[NEXT]] is used in a [[FOR...NEXT|FOR]] counter loop to progress through the loop count.
 
 
-{{PageSyntax}}
-:: FOR i = 1 TO 10
-::.
-::. 'loop code
-::.
-::'''NEXT''' [i]
-
-:OR
-:: RESUME {'''NEXT'''|linenumber|linelabel}
+{{PageSyntax}} 
+: [[FOR]] {{Parameter|counterVariable}} = {{Parameter|startValue}} [[TO]] {{Parameter|stopValue}} [{{KW|STEP}} {{Parameter|increment}}]
+:: ''{code}''
+:: ⋮
+: [[NEXT]] [{{Parameter|counterVariable}}]
 
 
-* NEXT is required in a FOR loop or a [[ERROR Codes|&quot;FOR without NEXT&quot; error]] will occur. 
-* The FOR variable name is not required after NEXT.
-* NEXT can be grouped with other NEXTs in nested FOR loops using colons like NEXT: NEXT
-* NEXT can also end more than one nested [[FOR...NEXT|FOR]] loop using comma separated variables like  NEXT i, j
-* NEXT increases the FOR loop count so the variable value AFTER the FOR loop will be one more count than the requested count. 
-* Also used in [[ON ERROR]] [[GOTO]] procedures after [[RESUME]] to return the program to the next code line only after an [[ERROR Codes|error]] occurs.
+{{PageDescription}}
+* [[NEXT]] is required in a FOR loop or a [[ERROR Codes|&quot;FOR without NEXT&quot; error]] will occur. 
+* The FOR variable name is not required after [[NEXT]].
+* [[NEXT]] can be grouped with other NEXTs in nested FOR loops using colons like [[NEXT]]: [[NEXT]]
+* [[NEXT]] can also end more than one nested [[FOR...NEXT|FOR]] loop using comma separated variables like [[NEXT]] i, j
+* [[NEXT]] increases the FOR loop count, so after the loop is over the counterVariable's value will be stopValue + 1 (or stopValue + increment).
+* [[NEXT]]  is also used with the [[RESUME]] statement.
 
 
+{{PageExamples}}
 ''Example:'' Finding the FOR variable value AFTER a simple counter loop to 10.
 {{CodeStart}} '' ''
 FOR i = 1 TO 10
@@ -31,10 +29,10 @@ PRINT &quot;AFTER the LOOP, NEXT makes the value of i =&quot;; i '' ''
 {{OutputStart}}
 1 2 3 4 5 6 7 8 9 10 AFTER the LOOP, NEXT makes the value of i = 11
 {{OutputEnd}}
-''Result:'' The last value of i = 11 although FOR only looped 10 times. '''Only use the count values while inside of the loop or compensate for this behavior in your code!'''
+''Result:'' The last value of i = 11 although FOR only looped 10 times. '''Only use the count values while inside of the loop or compensate for this behavior in your code.'''
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[FOR...NEXT]]
 * [[DO...LOOP]]
 * [[RESUME|RESUME NEXT]]

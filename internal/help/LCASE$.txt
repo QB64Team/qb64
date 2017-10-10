@@ -1,15 +1,16 @@
-The '''LCASE$''' function changes the uppercase letters of a {{KW|STRING}} to lowercase.
+The [[LCASE$]] function outputs an all-lowercase version of a [[STRING]].
 
 
 {{PageSyntax}}
-:''result$'' = '''LCASE$('''{{Parameter|text$}}''')'''
+:{{Parameter|result$}} = [[LCASE$]]({{Parameter|text$}})
 
 
 {{PageDescription}}
 * Normally used to guarantee that user input is not capitalized.
-* Will not affect non alphabet string characters.
+* Does not affect non-alphabetical characters.
 
 
+{{PageExamples}}
 ''Example:'' The following code guarantees that all user letter entries will be lower case:
 {{CodeStart}}{{Cl|PRINT}} &quot;Do you want to continue? (y/n)&quot;
 

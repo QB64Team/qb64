@@ -1,25 +1,24 @@
-{{KW|BINARY}} is used in an {{KW|OPEN}} statement to treat the file or port device as a {{KW|BINARY}}. 
+#REDIRECT [[OPEN#File_Access_Modes]]
+
+[[BINARY]] is used in an [[OPEN]] statement to work with the file or port device manipulating its bytes directly. 
 
 
 {{PageSyntax}}
-:{{KW|OPEN}} {{Parameter|filename$}} {{KW|FOR}} {{KW|BINARY}} {{KW|AS}} {{Parameter|#filenumber%}}
+:[[OPEN]] {{Parameter|fileName$}} [[FOR]] [[BINARY]] [[AS]] {{Parameter|#fileNumber%}}
 
 
 {{PageDescription}}
-* [[OPEN]] FOR BINARY creates the file if the filename$ does not exist.
-* {{Parameter|filename$}} is the name of the file to open, but could also configure a port.
-* {{Parameter|#filenumber%}} is the number that will represent the file when performing file operations.
+* [[OPEN]] FOR BINARY creates the file if the {{Parameter|fileName$}} does not exist.
+* {{Parameter|fileName$}} is the name of the file to open, but could also configure a port.
+* {{Parameter|#fileNumber%}} is the number that will represent the file when performing file operations.
 * BINARY files use [[GET|GET #]] and [[PUT|PUT #]] to read or write the file at any byte position.
-* '''QB64-GL''' allows [[LINE INPUT]] to be used for faster access to text file data.
-* The number of bytes read or written depends on the byte [[LEN|length]] of the variable type used.
-* When [[PUT]] is used with a variable, numerical values are converted to [[ASCII]] string types [[MKI$]], [[MKL$]], [[MKS$]], [[MKD$]] or [[_MK$]].
-* One byte [[ASCII]] {{KW|STRING}} data character values can be read as number values using {{KW|ASC}}(values from 0 to 255).
-* Some files, like bitmaps, contain standard length file information headers. 
-* Qbasic's [[BSAVE]] or BINARY save files can be read using a BINARY mode.
-* BINARY mode ignores any [[LEN]] = recordlength statement in the {{KW|OPEN}} statement.
-* Ports can also be opened in {{KW|BINARY}} mode. See: {{KW|OPEN COM}}
+* In '''version 1.000 and up''' you can use [[LINE INPUT]] in [[BINARY]] mode for faster access to text file data.
+* QBasic's [[BSAVE]] or BINARY save files can be read using BINARY mode.
+* BINARY mode ignores any [[LEN]] = recordlength statement in the [[OPEN]] statement.
+* Ports can also be opened in [[BINARY]] mode. See: [[OPEN COM]]
 
 
+{{PageExamples}}
 ''Example 1:'' Shows how a PUT variable value is converted to an [[ASCII]] string [[_MK$]] format in a BINARY file.
 {{CodeStart}} '' ''
 {{Cl|DIM}} int64 {{Cl|AS}} {{Cl|_INTEGER64}}

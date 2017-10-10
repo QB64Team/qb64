@@ -1,19 +1,20 @@
-The '''READ''' statement reads values from a DATA field and assigns them to variables.
+The '''READ''' statement reads values from a [[DATA]] field and assigns them to one or a comma separated list of variables.
 
 
 {{PageSyntax}}
-::: READ value1$[, value2!, value3%, ...]
+::: [[READ]] value1$[, value2!, value3%, ...]
 
 
-* READ statements assign variables to DATA statement values on a one-to-one basis.
-* READ statement variables may be numeric or string, and the values read must agree with the variable types specified. If they do not agree, a &quot;Syntax error&quot; results.
-* A single READ statement may access one or more DATA values. They are accessed in order. 
-* Several READ statements may access the same DATA statement at different positions.
-* [[STRING]] READ variables can read unquoted numerical DATA values also so beware!
-* Quoted DATA can only be READ using a [[STRING]] variable or an [[ERROR Codes|error]] will occur!
-* If the number of variables specified is fewer than the number of elements in the DATA statement(s), subsequent READ statements begin reading data at the first unread element. If there are no subsequent READ statements, the extra data is ignored.
-* To reread DATA statements from the start, use the [[RESTORE]] statement with or without a line label as required.
-* If the number of variables in list of variables exceeds the number of elements in the DATA field(s), an [[ERROR Codes|&quot;Out of data&quot; error]] will occur!
+* READ statements assign variables to [[DATA]] statement values on a one-to-one basis sequentially. 
+* A single READ statement may access one or more [[DATA]] values. They are accessed in the order set. 
+* Several READ statements may access the same [[DATA]] statement block at the following sequential position.
+* [[DATA]] can be READ using [[STRING]] or numerical [[TYPE]] variables singularly or in a comma separated list:
+:: [[STRING]] READ variables can read quoted or unquoted text or numerical DATA values!
+:: Numerical type READ variables can only read '''unquoted''' numerical DATA values! 
+::'''If they do not agree, a [[ERROR Codes|&quot;Syntax error&quot;]] may result when run reading string data as numerical values!'''
+* If the number of variables specified is fewer than the number of elements in the DATA statement(s), subsequent READ statements begin reading data at the next unread element. If there are no subsequent READ statements, the extra data is ignored.
+* If variable reads exceed the number of elements in the DATA field(s), an [[ERROR Codes|&quot;Out of data&quot; error]] will occur!
+* Use the [[RESTORE]] statement to reread DATA statements from the start, with or without a line label as required.
 * [[ACCESS]] READ can be used in an [[OPEN]] statement to limit file access to read only, preserving file data.
 * '''WARNING! Do not place DATA fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to compile properly!'''
 : Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
@@ -59,6 +60,8 @@ The '''READ''' statement reads values from a DATA field and assigns them to vari
 
 ''See also:'' 
 * [[DATA]], [[RESTORE]]
+* [[PRINT USING]]
+* [[OPEN]] FOR [[INPUT (file mode)|INPUT]] {{text|(file statement)}}
 
 
 {{PageNavigation}}

@@ -1,37 +1,34 @@
 {{DISPLAYTITLE:_PRINTSTRING}}
-The [[_PRINTSTRING]] statement prints text or custom font [[STRING|strings]] using graphic column and row coordinate positions.
-
+The [[_PRINTSTRING]] statement prints text [[STRING|strings]] using graphic column and row coordinate positions.
 
 
 {{PageSyntax}}
-:: '''_PRINTSTRING ('''{{Parameter|column}}, {{Parameter|row}}'''),''' {{Parameter|text_expression$}}[, {{Parameter|image_handle&amp;}}] 
+: [[_PRINTSTRING]]({{Parameter|column}}, {{Parameter|row}}), {{Parameter|textExpression$}}[, {{Parameter|imageHandle&amp;}}] 
 
 
 {{Parameters}}
 * {{Parameter|column}} and {{Parameter|row}} are [[INTEGER]] or [[LONG]] starting PIXEL (graphic) column and row coordinates to set text or custom fonts.
-* {{Parameter|text_expression$}} is any literal or variable [[STRING|string]] value of text or fonts to be displayed.
-* {{Parameter|image_handle&amp;}} is the optional image or destination to use. Zero designates current [[SCREEN (statement)|SCREEN]] page.
+* {{Parameter|textExpression$}} is any literal or variable [[STRING|string]] value of text to be displayed.
+* {{Parameter|imageHandle&amp;}} is the optional image or destination to use. Zero designates current [[SCREEN (statement)|SCREEN]] page.
 
 
 {{PageDescription}}
 * The starting coordinate sets the top left corner of the text to be printed. Use [[_FONTHEIGHT]] to calculate that text or [[_FONT|font]] position
-* The [[_FONT]] size can affect the [[SCREEN (statement)|screen]] and row heights. Custom fonts are NOT required! Can print all [[ASCII]] characters.
+* The [[_FONT]] size can affect the [[SCREEN (statement)|screen]] and row heights.
+** Custom fonts are not required. [[_PRINTSTRING]] can print all [[ASCII]] characters.
 * [[_PRINTWIDTH]] can be used to determine how wide a text print will be so that the screen width is not exceeded.
-* If the {{Parameter|image_handle&amp;}} is omitted, the current image, page or screen destination is used.
-* Can use the current font Alpha blending with a designated image background. See the [[_RGBA]] function example.
-* Use the [[_PRINTMODE]] statement before a print to deal with the text background:
-:*'''1''' _KEEPBACKGROUND: Text background transparent. Only the text is displayed over anything behind it.
-:*'''2''' _ONLYBACKGROUND: Text background is only displayed. Text is transparent to anything behind it.
-:*'''3''' _FILLBACKGROUND: Text and background block anything behind them like [[PRINT]]. Default setting.
-* Use the [[_PRINTMODE (function)]] to find the current _PRINTMODE setting number.
+* If the {{Parameter|imageHandle&amp;}} is omitted, the current image, page or screen destination is used.
+* Can use the current font alpha blending with a designated image background. See the [[_RGBA]] function example.
+* Use the [[_PRINTMODE]] statement before printing to set how the background is rendered.
+** Use the [[_PRINTMODE (function)]] to find the current _PRINTMODE setting.
+* In SCREEN 0 (text only), [[_PRINTSTRING]] works as one-line replacement for '''LOCATE x, y: PRINT text$''', without changing the current cursor position.
 
 
-{{PageErrors}}
-* Coordinates MUST be located on the screen or image area or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur.
-* '''NOTE: _PRINTSTRING can only be used in graphic, 256 color or 32 bit screen modes, NOT SCREEN 0 in QB64-SDL versions.'''
-* In QB64-GL versions, _PRINTSTRING works as '''LOCATE x, y: PRINT text$''' would while in SCREEN 0, without changing the current cursor position.
+==Availability==
+* In versions of QB64 prior to 1.000 _PRINTSTRING can only be used in graphic, 256 color or 32 bit screen modes, not SCREEN 0.''
 
 
+{{PageExamples}}
 ''Example 1:'' Printing those unprintable [[ASCII]] control characters is no longer a problem!
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 256)
@@ -47,11 +44,11 @@ The [[_PRINTSTRING]] statement prints text or custom font [[STRING|strings]] usi
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{OutputStart}}
-  ☺ ☻ ♥ ♦ ♣ ♠ • ◘ ○ ◙ ♂ ♀ ♪ ♫ ☼ ► ◄ ↕ ‼ ¶ § ▬ ↨ ↑ ↓ → ← ∟ ↔ ▲ ▼
+  ☺ ☻ ♥ ♦ ♣ ♠ • ◘ ○ ◙ ♂ ♀ ♪ ♫ ☼ ► ◄ ↕ ‼ ¶ § ▬ ↨ ↑ ↓ → ← ∟ ↔ ▲ ▼
 {{OutputEnd}}
 
 
-''Example 2:'' Making ANY '''QB64 program window''' larger using a SUB that easily converts PRINT to [[_PRINTSTRING]]. 
+''Example 2:'' Making any '''QB64 program window''' larger using a SUB that easily converts PRINT to [[_PRINTSTRING]]. 
 {{CodeStart}}
 Scr13&amp; = {{Cl|_NEWIMAGE}}(320, 200, 13)  'this is the old SCREEN 13 image page to set the image
 Big13&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256) 'use 4 X 3 aspect ratio that Qbasic used when full screen
@@ -79,7 +76,7 @@ col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'finds current pa
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
 : ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the [[IDE]] '''Search Menu'''.
-&lt;center&gt;[http://dl.dropbox.com/u/8440706/HOWIE.zip Download of Example 2 Bitmap images]&lt;/center&gt;
+&lt;center&gt;[https://www.dropbox.com/s/tcdik1ajegbeiz4/HOWIE.zip?dl=0 Download of Example 2 Bitmap images]&lt;/center&gt;
 
 
 ''Example 3:'' Rotating a text string around a graphic object.
@@ -113,9 +110,10 @@ row = 1
 
 {{PageSeeAlso}}
 * [[_NEWIMAGE]], [[_PRINTWIDTH]], [[_PRINTMODE]]
+* [[_CONTROLCHR]] {{text|(turns [[ASCII]] control characters OFF or ON)}}
 * [[_FONT]], [[_LOADFONT]], [[_FONTHEIGHT]], [[_FONTWIDTH]]
 * [[_SCREENIMAGE]], [[_SCREENPRINT]]
-* [[Text Using Graphics]] {{text|(Demo)}}
+* [[Text Using Graphics]]
 
 
 {{PageNavigation}}

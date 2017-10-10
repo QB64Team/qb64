@@ -1,19 +1,19 @@
-The {{KW|HEX$}} function returns the base 16 hexadecimal representation of an [[INTEGER]], [[LONG]] or [[_INTEGER64]] value as a [[STRING]].
+The [[HEX$]] function returns the base 16 hexadecimal representation of an [[INTEGER]], [[LONG]] or [[_INTEGER64]] value as a [[STRING]].
 
 
 {{PageSyntax}}
-:''result$'' = {{KW|HEX$}}({{Parameter|decimal_number%}})
+:{{Parameter|result$}} = [[HEX$]]({{Parameter|decimalNumber}})
 
 
 {{PageDescription}}
-* The function returns the string hexadecimal (base-16) representation of a ''decimal'' integer.
-* If the parameter is not an Integer, it will be converted to one by HEX$.
+* The function returns the string hexadecimal (base-16) representation of {{Parameter|decimalNumber}}.
 * The function does not return a leading sign space so [[LTRIM$]] is not necessary.
-* Can be used in place of [[STR$]] to trim both sides of positive decimal values 0 to 9 only.
-* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with &quot;&amp;H&quot;, like; dec = VAL(&quot;&amp;H&quot; + hexvar$).
+&lt;!-- Confusing hack hidden: * Can be used in place of [[STR$]] to trim both sides of positive decimal values 0 to 9 only.}} --&gt;
+* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with &quot;&amp;H&quot;: {{InlineCode}}dec = VAL(&quot;&amp;H&quot; + hexvar$){{InlineCodeEnd}}.
 
 
-''Example:'' Comparing decimal, hexadecimal and octal string values 0 to 15.
+{{PageExamples}}
+''Example 1:'' Comparing decimal, hexadecimal and octal string values 0 to 15.
 {{CodeStart}} '' ''
 LOCATE 2, 20: PRINT &quot;   Decimal | Hexadecimal | Octal  &quot;
 LOCATE 3, 20: PRINT &quot;-----------+-------------+--------&quot;
@@ -46,7 +46,7 @@ NEXT n% '' ''
 ''Note:'' Decimal [[STR$]] values contain a leading sign space so values require an extra space in the template using the slash format.
 
 
-''Example:'' Converting hex value to decimal.
+''Example 2:'' Converting hex value to decimal.
 {{CodeStart}}
 h$ = {{Cl|HEX$}}(255)
 {{Cl|PRINT}} &quot;Hex: &quot;; h$
@@ -57,7 +57,6 @@ h$ = {{Cl|HEX$}}(255)
 Hex: FF
 Converting Hex value to Decimal: 255
 {{OutputEnd}}
-
 
 
 {{PageSeeAlso}}

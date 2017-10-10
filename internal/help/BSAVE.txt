@@ -1,27 +1,31 @@
-[[BSAVE]] saves the contents of an image array to a {{KW|BINARY}} file.
+[[BSAVE]] saves the contents of an image array to a [[BINARY]] file.
+
+
+==Legacy support==
+* '''QB64 can save larger arrays directly to binary files using [[PUT]] # and [[GET]] # without BSAVE. For that reason, BSAVE isn't recommended practice anymore and is supported to maintain compatibility with legacy code.
 
 
 {{PageSyntax}}
-::: '''BSAVE''' {{Parameter|savefile$}}''', [[VARPTR]]'''({{Parameter|Array(index)}})''',''' {{Parameter|Filesize&amp;}}
+: [[BSAVE]] {{Parameter|saveFile$}}, [[VARPTR]]({{Parameter|array(index)}}), {{Parameter|fileSize&amp;}}
 
 
 {{Parameters}}
-* ''savefile$'' is the STRING file name of the file designated to be created.
-* ''Array(index)'' is the image [[arrays|array]] that already holds the [[GET (graphics statement)|GET]] image data.
-* ''Filesize'' must be a bit over twice the size of the elements used in an {{KW|INTEGER}} [[Arrays|array]].
+* {{Parameter|saveFile$}} is the STRING file name of the file designated to be created.
+* {{Parameter|array(index)}} is the image [[arrays|array]] that already holds the [[GET (graphics statement)|GET]] image data.
+* {{Parameter|fileSize&amp;}} must be a bit over twice the size of the elements used in an [[INTEGER]] [[Arrays|array]].
 
 
 {{PageDescription}}
 * To place image data into the array, use [[GET (graphics statement)|GET]] to store a box area image of the screen.
 * [[SCREEN]] 12 can only GET 1/3 of the screen image at one time using a 26K array. 
 * Image arrays are [[DIM]]ensioned as [[INTEGER]]. Use [[DEFINT]] when working with large graphic arrays.
-* Any arrays can be saved, but Image arrays are most common.
+* Any arrays can be saved, but image arrays are most common.
 * [[DEF SEG]] = [[VARSEG]] must be used to designate the array segment position in memory.
-* [[VARPTR]] returns the Array index offset of the memory segment. Array sizes are limited to 32767 Integer elements due to the use of [[VARPTR]] in QB and '''QB64'''!.
-* '''QB64''' can load larger arrays directly to and from binary files using [[PUT]] # and [[GET]] # without BSAVE. 
- * [[BSAVE]] files can later be opened with {{KW|BLOAD}}.
+* [[VARPTR]] returns the array index offset of the memory segment. Array sizes are limited to 32767 Integer elements due to the use of [[VARPTR]] in QBasic and '''QB64''''s emulated conventional memory.
+* [[BSAVE]] files can later be opened with [[BLOAD]].
 
 
+{{PageExamples}}
 ''Example 1:'' Saving array data to a file quickly.
 {{CodeStart}} '' ''
  LB% = {{Cl|LBOUND}}(Array)
@@ -31,11 +35,10 @@
   {{Cl|BSAVE}} filename$, {{Cl|VARPTR}}(Array(LB%)), filesize&amp;  ' changeable index
  {{Cl|DEF SEG}} '' ''
 {{CodeEnd}}
-: ''Explanation:'' Procedure determines the filesize from the array size automatically. {{KW|LBOUND}} is used with {{KW|UBOUND}} to determine array size and byte size. Works with any type of array except variable length Strings. Great for saving program data fast!
+: ''Explanation:'' Procedure determines the filesize from the array size automatically. [[LBOUND]] is used with [[UBOUND]] to determine array size and byte size. Works with any type of array except variable-length strings. Used for saving program data fast.
 
 
-
-''Example 2:'' {{KW|BSAVE}}ing a bitmap and calculating the file size
+''Example 2:'' [[BSAVE]]ing a bitmap and calculating the file size
 {{CodeStart}} '' ''
  {{Cl|DEF SEG}} = {{Cl|VARSEG}}(Image(0))
  {{Cl|PSET}}(BMPHead.PWidth - 1, BMPHead.PDepth - 1)  'color lower right corner if black
@@ -47,7 +50,46 @@
  {{Cl|DEF SEG}} '' ''
 {{CodeEnd}}
 
-: ''Explanation:'' The {{KW|FOR...NEXT|FOR}} loop reads backwards through the image array until it finds a value not 0. The {{KW|LONG}} {{Parameter|ArraySize&amp;}} value is doubled and 200 is added. {{Parameter|BMPhead.PWidth}} and {{Parameter|BMPhead.PDepth}} are found by reading the bitmap's information header using a {{KW|TYPE}} definition. See [[Bitmaps]].
+: ''Explanation:'' The [[FOR...NEXT|FOR]] loop reads backwards through the image array until it finds a value not 0. The [[LONG]] {{Parameter|ArraySize&amp;}} value is doubled and 200 is added. {{Parameter|BMPhead.PWidth}} and {{Parameter|BMPhead.PDepth}} are found by reading the bitmap's information header using a [[TYPE]] definition. See [[Bitmaps]].
+
+
+''Example 3:'' Using [[PUT]] and [[GET]] to write and read array data from a file without using BSAVE or [[BLOAD]]:
+{{CodeStart}}
+{{Cl|KILL}} &quot;example2.BIN&quot; 'removes old image file!
+
+{{Cl|SCREEN}} 13
+{{Cl|OPTION BASE}} 0
+{{Cl|REDIM}} Graphic%(1001) 'REDIM makes array resize-able later
+
+{{Cl|LINE}} (0, 0)-(10, 10), 12, B 'create image
+{{Cl|GET (graphics statement)|GET}}(0, 0)-{{Cl|STEP}}(10, 10), Graphic%() 'get image to array
+
+{{Cl|FOR...NEXT|FOR}} i% = 1000 {{Cl|TO}} 0 {{Cl|STEP}} -1 'reverse read array for size needed
+    {{Cl|IF...THEN|IF}} Graphic%(i%) &lt;&gt; 0 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}} 'find image color not black
+{{Cl|NEXT}}
+size% = i% + 4 'size plus 2 integers(4  bytes) for dimensions 
+{{Cl|REDIM}} {{Cl|_PRESERVE}} Graphic%(size%) 'resize existing array in QB64 only!
+
+{{Cl|OPEN}} &quot;example2.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1 ' {{Cl|PUT}} to a file
+{{Cl|PUT}} #1, , Graphic%()
+{{Cl|CLOSE}}
+
+{{Cl|OPEN}} &quot;example2.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2 'GET array and {{Cl|PUT}} to screen
+{{Cl|DIM}} CopyBin%({{Cl|LOF}}(2) \ 2) 'create new array sized by half of file size
+{{Cl|GET}} #2, , CopyBin%()
+{{Cl|PUT (graphics statement)|PUT}}(100, 100), CopyBin%(), {{Cl|PSET}}
+fsize% = {{Cl|LOF}}(2)
+{{Cl|CLOSE}}
+
+K$ = {{Cl|INPUT$}}(1) 'Press any key 
+{{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 20 'read all 3 arrays
+    {{Cl|PRINT}} Graphic%(i); CopyBin%(i)
+{{Cl|NEXT}}
+{{Cl|PRINT}} &quot;Array:&quot;; size%, &quot;File:&quot;; fsize%
+{{CodeEnd}}{{small|Code by Ted Weissgerber}}
+: ''Explanation:'' A 10 by 10 pixel box is saved to an array using the [[GET (graphics statement)]] and written to a BINARY file using [[PUT]] #1. Then [[GET]] #1 places the file contents into another INTEGER array and places it on the screen with the [[PUT (graphics statement)]].
+
+: The array contents: 88 is the width in the GET array for [[SCREEN]] 13 which needs divided by 8 in that mode only. The area is actually 11 X 11. The array size needed can be found by looping backwards through the array until a color value is found. '''{{text|IF array(i) &lt;&gt; 0 THEN EXIT FOR|green}}''' (66 integers) or by dividing the created BINARY file size in half (134 bytes) when known to be array sized already.
 
 
 {{PageSeeAlso}}

@@ -1,23 +1,22 @@
-The {{KW|CLNG}} function rounds decimal point numbers up or down to the nearest {{KW|LONG}} integer value. 
+The [[CLNG]] function rounds decimal point numbers up or down to the nearest [[LONG]] integer value. 
 
 
 {{PageSyntax}}
-:: value = '''CLNG('''''expression''''')''' 
+: {{Parameter|value&amp;}} = [[CLNG]]({{Parameter|expression}})
 
 
 {{Parameters}}
-* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+* {{Parameter|expression}} is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
 
 
 {{PageDescription}}
 * Used when integer values exceed 32767 or are less than -32768.
-* Values greater than .5 are rounded up; .5 or lower are rounded down like &quot;bankers rounding&quot;. 
-* CLNG can return normal {{KW|INTEGER}} values under 32768 also.
-* Use it when a number could exceed normal {{KW|INTEGER}} number limits.
+* Values greater than .5 are rounded up; .5 or lower are rounded down. 
+* CLNG can return normal [[INTEGER]] values under 32768 too.
+* Use it when a number could exceed normal [[INTEGER]] number limits.
 
 
 {{PageExamples}}
-
 {{CodeStart}}
  a&amp; = {{Cl|CLNG}}(2345678.51)
  {{Cl|PRINT}}

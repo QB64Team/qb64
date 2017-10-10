@@ -1,12 +1,12 @@
-The '''EQV''' statement returns a value based on the ''equivalence'' of two conditions or values.
+The [[EQV]] operator returns a value based on the ''equivalence'' of two conditions or values.
 
 
 {{PageSyntax}}
-:first_value {{KW|EQV}} second_value
+: {{Parameter|result}} = {{Parameter|firstValue}} [[EQV]] {{Parameter|secondValue}}
 
 
-{{PageDescription}
-* Returns True only when both values are the same.
+{{PageDescription}}
+* Returns true (-1) when both values are the same (''equivalent'').
 * Turns a bit on if both bits are the same, turns a bit off if both bits are different.
 
 

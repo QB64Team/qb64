@@ -1,11 +1,11 @@
 '''KEY(n)''' assigns, enables, disables or suspends event trapping of a keypress by setting the flag [[ON]], [[STOP]] or [[OFF]].
 
 
-
 {{PageSyntax}}
-:: KEY(''number'') {[[ON]] | [[OFF]] | [[STOP]]}
+: KEY({{Parameter|number}}) {[[ON]] | [[OFF]] | [[STOP]]}
 
 
+{{PageDescription}}
 * Predefined and user defined KEY event number assignments to use with KEY(n): 
 {{WhiteStart}}     '''1 to 10'''.............Reserved '''F1 to F10''' function keys only.
      '''11, 12, 13 and 14'''...Reserved '''Up, Left, Right and Down''' numeric keypad arrows only
@@ -15,11 +15,12 @@
 * Keypresses can be read during [[INKEY$]], [[INPUT$]] or [[INPUT]] procedures without losing the input. 
 * Key event reads will also interrupt [[SLEEP]]. 
 * [[KEY(n)]] specific status modes are:
-::*'''ON''' enables specific keypress events to be monitored. 
-::*'''STOP''' suspends specific keypress reads, but remembers them. When re-enabled the key presses will be returned.
-::*'''OFF''' disables specified keypress reads and will not remember the event.
+**'''ON''' enables specific keypress events to be monitored. 
+**'''STOP''' suspends specific keypress reads, but remembers them. When re-enabled the key presses will be returned.
+**'''OFF''' disables specified keypress reads and will not remember the event.
 
 
+{{PageExamples}}
 ''Example 1:'' How to trap the LEFT direction keys on both the dedicated cursor keypad and the numeric keypad.
 {{CodeStart}} '' ''
 {{Cl|KEY n|KEY}} 15, {{Cl|CHR$}}(128) + {{Cl|CHR$}}(75) ' Assign trap for LEFT arrow key on the cursor keypad
@@ -59,7 +60,7 @@ SLEEP '' ''
 {{CodeEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[ON KEY(n)]], [[KEY n]] {{text|(softkeys)}}
 * [[_KEYHIT]], [[_KEYDOWN]]
 * [[Keyboard scancodes]]

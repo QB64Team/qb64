@@ -1,34 +1,36 @@
-{{KW|BLOAD}} loads a binary graphics file created by {{KW|BSAVE}} to an array. 
+[[BLOAD]] loads a binary graphics file created by [[BSAVE]] to an array. 
+
+==Legacy support==
+* '''QB64 can load larger arrays directly from binary files using [[PUT]] # and [[GET]] # without BLOAD. For that reason, BLOAD isn't recommended practice anymore and is supported to maintain compatibility with legacy code.'''
 
 
 {{PageSyntax}}
-::: '''BLOAD''' {{Parameter|Filename$}}''', [[VARPTR]]('''{{Parameter|ImageArray%(index)}}''')'''
-
+: [[BLOAD]] {{Parameter|fileName$}}, [[VARPTR]]({{Parameter|imageArray%({{Parameter|index}})}})
 
 
 {{Parameters}}
-* {{Parameter|Filename$}} is the name of the file that the image should be [[BSAVE]]d to.
-* {{Parameter|ImageArray%(index)}} is the Integer [[arrays|array]] start index that holds the image you want to save.
+* {{Parameter|fileName$}} is the name of the file that the image should be [[BSAVE]]d to.
+* {{Parameter|imageArray%(index)}} is the [[INTEGER]] [[arrays|array]] start index to store the image loaded.
 
 
 {{PageDescription}}
-* There MUST be an Integer array of adequate size (up to 26K) to hold the graphic data!
-* A [[DEF SEG]] pointing to the array is required. [[DEF SEG]] = [[VARSEG]](ImageArray%(index))
+* There must be an [[INTEGER]] array of adequate size (up to 26K) to hold the graphic data.
+* A [[DEF SEG]] pointing to the array is required. [[DEF SEG]] = [[VARSEG]](imageArray%(index))
 * {{Parameter|index}} is the starting image element of the Array. Can also include RGB color settings at the start index.
 * Fullscreen images in [[SCREEN]] 12 require 3 file BLOADs. A 26K array can hold 1/3 of screen.
 * Custom RGB color settings can be embedded(indexed) at the start of the image array. 
 * BLOAD can be used to load any array that was saved with [[BSAVE]], not just graphics.
-* Array sizes are limited to 32767 Integer elements due to use of [[VARPTR]] in QB and '''QB64'''!.
-* '''QB64''' can load larger arrays directly to and from binary files using [[PUT]] # and [[GET]] # without BLOAD. 
+* Array sizes are limited to 32767 Integer elements due to use of [[VARPTR]] in QBasic and '''QB64''''s emulated conventional memory.
 
 
+{{PageExamples}}
 ''Example 1:'' Loading data to an array from a BSAVED file.
 {{CodeStart}} '' ''
  {{Cl|DEF SEG}} = {{Cl|VARSEG}}(Array(0))
    {{Cl|BLOAD}} filename$, {{Cl|VARPTR}}(Array({{Cl|LBOUND}}(Array))) ' changeable index
  {{Cl|DEF SEG}} '' ''
 {{CodeEnd}}
-:''Explanation:'' Referance any type of array that matches the data saved. Can work with Integer, Single, Double, Long, fixed length Strings or {{KW|TYPE}} arrays. {{KW|LBOUND}} determines the starting offset of the array or another index could be used.
+:''Explanation:'' Referance any type of array that matches the data saved. Can work with Integer, Single, Double, Long, fixed length Strings or [[TYPE]] arrays. [[LBOUND]] determines the starting offset of the array or another index could be used.
 
 
 ''Example 2:'' Using a QB default colored image.  
@@ -39,8 +41,6 @@
  {{Cl|DEF SEG}} '' ''
 {{CodeEnd}}
 : ''Note:'' [[PSET]] is used as a [[PUT (graphics statement)|PUT]] action that places the image over any background objects.
-
-
 
 
 {{PageSeeAlso}}

@@ -1,16 +1,18 @@
 {{DISPLAYTITLE:_FONTHEIGHT}}
-The '''_FONTHEIGHT''' function returns the font height of a font handle created by [[_LOADFONT]].
+The [[_FONTHEIGHT]] function returns the font height of a font handle created by [[_LOADFONT]].
 
 
 
 {{PageSyntax}}
-:{{Parameter|pixel_height%}} = {{KW|_FONTHEIGHT}}[({{Parameter|font_handle}})] 
+:{{Parameter|pixelHeight%}} = [[_FONTHEIGHT]][({{Parameter|fontHandle&amp;}})] 
 
 
-* Will return height of the last font used if a handle is not designated.
-* If no font is used it returns the current screen mode's text block height.
+{{PageDescription}}
+* Returns the height of the last font used if a handle is not designated.
+* If no font is set it returns the current screen mode's text block height.
 
 
+{{PageExamples}}
 ''Example:'' Finding the [[_FONT|font]] or text block size of printed [[STRING|string]] characters in graphic [[SCREEN]] modes.
 {{CodeStart}} '' ''
 DO

@@ -1,16 +1,20 @@
 {{DISPLAYTITLE:_STARTDIR$}}
-The '''_STARTDIR$''' function returns the path a user called a QB64 program from.
+The [[_STARTDIR$]] function returns the path a user called a QB64 program from.
 
 {{PageSyntax}}
-::: callpath$ = '''_STARTDIR$'''
+: {{Parameter|callPath$}} = [[_STARTDIR$]]
 
 
 {{PageDescription}}
 * Returns a [[STRING]] representing the user's program calling path.
-* Available in GL version as of March 2015.
 
 
-''Example:'' New QB64 path functions:
+==Availability==
+* '''Version 1.000 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Showcasing QB64 path functions:
 {{CodeStart}} '' ''
 {{Cl|$CONSOLE}}:ONLY
 {{Cl|_DEST}} {{Cl|_CONSOLE}}

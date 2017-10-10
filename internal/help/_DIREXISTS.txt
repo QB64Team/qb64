@@ -1,21 +1,30 @@
 {{DISPLAYTITLE:_DIREXISTS}}
-The '''_DIREXISTS''' function determines if a designated file path or folder exists and returns True or False.
+The [[_DIREXISTS]] function determines if a designated file path or folder exists and returns true (-1) or false (0).
 
 
 {{PageSyntax}}
+: {{Parameter|dirExists%}} = [[_DIREXISTS]]({{Parameter|filepath$}})
 
-::: IF _DIREXISTS(''filepath$'') THEN 
 
-
-* The ''filepath'' parameter can be a literal or variable [[STRING|string]] path value.
+{{PageDescription}}
+* The {{Parameter|filepath$}} parameter can be a literal or variable [[STRING|string]] path value.
 * The function returns -1 when a path or folder exists and 0 when it does not.
 * The function reads the system information directly without using a [[SHELL]] procedure.
 * The function will use the appropriate Operating System path separators. [[_OS$]] can determine the operating system.
 * '''This function does not guarantee that a path can be accessed, only that it exists.'''
-* '''NOTE: CD drives may request a disk when empty!''' To find drives in Windows, use this API Library: [http://www.qb64.net/wiki/index.php/Windows_Libraries#Disk_Drives Disk Drives]
+* '''NOTE: Checking if a folder exists in a CD drive may cause the tray to open automatically to request a disk when empty.''' To find drives in Windows, use this API Library: [http://www.qb64.net/wiki/index.php/Windows_Libraries#Disk_Drives Disk Drives]
 
 
-''See also:''
+{{PageExamples}}
+{{Parameter|Example:'' Checks if a folder exists before proceeding.
+{{CodeStart}}
+{{Cl|IF}} {{Cl|_DIREXISTS}}(&quot;internal\temp&quot;) THEN
+    {{Cl|PRINT}} &quot;Folder found.&quot;
+{{Cl|END IF}}
+{{CodeEnd}}}}
+
+
+{{PageSeeAlso}}
 * [[_FILEEXISTS]]
 * [[SHELL]]
 * [[_OS$]]

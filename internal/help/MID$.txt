@@ -1,24 +1,28 @@
-The '''MID$''' function returns a portion of a [[STRING]]'s value from any position inside a string.
-
+The [[MID$]] function returns a portion of a [[STRING|string]].
 
 
 {{PageSyntax}}
-:: MID$(''stringvalue$'', ''startposition%''[, ''bytes%''])
+: {{Parameter|portion$}} = MID$({{Parameter|stringValue$}}, {{Parameter|startPosition%}}[, {{Parameter|bytes%}}])
 
 
-''[[Parameters]]:''
-* ''stringvalue'' can be any literal or variable [[STRING]] value having a length. See [[LEN]].
-* ''startposition'' designates the non-zero position of the first character to be returned by the function.
-* ''bytes'' (optional) tells the function how many characters to return including the first character when it is used. 
-
-''Usage:''
-* When the ''bytes'' value is not used the function returns the remainder of the string from the starting character  position.
-* Number of character ''bytes'' should be within the string's [[LEN|length]] from the start position, but will only return the string's remainder when exceeded.
-* If the ''bytes'' value is 0 or the ''start position'' is 0 or greater than the [[LEN|length]] of the string, nothing is returned (no error).
-* In QBasic the ''start position'' cannot be zero(0) or an [[ERROR Codes|Illegal function call error]] will occur.
-* In '''QB64''' [[ASC]] string byte position reads are about '''5 times faster''' than MID$ when parsing strings. See ''Example 2'' below.
+{{Parameters}}
+* {{Parameter|stringValue$}} can be any literal or variable non-empty [[STRING]] value. Use [[LEN]] to check the length of a string.
+* {{Parameter|startPosition%}} designates the non-zero position of the first character to be returned by the function.
+* {{Parameter|bytes%}} (optional) tells the function how many characters to return including the first character at {{Parameter|startPosition%}}. 
 
 
+{{PageDescription}}
+* When the {{Parameter|bytes%}} value is not passed, the function returns the remainder of the string from the starting character position.
+* Number of character {{Parameter|bytes%}} should be within the string's [[LEN|length]] from the start position, but will only return the string's remainder when exceeded.
+* If the {{Parameter|bytes%}} value is 0 or the {{Parameter|startPosition%}} is 0 or greater than the [[LEN|length]] of the string, an empty string is returned (no error is triggered).
+* In '''QB64''', [[ASC]] string byte position reads are about '''5 times faster''' than MID$ when parsing strings. See ''Example 2'' below.
+
+
+==QBasic/QuickBASIC==
+* In QBasic the {{Parameter|startPosition%}} could not be zero (0) or an [[ERROR Codes|Illegal function call error]] would occur.
+
+
+{{PageExamples}}
 ''Example 1:'' Getting the hour and minutes from [[TIME$]]
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|TIME$}}
@@ -91,7 +95,7 @@ t5# = {{Cl|TIMER}}
 0.494141 seconds for _MEMGET String
 0.494141 seconds for _MEMGET Byte
 {{OutputEnd}}
-: ''Note:'' [[_MEMGET]] can be used with [[$CHECKING]]:OFF to cut the parsing speed even more! [[STRING]] * 1 or [[_BYTE]] are similar speeds.
+: ''Note:'' [[_MEMGET]] can be used with [[$CHECKING]]:OFF to cut the parsing speed even more. [[STRING]] * 1 or [[_BYTE]] are similar speeds.
 
 
 ''See also:''

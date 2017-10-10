@@ -1,19 +1,20 @@
 {{DISPLAYTITLE:_PRINTIMAGE}}
-The '''_PRINTIMAGE''' statement prints a colored image on the printer, stretching it to full paper size first.
+The [[_PRINTIMAGE]] statement prints a colored image on the printer, stretching it to full paper size first.
  
 
 {{PageSyntax}} 
-::: '''_PRINTIMAGE''' ''imagehandle&amp;''
+: [[_PRINTIMAGE]] {{Parameter|imageHandle&amp;}}
 
 
 
-* The imagehandle&amp; is created by the [[_LOADIMAGE]], [[_NEWIMAGE]] or [[_COPYIMAGE]] functions.
-* Use a WHITE background to save ink! [[CLS]] , 15 can be used to set the white background in any [[SCREEN]] mode.
-* The image may be stretched disproportionately using normal screen sizes! To compensate, use a [[_NEWIMAGE]] screen that is proportional to the paper size. EX: A 640 X 900 SCREEN page is roughly the same as 3 times a 210mm X 297mm paper size.
+* {{Parameter|imageHandle&amp;}} is created by the [[_LOADIMAGE]], [[_NEWIMAGE]] or [[_COPYIMAGE]] functions.
+* Use a white background to save ink. {{InlineCode}}[[CLS]] , _RGB(255, 255, 255){{InlineCodeEnd}} can be used to set the white background in any [[SCREEN]] mode.
+* The image may be stretched disproportionately using normal screen sizes. To compensate, use a [[_NEWIMAGE]] screen that is proportional to the paper size. ''e.g.'' A 640 X 900 SCREEN page is roughly the same as 3 times a 210mm X 297mm paper size.
 * [[_NEWIMAGE]] or graphic screen pages can use [[_PRINTSTRING]] to print different sized text [[_FONT]]s.
 * [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
 
 
+{{PageExamples}}
 ''Example 1:'' Shows how to transfer custom font text on screen pages to the printer in Windows. Change the font path for other OS's.
 {{CodeStart}}PageScale = 10
 PageHeight = 297 * PageScale 'A4 paper size is 210 X 297 mm
@@ -65,7 +66,7 @@ CursorPosY = CursorPosY + FontHeight            'adjust print position down
 {{Cl|RETURN}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}
-:''Explanation:'' CLS with the color white makes sure that the background is NOT printed a color! The PrintText [[GOSUB]] sets the [[COLOR]] of the text to red with a transparent background using [[_RGBA]] to set the [[_ALPHA]] transparency to zero or clear black.
+:''Explanation:'' CLS with the color white makes sure that the background is not printed a color. The PrintText [[GOSUB]] sets the [[COLOR]] of the text to red with a transparent background using [[_RGBA]] to set the [[_ALPHA]] transparency to zero or clear black.
 
 
 ''Example 2:'' Printing an old SCREEN 12 [[ASCII]] table using a deeper sized page to prevent stretching by [[_PRINTIMAGE]].
@@ -159,7 +160,7 @@ Srow = 16 * (Trow - 1): Scol = 8 * (Tcol - 1) 'convert text to graphic coordinat
 :''Explanation:'' The [[ASCII]] character table was originally made in [[SCREEN]] 12 (640 X 480) and was adapted to 256 colors.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_LOADIMAGE]], [[_NEWIMAGE]]
 * [[_COPYIMAGE]]
 * [[LPRINT]]

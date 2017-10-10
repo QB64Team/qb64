@@ -1,30 +1,31 @@
 {{DISPLAYTITLE:_FONT}}
-The '''_FONT''' statement sets the current [[_LOADFONT]] function font handle to be used by [[PRINT]]. 
+The [[_FONT]] statement sets the current [[_LOADFONT]] function font handle to be used by [[PRINT]]. 
 
 
 {{PageSyntax}}
-::: '''_FONT ''Font_handle'''''[, ''Image_handle&amp;'']
+: [[_FONT]] {{Parameter|fontHandle&amp;}}[, {{Parameter|imageHandle&amp;}}]
 
 
 {{Parameters}}
-* {{Parameter|Font_handle}} is the handle retrieved from {{KW|_LOADFONT}} function, the {{KW|_FONT (function)|_FONT}} function, or a predefined handle.
+* {{Parameter|fontHandle&amp;}} is the handle retrieved from [[_LOADFONT]] function, the [[_FONT (function)|_FONT]] function, or a predefined handle.
 * If the image handle is omitted the current image [[_DEST]]ination is used. Zero can designate the current program [[SCREEN]].
 
 
-''Usage:''
+{{PageDescription}}
 * Predefined '''QB64''' font handle numbers can be used before freeing a font:
 **'''_FONT 8 ''' - default font for [[SCREEN (statement)|SCREEN]] 1, 2, 7, 8 or 13
 **'''_FONT 14''' - default font for [[SCREEN (statement)|SCREEN]] 9 or 10
-**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ({{KW|WIDTH}} 80, 25 text only), 11 or 12
+**'''_FONT 16''' - default font for [[SCREEN (statement)|SCREEN]] 0 ([[WIDTH]] 80, 25 text only), 11 or 12
 **'''_FONT 9, 15''' and '''17''' are the double width versions of 8, 14 and 16 respectively in text '''SCREEN 0 only'''.
-* {{KW|Unicode}} characters can be assigned to a monospace font that contains those unicode characters using the {{KW|_MAPUNICODE}} TO {{KW|ASCII}} mapping statement. The optional '''IME cyberbit.ttf''' font included with QB64 can also be used.
-* Can alpha blend a font with a background screen created by {{KW|_NEWIMAGE}} in 32 bit color.
-* '''Check for valid handle values greater than 0 before using or freeing font handles!'''
-* Free '''unused''' font handles with {{KW|_FREEFONT}}. Freeing invalid handles will create an [[ERROR Codes|&quot;illegal function call&quot;]] error!
-* '''NOTE: SCREEN 0 can only use ONE font type and style per viewed SCREEN page! Font size may also affect the window size.'''
+* [[Unicode]] characters can be assigned to a monospace font that contains those unicode characters using the [[_MAPUNICODE]] TO [[ASCII]] mapping statement. The optional '''IME cyberbit.ttf''' font included with QB64 can also be used.
+* Can alpha blend a font with a background screen created by [[_NEWIMAGE]] in 32 bit color.
+* '''Check for valid handle values greater than 0 before using or freeing font handles.'''
+* Free '''unused''' font handles with [[_FREEFONT]]. Freeing invalid handles will create an [[ERROR Codes|&quot;illegal function call&quot;]] error.
+* '''NOTE: SCREEN 0 can only use one font type and style per viewed SCREEN page. Font size may also affect the window size.'''
 
 
-''Example:'' Previewing a font in SCREEN 0. A different true type font can be substituted. 
+{{PageExamples}}
+''Example:'' Previewing a font in SCREEN 0. A different true type font can be substituted below. 
 {{CodeStart}}
 
 fontpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;) + &quot;\fonts\lucon.ttf&quot; 'Find Windows Folder Path.

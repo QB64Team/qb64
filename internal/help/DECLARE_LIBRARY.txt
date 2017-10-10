@@ -2,28 +2,30 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 
 
 {{PageSyntax}}
-::: '''DECLARE''' [DYNAMIC|CUSTOMTYPE|STATIC] '''LIBRARY''' [{''&quot;Library_filename&quot;''|''&quot;Headerfile&quot;''}]
-::: {[[SUB]]|[[FUNCTION]]} [''procedure_name'' {{KW|ALIAS}}] ''library_procedure'' ([{{KW|BYVAL}}] ''parameter {{KW|AS}}'', ...)
-::::.
-::::. 'other SUBs or Functions as required
-::::.
-::: '''END DECLARE'''
+: '''DECLARE''' [DYNAMIC|CUSTOMTYPE|STATIC] '''LIBRARY''' [{''&quot;Library_filename&quot;''|''&quot;Headerfile&quot;''}]
+: {[[SUB]]|[[FUNCTION]]} [''procedure_name'' {{KW|ALIAS}}] ''library_procedure'' ([{{KW|BYVAL}}] ''parameter {{KW|AS}}'', ...)
+::.
+::. 'other SUBs or Functions as required
+::.
+: '''END DECLARE'''
 
 
 {{Parameters}}
-* The ''Library name'' is needed if a Library is NOT already loaded by QB64. Do not include the ''.DLL'', ''LIB'' or ''.H'' file extension.
-* ''Procedure_name'' is any program procedure name you want to designate by using [[ALIAS]] with the ''Library_procedure'' name. 
-* ''Library procedure'' is the actual procedure name used inside of the library or header file.
+* The {{Parameter|Library_filename}} is needed if a Library is not already loaded by QB64. Do not include the ''.DLL'', ''LIB'' or ''.H'' file extension.
+** It's always a good idea to try declaring Windows API libraries without a {{Parameter|Library_filename}} first, as most Windows headers are already included in QB64 source.
+* Begin the {{Parameter|Library_filename}} with '''./''' or '''.\''' to make it relative to the path where your source file is saved, so you can keep all your project files together.
+* {{Parameter|Procedure_name}} is any program procedure name you want to designate by using [[ALIAS]] with the {{Parameter|Library_procedure}} name. 
+* {{Parameter|Library procedure}} is the actual procedure name used inside of the library or header file.
 
 
-''Library Types:''
+===Library Types===
 * '''[[DECLARE DYNAMIC LIBRARY|DYNAMIC]]''' links a program to functions in dynamically linkable libraries. At present, only .DLL files are supported
-* '''CUSTOMTYPE''' is already implied when using [[DECLARE DYNAMIC LIBRARY]]. This type of library just allows the same flexibility to apply when referencing STATIC libraries that are used to refer to dynamic libraries. Supports shared object (*.so) libraries
+* '''CUSTOMTYPE''' is already implied when using [[DECLARE DYNAMIC LIBRARY]]. This type of library just allows the same flexibility to apply when referencing STATIC libraries that are used to refer to dynamic libraries. Supports shared object (*.so) libraries.
 * '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't use shared libraries (DLLs are different) this does not affect Windows users.
 
 
 {{PageDescription}}
-* The declaration can be used with C++ sub-procedures, Windows API and QB64 SDL Libraries.
+* The declaration can be used with C++ sub-procedures, Windows API and QB64 SDL (versions prior to 1.000)/OpenGL (version 1.000 and up) Libraries.
 * ''Library filename''s can be listed to combine more than one DLL or Header file name or path into one DECLARE LIBRARY block.
 * C procedures can use a header file name. File code must be included with program code. Do not include the ''.h'' extension.
 * ''Parameters'' used by the Library procedure must be passed by value ([[BYVAL]]) except for [[STRING]] characters.
@@ -31,10 +33,11 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 
 * The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
 * Declarations can be made inside of [[SUB]] or [[FUNCTION]] procedures. Declarations do not need to be at program start.
-* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that ANY procedure will work and cannot quarantee ANY troubleshooting help!'''
+* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that any procedure will work and cannot quarantee any troubleshooting help.'''
 
 
-''Example 1:'' Using a '''QB64 SDL ONLY''' library procedure as a program SUB procedure to move the mouse pointer to a coordinate.
+{{PageExamples}}
+''Example 1:'' Using an '''SDL''' library procedure as a program SUB procedure to move the mouse pointer to a coordinate (works in versions prior to 1.000):
 {{CodeStart}} '' ''
 {{Cl|DECLARE LIBRARY}}
   {{Cl|SUB}} SDL_WarpMouse ({{Cl|BYVAL}} column {{Cl|AS}} {{Cl|LONG}}, {{Cl|BYVAL}} row {{Cl|AS}} {{Cl|LONG}}) 'SDL procedure name
@@ -55,7 +58,7 @@ SDL_WarpMouse x, y     'call SDL library procedure
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}
-:''Explanation:'' The SDL Library is already included and loaded with QB64, so these procedures are directly available for use. 
+:''Explanation:'' The SDL Library is included and loaded with QB64 versions prior to 1.000, so these procedures are directly available for use. 
 
 &lt;center&gt;'''Using [[ALIAS]] to create a program SUB or FUNCTION''' using '''QB64 SDL ONLY'''&lt;/center&gt;
 {{CodeStart}} '' ''
@@ -111,29 +114,20 @@ PRINT &quot;&amp;H&quot; + HEX$(GetLPTPortAddress%(1))
 {{TextEnd}}
 
 
-&lt;center&gt;'''SDL Library Documentation'''&lt;/center&gt;
-:Library documentation is downloadable here in PS format: Use either [http://get.adobe.com/reader/ Acrobat Reader] or [http://download.cnet.com/PDF-XChange-Viewer/3000-10743_4-10598377.html PDF XChange Viewer] 
-
-&lt;center&gt;[http://www.libsdl.org/archives/sdldoc-ps.zip SDL Library Ebook Documentation Download]&lt;/center&gt;
-
-: Note: Unzip the downloaded &quot;SDLdoc.PS&quot; file and click on it. Make it into an Ebook in top choice box where it says Screen.
-
-&lt;center&gt;[http://www.libsdl.org/archives/sdldoc-html.zip SDL Library HTML Browser References]&lt;/center&gt;
-
-
 &lt;center&gt;Galleon's '''OpenGL''' Library with demo program download: http://www.qb64.net/gl_package.zip&lt;/center&gt;
 
 
-&lt;center&gt;'''Note: QB64 requires all DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder!'''&lt;/center&gt;
+&lt;center&gt;'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center&gt;
+&lt;center&gt;'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center&gt;
 
 
 ''See also:''
 * [[DECLARE DYNAMIC LIBRARY]]
 * [[SUB]], [[FUNCTION]]
 * [[BYVAL]], [[ALIAS]]
-* [[C Libraries]], [[SDL Libraries]], [[DLL Libraries]], [[Windows Libraries]]
+* [[C Libraries]], [[DLL Libraries]], [[Windows Libraries]]
 * [[Port Access Libraries]]
-* [[OpenGL Libraries]]
+* [[OpenGL Libraries]], [[SDL Libraries]]
 * [[SFML Libraries]]
 * [[SQL Client]]
 * [http://www.qb64.net/forum/index.php?topic=11810.msg102081#msg102081 DECLARE LIBRARY and C++ Variable Types]

@@ -1,20 +1,18 @@
-The '''COMMAND$''' [[STRING]] function returns the spaced [[DOS]] command line argument(s) passed when a program is run.
-
+The '''COMMAND$''' function returns the command line argument(s) passed when a program is run.
 
 
 {{PageSyntax}} 
-::: option$ = [[COMMAND$]][(count%)]
+: {{Parameter|commandLine$}} = [[COMMAND$]][(count%)]
 
 
-* Useful when the programmer wants to send specific program options to the command line for later use by the called program.
-* The [[STRING]] return value is any '''spaced quoted or unquoted''' parameter(s) following the filename in a [[RUN]] or command line statement.
-* '''QB64''' does not '''require or return all [[UCASE$|uppercase]]''' values so keep that fact in mind when checking parameters passed!
-* In '''QB64 only''', COMMAND$ can work as an array to return specific elements passed to the command line. COMMAND$(2) would return the '''spaced''' second parameter passed at the command line.  This can be used on modern operating systems to successfully retrieve file names and arguments which contain spaces properly. (versions after May 20, 2015) 
-* Use the [[_COMMANDCOUNT]] function to find the number of spaced parameters passed to a program via the command line. (versions after May 20, 2015) '''{{text|See ''Example 2''|green}}'''.
-* Reading the spaced command options in the '''COMMAND$(i)''' array in a loop can also be done and reading a COMMAND$ without parameters is also possible. (versions after May 20, 2015) '''{{text|See ''Example 3''|green}}'''.
-* COMMAND$ was '''not available in QuickBasic versions below 4.0''' and returned [[UCASE$|uppercase]] [[STRING]] parameters no matter what case they were sent originally. 
+{{PageDescription}}
+* The [[STRING]] return value is anything typed after a program's executable file name in command line (or using the [[RUN]] statement).
+* Unlike QuickBASIC, '''QB64''' does not return all [[UCASE$|uppercase]] values so keep that in mind when checking parameters.
+* In '''QB64''', COMMAND$ works as an array to return specific elements passed to the command line. COMMAND$(2) would return the second parameter passed at the command line. Arguments can contain spaces if they are passed inside quotation marks. This can be used to properly retrieve file names and arguments which contain spaces.
+* Use the [[_COMMANDCOUNT]] function to find the number of parameters passed to a program via the command line. See ''Example 2'' below.
 
 
+{{PageExamples}}
 ''Example 1:'' Compile both programs. ProgramA [[RUN]]s ProgramB with a parameter passed following the filename: 
 {{CodeStart}}
 {{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramA&quot;
@@ -28,7 +26,7 @@ K$ = {{Cl|INPUT$}}(1)
 : ''ProgramB'' checks for fullscreen parameter pass in QB64 and goes full screen. 
 {{CodeStart}} '' ''
 {{Cl|LOCATE}} 17, 36: {{Cl|PRINT}} &quot;ProgramB&quot;
-parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}}) 'QB64 only as QB4.5 will always return upper case
+parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}}) 'UCASE$ is needed in QB64 only, as QB4.5 will always return upper case
 {{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} &quot;Parameter = &quot; + parameter$
 {{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = &quot;FS&quot; {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
 
@@ -55,7 +53,7 @@ a data file
 : ''Explanation: If we start ''ThisProgram.exe'' with the command line '''ThisProgram -l &quot;a data file&quot;''', COMMAND$ will return a single string of &quot;-1 a data file&quot; which might be hard to process and interpret properly, but COMMAND$(1) would return &quot;-l&quot; and COMMAND$(2) would return the quoted &quot;a data file&quot; option as separate entries for easier parsing and processing.
 
 
-''Example 3:'' As part of the command array upgrade, you can also just read the array to see how many commands were sent: 
+''Example 3:'' As part of the command array syntax, you can also just read the array to see how many commands were sent (or simply check [[_COMMANDCOUNT]]): 
 {{CodeStart}}DO
     count = count + 1
     cmd$ = {{Cl|COMMAND$}}(count)
@@ -64,10 +62,9 @@ a data file
 {{Cl|LOOP}} '' ''
 count = count - 1 'save the number of parameters sent to this program when run
 {{CodeEnd}}
-:'''Note:''' When using this command [[DO]] loop read procedure, the spaced commands sent must not be empty strings as the count will end!
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[SHELL]], [[RUN]]
 * [[UCASE$]], [[LCASE$]]
 * [[_COMMANDCOUNT]]

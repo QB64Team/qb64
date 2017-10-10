@@ -2,20 +2,20 @@ The '''PSET''' grahics [[SCREEN (statement)|SCREEN]] statement sets a pixel to a
 
 
 {{PageSyntax}}
-:: '''PSET''' [STEP]'''(''column%'', ''row%'')'''[, ''color_attribute'']
+:: '''PSET''' [STEP]'''('''''column%'', ''row%''''')'''[, ''colorAttribute'']
 
 
 ''[[Parameters]]:''
 * Can use [[STEP]] relative graphics coordinates from a previous graphic object.
 * ''Column'' and ''row'' can be literal or variable [[INTEGER]] coordinates values which can be offscreen.
-* If the ''color attribute'' is omitted, PSET will adopt a color from a previous [[PRINT]] or graphics object's color.
+* If the ''colorAttribute'' is omitted, PSET will use the current [[_DEST|destination]] page's _DEFAULTCOLOR.
 
 
 ''Usage:''
 * ''Color attributes'' are limited to the SCREEN mode used. Any color value other than 0 will be white in [[SCREEN (statement)|SCREEN]]s 2 or 11.
 * PSET can locate other graphics objects and color [[DRAW]] statements.
 * The PSET action can be used in a graphics [[PUT (graphics statement)|PUT]] to produce an identical image on any background.
-* The QB64 and QB graphic cursor is set to the center of the program window on program start.
+* The graphic cursor is set to the center of the program window on program start for [[STEP]] relative coordinates.
 * '''PSET can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only! (Or in any _NEWIMAGE(x, y, 0) screens which are text only as well.)''' 
 
 

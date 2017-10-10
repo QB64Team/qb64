@@ -1,34 +1,33 @@
-The '''ENVIRON$''' function returns a [[STRING]] environmental value from the '''Windows''' PC's environmental settings list.
-
+The [[ENVIRON$]] function returns a [[STRING]] environmental value from '''Windows'''' environmental settings list.
 
 
 {{PageSyntax}} 
-
-::: setting$ = ENVIRON$({''list_number%''|''systemID$''})
-
-
-* The function can use an [[INTEGER]] ''list_number'' order value or [[STRING]] ''systemID$'' parameter.
-* ''List_number'' refers to the number order of the environmental list. Returns are not in any particular numerical order.
-* ''SystemID'' is the specific [[STRING]] parameter requested. Returns that environmental [[STRING]] setting only:
-::* &quot;BLASTER&quot; = current Sound Blaster settings if installed. 
-::* &quot;COMPUTERNAME&quot; or &quot;USERDOMAIN&quot; = OEM PC serial number or the computer name assigned by owner.
-::* &quot;HOMEDRIVE&quot; or &quot;SystemDrive&quot; = Windows root drive, normally C: on single partition drives.
-::* &quot;HOMEPATH&quot; = current user's Administrator or the single user's &quot;OWNER&quot; folder path.
-::* &quot;OS&quot; = Windows Operating System version. Often WindowsNT these days.
-::* &quot;PATH&quot; = full Windows path settings that windows uses to look for file extensions in PATHEXT below.
-::* &quot;PATHEXT = Windows extensions used:  COM, EXE, BAT, CMD, VBS, VBE, JS, JSE, WSF, WSH, MSC  
-::* &quot;PROCESSOR_ARCHITECTURE&quot; = x86 for 32 or 64 bit so far.
-::* &quot;PROGRAMFILES&quot; = path to Program files folder normally &quot;C:\PROGRAM FILES&quot;
-::* &quot;PROMPT&quot; = $P$G normaly on Windows NT. Windows 95 and 98 = &quot;[WIN 98]$P$G&quot; but cannot run QB64! 
-::* &quot;SYSTEMROOT&quot; or &quot;windir&quot; = path to the Windows folder including the drive letter like &quot;C:\WINDOWS&quot;
-::* &quot;TEMP&quot; or &quot;TMP&quot; = path to TEMP folder. &quot;C:\TEMP&quot; or the user specific temp folder on later versions.
-::* &quot;USERNAME&quot; = current Administrator name or &quot;OWNER&quot;.
-: ''Note:'' There are other possible system settings that are not listed or never used on older versions! Run ''Example 1''
-* The OS in Win 9X or ME can be found in the &quot;PROMPT&quot; parameter ID. Returns are limited in Win 9X and ME.
-* ''Note:'' '''QB64''' may not return the same environment list as Qbasic or SET does in DOS.
+: {{Parameter|setting$}} = [[ENVIRON$]]({{{Parameter|listIndex%}}|{{Parameter|systemID$}}})
 
 
+{{PageDescription}}
+* The function can use an [[INTEGER]] {{Parameter|listIndex%}} value or [[STRING]] {{Parameter|systemID$}} parameter.
+* {{Parameter|listIndex%}} refers to the number order of the environmental list. Returns are not in any particular numerical order.
+* {{Parameter|systemID$}} is the specific [[STRING]] parameter requested. Returns only the specified environmental [[STRING]] setting:
+** &quot;BLASTER&quot; = current Sound Blaster settings if installed. 
+** &quot;COMPUTERNAME&quot; or &quot;USERDOMAIN&quot; = OEM PC serial number or the computer name assigned by owner.
+** &quot;HOMEDRIVE&quot; or &quot;SystemDrive&quot; = Windows root drive, normally C: on single partition drives.
+** &quot;HOMEPATH&quot; = current user's Administrator or the single user's &quot;OWNER&quot; folder path.
+** &quot;OS&quot; = Windows Operating System version. Often WindowsNT in modern computers.
+** &quot;PATH&quot; = full path setting that Windows uses to look for file extensions in PATHEXT below.
+** &quot;PATHEXT = Windows extensions used:  COM, EXE, BAT, CMD, VBS, VBE, JS, JSE, WSF, WSH, MSC  
+** &quot;PROCESSOR_ARCHITECTURE&quot; = x86 for 32 or 64 bit.
+** &quot;PROGRAMFILES&quot; = path to ''Program files'' folder, normally &quot;C:\PROGRAM FILES&quot;
+** &quot;PROMPT&quot; = normally &quot;$P$G&quot; on Windows NT.
+** &quot;SYSTEMROOT&quot; or &quot;windir&quot; = path to the Windows folder including the drive letter like &quot;C:\WINDOWS&quot;
+** &quot;TEMP&quot; or &quot;TMP&quot; = path to TEMP folder. &quot;C:\TEMP&quot; or the user specific temp folder on later versions.
+** &quot;USERNAME&quot; = current Administrator name or &quot;OWNER&quot;.
+: ''Note:'' There are other possible system settings that are not listed or never used on older versions. Run ''Example 1'' below for a complete list in your system.
+&lt;!-- Sentence removed for being unclear/needs revision: * The OS in Win 9X or ME can be found in the &quot;PROMPT&quot; parameter ID. Returns are limited in Win 9X and ME. --&gt;
+* ''Note:'' '''QB64''' may not return the same environment list as QBasic or SET did in DOS.
 
+
+{{PageExamples}}
 ''Example 1:'' Viewing the list of environmental parameter settings using a counter loop like SET does in DOS.
 
 {{CodeStart}} '' ''
@@ -64,7 +63,7 @@ USERDOMAIN=TED-LAPTOP
 USERNAME=Ted
 USERPROFILE=C:\Users\Ted
 {{OutputEnd}}
-:''Note:'' Windows environmental settings are listed alphabetically, 20 at a time. '''QB64 may not read all of them or return an empty string!''' The settings above were returned with SET in DOS. PROMPT returned nothing where SET returned $P$G. 
+:''Note:'' Windows environmental settings are listed alphabetically, 20 at a time. '''QB64 may not read all of them or may return an empty string.''' The settings above were returned with SET in DOS. PROMPT returned nothing where SET returned $P$G. 
 
 
 ''Example 2:'' Creating a shortcut on a user's desktop for QB64.EXE using the program's icon. Must be run in program's folder to work!
@@ -114,8 +113,7 @@ Q$ = {{Cl|CHR$}}(34)                       '=== Write URL Shortcut file info.
 {{CodeEnd}}
 {{small|Adapted from code by Dav}}
 : ''Explanation:'' The SUB program finds the current program's path and user's desktop path. It then creates the shortcut on the desktop with a program icon. The custom icon should be in the program's folder. If an environmental path is not found, the shortcut is placed in the program's folder. The SUB can be added to any program. 
-
-&lt;center&gt;{{Text|'''NOTE:''' A temorary file named PRGMDIR.INF is created and deleted.|darkred}}&lt;/center&gt;
+:{{Text|'''NOTE:''' A temorary file named PRGMDIR.INF is created and deleted in the example above.}}
 
 
 ''See also:'' 

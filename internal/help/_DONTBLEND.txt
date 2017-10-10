@@ -3,20 +3,21 @@ The [[_DONTBLEND]] statement turns off 32 bit alpha blending for the current ima
 
 
 {{PageSyntax}}
-: '''_DONTBLEND''' [{{Parameter|imageHandle&amp;}}]
+: [[_DONTBLEND]] [{{Parameter|imageHandle&amp;}}]
 
 
 {{Parameters}}
 * If {{Parameter|imageHandle&amp;}} is omitted, it is assumed to be the current [[_DEST]]ination write page.
 
 
-''Usage:''
+{{PageDescription}}
 * If {{Parameter|imageHandle&amp;}} is not valid, an [[ERROR Codes|Invalid handle]] error will occur.
-* [[_DONTBLEND]] is faster than the default [[_BLEND]] unless you really need to use it in 32 bit!
-* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
-: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
+* [[_DONTBLEND]] is faster than the default [[_BLEND]] unless you really need to use it in 32 bit.
+* '''32 bit screen surface backgrounds (black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+* Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opaque.
 
 
+{{PageExamples}}
 ''Example 1:'' Use _DONTBLEND when you want the 32 bit screen surface to be opaque so that it covers up other backgrounds. [[CLS]] works too.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1280, 720, 32)
@@ -88,7 +89,7 @@ ph = 0
   {{Cl|_DISPLAY}}
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}({{Cl|INKEY$}}) '' ''
 {{CodeEnd}}{{small|Code by Zom-B}}
-''Explanation:'''To make the alpha image, turn alpha blending off. Otherwise PSET blends the pixel to instead of making the sprite transparent.
+''Explanation:'' To make the alpha image, turn alpha blending off. Otherwise PSET blends the pixel to instead of making the sprite transparent.
 
 
 {{PageSeeAlso}}

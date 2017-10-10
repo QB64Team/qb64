@@ -7,14 +7,14 @@ The '''SHELL''' statement allows a program to use [[STRING]] OS command lines in
 
 
 
-* If the ''[[DOS]]Command$'' {{KW|STRING}} parameter isn't used the &quot;console&quot; is opened.
-* If {{KW|_DONTWAIT}} is used the '''QB64''' program doesn't wait for the SHELLed program/command to end.
-* When the {{KW|_HIDE}} action is used, the [[CONSOLE|console]] window is hidden and screen info can be &quot;redirected&quot;(&gt;) to a file (recommended).
-* Commands are external [[DOS]] commands as {{KW|STRING|strings}}  enclosed in quotes or string variables.
-* Commands can be a mixture of {{KW|STRING|strings}} and string variables added together using the + [[concatenation]] operator.
+* If the ''[[DOS]]Command$'' [[STRING]] parameter isn't used the &quot;command console&quot; is opened.
+* If [[_DONTWAIT]] is used the '''QB64''' program doesn't wait for the SHELLed program/command to end.
+* When the [[_HIDE]] action is used, the [[CONSOLE|console]] window is hidden and screen info can be &quot;redirected&quot;(&gt;) to a file (recommended).
+* Commands are external [[DOS]] commands as [[STRING|strings]]  enclosed in quotes or string variables.
+* Commands can be a mixture of [[STRING|strings]] and string variables added together using the + [[concatenation]] operator.
 * Command text can be in upper or lower case. Use single spacing between items and options.
-* '''QB64''' automatically uses CMD /C when using [[SHELL]], but is allowed in old code. {{text|Note: CMD alone may lock up program!|red}}
-* '''Note:''' Some commands may not work without adding CMD /C to the start of the command line.
+* '''QB64''' automatically uses CMD /C when using [[SHELL]], but is allowed in command. {{text|Note: CMD alone may lock up program!|red}}
+:: '''Note: Some commands may not work without adding CMD /C to the start of the command line.'''
 * '''QB64''' program screens will not get distorted, minimized or freeze the program like Qbasic fullscreen modes will. 
 * '''QB64''' can use long path folder names and file names and [[SHELL]] command lines can be longer than 124 characters!
 * In Windows use additional [[CHR$]](34) quotation marks around folder or file names that contain spaces.
@@ -96,11 +96,29 @@ PathExist% = 0
 :''Explanation: IF Exist'' checks for the drive path. ''\Nul'' allows an emply folder at end of path. ''Echo'' prints '''yes''' in the file if it exists.
 
 
+''Snippet 1:'' When looking for '''printers''' this command gives you a file list with the default printer '''True''':
+{{TextStart}}{{Cb|SHELL}} {{Cb|_HIDE}} &quot;CMD /C&quot; + &quot;wmic printer get name,default &gt; default.txt&quot;
+{{TextEnd}}
+'''Created file's text:'''
+{{TextStart}}Default  Name                           
+  FALSE    Microsoft XPS Document Writer 
+  TRUE     HP Photosmart C7200 series     
+  FALSE    HP Officejet Pro 8600         
+  FALSE    Fax
+{{TextEnd}}
+: ''Explanation:'' [[LINE INPUT]] could be used to find the printer names as [[STRING]] variables.
 
 
-''See example:'' [[FILELIST$ (function)]] (member file search routine)
-
-''See Library:'' File Exist C++ Function that does not create a temp file. [[Windows_Libraries#File_Exist|FileExist Library Function]]
+''Snippet 2:'' Here is the code to set the default printer to the &quot;HP Officejet Pro 8600&quot;:
+{{TextStart}}SHELL _HIDE &quot;CMD /C&quot; + &quot;wmic printer where name='HP Officejet Pro 8600' call setdefaultprinter&quot;
+{{TextEnd}}
+: After executing this program, and then running the first snippet again, we see the following '''contents of the text file:'''
+{{TextStart}}Default  Name 
+  FALSE    Microsoft XPS Document Writer 
+  FALSE    HP Photosmart C7200 series     
+  TRUE     HP Officejet Pro 8600         
+  FALSE    Fax
+{{TextEnd}}
 
 
 ''See also:'' 
@@ -114,6 +132,11 @@ PathExist% = 0
 * [[$SCREENHIDE]], [[$SCREENSHOW]] {{text|(QB64 [[Metacommand]]s)}}
 * [[_SCREENHIDE]], [[_SCREENSHOW]]
 * [[FILELIST$]], [[DIR$]] {{text|(member file list array functions)}}
+
+
+''See example:'' [[FILELIST$ (function)]] (member file search routine)
+
+''See Library:'' File Exist C++ Function that does not create a temp file. [[Windows_Libraries#File_Exist|FileExist Library Function]]
 
 
 ----

@@ -1,23 +1,26 @@
 {{DISPLAYTITLE:_RGB}}
-The [[_RGB]] function returns the closest palette attribute index OR the [[LONG]] 32 bit color value in 32 bit screens only. 
+The [[_RGB]] function returns the closest palette attribute index (legacy SCREEN modes) OR the [[LONG]] 32-bit color value (32-bit screens). 
 
 
-:colorindex~&amp; = '''_RGB('''{{Parameter|red}}, {{Parameter|green}}, {{Parameter|blue}}[, {{Parameter|image_handle}}]''')'''
+{{PageSyntax}}
+: {{Parameter|colorIndex~&amp;}} = [[_RGB]]({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}[, {{Parameter|imageHandle&amp;}}])
 
 
-* The value returned is either the closest color attribute number or a 32 bit [[_UNSIGNED]] [[LONG]] color value. 
-* '''Return variable types MUST be [[LONG]] or resulting color may lose the [[_BLUE]] value!'''
+{{PageDescription}}
+* The value returned is either the closest color attribute number or a 32-bit [[_UNSIGNED]] [[LONG]] color value. 
+* '''Return variable types must be [[LONG]] or resulting color may lose the [[_BLUE]] value.'''
 * {{Parameter|red&amp;}} specifies the red component intensity from 0 to 255.
 * {{Parameter|green&amp;}} specifies the green component intensity from 0 to 255.
 * {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.
 * Intensity values outside the valid range are clipped.
-* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with full [[_ALPHA]] only.
-* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]](colorvalue&amp;), 3) to place 3 colors.
-* If the ''image_handle'' is omitted the image is assumed to be the current [[_DEST|destination]] or [[SCREEN]] page.
-* Colors returned are ALWAYS opaque as the transparency value is always 255! Use [[_ALPHA]] or [[_CLEARCOLOR]] to change it.
-* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+* Returns [[LONG]] 32-bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''', always with full [[_ALPHA]].
+* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]]({{Parameter|colorIndex~&amp;}}), 3) to place 3 colors.
+* If the {{Parameter|imageHandle&amp;}} is omitted the image is assumed to be the current [[_DEST|destination]] or [[SCREEN]] page.
+* Colors returned are always opaque as the transparency value is always 255. Use [[_ALPHA]] or [[_CLEARCOLOR]] to change it.
+* '''NOTE: Default 32-bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0). Use [[CLS]] to make the black opaque.'''
 
 
+{{PageExamples}}
 ''Example:'' Converting the color port RGB intensity palette values 0 to 63 to 32 bit hexadecimal values. 
 {{CodeStart}}
 {{Cl|SCREEN}} 12
@@ -56,7 +59,7 @@ The [[_RGB]] function returns the closest palette attribute index OR the [[LONG]
 * [[_RED]], [[_GREEN]], [[_BLUE]]
 * [[_LOADIMAGE]], [[_NEWIMAGE]]
 * [[HEX$ 32 Bit Values]], [[POINT]]
-* [[SAVEIMAGE]] {{text|(bitmap creator)}}
+* [[SAVEIMAGE]]
 * [http://www.w3schools.com/html/html_colornames.asp Hexadecimal Color Values]
 
 

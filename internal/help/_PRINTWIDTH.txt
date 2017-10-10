@@ -1,21 +1,20 @@
 {{DISPLAYTITLE:_PRINTWIDTH}}{{DISPLAYTITLE:}}
-The [[_PRINTWIDTH]] function returns the width in pixels of the [[_FONT]] or text [[STRING|string]] that a program will print.
-
+The [[_PRINTWIDTH]] function returns the width in pixels of the text [[STRING|string]] specified.
 
 
 {{PageSyntax}}
-::: pixel_width = '''_PRINTWIDTH('''{{Parameter|text_to_print$}}[, {{Parameter|destination_handle&amp;}}]''')'''
+: {{Parameter|pixelWidth%}} = [[_PRINTWIDTH]]({{Parameter|textToPrint$}}[, {{Parameter|destinationHandle&amp;}}])
 
 
 {{PageDescription}}
-* {{Parameter|text_to_print$}} is any literal or variable [[STRING]] value.
-* If the {{Parameter|destination_handle&amp;}} is omitted, the current destination image or screen page is used.
+* {{Parameter|textToPrint$}} is any literal or variable [[STRING]] value.
+* If the {{Parameter|destinationHandle&amp;}} is omitted, the current destination image or screen page is used.
 * Useful to find the width of the font print [[STRING|string]] before actually printing it.
-* Can be used with '''variable''' width fonts or '''no font''' at all unlike [[_FONTWIDTH]] which requires MONOSPACE fonts only.
-* '''_PRINTWIDTH cannot be used in SCREEN 0 in QB64-SDL version.'''  
-* '''QB64-GL''' does support SCREEN 0 use of _PRINTWIDTH which will return the character length of text exactly as [[LEN]](text$) would.
+* Can be used with variable-width fonts or built-in fonts, unlike [[_FONTWIDTH]] which requires a MONOSPACE font handle.
+* In SCREEN 0, _PRINTWIDTH returns the character length of a text string, exactly as [[LEN]]({{Parameter|textToPrint$}}) ('''version 1.000 and up''').
 
 
+{{PageExamples}}
 ''Example:'' SUB returns font or screen mode's text block size using _PRINTWIDTH and [[_FONTHEIGHT]] without a handle parameter.
 {{CodeStart}} '' ''
 {{Cl|DO}}
@@ -47,7 +46,7 @@ TextHeight&amp; = {{Cl|_FONTHEIGHT}}         'can measure normal text block heig
 * [[_FONTWIDTH]], [[_FONTHEIGHT]]
 * [[_NEWIMAGE]], [[_LOADFONT]]
 * [[_PRINTSTRING]], [[_FONT]]
-* [[Text Using Graphics]] (Demo)
+* [[Text Using Graphics]]
 
 
 {{PageNavigation}}

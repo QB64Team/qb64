@@ -1,21 +1,20 @@
-'''CSNG'''
-To converts a numerical value to the closest [[SINGLE]]-precision number.
+[[CSNG]] converts a numerical value to the closest [[SINGLE]]-precision number.
 
 
 {{PageSyntax}} 
-:: singlevalue = '''CSNG('''''expression''''')'''
+: {{Parameter|singleValue!}} = [[CSNG]]({{Parameter|expression}})
 
 
 {{Parameters}}
-* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+* {{Parameter|expression}} is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
 
 
 {{PageDescription}}
-* Returns the closest [[SINGLE]] decimal point value
+* Returns the closest [[SINGLE]] decimal point value.
 * Also used to define a value as [[SINGLE]]-precision up to 7 decimals.
 
 
-''Example:''
+{{PageExamples}}
 {{CodeStart}}
  A# = 975.3421222#
  PRINT A#, CSNG(A#)

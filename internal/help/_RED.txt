@@ -3,23 +3,23 @@ The [[_RED]] function returns the palette index or the red component intensity o
 
 
 {{PageSyntax}}
-:: redintensity&amp; = '''_RED('''{{Parameter|rgbaColorIndex&amp;}}[, {{Parameter|imageHandle&amp;}}]''')'''
+: {{Parameter|redIntensity&amp;}} = [[_RED]]({{Parameter|rgbaColorIndex&amp;}}[, {{Parameter|imageHandle&amp;}}])
 
 
 {{PageDescription}}
 * {{Parameter|rgbaColorIndex&amp;}} is the ''RGBA'' color value or palette index of the color to retrieve the red component intensity from.
 * The [[LONG]] intensity value returned ranges from 0 (no intensity, not present) to 255 (full intensity).
+* {{Parameter|imageHandle&amp;}} is optional.
 * If {{Parameter|imageHandle&amp;}} specifies a 32-bit color image, {{Parameter|rgbaColorIndex&amp;}} is interpreted as a 32-bit ''RGBA'' color value.
 * If {{Parameter|imageHandle&amp;}} specifies an image that uses a palette, {{Parameter|rgbaColorIndex&amp;}} is interpreted as a palette index.
 * If {{Parameter|imageHandle&amp;}} is not specified, it is assumed to be the current write page.
 * If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs.
 * If {{Parameter|rgbaColorIndex&amp;}} is outside the range of valid indexes for a given image mode, an [[ERROR Codes|illegal function call]] error occurs.
-* Uses index parameters passed by the {{KW|_RGB}}, {{KW|_RGBA}}, {{KW|_RGB32}} or {{KW|_RGBA32}} funtions.
-* An image handle is optional.
+* Uses index parameters passed by the [[_RGB]], [[_RGBA]], [[_RGB32]] or [[_RGBA32]] functions.
 
 
-''See Example:'' 
-* [[POINT]]
+{{PageExamples]]
+* See the example in [[POINT]].
 
 
 {{PageSeeAlso}}

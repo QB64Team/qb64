@@ -1,8 +1,10 @@
-The '''ALIAS''' clause in a [[DECLARE LIBRARY]] statement block tells the program the name of the procedure used in the external library.
+#REDIRECT [[DECLARE LIBRARY]]
+
+The [[ALIAS]] clause in a [[DECLARE LIBRARY]] statement block tells the program the name of the procedure used in the external library.
 
 
 {{PageSyntax}}
-::: SUB ''pseudoname'' '''ALIAS''' ''actualname'' [(''parameters'')]
+: SUB ''pseudoname'' [[ALIAS]] ''actualname'' [(''parameters'')]
 
 
 {{Parameters}}
@@ -11,18 +13,28 @@ The '''ALIAS''' clause in a [[DECLARE LIBRARY]] statement block tells the progra
 * QB64 must use all parameters of imported procedures including optional ones.
 
 
-''Description:''
+{{PageDescription}}
 * The ALIAS name clause is optional as the original library procedure name can be used.
 * The procedure name does not have to be inside of quotes when using [[DECLARE LIBRARY]].
-* QB64 does not support creating optional parameters at this time.
+* QB64 does not support optional parameters.
+
+
+==QBasic/QuickBASIC==
 * In Qbasic ALIAS was originally only used in a [[DECLARE (non-BASIC statement)]] library declarations.
 
 
+{{PageExamples}}
 ''Example:'' Instead of creating a SUB with the Library statement inside of it, just rename it:
 {{CodeStart}} '' ''
 {{Cl|DECLARE LIBRARY}}
-  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} xoffset&amp;, {{Cl|BYVAL}} yoffset&amp;) 
+    {{Cl|SUB}} MouseMove {{Cl|ALIAS}} glutWarpPointer ({{Cl|BYVAL}} xoffset&amp;, {{Cl|BYVAL}} yoffset&amp;)
 {{Cl|DECLARE LIBRARY|END DECLARE}}
+
+{{Cl|DO}} {{Cl|UNTIL}} {{Cl|_SCREENEXISTS}}: {{Cl|LOOP}}
+{{Cl|PRINT}} &quot;Hit a key...&quot;
+{{Cl|SLEEP}}
+
+MouseMove 1, 1
 {{CodeEnd}}
 :''Explanation:'' When a Library procedure is used to represent another procedure name use ALIAS instead. Saves creating a SUB! Just place your name for the procedure first with the actual Library name after ALIAS.
 

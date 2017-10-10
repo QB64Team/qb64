@@ -1,19 +1,23 @@
 {{DISPLAYTITLE:_MOUSEY}}
-'''_MOUSEY''' Function returns the current vertical(row) mouse cursor position when read after [[_MOUSEINPUT]].
+The [[_MOUSEY]] function returns the current vertical (row) mouse cursor position when read after [[_MOUSEINPUT]].
 
 
 {{PageSyntax}}
-::: pixelrow% = [[_MOUSEY]]
+: {{Parameter|pixelRow%}} = [[_MOUSEY]]
 
 
-''Usage:''
-* [[SCREEN]] 0 returns the [[SINGLE]] horizontal text row position. Use [[INTEGER]] variables to avoid floating decimal returns.
+{{PageDescription}}
+* [[SCREEN]] 0 returns the [[INTEGER]] vertical text row position (from build 20170817/62 onward); older versions return a [[SINGLE]] vertical text row position. Use [[INTEGER]] variables to avoid floating decimal returns.
 * Graphic screen modes 1, 2 and 7 to 13 and [[_NEWIMAGE]] 32 bit return the [[INTEGER]] pixel columns.
 * To calculate text rows in graphic modes divide the return by 16 or the [[_FONTHEIGHT]] of [[_FONT]] characters.
-* [[_MOUSEINPUT]] MUST be used to detect any changes in the mouse position and is '''required''' for any coordinate returns.
-* '''Note:''' In [[SCREEN]] 0, Qbasic's [[ABSOLUTE]] returned graphic coordinates. QB64 mouse functions return the text coordinates. 
+* [[_MOUSEINPUT]] must be used to detect any changes in the mouse position and is '''required''' for any coordinate returns.
 
 
+==QBasic/QuickBASIC==
+* In [[SCREEN]] 0, QBasic's [[ABSOLUTE]] returned graphic coordinates. QB64 mouse functions return the text coordinates. 
+
+
+{{PageExamples}}
 ''Example:'' Highlighting a row of text in Screen 0.
 {{CodeStart}} '' ''
 minX = 20: maxX = 60: minY = 10: maxY = 24
@@ -23,8 +27,8 @@ selection = 0 'the screen Y coordinate of the previously highlighted item
   {{Cl|IF}} {{Cl|_MOUSEINPUT}} {{Cl|THEN}}
     'Un-highlight any selected row
     {{Cl|IF}} selection {{Cl|THEN}} selectRow selection, minX, maxX, 0
-    x = {{Cl|CINT}}({{Cl|_MOUSEX}})
-    y = {{Cl|CINT}}({{Cl|_MOUSEY}})    
+    x = {{Cl|_MOUSEX}}
+    y = {{Cl|_MOUSEY}}
     {{Cl|IF}} x &gt;= minX {{Cl|AND (boolean)|AND}} x &lt;= maxX {{Cl|AND (boolean)|AND}} y &gt;= minY {{Cl|AND (boolean)|AND}} y &lt;= maxY {{Cl|THEN}}
       selection = y
     {{Cl|ELSE}}
@@ -52,7 +56,8 @@ addr&amp; = (x1 - 1 + (y - 1) * {{Cl|_WIDTH (function)|_WIDTH}}) * 2 + 1
 * [[_MOUSEX]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
 * [[_MOUSEINPUT]], [[_MOUSEMOVE]]
 * [[_MOUSESHOW]], [[_MOUSEHIDE]]
-* [[Controller_Devices]]
+* [[_MOUSEMOVEMENTX]], [[_MOUSEMOVEMENTY]] {{text|(relative pointer moves)}} 
+* [[Controller Devices]]
 
 
 {{PageNavigation}}

@@ -1,16 +1,16 @@
-The '''$SCREENHIDE''' [[Metacommand]] can be used to hide the main program window throughout a program.
+The [[$SCREENHIDE]] [[Metacommand|metacommand]] can be used to hide the main program window throughout a program.
 
 
 {{PageSyntax}}
-::: $SCREENHIDE
+: [[$SCREENHIDE]]
 
 
-* $SCREENHIDE may be used at the start of a program to hide the main program window when using a [[$CONSOLE|console]] window. 
-* $SCREENHIDE must be used before the [[$SCREENSHOW]] [[Metacommand]] can be used!
+* $SCREENHIDE may be used at the start of a program to hide the main program window when using a [[$CONSOLE|console]] window.
 * The [[_SCREENHIDE]] statement must be used before [[_SCREENSHOW]] can be used in sections of a program.
-* '''QB64 [[Metacommand]]s require that commenting or [[REM]] NOT be used!'''
+* '''QB64 [[Metacommand|metacommand]]s cannot be commented out with [[apostrophe]] or [[REM]]'''.
 
 
+{{PageExamples}}
 ''Example:'' Hiding a program when displaying a message box in Windows.
 {{CodeStart}} '' ''
 {{Cl|$SCREENHIDE}}
@@ -28,8 +28,8 @@ ExitProcess MessageBoxA(0, {{Cl|_OFFSET (function)|_OFFSET}}(s0), {{Cl|_OFFSET(f
 {{CodeEnd}}{{small|Code by Michael Calkins}}
 
 
-''See also:''
-* [[$CONSOLE]], [[$SCREENSHOW]] {{text|(QB64 [[Metacommand]])}}
+{{PageSeeAlso}}
+* [[$CONSOLE]], [[$SCREENSHOW]]
 * [[_SCREENHIDE]], [[_SCREENSHOW]]
 * [[_CONSOLE]]
 

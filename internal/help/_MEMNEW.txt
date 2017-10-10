@@ -1,25 +1,26 @@
 {{DISPLAYTITLE:_MEMNEW}}
-The '''_MEMNEW''' function allocates new memory and returns a [[_MEM]] memory block referring to it.
+The [[_MEMNEW]] function allocates new memory and returns a [[_MEM]] memory block referring to it.
 
 
 {{PageSyntax}}
-::: memory_block = '''_MEMNEW(''byte_size'')'''
+: {{Parameter|memoryBlock}} = [[_MEMNEW]]({{Parameter|byteSize}})
 
 
 {{Parameters}}
-* The ''byte size'' parameter is the desired byte size of the memory block based on the variable [[type]] it will hold.
+* The {{Parameter|byteSize}} parameter is the desired byte size of the memory block based on the variable [[type]] it will hold.
 
 
-''Usage:''
-* The ''memory block'' value created holds the starting OFFSET, SIZE, TYPE and ELEMENTSIZE. 
-* _MEMNEW does not clear the data previously in the memory block it allocates for speed purposes.
-* To clear previous data from a new memory block, use [[_MEMFILL]] with a zero byte value,
-* When a new memory block is created the memory .TYPE value will be 0.(this may be changeable in the future)
-* '''If the read only memory block .SIZE is 0, the memory block was not created!'''
-* '''All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable.'''
+{{PageDescription}}
+* The {{Parameter|memoryBlock}} value created holds the elements .OFFSET, .SIZE, .TYPE and .ELEMENTSIZE. 
+* [[_MEMNEW]] does not clear the data previously in the memory block it allocates, for speed purposes.
+* To clear previous data from a new memory block, use [[_MEMFILL]] with a byte value of 0.
+* When a new memory block is created the memory .TYPE value will be 0.
+* '''If the read only memory block .SIZE is 0, the memory block was not created.'''
+* '''All values created by memory functions must be freed using [[_MEMFREE]] with a valid [[_MEM]] variable.'''
 
 
-''Example:'' Shows how [[SINGLE]] numerical values can be passed, but unfixed [[STRING]] lengths cannot get the value.
+{{PageExamples}}
+''Example:'' Shows how [[SINGLE]] numerical values can be passed, but non-fixed [[STRING]] lengths cannot get the value.
 {{CodeStart}} '' ''
 {{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
 {{Cl|DIM}} f {{Cl|AS}} {{Cl|STRING}} * 5
@@ -44,7 +45,7 @@ f = Doggy 5 {{OutputEnd}}
 
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MEM]], [[_MEMPUT]]
 * [[_MEMGET]], [[_MEMGET (function)]]
 * [[_MEMFILL]], [[_MEMFREE]]

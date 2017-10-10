@@ -1,23 +1,21 @@
-The '''_OS$''' function returns the operating system and QB64 compiler bit version used to compile a QB64 program.
+The [[_OS$]] function returns the operating system and QB64 compiler bit version used to compile a QB64 program.
 
 
 {{PageSyntax}}
-:::: compilerversion$ = '''_OS$'''
+: {{Parameter|compilerVersion$}} = [[_OS$]]
 
 
+{{PageDescription}}
+* Returns a [[STRING]] listing the OS as [WINDOWS], [LINUX] or [MACOSX] and the compiler bit format of [32BIT] or [64BIT]. [[Example: {{text|[WINDOWS][32BIT]|green}}]]
 * Allows a BAS program to be compiled with QB64 in Windows, Linux or MacOSX using different OS or language specifications.
-* Use the return to specify the current OS code to use when a BAS program is compiled using another version of the QB64 compiler.
-* Returns a [[STRING]] listing the OS as [WINDOWS], [LINUX] or [MACOSX] and the compiler bit format of [32BIT] or [64BIT]. 
-* Windows can use either a 32(default) or 64 bit compiler. Linux and Mac use 64 bit. '''Example: {{text|[WINDOWS][32BIT]|green}}'''
-* Note: It may not be possible to run a QB64 EXE program compiled on another operating system to get an _OS$ return value.
+* Use the return {{Parameter|compilerVersion$}} to specify the current OS code to use when a BAS program is compiled using another version of the QB64 compiler.
+* Windows can use either a 32 (default) or 64 bit compiler. Linux and Mac use 64 bit by default.
 * Explanation by Galleon: http://www.qb64.net/forum/index.php?topic=12193.msg105406#msg105406
 
- 
 
-
-''See also:
+{{PageSeeAlso}}
 * [[ENVIRON$]]
-* [http://www.qb64.net/forum/index.php?topic=12204.0 64 BIT Windows Compiler Installation]
+* [[QB64_FAQ#Q:_How_do_I_upgrade_the_32_bit_Windows_version_of_QB64_to_64_bit_functionality.3F|Upgrading QB64 to use a 64-bit compiler in Windows]]
 
 
 {{PageNavigation}}

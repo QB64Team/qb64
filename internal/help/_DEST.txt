@@ -9,11 +9,12 @@ The [[_DEST]] statement sets the current write image or page. All graphic and pr
 {{PageDescription}}
 * {{Parameter|imageHandle&amp;}} is the handle of the image that will act as the current write page.
 * '''_DEST 0''' refers to the present program [[SCREEN]]. You can use 0 to refer to the present program [[SCREEN]].
-* _DEST [[_CONSOLE]] can set the destination to send information to a console window using [[PRINT]] or [[INPUT]].
-* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs. Always check for bad handle values of -1 first!
+* [[_DEST]] [[_CONSOLE]] can set the destination to send information to a console window using [[PRINT]] or [[INPUT]].
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, an [[ERROR Codes|invalid handle]] error occurs. Always check for valid handle values first ({{Parameter|imageHandle&amp;}} &lt; -1).
 *''Note:'' Use [[_SOURCE]] when you need to read a page or image with [[POINT]], [[GET (graphics statement)|GET]] or the [[SCREEN (function)|SCREEN]] function.
 
 
+{{PageExamples}}
 ''Example 1:'' Placing a center point and a circle using [[_CLEARCOLOR]] to eliminate the background color black.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 13      'program screen can use 256 colors

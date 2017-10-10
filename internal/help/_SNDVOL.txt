@@ -1,39 +1,26 @@
 {{DISPLAYTITLE:_SNDVOL}}
-The [[_SNDVOL]] statement sets the volume of a sound using a handle from the [[_SNDOPEN]] Function.
+The [[_SNDVOL]] statement sets the volume of a sound loaded in memory using a handle from the [[_SNDOPEN]] function.
 
 
 {{PageSyntax}}
-::: '''_SNDVOL ('''{{Parameter|handle&amp;}}, {{Parameter|volume!}}''')'''
+: [[_SNDVOL]] {{Parameter|handle&amp;}}, {{Parameter|volume!}}
 
 
 {{PageDescription}}
-*Volume is a value from 0 (silence) to 1 (full volume).
-*An opened sound file must have the &quot;VOL&quot; capability to use this function.
-{{TextStart}}    QB64 supports the following sound file formats ('''Bold is a guaranteed capability'''):
-
-             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
-             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
-             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             MID = &quot;'''VOL'''&quot;
-             MOD = &quot;VOL,PAUSE&quot;
-             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
-
-        ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
-{{TextEnd}}
+* {{Parameter|volume!}} is a value from 0 (silence) to 1 (full volume).
+* In versions '''prior to build 20170811/60''', the sound identified by {{Parameter|handle&amp;}} must have been opened using the [[_SNDOPEN|&quot;VOL&quot; capability]] to use this function.
 
 
-''Example:''
+{{PageExamples}}
 {{CodeStart}} '' ''
-h&amp; = {{Cl|_SNDOPEN}}(&quot;bell.wav&quot;, &quot;SYNC,VOL&quot;)
+h&amp; = {{Cl|_SNDOPEN}}(&quot;bell.wav&quot;)
 {{Cl|_SNDVOL}} h&amp;, 0.5
 {{Cl|_SNDPLAY}} h&amp; '' ''
 {{CodeEnd}}
 
 
 {{PageSeeAlso}}
-*{{KW|_SNDOPEN}}, {{KW|_SNDBAL}}
+*[[_SNDOPEN]], [[_SNDBAL]]
 
 
 {{PageNavigation}}

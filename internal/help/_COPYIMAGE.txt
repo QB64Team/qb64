@@ -3,28 +3,29 @@ The [[_COPYIMAGE]] function creates an identical designated image in memory with
 
 
 {{PageSyntax}}
-: newhandle&amp; = '''_COPYIMAGE'''[(''imageHandle&amp;''[, ''mode%'')]]
+: newhandle&amp; = [[_COPYIMAGE]][({{Parameter|imageHandle&amp;]][, {{Parameter|mode%]])]]
 
 
 {{Parameters}}
-* The [[LONG]] ''newhandle'' value returned will be different than the source handle value supplied.
-* If ''imagehandle'' parameter is omitted or zero is designated, the current software [[_DEST|destination]] screen or image is copied.
-* If 1 is designated instead of an ''imagehandle'', it designates the last GL hardware surface to copy.
+* The [[LONG]] ''newhandle&amp;'' value returned will be different than the source handle value supplied.
+* If ''imageHandle&amp;'' parameter is omitted or zero is designated, the current software [[_DEST|destination]] screen or image is copied.
+* If 1 is designated instead of an ''imageHandle&amp;'', it designates the last OpenGL hardware surface to copy.
 * ''Mode'' 32 can be used to convert 256 color images to 32 bit colors.
-* ''Mode'' 33 images are hardware accelerated in GL, and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]]. ([[_NEWIMAGE]] later)
+* ''Mode'' 33 images are hardware accelerated in '''version 1.000 and up''', and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]].
 
 
-''Usage:''
+{{PageDescription}}
 * The function copies any image or screen handle to a new and unique negative [[LONG]] handle value.
 * Valid copy handles are less than -1. Invalid handles return -1 or 0 if it was never created.
 * Every attribute of the passed image or program screen is copied to a new handle value in memory.
-* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
-: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
+* '''32 bit screen surface backgrounds (black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opaque.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
-* '''It is IMPORTANT to free discarded images with [[_FREEIMAGE]] to prevent PC memory allocation errors!'''
-* '''Do NOT try to free image handles currently being used as the active [[SCREEN]]! Change screen modes first.'''
+* '''It is important to free discarded images with [[_FREEIMAGE]] to prevent PC memory allocation errors!'''
+* '''Do not try to free image handles currently being used as the active [[SCREEN]]. Change screen modes first.'''
 
 
+{{PageExamples}}
 ''Example:'' Restoring a Legacy SCREEN using the _COPYIMAGE return value.
 {{CodeStart}}'' ''
 
@@ -47,7 +48,7 @@ DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
 : ''Note:'' Only free valid handle values with [[_FREEIMAGE]] AFTER a new [[SCREEN]] mode is being used by the program.
 
 
-''Example 2:'' '''QB64 GL''' program copies desktop to a hardware image to form a 3D triangle:
+''Example 2:'' Program that copies desktop to a hardware image to form a 3D triangle ('''version 1.000 and up'''):
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 my_hardware_handle = {{Cl|_COPYIMAGE}}({{Cl|_SCREENIMAGE}}, 33) 'take a screenshot and use it as our texture

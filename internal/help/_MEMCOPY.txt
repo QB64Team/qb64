@@ -1,26 +1,27 @@
 {{DISPLAYTITLE:_MEMCOPY}}
-The '''_MEMCOPY''' statement copies a block of bytes from one memory offset TO another offset in memory.
+The [[_MEMCOPY]] statement copies a block of bytes from one memory offset to another offset in memory.
 
 
 {{PageSyntax}}
-:: '''_MEMCOPY  ''source_block'', ''source_block.OFFSET'', ''source_block.SIZE'' [[TO]] ''dest_block'', ''dest_block.OFFSET'''''
+: [[_MEMCOPY]]  {{Parameter|sourceBlock}}, {{Parameter|sourceBlock.OFFSET}}, {{Parameter|sourceBlock.SIZE}} [[TO]] {{Parameter|destBlock}}, {{Parameter|destBlock.OFFSET}}
 
 
 {{Parameters}}
-* ''source block'' is the source memory block name created AS [[_MEM]].
-* ''source block.OFFSET'' is the dot [[_OFFSET]] within the source memory block to read from.
-* ''source block.SIZE'' is the total number of bytes to transfer based on actual size.
-* ''dest block'' is the destination [[_MEM]] memory block name to transfer data to.
-* ''dest block.OFFSET'' is the dot [[_OFFSET]] within the dest [[_MEM]] memory block to write to.
+* {{Parameter|sourceBlock}} is the source memory block name created AS [[_MEM]].
+* {{Parameter|sourceBlock.OFFSET}} is the dot [[_OFFSET]] within the source memory block to read from.
+* {{Parameter|sourceBlock.SIZE}} is the total number of bytes to transfer based on actual size.
+* {{Parameter|destBlock}} is the destination [[_MEM]] memory block name to transfer data to.
+* {{Parameter|destBlock.OFFSET}} is the dot [[_OFFSET]] within the dest [[_MEM]] memory block to write to.
 
 
-''Usage:''
+{{PageDescription}}
 * The dot OFFSET is the memory block's start location in memory. Add bytes to place data further into the block.
 * The dot SIZE is the total byte size of the memory block to transfer. You can transfer all or a portion of the data bytes.
 * The memory block regions may overlap.
-* '''Always free memory blocks after values have been transferred to variables and are no longer required!'''
+* '''Always free memory blocks after values have been transferred to variables and are no longer required.'''
 
 
+{{PageExamples}}
 ''Example:'' Swapping data from one [[STRING]] variable to another. Fixed length strings are recommended for speed.
 {{CodeStart}} '' ''
 {{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
@@ -61,7 +62,7 @@ b$ = {{Cl|SPACE$}}(10)
 {{TextEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_MEM]], [[_MEM (function)]]
 * [[_MEMNEW]], [[_MEMGET (function)]]
 * [[_MEMIMAGE]], [[_MEMELEMENT]]

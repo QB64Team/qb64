@@ -1,32 +1,32 @@
-The '''LINE''' statement is used in graphics [[SCREEN (statement)|SCREEN]] modes to create lines or boxes.
-
+The [[LINE]] statement is used in graphic [[SCREEN (statement)|SCREEN]] modes to create lines or boxes.
 
 
 {{PageSyntax}}
-: '''LINE''' [STEP] [(''column1'', ''row1'')]'''-'''[STEP] '''('''''column2'', ''row2'''''),''' ''color''[, [{B|BF}], style%]
+: [[LINE]] [STEP] ['''('''''column1''''',''' ''row1''''')''']'''-'''[STEP] '''('''''column2'', ''row2'''''),''' ''color''[, [{B|BF}], {{Parameter|style%}}]
 
 
 {{Parameters}}
-* Can use [[STEP]] keyword for graphics coordinates relative to the previously placed object before either set of coordinates.
-* The optional parameters (''column1'', ''row1'') set the first coordinate or use the last previous object coordinate when omitted.
+* The [[STEP]] keyword make ''column'' and ''row'' coordinates relative to the previously coordinates set by any graphic statement.
+* The optional parameters (''column1'', ''row1'') set the line's starting point.
 * The dash and second coordinate parameters (''column2'', ''row2'') must be designated to complete the line or box.
-* The [[INTEGER]] ''color'' attribute or [[LONG]] [[_RGB32]] 32 bit color value sets the line, box or full box color.
-* Optional '''B''' creates a box outline using the start and end coordinates as diagonal corners. '''BF''' creates a filled box. 
-* The ''style'' [[INTEGER]] value sets dashed lines with varying patterns when using values from 0 to 32767.
+* The [[INTEGER]] ''color'' attribute or [[LONG]] [[_RGB32]] 32 bit color value sets the drawing color.  If omitted, the current [[_DEST|destination]] page's [[_DEFAULTCOLOR]] is used.
+* Optional '''B''' keyword creates a rectangle ('''b'''ox) using the start and end coordinates as diagonal corners. '''BF''' creates a '''b'''ox '''f'''illed. 
+* The ''style%'' signed [[INTEGER]] value sets a dotted pattern to draw the line or rectangle outline.
 
 
 {{PageDescription}}
-* Creates a colored line from coordinate1 to coordinate2 if the box options(B or BF) are omitted. Can be drawn partially offscreen.
-* '''B''' creates a box outline with each side parallel to the program screen sides. '''BF''' creates an identical filled box. 
-* '''B''' can be used with style to create a dash pattern on all 4 box sides. '''BF cannot be used with style.'''
-* Both commas are required with style even when not creating a box. The lines are created where the style determines.
-* The QB64 and QB graphic cursor is set to the center of the program window on program start.
-* '''LINE can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only!''' 
+* Creates a colored line between the given coordinates. Can be drawn partially off screen.
+* '''B''' creates a box outline with each side parallel to the program screen sides. '''BF''' creates a filled box.
+* {{Parameter|style%}} can be used to create a dotted pattern to draw the line.
+** '''B''' can be used with a ''style%'' to draw the rectangle outline using the desired pattern.
+** '''BF''' ignores the {{Parameter|style%}} parameter. See examples 2, 3 and 4 below.
+* The graphic cursor is set to the center of the program window on program start. Using the [[STEP]] keyword makes the coordinates relative to the current graphic cursor.
+* [[LINE]] '''can be used in any graphic screen mode, but cannot be used in the default screen mode 0 as it is text only.''' 
 
 
+{{PageExamples}}
 ''Example 1:'' Following one line with another by omitting the second line's first coordinate parameter bracket entirely:
-{{CodeStart}} '' ''
-{{Cl|SCREEN}} 12
+{{CodeStart}}{{Cl|SCREEN}} 12
 
 {{Cl|LINE}} (100, 100)-(200, 200), 10    'creates a line
 {{Cl|LINE}} -(400, 200), 12              'creates a second line from end of first
@@ -37,8 +37,7 @@ The '''LINE''' statement is used in graphics [[SCREEN (statement)|SCREEN]] modes
 
 
 ''Example 2:'' Creating styled lines and boxes with the LINE statement. Different style values create different dashed line spacing.
-{{CodeStart}} '' ''
-{{Cl|SCREEN}} 12
+{{CodeStart}}{{Cl|SCREEN}} 12
 
 {{Cl|LINE}} (100, 100)-(300, 300), 10, , 63    'creates a styled line
 {{Cl|LINE}} (100, 100)-(300, 300), 12, B, 255  'creates styled box shape
@@ -48,10 +47,42 @@ The '''LINE''' statement is used in graphics [[SCREEN (statement)|SCREEN]] modes
 :''Explanation:'' The first diagonal dashed green line bisects the red dashed square from Top Left to Bottom Right Corners.
 
 
-''See also:'' 
+''Example 3:'' The ''style'' value sets each 16 pixel line section as the value's bits are set on or off:
+{{CodeStart}}{{Cl|SCREEN}} 13
+{{Cl|_FULLSCREEN}} 'required in QB64 only
+{{Cl|_DELAY}} 5
+{{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} 2 ^ 15 'use exponential value instead of -32768
+    {{Cl|COLOR}} 15:{{Cl|LOCATE}} 10, 5: {{Cl|PRINT}} i%;
+    {{Cl|LINE}} (10, 60)-(300, 60), 0 'erase previous lines
+    {{Cl|LINE}} (10, 60)-(300, 60), 12, , i%
+    tmp$ = &quot;&quot;
+    {{Cl|FOR...NEXT|FOR}} b% = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1 'create binary text value showing bits on as {{text|█|red}}, off as space
+        {{Cl|IF...THEN|IF}} i% {{Cl|AND}} 2 ^ b% {{Cl|THEN}} tmp$ = tmp$ + {{Cl|CHR$}}(219) {{Cl|ELSE}} tmp$ = tmp$ + {{Cl|SPACE$}}(1)
+    {{Cl|NEXT}}
+    {{Cl|COLOR}} 12:{{Cl|LOCATE}} 10, 20: {{Cl|PRINT}} tmp$;
+    {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}} 'any key exit
+    {{Cl|_DELAY}} .001 'set delay time as required
+{{Cl|NEXT}} '' ''
+{{CodeEnd}}
+: ''Explanation:'' The ''style'' value's Most Significant Bit (MSB) is set to the left with LSB on right as 16 text blocks are set on or off.
+
+
+''Example 4:'' Using [[&amp;B|binary code]] to design a style pattern:
+{{CodeStart}}{{Cl|SCREEN}} 12
+
+{{Cl|LINE}} (100, 100)-(300, 100), 10, , &amp;B0000111100001111 '16-bits
+{{Cl|LINE}} (100, 110)-(300, 110), 11, , &amp;B0011001100110011
+{{Cl|LINE}} (100, 120)-(300, 120), 12, , &amp;B0101010101010101
+{{Cl|LINE}} (100, 130)-(300, 130), 13, , &amp;B1000100010001000
+{{CodeEnd}}
+:''Explanation:'' The binary pattern created with 0s and 1s using the [[&amp;B]] number prefix define the pattern to draw the colored lines.
+
+
+{{PageSeeAlso}}
 * [[SCREEN (statement)|SCREEN]], [[COLOR]] 
 * [[DRAW]], [[CIRCLE]], [[STEP]]
 * [[PSET]], [[PRESET]]
+* [[AND]], [[OR]] {{text|(logical operators)}}
 
 
 {{PageNavigation}}

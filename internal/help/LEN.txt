@@ -1,27 +1,28 @@
-The '''LEN''' function returns the number of bytes used by a variable value and the number of characters in a [[STRING]].
+The [[LEN]] function returns the number of bytes used by a variable value and the number of characters in a [[STRING]].
 
 
 {{PageSyntax}}
-:: length% = LEN(variable$)
+: {{Parameter|length%}} = [[LEN]]({{Parameter|literalTextOrVariable}})
 
 
 
 * Literal or variable [[STRING]] values return the number of string bytes which is the same as the number of string characters.
 * A numerical ''variable'' will return the number of bytes used by a numerical variable type.
-** [[_BIT]] variable types and bit multiples '''cannot be measured in bytes'''. 
 ** [[_BYTE]] variable types return 1 byte.
 ** [[INTEGER]] variable types return 2 bytes.
-** [[SINGLE]] and [[LONG]] Integer variable types return 4 bytes.
+** [[SINGLE]] and [[LONG]] integer variable types return 4 bytes.
 ** [[DOUBLE]] and [[_INTEGER64]] variable types return 8 bytes.
 ** [[_FLOAT]] variable types return 32 bytes.
 ** [[_OFFSET]] and [[_MEM]] variable types return varying byte sizes.
-* '''LEN cannot return lengths of literal numerical values and will create a &quot;variable required&quot; status error in the [[IDE]]!'''
+** ''Note:'' [[_BIT]] variable types and bit multiples '''cannot be measured in bytes'''. 
+* '''LEN cannot return lengths of literal numerical values and will create a &quot;variable required&quot; status error in the [[IDE]].'''
 * '''LEN =''' can be used with a user defined [[TYPE]] variable to determine the number of bytes used in [[RANDOM]] file records:
-:::: '''{{text|[[OPEN]] file$ FOR [[RANDOM]] AS #n LEN &lt;nowiki&gt;=&lt;/nowiki&gt; LEN(record_type_variable)|green}}''' 
-* If a LEN = statement is not used, [[RANDOM]] default record length is 128 or sequencial is 512 up to a maximum of 32767 bytes. 
-* [[BINARY]] OPEN statements will ignore LEN = statements. The byte size of a [[GET|read]] or [[PUT|write]] is determined by the [[Variable Types|variable type]].
+:::: {{InlineCode}}[[OPEN]] file$ FOR [[RANDOM]] AS #n LEN &lt;nowiki&gt;=&lt;/nowiki&gt; LEN(recordTypeVariable){{InlineCodeEnd}}''' 
+:* If a LEN = statement is not used, [[RANDOM]] default record length is 128 or sequencial is 512 up to a maximum of 32767 bytes. 
+:* [[BINARY]] OPEN statements will ignore LEN = statements. The byte size of a [[GET|read]] or [[PUT|write]] is determined by the [[Variable Types|variable type]].
 
 
+{{PageExamples}}
 ''Example 1:'' With a string variable the byte size is the same as the number of characters.
 {{CodeStart}}
 LastName$ = &quot;Williams&quot;
@@ -109,7 +110,7 @@ PRINT NumRecords%; &quot;records&quot;
 : To read the last record [[GET]] the number of records. To add a record, use the number of records + 1 to [[PUT]] new record data.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[LOF]], [[EOF]]
 * [[AS]], [[TYPE]]
 * [[RANDOM]], [[BINARY]]

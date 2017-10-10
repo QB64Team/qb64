@@ -1,27 +1,28 @@
 {{DISPLAYTITLE:_RGB32}}
-The [[_RGB32]] function ALWAYS returns the 32-bit ''RGBA'' color value with specified red, green and blue component intensities.
+The [[_RGB32]] function returns the 32-bit ''RGBA'' color value with specified red, green and blue component intensities.
 
 
 {{PageSyntax}}
-:{{Parameter|color32value~&amp;}} = '''_RGB32('''{{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}''')'''
+:{{Parameter|color32value~&amp;}} = [[_RGB32]]({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}})
 
 
-{{Parameters}
+{{Parameters}}
 * {{Parameter|red&amp;}} specifies the red [[LONG]] component intensity from 0 to 255.
 * {{Parameter|green&amp;}} specifies the green [[LONG]] component intensity from 0 to 255.
 * {{Parameter|blue&amp;}} specifies the blue [[LONG]] component intensity from 0 to 255.
 
 
 {{PageDescription}}
-* The value returned is ALWAYS a 32 bit [[_UNSIGNED]] [[LONG]] color value as is the [[POINT]] value. 
-* '''Return variable types MUST be [[LONG]] or resulting color may lose the [[_BLUE]] value!'''
+* The value returned is ALWAYS a 32-bit [[_UNSIGNED]] [[LONG]] color value, as is the [[POINT]] value. 
+* '''Return variable types must be [[LONG]] or resulting color may lose the [[_BLUE]] value.'''
 * Color intensity values outside of the 0 to 255 range are clipped.
-* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with full [[_ALPHA]] only.
-* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]](colorvalue&amp;), 3) to place 3 colors.
-* Colors returned are ALWAYS opaque as the transparency value is always 255! Use [[_ALPHA]] or [[_CLEARCOLOR]] to change it.
-* '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
+* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''', always with full [[_ALPHA]].
+* When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]]({{Parameter|color32value~&amp;}}), 3) to place 3 colors.
+* Colors returned are always opaque as the transparency value is always 255. Use [[_ALPHA]] or [[_CLEARCOLOR]] to change it.
+* '''NOTE: Default 32-bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0). Use [[CLS]] to make the black opaque.'''
 
 
+{{PageExamples}}
 ''Example 1:'' Converting the color port RGB intensity palette values 0 to 63 to 32 bit hexadecimal values. 
 {{CodeStart}}
 {{Cl|SCREEN}} 12
@@ -91,7 +92,7 @@ SYSTEM '' ''
 * [[_RED32]], [[_GREEN32]], [[_BLUE32]]
 * [[_PALETTECOLOR]]
 * [[HEX$ 32 Bit Values]]
-* [[SAVEIMAGE]] {{text|(bitmap creator)}}
+* [[SAVEIMAGE]]
 * [http://www.w3schools.com/html/html_colornames.asp Hexadecimal Color Values]
 
 

@@ -1,18 +1,18 @@
 {{DISPLAYTITLE:_MEMEXISTS}}
-The '''_MEMEXISTS''' function returns true (-1) if the memory block variable name specified exists in memory and false (0) if it does not.
+The [[_MEMEXISTS]] function returns true (-1) if the memory block variable name specified exists in memory and false (0) if it does not.
 
 
 {{PageSyntax}}
-:::  ret = '''[[_MEMEXISTS]] ('''''memblock''''')'''
+: {{Parameter|result}} = [[_MEMEXISTS]]({{Parameter|memBlock}})
 
 
-''Details:''
-* The memblock variable name should have been created using [[DIM]] blockname [[AS]] [[_MEM]] type ([[DIM]].
-* The function verifies that the memory variable exists in memory before using a passed block to avoid generating QB64 errors.
-* Typically, this function is used by a [[DECLARE LIBRARY|LIBRARY]] [[SUB]] or [[FUNCTION]] which accepts a [[_MEM]] structure as input to avoid an error.
+{{PageDescription}}
+* The {{Parameter|memBlock}} variable name must have been created using [[DIM]] memBlock [[AS]] [[_MEM]] type ([[DIM]].
+* The function verifies that the memory variable exists in memory before using a passed block, to avoid generating QB64 errors.
+* Typically, this function is used by a [[DECLARE LIBRARY|LIBRARY]] [[SUB]] or [[FUNCTION]] which accepts a [[_MEM]] structure as input, to avoid an error.
 
 
-''See Also:''
+{{Parameter|See Also:}}
 * [[_MEM (function)]]
 * [[_MEMELEMENT]], [[_MEMCOPY]]
 * [[_MEMIMAGE]], [[_MEMNEW]]

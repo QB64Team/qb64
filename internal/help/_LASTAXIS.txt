@@ -1,18 +1,20 @@
 {{DISPLAYTITLE:_LASTAXIS}}
-The '''_LASTAXIS''' function returns the number of axis a specified number INPUT device on your computer has.
+The [[_LASTAXIS]] function returns the number of axis a specified number INPUT device on your computer has.
 
 
 {{PageSyntax}}
-::: axis_count% = '''_LASTAXIS('''''device_number''''')'''
+: {{Parameter|axisCount%}} = [[_LASTAXIS]]({{Parameter|deviceNumber}})
 
 
+{{PageDescription}}
 * Returns the number of axis that can be read on a specified device number within the number of [[_DEVICES]] found.
 * A valid number can be sent to the [[_AXIS]] function to find any relative axis movements.
 * The devices are listed in a numerical order determined by the OS and can be read by the [[DEVICE$]] function.
-* '''The [[_DEVICES]] function must be read BEFORE using _LASTAXIS or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur!'''
+* '''The [[_DEVICES]] function must be read before using _LASTAXIS or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur.'''
 * Devices include keyboard(1), mouse(2), joysticks, game pads and multiple stick game controllers.
 
 
+{{PageExamples}}
 ''Example:'' Checking for the system's input devices and number of axis.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
@@ -30,7 +32,7 @@ Axis: 2
 :Note: The [[STRIG]]/[[STICK]] commands won't read from the keyboard or mouse device the above example lists.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_LASTBUTTON]], [[_LASTWHEEL]]
 * [[_AXIS]], [[_BUTTON]], [[_WHEEL]]
 * [[_DEVICE$]], [[_DEVICES]]

@@ -1,19 +1,52 @@
 {{DISPLAYTITLE:_RESIZE (function)}}
-The '''_RESIZE''' function returns -1 when a user has attempted to resize the program window and [[$RESIZE]]:ON has allowed it.
+The [[_RESIZE]] function returns true (-1) when a user has attempted to resize the program window and [[$RESIZE]]:ON has allowed it.
 
 
 {{PageSyntax}}
-::: IF '''_RESIZE''' THEN rx&amp; = [[_RESIZEWIDTH]]: ry&amp; = [[_RESIZEHEIGHT]]
+: IF '''_RESIZE''' THEN rx&amp; = [[_RESIZEWIDTH]]: ry&amp; = [[_RESIZEHEIGHT]]
 
 
-''Details:''
-* The function returns -1 if a program screen re-size was attempted by the user. 
-* After the function returns -1, [[_RESIZEWIDTH]] and [[_RESIZEHEIGHT]] can return the new dimensions in pixels.
+{{PageDescription}}
+* The function returns -1 if a program screen resize was attempted by the user. 
+* After the function returns -1, [[_RESIZEWIDTH]] and [[_RESIZEHEIGHT]] can return the new requested dimensions in pixels.
 * The [[$RESIZE]]:ON [[metacommand]] must be used so the program is created with a user resizable window.
-* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
 
 
-''See also:''
+==Availability==
+* '''Version 1.000 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Resize the current screen image according to user's request.
+{{CodeStart}}
+{{Cl|$RESIZE}}:ON
+
+s&amp; = {{Cl|_NEWIMAGE}}(300, 300, 32)
+{{Cl|SCREEN}} s&amp;
+
+bee&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;) 'QB64's bee from http://www.qb64.net/qb64_trans.png
+
+{{Cl|DO}}
+    {{Cl|IF}} {{Cl|_RESIZE (function)|_RESIZE}} THEN
+        oldimage&amp; = s&amp;
+        s&amp; = _NEWIMAGE(_RESIZEWIDTH, _RESIZEHEIGHT, 32)
+        SCREEN s&amp;
+        {{Cl|_FREEIMAGE}} oldimage&amp;
+    END IF
+
+    {{Cl|CLS}}
+
+    'Center the QB64 bee image:
+    x = {{Cl|_WIDTH (function)|_WIDTH}} / 2 - _WIDTH(bee&amp;) / 2
+    y = {{Cl|_HEIGHT}} / 2 - _HEIGHT(bee&amp;) / 2
+    {{Cl|_PUTIMAGE}} (x, y), bee&amp;
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
 * [[$RESIZE]] {{text|(metacommand)}}
 * [[_RESIZE]]
 * [[_RESIZEWIDTH]], [[_RESIZEHEIGHT]] {{text|(requested pixel dimensions)}}

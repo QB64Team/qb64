@@ -1,25 +1,21 @@
-Briefly: Clear keyboard input buffers.
-
-{{PageSyntax}}_KEYCLEAR [buffer&amp;]
-
-Buffer&amp; indicates the buffer to be cleared:
-* 1 - Clear the regular keyboard buffer, as used by all input command except the following:  _KEYHIT, _KEYDOWN, INP(&amp;H60.  This is the same as the the emulated BIOS keyboard buffer, so legacy code reading from it via PEEK/POKE/CALL ABSOLUTE will also be affected.
-* 2 - Clear the buffer used by _KEYHIT.
-* 3 - Clear INP(&amp;H60) buffer (but see the &quot;Warning&quot; section below).
-* No parameter - Clear all three buffers.
-
-
-Description:
 {{DISPLAYTITLE:_KEYCLEAR}}
+[[_KEYCLEAR]] clears all keyboard input buffers.
 
-The '''_KEYCLEAR''' command clears the specified keyboard input buffer. In effect,
-it is as if a loop has been used to read from the buffer until it is empty.
-All keys cleared are lost. 
+{{PageSyntax}}
+:[[_KEYCLEAR]] {{Parameter|buffer&amp;}}
 
-This command is best used just before getting input, in order to clear stray 
-keypresses from commands such as SLEEP, or just random keyboard bashing by the
-user. The programmer also aught to be weary of key release events in the 
-_KEYHIT buffer; consider the following code:
+{{Parameters}}
+*{{Parameter|buffer&amp;}} indicates the buffer to be cleared:
+** 1 - Clear the regular keyboard buffer, as used by all input command except the following:  _KEYHIT, _KEYDOWN, INP(&amp;H60.  This is the same as the the emulated BIOS keyboard buffer, so legacy code reading from it via PEEK/POKE/CALL ABSOLUTE will also be affected.
+** 2 - Clear the buffer used by _KEYHIT.
+** 3 - Clear INP(&amp;H60) buffer. (see '''Warning''' in the the description below)
+* If no parameter is passed, all three buffers are cleared.
+
+
+{{PageDescription}}
+* The '''_KEYCLEAR''' command clears the specified keyboard input buffer. In effect, it is as if a loop has been used to read from the buffer until it is empty. All keys cleared are lost. 
+* '''Warning:''' The buffer read by INP(&amp;H60) does not behave as the other buffers do. Whilst reading from the others will eventually empty after reading all data, this buffer will continue to return the last value. For this reason, [[_KEYCLEAR]] is of little effect, but is included for completeness (an internal flag indicating new data on the port is cleared). However, using [[INP]] for anything is strongly discouraged, and is for backwards compatibility only.
+* This command is best used just before getting input, in order to clear stray key presses from commands such as SLEEP, or just random keyboard bashing by the user. The programmer also ought to be aware of key release events in the _KEYHIT buffer; consider the following code:
 
 {{CodeStart}}
 INPUT &quot;Name: &quot;, name$
@@ -28,13 +24,8 @@ _DELAY 2 'Simulate doing some processing that takes some time.
 PRINT _KEYHIT
 {{CodeEnd}}
 
-The INPUT statement finishes as soon as the Enter key is struck; the program then
-proceeds to clear all input buffers. Because this is executed so quickly, it is
-likely that the user will release the Enter key after the _KEYCLEAR command is 
-executed, leaving a -13 (Enter key release) event in the _KEYHIT buffer.
-
-As mentioned above, it is best to place the _KEYCLEAR after the processing, 
-immediately before the PRINT _KEYHIT command:
+* The INPUT statement finishes as soon as the Enter key is struck; the program then proceeds to clear all input buffers. Because this is executed so quickly, it is likely that the user will release the Enter key after the _KEYCLEAR command is executed, leaving a -13 (Enter key release) event in the _KEYHIT buffer.
+* As mentioned above, it is best to place the _KEYCLEAR after the processing, immediately before the PRINT _KEYHIT command:
 
 {{CodeStart}}
 INPUT &quot;Name: &quot;, name$
@@ -44,6 +35,7 @@ PRINT _KEYHIT
 {{CodeEnd}}
 
 
+{{PageExamples}}
 Example:
 {{CodeStart}}
 PRINT &quot;Press a key&quot;
@@ -56,9 +48,10 @@ PRINT &quot;In regular buffer, there is &quot;; INKEY$ 'read regular buffer
 PRINT &quot;In _KEYHIT buffer, there is &quot;; _KEYHIT 'read the _KEYHIT buffer
 {{CodeEnd}}
 
-Warning:
-The buffer read by INP(&amp;H60) does not behave as the other buffers do. Whilst reading from
-the others will eventually empty after reading all data, this buffer will continue to return
-the last value. For this reason, _KEYCLEAR is of little effect, but is included for completeness
-(an internal flag indicating new data on the port is cleared). However, using INP for anything
-is strongly discouraged, and is for backwards compatibility only.
+
+{{PageSeeAlso}}
+* [[SLEEP]]
+* [[INKEY$]], [[_KEYHIT]]
+
+
+{{PageNavigation}}

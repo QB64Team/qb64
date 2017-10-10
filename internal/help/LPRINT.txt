@@ -1,19 +1,19 @@
-The {{KW|LPRINT}} statement sends string text or numerical values to a parallel port(LPT1) printer in Qbasic or a USB printer in '''QB64'''.
+The [[LPRINT]] statement sends string text or numerical values to a parallel port (LPT1) printer in QBasic or a USB printer in '''QB64'''.
 
 
 {{PageSyntax}}
-:{{KW|LPRINT}} [{{Parameter|expression}}] [{;|,}]
+:[[LPRINT]] [{{Parameter|expression}}] [{;|,}]
 
 
 {{PageDescription}}
 * {{Parameter|expression}} is one or more text or numerical expressions separated by a semi-colon (;) or comma (,).
 * Syntax is the same as [[PRINT]], but cannot use a port number.
-* Program does not have to [[OPEN]] the LPT1: parallel port. In fact that is NOT recommended!
-* Assumes a 80 character wide page unless a [[WIDTH|WIDTH LPRINT]] statement is used. '''[[Keywords currently not supported by QB64|WIDTH LPRINT is currently NOT supported in QB64!]]'''
+* Program does not have to [[OPEN]] the LPT1: parallel port.
+* Assumes a 80 character wide page. '''[[Keywords currently not supported by QB64|WIDTH LPRINT is not supported in QB64.]]'''
 * [[LPRINT USING]] can print formatted text data to a page identically to how [[PRINT USING]] formats a program screen.
 * [[COLOR]]ed text and images can be printed using [[_PRINTIMAGE]] which stretches them to fit the default printer's paper size.
-* LPRINT will only print to the DEFAULT USB or LPT printer that works in Windows.  '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''
-* Note: Printer Escape codes starting with [[CHR$]](27) will not work with LPRINT and may produce text printing errors.
+* LPRINT will only print to the default USB or LPT printer set up in Windows.  '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''
+* Note: Printer ''escape codes'' starting with [[CHR$]](27) will not work with LPRINT and may produce text printing errors.
 
 
 {{PageSeeAlso}}

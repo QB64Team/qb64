@@ -1,21 +1,21 @@
-The '''FIX''' function rounds a numerical value to the next whole number closest to zero.
-
+The [[FIX]] function rounds a numerical value to the next whole number closest to zero.
 
 
 {{PageSyntax}}
-:: result = '''FIX('''''expression''''')'''
+: {{Parameter|result}} = [[FIX]]({{Parameter|expression}})
 
 
 {{Parameters}}
-* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+* {{Parameter|expression}} is any [[Data types|type]] of literal or variable numerical value or mathematical calculation.
 
 
 {{PageDescription}}
-* [[FIX]] effectively truncates (removes) the fractional part of ''expression'', returning the integer part.
-* This means that [[FIX]] rounds down for positive values and up for negative values.
+* [[FIX]] effectively truncates (removes) the fractional part of {{Parameter|expression}}, returning the integer part.
+** This means that [[FIX]] rounds down for positive values and up for negative values.
 * Use [[INT]] to round down negative values. Positive values are rounded down by both.
 
 
+{{PageExamples}}
 ''Example 1:'' Showing the behavior of [[FIX]] with positive and negative decimal point values.
 {{CodeStart}} '' ''
  PRINT FIX(2.5)
@@ -48,7 +48,8 @@ The '''FIX''' function rounds a numerical value to the next whole number closest
 {{OutputEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
+* [[_CEIL]]
 * [[INT]], [[CINT]]
 * [[CLNG]], [[_ROUND]]
 * [[MOD]], [[\|Integer Division]]

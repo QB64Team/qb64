@@ -1,35 +1,35 @@
-The {{KW|CINT}} function rounds decimal point numbers up or down to the nearest {{KW|INTEGER}} value.  
+The [[CINT]] function rounds decimal point numbers up or down to the nearest [[INTEGER]] value.  
 
 
 {{PageSyntax}}
-:: value = '''CINT('''''expression''''')'''
+: {{Parameter|value%}} = [[CINT]]({{Parameter|expression}})
 
 
 {{Parameters}}
-* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+* {{Parameter|expression}} is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
 
 
 {{PageDescription}}
-* Values greater than .5 are rounded up. Values lower than .5 are rounded down just like &quot;bankers rounding&quot;.
-* Half(.5) [[SINGLE]] values are rounded to the nearest EVEN integer value whether it is up or down.
-* ''Warning:'' Since {{KW|CINT}} is used for integer values, the input values cannot exceed 32767 to -32768! 
-* Use {{KW|CLNG}} for {{KW|LONG}} integer values exceeding Integer limitations.
-* Note: When decimal point values are given to Basic functions requiring [[INTEGER]]s the value will be CINTed.
+* Values greater than .5 are rounded up. Values lower than .5 are rounded down.
+* ''Warning:'' Since [[CINT]] is used for integer values, the input values cannot exceed 32767 to -32768! 
+* Use [[CLNG]] for [[LONG]] integer values exceeding [[INTEGER]] limitations.
+* Note: When decimal point values are given to BASIC functions requiring [[INTEGER]]s the value will be [[CINT]]ed.
 
 
-''Example:'' Shows how CINT rounds values up or down as in bankers rounding. 
+{{PageExamples}}
+''Example:'' Shows how CINT rounds values up or down as in &quot;bankers' rounding&quot;. 
 {{CodeStart}} '' ''
 a% = {{Cl|CINT}}(1.49): b% = {{Cl|CINT}}(1.50): c = 11.5
 {{Cl|COLOR}} c: {{Cl|PRINT}} a%, b%, c '' ''
 {{CodeEnd}}
 {{OutputStart}}{{text|1       2       11.5|red}}
 {{OutputEnd}}
-:''Note:'' Qbasic functions requiring [[INTEGER]] values such as text or graphic coordinates and {{KW|COLOR}} will be rounded like {{KW|CINT}}. Half values are rounded to the nearest even integer value.
 
 
 {{PageSeeAlso}}
-* {{KW|CLNG}}, {{KW|CSNG}}, {{KW|CDBL}}
-* {{KW|INT}}, {{KW|FIX}}, {{KW|_ROUND}}
+* [[_ROUND]], [[_CEIL]]
+* [[CLNG]], [[CSNG]], [[CDBL]]
+* [[INT]], [[FIX]]
 
 
 {{PageNavigation}}

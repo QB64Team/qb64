@@ -1,32 +1,33 @@
-The '''INT''' function rounds a numeric value down to the next whole number or [[INTEGER]](toward less negative). 
+The [[INT]] function rounds a numeric value down to the next whole number. 
 
 
 {{PageSyntax}}
-:: result = '''INT('''''expression''''')'''
+: {{Parameter|result}} = [[INT]]({{Parameter|expression}})
 
 
 {{Parameters}}
-* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+* {{Parameter|expression}} is any [[Data types|type]] of literal or variable numerical value or mathematical calculation.
 
 
 {{PageDescription}}
-* [[INT]] returns the first whole number [[INTEGER]] that is less than the ''expression'' value.
+* [[INT]] returns the first whole number [[INTEGER]] that is less than the {{Parameter|expression}} value.
 * This means that [[INT]] rounds down for both positive and negative numbers.
-* Use [[FIX]] to round negative values up. It is identical to INT with positive values.
+* Use [[FIX]] to round negative values up. It is identical to [[INT]] for positive values.
 
 
+{{PageExamples}}
 ''Example:'' Displaying the rounding behavior of [[INT]].
 {{CodeStart}}
 PRINT INT(2.5)
 PRINT INT(-2.5)
 {{CodeEnd}}
 {{OutputStart}}
-2 
+ 2 
 -3
 {{OutputEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[CINT]], [[CLNG]], [[FIX]]
 * [[CSNG]], [[CDBL]]
 * [[_ROUND]], [[_CEIL]]

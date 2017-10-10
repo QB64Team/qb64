@@ -18,6 +18,7 @@
 * Windows NT may block access to Parallel printer and Serial ports! See [[Port Access Libraries]] or other DLL's.
 * '''WARNING!''' Be sure that the address is useable. OUT accesses directly unlike [[POKE]] and '''can cause PC damage!'''
 * [[_PALETTECOLOR]] can also be used to set RGB intensity values using [[_RGB32|32 bit color]] values.
+* OUT can toggle the blinking attribute of SCREEN 0 color 16-31 for legacy code. [[_BLINK]] is the preferred method. (starting with build 20170816/61).
 
 
 :::::::'''Color Port Palette access using OUT'''
@@ -58,7 +59,15 @@ PRINT red%, green%, blue% '' ''
 :''Explanation:'' In [[SCREEN]] 0 this is one way to make high intensity background colors. [[COLOR]] ,15 is actually grey(7).
 
 
-''Example 3:'' Restoring colors to a bitmap from the Red, Green and Blue [[BSAVE]]d indexed array of color values.
+''Example 3:'' Toggling blinking colors in SCREEN beginning with build 20170816/61
+{{CodeStart}} '' ''
+{{Cl|OUT}} &amp;H3C0, &amp;H10  'disables blinking and enables high intensity backgrounds (colors 16-31)
+{{Cl|OUT}} &amp;H3C0, 2 ^ 3 'reenables blinking and disables high intensity backgrounds  (colors 16-31)
+{{CodeEnd}}
+: Note: For new code, the recommended practice is to use the new [[_BLINK]] {ON|OFF} statement.
+
+
+''Example 4:'' Restoring colors to a bitmap from the Red, Green and Blue [[BSAVE]]d indexed array of color values.
 {{CodeStart}} '' ''
  {{Cl|SCREEN (statement)|SCREEN}} 12
  {{Cl|OUT}} {{Cl|&amp;H}}3C8, 0 ' set color port for output at attribute 0
@@ -78,6 +87,7 @@ PRINT red%, green%, blue% '' ''
 * [[POKE]] {{text|(write to memory)}}
 * [[COLOR]], [[SCREEN]] 
 * [[BSAVE]], [[BLOAD]]
+* [[_BLINK]], [[_BLINK (function)]]
 * [[Port Access Libraries]] {{text|(COM or LPT registers)}}
 * [http://en.wikipedia.org/wiki/Input/output_base_address#Common_I.2FO_base_address_device_assignments_in_IBM_PC_compatible_computers PC I/O base address device assignments]
 

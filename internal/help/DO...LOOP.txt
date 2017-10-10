@@ -2,36 +2,37 @@
 
 
 {{PageSyntax}}
+''Syntax 1:''
 :'''[[DO]]''' [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
-:.
-:.
-:.
+:: ''{code}''
+:: ⋮
 :'''[[LOOP]]''' 
 
+
+''Syntax 2:''
 :'''[[DO]]'''
-:.
-:.
-:.
+:: ''{code}''
+:: ⋮
 :'''[[LOOP]]''' [{{{KW|WHILE}}|{{KW|UNTIL}}} condition]
 
 
 {{PageDescription}}
-* DO UNTIL or DO WHILE used with LOOP. The DO will evaluate the condition before running the loop code:
-::[[UNTIL]] checks if the condition is False each time before running code.
-::[[WHILE]] checks if the condition is True each time before running code.
-* DO used with LOOP UNTIL or LOOP WHILE. The loop code will run at least once:
-::[[UNTIL]] checks if the condition is False before running loop code again.
-::[[WHILE]] checks if the condition is True before running loop code again.
-* NOTE: You cannot use a condition after both the DO and LOOP statements at the same time!  
-* Use '''[[EXIT]] DO''' to exit a DO loop within the loop code.
-* If a loop never meets an exit condition requirement, it will never stop!
-* '''Condition expressions are required after WHILE or UNTIL or QB64 will return a compiler error!'''
+* '''DO UNTIL or DO WHILE used with LOOP''': The condition is evaluated before running the loop code.
+::[[UNTIL]] checks if the condition is false each time before running code.
+::[[WHILE]] checks if the condition is true each time before running code.
+* '''DO used with LOOP UNTIL or LOOP WHILE''': The code block will run at least once:
+::[[UNTIL]] checks if the condition is false before running loop code again.
+::[[WHILE]] checks if the condition is true before running loop code again.
+* NOTE: You cannot use a condition after both the DO and LOOP statements at the same time. 
+* Use '''[[EXIT]] DO''' to exit a loop block even before the condition is met.
+** If you don't specify a condition, you must exit the loop block manually using '''[[EXIT]] DO'''.
+* If a loop never meets an exit condition requirement, it will never stop.
 
 
 {{Template:RelationalTable}}
 
 
-
+{{PageExamples}}
 ''Example 1:'' Using WHILE to clear the keyboard buffer.
 {{CodeStart}}
 

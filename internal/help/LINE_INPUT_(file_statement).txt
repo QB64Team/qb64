@@ -1,30 +1,31 @@
-The '''LINE INPUT #''' file statement reads an entire file line as one string variable value.
-
+The '''LINE INPUT #''' file statement reads an entire line from a text file into a string variable.
 
 
 {{PageSyntax}}
-:: '''LINE INPUT''' '''#'''''filenumber&amp;''''',''' ''textlinereturn$''
+: '''LINE INPUT''' '''#'''{{Parameter|fileNumber&amp;}}''',''' ''stringVariable$''
 
 
 {{Parameters}}
-* ''filenumber'' is the [[INTEGER]] number of the file previously opened [[AS]].
-* Statement [[STRING]] variable returns ''text line'' of the file being read ending at [[ASCII#Control_Characters|CRLF]] characters.
+* {{Parameter|fileNumber&amp;}} is the [[INTEGER]] number of the file previously opened with the [[OPEN]] statement.
+* {{Parameter|stringVariable$}} holds the text line read from the file.
 
 
-''Description:''
-* Reads a file using the filenumber [[OPEN]]ed in the [[INPUT (file mode)]] or GL [[BINARY]] file mode as one file line text string.
+{{PageDescription}}
+* Reads a file using the {{Parameter|fileNumber&amp;}} [[OPEN]]ed in the [[INPUT (file mode)]] or [[BINARY]] file mode as one file line text string.
+* '''NOTE:''' [[LINE INPUT (file statement)|LINE INPUT]] will work faster in [[BINARY]] mode than in [[INPUT (file mode)|INPUT]] mode.
+** Using '''LINE INPUT #''' in [[BINARY]] mode is possible in '''version 1.000 and up'''
 * Can be used with [[EOF]] to count the number of lines of data (records) in a file using a loop.
 * Use the [[EOF]] function to avoid going past the end of a file and creating an error.
-* LINE INPUT # can even retain the original quotation marks in text.
-* '''Note: QB64''' will NOT remove CHR$(0) from the end of LINE INPUT # string return values like Qbasic did.
-* '''NOTE: [[LINE INPUT (file statement)|LINE INPUT]] will work faster in [[BINARY]] than [[INPUT (file mode)|INPUT]] mode in QB64 to stay compatible with QB.'''
+* '''LINE INPUT #''' can even retain the original quotation marks in text.
+* '''Note: QB64''' will not remove CHR$(0) from the end of '''LINE INPUT #''' string return values like QBasic did.
 
 
 {{PageErrors}}
-* '''If QB64 or QB 4.5 give &quot;Input past End of file&quot; errors, check for CHR$(26) in the files being read!'''
-* '''Warning! Files must exist to open them in INPUT mode! Use [[_FILEEXISTS]] to avoid program [[ERROR Codes|errors]]!'''
+* '''If an &quot;Input past End of file&quot; error occurs, check for CHR$(26) (end of file character) in the files being read.'''
+* '''Warning: files must exist to be opened in '''INPUT''' mode. Use [[_FILEEXISTS]] to avoid program [[ERROR Codes|errors]].'''
 
 
+{{PageExamples}}
 ''Example:'' Finding the number of filenames listed in a file to dimension an array to hold them.
 {{CodeStart}} '' ''
 {{Cl|REDIM}} FileArray$(100) 'create {{Cl|$DYNAMIC|dynamic}} array
@@ -42,12 +43,12 @@ The '''LINE INPUT #''' file statement reads an entire file line as one string va
 {{CodeEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[OPEN]], [[CLOSE]]
 * [[INPUT (file mode)]], [[INPUT (file statement)|INPUT #]], [[INPUT$]] {{text|(file input)}}
 * [[INPUT]], [[LINE INPUT]], [[INPUT$]] {{text|(keyboard input)}}
 * [[_FILEEXISTS]], [[_DIREXISTS]]
-* [[FILELIST$]] (Function replacement for [[FILES]])
+* [[FILELIST$]] (member-contributed function replacement for [[FILES]])
 
 
 {{PageNavigation}}

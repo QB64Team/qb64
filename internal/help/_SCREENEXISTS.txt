@@ -1,16 +1,18 @@
 {{DISPLAYTITLE:_SCREENEXISTS}}
-The [[_SCREENEXISTS]] function returns a -1 value once a screen has been created.
+The [[_SCREENEXISTS]] function returns true (-1) once a screen has been created.
 
 
 {{PageSyntax}}
-::: screenready = '''_SCREENEXISTS'''
+: {{Parameter|screenReady%%}} = [[_SCREENEXISTS]]
 
 
 {{PageDescription}}
-* Function returns a true value once a program screen is available to use or change.
-* Avoids program errors or omissions because a screen was not ready for input or alterations.
+* Function returns true (-1) once a program screen is available to use or change.
+* Can be used to avoid program errors because a screen was not ready for input or alterations.
+** Use before [[_TITLE]], [[_SCREENMOVE]] and other functions that require the output window to have been created.
 
 
+{{PageExamples}}
 ''Example:'' The loop waits until the screen exists to add the title.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12

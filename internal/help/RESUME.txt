@@ -1,18 +1,18 @@
-The '''RESUME''' statement is used with [[NEXT]] or a linenumber or label in an Error handling routine ONLY.
-
+The '''RESUME''' statement is used with '''NEXT''' or a line number or label in an error handling routine.
 
 
 {{PageSyntax}}
-:: '''RESUME''' {[[NEXT]]|''linelabel''|''linenumber''}
+: [[RESUME]] {'''NEXT'''|{{Parameter|lineLabel}}|{{Parameter|lineNumber}}}
 
 
-* [[NEXT]] returns execution to the code immediately following the error.
-* A ''[[line number]]'' or ''line label'' is the code line to return to after an error.
+{{PageDescription}}
+* '''NEXT''' returns execution to the code immediately following the error.
+* A {{Parameter|lineLabel}} or {{Parameter|lineNumber}} is the code line to return to after an error.
 * If the line label or number is omitted or the line number = 0, the code execution resumes at the code that created the original error.
-* RESUME can only be used in ERROR handling routines! Use [[RETURN]] in normal [[GOSUB]] procedures.
+* [[RESUME]]can only be used in ERROR handling routines. Use [[RETURN]] in normal [[GOSUB]] procedures.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[ON ERROR]], [[ERROR]]
 * [[RETURN]], [[ERROR Codes]]
 * [[FOR...NEXT]] (counter loop)

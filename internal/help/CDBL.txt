@@ -1,20 +1,21 @@
-{{KW|CDBL}} converts a value to the closest {{KW|DOUBLE}}-precision value.
+[[CDBL]] converts a value to the closest [[DOUBLE]]-precision value.
 
 
 
 {{PageSyntax}}
-:: doublevalue = '''CDBL('''''expression''''')'''
+: {{Parameter|doubleValue#}} = [[CDBL]]({{Parameter|expression}})
 
 
 {{Parameters}}
-* The ''expression'' is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
+* {{Parameter|expression}} is any [[TYPE]] of literal or variable numerical value or mathematical calculation.
 
 
 {{PageDescription}}
 * Rounds to the closest [[DOUBLE]] floating decimal point value.
-* Also can be used to define a value as {{KW|DOUBLE}}-precision up to 15 decimals.
+* Also can be used to define a value as [[DOUBLE]]-precision up to 15 decimals.
 
 
+{{PageExamples}}
 ''Example:'' Prints a double-precision version of the single-precision value stored in the variable named A.
 {{CodeStart}}
  A = 454.67

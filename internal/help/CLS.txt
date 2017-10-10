@@ -1,8 +1,8 @@
-The {{KW|CLS}} statement clears the current write page.
+The [[CLS]] statement clears the [[_DEST|current write page]].
 
 
 {{PageSyntax}} 
-::: '''CLS''' [{{Parameter|method%}}] [, {{Parameter|BGcolor&amp;}}]
+: [[CLS]] [{{Parameter|method%}}] [, {{Parameter|bgColor&amp;}}]
 
 
 {{Parameters}}
@@ -11,19 +11,20 @@ The {{KW|CLS}} statement clears the current write page.
 ** CLS 0 - Clears the entire page of text and graphics. Print cursor is moved to row 1 at column 1.
 ** CLS 1 - Clears only the graphics view port. Has no effect for text mode.
 ** CLS 2 - Clears only the text view port. The print cursor is moved to the top row of the text view port at column 1.
-* The {{Parameter|BGcolor&amp;}} specifies the color attribute or palette index to use when clearing the screen in '''QB64 only'''.
+* The {{Parameter|bgColor&amp;}} specifies the color attribute or palette index to use when clearing the screen in '''QB64'''.
 
 
-''Usage:''
-** In legacy [[SCREEN]] modes {{Parameter|BGcolor&amp;}} specifies the color attribute of the background.
-** For 32-bit graphics mode, {{Parameter|BGcolor&amp;}} specifies the [[_RGB]] or [[_RGBA]] color to use. 
-* '''32 bit screen surface backgrounds(black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
-: Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opague.
-** If not specified, {{Parameter|BGcolor&amp;}} is assumed to be the current background color. 32 bit backgrounds will change to opaque!
-** If {{Parameter|BGColor&amp;}} is not a valid attribute, an [[ERROR Codes|illegal function call]] error will occur!
+{{PageDescription}}
+* In legacy [[SCREEN]] modes {{Parameter|bgColor&amp;}} specifies the color attribute of the background.
+* For 32-bit graphics mode, {{Parameter|bgColor&amp;}} specifies the [[_RGB]] or [[_RGBA]] color to use. 
+* '''32-bit screen surface backgrounds (black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
+** Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opaque.
+* If not specified, {{Parameter|bgColor&amp;}} is assumed to be the current background color. 32-bit backgrounds will change to opaque.
+* If {{Parameter|bgColor&amp;}} is not a valid attribute, an [[ERROR Codes|illegal function call]] error will occur.
 * Use [[_PRINTMODE]] to allow the background colors to be visible through the text or the text background.
 
 
+{{PageExamples}}
 ''Example 1:'' Printing black text on a white background in QB64.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
@@ -39,20 +40,18 @@ K$ = {{Cl|INPUT$}}(1
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|CLS}} , {{Cl|_RGB}}(0, 255, 0)
-i = {{Cl|_LOADIMAGE}}('''&quot;QB64.PNG&quot;''') 'see note below examples to get the image 
-{{Cl|_PUTIMAGE}} (0, 0), i ' places image at upper left corner of window w/o stretching it 
+i = {{Cl|_LOADIMAGE}}('''&quot;qb64_trans.png&quot;''') 'see note below examples to get the image 
+{{Cl|_PUTIMAGE}} (0, 0), i 'places image at upper left corner of window w/o stretching it 
 '' ''
 {{CodeEnd}} '' ''
 
-: ''Explanation:'' When QB64 loads a 256 color .PNG file containing a transparent color, that color will be treated as transparent when _PUTIMAGE is used to put it onto another image. So actually, you can use a 256-color .PNG file containing transparency information in a 256 color screen mode in QB64. [[CLS]] sets the [[_CLEARCOLOR]] setting using [[_RGB]].
-
-&lt;center&gt;''Note:'' The ''QB64.PNG'' Bee image used can be copied from the top of the [http://www.qb64.net/forum/index.php Main Forum Page]&lt;/center&gt;
+: ''Explanation:'' When QB64 loads a .PNG file containing a transparent color, that color will be properly treated as transparent when _PUTIMAGE is used to put it onto another image. You can use a .PNG file containing transparency information in a 256-color screen mode in QB64. [[CLS]] sets the [[_CLEARCOLOR]] setting using [[_RGB]].
+: ''Note:'' The ''qb64_trans.png'' bee image used can be downloaded from [http://www.qb64.net/qb64_trans.png qb64_trans.png]
 
 
 {{PageSeeAlso}}
-
 * [[SCREEN]]
-* [[_RGB]], [[_RGBA]] 
+* [[_RGB]], [[_RGBA]], [[_RGB32]], [[_RGBA32]]
 * [[VIEW PRINT]], [[VIEW]]
 * [[_CLEARCOLOR]]
 

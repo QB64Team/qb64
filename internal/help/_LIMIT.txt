@@ -1,20 +1,21 @@
 {{DISPLAYTITLE:_LIMIT}}
-The '''_LIMIT''' statement sets the loop repeat rate of a program to so many per second, relinquishing spare cpu cycles to other applications. 
+The [[_LIMIT]] statement sets the loop repeat rate of a program to so many per second, relinquishing spare CPU cycles to other applications. 
 
 
 {{PageSyntax}} 
-::: [[_LIMIT]] ({{Parameter|LoopsPerSecond!}})
+: [[_LIMIT]] ({{Parameter|framesPerSecond!}})
 
 
-* The frames per second [[SINGLE]] parameter value adjusts the loops per second of a program loop. '''Do not use negative values!'''
-* The loop code is executed before the loop is delayed. Loop cycles below once per second may delay program [[_EXIT]]s!
+* The {{Parameter|framesPerSecond!}} [[SINGLE]] parameter value adjusts the loops per second of a program loop. '''Do not use negative values.'''
+* The loop code is executed before the loop is delayed. Loop cycles below once per second may delay program [[_EXIT]]s.
 * _LIMIT measures its interval from the previous time that it was called and minor adjustments are automatically made to ensure that the number of times a loop is repeated is correct overall.
-* Loop cycle rates of 1000 or less can '''significantly reduce CPU useage''' in programs!
-* Do NOT use it to limit a loop to '''less than once every 60 seconds'''(.0167) or an [[ERROR Codes|ILLEGAL FUNCTION CALL error]] will occur.
+* Loop cycle rates of 1000 or less can '''significantly reduce CPU usage''' in programs.
+* Do not use it to limit a loop to '''less than once every 60 seconds'''(.0167) or an [[ERROR Codes|ILLEGAL FUNCTION CALL error]] will occur.
 * Do not use _LIMIT as a timing delay outside of loops. Use [[_DELAY]] instead.
 * Use _LIMIT to slow down old Qbasic program loops that run too fast and use too much CPU.
 
 
+{{PageExamples}}
 ''Example:'' Limits loop execution to 30 frames per second and limits the program's CPU usage.
 {{CodeStart}} '' ''
 {{Cl|PRINT}} &quot;To Quit press ESC key!&quot;

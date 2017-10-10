@@ -3,26 +3,26 @@ The '''_DEVICEINPUT''' function returns the device number when a controller devi
 
 
 {{PageSyntax}}
-::: device% = '''_DEVICEINPUT'''
-::: device_active% = '''_DEVICEINPUT('''''device_number%''''')'''
+: {{Parameter|device%}} = [[_DEVICEINPUT]]
+: {{Parameter|device_active%}} = [[_DEVICEINPUT]]({{Parameter|device_number%}})
 
 
 {{Parameters}}
-* Use the _DEVICEINPUT  ''device'' [[INTEGER]] returned to find the number of the controller device being used.
-* A literal specific ''device_number'' parameter can be used to return -1 if active or 0 if inactive. {{text|EX: '''WHILE _DEVICEINPUT(2)'''|green}} 
+* Use the _DEVICEINPUT  {{Parameter|device%}} [[INTEGER]] returned to find the number of the controller device being used.
+* A literal specific {{Parameter|device_number%}} parameter can be used to return -1 if active or 0 if inactive. {{text|EX: '''WHILE _DEVICEINPUT(2)'''|green}} 
 
 
-''Description:''
-* Use [[_DEVICES]] to find the number of controller devices available BEFORE using this function!
-
+{{PageDescription}}
+* Use [[_DEVICES]] to find the number of controller devices available BEFORE using this function.
 * [[_DEVICE$]] can be used to list the device names and control types using valid [[_DEVICES]] numbers.
 * When a device button is pressed or a scroll wheel or axis is moved, the device number will be returned.
-* Devices are numbered as 1 for keyboard and 2 for mouse. Other controller devices will be numbered 3 or more if installed.
+* Devices are numbered as 1 for keyboard and 2 for mouse. Other controller devices will be numbered 3 or higher if installed.
 * [[_LASTBUTTON]], [[_LASTAXIS]], or [[_LASTWHEEL]] will indicate the number of functions available with the specified ''device'' number. 
 * User input events can be monitored reading valid numbered [[_AXIS]], [[_BUTTON]], [[_BUTTONCHANGE]] or [[_WHEEL]] functions.
 * ''Note:'' [[ON...GOSUB|ON _DEVICEINPUT GOSUB]] keyboard, mouse, gamecontrol can be used to control the devices 1,2 and 3, etc. 
 
 
+{{PageExamples}}
 ''Example 1:'' Checking device controller interfaces and finding out what devices are being used.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
@@ -96,7 +96,7 @@ controller:
 : ''Note:'' [[ON...GOSUB]] and [[ON...GOTO]] events require numerical values to match the order of line labels listed in the event used inside loops.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_DEVICES]], [[_DEVICE$]]
 * [[_LASTBUTTON]], [[_LASTAXIS]], [[_LASTWHEEL]]
 * [[_BUTTON]], [[_AXIS]], [[_WHEEL]]

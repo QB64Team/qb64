@@ -1,20 +1,53 @@
 {{DISPLAYTITLE:_RESIZEHEIGHT}}
-The [[_RESIZEHEIGHT]] function returns the user re-sized screen pixel width if [[$RESIZE]]:ON allows it and [[_RESIZE (function)|_RESIZE]] returns -1 
+The [[_RESIZEHEIGHT]] function returns the user resized screen pixel height if [[$RESIZE]]:ON allows it and [[_RESIZE (function)|_RESIZE]] returns -1 
 
 
 {{PageSyntax}}
-::: newHeight&amp; = '''_RESIZEHEIGHT'''
+: {{Parameter|newHeight&amp;}} = [[_RESIZEHEIGHT]]
 
 
-''Details:''
-* [[_RESIZE (function)|_RESIZE]] function must return -1 before the requested screen dimensions can be returned by the function.
-* The program should decide if the request is allowable for proper program interactions and view-ability.
-* '''QB64 GL''' programs only. Not available in QB64 SDL versions .954 and older.
+{{Parameter|Details:}}
+* [[_RESIZE (function)|_RESIZE]] function must return true (-1) before the requested screen dimensions can be returned by the function.
+* The program should decide if the request is allowable for proper program interaction.
 
 
-''See also:''
-* [[$RESIZE]] {{text|(ON allows user to resize)}}
-* [[_RESIZE (function)]] {{text|(returns user resize request)}}
+==Availability==
+* '''Version 1.000 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Resize the current screen image according to user's request.
+{{CodeStart}}
+{{Cl|$RESIZE}}:ON
+
+s&amp; = {{Cl|_NEWIMAGE}}(300, 300, 32)
+{{Cl|SCREEN}} s&amp;
+
+bee&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;) 'QB64's bee from http://www.qb64.net/qb64_trans.png
+
+{{Cl|DO}}
+    {{Cl|IF}} {{Cl|_RESIZE (function)|_RESIZE}} THEN
+        oldimage&amp; = s&amp;
+        s&amp; = _NEWIMAGE(_RESIZEWIDTH, _RESIZEHEIGHT, 32)
+        SCREEN s&amp;
+        {{Cl|_FREEIMAGE}} oldimage&amp;
+    END IF
+
+    {{Cl|CLS}}
+
+    'Center the QB64 bee image:
+    x = {{Cl|_WIDTH (function)|_WIDTH}} / 2 - _WIDTH(bee&amp;) / 2
+    y = {{Cl|_HEIGHT}} / 2 - _HEIGHT(bee&amp;) / 2
+    {{Cl|_PUTIMAGE}} (x, y), bee&amp;
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[$RESIZE]]
+* [[_RESIZE (function)]]
 * [[_RESIZEWIDTH]]
 
 

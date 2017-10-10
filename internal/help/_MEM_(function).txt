@@ -1,26 +1,27 @@
 {{DISPLAYTITLE:_MEM (function)}}
-The '''_MEM''' function returns a _MEM block referring to the largest possible continuous memory region beginning at variable's offset.
+The [[_MEM]] function returns a _MEM block referring to the largest possible continuous memory region beginning at a variable's offset.
 
 
 {{PageSyntax}}
-::: memory_block = '''_MEM(''reference_ variable'')'''
+: {{Parameter|memoryBlock}} = [[_MEM]]({{Parameter|referenceVariable}})
 
-Unsecure {{PageSyntax}}
-::: memory_block = '''_MEM(''offset'', ''byte_size'')'''
+===Unsecure syntax===
+: {{Parameter|memoryBlock}} = [[_MEM]]({{Parameter|offset}}, {{Parameter|byteSize}})
 
 
 {{Parameters}}
-* The ''memory block'' created will hold the ''reference variable''' or [[arrays|array]] value(s), type and byte size in a separate memory area.
-* The secure syntax ''reference variable'' is an existing variable's referenced memory block.
-* The unsecure syntax's designated ''offset'' and ''byte size'' cannot be guaranteed! '''AVOID if possible!'''
+* The {{Parameter|memoryBlock}} created will hold the {{Parameter|referenceVariable}} or [[arrays|array]] value(s), type and byte size in a separate memory area.
+* The secure syntax {{Parameter|referenceVariable}} is an existing variable's referenced memory block.
+* The unsecure syntax's designated {{Parameter|offset}} and {{Parameter|byteSize}} cannot be guaranteed. '''Avoid if possible.'''
 
 
-''Usage:''
-* The ''memory block'' [[_MEM]] type variable holds the read only OFFSET, SIZE, TYPE and ELEMENTSIZE.
+{{PageDescription}}
+* The {{Parameter|memoryBlock}} [[_MEM]] type variable holds the following read-only elements: OFFSET, SIZE, TYPE and ELEMENTSIZE.
 * All values created by memory functions MUST be freed using [[_MEMFREE]] with a valid [[_MEM]] variable type.
-* '''_MEM function cannot reference variable length [[STRING]] variable values! String values must be designated as a fixed [[LEN]].'''
+* '''_MEM function cannot reference variable length [[STRING]] variable values. String values must be designated as a fixed-[[LEN|length]] string.'''
 
 
+{{PageExamples}}
 ''Example:'' Assigning values to reference variables in memory.
 {{CodeStart}} '' ''
 {{Cl|DIM}} {{Cl|SHARED}} m(3) {{Cl|AS}} {{Cl|_MEM}}
@@ -58,8 +59,8 @@ Saved(3) = n3
 {{CodeEnd}}{{small|Code by SMcNeill}}
 
 
-''See also:''
-* [[_MEM]] {{text|(varible type)}}
+{{PageSeeAlso}}
+* [[_MEM]] {{text|(variable type)}}
 * [[_MEMNEW]], [[_MEMCOPY]]
 * [[_MEMGET]], [[_MEMPUT]]
 * [[_MEMFILL]], [[_MEMIMAGE]]

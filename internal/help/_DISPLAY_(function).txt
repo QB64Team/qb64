@@ -1,16 +1,17 @@
 {{DISPLAYTITLE:_DISPLAY (function)}}
-The '''_DISPLAY''' function returns the handle of the current image that is displayed on the screen.
+The [[_DISPLAY]] function returns the handle of the current image that is displayed on the screen.
 
 
 {{PageSyntax}}
-:''currentimage&amp;'' = '''_DISPLAY'''
+:{{Parameter|currentImage&amp;}} = [[_DISPLAY]]
 
 
-''Usage:''
-* Returns the current image handle value that is being displayed. Will return 0 if in the default [[SCREEN|screen]] image.
-* Not to be confused with the [[_DISPLAY]] statement that displays the screen when not using {{KW|_AUTODISPLAY}}.
+{{PageDescription}}
+* Returns the current image handle value that is being displayed. Returns 0 if in the default [[SCREEN|screen]] image.
+* Not to be confused with the [[_DISPLAY]] statement that displays the screen when not using [[_AUTODISPLAY]].
 
 
+{{PageExamples}}
 ''Example:'' Creating a mouse cursor using a page number that '''you create''' in memory without setting up page flipping.
 {{CodeStart}}
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) 'any graphics mode should work without setting up pages
@@ -35,15 +36,15 @@ SetupCursor
 {{Cl|PCOPY}} 100, {{Cl|_DISPLAY (function)|_DISPLAY}} 'with the function return as destination page
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
-''Note:'' Works with the '''_DISPLAY function''' return as the other page. If mouse reads are not crucial, put the [[_MOUSEINPUT]] loop inside of the UpdateCursor Sub.
+''Note:'' Works with the '''_DISPLAY function''' return as the other page. If mouse reads are not crucial, put the [[_MOUSEINPUT]] loop inside of the UpdateCursor SUB.
 
 
 {{PageSeeAlso}}
-* [[SCREEN]] {{text|(note the QB64 use of SCREEN to set which image to display)}}
+* [[SCREEN]]
 * [[PCOPY]]
 * [[_DISPLAY]] {{text|(statement)}}
 * [[_AUTODISPLAY]] {{text|(default mode)}}
-* [[_DISPLAYORDER]] {{text|(GL statement)}}
+* [[_DISPLAYORDER]] {{text|(statement)}}
 
 
 {{PageNavigation}}

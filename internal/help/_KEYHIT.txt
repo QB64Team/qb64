@@ -1,11 +1,13 @@
 {{DISPLAYTITLE:_KEYHIT}}
-The '''_KEYHIT''' function returns [[ASCII]] one and two byte, SDL Virtual Key and Unicode keyboard key press codes.
+The [[_KEYHIT]] function returns [[ASCII]] one and two byte, OpenGL Virtual Key and Unicode keyboard key press codes.
 
 
-{{PageSyntax}} keycode&amp; = '''_KEYHIT'''
+{{PageSyntax}}
+:{{Parameter|keycode&amp;}} = [[_KEYHIT]]
 
 
-* Return values range up to &amp;H40000000 so use a [[LONG]] or [[_INTEGER64]] variable type! See the [[_KEYDOWN]] code list:
+{{PageDescription}}
+* Return values range up to &amp;H40000000 so use a [[LONG]] or [[_INTEGER64]] variable type. See the [[_KEYDOWN]] code list:
 :* 0-255: [[ASCII]] values (Refer to [http://en.wikipedia.org/wiki/Code_page_437 CP437]).
 :* 256-65535: [[ASCII#Two_Byte_Codes|2-byte]] character codes : code = [[CVI]]([[CHR$]](0) + [[CHR$]](scancode)) (unaffected by SHIFT/ALT/CTRL modifiers).
 :* 65536-&amp;H40000000: [[_KEYDOWN|QB64-specific Virtual Key codes]] (designated with + for 100000 on keyboard below)
@@ -38,14 +40,15 @@ The '''_KEYHIT''' function returns [[ASCII]] one and two byte, SDL Virtual Key a
  
 :* &gt;= &amp;H40000000: [[Unicode]].
 
-* Font '''cyberbit.ttf''', included with QB64 as of '''V0.92'''(October 2010), is required to facilitate the '''IME'''(in Chinese settings) only. The 12.7 MB font is free for '''non-commercial''' use and is not loaded unless the user switches to the '''Input Mode Editor'''. Set to &quot;UNICODE&quot;.
+* Font '''cyberbit.ttf''', included with QB64 ('''version 0.92 and up'''), is required to facilitate the '''IME'''(in Chinese settings) only. The 12.7 MB font is free for '''non-commercial''' use and is not loaded unless the user switches to the '''Input Mode Editor'''. Set to &quot;UNICODE&quot;.
 &lt;center&gt;'''[http://www.fileformat.info/tip/microsoft/enter_unicode.htm Setting up the Unicode Input Method Editor in Windows]'''&lt;/center&gt;
 &lt;center&gt;If you need help with IME support in '''Vista''' see the following article: [http://blogs.msdn.com/b/michkap/archive/2006/07/20/671835.aspx Setting up IME in Vista]&lt;/center&gt;
 * QB64 can use several Windows fonts when '''cyberbit''' is not present so it is not necessary to include with program packages. 
 * An '''important difference''' between [[INKEY$]] and _KEYHIT is how they work when '''CTRL, ALT''' or '''SHIFT''' are used. INKEY$ returns a different code if you hold down CTRL, ALT or SHIFT before pressing  F1 (for example). _KEYHIT will return the same code regardless of which modifiers were used but you can check [[_KEYDOWN]] to see which modifying keys are being used.
-* '''Keyboards with an Alt Gr key note:''' _KEYHIT may return both Alt(100307) and Ctrl(100306) codes when AltGr key is pressed or released.
+* '''Keyboards with an Alt Gr key note:''' _KEYHIT may return both Alt (100307) and Ctrl (100306) codes when AltGr key is pressed or released.
 
 
+{{PageExamples}}
 ''Example:'' This routine will return the codes for any keyboard presses.
 {{CodeStart}}
  '' ''
@@ -99,15 +102,10 @@ unifont = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
 {{small|Code by Galleon}}
 
 
-&lt;center&gt;'''Find any keys that you cannot read or type in the IDE? Please report them at the forum link below:'''
+&lt;center&gt;'''Find any keys that you cannot read or type in the IDE? Please report them at this forum link:''' http://www.qb64.net/forum/index.php?topic=1512.0&lt;/center&gt;
 
 
-http://www.qb64.net/forum/index.php?topic=1512.0&lt;/center&gt;
-
-
-
-
-''See also:
+{{PageSeeAlso}}
 * [[_KEYDOWN]] {{text|(virtual key codes)}}
 * [[_MAPUNICODE]], [[_MAPUNICODE (function)]] 
 * [[INKEY$]], [[ASCII]] {{text|(code table)}}, 

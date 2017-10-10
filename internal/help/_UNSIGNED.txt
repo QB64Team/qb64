@@ -1,27 +1,23 @@
 {{DISPLAYTITLE:_UNSIGNED}}
-[[_UNSIGNED]] defines a numerical value as being positive using '''QB64''' only.
+[[_UNSIGNED]] defines a numerical value as being only positive.
 
 
-''TYPE'' {{PageSyntax}} 
-::: [[DIM]] variable [[AS]] [{{KW|UNSIGNED}}] ''datatype''
+{{PageSyntax}} 
+: [[DIM]] {{Parameter|variable}} [[AS]] [{{KW|_UNSIGNED}}] {{Parameter|datatype}}
 
-::: variable [[AS]] [{{KW|_UNSIGNED}}] ''datatype''
-
-''_DEFINE'' {{PageSyntax}}
-::: {{KW|_DEFINE}} {{Parameter|LetterRange}} {{KW|AS}} [{{KW|_UNSIGNED}}] {{Parameter|datatype}}
+: [[_DEFINE]] {{Parameter|letterRange}} [[AS]] [{{KW|_UNSIGNED}}] {{Parameter|datatype}}
 
 
 {{PageDescription}}
-* When {{KW|_UNSIGNED}} values use negative values the result subtracts from the highest value of the number's type keeping it positive.
 * Datatype can be any of the following: [[INTEGER]], [[LONG]], [[_BIT]], [[_BYTE]], [[_INTEGER64]], [[_OFFSET]]
-*'''[[SINGLE]], [[DOUBLE]] and [[_FLOAT]] variable types cannot be _UNSIGNED!'''
-* {{KW|_UNSIGNED}} can be used in a {{KW|_DEFINE}} statement to set undefined variable name first letters as all positive only values.
-* Can also be used in {{KW|DIM}} statements or Subprocedure parameter definitions following {{KW|AS}}.
-* {{KW|_UNSIGNED}} allows larger positive numerical variable value limits than signed ones.
-* The Unsigned variable type suffix used is the '''tilde ~''' before the number's own type suffix: variablename~&amp;
+*'''[[SINGLE]], [[DOUBLE]] and [[_FLOAT]] variable types cannot be _UNSIGNED.'''
+* [[_UNSIGNED]] can be used in a [[_DEFINE]] statement to set undefined variable name first letters as all positive-only values.
+* Can also be used in [[DIM]] statements or subprocedure parameter definitions following [[AS]].
+* [[_UNSIGNED]] allows larger positive numerical variable value limits than signed ones.
+* The unsigned variable type suffix used is the '''tilde (~)''', right before the number's own type suffix: {{Parameter|variableName~&amp;}}
 
 
-&lt;center&gt;How negative values affect the {{KW|_UNSIGNED}} value returned by a {{KW|_BYTE}} (8 bits). &lt;/center&gt;
+&lt;center&gt;How negative values affect the [[_UNSIGNED]] value returned by a [[_BYTE]] (8 bits). &lt;/center&gt;
 {{WhiteStart}}
                         00000001 - unsigned &amp; signed are both 1    
                         01111111 - unsigned &amp; signed are both 127  
@@ -31,7 +27,8 @@
 {{WhiteEnd}}
 
 
-''Example 1:'' When a signed '''QB64''' [[INTEGER]] value exceeds 32767, the value may become a negative value:
+{{PageExamples}}
+''Example 1:''  In '''QB64''', when a signed [[INTEGER]] value exceeds 32767, the value may become a negative value:
 {{CodeStart}} '' ''
 i% = 38000
 {{Cl|PRINT}} i% '' ''
@@ -40,7 +37,7 @@ i% = 38000
 :''Explanation:'' Use an [[_UNSIGNED]] [[INTEGER]] or a ~% variable type suffix for only positive integer values up to 65535.
 
 
-''Example 2:'' In '''QB64''' [[_UNSIGNED]] [[INTEGER]] values greater than 65535 cycle over again from zero:
+''Example 2:'' In '''QB64''', [[_UNSIGNED]] [[INTEGER]] values greater than 65535 cycle over again from zero:
 {{CodeStart}} '' ''
 i~% = 70000
 {{Cl|PRINT}} i~% '' ''
@@ -76,7 +73,7 @@ i~% = 70000
 
 
 {{OutputEnd}}
-''Explanation:'' The maximum value can only be 65535(32767 + 32768) so the FOR loop repeats itself. Remove the [[_UNSIGNED]] parts and run it again.
+''Explanation:'' The maximum value can only be 65535 (32767 + 32768) so the FOR loop repeats itself. Remove the [[_UNSIGNED]] parts and run it again.
 
 
 

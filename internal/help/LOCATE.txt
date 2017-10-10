@@ -1,28 +1,29 @@
-The '''LOCATE''' statement locates the screen text row and column positions for a {{KW|PRINT}} or {{KW|INPUT}} procedure.
+The [[LOCATE]] statement locates the screen text row and column positions for a [[PRINT]] or [[INPUT]] procedure.
 
 
 {{PageSyntax}}
-::: '''LOCATE''' [''row%''][, ''column%''] [, ''cursor%''][, ''cursor_start%'', ''cursor_stop%'']
+: [[LOCATE]] [{{Parameter|row%}}][, {{Parameter|column%}}] [, {{Parameter|cursor%}}][, {{Parameter|cursorStart%}}, {{Parameter|cursorStop%}}]
 
 
 {{Parameters}}
-* optional text ''row'' [[INTEGER]] values are from 1 to the 25, 43 or 50 in [[SCREEN]] 0 and  25 in most other graphic screen modes, except screens 11 and 12 which can have 30 or 60.  
-* optional ''column'' [[INTEGER]] values are from 1 to 40 or 80 in [[SCREEN]] 0 and 80 in all other legacy screen modes.
-* optional ''cursor'' value can be 0 to turn the cursor off or 1 to turn it on when using the [[INPUT$]] or [[INKEY$]] key entry functions only.
-* optional ''cursorstart'' and ''cursorstop'' values define the shape of the cursor by setting the start and stop scanline (0-8 pixels) for the cursor character.
+* optional text {{Parameter|row%}} [[INTEGER]] values are from 1 to 25, 43 or 50 in [[SCREEN]] 0 and  25 in most other legacy graphic screen modes, except screens 11 and 12 which can have 30 or 60 rows.  
+* optional {{Parameter|column%}} [[INTEGER]] values are from 1 to 40 or 80 in [[SCREEN]] 0 and 80 in all other legacy screen modes.
+* optional {{Parameter|cursor%}} value can be 0 to turn displaying the cursor off or 1 to turn it on.
+* optional {{Parameter|cursorStart%}} and {{Parameter|cursorStop%}} values define the shape of the cursor by setting the start and stop scanline (values range from 0 to 31) for the cursor character.
 
 
-''Usage:''
+{{PageDescription}}
 * [[WIDTH]] statement can be used to determine the text width and height in [[SCREEN]] 0 and height of 30 or 60 in [[SCREEN]] 11 or 12.
-* In [[_NEWIMAGE]] graphic screen text ''rows'' are calculated as [[_HEIGHT]] \ 16 except when a [[_FONT]] is used. Use [[_FONTHEIGHT]] to calculate font rows.
+* In [[_NEWIMAGE]] graphic screen the number of text ''rows'' are calculated as [[_HEIGHT]] \ 16 except when a [[_FONT]] is used. Use [[_FONTHEIGHT]] to calculate font rows.
 * [[_NEWIMAGE]] graphic screen text ''columns'' are calculated as [[_WIDTH (function)|_WIDTH]] \ 8 except when a [[_FONT]] is used. Use [[_PRINTWIDTH]] to measure a line of font text.
 * The text ''row'' position is not required if the [[PRINT]] is going to be on the next row. The [[comma]] and a ''column'' value are required to set the column.
-* If only the ''row'' parameter is given, then the column position remains the same. '''Neither ''row'' or ''column'' parameter can be 0!'''
+* If only the ''row'' parameter is given, then the column position remains the same. '''Neither ''row'' or ''column'' parameter can be 0.'''
 * When [[PRINT]]ing on the bottom 2 ''rows'', use a [[semicolon]] after the PRINT expression to avoid a screen roll.
-* If the ''cursor start'' line is given, the ''cursor stop'' line must also be given. A wider range between them produces a taller cursor.
+* If the {{Parameter|cursorStart%}} line is given, the {{Parameter|cursorStop%}} line must also be given. A wider range between them produces a taller cursor.
 
 
-Example: Moving the cursor around (now you can finally create a Commodore 64 emulator!). '''Default SCREEN 0 ONLY!'''
+{{PageExamples}}
+''Example:'' Moving the cursor around (now you can finally create a Commodore 64 emulator!). '''Default SCREEN 0 only:'''
 {{CodeStart}} '' ''
 crx = 10
 cry = 10
@@ -40,7 +41,6 @@ LOOP '' ''
 {{CodeEnd}}
 
 : Explanation: The CHR$(0) + &quot;H&quot;, &quot;P&quot;, &quot;K&quot;, &quot;M&quot; represents the cursor arrow keys. start = 0, stop = 8 is the tallest cursor, experiment with the start and stop values for different effects (start = 8, stop = 8 is the default producing a _ cursor).
-
 
 
 

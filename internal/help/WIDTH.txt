@@ -1,4 +1,4 @@
-The {{KW|WIDTH}} statement changes the text dimensions of certain {{KW|SCREEN (statement)|SCREEN}} modes or printers using the {{KW|WIDTH}} {{KW|LPRINT}} statement.
+The {{KW|WIDTH}} statement changes the text dimensions of certain {{KW|SCREEN (statement)|SCREEN}} modes.
 
 
 ''SCREEN'' {{PageSyntax}} 
@@ -7,14 +7,12 @@ The {{KW|WIDTH}} statement changes the text dimensions of certain {{KW|SCREEN (s
 ''File'' {{PageSyntax}} 
 ::: '''WIDTH''' {'''''file_number''''' | '''''device'''''}, '''''columnwidth%'''''
 
-''LPRINT'' {{PageSyntax}} 
+''LPRINT'' {{PageSyntax}} (not supported in QB64):
 ::: '''WIDTH LPRINT ''columnwidth%'''''
 
 
 {{Parameters}}
 * When parameters are not specified, columns defaults to 80 with 25 (30 in [[SCREEN]] 11 or 12) rows. 
-* Devices opened with an [[OPEN]] statement include LPT1 and CONS in Qbasic ONLY.
-* Only the column width(default 80) can be specified in the file or [[LPRINT]] syntax.
 
 
 ''Usage:''
@@ -26,7 +24,12 @@ The {{KW|WIDTH}} statement changes the text dimensions of certain {{KW|SCREEN (s
 :* SCREEN 11 and 12 can use 80 columns and 30 or 60 rows. Default is WIDTH 80, 30 fullscreen.
 * '''QB64''' can alter all [[SCREEN]] mode widths and heights which may also affect text or [[_FONT]] block sizes.
 * '''Note:''' WIDTH changes may change screen color settings in QBasic. Use [[PALETTE]] to reset to default colors.
-*'''[[Keywords currently not supported by QB64|WIDTH LPRINT is currently NOT supported in QB64!]]'''
+*'''[[Keywords currently not supported by QB64|WIDTH LPRINT is not supported in QB64.]]'''
+
+
+''Qbasic or QuickBasic:''
+* Devices opened with an [[OPEN]] statement include LPT1 and CONS in Qbasic ONLY.	
+* Only the column width(default 80) can be specified in the file or [[LPRINT]] syntax.
 
 
 {{PageSeeAlso}}

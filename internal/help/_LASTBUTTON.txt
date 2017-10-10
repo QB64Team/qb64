@@ -1,19 +1,20 @@
 {{DISPLAYTITLE:_LASTBUTTON}}
-The '''_LASTBUTTON''' function returns the number of buttons a specified number INPUT device on your computer has.
+The [[_LASTBUTTON]] function returns the number of buttons a specified INPUT device on your computer has.
 
 
 {{PageSyntax}}
-::: button_count% = _LASTBUTTON(''device_number'')
+: {{Parameter|buttonCount%}} = _[[_LASTBUTTON]]({{Parameter|deviceNumber}})
 
 
 * Returns the number of buttons that can be read on a specified device number within the number of [[_DEVICES]] found.
 * A valid number can be sent to the [[_BUTTON]] or [[_BUTTONCHANGE]] function to find any button events.
-* The specific device name and functions can be found by the [[_DEVICE$]] function [[STRING]].
+* The specific device name and functions can be found by the [[_DEVICE$]] function [[STRING|string]].
 * The devices are listed in a numerical order determined by the OS and can be read by the [[DEVICE$]] function.
-* '''The [[_DEVICES]] function must be read BEFORE using _LASTBUTTON or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur!'''
-* Devices include keyboard(1), mouse(2), joysticks, game pads and multiple stick game controllers.
+* '''The [[_DEVICES]] function must be read before using _LASTBUTTON or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur.'''
+* Devices include keyboard (reported as 1), mouse (reported as 2), joysticks, game pads and multiple stick game controllers.
 
 
+{{PageExamples}}
 ''Example:'' Checking for the system's input devices.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
@@ -32,7 +33,7 @@ Buttons: 3
 :Note: The [[STRIG]]/[[STICK]] commands won't read from the keyboard or mouse device the above example lists.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_LASTAXIS]], [[_LASTWHEEL]]
 * [[_AXIS]], [[_BUTTON]], [[_WHEEL]]
 * [[_DEVICES]], [[_DEVICE$]]

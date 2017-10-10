@@ -1,18 +1,17 @@
 {{DISPLAYTITLE:_ATAN2}}
-The '''_ATAN2''' function returns the radian angle between the positive x-axis of a plane and the point given by the coordinates (x, y).
+The [[_ATAN2]] function returns the radian angle between the positive x-axis of a plane and the point given by the coordinates (x, y).
 
 
 {{PageSyntax}}
-::: angle! = '''_ATAN2(''' ''y'', ''x''''')'''
+: {{Parameter|angle!}} = [[_ATAN2]]({{Parameter|y}}, {{Parameter|x}})
 
 
 {{Parameters}}
-* ''y'' is the vertical axis position(row) as a positive, zero or negative floating point value.
-* ''x'' is the horizontal axis position(column) as a positive, zero or negative floating point value. 
+* {{Parameter|y}} is the vertical axis position (row) as a positive, zero or negative floating point value.
+* {{Parameter|x}} is the horizontal axis position (column) as a positive, zero or negative floating point value. 
 
 
 {{PageDescription}}
-
 * The [[DOUBLE]] radian angle returned is '''positive''' for upper row values where y &gt; 0.
 ::* _ATAN2(y, x) = [[ATN]](y# / x#) when x &gt; 0
 ::* _ATAN2(y, x) = [[ATN]](y# / x#) + [[_PI]] when x &lt; 0
@@ -26,7 +25,7 @@ The '''_ATAN2''' function returns the radian angle between the positive x-axis o
 
 
 {{PageErrors}}
-* Note: With [[ATN]](y / x), x can never be 0 as that would create a Division by Zero [[ERROR Codes|error]] 11 or #IND.
+* With [[ATN]](y / x), x can never be 0 as that would create a Division by Zero [[ERROR Codes|error]] 11 or #IND.
 
 
 {{PageSeeAlso}}

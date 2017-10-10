@@ -1,14 +1,16 @@
-'''ERR''' function returns the last Qbasic error code number. 
+The [[ERR]] function returns the last QBasic error code number. 
 
 
 {{PageSyntax}}
-:: errornum% = ERR
+: {{Parameter|errorNum%}} = [[ERR]]
 
 
-* If there is no error it returns 0
-* Can be used in an error handling routine to report the error number.
+{{PageDescription}}
+* If there is no error, the function returns 0
+* Can be used in an error handling routine to report the last error code number.
 
 
+{{PageExamples}}
 ''Example:'' Simulating an error to test a program error handler that looks for a &quot;Subscript out of range&quot; error.
 {{CodeStart}} '' ''
 {{Cl|ON ERROR}} {{Cl|GOTO}} handler
@@ -31,10 +33,10 @@ handler:
 {{CodeEnd}}
 
 
-''See also:'' 
-
+{{PageSeeAlso}}
 * [[ON ERROR]], [[RESUME]]
-* [[ERL]], [[_ERRORLINE]] 
+* [[ERL]]
+* [[_ERRORLINE]], [[_INCLERRORLINE]], [[_INCLERRORFILE$]]
 * [[ERROR]]
 * [[ERROR Codes]]
 

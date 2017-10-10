@@ -1,27 +1,25 @@
-The {{KW|END}} statement terminates a program without an immediate exit or ends a procedure or statement block. 
+The [[END]] statement terminates a program without an immediate exit or ends a procedure or statement block. 
 
 
 {{PageSyntax}}
-::: END
-::: END [[IF...THEN|IF]]
-::: END [[TYPE]]
-::: END [[SELECT CASE|SELECT]]
-::: END [[SUB]]
-::: END [[FUNCTION]]
-
-QB64 {{PageSyntax}}
-::: END [return_code%]
-::: END [[DECLARE LIBRARY|DECLARE]]
+: [[END]] [{{Parameter|returnCode%}}]
+: [[END]] [[IF...THEN|IF]]
+: [[END]] [[TYPE]]
+: [[END]] [[SELECT CASE|SELECT]]
+: [[END]] [[SUB]]
+: [[END]] [[FUNCTION]]
+: END [[DECLARE LIBRARY|DECLARE]]
 
 
-* In '''QB64''' END can be followed by a code that can be read in another module using the [[SHELL (function)|_SHELL]] or [[_SHELLHIDE]] function.
-* When END is used to end a program a pause and &quot;Press any key to continue...&quot; is displayed at the bottom of the window. 
-* If the program does not use END or [[SYSTEM]] the program will still end with a pause and display &quot;Press any key to continue...&quot;.
-* In '''QB64''' [[SYSTEM]] will end the program immediately and close the window.
-* The '''QB64''' [[_EXIT (function)]] can block a user's Ctrl + Break key press or click on the window X box until the program is ready.
-* When running a Qbasic BAS module from the command line, use [[SYSTEM]] to avoid returning to the [[IDE]].
+{{PageDescription}}
+* In '''QB64''', [[END]] can be followed by a code that can be read by another module using the [[SHELL (function)|_SHELL]] or [[_SHELLHIDE]] function (known as [https://blogs.msdn.microsoft.com/oldnewthing/20080926-00/?p=20743 '''errorlevel'''])
+* When END is used to end a program, there is a pause and the message &quot;Press any key to continue...&quot; is displayed at the bottom of the program's window. 
+* If the program does not use END or [[SYSTEM]], the program will still end with a pause and display &quot;Press any key to continue...&quot;.
+* In '''QB64''', [[SYSTEM]] will end the program immediately and close the window.
+* The '''QB64''' [[_EXIT (function)]] can block a user's Ctrl + Break key presses and clicks on the window's close button (X button) until the program is ready to close.
 
 
+{{PageExamples}}
 ''Example:'' In QB64 you won't return to the IDE unless you are using it to run or edit the program module.
 
 {{CodeStart}} '' ''
@@ -41,7 +39,7 @@ Hello world!
 Press any key to continue...
 {{OutputEnd}}
 :''Explanation:''&quot;Hello no one!&quot; isn't returned because the program ended with the END statement no matter what is after that.
-:The message &quot;Press any key to continue...&quot; is displayed after the program ends in QB or '''QB64'''.
+:The message &quot;Press any key to continue...&quot; is displayed after the program ends, both in QBasic and in '''QB64'''.
 
 
 

@@ -1,22 +1,23 @@
 {{DISPLAYTITLE:_TITLE}}
-The [[_TITLE]] statement provides the program name in the title bar of the QB64 program window.
+The [[_TITLE]] statement provides the program name in the title bar of the program window.
 
 
 {{PageSyntax}}
-::: [[_TITLE]] {{Parameter|Text$}}
+: [[_TITLE]] {{Parameter|text$}}
 
 
 {{Parameters}}
-* The text can be any literal or variable [[STRING]] or [[ASCII]] character value.
+* {{Parameter|text$}} can be any literal or variable [[STRING]] or [[ASCII]] character value.
 
 
 {{PageDescription}}
 * The title can be changed anywhere in a program procedure.
-* The title bar will say &quot;Untitled&quot; if a title is not used.
-* Change the title of the [[$CONSOLE]] windows created using: [[SHELL]] &quot;title consoletitle&quot;
-* '''Note: A [[_DELAY|delay]] may be required before the title may be set or after when used by a Windows API.
+* The title bar will say &quot;Untitled&quot; if a title is not set.
+* Change the title of the [[$CONSOLE]] windows created using [[_CONSOLETITLE]]
+* '''Note: A [[_DELAY|delay]] may be required before the title can be set.''' See [[_SCREENEXISTS]].
 
 
+{{PageExamples}}
 ''Example 1:'' How to create the window title bar.
 {{CodeStart}} '' ''
 {{Cl|_TITLE}} &quot;My New Program&quot; '' ''
@@ -59,9 +60,12 @@ Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
 
 
 {{PageSeeAlso}}
-* [[_ICON]] {{text|(Icons can be used in GL only!)}}
+* [[_TITLE$]] (function)
+* [[_ICON]]
 * [[_DELAY]]
 * [[ASCII]]
+* [[_CONSOLETITLE]]
+* [[_SCREENEXISTS]]
 
 
 {{PageNavigation}}

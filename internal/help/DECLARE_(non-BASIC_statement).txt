@@ -1,3 +1,8 @@
+'''This page is maintained for historic purposes. The usage of the DECLARE keyword explained below isn't supported by QB64. QB64 ignores any occurrences of DECLARE SUB/FUNCTION when older code is compiled. For the modern usage of the DECLARE keyword, see [[DECLARE LIBRARY]].'''
+
+----
+
+
 Declares calling sequences for external procedures written in other languages.
 
 
@@ -6,7 +11,6 @@ Declares calling sequences for external procedures written in other languages.
 : [[DECLARE]] {[[SUB]]|[[FUNCTION]]} name [ [[CDECL]] ] [ [[ALIAS]] &quot;aliasname&quot;] [([parameterlist, ...])]
 
 
-*'''[[Keywords currently not supported by QB64|Currently NOT supported in QB64!]]'''
 * [[CDECL]] indicates that the procedure uses the C language argument order.
 * [[ALIAS]] indicates the procedure name used in the object or library file.
 * The syntax for the parameterlist is as follows: [{ [[BYVAL]] | [[SEG]] }] variable  [AS type [,[{ [[BYVAL]] | [[SEG]] }] variable2 [ [[AS]] type]]...
@@ -17,7 +21,7 @@ Declares calling sequences for external procedures written in other languages.
 ''See also:'' 
 
 * [[CALL]], [[CALLS]], [[SETMEM]]
-* [[DECLARE LIBRARY]] (QB64 Only}
+* [[DECLARE LIBRARY]] (QB64 Only)
 
 
 

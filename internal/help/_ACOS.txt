@@ -1,18 +1,21 @@
 {{DISPLAYTITLE:_ACOS}}
-The '''_ACOS''' function returns the angle measured in radians based on an input [[COS]]ine value ranging from -1 to 1.
+The [[_ACOS]] function returns the angle measured in radians based on an input [[COS]]ine value ranging from -1 to 1.
 
 
-{{PageSyntax}} 
-::::: radian_angle! = _ACOS(''cosine_value!'')
+{{PageSyntax}}
+: {{Parameter|radian_angle!}} = [[_ACOS]]({{Parameter|cosine_value!}})
 
-
+{{PageDescription}}
 * The ''cosine_value!'' must be measured &gt;= -1 and &lt;= 1, or an error will be generated.  (PRINT _ACOS(1.2) would give the result of -1.#IND, which is basically QB64's way of telling us that the number doesn't exist, much like 1/0 would.) 
 * ARCCOSINE is the inverse function of [[COS]]ine, which lets us turn a [[COS]]ine value back into an angle.
 * Note: Due to rounding with floating point math, the _ACOS may not always give a perfect match for the COS angle which generated this.  You can reduce the number of rounding errors by increasing the precision of your calculations by using [[DOUBLE]] or [[_FLOAT]] precision variables instead of [[SINGLE]].
 
-* ''(Only available in QB64-GL, from Dirty Builds after 06/20/2014.  Previous versions of QB64 don't support this command.)''
+
+==Availability==
+* '''Version 1.000 and up.'''
 
 
+{{PageExamples}}
 ''Example:'' Converting a radian angle to its COSine and using that value to find the angle in degrees again using _ACOS:
 {{CodeStart}} '' ''
 {{Cl|DEFDBL}} A-Z
@@ -35,12 +38,12 @@ Notice, A is the Angle in Radians.  If we convert it to degrees, we discover the
 {{OutputEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_D2G]] {{text|(degree to gradient}}, [[_D2R]] {{text|(degree to radian)}}
 * [[_G2D]] {{text|(gradient to degree)}}, [[_G2R]] {{text|(gradient to degree}}
 * [[_R2D]] {{text|(radian to degree)}}, [[_R2G]] {{text|(radian to gradient}}
 * [[COS]] {{text|(cosine)}}, [[SIN]] {{text|(sine)}}, [[TAN]] {{text|(tangent)}}
-* [[_ACOS]] {{text|(arc cosine)}}, [[_ASIN]] {{text|(arc sine)}}, [[ATN]] {{text|(arc tangent)}}
+* [[_ASIN]] {{text|(arc sine)}}, [[ATN]] {{text|(arc tangent)}}
 * [[_ACOSH]] {{text|(arc hyperbolic  cosine)}}, [[_ASINH]] {{text|(arc hyperbolic  sine)}}, [[_ATANH]] {{text|(arc hyperbolic  tangent)}}
 * [[_ATAN2]] {{text|(Compute arc tangent with two parameters)}}
 * [[_HYPOT]] {{text|(hypotenuse)}}
