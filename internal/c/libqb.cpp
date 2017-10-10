@@ -33054,6 +33054,16 @@ QB64_GAMEPAD_INIT();
       goto key_handled;
     }
 
+    #ifdef QB64_WINDOWS
+        //note: Alt+F4 is supposed to close the window, but glut windows don't seem to be affected;
+        //this addresses the issue:
+        if ( (x==(0x3E00)) && (keyheld(VK+QBVK_RALT)||keyheld(VK+QBVK_LALT)) ){
+          if (exit_blocked){exit_value|=1; goto key_handled;}
+          close_program=1;
+          goto key_handled;
+        }
+    #endif    
+
     //note: On early keyboards without a Pause key (before the introduction of 101-key keyboards) the Pause function was assigned to Ctrl+NumLock, and the Break function to Ctrl+ScrLock; these key-combinations still work with most programs, even on modern PCs with modern keyboards.
     //PAUSE handling
     if ( (x==(VK+QBVK_PAUSE)) || ((x==(VK+QBVK_NUMLOCK))&&(keyheld(VK+QBVK_LCTRL)||keyheld(VK+QBVK_RCTRL))) ){
