@@ -248,6 +248,7 @@ IF LoadedIDESettings = 0 THEN
             IDE_TopPosition = VAL(value$)
         ELSE
             IDE_Autopostion = 0 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
+            IDE_TopPosition = 0
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
         END IF
 
@@ -256,6 +257,7 @@ IF LoadedIDESettings = 0 THEN
             IDE_LeftPosition = VAL(value$)
         ELSE
             IDE_Autopostion = 0 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
+            IDE_LeftPosition = 0
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
         END IF
 

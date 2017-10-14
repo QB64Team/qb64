@@ -915,9 +915,7 @@ gl_scan_header
 '-----------------------QB64 COMPILER ONCE ONLY SETUP CODE ENDS HERE---------------------------------------
 
 IF NoIDEMode THEN IDE_AutoPosition = 0: GOTO noide
-IF IDE_AutoPosition <> 0 AND IDE_TopPosition <> 0 AND IDE_LeftPosition <> 0 THEN
-    _SCREENMOVE IDE_LeftPosition, IDE_TopPosition
-END IF
+IF IDE_AutoPosition THEN _SCREENMOVE IDE_LeftPosition, IDE_TopPosition
 idemode = 1
 sendc$ = "" 'no initial message
 IF CMDLineFile <> "" THEN sendc$ = CHR$(1) + CMDLineFile
