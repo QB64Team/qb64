@@ -660,7 +660,7 @@ FUNCTION ide2 (ignore)
         IF c$ <> CHR$(3) THEN
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
             IF ready THEN
-                IF ShowErrorsImmediately THEN LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+                IF IDEShowErrorsImmediately THEN LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
             END IF
             IF showexecreated THEN
                 showexecreated = 0
