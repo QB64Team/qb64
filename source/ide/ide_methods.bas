@@ -3871,6 +3871,10 @@ FUNCTION ide2 (ignore)
                         SCREEN , , 3, 0: PCOPY 3, 0
                         GOTO ideloop
                     END IF
+
+                    IF _RESIZE THEN
+                        ForceResize = -1: skipdisplay = 0: GOTO ideloop
+                    END IF
                 LOOP UNTIL KALT = 0
                 KB = KEY_ESC
             END IF
@@ -3879,6 +3883,10 @@ FUNCTION ide2 (ignore)
                 LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                 SCREEN , , 3, 0: PCOPY 3, 0
                 GOTO ideloop
+            END IF
+
+            IF _RESIZE THEN
+                ForceResize = -1: skipdisplay = 0: GOTO ideloop
             END IF
 
             IF mCLICK OR mCLICK2 THEN
@@ -4046,6 +4054,10 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
+
+                    IF _RESIZE THEN
+                        ForceResize = -1: skipdisplay = 0: GOTO ideloop
+                    END IF
                 LOOP UNTIL KALT = 0 'wait till alt is released
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO startmenu2
@@ -4055,6 +4067,9 @@ FUNCTION ide2 (ignore)
                 LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
+            END IF
+            IF _RESIZE THEN
+                ForceResize = -1: skipdisplay = 0: GOTO ideloop
             END IF
             _LIMIT 100
         LOOP UNTIL change
