@@ -239,8 +239,8 @@ IF LoadedIDESettings = 0 THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
             END IF
         ELSE
-            IDE_Autopostion = 0
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
+            IDE_AutoPosition = -1
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
         END IF
 
         result = ReadConfigSetting("IDE_TopPosition", value$)
@@ -248,9 +248,7 @@ IF LoadedIDESettings = 0 THEN
             IDE_TopPosition = VAL(value$)
         ELSE
             IDE_Autopostion = 0 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
         END IF
 
         result = ReadConfigSetting("IDE_LeftPosition", value$)
@@ -258,8 +256,6 @@ IF LoadedIDESettings = 0 THEN
             IDE_LeftPosition = VAL(value$)
         ELSE
             IDE_Autopostion = 0 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
         END IF
 
@@ -411,7 +407,7 @@ IF LoadedIDESettings = 0 THEN
             IF INSTR(_OS$, "WIN") THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
             END IF
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", "80"
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", "25"

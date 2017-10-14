@@ -730,7 +730,6 @@ FUNCTION ide2 (ignore)
         idecontextualmenu = 0
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
         IF IDE_AutoPosition THEN
-            'if _SCreenhide = 0 then  'Screenhide currently does not work in Linux, so we need a different check
             IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
                 IF _SCREENY >= -_HEIGHT * _FONTHEIGHT AND _SCREENX >= -_WIDTH * _FONTWIDTH THEN 'Don't record the position if it's off the screen, past the point where we can drag it back into a different position.
                     WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", STR$(_SCREENY)
