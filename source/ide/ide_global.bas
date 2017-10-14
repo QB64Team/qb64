@@ -204,6 +204,7 @@ DIM SHARED menusize(1 TO 10)
 DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER
 DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMenuPasteCursor AS INTEGER
+DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)

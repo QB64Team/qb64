@@ -10,6 +10,7 @@ DIM SHARED LoadedIDESettings AS INTEGER
 DIM SHARED MouseButtonSwapped AS _BYTE
 DIM SHARED PasteCursorAtEnd AS _BYTE
 DIM SHARED SaveExeWithSource AS _BYTE
+DIM SHARED IDEShowErrorsImmediately AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -174,6 +175,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
         SaveExeWithSource = 0
+    END IF
+
+    result = ReadConfigSetting("ShowErrorsImmediately", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            IDEShowErrorsImmediately = -1
+        ELSE
+            IDEShowErrorsImmediately = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "TRUE"
+        IDEShowErrorsImmediately = -1
     END IF
 
     result = ReadConfigSetting("BracketHighlight", value$)

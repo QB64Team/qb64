@@ -2200,7 +2200,7 @@ DO
                                                 CASE 32
                                                     clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
                                                 CASE ELSE
-                                                    a$ = "Invalid Screen Mode.": GOTO errmes
+                                                    a$ = "Invalid screen mode": GOTO errmes
                                             END SELECT
 
                                             wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)

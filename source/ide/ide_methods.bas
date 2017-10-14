@@ -129,7 +129,7 @@ FUNCTION ide2 (ignore)
     STATIC last.TBclick#, wholeword.select AS _BYTE
     STATIC wholeword.selectx1, wholeword.idecx
     STATIC wholeword.selecty1, wholeword.idecy
-    STATIC ForceResize
+    STATIC ForceResize, IDECompilationRequested AS _BYTE
 
     CONST idesystem2.w = 20 '"Find" field width (Status bar)
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
@@ -308,15 +308,21 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Advanced...": i = i + 1
 
         OptionsMenuSwapMouse = i
-        menu$(m, i) = menu$(m, i) + "#Swap Mouse Buttons": i = i + 1
+        menu$(m, i) = "#Swap Mouse Buttons": i = i + 1
         IF MouseButtonSwapped THEN
             menu$(OptionsMenuID, OptionsMenuSwapMouse) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuSwapMouse)
         END IF
 
         OptionsMenuPasteCursor = i
-        menu$(m, i) = menu$(m, i) + "Cursor after #pasted content": i = i + 1
+        menu$(m, i) = "Cursor after #pasted content": i = i + 1
         IF PasteCursorAtEnd THEN
             menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuPasteCursor)
+        END IF
+
+        OptionsMenuShowErrorsImmediately = i
+        menu$(m, i) = "Show compilation #errors immediately": i = i + 1
+        IF IDEShowErrorsImmediately THEN
+            menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately)
         END IF
 
         menu$(m, i) = "-": i = i + 1
@@ -653,7 +659,9 @@ FUNCTION ide2 (ignore)
 
         IF c$ <> CHR$(3) THEN
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-            IF ready THEN LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+            IF ready THEN
+                IF ShowErrorsImmediately THEN LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+            END IF
             IF showexecreated THEN
                 showexecreated = 0
                 LOCATE idewy - 3, 2
@@ -904,48 +912,51 @@ FUNCTION ide2 (ignore)
 
             'display error message (if necessary)
             IF failed THEN
-                IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
-                UpdateIdeInfo
+                IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
+                    IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
+                    UpdateIdeInfo
 
-                COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
 
-                'scrolling unavailable, but may span multiple lines
-                a$ = MID$(c$, 2, LEN(c$) - 5)
+                    'scrolling unavailable, but may span multiple lines
+                    a$ = MID$(c$, 2, LEN(c$) - 5)
 
 
-                l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
+                    l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
 
-                x = 1
-                y = idewy - 3
+                    x = 1
+                    y = idewy - 3
 
-                IF l <> 0 AND idecy = l THEN a$ = a$ + " on current line"
+                    IF l <> 0 AND idecy = l THEN a$ = a$ + " on current line"
 
-                FOR i = 1 TO LEN(a$)
-                    x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                    IF y > idewy - 1 THEN EXIT FOR
-                    LOCATE y, x
-                    PRINT CHR$(ASC(a$, i));
-                NEXT
-
-                IF l <> 0 AND idecy <> l THEN
-                    a$ = " on line" + STR$(l)
-                    COLOR 11, 1
                     FOR i = 1 TO LEN(a$)
                         x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                         IF y > idewy - 1 THEN EXIT FOR
                         LOCATE y, x
                         PRINT CHR$(ASC(a$, i));
                     NEXT
-                END IF
 
+                    IF l <> 0 AND idecy <> l THEN
+                        a$ = " on line" + STR$(l)
+                        COLOR 11, 1
+                        FOR i = 1 TO LEN(a$)
+                            x = x + 1: IF x = idewx THEN x = 2: y = y + 1
+                            IF y > idewy - 1 THEN EXIT FOR
+                            LOCATE y, x
+                            PRINT CHR$(ASC(a$, i));
+                        NEXT
+                    END IF
+                END IF
             END IF
 
             IF idechangemade THEN
-                COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
 
-                IdeInfo = ""
+                    IdeInfo = ""
 
-                LOCATE idewy - 3, 2: PRINT "..."; 'assume new compilation will begin
+                    LOCATE idewy - 3, 2: PRINT "..."; 'assume new compilation will begin
+                END IF
             END IF
 
             ideshowtext
@@ -1045,15 +1056,16 @@ FUNCTION ide2 (ignore)
 
         END IF 'skipdisplay
 
-
-
+        STATIC prev_idecy AS LONG, idechangedbefore AS _BYTE
         IF idechangemade THEN
 
             IF idelayoutallow THEN idelayoutallow = idelayoutallow - 1
 
             idecurrentlinelayouti = 0 'invalidate
-
+            idefocusline = 0
             idechangemade = 0
+            idechangedbefore = -1
+            IDECompilationRequested = 0
             IF ideunsaved = -1 THEN ideunsaved = 0 ELSE ideunsaved = 1
 
             IF idenoundo = 0 THEN
@@ -1199,20 +1211,6 @@ FUNCTION ide2 (ignore)
             idecompiledline = 1
             EXIT FUNCTION
         END IF 'idechangemade
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         change = 0
@@ -1400,7 +1398,7 @@ FUNCTION ide2 (ignore)
             idemrun:
             iderunmode = 0 'standard run
             idemrunspecial:
-
+            IDECompilationRequested = -1
             'run program
             IF ready <> 0 AND idechangemade = 0 THEN
 
@@ -4363,6 +4361,21 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
+            IF RIGHT$(menu$(m, s), 36) = "Show compilation #errors immediately" THEN
+                PCOPY 2, 0
+                IDEShowErrorsImmediately = NOT IDEShowErrorsImmediately
+                IF IDEShowErrorsImmediately THEN
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + "Show compilation #errors immediately"
+                ELSE
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "FALSE"
+                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show compilation #errors immediately"
+                END IF
+                idechangemade = 1
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
             IF RIGHT$(menu$(m, s), 30) = "Save EXE in the source #folder" THEN
                 PCOPY 2, 0
                 SaveExeWithSource = NOT SaveExeWithSource
@@ -5002,6 +5015,7 @@ FUNCTION ide2 (ignore)
                 ModifyCOMMAND$ = ""
                 _TITLE "QB64"
                 idechangemade = 1
+                idefocusline = 0
                 ideundobase = 0 'reset
                 GOTO ideloop
             END IF
@@ -7283,6 +7297,7 @@ FUNCTION ideopen$
             idecx = 1
             idecy = 1
             ideselect = 0
+            idefocusline = 0
             lineinput3load path$ + idepathsep$ + f$
             idet$ = SPACE$(LEN(lineinput3buffer) * 8)
             i2 = 1
