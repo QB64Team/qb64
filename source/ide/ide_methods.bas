@@ -729,17 +729,6 @@ FUNCTION ide2 (ignore)
         ideloop:
         idecontextualmenu = 0
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
-        IF IDE_AutoPosition THEN
-            IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
-                IF _SCREENY >= -_HEIGHT * _FONTHEIGHT AND _SCREENX >= -_WIDTH * _FONTWIDTH THEN 'Don't record the position if it's off the screen, past the point where we can drag it back into a different position.
-                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", STR$(_SCREENY)
-                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", STR$(_SCREENX)
-                    IDE_TopPosition = _SCREENY: IDE_LeftPosition = _SCREENX
-                END IF
-            END IF
-            'end if
-        END IF
-
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
 
         IF _RESIZE OR ForceResize THEN
@@ -1241,6 +1230,16 @@ FUNCTION ide2 (ignore)
 
         IF _RESIZE THEN
             ForceResize = -1: skipdisplay = 0: GOTO ideloop
+        END IF
+
+        IF IDE_AutoPosition THEN
+            IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
+                IF _SCREENY >= -_HEIGHT * _FONTHEIGHT AND _SCREENX >= -_WIDTH * _FONTWIDTH THEN 'Don't record the position if it's off the screen, past the point where we can drag it back into a different position.
+                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", STR$(_SCREENY)
+                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", STR$(_SCREENX)
+                    IDE_TopPosition = _SCREENY: IDE_LeftPosition = _SCREENX
+                END IF
+            END IF
         END IF
 
         'Hover/click (QuickNav)
