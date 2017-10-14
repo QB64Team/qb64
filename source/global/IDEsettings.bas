@@ -58,6 +58,25 @@ IF LoadedIDESettings = 0 THEN
         WriteConfigSetting "'[IDE COLOR SETTINGS]", "CommentColor", "_RGB32(85,255,255)"
     END IF
 
+    result = ReadConfigSetting("CustomKeywords$", value$)
+    IF result THEN
+        tempList$ = ""
+        listOfCustomKeywords$ = "@" + UCASE$(value$) + "@"
+        FOR i = 1 TO LEN (listOfCustomKeywords$)
+            checkChar = ASC(listOfCustomKeywords$, i)
+            IF checkChar = 64 THEN
+                IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
+            ELSE
+                tempList$ = tempList$ + CHR$(checkChar)
+            END IF
+        NEXT
+        listOfCustomKeywords$ = tempList$
+        customKeywordsLength = LEN(listOfCustomKeywords$)
+    ELSE
+        WriteConfigSetting "'[CUSTOM DICTIONARIES]", "CustomKeywordsSyntax$", "@custom@keywords@separated@by@the@at@sign@"
+        WriteConfigSetting "'[CUSTOM DICTIONARIES]", "CustomKeywords$", "@"
+    END IF
+
     result = ReadConfigSetting("MetaCommandColor", value$)
     IF result THEN
         IDEMetaCommandColor = VRGBS(value$, _RGB32(85, 255, 85))

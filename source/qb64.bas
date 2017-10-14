@@ -20215,6 +20215,11 @@ IF id.subfunc THEN
             END IF 'hashres
             IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
         LOOP
+        IF idemode THEN
+            IF INSTR(listOfCustomKeywords$, "@" + UCASE$(n$) + "@") = 0 THEN
+                listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + UCASE$(n$) + "@"
+            END IF
+        END IF
     END IF 'reginternalsubfunc = 0
 END IF
 

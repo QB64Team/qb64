@@ -4997,6 +4997,7 @@ FUNCTION ide2 (ignore)
                 idecy = 1
                 ideselect = 0
                 ideprogname$ = ""
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
                 QuickNavTotal = 0
                 ModifyCOMMAND$ = ""
                 _TITLE "QB64"
@@ -7313,6 +7314,7 @@ FUNCTION ideopen$
             iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
             ideerror = 1
             ideprogname = f$: _TITLE ideprogname + " - QB64"
+            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
             idepath$ = path$
             IdeAddRecent idepath$ + idepathsep$ + ideprogname$
             IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
@@ -7923,6 +7925,91 @@ SUB ideshowtext
 
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()'"
 
+    STATIC prevListOfCustomWords$, manualList AS _BYTE
+
+    IF idefocusline <> 0 THEN
+        'there's an error and compilation is halted,
+        'so we'll build the list of subs/functions
+        'for proper highlighting:
+        IF idechangemade THEN manualList = 0
+        IF manualList = 0 THEN
+            manualList = -1
+            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
+            FOR y = 1 TO iden
+                a$ = UCASE$(LTRIM$(RTRIM$(idegetline(y))))
+                sf = 0
+                IF LEFT$(a$, 4) = "SUB " THEN sf = 1
+                IF LEFT$(a$, 9) = "FUNCTION " THEN sf = 2
+                IF sf THEN
+                    IF RIGHT$(a$, 7) = " STATIC" THEN
+                        a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                    END IF
+
+                    IF sf = 1 THEN
+                        a$ = MID$(a$, 5)
+                    ELSE
+                        a$ = MID$(a$, 10)
+                    END IF
+
+                    a$ = LTRIM$(RTRIM$(a$))
+                    x = INSTR(a$, "(")
+                    IF x THEN
+                        a$ = RTRIM$(LEFT$(a$, x - 1))
+                    END IF
+
+                    'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                    FOR CleanseN = 1 TO LEN(a$)
+                        SELECT CASE MID$(a$, CleanseN, 1)
+                            CASE " ", "'", ":"
+                                a$ = LEFT$(a$, CleanseN - 1)
+                                EXIT FOR
+                        END SELECT
+                    NEXT
+                    listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + removesymbol2$(a$) + "@"
+                END IF
+            NEXT
+        END IF
+    ELSE
+        manualList = 0
+    END IF
+
+    IF prevListOfCustomWords$ <> listOfCustomKeywords$ THEN
+        prevListOfCustomWords$ = listOfCustomKeywords$
+        IF manualList = 0 THEN
+            DO
+                atSign = INSTR(atSign + 1, listOfCustomKeywords$, "@")
+                nextAt = INSTR(atSign + 1, listOfCustomKeywords$, "@")
+                IF nextAt = 0 THEN EXIT DO
+                IF atSign > customKeywordsLength THEN
+                    checkKeyword$ = removesymbol2$(MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1))
+                    IF LEN(checkKeyword$) THEN
+                        hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
+                        hashchkflags = hashchkflags + HASHFLAG_FUNCTION
+                        hashres1 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
+                        IF hashres1 <> 0 THEN hashres1 = 1
+                        hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
+                        hashchkflags = hashchkflags + HASHFLAG_SUB
+                        hashres2 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
+                        IF hashres2 <> 0 THEN hashres2 = 1
+                        IF hashres1 + hashres2 = 0 THEN
+                            'remove this custom keyword if not registered
+                            MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1) = STRING$(LEN(checkKeyword$), "@")
+                        END IF
+                    END IF
+                END IF
+            LOOP
+        END IF
+        FOR i = 1 TO LEN (listOfCustomKeywords$)
+            checkChar = ASC(listOfCustomKeywords$, i)
+            IF checkChar = 64 THEN
+                IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
+            ELSE
+                tempList$ = tempList$ + CHR$(checkChar)
+            END IF
+        NEXT
+        listOfCustomKeywords$ = tempList$
+    END IF
+
     cc = -1
 
     IF idecx < idesx THEN idesx = idecx
@@ -8128,6 +8215,7 @@ SUB ideshowtext
         metacommand = 0
         comment = 0
         isKeyword = 0: oldChar$ = ""
+        isCustomKeyword = 0
         multiHighlightLength = 0
         prevBG% = _BACKGROUNDCOLOR
 
@@ -8187,6 +8275,9 @@ SUB ideshowtext
                                 UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
                             metacommand = -1
                         END IF
+                        isKeyword = LEN(checkKeyword$)
+                    ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
+                        isCustomKeyword = -1
                         isKeyword = LEN(checkKeyword$)
                     ELSE
                         'maybe a number literal?
@@ -8265,6 +8356,8 @@ SUB ideshowtext
             IF isKeyword > 0 AND keywordHighlight THEN
                 IF is_Number THEN
                     COLOR 8
+                ELSEIF isCustomKeyword THEN
+                    COLOR 10
                 ELSE
                     COLOR 12
                 END IF
@@ -8306,7 +8399,7 @@ SUB ideshowtext
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
             IF isKeyword > 0 THEN isKeyword = isKeyword - 1
-            if isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0
+            if isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
         NEXT m
 
         'apply selection color change if necessary
@@ -11441,7 +11534,7 @@ FUNCTION idechoosecolorsbox
     l$ = l$ + sep + " Keywords"
     l$ = l$ + sep + " Numbers"
     l$ = l$ + sep + " Strings"
-    l$ = l$ + sep + " Metacommands"
+    l$ = l$ + sep + " Metacommand/custom keywords"
     l$ = l$ + sep + " Comments"
     l$ = l$ + sep + " Background"
     l$ = l$ + sep + " Current line background"
@@ -11961,7 +12054,7 @@ FUNCTION idechoosecolorsbox
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Keywords"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Numbers"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Strings"
-            i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Metacommands"
+            i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Metacommand/custom keywords
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Comments"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Background"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Current line background"
@@ -14440,6 +14533,21 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                 BinaryFormatCheck% = 1
             END IF
     END SELECT
+END FUNCTION
+
+FUNCTION removesymbol2$ (varname$)
+    i = INSTR(varname$, "~"): IF i THEN GOTO foundsymbol
+    i = INSTR(varname$, "`"): IF i THEN GOTO foundsymbol
+    i = INSTR(varname$, "%"): IF i THEN GOTO foundsymbol
+    i = INSTR(varname$, "&"): IF i THEN GOTO foundsymbol
+    i = INSTR(varname$, "!"): IF i THEN GOTO foundsymbol
+    i = INSTR(varname$, "#"): IF i THEN GOTO foundsymbol
+    i = INSTR(varname$, "$"): IF i THEN GOTO foundsymbol
+    removesymbol2$ = varname$
+    EXIT FUNCTION
+    foundsymbol:
+    IF i = 1 THEN removesymbol2$ = varname$: EXIT FUNCTION
+    removesymbol2$ = LEFT$(varname$, i - 1)
 END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'
