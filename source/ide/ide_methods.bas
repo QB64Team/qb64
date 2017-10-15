@@ -1082,6 +1082,7 @@ FUNCTION ide2 (ignore)
             idechangemade = 0
             idechangedbefore = -1
             IDECompilationRequested = 0
+            compfailed = 0
             IF ideunsaved = -1 THEN ideunsaved = 0 ELSE ideunsaved = 1
 
             IF idenoundo = 0 THEN
