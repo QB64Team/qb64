@@ -11882,7 +11882,7 @@ PATH_SLASH_CORRECT libqb$
 IF _FILEEXISTS("internal\c\" + LTRIM$(RTRIM$(libqb$))) = 0 THEN
     CHDIR "internal\c"
     IF os$ = "WIN" THEN
-        SHELL _HIDE GDB_Fix("cmd /c c_compiler\bin\g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb\os\" + o$ + "\libqb_" + depstr$ + ".o")
+        SHELL _HIDE GDB_Fix("cmd /c c_compiler\bin\g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb\os\" + o$ + "\libqb_" + depstr$ + ".o") + " 2>> ..\..\" + compilelog$
     ELSE
         IF mac THEN
             SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.mm " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o") + " 2>> ../../" + compilelog$
@@ -12062,7 +12062,7 @@ IF os$ = "WIN" THEN
             END IF
             a$ = a$ + " " + tmpdir2$ + "data.bin " + tmpdir2$ + "data.o"
             CHDIR ".\internal\c"
-            SHELL _HIDE a$
+            SHELL _HIDE "cmd /c " + a$ + " 2>> ..\..\" + compilelog$
             CHDIR "..\.."
         END IF
     END IF
@@ -12209,7 +12209,7 @@ IF os$ = "WIN" THEN
 
     IF No_C_Compile_Mode = 0 THEN
         CHDIR ".\internal\c"
-        SHELL _HIDE a$
+        SHELL _HIDE "cmd /c " + a$ + " 2>> ..\..\" + compilelog$
         CHDIR "..\.."
         IF idemode THEN
             'Restore fg/bg colors
@@ -23240,7 +23240,7 @@ DO UNTIL EOF(bfh)
     c$ = GDB_Fix$(c$)
     IF use THEN
         IF os$ = "WIN" THEN
-            SHELL _HIDE "cmd /C " + c$
+            SHELL _HIDE "cmd /C " + c$ + " 2>> " + previous_dir$ + "\" + compilelog$
         ELSE
             SHELL _HIDE c$ + " 2>> " + previous_dir$ + "/" + compilelog$
         END IF
@@ -25350,4 +25350,3 @@ DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
-
