@@ -11616,7 +11616,7 @@ IF Debug THEN PRINT #9, "Finished generation of code for saving/sharing common a
 
 FOR closeall = 1 TO 255: CLOSE closeall: NEXT
 OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
-compilelog$ = tmpdir$ + "compile.log"
+compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 
@@ -12531,7 +12531,7 @@ IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN compfailed = 0 ELSE compfail
 
 IF compfailed THEN
     IF idemode THEN
-        idemessage$ = "C++ Compilation failed (Check " + compilelog$ + ")"
+        idemessage$ = "C++ Compilation failed (Check " + CHR$(0) + compilelog$ + CHR$(0) + ")"
         GOTO ideerror
     END IF
     IF compfailed THEN

@@ -912,39 +912,55 @@ FUNCTION ide2 (ignore)
 
             'display error message (if necessary)
             IF failed THEN
-                IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
+                IF IDEShowErrorsImmediately <> 0 OR IDECompilationRequested <> 0 OR compfailed <> 0 THEN
                     IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
                     UpdateIdeInfo
 
                     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-
                     'scrolling unavailable, but may span multiple lines
-                    a$ = MID$(c$, 2, LEN(c$) - 5)
+                    IF compfailed THEN
+                        a$ = MID$(c$, 2, LEN(c$) - 5)
+
+                        x = 1
+                        y = idewy - 3
+                        FOR i = 1 TO LEN(a$)
+                            IF ASC(a$, i) = 0 THEN
+                                IF _DEFAULTCOLOR = 7 THEN COLOR 11 ELSE COLOR 7
+                                _CONTINUE
+                            END IF
+                            x = x + 1: IF x = idewx THEN x = 2: y = y + 1
+                            IF y > idewy - 1 THEN EXIT FOR
+                            LOCATE y, x
+                            PRINT CHR$(ASC(a$, i));
+                        NEXT
+                    ELSE
+                        a$ = MID$(c$, 2, LEN(c$) - 5)
 
 
-                    l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
+                        l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
 
-                    x = 1
-                    y = idewy - 3
+                        x = 1
+                        y = idewy - 3
 
-                    IF l <> 0 AND idecy = l THEN a$ = a$ + " on current line"
+                        IF l <> 0 AND idecy = l THEN a$ = a$ + " on current line"
 
-                    FOR i = 1 TO LEN(a$)
-                        x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                        IF y > idewy - 1 THEN EXIT FOR
-                        LOCATE y, x
-                        PRINT CHR$(ASC(a$, i));
-                    NEXT
-
-                    IF l <> 0 AND idecy <> l THEN
-                        a$ = " on line" + STR$(l)
-                        COLOR 11, 1
                         FOR i = 1 TO LEN(a$)
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                             IF y > idewy - 1 THEN EXIT FOR
                             LOCATE y, x
                             PRINT CHR$(ASC(a$, i));
                         NEXT
+
+                        IF l <> 0 AND idecy <> l THEN
+                            a$ = " on line" + STR$(l)
+                            COLOR 11, 1
+                            FOR i = 1 TO LEN(a$)
+                                x = x + 1: IF x = idewx THEN x = 2: y = y + 1
+                                IF y > idewy - 1 THEN EXIT FOR
+                                LOCATE y, x
+                                PRINT CHR$(ASC(a$, i));
+                            NEXT
+                        END IF
                     END IF
                 END IF
             END IF
@@ -1366,8 +1382,30 @@ FUNCTION ide2 (ignore)
 
         IF mCLICK THEN
             IF mX >= 2 AND mX <= idewx AND mY >= idewy - 3 AND mY <= idewy - 1 THEN
-                IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN
-                    IF idefocusline THEN idecx = 1: AddQuickNavHistory idecy: idecy = idefocusline: ideselect = 0: GOTO specialchar
+                IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN 'if the text clicked is in COLOR 11 it's a link
+                    'Status area links
+                    '1- Link to compilelog.txt:
+                    IF compfailed THEN
+                        IF INSTR(_OS$, "WIN") THEN
+                            SHELL _DONTWAIT QuotedFilename$(compilelog$)
+                        ELSEIF INSTR(_OS$, "MAC") THEN
+                            SHELL _DONTWAIT "open " + QuotedFilename$(compilelog$)
+                        ELSE
+                            SHELL _DONTWAIT "xdg-open " + QuotedFilename$(compilelog$)
+                        END IF
+                        GOTO specialchar
+                    END IF
+
+                    '2- Link to the line that has a compiler error:
+                    IF idefocusline THEN
+                        idecx = 1
+                        AddQuickNavHistory idecy
+                        idecy = idefocusline
+                        ideselect = 0
+                        GOTO specialchar
+                    END IF
+
+                    '3- Link to the output folder when "Save EXE in the source folder" is checked:
                     IF INSTR(_OS$, "WIN") THEN
                         SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
                     ELSEIF INSTR(_OS$, "MAC") THEN
@@ -1375,6 +1413,7 @@ FUNCTION ide2 (ignore)
                     ELSE
                         SHELL _DONTWAIT "xdg-open " + QuotedFilename$(path.exe$)
                     END IF
+                    GOTO specialchar
                 END IF
             END IF
         END IF
