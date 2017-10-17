@@ -4,6 +4,7 @@ DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG, IDEBracketHighlightColor AS _UNSIGNED LONG
 DIM SHARED IDEKeywordColor AS _UNSIGNED LONG, IDENumbersColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
+DIM SHARED IDE_BypassAutoPosition AS _BYTE
 DIM SHARED IDENormalCursorStart AS LONG, IDENormalCursorEnd AS LONG
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
@@ -247,7 +248,7 @@ IF LoadedIDESettings = 0 THEN
         IF result THEN
             IDE_TopPosition = VAL(value$)
         ELSE
-            IDE_Autopostion = 0 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
+            IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
             IDE_TopPosition = 0
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
         END IF
@@ -256,7 +257,7 @@ IF LoadedIDESettings = 0 THEN
         IF result THEN
             IDE_LeftPosition = VAL(value$)
         ELSE
-            IDE_Autopostion = 0 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
+            IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
             IDE_LeftPosition = 0
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
         END IF
@@ -407,8 +408,6 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "QuoteColor", "_RGB32(255,255,85)"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(255,255,255)"
             IF INSTR(_OS$, "WIN") THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
             END IF
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", "80"
