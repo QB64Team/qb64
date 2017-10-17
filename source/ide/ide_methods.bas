@@ -3742,6 +3742,11 @@ FUNCTION ide2 (ignore)
 
         IF K$ = CHR$(27) AND NOT AltSpecial THEN GOTO specialchar 'Steve edit 07-04-2014 to stop ESC from printing chr$(27) in the IDE
 
+        'alt and ctrl combos have already been processed, so skip inserting
+        'K$ if these are still held down:
+        IF KCTRL THEN GOTO specialchar
+        IF KALT AND NOT AltSpecial THEN GOTO specialchar
+
         'standard character
         IF ideselect THEN GOSUB delselect
         idechangemade = 1
@@ -3821,6 +3826,7 @@ FUNCTION ide2 (ignore)
 
     startmenu:
     m = 1
+    oldmx = mX: oldmy = mY
     startmenu2:
     altheld = 1
     IF IdeSystem = 2 THEN IdeSystem = 1: GOSUB UpdateSearchBar
@@ -3907,6 +3913,13 @@ FUNCTION ide2 (ignore)
         LOOP UNTIL KB
 
         K$ = UCASE$(K$)
+        IF LEN(K$) > 0 AND KCTRL THEN
+            'ctrl+key combos are not valid while a menu is active
+            LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+            SCREEN , , 3, 0: PCOPY 3, 0
+            GOTO ideloop
+        END IF
+
         FOR i = 1 TO menus
             a$ = UCASE$(LEFT$(menu$(i, 0), 1))
             IF K$ = a$ THEN
@@ -4196,13 +4209,15 @@ FUNCTION ide2 (ignore)
 
         'with hotkey
         K$ = UCASE$(K$)
-        FOR r2 = 1 TO menusize(m)
-            x = INSTR(menu$(m, r2), "#")
-            IF x THEN
-                a$ = UCASE$(MID$(menu$(m, r2), x + 1, 1))
-                IF K$ = a$ THEN s = r2: EXIT FOR
-            END IF
-        NEXT
+        IF LEN(K$) > 0 AND NOT KCTRL THEN
+            FOR r2 = 1 TO menusize(m)
+                x = INSTR(menu$(m, r2), "#")
+                IF x THEN
+                    a$ = UCASE$(MID$(menu$(m, r2), x + 1, 1))
+                    IF K$ = a$ THEN s = r2: EXIT FOR
+                END IF
+            NEXT
+        END IF
 
         IF s THEN
 
