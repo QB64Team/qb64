@@ -30,7 +30,9 @@ if ((bpp!=32)&&(bpp!=256)){error(5); return 0;}
 if (write_page->text){error(5); return 0;}
 bpp=-1;
 }
-if (!f->len) return -1;//return invalid handle if null length string
+if (!f->len) return -1; //return invalid handle if null length string
+if (bpp==256) return -1; //return invalid handle if 256-color mode requested (not valid in this version)
+
 //load the file
 int32 fh,result = 0;
 int64 lof;
@@ -89,28 +91,10 @@ static int32 prevDest;
 static uint16 scanX, scanY;
 static uint8 red, green, blue;
 
-if (bpp==256) {
-    i=func__newimage(x,y,256,1);
-    if (i==-1){free(pixels); return -1;}
-    prevDest=func__dest();
-    sub__dest(i);
+i=func__newimage(x,y,32,1);
+if (i==-1){free(pixels); return -1;}
+memcpy(img[-i].offset,pixels,x*y*4);
 
-    for (scanY=0;scanY<y;scanY++){
-        for (scanX=0;scanX<x;scanX++){
-             blue=*pixels; pixels++;
-             green=*pixels; pixels++;
-             red=*pixels; pixels++;
-             pixels++; //skip alpha
-             pset(scanX,scanY,matchcol(red,green,blue));
-        }
-    }
-
-    sub__dest(prevDest);
-} else {
-    i=func__newimage(x,y,32,1);
-    if (i==-1){free(pixels); return -1;}
-    memcpy(img[-i].offset,pixels,x*y*4);
-}
 free(pixels);
 
 if (isHardware){
