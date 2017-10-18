@@ -24596,14 +24596,14 @@ return -1;
     err = badPasteboardSyncErr;
    
     err = PasteboardGetItemCount( inPasteboard, &itemCount );
-    require_noerr( err, CantGetPasteboardItemCount );
+    //require_noerr( err, CantGetPasteboardItemCount );
    
     for( int itemIndex = 1; itemIndex <= itemCount; itemIndex++ ) {
       PasteboardItemID  itemID;
       CFDataRef  flavorData;
 
       err = PasteboardGetItemIdentifier( inPasteboard, itemIndex, &itemID );
-      require_noerr( err, CantGetPasteboardItemIdentifier );
+      //require_noerr( err, CantGetPasteboardItemIdentifier );
 
       err = PasteboardCopyItemFlavorData( inPasteboard, itemID, CFSTR("public.utf8-plain-text"), &flavorData );      
       data = (char*)CFDataGetBytePtr(flavorData);
