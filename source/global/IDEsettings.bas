@@ -250,7 +250,6 @@ IF LoadedIDESettings = 0 THEN
         ELSE
             IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
             IDE_TopPosition = 0
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", "0"
         END IF
 
         result = ReadConfigSetting("IDE_LeftPosition", value$)
@@ -259,7 +258,6 @@ IF LoadedIDESettings = 0 THEN
         ELSE
             IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
             IDE_LeftPosition = 0
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", "0"
         END IF
 
         'I was going to do some basic error checking for screen position to make certain that we appeared on the monitor,
