@@ -339,6 +339,7 @@ DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to 
 DIM SHARED optionexplicit AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
 DIM SHARED outputfile_cmd$
+DIM SHARED compilelog$
 
 '$INCLUDE:'global\IDEsettings.bas'
 
@@ -11615,7 +11616,8 @@ IF Debug THEN PRINT #9, "Finished generation of code for saving/sharing common a
 
 FOR closeall = 1 TO 255: CLOSE closeall: NEXT
 OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
-
+compilelog$ = tmpdir$ + "compilelog.txt"
+OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 
 
@@ -11880,12 +11882,12 @@ PATH_SLASH_CORRECT libqb$
 IF _FILEEXISTS("internal\c\" + LTRIM$(RTRIM$(libqb$))) = 0 THEN
     CHDIR "internal\c"
     IF os$ = "WIN" THEN
-        SHELL _HIDE GDB_Fix("cmd /c c_compiler\bin\g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb\os\" + o$ + "\libqb_" + depstr$ + ".o")
+        SHELL _HIDE GDB_Fix("cmd /c c_compiler\bin\g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb\os\" + o$ + "\libqb_" + depstr$ + ".o") + " 2>> ..\..\" + compilelog$
     ELSE
         IF mac THEN
-            SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.mm " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o")
+            SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.mm " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o") + " 2>> ../../" + compilelog$
         ELSE
-            SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o")
+            SHELL _HIDE GDB_Fix("g++ -c -s -w -Wall libqb.cpp -D FREEGLUT_STATIC " + defines$ + " -o libqb/os/" + o$ + "/libqb_" + depstr$ + ".o") + " 2>> ../../" + compilelog$
         END IF
     END IF
     CHDIR "..\.."
@@ -12060,7 +12062,7 @@ IF os$ = "WIN" THEN
             END IF
             a$ = a$ + " " + tmpdir2$ + "data.bin " + tmpdir2$ + "data.o"
             CHDIR ".\internal\c"
-            SHELL _HIDE a$
+            SHELL _HIDE "cmd /c " + a$ + " 2>> ..\..\" + compilelog$
             CHDIR "..\.."
         END IF
     END IF
@@ -12207,7 +12209,7 @@ IF os$ = "WIN" THEN
 
     IF No_C_Compile_Mode = 0 THEN
         CHDIR ".\internal\c"
-        SHELL _HIDE a$
+        SHELL _HIDE "cmd /c " + a$ + " 2>> ..\..\" + compilelog$
         CHDIR "..\.."
         IF idemode THEN
             'Restore fg/bg colors
@@ -12349,7 +12351,7 @@ IF os$ = "LNX" THEN
             OPEN ".\internal\c\makedat_lnx" + b$ + ".txt" FOR BINARY AS #150: LINE INPUT #150, a$: CLOSE #150
             a$ = a$ + " " + tmpdir2$ + "data.bin " + tmpdir2$ + "data.o"
             CHDIR ".\internal\c"
-            SHELL _HIDE a$
+            SHELL _HIDE a$ + " 2>> ../../" + compilelog$
             CHDIR "..\.."
         END IF
     END IF
@@ -12495,7 +12497,7 @@ IF os$ = "LNX" THEN
 
     IF No_C_Compile_Mode = 0 THEN
         CHDIR "./internal/c"
-        SHELL _HIDE a$
+        SHELL _HIDE a$ + " 2>> ../../" + compilelog$
         CHDIR "../.."
         IF idemode THEN
             'Restore fg/bg colors
@@ -12529,10 +12531,13 @@ IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN compfailed = 0 ELSE compfail
 
 IF compfailed THEN
     IF idemode THEN
-        idemessage$ = "C++ Compilation failed"
+        idemessage$ = "C++ Compilation failed (Check " + CHR$(0) + compilelog$ + CHR$(0) + ")"
         GOTO ideerror
     END IF
-    IF compfailed THEN PRINT "C++ COMPILATION FAILED!"
+    IF compfailed THEN
+        PRINT "C++ COMPILATION FAILED!"
+        PRINT "Check " + compilelog$ + " for details."
+    END IF
 ELSE
     IF idemode = 0 THEN PRINT "OUTPUT: "; path.exe$ + file$ + extension$
 END IF
@@ -23219,6 +23224,7 @@ END IF
 END SUB
 
 SUB Build (path$)
+previous_dir$ = _CWD$
 
 'Count the separators in the path
 depth = 1
@@ -23227,8 +23233,12 @@ FOR x = 1 TO LEN(path$)
 NEXT
 CHDIR path$
 
-bfh = FREEFILE
+return_path$ = ".."
+FOR x = 2 TO depth
+    return_path$ = return_path$ + "\.."
+NEXT
 
+bfh = FREEFILE
 OPEN "build" + BATCHFILE_EXTENSION FOR BINARY AS #bfh
 DO UNTIL EOF(bfh)
     LINE INPUT #bfh, c$
@@ -23241,20 +23251,19 @@ DO UNTIL EOF(bfh)
     c$ = GDB_Fix$(c$)
     IF use THEN
         IF os$ = "WIN" THEN
-            SHELL _HIDE "cmd /C " + c$
+            SHELL _HIDE "cmd /C " + c$ + " 2>> " + return_path$ + "\" + compilelog$
         ELSE
-            SHELL _HIDE c$
+            SHELL _HIDE c$ + " 2>> " + previous_dir$ + "/" + compilelog$
         END IF
     END IF
 LOOP
 CLOSE #bfh
 
-return_path$ = ".."
-FOR x = 2 TO depth
-    return_path$ = return_path$ + "\.."
-NEXT
-CHDIR return_path$
-
+IF os$ = "WIN" THEN
+    CHDIR return_path$
+ELSE
+    CHDIR previous_dir$
+END IF
 END SUB
 
 FUNCTION GDB_Fix$ (g_command$) 'edit a gcc/g++ command line to include debugging info
@@ -25355,4 +25364,3 @@ DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
-
