@@ -23224,6 +23224,8 @@ END IF
 END SUB
 
 SUB Build (path$)
+previous_dir$ = _CWD$
+
 'Count the separators in the path
 depth = 1
 FOR x = 1 TO LEN(path$)
@@ -23251,14 +23253,17 @@ DO UNTIL EOF(bfh)
         IF os$ = "WIN" THEN
             SHELL _HIDE "cmd /C " + c$ + " 2>> " + return_path$ + "\" + compilelog$
         ELSE
-            SHELL _HIDE c$ + " 2>> " + return_path$ + "/" + compilelog$
+            SHELL _HIDE c$ + " 2>> " + previous_dir$ + "/" + compilelog$
         END IF
     END IF
 LOOP
 CLOSE #bfh
 
-CHDIR return_path$
-
+IF os$ = "WIN" THEN
+    CHDIR return_path$
+ELSE
+    CHDIR previous_dir$
+END IF
 END SUB
 
 FUNCTION GDB_Fix$ (g_command$) 'edit a gcc/g++ command line to include debugging info
