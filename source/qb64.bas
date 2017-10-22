@@ -23224,8 +23224,17 @@ END IF
 END SUB
 
 SUB Build (path$)
-previous_dir$ = _CWD$
+'Count the separators in the path
+depth = 1
+FOR x = 1 TO LEN(path$)
+    IF ASC(path$, x) = 92 OR ASC(path$, x) = 47 THEN depth = depth + 1
+NEXT
 CHDIR path$
+
+return_path$ = ".."
+FOR x = 2 TO depth
+    return_path$ = return_path$ + "\.."
+NEXT
 
 bfh = FREEFILE
 OPEN "build" + BATCHFILE_EXTENSION FOR BINARY AS #bfh
@@ -23240,15 +23249,15 @@ DO UNTIL EOF(bfh)
     c$ = GDB_Fix$(c$)
     IF use THEN
         IF os$ = "WIN" THEN
-            SHELL _HIDE "cmd /C " + c$ + " 2>> " + previous_dir$ + "\" + compilelog$
+            SHELL _HIDE "cmd /C " + c$ + " 2>> " + return_path$ + "\" + compilelog$
         ELSE
-            SHELL _HIDE c$ + " 2>> " + previous_dir$ + "/" + compilelog$
+            SHELL _HIDE c$ + " 2>> " + return_path$ + "/" + compilelog$
         END IF
     END IF
 LOOP
 CLOSE #bfh
 
-CHDIR previous_dir$
+CHDIR return_path$
 
 END SUB
 
