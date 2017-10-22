@@ -28,7 +28,7 @@
 #include "ogg/src.c"
 #endif
 #endif
-
+#include <string.h>
 //forward refs:
 void sub__sndvol(int32 handle,float volume);
 void sub__sndclose(int32 handle);
@@ -160,9 +160,9 @@ got_seq:
 
         //establish data sizes
         //in_len will be set by the resampler to number of samples processed
-        spx_uint32_t in_len = seq->data_size / seq->channels / 2; // divide by 2 because 2byte samples, divive by #channels because function wants it per-channel
+        spx_uint32_t in_len = seq->data_size / seq->channels / 2; // divide by 2 because 2byte samples, divide by #channels because function wants it per-channel
         //out_len will be set to the number of samples written
-        spx_uint32_t out_len;
+        spx_uint32_t out_len = out_samples_max * seq->channels * sizeof(int16);
 
         //resample!
         if (speex_resampler_process_interleaved_int(state, (spx_int16_t *)seq->data, &in_len, (spx_int16_t *)resampled, &out_len) != RESAMPLER_ERR_SUCCESS) {
