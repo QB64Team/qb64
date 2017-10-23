@@ -2675,7 +2675,56 @@ FUNCTION ide2 (ignore)
                         p$ = idepath$ + pathsep$
                         f$ = p$ + ActiveINCLUDELinkFile
                         IF _FILEEXISTS(f$) THEN
-                            SHELL _DONTWAIT QuotedFilename$(COMMAND$(0)) + " " + QuotedFilename$(f$)
+                            backupIncludeFile = FREEFILE
+                            OPEN f$ FOR BINARY AS #backupIncludeFile
+                            tempInclude1$ = SPACE$(LOF(backupIncludeFile))
+                            CLOSE #backupIncludeFile
+
+                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
+                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", "80"
+                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", "25"
+
+                            SCREEN , , 3, 0
+                            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                            LOCATE idewy - 3, 2
+                            COLOR 15, 1
+                            PRINT "Editing $INCLUDE file..."
+                            dummy = DarkenFGBG(1)
+                            PCOPY 3, 0
+
+                            _DELAY .2
+                            SHELL QuotedFilename$(COMMAND$(0)) + " " + QuotedFilename$(f$)
+
+                            IF IDE_AutoPosition THEN
+                                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
+                            END IF
+                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", STR$(idewx)
+                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", STR$(idewy)
+
+                            OPEN f$ FOR BINARY AS #backupIncludeFile
+                            tempInclude2$ = SPACE$(LOF(backupIncludeFile))
+                            CLOSE #backupIncludeFile
+
+                            dummy = DarkenFGBG(0)
+                            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+
+                            IF tempInclude1$ = tempInclude2$ THEN
+                                IF IDEShowErrorsImmediately THEN
+                                    LOCATE idewy - 3, 2
+                                    IF idecompiling = 1 THEN
+                                        PRINT "...";
+                                    ELSE
+                                        PRINT "OK"; 'report OK status
+                                    END IF
+                                END IF
+                            ELSE
+                                idechangemade = 1
+                            END IF
+
+                            PCOPY 3, 0
+
+                            tempInclude1$ = ""
+                            tempInclude2$ = ""
                         END IF
                     ELSE
                         a$ = idegetline$(idecy)
