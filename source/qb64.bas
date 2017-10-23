@@ -14792,6 +14792,7 @@ a$ = a2$
 typ = -1
 
 IF Debug THEN PRINT #9, "evaluating:[" + a2$ + "]"
+IF a2$ = "" THEN Give_Error "Syntax error": EXIT FUNCTION
 
 
 
