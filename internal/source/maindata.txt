@@ -1502,6 +1502,7 @@ __BYTE_OPTIONEXPLICIT_CMD=(int8*)mem_static_malloc(1);
 *__BYTE_OPTIONEXPLICIT_CMD=0;
 }
 if (!__STRING_OUTPUTFILE_CMD)__STRING_OUTPUTFILE_CMD=qbs_new(0,0);
+if (!__STRING_COMPILELOG)__STRING_COMPILELOG=qbs_new(0,0);
 if(__ULONG_IDECOMMENTCOLOR==NULL){
 __ULONG_IDECOMMENTCOLOR=(uint32*)mem_static_malloc(4);
 *__ULONG_IDECOMMENTCOLOR=0;
@@ -6182,24 +6183,24 @@ if(__LONG_QBERRORHAPPENEDVALUE==NULL){
 __LONG_QBERRORHAPPENEDVALUE=(int32*)mem_static_malloc(4);
 *__LONG_QBERRORHAPPENEDVALUE=0;
 }
-int32 pass1961;
 int32 pass1962;
 int32 pass1963;
-static int64 fornext_value1967;
-static int64 fornext_finalvalue1967;
-static int64 fornext_step1967;
-static uint8 fornext_step_negative1967;
-byte_element_struct *byte_element_1968=NULL;
-if (!byte_element_1968){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1968=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1968=(byte_element_struct*)mem_static_malloc(12);
+int32 pass1964;
+static int64 fornext_value1968;
+static int64 fornext_finalvalue1968;
+static int64 fornext_step1968;
+static uint8 fornext_step_negative1968;
+byte_element_struct *byte_element_1969=NULL;
+if (!byte_element_1969){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1969=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1969=(byte_element_struct*)mem_static_malloc(12);
 }
-static int64 fornext_value1970;
-static int64 fornext_finalvalue1970;
-static int64 fornext_step1970;
-static uint8 fornext_step_negative1970;
-byte_element_struct *byte_element_1971=NULL;
-if (!byte_element_1971){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1971=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1971=(byte_element_struct*)mem_static_malloc(12);
+static int64 fornext_value1971;
+static int64 fornext_finalvalue1971;
+static int64 fornext_step1971;
+static uint8 fornext_step_negative1971;
+byte_element_struct *byte_element_1972=NULL;
+if (!byte_element_1972){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1972=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1972=(byte_element_struct*)mem_static_malloc(12);
 }
 if(_SUB_USEANDROID_LONG_INLINE_DATA_BACKUP==NULL){
 _SUB_USEANDROID_LONG_INLINE_DATA_BACKUP=(int32*)mem_static_malloc(4);
