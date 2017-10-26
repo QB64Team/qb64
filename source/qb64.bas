@@ -10093,7 +10093,7 @@ DO
 
 
                     IF targettyp = -3 THEN
-                        IF separgs2(i) = "NULL" THEN a$ = "Expected array name": GOTO errmes
+                        IF separgs2(i) = "N-LL" THEN a$ = "Expected array name": GOTO errmes
                         'names of numeric arrays have ( ) automatically appended (nothing else)
                         e$ = separgs2(i)
 
@@ -10156,7 +10156,7 @@ DO
                             EXIT FOR
                         END IF
 
-                        IF separgs2(i) = "NULL" THEN a$ = "Expected variable name/array element": GOTO errmes
+                        IF separgs2(i) = "N-LL" THEN a$ = "Expected variable name/array element": GOTO errmes
                         e$ = fixoperationorder$(separgs2(i))
                         IF Error_Happened THEN GOTO errmes
                         IF convertspacing = 1 AND addlayout = 1 THEN l$ = LEFT$(l$, LEN(l$) - 1) + sp
@@ -10191,7 +10191,7 @@ DO
                         GOTO sete
                     END IF '-4
 
-                    IF separgs2(i) = "NULL" THEN
+                    IF separgs2(i) = "N-LL" THEN
                         e$ = "NULL"
                     ELSE
 
@@ -20842,7 +20842,7 @@ END IF
 
 
 
-FOR i = 1 TO lastt: separgs(i) = "null": NEXT
+FOR i = 1 TO lastt: separgs(i) = "n-ll": NEXT
 
 
 
@@ -21032,9 +21032,9 @@ FOR x = 1 TO lastt
                     x = BranchFormatPos(Branches)
                     level = BranchLevel(Branches)
                     '3)Erase any content created after revert position
-                    IF Expression THEN separgs(Expression) = "null"
+                    IF Expression THEN separgs(Expression) = "n-ll"
                     FOR x2 = x TO lastt
-                        separgs(x2) = "null"
+                        separgs(x2) = "n-ll"
                         separgslayout(x2) = ""
                     NEXT
                 END IF 'Optional Opt ()?
@@ -21104,7 +21104,7 @@ FOR i = 1 TO lastt
     IF DontPass(i) = 0 THEN
 
         IF PassRule(i) > 0 THEN
-            IF separgs(i) <> "null" THEN pass& = pass& OR PassRule(i) 'build 'passed' flags
+            IF separgs(i) <> "n-ll" THEN pass& = pass& OR PassRule(i) 'build 'passed' flags
         END IF
 
         separgs(x) = separgs(i)
@@ -21118,7 +21118,7 @@ FOR i = 1 TO lastt
             END IF
         END IF
 
-        IF separgs(x) = "null" THEN separgs(x) = "NULL"
+        IF separgs(x) = "n-ll" THEN separgs(x) = "N-LL"
         x = x + 1
 
     ELSE
@@ -21127,7 +21127,7 @@ FOR i = 1 TO lastt
 
         'for syntax such as [{HELLO}] which uses a flag instead of being passed
         IF PassRule(i) > 0 THEN
-            IF separgs(i) <> "null" THEN pass& = pass& OR PassRule(i) 'build 'passed' flags
+            IF separgs(i) <> "n-ll" THEN pass& = pass& OR PassRule(i) 'build 'passed' flags
         END IF
 
         separgslayout(i + 1) = separgslayout(i) + separgslayout(i + 1)
