@@ -8203,6 +8203,15 @@ SUB ideshowtext
         LOCATE y + 3, 1
         COLOR 7, 1
         PRINT CHR$(179); 'clear prev bookmarks from lhs
+
+        IF l <= iden THEN
+            LOCATE y + 3, 2
+            l$ = SPACE$(LEN(STR$(iden)) + 2)
+            MID$(l$, 1) = STR$(l)
+            PRINT l$;
+        END IF
+
+
         IF l = idefocusline AND idecy <> l THEN
             COLOR 7, 4 'Line with error gets a red background
         ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
@@ -8523,8 +8532,8 @@ SUB ideshowtext
             LOOP '                                                      verifying the code and growing the array during the IDE passes.
             IF InValidLine(l) AND 1 THEN COLOR 7
 
-            IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
-                LOCATE y + 3, 2 + m - idesx
+            IF 2 + m - idesx >= 2 AND (2 + m - idesx) + LEN(STR$(iden)) + 2 < idewx - 1 THEN
+                LOCATE y + 3, (2 + m - idesx) + LEN(STR$(iden)) + 2
                 PRINT thisChar$;
             END IF
 
