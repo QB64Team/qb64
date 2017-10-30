@@ -507,6 +507,12 @@ FUNCTION ide2 (ignore)
                 LOOP UNTIL asca = 13
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
+                    idecy = ideStartAtLine
+                    IF idecy - 10 >= 1 THEN idesy = idecy - 10
+                    idegotobox_LastLineNum = ideStartAtLine
+                    ideStartAtLine = 0
+                END IF
                 IdeBmkN = 0
                 ideerror = 1
                 ideprogname = f$: _TITLE ideprogname + " - QB64"
@@ -10559,8 +10565,6 @@ FUNCTION idemodifycommandbox
 END FUNCTION
 
 FUNCTION idegotobox
-    STATIC idegotobox_LastLineNum AS LONG
-
     '-------- generic dialog box header --------
     PCOPY 0, 2
     PCOPY 0, 1

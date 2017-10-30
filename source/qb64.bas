@@ -338,6 +338,7 @@ DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to 
 
 DIM SHARED optionexplicit AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
+DIM SHARED ideStartAtLine AS LONG
 DIM SHARED outputfile_cmd$
 DIM SHARED compilelog$
 
@@ -12663,16 +12664,12 @@ FUNCTION ParseCMDLineArgs$ ()
 'in which case they're simply asking for trouble).
 FOR i = 1 TO _COMMANDCOUNT
     token$ = COMMAND$(i)
+    IF LCASE$(token$) = "-help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
     SELECT CASE LCASE$(LEFT$(token$, 2))
-        CASE "/?", "-?", "-h" 'Command-line help
+        CASE "-?", "/?" 'Command-line help
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
             PRINT
-            IF LCASE$(token$) <> "-help" AND LCASE$(token$) <> "-h" AND token$ <> "-?" AND token$ <> "/?" THEN
-                'Ended up being a filename?
-                PassedFileName$ = token$
-                GOTO NextCase
-            END IF
             PRINT "USAGE: qb64 [switches] <inputs>"
             PRINT
             PRINT "OPTIONS:"
@@ -12681,42 +12678,41 @@ FOR i = 1 TO _COMMANDCOUNT
             PRINT "  -x                      Compile instead of edit and output the result to the"
             PRINT "                             console"
             PRINT "  -z                      Generate C code without compiling to executable"
-            'PRINT "  -g                      Non-GUI environment (uses $CONSOLE:ONLY - for G-WAN"
-            'PRINT "                             compilation)"
             PRINT "  -o <file>               Write output executable to <file>"
             PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
             PRINT "                             mandatory (per-compilation; doesn't affect the"
             PRINT "                             source file or global settings)"
             PRINT "  -s[:switch=true/false]  View/edit compiler settings"
+            PRINT "  -l:<line number>        Starts the IDE at the specified line number"
             PRINT
             SYSTEM
-        CASE "-s" 'Settings
+        CASE "-s", "/s" 'Settings
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
-            SELECT CASE LCASE$(token$)
-                CASE "-s"
+            SELECT CASE LCASE$(MID$(token$, 3))
+                CASE ""
                     PRINT "debuginfo     = ";
                     IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
                     PRINT "exewithsource = ";
                     IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
                     SYSTEM
-                CASE "-s:exewithsource"
+                CASE ":exewithsource"
                     PRINT "exewithsource = ";
                     IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
                     SYSTEM
-                CASE "-s:exewithsource=true"
+                CASE ":exewithsource=true"
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
                     PRINT "exewithsource = TRUE"
                     SYSTEM
-                CASE "-s:exewithsource=false"
+                CASE ":exewithsource=false"
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
                     PRINT "exewithsource = FALSE"
                     SYSTEM
-                CASE "-s:debuginfo"
+                CASE ":debuginfo"
                     PRINT "debuginfo = ";
                     IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
                     SYSTEM
-                CASE "-s:debuginfo=true"
+                CASE ":debuginfo=true"
                     PRINT "debuginfo = TRUE"
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
                     idedebuginfo = 1
@@ -12737,7 +12733,7 @@ FOR i = 1 TO _COMMANDCOUNT
                         CHDIR "../.."
                     END IF
                     SYSTEM
-                CASE "-s:debuginfo=false"
+                CASE ":debuginfo=false"
                     PRINT "debuginfo = FALSE"
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
                     idedebuginfo = 0
@@ -12766,27 +12762,24 @@ FOR i = 1 TO _COMMANDCOUNT
                     PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                     SYSTEM
             END SELECT
-        CASE "-q" 'Building a Qloud program
-            Cloud = 1
-            ConsoleMode = 1 'Implies -x
-            NoIDEMode = 1 'Imples -c
-        CASE "-e" 'Option Explicit
+        CASE "-e", "/e" 'Option Explicit
             optionexplicit_cmd = -1
-        CASE "-z" 'Not compiling C code
+        CASE "-z", "/z" 'Not compiling C code
             No_C_Compile_Mode = 1
             ConsoleMode = 1 'Implies -x
             NoIDEMode = 1 'Implies -c
-        CASE "-x" 'Use the console
+        CASE "-x", "/x" 'Use the console
             ConsoleMode = 1
             NoIDEMode = 1 'Implies -c
-        CASE "-c" 'Compile instead of edit
+        CASE "-c", "/c" 'Compile instead of edit
             NoIDEMode = 1
-        CASE "-o" 'Specify an output file
+        CASE "-o", "/o" 'Specify an output file
             IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
+        CASE "-l", "/l" 'goto line (ide mode only); -l:<line number>
+            IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
         CASE ELSE 'Something we don't recognise, assume it's a filename
-            PassedFileName$ = token$
+            IF PassedFileName$ = "" THEN PassedFileName$ = token$
     END SELECT
-    NextCase:
 NEXT i
 
 IF LEN(PassedFileName$) THEN ParseCMDLineArgs$ = PassedFileName$
