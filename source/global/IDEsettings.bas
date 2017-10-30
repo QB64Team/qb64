@@ -330,7 +330,7 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("IDE_IndentSUBs", value$)
     ideindentsubs = VAL(value$)
-    IF UCASE$(value$) = "TRUE" OR ideautoindent <> 0 THEN
+    IF UCASE$(value$) = "TRUE" OR ideindentsubs <> 0 THEN
         ideindentsubs = 1
     ELSE
         IF UCASE$(value$) <> "FALSE" AND value$ <> "0" THEN
