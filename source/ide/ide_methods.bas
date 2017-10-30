@@ -249,9 +249,16 @@ FUNCTION ide2 (ignore)
         ideeditmenuID = m
         IdeMakeEditMenu
 
-        m = m + 1: i = 0
+        m = m + 1: i = 0: ViewMenuID = m
         menu$(m, i) = "View": i = i + 1
         menu$(m, i) = "#SUBs...  F2": i = i + 1
+
+        ViewMenuShowLineNumbers = i
+        menu$(m, i) = "#Line numbers": i = i + 1
+        IF ShowLineNumbers THEN
+            menu$(ViewMenuID, ViewMenuShowLineNumbers) = CHR$(7) + menu$(ViewMenuID, ViewMenuShowLineNumbers)
+        END IF
+
         menusize(m) = i - 1
 
         m = m + 1: i = 0
@@ -4810,6 +4817,20 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
+            IF RIGHT$(menu$(m, s), 13) = "#Line numbers" THEN
+                PCOPY 2, 0
+                ShowLineNumbers = NOT ShowLineNumbers
+                IF ShowLineNumbers THEN
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
+                    menu$(ViewMenuID, ViewMenuShowLineNumbers) = CHR$(7) + "#Line numbers"
+                ELSE
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
+                    menu$(ViewMenuID, ViewMenuShowLineNumbers) = "#Line numbers"
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
             IF menu$(m, s) = "#Find...  Ctrl+F3" THEN
                 PCOPY 2, 0
                 idefindjmp:
@@ -8202,15 +8223,16 @@ SUB ideshowtext
     FOR y = 0 TO (idewy - 9)
         LOCATE y + 3, 1
         COLOR 7, 1
+        l$ = SPACE$(LEN(STR$(iden)) + 1)
         PRINT CHR$(179); 'clear prev bookmarks from lhs
+        IF l = idecy THEN COLOR , 6
+        PRINT l$;
 
-        IF l <= iden THEN
-            LOCATE y + 3, 2
-            l$ = SPACE$(LEN(STR$(iden)) + 2)
-            MID$(l$, 1) = STR$(l)
+        IF l <= iden AND ShowLineNumbers THEN
+            l$ = STR$(l)
+            LOCATE y + 3, POS(1) - (LEN(l$) + 1)
             PRINT l$;
         END IF
-
 
         IF l = idefocusline AND idecy <> l THEN
             COLOR 7, 4 'Line with error gets a red background
@@ -8532,10 +8554,16 @@ SUB ideshowtext
             LOOP '                                                      verifying the code and growing the array during the IDE passes.
             IF InValidLine(l) AND 1 THEN COLOR 7
 
-            IF 2 + m - idesx >= 2 AND (2 + m - idesx) + LEN(STR$(iden)) + 2 < idewx - 1 THEN
-                LOCATE y + 3, (2 + m - idesx) + LEN(STR$(iden)) + 2
-                PRINT thisChar$;
+            IF ShowLineNumbers THEN
+                IF 2 + m - idesx >= 2 AND (2 + m - idesx) + LEN(STR$(iden)) + 1 < idewx - 1 THEN
+                    LOCATE y + 3, (2 + m - idesx) + LEN(STR$(iden)) + 1
+                END IF
+            ELSE
+                IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
+                    LOCATE y + 3, 2 + m - idesx
+                END IF
             END IF
+            PRINT thisChar$;
 
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6

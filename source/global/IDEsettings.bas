@@ -191,6 +191,19 @@ IF LoadedIDESettings = 0 THEN
         IDEShowErrorsImmediately = -1
     END IF
 
+    result = ReadConfigSetting("ShowLineNumbers", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            ShowLineNumbers = -1
+        ELSE
+            ShowLineNumbers = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
+        ShowLineNumbers = 0
+    END IF
+
     result = ReadConfigSetting("BracketHighlight", value$)
     IF result THEN
         IF value$ = "TRUE" OR VAL(value$) = -1 THEN
