@@ -338,7 +338,7 @@ DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to 
 
 DIM SHARED optionexplicit AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
-DIM SHARED ideStartAtLine AS LONG
+DIM SHARED ideStartAtLine AS LONG, errorLineInInclude AS LONG
 DIM SHARED outputfile_cmd$
 DIM SHARED compilelog$
 
@@ -1500,6 +1500,7 @@ layout = ""
 layoutok = 0
 NoChecks = 0
 inclevel = 0
+errorLineInInclude = 0
 addmetainclude$ = ""
 nextrunlineindex = 1
 lasttype = 0
@@ -2783,6 +2784,7 @@ DO
             wholeline$ = x$
             inclinenumber(inclevel) = inclinenumber(inclevel) + 1
             'create extended error string 'incerror$'
+            errorLineInInclude = inclinenumber(inclevel)
             e$ = " in line " + str2(inclinenumber(inclevel)) + " of " + incname$(inclevel) + " included"
             IF inclevel > 1 THEN
                 e$ = e$ + " (through "
@@ -10721,6 +10723,7 @@ DO
                 continuelinefrom = 0
                 inclinenumber(inclevel) = inclinenumber(inclevel) + 1
                 'create extended error string 'incerror$'
+                errorLineInInclude = inclinenumber(inclevel)
                 e$ = " in line " + str2(inclinenumber(inclevel)) + " of " + incname$(inclevel) + " included"
                 IF inclevel > 1 THEN
                     e$ = e$ + " (through "

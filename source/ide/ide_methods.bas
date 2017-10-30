@@ -2706,7 +2706,11 @@ FUNCTION ide2 (ignore)
                             PCOPY 3, 0
 
                             _DELAY .2
-                            SHELL QuotedFilename$(COMMAND$(0)) + " " + QuotedFilename$(f$)
+                            p$ = QuotedFilename$(COMMAND$(0)) + " " + QuotedFilename$(f$)
+                            IF errorLineInInclude > 0 AND idefocusline = idecy THEN
+                                p$ = p$ + " -l:" + str2$(errorLineInInclude)
+                            END IF
+                            SHELL p$
 
                             IF IDE_AutoPosition THEN
                                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
