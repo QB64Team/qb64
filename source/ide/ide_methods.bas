@@ -8258,16 +8258,16 @@ SUB ideshowtext
         PRINT CHR$(179); 'clear prev bookmarks from lhs
 
         IF ShowLineNumbers THEN
-            COLOR , 6
-            'IF l = idecy THEN COLOR , 6
+            IF ShowLineNumbersUseBG THEN COLOR , 6
             PRINT SPACE$(maxLineNumberLength);
             IF l <= iden THEN
                 l2$ = STR$(l)
                 IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
                     LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
-                    PRINT l2$; 'CHR$(179);
+                    PRINT l2$;
                 END IF
             END IF
+            IF ShowLineNumbersSeparator THEN LOCATE y + 3, 1 + maxLineNumberLength: PRINT CHR$(179);
             COLOR , 1
         END IF
 

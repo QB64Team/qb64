@@ -12,6 +12,7 @@ DIM SHARED MouseButtonSwapped AS _BYTE
 DIM SHARED PasteCursorAtEnd AS _BYTE
 DIM SHARED SaveExeWithSource AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
+DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -202,6 +203,32 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
         ShowLineNumbers = 0
+    END IF
+
+    result = ReadConfigSetting("ShowLineNumbersSeparator", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            ShowLineNumbersSeparator = -1
+        ELSE
+            ShowLineNumbersSeparator = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "TRUE"
+        ShowLineNumbersSeparator = -1
+    END IF
+
+    result = ReadConfigSetting("ShowLineNumbersUseBG", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            ShowLineNumbersUseBG = -1
+        ELSE
+            ShowLineNumbersUseBG = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "TRUE"
+        ShowLineNumbersUseBG = -1
     END IF
 
     result = ReadConfigSetting("BracketHighlight", value$)
