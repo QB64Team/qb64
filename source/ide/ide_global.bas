@@ -167,7 +167,7 @@ DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
 DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
-DIM SHARED idegotobox_LastLineNum AS LONG
+DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype

@@ -740,6 +740,7 @@ FUNCTION ide2 (ignore)
     'main loop
     DO
         ideloop:
+        IF ShowLineNumbers THEN maxLineNumberLength = LEN(STR$(iden)) + 1 ELSE maxLineNumberLength = 0
         idecontextualmenu = 0
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
@@ -2648,7 +2649,7 @@ FUNCTION ide2 (ignore)
                 ideselecty1 = wholeword.selecty1
                 idecy = wholeword.idecy
             END IF
-            newposition = mX - 1 + idesx - 1
+            newposition = (mX - 1 + idesx - 1) - maxLineNumberLength
             a$ = idegetline$(idecy)
             IF newposition > LEN(a$) THEN idecx = newposition: GOTO DoneWholeWord
             IF newposition = 1 THEN ideselectx1 = 1: GOTO DoneWholeWord
@@ -2674,11 +2675,11 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF mCLICK THEN
-            IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
+            IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                 IF old.mX = mX AND old.mY = mY THEN
                     IF TIMER - last.TBclick# > .5 THEN GOTO regularTextBox_click
                     'Double-click on text box: attempt to select "word" clicked
-                    idecx = mX - 1 + idesx - 1
+                    idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN
                         GOTO regularTextBox_click
@@ -2769,13 +2770,33 @@ FUNCTION ide2 (ignore)
                     regularTextBox_click:
                     old.mX = mX: old.mY = mY: last.TBclick# = TIMER
                     ideselect = 1
-                    idecx = mX - 1 + idesx - 1
+                    idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN idecy = iden
                     ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
                     idemouseselect = 1
                     wholeword.select = 0
                 END IF
+            ELSEIF mX > 1 AND mx =< 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
+                'line numbers are visible and been clicked
+                ideselect = 1
+                idecy = mY - 2 + idesy - 1
+                IF idecy < iden THEN
+                    ideselectx1 = 1: ideselecty1 = idecy
+                    idecy = idecy + 1
+                    idecx = 1
+                ELSEIF idecy = iden THEN
+                    a$ = idegetline$(idecy)
+                    ideselectx1 = 1
+                    ideselecty1 = idecy
+                    idecx = LEN(a$) + 1
+                ELSEIF idecy > iden THEN
+                    idecy = iden
+                    ideselect = 0
+                    idecx = 1
+                END IF
+                wholeword.select = 0
+                idemouseselect = 0
             END IF
         END IF
 
@@ -2783,9 +2804,9 @@ FUNCTION ide2 (ignore)
 
         IF mCLICK2 THEN 'Second mouse button pressed.
             invokecontextualmenu:
-            IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
+            IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                 IF ideselect = 0 THEN 'Right click only positions the cursor if no selection is active
-                    idecx = mX - 1 + idesx - 1
+                    idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN idecy = iden
                 ELSE 'A selection is reported but it may be that the user only clicked the screen. Let's check:
@@ -2800,14 +2821,14 @@ FUNCTION ide2 (ignore)
                         IF a2$ = "" THEN
                             'Told ya.
                             ideselect = 0
-                            idecx = mX - 1 + idesx - 1
+                            idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                             idecy = mY - 2 + idesy - 1
                             IF idecy > iden THEN idecy = iden
                         ELSE
                             'Ok, there is a selection. But we'll override it if the click was outside it
-                            IF mX - 1 + idesx - 1 < sx1 OR mX - 1 + idesx - 1 > sx2 THEN
+                            IF (mX - 1 + idesx - 1) - maxLineNumberLength < sx1 OR (mX - 1 + idesx - 1)  - maxLineNumberLength > sx2 THEN
                                 ideselect = 0
-                                idecx = mX - 1 + idesx - 1
+                                idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                                 idecy = mY - 2 + idesy - 1
                                 IF idecy > iden THEN idecy = iden
                                 ideshowtext
@@ -2815,7 +2836,7 @@ FUNCTION ide2 (ignore)
                             END IF
                             IF mY - 2 + idesy - 1 < idecy OR mY - 2 + idesy - 1 > idecy THEN
                                 ideselect = 0
-                                idecx = mX - 1 + idesx - 1
+                                idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                                 idecy = mY - 2 + idesy - 1
                                 IF idecy > iden THEN idecy = iden
                                 ideshowtext
@@ -2829,7 +2850,7 @@ FUNCTION ide2 (ignore)
                         IF sy1 > sy2 THEN SWAP sy1, sy2
                         IF mY - 2 + idesy - 1 < sy1 OR mY - 2 + idesy - 1 > sy2 THEN
                             ideselect = 0
-                            idecx = mX - 1 + idesx - 1
+                            idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                             idecy = mY - 2 + idesy - 1
                             IF idecy > iden THEN idecy = iden
                             ideshowtext
@@ -2939,9 +2960,10 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF mB AND idemouseselect <= 1 THEN
-            IF mX > 1 AND mX < idewx AND mY > 2 AND mY < idewy - 5 THEN 'inside text box
+            IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < idewy - 5 THEN 'inside text box
                 IF idemouseselect = 1 THEN
-                    idecx = mX - 1 + idesx - 1
+                    idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
+                    IF idecx < 1 THEN idecx = 1
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN idecy = iden
                 END IF
@@ -2949,13 +2971,13 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF mB THEN
-            IF mX = 1 OR mX = idewx OR mY <= 2 OR mY >= idewy - 5 THEN 'off text window area
+            IF ((mX = 1 AND ShowLineNumbers = 0) OR (mX <= 1 + maxLineNumberLength AND ShowLineNumbers)) OR mX = idewx OR mY <= 2 OR mY >= idewy - 5 THEN 'off text window area
                 IF idemouseselect = 1 THEN
 
                     'scroll window
                     IF mY >= idewy - 5 THEN idecy = idecy + 1: IF idecy > iden THEN idecy = iden
                     IF mY <= 2 THEN idecy = idecy - 1: IF idecy < 1 THEN idecy = 1
-                    IF mX = 1 THEN idecx = idecx - 1: IF idecx < 1 THEN idecx = 1
+                    IF ((mX = 1 AND ShowLineNumbers = 0) OR (mX <= 1 + maxLineNumberLength AND ShowLineNumbers)) THEN idecx = idecx - 1: IF idecx < 1 THEN idecx = 1
                     IF mX = idewx THEN idecx = idecx + 1
                     idewait
                 END IF
@@ -8175,11 +8197,9 @@ SUB ideshowtext
 
     cc = -1
 
-    IF ShowLineNumbers THEN l1$ = SPACE$(LEN(STR$(iden)) + 1) ELSE l1$ = ""
-
     IF idecx < idesx THEN idesx = idecx
     IF idecy < idesy THEN idesy = idecy
-    IF (idecx + LEN(l1$)) - idesx >= (idewx - 2) THEN idesx = (idecx + LEN(l1$)) - (idewx - 3)
+    IF (idecx + maxLineNumberLength) - idesx >= (idewx - 2) THEN idesx = (idecx + maxLineNumberLength) - (idewx - 3)
     IF idecy - idesy >= (idewy - 8) THEN idesy = idecy - (idewy - 9)
 
     sy1 = ideselecty1
@@ -8238,13 +8258,17 @@ SUB ideshowtext
         PRINT CHR$(179); 'clear prev bookmarks from lhs
 
         IF ShowLineNumbers THEN
-            IF l = idecy THEN COLOR , 6
-            PRINT l1$;
+            COLOR , 6
+            'IF l = idecy THEN COLOR , 6
+            PRINT SPACE$(maxLineNumberLength);
             IF l <= iden THEN
                 l2$ = STR$(l)
-                LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
-                PRINT l2$;
+                IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
+                    LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
+                    PRINT l2$; 'CHR$(179);
+                END IF
             END IF
+            COLOR , 1
         END IF
 
         IF l = idefocusline AND idecy <> l THEN
@@ -8260,7 +8284,7 @@ SUB ideshowtext
             link_idecx = 0
             rgb_idecx = 0
             IF l = idecy THEN
-                IF idecx <= LEN(a$) THEN
+                IF idecx <= LEN(a$) AND idecx >= 1 THEN
                     cc = ASC(a$, idecx)
                     IF cc = 32 THEN
                         IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
@@ -8567,8 +8591,8 @@ SUB ideshowtext
             IF InValidLine(l) AND 1 THEN COLOR 7
 
             IF ShowLineNumbers THEN
-                IF (2 + m - idesx) + LEN(l1$) >= 2 + LEN(l1$) AND (2 + m - idesx) + LEN(l1$) < idewx THEN
-                    LOCATE y + 3, (2 + m - idesx) + LEN(l1$)
+                IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
+                    LOCATE y + 3, (2 + m - idesx) + maxLineNumberLength
                     PRINT thisChar$;
                 END IF
             ELSE
@@ -8590,7 +8614,7 @@ SUB ideshowtext
                 IF sy1 = sy2 THEN 'single line select
                     COLOR 1, 7
                     x2 = idesx
-                    FOR x = 2 TO (idewx - 2)
+                    FOR x = 2 + maxLineNumberLength TO (idewx - 2)
                         IF x2 >= sx1 AND x2 < sx2 THEN
                             a = SCREEN(y + 3, x)
 
@@ -8614,10 +8638,10 @@ SUB ideshowtext
                     COLOR 7, 1
                 ELSE 'multiline select
                     IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect
-                    LOCATE y + 3, 2
+                    LOCATE y + 3, 2 + maxLineNumberLength
                     COLOR 1, 7
 
-                    FOR x = idesx TO idesx + idewx - 2
+                    FOR x = idesx TO idesx + idewx - (2 + maxLineNumberLength)
                         PRINT MID$(a2$, x, 1);
                     NEXT
 
@@ -8654,7 +8678,7 @@ SUB ideshowtext
     LOCATE idewy + idesubwindow, (idewx - 10) - LEN(a$)
     PRINT a$;
 
-    SCREEN , , 0, 0: LOCATE idecy - idesy + 3, LEN(l1$) + idecx - idesx + 2: SCREEN , , 3, 0
+    SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
 
     EXIT SUB
     FindQuoteComment:
@@ -13600,7 +13624,7 @@ SUB IdeMakeContextualMenu
     a$ = idegetline(idecy)
     a2$ = ""
     x = idecx
-    IF x <= LEN(a$) THEN
+    IF x <= LEN(a$) AND x >= 1 THEN
         IF alphanumeric(ASC(a$, x)) THEN
             x1 = x
             DO WHILE x1 > 1
