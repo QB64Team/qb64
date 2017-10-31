@@ -8175,9 +8175,11 @@ SUB ideshowtext
 
     cc = -1
 
+    IF ShowLineNumbers THEN l1$ = SPACE$(LEN(STR$(iden)) + 1) ELSE l1$ = ""
+
     IF idecx < idesx THEN idesx = idecx
     IF idecy < idesy THEN idesy = idecy
-    IF idecx - idesx >= (idewx - 2) THEN idesx = idecx - (idewx - 3)
+    IF (idecx + LEN(l1$)) - idesx >= (idewx - 2) THEN idesx = (idecx + LEN(l1$)) - (idewx - 3)
     IF idecy - idesy >= (idewy - 8) THEN idesy = idecy - (idewy - 9)
 
     sy1 = ideselecty1
@@ -8233,15 +8235,16 @@ SUB ideshowtext
     FOR y = 0 TO (idewy - 9)
         LOCATE y + 3, 1
         COLOR 7, 1
-        l$ = SPACE$(LEN(STR$(iden)) + 1)
         PRINT CHR$(179); 'clear prev bookmarks from lhs
-        IF l = idecy THEN COLOR , 6
-        PRINT l$;
 
-        IF l <= iden AND ShowLineNumbers THEN
-            l$ = STR$(l)
-            LOCATE y + 3, POS(1) - (LEN(l$) + 1)
-            PRINT l$;
+        IF ShowLineNumbers THEN
+            IF l = idecy THEN COLOR , 6
+            PRINT l1$;
+            IF l <= iden THEN
+                l2$ = STR$(l)
+                LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
+                PRINT l2$;
+            END IF
         END IF
 
         IF l = idefocusline AND idecy <> l THEN
@@ -8378,7 +8381,6 @@ SUB ideshowtext
 
             a2$ = SPACE$(idesx + (idewx - 3))
             MID$(a2$, 1) = a$
-            'a2$ = RIGHT$(a2$, (idewx - 2))
         ELSE
             a2$ = SPACE$((idewx - 2))
         END IF
@@ -8565,15 +8567,16 @@ SUB ideshowtext
             IF InValidLine(l) AND 1 THEN COLOR 7
 
             IF ShowLineNumbers THEN
-                IF 2 + m - idesx >= 2 AND (2 + m - idesx) + LEN(STR$(iden)) + 1 < idewx - 1 THEN
-                    LOCATE y + 3, (2 + m - idesx) + LEN(STR$(iden)) + 1
+                IF (2 + m - idesx) + LEN(l1$) >= 2 + LEN(l1$) AND (2 + m - idesx) + LEN(l1$) < idewx THEN
+                    LOCATE y + 3, (2 + m - idesx) + LEN(l1$)
+                    PRINT thisChar$;
                 END IF
             ELSE
                 IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
                     LOCATE y + 3, 2 + m - idesx
+                    PRINT thisChar$;
                 END IF
             END IF
-            PRINT thisChar$;
 
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
@@ -8651,7 +8654,7 @@ SUB ideshowtext
     LOCATE idewy + idesubwindow, (idewx - 10) - LEN(a$)
     PRINT a$;
 
-    SCREEN , , 0, 0: LOCATE idecy - idesy + 3, idecx - idesx + 2: SCREEN , , 3, 0
+    SCREEN , , 0, 0: LOCATE idecy - idesy + 3, LEN(l1$) + idecx - idesx + 2: SCREEN , , 3, 0
 
     EXIT SUB
     FindQuoteComment:
