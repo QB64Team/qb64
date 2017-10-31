@@ -2773,7 +2773,8 @@ FUNCTION ide2 (ignore)
                     idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN idecy = iden
-                    ideselect = 1: ideselectx1 = idecx: ideselecty1 = idecy
+                    ideselect = 1
+                    IF (NOT KSHIFT) THEN ideselectx1 = idecx: ideselecty1 = idecy
                     idemouseselect = 1
                     wholeword.select = 0
                 END IF
@@ -2782,13 +2783,12 @@ FUNCTION ide2 (ignore)
                 ideselect = 1
                 idecy = mY - 2 + idesy - 1
                 IF idecy < iden THEN
-                    ideselectx1 = 1: ideselecty1 = idecy
+                    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
                     idecy = idecy + 1
                     idecx = 1
                 ELSEIF idecy = iden THEN
                     a$ = idegetline$(idecy)
-                    ideselectx1 = 1
-                    ideselecty1 = idecy
+                    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
                     idecx = LEN(a$) + 1
                 ELSEIF idecy > iden THEN
                     idecy = iden
