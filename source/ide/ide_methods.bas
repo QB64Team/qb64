@@ -3833,8 +3833,8 @@ FUNCTION ide2 (ignore)
 
         'alt and ctrl combos have already been processed, so skip inserting
         'K$ if these are still held down:
-        IF KCTRL THEN GOTO specialchar
-        IF KALT AND NOT AltSpecial THEN GOTO specialchar
+        IF KCTRL AND NOT KALT THEN GOTO specialchar
+        IF KALT AND NOT KCTRL AND NOT AltSpecial THEN GOTO specialchar
 
         'standard character
         IF ideselect THEN GOSUB delselect
