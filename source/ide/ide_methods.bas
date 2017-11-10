@@ -1311,7 +1311,7 @@ FUNCTION ide2 (ignore)
 
         IF KALT THEN 'alt held
 
-            IF idealthighlight = 0 AND KALTPRESS = -1 THEN
+            IF idealthighlight = 0 AND KALTPRESS = -1 AND NOT KCTRL THEN
                 'highlist first letter of each menu item
                 idealthighlight = 1
                 LOCATE , , 0: COLOR 15, 7: x = 4
@@ -5570,10 +5570,10 @@ FUNCTION idechange$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -5790,10 +5790,10 @@ SUB idechanged
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -5910,10 +5910,10 @@ FUNCTION idechangeit$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -6250,10 +6250,10 @@ SUB ideerrormessage (mess$)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -6366,10 +6366,10 @@ FUNCTION idefileexists$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -6553,10 +6553,10 @@ FUNCTION idefind$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7005,10 +7005,10 @@ SUB idenewsf (sf AS STRING)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7145,10 +7145,10 @@ SUB idenomatch
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7294,10 +7294,10 @@ FUNCTION ideopen$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7548,10 +7548,10 @@ FUNCTION iderestore$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7665,10 +7665,10 @@ FUNCTION ideclearhistory$ (WhichHistory$)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7823,10 +7823,10 @@ FUNCTION idesaveas$ (programname$)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -7990,10 +7990,10 @@ FUNCTION idesavenow$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -8891,10 +8891,10 @@ FUNCTION idesubs$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -9090,10 +9090,10 @@ FUNCTION idelanguagebox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -9270,7 +9270,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                         o.issel = 0
                     END IF
                 END IF
-                IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 AND KALT = 0 THEN
+                IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 AND ((KALT = 0 AND KCTRL = 0) OR (KALT = -1 AND KCTRL = -1))  THEN
                     IF o.issel THEN
                         sx1 = o.sx1: sx2 = o.v1
                         IF sx1 > sx2 THEN SWAP sx1, sx2
@@ -10122,10 +10122,10 @@ FUNCTION idelayoutbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -10308,10 +10308,10 @@ FUNCTION idebackupbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -10476,10 +10476,10 @@ FUNCTION idemodifycommandbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -10611,10 +10611,10 @@ FUNCTION idegotobox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -10784,10 +10784,10 @@ FUNCTION ideadvancedbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -10974,10 +10974,10 @@ SUB idemessagebox (titlestr$, messagestr$)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -11085,10 +11085,10 @@ FUNCTION ideyesnobox$ (titlestr$, messagestr$) 'returns "Y" or "N"
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -11238,10 +11238,10 @@ FUNCTION ideandroidbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -11448,10 +11448,10 @@ FUNCTION idedisplaybox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -11913,10 +11913,10 @@ FUNCTION idechoosecolorsbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -12638,10 +12638,10 @@ FUNCTION idecolorpicker$ (editing)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -13176,10 +13176,10 @@ FUNCTION idesearchedbox$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -13383,10 +13383,10 @@ FUNCTION iderecentbox$
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -14050,10 +14050,10 @@ FUNCTION idef1box$ (lnks$, lnks)
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -14174,10 +14174,10 @@ SUB Mathbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
@@ -14281,10 +14281,10 @@ SUB Mathbox
             oldalt = alt
             _LIMIT 100
         LOOP UNTIL change
-        IF alt THEN idehl = 1 ELSE idehl = 0
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
         'convert "alt+letter" scancode to letter's ASCII character
         altletter$ = ""
-        IF alt THEN
+        IF alt AND NOT KCTRL THEN
             IF LEN(K$) = 1 THEN
                 k = ASC(UCASE$(K$))
                 IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
