@@ -4,7 +4,7 @@ DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG, IDEBracketHighlightColor AS _UNSIGNED LONG
 DIM SHARED IDEKeywordColor AS _UNSIGNED LONG, IDENumbersColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
-DIM SHARED IDE_BypassAutoPosition AS _BYTE
+DIM SHARED IDE_BypassAutoPosition AS _BYTE, idesortsubs AS _BYTE
 DIM SHARED IDENormalCursorStart AS LONG, IDENormalCursorEnd AS LONG
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
@@ -176,6 +176,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
         SaveExeWithSource = 0
+    END IF
+
+    result = ReadConfigSetting("IDE_SortSUBs", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            idesortsubs = -1
+        ELSE
+            idesortsubs = 0
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
+        idesortsubs = 0
     END IF
 
     result = ReadConfigSetting("ShowErrorsImmediately", value$)
