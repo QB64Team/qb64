@@ -13,6 +13,6 @@ tar --create --auto-compress --file ${filebase}_lnx.tar.gz --exclude-from=qb64/.
 7z a -xr@qb64/.travis/common-exclusion.list -xr@qb64/.travis/win-exclusion.list ${filebase}_win.7z qb64/ > /dev/null
 
 # Send to server
-scp ${filebase}_* stxaxtic@qb64.org:autobuilds/
+scp ${filebase}_* m6rosupy1q2t@qb64.org:autobuilds/
 
 
