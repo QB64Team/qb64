@@ -184,6 +184,7 @@ int32 qloud_next_input_index=1;
 
 int32 window_exists=0;
 int32 create_window=0;
+int32 window_focused=0; //Not used on Windows
 uint8 *window_title=NULL;
 
 double max_fps=60;//60 is the default
@@ -14343,6 +14344,8 @@ int32 func__hasfocus() {
         #ifdef QB64_WINDOWS
             while (!window_handle){Sleep(100);}
             return -(window_handle==GetForegroundWindow());
+        #elif defined(QB64_LINUX) && !defined(QB64_MACOSX)
+            return window_focused;
         #endif
     #endif
     return -1;
@@ -33822,9 +33825,15 @@ else{
 
     }
     if (*qb64_os_event_info==OS_EVENT_POST_PROCESSING){
+        switch (event->type) {
+            case EnterNotify:
+            window_focused = -1;
+            break;
 
-
-
+            case LeaveNotify:
+            window_focused = 0;
+            break;
+        }
     }
     return;
   }
