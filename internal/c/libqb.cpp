@@ -1073,6 +1073,7 @@ typedef enum {
   QBVK_NUMLOCK    = 300,
   QBVK_CAPSLOCK   = 301,
   QBVK_SCROLLOCK  = 302,
+  //If more modifiers are added, the window defocus code in qb64_os_event_linux must be altered
   QBVK_RSHIFT     = 303,
   QBVK_LSHIFT     = 304,
   QBVK_RCTRL      = 305,
@@ -33697,133 +33698,8 @@ QB64_GAMEPAD_INIT();
         }
 
         x11filter(event);//handles clipboard request events from other applications
-
-/*
-Atom a1, a2, type;
-int format, result;
-unsigned long len, bytes_left, dummy;
-unsigned char *data;
-Window Sown;
-Display *dpy=X11_display;
-
-Sown = XGetSelectionOwner (dpy, XA_PRIMARY);
-//printf ("Selection owner%i\n", (int)Sown);
-if (Sown != None) {
-
-
-XConvertSelection (dpy, XA_PRIMARY, XA_STRING, None,
-Sown, CurrentTime);
-*/
-
-
-////XFlush (dpy);
-
-//
-// Do not get any data, see how much data is there
-//
-
-/*
-XGetWindowProperty (dpy, Sown,
-XA_STRING, // Tricky..
-0, 0, // offset - len
-0, // Delete 0==FALSE
-AnyPropertyType, //flag
-&type, // return type
-&format, // return format
-&len, &bytes_left, //that
-&data);
-//printf ("type:%i len:%i format:%i byte_left:%i\n",
-//(int)type, len, format, bytes_left);
-// DATA is There
-
-
-
-if (bytes_left > 0)
-{
-result = XGetWindowProperty (dpy, Sown,
-XA_STRING, 0,bytes_left,0,
-AnyPropertyType, &type,&format,
-&len, &dummy, &data);
-if (result == Success){
-//printf ("DATA IS HERE!!```%s'''\n",
-//data);
-
-XFree (data);
-//return qbs_new_txt((const char*)data);
-}else{
- XFree (data);
-}
-}
-//return qbs_new(0,1);
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-        //if (event->type==KeyPress){                
-        //}
-
-/*
-
-    XGenericEventCookie *cookie = &event->xcookie;
-    XIRawEvent      *re;
-
-    Window dpy=event->xexpose.window;
-
-    //out
-    Window          root_ret, child_ret;
-    int         root_x, root_y;
-    int         win_x, win_y;
-    unsigned int        mask;
-
-    if (cookie->type != GenericEvent ||
-        cookie->extension != xi_opcode ||
-        !XGetEventData(dpy, cookie))
-{
-}
-else{
-    switch (cookie->evtype) {
-    case XI_RawMotion:
-        re = (XIRawEvent *) cookie->data;
-        XQueryPointer(dpy, DefaultRootWindow(dpy),
-                  &root_ret, &child_ret, &root_x, &root_y, &win_x, &win_y, &mask);
-        //cout<<re->raw_values[0];
-        //printf ("raw %g,%g root %d,%d\n",
-        //    re->raw_values[0], re->raw_values[1],
-        //    root_x, root_y);
-        break;
     }
-    XFreeEventData(dpy, cookie);
-}
 
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    }
     if (*qb64_os_event_info==OS_EVENT_POST_PROCESSING){
         switch (event->type) {
             case EnterNotify:
@@ -33832,6 +33708,10 @@ else{
 
             case LeaveNotify:
             window_focused = 0;
+            //Iterate over all modifiers
+            for (uint32 key = VK + QBVK_RSHIFT; key <= VK + QBVK_MODE; key++) {
+                if (keyheld(key)) keyup(key);
+            }
             break;
         }
     }
