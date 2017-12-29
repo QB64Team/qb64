@@ -290,12 +290,7 @@ FUNCTION ide2 (ignore)
             menu$(m, i) = "Make E#XE Only  F11": i = i + 1
         END IF
 
-        IF IdeAndroidMenu = 0 THEN menusize(m) = i - 1
-        menu$(m, i) = "-": i = i + 1
-        '    menu$(m, i) = "Start #Android Project": i = i + 1
-        '    menu$(m, i) = "Make Android #Project Only": i = i + 1
-        menu$(m, i) = "Make #Android Project": i = i + 1
-        IF IdeAndroidMenu THEN menusize(m) = i - 1
+        menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
         menu$(m, i) = "Options": i = i + 1
@@ -324,9 +319,6 @@ FUNCTION ide2 (ignore)
         IF IDEShowErrorsImmediately THEN
             menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately)
         END IF
-
-        menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "#Google Android...": i = i + 1
 
         menusize(m) = i - 1
 
