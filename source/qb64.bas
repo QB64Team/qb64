@@ -12680,6 +12680,7 @@ FOR i = 1 TO _COMMANDCOUNT
             PRINT "  -c                      Compile instead of edit"
             PRINT "  -x                      Compile instead of edit and output the result to the"
             PRINT "                             console"
+            PRINT "  -p                      Purge all pre-compiled content first"
             PRINT "  -z                      Generate C code without compiling to executable"
             PRINT "  -o <file>               Write output executable to <file>"
             PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
@@ -12689,6 +12690,22 @@ FOR i = 1 TO _COMMANDCOUNT
             PRINT "  -l:<line number>        Starts the IDE at the specified line number"
             PRINT
             SYSTEM
+        CASE "-p", "/p" 'Purge
+            IF os$ = "WIN" THEN
+                CHDIR "internal\c"
+                SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
+                CHDIR "..\.."
+            END IF
+            IF os$ = "LNX" THEN
+                CHDIR "./internal/c"
+
+                IF INSTR(_OS$, "[MACOSX]") THEN
+                    SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                ELSE
+                    SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
+                END IF
+                CHDIR "../.."
+            END IF
         CASE "-s", "/s" 'Settings
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
