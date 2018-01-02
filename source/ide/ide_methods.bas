@@ -252,13 +252,7 @@ FUNCTION ide2 (ignore)
         m = m + 1: i = 0: ViewMenuID = m
         menu$(m, i) = "View": i = i + 1
         menu$(m, i) = "#SUBs...  F2": i = i + 1
-
-        ViewMenuShowLineNumbers = i
-        menu$(m, i) = "#Line numbers": i = i + 1
-        IF ShowLineNumbers THEN
-            menu$(ViewMenuID, ViewMenuShowLineNumbers) = CHR$(7) + menu$(ViewMenuID, ViewMenuShowLineNumbers)
-        END IF
-
+        menu$(m, i) = "#Line numbers  " + CHR$(16): i = i + 1
         menusize(m) = i - 1
 
         m = m + 1: i = 0
@@ -284,7 +278,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "-": i = i + 1
 
         RunMenuSaveExeWithSource = i
-        menu$(m, i) = "Save EXE in the source #folder": i = i + 1
+        menu$(m, i) = "Output EXE to source #folder": i = i + 1
         IF SaveExeWithSource THEN
             menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
         END IF
@@ -349,6 +343,22 @@ FUNCTION ide2 (ignore)
         'Hidden contextual menu (ID is retrieved for later use; allows expansion of the original menu system above):
         m = m + 1
         idecontextualmenuID = m
+
+        'View Menu sub menu for Line Numbers options
+        m = m + 1: i = 0
+        menu$(m, i) = "ViewMenuShowLineNumbersSubMenu": i = i + 1
+        ViewMenuShowLineNumbersSubMenuID = m
+        IF ShowLineNumbers THEN menu$(m, i) = "#Hide line numbers" ELSE menu$(m, i) = "#Show line numbers"
+        i = i + 1
+        menu$(m, i) = "#Background color": IF ShowLineNumbersUseBG THEN menu$(m, i) = CHR$(7) + menu$(m, i)
+        ViewMenuShowBGID = i
+        IF ShowLineNumbers = 0 THEN menu$(m, i) = "~" + menu$(m, i)
+        i = i + 1
+        menu$(m, i) = "Sho#w separator": IF ShowLineNumbersSeparator THEN menu$(m, i) = CHR$(7) + menu$(m, i)
+        ViewMenuShowSeparatorID = i
+        IF ShowLineNumbers = 0 THEN menu$(m, i) = "~" + menu$(m, i)
+        i = i + 1
+        menusize(m) = i - 1
 
         IF os$ = "WIN" THEN
             idepathsep$ = "\"
@@ -1410,7 +1420,7 @@ FUNCTION ide2 (ignore)
                         GOTO specialchar
                     END IF
 
-                    '3- Link to the output folder when "Save EXE in the source folder" is checked:
+                    '3- Link to the output folder when "Output EXE to source #folder" is checked:
                     IF INSTR(_OS$, "WIN") THEN
                         SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
                     ELSEIF INSTR(_OS$, "MAC") THEN
@@ -3969,7 +3979,7 @@ FUNCTION ide2 (ignore)
 
             GetInput
             IF oldmx <> mX OR oldmy <> mY THEN
-                IF mY = 1 AND idecontextualmenu = 0 THEN 'Check if we're hovering on menu bar
+                IF mY = 1 AND idecontextualmenu <> 1 THEN 'Check if we're hovering on menu bar
                     lastm = m
                     FOR i = 1 TO menus
                         x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
@@ -4082,8 +4092,13 @@ FUNCTION ide2 (ignore)
     IF IdeSystem = 2 THEN IdeSystem = 1: GOSUB UpdateSearchBar
     PCOPY 0, 2
     SCREEN , , 1, 0
+    updateMenuPanel%% = 0
+    parentMenuR = r
     r = 1
+    parentMenu = 0
+    parentMenuSetup%% = 0
     IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
+    IF idecontextualmenu = 2 THEN idectxmenuX = xx + w + 3: idectxmenuY = yy + r: parentMenu = m: m = ViewMenuShowLineNumbersSubMenuID
     IdeMakeEditMenu
     oldmy = mY: oldmx = mX
     DO
@@ -4095,6 +4110,14 @@ FUNCTION ide2 (ignore)
                 IF i = menus - 1 THEN x = idewx - LEN(menu$(menus, 0)) - 1
             NEXT: xx = x
             LOCATE 1, xx - 1: COLOR 7, 0: PRINT " " + menu$(m, 0) + " "
+        ELSE
+            IF parentMenu > 0 AND parentMenuSetup%% = 0 THEN
+                parentMenuSetup%% = -1
+                backToParent.x1 = xx - 1
+                backToParent.x2 = xx + w
+                backToParent.y1 = 3
+                backToParent.y2 = backToParent.y1 + menusize(parentMenu)
+            END IF
         END IF
         COLOR 0, 7
         'calculate menu width
@@ -4109,7 +4132,7 @@ FUNCTION ide2 (ignore)
             IF l > w THEN w = l
         NEXT
         yy = 2
-        IF idecontextualmenu = 1 THEN
+        IF idecontextualmenu > 0 THEN
             actual.idewy = idewy
             IF idesubwindow <> 0 THEN
                 actual.idewy = idewy + idesubwindow
@@ -4131,7 +4154,7 @@ FUNCTION ide2 (ignore)
             ELSEIF LEFT$(m$, 1) = "~" THEN
                 m$ = RIGHT$(m$, LEN(m$) - 1) 'Remove the tilde before printing
                 IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
-                LOCATE i + yy, xx
+                IF LEFT$(m$, 1) = CHR$(7) THEN LOCATE i + yy, xx - 1 ELSE LOCATE i + yy, xx
                 h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
                 x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
                 FOR x = 1 TO LEN(m$)
@@ -4151,14 +4174,12 @@ FUNCTION ide2 (ignore)
                     END IF
                     PRINT MID$(m$, x, 1);
                 NEXT
-
-
-
             END IF
-
         NEXT
 
         PCOPY 1, 0
+
+        IF updateMenuPanel%% THEN GOTO menuChoiceMade
 
         change = 0
         DO
@@ -4212,7 +4233,7 @@ FUNCTION ide2 (ignore)
             GOTO ideloop
         END IF
 
-        IF mCLICK2 AND idecontextualmenu THEN 'A new right click in the text area repositions the contextual menu
+        IF mCLICK2 AND idecontextualmenu = 1 THEN 'A new right click in the text area repositions the contextual menu
             IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO invokecontextualmenu
@@ -4233,12 +4254,33 @@ FUNCTION ide2 (ignore)
                 END IF
             END IF
 
-            IF mX < xx - 2 OR mX >= xx - 2 + w + 4 OR mY > yy + menusize(m) + 1 OR (mY < yy AND idecontextualmenu) THEN
+            IF parentMenu > 0 AND _
+               mX >= backToParent.x1 AND mX =< backToParent.x2 AND _
+               mY >= backToParent.y1 AND mY =< backToParent.y2 THEN
+                m = parentMenu
+                r = parentMenuR
+                parentMenu = 0
+                idecontextualmenu = 0
+                PCOPY 3, 2
+                _CONTINUE
+            END IF
+
+            IF mX < xx - 2 OR mX >= xx - 2 + w + 4 OR mY > yy + menusize(m) + 1 OR (mY < yy AND idecontextualmenu = 1) THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
         END IF
         IF NOT mouseup AND NOT mousedown THEN 'Check if we're hovering on menu options
+            IF parentMenu > 0 AND oldmy <> mY AND oldmx <> mX AND _
+               mX >= backToParent.x1 AND mX =< backToParent.x2 AND _
+               mY >= backToParent.y1 AND mY =< backToParent.y2 THEN
+                m = parentMenu
+                r = parentMenuR
+                parentMenu = 0
+                idecontextualmenu = 0
+                PCOPY 3, 2
+                _CONTINUE
+            END IF
             IF oldmy <> mY THEN
                 IF mX >= xx - 2 AND mX < xx - 2 + w + 4 THEN
                     IF mY > yy AND mY <= menusize(m) + yy THEN
@@ -4254,7 +4296,7 @@ FUNCTION ide2 (ignore)
             END IF
             IF oldmx <> mX THEN
                 checkmenubarhover:
-                IF mY = 1 AND idecontextualmenu = 0 THEN 'Check if we're hovering on menu bar
+                IF mY = 1 AND idecontextualmenu <> 1 THEN 'Check if we're hovering on menu bar
                     lastm = m
                     FOR i = 1 TO menus
                         x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
@@ -4262,6 +4304,7 @@ FUNCTION ide2 (ignore)
                         IF mX >= x AND mX < x2 THEN
                             m = i
                             r = 1
+                            IF idecontextualmenu > 1 THEN idecontextualmenu = 0: PCOPY 3, 2
                             EXIT FOR
                         END IF
                     NEXT
@@ -4274,7 +4317,6 @@ FUNCTION ide2 (ignore)
 
             'top row
             IF mY = 1 THEN
-                idecontextualmenu = 0
                 lastm = m
                 x = 3
                 FOR i = 1 TO menus
@@ -4283,6 +4325,7 @@ FUNCTION ide2 (ignore)
                         m = i
                         r = 1
                         IF lastm = m AND mousedown = 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: GOTO ideloop
+                        idecontextualmenu = 0
                         EXIT FOR
                     END IF
                     x = x + x2
@@ -4300,8 +4343,31 @@ FUNCTION ide2 (ignore)
 
         END IF 'mb
 
-        IF KB = KEY_LEFT AND idecontextualmenu = 0 THEN m = m - 1: r = 1
-        IF KB = KEY_RIGHT AND idecontextualmenu = 0 THEN m = m + 1: r = 1
+        IF KB = KEY_LEFT AND idecontextualmenu = 0 THEN
+            m = m - 1: r = 1
+        ELSEIF KB = KEY_LEFT AND idecontextualmenu > 1 THEN
+            idecontextualmenu = 0
+            PCOPY 3, 2
+            m = parentMenu
+            r = parentMenuR
+            parentMenu = 0
+        END IF
+        IF KB = KEY_RIGHT AND idecontextualmenu = 0 THEN
+            IF RIGHT$(menu$(m, r), 1) = CHR$(16) THEN
+                SELECT CASE LEFT$(menu$(m, r), LEN(menu$(m, r)) - 3)
+                    CASE "#Line numbers"
+                        idecontextualmenu = 2
+                        GOTO showmenu
+                END SELECT
+            ELSE
+                m = m + 1: r = 1
+            END IF
+        ELSEIF KB = KEY_RIGHT AND idecontextualmenu > 1 THEN
+            idecontextualmenu = 0
+            PCOPY 3, 2
+            m = parentMenu + 1
+            r = 1
+        END IF
         IF m < 1 THEN m = menus
         IF m > menus AND idecontextualmenu = 0 THEN m = 1
         IF KB = KEY_ESC THEN
@@ -4334,13 +4400,14 @@ FUNCTION ide2 (ignore)
                 x = INSTR(menu$(m, r2), "#")
                 IF x THEN
                     a$ = UCASE$(MID$(menu$(m, r2), x + 1, 1))
-                    IF K$ = a$ THEN s = r2: EXIT FOR
+                    IF K$ = a$ THEN s = r2: updateMenuPanel%% = -1: EXIT FOR
                 END IF
             NEXT
+            IF updateMenuPanel%% THEN r = r2: _CONTINUE
         END IF
 
         IF s THEN
-
+            menuChoiceMade:
             IF KALT THEN idehl = 1 ELSE idehl = 0 'set idehl, a shared variable used by various dialogue boxes
 
             IF menu$(m, s) = "Comment (add ')  Ctrl+R" THEN
@@ -4409,11 +4476,6 @@ FUNCTION ide2 (ignore)
 
             IF LEFT$(menu$(m, s), 15) = "Decrease indent" THEN
                 IF ideselect THEN GOTO IdeBlockDecreaseIndent
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                GOTO ideloop
-            END IF
-
-            IF LEFT$(menu$(m, s), 16) = "~Decrease indent" OR menu$(m, s) = "~Increase indent  TAB" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -4524,15 +4586,15 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 30) = "Save EXE in the source #folder" THEN
+            IF RIGHT$(menu$(m, s), 28) = "Output EXE to source #folder" THEN
                 PCOPY 2, 0
                 SaveExeWithSource = NOT SaveExeWithSource
                 IF SaveExeWithSource THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
-                    menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Save EXE in the source #folder"
+                    menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Output EXE to source #folder"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
-                    menu$(RunMenuID, RunMenuSaveExeWithSource) = "Save EXE in the source #folder"
+                    menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to source #folder"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -4841,18 +4903,63 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 13) = "#Line numbers" THEN
+            IF menu$(m, s) = "#Line numbers  " + CHR$(16) THEN
+                idecontextualmenu = 2
+                GOTO showmenu
+            END IF
+
+            IF menu$(m, s) = "#Show line numbers" THEN
                 PCOPY 2, 0
-                ShowLineNumbers = NOT ShowLineNumbers
-                IF ShowLineNumbers THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
-                    menu$(ViewMenuID, ViewMenuShowLineNumbers) = CHR$(7) + "#Line numbers"
-                ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
-                    menu$(ViewMenuID, ViewMenuShowLineNumbers) = "#Line numbers"
-                END IF
+                ShowLineNumbers = -1
+                WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
+                menu$(m, s) = "#Hide line numbers"
+                menu$(m, ViewMenuShowBGID) = MID$(menu$(m, ViewMenuShowBGID), 2)
+                menu$(m, ViewMenuShowSeparatorID) = MID$(menu$(m, ViewMenuShowSeparatorID), 2)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "#Hide line numbers" THEN
+                PCOPY 2, 0
+                ShowLineNumbers = 0
+                WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
+                menu$(m, s) = "#Show line numbers"
+                menu$(m, ViewMenuShowBGID) = "~" + menu$(m, ViewMenuShowBGID)
+                menu$(m, ViewMenuShowSeparatorID) = "~" + menu$(m, ViewMenuShowSeparatorID)
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
+            IF RIGHT$(menu$(m, s), 17) = "#Background color" THEN
+                IF LEFT$(menu$(m, s), 1) <> "~" THEN
+                    PCOPY 2, 0
+                    ShowLineNumbersUseBG = NOT ShowLineNumbersUseBG
+                    IF ShowLineNumbersUseBG THEN
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "TRUE"
+                        menu$(m, s) = CHR$(7) + "#Background color"
+                    ELSE
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "FALSE"
+                        menu$(m, s) = "#Background color"
+                    END IF
+                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF RIGHT$(menu$(m, s), 15) = "Sho#w separator" THEN
+                IF LEFT$(menu$(m, s), 1) <> "~" THEN
+                    PCOPY 2, 0
+                    ShowLineNumbersSeparator = NOT ShowLineNumbersSeparator
+                    IF ShowLineNumbersSeparator THEN
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "TRUE"
+                        menu$(m, s) = CHR$(7) + "Sho#w separator"
+                    ELSE
+                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "FALSE"
+                        menu$(m, s) = "Sho#w separator"
+                    END IF
+                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    GOTO ideloop
+                END IF
             END IF
 
             IF menu$(m, s) = "#Find...  Ctrl+F3" THEN
@@ -5298,9 +5405,8 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF LEFT$(menu$(m, s), 1) = "~" THEN 'Ignore disabled items (starting with "~")
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                _CONTINUE
             END IF
-
 
             SCREEN , , 0, 0
             CLS: PRINT "MENU ITEM [" + menu$(m, s) + "] NOT IMPLEMENTED!": END
