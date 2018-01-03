@@ -166,8 +166,9 @@ DIM SHARED ModifyCOMMAND$
 DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
 DIM SHARED ActiveINCLUDELinkFile AS STRING
-DIM SHARED HideCurrentLineHighlight AS _BYTE
-DIM SHARED idegotobox_LastLineNum AS LONG
+DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
+DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
+
 '--------------------------------------------------------------------------------
 TYPE idedbptype
     x AS LONG
@@ -206,6 +207,8 @@ DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER
 DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMenuPasteCursor AS INTEGER
 DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER
+DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
+DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
