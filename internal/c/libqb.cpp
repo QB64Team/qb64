@@ -2,44 +2,7 @@
 #include "libqb.h"
 
 #ifdef QB64_GUI
- #ifndef QB64_GLES
-  #include "parts/core/glew/src/glew.c"
- #else
-  //GLEW does not appear to support GLES, so "wrangle" the required functionality here
-  #define glGenFramebuffers glGenFramebuffersOES
-  #define glGenFramebuffersEXT glGenFramebuffersOES
-  #define glDeleteFramebuffers glDeleteFramebuffersOES
-  #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
-  #define glBindFramebuffer glBindFramebufferOES
-  #define glBindFramebufferEXT glBindFramebufferOES
-  #define glFramebufferTexture2D glFramebufferTexture2DOES
-  #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
-  #define glFramebufferRenderbuffer glFramebufferRenderbufferOES
-  #define glCheckFramebufferStatus glCheckFramebufferStatusOES
-  #define GL_FRAMEBUFFER GL_FRAMEBUFFER_OES
-  #define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_OES
-  #define glGenRenderbuffers glGenRenderbuffersOES
-  #define glDeleteRenderbuffers glDeleteRenderbuffersOES
-  #define glBindRenderbuffer glBindRenderbufferOES
-  #define glRenderbufferTexture2D glRenderbufferTexture2DOES
-  #define glRenderbufferTexture2DEXT glRenderbufferTexture2DOES
-  #define glRenderbufferRenderbuffer glRenderbufferRenderbufferOES
-  #define glGetRenderbufferParameteriv glGetRenderbufferParameterivOES
-  #define glRenderbufferStorage glRenderbufferStorageOES
-  #define GL_RENDERBUFFER GL_RENDERBUFFER_OES
-  #define GL_RENDERBUFFER_WIDTH GL_RENDERBUFFER_WIDTH_OES
-  #define GL_RENDERBUFFER_HEIGHT GL_RENDERBUFFER_HEIGHT_OES
-  #define GL_RENDERBUFFER_INTERNAL_FORMAT GL_RENDERBUFFER_INTERNAL_FORMAT_OES
-  #define GL_MAX_RENDERBUFFER_SIZE GL_MAX_RENDERBUFFER_SIZE_OES
-  #define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
-  #define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_OES
-  #define GL_DEPTH_COMPONENT16 GL_DEPTH_COMPONENT16_OES
-  #define glOrtho glOrthof
-  //...
-  
-  #define GL_BGRA GL_RGBA //this is to prevent errors and ensure RGBA is used even when BGRA is supported
-
- #endif
+ #include "parts/core/glew/src/glew.c"
 #endif
 
 
@@ -31251,28 +31214,11 @@ QB64_GAMEPAD_INIT();
     }
     window_exists=1;
 
-
-//alert("hello");
-
-
-//no segfault here
-
-
- #ifdef QB64_GLES
-  framebufferobjects_supported=1;
- #else
     GLenum err = glewInit();
-    if (GLEW_OK != err)
-      {
-    alert( (char*)glewGetErrorString(err));
-      }
-    //alert( (char*)glewGetString(GLEW_VERSION));
-
+    if (GLEW_OK != err) {
+        alert( (char*)glewGetErrorString(err));
+    }
     if (glewIsSupported("GL_EXT_framebuffer_object")) framebufferobjects_supported=1;
-#endif
-
-//no segfault here
-
 
     glutDisplayFunc(GLUT_DISPLAY_REQUEST);
 
@@ -31831,9 +31777,6 @@ QB64_GAMEPAD_INIT();
 
     static uint8 BGRA_to_RGBA;//set to 1 to invert the output to RGBA
     BGRA_to_RGBA=0;//default is 0 but 1 is fun
-#ifdef QB64_GLES1 //OPENGL ES does not support GL_BGRA
-    BGRA_to_RGBA=1;
-#endif
     if (cloud_app){ //more converters handle the RGBA data format than BGRA which is dumped
       BGRA_to_RGBA=1;
     }

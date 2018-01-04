@@ -1,3 +1,4 @@
+//Fill out dependency macros
 #ifndef DEPENDENCY_NO_SOCKETS
  #define DEPENDENCY_SOCKETS
 #endif
@@ -18,22 +19,13 @@
 #define INC_COMMON_CPP
 #include "os.h"
 
-#ifdef QB64_ANDROID
- #define QB64_GLES
- #define QB64_GLES1
- #define QB64_NOT_X86
- #define QB64_GLUT
-#else
- #define QB64_GL1
- #define QB64_GLUT
-#endif
+#define QB64_GL1
+#define QB64_GLUT
 
 #ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifndef QB64_ANDROID
-#define QB64_X11
-#endif
-#endif
+ #ifndef QB64_MACOSX
+  #define QB64_X11
+ #endif
 #endif
 
 #ifdef DEPENDENCY_CONSOLE_ONLY
@@ -44,24 +36,10 @@
 
 #define NO_S_D_L
 
-
-/*
-  #ifdef QB64_BACKSLASH_FILESYSTEM
-  #include "parts\\core\\gl_headers\\glew\\glew.h"
-  #else
-  #include "parts/core/gl_headers/glew/glew.h"
-  #endif
-*/
-
-
 //core
 #ifdef QB64_GUI
 #ifdef QB64_GLUT
-#ifdef QB64_BACKSLASH_FILESYSTEM
-#include "parts\\core\\src.c"
-#else
 #include "parts/core/src.c"
-#endif
 #endif
 #endif
 
@@ -126,13 +104,7 @@
 
 #ifdef QB64_GUI
 #ifdef QB64_GLUT
-#ifndef QB64_ANDROID
-#ifdef QB64_BACKSLASH_FILESYSTEM
-#include "parts\\core\\gl_headers\\opengl_org_registery\\glext.h"
-#else
 #include "parts/core/gl_headers/opengl_org_registery/glext.h"
-#endif
-#endif
 #endif
 #endif
 

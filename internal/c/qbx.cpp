@@ -4,11 +4,6 @@
  #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-#ifdef QB64_ANDROID
- #include <cstdlib>
- #include <cmath>
-#endif
-
 /* testing only
 #ifdef QB64_WINDOWS
 
@@ -44,11 +39,7 @@ extern int32 sub_gl_called;
 #ifdef QB64_GUI
 #ifdef DEPENDENCY_GL
 
- #ifdef QB64_BACKSLASH_FILESYSTEM
-  #include "parts\\core\\gl_header_for_parsing\\temp\\gl_helper_code.h"
- #else
-  #include "parts/core/gl_header_for_parsing/temp/gl_helper_code.h"
- #endif
+#include "parts/core/gl_header_for_parsing/temp/gl_helper_code.h"
 
  double pi_as_double=3.14159265358979;
  void gluPerspective(double fovy, double aspect, double zNear, double zFar)
@@ -58,55 +49,13 @@ extern int32 sub_gl_called;
     ymin = -ymax;
     xmin = ymin * aspect;
     xmax = ymax * aspect;
-#ifdef QB64_GLES1
-    glFrustumf(xmin, xmax, ymin, ymax, zNear, zFar);
-#else
     glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
-#endif
 
  }
 
 #endif
 #endif
 
-/*
-#ifdef QB64_BACKSLASH_FILESYSTEM
- #include "parts\\audio\\conversion\\conversion.c"
-#else
- #include "parts/audio/conversion/conversion.c"
-#endif
-*/
-
-/*
-//http://kcat.strangesoft.net/openal-tutorial.html
-///OPENAL
-#include "AL/al.h"
-#include "AL/alc.h"
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdlib.h>
-ALCdevice *dev;
-ALCcontext *ctx;
-struct stat statbuf;
-*/
-
-
-
-
-
-
-
-/*
-extern int32 allocated_bytes;
-extern void *calloc2(int x, int y);
-extern void *realloc2(void *x, int y);
-extern void *malloc2(int x);
-#define malloc(x) malloc2(x)
-#define calloc(x,y) calloc2(x,y)
-#define realloc(x,y) realloc2(x,y)
-*/
 
 //forward references
 void QBMAIN(void *);

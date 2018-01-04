@@ -1,9 +1,19 @@
-//OS/compiler detection
+/* Provide some OS/compiler macros. Note that a Mac has QB64_LINUX too
+ * QB64_WINDOWS: Is this a Windows system?
+ * QB64_BACKSLASH_FILESYSTEM: Does this system use \ for file paths (as opposed to /)?
+ * QB64_MICROSOFT: Are we compiling with Visual Studio?
+ * QB64_GCC: Are we compiling with gcc?
+ * QB64_MINGW: Are we compiling with MinGW, specifically? (Set in addition to QB64_GCC)
+ * QB64_LINUX: Is this a Unix system? (really should be QB64_UNIX)
+ * QB64_MACOSX: Is this MacOSX, or MacOS or whatever Apple calls it now?
+ * QB64_32: A 32bit system (the default)
+ * QB64_64: A 64bit system (assumes all Macs are 64 bit)
+ */
 #ifdef WIN32
  #define QB64_WINDOWS
  #define QB64_BACKSLASH_FILESYSTEM
- #define NO_STDIO_REDIRECT
  #ifdef _MSC_VER
+//Do we even support non-mingw compilers on Windows?
   #define QB64_MICROSOFT
  #else
   #define QB64_GCC
@@ -15,12 +25,19 @@
  #ifdef __APPLE__
   #define QB64_MACOSX
  #endif
- #ifdef __ANDROID__
-  #define QB64_ANDROID
- #endif
 #endif
 
-//common types
+#if _WIN64 || __x86_64__ || __ppc64__ || QB64_MACOSX
+ #define QB64_64
+#else
+ #define QB64_32
+#endif
+
+/* common types (not quite an include guard, but allows an including
+ * file to not have these included.
+ *
+ * Should this be adapted to check for each type before defining?
+ */
 #ifndef QB64_OS_H_NO_TYPES
  #ifdef QB64_WINDOWS
   #define uint64 unsigned __int64
@@ -41,26 +58,7 @@
   #define uint16 uint16_t
   #define uint8 uint8_t
  #endif
-#endif
-
-// Check windows
-#if _WIN32 || _WIN64
-#if _WIN64
-#define QB64_64
-#else
-#define QB64_32
-#endif
-#endif
-// Check GCC
-#if __GNUC__
-#if __x86_64__ || __ppc64__
-#define QB64_64
-#else
-#define QB64_32
-#endif
-#endif
-
-#ifndef QB64_OS_H_NO_TYPES
+ 
  #ifdef QB64_64
   #define ptrszint int64
   #define uptrszint uint64
