@@ -1,4 +1,4 @@
-#include "common.cpp"
+#include "common.h"
 #include "libqb.h"
 
 #ifdef QB64_GUI
@@ -33,6 +33,147 @@
 
 
 int32 disableEvents=0;
+
+//This next block used to be in common.cpp; put here until I can find a better
+//place for it (LC, 2018-01-05)
+#ifndef QB64_WINDOWS
+void Sleep(uint32 milliseconds){
+    static uint64 sec,nsec;
+    sec=milliseconds/1000;
+    nsec=(milliseconds%1000)*1000000;
+    static timespec ts;
+    ts.tv_sec = sec;
+    ts.tv_nsec = nsec;
+    nanosleep (&ts, NULL);
+}
+
+uint32 _lrotl(uint32 word,uint32 shift){
+  return (word << shift) | (word >> (32 - shift));
+}
+
+void ZeroMemory(void *ptr,int64 bytes){
+  memset(ptr,0,bytes);
+}
+#endif
+#ifdef QB64_NOT_X86
+int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  if (f<0) i=f-0.5f; else i=f+0.5f;
+  if (temp) return i|0x8000000000000000;//+9223372036854775808;
+  return i;
+}
+uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+#else
+//QBASIC compatible rounding via FPU:
+#ifdef QB64_MICROSOFT
+int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  __asm{
+      fld   f
+      fistp i
+      }
+  if (temp) return i|0x8000000000000000;//+9223372036854775808;
+  return i;
+}
+uint64 qbr_longdouble_to_uint64(long double f){
+  uint64 i;
+  __asm{
+    fld   f
+      fistp i
+      }
+  return i;
+}
+int32 qbr_float_to_long(float f){
+  int32 i;
+  __asm{
+    fld   f
+      fistp i
+      }
+  return i;
+}
+int32 qbr_double_to_long(double f){
+  int32 i;
+  __asm{
+    fld   f
+      fistp i
+      }
+  return i;
+}
+#else
+//FLDS=load single
+//FLDL=load double
+//FLDT=load long double
+int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  __asm__ (
+           "fldt %1;"
+           "fistpll %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
+  return i;
+}
+uint64 qbr_longdouble_to_uint64(long double f){
+  uint64 i;
+  __asm__ (
+           "fldt %1;"
+           "fistpll %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  return i;
+}
+int32 qbr_float_to_long(float f){
+  int32 i;
+  __asm__ (
+           "flds %1;"
+           "fistpl %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  return i;
+}
+int32 qbr_double_to_long(double f){
+  int32 i;
+  __asm__ (
+           "fldl %1;"
+           "fistpl %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  return i;
+}
+#endif
+#endif //x86 support
+//bit-array access functions (note: used to be included through 'bit.cpp')
+uint64 getubits(uint32 bsize,uint8 *base,ptrszint i){
+  int64 bmask;
+  bmask=~(-(((int64)1)<<bsize));
+  i*=bsize;
+  return ((*(uint64*)(base+(i>>3)))>>(i&7))&bmask;
+}
+int64 getbits(uint32 bsize,uint8 *base,ptrszint i){
+  int64 bmask, bval64;
+  bmask=~(-(((int64)1)<<bsize));
+  i*=bsize;
+  bval64=((*(uint64*)(base+(i>>3)))>>(i&7))&bmask;
+  if (bval64&(((int64)1)<<(bsize-1))) return bval64|(~bmask);
+  return bval64;
+}
+void setbits(uint32 bsize,uint8 *base,ptrszint i,int64 val){
+  int64 bmask;
+  uint64 *bptr64;
+  bmask=(((uint64)1)<<bsize)-1;
+  i*=bsize;
+  bptr64=(uint64*)(base+(i>>3));
+  *bptr64=(*bptr64&( ( (bmask<<(i&7)) ^-1)  )) | ((val&bmask)<<(i&7));
+}
 
 
 #ifdef QB64_LINUX
@@ -8219,6 +8360,7 @@ qbs *f2string(long double v){ static qbs *tqbs; tqbs=qbs_new(32,1); memset(tqbs-
 qbs *bit2string(uint32 bsize,int64 v){
   static qbs* tqbs;
   tqbs=qbs_new(8,1);
+  int64 bmask;
   bmask=~(-(((int64)1)<<bsize));
   *((int64*)(tqbs->chr))=v&bmask;
   tqbs->len=(bsize+7)>>3;
@@ -8226,7 +8368,7 @@ qbs *bit2string(uint32 bsize,int64 v){
 }
 qbs *ubit2string(uint32 bsize,uint64 v){
   static qbs* tqbs;
-
+  int64 bmask;
   tqbs=qbs_new(8,1);
   bmask=~(-(((int64)1)<<bsize));
   *((uint64*)(tqbs->chr))=v&bmask;
@@ -8246,11 +8388,13 @@ float string2s(qbs*str){ if (str->len<4) {error(5); return 0;} else {return *((f
 double string2d(qbs*str){ if (str->len<8) {error(5); return 0;} else {return *((double*)str->chr);} }
 long double string2f(qbs*str){ if (str->len<32) {error(5); return 0;} else {return *((long double*)str->chr);} }
 uint64 string2ubit(qbs*str,uint32 bsize){
+  int64 bmask;
   if (str->len<((bsize+7)>>3)) {error(5); return 0;}
   bmask=~(-(((int64)1)<<bsize));
   return (*(uint64*)str->chr)&bmask;
 }
 int64 string2bit(qbs*str,uint32 bsize){
+  int64 bmask, bval64;
   if (str->len<((bsize+7)>>3)) {error(5); return 0;}
   bmask=~(-(((int64)1)<<bsize));
   bval64=(*(uint64*)str->chr)&bmask;
@@ -13920,13 +14064,12 @@ void qbs_input(int32 numvariables,uint8 newline){
     if (chr=='\n') chr=13;
     qbs_set(key,qbs_new_txt(" "));  
     key->chr[0]=chr;  
-      }else{SDL_Delay(10);}
+      }else{Sleep(10);}
     }else{
-      SDL_Delay(10);
+      Sleep(10);
       qbs_set(key,qbs_inkey());
       
       disableEvents=1;//we don't want the ON TIMER bound version of VKUPDATE to fire during a call to itself!
-      //SDL_Delay(10);
       SUB_VKUPDATE();
       disableEvents=0;
 
@@ -21622,12 +21765,12 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       int sec=7;
       while(sec--){
     evnt(1);
-    SDL_Delay(1000);
+    Sleep(1000);
     qbs_print(qbs_new_txt("."),0);
       }
       sec=3;
       while(sec--){
-    SDL_Delay(1000);
+    Sleep(1000);
     evnt(1);
       }
 
@@ -21659,7 +21802,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       static uint32 qbs_tmp_base;
       qbs_tmp_base=qbs_tmp_list_nexti;
       while(qbs_cleanup(qbs_tmp_base,qbs_notequal(qbs_inkey(),qbs_new_txt("")))){
-    SDL_Delay(0);
+          Sleep(0);
       }
       //6. Enable autodisplay
       autodisplay=1;

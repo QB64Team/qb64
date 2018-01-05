@@ -132,33 +132,6 @@ struct qbs{
   qbs_field *field;
 };
 
-//substitute functionality
-
-#ifdef QB64_WINDOWS
-inline void SDL_Delay(uint32 milliseconds){//redefine SDL_Delay to call Sleep
-  Sleep(milliseconds);
-}
-#else
-inline void SDL_Delay(uint32 milliseconds){//redefine SDL_Delay to call Sleep
-  static uint64 sec,nsec;
-  sec=milliseconds/1000;
-  nsec=(milliseconds%1000)*1000000;
-  static timespec ts;
-  ts.tv_sec = sec;
-  ts.tv_nsec = nsec;
-  nanosleep (&ts, NULL);
-}
-inline void Sleep(uint32 milliseconds){
-  SDL_Delay(milliseconds);
-}
-inline uint32 _lrotl(uint32 word,uint32 shift){
-  return (word << shift) | (word >> (32 - shift));
-}
-inline void ZeroMemory(void *ptr,int64 bytes){
-  memset(ptr,0,bytes);
-}
-#endif
-
 struct img_struct{
   void *lock_offset;
   int64 lock_id;
@@ -205,125 +178,6 @@ struct img_struct{
 #define IMG_SCREEN 2 //img is linked to other screen pages
 #define IMG_FREEMEM 4 //if set, it means memory must be freed
 
-#ifdef QB64_NOT_X86
-inline int64 qbr(long double f){
-  int64 i; int temp=0;
-  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
-  if (f<0) i=f-0.5f; else i=f+0.5f;
-  if (temp) return i|0x8000000000000000;//+9223372036854775808;
-  return i;
-}
-inline uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
-inline int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
-inline int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
-#else
-//QBASIC compatible rounding via FPU:
-#ifdef QB64_MICROSOFT
-inline int64 qbr(long double f){
-  int64 i; int temp=0;
-  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
-  __asm{
-      fld   f
-      fistp i
-      }
-  if (temp) return i|0x8000000000000000;//+9223372036854775808;
-  return i;
-}
-inline uint64 qbr_longdouble_to_uint64(long double f){
-  uint64 i;
-  __asm{
-    fld   f
-      fistp i
-      }
-  return i;
-}
-inline int32 qbr_float_to_long(float f){
-  int32 i;
-  __asm{
-    fld   f
-      fistp i
-      }
-  return i;
-}
-inline int32 qbr_double_to_long(double f){
-  int32 i;
-  __asm{
-    fld   f
-      fistp i
-      }
-  return i;
-}
-#else
-//FLDS=load single
-//FLDL=load double
-//FLDT=load long double
-inline int64 qbr(long double f){
-  int64 i; int temp=0;
-  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
-  __asm__ (
-           "fldt %1;"
-           "fistpll %0;"              
-           :"=m" (i)
-           :"m" (f)
-           );
-  if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
-  return i;
-}
-inline uint64 qbr_longdouble_to_uint64(long double f){
-  uint64 i;
-  __asm__ (
-           "fldt %1;"
-           "fistpll %0;"              
-           :"=m" (i)
-           :"m" (f)
-           );
-  return i;
-}
-inline int32 qbr_float_to_long(float f){
-  int32 i;
-  __asm__ (
-           "flds %1;"
-           "fistpl %0;"              
-           :"=m" (i)
-           :"m" (f)
-           );
-  return i;
-}
-inline int32 qbr_double_to_long(double f){
-  int32 i;
-  __asm__ (
-           "fldl %1;"
-           "fistpl %0;"              
-           :"=m" (i)
-           :"m" (f)
-           );
-  return i;
-}
-#endif
-#endif //x86 support
-
-//bit-array access functions (note: used to be included through 'bit.cpp')
-static int64 bmask;
-static uint64 *bptr64;
-static int64 bval64;
-inline uint64 getubits(uint32 bsize,uint8 *base,ptrszint i){
-  bmask=~(-(((int64)1)<<bsize));
-  i*=bsize;
-  return ((*(uint64*)(base+(i>>3)))>>(i&7))&bmask;
-}
-inline int64 getbits(uint32 bsize,uint8 *base,ptrszint i){
-  bmask=~(-(((int64)1)<<bsize));
-  i*=bsize;
-  bval64=((*(uint64*)(base+(i>>3)))>>(i&7))&bmask;
-  if (bval64&(((int64)1)<<(bsize-1))) return bval64|(~bmask);
-  return bval64;
-}
-inline void setbits(uint32 bsize,uint8 *base,ptrszint i,int64 val){
-  bmask=(((uint64)1)<<bsize)-1;
-  i*=bsize;
-  bptr64=(uint64*)(base+(i>>3));
-  *bptr64=(*bptr64&( ( (bmask<<(i&7)) ^-1)  )) | ((val&bmask)<<(i&7));
-}
 
 //QB64 internal variable type flags (internally referenced by some C functions)
 #define ISSTRING 1073741824
@@ -408,17 +262,6 @@ struct device_struct{
 #define DEVICETYPE_CONTROLLER 1
 #define DEVICETYPE_KEYBOARD 2
 #define DEVICETYPE_MOUSE 3
-
-
-
-
-
-
-
-
-
-
-
 
 struct mem_block{
   ptrszint offset;

@@ -1,6 +1,6 @@
 #ifndef INC_LIBQB_H
 #define INC_LIBQB_H
-#include "common.cpp"
+#include "common.h"
 
 void error(int32 error_number);
 extern uint32 new_error;
