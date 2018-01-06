@@ -1,16 +1,16 @@
-qbs*oldstr3628=NULL;
+qbs*oldstr3629=NULL;
 if(_SUB_ARYADDSTR_STRING_VALUE->tmp||_SUB_ARYADDSTR_STRING_VALUE->fixed||_SUB_ARYADDSTR_STRING_VALUE->readonly){
-oldstr3628=_SUB_ARYADDSTR_STRING_VALUE;
-if (oldstr3628->cmem_descriptor){
-_SUB_ARYADDSTR_STRING_VALUE=qbs_new_cmem(oldstr3628->len,0);
+oldstr3629=_SUB_ARYADDSTR_STRING_VALUE;
+if (oldstr3629->cmem_descriptor){
+_SUB_ARYADDSTR_STRING_VALUE=qbs_new_cmem(oldstr3629->len,0);
 }else{
-_SUB_ARYADDSTR_STRING_VALUE=qbs_new(oldstr3628->len,0);
+_SUB_ARYADDSTR_STRING_VALUE=qbs_new(oldstr3629->len,0);
 }
-memcpy(_SUB_ARYADDSTR_STRING_VALUE->chr,oldstr3628->chr,oldstr3628->len);
+memcpy(_SUB_ARYADDSTR_STRING_VALUE->chr,oldstr3629->chr,oldstr3629->len);
 }
-byte_element_struct *byte_element_3629=NULL;
-if (!byte_element_3629){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3629=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3629=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3630=NULL;
+if (!byte_element_3630){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3630=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3630=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_SUB_ARYADDSTR_LONG_INDEX=NULL;
 if(_SUB_ARYADDSTR_LONG_INDEX==NULL){
