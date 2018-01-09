@@ -39,6 +39,7 @@
 //core
 #ifdef QB64_GUI
 #ifdef QB64_GLUT
+//This file only contains header stuff
 #include "parts/core/src.c"
 #endif
 #endif
@@ -51,7 +52,6 @@
  #define int64 __int64
 #endif
 
-//#include <Shlobj.h>
 #include <shfolder.h>
 
 #include <float.h>
