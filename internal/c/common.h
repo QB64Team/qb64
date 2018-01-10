@@ -22,10 +22,8 @@
 #define QB64_GL1
 #define QB64_GLUT
 
-#ifdef QB64_LINUX
- #ifndef QB64_MACOSX
+#ifdef QB64_LINUXONLY
   #define QB64_X11
- #endif
 #endif
 
 #ifdef DEPENDENCY_CONSOLE_ONLY

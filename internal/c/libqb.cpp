@@ -5,15 +5,6 @@
  #include "parts/core/glew/src/glew.c"
 #endif
 
-
-#ifdef QB64_ANDROID
-        #include <cstdlib> //required for system()
-  struct android_app* android_state;
-  JavaVM* android_vm;
-  JNIEnv* android_env;
-#endif
-
-
 #ifdef QB64_WINDOWS
 #include <fcntl.h>
 #include <shellapi.h>
@@ -176,7 +167,7 @@ void setbits(uint32 bsize,uint8 *base,ptrszint i,int64 val){
 }
 
 
-#ifdef QB64_LINUX
+#ifdef QB64_UNIX
 #include <pthread.h>
 #include <libgen.h> //required for dirname()
 #endif
@@ -328,14 +319,8 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
   extern "C" LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info);
 #endif
 
-#ifdef QB64_LINUX
-#ifdef QB64_GUI //Cannot have X11 events without a GUI
-#ifndef QB64_MACOSX
-#ifndef QB64_ANDROID
+#if defined(QB64_LINUXONLY) && defined(QB64_GUI)
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info);
-#endif
-#endif
-#endif
 #endif
 
 #define QB64_EVENT_CLOSE 1
@@ -448,64 +433,61 @@ int64 display_frame_order_next=1;
 int64 last_rendered_hardware_display_frame_order=0;
 int64 last_hardware_display_frame_order=0;
 
-
-
-
-
-
-
-
-//Mutex support (Windows only atm)
-
-struct MUTEX{
-  #ifdef QB64_WINDOWS
+#ifdef QB64_WINDOWS
+struct MUTEX {
     HANDLE handle;
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_t handle;
-  #endif
 };
 
 MUTEX* new_mutex(){
-  MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
-  #ifdef QB64_WINDOWS
+    MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
     m->handle=CreateMutex(
-        NULL,              // default security attributes
-        FALSE,             // initially not owned
-        NULL);             // unnamed mutex
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_init(&m->handle, NULL);
-  #endif
-  return m;
+            NULL,              // default security attributes
+            FALSE,             // initially not owned
+            NULL);             // unnamed mutex
+    return m;
 }
 
 void free_mutex(MUTEX *mutex){
-  //todo
+    //todo
 }
 
 void lock_mutex(MUTEX *m){
-  if (m==NULL) return;
-  #ifdef QB64_WINDOWS
+    if (m==NULL) return;
     WaitForSingleObject(
             m->handle,    // handle to mutex
             INFINITE);  // no time-out interval
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_lock(&m->handle);
-  #endif
+}
+
+void unlock_mutex(MUTEX *m) {
+    if (m==NULL) return;
+    ReleaseMutex(m->handle);
+}
+#endif
+#ifdef QB64_UNIX
+struct MUTEX{
+	pthread_mutex_t handle;
+};
+
+MUTEX* new_mutex(){
+	MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
+	pthread_mutex_init(&m->handle, NULL);
+	return m;
+}
+
+void free_mutex(MUTEX *mutex){
+	//todo
+}
+
+void lock_mutex(MUTEX *m){
+	if (m==NULL) return;
+	pthread_mutex_lock(&m->handle);
 }
 
 void unlock_mutex(MUTEX *m){
-  if (m==NULL) return;
-  #ifdef QB64_WINDOWS
-    ReleaseMutex(m->handle);
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_unlock(&m->handle);
-  #endif
+	if (m==NULL) return;
+	pthread_mutex_unlock(&m->handle);
 }
-
+#endif
 
 
 //List Interface
@@ -920,19 +902,22 @@ int64 orwl_gettime(void) {
 }
 #endif
 
+#ifdef QB64_LINUXONLY
 int64 GetTicks(){
-#if defined QB64_LINUX && !defined QB64_MACOSX // && !defined QB64_ANDROID //NOTE: ANDROID MUST USE THIS TOO
   struct timespec tp;
   clock_gettime(CLOCK_MONOTONIC, &tp);
   return tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-#else
- #ifdef QB64_MACOSX
-    return orwl_gettime();
- #else
-        return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );        
- #endif        
-#endif
 }
+#elif defined QB64_MACOSX
+int64 GetTicks(){
+    return orwl_gettime();
+}
+#else
+int64 GetTicks(){
+        return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );        
+}
+#endif
+
 
 #define QBK 200000
 #define VK 100000
@@ -14451,7 +14436,7 @@ int32 func__hasfocus() {
         #ifdef QB64_WINDOWS
             while (!window_handle){Sleep(100);}
             return -(window_handle==GetForegroundWindow());
-        #elif defined(QB64_LINUX) && !defined(QB64_MACOSX)
+        #elif defined(QB64_LINUXONLY)
             return window_focused;
         #endif
     #endif
@@ -19894,7 +19879,7 @@ void sub_mkdir(qbs *str){
   static qbs *strz=NULL;
   if (!strz) strz=qbs_new(0,0);
   qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
-#ifdef QB64_LINUX
+#ifdef QB64_UNIX
   if (mkdir(fixdir(strz),0770)==-1){
 #else
     if (mkdir(fixdir(strz))==-1){
@@ -19970,66 +19955,12 @@ void sub_mkdir(qbs *str){
 
     if (!screen_hide){
       while (!window_exists){Sleep(100);}
-      #ifndef QB64_ANDROID
       glutSetCursor(mouse_cursor_style);
-      #endif
     }
 
 #endif
 
   }
-
-  int32 mousemovementfix_state=0;
-  void mousemovementfix(){
-
-#ifndef NO_S_D_L
-
-#ifdef QB64_LINUX
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-#endif
-    if (full_screen){
-      if (mousemovementfix_state){//disable fix if active
-    mousemovementfix_state=0;
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-    //note: mouse show state is not reverted
-      }
-      return;
-    }
-    if (SDL_ShowCursor(-1)==1) SDL_ShowCursor(0);
-    //note: regrabs input if necessary (happens when app loses focus)
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_OFF) SDL_WM_GrabInput(SDL_GRAB_ON);
-    mousemovementfix_state=1;
-#ifdef QB64_LINUX
-    lock_mainloop=0; Sleep(1);//unlock
-#endif
-
-#endif //NO_S_D_L
-
-  }
-
-
-
-  void mousemovementfix_mainloop(){
-
-#ifndef NO_S_D_L
-
-    if (full_screen){
-      if (mousemovementfix_state){//disable fix if active
-    mousemovementfix_state=0;
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-    //note: mouse show state is not reverted
-      }
-      return;
-    }
-    if (SDL_ShowCursor(-1)==1) SDL_ShowCursor(0);
-    //note: regrabs input if necessary (happens when app loses focus)
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_OFF) SDL_WM_GrabInput(SDL_GRAB_ON);
-    mousemovementfix_state=1;
-
-#endif //NO_S_D_L
-
-  }
-
 
   float func__mousemovementx(int32 context, int32 passed){
     int32 handle;
@@ -23238,12 +23169,11 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
 
 
-#ifdef QB64_LINUX 
+#ifdef QB64_UNIX
   extern char** environ;
 #define envp environ
 #else /* WINDOWS */
-  //extern char** _environ;
-#define envp _environ
+ #define envp _environ
 #endif
   size_t environ_count;
 
@@ -23334,8 +23264,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 #elif defined(QB64_WINDOWS)
       sockVersion = MAKEWORD(1, 1);
       WSAStartup(sockVersion, &wsaData);
-#elif defined(QB64_LINUX)
-#else
 #endif
     }
   }
@@ -23344,8 +23272,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 #if !defined(DEPENDENCY_SOCKETS)
 #elif defined(QB64_WINDOWS)
     WSACleanup();
-#elif defined(QB64_LINUX)
-#else
 #endif
   }
 
@@ -23353,7 +23279,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 #if !defined(DEPENDENCY_SOCKETS)
 #elif defined(QB64_WINDOWS)
     SOCKET socket;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     int socket;
 #else
 #endif
@@ -23397,7 +23323,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     connection->socket=listeningSocket;
     connection->connected = -1;
     return (void*)connection;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     struct addrinfo hints, *servinfo, *p;
     int sockfd;
     char str_port[6];
@@ -23489,7 +23415,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     connection->hostname=(uint8*)malloc(strlen((char*)host)+1);
     memcpy(connection->hostname,host,strlen((char*)host)+1);
     return (void*)connection;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     struct addrinfo hints, *servinfo, *p;
     int sockfd;
     char str_port[6];
@@ -23550,7 +23476,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     connection->connected = -1;
     *((uint32*)(connection->ip4))=*((uint32*)(sa.sa_data+2));
     return (void*)connection;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     tcp_connection *host; host=(tcp_connection*)host_tcp;
     struct sockaddr remote_addr;
     socklen_t addr_size;
@@ -23582,7 +23508,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       shutdown(tcp->socket,SD_BOTH);
       closesocket(tcp->socket);
     }
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     if (tcp->socket) {
       shutdown(tcp->socket, SHUT_RDWR);
       close(tcp->socket);
@@ -23594,7 +23520,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
   void tcp_out(void *connection,void *offset,ptrszint bytes){
 #if !defined(DEPENDENCY_SOCKETS)
-#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
+#elif defined(QB64_WINDOWS) || defined(QB64_UNIX)
     tcp_connection *tcp; tcp=(tcp_connection*)connection;
     int total = 0;        // how many bytes we've sent
     int bytesleft = bytes; // how many we have left to send
@@ -23640,8 +23566,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
 
   void stream_update(stream_struct *stream){
-#if !defined(DEPENDENCY_SOCKETS)
-#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
+#ifdef DEPENDENCY_SOCKETS
     //assume tcp
 
     static connection_struct *connection;
@@ -23682,7 +23607,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       stream->in_size+=bytes;
       if (stream->in_size==stream->in_limit) goto expand_and_retry;
     }
-#else
 #endif    
   }
 
@@ -23968,12 +23892,10 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
   int32 tcp_connected (void *connection){
     tcp_connection *tcp=(tcp_connection*)connection;
-#if !defined(DEPENDENCY_SOCKETS)
+#ifndef DEPENDENCY_SOCKETS
     return 0;
-#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
-    return tcp->connected;
 #else
-    return 0;
+    return tcp->connected;
 #endif
   }
 
@@ -24305,11 +24227,7 @@ int32 func__exit(){
 
 
 
-
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-
-#ifdef QB64_X11
+#if defined(QB64_LINUXONLY) && defined(QB64_X11)
 
 //X11 clipboard interface for Linux
 //SDL_SysWMinfo syswminfo;
@@ -24433,8 +24351,6 @@ if (x11selectionowner!=None){
 }
 
 #endif
-#endif
-#endif
 
 
 
@@ -24498,29 +24414,11 @@ if (x11selectionowner!=None){
    return;
 #endif
 
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifdef QB64_X11
+#if defined(QB64_LINUXONLY) && defined(QB64_X11)
    static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
    qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
    x11clipboardcopy((char*)textz->chr);
    return;
-
-   //Need to find a way to get the clipboard working on Linux! (Hack freeGLUT, switch to GLFW, small 'helper' program?)
-   /*   while (!display_surface) Sleep(1);
-   lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-   if (!linux_clipboard_init){
-
-     linux_clipboard_init=1;
-     setupx11clipboard();
-   }
-   static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
-   qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
-   x11clipboardcopy((char*)textz->chr);
-   lock_mainloop=0; Sleep(1);//unlock
-   return; */
-#endif
-#endif
 #endif
 
    if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
@@ -24741,92 +24639,9 @@ return -1;
     text=qbs_new(0,1);
     return text;
     return NULL;
-
-    /*
-      PasteboardRef inPasteboard;
-      if (PasteboardCreate(kPasteboardClipboard, &inPasteboard) != noErr) {
-      return NULL;
-      }
-
-
-      ItemCount  itemCount;
-
-      PasteboardSynchronize( inPasteboard );
-      PasteboardGetItemCount( inPasteboard, &itemCount );
-      UInt32 itemIndex = 1; // should be 1 or the itemCount?
-
-      PasteboardItemID    itemID;
-      CFArrayRef          flavorTypeArray;
-      CFIndex             flavorCount;
-
-      PasteboardGetItemIdentifier( inPasteboard, itemIndex, &itemID );
-      PasteboardCopyItemFlavors( inPasteboard, itemID, &flavorTypeArray );
-
-      flavorCount = CFArrayGetCount( flavorTypeArray );
-
-      for(CFIndex flavorIndex = 0 ; flavorIndex < flavorCount; flavorIndex++ )
-      {
-      CFStringRef  flavorType = (CFStringRef)CFArrayGetValueAtIndex( flavorTypeArray, flavorIndex );
-
-
-      if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text")))
-      {
-      CFDataRef   flavorData;
-      PasteboardCopyItemFlavorData( inPasteboard, itemID,flavorType, &flavorData );
-
-      CFIndex  flavorDataSize = CFDataGetLength( flavorData );
-      //out.resize( flavorDataSize/2 );
-      //memcpy(&out[0], flavorData, flavorDataSize);
-      //CFRelease (flavorData);
-      //break;
-
-      text=qbs_new(flavorDataSize,1);
-      memcpy(text->chr,flavorData,text->len);
-      CFRelease (flavorData);
-      CFRelease (flavorTypeArray);
-      CFRelease(inPasteboard);
-      return text;
-
-      }
-      }
-      CFRelease (flavorTypeArray);
-      CFRelease(inPasteboard);
-      text=qbs_new(0,1);
-      return text;
-    */
-
-    /*
-      PasteboardRef clipboard;
-      if (PasteboardCreate(kPasteboardClipboard, &clipboard) != noErr) {
-      return NULL;
-      }
-    */
-
-    /*
-      PasteboardRef clipboard;
-      if (PasteboardCreate(kPasteboardClipboard, &clipboard) != noErr) {
-      return NULL;
-      }
-      if (PasteboardClear(clipboard) != noErr) {
-      CFRelease(clipboard);
-      return;
-      }
-      CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, text->chr, 
-      text->len, kCFAllocatorNull);
-      if (data == NULL) {
-      CFRelease(clipboard);
-      return;
-      }
-      OSStatus err;
-      err = PasteboardPutItemFlavor(clipboard, NULL, kUTTypeUTF8PlainText, data, 0);
-      CFRelease(clipboard);
-      CFRelease(data);
-    */
 #endif
 
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifdef QB64_X11
+#if defined(QB64_LINUXONLY) && defined(QB64_X11)
     qbs *text;
     char *cp=x11clipboardpaste();
     cp=x11clipboardpaste();
@@ -24838,118 +24653,6 @@ return -1;
       free(cp);
     }
     return text;
-
-
-    //char *XFetchBytes(display, nbytes_return)
-    //Display *display;
-    
-
-/*
-Atom a1, a2, type;
-int format, result;
-unsigned long len, bytes_left, dummy;
-unsigned char *data;
-Window Sown;
-Display *dpy=X11_display;
-
-x11_lock_request=1; while (x11_locked==0) Sleep(1);
-
-Sown = XGetSelectionOwner (dpy, XA_PRIMARY);
-//printf ("Selection owner%i\n", (int)Sown);
-if (Sown != None) {
-
-XConvertSelection (dpy, XA_PRIMARY, XA_STRING, None,
-Sown, CurrentTime);
-XFlush (dpy);
-
-//
-// Do not get any data, see how much data is there
-//
-
-XGetWindowProperty (dpy, Sown,
-XA_STRING, // Tricky..
-0, 0, // offset - len
-0, // Delete 0==FALSE
-AnyPropertyType, //flag
-&type, // return type
-&format, // return format
-&len, &bytes_left, //that
-&data);
-//printf ("type:%i len:%i format:%i byte_left:%i\n",
-//(int)type, len, format, bytes_left);
-// DATA is There
-
-
-
-if (bytes_left > 0)
-{
-result = XGetWindowProperty (dpy, Sown,
-XA_STRING, 0,bytes_left,0,
-AnyPropertyType, &type,&format,
-&len, &dummy, &data);
-if (result == Success){
-//printf ("DATA IS HERE!!```%s'''\n",
-//data);
-//XFree (data);
-x11_locked=0;
-return qbs_new_txt((const char*)data);
-}
-else
-{ //printf ("FAIL\n");
-//XFree (data);
-}
-}//bytes_left
-}//Sown != None
-
-x11_locked=0;
-return qbs_new(0,1);
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-    int bytes;
-    char *data=XFetchBytes(X11_display, &bytes);
-    if (bytes==0) return qbs_new(0,1);
-    return qbs_new_txt_len(data, bytes);
-*/
-
-    //Linux clipboard not functional, see comment in sub__clipboard
-    /*    static char *cp;
-    static qbs *text;
-    while (!display_surface) Sleep(1);
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-    if (!linux_clipboard_init){
-      linux_clipboard_init=1;
-      setupx11clipboard();
-    }
-    cp=x11clipboardpaste();
-    if (!cp){
-      text=qbs_new(0,1);
-    }else{
-      text=qbs_new(strlen(cp),1);
-      memcpy(text->chr,cp,text->len);
-      free(cp);
-    }
-    lock_mainloop=0; Sleep(1);//unlock
-    return text; */
-#endif
-#endif
 #endif
 
     if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
@@ -26147,217 +25850,7 @@ return qbs_new(0,1);
 
     ReleaseDC(NULL,hdc);
     return i;
-
-    /*
-    //   FUNCTION: CaptureAnImage(HWND hWnd)
-    //
-    //   PURPOSE: Captures a screenshot into a window and then saves it in a .bmp file.
-    //
-    //   COMMENTS: 
-    //
-    //      Note: This sample will attempt to create a file called captureqwsx.bmp 
-    //        
-
-    int CaptureAnImage(HWND hWnd)
-    {
-    HDC hdcScreen;
-    HDC hdcWindow;
-    HDC hdcMemDC = NULL;
-    HBITMAP hbmScreen = NULL;
-    BITMAP bmpScreen;
-
-    // Retrieve the handle to a display device context for the client 
-    // area of the window. 
-    hdcScreen = GetDC(NULL);
-    hdcWindow = GetDC(hWnd);
-
-    // Create a compatible DC which is used in a BitBlt from the window DC
-    hdcMemDC = CreateCompatibleDC(hdcWindow); 
-
-    if(!hdcMemDC)
-    {
-    MessageBox2(hWnd, L"StretchBlt has failed",L"Failed", MB_OK);
-    goto done;
-    }
-
-    // Get the client area for size calculation
-    RECT rcClient;
-    GetClientRect(hWnd, &rcClient);
-
-    //This is the best stretch mode
-    SetStretchBltMode(hdcWindow,HALFTONE);
-
-    //The source DC is the entire screen and the destination DC is the current window (HWND)
-    if(!StretchBlt(hdcWindow, 
-    0,0, 
-    rcClient.right, rcClient.bottom, 
-    hdcScreen, 
-    0,0,
-    GetSystemMetrics (SM_CXSCREEN),
-    GetSystemMetrics (SM_CYSCREEN),
-    SRCCOPY))
-    {
-    MessageBox2(hWnd, L"StretchBlt has failed",L"Failed", MB_OK);
-    goto done;
-    }
-    
-    // Create a compatible bitmap from the Window DC
-    hbmScreen = CreateCompatibleBitmap(hdcWindow, rcClient.right-rcClient.left, rcClient.bottom-rcClient.top);
-    
-    if(!hbmScreen)
-    {
-    MessageBox2(hWnd, L"CreateCompatibleBitmap Failed",L"Failed", MB_OK);
-    goto done;
-    }
-
-    // Select the compatible bitmap into the compatible memory DC.
-    SelectObject(hdcMemDC,hbmScreen);
-    
-    // Bit block transfer into our compatible memory DC.
-    if(!BitBlt(hdcMemDC, 
-    0,0, 
-    rcClient.right-rcClient.left, rcClient.bottom-rcClient.top, 
-    hdcWindow, 
-    0,0,
-    SRCCOPY))
-    {
-    MessageBox2(hWnd, L"BitBlt has failed", L"Failed", MB_OK);
-    goto done;
-    }
-
-    // Get the BITMAP from the HBITMAP
-    GetObject(hbmScreen,sizeof(BITMAP),&bmpScreen);
-     
-    BITMAPFILEHEADER   bmfHeader;    
-    BITMAPINFOHEADER   bi;
-     
-    bi.biSize = sizeof(BITMAPINFOHEADER);    
-    bi.biWidth = bmpScreen.bmWidth;    
-    bi.biHeight = bmpScreen.bmHeight;  
-    bi.biPlanes = 1;    
-    bi.biBitCount = 32;    
-    bi.biCompression = BI_RGB;    
-    bi.biSizeImage = 0;  
-    bi.biXPelsPerMeter = 0;    
-    bi.biYPelsPerMeter = 0;    
-    bi.biClrUsed = 0;    
-    bi.biClrImportant = 0;
-
-    DWORD dwBmpSize = ((bmpScreen.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpScreen.bmHeight;
-
-    // Starting with 32-bit Windows, GlobalAlloc and LocalAlloc are implemented as wrapper functions that 
-    // call HeapAlloc using a handle to the process's default heap. Therefore, GlobalAlloc and LocalAlloc 
-    // have greater overhead than HeapAlloc.
-    HANDLE hDIB = GlobalAlloc(GHND,dwBmpSize); 
-    char *lpbitmap = (char *)GlobalLock(hDIB);    
-
-    // Gets the "bits" from the bitmap and copies them into a buffer 
-    // which is pointed to by lpbitmap.
-    GetDIBits(hdcWindow, hbmScreen, 0,
-    (UINT)bmpScreen.bmHeight,
-    lpbitmap,
-    (BITMAPINFO *)&bi, DIB_RGB_COLORS);
-
-    // A file is created, this is where we will save the screen capture.
-    HANDLE hFile = CreateFile(L"captureqwsx.bmp",
-    GENERIC_WRITE,
-    0,
-    NULL,
-    CREATE_ALWAYS,
-    FILE_ATTRIBUTE_NORMAL, NULL);   
-    
-    // Add the size of the headers to the size of the bitmap to get the total file size
-    DWORD dwSizeofDIB = dwBmpSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
- 
-    //Offset to where the actual bitmap bits start.
-    bmfHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER); 
-    
-    //Size of the file
-    bmfHeader.bfSize = dwSizeofDIB; 
-    
-    //bfType must always be BM for Bitmaps
-    bmfHeader.bfType = 0x4D42; //BM   
- 
-    DWORD dwBytesWritten = 0;
-    WriteFile(hFile, (LPSTR)&bmfHeader, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL);
-    WriteFile(hFile, (LPSTR)&bi, sizeof(BITMAPINFOHEADER), &dwBytesWritten, NULL);
-    WriteFile(hFile, (LPSTR)lpbitmap, dwBmpSize, &dwBytesWritten, NULL);
-    
-    //Unlock and Free the DIB from the heap
-    GlobalUnlock(hDIB);    
-    GlobalFree(hDIB);
-
-    //Close the handle for the file that was created
-    CloseHandle(hFile);
-       
-    //Clean up
-    done:
-    DeleteObject(hbmScreen);
-    ReleaseDC(hWnd, hdcMemDC);
-    ReleaseDC(NULL,hdcScreen);
-    ReleaseDC(hWnd,hdcWindow);
-
-    return 0;
-    }
-    */
-
 #endif
-
-#ifdef QB64_LINUX
-
-#ifdef BROKEN
-
-#ifndef QB64_MACOSX
-    //Code contributed by 'Chronokitsune'
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-    static Display *dpy;
-    static int x, y;
-    static unsigned int width, height;
-    static XWindowAttributes attrs;
-    static Window w;
-    static XImage *img;
-    static SDL_SysWMinfo syswminfo;
-    static int32 setup=0;
-    if (!setup)
-      {
-    setup=1;
-    SDL_VERSION(&syswminfo.version);
-    SDL_GetWMInfo (&syswminfo);
-      }
-    dpy = syswminfo.info.x11.display;
-    syswminfo.info.x11.lock_func ();
-    w = RootWindow(dpy, DefaultScreen(dpy));
-    XGetWindowAttributes (dpy, // Display *display
-                          w, // Window w
-                          &attrs); //XWindowAttributes *attrs_return);
-    x = attrs.x;
-    y = attrs.y;
-    width = attrs.width;
-    height = attrs.height;
-    w = attrs.root;
-    img = XGetImage (dpy, w, x, y, width, height, AllPlanes, ZPixmap);
-    if (img)
-      {
-        static int32 i,i2;
-        i2=func__dest();
-        i=func__newimage(width,height,32,1);
-        sub__dest(i);
-        if (img->bytes_per_line==width*4) memcpy(write_page->offset,img->data,width*height*4);//overflow safeguard                  
-        sub__setalpha(255,NULL,NULL,NULL,0);
-        sub__dest(i2);
-        XDestroyImage (img);
-        syswminfo.info.x11.unlock_func ();
-        lock_mainloop=0; Sleep(1);//unlock
-        return i;        
-      }
-    syswminfo.info.x11.unlock_func();
-    lock_mainloop=0; Sleep(1);//unlock
-    return -1;
-#endif
-#endif
-
-    return -1;
-#endif //BROKEN
 
 #ifdef QB64_MACOSX
     system("screencapture -x -tbmp /tmp/qb64screencapture.bmp\0");
@@ -28097,44 +27590,40 @@ return qbs_new(0,1);
   #else
     tqbs=qbs_new_txt("[WINDOWS][64BIT]");
   #endif
-#else
-#ifdef QB64_MACOSX
-#ifdef QB64_32
-    tqbs=qbs_new_txt("[MACOSX][32BIT][LINUX]");
-#else
-    tqbs=qbs_new_txt("[MACOSX][64BIT][LINUX]");
-#endif
-#else
-#ifdef QB64_32
+#elif defined(QB64_LINUXONLY)
+  #ifdef QB64_32
     tqbs=qbs_new_txt("[LINUX][32BIT]");
-#else
+  #else
     tqbs=qbs_new_txt("[LINUX][64BIT]");
-#endif 
-#endif
+  #endif
+#elif defined(QB64_MACOSX)
+  #ifdef QB64_32
+    tqbs=qbs_new_txt("[MACOSX][32BIT][LINUX]");
+  #else
+    tqbs=qbs_new_txt("[MACOSX][64BIT][LINUX]");
+  #endif
+#else
+  #ifdef QB64_32
+    tqbs=qbs_new_txt("[32BIT]");
+  #else
+    tqbs=qbs_new_txt("[64BIT]");
+  #endif
 #endif
     return tqbs;
   }
 
   int32 func__screenx(){
-          #ifdef QB64_GUI
-          #ifdef QB64_WINDOWS
-          #ifdef QB64_GLUT
+          #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
               while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
               return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
-          #endif
-          #endif
           #endif
           return 0; //if not windows then return 0
   }
 
   int32 func__screeny(){
-          #ifdef QB64_GUI
-          #ifdef QB64_WINDOWS
-          #ifdef QB64_GLUT
+          #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
                 while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
                 return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
-          #endif
-          #endif
           #endif
           return 0; //if not windows then return 0
   }
@@ -28145,8 +27634,7 @@ return qbs_new(0,1);
     if (passed==3) goto error;
     if (full_screen) return;
 
-        #ifdef QB64_GUI        
-        #ifdef QB64_GLUT        
+        #if defined(QB64_GUI) && defined(QB64_GLUT)
         while (!window_exists){Sleep(100);} //wait for window to be created before moving it.
         if (passed==2){
                 glutPositionWindow (x,y);}
@@ -28160,7 +27648,6 @@ return qbs_new(0,1);
                         y = (SH - WH)/2;
                         glutPositionWindow (x,y);
         }
-        #endif
         #endif
 
         return;
@@ -29232,12 +28719,11 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     if (x==INVALID_FILE_ATTRIBUTES) return 0;
     if (x&FILE_ATTRIBUTE_DIRECTORY) return 0;
     return -1;
-#endif
-#ifdef QB64_LINUX
+#elif defined(QB64_UNIX)
     struct stat sb;
     if (stat(fixdir(strz),&sb) == 0 && S_ISREG(sb.st_mode)) return -1;
     return 0;
-#endif
+#else
     //generic method (not currently used)
     static ifstream fh;
     fh.open(fixdir(strz),ios::binary|ios::in);
@@ -29245,6 +28731,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     fh.clear(ios::goodbit);
     fh.close();
     return -1;
+#endif
   }
 
   int32 func__direxists(qbs* file){
@@ -29258,13 +28745,13 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     if (x==INVALID_FILE_ATTRIBUTES) return 0;
     if (x&FILE_ATTRIBUTE_DIRECTORY) return -1;
     return 0;
-#endif
-#ifdef QB64_LINUX
+#elif defined(QB64_UNIX)
     struct stat sb;
     if (stat(fixdir(strz),&sb) == 0 && S_ISDIR(sb.st_mode)) return -1;
     return 0;
-#endif
+#else
     return 0;//default response
+#endif
   }
 
   int32 func__console(){
@@ -30002,7 +29489,7 @@ qbs *func__cwd(){
     error(51); //"Internal error"
     return tqbs;
   }
-#elif defined QB64_LINUX
+#elif defined QB64_UNIX
   length = 512;
   while(1) {
     buf = (char *)malloc(length);
@@ -30193,263 +29680,10 @@ qbs *func__dir(qbs* context_in){
 }
 
   extern void set_dynamic_info();
+  int main( int argc, char* argv[] ){
 
-
-
-#ifdef QB64_ANDROID
-
-        void android_get_file_asset(AAssetManager* mgr, char *filename){
-                AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-                char buf[BUFSIZ];
-                int nb_read = 0;
-                FILE* out = fopen(filename, "w");
-                while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)        fwrite(buf, nb_read, 1, out);
-                fclose(out);
-                AAsset_close(asset);
-        }
-
-        //notes:
-        // * Actual entry point is in fg_runtime_android.c which has been modified to pass 'android_app' to us
-
-        int main(int argc, char* argv[], struct android_app* android_state_in) {
-
-        android_state=android_state_in;
-        android_vm=android_state->activity->vm;
-        android_env=android_state->activity->env;
-
-        struct android_app* app=android_state_in;
-          JNIEnv* env = app->activity->env;
-        JavaVM* vm = app->activity->vm;
-        vm->AttachCurrentThread( &env, NULL);
-
-        // Get a handle on our calling NativeActivity class
-        jclass activityClass = env->GetObjectClass( app->activity->clazz);
-        // Get path to files dir
-        jmethodID getFilesDir = env->GetMethodID( activityClass, "getFilesDir", "()Ljava/io/File;");
-        jobject file = env->CallObjectMethod( app->activity->clazz, getFilesDir);
-        jclass fileClass = env->FindClass( "java/io/File");
-        jmethodID getAbsolutePath = env->GetMethodID( fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-        jstring jpath = (jstring)env->CallObjectMethod( file, getAbsolutePath);
-        const char* app_dir = env->GetStringUTFChars( jpath, NULL);
-        // chdir in the application files directory
-        LOGI("app_dir: %s", app_dir);
-        chdir(app_dir);
-        env->ReleaseStringUTFChars( jpath, app_dir);
-        // Pre-extract assets, to avoid Android-specific file opening
-
-        AAssetManager* mgr = app->activity->assetManager;
-        
-        /* Old code which pulled all root directory assets, in QB64 assets are specified in code so this just wastes time
-        AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
-        const char* filename = (const char*)NULL;        
-        while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-                android_get_file_asset(mgr,filename);
-        }
-        AAssetDir_close(assetDir);
-        */
-
-        #include "../temp/assets.txt"
-
-	//get _DIR$(...) paths
-	{//upscope
-
-	jfieldID fieldId;
-	jclass envClass = env->FindClass("android/os/Environment");
-	char** targetString;
-	jstring jstrParam;
-	char* s;
-	jstring sType;
-	for (int i=1;i<=6;i++){
-
-		if (i==1){
-			targetString=&android_dir_dcim;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DCIM", "Ljava/lang/String;");
-		}
-		if (i==2){
-			targetString=&android_dir_downloads;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DOWNLOADS", "Ljava/lang/String;");
-		}
-		if (i==3){
-			targetString=&android_dir_documents;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DOCUMENTS", "Ljava/lang/String;");
-		}
-		if (i==4){
-			targetString=&android_dir_pictures;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_PICTURES", "Ljava/lang/String;");
-		}
-		if (i==5){
-			targetString=&android_dir_music;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_MUSIC", "Ljava/lang/String;");
-		}
-		if (i==6){
-			targetString=&android_dir_video;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_MOVIES", "Ljava/lang/String;");
-		}
-		
-
-		//retrieve jstring representation of environment variable
-		jstrParam = (jstring)env->GetStaticObjectField(envClass, fieldId);
-		s = env->GetStringUTFChars(jstrParam, NULL);
-		LOGI("String name of Environment.Variable: %s", s);
-		env->ReleaseStringUTFChars(jstrParam, s);
-
-		//use jstring representation to retrieve folder name
-		sType=jstrParam;
-		jmethodID midEnvironmentGetExternalStoragePublicDirectory = env->GetStaticMethodID(envClass, "getExternalStoragePublicDirectory", "(Ljava/lang/String;)Ljava/io/File;");
-		jobject oExternalStorageDirectory = NULL;
-		oExternalStorageDirectory = env->CallStaticObjectMethod(envClass, midEnvironmentGetExternalStoragePublicDirectory, sType);
-		jclass cFile = env->GetObjectClass(oExternalStorageDirectory);
-		jmethodID midFileGetAbsolutePath = env->GetMethodID(cFile, "getAbsolutePath", "()Ljava/lang/String;");
-		env->DeleteLocalRef(cFile);
-		jstring extStoragePath = (jstring)env->CallObjectMethod(oExternalStorageDirectory, midFileGetAbsolutePath);
-		const char* extStoragePathString = env->GetStringUTFChars(extStoragePath, NULL);
-		LOGI("Path: %s", extStoragePathString);// /storage/emulated/0/Download
-		
-		*targetString=(char*)calloc(1,strlen(extStoragePathString)+2);
-		memcpy(*targetString,extStoragePathString,strlen(extStoragePathString));
-		(*targetString)[strlen(extStoragePathString)]=47;//append "/"
-
-		env->ReleaseStringUTFChars(extStoragePath, extStoragePathString);
-		env->DeleteLocalRef(sType);
-	}
-
-	}//downscope
-
-
-
-
-
-//JavaVMAttachArgs args = { JNI_VERSION_1_6, NULL, NULL };
-//vm->AttachCurrentThread( &env, &args );
-
-
-//jmethodID activityConstructor =  env->GetMethodID(app->activity->clazz, "<init>", "()V");
-//jobject object = env->NewObject(app->activity->clazz, activityConstructor);
-
-//jmethodID toastID = env->GetMethodID(app->activity->clazz, "toast", "(Ljava/lang/String;)V");
-//jstring message1 = env->NewStringUTF("This comes from jni.");
-//env->CallVoidMethod(object, toastID, message1);
-//vm->DetachCurrentThread();
-
-
-//jstring jstr = env->NewStringUTF("This comes from jni.");
-//    jmethodID messageMe = env->GetMethodID(app->activity->clazz, "toast", "(Ljava/lang/String;)V");
-//    jobject result = env->CallObjectMethod(obj, messageMe, jstr);
-
-//    const char* str = (*env)->GetStringUTFChars(env,(jstring) result, NULL); // should be released but what a heck, it's a tutorial :)
-//    printf("%s\n", str);
-
-//    return (*env)->NewStringUTF(env, str);
-
-
-//JNIEXPORT void JNICALL Java_com_example_jnitoast_MainActivity_displayToast
-  //(JNIEnv *pEnv, jobject thiz, jobject txt, jint time)
-//{
-
-/*
-        jclass Toast = NULL;
-        jobject toast = NULL;
-        jmethodID makeText = NULL;
-        jmethodID show = NULL;
-
-        Toast = env->FindClass("android/widget/Toast");
-        if(NULL == Toast)
-        {
-                LOGI("FindClass failed");
-                return;
-        }
-
-        makeText = env->GetStaticMethodID(Toast,"makeText", "(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;");
-        if( NULL == makeText )
-        {
-                LOGI("FindStaticMethod failed");
-                return;
-        }
-
-
-        //toast = env->CallStaticObjectMethod(Toast, makeText, thiz, txt, time);
-        toast = env->CallStaticObjectMethod(Toast, makeText, thiz, txt, time);
-        if ( NULL == toast) 
-        {
-                LOGI("CALLSTATICOBJECT FAILED");
-                return;
-        }
-*/
-/*
-        show = env->GetMethodID(pEnv,Toast,"show","()V");
-        if ( NULL == show )
-        {
-                LOGI("GetMethodID Failed");
-                return;
-        }
-        env->CallVoidMethod(pEnv,toast,show);
-*/
-
-
-
-
-
-
-
-
-
-        /*
-        AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-        char buf[BUFSIZ];
-        int nb_read = 0;
-        FILE* out = fopen(filename, "w");
-        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-        fwrite(buf, nb_read, 1, out);
-        fclose(out);
-        AAsset_close(asset);
-        }
-        */
-
-
-
-/*        
-        // Get a handle on our calling NativeActivity class
-        jclass activityClass = env->GetObjectClass( app->activity->clazz);
-        // Get path to files dir
-        jmethodID getFilesDir = env->GetMethodID( activityClass, "getFilesDir", "()Ljava/io/File;");
-        jobject file = env->CallObjectMethod( app->activity->clazz, getFilesDir);
-        jclass fileClass = env->FindClass( "java/io/File");
-        jmethodID getAbsolutePath = env->GetMethodID( fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-        jstring jpath = (jstring)env->CallObjectMethod( file, getAbsolutePath);
-        const char* app_dir = env->GetStringUTFChars( jpath, NULL);
-        // chdir in the application files directory
-        LOGI("app_dir: %s", app_dir);
-        chdir(app_dir);
-        env->ReleaseStringUTFChars( jpath, app_dir);
-        // Pre-extract assets, to avoid Android-specific file opening
-        {
-        AAssetManager* mgr = app->activity->assetManager;
-        AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
-        const char* filename = (const char*)NULL;
-        while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-        AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-        char buf[BUFSIZ];
-        int nb_read = 0;
-        FILE* out = fopen(filename, "w");
-        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-        fwrite(buf, nb_read, 1, out);
-        fclose(out);
-        AAsset_close(asset);
-        }
-        AAssetDir_close(assetDir);
-            }
-*/
-        
-#else
-        int main( int argc, char* argv[] ){
-#endif
-
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifdef X11
+#if defined(QB64_LINUXONLY) && defined(X11)
     XInitThreads();
-#endif
-#endif
 #endif
 
     static int32 i,i2,i3,i4;
@@ -30715,9 +29949,7 @@ qbs_set(startDir,func__cwd());
 
 //switch to directory of this EXE file
 //http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
-#ifndef QB64_ANDROID
-#ifdef QB64_WINDOWS
-#ifndef QB64_MICROSOFT
+#if defined(QB64_WINDOWS) && !defined(QB64_MICROSOFT)
     static char *exepath=(char*)malloc(65536);
     GetModuleFileName(NULL,exepath,65536);
     i=strlen(exepath);
@@ -30729,25 +29961,20 @@ qbs_set(startDir,func__cwd());
       }
     }
     chdir(exepath);
-#endif
-#endif
-#ifdef QB64_LINUX
-        #ifdef QB64_MACOSX
-                {
-                        char pathbuf[65536];
-                        uint32_t pathbufsize = sizeof(pathbuf);
-                        _NSGetExecutablePath(pathbuf, &pathbufsize);                        
-                        chdir(dirname(pathbuf));
-                }
-        #else
+#elif defined(QB64_LINUXONLY)
                 {
                         char pathbuf[65536];
                         memset(pathbuf, 0, sizeof(pathbuf));
                         readlink("/proc/self/exe", pathbuf, 65535);
                         chdir(dirname(pathbuf));
                 }
-        #endif
-#endif
+#elif defined(QB64_MACOSX)
+                {
+                        char pathbuf[65536];
+                        uint32_t pathbufsize = sizeof(pathbuf);
+                        _NSGetExecutablePath(pathbuf, &pathbufsize);                        
+                        chdir(dirname(pathbuf));
+                }
 #endif
 
 rootDir=qbs_new(0,0);
@@ -30756,11 +29983,6 @@ qbs_set(rootDir,func__cwd());
     unknown_opcode_mess=qbs_new(0,0);
     qbs_set(unknown_opcode_mess,qbs_new_txt_len("Unknown Opcode (  )\0",20));
 
-#ifdef QB64_ANDROID
-    func_command_str=qbs_new(0,0);
-    func_command_array = NULL;
-    func_command_count = 0;
-#else
     i=argc;
     if (i>1){
       //calculate required size of COMMAND$ string
@@ -30783,154 +30005,6 @@ qbs_set(rootDir,func__cwd());
 
     func_command_count = argc;
     func_command_array = argv;
-#endif
-
-
-#ifndef NO_S_D_L
-
-    //init SDL
-    if ( SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO|SDL_INIT_CDROM|SDL_INIT_TIMER) < 0 ) {
-      fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
-      exit(100);
-    }
-    atexit(SDL_Quit);
-
-#endif //NO_S_D_L
-
-
-
-#ifdef QB64_WINDOWS
-    if (console){
-
-      /*
-    FILE * ctt = fopen("CON", "w" );
-    freopen( "CON", "w", stdout );
-    freopen( "CON", "w", stderr );
-      */
-
-
-
-      //freopen("CON", "wt", stdout);
-      //freopen("CON", "wt", stderr);
-
-
-
-      /* BESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBEST
-
-     FILE * ctt = fopen("CON", "w" );//***Do not remove ever!***
-     freopen("CON", "w", stdout);
-     freopen("CON", "w", stderr);
-
-      */
-
-
-
-
-
-      //FILE * ctt = fopen("CONOUT$", "w" );
-
-      //freopen("CONOUT$", "w", stdout);
-      //freopen("CONOUT$", "w", stderr);
-      //freopen("CONIN$", "r", stdin);
-
-
-      //SetStdHandle(STD_OUTPUT_HANDLE,ctt);
-      //SetStdHandle(STD_OUTPUT_HANDLE,ctt);
-
-
-
-
-      //freopen("CON", "rt", stdin);
-
-      //HANDLE  ConsoleX = CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE, 
-      //                      0,0,CONSOLE_TEXTMODE_BUFFER,0);
-      //  SetConsoleActiveScreenBuffer(ConsoleX);
-      //SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE);
-      //SetConsoleTitle("Lua Console");
-
-
-
-
-      //console input
-      //char cis[1000];
-      //fgets(cis,sizeof(cis),stdin);//yues this works, need to cull new line char
-
-      //char *remove_newline(char *s)
-      //{
-      //    int len = strlen(s);
-      //
-      //    if (len > 0 && s[len-1] == '\n')  // if there's a newline
-      //        s[len-1] = '\0';          // truncate the string
-      //
-      //    return s;
-      //}
-
-
-
-      //cout<<"Hello"; printf(" World!");
-
-
-      /*
-    HANDLE hConsoleIn;
-    hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
-    if (hConsoleIn == INVALID_HANDLE_VALUE) exit(0);
-
-    //ReadConsole hConsoleIn, ConsoleReadLine, Len(ConsoleReadLine), vbNull, vbNull
-    char rcbuffer[10000];
-    DWORD rcchrtoread;
-    DWORD rcchrread;
-
-    //this input works for the loaded console...yeah!
-    //note: this does block.
-
-    ReadConsole(
-    hConsoleIn,
-    &rcbuffer[0],
-    1,
-    &rcchrread,
-    NULL
-    );
-    //****readline might be a better choice for crossplatform compatibility
-
-    //if (rcbuffer[0]==65) exit(0);
-    error_erl=rcbuffer[0];
-      */
-
-      /*
-    BOOL WINAPI ReadConsole(
-    __in      HANDLE hConsoleInput,
-    __out     LPVOID lpBuffer,
-    __in      DWORD nNumberOfCharsToRead,
-    __out     LPDWORD lpNumberOfCharsRead,
-    __in_opt  LPVOID pInputControl
-    );
-      */
-
-
-
-
-      //nStdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE)
-      //ENABLE_PROCESSED_OUTPUT
-      //DWORD cmode;
-      //GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),&cmode);
-      //error_erl=cmode;
-      //if (cmode&ENABLE_ECHO_INPUT) cmode^=ENABLE_ECHO_INPUT;
-      //SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),cmode);
-
-
-      //string mystr;
-      //getline (cin, mystr);
-
-      /*
-    DWORD cmode;
-    GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),&cmode);
-    cmode=cmode|ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT;
-    SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),cmode);
-      */
-
-
-    }
-#endif
 
 
     //struct tm:
@@ -31223,11 +30297,6 @@ QB64_GAMEPAD_INIT();
 
 #ifdef QB64_GLUT
     glutInit(&argc, argv);
-
-#ifdef QB64_ANDROID
-   //Note: GLUT_ACTION_CONTINUE_EXECUTION is not supported in Android
-   glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-#endif
 
 #ifdef QB64_MACOSX  
           //This is a global keydown handler for OSX, it requires assistive devices in asseccibility to be enabled
@@ -32022,98 +31091,6 @@ QB64_GAMEPAD_INIT();
       }//i
 
 #endif //NO_S_D_L
-
-
-      /* commented out 2013
-     static int32 full_screen_change;
-     full_screen_change=0;
-
-     if (full_screen_set!=-1){
-     if (full_screen_set==0) goto full_screen0;
-     if (full_screen_set==1) goto full_screen1;
-     if (full_screen_set==2) goto full_screen2;
-     }
-
-     if (full_screen_toggle){
-     full_screen_toggle--;
-
-     if (full_screen==0){
-     full_screen1:
-     if (mode_stretch>-1){//can be displayed
-     full_screen=1;
-     if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
-     full_screen_change=1;
-     screen_last_valid=0;
-
-     if (!mouse_hideshow_called){
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){
-     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-     }
-     #endif
-     //NO_S_D_L//SDL_ShowCursor(0);
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){ 
-     lock_mainloop=0; Sleep(1);//unlock
-     } 
-     #endif
-     }
-
-     }
-     goto full_screen_toggle_done;
-     }
-
-     if (full_screen==1){
-     full_screen2:
-     if (mode_square>-1&&mode_square!=mode_stretch){//usable 1:1 mode exists (that isn't same as stretched mode)
-     full_screen=2;
-     if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
-     full_screen_change=1;
-     screen_last_valid=0;
-
-     if (!mouse_hideshow_called){
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){
-     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-     }
-     #endif
-     //NO_S_D_L//SDL_ShowCursor(0);
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){ 
-     lock_mainloop=0; Sleep(1);//unlock
-     } 
-     #endif
-     }
-
-     goto full_screen_toggle_done;
-     }
-     }
-     //back to windowed mode
-     full_screen0:
-     full_screen=0;
-     full_screen_change=1;
-     screen_last_valid=0;
-
-     if (!mouse_hideshow_called){
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){
-     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-     }
-     #endif
-     //NO_S_D_L//SDL_ShowCursor(1);
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){ 
-     lock_mainloop=0; Sleep(1);//unlock
-     } 
-     #endif
-     }
-
-     }
-     full_screen_toggle_done:
-     full_screen_set=-1;
-      */
-
-
 
       x=display_page->width; y=display_page->height;
       if (display_page->compatible_mode==0){
@@ -33769,12 +32746,7 @@ QB64_GAMEPAD_INIT();
   }
   #endif
 
-  #ifdef QB64_LINUX
-  #ifdef QB64_GUI //Cannot have X11 events without a GUI
-  #ifndef QB64_MACOSX
-  #ifndef QB64_ANDROID
-
-
+#if defined(QB64_LINUXONLY) && defined(QB64_GUI)
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info){
     if (*qb64_os_event_info==OS_EVENT_PRE_PROCESSING){
 
@@ -33803,9 +32775,6 @@ QB64_GAMEPAD_INIT();
     }
     return;
   }
-  #endif
-  #endif
-  #endif
   #endif
 
   extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2){
