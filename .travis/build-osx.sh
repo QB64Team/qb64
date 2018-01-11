@@ -1,18 +1,17 @@
 #!/bin/sh
-if [ "$TRAVIS_OS_NAME" = "osx" ]; then exec .travis/build-osx.sh; fi
 
 ###### Part 1: Build old QB64 ######
 echo "Preparing bootstrap:"
-find . -type f -iname "*.sh" -exec chmod +x {} \;
+find . -type f -iname "*.command" -exec chmod +x {} \;
 find . -type f -iname "*.a" -exec rm {} \;
 find . -type f -iname "*.o" -exec rm {} \;
 
 rm internal/temp/* 2> /dev/null
 
 com_build() {
-  cd internal/c/$1/os/lnx
+  cd internal/c/$1/os/osx
   echo -n "Building $2..."
-  ./setup_build.sh
+  ./setup_build.command
   if [ $? -ne 0 ]; then
     echo "$2 build failed."
     exit 1
@@ -23,12 +22,11 @@ com_build() {
 
 com_build "libqb" "libQB"
 com_build "parts/video/font/ttf" "FreeType"
-com_build "parts/core" "FreeGLUT"
  
 cp -r internal/source/* internal/temp/
 cd internal/c
 echo -n "Bootstrapping QB64..."
-g++ -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -DDEPENDENCY_USER_MODS -o ../../qb64_bootstrap
+g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64_bootstrap
 if [ $? -ne 0 ]; then
   echo "QB64 bootstrap failed"
   exit 1
@@ -63,13 +61,4 @@ fi
 cd ../../
 rm qb64_testrun
 echo "Done"
-if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "master" ]; then exit; fi
-
-###### Part 3: Establish new bootstrapee ######
-rm internal/source/*
-mv internal/temp/* internal/source/
-find . -type f -iname "*.a" -exec rm {} \;
-find . -type f -iname "*.o" -exec rm {} \;
-cd internal/source
-rm debug_* recompile_*
-
+exit
