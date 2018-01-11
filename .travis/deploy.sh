@@ -1,5 +1,7 @@
 #!/bin/sh
 
+if [ "$TRAVIS_OS_NAME" != "linux" ]; then exit; fi
+
 # Prepare archives
 # mainversion=`awk '$1=="Version$" {split($3, A, /\"/);print A[2];}' < source/global/version.bas`
 # buildnum=`awk '$1=="BuildNum$" {split($3,A, /[\"\/]/); print A[3];}' < source/global/version.bas`
