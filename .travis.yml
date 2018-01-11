@@ -11,6 +11,8 @@ notifications:
   irc:
     channels: chat.freenode.net#qb64
     skip_join: true
+    template:
+        - "Autobuild of branch %{branch}: %{message}"
 
 addons:
   ssh_known_hosts: qb64.org
