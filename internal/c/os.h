@@ -27,7 +27,7 @@
  #endif
 #endif
 
-#if _WIN64 || __x86_64__ || __ppc64__ || QB64_MACOSX
+#if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__) || defined(QB64_MACOSX)
  #define QB64_64
 #else
  #define QB64_32
