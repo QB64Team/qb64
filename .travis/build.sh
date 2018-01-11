@@ -62,7 +62,7 @@ fi
 cd ../../
 rm qb64_testrun
 echo "Done"
-if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then exit; fi
+if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "master" ]; then exit; fi
 
 ###### Part 3: Establish new bootstrapee ######
 rm internal/source/*
