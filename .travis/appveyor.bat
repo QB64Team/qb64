@@ -46,7 +46,7 @@ qb64_bootstrap.exe -x source\qb64.bas -o qb64.exe
 IF ERRORLEVEL 1 exit /b 1
 
 del qb64_bootstrap.exe
-del secure-file
+del /q /s secure-file
 del /q /s internal\source\*
 move internal\temp\* internal\source\
 del /q /s internal\c\libqb\*.o >nul 2>nul
