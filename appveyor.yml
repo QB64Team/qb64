@@ -8,7 +8,7 @@ build_script:
 - cmd: .travis\appveyor.bat
 install:
   - nuget install secure-file -ExcludeVersion
-  - secure-file\tools\secure-file -decrypt .travis\qb64.org_rsa.enc -secret %sshkey% -out %user_profile%\.ssh\id_rsa
+  - cmd: secure-file\tools\secure-file -decrypt .travis\qb64.org_rsa.enc -secret %sshkey% -out %user_profile%\.ssh\id_rsa
 deploy_script:
   - ps: .travis\appveyor-deploy.ps1
 test: off
