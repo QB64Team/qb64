@@ -12,5 +12,3 @@ install:
 deploy_script:
   - ps: .travis\appveyor-deploy.ps1
 test: off
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
