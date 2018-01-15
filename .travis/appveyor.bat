@@ -42,7 +42,7 @@ IF ERRORLEVEL 1 exit /b 1
 cd ..\..
 
 echo Compiling new QB64
-echo AutoBuildMsg$ = CHR$(10) + "From git %APPVEYOR_REPO_COMMIT:~0,7%" + CHR$(10) >> source\global\version.bas
+echo AutoBuildMsg$ = CHR$(10) + "From git %APPVEYOR_REPO_COMMIT:~0,7%" >> source\global\version.bas
 qb64_bootstrap.exe -x source\qb64.bas -o qb64.exe
 IF ERRORLEVEL 1 exit /b 1
 
