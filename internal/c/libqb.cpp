@@ -172,7 +172,7 @@ void setbits(uint32 bsize,uint8 *base,ptrszint i,int64 val){
 #include <libgen.h> //required for dirname()
 #endif
 
-#ifdef QB64_X11
+#ifdef QB64_LINUX
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -24227,7 +24227,7 @@ int32 func__exit(){
 
 
 
-#if defined(QB64_LINUX) && defined(QB64_X11)
+#if defined(QB64_LINUX)
 
 //X11 clipboard interface for Linux
 //SDL_SysWMinfo syswminfo;
@@ -24414,7 +24414,7 @@ if (x11selectionowner!=None){
    return;
 #endif
 
-#if defined(QB64_LINUX) && defined(QB64_X11)
+#if defined(QB64_LINUX)
    static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
    qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
    x11clipboardcopy((char*)textz->chr);
@@ -24641,7 +24641,7 @@ return -1;
     return NULL;
 #endif
 
-#if defined(QB64_LINUX) && defined(QB64_X11)
+#if defined(QB64_LINUX)
     qbs *text;
     char *cp=x11clipboardpaste();
     cp=x11clipboardpaste();
