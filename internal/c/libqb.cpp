@@ -319,7 +319,7 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
   extern "C" LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info);
 #endif
 
-#if defined(QB64_LINUXONLY) && defined(QB64_GUI)
+#if defined(QB64_LINUX) && defined(QB64_GUI)
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info);
 #endif
 
@@ -902,7 +902,7 @@ int64 orwl_gettime(void) {
 }
 #endif
 
-#ifdef QB64_LINUXONLY
+#ifdef QB64_LINUX
 int64 GetTicks(){
   struct timespec tp;
   clock_gettime(CLOCK_MONOTONIC, &tp);
@@ -14436,7 +14436,7 @@ int32 func__hasfocus() {
         #ifdef QB64_WINDOWS
             while (!window_handle){Sleep(100);}
             return -(window_handle==GetForegroundWindow());
-        #elif defined(QB64_LINUXONLY)
+        #elif defined(QB64_LINUX)
             return window_focused;
         #endif
     #endif
@@ -24227,7 +24227,7 @@ int32 func__exit(){
 
 
 
-#if defined(QB64_LINUXONLY) && defined(QB64_X11)
+#if defined(QB64_LINUX) && defined(QB64_X11)
 
 //X11 clipboard interface for Linux
 //SDL_SysWMinfo syswminfo;
@@ -24414,7 +24414,7 @@ if (x11selectionowner!=None){
    return;
 #endif
 
-#if defined(QB64_LINUXONLY) && defined(QB64_X11)
+#if defined(QB64_LINUX) && defined(QB64_X11)
    static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
    qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
    x11clipboardcopy((char*)textz->chr);
@@ -24641,7 +24641,7 @@ return -1;
     return NULL;
 #endif
 
-#if defined(QB64_LINUXONLY) && defined(QB64_X11)
+#if defined(QB64_LINUX) && defined(QB64_X11)
     qbs *text;
     char *cp=x11clipboardpaste();
     cp=x11clipboardpaste();
@@ -27590,7 +27590,7 @@ return -1;
   #else
     tqbs=qbs_new_txt("[WINDOWS][64BIT]");
   #endif
-#elif defined(QB64_LINUXONLY)
+#elif defined(QB64_LINUX)
   #ifdef QB64_32
     tqbs=qbs_new_txt("[LINUX][32BIT]");
   #else
@@ -29682,7 +29682,7 @@ qbs *func__dir(qbs* context_in){
   extern void set_dynamic_info();
   int main( int argc, char* argv[] ){
 
-#if defined(QB64_LINUXONLY) && defined(X11)
+#if defined(QB64_LINUX) && defined(X11)
     XInitThreads();
 #endif
 
@@ -29961,7 +29961,7 @@ qbs_set(startDir,func__cwd());
       }
     }
     chdir(exepath);
-#elif defined(QB64_LINUXONLY)
+#elif defined(QB64_LINUX)
                 {
                         char pathbuf[65536];
                         memset(pathbuf, 0, sizeof(pathbuf));
@@ -32746,7 +32746,7 @@ QB64_GAMEPAD_INIT();
   }
   #endif
 
-#if defined(QB64_LINUXONLY) && defined(QB64_GUI)
+#if defined(QB64_LINUX) && defined(QB64_GUI)
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info){
     if (*qb64_os_event_info==OS_EVENT_PRE_PROCESSING){
 

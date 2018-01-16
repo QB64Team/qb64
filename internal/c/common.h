@@ -22,7 +22,7 @@
 #define QB64_GL1
 #define QB64_GLUT
 
-#ifdef QB64_LINUXONLY
+#ifdef QB64_LINUX
   #define QB64_X11
 #endif
 
