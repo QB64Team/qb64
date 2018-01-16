@@ -105,29 +105,6 @@ if (isHardware){
 }
 
 return i;
-
-
-#ifndef NO_S_D_L
-static qbs *tqbs=NULL,*nullt=NULL;
-static int32 i;
-if (new_error) return 0;
-//validate bpp
-if (passed){
-if ((bpp!=32)&&(bpp!=256)){error(5); return 0;}
-}else{
-if (write_page->text){error(5); return 0;}
-bpp=-1;
-}
-if (!f->len) return -1;//return invalid handle if null length string
-if (!tqbs) tqbs=qbs_new(0,0);
-if (!nullt){nullt=qbs_new(1,0); nullt->chr[0]=0;}
-qbs_set(tqbs,qbs_add(f,nullt));
-i=imgload(fixdir(tqbs),bpp);
-if (!i) return -1;//failed
-return -i;
-return -1;
-#endif //NO_S_D_L
-
 }
 
 #endif

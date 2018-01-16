@@ -1021,7 +1021,6 @@ sub_close(NULL,NULL);//closes all open files
 //free images
 freeallimages();
 //stop & free sounds (note: QB also stops any sound from the PLAY command)
-//NO_S_D_L//sndcloseall();
 //invalidate RETURN location(s)
 next_return_point=0;
 //reset error goto location to 'unhandled'

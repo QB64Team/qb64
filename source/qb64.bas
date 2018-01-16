@@ -9515,7 +9515,6 @@ DO
                                 IF a3$ = "" THEN a3$ = a2$ ELSE a3$ = a3$ + sp + a2$
                             NEXT
                             PRINT #12, "skip" + u$ + ":"
-                            PRINT #12, "revert_input_check();"
                             IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);"
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline

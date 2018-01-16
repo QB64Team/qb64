@@ -28,8 +28,6 @@
  #define QB64_GUI
 #endif
 
-#define NO_S_D_L
-
 //core
 #ifdef QB64_GUI
 #ifdef QB64_GLUT
