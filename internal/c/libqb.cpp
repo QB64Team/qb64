@@ -1,18 +1,9 @@
-#include "common.cpp"
+#include "common.h"
 #include "libqb.h"
 
 #ifdef QB64_GUI
  #include "parts/core/glew/src/glew.c"
 #endif
-
-
-#ifdef QB64_ANDROID
-        #include <cstdlib> //required for system()
-  struct android_app* android_state;
-  JavaVM* android_vm;
-  JNIEnv* android_env;
-#endif
-
 
 #ifdef QB64_WINDOWS
 #include <fcntl.h>
@@ -34,13 +25,154 @@
 
 int32 disableEvents=0;
 
+//This next block used to be in common.cpp; put here until I can find a better
+//place for it (LC, 2018-01-05)
+#ifndef QB64_WINDOWS
+void Sleep(uint32 milliseconds){
+    static uint64 sec,nsec;
+    sec=milliseconds/1000;
+    nsec=(milliseconds%1000)*1000000;
+    static timespec ts;
+    ts.tv_sec = sec;
+    ts.tv_nsec = nsec;
+    nanosleep (&ts, NULL);
+}
 
-#ifdef QB64_LINUX
+uint32 _lrotl(uint32 word,uint32 shift){
+  return (word << shift) | (word >> (32 - shift));
+}
+
+void ZeroMemory(void *ptr,int64 bytes){
+  memset(ptr,0,bytes);
+}
+#endif
+#ifdef QB64_NOT_X86
+int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  if (f<0) i=f-0.5f; else i=f+0.5f;
+  if (temp) return i|0x8000000000000000;//+9223372036854775808;
+  return i;
+}
+uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+#else
+//QBASIC compatible rounding via FPU:
+#ifdef QB64_MICROSOFT
+int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  __asm{
+      fld   f
+      fistp i
+      }
+  if (temp) return i|0x8000000000000000;//+9223372036854775808;
+  return i;
+}
+uint64 qbr_longdouble_to_uint64(long double f){
+  uint64 i;
+  __asm{
+    fld   f
+      fistp i
+      }
+  return i;
+}
+int32 qbr_float_to_long(float f){
+  int32 i;
+  __asm{
+    fld   f
+      fistp i
+      }
+  return i;
+}
+int32 qbr_double_to_long(double f){
+  int32 i;
+  __asm{
+    fld   f
+      fistp i
+      }
+  return i;
+}
+#else
+//FLDS=load single
+//FLDL=load double
+//FLDT=load long double
+int64 qbr(long double f){
+  int64 i; int temp=0;
+  if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+  __asm__ (
+           "fldt %1;"
+           "fistpll %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
+  return i;
+}
+uint64 qbr_longdouble_to_uint64(long double f){
+  uint64 i;
+  __asm__ (
+           "fldt %1;"
+           "fistpll %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  return i;
+}
+int32 qbr_float_to_long(float f){
+  int32 i;
+  __asm__ (
+           "flds %1;"
+           "fistpl %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  return i;
+}
+int32 qbr_double_to_long(double f){
+  int32 i;
+  __asm__ (
+           "fldl %1;"
+           "fistpl %0;"              
+           :"=m" (i)
+           :"m" (f)
+           );
+  return i;
+}
+#endif
+#endif //x86 support
+//bit-array access functions (note: used to be included through 'bit.cpp')
+uint64 getubits(uint32 bsize,uint8 *base,ptrszint i){
+  int64 bmask;
+  bmask=~(-(((int64)1)<<bsize));
+  i*=bsize;
+  return ((*(uint64*)(base+(i>>3)))>>(i&7))&bmask;
+}
+int64 getbits(uint32 bsize,uint8 *base,ptrszint i){
+  int64 bmask, bval64;
+  bmask=~(-(((int64)1)<<bsize));
+  i*=bsize;
+  bval64=((*(uint64*)(base+(i>>3)))>>(i&7))&bmask;
+  if (bval64&(((int64)1)<<(bsize-1))) return bval64|(~bmask);
+  return bval64;
+}
+void setbits(uint32 bsize,uint8 *base,ptrszint i,int64 val){
+  int64 bmask;
+  uint64 *bptr64;
+  bmask=(((uint64)1)<<bsize)-1;
+  i*=bsize;
+  bptr64=(uint64*)(base+(i>>3));
+  *bptr64=(*bptr64&( ( (bmask<<(i&7)) ^-1)  )) | ((val&bmask)<<(i&7));
+}
+
+
+#ifdef QB64_UNIX
 #include <pthread.h>
 #include <libgen.h> //required for dirname()
 #endif
 
-#ifdef QB64_X11
+#ifdef QB64_LINUX
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -187,14 +319,8 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
   extern "C" LRESULT qb64_os_event_windows(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, int *qb64_os_event_info);
 #endif
 
-#ifdef QB64_LINUX
-#ifdef QB64_GUI //Cannot have X11 events without a GUI
-#ifndef QB64_MACOSX
-#ifndef QB64_ANDROID
+#if defined(QB64_LINUX) && defined(QB64_GUI)
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info);
-#endif
-#endif
-#endif
 #endif
 
 #define QB64_EVENT_CLOSE 1
@@ -307,64 +433,61 @@ int64 display_frame_order_next=1;
 int64 last_rendered_hardware_display_frame_order=0;
 int64 last_hardware_display_frame_order=0;
 
-
-
-
-
-
-
-
-//Mutex support (Windows only atm)
-
-struct MUTEX{
-  #ifdef QB64_WINDOWS
+#ifdef QB64_WINDOWS
+struct MUTEX {
     HANDLE handle;
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_t handle;
-  #endif
 };
 
 MUTEX* new_mutex(){
-  MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
-  #ifdef QB64_WINDOWS
+    MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
     m->handle=CreateMutex(
-        NULL,              // default security attributes
-        FALSE,             // initially not owned
-        NULL);             // unnamed mutex
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_init(&m->handle, NULL);
-  #endif
-  return m;
+            NULL,              // default security attributes
+            FALSE,             // initially not owned
+            NULL);             // unnamed mutex
+    return m;
 }
 
 void free_mutex(MUTEX *mutex){
-  //todo
+    //todo
 }
 
 void lock_mutex(MUTEX *m){
-  if (m==NULL) return;
-  #ifdef QB64_WINDOWS
+    if (m==NULL) return;
     WaitForSingleObject(
             m->handle,    // handle to mutex
             INFINITE);  // no time-out interval
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_lock(&m->handle);
-  #endif
+}
+
+void unlock_mutex(MUTEX *m) {
+    if (m==NULL) return;
+    ReleaseMutex(m->handle);
+}
+#endif
+#ifdef QB64_UNIX
+struct MUTEX{
+	pthread_mutex_t handle;
+};
+
+MUTEX* new_mutex(){
+	MUTEX *m=(MUTEX*)calloc(1,sizeof(MUTEX));
+	pthread_mutex_init(&m->handle, NULL);
+	return m;
+}
+
+void free_mutex(MUTEX *mutex){
+	//todo
+}
+
+void lock_mutex(MUTEX *m){
+	if (m==NULL) return;
+	pthread_mutex_lock(&m->handle);
 }
 
 void unlock_mutex(MUTEX *m){
-  if (m==NULL) return;
-  #ifdef QB64_WINDOWS
-    ReleaseMutex(m->handle);
-  #endif
-  #ifdef QB64_LINUX
-    pthread_mutex_unlock(&m->handle);
-  #endif
+	if (m==NULL) return;
+	pthread_mutex_unlock(&m->handle);
 }
-
+#endif
 
 
 //List Interface
@@ -779,19 +902,22 @@ int64 orwl_gettime(void) {
 }
 #endif
 
+#ifdef QB64_LINUX
 int64 GetTicks(){
-#if defined QB64_LINUX && !defined QB64_MACOSX // && !defined QB64_ANDROID //NOTE: ANDROID MUST USE THIS TOO
   struct timespec tp;
   clock_gettime(CLOCK_MONOTONIC, &tp);
   return tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-#else
- #ifdef QB64_MACOSX
-    return orwl_gettime();
- #else
-        return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );        
- #endif        
-#endif
 }
+#elif defined QB64_MACOSX
+int64 GetTicks(){
+    return orwl_gettime();
+}
+#else
+int64 GetTicks(){
+        return ( ( ((int64)clock()) * ((int64)1000) ) / ((int64)CLOCKS_PER_SEC) );        
+}
+#endif
+
 
 #define QBK 200000
 #define VK 100000
@@ -1391,31 +1517,6 @@ int32 *font=(int32*)calloc(4*(48+1),1);//NULL=unused index
 int32 *fontheight=(int32*)calloc(4*(48+1),1);
 int32 *fontwidth=(int32*)calloc(4*(48+1),1);
 int32 *fontflags=(int32*)calloc(4*(48+1),1);
-
-
-
-
-#ifdef QB64_WINDOWS
-//NO_S_D_L// #define QB64_IME
-#endif
-
-//keyboard input upgrade
-
-//global IME related variables
-#ifdef QB64_IME
-int32 ime_DrawMessageBlock_lastpixeloffset=0;
-SDL_Surface *ime_back;
-static qbs *imefontname;
-static qbs *imefontname2;
-static qbs *imefontname3;
-static qbs *imefontname4;
-static int32 ime_font=NULL;
-#endif
-int32 qb64_ime_reading=0;
-
-
-
-
 
 //keyhit cyclic buffer
 int64 keyhit[8192];
@@ -2127,1483 +2228,6 @@ void keyup_vk(uint32 x){
 }
 
 
-
-#ifndef NO_S_D_L
-
-#ifdef QB64_IME
-
-#include <Imm.h> //Microsoft specific include QB64 IME support is dependent on
-
-//---------------------------------------------start of SDL_inputmethod.h--------------------------------------------------------------------
-/*
-  SDL_inputmethod
-  Copyright (C) 2004  Kazunori Itoyanagi
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Library General Public
-  License as published by the Free Software Foundation; either
-  version 2 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Library General Public License for more details.
-
-  You should have received a copy of the GNU Library General Public
-  License along with this library; if not, write to the Free
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-  ITOYANAGI Kazunori
-  itkz@users.sourceforge.jp
-*/
-
-#ifndef _SDL_ime_H_
-#define _SDL_ime_H_
-
-/*
-  #include <stdio.h>
-  #include "SDL_version.h"
-  #include "SDL.h"
-*/
-#include "begin_code.h"
-
-#define INPUT_METHOD_MAJOR_VERSION  0
-#define INPUT_METHOD_MINOR_VERSION  1
-#define INPUT_METHOD_PATCHLEVEL     0
-
-/* This macro can be used to fill a version structure with the compile-time
- * version of the SDL_inputmethod library.
- */
-#define INPUTMETHOD_VERSION(X)          \
-  {                     \
-    (X)->major = INPUT_METHOD_MAJOR_VERSION;    \
-    (X)->minor = INPUT_METHOD_MINOR_VERSION;    \
-    (X)->patch = INPUT_METHOD_PATCHLEVEL;   \
-  }
-
-
-/* Set up for C function definitions, even when using C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-
-
-  /* public ... for Applications */
-
-  typedef enum
-    {
-      INPUT_METHOD_MESSAGE_ON,
-      INPUT_METHOD_MESSAGE_CHANGE,
-      INPUT_METHOD_MESSAGE_RESULT,
-      INPUT_METHOD_MESSAGE_OFF,
-      INPUT_METHOD_MESSAGE_CHAR,
-      INPUT_METHOD_MESSAGE_NO_EXIST
-    } InputMethod_Message;
-
-  typedef enum
-    {
-      INPUT_METHOD_SUCCESS = 0,
-      INPUT_METHOD_ERROR_ALREADY_INIT,
-      INPUT_METHOD_ERROR_ALLOCATED_MEMORY,
-      INPUT_METHOD_ERROR_NO_STRING,
-      INPUT_METHOD_ERROR_UNKNOWN_MESSAGE,
-      INPUT_METHOD_ERROR_SDL_NO_INIT,
-      INPUT_METHOD_ERROR_NO_INIT,
-      INPUT_METHOD_ERROR_SYSTEM_SPECIFIC,
-      INPUT_METHOD_ERROR_ALREADY_VALIDATED,
-      INPUT_METHOD_ERROR_ALREADY_INVALIDATED,
-      INPUT_METHOD_ERROR_NOT_AVAILABLE,
-      INPUT_METHOD_ERROR_INVALID_BOOTSTRAP
-    } InputMethod_Result;
-
-  /*
-    typedef enum
-    {
-    INPUT_METHOD_STATUS_ON,
-    INPUT_METHOD_STATUS_OFF
-    } InputMethod_Status;
-  */
-
-  extern DECLSPEC InputMethod_Result SDLCALL InputMethod_Init(void);
-
-  extern DECLSPEC int SDLCALL InputMethod_GetEventNumber(void);
-  extern DECLSPEC void SDLCALL InputMethod_MoveNextEvent(void);
-  extern DECLSPEC InputMethod_Message SDLCALL InputMethod_GetCurrentMessage(void);
-  extern DECLSPEC Uint16 * SDLCALL InputMethod_GetCurrentEditingString(void);
-  extern DECLSPEC Uint16 SDLCALL InputMethod_GetCurrentChar(void);
-  extern DECLSPEC int SDLCALL InputMethod_GetCurrentCursorPosition(void);
-  extern DECLSPEC int SDLCALL InputMethod_GetCurrentCompositionPosition(void);
-  extern DECLSPEC int SDLCALL InputMethod_GetCurrentCompositionLength(void);
-  extern DECLSPEC void SDLCALL InputMethod_Reset(void);
-  extern DECLSPEC InputMethod_Result SDLCALL InputMethod_Validate(void);
-  extern DECLSPEC InputMethod_Result SDLCALL InputMethod_Invalidate(void);
-  extern DECLSPEC Uint16 * SDLCALL InputMethod_GetInputMethodName(void);
-  extern DECLSPEC void SDLCALL InputMethod_Quit(void);
-
-
-
-
-
-  /* protected? ... for add other Input Methods */
-
-#define INPUT_METHOD_NAME_STRING_LENGTH 256
-
-  typedef struct _SDL_InputMethod
-  {
-    SDL_bool (*available)(void);
-    InputMethod_Result (*init)(void);
-    void (*quit)(void);
-    void (*reset)(void);
-    InputMethod_Result (*validate)(void);
-    InputMethod_Result (*invalidate)(void);
-    
-    /*
-      Return value is Input Method name in Unicode.
-      You have to set string to `InputMethodName' and
-      return this in get_name(),
-      because get_name() is a possible
-      to call without init() and quit(),
-      and so even if use malloc() to string, no time to free().
-    */
-    Uint16 *(*get_name)(void);
-    Uint16 InputMethodName[INPUT_METHOD_NAME_STRING_LENGTH];
-    /*
-      InputMethod_Status (*get_status)(void);
-      void (*set_status)(InputMethod_Status status);
-    */
-  } SDL_InputMethod;
-
-  extern DECLSPEC InputMethod_Result SDLCALL InputMethod_PostEvent(
-                                   InputMethod_Message message,
-                                   Uint16 *editingString,
-                                   int cursorPosition,
-                                   int compositionPosition,
-                                   int compositionLength);
-  extern DECLSPEC InputMethod_Result SDLCALL InputMethod_InitFromOther(
-                                       SDL_InputMethod inputMethod);
-
-
-
-
-
-  /* private */
-
-#ifdef ENABLE_WIN32
-  extern SDL_InputMethod InputMethod_win32;
-#endif
-#ifdef ENABLE_XIM
-  extern SDL_InputMethod InputMethod_xim;
-#endif
-  /* Ends C function definitions when using C++ */
-#ifdef __cplusplus
-}
-#endif
-#include "close_code.h"
-#endif
-//---------------------------------------------end of SDL_inputmethod.h--------------------------------------------------------------------
-
-//---------------------------------------------start of SDL_inputmethod.c--------------------------------------------------------------------
-/*
-  SDL_inputmethod
-  Copyright (C) 2004  Kazunori Itoyanagi
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Library General Public
-  License as published by the Free Software Foundation; either
-  version 2 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Library General Public License for more details.
-
-  You should have received a copy of the GNU Library General Public
-  License along with this library; if not, write to the Free
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-  ITOYANAGI Kazunori
-  itkz@users.sourceforge.jp
-*/
-
-static SDL_InputMethod *InputMethod_BootStrap[] =
-  {
-#ifdef ENABLE_WIN32
-    &InputMethod_win32,
-#endif
-#ifdef ENABLE_XIM
-    &InputMethod_xim,
-#endif
-    NULL
-  };
-
-
-typedef struct _InputMethod_Event
-{
-  InputMethod_Message message;
-  Uint16 *editingString;
-  int cursorPosition;
-  struct _InputMethod_Event *next;
-  int compositionPosition;
-  int compositionLength;
-  Uint16 character;
-} InputMethod_Event;
-
-
-static SDL_InputMethod *InputMethod_Use = NULL;
-SDL_EventFilter OriginalFilterSDL = NULL;
-
-static InputMethod_Event *InputMethod_EventQue = NULL;
-static int InputMethod_EventQueNumber = 0;
-static int32 IsOriginalInputMethod = SDL_FALSE;
-static int32 IsInited = SDL_FALSE;
-static int32 IsValid;
-static int32 IsEnableUNICODEOld;
-
-static int InputMethod_GetUnicodeStringLength(Uint16 *unicodeString);
-static int InputMethod_SDLEventFilter(const SDL_Event *e);
-static void InputMethod_SetEventFilter(void);
-static void InputMethod_RestoreEventFilter(void);
-static InputMethod_Result InputMethod_PostCharEvent(Uint16 unicode);
-
-
-void InputMethod_SetEventFilter(void)
-{
-  IsEnableUNICODEOld = SDL_EnableUNICODE(1);
-  //OriginalFilterSDL = SDL_GetEventFilter();
-  //SDL_SetEventFilter(InputMethod_SDLEventFilter);
-}
-
-
-void InputMethod_RestoreEventFilter(void)
-{
-  SDL_EnableUNICODE(IsEnableUNICODEOld);
-  //SDL_SetEventFilter(OriginalFilterSDL);
-  //OriginalFilterSDL = NULL;
-}
-
-
-InputMethod_Result InputMethod_Init(void)
-{
-  int i;
-  InputMethod_Result result;
-    
-  if (IsInited == 1) {
-    return INPUT_METHOD_ERROR_ALREADY_INIT;
-  }
-    
-
-    
-  for (i = 0; InputMethod_BootStrap[i]; i++) {
-    if (InputMethod_BootStrap[i]->available()) {
-            
-            
-      InputMethod_Use = InputMethod_BootStrap[i];
-      break;
-            
-            
-
-    }
-  }
-    
-
-
-  InputMethod_SetEventFilter();
-  if (InputMethod_Use != NULL) {
-    result = InputMethod_Use->init();
-    if (result != INPUT_METHOD_SUCCESS) {
-      InputMethod_Use->quit();
-      InputMethod_Use = NULL;
-      InputMethod_RestoreEventFilter();
-      return result;
-    }
-  }
-  InputMethod_EventQue = NULL;
-  InputMethod_EventQueNumber = 0;
-  IsOriginalInputMethod = SDL_FALSE;
-  IsValid = 1;
-  IsInited = 1;
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-void InputMethod_Quit(void)
-{
-  InputMethod_Event *event;
-  InputMethod_Event *next;
-    
-  if (InputMethod_Use != NULL) {
-    if (InputMethod_Use->quit != NULL) {
-      InputMethod_Use->quit();
-    }
-    if (IsOriginalInputMethod) {
-      free(InputMethod_Use);
-    }
-    InputMethod_Use = NULL;
-  }
-    
-  event = InputMethod_EventQue;
-  while (event != NULL) {
-    next = event->next;
-    if (event->editingString != NULL) {
-      free(event->editingString);
-    }
-    free(event);
-    event = next;
-  }
-  InputMethod_EventQue = NULL;
-  InputMethod_EventQueNumber = 0;
-  IsOriginalInputMethod = SDL_FALSE;
-  IsInited = SDL_FALSE;
-  InputMethod_RestoreEventFilter();
-}
-
-
-int InputMethod_BootstrapNum(void)
-{
-  int count;
-    
-  count = 0;
-  while (InputMethod_BootStrap[count]) {
-    count++;
-  }
-    
-  return count;
-}
-
-
-int32 InputMethod_BootstrapIsAvailable(int num) {
-  if (0 <= num && num < InputMethod_BootstrapNum()) {
-    return InputMethod_BootStrap[num]->available();
-  } else {
-    return SDL_FALSE;
-  }
-}
-
-
-Uint16 *InputMethod_BootstrapGetInputMethodName(int num) {
-  if (0 <= num && num < InputMethod_BootstrapNum()) {
-    if (InputMethod_BootStrap[num]->available()) {
-      return InputMethod_BootStrap[num]->get_name();
-    }
-  }
-  return NULL;
-}
-
-
-InputMethod_Result InputMethod_InitFromBootstrap(int num)
-{
-  InputMethod_Result result;
-    
-  if (IsInited == 1) {
-    return INPUT_METHOD_ERROR_ALREADY_INIT;
-  }
-    
-  if (0 <= num && num < InputMethod_BootstrapNum()) {
-    if (InputMethod_BootStrap[num]->available()) {
-      InputMethod_Use = InputMethod_BootStrap[num];
-    } else {
-      return INPUT_METHOD_ERROR_NOT_AVAILABLE;
-    }
-  } else {
-    return INPUT_METHOD_ERROR_INVALID_BOOTSTRAP;
-  }
-    
-  result = InputMethod_Use->init();
-  if (result != INPUT_METHOD_SUCCESS) {
-    InputMethod_Use->quit();
-    InputMethod_Use = NULL;
-    return result;
-  }
-  InputMethod_EventQue = NULL;
-  InputMethod_EventQueNumber = 0;
-  IsOriginalInputMethod = SDL_FALSE;
-  IsValid = 1;
-  IsInited = 1;
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-void InputMethod_Reset(void)
-{
-  InputMethod_Event *event;
-  InputMethod_Event *next;
-    
-  event = InputMethod_EventQue;
-  while (event != NULL) {
-    next = event->next;
-    if (event->editingString != NULL) {
-      free(event->editingString);
-    }
-    free(event);
-    event = next;
-  }
-  InputMethod_EventQue = NULL;
-  InputMethod_EventQueNumber = 0;
-    
-  if (InputMethod_Use != NULL) {
-    if (InputMethod_Use->reset != NULL) {
-      InputMethod_Use->reset();
-    }
-  }
-}
-
-
-InputMethod_Result InputMethod_Validate(void)
-{
-  InputMethod_Result result;
-    
-  if (InputMethod_Use == NULL) {
-    SDL_SetError("Input method is no init");
-    return INPUT_METHOD_ERROR_NO_INIT;
-  }
-    
-  if (IsValid == 1) {
-    return INPUT_METHOD_ERROR_ALREADY_VALIDATED;
-  }
-    
-  if (InputMethod_Use != NULL) {
-    if (InputMethod_Use->validate != NULL) {
-      result = InputMethod_Use->validate();
-
-      if (result == INPUT_METHOD_SUCCESS) {
-    IsValid = 1;
-      }
-      return result;
-    }
-  }
-    
-  SDL_SetError("Input method is no init");
-  return INPUT_METHOD_ERROR_NO_INIT;
-}
-
-
-InputMethod_Result InputMethod_Invalidate(void)
-{
-  InputMethod_Result result;
-    
-  if (InputMethod_Use == NULL) {
-    SDL_SetError("Input method is no init");
-    return INPUT_METHOD_ERROR_NO_INIT;
-  }
-    
-  if (IsValid == SDL_FALSE) {
-    return INPUT_METHOD_ERROR_ALREADY_INVALIDATED;
-  }
-    
-  if (InputMethod_Use != NULL) {
-    if (InputMethod_Use->invalidate !=NULL) {
-      result = InputMethod_Use->invalidate();
-      if (result == INPUT_METHOD_SUCCESS) {
-    IsValid = SDL_FALSE;
-      }
-      return result;
-    }
-  }
-    
-  SDL_SetError("Input method is no init");
-  return INPUT_METHOD_ERROR_NO_INIT;
-}
-
-
-int InputMethod_GetEventNumber(void)
-{
-  return InputMethod_EventQueNumber;
-}
-
-
-void InputMethod_MoveNextEvent(void)
-{
-  InputMethod_Event *next;
-    
-  if (InputMethod_EventQueNumber > 0) {
-    if (InputMethod_EventQue->editingString != NULL) {
-      free(InputMethod_EventQue->editingString);
-    }
-        
-    if (InputMethod_EventQue != NULL) {
-      next = InputMethod_EventQue->next;
-      free(InputMethod_EventQue);
-      InputMethod_EventQue = next;
-    }
-        
-    InputMethod_EventQueNumber--;
-  }
-}
-
-
-InputMethod_Message InputMethod_GetCurrentMessage(void)
-{
-  if (InputMethod_EventQue == NULL) {
-    SDL_SetError("Message is not found");
-    return INPUT_METHOD_MESSAGE_NO_EXIST;
-  } else {
-    return InputMethod_EventQue->message;
-  }
-}
-
-
-Uint16 *InputMethod_GetCurrentEditingString(void)
-{
-  if (InputMethod_EventQue == NULL) {
-    return NULL;
-  }
-    
-  return InputMethod_EventQue->editingString;
-}
-
-
-Uint16 InputMethod_GetCurrentChar(void)
-{
-  if (InputMethod_EventQue == NULL) {
-    return 0x0000;
-  }
-    
-  return InputMethod_EventQue->character;
-}
-
-
-int InputMethod_GetCurrentCursorPosition(void)
-{
-  if (InputMethod_EventQue == NULL) {
-    return 0;
-  }
-    
-  return InputMethod_EventQue->cursorPosition;
-}
-
-
-int InputMethod_GetCurrentCompositionPosition(void)
-{
-  if (InputMethod_EventQue == NULL) {
-    return 0;
-  }
-    
-  return InputMethod_EventQue->compositionPosition;
-}
-
-
-int InputMethod_GetCurrentCompositionLength(void)
-{
-  if (InputMethod_EventQue == NULL) {
-    return 0;
-  }
-    
-  return InputMethod_EventQue->compositionLength;
-}
-
-
-Uint16 *InputMethod_GetInputMethodName(void)
-{
-  if (InputMethod_Use != NULL) {
-    if (InputMethod_Use->get_name != NULL) {
-      return InputMethod_Use->get_name();
-    }
-  }
-  return NULL;
-}
-
-
-int InputMethod_GetUnicodeStringLength(Uint16 *unicodeString)
-{
-  int i;
-    
-  if (unicodeString == NULL) {
-    return 0;
-  }
-    
-  i = 0;
-  while (unicodeString[i]) {
-    i++;
-  }
-    
-  return i;
-}
-
-
-InputMethod_Result InputMethod_PostEvent(
-                     InputMethod_Message message,
-                     Uint16 *editingString,
-                     int cursorPosition,
-                     int compositionPosition,
-                     int compositionLength)
-{
-
-  //showvalue(99998);
-  InputMethod_Event *event;
-  InputMethod_Event *lastEvent;
-  int size;
-    
-  event = (InputMethod_Event*)malloc(sizeof(InputMethod_Event));
-  if (event == NULL) {
-    SDL_SetError("Allocate memory failed");
-    return INPUT_METHOD_ERROR_ALLOCATED_MEMORY;
-  }
-  event->next = NULL;
-    
-  switch (message) {
-  case INPUT_METHOD_MESSAGE_ON:
-  case INPUT_METHOD_MESSAGE_OFF:
-    event->message = message;
-    event->editingString = NULL;
-    event->cursorPosition = 0;
-    event->compositionPosition = 0;
-    event->compositionLength = 0;
-    event->character = 0x0000;
-    break;
-  case INPUT_METHOD_MESSAGE_RESULT:
-    if (editingString == NULL) {
-      free(event);
-      SDL_SetError(
-           "post INPUT_METHOD_MESSAGE_RESULT: "
-           "Editing string is NULL");
-      return INPUT_METHOD_ERROR_NO_STRING;
-    }
-    size =
-      InputMethod_GetUnicodeStringLength(editingString) * sizeof(Uint16) +
-      sizeof(Uint16);
-    event->editingString = (Uint16*)malloc(size);
-    if (event->editingString == NULL) {
-      free(event);
-      SDL_SetError("Allocate memory failed");
-      return INPUT_METHOD_ERROR_ALLOCATED_MEMORY;
-    }
-    memcpy(event->editingString, editingString, size);
-    event->message = message;
-    event->cursorPosition = 0;
-    event->compositionPosition = 0;
-    event->compositionLength = 0;
-    event->character = 0x0000;
-    break;
-  case INPUT_METHOD_MESSAGE_CHANGE:
-    if (editingString == NULL) {
-      free(event);
-      SDL_SetError(
-           "post INPUT_METHOD_MESSAGE_CHANGE: "
-           "Editing string is NULL");
-      return INPUT_METHOD_ERROR_NO_STRING;
-    }
-    size =
-      InputMethod_GetUnicodeStringLength(editingString) * sizeof(Uint16) +
-      sizeof(Uint16);
-    event->editingString = (Uint16*)malloc(size);
-    if (event->editingString == NULL) {
-      free(event);
-      return INPUT_METHOD_ERROR_ALLOCATED_MEMORY;
-    }
-    memcpy(event->editingString, editingString, size);
-    event->message = message;
-    event->cursorPosition = cursorPosition;
-    event->compositionPosition = compositionPosition;
-    event->compositionLength = compositionLength;
-    event->character = 0x0000;
-    break;
-  default:
-    free(event);
-    SDL_SetError("post message: unknown message");
-    return INPUT_METHOD_ERROR_UNKNOWN_MESSAGE;
-  }
-    
-  if (InputMethod_EventQue == NULL) {
-    InputMethod_EventQue = event;
-  } else {
-    lastEvent = InputMethod_EventQue;
-    while (lastEvent->next != NULL) {
-      lastEvent = lastEvent->next;
-    }
-    lastEvent->next = event;
-  }
-
-  //showvalue(99999);
-  InputMethod_EventQueNumber++;
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-//IMPORTANT: THIS FUNCTION IS NOT USED BUT HAS BEEN KEPT FOR REFERENCE PURPOSES
-InputMethod_Result InputMethod_PostCharEvent(Uint16 unicode)
-{
-  //IMPORTANT: THIS FUNCTION IS NOT USED BUT HAS BEEN KEPT FOR REFERENCE PURPOSES
-
-  InputMethod_Event *event;
-  InputMethod_Event *lastEvent;
-    
-  event = (InputMethod_Event*)malloc(sizeof(InputMethod_Event));
-  if (event == NULL) {
-    SDL_SetError("Allocate memory failed");
-    return INPUT_METHOD_ERROR_ALLOCATED_MEMORY;
-  }
-  event->next = NULL;
-    
-  event->message = INPUT_METHOD_MESSAGE_CHAR;
-    
-  //exit(unicode);
-  event->character = unicode;
-  event->editingString = NULL;
-  event->cursorPosition = 0;
-  event->compositionPosition = 0;
-  event->compositionLength = 0;
-    
-  if (InputMethod_EventQue == NULL) {
-    InputMethod_EventQue = event;
-  } else {
-    lastEvent = InputMethod_EventQue;
-    while (lastEvent->next != NULL) {
-      lastEvent = lastEvent->next;
-    }
-    lastEvent->next = event;
-  }
-  InputMethod_EventQueNumber++;
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-InputMethod_Result InputMethod_InitFromOther(
-                         SDL_InputMethod inputMethod)
-{
-  InputMethod_Result result;
-    
-  if (IsInited == 1) {
-    SDL_SetError("Input method is already inited");
-    return INPUT_METHOD_ERROR_ALREADY_INIT;
-  }
-    
-  if (inputMethod.available() == SDL_FALSE) {
-    SDL_SetError("Bootstrap is invalid");
-    return INPUT_METHOD_ERROR_INVALID_BOOTSTRAP;
-  } else {
-    InputMethod_SetEventFilter();
-    result = inputMethod.init();
-    if (result != INPUT_METHOD_SUCCESS) {
-      InputMethod_RestoreEventFilter();
-      return result;
-    }
-  }
-    
-  InputMethod_Use = (SDL_InputMethod*)malloc(sizeof(SDL_InputMethod));
-  if (InputMethod_Use == NULL) {
-    inputMethod.quit();
-    SDL_SetError("Allocate memory failed");
-    return INPUT_METHOD_ERROR_ALLOCATED_MEMORY;
-  }
-    
-  memcpy(InputMethod_Use, &inputMethod, sizeof(SDL_InputMethod));
-    
-  InputMethod_EventQue = NULL;
-  InputMethod_EventQueNumber = 0;
-  IsOriginalInputMethod = 1;
-  IsValid = 1;
-  IsInited = 1;
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-//IMPORTANT: THIS FUNCTION IS NOT USED BUT HAS BEEN KEPT FOR REFERENCE PURPOSES
-int InputMethod_SDLEventFilter(const SDL_Event *e)
-{
-
-  //IMPORTANT: THIS FUNCTION IS NOT USED BUT HAS BEEN KEPT FOR REFERENCE PURPOSES
-
-  Uint8 *keys;
-  SDL_keysym keysym;
-  char ch;
-    
-  if (IsValid == 1) {
-    keys = SDL_GetKeyState(NULL);
-    keys[QBVK_UNKNOWN] = SDL_RELEASED;
-        
-    switch (e->type) {
-    case SDL_KEYDOWN:
-      keysym = ((SDL_KeyboardEvent*)e)->keysym;
-      if ( (keysym.unicode & 0xFF80) == 0 ) {
-    ch = keysym.unicode & 0x007F;
-    if (isprint(ch)) {
-      InputMethod_PostCharEvent(keysym.unicode);
-      keys[keysym.sym] = SDL_RELEASED;
-      return 0;
-    }
-      }
-      break;
-    default:
-      break;
-    }
-  }
-    
-  if (OriginalFilterSDL != NULL) {
-    return (*OriginalFilterSDL)(e);
-  }
-  return 1;
-}
-//---------------------------------------------end of SDL_inputmethod.c--------------------------------------------------------------------
-
-//---------------------------------------------start of SDL_inputmethod for Windows--------------------------------------------------------------------
-/*
-  SDL_inputmethod
-  Copyright (C) 2004  Kazunori Itoyanagi
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Library General Public
-  License as published by the Free Software Foundation; either
-  version 2 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Library General Public License for more details.
-
-  You should have received a copy of the GNU Library General Public
-  License along with this library; if not, write to the Free
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-  ITOYANAGI Kazunori
-  itkz@users.sourceforge.jp
-*/
-
-/*
-  #include <windows.h>
-  #include <winuser.h>
-  #include "SDL.h"
-*/
-#include "SDL_syswm.h"
-/*
-  #include "SDL_inputmethod.h"
-*/
-
-static SDL_bool InputMethod_AvailableWin32(void);
-static InputMethod_Result InputMethod_InitWin32(void);
-static void InputMethod_QuitWin32(void);
-static void InputMethod_ResetWin32(void);
-static InputMethod_Result InputMethod_ValidateWin32(void);
-static InputMethod_Result InputMethod_InvalidateWin32(void);
-static Uint16 *InputMethod_GetNameWin32(void);
-
-
-SDL_InputMethod InputMethod_win32 =
-  {
-    InputMethod_AvailableWin32,
-    InputMethod_InitWin32,
-    InputMethod_QuitWin32,
-    InputMethod_ResetWin32,
-    InputMethod_ValidateWin32,
-    InputMethod_InvalidateWin32,
-    InputMethod_GetNameWin32
-  };
-
-
-static WNDPROC OrigEditProc;
-//static int32 IsValid;
-static BOOL SaveOpenStatus;
-
-#define SYSTEM_SPECIFIC_NAME_STRING " on IMM"
-
-static LRESULT CALLBACK WrapProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static int CompositionProcessing(HWND hWnd, LPARAM lParam);
-static int ResultProcessing(HWND hWnd);
-static int SetOpenStatusProcessing(HWND hWnd);
-static int EndCompositionProcessing(HWND hWnd);
-static int GetUnicodePosition(char *orgString, int cursorPosition);
-
-
-
-int GetUnicodePosition(char *orgString, int cursorPosition)
-{
-  char *splitString;
-  int unicodePosition;
-    
-  splitString = (char *)malloc(cursorPosition + 1);
-  if (splitString == NULL) {
-    return 0;
-  }
-  strncpy(splitString, orgString, cursorPosition);
-  splitString[cursorPosition] = '\0';
-    
-  /* (char_num - 0x0000) * char_size */
-  unicodePosition =
-    MultiByteToWideChar(CP_ACP, 0, splitString, -1, NULL, 0) - 1;
-    
-  free(splitString);
-    
-  return unicodePosition;
-}
-
-
-int CompositionProcessing(HWND hWnd, LPARAM lParam)
-{
-  char *string;
-  Uint16 *unicodeString;
-  HIMC hImc;
-  int needSize;
-  int orgCursorPosition;
-  int cursorPosition;
-  int orgCompositionPosition;
-  int compositionPosition;
-  int orgCompositionLength;
-  int compositionLength;
-  DWORD *clauses;
-  BYTE *attrs;
-  int i;
-  int clausesNum;
-
-  //exit(898);
-
-
-
-  hImc = ImmGetContext(hWnd);
-  //InputMethod_PostEvent
-  //note: ImmGetCompositionString changed to ImmGetCompositionStringW to ensure UNICODE compatible method is used
-  needSize = ImmGetCompositionStringW(hImc, GCS_COMPSTR, NULL, 0) + 1;
-  string = (char*)calloc(needSize+2,1);
-  if (string == NULL){
-    ImmReleaseContext(hWnd, hImc);
-    return -1;
-  }
-  ImmGetCompositionStringW(hImc, GCS_COMPSTR, string, needSize);
-  //string[needSize - 1] = '\0';
-  //  fwrite(string, strlen(string), 1, stdout);
-  //  fputc('\n', stdout);
-
-  /*
-    needSize =
-    MultiByteToWideChar(CP_ACP, 0, string, -1, NULL, 0)
-    * sizeof(Uint16);
-    unicodeString = (Uint16*)calloc(needSize, 1);
-    if (unicodeString == NULL) {
-    ImmReleaseContext(hWnd, hImc);
-    free(string);
-    return -1;
-    }
-    MultiByteToWideChar(CP_ACP, 0, string, -1, (LPWSTR)unicodeString, needSize);
-  */
-  unicodeString=(Uint16*)string;
-
-  orgCompositionPosition = 0;
-  orgCompositionLength = 0;
-  compositionPosition = 0;
-  compositionLength = 0;
-  if ( (lParam & GCS_COMPCLAUSE) && (lParam & GCS_COMPATTR) ) {
-
-    needSize = ImmGetCompositionStringW(hImc, GCS_COMPCLAUSE, NULL, 0);
-    clauses = (DWORD*)calloc(needSize+4,1);
-    ImmGetCompositionStringW(hImc, GCS_COMPCLAUSE, clauses, needSize);
-    /* (clauses list - total) - 1 */
-    clausesNum = needSize / sizeof(DWORD) - 1;
-
-    needSize = ImmGetCompositionStringW(hImc, GCS_COMPATTR, NULL, 0);
-    attrs = (BYTE*)calloc(needSize+2,1);
-    ImmGetCompositionStringW(hImc, GCS_COMPATTR, attrs, needSize);
-        
-    for (i = 0; i < clausesNum; i++) {
-      if (
-      attrs[clauses[i]] == ATTR_TARGET_CONVERTED ||
-      attrs[clauses[i]] == ATTR_TARGET_NOTCONVERTED
-      ) {
-    orgCompositionPosition = clauses[i];
-    orgCompositionLength = clauses[i + 1] - clauses[i];
-    break;
-      }
-    }
-        
-    free(clauses);
-    free(attrs);
-  }
-    
-  orgCursorPosition =
-    ImmGetCompositionStringW(hImc, GCS_CURSORPOS, NULL, 0);
-  cursorPosition = 0;
-  if (orgCursorPosition > 0) {
-    cursorPosition = GetUnicodePosition(string, orgCursorPosition);
-  }
-  if (orgCompositionPosition > 0) {
-    compositionPosition = GetUnicodePosition(string, orgCompositionPosition);
-  }
-  if (orgCompositionLength > 0) {
-    compositionLength =
-      GetUnicodePosition(
-             string, orgCompositionPosition + orgCompositionLength)
-      - compositionPosition;
-  }
-  InputMethod_PostEvent(
-            INPUT_METHOD_MESSAGE_CHANGE,
-            unicodeString,
-            cursorPosition, compositionPosition, compositionLength);
-  //free(unicodeString);
-  free(string);
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  return 0;
-}
-
-
-int ResultProcessing(HWND hWnd)
-{
-  char *string;
-  Uint16 *unicodeString;
-  int needSize;
-  HIMC hImc;
-    
-  hImc = ImmGetContext(hWnd);
-    
-  //note: ImmGetCompositionString changed to ImmGetCompositionStringW to ensure UNICODE compatible method is used
-  needSize = ImmGetCompositionStringW(hImc, GCS_RESULTSTR, NULL, 0) + 1;
-  string = (char*)calloc(needSize+2,1);
-  if (string == NULL) {
-    ImmReleaseContext(hWnd, hImc);
-    return -1;
-  }
-  ImmGetCompositionStringW(hImc, GCS_RESULTSTR, string, needSize);
-
-  //note: commented to avoid garbling UNICODE16 string returned by ImmGetCompositionStringW
-  /*
-    needSize =      
-    MultiByteToWideChar(CP_ACP, 0, string, -1, NULL, 0)
-    * sizeof(Uint16);
-    unicodeString = (Uint16*)malloc(needSize);
-    if (unicodeString == NULL) {
-    ImmReleaseContext(hWnd, hImc);
-    free(string);
-    return -1;
-    }
-
-    MultiByteToWideChar(CP_ACP, 0, string, -1, (LPWSTR)unicodeString, needSize);
-
-  */
-
-  InputMethod_PostEvent(
-            INPUT_METHOD_MESSAGE_RESULT,
-            (Uint16*)string,
-            0, 0, 0);
-  //free(unicodeString);
-  free(string);
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  return 0;
-}
-
-
-int EndCompositionProcessing(HWND hWnd)
-{
-  HIMC hImc;
-  Uint16 dummy;
-    
-  hImc = ImmGetContext(hWnd);
-    
-  if (ImmGetCompositionString(hImc, GCS_RESULTSTR, NULL, 0) == 0) {
-    dummy = 0x0000;
-    InputMethod_PostEvent(
-              INPUT_METHOD_MESSAGE_CHANGE,
-              &dummy,
-              0, 0, 0);
-  }
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  return 0;
-}
-
-
-int SetOpenStatusProcessing(HWND hWnd)
-{
-  HIMC hImc;
-    
-  hImc = ImmGetContext(hWnd);
-    
-  if (ImmGetOpenStatus(hImc)) {
-    InputMethod_PostEvent(INPUT_METHOD_MESSAGE_ON, NULL, 0, 0, 0);
-  } else {
-    InputMethod_PostEvent(INPUT_METHOD_MESSAGE_OFF, NULL, 0, 0, 0);
-  }
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  return 0;
-}
-
-
-static int32 deadchar_use=0;
-static int32 deadchar_code=0;
-static int32 ignore=0;
-
-LRESULT CALLBACK WrapProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-
-  MSG m;
-  HIMC hImc;
-    
-  if (IsValid == SDL_FALSE) {
-    switch (msg) {
-    case WM_IME_NOTIFY:
-      if (wParam == IMN_SETOPENSTATUS) {
-    hImc = ImmGetContext(hWnd);
-    ImmSetOpenStatus(hImc, FALSE);
-    ImmReleaseContext(hWnd, hImc);
-      }
-      break;
-    case WM_SYSKEYDOWN:
-    case WM_KEYDOWN:
-
-
-      m.hwnd = hWnd;
-      m.message = msg;
-      m.wParam = wParam;
-      m.lParam = lParam;
-      m.time = 0;
-      TranslateMessage(&m);
-      break;
-    default:
-      break;
-    }
-    return CallWindowProc(OrigEditProc, hWnd, msg, wParam, lParam);
-  }
-
-
-
-
-  switch (msg) {
-  case WM_IME_COMPOSITION:
-    if (lParam & GCS_RESULTSTR) {
-      ResultProcessing(hWnd);
-    }
-    if (
-    (lParam & GCS_COMPSTR) ||
-    ((lParam & GCS_COMPCLAUSE) && (lParam & GCS_COMPATTR))
-        ) {
-      CompositionProcessing(hWnd, lParam);
-    }
-    return 0;
-  case WM_IME_STARTCOMPOSITION:
-    qb64_ime_reading=1;
-    return 0;
-  case WM_IME_ENDCOMPOSITION:
-    EndCompositionProcessing(hWnd);
-    qb64_ime_reading=2;
-    return 0;
-  case WM_IME_NOTIFY:
-    switch (wParam) {
-    case IMN_SETOPENSTATUS:
-      SetOpenStatusProcessing(hWnd);
-      break;
-    case IMN_OPENSTATUSWINDOW:
-    case IMN_CLOSESTATUSWINDOW:
-    case IMN_OPENCANDIDATE:
-    case IMN_CHANGECANDIDATE:
-    case IMN_CLOSECANDIDATE:
-      return 0;
-    default:
-      break;
-    }
-    break;
-  case WM_IME_SETCONTEXT:
-    lParam &= ~ISC_SHOWUIALL;
-    break;
-  case WM_SYSKEYDOWN:
-    /*
-    //note: translating SYSKEYDOWN messages cause windows to beep on ALT+? combinations
-    m.hwnd = hWnd;
-    m.message = msg;
-    m.wParam = wParam;
-    m.lParam = lParam;
-    m.time = 0;
-    TranslateMessage(&m);
-    */
-    break;
-
-  case WM_KEYUP:
-    /*
-      MEDIA_PLAY_PAUSE 0x2200
-      MEDIA_STOP 0x2400
-      MEDIA_NEXT_TRACK 0x1900
-      MEDIA_PREV_TRACK 0x1000
-    */
-    if (wParam==VK_MEDIA_PLAY_PAUSE){keyup_vk(0x2200);return 0;}
-    if (wParam==VK_MEDIA_STOP){keyup_vk(0x2400);return 0;}
-    if (wParam==VK_MEDIA_NEXT_TRACK){keyup_vk(0x1900);return 0;}
-    if (wParam==VK_MEDIA_PREV_TRACK){keyup_vk(0x1000);return 0;}
-    //note: volume keys are ignored by QB64
-    if (wParam==VK_VOLUME_MUTE) return 0;
-    if (wParam==VK_VOLUME_DOWN) return 0;
-    if (wParam==VK_VOLUME_UP) return 0;
-    //note: On early keyboards without a Pause key (before the introduction of 101-key keyboards) the Pause function was assigned to Ctrl+NumLock, and the Break function to Ctrl+ScrLock; these key-combinations still work with most programs, even on modern PCs with modern keyboards.
-    if (wParam==VK_PAUSE){keyup_vk(VK+QBVK_PAUSE);return 0;}
-    if (wParam==VK_CANCEL){keyup_vk(VK+QBVK_BREAK);return 0;}
-    /*
-      m.hwnd = hWnd;
-      m.message = msg;
-      m.wParam = wParam;
-      m.lParam = lParam;
-      m.time = 1000;
-      TranslateMessage(&m);
-    */
-    break;
-
-  case WM_CHAR:
-    if (deadchar_use){
-      deadchar_use=0;
-      if (wParam==32){
-    keydown_unicode(deadchar_code);
-    keyup_unicode(deadchar_code);
-    return 0;//don't allow message to be sent on to SDL
-      }
-      static long i,d,a,r;
-      i=0;
-      while (d=deadchar_lookup[i++]){
-    a=deadchar_lookup[i++];
-    r=deadchar_lookup[i++];
-    if (deadchar_code==d){ if (wParam==a){
-        keydown_unicode(r);
-        keyup_unicode(r);
-        return 0;//don't allow message to be sent on to SDL
-      }}
-      }//while
-      keydown_unicode(deadchar_code);
-      keyup_unicode(deadchar_code);
-      keydown_unicode(wParam);
-      keyup_unicode(wParam);
-      return 0;//don't allow message to be sent on to SDL
-    }//dead_char
-    break;
-
-  case WM_DEADCHAR:
-    //showvalue(wParam);
-    if (deadchar_use){//double dead-char press
-      deadchar_use=0;
-      keydown_unicode(deadchar_code);
-      keyup_unicode(deadchar_code);
-      keydown_unicode(wParam);
-      keyup_unicode(wParam);
-      return 0;//don't allow message to be sent on to SDL
-    }
-    deadchar_use=1;
-    deadchar_code=wParam;
-    return 0;//don't allow message to be sent on to SDL
-    break;
-
-  case WM_KEYDOWN:
-
-
-    ignore=0;
-    if (deadchar_use) ignore=1;
-
-    //showvalue(wParam);
-
-    /*
-      MEDIA_PLAY_PAUSE 0x2200
-      MEDIA_STOP 0x2400
-      MEDIA_NEXT_TRACK 0x1900
-      MEDIA_PREV_TRACK 0x1000
-    */
-    if (wParam==VK_MEDIA_PLAY_PAUSE){keydown_vk(0x2200);return 0;}
-    if (wParam==VK_MEDIA_STOP){keydown_vk(0x2400);return 0;}
-    if (wParam==VK_MEDIA_NEXT_TRACK){keydown_vk(0x1900);return 0;}
-    if (wParam==VK_MEDIA_PREV_TRACK){keydown_vk(0x1000);return 0;}
-    //note: volume keys are ignored by QB64
-    if (wParam==VK_VOLUME_MUTE) return 0;
-    if (wParam==VK_VOLUME_DOWN) return 0;
-    if (wParam==VK_VOLUME_UP) return 0;
-    //note: On early keyboards without a Pause key (before the introduction of 101-key keyboards) the Pause function was assigned to Ctrl+NumLock, and the Break function to Ctrl+ScrLock; these key-combinations still work with most programs, even on modern PCs with modern keyboards.
-    if (wParam==VK_PAUSE){keydown_vk(VK+QBVK_PAUSE);return 0;}
-    if (wParam==VK_CANCEL){keydown_vk(VK+QBVK_BREAK);return 0;}
-
-    //note: IME input (eg. hiragana) will not work correctly without calling TranslateMessage
-    m.hwnd = hWnd;
-    m.message = msg;
-    m.wParam = wParam;
-    m.lParam = lParam;
-    m.time = 1000;
-    TranslateMessage(&m);
-
-    if (ignore) return 0;//don't allow message to be sent on to SDL
-
-    break;
-
-  default:
-    break;
-  }
-    
-  return CallWindowProc(OrigEditProc, hWnd, msg, wParam, lParam);
-}
-
-
-SDL_bool InputMethod_AvailableWin32(void)
-{
-  SDL_SysWMinfo info;
-  HWND hWnd;
-  HIMC hImc;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-  hImc = ImmGetContext(hWnd);
-  if (hImc) {
-    ImmReleaseContext(hWnd, hImc);
-    return SDL_TRUE;
-  } else {
-    return SDL_FALSE;
-  }
-}
-
-
-InputMethod_Result InputMethod_InitWin32(void)
-{
-
-  SDL_SysWMinfo info;
-  HWND hWnd;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-  OrigEditProc = (WNDPROC)GetWindowLong(hWnd, GWL_WNDPROC);
-  SetWindowLong(hWnd, GWL_WNDPROC, (LONG)WrapProc);
-  IsValid = 1;
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-void InputMethod_QuitWin32(void)
-{
-  SDL_SysWMinfo info;
-  HWND hWnd;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-  SetWindowLong(hWnd, GWL_WNDPROC, (LONG)WrapProc);
-}
-
-
-void InputMethod_ResetWin32(void)
-{
-  SDL_SysWMinfo info;
-  HWND hWnd;
-  HIMC hImc;
-  Uint16 dummy;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-    
-  hImc = ImmGetContext(hWnd);
-    
-  ImmNotifyIME(hImc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  dummy = 0x0000;
-  InputMethod_PostEvent(INPUT_METHOD_MESSAGE_CHANGE, &dummy, 0, 0, 0);
-}
-
-
-InputMethod_Result InputMethod_ValidateWin32(void)
-{
-  SDL_SysWMinfo info;
-  HWND hWnd;
-  HIMC hImc;
-    
-  IsValid = 1;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-  hImc = ImmGetContext(hWnd);
-    
-  ImmSetOpenStatus(hImc, SaveOpenStatus);
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  InputMethod_ResetWin32();
-    
-  if (SaveOpenStatus == TRUE) {
-    InputMethod_PostEvent(INPUT_METHOD_MESSAGE_ON, NULL, 0, 0, 0);
-  }
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-InputMethod_Result InputMethod_InvalidateWin32(void)
-{
-  SDL_SysWMinfo info;
-  HWND hWnd;
-  HIMC hImc;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-  hImc = ImmGetContext(hWnd);
-    
-  SaveOpenStatus = ImmGetOpenStatus(hImc);
-  ImmSetOpenStatus(hImc, FALSE);
-    
-  ImmReleaseContext(hWnd, hImc);
-    
-  IsValid = SDL_FALSE;
-  InputMethod_ResetWin32();
-    
-  if (SaveOpenStatus == TRUE) {
-    InputMethod_PostEvent(INPUT_METHOD_MESSAGE_OFF, NULL, 0, 0, 0);
-  }
-    
-  return INPUT_METHOD_SUCCESS;
-}
-
-
-Uint16 *InputMethod_GetNameWin32(void)
-{
-  SDL_SysWMinfo info;
-  HWND hWnd;
-  HIMC hImc;
-  HKL hKl;
-  char *tempString;
-  int length;
-  int needSize;
-    
-  SDL_VERSION(&info.version);
-  SDL_GetWMInfo(&info);
-  hWnd = info.window;
-  hImc = ImmGetContext(hWnd);
-  if (hImc) {
-    hKl = GetKeyboardLayout(0);
-        
-    length = ImmGetDescription(hKl, NULL, 0);
-    needSize =
-      length
-      + strlen("\"\"")
-      + strlen(SYSTEM_SPECIFIC_NAME_STRING)
-      + 1; /* '\0' */
-    tempString = (char*)malloc(needSize);
-    strcpy(tempString, "\"");
-    /* get string after '\"' */
-    ImmGetDescription(hKl, tempString + 1, length);
-    strcat(tempString, "\"");
-    strcat(tempString, SYSTEM_SPECIFIC_NAME_STRING);
-        
-    MultiByteToWideChar(
-            CP_ACP, 0, tempString, -1,
-            (LPWSTR)InputMethod_win32.InputMethodName, INPUT_METHOD_NAME_STRING_LENGTH);
-        
-    free(tempString);
-    ImmReleaseContext(hWnd, hImc);
-        
-    return InputMethod_win32.InputMethodName;
-  } else {
-    return NULL;
-  }
-
-}
-//---------------------------------------------end of SDL_inputmethod for Windows--------------------------------------------------------------------
-#endif
-
-
-#endif //NO_S_D_L
-
 int32 exit_ok=0;
 
 //substitute Windows functionality
@@ -4179,10 +2803,6 @@ uint32 palette_64[64];
 
 //QB64 2D PROTOTYPE 1.0
 
-//NO_S_D_L//SDL_Surface *ts,*ts2;
-//NO_S_D_L//SDL_PixelFormat pixelformat32;
-//NO_S_D_L//SDL_PixelFormat pixelformat8;
-
 int32 pages=1;
 int32 *page=(int32*)calloc(1,4);
 
@@ -4252,7 +2872,6 @@ uint32 read_page_index=0;
 img_struct *write_page=NULL;
 img_struct *read_page=NULL;
 img_struct *display_page=NULL;
-//NO_S_D_L//SDL_Surface *display_surface=NULL;
 uint32 *display_surface_offset=0;
 
 void restorepalette(img_struct* im){
@@ -4688,265 +3307,6 @@ int32 imgnew(int32 x,int32 y,int32 bpp){
 }
 
 void sub__font(int32 f,int32 i,int32 passed);//foward def
-
-#ifndef NO_S_D_L
-int32 imgload(char *filename,int32 bpp){
-  static int32 i,i2,x,y,i3,z2,z3,v,v2,v3,r,g,b,a,t,needt,t2;
-  static uint8 *cp,*cp2;
-  static uint32 c;
-  static uint32 *lp;
-
-  static uint8 *sr=(uint8*)malloc(256);
-  static uint8 *sg=(uint8*)malloc(256);
-  static uint8 *sb=(uint8*)malloc(256);
-  static uint8 *dr=(uint8*)malloc(256);
-  static uint8 *dg=(uint8*)malloc(256);
-  static uint8 *db=(uint8*)malloc(256);
-  static uint8 *link=(uint8*)malloc(256);
-  static int32 *usedcolor=(int32*)malloc(1024);
-
-  ts=IMG_Load(filename);
-  if (!ts) return 0;
-
-  if (bpp==-1){
-
-    if (write_page->bytes_per_pixel==1){
-      if (ts->format->BytesPerPixel==1) goto compatible;
-
-      //32-->8 bit (best possible color selection)
-      ts2=SDL_ConvertSurface(ts,&pixelformat32,NULL);
-      if (!ts2){SDL_FreeSurface(ts); return 0;}
-      i=imgnew(ts2->w,ts2->h,write_page->compatible_mode);
-      if (!i){SDL_FreeSurface(ts); return 0;}
-      //copy write_page's palette
-      memcpy(img[i].pal,write_page->pal,1024);
-      //find number of colors
-      z3=write_page->mask+1;
-      //build color value table
-      for (i3=0;i3<z3;i3++){
-    c=write_page->pal[i3];
-    db[i3]=c&0xFF; dg[i3]=c>>8&0xFF; dr[i3]=c>>16&0xFF;
-      }
-
-      //reset color used flags
-      memset(usedcolor,0,1024);
-      needt=0;
-      //copy/change colors
-      cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-      for (y=0;y<img[i].height;y++){
-    for (x=0;x<img[i].width;x++){
-      c=*((uint32*)(cp+y*ts2->pitch+x*4));
-      a=c>>24;
-      if (a==0){
-        needt=1;
-      }else{
-        b=c&0xFF; g=c>>8&0xFF; r=c>>16&0xFF; v=1000; v3=0;
-        for (i3=0;i3<z3;i3++){
-          v2=abs(r-(int32)dr[i3])+abs(g-(int32)dg[i3])+abs(b-(int32)db[i3]);
-          if (v2<v){v3=i3; v=v2;}
-        }//i3
-        cp2[y*img[i].width+x]=v3;
-        usedcolor[v3]++;
-      }//a==0
-
-    }}
-      //add transparency
-      if (needt){
-    //find best transparent color
-    v=0x7FFFFFFF;
-    for (x=0;x<z3;x++){
-      if (usedcolor[x]<=v){
-        v=usedcolor[x];
-        t=x;
-      }
-    }
-    //remake with transparency
-    img[i].transparent_color=t;
-    //copy/change colors
-    cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-    for (y=0;y<img[i].height;y++){ for (x=0;x<img[i].width;x++){
-        c=*((uint32*)(cp+y*ts2->pitch+x*4));
-        a=c>>24; if (a==0){cp2[y*img[i].width+x]=t; goto usedtranscol;}
-        b=c&0xFF; g=c>>8&0xFF; r=c>>16&0xFF; v=1000; v3=0;
-        for (i3=0;i3<z3;i3++){
-          if (i3!=t){
-        v2=abs(r-(int32)dr[i3])+abs(g-(int32)dg[i3])+abs(b-(int32)db[i3]);
-        if (v2<v){v3=i3; v=v2;}
-          }
-        }//i3
-        cp2[y*img[i].width+x]=v3;
-      usedtranscol:;
-      }}
-      }//needt
-      //adopt font
-      sub__font(write_page->font,-i,1);
-      //adopt colors
-      img[i].color=write_page->color;
-      img[i].background_color=write_page->background_color;
-      //adopt print mode
-      img[i].print_mode=write_page->print_mode;
-      SDL_FreeSurface(ts2);
-      SDL_FreeSurface(ts);
-      return i;
-    }//write_page->bytes_per_pixel==1
-  }//-1
-
-  if (bpp==256){
-    if (ts->format->BytesPerPixel!=1){SDL_FreeSurface(ts); return 0;}
-  compatible:
-    ts2=ts;
-    //check for transparent color in palette
-    ts=SDL_ConvertSurface(ts2,&pixelformat32,NULL);
-    if (!ts){SDL_FreeSurface(ts2); return 0;}
-    //prepare image to write to
-    if (bpp==-1){
-      i=imgnew(ts2->w,ts2->h,write_page->compatible_mode);
-    }else{
-      i=imgnew(ts2->w,ts2->h,256);
-    }
-    if (!i){SDL_FreeSurface(ts2); SDL_FreeSurface(ts); return 0;}
-    //does a transparent pixel exist?
-    t=-1;
-    for (y=0;y<img[i].height;y++){
-      lp=(uint32*)(((char*)ts->pixels)+ts->pitch*y);
-      for (x=0;x<img[i].width;x++){
-    if (!(*lp++&0xFF000000)){//alpha==0
-      //find equivalent 8-bit index
-      c=*(((uint8*)ts2->pixels)+ts2->pitch*y+x);
-      if (c<ts2->format->palette->ncolors){
-        img[i].transparent_color=c;
-        t=c;
-        goto found_transparent_color;
-      }
-    }
-      }}
-  found_transparent_color:
-
-    //8-->8 bit (best color match)
-    if (bpp==-1){
-      img[i].transparent_color=-1;//this will be set later if necessary
-      //copy write_page's palette
-      memcpy(img[i].pal,write_page->pal,1024);
-      //map image's palette to actual palette
-      //reset color used flags
-      memset(usedcolor,0,1024);
-      //find number of colors
-      z2=ts2->format->palette->ncolors;
-      z3=write_page->mask+1;
-      //build color value tables
-      for (i2=0;i2<z2;i2++){
-    c=*(uint32*)&ts2->format->palette->colors[i2];
-    sr[i2]=c&0xFF; sg[i2]=c>>8&0xFF; sb[i2]=c>>16&0xFF;
-      }
-      for (i3=0;i3<z3;i3++){
-    c=write_page->pal[i3];
-    db[i3]=c&0xFF; dg[i3]=c>>8&0xFF; dr[i3]=c>>16&0xFF;
-      }
-      //link colors to best matching color
-      for (i2=0;i2<z2;i2++){
-    v=1000; link[i2]=0;
-    for (i3=0;i3<z3;i3++){
-      v2=abs((int32)sr[i2]-(int32)dr[i3])+abs((int32)sg[i2]-(int32)dg[i3])+abs((int32)sb[i2]-(int32)db[i3]);
-      if (v2<v){
-        link[i2]=i3; v=v2;
-      }
-    }//i3
-      }//i2
-      //change colors
-      needt=0;
-      cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-      for (y=0;y<img[i].height;y++){
-    for (x=0;x<img[i].width;x++){
-      c=cp[y*ts2->pitch+x];
-      if (c==t){
-        needt=1;
-      }else{
-        c=link[c];
-        cp2[y*img[i].width+x]=c;
-        usedcolor[c]++;
-      }
-    }}
-      //add transparency
-      if (needt){
-    t2=t;//backup
-    //find best transparent color
-    v=0x7FFFFFFF;
-    for (x=0;x<z3;x++){
-      if (usedcolor[x]<=v){
-        v=usedcolor[x];
-        t=x;
-      }
-    }
-    //remake with transparency
-    img[i].transparent_color=t;
-    //relink colors to best matching color (avoiding t)
-    for (i2=0;i2<z2;i2++){
-      v=1000; link[i2]=0;
-      for (i3=0;i3<z3;i3++){
-        if (i3!=t){
-          v2=abs((int32)sr[i2]-(int32)dr[i3])+abs((int32)sg[i2]-(int32)dg[i3])+abs((int32)sb[i2]-(int32)db[i3]);
-          if (v2<v){
-        link[i2]=i3; v=v2;
-          }
-        }
-      }//i3
-    }//i2
-    //change colors
-    cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-    for (y=0;y<img[i].height;y++){
-      for (x=0;x<img[i].width;x++){
-        c=cp[y*ts2->pitch+x];
-        if (c==t2){
-          cp2[y*img[i].width+x]=t;
-        }else{
-          cp2[y*img[i].width+x]=link[c];
-        }
-      }}
-      }//needt
-      //adopt font
-      sub__font(write_page->font,-i,1);
-      //adopt colors
-      img[i].color=write_page->color;
-      img[i].background_color=write_page->background_color;
-      //adopt print mode
-      img[i].print_mode=write_page->print_mode;
-      SDL_FreeSurface(ts2);
-      SDL_FreeSurface(ts);
-      return i;
-    }//bpp==-1
-
-    //copy pixel data
-    cp=(uint8*)ts2->pixels; cp2=img[i].offset;
-    for (i2=0;i2<img[i].height;i2++){
-      memcpy(cp2,cp,ts2->w);
-      cp+=ts2->pitch;
-      cp2+=img[i].width;
-    }
-    //update palette
-    for (i2=ts2->format->palette->ncolors;i2<256;i2++){img[i].pal[i2]=0xFF000000;}
-    for (i2=0;i2<ts2->format->palette->ncolors;i2++){
-      c=*(uint32*)&ts2->format->palette->colors[i2];
-      c=0xFF000000+((c>>16)&255)+(c&0xFF00)+((c&255)<<16);
-      img[i].pal[i2]=c;
-    }
-    SDL_FreeSurface(ts2);
-    SDL_FreeSurface(ts);
-    return i;
-  }
-
-  ts2=SDL_ConvertSurface(ts,&pixelformat32,NULL);
-  if (!ts2){SDL_FreeSurface(ts); return 0;}
-  i=imgnew(ts2->w,ts2->h,32);
-  if (!i){SDL_FreeSurface(ts2); SDL_FreeSurface(ts); return 0;}
-  memcpy(img[i].offset,ts2->pixels,ts2->w*ts2->h*4);
-  SDL_FreeSurface(ts2); SDL_FreeSurface(ts);
-  return i;
-}
-
-#endif //NO_S_D_L
-
-
-
 
 void flush_old_hardware_commands(){
   static int32 old_command;
@@ -6167,21 +4527,6 @@ int32 selectfont(int32 f,img_struct *im){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//NO_S_D_L//SDL_Rect *modes=NULL;
-//NO_S_D_L//SDL_Rect **sdl_modes;
 int32 nmodes=0;
 int32 anymode=0;
 
@@ -6205,10 +4550,6 @@ int32 sndqueue_next=0;
 int32 sndqueue_first=0;
 int32 sndqueue_wait=-1;
 int32 sndqueue_played=0;
-
-//NO_S_D_L//uint32 func__sndraw(uint8* data,uint32 bytes);//called by sndsetup
-
-
 
 
 void call_int(int32 i);
@@ -6978,9 +5319,6 @@ int32 asciicode_reading=0;
 int32 lock_display=0;
 int32 lock_display_required=0;
 
-//NO_S_D_L//SDL_Thread *thread;
-//NO_S_D_L//SDL_Thread *thread2;
-
 //cost delay, made obselete by managing thread priorities (consider removal)
 #define cost_limit 10000
 #define cost_delay 0
@@ -7032,8 +5370,6 @@ uint32 clock_firsttimervalue;//based on program launch time
 
 
 uint8 wait_needed=1;
-
-//NO_S_D_L//SDL_Surface * screen;
 
 int32 full_screen=0;//0,1(stretched/closest),2(1:1)
 int32 full_screen_toggle=0;//increments each time ALT+ENTER is pressed
@@ -7090,43 +5426,6 @@ static const char *arrow[] = {
   "0,0"
 };
 
-#ifndef NO_S_D_L
-
-static SDL_Cursor *init_system_cursor(const char *image[])
-{
-  int32 i, row, col;
-  Uint8 data[4*32];
-  Uint8 mask[4*32];
-  int32 hot_x, hot_y;
-
-  i = -1;
-  for ( row=0; row<32; ++row ) {
-    for ( col=0; col<32; ++col ) {
-      if ( col % 8 ) {
-        data[i] <<= 1;
-        mask[i] <<= 1;
-      } else {
-        ++i;
-        data[i] = mask[i] = 0;
-      }
-      switch (image[4+row][col]) {
-      case 'X':
-    data[i] |= 0x01;
-    mask[i] |= 0x01;//?
-    break;
-      case '.':
-    mask[i] |= 0x01;
-    break;
-      case ' ':
-    break;
-      }
-    }
-  }
-  sscanf(image[4+row], "%d,%d", &hot_x, &hot_y);
-  return SDL_CreateCursor(data, mask, 32, 32, hot_x, hot_y);
-}
-
-#endif //NO_S_D_L
 
 uint8 lock_subsystem=0;
 
@@ -7139,13 +5438,7 @@ extern uint8 stop_program;
 
 int32 global_counter=0;
 extern double last_line;
-
-
-
 void end(void);
-
-
-
 extern uint32 new_error;
 extern uint32 error_err; //=0;
 extern double error_erl; //=0;
@@ -7267,21 +5560,6 @@ void fix_error(){
       v=MessageBox2(NULL,errmess,errtitle,MB_YESNO|MB_SYSTEMMODAL);
     }
 
-#ifndef NO_S_D_L
-#ifdef QB64_WINDOWS
-    if (v==IDYES){
-      if (full_screen){
-    static SDL_SysWMinfo info;
-    static HWND hwnd;
-    SDL_VERSION(&info.version);
-    SDL_GetWMInfo(&info);
-    hwnd = info.window;
-    ShowWindow(hwnd,SW_SHOWMAXIMIZED);
-      }
-    }
-#endif
-#endif //NO_S_D_L
-
     if ((v==IDNO)||(v==IDOK)){close_program=1; end();}
     new_error=0;
     return;
@@ -7354,7 +5632,6 @@ void end(){
   dont_call_sub_gl=1;
   exit_ok|=1;
   while(!stop_program) Sleep(16);
-  //NO_S_D_L//SDL_KillThread(thread);
   while(1) Sleep(16);
 }
 
@@ -8219,6 +6496,7 @@ qbs *f2string(long double v){ static qbs *tqbs; tqbs=qbs_new(32,1); memset(tqbs-
 qbs *bit2string(uint32 bsize,int64 v){
   static qbs* tqbs;
   tqbs=qbs_new(8,1);
+  int64 bmask;
   bmask=~(-(((int64)1)<<bsize));
   *((int64*)(tqbs->chr))=v&bmask;
   tqbs->len=(bsize+7)>>3;
@@ -8226,7 +6504,7 @@ qbs *bit2string(uint32 bsize,int64 v){
 }
 qbs *ubit2string(uint32 bsize,uint64 v){
   static qbs* tqbs;
-
+  int64 bmask;
   tqbs=qbs_new(8,1);
   bmask=~(-(((int64)1)<<bsize));
   *((uint64*)(tqbs->chr))=v&bmask;
@@ -8246,11 +6524,13 @@ float string2s(qbs*str){ if (str->len<4) {error(5); return 0;} else {return *((f
 double string2d(qbs*str){ if (str->len<8) {error(5); return 0;} else {return *((double*)str->chr);} }
 long double string2f(qbs*str){ if (str->len<32) {error(5); return 0;} else {return *((long double*)str->chr);} }
 uint64 string2ubit(qbs*str,uint32 bsize){
+  int64 bmask;
   if (str->len<((bsize+7)>>3)) {error(5); return 0;}
   bmask=~(-(((int64)1)<<bsize));
   return (*(uint64*)str->chr)&bmask;
 }
 int64 string2bit(qbs*str,uint32 bsize){
+  int64 bmask, bval64;
   if (str->len<((bsize+7)>>3)) {error(5); return 0;}
   bmask=~(-(((int64)1)<<bsize));
   bval64=(*(uint64*)str->chr)&bmask;
@@ -13920,13 +12200,12 @@ void qbs_input(int32 numvariables,uint8 newline){
     if (chr=='\n') chr=13;
     qbs_set(key,qbs_new_txt(" "));  
     key->chr[0]=chr;  
-      }else{SDL_Delay(10);}
+      }else{Sleep(10);}
     }else{
-      SDL_Delay(10);
+      Sleep(10);
       qbs_set(key,qbs_inkey());
       
       disableEvents=1;//we don't want the ON TIMER bound version of VKUPDATE to fire during a call to itself!
-      //SDL_Delay(10);
       SUB_VKUPDATE();
       disableEvents=0;
 
@@ -14308,7 +12587,7 @@ int32 func__hasfocus() {
         #ifdef QB64_WINDOWS
             while (!window_handle){Sleep(100);}
             return -(window_handle==GetForegroundWindow());
-        #elif defined(QB64_LINUX) && !defined(QB64_MACOSX)
+        #elif defined(QB64_LINUX)
             return window_focused;
         #endif
     #endif
@@ -14760,11 +13039,6 @@ int32 file_input_chr(int32 i){
   //returns -1 if eof reached (error to be externally handled)
   //returns -2 for other errors (internally handled), the calling function should abort
 
-  if (i<0){//TCP/IP feed buffer
-    //NO_S_D_L//if (tcp_feed_offset>=tcp_feed_ucbufsiz) return -1;
-    //NO_S_D_L//return tcp_feed_ucbuf[tcp_feed_offset++];
-  }
-
   static uint8 c;
   static int32 e;
   if (e=gfs_read(i,-1,&c,1)){
@@ -14839,44 +13113,8 @@ void sub_file_print(int32 i,qbs *str,int32 extraspace,int32 tab,int32 newline){
   //note: spacing considerations such as 'extraspace' & 'tab' are ignored
   if (i<0){
 
-#ifndef NO_S_D_L
-    x=-(i+1);
-    if (x>=special_handle_max){error(52); return;}
-    if ((special_handle[x].type!=2)&&(special_handle[x].type!=3)){error(52); return;}
-    //valid tcp/ip connection
-    if (net_tcp[x].error) return;
-    //obselete message check
-    if ((newline==0)&&(str->len==0)) return;
-    //send formatted data
-    static uint8 header_byte;
-    x2=str->len; if (extraspace) x2++;
-    if (x2<=4){header_byte=x2; x3=0;}
-    if ((x2>4)&&(x2<=255)){header_byte=5; x3=1;}
-    if ((x2>255)&&(x2<=65535)){header_byte=6; x3=2;}
-    if (x2>65535){header_byte=7; x3=4;}
-    if (!newline){
-      if (!tab){
-    header_byte|=128;
-      }
-    }
-    //build message
-    static uint8 *cp;
-    cp=(uint8*)malloc(1+4+x2+16);//***fix
-    *cp=header_byte;
-    *((uint32*)(&cp[1]))=x2;
-    memcpy(&cp[1+x3],str->chr,str->len);
-    if (extraspace) cp[1+x3+x2-1]=32;
-
-    x4=SDLNet_TCP_Send(net_tcp[x].socket,cp,1+x3+x2);
-    free(cp);
-    //Returns: the number of bytes sent. If the number returned is less than len, then an error occured, such as the client disconnecting. 
-    if (x4!=(1+x3+x2)) net_tcp[x].error=1;
-#endif //NO_S_D_L
-
     return;
   }
-
-
   if (gfs_fileno_valid(i)!=1){error(52); return;}//Bad file name or number
   i=gfs_fileno[i];//convert fileno to gfs index
   static gfs_file_struct *gfs;
@@ -15406,78 +13644,6 @@ int32 n_inputnumberfromfile(int32 fileno){
   static uint32 ucbufsiz;
   static int32 info;
 
-  //tcp/ip?
-  if (fileno<0){
-
-#ifndef NO_S_D_L
-    x=-(fileno+1);
-    if (x>=special_handle_max){error(52); return 3;}
-    if ((special_handle[x].type!=2)&&(special_handle[x].type!=3)){error(52); return 3;}
-    //valid tcp/ip connection
-    revert_input_x=x;
-    if (net_tcp[x].eof==2) return 3;
-    if (net_tcp[x].error){net_tcp[x].eof=2; return 3;}
-    net_tcp_updatebuffer(x);
-    x2=net_tcp[x].buffer_size; if (!x2){net_tcp[x].eof=2; return 3;}
-    i=0;
-    ucbuf=NULL;
-    ucbufsiz=0;
-  append_message:
-    x3=net_tcp[x].buffer[i];
-    info=x3;
-    i++;
-    if (x3&120){
-      if (ucbufsiz) free(ucbuf);
-      //deststr->len=0;
-      net_tcp[x].eof=2;
-      return 3;
-    }//invalid bits set [01111000]
-    x3&=7;
-    /*
-      0 0 byte message
-      1 1 byte message
-      2 2 byte message
-      3 3 byte message
-      4 4 byte message
-      5 1 byte length descriptor + ? byte message
-      6 2 byte length descriptor + ? byte message
-      7 4 byte length descriptor + ? byte message
-    */
-    if (x3<=4) x4=0;
-    if (x3==5) x4=1;
-    if (x3==6) x4=2;
-    if (x3==7) x4=4;
-    if (x4){
-      if (x2<(i+x4)){
-    if (ucbufsiz) free(ucbuf);
-    net_tcp[x].eof=2;
-    return 3;
-      }//not enough data (for length descriptor)
-      if (x4==1) x3=*((uint8*)(net_tcp[x].buffer+i));
-      if (x4==2) x3=*((uint16*)(net_tcp[x].buffer+i));
-      if (x4==4) x3=*((uint32*)(net_tcp[x].buffer+i));
-      i+=x4;
-    }
-    if (x2<(i+x3)){
-      if (ucbufsiz) free(ucbuf);
-      net_tcp[x].eof=2;
-      return 3;
-    }//not enough data (for message)
-    //add message to buffer ucbuf
-    if (!ucbufsiz) ucbuf=(uint8*)malloc(x3); else ucbuf=(uint8*)realloc(ucbuf,ucbufsiz+x3);
-    memcpy(ucbuf+ucbufsiz,net_tcp[x].buffer+i,x3);
-    ucbufsiz+=x3;
-    i+=x3;
-    if (info&128) goto append_message; //append another message?
-    //share the 'feed' buffer
-    tcp_feed_ucbuf=ucbuf;
-    tcp_feed_ucbufsiz=ucbufsiz;
-    tcp_feed_offset=0;
-    x4=i;
-#endif //NO_S_D_L
-
-  }
-
   if (fileno>=0){
     if (gfs_fileno_valid(fileno)!=1){error(52); return 3;}//Bad file name or number
     fileno=gfs_fileno[fileno];//convert fileno to gfs index
@@ -15602,40 +13768,11 @@ int32 n_inputnumberfromfile(int32 fileno){
   if (negate_exponent) n_exp-=exponent_value; else n_exp+=exponent_value;//complete exponent
   if (n_digits==0) {n_exp=0; n_neg=0;}//clarify number
   file_input_nextitem(fileno,c);
-  if (fileno<0){
-
-#ifndef NO_S_D_L
-    //adjust tcp[].buffer
-    //revert_input_check (tag) add data that might need to be reverted to the buffer
-    if (revert_input_bufsize==0){
-      revert_input_buffer=(uint8*)malloc(x4);
-    }else{
-      revert_input_buffer=(uint8*)realloc(revert_input_buffer,revert_input_bufsize+x4);
-    }
-    memmove(revert_input_buffer+revert_input_bufsize,net_tcp[x].buffer,x4);
-    revert_input_bufsize+=x4;
-    if (x2-x4) memmove(net_tcp[x].buffer,net_tcp[x].buffer+x4,x2-x4);
-    net_tcp[x].buffer_size-=x4;
-    //free ucbuf
-    free(ucbuf);
-    //set eof to 0 if previous input has not failed (success)
-    net_tcp[x].eof=0;
-#endif //NO_S_D_L
-
-  }
   return 0;//success
 
  error:
   file_input_nextitem(fileno,c);
   if (fileno<0){
-
-#ifndef NO_S_D_L
-    //free ucbuf
-    free(ucbuf);
-    //set eof
-    net_tcp[x].eof=2;
-    return 3;
-#endif //NO_S_D_L
 
   }
   return return_value;
@@ -15643,41 +13780,6 @@ int32 n_inputnumberfromfile(int32 fileno){
 
 
 void revert_input_check(){
-  static uint32 x;
-
-#ifndef NO_S_D_L
-
-  x=revert_input_x;
-  if (x==-1) return;
-  revert_input_x=-1;//reset for next time
-
-  if (net_tcp[x].eof==2){
-    //assign correct eof value
-    net_tcp[x].eof=1;
-    //revert tcp[x] buffer
-    if (revert_input_bufsize){
-      //expand buffer?
-      if ((net_tcp[x].buffer_size+revert_input_bufsize)>net_tcp[x].buffer_space){
-    if (net_tcp[x].buffer==NULL){
-      net_tcp[x].buffer=(uint8*)malloc(net_tcp[x].buffer_size+revert_input_bufsize);
-    }else{
-      net_tcp[x].buffer=(uint8*)realloc(net_tcp[x].buffer,net_tcp[x].buffer_size+revert_input_bufsize);
-    }
-    net_tcp[x].buffer_space=net_tcp[x].buffer_size+revert_input_bufsize;
-      }
-      if (net_tcp[x].buffer_size){
-    memmove(net_tcp[x].buffer+revert_input_bufsize,net_tcp[x].buffer,net_tcp[x].buffer_size);
-      }
-      memcpy(net_tcp[x].buffer,revert_input_buffer,revert_input_bufsize);
-      net_tcp[x].buffer_size+=revert_input_bufsize;
-    }//bufsize>0
-  }//eof==2
-
-  //free the buffer
-  if (revert_input_bufsize){revert_input_bufsize=0; free(revert_input_buffer);}
-
-#endif //NO_S_D_L
-
 }
 
 void sub_file_input_string(int32 fileno,qbs *deststr){
@@ -15693,96 +13795,6 @@ void sub_file_input_string(int32 fileno,qbs *deststr){
   //tcp/ip?
   //note: spacing considerations are ignored
   if (fileno<0){
-
-#ifndef NO_S_D_L
-
-    x=-(fileno+1);
-    if (x>=special_handle_max){error(52); return;}
-    if ((special_handle[x].type!=2)&&(special_handle[x].type!=3)){error(52); return;}
-    //valid tcp/ip connection
-    revert_input_x=x;
-    if (net_tcp[x].eof==2) return;
-    if (net_tcp[x].error){net_tcp[x].eof=2; return;}
-
-    net_tcp_updatebuffer(x);
-
-
-    x2=net_tcp[x].buffer_size;
-    if (!x2){deststr->len=0; net_tcp[x].eof=2; return;}
-
-    i=0;
-    ucbuf=NULL;
-    ucbufsiz=0;
-  append_message:
-    x3=net_tcp[x].buffer[i];
-    info=x3;
-    i++;
-    if (x3&120){
-      if (ucbufsiz) free(ucbuf);
-      deststr->len=0;
-      net_tcp[x].eof=2;
-      return;
-    }//invalid bits set [01111000]
-    x3&=7;
-    /*
-      0 0 byte message
-      1 1 byte message
-      2 2 byte message
-      3 3 byte message
-      4 4 byte message
-      5 1 byte length descriptor + ? byte message
-      6 2 byte length descriptor + ? byte message
-      7 4 byte length descriptor + ? byte message
-    */
-    if (x3<=4) x4=0;
-    if (x3==5) x4=1;
-    if (x3==6) x4=2;
-    if (x3==7) x4=4;
-    if (x4){
-      if (x2<(i+x4)){
-    if (ucbufsiz) free(ucbuf);
-    deststr->len=0;
-    net_tcp[x].eof=2;
-    return;
-      }//not enough data (for length descriptor)
-      if (x4==1) x3=*((uint8*)(net_tcp[x].buffer+i));
-      if (x4==2) x3=*((uint16*)(net_tcp[x].buffer+i));
-      if (x4==4) x3=*((uint32*)(net_tcp[x].buffer+i));
-      i+=x4;
-    }
-    if (x2<(i+x3)){
-      if (ucbufsiz) free(ucbuf);
-      deststr->len=0;
-      net_tcp[x].eof=2;
-      return;
-    }//not enough data (for message)
-    //add message to buffer ucbuf
-    if (!ucbufsiz) ucbuf=(uint8*)malloc(x3); else ucbuf=(uint8*)realloc(ucbuf,ucbufsiz+x3);
-    memcpy(ucbuf+ucbufsiz,net_tcp[x].buffer+i,x3);
-    ucbufsiz+=x3;
-    i+=x3;
-    if (info&128) goto append_message; //append another message?
-    //adjust tcp[].buffer
-    //revert_input_check (tag) add data that might need to be reverted to the buffer
-    if (revert_input_bufsize==0){
-      revert_input_buffer=(uint8*)malloc(i);
-    }else{
-      revert_input_buffer=(uint8*)realloc(revert_input_buffer,revert_input_bufsize+i);
-    }
-    memmove(revert_input_buffer+revert_input_bufsize,net_tcp[x].buffer,i);
-    revert_input_bufsize+=i;
-    if (x2-i) memmove(net_tcp[x].buffer,net_tcp[x].buffer+i,x2-i);
-    net_tcp[x].buffer_size-=i;
-
-    //set return string
-    str=qbs_new(ucbufsiz,0);
-    memcpy(str->chr,ucbuf,ucbufsiz);
-    qbs_set(deststr,str);
-    free(ucbuf); //free ucbuf
-    net_tcp[x].eof=0;
-
-#endif //NO_S_D_L
-
     return;
   }
 
@@ -19751,7 +17763,7 @@ void sub_mkdir(qbs *str){
   static qbs *strz=NULL;
   if (!strz) strz=qbs_new(0,0);
   qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
-#ifdef QB64_LINUX
+#ifdef QB64_UNIX
   if (mkdir(fixdir(strz),0770)==-1){
 #else
     if (mkdir(fixdir(strz))==-1){
@@ -19827,66 +17839,12 @@ void sub_mkdir(qbs *str){
 
     if (!screen_hide){
       while (!window_exists){Sleep(100);}
-      #ifndef QB64_ANDROID
       glutSetCursor(mouse_cursor_style);
-      #endif
     }
 
 #endif
 
   }
-
-  int32 mousemovementfix_state=0;
-  void mousemovementfix(){
-
-#ifndef NO_S_D_L
-
-#ifdef QB64_LINUX
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-#endif
-    if (full_screen){
-      if (mousemovementfix_state){//disable fix if active
-    mousemovementfix_state=0;
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-    //note: mouse show state is not reverted
-      }
-      return;
-    }
-    if (SDL_ShowCursor(-1)==1) SDL_ShowCursor(0);
-    //note: regrabs input if necessary (happens when app loses focus)
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_OFF) SDL_WM_GrabInput(SDL_GRAB_ON);
-    mousemovementfix_state=1;
-#ifdef QB64_LINUX
-    lock_mainloop=0; Sleep(1);//unlock
-#endif
-
-#endif //NO_S_D_L
-
-  }
-
-
-
-  void mousemovementfix_mainloop(){
-
-#ifndef NO_S_D_L
-
-    if (full_screen){
-      if (mousemovementfix_state){//disable fix if active
-    mousemovementfix_state=0;
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON) SDL_WM_GrabInput(SDL_GRAB_OFF);
-    //note: mouse show state is not reverted
-      }
-      return;
-    }
-    if (SDL_ShowCursor(-1)==1) SDL_ShowCursor(0);
-    //note: regrabs input if necessary (happens when app loses focus)
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_OFF) SDL_WM_GrabInput(SDL_GRAB_ON);
-    mousemovementfix_state=1;
-
-#endif //NO_S_D_L
-
-  }
-
 
   float func__mousemovementx(int32 context, int32 passed){
     int32 handle;
@@ -21622,12 +19580,12 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       int sec=7;
       while(sec--){
     evnt(1);
-    SDL_Delay(1000);
+    Sleep(1000);
     qbs_print(qbs_new_txt("."),0);
       }
       sec=3;
       while(sec--){
-    SDL_Delay(1000);
+    Sleep(1000);
     evnt(1);
       }
 
@@ -21659,7 +19617,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       static uint32 qbs_tmp_base;
       qbs_tmp_base=qbs_tmp_list_nexti;
       while(qbs_cleanup(qbs_tmp_base,qbs_notequal(qbs_inkey(),qbs_new_txt("")))){
-    SDL_Delay(0);
+          Sleep(0);
       }
       //6. Enable autodisplay
       autodisplay=1;
@@ -23095,12 +21053,11 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
 
 
-#ifdef QB64_LINUX 
+#ifdef QB64_UNIX
   extern char** environ;
 #define envp environ
 #else /* WINDOWS */
-  //extern char** _environ;
-#define envp _environ
+ #define envp _environ
 #endif
   size_t environ_count;
 
@@ -23191,8 +21148,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 #elif defined(QB64_WINDOWS)
       sockVersion = MAKEWORD(1, 1);
       WSAStartup(sockVersion, &wsaData);
-#elif defined(QB64_LINUX)
-#else
 #endif
     }
   }
@@ -23201,8 +21156,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 #if !defined(DEPENDENCY_SOCKETS)
 #elif defined(QB64_WINDOWS)
     WSACleanup();
-#elif defined(QB64_LINUX)
-#else
 #endif
   }
 
@@ -23210,7 +21163,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 #if !defined(DEPENDENCY_SOCKETS)
 #elif defined(QB64_WINDOWS)
     SOCKET socket;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     int socket;
 #else
 #endif
@@ -23254,7 +21207,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     connection->socket=listeningSocket;
     connection->connected = -1;
     return (void*)connection;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     struct addrinfo hints, *servinfo, *p;
     int sockfd;
     char str_port[6];
@@ -23346,7 +21299,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     connection->hostname=(uint8*)malloc(strlen((char*)host)+1);
     memcpy(connection->hostname,host,strlen((char*)host)+1);
     return (void*)connection;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     struct addrinfo hints, *servinfo, *p;
     int sockfd;
     char str_port[6];
@@ -23407,7 +21360,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
     connection->connected = -1;
     *((uint32*)(connection->ip4))=*((uint32*)(sa.sa_data+2));
     return (void*)connection;
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     tcp_connection *host; host=(tcp_connection*)host_tcp;
     struct sockaddr remote_addr;
     socklen_t addr_size;
@@ -23439,7 +21392,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       shutdown(tcp->socket,SD_BOTH);
       closesocket(tcp->socket);
     }
-#elif defined(QB64_LINUX)
+#elif defined(QB64_UNIX)
     if (tcp->socket) {
       shutdown(tcp->socket, SHUT_RDWR);
       close(tcp->socket);
@@ -23451,7 +21404,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
   void tcp_out(void *connection,void *offset,ptrszint bytes){
 #if !defined(DEPENDENCY_SOCKETS)
-#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
+#elif defined(QB64_WINDOWS) || defined(QB64_UNIX)
     tcp_connection *tcp; tcp=(tcp_connection*)connection;
     int total = 0;        // how many bytes we've sent
     int bytesleft = bytes; // how many we have left to send
@@ -23497,8 +21450,7 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
 
   void stream_update(stream_struct *stream){
-#if !defined(DEPENDENCY_SOCKETS)
-#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
+#ifdef DEPENDENCY_SOCKETS
     //assume tcp
 
     static connection_struct *connection;
@@ -23539,7 +21491,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
       stream->in_size+=bytes;
       if (stream->in_size==stream->in_limit) goto expand_and_retry;
     }
-#else
 #endif    
   }
 
@@ -23825,12 +21776,10 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
 
   int32 tcp_connected (void *connection){
     tcp_connection *tcp=(tcp_connection*)connection;
-#if !defined(DEPENDENCY_SOCKETS)
+#ifndef DEPENDENCY_SOCKETS
     return 0;
-#elif defined(QB64_WINDOWS) || defined(QB64_LINUX)
-    return tcp->connected;
 #else
-    return 0;
+    return tcp->connected;
 #endif
   }
 
@@ -23864,289 +21813,6 @@ int32 func__loadfont(qbs *f,int32 size,qbs *requirements,int32 passed){
   }
 
 
-
-
-
-
-  /* 2012
-
-     uint8 net_tcp_init_done=0;
-     void net_tcp_init(){
-     if (!net_tcp_init_done){
-     net_tcp_init_done=1;
-     //NO_S_D_L//if(SDLNet_Init()==-1){
-     //NO_S_D_L////assume success
-     //NO_S_D_L//}
-     }
-     }
-
-     int32 func__connected(int32 i){
-     if (new_error) return 0;
-
-     #ifndef NO_S_D_L
-
-     //validate
-     if (i>=0){error(52); return 0;}//Bad file name or number
-     i=-(i+1);
-     if (i>=special_handle_max){error(52); return 0;}
-     if ((special_handle[i].type<1)||(special_handle[i].type>3)){error(52); return 0;}
-     if (net_tcp[i].error) return 0;
-     if ((special_handle[i].type==2)||(special_handle[i].type==3)){
-     net_tcp_updatebuffer(i);//attempt to trigger error state by updating buffer
-     if (net_tcp[i].error) return 0;
-     }
-
-     #endif //NO_S_D_L
-
-     return -1;
-     }
-
-     qbs *func__connectionaddress(int32 i){
-     static qbs *tqbs,*tqbs2,*str=NULL,*str2=NULL;
-     if (new_error) goto error;
-     if (!str) str=qbs_new(0,0);
-     if (!str2) str2=qbs_new(0,0);
-
-     #ifndef NO_S_D_L
-
-     //validate
-     if (i>=0){error(52); goto error;}//Bad file name or number
-     i=-(i+1);
-     if (i>=special_handle_max){error(52); goto error;}
-     if ((special_handle[i].type<1)||(special_handle[i].type>3)){error(52); goto error;}
-
-     if (special_handle[i].type==1){//host (1) returns its own address
-     qbs_set(str,qbs_new_txt("TCP/IP:"));//network type
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(net_tcp[i].portused))));//port
-     qbs_set(str,qbs_add(str,qbs_new_txt(":")));
-     tqbs2=WHATISMYIP();
-     if (tqbs2->len){
-     qbs_set(str,qbs_add(str,tqbs2));
-     }else{
-     //global IP unavailable, use local IP
-     //IP4
-     static IPaddress ip;
-     if(SDLNet_ResolveHost(&ip,"localhost",0)==-1) goto error;
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)(ip.host)&255))));
-     qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)((ip.host)>>8)&255))));
-     qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)((ip.host)>>16)&255))));
-     qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)((ip.host)>>24)&255))));
-     }
-     tqbs=qbs_new(str->len,1);
-     memmove(tqbs->chr,str->chr,str->len);
-     return tqbs;
-     }
-
-     //assume connection/client socket (2/3)
-     static IPaddress *pip;
-     pip=SDLNet_TCP_GetPeerAddress(net_tcp[i].socket);
-     qbs_set(str,qbs_new_txt("TCP/IP:"));//network type
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str(net_tcp[i].portused))));//port
-     qbs_set(str,qbs_add(str,qbs_new_txt(":")));
-     //IP4
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)(pip->host)&255))));
-     qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)((pip->host)>>8)&255))));
-     qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)((pip->host)>>16)&255))));
-     qbs_set(str,qbs_add(str,qbs_new_txt(".")));
-     qbs_set(str,qbs_add(str,qbs_ltrim(qbs_str((int32)((pip->host)>>24)&255))));
-     tqbs=qbs_new(str->len,1);
-     memmove(tqbs->chr,str->chr,str->len);
-     return tqbs;
-
-     #endif //NO_S_D_L
-
-     error:
-     tqbs=qbs_new(0,1);
-     return tqbs;
-     }
-
-     #ifndef NO_S_D_L
-
-
-     int32 func__openhost(qbs* method){
-     if (new_error) return 0;
-
-     //generic data
-     static qbs *s=NULL; if (!s){s=qbs_new(0,0);}
-     static qbs *s2=NULL; if (!s2){s2=qbs_new(0,0);}
-     static qbs *s3=NULL; if (!s3){s3=qbs_new(0,0);}
-     static double d;
-     static int32 i,i2,portused;
-
-     qbs_set(s,method);
-     qbs_set(s2,qbs_ucase(s));
-
-     //TCP/IP Network
-     qbs_set(s3,qbs_new_txt("TCP/IP:"));
-     if (func_instr(NULL,s2,s3,NULL)==1){
-     qbs_set(s,func_mid(s,8,NULL,NULL));
-     net_tcp_init();
-     //***assume*** string s contains an integer port number
-     static IPaddress ip;
-     static TCPsocket socket;
-     d=func_val(s);
-     i=qbr_double_to_long(d);
-
-     if (cloud_app){
-     if (i==cloud_port[1]) goto gotcloudport;
-     if (i==cloud_port[2]) goto gotcloudport;
-     if ((i>=1)&&(i<=2)){i=cloud_port[i]; goto gotcloudport;}
-     cloud_port_redirect=i;
-     i=cloud_port[1];//unknown values default to primary hosting port
-     }
-     gotcloudport:
-
-     //***assume*** port number is within valid range
-     portused=i;
-     if(SDLNet_ResolveHost(&ip,NULL,i)==-1) return 0;
-     socket=SDLNet_TCP_Open(&ip);
-     if(!socket) return 0;
-
-     i2=special_handle_new();
-     special_handle[i2].type=1;//TCPIP host
-     if (i2>=net_tcp_bufsize) net_tcp=(net_tcp_struct*)realloc(net_tcp,sizeof(net_tcp_struct)*(++net_tcp_bufsize));
-     net_tcp[i2].ip=ip;
-     net_tcp[i2].socket=socket;
-     net_tcp[i2].error=0;
-     net_tcp[i2].buffer=NULL; net_tcp[i2].buffer_size=0; net_tcp[i2].buffer_space=0;
-     net_tcp[i2].portused=i;
-
-     return -1-i2;
-
-     }//TCP/IP
-
-     error(5); return 0;
-
-     }
-
-     int32 func__openconnection(int32 host){
-
-
-
-     static int32 i2;
-
-     //validate host handle
-     host=-(host+1);
-     if ((host<0)||(host>=special_handle_max)){error(258); return 0;}//invalid handle
-     if (special_handle[host].type!=1){error(258); return 0;}//invalid handle
-     static TCPsocket socket;
-     socket=SDLNet_TCP_Accept(net_tcp[host].socket);
-     if (!socket) return 0;
-
-     //create socket set for watching
-     static SDLNet_SocketSet set;
-     set=SDLNet_AllocSocketSet(1);
-     if (!set){
-     SDLNet_TCP_Close(socket);
-     return 0;
-     }
-     //add socket to set
-     if (SDLNet_TCP_AddSocket(set,socket)!=1){
-     SDLNet_FreeSocketSet(set);
-     SDLNet_TCP_Close(socket);
-     return 0;
-     }
-
-     i2=special_handle_new();
-     special_handle[i2].type=3;//TCPIP connection
-     if (i2>=net_tcp_bufsize) net_tcp=(net_tcp_struct*)realloc(net_tcp,sizeof(net_tcp_struct)*(++net_tcp_bufsize));
-     net_tcp[i2].socket=socket;
-     net_tcp[i2].set=set;
-     net_tcp[i2].error=0;
-     net_tcp[i2].buffer=NULL; net_tcp[i2].buffer_size=0; net_tcp[i2].buffer_space=0;
-     net_tcp[i2].eof=0;
-     net_tcp[i2].portused=net_tcp[host].portused;
-
-     return -1-i2;
-
-     }
-
-     int32 func__openclient(qbs* method){
-     if (new_error) return 0;
-
-     //generic data
-     static qbs *z=NULL; if (!z){z=qbs_new(1,0); z->chr[0]=0;}
-     static qbs *s=NULL; if (!s){s=qbs_new(0,0);}
-     static qbs *s2=NULL; if (!s2){s2=qbs_new(0,0);}
-     static qbs *s3=NULL; if (!s3){s3=qbs_new(0,0);}
-     static double d;
-     static int32 i,i2,portused;
-
-     qbs_set(s,method);
-     qbs_set(s2,qbs_ucase(s));
-
-     //TCP/IP Network
-     qbs_set(s3,qbs_new_txt("TCP/IP:"));
-     if (func_instr(NULL,s2,s3,NULL)==1){
-     qbs_set(s,func_mid(s,8,NULL,NULL));
-     net_tcp_init();
-
-     //read port number
-     qbs_set(s3,qbs_new_txt(":"));
-     i=func_instr(NULL,s,s3,NULL);
-     if (!i){error(5); return 0;}
-     qbs_set(s3,func_mid(s,1,i-1,1)); qbs_set(s,func_mid(s,i+1,NULL,NULL));
-     d=func_val(s3);
-     i2=qbr_double_to_long(d);
-     //***assume*** port number is within valid range
-     portused=i2;
-
-     if (cloud_app){
-     if (i2==cloud_port_redirect) i2=cloud_port[1];
-     }
-
-     //read address
-     if (!s->len){error(5); return 0;}
-     //null terminate address
-     qbs_set(s3,qbs_add(s,z));
-     static IPaddress ip;
-     static TCPsocket socket;
-     if(SDLNet_ResolveHost(&ip,(char*)s3->chr,i2)==-1) return 0;
-     socket=SDLNet_TCP_Open(&ip);
-     if (!socket) return 0;
-
-     //create socket set for watching
-     static SDLNet_SocketSet set;
-     set=SDLNet_AllocSocketSet(1);
-     if (!set){
-     SDLNet_TCP_Close(socket);
-     return 0;
-     }
-     //add socket to set
-     if (SDLNet_TCP_AddSocket(set,socket)!=1){
-     SDLNet_FreeSocketSet(set);
-     SDLNet_TCP_Close(socket);
-     return 0;
-     }
-
-     i2=special_handle_new();
-     special_handle[i2].type=2;//TCPIP client
-     if (i2>=net_tcp_bufsize) net_tcp=(net_tcp_struct*)realloc(net_tcp,sizeof(net_tcp_struct)*(++net_tcp_bufsize));
-     net_tcp[i2].ip=ip;
-     net_tcp[i2].socket=socket;
-     net_tcp[i2].set=set;
-     net_tcp[i2].error=0;
-     net_tcp[i2].buffer=NULL; net_tcp[i2].buffer_size=0; net_tcp[i2].buffer_space=0;
-     net_tcp[i2].eof=0;
-     net_tcp[i2].portused=portused;
-     return -1-i2;
-
-     }//TCP/IP
-
-     error(5); return 0;
-
-     }
-
-     #endif //NO_S_D_L
-
-
-     2012 */ 
-
 int32 func__exit(){
   exit_blocked=1;
   static int32 x;
@@ -24162,11 +21828,7 @@ int32 func__exit(){
 
 
 
-
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-
-#ifdef QB64_X11
+#if defined(QB64_LINUX)
 
 //X11 clipboard interface for Linux
 //SDL_SysWMinfo syswminfo;
@@ -24290,8 +21952,6 @@ if (x11selectionowner!=None){
 }
 
 #endif
-#endif
-#endif
 
 
 
@@ -24355,29 +22015,11 @@ if (x11selectionowner!=None){
    return;
 #endif
 
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifdef QB64_X11
+#if defined(QB64_LINUX)
    static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
    qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
    x11clipboardcopy((char*)textz->chr);
    return;
-
-   //Need to find a way to get the clipboard working on Linux! (Hack freeGLUT, switch to GLFW, small 'helper' program?)
-   /*   while (!display_surface) Sleep(1);
-   lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-   if (!linux_clipboard_init){
-
-     linux_clipboard_init=1;
-     setupx11clipboard();
-   }
-   static qbs *textz=NULL; if (!textz) textz=qbs_new(0,0);
-   qbs_set(textz,qbs_add(text,qbs_new_txt_len("\0",1)));
-   x11clipboardcopy((char*)textz->chr);
-   lock_mainloop=0; Sleep(1);//unlock
-   return; */
-#endif
-#endif
 #endif
 
    if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
@@ -24598,92 +22240,9 @@ return -1;
     text=qbs_new(0,1);
     return text;
     return NULL;
-
-    /*
-      PasteboardRef inPasteboard;
-      if (PasteboardCreate(kPasteboardClipboard, &inPasteboard) != noErr) {
-      return NULL;
-      }
-
-
-      ItemCount  itemCount;
-
-      PasteboardSynchronize( inPasteboard );
-      PasteboardGetItemCount( inPasteboard, &itemCount );
-      UInt32 itemIndex = 1; // should be 1 or the itemCount?
-
-      PasteboardItemID    itemID;
-      CFArrayRef          flavorTypeArray;
-      CFIndex             flavorCount;
-
-      PasteboardGetItemIdentifier( inPasteboard, itemIndex, &itemID );
-      PasteboardCopyItemFlavors( inPasteboard, itemID, &flavorTypeArray );
-
-      flavorCount = CFArrayGetCount( flavorTypeArray );
-
-      for(CFIndex flavorIndex = 0 ; flavorIndex < flavorCount; flavorIndex++ )
-      {
-      CFStringRef  flavorType = (CFStringRef)CFArrayGetValueAtIndex( flavorTypeArray, flavorIndex );
-
-
-      if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text")))
-      {
-      CFDataRef   flavorData;
-      PasteboardCopyItemFlavorData( inPasteboard, itemID,flavorType, &flavorData );
-
-      CFIndex  flavorDataSize = CFDataGetLength( flavorData );
-      //out.resize( flavorDataSize/2 );
-      //memcpy(&out[0], flavorData, flavorDataSize);
-      //CFRelease (flavorData);
-      //break;
-
-      text=qbs_new(flavorDataSize,1);
-      memcpy(text->chr,flavorData,text->len);
-      CFRelease (flavorData);
-      CFRelease (flavorTypeArray);
-      CFRelease(inPasteboard);
-      return text;
-
-      }
-      }
-      CFRelease (flavorTypeArray);
-      CFRelease(inPasteboard);
-      text=qbs_new(0,1);
-      return text;
-    */
-
-    /*
-      PasteboardRef clipboard;
-      if (PasteboardCreate(kPasteboardClipboard, &clipboard) != noErr) {
-      return NULL;
-      }
-    */
-
-    /*
-      PasteboardRef clipboard;
-      if (PasteboardCreate(kPasteboardClipboard, &clipboard) != noErr) {
-      return NULL;
-      }
-      if (PasteboardClear(clipboard) != noErr) {
-      CFRelease(clipboard);
-      return;
-      }
-      CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, text->chr, 
-      text->len, kCFAllocatorNull);
-      if (data == NULL) {
-      CFRelease(clipboard);
-      return;
-      }
-      OSStatus err;
-      err = PasteboardPutItemFlavor(clipboard, NULL, kUTTypeUTF8PlainText, data, 0);
-      CFRelease(clipboard);
-      CFRelease(data);
-    */
 #endif
 
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifdef QB64_X11
+#if defined(QB64_LINUX)
     qbs *text;
     char *cp=x11clipboardpaste();
     cp=x11clipboardpaste();
@@ -24695,118 +22254,6 @@ return -1;
       free(cp);
     }
     return text;
-
-
-    //char *XFetchBytes(display, nbytes_return)
-    //Display *display;
-    
-
-/*
-Atom a1, a2, type;
-int format, result;
-unsigned long len, bytes_left, dummy;
-unsigned char *data;
-Window Sown;
-Display *dpy=X11_display;
-
-x11_lock_request=1; while (x11_locked==0) Sleep(1);
-
-Sown = XGetSelectionOwner (dpy, XA_PRIMARY);
-//printf ("Selection owner%i\n", (int)Sown);
-if (Sown != None) {
-
-XConvertSelection (dpy, XA_PRIMARY, XA_STRING, None,
-Sown, CurrentTime);
-XFlush (dpy);
-
-//
-// Do not get any data, see how much data is there
-//
-
-XGetWindowProperty (dpy, Sown,
-XA_STRING, // Tricky..
-0, 0, // offset - len
-0, // Delete 0==FALSE
-AnyPropertyType, //flag
-&type, // return type
-&format, // return format
-&len, &bytes_left, //that
-&data);
-//printf ("type:%i len:%i format:%i byte_left:%i\n",
-//(int)type, len, format, bytes_left);
-// DATA is There
-
-
-
-if (bytes_left > 0)
-{
-result = XGetWindowProperty (dpy, Sown,
-XA_STRING, 0,bytes_left,0,
-AnyPropertyType, &type,&format,
-&len, &dummy, &data);
-if (result == Success){
-//printf ("DATA IS HERE!!```%s'''\n",
-//data);
-//XFree (data);
-x11_locked=0;
-return qbs_new_txt((const char*)data);
-}
-else
-{ //printf ("FAIL\n");
-//XFree (data);
-}
-}//bytes_left
-}//Sown != None
-
-x11_locked=0;
-return qbs_new(0,1);
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-    int bytes;
-    char *data=XFetchBytes(X11_display, &bytes);
-    if (bytes==0) return qbs_new(0,1);
-    return qbs_new_txt_len(data, bytes);
-*/
-
-    //Linux clipboard not functional, see comment in sub__clipboard
-    /*    static char *cp;
-    static qbs *text;
-    while (!display_surface) Sleep(1);
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-    if (!linux_clipboard_init){
-      linux_clipboard_init=1;
-      setupx11clipboard();
-    }
-    cp=x11clipboardpaste();
-    if (!cp){
-      text=qbs_new(0,1);
-    }else{
-      text=qbs_new(strlen(cp),1);
-      memcpy(text->chr,cp,text->len);
-      free(cp);
-    }
-    lock_mainloop=0; Sleep(1);//unlock
-    return text; */
-#endif
-#endif
 #endif
 
     if (internal_clipboard==NULL) internal_clipboard=qbs_new(0,0);
@@ -26004,217 +23451,7 @@ return qbs_new(0,1);
 
     ReleaseDC(NULL,hdc);
     return i;
-
-    /*
-    //   FUNCTION: CaptureAnImage(HWND hWnd)
-    //
-    //   PURPOSE: Captures a screenshot into a window and then saves it in a .bmp file.
-    //
-    //   COMMENTS: 
-    //
-    //      Note: This sample will attempt to create a file called captureqwsx.bmp 
-    //        
-
-    int CaptureAnImage(HWND hWnd)
-    {
-    HDC hdcScreen;
-    HDC hdcWindow;
-    HDC hdcMemDC = NULL;
-    HBITMAP hbmScreen = NULL;
-    BITMAP bmpScreen;
-
-    // Retrieve the handle to a display device context for the client 
-    // area of the window. 
-    hdcScreen = GetDC(NULL);
-    hdcWindow = GetDC(hWnd);
-
-    // Create a compatible DC which is used in a BitBlt from the window DC
-    hdcMemDC = CreateCompatibleDC(hdcWindow); 
-
-    if(!hdcMemDC)
-    {
-    MessageBox2(hWnd, L"StretchBlt has failed",L"Failed", MB_OK);
-    goto done;
-    }
-
-    // Get the client area for size calculation
-    RECT rcClient;
-    GetClientRect(hWnd, &rcClient);
-
-    //This is the best stretch mode
-    SetStretchBltMode(hdcWindow,HALFTONE);
-
-    //The source DC is the entire screen and the destination DC is the current window (HWND)
-    if(!StretchBlt(hdcWindow, 
-    0,0, 
-    rcClient.right, rcClient.bottom, 
-    hdcScreen, 
-    0,0,
-    GetSystemMetrics (SM_CXSCREEN),
-    GetSystemMetrics (SM_CYSCREEN),
-    SRCCOPY))
-    {
-    MessageBox2(hWnd, L"StretchBlt has failed",L"Failed", MB_OK);
-    goto done;
-    }
-    
-    // Create a compatible bitmap from the Window DC
-    hbmScreen = CreateCompatibleBitmap(hdcWindow, rcClient.right-rcClient.left, rcClient.bottom-rcClient.top);
-    
-    if(!hbmScreen)
-    {
-    MessageBox2(hWnd, L"CreateCompatibleBitmap Failed",L"Failed", MB_OK);
-    goto done;
-    }
-
-    // Select the compatible bitmap into the compatible memory DC.
-    SelectObject(hdcMemDC,hbmScreen);
-    
-    // Bit block transfer into our compatible memory DC.
-    if(!BitBlt(hdcMemDC, 
-    0,0, 
-    rcClient.right-rcClient.left, rcClient.bottom-rcClient.top, 
-    hdcWindow, 
-    0,0,
-    SRCCOPY))
-    {
-    MessageBox2(hWnd, L"BitBlt has failed", L"Failed", MB_OK);
-    goto done;
-    }
-
-    // Get the BITMAP from the HBITMAP
-    GetObject(hbmScreen,sizeof(BITMAP),&bmpScreen);
-     
-    BITMAPFILEHEADER   bmfHeader;    
-    BITMAPINFOHEADER   bi;
-     
-    bi.biSize = sizeof(BITMAPINFOHEADER);    
-    bi.biWidth = bmpScreen.bmWidth;    
-    bi.biHeight = bmpScreen.bmHeight;  
-    bi.biPlanes = 1;    
-    bi.biBitCount = 32;    
-    bi.biCompression = BI_RGB;    
-    bi.biSizeImage = 0;  
-    bi.biXPelsPerMeter = 0;    
-    bi.biYPelsPerMeter = 0;    
-    bi.biClrUsed = 0;    
-    bi.biClrImportant = 0;
-
-    DWORD dwBmpSize = ((bmpScreen.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpScreen.bmHeight;
-
-    // Starting with 32-bit Windows, GlobalAlloc and LocalAlloc are implemented as wrapper functions that 
-    // call HeapAlloc using a handle to the process's default heap. Therefore, GlobalAlloc and LocalAlloc 
-    // have greater overhead than HeapAlloc.
-    HANDLE hDIB = GlobalAlloc(GHND,dwBmpSize); 
-    char *lpbitmap = (char *)GlobalLock(hDIB);    
-
-    // Gets the "bits" from the bitmap and copies them into a buffer 
-    // which is pointed to by lpbitmap.
-    GetDIBits(hdcWindow, hbmScreen, 0,
-    (UINT)bmpScreen.bmHeight,
-    lpbitmap,
-    (BITMAPINFO *)&bi, DIB_RGB_COLORS);
-
-    // A file is created, this is where we will save the screen capture.
-    HANDLE hFile = CreateFile(L"captureqwsx.bmp",
-    GENERIC_WRITE,
-    0,
-    NULL,
-    CREATE_ALWAYS,
-    FILE_ATTRIBUTE_NORMAL, NULL);   
-    
-    // Add the size of the headers to the size of the bitmap to get the total file size
-    DWORD dwSizeofDIB = dwBmpSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
- 
-    //Offset to where the actual bitmap bits start.
-    bmfHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER); 
-    
-    //Size of the file
-    bmfHeader.bfSize = dwSizeofDIB; 
-    
-    //bfType must always be BM for Bitmaps
-    bmfHeader.bfType = 0x4D42; //BM   
- 
-    DWORD dwBytesWritten = 0;
-    WriteFile(hFile, (LPSTR)&bmfHeader, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL);
-    WriteFile(hFile, (LPSTR)&bi, sizeof(BITMAPINFOHEADER), &dwBytesWritten, NULL);
-    WriteFile(hFile, (LPSTR)lpbitmap, dwBmpSize, &dwBytesWritten, NULL);
-    
-    //Unlock and Free the DIB from the heap
-    GlobalUnlock(hDIB);    
-    GlobalFree(hDIB);
-
-    //Close the handle for the file that was created
-    CloseHandle(hFile);
-       
-    //Clean up
-    done:
-    DeleteObject(hbmScreen);
-    ReleaseDC(hWnd, hdcMemDC);
-    ReleaseDC(NULL,hdcScreen);
-    ReleaseDC(hWnd,hdcWindow);
-
-    return 0;
-    }
-    */
-
 #endif
-
-#ifdef QB64_LINUX
-
-#ifdef BROKEN
-
-#ifndef QB64_MACOSX
-    //Code contributed by 'Chronokitsune'
-    lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-    static Display *dpy;
-    static int x, y;
-    static unsigned int width, height;
-    static XWindowAttributes attrs;
-    static Window w;
-    static XImage *img;
-    static SDL_SysWMinfo syswminfo;
-    static int32 setup=0;
-    if (!setup)
-      {
-    setup=1;
-    SDL_VERSION(&syswminfo.version);
-    SDL_GetWMInfo (&syswminfo);
-      }
-    dpy = syswminfo.info.x11.display;
-    syswminfo.info.x11.lock_func ();
-    w = RootWindow(dpy, DefaultScreen(dpy));
-    XGetWindowAttributes (dpy, // Display *display
-                          w, // Window w
-                          &attrs); //XWindowAttributes *attrs_return);
-    x = attrs.x;
-    y = attrs.y;
-    width = attrs.width;
-    height = attrs.height;
-    w = attrs.root;
-    img = XGetImage (dpy, w, x, y, width, height, AllPlanes, ZPixmap);
-    if (img)
-      {
-        static int32 i,i2;
-        i2=func__dest();
-        i=func__newimage(width,height,32,1);
-        sub__dest(i);
-        if (img->bytes_per_line==width*4) memcpy(write_page->offset,img->data,width*height*4);//overflow safeguard                  
-        sub__setalpha(255,NULL,NULL,NULL,0);
-        sub__dest(i2);
-        XDestroyImage (img);
-        syswminfo.info.x11.unlock_func ();
-        lock_mainloop=0; Sleep(1);//unlock
-        return i;        
-      }
-    syswminfo.info.x11.unlock_func();
-    lock_mainloop=0; Sleep(1);//unlock
-    return -1;
-#endif
-#endif
-
-    return -1;
-#endif //BROKEN
 
 #ifdef QB64_MACOSX
     system("screencapture -x -tbmp /tmp/qb64screencapture.bmp\0");
@@ -27222,444 +24459,6 @@ return qbs_new(0,1);
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifdef QB64_IME
-
-  static int message_loop(
-              SDL_Event event,
-              SDL_Surface *screen,
-              SDL_Surface *back,
-              int *inputedWidth,
-              Uint16 *inputedString,
-              TTF_Font *font);
-
-  static int GetUnicodeStringLength(Uint16 *unicodeString);
-  static Uint16 *CatUnicodeString(Uint16 *dest, Uint16 *src);
-  /*
-    static Uint16 *CopyUnicodeString(Uint16 *dest, Uint16 *src);
-  */
-  static Uint16 *CopyNumUnicodeString(Uint16 *dest, Uint16 *src, int num);
-  static int DrawCursor(SDL_Surface *back, TTF_Font *font, int cursorPosition);
-  static int MessageChange(SDL_Surface *back, TTF_Font *font, int inputedWidth);
-
-
-  int GetUnicodeStringLength(Uint16 *unicodeString)
-    {
-      int i;
-    
-      if (unicodeString == NULL) {
-        return 0;
-      }
-    
-      i = 0;
-      while (unicodeString[i]) {
-        i++;
-      }
-    
-      return i;
-    }
-
-
-  /*
-    Uint16 *CopyUnicodeString(Uint16 *dest, Uint16 *src)
-    {
-    int i;
-    
-    i = 0;
-    while (src[i]) {
-    dest[i] = src[i];
-    i++;
-    }
-    dest[i] = 0x0000;
-    
-    return dest;
-    }
-  */
-
-
-  Uint16 *CopyNumUnicodeString(Uint16 *dest, Uint16 *src, int num)
-    {
-      int i;
-    
-      i = 0;
-      while (src[i] && i < num) {
-        dest[i] = src[i];
-        i++;
-      }
-      dest[i] = 0x0000;
-    
-      return dest;
-    }
-
-
-  Uint16 *CatUnicodeString(Uint16 *dest, Uint16 *src)
-    {
-      int destCount;
-      int srcCount;
-    
-      destCount = 0;
-      srcCount = 0;
-      while (dest[destCount]) {
-        destCount++;
-      }
-    
-      while (src[srcCount]) {
-        dest[destCount] = src[srcCount];
-        destCount++;
-        srcCount++;
-      }
-      dest[destCount] = 0x0000;
-    
-      return dest;
-    }
-
-
-  int DrawCursor(SDL_Surface *back, TTF_Font *font, int cursorPosition)
-    {
-      SDL_Rect rect;
-      ///SDL_Color bg = {0x00, 0x00, 0x00};
-      ///SDL_Color cfg = {0x66, 0xFF, 0x66};
-
-      SDL_Color bg = {0xFF, 0xFF, 0xFF, 0xFF};
-      SDL_Color cfg = {0x00, 0x00, 0x00, 0x00};
-    
-      int cursorWidth;
-      SDL_Surface *surface;
-    
-      rect.x = cursorPosition;
-      rect.y = 0;
-      rect.w = 640 - cursorPosition;
-      rect.h = 100;
-      surface = TTF_RenderUTF8_Shaded(font, "|", cfg, bg);
-      SDL_BlitSurface(surface, NULL, back, &rect);
-      cursorWidth = surface->w;
-      SDL_FreeSurface(surface);
-    
-      return cursorWidth;
-    }
-
-
-  int DrawMessageBlock(
-               SDL_Surface *back, TTF_Font *font, Uint16 *string,
-               int drawStartWidth, SDL_Color fg, SDL_Color bg, int cursorPosition)
-    {
-      SDL_Rect rect;
-      SDL_Surface *surface;
-      Uint16 *splitString;
-      int needSize;
-      int stringLength;
-      int nowWidth;
-    
-      /* No cursor */
-      if (cursorPosition == -1) {
-        rect.x = drawStartWidth;
-        rect.y = 0;
-        rect.w = 640 - drawStartWidth;
-        rect.h = 100;
-        surface = TTF_RenderUNICODE_Shaded(font, string, fg, bg);
-        
-        SDL_BlitSurface(surface, NULL, back, &rect);
-        nowWidth = surface->w;
-        SDL_FreeSurface(surface);
-
-    ime_DrawMessageBlock_lastpixeloffset=drawStartWidth+nowWidth;
-        return nowWidth;
-      }
-    
-      /* Split string along cursorPosition */
-      if (cursorPosition == 0) {
-        nowWidth = 0;
-      } else {
-        nowWidth = 0;
-        needSize = (cursorPosition + 1) * sizeof(Uint16);
-        splitString = (Uint16*)calloc(needSize, 1);
-        if (splitString == NULL) {
-      return -1;
-        }
-        memcpy(splitString, string, cursorPosition * sizeof(Uint16));
-        rect.x = drawStartWidth + nowWidth;
-        rect.y = 0;
-        rect.w = 640 - (drawStartWidth + nowWidth);
-        rect.h = 100;
-        surface = TTF_RenderUNICODE_Shaded(font, splitString, fg, bg);
-        free(splitString);
-        
-        SDL_BlitSurface(surface, NULL, back, &rect);
-        nowWidth += surface->w;
-        SDL_FreeSurface(surface);
-      }
-    
-      nowWidth += DrawCursor(back, font, drawStartWidth + nowWidth);
-    
-      stringLength =
-        GetUnicodeStringLength(string) - cursorPosition;
-      if (stringLength > 0) {
-        needSize = (stringLength + 1) * sizeof(Uint16);
-        splitString = (Uint16*)calloc(needSize, 1);
-        if (splitString == NULL) {
-      return -1;
-        }
-        splitString = string + cursorPosition;
-        rect.x = drawStartWidth + nowWidth;
-        rect.y = 0;
-        rect.w = 640 - drawStartWidth + nowWidth;
-        rect.h = 100;
-        surface = TTF_RenderUNICODE_Shaded(font, splitString, fg, bg);
-        SDL_BlitSurface(surface, NULL, back, &rect);
-        nowWidth += surface->w;
-        SDL_FreeSurface(surface);
-      }
-
-
-      ime_DrawMessageBlock_lastpixeloffset=drawStartWidth+nowWidth;
-      return nowWidth;
-    }
-
-
-  int MessageChange(SDL_Surface *back, TTF_Font *font, int inputedWidth)
-    {
-      ///SDL_Color fg = {0x66, 0x66, 0xFF};
-      ///SDL_Color bg = {0x00, 0x00, 0x00};
-
-      /*ref
-    int DrawMessageBlock(
-    SDL_Surface *back, TTF_Font *font, Uint16 *string,
-    int drawStartWidth, SDL_Color fg, SDL_Color bg, int cursorPosition)
-      */
-
-
-      SDL_Color fg = {0x00, 0x00, 0x00, 0x00};
-      SDL_Color bg = {0xFF, 0xFF, 0xFF, 0xFF};
-
-
-      int compositionLastPosition;
-      Uint16 *firstString;
-      Uint16 *middleString;
-      Uint16 *lastString;
-      int firstStringCursorPosition;
-      int middleStringCursorPosition;
-      int lastStringCursorPosition;
-      int needSize;
-      int stringLength;
-      int width;
-    
-      compositionLastPosition =
-        InputMethod_GetCurrentCompositionPosition() +
-        InputMethod_GetCurrentCompositionLength();
-
-      stringLength =
-        GetUnicodeStringLength(InputMethod_GetCurrentEditingString());
-    
-      if (InputMethod_GetCurrentCompositionLength() == 0) {
-        DrawMessageBlock(
-             back, font, InputMethod_GetCurrentEditingString(),
-             inputedWidth, fg, bg, InputMethod_GetCurrentCursorPosition());
-
-
-
-      } else if (
-         InputMethod_GetCurrentCompositionPosition() == 0 &&
-         compositionLastPosition >= stringLength
-         ) {
-        DrawMessageBlock(
-             back, font, InputMethod_GetCurrentEditingString(),
-             inputedWidth, bg, fg, InputMethod_GetCurrentCursorPosition());
-
-      } else if (InputMethod_GetCurrentCompositionPosition() == 0) {
-        needSize =
-      (InputMethod_GetCurrentCompositionLength() + 1)
-      * sizeof(Uint16);
-        firstString = (Uint16*)malloc(needSize);
-        if (firstString == NULL) {
-      return 0;
-        }
-        needSize =
-      (stringLength - InputMethod_GetCurrentCompositionLength() + 1)
-      * sizeof(Uint16);
-        lastString = (Uint16*)malloc(needSize);
-        if (lastString == NULL) {
-      free(firstString);
-      return 0;
-        }
-        CopyNumUnicodeString(
-                 firstString,
-                 InputMethod_GetCurrentEditingString(),
-                 InputMethod_GetCurrentCompositionLength());
-        CopyNumUnicodeString(
-                 lastString,
-                 InputMethod_GetCurrentEditingString() +
-                 InputMethod_GetCurrentCompositionLength(),
-                 stringLength - InputMethod_GetCurrentCompositionLength());
-        if (
-            InputMethod_GetCurrentCursorPosition() <=
-            InputMethod_GetCurrentCompositionLength()
-        ) {
-      firstStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition();
-      lastStringCursorPosition = -1;
-        } else {
-      firstStringCursorPosition = -1;
-      lastStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition() -
-        InputMethod_GetCurrentCompositionPosition();
-        }
-        width = DrawMessageBlock(
-                 back, font, firstString,
-                 inputedWidth, bg, fg, firstStringCursorPosition);
-        DrawMessageBlock(
-             back, font, lastString,
-             inputedWidth + width, fg, bg, lastStringCursorPosition);
-        free(firstString);
-        free(lastString);
-      } else if (compositionLastPosition >= stringLength) {
-        needSize =
-      (InputMethod_GetCurrentCompositionPosition() + 1)
-      * sizeof(Uint16);
-        firstString = (Uint16*)malloc(needSize);
-        if (firstString == NULL) {
-      return 0;
-        }
-        needSize =
-      (InputMethod_GetCurrentCompositionLength() + 1)
-      * sizeof(Uint16);
-        lastString = (Uint16*)malloc(needSize);
-        if (lastString == NULL) {
-      free(firstString);
-      return 0;
-        }
-        CopyNumUnicodeString(
-                 firstString,
-                 InputMethod_GetCurrentEditingString(),
-                 InputMethod_GetCurrentCompositionPosition());
-        CopyNumUnicodeString(
-                 lastString,
-                 InputMethod_GetCurrentEditingString() +
-                 InputMethod_GetCurrentCompositionPosition(),
-                 InputMethod_GetCurrentCompositionLength());
-        if (
-            InputMethod_GetCurrentCursorPosition() <=
-            InputMethod_GetCurrentCompositionPosition()
-        ) {
-      firstStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition();
-      lastStringCursorPosition = -1;
-        } else {
-      firstStringCursorPosition = -1;
-      lastStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition() -
-        InputMethod_GetCurrentCompositionPosition();
-        }
-        width = DrawMessageBlock(
-                 back, font, firstString,
-                 inputedWidth, fg, bg, firstStringCursorPosition);
-        DrawMessageBlock(
-             back, font, lastString,
-             inputedWidth + width, bg, fg, lastStringCursorPosition);
-        free(firstString);
-        free(lastString);
-      } else {
-        needSize =
-      (InputMethod_GetCurrentCompositionPosition() + 1)
-      * sizeof(Uint16);
-        firstString = (Uint16*)malloc(needSize);
-        if (firstString == NULL) {
-      return 0;
-        }
-        needSize =
-      (InputMethod_GetCurrentCompositionLength() + 1)
-      * sizeof(Uint16);
-        middleString = (Uint16*)malloc(needSize);
-        if (middleString == NULL) {
-      free(firstString);
-      return 0;
-        }
-        needSize =
-      (stringLength - compositionLastPosition + 1)
-      * sizeof(Uint16);
-        lastString = (Uint16*)malloc(needSize);
-        if (lastString == NULL) {
-      free(firstString);
-      free(middleString);
-      return 0;
-        }
-        CopyNumUnicodeString(
-                 firstString,
-                 InputMethod_GetCurrentEditingString(),
-                 InputMethod_GetCurrentCompositionPosition());
-        CopyNumUnicodeString(
-                 middleString,
-                 InputMethod_GetCurrentEditingString() +
-                 InputMethod_GetCurrentCompositionPosition(),
-                 InputMethod_GetCurrentCompositionLength());
-        CopyNumUnicodeString(
-                 lastString,
-                 InputMethod_GetCurrentEditingString() +
-                 compositionLastPosition,
-                 stringLength - compositionLastPosition);
-        if (
-            InputMethod_GetCurrentCursorPosition() <=
-            InputMethod_GetCurrentCompositionPosition()
-        ) {
-      firstStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition();
-      middleStringCursorPosition = -1;
-      lastStringCursorPosition = -1;
-        } else if (
-           InputMethod_GetCurrentCursorPosition() <=
-           InputMethod_GetCurrentCompositionPosition() +
-           InputMethod_GetCurrentCompositionLength()
-           ) {
-      firstStringCursorPosition = -1;
-      middleStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition();
-      lastStringCursorPosition = -1;
-        } else {
-      firstStringCursorPosition = -1;
-      middleStringCursorPosition = -1;
-      lastStringCursorPosition =
-        InputMethod_GetCurrentCursorPosition() -
-        (InputMethod_GetCurrentCompositionPosition() +
-         InputMethod_GetCurrentCompositionLength());
-        }
-        width = DrawMessageBlock(
-                 back, font, firstString,
-                 inputedWidth, fg, bg, firstStringCursorPosition);
-        width += DrawMessageBlock(
-                  back, font, middleString,
-                  inputedWidth + width, bg, fg, middleStringCursorPosition);
-        DrawMessageBlock(
-             back, font, lastString,
-             inputedWidth + width, fg, bg, lastStringCursorPosition);
-        free(firstString);
-        free(lastString);
-      }
-    
-      return 0;
-    }
-#endif
-
-
   int32 func__keyhit(){
     /*
     //keyhit cyclic buffer
@@ -27954,44 +24753,40 @@ return qbs_new(0,1);
   #else
     tqbs=qbs_new_txt("[WINDOWS][64BIT]");
   #endif
-#else
-#ifdef QB64_MACOSX
-#ifdef QB64_32
-    tqbs=qbs_new_txt("[MACOSX][32BIT][LINUX]");
-#else
-    tqbs=qbs_new_txt("[MACOSX][64BIT][LINUX]");
-#endif
-#else
-#ifdef QB64_32
+#elif defined(QB64_LINUX)
+  #ifdef QB64_32
     tqbs=qbs_new_txt("[LINUX][32BIT]");
-#else
+  #else
     tqbs=qbs_new_txt("[LINUX][64BIT]");
-#endif 
-#endif
+  #endif
+#elif defined(QB64_MACOSX)
+  #ifdef QB64_32
+    tqbs=qbs_new_txt("[MACOSX][32BIT][LINUX]");
+  #else
+    tqbs=qbs_new_txt("[MACOSX][64BIT][LINUX]");
+  #endif
+#else
+  #ifdef QB64_32
+    tqbs=qbs_new_txt("[32BIT]");
+  #else
+    tqbs=qbs_new_txt("[64BIT]");
+  #endif
 #endif
     return tqbs;
   }
 
   int32 func__screenx(){
-          #ifdef QB64_GUI
-          #ifdef QB64_WINDOWS
-          #ifdef QB64_GLUT
+          #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
               while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
               return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
-          #endif
-          #endif
           #endif
           return 0; //if not windows then return 0
   }
 
   int32 func__screeny(){
-          #ifdef QB64_GUI
-          #ifdef QB64_WINDOWS
-          #ifdef QB64_GLUT
+          #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
                 while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
                 return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
-          #endif
-          #endif
           #endif
           return 0; //if not windows then return 0
   }
@@ -28002,8 +24797,7 @@ return qbs_new(0,1);
     if (passed==3) goto error;
     if (full_screen) return;
 
-        #ifdef QB64_GUI        
-        #ifdef QB64_GLUT        
+        #if defined(QB64_GUI) && defined(QB64_GLUT)
         while (!window_exists){Sleep(100);} //wait for window to be created before moving it.
         if (passed==2){
                 glutPositionWindow (x,y);}
@@ -28017,7 +24811,6 @@ return qbs_new(0,1);
                         y = (SH - WH)/2;
                         glutPositionWindow (x,y);
         }
-        #endif
         #endif
 
         return;
@@ -28330,150 +25123,6 @@ return qbs_new(0,1);
 
     error(5);
   }
-
-
-#ifndef NO_S_D_L
-
-  //#include <cassert>
-#define CHUNKSIZE   1024
-#define SAMPLE_RATE 22050.0
-#define SAMP_BYTES  2
-#define CHANNELS    2
-
-  static bool raw_playing = 0;
-  static char *raw_data;
-  static int raw_size = 0; //size of raw_data buffer (bytes)
-  static int raw_reader, raw_writer;
-  static bool raw_dontfree = 0;
-
-  //SDL_Mixer callback function
-  //must populate 'stream' with the next chunk of sound
-  static void raw_fill(void *dummy, Uint8 *stream, int len)
-  {
-    //assert(len == CHUNKSIZE * CHANNELS);
-    if (raw_reader < raw_writer && raw_reader + len > raw_writer) {
-      //partial chunk, zero the rest
-      memcpy(stream, raw_data + raw_reader, raw_writer - raw_reader);
-      memset(stream + (raw_writer - raw_reader), 0, len - (raw_writer - raw_reader));
-    } else {
-      memcpy(stream, raw_data + raw_reader, len);
-    }
-    if ((raw_reader < raw_writer && raw_reader + len >= raw_writer) || (raw_writer == 0 && raw_reader + len == raw_size)) {
-      //out of data
-      Mix_HookMusic(NULL, NULL);
-      raw_playing = 0;
-      raw_reader = raw_writer = 0;
-      if (raw_dontfree == 0) {
-    free(raw_data);
-    raw_size = 0;
-      }
-      return;
-    }
-    raw_reader += len;
-    if (raw_reader >= raw_size) {
-      raw_reader = 0;
-    }
-  }
-
-  //double the space of the raw sound buffer
-  static void raw_grow()
-  {
-    char *newptr;
-    raw_dontfree = 1;
-    SDL_UnlockAudio();
-    newptr = (char *)malloc(raw_size * 2);
-    if (!newptr){error(257); return;}
-    memcpy(newptr, raw_data, raw_size);
-    memcpy(newptr + raw_size, raw_data, raw_size);
-    SDL_LockAudio();
-    if (raw_writer <= raw_reader) {
-      raw_writer += raw_size;
-    }
-    free(raw_data);
-    raw_data = newptr;
-    raw_size *= 2;
-    raw_dontfree = 0;
-  }
-
-  //returns the amount of sound data queued, in bytes
-  //assumes that raw_size is a power of 2!
-  static inline int raw_bytes()
-  {
-    return (raw_writer - raw_reader) & (raw_size - 1);
-  }
-
-  //queue a sample
-  void sub__sndraw(double left,double right,int32 passed)
-    {
-
-      if (!raw_size) {
-        sndsetup();
-        raw_size = CHUNKSIZE*SAMP_BYTES*CHANNELS * 8;
-        raw_data = (char *) malloc(raw_size);
-        if (!raw_data){error(257); return;}
-        raw_writer = raw_reader = 0;
-      }
-
-      static double sample;
-      static int16 clipped;
-
-      sample = left;
-      if (sample >= 1.0)
-        clipped = 32767;
-      else if (sample <= -1.0)
-        clipped = -32768;
-      else
-        clipped = floor(sample * 32767.99999);
-
-      //left
-      *(Sint16 *)&raw_data[raw_writer] = clipped;
-      raw_writer += SAMP_BYTES;
-
-      if (passed){
-        sample = right;
-        if (sample >= 1.0)
-      clipped = 32767;
-        else if (sample <= -1.0)
-      clipped = -32768;
-        else
-      clipped = floor(sample * 32767.99999);
-      }
-
-      //right
-      *(Sint16 *)&raw_data[raw_writer] = clipped;
-      raw_writer += SAMP_BYTES;
-
-      if (raw_writer % (CHUNKSIZE * CHANNELS) == 0) {
-        SDL_LockAudio();
-        if (raw_writer >= raw_size)
-      raw_writer = 0;
-        if (raw_bytes() == 0)
-      raw_grow();
-
-        //ensure a reasonable amount is queued before commencing
-        if (!raw_playing && raw_bytes() >= CHUNKSIZE * SAMP_BYTES * CHANNELS * 4) {
-      raw_playing = 1;
-      Mix_HookMusic(raw_fill, NULL);
-        }
-        SDL_UnlockAudio();
-      }
-    }
-
-  //returns the length of sound queued, in seconds
-  double func__sndrawlen()
-  {
-    int bytes;
-    //This trick ensures that programs queue enough sound to trigger play
-    if (!raw_playing)
-      return 0;
-    SDL_LockAudio();
-    bytes = raw_bytes();
-    SDL_UnlockAudio();
-    return bytes / (SAMP_BYTES * CHANNELS * SAMPLE_RATE);
-  }
-
-
-#endif //NO_S_D_L
 
 
 void sub__depthbuffer(int32 options,int32 dst,int32 passed){
@@ -29089,12 +25738,11 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     if (x==INVALID_FILE_ATTRIBUTES) return 0;
     if (x&FILE_ATTRIBUTE_DIRECTORY) return 0;
     return -1;
-#endif
-#ifdef QB64_LINUX
+#elif defined(QB64_UNIX)
     struct stat sb;
     if (stat(fixdir(strz),&sb) == 0 && S_ISREG(sb.st_mode)) return -1;
     return 0;
-#endif
+#else
     //generic method (not currently used)
     static ifstream fh;
     fh.open(fixdir(strz),ios::binary|ios::in);
@@ -29102,6 +25750,7 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     fh.clear(ios::goodbit);
     fh.close();
     return -1;
+#endif
   }
 
   int32 func__direxists(qbs* file){
@@ -29115,13 +25764,13 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
     if (x==INVALID_FILE_ATTRIBUTES) return 0;
     if (x&FILE_ATTRIBUTE_DIRECTORY) return -1;
     return 0;
-#endif
-#ifdef QB64_LINUX
+#elif defined(QB64_UNIX)
     struct stat sb;
     if (stat(fixdir(strz),&sb) == 0 && S_ISDIR(sb.st_mode)) return -1;
     return 0;
-#endif
+#else
     return 0;//default response
+#endif
   }
 
   int32 func__console(){
@@ -29859,7 +26508,7 @@ qbs *func__cwd(){
     error(51); //"Internal error"
     return tqbs;
   }
-#elif defined QB64_LINUX
+#elif defined QB64_UNIX
   length = 512;
   while(1) {
     buf = (char *)malloc(length);
@@ -30050,263 +26699,10 @@ qbs *func__dir(qbs* context_in){
 }
 
   extern void set_dynamic_info();
+  int main( int argc, char* argv[] ){
 
-
-
-#ifdef QB64_ANDROID
-
-        void android_get_file_asset(AAssetManager* mgr, char *filename){
-                AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-                char buf[BUFSIZ];
-                int nb_read = 0;
-                FILE* out = fopen(filename, "w");
-                while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)        fwrite(buf, nb_read, 1, out);
-                fclose(out);
-                AAsset_close(asset);
-        }
-
-        //notes:
-        // * Actual entry point is in fg_runtime_android.c which has been modified to pass 'android_app' to us
-
-        int main(int argc, char* argv[], struct android_app* android_state_in) {
-
-        android_state=android_state_in;
-        android_vm=android_state->activity->vm;
-        android_env=android_state->activity->env;
-
-        struct android_app* app=android_state_in;
-          JNIEnv* env = app->activity->env;
-        JavaVM* vm = app->activity->vm;
-        vm->AttachCurrentThread( &env, NULL);
-
-        // Get a handle on our calling NativeActivity class
-        jclass activityClass = env->GetObjectClass( app->activity->clazz);
-        // Get path to files dir
-        jmethodID getFilesDir = env->GetMethodID( activityClass, "getFilesDir", "()Ljava/io/File;");
-        jobject file = env->CallObjectMethod( app->activity->clazz, getFilesDir);
-        jclass fileClass = env->FindClass( "java/io/File");
-        jmethodID getAbsolutePath = env->GetMethodID( fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-        jstring jpath = (jstring)env->CallObjectMethod( file, getAbsolutePath);
-        const char* app_dir = env->GetStringUTFChars( jpath, NULL);
-        // chdir in the application files directory
-        LOGI("app_dir: %s", app_dir);
-        chdir(app_dir);
-        env->ReleaseStringUTFChars( jpath, app_dir);
-        // Pre-extract assets, to avoid Android-specific file opening
-
-        AAssetManager* mgr = app->activity->assetManager;
-        
-        /* Old code which pulled all root directory assets, in QB64 assets are specified in code so this just wastes time
-        AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
-        const char* filename = (const char*)NULL;        
-        while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-                android_get_file_asset(mgr,filename);
-        }
-        AAssetDir_close(assetDir);
-        */
-
-        #include "../temp/assets.txt"
-
-	//get _DIR$(...) paths
-	{//upscope
-
-	jfieldID fieldId;
-	jclass envClass = env->FindClass("android/os/Environment");
-	char** targetString;
-	jstring jstrParam;
-	char* s;
-	jstring sType;
-	for (int i=1;i<=6;i++){
-
-		if (i==1){
-			targetString=&android_dir_dcim;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DCIM", "Ljava/lang/String;");
-		}
-		if (i==2){
-			targetString=&android_dir_downloads;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DOWNLOADS", "Ljava/lang/String;");
-		}
-		if (i==3){
-			targetString=&android_dir_documents;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_DOCUMENTS", "Ljava/lang/String;");
-		}
-		if (i==4){
-			targetString=&android_dir_pictures;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_PICTURES", "Ljava/lang/String;");
-		}
-		if (i==5){
-			targetString=&android_dir_music;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_MUSIC", "Ljava/lang/String;");
-		}
-		if (i==6){
-			targetString=&android_dir_video;
-			fieldId=env->GetStaticFieldID(envClass, "DIRECTORY_MOVIES", "Ljava/lang/String;");
-		}
-		
-
-		//retrieve jstring representation of environment variable
-		jstrParam = (jstring)env->GetStaticObjectField(envClass, fieldId);
-		s = env->GetStringUTFChars(jstrParam, NULL);
-		LOGI("String name of Environment.Variable: %s", s);
-		env->ReleaseStringUTFChars(jstrParam, s);
-
-		//use jstring representation to retrieve folder name
-		sType=jstrParam;
-		jmethodID midEnvironmentGetExternalStoragePublicDirectory = env->GetStaticMethodID(envClass, "getExternalStoragePublicDirectory", "(Ljava/lang/String;)Ljava/io/File;");
-		jobject oExternalStorageDirectory = NULL;
-		oExternalStorageDirectory = env->CallStaticObjectMethod(envClass, midEnvironmentGetExternalStoragePublicDirectory, sType);
-		jclass cFile = env->GetObjectClass(oExternalStorageDirectory);
-		jmethodID midFileGetAbsolutePath = env->GetMethodID(cFile, "getAbsolutePath", "()Ljava/lang/String;");
-		env->DeleteLocalRef(cFile);
-		jstring extStoragePath = (jstring)env->CallObjectMethod(oExternalStorageDirectory, midFileGetAbsolutePath);
-		const char* extStoragePathString = env->GetStringUTFChars(extStoragePath, NULL);
-		LOGI("Path: %s", extStoragePathString);// /storage/emulated/0/Download
-		
-		*targetString=(char*)calloc(1,strlen(extStoragePathString)+2);
-		memcpy(*targetString,extStoragePathString,strlen(extStoragePathString));
-		(*targetString)[strlen(extStoragePathString)]=47;//append "/"
-
-		env->ReleaseStringUTFChars(extStoragePath, extStoragePathString);
-		env->DeleteLocalRef(sType);
-	}
-
-	}//downscope
-
-
-
-
-
-//JavaVMAttachArgs args = { JNI_VERSION_1_6, NULL, NULL };
-//vm->AttachCurrentThread( &env, &args );
-
-
-//jmethodID activityConstructor =  env->GetMethodID(app->activity->clazz, "<init>", "()V");
-//jobject object = env->NewObject(app->activity->clazz, activityConstructor);
-
-//jmethodID toastID = env->GetMethodID(app->activity->clazz, "toast", "(Ljava/lang/String;)V");
-//jstring message1 = env->NewStringUTF("This comes from jni.");
-//env->CallVoidMethod(object, toastID, message1);
-//vm->DetachCurrentThread();
-
-
-//jstring jstr = env->NewStringUTF("This comes from jni.");
-//    jmethodID messageMe = env->GetMethodID(app->activity->clazz, "toast", "(Ljava/lang/String;)V");
-//    jobject result = env->CallObjectMethod(obj, messageMe, jstr);
-
-//    const char* str = (*env)->GetStringUTFChars(env,(jstring) result, NULL); // should be released but what a heck, it's a tutorial :)
-//    printf("%s\n", str);
-
-//    return (*env)->NewStringUTF(env, str);
-
-
-//JNIEXPORT void JNICALL Java_com_example_jnitoast_MainActivity_displayToast
-  //(JNIEnv *pEnv, jobject thiz, jobject txt, jint time)
-//{
-
-/*
-        jclass Toast = NULL;
-        jobject toast = NULL;
-        jmethodID makeText = NULL;
-        jmethodID show = NULL;
-
-        Toast = env->FindClass("android/widget/Toast");
-        if(NULL == Toast)
-        {
-                LOGI("FindClass failed");
-                return;
-        }
-
-        makeText = env->GetStaticMethodID(Toast,"makeText", "(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;");
-        if( NULL == makeText )
-        {
-                LOGI("FindStaticMethod failed");
-                return;
-        }
-
-
-        //toast = env->CallStaticObjectMethod(Toast, makeText, thiz, txt, time);
-        toast = env->CallStaticObjectMethod(Toast, makeText, thiz, txt, time);
-        if ( NULL == toast) 
-        {
-                LOGI("CALLSTATICOBJECT FAILED");
-                return;
-        }
-*/
-/*
-        show = env->GetMethodID(pEnv,Toast,"show","()V");
-        if ( NULL == show )
-        {
-                LOGI("GetMethodID Failed");
-                return;
-        }
-        env->CallVoidMethod(pEnv,toast,show);
-*/
-
-
-
-
-
-
-
-
-
-        /*
-        AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-        char buf[BUFSIZ];
-        int nb_read = 0;
-        FILE* out = fopen(filename, "w");
-        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-        fwrite(buf, nb_read, 1, out);
-        fclose(out);
-        AAsset_close(asset);
-        }
-        */
-
-
-
-/*        
-        // Get a handle on our calling NativeActivity class
-        jclass activityClass = env->GetObjectClass( app->activity->clazz);
-        // Get path to files dir
-        jmethodID getFilesDir = env->GetMethodID( activityClass, "getFilesDir", "()Ljava/io/File;");
-        jobject file = env->CallObjectMethod( app->activity->clazz, getFilesDir);
-        jclass fileClass = env->FindClass( "java/io/File");
-        jmethodID getAbsolutePath = env->GetMethodID( fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-        jstring jpath = (jstring)env->CallObjectMethod( file, getAbsolutePath);
-        const char* app_dir = env->GetStringUTFChars( jpath, NULL);
-        // chdir in the application files directory
-        LOGI("app_dir: %s", app_dir);
-        chdir(app_dir);
-        env->ReleaseStringUTFChars( jpath, app_dir);
-        // Pre-extract assets, to avoid Android-specific file opening
-        {
-        AAssetManager* mgr = app->activity->assetManager;
-        AAssetDir* assetDir = AAssetManager_openDir(mgr, "");
-        const char* filename = (const char*)NULL;
-        while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-        AAsset* asset = AAssetManager_open(mgr, filename, AASSET_MODE_STREAMING);
-        char buf[BUFSIZ];
-        int nb_read = 0;
-        FILE* out = fopen(filename, "w");
-        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-        fwrite(buf, nb_read, 1, out);
-        fclose(out);
-        AAsset_close(asset);
-        }
-        AAssetDir_close(assetDir);
-            }
-*/
-        
-#else
-        int main( int argc, char* argv[] ){
-#endif
-
-#ifdef QB64_LINUX
-#ifndef QB64_MACOSX
-#ifdef X11
+#if defined(QB64_LINUX) && defined(X11)
     XInitThreads();
-#endif
-#endif
 #endif
 
     static int32 i,i2,i3,i4;
@@ -30430,8 +26826,6 @@ render_state.cull_mode=CULL_MODE__UNKNOWN;
       while (*p++);
       environ_count = p - envp;
     }
-
-    //NO_S_D_L//memset(font,0,sizeof(font));
 
     fontwidth[8]=8; fontwidth[14]=8; fontwidth[16]=8;
     fontheight[8]=8; fontheight[14]=14; fontheight[16]=16;
@@ -30572,9 +26966,7 @@ qbs_set(startDir,func__cwd());
 
 //switch to directory of this EXE file
 //http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
-#ifndef QB64_ANDROID
-#ifdef QB64_WINDOWS
-#ifndef QB64_MICROSOFT
+#if defined(QB64_WINDOWS) && !defined(QB64_MICROSOFT)
     static char *exepath=(char*)malloc(65536);
     GetModuleFileName(NULL,exepath,65536);
     i=strlen(exepath);
@@ -30586,25 +26978,20 @@ qbs_set(startDir,func__cwd());
       }
     }
     chdir(exepath);
-#endif
-#endif
-#ifdef QB64_LINUX
-        #ifdef QB64_MACOSX
-                {
-                        char pathbuf[65536];
-                        uint32_t pathbufsize = sizeof(pathbuf);
-                        _NSGetExecutablePath(pathbuf, &pathbufsize);                        
-                        chdir(dirname(pathbuf));
-                }
-        #else
+#elif defined(QB64_LINUX)
                 {
                         char pathbuf[65536];
                         memset(pathbuf, 0, sizeof(pathbuf));
                         readlink("/proc/self/exe", pathbuf, 65535);
                         chdir(dirname(pathbuf));
                 }
-        #endif
-#endif
+#elif defined(QB64_MACOSX)
+                {
+                        char pathbuf[65536];
+                        uint32_t pathbufsize = sizeof(pathbuf);
+                        _NSGetExecutablePath(pathbuf, &pathbufsize);                        
+                        chdir(dirname(pathbuf));
+                }
 #endif
 
 rootDir=qbs_new(0,0);
@@ -30613,11 +27000,6 @@ qbs_set(rootDir,func__cwd());
     unknown_opcode_mess=qbs_new(0,0);
     qbs_set(unknown_opcode_mess,qbs_new_txt_len("Unknown Opcode (  )\0",20));
 
-#ifdef QB64_ANDROID
-    func_command_str=qbs_new(0,0);
-    func_command_array = NULL;
-    func_command_count = 0;
-#else
     i=argc;
     if (i>1){
       //calculate required size of COMMAND$ string
@@ -30640,154 +27022,6 @@ qbs_set(rootDir,func__cwd());
 
     func_command_count = argc;
     func_command_array = argv;
-#endif
-
-
-#ifndef NO_S_D_L
-
-    //init SDL
-    if ( SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO|SDL_INIT_CDROM|SDL_INIT_TIMER) < 0 ) {
-      fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
-      exit(100);
-    }
-    atexit(SDL_Quit);
-
-#endif //NO_S_D_L
-
-
-
-#ifdef QB64_WINDOWS
-    if (console){
-
-      /*
-    FILE * ctt = fopen("CON", "w" );
-    freopen( "CON", "w", stdout );
-    freopen( "CON", "w", stderr );
-      */
-
-
-
-      //freopen("CON", "wt", stdout);
-      //freopen("CON", "wt", stderr);
-
-
-
-      /* BESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBESTBEST
-
-     FILE * ctt = fopen("CON", "w" );//***Do not remove ever!***
-     freopen("CON", "w", stdout);
-     freopen("CON", "w", stderr);
-
-      */
-
-
-
-
-
-      //FILE * ctt = fopen("CONOUT$", "w" );
-
-      //freopen("CONOUT$", "w", stdout);
-      //freopen("CONOUT$", "w", stderr);
-      //freopen("CONIN$", "r", stdin);
-
-
-      //SetStdHandle(STD_OUTPUT_HANDLE,ctt);
-      //SetStdHandle(STD_OUTPUT_HANDLE,ctt);
-
-
-
-
-      //freopen("CON", "rt", stdin);
-
-      //HANDLE  ConsoleX = CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE, 
-      //                      0,0,CONSOLE_TEXTMODE_BUFFER,0);
-      //  SetConsoleActiveScreenBuffer(ConsoleX);
-      //SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE);
-      //SetConsoleTitle("Lua Console");
-
-
-
-
-      //console input
-      //char cis[1000];
-      //fgets(cis,sizeof(cis),stdin);//yues this works, need to cull new line char
-
-      //char *remove_newline(char *s)
-      //{
-      //    int len = strlen(s);
-      //
-      //    if (len > 0 && s[len-1] == '\n')  // if there's a newline
-      //        s[len-1] = '\0';          // truncate the string
-      //
-      //    return s;
-      //}
-
-
-
-      //cout<<"Hello"; printf(" World!");
-
-
-      /*
-    HANDLE hConsoleIn;
-    hConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
-    if (hConsoleIn == INVALID_HANDLE_VALUE) exit(0);
-
-    //ReadConsole hConsoleIn, ConsoleReadLine, Len(ConsoleReadLine), vbNull, vbNull
-    char rcbuffer[10000];
-    DWORD rcchrtoread;
-    DWORD rcchrread;
-
-    //this input works for the loaded console...yeah!
-    //note: this does block.
-
-    ReadConsole(
-    hConsoleIn,
-    &rcbuffer[0],
-    1,
-    &rcchrread,
-    NULL
-    );
-    //****readline might be a better choice for crossplatform compatibility
-
-    //if (rcbuffer[0]==65) exit(0);
-    error_erl=rcbuffer[0];
-      */
-
-      /*
-    BOOL WINAPI ReadConsole(
-    __in      HANDLE hConsoleInput,
-    __out     LPVOID lpBuffer,
-    __in      DWORD nNumberOfCharsToRead,
-    __out     LPDWORD lpNumberOfCharsRead,
-    __in_opt  LPVOID pInputControl
-    );
-      */
-
-
-
-
-      //nStdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE)
-      //ENABLE_PROCESSED_OUTPUT
-      //DWORD cmode;
-      //GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),&cmode);
-      //error_erl=cmode;
-      //if (cmode&ENABLE_ECHO_INPUT) cmode^=ENABLE_ECHO_INPUT;
-      //SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),cmode);
-
-
-      //string mystr;
-      //getline (cin, mystr);
-
-      /*
-    DWORD cmode;
-    GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),&cmode);
-    cmode=cmode|ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT;
-    SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),cmode);
-      */
-
-
-    }
-#endif
 
 
     //struct tm:
@@ -30836,8 +27070,6 @@ qbs_set(rootDir,func__cwd());
     */
 
     //init truetype .ttf/.fon font library
-    //NO_S_D_L//if (TTF_Init()==-1) exit(7000);
-    //NO_S_D_L//atexit(TTF_Quit);
 
 #ifdef QB64_WINDOWS 
     //for caps lock, use the state of the lock (=1)
@@ -30856,37 +27088,6 @@ qbs_set(rootDir,func__cwd());
     keyhit_next=keyhit_nextfree;//skip hitkey events generated by above code
 #endif
 
-#ifdef QB64_IME
-    //setup
-    SDL_Event eventExpose;
-    SDL_Rect rect;
-    int inputedWidth;
-    Uint16 *inputedString;
-    int needSize;
-    int stringLength;
-    ime_back=SDL_CreateRGBSurface(SDL_SWSURFACE,2048,32,32,0,0,0,0); if (!ime_back) exit(601);
-    if (InputMethod_Init()!=INPUT_METHOD_SUCCESS) exit(602);
-    InputMethod_InitWin32();
-    imefontname=qbs_new(0,0);
-    qbs_set(imefontname,qbs_new_txt_len("cyberbit.ttf\0",13));
-    imefontname2=qbs_new(0,0);
-    qbs_set(imefontname2,qbs_add(qbs_new_txt(getenv("WinDir")),qbs_new_txt_len("\\fonts\\cyberbit.ttf\0",20)));
-    imefontname3=qbs_new(0,0);
-    qbs_set(imefontname3,qbs_add(qbs_new_txt(getenv("WinDir")),qbs_new_txt_len("\\fonts\\arialuni.ttf\0",20)));
-    imefontname4=qbs_new(0,0);
-    qbs_set(imefontname4,qbs_add(qbs_new_txt(getenv("WinDir")),qbs_new_txt_len("\\fonts\\msmincho.ttf\0",20)));
-    inputedString = (Uint16*)malloc(sizeof(Uint16));
-    inputedString[0] = 0x0000;
-    inputedWidth = 0;
-    /* possible exit options
-       free(inputedString);
-       TTF_CloseFont(ime_font);
-       InputMethod_Quit();
-       SDL_Quit();
-    */  
-#endif
-
-    //NO_S_D_L//memset(snd,0,sizeof(snd));
 
     //init fake keyb. cyclic buffer
     cmem[0x41a]=30; cmem[0x41b]=0; //head
@@ -30928,18 +27129,6 @@ qbs_set(rootDir,func__cwd());
 
     //8x16 character set
     memcpy(&charset8x16,&file_chrset16_raw[0],file_chrset16_raw_len);
-
-#ifndef NO_S_D_L
-
-    //get 32bit argb pixel format
-    ts=SDL_CreateRGBSurface(NULL,8,8,32,0x00FF0000,0x0000FF00,0x000000FF,0xFF000000);
-    pixelformat32=*ts->format;
-    SDL_FreeSurface(ts);
-    ts=SDL_CreateRGBSurface(NULL,8,8,8,NULL,NULL,NULL,NULL);
-    pixelformat8=*ts->format;
-    SDL_FreeSurface(ts);
-
-#endif //NO_S_D_L
 
     qbg_screen(0,NULL,NULL,NULL,NULL,1);
     width8050switch=1;//reaffirm switch reset by above command
@@ -31080,11 +27269,6 @@ QB64_GAMEPAD_INIT();
 
 #ifdef QB64_GLUT
     glutInit(&argc, argv);
-
-#ifdef QB64_ANDROID
-   //Note: GLUT_ACTION_CONTINUE_EXECUTION is not supported in Android
-   glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-#endif
 
 #ifdef QB64_MACOSX  
           //This is a global keydown handler for OSX, it requires assistive devices in asseccibility to be enabled
@@ -31302,7 +27486,6 @@ QB64_GAMEPAD_INIT();
     if (shell_call_in_progress){
       if (shell_call_in_progress!=-1){
     shell_call_in_progress=-1;
-    //NO_S_D_L//if (key_repeat_on){SDL_EnableKeyRepeat(0,0); key_repeat_on=0;}
     goto update_display_only;
       }
       Sleep(64);
@@ -31439,30 +27622,6 @@ QB64_GAMEPAD_INIT();
 
     update^=1;//toggle update
 
-#ifndef NO_S_D_L
-
-    //buffered sound/play notes
-    //(safe even if sndsetup not called)
-    if (sndqueue_first!=sndqueue_next){
-      if (sndqueue_played==0){
-    //note: this only happens the first time a sound is ever played (through this queue)
-    sndqueue_played=1;
-    if (sndqueue_first==sndqueue_wait){suspend_program^=2; sndqueue_wait=-1;}
-    sub__sndplay(sndqueue[sndqueue_first]);
-    sndqueue_first++;
-      }else{
-    i=sndqueue_first-1; if (i==-1) i=sndqueue_lastindex;
-    if (!func__sndplaying(sndqueue[i])){
-      sub__sndclose(sndqueue[i]);
-      if (sndqueue_first==sndqueue_wait){suspend_program^=2; sndqueue_wait=-1;}
-      sub__sndplay(sndqueue[sndqueue_first]);
-      sndqueue_first++; if (sndqueue_first>sndqueue_lastindex) sndqueue_first=0;
-    }
-      }
-    }
-
-#endif //NO_S_D_L
-
     if (!lprint){//not currently performing an LPRINT operation
       lprint_locked=1;
       if (lprint_buffered){
@@ -31494,168 +27653,6 @@ QB64_GAMEPAD_INIT();
     if (shell_call_in_progress) goto main_loop;
 
     if (update==0){
-
-
-#ifndef NO_S_D_L
-
-      //correct SDL key repeat error after losing input focus while a key is held
-      //occurs when switching to another window, SHELL-ing, etc.
-      //SDL_APPMOUSEFOCUS The application has mouse focus.
-      //SDL_APPINPUTFOCUS The application has keyboard focus
-      //SDL_APPACTIVE The application is visible
-      static int32 state;
-      state=SDL_GetAppState();
-      if ( (!(state&SDL_APPINPUTFOCUS)) || (!(state&SDL_APPACTIVE)) ){//lost focus
-    if (key_repeat_on){SDL_EnableKeyRepeat(0,0); key_repeat_on=0;}
-      }else{
-    //active
-    if (!key_repeat_on){SDL_EnableKeyRepeat(500,30); key_repeat_on=1;}
-      }
-
-#endif //NO_S_D_L
-
-
-#ifdef QB64_IME
-      //main loop
-
-      if (qb64_ime_reading){//load font when required
-    if (ime_font==NULL){
-      static int32 x,failed=0;
-      if (!failed){
-        x=fontopen(imefontname,29,0);
-        if (x==-1){
-          x=fontopen(imefontname2,29,0);
-        }
-        if (x==-1){
-          x=fontopen(imefontname3,29,0);
-        }
-        if (x==-1){
-          x=fontopen(imefontname4,29,0);
-        }
-        if (x!=-1) ime_font=font[x]; else failed=1;
-      }
-    }
-      }
-
-      if (InputMethod_GetEventNumber() > 0) {
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = 2048;
-    rect.h = 32;                
-    SDL_FillRect(ime_back, &rect, 0xFFFFFFFF);
-
-    static int32 len;
-    static uint32 *buf=(uint32*)malloc(2);
-    static int32 bufsize=1;
-                
-    switch (InputMethod_GetCurrentMessage()) {
-    case INPUT_METHOD_MESSAGE_ON:
-      /*                    
-                rect.x = 0;
-                rect.y = 100;
-                rect.w = 640;
-                rect.h = 100;
-                SDL_FillRect(ime_back, &rect, 0x00000000);
-                surface = TTF_RenderUTF8_Shaded(
-                ime_font, "IME: ON", fg, bg);
-                SDL_BlitSurface(surface, NULL, ime_back, &rect);
-                SDL_FreeSurface(surface);
-                DrawCursor(ime_back, ime_font, inputedWidth);
-      */
-      break;
-    case INPUT_METHOD_MESSAGE_CHANGE:
-      if (ime_font){
-        MessageChange(ime_back, ime_font, inputedWidth);
-      }
-      break;
-    case INPUT_METHOD_MESSAGE_RESULT:
-
-      //send UNICODE string to qb64 key handler
-      len=GetUnicodeStringLength(InputMethod_GetCurrentEditingString())*2;
-      if (len>bufsize){free(buf); buf=(uint32*)malloc(len*4+4);}
-      len=convert_unicode(16,InputMethod_GetCurrentEditingString(),len,32,buf);
-      len/=4;
-      for (i=0;i<len;i++){
-        keydown_unicode(buf[i]);
-        keyup_unicode(buf[i]);
-      }
-
-      //don't let it concatenate!
-      /*
-
-
-
-
-        stringLength =
-        GetUnicodeStringLength(inputedString) +
-        GetUnicodeStringLength(
-
-        InputMethod_GetCurrentEditingString());
-        needSize = stringLength * sizeof(Uint16) + sizeof(Uint16);
-        inputedString = (Uint16*)realloc(inputedString, needSize);
-        CatUnicodeString(
-        inputedString,
-        InputMethod_GetCurrentEditingString());
-                    
-
-        {
-        long i;
-        for (i=0;i<stringLength;i++){
-        //showvalue(inputedString[i]);
-        }
-        }
-
-
-
-        surface = TTF_RenderUNICODE_Shaded(
-        font, inputedString, gfg, bg);
-        inputedWidth = surface->w;
-        SDL_BlitSurface(surface, NULL, ime_back, NULL);
-        SDL_FreeSurface(surface);
-        DrawCursor(ime_back, font, inputedWidth);
-      */
-
-
-      break;
-    case INPUT_METHOD_MESSAGE_CHAR:
-      /*
-        stringLength =
-        GetUnicodeStringLength(inputedString) + 1;
-        needSize = stringLength * sizeof(Uint16) + sizeof(Uint16);
-        inputedString = (Uint16*)realloc(inputedString, needSize);
-        inputedString[stringLength - 1] =
-        InputMethod_GetCurrentChar();
-        inputedString[stringLength] = 0x0000;
-                    
-        surface = TTF_RenderUNICODE_Shaded(
-        ime_font, inputedString, rfg, bg);
-        inputedWidth = surface->w;
-        SDL_BlitSurface(surface, NULL, ime_back, NULL);
-        SDL_FreeSurface(surface);
-        DrawCursor(ime_back, ime_font, inputedWidth);
-      */
-      break;
-    case INPUT_METHOD_MESSAGE_OFF:
-      /*
-        rect.x = 0;
-        rect.y = 100;
-        rect.w = 640;
-        rect.h = 100;
-        SDL_FillRect(ime_back, &rect, 0x00000000);
-        surface = TTF_RenderUTF8_Shaded(
-        ime_font, "IME: OFF", fg, bg);
-        SDL_BlitSurface(surface, NULL, ime_back, &rect);
-        SDL_FreeSurface(surface);
-      */
-      break;
-    default:
-      break;
-    }
-    InputMethod_MoveNextEvent();
-    eventExpose.type = SDL_VIDEOEXPOSE;
-    SDL_PushEvent(&eventExpose);
-      }
-#endif
 
       static int32 scancode;
       static const uint8 QBVK_2_scancode[] = {
@@ -31701,9 +27698,6 @@ QB64_GAMEPAD_INIT();
   end_program:
     stop_program=1;
     qbevent=1;
-#ifndef QB64_MACOSX
-    //NO_S_D_L//SDL_WaitThread(thread, NULL);
-#endif
     while (exit_ok!=3) Sleep(16);
 
     if (lprint_buffered){
@@ -31856,122 +27850,6 @@ QB64_GAMEPAD_INIT();
       mode_square=-1;
       mode_stretch=-1;
 
-#ifndef NO_S_D_L
-
-      z2=0x7FFFFFFF; z3=0x7FFFFFFF;
-      for (i=0;i<nmodes;i++){
-    if (modes[i].w>=640){
-      if (modes[i].w>=x&&modes[i].h>=y){
-        z=modes[i].w-x+modes[i].h-y;
-        //square
-        if (z<=z2){
-          //is it square?
-          if (modes[i].w/4==modes[i].h/3){
-        mode_square=i; z2=z;
-          }//square
-        }//z2<=z
-        //stretch
-        if (z<=z3){
-          mode_stretch=i; z3=z;
-        }//z<=z3
-      }//>x,>y
-    }//ignore?
-      }//i
-
-#endif //NO_S_D_L
-
-
-      /* commented out 2013
-     static int32 full_screen_change;
-     full_screen_change=0;
-
-     if (full_screen_set!=-1){
-     if (full_screen_set==0) goto full_screen0;
-     if (full_screen_set==1) goto full_screen1;
-     if (full_screen_set==2) goto full_screen2;
-     }
-
-     if (full_screen_toggle){
-     full_screen_toggle--;
-
-     if (full_screen==0){
-     full_screen1:
-     if (mode_stretch>-1){//can be displayed
-     full_screen=1;
-     if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
-     full_screen_change=1;
-     screen_last_valid=0;
-
-     if (!mouse_hideshow_called){
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){
-     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-     }
-     #endif
-     //NO_S_D_L//SDL_ShowCursor(0);
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){ 
-     lock_mainloop=0; Sleep(1);//unlock
-     } 
-     #endif
-     }
-
-     }
-     goto full_screen_toggle_done;
-     }
-
-     if (full_screen==1){
-     full_screen2:
-     if (mode_square>-1&&mode_square!=mode_stretch){//usable 1:1 mode exists (that isn't same as stretched mode)
-     full_screen=2;
-     if (autodisplay==1) mousemovementfix_mainloop(); else mousemovementfix();
-     full_screen_change=1;
-     screen_last_valid=0;
-
-     if (!mouse_hideshow_called){
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){
-     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-     }
-     #endif
-     //NO_S_D_L//SDL_ShowCursor(0);
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){ 
-     lock_mainloop=0; Sleep(1);//unlock
-     } 
-     #endif
-     }
-
-     goto full_screen_toggle_done;
-     }
-     }
-     //back to windowed mode
-     full_screen0:
-     full_screen=0;
-     full_screen_change=1;
-     screen_last_valid=0;
-
-     if (!mouse_hideshow_called){
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){
-     lock_mainloop=1; while (lock_mainloop!=2) Sleep(1);//lock
-     }
-     #endif
-     //NO_S_D_L//SDL_ShowCursor(1);
-     #ifdef QB64_LINUX
-     if (autodisplay!=1){ 
-     lock_mainloop=0; Sleep(1);//unlock
-     } 
-     #endif
-     }
-
-     }
-     full_screen_toggle_done:
-     full_screen_set=-1;
-      */
-
-
-
       x=display_page->width; y=display_page->height;
       if (display_page->compatible_mode==0){
     x=display_page->width*fontwidth[display_page->font]; y=display_page->height*fontheight[display_page->font];
@@ -31981,35 +27859,7 @@ QB64_GAMEPAD_INIT();
       z=0; //?
 
       conversion_required=0;
-#ifndef NO_S_D_L
-      if ((display_surface->format->Bmask!=255)||(display_surface->format->Gmask!=65280)||(display_surface->format->Rmask!=16711680)){
-    //non-BGR(A) format!
-    //create conversion layer
-    conversion_required=1;
-    conversion_layer=(uint32*)realloc(conversion_layer,x_monitor*y_monitor*4);
-    memset(conversion_layer,0,x_monitor*y_monitor*4);
-    display_surface_offset=conversion_layer;//redirect to conversion layer
-      }
-#endif //NO_S_D_L
-
       pixel=display_surface_offset;//<-will be made obselete
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       if (!display_page->compatible_mode){//text
 
@@ -32427,7 +28277,6 @@ QB64_GAMEPAD_INIT();
         }
         
         if (memcmp(display_frame[i2].bgra,display_page->offset,i)) goto update_display32b;
-        if (qb64_ime_reading==1) goto screen_refreshed;
         goto no_new_frame;//no need to update display
       }
     update_display32b:;
@@ -32450,7 +28299,6 @@ QB64_GAMEPAD_INIT();
 
       if (memcmp(pixeldata,display_page->offset,i)) goto update_display32;
       if (!screen_last_valid) goto update_display32; //force update because of mode change?
-      if (qb64_ime_reading==1) goto screen_refreshed;
       goto no_new_frame;//no need to update display
     update_display32:
       memcpy(pixeldata,display_page->offset,i);
@@ -32536,7 +28384,6 @@ QB64_GAMEPAD_INIT();
       if (memcmp(paldata,display_page->pal,i2*4)) goto update_display;
       //force update because of mode change?
       if (!screen_last_valid) goto update_display;
-      if (qb64_ime_reading==1) goto screen_refreshed;
 
       goto no_new_frame;//no need to update display
 
@@ -32588,30 +28435,7 @@ QB64_GAMEPAD_INIT();
 
       force_display_update=0;
 
-
-#ifndef NO_S_D_L
-#ifdef QB64_IME
-      //display
-      if (qb64_ime_reading==1){
-    static SDL_Rect drect;
-    drect.x = display_surface->w-ime_DrawMessageBlock_lastpixeloffset;
-    drect.y = 0;
-    drect.w = ime_DrawMessageBlock_lastpixeloffset;
-    drect.h = 32;
-    static SDL_Rect srect;
-    srect.x = 0;
-    srect.y = 0;
-    srect.w = ime_DrawMessageBlock_lastpixeloffset;
-    srect.h = 32;
-    SDL_BlitSurface(ime_back, &srect, display_surface, &drect);
-      }
-#endif
-#endif //NO_S_D_L
-
-      //NO_S_D_L//SDL_UpdateRect(display_surface,0,0,0,0);
-
       screen_last_valid=1;
-      if (qb64_ime_reading==1) screen_last_valid=0;
 
       //Set new display frame as ready
       //display_frame_end=frame_i;
@@ -33626,12 +29450,7 @@ QB64_GAMEPAD_INIT();
   }
   #endif
 
-  #ifdef QB64_LINUX
-  #ifdef QB64_GUI //Cannot have X11 events without a GUI
-  #ifndef QB64_MACOSX
-  #ifndef QB64_ANDROID
-
-
+#if defined(QB64_LINUX) && defined(QB64_GUI)
   extern "C" void qb64_os_event_linux(XEvent *event, Display *display, int *qb64_os_event_info){
     if (*qb64_os_event_info==OS_EVENT_PRE_PROCESSING){
 
@@ -33660,9 +29479,6 @@ QB64_GAMEPAD_INIT();
     }
     return;
   }
-  #endif
-  #endif
-  #endif
   #endif
 
   extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2){

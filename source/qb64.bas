@@ -9515,7 +9515,6 @@ DO
                                 IF a3$ = "" THEN a3$ = a2$ ELSE a3$ = a3$ + sp + a2$
                             NEXT
                             PRINT #12, "skip" + u$ + ":"
-                            PRINT #12, "revert_input_check();"
                             IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);"
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
@@ -21865,25 +21864,6 @@ END FUNCTION
 
 SUB xend
 
-'1. locate bottomline,1
-'PRINT #12, "display_page->cursor_y=print_holding_cursor=0; qbg_cursor_x=1; qbg_cursor_y=qbg_height_in_characters;"
-
-'2. print a message in the screen's width
-'PRINT #12, "if (qbg_width_in_characters==80){"
-'PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "Press any key to continue" + SPACE$(80 - 25) + CHR$(34) + "),0);"
-'PRINT #12, "}else{"
-'PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "Press any key to continue" + SPACE$(40 - 25) + CHR$(34) + "),0);"
-'PRINT #12, "}"
-
-'3. wait for a key to be pressed
-'PRINT #12, "do{"
-'PRINT #12, "SDL_Delay(0);"
-'PRINT #12, "if (stop_program) end();"
-'PRINT #12, "}while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),
-'            qbs_new_txt(" + CHR$(34) + CHR$(34) + "))));"
-'4. quit
-'PRINT #12, "close_program=1;"
-'PRINT #12, "end();"
 PRINT #12, "sub_end();"
 END SUB
 
