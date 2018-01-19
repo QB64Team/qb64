@@ -15,6 +15,11 @@ tar --create --auto-compress --file ${filebase}_lnx.tar.gz --exclude-from=qb64/.
 #7z a -xr@qb64/.travis/common-exclusion.list -xr@qb64/.travis/win-exclusion.list ${filebase}_win.7z qb64/ > /dev/null
 
 # Send to server
-scp ${filebase}_* m6rosupy1q2t@qb64.org:autobuilds/${TRAVIS_BRANCH}/
-
+# Sometimes the connection can be a bit flakey, so try multiple times on error
+for i in `seq 1 10`
+do scp ${filebase}_* m6rosupy1q2t@qb64.org:autobuilds/${TRAVIS_BRANCH}/
+    if [ "$?" -eq 0 ]
+    then break
+    fi
+done
 
