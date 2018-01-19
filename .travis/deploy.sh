@@ -19,7 +19,8 @@ tar --create --auto-compress --file ${filebase}_lnx.tar.gz --exclude-from=qb64/.
 for i in `seq 1 10`
 do scp ${filebase}_* m6rosupy1q2t@qb64.org:autobuilds/${TRAVIS_BRANCH}/
     if [ "$?" -eq 0 ]
-    then break
+    then exit 0
     fi
+    echo scp failed
 done
 
