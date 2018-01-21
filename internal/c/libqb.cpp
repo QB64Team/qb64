@@ -23368,7 +23368,6 @@ return -1;
 
 #ifdef DEPENDENCY_SCREENIMAGE
   int32 func__screenimage(int32 x1,int32 y1,int32 x2,int32 y2,int32 passed){
-    if (cloud_app) return func__newimage(1024,768,32,1);
 
 #ifdef QB64_WINDOWS
 
@@ -23451,14 +23450,9 @@ return -1;
 
     ReleaseDC(NULL,hdc);
     return i;
+#else
+    return func__newimage(func_screenwidth(), func_screenheight(), 32, 1);
 #endif
-
-#ifdef QB64_MACOSX
-    system("screencapture -x -tbmp /tmp/qb64screencapture.bmp\0");
-    return func__loadimage(qbs_new_txt("/tmp/qb64screencapture.bmp"),32,1);
-#endif  
-
-    return -1;
   }
 #endif //DEPENDENCY_SCREENIMAGE
 
