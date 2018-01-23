@@ -10797,7 +10797,9 @@ DO
         END IF
         x = lhscontrollevel: IF controllevel < lhscontrollevel THEN x = controllevel
         IF definingtype = 2 THEN x = x + 1
+        IF definingtype > 0 THEN definingtype = 2
         IF declaringlibrary = 2 THEN x = x + 1
+        IF declaringlibrary > 0 THEN declaringlibrary = 2
         layout$ = SPACE$(x) + layout$
         IF linecontinuation THEN layout$ = ""
 
