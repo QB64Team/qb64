@@ -12670,7 +12670,7 @@ FOR i = 1 TO _COMMANDCOUNT
     token$ = COMMAND$(i)
     IF LCASE$(token$) = "-help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
     SELECT CASE LCASE$(LEFT$(token$, 2))
-        CASE "-?", "/?" 'Command-line help
+        CASE "-?" 'Command-line help
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
             PRINT
@@ -12691,7 +12691,7 @@ FOR i = 1 TO _COMMANDCOUNT
             PRINT "  -l:<line number>        Starts the IDE at the specified line number"
             PRINT
             SYSTEM
-        CASE "-p", "/p" 'Purge
+        CASE "-p" 'Purge
             IF os$ = "WIN" THEN
                 CHDIR "internal\c"
                 SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
@@ -12707,7 +12707,7 @@ FOR i = 1 TO _COMMANDCOUNT
                 END IF
                 CHDIR "../.."
             END IF
-        CASE "-s", "/s" 'Settings
+        CASE "-s" 'Settings
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
             SELECT CASE LCASE$(MID$(token$, 3))
@@ -12783,20 +12783,20 @@ FOR i = 1 TO _COMMANDCOUNT
                     PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                     SYSTEM
             END SELECT
-        CASE "-e", "/e" 'Option Explicit
+        CASE "-e" 'Option Explicit
             optionexplicit_cmd = -1
-        CASE "-z", "/z" 'Not compiling C code
+        CASE "-z" 'Not compiling C code
             No_C_Compile_Mode = 1
             ConsoleMode = 1 'Implies -x
             NoIDEMode = 1 'Implies -c
-        CASE "-x", "/x" 'Use the console
+        CASE "-x" 'Use the console
             ConsoleMode = 1
             NoIDEMode = 1 'Implies -c
-        CASE "-c", "/c" 'Compile instead of edit
+        CASE "-c" 'Compile instead of edit
             NoIDEMode = 1
-        CASE "-o", "/o" 'Specify an output file
+        CASE "-o" 'Specify an output file
             IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
-        CASE "-l", "/l" 'goto line (ide mode only); -l:<line number>
+        CASE "-l" 'goto line (ide mode only); -l:<line number>
             IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
         CASE ELSE 'Something we don't recognise, assume it's a filename
             IF PassedFileName$ = "" THEN PassedFileName$ = token$
