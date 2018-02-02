@@ -1,4 +1,4 @@
-#include "common.cpp"
+#include "common.h"
 
 #ifdef QB64_MACOSX
  #include <ApplicationServices/ApplicationServices.h>
@@ -604,8 +604,18 @@ extern uint64 string2ui64(qbs*str);
 extern float string2s(qbs*str);
 extern double string2d(qbs*str);
 extern long double string2f(qbs*str);
+#ifndef QB64_WINDOWS
+extern void Sleep(uint32 milliseconds);
+extern void ZeroMemory(void *ptr,int64 bytes);
+#endif
+extern int64 qbr(long double f);
+extern uint64 qbr_longdouble_to_uint64(long double f);
+extern int32 qbr_float_to_long(float f);
+extern int32 qbr_double_to_long(double f);
 
-
+extern uint64 getubits(uint32 bsize,uint8 *base,ptrszint i);
+extern int64 getbits(uint32 bsize,uint8 *base,ptrszint i);
+extern void setbits(uint32 bsize,uint8 *base,ptrszint i,int64 val);
 
 
 
@@ -1011,7 +1021,6 @@ sub_close(NULL,NULL);//closes all open files
 //free images
 freeallimages();
 //stop & free sounds (note: QB also stops any sound from the PLAY command)
-//NO_S_D_L//sndcloseall();
 //invalidate RETURN location(s)
 next_return_point=0;
 //reset error goto location to 'unhandled'

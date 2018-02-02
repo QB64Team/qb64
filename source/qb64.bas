@@ -9515,7 +9515,6 @@ DO
                                 IF a3$ = "" THEN a3$ = a2$ ELSE a3$ = a3$ + sp + a2$
                             NEXT
                             PRINT #12, "skip" + u$ + ":"
-                            PRINT #12, "revert_input_check();"
                             IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);"
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
@@ -10798,7 +10797,9 @@ DO
         END IF
         x = lhscontrollevel: IF controllevel < lhscontrollevel THEN x = controllevel
         IF definingtype = 2 THEN x = x + 1
+        IF definingtype > 0 THEN definingtype = 2
         IF declaringlibrary = 2 THEN x = x + 1
+        IF declaringlibrary > 0 THEN declaringlibrary = 2
         layout$ = SPACE$(x) + layout$
         IF linecontinuation THEN layout$ = ""
 
@@ -12669,7 +12670,7 @@ FOR i = 1 TO _COMMANDCOUNT
     token$ = COMMAND$(i)
     IF LCASE$(token$) = "-help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
     SELECT CASE LCASE$(LEFT$(token$, 2))
-        CASE "-?", "/?" 'Command-line help
+        CASE "-?" 'Command-line help
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
             PRINT
@@ -12690,7 +12691,7 @@ FOR i = 1 TO _COMMANDCOUNT
             PRINT "  -l:<line number>        Starts the IDE at the specified line number"
             PRINT
             SYSTEM
-        CASE "-p", "/p" 'Purge
+        CASE "-p" 'Purge
             IF os$ = "WIN" THEN
                 CHDIR "internal\c"
                 SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
@@ -12706,7 +12707,7 @@ FOR i = 1 TO _COMMANDCOUNT
                 END IF
                 CHDIR "../.."
             END IF
-        CASE "-s", "/s" 'Settings
+        CASE "-s" 'Settings
             _DEST _CONSOLE
             PRINT "QB64 COMPILER V" + Version$
             SELECT CASE LCASE$(MID$(token$, 3))
@@ -12782,20 +12783,20 @@ FOR i = 1 TO _COMMANDCOUNT
                     PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                     SYSTEM
             END SELECT
-        CASE "-e", "/e" 'Option Explicit
+        CASE "-e" 'Option Explicit
             optionexplicit_cmd = -1
-        CASE "-z", "/z" 'Not compiling C code
+        CASE "-z" 'Not compiling C code
             No_C_Compile_Mode = 1
             ConsoleMode = 1 'Implies -x
             NoIDEMode = 1 'Implies -c
-        CASE "-x", "/x" 'Use the console
+        CASE "-x" 'Use the console
             ConsoleMode = 1
             NoIDEMode = 1 'Implies -c
-        CASE "-c", "/c" 'Compile instead of edit
+        CASE "-c" 'Compile instead of edit
             NoIDEMode = 1
-        CASE "-o", "/o" 'Specify an output file
+        CASE "-o" 'Specify an output file
             IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
-        CASE "-l", "/l" 'goto line (ide mode only); -l:<line number>
+        CASE "-l" 'goto line (ide mode only); -l:<line number>
             IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
         CASE ELSE 'Something we don't recognise, assume it's a filename
             IF PassedFileName$ = "" THEN PassedFileName$ = token$
@@ -21865,25 +21866,6 @@ END FUNCTION
 
 SUB xend
 
-'1. locate bottomline,1
-'PRINT #12, "display_page->cursor_y=print_holding_cursor=0; qbg_cursor_x=1; qbg_cursor_y=qbg_height_in_characters;"
-
-'2. print a message in the screen's width
-'PRINT #12, "if (qbg_width_in_characters==80){"
-'PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "Press any key to continue" + SPACE$(80 - 25) + CHR$(34) + "),0);"
-'PRINT #12, "}else{"
-'PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "Press any key to continue" + SPACE$(40 - 25) + CHR$(34) + "),0);"
-'PRINT #12, "}"
-
-'3. wait for a key to be pressed
-'PRINT #12, "do{"
-'PRINT #12, "SDL_Delay(0);"
-'PRINT #12, "if (stop_program) end();"
-'PRINT #12, "}while(qbs_cleanup(qbs_tmp_base,qbs_equal(qbs_inkey(),
-'            qbs_new_txt(" + CHR$(34) + CHR$(34) + "))));"
-'4. quit
-'PRINT #12, "close_program=1;"
-'PRINT #12, "end();"
 PRINT #12, "sub_end();"
 END SUB
 
