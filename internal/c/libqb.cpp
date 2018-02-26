@@ -253,7 +253,6 @@ void set_view(int32 new_mode);
 void set_render_source(int32 new_handle);
 void set_render_dest(int32 new_handle);
 void reinit_glut_callbacks();
-void showErrorOnScreen(char *errorMessage, int32 errorNumber, int32 lineNumber);//display error message on screen and enter infinite loop
 
 int32 framebufferobjects_supported=0;
 
@@ -2362,10 +2361,6 @@ int MessageBox2(int ignore,char* message,char* title,int type){
       }
     exit(0);//should log error
   }
-
-  #ifdef QB64_ANDROID
-    showErrorOnScreen(message, 0, 0);//display error message on screen and enter infinite loop
-  #endif
 
   #ifdef QB64_WINDOWS
     return MessageBox(window_handle,message,title,type);
@@ -5547,11 +5542,6 @@ void fix_error(){
     errtitle = (char*)malloc(len + 1);
     if (!errtitle) exit(0); //At this point we just give up
     snprintf(errtitle, len + 1, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
-
-//Android cannot halt threads, so the easiest compromise is to just display the error
-#ifdef QB64_ANDROID
-        showErrorOnScreen(cp, new_error, ercl);
-#endif
 
     if (prevent_handling){
       v=MessageBox2(NULL,errmess,errtitle,MB_OK);
@@ -29554,50 +29544,3 @@ QB64_GAMEPAD_INIT();
 
 #endif
   }
-
-void showErrorOnScreen(char *errorMessage, int32 errorNumber, int32 lineNumber){//display error message on screen and enter infinite loop
-new_error=0;//essential or the following commands won't be called
-qbs *tqbs;
-qbg_screen(func__newimage( 80 , 25 , 0 ,1),NULL,NULL,NULL,NULL,1);
-sub__fullscreen( 3 ,1);//squarepixels+smooth for a beautiful error message
-sub__displayorder( 1 ,NULL,NULL,NULL);
-qbg_sub_color( 15 , 4 ,NULL,3);
-sub_cls(NULL,NULL,0);
-if (errorNumber!=0){
-tqbs=qbs_new(0,0);
-qbs_set(tqbs,qbs_new_txt_len("Unhandled Error #",17));
-makefit(tqbs);
-qbs_print(tqbs,0);
-qbs_free(tqbs);
-tqbs=qbs_new(0,0);
-qbs_set(tqbs,qbs_ltrim(qbs_str((int32)(errorNumber))));
-makefit(tqbs);
-qbs_print(tqbs,0);
-qbs_free(tqbs);
-qbs_print(nothingstring,1);
-}
-if (lineNumber!=0){
-tqbs=qbs_new(0,0);
-qbs_set(tqbs,qbs_new_txt_len("Line:",5));
-makefit(tqbs);
-qbs_print(tqbs,0);
-qbs_free(tqbs);
-tqbs=qbs_new(0,0);
-qbs_set(tqbs,qbs_str((int32)(lineNumber)));
-makefit(tqbs);
-qbs_print(tqbs,0);
-qbs_free(tqbs);
-qbs_print(nothingstring,1);
-}
-tqbs=qbs_new(0,0);
-qbs_set(tqbs,qbs_new_txt(errorMessage));
-makefit(tqbs);
-qbs_print(tqbs,0);
-qbs_free(tqbs);
-qbs_print(nothingstring,1);
-do{
-sub__limit( 10 );
-sub__display();
-}while(1);
-//infinite loop (this function never exits)
-}
