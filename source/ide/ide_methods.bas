@@ -9995,11 +9995,11 @@ FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
         FOR i = 1 TO 2 - method
             OPEN "./internal/temp/files.txt" FOR OUTPUT AS #150: CLOSE #150
             IF method = 0 THEN
-                IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.bas" + CHR$(34) + " >./internal/temp/files.txt"
-                IF i = 2 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.BAS" + CHR$(34) + " >./internal/temp/files.txt"
+                IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.bas" + CHR$(34) + " | sort >./internal/temp/files.txt"
+                IF i = 2 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.BAS" + CHR$(34) + " | sort >./internal/temp/files.txt"
             END IF
             IF method = 1 THEN
-                IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*" + CHR$(34) + " >./internal/temp/files.txt"
+                IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*" + CHR$(34) + " | sort >./internal/temp/files.txt"
             END IF
             OPEN "./internal/temp/files.txt" FOR INPUT AS #150
             DO UNTIL EOF(150)
