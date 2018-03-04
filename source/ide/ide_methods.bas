@@ -8257,7 +8257,6 @@ SUB ideshowtext
     END IF
 
     IF prevListOfCustomWords$ <> listOfCustomKeywords$ THEN
-        prevListOfCustomWords$ = listOfCustomKeywords$
         IF manualList = 0 THEN
             DO
                 atSign = INSTR(atSign + 1, listOfCustomKeywords$, "@")
@@ -8282,6 +8281,7 @@ SUB ideshowtext
                 END IF
             LOOP
         END IF
+
         FOR i = 1 TO LEN (listOfCustomKeywords$)
             checkChar = ASC(listOfCustomKeywords$, i)
             IF checkChar = 64 THEN
@@ -8291,6 +8291,13 @@ SUB ideshowtext
             END IF
         NEXT
         listOfCustomKeywords$ = tempList$
+
+        DO WHILE INSTR(listOfCustomKeywords$, fix046$)
+            x = INSTR(listOfCustomKeywords$, fix046$)
+            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, x - 1) + "." + RIGHT$(listOfCustomKeywords$, LEN(listOfCustomKeywords$) - x + 1 - LEN(fix046$))
+        LOOP
+
+        prevListOfCustomWords$ = listOfCustomKeywords$
     END IF
 
     cc = -1
@@ -8559,7 +8566,7 @@ SUB ideshowtext
                     checkKeyword$ = ""
                     right.sep$ = ""
                     FOR i = m TO LEN(a2$)
-                        IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 OR MID$(a2$, i, 1) = "." THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
+                        IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
                         checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                     NEXT
                     IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
