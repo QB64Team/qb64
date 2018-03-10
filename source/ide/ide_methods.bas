@@ -10032,24 +10032,9 @@ END FUNCTION
 FUNCTION idezgetroot$
     'note: does NOT including a trailing / or \ on the right
 
-    IF os$ = "WIN" THEN
-        SHELL _HIDE "cd >.\internal\temp\root.txt"
-        OPEN ".\internal\temp\root.txt" FOR INPUT AS #150
-        LINE INPUT #150, a$
-        idezgetroot$ = a$
-        CLOSE #150
-        EXIT FUNCTION
-    END IF
 
-    IF os$ = "LNX" THEN
-        SHELL _HIDE "pwd >./internal/temp/root.txt"
-        OPEN "./internal/temp/root.txt" FOR INPUT AS #150
-        LINE INPUT #150, a$
-        idezgetroot$ = a$
-        CLOSE #150
-        EXIT FUNCTION
-    END IF
 
+    idezgetroot$ = _STARTDIR$
 END FUNCTION
 
 FUNCTION idezpathlist$ (path$)
