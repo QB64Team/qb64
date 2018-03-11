@@ -371,7 +371,7 @@ FUNCTION ide2 (ignore)
         a$ = "QWERTYUIOP????ASDFGHJKL?????ZXCVBNM": x = 16: FOR i = 1 TO LEN(a$): idealtcode(ASC(MID$(a$, i, 1))) = x: x = x + 1: NEXT
 
         ideroot$ = idezgetroot$
-        idepath$ = ideroot$
+        idepath$ = _STARTDIR$
 
         'new blank text field
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
@@ -10032,9 +10032,24 @@ END FUNCTION
 FUNCTION idezgetroot$
     'note: does NOT including a trailing / or \ on the right
 
+    IF os$ = "WIN" THEN
+        SHELL _HIDE "cd >.\internal\temp\root.txt"
+        OPEN ".\internal\temp\root.txt" FOR INPUT AS #150
+        LINE INPUT #150, a$
+        idezgetroot$ = a$
+        CLOSE #150
+        EXIT FUNCTION
+    END IF
 
+    IF os$ = "LNX" THEN
+        SHELL _HIDE "pwd >./internal/temp/root.txt"
+        OPEN "./internal/temp/root.txt" FOR INPUT AS #150
+        LINE INPUT #150, a$
+        idezgetroot$ = a$
+        CLOSE #150
+        EXIT FUNCTION
+    END IF
 
-    idezgetroot$ = _STARTDIR$
 END FUNCTION
 
 FUNCTION idezpathlist$ (path$)
