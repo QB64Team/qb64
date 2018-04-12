@@ -956,7 +956,7 @@ FUNCTION ide2 (ignore)
                         NEXT
 
                         IF l <> 0 AND idecy <> l THEN
-                            a$ = " on line" + STR$(l)
+                            a$ = " on line" + STR$(l) + " (click here or Ctrl+Shift+G to jump there)"
                             COLOR 11, 1
                             FOR i = 1 TO LEN(a$)
                                 x = x + 1: IF x = idewx THEN x = 2: y = y + 1
@@ -3002,9 +3002,16 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KCONTROL AND UCASE$(K$) = "G" THEN 'goto line
-            retval = idegotobox
-            'retval is ignored
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            IF KSHIFT AND idefocusline > 0 THEN
+                idecx = 1
+                AddQuickNavHistory idecy
+                idecy = idefocusline
+                ideselect = 0
+            ELSE
+                retval = idegotobox
+                'retval is ignored
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            END IF
             GOTO specialchar
         END IF
 
