@@ -8463,6 +8463,7 @@ SUB ideshowtext
                         'but maybe we're typing a line and there's an orphan open
                         'bracket to our left, somewhere. It'll be highlighted until closed.
                         brackets = 1
+                        orphanBracket = 0
                         IF idecx >= LEN(a$) + 1 THEN
                             FOR k = idecx - 1 TO 1 STEP -1
                                 SELECT CASE MID$(a$, k, 1)
@@ -8471,7 +8472,7 @@ SUB ideshowtext
                                 END SELECT
                                 IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
                                     brackets = brackets - 1
-                                    IF brackets = 0 THEN bracket1 = k: EXIT FOR
+                                    IF brackets = 0 THEN bracket1 = k: orphanBracket = -1: EXIT FOR
                                 ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
                                     brackets = brackets + 1
                                 END IF
@@ -8687,6 +8688,7 @@ SUB ideshowtext
 
             IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
                 COLOR , 5
+                IF orphanBracket THEN COLOR , 4
             ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
                 multiHighlightLength = multiHighlightLength - 1
                 COLOR , 5
