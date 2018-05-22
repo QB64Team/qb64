@@ -470,7 +470,7 @@ DO WHILE i <= n
             cb = 0
 
             IF cb$ = "PageSyntax" THEN Help_AddTxt "Syntax:" + CHR$(13), Help_Col_Section, 0
-            IF cb$ = "PageDescription" THEN Help_AddTxt "Descripton:" + CHR$(13), Help_Col_Section, 0
+            IF cb$ = "PageDescription" THEN Help_AddTxt "Description:" + CHR$(13), Help_Col_Section, 0
             IF cb$ = "PageExamples" THEN Help_AddTxt "Code Examples:" + CHR$(13), Help_Col_Section, 0
             IF cb$ = "PageSeeAlso" THEN Help_AddTxt "See also:" + CHR$(13), Help_Col_Section, 0
 
