@@ -12668,7 +12668,7 @@ FUNCTION ParseCMDLineArgs$ ()
 'in which case they're simply asking for trouble).
 FOR i = 1 TO _COMMANDCOUNT
     token$ = COMMAND$(i)
-    IF LCASE$(token$) = "-help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
+    IF LCASE$(token$) = "-help" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "-h" OR LCASE$(token$) = "/help" THEN token$ = "-?"
     SELECT CASE LCASE$(LEFT$(token$, 2))
         CASE "-?" 'Command-line help
             _DEST _CONSOLE
