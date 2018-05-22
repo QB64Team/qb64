@@ -32,7 +32,7 @@ IF a$ = "GLdouble" THEN b$ = "DOUBLE": symbol$ = "#": typ = DOUBLETYPE - ISPOINT
 IF a$ = "GLclampd" THEN b$ = "DOUBLE": symbol$ = "#": typ = DOUBLETYPE - ISPOINTER: ctyp$ = "double"
 
 'void
-IF a$ = "GLvoid" THEN b$ = "_OFFSET": symbol$ = "&&": typ = OFFSETTYPE - ISPOINTER: ctyp$ = "ptrszint"
+IF a$ = "GLvoid" THEN b$ = "_OFFSET": symbol$ = "%&": typ = OFFSETTYPE - ISPOINTER: ctyp$ = "ptrszint"
 
 'typedef unsigned int GLenum;
 'typedef unsigned char GLboolean;
