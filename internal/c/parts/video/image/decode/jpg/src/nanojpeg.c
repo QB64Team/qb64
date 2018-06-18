@@ -1,20 +1,25 @@
 // NanoJPEG -- KeyJ's Tiny Baseline JPEG Decoder
-// version 1.3 (2012-03-05)
-// by Martin J. Fiedler <martin.fiedler@gmx.net>
+// version 1.3.5 (2016-11-14)
+// Copyright (c) 2009-2016 Martin J. Fiedler <martin.fiedler@gmx.net>
+// published under the terms of the MIT license
 //
-// This software is published under the terms of KeyJ's Research License,
-// version 0.2. Usage of this software is subject to the following conditions:
-// 0. There's no warranty whatsoever. The author(s) of this software can not
-//    be held liable for any damages that occur when using this software.
-// 1. This software may be used freely for both non-commercial and commercial
-//    purposes.
-// 2. This software may be redistributed freely as long as no fees are charged
-//    for the distribution and this license information is included.
-// 3. This software may be modified freely except for this license information,
-//    which must not be changed in any way.
-// 4. If anything other than configuration, indentation or comments have been
-//    altered in the code, the original author(s) must receive a copy of the
-//    modified code.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,6 +99,10 @@
 // convert JPEG files into PGM or PPM. To compile it, use something like
 //     gcc -O3 -D_NJ_EXAMPLE_PROGRAM -o nanojpeg nanojpeg.c
 // You may also add -std=c99 -Wall -Wextra -pedantic -Werror, if you want :)
+// The only thing you might need is -Wno-shift-negative-value, because this
+// code relies on the target machine using two's complement arithmetic, but
+// the C standard does not, even though *any* practically useful machine
+// nowadays uses two's complement.
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -213,16 +222,18 @@ int main(int argc, char* argv[]) {
     }
     fseek(f, 0, SEEK_END);
     size = (int) ftell(f);
-    buf = malloc(size);
+    buf = (char*) malloc(size);
     fseek(f, 0, SEEK_SET);
     size = (int) fread(buf, 1, size, f);
     fclose(f);
 
     njInit();
     if (njDecode(buf, size)) {
+        free((void*)buf);
         printf("Error decoding the input file.\n");
         return 1;
     }
+    free((void*)buf);
 
     f = fopen((argc > 2) ? argv[2] : (njIsColor() ? "nanojpeg_out.ppm" : "nanojpeg_out.pgm"), "wb");
     if (!f) {
@@ -513,10 +524,12 @@ NJ_INLINE void njDecodeSOF(void) {
     int i, ssxmax = 0, ssymax = 0;
     nj_component_t* c;
     njDecodeLength();
+    njCheckError();
     if (nj.length < 9) njThrow(NJ_SYNTAX_ERROR);
     if (nj.pos[0] != 8) njThrow(NJ_UNSUPPORTED);
     nj.height = njDecode16(nj.pos+1);
     nj.width = njDecode16(nj.pos+3);
+    if (!nj.width || !nj.height) njThrow(NJ_SYNTAX_ERROR);
     nj.ncomp = nj.pos[5];
     njSkip(6);
     switch (nj.ncomp) {
@@ -549,14 +562,13 @@ NJ_INLINE void njDecodeSOF(void) {
     nj.mbheight = (nj.height + nj.mbsizey - 1) / nj.mbsizey;
     for (i = 0, c = nj.comp;  i < nj.ncomp;  ++i, ++c) {
         c->width = (nj.width * c->ssx + ssxmax - 1) / ssxmax;
-        c->stride = (c->width + 7) & 0x7FFFFFF8;
         c->height = (nj.height * c->ssy + ssymax - 1) / ssymax;
-        c->stride = nj.mbwidth * nj.mbsizex * c->ssx / ssxmax;
+        c->stride = nj.mbwidth * c->ssx << 3;
         if (((c->width < 3) && (c->ssx != ssxmax)) || ((c->height < 3) && (c->ssy != ssymax))) njThrow(NJ_UNSUPPORTED);
-        if (!(c->pixels = (unsigned char*)njAllocMem(c->stride * (nj.mbheight * nj.mbsizey * c->ssy / ssymax)))) njThrow(NJ_OUT_OF_MEM);
+        if (!(c->pixels = (unsigned char*) njAllocMem(c->stride * nj.mbheight * c->ssy << 3))) njThrow(NJ_OUT_OF_MEM);
     }
     if (nj.ncomp == 3) {
-        nj.rgb = (unsigned char*)njAllocMem(nj.width * nj.height * nj.ncomp);
+        nj.rgb = (unsigned char*) njAllocMem(nj.width * nj.height * nj.ncomp);
         if (!nj.rgb) njThrow(NJ_OUT_OF_MEM);
     }
     njSkip(nj.length);
@@ -567,6 +579,7 @@ NJ_INLINE void njDecodeDHT(void) {
     nj_vlc_code_t *vlc;
     static unsigned char counts[16];
     njDecodeLength();
+    njCheckError();
     while (nj.length >= 17) {
         i = nj.pos[0];
         if (i & 0xEC) njThrow(NJ_SYNTAX_ERROR);
@@ -606,6 +619,7 @@ NJ_INLINE void njDecodeDQT(void) {
     int i;
     unsigned char *t;
     njDecodeLength();
+    njCheckError();
     while (nj.length >= 65) {
         i = nj.pos[0];
         if (i & 0xFC) njThrow(NJ_SYNTAX_ERROR);
@@ -620,6 +634,7 @@ NJ_INLINE void njDecodeDQT(void) {
 
 NJ_INLINE void njDecodeDRI(void) {
     njDecodeLength();
+    njCheckError();
     if (nj.length < 2) njThrow(NJ_SYNTAX_ERROR);
     nj.rstinterval = njDecode16(nj.pos);
     njSkip(nj.length);
@@ -665,6 +680,7 @@ NJ_INLINE void njDecodeScan(void) {
     int rstcount = nj.rstinterval, nextrst = 0;
     nj_component_t* c;
     njDecodeLength();
+    njCheckError();
     if (nj.length < (4 + 2 * nj.ncomp)) njThrow(NJ_SYNTAX_ERROR);
     if (nj.pos[0] != nj.ncomp) njThrow(NJ_UNSUPPORTED);
     njSkip(1);
@@ -721,7 +737,7 @@ NJ_INLINE void njUpsampleH(nj_component_t* c) {
     const int xmax = c->width - 3;
     unsigned char *out, *lin, *lout;
     int x, y;
-    out = (unsigned char*)njAllocMem((c->width * c->height) << 1);
+    out = (unsigned char*) njAllocMem((c->width * c->height) << 1);
     if (!out) njThrow(NJ_OUT_OF_MEM);
     lin = c->pixels;
     lout = out;
@@ -741,7 +757,7 @@ NJ_INLINE void njUpsampleH(nj_component_t* c) {
     }
     c->width <<= 1;
     c->stride = c->width;
-    njFreeMem(c->pixels);
+    njFreeMem((void*)c->pixels);
     c->pixels = out;
 }
 
@@ -749,7 +765,7 @@ NJ_INLINE void njUpsampleV(nj_component_t* c) {
     const int w = c->width, s1 = c->stride, s2 = s1 + s1;
     unsigned char *out, *cin, *cout;
     int x, y;
-    out = (unsigned char*)njAllocMem((c->width * c->height) << 1);
+    out = (unsigned char*) njAllocMem((c->width * c->height) << 1);
     if (!out) njThrow(NJ_OUT_OF_MEM);
     for (x = 0;  x < w;  ++x) {
         cin = &c->pixels[x];
@@ -770,7 +786,7 @@ NJ_INLINE void njUpsampleV(nj_component_t* c) {
     }
     c->height <<= 1;
     c->stride = c->width;
-    njFreeMem(c->pixels);
+    njFreeMem((void*) c->pixels);
     c->pixels = out;
 }
 
@@ -781,7 +797,7 @@ NJ_INLINE void njUpsample(nj_component_t* c) {
     unsigned char *out, *lin, *lout;
     while (c->width < nj.width) { c->width <<= 1; ++xshift; }
     while (c->height < nj.height) { c->height <<= 1; ++yshift; }
-    out = (unsigned char*)njAllocMem(c->width * c->height);
+    out = (unsigned char*) njAllocMem(c->width * c->height);
     if (!out) njThrow(NJ_OUT_OF_MEM);
     lin = c->pixels;
     lout = out;
@@ -792,13 +808,13 @@ NJ_INLINE void njUpsample(nj_component_t* c) {
         lout += c->width;
     }
     c->stride = c->width;
-    njFreeMem(c->pixels);
+    njFreeMem((void*) c->pixels);
     c->pixels = out;
 }
 
 #endif
 
-NJ_INLINE void njConvert() {
+NJ_INLINE void njConvert(void) {
     int i;
     nj_component_t* c;
     for (i = 0, c = nj.comp;  i < nj.ncomp;  ++i, ++c) {
