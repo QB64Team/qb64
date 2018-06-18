@@ -1036,6 +1036,12 @@ typedef void (APIENTRY *PFNGLGETCOLORTABLEEXTPROC)(GLenum target,GLenum format,G
 typedef void (APIENTRY *PFNGLGETCOLORTABLEPARAMETERIVEXTPROC)(GLenum target,GLenum pname,GLint *params);
 typedef void (APIENTRY *PFNGLGETCOLORTABLEPARAMETERFVEXTPROC)(GLenum target,GLenum pname,GLfloat *params);
 
+// OpenGL 1.3
+
+#define GL_VERSION_1_3 1
+
+#define GL_MULTISAMPLE 0x809D
+
 #ifdef __cplusplus
 }
 #endif
