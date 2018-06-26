@@ -992,7 +992,7 @@ void fghComputeWindowRectFromClientArea_UseStyle( const DWORD windowStyle, RECT 
     int xBorderWidth = 0, yBorderWidth = 0;
 
     /* If window has title bar, correct rect for it */
-    if (windowStyle & WS_MAXIMIZEBOX) /* Need to query for WS_MAXIMIZEBOX to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
+    if (windowStyle & WS_SYSMENU) /* Need to query for WS_SYSMENU to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
         if (posIsOutside)
             clientRect->bottom += GetSystemMetrics( SM_CYCAPTION );
         else
@@ -1060,7 +1060,7 @@ void fghComputeClientAreaFromWindowRect( const SFG_Window *window, RECT *windowR
         windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|(WS_MAXIMIZEBOX*QB64_Resizable()));
 
     /* If window has title bar, correct rect for it */
-    if (windowStyle & WS_MINIMIZEBOX) /* Need to query for WS_MINIMIZEBOX to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
+    if (windowStyle & WS_SYSMENU) /* Need to query for WS_SYSMENU to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
         if (wantPosOutside)
             windowRect->bottom -= GetSystemMetrics( SM_CYCAPTION );
         else
