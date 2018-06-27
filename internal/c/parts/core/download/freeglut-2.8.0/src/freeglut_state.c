@@ -487,8 +487,8 @@ int FGAPIENTRY glutGet( GLenum eWhat )
                     return xBorderWidth;
                 }
             case GLUT_WINDOW_HEADER_HEIGHT:
-                /* Need to query for WS_MAXIMIZEBOX to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
-                return (windowStyle & WS_MAXIMIZEBOX)? GetSystemMetrics( SM_CYCAPTION ) : 0;
+                /* Need to query for WS_SYSMENU to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
+                return (windowStyle & WS_SYSMENU)? GetSystemMetrics( SM_CYCAPTION ) : 0;
             }
         }
 #endif /* defined(_WIN32_WCE) */
