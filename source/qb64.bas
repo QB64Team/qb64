@@ -7337,7 +7337,12 @@ DO
     END IF
 
 
-
+    '_ECHO checking
+    IF firstelement$ = "_ECHO" THEN
+        IF Console = 0 THEN
+            a$ = "_ECHO requires $CONSOLE or $CONSOLE:ONLY to be set first": GOTO errmes
+        END IF
+    END IF
 
 
     'ASC statement (fully inline)

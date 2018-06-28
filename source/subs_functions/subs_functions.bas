@@ -872,6 +872,15 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_ECHO"
+id.subfunc = 2
+id.callname = "sub__echo"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "CLEAR"
 id.subfunc = 2
 id.callname = "sub_clear"

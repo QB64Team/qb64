@@ -26433,6 +26433,20 @@ void sub__maptriangle(int32 cull_options,float sx1,float sy1,float sx2,float sy2
   }//title
 
 
+void sub__echo(qbs *message){
+    if (new_error) return;
+
+    int32 prevDest=func__dest();
+    sub__dest(func__console());
+
+    makefit(message);
+    qbs_print(message,0);
+    qbs_print(nothingstring,1);
+
+    sub__dest(prevDest);
+
+  }//echo
+
   //                     0 1  2        0 1       2
   void sub__resize(int32 on_off, int32 stretch_smooth){
 

@@ -98,6 +98,7 @@ extern int32 FontRenderTextASCII(int i,uint8*codepoint,int32 codepoints,int32 op
 
 
 extern void sub__title(qbs *title);
+extern void sub__echo(qbs *message);
 
 extern void sub__glrender(int32 method);
 extern void sub__displayorder(int32 method1,int32 method2,int32 method3,int32 method4);
