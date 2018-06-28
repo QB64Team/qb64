@@ -220,6 +220,8 @@ DIM SHARED tmpdir AS STRING, tmpdir2 AS STRING
 IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp\": tmpdir2$ = "..\\temp\\"
 IF os$ = "LNX" THEN tmpdir$ = "./internal/temp/": tmpdir2$ = "../temp/"
 
+IF NOT _DIREXISTS(tmpdir$) THEN MKDIR tmpdir$
+
 DECLARE LIBRARY
     FUNCTION getpid& ()
 END DECLARE
