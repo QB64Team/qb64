@@ -672,6 +672,16 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_ALLOWFULLSCREEN"
+id.subfunc = 2
+id.callname = "sub__allowfullscreen"
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL}][,{_SMOOTH|_OFF|_ALL}]"
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "_FULLSCREEN"
 id.subfunc = 1
 id.callname = "func__fullscreen"

@@ -290,6 +290,8 @@ int32 resize_auto=0;//1=_STRETCH, 2=_SMOOTH
 float resize_auto_ideal_aspect=640.0/400.0;
 float resize_auto_accept_aspect=640.0/400.0;
 
+int32 fullscreen_allowedmode=0;
+int32 fullscreen_allowedsmooth=0;
 int32 fullscreen_smooth=0;
 int32 fullscreen_width=0;
 int32 fullscreen_height=0;
@@ -5367,7 +5369,6 @@ uint32 clock_firsttimervalue;//based on program launch time
 uint8 wait_needed=1;
 
 int32 full_screen=0;//0,1(stretched/closest),2(1:1)
-int32 full_screen_toggle=0;//increments each time ALT+ENTER is pressed
 int32 full_screen_set=-1;//0(windowed),1(stretched/closest),2(1:1)
 
 
@@ -22262,8 +22263,8 @@ return -1;
   }
 
   void sub__fullscreen(int32 method,int32 passed){
-    //ref: "[{_OFF|_STRETCH|_SQUAREPIXELS}]"
-    //          1      2           3
+    //ref: "[{_OFF|_STRETCH|_SQUAREPIXELS}][, _SMOOTH]"
+    //          1      2           3              1
     int32 x;
     if (method==0) x=1;
     if (method==1) x=0;
@@ -22272,6 +22273,23 @@ return -1;
     if (passed&1) fullscreen_smooth=1; else fullscreen_smooth=0;
     if (full_screen!=x) full_screen_set=x;
     force_display_update=1;
+  }
+
+  void sub__allowfullscreen(int32 method,int32 smooth){
+    //ref: "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL}][, _SMOOTH|_OFF|_ALL]"
+    //            1          2         3    4         1      2    3
+
+    fullscreen_allowedmode=method;
+    if (method==3)
+        fullscreen_allowedmode=-1;
+    if (method==4||method==NULL)
+        fullscreen_allowedmode=0;
+
+    fullscreen_allowedsmooth=smooth;
+    if (smooth==2)
+        fullscreen_allowedsmooth=-1;
+    if (smooth==3||smooth==NULL)
+        fullscreen_allowedsmooth=0;
   }
 
   int32 func__fullscreen(){
@@ -28848,25 +28866,58 @@ QB64_GAMEPAD_INIT();
 
     //ALT+ENTER
     if (keyheld(VK+QBVK_RALT)||keyheld(VK+QBVK_LALT)){
-      if (x==13){
-    static int32 fs_mode,fs_smooth;
-    fs_mode=full_screen_set;
-    if (fs_mode==-1) fs_mode=full_screen;
-    fs_smooth=fullscreen_smooth;
-    if (fs_mode==2&&fs_smooth==1){
-      fs_mode=0;
-    }else{
-      if (fs_smooth==0&&fs_mode!=0){
-        fullscreen_smooth=1;
-      }else{
-        fs_mode++;
-        fullscreen_smooth=0;   
-      }
-    } 
-    if (full_screen!=fs_mode) full_screen_set=fs_mode;
-    force_display_update=1;
-    goto key_handled;
-      }
+        if (x==13){
+            if (fullscreen_allowedmode>=0) { //fullscreen_allowedmode==-1 bypasses alt+enter allowing it to be user-trappable
+                static int32 fs_mode,fs_smooth;
+                fs_mode=full_screen_set;
+                if (fs_mode==-1) fs_mode=full_screen;
+                fs_smooth=fullscreen_smooth;
+
+                int32 fs_combo;
+                if (fs_mode==0) fs_combo=0;
+                if ((fs_mode==1) && (fs_smooth==0)) fs_combo=1;
+                if ((fs_mode==1) && (fs_smooth==1)) fs_combo=2;
+                if ((fs_mode==2) && (fs_smooth==0)) fs_combo=3;
+                if ((fs_mode==2) && (fs_smooth==1)) fs_combo=4;
+
+                int32 fs_validmode=0;
+                while (fs_validmode==0) {
+                    fs_combo++;
+                    if (fs_combo>4) fs_combo=0;
+
+                    switch (fs_combo) {
+                        case 0:
+                            fs_mode=0; fullscreen_smooth=0;
+                            break;
+                        case 1:
+                            fs_mode=1; fullscreen_smooth=0;
+                            break;
+                        case 2:
+                            fs_mode=1; fullscreen_smooth=1;
+                            break;
+                        case 3:
+                            fs_mode=2; fullscreen_smooth=0;
+                            break;
+                        case 4:
+                            fs_mode=2; fullscreen_smooth=1;
+                            break;
+                    }
+
+                    if (fs_combo==0) break; // 0 is always valid (= _OFF)
+
+                    fs_validmode=1;
+                    //check _ALLOWFULLSCREEN's settings
+                    if ((fullscreen_allowedmode>0)&&(fs_mode!=fullscreen_allowedmode)) fs_validmode=0;
+                    if ((fullscreen_allowedsmooth==1)&&(fullscreen_smooth!=1)) fs_validmode=0;
+                    if ((fullscreen_allowedsmooth==-1)&&(fullscreen_smooth!=0)) fs_validmode=0;
+                }
+
+                //apply
+                if (full_screen!=fs_mode) full_screen_set=fs_mode;
+                force_display_update=1;
+                goto key_handled;
+            }
+        }
     }
 
     if (asciicode_reading!=2){//hide numpad presses related to ALT+1+2+3 type entries
