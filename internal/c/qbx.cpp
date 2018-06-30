@@ -205,6 +205,7 @@ void chain_savescreenstate(int32);
 extern void sub__fullscreen(int32 method,int32 passed);
 extern void sub__allowfullscreen(int32 method,int32 smooth);
 extern int32 func__fullscreen();
+extern int32 func__fullscreensmooth();
 extern void sub__clipboard(qbs*);
 extern qbs *func__clipboard();
 extern int32 func__clipboardimage();

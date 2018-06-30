@@ -690,6 +690,14 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_SMOOTH"
+id.subfunc = 1
+id.callname = "func__fullscreensmooth"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "_WINDOWHASFOCUS"
 id.subfunc = 1
 id.callname = "func__hasfocus"

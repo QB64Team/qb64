@@ -22299,6 +22299,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             return full_screen;
         }
         
+        int32 func__fullscreensmooth(){
+            return -fullscreen_smooth;
+        }
         
         void chain_restorescreenstate(int32 i){
             static int32 i32,i32b,i32c,x,x2;
