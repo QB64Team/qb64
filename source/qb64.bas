@@ -15680,6 +15680,7 @@ IF LEN(f$) THEN 'special format given
 ELSE 'no special format given
 
     IF n$ = "ASC" AND args = 2 THEN GOTO skipargnumchk
+    IF n$ = "_RGB32" AND (args > 0 AND args <= 4) THEN GOTO skipargnumchk
     IF id2.args <> args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
 
 END IF

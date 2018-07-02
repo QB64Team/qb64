@@ -1331,8 +1331,8 @@ clearid
 id.n = "_RGB32"
 id.subfunc = 1
 id.callname = "func__rgb32"
-id.args = 3
-id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.args = 4
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.ret = ULONGTYPE - ISPOINTER
 regid
 
