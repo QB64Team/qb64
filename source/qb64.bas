@@ -659,7 +659,9 @@ TYPE idstruct
 
     callname AS STRING * 256
     ccall AS INTEGER
+    overloaded AS _BYTE
     args AS INTEGER
+    minargs AS INTEGER
     arg AS STRING * 400 'similar to t
     argsize AS STRING * 400 'similar to tsize (used for fixed length strings)
     specialformat AS STRING * 256
@@ -15680,7 +15682,8 @@ IF LEN(f$) THEN 'special format given
 ELSE 'no special format given
 
     IF n$ = "ASC" AND args = 2 THEN GOTO skipargnumchk
-    IF n$ = "_RGB32" AND (args > 0 AND args <= 4) THEN GOTO skipargnumchk
+    IF id2.overloaded = -1 AND (args >= id2.minargs AND args <= id2.args) THEN GOTO skipargnumchk
+
     IF id2.args <> args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
 
 END IF
