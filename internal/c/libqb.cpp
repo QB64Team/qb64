@@ -22263,30 +22263,30 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         }
         
         void sub__fullscreen(int32 method,int32 passed){
-            //ref: "[{_OFF|_STRETCH|_SQUAREPIXELS}][, _SMOOTH]"
-            //          1      2           3              1
+            //ref: "[{_OFF|_STRETCH|_SQUAREPIXELS|OFF}][, _SMOOTH]"
+            //          1      2           3        4         1
             int32 x;
             if (method==0) x=1;
-            if (method==1) x=0;
+            if (method==1||method==4) x=0;
             if (method==2) x=1;
             if (method==3) x=2;
             if (passed&1) fullscreen_smooth=1; else fullscreen_smooth=0;
             if (full_screen!=x) full_screen_set=x;
             force_display_update=1;
         }
-        
+
         void sub__allowfullscreen(int32 method,int32 smooth){
-            //ref: "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL}][, _SMOOTH|_OFF|_ALL]"
-            //            1          2         3    4         1      2    3
+            //ref: "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL|OFF}][, _SMOOTH|_OFF|_ALL|OFF]"
+            //            1          2         3    4   5         1      2    3   4
             
             fullscreen_allowedmode=method;
-            if (method==3)
+            if (method==3||method==5)
             fullscreen_allowedmode=-1;
             if (method==4||method==NULL)
             fullscreen_allowedmode=0;
             
             fullscreen_allowedsmooth=smooth;
-            if (smooth==2)
+            if (smooth==2||smooth==4)
             fullscreen_allowedsmooth=-1;
             if (smooth==3||smooth==NULL)
             fullscreen_allowedsmooth=0;

@@ -667,7 +667,7 @@ id.subfunc = 2
 id.callname = "sub__fullscreen"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS}][,{_SMOOTH}]"
+id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS|OFF}][,{_SMOOTH}]"
 id.NoCloud = 1
 regid
 
@@ -677,7 +677,7 @@ id.subfunc = 2
 id.callname = "sub__allowfullscreen"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL}][,{_SMOOTH|_OFF|_ALL}]"
+id.specialformat = "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL|OFF}][,{_SMOOTH|_OFF|_ALL|OFF}]"
 id.NoCloud = 1
 regid
 
