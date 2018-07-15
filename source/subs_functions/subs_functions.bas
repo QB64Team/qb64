@@ -2440,6 +2440,16 @@ id.specialformat = "[?],?,?" 'checked!
 regid
 
 clearid
+id.n = "_INSTRREV"
+id.subfunc = 1
+id.callname = "func__instrrev"
+id.args = 3
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER)
+id.ret = LONGTYPE - ISPOINTER
+id.specialformat = "[?],?,?" 'checked!
+regid
+
+clearid
 id.n = "MID"
 id.musthave = "$"
 id.subfunc = 1

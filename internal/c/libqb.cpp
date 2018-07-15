@@ -6601,6 +6601,39 @@ int32 func_instr(int32 start,qbs *str,qbs *substr,int32 passed){
     goto nextchar;
 }
 
+int32 func__instrrev(int32 start,qbs *str,qbs *substr,int32 passed){
+    static uint8 *base;
+    static uint8 firstc,thisc;
+
+    if (!str->len) return 0;
+    if (substr->len>str->len) return 0;
+    if (!passed) {
+        if (substr->len==str->len) {
+            if (!memcmp(str->chr,substr->chr,str->len)) return 1;
+        }
+        start=str->len-substr->len+1;
+    }
+    if (start<1){
+        start=str->len-substr->len+1;
+    }
+    if (start>str->len) start=str->len-substr->len+1;
+    if (!substr->len) return start-1;
+    if ((start+substr->len-1)>str->len) start=str->len-substr->len+1;
+
+    firstc=substr->chr[0];
+    base=str->chr+start-1;
+
+    prevchar:
+    thisc=base[0];
+    if (thisc!=firstc) {
+        if (base==str->chr) return 0;
+    }
+    if (!memcmp(base,substr->chr,substr->len)) return base-str->chr+1;
+    if (base==str->chr) return 0;
+    base--;
+    goto prevchar;
+}
+
 void sub_mid(qbs *dest,int32 start,int32 l,qbs* src,int32 passed){
     if (new_error) return;
     static int32 src_offset;

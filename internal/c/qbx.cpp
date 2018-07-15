@@ -298,6 +298,7 @@ extern void sub_rset(qbs *dest,qbs *source);
 extern qbs *func_space(int32 spaces);
 extern qbs *func_string(int32 characters,int32 asciivalue);
 extern int32 func_instr(int32 start,qbs *str,qbs *substr,int32 passed);
+extern int32 func__instrrev(int32 start,qbs *str,qbs *substr,int32 passed);
 extern void sub_mid(qbs *dest,int32 start,int32 l,qbs* src,int32 passed);
 extern qbs *func_mid(qbs *str,int32 start,int32 l,int32 passed);
 extern qbs *qbs_ltrim(qbs *str);
