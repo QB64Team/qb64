@@ -6602,9 +6602,6 @@ int32 func_instr(int32 start,qbs *str,qbs *substr,int32 passed){
 }
 
 int32 func__instrrev(int32 start,qbs *str,qbs *substr,int32 passed){
-    static uint8 *base;
-    static uint8 firstc,thisc;
-
     if (!str->len) return 0;
     if (substr->len>str->len) return 0;
     if (!passed) {
