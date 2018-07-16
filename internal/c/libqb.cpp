@@ -6620,18 +6620,17 @@ int32 func__instrrev(int32 start,qbs *str,qbs *substr,int32 passed){
     if (!substr->len) return start-1;
     if ((start+substr->len-1)>str->len) start=str->len-substr->len+1;
 
-    firstc=substr->chr[0];
-    base=str->chr+start-1;
+    int32 searchForward=0,lastFound=0,result=0;
+    do {
+        searchForward=func_instr(searchForward+1,str,substr,1);
+        if (searchForward>0) {
+            lastFound=searchForward;
+            if (lastFound<=start) result=lastFound;
+            if (lastFound>start) break;
+        }
+    } while (searchForward>0);
 
-    prevchar:
-    thisc=base[0];
-    if (thisc!=firstc) {
-        if (base==str->chr) return 0;
-    }
-    if (!memcmp(base,substr->chr,substr->len)) return base-str->chr+1;
-    if (base==str->chr) return 0;
-    base--;
-    goto prevchar;
+    return result;
 }
 
 void sub_mid(qbs *dest,int32 start,int32 l,qbs* src,int32 passed){
