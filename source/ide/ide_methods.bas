@@ -2780,7 +2780,7 @@ FUNCTION ide2 (ignore)
                     idemouseselect = 1
                     wholeword.select = 0
                 END IF
-            ELSEIF mX > 1 AND mx =< 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
+            ELSEIF mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
                 'line numbers are visible and been clicked
                 ideselect = 1
                 idecy = mY - 2 + idesy - 1
@@ -2828,7 +2828,7 @@ FUNCTION ide2 (ignore)
                             IF idecy > iden THEN idecy = iden
                         ELSE
                             'Ok, there is a selection. But we'll override it if the click was outside it
-                            IF (mX - 1 + idesx - 1) - maxLineNumberLength < sx1 OR (mX - 1 + idesx - 1)  - maxLineNumberLength > sx2 THEN
+                            IF (mX - 1 + idesx - 1) - maxLineNumberLength < sx1 OR (mX - 1 + idesx - 1) - maxLineNumberLength > sx2 THEN
                                 ideselect = 0
                                 idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                                 idecy = mY - 2 + idesy - 1
@@ -8289,7 +8289,7 @@ SUB ideshowtext
             LOOP
         END IF
 
-        FOR i = 1 TO LEN (listOfCustomKeywords$)
+        FOR i = 1 TO LEN(listOfCustomKeywords$)
             checkChar = ASC(listOfCustomKeywords$, i)
             IF checkChar = 64 THEN
                 IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
@@ -8719,7 +8719,7 @@ SUB ideshowtext
             'Restore BG color in case a matching bracket was printed with different BG
             IF l = idecy THEN COLOR , 6
             IF isKeyword > 0 THEN isKeyword = isKeyword - 1
-            if isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
+            IF isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
         NEXT m
 
         'apply selection color change if necessary
@@ -9448,7 +9448,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                         o.issel = 0
                     END IF
                 END IF
-                IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 AND ((KALT = 0 AND KCTRL = 0) OR (KALT = -1 AND KCTRL = -1))  THEN
+                IF k <> 8 AND k <> 9 AND k <> 0 AND k <> 10 AND k <> 13 AND k <> 26 AND k <> 255 AND ((KALT = 0 AND KCTRL = 0) OR (KALT = -1 AND KCTRL = -1)) THEN
                     IF o.issel THEN
                         sx1 = o.sx1: sx2 = o.v1
                         IF sx1 > sx2 THEN SWAP sx1, sx2
@@ -12159,7 +12159,7 @@ FUNCTION idechoosecolorsbox
 
                     'Build scheme string
                     SchemeString$ = SchemeString$ + "|"
-                    FOR j = 1 to 9
+                    FOR j = 1 TO 9
                         SELECT CASE j
                             CASE 1: CurrentColor~& = IDETextColor
                             CASE 2: CurrentColor~& = IDEKeywordColor
@@ -12197,7 +12197,7 @@ FUNCTION idechoosecolorsbox
                     SchemeString$ = SchemeString$ + "|"
 
                     'Build scheme string
-                    FOR j = 1 to 9
+                    FOR j = 1 TO 9
                         SELECT CASE j
                             CASE 1: CurrentColor~& = IDETextColor
                             CASE 2: CurrentColor~& = IDEKeywordColor
@@ -12372,7 +12372,7 @@ FUNCTION idechoosecolorsbox
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Keywords"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Numbers"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Strings"
-            i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Metacommand/custom keywords
+            i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Metacommand/custom keywords"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Comments"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Background"
             i = i + 1: l$ = l$ + sep + SelectionIndicator$(i) + "Current line background"
@@ -14520,16 +14520,16 @@ END SUB
 
 'After Cormen, Leiserson, Rivest & Stein "Introduction To Algoritms" via Wikipedia
 SUB sort (arr() AS STRING * 998)
-FOR i& = LBOUND(arr) + 1 TO UBOUND(arr)
-    x$ = arr(i&)
-    j& = i& - 1
-    WHILE j& >= LBOUND(arr)
-        IF arr(j&) <= x$ THEN EXIT WHILE
-        arr$(j& + 1) = arr$(j&)
-        j& = j& - 1
-    WEND
-    arr$(j& + 1) = x$
-NEXT i&
+    FOR i& = LBOUND(arr) + 1 TO UBOUND(arr)
+        x$ = arr(i&)
+        j& = i& - 1
+        WHILE j& >= LBOUND(arr)
+            IF arr(j&) <= x$ THEN EXIT WHILE
+            arr$(j& + 1) = arr$(j&)
+            j& = j& - 1
+        WEND
+        arr$(j& + 1) = x$
+    NEXT i&
 END SUB
 
 FUNCTION FindProposedTitle$
@@ -14731,7 +14731,7 @@ SUB LoadColorSchemes
                 ELSEIF LEN(MID$(value$, FoundPipe + 1)) = 54 THEN
                     'Version 1.1 schemes (only 6 colors)
                     'Convert to extended scheme:
-                    temp$  = LEFT$(value$, FoundPipe)
+                    temp$ = LEFT$(value$, FoundPipe)
                     temp$ = temp$ + MID$(value$, FoundPipe + 1, 9) + "069147216245128177"
                     temp$ = temp$ + MID$(value$, FoundPipe + 10) + "000147177"
                     ColorSchemes$(TotalColorSchemes) = temp$
