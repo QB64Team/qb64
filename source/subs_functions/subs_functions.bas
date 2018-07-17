@@ -2903,6 +2903,16 @@ id.ret = STRINGTYPE - ISPOINTER
 regid
 
 clearid
+id.n = "_TRIM"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "qbs__trim"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.ret = STRINGTYPE - ISPOINTER
+regid
+
+clearid
 id.n = "PRINT"
 id.subfunc = 2
 id.callname = "qbs_print" 'not called directly

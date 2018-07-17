@@ -6725,6 +6725,10 @@ qbs *qbs_rtrim(qbs *str){
     return tqbs;
 }
 
+qbs *qbs__trim(qbs *str){
+    return qbs_rtrim(qbs_ltrim(str));
+}
+
 int32 func__str_nc_compare(qbs *s1, qbs *s2) {
     int32 limit, l1, l2;
     int32 v1, v2;

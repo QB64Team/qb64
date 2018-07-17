@@ -303,6 +303,7 @@ extern void sub_mid(qbs *dest,int32 start,int32 l,qbs* src,int32 passed);
 extern qbs *func_mid(qbs *str,int32 start,int32 l,int32 passed);
 extern qbs *qbs_ltrim(qbs *str);
 extern qbs *qbs_rtrim(qbs *str);
+extern qbs *qbs__trim(qbs *str);
 extern int32 func__str_nc_compare(qbs *s1, qbs *s2);
 extern int32 func__str_compare(qbs *s1, qbs *s2);
 extern qbs *qbs_inkey();
