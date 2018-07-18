@@ -6726,7 +6726,20 @@ qbs *qbs_rtrim(qbs *str){
 }
 
 qbs *qbs__trim(qbs *str){
-    return qbs_rtrim(qbs_ltrim(str));
+    if (!str->len) return str;
+    if ((*str->chr!=32)&&(str->chr[str->len-1]!=32)) return str;//pass on
+
+    qbs *tqbs = NULL;
+    if (str->tmp&&!str->fixed&&!str->readonly&&!str->in_cmem) {
+        tqbs=str;
+    }
+    else {
+        tqbs = qbs_new(str->len,1);
+        memcpy(tqbs->chr,str->chr,str->len);
+    }
+    qbs_set(tqbs,qbs_rtrim(qbs_ltrim(tqbs)));
+    if (tqbs!=str&&str->tmp) qbs_free(str);
+    return tqbs;
 }
 
 int32 func__str_nc_compare(qbs *s1, qbs *s2) {
