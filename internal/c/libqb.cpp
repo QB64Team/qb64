@@ -18283,6 +18283,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             i2=newimg();
             d=&img[i2];
             memcpy(d,s,sizeof(img_struct));
+            img[i2].lock_id=NULL; img[i2].lock_offset=NULL; // force _MEMIMGAGE to get a new lock for the copy
             //duplicate pixel data
             bytes=d->width*d->height*d->bytes_per_pixel;
             d->offset=(uint8*)malloc(bytes);
