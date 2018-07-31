@@ -26515,8 +26515,10 @@ void sub__filedrop(int32 on_off=NULL) {
 }
 
 void sub__finishdrop() {
-    DragFinish(hdrop);
-    totalDroppedFiles=0;
+    #ifdef QB64_WINDOWS
+        DragFinish(hdrop);
+        totalDroppedFiles=0;
+    #endif
 }
 
 int32 func__totaldroppedfiles() {
