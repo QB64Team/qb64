@@ -899,6 +899,32 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_ACCEPTFILEDROP"
+id.subfunc = 2
+id.callname = "sub__filedrop"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{ON|OFF}]"
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_TOTALDROPPEDFILES"
+id.subfunc = 1
+id.callname = "func__totaldroppedfiles"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_DROPPEDFILE"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__droppedfile"
+id.ret = STRINGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "CLEAR"
 id.subfunc = 2
 id.callname = "sub_clear"

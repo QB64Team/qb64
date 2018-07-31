@@ -53,6 +53,7 @@ int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7
 #define QB64_EVENT_CLOSE 1
 #define QB64_EVENT_KEY 2
 #define QB64_EVENT_RELATIVE_MOUSE_MOVEMENT 3
+#define QB64_EVENT_FILE_DROP 4
 
 #define QBK 200000
 #define VK 100000
@@ -2233,6 +2234,10 @@ LRESULT CALLBACK fgWindowProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 */
         qb64_custom_event(QB64_EVENT_CLOSE,0,0,0,0,0,0,0,0,NULL,NULL);
 
+        break;
+
+    case WM_DROPFILES:
+        qb64_custom_event(QB64_EVENT_FILE_DROP,0,0,0,0,0,0,0,0,wParam,NULL);
         break;
 
     case WM_DESTROY:

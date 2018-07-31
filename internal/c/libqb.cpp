@@ -235,6 +235,8 @@ void sub__delay(double seconds);
 void *generic_window_handle=NULL;
 #ifdef QB64_WINDOWS
     HWND window_handle=NULL;
+    HDROP hdrop=NULL;
+    int32 totalDroppedFiles=0;
 #endif
 //...
 
@@ -327,6 +329,7 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
 #define QB64_EVENT_CLOSE 1
 #define QB64_EVENT_KEY 2
 #define QB64_EVENT_RELATIVE_MOUSE_MOVEMENT 3
+#define QB64_EVENT_FILE_DROP 4
 #define QB64_EVENT_KEY_PAUSE 1000
 
 static int32 image_qbicon16_handle;
@@ -26502,6 +26505,49 @@ void sub__echo(qbs *message){
     
 }//echo
 
+void sub__filedrop(int32 on_off=NULL) {
+    #ifdef QB64_WINDOWS
+        if ((on_off==NULL)||(on_off==1))
+            DragAcceptFiles((HWND)func__handle(), TRUE);
+        if ((on_off==2))
+            DragAcceptFiles((HWND)func__handle(), FALSE);
+    #endif
+}
+
+int32 func__totaldroppedfiles() {
+    #ifdef QB64_WINDOWS
+        return totalDroppedFiles;
+    #endif
+    return 0;
+}
+
+qbs *func__droppedfile() {
+    #ifdef QB64_WINDOWS
+        static int32 index=-1;
+        static char szNextFile[MAX_PATH];
+
+        if (totalDroppedFiles > 0) {
+            totalDroppedFiles--;
+            index++;
+            if ( DragQueryFile ( hdrop, index, szNextFile, MAX_PATH ) > 0 ) {
+                if (totalDroppedFiles==0) {
+                    DragFinish(hdrop);
+                    index=-1;
+                }
+                return qbs_new_txt(szNextFile);
+            } else {
+                goto reset;
+            }
+        } else {
+            reset:
+            DragFinish(hdrop);
+            totalDroppedFiles=0;
+            index=-1;
+        }
+    #endif
+    return qbs_new_txt("");
+}
+
 //                     0 1  2        0 1       2
 void sub__resize(int32 on_off, int32 stretch_smooth){
     
@@ -29617,6 +29663,15 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
         return NULL;
     }//QB64_EVENT_RELATIVE_MOUSE_MOVEMENT
     
+    if (event==QB64_EVENT_FILE_DROP){
+        #ifdef QB64_WINDOWS
+            if (totalDroppedFiles > 0) DragFinish(hdrop);
+
+            hdrop=(HDROP)p1;
+            totalDroppedFiles = DragQueryFile ( hdrop, -1, NULL, 0 );
+        #endif
+        return NULL;
+    }
     
     return -1;//Unknown command (use for debugging purposes only)
 }//qb64_custom_event
