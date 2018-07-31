@@ -909,6 +909,13 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_FINISHDROP"
+id.subfunc = 2
+id.callname = "sub__finishdrop"
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "_TOTALDROPPEDFILES"
 id.subfunc = 1
 id.callname = "func__totaldroppedfiles"
@@ -917,11 +924,14 @@ regid
 
 clearid
 id.n = "_DROPPEDFILE"
-id.musthave = "$"
+id.mayhave = "$"
 id.subfunc = 1
 id.callname = "func__droppedfile"
 id.ret = STRINGTYPE - ISPOINTER
 id.NoCloud = 1
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid

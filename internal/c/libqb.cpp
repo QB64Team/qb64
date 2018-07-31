@@ -26514,6 +26514,11 @@ void sub__filedrop(int32 on_off=NULL) {
     #endif
 }
 
+void sub__finishdrop() {
+    DragFinish(hdrop);
+    totalDroppedFiles=0;
+}
+
 int32 func__totaldroppedfiles() {
     #ifdef QB64_WINDOWS
         return totalDroppedFiles;
@@ -26521,27 +26526,36 @@ int32 func__totaldroppedfiles() {
     return 0;
 }
 
-qbs *func__droppedfile() {
+qbs *func__droppedfile(int32 fileIndex, int32 passed) {
     #ifdef QB64_WINDOWS
         static int32 index=-1;
         static char szNextFile[MAX_PATH];
 
         if (totalDroppedFiles > 0) {
-            totalDroppedFiles--;
             index++;
+            if (passed) index=fileIndex-1;
+            if ((index>totalDroppedFiles-1)||(index<0)) {
+                // out of bounds;
+                // if reading _DROPPEDFILE$ sequentially (without an
+                // index), hdrop is reset and the list is cleared.
+                if (!passed) sub__finishdrop();
+                index=-1;
+                return qbs_new_txt("");
+            }
+            // fetch file[index] from hdrop:
             if ( DragQueryFile ( hdrop, index, szNextFile, MAX_PATH ) > 0 ) {
-                if (totalDroppedFiles==0) {
-                    DragFinish(hdrop);
+                if ((!passed)&&(index==totalDroppedFiles-1)) {
+                    // last file read sequentially
+                    sub__finishdrop();
                     index=-1;
                 }
                 return qbs_new_txt(szNextFile);
             } else {
-                goto reset;
+                // error fetching file from hdrop;
+                sub__finishdrop();
+                index=-1;
             }
         } else {
-            reset:
-            DragFinish(hdrop);
-            totalDroppedFiles=0;
             index=-1;
         }
     #endif
@@ -29665,7 +29679,7 @@ extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,in
     
     if (event==QB64_EVENT_FILE_DROP){
         #ifdef QB64_WINDOWS
-            if (totalDroppedFiles > 0) DragFinish(hdrop);
+            if (totalDroppedFiles > 0) sub__finishdrop();
 
             hdrop=(HDROP)p1;
             totalDroppedFiles = DragQueryFile ( hdrop, -1, NULL, 0 );
