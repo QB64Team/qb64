@@ -7453,6 +7453,7 @@ FUNCTION ideopen$
             IF _TOTALDROPPEDFILES > 0 THEN
                 idetxt(o(1).txt) = _DROPPEDFILE$(1)
                 o(1).v1 = LEN(idetxt(o(1).txt))
+                focus = 1
                 _FINISHDROP
                 change = 1
             END IF
