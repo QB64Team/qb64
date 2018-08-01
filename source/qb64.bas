@@ -921,6 +921,9 @@ gl_scan_header
 '-----------------------QB64 COMPILER ONCE ONLY SETUP CODE ENDS HERE---------------------------------------
 
 IF NoIDEMode THEN IDE_AutoPosition = 0: GOTO noide
+DIM FileDropEnabled AS _BYTE
+IF FileDropEnabled = 0 THEN FileDropEnabled = -1: _ACCEPTFILEDROP
+
 IF IDE_AutoPosition AND NOT IDE_BypassAutoPosition THEN _SCREENMOVE IDE_LeftPosition, IDE_TopPosition
 idemode = 1
 sendc$ = "" 'no initial message

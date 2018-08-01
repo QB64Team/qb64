@@ -2237,7 +2237,7 @@ LRESULT CALLBACK fgWindowProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         break;
 
     case WM_DROPFILES:
-        qb64_custom_event(QB64_EVENT_FILE_DROP,0,0,0,0,0,0,0,0,wParam,NULL);
+        qb64_custom_event(QB64_EVENT_FILE_DROP,0,0,0,0,0,0,0,0,(void*)wParam,NULL);
         break;
 
     case WM_DESTROY:
