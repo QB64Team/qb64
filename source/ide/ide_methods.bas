@@ -1275,14 +1275,14 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF _TOTALDROPPEDFILES > 0 THEN
-            IF _FILEEXISTS(_DROPPEDFILE$(1)) THEN
-                IdeOpenFile$ = _DROPPEDFILE$(1)
-                _FINISHDROP
-                GOTO ctrlOpen
-            END IF
-            _FINISHDROP
-        END IF
+        'IF _TOTALDROPPEDFILES > 0 THEN
+        '    IF _FILEEXISTS(_DROPPEDFILE$(1)) THEN
+        '        IdeOpenFile$ = _DROPPEDFILE$(1)
+        '        _FINISHDROP
+        '        GOTO ctrlOpen
+        '    END IF
+        '    _FINISHDROP
+        'END IF
 
         'Hover/click (QuickNav)
         IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
@@ -7450,13 +7450,13 @@ FUNCTION ideopen$
             alt = KALT: IF alt <> oldalt THEN change = 1
             oldalt = alt
 
-            IF _TOTALDROPPEDFILES > 0 THEN
-                idetxt(o(1).txt) = _DROPPEDFILE$(1)
-                o(1).v1 = LEN(idetxt(o(1).txt))
-                focus = 1
-                _FINISHDROP
-                change = 1
-            END IF
+            'IF _TOTALDROPPEDFILES > 0 THEN
+            '    idetxt(o(1).txt) = _DROPPEDFILE$(1)
+            '    o(1).v1 = LEN(idetxt(o(1).txt))
+            '    focus = 1
+            '    _FINISHDROP
+            '    change = 1
+            'END IF
 
             _LIMIT 100
         LOOP UNTIL change
