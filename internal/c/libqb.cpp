@@ -233,6 +233,7 @@ int32 force_display_update=0;
 void sub__delay(double seconds);
 
 void *generic_window_handle=NULL;
+int32 acceptFileDrop=0;
 #ifdef QB64_WINDOWS
     HWND window_handle=NULL;
     HDROP hdrop=NULL;
@@ -26507,11 +26508,19 @@ void sub__echo(qbs *message){
 
 void sub__filedrop(int32 on_off=NULL) {
     #ifdef QB64_WINDOWS
-        if ((on_off==NULL)||(on_off==1))
+        if ((on_off==NULL)||(on_off==1)) {
             DragAcceptFiles((HWND)func__handle(), TRUE);
-        if ((on_off==2))
+            acceptFileDrop=-1;
+        }
+        if ((on_off==2)) {
             DragAcceptFiles((HWND)func__handle(), FALSE);
+            acceptFileDrop=0;
+        }
     #endif
+}
+
+int32 func__filedrop() {
+    return acceptFileDrop;
 }
 
 void sub__finishdrop() {

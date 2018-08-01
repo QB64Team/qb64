@@ -909,6 +909,14 @@ id.NoCloud = 1
 regid
 
 clearid
+id.n = "_ACCEPTFILEDROP"
+id.subfunc = 1
+id.callname = "func__filedrop"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
 id.n = "_FINISHDROP"
 id.subfunc = 2
 id.callname = "sub__finishdrop"

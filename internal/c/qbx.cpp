@@ -100,6 +100,7 @@ uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_p
 extern void sub__title(qbs *title);
 extern void sub__echo(qbs *message);
 extern void sub__finishdrop();
+extern int32 func__filedrop();
 extern void sub__filedrop(int32 on_off=NULL);
 extern int32 func__totaldroppedfiles();
 extern qbs *func__droppedfile(int32 fileIndex, int32 passed);
