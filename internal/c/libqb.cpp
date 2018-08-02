@@ -20539,7 +20539,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 
             }//sub__icon
         #endif //DEPENDENCY_ICON
-        
+
         int32 func_screenwidth () {
             #ifdef QB64_GLUT
                 while (!window_exists){Sleep(100);}
@@ -20547,11 +20547,15 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     while (!window_handle){Sleep(100);}
                 #endif
                 return glutGet(GLUT_SCREEN_WIDTH);
+            #else
+                #ifdef QB64_WINDOWS
+                    return GetSystemMetrics(0);
                 #else
-                return 0;
+                    return 0;
+                #endif
             #endif
         }
-        
+
         int32 func_screenheight () {
             #ifdef QB64_GLUT
                 while (!window_exists){Sleep(100);}
@@ -20559,11 +20563,15 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     while (!window_handle){Sleep(100);}
                 #endif
                 return glutGet(GLUT_SCREEN_HEIGHT);
+            #else
+                #ifdef QB64_WINDOWS
+                    return GetSystemMetrics(1);
                 #else
-                return 0;
+                    return 0;
+                #endif
             #endif
         }
-        
+
         void sub_screenicon () {
             #ifdef QB64_GLUT
                 while (!window_exists){Sleep(100);}
