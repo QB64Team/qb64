@@ -20422,7 +20422,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             void sub__icon(int32 handle_icon, int32 handle_window_icon, int32 passed){
                 
                 if (new_error) return;
-                
+                #ifndef DEPENDENCY_CONSOLE_ONLY
                 if (!(passed&2)) handle_window_icon=handle_icon;
                 if (!(passed&1)){
                     handle_icon=image_qbicon32_handle;
@@ -20536,7 +20536,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                         
                     #endif //QB64_WINDOWS
                 }//!screen_hide
-                
+                #endif //DEPENDENCY_CONSOLE_ONLY
             }//sub__icon
         #endif //DEPENDENCY_ICON
 
