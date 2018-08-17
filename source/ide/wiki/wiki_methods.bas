@@ -47,20 +47,20 @@ FUNCTION Wiki$ (PageName$)
         PCOPY 3, 0
     END IF
 
-    url$ = "www.qb64.net/wiki/index.php?title=" + PageName2$ + "&action=edit"
-    s1$ = "readonly=" + CHR$(34) + "readonly" + CHR$(34) + ">"
+    url$ = "www.qb64.org/wiki/index.php?title=" + PageName2$ + "&action=edit"
+    'when fetching from .org, look for name="wpTextbox1">
+    s1$ = "name=" + CHR$(34) + "wpTextbox1" + CHR$(34) + ">"
     try:
     IF AlternativeServer THEN
-        url$ = "www.qb64.org/wiki/index.php?title=" + PageName2$ + "&action=edit"
-        'when fetching from .org, look for name="wpTextbox1">
-        s1$ = "name=" + CHR$(34) + "wpTextbox1" + CHR$(34) + ">"
+        url$ = "www.qb64.net/wiki/index.php?title=" + PageName2$ + "&action=edit"
+        s1$ = "readonly=" + CHR$(34) + "readonly" + CHR$(34) + ">"
     END IF
     url2$ = url$
     x = INSTR(url2$, "/")
     IF x THEN url2$ = LEFT$(url$, x - 1)
     c = _OPENCLIENT("TCP/IP:80:" + url2$)
     IF c = 0 THEN
-        IF INSTR(url$, ".org") = 0 THEN
+        IF INSTR(url$, ".net") = 0 THEN
             AlternativeServer = -1
             IF Help_Recaching = 0 THEN
                 a$ = "Downloading '" + PageName$ + "' page from alternative server..."
