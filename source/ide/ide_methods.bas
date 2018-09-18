@@ -3001,6 +3001,10 @@ FUNCTION ide2 (ignore)
             GOTO ctrlAddComment
         END IF
 
+        IF (NOT KSHIFT) AND KCONTROL AND UCASE$(K$) = "T" THEN 'Toggle comment
+            GOTO ctrlToggleComment
+        END IF
+
         IF KSHIFT AND KCONTROL AND UCASE$(K$) = "R" THEN 'uncomment (remove ')
             GOTO ctrlRemoveComment
         END IF
@@ -4390,7 +4394,7 @@ FUNCTION ide2 (ignore)
             menuChoiceMade:
             IF KALT THEN idehl = 1 ELSE idehl = 0 'set idehl, a shared variable used by various dialogue boxes
 
-            IF menu$(m, s) = "Comment (add ')  Ctrl+R" THEN
+            IF menu$(m, s) = "Add comment (')  Ctrl+R" THEN
                 ctrlAddComment:
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
@@ -4421,7 +4425,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Uncomment (remove ')  Ctrl+Shift+R" THEN
+            IF menu$(m, s) = "Remove comment (')  Ctrl+Shift+R" THEN
                 ctrlRemoveComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4438,6 +4442,47 @@ FUNCTION ide2 (ignore)
                         IF LEN(a2$) THEN
                             IF ASC(a2$, 1) = 39 THEN
                                 a$ = SPACE$(LEN(a$) - LEN(a2$)) + RIGHT$(a2$, LEN(a2$) - 1)
+                                idesetline y, a$
+                                idechangemade = 1
+                            END IF
+                        END IF
+                    END IF
+                NEXT
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "Toggle comment  Ctrl+T" THEN
+                ctrlToggleComment:
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                y1 = idecy: y2 = y1
+                IF ideselect = 1 THEN
+                    y1 = ideselecty1
+                    IF idecy > ideselecty1 AND idecx = 1 THEN y2 = y2 - 1
+                    IF y1 > y2 THEN SWAP y1, y2
+                END IF
+                'calculate lhs
+                lhs = 10000000
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        ta$ = LTRIM$(a$)
+                        t = LEN(a$) - LEN(ta$)
+                        IF t < lhs THEN lhs = t
+                    END IF
+                NEXT
+                'edit lines
+                FOR y = y1 TO y2
+                    a$ = idegetline(y)
+                    IF LEN(a$) THEN
+                        a2$ = LTRIM$(a$)
+                        IF LEN(a2$) THEN
+                            IF ASC(a2$, 1) = 39 THEN
+                                a$ = SPACE$(LEN(a$) - LEN(a2$)) + RIGHT$(a2$, LEN(a2$) - 1)
+                                idesetline y, a$
+                                idechangemade = 1
+                            ELSE
+                                a$ = LEFT$(a$, lhs) + "'" + RIGHT$(a$, LEN(a$) - lhs)
                                 idesetline y, a$
                                 idechangemade = 1
                             END IF
@@ -13929,8 +13974,9 @@ SUB IdeMakeContextualMenu
     IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Comment (add ')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Uncomment (remove ')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "Toggle comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add comment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove comment (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -13995,8 +14041,9 @@ SUB IdeMakeEditMenu
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Comment (add ')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Uncomment (remove ')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "Toggle comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add comment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove comment (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
