@@ -10,7 +10,7 @@ DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
 DIM SHARED MouseButtonSwapped AS _BYTE
 DIM SHARED PasteCursorAtEnd AS _BYTE
-DIM SHARED SaveExeWithSource AS _BYTE
+DIM SHARED SaveExeWithSource AS _BYTE, EnableQuickNav AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 
@@ -177,6 +177,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
         SaveExeWithSource = 0
+    END IF
+
+    result = ReadConfigSetting("EnableQuickNav", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            EnableQuickNav = -1
+        ELSE
+            EnableQuickNav = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "TRUE"
+        EnableQuickNav = -1
     END IF
 
     result = ReadConfigSetting("IDE_SortSUBs", value$)

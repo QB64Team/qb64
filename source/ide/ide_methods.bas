@@ -255,13 +255,20 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Line numbers  " + CHR$(16): i = i + 1
         menusize(m) = i - 1
 
-        m = m + 1: i = 0
+        m = m + 1: i = 0: SearchMenuID = m
         menu$(m, i) = "Search": i = i + 1
         menu$(m, i) = "#Find...  Ctrl+F3": i = i + 1
         menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
         menu$(m, i) = "#Change...": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clear search #history...": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+
+        SearchMenuEnableQuickNav = i
+        menu$(m, i) = "Enable #quick navigation (back arrow)": i = i + 1
+        IF EnableQuickNav THEN
+            menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + menu$(SearchMenuID, SearchMenuEnableQuickNav)
+        END IF
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Add/Remove #Bookmark  Alt+Left": i = i + 1
         menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
@@ -863,7 +870,7 @@ FUNCTION ide2 (ignore)
             GOSUB UpdateTitleOfMainWindow
 
             'Draw navigation buttons (QuickNav)
-            GOSUB DrawQuickNav
+            IF EnableQuickNav THEN GOSUB DrawQuickNav
 
             'update search bar
             GOSUB UpdateSearchBar
@@ -1242,7 +1249,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         'Hover/click (QuickNav)
-        IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
+        IF IdeSystem = 1 AND QuickNavTotal > 0 AND EnableQuickNav THEN
             IF mY = 2 THEN
                 IF mX >= 4 AND mX <= 6 THEN
                     QuickNavHover = -1
@@ -4568,6 +4575,20 @@ FUNCTION ide2 (ignore)
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
                     menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to source #folder"
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
+            IF MID$(menu$(m, s), 1, 24) = "Enable #quick navigation" OR MID$(menu$(m, s), 2, 24) = "Enable #quick navigation" THEN
+                PCOPY 2, 0
+                EnableQuickNav = NOT EnableQuickNav
+                IF EnableQuickNav THEN
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "TRUE"
+                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + "Enable #quick navigation (back arrow)"
+                ELSE
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
+                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = "Enable #quick navigation (back arrow)"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop

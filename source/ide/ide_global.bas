@@ -167,6 +167,7 @@ DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
 DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
+DIM SHARED SearchMenuEnableQuickNav AS INTEGER
 DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
 
 '--------------------------------------------------------------------------------
@@ -204,7 +205,7 @@ DIM SHARED ideautorun
 DIM SHARED menu$(1 TO 10, 0 TO 20)
 DIM SHARED menusize(1 TO 10)
 DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
-DIM SHARED ideeditmenuID AS INTEGER
+DIM SHARED ideeditmenuID AS INTEGER, SearchMenuID AS INTEGER
 DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMenuPasteCursor AS INTEGER
 DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER
 DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
