@@ -386,51 +386,7 @@ FUNCTION ide2 (ignore)
         idecy = 1
 
         redraweverything2:
-
-
-        menubar$ = "   "
-        MenuLocations = ""
-        FOR i = 1 TO menus - 1
-            MenuLocations = MenuLocations + MKI$(LEN(menubar$))
-            menubar$ = menubar$ + menu$(i, 0) + "  "
-        NEXT
-        menubar$ = menubar$ + SPACE$(idewx - LEN(menubar$) - LEN(menu$(i, 0)) - 2)
-        MenuLocations = MenuLocations + MKI$(LEN(menubar$))
-        menubar$ = menubar$ + menu$(i, 0) + "  "
-
-
-        SCREEN , , 3, 0
-        VIEW PRINT 1 TO idewy + idesubwindow
-        'VIEW PRINT 1 TO _HEIGHT(0)
-
-
-
-        LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
-
-        'static background
-        COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
-        COLOR 7, 1: idebox 1, 2, idewx, idewy - 5
-
-
-        COLOR 7, 1: idebox 1, idewy - 4, idewx, 5
-        'edit corners
-        COLOR 7, 1: LOCATE idewy - 4, 1: PRINT CHR$(195);: LOCATE idewy - 4, idewx: PRINT CHR$(180);
-
-        IF idehelp = 1 THEN
-            COLOR 7, 0: idebox 1, idewy, idewx, idesubwindow + 1
-            COLOR 7, 0: LOCATE idewy, 1: PRINT CHR$(195);: LOCATE idewy, idewx: PRINT CHR$(180);
-            COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT CHR$(180) + "X" + CHR$(195);
-        END IF
-
-        'status bar
-        COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
-        q = idevbar(idewx, idewy - 3, 3, 1, 1)
-        q = idevbar(idewx, 3, idewy - 8, 1, 1)
-        q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
-
-
-        DEF SEG = 0
-        ideshowtext
+        GOSUB redrawItAll
 
         IF retval = 1 THEN GOTO skipload
 
@@ -814,7 +770,8 @@ FUNCTION ide2 (ignore)
                 END IF
 
                 retval = 1
-                GOTO redraweverything2
+                _AUTODISPLAY
+                GOSUB redrawItAll
             END IF
         ELSE
             _AUTODISPLAY
@@ -5541,6 +5498,65 @@ FUNCTION ide2 (ignore)
 
     ERASE RecentFilesList
     IdeMakeFileMenu
+    RETURN
+
+    redrawItAll:
+    menubar$ = "   "
+    MenuLocations = ""
+    FOR i = 1 TO menus - 1
+        MenuLocations = MenuLocations + MKI$(LEN(menubar$))
+        menubar$ = menubar$ + menu$(i, 0) + "  "
+    NEXT
+    menubar$ = menubar$ + SPACE$(idewx - LEN(menubar$) - LEN(menu$(i, 0)) - 2)
+    MenuLocations = MenuLocations + MKI$(LEN(menubar$))
+    menubar$ = menubar$ + menu$(i, 0) + "  "
+
+
+    SCREEN , , 3, 0
+    VIEW PRINT 1 TO idewy + idesubwindow
+    'VIEW PRINT 1 TO _HEIGHT(0)
+
+
+
+    LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
+
+    'static background
+    COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+    COLOR 7, 1: idebox 1, 2, idewx, idewy - 5
+
+
+    COLOR 7, 1: idebox 1, idewy - 4, idewx, 5
+    'edit corners
+    COLOR 7, 1: LOCATE idewy - 4, 1: PRINT CHR$(195);: LOCATE idewy - 4, idewx: PRINT CHR$(180);
+
+    IF idehelp = 1 THEN
+        COLOR 7, 0: idebox 1, idewy, idewx, idesubwindow + 1
+        COLOR 7, 0: LOCATE idewy, 1: PRINT CHR$(195);: LOCATE idewy, idewx: PRINT CHR$(180);
+        COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT CHR$(180) + "X" + CHR$(195);
+    END IF
+
+    'status bar
+    COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
+    q = idevbar(idewx, idewy - 3, 3, 1, 1)
+    q = idevbar(idewx, 3, idewy - 8, 1, 1)
+    q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
+
+
+    DEF SEG = 0
+    ideshowtext
+
+    IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
+        COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+
+        IdeInfo = ""
+
+        LOCATE idewy - 3, 2
+        IF idecompiling = 1 THEN
+            PRINT "...";
+        ELSE
+            PRINT "OK"; 'report OK status
+        END IF
+    END IF
     RETURN
 END FUNCTION
 
