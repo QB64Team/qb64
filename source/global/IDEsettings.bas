@@ -214,8 +214,8 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
         END IF
     ELSE
-        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
-        ShowLineNumbers = 0
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
+        ShowLineNumbers = -1
     END IF
 
     result = ReadConfigSetting("ShowLineNumbersSeparator", value$)
