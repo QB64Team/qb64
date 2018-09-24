@@ -283,8 +283,9 @@ SUB WikiParse (a$)
     ' :=indent (if beginning a new line)
     ' CHR$(10)=new line character
 
-    DIM c$(16)
-    FOR ii = 1 TO 16
+    prefetch = 16
+    DIM c$(prefetch)
+    FOR ii = 1 TO prefetch
         c$(ii) = SPACE$(ii)
     NEXT
 
@@ -293,10 +294,10 @@ SUB WikiParse (a$)
     DO WHILE i <= n
 
         c = ASC(a$, i): c$ = CHR$(c)
-        FOR i1 = 1 TO 16
+        FOR i1 = 1 TO prefetch
             ii = i
             FOR i2 = 1 TO i1
-                IF ii < n THEN
+                IF ii <= n THEN
                     ASC(c$(i1), i2) = ASC(a$, ii)
                 ELSE
                     ASC(c$(i1), i2) = 32
@@ -306,10 +307,6 @@ SUB WikiParse (a$)
         NEXT
 
         IF c = 38 THEN '"&"
-
-            s$ = "&lt;code&gt;": IF c$(LEN(s$)) = s$ THEN i = i + LEN(s$) - 1: GOTO Special
-            s$ = "&lt;/code&gt;": IF c$(LEN(s$)) = s$ THEN i = i + LEN(s$) - 1: GOTO Special
-
             s$ = "&quot;"
             IF c$(LEN(s$)) = s$ THEN
                 i = i + LEN(s$) - 1
@@ -324,45 +321,10 @@ SUB WikiParse (a$)
                 GOTO SpecialChr
             END IF
 
-            s$ = "&lt;center&gt;"
-            IF c$(LEN(s$)) = s$ THEN
-                i = i + LEN(s$) - 1
-                GOTO Special
-            END IF
-
-            s$ = "&lt;/center&gt;"
-            IF c$(LEN(s$)) = s$ THEN
-                i = i + LEN(s$) - 1
-                GOTO Special
-            END IF
-
-            s$ = "&lt;p style="
-            IF c$(LEN(s$)) = s$ THEN
-                i = i + LEN(s$) - 1
-                FOR ii = i TO LEN(a$) - 3
-                    IF MID$(a$, ii, 4) = "&gt;" THEN i = ii + 3: EXIT FOR
-                NEXT
-                GOTO Special
-            END IF
-            s$ = "&lt;/p"
-            IF c$(LEN(s$)) = s$ THEN
-                i = i + LEN(s$) - 1
-                FOR ii = i TO LEN(a$) - 3
-                    IF MID$(a$, ii, 4) = "&gt;" THEN i = ii + 3: EXIT FOR
-                NEXT
-                GOTO Special
-            END IF
-
             s$ = "&gt;"
             IF c$(LEN(s$)) = s$ THEN
                 i = i + LEN(s$) - 1
                 c$ = ">": c = ASC(c$)
-                GOTO SpecialChr
-            END IF
-            s$ = "&lt;"
-            IF c$(LEN(s$)) = s$ THEN
-                i = i + LEN(s$) - 1
-                c$ = "<": c = ASC(c$)
                 GOTO SpecialChr
             END IF
 
@@ -371,8 +333,55 @@ SUB WikiParse (a$)
                 GOTO Special
             END IF
 
-            SpecialChr:
+            s$ = "&lt;code>": IF c$(LEN(s$)) = s$ THEN i = i + LEN(s$) - 1: GOTO Special
+            s$ = "&lt;/code>": IF c$(LEN(s$)) = s$ THEN i = i + LEN(s$) - 1: GOTO Special
 
+            s$ = "&lt;center>"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                GOTO Special
+            END IF
+
+            s$ = "&lt;/center>"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                GOTO Special
+            END IF
+
+            s$ = "&lt;p style="
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                FOR ii = i TO LEN(a$) - 1
+                    IF MID$(a$, ii, 1) = ">" THEN i = ii: EXIT FOR
+                NEXT
+                GOTO Special
+            END IF
+
+            s$ = "&lt;/p"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                FOR ii = i TO LEN(a$) - 1
+                    IF MID$(a$, ii, 1) = ">" THEN i = ii: EXIT FOR
+                NEXT
+                GOTO Special
+            END IF
+
+            s$ = "&lt;div"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                FOR ii = i TO LEN(a$) - 1
+                    IF MID$(a$, ii, 9) = "&lt;/div>" THEN i = ii + 8: EXIT FOR
+                NEXT
+                GOTO Special
+            END IF
+
+            s$ = "&lt;"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                c$ = "<": c = ASC(c$)
+                GOTO SpecialChr
+            END IF
+            SpecialChr:
         END IF 'c=38 '"&"
 
         'Links
@@ -613,16 +622,6 @@ SUB WikiParse (a$)
             i = i + LEN(s$) - 1
             GOTO Special
         END IF
-
-        s$ = "&lt;div"
-        IF c$(LEN(s$)) = s$ THEN
-            i = i + LEN(s$) - 1
-            FOR ii = i TO LEN(a$) - 1
-                IF MID$(a$, ii, 12) = "&lt;/div&gt;" THEN i = ii + 11: EXIT FOR
-            NEXT
-            GOTO Special
-        END IF
-
 
         IF c$(4) = "----" THEN
             i = i + 3
