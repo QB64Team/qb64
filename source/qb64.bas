@@ -205,7 +205,7 @@ NEXT
 
 
 DIM SHARED extension AS STRING
-DIM SHARED path.exe$, path.source$
+DIM SHARED path.exe$, path.source$, lastBinaryGenerated$
 extension$ = ".exe"
 IF os$ = "LNX" THEN extension$ = "" 'no extension under Linux
 
@@ -1192,14 +1192,14 @@ IF C = 9 THEN 'run
     'execute program
 
     IF iderunmode = 1 THEN
-        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
+        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
         IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
+        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
         IF path.exe$ = "./" THEN path.exe$ = ""
     ELSE
-        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34)) + ModifyCOMMAND$
+        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
         IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN SHELL QuotedFilename$(path.exe$ + file$ + extension$) + ModifyCOMMAND$
+        IF os$ = "LNX" THEN SHELL QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
         IF path.exe$ = "./" THEN path.exe$ = ""
         DO: LOOP UNTIL INKEY$ = ""
         DO: LOOP UNTIL _KEYHIT = 0
@@ -5794,9 +5794,9 @@ DO
             'Notice the ELSE with the SELECT CASE?  Before this patch, commands like those were considered valid QB64 code.
             temp$ = UCASE$(LTRIM$(RTRIM$(wholeline)))
             'IF NoIDEMode THEN
-                DO WHILE INSTR(temp$, CHR$(9))
-                    ASC(temp$, INSTR(temp$, CHR$(9))) = 32
-                LOOP
+            DO WHILE INSTR(temp$, CHR$(9))
+                ASC(temp$, INSTR(temp$, CHR$(9))) = 32
+            LOOP
             'END IF
             goodelse = 0 'a check to see if it's a good else
             IF LEFT$(temp$, 2) = "IF" THEN goodelse = -1: GOTO skipelsecheck 'If we have an IF, the else is probably good
@@ -12545,7 +12545,12 @@ END IF
 
 IF No_C_Compile_Mode THEN compfailed = 0: GOTO No_C_Compile
 IF path.exe$ = "../../" OR path.exe$ = "..\..\" THEN path.exe$ = ""
-IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN compfailed = 0 ELSE compfailed = 1 'detect compilation failure
+IF _FILEEXISTS(path.exe$ + file$ + extension$) THEN
+    compfailed = 0
+    lastBinaryGenerated$ = path.exe$ + file$ + extension$
+ELSE
+    compfailed = 1 'detect compilation failure
+END IF
 
 IF compfailed THEN
     IF idemode THEN
@@ -12557,7 +12562,7 @@ IF compfailed THEN
         PRINT "Check " + compilelog$ + " for details."
     END IF
 ELSE
-    IF idemode = 0 THEN PRINT "OUTPUT: "; path.exe$ + file$ + extension$
+    IF idemode = 0 THEN PRINT "OUTPUT: "; lastBinaryGenerated$
 END IF
 
 

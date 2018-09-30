@@ -1434,7 +1434,7 @@ FUNCTION ide2 (ignore)
 
                 IF idecompiled THEN
 
-                    IF iderunmode = 2 THEN
+                    IF iderunmode = 2 AND _FILEEXISTS(lastBinaryGenerated$) THEN
                         LOCATE idewy - 3, 2
 
                         IF os$ = "LNX" THEN
@@ -1444,6 +1444,9 @@ FUNCTION ide2 (ignore)
                         END IF
 
                         GOTO specialchar
+                    ELSEIF _FILEEXISTS(lastBinaryGenerated$) = 0 THEN
+                        idecompiled = 0
+                        GOTO mustGenerateExe
                     END IF
 
                     dummy = DarkenFGBG(1)
@@ -1452,6 +1455,7 @@ FUNCTION ide2 (ignore)
                     COLOR 15, 1
                     LOCATE idewy - 3, 2: PRINT "Starting program...";
                 ELSE
+                    mustGenerateExe:
                     dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
