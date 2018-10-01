@@ -17525,11 +17525,6 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         Give_Error "Illegal string-number conversion": EXIT FUNCTION
     END IF
 
-    '_MEM?
-    IF (sourcetyp AND (ISUDT + (1))) <> (targettyp AND (ISUDT + (1))) THEN
-        Give_Error "Illegal data type conversion (function returns _MEM type)": EXIT FUNCTION
-    END IF
-
     IF (sourcetyp AND ISSTRING) THEN
         evaluatetotyp$ = e$
         IF (sourcetyp AND ISREFERENCE) THEN
