@@ -18832,17 +18832,31 @@ FUNCTION isnumber (a$)
     FOR i = 1 TO LEN(a$)
         a = ASC(MID$(a$, i, 1))
         IF a = 45 THEN
-            IF i <> 1 THEN EXIT FUNCTION
-            GOTO isnumok
+            IF i = 1 OR (i > 1 AND (d = i - 1 OR e = i - 1)) THEN _CONTINUE
+            EXIT FUNCTION
         END IF
         IF a = 46 THEN
             IF dp = 1 THEN EXIT FUNCTION
             dp = 1
-            GOTO isnumok
+            _CONTINUE
         END IF
-        IF a >= 48 AND a <= 57 THEN v = 1: GOTO isnumok
+        IF a = 100 OR a = 68 THEN 'D
+            IF d > 1 OR e > 1 THEN EXIT FUNCTION
+            d = i
+            _CONTINUE
+        END IF
+        IF a = 101 OR a = 69 THEN 'E
+            IF d > 0 OR e > 1 THEN EXIT FUNCTION
+            e = i
+            _CONTINUE
+        END IF
+        IF a = 43 THEN '+
+            IF d = i - 1 OR e = i - 1 THEN _CONTINUE
+            EXIT FUNCTION
+        END IF
+
+        IF a >= 48 AND a <= 57 THEN _CONTINUE
         EXIT FUNCTION
-        isnumok:
     NEXT
     isnumber = 1
 END FUNCTION
