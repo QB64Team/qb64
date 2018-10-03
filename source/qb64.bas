@@ -18832,7 +18832,7 @@ FUNCTION isnumber (a$)
     FOR i = 1 TO LEN(a$)
         a = ASC(MID$(a$, i, 1))
         IF a = 45 THEN
-            IF i = 1 OR (i > 1 AND (d = i - 1 OR e = i - 1)) THEN _CONTINUE
+            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND (d = i - 1 OR e = i - 1)) THEN _CONTINUE
             EXIT FUNCTION
         END IF
         IF a = 46 THEN
