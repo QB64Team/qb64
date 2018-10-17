@@ -18954,6 +18954,8 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 }
                 x+=8;
             }//z
+
+            printstring_exit:
             if (passed&2) sub__dest(old_dest);
             return;
         }
