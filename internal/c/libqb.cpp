@@ -18748,27 +18748,31 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void sub__printstring(float x,float y,qbs* text,int32 i,int32 passed){
             if (new_error) return;
+
+            int32 old_dest = func__dest();
+
             if (passed&2){
+                sub__dest(i);
                 if (i>=0){//validate i
                     validatepage(i); i=page[i];
                     }else{
-                    i=-i; if (i>=nextimg){error(258); return;} if (!img[i].valid){error(258); return;}
+                    i=-i; if (i>=nextimg){error(258); goto printstring_exit;} if (!img[i].valid){error(258); goto printstring_exit;}
                 }
                 }else{
                 i=write_page_index;
             }
             static img_struct *im;
             im=&img[i];
-            if (!text->len) return;
+            if (!text->len) goto printstring_exit;
             if (im->text){
                 int oldx = func_pos(0), oldy = func_csrlin();
                 qbg_sub_locate(y, x, 0, 0, 0, 3);
                 qbs_print(text, 0);
                 qbg_sub_locate(oldy, oldx, 0, 0, 0, 3);
-                return;
+                goto printstring_exit;
             }
             //graphics modes only
-            if (!text->len) return;
+            if (!text->len) goto printstring_exit;
             //Step?
             if (passed&1){im->x+=x; im->y+=y;}else{im->x=x; im->y=y;}
             //Adjust co-ordinates for viewport?
@@ -18784,7 +18788,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 x2=qbr_float_to_long(im->x); y2=qbr_float_to_long(im->y); 
             }
             
-            if (!text->len) return;
+            if (!text->len) goto printstring_exit;
             
             
             static uint32 w,h,z,z2,z3,a,a2,a3,color,background_color,f;
@@ -18810,7 +18814,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     //                          uint8**out_data,int32*out_x,int32 *out_y,int32*out_x_pre_increment,int32*out_x_post_increment){
                     ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,1,
                     &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
-                    if (!ok) return;
+                    if (!ok) goto printstring_exit;
                     
                     w=rt_w;
                     
@@ -18841,7 +18845,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     }
                     
                     free(rt_data);
-                    return;
+                    goto printstring_exit;
                 }//1-8 bit
                 //assume 32-bit blended
                 
@@ -18857,7 +18861,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 ok=FontRenderTextASCII(font[f],(uint8*)text->chr,text->len,0,
                 &rt_data,&rt_w,&rt_h,&rt_pre_x,&rt_post_x);
                 
-                if (!ok) return;
+                if (!ok) goto printstring_exit;
                 
                 w=rt_w;
                 
@@ -18919,7 +18923,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                                 break;
                 }
                 free(rt_data);
-                return;
+                goto printstring_exit;
             }//custom font
             
             //default fonts
@@ -18950,6 +18954,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 }
                 x+=8;
             }//z
+            if (passed&2) sub__dest(old_dest);
             return;
         }
         
