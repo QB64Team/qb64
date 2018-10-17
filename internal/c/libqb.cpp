@@ -12595,7 +12595,7 @@ int32 func__handle(){
     #ifdef QB64_GUI
         #ifdef QB64_WINDOWS
             while (!window_handle){Sleep(100);}
-            return (int32)window_handle;
+            return (ptrszint)window_handle;
         #endif
     #endif
     
