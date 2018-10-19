@@ -1043,137 +1043,6 @@ IF C = 9 THEN 'run
         idecompiled = 1
     END IF
 
-
-    IF MakeAndroid THEN
-
-
-        CreateAndroidProject file$
-
-
-        'generate program name
-
-
-        'pf$ = "programs\android\" + file$
-
-        'IF _DIREXISTS(pf$) = 0 THEN
-        '    'once only setup
-
-        '    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-        '    LOCATE idewy - 3, 2: PRINT "Initializing project [programs\android\" + file$ + "]...";
-        '    PCOPY 3, 0
-
-
-        '    MKDIR pf$
-        '    SHELL _HIDE "cmd /c xcopy /e programs\android\project_template\*.* " + pf$
-        '    SHELL _HIDE "cmd /c xcopy /e programs\android\eclipse_template\*.* " + pf$
-
-        '    'modify templates
-        '    fr_fh = FREEFILE
-        '    OPEN pf$ + "\AndroidManifest.xml" FOR BINARY AS #fr_fh
-        '    a$ = SPACE$(LOF(fr_fh))
-        '    GET #fr_fh, , a$
-        '    CLOSE fr_fh
-        '    OPEN pf$ + "\AndroidManifest.xml" FOR OUTPUT AS #fr_fh
-        '    ss$ = CHR$(34) + "com.example.native_activity" + CHR$(34)
-        '    file_namespace$ = LCASE$(file$)
-        '    a = ASC(file_namespace$)
-        '    IF a >= 48 AND a <= 57 THEN file_namespace$ = "ns_" + file_namespace$
-        '    i = INSTR(a$, ss$)
-        '    a$ = LEFT$(a$, i - 1) + CHR$(34) + "com.example." + file_namespace$ + CHR$(34) + RIGHT$(a$, LEN(a$) - i - LEN(ss$) + 1)
-        '    PRINT #fr_fh, a$;
-        '    CLOSE fr_fh
-
-        '    fr_fh = FREEFILE
-        '    OPEN pf$ + "\res\values\strings.xml" FOR BINARY AS #fr_fh
-        '    a$ = SPACE$(LOF(fr_fh))
-        '    GET #fr_fh, , a$
-        '    CLOSE fr_fh
-        '    OPEN pf$ + "\res\values\strings.xml" FOR OUTPUT AS #fr_fh
-        '    ss$ = ">NativeActivity<"
-        '    i = INSTR(a$, ss$)
-        '    a$ = LEFT$(a$, i - 1) + ">" + file$ + "<" + RIGHT$(a$, LEN(a$) - i - LEN(ss$) + 1)
-        '    PRINT #fr_fh, a$;
-        '    CLOSE fr_fh
-
-        '    fr_fh = FREEFILE
-        '    OPEN pf$ + "\.project" FOR BINARY AS #fr_fh
-        '    a$ = SPACE$(LOF(fr_fh))
-        '    GET #fr_fh, , a$
-        '    CLOSE fr_fh
-        '    OPEN pf$ + "\.project" FOR OUTPUT AS #fr_fh
-        '    ss$ = "<name>NativeActivity</name>"
-        '    i = INSTR(a$, ss$)
-        '    a$ = LEFT$(a$, i - 1) + "<name>" + file$ + "</name>" + RIGHT$(a$, LEN(a$) - i - LEN(ss$) + 1)
-        '    PRINT #fr_fh, a$;
-        '    CLOSE fr_fh
-
-        '    IF _DIREXISTS(pf$ + "\jni\temp") = 0 THEN MKDIR pf$ + "\jni\temp"
-
-        '    IF _DIREXISTS(pf$ + "\jni\c") = 0 THEN MKDIR pf$ + "\jni\c"
-
-        '    'c
-        '    ex_fh = FREEFILE
-        '    OPEN "internal\temp\xcopy_exclude.txt" FOR OUTPUT AS #ex_fh
-        '    PRINT #ex_fh, "c_compiler\"
-        '    CLOSE ex_fh
-        '    SHELL _HIDE "cmd /c xcopy /e /EXCLUDE:internal\temp\xcopy_exclude.txt internal\c\*.* " + pf$ + "\jni\c"
-
-        'ELSE
-
-        '    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-        '    LOCATE idewy - 3, 2: PRINT "Updating project [programs\android\" + file$ + "]...";
-        '    PCOPY 3, 0
-
-        'END IF
-
-        ''temp
-        'SHELL _HIDE "cmd /c del " + pf$ + "\jni\temp\*.txt"
-        'SHELL _HIDE "cmd /c copy " + tmpdir$ + "*.txt " + pf$ + "\jni\temp"
-
-        ''touch main.cpp (for ndk)
-        'fr_fh = FREEFILE
-        'OPEN pf$ + "\jni\main.cpp" FOR BINARY AS #fr_fh
-        'a$ = SPACE$(LOF(fr_fh))
-        'GET #fr_fh, , a$
-        'CLOSE fr_fh
-        'OPEN pf$ + "\jni\main.cpp" FOR OUTPUT AS #fr_fh
-        'IF ASC(a$, LEN(a$)) <> 32 THEN a$ = a$ + " " ELSE a$ = LEFT$(a$, LEN(a$) - 1)
-        'PRINT #fr_fh, a$;
-        'CLOSE fr_fh
-
-        ''note: .bat files affect the directory they are called from
-        'CHDIR pf$
-        'IF INSTR(IdeAndroidStartScript$, ":") THEN
-        '    SHELL _HIDE IdeAndroidMakeScript$
-        'ELSE
-        '    SHELL _HIDE "..\..\..\" + IdeAndroidMakeScript$
-        'END IF
-        'CHDIR "..\..\.."
-
-        '''touch manifest (for Eclipse)
-        ''fr_fh = FREEFILE
-        ''OPEN pf$ + "\AndroidManifest.xml" FOR BINARY AS #fr_fh
-        ''a$ = SPACE$(LOF(fr_fh))
-        ''GET #fr_fh, , a$
-        ''CLOSE fr_fh
-        ''OPEN pf$ + "\AndroidManifest.xml" FOR OUTPUT AS #fr_fh
-        ''IF ASC(a$, LEN(a$)) <> 32 THEN a$ = a$ + " " ELSE a$ = LEFT$(a$, LEN(a$) - 1)
-        ''PRINT #fr_fh, a$;
-        ''CLOSE fr_fh
-        ''^^^^above inconsistent^^^^
-
-        ''clear the gen folder (for Eclipse)
-        'IF _DIREXISTS(pf$ + "\gen") THEN
-        '    SHELL _HIDE "cmd /c rmdir /s /q " + pf$ + "\gen"
-        '    SHELL _HIDE "cmd /c md " + pf$ + "\gen"
-        'END IF
-
-        sendc$ = CHR$(11) '".EXE file created" aka "Android project created"
-        GOTO sendcommand
-
-    END IF
-
-
     IF iderunmode = 2 THEN
         sendc$ = CHR$(11) '.EXE file created
         GOTO sendcommand
@@ -2022,8 +1891,11 @@ DO
                                 IF udtxbytealign(u) THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
                             ELSE
                                 IF (typ AND ISSTRING) THEN
-                                    IF (typ AND ISFIXEDLENGTH) = 0 THEN a$ = "Expected STRING *": GOTO errmes
-                                    udtesize(i2) = typsize * 8
+                                    IF (typ AND ISFIXEDLENGTH) = 0 THEN
+                                        udtesize(i2) = OFFSETTYPE AND 511
+                                    ELSE
+                                        udtesize(i2) = typsize * 8
+                                    END IF
                                     udtxbytealign(i) = 1: udtebytealign(i2) = 1
                                 ELSE
                                     udtesize(i2) = typ AND 511
@@ -2046,7 +1918,7 @@ DO
                                 udtenext(i2 - 1) = i2
                             END IF
 
-                            'print "+"+rtrim$(udtename(i2));udtesize(i2);udtebytealign(i2);udtxsize(i)
+                            'print "+"+rtrim$(udtename(i2));udtetype(i2);udtesize(i2);udtebytealign(i2);udtxsize(i)
 
                             GOTO finishedlinepp
 
@@ -13650,6 +13522,17 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
                 IF f THEN PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
                 IF f THEN PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
+                i2 = udtxnext(i)
+                offset = 0
+                do while i2
+                    if udtetype(i2) and ISSTRING then
+                        if (udtetype(i2) and ISFIXEDLENGTH) = 0 then
+                            if f then print #13, "*(qbs**)(((char*)" + n$ + ")+" + str$(offset) + ") = qbs_new(0,0);"
+                        end if
+                    end if
+                    offset = offset + udtesize(i2) \ 8
+                    i2 = udtenext(i2)
+                loop
                 IF f THEN PRINT #13, "}"
             END IF
             regid
@@ -20053,9 +19936,14 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types yet": EXIT FUNCTION
 
         IF typ AND ISSTRING THEN
-            o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
-            r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
-            typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
+            IF typ AND ISFIXEDLENGTH THEN
+                o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
+                r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
+                typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
+            ELSE
+                r$ = "((qbs*)(" + scope$ + n$ + "+(" + o$ + ")))"
+                typ = STRINGTYPE
+            END IF
         ELSE
             typ = typ - ISUDT - ISREFERENCE - ISPOINTER
             IF typ AND ISARRAY THEN typ = typ - ISARRAY
@@ -21266,8 +21154,12 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
         IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types yet": EXIT SUB
         IF typ AND ISSTRING THEN
-            o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
-            r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
+            IF typ AND ISFIXEDLENGTH THEN
+                o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
+                r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
+            ELSE
+                r$ = "((qbs*)((" + scope$ + n$ + ")+(" + o$ + ")))"
+            END IF
             IF method = 0 THEN e$ = evaluatetotyp(e$, STRINGTYPE - ISPOINTER)
             IF Error_Happened THEN EXIT SUB
             PRINT #12, "qbs_set(" + r$ + "," + e$ + ");"
