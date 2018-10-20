@@ -626,6 +626,7 @@ DIM SHARED udtxcname(1000) AS STRING * 256
 DIM SHARED udtxsize(1000) AS LONG
 DIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
 DIM SHARED udtxnext(1000) AS LONG
+dim shared udtxvariable(1000) as integer 'true if the udt contains variable length elements
 'elements
 DIM SHARED lasttypeelement AS LONG
 DIM SHARED udtename(1000) AS STRING * 256
@@ -1893,6 +1894,7 @@ DO
                                 IF (typ AND ISSTRING) THEN
                                     IF (typ AND ISFIXEDLENGTH) = 0 THEN
                                         udtesize(i2) = OFFSETTYPE AND 511
+                                        udtxvariable(i) = -1
                                     ELSE
                                         udtesize(i2) = typsize * 8
                                     END IF
@@ -13522,17 +13524,19 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
                 IF f THEN PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
                 IF f THEN PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
-                i2 = udtxnext(i)
-                offset = 0
-                do while i2
-                    if udtetype(i2) and ISSTRING then
-                        if (udtetype(i2) and ISFIXEDLENGTH) = 0 then
-                            if f then print #13, "*(qbs**)(((char*)" + n$ + ")+" + str$(offset) + ") = qbs_new(0,0);"
+                if udtxvariable(i) then
+                    i2 = udtxnext(i)
+                    offset = 0
+                    do while i2
+                        if udtetype(i2) and ISSTRING then
+                            if (udtetype(i2) and ISFIXEDLENGTH) = 0 then
+                                if f then print #13, "*(qbs**)(((char*)" + n$ + ")+" + str$(offset) + ") = qbs_new(0,0);"
+                            end if
                         end if
-                    end if
-                    offset = offset + udtesize(i2) \ 8
-                    i2 = udtenext(i2)
-                loop
+                        offset = offset + udtesize(i2) \ 8
+                        i2 = udtenext(i2)
+                    loop
+                end if
                 IF f THEN PRINT #13, "}"
             END IF
             regid
@@ -19941,7 +19945,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
                 r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
                 typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
             ELSE
-                r$ = "((qbs*)(" + scope$ + n$ + "+(" + o$ + ")))"
+                r$ = "*((qbs**)(" + scope$ + n$ + "+(" + o$ + ")))"
                 typ = STRINGTYPE
             END IF
         ELSE
@@ -21136,14 +21140,28 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
             'we have now established we have 2 pointers to similar data types!
             'ASSUME BYTE TYPE!!!
-            src$ = "(((char*)" + scope$ + n2$ + ")+(" + o2$ + "))"
+            src$ = "((char*)" + scope$ + n2$ + ")+(" + o2$ + ")"
             directudt:
             IF u <> u2 OR e2 <> 0 THEN Give_Error "Expected = similar user defined type": EXIT SUB
 
-            dst$ = "(((char*)" + lhsscope$ + n$ + ")+(" + o$ + "))"
+            dst$ = "((char*)" + lhsscope$ + n$ + ")+(" + o$ + ")"
             siz$ = str2$(udtxsize(u) \ 8)
 
-            PRINT #12, "memcpy(" + dst$ + "," + src$ + "," + siz$ + ");"
+            if udtxvariable(u) then
+                u3 = udtxnext(u)
+                offset = 0
+                do while u3
+                    if ((udtetype(u3) and ISSTRING) > 0) and (udtetype(u3) and ISFIXEDLENGTH) = 0 then
+                        print #12, "qbs_set(*(qbs**)(" + dst$ + "+" + str$(offset) + "), *(qbs**)(" + src$ + "+" + str$(offset) + "));"
+                    else
+                        print #12, "memcpy((" + dst$ + "+" + str$(offset) + "),(" + src$ + "+" + str$(offset) + ")," + str$(udtesize(u3) \ 8) + ");"
+                    end if
+                    offset = offset + udtesize(u3) \ 8
+                    u3 = udtenext(u3)
+                loop
+            else
+                PRINT #12, "memcpy(" + dst$ + "," + src$ + "," + siz$ + ");"
+            end if
 
             'print "setFULLUDTrefer!"
 
@@ -21158,7 +21176,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
                 o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
                 r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
             ELSE
-                r$ = "((qbs*)((" + scope$ + n$ + ")+(" + o$ + ")))"
+                r$ = "*((qbs**)((" + scope$ + n$ + ")+(" + o$ + ")))"
             END IF
             IF method = 0 THEN e$ = evaluatetotyp(e$, STRINGTYPE - ISPOINTER)
             IF Error_Happened THEN EXIT SUB
