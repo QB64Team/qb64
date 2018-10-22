@@ -1757,62 +1757,6 @@ DO
             END IF
         END IF
 
-        IF LEFT$(temp$, 5) = "$LET " THEN
-            temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
-            'For starters, let's make certain that we have 3 elements to deal with
-            temp = INSTR(temp$, "=") 'without an = in there, we can't get a value from the left and right side
-            IF temp = 0 THEN a$ = "Invalid Syntax.  $LET <flag> = <value>": GOTO errmes
-            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
-            'then validate to make certain the left side looks proper
-            l1$ = ""
-            FOR i = 1 TO LEN(l$)
-                a = ASC(l$, i)
-                SELECT CASE a
-                    CASE 32 'strip out spaces
-                    CASE 46: l1$ = l1$ + CHR$(a)
-                    CASE IS < 48, IS > 90: a$ = "Invalid symbol left of equal sign (" + CHR$(a) + ")": GOTO errmes
-                    CASE ELSE: l1$ = l1$ + CHR$(a)
-                END SELECT
-            NEXT
-            l$ = l1$
-            IF LEFT$(r$, 1) = CHR$(34) THEN r$ = LTRIM$(MID$(r$, 2))
-            IF RIGHT$(r$, 1) = CHR$(34) THEN r$ = RTRIM$(LEFT$(r$, LEN(r$) - 1))
-            IF LEFT$(r$, 1) = "-" THEN
-                r1$ = "-"
-                r$ = LTRIM$(MID$(r$, 2))
-            ELSE
-                r1$ = ""
-            END IF
-            'then validate to make certain the left side looks proper
-            FOR i = 1 TO LEN(r$)
-                a = ASC(r$, i)
-                SELECT CASE a
-                    CASE 32
-                    CASE 46 'periods are fine.
-                        r1$ = r1$ + "."
-                    CASE IS < 48, IS > 90
-                        a$ = "Invalid symbol right of equal sign (" + CHR$(a) + ")": GOTO errmes
-                    CASE ELSE
-                        r1$ = r1$ + CHR$(a)
-                END SELECT
-            NEXT
-            r$ = r1$
-            layout$ = "$LET " + l$ + " = " + r$
-            'First look to see if we have an existing setting like this and if so, update it
-            FOR i = 7 TO UserDefineCount 'UserDefineCount 1-6 are reserved for automatic OS/BIT detection
-                IF UserDefine(0, i) = l$ THEN UserDefine(1, i) = r$: GOTO finishedlinepp
-            NEXT
-            'Otherwise create a new setting and set the initial value for it
-            UserDefineCount = UserDefineCount + 1
-            IF UserDefineCount > UBOUND(UserDefine, 2) THEN
-                REDIM _PRESERVE UserDefine(1, UBOUND(UserDefine, 2) + 10) 'Add another 10 elements to the array so it'll expand as the user adds to it
-            END IF
-            UserDefine(0, UserDefineCount) = l$
-            UserDefine(1, UserDefineCount) = r$
-            GOTO finishedlinepp
-        END IF
-
-
         IF LEFT$(temp$, 4) = "$IF " THEN
             IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$IF without THEN": GOTO errmes
             temp$ = LTRIM$(MID$(temp$, 4)) 'strip off the $IF and extra spaces
@@ -1884,6 +1828,60 @@ DO
             GOTO finishedlinepp 'we don't check for anything inside lines that we've marked for skipping
         END IF
 
+        IF LEFT$(temp$, 5) = "$LET " THEN
+            temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
+            'For starters, let's make certain that we have 3 elements to deal with
+            temp = INSTR(temp$, "=") 'without an = in there, we can't get a value from the left and right side
+            IF temp = 0 THEN a$ = "Invalid Syntax.  $LET <flag> = <value>": GOTO errmes
+            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
+            'then validate to make certain the left side looks proper
+            l1$ = ""
+            FOR i = 1 TO LEN(l$)
+                a = ASC(l$, i)
+                SELECT CASE a
+                    CASE 32 'strip out spaces
+                    CASE 46: l1$ = l1$ + CHR$(a)
+                    CASE IS < 48, IS > 90: a$ = "Invalid symbol left of equal sign (" + CHR$(a) + ")": GOTO errmes
+                    CASE ELSE: l1$ = l1$ + CHR$(a)
+                END SELECT
+            NEXT
+            l$ = l1$
+            IF LEFT$(r$, 1) = CHR$(34) THEN r$ = LTRIM$(MID$(r$, 2))
+            IF RIGHT$(r$, 1) = CHR$(34) THEN r$ = RTRIM$(LEFT$(r$, LEN(r$) - 1))
+            IF LEFT$(r$, 1) = "-" THEN
+                r1$ = "-"
+                r$ = LTRIM$(MID$(r$, 2))
+            ELSE
+                r1$ = ""
+            END IF
+            'then validate to make certain the left side looks proper
+            FOR i = 1 TO LEN(r$)
+                a = ASC(r$, i)
+                SELECT CASE a
+                    CASE 32
+                    CASE 46 'periods are fine.
+                        r1$ = r1$ + "."
+                    CASE IS < 48, IS > 90
+                        a$ = "Invalid symbol right of equal sign (" + CHR$(a) + ")": GOTO errmes
+                    CASE ELSE
+                        r1$ = r1$ + CHR$(a)
+                END SELECT
+            NEXT
+            r$ = r1$
+            layout$ = "$LET " + l$ + " = " + r$
+            'First look to see if we have an existing setting like this and if so, update it
+            FOR i = 7 TO UserDefineCount 'UserDefineCount 1-6 are reserved for automatic OS/BIT detection
+                IF UserDefine(0, i) = l$ THEN UserDefine(1, i) = r$: GOTO finishedlinepp
+            NEXT
+            'Otherwise create a new setting and set the initial value for it
+            UserDefineCount = UserDefineCount + 1
+            IF UserDefineCount > UBOUND(UserDefine, 2) THEN
+                REDIM _PRESERVE UserDefine(1, UBOUND(UserDefine, 2) + 10) 'Add another 10 elements to the array so it'll expand as the user adds to it
+            END IF
+            UserDefine(0, UserDefineCount) = l$
+            UserDefine(1, UserDefineCount) = r$
+            GOTO finishedlinepp
+        END IF
 
 
 
@@ -3028,13 +3026,9 @@ DO
 
         'precompiler commands should always be executed FIRST.
 
-        IF LEFT$(a3u$, 5) = "$LET " THEN layout$ = a3$: GOTO finishednonexec 'we dealt with this basically in the prepass
-        '                   so we could define CONST and such and have them available for later IDE passes
+        IF InValidLine(linenumber) THEN layoutdone = 0: GOTO finishednonexec 'We do nothing if the PC has already determined a line to be invalid
 
         IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
-            IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
-            DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
-            ExecCounter = ExecCounter - 1
             layout$ = "$END IF"
             controltype(controllevel) = 0
             controllevel = controllevel - 1
@@ -3046,16 +3040,6 @@ DO
             temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
             temp = INSTR(temp$, "=")
 
-            ExecCounter = ExecCounter + 1
-            ExecLevel(ExecCounter) = -1 'default to a skip value
-            DefineElse(ExecCounter) = 1 '1 says we have an $IF statement at this level
-            result = EvalPreIF(temp$, a$)
-            IF a$ <> "" THEN GOTO errmes
-            IF result <> 0 THEN
-                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
-                IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
-            END IF
-
             controllevel = controllevel + 1
             controltype(controllevel) = 6
             IF temp = 0 THEN layout$ = "$IF " + temp$ + " THEN": GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
@@ -3065,14 +3049,6 @@ DO
         END IF
 
         IF a3u$ = "$ELSE" THEN
-            IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE without $IF": GOTO errmes
-            IF DefineElse(ExecCounter) AND 2 THEN a$ = "$IF block already has $ELSE statement in it": GOTO errmes
-            DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 2 'set the flag to declare an $ELSE already in this block
-            IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
-                ExecLevel(ExecCounter) = -1 'So we inherit the execlevel from above
-            ELSE
-                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'If we were processing code before, code after this segment is going to be SKIPPED
-            END IF
             layout$ = "$ELSE"
             lhscontrollevel = lhscontrollevel - 1
             GOTO finishednonexec
@@ -3081,23 +3057,8 @@ DO
         IF LEFT$(a3u$, 5) = "$ELSE" THEN
             temp$ = LTRIM$(MID$(a3u$, 6))
             IF LEFT$(temp$, 3) = "IF " THEN
-                IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE IF without $IF": GOTO errmes
-                IF DefineElse(ExecCounter) AND 2 THEN a$ = "$ELSE IF cannot follow $ELSE": GOTO errmes
-                IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$ELSE IF without THEN": GOTO errmes
                 temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
                 temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-                IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
-                    ExecLevel(ExecCounter) = -1
-                ELSE
-                    result = EvalPreIF(temp$, a$)
-                    IF a$ <> "" THEN GOTO errmes
-                    IF result <> 0 THEN
-                        ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
-                        IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
-                    END IF
-                END IF
-
-
                 lhscontrollevel = lhscontrollevel - 1
                 temp = INSTR(temp$, "=")
                 IF temp = 0 THEN layout$ = "$ELSEIF " + temp$ + " THEN": GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
@@ -3107,10 +3068,8 @@ DO
             END IF
         END IF
 
-        IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
-            layoutdone = 0
-            GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
-        END IF
+        IF LEFT$(a3u$, 5) = "$LET " THEN layout$ = a3$: GOTO finishednonexec 'we dealt with this basically in the prepass
+        '                   so we could define CONST and such and have them available for later IDE passes
 
 
 
@@ -25227,9 +25186,13 @@ FUNCTION EvalPreIF (text$, err$)
                 NEXT
             END IF
             IF INSTR(symbol$, "=") THEN 'check to see if we're equal in any case with =
+                UserFound = 0
                 FOR i = 0 TO UserDefineCount
                     IF UserDefine(0, i) = l$ AND UserDefine(1, i) = r$ THEN result$ = " -1 ": GOTO finishedcheck
+                    IF UserDefine(0, i) = l$ THEN UserFound = -1
                 NEXT
+                IF NOT UserFound AND LTRIM$(RTRIM$(r$)) = "UNDEFINED" THEN result$ = " -1 ": GOTO finishedcheck
+                IF UserFound AND LTRIM$(RTRIM$(r$)) = "DEFINED" THEN result$ = " -1 ": GOTO finishedcheck
             END IF
 
             IF INSTR(symbol$, ">") THEN 'check to see if we're greater than in any case with >
@@ -25332,7 +25295,6 @@ FUNCTION EvalPreIF (text$, err$)
             END IF
         NEXT
     END IF
-
 END SUB
 
 FUNCTION VerifyNumber (text$)
