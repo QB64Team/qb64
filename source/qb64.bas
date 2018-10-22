@@ -626,7 +626,7 @@ DIM SHARED udtxcname(1000) AS STRING * 256
 DIM SHARED udtxsize(1000) AS LONG
 DIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
 DIM SHARED udtxnext(1000) AS LONG
-dim shared udtxvariable(1000) as integer 'true if the udt contains variable length elements
+DIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
 'elements
 DIM SHARED lasttypeelement AS LONG
 DIM SHARED udtename(1000) AS STRING * 256
@@ -1890,6 +1890,7 @@ DO
                                 u = typ AND 511
                                 udtesize(i2) = udtxsize(u)
                                 IF udtxbytealign(u) THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                IF udtxvariable(u) THEN udtxvariable(i) = -1
                             ELSE
                                 IF (typ AND ISSTRING) THEN
                                     IF (typ AND ISFIXEDLENGTH) = 0 THEN
@@ -13514,30 +13515,22 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             id.t = UDTTYPE + i
             IF cmemlist(idn + 1) THEN
                 id.t = id.t + ISINCONVENTIONALMEMORY
-                IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
-                IF f THEN PRINT #13, "cmem_sp-=" + str2(bytes) + ";"
-                IF f THEN PRINT #13, "if (cmem_sp<qbs_cmem_sp) error(257);"
-                IF f THEN PRINT #13, n$ + "=(void*)(dblock+cmem_sp);"
-                IF f THEN PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
-                IF f THEN PRINT #13, "}"
+                IF f THEN
+                    PRINT #13, "if(" + n$ + "==NULL){"
+                    PRINT #13, "cmem_sp-=" + str2(bytes) + ";"
+                    PRINT #13, "if (cmem_sp<qbs_cmem_sp) error(257);"
+                    PRINT #13, n$ + "=(void*)(dblock+cmem_sp);"
+                    PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
+                    PRINT #13, "}"
+                END IF
             ELSE
-                IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
-                IF f THEN PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
-                IF f THEN PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
-                if udtxvariable(i) then
-                    i2 = udtxnext(i)
-                    offset = 0
-                    do while i2
-                        if udtetype(i2) and ISSTRING then
-                            if (udtetype(i2) and ISFIXEDLENGTH) = 0 then
-                                if f then print #13, "*(qbs**)(((char*)" + n$ + ")+" + str$(offset) + ") = qbs_new(0,0);"
-                            end if
-                        end if
-                        offset = offset + udtesize(i2) \ 8
-                        i2 = udtenext(i2)
-                    loop
-                end if
-                IF f THEN PRINT #13, "}"
+                IF f THEN
+                    PRINT #13, "if(" + n$ + "==NULL){"
+                    PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
+                    PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
+                    IF udtxvariable(i) THEN initialise_udt_varstrings n$, i, 13, 0
+                    PRINT #13, "}"
+                END IF
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
@@ -21143,25 +21136,9 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             src$ = "((char*)" + scope$ + n2$ + ")+(" + o2$ + ")"
             directudt:
             IF u <> u2 OR e2 <> 0 THEN Give_Error "Expected = similar user defined type": EXIT SUB
-
             dst$ = "((char*)" + lhsscope$ + n$ + ")+(" + o$ + ")"
-            siz$ = str2$(udtxsize(u) \ 8)
 
-            if udtxvariable(u) then
-                u3 = udtxnext(u)
-                offset = 0
-                do while u3
-                    if ((udtetype(u3) and ISSTRING) > 0) and (udtetype(u3) and ISFIXEDLENGTH) = 0 then
-                        print #12, "qbs_set(*(qbs**)(" + dst$ + "+" + str$(offset) + "), *(qbs**)(" + src$ + "+" + str$(offset) + "));"
-                    else
-                        print #12, "memcpy((" + dst$ + "+" + str$(offset) + "),(" + src$ + "+" + str$(offset) + ")," + str$(udtesize(u3) \ 8) + ");"
-                    end if
-                    offset = offset + udtesize(u3) \ 8
-                    u3 = udtenext(u3)
-                loop
-            else
-                PRINT #12, "memcpy(" + dst$ + "," + src$ + "," + siz$ + ");"
-            end if
+            copy_full_udt dst$, src$, 12, 0, u
 
             'print "setFULLUDTrefer!"
 
@@ -25251,6 +25228,57 @@ FUNCTION VerifyNumber (text$)
     t1$ = LTRIM$(STR$(v))
     IF t$ = t1$ THEN VerifyNumber = -1
 END FUNCTION
+
+SUB initialise_udt_varstrings (n$, udt, file, base_offset)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
+    element = udtxnext(udt)
+    offset = 0
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                PRINT #file, "*(qbs**)(((char*)" + n$ + ")+" + STR$(base_offset + offset) + ") = qbs_new(0,0);"
+            END IF
+        ELSEIF udtetype(element) AND ISUDT THEN
+            initialise_udt_varstrings n$, udtetype(element) AND 511, file, offset
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+
+SUB copy_full_udt (dst$, src$, file, base_offset, udt)
+    IF NOT udtxvariable(udt) THEN
+        PRINT #file, "memcpy(" + dst$ + "+" + STR$(base_offset) + "," + src$ + "+" + STR$(base_offset) + "," + STR$(udtxsize(udt) \ 8) + ");"
+        EXIT SUB
+    END IF
+    offset = base_offset
+    element = udtxnext(udt)
+    DO WHILE element
+        IF ((udtetype(element) AND ISSTRING) > 0) AND (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+            PRINT #file, "qbs_set(*(qbs**)(" + dst$ + "+" + STR$(offset) + "), *(qbs**)(" + src$ + "+" + STR$(offset) + "));"
+        ELSEIF ((udtetype(element) AND ISUDT) > 0) THEN
+            copy_full_udt dst$, src$, 12, offset, udtetype(element) AND 511
+        ELSE
+            PRINT #file, "memcpy((" + dst$ + "+" + STR$(offset) + "),(" + src$ + "+" + STR$(offset) + ")," + STR$(udtesize(element) \ 8) + ");"
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+        
+SUB dump_udts
+    f = FREEFILE
+    OPEN "types.txt" FOR OUTPUT AS #f
+    PRINT #f, "Name   Size   Align? Next   Var?"
+    FOR i = 1 TO lasttype
+        PRINT #f, RTRIM$(udtxname(i)), udtxsize(i), udtxbytealign(i), udtxnext(i), udtxvariable(i)
+    NEXT i
+    PRINT #f, "Name   Size   Align? Next   Type   Tsize  Arr"
+    FOR i = 1 TO lasttypeelement
+        PRINT #f, RTRIM$(udtename(i)), udtesize(i), udtebytealign(i), udtenext(i), udtetype(i), udtetypesize(i), udtearrayelements(i)
+    NEXT i
+    CLOSE #f
+END SUB
 
 '$INCLUDE:'utilities\strings.bas'
 
