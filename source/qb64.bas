@@ -12973,10 +12973,11 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             PRINT #13, n$ + "[2]=1+2;" 'init+static
         END IF
 
-        if udt > 0 then
+        if udt > 0 and udtxvariable(udt) then
             print #13, "tmp_long=" + elesizestr$ + ";"
             print #13, "while(tmp_long--){"
-            initialise_array_udt_varstrings n$, udt, 13, 0, bytesperelement$
+            initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+            print #13, acc$
             print #13, "}"
         end if
 
@@ -13031,6 +13032,14 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                     f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
                     f12$ = f12$ + CRLF + "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
                 END IF
+                'As must any variable length strings in UDT's
+                if udt > 0 and udtxvariable(udt) then
+                    f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
+                    f12$ = f12$ + CRLF + "while(tmp_long--) {"
+                    free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                    f12$ = f12$ + acc$ + "}"
+                end if
+                    
                 'Free array's memory
                 IF stringarray THEN
                     'Note: String arrays are never in cmem
@@ -13059,9 +13068,9 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             '--------CREATE ARRAY & CLEAN-UP CODE--------
             'Overwrite existing array dimension sizes/ranges
             f12$ = f12$ + CRLF + sd$
-            IF stringarray THEN
+            IF stringarray or ((udt > 0) and udtxvariable(udt)) THEN
 
-                'Note: String arrays are always created in 64bit memory
+                'Note: String and variable-length udt arrays are always created in 64bit memory
 
                 IF redimoption = 2 THEN
                     f12$ = f12$ + CRLF + "if (preserved_elements){"
@@ -13089,7 +13098,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                     f12$ = f12$ + CRLF + "}else{"
                 END IF
 
-                '1. Create string array
+                '1. Create array
                 f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)malloc(" + sizestr$ + ");"
                 f12$ = f12$ + CRLF + "if (!" + n$ + "[0]) error(257);" 'not enough memory
                 f12$ = f12$ + CRLF + n$ + "[2]|=1;" 'ADD initialized flag
@@ -13097,11 +13106,18 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
 
 
                 'init individual strings
-                f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
-                f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
-                f12$ = f12$ + CRLF + "}else{" 'not in cmem
-                f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
-                f12$ = f12$ + CRLF + "}" 'not in cmem
+                if stringarray then
+                    f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
+                    f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
+                    f12$ = f12$ + CRLF + "}else{" 'not in cmem
+                    f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
+                    f12$ = f12$ + CRLF + "}" 'not in cmem
+                else 'initialise udt's
+                    f12$ = f12$ + CRLF + "while(tmp_long--){"
+                    acc$ = ""
+                    initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                    f12$ = f12$ + acc$ + "}"
+                end if
 
                 IF redimoption = 2 THEN
                     f12$ = f12$ + CRLF + "}"
@@ -13112,7 +13128,14 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                 IF arraydesc = 0 THEN 'only add for first declaration of the array
                     PRINT #19, "if (" + n$ + "[2]&1){" 'initialized?
                     PRINT #19, "tmp_long=" + elesizestr$ + ";"
-                    PRINT #19, "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
+                    if udt > 0 and udtxvariable(udt) then
+                        print #19, "while(tmp_long--) {"
+                        acc$ = ""
+                        free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                        print #19, acc$ + "}"
+                    else
+                        PRINT #19, "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
+                    end if
                     PRINT #19, "free((void*)(" + n$ + "[0]));"
                     PRINT #19, "}"
                     'free lock (_MEM)
@@ -13120,7 +13143,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                 END IF
 
 
-            ELSE 'not string array
+            ELSE 'not string/var-udt array
 
                 '1. Create array
                 f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array will be in cmem
@@ -25255,18 +25278,34 @@ SUB initialise_udt_varstrings (n$, udt, file, base_offset)
     LOOP
 END SUB
 
-sub initialise_array_udt_varstrings(n$, udt, file, base_offset, bytesperelement$)
+sub initialise_array_udt_varstrings(n$, udt, base_offset, bytesperelement$, acc$)
     if not udtxvariable(udt) then exit sub
     offset = base_offset
     element = udtxnext(udt)
     do while element
-        print _trim$(udtename(element)), udtetype(element)
         if udtetype(element) and isstring then
             if (udtetype(element) and isfixedlength) = 0 then
-                print #file, "*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + ")=qbs_new(0,0);"
+                acc$ = acc$ + chr$(13) + chr$(10) + "*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + ")=qbs_new(0,0);"
             end if
         elseif udtetype(element) and isudt then
-            initialise_array_udt_varstrings n$, udtetype(element) and 511, 13, offset, bytesperelement$
+            initialise_array_udt_varstrings n$, udtetype(element) and 511, offset, bytesperelement$, acc$
+        end if
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    loop
+end sub
+
+sub free_array_udt_varstrings(n$, udt, base_offset, bytesperelement$, acc$)
+    if not udtxvariable(udt) then exit sub
+    offset = base_offset
+    element = udtxnext(udt)
+    do while element
+        if udtetype(element) and isstring then
+            if (udtetype(element) and isfixedlength) = 0 then
+                acc$ = acc$ + chr$(13) + chr$(10) + "qbs_free(*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + "));"
+            end if
+        elseif udtetype(element) and isudt then
+            free_array_udt_varstrings n$, udtetype(element) and 511, offset, bytesperelement$, acc$
         end if
         offset = offset + udtesize(element) \ 8
         element = udtenext(element)
