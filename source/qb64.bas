@@ -12754,7 +12754,8 @@ END FUNCTION
 
 
 
-FUNCTION allocarray (n2$, elements$, elementsize)
+'udt is non-zero if this is an array of udt's, to allow examining each udt element
+FUNCTION allocarray (n2$, elements$, elementsize, udt)
     dimsharedlast = dimshared: dimshared = 0
 
     IF autoarray = 1 THEN autoarray = 0: autoary = 1 'clear global value & set local value
@@ -12971,6 +12972,14 @@ FUNCTION allocarray (n2$, elements$, elementsize)
             END IF
             PRINT #13, n$ + "[2]=1+2;" 'init+static
         END IF
+
+        if udt > 0 then
+            print #13, "tmp_long=" + elesizestr$ + ";"
+            print #13, "while(tmp_long--){"
+            initialise_array_udt_varstrings n$, udt, 13, 0, bytesperelement$
+            print #13, "}"
+        end if
+
         'Close static array desc
         PRINT #13, "}"
         allocarray = nume + 65536
@@ -13473,7 +13482,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                         E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                     END IF
-                    nume = allocarray(n$, elements$, -bits)
+                    nume = allocarray(n$, elements$, -bits, i)
                     IF Error_Happened THEN EXIT FUNCTION
                     l$ = l$ + sp + tlayout$
                     IF arraydesc THEN GOTO dim2exitfunc
@@ -13632,7 +13641,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                         E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                     END IF
-                    nume = allocarray(n$, elements$, bytes)
+                    nume = allocarray(n$, elements$, bytes, 0)
                     IF Error_Happened THEN EXIT FUNCTION
                     l$ = l$ + sp + tlayout$
                     IF arraydesc THEN GOTO dim2exitfunc
@@ -13732,7 +13741,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, -2147483647)
+                nume = allocarray(n$, elements$, -2147483647, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -13837,7 +13846,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, -bits)
+                nume = allocarray(n$, elements$, -bits, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -13928,7 +13937,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 1)
+                nume = allocarray(n$, elements$, 1, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14009,7 +14018,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 2)
+                nume = allocarray(n$, elements$, 2, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14097,7 +14106,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, OS_BITS \ 8)
+                nume = allocarray(n$, elements$, OS_BITS \ 8, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14181,7 +14190,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 4)
+                nume = allocarray(n$, elements$, 4, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14265,7 +14274,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 8)
+                nume = allocarray(n$, elements$, 8, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14349,7 +14358,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 4)
+                nume = allocarray(n$, elements$, 4, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14431,7 +14440,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 8)
+                nume = allocarray(n$, elements$, 8, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14513,7 +14522,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 32)
+                nume = allocarray(n$, elements$, 32, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -25245,6 +25254,24 @@ SUB initialise_udt_varstrings (n$, udt, file, base_offset)
         element = udtenext(element)
     LOOP
 END SUB
+
+sub initialise_array_udt_varstrings(n$, udt, file, base_offset, bytesperelement$)
+    if not udtxvariable(udt) then exit sub
+    offset = base_offset
+    element = udtxnext(udt)
+    do while element
+        print _trim$(udtename(element)), udtetype(element)
+        if udtetype(element) and isstring then
+            if (udtetype(element) and isfixedlength) = 0 then
+                print #file, "*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + ")=qbs_new(0,0);"
+            end if
+        elseif udtetype(element) and isudt then
+            initialise_array_udt_varstrings n$, udtetype(element) and 511, 13, offset, bytesperelement$
+        end if
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    loop
+end sub
 
 SUB copy_full_udt (dst$, src$, file, base_offset, udt)
     IF NOT udtxvariable(udt) THEN
