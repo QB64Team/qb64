@@ -13078,20 +13078,33 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                     f12$ = f12$ + CRLF + "static ptrszint tmp_long2;"
 
                     'free any qbs strings which will be lost in the realloc
-                    f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
-                    f12$ = f12$ + CRLF + "if (tmp_long<preserved_elements){"
-                    f12$ = f12$ + CRLF + "for(tmp_long2=tmp_long;tmp_long2<preserved_elements;tmp_long2++) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long2]);"
-                    f12$ = f12$ + CRLF + "}"
+                    f12$ = f12$ + CRLF + "tmp_long2=" + elesizestr$ + ";"
+                    f12$ = f12$ + CRLF + "if (tmp_long2<preserved_elements){"
+                    f12$ = f12$ + CRLF + "for(tmp_long=tmp_long2;tmp_long<preserved_elements;tmp_long++) {"
+                    if stringarray then
+                        f12$ = f12$ + CRLF + "qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
+                    else
+                        acc$ = ""
+                        free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                        f12$ = f12$ + acc$
+                    end if
+                    f12$ = f12$ + CRLF + "}}"
                     'reallocate the array
-                    f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)realloc((void*)(" + n$ + "[0]),tmp_long*" + bytesperelement$ + ");"
+                    f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)realloc((void*)(" + n$ + "[0]),tmp_long2*" + bytesperelement$ + ");"
                     f12$ = f12$ + CRLF + "if (!" + n$ + "[0]) error(257);" 'not enough memory
-                    f12$ = f12$ + CRLF + "if (preserved_elements<tmp_long){"
-                    f12$ = f12$ + CRLF + "for(tmp_long2=preserved_elements;tmp_long2<tmp_long;tmp_long2++){"
-                    f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
-                    f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long2]=(uint64)qbs_new_cmem(0,0);"
-                    f12$ = f12$ + CRLF + "}else{" 'not in cmem
-                    f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long2]=(uint64)qbs_new(0,0);"
-                    f12$ = f12$ + CRLF + "}" 'not in cmem
+                    f12$ = f12$ + CRLF + "if (preserved_elements<tmp_long2){"
+                    f12$ = f12$ + CRLF + "for(tmp_long=preserved_elements;tmp_long<tmp_long2;tmp_long++){"
+                    if stringarray then
+                        f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
+                        f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
+                        f12$ = f12$ + CRLF + "}else{" 'not in cmem
+                        f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
+                        f12$ = f12$ + CRLF + "}" 'not in cmem
+                    else
+                        acc$ = ""
+                        initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                        f12$ = f12$ + acc$
+                    end if
                     f12$ = f12$ + CRLF + "}"
                     f12$ = f12$ + CRLF + "}"
 
