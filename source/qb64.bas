@@ -626,6 +626,7 @@ DIM SHARED udtxcname(1000) AS STRING * 256
 DIM SHARED udtxsize(1000) AS LONG
 DIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
 DIM SHARED udtxnext(1000) AS LONG
+DIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
 'elements
 DIM SHARED lasttypeelement AS LONG
 DIM SHARED udtename(1000) AS STRING * 256
@@ -1042,137 +1043,6 @@ IF C = 9 THEN 'run
         ideret6:
         idecompiled = 1
     END IF
-
-
-    IF MakeAndroid THEN
-
-
-        CreateAndroidProject file$
-
-
-        'generate program name
-
-
-        'pf$ = "programs\android\" + file$
-
-        'IF _DIREXISTS(pf$) = 0 THEN
-        '    'once only setup
-
-        '    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-        '    LOCATE idewy - 3, 2: PRINT "Initializing project [programs\android\" + file$ + "]...";
-        '    PCOPY 3, 0
-
-
-        '    MKDIR pf$
-        '    SHELL _HIDE "cmd /c xcopy /e programs\android\project_template\*.* " + pf$
-        '    SHELL _HIDE "cmd /c xcopy /e programs\android\eclipse_template\*.* " + pf$
-
-        '    'modify templates
-        '    fr_fh = FREEFILE
-        '    OPEN pf$ + "\AndroidManifest.xml" FOR BINARY AS #fr_fh
-        '    a$ = SPACE$(LOF(fr_fh))
-        '    GET #fr_fh, , a$
-        '    CLOSE fr_fh
-        '    OPEN pf$ + "\AndroidManifest.xml" FOR OUTPUT AS #fr_fh
-        '    ss$ = CHR$(34) + "com.example.native_activity" + CHR$(34)
-        '    file_namespace$ = LCASE$(file$)
-        '    a = ASC(file_namespace$)
-        '    IF a >= 48 AND a <= 57 THEN file_namespace$ = "ns_" + file_namespace$
-        '    i = INSTR(a$, ss$)
-        '    a$ = LEFT$(a$, i - 1) + CHR$(34) + "com.example." + file_namespace$ + CHR$(34) + RIGHT$(a$, LEN(a$) - i - LEN(ss$) + 1)
-        '    PRINT #fr_fh, a$;
-        '    CLOSE fr_fh
-
-        '    fr_fh = FREEFILE
-        '    OPEN pf$ + "\res\values\strings.xml" FOR BINARY AS #fr_fh
-        '    a$ = SPACE$(LOF(fr_fh))
-        '    GET #fr_fh, , a$
-        '    CLOSE fr_fh
-        '    OPEN pf$ + "\res\values\strings.xml" FOR OUTPUT AS #fr_fh
-        '    ss$ = ">NativeActivity<"
-        '    i = INSTR(a$, ss$)
-        '    a$ = LEFT$(a$, i - 1) + ">" + file$ + "<" + RIGHT$(a$, LEN(a$) - i - LEN(ss$) + 1)
-        '    PRINT #fr_fh, a$;
-        '    CLOSE fr_fh
-
-        '    fr_fh = FREEFILE
-        '    OPEN pf$ + "\.project" FOR BINARY AS #fr_fh
-        '    a$ = SPACE$(LOF(fr_fh))
-        '    GET #fr_fh, , a$
-        '    CLOSE fr_fh
-        '    OPEN pf$ + "\.project" FOR OUTPUT AS #fr_fh
-        '    ss$ = "<name>NativeActivity</name>"
-        '    i = INSTR(a$, ss$)
-        '    a$ = LEFT$(a$, i - 1) + "<name>" + file$ + "</name>" + RIGHT$(a$, LEN(a$) - i - LEN(ss$) + 1)
-        '    PRINT #fr_fh, a$;
-        '    CLOSE fr_fh
-
-        '    IF _DIREXISTS(pf$ + "\jni\temp") = 0 THEN MKDIR pf$ + "\jni\temp"
-
-        '    IF _DIREXISTS(pf$ + "\jni\c") = 0 THEN MKDIR pf$ + "\jni\c"
-
-        '    'c
-        '    ex_fh = FREEFILE
-        '    OPEN "internal\temp\xcopy_exclude.txt" FOR OUTPUT AS #ex_fh
-        '    PRINT #ex_fh, "c_compiler\"
-        '    CLOSE ex_fh
-        '    SHELL _HIDE "cmd /c xcopy /e /EXCLUDE:internal\temp\xcopy_exclude.txt internal\c\*.* " + pf$ + "\jni\c"
-
-        'ELSE
-
-        '    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-        '    LOCATE idewy - 3, 2: PRINT "Updating project [programs\android\" + file$ + "]...";
-        '    PCOPY 3, 0
-
-        'END IF
-
-        ''temp
-        'SHELL _HIDE "cmd /c del " + pf$ + "\jni\temp\*.txt"
-        'SHELL _HIDE "cmd /c copy " + tmpdir$ + "*.txt " + pf$ + "\jni\temp"
-
-        ''touch main.cpp (for ndk)
-        'fr_fh = FREEFILE
-        'OPEN pf$ + "\jni\main.cpp" FOR BINARY AS #fr_fh
-        'a$ = SPACE$(LOF(fr_fh))
-        'GET #fr_fh, , a$
-        'CLOSE fr_fh
-        'OPEN pf$ + "\jni\main.cpp" FOR OUTPUT AS #fr_fh
-        'IF ASC(a$, LEN(a$)) <> 32 THEN a$ = a$ + " " ELSE a$ = LEFT$(a$, LEN(a$) - 1)
-        'PRINT #fr_fh, a$;
-        'CLOSE fr_fh
-
-        ''note: .bat files affect the directory they are called from
-        'CHDIR pf$
-        'IF INSTR(IdeAndroidStartScript$, ":") THEN
-        '    SHELL _HIDE IdeAndroidMakeScript$
-        'ELSE
-        '    SHELL _HIDE "..\..\..\" + IdeAndroidMakeScript$
-        'END IF
-        'CHDIR "..\..\.."
-
-        '''touch manifest (for Eclipse)
-        ''fr_fh = FREEFILE
-        ''OPEN pf$ + "\AndroidManifest.xml" FOR BINARY AS #fr_fh
-        ''a$ = SPACE$(LOF(fr_fh))
-        ''GET #fr_fh, , a$
-        ''CLOSE fr_fh
-        ''OPEN pf$ + "\AndroidManifest.xml" FOR OUTPUT AS #fr_fh
-        ''IF ASC(a$, LEN(a$)) <> 32 THEN a$ = a$ + " " ELSE a$ = LEFT$(a$, LEN(a$) - 1)
-        ''PRINT #fr_fh, a$;
-        ''CLOSE fr_fh
-        ''^^^^above inconsistent^^^^
-
-        ''clear the gen folder (for Eclipse)
-        'IF _DIREXISTS(pf$ + "\gen") THEN
-        '    SHELL _HIDE "cmd /c rmdir /s /q " + pf$ + "\gen"
-        '    SHELL _HIDE "cmd /c md " + pf$ + "\gen"
-        'END IF
-
-        sendc$ = CHR$(11) '".EXE file created" aka "Android project created"
-        GOTO sendcommand
-
-    END IF
-
 
     IF iderunmode = 2 THEN
         sendc$ = CHR$(11) '.EXE file created
@@ -2018,10 +1888,15 @@ DO
                                 u = typ AND 511
                                 udtesize(i2) = udtxsize(u)
                                 IF udtxbytealign(u) THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                IF udtxvariable(u) THEN udtxvariable(i) = -1
                             ELSE
                                 IF (typ AND ISSTRING) THEN
-                                    IF (typ AND ISFIXEDLENGTH) = 0 THEN a$ = "Expected STRING *": GOTO errmes
-                                    udtesize(i2) = typsize * 8
+                                    IF (typ AND ISFIXEDLENGTH) = 0 THEN
+                                        udtesize(i2) = OFFSETTYPE AND 511
+                                        udtxvariable(i) = -1
+                                    ELSE
+                                        udtesize(i2) = typsize * 8
+                                    END IF
                                     udtxbytealign(i) = 1: udtebytealign(i2) = 1
                                 ELSE
                                     udtesize(i2) = typ AND 511
@@ -2044,7 +1919,7 @@ DO
                                 udtenext(i2 - 1) = i2
                             END IF
 
-                            'print "+"+rtrim$(udtename(i2));udtesize(i2);udtebytealign(i2);udtxsize(i)
+                            'print "+"+rtrim$(udtename(i2));udtetype(i2);udtesize(i2);udtebytealign(i2);udtxsize(i)
 
                             GOTO finishedlinepp
 
@@ -2063,6 +1938,7 @@ DO
                                 udtxcname(i) = getelement(ca$, 2)
                                 udtxnext(i) = 0
                                 udtxsize(i) = 0
+                                udtxvariable(i) = 0
 
                                 hashname$ = secondelement$
                                 hashflags = HASHFLAG_UDT
@@ -12838,7 +12714,8 @@ END FUNCTION
 
 
 
-FUNCTION allocarray (n2$, elements$, elementsize)
+'udt is non-zero if this is an array of udt's, to allow examining each udt element
+FUNCTION allocarray (n2$, elements$, elementsize, udt)
     dimsharedlast = dimshared: dimshared = 0
 
     IF autoarray = 1 THEN autoarray = 0: autoary = 1 'clear global value & set local value
@@ -13055,6 +12932,15 @@ FUNCTION allocarray (n2$, elements$, elementsize)
             END IF
             PRINT #13, n$ + "[2]=1+2;" 'init+static
         END IF
+
+        if udt > 0 and udtxvariable(udt) then
+            print #13, "tmp_long=" + elesizestr$ + ";"
+            print #13, "while(tmp_long--){"
+            initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+            print #13, acc$
+            print #13, "}"
+        end if
+
         'Close static array desc
         PRINT #13, "}"
         allocarray = nume + 65536
@@ -13106,6 +12992,14 @@ FUNCTION allocarray (n2$, elements$, elementsize)
                     f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
                     f12$ = f12$ + CRLF + "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
                 END IF
+                'As must any variable length strings in UDT's
+                if udt > 0 and udtxvariable(udt) then
+                    f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
+                    f12$ = f12$ + CRLF + "while(tmp_long--) {"
+                    free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                    f12$ = f12$ + acc$ + "}"
+                end if
+                    
                 'Free array's memory
                 IF stringarray THEN
                     'Note: String arrays are never in cmem
@@ -13134,9 +13028,9 @@ FUNCTION allocarray (n2$, elements$, elementsize)
             '--------CREATE ARRAY & CLEAN-UP CODE--------
             'Overwrite existing array dimension sizes/ranges
             f12$ = f12$ + CRLF + sd$
-            IF stringarray THEN
+            IF stringarray or ((udt > 0) and udtxvariable(udt)) THEN
 
-                'Note: String arrays are always created in 64bit memory
+                'Note: String and variable-length udt arrays are always created in 64bit memory
 
                 IF redimoption = 2 THEN
                     f12$ = f12$ + CRLF + "if (preserved_elements){"
@@ -13144,27 +13038,40 @@ FUNCTION allocarray (n2$, elements$, elementsize)
                     f12$ = f12$ + CRLF + "static ptrszint tmp_long2;"
 
                     'free any qbs strings which will be lost in the realloc
-                    f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
-                    f12$ = f12$ + CRLF + "if (tmp_long<preserved_elements){"
-                    f12$ = f12$ + CRLF + "for(tmp_long2=tmp_long;tmp_long2<preserved_elements;tmp_long2++) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long2]);"
-                    f12$ = f12$ + CRLF + "}"
+                    f12$ = f12$ + CRLF + "tmp_long2=" + elesizestr$ + ";"
+                    f12$ = f12$ + CRLF + "if (tmp_long2<preserved_elements){"
+                    f12$ = f12$ + CRLF + "for(tmp_long=tmp_long2;tmp_long<preserved_elements;tmp_long++) {"
+                    if stringarray then
+                        f12$ = f12$ + CRLF + "qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
+                    else
+                        acc$ = ""
+                        free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                        f12$ = f12$ + acc$
+                    end if
+                    f12$ = f12$ + CRLF + "}}"
                     'reallocate the array
-                    f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)realloc((void*)(" + n$ + "[0]),tmp_long*" + bytesperelement$ + ");"
+                    f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)realloc((void*)(" + n$ + "[0]),tmp_long2*" + bytesperelement$ + ");"
                     f12$ = f12$ + CRLF + "if (!" + n$ + "[0]) error(257);" 'not enough memory
-                    f12$ = f12$ + CRLF + "if (preserved_elements<tmp_long){"
-                    f12$ = f12$ + CRLF + "for(tmp_long2=preserved_elements;tmp_long2<tmp_long;tmp_long2++){"
-                    f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
-                    f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long2]=(uint64)qbs_new_cmem(0,0);"
-                    f12$ = f12$ + CRLF + "}else{" 'not in cmem
-                    f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long2]=(uint64)qbs_new(0,0);"
-                    f12$ = f12$ + CRLF + "}" 'not in cmem
+                    f12$ = f12$ + CRLF + "if (preserved_elements<tmp_long2){"
+                    f12$ = f12$ + CRLF + "for(tmp_long=preserved_elements;tmp_long<tmp_long2;tmp_long++){"
+                    if stringarray then
+                        f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
+                        f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
+                        f12$ = f12$ + CRLF + "}else{" 'not in cmem
+                        f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
+                        f12$ = f12$ + CRLF + "}" 'not in cmem
+                    else
+                        acc$ = ""
+                        initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                        f12$ = f12$ + acc$
+                    end if
                     f12$ = f12$ + CRLF + "}"
                     f12$ = f12$ + CRLF + "}"
 
                     f12$ = f12$ + CRLF + "}else{"
                 END IF
 
-                '1. Create string array
+                '1. Create array
                 f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)malloc(" + sizestr$ + ");"
                 f12$ = f12$ + CRLF + "if (!" + n$ + "[0]) error(257);" 'not enough memory
                 f12$ = f12$ + CRLF + n$ + "[2]|=1;" 'ADD initialized flag
@@ -13172,11 +13079,18 @@ FUNCTION allocarray (n2$, elements$, elementsize)
 
 
                 'init individual strings
-                f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
-                f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
-                f12$ = f12$ + CRLF + "}else{" 'not in cmem
-                f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
-                f12$ = f12$ + CRLF + "}" 'not in cmem
+                if stringarray then
+                    f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
+                    f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
+                    f12$ = f12$ + CRLF + "}else{" 'not in cmem
+                    f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
+                    f12$ = f12$ + CRLF + "}" 'not in cmem
+                else 'initialise udt's
+                    f12$ = f12$ + CRLF + "while(tmp_long--){"
+                    acc$ = ""
+                    initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                    f12$ = f12$ + acc$ + "}"
+                end if
 
                 IF redimoption = 2 THEN
                     f12$ = f12$ + CRLF + "}"
@@ -13187,7 +13101,14 @@ FUNCTION allocarray (n2$, elements$, elementsize)
                 IF arraydesc = 0 THEN 'only add for first declaration of the array
                     PRINT #19, "if (" + n$ + "[2]&1){" 'initialized?
                     PRINT #19, "tmp_long=" + elesizestr$ + ";"
-                    PRINT #19, "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
+                    if udt > 0 and udtxvariable(udt) then
+                        print #19, "while(tmp_long--) {"
+                        acc$ = ""
+                        free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
+                        print #19, acc$ + "}"
+                    else
+                        PRINT #19, "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
+                    end if
                     PRINT #19, "free((void*)(" + n$ + "[0]));"
                     PRINT #19, "}"
                     'free lock (_MEM)
@@ -13195,7 +13116,7 @@ FUNCTION allocarray (n2$, elements$, elementsize)
                 END IF
 
 
-            ELSE 'not string array
+            ELSE 'not string/var-udt array
 
                 '1. Create array
                 f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array will be in cmem
@@ -13557,7 +13478,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                         E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                     END IF
-                    nume = allocarray(n$, elements$, -bits)
+                    nume = allocarray(n$, elements$, -bits, i)
                     IF Error_Happened THEN EXIT FUNCTION
                     l$ = l$ + sp + tlayout$
                     IF arraydesc THEN GOTO dim2exitfunc
@@ -13599,17 +13520,22 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             id.t = UDTTYPE + i
             IF cmemlist(idn + 1) THEN
                 id.t = id.t + ISINCONVENTIONALMEMORY
-                IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
-                IF f THEN PRINT #13, "cmem_sp-=" + str2(bytes) + ";"
-                IF f THEN PRINT #13, "if (cmem_sp<qbs_cmem_sp) error(257);"
-                IF f THEN PRINT #13, n$ + "=(void*)(dblock+cmem_sp);"
-                IF f THEN PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
-                IF f THEN PRINT #13, "}"
+                IF f THEN
+                    PRINT #13, "if(" + n$ + "==NULL){"
+                    PRINT #13, "cmem_sp-=" + str2(bytes) + ";"
+                    PRINT #13, "if (cmem_sp<qbs_cmem_sp) error(257);"
+                    PRINT #13, n$ + "=(void*)(dblock+cmem_sp);"
+                    PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
+                    PRINT #13, "}"
+                END IF
             ELSE
-                IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
-                IF f THEN PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
-                IF f THEN PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
-                IF f THEN PRINT #13, "}"
+                IF f THEN
+                    PRINT #13, "if(" + n$ + "==NULL){"
+                    PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
+                    PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
+                    IF udtxvariable(i) THEN initialise_udt_varstrings n$, i, 13, 0
+                    PRINT #13, "}"
+                END IF
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
@@ -13711,7 +13637,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                         E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                     END IF
-                    nume = allocarray(n$, elements$, bytes)
+                    nume = allocarray(n$, elements$, bytes, 0)
                     IF Error_Happened THEN EXIT FUNCTION
                     l$ = l$ + sp + tlayout$
                     IF arraydesc THEN GOTO dim2exitfunc
@@ -13811,7 +13737,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, -2147483647)
+                nume = allocarray(n$, elements$, -2147483647, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -13916,7 +13842,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, -bits)
+                nume = allocarray(n$, elements$, -bits, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14007,7 +13933,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 1)
+                nume = allocarray(n$, elements$, 1, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14088,7 +14014,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 2)
+                nume = allocarray(n$, elements$, 2, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14176,7 +14102,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, OS_BITS \ 8)
+                nume = allocarray(n$, elements$, OS_BITS \ 8, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14260,7 +14186,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 4)
+                nume = allocarray(n$, elements$, 4, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14344,7 +14270,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 8)
+                nume = allocarray(n$, elements$, 8, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14428,7 +14354,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 4)
+                nume = allocarray(n$, elements$, 4, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14510,7 +14436,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 8)
+                nume = allocarray(n$, elements$, 8, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -14592,7 +14518,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 IF LEN(elements$) = 1 AND ASC(elements$) = 63 THEN '"?"
                     E = arrayelementslist(idn + 1): IF E THEN elements$ = elements$ + str2$(E) 'eg. "?3" for a 3 dimensional array
                 END IF
-                nume = allocarray(n$, elements$, 32)
+                nume = allocarray(n$, elements$, 32, 0)
                 IF Error_Happened THEN EXIT FUNCTION
                 l$ = l$ + sp + tlayout$
                 IF arraydesc THEN GOTO dim2exitfunc
@@ -17019,6 +16945,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         ' print "-4: evaluated as ["+e$+"]":sleep 1
 
         IF (sourcetyp AND ISUDT) THEN 'User Defined Type -> byte_element(offset,bytes)
+            If udtxvariable(sourcetyp AND 511) Then Give_Error "Cannot GET/PUT variable-length TYPE": Exit Function
             idnumber = VAL(e$)
             i = INSTR(e$, sp3): e$ = RIGHT$(e$, LEN(e$) - i)
             u = VAL(e$) 'closest parent
@@ -20026,9 +19953,14 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types yet": EXIT FUNCTION
 
         IF typ AND ISSTRING THEN
-            o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
-            r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
-            typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
+            IF typ AND ISFIXEDLENGTH THEN
+                o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
+                r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
+                typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
+            ELSE
+                r$ = "*((qbs**)(" + scope$ + n$ + "+(" + o$ + ")))"
+                typ = STRINGTYPE
+            END IF
         ELSE
             typ = typ - ISUDT - ISREFERENCE - ISPOINTER
             IF typ AND ISARRAY THEN typ = typ - ISARRAY
@@ -21221,14 +21153,12 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
             'we have now established we have 2 pointers to similar data types!
             'ASSUME BYTE TYPE!!!
-            src$ = "(((char*)" + scope$ + n2$ + ")+(" + o2$ + "))"
+            src$ = "((char*)" + scope$ + n2$ + ")+(" + o2$ + ")"
             directudt:
             IF u <> u2 OR e2 <> 0 THEN Give_Error "Expected = similar user defined type": EXIT SUB
+            dst$ = "((char*)" + lhsscope$ + n$ + ")+(" + o$ + ")"
 
-            dst$ = "(((char*)" + lhsscope$ + n$ + ")+(" + o$ + "))"
-            siz$ = str2$(udtxsize(u) \ 8)
-
-            PRINT #12, "memcpy(" + dst$ + "," + src$ + "," + siz$ + ");"
+            copy_full_udt dst$, src$, 12, 0, u
 
             'print "setFULLUDTrefer!"
 
@@ -21239,8 +21169,12 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
         IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types yet": EXIT SUB
         IF typ AND ISSTRING THEN
-            o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
-            r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
+            IF typ AND ISFIXEDLENGTH THEN
+                o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
+                r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
+            ELSE
+                r$ = "*((qbs**)((" + scope$ + n$ + ")+(" + o$ + ")))"
+            END IF
             IF method = 0 THEN e$ = evaluatetotyp(e$, STRINGTYPE - ISPOINTER)
             IF Error_Happened THEN EXIT SUB
             PRINT #12, "qbs_set(" + r$ + "," + e$ + ");"
@@ -25318,6 +25252,91 @@ FUNCTION VerifyNumber (text$)
     t1$ = LTRIM$(STR$(v))
     IF t$ = t1$ THEN VerifyNumber = -1
 END FUNCTION
+
+SUB initialise_udt_varstrings (n$, udt, file, base_offset)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
+    element = udtxnext(udt)
+    offset = 0
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                PRINT #file, "*(qbs**)(((char*)" + n$ + ")+" + STR$(base_offset + offset) + ") = qbs_new(0,0);"
+            END IF
+        ELSEIF udtetype(element) AND ISUDT THEN
+            initialise_udt_varstrings n$, udtetype(element) AND 511, file, offset
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+
+sub initialise_array_udt_varstrings(n$, udt, base_offset, bytesperelement$, acc$)
+    if not udtxvariable(udt) then exit sub
+    offset = base_offset
+    element = udtxnext(udt)
+    do while element
+        if udtetype(element) and isstring then
+            if (udtetype(element) and isfixedlength) = 0 then
+                acc$ = acc$ + chr$(13) + chr$(10) + "*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + ")=qbs_new(0,0);"
+            end if
+        elseif udtetype(element) and isudt then
+            initialise_array_udt_varstrings n$, udtetype(element) and 511, offset, bytesperelement$, acc$
+        end if
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    loop
+end sub
+
+sub free_array_udt_varstrings(n$, udt, base_offset, bytesperelement$, acc$)
+    if not udtxvariable(udt) then exit sub
+    offset = base_offset
+    element = udtxnext(udt)
+    do while element
+        if udtetype(element) and isstring then
+            if (udtetype(element) and isfixedlength) = 0 then
+                acc$ = acc$ + chr$(13) + chr$(10) + "qbs_free(*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + "));"
+            end if
+        elseif udtetype(element) and isudt then
+            free_array_udt_varstrings n$, udtetype(element) and 511, offset, bytesperelement$, acc$
+        end if
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    loop
+end sub
+
+SUB copy_full_udt (dst$, src$, file, base_offset, udt)
+    IF NOT udtxvariable(udt) THEN
+        PRINT #file, "memcpy(" + dst$ + "+" + STR$(base_offset) + "," + src$ + "+" + STR$(base_offset) + "," + STR$(udtxsize(udt) \ 8) + ");"
+        EXIT SUB
+    END IF
+    offset = base_offset
+    element = udtxnext(udt)
+    DO WHILE element
+        IF ((udtetype(element) AND ISSTRING) > 0) AND (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+            PRINT #file, "qbs_set(*(qbs**)(" + dst$ + "+" + STR$(offset) + "), *(qbs**)(" + src$ + "+" + STR$(offset) + "));"
+        ELSEIF ((udtetype(element) AND ISUDT) > 0) THEN
+            copy_full_udt dst$, src$, 12, offset, udtetype(element) AND 511
+        ELSE
+            PRINT #file, "memcpy((" + dst$ + "+" + STR$(offset) + "),(" + src$ + "+" + STR$(offset) + ")," + STR$(udtesize(element) \ 8) + ");"
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+        
+SUB dump_udts
+    f = FREEFILE
+    OPEN "types.txt" FOR OUTPUT AS #f
+    PRINT #f, "Name   Size   Align? Next   Var?"
+    FOR i = 1 TO lasttype
+        PRINT #f, RTRIM$(udtxname(i)), udtxsize(i), udtxbytealign(i), udtxnext(i), udtxvariable(i)
+    NEXT i
+    PRINT #f, "Name   Size   Align? Next   Type   Tsize  Arr"
+    FOR i = 1 TO lasttypeelement
+        PRINT #f, RTRIM$(udtename(i)), udtesize(i), udtebytealign(i), udtenext(i), udtetype(i), udtetypesize(i), udtearrayelements(i)
+    NEXT i
+    CLOSE #f
+END SUB
 
 '$INCLUDE:'utilities\strings.bas'
 
