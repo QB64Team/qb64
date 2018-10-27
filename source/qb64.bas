@@ -1940,6 +1940,7 @@ DO
                                 udtxcname(i) = getelement(ca$, 2)
                                 udtxnext(i) = 0
                                 udtxsize(i) = 0
+                                udtxvariable(i) = 0
 
                                 hashname$ = secondelement$
                                 hashflags = HASHFLAG_UDT
@@ -16985,6 +16986,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         ' print "-4: evaluated as ["+e$+"]":sleep 1
 
         IF (sourcetyp AND ISUDT) THEN 'User Defined Type -> byte_element(offset,bytes)
+            If udtxvariable(sourcetyp AND 511) Then Give_Error "Cannot GET/PUT variable-length TYPE": Exit Function
             idnumber = VAL(e$)
             i = INSTR(e$, sp3): e$ = RIGHT$(e$, LEN(e$) - i)
             u = VAL(e$) 'closest parent
