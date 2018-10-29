@@ -12591,7 +12591,7 @@ int32 func__blink(){
     return -H3C0_blink_enable;
 }
 
-int32 func__handle(){
+int64 func__handle(){
     #ifdef QB64_GUI
         #ifdef QB64_WINDOWS
             while (!window_handle){Sleep(100);}

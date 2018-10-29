@@ -564,7 +564,7 @@ clearid
 id.n = "_WINDOWHANDLE"
 id.subfunc = 1
 id.callname = "func__handle"
-id.ret = LONGTYPE - ISPOINTER
+id.ret = INTEGER64TYPE - ISPOINTER
 id.NoCloud = 1
 regid
 
