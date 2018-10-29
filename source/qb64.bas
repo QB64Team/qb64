@@ -1627,6 +1627,73 @@ DO
             END IF
         END IF
 
+        IF LEFT$(temp$, 4) = "$IF " THEN
+            IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$IF without THEN": GOTO errmes
+            temp$ = LTRIM$(MID$(temp$, 4)) 'strip off the $IF and extra spaces
+            temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
+            temp = INSTR(temp$, "=")
+            ExecCounter = ExecCounter + 1
+            ExecLevel(ExecCounter) = -1 'default to a skip value
+            DefineElse(ExecCounter) = 1 '1 says we have an $IF statement at this level
+            result = EvalPreIF(temp$, a$)
+            IF a$ <> "" THEN GOTO errmes
+            IF result <> 0 THEN
+                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
+                IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
+            END IF
+            GOTO finishedlinepp 'and then we're finished -- and at this point we didn't make a match so we exit with a DONT READ type flag on our code.
+        END IF
+
+        IF temp$ = "$ELSE" THEN
+            IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE without $IF": GOTO errmes
+            IF DefineElse(ExecCounter) AND 2 THEN a$ = "$IF block already has $ELSE statement in it": GOTO errmes
+            DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 2 'set the flag to declare an $ELSE already in this block
+            IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
+                ExecLevel(ExecCounter) = -1 'So we inherit the execlevel from above
+            ELSE
+                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'If we were processing code before, code after this segment is going to be SKIPPED
+            END IF
+            GOTO finishedlinepp
+        END IF
+
+        IF LEFT$(temp$, 5) = "$ELSE" THEN 'looking for $ELSE IF
+            temp$ = LTRIM$(MID$(temp$, 6))
+            IF LEFT$(temp$, 3) = "IF " THEN
+                IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE IF without $IF": GOTO errmes
+                IF DefineElse(ExecCounter) AND 2 THEN a$ = "$ELSE IF cannot follow $ELSE": GOTO errmes
+                IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$ELSE IF without THEN": GOTO errmes
+                IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
+                    ExecLevel(ExecCounter) = -1
+                    GOTO finishedlinepp
+                END IF
+                temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
+                temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
+                result = EvalPreIF(temp$, a$)
+                IF a$ <> "" THEN GOTO errmes
+                IF result <> 0 THEN
+                    ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
+                    IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
+                END IF
+                GOTO finishedlinepp 'and then we're finished -- and at this point we didn't make a match so we exit with a DONT READ type flag on our code.
+            END IF
+        END IF
+
+        IF temp$ = "$END IF" OR temp$ = "$ENDIF" THEN
+            IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
+            DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
+            ExecCounter = ExecCounter - 1
+            GOTO finishedlinepp
+        END IF
+
+        IF ExecLevel(ExecCounter) THEN
+            DO UNTIL linenumber < UBOUND(InValidLine)
+                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+            LOOP
+
+            InValidLine(linenumber) = -1
+            GOTO finishedlinepp 'we don't check for anything inside lines that we've marked for skipping
+        END IF
+
         IF LEFT$(temp$, 5) = "$LET " THEN
             temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
             'For starters, let's make certain that we have 3 elements to deal with
@@ -1681,79 +1748,6 @@ DO
             UserDefine(1, UserDefineCount) = r$
             GOTO finishedlinepp
         END IF
-
-
-        IF LEFT$(temp$, 4) = "$IF " THEN
-            IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$IF without THEN": GOTO errmes
-            temp$ = LTRIM$(MID$(temp$, 4)) 'strip off the $IF and extra spaces
-            temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-            temp = INSTR(temp$, "=")
-            ExecCounter = ExecCounter + 1
-            ExecLevel(ExecCounter) = -1 'default to a skip value
-            DefineElse(ExecCounter) = 1 '1 says we have an $IF statement at this level
-            result = EvalPreIF(temp$, a$)
-            IF a$ <> "" THEN GOTO errmes
-            IF result <> 0 THEN
-                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
-                IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
-            END IF
-            GOTO finishedlinepp 'and then we're finished -- and at this point we didn't make a match so we exit with a DONT READ type flag on our code.
-        END IF
-
-        IF temp$ = "$ELSE" THEN
-            IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE without $IF": GOTO errmes
-            IF DefineElse(ExecCounter) AND 2 THEN a$ = "$IF block already has $ELSE statement in it": GOTO errmes
-            DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 2 'set the flag to declare an $ELSE already in this block
-            IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
-                ExecLevel(ExecCounter) = -1 'So we inherit the execlevel from above
-            ELSE
-                ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'If we were processing code before, code after this segment is going to be SKIPPED
-            END IF
-            GOTO finishedlinepp
-        END IF
-
-        IF LEFT$(temp$, 5) = "$ELSE" THEN 'looking for $ELSE IF
-            temp$ = LTRIM$(MID$(temp$, 6))
-            IF LEFT$(temp$, 3) = "IF " THEN
-                IF DefineElse(ExecCounter) = 0 THEN a$ = "$ELSE IF without $IF": GOTO errmes
-                IF DefineElse(ExecCounter) AND 2 THEN a$ = "$ELSE IF cannot follow $ELSE": GOTO errmes
-                IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$ELSE IF without THEN": GOTO errmes
-                IF DefineElse(ExecCounter) AND 4 THEN 'If we executed code in a previous IF or ELSE IF statement, we can't do it here
-                    ExecLevel(ExecCounter) = -1
-                    GOTO finishedlinepp
-                END IF
-                temp$ = LTRIM$(MID$(temp$, 3)) 'strip off the IF and extra spaces
-                temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-                result = EvalPreIF(temp$, a$)
-                IF a$ <> "" THEN GOTO errmes
-                IF result <> 0 THEN
-                    ExecLevel(ExecCounter) = ExecLevel(ExecCounter - 1) 'So we inherit the execlevel from above
-                    IF ExecLevel(ExecCounter) = 0 THEN DefineElse(ExecCounter) = DefineElse(ExecCounter) OR 4 'Else if used and conditon found
-                END IF
-                GOTO finishedlinepp 'and then we're finished -- and at this point we didn't make a match so we exit with a DONT READ type flag on our code.
-            END IF
-        END IF
-
-
-
-        IF temp$ = "$END IF" OR temp$ = "$ENDIF" THEN
-            IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
-            DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
-            ExecCounter = ExecCounter - 1
-            GOTO finishedlinepp
-        END IF
-
-
-
-        IF ExecLevel(ExecCounter) THEN
-            DO UNTIL linenumber < UBOUND(InValidLine)
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
-            LOOP
-
-            InValidLine(linenumber) = -1
-            GOTO finishedlinepp 'we don't check for anything inside lines that we've marked for skipping
-        END IF
-
 
 
 
@@ -2904,9 +2898,6 @@ DO
 
         'precompiler commands should always be executed FIRST.
 
-        IF LEFT$(a3u$, 5) = "$LET " THEN layout$ = a3$: GOTO finishednonexec 'we dealt with this basically in the prepass
-        '                   so we could define CONST and such and have them available for later IDE passes
-
         IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
             IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
             DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
@@ -2986,6 +2977,27 @@ DO
         IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
             layoutdone = 0
             GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
+        END IF
+
+        IF LEFT$(a3u$, 5) = "$LET " THEN
+            temp$ = a3u$
+            temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
+            'For starters, let's make certain that we have 3 elements to deal with
+            temp = INSTR(temp$, "=") 'without an = in there, we can't get a value from the left and right side
+            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
+            layout$ = "$LET " + l$ + " = " + r$
+            'First look to see if we have an existing setting like this and if so, update it
+            FOR i = 7 TO UserDefineCount 'UserDefineCount 1-6 are reserved for automatic OS/BIT detection
+                IF UserDefine(0, i) = l$ THEN UserDefine(1, i) = r$: GOTO finishednonexec
+            NEXT
+            'Otherwise create a new setting and set the initial value for it
+            UserDefineCount = UserDefineCount + 1
+            IF UserDefineCount > UBOUND(UserDefine, 2) THEN
+                REDIM _PRESERVE UserDefine(1, UBOUND(UserDefine, 2) + 10) 'Add another 10 elements to the array so it'll expand as the user adds to it
+            END IF
+            UserDefine(0, UserDefineCount) = l$
+            UserDefine(1, UserDefineCount) = r$
+            GOTO finishednonexec
         END IF
 
 
@@ -12974,13 +12986,13 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             PRINT #13, n$ + "[2]=1+2;" 'init+static
         END IF
 
-        if udt > 0 and udtxvariable(udt) then
-            print #13, "tmp_long=" + elesizestr$ + ";"
-            print #13, "while(tmp_long--){"
+        IF udt > 0 AND udtxvariable(udt) THEN
+            PRINT #13, "tmp_long=" + elesizestr$ + ";"
+            PRINT #13, "while(tmp_long--){"
             initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
-            print #13, acc$
-            print #13, "}"
-        end if
+            PRINT #13, acc$
+            PRINT #13, "}"
+        END IF
 
         'Close static array desc
         PRINT #13, "}"
@@ -13034,12 +13046,12 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                     f12$ = f12$ + CRLF + "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
                 END IF
                 'As must any variable length strings in UDT's
-                if udt > 0 and udtxvariable(udt) then
+                IF udt > 0 AND udtxvariable(udt) THEN
                     f12$ = f12$ + CRLF + "tmp_long=" + elesizestr$ + ";"
                     f12$ = f12$ + CRLF + "while(tmp_long--) {"
                     free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
                     f12$ = f12$ + acc$ + "}"
-                end if
+                END IF
                     
                 'Free array's memory
                 IF stringarray THEN
@@ -13069,7 +13081,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             '--------CREATE ARRAY & CLEAN-UP CODE--------
             'Overwrite existing array dimension sizes/ranges
             f12$ = f12$ + CRLF + sd$
-            IF stringarray or ((udt > 0) and udtxvariable(udt)) THEN
+            IF stringarray OR ((udt > 0) AND udtxvariable(udt)) THEN
 
                 'Note: String and variable-length udt arrays are always created in 64bit memory
 
@@ -13082,30 +13094,30 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                     f12$ = f12$ + CRLF + "tmp_long2=" + elesizestr$ + ";"
                     f12$ = f12$ + CRLF + "if (tmp_long2<preserved_elements){"
                     f12$ = f12$ + CRLF + "for(tmp_long=tmp_long2;tmp_long<preserved_elements;tmp_long++) {"
-                    if stringarray then
+                    IF stringarray THEN
                         f12$ = f12$ + CRLF + "qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
-                    else
+                    ELSE
                         acc$ = ""
                         free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
                         f12$ = f12$ + acc$
-                    end if
+                    END IF
                     f12$ = f12$ + CRLF + "}}"
                     'reallocate the array
                     f12$ = f12$ + CRLF + n$ + "[0]=(ptrszint)realloc((void*)(" + n$ + "[0]),tmp_long2*" + bytesperelement$ + ");"
                     f12$ = f12$ + CRLF + "if (!" + n$ + "[0]) error(257);" 'not enough memory
                     f12$ = f12$ + CRLF + "if (preserved_elements<tmp_long2){"
                     f12$ = f12$ + CRLF + "for(tmp_long=preserved_elements;tmp_long<tmp_long2;tmp_long++){"
-                    if stringarray then
+                    IF stringarray THEN
                         f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
                         f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
                         f12$ = f12$ + CRLF + "}else{" 'not in cmem
                         f12$ = f12$ + CRLF + "((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
                         f12$ = f12$ + CRLF + "}" 'not in cmem
-                    else
+                    ELSE
                         acc$ = ""
                         initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
                         f12$ = f12$ + acc$
-                    end if
+                    END IF
                     f12$ = f12$ + CRLF + "}"
                     f12$ = f12$ + CRLF + "}"
 
@@ -13120,18 +13132,18 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
 
 
                 'init individual strings
-                if stringarray then
+                IF stringarray THEN
                     f12$ = f12$ + CRLF + "if (" + n$ + "[2]&4){" 'array is in cmem
                     f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new_cmem(0,0);"
                     f12$ = f12$ + CRLF + "}else{" 'not in cmem
                     f12$ = f12$ + CRLF + "while(tmp_long--) ((uint64*)(" + n$ + "[0]))[tmp_long]=(uint64)qbs_new(0,0);"
                     f12$ = f12$ + CRLF + "}" 'not in cmem
-                else 'initialise udt's
+                ELSE 'initialise udt's
                     f12$ = f12$ + CRLF + "while(tmp_long--){"
                     acc$ = ""
                     initialise_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
                     f12$ = f12$ + acc$ + "}"
-                end if
+                END IF
 
                 IF redimoption = 2 THEN
                     f12$ = f12$ + CRLF + "}"
@@ -13142,14 +13154,14 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
                 IF arraydesc = 0 THEN 'only add for first declaration of the array
                     PRINT #19, "if (" + n$ + "[2]&1){" 'initialized?
                     PRINT #19, "tmp_long=" + elesizestr$ + ";"
-                    if udt > 0 and udtxvariable(udt) then
-                        print #19, "while(tmp_long--) {"
+                    IF udt > 0 AND udtxvariable(udt) THEN
+                        PRINT #19, "while(tmp_long--) {"
                         acc$ = ""
                         free_array_udt_varstrings n$, udt, 0, bytesperelement$, acc$
-                        print #19, acc$ + "}"
-                    else
+                        PRINT #19, acc$ + "}"
+                    ELSE
                         PRINT #19, "while(tmp_long--) qbs_free((qbs*)((uint64*)(" + n$ + "[0]))[tmp_long]);"
-                    end if
+                    END IF
                     PRINT #19, "free((void*)(" + n$ + "[0]));"
                     PRINT #19, "}"
                     'free lock (_MEM)
@@ -16986,7 +16998,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         ' print "-4: evaluated as ["+e$+"]":sleep 1
 
         IF (sourcetyp AND ISUDT) THEN 'User Defined Type -> byte_element(offset,bytes)
-            If udtxvariable(sourcetyp AND 511) Then Give_Error "Cannot GET/PUT variable-length TYPE": Exit Function
+            IF udtxvariable(sourcetyp AND 511) THEN Give_Error "Cannot GET/PUT variable-length TYPE": EXIT FUNCTION
             idnumber = VAL(e$)
             i = INSTR(e$, sp3): e$ = RIGHT$(e$, LEN(e$) - i)
             u = VAL(e$) 'closest parent
@@ -18759,7 +18771,7 @@ FUNCTION isnumber (a$)
     FOR i = 1 TO LEN(a$)
         a = ASC(MID$(a$, i, 1))
         IF a = 45 THEN
-            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND (d = i - 1 OR e = i - 1)) THEN _CONTINUE
+            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND (d = i - 1 OR E = i - 1)) THEN _CONTINUE
             EXIT FUNCTION
         END IF
         IF a = 46 THEN
@@ -18768,17 +18780,17 @@ FUNCTION isnumber (a$)
             _CONTINUE
         END IF
         IF a = 100 OR a = 68 THEN 'D
-            IF d > 1 OR e > 1 THEN EXIT FUNCTION
+            IF d > 1 OR E > 1 THEN EXIT FUNCTION
             d = i
             _CONTINUE
         END IF
         IF a = 101 OR a = 69 THEN 'E
-            IF d > 0 OR e > 1 THEN EXIT FUNCTION
-            e = i
+            IF d > 0 OR E > 1 THEN EXIT FUNCTION
+            E = i
             _CONTINUE
         END IF
         IF a = 43 THEN '+
-            IF d = i - 1 OR e = i - 1 THEN _CONTINUE
+            IF d = i - 1 OR E = i - 1 THEN _CONTINUE
             EXIT FUNCTION
         END IF
 
@@ -25179,6 +25191,8 @@ FUNCTION EvalPreIF (text$, err$)
                 FOR i = 0 TO UserDefineCount
                     IF UserDefine(0, i) = l$ AND UserDefine(1, i) = r$ THEN result$ = " -1 ": GOTO finishedcheck
                 NEXT
+                IF NOT UserFound AND LTRIM$(RTRIM$(r$)) = "UNDEFINED" THEN result$ = " -1 ": GOTO finishedcheck
+                IF UserFound AND LTRIM$(RTRIM$(r$)) = "DEFINED" THEN result$ = " -1 ": GOTO finishedcheck
             END IF
 
             IF INSTR(symbol$, ">") THEN 'check to see if we're greater than in any case with >
@@ -25308,39 +25322,39 @@ SUB initialise_udt_varstrings (n$, udt, file, base_offset)
     LOOP
 END SUB
 
-sub initialise_array_udt_varstrings(n$, udt, base_offset, bytesperelement$, acc$)
-    if not udtxvariable(udt) then exit sub
+SUB initialise_array_udt_varstrings (n$, udt, base_offset, bytesperelement$, acc$)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
     offset = base_offset
     element = udtxnext(udt)
-    do while element
-        if udtetype(element) and isstring then
-            if (udtetype(element) and isfixedlength) = 0 then
-                acc$ = acc$ + chr$(13) + chr$(10) + "*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + ")=qbs_new(0,0);"
-            end if
-        elseif udtetype(element) and isudt then
-            initialise_array_udt_varstrings n$, udtetype(element) and 511, offset, bytesperelement$, acc$
-        end if
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                acc$ = acc$ + CHR$(13) + CHR$(10) + "*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + STR$(offset) + ")=qbs_new(0,0);"
+            END IF
+        ELSEIF udtetype(element) AND ISUDT THEN
+            initialise_array_udt_varstrings n$, udtetype(element) AND 511, offset, bytesperelement$, acc$
+        END IF
         offset = offset + udtesize(element) \ 8
         element = udtenext(element)
-    loop
-end sub
+    LOOP
+END SUB
 
-sub free_array_udt_varstrings(n$, udt, base_offset, bytesperelement$, acc$)
-    if not udtxvariable(udt) then exit sub
+SUB free_array_udt_varstrings (n$, udt, base_offset, bytesperelement$, acc$)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
     offset = base_offset
     element = udtxnext(udt)
-    do while element
-        if udtetype(element) and isstring then
-            if (udtetype(element) and isfixedlength) = 0 then
-                acc$ = acc$ + chr$(13) + chr$(10) + "qbs_free(*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + str$(offset) + "));"
-            end if
-        elseif udtetype(element) and isudt then
-            free_array_udt_varstrings n$, udtetype(element) and 511, offset, bytesperelement$, acc$
-        end if
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                acc$ = acc$ + CHR$(13) + CHR$(10) + "qbs_free(*(qbs**)(" + n$ + "[0]+(" + bytesperelement$ + "-1)*tmp_long+" + STR$(offset) + "));"
+            END IF
+        ELSEIF udtetype(element) AND ISUDT THEN
+            free_array_udt_varstrings n$, udtetype(element) AND 511, offset, bytesperelement$, acc$
+        END IF
         offset = offset + udtesize(element) \ 8
         element = udtenext(element)
-    loop
-end sub
+    LOOP
+END SUB
 
 SUB copy_full_udt (dst$, src$, file, base_offset, udt)
     IF NOT udtxvariable(udt) THEN
