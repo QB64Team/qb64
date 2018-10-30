@@ -3343,3 +3343,21 @@ id.callname = "func__autodisplay"
 id.args = 0
 id.ret = LONGTYPE - ISPOINTER
 regid
+
+clearid
+id.n = "_SHR"
+id.subfunc = 1
+id.callname = "_SHR"
+id.args = 2
+id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = INTEGER64TYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SHL"
+id.subfunc = 1
+id.callname = "_SHL"
+id.args = 2
+id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = INTEGER64TYPE - ISPOINTER
+regid
