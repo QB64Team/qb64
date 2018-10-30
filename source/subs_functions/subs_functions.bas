@@ -3347,7 +3347,7 @@ regid
 clearid
 id.n = "_SHR"
 id.subfunc = 1
-id.callname = "_SHR"
+id.callname = "func__shr"
 id.args = 2
 id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.ret = INTEGER64TYPE - ISPOINTER
@@ -3356,7 +3356,7 @@ regid
 clearid
 id.n = "_SHL"
 id.subfunc = 1
-id.callname = "_SHL"
+id.callname = "func__shl"
 id.args = 2
 id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.ret = INTEGER64TYPE - ISPOINTER

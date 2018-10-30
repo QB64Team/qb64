@@ -618,8 +618,8 @@ extern float string2s(qbs*str);
 extern double string2d(qbs*str);
 extern long double string2f(qbs*str);
 //Cobalt(aka Dave) added the next 2 lines
-extern int64 _SHR(int64 a1, int b1);
-extern int64 _SHL(int64 a1, int b1);
+int64 func__shr(int64 a1, int b1);
+int64 func__shl(int64 a1, int b1);
 #ifndef QB64_WINDOWS
     extern void Sleep(uint32 milliseconds);
     extern void ZeroMemory(void *ptr,int64 bytes);
@@ -946,6 +946,13 @@ inline int32 func_sgn(long double v){
     if (v) if (v>0) return 1; else return -1;
     return 0;
 }
+
+//bit-shifting
+inline int64 func__shl(int64 a1,int b1) 
+{return a1<<b1;}
+
+inline int64 func__shr(int64 a1,int b1) 
+{return a1>>b1;}
 
 //Working with 32bit colors:
 inline uint32 func__rgb32(int32 r,int32 g,int32 b,int32 a){

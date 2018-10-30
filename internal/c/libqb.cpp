@@ -29741,9 +29741,3 @@ void reinit_glut_callbacks(){
         
     #endif
 }
-
-int64 _SHL(int64 a1,int b1) 
-{return a1<<b1;}
-
-int64 _SHR(int64 a1,int b1) 
-{return a1>>b1;}
