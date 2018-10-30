@@ -4379,7 +4379,7 @@ FUNCTION ide2 (ignore)
 
         'with enter
         IF KB = KEY_ENTER THEN
-            s = r
+            IF LEFT$(menu$(m, r), 1) <> "~" THEN s = r
         END IF
 
         'with hotkey
