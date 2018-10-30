@@ -617,6 +617,9 @@ extern uint64 string2ui64(qbs*str);
 extern float string2s(qbs*str);
 extern double string2d(qbs*str);
 extern long double string2f(qbs*str);
+//Cobalt(aka Dave) added the next 2 lines
+extern int64 _SHR(int64 a1, int b1);
+extern int64 _SHL(int64 a1, int b1);
 #ifndef QB64_WINDOWS
     extern void Sleep(uint32 milliseconds);
     extern void ZeroMemory(void *ptr,int64 bytes);
