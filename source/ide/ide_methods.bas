@@ -4080,9 +4080,9 @@ FUNCTION ide2 (ignore)
     IF IdeSystem = 2 THEN IdeSystem = 1: GOSUB UpdateSearchBar
     PCOPY 0, 2
     SCREEN , , 1, 0
-    updateMenuPanel%% = 0
     parentMenuR = r
     r = 1
+    s = 0
     parentMenu = 0
     parentMenuSetup%% = 0
     IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
@@ -4167,8 +4167,9 @@ FUNCTION ide2 (ignore)
 
         PCOPY 1, 0
 
-        IF updateMenuPanel%% THEN GOTO menuChoiceMade
+        IF s THEN GOTO menuChoiceMade
 
+        updateMenuPanel%% = 0
         change = 0
         DO
             mousedown = 0: mouseup = 0
@@ -4236,7 +4237,7 @@ FUNCTION ide2 (ignore)
             IF mX >= xx - 2 AND mX < xx - 2 + w + 4 THEN
                 IF mY > yy AND mY <= menusize(m) + yy THEN
                     y = mY - yy
-                    IF menu$(m, y) <> "-" THEN
+                    IF menu$(m, y) <> "-" AND LEFT$(menu$(m, y), 1) <> "~" THEN
                         s = r
                     END IF
                 END IF
@@ -4388,7 +4389,14 @@ FUNCTION ide2 (ignore)
                 x = INSTR(menu$(m, r2), "#")
                 IF x THEN
                     a$ = UCASE$(MID$(menu$(m, r2), x + 1, 1))
-                    IF K$ = a$ THEN s = r2: updateMenuPanel%% = -1: EXIT FOR
+                    IF K$ = a$ AND LEFT$(menu$(m, r2), 1) <> "~" THEN
+                        s = r2
+                        updateMenuPanel%% = -1
+                        EXIT FOR
+                    ELSEIF K$ = a$ AND LEFT$(menu$(m, r2), 1) = "~" THEN
+                        updateMenuPanel%% = -1
+                        EXIT FOR
+                    END IF
                 END IF
             NEXT
             IF updateMenuPanel%% THEN r = r2: _CONTINUE
