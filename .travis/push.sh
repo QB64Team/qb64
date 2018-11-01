@@ -6,7 +6,4 @@ git add --all internal/source/
 git commit --message "Autobuild update [ci skip]"
 git remote rm origin
 git remote add origin https://${GH_TOKEN}@github.com/Galleondragon/qb64.git
-git push origin HEAD:master
-
-
-
+git push origin
