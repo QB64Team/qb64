@@ -1,62 +1,32 @@
-qbs *_FUNC_STRREPLACE_STRING_STRREPLACE=NULL;
-if (!_FUNC_STRREPLACE_STRING_STRREPLACE)_FUNC_STRREPLACE_STRING_STRREPLACE=qbs_new(0,0);
-qbs*oldstr3571=NULL;
-if(_FUNC_STRREPLACE_STRING_MYSTRING->tmp||_FUNC_STRREPLACE_STRING_MYSTRING->fixed||_FUNC_STRREPLACE_STRING_MYSTRING->readonly){
-oldstr3571=_FUNC_STRREPLACE_STRING_MYSTRING;
-if (oldstr3571->cmem_descriptor){
-_FUNC_STRREPLACE_STRING_MYSTRING=qbs_new_cmem(oldstr3571->len,0);
+qbs*oldstr3517=NULL;
+if(_SUB_COPY_FULL_UDT_STRING_DST->tmp||_SUB_COPY_FULL_UDT_STRING_DST->fixed||_SUB_COPY_FULL_UDT_STRING_DST->readonly){
+oldstr3517=_SUB_COPY_FULL_UDT_STRING_DST;
+if (oldstr3517->cmem_descriptor){
+_SUB_COPY_FULL_UDT_STRING_DST=qbs_new_cmem(oldstr3517->len,0);
 }else{
-_FUNC_STRREPLACE_STRING_MYSTRING=qbs_new(oldstr3571->len,0);
+_SUB_COPY_FULL_UDT_STRING_DST=qbs_new(oldstr3517->len,0);
 }
-memcpy(_FUNC_STRREPLACE_STRING_MYSTRING->chr,oldstr3571->chr,oldstr3571->len);
+memcpy(_SUB_COPY_FULL_UDT_STRING_DST->chr,oldstr3517->chr,oldstr3517->len);
 }
-qbs*oldstr3572=NULL;
-if(_FUNC_STRREPLACE_STRING_FIND->tmp||_FUNC_STRREPLACE_STRING_FIND->fixed||_FUNC_STRREPLACE_STRING_FIND->readonly){
-oldstr3572=_FUNC_STRREPLACE_STRING_FIND;
-if (oldstr3572->cmem_descriptor){
-_FUNC_STRREPLACE_STRING_FIND=qbs_new_cmem(oldstr3572->len,0);
+qbs*oldstr3518=NULL;
+if(_SUB_COPY_FULL_UDT_STRING_SRC->tmp||_SUB_COPY_FULL_UDT_STRING_SRC->fixed||_SUB_COPY_FULL_UDT_STRING_SRC->readonly){
+oldstr3518=_SUB_COPY_FULL_UDT_STRING_SRC;
+if (oldstr3518->cmem_descriptor){
+_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new_cmem(oldstr3518->len,0);
 }else{
-_FUNC_STRREPLACE_STRING_FIND=qbs_new(oldstr3572->len,0);
+_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new(oldstr3518->len,0);
 }
-memcpy(_FUNC_STRREPLACE_STRING_FIND->chr,oldstr3572->chr,oldstr3572->len);
+memcpy(_SUB_COPY_FULL_UDT_STRING_SRC->chr,oldstr3518->chr,oldstr3518->len);
 }
-qbs*oldstr3573=NULL;
-if(_FUNC_STRREPLACE_STRING_REPLACEWITH->tmp||_FUNC_STRREPLACE_STRING_REPLACEWITH->fixed||_FUNC_STRREPLACE_STRING_REPLACEWITH->readonly){
-oldstr3573=_FUNC_STRREPLACE_STRING_REPLACEWITH;
-if (oldstr3573->cmem_descriptor){
-_FUNC_STRREPLACE_STRING_REPLACEWITH=qbs_new_cmem(oldstr3573->len,0);
-}else{
-_FUNC_STRREPLACE_STRING_REPLACEWITH=qbs_new(oldstr3573->len,0);
+int32 *_SUB_COPY_FULL_UDT_LONG_OFFSET=NULL;
+if(_SUB_COPY_FULL_UDT_LONG_OFFSET==NULL){
+_SUB_COPY_FULL_UDT_LONG_OFFSET=(int32*)mem_static_malloc(4);
+*_SUB_COPY_FULL_UDT_LONG_OFFSET=0;
 }
-memcpy(_FUNC_STRREPLACE_STRING_REPLACEWITH->chr,oldstr3573->chr,oldstr3573->len);
+int32 *_SUB_COPY_FULL_UDT_LONG_ELEMENT=NULL;
+if(_SUB_COPY_FULL_UDT_LONG_ELEMENT==NULL){
+_SUB_COPY_FULL_UDT_LONG_ELEMENT=(int32*)mem_static_malloc(4);
+*_SUB_COPY_FULL_UDT_LONG_ELEMENT=0;
 }
-byte_element_struct *byte_element_3574=NULL;
-if (!byte_element_3574){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3574=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3574=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_STRREPLACE_STRING_A=NULL;
-if (!_FUNC_STRREPLACE_STRING_A)_FUNC_STRREPLACE_STRING_A=qbs_new(0,0);
-qbs *_FUNC_STRREPLACE_STRING_B=NULL;
-if (!_FUNC_STRREPLACE_STRING_B)_FUNC_STRREPLACE_STRING_B=qbs_new(0,0);
-int32 *_FUNC_STRREPLACE_LONG_BASEI=NULL;
-if(_FUNC_STRREPLACE_LONG_BASEI==NULL){
-_FUNC_STRREPLACE_LONG_BASEI=(int32*)mem_static_malloc(4);
-*_FUNC_STRREPLACE_LONG_BASEI=0;
-}
-int32 *_FUNC_STRREPLACE_LONG_I=NULL;
-if(_FUNC_STRREPLACE_LONG_I==NULL){
-_FUNC_STRREPLACE_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_STRREPLACE_LONG_I=0;
-}
-byte_element_struct *byte_element_3576=NULL;
-if (!byte_element_3576){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3576=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3576=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3577=NULL;
-if (!byte_element_3577){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3577=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3577=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3578=NULL;
-if (!byte_element_3578){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3578=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3578=(byte_element_struct*)mem_static_malloc(12);
-}
+int32 pass3522;
+int32 pass3523;
