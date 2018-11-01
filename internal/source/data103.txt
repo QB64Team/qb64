@@ -1,62 +1,24 @@
-qbs *_FUNC_STRREPLACE_STRING_STRREPLACE=NULL;
-if (!_FUNC_STRREPLACE_STRING_STRREPLACE)_FUNC_STRREPLACE_STRING_STRREPLACE=qbs_new(0,0);
-qbs*oldstr3571=NULL;
-if(_FUNC_STRREPLACE_STRING_MYSTRING->tmp||_FUNC_STRREPLACE_STRING_MYSTRING->fixed||_FUNC_STRREPLACE_STRING_MYSTRING->readonly){
-oldstr3571=_FUNC_STRREPLACE_STRING_MYSTRING;
-if (oldstr3571->cmem_descriptor){
-_FUNC_STRREPLACE_STRING_MYSTRING=qbs_new_cmem(oldstr3571->len,0);
+int32 *_FUNC_VERIFYNUMBER_LONG_VERIFYNUMBER=NULL;
+if(_FUNC_VERIFYNUMBER_LONG_VERIFYNUMBER==NULL){
+_FUNC_VERIFYNUMBER_LONG_VERIFYNUMBER=(int32*)mem_static_malloc(4);
+*_FUNC_VERIFYNUMBER_LONG_VERIFYNUMBER=0;
+}
+qbs*oldstr3578=NULL;
+if(_FUNC_VERIFYNUMBER_STRING_TEXT->tmp||_FUNC_VERIFYNUMBER_STRING_TEXT->fixed||_FUNC_VERIFYNUMBER_STRING_TEXT->readonly){
+oldstr3578=_FUNC_VERIFYNUMBER_STRING_TEXT;
+if (oldstr3578->cmem_descriptor){
+_FUNC_VERIFYNUMBER_STRING_TEXT=qbs_new_cmem(oldstr3578->len,0);
 }else{
-_FUNC_STRREPLACE_STRING_MYSTRING=qbs_new(oldstr3571->len,0);
+_FUNC_VERIFYNUMBER_STRING_TEXT=qbs_new(oldstr3578->len,0);
 }
-memcpy(_FUNC_STRREPLACE_STRING_MYSTRING->chr,oldstr3571->chr,oldstr3571->len);
+memcpy(_FUNC_VERIFYNUMBER_STRING_TEXT->chr,oldstr3578->chr,oldstr3578->len);
 }
-qbs*oldstr3572=NULL;
-if(_FUNC_STRREPLACE_STRING_FIND->tmp||_FUNC_STRREPLACE_STRING_FIND->fixed||_FUNC_STRREPLACE_STRING_FIND->readonly){
-oldstr3572=_FUNC_STRREPLACE_STRING_FIND;
-if (oldstr3572->cmem_descriptor){
-_FUNC_STRREPLACE_STRING_FIND=qbs_new_cmem(oldstr3572->len,0);
-}else{
-_FUNC_STRREPLACE_STRING_FIND=qbs_new(oldstr3572->len,0);
+qbs *_FUNC_VERIFYNUMBER_STRING_T=NULL;
+if (!_FUNC_VERIFYNUMBER_STRING_T)_FUNC_VERIFYNUMBER_STRING_T=qbs_new(0,0);
+int32 *_FUNC_VERIFYNUMBER_LONG_V=NULL;
+if(_FUNC_VERIFYNUMBER_LONG_V==NULL){
+_FUNC_VERIFYNUMBER_LONG_V=(int32*)mem_static_malloc(4);
+*_FUNC_VERIFYNUMBER_LONG_V=0;
 }
-memcpy(_FUNC_STRREPLACE_STRING_FIND->chr,oldstr3572->chr,oldstr3572->len);
-}
-qbs*oldstr3573=NULL;
-if(_FUNC_STRREPLACE_STRING_REPLACEWITH->tmp||_FUNC_STRREPLACE_STRING_REPLACEWITH->fixed||_FUNC_STRREPLACE_STRING_REPLACEWITH->readonly){
-oldstr3573=_FUNC_STRREPLACE_STRING_REPLACEWITH;
-if (oldstr3573->cmem_descriptor){
-_FUNC_STRREPLACE_STRING_REPLACEWITH=qbs_new_cmem(oldstr3573->len,0);
-}else{
-_FUNC_STRREPLACE_STRING_REPLACEWITH=qbs_new(oldstr3573->len,0);
-}
-memcpy(_FUNC_STRREPLACE_STRING_REPLACEWITH->chr,oldstr3573->chr,oldstr3573->len);
-}
-byte_element_struct *byte_element_3574=NULL;
-if (!byte_element_3574){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3574=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3574=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_STRREPLACE_STRING_A=NULL;
-if (!_FUNC_STRREPLACE_STRING_A)_FUNC_STRREPLACE_STRING_A=qbs_new(0,0);
-qbs *_FUNC_STRREPLACE_STRING_B=NULL;
-if (!_FUNC_STRREPLACE_STRING_B)_FUNC_STRREPLACE_STRING_B=qbs_new(0,0);
-int32 *_FUNC_STRREPLACE_LONG_BASEI=NULL;
-if(_FUNC_STRREPLACE_LONG_BASEI==NULL){
-_FUNC_STRREPLACE_LONG_BASEI=(int32*)mem_static_malloc(4);
-*_FUNC_STRREPLACE_LONG_BASEI=0;
-}
-int32 *_FUNC_STRREPLACE_LONG_I=NULL;
-if(_FUNC_STRREPLACE_LONG_I==NULL){
-_FUNC_STRREPLACE_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_STRREPLACE_LONG_I=0;
-}
-byte_element_struct *byte_element_3576=NULL;
-if (!byte_element_3576){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3576=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3576=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3577=NULL;
-if (!byte_element_3577){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3577=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3577=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3578=NULL;
-if (!byte_element_3578){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3578=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3578=(byte_element_struct*)mem_static_malloc(12);
-}
+qbs *_FUNC_VERIFYNUMBER_STRING_T1=NULL;
+if (!_FUNC_VERIFYNUMBER_STRING_T1)_FUNC_VERIFYNUMBER_STRING_T1=qbs_new(0,0);
