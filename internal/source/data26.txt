@@ -3,15 +3,15 @@ if(_FUNC_ISOPERATOR_LONG_ISOPERATOR==NULL){
 _FUNC_ISOPERATOR_LONG_ISOPERATOR=(int32*)mem_static_malloc(4);
 *_FUNC_ISOPERATOR_LONG_ISOPERATOR=0;
 }
-qbs*oldstr2696=NULL;
+qbs*oldstr2660=NULL;
 if(_FUNC_ISOPERATOR_STRING_A2->tmp||_FUNC_ISOPERATOR_STRING_A2->fixed||_FUNC_ISOPERATOR_STRING_A2->readonly){
-oldstr2696=_FUNC_ISOPERATOR_STRING_A2;
-if (oldstr2696->cmem_descriptor){
-_FUNC_ISOPERATOR_STRING_A2=qbs_new_cmem(oldstr2696->len,0);
+oldstr2660=_FUNC_ISOPERATOR_STRING_A2;
+if (oldstr2660->cmem_descriptor){
+_FUNC_ISOPERATOR_STRING_A2=qbs_new_cmem(oldstr2660->len,0);
 }else{
-_FUNC_ISOPERATOR_STRING_A2=qbs_new(oldstr2696->len,0);
+_FUNC_ISOPERATOR_STRING_A2=qbs_new(oldstr2660->len,0);
 }
-memcpy(_FUNC_ISOPERATOR_STRING_A2->chr,oldstr2696->chr,oldstr2696->len);
+memcpy(_FUNC_ISOPERATOR_STRING_A2->chr,oldstr2660->chr,oldstr2660->len);
 }
 qbs *_FUNC_ISOPERATOR_STRING_A=NULL;
 if (!_FUNC_ISOPERATOR_STRING_A)_FUNC_ISOPERATOR_STRING_A=qbs_new(0,0);

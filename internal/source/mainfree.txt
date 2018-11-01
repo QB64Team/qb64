@@ -417,7 +417,6 @@ free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INLINEDATASTR)[8] );
 qbs_free(__STRING_EXTENSION);
 qbs_free(__STRING_PATH__ASCII_CHR_046__EXE);
 qbs_free(__STRING_PATH__ASCII_CHR_046__SOURCE);
-qbs_free(__STRING_LASTBINARYGENERATED);
 qbs_free(__STRING1_PATHSEP);
 qbs_free(__STRING_TMPDIR);
 qbs_free(__STRING_TMPDIR2);
@@ -431,12 +430,6 @@ qbs_free(__STRING_IDERETURN);
 qbs_free(__STRING_IDEMESSAGE);
 qbs_free(__STRING_OUTPUTFILE_CMD);
 qbs_free(__STRING_COMPILELOG);
-if (__ARRAY_STRING_CNAME[2]&1){
-tmp_long=__ARRAY_STRING_CNAME[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_CNAME[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_CNAME[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_CNAME)[8] );
 qbs_free(__STRING_IDE_INDEX);
 qbs_free(__STRING_CONFIGFILE);
 qbs_free(__STRING_CONFIGBAK);
@@ -677,14 +670,6 @@ free((void*)(__ARRAY_LONG_UDTXNEXT[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_UDTXNEXT)[8] );
-if (__ARRAY_INTEGER_UDTXVARIABLE[2]&1){
-if (__ARRAY_INTEGER_UDTXVARIABLE[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_INTEGER_UDTXVARIABLE[0]));
-}else{
-free((void*)(__ARRAY_INTEGER_UDTXVARIABLE[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_UDTXVARIABLE)[8] );
 if (__ARRAY_STRING256_UDTENAME[2]&1){
 if (__ARRAY_STRING256_UDTENAME[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_STRING256_UDTENAME[0]));
