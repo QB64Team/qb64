@@ -1066,12 +1066,24 @@ IF C = 9 THEN 'run
     IF iderunmode = 1 THEN
         IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
         IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN SHELL _DONTWAIT QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+        IF os$ = "LNX" THEN
+            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
+                SHELL _DONTWAIT QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+            ELSE
+                SHELL _DONTWAIT QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
+            END IF
+        END IF
         IF path.exe$ = "./" THEN path.exe$ = ""
     ELSE
         IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
         IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN SHELL QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+        IF os$ = "LNX" THEN
+            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
+                SHELL QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+            ELSE
+                SHELL QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
+            END IF
+        END IF
         IF path.exe$ = "./" THEN path.exe$ = ""
         DO: LOOP UNTIL INKEY$ = ""
         DO: LOOP UNTIL _KEYHIT = 0
