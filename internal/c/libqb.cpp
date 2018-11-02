@@ -24860,8 +24860,8 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 if (passed==2){
                 glutPositionWindow (x,y);}
                 else{
-                    int32 SW, SH, WW, WH;
-                    SW = glutGet(GLUT_SCREEN_WIDTH);
+                    int32 SW=-1, SH, WW, WH;
+                    while (SW==-1){SW = glutGet(GLUT_SCREEN_WIDTH);}
                     SH = glutGet(GLUT_SCREEN_HEIGHT);
                     WW = glutGet(GLUT_WINDOW_WIDTH);
                     WH = glutGet(GLUT_WINDOW_HEIGHT);
