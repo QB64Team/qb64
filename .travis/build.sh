@@ -38,7 +38,7 @@ cd - > /dev/null
 
 ###### Part 2: Build new QB64 from .bas sources ######
 echo -n "Translating .bas source..."
-echo AutoBuildMsg\$ = CHR\$\(10\) + \"From git `echo $TRAVIS_COMMIT | sed 's/\(.......\).*$/\1/'`\" >> source/global/version.bas
+echo From git `echo $TRAVIS_COMMIT | sed 's/\(.......\).*$/\1/'` > internal/version.txt
 ./qb64_bootstrap -x -z source/qb64.bas > /tmp/qb64-output
 rm qb64_bootstrap
 if [ `wc -l /tmp/qb64-output |awk '{print $1}'` -gt 2 ]; then
