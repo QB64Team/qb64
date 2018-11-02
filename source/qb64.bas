@@ -2050,7 +2050,8 @@ DO
 
                             DO
                                 finished = -1
-                                L = INSTR(L + 1, UCASE$(wholestv$), " _RGB")
+                                L = INSTR(L + 1, UCASE$(wholestv$), " _RGB32")
+                                IF L = 0 THEN L = INSTR(L + 1, UCASE$(wholestv$), " _RGB")
                                 IF L > 0 THEN
                                     altered = -1
                                     l$ = LEFT$(wholestv$, L - 1)
@@ -2058,25 +2059,61 @@ DO
                                     IF vp > 0 THEN
                                         E = INSTR(vp + 1, wholestv$, ")")
                                         IF E > 0 THEN
+                                            IF E = vp + 1 THEN a$ = "Syntax error": GOTO errmes
+                                            red$ = ""
+                                            green$ = ""
+                                            blue$ = ""
+                                            alpha$ = ""
+                                            first = 0: second = 0: third = 0
                                             first = INSTR(vp, wholestv$, ",")
-                                            second = INSTR(first + 1, wholestv$, ",")
-                                            third = INSTR(second + 1, wholestv$, ",")
-                                            red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                            green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                            blue$ = MID$(wholestv$, second + 1)
+                                            IF first THEN second = INSTR(first + 1, wholestv$, ",")
+                                            IF second THEN third = INSTR(second + 1, wholestv$, ",")
+                                            IF first > 0 AND second > 0 AND third > 0 THEN
+                                                'rgb + alpha (or _RGB with screen mode)
+                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
+                                                green$ = MID$(wholestv$, first + 1, second - first - 1)
+                                                blue$ = MID$(wholestv$, second + 1)
+                                                alpha$ = MID$(wholestv$, third + 1)
+                                            ELSEIF first > 0 AND second > 0 THEN
+                                                'regular rgb
+                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
+                                                green$ = MID$(wholestv$, first + 1, second - first - 1)
+                                                blue$ = MID$(wholestv$, second + 1)
+                                            ELSEIF first > 0 THEN
+                                                'grayscale + alpha
+                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
+                                                alpha$ = MID$(wholestv$, first + 1)
+                                            ELSE
+                                                'grayscale
+                                                red$ = MID$(wholestv$, vp + 1)
+                                            END IF
+
                                             IF MID$(wholestv$, L + 5, 2) = "32" THEN
                                                 val$ = "32"
                                             ELSE
                                                 val$ = MID$(wholestv$, third + 1)
+                                                IF VAL(val$) = 32 THEN val$ = "33"
                                             END IF
 
                                             SELECT CASE VAL(val$)
-                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
+                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 33, 256
+                                                    IF val$ = "33" THEN val$ = "32"
                                                     wi& = _NEWIMAGE(240, 120, VAL(val$))
                                                     clr~& = _RGB(VAL(red$), VAL(green$), VAL(blue$), wi&)
                                                     _FREEIMAGE wi&
                                                 CASE 32
-                                                    clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
+                                                    IF first > 0 AND second > 0 AND third > 0 THEN
+                                                        'rgb + alpha
+                                                        clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
+                                                    ELSEIF first > 0 AND second > 0 THEN
+                                                        'regular rgb
+                                                        clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
+                                                    ELSEIF first > 0 THEN
+                                                        'grayscale + alpha
+                                                        clr~& = _RGB32(VAL(red$), VAL(alpha$))
+                                                    ELSE
+                                                        clr~& = _RGB32(VAL(red$))
+                                                    END IF
                                                 CASE ELSE
                                                     a$ = "Invalid screen mode": GOTO errmes
                                             END SELECT
@@ -2174,7 +2211,6 @@ DO
 
 
                             'End of Math Support Edit
-                           ' _TITLE "Final:" + wholestv$
 
                             'Steve edit to update the CONST with the Math and _RGB functions
                             IF altered THEN
