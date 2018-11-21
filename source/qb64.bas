@@ -111,6 +111,8 @@ IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED CMDLineFile AS STRING
 
+DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
+DIM SHARED warning$(100), totalWarnings AS LONG
 DIM SHARED ExeIconSet AS LONG
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1429,7 +1431,9 @@ subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 6
-
+usedVariableList$ = ""
+totalUnusedVariables = 0
+totalWarnings = 0
 
 ''create a type for storing memory blocks
 ''UDT
@@ -7280,6 +7284,7 @@ DO
             'create variable
             IF LEN(s$) THEN typ$ = s$ ELSE typ$ = t$
             IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
+            bypassNextVariable = -1
             retval = dim2(n$, typ$, method, "")
             IF Error_Happened THEN GOTO errmes
             'note: variable created!
@@ -14725,6 +14730,11 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     Give_Error "Unknown type": EXIT FUNCTION
     dim2exitfunc:
 
+    IF bypassNextVariable = 0 THEN
+        manageVariableList cvarname$, n$, 0
+    END IF
+    bypassNextVariable = 0
+
     IF dimsfarray THEN
         ids(idn).sfid = glinkid
         ids(idn).sfarg = glinkarg
@@ -15116,6 +15126,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                                     END IF 'varname
                                 NEXT
                             END IF 'subfuncn
+                            bypassNextVariable = -1
                             ignore = dim2(l$, dtyp$, method, fakee$)
                             IF Error_Happened THEN EXIT FUNCTION
                             dimstatic = olddimstatic
@@ -15310,6 +15321,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
 
                     IF Debug THEN PRINT #9, "CREATING VARIABLE:" + x$
                     IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
+                    bypassNextVariable = -1
                     retval = dim2(x$, typ$, 1, "")
                     IF Error_Happened THEN EXIT FUNCTION
 
@@ -17735,6 +17747,32 @@ FUNCTION findid& (n2$)
     findidok:
 
     id = ids(i)
+
+    t = id.t
+    IF t = 0 THEN
+        t = id.arraytype
+        IF t AND ISUDT THEN
+            manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 2
+        ELSE
+            n$ = id2fulltypename$
+            IF LEFT$(n$, 1) = "_" THEN
+                manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
+            ELSE
+                manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 2
+            END IF
+        END IF
+    ELSE
+        IF t AND ISUDT THEN
+            manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 2
+        ELSE
+            n$ = id2fulltypename$
+            IF LEFT$(n$, 1) = "_" THEN
+                manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 2
+            ELSE
+                manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 2
+            END IF
+        END IF
+    END IF
 
     currentid = i
     EXIT FUNCTION
@@ -21255,7 +21293,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
     getid idnumber
     IF Error_Happened THEN EXIT SUB
 
-
     'UDT?
     IF typ AND ISUDT THEN
 
@@ -21345,6 +21382,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
         'print "setUDTrefer:"+r$,e$
         tlayout$ = tl$
+        IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+        manageVariableList "", scope$ + n$, 1
         EXIT SUB
     END IF
 
@@ -21378,6 +21417,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             END IF
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             tlayout$ = tl$
+            IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+            manageVariableList "", r$, 1
             EXIT SUB
         END IF
 
@@ -21452,6 +21493,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
+            IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+            manageVariableList "", r$, 1
             EXIT SUB
         END IF
 
@@ -21482,6 +21525,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);": stringprocessinghappened = 0
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
+            IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+            manageVariableList "", r$, 1
             EXIT SUB
         END IF
 
@@ -21508,6 +21553,10 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);": stringprocessinghappened = 0
         IF arrayprocessinghappened THEN arrayprocessinghappened = 0
         tlayout$ = tl$
+
+        IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+        manageVariableList "", r$, 1
+
         EXIT SUB
     END IF 'variable
 
@@ -24787,6 +24836,38 @@ SUB dump_udts
         PRINT #f, RTRIM$(udtename(i)), udtesize(i), udtebytealign(i), udtenext(i), udtetype(i), udtetypesize(i), udtearrayelements(i)
     NEXT i
     CLOSE #f
+END SUB
+
+SUB manageVariableList (name$, __cname$, action AS _BYTE)
+    DIM findItem AS LONG, s$, cname$
+    cname$ = __cname$
+
+    findItem = INSTR(cname$, "[")
+    IF findItem THEN
+        cname$ = LEFT$(cname$, findItem - 1)
+    END IF
+
+    SELECT CASE action
+        CASE 0 'add
+            usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
+            usedVariableList$ = usedVariableList$ + name$ + CHR$(3) + cname$ + CHR$(10)
+            totalUnusedVariables = totalUnusedVariables + 1
+            'usedVariableList$ = usedVariableList$ + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+        CASE ELSE 'find and remove
+            s$ = CHR$(3) + cname$ + CHR$(10)
+            findItem = INSTR(usedVariableList$, s$)
+            IF findItem THEN
+                FOR i = findItem TO 1 STEP -1
+                    IF ASC(usedVariableList$, i) = 1 THEN
+                        findItem = INSTR(findItem, usedVariableList$, CHR$(10))
+                        usedVariableList$ = LEFT$(usedVariableList$, i - 1) + MID$(usedVariableList$, findItem + 1)
+                        totalUnusedVariables = totalUnusedVariables - 1
+                        EXIT FOR
+                    END IF
+                NEXT
+            END IF
+            'usedVariableList$ = usedVariableList$ + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+    END SELECT
 END SUB
 
 '$INCLUDE:'utilities\strings.bas'

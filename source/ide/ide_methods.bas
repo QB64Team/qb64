@@ -1255,8 +1255,17 @@ FUNCTION ide2 (ignore)
                     QuickNavHover = -1
                     LOCATE 2, 4
                     COLOR 15, 3
-                    PRINT " " + CHR$(17) + " back to line "; str2$(QuickNavHistory(QuickNavTotal)); " ";
+                    popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
+                    PRINT popup$;
+
+                    'shadow
+                    COLOR 2, 0
+                    FOR x2 = 6 TO 4 + LEN(popup$)
+                        LOCATE 3, x2: PRINT CHR$(SCREEN(3, x2));
+                    NEXT
+
                     PCOPY 3, 0
+
                     IF mB THEN
                         ideselect = 0
                         idecy = QuickNavHistory(QuickNavTotal)
@@ -1269,6 +1278,7 @@ FUNCTION ide2 (ignore)
                         QuickNavHover = 0
                         GOSUB UpdateTitleOfMainWindow
                         GOSUB DrawQuickNav
+                        ideshowtext
                         PCOPY 3, 0
                     END IF
                 END IF
@@ -1277,7 +1287,40 @@ FUNCTION ide2 (ignore)
                     QuickNavHover = 0
                     GOSUB UpdateTitleOfMainWindow
                     GOSUB DrawQuickNav
+                    ideshowtext
                     PCOPY 3, 0
+                END IF
+            END IF
+        END IF
+
+        IF mX > 0 AND mY > 0 THEN
+            IF showingUnusedVariableWarning = 0 THEN
+                IF mX = 1 AND SCREEN(mY, mX) = 26 THEN
+                    unusedVariableWarningX = mX
+                    unusedVariableWarningY = mY
+                    findItem = INSTR(usedVariableList$, CHR$(1) + MKL$((mY - 3) + idesy) + CHR$(2))
+                    unusedVariableName$ = MID$(usedVariableList$, findItem + 6, INSTR(findItem, usedVariableList$, CHR$(10)) - findItem - 6)
+                    findItem = INSTR(unusedVariableName$, CHR$(3))
+                    unusedVariableName$ = LEFT$(unusedVariableName$, findItem - 1) + " (" + MID$(unusedVariableName$, findItem + 1) + ") "
+                    unusedVariableWarning$ = LEFT$(" Variable hasn't yet been used: " + unusedVariableName$, idewx - 2)
+                    LOCATE mY, mX
+                    COLOR 0, 3
+                    PRINT CHR$(26) + unusedVariableWarning$
+
+                    'shadow
+                    COLOR 2, 0
+                    FOR x2 = mX + 2 TO mX + LEN(unusedVariableWarning$) + 1
+                        LOCATE mY + 1, x2: PRINT CHR$(SCREEN(mY + 1, x2));
+                    NEXT
+
+                    PCOPY 3, 0
+                    showingUnusedVariableWarning = -1
+                END IF
+            ELSE
+                IF unusedVariableWarningX <> mX OR unusedVariableWarningY <> mY THEN
+                    ideshowtext
+                    PCOPY 3, 0
+                    showingUnusedVariableWarning = 0
                 END IF
             END IF
         END IF
@@ -8498,6 +8541,14 @@ SUB ideshowtext
         END IF
 
         IF l <= iden THEN
+            IF idecompiling = 0 AND INSTR(usedVariableList$, CHR$(1) + MKL$(l) + CHR$(2)) > 0 THEN
+                LOCATE y + 3, 1
+                prevBG% = _BACKGROUNDCOLOR
+                COLOR 13, 1
+                PRINT CHR$(26); 'indicate there's an unused variable defined on this line
+                COLOR , prevBG%
+            END IF
+
             a$ = idegetline(l)
             link_idecx = 0
             rgb_idecx = 0
@@ -8878,7 +8929,9 @@ SUB ideshowtext
     FOR b = 1 TO IdeBmkN
         y = IdeBmk(b).y
         IF y >= idesy AND y <= idesy + (idewy - 9) THEN
-            LOCATE 3 + y - idesy, 1: PRINT CHR$(197);
+            IF INSTR(usedVariableList$, CHR$(1) + MKL$(y) + CHR$(2)) = 0 THEN
+                LOCATE 3 + y - idesy, 1: PRINT CHR$(197);
+            END IF
         END IF
     NEXT
 
