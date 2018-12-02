@@ -27519,8 +27519,13 @@ int main( int argc, char* argv[] ){
             
         #endif 
         
-        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
         
+        #ifdef QB64_WINDOWS
+            glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
+        #else
+            glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+        #endif
+
         glutInitWindowSize(640,400);//cannot be changed unless display_x(etc) are modified
         
         //glutInitWindowPosition(300, 200);
