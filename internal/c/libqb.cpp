@@ -38,9 +38,9 @@ int32 disableEvents=0;
         nanosleep (&ts, NULL);
     }
     
-    uint32 _lrotl(uint32 word,uint32 shift){
-        return (word << shift) | (word >> (32 - shift));
-    }
+//    uint32 _lrotl(uint32 word,uint32 shift){
+//        return (word << shift) | (word >> (32 - shift));
+//    }
     
     void ZeroMemory(void *ptr,int64 bytes){
         memset(ptr,0,bytes);
@@ -8936,7 +8936,8 @@ void qb32_line(float x1f,float y1f,float x2f,float y2f,uint32 col,uint32 style){
     
     style=(style&65535)+(style<<16);
     lineclip_skippixels&=15;
-    style=_lrotl(style,lineclip_skippixels);
+    //style=_lrotl(style,lineclip_skippixels);
+    style=((style << lineclip_skippixels) | (style >> (32 - lineclip_skippixels)));
     
     if (lineclip_draw){
         l=abs(lineclip_x1-lineclip_x2);
@@ -8953,7 +8954,8 @@ void qb32_line(float x1f,float y1f,float x2f,float y2f,uint32 col,uint32 style){
             while (l--){
                 if (y1f<0) lineclip_y1=y1f-0.5f; else lineclip_y1=y1f+0.5f;
                 
-                if ((style=_lrotl(style,1))&1){
+                //if ((style=_lrotl(style,1))&1){
+                if (style=((style << 1) | (style >> 31))&1){
                     pset(lineclip_x1,lineclip_y1,col);
                 }
                 
@@ -8972,7 +8974,8 @@ void qb32_line(float x1f,float y1f,float x2f,float y2f,uint32 col,uint32 style){
             l2++;
             while (l2--){
                 if (x1f<0) lineclip_x1=x1f-0.5f; else lineclip_x1=x1f+0.5f;
-                if ((style=_lrotl(style,1))&1){
+                //if ((style=_lrotl(style,1))&1){
+                if (style=((style << 1) | (style >> 31))&1){
                     pset(lineclip_x1,lineclip_y1,col);
                 }
                 lineclip_y1+=mi;
