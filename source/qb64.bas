@@ -13685,7 +13685,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     PRINT #13, "if(" + n$ + "==NULL){"
                     PRINT #13, n$ + "=(void*)mem_static_malloc(" + str2$(bytes) + ");"
                     PRINT #13, "memset(" + n$ + ",0," + str2(bytes) + ");"
-                    IF udtxvariable(i) THEN initialise_udt_varstrings n$, i, 13, 0
+                    IF udtxvariable(i) THEN
+                        initialise_udt_varstrings n$, i, 13, 0
+                        free_udt_varstrings n$, i, 19, 0
+                    END IF
                     PRINT #13, "}"
                 END IF
             END IF
@@ -17097,7 +17100,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         ' print "-4: evaluated as ["+e$+"]":sleep 1
 
         IF (sourcetyp AND ISUDT) THEN 'User Defined Type -> byte_element(offset,bytes)
-            IF udtxvariable(sourcetyp AND 511) THEN Give_Error "Cannot GET/PUT variable-length TYPE": EXIT FUNCTION
+            IF udtxvariable(sourcetyp AND 511) THEN Give_Error "UDT must have fixed size": EXIT FUNCTION
             idnumber = VAL(e$)
             i = INSTR(e$, sp3): e$ = RIGHT$(e$, LEN(e$) - i)
             u = VAL(e$) 'closest parent
@@ -17116,13 +17119,19 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
                     GOTO method2usealludt
                 END IF
             END IF
+
+            dst$ = "(((char*)" + scope$ + n$ + ")+(" + o$ + "))"
+
             'determine size of element
             IF E = 0 THEN 'no specific element, use size of entire type
                 bytes$ = str2(udtxsize(u) \ 8)
             ELSE 'a specific element
+                if (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) then
+                    evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
+                    exit function
+                end if
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
-            dst$ = "(((char*)" + scope$ + n$ + ")+(" + o$ + "))"
             evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
             IF targettyp = -5 THEN evaluatetotyp$ = bytes$
             IF targettyp = -6 THEN evaluatetotyp$ = dst$
@@ -24721,6 +24730,23 @@ SUB initialise_udt_varstrings (n$, udt, file, base_offset)
     LOOP
 END SUB
 
+SUB free_udt_varstrings (n$, udt, file, base_offset)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
+    element = udtxnext(udt)
+    offset = 0
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                PRINT #file, "qbs_free(*((qbs**)(((char*)" + n$ + ")+" + STR$(base_offset + offset) + ")));"
+            END IF
+        ELSEIF udtetype(element) AND ISUDT THEN
+            initialise_udt_varstrings n$, udtetype(element) AND 511, file, offset
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+    
 SUB initialise_array_udt_varstrings (n$, udt, base_offset, bytesperelement$, acc$)
     IF NOT udtxvariable(udt) THEN EXIT SUB
     offset = base_offset
