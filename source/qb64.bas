@@ -17100,7 +17100,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         ' print "-4: evaluated as ["+e$+"]":sleep 1
 
         IF (sourcetyp AND ISUDT) THEN 'User Defined Type -> byte_element(offset,bytes)
-            IF udtxvariable(sourcetyp AND 511) THEN Give_Error "UDT must have fixed size here": EXIT FUNCTION
+            IF udtxvariable(sourcetyp AND 511) THEN Give_Error "UDT must have fixed size": EXIT FUNCTION
             idnumber = VAL(e$)
             i = INSTR(e$, sp3): e$ = RIGHT$(e$, LEN(e$) - i)
             u = VAL(e$) 'closest parent
@@ -17119,13 +17119,19 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
                     GOTO method2usealludt
                 END IF
             END IF
+
+            dst$ = "(((char*)" + scope$ + n$ + ")+(" + o$ + "))"
+
             'determine size of element
             IF E = 0 THEN 'no specific element, use size of entire type
                 bytes$ = str2(udtxsize(u) \ 8)
             ELSE 'a specific element
+                if (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) then
+                    evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
+                    exit function
+                end if
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
-            dst$ = "(((char*)" + scope$ + n$ + ")+(" + o$ + "))"
             evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
             IF targettyp = -5 THEN evaluatetotyp$ = bytes$
             IF targettyp = -6 THEN evaluatetotyp$ = dst$
