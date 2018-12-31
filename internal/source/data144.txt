@@ -1,25 +1,23 @@
-qbs*oldstr4643=NULL;
-if(_SUB_IDEHPRINT_STRING_A->tmp||_SUB_IDEHPRINT_STRING_A->fixed||_SUB_IDEHPRINT_STRING_A->readonly){
-oldstr4643=_SUB_IDEHPRINT_STRING_A;
-if (oldstr4643->cmem_descriptor){
-_SUB_IDEHPRINT_STRING_A=qbs_new_cmem(oldstr4643->len,0);
+int32 *_FUNC_IDEHLEN_LONG_IDEHLEN=NULL;
+if(_FUNC_IDEHLEN_LONG_IDEHLEN==NULL){
+_FUNC_IDEHLEN_LONG_IDEHLEN=(int32*)mem_static_malloc(4);
+*_FUNC_IDEHLEN_LONG_IDEHLEN=0;
+}
+qbs*oldstr4646=NULL;
+if(_FUNC_IDEHLEN_STRING_A->tmp||_FUNC_IDEHLEN_STRING_A->fixed||_FUNC_IDEHLEN_STRING_A->readonly){
+oldstr4646=_FUNC_IDEHLEN_STRING_A;
+if (oldstr4646->cmem_descriptor){
+_FUNC_IDEHLEN_STRING_A=qbs_new_cmem(oldstr4646->len,0);
 }else{
-_SUB_IDEHPRINT_STRING_A=qbs_new(oldstr4643->len,0);
+_FUNC_IDEHLEN_STRING_A=qbs_new(oldstr4646->len,0);
 }
-memcpy(_SUB_IDEHPRINT_STRING_A->chr,oldstr4643->chr,oldstr4643->len);
+memcpy(_FUNC_IDEHLEN_STRING_A->chr,oldstr4646->chr,oldstr4646->len);
 }
-int32 *_SUB_IDEHPRINT_LONG_I=NULL;
-if(_SUB_IDEHPRINT_LONG_I==NULL){
-_SUB_IDEHPRINT_LONG_I=(int32*)mem_static_malloc(4);
-*_SUB_IDEHPRINT_LONG_I=0;
+byte_element_struct *byte_element_4647=NULL;
+if (!byte_element_4647){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4647=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4647=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value4645;
-int64 fornext_finalvalue4645;
-int64 fornext_step4645;
-uint8 fornext_step_negative4645;
-byte_element_struct *byte_element_4646=NULL;
-if (!byte_element_4646){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4646=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4646=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4648=NULL;
+if (!byte_element_4648){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4648=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4648=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_SUB_IDEHPRINT_STRING_C=NULL;
-if (!_SUB_IDEHPRINT_STRING_C)_SUB_IDEHPRINT_STRING_C=qbs_new(0,0);
