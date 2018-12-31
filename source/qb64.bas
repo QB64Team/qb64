@@ -11631,7 +11631,10 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 
 
-
+OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
+OPEN "unusedVariableList.txt" FOR BINARY AS #1
+PUT #1, 1, usedVariableList$
+CLOSE #1
 
 
 
@@ -24849,22 +24852,20 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
 
     SELECT CASE action
         CASE 0 'add
-            usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
-            usedVariableList$ = usedVariableList$ + name$ + CHR$(3) + cname$ + CHR$(10)
-            totalUnusedVariables = totalUnusedVariables + 1
-            'usedVariableList$ = usedVariableList$ + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+            s$ = CHR$(4) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
+            IF INSTR(usedVariableList$, s$) = 0 THEN
+                ASC(s$, 1) = 3
+                usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
+                usedVariableList$ = usedVariableList$ + s$ + name$ + CHR$(10)
+                totalUnusedVariables = totalUnusedVariables + 1
+                'usedVariableList$ = usedVariableList$ + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+            END IF
         CASE ELSE 'find and remove
-            s$ = CHR$(3) + cname$ + CHR$(10)
+            s$ = CHR$(3) + cname$ + CHR$(5)
             findItem = INSTR(usedVariableList$, s$)
             IF findItem THEN
-                FOR i = findItem TO 1 STEP -1
-                    IF ASC(usedVariableList$, i) = 1 THEN
-                        findItem = INSTR(findItem, usedVariableList$, CHR$(10))
-                        usedVariableList$ = LEFT$(usedVariableList$, i - 1) + MID$(usedVariableList$, findItem + 1)
-                        totalUnusedVariables = totalUnusedVariables - 1
-                        EXIT FOR
-                    END IF
-                NEXT
+                ASC(usedVariableList$, findItem) = 4
+                totalUnusedVariables = totalUnusedVariables - 1
             END IF
             'usedVariableList$ = usedVariableList$ + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
     END SELECT
