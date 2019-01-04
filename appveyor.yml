@@ -4,6 +4,9 @@ clone_depth: 1
 environment:
   sshkey:
     secure: BiD9D+ye4Q+R8yBsThsfG0K+SFL5gRx6gNfxxSTR8ge3lp98cwZ3y7T3bq7tmgE7
+platform:
+  - x86
+  - x64
 build_script:
 - cmd: .travis\appveyor.bat
 install:

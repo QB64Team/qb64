@@ -1,4 +1,5 @@
 @echo off
+setlocal
 echo QB64 Setup
 echo.
 
@@ -8,12 +9,13 @@ del /q /s internal\c\parts\*.o >nul 2>nul
 del /q /s internal\c\parts\*.a >nul 2>nul
 del /q /s internal\temp\*.* >nul 2>nul
 
-cd internal/c/c_compiler
-if exist bin\c++.exe goto skipccompextract
-echo Extracting C++ compiler
-7z\7za.exe x -y c_compiler.7z >nul
-:skipccompextract
-cd ../../..
+if exist internal\c\c_compiler\bin\c++.exe goto skipccompsetup
+cd internal\c
+reg Query "HKLM\Hardware\Description\System\CentralProcessor\0" | find /i "x86" > NUL && set MINGW=mingw32 || set MINGW=mingw64
+echo Using %MINGW% as C++ Compiler
+ren %MINGW% c_compiler
+cd ../..
+:skipccompsetup
 
 echo Building library 'LibQB'
 cd internal/c/libqb/os/win
