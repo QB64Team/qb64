@@ -6,8 +6,8 @@ del /q /s internal\c\parts\*.a >nul 2>nul
 del /q /s internal\temp\*.* >nul 2>nul
 
 cd internal\c
-reg Query "HKLM\Hardware\Description\System\CentralProcessor\0" | find /i "x86" > NUL && set MINGW=mingw32 || set MINGW=mingw64
-echo Using %MINGW% as C++ Compiler
+set MINGW=mingw32
+IF "%PLATFORM%"=="x64" set MINGW=mingw64
 ren %MINGW% c_compiler
 cd ../..
 
