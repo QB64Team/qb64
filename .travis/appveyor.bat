@@ -5,10 +5,11 @@ del /q /s internal\c\parts\*.o >nul 2>nul
 del /q /s internal\c\parts\*.a >nul 2>nul
 del /q /s internal\temp\*.* >nul 2>nul
 
-cd internal\c\c_compiler
-echo Extracting C++ compiler
-7z\7za.exe x -y c_compiler.7z >nul
-cd ..\..\..
+cd internal\c
+reg Query "HKLM\Hardware\Description\System\CentralProcessor\0" | find /i "x86" > NUL && set MINGW=mingw32 || set MINGW=mingw64
+echo Using %MINGW% as C++ Compiler
+ren %MINGW% c_compiler
+cd ../..
 
 echo Building library 'LibQB'
 cd internal\c\libqb\os\win
@@ -54,5 +55,6 @@ del /q /s internal\c\libqb\*.o >nul 2>nul
 del /q /s internal\c\libqb\*.a >nul 2>nul
 del /q /s internal\c\parts\*.o >nul 2>nul
 del /q /s internal\c\parts\*.a >nul 2>nul
+del /q /s internal\c\mingw*
 cd internal\source
 del /q /s debug_* recompile_*
