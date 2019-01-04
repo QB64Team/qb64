@@ -1,3 +1,6 @@
+$blockRdp = $true;
+iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 mv setup_win.bat internal\
 
 $filename = "qb64_" + (get-date -uformat "%Y-%m-%d-%H-%M-%S") + "_" + $Env:APPVEYOR_REPO_COMMIT.Substring(0,7) + "-" + $Env:APPVEYOR_REPO_BRANCH + "_win_" + $Env:PLATFORM + ".7z"
