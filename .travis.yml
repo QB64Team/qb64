@@ -20,7 +20,7 @@ addons:
     packages:
     - p7zip-full
 before_deploy:
-- openssl aes-256-cbc -K $encrypted_6103193d0555_key -iv $encrypted_6103193d0555_iv
+- openssl aes-256-cbc -K $encrypted_efd51ce9e893_key -iv $encrypted_efd51ce9e893_iv
   -in .travis/travis-qb64.org_rsa.enc -out /tmp/travis-qb64.org_rsa -d
 - eval "$(ssh-agent -s)"
 - chmod 600 /tmp/travis-qb64.org_rsa
@@ -33,3 +33,4 @@ deploy:
     branch:
     - development
     - master
+before_install:
