@@ -11642,6 +11642,7 @@ ide6:
 
 
 IF totalUnusedVariables > 0 AND idemode = 0 THEN
+    PRINT
     PRINT "WARNING:"; STR$(totalUnusedVariables); " UNUSED VARIABLES";
     IF VerboseMode THEN
         PRINT ":"
@@ -11652,8 +11653,10 @@ IF totalUnusedVariables > 0 AND idemode = 0 THEN
             IF findItem = 0 THEN EXIT DO
             whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
             varNameLen = CVI(MID$(usedVariableList$, findItem + 2, 2))
-            varname$ = MID$(usedVariableList$, findItem + 4, varNameLen)
-            PRINT SPACE$(4); varname$; " (line"; STR$(whichLine); ")"
+            internalVarName$ = MID$(usedVariableList$, findItem + 4, varNameLen)
+            findLF = INSTR(findItem + 5 + varNameLen, usedVariableList$, CHR$(10))
+            varname$ = MID$(usedVariableList$, findItem + 5 + varNameLen, findLF - (findItem + 5 + varNameLen))
+            PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
         LOOP
     ELSE
         PRINT
