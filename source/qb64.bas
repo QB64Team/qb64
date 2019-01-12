@@ -11631,10 +11631,10 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 
 
-OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
-OPEN "unusedVariableList.txt" FOR BINARY AS #1
-PUT #1, 1, usedVariableList$
-CLOSE #1
+'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
+'OPEN "unusedVariableList.txt" FOR BINARY AS #1
+'PUT #1, 1, usedVariableList$
+'CLOSE #1
 
 
 
@@ -17141,10 +17141,10 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
             IF E = 0 THEN 'no specific element, use size of entire type
                 bytes$ = str2(udtxsize(u) \ 8)
             ELSE 'a specific element
-                if (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) then
+                IF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) THEN
                     evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
-                    exit function
-                end if
+                    EXIT FUNCTION
+                END IF
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
             evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
@@ -24887,7 +24887,7 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                 'usedVariableList$ = usedVariableList$ + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
             END IF
         CASE ELSE 'find and remove
-            s$ = CHR$(3) + cname$ + CHR$(5)
+            s$ = CHR$(3) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
             findItem = INSTR(usedVariableList$, s$)
             IF findItem THEN
                 ASC(usedVariableList$, findItem) = 4
