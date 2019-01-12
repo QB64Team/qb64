@@ -112,7 +112,7 @@ DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
-DIM SHARED warning$(100), totalWarnings AS LONG
+DIM SHARED totalWarnings AS LONG
 DIM SHARED ExeIconSet AS LONG
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1434,6 +1434,7 @@ UserDefineCount = 6
 usedVariableList$ = ""
 totalUnusedVariables = 0
 totalWarnings = 0
+REDIM SHARED warning$(100)
 uniquenumbern = 0
 
 ''create a type for storing memory blocks
@@ -11634,7 +11635,7 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
 'OPEN "unusedVariableList.txt" FOR BINARY AS #1
-'PUT #1, 1, usedVariableList$
+'PUT #1, 1, warning$(1)
 'CLOSE #1
 
 IF idemode THEN GOTO ideret5
@@ -17788,24 +17789,24 @@ FUNCTION findid& (n2$)
     IF t = 0 THEN
         t = id.arraytype
         IF t AND ISUDT THEN
-            manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 2
+            manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 1
         ELSE
-            n$ = id2fulltypename$
+            n$ = id2shorttypename$
             IF LEFT$(n$, 1) = "_" THEN
                 manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
             ELSE
-                manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 2
+                manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 3
             END IF
         END IF
     ELSE
         IF t AND ISUDT THEN
-            manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 2
+            manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
         ELSE
-            n$ = id2fulltypename$
+            n$ = id2shorttypename$
             IF LEFT$(n$, 1) = "_" THEN
-                manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 2
+                manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
             ELSE
-                manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 2
+                manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
             END IF
         END IF
     END IF
@@ -21419,7 +21420,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         'print "setUDTrefer:"+r$,e$
         tlayout$ = tl$
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", scope$ + n$, 1
+        manageVariableList "", scope$ + n$, 7
         EXIT SUB
     END IF
 
@@ -21454,7 +21455,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 1
+            manageVariableList "", r$, 8
             EXIT SUB
         END IF
 
@@ -21530,7 +21531,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 1
+            manageVariableList "", r$, 9
             EXIT SUB
         END IF
 
@@ -21562,7 +21563,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 1
+            manageVariableList "", r$, 10
             EXIT SUB
         END IF
 
@@ -21591,7 +21592,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         tlayout$ = tl$
 
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", r$, 1
+        manageVariableList "", r$, 11
 
         EXIT SUB
     END IF 'variable
@@ -23241,6 +23242,45 @@ FUNCTION id2fulltypename$
         IF t AND ISUNSIGNED THEN a$ = "_UNSIGNED " + a$
     END IF
     id2fulltypename$ = a$
+END FUNCTION
+
+FUNCTION id2shorttypename$
+    t = id.t
+    IF t = 0 THEN t = id.arraytype
+    size = id.tsize
+    bits = t AND 511
+    IF t AND ISUDT THEN
+        a$ = RTRIM$(udtxcname(t AND 511))
+        id2shorttypename$ = a$: EXIT FUNCTION
+    END IF
+    IF t AND ISSTRING THEN
+        IF t AND ISFIXEDLENGTH THEN a$ = "STRING" + str2(size) ELSE a$ = "STRING"
+        id2shorttypename$ = a$: EXIT FUNCTION
+    END IF
+    IF t AND ISOFFSETINBITS THEN
+        IF t AND ISUNSIGNED THEN a$ = "_U" ELSE a$ = "_"
+        IF bits > 1 THEN a$ = a$ + "BIT" + str2(bits) ELSE a$ = a$ + "BIT1"
+        id2shorttypename$ = a$: EXIT FUNCTION
+    END IF
+    IF t AND ISFLOAT THEN
+        IF bits = 32 THEN a$ = "SINGLE"
+        IF bits = 64 THEN a$ = "DOUBLE"
+        IF bits = 256 THEN a$ = "_FLOAT"
+    ELSE 'integer-based
+        IF bits = 8 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "_UBYTE" ELSE a$ = "_BYTE"
+        END IF
+        IF bits = 16 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "UINTEGER" ELSE a$ = "INTEGER"
+        END IF
+        IF bits = 32 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "ULONG" ELSE a$ = "LONG"
+        END IF
+        IF bits = 64 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "_UINTEGER64" ELSE a$ = "_INTEGER64"
+        END IF
+    END IF
+    id2shorttypename$ = a$
 END FUNCTION
 
 FUNCTION symbol2fulltypename$ (s2$)
@@ -24908,16 +24948,17 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                 usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
                 usedVariableList$ = usedVariableList$ + s$ + name$ + CHR$(10)
                 totalUnusedVariables = totalUnusedVariables + 1
-                'usedVariableList$ = usedVariableList$ + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+                'warning$(1) = warning$(1) + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
             END IF
         CASE ELSE 'find and remove
+
             s$ = CHR$(3) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
             findItem = INSTR(usedVariableList$, s$)
             IF findItem THEN
                 ASC(usedVariableList$, findItem) = 4
                 totalUnusedVariables = totalUnusedVariables - 1
             END IF
-            'usedVariableList$ = usedVariableList$ + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+            'warning$(1) = warning$(1) + "Action:" + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
     END SELECT
 END SUB
 
