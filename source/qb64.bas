@@ -8457,7 +8457,7 @@ DO
 
     IF n = 2 THEN
         IF firstelement$ = "GOSUB" THEN
-            xgosub ca$, n
+            xgosub ca$
             IF Error_Happened THEN GOTO errmes
             'note: layout implemented in xgosub
             GOTO finishedline
@@ -22344,7 +22344,7 @@ SUB xfilewrite (ca$, n)
     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
 END SUB
 
-SUB xgosub (ca$, n&)
+SUB xgosub (ca$)
     a2$ = getelement(ca$, 2)
     IF validlabel(a2$) = 0 THEN Give_Error "Invalid label": EXIT SUB
 

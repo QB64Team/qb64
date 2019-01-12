@@ -1040,7 +1040,7 @@ FUNCTION ide2 (ignore)
 
         END IF 'skipdisplay
 
-        STATIC prev_idecy AS LONG, idechangedbefore AS _BYTE
+        STATIC idechangedbefore AS _BYTE
         IF idechangemade THEN
 
             IF idelayoutallow THEN idelayoutallow = idelayoutallow - 1
@@ -5690,7 +5690,6 @@ FUNCTION idechange$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -5989,7 +5988,6 @@ SUB idechanged
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -6104,7 +6102,6 @@ FUNCTION idechangeit$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -6449,7 +6446,6 @@ SUB ideerrormessage (mess$)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -6564,7 +6560,6 @@ FUNCTION idefileexists$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -6685,7 +6680,6 @@ FUNCTION idefind$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -7177,7 +7171,6 @@ SUB idenewsf (sf AS STRING)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -7344,7 +7337,6 @@ SUB idenomatch
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -7459,7 +7451,6 @@ FUNCTION ideopen$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -7755,7 +7746,6 @@ FUNCTION iderestore$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -7867,7 +7857,6 @@ FUNCTION ideclearhistory$ (WhichHistory$)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -7998,7 +7987,6 @@ FUNCTION idesaveas$ (programname$)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -8197,7 +8185,6 @@ FUNCTION idesavenow$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -8942,7 +8929,6 @@ FUNCTION idesubs$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -9315,7 +9301,6 @@ FUNCTION idelanguagebox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -10341,7 +10326,6 @@ FUNCTION idelayoutbox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -10541,7 +10525,6 @@ FUNCTION idebackupbox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -10708,7 +10691,6 @@ FUNCTION idemodifycommandbox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -10844,7 +10826,6 @@ FUNCTION idegotobox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -11003,7 +10984,6 @@ FUNCTION ideadvancedbox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -11193,7 +11173,6 @@ SUB idemessagebox (titlestr$, messagestr$)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -11328,7 +11307,6 @@ FUNCTION ideyesnobox$ (titlestr$, messagestr$) 'returns "Y" or "N"
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -11450,7 +11428,6 @@ FUNCTION idedisplaybox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -11781,7 +11758,6 @@ FUNCTION idechoosecolorsbox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -12513,7 +12489,6 @@ FUNCTION idecolorpicker$ (editing)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -13198,7 +13173,6 @@ FUNCTION idesearchedbox$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -13418,7 +13392,6 @@ FUNCTION iderecentbox$
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -13967,8 +13940,6 @@ SUB ideASCIIbox
     temp1 = _NEWIMAGE(640, 480, 32)
     ws = _NEWIMAGE(640, 480, 32)
     SCREEN temp
-    DIM CurrentASC(1 TO 16, 1 TO 16)
-    DIM CurrentOne AS INTEGER
     CLS , _RGB(0, 0, 170)
     COLOR , _RGB(0, 0, 170)
     FOR y = 1 TO 16
@@ -14104,7 +14075,6 @@ FUNCTION idef1box$ (lnks$, lnks)
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
@@ -14232,7 +14202,6 @@ SUB Mathbox
     focus = 1
     DIM p AS idedbptype
     DIM o(1 TO 100) AS idedbotype
-    DIM oo AS idedbotype
     DIM sep AS STRING * 1
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
