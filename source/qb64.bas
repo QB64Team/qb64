@@ -11635,7 +11635,7 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
 'OPEN "unusedVariableList.txt" FOR BINARY AS #1
-'PUT #1, 1, warning$(1)
+'PUT #1, 1, usedVariableList$ 'warning$(1)
 'CLOSE #1
 
 IF idemode THEN GOTO ideret5
@@ -11649,14 +11649,14 @@ IF totalUnusedVariables > 0 AND idemode = 0 THEN
         PRINT ":"
         findItem = 0
         DO
-            s$ = CHR$(2) + CHR$(3)
+            s$ = CHR$(2) + "VAR:" + CHR$(3)
             findItem = INSTR(findItem + 1, usedVariableList$, s$)
             IF findItem = 0 THEN EXIT DO
             whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
-            varNameLen = CVI(MID$(usedVariableList$, findItem + 2, 2))
-            internalVarName$ = MID$(usedVariableList$, findItem + 4, varNameLen)
-            findLF = INSTR(findItem + 5 + varNameLen, usedVariableList$, CHR$(10))
-            varname$ = MID$(usedVariableList$, findItem + 5 + varNameLen, findLF - (findItem + 5 + varNameLen))
+            varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
+            internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
+            findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
+            varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
             PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
         LOOP
     ELSE
@@ -24946,12 +24946,11 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
             IF INSTR(usedVariableList$, s$) = 0 THEN
                 ASC(s$, 1) = 3
                 usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
-                usedVariableList$ = usedVariableList$ + s$ + name$ + CHR$(10)
+                usedVariableList$ = usedVariableList$ + "VAR:" + s$ + name$ + CHR$(10)
                 totalUnusedVariables = totalUnusedVariables + 1
                 'warning$(1) = warning$(1) + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
             END IF
         CASE ELSE 'find and remove
-
             s$ = CHR$(3) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
             findItem = INSTR(usedVariableList$, s$)
             IF findItem THEN
