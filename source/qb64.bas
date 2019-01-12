@@ -1434,6 +1434,7 @@ UserDefineCount = 6
 usedVariableList$ = ""
 totalUnusedVariables = 0
 totalWarnings = 0
+uniquenumbern = 0
 
 ''create a type for storing memory blocks
 ''UDT
