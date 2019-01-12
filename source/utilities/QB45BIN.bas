@@ -522,7 +522,7 @@ DATA 0x08a,"#{0}"
 ' These two consume data, but I have no idea what they do. I haven't seen
 ' one in the wild.
 '----------------------------------------------------------------------------
-'       0x08c,  2,      ""
+DATA 0x08c,2,""
 '       0x08d,  4,      ""
 
 '----------------------------------------------------------------------------
@@ -637,7 +637,7 @@ DATA 0x0d1,"PAINT {3}, {2}, {1}, {0}"
 DATA 0x0d2,"PALETTE"
 DATA 0x0d3,"PALETTE {1}, {0}"
 DATA 0x0d4,"PALETTE {0}"
-DATA 0x0d5,"PCOPY {0}, {1}"
+DATA 0x0d5,"PCOPY {1}, {0}"
 DATA 0x0d6,"PLAY {0}"
 
 DATA 0x0d7,"POKE {1}, {0}"

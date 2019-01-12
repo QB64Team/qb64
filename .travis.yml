@@ -2,38 +2,35 @@ language: cpp
 install: true
 script: ".travis/build.sh"
 after_success: ".travis/push.sh"
-
 matrix:
-    include:
-        - os: osx
-          compiler: clang
-        - os: linux
-          compiler: gcc
-
+  include:
+  - os: osx
+    compiler: clang
+  - os: linux
+    compiler: gcc
 notifications:
   irc:
     channels: chat.freenode.net#qb64
     skip_join: true
     template:
-        - "Autobuild of branch %{branch}: %{message}"
-
+    - 'Autobuild of branch %{branch}: %{message}'
 addons:
   ssh_known_hosts: qb64.org
   apt:
     packages:
     - p7zip-full
-
 before_deploy:
-- openssl aes-256-cbc -K $encrypted_089141d01927_key -iv $encrypted_089141d01927_iv -in .travis/deploy_rsa.enc -out /tmp/deploy_rsa -d
+- openssl aes-256-cbc -K $encrypted_efd51ce9e893_key -iv $encrypted_efd51ce9e893_iv
+  -in .travis/travis-qb64.org_rsa.enc -out /tmp/travis-qb64.org_rsa -d
 - eval "$(ssh-agent -s)"
-- chmod 600 /tmp/deploy_rsa
-- ssh-add /tmp/deploy_rsa
-
+- chmod 600 /tmp/travis-qb64.org_rsa
+- ssh-add /tmp/travis-qb64.org_rsa
 deploy:
   provider: script
   skip_cleanup: true
-  script: .travis/deploy.sh
+  script: ".travis/deploy.sh"
   on:
-      branch: 
-          - development
-          - master
+    branch:
+    - development
+    - master
+before_install:

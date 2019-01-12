@@ -5,10 +5,11 @@ del /q /s internal\c\parts\*.o >nul 2>nul
 del /q /s internal\c\parts\*.a >nul 2>nul
 del /q /s internal\temp\*.* >nul 2>nul
 
-cd internal\c\c_compiler
-echo Extracting C++ compiler
-7z\7za.exe x -y c_compiler.7z >nul
-cd ..\..\..
+cd internal\c
+set MINGW=mingw32
+IF "%PLATFORM%"=="x64" set MINGW=mingw64
+ren %MINGW% c_compiler
+cd ../..
 
 echo Building library 'LibQB'
 cd internal\c\libqb\os\win
