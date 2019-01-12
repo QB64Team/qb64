@@ -109,7 +109,7 @@ OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
 IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
-DIM SHARED CMDLineFile AS STRING
+DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
 DIM SHARED warning$(100), totalWarnings AS LONG
@@ -11636,11 +11636,28 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 'PUT #1, 1, usedVariableList$
 'CLOSE #1
 
-
-
 IF idemode THEN GOTO ideret5
 ide6:
 
+
+IF totalUnusedVariables > 0 AND idemode = 0 THEN
+    PRINT "WARNING:"; STR$(totalUnusedVariables); " UNUSED VARIABLES";
+    IF VerboseMode THEN
+        PRINT ":"
+        findItem = 0
+        DO
+            s$ = CHR$(2) + CHR$(3)
+            findItem = INSTR(findItem + 1, usedVariableList$, s$)
+            IF findItem = 0 THEN EXIT DO
+            whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
+            varNameLen = CVI(MID$(usedVariableList$, findItem + 2, 2))
+            varname$ = MID$(usedVariableList$, findItem + 4, varNameLen)
+            PRINT SPACE$(4); varname$; " (line"; STR$(whichLine); ")"
+        LOOP
+    ELSE
+        PRINT
+    END IF
+END IF
 
 
 IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
@@ -12691,6 +12708,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT
                 PRINT "OPTIONS:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
+                PRINT "  -v                      Verbose mode (detailed warnings)"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
                 PRINT "                             console"
@@ -12704,6 +12722,8 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "  -l:<line number>        Starts the IDE at the specified line number"
                 PRINT
                 SYSTEM
+            CASE "-v" 'Verbose mode
+                VerboseMode = -1
             CASE "-p" 'Purge
                 IF os$ = "WIN" THEN
                     CHDIR "internal\c"
