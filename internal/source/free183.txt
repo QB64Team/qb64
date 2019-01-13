@@ -1,8 +1,18 @@
-if(oldstr5397){
-if(oldstr5397->fixed)qbs_set(oldstr5397,_FUNC_COUNTITEMS_STRING_SEARCHSTRING);
-qbs_free(_FUNC_COUNTITEMS_STRING_SEARCHSTRING);
+if(oldstr5247){
+if(oldstr5247->fixed)qbs_set(oldstr5247,_FUNC_IDEYESNOBOX_STRING_TITLESTR);
+qbs_free(_FUNC_IDEYESNOBOX_STRING_TITLESTR);
 }
-if(oldstr5398){
-if(oldstr5398->fixed)qbs_set(oldstr5398,_FUNC_COUNTITEMS_STRING_ITEM);
-qbs_free(_FUNC_COUNTITEMS_STRING_ITEM);
+if(oldstr5248){
+if(oldstr5248->fixed)qbs_set(oldstr5248,_FUNC_IDEYESNOBOX_STRING_MESSAGESTR);
+qbs_free(_FUNC_IDEYESNOBOX_STRING_MESSAGESTR);
 }
+if (_FUNC_IDEYESNOBOX_ARRAY_UDT_O[2]&1){
+if (_FUNC_IDEYESNOBOX_ARRAY_UDT_O[2]&4){
+cmem_dynamic_free((uint8*)(_FUNC_IDEYESNOBOX_ARRAY_UDT_O[0]));
+}else{
+free((void*)(_FUNC_IDEYESNOBOX_ARRAY_UDT_O[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDEYESNOBOX_ARRAY_UDT_O)[8] );
+qbs_free(_FUNC_IDEYESNOBOX_STRING1_SEP);
+qbs_free(_FUNC_IDEYESNOBOX_STRING_ALTLETTER);

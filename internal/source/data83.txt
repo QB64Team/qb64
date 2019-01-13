@@ -1,36 +1,30 @@
-int32 *_FUNC_HASHFIND_LONG_HASHFIND=NULL;
-if(_FUNC_HASHFIND_LONG_HASHFIND==NULL){
-_FUNC_HASHFIND_LONG_HASHFIND=(int32*)mem_static_malloc(4);
-*_FUNC_HASHFIND_LONG_HASHFIND=0;
-}
-qbs*oldstr3418=NULL;
-if(_FUNC_HASHFIND_STRING_A->tmp||_FUNC_HASHFIND_STRING_A->fixed||_FUNC_HASHFIND_STRING_A->readonly){
-oldstr3418=_FUNC_HASHFIND_STRING_A;
-if (oldstr3418->cmem_descriptor){
-_FUNC_HASHFIND_STRING_A=qbs_new_cmem(oldstr3418->len,0);
+qbs*oldstr3443=NULL;
+if(_SUB_HASHADD_STRING_A->tmp||_SUB_HASHADD_STRING_A->fixed||_SUB_HASHADD_STRING_A->readonly){
+oldstr3443=_SUB_HASHADD_STRING_A;
+if (oldstr3443->cmem_descriptor){
+_SUB_HASHADD_STRING_A=qbs_new_cmem(oldstr3443->len,0);
 }else{
-_FUNC_HASHFIND_STRING_A=qbs_new(oldstr3418->len,0);
+_SUB_HASHADD_STRING_A=qbs_new(oldstr3443->len,0);
 }
-memcpy(_FUNC_HASHFIND_STRING_A->chr,oldstr3418->chr,oldstr3418->len);
+memcpy(_SUB_HASHADD_STRING_A->chr,oldstr3443->chr,oldstr3443->len);
 }
-int32 *_FUNC_HASHFIND_LONG_I=NULL;
-if(_FUNC_HASHFIND_LONG_I==NULL){
-_FUNC_HASHFIND_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_HASHFIND_LONG_I=0;
+int32 *_SUB_HASHADD_LONG_I=NULL;
+if(_SUB_HASHADD_LONG_I==NULL){
+_SUB_HASHADD_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_I=0;
 }
-qbs *_FUNC_HASHFIND_STRING_UA=NULL;
-if (!_FUNC_HASHFIND_STRING_UA)_FUNC_HASHFIND_STRING_UA=qbs_new(0,0);
-byte_element_struct *byte_element_3419=NULL;
-if (!byte_element_3419){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3419=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3419=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_HASHADD_LONG_X=NULL;
+if(_SUB_HASHADD_LONG_X==NULL){
+_SUB_HASHADD_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_X=0;
 }
-int32 *_FUNC_HASHFIND_LONG_F=NULL;
-if(_FUNC_HASHFIND_LONG_F==NULL){
-_FUNC_HASHFIND_LONG_F=(int32*)mem_static_malloc(4);
-*_FUNC_HASHFIND_LONG_F=0;
+int32 *_SUB_HASHADD_LONG_I2=NULL;
+if(_SUB_HASHADD_LONG_I2==NULL){
+_SUB_HASHADD_LONG_I2=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_I2=0;
 }
-int32 *_FUNC_HASHFIND_LONG_I2=NULL;
-if(_FUNC_HASHFIND_LONG_I2==NULL){
-_FUNC_HASHFIND_LONG_I2=(int32*)mem_static_malloc(4);
-*_FUNC_HASHFIND_LONG_I2=0;
+int32 *_SUB_HASHADD_LONG_I3=NULL;
+if(_SUB_HASHADD_LONG_I3==NULL){
+_SUB_HASHADD_LONG_I3=(int32*)mem_static_malloc(4);
+*_SUB_HASHADD_LONG_I3=0;
 }

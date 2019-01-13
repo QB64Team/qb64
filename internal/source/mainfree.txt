@@ -203,8 +203,6 @@ free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_COLORSCHEMES)[8] );
 qbs_free(__STRING_MENUBAR);
 qbs_free(__STRING_IDECONTEXTUALSEARCH);
 qbs_free(__STRING_IDECUSTOMFONTFILE);
-qbs_free(__STRING_IDEANDROIDSTARTSCRIPT);
-qbs_free(__STRING_IDEANDROIDMAKESCRIPT);
 if (__ARRAY_STRING_ONAME[2]&1){
 tmp_long=__ARRAY_STRING_ONAME[5];
 while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_ONAME[0]))[tmp_long]);
@@ -268,6 +266,7 @@ free((void*)(__ARRAY_LONG_DEPENDENCY[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_DEPENDENCY)[8] );
 qbs_free(__STRING_CMDLINEFILE);
+qbs_free(__STRING_USEDVARIABLELIST);
 qbs_free(__STRING_VIFILEVERSIONNUM);
 qbs_free(__STRING_VIPRODUCTVERSIONNUM);
 qbs_free(__STRING_VICOMPANYNAME);
@@ -889,6 +888,12 @@ qbs_free(__STRING_F);
 qbs_free(__STRING_CURRENTDIR);
 qbs_free(__STRING_MYLIB);
 qbs_free(__STRING_MYLIBOPT);
+if (__ARRAY_STRING_WARNING[2]&1){
+tmp_long=__ARRAY_STRING_WARNING[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_WARNING[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_WARNING[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_WARNING)[8] );
 qbs_free(__STRING_LINEBACKUP);
 qbs_free(__STRING_FORCEINCLUDEFROMROOT);
 qbs_free(__STRING_WHOLESTV);
@@ -1026,6 +1031,7 @@ qbs_free(__STRING_LAYOUTCOMMENT_BACKUP);
 qbs_free(__STRING_LAYOUT_BACKUP);
 qbs_free(__STRING_PUREVARNAME);
 qbs_free(__STRING_X1);
+qbs_free(__STRING_INTERNALVARNAME);
 qbs_free(__STRING_PATH__ASCII_CHR_046__OUT);
 qbs_free(__STRING_T__ASCII_CHR_046__PATH__ASCII_CHR_046__EXE);
 qbs_free(__STRING_DEFINES);
