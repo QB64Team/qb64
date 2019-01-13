@@ -124,13 +124,6 @@ listOfKeywords$ = listOfKeywords$ + "_GLPOPATTRIB@_GLPOPCLIENTATTRIB@_GLPOPMATRI
 listOfKeywords$ = listOfKeywords$ + "_SOFTWARE@_SQUAREPIXELS@_STRETCH@_ALLOWFULLSCREEN@_ALL@_ECHO@_INSTRREV@_TRIM$@_ACCEPTFILEDROP@_FINISHDROP@_TOTALDROPPEDFILES@_DROPPEDFILE@_DROPPEDFILE$@_SHR@_SHL@"
 
 'IDE MODULE: shared data & definitions
-DIM SHARED mousex AS INTEGER
-DIM SHARED mousey AS INTEGER
-DIM SHARED mousewheel AS INTEGER
-DIM SHARED mousebutton1 AS INTEGER
-DIM SHARED mousebutton2 AS INTEGER
-DIM SHARED mousevisible AS INTEGER
-DIM SHARED mousepassed AS INTEGER
 '---------------------------------------------------
 DIM SHARED idesubwindow, idehelp
 DIM SHARED ideexit
@@ -210,6 +203,7 @@ DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMen
 DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER
 DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
+DIM SHARED ViewMenuCompilerWarnings AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
@@ -222,6 +216,3 @@ DIM SHARED idewx, idewy, idecustomfont, idecustomfontfile$, idecustomfontheight,
 DIM SHARED iderunmode
 'IDE MODULE SECTION END: shared data & definitions
 
-DIM SHARED IdeAndroidMenu
-DIM SHARED IdeAndroidStartScript AS STRING
-DIM SHARED IdeAndroidMakeScript AS STRING

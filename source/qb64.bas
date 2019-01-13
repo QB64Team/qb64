@@ -109,8 +109,10 @@ OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
 IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
-DIM SHARED CMDLineFile AS STRING
+DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
 
+DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
+DIM SHARED totalWarnings AS LONG, warningListItems AS LONG
 DIM SHARED ExeIconSet AS LONG
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1429,7 +1431,12 @@ subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 6
-
+usedVariableList$ = ""
+totalUnusedVariables = 0
+totalWarnings = 0
+warningListItems = 0
+REDIM SHARED warning$(1000)
+uniquenumbern = 0
 
 ''create a type for storing memory blocks
 ''UDT
@@ -7280,6 +7287,7 @@ DO
             'create variable
             IF LEN(s$) THEN typ$ = s$ ELSE typ$ = t$
             IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
+            bypassNextVariable = -1
             retval = dim2(n$, typ$, method, "")
             IF Error_Happened THEN GOTO errmes
             'note: variable created!
@@ -8450,7 +8458,7 @@ DO
 
     IF n = 2 THEN
         IF firstelement$ = "GOSUB" THEN
-            xgosub ca$, n
+            xgosub ca$
             IF Error_Happened THEN GOTO errmes
             'note: layout implemented in xgosub
             GOTO finishedline
@@ -11626,14 +11634,64 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 
 
+'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
+'OPEN "unusedVariableList.txt" FOR BINARY AS #1
+'PUT #1, 1, usedVariableList$ 'warning$(1)
+'CLOSE #1
 
+IF totalUnusedVariables > 0 THEN
+    IF idemode = 0 THEN
+        PRINT
+        PRINT "WARNING:"; STR$(totalUnusedVariables); " UNUSED VARIABLES";
+        IF VerboseMode THEN
+            PRINT ":"
+            findItem = 0
+            DO
+                s$ = CHR$(2) + "VAR:" + CHR$(3)
+                findItem = INSTR(findItem + 1, usedVariableList$, s$)
+                IF findItem = 0 THEN EXIT DO
+                whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
+                varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
+                internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
+                findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
+                varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
+                PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
+            LOOP
+        ELSE
+            PRINT
+        END IF
+    ELSE
+        findItem = 0
+        maxVarNameLen = 0
+        DO
+            s$ = CHR$(2) + "VAR:" + CHR$(3)
+            findItem = INSTR(findItem + 1, usedVariableList$, s$)
+            IF findItem = 0 THEN EXIT DO
+            varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
+            internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
+            findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
+            varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
+            IF LEN(varname$) > maxVarNameLen THEN maxVarNameLen = LEN(varname$)
+        LOOP
 
-
+        findItem = 0
+        addWarning 0, "Unused variables (" + LTRIM$(STR$(totalUnusedVariables)) + "):"
+        DO
+            s$ = CHR$(2) + "VAR:" + CHR$(3)
+            findItem = INSTR(findItem + 1, usedVariableList$, s$)
+            IF findItem = 0 THEN EXIT DO
+            whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
+            varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
+            internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
+            findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
+            varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
+            addWarning whichLine, varname$ + SPACE$((maxVarNameLen + 1) - LEN(varname$)) + " (" + internalVarName$ + ")"
+        LOOP
+    END IF
+END IF
 
 IF idemode THEN GOTO ideret5
 ide6:
-
-
 
 IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
     PRINT
@@ -12683,6 +12741,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT
                 PRINT "OPTIONS:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
+                PRINT "  -v                      Verbose mode (detailed warnings)"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
                 PRINT "                             console"
@@ -12696,6 +12755,8 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "  -l:<line number>        Starts the IDE at the specified line number"
                 PRINT
                 SYSTEM
+            CASE "-v" 'Verbose mode
+                VerboseMode = -1
             CASE "-p" 'Purge
                 IF os$ = "WIN" THEN
                     CHDIR "internal\c"
@@ -14728,6 +14789,11 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     Give_Error "Unknown type": EXIT FUNCTION
     dim2exitfunc:
 
+    IF bypassNextVariable = 0 THEN
+        manageVariableList cvarname$, n$, 0
+    END IF
+    bypassNextVariable = 0
+
     IF dimsfarray THEN
         ids(idn).sfid = glinkid
         ids(idn).sfarg = glinkarg
@@ -15119,6 +15185,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                                     END IF 'varname
                                 NEXT
                             END IF 'subfuncn
+                            bypassNextVariable = -1
                             ignore = dim2(l$, dtyp$, method, fakee$)
                             IF Error_Happened THEN EXIT FUNCTION
                             dimstatic = olddimstatic
@@ -15313,6 +15380,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
 
                     IF Debug THEN PRINT #9, "CREATING VARIABLE:" + x$
                     IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
+                    bypassNextVariable = -1
                     retval = dim2(x$, typ$, 1, "")
                     IF Error_Happened THEN EXIT FUNCTION
 
@@ -17126,10 +17194,10 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
             IF E = 0 THEN 'no specific element, use size of entire type
                 bytes$ = str2(udtxsize(u) \ 8)
             ELSE 'a specific element
-                if (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) then
+                IF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) THEN
                     evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
-                    exit function
-                end if
+                    EXIT FUNCTION
+                END IF
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
             evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
@@ -17744,6 +17812,32 @@ FUNCTION findid& (n2$)
     findidok:
 
     id = ids(i)
+
+    t = id.t
+    IF t = 0 THEN
+        t = id.arraytype
+        IF t AND ISUDT THEN
+            manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 1
+        ELSE
+            n$ = id2shorttypename$
+            IF LEFT$(n$, 1) = "_" THEN
+                manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
+            ELSE
+                manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 3
+            END IF
+        END IF
+    ELSE
+        IF t AND ISUDT THEN
+            manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
+        ELSE
+            n$ = id2shorttypename$
+            IF LEFT$(n$, 1) = "_" THEN
+                manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
+            ELSE
+                manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
+            END IF
+        END IF
+    END IF
 
     currentid = i
     EXIT FUNCTION
@@ -21264,7 +21358,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
     getid idnumber
     IF Error_Happened THEN EXIT SUB
 
-
     'UDT?
     IF typ AND ISUDT THEN
 
@@ -21354,6 +21447,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
         'print "setUDTrefer:"+r$,e$
         tlayout$ = tl$
+        IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+        manageVariableList "", scope$ + n$, 7
         EXIT SUB
     END IF
 
@@ -21387,6 +21482,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             END IF
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             tlayout$ = tl$
+            IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+            manageVariableList "", r$, 8
             EXIT SUB
         END IF
 
@@ -21461,6 +21558,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
+            IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+            manageVariableList "", r$, 9
             EXIT SUB
         END IF
 
@@ -21491,6 +21590,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);": stringprocessinghappened = 0
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
+            IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+            manageVariableList "", r$, 10
             EXIT SUB
         END IF
 
@@ -21517,6 +21618,10 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);": stringprocessinghappened = 0
         IF arrayprocessinghappened THEN arrayprocessinghappened = 0
         tlayout$ = tl$
+
+        IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
+        manageVariableList "", r$, 11
+
         EXIT SUB
     END IF 'variable
 
@@ -22267,7 +22372,7 @@ SUB xfilewrite (ca$, n)
     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
 END SUB
 
-SUB xgosub (ca$, n&)
+SUB xgosub (ca$)
     a2$ = getelement(ca$, 2)
     IF validlabel(a2$) = 0 THEN Give_Error "Invalid label": EXIT SUB
 
@@ -23169,6 +23274,45 @@ FUNCTION id2fulltypename$
         IF t AND ISUNSIGNED THEN a$ = "_UNSIGNED " + a$
     END IF
     id2fulltypename$ = a$
+END FUNCTION
+
+FUNCTION id2shorttypename$
+    t = id.t
+    IF t = 0 THEN t = id.arraytype
+    size = id.tsize
+    bits = t AND 511
+    IF t AND ISUDT THEN
+        a$ = RTRIM$(udtxcname(t AND 511))
+        id2shorttypename$ = a$: EXIT FUNCTION
+    END IF
+    IF t AND ISSTRING THEN
+        IF t AND ISFIXEDLENGTH THEN a$ = "STRING" + str2(size) ELSE a$ = "STRING"
+        id2shorttypename$ = a$: EXIT FUNCTION
+    END IF
+    IF t AND ISOFFSETINBITS THEN
+        IF t AND ISUNSIGNED THEN a$ = "_U" ELSE a$ = "_"
+        IF bits > 1 THEN a$ = a$ + "BIT" + str2(bits) ELSE a$ = a$ + "BIT1"
+        id2shorttypename$ = a$: EXIT FUNCTION
+    END IF
+    IF t AND ISFLOAT THEN
+        IF bits = 32 THEN a$ = "SINGLE"
+        IF bits = 64 THEN a$ = "DOUBLE"
+        IF bits = 256 THEN a$ = "_FLOAT"
+    ELSE 'integer-based
+        IF bits = 8 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "_UBYTE" ELSE a$ = "_BYTE"
+        END IF
+        IF bits = 16 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "UINTEGER" ELSE a$ = "INTEGER"
+        END IF
+        IF bits = 32 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "ULONG" ELSE a$ = "LONG"
+        END IF
+        IF bits = 64 THEN
+            IF (t AND ISUNSIGNED) THEN a$ = "_UINTEGER64" ELSE a$ = "_INTEGER64"
+        END IF
+    END IF
+    id2shorttypename$ = a$
 END FUNCTION
 
 FUNCTION symbol2fulltypename$ (s2$)
@@ -24817,6 +24961,44 @@ SUB dump_udts
         PRINT #f, RTRIM$(udtename(i)), udtesize(i), udtebytealign(i), udtenext(i), udtetype(i), udtetypesize(i), udtearrayelements(i)
     NEXT i
     CLOSE #f
+END SUB
+
+SUB manageVariableList (name$, __cname$, action AS _BYTE)
+    DIM findItem AS LONG, s$, cname$
+    cname$ = __cname$
+
+    findItem = INSTR(cname$, "[")
+    IF findItem THEN
+        cname$ = LEFT$(cname$, findItem - 1)
+    END IF
+
+    SELECT CASE action
+        CASE 0 'add
+            s$ = CHR$(4) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
+            IF INSTR(usedVariableList$, s$) = 0 THEN
+                ASC(s$, 1) = 3
+                usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
+                usedVariableList$ = usedVariableList$ + "VAR:" + s$ + name$ + CHR$(10)
+                totalUnusedVariables = totalUnusedVariables + 1
+                'warning$(1) = warning$(1) + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+            END IF
+        CASE ELSE 'find and remove
+            s$ = CHR$(3) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
+            findItem = INSTR(usedVariableList$, s$)
+            IF findItem THEN
+                ASC(usedVariableList$, findItem) = 4
+                totalUnusedVariables = totalUnusedVariables - 1
+            END IF
+            'warning$(1) = warning$(1) + "Action:" + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+    END SELECT
+END SUB
+
+SUB addWarning (lineNumber AS LONG, text$)
+    warningListItems = warningListItems + 1
+    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+
+    warning$(warningListItems) = MKL$(lineNumber) + text$
+    IF lineNumber > 0 THEN totalWarnings = totalWarnings + 1
 END SUB
 
 '$INCLUDE:'utilities\strings.bas'
