@@ -22444,7 +22444,11 @@ SUB xprint (a$, ca$, n)
             IF puformat$ = "" THEN Give_Error "Expected PRINT USING formatstring ; ...": EXIT SUB
             IF i = n THEN Give_Error "Expected PRINT USING formatstring ; ...": EXIT SUB
             'create build string
-            IF TQBSset = 0 THEN PRINT #12, "tqbs=qbs_new(0,0);"
+            IF TQBSset = 0 THEN
+                PRINT #12, "tqbs=qbs_new(0,0);"
+            ELSE
+                PRINT #12, "qbs_set(tqbs,qbs_new_txt_len(" + CHR$(34) + CHR$(34) + ",0));"
+            END IF
             'set format start/index variable
             PRINT #12, "tmp_long=0;" 'scan format from beginning
 
