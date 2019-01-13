@@ -252,7 +252,11 @@ FUNCTION ide2 (ignore)
         m = m + 1: i = 0: ViewMenuID = m
         menu$(m, i) = "View": i = i + 1
         menu$(m, i) = "#SUBs...  F2": i = i + 1
-        menu$(m, i) = "#Line numbers  " + CHR$(16): i = i + 1
+        menu$(m, i) = "#Line Numbers  " + CHR$(16): i = i + 1
+        menu$(m, i) = "-": i = i + 1
+
+        ViewMenuCompilerWarnings = i
+        menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W": i = i + 1
         menusize(m) = i - 1
 
         m = m + 1: i = 0: SearchMenuID = m
@@ -261,11 +265,11 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
         menu$(m, i) = "#Change...": i = i + 1
         menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "Clear search #history...": i = i + 1
+        menu$(m, i) = "Clear Search #History...": i = i + 1
         menu$(m, i) = "-": i = i + 1
 
         SearchMenuEnableQuickNav = i
-        menu$(m, i) = "Enable #quick navigation (back arrow)": i = i + 1
+        menu$(m, i) = "Enable #Quick Navigation (Back Arrow)": i = i + 1
         IF EnableQuickNav THEN
             menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + menu$(SearchMenuID, SearchMenuEnableQuickNav)
         END IF
@@ -274,7 +278,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
         menu$(m, i) = "#Previous Bookmark  Alt+Up": i = i + 1
         menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "#Go to line...  Ctrl+G": i = i + 1
+        menu$(m, i) = "#Go To Line...  Ctrl+G": i = i + 1
 
         menusize(m) = i - 1
 
@@ -285,7 +289,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "-": i = i + 1
 
         RunMenuSaveExeWithSource = i
-        menu$(m, i) = "Output EXE to source #folder": i = i + 1
+        menu$(m, i) = "Output EXE to Source #Folder": i = i + 1
         IF SaveExeWithSource THEN
             menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
         END IF
@@ -305,7 +309,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Display...": i = i + 1
         menu$(m, i) = "IDE C#olors...": i = i + 1
         menu$(m, i) = "#Language...": i = i + 1
-        menu$(m, i) = "#Code layout...": i = i + 1
+        menu$(m, i) = "#Code Layout...": i = i + 1
         menu$(m, i) = "#Backup/Undo...": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Advanced...": i = i + 1
@@ -317,13 +321,13 @@ FUNCTION ide2 (ignore)
         END IF
 
         OptionsMenuPasteCursor = i
-        menu$(m, i) = "Cursor after #pasted content": i = i + 1
+        menu$(m, i) = "Cursor After #Pasted Content": i = i + 1
         IF PasteCursorAtEnd THEN
             menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuPasteCursor)
         END IF
 
         OptionsMenuShowErrorsImmediately = i
-        menu$(m, i) = "Show compilation #errors immediately": i = i + 1
+        menu$(m, i) = "Show Compilation #Errors Immediately": i = i + 1
         IF IDEShowErrorsImmediately THEN
             menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately)
         END IF
@@ -333,14 +337,14 @@ FUNCTION ide2 (ignore)
         m = m + 1: i = 0
         menu$(m, i) = "Help": i = i + 1
         menu$(m, i) = "#View  Shift+F1": i = i + 1
-        menu$(m, i) = "#Contents page": i = i + 1
-        menu$(m, i) = "Keyword #index": i = i + 1
-        menu$(m, i) = "#Keywords by usage": i = i + 1
-        menu$(m, i) = "ASCII c#hart": i = i + 1
+        menu$(m, i) = "#Contents Page": i = i + 1
+        menu$(m, i) = "Keyword #Index": i = i + 1
+        menu$(m, i) = "#Keywords by Usage": i = i + 1
+        menu$(m, i) = "ASCII C#hart": i = i + 1
         menu$(m, i) = "#Math": i = i + 1
         menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "#Update current page": i = i + 1
-        menu$(m, i) = "Update all #pages": i = i + 1
+        menu$(m, i) = "#Update Current Page": i = i + 1
+        menu$(m, i) = "Update All #Pages": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#About...": i = i + 1
         menusize(m) = i - 1
@@ -355,13 +359,13 @@ FUNCTION ide2 (ignore)
         m = m + 1: i = 0
         menu$(m, i) = "ViewMenuShowLineNumbersSubMenu": i = i + 1
         ViewMenuShowLineNumbersSubMenuID = m
-        IF ShowLineNumbers THEN menu$(m, i) = "#Hide line numbers" ELSE menu$(m, i) = "#Show line numbers"
+        IF ShowLineNumbers THEN menu$(m, i) = "#Hide Line Numbers" ELSE menu$(m, i) = "#Show Line Numbers"
         i = i + 1
-        menu$(m, i) = "#Background color": IF ShowLineNumbersUseBG THEN menu$(m, i) = CHR$(7) + menu$(m, i)
+        menu$(m, i) = "#Background Color": IF ShowLineNumbersUseBG THEN menu$(m, i) = CHR$(7) + menu$(m, i)
         ViewMenuShowBGID = i
         IF ShowLineNumbers = 0 THEN menu$(m, i) = "~" + menu$(m, i)
         i = i + 1
-        menu$(m, i) = "Sho#w separator": IF ShowLineNumbersSeparator THEN menu$(m, i) = CHR$(7) + menu$(m, i)
+        menu$(m, i) = "Sho#w Separator": IF ShowLineNumbersSeparator THEN menu$(m, i) = CHR$(7) + menu$(m, i)
         ViewMenuShowSeparatorID = i
         IF ShowLineNumbers = 0 THEN menu$(m, i) = "~" + menu$(m, i)
         i = i + 1
@@ -639,6 +643,12 @@ FUNCTION ide2 (ignore)
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+                IF totalWarnings > 0 THEN
+                    COLOR 11, 1
+                    PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
+                    IF totalWarnings > 1 THEN PRINT "s";
+                    PRINT " - click here or Ctrl+W to view)";
+                END IF
             END IF
             IF showexecreated THEN
                 showexecreated = 0
@@ -1405,14 +1415,24 @@ FUNCTION ide2 (ignore)
                     END IF
 
                     '3- Link to the output folder when "Output EXE to source #folder" is checked:
-                    IF INSTR(_OS$, "WIN") THEN
-                        SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
-                    ELSEIF INSTR(_OS$, "MAC") THEN
-                        SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
-                    ELSE
-                        SHELL _DONTWAIT "xdg-open " + QuotedFilename$(path.exe$)
+                    IF showexecreated THEN
+                        IF INSTR(_OS$, "WIN") THEN
+                            SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
+                        ELSEIF INSTR(_OS$, "MAC") THEN
+                            SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
+                        ELSE
+                            SHELL _DONTWAIT "xdg-open " + QuotedFilename$(path.exe$)
+                        END IF
+                        GOTO specialchar
                     END IF
-                    GOTO specialchar
+
+                    '4- Link to Warnings dialog:
+                    IF totalWarnings > 0 THEN
+                        retval = idewarningbox
+                        'retval is ignored
+                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        GOTO specialchar
+                    END IF
                 END IF
             END IF
         END IF
@@ -2725,6 +2745,12 @@ FUNCTION ide2 (ignore)
                                         PRINT "...";
                                     ELSE
                                         PRINT "OK"; 'report OK status
+                                        IF totalWarnings > 0 THEN
+                                            COLOR 11, 1
+                                            PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
+                                            IF totalWarnings > 1 THEN PRINT "s";
+                                            PRINT " - click here or Ctrl+W to view)";
+                                        END IF
                                     END IF
                                 END IF
                             ELSE
@@ -3042,6 +3068,19 @@ FUNCTION ide2 (ignore)
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
             GOTO idesubsjmp
+        END IF
+
+        IF KCONTROL AND UCASE$(K$) = "W" THEN 'goto line
+            IF totalWarnings > 0 THEN
+                retval = idewarningbox
+                'retval is ignored
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO specialchar
+            ELSE
+                idemessagebox "Compilation status", "No warnings to display."
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
         END IF
 
         IF KCONTROL AND UCASE$(K$) = "Z" THEN 'undo (CTRL+Z)
@@ -4101,6 +4140,13 @@ FUNCTION ide2 (ignore)
     IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
     IF idecontextualmenu = 2 THEN idectxmenuX = xx + w + 3: idectxmenuY = yy + r: parentMenu = m: m = ViewMenuShowLineNumbersSubMenuID
     IdeMakeEditMenu
+
+    IF totalWarnings = 0 THEN
+        menu$(ViewMenuID, ViewMenuCompilerWarnings) = "~Compiler #Warnings...  Ctrl+W"
+    ELSE
+        menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W"
+    END IF
+
     oldmy = mY: oldmx = mX
     DO
         PCOPY 2, 1
@@ -4357,7 +4403,7 @@ FUNCTION ide2 (ignore)
         IF KB = KEY_RIGHT AND idecontextualmenu = 0 THEN
             IF RIGHT$(menu$(m, r), 1) = CHR$(16) THEN
                 SELECT CASE LEFT$(menu$(m, r), LEN(menu$(m, r)) - 3)
-                    CASE "#Line numbers"
+                    CASE "#Line Numbers"
                         idecontextualmenu = 2
                         GOTO showmenu
                 END SELECT
@@ -4419,7 +4465,7 @@ FUNCTION ide2 (ignore)
             menuChoiceMade:
             IF KALT THEN idehl = 1 ELSE idehl = 0 'set idehl, a shared variable used by various dialogue boxes
 
-            IF menu$(m, s) = "Add comment (')  Ctrl+R" THEN
+            IF menu$(m, s) = "Add Comment (')  Ctrl+R" THEN
                 ctrlAddComment:
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
@@ -4450,7 +4496,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Remove comment (')  Ctrl+Shift+R" THEN
+            IF menu$(m, s) = "Remove Comment (')  Ctrl+Shift+R" THEN
                 ctrlRemoveComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4477,7 +4523,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Toggle comment  Ctrl+T" THEN
+            IF menu$(m, s) = "Toggle Comment  Ctrl+T" THEN
                 ctrlToggleComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4518,13 +4564,13 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Increase indent  TAB" THEN
+            IF menu$(m, s) = "Increase Indent  TAB" THEN
                 IF ideselect THEN GOTO IdeBlockIncreaseIndent
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF LEFT$(menu$(m, s), 15) = "Decrease indent" THEN
+            IF LEFT$(menu$(m, s), 15) = "Decrease Indent" THEN
                 IF ideselect THEN GOTO IdeBlockDecreaseIndent
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -4565,7 +4611,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Open _RGB color mi#xer" THEN
+            IF menu$(m, s) = "Open _RGB Color Mi#xer" THEN
                 PCOPY 2, 0
                 oldkeywordHighlight = keywordHighlight
                 keywordHighlight = 0
@@ -4599,64 +4645,64 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 28) = "Cursor after #pasted content" THEN
+            IF RIGHT$(menu$(m, s), 28) = "Cursor After #Pasted Content" THEN
                 PCOPY 2, 0
                 PasteCursorAtEnd = NOT PasteCursorAtEnd
                 IF PasteCursorAtEnd THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + "Cursor after #pasted content"
+                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + "Cursor After #Pasted Content"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
-                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor after #pasted content"
+                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor After #Pasted Content"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 36) = "Show compilation #errors immediately" THEN
+            IF RIGHT$(menu$(m, s), 36) = "Show Compilation #Errors Immediately" THEN
                 PCOPY 2, 0
                 IDEShowErrorsImmediately = NOT IDEShowErrorsImmediately
                 IF IDEShowErrorsImmediately THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + "Show compilation #errors immediately"
+                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + "Show Compilation #Errors Immediately"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "FALSE"
-                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show compilation #errors immediately"
+                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show Compilation #Errors Immediately"
                 END IF
                 idechangemade = 1
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 28) = "Output EXE to source #folder" THEN
+            IF RIGHT$(menu$(m, s), 28) = "Output EXE to Source #Folder" THEN
                 PCOPY 2, 0
                 SaveExeWithSource = NOT SaveExeWithSource
                 IF SaveExeWithSource THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
-                    menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Output EXE to source #folder"
+                    menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Output EXE to Source #Folder"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
-                    menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to source #folder"
+                    menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to Source #Folder"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF MID$(menu$(m, s), 1, 24) = "Enable #quick navigation" OR MID$(menu$(m, s), 2, 24) = "Enable #quick navigation" THEN
+            IF MID$(menu$(m, s), 1, 24) = "Enable #Quick Navigation" OR MID$(menu$(m, s), 2, 24) = "Enable #Quick Navigation" THEN
                 PCOPY 2, 0
                 EnableQuickNav = NOT EnableQuickNav
                 IF EnableQuickNav THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "TRUE"
-                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + "Enable #quick navigation (back arrow)"
+                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + "Enable #Quick Navigation (Back Arrow)"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
-                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = "Enable #quick navigation (back arrow)"
+                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = "Enable #Quick Navigation (Back Arrow)"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Code layout..." THEN
+            IF menu$(m, s) = "#Code Layout..." THEN
                 PCOPY 2, 0
                 retval = idelayoutbox
                 IF retval THEN idechangemade = 1: idelayoutallow = 2 'recompile if options changed
@@ -4727,7 +4773,7 @@ FUNCTION ide2 (ignore)
 
 
 
-            IF menu$(m, s) = "#Go to line...  Ctrl+G" THEN
+            IF menu$(m, s) = "#Go To Line...  Ctrl+G" THEN
                 PCOPY 2, 0
                 retval = idegotobox
                 'retval is ignored
@@ -4751,7 +4797,7 @@ FUNCTION ide2 (ignore)
             END IF
 
 
-            IF menu$(m, s) = "ASCII c#hart" THEN
+            IF menu$(m, s) = "ASCII C#hart" THEN
                 PCOPY 2, 0
                 ideASCIIbox
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -4760,12 +4806,12 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF LEFT$(menu$(m, s), 10) = "#Help on '" THEN 'Contextual menu Help
+            IF LEFT$(menu$(m, s), 10) = "#Help On '" THEN 'Contextual menu Help
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO contextualhelp
             END IF
 
-            IF LEFT$(menu$(m, s), 10) = "#Go to SUB" OR LEFT$(menu$(m, s), 15) = "#Go to FUNCTION" THEN 'Contextual menu Goto
+            IF LEFT$(menu$(m, s), 10) = "#Go To SUB" OR LEFT$(menu$(m, s), 15) = "#Go To FUNCTION" THEN 'Contextual menu Goto
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 AddQuickNavHistory idecy
                 idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
@@ -4776,7 +4822,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF LEFT$(menu$(m, s), 12) = "Go to #label" THEN 'Contextual menu Goto label
+            IF LEFT$(menu$(m, s), 12) = "Go To #Label" THEN 'Contextual menu Goto label
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 AddQuickNavHistory idecy
                 idecy = CVL(MID$(SubFuncLIST(UBOUND(SubFuncLIST)), 1, 4))
@@ -4787,17 +4833,17 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Contents page" THEN
+            IF menu$(m, s) = "#Contents Page" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 lnk$ = "QB64 Help Menu"
                 GOTO OpenHelpLnk
             END IF
-            IF menu$(m, s) = "Keyword #index" THEN
+            IF menu$(m, s) = "Keyword #Index" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 lnk$ = "Keyword Reference - Alphabetical"
                 GOTO OpenHelpLnk
             END IF
-            IF menu$(m, s) = "#Keywords by usage" THEN
+            IF menu$(m, s) = "#Keywords by Usage" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 lnk$ = "Keyword Reference - By usage"
                 GOTO OpenHelpLnk
@@ -4818,7 +4864,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Update current page" THEN
+            IF menu$(m, s) = "#Update Current Page" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 IF idehelp THEN
                     Help_IgnoreCache = 1
@@ -4836,7 +4882,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Update all #pages" THEN
+            IF menu$(m, s) = "Update All #Pages" THEN
                 PCOPY 2, 0
                 q$ = ideyesnobox("Update Help", "Redownload all cached help content? (~10 min)")
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -4959,63 +5005,71 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Line numbers  " + CHR$(16) THEN
+            IF menu$(m, s) = "#Line Numbers  " + CHR$(16) THEN
                 idecontextualmenu = 2
                 GOTO showmenu
             END IF
 
-            IF menu$(m, s) = "#Show line numbers" THEN
+            IF menu$(m, s) = "#Show Line Numbers" THEN
                 PCOPY 2, 0
                 ShowLineNumbers = -1
                 WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
-                menu$(m, s) = "#Hide line numbers"
+                menu$(m, s) = "#Hide Line Numbers"
                 menu$(m, ViewMenuShowBGID) = MID$(menu$(m, ViewMenuShowBGID), 2)
                 menu$(m, ViewMenuShowSeparatorID) = MID$(menu$(m, ViewMenuShowSeparatorID), 2)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Hide line numbers" THEN
+            IF menu$(m, s) = "#Hide Line Numbers" THEN
                 PCOPY 2, 0
                 ShowLineNumbers = 0
                 WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
-                menu$(m, s) = "#Show line numbers"
+                menu$(m, s) = "#Show Line Numbers"
                 menu$(m, ViewMenuShowBGID) = "~" + menu$(m, ViewMenuShowBGID)
                 menu$(m, ViewMenuShowSeparatorID) = "~" + menu$(m, ViewMenuShowSeparatorID)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 17) = "#Background color" THEN
+            IF RIGHT$(menu$(m, s), 17) = "#Background Color" THEN
                 IF LEFT$(menu$(m, s), 1) <> "~" THEN
                     PCOPY 2, 0
                     ShowLineNumbersUseBG = NOT ShowLineNumbersUseBG
                     IF ShowLineNumbersUseBG THEN
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "TRUE"
-                        menu$(m, s) = CHR$(7) + "#Background color"
+                        menu$(m, s) = CHR$(7) + "#Background Color"
                     ELSE
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "FALSE"
-                        menu$(m, s) = "#Background color"
+                        menu$(m, s) = "#Background Color"
                     END IF
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     GOTO ideloop
                 END IF
             END IF
 
-            IF RIGHT$(menu$(m, s), 15) = "Sho#w separator" THEN
+            IF RIGHT$(menu$(m, s), 15) = "Sho#w Separator" THEN
                 IF LEFT$(menu$(m, s), 1) <> "~" THEN
                     PCOPY 2, 0
                     ShowLineNumbersSeparator = NOT ShowLineNumbersSeparator
                     IF ShowLineNumbersSeparator THEN
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "TRUE"
-                        menu$(m, s) = CHR$(7) + "Sho#w separator"
+                        menu$(m, s) = CHR$(7) + "Sho#w Separator"
                     ELSE
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "FALSE"
-                        menu$(m, s) = "Sho#w separator"
+                        menu$(m, s) = "Sho#w Separator"
                     END IF
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     GOTO ideloop
                 END IF
+            END IF
+
+            IF menu$(m, s) = "Compiler #Warnings...  Ctrl+W" THEN
+                PCOPY 2, 0
+                retval = idewarningbox
+                'retval is ignored
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Find...  Ctrl+F3" THEN
@@ -5180,7 +5234,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF '#Change...
 
-            IF menu$(m, s) = "Clear search #history..." THEN
+            IF menu$(m, s) = "Clear Search #History..." THEN
                 PCOPY 2, 0
                 r$ = ideclearhistory$("SEARCH")
                 IF r$ = "Y" THEN
@@ -5241,8 +5295,6 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO idemselectall
             END IF
-
-            menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
 
             IF menu$(m, s) = "#Start  F5" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -5386,7 +5438,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Clear #recent..." THEN
+            IF menu$(m, s) = "Clear #Recent..." THEN
                 PCOPY 2, 0
                 r$ = ideclearhistory$("FILES")
                 IF r$ = "Y" THEN
@@ -5638,6 +5690,12 @@ FUNCTION ide2 (ignore)
             PRINT "...";
         ELSE
             PRINT "OK"; 'report OK status
+            IF totalWarnings > 0 THEN
+                COLOR 11, 1
+                PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
+                IF totalWarnings > 1 THEN PRINT "s";
+                PRINT " - click here or Ctrl+W to view)";
+            END IF
         END IF
     END IF
     RETURN
@@ -8496,13 +8554,13 @@ SUB ideshowtext
         END IF
 
         IF l <= iden THEN
-            IF idecompiling = 0 AND INSTR(usedVariableList$, CHR$(1) + MKL$(l) + CHR$(2) + CHR$(3)) > 0 THEN
-                LOCATE y + 3, 1
-                prevBG% = _BACKGROUNDCOLOR
-                COLOR 13, 1
-                PRINT CHR$(26); 'indicate there's an unused variable defined on this line
-                COLOR , prevBG%
-            END IF
+            'IF idecompiling = 0 AND INSTR(usedVariableList$, CHR$(1) + MKL$(l) + CHR$(2) + "VAR:" + CHR$(3)) > 0 THEN
+            '    LOCATE y + 3, 1
+            '    prevBG% = _BACKGROUNDCOLOR
+            '    COLOR 15, 7
+            '    PRINT CHR$(26); 'indicate there's an unused variable defined on this line
+            '    COLOR , prevBG%
+            'END IF
 
             a$ = idegetline(l)
             link_idecx = 0
@@ -8884,9 +8942,9 @@ SUB ideshowtext
     FOR b = 1 TO IdeBmkN
         y = IdeBmk(b).y
         IF y >= idesy AND y <= idesy + (idewy - 9) THEN
-            IF INSTR(usedVariableList$, CHR$(1) + MKL$(y) + CHR$(2) + CHR$(3)) = 0 THEN
-                LOCATE 3 + y - idesy, 1: PRINT CHR$(197);
-            END IF
+            'IF INSTR(usedVariableList$, CHR$(1) + MKL$(y) + CHR$(2) + "VAR:" + CHR$(3)) = 0 THEN
+            LOCATE 3 + y - idesy, 1: PRINT CHR$(197);
+            'END IF
         END IF
     NEXT
 
@@ -9437,6 +9495,164 @@ FUNCTION idelanguagebox
     LOOP
 
 
+
+END FUNCTION
+
+FUNCTION idewarningbox
+
+    '-------- generic dialog box header --------
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+
+    DIM warningLines(1 TO warningListItems) AS LONG
+
+    FOR x = 1 TO warningListItems
+        warningLines(x) = CVL(LEFT$(warning$(x), 4))
+        IF warningLines(x) = 0 THEN
+            l$ = l$ + MID$(warning$(x), 5)
+            IF x > 1 THEN ASC(l$, treeConnection) = 192
+        ELSE
+            l2$ = "line" + STR$(warningLines(x))
+            l3$ = SPACE$(maxLineNumberLength + 4)
+            RSET l3$ = l2$
+            treeConnection = LEN(l$) + 1
+            l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + MID$(warning$(x), 5)
+        END IF
+        IF x < warningListItems THEN l$ = l$ + sep
+    NEXT
+
+    IF warningLines(warningListItems) > 0 THEN
+        ASC(l$, treeConnection) = 192
+    END IF
+
+    i = 0
+    dialogHeight = warningListItems + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+
+    idepar p, idewx - 8, dialogHeight, "Compilation status"
+
+    i = i + 1
+    o(i).typ = 2
+    o(i).y = 2
+    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(i).txt = idenewtxt(l$)
+    o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
+    o(i).nam = idenewtxt("Warnings (" + LTRIM$(STR$(totalWarnings)) + ")")
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = dialogHeight
+    o(i).txt = idenewtxt("#Go to" + sep + "#Close")
+    o(i).dft = 1
+
+
+
+
+
+    '-------- end of init --------
+
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        COLOR 0, 7: LOCATE p.y + 1, p.x + 2: PRINT "Double-click on an item to jump to the line indicated"
+
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        change = 0
+        DO
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+        LOOP UNTIL change
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+            END IF
+        END IF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
+
+        '-------- generic input response --------
+        info = 0
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+
+        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+            EXIT FUNCTION
+        END IF
+
+        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
+            y = ABS(o(1).sel)
+            IF y >= 1 AND y <= warningListItems AND warningLines(y) > 0 THEN
+                idegotobox_LastLineNum = warningLines(y)
+                AddQuickNavHistory idecy
+                idecy = idegotobox_LastLineNum
+                ideselect = 0
+                EXIT FUNCTION
+            END IF
+        END IF
+
+        'end of custom controls
+        mousedown = 0
+        mouseup = 0
+    LOOP
 
 END FUNCTION
 
@@ -13565,7 +13781,7 @@ SUB IdeMakeFileMenu
     NEXT
     CLOSE #fh
     IF menu$(m, i - 1) <> "#Recent..." AND menu$(m, i - 1) <> "Save #As..." THEN
-        menu$(m, i) = "Clear #recent...": i = i + 1
+        menu$(m, i) = "Clear #Recent...": i = i + 1
     END IF
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "E#xit": i = i + 1
@@ -13708,7 +13924,7 @@ SUB IdeMakeContextualMenu
                 IF UCASE$(CursorSF$) = CurrSF$ THEN
                     EXIT FOR
                 ELSE
-                    menu$(m, i) = "#Go to " + CursorSF$: i = i + 1
+                    menu$(m, i) = "#Go To " + CursorSF$: i = i + 1
                     SubFuncLIST(1) = SubFuncLIST(CheckSF)
                     EXIT FOR
                 END IF
@@ -13727,7 +13943,7 @@ SUB IdeMakeContextualMenu
                 GOTO CheckThisLabel
             END IF
             IF LabelLineNumber > 0 AND LabelLineNumber <> idecy THEN
-                menu$(m, i) = "Go to #label " + RTRIM$(Labels(r).cn): i = i + 1
+                menu$(m, i) = "Go To #Label " + RTRIM$(Labels(r).cn): i = i + 1
                 REDIM _PRESERVE SubFuncLIST(1 TO UBOUND(SubFuncLIST) + 1) AS STRING
                 SubFuncLIST(UBOUND(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
             END IF
@@ -13756,7 +13972,7 @@ SUB IdeMakeContextualMenu
                 l2$ = LEFT$(l2$, 12) + STRING$(3, 250)
             END IF
             IF INSTR(l2$, "Parenthesis") = 0 THEN
-                menu$(m, i) = "#Help on '" + l2$ + "'": i = i + 1
+                menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
             END IF
         END IF
     END IF
@@ -13777,7 +13993,7 @@ SUB IdeMakeContextualMenu
     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
     IF Found_RGB THEN
-        menu$(m, i) = "Open _RGB color mi#xer": i = i + 1
+        menu$(m, i) = "Open _RGB Color Mi#xer": i = i + 1
         menu$(m, i) = "-": i = i + 1
     END IF
     NoRGBFound:
@@ -13792,9 +14008,9 @@ SUB IdeMakeContextualMenu
     IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Toggle comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add comment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove comment (')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "Toggle Comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add Comment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove Comment (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -13807,15 +14023,15 @@ SUB IdeMakeContextualMenu
                 IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
             NEXT
             IF a2$ <> "" THEN
-                menu$(m, i) = "Increase indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease indent"
+                menu$(m, i) = "Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
                 menu$(m, i) = "-": i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "Increase indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease indent"
+            menu$(m, i) = "Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
             menu$(m, i) = "-": i = i + 1
@@ -13859,9 +14075,9 @@ SUB IdeMakeEditMenu
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Toggle comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add comment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove comment (')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "Toggle Comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add Comment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove Comment (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -13874,25 +14090,25 @@ SUB IdeMakeEditMenu
                 IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
             NEXT
             IF a2$ = "" THEN
-                menu$(m, i) = "~Increase indent  TAB": i = i + 1
-                menu$(m, i) = "~Decrease indent"
+                menu$(m, i) = "~Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "~Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             ELSE
-                menu$(m, i) = "Increase indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease indent"
+                menu$(m, i) = "Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "Increase indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease indent"
+            menu$(m, i) = "Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
         END IF
     ELSE
-        menu$(m, i) = "~Increase indent  TAB": i = i + 1
-        menu$(m, i) = "~Decrease indent"
+        menu$(m, i) = "~Increase Indent  TAB": i = i + 1
+        menu$(m, i) = "~Decrease Indent"
         IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
         i = i + 1
     END IF

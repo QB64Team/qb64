@@ -112,7 +112,7 @@ DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
 DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
-DIM SHARED totalWarnings AS LONG
+DIM SHARED totalWarnings AS LONG, warningListItems AS LONG
 DIM SHARED ExeIconSet AS LONG
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1434,7 +1434,8 @@ UserDefineCount = 6
 usedVariableList$ = ""
 totalUnusedVariables = 0
 totalWarnings = 0
-REDIM SHARED warning$(100)
+warningListItems = 0
+REDIM SHARED warning$(1000)
 uniquenumbern = 0
 
 ''create a type for storing memory blocks
@@ -11638,16 +11639,43 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 'PUT #1, 1, usedVariableList$ 'warning$(1)
 'CLOSE #1
 
-IF idemode THEN GOTO ideret5
-ide6:
-
-
-IF totalUnusedVariables > 0 AND idemode = 0 THEN
-    PRINT
-    PRINT "WARNING:"; STR$(totalUnusedVariables); " UNUSED VARIABLES";
-    IF VerboseMode THEN
-        PRINT ":"
+IF totalUnusedVariables > 0 THEN
+    IF idemode = 0 THEN
+        PRINT
+        PRINT "WARNING:"; STR$(totalUnusedVariables); " UNUSED VARIABLES";
+        IF VerboseMode THEN
+            PRINT ":"
+            findItem = 0
+            DO
+                s$ = CHR$(2) + "VAR:" + CHR$(3)
+                findItem = INSTR(findItem + 1, usedVariableList$, s$)
+                IF findItem = 0 THEN EXIT DO
+                whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
+                varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
+                internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
+                findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
+                varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
+                PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
+            LOOP
+        ELSE
+            PRINT
+        END IF
+    ELSE
         findItem = 0
+        maxVarNameLen = 0
+        DO
+            s$ = CHR$(2) + "VAR:" + CHR$(3)
+            findItem = INSTR(findItem + 1, usedVariableList$, s$)
+            IF findItem = 0 THEN EXIT DO
+            varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
+            internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
+            findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
+            varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
+            IF LEN(varname$) > maxVarNameLen THEN maxVarNameLen = LEN(varname$)
+        LOOP
+
+        findItem = 0
+        addWarning 0, "Unused variables (" + LTRIM$(STR$(totalUnusedVariables)) + "):"
         DO
             s$ = CHR$(2) + "VAR:" + CHR$(3)
             findItem = INSTR(findItem + 1, usedVariableList$, s$)
@@ -11657,13 +11685,13 @@ IF totalUnusedVariables > 0 AND idemode = 0 THEN
             internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
             findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
             varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-            PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
+            addWarning whichLine, varname$ + SPACE$((maxVarNameLen + 1) - LEN(varname$)) + " (" + internalVarName$ + ")"
         LOOP
-    ELSE
-        PRINT
     END IF
 END IF
 
+IF idemode THEN GOTO ideret5
+ide6:
 
 IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
     PRINT
@@ -24959,6 +24987,14 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
             END IF
             'warning$(1) = warning$(1) + "Action:" + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
     END SELECT
+END SUB
+
+SUB addWarning (lineNumber AS LONG, text$)
+    warningListItems = warningListItems + 1
+    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+
+    warning$(warningListItems) = MKL$(lineNumber) + text$
+    IF lineNumber > 0 THEN totalWarnings = totalWarnings + 1
 END SUB
 
 '$INCLUDE:'utilities\strings.bas'
