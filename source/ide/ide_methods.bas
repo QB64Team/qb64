@@ -642,12 +642,14 @@ FUNCTION ide2 (ignore)
         IF c$ <> CHR$(3) THEN
             COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
             IF ready THEN
-                IF IDEShowErrorsImmediately THEN LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
-                IF totalWarnings > 0 THEN
-                    COLOR 11, 1
-                    PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
-                    IF totalWarnings > 1 THEN PRINT "s";
-                    PRINT " - click here or Ctrl+W to view)";
+                IF IDEShowErrorsImmediately THEN
+                    LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+                    IF totalWarnings > 0 THEN
+                        COLOR 11, 1
+                        PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
+                        IF totalWarnings > 1 THEN PRINT "s";
+                        PRINT " - click here or Ctrl+W to view)";
+                    END IF
                 END IF
             END IF
             IF showexecreated THEN
