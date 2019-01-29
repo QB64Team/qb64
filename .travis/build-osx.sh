@@ -41,7 +41,7 @@ echo "Translating .bas source..."
 echo From git `echo $TRAVIS_COMMIT | sed 's/\(.......\).*$/\1/'` > internal/version.txt
 ./qb64_bootstrap -x -z source/qb64.bas > /tmp/qb64-output
 rm qb64_bootstrap
-if [ `wc -l /tmp/qb64-output |awk '{print $1}'` -gt 2 ]; then
+if [ `grep -v '^WARNING' /tmp/qb64-output | wc -l` -gt 2 ]; then
   cat /tmp/qb64-output
   rm /tmp/qb64-output
   exit 1
