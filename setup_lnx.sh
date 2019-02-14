@@ -105,7 +105,7 @@ if [ "$DISTRO" == "arch" ]; then
   if [ "$SDL" == "1" ]; then
     pkg_list="gcc sdl sdl_image sdl_mixer sdl_net sdl_ttf $GET_WGET"
   else
-    pkg_list="gcc $GET_WGET"
+    pkg_list="gcc ncurses $GET_WGET"
   fi
   installed_packages=`pacman -Q`
   installer_command="sudo pacman -S "
@@ -115,7 +115,7 @@ elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" ==
   if [ "$SDL" == "1" ]; then
     pkg_list="g++ libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-net1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev $GET_WGET"
   else
-    pkg_list="g++ mesa-common-dev libglu1-mesa-dev libasound2-dev $GET_WGET"
+    pkg_list="g++ mesa-common-dev libglu1-mesa-dev libncurses-dev libasound2-dev $GET_WGET"
   fi
   installed_packages=`dpkg -l`
   installer_command="sudo apt-get -y install "
@@ -125,7 +125,7 @@ elif [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "redhat" ] || [ "$DISTRO" == "c
   if [ "$SDL" == "1" ]; then
     pkg_list="gcc-c++ SDL-devel SDL_image-devel SDL_mixer-devel SDL_net-devel SDL_ttf-devel $GET_WGET"
   else
-    pkg_list="gcc-c++ mesa-libGLU-devel alsa-lib-devel $GET_WGET"
+    pkg_list="gcc-c++ mesa-libGLU-devel ncurses-devel alsa-lib-devel $GET_WGET"
   fi
   installed_packages=`yum list installed`
   installer_command="sudo yum install "
@@ -192,7 +192,7 @@ else
   echo "Building 'QB64'"
   cp -r ./internal/source/* ./internal/temp/
   cd internal/c
-  g++ -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -o ../../qb64
+  g++ -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lcurses -lpthread -ldl -lrt -D FREEGLUT_STATIC -o ../../qb64
   cd ../..
 fi
 

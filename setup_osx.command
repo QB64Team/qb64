@@ -47,7 +47,7 @@ cd ../../../../../../../..
 echo "Building 'QB64' (~3 min)"
 cp ./internal/source/* ./internal/temp/
 cd internal/c
-g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64
+g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -lcurses -o ../../qb64
 cd ../..
 
 echo ""
