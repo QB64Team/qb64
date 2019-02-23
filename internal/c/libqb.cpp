@@ -22008,10 +22008,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     //SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
                     //SDL_SetEventFilter(x11filter);
                     x11_lock();
-                    targets=XInternAtom(X11_display,"TARGETS",True);
-                    utf8string=XInternAtom(X11_display,"UTF8_STRING",True);
-                    compoundtext=XInternAtom(X11_display,"COMPOUND_TEXT",True);
-                    clipboard=XInternAtom(X11_display,"CLIPBOARD",True);
+                    targets=XInternAtom(X11_display,"TARGETS",False);
+                    utf8string=XInternAtom(X11_display,"UTF8_STRING",False);
+                    compoundtext=XInternAtom(X11_display,"COMPOUND_TEXT",False);
+                    clipboard=XInternAtom(X11_display,"CLIPBOARD",False);
                     x11_unlock();
                 }
             }
