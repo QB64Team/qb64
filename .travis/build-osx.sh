@@ -28,7 +28,7 @@ com_build "parts/video/font/ttf" "FreeType"
 cp -r internal/source/* internal/temp/
 cd internal/c
 echo "Bootstrapping QB64..."
-g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64_bootstrap
+g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -lcurses -o ../../qb64_bootstrap
 if [ $? -ne 0 ]; then
   echo "QB64 bootstrap failed"
   exit 1
