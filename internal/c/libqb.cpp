@@ -26588,7 +26588,9 @@ void sub__title(qbs *title){
     
     if (window_exists){
         #ifdef QB64_GLUT
-            glutSetWindowTitle((char*)window_title);
+            #ifndef QB64_MACOSX
+                glutSetWindowTitle((char*)window_title);
+            #endif
         #endif
     }
     
