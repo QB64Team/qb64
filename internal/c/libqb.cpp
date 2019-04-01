@@ -11217,8 +11217,7 @@ static bool clear_console(void)
 	    return false;
 	ret = (GetConsoleScreenBufferInfo(hConsole, &csbi) &&
 	    FillConsoleOutputCharacterA(console, ' ',
-	        csbi.dwSize.X * csbi.dwSize.Y, origin, &nCharsWritten) &&
-	    SetConsoleCursorPosition(hConsole, origin));
+	        csbi.dwSize.X * csbi.dwSize.Y, origin, &nCharsWritten));
 	CloseHandle(console);
 	return ret;
 }
@@ -11241,8 +11240,6 @@ static int putc_tty(int c)
 static bool clear_console(void)
 {
 	int err;
-	if (!isatty(fileno(stdout)))
-		return false;
 	ttyfd = open("/dev/tty", O_RDWR);
 	if (ttyfd == -1) {
 	    // No controlling TTY for the process?
