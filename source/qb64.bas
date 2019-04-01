@@ -113,6 +113,7 @@ DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
+DIM SHARED duplicateConstWarning AS _BYTE
 DIM SHARED ExeIconSet AS LONG
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1434,6 +1435,7 @@ UserDefineCount = 6
 usedVariableList$ = ""
 totalUnusedVariables = 0
 totalWarnings = 0
+duplicateConstWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 REDIM SHARED warning$(1000)
@@ -2374,6 +2376,17 @@ DO
                                         IF issueWarning THEN
                                             addWarning 0, "Constant already defined (same value):"
                                             addWarning linenumber, n$
+                                            IF idemode = 0 THEN
+                                                IF duplicateConstWarning = 0 THEN PRINT "WARNING: duplicate constant definition";
+                                                IF VerboseMode THEN
+                                                    PRINT ": '"; n$; "' (line"; STR$(linenumber); ")"
+                                                ELSE
+                                                    IF duplicateConstWarning = 0 THEN
+                                                        duplicateConstWarning = -1
+                                                        PRINT
+                                                    END IF
+                                                END IF
+                                            END IF
                                             GOTO constAddDone
                                         ELSE
                                             a$ = "Name already in use": GOTO errmes
@@ -11668,8 +11681,8 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
 IF totalUnusedVariables > 0 THEN
     IF idemode = 0 THEN
-        PRINT
-        PRINT "WARNING:"; STR$(totalUnusedVariables); " UNUSED VARIABLES";
+        PRINT "WARNING:"; STR$(totalUnusedVariables); " unused variable";
+        IF totalUnusedVariables > 1 THEN PRINT "s";
         IF VerboseMode THEN
             PRINT ":"
             findItem = 0
