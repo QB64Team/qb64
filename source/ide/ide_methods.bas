@@ -644,7 +644,7 @@ FUNCTION ide2 (ignore)
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN
                     LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
-                    IF totalWarnings > 0 THEN
+                    IF totalWarnings > 0 AND showexecreated = 0 THEN
                         COLOR 11, 1
                         PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
                         IF totalWarnings > 1 THEN PRINT "s";
