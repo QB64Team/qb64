@@ -22,17 +22,6 @@
     
 #endif
 
-#ifndef QB64_WINDOWS
-#include <curses.h>
-#include <term.h>
-// ncurses defines macros for terminfo capability names, which causes
-// conflicts.
-#undef create_window
-#undef buttons
-#undef tab
-#undef newline
-#endif
-
 
 int32 disableEvents=0;
 
@@ -11203,66 +11192,7 @@ void qbg_sub_view(int32 x1,int32 y1,int32 x2,int32 y2,int32 fillcolor,int32 bord
     return;
 }
 
-#ifdef QB64_WINDOWS
-static bool clear_console(void)
-{
-	bool ret;
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	COORD origin = {0, 0};
-	HANDLE hConsole = CreateFileA("CONOUT$",
-	    GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE,
-	    NULL, OPEN_EXISTING, 0, NULL);
-	DWORD nCharsWritten;
-	if (hConsole == INVALID_HANDLE_VALUE)
-	    return false;
-	ret = (GetConsoleScreenBufferInfo(hConsole, &csbi) &&
-	    FillConsoleOutputCharacterA(console, ' ',
-	        csbi.dwSize.X * csbi.dwSize.Y, origin, &nCharsWritten));
-	CloseHandle(console);
-	return ret;
-}
-#else
-// Terminal file descriptor
-static int ttyfd;
-// putchar replacement acting on ttyfd instead of stdin
-static int putc_tty(int c)
-{
-	int nWritten = 0;
-	unsigned char uc = (unsigned char)c;
-	if (ttyfd == -1)
-		return EOF;
-	while (nWritten == 0)
-		nWritten = write(ttyfd, &uc, 1);
-	if (nWritten != 1)
-		return EOF;
-	return c;
-}
-static bool clear_console(void)
-{
-	int err;
-	ttyfd = open("/dev/tty", O_RDWR);
-	if (ttyfd == -1) {
-	    // No controlling TTY for the process?
-	    return false;
-	}
-	// A non-null err pointer must be passed to prevent the process from
-	// exiting.
-	if (ERR == setupterm(NULL, ttyfd, &err)) {
-	    // No matter what the error was, it is ignored, and we
-	    // simply return that there was an error.
-	    return false;
-	}
-	char *cls = tigetstr("clear");
-	if (cls == (char *)-1 || cls == (char *)0) {
-	    return false;
-	}
-	tputs(cls, 1, putc_tty);
-	del_curterm(cur_term);
-	close(ttyfd);
-	ttyfd = -1;
-	return true;
-}
-#endif
+
 
 void sub_cls(int32 method,uint32 use_color,int32 passed){
     if (new_error) return;
@@ -11302,10 +11232,7 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     if ((passed&1)==0){//no method specified
         //video mode: clear only graphics viewport
         //text mode: clear text view port AND the bottom line
-        if (write_page->console){
-            // TODO: handle background arguments
-            clear_console();
-        }else if (write_page->text){
+        if (write_page->text){
             //text view port
             characters=write_page->width*(write_page->bottom_row-write_page->top_row+1);
             sp=(uint16*)&write_page->offset[(write_page->top_row-1)*write_page->width*2];
@@ -11348,10 +11275,7 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     }
     
     if (method==0){//clear everything
-        if (write_page->console){
-            // TODO: handle background arguments
-            clear_console();
-        }else if (write_page->text){
+        if (write_page->text){
             characters=write_page->height*write_page->width;
             sp=(uint16*)write_page->offset;
             for (i=0;i<characters;i++){sp[i]=clearvalue;}
@@ -11380,10 +11304,7 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     }
     
     if (method==1){//ONLY clear the graphics viewport
-        if (write_page->console){
-            // TODO: handle background arguments
-            clear_console();
-        }else if (write_page->text) return;
+        if (write_page->text) return;
         //graphics view port
         if (write_page->bytes_per_pixel==1){//8-bit
             if (write_page->clipping_or_scaling){
@@ -11414,12 +11335,7 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     }
     
     if (method==2){//ONLY clear the VIEW PRINT range text viewport
-        if (write_page->console){
-            // TODO: handle background arguments
-            // Once VIEW PRINT is supported in the console, this will need
-            // handled as well.
-            clear_console();
-        }else if (write_page->text){
+        if (write_page->text){
             //text viewport
             characters=write_page->width*(write_page->bottom_row-write_page->top_row+1);
             sp=(uint16*)&write_page->offset[(write_page->top_row-1)*write_page->width*2];
