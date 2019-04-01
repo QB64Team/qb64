@@ -1271,6 +1271,13 @@ void sub__glrender(int32 method){
         }
         in_GLUT_DISPLAY_REQUEST=1;
         
+        #ifdef QB64_MACOSX
+            if (temp_window_title_set==1) {
+                glutSetWindowTitle((char*)window_title);
+                temp_window_title_set=0;
+            } 
+        #endif
+
         //general use variables
         static int32 i,i2,i3;
         static int32 x,y,x2,y2;

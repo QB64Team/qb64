@@ -284,6 +284,7 @@ int32 window_exists=0;
 int32 create_window=0;
 int32 window_focused=0; //Not used on Windows
 uint8 *window_title=NULL;
+int32 temp_window_title_set=0;
 
 double max_fps=60;//60 is the default
 int32 auto_fps=0;//set to 1 to make QB64 auto-adjust fps based on load
@@ -26501,7 +26502,9 @@ void sub__title(qbs *title){
     
     if (window_exists){
         #ifdef QB64_GLUT
-            #ifndef QB64_MACOSX
+            #ifdef QB64_MACOSX
+                temp_window_title_set=1;
+            #else
                 glutSetWindowTitle((char*)window_title);
             #endif
         #endif
