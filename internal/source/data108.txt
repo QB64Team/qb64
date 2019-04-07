@@ -1,29 +1,10 @@
-qbs*oldstr3628=NULL;
-if(_SUB_ARYADDSTR_STRING_VALUE->tmp||_SUB_ARYADDSTR_STRING_VALUE->fixed||_SUB_ARYADDSTR_STRING_VALUE->readonly){
-oldstr3628=_SUB_ARYADDSTR_STRING_VALUE;
-if (oldstr3628->cmem_descriptor){
-_SUB_ARYADDSTR_STRING_VALUE=qbs_new_cmem(oldstr3628->len,0);
+qbs*oldstr3577=NULL;
+if(_SUB_ADDWARNING_STRING_TEXT->tmp||_SUB_ADDWARNING_STRING_TEXT->fixed||_SUB_ADDWARNING_STRING_TEXT->readonly){
+oldstr3577=_SUB_ADDWARNING_STRING_TEXT;
+if (oldstr3577->cmem_descriptor){
+_SUB_ADDWARNING_STRING_TEXT=qbs_new_cmem(oldstr3577->len,0);
 }else{
-_SUB_ARYADDSTR_STRING_VALUE=qbs_new(oldstr3628->len,0);
+_SUB_ADDWARNING_STRING_TEXT=qbs_new(oldstr3577->len,0);
 }
-memcpy(_SUB_ARYADDSTR_STRING_VALUE->chr,oldstr3628->chr,oldstr3628->len);
-}
-byte_element_struct *byte_element_3629=NULL;
-if (!byte_element_3629){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3629=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3629=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_SUB_ARYADDSTR_LONG_INDEX=NULL;
-if(_SUB_ARYADDSTR_LONG_INDEX==NULL){
-_SUB_ARYADDSTR_LONG_INDEX=(int32*)mem_static_malloc(4);
-*_SUB_ARYADDSTR_LONG_INDEX=0;
-}
-int32 *_SUB_ARYADDSTR_LONG_LASTINDEX=NULL;
-if(_SUB_ARYADDSTR_LONG_LASTINDEX==NULL){
-_SUB_ARYADDSTR_LONG_LASTINDEX=(int32*)mem_static_malloc(4);
-*_SUB_ARYADDSTR_LONG_LASTINDEX=0;
-}
-int32 *_SUB_ARYADDSTR_LONG_ARYNEWSTR=NULL;
-if(_SUB_ARYADDSTR_LONG_ARYNEWSTR==NULL){
-_SUB_ARYADDSTR_LONG_ARYNEWSTR=(int32*)mem_static_malloc(4);
-*_SUB_ARYADDSTR_LONG_ARYNEWSTR=0;
+memcpy(_SUB_ADDWARNING_STRING_TEXT->chr,oldstr3577->chr,oldstr3577->len);
 }

@@ -56,6 +56,8 @@
     #else
         typedef unsigned long long uint64_t;
         typedef   signed long long  int64_t;
+        // typedef __uint64_t uint64_t;
+        // typedef __int64_t int64_t;
     #endif
 #endif
 

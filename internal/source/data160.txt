@@ -1,0 +1,23 @@
+qbs*oldstr4824=NULL;
+if(_SUB_IDESETLINE_STRING_TEXT->tmp||_SUB_IDESETLINE_STRING_TEXT->fixed||_SUB_IDESETLINE_STRING_TEXT->readonly){
+oldstr4824=_SUB_IDESETLINE_STRING_TEXT;
+if (oldstr4824->cmem_descriptor){
+_SUB_IDESETLINE_STRING_TEXT=qbs_new_cmem(oldstr4824->len,0);
+}else{
+_SUB_IDESETLINE_STRING_TEXT=qbs_new(oldstr4824->len,0);
+}
+memcpy(_SUB_IDESETLINE_STRING_TEXT->chr,oldstr4824->chr,oldstr4824->len);
+}
+int32 *_SUB_IDESETLINE_LONG_TEXTLEN=NULL;
+if(_SUB_IDESETLINE_LONG_TEXTLEN==NULL){
+_SUB_IDESETLINE_LONG_TEXTLEN=(int32*)mem_static_malloc(4);
+*_SUB_IDESETLINE_LONG_TEXTLEN=0;
+}
+byte_element_struct *byte_element_4825=NULL;
+if (!byte_element_4825){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4825=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4825=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_4826=NULL;
+if (!byte_element_4826){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4826=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4826=(byte_element_struct*)mem_static_malloc(12);
+}

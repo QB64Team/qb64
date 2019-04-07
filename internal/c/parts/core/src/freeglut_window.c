@@ -894,7 +894,7 @@ if (acc2) alert("acc!");
         wndCls.lpszClassName = _T("FREEGLUT_dummy");
         RegisterClass( &wndCls );
 
-        hWnd=CreateWindow(_T("FREEGLUT_dummy"), _T(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX) , 0,0,0,0, 0, 0, fgDisplay.Instance, 0 );
+        hWnd=CreateWindow(_T("FREEGLUT_dummy"), _T(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|(WS_MAXIMIZEBOX*QB64_Resizable())) , 0,0,0,0, 0, 0, fgDisplay.Instance, 0 );
         hDC=GetDC(hWnd);
         SetPixelFormat( hDC, pixelformat, ppfd );
 
@@ -992,7 +992,7 @@ void fghComputeWindowRectFromClientArea_UseStyle( const DWORD windowStyle, RECT 
     int xBorderWidth = 0, yBorderWidth = 0;
 
     /* If window has title bar, correct rect for it */
-    if (windowStyle & WS_MAXIMIZEBOX) /* Need to query for WS_MAXIMIZEBOX to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
+    if (windowStyle & WS_SYSMENU) /* Need to query for WS_SYSMENU to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
         if (posIsOutside)
             clientRect->bottom += GetSystemMetrics( SM_CYCAPTION );
         else
@@ -1033,7 +1033,7 @@ void fghComputeWindowRectFromClientArea_QueryWindow( const SFG_Window *window, R
     if (window && window->Window.Handle)
         windowStyle = GetWindowLong(window->Window.Handle, GWL_STYLE);
     else
-        windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
+        windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|(WS_MAXIMIZEBOX*QB64_Resizable()));
 
     fghComputeWindowRectFromClientArea_UseStyle(windowStyle, clientRect, posIsOutside);
 }
@@ -1057,10 +1057,10 @@ void fghComputeClientAreaFromWindowRect( const SFG_Window *window, RECT *windowR
     if (window && window->Window.Handle)
         windowStyle = GetWindowLong(window->Window.Handle, GWL_STYLE);
     else
-        windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
+        windowStyle = ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|(WS_MAXIMIZEBOX*QB64_Resizable()));
 
     /* If window has title bar, correct rect for it */
-    if (windowStyle & WS_MAXIMIZEBOX) /* Need to query for WS_MAXIMIZEBOX to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
+    if (windowStyle & WS_SYSMENU) /* Need to query for WS_SYSMENU to see if we have a title bar, the WS_CAPTION query is also true for a WS_DLGFRAME only... */
         if (wantPosOutside)
             windowRect->bottom -= GetSystemMetrics( SM_CYCAPTION );
         else
@@ -1484,7 +1484,7 @@ void fgOpenWindow( SFG_Window* window, const char* title,
                  * WS_CAPTION can be true without the window having a title
                  * bar. This style ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX) gives you a maximize
                  * button. */
-                flags |= ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
+                flags |= ((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|(WS_MAXIMIZEBOX*QB64_Resizable()));
 #endif
         else
             /* subwindows always have no decoration, but are marked as a child window to the OS */
@@ -2151,7 +2151,7 @@ void FGAPIENTRY glutFullScreen( void )
         win->State.OldStyle = s = GetWindowLong(win->Window.Handle, GWL_STYLE);
 
         /* remove decorations from style and add popup style*/
-        s &= ~((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
+        s &= ~((WS_OVERLAPPEDWINDOW*QB64_Resizable())|WS_DLGFRAME|WS_BORDER|WS_SYSMENU|WS_MINIMIZEBOX|(WS_MAXIMIZEBOX*QB64_Resizable()));
         s |= WS_POPUP;
         SetWindowLong(win->Window.Handle, GWL_STYLE, s);
         SetWindowPos(win->Window.Handle, HWND_TOP, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);

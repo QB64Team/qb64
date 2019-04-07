@@ -28,7 +28,7 @@ com_build "parts/video/font/ttf" "FreeType"
 cp -r internal/source/* internal/temp/
 cd internal/c
 echo "Bootstrapping QB64..."
-g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64_bootstrap
+g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -lcurses -o ../../qb64_bootstrap
 if [ $? -ne 0 ]; then
   echo "QB64 bootstrap failed"
   exit 1
@@ -38,10 +38,10 @@ cd - > /dev/null
 
 ###### Part 2: Build new QB64 from .bas sources ######
 echo "Translating .bas source..."
-echo AutoBuildMsg\$ = CHR\$\(10\) + \"From git `echo $TRAVIS_COMMIT | sed 's/\(.......\).*$/\1/'`\" >> source/global/version.bas
+echo From git `echo $TRAVIS_COMMIT | sed 's/\(.......\).*$/\1/'` > internal/version.txt
 ./qb64_bootstrap -x -z source/qb64.bas > /tmp/qb64-output
 rm qb64_bootstrap
-if [ `wc -l /tmp/qb64-output |awk '{print $1}'` -gt 2 ]; then
+if [ `grep -v '^WARNING' /tmp/qb64-output | wc -l` -gt 2 ]; then
   cat /tmp/qb64-output
   rm /tmp/qb64-output
   exit 1

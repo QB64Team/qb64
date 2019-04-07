@@ -1,12 +1,29 @@
-qbs *_FUNC_QUOTEDFILENAME_STRING_QUOTEDFILENAME=NULL;
-if (!_FUNC_QUOTEDFILENAME_STRING_QUOTEDFILENAME)_FUNC_QUOTEDFILENAME_STRING_QUOTEDFILENAME=qbs_new(0,0);
-qbs*oldstr3470=NULL;
-if(_FUNC_QUOTEDFILENAME_STRING_F->tmp||_FUNC_QUOTEDFILENAME_STRING_F->fixed||_FUNC_QUOTEDFILENAME_STRING_F->readonly){
-oldstr3470=_FUNC_QUOTEDFILENAME_STRING_F;
-if (oldstr3470->cmem_descriptor){
-_FUNC_QUOTEDFILENAME_STRING_F=qbs_new_cmem(oldstr3470->len,0);
-}else{
-_FUNC_QUOTEDFILENAME_STRING_F=qbs_new(oldstr3470->len,0);
+int32 *_FUNC_HASHVALUE_LONG_HASHVALUE=NULL;
+if(_FUNC_HASHVALUE_LONG_HASHVALUE==NULL){
+_FUNC_HASHVALUE_LONG_HASHVALUE=(int32*)mem_static_malloc(4);
+*_FUNC_HASHVALUE_LONG_HASHVALUE=0;
 }
-memcpy(_FUNC_QUOTEDFILENAME_STRING_F->chr,oldstr3470->chr,oldstr3470->len);
+qbs*oldstr3443=NULL;
+if(_FUNC_HASHVALUE_STRING_A->tmp||_FUNC_HASHVALUE_STRING_A->fixed||_FUNC_HASHVALUE_STRING_A->readonly){
+oldstr3443=_FUNC_HASHVALUE_STRING_A;
+if (oldstr3443->cmem_descriptor){
+_FUNC_HASHVALUE_STRING_A=qbs_new_cmem(oldstr3443->len,0);
+}else{
+_FUNC_HASHVALUE_STRING_A=qbs_new(oldstr3443->len,0);
+}
+memcpy(_FUNC_HASHVALUE_STRING_A->chr,oldstr3443->chr,oldstr3443->len);
+}
+int32 *_FUNC_HASHVALUE_LONG_L=NULL;
+if(_FUNC_HASHVALUE_LONG_L==NULL){
+_FUNC_HASHVALUE_LONG_L=(int32*)mem_static_malloc(4);
+*_FUNC_HASHVALUE_LONG_L=0;
+}
+byte_element_struct *byte_element_3444=NULL;
+if (!byte_element_3444){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3444=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3444=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_HASHVALUE_LONG_A=NULL;
+if(_FUNC_HASHVALUE_LONG_A==NULL){
+_FUNC_HASHVALUE_LONG_A=(int32*)mem_static_malloc(4);
+*_FUNC_HASHVALUE_LONG_A=0;
 }

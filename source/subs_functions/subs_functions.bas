@@ -564,7 +564,7 @@ clearid
 id.n = "_WINDOWHANDLE"
 id.subfunc = 1
 id.callname = "func__handle"
-id.ret = LONGTYPE - ISPOINTER
+id.ret = INTEGER64TYPE - ISPOINTER
 id.NoCloud = 1
 regid
 
@@ -667,7 +667,17 @@ id.subfunc = 2
 id.callname = "sub__fullscreen"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS}][,{_SMOOTH}]"
+id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS|OFF}][,{_SMOOTH}]"
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_ALLOWFULLSCREEN"
+id.subfunc = 2
+id.callname = "sub__allowfullscreen"
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL|OFF}][,{_SMOOTH|_OFF|_ALL|OFF}]"
 id.NoCloud = 1
 regid
 
@@ -675,6 +685,14 @@ clearid
 id.n = "_FULLSCREEN"
 id.subfunc = 1
 id.callname = "func__fullscreen"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_SMOOTH"
+id.subfunc = 1
+id.callname = "func__fullscreensmooth"
 id.ret = LONGTYPE - ISPOINTER
 id.NoCloud = 1
 regid
@@ -869,6 +887,59 @@ id.callname = "sub__title"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.NoCloud = 1
+regid
+
+clearid
+id.n = "_ECHO"
+id.subfunc = 2
+id.callname = "sub__echo"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_ACCEPTFILEDROP"
+id.subfunc = 2
+id.callname = "sub__filedrop"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{ON|OFF}]"
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_ACCEPTFILEDROP"
+id.subfunc = 1
+id.callname = "func__filedrop"
+id.ret = LONGTYPE - ISPOINTER
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_FINISHDROP"
+id.subfunc = 2
+id.callname = "sub__finishdrop"
+id.NoCloud = 1
+regid
+
+clearid
+id.n = "_TOTALDROPPEDFILES"
+id.subfunc = 1
+id.callname = "func__totaldroppedfiles"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_DROPPEDFILE"
+id.mayhave = "$"
+id.subfunc = 1
+id.callname = "func__droppedfile"
+id.ret = STRINGTYPE - ISPOINTER
+id.NoCloud = 1
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
 regid
 
 clearid
@@ -1304,8 +1375,10 @@ clearid
 id.n = "_RGB32"
 id.subfunc = 1
 id.callname = "func__rgb32"
-id.args = 3
-id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.overloaded = -1
+id.minargs = 1
+id.args = 4
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.ret = ULONGTYPE - ISPOINTER
 regid
 
@@ -2411,6 +2484,16 @@ id.specialformat = "[?],?,?" 'checked!
 regid
 
 clearid
+id.n = "_INSTRREV"
+id.subfunc = 1
+id.callname = "func__instrrev"
+id.args = 3
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER)
+id.ret = LONGTYPE - ISPOINTER
+id.specialformat = "[?],?,?" 'checked!
+regid
+
+clearid
 id.n = "MID"
 id.musthave = "$"
 id.subfunc = 1
@@ -2864,6 +2947,16 @@ id.ret = STRINGTYPE - ISPOINTER
 regid
 
 clearid
+id.n = "_TRIM"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "qbs__trim"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.ret = STRINGTYPE - ISPOINTER
+regid
+
+clearid
 id.n = "PRINT"
 id.subfunc = 2
 id.callname = "qbs_print" 'not called directly
@@ -3249,4 +3342,22 @@ id.subfunc = 1
 id.callname = "func__autodisplay"
 id.args = 0
 id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SHR"
+id.subfunc = 1
+id.callname = "func__shr"
+id.args = 2
+id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = INTEGER64TYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SHL"
+id.subfunc = 1
+id.callname = "func__shl"
+id.args = 2
+id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = INTEGER64TYPE - ISPOINTER
 regid

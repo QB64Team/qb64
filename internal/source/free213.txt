@@ -1,20 +1,4 @@
-if(oldstr5694){
-if(oldstr5694->fixed)qbs_set(oldstr5694,_SUB_WIKIPARSE_STRING_A);
-qbs_free(_SUB_WIKIPARSE_STRING_A);
+if(oldstr5698){
+if(oldstr5698->fixed)qbs_set(oldstr5698,_FUNC_REMOVESYMBOL2_STRING_VARNAME);
+qbs_free(_FUNC_REMOVESYMBOL2_STRING_VARNAME);
 }
-if (_SUB_WIKIPARSE_ARRAY_STRING_C[2]&1){
-tmp_long=_SUB_WIKIPARSE_ARRAY_STRING_C[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(_SUB_WIKIPARSE_ARRAY_STRING_C[0]))[tmp_long]);
-free((void*)(_SUB_WIKIPARSE_ARRAY_STRING_C[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_SUB_WIKIPARSE_ARRAY_STRING_C)[8] );
-qbs_free(_SUB_WIKIPARSE_STRING_C);
-qbs_free(_SUB_WIKIPARSE_STRING_S);
-qbs_free(_SUB_WIKIPARSE_STRING_LINK);
-qbs_free(_SUB_WIKIPARSE_STRING_TEXT);
-qbs_free(_SUB_WIKIPARSE_STRING_ELINK);
-qbs_free(_SUB_WIKIPARSE_STRING_CB);
-qbs_free(_SUB_WIKIPARSE_STRING_L);
-qbs_free(_SUB_WIKIPARSE_STRING_A2);
-qbs_free(_SUB_WIKIPARSE_STRING_A3);
-qbs_free(_SUB_WIKIPARSE_STRING_OA2);

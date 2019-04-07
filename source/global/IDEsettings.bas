@@ -10,7 +10,7 @@ DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
 DIM SHARED MouseButtonSwapped AS _BYTE
 DIM SHARED PasteCursorAtEnd AS _BYTE
-DIM SHARED SaveExeWithSource AS _BYTE
+DIM SHARED SaveExeWithSource AS _BYTE, EnableQuickNav AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 
@@ -179,6 +179,19 @@ IF LoadedIDESettings = 0 THEN
         SaveExeWithSource = 0
     END IF
 
+    result = ReadConfigSetting("EnableQuickNav", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            EnableQuickNav = -1
+        ELSE
+            EnableQuickNav = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "TRUE"
+        EnableQuickNav = -1
+    END IF
+
     result = ReadConfigSetting("IDE_SortSUBs", value$)
     IF result THEN
         IF value$ = "TRUE" OR VAL(value$) = -1 THEN
@@ -214,8 +227,8 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
         END IF
     ELSE
-        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
-        ShowLineNumbers = 0
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
+        ShowLineNumbers = -1
     END IF
 
     result = ReadConfigSetting("ShowLineNumbersSeparator", value$)
@@ -425,30 +438,12 @@ IF LoadedIDESettings = 0 THEN
     END IF
     Include_GDB_Debugging_Info = idedebuginfo
 
-    result = ReadConfigSetting("IDE_AndroidMenu", value$)
-    IdeAndroidMenu = ABS(VAL(value$))
-    IF UCASE$(value$) = "TRUE" THEN IdeAndroidMenu = 1
-    IF IdeAndroidMenu <> 1 THEN ideideandroidmenu = 0: WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "FALSE"
-
-    result = ReadConfigSetting("IDE_AndroidStartScript$", value$)
-    IdeAndroidStartScript$ = value$ 'no default values in case this fails??
-    IF result = 0 THEN WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidStartScript$", "programs\android\start_android.bat"
-
-    result = ReadConfigSetting("IDE_AndroidMakeScript$", value$)
-    IdeAndroidMakeScript$ = value$ 'no default values in case this fails??
-    IF result = 0 THEN WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$", "programs\android\start_android.bat"
-    IF result = 0 THEN WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$", "programs\android\start_android.bat"
-
-
     GOTO SkipCheckConfigFileExists
     CheckConfigFileExists:
     IF _FILEEXISTS(ConfigFile$) = 0 THEN
         'There's no config file in the folder.  Let's make one for future use.
         IF ConfigFile$ = "internal/config.txt" THEN 'It's the main file which we use for default/global settings
             WriteConfigSetting "'[CONFIG VERSION]", "ConfigVersion", "1"
-            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMakeScript$", "programs\android\start_android.bat"
-            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidStartScript$", "programs\android\start_android.bat"
-            WriteConfigSetting "'[ANDROID MENU]", "IDE_AndroidMenu", "FALSE"
             IF INSTR(_OS$, "WIN") THEN WriteConfigSetting "'[GENERAL SETTINGS]", "AllowIndependentSettings", "FALSE"
             WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
             WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"

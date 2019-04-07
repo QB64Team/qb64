@@ -79,64 +79,64 @@ g1tyi = g1->tyi; g2tyi = g2->tyi;
 
 //2nd bottleneck
 for(y=y1;y<=y2;y++){
-
+    
     if(g1x < 0) x1 = (g1x - 65535) / 65536;else x1 = g1x / 65536; //int-style rounding of fixed-point value
     if(g2x < 0) x2 = (g2x - 65535) / 65536;else x2 = g2x / 65536;
-
+    
     if(x1 >= dwidth | x2 < 0) goto mtri4t_donerow; //crop if(entirely offscreen
-
+    
     tx = g1tx; ty = g1ty;
-
+    
     //calculate gradients if they might be required
     if(x1 != x2){
         d = g2x - g1x;
         i64 = g2tx - g1tx; txi = (i64 << 16) / d;
         i64 = g2ty - g1ty; tyi = (i64 << 16) / d;
-    }else{
+        }else{
         txi = 0; tyi = 0;
     }
-
+    
     //calculate pixel offsets from ideals
     loff = ((g1x & 65535) - 32768); //note; works for positive & negative values
     roff = ((g2x & 65535) - 32768);
-
+    
     if(roff < 0){ //not enough of rhs pixel exists to use
         if(x2 < dwidth & no_edge_overlap == 0){ //onscreen check
             //draw rhs pixel as is
             //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-col=src_offset[((g2ty>>16)%sheight)*swidth+((g2tx>>16)%swidth)];
-if (col!=transparent_color) *(dst_offset+(y*dwidth+x2))=col;
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            col=src_offset[((g2ty>>16)%sheight)*swidth+((g2tx>>16)%swidth)];
+            if (col!=transparent_color) *(dst_offset+(y*dwidth+x2))=col;
+            //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         }
         //move left one position
         x2--;
         if(x1 > x2 | x2 < 0) goto mtri4t_donerow; //no more to do
-    }else{
+        }else{
         if(no_edge_overlap){
             x2 = x2 - 1;
             if(x1 > x2 | x2 < 0) goto mtri4t_donerow; //no more to do
         }
     }
-
+    
     if(loff > 0){
         //draw lhs pixel as is
         if(x1 >= 0){
             //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-col=src_offset[((ty>>16)%sheight)*swidth+((tx>>16)%swidth)];
-if (col!=transparent_color) *(dst_offset+(y*dwidth+x1))=col;
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            col=src_offset[((ty>>16)%sheight)*swidth+((tx>>16)%swidth)];
+            if (col!=transparent_color) *(dst_offset+(y*dwidth+x1))=col;
+            //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         }
         //skip to next x location, effectively reducing steps by 1
         x1++;
         if(x1 > x2) goto mtri4t_donerow;
         loff = -(65536 - loff); //adjust alignment to jump to next ideal offset
     }
-
+    
     //align to loff
     i64 = -loff;
     tx += (i64 * txi) / 65536;
     ty += (i64 * tyi) / 65536;
-
+    
     if(x1 < 0){ //clip left
         d = g2x - g1x;
         i64 = g2tx - g1tx;
@@ -145,55 +145,55 @@ if (col!=transparent_color) *(dst_offset+(y*dwidth+x1))=col;
         ty += ((i64 << 16) * -x1) / d;
         if(x1 < 0) x1 = 0;
     }
-
+    
     if(x2 >= dwidth){
         x2 = dwidth - 1; //clip right
     }
-
+    
     //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-pixel_offset=dst_offset+(y*dwidth+x1);
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    pixel_offset=dst_offset+(y*dwidth+x1);
+    //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
     //bottleneck
     for(x=x1;x<=x2;x++){
-
+        
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-col=src_offset[((ty>>16)%sheight)*swidth+((tx>>16)%swidth)];
-if (col!=transparent_color) *pixel_offset=col;
-pixel_offset++;
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+        col=src_offset[((ty>>16)%sheight)*swidth+((tx>>16)%swidth)];
+        if (col!=transparent_color) *pixel_offset=col;
+        pixel_offset++;
+        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        
         tx += txi;
         ty += tyi;
-
+        
     }
-
+    
     mtri4t_donerow:;
-
+    
     if(y != y2){
         g1x += g1xi; g1tx += g1txi; g1ty += g1tyi;
         g2x += g2xi; g2tx += g2txi; g2ty += g2tyi;
     }
-
+    
 }
 
 if(final == 0){
-
+    
     //update indexed variable values with direct variable values which have changed & may be required
     g1->x = g1x; g2->x = g2x;
     g1->tx = g1tx; g2->tx = g2tx;
     g1->ty = g1ty; g2->ty = g2ty;
-
+    
     mtri4t_final:;
     if(y2 < dheight - 1){ //no point continuing if(offscreen!
         if(g1->y2 < g2->y2) g1 = g3;else g2 = g3;
-
+        
         //avoid doing the same row twice
         y1 = g3->y1 + 1;
         y2 = g3->y2;
         g1->x += g1->xi; g1->tx += g1->txi; g1->ty += g1->tyi;
         g2->x += g2->xi; g2->tx += g2->txi; g2->ty += g2->tyi;
-
+        
         final = 1;
         goto mtri4t_usegrad3;
     }
