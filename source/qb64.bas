@@ -18,9 +18,6 @@ $SCREENHIDE
 'INCLUDE:'qb_framework\qb_framework_global.bas'
 DEFLNG A-Z
 
-'INCLUDE:'virtual_keyboard\virtual_keyboard_global.bas'
-DEFLNG A-Z
-
 '-------- Optional IDE Component (1/2) --------
 '$INCLUDE:'ide\ide_global.bas'
 
@@ -28,10 +25,6 @@ REDIM SHARED OName(0) AS STRING 'Operation Name
 REDIM SHARED PL(0) AS INTEGER 'Priority Level
 DIM SHARED QuickReturn AS INTEGER
 Set_OrderOfOperations 'This will also make certain our directories are valid, and if not make them.
-
-DIM SHARED VirtualKeyboardState
-DIM SHARED DesiredVirtualKeyboardState
-DIM SHARED RecompileAttemptsForVirtualKeyboardState
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 DIM ExecLevel(255), ExecCounter AS INTEGER
@@ -1192,13 +1185,7 @@ sflistn = -1 'no entries
 
 SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labels
 
-DesiredVirtualKeyboardState = 0
-RecompileAttemptsForVirtualKeyboardState = 0
-
 recompile:
-
-'move desired state into active state
-VirtualKeyboardState = DesiredVirtualKeyboardState
 
 lastLineReturn = 0
 lastLine = 0
@@ -1572,13 +1559,8 @@ DO
 
     IF lastLine <> 0 OR firstLine <> 0 THEN
         lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
-        IF VirtualKeyboardState THEN
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\header.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\footer.bas"
-        ELSE
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\footer_stub.bas"
-        END IF
+        IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+        IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
         firstLine = 0: lastLine = 0
         GOTO forceInclude_prepass
         forceIncludeCompleted_prepass:
@@ -1604,32 +1586,6 @@ DO
         IF Error_Happened THEN GOTO errmes
 
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
-
-        IF temp$ = "$VIRTUALKEYBOARD:ON" THEN
-            DesiredVirtualKeyboardState = 1
-            IF VirtualKeyboardState = 0 THEN
-                IF RecompileAttemptsForVirtualKeyboardState = 0 THEN
-                    'this is the first time a conflict has occurred, so react immediately with a full recompilation using the desired state
-                    RecompileAttemptsForVirtualKeyboardState = RecompileAttemptsForVirtualKeyboardState + 1
-                    GOTO do_recompile
-                ELSE
-                    'continue compilation to retrieve the final state requested and act on that as required
-                END IF
-            END IF
-        END IF
-
-        IF temp$ = "$VIRTUALKEYBOARD:OFF" THEN
-            DesiredVirtualKeyboardState = 0
-            IF VirtualKeyboardState <> 0 THEN
-                IF RecompileAttemptsForVirtualKeyboardState = 0 THEN
-                    'this is the first time a conflict has occurred, so react immediately with a full recompilation using the desired state
-                    RecompileAttemptsForVirtualKeyboardState = RecompileAttemptsForVirtualKeyboardState + 1
-                    GOTO do_recompile
-                ELSE
-                    'continue compilation to retrieve the final state requested and act on that as required
-                END IF
-            END IF
-        END IF
 
         IF LEFT$(temp$, 4) = "$IF " THEN
             IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$IF without THEN": GOTO errmes
@@ -2929,13 +2885,8 @@ DO
 
     IF lastLine <> 0 OR firstLine <> 0 THEN
         lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
-        IF VirtualKeyboardState THEN
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\header.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\footer.bas"
-        ELSE
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\virtual_keyboard\embed\footer_stub.bas"
-        END IF
+        IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+        IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
         firstLine = 0: lastLine = 0
         GOTO forceInclude
         forceIncludeCompleted:
@@ -3126,11 +3077,13 @@ DO
         END IF
 
         IF a3u$ = "$VIRTUALKEYBOARD:ON" THEN
+            'Deprecated; does nothing.
             layout$ = "$VIRTUALKEYBOARD:ON"
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$VIRTUALKEYBOARD:OFF" THEN
+            'Deprecated; does nothing.
             layout$ = "$VIRTUALKEYBOARD:OFF"
             GOTO finishednonexec
         END IF
@@ -10987,11 +10940,6 @@ FOR x = 1 TO commonarraylistn
     END IF
 NEXT
 IF Debug THEN PRINT #9, "Finished COMMON array list check!"
-
-IF DesiredVirtualKeyboardState <> VirtualKeyboardState THEN
-    RecompileAttemptsForVirtualKeyboardState = RecompileAttemptsForVirtualKeyboardState + 1
-    recompile = 1
-END IF
 
 IF recompile THEN
     do_recompile:
@@ -24886,9 +24834,6 @@ END SUB
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'
 
 'INCLUDE:'qb_framework\qb_framework_methods.bas'
-DEFLNG A-Z
-
-'INCLUDE:'virtual_keyboard\virtual_keyboard_methods.bas'
 DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
