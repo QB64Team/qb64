@@ -134,7 +134,6 @@ id.callname = "sub__glrender"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "{_BEHIND|_ONTOP|_ONLY}"
-id.NoCloud = 1
 regid
 
 clearid
@@ -144,7 +143,6 @@ id.callname = "sub__displayorder"
 id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}]]]]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -154,7 +152,6 @@ id.callname = "func__memget"
 id.args = 3
 id.arg = MKL$(UDTTYPE + (1)) + MKL$(OFFSETTYPE - ISPOINTER) + MKL$(-1) 'x = _MEMGET(block, offset, type)
 id.ret = -1
-id.NoCloud = 1
 regid
 
 clearid
@@ -167,7 +164,6 @@ id.args = 2
 id.arg = MKL$(OFFSETTYPE - ISPOINTER) + MKL$(OFFSETTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
-id.NoCloud = 1
 regid
 '---special case---
 
@@ -178,7 +174,6 @@ id.callname = "func__mem"
 id.args = 1
 id.arg = MKL$(-8)
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
-id.NoCloud = 1
 regid
 '---special case---
 
@@ -190,7 +185,6 @@ id.subfunc = 2
 id.callname = "sub__memfree"
 id.args = 1
 id.arg = MKL$(UDTTYPE + (1))
-id.NoCloud = 1
 regid
 
 clearid
@@ -200,7 +194,6 @@ id.callname = "func__memexists"
 id.args = 1
 id.arg = MKL$(UDTTYPE + (1))
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -210,7 +203,6 @@ id.callname = "func__memnew"
 id.args = 1
 id.arg = MKL$(OFFSETTYPE - ISPOINTER)
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
-id.NoCloud = 1
 regid
 
 clearid
@@ -221,7 +213,6 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]" 'dest is default
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
-id.NoCloud = 1
 regid
 
 clearid '_MEMCOPY a, aoffset, bytes TO b, boffset
@@ -231,7 +222,6 @@ id.callname = "sub__memcopy"
 id.args = 5
 id.arg = MKL$(UDTTYPE + (1)) + MKL$(OFFSETTYPE - ISPOINTER) + MKL$(OFFSETTYPE - ISPOINTER) + MKL$(UDTTYPE + (1)) + MKL$(OFFSETTYPE - ISPOINTER)
 id.specialformat = "?,?,?{TO}?,?" 'dest is default
-id.NoCloud = 1
 regid
 
 clearid
@@ -240,21 +230,18 @@ id.subfunc = 2
 id.callname = "sub__consoletitle"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
 id.n = "_SCREENSHOW"
 id.subfunc = 2
 id.callname = "sub__screenshow"
-id.NoCloud = 1
 regid
 
 clearid
 id.n = "_SCREENHIDE"
 id.subfunc = 2
 id.callname = "sub__screenhide"
-id.NoCloud = 1
 regid
 
 clearid
@@ -262,7 +249,6 @@ id.n = "_SCREENHIDE"
 id.subfunc = 1
 id.callname = "func__screenhide"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 
@@ -271,7 +257,6 @@ id.n = "_CONSOLE"
 id.subfunc = 1
 id.callname = "func__console"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -281,7 +266,6 @@ id.callname = "sub__console"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "{ON|OFF}"
-id.NoCloud = 1
 regid
 
 clearid
@@ -523,7 +507,6 @@ id.musthave = "$"
 id.subfunc = 1
 id.callname = "func__title"
 id.ret = STRINGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -565,7 +548,6 @@ id.n = "_WINDOWHANDLE"
 id.subfunc = 1
 id.callname = "func__handle"
 id.ret = INTEGER64TYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -575,7 +557,6 @@ id.callname = "sub_files"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "[?]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -586,7 +567,6 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 ''proposed version:
 ''id.specialformat = "[_SQUAREPIXELS][?][,(?,?)-(?,?)]"
-id.NoCloud = 1
 regid
 
 'remote desktop
@@ -598,7 +578,6 @@ id.callname = "sub__screenclick"
 id.args = 3
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?,?[,?]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -607,7 +586,6 @@ id.subfunc = 2
 id.callname = "sub__screenprint"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -618,7 +596,6 @@ id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?,?,?,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 
@@ -632,7 +609,6 @@ id.callname = "sub_lock"
 id.args = 3
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER)
 id.specialformat = "[#]?[,[?][{TO}?]]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -642,7 +618,6 @@ id.callname = "sub_unlock"
 id.args = 3
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER)
 id.specialformat = "[#]?[,[?][{TO}?]]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -668,7 +643,6 @@ id.callname = "sub__fullscreen"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS|OFF}][,{_SMOOTH}]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -678,7 +652,6 @@ id.callname = "sub__allowfullscreen"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL|OFF}][,{_SMOOTH|_OFF|_ALL|OFF}]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -686,7 +659,6 @@ id.n = "_FULLSCREEN"
 id.subfunc = 1
 id.callname = "func__fullscreen"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -694,7 +666,6 @@ id.n = "_SMOOTH"
 id.subfunc = 1
 id.callname = "func__fullscreensmooth"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -702,7 +673,6 @@ id.n = "_WINDOWHASFOCUS"
 id.subfunc = 1
 id.callname = "func__hasfocus"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -713,7 +683,6 @@ id.callname = "sub__clipboard"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "=?"
-id.NoCloud = 1
 regid
 
 clearid
@@ -722,7 +691,6 @@ id.musthave = "$"
 id.subfunc = 1
 id.callname = "func__clipboard"
 id.ret = STRINGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -730,7 +698,6 @@ id.n = "_CLIPBOARDIMAGE": id.Dependency = DEPENDENCY_SCREENIMAGE
 id.subfunc = 1
 id.callname = "func__clipboardimage"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -740,7 +707,6 @@ id.callname = "sub__clipboardimage"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "=?"
-id.NoCloud = 1
 regid
 
 clearid
@@ -794,7 +760,6 @@ id.callname = "func__openclient"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 
@@ -806,7 +771,6 @@ id.callname = "func_environ"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -815,7 +779,6 @@ id.subfunc = 2
 id.callname = "sub_environ"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -877,7 +840,6 @@ id.callname = "sub__icon"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?[,?]]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -886,7 +848,6 @@ id.subfunc = 2
 id.callname = "sub__title"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -895,7 +856,6 @@ id.subfunc = 2
 id.callname = "sub__echo"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -905,7 +865,6 @@ id.callname = "sub__filedrop"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[{ON|OFF}]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -913,14 +872,12 @@ id.n = "_ACCEPTFILEDROP"
 id.subfunc = 1
 id.callname = "func__filedrop"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
 id.n = "_FINISHDROP"
 id.subfunc = 2
 id.callname = "sub__finishdrop"
-id.NoCloud = 1
 regid
 
 clearid
@@ -936,7 +893,6 @@ id.mayhave = "$"
 id.subfunc = 1
 id.callname = "func__droppedfile"
 id.ret = STRINGTYPE - ISPOINTER
-id.NoCloud = 1
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]"
@@ -1433,7 +1389,6 @@ id.subfunc = 2
 id.callname = "sub_play"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-'id.NoCloud = 1
 regid
 
 clearid
@@ -1443,7 +1398,6 @@ id.callname = "func_play"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 'QB64 MOUSE
@@ -1586,7 +1540,6 @@ id.subfunc = 2
 id.callname = "sub_chdir"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 0 'allowed so initial subfolder can be entered
 regid
 
 clearid
@@ -1595,7 +1548,6 @@ id.subfunc = 2
 id.callname = "sub_mkdir"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1604,7 +1556,6 @@ id.subfunc = 2
 id.callname = "sub_rmdir"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1613,7 +1564,6 @@ id.subfunc = 2
 id.callname = "sub_chain"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1624,7 +1574,6 @@ id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "[?]"
 'id.secondargcantbe = "_HIDE"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1635,7 +1584,6 @@ id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "{_HIDE}[{_DONTWAIT}][?]"
 id.secondargmustbe = "_HIDE"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1646,7 +1594,6 @@ id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "{_DONTWAIT}[{_HIDE}][?]"
 id.secondargmustbe = "_DONTWAIT"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1656,7 +1603,6 @@ id.callname = "func_shell"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.ret = INTEGER64TYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1666,7 +1612,6 @@ id.callname = "func__shellhide"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.ret = INTEGER64TYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1678,7 +1623,6 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
 id.specialformat = "[?]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1696,7 +1640,6 @@ id.n = "_SNDRATE": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 1
 id.callname = "func__sndrate"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1706,7 +1649,6 @@ id.callname = "sub__sndraw"
 id.args = 3
 id.arg = MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?[,[?][,?]]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1716,7 +1658,6 @@ id.callname = "sub__sndrawdone"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1724,7 +1665,6 @@ id.n = "_SNDOPENRAW": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 1
 id.callname = "func__sndopenraw"
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1735,7 +1675,6 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]"
 id.ret = DOUBLETYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1745,7 +1684,6 @@ id.callname = "func__sndlen"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = SINGLETYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1755,7 +1693,6 @@ id.callname = "func__sndpaused"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1765,7 +1702,6 @@ id.callname = "sub__sndplayfile"
 id.args = 3
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "?[,[?][,?]]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1775,7 +1711,6 @@ id.callname = "sub__sndplaycopy"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
-id.NoCloud = 1
 regid
 
 clearid
@@ -1784,7 +1719,6 @@ id.subfunc = 2
 id.callname = "sub__sndstop"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1793,7 +1727,6 @@ id.subfunc = 2
 id.callname = "sub__sndloop"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1802,7 +1735,6 @@ id.subfunc = 2
 id.callname = "sub__sndlimit"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1813,7 +1745,6 @@ id.args = 2
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = ULONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1822,7 +1753,6 @@ id.subfunc = 2
 id.callname = "sub__sndsetpos"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1832,7 +1762,6 @@ id.callname = "func__sndgetpos"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = SINGLETYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1842,7 +1771,6 @@ id.callname = "func__sndplaying"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1851,7 +1779,6 @@ id.subfunc = 2
 id.callname = "sub__sndpause"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1861,7 +1788,6 @@ id.callname = "sub__sndbal"
 id.args = 5
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
 id.specialformat = "?,[?][,[?][,[?][,[?]]]]"
-id.NoCloud = 1
 regid
 
 
@@ -1871,7 +1797,6 @@ id.subfunc = 2
 id.callname = "sub__sndvol"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1880,7 +1805,6 @@ id.subfunc = 2
 id.callname = "sub__sndplay"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -1890,7 +1814,6 @@ id.callname = "func__sndcopy"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
 id.ret = ULONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 clearid
@@ -1899,7 +1822,6 @@ id.subfunc = 2
 id.callname = "sub__sndclose"
 id.args = 1
 id.arg = MKL$(ULONGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -2698,7 +2620,6 @@ id.subfunc = 2
 id.callname = "sub_sound"
 id.args = 2
 id.arg = MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER)
-'id.NoCloud = 1
 regid
 
 clearid
@@ -2706,7 +2627,6 @@ id.n = "BEEP": id.Dependency = DEPENDENCY_AUDIO_OUT
 id.subfunc = 2
 id.callname = "sub_beep"
 id.args = 0
-'id.NoCloud = 1
 regid
 
 clearid
@@ -2970,7 +2890,6 @@ id.subfunc = 2
 id.callname = "qbs_lprint" 'not called directly
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.NoCloud = 1
 regid
 
 clearid
@@ -2980,7 +2899,6 @@ id.callname = "func_lpos"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
-id.NoCloud = 1
 regid
 
 'Get Current Working Directory

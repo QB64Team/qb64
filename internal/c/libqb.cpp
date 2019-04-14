@@ -278,8 +278,6 @@ int32 environment_2d__letterbox=0;//1=vertical black stripes required, 2=horizon
 
 
 
-int32 qloud_next_input_index=1;
-
 int32 window_exists=0;
 int32 create_window=0;
 int32 window_focused=0; //Not used on Windows
@@ -1215,10 +1213,6 @@ typedef enum {
 #define KMOD_META   (KMOD_LMETA|KMOD_RMETA)
 
 
-
-extern int32 cloud_app;
-int32 cloud_chdir_complete=0;
-int32 cloud_port[8];
 
 /* Restricted Functionality: (Security focused approach, does not include restricting sound etc)
     
@@ -2358,18 +2352,6 @@ int32 exit_ok=0;
 
 int MessageBox2(int ignore,char* message,char* title,int type){
     
-    if (cloud_app){
-        FILE *f = fopen("..\\final.txt", "w");
-        if (f != NULL)
-        {
-            fprintf(f, "%s", title);
-            fprintf(f, "\n");
-            fprintf(f, "%s", message);
-            fclose(f);
-        }
-        exit(0);//should log error
-    }
-    
     #ifdef QB64_WINDOWS
         return MessageBox(window_handle,message,title,type);
         #else
@@ -2749,24 +2731,7 @@ char *fixdir(qbs *filename){
     //note: changes the slashes in a filename to make it compatible with the OS
     //applied to QB commands: open, bload/bsave, loadfont, loadimage, sndopen/sndplayfile
     static int32 i;
-    
-    if (cloud_app){
-        for (i=0;i<filename->len;i++){
-            if ((filename->chr[i]>=48)&&(filename->chr[i]<=57)) goto ok;
-            if ((filename->chr[i]>=65)&&(filename->chr[i]<=90)){filename->chr[i]+=32; goto ok;}//force lowercase
-            if ((filename->chr[i]>=97)&&(filename->chr[i]<=122)) goto ok;
-            if (filename->chr[i]==95) goto ok;//underscore
-            if (filename->chr[i]==46){
-                if (i!=0) goto ok;//period cannot be the first character
-            }
-            if (filename->chr[i]==0){
-                if (i==(filename->len-1)) goto ok;//NULL terminator
-            }
-            error(263);//"Paths/Filename illegal in QLOUD"
-            ok:;
-        }
-    }
-    
+
     for (i=0;i<filename->len;i++){
         #ifdef QB64_WINDOWS
             if (filename->chr[i]==47) filename->chr[i]=92;
@@ -5602,8 +5567,6 @@ void error(int32 error_number){
     if (error_number==259){MessageBox2(NULL,"Cannot find dynamic library file","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
     if (error_number==260){MessageBox2(NULL,"Sub/Function does not exist in dynamic library","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
     if (error_number==261){MessageBox2(NULL,"Sub/Function does not exist in dynamic library","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
-    if (error_number==262){MessageBox2(NULL,"Function unavailable in QLOUD","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
-    if (error_number==263){MessageBox2(NULL,"Paths/Filename illegal in QLOUD","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
     
     if (error_number==270){MessageBox2(NULL,"_GL command called outside of SUB _GL's scope","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
     if (error_number==271){MessageBox2(NULL,"END/SYSTEM called within SUB _GL's scope","Critical Error",MB_OK|MB_SYSTEMMODAL); exit(0);}
@@ -6781,11 +6744,7 @@ int32 func__str_compare(qbs *s1, qbs *s2) {
 qbs *qbs_inkey(){
     if (new_error) return qbs_new(0,1);
     qbs *tqbs;
-    if (cloud_app){
-        Sleep(20);
-        }else{
-        Sleep(0);
-    }
+    Sleep(0);
     tqbs=qbs_new(2,1);
     if (cmem[0x41a]!=cmem[0x41c]){
         tqbs->chr[0]=cmem[0x400+cmem[0x41a]];
@@ -12938,7 +12897,6 @@ void sub_open(qbs *name,int32 type,int32 access,int32 sharing,int32 i,int64 reco
     if (sharing==2) g_restrictions=3;
     if (sharing==3) g_restrictions=1;
     if (sharing==4) g_restrictions=2;
-    if (cloud_app) g_restrictions=0;//applying restrictions on server not possible
     //note: In QB, opening a file already open for OUTPUT/APPEND created the 'file already open' error.
     
     //      However, from a new cmd window (or a SHELLed QB program) it can be opened!
@@ -16334,7 +16292,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     int64 func_shell(qbs *str){
         if (new_error) return 1;
-        if (cloud_app){error(262); return 1;}
         
         int64 return_code;
         
@@ -16609,7 +16566,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     int64 func__shellhide(qbs *str){ //func _SHELLHIDE(...
         if (new_error) return 1;
-        if (cloud_app){error(262); return 1;}
         
         static int64 return_code;
         return_code=0;
@@ -16836,7 +16792,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     void sub_shell(qbs *str,int32 passed){
         if (new_error) return;
-        if (cloud_app){error(262); return;}
         
         //exit full screen mode if necessary
         static int32 full_screen_mode;
@@ -17114,7 +17069,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     void sub_shell2(qbs *str,int32 passed){ //HIDE
         if (new_error) return;
-        if (cloud_app){error(262); return;}
         
         if (passed&1){sub_shell4(str,passed&2); return;}
         if (!(passed&2)){error(5); return;}//should not hide a shell waiting for input
@@ -17316,7 +17270,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     void sub_shell3(qbs *str,int32 passed){//_DONTWAIT
         //shell3 launches 'str' but does not wait for it to complete
         if (new_error) return;
-        if (cloud_app){error(262); return;}
         
         if (passed&1){sub_shell4(str,passed&2); return;}
         
@@ -17509,7 +17462,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     void sub_shell4(qbs *str,int32 passed){//_DONTWAIT & _HIDE
         //if passed&2 set a string was given
         if (!(passed&2)){error(5); return;}//should not hide a shell waiting for input
-        if (cloud_app){error(262); return;}
         
         static qbs *strz=NULL;
         static int32 i;
@@ -17771,25 +17723,11 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         static int32 tmp_long;
         static int32 got_ports=0;
-        if (cloud_app){
-            cloud_chdir_complete=1;
-            
-            if (!got_ports){
-                got_ports=1;
-                static FILE* file = fopen ("..\\ports.txt\0", "r");
-                fscanf (file, "%d", &tmp_long);
-                cloud_port[1]=tmp_long;
-                fscanf (file, "%d", &tmp_long);
-                cloud_port[2]=tmp_long;
-                fclose (file);
-            }
-        }
         
     }
     
     void sub_mkdir(qbs *str){
         if (new_error) return;
-        if (cloud_app){error(262); return;}
         static qbs *strz=NULL;
         if (!strz) strz=qbs_new(0,0);
         qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
@@ -17941,15 +17879,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (queue==NULL){error(258); return 0;}
             x=queue->queue[queue->current].x;
             
-            /*
-                if (cloud_app){
-                x2=display_page->width; if (display_page->text) x2*=fontwidth[display_page->font];
-                x_limit=x2-1;
-                x_scale=1;
-                x_offset=0;
-                }
-            */
-            
             //calculate pixel offset of mouse within SCREEN using environment variables
             x-=environment_2d__screen_x1;
             x=qbr_float_to_long((((float)x+0.5f)/environment_2d__screen_x_scale)-0.5f);
@@ -17984,15 +17913,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
             if (queue==NULL){error(258); return 0;}
             y=queue->queue[queue->current].y;
-            
-            /*
-                if (cloud_app){
-                y2=display_page->height; if (display_page->text) y2*=fontheight[display_page->font];
-                y_limit=y2-1;
-                y_scale=1;
-                y_offset=0;
-                }
-            */
             
             //calculate pixel offset of mouse within SCREEN using environment variables
             y-=environment_2d__screen_y1;
@@ -19597,40 +19517,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             
             sub_close(NULL,0);
             exit_blocked=0;//allow exit via X-box or CTRL+BREAK
-            
-            if (cloud_app){
-                //1. set the display page as the destination page
-                sub__dest(func__display());
-                //2. VIEW PRINT bottomline,bottomline
-                static int32 y;
-                if (write_page->text){
-                    y=write_page->height;
-                    }else{
-                    y=write_page->height/fontheight[write_page->font];
-                }
-                qbg_sub_view_print(y,y,1|2);
-                //3. PRINT 'clears the line without having to worry about its contents/size
-                qbs_print(nothingstring,1);
-                //4. PRINT "Press any key to continue"
-                qbs_print(qbs_new_txt("Program ended. Closing (10 seconds)..."),0);
-                //6. Enable autodisplay
-                autodisplay=1;
-                int sec=7;
-                while(sec--){
-                    evnt(1);
-                    Sleep(1000);
-                    qbs_print(qbs_new_txt("."),0);
-                }
-                sec=3;
-                while(sec--){
-                    Sleep(1000);
-                    evnt(1);
-                }
-                
-                close_program=1;
-                end();
-                exit(0);//<-- should never happen
-            }
+
             
             #ifdef DEPENDENCY_CONSOLE_ONLY
                 screen_hide=1;
@@ -20387,7 +20274,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void sub_run(qbs* f){
             if (new_error) return;
-            if (cloud_app){error(262); return;}
             
             //run program
             static qbs *str=NULL;
@@ -20642,9 +20528,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void sub__display(){
             
-            if (cloud_app==0){
-                if (screen_hide) return;
-            }
+            if (screen_hide) return;
             
             //disable autodisplay (if enabled)
             if (autodisplay){
@@ -21113,7 +20997,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             static qbs *tqbs;
             static int32 bytes;
             cp=getenv((char*)name->chr);
-            if (cp&&(cloud_app==0)){
+            if (cp){
                 bytes=strlen(cp);
                 tqbs=qbs_new(bytes,1);
                 memcpy(tqbs->chr,cp,bytes); 
@@ -21128,7 +21012,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             static qbs *tqbs;
             static char *cp;
             static int32 bytes;
-            if (cloud_app){tqbs=qbs_new(0,1); error(5); return tqbs;}
             if (number<=0){tqbs=qbs_new(0,1); error(5); return tqbs;}
             if (number>=environ_count){tqbs=qbs_new(0,1); return tqbs;}
             cp=*(envp+number-1);
@@ -21140,7 +21023,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void sub_environ(qbs *str)
         {
-            if (cloud_app){error(262); return;}
             static char *cp;
             cp=(char*)malloc(str->len+1);
             cp[str->len]=0;//add NULL terminator
@@ -21469,7 +21351,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #endif
         }
         
-        int32 cloud_port_redirect=-1;
         struct connection_struct{
             int8 in_use;//0=not being used, 1=in use
             int8 protocol;//1=TCP/IP
@@ -21627,10 +21508,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 if (method==0){//_OPENCLIENT
                     if (parts!=3) return -1;
                     
-                    if (cloud_app){
-                        if (port==cloud_port_redirect) port=cloud_port[1];
-                    }
-                    
                     static void *connection;
                     qbs_set(str,qbs_add(info_part[3],strz));
                     connection=tcp_client_open(str->chr,port);
@@ -21660,16 +21537,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 
                 if (method==1){//_OPENHOST
                     if (parts!=2) return -1;
-                    
-                    if (cloud_app){
-                        if (port==cloud_port[1]) goto gotcloudport;
-                        if (port==cloud_port[2]) goto gotcloudport;
-                        if ((port>=1)&&(port<=2)){port=cloud_port[port]; goto gotcloudport;}
-                        cloud_port_redirect=port;
-                        port=cloud_port[1];//unknown values default to primary hosting port
-                    }
-                    gotcloudport:
-                    
+
                     static void *connection;
                     connection=tcp_host_open(port);
                     if (!connection) return 0;
@@ -23523,9 +23391,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         #endif //DEPENDENCY_SCREENIMAGE
         
         void sub__screenclick(int32 x,int32 y, int32 button, int32 passed){
-            
-            if (cloud_app){error(262); return;}
-            
+
             #ifdef QB64_WINDOWS
                 
                 static INPUT input;
@@ -23984,8 +23850,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void sub__screenprint(qbs *txt){
             
-            if (cloud_app){error(262); return;}
-            
             static int32 i,s,x,vk,c;
             
             #ifdef QB64_MACOSX
@@ -24411,7 +24275,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void sub_files(qbs *str,int32 passed){
             if (new_error) return;
-            if (cloud_app){error(262); return;}
             
             static int32 i,i2,i3;
             static qbs *strz=NULL; if (!strz) strz=qbs_new(0,0);
@@ -26912,9 +26775,7 @@ int main( int argc, char* argv[] ){
     this_mouse_message_queue->lastIndex=65535;
     this_mouse_message_queue->queue=(mouse_message*)calloc(1,sizeof(mouse_message)*(this_mouse_message_queue->lastIndex+1));
     
-    if (!cloud_app){
-        snd_init();
-    }
+    snd_init();
     
     
     
@@ -27651,123 +27512,9 @@ void MAIN_LOOP(){
         goto end_program;
     }
     
-    if (!cloud_app){
-        snd_mainloop();
-    }
+    snd_mainloop();
     
     
-    
-    //check for input event (qloud_next_input_index)
-    if (cloud_app){
-        
-        //***should be replaced with a timer based check (or removed)***
-        //static int qloud_input_frame_count=0;
-        //qloud_input_frame_count++;
-        //if (qloud_input_frame_count>8) qloud_input_frame_count=1;
-        //if (qloud_input_frame_count==1){//~8 checks per second (would be ~64 without this check)
-        
-        qloud_input_recheck:
-        
-        FILE * pFile;
-        long lSize;
-        char * buffer;
-        size_t result;
-        pFile = NULL;
-        
-        static char filename[] = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-        sprintf(filename, "input_%d.txt\0", qloud_next_input_index);
-        pFile = fopen ( filename , "rb" );
-        if (pFile!=NULL) {
-            // obtain file size:
-            fseek (pFile , 0 , SEEK_END);
-            lSize = ftell (pFile);
-            rewind (pFile);
-            if (lSize>0){
-                // allocate memory to contain the whole file:
-                buffer = (char*) calloc (1,sizeof(char)*lSize+1);
-                if (buffer != NULL) {
-                    // copy the file into the buffer:
-                    result = fread (buffer,1,lSize,pFile);
-                    if (result == lSize) {
-                        
-                        if (buffer[lSize-1]==42){ //"*" terminator
-                            
-                            int start,stop;
-                            start=0;
-                            
-                            int bi;
-                            
-                            nextcommand:
-                            
-                            for (bi=start;bi<lSize;bi++){
-                                if (buffer[bi]==0) goto doneall;
-                                if (buffer[bi]==58) goto gotcolon;
-                            }
-                            goto doneall;
-                            gotcolon:
-                            
-                            int code;
-                            int v1,v2;
-                            
-                            
-                            code=buffer[start];
-                            start++;
-                            
-                            #ifdef QB64_GUI
-                                
-                                if (code==77){//M (mousemove)
-                                    sscanf (buffer+start,"%d,%d",&v1,&v2);          
-                                    GLUT_MOTION_FUNC(v1,v2);
-                                }//M
-                                
-                                if (code==76){//L (left mouse button)
-                                    sscanf (buffer+start,"%d,%d",&v1,&v2);
-                                    GLUT_MouseButton_Down(GLUT_LEFT_BUTTON,v1,v2);
-                                }
-                                if (code==108){//l (left mouse button up)
-                                    sscanf (buffer+start,"%d,%d",&v1,&v2);
-                                    GLUT_MouseButton_Up(GLUT_LEFT_BUTTON,v1,v2);
-                                }
-                                
-                                
-                                if (code==68){//D (key down)
-                                    sscanf (buffer+start,"%d",&v1);
-                                    keydown_vk(v1);
-                                }//D
-                                if (code==85){//U (key up)
-                                    sscanf (buffer+start,"%d",&v1);
-                                    keyup_vk(v1);
-                                }//U
-                                
-                            #endif
-                            
-                            start=bi+1;
-                            goto nextcommand;
-                            
-                            doneall:
-                            
-                            qloud_next_input_index++;
-                            
-                            free (buffer);
-                            fclose (pFile);
-                            
-                            goto qloud_input_recheck;
-                            
-                        }//* terminator
-                        
-                    }//read correct number of bytes
-                    
-                    free (buffer);
-                }//could allocate buffer
-            }//file has content
-            fclose (pFile);
-        }//not null
-        
-    //}//qloud_input_frame_count
-    
-    
-}//qloud app
-
 
 
 update^=1;//toggle update
@@ -27862,18 +27609,7 @@ sub_close(NULL,0);
     QB64_GAMEPAD_SHUTDOWN();
 #endif
 
-if (!cloud_app){
-    snd_un_init();
-}
-
-if (cloud_app){
-    FILE *f = fopen("..\\final.txt", "w");
-    if (f != NULL){        
-        fprintf(f, "Program exited normally");
-        fclose(f);
-    }
-    exit(0);//should log error
-}
+snd_un_init();
 
 exit(exit_code);
 }
@@ -27920,19 +27656,13 @@ void display(){
     uint32 *pixel;
     
     static uint8 BGRA_to_RGBA;//set to 1 to invert the output to RGBA
-    BGRA_to_RGBA=0;//default is 0 but 1 is fun
-    if (cloud_app){ //more converters handle the RGBA data format than BGRA which is dumped
-        BGRA_to_RGBA=1;
-    }
-    
+    BGRA_to_RGBA=0;//default is 0 but 1 is fun    
     
     
     
     if (lock_display==1){lock_display=2; Sleep(0);}
     
-    if (cloud_app==0){
-        if (screen_hide) {display_called=1; return;}
-    }
+    if (screen_hide) {display_called=1; return;}
     
     if (lock_display==0){
         
@@ -27964,17 +27694,6 @@ void display(){
         display_frame[frame_i].order=display_frame_order_next++;
         
         
-        
-        
-        if (cloud_app){
-            static double cloud_timer_value=0;
-            static double cloud_timer_now=0;
-            cloud_timer_now=func_timer(0.001,1);
-            if (fabs(cloud_timer_value-cloud_timer_now)<0.25){
-                goto cloud_skip_frame;
-            }
-            cloud_timer_value=cloud_timer_now;
-        }
         
         
         //validate display_page
@@ -28073,19 +27792,6 @@ void display(){
             //Note: frame is a global variable incremented ~32 times per second [2013]
             if (frame&8) show_cursor=1; else show_cursor=0;//[2013]halved cursor blink rate from 8 changes p/sec -> 4 changes p/sec
             if (frame&8) show_flashing=1; else show_flashing=0;
-            if (cloud_app){
-                static double cloud_timer_flash;
-                cloud_timer_flash=func_timer(0.001,1)/2.0;
-                static int64 cloud_timer_flash_int;
-                cloud_timer_flash_int=cloud_timer_flash;
-                if (cloud_timer_flash_int&1) show_cursor=1; else show_cursor=0;
-                if (cloud_timer_flash_int&1) show_flashing=1; else show_flashing=0;
-                //static int qloud_show_cursor=0;
-                //qloud_show_cursor++; if (qloud_show_cursor&1) show_cursor=1; else show_cursor=0;
-            }
-            
-            
-            
             
             //calculate cursor position (base 0)
             cx=display_page->cursor_x-1; cy=display_page->cursor_y-1;
@@ -28592,60 +28298,10 @@ void display(){
         //if (!display_frame_begin) display_frame_begin=frame_i;
         
         display_frame[frame_i].state=DISPLAY_FRAME_STATE__READY; last_hardware_display_frame_order=display_frame[frame_i].order;
-        
-        
-        if (cloud_app){
-            if (cloud_chdir_complete){
-                
-                #ifdef QB64_WINDOWS
-                    /*
-                        static FILE *cloud_screenshot_file_handle=NULL;
-                        if (cloud_screenshot_file_handle==NULL) cloud_screenshot_file_handle=fopen("output_image.raw","w+b");
-                        fseek ( cloud_screenshot_file_handle , 0 , SEEK_SET );//reset file pointer to beginning of file
-                        static int32 w,h;
-                        w=display_frame[frame_i].w;
-                        h=display_frame[frame_i].h;
-                        static int32 wh[2];
-                        wh[0]=w;
-                        wh[1]=h;
-                        fwrite (&wh[0] , 8, 1, cloud_screenshot_file_handle);
-                        fwrite (display_frame[frame_i].bgra , w*h*4, 1, cloud_screenshot_file_handle);
-                        fflush(cloud_screenshot_file_handle);
-                    */
-                    
-                    static HANDLE cloud_screenshot_file_handle=NULL;
-                    if (cloud_screenshot_file_handle==NULL) cloud_screenshot_file_handle=CreateFile("output_image.raw", GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 
-                    /*FILE_ATTRIBUTE_NORMAL*/FILE_FLAG_WRITE_THROUGH, NULL);
-                    
-                    
-                    //fseek ( cloud_screenshot_file_handle , 0 , SEEK_SET );//reset file pointer to beginning of file
-                    
-                    
-                    static int32 w,h,index=0;
-                    w=display_frame[frame_i].w;
-                    h=display_frame[frame_i].h;
-                    index++;
-                    static int32 header[3];
-                    header[0]=index;
-                    header[1]=w;
-                    header[2]=h;
-                    
-                    SetFilePointer(cloud_screenshot_file_handle,12,0,FILE_BEGIN);
-                    WriteFile(cloud_screenshot_file_handle, display_frame[frame_i].bgra, w*h*4, NULL, NULL);
-                    FlushFileBuffers(cloud_screenshot_file_handle);
-                    SetFilePointer(cloud_screenshot_file_handle,0,0,FILE_BEGIN);
-                    WriteFile(cloud_screenshot_file_handle, &header[0], 12, NULL, NULL);
-                    
-                    
-                    //CloseHandle(cloud_screenshot_file_handle);
-                    
-                #endif
-            }
-        }
+
         
         no_new_frame:;
         display_page_invalid:;
-        cloud_skip_frame:
         
         
         //cancel frame if not built

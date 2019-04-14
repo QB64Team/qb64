@@ -1166,7 +1166,6 @@ void chain_input(){
 
 void sub_chain(qbs* f){
     if (new_error) return;
-    if (cloud_app){error(262); return;}
     
     #ifdef QB64_WINDOWS
         

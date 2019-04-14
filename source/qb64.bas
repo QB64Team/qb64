@@ -108,7 +108,7 @@ OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
 
 IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
 
-DIM SHARED ConsoleMode, No_C_Compile_Mode, Cloud, NoIDEMode
+DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
 DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
@@ -687,8 +687,6 @@ TYPE idstruct
     'For variables which are arguments passed to a sub/function
     sfid AS LONG 'id number of variable's parent sub/function
     sfarg AS INTEGER 'argument/parameter # within call (1=first)
-
-    NoCloud AS INTEGER
 END TYPE
 
 DIM SHARED id AS idstruct
@@ -1464,72 +1462,68 @@ uniquenumbern = 0
 'import _MEM type
 ptrsz = OS_BITS \ 8
 
-IF Cloud = 0 THEN
-    lasttype = lasttype + 1: i = lasttype
-    udtxname(i) = "_MEM"
-    udtxcname(i) = "_MEM"
-    udtxsize(i) = ((ptrsz) * 5 + (4) * 1 + (8) * 1) * 8
-    udtxbytealign(i) = 1
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "OFFSET"
-    udtecname(i2) = "OFFSET"
-    udtebytealign(i2) = 1
-    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-    udtetypesize(i2) = 0 'tsize
-    udtxnext(i) = i2
-    i3 = i2
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "SIZE"
-    udtecname(i2) = "SIZE"
-    udtebytealign(i2) = 1
-    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-    udtetypesize(i2) = 0 'tsize
-    udtenext(i3) = i2
-    i3 = i2
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "$_LOCK_ID"
-    udtecname(i2) = "$_LOCK_ID"
-    udtebytealign(i2) = 1
-    udtetype(i2) = INTEGER64TYPE: udtesize(i2) = 64
-    udtetypesize(i2) = 0 'tsize
-    udtenext(i3) = i2
-    i3 = i2
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "$_LOCK_OFFSET"
-    udtecname(i2) = "$_LOCK_OFFSET"
-    udtebytealign(i2) = 1
-    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-    udtetypesize(i2) = 0 'tsize
-    udtenext(i3) = i2
-    i3 = i2
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "TYPE"
-    udtecname(i2) = "TYPE"
-    udtebytealign(i2) = 1
-    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-    udtetypesize(i2) = 0 'tsize
-    udtenext(i3) = i2
-    i3 = i2
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "ELEMENTSIZE"
-    udtecname(i2) = "ELEMENTSIZE"
-    udtebytealign(i2) = 1
-    udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
-    udtetypesize(i2) = 0 'tsize
-    udtenext(i3) = i2
-    udtenext(i2) = 0
-    i3 = i2
-    lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
-    udtename(i2) = "IMAGE"
-    udtecname(i2) = "IMAGE"
-    udtebytealign(i2) = 1
-    udtetype(i2) = LONGTYPE: udtesize(i2) = 32
-    udtetypesize(i2) = 0 'tsize
-    udtenext(i3) = i2
-    udtenext(i2) = 0
-
-
-END IF 'cloud = 0
+lasttype = lasttype + 1: i = lasttype
+udtxname(i) = "_MEM"
+udtxcname(i) = "_MEM"
+udtxsize(i) = ((ptrsz) * 5 + (4) * 1 + (8) * 1) * 8
+udtxbytealign(i) = 1
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "OFFSET"
+udtecname(i2) = "OFFSET"
+udtebytealign(i2) = 1
+udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+udtetypesize(i2) = 0 'tsize
+udtxnext(i) = i2
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "SIZE"
+udtecname(i2) = "SIZE"
+udtebytealign(i2) = 1
+udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "$_LOCK_ID"
+udtecname(i2) = "$_LOCK_ID"
+udtebytealign(i2) = 1
+udtetype(i2) = INTEGER64TYPE: udtesize(i2) = 64
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "$_LOCK_OFFSET"
+udtecname(i2) = "$_LOCK_OFFSET"
+udtebytealign(i2) = 1
+udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "TYPE"
+udtecname(i2) = "TYPE"
+udtebytealign(i2) = 1
+udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "ELEMENTSIZE"
+udtecname(i2) = "ELEMENTSIZE"
+udtebytealign(i2) = 1
+udtetype(i2) = OFFSETTYPE: udtesize(i2) = ptrsz * 8
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+udtenext(i2) = 0
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "IMAGE"
+udtecname(i2) = "IMAGE"
+udtebytealign(i2) = 1
+udtetype(i2) = LONGTYPE: udtesize(i2) = 32
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+udtenext(i2) = 0
 
 
 
@@ -1567,7 +1561,6 @@ reginternal
 
 
 OPEN tmpdir$ + "global.txt" FOR OUTPUT AS #18
-IF Cloud THEN PRINT #18, "int32 cloud_app=1;" ELSE PRINT #18, "int32 cloud_app=0;"
 
 IF iderecompile THEN
     iderecompile = 0
@@ -2460,7 +2453,6 @@ DO
                         'declare library
                         IF firstelement$ = "DECLARE" THEN
                             IF secondelement$ = "LIBRARY" OR secondelement$ = "DYNAMIC" OR secondelement$ = "CUSTOMTYPE" OR secondelement$ = "STATIC" THEN
-                                IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
                                 declaringlibrary = 1
                                 indirectlibrary = 0
                                 IF secondelement$ = "CUSTOMTYPE" OR secondelement$ = "DYNAMIC" THEN indirectlibrary = 1
@@ -3221,17 +3213,9 @@ DO
                 AryAddStr installFolderIn(), destLocation$
             END IF
 
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = l$
             GOTO finishednonexec
         END IF
-
-        'IF a3u$ = "$RESIZE:SMOOTH" THEN
-        '    IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
-        '    layout$ = "$RESIZE:SMOOTH"
-        '    Resize = 1: Resize_Scale = 2
-        '    GOTO finishednonexec
-        'END IF
 
         IF a3u$ = "$VIRTUALKEYBOARD:ON" THEN
             layout$ = "$VIRTUALKEYBOARD:ON"
@@ -3244,7 +3228,6 @@ DO
         END IF
 
         IF a3u$ = "$CHECKING:OFF" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$CHECKING:OFF"
             NoChecks = 1
             GOTO finishednonexec
@@ -3257,7 +3240,6 @@ DO
         END IF
 
         IF a3u$ = "$CONSOLE" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$CONSOLE"
             Console = 1
             GOTO finishednonexec
@@ -3276,33 +3258,28 @@ DO
             GOTO finishednonexec
         END IF
         IF a3u$ = "$SCREENSHOW" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$SCREENSHOW"
             ScreenHide = 0
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$RESIZE:OFF" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:OFF"
             Resize = 0: Resize_Scale = 0
             GOTO finishednonexec
         END IF
         IF a3u$ = "$RESIZE:ON" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:ON"
             Resize = 1: Resize_Scale = 0
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$RESIZE:STRETCH" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:STRETCH"
             Resize = 1: Resize_Scale = 1
             GOTO finishednonexec
         END IF
         IF a3u$ = "$RESIZE:SMOOTH" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             layout$ = "$RESIZE:SMOOTH"
             Resize = 1: Resize_Scale = 2
             GOTO finishednonexec
@@ -8412,7 +8389,6 @@ DO
                 END IF
             ELSE
                 'assume it's a string containing a filename to execute
-                IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
                 e$ = evaluatetotyp(e$, ISSTRING)
                 IF Error_Happened THEN GOTO errmes
                 PRINT #12, "sub_run(" + e$ + ");"
@@ -8717,7 +8693,6 @@ DO
     '(_MEM) _MEMPUT _MEMGET
     IF n >= 1 THEN
         IF firstelement$ = "_MEMGET" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             'get expressions
             e$ = ""
             B = 0
@@ -8817,7 +8792,6 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "_MEMPUT" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             'get expressions
             typ$ = ""
             e$ = ""
@@ -8954,7 +8928,6 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "_MEMFILL" THEN
-            IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
             'get expressions
             typ$ = ""
             e$ = ""
@@ -9314,10 +9287,6 @@ DO
                     END IF
                 END IF
 
-
-                IF id.NoCloud THEN
-                    IF Cloud THEN a$ = "Feature not supported on QLOUD": GOTO errmes '***NOCLOUD***
-                END IF
 
                 'generate error on driect _GL call
                 IF firstelement$ = "_GL" THEN a$ = "Cannot call SUB _GL directly": GOTO errmes
@@ -11848,7 +11817,6 @@ x = INSTR(ver$, "."): IF x THEN ASC(ver$, x) = 95 'change "." to "_"
 libs$ = ""
 
 IF DEPENDENCY(DEPENDENCY_GL) THEN
-    IF Cloud THEN a$ = "GL not supported on QLOUD": GOTO errmes '***NOCLOUD***
     defines$ = defines$ + defines_header$ + "DEPENDENCY_GL"
 END IF
 
@@ -15846,10 +15814,6 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
     END IF
 
     skipargnumchk:
-
-    IF id2.NoCloud THEN
-        IF Cloud THEN Give_Error "Feature not supported on QLOUD" '***NOCLOUD***
-    END IF
 
     r$ = RTRIM$(id2.callname) + "("
 
@@ -20021,7 +19985,6 @@ FUNCTION lineformat$ (a$)
             END IF
 
             IF MID$(c$, x, 8) = "$INCLUDE" THEN
-                IF Cloud THEN Give_Error "Feature not supported on QLOUD": EXIT FUNCTION
                 'note: INCLUDE adds the file AFTER the line it is on has been processed
                 'note: No other metacommands can follow the INCLUDE metacommand!
                 'skip spaces until :
@@ -21407,10 +21370,8 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         i = INSTR(a$, sp3): o$ = RIGHT$(a$, LEN(a$) - i)
         n$ = "UDT_" + RTRIM$(id.n): IF id.t = 0 THEN n$ = "ARRAY_" + n$ + "[0]"
 
-        IF Cloud = 0 THEN
-            IF E <> 0 AND u = 1 THEN 'Setting _MEM type elements is not allowed!
-                Give_Error "Cannot set read-only element of _MEM TYPE": EXIT SUB
-            END IF
+        IF E <> 0 AND u = 1 THEN 'Setting _MEM type elements is not allowed!
+            Give_Error "Cannot set read-only element of _MEM TYPE": EXIT SUB
         END IF
 
         IF E = 0 THEN
