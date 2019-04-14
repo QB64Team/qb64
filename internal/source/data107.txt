@@ -1,37 +1,10 @@
-qbs*oldstr3572=NULL;
-if(_SUB_MANAGEVARIABLELIST_STRING_NAME->tmp||_SUB_MANAGEVARIABLELIST_STRING_NAME->fixed||_SUB_MANAGEVARIABLELIST_STRING_NAME->readonly){
-oldstr3572=_SUB_MANAGEVARIABLELIST_STRING_NAME;
-if (oldstr3572->cmem_descriptor){
-_SUB_MANAGEVARIABLELIST_STRING_NAME=qbs_new_cmem(oldstr3572->len,0);
+qbs*oldstr3569=NULL;
+if(_SUB_ADDWARNING_STRING_TEXT->tmp||_SUB_ADDWARNING_STRING_TEXT->fixed||_SUB_ADDWARNING_STRING_TEXT->readonly){
+oldstr3569=_SUB_ADDWARNING_STRING_TEXT;
+if (oldstr3569->cmem_descriptor){
+_SUB_ADDWARNING_STRING_TEXT=qbs_new_cmem(oldstr3569->len,0);
 }else{
-_SUB_MANAGEVARIABLELIST_STRING_NAME=qbs_new(oldstr3572->len,0);
+_SUB_ADDWARNING_STRING_TEXT=qbs_new(oldstr3569->len,0);
 }
-memcpy(_SUB_MANAGEVARIABLELIST_STRING_NAME->chr,oldstr3572->chr,oldstr3572->len);
-}
-qbs*oldstr3573=NULL;
-if(_SUB_MANAGEVARIABLELIST_STRING___CNAME->tmp||_SUB_MANAGEVARIABLELIST_STRING___CNAME->fixed||_SUB_MANAGEVARIABLELIST_STRING___CNAME->readonly){
-oldstr3573=_SUB_MANAGEVARIABLELIST_STRING___CNAME;
-if (oldstr3573->cmem_descriptor){
-_SUB_MANAGEVARIABLELIST_STRING___CNAME=qbs_new_cmem(oldstr3573->len,0);
-}else{
-_SUB_MANAGEVARIABLELIST_STRING___CNAME=qbs_new(oldstr3573->len,0);
-}
-memcpy(_SUB_MANAGEVARIABLELIST_STRING___CNAME->chr,oldstr3573->chr,oldstr3573->len);
-}
-int32 *_SUB_MANAGEVARIABLELIST_LONG_FINDITEM=NULL;
-if(_SUB_MANAGEVARIABLELIST_LONG_FINDITEM==NULL){
-_SUB_MANAGEVARIABLELIST_LONG_FINDITEM=(int32*)mem_static_malloc(4);
-*_SUB_MANAGEVARIABLELIST_LONG_FINDITEM=0;
-}
-qbs *_SUB_MANAGEVARIABLELIST_STRING_S=NULL;
-if (!_SUB_MANAGEVARIABLELIST_STRING_S)_SUB_MANAGEVARIABLELIST_STRING_S=qbs_new(0,0);
-qbs *_SUB_MANAGEVARIABLELIST_STRING_CNAME=NULL;
-if (!_SUB_MANAGEVARIABLELIST_STRING_CNAME)_SUB_MANAGEVARIABLELIST_STRING_CNAME=qbs_new(0,0);
-byte_element_struct *byte_element_3575=NULL;
-if (!byte_element_3575){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3575=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3575=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_3576=NULL;
-if (!byte_element_3576){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3576=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3576=(byte_element_struct*)mem_static_malloc(12);
+memcpy(_SUB_ADDWARNING_STRING_TEXT->chr,oldstr3569->chr,oldstr3569->len);
 }

@@ -30,42 +30,6 @@ free((void*)(__ARRAY_INTEGER64_GL_DEFINES_VALUE[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER64_GL_DEFINES_VALUE)[8] );
-if (__ARRAY_STRING_INSTALLFILES[2]&1){
-tmp_long=__ARRAY_STRING_INSTALLFILES[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_INSTALLFILES[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_INSTALLFILES[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INSTALLFILES)[8] );
-if (__ARRAY_STRING_INSTALLFILESSOURCELOCATION[2]&1){
-tmp_long=__ARRAY_STRING_INSTALLFILESSOURCELOCATION[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_INSTALLFILESSOURCELOCATION[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_INSTALLFILESSOURCELOCATION[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INSTALLFILESSOURCELOCATION)[8] );
-if (__ARRAY_STRING_INSTALLFILESIN[2]&1){
-tmp_long=__ARRAY_STRING_INSTALLFILESIN[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_INSTALLFILESIN[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_INSTALLFILESIN[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INSTALLFILESIN)[8] );
-if (__ARRAY_STRING_INSTALLFOLDER[2]&1){
-tmp_long=__ARRAY_STRING_INSTALLFOLDER[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_INSTALLFOLDER[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_INSTALLFOLDER[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INSTALLFOLDER)[8] );
-if (__ARRAY_STRING_INSTALLFOLDERSOURCELOCATION[2]&1){
-tmp_long=__ARRAY_STRING_INSTALLFOLDERSOURCELOCATION[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_INSTALLFOLDERSOURCELOCATION[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_INSTALLFOLDERSOURCELOCATION[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INSTALLFOLDERSOURCELOCATION)[8] );
-if (__ARRAY_STRING_INSTALLFOLDERIN[2]&1){
-tmp_long=__ARRAY_STRING_INSTALLFOLDERIN[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_INSTALLFOLDERIN[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_INSTALLFOLDERIN[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_INSTALLFOLDERIN)[8] );
 qbs_free(__STRING_CACHE_FOLDER);
 qbs_free(__STRING_HELP_TXT);
 qbs_free(__STRING_HELP_LINE);
@@ -936,14 +900,6 @@ qbs_free(__STRING_P);
 qbs_free(__STRING_X);
 qbs_free(__STRING_LAYOUTORIGINAL);
 qbs_free(__STRING_A3U);
-qbs_free(__STRING_METACOMMAND);
-qbs_free(__STRING_METACOMMANDHINT);
-qbs_free(__STRING_SOURCECONTENT);
-qbs_free(__STRING_DESTLOCATION);
-qbs_free(__STRING_A4);
-qbs_free(__STRING_A3STRING);
-qbs_free(__STRING_A3QUOTEDSTRING);
-qbs_free(__STRING_SOURCELOCATION);
 qbs_free(__STRING_VERSIONINFOKEY);
 qbs_free(__STRING_VERSIONINFOVALUE);
 qbs_free(__STRING_EXEICONFILE);
