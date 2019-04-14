@@ -1,2 +1,0 @@
-SUB VkUpdate
-END SUB
