@@ -21,9 +21,6 @@ DEFLNG A-Z
 'INCLUDE:'virtual_keyboard\virtual_keyboard_global.bas'
 DEFLNG A-Z
 
-'$INCLUDE:'android\android_global.bas'
-DEFLNG A-Z
-
 '-------- Optional IDE Component (1/2) --------
 '$INCLUDE:'ide\ide_global.bas'
 
@@ -32,7 +29,6 @@ REDIM SHARED PL(0) AS INTEGER 'Priority Level
 DIM SHARED QuickReturn AS INTEGER
 Set_OrderOfOperations 'This will also make certain our directories are valid, and if not make them.
 
-DIM SHARED MakeAndroid 'build an Android project (refer to SUB UseAndroid)
 DIM SHARED VirtualKeyboardState
 DIM SHARED DesiredVirtualKeyboardState
 DIM SHARED RecompileAttemptsForVirtualKeyboardState
@@ -1197,18 +1193,9 @@ sflistn = -1 'no entries
 SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labels
 
 DesiredVirtualKeyboardState = 0
-IF MakeAndroid THEN DesiredVirtualKeyboardState = 1
 RecompileAttemptsForVirtualKeyboardState = 0
 
 recompile:
-
-'For installing Android assets
-REDIM SHARED installFiles(0) AS STRING
-REDIM SHARED installFilesSourceLocation(0) AS STRING
-REDIM SHARED installFilesIn(0) AS STRING
-REDIM SHARED installFolder(0) AS STRING
-REDIM SHARED installFolderSourceLocation(0) AS STRING
-REDIM SHARED installFolderIn(0) AS STRING
 
 'move desired state into active state
 VirtualKeyboardState = DesiredVirtualKeyboardState
@@ -3135,85 +3122,6 @@ DO
             END IF
             UserDefine(0, UserDefineCount) = l$
             UserDefine(1, UserDefineCount) = r$
-            GOTO finishednonexec
-        END IF
-
-
-
-        '$INSTALLFILES [src_relative_to_bas_path_like_include]  [IN dst_relative_to_application_root]
-        '$INSTALLFOLDER  [src_relative_to_bas_path_like_include]  [IN dst_relative_to_application_root]
-        metacommand$ = ""
-        IF INSTR(a3u$, "$INSTALLFILES ") = 1 THEN metacommand$ = "$INSTALLFILES"
-        IF INSTR(a3u$, "$INSTALLFOLDER ") = 1 THEN metacommand$ = "$INSTALLFOLDER"
-        metacommandHint$ = "Expected " + CHR$(34) + "source-location" + CHR$(34) + " [IN " + CHR$(34) + "dest-location" + CHR$(34) + "]"
-        IF metacommand$ <> "" THEN
-            sourceContent$ = ""
-            destLocation$ = ""
-            i3step = 0
-            i3start = 0
-            a4$ = a3$ + " '" 'finish with whitespace and comment
-            a3string$ = ""
-            l$ = metacommand$
-            FOR i3 = LEN(metacommand$) + 2 TO LEN(a4$)
-                c3 = ASC(a4$, i3)
-                whitespace = 0
-                IF i3start = 0 AND c3 = 39 THEN
-                    IF i3 <> LEN(metacommand$) + 2 THEN l$ = l$ + sp + MID$(a3$, i3) 'trailing comment
-                    EXIT FOR
-                END IF
-                IF c3 = 32 OR c3 = 9 THEN whitespace = 1
-                IF c3 = 34 OR i3start <> 0 THEN
-                    IF c3 = 34 THEN
-                        IF i3start = 0 THEN
-                            i3start = i3
-                        ELSE
-                            a3quotedString$ = MID$(a3$, i3start + 1, i3 - i3start - 1)
-                            l$ = l$ + sp + CHR$(34) + a3quotedString$ + CHR$(34)
-                            IF i3step <> 0 AND i3step <> 2 THEN a$ = metacommandHint$: GOTO errmes
-                            IF i3step = 0 THEN sourceContent$ = a3quotedString$: i3step = 1
-                            IF i3step = 2 THEN destLocation$ = a3quotedString$: i3step = 3
-                            i3start = 0
-                        END IF
-                    END IF
-                ELSE
-                    IF whitespace = 0 THEN
-                        a3string$ = a3string$ + CHR$(c3)
-                    ELSE
-                        IF a3string$ <> "" THEN
-                            IF UCASE$(a3string$) <> "IN" THEN a$ = metacommandHint$: GOTO errmes
-                            IF i3step <> 1 THEN a$ = metacommandHint$: GOTO errmes
-                            l$ = l$ + sp + "IN"
-                            i3step = 2
-                            a3string$ = ""
-                        END IF
-                    END IF
-                END IF
-            NEXT
-            IF LEN(a3string$) THEN a$ = metacommandHint$: GOTO errmes
-            IF i3start <> 0 THEN a$ = metacommandHint$: GOTO errmes
-            IF i3step = 0 OR i3step = 2 THEN a$ = metacommandHint$: GOTO errmes
-            'PRINT sourceContent$
-            'PRINT destLocation$
-
-            sourceLocation$ = ""
-            IF inclevel = 0 THEN
-                IF idemode THEN p$ = idepath$ + pathsep$ ELSE p$ = getfilepath$(sourcefile$)
-            ELSE
-                p$ = getfilepath$(incname(inclevel))
-            END IF
-            sourceLocation$ = p$
-
-            IF metacommand$ = "$INSTALLFILES" THEN
-                AryAddStr installFiles(), sourceContent$
-                AryAddStr installFilesSourceLocation(), sourceLocation$
-                AryAddStr installFilesIn(), destLocation$
-            ELSE
-                AryAddStr installFolder(), sourceContent$
-                AryAddStr installFolderSourceLocation(), sourceLocation$
-                AryAddStr installFolderIn(), destLocation$
-            END IF
-
-            layout$ = l$
             GOTO finishednonexec
         END IF
 
@@ -11992,16 +11900,6 @@ END IF
 
 
 
-IF MakeAndroid THEN
-
-
-
-
-
-
-
-    GOTO Skip_Build
-END IF
 
 IF os$ = "WIN" THEN
 
@@ -23538,33 +23436,6 @@ SUB PATH_SLASH_CORRECT (a$)
     END IF
 END SUB
 
-SUB UseAndroid (Yes)
-
-    STATIC inline_DATA_backup
-    STATIC inline_DATA_backup_set
-    IF inline_DATA_backup_set = 0 THEN
-        inline_DATA_backup_set = 1
-        inline_DATA_backup = inline_DATA
-    END IF
-
-    IF Yes THEN
-        IF MakeAndroid = 0 THEN
-            MakeAndroid = 1
-            inline_DATA = 1
-            idechangemade = 1
-            IDEBuildModeChanged = 1
-        END IF
-    ELSE
-        IF MakeAndroid THEN
-            MakeAndroid = 0
-            inline_DATA = inline_DATA_backup
-            idechangemade = 1
-            IDEBuildModeChanged = 1
-        END IF
-    END IF
-
-END SUB
-
 'Steve Subs/Functins for _MATH support with CONST
 FUNCTION Evaluate_Expression$ (e$)
     t$ = e$ 'So we preserve our original data, we parse a temp copy of it
@@ -25018,9 +24889,6 @@ END SUB
 DEFLNG A-Z
 
 'INCLUDE:'virtual_keyboard\virtual_keyboard_methods.bas'
-DEFLNG A-Z
-
-'$INCLUDE:'android\android_methods.bas'
 DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------

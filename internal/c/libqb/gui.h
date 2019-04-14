@@ -181,16 +181,6 @@ int32 requestedKeyboardOverlayImage=0;
             if (flags&NEW_HARDWARE_IMG__DUPLICATE_PROVIDED_BUFFER){
                 hardware_img->software_pixel_buffer=(uint32*)malloc(x*y*4);
                 memcpy(hardware_img->software_pixel_buffer,pixels,x*y*4);
-                #ifdef QB64_ANDROID
-                    //BGRA->RGBA
-                    uint32 *pos=(uint32*)hardware_img->software_pixel_buffer;
-                    int32 numPixels=x*y;
-                    uint32 col;
-                    while(numPixels--){
-                        col=*pos;
-                        *pos++= (col&0xFF00FF00) | ((col & 0xFF0000) >> 16) | ((col & 0x0000FF) << 16);
-                    }
-                #endif
                 }else{
                 hardware_img->software_pixel_buffer=pixels;
             }

@@ -656,26 +656,22 @@ FUNCTION ide2 (ignore)
                 showexecreated = 0
                 LOCATE idewy - 3, 2
 
-                IF MakeAndroid THEN
-                    PRINT "Project [programs\android\" + file$ + "] created";
+                IF os$ = "LNX" THEN
+                    PRINT "Executable file created";
                 ELSE
-                    IF os$ = "LNX" THEN
-                        PRINT "Executable file created";
-                    ELSE
-                        PRINT ".EXE file created";
-                    END IF
+                    PRINT ".EXE file created";
+                END IF
 
-                    IF SaveExeWithSource THEN
-                        LOCATE idewy - 2, 2
-                        PRINT "Location: ";
-                        COLOR 11, 1
-                        IF path.exe$ = "" THEN path.exe$ = getfilepath$(COMMAND$(0))
-                        IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
-                        IF POS(0) + LEN(path.exe$) > idewx THEN
-                            PRINT "..."; RIGHT$(path.exe$, idewx - 15);
-                        ELSE
-                            PRINT path.exe$;
-                        END IF
+                IF SaveExeWithSource THEN
+                    LOCATE idewy - 2, 2
+                    PRINT "Location: ";
+                    COLOR 11, 1
+                    IF path.exe$ = "" THEN path.exe$ = getfilepath$(COMMAND$(0))
+                    IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
+                    IF POS(0) + LEN(path.exe$) > idewx THEN
+                        PRINT "..."; RIGHT$(path.exe$, idewx - 15);
+                    ELSE
+                        PRINT path.exe$;
                     END IF
                 END IF
 
@@ -1196,11 +1192,6 @@ FUNCTION ide2 (ignore)
             END IF
             IDEBuildModeChanged = 0
 
-            IF MakeAndroid THEN
-                'Cleanup excess files in temp folder
-                SHELL _HIDE "cmd /c del /q " + tmpdir$ + "ret*.txt " + tmpdir$ + "data*.txt " + tmpdir$ + "free*.txt"
-            END IF
-
             idecompiling = 1
             ide2 = 2
             idecompiledline$ = idegetline(1)
@@ -1439,22 +1430,13 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        'IF KB = KEY_F5 AND KCTRL THEN 'run detached
-        '    UseAndroid 0
-        '    idemdetached:
-        '    iderunmode = 1
-        '    GOTO idemrunspecial
-        'END IF
-
         IF KB = KEY_F11 THEN 'make exe only
-            UseAndroid 0
             idemexe:
             iderunmode = 2
             GOTO idemrunspecial
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
-            UseAndroid 0
             idemrun:
             iderunmode = 1 'run detached; = 0 'standard run
             idemrunspecial:
@@ -5300,7 +5282,6 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#Start  F5" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                UseAndroid 0
                 GOTO idemrun
             END IF
 
@@ -5312,21 +5293,8 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Make #Android Project" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                UseAndroid 1
-                GOTO idemrun
-            END IF
-
-            'IF menu$(m, s) = "Start (#Detached)  Ctrl+F5" THEN
-            '    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-            '    UseAndroid 0
-            '    GOTO idemdetached
-            'END IF
-
             IF menu$(m, s) = "Make E#XE Only  F11" OR menu$(m, s) = "Make E#xecutable Only  F11" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                UseAndroid 0
                 GOTO idemexe
             END IF
 

@@ -1258,8 +1258,6 @@ int32 mem_lock_freed_max=1000;//number of allocated entries
 int32 mem_lock_freed_n=0;//number of entries
 ptrszint *mem_lock_freed=(ptrszint*)malloc(sizeof(ptrszint)*mem_lock_freed_max);
 
-//inline removed because it is incompatible with Android studio x86 build
-
 void new_mem_lock(){
     if (mem_lock_freed_n){
         mem_lock_tmp=(mem_lock*)mem_lock_freed[--mem_lock_freed_n];
@@ -16177,7 +16175,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     qbs *func_command(int32 index, int32 passed){
         static qbs *tqbs;
         if (passed) { //Get specific parameter
-            //If out of bounds or error getting cmdline args (on Android, perhaps), return empty string.
+            //If out of bounds or error getting cmdline args, return empty string.
             if (index >= func_command_count || index < 0 || func_command_array==NULL) {tqbs = qbs_new(0, 1); return tqbs;}
             int len = strlen(func_command_array[index]);
             //Create new temp qbs and copy data into it.
@@ -17771,9 +17769,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 if (!screen_hide){
                     while (!window_exists){Sleep(100);}      
                     #ifdef QB64_GLUT
-                        #ifndef QB64_ANDROID
-                            glutSetCursor(GLUT_CURSOR_NONE);
-                        #endif
+                        glutSetCursor(GLUT_CURSOR_NONE);
                     #endif
                 }
             #endif
@@ -26559,13 +26555,6 @@ qbs *func__startdir(){
 
 qbs *rootDir=NULL;//the dir moved to when program begins
 
-char *android_dir_downloads=NULL;
-char *android_dir_documents=NULL;
-char *android_dir_pictures=NULL;
-char *android_dir_music=NULL;
-char *android_dir_video=NULL;
-char *android_dir_dcim=NULL;
-
 qbs *func__dir(qbs* context_in){
     
     static qbs *context=NULL;
@@ -26574,10 +26563,6 @@ qbs *func__dir(qbs* context_in){
 	qbs_set(context,qbs_ucase(context_in));
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("TEXT"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DOCUMENT"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DOCUMENTS"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY DOCUMENTS"))){
-		#ifdef QB64_ANDROID
-            mkdir(android_dir_documents,0770);
-			return qbs_new_txt(android_dir_documents);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,5,NULL,0,osPath))){ //Documents
@@ -26587,10 +26572,6 @@ qbs *func__dir(qbs* context_in){
     }
 	
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("MUSIC"))||qbs_equal(qbs_ucase(context),qbs_new_txt("AUDIO"))||qbs_equal(qbs_ucase(context),qbs_new_txt("SOUND"))||qbs_equal(qbs_ucase(context),qbs_new_txt("SOUNDS"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY MUSIC"))){
-		#ifdef QB64_ANDROID
-            mkdir(android_dir_music,0770);
-			return qbs_new_txt(android_dir_music);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,13,NULL,0,osPath))){ //Music
@@ -26600,10 +26581,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("PICTURE"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PICTURES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("IMAGE"))||qbs_equal(qbs_ucase(context),qbs_new_txt("IMAGES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY PICTURES"))){
-		#ifdef QB64_ANDROID
-            mkdir(android_dir_pictures,0770);
-			return qbs_new_txt(android_dir_pictures);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,39,NULL,0,osPath))){//Pictures
@@ -26613,10 +26590,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("DCIM"))||qbs_equal(qbs_ucase(context),qbs_new_txt("CAMERA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("CAMERA ROLL"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PHOTO"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PHOTOS"))){
-		#ifdef QB64_ANDROID
-            mkdir(android_dir_dcim,0770);
-			return qbs_new_txt(android_dir_dcim);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,39,NULL,0,osPath))){//Pictures
@@ -26626,10 +26599,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("MOVIE"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MOVIES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("VIDEO"))||qbs_equal(qbs_ucase(context),qbs_new_txt("VIDEOS"))||qbs_equal(qbs_ucase(context),qbs_new_txt("MY VIDEOS"))){
-		#ifdef QB64_ANDROID
-			mkdir(android_dir_video,0770);
-			return qbs_new_txt(android_dir_video);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,14,NULL,0,osPath))){ //Videos
@@ -26639,10 +26608,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("DOWNLOAD"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DOWNLOADS"))){
-		#ifdef QB64_ANDROID
-            mkdir(android_dir_downloads,0770);
-			return qbs_new_txt(android_dir_downloads);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,0x0028,NULL,0,osPath))){//user folder
@@ -26654,10 +26619,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("DESKTOP"))){
-		#ifdef QB64_ANDROID
-			mkdir(android_dir_downloads,0770);
-			return qbs_new_txt(android_dir_downloads);
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,0,NULL,0,osPath))){ //Desktop
@@ -26667,9 +26628,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("APPDATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("APPLICATION DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("DATA"))){
-		#ifdef QB64_ANDROID			
-			return qbs_add(rootDir,qbs_new_txt("/"));
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,0x001a,NULL,0,osPath))){ //CSIDL_APPDATA (%APPDATA%)
@@ -26679,9 +26637,6 @@ qbs *func__dir(qbs* context_in){
     }
     
 	if (qbs_equal(qbs_ucase(context),qbs_new_txt("LOCALAPPDATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("LOCAL APPLICATION DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("LOCAL PROGRAM DATA"))||qbs_equal(qbs_ucase(context),qbs_new_txt("LOCAL DATA"))){
-		#ifdef QB64_ANDROID
-			return qbs_add(rootDir,qbs_new_txt("/"));
-        #endif
 		#ifdef QB64_WINDOWS
 			CHAR osPath[MAX_PATH];
 			if(SUCCEEDED(SHGetFolderPathA(NULL,0x001c,NULL,0,osPath))){ //CSIDL_LOCAL_APPDATA (%LOCALAPPDATA%)
@@ -26698,10 +26653,6 @@ qbs *func__dir(qbs* context_in){
         }
 		return qbs_new_txt(".\\");//current location
         #else
-		#ifdef QB64_ANDROID
-            mkdir(android_dir_downloads,0770);
-			return qbs_new_txt(android_dir_downloads);
-        #endif
 		return qbs_new_txt("./");//current location
     #endif
 }
