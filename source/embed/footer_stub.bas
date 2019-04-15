@@ -1,2 +1,1 @@
-SUB VkUpdate
-END SUB
+'blank line
