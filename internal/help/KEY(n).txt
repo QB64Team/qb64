@@ -31,15 +31,15 @@
 {{Cl|KEY(n)|KEY(12)}} {{Cl|ON}} ' enable event trapping                      
 
 DO
-LOOP UNTIL UCASE$(INKEY$) = &quot;Q&quot; ' Idle loop for demo
+LOOP UNTIL UCASE$(INKEY$) = "Q" ' Idle loop for demo
 {{Cl|SYSTEM}}
 
 CursorPad:
-PRINT &quot;Pressed LEFT key on cursor keypad.&quot;
+PRINT "Pressed LEFT key on cursor keypad."
 {{Cl|RETURN}}
 
 NumericPad:
-PRINT &quot;Pressed LEFT key on numeric keypad.&quot;
+PRINT "Pressed LEFT key on numeric keypad."
 RETURN '' ''
 {{CodeEnd}}
 
@@ -48,14 +48,14 @@ RETURN '' ''
 {{CodeStart}} '' ''
 {{Cl|KEY(n)|KEY(5)}} {{Cl|ON}}
 {{Cl|ON KEY(n)|ON KEY(5)}} {{Cl|GOSUB}} execute
-{{Cl|PRINT}} &quot;Press F5 (or ESC) to quit!)&quot;
+{{Cl|PRINT}} "Press F5 (or ESC) to quit!)"
 {{Cl|DO}}
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) ' idle loop
 {{Cl|SYSTEM}}
 execute:
-PRINT &quot;You pressed the F5 key...&quot;
+PRINT "You pressed the F5 key..."
 {{Cl|SLEEP}} 1
-PRINT &quot;Press any key to continue...&quot;
+PRINT "Press any key to continue..."
 SLEEP '' ''
 {{CodeEnd}}
 

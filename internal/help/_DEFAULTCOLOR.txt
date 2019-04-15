@@ -20,7 +20,7 @@ The [[_DEFAULTCOLOR]] function returns the current default text color for an ima
 {{Cl|OUT}} {{Cl|&amp;H}}3C8, 8: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0     'assign RGB intensities to COLOR 8
 {{Cl|_PRINTMODE }} _KEEPBACKGROUND
 {{Cl|COLOR}} 8                                                    'assign color 8 to text foreground
-{{Cl|PRINT}} &quot;The default color is attribute&quot;; {{Cl|_DEFAULTCOLOR}} '' ''
+{{Cl|PRINT}} "The default color is attribute"; {{Cl|_DEFAULTCOLOR}} '' ''
 {{CodeEnd}}
 
 

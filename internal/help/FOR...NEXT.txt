@@ -37,7 +37,7 @@ FOR i = 10 TO 0 {{Cl|STEP}} -2
   totaleven% = i + totaleven%
   PRINT totaleven%;
 NEXT
-PRINT &quot;After loop, i =&quot;; i '' ''
+PRINT "After loop, i ="; i '' ''
 {{CodeEnd}}
 {{OutputStart}}10 18 24 28 30 30 After loop, i = -2
 {{OutputEnd}}
@@ -46,13 +46,13 @@ PRINT &quot;After loop, i =&quot;; i '' ''
 
 ''Example 2:'' How an entire FOR loop block is ignored when the start and stop limits do not match the default or [[STEP]] increment.
 {{CodeStart}} '' ''
-{{Cl|PRINT}} &quot;hi&quot;
+{{Cl|PRINT}} "hi"
 
 {{Cl|FOR...NEXT|FOR}} i = 10 {{Cl|TO}} 1 'requires a negative {{Cl|STEP}} value
-  {{Cl|PRINT}} &quot;lo&quot;
+  {{Cl|PRINT}} "lo"
 {{Cl|NEXT}}
 
-{{Cl|PRINT}} &quot;bye&quot;
+{{Cl|PRINT}} "bye"
 {{CodeEnd}}
 {{OutputStart}}hi
 bye {{OutputEnd}}
@@ -60,7 +60,7 @@ bye {{OutputEnd}}
 
 &lt;!-- removed redundant example as Example 2 above shows exactly the same technique
 ''See Example:'' 
-* [http://qb64.net/wiki/index.php?title=Controller_Devices#Example Example that shows how ignoring bad FOR loops can work to a program's advantage without errors.] --&gt;
+* [http://qb64.net/wiki/index.php?title=Controller_Devices#Example Example that shows how ignoring bad FOR loops can work to a program's advantage without errors.] -->
 
 
 {{PageSeeAlso}}

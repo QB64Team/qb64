@@ -22,9 +22,9 @@ The [[FRE]] function returns the amount of memory available in bytes to running 
 {{PageExamples}}
 {{CodeStart}} '' ''
 ' {{Cl|$DYNAMIC}}
-PRINT &quot;Sizes in bytes before dimensioning arrays:  &quot;; {{Cl|FRE}}(&quot;&quot;), {{Cl|FRE}}(0), {{Cl|FRE}}(-1), {{Cl|FRE}}(-2)
+PRINT "Sizes in bytes before dimensioning arrays:  "; {{Cl|FRE}}(""), {{Cl|FRE}}(0), {{Cl|FRE}}(-1), {{Cl|FRE}}(-2)
 {{Cl|DIM}} Array(100, 100), Text$(5000)
-PRINT &quot;Sizes in bytes after dimensioning arrays:   &quot;; {{Cl|FRE}}(&quot;&quot;), {{Cl|FRE}}(0), {{Cl|FRE}}(-1), {{Cl|FRE}} (-2) '' ''
+PRINT "Sizes in bytes after dimensioning arrays:   "; {{Cl|FRE}}(""), {{Cl|FRE}}(0), {{Cl|FRE}}(-1), {{Cl|FRE}} (-2) '' ''
 {{CodeEnd}}
 ''Notes:'' Sizes returned may vary by computer used. FRE(-2) must be used in a running program.
 

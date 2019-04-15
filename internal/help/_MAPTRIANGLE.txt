@@ -13,7 +13,7 @@ The [[_MAPTRIANGLE]] statement maps a triangular portion of an image onto a dest
 
 
 {{Parameters}}
-* The '''_SEAMLESS''' option makes the triangle skip the right-most and bottom-most pixels of the triangle. When you make larger objects using several triangles, there can be a &quot;seam&quot; where they overlap when using alpha transparency and the seam would be twice as bright. '''_SEAMLESS''' is ignored when rendering 3D content and is not yet supported when drawing 2D hardware images.'''
+* The '''_SEAMLESS''' option makes the triangle skip the right-most and bottom-most pixels of the triangle. When you make larger objects using several triangles, there can be a "seam" where they overlap when using alpha transparency and the seam would be twice as bright. '''_SEAMLESS''' is ignored when rendering 3D content and is not yet supported when drawing 2D hardware images.'''
 * For 3D drawing use the '''_CLOCKWISE''' and '''_ANTICLOCKWISE''' arguments to only draw triangles in the correct direction. See ''Example 4''. 
 * Coordinates are [[SINGLE]] values where whole numbers represent the exact center of a pixel of the source texture. 
 * {{Parameter|source&amp;}} and optional {{Parameter|destination&amp;}} are [[LONG]] image or screen page handles. 
@@ -37,17 +37,17 @@ The [[_MAPTRIANGLE]] statement maps a triangular portion of an image onto a dest
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 
-Image&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;)   '&lt;&lt;&lt; [http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
+Image&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png")   '&lt;&lt;&lt; [http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
 
 {{Cl|DO}}
   {{Cl|CLS}}
   RotoZoom 400, 300, Image&amp;, 1.5 + {{Cl|SIN}}(zoom), angle
-  {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} &quot;Angle:&quot;; {{Cl|CINT}}(angle)
-  {{Cl|PRINT USING|PRINT}} &quot;Zoom&quot;; {{Cl|PRINT USING|USING}} &quot;##.###&quot;; 1.5 + {{Cl|SIN}}(zoom)
+  {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} "Angle:"; {{Cl|CINT}}(angle)
+  {{Cl|PRINT USING|PRINT}} "Zoom"; {{Cl|PRINT USING|USING}} "##.###"; 1.5 + {{Cl|SIN}}(zoom)
   {{Cl|_DISPLAY}}
-  angle = angle + .5: {{Cl|IF...THEN|IF}} angle &gt;= 360 {{Cl|THEN}} angle = angle - 360
+  angle = angle + .5: {{Cl|IF...THEN|IF}} angle >= 360 {{Cl|THEN}} angle = angle - 360
   zoom = zoom + .01
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 {{Cl|SUB}} RotoZoom (X {{Cl|AS}} {{Cl|LONG}}, Y {{Cl|AS}} {{Cl|LONG}}, Image {{Cl|AS}} {{Cl|LONG}}, Scale {{Cl|AS}} {{Cl|SINGLE}}, Rotation {{Cl|AS}} {{Cl|SINGLE}})
@@ -149,9 +149,9 @@ PLANECOL(3) = 6
 PLANECOL(4) = 7
 PLANECOL(5) = 8
 '
-{{Cl|_TITLE}} &quot;QB64 _MAPTRIANGLE CUBE DEMO&quot;
+{{Cl|_TITLE}} "QB64 _MAPTRIANGLE CUBE DEMO"
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
-TextureImage&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;) ''''&lt;&lt;&lt;&lt; '''[http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
+TextureImage&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") ''''&lt;&lt;&lt;&lt; '''[http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
 '{{Cl|_PUTIMAGE}} , Image&amp;
 
 DO
@@ -196,7 +196,7 @@ DO
       T3&amp; = x3&amp; * (y1&amp; * Z2&amp; - y2&amp; * Z1&amp;)
       '
       VISIBLE&amp; = T1&amp; - T2&amp; - T3&amp;
-      {{Cl|IF...THEN|IF}} VISIBLE&amp; &gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} VISIBLE&amp; > 0 {{Cl|THEN}}
         ' DRAW PLANE
         xx1% = DPLANE2D(0, 0): yy1% = DPLANE2D(0, 1)
         xx2% = DPLANE2D(1, 0): yy2% = DPLANE2D(1, 1)
@@ -208,38 +208,40 @@ DO
         xx1% = DPLANE2D(0, 0): yy1% = DPLANE2D(0, 1)
         xx3% = DPLANE2D(2, 0): yy3% = DPLANE2D(2, 1)
         xx4% = DPLANE2D(3, 0): yy4% = DPLANE2D(3, 1)
-        {{Cl|_MAPTRIANGLE}} (0, 0)-(255, 255)-(255, 0), TextureImage&amp; TO(xx3%, yy3%)-(xx1%, yy1%)-(xx4%, yy4%)
+        {{Cl|_MAPTRIANGLE}} (0, 0
+4000
+)-(255, 255)-(255, 0), TextureImage&amp; TO(xx3%, yy3%)-(xx1%, yy1%)-(xx4%, yy4%)
         'CALL DrawTriangle(xx1%, yy1%, xx3%, yy3%, xx4%, yy4%, col%)
       {{Cl|END IF}}
     {{Cl|NEXT}}
     '
     ' ROTATE OBJECT
     PIT(OB&amp;) = PIT(OB&amp;) + 5
-    {{Cl|IF...THEN|IF}} PIT(OB&amp;) &gt; 359 {{Cl|THEN}} PIT(OB&amp;) = 0
+    {{Cl|IF...THEN|IF}} PIT(OB&amp;) > 359 {{Cl|THEN}} PIT(OB&amp;) = 0
     YAW(OB&amp;) = YAW(OB&amp;) + 7
-    {{Cl|IF...THEN|IF}} YAW(OB&amp;) &gt; 359 {{Cl|THEN}} YAW(OB&amp;) = 0
+    {{Cl|IF...THEN|IF}} YAW(OB&amp;) > 359 {{Cl|THEN}} YAW(OB&amp;) = 0
     ROL(OB&amp;) = ROL(OB&amp;) + 9
-    {{Cl|IF...THEN|IF}} ROL(OB&amp;) &gt; 359 {{Cl|THEN}} ROL(OB&amp;) = 0
+    {{Cl|IF...THEN|IF}} ROL(OB&amp;) > 359 {{Cl|THEN}} ROL(OB&amp;) = 0
   {{Cl|NEXT}}
   '
   ' Calculate Frames per Second
   frames% = frames% + 1
-  {{Cl|IF...THEN|IF}} oldtime$ &lt;&gt; {{Cl|TIME$}} {{Cl|THEN}}
+  {{Cl|IF...THEN|IF}} oldtime$ &lt;> {{Cl|TIME$}} {{Cl|THEN}}
     fps% = frames%
     frames% = 1
     oldtime$ = {{Cl|TIME$}}
   {{Cl|END IF}}
-  {{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 255): {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} &quot;FPS :&quot;; fps%
+  {{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 255): {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} "FPS :"; fps%
   '
   ' Show Image on Screen
   {{Cl|_DISPLAY}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|WIDTH}} 80: {{Cl|SCREEN}} 0: {{Cl|CLS}}
 
 
 {{Cl|SUB}} DrawHline (fromx%, tox%, yy%, col%)
   '{{Cl|DEF SEG}} = {{Cl|&amp;H}}A000
-  '{{Cl|IF...THEN|IF}} fromx% &gt; tox% {{Cl|THEN}} {{Cl|SWAP}} fromx%, tox%
+  '{{Cl|IF...THEN|IF}} fromx% > tox% {{Cl|THEN}} {{Cl|SWAP}} fromx%, tox%
   'yyy&amp; = yy%
   'sloc&amp; = yyy&amp; * 320 + fromx%
   'eloc&amp; = sloc&amp; + (tox% - fromx%)
@@ -253,12 +255,12 @@ DO
 {{Cl|SUB}} DrawTriangle (x1%, y1%, x2%, y2%, x3%, y3%, col%)
   DO
     sflag% = 0
-    {{Cl|IF...THEN|IF}} y1% &gt; y2% {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} y1% > y2% {{Cl|THEN}}
       sflag% = 1
       {{Cl|SWAP}} y1%, y2%
       {{Cl|SWAP}} x1%, x2%
     {{Cl|END IF}}
-    {{Cl|IF...THEN|IF}} y2% &gt; y3% {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} y2% > y3% {{Cl|THEN}}
       sflag% = 1
       {{Cl|SWAP}} y2%, y3%
       {{Cl|SWAP}} x2%, x3%
@@ -269,12 +271,12 @@ DO
     ' Draw a flat bottomed triangle
     ydiff1% = y2% - y1%
     ydiff2% = y3% - y1%
-    {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
       slope1! = (x2% - x1%) / ydiff1%
     {{Cl|ELSE}}
       slope1! = 0
     {{Cl|END IF}}
-    {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
       slope2! = (x3% - x1%) / ydiff2%
     {{Cl|ELSE}}
       slope2! = 0
@@ -292,12 +294,12 @@ DO
       ' Draw a flat topped triangle
       ydiff1% = y3% - y1%
       ydiff2% = y3% - y2%
-      {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
         slope1! = (x3% - x1%) / ydiff1%
       {{Cl|ELSE}}
         slope1! = 0
       {{Cl|END IF}}
-      {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
         slope2! = (x3% - x2%) / ydiff2%
       {{Cl|ELSE}}
         slope2! = 0
@@ -315,12 +317,12 @@ DO
       ' First draw the flat bottom portion (top half)
       ydiff1% = y2% - y1%
       ydiff2% = y3% - y1%
-      {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
         slope1! = (x2% - x1%) / ydiff1%
       {{Cl|ELSE}}
         slope1! = 0
       {{Cl|END IF}}
-      {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
         slope2! = (x3% - x1%) / ydiff2%
       {{Cl|ELSE}}
         slope2! = 0
@@ -337,12 +339,12 @@ DO
       y1% = y2%
       ydiff1% = y3% - y1%
       ydiff2% = y3% - y2%
-      {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
         slope1! = (x3% - x1%) / ydiff1%
       {{Cl|ELSE}}
         slope1! = 0
       {{Cl|END IF}}
-      {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
         slope2! = (x3% - x2%) / ydiff2%
       {{Cl|ELSE}}
         slope2! = 0
@@ -438,10 +440,10 @@ PLANECOL(3) = 6
 PLANECOL(4) = 7
 PLANECOL(5) = 8
 '
-{{Cl|_TITLE}} &quot;QB64 {{Cl|_MAPTRIANGLE}} CUBE DEMO&quot;
+{{Cl|_TITLE}} "QB64 {{Cl|_MAPTRIANGLE}} CUBE DEMO"
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 
-TextureImage&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;, 32)'&lt;&lt;&lt;&lt; Image from top of QB64 Forum http://www.qb64.net/qb64_trans.png
+TextureImage&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png", 32)'&lt;&lt;&lt;&lt; Image from top of QB64 Forum http://www.qb64.net/qb64_trans.png
 {{Cl|_SETALPHA}} 128, , TextureImage&amp;
 TextureImage&amp; = {{Cl|_COPYIMAGE}}(TextureImage&amp;, 33)'copy of hardware image
 
@@ -490,7 +492,7 @@ DO
             T3&amp; = x3&amp; * (y1&amp; * Z2&amp; - y2&amp; * Z1&amp;)
             '
             VISIBLE&amp; = T1&amp; - T2&amp; - T3&amp;
-            {{Cl|IF...THEN|IF}} VISIBLE&amp; &gt; 0 {{Cl|THEN}}
+            {{Cl|IF...THEN|IF}} VISIBLE&amp; > 0 {{Cl|THEN}}
                 ' {{Cl|DRAW}} PLANE
                 xx1% = DPLANE2D(0, 0): yy1% = DPLANE2D(0, 1)
                 xx2% = DPLANE2D(1, 0): yy2% = DPLANE2D(1, 1)
@@ -513,30 +515,30 @@ DO
         '
         ' ROTATE OBJECT
         PIT(OB&amp;) = PIT(OB&amp;) + 5
-        {{Cl|IF...THEN|IF}} PIT(OB&amp;) &gt; 359 {{Cl|THEN}} PIT(OB&amp;) = 0
+        {{Cl|IF...THEN|IF}} PIT(OB&amp;) > 359 {{Cl|THEN}} PIT(OB&amp;) = 0
         YAW(OB&amp;) = YAW(OB&amp;) + 7
-        {{Cl|IF...THEN|IF}} YAW(OB&amp;) &gt; 359 {{Cl|THEN}} YAW(OB&amp;) = 0
+        {{Cl|IF...THEN|IF}} YAW(OB&amp;) > 359 {{Cl|THEN}} YAW(OB&amp;) = 0
         ROL(OB&amp;) = ROL(OB&amp;) + 9
-        {{Cl|IF...THEN|IF}} ROL(OB&amp;) &gt; 359 {{Cl|THEN}} ROL(OB&amp;) = 0
+        {{Cl|IF...THEN|IF}} ROL(OB&amp;) > 359 {{Cl|THEN}} ROL(OB&amp;) = 0
     {{Cl|NEXT}}
     '
     ' Calculate Frames per Second
     frames% = frames% + 1
-    {{Cl|IF...THEN|IF}} oldtime$ &lt;&gt; {{Cl|TIME$}} {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} oldtime$ &lt;> {{Cl|TIME$}} {{Cl|THEN}}
         fps% = frames%
         frames% = 1
         oldtime$ = {{Cl|TIME$}}
     {{Cl|END IF}}
-    {{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 255): {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} &quot;FPS :&quot;; fps%
+    {{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 255): {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} "FPS :"; fps%
     '
     ' Show Image on Screen
     {{Cl|_DISPLAY}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|WIDTH}} 80: {{Cl|SCREEN}} 0: {{Cl|CLS}}
 
 {{Cl|SUB}} DrawHline (fromx%, tox%, yy%, col%)
 '{{Cl|DEF SEG}} = {{Cl|&amp;H}}A000
-'{{Cl|IF...THEN|IF}} fromx% &gt; tox% {{Cl|THEN}} {{Cl|SWAP}} fromx%, tox%
+'{{Cl|IF...THEN|IF}} fromx% > tox% {{Cl|THEN}} {{Cl|SWAP}} fromx%, tox%
 'yyy&amp; = yy%
 'sloc&amp; = yyy&amp; * 320 + fromx%
 'eloc&amp; = sloc&amp; + (tox% - fromx%)
@@ -550,12 +552,12 @@ DO
 {{Cl|SUB}} DrawTriangle (x1%, y1%, x2%, y2%, x3%, y3%, col%)
 DO
     sflag% = 0
-    {{Cl|IF...THEN|IF}} y1% &gt; y2% {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} y1% > y2% {{Cl|THEN}}
         sflag% = 1
         {{Cl|SWAP}} y1%, y2%
         {{Cl|SWAP}} x1%, x2%
     {{Cl|END IF}}
-    {{Cl|IF...THEN|IF}} y2% &gt; y3% {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} y2% > y3% {{Cl|THEN}}
         sflag% = 1
         {{Cl|SWAP}} y2%, y3%
         {{Cl|SWAP}} x2%, x3%
@@ -566,12 +568,12 @@ DO
     ' Draw a flat bottomed triangle
     ydiff1% = y2% - y1%
     ydiff2% = y3% - y1%
-    {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
         slope1! = (x2% - x1%) / ydiff1%
     {{Cl|ELSE}}
         slope1! = 0
     {{Cl|END IF}}
-    {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
         slope2! = (x3% - x1%) / ydiff2%
     {{Cl|ELSE}}
         slope2! = 0
@@ -589,12 +591,12 @@ DO
         ' Draw a flat topped triangle
         ydiff1% = y3% - y1%
         ydiff2% = y3% - y2%
-        {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
             slope1! = (x3% - x1%) / ydiff1%
         {{Cl|ELSE}}
             slope1! = 0
         {{Cl|END IF}}
-        {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
             slope2! = (x3% - x2%) / ydiff2%
         {{Cl|ELSE}}
             slope2! = 0
@@ -612,12 +614,12 @@ DO
         ' First draw the flat bottom portion (top half)
         ydiff1% = y2% - y1%
         ydiff2% = y3% - y1%
-        {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
             slope1! = (x2% - x1%) / ydiff1%
         {{Cl|ELSE}}
             slope1! = 0
         {{Cl|END IF}}
-        {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
             slope2! = (x3% - x1%) / ydiff2%
         {{Cl|ELSE}}
             slope2! = 0
@@ -634,12 +636,14 @@ DO
         y1% = y2%
         ydiff1% = y3% - y1%
         ydiff2% = y3% - y2%
-        {{Cl|IF...THEN|IF}} ydiff1% &lt;&gt; 0 {{Cl|THEN}}
+        {{Cl|IF...
+2fb2
+THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
             slope1! = (x3% - x1%) / ydiff1%
         {{Cl|ELSE}}
             slope1! = 0
         {{Cl|END IF}}
-        {{Cl|IF...THEN|IF}} ydiff2% &lt;&gt; 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} ydiff2% &lt;> 0 {{Cl|THEN}}
             slope2! = (x3% - x2%) / ydiff2%
         {{Cl|ELSE}}
             slope2! = 0
@@ -696,7 +700,7 @@ DO
     {{Cl|_DISPLAY}}
 {{Cl|LOOP}} '' ''
 {{CodeEnd}}
-: '''Tip:''' If you are using Linux you might want to replace &quot;[[_SCREENIMAGE]]&quot; with a [[_LOADIMAGE]] command if you don't see anything.
+: '''Tip:''' If you are using Linux you might want to replace "[[_SCREENIMAGE]]" with a [[_LOADIMAGE]] command if you don't see anything.
 
 
 {{PageSeeAlso}}

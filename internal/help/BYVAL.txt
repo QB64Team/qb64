@@ -26,24 +26,24 @@ The [[BYVAL]] statement is used to pass a numerical parameter's value with proce
 {{PageExamples}}
 ''Example 1:'' BYVAL is used to preserve the values sent to an external procedure so they remain the same after they are used:
 {{CodeStart}} '' ''
-{{Cl|DECLARE LIBRARY}} &quot;SDL&quot;
+{{Cl|DECLARE LIBRARY}} "SDL"
   {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} xoffset&amp;, {{Cl|BYVAL}} yoffset&amp;) 
 {{Cl|DECLARE LIBRARY|END DECLARE}}
 {{CodeEnd}}
 : ''Note:'' The DLL call above uses the SDL library, which was included with QB64 up to version 0.954. Won't work with '''version 1.000 and up'''.
 
 
-''Example 2:'' Passing parameters &quot;by value&quot; using [[parenthesis|brackets]] when calling a [[SUB]] or [[FUNCTION]] in QBasic or QB64.
+''Example 2:'' Passing parameters "by value" using [[parenthesis|brackets]] when calling a [[SUB]] or [[FUNCTION]] in QBasic or QB64.
 {{CodeStart}} '' ''
 {{Cl|CALL}} MySUB (a%, (b%), (c%)) 'CALL SUB b and c stay 0 after sub
 
 MySUB a%, b%, (c%)          'call SUB again without CALL only c stays 0 after sub
   
-{{Cl|PRINT}} &quot;After procedures: &quot;; a%, b%, c%
+{{Cl|PRINT}} "After procedures: "; a%, b%, c%
 
 {{Cl|SUB}} MySUB (a%, b%, c%)
 a% = a% + 1: b% = b% + 1: c% = c% + 1
-{{Cl|PRINT}} &quot;Inside procedure:  &quot;; a%, b%, c%
+{{Cl|PRINT}} "Inside procedure:  "; a%, b%, c%
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 {{OutputStart}}

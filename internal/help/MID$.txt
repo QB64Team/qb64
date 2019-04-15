@@ -2,7 +2,7 @@ The [[MID$]] function returns a portion of a [[STRING|string]].
 
 
 {{PageSyntax}}
-: {{Parameter|portion$}} = MID$({{Parameter|stringValue$}}, {{Parameter|startPosition%}}[, {{Parameter|bytes%}}])
+: {{Parameter|portion$}} = [[MID$]]({{Parameter|stringValue$}}, {{Parameter|startPosition%}}[, {{Parameter|bytes%}}])
 
 
 {{Parameters}}
@@ -30,7 +30,7 @@ The [[MID$]] function returns a portion of a [[STRING|string]].
 hour$ = {{Cl|LEFT$}}({{Cl|TIME$}}, 2)
 minutes$ = {{Cl|MID$}}({{Cl|TIME$}}, 4, 2) ' skip hours and the colon (first 3 characters)
 
-{{Cl|PRINT}} &quot;hour = &quot;; hour$; &quot;: minutes = &quot;; minutes$ '' ''
+{{Cl|PRINT}} "hour = "; hour$; ": minutes = "; minutes$ '' ''
 {{CodeEnd}} 
 {{OutputStart}}11:23:30
 hour = 11: minutes = 23
@@ -39,7 +39,7 @@ hour = 11: minutes = 23
 
 ''Example 2:'' Comparing MID$, the '''QB64''' byte position version of [[ASC]] and [[_MEMGET]] speeds parsing string characters:
 {{CodeStart}} '' ''
-{{Cl|_TITLE}} &quot;String Speed Test&quot;
+{{Cl|_TITLE}} "String Speed Test"
 {{Cl|DEFLNG}} A-Z
 
 'First let's build a string for testing.
@@ -85,10 +85,10 @@ t5# = {{Cl|TIMER}}
 
 'results
 
-{{Cl|PRINT USING}} &quot;##.###### seconds for MID$&quot;; t2# - t1#
-{{Cl|PRINT USING}} &quot;##.###### seconds for ASC&quot;; t3# - t2#
-{{Cl|PRINT USING}} &quot;##.###### seconds for _MEMGET String&quot;; t4# - t3#
-{{Cl|PRINT USING}} &quot;##.###### seconds for _MEMGET Byte&quot;; t5# - t4# '' ''
+{{Cl|PRINT USING}} "##.###### seconds for MID$"; t2# - t1#
+{{Cl|PRINT USING}} "##.###### seconds for ASC"; t3# - t2#
+{{Cl|PRINT USING}} "##.###### seconds for _MEMGET String"; t4# - t3#
+{{Cl|PRINT USING}} "##.###### seconds for _MEMGET Byte"; t5# - t4# '' ''
 {{CodeEnd}} {{small|Code by Steve McNeill}}
 {{OutputStart}}6.593750 seconds for MID$
 1.044922 seconds for ASC

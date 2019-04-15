@@ -3,11 +3,11 @@ The [[_DIR$]] function returns common paths in '''Windows''' only such as My Doc
 
 
 {{PageSyntax}}
-: {{Parameter|d$}} = [[_DIR$]](&quot;{{Parameter|folderspecification}}&quot;)
+: {{Parameter|d$}} = [[_DIR$]]("{{Parameter|folderspecification}}")
 
 
 {{Parameters}}
-* ''folderspecification'' may be &quot;desktop&quot;, &quot;download&quot;, &quot;documents&quot;, &quot;music&quot;, &quot;video&quot;, &quot;pictures&quot;, &quot;appdata&quot;, &quot;program data&quot;, &quot;local data&quot;.
+* ''folderspecification'' may be "desktop", "download", "documents", "music", "video", "pictures", "appdata", "program data", "local data".
 * Some variation is accepted for the folder specification:
 :: MY DOCUMENTS, TEXT, DOCUMENT, DOCUMENTS, DOWNLOAD, DOWNLOADS
 :: MY MUSIC, MUSIC, AUDIO, SOUND, SOUNDS
@@ -19,19 +19,19 @@ The [[_DIR$]] function returns common paths in '''Windows''' only such as My Doc
 {{PageDescription}}
 * The path returned ends with a backslash (Windows).
 * A nonexistent folder specification usually defaults to the Desktop folder path.
-* In Linux and macOS the function always returns '''&quot;./&quot;'''
+* In Linux and macOS the function always returns '''"./"'''
 
 
 {{PageExamples}}
 Example: Displaying default paths in Windows only.
-{{CodeStart}}{{Cl|PRINT}} &quot;DESKTOP=&quot; + _DIR$(&quot;desktop&quot;)
-{{Cl|PRINT}} &quot;DOWNLOADS=&quot; + {{Cl|_DIR$}}(&quot;download&quot;)
-{{Cl|PRINT}} &quot;DOCUMENTS=&quot; + {{Cl|_DIR$}}(&quot;my documents&quot;)
-{{Cl|PRINT}} &quot;PICTURES=&quot; + {{Cl|_DIR$}}(&quot;pictures&quot;)
-{{Cl|PRINT}} &quot;MUSIC=&quot; + {{Cl|_DIR$}}(&quot;music&quot;)
-{{Cl|PRINT}} &quot;VIDEO=&quot; + {{Cl|_DIR$}}(&quot;video&quot;)
-{{Cl|PRINT}} &quot;APPLICATION DATA=&quot; + {{Cl|_DIR$}}(&quot;data&quot;)
-{{Cl|PRINT}} &quot;LOCAL APPLICATION DATA=&quot; + {{Cl|_DIR$}}(&quot;local application data&quot;
+{{CodeStart}}{{Cl|PRINT}} "DESKTOP=" + _DIR$("desktop")
+{{Cl|PRINT}} "DOWNLOADS=" + {{Cl|_DIR$}}("download")
+{{Cl|PRINT}} "DOCUMENTS=" + {{Cl|_DIR$}}("my documents")
+{{Cl|PRINT}} "PICTURES=" + {{Cl|_DIR$}}("pictures")
+{{Cl|PRINT}} "MUSIC=" + {{Cl|_DIR$}}("music")
+{{Cl|PRINT}} "VIDEO=" + {{Cl|_DIR$}}("video")
+{{Cl|PRINT}} "APPLICATION DATA=" + {{Cl|_DIR$}}("data")
+{{Cl|PRINT}} "LOCAL APPLICATION DATA=" + {{Cl|_DIR$}}("local application data"
 {{CodeEnd}}
 {{OutputStart}}DESKTOP=C:\Documents and Settings\Administrator\Desktop\
 DOWNLOADS=C:\Documents and Settings\Administrator\Downloads\

@@ -17,7 +17,7 @@ The [[_DISPLAY]] function returns the handle of the current image that is displa
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) 'any graphics mode should work without setting up pages
 {{Cl|_MOUSEHIDE}}
 SetupCursor
-{{Cl|PRINT}} &quot;Hello World!&quot;
+{{Cl|PRINT}} "Hello World!"
 {{Cl|DO}}: {{Cl|_LIMIT}} 30
   {{Cl|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}: {{Cl|LOOP}} 'main loop must contain _MOUSEINPUT   
 '       other program code    
@@ -31,7 +31,7 @@ SetupCursor
 {{Cl|SUB}} UpdateCursor
 {{Cl|PCOPY}} {{Cl|_DISPLAY (function)|_DISPLAY}}, 100  'any page number as desination with the _DISPLAY function as source
 {{Cl|PSET}} ({{Cl|_MOUSEX}}, {{Cl|_MOUSEY}}), {{Cl|_RGB}}(0, 255, 0)
-{{Cl|DRAW}} &quot;ND10F10L3F5L4H5L3&quot;
+{{Cl|DRAW}} "ND10F10L3F5L4H5L3"
 {{Cl|_DISPLAY}}                  'statement shows image
 {{Cl|PCOPY}} 100, {{Cl|_DISPLAY (function)|_DISPLAY}} 'with the function return as destination page
 {{Cl|END SUB}} '' ''

@@ -17,7 +17,7 @@ The [[LTRIM$]] function removes leading space characters from a [[STRING]] value
 {{CodeStart}}
 value = 12345
 number$ = {{Cl|LTRIM$}}({{Cl|STR$}}(value)) 'converting number to string removes right PRINT space
-{{Cl|PRINT}} &quot;[&quot; + number$ + &quot;]&quot; '' ''
+{{Cl|PRINT}} "[" + number$ + "]" '' ''
 {{CodeEnd}}
 {{OutputStart}}[12345]
 {{OutputEnd}}
@@ -25,8 +25,8 @@ number$ = {{Cl|LTRIM$}}({{Cl|STR$}}(value)) 'converting number to string removes
 
 ''Example 2:'' Trimming leading spaces from text strings.
 {{CodeStart}} '' ''
-{{Cl|PRINT}} {{Cl|LTRIM$}}(&quot;some text&quot;)
-{{Cl|PRINT}} {{Cl|LTRIM$}}(&quot;   some text&quot;) '' ''
+{{Cl|PRINT}} {{Cl|LTRIM$}}("some text")
+{{Cl|PRINT}} {{Cl|LTRIM$}}("   some text") '' ''
 {{CodeEnd}}
 {{OutputStart}}some text
 some text
@@ -35,7 +35,7 @@ some text
 
 ''Example 3:'' A TRIM$ function to trim spaces off of both ends of a string.
 {{codeStart}} '' ''
-text$ = &quot;        Text String           &quot;
+text$ = "        Text String           "
 trimmed$ = TRIM$(text$)
 {{Cl|PRINT}} {{Cl|CHR$}}(26) + trimmed$ + {{Cl|CHR$}}(27) '' ''
 

@@ -21,7 +21,7 @@ The '''LINE INPUT #''' file statement reads an entire line from a text file into
 
 
 {{PageErrors}}
-* '''If an &quot;Input past End of file&quot; error occurs, check for CHR$(26) (end of file character) in the files being read.'''
+* '''If an "Input past End of file" error occurs, check for CHR$(26) (end of file character) in the files being read.'''
 * '''Warning: files must exist to be opened in '''INPUT''' mode. Use [[_FILEEXISTS]] to avoid program [[ERROR Codes|errors]].'''
 
 
@@ -29,9 +29,9 @@ The '''LINE INPUT #''' file statement reads an entire line from a text file into
 ''Example:'' Finding the number of filenames listed in a file to dimension an array to hold them.
 {{CodeStart}} '' ''
 {{Cl|REDIM}} FileArray$(100) 'create {{Cl|$DYNAMIC|dynamic}} array
-{{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR /B *.* &gt; D0S-DATA.INF&quot;  
-{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(&quot;D0S-DATA.INF&quot;) THEN 
-  {{Cl|OPEN}} &quot;D0S-DATA.INF&quot; FOR {{Cl|INPUT (file mode)|INPUT}} AS #1 
+{{Cl|SHELL}} {{Cl|_HIDE}} "DIR /B *.* > D0S-DATA.INF"  
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}("D0S-DATA.INF") THEN 
+  {{Cl|OPEN}} "D0S-DATA.INF" FOR {{Cl|INPUT (file mode)|INPUT}} AS #1 
   DO UNTIL {{Cl|EOF}}(1)
     {{Cl|LINE INPUT}} #1, file$        'read entire text file line
     filecount% = filecount% + 1

@@ -82,10 +82,10 @@ DO
         ' *** Remove ({{Cl|TIMER (statement)|FREE}}) the original {{Cl|SCREEN}} image.
         {{Cl|_FREEIMAGE}} CurrentScreen
 
-        ' *** Create a new &quot;original&quot; {{Cl|SCREEN}} image.
+        ' *** Create a new "original" {{Cl|SCREEN}} image.
         CurrentScreen = {{Cl|_NEWIMAGE}}({{Cl|_RESIZEWIDTH}}, {{Cl|_RESIZEHEIGHT}}, 32)
 
-        ' *** Set the {{Cl|SCREEN}} to the new &quot;original&quot; image, releasing the copied {{Cl|SCREEN}} image.
+        ' *** Set the {{Cl|SCREEN}} to the new "original" image, releasing the copied {{Cl|SCREEN}} image.
         {{Cl|SCREEN}} CurrentScreen
 
         '  {{Cl|DRAW}} PREVIOUS {{Cl|SCREEN}} ON THE NEW ONE

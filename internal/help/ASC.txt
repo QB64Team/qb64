@@ -10,7 +10,7 @@ The [[ASC]] function returns the [[ASCII]] code number of a certain [[STRING]] t
 * If the optional {{Parameter|position%}} parameter is omitted, ASC will return the [[ASCII]] code of the first [[STRING]] character.
 * [[ASCII]] code [[INTEGER]] or [[_UNSIGNED]] [[_BYTE]] values returned range from 0 to 255. 
 * ASC returns 0 when reading [[ASCII]] 2 byte codes returned by [[INKEY$]] when the arrow, function, Home/Page keys are used. 
-** Use QB64's {{Parameter|position%}} parameter to read the second byte if necessary. {{Text|IF ASC(key$) &lt;nowiki&gt;=&lt;/nowiki&gt; 0 THEN byte2 &lt;nowiki&gt;=&lt;/nowiki&gt; ASC(key$, 2)|green}}
+** Use QB64's {{Parameter|position%}} parameter to read the second byte if necessary. {{Text|IF ASC(key$) &lt;nowiki>=&lt;/nowiki> 0 THEN byte2 &lt;nowiki>=&lt;/nowiki> ASC(key$, 2)|green}}
 * In '''QB64''' ASC string byte position reads are about '''5 times faster''' than [[MID$]] when parsing strings. See [[MID$]] ''Example 2''.
 
 
@@ -29,10 +29,10 @@ The [[ASC]] function returns the [[ASCII]] code number of a certain [[STRING]] t
 '''' Tab Q   W   E   R   T   Y   U   I   O   P  [{  ]}  \|   Del End PDn   7Hme 8/▲  9PU  + '''
 '  9  81  87  69  82  84  89  85  73  79  80 123 125 124  +83 +79 +81   +71  +72  +73  43
 '''    113 119 101 114 116 121 117 105 111 112  91  93  92                 55   56   57 ''
-'''' CapL  A   S   D   F   G   H   J   K   L   ;:  '&quot; Enter                4/◄-  5   6/-►  
+'''' CapL  A   S   D   F   G   H   J   K   L   ;:  '" Enter                4/◄-  5   6/-►  
 '   -   65  83  68  70  71  72  74  75  76  58  34  13                  +75  +76  +77  '''E'''
 '''       97 115 100 102 103 104 106 107 108  59  39                       52   53   54 '' '''n'''                                    
-'''' Shift  Z   X   C   V   B   N   M   ,&lt;  .&gt;  /?    Shift       ▲        1End 2/▼  3PD  t'''
+'''' Shift  Z   X   C   V   B   N   M   ,&lt;  .>  /?    Shift       ▲        1End 2/▼  3PD  t'''
 '   *    90  88  67  86  66  78  77  60  62  63      *        +72       +79  +80  +81  '''e'''
 '''       122 120  99 118  98 110 109  44  46  47                          49   50   51 '' '''r'''
 '''' Ctrl Win Alt       Spacebar          Alt Win Menu Ctrl   ◄-  ▼   -►   0Ins     .Del '''
@@ -44,56 +44,56 @@ The [[ASC]] function returns the [[ASCII]] code number of a certain [[STRING]] t
 {{WhiteEnd}} 
 
 
-&lt;center&gt;'''[[ASCII#Two_Byte_Codes|Two Byte Ctrl, Alt and Shift + Function key combinations]]'''&lt;/center&gt;
+&lt;center>'''[[ASCII#Two_Byte_Codes|Two Byte Ctrl, Alt and Shift + Function key combinations]]'''&lt;/center>
 
-{{WhiteStart}}                    '''Two Byte Characters        Key                 CHR$(0) + &quot;?&quot; '''
+{{WhiteStart}}                    '''Two Byte Characters        Key                 CHR$(0) + "?" '''
 
                     CHR$(0) + CHR$(16-50)      [Alt] + letter       
-                    CHR$(0) + CHR$(59)         [F1]                 &quot;;&quot;
-                    CHR$(0) + CHR$(60)         [F2]                 &quot;&lt;&quot;
-                    CHR$(0) + CHR$(61)         [F3]                 &quot;=&quot;
-                    CHR$(0) + CHR$(62)         [F4]                 &quot;&gt;&quot;
-                    CHR$(0) + CHR$(63)         [F5]                 &quot;?&quot;
-                    CHR$(0) + CHR$(64)         [F6]                 &quot;@&quot;
-                    CHR$(0) + CHR$(65)         [F7]                 &quot;A&quot;
-                    CHR$(0) + CHR$(66)         [F8]                 &quot;B&quot;
-                    CHR$(0) + CHR$(67)         [F9]                 &quot;C&quot;
-                    CHR$(0) + CHR$(68)         [F10]                &quot;D&quot;
-                    CHR$(0) + CHR$(71)         [Home]               &quot;G&quot;
-                    CHR$(0) + CHR$(72)         [↑] Arrow            &quot;H&quot;
-                    CHR$(0) + CHR$(73)         [Page Up]            &quot;I&quot;
-                    CHR$(0) + CHR$(75)         [←] Arrow            &quot;K&quot;
-                    CHR$(0) + CHR$(76)         [5 NumberPad]        &quot;L&quot; (NumLock off in QB64)
-                    CHR$(0) + CHR$(77)         [→] Arrow            &quot;M&quot;
-                    CHR$(0) + CHR$(79)         [End]                &quot;O&quot;
-                    CHR$(0) + CHR$(80)         [↓] Arrow            &quot;P&quot;
-                    CHR$(0) + CHR$(81)         [Page Down]          &quot;Q&quot;
-                    CHR$(0) + CHR$(82)         [Insert]             &quot;R&quot;
-                    CHR$(0) + CHR$(83)         [Delete]             &quot;S&quot;
+                    CHR$(0) + CHR$(59)         [F1]                 ";"
+                    CHR$(0) + CHR$(60)         [F2]                 "&lt;"
+                    CHR$(0) + CHR$(61)         [F3]                 "="
+                    CHR$(0) + CHR$(62)         [F4]                 ">"
+                    CHR$(0) + CHR$(63)         [F5]                 "?"
+                    CHR$(0) + CHR$(64)         [F6]                 "@"
+                    CHR$(0) + CHR$(65)         [F7]                 "A"
+                    CHR$(0) + CHR$(66)         [F8]                 "B"
+                    CHR$(0) + CHR$(67)         [F9]                 "C"
+                    CHR$(0) + CHR$(68)         [F10]                "D"
+                    CHR$(0) + CHR$(71)         [Home]               "G"
+                    CHR$(0) + CHR$(72)         [↑] Arrow            "H"
+                    CHR$(0) + CHR$(73)         [Page Up]            "I"
+                    CHR$(0) + CHR$(75)         [←] Arrow            "K"
+                    CHR$(0) + CHR$(76)         [5 NumberPad]        "L" (NumLock off in QB64)
+                    CHR$(0) + CHR$(77)         [→] Arrow            "M"
+                    CHR$(0) + CHR$(79)         [End]                "O"
+                    CHR$(0) + CHR$(80)         [↓] Arrow            "P"
+                    CHR$(0) + CHR$(81)         [Page Down]          "Q"
+                    CHR$(0) + CHR$(82)         [Insert]             "R"
+                    CHR$(0) + CHR$(83)         [Delete]             "S"
                     CHR$(0) + CHR$(84-93)      [Shift] + F1-10
                     CHR$(0) + CHR$(94-103)     [Ctrl] + F1-10
                     CHR$(0) + CHR$(104-113)    [Alt] + F1-10
                     CHR$(0) + CHR$(114-119)    [Ctrl] + keypad 
                     CHR$(0) + CHR$(120-129)    [Alt] + number
-                    CHR$(0) + CHR$(130 or 131) [Alt] + _/- or +/=   &quot;é&quot; or &quot;â&quot;
-                    CHR$(0) + CHR$(133)        [F11]                &quot;à&quot;
-                    CHR$(0) + CHR$(134)        [F12]                &quot;å&quot;
-                    CHR$(0) + CHR$(135)        [Shift] + [F11]      &quot;ç&quot;
-                    CHR$(0) + CHR$(136)        [Shift] + [F12]      &quot;ê&quot;
-                    CHR$(0) + CHR$(137)        [Ctrl] + [F11]       &quot;ë&quot;
-                    CHR$(0) + CHR$(138)        [Ctrl] + [F12]       &quot;è&quot;
-                    CHR$(0) + CHR$(139)        [Alt] + [F11]        &quot;ï&quot;
-                    CHR$(0) + CHR$(140)        [Alt] + [F12]        &quot;î&quot;
+                    CHR$(0) + CHR$(130 or 131) [Alt] + _/- or +/=   "é" or "â"
+                    CHR$(0) + CHR$(133)        [F11]                "à"
+                    CHR$(0) + CHR$(134)        [F12]                "å"
+                    CHR$(0) + CHR$(135)        [Shift] + [F11]      "ç"
+                    CHR$(0) + CHR$(136)        [Shift] + [F12]      "ê"
+                    CHR$(0) + CHR$(137)        [Ctrl] + [F11]       "ë"
+                    CHR$(0) + CHR$(138)        [Ctrl] + [F12]       "è"
+                    CHR$(0) + CHR$(139)        [Alt] + [F11]        "ï"
+                    CHR$(0) + CHR$(140)        [Alt] + [F12]        "î"
 {{WhiteEnd}}
-:In '''QB64''', [[CVI]] can be used to get the [[_KEYDOWN]] 2-byte code value. Example: IF _KEYDOWN([[CVI]]([[CHR$]](0) + &quot;P&quot;)) THEN
+:In '''QB64''', [[CVI]] can be used to get the [[_KEYDOWN]] 2-byte code value. Example: IF _KEYDOWN([[CVI]]([[CHR$]](0) + "P")) THEN
 
 
 {{PageExamples}}
 ''Example 1:'' How ASC can be used to find any ASCII code in a string of characters using QB64.
 {{CodeStart}} '' ''
- {{Cl|PRINT}} ASC(&quot;A&quot;)
- {{Cl|PRINT}} ASC(&quot;Be a rockstar&quot;)
- {{Cl|PRINT}} ASC(&quot;QB64 is not only COMPATIBLE, it can find any part of the string!&quot;, 18) '' ''
+ {{Cl|PRINT}} ASC("A")
+ {{Cl|PRINT}} ASC("Be a rockstar")
+ {{Cl|PRINT}} ASC("QB64 is not only COMPATIBLE, it can find any part of the string!", 18) '' ''
 {{CodeEnd}}
 
 ''Returns:''
@@ -103,26 +103,26 @@ The [[ASC]] function returns the [[ASCII]] code number of a certain [[STRING]] t
  67
 {{OutputEnd}}
 
-''Explanation:'' The ASCII code for &quot;A&quot; is 65 and the ASCII code for &quot;B&quot; is 66, ASCII code for &quot;C&quot; is 67 and the &quot;C&quot; is at position 18 in the string.
+''Explanation:'' The ASCII code for "A" is 65 and the ASCII code for "B" is 66, ASCII code for "C" is 67 and the "C" is at position 18 in the string.
 
-::''Note:'' The ASCII code for &quot;A&quot; and &quot;a&quot; are different by the value of 32, &quot;A&quot; + 32 is &quot;a&quot;, 65(&quot;A&quot;) + 32 = 97(&quot;a&quot;).
+::''Note:'' The ASCII code for "A" and "a" are different by the value of 32, "A" + 32 is "a", 65("A") + 32 = 97("a").
 
 
 ''Example 2:'' Reading the ASCII and two byte code combinations with ASC in '''QB64'''.
 
 {{CodeStart}} '' ''
 Q$ = {{Cl|CHR$}}(34) ' quote character
-{{Cl|COLOR}} 10: {{Cl|LOCATE}} 5, 22: {{Cl|PRINT}} &quot;Press some keys or combinations!&quot;
-{{Cl|COLOR}} 13: {{Cl|LOCATE}} 23, 30: {{Cl|PRINT}} &quot;Escape key Quits&quot;
+{{Cl|COLOR}} 10: {{Cl|LOCATE}} 5, 22: {{Cl|PRINT}} "Press some keys or combinations!"
+{{Cl|COLOR}} 13: {{Cl|LOCATE}} 23, 30: {{Cl|PRINT}} "Escape key Quits"
 DO
-   DO: {{Cl|SLEEP}}: key$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} key$ &lt;&gt; &quot;&quot; ' prevent ASC empty string read error
+   DO: {{Cl|SLEEP}}: key$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} key$ &lt;> "" ' prevent ASC empty string read error
    code% = {{Cl|ASC}}(key$): {{Cl|COLOR}} 11: {{Cl|LOCATE}} 10, 10
    {{Cl|IF...THEN|IF}} code% {{Cl|THEN}}    ' ASC returns any value greater than 0
-    {{Cl|PRINT}} &quot;{{Cl|CHR$}}(&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(code%)) + &quot;)&quot; + {{Cl|SPACE$}}(13): 
-    {{Cl|IF...THEN|IF}} code% &gt; 8 {{Cl|AND (boolean)|AND}} code% &lt; 14 {{Cl|THEN}} code% = 32    ' unprintable control codes
+    {{Cl|PRINT}} "{{Cl|CHR$}}(" + {{Cl|LTRIM$}}({{Cl|STR$}}(code%)) + ")" + {{Cl|SPACE$}}(13): 
+    {{Cl|IF...THEN|IF}} code% > 8 {{Cl|AND (boolean)|AND}} code% &lt; 14 {{Cl|THEN}} code% = 32    ' unprintable control codes
     {{Cl|COLOR}} 14: {{Cl|LOCATE}} 10, 50: {{Cl|PRINT}} {{Cl|CHR$}}(code%) + {{Cl|SPACE$}}(13)        
-   {{Cl|ELSE}}: {{Cl|PRINT}} &quot;{{Cl|CHR$}}(0) + {{Cl|CHR$}}(&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}({{Cl|ASC}}(key$, 2))) + &quot;)&quot;
-    {{Cl|COLOR}} 14: {{Cl|LOCATE}} 10, 50: {{Cl|PRINT}} &quot;{{Cl|CHR$}}(0) + &quot; + Q$ + {{Cl|CHR$}}({{Cl|ASC}}(key$, 2)) + Q$
+   {{Cl|ELSE}}: {{Cl|PRINT}} "{{Cl|CHR$}}(0) + {{Cl|CHR$}}(" + {{Cl|LTRIM$}}({{Cl|STR$}}({{Cl|ASC}}(key$, 2))) + ")"
+    {{Cl|COLOR}} 14: {{Cl|LOCATE}} 10, 50: {{Cl|PRINT}} "{{Cl|CHR$}}(0) + " + Q$ + {{Cl|CHR$}}({{Cl|ASC}}(key$, 2)) + Q$
    {{Cl|END IF}}
 {{Cl|LOOP}} {{Cl|UNTIL}} code% = 27 '' '
 
@@ -136,12 +136,12 @@ DO
  DO: {{Cl|SLEEP}} ' requires a keypress to run loop once
    K$ = {{Cl|{{Cl|INKEY$}}}}
    code = {{Cl|ASC}}(K$)
-   {{Cl|IF...THEN|IF}} code &gt;= 48 {{Cl|AND (boolean)|AND}} code &lt;= 57 {{Cl|THEN}} entry$ = entry$ + {{Cl|{{Cl|CHR$}}}}(code) ' numbers only
+   {{Cl|IF...THEN|IF}} code >= 48 {{Cl|AND (boolean)|AND}} code &lt;= 57 {{Cl|THEN}} entry$ = entry$ + {{Cl|{{Cl|CHR$}}}}(code) ' numbers only
    {{Cl|IF...THEN|IF}} code = 46 {{Cl|AND (boolean)|AND}} flag = 0 {{Cl|THEN}} 
       entry$ = entry$ + K$: flag = 1: mark = {{Cl|LEN}}(entry$) ' decimal point
    {{Cl|END IF}}
    L = {{Cl|{{Cl|LEN}}}}(entry$) ' check entry length for possible backspace
-   {{Cl|IF...THEN|IF}} code = 8 {{Cl|AND (boolean)|AND}} L &gt; 0 {{Cl|THEN}} ' backspace pressed and entry has a length
+   {{Cl|IF...THEN|IF}} code = 8 {{Cl|AND (boolean)|AND}} L > 0 {{Cl|THEN}} ' backspace pressed and entry has a length
      entry$ = {{Cl|{{Cl|MID$}}}}(entry$, 1, L - 1) ' remove one character from entry$
      {{Cl|IF...THEN|IF}} L - 1 &lt; mark {{Cl|THEN}} flag = 0 ' allow another decimal point if removed.
      {{Cl|LOCATE}} 10, {{Cl|POS}}(0) - 1: {{Cl|PRINT}} {{Cl|{{Cl|SPACE$}}}}(1); ' remove character from screen

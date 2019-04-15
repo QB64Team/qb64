@@ -1,28 +1,29 @@
-The '''MKL$''' function converts a numerical value to a [[LONG]] value represented as a 4 byte [[ASCII]] character [[STRING]].
+The [[MKL$]] function encodes a [[LONG]] numerical value into a 4-byte [[ASCII]] [[STRING]] value.
 
 
 {{PageSyntax}}
-:: 4byte_string$ = MKL$(long_value&amp;)
+: {{Parameter|result$}} = [[MKL$]]({{Parameter|longVariableOrLiteral&amp;}})
 
 
-* The long integer number value is converted to four ASCII characters. To prove this try: PRINT MKL$(12345678).
-* The numerical data usually uses less bytes than printing the LONG number to a file.
-* [[LONG]] Integer values can be from -2147483648 to 2147483647.
-* A 10 digit long number can save 6 bytes using MKL$. 
+{{PageDescription}}
+* {{Parameter|longVariableOrLiteral&amp;}} is converted to four ASCII characters. To see this in action, try {{InlineCode}}PRINT MKL$(12345678){{InlineCodeEnd}}.
+* The numerical data usually takes up less bytes than printing the [[LONG]] number to a file.
+* [[LONG]] integer values can range from -2147483648 to 2147483647.
+* Since the representation of a long number can use up to 10 ASCII characters (ten bytes), writing to a file using [[MKL$]] conversion, and then reading back with the [[CVL]] conversion can save up to 6 bytes of storage space.
 * [[CVL]] can convert the value back to a [[LONG]] numerical value.
 * [[LONG]] numerical variable values [[PUT]] into a [[BINARY]] file are automatically placed as an MKL$ [[ASCII]] string value.
 
 
-''See examples:''
+{{PageExamples}}
+See examples in:
 * [[SAVEIMAGE]]
 * [[SaveIcon32]]
 
 
-''See also:'' 
-* [[CVL]], [[CVI]], [[CVS]], [[CVD]]
+{{PageSeeAlso}}
 * [[MKI$]], [[MKS$]], [[MKD$]]
-* [[_CV]], [[_MK$]]
-* [[Bitmaps]]
+* [[CVD]], [[CVI]], [[CVS]], [[CVL]]
+* [[_MK$]], [[_CV]]
 
 
 {{PageNavigation}}

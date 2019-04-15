@@ -2,7 +2,7 @@ The [[LINE INPUT]] statement requests a [[STRING]] keyboard entry from a program
 
 
 {{PageSyntax}}
-: [[LINE INPUT]] [;] &quot;[text prompt or question]&quot;{,|;} {{Parameter|stringVariable$}}
+: [[LINE INPUT]] [;] "[text prompt or question]"{,|;} {{Parameter|stringVariable$}}
 : [[LINE INPUT]] ; {{Parameter|stringVariable$}}
 
 
@@ -28,12 +28,12 @@ The [[LINE INPUT]] statement requests a [[STRING]] keyboard entry from a program
 {{Cl|SCREEN}} 12
 
 {{Cl|COLOR}} 14: {{Cl|LOCATE}} 29, 2 '          place dursor at beginning of prompt liine
-{{Cl|PRINT}} &quot;Enter a name to search for... &quot;; 'print prompt on screen
-{{Cl|COLOR}} 15: {{Cl|LINE INPUT}} {{text|;|red}} &quot;&quot;, name$ '       get search name from user
+{{Cl|PRINT}} "Enter a name to search for... "; 'print prompt on screen
+{{Cl|COLOR}} 15: {{Cl|LINE INPUT}} {{text|;|red}} "", name$ '       get search name from user
 {{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} {{Cl|SPC}}(78); '       erase previous prompt
 n$ = {{Cl|UCASE$}}(name$) '                 convert search name to upper case
 {{Cl|COLOR}} 14'                        change foreground color to yellow
-{{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} &quot;Searching...&quot;; 'print message
+{{Cl|LOCATE}} 29, 2: {{Cl|PRINT}} "Searching..."; 'print message
 {{Cl|SLEEP}} 
 {{CodeEnd}}
 {{OutputStart}}{{text|Enter a name to search for...|#FFFF00}} █

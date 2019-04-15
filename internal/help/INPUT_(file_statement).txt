@@ -25,14 +25,14 @@ The [[INPUT #]] file or port statement reads sequential data using one variable 
 {{PageExamples}}
 ''Example 1:'' Writes new data to a text file sequentially and reads it back to the program screen.
 {{CodeStart}} '' ''
-filename$ = &quot;testfile.dat&quot; 
-x = 1: y = 2: z$ = &quot;Three&quot; 
+filename$ = "testfile.dat" 
+x = 1: y = 2: z$ = "Three" 
 
 {{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
 {{Cl|WRITE (file statement)|WRITE}} #1, x, y, z$ 
 {{Cl|CLOSE}} #1 
 
-{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+{{Cl|PRINT}} "File created with data. Press a key!" 
 K$ = {{Cl|INPUT$}}(1) 'press a key 
 
 {{Cl|OPEN}} filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #2 'opens a file to read it 
@@ -45,24 +45,24 @@ K$ = {{Cl|INPUT$}}(1) 'press a key
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{OutputStart}} 1           2          Three
-1,2,&quot;Three&quot;
+1,2,"Three"
 {{OutputEnd}}
 : ''Screen output:'' [[PRINT]] string values will not display enclosing quotes. [[WRITE]] screen displays will.
-{{TextStart}}1,2,&quot;Three&quot; '' '' {{TextEnd}}
+{{TextStart}}1,2,"Three" '' '' {{TextEnd}}
 : ''File content:'' [[WRITE (file statement)|WRITE]] string values will include quotation marks, but they are not required to read the file value as a string.
 
 
 ''Example 2:'' Commas inside of string values will not affect the INPUT value as those commas are not [[WRITE (file statement)|WRITE]] separators.
 {{CodeStart}} '' ''
-x$ = &quot;Hello, how are you?&quot;
-y$ = &quot;I'm fine.&quot;
+x$ = "Hello, how are you?"
+y$ = "I'm fine."
 
-{{Cl|OPEN}} &quot;testinp.dat&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
+{{Cl|OPEN}} "testinp.dat" {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
 {{Cl|WRITE (file statement)|WRITE}} #1, x$, y$
 {{Cl|CLOSE}} #1
 
 
-{{Cl|OPEN}} &quot;testinp.dat&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+{{Cl|OPEN}} "testinp.dat" {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
 
 {{Cl|INPUT (file statement)|INPUT}} #1, a$, b$
 {{Cl|CLOSE}} #1
@@ -71,8 +71,8 @@ y$ = &quot;I'm fine.&quot;
 {{Cl|WRITE}} a$, b$ '' ''
 {{CodeEnd}}
 {{OutputStart}}Hello, how are you?        I'm fine. 
-&quot;Hello, how are you?&quot;,&quot;I'm fine.&quot;{{OutputEnd}}
-{{TextStart}}&quot;Hello, how are you?&quot;,&quot;I'm fine.&quot;{{TextEnd}}
+"Hello, how are you?","I'm fine."{{OutputEnd}}
+{{TextStart}}"Hello, how are you?","I'm fine."{{TextEnd}}
 : ''File content:'' Commas inside of strings delimited with quotes will be ignored. [[WRITE (file statement)|WRITE]] will always enclose string values in quotes.
 
 

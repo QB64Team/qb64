@@ -31,7 +31,7 @@ The [[_COPYIMAGE]] function creates an identical designated image in memory with
 
 {{Cl|SCREEN}} 13
 {{Cl|CIRCLE}} (160, 100), 100, 40
-DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 
 'backup screen before changing {{Cl|SCREEN}} mode
 oldmode&amp; = {{Cl|_COPYIMAGE}}(0)  'the 0 value designates the current destination {{Cl|SCREEN}}
@@ -39,7 +39,7 @@ oldmode&amp; = {{Cl|_COPYIMAGE}}(0)  'the 0 value designates the current destina
 s&amp; = {{Cl|_NEWIMAGE}}(800, 600, 32)
 {{Cl|SCREEN}} s&amp;
 {{Cl|LINE}} (100, 100)-(500, 500), {{Cl|_RGB}}(0, 255, 255), BF
-DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 
 {{Cl|SCREEN}} oldmode&amp;        'restore original screen
 {{Cl|IF...THEN|IF}} s&amp; &lt; -1 THEN {{Cl|_FREEIMAGE}} s&amp;
@@ -55,10 +55,10 @@ my_hardware_handle = {{Cl|_COPYIMAGE}}({{Cl|_SCREENIMAGE}}, 33) 'take a screensh
 {{Cl|_MAPTRIANGLE}} (0, 0)-(500, 0)-(250, 500), my_hardware_handle TO_ 
 (-1, 0, -1)-(1, 0, -1)-(0, 5, -10), , _SMOOTH
 {{Cl|_DISPLAY}}
-{{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 30: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; '' ''
+{{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 30: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" '' ''
 {{CodeEnd}}{{small|Code courtesy of Galleon}}
 
-&lt;center&gt;[http://www.qb64.net/forum/index.php?action=dlattach;topic=12049.0;attach=2595 Example 2 PNG image]&lt;/center&gt;
+&lt;center>[http://www.qb64.net/forum/index.php?action=dlattach;topic=12049.0;attach=2595 Example 2 PNG image]&lt;/center>
 
 
 {{PageSeeAlso}}

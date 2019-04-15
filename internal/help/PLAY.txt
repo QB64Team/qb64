@@ -7,22 +7,22 @@
 
 {{Parameters}}
 * The ''commandstring'' can be any literal or variable [[STRING]] consisting of the following uppercase or lowercase commands:
-:*'''O'''n - Sets the current octave (from 0 to 6). Example: '''{{text|PLAY &quot;O3&quot;|green}}'''
-:*'''&lt;''' - Down one octave (cannot be below zero). Example: '''{{text|PLAY &quot;&lt;&lt;&quot;|green}}''' 'goes down two octaves.
-:*'''&gt;''' - Up one octave (cannot be above 6). Example: '''{{text|PLAY &quot;&gt;&gt;&quot;|green}}''' ' goes up two octaves.
+:*'''O'''n - Sets the current octave (from 0 to 6). Example: '''{{text|PLAY "O3"|green}}'''
+:*'''&lt;''' - Down one octave (cannot be below zero). Example: '''{{text|PLAY "&lt;&lt;"|green}}''' 'goes down two octaves.
+:*'''>''' - Up one octave (cannot be above 6). Example: '''{{text|PLAY ">>"|green}}''' ' goes up two octaves.
 :*'''A''', '''B''', '''C''', '''D''', '''E''', '''F''' or '''G''' are the notes in the current octave. Can use the following suffixes:
-::*'''+''' or '''#''' for a sharp note. Example: '''{{text|PLAY &quot;C#&quot;}green}}'''
-::*'''-''' for a flat note. Example: '''{{text|PLAY &quot;C-&quot;|green}}'''
-:*'''N'''n - Plays a note n by number(n can be between 0 to 84 in the 7 octaves, where 0 is a rest). Example: '''{{text|PLAY &quot;N42&quot;|green}}'''
-:*'''L'''n - Sets length of a note (n can be 1 to 64 where 1 is a whole note and 4 is a quarter of a note etc.). Example: '''{{text|PLAY &quot;L4&quot;|green}}'''
+::*'''+''' or '''#''' for a sharp note. Example: '''{{text|PLAY "C#"}green}}'''
+::*'''-''' for a flat note. Example: '''{{text|PLAY "C-"|green}}'''
+:*'''N'''n - Plays a note n by number(n can be between 0 to 84 in the 7 octaves, where 0 is a rest). Example: '''{{text|PLAY "N42"|green}}'''
+:*'''L'''n - Sets length of a note (n can be 1 to 64 where 1 is a whole note and 4 is a quarter of a note etc.). Example: '''{{text|PLAY "L4"|green}}'''
 ::*'''MS''' - Each note plays 3/4 of length set by L (staccato)
 ::*'''MN''' - Each note plays 7/8 of length set by L (normal)
 ::*'''ML''' - Each note plays full length set by L (legato)
-::*'''P'''n - Pause in the duration of n quarternotes (n can be 1 to 64) corresponding to L, Example: '''{{text|PLAY &quot;P32&quot;|green}}'''
-::*'''T'''n - Tempo sets number of L4 quarter notes per minute (n can be 32 to 255 where 120 is the default). Example: '''{{text|PLAY &quot;T180&quot;|green}}'''
+::*'''P'''n - Pause in the duration of n quarternotes (n can be 1 to 64) corresponding to L, Example: '''{{text|PLAY "P32"|green}}'''
+::*'''T'''n - Tempo sets number of L4 quarter notes per minute (n can be 32 to 255 where 120 is the default). Example: '''{{text|PLAY "T180"|green}}'''
 :::*''' .  '''  - period after a note plays 1½ times the note length determined by L * T.
 :::*'''.. '''  - two periods plays 1-3/4 times the note length determined by L * T.
-:*''',  '''  - '''commas in QB64''' stop play advancement to allow more than one note to be played simultaneously. Example: '''{{text|PLAY &quot;C,E,G,&quot;|green}}'''
+:*''',  '''  - '''commas in QB64''' stop play advancement to allow more than one note to be played simultaneously. Example: '''{{text|PLAY "C,E,G,"|green}}'''
 :*'''V'''n - Volume in '''QB64 only''' can be any volume from 0(none) to 100(full).  The default level is 50 when '''n''' is not specified. 
 :*'''MF''' - Play music in the foreground (each note must be completed before another can start).
 :*'''MB''' - Play music in the background while program code execution continues (QB64 has no note buffer limits).
@@ -37,56 +37,56 @@
 
 ''Example 1:'' Plays a sound with the volume and note varying from 0 to 50. Maximum note can only be 84.
 {{CodeStart}} '' ''
-{{Cl|PLAY}} &quot;mll64&quot;
+{{Cl|PLAY}} "mll64"
 {{Cl|DO}}
     {{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} 50
-        a$ = a$ + &quot;v&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x)) + &quot;n&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x))
+        a$ = a$ + "v" + {{Cl|LTRIM$}}({{Cl|STR$}}(x)) + "n" + {{Cl|LTRIM$}}({{Cl|STR$}}(x))
     {{Cl|NEXT}}
     {{Cl|FOR...NEXT|FOR}} x = 50 {{Cl|TO}} 1 {{Cl|STEP}} -1
-        a$ = a$ + &quot;v&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x)) + &quot;n&quot; + {{Cl|LTRIM$}}({{Cl|STR$}}(x))
+        a$ = a$ + "v" + {{Cl|LTRIM$}}({{Cl|STR$}}(x)) + "n" + {{Cl|LTRIM$}}({{Cl|STR$}}(x))
     {{Cl|NEXT}}
     {{Cl|PLAY}} a$
-    a$ = &quot;&quot;
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
-{{Cl|PLAY}} &quot;v10l1c,l4egl2o5c,o4l4eg&quot; '' ''
+    a$ = ""
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
+{{Cl|PLAY}} "v10l1c,l4egl2o5c,o4l4eg" '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}
 
 
-''Example 2:'' Plays &quot;Frosty the snowman&quot;. The lyric printing is not delayed by PLAY in QB64.
+''Example 2:'' Plays "Frosty the snowman". The lyric printing is not delayed by PLAY in QB64.
 {{CodeStart}} '' ''
-CLS : PRINT &quot;Frosty the Snow Man&quot; 
+CLS : PRINT "Frosty the Snow Man" 
 {{Cl|FOR...NEXT|FOR}} X = 1 {{Cl|TO}} 2
   PRINT
-  IF X = 1 THEN PRINT &quot;Fros-ty the Snow man was a jolly happy soul,&quot;
-  IF X = 2 THEN PRINT &quot;Fros-ty the Snow man knew the sun was hot that day&quot;
-  {{Cl|PLAY}} &quot;t140o2p4g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g2.&quot;   'MB removed to print song one line at a time
-  IF X = 1 THEN PRINT &quot;with a corn cob pipe and a button nose and two eyes made out of coal.&quot;
-  IF X = 2 THEN PRINT &quot;so he said Let's run and we'll have some fun now before I melt away.&quot;
-  {{Cl|PLAY}} &quot;o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4f4g2.&quot;
-  IF X = 1 THEN PRINT &quot;Fros-ty the Snow Man is a fair-y tale, they say,&quot;
-  IF X = 2 THEN PRINT &quot;Down to the vil-lage, with a broom-stick in his hand,&quot;
-  {{Cl|PLAY}} &quot;g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g2.&quot;
-  IF X = 1 THEN PRINT &quot;He was made of snow but the chil-dren knew how he come to life one day.&quot;
-  IF X = 2 THEN PRINT &quot;run-ning here and there all a-round the square, say-in' catch me if you can.&quot;
-  {{Cl|PLAY}} &quot;o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4d4c2.&quot;
-  IF X = 1 THEN PRINT &quot;There must have been some magic in that old silk hat they found.&quot;
-  IF X = 2 THEN PRINT &quot;He led them down the streets of town right to the traffic cop.&quot;
-  {{Cl|PLAY}} &quot;c4a4a4o3c4c4o2b4a4g4e4f4a4g4f4e2.&quot;
-  IF X = 1 THEN PRINT &quot;For when they placed it on his head he be-gan to dance a round.&quot;
-  IF X = 2 THEN PRINT &quot;And he on-ly paused a moment when he heard him hol-ler Stop!&quot;
-  {{Cl|PLAY}} &quot;e8e8d4d4g4g4b4b4o3d4d8o2b8o3d4c4o2b4a4g4p4&quot;
-  IF X = 1 THEN PRINT &quot;Oh, Fros-ty the Snow Man was a-live as he could be,&quot;
-  IF X = 2 THEN PRINT &quot;For, Fros-ty the Snow Man had to hur-ry on his way&quot;
-  {{Cl|PLAY}} &quot;g2g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g8g2.&quot;
-  IF X = 1 THEN PRINT &quot;and the chil-dren say he could laugh and play just the same as you and me.&quot;
-  IF X = 2 THEN PRINT &quot;but he waved good-bye say-in' Don't you cry, I'll be back a-gain some day.&quot;
-  {{Cl|PLAY}} &quot;o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4d4c2.p4&quot;
+  IF X = 1 THEN PRINT "Fros-ty the Snow man was a jolly happy soul,"
+  IF X = 2 THEN PRINT "Fros-ty the Snow man knew the sun was hot that day"
+  {{Cl|PLAY}} "t140o2p4g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g2."   'MB removed to print song one line at a time
+  IF X = 1 THEN PRINT "with a corn cob pipe and a button nose and two eyes made out of coal."
+  IF X = 2 THEN PRINT "so he said Let's run and we'll have some fun now before I melt away."
+  {{Cl|PLAY}} "o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4f4g2."
+  IF X = 1 THEN PRINT "Fros-ty the Snow Man is a fair-y tale, they say,"
+  IF X = 2 THEN PRINT "Down to the vil-lage, with a broom-stick in his hand,"
+  {{Cl|PLAY}} "g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g2."
+  IF X = 1 THEN PRINT "He was made of snow but the chil-dren knew how he come to life one day."
+  IF X = 2 THEN PRINT "run-ning here and there all a-round the square, say-in' catch me if you can."
+  {{Cl|PLAY}} "o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4d4c2."
+  IF X = 1 THEN PRINT "There must have been some magic in that old silk hat they found."
+  IF X = 2 THEN PRINT "He led them down the streets of town right to the traffic cop."
+  {{Cl|PLAY}} "c4a4a4o3c4c4o2b4a4g4e4f4a4g4f4e2."
+  IF X = 1 THEN PRINT "For when they placed it on his head he be-gan to dance a round."
+  IF X = 2 THEN PRINT "And he on-ly paused a moment when he heard him hol-ler Stop!"
+  {{Cl|PLAY}} "e8e8d4d4g4g4b4b4o3d4d8o2b8o3d4c4o2b4a4g4p4"
+  IF X = 1 THEN PRINT "Oh, Fros-ty the Snow Man was a-live as he could be,"
+  IF X = 2 THEN PRINT "For, Fros-ty the Snow Man had to hur-ry on his way"
+  {{Cl|PLAY}} "g2g2e4.f8g4o3c2o2b8o3c8d4c4o2b4a8g8g2."
+  IF X = 1 THEN PRINT "and the chil-dren say he could laugh and play just the same as you and me."
+  IF X = 2 THEN PRINT "but he waved good-bye say-in' Don't you cry, I'll be back a-gain some day."
+  {{Cl|PLAY}} "o2b8o3c8d4c4o2b4a8a8g8o3c4o2e8e4g8a8g4f4e4d4c2.p4"
 NEXT X
-PRINT : PRINT &quot;Thump-et-y thump thump, thump-et-y thump thump, look at Fros-ty go.&quot;
-{{Cl|PLAY}} &quot;t180g8g8g4g4g4a8g8g4g4g4a4g4e4g4d1&quot;
-PRINT &quot;Thump-et-y thump thump, thump-et-y thump thump, ov-er the hills of snow.&quot;
-{{Cl|PLAY}} &quot;t180g8g8g4g4g4a8g8g4g4g4g8g8g4a4b4o3c2c4p1&quot; 
+PRINT : PRINT "Thump-et-y thump thump, thump-et-y thump thump, look at Fros-ty go."
+{{Cl|PLAY}} "t180g8g8g4g4g4a8g8g4g4g4a4g4e4g4d1"
+PRINT "Thump-et-y thump thump, thump-et-y thump thump, ov-er the hills of snow."
+{{Cl|PLAY}} "t180g8g8g4g4g4a8g8g4g4g4g8g8g4a4b4o3c2c4p1" 
 {{Cl|END}}'' ''
 {{CodeEnd}}
 {{small|Greg Rismoen 12/09/84}}
@@ -98,11 +98,11 @@ PRINT &quot;Thump-et-y thump thump, thump-et-y thump thump, ov-er the hills of s
 {{Cl|CONST}} maxx = 512
 {{Cl|CONST}} maxy = 512
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(maxx, maxy, 32)
-{{Cl|_TITLE}} &quot;MusicGrid&quot;
+{{Cl|_TITLE}} "MusicGrid"
 cleargrid
 {{Cl|DO}}
-    {{Cl|IF}} {{Cl|TIMER}} - t# &gt; 1 / 8 {{Cl|THEN}} cur = (cur + 1) {{Cl|AND (boolean)|AND}} 15: t# = {{Cl|TIMER}}
-    {{Cl|IF}} cur &lt;&gt; oldcur {{Cl|THEN}}
+    {{Cl|IF}} {{Cl|TIMER}} - t# > 1 / 8 {{Cl|THEN}} cur = (cur + 1) {{Cl|AND (boolean)|AND}} 15: t# = {{Cl|TIMER}}
+    {{Cl|IF}} cur &lt;> oldcur {{Cl|THEN}}
         figuregrid
         drawgrid
         playgrid
@@ -110,7 +110,7 @@ cleargrid
     {{Cl|END IF}}
     domousestuff
     in$ = {{Cl|INKEY$}}
-    {{Cl|IF}} in$ = &quot;C&quot; {{Cl|OR (boolean)|OR}} in$ = &quot;c&quot; {{Cl|THEN}} cleargrid
+    {{Cl|IF}} in$ = "C" {{Cl|OR (boolean)|OR}} in$ = "c" {{Cl|THEN}} cleargrid
 {{Cl|LOOP}} {{Cl|UNTIL}} in$ = {{Cl|CHR$}}(27)
 
 {{Cl|SUB}} drawgrid
@@ -156,13 +156,13 @@ scale2 = maxx \ 16 - 2
 {{Cl|END SUB}}
 
 {{Cl|SUB}} playgrid
-n$ = &quot;L16 &quot;
-'scale$ = &quot;O1CO1DO1EO1FO1GO1AO1BO2CO2DO2EO2FO2GO2AO2BO3CO3D&quot;
-scale$ = &quot;o1fo1go1ao2co2do2fo2go2ao3co3do3fo3go3ao4co4do4fo&quot;
+n$ = "L16 "
+'scale$ = "O1CO1DO1EO1FO1GO1AO1BO2CO2DO2EO2FO2GO2AO2BO3CO3D"
+scale$ = "o1fo1go1ao2co2do2fo2go2ao3co3do3fo3go3ao4co4do4fo"
 {{Cl|FOR...NEXT|FOR}} y = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1
     {{Cl|IF}} grid(cur, y) = 1 {{Cl|THEN}}
         note$ = {{Cl|MID$}}(scale$, 1 + (15 - y) * 3, 3)
-        n$ = n$ + note$ + &quot;,&quot;   'comma plays 2 or more column notes simultaneously
+        n$ = n$ + note$ + ","   'comma plays 2 or more column notes simultaneously
     {{Cl|END IF}}
 {{Cl|NEXT}} y
 n$ = {{Cl|LEFT$}}(n$, {{Cl|LEN}}(n$) - 1)
@@ -189,7 +189,7 @@ n$ = {{Cl|LEFT$}}(n$, {{Cl|LEN}}(n$) - 1)
 {{Cl|SCREEN}} 12 ' the following works in other screen modes, too
 {{Cl|RANDOMIZE}} {{Cl|TIMER}}
 
-{{Cl|PLAY}} &quot;mb l4cf.l8el4fag.l8fl4gl8agl4f.l8fl4a&gt;cl2dl4dl4c.&lt;l8al4afg.l8fl4gl8agl4f.l8dl4dcl2f&gt;l4dc.&lt;l8al4afg.l8fl4g&gt;dc.&lt;l8al4a&gt;cl2dl4dc.&lt;l8al4afg.l8fl4gl8agl4f.l8dl4dcl1f&quot;
+{{Cl|PLAY}} "mb l4cf.l8el4fag.l8fl4gl8agl4f.l8fl4a>cl2dl4dl4c.&lt;l8al4afg.l8fl4gl8agl4f.l8dl4dcl2f>l4dc.&lt;l8al4afg.l8fl4g>dc.&lt;l8al4a>cl2dl4dc.&lt;l8al4afg.l8fl4gl8agl4f.l8dl4dcl1f"
 
 {{Cl|DIM}} ccs(1 {{Cl|TO}} 9, 1 {{Cl|TO}} 2)
 ccs(1, 1) = 415: ccs(1, 2) = 289
@@ -211,19 +211,19 @@ ccs(9, 1) = 2: ccs(9, 2) = 2
     row = ccs(p, 1)
     cl = ccs(p, 2)
     glocate row, cl
-    gprint &quot;000000000000000000000000000000000000000000000000000000000000000000000&quot;
+    gprint "000000000000000000000000000000000000000000000000000000000000000000000"
     glocate row + 1, cl
-    gprint &quot;0x00x0xxxx0xxxx0xxxx0x0x000x00x0xxxx0x000x000x0x0xxxx0xxxx0xxxx000x00&quot;
+    gprint "0x00x0xxxx0xxxx0xxxx0x0x000x00x0xxxx0x000x000x0x0xxxx0xxxx0xxxx000x00"
     glocate row + 2, cl
-    gprint &quot;0x00x0x00x0x00x0x00x0x0x000xx0x0x0000x000x000x0x0x0000x00x0x00x000x00&quot;
+    gprint "0x00x0x00x0x00x0x00x0x0x000xx0x0x0000x000x000x0x0x0000x00x0x00x000x00"
     glocate row + 3, cl
-    gprint &quot;0xxxx0xxxx0xxxx0xxxx0x0x000x0xx0xxx00x0x0x000x0x0xxx00xxxx0xxxx000x00&quot;
+    gprint "0xxxx0xxxx0xxxx0xxxx0x0x000x0xx0xxx00x0x0x000x0x0xxx00xxxx0xxxx000x00"
     glocate row + 4, cl
-    gprint &quot;0x00x0x00x0x0000x00000x0000x00x0x0000x0x0x0000x00x0000x00x0x0x0000000&quot;
+    gprint "0x00x0x00x0x0000x00000x0000x00x0x0000x0x0x0000x00x0000x00x0x0x0000000"
     glocate row + 5, cl
-    gprint &quot;0x00x0x00x0x0000x00000x0000x00x0xxxx0xx0xx0000x00xxxx0x00x0x00x000x00&quot;
+    gprint "0x00x0x00x0x0000x00000x0000x00x0xxxx0xx0xx0000x00xxxx0x00x0x00x000x00"
     glocate row + 6, cl
-    gprint &quot;000000000000000000000000000000000000000000000000000000000000000000000&quot;
+    gprint "000000000000000000000000000000000000000000000000000000000000000000000"
   {{Cl|NEXT}} p
   {{Cl|SLEEP}} 1
   {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
@@ -257,26 +257,28 @@ gposxp = column
 {{Cl|SHARED}} gscalep
 {{Cl|SHARED}} gposxp, gposyp
 {{Cl|SHARED}} gcolorp, gbackcolorp
-' # means &quot;use the foreground color here.&quot;
-' . means &quot;use the background color here.&quot;
-' _ means &quot;transparent - don't draw this block at all&quot; (you can layer!)
-' 0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f means &quot;do color attribute 0 to 15.&quot;
-' any letter after f: &quot;use the foreground color here.&quot;
+' # means "use the foreground color here."
+' . means "use the background color here."
+' _ means "transparent - don't draw this block at all" (you can layer!)
+' 0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f means "do color attribute 0 to 15."
+' any letter after f: "use the foreground color here."
 {{Cl|IF...THEN|IF}} gscalep &lt; 1 {{Cl|THEN}} gscalep = 1
 pcolorp = gcolorp
 {{Cl|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} {{Cl|LEN}}(p$):
   {{Cl|SELECT CASE}} {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))
-    {{Cl|CASE}} &quot;#&quot;, &quot;g&quot;, &quot;h&quot;, &quot;i&quot;, &quot;j&quot;, &quot;k&quot;, &quot;l&quot;, &quot;m&quot;, &quot;n&quot;, &quot;o&quot;, &quot;p&quot;, &quot;q&quot;, &quot;r&quot;, &quot;s&quot;, &quot;t&quot;, &quot;u&quot;, &quot;v&quot;, &quot;w&quot;, &quot;x&quot;, &quot;y&quot;, &quot;z&quot;
+    {{Cl|CASE}} "#", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
       pcolorp = gcolorp
-    {{Cl|CASE}} &quot;.&quot;
+    {{Cl|CASE}} "."
       pcolorp = gbackcolorp
-    {{Cl|CASE}} &quot;_&quot;
+    {{Cl|CASE}} "_"
       pcolorp = -1
-    {{Cl|CASE}} &quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;, &quot;f&quot;
-      pcolorp = {{Cl|INSTR}}(&quot;0123456789abcdef&quot;, {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))) - 1
+    {{Cl|CASE}} "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"
+      pcolorp = {{Cl|INSTR}}("0123456789abcdef", {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))) - 1
   {{Cl|END SELECT}}
   {{Cl|IF...THEN|IF}} {{Cl|NOT}} pcolorp = -1 {{Cl|THEN}}
-    {{Cl|IF...THEN|IF}} gscalep &gt; 1 {{Cl|THEN}}
+    {
+2b3c
+{Cl|IF...THEN|IF}} gscalep > 1 {{Cl|THEN}}
       {{Cl|LINE}} ((gposxp - 1) * gscalep, (gposyp - 1) * gscalep)-{{Cl|STEP}}(gscalep - 1, gscalep - 1), pcolorp, BF
     {{Cl|ELSE}}:
       {{Cl|PSET}} (gposxp, gposyp), pcolorp
@@ -293,33 +295,33 @@ glocate gposyp + 1, 1 'gposyp = gposyp + 1
 ''Example 5:'' This example uses [[PRINT]] to good effect as string spacing is ignored by PLAY:
 {{CodeStart}} '' ''
 {{Cl|WIDTH}} 59, 28
-{{Cl|PRINT}} &lt;nowiki&gt;
-x$ = x$ + &quot;   o3    l4         t         0120c    ml&lt;f1   ,a      1,  &quot;
-x$ = x$ + &quot;   &gt;c    1,        mnf        .e  8f   am  l&lt;   e1    ,g   &quot;
-x$ = x$ + &quot;   1,    &gt;c       1, mn       g.   f8  ga   8g   8m  l&lt;    &quot;
-x$ = x$ + &quot;   f2.,a2.,      &gt;c   2.      ,m  nf   .f  8a     ml&lt;f     &quot;
-x$ = x$ + &quot;   ,a,&gt;c,mn     &gt;cd2.,&lt;f2     .,d2     .,&lt;b        -2      &quot;
-x$ = x$ + &quot;   .m    lb    -,&gt;d,f,mn&gt;d    ml       &lt;c          1,      &quot;
-x$ = x$ + &quot;   &lt;a    1,   f1         ,m   n&gt;       &gt;c          .&lt;      &quot;
-x$ = x$ + &quot;   a8    af  ml           c1  ,&lt;       e1          ,g      &quot;
-x$ = x$ + &quot;                                                           &quot;
-x$ = x$ + &quot;      1,m      n&gt;  g.f8ga8g8m  l&lt;                   f1     &quot;
-x$ = x$ + &quot;      ,d1,     &lt;b  -1           ,m                 n&gt;      &quot;
-x$ = x$ + &quot;      &gt;f .d    8d  c&lt;            f2               .,       &quot;
-x$ = x$ + &quot;      a2  .,   c2  .,&gt;f2.         ml      &lt;      b-        &quot;
-x$ = x$ + &quot;      ,&gt;   d,  f,  mn&gt;dml          &lt;c    1,&lt;    a1         &quot;
-x$ = x$ + &quot;      ,f    1, mn  &gt;&gt;               c.  &lt;a 8a  fm          &quot;
-x$ = x$ + &quot;      lc     2.,&lt;  e2                .,g2   .,mn           &quot;
-x$ = x$ + &quot;      &gt;g      .f8  gml&lt;b-,&gt;d,         f,     mn            &quot;
-x$ = x$ + &quot;                                                           &quot;
-x$ = x$ + &quot;&gt;d      ml  &lt;&lt;f2.,a2.,         &gt;         c2.,m       n&gt;  c.&quot;
-x$ = x$ + &quot; &lt;a    8a   ml                &lt;e,        g,  &gt;c      ,m  n&gt;&quot;
-x$ = x$ + &quot;  cm  l&lt;    &lt;b               -2 .,       &gt;d   2.     ,f  2.&quot;
-x$ = x$ + &quot;   ,mn&gt;     d2.ml&lt;          &lt;b   -,      &gt;d  ,f      ,m  n&gt;&quot;
-x$ = x$ + &quot;    dm      l&lt;&lt;f1,         a1,&gt;c1,mn     &gt;c.&lt;a       8a  fm&quot;
-x$ = x$ + &quot;    lc      1,            &lt;e1,g1,mn&gt;g    .f  8g      a8  g8&quot;
-x$ = x$ + &quot;    ml      &lt;&lt;           b-         1,   &gt;d   1,           &quot;
-x$ = x$ + &quot;    f1      ,mn&gt;f.d8dc  l1           ml  f,    c,    &lt;a  ,f&quot;&lt;/nowiki&gt;
+{{Cl|PRINT}} &lt;nowiki>
+x$ = x$ + "   o3    l4         t         0120c    ml&lt;f1   ,a      1,  "
+x$ = x$ + "   >c    1,        mnf        .e  8f   am  l&lt;   e1    ,g   "
+x$ = x$ + "   1,    >c       1, mn       g.   f8  ga   8g   8m  l&lt;    "
+x$ = x$ + "   f2.,a2.,      >c   2.      ,m  nf   .f  8a     ml&lt;f     "
+x$ = x$ + "   ,a,>c,mn     >cd2.,&lt;f2     .,d2     .,&lt;b        -2      "
+x$ = x$ + "   .m    lb    -,>d,f,mn>d    ml       &lt;c          1,      "
+x$ = x$ + "   &lt;a    1,   f1         ,m   n>       >c          .&lt;      "
+x$ = x$ + "   a8    af  ml           c1  ,&lt;       e1          ,g      "
+x$ = x$ + "                                                           "
+x$ = x$ + "      1,m      n>  g.f8ga8g8m  l&lt;                   f1     "
+x$ = x$ + "      ,d1,     &lt;b  -1           ,m                 n>      "
+x$ = x$ + "      >f .d    8d  c&lt;            f2               .,       "
+x$ = x$ + "      a2  .,   c2  .,>f2.         ml      &lt;      b-        "
+x$ = x$ + "      ,>   d,  f,  mn>dml          &lt;c    1,&lt;    a1         "
+x$ = x$ + "      ,f    1, mn  >>               c.  &lt;a 8a  fm          "
+x$ = x$ + "      lc     2.,&lt;  e2                .,g2   .,mn           "
+x$ = x$ + "      >g      .f8  gml&lt;b-,>d,         f,     mn            "
+x$ = x$ + "                                                           "
+x$ = x$ + ">d      ml  &lt;&lt;f2.,a2.,         >         c2.,m       n>  c."
+x$ = x$ + " &lt;a    8a   ml                &lt;e,        g,  >c      ,m  n>"
+x$ = x$ + "  cm  l&lt;    &lt;b               -2 .,       >d   2.     ,f  2."
+x$ = x$ + "   ,mn>     d2.ml&lt;          &lt;b   -,      >d  ,f      ,m  n>"
+x$ = x$ + "    dm      l&lt;&lt;f1,         a1,>c1,mn     >c.&lt;a       8a  fm"
+x$ = x$ + "    lc      1,            &lt;e1,g1,mn>g    .f  8g      a8  g8"
+x$ = x$ + "    ml      &lt;&lt;           b-         1,   >d   1,           "
+x$ = x$ + "    f1      ,mn>f.d8dc  l1           ml  f,    c,    &lt;a  ,f"&lt;/nowiki>
 {{Cl|PRINT}} x$;
 {{Cl|PLAY}} x '' ''
 {{CodeEnd}}{{small|Code by Johnny B}}

@@ -1,4 +1,4 @@
-The [[DATE$]] function returns the current computer date as a string in the format &quot;mm-dd-yyyy&quot;.
+The [[DATE$]] function returns the current computer date as a string in the format "mm-dd-yyyy".
 
 
 {{PageSyntax}}
@@ -6,7 +6,7 @@ The [[DATE$]] function returns the current computer date as a string in the form
 
 
 {{PageDescription}}
-* Returns the current computer date in the format &quot;mm-dd-yyyy&quot; (e.g., &quot;12-25-2009&quot;).
+* Returns the current computer date in the format "mm-dd-yyyy" (e.g., "12-25-2009").
 
 
 {{PageExamples}}
@@ -18,20 +18,20 @@ day$ = {{Cl|MID$}}({{Cl|DATE$}}, 4, 2): D = {{Cl|VAL}}(day$)
 day$ = {{Cl|STR$}}(D)                  ' eliminate any leading zeros
 year$ = {{Cl|RIGHT$}}({{Cl|DATE$}}, 4): Y = {{Cl|VAL}}(year$)
 {{Cl|SELECT CASE}} M
-   {{Cl|CASE}} 1: Moon$ = &quot;January&quot;
-   {{Cl|CASE}} 2: Moon$ = &quot;February&quot;
-   {{Cl|CASE}} 3: Moon$ = &quot;March&quot;
-   {{Cl|CASE}} 4: Moon$ = &quot;April&quot;
-   {{Cl|CASE}} 5: Moon$ = &quot;May&quot;
-   {{Cl|CASE}} 6: Moon$ = &quot;June&quot;
-   {{Cl|CASE}} 7: Moon$ = &quot;July&quot;
-   {{Cl|CASE}} 8: Moon$ = &quot;August&quot;
-   {{Cl|CASE}} 9: Moon$ = &quot;September&quot;
-   {{Cl|CASE}} 10: Moon$ = &quot;October&quot;
-   {{Cl|CASE}} 11: Moon$ = &quot;November&quot;
-   {{Cl|CASE}} 12: Moon$ = &quot;December&quot;
+   {{Cl|CASE}} 1: Moon$ = "January"
+   {{Cl|CASE}} 2: Moon$ = "February"
+   {{Cl|CASE}} 3: Moon$ = "March"
+   {{Cl|CASE}} 4: Moon$ = "April"
+   {{Cl|CASE}} 5: Moon$ = "May"
+   {{Cl|CASE}} 6: Moon$ = "June"
+   {{Cl|CASE}} 7: Moon$ = "July"
+   {{Cl|CASE}} 8: Moon$ = "August"
+   {{Cl|CASE}} 9: Moon$ = "September"
+   {{Cl|CASE}} 10: Moon$ = "October"
+   {{Cl|CASE}} 11: Moon$ = "November"
+   {{Cl|CASE}} 12: Moon$ = "December"
 {{Cl|END SELECT}}
-{{Cl|PRINT}} &quot;Today is &quot; + WeekDay$(M, D, Y) + &quot;, &quot; + Moon$ + day$ + &quot;, &quot; + year$ + {{Cl|SPACE$}}(10)
+{{Cl|PRINT}} "Today is " + WeekDay$(M, D, Y) + ", " + Moon$ + day$ + ", " + year$ + {{Cl|SPACE$}}(10)
 
 {{Cl|DEFINT}} A-Z
 {{Cl|FUNCTION}} WeekDay$ (M, D, Y)          
@@ -43,13 +43,13 @@ S3 = 26 * (M + 1) \ 10               'days in months
 WkDay = (S1 + S2 + S3 + D) {{Cl|MOD}} 7     'weekday total remainder 
 {{Cl|IF}} WkDay &lt; 0 {{Cl|THEN}} WkDay = WkDay + 7  'Adjust negative results to 0 to 6
 {{Cl|SELECT CASE}} WkDay
-   {{Cl|CASE}} 0: day$ = &quot;Sunday&quot;
-   {{Cl|CASE}} 1: day$ = &quot;Monday&quot;
-   {{Cl|CASE}} 2: day$ = &quot;Tuesday&quot;
-   {{Cl|CASE}} 3: day$ = &quot;Wednesday&quot;
-   {{Cl|CASE}} 4: day$ = &quot;Thursday&quot;
-   {{Cl|CASE}} 5: day$ = &quot;Friday&quot;
-   {{Cl|CASE}} 6: day$ = &quot;Saturday&quot;
+   {{Cl|CASE}} 0: day$ = "Sunday"
+   {{Cl|CASE}} 1: day$ = "Monday"
+   {{Cl|CASE}} 2: day$ = "Tuesday"
+   {{Cl|CASE}} 3: day$ = "Wednesday"
+   {{Cl|CASE}} 4: day$ = "Thursday"
+   {{Cl|CASE}} 5: day$ = "Friday"
+   {{Cl|CASE}} 6: day$ = "Saturday"
 {{Cl|END SELECT}}
 WeekDay$ = day$
 {{Cl|END FUNCTION}} '' ''

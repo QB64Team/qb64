@@ -11,7 +11,7 @@ QB {{PageSyntax|}}
 * TIMER return values range from 0 at midnight to 86399! A comparison value must stay within that range!
 * [[INTEGER]] or [[LONG]] second values range from 0 at midnight to 86399 seconds each day.
 * Qbasic can return [[SINGLE]] values down to about .04 or 1/18th (one tick) of a second accurately. 
-* '''QB64''' can read [[DOUBLE]] ''accuracy'' down to 1 millisecond. Example: {{text|start# &lt;nowiki&gt;=&lt;/nowiki&gt; TIMER(.001)|green}} 
+* '''QB64''' can read [[DOUBLE]] ''accuracy'' down to 1 millisecond. Example: {{text|start# &lt;nowiki>=&lt;/nowiki> TIMER(.001)|green}} 
 * Use [[DOUBLE]] variables for millisecond accuracy as [[SINGLE]] values are only accurate to 100ths of a second later in the day!
 * TIMER loops should use a midnight adjustment to avoid non-ending loops in Qbasic. 
 * TIMER can also be used for timing program Events. See [[ON TIMER(n)]] or the [[TIMER (statement)]]
@@ -21,17 +21,17 @@ QB {{PageSyntax|}}
 ''Example 1:'' Delay SUB with a midnight correction for when TIMER returns to 0. '''QB64''' can use [[_DELAY]] for delays down to .001.
 {{CodeStart}} '' ''
 {{Cl|DO...LOOP|DO}}
-  {{Cl|PRINT}} &quot;Hello&quot;;
+  {{Cl|PRINT}} "Hello";
   Delay .5  'accuracy down to .05 seconds or 1/18th of a second in Qbasic
-  {{Cl|PRINT}} &quot;World!&quot;;
+  {{Cl|PRINT}} "World!";
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
 
 {{Cl|END}}
 
 {{Cl|SUB}} Delay (dlay!)
 start! = {{Cl|TIMER}}
-{{Cl|DO...LOOP|DO}} {{Cl|WHILE}} start! + dlay! &gt;= {{Cl|TIMER}}
-  {{Cl|IF...THEN|IF}} start! &gt; {{Cl|TIMER}} {{Cl|THEN}} start! = start! - 86400
+{{Cl|DO...LOOP|DO}} {{Cl|WHILE}} start! + dlay! >= {{Cl|TIMER}}
+  {{Cl|IF...THEN|IF}} start! > {{Cl|TIMER}} {{Cl|THEN}} start! = start! - 86400
 {{Cl|LOOP}}
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
@@ -46,10 +46,10 @@ start! = {{Cl|TIMER}}
   {{Cl|POKE}} 1132, 0 ' zero Timer ticks
   {{Cl|DO...LOOP|DO}} ' delay loop
     x% = {{Cl|PEEK}}(1132)
-    {{Cl|IF...THEN|IF}} x% &lt;&gt; px% {{Cl|THEN}} {{Cl|PRINT}} x%;
+    {{Cl|IF...THEN|IF}} x% &lt;> px% {{Cl|THEN}} {{Cl|PRINT}} x%;
     px% = x%
-  {{Cl|LOOP}} {{Cl|UNTIL}} x% &gt;= 18 '18 ticks in one second
-  {{Cl|PRINT}} &quot;code &quot; ' program code
+  {{Cl|LOOP}} {{Cl|UNTIL}} x% >= 18 '18 ticks in one second
+  {{Cl|PRINT}} "code " ' program code
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
 {{Cl|DEF SEG}} ' reset segment to default
 
@@ -59,7 +59,7 @@ start! = {{Cl|TIMER}}
  0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18 code
  0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18 code
 {{OutputEnd}}
-:''Explanation:'' The [[POKE]] before the delay loop sets the tick count to 0. The [[PEEK]] count increases until the tick count returns 18 ticks and ends the loop. The same thing could be approximated by using a delay loop with: {{text|second! &lt;nowiki&gt;=&lt;/nowiki&gt; '''TIMER''' + 1|green}}
+:''Explanation:'' The [[POKE]] before the delay loop sets the tick count to 0. The [[PEEK]] count increases until the tick count returns 18 ticks and ends the loop. The same thing could be approximated by using a delay loop with: {{text|second! &lt;nowiki>=&lt;/nowiki> '''TIMER''' + 1|green}}
 
 
 ''Example 3:'' Using a [[DOUBLE]] variable for [[TIMER]](.001) millisecond accuracy in '''QB64''' throughout the day.
@@ -67,8 +67,8 @@ start! = {{Cl|TIMER}}
  ts! = TIMER(.001)     'single variable
  td# = TIMER(.001)     'double variable
 
- PRINT &quot;Single =&quot;; ts!
- PRINT &quot;Double =&quot;; td# '' ''
+ PRINT "Single ="; ts!
+ PRINT "Double ="; td# '' ''
 {{CodeEnd}}
 {{OutputStart}}
  Single = 77073.09

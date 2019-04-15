@@ -31,21 +31,21 @@
 
 {{Cl|DIM}} {{Cl|SHARED}} cust {{Cl|AS}} customer, recLEN
 recLEN = {{Cl|LEN}}(cust)            'get the length of the record type
-{{Cl|PRINT}} &quot;Rec{{Cl|LEN}}:&quot;; recLEN
+{{Cl|PRINT}} "Rec{{Cl|LEN}}:"; recLEN
 
-{{Cl|OPEN}} &quot;randfile.rec&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = recLEN
+{{Cl|OPEN}} "randfile.rec" {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = recLEN
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 4
   {{Cl|READ}} cust.age, cust.phone
   {{Cl|PUT}} #1, , cust
 {{Cl|NEXT}}
 {{Cl|CLOSE}} #1
 
-RP = RecordPos(&quot;randfile.rec&quot;, &quot;2223456789&quot;)  'returns 0 if record not found!
+RP = RecordPos("randfile.rec", "2223456789")  'returns 0 if record not found!
 
 {{Cl|PRINT}} RP  
 
 {{Cl|IF...THEN|IF}} RP {{Cl|THEN}}
-  {{Cl|OPEN}} &quot;randfile.rec&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = recLEN
+  {{Cl|OPEN}} "randfile.rec" {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = recLEN
   {{Cl|GET}} #2, RP, cust
   {{Cl|CLOSE}} #2
 {{Cl|PRINT}} cust.age, cust.phone
@@ -71,12 +71,12 @@ recpos = {{Cl|INSTR}}(dat$, search$)
 ''Example 2:'' When not using a [[TYPE]] or fixed length strings, QB4.5 allows RANDOM files to hold variable length strings up to 2 bytes less than the LEN = record length statement:
 {{CodeStart}} '' ''
 {{Cl|_CONTROLCHR}} OFF
-{{Cl|OPEN}} &quot;myfile.txt&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1: {{Cl|CLOSE}} #1: ' clears former file of all entries.
-{{Cl|OPEN}} &quot;myfile.txt&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = 13 'strings can be up to 11 bytes with 2 byte padder
+{{Cl|OPEN}} "myfile.txt" {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1: {{Cl|CLOSE}} #1: ' clears former file of all entries.
+{{Cl|OPEN}} "myfile.txt" {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = 13 'strings can be up to 11 bytes with 2 byte padder
 
-a$ = {{Cl|CHR$}}(1) + {{Cl|CHR$}}(0) + &quot;ABCDEFGHI&quot;
-b$ = &quot;ABCDEFGHI&quot;
-c$ = &quot;1234&quot;
+a$ = {{Cl|CHR$}}(1) + {{Cl|CHR$}}(0) + "ABCDEFGHI"
+b$ = "ABCDEFGHI"
+c$ = "1234"
 
 {{Cl|PUT}} #1, 1, a$
 {{Cl|PUT}} #1, 2, b$

@@ -19,7 +19,7 @@ The [[_MAPUNICODE]] statement maps a [[Unicode]] value to an [[ASCII]] character
 ''Example:'' Converting the extended [[ASCII]] characters to other characters using DATA from the Unicode [[Code Pages]].
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0
-{{Cl|_FONT}} {{Cl|_LOADFONT}}(&quot;C:\windows\fonts\cour.ttf&quot;, 20, &quot;MONOSPACE&quot;)
+{{Cl|_FONT}} {{Cl|_LOADFONT}}("C:\windows\fonts\cour.ttf", 20, "MONOSPACE")
 
 {{Cl|RESTORE}} Microsoft_pc_cpMIK
 {{Cl|FOR...NEXT|FOR}} ASCIIcode = 128 {{Cl|TO}} 255
@@ -29,7 +29,7 @@ The [[_MAPUNICODE]] statement maps a [[Unicode]] value to an [[ASCII]] character
 
 
 {{Cl|FOR...NEXT|FOR}} i = 128 {{Cl|TO}} 255
-  {{Cl|PRINT}} {{Cl|CHR$}}(i) + &quot; &quot;;
+  {{Cl|PRINT}} {{Cl|CHR$}}(i) + " ";
   cnt = cnt + 1
   {{Cl|IF...THEN|IF}} cnt {{Cl|MOD}} 16 = 0 {{Cl|THEN}} {{Cl|PRINT}}
 {{Cl|NEXT}}

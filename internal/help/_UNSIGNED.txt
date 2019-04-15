@@ -17,7 +17,7 @@
 * The unsigned variable type suffix used is the '''tilde (~)''', right before the number's own type suffix: {{Parameter|variableName~&amp;}}
 
 
-&lt;center&gt;How negative values affect the [[_UNSIGNED]] value returned by a [[_BYTE]] (8 bits). &lt;/center&gt;
+&lt;center>How negative values affect the [[_UNSIGNED]] value returned by a [[_BYTE]] (8 bits). &lt;/center>
 {{WhiteStart}}
                         00000001 - unsigned &amp; signed are both 1    
                         01111111 - unsigned &amp; signed are both 127  
@@ -50,12 +50,12 @@ i~% = 70000
 {{CodeStart}} '' ''
 {{Cl|DIM}} n {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
 {{Cl|DIM}} pn {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
-{{Cl|LOCATE}} 3, 6: {{Cl|PRINT}} &quot;Press Esc to exit loop&quot;
+{{Cl|LOCATE}} 3, 6: {{Cl|PRINT}} "Press Esc to exit loop"
 {{Cl|FOR...NEXT|FOR}} n = 1 {{Cl|TO}} 80000
   {{Cl|_LIMIT}} 10000 ' 6.5 second loop 
   {{Cl|LOCATE}} 12, 37: {{Cl|PRINT}} n ' display current value
-  {{Cl|IF...THEN|IF}} n &gt; 0 {{Cl|THEN}} pn = n ' find highest value
-  {{Cl|IF...THEN|IF}} n = 0 {{Cl|THEN}} Count = Count + 1: {{Cl|LOCATE}} 14, 37: {{Cl|PRINT}} &quot;Count:&quot;; Count; &quot;Max:&quot;; pn
+  {{Cl|IF...THEN|IF}} n > 0 {{Cl|THEN}} pn = n ' find highest value
+  {{Cl|IF...THEN|IF}} n = 0 {{Cl|THEN}} Count = Count + 1: {{Cl|LOCATE}} 14, 37: {{Cl|PRINT}} "Count:"; Count; "Max:"; pn
   {{Cl|IF...THEN|IF}} {{Cl|INP}}(&amp;H60) = 1 {{Cl|THEN}} {{Cl|EXIT|EXIT FOR}} ' escape key exit
 {{Cl|NEXT}} n
 {{Cl|END}} '' ''

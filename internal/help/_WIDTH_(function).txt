@@ -22,7 +22,7 @@ The [[_WIDTH (function)|_WIDTH]] function returns the width of an image handle o
 
  s&amp; = {{Cl|_NEWIMAGE}}(800, 600, 256)
  SCREEN s&amp;
- Align 15, 5, s&amp;, &quot;This text is centered on the screen!&quot;
+ Align 15, 5, s&amp;, "This text is centered on the screen!"
 
  SUB Align (Tcolor, Trow, mode&amp;, txt$)    
    center&amp; = {{Cl|_WIDTH (function)|_WIDTH}} (mode&amp;) \ 2     'returns pixels in graphic modes 

@@ -18,8 +18,8 @@ The [[_DIREXISTS]] function determines if a designated file path or folder exist
 {{PageExamples}}
 {{Parameter|Example:'' Checks if a folder exists before proceeding.
 {{CodeStart}}
-{{Cl|IF}} {{Cl|_DIREXISTS}}(&quot;internal\temp&quot;) THEN
-    {{Cl|PRINT}} &quot;Folder found.&quot;
+{{Cl|IF}} {{Cl|_DIREXISTS}}("internal\temp") THEN
+    {{Cl|PRINT}} "Folder found."
 {{Cl|END IF}}
 {{CodeEnd}}}}
 

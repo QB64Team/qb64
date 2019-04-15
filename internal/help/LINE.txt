@@ -55,12 +55,12 @@ The [[LINE]] statement is used in graphic [[SCREEN (statement)|SCREEN]] modes to
     {{Cl|COLOR}} 15:{{Cl|LOCATE}} 10, 5: {{Cl|PRINT}} i%;
     {{Cl|LINE}} (10, 60)-(300, 60), 0 'erase previous lines
     {{Cl|LINE}} (10, 60)-(300, 60), 12, , i%
-    tmp$ = &quot;&quot;
+    tmp$ = ""
     {{Cl|FOR...NEXT|FOR}} b% = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1 'create binary text value showing bits on as {{text|█|red}}, off as space
         {{Cl|IF...THEN|IF}} i% {{Cl|AND}} 2 ^ b% {{Cl|THEN}} tmp$ = tmp$ + {{Cl|CHR$}}(219) {{Cl|ELSE}} tmp$ = tmp$ + {{Cl|SPACE$}}(1)
     {{Cl|NEXT}}
     {{Cl|COLOR}} 12:{{Cl|LOCATE}} 10, 20: {{Cl|PRINT}} tmp$;
-    {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}} 'any key exit
+    {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} &lt;> "" {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}} 'any key exit
     {{Cl|_DELAY}} .001 'set delay time as required
 {{Cl|NEXT}} '' ''
 {{CodeEnd}}

@@ -13,7 +13,7 @@ The [[_MOUSEMOVE]] statement moves the mouse pointer to a new position on the sc
 
 {{PageDescription}}
 * Maximum coordinate values are based on a program's current [[SCREEN]] mode resolution or the pixel size set by [[_NEWIMAGE]].
-* [[SCREEN]] 0 uses text block coordinates. '''Coordinates off the screen area will create an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]]'''
+* [[SCREEN]] 0 uses text block coordinates. '''Coordinates off the screen area will create an "Illegal Function Call" [[ERROR Codes|ERROR]]'''
 * Can be used to position the pointer to a default dialog button or move the cursor away from a button so it is not clicked twice.
 * Does not require [[_MOUSEINPUT]] to be used, but all moves will be remembered and can be read by mouse functions.
 
@@ -29,7 +29,7 @@ The [[_MOUSEMOVE]] statement moves the mouse pointer to a new position on the sc
 {{Cl|SCREEN}} 12
 i = {{Cl|_MOUSEINPUT}} 'start reading mouse events before INPUT to hold in memory
 {{Cl|PRINT}}
-{{Cl|INPUT}} &quot;Move the mouse pointer and make a few clicks, then press Enter!&quot;, dummy$
+{{Cl|INPUT}} "Move the mouse pointer and make a few clicks, then press Enter!", dummy$
 {{Cl|_MOUSEMOVE}} 1, 1
 DO: {{Cl|_LIMIT}} 30
     count = count + 1
@@ -38,8 +38,8 @@ DO: {{Cl|_LIMIT}} 30
     b = {{Cl|_MOUSEBUTTON}}(1)
     {{Cl|PRINT}} count, x, y, b
     {{Cl|_MOUSEMOVE}} x, y
-{{Cl|LOOP}} {{Cl|UNTIL}} i = 0 {{Cl|OR (boolean)|OR}} {{Cl|INKEY$}} &gt; &quot;&quot;
-{{Cl|PRINT}} &quot;Done!&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} i = 0 {{Cl|OR (boolean)|OR}} {{Cl|INKEY$}} > ""
+{{Cl|PRINT}} "Done!" '' ''
 {{CodeEnd}}
 : ''Explanation:'' The [[_MOUSEINPUT]] function will hold previous and _MOUSEMOVE events so press any key when you want to quit.
 

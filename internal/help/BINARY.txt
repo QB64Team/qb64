@@ -26,16 +26,16 @@
 int64 = 12345678
 {{Cl|PRINT}} int64
 
-{{Cl|OPEN}} &quot;temp64.tmp&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+{{Cl|OPEN}} "temp64.tmp" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
 {{Cl|PUT}} #1, , int64                 'the file size will be 8 bytes
 {{Cl|CLOSE}}
 
-{{Cl|PRINT}} &quot;Press a key to read the file!&quot;
+{{Cl|PRINT}} "Press a key to read the file!"
 K$ = {{Cl|INPUT$}}(1)
 
-{{Cl|OPEN}} &quot;temp64.tmp&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+{{Cl|OPEN}} "temp64.tmp" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
 {{Cl|GET}} #1, , byte8                'GET the value as a string
-{{Cl|PRINT}} &quot;text string: &quot;; byte8   'show that string is in {{Cl|_MK$}} format
+{{Cl|PRINT}} "text string: "; byte8   'show that string is in {{Cl|_MK$}} format
 
 {{Cl|PRINT}} {{Cl|_CV}}({{Cl|_INTEGER64}}, byte8)   'convert to numerical value
 {{Cl|CLOSE}} '' ''
@@ -48,11 +48,11 @@ K$ = {{Cl|INPUT$}}(1)
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1000, 600, 256)
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
 {{Cl|DIM}} value AS {{Cl|INTEGER}}    'value type can be changed
-{{Cl|LINE INPUT}} ; &quot;Enter a {{Cl|BINARY}} filename to open: &quot;, file$
-{{Cl|PRINT}} &quot; Press S to restart!&quot;
+{{Cl|LINE INPUT}} ; "Enter a {{Cl|BINARY}} filename to open: ", file$
+{{Cl|PRINT}} " Press S to restart!"
 
 {{Cl|IF...THEN|IF}} {{Cl|LEN}}(file$) {{Cl|THEN}} {{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1 {{Cl|ELSE}} {{Cl|END}}
-{{Cl|IF...THEN|IF}} {{Cl|LOF}}(1) = 0 {{Cl|THEN}} {{Cl|PRINT}} &quot;Empty file!&quot;: {{Cl|END}}
+{{Cl|IF...THEN|IF}} {{Cl|LOF}}(1) = 0 {{Cl|THEN}} {{Cl|PRINT}} "Empty file!": {{Cl|END}}
 DO
   {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 16
     x = x + 1
@@ -60,13 +60,13 @@ DO
     {{Cl|IF...THEN|IF}} {{Cl|EOF}}(1) {{Cl|THEN}} {{Cl|EXIT DO}}
     {{Cl|PRINT}} value;
   {{Cl|NEXT}}
-  {{Cl|PRINT}} {{Cl|CHR$}}(27); x; &quot;@&quot;; row
+  {{Cl|PRINT}} {{Cl|CHR$}}(27); x; "@"; row
   K$ = {{Cl|INPUT$}}(1)
-  {{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(K$) = &quot;S&quot; {{Cl|THEN}} {{Cl|CLS}}: x = 0: row = 0: {{Cl|PRINT}} &quot;Restarted!&quot;: {{Cl|SEEK}} 1, 1
+  {{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(K$) = "S" {{Cl|THEN}} {{Cl|CLS}}: x = 0: row = 0: {{Cl|PRINT}} "Restarted!": {{Cl|SEEK}} 1, 1
   {{Cl|IF...THEN|IF}} x = 256 {{Cl|THEN}} x = 0: row = row + 1: {{Cl|PRINT}}
 {{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(27)
 {{Cl|CLOSE}} #1
-{{Cl|PRINT}} &quot;Press Escape to exit!&quot;
+{{Cl|PRINT}} "Press Escape to exit!"
 DO: {{Cl|_LIMIT}} 100
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
 {{Cl|SYSTEM}} '' ''

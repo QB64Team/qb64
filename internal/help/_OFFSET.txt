@@ -23,8 +23,8 @@ The [[_OFFSET]] variable type stores the location of a value in memory. The byte
     {{Cl|FUNCTION}} FindWindow&amp; ({{Cl|BYVAL}} ClassName AS {{Cl|_OFFSET}}, WindowName$)
 {{Cl|END}} {{Cl|DECLARE LIBRARY|DECLARE}}
 
-{{Cl|_TITLE}} &quot;Super Window&quot;
-hwnd&amp; = FindWindow(0, &quot;Super Window&quot; + {{Cl|CHR$}}(0))
+{{Cl|_TITLE}} "Super Window"
+hwnd&amp; = FindWindow(0, "Super Window" + {{Cl|CHR$}}(0))
 
 {{Cl|TYPE}} BROWSEINFO  'typedef struct _browseinfo '[http://msdn.microsoft.com/en-us/library/bb773205%28v=vs.85%29.aspx Microsoft MSDN]
   hwndOwner {{Cl|AS}} {{Cl|LONG}} '              '  HWND 
@@ -37,7 +37,7 @@ hwnd&amp; = FindWindow(0, &quot;Super Window&quot; + {{Cl|CHR$}}(0))
   iImage {{Cl|AS}} {{Cl|LONG}} '                 '  int  
 {{Cl|END}} {{Cl|TYPE}}  'BROWSEINFO, *PBROWSEINFO, *LPBROWSEINFO;
 
-{{Cl|DECLARE LIBRARY|DECLARE DYNAMIC LIBRARY}} &quot;shell32&quot;
+{{Cl|DECLARE LIBRARY|DECLARE DYNAMIC LIBRARY}} "shell32"
   {{Cl|FUNCTION}} SHBrowseForFolder%&amp; (x {{Cl|AS}} BROWSEINFO) '[http://msdn.microsoft.com/en-us/library/bb762115%28v=vs.85%29.aspx Microsoft MSDN]
   {{Cl|SUB}} SHGetPathFromIDList ({{Cl|BYVAL}} lpItem {{Cl|AS}} {{Cl|_OFFSET}}, {{Cl|BYVAL}} szDir {{Cl|AS}} {{Cl|_OFFSET}}) '[http://msdn.microsoft.com/en-us/library/bb762194%28VS.85%29.aspx Microsoft MSDN]
 {{Cl|DECLARE LIBRARY|END DECLARE}}
@@ -46,7 +46,7 @@ hwnd&amp; = FindWindow(0, &quot;Super Window&quot; + {{Cl|CHR$}}(0))
 b.hwndOwner = hwnd
 {{Cl|DIM}} s {{Cl|AS}} {{Cl|STRING}} * 1024
 b.pszDisplayName = {{Cl|_OFFSET (function)|_OFFSET}}(s$)
-a$ = &quot;Choose a folder!!!&quot; + {{Cl|CHR$}}(0)
+a$ = "Choose a folder!!!" + {{Cl|CHR$}}(0)
 b.lpszTitle = {{Cl|_OFFSET (function)|_OFFSET}}(a$)
 {{Cl|DIM}} o {{Cl|AS}} {{Cl|_OFFSET}}
 o = SHBrowseForFolder(b)
@@ -56,13 +56,14 @@ o = SHBrowseForFolder(b)
     SHGetPathFromIDList o, {{Cl|_OFFSET (function)|_OFFSET}}(s2$)
     {{Cl|PRINT}} {{Cl|LEFT$}}(s2$, {{Cl|INSTR}}(s2$, {{Cl|CHR$}}(0)) - 1)
 {{Cl|ELSE}}
-    {{Cl|PRINT}} &quot;Cancel?&quot;
+    {{Cl|PRINT}} "Cancel?"
 {{Cl|END IF}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}
 
 
 {{PageSeeAlso}}
+* [[_WINDOWHANDLE]]
 * [[Using _OFFSET]]
 * [[_OFFSET (function)]], [[_MEM]]
 * [[DECLARE LIBRARY]]

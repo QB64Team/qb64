@@ -1,4 +1,4 @@
-{| align=&quot;Right&quot;
+{| align="Right"
   | __TOC__
   |}
 The [[SCREEN]] statement sets the video display mode and size of the program window's workspace. 
@@ -59,7 +59,7 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 * All SCREEN modes are Windows in QB64. Use [[_FULLSCREEN]] to set the window area to full screen.
 * [[_SCREENMOVE]] can position a window or the _MIDDLE option can center it on the desktop.
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 ==Legacy Screen Modes==
 
@@ -93,9 +93,9 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 
 * '''[[SCREEN]] [[_LOADIMAGE]]'''(imagehandle&amp;, colors) can load a program screen of an image file handle in '''QB64''' using 256 or 32 bit. 
 
-&lt;center&gt;'''QB64 can use page flipping with any number of pages in any screen mode!'''&lt;/center&gt;
+&lt;center>'''QB64 can use page flipping with any number of pages in any screen mode!'''&lt;/center>
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 ==Text and Graphics==
 
@@ -105,7 +105,6 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 * Are a minimum of 1 and the values given above are the maximums. [[LOCATE]] 1, 1 is the top left [[SCREEN]] text position.
 * Text characters occupy a certain sized pixel box adjusted by [[WIDTH]] in some screen modes.
 * Text [[PRINT]] cursor positions can be read by {{KW|CSRLIN}} and {{KW|POS|POS(0)}} to [[LOCATE]] text [[PRINT]]s.
-* The [[SCREEN (function)]] can be used to read the [[ASCII]] character code or color of text in SCREEN 0 only.
 * [[VIEW PRINT]] can be used to designate a text view port area.
 * In '''QB64''' the [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] functions will return the text dimensions in SCREEN 0 only.
 
@@ -131,22 +130,22 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 * The current desktop screen resolution can be found using the [[_SCREENIMAGE]] handle value with [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]].
 * '''NOTE: Default 32 bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0)! Use [[CLS]] to make the black opaque!'''
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 ==Examples==
 
 :''Example 1:'' Shows an example of each legacy screen mode available to Qbasic and QB64.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0
-{{Cl|PRINT}} &quot;This is {{Cl|SCREEN}} 0 - only text is allowed!&quot;
+{{Cl|PRINT}} "This is {{Cl|SCREEN}} 0 - only text is allowed!"
 {{Cl|FOR}} S = 1 {{Cl|TO}} 13
-   {{Cl|IF}} S &lt; 3 {{Cl|OR}} S &gt; 6 {{Cl|THEN}} 
-     {{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+   {{Cl|IF}} S &lt; 3 {{Cl|OR}} S > 6 {{Cl|THEN}} 
+     {{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
      {{Cl|SCREEN}} S
-     {{Cl|PRINT}} &quot;This is {{Cl|SCREEN}}&quot;; S; &quot; - can use text and graphics!&quot;
-       {{Cl|IF}} S = 2 {{Cl|OR}} S = 11 {{Cl|THEN}} {{Cl|PRINT}} &quot;Monochrome - no {{Cl|COLOR}} statements!&quot;
+     {{Cl|PRINT}} "This is {{Cl|SCREEN}}"; S; " - can use text and graphics!"
+       {{Cl|IF}} S = 2 {{Cl|OR}} S = 11 {{Cl|THEN}} {{Cl|PRINT}} "Monochrome - no {{Cl|COLOR}} statements!"
        {{Cl|IF}} S = 10 {{Cl|THEN}} 
-         {{Cl|COLOR}} 2: {{Cl|PRINT}} &quot;This {{Cl|SCREEN}} has only 4 colors. Black and 3 white: 2 blinks.
+         {{Cl|COLOR}} 2: {{Cl|PRINT}} "This {{Cl|SCREEN}} has only 4 colors. Black and 3 white: 2 blinks.
          {{Cl|CIRCLE}} (100,100), 50, 2
        {{Cl|ELSE}} : {{Cl|CIRCLE}} (100,100), 100, S
        {{Cl|END IF}}
@@ -160,42 +159,7 @@ This is SCREEN 0 - only text is allowed!
 {{OutputEnd}}
 :Displays each {{KW|SCREEN (statement)|SCREEN}} mode one at a time with a {{KW|CIRCLE}} (except for {{KW|SCREEN (statement)|SCREEN}} 0)
 
-
-''Example 2:'' Making ANY '''QB64 legacy screen mode''' larger using a SUB that easily converts PRINT to [[_PRINTSTRING]]. 
-{{CodeStart}}
-Scr13&amp; = {{Cl|_NEWIMAGE}}(320, 200, 13)  'this is the old SCREEN 13 image page to set the image
-Big13&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256) 'use 4 X 3 aspect ratio that Qbasic used when full screen
-
-{{Cl|SCREEN}} Big13&amp;
-{{Cl|_DEST}} Scr13&amp;
-image1&amp; = {{Cl|_LOADIMAGE}}(&quot;Howie.BMP&quot;, 256)  'see the download link below for 2 image files
-image2&amp; = {{Cl|_LOADIMAGE}}(&quot;Howie2.BMP&quot;, 256)
-{{Cl|_PUTIMAGE}} (10, 20), image1&amp;, Scr13&amp;
-{{Cl|_PUTIMAGE}} (160, 20), image2&amp;, Scr13&amp;
-{{Cl|_COPYPALETTE}} image1&amp;, Scr13&amp;
-{{Cl|COLOR}} 151: {{Cl|LOCATE}} 2, 4: PRINTS &quot;Screen 13 Height Reduction to 83%&quot; 
-{{Cl|LOCATE}} 22, 22: PRINTS {{Cl|CHR$}}(24) + &quot; 4 X 3 Proportion&quot;  'use {{Cl|concatenation}}
-{{Cl|LOCATE}} 24, 21: PRINTS {{Cl|CHR$}}(27) + &quot; Stretched at 100%&quot; 'instead of a {{Cl|semicolon}}!
-{{Cl|_COPYPALETTE}} Scr13&amp;, Big13&amp;  'required when imported image colors are used
-{{Cl|_PUTIMAGE}} , Scr13&amp;, Big13&amp;   'stretches the screen to double the size
-K$ = {{Cl|INPUT$}}(1)
-{{Cl|END}}
-
-{{Cl|SUB}} PRINTS (Text$)
-row% = ({{Cl|CSRLIN}} - 1) * {{Cl|_FONTHEIGHT}}      'finds current screen page text or font row height
-col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}(&quot;W&quot;) 'finds current page text or font column width
-{{Cl|_PRINTSTRING}} (col%, row%), Text$
-{{Cl|END SUB}} '' ''
-{{CodeEnd}}
-{{small|Code by Ted Weissgerber}}
-: ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the '''Search Menu'''.
-
-&lt;center&gt;[https://www.dropbox.com/s/tcdik1ajegbeiz4/HOWIE.zip?dl=0 Download of Example 2 Bitmap images]&lt;/center&gt;
-
-
-&lt;center&gt;You can easily change PRINT to the PRINTS sub-procedure name in your code using the [[IDE]] ''Search''  Menu ''Change'' option.&lt;/center&gt;
-
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 ==References==
 

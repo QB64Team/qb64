@@ -19,11 +19,11 @@ The [[GOTO]] statement sends the procedure to a line label or a line number in t
 {{PageExamples}}
 ''Example:''
 {{CodeStart}} '' ''
-1 {{Cl|PRINT}} &quot;first line&quot;: {{Cl|GOTO}} gohere
-2 {{Cl|PRINT}} &quot;second line&quot;: {{Cl|GOTO}} 3
+1 {{Cl|PRINT}} "first line": {{Cl|GOTO}} gohere
+2 {{Cl|PRINT}} "second line": {{Cl|GOTO}} 3
 
 gohere:
-{{Cl|PRINT}} &quot;third line&quot;
+{{Cl|PRINT}} "third line"
 {{Cl|GOTO}} 2
 
 3 {{Cl|END}} '' ''
@@ -34,7 +34,7 @@ third line
 second line
 {{OutputEnd}}
 
-:''Explanation:'' After it prints &quot;first line&quot; it goes to the line label &quot;gohere&quot; where it prints &quot;third line&quot;, then it goes to the line that is numbered &quot;2&quot; and prints &quot;second line&quot; and goes to line number 3 and an [[END]] statement which ends the program.
+:''Explanation:'' After it prints "first line" it goes to the line label "gohere" where it prints "third line", then it goes to the line that is numbered "2" and prints "second line" and goes to line number 3 and an [[END]] statement which ends the program.
 
 
 {{PageSeeAlso}}

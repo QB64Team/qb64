@@ -34,7 +34,7 @@
 {{Cl|$END IF}}
 
 {{Cl|COLOR}} Red
-{{Cl|PRINT}} &quot;Hello World&quot;
+{{Cl|PRINT}} "Hello World"
 {{CodeEnd}}
 
 ''Explanation:'' The same CONST is defined twice inside the program.  Normally, defining a CONST more than once generates an error, but the $IF condition here is choosing which CONST will be inside the final program.
@@ -47,12 +47,12 @@ The [[$LET]] and $IF statements let the programmer control the code that actuall
 ''Example 2:'' 
 {{CodeStart}} '' ''
 {{Cl|$IF}} WIN THEN
-    {{Cl|CONST}} Slash = &quot;\&quot;
+    {{Cl|CONST}} Slash = "\"
 {{Cl|$ELSE}}
-    {{Cl|CONST}} Slash = &quot;/&quot;
+    {{Cl|CONST}} Slash = "/"
 {{Cl|$END IF}}
 
-{{Cl|PRINT}} &quot;The proper slash for your operating system is &quot;; Slash
+{{Cl|PRINT}} "The proper slash for your operating system is "; Slash
 {{CodeEnd}}
 
 ''Explanation:'' For the above, the CONST slash is defined by the automatic internal flags which returns what operating system is being used at compile time. On a Windows PC, the Slash will be the backslash; for any other OS it will be the forward slash.

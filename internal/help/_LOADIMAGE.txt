@@ -8,15 +8,15 @@ The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]
 
 {{Parameters}}
 * {{Parameter|filename$}} is literal or variable [[STRING]] file name value.
-* Optional {{Parameter|mode%}} [[INTEGER]] values can be '''any valid [[SCREEN|screen]] mode''' except zero, also:
-** 256 = 8-bit (256-color)
+* Optional {{Parameter|mode%}} [[INTEGER]] values can be:
+** 256 = 8-bit (256-color, ''QB64 versions prior to 1.000'')
 ** 32 = 32-bit
 ** 33 = hardware image
 
 
 {{PageDescription}}
-* File types supported:  BMP, JPG, PNG, GIF, PNM, XPM, XCF, PCX, TIF, LBM, and TGA. A path can also be given.
-* The {{Parameter|mode%}} can designate 256 (8 bit), 32 bit color or 33 ('''version 1.000 and up'''). Omit to use the current graphic screen settings.
+* Various common image file formats supported, like BMP, JPG, PNG, etc. A path can also be given.
+* The {{Parameter|mode%}} can designate 256 (8-bit - versions prior to 1.000), 32-bit color or 33 ('''version 1.000 and up'''). Omit to use the current graphic screen settings.
 * Mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ('''version 1.000 and up''').
 * Loaded images can be read invisibly using [[POINT]]. Image coordinates start at 0 up to the [[_WIDTH (function)|_WIDTH]] - 1 and [[_HEIGHT]] - 1.
 * Images can be made into a program [[SCREEN (statement)|SCREEN]] or page adopting the size and palette settings or placed using [[_PUTIMAGE]].
@@ -36,7 +36,7 @@ The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]
 colors to the current palette:
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 13
-i&amp; = {{Cl|_LOADIMAGE}}(&quot;mypic.jpg&quot;) 
+i&amp; = {{Cl|_LOADIMAGE}}("mypic.jpg") 
 {{Cl|_PUTIMAGE}}, i&amp; '' ''
 {{CodeEnd}}
 
@@ -45,7 +45,7 @@ i&amp; = {{Cl|_LOADIMAGE}}(&quot;mypic.jpg&quot;)
 palette as the current palette:
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 13
-i&amp; = {{Cl|_LOADIMAGE}}(&quot;mypic256col.bmp&quot;, 256)
+i&amp; = {{Cl|_LOADIMAGE}}("mypic256col.bmp", 256)
 {{Cl|_COPYPALETTE}} i&amp;, 0
 {{Cl|_PUTIMAGE}}, i&amp; '' ''
 {{CodeEnd}}
@@ -53,7 +53,7 @@ i&amp; = {{Cl|_LOADIMAGE}}(&quot;mypic256col.bmp&quot;, 256)
 
 ''Example 3:'' Want to display an image in 32-bit color using its resolution as a program screen:
 {{CodeStart}} '' ''
-i&amp; = {{Cl|_LOADIMAGE}}(&quot;mypic.jpg&quot;, 32)
+i&amp; = {{Cl|_LOADIMAGE}}("mypic.jpg", 32)
 {{Cl|SCREEN (statement)|SCREEN}} i&amp; '' ''
 {{CodeEnd}}
 
@@ -61,26 +61,26 @@ i&amp; = {{Cl|_LOADIMAGE}}(&quot;mypic.jpg&quot;, 32)
 ''Example 4:'' [[DRAW]]ing and rotating an image 360 degrees using Turn Angle. [[POINT]] is used to read the invisible image source.
 {{CodeStart}}
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
-img&amp; = {{Cl|_LOADIMAGE}}(&quot;QB64.PNG&quot;)                           'load the image file to be drawn
+img&amp; = {{Cl|_LOADIMAGE}}("QB64.PNG")                           'load the image file to be drawn
 
 wide% = {{Cl|_WIDTH (function)|_WIDTH}}(img&amp;): deep% = {{Cl|_HEIGHT}}(img&amp;)
-TLC$ = &quot;BL&quot; + {{Cl|STR$}}(wide% \ 2) + &quot;BU&quot; + {{Cl|STR$}}(deep% \ 2)  'start draw at top left corner
-RET$ = &quot;BD BL&quot; + {{Cl|STR$}}(wide%)                            'return to left side of image
+TLC$ = "BL" + {{Cl|STR$}}(wide% \ 2) + "BU" + {{Cl|STR$}}(deep% \ 2)  'start draw at top left corner
+RET$ = "BD BL" + {{Cl|STR$}}(wide%)                            'return to left side of image
 {{Cl|_SOURCE}} img&amp;
 {{Cl|_DEST}} 0
 DO
   {{Cl|FOR...NEXT|FOR}} angle% = 0 {{Cl|TO}} 360 {{Cl|STEP}} 15
     {{Cl|CLS}}
-    {{Cl|DRAW}} &quot;BM400, 300&quot; + &quot;TA=&quot; + {{Cl|VARPTR$}}(angle%) + TLC$
+    {{Cl|DRAW}} "BM400, 300" + "TA=" + {{Cl|VARPTR$}}(angle%) + TLC$
     {{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} deep% - 1
       {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} wide% - 1
-        {{Cl|DRAW}} &quot;C&quot; + {{Cl|STR$}}({{Cl|POINT}}(x, y)) + &quot;R1&quot;            'color and DRAW each pixel
+        {{Cl|DRAW}} "C" + {{Cl|STR$}}({{Cl|POINT}}(x, y)) + "R1"            'color and DRAW each pixel
       {{Cl|NEXT}}
       {{Cl|DRAW}} RET$
     {{Cl|NEXT}}
     {{Cl|_DISPLAY}}                         'NOTE: CPU usage will be HIGH!
   {{Cl|NEXT}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} > "" '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
 :''NOTE:'' The ''QB64.PNG'' file picturing the QB64 bee can saved from the top of the [http://www.qb64.net/forum/index.php QB64 forum]. Speed varies with image size.

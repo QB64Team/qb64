@@ -37,7 +37,7 @@ DO
   x&amp; = {{Cl|_MOUSEX}}
   y&amp; = {{Cl|_MOUSEY}}
   xy&amp; = ((x&amp; - cx&amp;) ^ 2) + ((y&amp; - cy&amp;) ^ 2) 'Pythagorean theorem
-  {{Cl|IF...THEN|IF}} r&amp; ^ 2 &gt;= xy&amp; {{Cl|THEN}} {{Cl|CIRCLE}} (cx&amp;, cy&amp;), r&amp;, 10 {{Cl|ELSE}} {{Cl|CIRCLE}} (cx&amp;, cy&amp;), r&amp;, 12
+  {{Cl|IF...THEN|IF}} r&amp; ^ 2 >= xy&amp; {{Cl|THEN}} {{Cl|CIRCLE}} (cx&amp;, cy&amp;), r&amp;, 10 {{Cl|ELSE}} {{Cl|CIRCLE}} (cx&amp;, cy&amp;), r&amp;, 12
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit '' ''
 {{CodeEnd}}
 : ''Explanation:'' The square of the circle radius will be greater than or equal to the sum of the square of the mouse coordinates minus the center position when the pointer is inside of the circle. In this example the circle color will change from red to green.
@@ -65,10 +65,10 @@ clockcount% = 15          'A counter to keep track of the radians
 {{Cl|CLS}}
 {{Cl|LOCATE}} 1, 1
 {{Cl|COLOR}} 14, 0
-{{Cl|PRINT}} &quot;Ritchie's Clock&quot;
+{{Cl|PRINT}} "Ritchie's Clock"
 {{Cl|COLOR}} 9, 0
-{{Cl|PRINT}} &quot;Uses {{Cl|CIRCLE}} to&quot;
-{{Cl|PRINT}} &quot;draw hands!&quot;
+{{Cl|PRINT}} "Uses {{Cl|CIRCLE}} to"
+{{Cl|PRINT}} "draw hands!"
 {{Cl|COLOR}} 8, 0
 {{Cl|CIRCLE}} (160, 100), 110, 8 'circle with radius of 110 and dark gray
 {{Cl|CIRCLE}} (160, 100), 102, 8 'circle with radius of 102 and dark gray
@@ -88,14 +88,14 @@ minutes% = {{Cl|INT}}({{Cl|VAL}}({{Cl|MID$}}({{Cl|TIME$}}, 4, 2))) 'extract minu
 {{Cl|IF...THEN|IF}} minutes% = 0 {{Cl|THEN}} minutes% = 60 'array counts 1 to 60 not 0 to 59
 previousminute% = minutes% 'hold current minute for later use
 hours% = {{Cl|INT}}({{Cl|VAL}}({{Cl|LEFT$}}({{Cl|TIME$}}, 2))) 'extract hour from {{Cl|TIME$}}
-{{Cl|IF...THEN|IF}} hours% &gt;= 12 {{Cl|THEN}} hours% = hours% - 12 'convert from military time
+{{Cl|IF...THEN|IF}} hours% >= 12 {{Cl|THEN}} hours% = hours% - 12 'convert from military time
 {{Cl|IF...THEN|IF}} hours% = 0 {{Cl|THEN}} hours% = 12 'count from 1 to 12 not 0 to 11
 previoushour% = hours% 'hold current hour for later use
 '*
 '* Start of main program loop
 '*
 {{Cl|DO}}
-    {{Cl|IF...THEN|IF}} seconds% &lt;&gt; previoussecond% {{Cl|THEN}} 'has a second elapsed?
+    {{Cl|IF...THEN|IF}} seconds% &lt;> previoussecond% {{Cl|THEN}} 'has a second elapsed?
         {{Cl|LOCATE}} 22, 17 'print the time on the screen at
         {{Cl|PRINT}} {{Cl|TIME$}}; 'position 22, 17
         '* Since a second has elapsed we need to erase the old second hand
@@ -104,7 +104,7 @@ previoushour% = hours% 'hold current hour for later use
         {{Cl|CIRCLE}} (160, 100), 100, 0, -clock(previoussecond%), clock(previoussecond%)
         {{Cl|CIRCLE}} (160, 100), 100, 15, -clock(seconds%), clock(seconds%)
         previoussecond% = seconds% 'hold current second for later use
-        {{Cl|IF...THEN|IF}} minutes% &lt;&gt; previousminute% {{Cl|THEN}} 'has a minute elapsed?
+        {{Cl|IF...THEN|IF}} minutes% &lt;> previousminute% {{Cl|THEN}} 'has a minute elapsed?
             '* Since a minute has elapsed we need to erase the old hour hand position
             {{Cl|CIRCLE}} (160, 100), 90, 0, -clock(previousminute%), clock(previousminute%)
             previousminute% = minutes% 'hold current minute for later use
@@ -113,7 +113,7 @@ previoushour% = hours% 'hold current hour for later use
         '* Draw the current minute hand position
         '*
         {{Cl|CIRCLE}} (160, 100), 90, 14, -clock(minutes%), clock(minutes%)
-        {{Cl|IF...THEN|IF}} hours% &lt;&gt; previoushour% {{Cl|THEN}} 'has an hour elapsed?
+        {{Cl|IF...THEN|IF}} hours% &lt;> previoushour% {{Cl|THEN}} 'has an hour elapsed?
             '* Since an hour has elapsed we need to erase the old hour hand position        
             {{Cl|CIRCLE}} (160, 100), 75, 0, -clock(previoushour% * 5), clock(previoushour% * 5)
             previoushour% = hours% 'hold current hour for later use
@@ -128,9 +128,9 @@ previoushour% = hours% 'hold current hour for later use
     minutes% = {{Cl|VAL}}({{Cl|MID$}}({{Cl|TIME$}}, 4, 2))
     {{Cl|IF...THEN|IF}} minutes% = 0 {{Cl|THEN}} minutes% = 60
     hours% = {{Cl|VAL}}({{Cl|LEFT$}}({{Cl|TIME$}}, 2))
-    {{Cl|IF...THEN|IF}} hours% &gt;= 12 {{Cl|THEN}} hours% = hours% - 12
+    {{Cl|IF...THEN|IF}} hours% >= 12 {{Cl|THEN}} hours% = hours% - 12
     {{Cl|IF...THEN|IF}} hours% = 0 {{Cl|THEN}} hours% = 12
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; 'stop program if user presses a key '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" 'stop program if user presses a key '' ''
 
 {{CodeEnd}}
 {{small|code by Terry Ritchie}}

@@ -19,7 +19,7 @@ The [[CHR$]] function returns the character associated with a certain [[ASCII|ch
 {{OutputStart}}Aa
 Bb
 {{OutputEnd}}
-:Explanation: 65 is the ASCII code for &quot;A&quot; and 65 + 32 is the ASCII code for &quot;a&quot;. 66 is the ASCII code for &quot;B&quot; and 66 + 32 is the ASCII code for &quot;b&quot;
+:Explanation: 65 is the ASCII code for "A" and 65 + 32 is the ASCII code for "a". 66 is the ASCII code for "B" and 66 + 32 is the ASCII code for "b"
 
 
 ''Example 2:'' To cut down on typing CHR$(???) all day, define often used characters as variables such as Q$ = CHR$(34) as shown.
@@ -28,11 +28,11 @@ Bb
 {{Cl|DIM}} Q AS {{Cl|STRING}} * 1   'define as one byte string(get rid of $ type suffix too)
 Q = {{Cl|CHR$}}(34)          'Q will now represent the elusive quotation mark in a string
 
-PRINT &quot;This text uses &quot;; Q; &quot;quotation marks&quot;; Q; &quot; that could have caused a syntax error!&quot;
+PRINT "This text uses "; Q; "quotation marks"; Q; " that could have caused a syntax error!"
 
 {{CodeEnd}}
 {{OutputStart}}
-This text uses &quot;quotation marks&quot; that could have caused a syntax error!
+This text uses "quotation marks" that could have caused a syntax error!
 {{OutputEnd}}
 
 
@@ -40,11 +40,11 @@ This text uses &quot;quotation marks&quot; that could have caused a syntax error
 {{CodeStart}}{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1 ' FileName to be encrypted
 {{Cl|IF...THEN|IF}} {{Cl|LOF}}(1) &lt;= 32000 {{Cl|THEN}} Text$ = {{Cl|INPUT$}}({{Cl|LOF}}(1), 1) ' get Text as one string
 {{Cl|CLOSE}} #1
-Send$ = &quot;&quot; ' clear value
+Send$ = "" ' clear value
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(Text$)
     Letter$ = {{Cl|MID$}}(Text$, i, 1) ' get each character in the text
     Code = {{Cl|ASC}}(Letter$)
-    {{Cl|IF...THEN|IF}} (Code &gt; 64 {{Cl|AND (boolean)|AND}} Code &lt; 91) {{Cl|OR (boolean)|OR}} (Code &gt; 96 {{Cl|AND (boolean)|AND}} Code &lt; 123) {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} (Code > 64 {{Cl|AND (boolean)|AND}} Code &lt; 91) {{Cl|OR (boolean)|OR}} (Code > 96 {{Cl|AND (boolean)|AND}} Code &lt; 123) {{Cl|THEN}}
         Letter$ = {{Cl|CHR$}}(Code + 130) ' change letter's ASCII character by 130
     {{Cl|END IF}}
     Send$ = Send$ + Letter$ ' reassemble string with just letters encrypted
@@ -60,11 +60,11 @@ Send$ = &quot;&quot; ' clear value
 {{CodeStart}}{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1       ' FileName to be decrypted
     Text$ = {{Cl|INPUT$}}({{Cl|LOF}}(1), 1)         ' open Text as one string
 {{Cl|CLOSE}} #1
-Send$ = &quot;&quot;
+Send$ = ""
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(Text$)
     Letter$ = {{Cl|MID$}}(Text$, i, 1)
     Code = {{Cl|ASC}}(Letter$)
-    {{Cl|IF...THEN|IF}} (Code &gt; 194 {{Cl|AND (boolean)|AND}} Code &lt; 221) {{Cl|OR (boolean)|OR}} (Code &gt; 226 {{Cl|AND (boolean)|AND}} Code &lt; 253) {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} (Code > 194 {{Cl|AND (boolean)|AND}} Code &lt; 221) {{Cl|OR (boolean)|OR}} (Code > 226 {{Cl|AND (boolean)|AND}} Code &lt; 253) {{Cl|THEN}}
         Letter$ = {{Cl|CHR$}}(Code - 130)  ' change back to a Letter character
     {{Cl|END IF}}
     Send$ = Send$ + Letter$ ' reassemble string as normal letters

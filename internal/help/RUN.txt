@@ -35,7 +35,7 @@ The multi-modular technique goes back to when QBasic and QuickBASIC had module s
 
 ''Example 1:'' Shows how RUN can reference multiple line numbers in the main module code. No line number executes first code line.
 {{CodeStart}} '' ''
-PRINT &quot; A&quot;, &quot; B&quot;, &quot; C&quot;, &quot; D&quot;
+PRINT " A", " B", " C", " D"
 10 A = 1
 20 B = 2
 30 C = 3
@@ -46,8 +46,8 @@ PRINT &quot; A&quot;, &quot; B&quot;, &quot; C&quot;, &quot; D&quot;
 80 {{Cl|IF...THEN|IF}} C = 0 {{Cl|THEN}} 90 {{Cl|ELSE}} {{Cl|RUN}} 40
 90 {{Cl|IF...THEN|IF}} D = 0 {{Cl|THEN}} 100 {{Cl|ELSE}} {{Cl|RUN}} 50
 100 {{Cl|PRINT}}
-{{Cl|INPUT}} &quot;Do you want to quit?(Y/N)&quot;, quit$
-{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(quit$) = &quot;Y&quot; {{Cl|THEN}} {{Cl|END}} {{Cl|ELSE}} {{Cl|RUN}}  'RUN without line number executes at first code line
+{{Cl|INPUT}} "Do you want to quit?(Y/N)", quit$
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(quit$) = "Y" {{Cl|THEN}} {{Cl|END}} {{Cl|ELSE}} {{Cl|RUN}}  'RUN without line number executes at first code line
 '' ''
 {{CodeEnd}} 
 {{OutputStart}}A       B       C       D
@@ -63,20 +63,20 @@ Do you want to quit?(Y/N)_
 
 ''Example 2:'' Compile both programs below with QB64. ProgramA [[RUN]]s ProgramB with a parameter passed following the filename: 
 {{CodeStart}} '            ================ ProgramA.BAS ===================
-{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramA&quot;
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} "ProgramA"
 
-{{Cl|LOCATE}} 23, 25: {{Cl|PRINT}} &quot;Press any key to run ProgramB&quot;
+{{Cl|LOCATE}} 23, 25: {{Cl|PRINT}} "Press any key to run ProgramB"
 K$ = {{Cl|INPUT$}}(1)
-{{Cl|RUN}} &quot;ProgramB FS&quot;  'pass FS parameter to ProgramB in QB64 ONLY
+{{Cl|RUN}} "ProgramB FS"  'pass FS parameter to ProgramB in QB64 ONLY
 
 {{Cl|END}} '' ''
 {{CodeEnd}}
 : ''ProgramB'' checks for fullscreen parameter pass in QB64 and goes full screen. 
 {{CodeStart}} '            ================ ProgramB.BAS ===================
-{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramB&quot;
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} "ProgramB"
 parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}})
-{{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} &quot;Parameter = &quot; + parameter$
-{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = &quot;FS&quot; {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
+{{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} "Parameter = " + parameter$
+{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = "FS" {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
 
 {{Cl|END}} '' ''
 {{CodeEnd}}

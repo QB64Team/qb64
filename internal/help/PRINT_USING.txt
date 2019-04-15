@@ -15,7 +15,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 
 ''Usage:''
 * The ''variables'' should be listed in the order that they are used in the template from left to right.
-* '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an &quot;Illegal Function Call&quot; [[ERROR Codes|ERROR]] will occur!'''
+* '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an "Illegal Function Call" [[ERROR Codes|ERROR]] will occur!'''
 * No more than 25 # digit places are allowed in a template number or an [[ERROR Codes|error]] will occur.
 * Can convert numerical exponential or [[scientific notation]] values to normal decimal point values using less digits.
 * '''NOTE:''' If the numerical value exceeds the template's digit range a % symbol will appear in the leftmost digit area.
@@ -27,9 +27,9 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 
 ''Example 1:'' Printing formatted data using a predefined [[STRING|string]] template variable.
 {{CodeStart}} '' ''
-first$ = &quot;Bobby&quot;: last$ = &quot;Smith&quot;
+first$ = "Bobby": last$ = "Smith"
 boxes% = 1510: sales! = 4530
-tmp$ = &quot;Salesperson: &amp; &amp;  #####,.   $$#####,.##&quot;
+tmp$ = "Salesperson: &amp; &amp;  #####,.   $$#####,.##"
 
 {{Cl|PRINT USING}} tmp$; first$; last$; boxes%; sales!
 {{CodeEnd}} '' ''
@@ -41,9 +41,9 @@ tmp$ = &quot;Salesperson: &amp; &amp;  #####,.   $$#####,.##&quot;
 ''Example 2:'' How to display formatting symbols as normal text using underscores in a PRINT USING template.
 {{CodeStart}} '' ''
 errcode = 35
-{{Cl|PRINT USING}} &quot;Error ## occurred!!&quot;; errcode
+{{Cl|PRINT USING}} "Error ## occurred!!"; errcode
 'now there are the !! at the end of the printed string
-{{Cl|PRINT USING}} &quot;Error ## occurred_!_!&quot;; errcode
+{{Cl|PRINT USING}} "Error ## occurred_!_!"; errcode
 {{Cl|END}} ''
 {{CodeEnd}}
 {{OutputStart}}Error 35 occurred
@@ -54,10 +54,10 @@ Error 35 occurred!!
 
 ''Example 3:'' Exponential notation is designated after the leading digits are formatted. Digit places determine rounded value displayed.
 {{CodeStart}}
-{{Cl|PRINT USING}} &quot;##.##^^^^&quot;; 234.56
-{{Cl|PRINT USING}} &quot;.####^^^^-&quot;; -777777
-{{Cl|PRINT USING}} &quot;+.##^^^^&quot;; 123
-{{Cl|PRINT USING}} &quot;+.##^^^^^&quot;; 123 '' ''
+{{Cl|PRINT USING}} "##.##^^^^"; 234.56
+{{Cl|PRINT USING}} ".####^^^^-"; -777777
+{{Cl|PRINT USING}} "+.##^^^^"; 123
+{{Cl|PRINT USING}} "+.##^^^^^"; 123 '' ''
 {{CodeEnd}}
 {{OutputStart}} 2.35E+02
 .7778E+06-
@@ -70,9 +70,9 @@ Error 35 occurred!!
 ''Example 4:'' USING does not necessarily have to immediately follow PRINT, but it must follow it in the code line.
 {{CodeStart}} '' ''
 money = 12345.45
-tmp$ = &quot;$$#######,.##&quot;
+tmp$ = "$$#######,.##"
 
-{{Cl|PRINT}} &quot;I have this much money!&quot;; {{Cl|PRINT USING|USING}} tmp$; money '' ''
+{{Cl|PRINT}} "I have this much money!"; {{Cl|PRINT USING|USING}} tmp$; money '' ''
 {{CodeEnd}}
 : ''Note:'' This can also be used to print the USING formatting characters outside of the template.
 

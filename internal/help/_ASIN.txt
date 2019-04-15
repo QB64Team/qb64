@@ -7,7 +7,7 @@ The [[_ASIN]] function returns the angle measured in radians based on an input [
 
 
 {{PageDescription}}
-* The {{Parameter|sine_value!}} must be measured &gt;= -1 and &lt;= 1, or else it will generate a return value of '''-1.#IND''', which is basically QB64's way of telling us that the number doesn't exist. 
+* The {{Parameter|sine_value!}} must be measured >= -1 and &lt;= 1, or else it will generate a return value of '''-1.#IND''', which is basically QB64's way of telling us that the number doesn't exist. 
 * ARCSINE is the inverse function of [[SIN]]e, and turns a [[SIN]]e value back into an angle.
 * Note: Due to rounding with floating point math, the [[_ASIN]] may not always give a perfect match for the [[SIN]] angle which generated this. You can reduce the number of rounding errors by increasing the precision of your calculations by using [[DOUBLE]] or [[_FLOAT]] precision variables instead of [[SINGLE]].
 
@@ -21,17 +21,17 @@ The [[_ASIN]] function returns the angle measured in radians based on an input [
 {{CodeStart}} '' ''
 {{Cl|DEFDBL}} A-Z
 
-{{Cl|INPUT}} &quot;Give me an Angle (in Degrees) =&gt; &quot;; Angle
+{{Cl|INPUT}} "Give me an Angle (in Degrees) => "; Angle
 {{Cl|PRINT}}
 C = {{Cl|SIN}}({{Cl|_D2R}}(Angle)) '_D2R is the command to convert Degrees to Radians, which is what SIN expects
-{{Cl|PRINT}} &quot;The SINE of the Angle is: &quot;; C
+{{Cl|PRINT}} "The SINE of the Angle is: "; C
 A = {{Cl|_ASIN}}(C)
-{{Cl|PRINT}} &quot;The ASIN of &quot;; C; &quot; is: &quot;; A
-{{Cl|PRINT}} &quot;Notice, A is the Angle in Radians.  If we convert it to degrees, the value is &quot;; {{Cl|_R2D}}(A) '' ''
+{{Cl|PRINT}} "The ASIN of "; C; " is: "; A
+{{Cl|PRINT}} "Notice, A is the Angle in Radians.  If we convert it to degrees, the value is "; {{Cl|_R2D}}(A) '' ''
 {{CodeEnd}}
 {{small|Example by SMcNeill}}
 {{OutputStart}}
-Give me an Angle (in Degrees) =&gt; ? 60
+Give me an Angle (in Degrees) => ? 60
 
 The SINE of the Angle is:  .8660254037844386
 The ACOS of   .8660254037844386  is:   1.047197551196598

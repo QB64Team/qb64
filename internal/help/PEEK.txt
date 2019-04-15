@@ -21,28 +21,28 @@ The '''PEEK''' function returns the value that is contained at a certain memory 
  oldvalue = PEEK(1047) ' IMPORTANT! save initial setting to reset later
  DO: {{Cl|_LIMIT}} 100
    port = {{Cl|PEEK}}(1047)
-   IF port &gt; 0 THEN LOCATE 26, 19: COLOR 11: 
-      PRINT &quot;Turn ALL Locks off to see each key's bit value!&quot;
+   IF port > 0 THEN LOCATE 26, 19: COLOR 11: 
+      PRINT "Turn ALL Locks off to see each key's bit value!"
    END IF
  COLOR 14:LOCATE 2, 25
- PRINT &quot;PEEK(1047) =&quot;; port; &quot;present keyboard port byte value&quot;
+ PRINT "PEEK(1047) ="; port; "present keyboard port byte value"
  LOCATE 5, 35
- IF (port {{Cl|AND}} 1) = 1 THEN COLOR 10: PRINT &quot;R SHIFT PRESSED  &quot; ELSE COLOR 12: PRINT &quot;R SHIFT RELEASED&quot;
+ IF (port {{Cl|AND}} 1) = 1 THEN COLOR 10: PRINT "R SHIFT PRESSED  " ELSE COLOR 12: PRINT "R SHIFT RELEASED"
  LOCATE 7, 35
- IF (port AND 2) = 2 THEN COLOR 10: PRINT &quot;L SHIFT PRESSED  &quot; ELSE COLOR 12: PRINT &quot;L SHIFT RELEASED&quot;
+ IF (port AND 2) = 2 THEN COLOR 10: PRINT "L SHIFT PRESSED  " ELSE COLOR 12: PRINT "L SHIFT RELEASED"
  LOCATE 9, 35
- IF (port AND 4) = 4 THEN COLOR 10: PRINT &quot;CTRL KEY PRESSED &quot; ELSE COLOR 12: PRINT &quot;CTRL KEY RELEASED&quot;
+ IF (port AND 4) = 4 THEN COLOR 10: PRINT "CTRL KEY PRESSED " ELSE COLOR 12: PRINT "CTRL KEY RELEASED"
  LOCATE 11, 35
- IF (port AND 8) = 8 THEN COLOR 10: PRINT &quot;ALT KEY PRESSED &quot; ELSE COLOR 12: PRINT &quot;ALT KEY RELEASED&quot;
+ IF (port AND 8) = 8 THEN COLOR 10: PRINT "ALT KEY PRESSED " ELSE COLOR 12: PRINT "ALT KEY RELEASED"
  LOCATE 13, 35
- IF (port AND 16) = 16 THEN COLOR 10: PRINT &quot;SCROLL LOCK ON &quot; ELSE COLOR 12: PRINT &quot;SCROLL LOCK OFF&quot;
+ IF (port AND 16) = 16 THEN COLOR 10: PRINT "SCROLL LOCK ON " ELSE COLOR 12: PRINT "SCROLL LOCK OFF"
  LOCATE 15, 35
- IF (port AND 32) = 32 THEN COLOR 10: PRINT &quot;NUMBER LOCK ON &quot; ELSE COLOR 12: PRINT &quot;NUMBER LOCK OFF&quot;
+ IF (port AND 32) = 32 THEN COLOR 10: PRINT "NUMBER LOCK ON " ELSE COLOR 12: PRINT "NUMBER LOCK OFF"
  LOCATE 17, 35
- IF (port AND 64) = 64 THEN COLOR 10: PRINT &quot;CAPS LOCK ON &quot; ELSE COLOR 12: PRINT &quot;CAPS LOCK OFF&quot;
+ IF (port AND 64) = 64 THEN COLOR 10: PRINT "CAPS LOCK ON " ELSE COLOR 12: PRINT "CAPS LOCK OFF"
  LOCATE 19, 35
- IF (port AND 128) = 128 THEN COLOR 10: PRINT &quot;INSERT MODE ON &quot; ELSE COLOR 12: PRINT &quot;INSERT MODE OFF&quot;
- COLOR 11: LOCATE 21, 20: PRINT &quot;Press mode keys to change or [ESC] to quit!&quot;;
+ IF (port AND 128) = 128 THEN COLOR 10: PRINT "INSERT MODE ON " ELSE COLOR 12: PRINT "INSERT MODE OFF"
+ COLOR 11: LOCATE 21, 20: PRINT "Press mode keys to change or [ESC] to quit!";
  LOOP UNTIL {{Cl|INP}}(&amp;H60) = 1 ' escape key exit
  {{Cl|POKE}} 1047, oldvalue      ' IMPORTANT reset to original settings
  {{Cl|DEF SEG}} '' ''

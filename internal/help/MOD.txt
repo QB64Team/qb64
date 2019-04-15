@@ -1,29 +1,30 @@
-'''MOD''' is mathematical [[INTEGER]] remainder division. Also called Modulo or Modulus, it works as integer remainder division.
+The [[MOD]] operator gives the remainder after division of one number by another (sometimes called modulus).
 
 
 {{PageSyntax}}
-:: remainder = ''numerator'' '''MOD''' ''divisor''
+: {{Parameter|remainder}} = {{Parameter|numerator}} [[MOD]] {{Parameter|divisor}}
 
 
 {{Parameters}}
 * Returns the integer division remainder as a whole [[INTEGER]], [[LONG]] or [[_INTEGER64]] value.
-* ''numerator'' is the [[INTEGER]] value to divide. 
-* ''divisor'' is the [[INTEGER]] value to divide by.
+* {{Parameter|numerator}} is the [[INTEGER]] value to divide. 
+* {{Parameter|divisor}} is the [[INTEGER]] value to divide by.
 
 
-''Usage:''
-* Floating decimal point ''numerator'' and ''divisor'' values are [[CINT]] rounded (e.g. 19 MOD 6.7 returns 5 just like 19 MOD 7 would).
-* MOD returns 0 if a number is evenly divisible by Integer division ( [[\]] ) or the number divided is 0.  
-* '''Divisor (second value) must not be a  value of 0 to .5'''. This will create a [[ERROR Codes|&quot;Division by zero&quot; error!]] due to [[CINT]] rounding.
-* The result has the same sign as the numerator (e.g. -1 MOD 7 returns -1, not 6).
-* Division and multiplication operations are performed before addition and subtraction in Qbasic's order of operations.
+{{PageDescription}}
+* Floating decimal point ''numerator'' and ''divisor'' values are [[CINT]] rounded (e.g. {{InlineCode}}19 MOD 6.7{{InlineCodeEnd}} returns 5 just like {{InlineCode}}19 MOD 7{{InlineCodeEnd}} would).
+* MOD returns 0 if a number is evenly divisible by integer division ( [[\]] ) or the number divided is 0.  
+* '''{{Parameter|divisor}} (second value) must not be between 0 and .5'''. This will create a [[ERROR Codes|"Division by zero" error]] due to [[CINT]] rounding the value to 0.
+* The result has the same sign as the numerator (e.g. {{InlineCode}}-1 MOD 7{{InlineCodeEnd}} returns -1, not 6).
+* Division and multiplication operations are performed before addition and subtraction in QBasic's order of operations.
 
 
+{{PageExamples}}
 ''Example 1:'' 
 {{CodeStart}}
   I% = 100 {{Cl|\}} 9 
   R% = 100 {{Cl|MOD}} 9
-  PRINT &quot;Integer division =&quot;; I%, &quot;Remainder =&quot;; R% 
+  PRINT "Integer division ="; I%, "Remainder ="; R% 
 {{CodeEnd}}
 {{OutputStart}}
   Integer division = 11        Remainder = 1 '' ''
@@ -34,9 +35,9 @@
 
 ''Example 2:'' Comparing normal, integer and remainder division.
 {{CodeStart}}
-tmp1$ = &quot; Normal:         ####.# / #### = ##.###   &quot;
-tmp2$ = &quot; Integer:        ####.# \ #### = ###      &quot;
-tmp3$ = &quot; Remainder:    ####.# MOD #### = ####     &quot;
+tmp1$ = " Normal:         ####.# / #### = ##.###   "
+tmp2$ = " Integer:        ####.# \ #### = ###      "
+tmp3$ = " Remainder:    ####.# MOD #### = ####     "
 FOR i = 1 TO 6
    SELECT CASE i
      CASE 1: numerator = 1: divisor = 5
@@ -49,7 +50,7 @@ FOR i = 1 TO 6
 LOCATE 5, 20: PRINT USING tmp1$; numerator; divisor; numerator / divisor
 LOCATE 7, 20: PRINT USING tmp2$; numerator; divisor; numerator \ divisor
 LOCATE 9, 20: PRINT USING tmp3$; numerator; divisor; numerator MOD divisor
-DO: SLEEP: LOOP UNTIL INKEY$ &lt;&gt; &quot;&quot;                              
+DO: SLEEP: LOOP UNTIL INKEY$ &lt;> ""                              
 NEXT '' ''
 {{CodeEnd}}
 
@@ -58,10 +59,10 @@ NEXT '' ''
 {{CodeStart}} '' ''
 {{Cl|CLS}}
 DO
-  {{Cl|INPUT}} &quot;Enter a base number system 2 to 36: &quot;, b%
-  {{Cl|IF...THEN|IF}} b% &lt; 2 {{Cl|OR (boolean)|OR}} b% &gt; 36 {{Cl|THEN}} {{Cl|EXIT DO}}
-  {{Cl|PRINT}} &quot;Enter a positive value to convert: &quot;;
-  num$ = &quot;&quot;
+  {{Cl|INPUT}} "Enter a base number system 2 to 36: ", b%
+  {{Cl|IF...THEN|IF}} b% &lt; 2 {{Cl|OR (boolean)|OR}} b% > 36 {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|PRINT}} "Enter a positive value to convert: ";
+  num$ = ""
   {{Cl|DO...LOOP|DO}}: K$ = {{Cl|INKEY$}}
     num$ = num$ + K$
     {{Cl|LOCATE}} {{Cl|CSRLIN}}, {{Cl|POS}}(0): {{Cl|PRINT}} K$;
@@ -69,18 +70,18 @@ DO
   n&amp; = {{Cl|VAL}}(num$)
   {{Cl|IF...THEN|IF}} n&amp; = 0 {{Cl|THEN}} {{Cl|EXIT DO}}
   Bnum$ = BASEN$(n&amp;, b%)
-  {{Cl|PRINT}} Bnum$ ', {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + Bnum$) 'tests hexadecimal base 16 only
+  {{Cl|PRINT}} Bnum$ ', {{Cl|VAL}}("{{Cl|&amp;H}}" + Bnum$) 'tests hexadecimal base 16 only
 {{Cl|LOOP}}
 
 {{Cl|END}}
 
 {{Cl|FUNCTION}} BASEN$ (number&amp;, basenum%)
-{{Cl|IF...THEN|IF}} basenum% &lt; 2 {{Cl|OR (boolean)|OR}} basenum% &gt; 36 {{Cl|OR (boolean)|OR}} number&amp; = 0 {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} basenum% &lt; 2 {{Cl|OR (boolean)|OR}} basenum% > 36 {{Cl|OR (boolean)|OR}} number&amp; = 0 {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
 num&amp; = number&amp; 'protect value of number!
 DO
   remain% = {{Cl|ABS}}(num&amp;) {{Cl|MOD}} basenum% ' remainder is used to create actual digit 0 to Z
   num&amp; = num&amp; \ basenum% ' move up one exponent of base% with integer division
-  {{Cl|IF...THEN|IF}} remain% &gt; 9 {{Cl|THEN}}
+  {{Cl|IF...THEN|IF}} remain% > 9 {{Cl|THEN}}
     b$ = {{Cl|CHR$}}(65 + (remain% - 10)) 'limited to base 36
   {{Cl|ELSE}}: b$ = {{Cl|LTRIM$}}({{Cl|STR$}}(remain%)) ' make remainder a string number
   {{Cl|END IF}}
@@ -92,10 +93,10 @@ BASEN$ = BN$
 : ''Note:'' Base numbering systems over base 10(0 - 9) use alphabetical letters to represent digits greater than 9 like [[&amp;H|Hexadecimal]](0 - F).
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[/|/ (normal division operator)]]
 * [[\|\ (integer division operator)]]
-* [[INT]], [[CINT]], [[FIX]], [[_ROUND]]
+* [[INT]], [[CINT]], [[FIX]], [[_ROUND]], [[_CEIL]]
 * [[Mathematical Operations]]
 
 

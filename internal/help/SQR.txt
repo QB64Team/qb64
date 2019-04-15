@@ -7,13 +7,13 @@ The '''SQR''' function returns the square root of a numerical value.
 
 * The ''square root'' returned is normally a [[SINGLE]] or [[DOUBLE]] numerical value.
 * The ''value'' parameter can be any '''positive''' numerical type. '''Negative parameter values will not work!'''
-* Other exponential root functions can use fractional exponents([[^]]) enclosed in '''parenthesis only'''. EX: {{text|root &lt;nowiki&gt; = &lt;/nowiki&gt; c ^ (a / b)|green}}
+* Other exponential root functions can use fractional exponents([[^]]) enclosed in '''parenthesis only'''. EX: {{text|root &lt;nowiki> = &lt;/nowiki> c ^ (a / b)|green}}
 
 
 ''Example 1:'' Finding the hypotenuse of a right triangle:
 {{CodeStart}} '' ''
  A% = 3: B% = 4
- PRINT &quot;hypotenuse! =&quot;; SQR((A% ^ 2) + (B% ^ 2)) '' ''
+ PRINT "hypotenuse! ="; SQR((A% ^ 2) + (B% ^ 2)) '' ''
 {{CodeEnd}}
 {{OutputStart}}
  hypotenuse = 5
@@ -48,7 +48,7 @@ The '''SQR''' function returns the square root of a numerical value.
 DEFLNG P
 DO
 PRIME = -1   'set PRIME as True
-INPUT &quot;Enter any number to check up to 2 million (Enter quits): &quot;, guess$
+INPUT "Enter any number to check up to 2 million (Enter quits): ", guess$
 PR = {{Cl|VAL}}(guess$)
 IF PR {{Cl|MOD}} 2 THEN              'check for even number
   FOR P = 3 TO {{Cl|SQR}}(PR) STEP 2 'largest number that could be a multiple is the SQR
@@ -58,14 +58,14 @@ ELSE : PRIME = 0 'number to be checked is even so it cannot be a prime
 END IF
 IF PR = 2 THEN PRIME = -1 '2 is the ONLY even prime
 IF PR = 1 THEN PRIME = 0  'MOD returns true but 1 is not a prime by definition
-IF PRIME THEN PRINT &quot;PRIME! How'd you find me? &quot; ELSE PRINT &quot;Not a prime, you lose!&quot;
+IF PRIME THEN PRINT "PRIME! How'd you find me? " ELSE PRINT "Not a prime, you lose!"
 LOOP UNTIL PR = 0 '' ''
 {{CodeEnd}}
 {{OutputStart}}
 Enter any number to check up to 2 million (Enter quits): 12379
 PRIME! How'd you find me?
 {{OutputEnd}}
-&lt;center&gt;''Note:'' Prime numbers cannot be evenly divided by any other number except one.&lt;/center&gt;
+&lt;center>''Note:'' Prime numbers cannot be evenly divided by any other number except one.&lt;/center>
 
 
 ''See also:'' 

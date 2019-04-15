@@ -19,20 +19,20 @@ The {{KW|SIN}} function returns the vertical component or sine of an angle measu
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 PI = 4 * {{Cl|ATN}}(1)
-{{Cl|PRINT}} &quot;PI = 4 * {{Cl|ATN}}(1) =&quot;; PI
-{{Cl|PRINT}} &quot;COS(PI) = &quot;; {{Cl|COS}}(PI)
-{{Cl|PRINT}} &quot;SIN(PI) = &quot;; {{Cl|SIN}}(PI)
+{{Cl|PRINT}} "PI = 4 * {{Cl|ATN}}(1) ="; PI
+{{Cl|PRINT}} "COS(PI) = "; {{Cl|COS}}(PI)
+{{Cl|PRINT}} "SIN(PI) = "; {{Cl|SIN}}(PI)
 DO
   {{Cl|PRINT}}
-  {{Cl|INPUT}} &quot;Enter the degree angle (0 quits): &quot;, DEGREES%
+  {{Cl|INPUT}} "Enter the degree angle (0 quits): ", DEGREES%
   RADIANS = DEGREES% * PI / 180
-  {{Cl|PRINT}} &quot;RADIANS = DEGREES% * PI / 180 = &quot;; RADIANS
-  {{Cl|PRINT}} &quot;X = COS(RADIANS) = &quot;; {{Cl|COS}}(RADIANS)
-  {{Cl|PRINT}} &quot;Y = SIN(RADIANS) = &quot;; {{Cl|SIN}}(RADIANS)
+  {{Cl|PRINT}} "RADIANS = DEGREES% * PI / 180 = "; RADIANS
+  {{Cl|PRINT}} "X = COS(RADIANS) = "; {{Cl|COS}}(RADIANS)
+  {{Cl|PRINT}} "Y = SIN(RADIANS) = "; {{Cl|SIN}}(RADIANS)
   {{Cl|CIRCLE}} (400, 240), 2, 12
   {{Cl|LINE}} (400, 240)-(400 + (50 * {{Cl|SIN}}(RADIANS)), 240 + (50 * {{Cl|COS}}(RADIANS))), 11
   DEGREES% = RADIANS * 180 / PI
-  {{Cl|PRINT}} &quot;DEGREES% = RADIANS * 180 / PI =&quot;; DEGREES%
+  {{Cl|PRINT}} "DEGREES% = RADIANS * 180 / PI ="; DEGREES%
 {{Cl|LOOP}} {{Cl|UNTIL}} DEGREES% = 0 '' ''
 {{CodeEnd}}
 {{OutputStart}}
@@ -66,7 +66,7 @@ Pi = 4 * {{Cl|ATN}}(1)
         {{Cl|_DISPLAY}} 
         {{Cl|_LIMIT}} 20                 'regulates gear speed and CPU usage
     {{Cl|NEXT}} G
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 {{Cl|SUB}} GEARZ (XP, YP, RAD, Teeth, TH, G, CLR)
@@ -79,7 +79,7 @@ m = Teeth * G
     x = XP + (RAD + TH * {{Cl|SIN}}((Teeth * t + m)) ^ 3) * {{Cl|COS}}(t)
     y = YP + (RAD + TH * {{Cl|SIN}}((Teeth * t + m)) ^ 3) * {{Cl|SIN}}(t)
     {{Cl|LINE}} -(x, y), CLR
-    IF {{Cl|INKEY$}} &lt;&gt; &quot;&quot; THEN {{Cl|END}}
+    IF {{Cl|INKEY$}} &lt;> "" THEN {{Cl|END}}
 {{Cl|NEXT}} t
 {{Cl|PAINT}} (XP, YP), CLR            'gear colors optional      
 {{Cl|END SUB}} '' ''
@@ -99,7 +99,7 @@ Pi2! = 8 * {{Cl|ATN}}(1): sec! = Pi2! / 60  ' (2 * pi) / 60 movements per rotati
   Sx% = {{Cl|CINT}}({{Cl|COS}}(S!) * 60)   ' pixel columns (60 = circular radius) 
   Sy% = {{Cl|CINT}}({{Cl|SIN}}(S!) * 60)   ' pixel rows
   {{Cl|LINE}} (320, 240)-(Sx% + 320, Sy% + 240), 12
-  {{Cl|DO}}: Check% = {{Cl|VAL}}({{Cl|RIGHT$}}({{Cl|TIME$}}, 2)) - 15: {{Cl|LOOP}} UNTIL Check% &lt;&gt; Seconds%  ' wait loop
+  {{Cl|DO}}: Check% = {{Cl|VAL}}({{Cl|RIGHT$}}({{Cl|TIME$}}, 2)) - 15: {{Cl|LOOP}} UNTIL Check% &lt;> Seconds%  ' wait loop
   {{Cl|LINE}} (320, 240)-(Sx% + 320, Sy% + 240), 0 ' erase previous line
 {{Cl|LOOP}} UNTIL {{Cl|INKEY$}} = {{Cl|CHR$}}(27) ' escape keypress exits
 {{CodeEnd}}

@@ -34,8 +34,8 @@ The [[_SCREENPRINT]] statement simulates typing text into a Windows focused prog
 {{CodeStart}} '' ''
 {{Cl|DEFLNG}} A-Z
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
-{{Cl|PRINT}} &quot;OPENing and MAXIMIZING Notepad in 5 seconds...&quot;; : {{Cl|_DELAY}} 5
-{{Cl|SHELL}} {{Cl|_DONTWAIT}} &quot;START /MAX NotePad.exe&quot;  'opens Notepad file &quot;untitled.txt&quot;
+{{Cl|PRINT}} "OPENing and MAXIMIZING Notepad in 5 seconds..."; : {{Cl|_DELAY}} 5
+{{Cl|SHELL}} {{Cl|_DONTWAIT}} "START /MAX NotePad.exe"  'opens Notepad file "untitled.txt"
 'detect notepad open and maximized
 'condition: 80% or more of the screen is white
 {{Cl|DO}}                     'read the desktop screen image for maximized window
@@ -48,27 +48,27 @@ The [[_SCREENPRINT]] statement simulates typing text into a Windows focused prog
        {{Cl|IF}} c = {{Cl|_RGB32}}(255, 255, 255) {{Cl|THEN}} z = z + 1
     {{Cl|NEXT}}
   {{Cl|NEXT}}
-  {{Cl|IF}} z / ({{Cl|_HEIGHT}}(s) * _{{Cl|WIDTH}}(s)) &gt; 0.8 {{Cl|THEN}} {{Cl|EXIT DO}} 'when 80% of screen is white
+  {{Cl|IF}} z / ({{Cl|_HEIGHT}}(s) * _{{Cl|WIDTH}}(s)) > 0.8 {{Cl|THEN}} {{Cl|EXIT DO}} 'when 80% of screen is white
   {{Cl|_FREEIMAGE}} s   'free desktop image
   {{Cl|_LIMIT}} 1       'scans 1 loop per second
-{{Cl|PRINT}} &quot;.&quot;;
+{{Cl|PRINT}} ".";
 {{Cl|LOOP}}
 {{Cl|PRINT}}
-{{Cl|PRINT}} &quot;NOTEPAD detected as OPEN and MAXIMIZED&quot;
+{{Cl|PRINT}} "NOTEPAD detected as OPEN and MAXIMIZED"
 
 
-{{Cl|_SCREENPRINT}} &quot;HELLO WORLD&quot;
+{{Cl|_SCREENPRINT}} "HELLO WORLD"
 {{Cl|SLEEP}} 2
 {{Cl|_SCREENPRINT}} {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) + {{Cl|CHR$}}(8) 'backspace 5 characters
 {{Cl|SLEEP}} 3
-{{Cl|_SCREENPRINT}} &quot;QB64!&quot;
+{{Cl|_SCREENPRINT}} "QB64!"
 {{Cl|SLEEP}} 2
 {{Cl|_SCREENPRINT}} {{Cl|CHR$}}(1) 'CTRL + A select all
 {{Cl|SLEEP}} 2
 {{Cl|_SCREENPRINT}} {{Cl|CHR$}}(3) 'CTRL + C copy to clipboard
 {{Cl|SLEEP}} 2
 {{Cl|PRINT}} {{Cl|_CLIPBOARD$}}
-{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;QB64 ROCKS!&quot;
+{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "QB64 ROCKS!"
 {{Cl|SLEEP}} 2
 {{Cl|_SCREENPRINT}} {{Cl|CHR$}}(22) 'CTRL + V paste from clipboard
 {{Cl|END}} '' ''

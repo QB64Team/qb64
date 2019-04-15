@@ -49,7 +49,7 @@ The [[_MOUSEPIPEOPEN]] function creates a pipe handle value for a mouse when usi
         omb = mb
 
 
-    rootId = VkByRole(&quot;ROOT&quot;)
+    rootId = VkByRole("ROOT")
     editMode = VK(rootId).locked
 
     {{Cl|IF...THEN|IF}} mDown {{Cl|THEN}}	
@@ -69,7 +69,7 @@ The [[_MOUSEPIPEOPEN]] function creates a pipe handle value for a mouse when usi
                         x2 = {{Cl|INT}}(x + VkUnitSize * w) - 1
                         y1 = sy - 1 - {{Cl|INT}}(y)
                         y2 = sy - 1 - {{Cl|INT}}(y + VkUnitSize * h) + 1
-                        {{Cl|IF...THEN|IF}} mx &gt;= x1 {{Cl|AND (boolean)|AND}} mx &lt;= x2 {{Cl|AND (boolean)|AND}} my &gt;= y2 {{Cl|AND (boolean)|AND}} my &lt;= y1 {{Cl|THEN}}
+                        {{Cl|IF...THEN|IF}} mx >= x1 {{Cl|AND (boolean)|AND}} mx &lt;= x2 {{Cl|AND (boolean)|AND}} my >= y2 {{Cl|AND (boolean)|AND}} my &lt;= y1 {{Cl|THEN}}
                             i2 = i
                             {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
                         {{Cl|END IF}}

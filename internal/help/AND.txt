@@ -50,12 +50,12 @@ The logical [[AND]] numerical operator compares two values in respect of their b
 {{CodeStart}}
 
  DO
-  {{Cl|INPUT}} &quot;Enter Integer value from -32768 to 32767 (Enter quits): &quot;, INTvalue&amp; 
-  IF INTvalue&amp; &lt; -32768 OR INTvalue&amp; &gt; 32767 OR INTval&amp; = 0 THEN {{Cl|EXIT DO}}
+  {{Cl|INPUT}} "Enter Integer value from -32768 to 32767 (Enter quits): ", INTvalue&amp; 
+  IF INTvalue&amp; &lt; -32768 OR INTvalue&amp; > 32767 OR INTval&amp; = 0 THEN {{Cl|EXIT DO}}
   {{Cl|FOR...NEXT|FOR}} exponent = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1
-    {{Cl|IF...THEN|IF}} (INTvalue&amp; {{Cl|AND}} 2 ^ exponent) {{Cl|THEN}} {{Cl|PRINT}} &quot;1&quot;; {{Cl|ELSE}} {{Cl|PRINT}} &quot;0&quot;;
+    {{Cl|IF...THEN|IF}} (INTvalue&amp; {{Cl|AND}} 2 ^ exponent) {{Cl|THEN}} {{Cl|PRINT}} "1"; {{Cl|ELSE}} {{Cl|PRINT}} "0";
   {{Cl|NEXT}}
-  PRINT &quot; &quot;
+  PRINT " "
  LOOP UNTIL INTvalue&amp; = 0 'zero entry quits
 
 {{CodeEnd}}

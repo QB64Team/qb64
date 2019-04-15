@@ -25,10 +25,10 @@ Y# = {{Cl|CVD}}(N$) '' ''
 ''Example 2:'' Showcases the reduced space to store an encoded number.
 {{CodeStart}}
 a# = 77000.24523213
-{{Cl|PRINT}} &quot;Value of a#:&quot;; a#
+{{Cl|PRINT}} "Value of a#:"; a#
 b$ = {{Cl|MKD$}}(a#)
-{{Cl|PRINT}} &quot;Value of a# encoded using MKD$: &quot;; b$
-{{Cl|PRINT}} &quot;The string above, decoded using CVD:&quot;; {{Cl|CVD}}(b$)
+{{Cl|PRINT}} "Value of a# encoded using MKD$: "; b$
+{{Cl|PRINT}} "The string above, decoded using CVD:"; {{Cl|CVD}}(b$)
 {{CodeEnd}}
 {{OutputStart}}
 Value of a#: 77000.24523213

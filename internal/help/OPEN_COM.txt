@@ -1,14 +1,13 @@
-The '''OPEN COM''' statement is used to access a computer's Serial port COM1 or COM2  address using an OPEN statement.
-
+The [[OPEN COM]] statement is used to access a computer's serial port COM.
 
 
 {{PageSyntax}}
-: '''OPEN &quot;COMn:''' ''Speed'', ''Parity'', ''Bits'', ''Stopbit'', [''Options'']&quot; [FOR {[[RANDOM]]|[[BINARY]]|[[OUTPUT]]|[[INPUT (file mode)|INPUT]]}] AS #''P'' [LEN = ''bytesize'']
+: '''OPEN''' "COMn: ''Speed'', ''Parity'', ''Bits'', ''Stopbit'', [''Options'']" [FOR {[[RANDOM]]|[[BINARY]]|[[OUTPUT]]|[[INPUT (file mode)|INPUT]]}] AS #''P'' [LEN = {{Parameter|byteSize}}]
 
 
 {{Parameters}}
-* ''Speed'' (baud rate): 50, 150, 300, 600, 1200, 1800, 2400, '''9600''' (QB max), 19200 or '''115200''' ('''QB64''' max) maximum.
-* ''Parity'': '''N''' (none), E (even), O (odd), S (space) or M (mark). Note: If 8 bits use parity N for numerical data!
+* ''Speed'' (baud rate): 50, 150, 300, 600, 1200, 1800, 2400, '''9600''' (QBasic's maximum), 19200 or '''115200''' ('''QB64''''s maximum).
+* ''Parity'': '''N''' (none), E (even), O (odd), S (space) or M (mark). Note: If 8 bits, use parity N for numerical data.
 * ''Bits'' = number of bits/byte: Valid numbers: 5, 6, 7 or '''8'''
 * ''Stopbit'' = number of stop bits: Valid numbers: '''1''', 1.5 or 2
 * Optional COM port ''Options'' (separated by commas):
@@ -18,77 +17,78 @@ The '''OPEN COM''' statement is used to access a computer's Serial port COM1 or 
 ::* CD[ms] : Time until timeout of DCD (Carrier Detect) line in. CD0 ignores timeouts.
 ::* CS[ms] : Time until timeout of CTS (Clear to Send) line in. CS0 ignores timeouts.
 ::* DS[ms] : Time until timeout of DSR (Data Set Ready) line in. DS0 ignores timeouts.
-::* OP[ms] : Time until data lines become active. If timeout then OPEN fails! OP0 ignores timeouts.
+::* OP[ms] : Time until data lines become active. If timeout then OPEN fails, OP0 ignores timeouts.
 ::* RB[b] : Size of receive buffer in bytes when used. Default when not used = 512 bytes
 ::* TB[b] : Size of transmit buffer in bytes when used. Default when not used = 512 bytes
 ::* RS  : Supress detection of Request to Send (RTS) line.
 
 
 {{PageDescription}}
-* '''If any optional CD, CS, DS or OP timeouts occur the OPEN will fail or port access will stop! Try 0 to ignore.'''		   
-* '''QB64''' can open any [[COM(n)|COM''n'']] port number. Qbasic could only open COM1 or COM2, but 3 and 4 could be swapped.
+* '''If any optional CD, CS, DS or OP timeouts occur the OPEN will fail or port access will stop. Try 0 to ignore.'''		   
+* '''QB64''' can open any [[COM(n)|COM''n'']] port number. QBasic could only open COM1 or COM2, but 3 and 4 could be swapped.
 * See Windows System '''Device Manager''' for COM port numbers and port addresses &amp;H3F8, &amp;H2F8, &amp;H3E8 and &amp;H2E8.
 * Four commas are required after the Speed, Parity, Bits, and Stopbit, even if none of the Options are used.
 * Other [[OPEN]] ''options'' are optional and in any order separated by commas within the OPEN command [[STRING|string]].(See list below)
 * The optional FOR access ''mode'' can be [[OUTPUT]], [[INPUT (file mode)|INPUT]] or [[RANDOM]] (default mode when no FOR statement is used). 
-* '''Currently, QB64 only supports [[OPEN]] FOR [[RANDOM]] access using the [[GET]]/[[PUT]] commands in [[BINARY|BIN]] mode!'''
-* '''Use the BIN option listed below for [[BINARY]] byte mode port access!'''
+* '''Currently, QB64 only supports [[OPEN]] FOR [[RANDOM]] access using the [[GET]]/[[PUT]] commands in [[BINARY|BIN]] mode.'''
+* '''Use the BIN option listed below for [[BINARY]] byte mode port access.'''
 * The [[LEN]] statement is also optional. The default record size is 512 bytes when not used.
 * Use the [[LOC]](portnumber) function to determine that there is data in the receive buffer when the value is greater than 0.
-* OPEN AS number can use a [[FREEFILE]] value. Numbers used by files already open '''cannot''' be used by OPEN COM!
+* OPEN AS number can use a [[FREEFILE]] value. Numbers used by files already open '''cannot''' be used by OPEN COM.
 * [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
 
 
-&lt;center&gt;'''Qbasic Description NOT Currently supported in QB64!'''&lt;/center&gt;
+==QBasic/QuickBASIC==
 *[[INPUT (file mode)|INPUT]] mode can use [[INPUT (file statement)|INPUT #]] or [[INPUT$]]. [[OUTPUT]] mode can use [[PRINT (file statement)|PRINT #]] or [[PRINT USING (file statement)|PRINT #, USING]].  
-*[[RANDOM]] or [[BINARY|BIN]] modes can use [[INPUT (file statement)|INPUT #]], [[INPUT$]], [[PRINT (file statement)|PRINT #]], [[GET]] or [[PUT]]. BIN cannot set a buffer size!
+*[[RANDOM]] or [[BINARY|BIN]] modes can use [[INPUT (file statement)|INPUT #]], [[INPUT$]], [[PRINT (file statement)|PRINT #]], [[GET]] or [[PUT]]. BIN cannot set a buffer size.
 * Note: If random use [[LEN]] = to set size of random buffer(default LEN = 128). Use multiples of 128 for larger buffers.
-* NOTE: NT or XP computers need a program like [http://www.beyondlogic.org/porttalk/porttalk.htm PortTalk] to access COM or other ports with Qbasic only!
+* NOTE: NT or XP computers need a program like [http://www.beyondlogic.org/porttalk/porttalk.htm PortTalk] to access COM or other ports with QBasic. Not required for '''QB64'''.
 
 
-''Example 1:'' Checking to see if a COM port exists. If the port does not exist Qbasic will cause a Windows access error! 
+{{PageExamples}}
+''Example 1:'' Checking to see if a COM port exists. If the port does not exist QBasic will cause a Windows access error. 
 {{CodeStart}} '' ''
 {{Cl|ON ERROR}} {{Cl|GOTO}} Handler 
 FF = {{Cl|FREEFILE}}
-comPort$ = &quot;COM1:&quot;                         'try a COM port number that does not exist
-{{Cl|CONST}} comMode$ = &quot;9600,N,8,1,CS0,DS0&quot;      'Use 0 to avoid timeouts 
+comPort$ = "COM1:"                         'try a COM port number that does not exist
+{{Cl|CONST}} comMode$ = "9600,N,8,1,CS0,DS0"      'Use 0 to avoid timeouts 
 {{Cl|OPEN}} comPort$ + comMode$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} FF 
-{{Cl|IF...THEN|IF}} errnum = 0 {{Cl|THEN}} {{Cl|PRINT}} &quot;COM exists!
+{{Cl|IF...THEN|IF}} errnum = 0 {{Cl|THEN}} {{Cl|PRINT}} "COM exists!
 
 K$ = {{Cl|INPUT$}}(1) 
 {{Cl|END}} 
 
 Handler: 
 errnum = {{Cl|ERR}} 
-{{Cl|PRINT}} &quot;Error:&quot;; errnum
+{{Cl|PRINT}} "Error:"; errnum
 {{Cl|RESUME}} {{Cl|NEXT}} 
 {{CodeEnd}}
-: ''Explanation:'' QB64 may create error 68 if COM is not found. Use a zero CD, CS, DS or OP timeout value to avoid COM timeouts!
+: ''Explanation:'' QB64 may create error 68 if COM is not found. Use a zero CD, CS, DS or OP timeout value to avoid COM timeouts.
 
 
 ''Example 2:'' Opening a COM port with the BIN, CS0 and DS0 options in '''QB64'''.
 {{CodeStart}} '' ''
 {{Cl|DIM}} bytestr {{Cl|AS}} {{Cl|STRING}} * 1  'one byte transfers
-{{Cl|INPUT}} &quot;{{Cl|COM}} port number #&quot;, port$  'any COM port number available
+{{Cl|INPUT}} "{{Cl|COM}} port number #", port$  'any COM port number available
 
-{{Cl|OPEN}} &quot;{{Cl|COM}}&quot; + port$ + &quot;:9600,N,8,1,BIN,CS0,DS0&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1
+{{Cl|OPEN}} "{{Cl|COM}}" + port$ + ":9600,N,8,1,BIN,CS0,DS0" {{Cl|FOR (file statement)|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1
 {{Cl|DO}} 'main loop
-    'receive data in buffer when LOC &gt; 0
+    'receive data in buffer when LOC > 0
     {{Cl|IF}} {{Cl|LOC}}(1) {{Cl|THEN}} 
        {{Cl|GET}} #1, , bytestr
-       {{Cl|PRINT}} &quot;[&quot; + bytestr + &quot;]&quot;;
+       {{Cl|PRINT}} "[" + bytestr + "]";
     {{Cl|END IF}}
     'transmit (send)
     k$ = {{Cl|INKEY$}}  
     {{Cl|IF}} {{Cl|LEN}}(k$) = 1 {{Cl|THEN}}
        k = {{Cl|ASC}}(k$)
-       {{Cl|IF}} k &gt;= 32 {{Cl|THEN}}     'ignore control key codes
-           {{Cl|PRINT}} &quot;&gt;&quot; + k$ + &quot;&lt;&quot;;
+       {{Cl|IF}} k >= 32 {{Cl|THEN}}     'ignore control key codes
+           {{Cl|PRINT}} ">" + k$ + "&lt;";
            bytestr = k$: {{Cl|PUT}} #1, , bytestr
        {{Cl|END IF}}
     {{Cl|END IF}}
 {{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27)
-{{Cl|CLOSE}} #1: {{Cl|PRINT}} &quot;Finished!&quot; '' ''
+{{Cl|CLOSE}} #1: {{Cl|PRINT}} "Finished!" '' ''
 {{CodeEnd}}
 
 
@@ -99,32 +99,32 @@ errnum = {{Cl|ERR}}
 
 Byte4 = {{Cl|CHR$}}(254) + {{Cl|CHR$}}(175) + {{Cl|CHR$}}(0) + {{Cl|CHR$}}(3) 'Command code to query all 4 banks of switch input board.
 
-{{Cl|OPEN}} &quot;COM1:115200,N,8,1,BIN,CS0,DS0&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 'Open port used to send commands.
-{{Cl|OPEN}} &quot;COM2:115200,N,8,1,BIN,CS0,DS0&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 'Open port used to receive commands.
+{{Cl|OPEN}} "COM1:115200,N,8,1,BIN,CS0,DS0" {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 'Open port used to send commands.
+{{Cl|OPEN}} "COM2:115200,N,8,1,BIN,CS0,DS0" {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 'Open port used to receive commands.
 
 {{Cl|PUT}} #1, , Byte4 'Send the 4 byte command.
 
 Start# = {{Cl|TIMER}}
-{{Cl|DO...LOOP|DO}} {{Cl|UNTIL}} {{Cl|LOC}}(2) &lt;&gt; 0 'Check if there is data received at com2
-    {{Cl|IF...THEN|IF}} {{Cl|TIMER}} - Start# &gt; .5 {{Cl|THEN}} {{Cl|EXIT DO}} 'Exit loop if no data arrives within .5 seconds.
+{{Cl|DO...LOOP|DO}} {{Cl|UNTIL}} {{Cl|LOC}}(2) &lt;> 0 'Check if there is data received at com2
+    {{Cl|IF...THEN|IF}} {{Cl|TIMER}} - Start# > .5 {{Cl|THEN}} {{Cl|EXIT DO}} 'Exit loop if no data arrives within .5 seconds.
 {{Cl|LOOP}}
 
 {{Cl|IF...THEN|IF}} {{Cl|LOC}}(2) = 0 {{Cl|THEN}} 'If no data was received.....
-    {{Cl|PRINT}} &quot;No data received from COM port.&quot;
+    {{Cl|PRINT}} "No data received from COM port."
     {{Cl|END}}
 {{Cl|END IF}}
 
-{{Cl|PRINT}} &quot;Received from COM2:&quot;;
+{{Cl|PRINT}} "Received from COM2:";
 
 {{Cl|DO...LOOP|DO}} {{Cl|UNTIL}} {{Cl|LOC}}(2) = 0 'Read data from COM2 until there is no more data.
     {{Cl|GET}} #2, , ByteIn
     {{Cl|PRINT}} {{Cl|ASC}}(ByteIn);
 {{Cl|LOOP}}
 {{Cl|END}} '' ''
-{{CodeEnd}}{{small|Code courtesy of Hydrofoiler}}
+{{CodeEnd}}{{small|Code courtesy of forum member Hydrofoiler}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[BINARY]], [[RANDOM]] 
 * [[INPUT$]], [[PRINT (file statement)|PRINT #]]
 * [[LOC]], [[INKEY$]], [[OPEN]]

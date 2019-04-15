@@ -23,25 +23,25 @@ The '''SHARED''' statement allows variables to be passed automatically to any [[
 ''Example 2:'' The DIR$ function returns a filename or a list when more than one exist. The file spec can use a path and/or wildcards.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 2
-  {{Cl|LINE INPUT}} &quot;Enter a file spec: &quot;, spec$
+  {{Cl|LINE INPUT}} "Enter a file spec: ", spec$
   file$ = DIR$(spec$)        'use a file spec ONCE to find the last file name listed
   {{Cl|PRINT}} DIRCount%, file$,    'function can return the file count using SHARED variable 
   {{Cl|DO}}
     K$ = {{Cl|INPUT$}}(1)
-    file$ = DIR$(&quot;&quot;)         'use an empty string parameter to return a list of files!
+    file$ = DIR$("")         'use an empty string parameter to return a list of files!
     {{Cl|PRINT}} file$,
   {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(file$) = 0  'file list ends with an empty string
 {{Cl|NEXT}}
 {{Cl|END}}
 
 {{Cl|FUNCTION}} DIR$ (spec$)
-{{Cl|CONST}} TmpFile$ = &quot;DIR$INF0.INF&quot;, ListMAX% = 500  'change maximum to suit your needs
+{{Cl|CONST}} TmpFile$ = "DIR$INF0.INF", ListMAX% = 500  'change maximum to suit your needs
 {{Cl|SHARED}} DIRCount%                                 'returns file count if desired
 {{Cl|STATIC}} Ready%, Index%, DirList$()
 {{Cl|IF}} {{Cl|NOT}} Ready% {{Cl|THEN}} {{Cl|REDIM}} DirList$(ListMax%): Ready% = -1  'DIM array first use
-{{Cl|IF}} spec$ &gt; &quot;&quot; {{Cl|THEN}}                               'get file names when a spec is given
-  {{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR &quot; + spec$ + &quot; /b &gt; &quot; + TmpFile$
-  Index% = 0: DirList$(Index%) = &quot;&quot;: ff% = {{Cl|FREEFILE}}
+{{Cl|IF}} spec$ > "" {{Cl|THEN}}                               'get file names when a spec is given
+  {{Cl|SHELL}} {{Cl|_HIDE}} "DIR " + spec$ + " /b > " + TmpFile$
+  Index% = 0: DirList$(Index%) = "": ff% = {{Cl|FREEFILE}}
   {{Cl|OPEN}} TmpFile$ {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #ff%
   size&amp; = {{Cl|LOF}}(ff%) 
   {{Cl|CLOSE}} #ff%
@@ -54,7 +54,7 @@ The '''SHARED''' statement allows variables to be passed automatically to any [[
   DIRCount% = Index%                       'SHARED variable can return the file count
   {{Cl|CLOSE}} #ff%
   {{Cl|KILL}} TmpFile$
-{{Cl|ELSE}} {{Cl|IF}} Index% &gt; 0 {{Cl|THEN}} Index% = Index% - 1 'no spec sends next file name
+{{Cl|ELSE}} {{Cl|IF}} Index% > 0 {{Cl|THEN}} Index% = Index% - 1 'no spec sends next file name
 {{Cl|END IF}}                                      
 DIR$ = DirList$(Index%)
 {{Cl|END FUNCTION}} '' ''

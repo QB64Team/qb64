@@ -9,10 +9,10 @@
 
 
 {{PageDescription}}
-* [[NEXT]] is required in a FOR loop or a [[ERROR Codes|&quot;FOR without NEXT&quot; error]] will occur. 
+* [[NEXT]] is required in a FOR loop or a [[ERROR Codes|"FOR without NEXT" error]] will occur. 
 * The FOR variable name is not required after [[NEXT]].
 * [[NEXT]] can be grouped with other NEXTs in nested FOR loops using colons like [[NEXT]]: [[NEXT]]
-* [[NEXT]] can also end more than one nested [[FOR...NEXT|FOR]] loop using comma separated variables like [[NEXT]] i, j
+* [[NEXT]] can also end more than one nested [[FOR...NEXT|FOR]] loop using comma separated variables like [[NEXT]] j, i
 * [[NEXT]] increases the FOR loop count, so after the loop is over the counterVariable's value will be stopValue + 1 (or stopValue + increment).
 * [[NEXT]]  is also used with the [[RESUME]] statement.
 
@@ -24,7 +24,7 @@ FOR i = 1 TO 10
 PRINT i;
 NEXT i
 
-PRINT &quot;AFTER the LOOP, NEXT makes the value of i =&quot;; i '' ''
+PRINT "AFTER the LOOP, NEXT makes the value of i ="; i '' ''
 {{CodeEnd}}
 {{OutputStart}}
 1 2 3 4 5 6 7 8 9 10 AFTER the LOOP, NEXT makes the value of i = 11

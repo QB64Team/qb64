@@ -1,54 +1,39 @@
-The [[WINDOW]] graphics statement defines the coordinate dimensions of the current graphics view port or closes it.
+The '''WINDOW''' command scales the graphics coordinate system of the current [[_DEST]] image, optionally inverting the direction of the vertical axis. Any coordinates used in drawing commands made to the image are scaled such that the image seems have have the dimensions requested.
 
+== Syntax ==
+::: '''WINDOW''' [ [ '''SCREEN'''] (''x1!'', ''y1!'') - (''x2!'', ''y2!'')]
 
-{{PageSyntax}}'''
-: '''WINDOW''' [[SCREEN] (''column1'', ''row1'')-(''column2'', ''row2'')]
+Where (''x1!'', ''y1!'')-(''x2!'', ''y2!'') specifies the new dimensions of the image to scale to. Non-integer values may be used.
+Using '''WINDOW''' with no parameters reverts the effect of any previous calls to it.
 
+== Details ==
+When a command such as [[LINE]], [[CIRCLE]] or [[_PUTIMAGE]] needs a position in an image specified, it is given as a combination of x (horizontal) and y (vertical) coordinates. Usually these values are measured as pixels from the top-left origin. The '''WINDOW''' command changes the way these values are measured. This is best illustrated with an example:
+&lt;source lang="qbasic">
+SCREEN _NEWIMAGE(600, 600, 32) 'Create an image that has 600 pixels in x and y directions and display on screen
+WINDOW SCREEN (0, 0)-(6, 6)
+&lt;/source>
+The coordinates of the image now run from 0 to 6 in both the x and y directions. The centre of the screen is now referred to as (3, 3) and the bottom-right corner of the screen is (6, 6). The image has not actually just changed size or the number of pixels, just the way the program refers to positions on the image. Despite this example, there is no requirement for the image or scaling coordinates to be square; each direction is scaled independently, and can result in commands such as LINE (0, 0)-(10, 10), , BF drawing a rectangle instead of a square.
 
-{{Parameters}}
-* If no statement parameters are used, the previous WINDOW view port area is disabled. 
-* The SCREEN option inverts Cartesian row values to increase from negative to 0 to positive. Columns unchanged.   
-* If the SCREEN option is not used, rows use the Cartesian system with highest row at top to lowest row at bottom.
-* Optional coordinate values redefine the [[SINGLE]] negative or positive port dimension values when desired.
+If the '''SCREEN''' part is omitted, the y axis is inverted. Thus the origin is now at the bottom-left, and y coordinates increase as you move up the screen. Such a system may be more familiar to mathematically-oriented programmers.
 
+'''WINDOW''' does not change any of the content already on the image; it only modifies coordinates used while it is in effect. The scaling is relative to the original image, so successive invocations do not compound upon each other.
 
-{{PageDescription}}
-* The statement allows a program to create a custom graphic coordinate system independent of the [[SCREEN]] mode used.
-* WINDOW dimensions can be greater than the [[SCREEN]] mode size to create larger images for pictures.
-* A [[VIEW]] statement can change the viewport area.
-* All subsequent graphics statements will use the new coordinate system.
-* Use [[CLS]] or [[CLS|CLS 1]] to clear the active WINDOW view port area. 
-* [[RUN]] or a [[SCREEN (statement)|SCREEN]] statement will also disable the window viewport.
-* Note: '''QB64''' can create a custom sized window using [[_NEWIMAGE]].
-* '''Note: QB64 [[RUN]] statements will not close [[VIEW PRINT]], [[VIEW]] or [[WINDOW]] view ports presently!'''
+Although '''WINDOW''' affects all coordinates, it does not affect all graphics operations entirely. [[_PUTIMAGE]], if only given one destination coordinate, will not scale or stretch the image being drawn. [[CIRCLE]] will scale its radius such that it matches the horizontal axis. This means it always draws perfect circles even if the scaling of the two axes are not the same, but the radius measured against the vertical scale may not be correct. 
 
+The location of the graphics cursor (used to calculate relative positions for STEP) is not affected. It will remain in the same position on the image, but the relative coordinates that are specified with STEP will be scaled as described above.
 
-''Example:'' Using a WINDOW to amplify circle sizes. [[PMAP]] finds the corresponding WINDOW co-ordinates.
-{{CodeStart}}
-{{Cl|SCREEN}} 12
-{{Cl|WINDOW}} (0, 0)-(10, 10)  'uses Cartesian row co-ordinates
-{{Cl|PRINT}} &quot;Click mouse to place a circle. Hit enter for next color.&quot;
-{{Cl|FOR...NEXT|FOR}} clr = 1 {{Cl|TO}} 15
-  {{Cl|DO}}
-    {{Cl|DO}}
-      {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}}        
-        x! = {{Cl|PMAP}}({{Cl|_MOUSEX}}, 2) ' Convert mouse screen co-ordinates to window co-ordinates.
-        y! = {{Cl|PMAP}}({{Cl|_MOUSEY}}, 3)
-        {{Cl|CIRCLE}} (x!, y!), .2, clr
-        {{Cl|PAINT}} {{Cl|STEP}}(0, 0), clr
-      {{Cl|END IF}}
-    {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
-  {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(13)
-{{Cl|NEXT}} '' ''
-{{CodeEnd}}
+== Examples ==
+Demonstrate a circle's radius only matching the scaling in the horizontal direction by comparing against a box:
+&lt;source lang="qbasic">
+SCREEN _NEWIMAGE(640, 480, 32) 'Not a square image
+WINDOW SCREEN (0, 0)-(10, 10) 'SCREEN keeps the axis direction the same
+LINE (4, 4)-(6, 6), _RGB32(255, 0, 0), BF 'Red square centred on (5, 5); will be stretched into a rectangle
+CIRCLE (5, 5), 1, _RGB32(0, 255, 0) 'Green circle at (5, 5) with radius 1
+&lt;/source>
+Output:
+[[File:WINDOW example circle vs square.png|thumb|center]]
 
-
-{{PageSeeAlso}}
+== See also ==
 * [[PMAP]]
-* [[VIEW]] {{text|(graphics view port)}}
-* [[VIEW PRINT]] {{text|(text view port)}}
-* [[_NEWIMAGE]], [[_LOADIMAGE]]
-* [https://en.wikipedia.org/wiki/Cartesian_coordinate_system Cartesian coordinate system]
-
-
-{{PageNavigation}}
+* [[VIEW]]
+* [[VIEW PRINT]]

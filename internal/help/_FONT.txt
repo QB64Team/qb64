@@ -20,7 +20,7 @@ The [[_FONT]] statement sets the current [[_LOADFONT]] function font handle to b
 * [[Unicode]] characters can be assigned to a monospace font that contains those unicode characters using the [[_MAPUNICODE]] TO [[ASCII]] mapping statement. The optional '''IME cyberbit.ttf''' font included with QB64 can also be used.
 * Can alpha blend a font with a background screen created by [[_NEWIMAGE]] in 32 bit color.
 * '''Check for valid handle values greater than 0 before using or freeing font handles.'''
-* Free '''unused''' font handles with [[_FREEFONT]]. Freeing invalid handles will create an [[ERROR Codes|&quot;illegal function call&quot;]] error.
+* Free '''unused''' font handles with [[_FREEFONT]]. Freeing invalid handles will create an [[ERROR Codes|"illegal function call"]] error.
 * '''NOTE: SCREEN 0 can only use one font type and style per viewed SCREEN page. Font size may also affect the window size.'''
 
 
@@ -28,45 +28,45 @@ The [[_FONT]] statement sets the current [[_LOADFONT]] function font handle to b
 ''Example:'' Previewing a font in SCREEN 0. A different true type font can be substituted below. 
 {{CodeStart}}
 
-fontpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;) + &quot;\fonts\lucon.ttf&quot; 'Find Windows Folder Path.
+fontpath$ = {{Cl|ENVIRON$}}("SYSTEMROOT") + "\fonts\lucon.ttf" 'Find Windows Folder Path.
 {{Cl|DO}}: {{Cl|CLS}}
   {{Cl|DO}}
-    style$ = &quot;MONOSPACE&quot;
+    style$ = "MONOSPACE"
     {{Cl|PRINT}}
-    {{Cl|INPUT}} &quot;Enter A FONT Size 8 {{Cl|TO}} 25: &quot;, fontsize%
-  {{Cl|LOOP}} {{Cl|UNTIL}} fontsize% &gt; 7 and fontsize% &lt; 26
+    {{Cl|INPUT}} "Enter A FONT Size 8 {{Cl|TO}} 25: ", fontsize%
+  {{Cl|LOOP}} {{Cl|UNTIL}} fontsize% > 7 and fontsize% &lt; 26
   {{Cl|DO}}
     {{Cl|PRINT}}
-    {{Cl|INPUT}} &quot;Enter (0) for REGULAR {{Cl|OR}} (1) for ITALIC FONT: &quot;, italic%
+    {{Cl|INPUT}} "Enter (0) for REGULAR {{Cl|OR}} (1) for ITALIC FONT: ", italic%
   {{Cl|LOOP}} {{Cl|UNTIL}} italic% = 0 or italic% = 1
   {{Cl|DO}}
     {{Cl|PRINT}}
-    {{Cl|INPUT}} &quot;Enter (0) for REGULAR {{Cl|OR}} (1) for BOLD FONT: &quot;, bold%
+    {{Cl|INPUT}} "Enter (0) for REGULAR {{Cl|OR}} (1) for BOLD FONT: ", bold%
   {{Cl|LOOP}} {{Cl|UNTIL}} italic% = 0 or italic% = 1
-  {{Cl|IF}} italic% = 1 {{Cl|THEN}} style$ = style$ + &quot;, ITALIC&quot;
-  {{Cl|IF}} bold% = 1 then style$ = style$ + &quot;, BOLD&quot;
+  {{Cl|IF}} italic% = 1 {{Cl|THEN}} style$ = style$ + ", ITALIC"
+  {{Cl|IF}} bold% = 1 then style$ = style$ + ", BOLD"
 
   {{Cl|GOSUB}} ClearFont
   font&amp; = {{Cl|_LOADFONT}}(fontpath$, fontsize%, style$)
   {{Cl|_FONT|_FONT }}font&amp;  
   {{Cl|PRINT}}
-  {{Cl|PRINT}} &quot;This is your LUCON font! Want to try another STYLE?(Y/N): &quot;; 
-  {{Cl|DO}}: {{Cl|SLEEP}}: K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}): {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;Y&quot; {{Cl|OR}} K$ = &quot;N&quot;
-{{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;N&quot;
+  {{Cl|PRINT}} "This is your LUCON font! Want to try another STYLE?(Y/N): "; 
+  {{Cl|DO}}: {{Cl|SLEEP}}: K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}): {{Cl|LOOP}} {{Cl|UNTIL}} K$ = "Y" {{Cl|OR}} K$ = "N"
+{{Cl|LOOP}} {{Cl|UNTIL}} K$ = "N"
 {{Cl|GOSUB}} ClearFont
 
-{{Cl|PRINT}} &quot;This is the QB64 default {{Cl|_FONT|_FONT }}16!&quot;
+{{Cl|PRINT}} "This is the QB64 default {{Cl|_FONT|_FONT }}16!"
 {{Cl|END}}
 
 ClearFont: 
-{{Cl|IF}} font&amp; &gt; 0 {{Cl|THEN}}
+{{Cl|IF}} font&amp; > 0 {{Cl|THEN}}
     {{Cl|_FONT|_FONT }}16   'select inbuilt 8x16 default font
     {{Cl|_FREEFONT}} font&amp;
 {{Cl|END IF}}
 {{Cl|RETURN}}
 
 {{CodeEnd}}
-'''NOTE:''' [[ENVIRON$]](&quot;SYSTEMROOT&quot;) returns a string value of: &quot;C:\WINDOWS&quot;. Add the &quot;\FONTS\&quot; folder and the '''.TTF''' font file name.
+'''NOTE:''' [[ENVIRON$]]("SYSTEMROOT") returns a string value of: "C:\WINDOWS". Add the "\FONTS\" folder and the '''.TTF''' font file name.
 
 
 

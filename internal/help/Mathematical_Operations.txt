@@ -1,9 +1,9 @@
-{| align=&quot;center&quot;
+{| align="center"
   | __TOC__
   |}
 
 ==Basic and QB64 Numerical Types==
-&lt;center&gt;'''Qbasic Number Types'''&lt;/center&gt;
+&lt;center>'''Qbasic Number Types'''&lt;/center>
 
 * [[INTEGER]] ['''%''']: 2 Byte signed whole number values from -32768 to 32767. 0 to 65535 unsigned. (not checked in QB64) 
 * [[LONG]] ['''&amp;''']: 4 byte signed whole number values from -2147483648 to 2147483647. 0 to 4294967295 unsigned.
@@ -12,7 +12,7 @@
 * To get '''one byte''' values, can use an [[ASCII]] [[STRING]] character to represent values from 0 to 255 as in [[BINARY]] files.
 
 
-&lt;center&gt;'''QB64 Number Types'''&lt;/center&gt;
+&lt;center>'''QB64 Number Types'''&lt;/center>
 
 * [[_BIT]] ['''`''']: 1 bit signed whole number values of 0 or -1 signed or 0 or 1 unsigned. [[_BIT]] * 8 can hold a signed or unsigned [[_BYTE|byte]] value.
 * [[_BYTE]] ['''%%''']: 1 byte signed whole number values from -128 to 127. Unsigned values from 0 to 255.
@@ -21,7 +21,7 @@
 * [[_OFFSET]] [%&amp;]: undefined flexable length integer offset values used in [[DECLARE DYNAMIC LIBRARY]] declarations. 
 
 
-&lt;center&gt;'''Signed and Unsigned Integer Values'''&lt;/center&gt;
+&lt;center>'''Signed and Unsigned Integer Values'''&lt;/center>
 
 Negative (signed) numerical values can affect calculations when using any of the BASIC operators. SQR cannot use negative values! There may be times that a calculation error is made using those negative values. The SGN function returns the sign of a value as -1 for negative, 0 for zero and 1 for unsigned positive values. ABS always returns an unsigned value.
 
@@ -33,59 +33,59 @@ Negative (signed) numerical values can affect calculations when using any of the
 [[_UNSIGNED]] integer, byte and bit variable values can use the tilde ~ suffix before the type suffix to define the type.
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Mathematical Operation Symbols==
 Most of the BASIC math operators are ones that require no introduction. The addition, subtraction, multplication and division operators are ones commonly used as shown below:
 
-{| align=&quot;center&quot; border=1 
+{| align="center" border=1 
 ! Symbol 
 ! Procedure Type
 ! Example Usage
 ! Operation Order 
 |- 
-| align=&quot;center&quot; |[[+]] ||  Addition || align=&quot;center&quot; | c = a + b  || align=&quot;center&quot; | Last
+| align="center" |[[+]] ||  Addition || align="center" | c = a + b  || align="center" | Last
 |-
-| align=&quot;center&quot; |[[-]] ||  Subtraction  || align=&quot;center&quot; | c = a - b || align=&quot;center&quot; | Last
+| align="center" |[[-]] ||  Subtraction  || align="center" | c = a - b || align="center" | Last
 |-
-| align=&quot;center&quot; |[[-]] ||  Negation  || align=&quot;center&quot; | c = - a || align=&quot;center&quot; | Last
+| align="center" |[[-]] ||  Negation  || align="center" | c = - a || align="center" | Last
 |- 
-| align=&quot;center&quot; |[[*]] ||  Multiplication || align=&quot;center&quot; | c = a * b || align=&quot;center&quot; | Second
+| align="center" |[[*]] ||  Multiplication || align="center" | c = a * b || align="center" | Second
 |-
-| align=&quot;center&quot; |[[/]] ||  Division  || align=&quot;center&quot; | c = a / b || align=&quot;center&quot; | Second
+| align="center" |[[/]] ||  Division  || align="center" | c = a / b || align="center" | Second
 |}
 
 
 BASIC can also use two other operators for '''[[INTEGER]] division'''. Integer division returns only whole number values. [[MOD]] '''remainder division''' returns a value only if an integer division cannot divide a number exactly. Returns 0 if a value is exactly divisible.
 
 
-{| align=&quot;center&quot; border=1
+{| align="center" border=1
 !Symbol
 !Procedure Type
 !Example Usage
 !Operation Order 
 |-
-| align=&quot;center&quot; |[[\]] ||  Integer division || align=&quot;center&quot; | c = a \ b || align=&quot;center&quot; | Second 
+| align="center" |[[\]] ||  Integer division || align="center" | c = a \ b || align="center" | Second 
 |-
-| align=&quot;center&quot; |[[MOD]] ||  Remainder division  || align=&quot;center&quot; | c = a MOD b || align=&quot;center&quot; | Second
+| align="center" |[[MOD]] ||  Remainder division  || align="center" | c = a MOD b || align="center" | Second
 |}
 
 
-&lt;center&gt;'''''It is an [[ERROR|error]] to divide by zero or to take the remainder modulo zero.'''''&lt;/center&gt;
+&lt;center>'''''It is an [[ERROR|error]] to divide by zero or to take the remainder modulo zero.'''''&lt;/center>
 
 
 There is also an operator for '''exponential''' calculations. The exponential operator is used to raise a number's value to a designated exponent of itself. In QB the exponential return values are [[DOUBLE]] values. The [[SQR]] function can return a number's Square Root. For other '''exponential roots''' the operator can be used with fractions such as (1 / 3) designating the cube root of a number. 
 
 
-{| align=&quot;center&quot; border=1
+{| align="center" border=1
 !Symbol
 !Procedure
 !Example Usage 
 !Operation Order
 |-
-| align=&quot;center&quot; |[[^]] || Exponent || align=&quot;center&quot; | c = a [[^]] (1 / 2) || align=&quot;center&quot; | First
+| align="center" |[[^]] || Exponent || align="center" | c = a [[^]] (1 / 2) || align="center" | First
 |-
-| align=&quot;center&quot; | [[SQR]] || Square Root || align=&quot;center&quot; | c = [[SQR]](a [[^]] 2 + b [[^]] 2) || align=&quot;center&quot; | First 
+| align="center" | [[SQR]] || Square Root || align="center" | c = [[SQR]](a [[^]] 2 + b [[^]] 2) || align="center" | First 
 |}
 
 
@@ -94,7 +94,7 @@ There is also an operator for '''exponential''' calculations. The exponential op
 * Negative exponential values must be enclosed in () brackets in QB64.
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Basic's Order of Operations==
 
@@ -107,7 +107,7 @@ When a normal calculation is made, BASIC works from left to right, but it does c
 :::# Addition and Subtraction calculations
 
 
-&lt;center&gt;'''Using Parenthesis to Define the Operation Order'''&lt;/center&gt;
+&lt;center>'''Using Parenthesis to Define the Operation Order'''&lt;/center>
 
 Sometimes a calculation may need BASIC to do them in another order or the calculation will return bad results. BASIC allows the programmer to decide the order of operations by using [[parenthesis]] around parts of the equation. BASIC will do the calculations inside of the [[parenthesis]] brackets  first and the others from left to right in the normal operation order.
 
@@ -123,20 +123,20 @@ Sometimes a calculation may need BASIC to do them in another order or the calcul
  |-
  | [[COS]](angle*) || returns the cosine of an angle in radians. (horizontal component)
  |-
- | [[EXP]](n) || returns e&lt;sup&gt;x&lt;/sup&gt;, '''(n &lt;= 88.02969)''': e = EXP(1) ' (e = 2.718281828459045)
+ | [[EXP]](n) || returns e&lt;sup>x&lt;/sup>, '''(n &lt;= 88.02969)''': e = EXP(1) ' (e = 2.718281828459045)
  |-
- | [[LOG]](n) || returns the base e natural logarithm of n. '''(n &gt; 0)'''
+ | [[LOG]](n) || returns the base e natural logarithm of n. '''(n > 0)'''
  |-
- | [[SGN]](n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n &gt; 0: SGN(-5) = -1
+ | [[SGN]](n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
  |-
  | [[SIN]](angle*) || returns the sine of an angle in radians. (vertical component)
  |-
- | [[SQR]](n) || returns the square root of a number. '''(n &gt;= 0)'''
+ | [[SQR]](n) || returns the square root of a number. '''(n >= 0)'''
  |-
  | [[TAN]](angle*) ||  returns the tangent of an angle in radians
  |}
 
-&lt;center&gt; '''* angles measured in radians'''&lt;/center&gt;
+&lt;center> '''* angles measured in radians'''&lt;/center>
 
 
 {{TextStart}}                                '''Degree to Radian Conversion:'''
@@ -150,23 +150,23 @@ END FUNCTION
 
                                     '''Logarithm to base n'''
 FUNCTION LOGN (X, n)    
-IF n &gt; 0 AND n &lt;&gt; 1 AND X &gt; 0 THEN LOGN = {{Cb|LOG}}(X) / {{Cb|LOG}}(n) ELSE BEEP
+IF n > 0 AND n &lt;> 1 AND X > 0 THEN LOGN = {{Cb|LOG}}(X) / {{Cb|LOG}}(n) ELSE BEEP
 END FUNCTION '' '' 
 
 FUNCTION LOG10 (X)    'base 10 logarithm
-IF X &gt; 0 THEN LOG10 = {{Cb|LOG}}(X) / {{Cb|LOG}}(10) ELSE BEEP
+IF X > 0 THEN LOG10 = {{Cb|LOG}}(X) / {{Cb|LOG}}(10) ELSE BEEP
 END FUNCTION '' ''
 {{TextEnd}}
 
 
-&lt;center&gt;'''The numerical value of n in the [[LOG]](n) evaluation must be a positive value.'''&lt;/center&gt;
+&lt;center>'''The numerical value of n in the [[LOG]](n) evaluation must be a positive value.'''&lt;/center>
 
-&lt;center&gt;'''The numerical value of n in the [[EXP]](n) evaluation must be less than or equal to 88.02969.'''&lt;/center&gt;
+&lt;center>'''The numerical value of n in the [[EXP]](n) evaluation must be less than or equal to 88.02969.'''&lt;/center>
 
-&lt;center&gt;'''The numerical value of n in the [[SQR]](n) evaluation ''cannot'' be a negative value.'''&lt;/center&gt;
+&lt;center>'''The numerical value of n in the [[SQR]](n) evaluation ''cannot'' be a negative value.'''&lt;/center>
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Derived Mathematical Functions==
 
@@ -176,15 +176,15 @@ The following Trigonometric functions can be derived from the '''BASIC Mathemati
 
 {{TextStart}}'' ''
 FUNCTION SEC (x)  'Secant
-IF COS(x) &lt;&gt; 0 THEN SEC = 1 / {{Cb|COS}}(x) ELSE BEEP
+IF COS(x) &lt;> 0 THEN SEC = 1 / {{Cb|COS}}(x) ELSE BEEP
 END FUNCTION
 
 FUNCTION CSC (x)  'CoSecant 
-IF SIN(x) &lt;&gt; 0 THEN CSC = 1 / {{Cb|SIN}}(x) ELSE BEEP
+IF SIN(x) &lt;> 0 THEN CSC = 1 / {{Cb|SIN}}(x) ELSE BEEP
 END FUNCTION 
 
 FUNCTION COT (x)  'CoTangent 
-IF TAN(x) &lt;&gt; 0 THEN COT = 1 / {{Cb|TAN}}(x) ELSE BEEP
+IF TAN(x) &lt;> 0 THEN COT = 1 / {{Cb|TAN}}(x) ELSE BEEP
 END FUNCTION 
 
 FUNCTION ARCSIN (x)   'Inverse Sine           
@@ -216,36 +216,36 @@ IF x &lt;= 88.02969 THEN COSH = (EXP(x) + EXP(-x)) / 2 ELSE BEEP
 END FUNCTION '' ''
 
 FUNCTION TANH (x)  ' Hyperbolic Tangent or SINH(x) / COSH(x)
-IF 2 * x &lt;= 88.02969 AND EXP(2 * x) + 1 &lt;&gt; 0 THEN 
+IF 2 * x &lt;= 88.02969 AND EXP(2 * x) + 1 &lt;> 0 THEN 
      TANH = ({{Cb|EXP}}(2 * x) - 1) / ({{Cb|EXP}}(2 * x) + 1) 
 ELSE BEEP 
 END IF 
 END FUNCTION '' ''
 
 FUNCTION SECH (x)  ' Hyperbolic Secant or (COSH(x)) ^ -1
-IF x &lt;= 88.02969 AND (EXP(x) + EXP(-x)) &lt;&gt; 0 THEN SECH = 2 / ({{Cb|EXP}}(x) + {{Cb|EXP}}(-x)) ELSE BEEP  
+IF x &lt;= 88.02969 AND (EXP(x) + EXP(-x)) &lt;> 0 THEN SECH = 2 / ({{Cb|EXP}}(x) + {{Cb|EXP}}(-x)) ELSE BEEP  
 END FUNCTION '' ''
 
 FUNCTION CSCH (x)  ' Hyperbolic CoSecant or (SINH(x)) ^ -1
-IF x &lt;= 88.02969 AND (EXP(x) - EXP(-x)) &lt;&gt; 0 THEN CSCH = 2 / ({{Cb|EXP}}(x) - {{Cb|EXP}}(-x)) ELSE BEEP  
+IF x &lt;= 88.02969 AND (EXP(x) - EXP(-x)) &lt;> 0 THEN CSCH = 2 / ({{Cb|EXP}}(x) - {{Cb|EXP}}(-x)) ELSE BEEP  
 END FUNCTION '' ''
 
 FUNCTION COTH (x)  ' Hyperbolic CoTangent or COSH(x) / SINH(x)
-IF 2 * x &lt;= 88.02969 AND EXP(2 * x) - 1 &lt;&gt; 0 THEN 
+IF 2 * x &lt;= 88.02969 AND EXP(2 * x) - 1 &lt;> 0 THEN 
      COTH = ({{Cb|EXP}}(2 * x) + 1) / ({{Cb|EXP}}(2 * x) - 1) 
 ELSE BEEP  
 END IF
 END FUNCTION '' ''
 
 FUNCTION ARCSINH (x)  ' Inverse Hyperbolic Sine 
-IF (x * x) + 1 &gt;= 0 AND x + SQR((x * x) + 1) &gt; 0 THEN 
+IF (x * x) + 1 >= 0 AND x + SQR((x * x) + 1) > 0 THEN 
 ARCSINH = {{Cb|LOG}}(x + {{Cb|SQR}}(x * x + 1)) 
 ELSE BEEP
 END IF
 END FUNCTION '' ''
 
 FUNCTION ARCCOSH (x)  ' Inverse Hyperbolic CoSine 
-IF x &gt;= 1 AND x * x - 1 &gt;= 0 AND x + SQR(x * x - 1) &gt; 0 THEN 
+IF x >= 1 AND x * x - 1 >= 0 AND x + SQR(x * x - 1) > 0 THEN 
 ARCCOSH = {{Cb|LOG}}(x + {{Cb|SQR}}(x * x - 1)) 
 ELSE BEEP
 END IF
@@ -256,18 +256,18 @@ IF x &lt; 1 THEN ARCTANH = {{Cb|LOG}}((1 + x) / (1 - x)) / 2 ELSE BEEP
 END FUNCTION 
 
 FUNCTION ARCSECH (x)  ' Inverse Hyperbolic Secant 
-IF x &gt; 0 AND x &lt;= 1 THEN ARCSECH = {{Cb|LOG}}(({{Cb|SGN}}(x) * {{Cb|SQR}}(1 - x * x) + 1) / x) ELSE BEEP  
+IF x > 0 AND x &lt;= 1 THEN ARCSECH = {{Cb|LOG}}(({{Cb|SGN}}(x) * {{Cb|SQR}}(1 - x * x) + 1) / x) ELSE BEEP  
 END FUNCTION '' ''
 
 FUNCTION ARCCSCH (x)  ' Inverse Hyperbolic CoSecant 
-IF x &lt;&gt; 0 AND x * x + 1 &gt;= 0 AND (SGN(x) * SQR(x * x + 1) + 1) / x &gt; 0 THEN 
+IF x &lt;> 0 AND x * x + 1 >= 0 AND (SGN(x) * SQR(x * x + 1) + 1) / x > 0 THEN 
      ARCCSCH = {{Cb|LOG}}(({{Cb|SGN}}(x) * {{Cb|SQR}}(x * x + 1) + 1) / x) 
 ELSE BEEP
 END IF
 END FUNCTION '' ''
 
 FUNCTION ARCCOTH (x)  ' Inverse Hyperbolic CoTangent 
-IF x &gt; 1 THEN ARCCOTH = {{Cb|LOG}}((x + 1) / (x - 1)) / 2 ELSE BEEP
+IF x > 1 THEN ARCCOTH = {{Cb|LOG}}((x + 1) / (x - 1)) / 2 ELSE BEEP
 END FUNCTION '' ''
 {{TextEnd}}
 {{WhiteStart}}
@@ -287,31 +287,33 @@ END FUNCTION '' ''
                               ARCSCH(x) = ARSINH(x) ^ -1 
                               ARCOTH(x) = ARTANH(x) ^ -1 
 
-              '''Hyperbolic sine and cosine satisfy the Pythagorean trig. identity:'''
+   
+4000
+           '''Hyperbolic sine and cosine satisfy the Pythagorean trig. identity:'''
 
                            (COSH(x) ^ 2) - (SINH(x) ^ 2) = 1
 
 {{WhiteEnd}}
 
-&lt;center&gt;[http://support.microsoft.com/kb/28249 Microsoft's Derived BASIC Functions (KB 28249)]&lt;/center&gt;
+&lt;center>[http://support.microsoft.com/kb/28249 Microsoft's Derived BASIC Functions (KB 28249)]&lt;/center>
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Mathematical Logical Operators==
 
 The following logical operators compare numerical values using bitwise operations. The two numbers are compared by the number's [[Binary]] bits on and the result of the operation determines the value returned in decimal form. [[NOT]] checks one value and returns the opposite. It returns 0 if a value is not 0 and -1 if it is 0. See [[Binary]] for more on bitwise operations.
 
 
-&lt;center&gt;'''Truth table of the 6 BASIC Logical Operators'''&lt;/center&gt;
+&lt;center>'''Truth table of the 6 BASIC Logical Operators'''&lt;/center>
 
 
 {{Template:LogicalTruthTable}}
 
-&lt;center&gt;BASIC can accept any + or - value that is not 0 to be True when used in an evaluation.&lt;/center&gt;
+&lt;center>BASIC can accept any + or - value that is not 0 to be True when used in an evaluation.&lt;/center>
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Relational Operators==
 Relational Operations are used to compare values in a Conditional [[IF...THEN]], [[SELECT CASE]], [[UNTIL]] or [[WHILE]] statement.
@@ -320,11 +322,11 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 {{Template:RelationalTable}}
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Basic's Rounding Functions==
 
-: Rounding is used when the program needs a certain number value or type. There are 4 [[INTEGER]] or [[LONG]] Integer functions and one function each for closest [[SINGLE]] and closest [[DOUBLE]] numerical types. Closest functions use &quot;bankers&quot; rounding which rounds up if the decimal point value is over one half. Variable types should match the return value.
+: Rounding is used when the program needs a certain number value or type. There are 4 [[INTEGER]] or [[LONG]] Integer functions and one function each for closest [[SINGLE]] and closest [[DOUBLE]] numerical types. Closest functions use "bankers" rounding which rounds up if the decimal point value is over one half. Variable types should match the return value.
 
 {| align=center border=1
 ! Name
@@ -349,7 +351,7 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 ===Note===
 * Each of the above functions define the value's type in addition to rounding the values.
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Base Number Systems==
 
@@ -376,7 +378,7 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
          12                  1100                  C                    14
          13                  1101                  D                    15
          14                  1110                  E                    16
-         15  -------------   1111 &lt;--- Match ---&gt;  F  ----------------  17 -- max 2
+         15  -------------   1111 &lt;--- Match --->  F  ----------------  17 -- max 2
          16                 10000                 10                    20
         
       When the Decimal value is 15, the other 2 base systems are all maxed out!
@@ -399,39 +401,39 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 {{TextEnd}}
 
 
-&lt;center&gt;'''[[VAL]] converts [[STRING|string]] numbers to Decimal values.'''&lt;/center&gt;
+&lt;center>'''[[VAL]] converts [[STRING|string]] numbers to Decimal values.'''&lt;/center>
 
 * VAL reads the string from left to right and converts numerical string values, - and . to decimal values until it finds a character other than those 3 characters. Commas are not read.
 * HEXadecimal and OCTal base values can be read with [[&amp;H]] or [[&amp;O]].
 
 
-&lt;center&gt;'''The [[OCT$]] [[STRING|string]] function return can be converted to a decimal value using [[VAL]](&quot;&amp;O&quot; + OCT$(n)).'''&lt;/center&gt;
+&lt;center>'''The [[OCT$]] [[STRING|string]] function return can be converted to a decimal value using [[VAL]]("&amp;O" + OCT$(n)).'''&lt;/center>
 
-&lt;center&gt;'''The [[HEX$]] [[STRING|string]] function return can be converted to a decimal value using [[VAL]](&quot;&amp;H&quot; + HEX$(n)).'''&lt;/center&gt;
+&lt;center>'''The [[HEX$]] [[STRING|string]] function return can be converted to a decimal value using [[VAL]]("&amp;H" + HEX$(n)).'''&lt;/center>
 
 
 :[[STR$]] converts numerical values to string characters for [[PRINT]] or variable strings. It also removes the right number PRINT space.
 
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Bits and Bytes==
 
-&lt;center&gt;'''[[_BIT|BITS]]'''&lt;/center&gt;
+&lt;center>'''[[_BIT|BITS]]'''&lt;/center>
 * The '''MSB''' is the most significant(largest) bit value and '''LSB''' is the least significant bit of a binary or register memory address value. The order in which the bits are read determines the binary or decimal byte value. There are two common ways to read a byte:
 
-:* '''&quot;Big-endian&quot;''': MSB is the first bit encountered, decreasing to the LSB as the last bit by position, memory address or time.
-:* '''&quot;Little-endian&quot;''': LSB is the first bit encountered, increasing to the MSB as the last bit by position, memory address or time.
+:* '''"Big-endian"''': MSB is the first bit encountered, decreasing to the LSB as the last bit by position, memory address or time.
+:* '''"Little-endian"''': LSB is the first bit encountered, increasing to the MSB as the last bit by position, memory address or time.
 {{WhiteStart}}
          '''Offset or Position:    0    1   2   3   4   5   6   7      Example: 11110000'''
                               ----------------------------------             --------
     '''Big-Endian Bit On Value:'''   128  64  32  16   8   4   2   1                 240
  '''Little-Endian Bit On Value:'''    1    2   4   8  16  32  64  128                 15
 {{WhiteEnd}}
-::The big-endian method compares exponents of 2 &lt;sup&gt;7&lt;/sup&gt; down to 2 &lt;sup&gt;0&lt;/sup&gt; while the little-endian method does the opposite. 
+::The big-endian method compares exponents of 2 &lt;sup>7&lt;/sup> down to 2 &lt;sup>0&lt;/sup> while the little-endian method does the opposite. 
 
-&lt;center&gt;'''[[_BYTE|BYTES]]'''&lt;/center&gt;
+&lt;center>'''[[_BYTE|BYTES]]'''&lt;/center>
 * [[INTEGER]] values consist of 2 bytes called the '''HI''' and '''LO''' bytes. Anytime that the number of binary digits is a multiple of 16 (2bytes, 4 bytes, etc.) and the HI byte's MSB is on(1), the value returned will be negative, even with [[SINGLE]] or [[DOUBLE]] values. 
 {{WhiteStart}}                                 '''16 BIT INTEGER OR REGISTER'''
               '''AH (High Byte Bits)                         AL (Low Byte Bits)'''
@@ -449,13 +451,13 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 {{Cl|DEFINT}} A-Z
 {{Cl|SCREEN (statement)|SCREEN}} 12
 {{Cl|COLOR}} 11: {{Cl|LOCATE}} 10, 2
- {{Cl|PRINT}} &quot;      AH (High Register Byte Bits)           AL (Low Register Byte Bits)&quot;
+ {{Cl|PRINT}} "      AH (High Register Byte Bits)           AL (Low Register Byte Bits)"
 {{Cl|COLOR}} 14: {{Cl|LOCATE}} 11, 2
- {{Cl|PRINT}} &quot;    15   14  13   12   11  10    9   8    7   6    5   4    3    2   1    0&quot;
+ {{Cl|PRINT}} "    15   14  13   12   11  10    9   8    7   6    5   4    3    2   1    0"
 {{Cl|COLOR}} 13: {{Cl|LOCATE}} 14, 2
- {{Cl|PRINT}} &quot; {{Cl|&amp;H}}8000 4000 2000 1000 800 400  200 100  80   40  20   10   8    4   2  {{Cl|&amp;H}}1&quot;
+ {{Cl|PRINT}} " {{Cl|&amp;H}}8000 4000 2000 1000 800 400  200 100  80   40  20   10   8    4   2  {{Cl|&amp;H}}1"
 {{Cl|COLOR}} 11: {{Cl|LOCATE}} 15, 2
- {{Cl|PRINT}} &quot;-32768 16384 8192 4096 2048 1024 512 256 128  64  32   16   8    4   2    1&quot;
+ {{Cl|PRINT}} "-32768 16384 8192 4096 2048 1024 512 256 128  64  32   16   8    4   2    1"
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 16
   {{Cl|CIRCLE}} (640 - (37 * i), 189), 8, 9 'place bit circles
 {{Cl|NEXT}}
@@ -465,45 +467,45 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
     {{Cl|FOR...NEXT|FOR}} i = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1
       {{Cl|IF}} (Num {{Cl|AND}} 2 ^ i) {{Cl|THEN}}
         {{Cl|PAINT}} (640 - (37 * (i + 1)), 189), 12, 9
-        Bin$ = Bin$ + &quot;1&quot;
+        Bin$ = Bin$ + "1"
       {{Cl|ELSE}}
         {{Cl|PAINT}} (640 - (37 * (i + 1)), 189), 0, 9
-        Bin$ = Bin$ + &quot;0&quot;
+        Bin$ = Bin$ + "0"
       {{Cl|END IF}}
     {{Cl|NEXT}}
-    {{Cl|COLOR}} 10: {{Cl|LOCATE}} 16, 50: {{Cl|PRINT}} &quot;Binary =&quot;; {{Cl|VAL}}(Bin$)
-    {{Cl|COLOR}} 9: {{Cl|LOCATE}} 16, 10: {{Cl|PRINT}} &quot;Decimal =&quot;; Num;: {{Cl|COLOR}} 13: {{Cl|PRINT}} &quot;       Hex = &quot;; Hexa$
-    Hexa$ = &quot;&quot;: Bin$ = &quot;&quot;
+    {{Cl|COLOR}} 10: {{Cl|LOCATE}} 16, 50: {{Cl|PRINT}} "Binary ="; {{Cl|VAL}}(Bin$)
+    {{Cl|COLOR}} 9: {{Cl|LOCATE}} 16, 10: {{Cl|PRINT}} "Decimal ="; Num;: {{Cl|COLOR}} 13: {{Cl|PRINT}} "       Hex = "; Hexa$
+    Hexa$ = "": Bin$ = ""
    {{Cl|END IF}}
-   {{Cl|COLOR}} 14: {{Cl|LOCATE}} 17, 15: {{Cl|INPUT}} &quot;Enter a decimal or HEX({{Cl|&amp;H}}) value (0 Quits): &quot;, frst$
+   {{Cl|COLOR}} 14: {{Cl|LOCATE}} 17, 15: {{Cl|INPUT}} "Enter a decimal or HEX({{Cl|&amp;H}}) value (0 Quits): ", frst$
    first = {{Cl|VAL}}(frst$)  
    {{Cl|IF}} first {{Cl|THEN}}
      {{Cl|LOCATE}} 17, 15: {{Cl|PRINT}} {{Cl|SPACE$}}(55)
-     {{Cl|COLOR}} 13: {{Cl|LOCATE}} 17, 15: {{Cl|INPUT}} &quot;Enter a second value: &quot;, secnd$
+     {{Cl|COLOR}} 13: {{Cl|LOCATE}} 17, 15: {{Cl|INPUT}} "Enter a second value: ", secnd$
      second = {{Cl|VAL}}(secnd$)
      {{Cl|LOCATE}} 17, 10: {{Cl|PRINT}} {{Cl|SPACE$}}(69)
    {{Cl|END IF}}
   Num = first + second
-  Hexa$ = &quot;{{Cl|&amp;H}}&quot; + {{Cl|HEX$}}(Num)
-{{Cl|LOOP}} {{Cl|UNTIL}} first = 0 {{Cl|OR (boolean)|OR}} Num &gt; 32767 {{Cl|OR (boolean)|OR}} Num &lt; -32767
-{{Cl|COLOR}} 11: {{Cl|LOCATE}} 28, 30: {{Cl|PRINT}} &quot;Press any key to exit!&quot;;
+  Hexa$ = "{{Cl|&amp;H}}" + {{Cl|HEX$}}(Num)
+{{Cl|LOOP}} {{Cl|UNTIL}} first = 0 {{Cl|OR (boolean)|OR}} Num > 32767 {{Cl|OR (boolean)|OR}} Num &lt; -32767
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 28, 30: {{Cl|PRINT}} "Press any key to exit!";
 {{Cl|SLEEP}}
 {{Cl|SYSTEM}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
 
 
-&lt;center&gt;[[#toc|Return to Top]]&lt;/center&gt;
+&lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==OFFSET==
 
 * [[_OFFSET (function)]] returns the memory offset position as a flexible sized value for a designated variable. See [[Using _OFFSET]].
 
 
-&lt;center&gt;'''Warning: [[_OFFSET]] values cannot be reassigned to other variable [[TYPE|types]].'''&lt;/center&gt;
+&lt;center>'''Warning: [[_OFFSET]] values cannot be reassigned to other variable [[TYPE|types]].'''&lt;/center>
 
 
-&lt;center&gt;'''[[_OFFSET]] values can only be used in conjunction with [[_MEM]]ory and [[DECLARE DYNAMIC LIBRARY]] procedures.'''&lt;/center&gt;
+&lt;center>'''[[_OFFSET]] values can only be used in conjunction with [[_MEM]]ory and [[DECLARE DYNAMIC LIBRARY]] procedures.'''&lt;/center>
 
 ==References==
 ''See also:''

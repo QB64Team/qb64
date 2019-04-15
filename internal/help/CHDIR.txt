@@ -8,23 +8,23 @@ The [[CHDIR]] statement changes the program's location from one working director
 {{PageDescription}}
 * {{Parameter|path$}} is the new directory path the program will work in.
 * {{Parameter|path$}} can be an absolute path (starting from the root folder) or relative path (starting from the current program location).
-* If {{Parameter|path$}} specifies a non-existing path, a [[ERROR Codes|&quot;Path not found&quot;]] error will occur.
-* '''A QB64 [[SHELL]] statement cannot use &quot;CD &quot; or &quot;CHDIR &quot; + path$ to change directories.'''
+* If {{Parameter|path$}} specifies a non-existing path, a [[ERROR Codes|"Path not found"]] error will occur.
+* '''A QB64 [[SHELL]] statement cannot use "CD " or "CHDIR " + path$ to change directories.'''
 
 
 {{PageExamples}}
 ''Example 1:'' The following code is Windows-specific:
 {{CodeStart}} '' ''
-{{Cl|CHDIR}} &quot;C:\&quot;      'change to the root drive C (absolute path)
-{{Cl|CHDIR}} &quot;DOCUME~1&quot; 'change to &quot;C:\Documents and Settings&quot; from root drive (relative path) 
-{{Cl|CHDIR}} &quot;..\&quot;      'change back to previous folder one up '' ''
+{{Cl|CHDIR}} "C:\"      'change to the root drive C (absolute path)
+{{Cl|CHDIR}} "DOCUME~1" 'change to "C:\Documents and Settings" from root drive (relative path) 
+{{Cl|CHDIR}} "..\"      'change back to previous folder one up '' ''
 {{CodeEnd}}
 :''Details:'' '''QB64''' can use long or short (8.3 notation) file and path names.
 
 
 ''Example 2:'' Using the Windows API to find the current program's name and root path. The PATH$ is a shared function value.
 {{CodeStart}} '' ''
-{{Cl|_TITLE}} &quot;My program&quot;
+{{Cl|_TITLE}} "My program"
 {{Cl|PRINT}} TITLE$
 {{Cl|PRINT}} PATH$
 
@@ -40,13 +40,13 @@ Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))  '0 designates 
   PATH$ = {{Cl|LEFT$}}(FileName$, Result)
   start = 1
   DO
-    posit = {{Cl|INSTR}}(start, PATH$, &quot;\&quot;)
+    posit = {{Cl|INSTR}}(start, PATH$, "\")
     {{Cl|IF...THEN|IF}} posit {{Cl|THEN}} last = posit
     start = posit + 1
   {{Cl|LOOP}} {{Cl|UNTIL}} posit = 0
   TITLE$ = {{Cl|MID$}}(PATH$, last + 1)
   PATH$ = {{Cl|LEFT$}}(PATH$, last)
-{{Cl|ELSE}} TITLE$ = &quot;&quot;: PATH$ = &quot;&quot;
+{{Cl|ELSE}} TITLE$ = "": PATH$ = ""
 {{Cl|END IF}}
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}

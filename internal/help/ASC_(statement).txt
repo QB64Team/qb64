@@ -6,7 +6,7 @@ The [[ASC (statement)|ASC]] statement allows a '''QB64''' program to change a ch
 
 
 {{PageDescription}}
-* The {{Parameter|stringExpression$}} variable's value must have been previously defined and cannot be an empty string (&quot;&quot;).
+* The {{Parameter|stringExpression$}} variable's value must have been previously defined and cannot be an empty string ("").
 * {{Parameter|position%}} is optional. If no position is used, the leftmost character at position 1 is assumed.
 * {{Parameter|position%}} cannot be zero or greater than the string's [[LEN|length]] or an [[ERROR Codes|Illegal function error]] will occur.
 * The [[ASCII]] replacement {{Parameter|code%}} value can be any [[INTEGER]] value from 0 to 255.
@@ -16,15 +16,15 @@ The [[ASC (statement)|ASC]] statement allows a '''QB64''' program to change a ch
 {{PageExamples}}
 ''Example:'' Demonstrates how to change existing text characters one letter at a time.
 {{CodeStart}}
- a$ = &quot;YZC&quot;
- {{Cl|ASC (statement)|ASC}}(a$) = 65                 ' CHR$(65) = &quot;A&quot;
- {{Cl|ASC (statement)|ASC}}(a$, 2) = 66              ' CHR$(66) = &quot;B&quot;
+ a$ = "YZC"
+ {{Cl|ASC (statement)|ASC}}(a$) = 65                 ' CHR$(65) = "A"
+ {{Cl|ASC (statement)|ASC}}(a$, 2) = 66              ' CHR$(66) = "B"
  {{Cl|PRINT}} a$ 'ABC
 
- {{Cl|ASC (statement)|ASC}}(a$, 2) = 0               ' CHR$(0) = &quot; &quot; 
+ {{Cl|ASC (statement)|ASC}}(a$, 2) = 0               ' CHR$(0) = " " 
  {{Cl|PRINT}} a$
 
- {{Cl|ASC (statement)|ASC}}(a$, 2) = {{Cl|ASC}}(&quot;S&quot;)        ' get code value from ASC function
+ {{Cl|ASC (statement)|ASC}}(a$, 2) = {{Cl|ASC}}("S")        ' get code value from ASC function
  {{Cl|PRINT}} a$
 {{CodeEnd}}
 

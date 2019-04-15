@@ -12,11 +12,11 @@ The [[UCASE$]] function outputs an all-uppercase version of a [[STRING]].
 
 {{PageExamples}}
 ''Example:'' The following code guarantees that all letter key entries are capitalized:
-{{CodeStart}}{{Cl|PRINT}} &quot;Do you want to continue? (y/n)&quot;
+{{CodeStart}}{{Cl|PRINT}} "Do you want to continue? (y/n)"
 
 {{Cl|DO...LOOP|DO}}
     K$ = {{Cl|UCASE$}}({{Cl|INKEY$}})
-{{Cl|DO...LOOP|LOOP}} {{Cl|DO...LOOP|UNTIL}} K$ = &quot;Y&quot; {{Cl|OR}} K$ = &quot;N&quot;
+{{Cl|DO...LOOP|LOOP}} {{Cl|DO...LOOP|UNTIL}} K$ = "Y" {{Cl|OR}} K$ = "N"
 {{CodeEnd}}
 
 

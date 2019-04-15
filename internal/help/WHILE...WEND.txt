@@ -24,7 +24,7 @@ The {{KW|WHILE...WEND}} statement is used to repeat a block of statements while 
 ''Example 1:'' Reading an entire file. Example assumes the program has a [[OPEN|file opened]] as #1
 
 {{CodeStart}}  '' ''
-{{Cl|OPEN}} &quot;Readme.txt&quot; FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
+{{Cl|OPEN}} "Readme.txt" FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
 {{Cl|WHILE...WEND|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(1)
     {{Cl|_LIMIT}} 1                                    'limit line prints to one per second 
     {{Cl|LINE INPUT (file statement)|LINE INPUT #}}1, text$
@@ -35,7 +35,7 @@ The {{KW|WHILE...WEND}} statement is used to repeat a block of statements while 
 
 ''Example 2:'' Clearing the keyboard buffer.
 {{CodeStart}} '' ''
-{{Cl|WHILE}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; : {{Cl|WEND}} '' ''
+{{Cl|WHILE}} {{Cl|INKEY$}} &lt;> "" : {{Cl|WEND}} '' ''
 {{CodeEnd}}
 
 

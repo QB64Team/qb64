@@ -29,11 +29,11 @@ The [[CONST]] statement globally defines one or more named numeric or string val
 {{Cl|CONST}} PI = 3.141593
 
 ' Declare some string constants:
-{{Cl|CONST}} circumferenceText = &quot;The circumference of the circle is&quot;
-{{Cl|CONST}} areaText = &quot;The area of the circle is&quot;
+{{Cl|CONST}} circumferenceText = "The circumference of the circle is"
+{{Cl|CONST}} areaText = "The area of the circle is"
 
 {{Cl|DO...LOOP|DO}}
-    {{Cl|INPUT}} &quot;Enter the radius of a circle or zero to quit&quot;; radius
+    {{Cl|INPUT}} "Enter the radius of a circle or zero to quit"; radius
     {{Cl|IF...THEN|IF}} radius = 0 {{Cl|IF...THEN|THEN}} {{Cl|END}}
     {{Cl|PRINT}} circumferenceText; 2 * PI * radius 
     {{Cl|PRINT}} areaText; PI * radius * radius ' radius squared
@@ -58,7 +58,7 @@ Enter the radius of a circle or zero to quit? ''0''
 {{Cl|CONST}} Red = _RGB32(255,0,0)
 
 {{Cl|COLOR}} Red
-{{Cl|PRINT}} &quot;Hello World&quot;
+{{Cl|PRINT}} "Hello World"
 {{CodeEnd}}
 
 {{PageSeeAlso}}

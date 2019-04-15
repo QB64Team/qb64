@@ -19,7 +19,7 @@ The [[LEFT$]] string function returns a number of characters from the left of a 
 {{PageExamples}}
 ''Example 1:'' Getting the left portion of a string value. 
 {{CodeStart}} '' ''
-name$ = &quot;Tom Williams&quot;
+name$ = "Tom Williams"
 
 First$ = LEFT$(name$, 3)
 
@@ -30,10 +30,10 @@ PRINT First$ '' ''
 
 ''Example 2:'' A replace function using LEFT$ and [[RIGHT$]] with [[INSTR]] to insert a different length word into an existing string. 
 {{CodeStart}} '' ''
-text$ = &quot;This is my sentence to change my words.&quot;
+text$ = "This is my sentence to change my words."
 {{Cl|PRINT}} text$
-oldword$ = &quot;my&quot; 
-newword$ = &quot;your&quot;
+oldword$ = "my" 
+newword$ = "your"
 
 x = Replace(text$, oldword$, newword$) 
 {{Cl|IF...THEN|IF}} x {{Cl|THEN}} {{Cl|PRINT}} text$; x

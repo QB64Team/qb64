@@ -14,7 +14,7 @@
 * Normally required at the end of a [[GOSUB]] procedure unless the procedure returns using a loop.
 * RETURN is not used in error handling procedures. Error procedures use [[RESUME]] ''line number'' or [[RESUME|RESUME NEXT]].
 * GOSUB procedures use line numbers or line labels designated with a colon after the number or label.
-* If RETURN is encountered without a previous [[GOSUB]] call a [[ERROR Codes|&quot;RETURN without GOSUB&quot; error]] is produced. 
+* If RETURN is encountered without a previous [[GOSUB]] call a [[ERROR Codes|"RETURN without GOSUB" error]] is produced. 
 * To avoid errors, place [[GOSUB]] procedures AFTER the main program code [[END]] or after an [[EXIT SUB]] or [[EXIT FUNCTION]] call.
 
 
@@ -28,7 +28,7 @@
 {{Cl|END}}       'END or SYSTEM stop the program before the execution of a sub procedure
 
 five:
-{{Cl|PRINT}} &quot;Aha! Five!&quot;
+{{Cl|PRINT}} "Aha! Five!"
 {{Cl|RETURN}} '' ''
 {{CodeEnd}}
 {{OutputStart}}
@@ -49,9 +49,9 @@ Aha! Five!
 ''Example 2:'' Returns to a specific line label.
 {{CodeStart}}
 {{Cl|GOSUB}} hey 
-{{Cl|PRINT}} &quot;it didn't go here.&quot; 
+{{Cl|PRINT}} "it didn't go here." 
 hoho: 
-{{Cl|PRINT}} &quot;it went here.&quot; 
+{{Cl|PRINT}} "it went here." 
 {{Cl|END}} 
 
 hey: 

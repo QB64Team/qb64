@@ -39,27 +39,27 @@ The [[_FULLSCREEN]] statement attempts to make the program window fullscreen.
 {{Cl|SCREEN (statement)|SCREEN}} 0
 {{Cl|DO}}
   {{Cl|PRINT}}
-  {{Cl|LINE INPUT}} &quot;Enter MODE 1) ENLARGE WINDOW  2) FULL _SQUAREPIXELS  3) FULL _STRETCH: &quot;, WMODE$
+  {{Cl|LINE INPUT}} "Enter MODE 1) ENLARGE WINDOW  2) FULL _SQUAREPIXELS  3) FULL _STRETCH: ", WMODE$
   {{Cl|PRINT}}
-  {{Cl|IF}} WMODE$ = &quot;1&quot; {{Cl|THEN}} {{Cl|INPUT (file mode)|INPUT}} &quot;SIZE 1 {{Cl|TO}} 9: &quot;, ENLARGE%
+  {{Cl|IF}} WMODE$ = "1" {{Cl|THEN}} {{Cl|INPUT (file mode)|INPUT}} "SIZE 1 {{Cl|TO}} 9: ", ENLARGE%
 
   {{Cl|SELECT CASE}} ENLARGE%
-    {{Cl|CASE}} 1, 2, 3, 4, 5: STYLE$ = &quot;MONOSPACE, BOLD&quot;
-    {{Cl|CASE}} 6, 7, 8, 9: STYLE$ = &quot;MONOSPACE&quot;
-    {{Cl|CASE ELSE}}: STYLE$ = &quot;MONOSPACE&quot;
+    {{Cl|CASE}} 1, 2, 3, 4, 5: STYLE$ = "MONOSPACE, BOLD"
+    {{Cl|CASE}} 6, 7, 8, 9: STYLE$ = "MONOSPACE"
+    {{Cl|CASE ELSE}}: STYLE$ = "MONOSPACE"
   {{Cl|END SELECT}}
 
   {{Cl|SELECT CASE}} WMODE$
-    {{Cl|CASE}} &quot;1&quot;
+    {{Cl|CASE}} "1"
       full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
-      {{Cl|IF}} full &gt; 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _OFF
-      f&amp; = {{Cl|_LOADFONT}}(&quot;c:\windows\fonts\lucon.ttf&quot;, 13 + ENLARGE%, STYLE$)
+      {{Cl|IF}} full > 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _OFF
+      f&amp; = {{Cl|_LOADFONT}}("c:\windows\fonts\lucon.ttf", 13 + ENLARGE%, STYLE$)
       {{Cl|_FONT}} f&amp;
-    {{Cl|CASE}} &quot;2&quot;
+    {{Cl|CASE}} "2"
       {{Cl|_FULLSCREEN}} _SQUAREPIXELS
       full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
       {{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|GOSUB}} FCHECK
-    {{Cl|CASE}} &quot;3&quot;
+    {{Cl|CASE}} "3"
       {{Cl|_FULLSCREEN}} _STRETCH
       full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
       {{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|GOSUB}} FCHECK
@@ -67,8 +67,8 @@ The [[_FULLSCREEN]] statement attempts to make the program window fullscreen.
 
   mode = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
   {{Cl|PRINT}}
-  {{Cl|PRINT}} &quot;_FULLSCREEN mode =&quot;; mode,
-  {{Cl|PRINT}} &quot;PRESS ESC {{Cl|TO}} {{Cl|END}} {{Cl|OR}} ENTER {{Cl|TO}} CONTINUE...&quot;
+  {{Cl|PRINT}} "_FULLSCREEN mode ="; mode,
+  {{Cl|PRINT}} "PRESS ESC {{Cl|TO}} {{Cl|END}} {{Cl|OR}} ENTER {{Cl|TO}} CONTINUE..."
 
   {{Cl|DO}}: {{Cl|SLEEP}}: B$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} B$ = {{Cl|CHR$}}(13) {{Cl|OR}} B$ = {{Cl|CHR$}}(27)
 
@@ -82,14 +82,14 @@ FCHECK:
 Z3 = timer
 {{Cl|DO}}
 {{Cl|IF}} {{Cl|TIMER (statement)|TIMER }}&lt; Z3 {{Cl|THEN}} Z3 = Z3 - {{Cl|TIMER}}
-{{Cl|IF}} {{Cl|TIMER (statement)|TIMER }}- Z3 &gt; 4 {{Cl|THEN}} {{Cl|EXIT DO}}
+{{Cl|IF}} {{Cl|TIMER (statement)|TIMER }}- Z3 > 4 {{Cl|THEN}} {{Cl|EXIT DO}}
 {{Cl|LOOP}}
 full = {{Cl|_FULLSCREEN (function)|_FULLSCREEN}}
 {{Cl|IF}} full = 0 {{Cl|THEN}} {{Cl|_FULLSCREEN}} _{{Cl|OFF}}: {{Cl|SOUND}} 100, .75
 {{Cl|RETURN}}
 
 ClearFont: 
-{{Cl|IF}} f&amp; &gt; 0 {{Cl|THEN}}
+{{Cl|IF}} f&amp; > 0 {{Cl|THEN}}
     {{Cl|_FONT}} 16 'select inbuilt 8x16 default font
     {{Cl|_FREEFONT}} f&amp;
 {{Cl|END IF}}
@@ -100,12 +100,12 @@ ClearFont:
 
 ''Example 3:'' Testing all fullscreen methods.
 {{CodeStart}}
-{{Cl|PRINT}} &quot;Hello, world!&quot;
-{{Cl|PRINT}} &quot;Hit 1 for windowed mode;
-{{Cl|PRINT}} &quot;    2 for _STRETCH&quot;
-{{Cl|PRINT}} &quot;    3 for _SQUAREPIXELS&quot;
-{{Cl|PRINT}} &quot;    4 for _STRETCH, _SMOOTH&quot;
-{{Cl|PRINT}} &quot;    5 for _SQUAREPIXELS, _SMOOTH&quot;
+{{Cl|PRINT}} "Hello, world!"
+{{Cl|PRINT}} "Hit 1 for windowed mode;
+{{Cl|PRINT}} "    2 for _STRETCH"
+{{Cl|PRINT}} "    3 for _SQUAREPIXELS"
+{{Cl|PRINT}} "    4 for _STRETCH, _SMOOTH"
+{{Cl|PRINT}} "    5 for _SQUAREPIXELS, _SMOOTH"
 {{Cl|DO}}
     k$ = {{Cl|INKEY$}}
     {{Cl|SELECT CASE}} {{Cl|VAL}}(k$)

@@ -38,10 +38,10 @@
 {{Template:RelationalTable}}
 
 
-&lt;center&gt; When evaluating a number value, no IF value &gt; 0 operation is necessary for values not 0. Use: IF value THEN &lt;/center&gt;
+&lt;center> When evaluating a number value, no IF value > 0 operation is necessary for values not 0. Use: IF value THEN &lt;/center>
 
 
-&lt;center&gt;'''Boolean Conditional Operators:'''&lt;/center&gt;
+&lt;center>'''Boolean Conditional Operators:'''&lt;/center>
 
 
 :::::* [[AND (boolean)]] can be used to add extra conditions to a boolean statement evaluation.
@@ -49,28 +49,28 @@
 :::::* Parenthesis are allowed inside of boolean statements to clarify an evaluation.
 
 
-&lt;center&gt;'''Mathematical Logical operators:'''&lt;/center&gt;
-&lt;center&gt;* Truth table of the 6 BASIC Logical Operators:&lt;/center&gt;
+&lt;center>'''Mathematical Logical operators:'''&lt;/center>
+&lt;center>* Truth table of the 6 BASIC Logical Operators:&lt;/center>
 
 
 {{Template:LogicalTruthTable}}
 
-&lt;center&gt;* '''Note that Basic returns -1 for True and 0 for False.'''&lt;/center&gt;
+&lt;center>* '''Note that Basic returns -1 for True and 0 for False.'''&lt;/center>
 
 
 {{PageExamples}}
 ''Example 1:'' In a one line IF statement, only [[REM]] can be used to comment out the action without an [[END IF]] error:
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a number over or under 100: &quot;, x
-{{Cl|IF...THEN|IF}} x &gt; 100 {{Cl|THEN}} {{Cl|PRINT}} x 
-{{Cl|IF...THEN|IF}} x &gt; 100 {{Cl|THEN}} {{Cl|REM}} {{Cl|PRINT}} x '' '
+{{Cl|INPUT}} "Enter a number over or under 100: ", x
+{{Cl|IF...THEN|IF}} x > 100 {{Cl|THEN}} {{Cl|PRINT}} x 
+{{Cl|IF...THEN|IF}} x > 100 {{Cl|THEN}} {{Cl|REM}} {{Cl|PRINT}} x '' '
 {{CodeEnd}}
 
 
 ''Example 2:'' IF statement blocks require that the IF THEN and END IF statements be separate from the code executed.
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a number over or under 100: &quot;, x
-{{Cl|IF...THEN|IF}} x &gt; 100 {{Cl|THEN}}
+{{Cl|INPUT}} "Enter a number over or under 100: ", x
+{{Cl|IF...THEN|IF}} x > 100 {{Cl|THEN}}
   y = 200
   {{Cl|PRINT}} y
   {{Cl|PRINT}} x
@@ -80,38 +80,38 @@
 
 ''Example 3:'' True or False evaluation of a numerical value executes only when the value is not 0. '''Cannot evaluate [[STRING]] values.'''
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a number or just hit Enter: &quot;, x
+{{Cl|INPUT}} "Enter a number or just hit Enter: ", x
 {{Cl|IF...THEN|IF}} x {{Cl|THEN}} {{Cl|PRINT}} x '' ''
 {{CodeEnd}}
-:Example will only print if a numerical value is True (positive or negative). (Equivalent to: IF x &gt; 0 OR x &lt; 0 THEN evaluation)
+:Example will only print if a numerical value is True (positive or negative). (Equivalent to: IF x > 0 OR x &lt; 0 THEN evaluation)
 
 
 ''Example 4:'' Multiple evaluations using parenthesis to determine the order.
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a number over or under 100 or 50: &quot;, value
-{{Cl|IF...THEN|IF}} (value% &gt; 100 {{Cl|AND (boolean)|AND}} value% &lt; 200) {{Cl|OR (boolean)|OR}} value% = 50 {{Cl|THEN}} {{Cl|PRINT}} &quot;OK&quot; '' ''
+{{Cl|INPUT}} "Enter a number over or under 100 or 50: ", value
+{{Cl|IF...THEN|IF}} (value% > 100 {{Cl|AND (boolean)|AND}} value% &lt; 200) {{Cl|OR (boolean)|OR}} value% = 50 {{Cl|THEN}} {{Cl|PRINT}} "OK" '' ''
 {{CodeEnd}}
 
 
 ''Example 5:'' Using multiple IF options in a one line statement.
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a number over or under 200: &quot;, x
-{{Cl|IF...THEN|IF}} x &gt; 200 {{Cl|THEN}} {{Cl|PRINT}} &quot;High&quot; {{Cl|{{Cl|ELSEIF}}}} x &lt; 0 {{Cl|THEN}} {{Cl|PRINT}} &quot;Low&quot; {{Cl|{{Cl|ELSE}}}} {{Cl|PRINT}} &quot;OK&quot;
+{{Cl|INPUT}} "Enter a number over or under 200: ", x
+{{Cl|IF...THEN|IF}} x > 200 {{Cl|THEN}} {{Cl|PRINT}} "High" {{Cl|{{Cl|ELSEIF}}}} x &lt; 0 {{Cl|THEN}} {{Cl|PRINT}} "Low" {{Cl|{{Cl|ELSE}}}} {{Cl|PRINT}} "OK"
 '' ''
 {{CodeEnd}}
 
 
 ''Example 6:'' [[STRING]] values can be compared using greater than, less than, not equal to or equal to operators only.
 {{CodeStart}} '' ''
-PRINT &quot;Press a letter key: &quot;;
+PRINT "Press a letter key: ";
 Key$ = {{Cl|INPUT$}}(1)
 PRINT Key$ 
-IF Key$ &gt;= {{Cl|CHR$}}(65) AND Key$ &lt;= {{Cl|CHR$}}(90) THEN PRINT &quot;A to Z&quot;
+IF Key$ >= {{Cl|CHR$}}(65) AND Key$ &lt;= {{Cl|CHR$}}(90) THEN PRINT "A to Z"
 {{CodeEnd}}
 : ''Explanation:'' Long [[STRING]] expression values are compared by their cumulative [[ASCII]] code values.
 
 
-&lt;center&gt;'''QBasic decimal point value comparison errors'''&lt;/center&gt;
+&lt;center>'''QBasic decimal point value comparison errors'''&lt;/center>
 * Floating decimal point numerical values may not be compared as exactly the same value. QB64 will compare them the same.
 :''Example:'' QBasic would print ''unequal'' in the IF comparison code below even though it is exactly the same value printed.
 {{CodeStart}} '' ''
@@ -119,7 +119,7 @@ x# = 5 / 10
 y# = 6 / 10
 z# = x# + y#
 {{Cl|PRINT}} x#, y#, z#
-{{Cl|IF...THEN|IF}} x# + y# = z# {{Cl|THEN}} {{Cl|PRINT}} &quot;equal&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;unequal&quot; '' ''
+{{Cl|IF...THEN|IF}} x# + y# = z# {{Cl|THEN}} {{Cl|PRINT}} "equal" {{Cl|ELSE}} {{Cl|PRINT}} "unequal" '' ''
 {{CodeEnd}}
 : Note: QB64 will make the calculation correctly and print ''equal''. Change older program code that relies on the error accordingly.
 

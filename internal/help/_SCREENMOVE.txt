@@ -40,7 +40,7 @@ scrnwidth&amp; = {{Cl|_WIDTH}}: scrnheight&amp; = {{Cl|_HEIGHT}}  'get the dimen
 wide&amp; = {{Cl|_DESKTOPWIDTH}}
 high&amp; = {{Cl|_DESKTOPHEIGHT}}
 
-{{Cl|PRINT}} wide&amp;; &quot;X&quot;; high&amp;
+{{Cl|PRINT}} wide&amp;; "X"; high&amp;
 
 {{Cl|_DELAY}} 4
 {{Cl|_SCREENMOVE}} wide&amp; + 200, 200 'positive value for right monitor 2
@@ -48,13 +48,13 @@ high&amp; = {{Cl|_DESKTOPHEIGHT}}
 img2&amp; = {{Cl|_SCREENIMAGE}}
 wide2&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(img2&amp;)
 high2&amp; = {{Cl|_HEIGHT}}(img2&amp;)
-{{Cl|PRINT}} wide2&amp;; &quot;X&quot;; high2&amp;
+{{Cl|PRINT}} wide2&amp;; "X"; high2&amp;
 {{Cl|_DELAY}} 4
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}} 'moves program back to main monitor 1 '' ''
 {{CodeEnd}}
 : ''Notes:'' Change the [[_SCREENMOVE]] column to negative for a left monitor.
 
-&lt;center&gt;'''[[_FULLSCREEN]] works in the primary monitor and may push all running programs to a monitor on the right.'''&lt;/center&gt;
+&lt;center>'''[[_FULLSCREEN]] works in the primary monitor and may push all running programs to a monitor on the right.'''&lt;/center>
 
 
 {{PageSeeAlso}}

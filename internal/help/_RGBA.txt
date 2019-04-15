@@ -25,14 +25,14 @@ The [[_RGBA]] function returns the closest palette index (legacy SCREEN modes) O
 {{CodeStart}} '' ''
 scrn&amp; = {{Cl|_NEWIMAGE}}(400, 400, 32)
 {{Cl|SCREEN (statement)|SCREEN}} scrn&amp;
-fnt&amp; = {{Cl|_LOADFONT}}(&quot;C:\WINDOWS\FONTS\ARIAL.TTF&quot;, 26)
+fnt&amp; = {{Cl|_LOADFONT}}("C:\WINDOWS\FONTS\ARIAL.TTF", 26)
 {{Cl|_FONT}} fnt&amp;
 X% = 20
 Y% = 20
 {{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 255), {{Cl|_RGB}}(0, 0, 0) 'Foreground set to WHITE background to BLACK
-{{Cl|_PRINTSTRING}} (X%, Y%), &quot;Hello World&quot;
+{{Cl|_PRINTSTRING}} (X%, Y%), "Hello World"
 {{Cl|COLOR}} {{Cl|_RGB}}(255, 0, 0), {{Cl|_RGBA}}(0, 0, 0, 0) 'Foreground set to RED background to TRANSPARENT BLACK
-{{Cl|_PRINTSTRING}} (X% + 2, Y% + 2), &quot;Hello World&quot;
+{{Cl|_PRINTSTRING}} (X% + 2, Y% + 2), "Hello World"
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{small|Code by Unseen Machine}}

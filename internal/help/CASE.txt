@@ -16,7 +16,7 @@
 ** [[CASE]] value
 ** [[CASE]] value1 [[TO]] value2
 ** [[CASE]] value1, value2, value3
-** [[CASE IS]] value1 &gt; value2
+** [[CASE IS]] value1 > value2
 ** [[CASE ELSE]]
 * The first time a [[CASE]] value matches the compared variable's value, that [[CASE]] code is executed and [[SELECT CASE]] is exited, unless '''EVERYCASE''' is used.
 
@@ -24,14 +24,14 @@
 {{CodeStart}}
 a = 100
 {{Cl|SELECT CASE}} a
-   {{Cl|CASE}} 1, 3, 5, 7, 9: {{Cl|PRINT}} &quot;Odd values under 10 will be shown.&quot;
-   {{Cl|CASE}} 10: {{Cl|PRINT}} &quot;10 will be shown.&quot;
-   {{Cl|CASE}} 50: {{Cl|PRINT}} &quot;50 will be shown.&quot;
-   {{Cl|CASE}} 100: {{Cl|PRINT}} &quot;This will be shown. (a is 100)&quot;
-             {{Cl|PRINT}} &quot;(and this)&quot;
-   {{Cl|CASE}} 150: {{Cl|PRINT}} &quot;150 will be shown.&quot;
-   {{Cl|CASE IS}} &lt; 150: {{Cl|PRINT}} &quot;Less than 150 will be shown. (a which is 100 is under 150)&quot;
-   {{Cl|CASE}} 50 {{Cl|TO}} 150: {{Cl|PRINT}} &quot;50 to 150 will be shown. (a which is 100 is between 50 TO 150)&quot;
+   {{Cl|CASE}} 1, 3, 5, 7, 9: {{Cl|PRINT}} "Odd values under 10 will be shown."
+   {{Cl|CASE}} 10: {{Cl|PRINT}} "10 will be shown."
+   {{Cl|CASE}} 50: {{Cl|PRINT}} "50 will be shown."
+   {{Cl|CASE}} 100: {{Cl|PRINT}} "This will be shown. (a is 100)"
+             {{Cl|PRINT}} "(and this)"
+   {{Cl|CASE}} 150: {{Cl|PRINT}} "150 will be shown."
+   {{Cl|CASE IS}} &lt; 150: {{Cl|PRINT}} "Less than 150 will be shown. (a which is 100 is under 150)"
+   {{Cl|CASE}} 50 {{Cl|TO}} 150: {{Cl|PRINT}} "50 to 150 will be shown. (a which is 100 is between 50 TO 150)"
 {{Cl|END SELECT}}
 
 {{CodeEnd}}
@@ -50,10 +50,10 @@ a = 100
 
 :* A [[CASE]] can list several values separated by commas for the same program option to be executed.
 
-:* [[CASE IS]] is used when we need to compare the value to a conditional expression range such as a value is &quot;=&quot; equal to, &quot;&lt;&quot; less than, &quot;&gt;&quot; greater than, &quot;&lt;&gt;&quot; not equal to or [[NOT]] a value. 
+:* [[CASE IS]] is used when we need to compare the value to a conditional expression range such as a value is "=" equal to, "&lt;" less than, ">" greater than, "&lt;>" not equal to or [[NOT]] a value. 
 
 :* A [[CASE]] range can be specified (in the example; 50 [[TO]] 150) if needed.
-&lt;center&gt;''Note:'' A [[SELECT CASE]] block has to end with [[END SELECT]].&lt;/center&gt;
+&lt;center>''Note:'' A [[SELECT CASE]] block has to end with [[END SELECT]].&lt;/center>
 
 
 {{PageSeeAlso}}

@@ -1,14 +1,15 @@
-'''NOT''' is a [[Boolean]] logical operator that will change a False statement to a True one and vise-versa. 
+[[NOT]] is a [[Boolean|boolean]] logical operator that will change a false statement to a true one and vice-versa. 
 
 
 {{PageSyntax}}
-:: True = -1: False = '''NOT''' True
+: ''True'' = -1: ''False'' = [[NOT]] True
 
 
-* In Qbasic, True = -1 and False = 0 in boolean logic and evaluation statements.
-* NOT evaluates ONE value and returns the opposite. Yes, NOT 0 = -1 in Basic.
+{{PageDescription}}
+* In QBasic, True = -1 and False = 0 in boolean logic and evaluation statements.
+* [[NOT]] evaluates a value and returns the bitwise opposite, meaning that {{InlineCode}}NOT 0 = -1{{InlineCodeEnd}}.
 * Often called a negative logic operator, it returns the opposite of a value as true or false.
-* Values are changed by their bit values so that each bit is changed to the opposite of on or off. See example 3.
+* Values are changed by their bit values so that each bit is changed to the opposite of on or off. See example 3 below.
 
 
 {{Template:RelationalTable}}
@@ -17,11 +18,12 @@
 {{Template:LogicalTruthTable}}
 
 
+{{PageExamples}}
 ''Example 1:'' Alternating between two conditions in a program loop.
 {{CodeStart}}{{Cl|DO}}
 switch = {{Cl|NOT}} switch       '{{Cl|NOT}} changes value from -1 to 0 and vice-versa
 {{Cl|LOCATE}} 10, 38
-{{Cl|IF}} switch {{Cl|THEN}} {{Cl|PRINT}} &quot;True!&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;False&quot;
+{{Cl|IF}} switch {{Cl|THEN}} {{Cl|PRINT}} "True!" {{Cl|ELSE}} {{Cl|PRINT}} "False"
 {{Cl|SLEEP}}
 k$ = {{Cl|INKEY$}}
 {{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27) ' escape key quit
@@ -44,7 +46,7 @@ ReadBits -6
 
 {{Cl|SUB}} ReadBits (n {{Cl|AS}} {{Cl|INTEGER}}) 'change type value and i bit reads for other whole type values
 {{Cl|FOR...NEXT|FOR}} i = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1 'see the 16 bit values
-    {{Cl|IF...THEN|IF}} n {{Cl|AND (boolean)|AND}} 2 ^ i {{Cl|THEN}} {{Cl|PRINT}} &quot;1&quot;; {{Cl|ELSE}} {{Cl|PRINT}} &quot;0&quot;;
+    {{Cl|IF...THEN|IF}} n {{Cl|AND (boolean)|AND}} 2 ^ i {{Cl|THEN}} {{Cl|PRINT}} "1"; {{Cl|ELSE}} {{Cl|PRINT}} "0";
 {{Cl|NEXT}}
 {{Cl|PRINT}}
 {{Cl|END SUB}} '' ''
@@ -54,7 +56,7 @@ ReadBits -6
 0000000000000101
 1111111111111010
 {{OutputEnd}}
-:''Explanation:'' The bit values of an [[INTEGER]] are 2 [[_BYTE]]s and each bit is an exponent of 2 from 15 to 0 (16 bits). Thus comparing the numerical value with those exponents using [[AND]] reveals the bit values as &quot;1&quot; for bits on or &quot;0&quot; for bits off as text. 
+:''Explanation:'' The bit values of an [[INTEGER]] are 2 [[_BYTE]]s and each bit is an exponent of 2 from 15 to 0 (16 bits). Thus comparing the numerical value with those exponents using [[AND]] reveals the bit values as "1" for bits on or "0" for bits off as text. 
 
 : QB64 can use [[&amp;B]] to convert the above [[_BIT]] values back to [[INTEGER]] or [[_BYTE]] values as shown below:
 {{CodeStart}}'16 bit INTEGER values from -32768 to 32767
@@ -70,7 +72,7 @@ b%% = {{Cl|&amp;B}}11111010
 {{CodeEnd}}
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[_BIT]], [[&amp;B]], [[_BYTE]]  
 * [[AND]], [[XOR]], [[OR]]
 * [[Binary]], [[Boolean]] 

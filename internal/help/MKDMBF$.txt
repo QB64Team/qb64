@@ -1,12 +1,16 @@
-'''MKDMBF$''' converts a double-precision IEEE number to a [[STRING|string]] containing a number in Microsoft Binary format.
+The [[MKDMBF$]] function encodes a double-precision IEEE number to a string value in the Microsoft Binary format.
 
 
 {{PageSyntax}}
-:: MKDMBF$(double-precision-expression)
+: {{Parameter|result$}} = [[MKDMBF$]]({{Parameter|doublePrecisionVariableOrLiteral#}})
 
 
+{{PageDescription}}
+* Encodes [[DOUBLE]] values to [[STRING|string]] values in Microsoft Binary format.
+* The resulting string value can be decoded using [[CVDMBF]].
 
-''See also:'' 
+
+{{PageSeeAlso}}
 * [[MKSMBF$]]
 * [[CVDMBF]], [[CVSMBF]]
 

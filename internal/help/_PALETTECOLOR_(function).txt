@@ -31,8 +31,8 @@ FOR c&amp; = 0 TO 15
   RGB(c&amp; * 3) = red%: RGB((c&amp; * 3) + 1) = green%: RGB((c&amp; * 3) + 2) = blue%
 NEXT
 FOR i = 0 TO 47 STEP 3
-  RGBval$ = LTRIM$(STR$(RGB(i))) + &quot;,&quot; + STR$(RGB(i + 1)) + &quot;,&quot; + STR$(RGB(i + 2)) + &quot;)&quot;
-  PRINT &quot;Color&quot;; i / 3, &quot;_RGB(&quot; + RGBval$;
+  RGBval$ = LTRIM$(STR$(RGB(i))) + "," + STR$(RGB(i + 1)) + "," + STR$(RGB(i + 2)) + ")"
+  PRINT "Color"; i / 3, "_RGB(" + RGBval$;
   PRINT
 NEXT
 END '' ''

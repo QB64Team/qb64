@@ -15,10 +15,10 @@ The '''POS''' function returns the current print cursor text column position.
 ''Example:'' Column positions after prints.
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|POS}}(0) 'column position always starts on 1 at top of new or after {{Cl|CLS}}
-{{Cl|PRINT}} &quot;hello&quot;; 'column position is 6 on same row immediately after text
+{{Cl|PRINT}} "hello"; 'column position is 6 on same row immediately after text
 {{Cl|PRINT}} {{Cl|POS}}(0)
 {{Cl|PRINT}} 'start new row
-{{Cl|PRINT}} &quot;hello&quot;, 'column position is 15 on same row (normally tabs 9 spaces)
+{{Cl|PRINT}} "hello", 'column position is 15 on same row (normally tabs 9 spaces)
 {{Cl|PRINT}} {{Cl|POS}}(0)
 {{Cl|PRINT}} 'start new row
 {{Cl|PRINT}}

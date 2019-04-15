@@ -7,7 +7,7 @@ The [[CLEAR]] statement clears all variable and array element values in a progra
 
 {{PageDescription}}
 * All parameters are optional and ignored by '''QB64'''.
-* Normally used to clear all program variable and [[Arrays|array]] values where numerical values become zero and string values become empty (&quot;&quot;).
+* Normally used to clear all program variable and [[Arrays|array]] values where numerical values become zero and string values become empty ("").
 * It does not clear [[CONST|constant]] values.
 * Closes all opened files.
 * [[$DYNAMIC]] or [[REDIM]] arrays will need to be [[REDIM|redimensioned]] or an [[ERROR Codes|error]] will occur when referenced because they are removed.
@@ -26,7 +26,7 @@ array(5) = 23
 
 {{Cl|PRINT}} array(5) '' ''
 {{CodeEnd}}
-:''Note:'' If you change DIM to REDIM a &quot;Subscript out of range&quot; error will occur because a [[$DYNAMIC]] array is removed by CLEAR.
+:''Note:'' If you change DIM to REDIM a "Subscript out of range" error will occur because a [[$DYNAMIC]] array is removed by CLEAR.
 
 
 {{PageSeeAlso}}

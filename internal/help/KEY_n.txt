@@ -1,4 +1,4 @@
-The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a flag and scan code to a function key or display function soft key assignments. 
+The [[KEY n]] statement is used to assign a "soft key" string or a flag and scan code to a function key or display function soft key assignments. 
 
 {{PageSyntax}} 
 
@@ -9,13 +9,13 @@ The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a fla
 
 ==Function Soft Key Strings (1 to 10, 30 &amp; 31)==
 
-&lt;center&gt;'''Assigning &quot;Softkey&quot; [[STRING]] values to function key press events'''&lt;/center&gt;
+&lt;center>'''Assigning "Softkey" [[STRING]] values to function key press events'''&lt;/center>
 
 * n% is the number 1 to 10 (F1 to F10), 30 or 31 (F11 or F12) of the function key to assign the soft key string.
-* Instead of using an [[ON KEY(n)]] [[GOSUB]] statement, Function keys F1 to F12 can be assigned a &quot;soft key&quot; string value to return.
-* {{InlineCode}}KEY n, text${{InlineCodeEnd}} defines a literal or variable [[STRING]] &quot;soft key&quot; function key return value.
+* Instead of using an [[ON KEY(n)]] [[GOSUB]] statement, Function keys F1 to F12 can be assigned a "soft key" string value to return.
+* {{InlineCode}}KEY n, text${{InlineCodeEnd}} defines a literal or variable [[STRING]] "soft key" function key return value.
 
-{{WhiteStart}}        '''KEY 1, &quot;Help&quot;''' 'returns the string &quot;Help&quot; to [[INPUT]] variable when F1 is pressed{{WhiteEnd}}
+{{WhiteStart}}        '''KEY 1, "Help"''' 'returns the string "Help" to [[INPUT]] variable when F1 is pressed{{WhiteEnd}}
 
 * [[KEY LIST]] displays each of the 12 softkey '''function key''' (F1 to F12) string values going down left side of screen.
 * [[KEY LIST|KEY {ON|OFF}]] displays or hides the softkey values of function keys F1 to F10 at the bottom of the screen.
@@ -30,7 +30,7 @@ The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a fla
 
 ==User Defined Keys (15 to 29)==
 
-&lt;center&gt;'''Assigning user defined keys or combinations with: KEY n, CHR$(keyflag) + CHR$(scancode)'''&lt;/center&gt;
+&lt;center>'''Assigning user defined keys or combinations with: KEY n, CHR$(keyflag) + CHR$(scancode)'''&lt;/center>
 {{WhiteStart}}                   '''Function Key Flag Combination Values'''
 
                   '''0''' = no function key combination flag(single key)
@@ -54,9 +54,9 @@ The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a fla
 '   41 2  3  4  5  6  7  8  9  10 11 12 13  14     {{text|82    71    73|blue}}    {{text|32|purple}}/69  {{text|53|blue}}    55   74
 '  '''Tab  Q  W  E  R  T  Y  U  I  O  P  [{ ]} \|    Delete End  PgDn   7/Home 8/▲  9/PU  + '''
 '   15  16 17 18 19 20 21 22 23 24 25 26 27 43     {{text|83    79    81|blue}}     71   {{text|11|red}}/72  73   78
-'  '''CapL  A  S  D  F  G  H  J  K  L  ;: '&quot;  Enter                     4/◄-   5    6/-►  E'''
+'  '''CapL  A  S  D  F  G  H  J  K  L  ;: '"  Enter                     4/◄-   5    6/-►  E'''
 '  {{text|64|purple}}/58 30 31 32 33 34 35 36 37 38 39 40   28                       {{text|12|red}}/75  76   {{text|13|red}}/77 '''n'''
-'  '''Shift  Z  X  C  V  B  N  M  ,&lt; .&gt; /?    Shift         ▲           1/End  2/▼  3/PD  t'''
+'  '''Shift  Z  X  C  V  B  N  M  ,&lt; .> /?    Shift         ▲           1/End  2/▼  3/PD  t'''
 '  {{text|1|purple}}/42   44 45 46 47 48 49 50 51 52 53    {{text|2|purple}}/54          {{text|72|blue}}           79   {{text|14|red}}/80  81   '''e'''
 '  '''Ctrl Win Alt    Spacebar    Alt Win Menu Ctrl     ◄-  ▼   -►      0/Insert    ./Del r'''
 '  {{text|4|purple}}/29  {{text|91|orange}} {{text|8|purple}}/56      57       {{text|56|blue}}  {{text|92   93|orange}}  {{text|29       75  80  77|blue}}       82          83   {{text|28|blue}} 
@@ -68,13 +68,13 @@ The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a fla
 {{WhiteEnd}}{{small|NOTE: The above commented table can be copied and pasted directly into the QB64 IDE}}
 
 
-&lt;center&gt;'''Trapping Ctrl, Alt and Shift key combinations'''&lt;/center&gt;
+&lt;center>'''Trapping Ctrl, Alt and Shift key combinations'''&lt;/center>
 :Keyboard Flag values can be added to monitor more than one control key. For example, flag combination 12 would flag both the Ctrl and Alt key presses. Since the flag already determines the function key to monitor, you don't necessarily have to use it's scancode. You can look for a key combination such as Ctrl + by using the plus key's scancode which is 13 as shown below: 
 
 {{WhiteStart}}      '''KEY 15, CHR$(4) + CHR$(13)''' 'enabled event when Ctrl and + key are pressed{{WhiteEnd}}
 
 
-&lt;center&gt;'''Trapping Extended keys (Insert, Home, Page Up, Right Ctrl, R.Alt, and cursor arrow pad)'''&lt;/center&gt;
+&lt;center>'''Trapping Extended keys (Insert, Home, Page Up, Right Ctrl, R.Alt, and cursor arrow pad)'''&lt;/center>
 * On a 101-key keyboard, you can trap any of the keys on the dedicated cursorpad by assigning the string to any of the keynumber values from 15 to 25 using the 128 keyboard flag. The cursor arrows are not the same as the pre-assigned number pad arrows:
 {{WhiteStart}}      '''KEY n, [[CHR$]](128) + [[CHR$]](scancode) ' where n = 15 to 29. See: [[Scancodes]]'''
 
@@ -86,10 +86,10 @@ The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a fla
 
               KEY 18, CHR$(128) + CHR$(80)  'down arrow cursor pad
 {{WhiteEnd}}
-&lt;center&gt;Use CHR$(0) for the first byte flag for non-function keys. You can substitute a literal [[STRING]] value to trap as shown in Example 2.&lt;/center&gt;
+&lt;center>Use CHR$(0) for the first byte flag for non-function keys. You can substitute a literal [[STRING]] value to trap as shown in Example 2.&lt;/center>
 
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 
 ==Examples==
@@ -97,9 +97,9 @@ The [[KEY n]] statement is used to assign a &quot;soft key&quot; string or a fla
 
 ''Example 1:'' Shows a list of all the string assignments to the function keys F1-F12 (Prints help every time F1 is pressed in the input)
 {{CodeStart}} '' ''
-{{Cl|KEY n|KEY}} 1, &quot;Help&quot;
+{{Cl|KEY n|KEY}} 1, "Help"
 {{Cl|KEY LIST}}
-INPUT &quot;Press F1 or to quit press ENTER: &quot;, a$
+INPUT "Press F1 or to quit press ENTER: ", a$
 
 {{CodeEnd}}
 {{OutputStart}}
@@ -122,10 +122,10 @@ Press F1 or to quit press ENTER: HelpHelpHelpHelp
 ''Example 2:'' Trapping the Control + key combination. Use the Control Keyboard flag 4 and + key scancode 13.
 {{CodeStart}}
 {{Cl|CLS}} '' ''
-{{Cl|KEY n|KEY}} 15, {{Cl|CHR$}}(4) + {{Cl|CHR$}}(13)     'scancode for &quot;=&quot; or &quot;+&quot; key is 13
+{{Cl|KEY n|KEY}} 15, {{Cl|CHR$}}(4) + {{Cl|CHR$}}(13)     'scancode for "=" or "+" key is 13
 {{Cl|ON KEY (n)|ON KEY}}(15) {{Cl|GOSUB}} control       'action of user defined key press 
 {{Cl|KEY(n)|KEY}}(15) ON                     'turn ON event trapping for key combination 
-{{Cl|PRINT}} &quot;Press Ctrl and plus key combination, escape quits!&quot;
+{{Cl|PRINT}} "Press Ctrl and plus key combination, escape quits!"
 {{Cl|DO}}: {{Cl|SLEEP}}
 count = count + 1
 {{Cl|PRINT}} count;
@@ -133,7 +133,7 @@ count = count + 1
 {{Cl|LOOP}}
 
 control:                             'NUMBER LOCK MUST BE OFF!
-{{Cl|PRINT}} &quot;Control and + keys pressed!&quot;;
+{{Cl|PRINT}} "Control and + keys pressed!";
 {{Cl|RETURN}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
@@ -161,8 +161,8 @@ DO
   numL = {{Cl|PEEK}}(1047) {{Cl|AND (boolean)|AND}} 32 '32 if on
   capL = {{Cl|PEEK}}(1047) {{Cl|AND (boolean)|AND}} 64 '64 on
   {{Cl|IF...THEN|IF}} numL {{Cl|OR (boolean)|OR}} capL {{Cl|THEN}}
-    {{Cl|COLOR}} 12: {{Cl|LOCATE}} 13, 50: {{Cl|PRINT}} &quot;Turn Num or Cap Lock OFF!&quot;
-  {{Cl|ELSE}} : {{Cl|COLOR}} 10: {{Cl|LOCATE}} 13, 50: {{Cl|PRINT}} &quot;Number and Cap Lock OK!  &quot;
+    {{Cl|COLOR}} 12: {{Cl|LOCATE}} 13, 50: {{Cl|PRINT}} "Turn Num or Cap Lock OFF!"
+  {{Cl|ELSE}} : {{Cl|COLOR}} 10: {{Cl|LOCATE}} 13, 50: {{Cl|PRINT}} "Number and Cap Lock OK!  "
     {{Cl|SLEEP}}                  ' {{Cl|KEY n|KEY}} or {{Cl|TIMER}} event breaks a sleep
   {{Cl|END IF}}  
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
@@ -173,34 +173,34 @@ DO
 {{Cl|END}}
 
 UpPad:
-COLOR 14: LOCATE 11, 26: PRINT &quot; Up cursor pad  &quot;
+COLOR 14: LOCATE 11, 26: PRINT " Up cursor pad  "
 {{Cl|RETURN}}
 LPad:
-COLOR 14: LOCATE 11, 26: PRINT &quot;Left cursor pad &quot;
+COLOR 14: LOCATE 11, 26: PRINT "Left cursor pad "
 {{Cl|RETURN}}
 RPad:
-COLOR 14: LOCATE 11, 26: PRINT &quot;Right cursor pad&quot;
+COLOR 14: LOCATE 11, 26: PRINT "Right cursor pad"
 {{Cl|RETURN}}
 DnPad:
-COLOR 14: LOCATE 11, 26: PRINT &quot;Down cursor pad &quot;
+COLOR 14: LOCATE 11, 26: PRINT "Down cursor pad "
 {{Cl|RETURN}}
 UpNum:
-COLOR 11: LOCATE 11, 26: PRINT &quot; Up number pad  &quot;
+COLOR 11: LOCATE 11, 26: PRINT " Up number pad  "
 {{Cl|RETURN}}
 LNum:
-COLOR 11: LOCATE 11, 26: PRINT &quot;Left number pad &quot;
+COLOR 11: LOCATE 11, 26: PRINT "Left number pad "
 {{Cl|RETURN}}
 RNum:
-COLOR 11: LOCATE 11, 26: PRINT &quot;Right number pad&quot;
+COLOR 11: LOCATE 11, 26: PRINT "Right number pad"
 {{Cl|RETURN}}
 DnNum:
-COLOR 11: LOCATE 11, 26: PRINT &quot;Down number pad &quot;
+COLOR 11: LOCATE 11, 26: PRINT "Down number pad "
 {{Cl|RETURN}} '' ''
 {{CodeEnd}}
 : ''Explanation:'' The Number Lock or Caps Lock keys ON may hinder extended key reads in Qbasic but not QB64!
 
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 
 {{PageSeeAlso}} 

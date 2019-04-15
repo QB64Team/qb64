@@ -23,17 +23,17 @@ The [[PRINT (file statement)|PRINT #]] statement prints numeric or string expres
 * When printing literal or variable numerical values the following rules apply:
 ** If the value is positive, the number is prefixed with a space character, otherwise, the number is prefixed with a negative sign (-).
 ** If the value is an [[INTEGER]] (whole number), no decimal point or fractional part will be written.
-** If the value is not an integer (whole number) and has zero for a coefficient, no leading zero is written. For example, -0.123 is written as &quot;-.123 &quot;
+** If the value is not an integer (whole number) and has zero for a coefficient, no leading zero is written. For example, -0.123 is written as "-.123 "
 ** If a numeric literal is in scientific notation, the number is also written in scientific notation. [[PRINT USING (file statement)|PRINT #, USING]] can return actual rounded numerical values in string form.
 ** The numerical value is always followed by a space character unless [[STR$]] is used to convert it to a string value.
-* Whenever [[PRINT (file statement)|PRINT #]] moves the file cursor to a new file row, a carriage return character ({{KW|CHR$|CHR$(13)}}) followed by a line feed character ({{KW|CHR$|CHR$(10)}}) is written. The combination are referred to as the &quot;CRLF&quot; character.
+* Whenever [[PRINT (file statement)|PRINT #]] moves the file cursor to a new file row, a carriage return character ({{KW|CHR$|CHR$(13)}}) followed by a line feed character ({{KW|CHR$|CHR$(10)}}) is written. The combination are referred to as the "CRLF" character.
 * '''Note: [[RANDOM]] and [[BINARY]] files are not affected by PRINT # statements to them and will create a syntax error in QB64!'''
 
 
 ''Example:'' Prints data to a text file sequentially and reads it back to the program screen as one line of text.
 {{CodeStart}} '' ''
-filename$ = &quot;testfile.dat&quot; 
-x = 1: y = 2: z$ = &quot;Three&quot; 
+filename$ = "testfile.dat" 
+x = 1: y = 2: z$ = "Three" 
 
 {{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
 
@@ -41,7 +41,7 @@ x = 1: y = 2: z$ = &quot;Three&quot;
 
 {{Cl|CLOSE}} #1 
 
-{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+{{Cl|PRINT}} "File created with data. Press a key!" 
 
 K$ = {{Cl|INPUT$}}(1) 'press a key 
 
@@ -60,7 +60,7 @@ K$ = {{Cl|INPUT$}}(1) 'press a key
 {{TextStart}} 1             2            Three'' '' {{TextEnd}}
 : ''Screen output:'' [[PRINT]] string values will not display enclosing quotation marks. [[WRITE]] screen displays will.
 {{OutputStart}} 1             2            Three
-&quot; 1             2            Three&quot;
+" 1             2            Three"
 {{OutputEnd}}
 
 

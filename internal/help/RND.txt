@@ -10,7 +10,7 @@ The '''RND''' function returns a random number with a value between 0 (inclusive
 ::n parameter omitted: Returns next random number in the sequence.
 ::n = 0: Return the last value returned.
 ::n &lt; 0: Always returns the same value for any given n
-::n &gt; 0: the sequence of numbers generated will not change unless [[RANDOMIZE]] is initiated. 
+::n > 0: the sequence of numbers generated will not change unless [[RANDOMIZE]] is initiated. 
 
 
 {{PageDescription}}
@@ -38,7 +38,7 @@ dice% = {{Cl|INT}}({{Cl|RND}} * 6) + 1 '' '' 'add one as INT value never reaches
   u! = {{Cl|RND}} * 2 - 1
   v! = {{Cl|RND}} * 2 - 1
   s! = u! * u! + v! * v!
-{{Cl|LOOP}} {{Cl|WHILE}} s! &gt;= 1 {{Cl|OR}} s! = 0
+{{Cl|LOOP}} {{Cl|WHILE}} s! >= 1 {{Cl|OR}} s! = 0
 s! = SQR(-2 * {{Cl|LOG}}(s!) / s!) * 0.5
 u! = u! * s!
 v! = v! * s! '' ''
@@ -96,7 +96,7 @@ DO
 
     {{Cl|NEXT}} J
 
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" '' ''
 {{CodeEnd}} {{small|Code by Falcon}}
 
 

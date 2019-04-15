@@ -13,12 +13,12 @@ The [[_SNDLOOP]] statement is like [[_SNDPLAY]] but the sound is looped. Uses a 
 {{PageExamples}}
 ''Example:'' Loading a sound or music file and playing it in a loop until a key is pressed.
 {{CodeStart}} '' ''
-bg = {{Cl|_SNDOPEN}}(&quot;back.ogg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change to your sound file name
+bg = {{Cl|_SNDOPEN}}("back.ogg") '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change to your sound file name
 {{Cl|_SNDLOOP}} bg
 
 DO
     {{Cl|_LIMIT}} 10   'keep CPU resources used low
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; 'key press program exit
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" 'key press program exit
 {{Cl|_SNDSTOP}} bg
 {{Cl|_SNDCLOSE}} bg '' ''
 {{CodeEnd}}

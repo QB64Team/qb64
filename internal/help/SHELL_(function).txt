@@ -24,10 +24,10 @@ The '''SHELL''' function displays the console and returns the [[INTEGER]] code v
     {{Cb|FUNCTION}} GetSystemMetrics&amp; ({{Cb|BYVAL}} n {{Cb|AS}} {{Cb|LONG}})
 {{Cb|DECLARE LIBRARY|END DECLARE}}
 
-{{Cb|PRINT}} trimstr$(GetSystemMetrics(SM_CXSCREEN)); &quot;X&quot;; trimstr$(GetSystemMetrics(SM_CYSCREEN))
+{{Cb|PRINT}} trimstr$(GetSystemMetrics(SM_CXSCREEN)); "X"; trimstr$(GetSystemMetrics(SM_CYSCREEN))
 
 s&amp; = {{Cb|_SCREENIMAGE}}
-{{Cb|PRINT}} {{Cb|_WIDTH (function)|_WIDTH}}(s&amp;); &quot;X&quot;; {{Cb|_HEIGHT}}(s&amp;)
+{{Cb|PRINT}} {{Cb|_WIDTH (function)|_WIDTH}}(s&amp;); "X"; {{Cb|_HEIGHT}}(s&amp;)
 
 {{Cb|END}} 3 '&lt;&lt;&lt;&lt;&lt;&lt; add a code to return after END or SYSTEM in any program
 
@@ -39,7 +39,7 @@ trimstr = {{Cb|LTRIM$}}({{Cb|RTRIM$}}({{Cb|STR$}}(whatever)))
 
 : After compiling ''DesktopSize.EXE'' run the following code in the QB64 IDE. After 1st program is done 3 will appear on screen:
 {{CodeStart}} '' ''
-returncode% = {{Cl|SHELL (function)|SHELL}}(&quot;DesktopSize&quot;) 'replace call with name of any QB64 program EXE
+returncode% = {{Cl|SHELL (function)|SHELL}}("DesktopSize") 'replace call with name of any QB64 program EXE
 
 {{Cl|PRINT}} returncode% 'prints code sent by called program after it is closed
 

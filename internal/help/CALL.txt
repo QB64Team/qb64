@@ -35,7 +35,7 @@ helloworld a        'a passed to c parameter w/o CALL
 {{Cl|END}}
 
 {{Cl|SUB}} helloworld (c) 'SUB parameter variables are always inside of brackets in SUB code
-{{Cl|PRINT}} &quot;Hello World!&quot;
+{{Cl|PRINT}} "Hello World!"
 {{Cl|PRINT}} a,  b, c
 a = a + 1 'a is a SUB value of 0 when printed which may increase inside SUB only 
 b = b + 1 'b is a shared value which can increase anywhere

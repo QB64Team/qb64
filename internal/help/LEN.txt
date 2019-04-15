@@ -15,9 +15,9 @@ The [[LEN]] function returns the number of bytes used by a variable value and th
 ** [[_FLOAT]] variable types return 32 bytes.
 ** [[_OFFSET]] and [[_MEM]] variable types return varying byte sizes.
 ** ''Note:'' [[_BIT]] variable types and bit multiples '''cannot be measured in bytes'''. 
-* '''LEN cannot return lengths of literal numerical values and will create a &quot;variable required&quot; status error in the [[IDE]].'''
+* '''LEN cannot return lengths of literal numerical values and will create a "variable required" status error in the [[IDE]].'''
 * '''LEN =''' can be used with a user defined [[TYPE]] variable to determine the number of bytes used in [[RANDOM]] file records:
-:::: {{InlineCode}}[[OPEN]] file$ FOR [[RANDOM]] AS #n LEN &lt;nowiki&gt;=&lt;/nowiki&gt; LEN(recordTypeVariable){{InlineCodeEnd}}''' 
+:::: {{InlineCode}}[[OPEN]] file$ FOR [[RANDOM]] AS #n LEN &lt;nowiki>=&lt;/nowiki> LEN(recordTypeVariable){{InlineCodeEnd}}''' 
 :* If a LEN = statement is not used, [[RANDOM]] default record length is 128 or sequencial is 512 up to a maximum of 32767 bytes. 
 :* [[BINARY]] OPEN statements will ignore LEN = statements. The byte size of a [[GET|read]] or [[PUT|write]] is determined by the [[Variable Types|variable type]].
 
@@ -25,8 +25,8 @@ The [[LEN]] function returns the number of bytes used by a variable value and th
 {{PageExamples}}
 ''Example 1:'' With a string variable the byte size is the same as the number of characters.
 {{CodeStart}}
-LastName$ = &quot;Williams&quot;
-PRINT {{Cl|LEN}}(LastName$); &quot;bytes&quot; '' ''
+LastName$ = "Williams"
+PRINT {{Cl|LEN}}(LastName$); "bytes" '' ''
 {{CodeEnd}}
 {{OutputStart}} 8 bytes
 {{OutputEnd}}
@@ -34,7 +34,7 @@ PRINT {{Cl|LEN}}(LastName$); &quot;bytes&quot; '' ''
 
 ''Example 2:'' Testing [[INPUT]] for numerical [[STRING]] entries from a user. 
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;number: &quot;, num$
+{{Cl|INPUT}} "number: ", num$
 
 value$ = {{Cl|LTRIM$}}({{Cl|STR$}}({{Cl|VAL}}(num$)))
 L = {{Cl|LEN}}(value$)
@@ -47,17 +47,17 @@ L = {{Cl|LEN}}(value$)
 ''Example 3:'' With numerical value types you MUST use a variable to find the inherent byte length when using LEN.
 {{CodeStart}} '' ''
 DIM I AS INTEGER
-PRINT &quot;INTEGER =&quot;; LEN(I); &quot;bytes&quot;
+PRINT "INTEGER ="; LEN(I); "bytes"
 DIM L AS LONG
-PRINT &quot;LONG =&quot;; LEN(L); &quot;bytes&quot;
+PRINT "LONG ="; LEN(L); "bytes"
 DIM I64 AS _INTEGER64
-PRINT &quot;_INTEGER64 =&quot;; LEN(I64); &quot;bytes&quot;
+PRINT "_INTEGER64 ="; LEN(I64); "bytes"
 DIM S AS SINGLE
-PRINT &quot;SINGLE =&quot;; LEN(S); &quot;bytes&quot;
+PRINT "SINGLE ="; LEN(S); "bytes"
 DIM D AS DOUBLE
-PRINT &quot;DOUBLE =&quot;; LEN(D); &quot;bytes&quot;
+PRINT "DOUBLE ="; LEN(D); "bytes"
 DIM F AS _FLOAT
-PRINT &quot;_FLOAT =&quot;; LEN(F); &quot;bytes&quot; '' ''
+PRINT "_FLOAT ="; LEN(F); "bytes" '' ''
 {{CodeEnd}}
 {{OutputStart}}INTEGER = 2 bytes
 LONG = 4 bytes
@@ -78,12 +78,12 @@ _FLOAT = 32 bytes
 {{Cl|DIM}} record {{Cl|AS}} variabletype
 {{Cl|DIM}} newrec {{Cl|AS}} variabletype
 
-file$ = &quot;testrand.inf&quot; '&lt;&lt;&lt;&lt; filename may overwrite existing file
+file$ = "testrand.inf" '&lt;&lt;&lt;&lt; filename may overwrite existing file
 number% = 1 '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; record number to write cannot be zero
 RecordLEN% = {{Cl|LEN}}(record)
-{{Cl|PRINT}} RecordLEN%; &quot;bytes&quot;
+{{Cl|PRINT}} RecordLEN%; "bytes"
 record.x = 255
-record.y = &quot;Hello world!&quot;
+record.y = "Hello world!"
 record.z = 65535
 {{Cl|PRINT}} record.x, record.y, record.z
 
@@ -93,7 +93,7 @@ record.z = 65535
 
 {{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = RecordLEN%
 NumRecords% = {{Cl|LOF}}(2) \ RecordLEN%
-PRINT NumRecords%; &quot;records&quot;
+PRINT NumRecords%; "records"
 
 {{Cl|GET}} #2, NumRecords% , newrec 'GET last record available
 {{Cl|CLOSE}} #2

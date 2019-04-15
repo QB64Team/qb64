@@ -6,7 +6,7 @@ The [[_SNDOPEN]] function loads a sound file into memory and returns a [[LONG]] 
 : {{Parameter|soundHandle&amp;}} = [[_SNDOPEN]]({{Parameter|fileName$}})
 
 ===Syntax prior to build 20170811/60===
-: {{Parameter|soundHandle&amp;}} = [[_SNDOPEN]]({{Parameter|fileName$}}[, &quot;[VOL][,][SYNC][,][LEN][,][PAUSE][,][SETPOS]&quot;])
+: {{Parameter|soundHandle&amp;}} = [[_SNDOPEN]]({{Parameter|fileName$}}[, "[VOL][,][SYNC][,][LEN][,][PAUSE][,][SETPOS]"])
 
 
 {{PageDescription}}
@@ -20,18 +20,18 @@ The [[_SNDOPEN]] function loads a sound file into memory and returns a [[LONG]] 
 
 
 ===Older versions===
-* The second parameter (&quot;capabilities&quot;) is a string of parameters separated by commas, according to the table below. It is not case sensitive.
+* The second parameter ("capabilities") is a string of parameters separated by commas, according to the table below. It is not case sensitive.
 * Each capability can only be specified once and must be valid for that file or it won't play. Capabilities can be listed in any order. 
 {{TextStart}}    '''QB64 versions prior to 1.000''' support the following sound file formats ('''Bold is a guaranteed capability'''):
 
-             WAV = &quot;'''VOL,SYNC,LEN''',PAUSE&quot;      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
-             OGG = &quot;VOL,SYNC,LEN,PAUSE&quot;      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
-             AIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             RIF = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             VOC = &quot;VOL,SYNC,LEN,PAUSE&quot;
-             MID = &quot;'''VOL'''&quot;
-             MOD = &quot;VOL,PAUSE&quot;
-             MP3 = &quot;'''VOL''',PAUSE,SETPOS&quot;        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
+             WAV = "'''VOL,SYNC,LEN''',PAUSE"      [http://www.rarewares.org/ogg-oggdropxpd.php Free WAV to OGG GUI converter]
+             OGG = "VOL,SYNC,LEN,PAUSE"      [http://www.rarewares.org/ogg-oggenc.php Free WAV to OGG converter]
+             AIF = "VOL,SYNC,LEN,PAUSE"
+             RIF = "VOL,SYNC,LEN,PAUSE"
+             VOC = "VOL,SYNC,LEN,PAUSE"
+             MID = "'''VOL'''"
+             MOD = "VOL,PAUSE"
+             MP3 = "'''VOL''',PAUSE,SETPOS"        [http://www.freemp3wmaconverter.com/index.html Free WMA, MP3 and OGG converter]
 
         ''Note:'' {{Cb|_SNDBAL}} only affects MP3 volume. Sound will reside in main channel.
 {{TextEnd}}
@@ -39,14 +39,14 @@ The [[_SNDOPEN]] function loads a sound file into memory and returns a [[LONG]] 
 * The required sound file capabilities can make a difference as to whether a sound file can be played or not and how it can be used.
 
 :'''Only one sound can exist on the primary channel, and it must be closed before playing another non-SYNC sound. 
-&lt;center&gt;See [[_SNDCOPY]] and [[_SNDPLAYCOPY]]&lt;/center&gt; 
+&lt;center>See [[_SNDCOPY]] and [[_SNDPLAYCOPY]]&lt;/center> 
 {{TextStart}}                                  '''Capability Descriptions'''
  
-   &quot;'''VOL'''&quot; can change the volume or balance of the sound using {{Cb|_SNDVOL}} and {{Cb|_SNDBAL}}.
-   &quot;'''LEN'''&quot; can get the length of the sound using the {{Cb|_SNDLEN}} function.
-   &quot;'''PAUSE'''&quot; can pause the sound using {{Cb|_SNDPAUSE}} and the {{Cb|_SNDPAUSED}} function can check it.
-   &quot;'''SETPOS'''&quot; can change the position the sound is (or will be) playing from. See {{Cb|_SNDSETPOS}}.
-   &quot;'''SYNC'''&quot; can load the sound onto a unique channel, to be played simultaneously with others. 
+   "'''VOL'''" can change the volume or balance of the sound using {{Cb|_SNDVOL}} and {{Cb|_SNDBAL}}.
+   "'''LEN'''" can get the length of the sound using the {{Cb|_SNDLEN}} function.
+   "'''PAUSE'''" can pause the sound using {{Cb|_SNDPAUSE}} and the {{Cb|_SNDPAUSED}} function can check it.
+   "'''SETPOS'''" can change the position the sound is (or will be) playing from. See {{Cb|_SNDSETPOS}}.
+   "'''SYNC'''" can load the sound onto a unique channel, to be played simultaneously with others. 
 
         '''When SYNC is not specified, the sound is loaded onto the primary channel.'''
 {{TextEnd}}
@@ -57,16 +57,16 @@ The [[_SNDOPEN]] function loads a sound file into memory and returns a [[LONG]] 
 {{PageExamples}}
 ''Snippet 1:'' Loading a sound file to use in the program later. Only load it once and use the handle any time you want.
 {{CodeStart}}
-h&amp; = {{Cl|_SNDOPEN}}(&quot;dog.wav&quot;)
+h&amp; = {{Cl|_SNDOPEN}}("dog.wav")
 IF h&amp; = 0 THEN BEEP ELSE {{Cl|_SNDPLAY}} h&amp;      'check for valid handle before using!
 {{CodeEnd}}
 
 
 ''Snippet 2:'' Playing a sound from 2 different speakers based on program results.
 {{CodeStart}} '' ''
-Laff&amp; = {{Cl|_SNDOPEN}}(&quot;KONGlaff.ogg&quot;) 'load sound file and get LONG handle value 
+Laff&amp; = {{Cl|_SNDOPEN}}("KONGlaff.ogg") 'load sound file and get LONG handle value 
 {{Cl|IF}} LaffX! &lt; -1 {{Cl|THEN}} LaffX! = -1   'set full volume to left speaker
-{{Cl|IF}} LaffX! &gt; 1 {{Cl|THEN}} LaffX! = 1     'set full volume to right speaker
+{{Cl|IF}} LaffX! > 1 {{Cl|THEN}} LaffX! = 1     'set full volume to right speaker
 
 {{Cl|_SNDBAL}} Laff&amp;, LaffX!             'balance sound to left or right speaker
 {{Cl|_SNDPLAY}} Laff&amp;                    'play sound '' ''
@@ -75,8 +75,8 @@ Laff&amp; = {{Cl|_SNDOPEN}}(&quot;KONGlaff.ogg&quot;) 'load sound file and get L
 
 ''Example:'' Playing a file and controlling playback:
 {{CodeStart}}
-s&amp; = {{Cl|_SNDOPEN}}(&quot;song.ogg&quot;)
-{{Cl|PRINT}} &quot;{{Cl|READ}}Y&quot;; s&amp;
+s&amp; = {{Cl|_SNDOPEN}}("song.ogg")
+{{Cl|PRINT}} "{{Cl|READ}}Y"; s&amp;
 {{Cl|_SNDPLAY}} s&amp;
 {{Cl|_SNDLOOP}} s&amp;
 
@@ -86,50 +86,50 @@ xright = 1
 DO
     k$ = {{Cl|INKEY$}}
     {{Cl|SELECT CASE}} k$
-        {{Cl|CASE}} &quot;f&quot;
+        {{Cl|CASE}} "f"
             xleft = xleft - 0.1
             {{Cl|_SNDBAL}} s&amp;, xleft, , , 1
-        {{Cl|CASE}} &quot;g&quot;
+        {{Cl|CASE}} "g"
             xleft = xleft + 0.1
             {{Cl|_SNDBAL}} s&amp;, xleft, , , 1
-        {{Cl|CASE}} &quot;h&quot;
+        {{Cl|CASE}} "h"
             xright = xright - 0.1
             {{Cl|_SNDBAL}} s&amp;, xright, , , 2
-        {{Cl|CASE}} &quot;j&quot;
+        {{Cl|CASE}} "j"
             xright = xright + 0.1
             {{Cl|_SNDBAL}} s&amp;, xright, , , 2
-        {{Cl|CASE}} &quot;n&quot;
+        {{Cl|CASE}} "n"
             volume = volume - 0.1
             {{Cl|_SNDVOL}} s&amp;, volume
-        {{Cl|CASE}} &quot;m&quot;
+        {{Cl|CASE}} "m"
             volume = volume + 0.1
             {{Cl|_SNDVOL}} s&amp;, volume
-        {{Cl|CASE}} &quot;p&quot;
+        {{Cl|CASE}} "p"
             {{Cl|_SNDPAUSE}} s&amp;
-        {{Cl|CASE}} &quot; &quot;
+        {{Cl|CASE}} " "
             {{Cl|_SNDPLAY}} s&amp;
-        {{Cl|CASE}} &quot;i&quot;
+        {{Cl|CASE}} "i"
             {{Cl|PRINT}} {{Cl|_SNDPLAYING}}(s&amp;)
             {{Cl|PRINT}} {{Cl|_SNDPAUSED}}(s&amp;)
             {{Cl|SLEEP}}
-        {{Cl|CASE}} &quot;b&quot;
+        {{Cl|CASE}} "b"
             {{Cl|_SNDSETPOS}} s&amp;, 110
-        {{Cl|CASE}} &quot;l&quot;
+        {{Cl|CASE}} "l"
             {{Cl|_SNDLIMIT}} s&amp;, 10
-            {{Cl|PRINT}} &quot;LIM&quot;
+            {{Cl|PRINT}} "LIM"
             {{Cl|SLEEP}}
-        {{Cl|CASE}} &quot;k&quot;
+        {{Cl|CASE}} "k"
             {{Cl|_SNDSTOP}} s&amp;
-        {{Cl|CASE}} &quot;c&quot;
+        {{Cl|CASE}} "c"
             {{Cl|_SNDCLOSE}} s&amp;
             {{Cl|SLEEP}}
-            s2&amp; = {{Cl|_SNDOPEN}}(&quot;song.ogg&quot;)
-        {{Cl|CASE}} &quot;d&quot;
+            s2&amp; = {{Cl|_SNDOPEN}}("song.ogg")
+        {{Cl|CASE}} "d"
             s2&amp; = {{Cl|_SNDCOPY}}(s&amp;)
             {{Cl|_SNDPLAY}} s2&amp;
     {{Cl|END SELECT}}
     {{Cl|LOCATE}} 1, 1
-    {{Cl|PRINT}} xleft, xright, volume, {{Cl|_SNDGETPOS}}(s&amp;); &quot;   &quot;
+    {{Cl|PRINT}} xleft, xright, volume, {{Cl|_SNDGETPOS}}(s&amp;); "   "
 LOOP
 {{CodeEnd}}{{small|Code by Johny B}}
 

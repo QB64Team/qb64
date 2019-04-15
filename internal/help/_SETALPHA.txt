@@ -31,7 +31,7 @@ main = {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|SCREEN}} main
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
 
-Image1&amp; = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;) '&lt;&lt;&lt; PNG file with white background to hide
+Image1&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") '&lt;&lt;&lt; PNG file with white background to hide
 {{Cl|_SOURCE}} Image1&amp;
 clr~&amp; = {{Cl|POINT}}(0, 0) 'find background color of image
 {{Cl|_CLEARCOLOR}} clr~&amp;, Image1&amp; 'set background color as transparent
@@ -48,7 +48,7 @@ DO
   {{Cl|IF...THEN|IF}} a&amp; = 255 {{Cl|THEN}} d = -d
   {{Cl|_SETALPHA}} a&amp;, 0 {{Cl|TO}} topclr~&amp;, Image1&amp; 'affects all colors below bright white
   {{Cl|_PUTIMAGE}} (0, 342), Image1&amp; 
-  {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} &quot;Alpha: &quot;; a&amp;
+  {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} "Alpha: "; a&amp;
   {{Cl|_DISPLAY}}
 {{Cl|LOOP}} {{Cl|UNTIL}} a&amp; = 0 '' ''
 {{CodeEnd}}

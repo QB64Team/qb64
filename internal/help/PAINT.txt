@@ -1,37 +1,30 @@
-The '''PAINT''' statement is used to color enclosed graphic objects with a designated fill color up to a  border [[COLOR]].
+The [[PAINT]] statement is used to fill a delimited area in a graphic screen mode with color.
 
 
-Color {{PageSyntax}}
-: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''fillcolor'''''[, ''bordercolor%'']
-
-Tiling {{PageSyntax}}
-: '''PAINT''' [{{KW|STEP}}] '''(''column%'', ''row%''), ''background$'''''[, ''bordercolor%'']
- 
+{{PageSyntax}}
+: [[PAINT]] ['''STEP'''] ({{Parameter|column%}}, {{Parameter|row%}}), {{Parameter|fillColor}}[, {{Parameter|borderColor%}}]
 
 
 {{Parameters}}
-* Can use the [[STEP]] keyword for relative coordinate placements. [[STEP]](0, 0) can be used after [[CIRCLE]] to fill it with color.
-* Graphic ''column'' and ''row'' [[INTEGER]] pixel coordinates should be inside of a fully enclosed border. 
-* The ''fillcolor'' can be either a numerical or a [[STRING|string]] value:
-:* [[INTEGER]] or [[LONG]] 32 bit ''Fillcolor'' is the color to paint the inside of an object. Colors limited to [[SCREEN]] mode used.
-:* A [[STRING]] paint argument has PAINT do &quot;tiling,&quot; a process that paints a pattern rather than a solid color.
-* Optional [[INTEGER]] or [[LONG]] 32 bit ''border color'' is the color of the enclosed shape's border when different from the fill color. 
-* Optional ''background'' [[ASCII]] character sets the tiling style. Omitted background Default is CHR$(0). 
-
-::PAINT(x, y), CHR$(arg1) + CHR$(arg2)... + CHR$(argn) 
-
-: Where the [[CHR$]] arguments are numerical values between 0 and 255, represented in binary form  across the x column axis. 
+* Can use the [[STEP]] keyword for relative coordinate placements. See example 1 below.
+* {{Parameter|fillColor}} is an [[INTEGER]] or [[LONG]] 32-bit value to paint the inside of an object. Colors are limited to the [[SCREEN]] mode used.
+* Optional [[INTEGER]] or [[LONG]] 32-bit {{Parameter|borderColor%}} is the color of the border of the shape to be filled when this is different from the fill color. 
 
 
-''Usage:'' 
-* The enclosed border color must be one color value only. The object border should be fully enclosed!
-* PAINT coordinates MUST be inside of a closed shape to be colored. Paint will not do anything when placed on the border color.
-* If the border color does not enclose the area, PAINT may flood the screen or go beyond the border area.
-* If the shape is not totally enclosed, every color except the border color may be painted over.
-
-* [[DRAW]] shapes can be filled using the string &quot;P ''fillcolor'', ''bordercolor''&quot;. Use a &quot;B&quot; blind move to offset from shape's border.
+==QBasic/QuickBASIC==
+* {{Parameter|fillColor}} could be a string made up of a sequence of [[CHR$]] values, each representing a tiling pattern to fill the shape.
+* While this is not implemented in QB64, a string value is still accepted, though it won't produce any results.
 
 
+{{PageDescription}}
+* Graphic {{Parameter|column%}} and {{Parameter|row%}} [[INTEGER]] pixel coordinates should be inside of a fully closed "shape", whether it's a rectangle, circle or custom-drawn shape using [[DRAW]].
+* If the coordinates passed to the [[PAINT]] statement are on a pixel that matches the border colors, no filling will occur.
+* If the shape's border isn't continuous, the "paint" will "leak". 
+* If the shape is not totally closed, every color except the border color may be painted over.
+* [[DRAW]] shapes can be filled using the string "P {{Parameter|fillColor}}, {{Parameter|borderColor}}". Use a "B" blind move to offset from the shape's border.
+
+
+{{PageExamples}}
 ''Example 1:'' Painting a [[CIRCLE]] immediately after it is drawn using [[STEP]](0, 0) to paint from the circle's center point.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12
@@ -42,32 +35,32 @@ x = 200: y = 200
 :''Results:'' A circle located at x and y with a bright green border filled in dark green. The last coordinate used was the circle's center point and PAINT used it also with the [[STEP]] relative coordinates being zero.
 
 
-''Example 2:'' Routine to check a [[DRAW]] string to make sure that the drawn shape is fully enclosed so that a PAINT does not bleed.
+''Example 2:'' Routine to check a [[DRAW]] string to make sure that the drawn shape is fully closed so that a PAINT does not "leak".
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
-drw$ = &quot;C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5R1BF4&quot;
+drw$ = "C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5R1BF4"
 
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(drw$)
   tmp$ = {{Cl|UCASE$}}({{Cl|MID$}}(drw$, i, 1))
   check = 1
   {{Cl|SELECT CASE}} tmp$
-    {{Cl|CASE}} &quot;U&quot;: ver = -1: hor = 0
-    {{Cl|CASE}} &quot;D&quot;: ver = 1: hor = 0
-    {{Cl|CASE}} &quot;E&quot;: ver = -1: hor = 1
-    {{Cl|CASE}} &quot;F&quot;: ver = 1: hor = 1
-    {{Cl|CASE}} &quot;G&quot;: ver = 1: hor = -1
-    {{Cl|CASE}} &quot;H&quot;: ver = -1: hor = -1
-    {{Cl|CASE}} &quot;L&quot;: ver = 0: hor = -1
-    {{Cl|CASE}} &quot;R&quot;: ver = 0: hor = 1
+    {{Cl|CASE}} "U": ver = -1: hor = 0
+    {{Cl|CASE}} "D": ver = 1: hor = 0
+    {{Cl|CASE}} "E": ver = -1: hor = 1
+    {{Cl|CASE}} "F": ver = 1: hor = 1
+    {{Cl|CASE}} "G": ver = 1: hor = -1
+    {{Cl|CASE}} "H": ver = -1: hor = -1
+    {{Cl|CASE}} "L": ver = 0: hor = -1
+    {{Cl|CASE}} "R": ver = 0: hor = 1
     {{Cl|CASE ELSE}}: check = 0
   {{Cl|END SELECT}}
   {{Cl|IF...THEN|IF}} check {{Cl|THEN}}
-    snum$ = &quot;&quot;
+    snum$ = ""
     {{Cl|FOR...NEXT|FOR}} j = i + 1 {{Cl|TO}} i + 4 'set for up to 4 digits and spaces
-      {{Cl|IF...THEN|IF}} j &gt; {{Cl|LEN}}(drw$) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+      {{Cl|IF...THEN|IF}} j > {{Cl|LEN}}(drw$) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
       n$ = {{Cl|MID$}}(drw$, j, 1)
       num = {{Cl|ASC}}(n$)
-      {{Cl|IF...THEN|IF}} (num &gt; 47 {{Cl|AND (boolean)|AND}} num &lt; 58) {{Cl|OR (boolean)|OR}} num = 32 {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} (num > 47 {{Cl|AND (boolean)|AND}} num &lt; 58) {{Cl|OR (boolean)|OR}} num = 32 {{Cl|THEN}}
         snum$ = snum$ + n$
       {{Cl|ELSE}}: {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
       {{Cl|END IF}}
@@ -80,9 +73,10 @@ drw$ = &quot;C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5
 {{Cl|NEXT}}
 {{Cl|PSET}} (300, 300): {{Cl|DRAW}} drw$ '' ''
 {{CodeEnd}}
-: ''Explanation:'' If the [[DRAW]] string is enclosed, the end values should each be 0! In the example, the proper result should be 4, 4 as there is a BF4 offset for PAINT which cannot be on a border. The result is 4, 5 because the shape is not completely enclosed.
+: ''Explanation:'' If the [[DRAW]] string is fully closed, the end values should each be 0. In the example, the proper result should be 4, 4 as there is a BF4 offset for PAINT which cannot be on a border. The result is 4, 5 because the shape is not completely closed.
 
 
+&lt;!-- Example hidden, as this technique cannot be used with QB64
 ''Example 3:'' Tiling using PAINT to create a red brick pattern inside a yellow border:
 {{CodeStart}}
 {{Cl|DIM}} Row$(1 {{Cl|TO}} 8) 
@@ -103,8 +97,7 @@ drw$ = &quot;C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5
     {{Cl|PAINT}} (320, 240), Tile$, 14 'paints brick tiles within yellow border
 {{CodeEnd}}
 
-&lt;center&gt;'''Tiling currently does not work in QB64!'''&lt;/center&gt;
-
+--!>
 
 
 {{PageSeeAlso}}

@@ -6,7 +6,7 @@ The [[_ACOS]] function returns the angle measured in radians based on an input [
 : {{Parameter|radian_angle!}} = [[_ACOS]]({{Parameter|cosine_value!}})
 
 {{PageDescription}}
-* The ''cosine_value!'' must be measured &gt;= -1 and &lt;= 1, or an error will be generated.  (PRINT _ACOS(1.2) would give the result of -1.#IND, which is basically QB64's way of telling us that the number doesn't exist, much like 1/0 would.) 
+* The ''cosine_value!'' must be measured >= -1 and &lt;= 1, or an error will be generated.  (PRINT _ACOS(1.2) would give the result of -1.#IND, which is basically QB64's way of telling us that the number doesn't exist, much like 1/0 would.) 
 * ARCCOSINE is the inverse function of [[COS]]ine, which lets us turn a [[COS]]ine value back into an angle.
 * Note: Due to rounding with floating point math, the _ACOS may not always give a perfect match for the COS angle which generated this.  You can reduce the number of rounding errors by increasing the precision of your calculations by using [[DOUBLE]] or [[_FLOAT]] precision variables instead of [[SINGLE]].
 
@@ -20,17 +20,17 @@ The [[_ACOS]] function returns the angle measured in radians based on an input [
 {{CodeStart}} '' ''
 {{Cl|DEFDBL}} A-Z
 
-{{Cl|INPUT}} &quot;Give me an Angle (in Degrees) =&gt; &quot;; Angle
+{{Cl|INPUT}} "Give me an Angle (in Degrees) => "; Angle
 {{Cl|PRINT}}
 C = {{Cl|COS}}({{Cl|_D2R}}(Angle)) '_D2R is the command to convert Degrees to Radians, which is what COS expects
-{{Cl|PRINT}} &quot;The COSINE of the Angle is: &quot;; C
+{{Cl|PRINT}} "The COSINE of the Angle is: "; C
 A = {{Cl|_ACOS}}(C)
-{{Cl|PRINT}} &quot;The ACOS of &quot;; C; &quot; is: &quot;; A
-{{Cl|PRINT}} &quot;Notice, A is the Angle in Radians.  If we convert it to degrees, the value is &quot;; {{Cl|_R2D}}(A) '' ''
+{{Cl|PRINT}} "The ACOS of "; C; " is: "; A
+{{Cl|PRINT}} "Notice, A is the Angle in Radians.  If we convert it to degrees, the value is "; {{Cl|_R2D}}(A) '' ''
 {{CodeEnd}}
 {{small|Example by SMcNeill}}
 {{OutputStart}}
-Give me an Angle (in Degrees) =&gt; ? 60
+Give me an Angle (in Degrees) => ? 60
 
 The COSINE of the Angle is:  .5000000000000001
 The ACOS of  .5000000000000001  is:  1.047197551196598

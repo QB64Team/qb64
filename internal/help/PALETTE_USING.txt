@@ -1,12 +1,14 @@
-The '''PALETTE USING''' statement sets all RGB screen color intensities using values from an [[Arrays|array]].
+The [[PALETTE USING]] statement sets all RGB screen color intensities using values from an [[Arrays|array]].
 
 
 {{PageSyntax}}
-:: PALETTE USING Array%(''start_index%'')
+: [[PALETTE USING]] array%({{Parameter|startIndex%}})
 
 
-* The [[Arrays|Array]] holds the RGB color value using the color value = red +  256 * green + 65536 * blue.
-* The ''start_index'' indicates the index that the statement should start reading. The statement will read all color attributes available in that [[SCREEN (statement)|SCREEN]] mode. The '''number of values required''' in the array is listed below:
+{{PageDescription}}
+* The [[Arrays|array]] holds the RGB color value using the color value as {{InlineCode}}{{Parameter|red%}} + 256 * {{Parameter|green%}} + 65536 * {{Parameter|blue%}}{{InlineCodeEnd}}.
+** Color intensities range from 0 to 63.
+* {{Parameter|startIndex%}} indicates the index in the array from which the statement should start reading. The statement will read all color attributes available in that [[SCREEN (statement)|SCREEN]] mode. The '''number of values required''' in the array is listed below:
 {{WhiteStart}}'''              Screen mode       Attributes       Colors         Values'''
                    0              0 - 15         0 - 63           16
                    1              0 - 3          0 - 3             4
@@ -20,11 +22,12 @@ The '''PALETTE USING''' statement sets all RGB screen color intensities using va
                   13              0 - 15         0 - 263,143     256 
 {{WhiteEnd}}
 
-* A color argument of -1 in the array leaves the attribute unchanged. Other negative numbers are invalid!
+* A color argument of -1 in the array leaves the attribute unchanged. Other negative numbers are invalid.
 
 
-''See also:''
+{{PageSeeAlso}}
 * [[PALETTE]], [[COLOR]]
+* [[_PALETTECOLOR]]
 * [[SCREEN (statement)]]
 
 

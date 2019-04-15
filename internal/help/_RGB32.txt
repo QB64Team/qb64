@@ -1,25 +1,39 @@
 {{DISPLAYTITLE:_RGB32}}
-The [[_RGB32]] function returns the 32-bit ''RGBA'' color value with specified red, green and blue component intensities.
+The [[_RGB32]] function returns the 32-bit ''RGBA'' color value with specified red, green and blue component intensities and optional alpha.
 
 
 {{PageSyntax}}
+''Original syntax'':
 :{{Parameter|color32value~&amp;}} = [[_RGB32]]({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}})
+
+''Alternative Syntax 2'':
+:{{Parameter|color32value~&amp;}} = [[_RGB32]]({{Parameter|red&amp;}}, {{Parameter|green&amp;}}, {{Parameter|blue&amp;}}, {{Parameter|alpha&amp;}})
+
+''Alternative Syntax 3'':
+:{{Parameter|color32value~&amp;}} = [[_RGB32]]({{Parameter|intensity&amp;}}, {{Parameter|alpha&amp;}})
+
+''Alternative Syntax 4'':
+:{{Parameter|color32value~&amp;}} = [[_RGB32]]({{Parameter|intensity&amp;}})
 
 
 {{Parameters}}
 * {{Parameter|red&amp;}} specifies the red [[LONG]] component intensity from 0 to 255.
 * {{Parameter|green&amp;}} specifies the green [[LONG]] component intensity from 0 to 255.
 * {{Parameter|blue&amp;}} specifies the blue [[LONG]] component intensity from 0 to 255.
-
+* {{Parameter|alpha&amp;}} specifies the alpha [[LONG]] component from 0 to 255.
+* {{Parameter|intensity&amp;}} specifies the red, green and blue [[LONG]] components intensity from 0 to 255 simultaneously, to generate a shade of gray.
 
 {{PageDescription}}
-* The value returned is ALWAYS a 32-bit [[_UNSIGNED]] [[LONG]] color value, as is the [[POINT]] value. 
-* '''Return variable types must be [[LONG]] or resulting color may lose the [[_BLUE]] value.'''
-* Color intensity values outside of the 0 to 255 range are clipped.
-* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''', always with full [[_ALPHA]].
+* The value returned is always a 32-bit [[_UNSIGNED]] [[LONG]] color value, as is the [[POINT]] value. 
+* '''Return variable types must be [[_UNSIGNED]] [[LONG]] or [[LONG]], otherwise resulting color may lose the [[_BLUE]] value.'''
+* Parameter values outside of the 0 to 255 range are clipped.
+* Returns [[LONG]] 32 bit hexadecimal values from '''&amp;H00{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}'''.
 * When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]]({{Parameter|color32value~&amp;}}), 3) to place 3 colors.
-* Colors returned are always opaque as the transparency value is always 255. Use [[_ALPHA]] or [[_CLEARCOLOR]] to change it.
-* '''NOTE: Default 32-bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0). Use [[CLS]] to make the black opaque.'''
+* '''NOTE: Default 32-bit backgrounds are clear black or [[_RGB32]](0, 0). Use [[CLS]] to make the black opaque.'''
+
+
+==Availability==
+* Alternative syntaxes available with '''version 1.3 and up'''.
 
 
 {{PageExamples}}
@@ -32,26 +46,26 @@ The [[_RGB32]] function returns the 32-bit ''RGBA'' color value with specified r
   red = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4      'multiply by 4 to convert intensity to 0 to 255 RGB values
   grn = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4
   blu = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4
-  hex32$(attribute) = &quot;{{Cl|&amp;H}}&quot; + {{Cl|HEX$}}({{Cl|_RGB32}}(red, grn, blu))   'always returns the 32 bit value
+  hex32$(attribute) = "{{Cl|&amp;H}}" + {{Cl|HEX$}}({{Cl|_RGB32}}(red, grn, blu))   'always returns the 32 bit value
   {{Cl|COLOR}} attribute
-  {{Cl|PRINT}} &quot;{{Cl|COLOR}}&quot; + {{Cl|STR$}}({{Cl|_RGB}}(red, grn, blu)) + &quot; = &quot; + hex32$(attribute)  'closest attribute
+  {{Cl|PRINT}} "{{Cl|COLOR}}" + {{Cl|STR$}}({{Cl|_RGB}}(red, grn, blu)) + " = " + hex32$(attribute)  'closest attribute
 {{Cl|NEXT}} '' ''
 {{CodeEnd}}
-{{OutputStart}}{{text|COLOR 1 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF0000A8|#0000A8}}
-{{text|COLOR 2 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A800|#00A800}}
-{{text|COLOR 3 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A8A8|#00A8A8}}
-{{text|COLOR 4 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA80000|#A80000}}
-{{text|COLOR 5 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA800A8|#A800A8}}
-{{text|COLOR 6 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA85400|#A85400}}
-{{text|COLOR 7 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA8A8A8|#A8A8A8}}
-{{text|COLOR 8 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF545454|#545454}}
-{{text|COLOR 9 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF5454FC|#5454FC}}
-{{text|COLOR 10 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FC54|#54FC54}}
-{{text|COLOR 11 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FCFC|#54FCFC}}
-{{text|COLOR 12 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC5454|#FC5454}}
-{{text|COLOR 13 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC54FC|#FC54FC}}
-{{text|COLOR 14 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFC54|#FCFC54}}
-{{text|COLOR 15 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFCFC|#FCFCFC}}
+{{OutputStart}}{{text|COLOR 1 &lt;nowiki>=&lt;/nowiki> &amp;HFF0000A8|#0000A8}}
+{{text|COLOR 2 &lt;nowiki>=&lt;/nowiki> &amp;HFF00A800|#00A800}}
+{{text|COLOR 3 &lt;nowiki>=&lt;/nowiki> &amp;HFF00A8A8|#00A8A8}}
+{{text|COLOR 4 &lt;nowiki>=&lt;/nowiki> &amp;HFFA80000|#A80000}}
+{{text|COLOR 5 &lt;nowiki>=&lt;/nowiki> &amp;HFFA800A8|#A800A8}}
+{{text|COLOR 6 &lt;nowiki>=&lt;/nowiki> &amp;HFFA85400|#A85400}}
+{{text|COLOR 7 &lt;nowiki>=&lt;/nowiki> &amp;HFFA8A8A8|#A8A8A8}}
+{{text|COLOR 8 &lt;nowiki>=&lt;/nowiki> &amp;HFF545454|#545454}}
+{{text|COLOR 9 &lt;nowiki>=&lt;/nowiki> &amp;HFF5454FC|#5454FC}}
+{{text|COLOR 10 &lt;nowiki>=&lt;/nowiki> &amp;HFF54FC54|#54FC54}}
+{{text|COLOR 11 &lt;nowiki>=&lt;/nowiki> &amp;HFF54FCFC|#54FCFC}}
+{{text|COLOR 12 &lt;nowiki>=&lt;/nowiki> &amp;HFFFC5454|#FC5454}}
+{{text|COLOR 13 &lt;nowiki>=&lt;/nowiki> &amp;HFFFC54FC|#FC54FC}}
+{{text|COLOR 14 &lt;nowiki>=&lt;/nowiki> &amp;HFFFCFC54|#FCFC54}}
+{{text|COLOR 15 &lt;nowiki>=&lt;/nowiki> &amp;HFFFCFCFC|#FCFCFC}}
 {{OutputEnd}}
 :''Note:'' This procedure also shows how the returns from [[_RGB]] and [[_RGB32]] differ in a non-32 bit screen mode.
 
@@ -72,19 +86,48 @@ The [[_RGB32]] function returns the 32-bit ''RGBA'' color value with specified r
 {{Cl|COLOR}} {{Cl|_RGB32}}(255, 255, 255), 0 'White on NO BACKGROUND
 
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 10
-    {{Cl|PRINT}} &quot;This is just a whole bunch of happy nothing!  Happy World!!&quot;
+    {{Cl|PRINT}} "This is just a whole bunch of happy nothing!  Happy World!!"
 {{Cl|NEXT}}
 {{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}}:
 
 {{Cl|COLOR}} 0, {{Cl|_RGB32}}(0, 0, 0) 'And here, we're going with NO {{Cl|COLOR}} text, with a BLACK background.
 'Notice how this doesn't change the color on the screen at all, where the text is, but does toss a black background to it.
 
-{{Cl|LOCATE}} , 15: {{Cl|PRINT}} &quot;NOTICE HOW OUR 0 {{Cl|COLOR}} WORKS?&quot;
+{{Cl|LOCATE}} , 15: {{Cl|PRINT}} "NOTICE HOW OUR 0 {{Cl|COLOR}} WORKS?"
 {{Cl|PRINT}}
-{{Cl|LOCATE}} , 15: {{Cl|PRINT}} &quot;NEAT, HUH?&quot;
+{{Cl|LOCATE}} , 15: {{Cl|PRINT}} "NEAT, HUH?"
 {{Cl|SLEEP}}
 SYSTEM '' ''
 {{CodeEnd}}{{small|Code by Steve McNeill}}
+
+
+''Example 3:'' Comparing the output of the new _RGB32 syntaxes (starting with version 1.3) and their equivalents in previous versions. 
+{{CodeStart}}
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(400, 400, 32)
+
+{{Cl|COLOR}} {{Cl|_RGB32}}(255, 255, 255)
+{{Cl|PRINT}} "White"
+{{Cl|COLOR}} {{Cl|_RGB32}}(255)
+{{Cl|PRINT}} "White, too, but with less typing"
+{{Cl|PRINT}}
+
+{{Cl|COLOR}} {{Cl|_RGB32}}(80, 80, 80)
+{{Cl|PRINT}} "Dark gray"
+{{Cl|COLOR}} {{Cl|_RGB32}}(80)
+{{Cl|PRINT}} "Same gray, but with less typing"
+{{Cl|PRINT}}
+
+{{Cl|COLOR}} {{Cl|_RGBA32}}(255, 255, 255, 120)
+{{Cl|PRINT}} "White with alpha of 120 (out of 255)"
+{{Cl|COLOR}} {{Cl|_RGB32}}(255, 120)
+{{Cl|PRINT}} "White with alpha of 120 - but with less typing"
+{{Cl|PRINT}}
+
+{{Cl|COLOR}} {{Cl|_RGBA32}}(255, 0, 255, 110)
+{{Cl|PRINT}} "Magenta, 110 alpha"
+{{Cl|COLOR}} {{Cl|_RGB32}}(255, 0, 255, 110)
+{{Cl|PRINT}} "Magenta too, 110 alpha - but with less typing"
+{{CodeEnd}}
 
 
 {{PageSeeAlso}}

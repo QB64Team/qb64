@@ -28,14 +28,14 @@ The [[INSTR]] function searches for the first occurence of a search [[STRING]] w
 {{PageExamples}}
 ''Example:'' Reading more than one instance of a word in a string using the INSTR return value as the start value plus 1.
 {{CodeStart}} '' ''
-text$ = &quot;The cats and dogs where playing, even though dogs don't like cats.&quot;
+text$ = "The cats and dogs where playing, even though dogs don't like cats."
 {{Cl|DO...LOOP|DO}}
-  findcats% = {{Cl|INSTR}}(findcats% + 1, text$, &quot;cats&quot;) ' find another occurance after
-  {{Cl|IF...THEN|IF}} findcats% {{Cl|THEN}} {{Cl|PRINT}} &quot;There is 'cats' in the string at position:&quot;; findcats%
+  findcats% = {{Cl|INSTR}}(findcats% + 1, text$, "cats") ' find another occurance after
+  {{Cl|IF...THEN|IF}} findcats% {{Cl|THEN}} {{Cl|PRINT}} "There is 'cats' in the string at position:"; findcats%
 {{Cl|LOOP}} {{Cl|UNTIL}} findcats% = 0
 
-findmonkey% = {{Cl|INSTR}}(text$, &quot;monkeys&quot;)  ' find any occurance?
-PRINT findmonkey%; &quot;'monkeys' were found so it returned:&quot;; findmonkey% '' ''
+findmonkey% = {{Cl|INSTR}}(text$, "monkeys")  ' find any occurance?
+PRINT findmonkey%; "'monkeys' were found so it returned:"; findmonkey% '' ''
 {{CodeEnd}}
 {{OutputStart}}There is 'cats' in the string at position: 5
 There is 'cats' in the string at position: 62

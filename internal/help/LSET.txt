@@ -15,11 +15,11 @@
 ''Example 1:'' Using LSET with a [[FIELD]] definition. Note: May create an empty (unchanged) file that can be deleted.
 {{CodeStart}}
 '' ''
-{{Cl|OPEN}} &quot;testfile.dat&quot; FOR {{Cl|RANDOM}} AS #1 {{Cl|LEN}} = 15
+{{Cl|OPEN}} "testfile.dat" FOR {{Cl|RANDOM}} AS #1 {{Cl|LEN}} = 15
 {{Cl|FIELD}} 1, 6 {{Cl|AS}} a$, 9 {{Cl|AS}} other$
 {{Cl|FIELD}} 1, 2 {{Cl|AS}} b$, 13 {{Cl|AS}} another$
-{{Cl|LSET}} a$ = &quot;1234567890&quot;
-{{Cl|LSET}} other$ = &quot;1234567890&quot;
+{{Cl|LSET}} a$ = "1234567890"
+{{Cl|LSET}} other$ = "1234567890"
 {{Cl|PRINT}} a$, b$, other$, another$
 {{Cl|CLOSE}} #1
 
@@ -41,12 +41,12 @@ head AS {{Cl|STRING}} * 5
 {{Cl|END TYPE}}
 
 {{Cl|DIM}} me {{Cl|AS}} ninestring, you {{Cl|AS}} fivestring
-me.head = &quot;ACHES NOT&quot;
+me.head = "ACHES NOT"
 {{Cl|CLS}}
 
 {{Cl|LSET}} you.head = me.head
-{{Cl|PRINT}} &quot;me.head: &quot;; me.head
-{{Cl|PRINT}} &quot;you.head: &quot;; you.head
+{{Cl|PRINT}} "me.head: "; me.head
+{{Cl|PRINT}} "you.head: "; you.head
 {{CodeEnd}}
 {{OutputStart}}
 me.head: ACHES NOT

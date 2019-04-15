@@ -23,10 +23,10 @@ The [[_KEYHIT]] function returns [[ASCII]] one and two byte, OpenGL Virtual Key 
 ''''Tab Q   W   E   R   T   Y   U   I   O   P  [{  ]}  \|   Del   End   PDn   7Hme  8/▲   9PU   + '''
 ' 9  81  87  69  82  84  89  85  73  79  80 123 125 124 21248 20224 20736 18176 18432 18688 43
 '''   113 119 101 114 116 121 117 105 111 112  91  93  92                    55    56    57 ''
-''''CapL   A   S   D   F   G   H   J   K   L   ;:  '&quot; Enter                   4/◄-   5    6/-►  
+''''CapL   A   S   D   F   G   H   J   K   L   ;:  '" Enter                   4/◄-   5    6/-►  
 '+301  65  83  68  70  71  72  74  75  76  58  34  13                     19200 19456 19712  '''E'''
 '''      97 115 100 102 103 104 106 107 108  59  39                          52    53    54 ''   '''n'''                                    
-''''Shift   Z   X   C   V   B   N   M   ,&lt;  .&gt;  /?    Shift       ▲           1End  2/▼   3PD   t'''
+''''Shift   Z   X   C   V   B   N   M   ,&lt;  .>  /?    Shift       ▲           1End  2/▼   3PD   t'''
 '+304   90  88  67  86  66  78  77  60  62  63    +303       18432        20224 20480 20736  '''e'''
 '''      122 120  99 118  98 110 109  44  46  47                             49    50    51 ''   '''r'''
 ''''Ctrl   Win  Alt     Spacebar      Alt  Win  Menu  Ctrl   ◄-   ▼   -►      0Ins        .Del '''
@@ -38,11 +38,11 @@ The [[_KEYHIT]] function returns [[ASCII]] one and two byte, OpenGL Virtual Key 
 {{small|NOTE: The above commented table can be copied and pasted directly into the QB64 IDE}}
  
  
-:* &gt;= &amp;H40000000: [[Unicode]].
+:* >= &amp;H40000000: [[Unicode]].
 
-* Font '''cyberbit.ttf''', included with QB64 ('''version 0.92 and up'''), is required to facilitate the '''IME'''(in Chinese settings) only. The 12.7 MB font is free for '''non-commercial''' use and is not loaded unless the user switches to the '''Input Mode Editor'''. Set to &quot;UNICODE&quot;.
-&lt;center&gt;'''[http://www.fileformat.info/tip/microsoft/enter_unicode.htm Setting up the Unicode Input Method Editor in Windows]'''&lt;/center&gt;
-&lt;center&gt;If you need help with IME support in '''Vista''' see the following article: [http://blogs.msdn.com/b/michkap/archive/2006/07/20/671835.aspx Setting up IME in Vista]&lt;/center&gt;
+* Font '''cyberbit.ttf''', included with QB64 ('''version 0.92 and up'''), is required to facilitate the '''IME'''(in Chinese settings) only. The 12.7 MB font is free for '''non-commercial''' use and is not loaded unless the user switches to the '''Input Mode Editor'''. Set to "UNICODE".
+&lt;center>'''[http://www.fileformat.info/tip/microsoft/enter_unicode.htm Setting up the Unicode Input Method Editor in Windows]'''&lt;/center>
+&lt;center>If you need help with IME support in '''Vista''' see the following article: [http://blogs.msdn.com/b/michkap/archive/2006/07/20/671835.aspx Setting up IME in Vista]&lt;/center>
 * QB64 can use several Windows fonts when '''cyberbit''' is not present so it is not necessary to include with program packages. 
 * An '''important difference''' between [[INKEY$]] and _KEYHIT is how they work when '''CTRL, ALT''' or '''SHIFT''' are used. INKEY$ returns a different code if you hold down CTRL, ALT or SHIFT before pressing  F1 (for example). _KEYHIT will return the same code regardless of which modifiers were used but you can check [[_KEYDOWN]] to see which modifying keys are being used.
 * '''Keyboards with an Alt Gr key note:''' _KEYHIT may return both Alt (100307) and Ctrl (100306) codes when AltGr key is pressed or released.
@@ -55,8 +55,8 @@ The [[_KEYHIT]] function returns [[ASCII]] one and two byte, OpenGL Virtual Key 
 {{Cl|DEFLNG}} A-Z
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 8)
 {{Cl|CLS}} , 1
-font = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24)
-unifont = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
+font = {{Cl|_LOADFONT}}("cyberbit.ttf", 24)
+unifont = {{Cl|_LOADFONT}}("cyberbit.ttf", 24, "UNICODE")
 {{Cl|_FONT}} font
 
 {{Cl|DO}}
@@ -64,29 +64,29 @@ unifont = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
   {{Cl|IF}} x {{Cl|THEN}}
     {{Cl|IF}} x &lt; 0 {{Cl|THEN}}  'negative value means key released
       {{Cl|COLOR}} 2
-      {{Cl|PRINT}} &quot;Released &quot;;
+      {{Cl|PRINT}} "Released ";
       x = -x
     {{Cl|ELSE}}
       {{Cl|COLOR}} 10
-      {{Cl|PRINT}} &quot;Pressed &quot;;   'positive value means key pressed
+      {{Cl|PRINT}} "Pressed ";   'positive value means key pressed
     {{Cl|END IF}}
     {{Cl|IF}} x &lt; 256 {{Cl|THEN}}    'ASCII code values
-      {{Cl|PRINT}} &quot;{{Cl|ASC}}II &quot;; x;
-      {{Cl|IF}} x &gt;= 32 {{Cl|AND (boolean)|AND}} x &lt;= 255 {{Cl|THEN}} {{Cl|PRINT}} &quot;[&quot; + {{Cl|CHR$}}(x) + &quot;]&quot; {{Cl|ELSE}} {{Cl|PRINT}}
+      {{Cl|PRINT}} "{{Cl|ASC}}II "; x;
+      {{Cl|IF}} x >= 32 {{Cl|AND (boolean)|AND}} x &lt;= 255 {{Cl|THEN}} {{Cl|PRINT}} "[" + {{Cl|CHR$}}(x) + "]" {{Cl|ELSE}} {{Cl|PRINT}}
     {{Cl|END IF}}
-    {{Cl|IF}} x &gt;= 256 {{Cl|AND (boolean)|AND}} x &lt; 65536 {{Cl|THEN}} '2 byte key codes
-      {{Cl|PRINT}} &quot;2-BYTE-{{Cl|COM}}BO &quot;; x {{Cl|AND (boolean)|AND}} 255; x \ 256;
+    {{Cl|IF}} x >= 256 {{Cl|AND (boolean)|AND}} x &lt; 65536 {{Cl|THEN}} '2 byte key codes
+      {{Cl|PRINT}} "2-BYTE-{{Cl|COM}}BO "; x {{Cl|AND (boolean)|AND}} 255; x \ 256;
       x2 = x \ 256
-      {{Cl|IF}} x2 &gt;= 32 {{Cl|AND (boolean)|AND}} x2 &lt;= 255 {{Cl|THEN}} {{Cl|PRINT}} &quot;[&quot; + {{Cl|CHR$}}(x2) + &quot;]&quot; {{Cl|ELSE}} {{Cl|PRINT}}
+      {{Cl|IF}} x2 >= 32 {{Cl|AND (boolean)|AND}} x2 &lt;= 255 {{Cl|THEN}} {{Cl|PRINT}} "[" + {{Cl|CHR$}}(x2) + "]" {{Cl|ELSE}} {{Cl|PRINT}}
     {{Cl|END IF}}
-    {{Cl|IF}} x &gt;= 100000 {{Cl|AND (boolean)|AND}} x &lt; 200000 {{Cl|THEN}}      'QB84 Virtual Key codes
-      {{Cl|PRINT}} &quot;SDL VK&quot;; x - 100000
+    {{Cl|IF}} x >= 100000 {{Cl|AND (boolean)|AND}} x &lt; 200000 {{Cl|THEN}}      'QB84 Virtual Key codes
+      {{Cl|PRINT}} "SDL VK"; x - 100000
       {{Cl|END IF}}
-      {{Cl|IF}} x &gt;= 200000 {{Cl|AND (boolean)|AND}} x &lt; {{Cl|&amp;H}}40000000 {{Cl|THEN}}
-            {{Cl|PRINT}} &quot;QB64 VK&quot;; x - 200000
+      {{Cl|IF}} x >= 200000 {{Cl|AND (boolean)|AND}} x &lt; {{Cl|&amp;H}}40000000 {{Cl|THEN}}
+            {{Cl|PRINT}} "QB64 VK"; x - 200000
     {{Cl|END IF}}
-    {{Cl|IF}} x &gt;= {{Cl|&amp;H}}40000000 {{Cl|THEN}}              'Unicode values (IME Input mode)
-      {{Cl|PRINT}} &quot;UNICODE &quot;; x - {{Cl|&amp;H}}40000000; &quot;0x&quot; + {{Cl|HEX$}}(x - {{Cl|&amp;H}}40000000) + &quot; ...&quot;;
+    {{Cl|IF}} x >= {{Cl|&amp;H}}40000000 {{Cl|THEN}}              'Unicode values (IME Input mode)
+      {{Cl|PRINT}} "UNICODE "; x - {{Cl|&amp;H}}40000000; "0x" + {{Cl|HEX$}}(x - {{Cl|&amp;H}}40000000) + " ...";
       cx = {{Cl|POS}}(1): cy = {{Cl|CSRLIN}}
       {{Cl|_FONT}} unifont
       {{Cl|LOCATE}} cy, cx
@@ -102,7 +102,7 @@ unifont = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
 {{small|Code by Galleon}}
 
 
-&lt;center&gt;'''Find any keys that you cannot read or type in the IDE? Please report them at this forum link:''' http://www.qb64.net/forum/index.php?topic=1512.0&lt;/center&gt;
+&lt;center>'''Find any keys that you cannot read or type in the IDE? Please report them at this forum link:''' http://www.qb64.net/forum/index.php?topic=1512.0&lt;/center>
 
 
 {{PageSeeAlso}}

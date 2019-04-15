@@ -19,10 +19,10 @@ The {{KW|RMDIR}} statement deletes an empty directory using a designated path re
 {{Cl|ON ERROR|ON ERROR GOTO}} ErrorHandler
  DO
  ERRcode = 0
- {{Cl|INPUT}} &quot;Enter path and name of directory to delete: &quot;; directory$
+ {{Cl|INPUT}} "Enter path and name of directory to delete: "; directory$
  IF {{Cl|LEN}}(directory$) THEN      'valid user entry or quits
    {{Cl|RMDIR}} directory$    'removes empty folder without a prompt
-   IF ERRcode = 0 THEN PRINT &quot;Folder &quot;; directory$; &quot; removed.&quot;
+   IF ERRcode = 0 THEN PRINT "Folder "; directory$; " removed."
  END IF
  LOOP UNTIL ERRcode = 0 OR LEN(directory$) = 0
 {{Cl|SYSTEM}}
@@ -32,11 +32,11 @@ ErrorHandler:
 ERRcode = {{Cl|ERR}}    'get error code returned
 {{Cl|SELECT CASE}} ERRcode
 {{Cl|CASE}} 75
-    {{Cl|PRINT}} directory$ + &quot; is not empty!&quot;
+    {{Cl|PRINT}} directory$ + " is not empty!"
 {{Cl|CASE}} 76
-    {{Cl|PRINT}} directory$ + &quot; does not exist!&quot;
+    {{Cl|PRINT}} directory$ + " does not exist!"
 {{Cl|CASE ELSE}}
-    {{Cl|PRINT}} &quot;Error&quot;; ERRcode; &quot;attempting to delete &quot; + directory$
+    {{Cl|PRINT}} "Error"; ERRcode; "attempting to delete " + directory$
 {{Cl|END SELECT}}
 {{Cl|PRINT}}
 {{Cl|RESUME|RESUME NEXT}}

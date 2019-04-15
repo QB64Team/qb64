@@ -2,7 +2,7 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 
 
 {{PageSyntax}}
-: '''DECLARE''' [DYNAMIC|CUSTOMTYPE|STATIC] '''LIBRARY''' [{''&quot;Library_filename&quot;''|''&quot;Headerfile&quot;''}]
+: '''DECLARE''' [DYNAMIC|CUSTOMTYPE|STATIC] '''LIBRARY''' [{''"Library_filename"''|''"Headerfile"''}]
 : {[[SUB]]|[[FUNCTION]]} [''procedure_name'' {{KW|ALIAS}}] ''library_procedure'' ([{{KW|BYVAL}}] ''parameter {{KW|AS}}'', ...)
 ::.
 ::. 'other SUBs or Functions as required
@@ -60,7 +60,7 @@ SDL_WarpMouse x, y     'call SDL library procedure
 {{small|Code by Galleon}}
 :''Explanation:'' The SDL Library is included and loaded with QB64 versions prior to 1.000, so these procedures are directly available for use. 
 
-&lt;center&gt;'''Using [[ALIAS]] to create a program SUB or FUNCTION''' using '''QB64 SDL ONLY'''&lt;/center&gt;
+&lt;center>'''Using [[ALIAS]] to create a program SUB or FUNCTION''' using '''QB64 SDL ONLY'''&lt;/center>
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 {{Cl|DECLARE LIBRARY}}
@@ -77,18 +77,18 @@ MouseMove 200, 200 '' ''
 
 ''Example 2:'' Don't know if a C function is defined by C++ or QB64? Try using empty quotes.
 {{CodeStart}} '' ''
-{{Cl|DECLARE LIBRARY}} &quot;&quot;
+{{Cl|DECLARE LIBRARY}} ""
     {{Cl|FUNCTION}} addone&amp; ({{Cl|BYVAL}} value&amp;)
 {{Cl|END}} DECLARE '' ''
 {{CodeEnd}}
-:''Explanation:'' The C function 'addone' exists in a library QB64 already links to, but it hasn't been defined as a C function or a QB64 function. By using &quot;&quot; we are telling QB64 the function exists in a library which is already linked to and that it must define the C function before calling it, as well as allowing QB64 code to call it. Trying the above code without the &quot;&quot; will fail.
+:''Explanation:'' The C function 'addone' exists in a library QB64 already links to, but it hasn't been defined as a C function or a QB64 function. By using "" we are telling QB64 the function exists in a library which is already linked to and that it must define the C function before calling it, as well as allowing QB64 code to call it. Trying the above code without the "" will fail.
 
 : '''Note: What libraries are or aren't automatically used in the linking process is not formally defined, nor is it guaranteed to stay that way in future versions of QB64.'''
 
 
 ''Example 3:'' For this next example, download the file 'add.lib' and place it in you QB64 folder: http://www.qb64.net/add.lib
 {{CodeStart}} '' ''
-{{Cl|DECLARE LIBRARY}} &quot;add&quot;
+{{Cl|DECLARE LIBRARY}} "add"
     {{Cl|FUNCTION}} addtwo&amp; ({{Cl|BYVAL}} value&amp;)
 {{Cl|END}} DECLARE
 PRINT addtwo(1) '' ''
@@ -99,26 +99,26 @@ PRINT addtwo(1) '' ''
 
 
 ''Example 4:'' NTport is a commercial library hosted at http://www.zealsoftstudio.com/ntport/, but it does provide an evaluation version (it has a 3 second wait pop-up window) which we will use here. You don't need to download NTport, just download the following 3 files and put them in your QB64 folder:
-&lt;center&gt;[http://www.qb64.net/ntport/ntport.lib NTport.lib]            [http://www.qb64.net/ntport/ntport.h NTport.h]               [http://www.qb64.net/ntport/ntport.dll Ntport.dll]&lt;/center&gt;
+&lt;center>[http://www.qb64.net/ntport/ntport.lib NTport.lib]            [http://www.qb64.net/ntport/ntport.h NTport.h]               [http://www.qb64.net/ntport/ntport.dll Ntport.dll]&lt;/center>
 :'''IMPORTANT:''' The DLL is loaded automatically by the static library, we are not linking directly to the DLL, we are '''static linking''' (NOT directly or dynamically linking). This is an important concept to understand!
 {{CodeStart}}
-DECLARE LIBRARY &quot;ntport&quot;
+DECLARE LIBRARY "ntport"
     FUNCTION GetLPTPortAddress% (BYVAL PortNo%)
 END DECLARE
-PRINT &quot;&amp;H&quot; + HEX$(GetLPTPortAddress%(1))
+PRINT "&amp;H" + HEX$(GetLPTPortAddress%(1))
 {{CodeEnd}}
-:''Explanation:'' DECLARE LIBRARY also searches for C header files with a '''.h''' extension. So in this case it is using the header '''ntport.h''' and linking with '''ntport.lib''' just by specifying &quot;NTPORT&quot;. The C function definitions are stored in '''ntport.h''' so even if our QB64 functions don't exactly match (eg. LONG instead of INTEGER) it will still work.
+:''Explanation:'' DECLARE LIBRARY also searches for C header files with a '''.h''' extension. So in this case it is using the header '''ntport.h''' and linking with '''ntport.lib''' just by specifying "NTPORT". The C function definitions are stored in '''ntport.h''' so even if our QB64 functions don't exactly match (eg. LONG instead of INTEGER) it will still work.
 
 :If you look inside ''''ntport.h'''' you'll find the following line containing the C function definition of the command we used:
 {{TextStart}} WORD WINAPI GetLPTPortAddress(WORD PortNo);
 {{TextEnd}}
 
 
-&lt;center&gt;Galleon's '''OpenGL''' Library with demo program download: http://www.qb64.net/gl_package.zip&lt;/center&gt;
+&lt;center>Galleon's '''OpenGL''' Library with demo program download: http://www.qb64.net/gl_package.zip&lt;/center>
 
 
-&lt;center&gt;'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center&gt;
-&lt;center&gt;'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center&gt;
+&lt;center>'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center>
+&lt;center>'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center>
 
 
 ''See also:''

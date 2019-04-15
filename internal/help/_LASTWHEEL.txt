@@ -9,7 +9,7 @@ The [[_LASTWHEEL]] function returns the number of wheels a specified number INPU
 * Returns the number of wheels that can be used on a specified device number within the number of [[_DEVICES]] found.
 * A valid number can be sent to the [[_WHEEL]] function to find any relative positive or negative wheel movements. 
 * The devices are listed in a numerical order determined by the OS and can be read by the [[_DEVICE$]] function.
-* '''The [[_DEVICES]] function must be read before using _LASTWHEEL or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] may occur.'''
+* '''The [[_DEVICES]] function must be read before using _LASTWHEEL or an [[ERROR Codes|"Illegal Function Call" error]] may occur.'''
 * Devices include keyboard (reported as 1), mouse (reported as 2), joysticks, game pads and multiple stick game controllers.
 
 
@@ -17,10 +17,10 @@ The [[_LASTWHEEL]] function returns the number of wheels a specified number INPU
 ''Example:'' Checking for the system's input devices and number of wheels available.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
-PRINT &quot;Number of input devices found =&quot;; devices
+PRINT "Number of input devices found ="; devices
 FOR i = 1 TO devices
   PRINT {{Cl|_DEVICE$}}(i)
-  IF {{Cl|INSTR}}({{Cl|_DEVICE$}}(i), &quot;[WHEEL]&quot;) THEN PRINT &quot;Wheels:&quot;; {{Cl|_LASTWHEEL}}(i)
+  IF {{Cl|INSTR}}({{Cl|_DEVICE$}}(i), "[WHEEL]") THEN PRINT "Wheels:"; {{Cl|_LASTWHEEL}}(i)
 NEXT '' ''
 {{CodeEnd}}
 {{OutputStart}}Number of input devices found = 2

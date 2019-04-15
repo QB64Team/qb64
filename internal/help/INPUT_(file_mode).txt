@@ -21,7 +21,7 @@ The '''INPUT''' file mode in an [[OPEN]] statement opens an existing file for [[
 
 {{CodeStart}} '' ''
  DIM Fdata$(100)
- INPUT &quot;Enter data file name: &quot;, datafile$ 
+ INPUT "Enter data file name: ", datafile$ 
  IF _FILEEXISTS(datafile$) THEN
     D% = {{Cl|FREEFILE}}: count = 0
     {{Cl|OPEN}} datafile$ FOR {{Cl|INPUT (file mode)|INPUT}} AS #D%
@@ -31,7 +31,7 @@ The '''INPUT''' file mode in an [[OPEN]] statement opens an existing file for [[
      IF count = 100 THEN {{Cl|EXIT}} DO  ' don't exceed {{Cl|Arrays|array}} size!
     LOOP
   {{Cl|CLOSE}} #D%
- ELSE : PRINT &quot;File not found!&quot;
+ ELSE : PRINT "File not found!"
  END IF
 {{CodeEnd}}
 : ''Explanation:'' The [[_FILEEXISTS]] function is used before {{InlineCode}}OPEN datafile$ FOR INPUT AS #D%{{InlineCodeEnd}}, which would generate an error in case the file didn't exist.

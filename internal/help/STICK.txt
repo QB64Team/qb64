@@ -13,7 +13,7 @@ QB64 {{PageSyntax}}
 * '''QB64''' allows any number of coordinate pairs for more than two game device controllers. STICK will not read a mouse axis.
 * ''axis_number'' can be used as the next axis parameter for controllers with multiple axis using the SAME ''directional'' parameters.
 * The ''axis_number'' 1 can be omitted for the main stick column and row parameter reads. 
-* Point of view &quot;hats&quot; also have 2 axis. Slide, turn or twist controls have one. The device determines the order of the axis.
+* Point of view "hats" also have 2 axis. Slide, turn or twist controls have one. The device determines the order of the axis.
 * Returns coordinate values from 1 to 254. Qbasic only returned values from 1 to 200.
 * STICK(0) is required to get values from the other STICK functions. Always read it first!
 {{WhiteStart}}'''STICK(0) returns the column coordinate of device 1. Enables reads of the other STICK values.'''
@@ -33,16 +33,16 @@ STICK(3) returns row coordinate of device 2 if used. (Qbasic maximum was 2 contr
 {{Cl|DO}}: {{Cl|_LIMIT}} 10
 
   {{Cl|LOCATE}} 1, 1
-  {{Cl|PRINT}} &quot;JOY1: {{Cl|STICK}}&quot;; {{Cl|STICK}}(0); {{Cl|STICK}}(1); {{Cl|STICK}}(0, 2); {{Cl|STICK}}(1, 2);_ 
-  &quot;STRIG&quot;; {{Cl|STRIG}}(0); {{Cl|STRIG}}(1); {{Cl|STRIG}}(4); {{Cl|STRIG}}(5); {{Cl|STRIG}}(8); {{Cl|STRIG}}(9)
+  {{Cl|PRINT}} "JOY1: {{Cl|STICK}}"; {{Cl|STICK}}(0); {{Cl|STICK}}(1); {{Cl|STICK}}(0, 2); {{Cl|STICK}}(1, 2);_ 
+  "STRIG"; {{Cl|STRIG}}(0); {{Cl|STRIG}}(1); {{Cl|STRIG}}(4); {{Cl|STRIG}}(5); {{Cl|STRIG}}(8); {{Cl|STRIG}}(9)
 
-  {{Cl|PRINT}} &quot;JOY2: {{Cl|STICK}}&quot;; {{Cl|STICK}}(2); {{Cl|STICK}}(3); {{Cl|STICK}}(2, 2); {{Cl|STICK}}(3, 2);_ 
-  &quot;STRIG&quot;; {{Cl|STRIG}}(2); {{Cl|STRIG}}(3); {{Cl|STRIG}}(6); {{Cl|STRIG}}(7); {{Cl|STRIG}}(10); {{Cl|STRIG}}(11)
+  {{Cl|PRINT}} "JOY2: {{Cl|STICK}}"; {{Cl|STICK}}(2); {{Cl|STICK}}(3); {{Cl|STICK}}(2, 2); {{Cl|STICK}}(3, 2);_ 
+  "STRIG"; {{Cl|STRIG}}(2); {{Cl|STRIG}}(3); {{Cl|STRIG}}(6); {{Cl|STRIG}}(7); {{Cl|STRIG}}(10); {{Cl|STRIG}}(11)
 
-  {{Cl|PRINT}} &quot;JOY3: {{Cl|STICK}}&quot;; {{Cl|STICK}}(4); {{Cl|STICK}}(5); {{Cl|STICK}}(4, 2); {{Cl|STICK}}(5, 2);_ 
-  &quot;STRIG&quot;; {{Cl|STRIG}}(0, 3); {{Cl|STRIG}}(1, 3); {{Cl|STRIG}}(4, 3); {{Cl|STRIG}}(5, 3); {{Cl|STRIG}}(8, 3); {{Cl|STRIG}}(9, 3)
+  {{Cl|PRINT}} "JOY3: {{Cl|STICK}}"; {{Cl|STICK}}(4); {{Cl|STICK}}(5); {{Cl|STICK}}(4, 2); {{Cl|STICK}}(5, 2);_ 
+  "STRIG"; {{Cl|STRIG}}(0, 3); {{Cl|STRIG}}(1, 3); {{Cl|STRIG}}(4, 3); {{Cl|STRIG}}(5, 3); {{Cl|STRIG}}(8, 3); {{Cl|STRIG}}(9, 3)
     
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} > "" '' ''
 {{CodeEnd}}
 :''Explanation:'' Notice the extra '''QB64 only''' parameters used to cater for the 2nd stick and the buttons of the 3rd joystick.
 
@@ -51,23 +51,23 @@ STICK(3) returns row coordinate of device 2 if used. (Qbasic maximum was 2 contr
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 d = {{Cl|_DEVICES}}
-{{Cl|PRINT}} &quot;Number of input devices found =&quot;; d
+{{Cl|PRINT}} "Number of input devices found ="; d
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} d
   {{Cl|PRINT}} {{Cl|_DEVICE$}}(i)
   buttons = {{Cl|_LASTBUTTON}}(i)
-  {{Cl|PRINT}} &quot;Buttons:&quot;; buttons
+  {{Cl|PRINT}} "Buttons:"; buttons
 {{Cl|NEXT}}
 
 DO: {{Cl|_LIMIT}} 50
   {{Cl|LOCATE}} 10, 1
-  {{Cl|PRINT}} &quot;   X    Main    Y          Slider         Z-axis           POV&quot;
-  {{Cl|PRINT}} {{Cl|STICK}}(0, 1), {{Cl|STICK}}(1, 1), {{Cl|STICK}}(0, 2), {{Cl|STICK}}(1, 2), {{Cl|STICK}}(0, 3); {{Cl|STICK}}(1, 3); &quot;   &quot;
-  {{Cl|PRINT}} &quot;                   Buttons&quot;
+  {{Cl|PRINT}} "   X    Main    Y          Slider         Z-axis           POV"
+  {{Cl|PRINT}} {{Cl|STICK}}(0, 1), {{Cl|STICK}}(1, 1), {{Cl|STICK}}(0, 2), {{Cl|STICK}}(1, 2), {{Cl|STICK}}(0, 3); {{Cl|STICK}}(1, 3); "   "
+  {{Cl|PRINT}} "                   Buttons"
   {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 4 * buttons - 1 {{Cl|STEP}} 4
     {{Cl|PRINT}} {{Cl|STRIG}}(i); {{Cl|STRIG}}(i + 1); {{Cl|CHR$}}(219);
   {{Cl|NEXT}}
   {{Cl|PRINT}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" '' ''
 {{CodeEnd}}
 : ''Explanation:'' Each axis on the first controller found is either STICK(0, n) or STICK(1, n) with n increasing when necessary.
 {{OutputStart}}
@@ -86,7 +86,7 @@ Buttons: 9
 -0 -1 █ 0  0 █ 0  0 █ 0  0 █ 0  0 █ 0  0 █ 0  0 █ 0  0 █ 0  0 █
 {{OutputEnd}}
 : ''Note:'' A Sidewinder Precision Pro requires that pins 2 and 7(blue and purple) be connected together for [http://www.qb64.net/forum/index.php?topic=4167.msg42339#msg42339 digital USB recognition.]
-&lt;center&gt; [http://www.amazon.com/Belkin-F3U200-08INCH-Joystick-Adapter-SideWinder/dp/B000067RIV  Sidewinder Precision Pro game port to USB adapter]&lt;/center&gt;
+&lt;center> [http://www.amazon.com/Belkin-F3U200-08INCH-Joystick-Adapter-SideWinder/dp/B000067RIV  Sidewinder Precision Pro game port to USB adapter]&lt;/center>
 
 
 ''See also:'' 

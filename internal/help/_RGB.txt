@@ -30,26 +30,26 @@ The [[_RGB]] function returns the closest palette attribute index (legacy SCREEN
   red = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4      'multiply by 4 to convert intensity to 0 to 255 RGB values
   grn = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4
   blu = {{Cl|INP}}({{Cl|&amp;H}}3C9) * 4
-  hex32$(attribute) = &quot;{{Cl|&amp;H}}&quot; + {{Cl|HEX$}}({{Cl|_RGB32}}(red, grn, blu))   'always returns the 32 bit value
+  hex32$(attribute) = "{{Cl|&amp;H}}" + {{Cl|HEX$}}({{Cl|_RGB32}}(red, grn, blu))   'always returns the 32 bit value
   {{Cl|COLOR}} attribute
-  {{Cl|PRINT}} &quot;{{Cl|COLOR}}&quot; + {{Cl|STR$}}({{Cl|_RGB}}(red, grn, blu)) + &quot; = &quot; + hex32$(attribute)  'closest attribute
+  {{Cl|PRINT}} "{{Cl|COLOR}}" + {{Cl|STR$}}({{Cl|_RGB}}(red, grn, blu)) + " = " + hex32$(attribute)  'closest attribute
 {{Cl|NEXT}} '' ''
 {{CodeEnd}}
-{{OutputStart}}{{text|COLOR 1 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF0000A8|#0000A8}}
-{{text|COLOR 2 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A800|#00A800}}
-{{text|COLOR 3 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A8A8|#00A8A8}}
-{{text|COLOR 4 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA80000|#A80000}}
-{{text|COLOR 5 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA800A8|#A800A8}}
-{{text|COLOR 6 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA85400|#A85400}}
-{{text|COLOR 7 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA8A8A8|#A8A8A8}}
-{{text|COLOR 8 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF545454|#545454}}
-{{text|COLOR 9 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF5454FC|#5454FC}}
-{{text|COLOR 10 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FC54|#54FC54}}
-{{text|COLOR 11 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FCFC|#54FCFC}}
-{{text|COLOR 12 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC5454|#FC5454}}
-{{text|COLOR 13 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC54FC|#FC54FC}}
-{{text|COLOR 14 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFC54|#FCFC54}}
-{{text|COLOR 15 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFCFC|#FCFCFC}}
+{{OutputStart}}{{text|COLOR 1 &lt;nowiki>=&lt;/nowiki> &amp;HFF0000A8|#0000A8}}
+{{text|COLOR 2 &lt;nowiki>=&lt;/nowiki> &amp;HFF00A800|#00A800}}
+{{text|COLOR 3 &lt;nowiki>=&lt;/nowiki> &amp;HFF00A8A8|#00A8A8}}
+{{text|COLOR 4 &lt;nowiki>=&lt;/nowiki> &amp;HFFA80000|#A80000}}
+{{text|COLOR 5 &lt;nowiki>=&lt;/nowiki> &amp;HFFA800A8|#A800A8}}
+{{text|COLOR 6 &lt;nowiki>=&lt;/nowiki> &amp;HFFA85400|#A85400}}
+{{text|COLOR 7 &lt;nowiki>=&lt;/nowiki> &amp;HFFA8A8A8|#A8A8A8}}
+{{text|COLOR 8 &lt;nowiki>=&lt;/nowiki> &amp;HFF545454|#545454}}
+{{text|COLOR 9 &lt;nowiki>=&lt;/nowiki> &amp;HFF5454FC|#5454FC}}
+{{text|COLOR 10 &lt;nowiki>=&lt;/nowiki> &amp;HFF54FC54|#54FC54}}
+{{text|COLOR 11 &lt;nowiki>=&lt;/nowiki> &amp;HFF54FCFC|#54FCFC}}
+{{text|COLOR 12 &lt;nowiki>=&lt;/nowiki> &amp;HFFFC5454|#FC5454}}
+{{text|COLOR 13 &lt;nowiki>=&lt;/nowiki> &amp;HFFFC54FC|#FC54FC}}
+{{text|COLOR 14 &lt;nowiki>=&lt;/nowiki> &amp;HFFFCFC54|#FCFC54}}
+{{text|COLOR 15 &lt;nowiki>=&lt;/nowiki> &amp;HFFFCFCFC|#FCFCFC}}
 {{OutputEnd}}
 :''Note:'' This procedure also shows how the returns from [[_RGB]] and [[_RGB32]] differ in a non-32 bit screen mode.
 

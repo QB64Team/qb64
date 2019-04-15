@@ -19,7 +19,7 @@ The [[_COMMANDCOUNT]] function returns the number or arguments passed from the c
     {{Cl|PRINT}} {{Cl|COMMAND$}}(i)
 {{Cl|NEXT}}
 {{CodeEnd}}
-: ''Explanation:'' If we start ''ThisProgram.exe'' from the command window with '''ThisProgram -l &quot;loadfile.txt&quot; -s &quot;savefile.txt&quot;''', the _COMMANDCOUNT would be 4, &quot;-l&quot;, &quot;loadfile.txt&quot;, &quot;-s&quot;, &quot;savefile.txt&quot; command arguments passed to the program, which we could then read separately with COMMAND$(n).
+: ''Explanation:'' If we start ''ThisProgram.exe'' from the command window with '''ThisProgram -l "loadfile.txt" -s "savefile.txt"''', the _COMMANDCOUNT would be 4, "-l", "loadfile.txt", "-s", "savefile.txt" command arguments passed to the program, which we could then read separately with COMMAND$(n).
 
 
 {{PageSeeAlso}}

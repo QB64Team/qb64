@@ -15,20 +15,20 @@ The '''COMMAND$''' function returns the command line argument(s) passed when a p
 {{PageExamples}}
 ''Example 1:'' Compile both programs. ProgramA [[RUN]]s ProgramB with a parameter passed following the filename: 
 {{CodeStart}}
-{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} &quot;ProgramA&quot;
+{{Cl|LOCATE}} 12, 36: {{Cl|PRINT}} "ProgramA"
 
-{{Cl|LOCATE}} 23, 25: {{Cl|PRINT}} &quot;Press any key to run ProgramB&quot;
+{{Cl|LOCATE}} 23, 25: {{Cl|PRINT}} "Press any key to run ProgramB"
 K$ = {{Cl|INPUT$}}(1)
-{{Cl|RUN}} &quot;ProgramB FS&quot;  'pass FS parameter to ProgramB in QB64 or QB4.5
+{{Cl|RUN}} "ProgramB FS"  'pass FS parameter to ProgramB in QB64 or QB4.5
 
 {{Cl|SYSTEM}}
 {{CodeEnd}}
 : ''ProgramB'' checks for fullscreen parameter pass in QB64 and goes full screen. 
 {{CodeStart}} '' ''
-{{Cl|LOCATE}} 17, 36: {{Cl|PRINT}} &quot;ProgramB&quot;
+{{Cl|LOCATE}} 17, 36: {{Cl|PRINT}} "ProgramB"
 parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}}) 'UCASE$ is needed in QB64 only, as QB4.5 will always return upper case
-{{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} &quot;Parameter = &quot; + parameter$
-{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = &quot;FS&quot; {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
+{{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} "Parameter = " + parameter$
+{{Cl|IF...THEN|IF}} {{Cl|LEFT$}}(parameter$, 2) = "FS" {{Cl|THEN}} {{Cl|_FULLSCREEN}} 'parameter changes to full screen
 
 {{Cl|END}} '' ''
 {{CodeEnd}}
@@ -50,14 +50,14 @@ parameter$ = {{Cl|UCASE$}}({{Cl|COMMAND$}}) 'UCASE$ is needed in QB64 only, as Q
 {{OutputStart}}-1
 a data file
 {{OutputEnd}}
-: ''Explanation: If we start ''ThisProgram.exe'' with the command line '''ThisProgram -l &quot;a data file&quot;''', COMMAND$ will return a single string of &quot;-1 a data file&quot; which might be hard to process and interpret properly, but COMMAND$(1) would return &quot;-l&quot; and COMMAND$(2) would return the quoted &quot;a data file&quot; option as separate entries for easier parsing and processing.
+: ''Explanation: If we start ''ThisProgram.exe'' with the command line '''ThisProgram -l "a data file"''', COMMAND$ will return a single string of "-1 a data file" which might be hard to process and interpret properly, but COMMAND$(1) would return "-l" and COMMAND$(2) would return the quoted "a data file" option as separate entries for easier parsing and processing.
 
 
 ''Example 3:'' As part of the command array syntax, you can also just read the array to see how many commands were sent (or simply check [[_COMMANDCOUNT]]): 
 {{CodeStart}}DO
     count = count + 1
     cmd$ = {{Cl|COMMAND$}}(count)
-    {{Cl|IF...THEN|IF}} cmd$ = &quot;&quot; {{Cl|THEN}} {{Cl|EXIT DO}} 'read until an empty return
+    {{Cl|IF...THEN|IF}} cmd$ = "" {{Cl|THEN}} {{Cl|EXIT DO}} 'read until an empty return
     {{Cl|PRINT}} cmd$ 'or process commands sent
 {{Cl|LOOP}} '' ''
 count = count - 1 'save the number of parameters sent to this program when run

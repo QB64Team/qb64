@@ -29,31 +29,31 @@ Y = {{Cl|CVI}}(N$) '' ''
 {{Cl|DIM}} Q {{Cl|AS}} {{Cl|STRING}} * 1
 Q = {{Cl|CHR$}}(34)
 ' create Print using templates to align the values returned 
-tmp1$ = &quot;1st character code = ### * 1   =   ### &quot;
-tmp2$ = &quot;2nd character code = ### * 256 = ##### &quot;
-tmp3$ = &quot;                                 &amp;  &quot;
-tmp4$ = &quot;                     CVI Total = ##### &quot;
+tmp1$ = "1st character code = ### * 1   =   ### "
+tmp2$ = "2nd character code = ### * 256 = ##### "
+tmp3$ = "                                 &amp;  "
+tmp4$ = "                     CVI Total = ##### "
 
 {{Cl|DO...LOOP|DO}}
-  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 13, 20: {{Cl|INPUT}} &quot;Enter an Integer from 1 to 32767(0 quits): &quot;, number%
+  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 13, 20: {{Cl|INPUT}} "Enter an Integer from 1 to 32767(0 quits): ", number%
   {{Cl|IF...THEN|IF}} number% &lt; 1 {{Cl|THEN}} {{Cl|EXIT DO}}
   {{Cl|CLS}}
   ASCII$ = {{Cl|MKI$}}(number%)     ' create the 2 byte character string
   {{Cl|COLOR}} 11
-  {{Cl|_PRINTSTRING}} (152, 240), &quot;{{Cl|MKI$}} creates 2 byte ASCII string: &quot; + Q + ASCII$ + Q ' displays character(s)
+  {{Cl|_PRINTSTRING}} (152, 240), "{{Cl|MKI$}} creates 2 byte ASCII string: " + Q + ASCII$ + Q ' displays character(s)
 
   asc1% = {{Cl|ASC}}(ASCII$)        ' find the ASCII code values of each character
   asc2% = {{Cl|ASC}}(ASCII$, 2)     ' '''QB64''' allows ASC to read specific characters in a string
  
   {{Cl|LOCATE}} 18, 20: {{Cl|PRINT USING}} tmp1$; asc1%; asc1%
   {{Cl|LOCATE}} 19, 20: {{Cl|PRINT USING}} tmp2$; asc2%; asc2% * 256
-  {{Cl|LOCATE}} 20, 20: {{Cl|PRINT USING}} tmp3$; &quot;-----&quot;
+  {{Cl|LOCATE}} 20, 20: {{Cl|PRINT USING}} tmp3$; "-----"
   {{Cl|LOCATE}} 21, 20: {{Cl|PRINT USING}} tmp4$; asc1% + (256 * asc2%)
 {{Cl|LOOP}}
 {{Cl|SYSTEM}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-:''Explanation:'' All [[ASCII]] characters can be displayed using [[_PRINTSTRING]] . The routine gets the [[ASCII]] code, which is the actual value needed by [[CVI]]. The first byte code is always between 0 and 255. The second byte can return 0 thru 127 and CVI multiplies that value by 256. This proves that you cannot just feed a string number value to [[CVI]] and get the result desired. (&quot;90&quot; gets decoded to 12345).
+:''Explanation:'' All [[ASCII]] characters can be displayed using [[_PRINTSTRING]] . The routine gets the [[ASCII]] code, which is the actual value needed by [[CVI]]. The first byte code is always between 0 and 255. The second byte can return 0 thru 127 and CVI multiplies that value by 256. This proves that you cannot just feed a string number value to [[CVI]] and get the result desired. ("90" gets decoded to 12345).
 
 
 {{PageSeeAlso}}

@@ -23,10 +23,10 @@ The [[_ALPHA]] function returns the alpha channel transparency level of a color 
 {{Cl|SCREEN}} 13
 
 clr~&amp; = {{Cl|_RGBA}}(255, 0, 255, 192) 'returns closest palette color attribute 
-{{Cl|PRINT}} &quot;Color:&quot;; clr~&amp;
+{{Cl|PRINT}} "Color:"; clr~&amp;
 
 {{Cl|COLOR}} clr~&amp;
-{{Cl|PRINT}} &quot;Alpha:&quot;; {{Cl|_ALPHA}}(clr~&amp;)
+{{Cl|PRINT}} "Alpha:"; {{Cl|_ALPHA}}(clr~&amp;)
 
 {{Cl|END}}
 {{CodeEnd}}
@@ -40,11 +40,11 @@ clr~&amp; = {{Cl|_RGBA}}(255, 0, 255, 192) 'returns closest palette color attrib
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 BG&amp; = {{Cl|POINT}}(1, 1)
-{{Cl|PRINT}} &quot;Alpha =&quot;; {{Cl|_ALPHA}}(BG&amp;); &quot;Press a key to use CLS!&quot;
+{{Cl|PRINT}} "Alpha ="; {{Cl|_ALPHA}}(BG&amp;); "Press a key to use CLS!"
 K$ = INPUT$(1)                   
 {{Cl|CLS}}
 BG&amp; = {{Cl|POINT}}(1, 1)
-{{Cl|PRINT}} &quot;CLS Alpha =&quot;; {{Cl|_ALPHA}}(BG&amp;) '' ''
+{{Cl|PRINT}} "CLS Alpha ="; {{Cl|_ALPHA}}(BG&amp;) '' ''
 {{CodeEnd}}
 {{OutputStart}}CLS Alpha = 255   {{OutputEnd}}
 : ''Explanation:'' Set the ALPHA value to 255 using [[CLS]] to make the background opaque when overlaying pages.

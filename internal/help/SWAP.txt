@@ -16,8 +16,8 @@ The {{KW|SWAP}} statement is used to exchange two variable or array element valu
 
 ''Example 1:'' A simple SWAP of [[STRING|string]] values.
 {{CodeStart}}
-a$ = &quot;one&quot;
-b$ = &quot;two&quot;
+a$ = "one"
+b$ = "two"
 
 {{Cl|SWAP}} a$, b$
 
@@ -41,25 +41,25 @@ one
 {{Cl|COLOR}} 11: {{Cl|LOCATE}} 10, 10
 {{Cl|FOR...NEXT|FOR}} i = 65 {{Cl|TO}} 90
   {{Cl|IF...THEN|IF}} Letter$(i) = {{Cl|CHR$}}(i) {{Cl|THEN}}      'find characters the same as the {{Cl|ASCII}} code index
-    {{Cl|DO...LOOP|DO}}: j = {{Cl|INT}}({{Cl|RND}} * 26) + 65: {{Cl|LOOP}} {{Cl|WHILE}} j = i    'loop until j &lt;&gt; i
+    {{Cl|DO...LOOP|DO}}: j = {{Cl|INT}}({{Cl|RND}} * 26) + 65: {{Cl|LOOP}} {{Cl|WHILE}} j = i    'loop until j &lt;> i
     {{Cl|SWAP}} Letter$(i), Letter$(j)     'swap corresponding letter characters
   {{Cl|END IF}}
-  {{Cl|PRINT}} {{Cl|CHR$}}(i); &quot; &quot;;               'print normal alphabetical order
+  {{Cl|PRINT}} {{Cl|CHR$}}(i); " ";               'print normal alphabetical order
 {{Cl|NEXT}}
 
 {{Cl|COLOR}} 14: {{Cl|LOCATE}} 12, 10
 {{Cl|FOR...NEXT|FOR}} a = 65 {{Cl|TO}} 90                    'display new alphabetical order
-  {{Cl|PRINT}} Letter$(a); &quot; &quot;;
+  {{Cl|PRINT}} Letter$(a); " ";
 {{Cl|NEXT}}
 
-text$ = &quot;This is how a normal sentence would look before being encrypted.&quot;
+text$ = "This is how a normal sentence would look before being encrypted."
 {{Cl|COLOR}} 11: {{Cl|LOCATE}} 20, 5: {{Cl|PRINT}} text$
 L = {{Cl|LEN}}(text$)
 {{Cl|DIM}} Code(L)                         'place ASCII code solution into an array
 {{Cl|COLOR}} 14: {{Cl|LOCATE}} 22, 5
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} L
   Code(i) = {{Cl|ASC}}({{Cl|UCASE$}}(text$), i)   'in QB64, ASC can read by character position
-  {{Cl|IF...THEN|IF}} Code(i) &gt;= 65 {{Cl|AND (boolean)|AND}} Code(i) &lt;= 90 {{Cl|THEN}} {{Cl|PRINT}} Letter$(Code(i)); {{Cl|ELSE}} {{Cl|PRINT}} {{Cl|CHR$}}(Code(i));
+  {{Cl|IF...THEN|IF}} Code(i) >= 65 {{Cl|AND (boolean)|AND}} Code(i) &lt;= 90 {{Cl|THEN}} {{Cl|PRINT}} Letter$(Code(i)); {{Cl|ELSE}} {{Cl|PRINT}} {{Cl|CHR$}}(Code(i));
 {{Cl|NEXT}}
 {{Cl|END}} '' ''
 {{CodeEnd}}
@@ -82,14 +82,14 @@ swap2 = 0                     'count swaps for demo only
 start! = {{Cl|TIMER}}(.001)
 {{Cl|CALL}} QuickSort(start, finish, array())
 ending! = {{Cl|TIMER}}(.001)
-tmp$ = &quot; array(0)= ##.#####     array(5000)= ###.####   array(10000)= ###.####&quot;
+tmp$ = " array(0)= ##.#####     array(5000)= ###.####   array(10000)= ###.####"
 {{Cl|PRINT USING}} tmp$; array(0); array(5000); array(10000) 
-{{Cl|PRINT USING}} &quot; Elapsed time: #.###### seconds with #######, swaps&quot;; ending! - start!; swap2&amp;
+{{Cl|PRINT USING}} " Elapsed time: #.###### seconds with #######, swaps"; ending! - start!; swap2&amp;
 {{Cl|FOR...NEXT|FOR}} n = 0 {{Cl|TO}} 10000             'check array sort order
-  {{Cl|IF}} array(n) &gt;= max! {{Cl|THEN}}     'max should match the array type
+  {{Cl|IF}} array(n) >= max! {{Cl|THEN}}     'max should match the array type
     max! = array(n)
   {{Cl|ELSE}} {{Cl|BEEP}}
-    {{Cl|PRINT}} &quot;Bad sort order!&quot;
+    {{Cl|PRINT}} "Bad sort order!"
     {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
   {{Cl|END IF}}
 {{Cl|NEXT}}
@@ -101,14 +101,14 @@ Hi = finish: Lo = start
 Middle = array((Lo + Hi) / 2) 'find middle of array
 {{Cl|DO}}
   {{Cl|DO}} {{Cl|WHILE}} array(Lo) &lt; Middle: Lo = Lo + 1: {{Cl|LOOP}}
-  {{Cl|DO}} {{Cl|WHILE}} array(Hi) &gt; Middle: Hi = Hi - 1: {{Cl|LOOP}}
+  {{Cl|DO}} {{Cl|WHILE}} array(Hi) > Middle: Hi = Hi - 1: {{Cl|LOOP}}
   {{Cl|IF}} Lo &lt;= Hi {{Cl|THEN}}
     {{Cl|SWAP}} array(Lo), array(Hi)
     swap2 = swap2 + 1                  'count swaps for demo only    
     Lo = Lo + 1: Hi = Hi - 1
   {{Cl|END IF}}                               'If homework, you will fail
-{{Cl|LOOP}} {{Cl|UNTIL}} Lo &gt; Hi
-{{Cl|IF}} Hi &gt; start {{Cl|THEN}} {{Cl|CALL}} QuickSort(start, Hi, array())
+{{Cl|LOOP}} {{Cl|UNTIL}} Lo > Hi
+{{Cl|IF}} Hi > start {{Cl|THEN}} {{Cl|CALL}} QuickSort(start, Hi, array())
 {{Cl|IF}} Lo &lt; finish {{Cl|THEN}} {{Cl|CALL}} QuickSort(Lo, finish, array())
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}

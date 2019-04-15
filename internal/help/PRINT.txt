@@ -17,14 +17,14 @@ The {{KW|PRINT}} statement prints numeric or string expressions to the program s
 ** [[SPACE$]]({{Parameter|n%}}) or [[SPC]]({{Parameter|n%}}) - specifies that {{Parameter|n%}} space characters will be printed.
 ** [[TAB]]({{Parameter|column%}}) - specifies that the print cursor is to move to column number {{Parameter|column%}}. If the print cursor is already beyond that column, it is moved to the designated column on the next row.
 * A ''separator'' is used to separate multiple expressions and specifies how the print cursor is to be moved:
-** [[Semicolon]](;) - specifies that the print cursor stops at the end of the printed ''expression'' and may append later ''expressions'' or prints. PRINT ; or PRINT &quot;&quot;; will stop cursor movement and append later prints. Ending [[semicolon]]s can also stop screen roll.
+** [[Semicolon]](;) - specifies that the print cursor stops at the end of the printed ''expression'' and may append later ''expressions'' or prints. PRINT ; or PRINT ""; will stop cursor movement and append later prints. Ending [[semicolon]]s can also stop screen roll.
 ** [[Comma]](,) - specifies that the print cursor is to move to the next 14-column tab-stop. If the print cursor is at column 56 or greater, it is moved to the next row at column 1. When used after an ''expression'' it may Tab-stop append later prints.
 ** [[+|Plus]](+) uses [[concatenation]] to add [[STRING]] expressions ONLY with no spacing. '''Cannot combine  numerical ''expression''s!'''
 ** If a {{Parameter|separator}} is not used at the end of the expression list, the print cursor moves to the next row at column 1.
 * When '''printing numerical''' ''expressions'' values, the following rules are used:
 ** If the value is positive, the number is prefixed with a space character, otherwise, the number is prefixed with a negative sign (-).
 ** If the value is an integer (whole number), no decimal point or fractional part will be printed.
-** If the value is not an [[INTEGER|integer]](whole number) and has zero for a coefficient, no leading zero is printed. EX: -0.123 prints &quot;-.123 &quot;
+** If the value is not an [[INTEGER|integer]](whole number) and has zero for a coefficient, no leading zero is printed. EX: -0.123 prints "-.123 "
 ** If the expression is in [[scientific notation]], the number is also printed in scientific notation.
 ** The number is [[PRINT|printed]] with a space after it unless [[STR$]](number) is used to convert it to string text.
 ** Numerical values MUST be added to a PRINT statement string using [[comma]]s or [[semicolon]]s on each side of the value or by using [[STR$]] to convert the value to a string to use [[concatenation]] (+ string addition).
@@ -46,29 +46,29 @@ The {{KW|PRINT}} statement prints numeric or string expressions to the program s
 
 ''Example 1:'' Using semicolons, comma tabs or concatenation to insert [[ASCII]] characters and numbers in a PRINT:
 {{CodeStart}}
-{{Cl|PRINT}} CHR$(34); &quot;Hello world!&quot;; CHR$(34) ' adding quotation marks
+{{Cl|PRINT}} CHR$(34); "Hello world!"; CHR$(34) ' adding quotation marks
 {{Cl|PRINT}} 123 'demonstrates the positive leading space
-a$ = &quot;Hello country!&quot;: a = 321: b = -321
+a$ = "Hello country!": a = 321: b = -321
 {{Cl|PRINT}} a$, a ' demonstrates comma in statement
 {{Cl|PRINT}} a$; a ' demonstrates semicolon in statement
 {{Cl|PRINT}} a$ + {{Cl|STR$}}(b) ' concatenation of string numerical values only
-? &quot;Hello city!&quot; ' a ? changes to PRINT after moving cursor from the code line in IDE
+? "Hello city!" ' a ? changes to PRINT after moving cursor from the code line in IDE
 {{CodeEnd}}
-{{OutputStart}}&quot;Hello world!&quot;
+{{OutputStart}}"Hello world!"
  123
 Hello country!      321
 Hello country! 321
 Hello country!-321
 Hello city!
 {{OutputEnd}}
-:First PRINT prints the text between two quotation marks, then it prints the value 123, notice that there are no quotation marks when printing the value, quotation marks mean that it will be treated like a literal string of text. a$ is set to &quot;Hello country&quot; and 'a' is set to the value 321, the dollar sign is used when a variable holds the text string. The contents of a$ is then printed and the &quot;,&quot; means that the value of 'a' is printed separated by a tab and &quot;;&quot; means that there is no separation from the other text except for the leading positive value space.
+:First PRINT prints the text between two quotation marks, then it prints the value 123, notice that there are no quotation marks when printing the value, quotation marks mean that it will be treated like a literal string of text. a$ is set to "Hello country" and 'a' is set to the value 321, the dollar sign is used when a variable holds the text string. The contents of a$ is then printed and the "," means that the value of 'a' is printed separated by a tab and ";" means that there is no separation from the other text except for the leading positive value space.
 
 
 ''Example 2:'' Changing colors in a line of text using semicolons with colon separators between PRINTs on the same code line.
 {{CodeStart}}
-{{Cl|COLOR}} 12: {{Cl|PRINT}} &quot;Start red &quot;; : {{Cl|COLOR}} 10: {{Cl|PRINT}} &quot;and end green.&quot;
-{{Cl|COLOR}} 11: {{Cl|PRINT}} &quot;Start aqua &quot;;
-{{Cl|COLOR}} 14: {{Cl|PRINT}} &quot;and end blue.&quot;
+{{Cl|COLOR}} 12: {{Cl|PRINT}} "Start red "; : {{Cl|COLOR}} 10: {{Cl|PRINT}} "and end green."
+{{Cl|COLOR}} 11: {{Cl|PRINT}} "Start aqua ";
+{{Cl|COLOR}} 14: {{Cl|PRINT}} "and end blue."
 {{CodeEnd}}
 {{OutputStart}}{{text|Start red|#FF1515}} {{text|and end green.|#15FF15}}
 {{text|Start aqua|#15FFFF}} {{text|and end blue.|#0000FF}} {{OutputEnd}}

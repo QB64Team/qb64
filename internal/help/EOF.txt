@@ -9,7 +9,7 @@ The [[EOF]] function indicates that the end of a file has been reached.
 * {{Parameter|fileNumber&amp;}} is the number of the file being read. '''#''' is not required.
 * Returns 0 until the end of a file. This avoids a file read error.
 * Returns -1 (true) at the end of the file.
-&lt;!-- confusing statement; further details are required: * [[CHR$]](26) can be used to denote the end of a file. --&gt;
+&lt;!-- confusing statement; further details are required: * [[CHR$]](26) can be used to denote the end of a file. -->
 * '''Note that [[GET]] can return invalid data at the end of a file.''' Read [[EOF]] after a GET operation to see if the end of the file has been reached and discard last read.
 
 

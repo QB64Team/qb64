@@ -24,13 +24,13 @@ QB64 {{PageSyntax}}
 {{Cl|STRIG(n)|STRIG}}(0)ON
 
 DO
-    {{Cl|PRINT}} &quot;.&quot;;
+    {{Cl|PRINT}} ".";
     {{Cl|_LIMIT}} 30
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 10
-a$ = &quot;[STRIG 0 EVENT]&quot;
+a$ = "[STRIG 0 EVENT]"
 {{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} {{Cl|LEN}}(a$)
     {{Cl|PRINT}} {{Cl|MID$}}(a$, x, 1);
     {{Cl|_DELAY}} 0.02

@@ -23,13 +23,13 @@ The [[_CWD$]] function returns the current working directory path as a string va
 ''Example:'' Get the current working directory, and move around the file system:
 {{CodeStart}} '' ''
 startdir$ = _CWD$
-{{Cl|PRINT}} &quot;We started at &quot;; startdir$
-{{Cl|MKDIR}} &quot;a_temporary_dir&quot;
-{{Cl|CHDIR}} &quot;a_temporary_dir&quot;
-{{Cl|PRINT}} &quot;We are now in &quot;; _CWD$
+{{Cl|PRINT}} "We started at "; startdir$
+{{Cl|MKDIR}} "a_temporary_dir"
+{{Cl|CHDIR}} "a_temporary_dir"
+{{Cl|PRINT}} "We are now in "; _CWD$
 {{Cl|CHDIR}} startdir$
-{{Cl|PRINT}} &quot;And now we're back in &quot;; _CWD$
-{{Cl|RMDIR}} &quot;a_temporary_dir&quot;
+{{Cl|PRINT}} "And now we're back in "; _CWD$
+{{Cl|RMDIR}} "a_temporary_dir"
 {{CodeEnd}}
 
 {{OutputStart}}We started at C:\QB64

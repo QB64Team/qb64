@@ -21,20 +21,20 @@ The [[COS]] function returns the horizontal component or the cosine of an angle 
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 PI = 4 * {{Cl|ATN}}(1)
-{{Cl|PRINT}} &quot;PI = 4 * {{Cl|ATN}}(1) =&quot;; PI
-{{Cl|PRINT}} &quot;COS(PI) = &quot;; {{Cl|COS}}(PI)
-{{Cl|PRINT}} &quot;SIN(PI) = &quot;; {{Cl|SIN}}(PI)
+{{Cl|PRINT}} "PI = 4 * {{Cl|ATN}}(1) ="; PI
+{{Cl|PRINT}} "COS(PI) = "; {{Cl|COS}}(PI)
+{{Cl|PRINT}} "SIN(PI) = "; {{Cl|SIN}}(PI)
 {{Cl|DO...LOOP|DO}}
   {{Cl|PRINT}}
-  {{Cl|INPUT}} &quot;Enter the degree angle (0 quits): &quot;, DEGREES%
+  {{Cl|INPUT}} "Enter the degree angle (0 quits): ", DEGREES%
   RADIANS = DEGREES% * PI / 180
-  {{Cl|PRINT}} &quot;RADIANS = DEGREES% * PI / 180 = &quot;; RADIANS
-  {{Cl|PRINT}} &quot;X = COS(RADIANS) = &quot;; {{Cl|COS}}(RADIANS)
-  {{Cl|PRINT}} &quot;Y = SIN(RADIANS) = &quot;; {{Cl|SIN}}(RADIANS)
+  {{Cl|PRINT}} "RADIANS = DEGREES% * PI / 180 = "; RADIANS
+  {{Cl|PRINT}} "X = COS(RADIANS) = "; {{Cl|COS}}(RADIANS)
+  {{Cl|PRINT}} "Y = SIN(RADIANS) = "; {{Cl|SIN}}(RADIANS)
   {{Cl|CIRCLE}} (400, 240), 2, 12
   {{Cl|LINE}} (400, 240)-(400 + (50 * {{Cl|SIN}}(RADIANS)), 240 + (50 * {{Cl|COS}}(RADIANS))), 11
   DEGREES% = RADIANS * 180 / PI
-  {{Cl|PRINT}} &quot;DEGREES% = RADIANS * 180 / PI =&quot;; DEGREES%
+  {{Cl|PRINT}} "DEGREES% = RADIANS * 180 / PI ="; DEGREES%
 {{Cl|LOOP}} {{Cl|UNTIL}} DEGREES% = 0 '' ''
 {{CodeEnd}}
 {{OutputStart}}

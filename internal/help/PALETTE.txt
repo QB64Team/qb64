@@ -1,38 +1,41 @@
-The '''PALETTE''' statement can swap color settings, set colors to default or set the Red, Green, Blue color palette.
+The [[PALETTE]] statement can swap color settings, set colors to default or set the red, green and blue color components of palette colors.
 
 
+{{PageSyntax}} 
 
-''RGB'' {{PageSyntax}} 
-
-:::PALETTE [''attribute'', ''Red'' + (''Green'' * 256) + (''Blue'' * 65536)]
-
-''Swap'' {{PageSyntax}} 
-
-:::PALETTE [''set_attribute'', new_attribute]
+: [[PALETTE]] [{{Parameter|attribute%}}, ''red%'' + (''green%'' * 256) + (''blue%'' * 65536)]
+: [[PALETTE]] [{{Parameter|existingAttribute%}}, {{Parameter|newAttribute%}}]
 
 
-* ''Red'', ''Green'' and ''Blue'' values can be from 0 to 63. Many color shades possible in non-[[DAC]] color attributes.
-* If the Red, Green and Blue color intensity settings are all the same value the color is greyscale.
-* Screens 0, 7 and 9 ([[DAC]]) colors cannot be changed by the RGB syntax statement in QBasic! Can use [[OUT]] to change attribute 1 thru 5 intensity settings.
-* A swap is often used with [[DAC]] color attributes that cannot change RGB settings. Only the RGB color settings are swapped from original ''set_attribute'' to ''new_attribute''. Screens 0 thru 9 support swaps. Screen 10 up to 8 only.
-* PALETTE without any value sets any changed RGB settings back to the Qbasic default color settings including [[DAC]] colors.
+{{PageDescription}}
+* {{Parameter|red%}}, {{Parameter|green%}} and {{Parameter|blue%}} values can range from 0 to 63. Many color shades are possible in non-[[DAC]] color attributes.
+* If the {{Parameter|red%}}, {{Parameter|green%}} and {{Parameter|blue%}} color intensity settings are all the same value the resulting color is a shade of grey.
+* A swap is often used with [[DAC]] color attributes that cannot change RGB settings. Only the RGB color settings are swapped from original {{Parameter|existingAttribute%}} to {{Parameter|newAttribute%}}. Screens 0 thru 9 support swaps. Screen 10 supports up to attribute 8 only.
+* PALETTE without any value sets any changed RGB settings back to the default color settings, including [[DAC]] colors.
 * [[PALETTE USING]] can be used when color intensity values are stored in an [[Arrays|array]].
+* QB64 implements the [[_PALETTECOLOR]] statement to provide extended palette functionality.
 
 
+==QBasic/QuickBASIC==
+* Screens 0, 7 and 9 ([[DAC]]) colors could not be changed using the first syntax, but the program could use [[OUT]] to change intensity settings of attributes 1 thru 5.
+
+
+{{PageExamples}}
 ''Example:'' Displaying all 64 DAC color hues as backgrounds in SCREEN 9 using a PALETTE swap.
 
 {{CodeStart}} '' ''
   {{Cl|SCREEN (statement)|SCREEN}} 9 ' background is default black
-  {{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} &quot;Press any Key!&quot;  
+  {{Cl|LOCATE}} 20, 33: {{Cl|PRINT}} "Press any Key!"  
   {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 64
    a$ = {{Cl|INPUT$}}(1) ' wait for a keypress
    {{Cl|PALETTE}} 0, i
   {{Cl|NEXT}} '' ''
 {{CodeEnd}}
-:''Note:'' Other attributes(1 to 15) can be swapped for DAC foreground colors also.
+:''Note:'' Other attributes (1 to 15) can also be swapped for DAC foreground colors.
 
 
-''See also:'' 
+{{PageSeeAlso}}
+* [[_PALETTECOLOR]]
 * [[PALETTE USING]]
 * [[COLOR]]
 * [[OUT]], [[INP]]

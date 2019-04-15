@@ -18,11 +18,11 @@
 * The literal, variable or expression {{Parameter|testExpression}} comparison can result in any string or numerical type. 
 * '''Note:''' A {{Parameter|testExpression}} variable value can be changed inside of true CASE evaluations in SELECT EVERYCASE. 
 * A {{Parameter|testExpression}} derived from an expression or [[FUNCTION]] will only be determined once at the start of the block execution.
-* &lt;span id=&quot;allCASES&quot;&gt;Supports individual CASE values and ranges or lists of literal values as below:&lt;/span&gt;
+* &lt;span id="allCASES">Supports individual CASE values and ranges or lists of literal values as below:&lt;/span>
 ** '''CASE''' casevalue: code {{text|''''case compares one numerical or text value'''}}
 ** '''CASE''' casevalue1 [[TO]] casevalue2: code {{text|''''case compares a range of values '''}}
 ** '''CASE''' casevalue1, casevalue2, casevalue3: code {{text|''''case compares a list of values separated by commas'''}}
-** '''CASE IS''' &gt; casevalue: code {{text|''''case compares a value as &lt;nowiki&gt; =, &lt;&gt;, &lt; or &gt; &lt;/nowiki&gt;'''}} 
+** '''CASE IS''' > casevalue: code {{text|''''case compares a value as &lt;nowiki> =, &lt;>, &lt; or > &lt;/nowiki>'''}} 
 ** '''CASE ELSE''': code {{text|''''bottom case statement executes only when no other CASE is executed.}}'''
 * The CASE values should cover the normal ranges of the comparison {{Parameter|testExpression}} values. 
 * Use '''CASE ELSE''' before '''END SELECT''' if an alternative is necessary when no other case matches.
@@ -37,20 +37,20 @@
 {{PageExamples}}
 ''Example 1:'' SELECT CASE can use literal or variable [[STRING]] or numerical values in CASE comparisons:
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a whole number value from 1 to 40: &quot;, value
+{{Cl|INPUT}} "Enter a whole number value from 1 to 40: ", value
 value1 = 10
 value2 = 20
 value3 = 30
 
 {{Cl|SELECT CASE}} value
-  {{Cl|CASE}} value1: {{Cl|PRINT}} &quot;Ten only&quot;
-  {{Cl|CASE}} value1 {{Cl|TO}} value2: {{Cl|PRINT}} &quot;11 to 20 only&quot; '10 is already evaluated
-  {{Cl|CASE}} value1, value2, value3: {{Cl|PRINT}} &quot;30 only&quot; '10 and 20 are already evaluated
-  {{Cl|CASE IS}} &gt; value2: {{Cl|PRINT}} &quot;greater than 20 but not 30&quot; '30 is already evaluated
-  {{Cl|CASE ELSE}}: {{Cl|PRINT}} &quot;Other value&quot; 'values less than 10
+  {{Cl|CASE}} value1: {{Cl|PRINT}} "Ten only"
+  {{Cl|CASE}} value1 {{Cl|TO}} value2: {{Cl|PRINT}} "11 to 20 only" '10 is already evaluated
+  {{Cl|CASE}} value1, value2, value3: {{Cl|PRINT}} "30 only" '10 and 20 are already evaluated
+  {{Cl|CASE IS}} > value2: {{Cl|PRINT}} "greater than 20 but not 30" '30 is already evaluated
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} "Other value" 'values less than 10
 {{Cl|END SELECT}} '' ''
 {{CodeEnd}}
-: ''Explanation:'' The first true CASE is executed and SELECT CASE is exited. &quot;Other value&quot; is printed for values less than 10.
+: ''Explanation:'' The first true CASE is executed and SELECT CASE is exited. "Other value" is printed for values less than 10.
 
 
 ''Example 2:'' SELECT CASE will execute the first CASE statement that is true and ignore all CASE evaluations after that:
@@ -58,22 +58,22 @@ value3 = 30
 a = 100
 {{Cl|SELECT CASE}} a          'designate the value to compare
   {{Cl|CASE}} 1, 3, 5, 7, 9
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE}} 10
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE}} 50
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE}} 100
-    {{Cl|PRINT}} &quot;This will be displayed when a equals 100&quot;
-    {{Cl|PRINT}} &quot;(and no other case will be checked)&quot;
+    {{Cl|PRINT}} "This will be displayed when a equals 100"
+    {{Cl|PRINT}} "(and no other case will be checked)"
   {{Cl|CASE}} 150
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE IS}} &lt; 150
-    {{Cl|PRINT}} &quot;This will not be shown as a previous case was true&quot;
+    {{Cl|PRINT}} "This will not be shown as a previous case was true"
   {{Cl|CASE}} 50 {{Cl|TO}} 150
-    {{Cl|PRINT}} &quot;This will not be shown as a previous case was true&quot;
+    {{Cl|PRINT}} "This will not be shown as a previous case was true"
   {{Cl|CASE ELSE}}
-   {{Cl|PRINT}} &quot;This will only print if it gets this far!&quot;
+   {{Cl|PRINT}} "This will only print if it gets this far!"
 {{Cl|END SELECT}} '' ''
 {{CodeEnd}}
 {{OutputStart}}This will be displayed when a equals 100
@@ -87,22 +87,22 @@ a = 100
 a = 100
 {{Cl|SELECT CASE|SELECT EVERYCASE}} a          'designate the value to compare
   {{Cl|CASE}} 1, 3, 5, 7, 9
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE}} 10
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE}} 50
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE}} 100
-    {{Cl|PRINT}} &quot;This will be displayed when a equals 100&quot;
-    {{Cl|PRINT}} &quot;(and other cases will be checked)&quot;
+    {{Cl|PRINT}} "This will be displayed when a equals 100"
+    {{Cl|PRINT}} "(and other cases will be checked)"
   {{Cl|CASE}} 150
-    {{Cl|PRINT}} &quot;This will not be shown.&quot;
+    {{Cl|PRINT}} "This will not be shown."
   {{Cl|CASE IS}} &lt; 150
-    {{Cl|PRINT}} &quot;This will be shown as 100 is less than 150&quot;
+    {{Cl|PRINT}} "This will be shown as 100 is less than 150"
   {{Cl|CASE}} 50 {{Cl|TO}} 150
-    {{Cl|PRINT}} &quot;This will be shown as 100 is between 50 and 150&quot;
+    {{Cl|PRINT}} "This will be shown as 100 is between 50 and 150"
   {{Cl|CASE ELSE}}
-   {{Cl|PRINT}} &quot;This will only print if no other CASE is true!&quot;
+   {{Cl|PRINT}} "This will only print if no other CASE is true!"
 {{Cl|END SELECT}} '' ''
 {{CodeEnd}}
 {{OutputStart}}This will be displayed when a equals 100
@@ -115,49 +115,49 @@ This will be shown as 100 is between 50 and 150
 
 ''Example 4:'' SELECT CASE evaluates string values by the [[ASC]] code value according to [[ASCII]].
 {{CodeStart}} '' ''
-{{Cl|PRINT}} &quot;Enter a letter, number or punctuation mark from the keyboard: &quot;;
+{{Cl|PRINT}} "Enter a letter, number or punctuation mark from the keyboard: ";
 valu$ = {{Cl|INPUT$}}(1)
 {{Cl|PRINT}} value$
-value1$ = &quot;A&quot;
-value2$ = &quot;m&quot;
-value3$ = &quot;z&quot;
+value1$ = "A"
+value2$ = "m"
+value3$ = "z"
 
 {{Cl|SELECT CASE}} value$
-  {{Cl|CASE}} value1$: {{Cl|PRINT}} &quot;A only&quot;
-  {{Cl|CASE}} value1$ {{Cl|TO}} value2$: {{Cl|PRINT}} &quot;B to m&quot; 'A is already evaluated
-  {{Cl|CASE}} value1$, value2$, value3$: {{Cl|PRINT}} &quot;z only&quot; 'A and m are already evaluated
-  {{Cl|CASE IS}} &gt; value2$: {{Cl|PRINT}} &quot;greater than m but not z&quot; 'z is already evaluated
-  {{Cl|CASE ELSE}}: {{Cl|PRINT}} &quot;other value&quot; 'key entry below A including all numbers
+  {{Cl|CASE}} value1$: {{Cl|PRINT}} "A only"
+  {{Cl|CASE}} value1$ {{Cl|TO}} value2$: {{Cl|PRINT}} "B to m" 'A is already evaluated
+  {{Cl|CASE}} value1$, value2$, value3$: {{Cl|PRINT}} "z only" 'A and m are already evaluated
+  {{Cl|CASE IS}} > value2$: {{Cl|PRINT}} "greater than m but not z" 'z is already evaluated
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} "other value" 'key entry below A including all numbers
 {{Cl|END SELECT}} '' ''
 {{CodeEnd}}
-: ''Notes:'' [[STRING]] values using multiple characters will be compared by the [[ASCII]] code values sequentially from left to right. Once the equivalent code value of one string is larger than the other the evaluation stops. This allows string values to be compared and sorted alphabetically using [[Greater Than|&gt;]] or [[Less Than|&lt;]] and to [[SWAP]] values in [[arrays]] regardless of the string lengths.
+: ''Notes:'' [[STRING]] values using multiple characters will be compared by the [[ASCII]] code values sequentially from left to right. Once the equivalent code value of one string is larger than the other the evaluation stops. This allows string values to be compared and sorted alphabetically using [[Greater Than|>]] or [[Less Than|&lt;]] and to [[SWAP]] values in [[arrays]] regardless of the string lengths.
 
 
 ''Example 5:'' EVERYCASE is used to draw sections of digital numbers in a simulated LED readout using numbers from 0 to 9:
 {{CodeStart}}
 {{Cl|SCREEN}} 12
 DO
-  {{Cl|LOCATE}} 1, 1: {{Cl|INPUT}} &quot;Enter a number 0 to 9: &quot;, num
+  {{Cl|LOCATE}} 1, 1: {{Cl|INPUT}} "Enter a number 0 to 9: ", num
   {{Cl|CLS}}
   {{Cl|SELECT CASE|SELECT EVERYCASE}} num
     {{Cl|CASE}} 0, 2, 3, 5 {{Cl|TO}} 9: {{Cl|PSET}} (20, 20), 12
-      {{Cl|DRAW}} &quot;E2R30F2G2L30H2BR5P12,12&quot; 'top horiz
+      {{Cl|DRAW}} "E2R30F2G2L30H2BR5P12,12" 'top horiz
     {{Cl|CASE}} 0, 4 {{Cl|TO}} 6, 8, 9: {{Cl|PSET}} (20, 20), 12
-      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12,12&quot; 'left top vert
+      {{Cl|DRAW}} "F2D30G2H2U30E2BD5P12,12" 'left top vert
     {{Cl|CASE}} 0, 2, 6, 8: {{Cl|PSET}} (20, 54), 12
-      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12, 12&quot; 'left bot vert
+      {{Cl|DRAW}} "F2D30G2H2U30E2BD5P12, 12" 'left bot vert
     {{Cl|CASE}} 2 {{Cl|TO}} 6, 8, 9: {{Cl|PSET}} (20, 54), 12
-      {{Cl|DRAW}} &quot;E2R30F2G2L30H2BR5P12, 12&quot; 'middle horiz
+      {{Cl|DRAW}} "E2R30F2G2L30H2BR5P12, 12" 'middle horiz
     {{Cl|CASE}} 0 {{Cl|TO}} 4, 7 {{Cl|TO}} 9: {{Cl|PSET}} (54, 20), 12
-      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12,12&quot; 'top right vert  
+      {{Cl|DRAW}} "F2D30G2H2U30E2BD5P12,12" 'top right vert  
     {{Cl|CASE}} 0, 1, 3 {{Cl|TO}} 9: {{Cl|PSET}} (54, 54), 12
-      {{Cl|DRAW}} &quot;F2D30G2H2U30E2BD5P12,12&quot; 'bottom right vert
+      {{Cl|DRAW}} "F2D30G2H2U30E2BD5P12,12" 'bottom right vert
     {{Cl|CASE}} 0, 2, 3, 5, 6, 8: {{Cl|PSET}} (20, 88), 12
-      {{Cl|DRAW}} &quot;E2R30F2G2L30H2BR5P12,12&quot; 'bottom horiz
+      {{Cl|DRAW}} "E2R30F2G2L30H2BR5P12,12" 'bottom horiz
     {{Cl|CASE ELSE}} 
-      {{Cl|LOCATE}} 20, 20: {{Cl|PRINT}} &quot;Goodbye!&quot;; num
+      {{Cl|LOCATE}} 20, 20: {{Cl|PRINT}} "Goodbye!"; num
   {{Cl|END SELECT}}
-{{Cl|LOOP}} {{Cl|UNTIL}} num &gt; 9 
+{{Cl|LOOP}} {{Cl|UNTIL}} num > 9 
 {{CodeEnd}}
 : '''Note:''' [[CASE ELSE]] will only execute if no other CASE is true! Changing the comparison value in a CASE may affect later CASE evaluations. '''Beware of duplicate variables inside of cases affecting the comparison values and remaining cases.'''
 

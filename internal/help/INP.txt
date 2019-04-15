@@ -57,23 +57,23 @@ DO: {{Cl|_LIMIT}} 100 'adjust higher for faster
 {{Cl|IF...THEN|IF}} ScanKey%(72) {{Cl|THEN}} RTpos = RTpos - 1
 {{Cl|IF...THEN|IF}} ScanKey%(80) {{Cl|THEN}} RTpos = RTpos + 1
 
-{{Cl|PRINT}} &quot;Player 1 : &quot;; ponescore; &quot; Player 2 : &quot;; ptwoscore
+{{Cl|PRINT}} "Player 1 : "; ponescore; " Player 2 : "; ptwoscore
 
-{{Cl|IF...THEN|IF}} x &gt; xmax - 15 {{Cl|AND (boolean)|AND}} y &gt;= RTpos {{Cl|AND (boolean)|AND}} y &lt;= RTpos + 100 {{Cl|THEN}}
+{{Cl|IF...THEN|IF}} x > xmax - 15 {{Cl|AND (boolean)|AND}} y >= RTpos {{Cl|AND (boolean)|AND}} y &lt;= RTpos + 100 {{Cl|THEN}}
 dx = -1
-{{Cl|ELSEIF}} x &gt; xmax {{Cl|THEN}}
+{{Cl|ELSEIF}} x > xmax {{Cl|THEN}}
 ponescore = ponescore + 1
 {{Cl|GOSUB}} begin
 {{Cl|END IF}}
 
-{{Cl|IF...THEN|IF}} x &lt; xmin + 15 {{Cl|AND (boolean)|AND}} y &gt;= LTpos {{Cl|AND (boolean)|AND}} y &lt;= LTpos + 100 {{Cl|THEN}}
+{{Cl|IF...THEN|IF}} x &lt; xmin + 15 {{Cl|AND (boolean)|AND}} y >= LTpos {{Cl|AND (boolean)|AND}} y &lt;= LTpos + 100 {{Cl|THEN}}
 dx = 1
 {{Cl|ELSEIF}} x &lt; xmin {{Cl|THEN}}
 ptwoscore = ptwoscore + 1
 {{Cl|GOSUB}} begin
 {{Cl|END IF}}
 
-{{Cl|IF...THEN|IF}} y &gt; ymax - 5 {{Cl|THEN}} dy = -1
+{{Cl|IF...THEN|IF}} y > ymax - 5 {{Cl|THEN}} dy = -1
 {{Cl|IF...THEN|IF}} y &lt; ymin + 5 {{Cl|THEN}} dy = 1
 ' Display the sprite elsewhere on the screen
 
@@ -110,6 +110,9 @@ ScanKey% = keyflags%(scancode%)
 * [[INKEY$]], [[_KEYHIT]], [[_KEYDOWN]]
 * [[Bitmaps]], [[Scancodes]] {{text|(keyboard)}}
 * [[Port Access Libraries]] {{text|(COM or LPT registers)}}
+
+
+===External Links===
 * [http://en.wikipedia.org/wiki/Input/output_base_address#Common_I.2FO_base_address_device_assignments_in_IBM_PC_compatible_computers PC I/O base address device assignments]
 
 

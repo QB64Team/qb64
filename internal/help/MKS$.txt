@@ -1,20 +1,21 @@
-The '''MKS$''' function converts a [[SINGLE]] numerical value to a 4 byte [[ASCII]] string value.
+The [[MKS$]] function encodes a [[SINGLE]] numerical value into a 4-byte [[ASCII]] [[STRING]] value.
 
 
 {{PageSyntax}}
-:: 4byte_string$ = MKS$(single_value)
+: {{Parameter|result$}} = [[MKS$]]({{Parameter|singlePrecisionVariableOrLiteral#}})
 
 
-* The single number value is converted to four ASCII characters. To prove this try: PRINT MKS$(1345678).
+{{PageDescription}}
+* {{Parameter|singlePrecisionVariableOrLiteral#}} is converted to four ASCII characters. To see this in action, try {{InlineCode}}PRINT MKS$(1345678){{InlineCodeEnd}}.
 * [[SINGLE]] values can range up to 7 decimal point digits. Decimal point accuracy depends on whole value places taken.
-* MKS$ string values can be converted back to SINGLE numerical values using the [[CVS]] function.
-* [[SINGLE]] numerical variable values [[PUT]] into a [[BINARY]] file are automatically placed as an MKS$ [[ASCII]] string value.
+* [[MKS$]] string values can be converted back to SINGLE numerical values using the [[CVS]] function.
+* [[SINGLE]] numerical variable values [[PUT]] into a [[BINARY]] file are automatically placed as an [[MKS$]] [[ASCII]] string value.
 
 
-''See also:'' 
-* [[MKI$]], [[MKL$]], [[MKD$]]
-* [[CVI]], [[CVL]], [[CVD]], [[_CV]] 
-* [[_MK$]], [[STRING]]
+{{PageSeeAlso}}
+* [[MKI$]], [[MKD$]], [[MKL$]]
+* [[CVD]], [[CVI]], [[CVS]], [[CVL]]
+* [[_MK$]], [[_CV]]
 
 
 {{PageNavigation}}

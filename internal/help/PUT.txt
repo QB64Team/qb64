@@ -28,13 +28,13 @@ The '''PUT #''' file or port statement writes data to a specific byte or record 
 {{Cl|END}} {{Cl|TYPE}}
 {{Cl|DIM}} Contact {{Cl|AS}} ContactType
 
-{{Cl|INPUT}} &quot;Enter a first name: &quot;, Contact.first
-{{Cl|INPUT}} &quot;Enter a last name: &quot;, Contact.last
-{{Cl|INPUT}} &quot;Enter an age: &quot;, Contact.age
+{{Cl|INPUT}} "Enter a first name: ", Contact.first
+{{Cl|INPUT}} "Enter a last name: ", Contact.last
+{{Cl|INPUT}} "Enter an age: ", Contact.age
 
-{{Cl|OPEN}} &quot;Record.lst&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = {{Cl|LEN}}(Contact)
+{{Cl|OPEN}} "Record.lst" {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #1 {{Cl|LEN}} = {{Cl|LEN}}(Contact)
 NumRecords% = {{Cl|LOF}}(1) \ {{Cl|LEN}}(Contact)
-{{Cl|PRINT}} NumRecords%; &quot;previous records&quot;
+{{Cl|PRINT}} NumRecords%; "previous records"
 
 {{Cl|PUT}} #1, NumRecords% + 1, Contact ' add a new record {{Cl|TYPE}} record value
 {{Cl|CLOSE}} #1 '' ''
@@ -51,7 +51,7 @@ NumRecords% = {{Cl|LOF}}(1) \ {{Cl|LEN}}(Contact)
 {{Cl|NEXT}}
 showme  'display array contents
 
-{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+{{Cl|OPEN}} "BINFILE.BIN" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
 
 {{Cl|PUT}} #1, , array()
 
@@ -59,7 +59,7 @@ showme  'display array contents
 showme
 {{Cl|CLOSE}} #1
 
-{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2
+{{Cl|OPEN}} "BINFILE.BIN" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2
 {{Cl|GET}} #2, , array()
 {{Cl|CLOSE}} #2
 showme  'display array after transfer from file
@@ -70,7 +70,7 @@ showme  'display array after transfer from file
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 100
   {{Cl|PRINT}} array(i);
 {{Cl|NEXT}}
-{{Cl|PRINT}} &quot;done&quot;
+{{Cl|PRINT}} "done"
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 : ''Note:'' Use empty brackets in QB64 when using [[GET]] to create an array or [[PUT]] to create a [[BINARY]] data file.

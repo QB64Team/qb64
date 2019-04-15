@@ -50,19 +50,19 @@ xm = 4
 ym = 4
 
 {{Cl|REM}} Some fun things for the bouncing text.
-st$(0) = &quot;doo&quot;
-st$(1) = &quot;rey&quot;
-st$(2) = &quot;mee&quot;
-st$(3) = &quot;faa&quot;
-st$(4) = &quot;soo&quot;
-st$(5) = &quot;laa&quot;
-st$(6) = &quot;tee&quot;
+st$(0) = "doo"
+st$(1) = "rey"
+st$(2) = "mee"
+st$(3) = "faa"
+st$(4) = "soo"
+st$(5) = "laa"
+st$(6) = "tee"
 
-sta$(0) = &quot;This is a demo&quot;
-sta$(1) = &quot;showing how to use&quot;
-sta$(2) = &quot;the _DEST command&quot;
-sta$(3) = &quot;with PRINT&quot;
-sta$(4) = &quot;and _PUTIMAGE&quot;
+sta$(0) = "This is a demo"
+sta$(1) = "showing how to use"
+sta$(2) = "the _DEST command"
+sta$(3) = "with PRINT"
+sta$(4) = "and _PUTIMAGE"
 
 {{Cl|REM}} prints to a(3) image then switches back to the default 0
 {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 6): {{Cl|PRINT}} st$(3): {{Cl|_DEST}} 0
@@ -89,12 +89,12 @@ DO
 
     r = r + 1
     {{Cl|IF...THEN|IF}} r = 4 {{Cl|THEN}} r = 0
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 bounce:
-{{Cl|IF...THEN|IF}} xa &gt; 600 {{Cl|OR (boolean)|OR}} xa &lt; 20 {{Cl|THEN}} xm = xm * -1: {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 6): {{Cl|CLS}}: {{Cl|_CLEARCOLOR}} 0: {{Cl|PRINT}} st$(f): {{Cl|_DEST}} 0
-{{Cl|IF...THEN|IF}} ya &gt; 400 {{Cl|OR (boolean)|OR}} ya &lt; 20 {{Cl|THEN}} ym = ym * -1: {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 7): {{Cl|CLS}}: {{Cl|_CLEARCOLOR}} 0: {{Cl|PRINT}} st$(f): {{Cl|_DEST}} 0
+{{Cl|IF...THEN|IF}} xa > 600 {{Cl|OR (boolean)|OR}} xa &lt; 20 {{Cl|THEN}} xm = xm * -1: {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 6): {{Cl|CLS}}: {{Cl|_CLEARCOLOR}} 0: {{Cl|PRINT}} st$(f): {{Cl|_DEST}} 0
+{{Cl|IF...THEN|IF}} ya > 400 {{Cl|OR (boolean)|OR}} ya &lt; 20 {{Cl|THEN}} ym = ym * -1: {{Cl|_DEST}} a(3): f = {{Cl|INT}}({{Cl|RND}} * 7): {{Cl|CLS}}: {{Cl|_CLEARCOLOR}} 0: {{Cl|PRINT}} st$(f): {{Cl|_DEST}} 0
 {{Cl|_PUTIMAGE}} (xa, ya)-(xa + 150, ya + 80), a(3)
 xa = xa + xm
 ya = ya + ym

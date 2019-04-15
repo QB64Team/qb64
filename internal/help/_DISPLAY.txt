@@ -24,9 +24,9 @@ dx = 3: dy = 3             'number of pixel moves per loop
 {{Cl|DO}}
     {{Cl|_LIMIT}} 100       ' set to 100 frames per second
     x = x + dx: y = y + dy
-    {{Cl|IF...THEN|IF}} x &lt; 0 {{Cl|OR}} x &gt; 640 {{Cl|THEN}} dx = -dx 'limit columns and reverse column direction each side
-    {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|OR}} y &gt; 480 {{Cl|THEN}} dy = -dy 'limit rows and reverse row direction top or bottom
-    IF px &lt;&gt; x OR py &lt;&gt; y THEN FOR d = 1 to 20: CIRCLE (px, py), d, 0: NEXT 'erase
+    {{Cl|IF...THEN|IF}} x &lt; 0 {{Cl|OR}} x > 640 {{Cl|THEN}} dx = -dx 'limit columns and reverse column direction each side
+    {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|OR}} y > 480 {{Cl|THEN}} dy = -dy 'limit rows and reverse row direction top or bottom
+    IF px &lt;> x OR py &lt;> y THEN FOR d = 1 to 20: CIRCLE (px, py), d, 0: NEXT 'erase
     FOR c = 1 TO 20: {{Cl|CIRCLE}} (x, y), c, 6: NEXT  'draw new circle at new position
     px = x: py = y        'save older coordinates to erase older circle next loop
     {{Cl|_DISPLAY}}                'after new circle is set, show it
@@ -48,7 +48,7 @@ DO
     {{Cl|_LIMIT}} 30
     DisplayMenu
     k = {{Cl|_KEYHIT}}
-    {{Cl|IF...THEN|IF}} k &lt;&gt; 0 {{Cl|THEN}} {{Cl|PRINT}} k,
+    {{Cl|IF...THEN|IF}} k &lt;> 0 {{Cl|THEN}} {{Cl|PRINT}} k,
 {{Cl|LOOP}} {{Cl|UNTIL}} k = 32 {{Cl|OR (boolean)|OR}} k = 27
 
 
@@ -59,7 +59,7 @@ DO
     MS = {{Cl|_NEWIMAGE}}(640, MenuHeight, 32) 'MenuScreen image
     D = {{Cl|_DEST}}: {{Cl|_DEST}} MS
     {{Cl|CLS}} , {{Cl|&amp;H}}FFAAAAAA 'background color gray
-    {{Cl|_PRINTSTRING}} (20, 2), &quot;Menu Test&quot; 'image text
+    {{Cl|_PRINTSTRING}} (20, 2), "Menu Test" 'image text
     MS_HW = {{Cl|_COPYIMAGE}}(MS, 33) 'create the MenuScreen_HardWare image
     {{Cl|_FREEIMAGE}} MS
     {{Cl|_DEST}} D

@@ -28,7 +28,7 @@ A '''SUB''' procedure is a procedure within a program that can calculate and ret
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
 
 
-&lt;center&gt;'''Qbasic'''&lt;/center&gt;   
+&lt;center>'''Qbasic'''&lt;/center>   
 * The [[IDE]] can create the SUB and [[END SUB]] lines for you. Use the Make SUB option in the Edit Menu. A box will come up for you to enter a name for the SUB. Enter the procedure code between the SUB and [[END SUB]] lines created.                      
 * '''Qbasic SUB procedures could not have [[ON]] events, [[DATA]], [[TYPE]] or [[ON ERROR]] statements inside of them.''' 
 * Procedure code can use [[GOSUB]] and [[GOTO]] linenumbers and linelabels inside of the procedure only. 
@@ -43,7 +43,7 @@ A '''SUB''' procedure is a procedure within a program that can calculate and ret
 {{CodeStart}} '' ''
 {{Cl|DEFINT}} A-Z
 {{Cl|SCREEN}} 13
-Center 10, 15, &quot;This text is centered.&quot; ' example module sub call
+Center 10, 15, "This text is centered." ' example module sub call
 {{Cl|END}}
 
 {{Cl|DEFINT}} A-Z ' only code allowed before SUB line is a DEF statement or a comment
@@ -71,12 +71,12 @@ Add1 a
 {{Cl|SUB}} Add1 (n)
 n = n + 1
 Add2 n
-{{Cl|PRINT}} &quot;exit 1&quot;
+{{Cl|PRINT}} "exit 1"
 {{Cl|END SUB}}
 
 {{Cl|SUB}} Add2 (m)
 m = m + 2
-{{Cl|PRINT}} &quot;exit 2&quot;
+{{Cl|PRINT}} "exit 2"
 {{Cl|END SUB}}
 {{CodeEnd}}
 {{OutputStart}}exit 2

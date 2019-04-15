@@ -23,7 +23,7 @@ The '''PSET''' grahics [[SCREEN (statement)|SCREEN]] statement sets a pixel to a
 {{CodeStart}} '' ''
 SCREEN 12
 {{Cl|PSET}}(100, 100), 12
-{{Cl|DRAW}} &quot;U20 R20 D20 L20&quot; '' ''
+{{Cl|DRAW}} "U20 R20 D20 L20" '' ''
 {{CodeEnd}}
 :''Screen results:'' A drawn box that is bright red.
 
@@ -61,7 +61,7 @@ DO
   {{Cl|DIM}} inc {{Cl|AS}} {{Cl|DOUBLE}}, left {{Cl|AS}} {{Cl|DOUBLE}}, top {{Cl|AS}} {{Cl|DOUBLE}}
 
   limitx = 150 * ({{Cl|LOG}}(mag) + 1)
-  {{Cl|IF...THEN|IF}} limitx &gt; 32767 {{Cl|THEN}} limitx = 32767
+  {{Cl|IF...THEN|IF}} limitx > 32767 {{Cl|THEN}} limitx = 32767
   limit = {{Cl|INT}}(limitx)
   inc = .004 / mag
   left = a - inc * 319
@@ -100,7 +100,7 @@ DO
           {{Cl|IF...THEN|IF}} dmag &lt; 2 {{Cl|THEN}} dmag = 2
         {{Cl|CASE}} {{Cl|CHR$}}(0) + {{Cl|CHR$}}(80)
           dmag = dmag * 2
-          {{Cl|IF...THEN|IF}} dmag &gt; 128 {{Cl|THEN}} dmag = 128
+          {{Cl|IF...THEN|IF}} dmag > 128 {{Cl|THEN}} dmag = 128
       {{Cl|END SELECT}}
     {{Cl|WEND}}
     {{Cl|CALL}} rectangle(mx - dx, my - dy, mx + dx, my + dy)
@@ -118,7 +118,7 @@ DO
     t = a * a - b * b + x
     b = 2 * a * b + y: a = t
     n = n + 1
-  {{Cl|LOOP}} {{Cl|UNTIL}} a * a + b * b &gt; 4 {{Cl|OR (boolean)|OR}} n &gt; limit
+  {{Cl|LOOP}} {{Cl|UNTIL}} a * a + b * b > 4 {{Cl|OR (boolean)|OR}} n > limit
   mandel = n
 {{Cl|END FUNCTION}}
 

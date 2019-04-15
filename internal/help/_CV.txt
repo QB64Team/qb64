@@ -26,11 +26,11 @@ The [[_CV]] function is used to convert [[_MK$]], [[ASCII]], [[STRING]] values t
 i64 = 2 ^ 61
 i64str = {{Cl|_MK$}}({{Cl|_INTEGER64}}, i64)
 
-{{Cl|PRINT}} &quot;I64:&quot;; i64
-{{Cl|PRINT}} &quot;_MK$: &quot;; i64str
+{{Cl|PRINT}} "I64:"; i64
+{{Cl|PRINT}} "_MK$: "; i64str
 
 i64 = {{Cl|_CV}}({{Cl|_INTEGER64}}, i64str)
-{{Cl|PRINT}} &quot;_CV:&quot;; i64 '' ''
+{{Cl|PRINT}} "_CV:"; i64 '' ''
 {{CodeEnd}}
 {{OutputStart}} 
 I64: 2305843009213693952

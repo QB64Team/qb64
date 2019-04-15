@@ -21,7 +21,7 @@
 randnum% = INT({{Cl|RND}} * 11) + 2  'add one to multiplier as INT rounds down and never equals 10
 PRINT randnum%
 K$ = {{Cl|INPUT$}}(1)
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|UCASE$}}(K$) = &quot;Q&quot;  'q = quit
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|UCASE$}}(K$) = "Q"  'q = quit
 {{Cl|END}} '' ''
 {{CodeEnd}}
 :''Explanation:'' Procedure generates random integer values from 2 to 12 like a pair of dice.
@@ -33,7 +33,7 @@ K$ = {{Cl|INPUT$}}(1)
 Print7
 {{Cl|RANDOMIZE}} seed
 Print7
-{{Cl|PRINT}} &quot;Press a key to start sequence over!&quot;
+{{Cl|PRINT}} "Press a key to start sequence over!"
 K$ = {{Cl|INPUT$}}(1) 
 {{Cl|RANDOMIZE}} '''USING''' seed
 Print7

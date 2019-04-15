@@ -55,7 +55,7 @@
 
 ''Example 3:'' Using [[PUT]] and [[GET]] to write and read array data from a file without using BSAVE or [[BLOAD]]:
 {{CodeStart}}
-{{Cl|KILL}} &quot;example2.BIN&quot; 'removes old image file!
+{{Cl|KILL}} "example2.BIN" 'removes old image file!
 
 {{Cl|SCREEN}} 13
 {{Cl|OPTION BASE}} 0
@@ -65,16 +65,16 @@
 {{Cl|GET (graphics statement)|GET}}(0, 0)-{{Cl|STEP}}(10, 10), Graphic%() 'get image to array
 
 {{Cl|FOR...NEXT|FOR}} i% = 1000 {{Cl|TO}} 0 {{Cl|STEP}} -1 'reverse read array for size needed
-    {{Cl|IF...THEN|IF}} Graphic%(i%) &lt;&gt; 0 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}} 'find image color not black
+    {{Cl|IF...THEN|IF}} Graphic%(i%) &lt;> 0 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}} 'find image color not black
 {{Cl|NEXT}}
 size% = i% + 4 'size plus 2 integers(4  bytes) for dimensions 
 {{Cl|REDIM}} {{Cl|_PRESERVE}} Graphic%(size%) 'resize existing array in QB64 only!
 
-{{Cl|OPEN}} &quot;example2.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1 ' {{Cl|PUT}} to a file
+{{Cl|OPEN}} "example2.BIN" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1 ' {{Cl|PUT}} to a file
 {{Cl|PUT}} #1, , Graphic%()
 {{Cl|CLOSE}}
 
-{{Cl|OPEN}} &quot;example2.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2 'GET array and {{Cl|PUT}} to screen
+{{Cl|OPEN}} "example2.BIN" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2 'GET array and {{Cl|PUT}} to screen
 {{Cl|DIM}} CopyBin%({{Cl|LOF}}(2) \ 2) 'create new array sized by half of file size
 {{Cl|GET}} #2, , CopyBin%()
 {{Cl|PUT (graphics statement)|PUT}}(100, 100), CopyBin%(), {{Cl|PSET}}
@@ -85,11 +85,11 @@ K$ = {{Cl|INPUT$}}(1) 'Press any key
 {{Cl|FOR...NEXT|FOR}} i = 0 {{Cl|TO}} 20 'read all 3 arrays
     {{Cl|PRINT}} Graphic%(i); CopyBin%(i)
 {{Cl|NEXT}}
-{{Cl|PRINT}} &quot;Array:&quot;; size%, &quot;File:&quot;; fsize%
+{{Cl|PRINT}} "Array:"; size%, "File:"; fsize%
 {{CodeEnd}}{{small|Code by Ted Weissgerber}}
 : ''Explanation:'' A 10 by 10 pixel box is saved to an array using the [[GET (graphics statement)]] and written to a BINARY file using [[PUT]] #1. Then [[GET]] #1 places the file contents into another INTEGER array and places it on the screen with the [[PUT (graphics statement)]].
 
-: The array contents: 88 is the width in the GET array for [[SCREEN]] 13 which needs divided by 8 in that mode only. The area is actually 11 X 11. The array size needed can be found by looping backwards through the array until a color value is found. '''{{text|IF array(i) &lt;&gt; 0 THEN EXIT FOR|green}}''' (66 integers) or by dividing the created BINARY file size in half (134 bytes) when known to be array sized already.
+: The array contents: 88 is the width in the GET array for [[SCREEN]] 13 which needs divided by 8 in that mode only. The area is actually 11 X 11. The array size needed can be found by looping backwards through the array until a color value is found. '''{{text|IF array(i) &lt;> 0 THEN EXIT FOR|green}}''' (66 integers) or by dividing the created BINARY file size in half (134 bytes) when known to be array sized already.
 
 
 {{PageSeeAlso}}

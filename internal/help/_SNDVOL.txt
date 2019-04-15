@@ -8,12 +8,12 @@ The [[_SNDVOL]] statement sets the volume of a sound loaded in memory using a ha
 
 {{PageDescription}}
 * {{Parameter|volume!}} is a value from 0 (silence) to 1 (full volume).
-* In versions '''prior to build 20170811/60''', the sound identified by {{Parameter|handle&amp;}} must have been opened using the [[_SNDOPEN|&quot;VOL&quot; capability]] to use this function.
+* In versions '''prior to build 20170811/60''', the sound identified by {{Parameter|handle&amp;}} must have been opened using the [[_SNDOPEN|"VOL" capability]] to use this function.
 
 
 {{PageExamples}}
 {{CodeStart}} '' ''
-h&amp; = {{Cl|_SNDOPEN}}(&quot;bell.wav&quot;)
+h&amp; = {{Cl|_SNDOPEN}}("bell.wav")
 {{Cl|_SNDVOL}} h&amp;, 0.5
 {{Cl|_SNDPLAY}} h&amp; '' ''
 {{CodeEnd}}

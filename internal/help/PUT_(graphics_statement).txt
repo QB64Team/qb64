@@ -16,7 +16,7 @@ The '''PUT''' graphics statement is used to place [[GET (graphics statement)|GET
 
 
 ''Usage:''
-* '''The entire box area of the image MUST be on the screen or an &quot;Illegal function call&quot; [[ERROR Codes|error]] will occur!'''
+* '''The entire box area of the image MUST be on the screen or an "Illegal function call" [[ERROR Codes|error]] will occur!'''
 * In '''QB64''' [[_CLIP]] can be used when part of the image may be off of the screen. This will also prevent off screen errors!
 ::PUT (-10, 10), mypic(0), PSET ' this causes an illegal function call without [[_CLIP]]
 ::PUT (-10, 10), mypic(0), _CLIP PSET ' allows a graphic to be placed partially off-screen
@@ -39,11 +39,11 @@ The '''PUT''' graphics statement is used to place [[GET (graphics statement)|GET
 * [[PUT]] and [[GET]] file statements can also write and read image array data using [[BINARY]] files instead of using [[BSAVE]] or [[BLOAD]].
 
 
-''Example 1:'' How [[GET]] and PUT can be used with images loaded with [[_LOADIMAGE]]. The background color is omitted or &quot;masked&quot;.
+''Example 1:'' How [[GET]] and PUT can be used with images loaded with [[_LOADIMAGE]]. The background color is omitted or "masked".
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
-image&amp; = {{Cl|_LOADIMAGE}}(&quot;QB64.png&quot;)  '[http://www.qb64.net/forum/index.php QB64 bee image from Forum]
+image&amp; = {{Cl|_LOADIMAGE}}("QB64.png")  '[http://www.qb64.net/forum/index.php QB64 bee image from Forum]
 
 wide&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(image&amp;): deep&amp; = {{Cl|_HEIGHT}}(image&amp;)
 {{Cl|DIM}} Array(wide&amp; * deep&amp;) {{Cl|AS}} {{Cl|INTEGER}}
@@ -56,7 +56,7 @@ wide&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(image&amp;): deep&amp; = {{Cl|_HEIGH
 {{Cl|PUT (graphics statement)|PUT}}(10, 10), Array(0), {{Cl|PSET}} , {{Cl|_RGB}}(255, 255, 255)   'mask white background color
 {{Cl|END}} '' ''
 {{CodeEnd}}
-: ''Explanation:'' '''QB64''' allows one PUT color to be &quot;masked&quot; to allow odd shaped sprite image backgrounds to be transparent.
+: ''Explanation:'' '''QB64''' allows one PUT color to be "masked" to allow odd shaped sprite image backgrounds to be transparent.
 
 
 ''Example 2:'' Using a [[STRING]] instead of an [[arrays|array]] to store [[GET]] image data that can be PUT later. For images up to 256 colors only.
@@ -70,7 +70,7 @@ a$ = {{Cl|SPACE$}}(4 + 100)            '4 byte header + 100 pixels for a 10 X 10
 K$ = {{Cl|INPUT$}}(1)
 
 {{Cl|CLS}}
-{{Cl|PRINT}} a$                        'display string data. Width = {{Cl|CHR$}}(10 * 8) = &quot;P&quot;
+{{Cl|PRINT}} a$                        'display string data. Width = {{Cl|CHR$}}(10 * 8) = "P"
 {{Cl|PUT (graphics statement)|PUT}}(100, 100), a$, {{Cl|PSET}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}

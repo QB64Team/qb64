@@ -1,34 +1,35 @@
-The '''ON STRIG(n)''' statement is an event procedure that directs program flow upon the press of a specified joystick button.
+The [[ON STRIG(n)]] statement is an event procedure that directs program flow upon the press of a specified joystick button.
 
 
 {{PageSyntax}}
-:: ON STRIG(''button_function'') GOSUB {linenumber|linelabel}
+: '''ON STRIG'''({{Parameter|buttonFunction}}) [[GOSUB]] {{{Parameter|lineNumber}}|{{Parameter|lineLabel}}}
 
-
-QB64 {{PageSyntax}}
-
-:: ON STRIG(''button_function''[, ''joystick_number'']) {GOSUB {linelabel|linenumber}|sub-procedure}
+: '''ON STRIG'''({{Parameter|buttonFunction}}[, {{Parameter|joystickNumber}}]) {[[GOSUB]] {{{Parameter|lineNumber}}|{{Parameter|lineLabel}}} | [[SUB]]procedure}
 
 
 * In '''QB64''' the value can be any button function number with any number of joysticks. See [[STRIG]] and [[STICK]] for parameters.
-* In Qbasic, value of ''n'' can be a number from 0 to 3 only as it can only monitor 2 joystick buttons and 2 joysticks.
-* There are two ''button functions'' for each button. The even numbered function is always the event of any press since last read.
-* The statement sends the procedure to a line number, [[SUB]] or [[GOSUB]] procedure or line number when a button event occurs.
+* There are two {{Parameter|buttonFunction}} for each button. The even numbered function is always the event of any press since last read.
+* The statement sends the procedure to a line number, line label or [[SUB]] procedure when a button event occurs.
 
 
+==QBasic/QuickBASIC==
+* In QBasic, value of ''n'' could only be a number from 0 to 3 only as it could only monitor 2 joystick buttons and 2 joysticks.
+
+
+{{PageExamples}}
 ''Example 1:'' Reading a STRIG event to do something in a [[GOSUB]] procedure.
 {{CodeStart}} '' ''
 {{Cl|ON STRIG(n)|ON STRIG}}(0) {{Cl|GOSUB}} 10
 {{Cl|STRIG(n)|STRIG}}(0)ON
 
 {{Cl|DO...LOOP|DO}}
-    {{Cl|PRINT}} &quot;.&quot;;
+    {{Cl|PRINT}} ".";
     {{Cl|_LIMIT}} 30
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 10
-a$ = &quot;[STRIG 0 EVENT]&quot;
+a$ = "[STRIG 0 EVENT]"
 {{Cl|FOR...NEXT|FOR}} x = 1 {{Cl|TO}} {{Cl|LEN}}(a$)
     {{Cl|PRINT}} {{Cl|MID$}}(a$, x, 1);
     {{Cl|_DELAY}} 0.02
@@ -47,22 +48,25 @@ a$ = &quot;[STRIG 0 EVENT]&quot;
 {{Cl|STRIG(n)|STRIG}} ON
 
 {{Cl|DO...LOOP|DO}}
-    {{Cl|PRINT}} &quot;.&quot;;
+    {{Cl|PRINT}} ".";
     {{Cl|_LIMIT}} 30
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 {{Cl|SUB}} JoyButton (js {{Cl|AS}} {{Cl|LONG}})
-{{Cl|PRINT}} &quot;Joystick #&quot;; js \ 256 + 1; &quot;button #&quot;; (js {{Cl|AND (boolean)|AND}} 255) + 1; &quot;pressed!&quot;
+{{Cl|PRINT}} "Joystick #"; js \ 256 + 1; "button #"; (js {{Cl|AND (boolean)|AND}} 255) + 1; "pressed!"
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 :''Explanation:'' Up to 256 controllers can be used in QB64 with many buttons to read.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[STRIG ]], [[STICK]] {{text|(functions)}}
 * [[STRIG(n)]] {{text|(statement)}}
 * [[_DEVICES]], [[_DEVICE$]], [[_LASTBUTTON]]
+
+
+===External links===
 * [http://en.wikipedia.org/wiki/Analog_stick Single and Dual Stick Controllers]
 
 

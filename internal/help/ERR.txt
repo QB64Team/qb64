@@ -11,7 +11,7 @@ The [[ERR]] function returns the last QBasic error code number.
 
 
 {{PageExamples}}
-''Example:'' Simulating an error to test a program error handler that looks for a &quot;Subscript out of range&quot; error.
+''Example:'' Simulating an error to test a program error handler that looks for a "Subscript out of range" error.
 {{CodeStart}} '' ''
 {{Cl|ON ERROR}} {{Cl|GOTO}} handler
 
@@ -25,7 +25,7 @@ handler:
 {{Cl|PRINT}} {{Cl|ERR}}, {{Cl|_ERRORLINE}}
 {{Cl|BEEP}}
 {{Cl|IF...THEN|IF}} {{Cl|ERR}} = 9 {{Cl|THEN}}
-  {{Cl|PRINT}} &quot;The program has encountered an error and needs to close! Press a key!&quot;
+  {{Cl|PRINT}} "The program has encountered an error and needs to close! Press a key!"
   K$ = {{Cl|INPUT$}}(1)
   {{Cl|SYSTEM}}
 {{Cl|END IF}}

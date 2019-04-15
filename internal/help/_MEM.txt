@@ -63,7 +63,7 @@ END TYPE
 ''Example 1:'' Demonstration of .IMAGE to determine an image's dimensions, .TYPE to verify the type and [[_MEMEXISTS]] to check image has not been freed
 {{CodeStart}}
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(500, 500, 32)
-i = {{Cl|_LOADIMAGE}}(&quot;qb64_trans.png&quot;, 32)
+i = {{Cl|_LOADIMAGE}}("qb64_trans.png", 32)
 {{Cl|_PUTIMAGE}} (0, 0), i
 {{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
 m = {{Cl|_MEMIMAGE}}(i)
@@ -71,13 +71,13 @@ m = {{Cl|_MEMIMAGE}}(i)
 '{{Cl|_MEMFREE}} m
 t = m.{{Cl|TYPE}}
 {{Cl|IF...THEN|IF}} t {{Cl|AND (boolean)|AND}} 2048 {{Cl|THEN}}
-  {{Cl|PRINT}} &quot;this is/was an image&quot;
+  {{Cl|PRINT}} "this is/was an image"
   {{Cl|IF...THEN|IF}} {{Cl|_MEMEXISTS}}(m) {{Cl|THEN}} 'check if memory m is still available
-    {{Cl|PRINT}} t {{Cl|AND (boolean)|AND}} 7; &quot;bytes per pixel&quot;
-    {{Cl|PRINT}} &quot;image handle &quot;; m.IMAGE
-    {{Cl|PRINT}} &quot;image width&quot;; {{Cl|_WIDTH (function)|_WIDTH}}(m.IMAGE)
-    {{Cl|PRINT}} &quot;image height&quot;; {{Cl|_HEIGHT}}(m.IMAGE)
-  {{Cl|ELSE}} {{Cl|PRINT}} &quot;Memory already freed!&quot;
+    {{Cl|PRINT}} t {{Cl|AND (boolean)|AND}} 7; "bytes per pixel"
+    {{Cl|PRINT}} "image handle "; m.IMAGE
+    {{Cl|PRINT}} "image width"; {{Cl|_WIDTH (function)|_WIDTH}}(m.IMAGE)
+    {{Cl|PRINT}} "image height"; {{Cl|_HEIGHT}}(m.IMAGE)
+  {{Cl|ELSE}} {{Cl|PRINT}} "Memory already freed!"
   {{Cl|END IF}}
 {{Cl|END IF}} '' ''
 {{CodeEnd}}
@@ -86,11 +86,11 @@ t = m.{{Cl|TYPE}}
 ''Example 2:'' Converts the current [[_DEST|destination]] [[SCREEN]] 13 image memory altered by [[PSET]] to a [[STRING]] value. SCREEN 13 only.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 13
-{{Cl|PSET}} (0, 0), {{Cl|ASC}}(&quot;H&quot;) 'top left corner of screen
-{{Cl|PSET}} (1, 0), {{Cl|ASC}}(&quot;E&quot;)
-{{Cl|PSET}} (2, 0), {{Cl|ASC}}(&quot;L&quot;)
-{{Cl|PSET}} (3, 0), {{Cl|ASC}}(&quot;L&quot;)
-{{Cl|PSET}} (4, 0), {{Cl|ASC}}(&quot;O&quot;)
+{{Cl|PSET}} (0, 0), {{Cl|ASC}}("H") 'top left corner of screen
+{{Cl|PSET}} (1, 0), {{Cl|ASC}}("E")
+{{Cl|PSET}} (2, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (3, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (4, 0), {{Cl|ASC}}("O")
 
 {{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
 m = {{Cl|_MEMIMAGE}}(0)  'copy the screen memory to m

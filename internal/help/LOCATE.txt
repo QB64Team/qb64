@@ -31,16 +31,16 @@ DO
   {{Cl|LOCATE}} cry, crx, 1, 0, 8
   a$ = {{Cl|INKEY$}}
   {{Cl|SELECT CASE}} a$
-     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;H&quot;: {{Cl|IF...THEN|IF}} cry &gt; 1 {{Cl|THEN}} cry = cry - 1 'up
-     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;P&quot;: {{Cl|IF...THEN|IF}} cry &lt; 25 {{Cl|THEN}} cry = cry + 1 'down
-     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;K&quot;: {{Cl|IF...THEN|IF}} crx &gt; 1 {{Cl|THEN}} crx = crx - 1 'left
-     {{Cl|CASE}} {{Cl|CHR$}}(0) + &quot;M&quot;: {{Cl|IF...THEN|IF}} crx &lt; 80 {{Cl|THEN}} crx = crx + 1 'right
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + "H": {{Cl|IF...THEN|IF}} cry > 1 {{Cl|THEN}} cry = cry - 1 'up
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + "P": {{Cl|IF...THEN|IF}} cry &lt; 25 {{Cl|THEN}} cry = cry + 1 'down
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + "K": {{Cl|IF...THEN|IF}} crx > 1 {{Cl|THEN}} crx = crx - 1 'left
+     {{Cl|CASE}} {{Cl|CHR$}}(0) + "M": {{Cl|IF...THEN|IF}} crx &lt; 80 {{Cl|THEN}} crx = crx + 1 'right
      {{Cl|CASE}} {{Cl|CHR$}}(27): {{Cl|END}}
   {{Cl|END SELECT}}
 LOOP '' ''
 {{CodeEnd}}
 
-: Explanation: The CHR$(0) + &quot;H&quot;, &quot;P&quot;, &quot;K&quot;, &quot;M&quot; represents the cursor arrow keys. start = 0, stop = 8 is the tallest cursor, experiment with the start and stop values for different effects (start = 8, stop = 8 is the default producing a _ cursor).
+: Explanation: The CHR$(0) + "H", "P", "K", "M" represents the cursor arrow keys. start = 0, stop = 8 is the tallest cursor, experiment with the start and stop values for different effects (start = 8, stop = 8 is the default producing a _ cursor).
 
 
 

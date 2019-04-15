@@ -18,7 +18,7 @@
 * This command is best used just before getting input, in order to clear stray key presses from commands such as SLEEP, or just random keyboard bashing by the user. The programmer also ought to be aware of key release events in the _KEYHIT buffer; consider the following code:
 
 {{CodeStart}}
-INPUT &quot;Name: &quot;, name$
+INPUT "Name: ", name$
 _KEYCLEAR
 _DELAY 2 'Simulate doing some processing that takes some time.
 PRINT _KEYHIT
@@ -28,7 +28,7 @@ PRINT _KEYHIT
 * As mentioned above, it is best to place the _KEYCLEAR after the processing, immediately before the PRINT _KEYHIT command:
 
 {{CodeStart}}
-INPUT &quot;Name: &quot;, name$
+INPUT "Name: ", name$
 _DELAY 2 'Simulate doing some processing that takes some time.
 _KEYCLEAR
 PRINT _KEYHIT
@@ -38,14 +38,14 @@ PRINT _KEYHIT
 {{PageExamples}}
 Example:
 {{CodeStart}}
-PRINT &quot;Press a key&quot;
+PRINT "Press a key"
 SLEEP 'Wait for keypress
 'Three alternative _KEYCLEAR calls. Try uncommenting different ones to see the effect.
 '_KEYCLEAR
 '_KEYCLEAR 1
 '_KEYCLEAR 2
-PRINT &quot;In regular buffer, there is &quot;; INKEY$ 'read regular buffer
-PRINT &quot;In _KEYHIT buffer, there is &quot;; _KEYHIT 'read the _KEYHIT buffer
+PRINT "In regular buffer, there is "; INKEY$ 'read regular buffer
+PRINT "In _KEYHIT buffer, there is "; _KEYHIT 'read the _KEYHIT buffer
 {{CodeEnd}}
 
 

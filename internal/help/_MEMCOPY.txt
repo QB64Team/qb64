@@ -30,17 +30,17 @@ The [[_MEMCOPY]] statement copies a block of bytes from one memory offset to ano
 m = {{Cl|_MEMNEW}}(10)
 n = {{Cl|_MEMNEW}}(100)
 
-{{Cl|_MEMPUT}} m, m.OFFSET, &quot;1234567890&quot;
+{{Cl|_MEMPUT}} m, m.OFFSET, "1234567890"
 
 s$ = {{Cl|SPACE$}}(10) 'to load into a variable length string set its length first
 {{Cl|_MEMGET}} m, m.OFFSET, s$
-{{Cl|PRINT}} &quot;in:[&quot; + s$ + &quot;]&quot;
+{{Cl|PRINT}} "in:[" + s$ + "]"
 
 {{Cl|_MEMCOPY}} m, m.OFFSET, m.SIZE {{Cl|TO}} n, n.OFFSET 'put m into n
 
 b$ = {{Cl|SPACE$}}(10)
 {{Cl|_MEMGET}} n, n.OFFSET, b$
-{{Cl|PRINT}} &quot;out:[&quot; + b$ + &quot;]&quot; 
+{{Cl|PRINT}} "out:[" + b$ + "]" 
 {{Cl|_MEMFREE}} m: {{Cl|_MEMFREE}} n 'always clear the memory when done '' ''
 {{CodeEnd}}
 

@@ -15,8 +15,8 @@ The '''SCREEN''' function returns the [[ASCII]] code of a text character or the 
 * The ''code'' value returned is the [[ASCII]] code from 0 to 255. Returns 32([[SPACE$|space]]) when no character is found at a coordinate.
 * If the ''colorflag'' value is omitted or it is 0, the function returns the [[ASCII]] code of the text character at the position designated.
 * When the ''flag'' value is greater than 0 in '''SCREEN 0''', the function returns the foreground and background color attribute of text position.
-:: * The foreground color(0 to 15) is the returned SCREEN color value AND 15: '''{{text|FG &lt;nowiki&gt;=&lt;/nowiki&gt; SCREEN(1, 1, 1) AND 15|green}}'''
-:: * The background color(0 to 7) is the returned SCREEN color value \ 16: '''{{text|BG &lt;nowiki&gt;=&lt;/nowiki&gt; SCREEN(1, 1, 1) \ 16|green}}'''
+:: * The foreground color(0 to 15) is the returned SCREEN color value AND 15: '''{{text|FG &lt;nowiki>=&lt;/nowiki> SCREEN(1, 1, 1) AND 15|green}}'''
+:: * The background color(0 to 7) is the returned SCREEN color value \ 16: '''{{text|BG &lt;nowiki>=&lt;/nowiki> SCREEN(1, 1, 1) \ 16|green}}'''
 * '''QB64''' can return color values in screen modes other than [[SCREEN]] 0. Qbasic returned the wrong color values in graphic screen modes!
 
 
@@ -26,9 +26,9 @@ The '''SCREEN''' function returns the [[ASCII]] code of a text character or the 
 {{Cl|COLOR}} 0, 15
 {{Cl|CLS}}
 
-{{Cl|PRINT}} &quot;{{Cl|SCREEN}} =&quot;; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1)
-{{Cl|PRINT}} &quot;FG color:&quot;; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1) {{Cl|AND (boolean)|AND}} 15 'low nibble
-{{Cl|PRINT}} &quot;BG color:&quot;; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1) \ 16 'high nibble '' ''
+{{Cl|PRINT}} "{{Cl|SCREEN}} ="; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1)
+{{Cl|PRINT}} "FG color:"; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1) {{Cl|AND (boolean)|AND}} 15 'low nibble
+{{Cl|PRINT}} "BG color:"; {{Cl|SCREEN (function)|SCREEN}}(1, 1, 1) \ 16 'high nibble '' ''
 {{CodeEnd}}
 {{TextStart}}'''SCREEN = 112'''
 '''FG color: 0'''
@@ -42,10 +42,10 @@ The '''SCREEN''' function returns the [[ASCII]] code of a text character or the 
 {{Cl|SCREEN (statement)|SCREEN}} 12
 row = 10: column = 10
 
-{{Cl|COLOR}} 9: {{Cl|LOCATE}} row, column: {{Cl|PRINT}} &quot;Hello&quot;
+{{Cl|COLOR}} 9: {{Cl|LOCATE}} row, column: {{Cl|PRINT}} "Hello"
 code% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 0)     ' character code return parameter 0
 attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1)   ' character color return parameter 1
-{{Cl|COLOR}} 14: {{Cl|LOCATE}} 15, 10: {{Cl|PRINT}} &quot;ASCII:&quot;; code%, &quot;COLOR:&quot;; attrib%
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 15, 10: {{Cl|PRINT}} "ASCII:"; code%, "COLOR:"; attrib%
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{OutputStart}}
@@ -55,17 +55,17 @@ attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1)   ' character color re
 
 {{Text|         ASCII: 72     COLOR: 9|yellow}}
 {{OutputEnd}}
-:''Explanation:'' The SCREEN function returns the [[ASCII]] code for &quot;H&quot; and the color 9.
+:''Explanation:'' The SCREEN function returns the [[ASCII]] code for "H" and the color 9.
 
 
 ''Example 3:'' Finding the current program path placed on the screen using [[FILES]] and the SCREEN function in SCREEN 0.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0, 0, 0, 0
 {{Cl|CLS}}
-{{Cl|PRINT}} &quot;This is a directory test...&quot;
+{{Cl|PRINT}} "This is a directory test..."
 {{Cl|SCREEN}} 0, 0, 1, 0
 {{Cl|COLOR}} 0 'blank out the screen text
-{{Cl|FILES}} &quot;qb64.exe&quot;        'the current program's filename can also be used
+{{Cl|FILES}} "qb64.exe"        'the current program's filename can also be used
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 80
   a$ = a$ + {{Cl|CHR$}}({{Cl|SCREEN (function)|SCREEN}}(1, i)) 'scan the black text on the screen
 {{Cl|NEXT}}
@@ -74,7 +74,7 @@ attrib% = {{Cl|SCREEN (function)|SCREEN}}(row, column, 1)   ' character color re
 a$ = {{Cl|RTRIM$}}(a$)
 {{Cl|SLEEP}}
 {{Cl|SCREEN (statement)|SCREEN}} 0, 0, 0, 0
-{{Cl|LOCATE}} 3, 1: {{Cl|PRINT}} &quot;The current directory is: &quot;; a$
+{{Cl|LOCATE}} 3, 1: {{Cl|PRINT}} "The current directory is: "; a$
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{small|Code by Pete from the N54 QB site}}

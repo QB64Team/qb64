@@ -27,10 +27,10 @@ The '''_DEVICE$''' function returns a [[STRING]] value holding the controller ty
 ''Example 1:'' Checking for the system's input devices and the number of buttons available.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
-PRINT &quot;Number of input devices found =&quot;; devices
+PRINT "Number of input devices found ="; devices
 FOR i = 1 TO devices
   PRINT {{Cl|_DEVICE$}}(i)
-  PRINT &quot;Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;Wheels:&quot;; {{Cl|_LASTWHEEL}}(i)
+  PRINT "Buttons:"; {{Cl|_LASTBUTTON}}(i); "Axis:"; {{Cl|_LASTAXIS}}(i); "Wheels:"; {{Cl|_LASTWHEEL}}(i)
 NEXT '' ''
 {{CodeEnd}}
 {{OutputStart}}Number of input devices found = 3
@@ -48,9 +48,9 @@ Buttons: 9 Axis: 6 Wheels: 0
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} d = 1 {{Cl|TO}} {{Cl|_DEVICES}}  'number of input devices found
   dev$ = {{Cl|_DEVICE$}}(d)
-  {{Cl|IF...THEN|IF}} {{Cl|INSTR}}(dev$, &quot;[MOUSE]&quot;) {{Cl|THEN}} buttons = {{Cl|_LASTBUTTON}}(d): {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|IF...THEN|IF}} {{Cl|INSTR}}(dev$, "[MOUSE]") {{Cl|THEN}} buttons = {{Cl|_LASTBUTTON}}(d): {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
 {{Cl|NEXT}}
-{{Cl|PRINT}} buttons; &quot;mouse buttons available&quot; '' ''
+{{Cl|PRINT}} buttons; "mouse buttons available" '' ''
 {{CodeEnd}}
 
 

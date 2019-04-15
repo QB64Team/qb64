@@ -10,7 +10,7 @@ The [[_CONNECTED]] function returns the status of a TCP/IP connection handle.
 * The handle can come from the [[_OPENHOST]], [[OPENCLIENT]] or [[_OPENCONNECTION]] QB64 TCP/IP functions.
 * Returns -1 if still connected or 0 if connection has ended/failed. 
 * Do not rely solely on this function to check for ending communication.
-* Use &quot;time-out&quot; checking as well and [[CLOSE]] any suspect connections.
+* Use "time-out" checking as well and [[CLOSE]] any suspect connections.
 * If this function indicates the handle is not connected, any unread messages can still be read using [[INPUT (TCP/IP statement)|INPUT #]] or [[GET (TCP/IP statement)|GET #]].
 * Even if this function indicates the handle is not connected, it is important to [[CLOSE]] the connection anyway or important resources cannot be reallocated. 
 
@@ -21,7 +21,7 @@ The [[_CONNECTED]] function returns the status of a TCP/IP connection handle.
 {{Cb|FOR...NEXT|FOR}} i = 1 {{Cb|TO}} numclients ' distribute incoming messages to all clients
   {{Cb|IF...THEN|IF}} Users(i) {{Cb|THEN}} ' check for non-existing handle values(rare)
       {{Cb|INPUT (TCP/IP statement)|INPUT #}}Users(i), message$
-      {{Cb|IF...THEN|IF}} message$ &lt;&gt; &quot;&quot; {{Cb|THEN}}
+      {{Cb|IF...THEN|IF}} message$ &lt;> "" {{Cb|THEN}}
         {{Cb|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} numclients
           {{Cb|IF...THEN|IF}} Users(p) {{Cb|THEN}} {{Cb|PRINT (TCP/IP statement)|PRINT #}}Users(p), message$
         {{Cb|NEXT}} p

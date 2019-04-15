@@ -23,13 +23,13 @@ The [[_MOUSEX]] function returns the current horizontal (column) mouse cursor po
 {{Cl|SCREEN (statement)|SCREEN}} 12
 {{Cl|LINE}} (99, 9)-(601, 401), 7, BF
 {{Cl|LINE}} (101, 11)-(599, 399), 8, BF
-tm$ = &quot; Column = ###  Row = ###  Button1 = ##  Button2 = ##  Button3 = ##&quot;
-{{Cl|LOCATE}} 29, 20: {{Cl|PRINT}} &quot;LeftButton = draw - RightButton = Erase&quot;;
+tm$ = " Column = ###  Row = ###  Button1 = ##  Button2 = ##  Button3 = ##"
+{{Cl|LOCATE}} 29, 20: {{Cl|PRINT}} "LeftButton = draw - RightButton = Erase";
 {{Cl|DO}}: K$ = {{Cl|INKEY$}}
   {{Cl|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
     X = {{Cl|_MOUSEX}}: Y = {{Cl|_MOUSEY}}
-    {{Cl|IF}} X &gt; 100 {{Cl|AND (boolean)|AND}} X &lt; 600 {{Cl|AND (boolean)|AND}} PX &gt; 100 {{Cl|AND (boolean)|AND}} PX &lt; 600 {{Cl|THEN}}
-      {{Cl|IF}} Y &gt; 10 {{Cl|AND (boolean)|AND}} Y &lt; 400 {{Cl|AND (boolean)|AND}} PY &gt; 10 {{Cl|AND (boolean)|AND}} PY &lt; 400 {{Cl|THEN}}
+    {{Cl|IF}} X > 100 {{Cl|AND (boolean)|AND}} X &lt; 600 {{Cl|AND (boolean)|AND}} PX > 100 {{Cl|AND (boolean)|AND}} PX &lt; 600 {{Cl|THEN}}
+      {{Cl|IF}} Y > 10 {{Cl|AND (boolean)|AND}} Y &lt; 400 {{Cl|AND (boolean)|AND}} PY > 10 {{Cl|AND (boolean)|AND}} PY &lt; 400 {{Cl|THEN}}
         {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|LINE}} (PX, PY)-(X, Y), 15
         {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(2) {{Cl|THEN}} {{Cl|LINE}} (101, 11)-(599, 399), 8, BF
       {{Cl|END IF}}

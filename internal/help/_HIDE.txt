@@ -8,7 +8,7 @@ The [[_HIDE]] action is used to hide the console window opened by a [[SHELL]] st
 
 {{PageDescription}}
 * Allows any command line window to be hidden from view without affecting the program.
-* [[_HIDE]] must be used when sending (&quot;piping&quot;) screen information to a file.
+* [[_HIDE]] must be used when sending ("piping") screen information to a file.
 * '''Note:''' Some commands may not work without adding CMD /C to the start of the command line.
 
 
@@ -17,26 +17,26 @@ The [[_HIDE]] action is used to hide the console window opened by a [[SHELL]] st
 {{CodeStart}}
 '' ''
 SUB LFN
- IF LEN({{Cl|ENVIRON$}}(&quot;OS&quot;)) = 0 THEN EXIT SUB   ' /X not available Win 9X and ME 
- SHELL {{Cl|_HIDE}} &quot;cmd /c dir /x &gt; DOS-DATA.INF&quot; ' load display data to a file
- OPEN &quot;DOS-DATA.INF&quot; FOR INPUT AS #1
+ IF LEN({{Cl|ENVIRON$}}("OS")) = 0 THEN EXIT SUB   ' /X not available Win 9X and ME 
+ SHELL {{Cl|_HIDE}} "cmd /c dir /x > DOS-DATA.INF" ' load display data to a file
+ OPEN "DOS-DATA.INF" FOR INPUT AS #1
  IF {{Cl|LOF}}(1) THEN
-   Header$ = SPACE$(10) + &quot;Short&quot; + SPACE$(16) + &quot;Long&quot; + SPACE$(20) + &quot;Last Modified&quot;
-   tmp$ = &quot;\   \  \          \      &amp;&quot; ' print using template format
+   Header$ = SPACE$(10) + "Short" + SPACE$(16) + "Long" + SPACE$(20) + "Last Modified"
+   tmp$ = "\   \  \          \      &amp;" ' print using template format
    COLOR 14: LOCATE 2, 4: PRINT Header$
    DO UNTIL EOF(1)
     {{Cl|LINE INPUT}} #1, line$
-    IF LEN(line$) AND MID$(line$, 1, 1) &lt;&gt; SPACE$(1) THEN ' ignore other file data
+    IF LEN(line$) AND MID$(line$, 1, 1) &lt;> SPACE$(1) THEN ' ignore other file data
       cnt% = cnt% + 1
       last$ = MID$(line$, 1, 20): DIR$ = MID$(line$, 26, 3)
-      IF MID$(line$, 40, 1) &lt;&gt; SPACE$(1) THEN ' found line with short and long name 
+      IF MID$(line$, 40, 1) &lt;> SPACE$(1) THEN ' found line with short and long name 
         SHFN$ = MID$(line$, 40, INSTR(40, line$, SPACE$(1)) - 1)
         LGFN$ = MID$(line$, 53)
-      ELSE : SHFN$ = MID$(line$, 53): LGFN$ = &quot;&quot; ' found short name only
+      ELSE : SHFN$ = MID$(line$, 53): LGFN$ = "" ' found short name only
       END IF
       IF cnt% MOD 25 = 0 THEN ' pause every 25 files
-        COLOR 14: LOCATE 29, 27 &quot;Press a key for more files!&quot;
-        DO: LOOP UNTIL INKEY$ &lt;&gt; &quot;&quot;
+        COLOR 14: LOCATE 29, 27 "Press a key for more files!"
+        DO: LOOP UNTIL INKEY$ &lt;> ""
         CLS: COLOR 14: LOCATE 2, 4: PRINT Header$
       END IF
       COLOR 11: LOCATE (cnt% MOD 25) + 3, 4
@@ -45,7 +45,7 @@ SUB LFN
     END IF
    LOOP
  END IF
- COLOR 10: LOCATE {{Cl|CSRLIN}} + 1, 27 &quot;Total folders and files =&quot;; cnt%
+ COLOR 10: LOCATE {{Cl|CSRLIN}} + 1, 27 "Total folders and files ="; cnt%
  CLOSE #1
 END SUB '' ''
 

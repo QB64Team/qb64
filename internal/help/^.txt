@@ -21,7 +21,7 @@ The '''^''' operation raises a numerical value to an exponential value expressin
 
 {{CodeStart}}
   
-  {{Cl|INPUT}} &quot;Enter a number to calculate it's cube root: &quot;, num$
+  {{Cl|INPUT}} "Enter a number to calculate it's cube root: ", num$
   number! = {{Cl|VAL}}(num$)   'gets single number value
   cuberoot# = number! {{Cl|^}} (1 {{Cl|/}} 3)
   PRINT cuberoot#       'double type variable for accuracy

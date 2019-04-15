@@ -10,7 +10,7 @@ The [[_LASTBUTTON]] function returns the number of buttons a specified INPUT dev
 * A valid number can be sent to the [[_BUTTON]] or [[_BUTTONCHANGE]] function to find any button events.
 * The specific device name and functions can be found by the [[_DEVICE$]] function [[STRING|string]].
 * The devices are listed in a numerical order determined by the OS and can be read by the [[DEVICE$]] function.
-* '''The [[_DEVICES]] function must be read before using _LASTBUTTON or an [[ERROR Codes|&quot;Illegal Function Call&quot; error]] will occur.'''
+* '''The [[_DEVICES]] function must be read before using _LASTBUTTON or an [[ERROR Codes|"Illegal Function Call" error]] will occur.'''
 * Devices include keyboard (reported as 1), mouse (reported as 2), joysticks, game pads and multiple stick game controllers.
 
 
@@ -18,10 +18,10 @@ The [[_LASTBUTTON]] function returns the number of buttons a specified INPUT dev
 ''Example:'' Checking for the system's input devices.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
-PRINT &quot;Number of input devices found =&quot;; devices
+PRINT "Number of input devices found ="; devices
 FOR i = 1 TO devices
   PRINT {{Cl|_DEVICE$}}(i)
-  PRINT &quot;Buttons:&quot;; {{Cl|_LASTBUTTON}}(i)
+  PRINT "Buttons:"; {{Cl|_LASTBUTTON}}(i)
 NEXT '' ''
 {{CodeEnd}}
 {{OutputStart}}Number of input devices found = 2

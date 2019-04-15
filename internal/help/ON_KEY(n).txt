@@ -1,30 +1,32 @@
-The '''ON KEY(n)''' statement defines a line number or label to go to when a specified key is pressed. QB64 can reference a [[SUB]].
+The [[ON KEY(n)]] statement defines a line number or label to go to (or a [[SUB]] to run) when a specified key is pressed.
 
 
 {{PageSyntax}}
-:: ON KEY(n) {{{KW|GOSUB}} {''linelabel''|''linenumber''}|{{KW|SUB}}procedure}
+: [[ON KEY(n)]] [[GOSUB]] {{Parameter|linelabel}}|{{Parameter|linenumber}}
+: [[ON KEY(n)]] [[SUB]]procedure
 
 
+{{PageDescription}}
 * Predefined and user defined KEY event number assignments to use with ON KEY(n): 
 {{WhiteStart}}     '''1 to 10'''.............Reserved '''F1 to F10''' function keys only.
      '''11, 12, 13 and 14'''...Reserved '''Up, Left, Right and Down''' numeric keypad arrows only
-     '''15 to 29'''............'''user-defined keys''' using value: [[CHR$]](keyflag)  + [[CHR$]]([[Keyboard scancodes|scancode]])
+     '''15 to 29'''............'''user-defined keys''' using value: [[CHR$]](keyflag) + [[CHR$]]([[Keyboard scancodes|scancode]])
      '''30 and 31'''...........Reserved '''F11 and F12''' function keys only.
 {{WhiteEnd}}
 * See the [[KEY n]] page for user defined key or key combination presses and F function softkey assignments.
-* [[GOSUB]] with a ''linelabel'' or ''linenumber''  or a [[SUB]] procedure can be used in '''QB64'''. Don't use [[CALL]]!
+* [[GOSUB]] with a {{Parameter|linelabel}} or {{Parameter|linenumber}}  or a [[SUB]] procedure (without the [[CALL]] keyword) can be triggered in '''QB64'''.
 
 
-
+{{PageExamples}}
 ''Example 1:'' Using ON KEY with [[GOSUB]] to execute code.
 {{CodeStart}} '' ''
 {{Cl|KEY(n)|KEY(1) ON}}
 {{Cl|ON KEY(n)|ON KEY}}(1) {{Cl|GOSUB}} trap
-{{Cl|PRINT}} &quot;Press F1 to quit!&quot;
+{{Cl|PRINT}} "Press F1 to quit!"
 {{Cl|DO}}:{{Cl|LOOP}}          'never ending loop
 
 trap:
-{{Cl|PRINT}} &quot;You pressed F1 like I told you to :)&quot;
+{{Cl|PRINT}} "You pressed F1 like I told you to :)"
 {{Cl|END}}
 {{Cl|RETURN}} '' ''
 {{CodeEnd}}
@@ -40,19 +42,18 @@ trap:
 {{Cl|NEXT}}
 {{Cl|KEY n|KEY}} ON  'displays F1 to F10 soft key assignments at bottom of screen
 
-DO
-
+{{Cl|DO}}
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
 {{Cl|END}}
 
 {{Cl|SUB}} Funct (num%)
 {{Cl|CLS}}'                  clears the screen and refreshes bottom soft key list
-{{Cl|PRINT}} &quot;You pressed F&quot;; {{Cl|LTRIM$}}({{Cl|STR$}}(num%))
+{{Cl|PRINT}} "You pressed F"; {{Cl|LTRIM$}}({{Cl|STR$}}(num%))
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[KEY(n)]], [[KEY n]] {{text|(soft key)}}
 * [[ON...GOSUB]], [[Scancodes]]
 * [[_KEYHIT]], [[_KEYDOWN]]

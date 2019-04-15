@@ -16,10 +16,10 @@ The [[_DEVICES]] function returns the number of INPUT devices on your computer i
 ''Example:'' Checking for the system's input devices.
 {{CodeStart}} '' ''
 devices = {{Cl|_DEVICES}}  'MUST be read in order for other 2 device functions to work!
-PRINT &quot;Number of input devices found =&quot;; devices
+PRINT "Number of input devices found ="; devices
 FOR i = 1 TO devices
   PRINT {{Cl|_DEVICE$}}(i)
-  PRINT &quot;Buttons:&quot;; {{Cl|_LASTBUTTON}}(i)
+  PRINT "Buttons:"; {{Cl|_LASTBUTTON}}(i)
 NEXT '' ''
 {{CodeEnd}}
 {{OutputStart}}Number of input devices found = 2

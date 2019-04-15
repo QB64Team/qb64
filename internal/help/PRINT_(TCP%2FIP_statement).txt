@@ -30,7 +30,7 @@ The '''PRINT #''' statement sends QB64 formatted data to an open connection hand
 {{CodeStart}}
  '''PRINT #'''c, a$ ' sends the string a$ (size is known to INPUT #)
  '''PRINT #'''c, x% ' if x was equal to 5, this would send ' 5 ' (without the quotes)
- {{Cl|INPUT (TCP/IP statement)|INPUT}} #o, a$ ' reads the next available message (if arrived) or sets a$ = &quot;&quot;
+ {{Cl|INPUT (TCP/IP statement)|INPUT}} #o, a$ ' reads the next available message (if arrived) or sets a$ = ""
 {{CodeEnd}}
 
 ''Explanation:'' INPUT #o, x% effectively reads the next message, performs the VAL function upon it and stores the result in x% (if any part of this process isn't complete then [[EOF]](o) will return -1.
@@ -39,8 +39,8 @@ The '''PRINT #''' statement sends QB64 formatted data to an open connection hand
 
 ''Example 2:'' Host sends multiple values using PRINT #.
 {{CodeStart}}
- '''PRINT #'''c, 3; &quot;Hello &quot;; &quot;World&quot;; ' client sends data
- '''PRINT #'''c, &quot;!&quot;
+ '''PRINT #'''c, 3; "Hello "; "World"; ' client sends data
+ '''PRINT #'''c, "!"
 {{CodeEnd}}
 
 
@@ -51,10 +51,10 @@ The '''PRINT #''' statement sends QB64 formatted data to an open connection hand
  DO
  {{Cl|_LIMIT}} 1000 'limits CPU usage 
  {{Cl|INPUT (TCP/IP statement)|INPUT}} #h, a$ 
- LOOP UNTIL {{Cl|LEN}}(a$) OR TIMER &gt; t! 
+ LOOP UNTIL {{Cl|LEN}}(a$) OR TIMER > t! 
 {{CodeEnd}}
 
-''Explanation:'' The loop runs 3 seconds or until the full data arrives. The value of a$ is &quot; 3 Hello World!&quot; or &quot;&quot; if all 4 messages haven't arrived yet. 
+''Explanation:'' The loop runs 3 seconds or until the full data arrives. The value of a$ is " 3 Hello World!" or "" if all 4 messages haven't arrived yet. 
 
 
 ''Example 4:'' Client reads host's Example 2 data as one value using [[EOF]].
@@ -63,7 +63,7 @@ The '''PRINT #''' statement sends QB64 formatted data to an open connection hand
  DO
    {{Cl|_LIMIT}} 1000 'limits CPU usage
    {{Cl|INPUT (TCP/IP statement)|INPUT}} #h, a%,b$,c$,d$ ' reads data from host until EOF(h) = 0
-   IF TIMER &gt; t! THEN {{Cl|EXIT DO}} ' timeout read if over 3 seconds
+   IF TIMER > t! THEN {{Cl|EXIT DO}} ' timeout read if over 3 seconds
  LOOP WHILE {{Cl|EOF}}(h) 
 {{CodeEnd}}
 

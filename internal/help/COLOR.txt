@@ -36,15 +36,15 @@ The [[COLOR]] statement is used to change the foreground and background colors f
 * Colors can be mixed by using [[_BLEND]] (default) in 32-bit screen modes. [[_DONTBLEND]] disables blending.
 * '''NOTE: Default 32-bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0). Use [[CLS]] to make the black opaque.'''
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 ==RGB Palette Intensities==
 RGB intensity values can be converted to hexadecimal values to create the [[LONG]] [[_PALETTECOLOR]] value in non-32-bit screens:
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
-alpha$ = &quot;FF&quot; 'solid alpha colors only
+alpha$ = "FF" 'solid alpha colors only
 {{Cl|OUT}} {{Cl|&amp;H}}3C8, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 20 'set black background to dark blue
-{{Cl|PRINT}} &quot;Attribute = Hex value      Red          Green         Blue &quot;
+{{Cl|PRINT}} "Attribute = Hex value      Red          Green         Blue "
 {{Cl|PRINT}}
 {{Cl|COLOR}} 7 
 {{Cl|FOR...NEXT|FOR}} attribute = 0 {{Cl|TO}} 15
@@ -52,35 +52,35 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
   red$ = {{Cl|HEX$}}({{Cl|INP}}({{Cl|&amp;H}}3C9) * 4) 'convert port setting to 32 bit values
   grn$ = {{Cl|HEX$}}({{Cl|INP}}({{Cl|&amp;H}}3C9) * 4)
   blu$ = {{Cl|HEX$}}({{Cl|INP}}({{Cl|&amp;H}}3C9) * 4)
-  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(red$) = 1 {{Cl|THEN}} red$ = &quot;0&quot; + red$ '2 hex digits required
-  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(grn$) = 1 {{Cl|THEN}} grn$ = &quot;0&quot; + grn$ 'for low or zero hex values
-  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(blu$) = 1 {{Cl|THEN}} blu$ = &quot;0&quot; + blu$
-  hex32$ = &quot;{{Cl|&amp;H}}&quot; + alpha$ + red$ + grn$ + blu$
+  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(red$) = 1 {{Cl|THEN}} red$ = "0" + red$ '2 hex digits required
+  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(grn$) = 1 {{Cl|THEN}} grn$ = "0" + grn$ 'for low or zero hex values
+  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(blu$) = 1 {{Cl|THEN}} blu$ = "0" + blu$
+  hex32$ = "{{Cl|&amp;H}}" + alpha$ + red$ + grn$ + blu$
   {{Cl|_PALETTECOLOR}} attribute, {{Cl|VAL}}(hex32$) 'VAL converts hex string to a LONG 32 bit value
   {{Cl|IF...THEN|IF}} attribute {{Cl|THEN}} {{Cl|COLOR}} attribute 'exclude black color print
-  {{Cl|PRINT}} &quot;{{Cl|COLOR}}&quot; + {{Cl|STR$}}(attribute) + &quot; = &quot; + hex32$, red$, grn$, blu$ 'returns closest attribute
+  {{Cl|PRINT}} "{{Cl|COLOR}}" + {{Cl|STR$}}(attribute) + " = " + hex32$, red$, grn$, blu$ 'returns closest attribute
 {{Cl|NEXT}} '' ''
 {{CodeEnd}}
 {{OutputStart}}Attribute  Hex value      Red        Green       Blue 
 
-{{text|COLOR 0 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF000050       00         00         50|#A8A8A8}}
-{{text|COLOR 1 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF0000A8       00         00         A8|#0050A8}}
-{{text|COLOR 2 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A800       00         A8         00|#00A800}}
-{{text|COLOR 3 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF00A8A8       00         A8         A8|#00A8A8}}
-{{text|COLOR 4 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA80000       A8         00         00|#A80000}}
-{{text|COLOR 5 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA800A8       A8         00         A8|#A800A8}}
-{{text|COLOR 6 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA85400       A8         54         00|#A85400}}
-{{text|COLOR 7 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFA8A8A8       A8         A8         A8|#A8A8A8}}
-{{text|COLOR 8 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF545454       54         54         54|#545454}}
-{{text|COLOR 9 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF5454FC       54         54         FC|#5454FC}}
-{{text|COLOR 10 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF54FC54      54         FC         54|#54FC54}}
-{{text|COLOR 11 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFF5454FC      54         FC         FC|#54FCFC}}
-{{text|COLOR 12 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC5454      FC         54         54|#FC5454}}
-{{text|COLOR 13 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFC54FC      FC         54         FC|#FC54FC}}
-{{text|COLOR 14 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFC54      FC         FC         54|#FCFC54}}
-{{text|COLOR 15 &lt;nowiki&gt;=&lt;/nowiki&gt; &amp;HFFFCFCFC      FC         FC         FC|#FCFCFC}}
+{{text|COLOR 0 &lt;nowiki>=&lt;/nowiki> &amp;HFF000050       00         00         50|#A8A8A8}}
+{{text|COLOR 1 &lt;nowiki>=&lt;/nowiki> &amp;HFF0000A8       00         00         A8|#0050A8}}
+{{text|COLOR 2 &lt;nowiki>=&lt;/nowiki> &amp;HFF00A800       00         A8         00|#00A800}}
+{{text|COLOR 3 &lt;nowiki>=&lt;/nowiki> &amp;HFF00A8A8       00         A8         A8|#00A8A8}}
+{{text|COLOR 4 &lt;nowiki>=&lt;/nowiki> &amp;HFFA80000       A8         00         00|#A80000}}
+{{text|COLOR 5 &lt;nowiki>=&lt;/nowiki> &amp;HFFA800A8       A8         00         A8|#A800A8}}
+{{text|COLOR 6 &lt;nowiki>=&lt;/nowiki> &amp;HFFA85400       A8         54         00|#A85400}}
+{{text|COLOR 7 &lt;nowiki>=&lt;/nowiki> &amp;HFFA8A8A8       A8         A8         A8|#A8A8A8}}
+{{text|COLOR 8 &lt;nowiki>=&lt;/nowiki> &amp;HFF545454       54         54         54|#545454}}
+{{text|COLOR 9 &lt;nowiki>=&lt;/nowiki> &amp;HFF5454FC       54         54         FC|#5454FC}}
+{{text|COLOR 10 &lt;nowiki>=&lt;/nowiki> &amp;HFF54FC54      54         FC         54|#54FC54}}
+{{text|COLOR 11 &lt;nowiki>=&lt;/nowiki> &amp;HFF5454FC      54         FC         FC|#54FCFC}}
+{{text|COLOR 12 &lt;nowiki>=&lt;/nowiki> &amp;HFFFC5454      FC         54         54|#FC5454}}
+{{text|COLOR 13 &lt;nowiki>=&lt;/nowiki> &amp;HFFFC54FC      FC         54         FC|#FC54FC}}
+{{text|COLOR 14 &lt;nowiki>=&lt;/nowiki> &amp;HFFFCFC54      FC         FC         54|#FCFC54}}
+{{text|COLOR 15 &lt;nowiki>=&lt;/nowiki> &amp;HFFFCFCFC      FC         FC         FC|#FCFCFC}}
 {{OutputEnd}}
-:''Explanation:'' The RGB intensity values are multiplied by 4 to get the [[_RGB]] intensity values as [[HEX$|hexadecimal]] values. The individual 2 digit [[HEX$]] intensity values can be added to &quot;&amp;HFF&quot; to make up the 32-bit hexadecimal string value necessary for [[VAL]] to return to [[_PALETTECOLOR]]. The statement is only included in the example to show how that can be done with any 32-bit color value.
+:''Explanation:'' The RGB intensity values are multiplied by 4 to get the [[_RGB]] intensity values as [[HEX$|hexadecimal]] values. The individual 2 digit [[HEX$]] intensity values can be added to "&amp;HFF" to make up the 32-bit hexadecimal string value necessary for [[VAL]] to return to [[_PALETTECOLOR]]. The statement is only included in the example to show how that can be done with any 32-bit color value.
 :'''Note:''' Black has a blue hex value of 50 due to the [[OUT]] background color setting which makes it dark blue.
 
 
@@ -89,7 +89,7 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
 * The same can be achieved using [[_PALETTECOLOR]] ('''recommended practice''').
 
 :'''{{text|OUT &amp;H3C7, attribute|green}}''' 'Set port to read RGB settings with:
-:'''{{text|color_intensity &lt;nowiki&gt;=&lt;/nowiki&gt; INP(&amp;H3C9)|green}}''' 'reads present intensity setting
+:'''{{text|color_intensity &lt;nowiki>=&lt;/nowiki> INP(&amp;H3C9)|green}}''' 'reads present intensity setting
  
 :'''{{text|OUT &amp;H3C8, attribute|green}}''' 'Set port to write RGB settings with:
 :'''{{text|OUT &amp;H3C9, color_intensity|green}}''' 'writes new intensity setting
@@ -98,7 +98,7 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
 * Color port setting of red, green and blue intensities can be done in ascending order.
 * Color port attribute intensity values range from 0 to 63 (1/4 of the 32-bit values) in QBasic's legacy 4 and 8 bit screen modes.
 
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 
 {{PageExamples}}
@@ -134,7 +134,7 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
 ''Example 3:'' Printing in fullscreen SCREEN 0 mode with a color background under the text only.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0: {{Cl|_FULLSCREEN}} ' used for fullscreen instead of window
-{{Cl|COLOR}} 30, 6: {{Cl|LOCATE}} 12, 4: {{Cl|PRINT}} &quot;Hello!&quot; '' ''
+{{Cl|COLOR}} 30, 6: {{Cl|LOCATE}} 12, 4: {{Cl|PRINT}} "Hello!" '' ''
 {{CodeEnd}}
 :''Result:'' Hello! is printed in flashing high intensity yellow with brown background behind text only when in Qbasic [[_FULLSCREEN|fullscreen]].
 
@@ -143,7 +143,7 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0: {{Cl|_FULLSCREEN}}
 {{Cl|COLOR}} , 7: {{Cl|CLS}}
-{{Cl|COLOR}} 9: {{Cl|PRINT}} &quot;Hello&quot; '' ''
+{{Cl|COLOR}} 9: {{Cl|PRINT}} "Hello" '' ''
 {{CodeEnd}}
 {{TextStart}}{{text|Hello|blue}}{{TextEnd}}
 :''Result:'' The blue word Hello is printed to a totally grey background in [[_FULLSCREEN|fullscreen]].
@@ -152,16 +152,16 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
 ''Example 5:'' Using a different foreground color for each letter:
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0
-{{Cl|COLOR}} 1: {{Cl|PRINT}} &quot;H&quot;;
-{{Cl|COLOR}} 3: {{Cl|PRINT}} &quot;E&quot;;
-{{Cl|COLOR}} 4: {{Cl|PRINT}} &quot;L&quot;;
-{{Cl|COLOR}} 5: {{Cl|PRINT}} &quot;L&quot;;
-{{Cl|COLOR}} 6: {{Cl|PRINT}} &quot;O&quot;
-{{Cl|COLOR}} 9: {{Cl|PRINT}} &quot;W&quot;;
-{{Cl|COLOR}} 11: {{Cl|PRINT}} &quot;O&quot;;
-{{Cl|COLOR}} 12: {{Cl|PRINT}} &quot;R&quot;;
-{{Cl|COLOR}} 13: {{Cl|PRINT}} &quot;L&quot;;
-{{Cl|COLOR}} 14: {{Cl|PRINT}} &quot;D&quot; '' ''
+{{Cl|COLOR}} 1: {{Cl|PRINT}} "H";
+{{Cl|COLOR}} 3: {{Cl|PRINT}} "E";
+{{Cl|COLOR}} 4: {{Cl|PRINT}} "L";
+{{Cl|COLOR}} 5: {{Cl|PRINT}} "L";
+{{Cl|COLOR}} 6: {{Cl|PRINT}} "O"
+{{Cl|COLOR}} 9: {{Cl|PRINT}} "W";
+{{Cl|COLOR}} 11: {{Cl|PRINT}} "O";
+{{Cl|COLOR}} 12: {{Cl|PRINT}} "R";
+{{Cl|COLOR}} 13: {{Cl|PRINT}} "L";
+{{Cl|COLOR}} 14: {{Cl|PRINT}} "D" '' ''
 {{CodeEnd}}
 
 {{OutputStart}}
@@ -173,10 +173,10 @@ alpha$ = &quot;FF&quot; 'solid alpha colors only
 ''Example 6:'' Doing the same as Example 5 but in only a few lines:
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 0
-text$ = &quot;HelloWorld&quot;
+text$ = "HelloWorld"
 {{Cl|FOR...NEXT|FOR}} textpos = 1 {{Cl|TO}} {{Cl|LEN}}(text$)
   {{Cl|COLOR}} textpos
-  {{Cl|IF...THEN|IF}} textpos &lt;&gt; 5 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|MID$}}(text$, textpos, 1);
+  {{Cl|IF...THEN|IF}} textpos &lt;> 5 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|MID$}}(text$, textpos, 1);
   {{Cl|IF...THEN|IF}} textpos = 5 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|MID$}}(text$, textpos, 1)    'start print on next row
 {{Cl|NEXT}}
 
@@ -193,7 +193,7 @@ text$ = &quot;HelloWorld&quot;
 {{Cl|_PALETTECOLOR}} 0, _RGB32(255, 255, 255) 'change color 0 intensity
 {{Cl|_PALETTECOLOR}} 8, _RGB32(0, 0, 0) 'change color 8 intensity
 
-{{Cl|COLOR}} 8: {{Cl|PRINT}} &quot;Black on bright white!&quot; '' ''
+{{Cl|COLOR}} 8: {{Cl|PRINT}} "Black on bright white!" '' ''
 {{CodeEnd}}
 {{WhiteStart}}'''{{text|Black on bright white!|#000000}}'''
 {{WhiteEnd}}
@@ -202,19 +202,21 @@ text$ = &quot;HelloWorld&quot;
 
 
 ''Example 8:'' Changing light gray text in [[SCREEN]] 0 to a 32 bit custom color using a [[LONG]] HTML hexadecimal value:
-{{CodeStart}} '' ''
+{{CodeStart
+2b54
+}} '' ''
 {{Cl|COLOR}} 7
-{{Cl|PRINT}} &quot;Color 7 is gray&quot;
+{{Cl|PRINT}} "Color 7 is gray"
 K$ = {{Cl|INPUT$}}(1)
 {{Cl|_PALETTECOLOR}} 7, {{Cl|&amp;H}}FFDAA520 ' FF alpha makes the color translucent
-{{Cl|PRINT}} &quot;Color 7 is now Goldenrod in {{Cl|SCREEN}} 0! '' ''
+{{Cl|PRINT}} "Color 7 is now Goldenrod in {{Cl|SCREEN}} 0! '' ''
 {{CodeEnd}}
 {{OutputStart}}
 {{text|Color 7 is gray|#A8A8A8}}
 {{text|Color 7 is now Goldenrod in SCREEN 0!|#DAA520}}
 {{OutputEnd}}
 : ''Explanation:'' [[_RGB32]] could be used to make custom 32 bit colors or HTML values could be used after &amp;HFF for solid colors.
-&lt;p style=&quot;text-align: center&quot;&gt;([[#toc|Return to Table of Contents]])&lt;/p&gt;
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 
 {{PageSeeAlso}}

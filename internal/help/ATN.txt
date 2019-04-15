@@ -7,12 +7,12 @@ The [[ATN]] or arctangent function returns the angle in radians of a numerical [
 
 {{Parameters}}
 * The return is the {{Parameter|tangent!}}'s angle in '''radians'''.
-* {{Parameter|tangent!}} [[SINGLE]] or [[DOUBLE]] values are used by the function. EX:'''{{text|Pi &lt;nowiki&gt;=&lt;/nowiki&gt; 4 * ATN(1)|green}}'''
+* {{Parameter|tangent!}} [[SINGLE]] or [[DOUBLE]] values are used by the function. EX:'''{{text|Pi &lt;nowiki>=&lt;/nowiki> 4 * ATN(1)|green}}'''
 
 
 {{PageDescription}}
 * To convert from radians to degrees, multiply radians * (180 / &amp;pi;).
-* The ''tangent'' value would be equal to the tangent value of an angle. Ex: '''{{text|[[TAN]](ATN(1)) &lt;nowiki&gt;=&lt;/nowiki&gt; 1|green}}'''
+* The ''tangent'' value would be equal to the tangent value of an angle. Ex: '''{{text|[[TAN]](ATN(1)) &lt;nowiki>=&lt;/nowiki> 1|green}}'''
 * The function return value is between -&amp;pi; / 2 and &amp;pi; / 2.
 
 
@@ -51,21 +51,21 @@ DO
   {{Cl|_DISPLAY}}
   {{Cl|_LIMIT}} 200
   {{Cl|CLS}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 {{Cl|FUNCTION}} getangle# (x1#, y1#, x2#, y2#) 'returns 0-359.99...
 {{Cl|IF...THEN|IF}} y2# = y1# {{Cl|THEN}}
   {{Cl|IF...THEN|IF}} x1# = x2# {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
-  {{Cl|IF...THEN|IF}} x2# &gt; x1# {{Cl|THEN}} getangle# = 90 {{Cl|ELSE}} getangle# = 270
+  {{Cl|IF...THEN|IF}} x2# > x1# {{Cl|THEN}} getangle# = 90 {{Cl|ELSE}} getangle# = 270
   {{Cl|EXIT FUNCTION}}
 {{Cl|END IF}}
 {{Cl|IF...THEN|IF}} x2# = x1# {{Cl|THEN}}
-  {{Cl|IF...THEN|IF}} y2# &gt; y1# {{Cl|THEN}} getangle# = 180
+  {{Cl|IF...THEN|IF}} y2# > y1# {{Cl|THEN}} getangle# = 180
   {{Cl|EXIT FUNCTION}}
 {{Cl|END IF}}
 {{Cl|IF...THEN|IF}} y2# &lt; y1# {{Cl|THEN}}
-  {{Cl|IF...THEN|IF}} x2# &gt; x1# {{Cl|THEN}}
+  {{Cl|IF...THEN|IF}} x2# > x1# {{Cl|THEN}}
     getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131
   {{Cl|ELSE}}
     getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131 + 360

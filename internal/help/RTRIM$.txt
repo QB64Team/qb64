@@ -19,9 +19,9 @@ name$ = {{Cl|RTRIM$}}(contact.name) ' trims spaces from end of fixed length {{Cl
 {{CodeEnd}} 
 
 Trimming text string ends:
-{{CodeStart}}{{Cl|PRINT}} {{Cl|RTRIM$}}(&quot;some text&quot;) + &quot;.&quot;
-{{Cl|PRINT}} {{Cl|RTRIM$}}(&quot;some text   &quot;) + &quot;.&quot;
-{{Cl|PRINT}} {{Cl|RTRIM$}}(&quot;Tommy    &quot;)
+{{CodeStart}}{{Cl|PRINT}} {{Cl|RTRIM$}}("some text") + "."
+{{Cl|PRINT}} {{Cl|RTRIM$}}("some text   ") + "."
+{{Cl|PRINT}} {{Cl|RTRIM$}}("Tommy    ")
 {{CodeEnd}}
 {{OutputStart}}some text.
 some text.

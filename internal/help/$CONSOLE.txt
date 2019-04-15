@@ -27,7 +27,7 @@ The [[$CONSOLE]] [[Metacommand]] creates a console window that can be used throu
 {{Cl|_CONSOLE}} ON
 
 {{Cl|_DEST}} {{Cl|_CONSOLE}}
-{{Cl|PRINT}} &quot;Close this console window or click main window and press a key!&quot; '' ''
+{{Cl|PRINT}} "Close this console window or click main window and press a key!" '' ''
 {{CodeEnd}}
 
 
@@ -38,17 +38,17 @@ The [[$CONSOLE]] [[Metacommand]] creates a console window that can be used throu
 
 c&amp;&amp; = -1: d&amp; = -1: e% = -1: f%% = -1
 hx$ = {{Cl|HEX$}}(f%%)
-{{Cl|PRINT}} &quot;Max hex {{Cl|_BYTE}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|_BYTE}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(e%)
-{{Cl|PRINT}} &quot;Max hex {{Cl|INTEGER}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|INTEGER}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(d&amp;)
-{{Cl|PRINT}} &quot;Max hex {{Cl|LONG}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|LONG}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(c&amp;&amp;)
-{{Cl|PRINT}} &quot;Max hex {{Cl|_INTEGER64}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|_INTEGER64}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(9223372036854775807)
-{{Cl|PRINT}} &quot;Max {{Cl|_INTEGER64}} value = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits&quot;
+{{Cl|PRINT}} "Max {{Cl|_INTEGER64}} value = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits"
 hx$ = {{Cl|HEX$}}(-9223372036854775808)
-{{Cl|PRINT}} &quot;Min {{Cl|_INTEGER64}} value = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits&quot; '' ''
+{{Cl|PRINT}} "Min {{Cl|_INTEGER64}} value = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits" '' ''
 {{CodeEnd}}
 {{OutputStart}}Max hex _BYTE = FF with 2 digits = 255
 Max hex INTEGER = FFFF with 4 digits = 65535
@@ -57,7 +57,7 @@ Max hex _INTEGER64 = FFFFFFFFFFFFFFFF with 16 digits =-1
 Max _INTEGER64 value = 7FFFFFFFFFFFFFFF with 16 digits
 Min _INTEGER64 value = 8000000000000000 with 16 digits
 {{OutputEnd}}
-: ''Console:'' Right click and select ''Edit'' &gt; ''Select All'' (mouse highlight after) then hit Enter or select ''Edit'' &gt; ''Copy'' to the [[_CLIPBOARD$ (function)|clipboard]].
+: ''Console:'' Right click and select ''Edit'' > ''Select All'' (mouse highlight after) then hit Enter or select ''Edit'' > ''Copy'' to the [[_CLIPBOARD$ (function)|clipboard]].
 {{TextStart}}Max hex _BYTE = FF with 2 digits = 255
 Max hex INTEGER = FFFF with 4 digits = 65535
 Max hex LONG = FFFFFFFF with 8 digits = 4294967295

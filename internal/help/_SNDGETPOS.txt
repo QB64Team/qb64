@@ -11,17 +11,17 @@ The [[_SNDGETPOS]] function returns the current playing position in seconds usin
 *If a sound isn't playing, it returns 0.
 *If a sound is paused, it returns the paused position.
 *For a looping sound, the value returned continues to increment and does not reset to 0 when the sound loops.
-* In versions '''prior to build 20170811/60''', the sound identified by {{Parameter|handle&amp;}} must have been opened using the [[_SNDOPEN|&quot;SETPOS&quot; capability]] to use this function.
+* In versions '''prior to build 20170811/60''', the sound identified by {{Parameter|handle&amp;}} must have been opened using the [[_SNDOPEN|"SETPOS" capability]] to use this function.
 
 
 {{PageExamples}}
 ''Example:'' To check the current playing position in an MP3 file, use [[_SNDPLAY]] with [[_SNDGETPOS]] printed in a loop:
 {{CodeStart}} '' ''
-SoundFile&amp; = {{Cl|_SNDOPEN}}(&quot;YourSoundFile.mp3&quot;) '&lt;&lt;&lt; your MP3 sound file here!
+SoundFile&amp; = {{Cl|_SNDOPEN}}("YourSoundFile.mp3") '&lt;&lt;&lt; your MP3 sound file here!
 {{Cl|_SNDSETPOS}} SoundFile&amp;, 5.5   'set to play sound 5 1/2 seconds into music 
 {{Cl|_SNDPLAY}} SoundFile&amp;  'play sound 
 Do: {{Cl|_LIMIT}} 60     
-   LOCATE 5, 2: PRINT &quot;Current play position&gt; &quot;; {{Cl|_SNDGETPOS}}(SoundFile&amp;)
+   LOCATE 5, 2: PRINT "Current play position> "; {{Cl|_SNDGETPOS}}(SoundFile&amp;)
 LOOP UNTIL {{Cl|_KEYDOWN}}(27) OR {{Cl|NOT}} {{Cl|_SNDPLAYING}}(SoundFile&amp;) 'ESC or end of sound exit
 {{CodeEnd}}
 

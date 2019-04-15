@@ -12,7 +12,7 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 {{Parameters}}
 * The {{Parameter|fileName$}} is a [[STRING]] variable or literal file name (path optional) in quotes. 
 * FOR mode can be: [[APPEND]] (write to end), [[BINARY]] (read/write), [[INPUT (file mode)|INPUT]] (read), [[OUTPUT]] (write new) or [[RANDOM]] (read/write).
-* GW-BASIC's {{Parameter|modeLetter$}} is a [[STRING]] variable or the letter &quot;A&quot;, &quot;B&quot;, &quot;I&quot;, &quot;O&quot; or &quot;R&quot; designating the OPEN modes above.
+* GW-BASIC's {{Parameter|modeLetter$}} is a [[STRING]] variable or the letter "A", "B", "I", "O" or "R" designating the OPEN modes above.
 * {{Parameter|fileNumber&amp;}} can be any '''positive''' [[INTEGER]] or [[LONG]] whole number value or an unused value determined by the [[FREEFILE]] function.
 * [[LEN]] = or {{Parameter|recordLength}} is optional to denote the RANDOM file record byte length (default = 128) or sequential (default = 512) load buffer.
 
@@ -25,15 +25,15 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 * If [[LEN]] = is ommitted, sequential file record sizes default to 512 and [[RANDOM]] to 128 bytes in Qbasic.
 * {{Parameter|fileName$}} can be up to 255 characters with no limit on file name extension length in '''QB64'''. 
 * Once a file or port is opened, it can be used in any program procedure using the assigned file number. 
-* The '''&quot;SCRN:&quot;''' device is supported in '''version 1.000 and up''' (see Example 3).
-* '''Devices such as &quot;KYBD:&quot;, &quot;CONS:&quot;, &quot;COMn&quot; and &quot;LPTn:&quot; are [[Keywords currently not supported by QB64|not supported in QB64.]]'''. 
-: '''Note:''' OPEN &quot;LPTn&quot; is not supported by QB64, but may be supported directly by your operating system. 
+* The '''"SCRN:"''' device is supported in '''version 1.000 and up''' (see Example 3).
+* '''Devices such as "KYBD:", "CONS:", "COMn" and "LPTn:" are [[Keywords currently not supported by QB64|not supported in QB64.]]'''. 
+: '''Note:''' OPEN "LPTn" is not supported by QB64, but may be supported directly by your operating system. 
 * [[OPEN COM]] can also be used for serial port access in '''QB64'''.
 
 
 {{PageErrors}}
-* Illegal '''QB64''' Windows filename characters are ''' &quot; * / \ | ? : &lt; &gt; '''. Multiple dots (periods) are allowed.
-* Possible OPEN [[ERROR Codes|errors]] include &quot;Bad file name or number&quot;, &quot;Bad File Mode&quot;, &quot;File Not Found&quot; or &quot;Path Not Found&quot;.
+* Illegal '''QB64''' Windows filename characters are ''' " * / \ | ? : &lt; > '''. Multiple dots (periods) are allowed.
+* Possible OPEN [[ERROR Codes|errors]] include "Bad file name or number", "Bad File Mode", "File Not Found" or "Path Not Found".
 ** An OPEN file not found error may occur if [[CHR$]](0) to (31) are used in a Windows file name.
 * '''QB64''' does not have DOS file name limitations.
 
@@ -43,7 +43,7 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 * [[ACCESS]] clause limits file access to READ, WRITE or READ WRITE on a network.
 * [[LOCK (access)|LOCK]] clause can specify SHARED or a LOCK READ or LOCK WRITE file lock in an OPEN statement working on a network.
 * A separate [[LOCK]] statement can lock or [[UNLOCK]] file access on a network using a format that can lock specific records.
-* If another process already has access to a specified file, program access is denied for that file OPEN access. A &quot;Permission Denied&quot; error 70 will be returned. A network program must be able to handle a denial of access error.
+* If another process already has access to a specified file, program access is denied for that file OPEN access. A "Permission Denied" error 70 will be returned. A network program must be able to handle a denial of access error.
 
 ===File Access Modes===
 * FOR mode can be:
@@ -57,33 +57,33 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 
 ====GW-BASIC modes====
 * ''Mode letter'' is a variable or literal [[STRING]] letter value as one of the following:
-** &quot;A&quot; = '''APPEND'''.
-** &quot;B&quot; = '''BINARY'''.
-** &quot;I&quot; = '''INPUT'''.
-** &quot;O&quot; = '''OUTPUT'''.
-** &quot;R&quot; = '''RANDOM'''.
+** "A" = '''APPEND'''.
+** "B" = '''BINARY'''.
+** "I" = '''INPUT'''.
+** "O" = '''OUTPUT'''.
+** "R" = '''RANDOM'''.
 
 
 {{PageExamples}}
 ''Example 1:'' Function that displays errors and the number of errors in QBasic filenames. Returns 0 when filename is OK.
 
 {{CodeStart}}
- file$ = &quot;Hello,~1.mp3&quot;      'example call below
- {{Cl|LOCATE}} 20, 30: errors% = CheckName%(file$): {{Cl|COLOR}} 14: {{Cl|PRINT}} &quot;  Total Errors =&quot;; errors% 
+ file$ = "Hello,~1.mp3"      'example call below
+ {{Cl|LOCATE}} 20, 30: errors% = CheckName%(file$): {{Cl|COLOR}} 14: {{Cl|PRINT}} "  Total Errors ="; errors% 
 
 {{Cl|FUNCTION}} CheckName% (Filename$)
   '{{Cl|NOT}}E: Function also displays filename errors so {{Cl|LOCATE}} on screen before call!
   {{Cl|DIM}} L {{Cl|AS}} {{Cl|INTEGER}}, DP {{Cl|AS}} {{Cl|INTEGER}}, XL {{Cl|AS}} {{Cl|INTEGER}}
-  L = {{Cl|LEN}}(Filename$): DP = {{Cl|INSTR}}(Filename$, &quot;.&quot;): {{Cl|IF...THEN|IF}} DP {{Cl|THEN}} XL = L - DP 'extension
-  {{Cl|IF...THEN|IF}} L = 0 {{Cl|OR (boolean)|OR}} L &gt; 12 {{Cl|OR (boolean)|OR}} DP &gt; 9 {{Cl|OR (boolean)|OR}} XL &gt; 3 {{Cl|THEN}} 
-    CheckName% = -1: {{Cl|COLOR}} 12: {{Cl|PRINT}} &quot;Illegal format!&quot;; : {{Cl|EXIT FUNCTION}}
+  L = {{Cl|LEN}}(Filename$): DP = {{Cl|INSTR}}(Filename$, "."): {{Cl|IF...THEN|IF}} DP {{Cl|THEN}} XL = L - DP 'extension
+  {{Cl|IF...THEN|IF}} L = 0 {{Cl|OR (boolean)|OR}} L > 12 {{Cl|OR (boolean)|OR}} DP > 9 {{Cl|OR (boolean)|OR}} XL > 3 {{Cl|THEN}} 
+    CheckName% = -1: {{Cl|COLOR}} 12: {{Cl|PRINT}} "Illegal format!"; : {{Cl|EXIT FUNCTION}}
   {{Cl|END IF}}
-  {{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} L      'check each filename character&quot;
+  {{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} L      'check each filename character"
      code% = {{Cl|ASC}}({{Cl|MID$}}(Filename$, i%, 1)): {{Cl|COLOR}} 10      ' see ASCII codes
      {{Cl|SELECT CASE}} code%       'check for errors and highlight in red
 	'{{Cl|CASE}} 34, 42 {{Cl|TO}} 44, 47, 58 {{Cl|TO}} 63, 91 {{Cl|TO}} 93, 124: E% = E% + 1: {{Cl|COLOR}} 12 ' '''QBasic errors'''
         {{Cl|CASE}} 34, 42, 47, 58, 60, 62, 92, 124: E% = E% + 1: {{Cl|COLOR}} 12 ' '''QB64 errors'''
-        {{Cl|CASE}} 46: dot% = dot% + 1: {{Cl|IF...THEN|IF}} dot% &gt; 1 {{Cl|THEN}} E% = E% + 1: {{Cl|COLOR}} 12
+        {{Cl|CASE}} 46: dot% = dot% + 1: {{Cl|IF...THEN|IF}} dot% > 1 {{Cl|THEN}} E% = E% + 1: {{Cl|COLOR}} 12
      {{Cl|END SELECT}}     
      {{Cl|PRINT}} {{Cl|CHR$}}(code%);  'use {{Cl|LOCATE}} before {{Cl|FUNCTION}} call to place print
   {{Cl|NEXT}}  
@@ -93,44 +93,44 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 ''Note: The QBasic character error list is commented out and the function will return invalid filenames under QB64.
 
 {{OutputStart}}
-                         {{text|Hello|#54FC54}}{{text|,|red}}{{text|~1.mp3|#54FC54}}  {{text|Total Errors|yellow}}&lt;nowiki&gt; = &lt;/nowiki&gt;{{text|1|yellow}}
+                         {{text|Hello|#54FC54}}{{text|,|red}}{{text|~1.mp3|#54FC54}}  {{text|Total Errors|yellow}}&lt;nowiki> = &lt;/nowiki>{{text|1|yellow}}
 {{OutputEnd}}
 :''Note:'' The screen output displays filename characters in green except for red comma QBasic error.
 
 
-''Example 2:'' When '''OPEN &quot;SCRN:&quot; FOR OUTPUT AS #f''' is used, '''PRINT #f''' will print the text to the screen instead of to a file:
+''Example 2:'' When '''OPEN "SCRN:" FOR OUTPUT AS #f''' is used, '''PRINT #f''' will print the text to the screen instead of to a file:
 {{CodeStart}} '' ''
 f% = {{Cl|FREEFILE}} 'should always be 1 at program start
-{{Cl|OPEN}} &quot;SCRN:&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #f%
+{{Cl|OPEN}} "SCRN:" {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #f%
 g% = {{Cl|FREEFILE}} 'should always be 2 after 1
-{{Cl|OPEN}} &quot;temp.txt&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #g%
+{{Cl|OPEN}} "temp.txt" {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #g%
 
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 2
-    {{Cl|PRINT (file statement)|PRINT}} #i, &quot;Hello World, Screen and File version&quot;
+    {{Cl|PRINT (file statement)|PRINT}} #i, "Hello World, Screen and File version"
 NEXT '' ''
 {{CodeEnd}}{{small|code by Steve McNeill}}
-: ''Note:'' Linux or Mac file names can use a path destination such as &quot;.\SCRN:&quot; to use SCRN: as an actual file name. 
+: ''Note:'' Linux or Mac file names can use a path destination such as ".\SCRN:" to use SCRN: as an actual file name. 
 
 
 ''Example 3:'' Showcasing different file modes.
 {{CodeStart}}
 {{Cl|CLS}}
 
-{{Cl|OPEN}} &quot;test.tst&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;If test.tst didn't exist:&quot;
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;A new file was created named test.tst and then deleted.&quot;
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;If test.tst did exist:&quot;
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;It was overwritten with this and deleted.&quot;
+{{Cl|OPEN}} "test.tst" {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
+{{Cl|PRINT (file statement)|PRINT}} #1, "If test.tst didn't exist:"
+{{Cl|PRINT (file statement)|PRINT}} #1, "A new file was created named test.tst and then deleted."
+{{Cl|PRINT (file statement)|PRINT}} #1, "If test.tst did exist:"
+{{Cl|PRINT (file statement)|PRINT}} #1, "It was overwritten with this and deleted."
 {{Cl|CLOSE}} #1
 
-{{Cl|OPEN}} &quot;test.tst&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+{{Cl|OPEN}} "test.tst" {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
 {{Cl|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1)
 {{Cl|INPUT (file statement)|INPUT}} #1, a$
 {{Cl|PRINT}} a$
 {{Cl|LOOP}}
 {{Cl|CLOSE}} #1
 
-{{Cl|KILL}} &quot;test.tst&quot;
+{{Cl|KILL}} "test.tst"
 
 {{Cl|END}}
 

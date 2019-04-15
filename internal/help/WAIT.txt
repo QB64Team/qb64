@@ -7,8 +7,8 @@ The {{KW|WAIT}} statement waits until the value read from an I/O port has certai
 
 {{PageDescription}}
 * The {{KW|WAIT}} statement reads a value from {{Parameter|port%}} using {{KW|INP}}.
-* If {{Parameter|xorMask%}} is specified, the value is {{KW|XOR}}'d with {{Parameter|xorMask%}}. It has the effect of &quot;toggle these bits&quot;.
-* The value is then {{KW|AND}}'d with {{Parameter|andMask%}}. It has the effect of &quot;check if these bits are set&quot;.
+* If {{Parameter|xorMask%}} is specified, the value is {{KW|XOR}}'d with {{Parameter|xorMask%}}. It has the effect of "toggle these bits".
+* The value is then {{KW|AND}}'d with {{Parameter|andMask%}}. It has the effect of "check if these bits are set".
 * If the final value is non-zero, {{KW|WAIT}} returns. Otherwise, another value is read from {{Parameter|port%}} and checked again.
 * The {{KW|WAIT}} statement returns immediately if {{Parameter|port%}} is not supported.
 

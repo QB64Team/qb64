@@ -30,7 +30,7 @@ The '''STR$''' function returns the [[STRING]] representation of a numerical val
 
 {{CodeStart}}
 a = 33
-{{Cl|PRINT}} {{Cl|STR$}}(a) + &quot;10&quot; + &quot;1&quot; + &quot;who&quot; + {{Cl|STR$}}(a) + {{Cl|STR$}}(a) + {{Cl|LTRIM$}}({{Cl|STR$}}(a))
+{{Cl|PRINT}} {{Cl|STR$}}(a) + "10" + "1" + "who" + {{Cl|STR$}}(a) + {{Cl|STR$}}(a) + {{Cl|LTRIM$}}({{Cl|STR$}}(a))
 {{CodeEnd}}
 {{OutputStart}} 33101who 33 3333
 {{OutputEnd}}

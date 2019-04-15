@@ -17,7 +17,7 @@ The '''$STATIC''' Metacommand allows the creation of STATIC(un-changeable) array
 {{CodeStart}} '' ''
 '{{Cl|$STATIC}}
 
-{{Cl|INPUT}} &quot;Enter array size: &quot;, size
+{{Cl|INPUT}} "Enter array size: ", size
 {{Cl|DIM}} array(size)   'using an actual number instead of the variable will create an error!
 
 {{Cl|REDIM}} array(2 * size)

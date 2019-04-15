@@ -51,7 +51,7 @@ The '''POKE''' statement sets the value of a specified memory address offset. ''
         {{Cl|POKE}} a&amp;, {{Cl|PEEK}}((a&amp; * 2) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FFFF&amp;) + 1
     {{Cl|NEXT}}
     {{Cl|_LIMIT}} 25
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|DEF SEG}} '' ''
 {{CodeEnd}} 
 
@@ -67,7 +67,7 @@ selection = 0 'the screen Y coordinate of the previously highlighted item
     {{Cl|IF}} selection {{Cl|THEN}} selectRow selection, minX, maxX, 0
     x = {{Cl|CINT}}({{Cl|_MOUSEX}})
     y = {{Cl|CINT}}({{Cl|_MOUSEY}})    
-    {{Cl|IF}} x &gt;= minX {{Cl|AND (boolean)|AND}} x &lt;= maxX {{Cl|AND (boolean)|AND}} y &gt;= minY {{Cl|AND (boolean)|AND}} y &lt;= maxY {{Cl|THEN}}
+    {{Cl|IF}} x >= minX {{Cl|AND (boolean)|AND}} x &lt;= maxX {{Cl|AND (boolean)|AND}} y >= minY {{Cl|AND (boolean)|AND}} y &lt;= maxY {{Cl|THEN}}
       selection = y
     {{Cl|ELSE}}
       selection = 0
@@ -76,7 +76,7 @@ selection = 0 'the screen Y coordinate of the previously highlighted item
     {{Cl|IF}} selection {{Cl|THEN}} SelectRow selection, minX, maxX, 2 
     {{Cl|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|LOCATE}} 1, 2: {{Cl|PRINT}} x, y, selection 
   {{Cl|END IF}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 
 {{Cl|SUB}} SelectRow (y, x1, x2, col)
 {{Cl|DEF SEG}} = {{Cl|&amp;H}}B800

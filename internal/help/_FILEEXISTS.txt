@@ -17,8 +17,8 @@ The '''_FILEEXISTS''' function determines if a designated file name exists and r
 {{PageExamples}}
 {{Parameter|Example:'' Checks if a file exists before opening it.
 {{CodeStart}}
-{{Cl|IF}} {{Cl|_FILEEXISTS}}(&quot;mysettings.ini&quot;) THEN
-    {{Cl|PRINT}} &quot;Settings file found.&quot;
+{{Cl|IF}} {{Cl|_FILEEXISTS}}("mysettings.ini") THEN
+    {{Cl|PRINT}} "Settings file found."
 {{Cl|END IF}}
 {{CodeEnd}}}}
 

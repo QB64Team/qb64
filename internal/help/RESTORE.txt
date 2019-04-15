@@ -9,7 +9,7 @@ The '''RESTORE''' statement is used to reset the DATA pointer to the beginning o
 * Datafield label names are not required when working with ONE or a progression of data fields in the main body of code.
 * Label multiple data fields to restore them to use them again when necessary.
 * If RESTORE is used with unlabeled data fields or no datafield is designated then the first data field is read.
-* Use RESTORE to avoid an [[ERROR Codes|&quot;Out of Data&quot; error]] when reading a data field!
+* Use RESTORE to avoid an [[ERROR Codes|"Out of Data" error]] when reading a data field!
 * See the [[DATA]] statement for [[STRING]] data value specifications.
 * '''Do not place [[DATA]] fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to [[RESTORE]] properly!'''
 : Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
@@ -18,14 +18,14 @@ The '''RESTORE''' statement is used to reset the DATA pointer to the beginning o
 ''Example:'' Restoring a labeled DATA field to avoid going past the end of DATA.
 {{CodeStart}}
 DO
-   {{Cl|INPUT}} &quot;Enter a month number(1 to 12): &quot;, monthnum%
+   {{Cl|INPUT}} "Enter a month number(1 to 12): ", monthnum%
 
    {{Cl|RESTORE}} Months
    FOR i = 1 TO monthnum%
       {{Cl|READ}} month$, days%   'variables must match data field types
    NEXT
-   {{Cl|PRINT}} &quot;The month &quot;; month$; &quot; has&quot;; days%; &quot;days.&quot;
-LOOP UNTIL monthnum% &lt; 1 OR monthnum% &gt; 12
+   {{Cl|PRINT}} "The month "; month$; " has"; days%; "days."
+LOOP UNTIL monthnum% &lt; 1 OR monthnum% > 12
 
  Months:
  {{Cl|DATA}} January, 31, February, 28, March, 31, April, 30, May, 31, June, 30
@@ -44,11 +44,11 @@ The month June has 30 days.
 {{Cl|DO}}
 {{Cl|READ}} dummy$ 'we won't actually use this string for anything else than to know when there is no more DATA.
 count = count + 1
-{{Cl|LOOP}} {{Cl|UNTIL}} dummy$ = &quot;stop&quot; 'when dummy$ = &quot;stop&quot; then we know that it is the last entry so it only does the above loop until then.
+{{Cl|LOOP}} {{Cl|UNTIL}} dummy$ = "stop" 'when dummy$ = "stop" then we know that it is the last entry so it only does the above loop until then.
 
-count = count - 1 'since the last string is &quot;stop&quot; and we don't want to store it in the array.
+count = count - 1 'since the last string is "stop" and we don't want to store it in the array.
 
-{{Cl|PRINT}} &quot;The number of relevant entries are:&quot;; count
+{{Cl|PRINT}} "The number of relevant entries are:"; count
 
 {{Cl|DIM}} entry$(count) 'Now we know how many elements we need to make space for (DIM)
 
@@ -67,7 +67,7 @@ count = count - 1 'since the last string is &quot;stop&quot; and we don't want t
 
 {{Cl|END}} 
 
-{{Cl|DATA}} &quot;entry1&quot;, &quot;entry2&quot;, &quot;entry3&quot;, &quot;stop&quot;
+{{Cl|DATA}} "entry1", "entry2", "entry3", "stop"
 {{CodeEnd}}
 {{small|Code By: Cyperium}}
 

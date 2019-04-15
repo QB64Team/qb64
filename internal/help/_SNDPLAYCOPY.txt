@@ -29,7 +29,7 @@ The [[_SNDPLAYCOPY]] statement copies a sound, plays it, and automatically close
 
 ''Example 2:'' Playing a song at random volumes.
 {{CodeStart}} '' '' 
-chomp&amp; = _SNDOPEN(&quot;chomp.wav&quot;) 
+chomp&amp; = _SNDOPEN("chomp.wav") 
 _SNDPLAYCOPY chomp&amp;, 0.5 + RND * 0.49 '' ''     
 {{CodeEnd}}
 

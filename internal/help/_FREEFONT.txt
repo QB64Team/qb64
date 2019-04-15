@@ -23,22 +23,22 @@ The [[_FREEFONT]] statement frees a font handle that was created by [[_LOADFONT]
 ''Example 1:'' Previews and creates a file list of valid MONOSPACE TTF fonts by checking the [[_LOADFONT]] handle values.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12
-path$ = &quot;C:\WINDOWS\Fonts\&quot;                  'path to the font folder
-{{Cl|SHELL}} {{Cl|_HIDE}} &quot;DIR /b &quot; + path$ + &quot;\*.ttf &gt; TTFonts.INF&quot;  
-style$ = &quot;monospace&quot;                         'set style to MONOSPACE
-{{Cl|OPEN}} &quot;TTFonts.INF&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1           'list of TTF fonts only
-{{Cl|OPEN}} &quot;TTFMono.INF&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #2          'will hold list of valid MONOSPACE fonts
+path$ = "C:\WINDOWS\Fonts\"                  'path to the font folder
+{{Cl|SHELL}} {{Cl|_HIDE}} "DIR /b " + path$ + "\*.ttf > TTFonts.INF"  
+style$ = "monospace"                         'set style to MONOSPACE
+{{Cl|OPEN}} "TTFonts.INF" {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1           'list of TTF fonts only
+{{Cl|OPEN}} "TTFMono.INF" {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #2          'will hold list of valid MONOSPACE fonts
 
 {{Cl|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1): found = found + 1
   {{Cl|LINE INPUT (file statement)|LINE INPUT}} #1, font$          
   f&amp; ={{Cl|_LOADFONT}}(path$ + font$, 30, style$)   
-  {{Cl|IF}} f&amp; &gt; 0 {{Cl|THEN}}                  'check for valid handle values &gt; 0
+  {{Cl|IF}} f&amp; > 0 {{Cl|THEN}}                  'check for valid handle values > 0
     OK = OK + 1
     {{Cl|PRINT (file statement)|PRINT}} #2, font$
     {{Cl|_FONT}} f&amp;                      'will create error if handle is invalid!
-    {{Cl|PRINT}} &quot;Hello World!&quot;    
+    {{Cl|PRINT}} "Hello World!"    
     {{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}} font$; f&amp; 
-    {{Cl|PRINT}} &quot;Press any key.&quot;   
+    {{Cl|PRINT}} "Press any key."   
     K$ = {{Cl|INPUT$}}(1)
     {{Cl|_FONT}} 16                      'use QB64 default font to free tested font
     {{Cl|_FREEFONT}} f&amp;                  'returns an error if handle &lt;= 0! 
@@ -48,7 +48,7 @@ style$ = &quot;monospace&quot;                         'set style to MONOSPACE
 {{Cl|IF}} K$ = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|EXIT DO}}
 {{Cl|LOOP}}
 {{Cl|CLOSE}}
-{{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}} &quot;Found&quot;; found; &quot;TTF files,&quot;; OK; &quot;can use Monospace,&quot;
+{{Cl|PRINT}}: {{Cl|PRINT}}: {{Cl|PRINT}} "Found"; found; "TTF files,"; OK; "can use Monospace,"
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
@@ -59,33 +59,33 @@ Found 106 TTF files, 13 can use Monospace.
 
 ''Example 2:'' Using a _FREEFONT sub-procedure. 
 {{CodeStart}}
-fontpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;) + &quot;\fonts\lucon.ttf&quot; 
-style$ = &quot;MONOSPACE, ITALIC, BOLD&quot;
+fontpath$ = {{Cl|ENVIRON$}}("SYSTEMROOT") + "\fonts\lucon.ttf" 
+style$ = "MONOSPACE, ITALIC, BOLD"
 fontsize% = 20
 
 {{Cl|_FONT|_FONT }}16
 {{Cl|PRINT}}
-{{Cl|PRINT}} &quot;This is the QB64 default {{Cl|_FONT|_FONT }}16! To change, press any key!&quot;
-{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|PRINT}} "This is the QB64 default {{Cl|_FONT|_FONT }}16! To change, press any key!"
+{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 
 {{Cl|GOSUB}} ClearFont  'call will not free anything if font&amp; = 0
 
 font&amp; = {{Cl|_LOADFONT}}(fontpath$, fontsize%, style$)
-{{Cl|IF}} font &gt; 0 THEN {{Cl|_FONT|_FONT}} font&amp;  'NEVER try to load a font value less than 1!
+{{Cl|IF}} font > 0 THEN {{Cl|_FONT|_FONT}} font&amp;  'NEVER try to load a font value less than 1!
 {{Cl|PRINT}}
-{{Cl|PRINT}} &quot;A NEW {{Cl|_FONT|_FONT}} style. To change to default, press any key!&quot;
-{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|PRINT}} "A NEW {{Cl|_FONT|_FONT}} style. To change to default, press any key!"
+{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 
 {{Cl|GOSUB}} ClearFont  'call will free a valid font handle from memory
 
 {{Cl|END}}
 
 ClearFont: 
-{{Cl|IF}} font&amp; &gt; 0 {{Cl|THEN}}
+{{Cl|IF}} font&amp; > 0 {{Cl|THEN}}
     {{Cl|_FONT|_FONT }}16   'change used font to the QB64 8x16 default font
     {{Cl|_FREEFONT}} font&amp;
-    {{Cl|PRINT}}: {{Cl|PRINT}} &quot;The previous font was freed with _FREEFONT!&quot;
-{{Cl|ELSE}} : {{Cl|PRINT}}: {{Cl|PRINT}} &quot;_FREEFONT was not used!&quot;
+    {{Cl|PRINT}}: {{Cl|PRINT}} "The previous font was freed with _FREEFONT!"
+{{Cl|ELSE}} : {{Cl|PRINT}}: {{Cl|PRINT}} "_FREEFONT was not used!"
 {{Cl|END IF}}
 {{Cl|RETURN}} '' ''
 {{CodeEnd}}

@@ -20,7 +20,7 @@ DO
   {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}} '      Check the mouse status
     {{Cl|PRINT}} {{Cl|_MOUSEX}}, {{Cl|_MOUSEY}}, {{Cl|_MOUSEBUTTON}}(1), {{Cl|_MOUSEWHEEL}}
   {{Cl|LOOP}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" '' ''
 {{CodeEnd}}
 : ''Explanation:'' The latest mouse function status can be read after the loop. [[_LIMIT]] and [[_DELAY]] loops will slow returns down.
 
@@ -36,7 +36,7 @@ DO
   {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}'mouse status changes only
     x = {{Cl|_MOUSEX}}
     y = {{Cl|_MOUSEY}}
-    {{Cl|IF...THEN|IF}} x &gt; 0 {{Cl|AND (boolean)|AND}} x &lt; 640 {{Cl|AND (boolean)|AND}} y &gt; 0 {{Cl|AND (boolean)|AND}} y &lt; 480 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} x > 0 {{Cl|AND (boolean)|AND}} x &lt; 640 {{Cl|AND (boolean)|AND}} y > 0 {{Cl|AND (boolean)|AND}} y &lt; 480 {{Cl|THEN}}
       {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(2) {{Cl|THEN}}
         {{Cl|PSET}} (x, y), 15
         {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} x, y
@@ -50,17 +50,17 @@ DO
 {{CodeEnd}}
 
 
-''Example 3:'' Clearing any mouse data read before or during an [[INPUT]] entry. Press &quot;I&quot; to enter input:
+''Example 3:'' Clearing any mouse data read before or during an [[INPUT]] entry. Press "I" to enter input:
 {{CodeStart}}
-{{Cl|PRINT}} &quot;Press I to enter input! Press Q to quit&quot;
+{{Cl|PRINT}} "Press I to enter input! Press Q to quit"
 {{Cl|DO...LOOP|DO}} 
   K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}) 
   {{Cl|DO...LOOP|DO}}  
-    {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) = -1 {{Cl|THEN}} {{Cl|PRINT}} &quot;*&quot;    'indicates a mouse click event
+    {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) = -1 {{Cl|THEN}} {{Cl|PRINT}} "*"    'indicates a mouse click event
   {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}
-  {{Cl|IF...THEN|IF}} K$ = &quot;Q&quot; {{Cl|THEN}} {{Cl|END}} 
-  {{Cl|IF...THEN|IF}} K$ = &quot;I&quot; {{Cl|THEN}}                                          'press I to enter text
-    {{Cl|INPUT}} &quot;Click the mouse and enter something: &quot;, entry$   'enter some text 
+  {{Cl|IF...THEN|IF}} K$ = "Q" {{Cl|THEN}} {{Cl|END}} 
+  {{Cl|IF...THEN|IF}} K$ = "I" {{Cl|THEN}}                                          'press I to enter text
+    {{Cl|INPUT}} "Click the mouse and enter something: ", entry$   'enter some text 
     {{Cl|GOSUB}} Clickcheck                                        'clear mouse data
   {{Cl|END IF}} 
 {{Cl|LOOP}} 

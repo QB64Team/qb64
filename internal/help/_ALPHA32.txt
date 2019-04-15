@@ -24,10 +24,10 @@ The [[_ALPHA32]] function returns the alpha transparency level of a 32 bit color
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 
 clr~&amp; = {{Cl|_RGBA}}(255, 0, 255, 192)
-{{Cl|PRINT}} &quot;Color:&quot;; clr~&amp;
+{{Cl|PRINT}} "Color:"; clr~&amp;
 
 {{Cl|COLOR}} clr~&amp;
-{{Cl|PRINT}} &quot;Alpha32:&quot;; {{Cl|_ALPHA32}}(clr~&amp;)
+{{Cl|PRINT}} "Alpha32:"; {{Cl|_ALPHA32}}(clr~&amp;)
 
 {{Cl|END}} '' ''
 {{CodeEnd}}

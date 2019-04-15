@@ -54,18 +54,18 @@
 
 ''Example 1:'' Playing the seven octaves based on the base note DATA * 2 ^ (octave - 1).
 {{CodeStart}} '' ''
-notes$ = &quot;C C#D D#E F F#G G#A A#B &quot;
-{{Cl|COLOR}} 9:{{Cl|LOCATE}} 5, 20: PRINT &quot;Select an octave (1 - 7) to play (8 quits):&quot;
+notes$ = "C C#D D#E F F#G G#A A#B "
+{{Cl|COLOR}} 9:{{Cl|LOCATE}} 5, 20: PRINT "Select an octave (1 - 7) to play (8 quits):"
 {{Cl|DO}}			
   {{Cl|DO}}: octa$ = {{Cl|INKEY$}}
-    {{Cl|IF...THEN|IF}} octa$ &lt;&gt; &quot;&quot; {{Cl|THEN}}
-      {{Cl|IF...THEN|IF}} {{Cl|ASC}}(octa$) &gt; 48 {{Cl|AND (boolean)|AND}} {{Cl|ASC}}(octa$) &lt; 58 {{Cl|THEN}} octave% = {{Cl|VAL}}(octa$): {{Cl|EXIT DO}}
+    {{Cl|IF...THEN|IF}} octa$ &lt;> "" {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} {{Cl|ASC}}(octa$) > 48 {{Cl|AND (boolean)|AND}} {{Cl|ASC}}(octa$) &lt; 58 {{Cl|THEN}} octave% = {{Cl|VAL}}(octa$): {{Cl|EXIT DO}}
     {{Cl|END IF}}
-  {{Cl|LOOP}} {{Cl|UNTIL}} octave% &gt; 7 
-  {{Cl|IF...THEN|IF}} octave% &gt; 0 {{Cl|AND (boolean)|AND}} octave% &lt; 8 {{Cl|THEN}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} octave% > 7 
+  {{Cl|IF...THEN|IF}} octave% > 0 {{Cl|AND (boolean)|AND}} octave% &lt; 8 {{Cl|THEN}}
     {{Cl|LOCATE}} 15, 6: {{Cl|PRINT}} {{Cl|SPACE$}}(70)
     {{Cl|LOCATE}} 16, 6: {{Cl|PRINT}} {{Cl|SPACE$}}(70)
-    {{Cl|COLOR}} 14: {{Cl|LOCATE}} 15, 6: {{Cl|PRINT}} &quot;Octave&quot;; octave%; &quot;:&quot;;
+    {{Cl|COLOR}} 14: {{Cl|LOCATE}} 15, 6: {{Cl|PRINT}} "Octave"; octave%; ":";
     {{Cl|RESTORE}} Octaves
     {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 12
       {{Cl|READ}} note!
@@ -74,20 +74,20 @@ notes$ = &quot;C C#D D#E F F#G G#A A#B &quot;
       c0l = {{Cl|POS}}(0)
       {{Cl|COLOR}} 11: {{Cl|LOCATE}} 16, c0l - 2: {{Cl|PRINT}} {{Cl|MID$}}(notes$, 1 + (2 * (i - 1)), 2)
       {{Cl|LOCATE}} 15, c0l
-      {{Cl|IF...THEN|IF}} snd% &gt; 36 {{Cl|THEN}} {{Cl|SOUND}} snd%, 12  'error if sound value is &lt; 36
+      {{Cl|IF...THEN|IF}} snd% > 36 {{Cl|THEN}} {{Cl|SOUND}} snd%, 12  'error if sound value is &lt; 36
       {{Cl|_DELAY}} .8
     {{Cl|NEXT}}
   {{Cl|END IF}}
-{{Cl|LOOP}} {{Cl|UNTIL}} octave% &gt; 7 
+{{Cl|LOOP}} {{Cl|UNTIL}} octave% > 7 
 {{Cl|END}}
 
 Octaves:
 {{Cl|DATA}} 32.7,34.65,36.71,38.9,41.2,43.65,46.25,49,51.91,55,58.27,61.74 '' ''
 {{CodeEnd}}
-{{small|Code adapted by Ted Weissgerber from code in [http://www.amazon.com/Running-MS-DOS-QBASIC-Michael-Halvorson/dp/1556153406 &quot;Running MS-DOS Qbasic&quot;] by Microsoft Press}}
+{{small|Code adapted by Ted Weissgerber from code in [http://www.amazon.com/Running-MS-DOS-QBASIC-Michael-Halvorson/dp/1556153406 "Running MS-DOS Qbasic"] by Microsoft Press}}
 
 
-''Example 2:'' Playing a song called &quot;Bonnie&quot; with [[SOUND]] frequencies. 
+''Example 2:'' Playing a song called "Bonnie" with [[SOUND]] frequencies. 
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 13
 {{Cl|_FULLSCREEN}}
@@ -102,7 +102,7 @@ Octaves:
   {{Cl|LOCATE}} 23, i%: {{Cl|PRINT}} {{Cl|CHR$}}(220)
 {{Cl|NEXT}} i%
 {{Cl|COLOR}} 9
-{{Cl|LOCATE}} 3, 16: {{Cl|PRINT}} {{Cl|CHR$}}(34); &quot;MY BONNIE&quot;; {{Cl|CHR$}}(34)
+{{Cl|LOCATE}} 3, 16: {{Cl|PRINT}} {{Cl|CHR$}}(34); "MY BONNIE"; {{Cl|CHR$}}(34)
 {{Cl|SLEEP}} 3
 {{Cl|FOR...NEXT|FOR}} i% = 1 {{Cl|TO}} 34
   {{Cl|SELECT CASE}} i%
@@ -115,17 +115,17 @@ Octaves:
   {{Cl|SOUND}} note%, duration%: {{Cl|PRINT}} word$;
 {{Cl|NEXT}} i%
 {{Cl|SLEEP}} 2
-{{Cl|LOCATE}} 23, 16: {{Cl|PRINT}} &quot;Thank You!&quot;
+{{Cl|LOCATE}} 23, 16: {{Cl|PRINT}} "Thank You!"
 {{Cl|SLEEP}} 4
 {{Cl|SYSTEM}}
 
-{{Cl|DATA}} 392,8,&quot;My &quot;,659,8,&quot;Bon-&quot;,587,8,&quot;nie &quot;,523,8,&quot;lies &quot;,587,8,&quot;O-&quot;,523,8,&quot;Ver &quot;,440,8,&quot;the &quot;
-{{Cl|DATA}} 392,8,&quot;O-&quot;,330,32,&quot;cean &quot;,392,8,&quot;My &quot;,659,8,&quot;Bon-&quot;,587,8,&quot;nie &quot;,523,8,&quot;lies &quot;
-{{Cl|DATA}} 523,8,&quot;O-&quot;,494,8,&quot;ver &quot;,523,8,&quot;the &quot;,587,40,&quot;sea &quot;,392,8,&quot;My &quot;,659,8,&quot;Bon-&quot;,587,8,&quot;nie&quot;
-{{Cl|DATA}} 523,8,&quot; lies &quot;,587,8,&quot;O-&quot;,523,8,&quot;ver &quot;,440,8,&quot;the &quot;,392,8,&quot;O-&quot;,330,32,&quot;cean &quot;,392,8,&quot;Oh &quot;
-{{Cl|DATA}} 440,8,&quot;bring &quot;,587,8,&quot;back &quot;,523,8,&quot;my &quot;,494,8,&quot;Bon-&quot;,440,8,&quot;nie &quot;,494,8,&quot;to &quot;,523,32,&quot;me..!&quot; '' ''
+{{Cl|DATA}} 392,8,"My ",659,8,"Bon-",587,8,"nie ",523,8,"lies ",587,8,"O-",523,8,"Ver ",440,8,"the "
+{{Cl|DATA}} 392,8,"O-",330,32,"cean ",392,8,"My ",659,8,"Bon-",587,8,"nie ",523,8,"lies "
+{{Cl|DATA}} 523,8,"O-",494,8,"ver ",523,8,"the ",587,40,"sea ",392,8,"My ",659,8,"Bon-",587,8,"nie"
+{{Cl|DATA}} 523,8," lies ",587,8,"O-",523,8,"ver ",440,8,"the ",392,8,"O-",330,32,"cean ",392,8,"Oh "
+{{Cl|DATA}} 440,8,"bring ",587,8,"back ",523,8,"my ",494,8,"Bon-",440,8,"nie ",494,8,"to ",523,32,"me..!" '' ''
 {{CodeEnd}}
-{{small|Code adapted by Ted Weissgerber from code [http://www.amazon.com/Running-MS-DOS-QBASIC-Michael-Halvorson/dp/1556153406 &quot;Running MS-DOS Qbasic&quot;] by Microsoft Press}}
+{{small|Code adapted by Ted Weissgerber from code [http://www.amazon.com/Running-MS-DOS-QBASIC-Michael-Halvorson/dp/1556153406 "Running MS-DOS Qbasic"] by Microsoft Press}}
 
 
 ''See also:'' 

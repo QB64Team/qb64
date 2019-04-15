@@ -2,13 +2,13 @@ The '''TIME$''' Function returns a [[STRING]] representation of the current comp
 
 
 {{PageSyntax}}
-:: PRINT &quot;Present time = &quot;; '''TIME$'''
+:: PRINT "Present time = "; '''TIME$'''
 
 
-* Returns the present computer time in hh:mm:ss 24 hour format: &quot;19:20:33&quot;
+* Returns the present computer time in hh:mm:ss 24 hour format: "19:20:33"
 * Uses 2 colon (:) separators between hours, minutes and seconds
-* Hour values range from &quot;00&quot; to &quot;23&quot; starting from midnite.
-* Minutes and seconds range from &quot;00&quot; to &quot;59&quot;
+* Hour values range from "00" to "23" starting from midnite.
+* Minutes and seconds range from "00" to "59"
 * Continuous TIME$ calls may lag if a QBasic program is minimized to the taskbar!
 
 
@@ -20,9 +20,9 @@ The '''TIME$''' Function returns a [[STRING]] representation of the current comp
     t$ = {{Cl|TIME$}}: h = {{Cl|VAL}}(t$): m = {{Cl|VAL}}({{Cl|MID$}}(t$, 4, 2)): s = {{Cl|VAL}}({{Cl|MID$}}(t$, 7, 2))
     {{Cl|PRINT}} t$
     {{Cl|CIRCLE}} {{Cl|STEP}}(0, 0), 200, 8
-    {{Cl|DRAW}} &quot;c12ta&quot; + {{Cl|STR$}}((h {{Cl|MOD}} 12) * -30) + &quot;nu133&quot;
-    {{Cl|DRAW}} &quot;c14ta&quot; + {{Cl|STR$}}(m * -6) + &quot;nu200&quot;
-    {{Cl|DRAW}} &quot;c9ta&quot; + {{Cl|STR$}}(s * -6) + &quot;nu200&quot;
+    {{Cl|DRAW}} "c12ta" + {{Cl|STR$}}((h {{Cl|MOD}} 12) * -30) + "nu133"
+    {{Cl|DRAW}} "c14ta" + {{Cl|STR$}}(m * -6) + "nu200"
+    {{Cl|DRAW}} "c9ta" + {{Cl|STR$}}(s * -6) + "nu200"
     {{Cl|_DISPLAY}}
     {{Cl|_LIMIT}} 1
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
@@ -39,10 +39,10 @@ PRINT Clock$
 {{Cl|FUNCTION}} Clock$
 hour$ = {{Cl|LEFT$}}(TIME$, 2): H% = {{Cl|VAL}}(hour$)
 min$ = {{Cl|MID$}}(TIME$, 3, 3)   
-IF H% &gt;= 12 THEN ampm$ = &quot; PM&quot; ELSE ampm$ = &quot; AM&quot; 
-IF H% &gt; 12 THEN
+IF H% >= 12 THEN ampm$ = " PM" ELSE ampm$ = " AM" 
+IF H% > 12 THEN
   IF H% - 12 &lt; 10 THEN hour$ = {{Cl|STR$}}(H% - 12) ELSE hour$ = {{Cl|LTRIM$}}({{Cl|STR$}}(H% - 12))
-ELSEIF H% = 0 THEN hour$ = &quot;12&quot;          ' midnight hour
+ELSEIF H% = 0 THEN hour$ = "12"          ' midnight hour
 ELSE : IF H% &lt; 10 THEN hour$ = {{Cl|STR$}}(H%)  ' eliminate leading zeros   
 END IF  
 Clock$ = hour$ + min$ + ampm$

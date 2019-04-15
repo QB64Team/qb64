@@ -17,12 +17,12 @@ The [[CSRLIN]] function returns the current text row position of the [[PRINT]] c
 {{PageExamples}}
 ''Example:'' A semicolon stops the print cursor immediately after the print.
 {{CodeStart}} '' ''
-  LOCATE 5, 5: PRINT &quot;HELLO &quot;;
+  LOCATE 5, 5: PRINT "HELLO ";
   Y = {{Cl|CSRLIN}} 'save the row
   X = {{Cl|POS}}(0) 'save the column  
-  LOCATE 10, 10: PRINT &quot;WORLD&quot;
+  LOCATE 10, 10: PRINT "WORLD"
   LOCATE Y, X 'restore saved position
-  PRINT &quot;GOODBYE&quot; '' ''
+  PRINT "GOODBYE" '' ''
 {{CodeEnd}}
 
 {{OutputStart}}
@@ -39,7 +39,7 @@ The [[CSRLIN]] function returns the current text row position of the [[PRINT]] c
 
 
 {{OutputEnd}}
-:''Explanation:'' &quot;HELLO &quot; is printed and the semicolon stops the cursor immediately after the text. The [[CSRLIN]] variable records the current print cursor's text row in Y. The [[POS]] function records the current print cursor's text column in X. The second [[PRINT]] statement displays the comment &quot;WORLD&quot; on the 10th line of the screen. The last [[LOCATE]] statement restores the position of the cursor to the original line and column immediately after the first print.
+:''Explanation:'' "HELLO " is printed and the semicolon stops the cursor immediately after the text. The [[CSRLIN]] variable records the current print cursor's text row in Y. The [[POS]] function records the current print cursor's text column in X. The second [[PRINT]] statement displays the comment "WORLD" on the 10th line of the screen. The last [[LOCATE]] statement restores the position of the cursor to the original line and column immediately after the first print.
 
 
 {{PageSeeAlso}}

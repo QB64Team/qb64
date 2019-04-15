@@ -19,14 +19,14 @@ A {{KW|REDIM}} statement can re-dimension one [[$DYNAMIC|dynamic]](flexible) [[A
 * [[$DYNAMIC|Dynamic]] arrays MUST be [[REDIM]]ensioned if [[ERASE]] or [[CLEAR]] are used to clear the arrays as they no longer exist. 
 * When [[AS]] is used to declare the type, use [[AS]] to retain that type or it will change to [[SINGLE]]!
 * '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
-* '''Warning! Do not use negative array upper bound index values as OS access or &quot;Out of Memory&quot; [[ERROR Codes|errors]] will occur!'''
+* '''Warning! Do not use negative array upper bound index values as OS access or "Out of Memory" [[ERROR Codes|errors]] will occur!'''
 
 
 ''Example 1:'' The [[$DYNAMIC]] Metacommand allows an array to be re-sized using [[DIM]] and REDIM.
 {{CodeStart}} '' ''
 '{{Cl|$DYNAMIC}}
 
-{{Cl|INPUT}} &quot;Enter array size: &quot;, size 
+{{Cl|INPUT}} "Enter array size: ", size 
 {{Cl|DIM}} Array(size)
 
 {{Cl|REDIM}} Array(2 * size)

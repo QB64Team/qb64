@@ -15,7 +15,7 @@ The {{KW|WRITE}} statement writes a [[comma]]-separated list of values to the sc
 
 ''Example:'' Comparing WRITE to the same PRINT statement.
 {{CodeStart}}a% = 123
-b$ = &quot;Hello&quot;
+b$ = "Hello"
 c! = 3.1415
 
 {{Cl|PRINT}} a%, b$, c!   'commas display tab spaced data
@@ -23,7 +23,7 @@ c! = 3.1415
 {{CodeEnd}}
 {{OutputStart}}
 123        Hello      3.1415 
-123,&quot;Hello&quot;,3.1415 '' ''
+123,"Hello",3.1415 '' ''
 {{OutputEnd}}
 
 

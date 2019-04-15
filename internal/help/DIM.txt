@@ -34,7 +34,7 @@ The [[DIM]] statement is used to declare a variable or a list of variables as a 
 * [[$DYNAMIC|Dynamic]] arrays MUST be [[REDIM]]ensioned if [[ERASE]] or [[CLEAR]] are used, as the arrays are completely removed.
 * All numerical variable types '''except''' {{KW|SINGLE}}, {{KW|DOUBLE}} and {{KW|_FLOAT}} can be dimensioned as [[_UNSIGNED]] (suffix ~) or positive only.
 * '''NOTE:''' Many QBasic keyword variable names can be used with a [[STRING]] suffix ($). You cannot use them without the suffix, use a numerical suffix or use ''DIM, [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]]'' statements. '''Although possible, it's recommended to avoid using reserved names.'''
-* '''Warning: Do not use negative array upper bound index values, or OS access or &quot;Out of Memory&quot; [[ERROR Codes|errors]] will occur.'''
+* '''Warning: Do not use negative array upper bound index values, or OS access or "Out of Memory" [[ERROR Codes|errors]] will occur.'''
 
 
 {{PageExamples}}
@@ -64,7 +64,7 @@ The [[DIM]] statement is used to declare a variable or a list of variables as a 
 {{CodeEnd}}
 
 
-''Example 6:'' QB64 is more flexible than QBasic when it comes to &quot;Duplicate Definition&quot; errors. The following code does not error:
+''Example 6:'' QB64 is more flexible than QBasic when it comes to "Duplicate Definition" errors. The following code does not error:
 {{CodeStart}} '' ''
 x = 1 'x is a {{Cl|SINGLE}} variable
 {{Cl|PRINT}} x
@@ -74,7 +74,7 @@ x = 1 'x is a {{Cl|SINGLE}} variable
 : ''Explanation:'' The [[SINGLE]] variable can be differentiated from the [[LONG]] x variable by using suffixes like x! or x&amp; in later code.
 
 
-''Example 7:'' The following code will create a &quot;Name already in use&quot; '''[[IDE|status error]]''' in QB64 when the variable types are the same.
+''Example 7:'' The following code will create a "Name already in use" '''[[IDE|status error]]''' in QB64 when the variable types are the same.
 {{CodeStart}} '' ''
 x = 1 'x is a {{Cl|SINGLE}} variable
 {{Cl|PRINT}} x

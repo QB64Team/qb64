@@ -22,7 +22,7 @@ The [[_CLIPBOARD$ (statement)|_CLIPBOARD$]] statement copies the [[STRING]] valu
 {{Cl|DIM}} CrLf AS {{Cl|STRING}} * 2            'define as 2 byte STRING
 CrLf = {{Cl|CHR$}}(13) + {{Cl|CHR$}}(10)        'carriage return &amp; line feed 
 
-{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;This is line 1&quot; + CrLf + &quot;This is line 2&quot; 
+{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "This is line 1" + CrLf + "This is line 2" 
 {{Cl|PRINT}} {{Cl|_CLIPBOARD$}}                 'display what is in the clipboard
 '' ''
 {{CodeEnd}}

@@ -4,7 +4,7 @@ The [[ACCESS]] clause is used in an [[OPEN]] statement when working over a netwo
 
 
 {{PageSyntax}}
-:OPEN &quot;file.dat&quot; FOR APPEND ['''ACCESS {READ|WRITE}'''] AS #1
+:OPEN "file.dat" FOR APPEND ['''ACCESS {READ|WRITE}'''] AS #1
 
 {{PageDescription}}
 * Valid Options:
@@ -15,7 +15,7 @@ The [[ACCESS]] clause is used in an [[OPEN]] statement when working over a netwo
 
 
 ===Limitations===
-*If another process already has access to a specified file, program access is denied for that file OPEN access. A &quot;Permission Denied&quot; error 70 will be returned. A network program must be able to handle a denial of access error. 
+*If another process already has access to a specified file, program access is denied for that file OPEN access. A "Permission Denied" error 70 will be returned. A network program must be able to handle a denial of access error. 
 
 
 {{PageSeeAlso}}

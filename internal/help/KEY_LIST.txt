@@ -14,10 +14,10 @@ The [[KEY LIST]] statement lists the soft key strings assigned to each of the fu
 {{PageExamples}}
 ''Example 1:'' Displaying the current '''KEY LIST''' string assignments to the Function keys.
 {{CodeStart}} '' ''
-{{Cl|KEY n|KEY}} 1, &quot;Help&quot;
-{{Cl|KEY n|KEY}} 5, &quot;Compile&quot;
-{{Cl|KEY n|KEY}} 10, &quot;Quit&quot;
-{{Cl|PRINT}} &quot;Press any key!&quot;
+{{Cl|KEY n|KEY}} 1, "Help"
+{{Cl|KEY n|KEY}} 5, "Compile"
+{{Cl|KEY n|KEY}} 10, "Quit"
+{{Cl|PRINT}} "Press any key!"
 K$ = {{Cl|INPUT$}}(1)
 {{Cl|KEY LIST}}
 {{Cl|END}} '' ''
@@ -40,13 +40,13 @@ F12
 
 ''Example 2:'' Displaying the function key assignments for F1 to F10 at the bottom of the screen with '''KEY ON''' and '''KEY OFF'''.
 {{CodeStart}} '' ''
-{{Cl|KEY n|KEY}} 1, &quot;Help&quot; + {{Cl|CHR$}}(13)    'add Return character to complete the input
-{{Cl|KEY n|KEY}} 5, &quot;Compile&quot; + {{Cl|CHR$}}(13)
-{{Cl|KEY n|KEY}} 10, &quot;Quit&quot; + {{Cl|CHR$}}(13)
+{{Cl|KEY n|KEY}} 1, "Help" + {{Cl|CHR$}}(13)    'add Return character to complete the input
+{{Cl|KEY n|KEY}} 5, "Compile" + {{Cl|CHR$}}(13)
+{{Cl|KEY n|KEY}} 10, "Quit" + {{Cl|CHR$}}(13)
 '''KEY ON'''
 DO
-{{Cl|INPUT}} &quot;Press F10 to turn display off! &quot;, M$
-LOOP UNTIL M$ = &quot;Quit&quot;
+{{Cl|INPUT}} "Press F10 to turn display off! ", M$
+LOOP UNTIL M$ = "Quit"
 '''KEY OFF'''
 K$ = {{Cl|INPUT$}}(1)
 {{Cl|KEY LIST}}
@@ -69,7 +69,7 @@ Press F10 to turn display off! Compile
 
 1 {{WBG|Help←}}  2        3        4        5 {{WBG|Compil}}  6        7        8        9        10 {{WBG|Quit←}}
 {{OutputEnd}}
-:''Explanation:'' The [[INPUT]] variable will hold the string value as if it was typed in and entered. &quot;Quit&quot; will KEY OFF bottom display.
+:''Explanation:'' The [[INPUT]] variable will hold the string value as if it was typed in and entered. "Quit" will KEY OFF bottom display.
 
 
 {{PageSeeAlso}}

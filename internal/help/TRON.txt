@@ -8,21 +8,21 @@ The {{KW|TRON}} statement turns on line number tracing.
 
 
 {{PageSyntax}}
-:&lt;code&gt;{{KW|TRON}}&lt;/code&gt;
+:&lt;code>{{KW|TRON}}&lt;/code>
 
 
 {{PageDescription}}
 *'''[[Keywords currently not supported by QB64|Not supported in QB64.]]'''
 * When line number tracing is on, the line numbers of statements are output immediately before they are executed.
 * Use {{KW|TROFF}} to turn off line number tracing.
-* Line number tracing only has an effect when programs are compiled with debugging code (&lt;tt&gt;BC.EXE /D&lt;/tt&gt;).
+* Line number tracing only has an effect when programs are compiled with debugging code (&lt;tt>BC.EXE /D&lt;/tt>).
 
 
 {{PageExamples}}
 :Demonstrates simple line number tracing:
 {{CodeStart}}1 {{Cl|TRON}}
 2 {{Cl|FOR...NEXT|FOR}} n% = 1 {{Cl|TO}} 3
-3     {{Cl|PRINT}} &quot;inside loop&quot;
+3     {{Cl|PRINT}} "inside loop"
 4 {{Cl|FOR...NEXT|NEXT}} n%
 5 {{Cl|TROFF}}
 {{CodeEnd}}

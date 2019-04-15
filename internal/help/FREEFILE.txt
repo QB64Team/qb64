@@ -11,7 +11,7 @@ The [[FREEFILE]] function returns a [[LONG]] value that is an unused file access
 * File numbers [[CLOSE]]d are made available to [[FREEFILE]] for reuse immediately. 
 * [[FREEFILE]] returns are normally sequential starting with 1. Only file numbers in use will not be returned.
 * [[OPEN]] each file number after each [[FREEFILE]] return or the values returned may be the same.
-&lt;!-- redundant * [[OPEN COM]] statements cannot use any number assigned to files already OPEN. --&gt;
+&lt;!-- redundant * [[OPEN COM]] statements cannot use any number assigned to files already OPEN. -->
 
 
 {{PageSeeAlso}}

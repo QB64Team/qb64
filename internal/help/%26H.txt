@@ -7,7 +7,7 @@ The '''&amp;H''' prefix denotes that an integer value is expressed in a Hexadeci
 
 * The base 16 numbering system uses hexadecimal digit values of 0 to F. A = 10, B = 11, C = 12, D = 13, E = 14 and F = 15.
 * Leading zero values can be omitted just like in decimal values as they add nothing to the return value.
-* Decimal values returned can be any '''signed''' [[INTEGER]], [[LONG]] integer, or [[_INTEGER64]] value so use those type of variables when converting directly as shown above in the Syntax. The program [[ERROR Codes|&quot;overflow&quot;]] error limits are listed as:
+* Decimal values returned can be any '''signed''' [[INTEGER]], [[LONG]] integer, or [[_INTEGER64]] value so use those type of variables when converting directly as shown above in the Syntax. The program [[ERROR Codes|"overflow"]] error limits are listed as:
 ::* [[_BYTE]]: 2 hex digits or a decimal value range from -128 to 127. [[_UNSIGNED]]: 0 to 255.
 ::* [[INTEGER]]: 4 hex digits or a decimal value range from -32,768 to 32,767. [[_UNSIGNED]]: 0 to 65535.
 ::* [[LONG]]: 8 hex digits or a decimal value range from -2,147,483,648 to 2,147,483,647. [[_UNSIGNED]]: 0 to 4294967295.
@@ -18,24 +18,24 @@ The '''&amp;H''' prefix denotes that an integer value is expressed in a Hexadeci
 * [[LONG]] 32 bit [[_RGB]] values can be made using hexadecimal values from '''&amp;HFF{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with full [[_ALPHA]] only.
 * [[LONG]] 32 bit [[_RGBA]] values can be made using hexadecimal values from '''&amp;H00{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with any [[_ALPHA]].
 * Hexadecimal '''0x''' is often used to prefix [[HEX$]] port addresses in documentation. Replace 0x with [[&amp;H]] in QB64 or QBasic.
-* To convert hex strings returned from [[HEX$]] with [[VAL]] you need to prefix the string with &amp;H (for example; if the string is &quot;FF&quot; you should do VAL(&quot;&amp;HFF&quot;) or VAL(&quot;&amp;H&quot; + hexvalue$).
+* To convert hex strings returned from [[HEX$]] with [[VAL]] you need to prefix the string with &amp;H (for example; if the string is "FF" you should do VAL("&amp;HFF") or VAL("&amp;H" + hexvalue$).
 
 
 ''Example 1:'' The maximum octal values of decimal value -1 in each numerical type are:
 {{CodeStart}} '' ''
 c&amp;&amp; = -1: d&amp; = -1: e% = -1: f%% = -1
 hx$ = {{Cl|HEX$}}(f%%)
-{{Cl|PRINT}} &quot;Max hex {{Cl|_BYTE}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|_BYTE}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(e%)
-{{Cl|PRINT}} &quot;Max hex {{Cl|INTEGER}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|INTEGER}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(d&amp;)
-{{Cl|PRINT}} &quot;Max hex {{Cl|LONG}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|LONG}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(c&amp;&amp;)
-{{Cl|PRINT}} &quot;Max hex {{Cl|_INTEGER64}} = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits =&quot;; {{Cl|VAL}}(&quot;{{Cl|&amp;H}}&quot; + hx$)
+{{Cl|PRINT}} "Max hex {{Cl|_INTEGER64}} = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits ="; {{Cl|VAL}}("{{Cl|&amp;H}}" + hx$)
 hx$ = {{Cl|HEX$}}(9223372036854775807)
-{{Cl|PRINT}} &quot;Max {{Cl|_INTEGER64}} value = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits&quot;
+{{Cl|PRINT}} "Max {{Cl|_INTEGER64}} value = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits"
 hx$ = {{Cl|HEX$}}(-9223372036854775808)
-{{Cl|PRINT}} &quot;Min {{Cl|_INTEGER64}} value = &quot;; hx$; &quot; with&quot;; {{Cl|LEN}}(hx$); &quot;digits&quot; '' ''
+{{Cl|PRINT}} "Min {{Cl|_INTEGER64}} value = "; hx$; " with"; {{Cl|LEN}}(hx$); "digits" '' ''
 {{CodeEnd}}
 {{OutputStart}}Max hex _BYTE = FF with 2 digits = 255
 Max hex INTEGER = FFFF with 4 digits = 65535
@@ -52,30 +52,30 @@ FUNCTION BIN$ (n&amp;)
   h$ = {{Cl|HEX$}}(n&amp;)                     'get hexadecimal string value
   FOR i = 1 TO {{Cl|LEN}}(h$)              'scan the HEX$ digits
     SELECT CASE {{Cl|MID$}}(h$, i, 1)      'read each HEX$ digit
-        CASE &quot;0&quot;: b$ = b$ + &quot;0000&quot;
-        CASE &quot;1&quot;: b$ = b$ + &quot;0001&quot;
-        CASE &quot;2&quot;: b$ = b$ + &quot;0010&quot;
-        CASE &quot;3&quot;: b$ = b$ + &quot;0011&quot;
-        CASE &quot;4&quot;: b$ = b$ + &quot;0100&quot;
-        CASE &quot;5&quot;: b$ = b$ + &quot;0101&quot;
-        CASE &quot;6&quot;: b$ = b$ + &quot;0110&quot;
-        CASE &quot;7&quot;: b$ = b$ + &quot;0111&quot;
-        CASE &quot;8&quot;: b$ = b$ + &quot;1000&quot;
-        CASE &quot;9&quot;: b$ = b$ + &quot;1001&quot;
-        CASE &quot;A&quot;: b$ = b$ + &quot;1010&quot;
-        CASE &quot;B&quot;: b$ = b$ + &quot;1011&quot;
-        CASE &quot;C&quot;: b$ = b$ + &quot;1100&quot;
-        CASE &quot;D&quot;: b$ = b$ + &quot;1101&quot;
-        CASE &quot;E&quot;: b$ = b$ + &quot;1110&quot;
-        CASE &quot;F&quot;: b$ = b$ + &quot;1111&quot;
+        CASE "0": b$ = b$ + "0000"
+        CASE "1": b$ = b$ + "0001"
+        CASE "2": b$ = b$ + "0010"
+        CASE "3": b$ = b$ + "0011"
+        CASE "4": b$ = b$ + "0100"
+        CASE "5": b$ = b$ + "0101"
+        CASE "6": b$ = b$ + "0110"
+        CASE "7": b$ = b$ + "0111"
+        CASE "8": b$ = b$ + "1000"
+        CASE "9": b$ = b$ + "1001"
+        CASE "A": b$ = b$ + "1010"
+        CASE "B": b$ = b$ + "1011"
+        CASE "C": b$ = b$ + "1100"
+        CASE "D": b$ = b$ + "1101"
+        CASE "E": b$ = b$ + "1110"
+        CASE "F": b$ = b$ + "1111"
     END SELECT
   NEXT i
-  b$ = {{Cl|RIGHT$}}(b$, LEN(b$) - {{Cl|INSTR}}(b$, &quot;1&quot;) + 1)   'eliminate leading zeroes
-  IF {{Cl|VAL}}(b$) THEN BIN$ = b$ ELSE BIN$ = &quot;0&quot;       'return zero if n&amp; = 0
+  b$ = {{Cl|RIGHT$}}(b$, LEN(b$) - {{Cl|INSTR}}(b$, "1") + 1)   'eliminate leading zeroes
+  IF {{Cl|VAL}}(b$) THEN BIN$ = b$ ELSE BIN$ = "0"       'return zero if n&amp; = 0
 END FUNCTION '' ''
 {{CodeEnd}}
 {{small|Code by CodeGuy}}
-:''Explanation:'' Hexadecimal digits can be any value up to 15 which also corresponds to all four bits on in binary. The function above just adds every four bit binary string value together to return the binary value. After they are concatenated, the leading bit on is found by [[INSTR]] and everything from that point is kept removing the leading &quot;0&quot;'s.
+:''Explanation:'' Hexadecimal digits can be any value up to 15 which also corresponds to all four bits on in binary. The function above just adds every four bit binary string value together to return the binary value. After they are concatenated, the leading bit on is found by [[INSTR]] and everything from that point is kept removing the leading "0"'s.
 
 
 ''See also:''

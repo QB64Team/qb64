@@ -16,12 +16,12 @@ The [[_CLIPBOARD$]] function returns the current Operating System's clipboard co
 ''Example 1:'' Passing a string value between two running programs no matter where they are located.
 : ''Program1:''
 {{CodeStart}} '' ''
-{{Cl|PRINT}} &quot;Start Program2 to read your text entries! Empty entry quits!&quot;
-{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;Entry program started!&quot;            'set clipboard initially
+{{Cl|PRINT}} "Start Program2 to read your text entries! Empty entry quits!"
+{{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "Entry program started!"            'set clipboard initially
 
 DO
-  {{Cl|LINE INPUT}} &quot;Enter some text to send to other program: &quot;, text$
-  {{Cl|IF...THEN|IF}} text$ = &quot;&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|LINE INPUT}} "Enter some text to send to other program: ", text$
+  {{Cl|IF...THEN|IF}} text$ = "" {{Cl|THEN}} {{Cl|EXIT DO}}
   {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = text$
 {{Cl|LOOP}}
 
@@ -29,13 +29,13 @@ DO
 {{CodeEnd}}
 :''Program2:''
 {{CodeStart}}
-{{Cl|PRINT}} &quot;Enter text in Program1 and this program will read it. Esc key quits!&quot;
+{{Cl|PRINT}} "Enter text in Program1 and this program will read it. Esc key quits!"
 
 DO: {{Cl|_LIMIT}} 100
   text$ = {{Cl|_CLIPBOARD$}}                       'function returns clipboard contents
   {{Cl|IF...THEN|IF}} {{Cl|LEN}}(text$) {{Cl|THEN}} 
      {{Cl|PRINT}} text$
-     {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;&quot;                       'clear clipboard after a read
+     {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = ""                       'clear clipboard after a read
   {{Cl|END IF}}
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
 
@@ -46,10 +46,10 @@ DO: {{Cl|_LIMIT}} 100
 
 ''Example 2: A minimized program that pops up when Ctrl + Shift is entered anytime in '''Windows''' and adds clipboard text to be Pasted:
 {{CodeStart}} '' ''
-'&quot;ClippyBoard&quot; program uses GetKeyState Win API to monitor a specific key combination.
+'"ClippyBoard" program uses GetKeyState Win API to monitor a specific key combination.
 'This demo will maximize the window and focus on program when Shift+A is pressed.
 
-{{Cl|DECLARE DYNAMIC LIBRARY}} &quot;user32&quot;
+{{Cl|DECLARE DYNAMIC LIBRARY}} "user32"
   {{Cl|FUNCTION}} FindWindowA%&amp; ({{Cl|BYVAL}} ClassName {{Cl|AS}} {{Cl|_OFFSET}}, WindowName$) 'find process handle by title
   {{Cl|FUNCTION}} GetKeyState% ({{Cl|BYVAL}} nVirtKey {{Cl|AS}} {{Cl|LONG}}) 'Windows virtual key presses
   {{Cl|FUNCTION}} ShowWindow&amp; ({{Cl|BYVAL}} hwnd {{Cl|AS}} {{Cl|_OFFSET}}, {{Cl|BYVAL}} nCmdShow {{Cl|AS}} {{Cl|LONG}}) 'maximize process
@@ -57,7 +57,7 @@ DO: {{Cl|_LIMIT}} 100
   {{Cl|FUNCTION}} SetForegroundWindow&amp; ({{Cl|BYVAL}} hwnd {{Cl|AS}} {{Cl|_OFFSET}}) 'set foreground window process(focus)
 {{Cl|DECLARE LIBRARY|END DECLARE}}
 
-title$ = &quot;Clippy Clipboard (Ctrl+Shift)&quot; 'title of program window
+title$ = "Clippy Clipboard (Ctrl+Shift)" 'title of program window
 {{Cl|_TITLE}} title$ 'set program title
 hwnd%&amp; = FindWindowA(0, title$ + {{Cl|CHR$}}(0)) 'find this program's process handle
 
@@ -65,7 +65,7 @@ hwnd%&amp; = FindWindowA(0, title$ + {{Cl|CHR$}}(0)) 'find this program's proces
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
 
 {{Cl|COLOR}} 10: {{Cl|PRINT}}
-{{Cl|PRINT}} &quot; Press Ctrl+Shift to see clipboard menu.&quot;
+{{Cl|PRINT}} " Press Ctrl+Shift to see clipboard menu."
 
 {{Cl|_DELAY}} 4
 x&amp; = ShowWindow&amp;(hwnd%&amp;, 2) 'minimize
@@ -76,12 +76,12 @@ x&amp; = ShowWindow&amp;(hwnd%&amp;, 2) 'minimize
     FGwin%&amp; = GetForegroundWindow%&amp; 'get current process in focus
     y&amp; = ShowWindow&amp;(hwnd%&amp;, 1) 'maximize minimized program
 
-    {{Cl|IF...THEN|IF}} FGwin%&amp; &lt;&gt; hwnd%&amp; {{Cl|THEN}} z&amp; = SetForegroundWindow&amp;(hwnd%&amp;) 'set focus when necessary
+    {{Cl|IF...THEN|IF}} FGwin%&amp; &lt;> hwnd%&amp; {{Cl|THEN}} z&amp; = SetForegroundWindow&amp;(hwnd%&amp;) 'set focus when necessary
     {{Cl|_DELAY}} 1
     GetKey
     x&amp; = ShowWindow&amp;(hwnd%&amp;, 2) 'minimize after letter key entry
     {{Cl|COLOR}} 10: {{Cl|PRINT}}
-    {{Cl|PRINT}} &quot; Press Ctrl+Shift to see clipboard menu.&quot;
+    {{Cl|PRINT}} " Press Ctrl+Shift to see clipboard menu."
   {{Cl|END IF}}
 {{Cl|LOOP}}
 
@@ -89,40 +89,40 @@ x&amp; = ShowWindow&amp;(hwnd%&amp;, 2) 'minimize
 {{Cl|SUB}} GetKey
 {{Cl|CLS}}
 {{Cl|COLOR}} 12: {{Cl|PRINT}}: {{Cl|PRINT}} {{Cl|_CLIPBOARD$}}
-{{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = &quot;&quot;
+{{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = ""
 {{Cl|_DELAY}} 1
 {{Cl|CLS}}
-{{Cl|COLOR}} 11: {{Cl|PRINT}} &quot;Select a letter clipboard option:&quot;
+{{Cl|COLOR}} 11: {{Cl|PRINT}} "Select a letter clipboard option:"
 {{Cl|PRINT}}
-{{Cl|PRINT}} &quot;A = Address&quot;
-{{Cl|PRINT}} &quot;C = Cell phone&quot;
-{{Cl|PRINT}} &quot;E = Email&quot;
-{{Cl|PRINT}} &quot;F = First Name&quot;
-{{Cl|PRINT}} &quot;H = Home phone&quot;
-{{Cl|PRINT}} &quot;L = Last Name&quot;
-{{Cl|PRINT}} &quot;N = Name&quot;
-{{Cl|PRINT}} &quot;M = MAC address&quot;
-{{Cl|PRINT}} &quot;P = Password&quot;
-{{Cl|PRINT}} &quot;W = Work name&quot;
-{{Cl|PRINT}} &quot;X = QUIT!&quot;
-{{Cl|PRINT}} &quot;Z = Zip code&quot;
+{{Cl|PRINT}} "A = Address"
+{{Cl|PRINT}} "C = Cell phone"
+{{Cl|PRINT}} "E = Email"
+{{Cl|PRINT}} "F = First Name"
+{{Cl|PRINT}} "H = Home phone"
+{{Cl|PRINT}} "L = Last Name"
+{{Cl|PRINT}} "N = Name"
+{{Cl|PRINT}} "M = MAC address"
+{{Cl|PRINT}} "P = Password"
+{{Cl|PRINT}} "W = Work name"
+{{Cl|PRINT}} "X = QUIT!"
+{{Cl|PRINT}} "Z = Zip code"
 {{Cl|COLOR}} 14: {{Cl|PRINT}}
-{{Cl|PRINT}} &quot;Another letter will skip or X = {{Cl|EXIT}}!&quot;
+{{Cl|PRINT}} "Another letter will skip or X = {{Cl|EXIT}}!"
 
 K$ = {{Cl|UCASE$}}({{Cl|INPUT$}}(1))
 
 {{Cl|SELECT CASE}} K$  'The following text should be your personal user info:
-  {{Cl|CASE}} &quot;A&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;my address&quot;
-  {{Cl|CASE}} &quot;C&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;cell number&quot;
-  {{Cl|CASE}} &quot;E&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;myemail&quot;
-  {{Cl|CASE}} &quot;F&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;formal name&quot;
-  {{Cl|CASE}} &quot;H&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;home number&quot;
-  {{Cl|CASE}} &quot;L&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;lastname&quot;
-  {{Cl|CASE}} &quot;M&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;modempassword&quot;
-  {{Cl|CASE}} &quot;N&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;name&quot;
-  {{Cl|CASE}} &quot;P&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;password&quot;
-  {{Cl|CASE}} &quot;X&quot;: {{Cl|END}}
-  {{Cl|CASE}} &quot;Z&quot;: {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = &quot;zipcode&quot;
+  {{Cl|CASE}} "A": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "my address"
+  {{Cl|CASE}} "C": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "cell number"
+  {{Cl|CASE}} "E": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "myemail"
+  {{Cl|CASE}} "F": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "formal name"
+  {{Cl|CASE}} "H": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "home number"
+  {{Cl|CASE}} "L": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "lastname"
+  {{Cl|CASE}} "M": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "modempassword"
+  {{Cl|CASE}} "N": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "name"
+  {{Cl|CASE}} "P": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "password"
+  {{Cl|CASE}} "X": {{Cl|END}}
+  {{Cl|CASE}} "Z": {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "zipcode"
 {{Cl|END SELECT}}
 {{Cl|CLS}}
 {{Cl|PRINT}}

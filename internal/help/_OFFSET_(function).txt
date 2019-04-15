@@ -23,8 +23,8 @@ The [[_OFFSET]] function returns the memory offset of/within a given variable.
     {{Cl|SUB}} memcpy ({{Cl|BYVAL}} dest {{Cl|AS}} {{Cl|_OFFSET}}, {{Cl|BYVAL}} source {{Cl|AS}} {{Cl|_OFFSET}}, {{Cl|BYVAL}} bytes {{Cl|AS}} {{Cl|LONG}})
 {{Cl|DECLARE LIBRARY|END DECLARE}}
 
-a$ = &quot;1234567890&quot;
-b$ = &quot;ABCDEFGHIJ&quot;
+a$ = "1234567890"
+b$ = "ABCDEFGHIJ"
 
 memcpy {{Cl|_OFFSET (function)|_OFFSET}}(a$) + 5, {{Cl|_OFFSET (function)|_OFFSET}}(b$) + 5, 5
 {{Cl|PRINT}} a$ '' ''

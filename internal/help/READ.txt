@@ -11,9 +11,9 @@ The '''READ''' statement reads values from a [[DATA]] field and assigns them to 
 * [[DATA]] can be READ using [[STRING]] or numerical [[TYPE]] variables singularly or in a comma separated list:
 :: [[STRING]] READ variables can read quoted or unquoted text or numerical DATA values!
 :: Numerical type READ variables can only read '''unquoted''' numerical DATA values! 
-::'''If they do not agree, a [[ERROR Codes|&quot;Syntax error&quot;]] may result when run reading string data as numerical values!'''
+::'''If they do not agree, a [[ERROR Codes|"Syntax error"]] may result when run reading string data as numerical values!'''
 * If the number of variables specified is fewer than the number of elements in the DATA statement(s), subsequent READ statements begin reading data at the next unread element. If there are no subsequent READ statements, the extra data is ignored.
-* If variable reads exceed the number of elements in the DATA field(s), an [[ERROR Codes|&quot;Out of data&quot; error]] will occur!
+* If variable reads exceed the number of elements in the DATA field(s), an [[ERROR Codes|"Out of data" error]] will occur!
 * Use the [[RESTORE]] statement to reread DATA statements from the start, with or without a line label as required.
 * [[ACCESS]] READ can be used in an [[OPEN]] statement to limit file access to read only, preserving file data.
 * '''WARNING! Do not place DATA fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to compile properly!'''
@@ -42,12 +42,12 @@ The '''READ''' statement reads values from a [[DATA]] field and assigns them to 
 
 ''Example 2:'' Reading three pieces of data at once.
 {{CodeStart}}
- PRINT &quot; CITY &quot;, &quot; STATE  &quot;, &quot; ZIP&quot;
- PRINT {{Cl|STRING$}}(30, &quot;-&quot;)  'divider
+ PRINT " CITY ", " STATE  ", " ZIP"
+ PRINT {{Cl|STRING$}}(30, "-")  'divider
    {{Cl|READ}} C$, S$, Z&amp;
  PRINT C$, S$, Z&amp;
 
- {{Cl|DATA}} &quot;DENVER,&quot;, COLORADO, 80211 '' ''
+ {{Cl|DATA}} "DENVER,", COLORADO, 80211 '' ''
 {{CodeEnd}}
 {{OutputStart}}
   CITY        STATE       ZIP

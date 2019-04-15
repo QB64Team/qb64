@@ -21,7 +21,7 @@ The [[_OPENCONNECTION]] function opens a connection from a client that the host 
 
 {{CodeStart}}
 
- host = {{Cl|_OPENHOST}}(&quot;TCP/IP:8080&quot;)
+ host = {{Cl|_OPENHOST}}("TCP/IP:8080")
  {{Cl|DO}}
    newclient = {{Cl|_OPENCONNECTION}}(host) ' monitor host connection
    {{Cl|IF...THEN|IF}} newclient {{Cl|THEN}}
@@ -31,7 +31,7 @@ The [[_OPENCONNECTION]] function opens a connection from a client that the host 
      {{Cl|CLOSE}} #newclient ' close after each read
    {{Cl|ELSE}} : {{Cl|_DELAY}} .05 ' share resources with other programs (20 loops per second)
    {{Cl|END IF}}
- {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot; ' any keypress quits
+ {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" ' any keypress quits
  {{Cl|CLOSE}} #host
  {{Cl|SYSTEM}}
 

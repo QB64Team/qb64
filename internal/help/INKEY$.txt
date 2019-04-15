@@ -7,11 +7,11 @@ The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) 
 
 {{PageDescription}}
 * Returns [[ASCII]] character string values in upper or lower cases. See: [[UCASE$]] and [[LCASE$]]
-* Returns &quot;&quot; if no key has been pressed since the last keyboard read.
+* Returns "" if no key has been pressed since the last keyboard read.
 * Some control keys cannot be read by INKEY$ or will return 2 byte [[ASCII]] codes.
 * INKEY$ can also be used to clear a [[SLEEP]] key press or the keyboard buffer in a loop.
 * Assign the INKEY$ return to a string variable to save the key entry.
-* &lt;span style=&quot;font-family: Courier New, monospace, Courier; background: #dddddd&quot;&gt;[[LOCATE]] , , 1&lt;/span&gt; displays the INKEY$ cursor. Use &lt;span style=&quot;font-family: Courier New, monospace, Courier; background: #dddddd&quot;&gt;LOCATE , , 0&lt;/span&gt; to turn it off.
+* &lt;span style="font-family: Courier New, monospace, Courier; background: #dddddd">[[LOCATE]] , , 1&lt;/span> displays the INKEY$ cursor. Use &lt;span style="font-family: Courier New, monospace, Courier; background: #dddddd">LOCATE , , 0&lt;/span> to turn it off.
 * Use [[_DEST]] [[_CONSOLE]] before reading INKEY$ to receive input from a [[$CONSOLE|console]] window.
 * Returns can be evaluated as certain [[ASCII]] characters or codes.
 {{WhiteStart}}'                                '''ASCII Keyboard Codes'''
@@ -24,10 +24,10 @@ The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) 
 '''' Tab Q   W   E   R   T   Y   U   I   O   P  [{  ]}  \|   Del End PDn   7Hme 8/▲  9PU  + '''
 '  9  81  87  69  82  84  89  85  73  79  80 123 125 124  +83 +79 +81   +71  +72  +73  43
 '''    113 119 101 114 116 121 117 105 111 112  91  93  92                 55   56   57 ''
-'''' CapL  A   S   D   F   G   H   J   K   L   ;:  '&quot; Enter                4/◄-  5   6/-►  
+'''' CapL  A   S   D   F   G   H   J   K   L   ;:  '" Enter                4/◄-  5   6/-►  
 '   -   65  83  68  70  71  72  74  75  76  58  34  13                  +75  +76  +77  '''E'''
 '''       97 115 100 102 103 104 106 107 108  59  39                       52   53   54 '' '''n'''                                    
-'''' Shift  Z   X   C   V   B   N   M   ,&lt;  .&gt;  /?    Shift       ▲        1End 2/▼  3PD  t'''
+'''' Shift  Z   X   C   V   B   N   M   ,&lt;  .>  /?    Shift       ▲        1End 2/▼  3PD  t'''
 '   *    90  88  67  86  66  78  77  60  62  63      *        +72       +79  +80  +81  '''e'''
 '''       122 120  99 118  98 110 109  44  46  47                          49   50   51 '' '''r'''
 '''' Ctrl Win Alt       Spacebar          Alt Win Menu Ctrl   ◄-  ▼   -►   0Ins     .Del '''
@@ -40,58 +40,58 @@ The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) 
 
 ==Two Byte Combinations==
 * INKEY$ 2 byte combinations always begin with [[CHR$]](0). [[ASC]] will always read the first byte code as zero. 
-* Read the second byte code using: '''{{text|code2 &lt;nowiki&gt;=&lt;/nowiki&gt; ASC(press$, 2)|green}}'''
+* Read the second byte code using: '''{{text|code2 &lt;nowiki>=&lt;/nowiki> ASC(press$, 2)|green}}'''
 
 
-&lt;center&gt;'''[[ASCII#Two_Byte_Codes|Two Byte Ctrl, Alt and Shift + Function key combinations]]'''&lt;/center&gt;
+&lt;center>'''[[ASCII#Two_Byte_Codes|Two Byte Ctrl, Alt and Shift + Function key combinations]]'''&lt;/center>
 
-{{WhiteStart}}                    '''Two Byte Characters        Key                 CHR$(0) + &quot;?&quot; '''
+{{WhiteStart}}                    '''Two Byte Characters        Key                 CHR$(0) + "?" '''
 
                     CHR$(0) + CHR$(16-50)      [Alt] + letter       
-                    CHR$(0) + CHR$(59)         [F1]                 &quot;;&quot;
-                    CHR$(0) + CHR$(60)         [F2]                 &quot;&lt;&quot;
-                    CHR$(0) + CHR$(61)         [F3]                 &quot;=&quot;
-                    CHR$(0) + CHR$(62)         [F4]                 &quot;&gt;&quot;
-                    CHR$(0) + CHR$(63)         [F5]                 &quot;?&quot;
-                    CHR$(0) + CHR$(64)         [F6]                 &quot;@&quot;
-                    CHR$(0) + CHR$(65)         [F7]                 &quot;A&quot;
-                    CHR$(0) + CHR$(66)         [F8]                 &quot;B&quot;
-                    CHR$(0) + CHR$(67)         [F9]                 &quot;C&quot;
-                    CHR$(0) + CHR$(68)         [F10]                &quot;D&quot;
-                    CHR$(0) + CHR$(71)         [Home]               &quot;G&quot;
-                    CHR$(0) + CHR$(72)         [↑] Arrow            &quot;H&quot;
-                    CHR$(0) + CHR$(73)         [Page Up]            &quot;I&quot;
-                    CHR$(0) + CHR$(75)         [←] Arrow            &quot;K&quot;
-                    CHR$(0) + CHR$(76)         [5 NumberPad]        &quot;L&quot; (NumLock off in QB64)
-                    CHR$(0) + CHR$(77)         [→] Arrow            &quot;M&quot;
-                    CHR$(0) + CHR$(79)         [End]                &quot;O&quot;
-                    CHR$(0) + CHR$(80)         [↓] Arrow            &quot;P&quot;
-                    CHR$(0) + CHR$(81)         [Page Down]          &quot;Q&quot;
-                    CHR$(0) + CHR$(82)         [Insert]             &quot;R&quot;
-                    CHR$(0) + CHR$(83)         [Delete]             &quot;S&quot;
+                    CHR$(0) + CHR$(59)         [F1]                 ";"
+                    CHR$(0) + CHR$(60)         [F2]                 "&lt;"
+                    CHR$(0) + CHR$(61)         [F3]                 "="
+                    CHR$(0) + CHR$(62)         [F4]                 ">"
+                    CHR$(0) + CHR$(63)         [F5]                 "?"
+                    CHR$(0) + CHR$(64)         [F6]                 "@"
+                    CHR$(0) + CHR$(65)         [F7]                 "A"
+                    CHR$(0) + CHR$(66)         [F8]                 "B"
+                    CHR$(0) + CHR$(67)         [F9]                 "C"
+                    CHR$(0) + CHR$(68)         [F10]                "D"
+                    CHR$(0) + CHR$(71)         [Home]               "G"
+                    CHR$(0) + CHR$(72)         [↑] Arrow            "H"
+                    CHR$(0) + CHR$(73)         [Page Up]            "I"
+                    CHR$(0) + CHR$(75)         [←] Arrow            "K"
+                    CHR$(0) + CHR$(76)         [5 NumberPad]        "L" (NumLock off in QB64)
+                    CHR$(0) + CHR$(77)         [→] Arrow            "M"
+                    CHR$(0) + CHR$(79)         [End]                "O"
+                    CHR$(0) + CHR$(80)         [↓] Arrow            "P"
+                    CHR$(0) + CHR$(81)         [Page Down]          "Q"
+                    CHR$(0) + CHR$(82)         [Insert]             "R"
+                    CHR$(0) + CHR$(83)         [Delete]             "S"
                     CHR$(0) + CHR$(84-93)      [Shift] + F1-10
                     CHR$(0) + CHR$(94-103)     [Ctrl] + F1-10
                     CHR$(0) + CHR$(104-113)    [Alt] + F1-10
                     CHR$(0) + CHR$(114-119)    [Ctrl] + keypad 
                     CHR$(0) + CHR$(120-129)    [Alt] + number
-                    CHR$(0) + CHR$(130 or 131) [Alt] + _/- or +/=   &quot;é&quot; or &quot;â&quot;
-                    CHR$(0) + CHR$(133)        [F11]                &quot;à&quot;
-                    CHR$(0) + CHR$(134)        [F12]                &quot;å&quot;
-                    CHR$(0) + CHR$(135)        [Shift] + [F11]      &quot;ç&quot;
-                    CHR$(0) + CHR$(136)        [Shift] + [F12]      &quot;ê&quot;
-                    CHR$(0) + CHR$(137)        [Ctrl] + [F11]       &quot;ë&quot;
-                    CHR$(0) + CHR$(138)        [Ctrl] + [F12]       &quot;è&quot;
-                    CHR$(0) + CHR$(139)        [Alt] + [F11]        &quot;ï&quot;
-                    CHR$(0) + CHR$(140)        [Alt] + [F12]        &quot;î&quot;
+                    CHR$(0) + CHR$(130 or 131) [Alt] + _/- or +/=   "é" or "â"
+                    CHR$(0) + CHR$(133)        [F11]                "à"
+                    CHR$(0) + CHR$(134)        [F12]                "å"
+                    CHR$(0) + CHR$(135)        [Shift] + [F11]      "ç"
+                    CHR$(0) + CHR$(136)        [Shift] + [F12]      "ê"
+                    CHR$(0) + CHR$(137)        [Ctrl] + [F11]       "ë"
+                    CHR$(0) + CHR$(138)        [Ctrl] + [F12]       "è"
+                    CHR$(0) + CHR$(139)        [Alt] + [F11]        "ï"
+                    CHR$(0) + CHR$(140)        [Alt] + [F12]        "î"
 {{WhiteEnd}}
-:In '''QB64''', [[CVI]] can be used to get the [[_KEYDOWN]] 2-byte code value. Example: '''{{text|status &lt;nowiki&gt;=&lt;/nowiki&gt; _KEYDOWN(CVI(CHR$(0) + &quot;P&quot;))|green}}'''
+:In '''QB64''', [[CVI]] can be used to get the [[_KEYDOWN]] 2-byte code value. Example: '''{{text|status &lt;nowiki>=&lt;/nowiki> _KEYDOWN(CVI(CHR$(0) + "P"))|green}}'''
 
 
 {{PageExamples}}
 ''Example 1:'' Clearing the keyboard buffer after [[SLEEP]] delays for later [[INPUT]].
-{{CodeStart}}{{Cl|PRINT}} &quot;Press any keyboard typing key to end SLEEP&quot;
+{{CodeStart}}{{Cl|PRINT}} "Press any keyboard typing key to end SLEEP"
 {{Cl|SLEEP}}
-{{Cl|DO}}: K$ = {{Cl|INKEY$}}: {{Cl|PRINT}} K$: {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;&quot; '' ''
+{{Cl|DO}}: K$ = {{Cl|INKEY$}}: {{Cl|PRINT}} K$: {{Cl|LOOP}} {{Cl|UNTIL}} K$ = "" '' ''
 {{CodeEnd}}
 :''Explanation:'' [[SLEEP]] key presses will be kept in the keyboard buffer and may be added into an [[INPUT]] later.
 :See also: [[_KEYCLEAR]]
@@ -100,39 +100,39 @@ The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) 
 ''Example 2:'' Entering a Ctrl + letter keypress combination will print [[ASCII]] Control characters 1 to 26. .
 {{CodeStart}}DO
     K$ = {{Cl|INKEY$}}
-    {{Cl|IF...THEN|IF}} K$ &lt;&gt; &quot;&quot; {{Cl|THEN}} {{Cl|PRINT}} K$; &quot; &quot;;
+    {{Cl|IF...THEN|IF}} K$ &lt;> "" {{Cl|THEN}} {{Cl|PRINT}} K$; " ";
 {{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(27) 'Esc key exit '' ''
 {{CodeEnd}}
 : ''Note:'' The above code will print Esc arrow, Backspace symbol, and 2 byte characters led by CHR$(0) in addition to normal keys.  
 
 
-''Example 3:'' Use [[UCASE$]](INKEY$) in a keyboard read loop looking for uppercase &quot;Y&quot; or &quot;N&quot; user inputs to avoid multiple IF statements.
+''Example 3:'' Use [[UCASE$]](INKEY$) in a keyboard read loop looking for uppercase "Y" or "N" user inputs to avoid multiple IF statements.
 {{CodeStart}} '' ''
 {{Cl|DO...LOOP|DO}}
-  {{Cl|PRINT}} &quot;Do you want to continue? (Y/N): &quot;;  'semicolon saves position for user entry
+  {{Cl|PRINT}} "Do you want to continue? (Y/N): ";  'semicolon saves position for user entry
   {{Cl|DO...LOOP|DO}}: K$ = {{Cl|UCASE$}}({{Cl|INKEY$}}) 'change any user key press to uppercase
-  {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;Y&quot; {{Cl|OR (boolean)|OR}} K$ = &quot;N&quot;
+  {{Cl|LOOP}} {{Cl|UNTIL}} K$ = "Y" {{Cl|OR (boolean)|OR}} K$ = "N"
   {{Cl|PRINT}} K$  'print valid user entry
-  {{Cl|IF...THEN|IF}} K$ = &quot;N&quot; {{Cl|THEN}} {{Cl|END}}
+  {{Cl|IF...THEN|IF}} K$ = "N" {{Cl|THEN}} {{Cl|END}}
 {{Cl|LOOP}}  '' ''
 {{CodeEnd}}
 
 
 ''Example 4:'' Getting just number values entered by a user in an INKEY$ input loop.
 {{CodeStart}} '' ''
-{{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} &quot;Enter a number value: &quot;;
+{{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} "Enter a number value: ";
 {{Cl|DO}}: {{Cl|SLEEP}}
   K$ = {{Cl|INKEY$}}
-  {{Cl|IF}} K$ &gt;= {{Cl|CHR$}}(48) {{Cl|AND (boolean)|AND}} K$ &lt;= {{Cl|CHR$}}(57) {{Cl|THEN}} entry$ = entry$ + K$ ' numbers only
+  {{Cl|IF}} K$ >= {{Cl|CHR$}}(48) {{Cl|AND (boolean)|AND}} K$ &lt;= {{Cl|CHR$}}(57) {{Cl|THEN}} entry$ = entry$ + K$ ' numbers only
   L = {{Cl|LEN}}(entry$) ' check entry length for possible backspace
   {{Cl|IF}} K$ = {{Cl|CHR$}}(46) {{Cl|AND (boolean)|AND}} flag = 0 {{Cl|THEN}} entry$ = entry$ + K$: flag = 1: mark = L ' decimal point
-  {{Cl|IF}} K$ = {{Cl|CHR$}}(8) {{Cl|AND (boolean)|AND}} L &gt; 0 {{Cl|THEN}} ' backspace pressed and entry has a length
+  {{Cl|IF}} K$ = {{Cl|CHR$}}(8) {{Cl|AND (boolean)|AND}} L > 0 {{Cl|THEN}} ' backspace pressed and entry has a length
     entry$ = {{Cl|MID$}}(entry$, 1, L - 1) ' remove one character from entry$
     {{Cl|IF}} {{Cl|LEN}}(entry$) &lt; mark {{Cl|THEN}} flag = 0 ' allow decimal point entry if other was removed.
     {{Cl|LOCATE}} {{Cl|CSRLIN}}, {{Cl|POS}}(0) - 1: {{Cl|PRINT}} {{Cl|SPACE$}}(1); ' remove end character from screen
   {{Cl|END IF}}
   {{Cl|LOCATE}} 10, 32: {{Cl|PRINT}} entry$; ' display entry to user (semicolon required for correct {{Cl|POS}})
-{{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(13) {{Cl|AND (boolean)|AND}} L &gt; 0 'assures something is entered '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} K$ = {{Cl|CHR$}}(13) {{Cl|AND (boolean)|AND}} L > 0 'assures something is entered '' ''
 {{CodeEnd}}
 
 : ''Explanation:'' [[SLEEP]] waits for a keypress. It also allows background programs to share the processor and it leaves the keypress in the buffer for INKEY$. Keyboard string number characters range from [[ASCII]] codes 48 to 57. Any other entry is ignored by the IF statement. A decimal point (code 46) entry is allowed once in the input. The flag value stops further decimal point additions. Backspacing (code 8) is also allowed if the entry has at least one character. The cursor column returned by [[POS]](0) reverts too after the end of the entry when printed each loop. The loop exits when [Enter] (code 13) is pressed and the entry has a length.
@@ -140,17 +140,17 @@ The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) 
 
 ''Example 5:'' Using arrow keys to move a text character. A change from a previous position tells program when to PRINT:
 {{CodeStart}}movey = 1: movex = 1 'text coordinates can never be 0
-at$ = &quot;@&quot;  'text sprite could be almost any ASCII character
+at$ = "@"  'text sprite could be almost any ASCII character
 {{Cl|LOCATE}} movey, movex: {{Cl|PRINT}} at$;
 DO
     px = movex: py = movey 'previous positions
     B$ = {{Cl|INKEY$}}
-    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(72) {{Cl|AND (boolean)|AND}} movey &gt; 1 {{Cl|THEN}} movey = movey - 1 'rows 1 to 23 only
+    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(72) {{Cl|AND (boolean)|AND}} movey > 1 {{Cl|THEN}} movey = movey - 1 'rows 1 to 23 only
     {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(80) {{Cl|AND (boolean)|AND}} movey &lt; 23 {{Cl|THEN}} movey = movey + 1
-    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(75) {{Cl|AND (boolean)|AND}} movex &gt; 1 {{Cl|THEN}} movex = movex - 1 'columns 1 to 80 only
+    {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(75) {{Cl|AND (boolean)|AND}} movex > 1 {{Cl|THEN}} movex = movex - 1 'columns 1 to 80 only
     {{Cl|IF...THEN|IF}} B$ = {{Cl|CHR$}}(0) + {{Cl|CHR$}}(77) {{Cl|AND (boolean)|AND}} movex &lt; 80 {{Cl|THEN}} movex = movex + 1 
     
-    {{Cl|IF...THEN|IF}} px &lt;&gt; movex {{Cl|OR (boolean)|OR}} py &lt;&gt; movey {{Cl|THEN}} 'only changes when needed
+    {{Cl|IF...THEN|IF}} px &lt;> movex {{Cl|OR (boolean)|OR}} py &lt;> movey {{Cl|THEN}} 'only changes when needed
         {{Cl|LOCATE}} py, px: {{Cl|PRINT}} {{Cl|SPACE$}}(1); 'erase old sprite
         {{Cl|LOCATE}} movey, movex: {{Cl|PRINT}} at$; 'show new position
     {{Cl|END IF}}
@@ -170,24 +170,24 @@ DO
 
 x = 0
 y = 0
-image = {{Cl|_LOADIMAGE}}(&quot;QB64bee.png&quot;) 'Here I actually used the QB64 icon
+image = {{Cl|_LOADIMAGE}}("QB64bee.png") 'Here I actually used the QB64 icon
 
 DO
   {{Cl|_PUTIMAGE}} (x, y), image
   DO
     Keypress = {{Cl|UCASE$}}({{Cl|INKEY$}})
     ' ***** The following line detects the arrow keys *****
-    {{Cl|IF...THEN|IF}} {{Cl|LEN}}(Keypress) &gt; 1 {{Cl|THEN}} Keypress = {{Cl|RIGHT$}}(Keypress, 1)
-  {{Cl|LOOP}} {{Cl|UNTIL}} Keypress &gt; &quot;&quot;
+    {{Cl|IF...THEN|IF}} {{Cl|LEN}}(Keypress) > 1 {{Cl|THEN}} Keypress = {{Cl|RIGHT$}}(Keypress, 1)
+  {{Cl|LOOP}} {{Cl|UNTIL}} Keypress > ""
 
   {{Cl|CLS}} ' blank screen after valid key press to avoid smearing image on page
 
   {{Cl|SELECT CASE}} Keypress
-    {{Cl|CASE}} &quot;W&quot;, &quot;H&quot;: y = y - 10 'Up
-    {{Cl|CASE}} &quot;A&quot;, &quot;K&quot;: x = x - 10 'Left
-    {{Cl|CASE}} &quot;S&quot;, &quot;P&quot;: y = y + 10 'Down
-    {{Cl|CASE}} &quot;D&quot;, &quot;M&quot;: x = x + 10 'Right
-    {{Cl|CASE}} &quot;Q&quot;, {{Cl|CHR$}}(27): {{Cl|END}} 'Q or Esc Ends prog.
+    {{Cl|CASE}} "W", "H": y = y - 10 'Up
+    {{Cl|CASE}} "A", "K": x = x - 10 'Left
+    {{Cl|CASE}} "S", "P": y = y + 10 'Down
+    {{Cl|CASE}} "D", "M": x = x + 10 'Right
+    {{Cl|CASE}} "Q", {{Cl|CHR$}}(27): {{Cl|END}} 'Q or Esc Ends prog.
   {{Cl|END SELECT}}
   {{Cl|_PUTIMAGE}} (x, y), image 
 {{Cl|LOOP}} '' ''
@@ -198,13 +198,15 @@ DO
 ''Example 7:'' Creating upper [[ASCII]] characters in a QB program using '''Alt +''' three number keys:
 {{CodeStart}}
 DO
-    A$ = &quot;&quot;: {{Cl|WHILE}} A$ = &quot;&quot;: A$ = {{Cl|INKEY$}}: {{Cl|WEND}}
+    A$ = "": {{Cl|
+2a79
+WHILE}} A$ = "": A$ = {{Cl|INKEY$}}: {{Cl|WEND}}
     {{Cl|IF...THEN|IF}} {{Cl|LEN}}(A$) = 2 {{Cl|THEN}} '2 byte INKEY$ return
         B$ = {{Cl|RIGHT$}}(A$, 1)  'read second byte
         b% = {{Cl|ASC}}(B$)        'read second byte code 
-        {{Cl|IF...THEN|IF}} b% &gt; 119 {{Cl|AND (boolean)|AND}} b% &lt; 130 {{Cl|THEN}} ' Alt + number codes only
+        {{Cl|IF...THEN|IF}} b% > 119 {{Cl|AND (boolean)|AND}} b% &lt; 130 {{Cl|THEN}} ' Alt + number codes only
            C% = b% - 119  ' convert to actual number
-           {{Cl|IF...THEN|IF}} C% &gt; 9 {{Cl|THEN}} C% = 0
+           {{Cl|IF...THEN|IF}} C% > 9 {{Cl|THEN}} C% = 0
            num$ = num$ + {{Cl|LTRIM$}}({{Cl|STR$}}(C%))
         {{Cl|END IF}}
     {{Cl|END IF}}

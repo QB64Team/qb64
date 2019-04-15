@@ -1,32 +1,30 @@
-The {{KW|OCT$}} function returns the base 8 octal representation of an [[INTEGER]], [[LONG]] or [[_INTEGER64]] value as a [[STRING]].
+The [[OCT$]] function returns the base-8 octal representation of an [[INTEGER]], [[LONG]] or [[_INTEGER64]] value as a [[STRING]].
 
 
 {{PageSyntax}}
-:''result$'' = {{KW|OCT$}}({{Parameter|number}})
+: {{Parameter|result$}} = [[OCT$]]({{Parameter|number}})
 
 
 {{PageDescription}}
-* The {{KW|OCT$}} function returns the octal (base-8) representation of {{Parameter|number}}.
+* The [[OCT$]] function returns the octal (base-8) representation of {{Parameter|number}}.
 * {{Parameter|number}} can be any integer value.
 * No leading space is returned.
-* [[VAL]] can convert octal string values to decimal when the &quot;&amp;O&quot; prefix is added.
+* [[VAL]] can convert octal string values to decimal when the "&amp;O" prefix is added.
 
 
-Example:'' Outputs all of the decimal, hexadecimal and octal digits:
-
-
+{{PageExamples}}
+''Example:'' Outputs all of the decimal, hexadecimal and octal digits:
 {{CodeStart}}
-
-LOCATE 2, 20: PRINT &quot; Decimal | Hexadecimal | Octal &quot;
-LOCATE 3, 20: PRINT &quot;---------+-------------+-------&quot;
-        template$ = &quot;    ##   |     \\      |   ##  &quot;
+LOCATE 2, 20: PRINT " Decimal | Hexadecimal | Octal "
+LOCATE 3, 20: PRINT "---------+-------------+-------"
+        template$ = "    ##   |     \\      |   ##  "
 
 FOR n% = 0 TO 15
   LOCATE 4 + n%, 20: {{Cl|PRINT USING}} template$; n%; {{Cl|HEX$}}(n%); VAL({{Cl|OCT$}}(n%))
 NEXT n%
 
 {{CodeEnd}}
-: ''Note:'' The actual Octal value is converted by [[VAL]] directly back to a numerical value by '''not using''' the &quot;&amp;H&quot; prefix.
+: ''Note:'' The actual octal value is converted by [[VAL]] directly back to a numerical value by '''not using''' the "&amp;H" prefix.
 
 {{OutputStart}}
                     Decimal | Hexadecimal | Octal

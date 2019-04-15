@@ -17,7 +17,7 @@ The [[DATA]] statement creates a line of fixed program information separated by 
 * [[STRING]] DATA values with end spaces, QBasic keywords and values that include the comma character must be enclosed in quotation marks.
 * DATA fields can only be created by the programmer and cannot be changed by a user or lost.
 * Comments after a data line require a colon before the comment.
-* If a [[READ]] statement attempts to read past the last data value, an [[ERROR Codes|&quot;Out of Data&quot; error]] will occur. Use end of data markers when necessary.
+* If a [[READ]] statement attempts to read past the last data value, an [[ERROR Codes|"Out of Data" error]] will occur. Use end of data markers when necessary.
 * '''[[DATA]] fields can be placed after [[SUB]] or [[FUNCTION]] procedures, but line labels are not allowed.'''
 
 
@@ -41,7 +41,7 @@ Database1:
 {{Cl|DATA}} 2, 0, 0, 2, 2, 0, 2, 2, 2 :       ' DATA line comments require a colon
 
 Database2:
-{{Cl|DATA}} &quot;Hello, &quot;, &quot;world! &quot;, Goodbye, work! '' ''
+{{Cl|DATA}} "Hello, ", "world! ", Goodbye, work! '' ''
 {{CodeEnd}}
 {{OutputStart}}Hello world! Goodbyework!
 1  0  0  1  1  0  1  1  1  2  0  0  2  2  0  2  2  2

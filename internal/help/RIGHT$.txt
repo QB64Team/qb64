@@ -19,9 +19,9 @@ The '''RIGHT$''' function returns a set number of characters in a [[STRING]] var
 
 ''Example 1:'' Getting the right portion of a string value such as a person's last name. 
 {{CodeStart}} '' ''
-name$ = &quot;Tom Williams&quot;
+name$ = "Tom Williams"
 
-Last$ = {{Cl|RIGHT$}}(name$, {{Cl|LEN}}(name$) - {{Cl|INSTR}}(name$, &quot; &quot;)) 'subtract space position from string length
+Last$ = {{Cl|RIGHT$}}(name$, {{Cl|LEN}}(name$) - {{Cl|INSTR}}(name$, " ")) 'subtract space position from string length
 
 {{Cl|PRINT}} Last$ '' ''
 {{CodeEnd}}
@@ -36,11 +36,11 @@ green = 0
 blue = 128
 
 Color32 red, green, blue
-{{Cl|PRINT}} &quot;Colored text&quot;
+{{Cl|PRINT}} "Colored text"
 
 {{Cl|SUB}} Color32 (R, G, B)
 R = R {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FF: G = G {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FF: B = B {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FF '    limit values to 0 to 255
-hexadecimal$ = &quot;{{Cl|&amp;H}}FF&quot; + {{Cl|RIGHT$}}(&quot;0&quot; + {{Cl|HEX$}}(R), 2) + {{Cl|RIGHT$}}(&quot;0&quot; + {{Cl|HEX$}}(G), 2) + {{Cl|RIGHT$}}(&quot;0&quot; + {{Cl|HEX$}}(B), 2)
+hexadecimal$ = "{{Cl|&amp;H}}FF" + {{Cl|RIGHT$}}("0" + {{Cl|HEX$}}(R), 2) + {{Cl|RIGHT$}}("0" + {{Cl|HEX$}}(G), 2) + {{Cl|RIGHT$}}("0" + {{Cl|HEX$}}(B), 2)
 {{Cl|PRINT}} hexadecimal$
 {{Cl|COLOR}} {{Cl|VAL}}(hexadecimal$)
 {{Cl|END SUB}} '' ''

@@ -2,7 +2,7 @@
 
 
 {{PageSyntax}}
-: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [''&quot;DLL_Library_file&quot;'', &quot;other_library...&quot;]
+: DECLARE [DYNAMIC|CUSTOMTYPE|STATIC] LIBRARY [''"DLL_Library_file"'', "other_library..."]
 : {SUB|FUNCTION} [''procedure_name'' ALIAS] ''library_procedure'' (BYVAL ''parameter(s)'',...)
 ::.
 ::. 'other Library sub-procedures for named ''DLL''
@@ -35,10 +35,10 @@
 {{PageExamples}}
 ''Example 1:'' This example plays Midi files using the ''playmidi32.dll'' documented here: [http://libertybasicuniversity.com/lbnews/nl110/midi3.htm Liberty Basic University].                         Download the following DLL file to your main QB64 folder: [http://www.qb64.net/playmidi32.dll PlayMidi32.dll]
 {{CodeStart}} '' ''
-{{Cl|DECLARE DYNAMIC LIBRARY}} &quot;playmidi32&quot;
+{{Cl|DECLARE DYNAMIC LIBRARY}} "playmidi32"
     {{Cl|FUNCTION}} PlayMIDI&amp; (filename {{Cl|AS}} {{Cl|STRING}})
 {{Cl|DECLARE LIBRARY|END DECLARE}}
-result = PlayMIDI(&quot;.\samples\qb64\original\ps2battl.mid&quot; + {{Cl|CHR$}}(0))
+result = PlayMIDI(".\samples\qb64\original\ps2battl.mid" + {{Cl|CHR$}}(0))
 {{Cl|PRINT}} result
 {{CodeEnd}}
 : '''Note:''' Filename needs to be [[CHR$]](0) terminated. QB64 [[STRING]]s are passed to external libraries as pointers to first character.
@@ -57,14 +57,14 @@ result = PlayMIDI(&quot;.\samples\qb64\original\ps2battl.mid&quot; + {{Cl|CHR$}}
 FileName$ = {{Cl|SPACE$}}(512)
 
 Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
-{{Cl|IF...THEN|IF}} Result {{Cl|THEN}} {{Cl|PRINT}} &quot;CURRENT PROGRAM (ASCII): &quot;; {{Cl|LEFT$}}(FileName$, Result)
+{{Cl|IF...THEN|IF}} Result {{Cl|THEN}} {{Cl|PRINT}} "CURRENT PROGRAM (ASCII): "; {{Cl|LEFT$}}(FileName$, Result)
 
 'load a unicode font
-f = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
+f = {{Cl|_LOADFONT}}("cyberbit.ttf", 24, "UNICODE")
 {{Cl|_FONT}} f
 Result = GetModuleFileNameW(0, FileName$, {{Cl|LEN}}(FileName$) \ 2)
 {{Cl|LOCATE}} 2, 1
-{{Cl|PRINT}} QuickCP437toUTF32$(&quot;CURRENT PROGRAM (UTF): &quot;) + QuickUTF16toUTF32$({{Cl|LEFT$}}(FileName$, Result * 2))
+{{Cl|PRINT}} QuickCP437toUTF32$("CURRENT PROGRAM (UTF): ") + QuickUTF16toUTF32$({{Cl|LEFT$}}(FileName$, Result * 2))
 {{Cl|_FONT}} 16 'restore CP437 font
 
 {{Cl|FUNCTION}} QuickCP437toUTF32$ (a$)
@@ -85,11 +85,11 @@ QuickUTF16toUTF32$ = b$
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}} 
-: '''Note:''' SUB procedures using CUSTOMTYPE LIBRARY API procedures inside may error. Try DYNAMIC with &quot;KERNEL32&quot;.
+: '''Note:''' SUB procedures using CUSTOMTYPE LIBRARY API procedures inside may error. Try DYNAMIC with "KERNEL32".
 
 
-&lt;center&gt;'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center&gt;
-&lt;center&gt;'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center&gt;
+&lt;center>'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center>
+&lt;center>'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center>
 
 
 ''See also:''

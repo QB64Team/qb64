@@ -24,7 +24,7 @@ The {{KW|SPACE$}} function returns a {{KW|STRING}} consisting of a number of spa
 ''Example 1:'' How to space text in a [[PRINT]] statement using SPACE$ with string [[concatenation]].
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} count% = 0 {{Cl|FOR...NEXT|TO}} 3
-    {{Cl|PRINT}} &quot;abc&quot; + {{Cl|SPACE$}}( count% ) + &quot;def&quot;
+    {{Cl|PRINT}} "abc" + {{Cl|SPACE$}}( count% ) + "def"
 {{Cl|FOR...NEXT|NEXT}} count%
 {{CodeEnd}}
 {{OutputStart}}abcdef
@@ -40,7 +40,7 @@ abc   def
 ' blue corner field with randomly twinkling stars
 {{Cl|CLS}}
 {{Cl|LOCATE}} 25, 1
-{{Cl|PRINT}} &quot;Press any key to stop twinkling&quot;;
+{{Cl|PRINT}} "Press any key to stop twinkling";
 {{Cl|COLOR}} , 4
 z = 15
 {{Cl|FOR...NEXT|FOR}} x = 5 {{Cl|TO}} 19          '13 red &amp; white stripes (x =5 to 21 for 15 stripes)
@@ -61,33 +61,33 @@ DO
         {{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 6      '5 rows of 6 stars
             r = {{Cl|INT}}({{Cl|RND}} * 6)
             {{Cl|IF...THEN|IF}} r = 0 {{Cl|THEN}} z = 31 {{Cl|ELSE}} z = 15
-            {{Cl|IF...THEN|IF}} stop$ = &quot;&quot; {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
+            {{Cl|IF...THEN|IF}} stop$ = "" {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
             {{Cl|LOCATE}} x, w
             w = w + 4
-            {{Cl|PRINT}} &quot;*&quot;;
+            {{Cl|PRINT}} "*";
         {{Cl|NEXT}} y
         w = 18
         {{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 5      '5 rows of 5 stars
             r = {{Cl|INT}}({{Cl|RND}} * 6)
             {{Cl|IF...THEN|IF}} r = 0 {{Cl|THEN}} z = 31 {{Cl|ELSE}} z = 15
-            {{Cl|IF...THEN|IF}} stop$ = &quot;&quot; {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
+            {{Cl|IF...THEN|IF}} stop$ = "" {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
             {{Cl|LOCATE}} x + 1, w
             w = w + 4
-            {{Cl|PRINT}} &quot;*&quot;;
+            {{Cl|PRINT}} "*";
         {{Cl|NEXT}} y
     {{Cl|NEXT}} x
     w = 16
     {{Cl|FOR...NEXT|FOR}} y = 1 {{Cl|TO}} 6          '1 row of 6 stars
             r = {{Cl|INT}}({{Cl|RND}} * 6)
             {{Cl|IF...THEN|IF}} r = 0 {{Cl|THEN}} z = 31 {{Cl|ELSE}} z = 15
-        {{Cl|IF...THEN|IF}} stop$ = &quot;&quot; {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
+        {{Cl|IF...THEN|IF}} stop$ = "" {{Cl|THEN}} {{Cl|COLOR}} z {{Cl|ELSE}} {{Cl|COLOR}} 15
         {{Cl|LOCATE}} x, w
         w = w + 4
-        {{Cl|PRINT}} &quot;*&quot;;
+        {{Cl|PRINT}} "*";
     {{Cl|NEXT}} y
     t = {{Cl|TIMER}}
-    {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} t + .2 &gt;= {{Cl|TIMER}}: {{Cl|LOOP}}
-{{Cl|LOOP}} {{Cl|WHILE}} stop$ = &quot;&quot;
+    {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} t + .2 >= {{Cl|TIMER}}: {{Cl|LOOP}}
+{{Cl|LOOP}} {{Cl|WHILE}} stop$ = ""
 {{Cl|COLOR}} 7, 0
 {{Cl|END}}
 {{CodeEnd}}{{small|Code by Solitaire}}

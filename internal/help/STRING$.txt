@@ -6,7 +6,7 @@ The {{KW|STRING$}} function returns a {{KW|STRING}} consisting of a single chara
 
 
 {{PageDescription}}
-&lt;!-- Stylin --&gt;
+&lt;!-- Stylin -->
 * {{Parameter|count&amp;}} is the number of times the character specified by {{Parameter|character}} is repeated.
 * Character is a literal string character, a string variable or an [[ASCII]] code number.
 * If {{Parameter|count&amp;}} is negative, an [[ERROR Codes|illegal function call]] error will occur. The count can be zero.
@@ -29,7 +29,7 @@ The {{KW|STRING$}} function returns a {{KW|STRING}} consisting of a single chara
 
 
 :Using a [[STRING]] to specify the repeated character.
-{{CodeStart}}text$ = &quot;B&quot; + {{Cl|STRING$}}(40, &quot;A&quot;) + &quot;D&quot;
+{{CodeStart}}text$ = "B" + {{Cl|STRING$}}(40, "A") + "D"
 {{Cl|PRINT}} text$
 {{CodeEnd}}
 {{OutputStart}}BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD

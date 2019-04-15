@@ -16,13 +16,13 @@ The [[_AXIS]] function returns the relative position of a specified axis number 
 ''Example:'' Reading multiple controller device buttons, axis and wheels.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
-  {{Cl|PRINT}} {{Cl|STR$}}(i) + &quot;) &quot; + {{Cl|_DEVICE$}}(i) + &quot; Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;,Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;,Wheel:&quot;; {{Cl|_LASTWHEEL}}(i)
+  {{Cl|PRINT}} {{Cl|STR$}}(i) + ") " + {{Cl|_DEVICE$}}(i) + " Buttons:"; {{Cl|_LASTBUTTON}}(i); ",Axis:"; {{Cl|_LASTAXIS}}(i); ",Wheel:"; {{Cl|_LASTWHEEL}}(i)
 {{Cl|NEXT}}
 
 {{Cl|DO...LOOP|DO}}
   d&amp; = {{Cl|_DEVICEINPUT}}
   {{Cl|IF...THEN|IF}} d&amp; {{Cl|THEN}} '             the device number cannot be zero!
-    {{Cl|PRINT}} &quot;Found&quot;; d&amp;;
+    {{Cl|PRINT}} "Found"; d&amp;;
     {{Cl|FOR...NEXT|FOR}} b = 1 {{Cl|TO}} {{Cl|_LASTBUTTON}}(d&amp;)
       {{Cl|PRINT}} {{Cl|_BUTTONCHANGE}}(b); {{Cl|_BUTTON}}(b);
     {{Cl|NEXT}}

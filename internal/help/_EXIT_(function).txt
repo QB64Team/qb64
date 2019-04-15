@@ -25,22 +25,22 @@ The [[_EXIT]] function prevents the user from closing a program and indicates if
 q = {{Cl|_EXIT (function)|_EXIT}} 'function read prevents any program exit at start of program
 {{Cl|ON TIMER (n)|ON TIMER}}(5) {{Cl|GOSUB}} quit
 {{Cl|TIMER}} ON
-{{Cl|PRINT}} &quot;  The Timer will check for exit request every 5 seconds.&quot;
-{{Cl|PRINT}} &quot;Click the X box and/or Ctrl - Break to see the {{Cl|_EXIT (function)|_EXIT}} return!&quot;
-{{Cl|PRINT}} &quot;                    Any Key Quits&quot;
+{{Cl|PRINT}} "  The Timer will check for exit request every 5 seconds."
+{{Cl|PRINT}} "Click the X box and/or Ctrl - Break to see the {{Cl|_EXIT (function)|_EXIT}} return!"
+{{Cl|PRINT}} "                    Any Key Quits"
 {{Cl|PRINT}}
 {{Cl|DO}}: {{Cl|_LIMIT}} 30
   '                    ' simulated program loop
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 quit:
 q = {{Cl|_EXIT (function)|_EXIT}}
 {{Cl|IF}} q {{Cl|THEN}} {{Cl|PRINT}} q;
 {{Cl|SELECT CASE}} q
-  {{Cl|CASE}} 1: {{Cl|PRINT}} &quot;= X button was clicked&quot;
-  {{Cl|CASE}} 2: {{Cl|PRINT}} &quot;= Ctrl + Break keypress&quot;
-  {{Cl|CASE}} 3: {{Cl|PRINT}} &quot;= Both X and Ctrl + Break!&quot;
+  {{Cl|CASE}} 1: {{Cl|PRINT}} "= X button was clicked"
+  {{Cl|CASE}} 2: {{Cl|PRINT}} "= Ctrl + Break keypress"
+  {{Cl|CASE}} 3: {{Cl|PRINT}} "= Both X and Ctrl + Break!"
 {{Cl|END SELECT}}
 {{Cl|RETURN}} '' ''
 
@@ -50,12 +50,12 @@ q = {{Cl|_EXIT (function)|_EXIT}}
 ''Example 2:'' Removing temporary files before closing a program upon a user's exit request.
 {{CodeStart}} '' ''
 x = {{Cl|_EXIT}}  'initial function call blocks a user exit
-OPEN &quot;t3mpdata.tmp&quot; FOR APPEND AS #1
+OPEN "t3mpdata.tmp" FOR APPEND AS #1
 DO
-IF {{Cl|_EXIT}} THEN {{Cl|CLOSE}}: {{Cl|KILL}} &quot;t3mpdata.tmp&quot;: {{Cl|_DELAY}} 1: {{Cl|SYSTEM}} '' ''
+IF {{Cl|_EXIT}} THEN {{Cl|CLOSE}}: {{Cl|KILL}} "t3mpdata.tmp": {{Cl|_DELAY}} 1: {{Cl|SYSTEM}} '' ''
 LOOP '' ''
 {{CodeEnd}}
-&lt;center&gt;{{text|Note: If you have a file named ''t3mpdata.tmp'' change the file name!|red}}&lt;/center&gt;
+&lt;center>{{text|Note: If you have a file named ''t3mpdata.tmp'' change the file name!|red}}&lt;/center>
 
 
 {{PageSeeAlso}}

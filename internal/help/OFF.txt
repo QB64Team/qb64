@@ -1,17 +1,14 @@
-'''OFF''' is a flag disabling trap for [[KEY(n)]], [[ON COM (n)|COM(n)]], [[PEN]], [[PLAY]], [[STRIG(n)]], [[TIMER]], [[UEVENT]]
+[[OFF]] is a flag that disables event-trappping for [[KEY(n)]], [[ON COM (n)|COM(n)]], [[PEN]], [[PLAY]], [[STRIG(n)]], [[TIMER]], [[UEVENT]].
 
 
-* OFF can be used to turn off the display of soft-key assignments at the bottom of the screen using [[KEY]].
-* OFF can also be used to disable an event trapping in the following statements: [[KEY(n)]], [[ON COM (n)|COM(n)]], [[PEN]], [[PLAY]], [[STRIG(n)]], [[TIMER]], [[UEVENT]]. The trap can be turned back [[ON]], but does not retain any events since '''OFF''' was used.
-* [[$CHECKING]]:'''OFF''' is used to disable c++ error trapping, make sure that your code is flawless before using this metacommand, '''can cause a General Protection Fault''' if there are errors in the code.
+{{PageDescription}}
+* [[OFF]] can be used to turn off the display of soft-key assignments at the bottom of the screen using [[KEY]].
+* [[OFF]] can also be used to disable an event-trapping in the following statements: [[KEY(n)]], [[ON COM (n)|COM(n)]], [[PEN]], [[PLAY]], [[STRIG(n)]], [[TIMER]], [[UEVENT]]. The trap can be turned back [[ON]], but all events triggered since [[OFF]] was used are lost.
+* [[$CHECKING]]:'''OFF''' is used to disable C++ error trapping (used for verified sections of code that require speed).
 
 
-''See also:'' [[ON]], [[STOP]], [[KEY]], [[KEY(n)]], [[$CHECKING]]
+{{PageSeeAlso}}
+* [[ON]], [[STOP]], [[KEY]], [[KEY(n)]], [[$CHECKING]]
 
 
-
-==Navigation:==
-
-[[Keyword_Reference_-_Alphabetical|Go to Keyword Reference - Alphabetical]]
-
-[[Keyword Reference - By usage|Go to Keyword Reference - By usage]]
+{{PageNavigation}}

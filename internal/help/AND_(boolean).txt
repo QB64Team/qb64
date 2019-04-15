@@ -25,7 +25,7 @@ The [[AND (boolean)|AND]] conditonal operator is used to include another evaluat
 a% = 100
 b% = 50
 
-{{Cl|IF...THEN|IF}} a% &gt; b% {{Cl|AND (boolean)|AND}} a% &lt; 200 {{Cl|THEN}} {{Cl|PRINT}} &quot;True&quot;
+{{Cl|IF...THEN|IF}} a% > b% {{Cl|AND (boolean)|AND}} a% &lt; 200 {{Cl|THEN}} {{Cl|PRINT}} "True"
 
 {{CodeEnd}}
 {{OutputStart}}
@@ -42,10 +42,10 @@ c% = 25
 d% = 50
 e% = 100
 
-{{Cl|IF...THEN|IF}} (a% &gt; b% {{Cl|AND (boolean)|AND}} b% &gt; c%) {{Cl|AND (boolean)|AND}} (c% &lt; d% {{Cl|AND (boolean)|AND}} d% &lt; e%) {{Cl|THEN}}
-{{Cl|PRINT}} &quot;True&quot;
+{{Cl|IF...THEN|IF}} (a% > b% {{Cl|AND (boolean)|AND}} b% > c%) {{Cl|AND (boolean)|AND}} (c% &lt; d% {{Cl|AND (boolean)|AND}} d% &lt; e%) {{Cl|THEN}}
+{{Cl|PRINT}} "True"
 {{Cl|ELSE}}
-{{Cl|PRINT}} &quot;False&quot;
+{{Cl|PRINT}} "False"
 {{Cl|END IF}} '' ''
 {{CodeEnd}}
 {{OutputStart}}

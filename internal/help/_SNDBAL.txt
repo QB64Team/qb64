@@ -20,23 +20,23 @@ The [[_SNDBAL]] statement attempts to set the balance or 3D position of a sound.
 *By setting the x! value to -1 or 1 it plays the sound at full volume from the appropriate speaker.
 *Sounds at a distance of 1 or -1 are played at full volume. Sounds further than a distance of 1000 cannot be heard.
 *The volume decreases linearly (at a constant gradient) over distance. Half volume = 500.
-* An &quot;'''Illegal Function Call'''&quot; error can occur if another sound is using the primary or same channel position.
-* Opened sound files must have the [[_SNDOPEN|&quot;VOL&quot;]] capability to use this statement in versions '''before build 20170811/60.'''
+* An "'''Illegal Function Call'''" error can occur if another sound is using the primary or same channel position.
+* Opened sound files must have the [[_SNDOPEN|"VOL"]] capability to use this statement in versions '''before build 20170811/60.'''
 
 
 {{PageExamples}}
 ''Example 1:''
 {{CodeStart}} '' ''
-h&amp; = {{Cl|_SNDOPEN}}(&quot;LOL.wav&quot;, &quot;SYNC,VOL&quot;)
+h&amp; = {{Cl|_SNDOPEN}}("LOL.wav", "SYNC,VOL")
 {{Cl|_SNDBAL}} h&amp;, 1
 {{Cl|_SNDPLAY}} h&amp; '' ''
 {{CodeEnd}}
 
 
-''Example:'' Loading a sound after '''build 20170811/60''' - no need to specify &quot;sound capabilities&quot; in [[_SNDOPEN]]. 
+''Example:'' Loading a sound after '''build 20170811/60''' - no need to specify "sound capabilities" in [[_SNDOPEN]]. 
 {{CodeStart}}
-s&amp; = {{Cl|_SNDOPEN}}(&quot;song.ogg&quot;)
-{{Cl|PRINT}} &quot;{{Cl|READ}}Y&quot;; s&amp;
+s&amp; = {{Cl|_SNDOPEN}}("song.ogg")
+{{Cl|PRINT}} "{{Cl|READ}}Y"; s&amp;
 {{Cl|_SNDPLAY}} s&amp;
 {{Cl|_SNDLOOP}} s&amp;
 
@@ -46,50 +46,50 @@ xright = 1
 DO
     k$ = {{Cl|INKEY$}}
     {{Cl|SELECT CASE}} k$
-        {{Cl|CASE}} &quot;f&quot;
+        {{Cl|CASE}} "f"
             xleft = xleft - 0.1
             {{Cl|_SNDBAL}} s&amp;, xleft, , , 1
-        {{Cl|CASE}} &quot;g&quot;
+        {{Cl|CASE}} "g"
             xleft = xleft + 0.1
             {{Cl|_SNDBAL}} s&amp;, xleft, , , 1
-        {{Cl|CASE}} &quot;h&quot;
+        {{Cl|CASE}} "h"
             xright = xright - 0.1
             {{Cl|_SNDBAL}} s&amp;, xright, , , 2
-        {{Cl|CASE}} &quot;j&quot;
+        {{Cl|CASE}} "j"
             xright = xright + 0.1
             {{Cl|_SNDBAL}} s&amp;, xright, , , 2
-        {{Cl|CASE}} &quot;n&quot;
+        {{Cl|CASE}} "n"
             volume = volume - 0.1
             {{Cl|_SNDVOL}} s&amp;, volume
-        {{Cl|CASE}} &quot;m&quot;
+        {{Cl|CASE}} "m"
             volume = volume + 0.1
             {{Cl|_SNDVOL}} s&amp;, volume
-        {{Cl|CASE}} &quot;p&quot;
+        {{Cl|CASE}} "p"
             {{Cl|_SNDPAUSE}} s&amp;
-        {{Cl|CASE}} &quot; &quot;
+        {{Cl|CASE}} " "
             {{Cl|_SNDPLAY}} s&amp;
-        {{Cl|CASE}} &quot;i&quot;
+        {{Cl|CASE}} "i"
             {{Cl|PRINT}} {{Cl|_SNDPLAYING}}(s&amp;)
             {{Cl|PRINT}} {{Cl|_SNDPAUSED}}(s&amp;)
             {{Cl|SLEEP}}
-        {{Cl|CASE}} &quot;b&quot;
+        {{Cl|CASE}} "b"
             {{Cl|_SNDSETPOS}} s&amp;, 110
-        {{Cl|CASE}} &quot;l&quot;
+        {{Cl|CASE}} "l"
             {{Cl|_SNDLIMIT}} s&amp;, 10
-            {{Cl|PRINT}} &quot;LIM&quot;
+            {{Cl|PRINT}} "LIM"
             {{Cl|SLEEP}}
-        {{Cl|CASE}} &quot;k&quot;
+        {{Cl|CASE}} "k"
             {{Cl|_SNDSTOP}} s&amp;
-        {{Cl|CASE}} &quot;c&quot;
+        {{Cl|CASE}} "c"
             {{Cl|_SNDCLOSE}} s&amp;
             {{Cl|SLEEP}}
-            s2&amp; = {{Cl|_SNDOPEN}}(&quot;song.ogg&quot;)
-        {{Cl|CASE}} &quot;d&quot;
+            s2&amp; = {{Cl|_SNDOPEN}}("song.ogg")
+        {{Cl|CASE}} "d"
             s2&amp; = {{Cl|_SNDCOPY}}(s&amp;)
             {{Cl|_SNDPLAY}} s2&amp;
     {{Cl|END SELECT}}
     {{Cl|LOCATE}} 1, 1
-    {{Cl|PRINT}} xleft, xright, volume, {{Cl|_SNDGETPOS}}(s&amp;); &quot;   &quot;
+    {{Cl|PRINT}} xleft, xright, volume, {{Cl|_SNDGETPOS}}(s&amp;); "   "
 LOOP
 {{CodeEnd}}{{small|Code by Johny B}}
 

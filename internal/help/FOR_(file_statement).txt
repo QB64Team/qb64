@@ -23,21 +23,21 @@
 
 {{Cl|CLS}}
 
-{{Cl|OPEN}} &quot;test.tst&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;If test.tst didn't exist:&quot;
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;A new file was created named test.tst and then deleted.&quot;
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;If test.tst did exist:&quot;
-{{Cl|PRINT (file statement)|PRINT}} #1, &quot;It was overwritten with this and deleted.&quot;
+{{Cl|OPEN}} "test.tst" {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1
+{{Cl|PRINT (file statement)|PRINT}} #1, "If test.tst didn't exist:"
+{{Cl|PRINT (file statement)|PRINT}} #1, "A new file was created named test.tst and then deleted."
+{{Cl|PRINT (file statement)|PRINT}} #1, "If test.tst did exist:"
+{{Cl|PRINT (file statement)|PRINT}} #1, "It was overwritten with this and deleted."
 {{Cl|CLOSE}} #1
 
-{{Cl|OPEN}} &quot;test.tst&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
+{{Cl|OPEN}} "test.tst" {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
 {{Cl|DO}} {{Cl|UNTIL}} {{Cl|EOF}}(1)
 {{Cl|INPUT (file statement)|INPUT}} #1, a$
 {{Cl|PRINT}} a$
 {{Cl|LOOP}}
 {{Cl|CLOSE}} #1
 
-{{Cl|KILL}} &quot;test.tst&quot;
+{{Cl|KILL}} "test.tst"
 
 {{Cl|END}}
 

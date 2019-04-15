@@ -33,7 +33,7 @@ PRINT year$              'display the text entry '' ''
 ''Example 2:'' Reading bytes from a text file for an 80 wide screen mode.
 {{CodeStart}} '' ''
 {{Cl|LOCATE}} 5, 5, 1                    'locate and display cursor
-{{Cl|OPEN}} &quot;Diary.txt&quot; FOR {{Cl|INPUT (file mode)|INPUT}} AS #1  'open existing text file
+{{Cl|OPEN}} "Diary.txt" FOR {{Cl|INPUT (file mode)|INPUT}} AS #1  'open existing text file
 text$ = {{Cl|INPUT$}}(70, 1)
 {{Cl|LOCATE}} 5, 6, 0: PRINT text$       'print text and turn cursor off '' ''
 {{CodeEnd}}
@@ -41,7 +41,7 @@ text$ = {{Cl|INPUT$}}(70, 1)
 
 ''Example 3:'' Getting the entire text file data as one string value.
 {{CodeStart}} '' ''
-{{Cl|OPEN}} &quot;Diary.txt FOR {{Cl|BINARY}} AS #1  'open an existing file up to 32767 bytes
+{{Cl|OPEN}} "Diary.txt FOR {{Cl|BINARY}} AS #1  'open an existing file up to 32767 bytes
 IF {{Cl|LOF}}(1) &lt;= 32767 THEN Text$ = {{Cl|INPUT$}}(LOF(1), 1)
 {{Cl|CLOSE}} #1 '' ''
 {{CodeEnd}}

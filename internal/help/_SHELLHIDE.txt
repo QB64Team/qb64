@@ -18,7 +18,7 @@ The [[_SHELLHIDE]] function hides the console window and returns any [[INTEGER]]
 {{PageExamples}}
 ''Example:'' Shelling to another QB64 program will return the exit code when one is set in the  program that is run.
 {{CodeStart}} '' ''
-returncode% = {{Cl|_SHELLHIDE}}(&quot;DesktopSize&quot;) 'replace call with your program EXE
+returncode% = {{Cl|_SHELLHIDE}}("DesktopSize") 'replace call with your program EXE
 
 {{Cl|PRINT}} returncode%
 

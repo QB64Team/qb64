@@ -3,30 +3,30 @@ The [[_LOADFONT]] function loads a TrueType font (.TTF) or an OpenType font (.OT
 
 
 {{PageSyntax}}
-: {{Parameter|handle&amp;}} = [[_LOADFONT]]({{Parameter|fontFileName$}}, {{Parameter|size%}}[, &quot;{MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND}&quot;])
+: {{Parameter|handle&amp;}} = [[_LOADFONT]]({{Parameter|fontFileName$}}, {{Parameter|size%}}[, "{MONOSPACE|, BOLD|, ITALIC|, UNDERLINE|, UNICODE|, DONTBLEND}"])
 
 
 {{PageDescription}}
-* The assigned [[LONG]] font {{Parameter|handle&amp;}} variable return value designates a font style to be used somewhere in a program. Valid handle values are greater than 0 ('''{{Parameter|handle&amp;}} &gt; 0''').
+* The assigned [[LONG]] font {{Parameter|handle&amp;}} variable return value designates a font style to be used somewhere in a program. Valid handle values are greater than 0 ('''{{Parameter|handle&amp;}} > 0''').
 * {{Parameter|fontFileName$}} is the filename of a TrueType or OpenType font. Can include the path to the font file. Best practice is to include font files with a program.
 * If no path is specified for {{Parameter|fontFileName$}} and the font file isn't in the same folder as the resulting binary, QB64 attempts to load from the default ''C:\Windows\Fonts'' path.
 * {{Parameter|size%}} is the [[INTEGER]] height of the font. If the size is too large or small an [[ERROR Codes|error]] will occur.
 * Optional comma separated ''style'' parameter(s) used are literal [[STRING]]s (in quotes) or can be contained in variable(s). 
-** '''&quot;MONOSPACE&quot;''' loads a font with all characters occupying the same width. Results may be too spaced out for fonts that aren't designed for monospace use.
-** '''&quot;BOLD&quot;, &quot;ITALIC&quot;''' or '''&quot;UNDERLINE&quot;''' create bold, italic or underlined fonts when available in font.
+** '''"MONOSPACE"''' loads a font with all characters occupying the same width. Results may be too spaced out for fonts that aren't designed for monospace use.
+** '''"BOLD", "ITALIC"''' or '''"UNDERLINE"''' create bold, italic or underlined fonts when available in font.
 ***(valid for QB64 versions prior to 1.000).
 ***For '''QB64 1.000 or later''', you must specify the proper file name according to the desired attributes. For example, Courier New is in font '''cour.ttf''' while Courier New Bold is in font '''courbd.ttf''', as shipped with Windows.
-** '''&quot;UNICODE&quot;''' loads Unicode fonts such as ''cyberbit.ttf'' which is included in the QB64 downloads. 
-** '''&quot;DONTBLEND&quot;''' turns off [[_ALPHA]] blending of fonts. This can also be done with the [[_DONTBLEND]] statement.
+** '''"UNICODE"''' loads Unicode fonts such as ''cyberbit.ttf'' which is included in the QB64 downloads. 
+** '''"DONTBLEND"''' turns off [[_ALPHA]] blending of fonts. This can also be done with the [[_DONTBLEND]] statement.
 :* You can pass different font styles using different predefined [[STRING]] variable lists. You '''can''' include an empty style string.
-* '''Always check that font handle values are greater than 0 ('''{{Parameter|handle&amp;}} &gt; 0''') before using them or [[ERROR Codes|illegal function errors]] may occur.'''
+* '''Always check that font handle values are greater than 0 ('''{{Parameter|handle&amp;}} > 0''') before using them or [[ERROR Codes|illegal function errors]] may occur.'''
 * '''NOTE: SCREEN 0 can only use ONE font on a screen page. Thus a style like underline would affect the entire page.'''
 * Font sizes can be found using the [[_FONTHEIGHT]] function. Font ''size''s can also affect [[SCREEN (statement)|SCREEN]] sizes.
-* [[_FONTWIDTH]] can only measure monospaced fonts. '''&quot;MONOSPACE&quot; can be used to load a variable width font as a monospace font.'''
+* [[_FONTWIDTH]] can only measure monospaced fonts. '''"MONOSPACE" can be used to load a variable width font as a monospace font.'''
 * [[_PRINTWIDTH]] can measure the width of a string of text in '''graphics modes only'''. Use one character to get the font's width.
 
 
-&lt;center&gt; '''Font Handles'''&lt;/center&gt;
+&lt;center> '''Font Handles'''&lt;/center>
 * Multiple fonts will require multiple font variable handles unless used and freed consecutively.
 * Font handles with values greater than 0 that are '''no longer used''' should be freed using [[_FREEFONT]]. 
 * '''Predefined QB64''' font handle numbers can be substituted before freeing a font handle:
@@ -38,21 +38,21 @@ The [[_LOADFONT]] function loads a TrueType font (.TTF) or an OpenType font (.OT
 * Font handle values of -1 (load failure) '''do not''' need to be freed. '''An [[ERROR Codes|error]] will occur if you try to free invalid handles.'''
 
 
-&lt;center&gt; '''Font File Specs'''&lt;/center&gt;
+&lt;center> '''Font File Specs'''&lt;/center>
 * Windows users should find '''TTF''' font files in the C:\WINDOWS\FONTS folder, but don't depend on unusual ones being there. 
-* '''Check the font file name. The name in the &quot;viewer&quot; is not necessarily the file's name. Use the name in properties (right click a font listed and choose Properties in the contextual menu)'''
-* If a program is on a different drive than Windows, [[ENVIRON$]](&quot;SYSTEMROOT&quot;) will return the path to the &quot;WINDOWS&quot; folder. Normally &quot;C:\WINDOWS&quot;. Then add the &quot;\FONTS\&quot; folder and the font '''.TTF''' filename to the path [[STRING]].
+* '''Check the font file name. The name in the "viewer" is not necessarily the file's name. Use the name in properties (right click a font listed and choose Properties in the contextual menu)'''
+* If a program is on a different drive than Windows, [[ENVIRON$]]("SYSTEMROOT") will return the path to the "WINDOWS" folder. Normally "C:\WINDOWS". Then add the "\FONTS\" folder and the font '''.TTF''' filename to the path [[STRING]].
 
 
 {{PageExamples}}
 ''Example 1:'' You need to know that if you are in a text mode (such as SCREEN 0 - the default) then you will only be able to use mono-spaced (fixed width) fonts.
 {{CodeStart}}
-rootpath$ = {{Cl|ENVIRON$}}(&quot;SYSTEMROOT&quot;)          'normally &quot;C:\WINDOWS&quot;
-fontfile$ = rootpath$ + &quot;\Fonts\cour.ttf&quot;   'TTF file in Windows 
-style$ = &quot;monospace&quot;          'font style is not case sensitive
+rootpath$ = {{Cl|ENVIRON$}}("SYSTEMROOT")          'normally "C:\WINDOWS"
+fontfile$ = rootpath$ + "\Fonts\cour.ttf"   'TTF file in Windows 
+style$ = "monospace"          'font style is not case sensitive
 f&amp; ={{Cl|_LOADFONT}}(fontfile$, 30, style$)
 {{Cl|_FONT}} f&amp;
-{{Cl|PRINT}} &quot;Hello!&quot;
+{{Cl|PRINT}} "Hello!"
 
 {{CodeEnd}}
 {{OutputStart}}
@@ -61,7 +61,7 @@ Hello!
 
 {{OutputEnd}}
 
-''Note:'' 30 means each row of text (including vertical spacing) will be exactly 30 pixels high. This may make some program screens larger. If you don't want a style listed just use style$ = &quot;&quot; if using a [[STRING]] variable for different calls.
+''Note:'' 30 means each row of text (including vertical spacing) will be exactly 30 pixels high. This may make some program screens larger. If you don't want a style listed just use style$ = "" if using a [[STRING]] variable for different calls.
 
 
 
@@ -71,15 +71,15 @@ Hello!
 i&amp; ={{Cl|_NEWIMAGE}}(800,600,32)
 {{Cl|SCREEN (statement)|SCREEN}} i&amp;
 {{Cl|COLOR}} &amp;HC0FFFF00,&amp;H200000FF
-f&amp; ={{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\times.ttf&quot;, 25)  'normal style
-{{Cl|PRINT}} &quot;Hello!&quot;
+f&amp; ={{Cl|_LOADFONT}}("C:\Windows\Fonts\times.ttf", 25)  'normal style
+{{Cl|PRINT}} "Hello!"
 {{CodeEnd}}
 
 {{OutputStart}}Hello!
 {{OutputEnd}}
 
 
-:''Note:'' You can load a fixed width font file without using the &quot;monospace&quot; option and it will be treated as variable width. This can be useful because LOCATE treats the horizontal position as an offset in pixels for variable width fonts.
+:''Note:'' You can load a fixed width font file without using the "monospace" option and it will be treated as variable width. This can be useful because LOCATE treats the horizontal position as an offset in pixels for variable width fonts.
 
 
 ''Example 3:'' Loading a [[Unicode]] font, ''cyberbit.ttf'', which was downloaded with QB64:
@@ -94,14 +94,14 @@ f&amp; ={{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\times.ttf&quot;, 25)  'normal st
 FileName$ = {{Cl|SPACE$}}(512)
 
 Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
-{{Cl|IF...THEN|IF}} Result {{Cl|THEN}} {{Cl|PRINT}} &quot;CURRENT PROGRAM (ASCII): &quot;; {{Cl|LEFT$}}(FileName$, Result)
+{{Cl|IF...THEN|IF}} Result {{Cl|THEN}} {{Cl|PRINT}} "CURRENT PROGRAM (ASCII): "; {{Cl|LEFT$}}(FileName$, Result)
 
 'load a unicode font
-f = {{Cl|_LOADFONT}}(&quot;cyberbit.ttf&quot;, 24, &quot;UNICODE&quot;)
+f = {{Cl|_LOADFONT}}("cyberbit.ttf", 24, "UNICODE")
 {{Cl|_FONT}} f
 Result = GetModuleFileNameW(0, FileName$, {{Cl|LEN}}(FileName$) \ 2)
 {{Cl|LOCATE}} 2, 1
-{{Cl|PRINT}} QuickCP437toUTF32$(&quot;CURRENT PROGRAM (UTF): &quot;) + QuickUTF16toUTF32$({{Cl|LEFT$}}(FileName$, Result * 2))
+{{Cl|PRINT}} QuickCP437toUTF32$("CURRENT PROGRAM (UTF): ") + QuickUTF16toUTF32$({{Cl|LEFT$}}(FileName$, Result * 2))
 {{Cl|_FONT}} 16 'restore CP437 font
 
 {{Cl|FUNCTION}} QuickCP437toUTF32$ (a$)

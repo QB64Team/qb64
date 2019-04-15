@@ -43,8 +43,8 @@ FRate = FREQ / SampleRate'
 
 ''Example 2:'' A simple ringing bell tone that tapers off.
 {{CodeStart}}t = 0
-tmp$ = &quot;Sample = ##.#####   Time = ##.#####&quot;
-LOCATE 1, 60: PRINT &quot;Rate:&quot;; {{Cl|_SNDRATE}}
+tmp$ = "Sample = ##.#####   Time = ##.#####"
+LOCATE 1, 60: PRINT "Rate:"; {{Cl|_SNDRATE}}
 DO
   'queue some sound
   DO WHILE {{Cl|_SNDRAWLEN}} &lt; 0.1             'you may wish to adjust this    
@@ -58,7 +58,7 @@ DO
   LOCATE 1, 1: PRINT USING tmp$; sample; t
 LOOP WHILE t &lt; 3.0                      'play for 3 seconds
 
-DO WHILE {{Cl|_SNDRAWLEN}} &gt; 0                 'Finish any left over queued sound!
+DO WHILE {{Cl|_SNDRAWLEN}} > 0                 'Finish any left over queued sound!
 LOOP
 {{Cl|END}} '' ''
 {{CodeEnd}}
@@ -70,24 +70,24 @@ LOOP
 {{Cl|DIM}} {{Cl|SHARED}} rate&amp;
 rate&amp; = {{Cl|_SNDRATE}}
 DO
-  {{Cl|PRINT}} &quot;Enter the octave 1 to 8 (0 quits!):&quot;;
+  {{Cl|PRINT}} "Enter the octave 1 to 8 (0 quits!):";
   oct% = {{Cl|VAL}}({{Cl|INPUT$}}(1)): {{Cl|PRINT}} oct%
   {{Cl|IF...THEN|IF}} oct% = 0 {{Cl|THEN}} {{Cl|EXIT DO}}
   octave = oct% - 4 '440 is in the 4th octave, 9th note
   {{Cl|COLOR}} oct% + 1
-  {{Cl|PRINT USING}} &quot;Octave: ##&quot;; oct%
+  {{Cl|PRINT USING}} "Octave: ##"; oct%
   {{Cl|FOR...NEXT|FOR}} Note = 0 {{Cl|TO}} 11  'notes C to B
     fq = FreQ(octave, Note, note$)
-    {{Cl|PRINT USING}} &quot;#####.## \\&quot;; fq, note$
+    {{Cl|PRINT USING}} "#####.## \\"; fq, note$
     PlaySound fq
-    {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} &gt; &quot;&quot; {{Cl|THEN}} {{Cl|EXIT DO}}
+    {{Cl|IF...THEN|IF}} {{Cl|INKEY$}} > "" {{Cl|THEN}} {{Cl|EXIT DO}}
   {{Cl|NEXT}}
 {{Cl|LOOP}}
 {{Cl|END}}
 
 {{Cl|FUNCTION}} FreQ (octave, note, note$)
 FreQ = 440 * 2 ^ (octave + (note + 3) / 12 - 1) '* 12 note octave starts at C (3 notes up)
-note$ = {{Cl|MID$}}(&quot;C C#D D#E F F#G G#A A#B &quot;, note * 2 + 1, 2)
+note$ = {{Cl|MID$}}("C C#D D#E F F#G G#A A#B ", note * 2 + 1, 2)
 {{Cl|END FUNCTION}}
 
 {{Cl|SUB}} PlaySound (frq!)    ' plays sine wave fading in and out

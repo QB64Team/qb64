@@ -8,16 +8,16 @@ The [[HEX$]] function returns the base 16 hexadecimal representation of an [[INT
 {{PageDescription}}
 * The function returns the string hexadecimal (base-16) representation of {{Parameter|decimalNumber}}.
 * The function does not return a leading sign space so [[LTRIM$]] is not necessary.
-&lt;!-- Confusing hack hidden: * Can be used in place of [[STR$]] to trim both sides of positive decimal values 0 to 9 only.}} --&gt;
-* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with &quot;&amp;H&quot;: {{InlineCode}}dec = VAL(&quot;&amp;H&quot; + hexvar$){{InlineCodeEnd}}.
+&lt;!-- Confusing hack hidden: * Can be used in place of [[STR$]] to trim both sides of positive decimal values 0 to 9 only.}} -->
+* [[VAL]] can convert the string value back to a decimal value by prefixing the string return with "&amp;H": {{InlineCode}}dec = VAL("&amp;H" + hexvar$){{InlineCodeEnd}}.
 
 
 {{PageExamples}}
 ''Example 1:'' Comparing decimal, hexadecimal and octal string values 0 to 15.
 {{CodeStart}} '' ''
-LOCATE 2, 20: PRINT &quot;   Decimal | Hexadecimal | Octal  &quot;
-LOCATE 3, 20: PRINT &quot;-----------+-------------+--------&quot;
-        template$ = &quot;    \ \    |     \\      |    \\  &quot;
+LOCATE 2, 20: PRINT "   Decimal | Hexadecimal | Octal  "
+LOCATE 3, 20: PRINT "-----------+-------------+--------"
+        template$ = "    \ \    |     \\      |    \\  "
 
 FOR n% = 0 TO 15
   LOCATE 4 + n%, 20: {{Cl|PRINT USING}} template$; {{Cl|STR$}}(n%); {{Cl|HEX$}}(n%); {{Cl|OCT$}}(n%)
@@ -49,8 +49,8 @@ NEXT n% '' ''
 ''Example 2:'' Converting hex value to decimal.
 {{CodeStart}}
 h$ = {{Cl|HEX$}}(255)
-{{Cl|PRINT}} &quot;Hex: &quot;; h$
-{{Cl|PRINT}} &quot;Converting Hex value to Decimal:&quot;; {{Cl|VAL}}(&quot;&amp;H&quot; + h$)
+{{Cl|PRINT}} "Hex: "; h$
+{{Cl|PRINT}} "Converting Hex value to Decimal:"; {{Cl|VAL}}("&amp;H" + h$)
 {{CodeEnd}}
 
 {{OutputStart}}

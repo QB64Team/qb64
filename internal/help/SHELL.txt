@@ -1,54 +1,57 @@
-The '''SHELL''' statement allows a program to use [[STRING]] OS command lines in Windows, Mac OSX and Linux.
+The [[SHELL]] statement allows a program to run external programs or command line statements in Windows, macOS and Linux.
 
 
-''QB'' {{PageSyntax}} SHELL [''DOSCommand$'']
+{{PageSyntax}}
+: [[SHELL]] [{{Parameter|DOSCommand$}}]
+: [[SHELL]] ['''_DONTWAIT'''] ['''_HIDE'''] [{{Parameter|DOSCommand$}}]
 
-''QB64'' {{PageSyntax}} SHELL [{{KW|_DONTWAIT}}] [{{KW|_HIDE}}] [''DOSCommand$'']
 
-
-
-* If the ''[[DOS]]Command$'' [[STRING]] parameter isn't used the &quot;command console&quot; is opened.
-* If [[_DONTWAIT]] is used the '''QB64''' program doesn't wait for the SHELLed program/command to end.
-* When the [[_HIDE]] action is used, the [[CONSOLE|console]] window is hidden and screen info can be &quot;redirected&quot;(&gt;) to a file (recommended).
-* Commands are external [[DOS]] commands as [[STRING|strings]]  enclosed in quotes or string variables.
+{{PageDescription}}
+* If the ''[[DOS]]Command$'' [[STRING]] parameter isn't used, the "command console" is opened.
+* If [[_DONTWAIT]] is used, the '''QB64''' program doesn't wait for the SHELLed program/command to end.
+* When the [[_HIDE]] action is used, the [[CONSOLE|console]] window is hidden and screen info can be "redirected" (using redirection characters like >) to a file (recommended).
+* Commands are external commands, according to the user's operating system, passed as [[STRING|strings]] enclosed in quotes or string variables.
 * Commands can be a mixture of [[STRING|strings]] and string variables added together using the + [[concatenation]] operator.
 * Command text can be in upper or lower case. Use single spacing between items and options.
-* '''QB64''' automatically uses CMD /C when using [[SHELL]], but is allowed in command. {{text|Note: CMD alone may lock up program!|red}}
-:: '''Note: Some commands may not work without adding CMD /C to the start of the command line.'''
-* '''QB64''' program screens will not get distorted, minimized or freeze the program like Qbasic fullscreen modes will. 
-* '''QB64''' can use long path folder names and file names and [[SHELL]] command lines can be longer than 124 characters!
-* In Windows use additional [[CHR$]](34) quotation marks around folder or file names that contain spaces.
-*'''NOTE: Use [[CHDIR]] instead of CD as SHELL commands cannot affect the current program path!'''
-* '''Qbasic BAS files can be run like compiled programs without returning to the [[IDE]] when [[SYSTEM]] is used to [[END|end]] them!'''
-&lt;center&gt;'''{{text|SHELL &quot;QB.EXE /L /RUN program.BAS&quot;|green}}'''&lt;/center&gt;
+* '''QB64''' automatically uses CMD /C when using [[SHELL]], but it is allowed in a command string. {{text|Note: CMD alone may lock up program.|red}}
+** '''Note: Some commands may not work without adding CMD /C to the start of the command line.'''
+* '''QB64''' program screens will not get distorted, minimized or freeze the program like QBasic fullscreen modes would. 
+* '''QB64''' can use long path folder names and file names and [[SHELL]] command lines can be longer than 124 characters.
+* In Windows, use additional [[CHR$]](34) quotation marks around folder or file names that contain spaces.
+* For other operating systems, both the quotation mark character and the apostrophe can be used to enclose a file name that contains spaces.
+*'''NOTE: Use [[CHDIR]] instead of CD as SHELL commands cannot affect the current program path.'''
 
 
+==QBasic/QuickBASIC==
+* '''QBasic BAS files could be run like compiled programs without returning to the [[IDE]] when [[SYSTEM]] was used to [[END|end]] them.'''
+* A user would invoke it with {{InlineCode}}SHELL "QB.EXE /L /RUN program.BAS"{{InlineCodeEnd}}
+
+
+{{PageExamples}}
 ''Example 1:'' When working with file or folder names with spaces, add quotation marks around the path and/or file name with [[CHR$]](34).
 {{CodeStart}} '' ''
-{{Cl|SHELL}} {{Cl|_HIDE}} &quot;dir &quot; + {{Cl|CHR$}}(34) + &quot;free cell.ico&quot; + {{Cl|CHR$}}(34) + &quot; /b &gt; temp.dir&quot; '' '' 
-{{Cl|SHELL}} &quot;start Notepad temp.dir&quot; ' display temp file contents in Notepad window '' ''
+{{Cl|SHELL}} {{Cl|_HIDE}} "dir " + {{Cl|CHR$}}(34) + "free cell.ico" + {{Cl|CHR$}}(34) + " /b > temp.dir" '' '' 
+{{Cl|SHELL}} "start Notepad temp.dir" ' display temp file contents in Notepad window '' ''
 {{CodeEnd}}
 :{{small|Contents of ''temp.dir'' text file:}}
 {{TextStart}}Free Cell.ico
 {{TextEnd}}
 
 
-''Example 2:'' Opening a Windows program(Notepad) to read or print a Basic created text file.
+''Example 2:'' Opening a Windows program (Notepad) to read or print a Basic created text file.
 {{CodeStart}}
-{{Cl|INPUT}} &quot;Enter a file name to read in Notepad: &quot;, filename$
-{{Cl|SHELL}} &quot;CMD /C start /max notepad &quot; + filename$  ' display in Notepad full screen in XP or NT   
+{{Cl|INPUT}} "Enter a file name to read in Notepad: ", filename$
+{{Cl|SHELL}} "CMD /C start /max notepad " + filename$  ' display in Notepad full screen in XP or NT   
 
-'{{Cl|SHELL}} &quot;start /min notepad /p &quot; + filename$ ' taskbar print using QB64 CMD /C not necessary
+'{{Cl|SHELL}} "start /min notepad /p " + filename$ ' taskbar print using QB64 CMD /C not necessary
 {{CodeEnd}}
 
-:''Explanation:'' Notepad is an easy program to open in Windows. No path is needed! Windows NT computers, including XP, use CMD /C where older versions of DOS don't require any command reference. The top command opens Notepad in a normal window for a user to view the file. They can use Notepad to print it. The second command places Notepad file in the taskbar and prints it automatically. The filename variable is added by the program using proper spacing. 
+:''Explanation:'' Notepad is an easy program to open in Windows as no path is needed. Windows NT computers, including XP, use CMD /C where older versions of DOS don't require any command reference. The top command opens Notepad in a normal window for a user to view the file. They can use Notepad to print it. The second command places Notepad file in the taskbar and prints it automatically. The filename variable is added by the program using proper spacing. 
 
 ::*'''Start''' is used to allow a Basic program to run without waiting for Notepad to be closed.
 ::* '''/min''' places the window into the taskbar. '''/max''' is fullscreen and no option is a normal window.
-::* Notepad's '''/p''' option prints the file contents. Even with USB printers!
+::* Notepad's '''/p''' option prints the file contents, even with USB printers.
 
-:'''Note: A fullscreen [[SCREEN (statement)|SCREEN]] mode must be changed after a Windows program is opened in Qbasic ONLY!''' 
-:: Besides minimizing a QBasic program, fullscreen modes will lose the current screen information and freeze. Switch to another screen mode and back to the one you were in immediately after the SHELL! Screen 0 windows will work OK.
 
 
 ''Example 3:'' Function that returns the program's current working path.
@@ -57,47 +60,49 @@ The '''SHELL''' statement allows a program to use [[STRING]] OS command lines in
  PRINT currentpath$
 
  {{Cl|FUNCTION}} Path$   
-   {{Cl|SHELL}} {{Cl|_HIDE}} &quot;CD &gt; D0S-DATA.INF&quot;   'code to hide window in '''QB64'''
-   {{Cl|OPEN}} &quot;D0S-DATA.INF&quot; FOR {{Cl|APPEND}} AS #1  'this may create the file
+   {{Cl|SHELL}} {{Cl|_HIDE}} "CD > D0S-DATA.INF"   'code to hide window in '''QB64'''
+   {{Cl|OPEN}} "D0S-DATA.INF" FOR {{Cl|APPEND}} AS #1  'this may create the file
         L% = {{Cl|LOF}}(1)          'verify that file and data exist
    {{Cl|CLOSE}} #1   
    {{Cl|IF}} L% {{Cl|THEN}}                       'read file if it has data
-     {{Cl|OPEN}} &quot;D0S-DATA.INF&quot; FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
+     {{Cl|OPEN}} "D0S-DATA.INF" FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
      {{Cl|LINE INPUT (file statement)|LINE INPUT}} #1, line$           'read only line in file
-     Path$ = line$ + &quot;\&quot;            'add slash to path so only a filename needs added later
+     Path$ = line$ + "\"            'add slash to path so only a filename needs added later
      {{Cl|CLOSE}} #1
-   {{Cl|ELSE}} : Path = &quot;&quot;                 'returns zero length string if path not found
+   {{Cl|ELSE}} : Path = ""                 'returns zero length string if path not found
    END IF
-   {{Cl|KILL}} &quot;D0S-DATA.INF&quot;              'deleting the file is optional
+   {{Cl|KILL}} "D0S-DATA.INF"              'deleting the file is optional
  {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-:''Explanation:'' The '''SHELL &quot;CD&quot;''' statement requests the current working path. This info is normally printed to the screen, but the '''&gt;''' pipe character sends the information to the DOS-DATA.INF file instead('''QB64''' can use [[_HIDE]] to not display the DOS window). The function uses the [[OPEN]] FOR [[APPEND]] mode to check for the file and the data([[INPUT (file mode)|INPUT]] would create an error if file does not exist). The current path is listed on one line of the file. The file is opened and [[LINE INPUT (file statement)|LINE INPUT]] returns one line of the file text. The function adds a &quot;\&quot; so that the Path$ returned can be used in another file statement by just adding a file name. Save the Path$ to another variable for later use when the program has moved to another directory.
+:''Explanation:'' The '''SHELL "CD"''' statement requests the current working path. This info is normally printed to the screen, but the '''>''' pipe character sends the information to the DOS-DATA.INF file instead('''QB64''' can use [[_HIDE]] to not display the DOS window). The function uses the [[OPEN]] FOR [[APPEND]] mode to check for the file and the data([[INPUT (file mode)|INPUT]] would create an error if file does not exist). The current path is listed on one line of the file. The file is opened and [[LINE INPUT (file statement)|LINE INPUT]] returns one line of the file text. The function adds a "\" so that the Path$ returned can be used in another file statement by just adding a file name. Save the Path$ to another variable for later use when the program has moved to another directory.
+: In '''QB64''' you can simply use the [[_CWD$]] statement for the same purpose of the example above.
 
 
-''Example 4:'' Determining if a drive or path exists. Cannot use with a file name specification!
+''Example 4:'' Determining if a drive or path exists. Cannot use with a file name specification.
 {{CodeStart}} '' ''
-{{Cl|LINE INPUT}} &quot;Enter a drive or path (no file name): &quot;, DirPath$
-{{Cl|IF}} PathExist%(DirPath$) {{Cl|THEN}} PRINT &quot;Drive Path exists!&quot; {{Cl|ELSE}} PRINT &quot;Drive Path does not exist!&quot;
+{{Cl|LINE INPUT}} "Enter a drive or path (no file name): ", DirPath$
+{{Cl|IF}} PathExist%(DirPath$) {{Cl|THEN}} PRINT "Drive Path exists!" {{Cl|ELSE}} PRINT "Drive Path does not exist!"
 {{Cl|END}}
 
 {{Cl|FUNCTION}} PathExist% (Path$)
 PathExist% = 0
 {{Cl|IF}} {{Cl|LEN}}(Path$) = 0 {{Cl|THEN}} {{Cl|EXIT FUNCTION}} 'no entry
-{{Cl|IF}} {{Cl|LEN}}({{Cl|ENVIRON$}}(&quot;OS&quot;)) {{Cl|THEN}} CMD$ = &quot;CMD /C &quot; {{Cl|ELSE}} CMD$ = &quot;COMMAND /C &quot;
-{{Cl|SHELL}} {{Cl|_HIDE}} CMD$ + &quot;If Exist &quot; + Path$ + &quot;\nul echo yes &gt; D0S-DATA.INF&quot;
-{{Cl|OPEN}} &quot;D0S-DATA.INF&quot; {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #1
+{{Cl|IF}} {{Cl|LEN}}({{Cl|ENVIRON$}}("OS")) {{Cl|THEN}} CMD$ = "CMD /C " {{Cl|ELSE}} CMD$ = "COMMAND /C "
+{{Cl|SHELL}} {{Cl|_HIDE}} CMD$ + "If Exist " + Path$ + "\nul echo yes > D0S-DATA.INF"
+{{Cl|OPEN}} "D0S-DATA.INF" {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #1
 {{Cl|IF}} {{Cl|LOF}}(1) {{Cl|THEN}} PathExist% = -1             'yes will be in file if path exists
 {{Cl|CLOSE}} #1
-{{Cl|KILL}} &quot;D0S-DATA.INF&quot;               'delete data file optional
+{{Cl|KILL}} "D0S-DATA.INF"               'delete data file optional
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
 :''Explanation: IF Exist'' checks for the drive path. ''\Nul'' allows an emply folder at end of path. ''Echo'' prints '''yes''' in the file if it exists.
+: In '''QB64''' you can simply use the [[_FILEEXISTS]] statement for the same purpose of the example above.
 
 
-''Snippet 1:'' When looking for '''printers''' this command gives you a file list with the default printer '''True''':
-{{TextStart}}{{Cb|SHELL}} {{Cb|_HIDE}} &quot;CMD /C&quot; + &quot;wmic printer get name,default &gt; default.txt&quot;
+''Snippet 1:'' When looking for '''printers''' this command gives you a file list with the default printer marked as '''TRUE''':
+{{TextStart}}{{Cb|SHELL}} {{Cb|_HIDE}} "CMD /C" + "wmic printer get name,default > default.txt"
 {{TextEnd}}
 '''Created file's text:'''
 {{TextStart}}Default  Name                           
@@ -109,8 +114,8 @@ PathExist% = 0
 : ''Explanation:'' [[LINE INPUT]] could be used to find the printer names as [[STRING]] variables.
 
 
-''Snippet 2:'' Here is the code to set the default printer to the &quot;HP Officejet Pro 8600&quot;:
-{{TextStart}}SHELL _HIDE &quot;CMD /C&quot; + &quot;wmic printer where name='HP Officejet Pro 8600' call setdefaultprinter&quot;
+''Snippet 2:'' Here is the code to set the default printer to the "HP Officejet Pro 8600":
+{{TextStart}}SHELL _HIDE "CMD /C" + "wmic printer where name='HP Officejet Pro 8600' call setdefaultprinter"
 {{TextEnd}}
 : After executing this program, and then running the first snippet again, we see the following '''contents of the text file:'''
 {{TextStart}}Default  Name 
@@ -121,7 +126,13 @@ PathExist% = 0
 {{TextEnd}}
 
 
-''See also:'' 
+===More examples===
+''See examples in:''
+* [[FILELIST$ (function)]] (member-contributed file search routine)
+* ''File Exist'' C++ Function that does not create a temp file: [[Windows_Libraries#File_Exist|FileExist Library Function]]
+
+
+{{PageSeeAlso}}
 * [[SHELL (function)]], [[_SHELLHIDE]]
 * [[FILES]], [[CHDIR]], [[MKDIR]]
 * [[_CWD$]], [[_STARTDIR$]]
@@ -131,16 +142,10 @@ PathExist% = 0
 * [[_CONSOLE]], [[$CONSOLE]]
 * [[$SCREENHIDE]], [[$SCREENSHOW]] {{text|(QB64 [[Metacommand]]s)}}
 * [[_SCREENHIDE]], [[_SCREENSHOW]]
-* [[FILELIST$]], [[DIR$]] {{text|(member file list array functions)}}
+* [[FILELIST$]], [[PDS_(7.1)_Procedures#DIR.24|DIR$]] {{text|(member-contributed file list array function)}}
 
 
-''See example:'' [[FILELIST$ (function)]] (member file search routine)
-
-''See Library:'' File Exist C++ Function that does not create a temp file. [[Windows_Libraries#File_Exist|FileExist Library Function]]
-
-
-----
-''References:''
+===Extra reference===
 * [[DOS]], [[Batch Files]], [[VB Script]]
 * [[WGET]] {{text|(HTTP and FTP file transfer)}}
 * [http://www.computerhope.com/msdos.htm MSDOS commands], [[DOS#DIR|DIR]]

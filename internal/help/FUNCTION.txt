@@ -33,13 +33,13 @@ A [[FUNCTION]] block statement is used to create a function procedure to return 
 {{PageExamples}}
 ''Example 1:'' A simple function that returns the current path. Place [[FUNCTION]] or [[SUB]] procedures after the program [[END]].
 {{CodeStart}} '' ''
-{{Cl|PRINT}} &quot;Current path = &quot;; PATH$
+{{Cl|PRINT}} "Current path = "; PATH$
 {{Cl|END}}
 
 {{Cl|FUNCTION}} PATH$
     f% = {{Cl|FREEFILE}}
-    file$ = &quot;D0Spath.inf&quot; 'file name uses a zero to prevent an overwrite of existing file name
-    {{Cl|SHELL}} {{Cl|_HIDE}} &quot;CD &gt; &quot; + file$ 'send screen information to a created text file
+    file$ = "D0Spath.inf" 'file name uses a zero to prevent an overwrite of existing file name
+    {{Cl|SHELL}} {{Cl|_HIDE}} "CD > " + file$ 'send screen information to a created text file
     {{Cl|OPEN}} file$ {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #f% 'file should exist with one line of text
     {{Cl|LINE INPUT (file statement)|LINE INPUT}} #f%, PATH$ 'read file path text to function name
     {{Cl|CLOSE}} #f%
@@ -50,9 +50,9 @@ A [[FUNCTION]] block statement is used to create a function procedure to return 
 
 ''Example 2:'' Returns a [[LONG]] array byte size required for a certain sized graphics screen pixel area [[GET (graphics statement)|GET]].
 {{CodeStart}} '' ''
-{{Cl|INPUT}} &quot;Enter a screen mode: &quot;, mode%
-{{Cl|INPUT}} &quot;Enter image width: &quot;, wide&amp;
-{{Cl|INPUT}} &quot;Enter image depth: &quot;, deep&amp;
+{{Cl|INPUT}} "Enter a screen mode: ", mode%
+{{Cl|INPUT}} "Enter image width: ", wide&amp;
+{{Cl|INPUT}} "Enter image depth: ", deep&amp;
 IntegerArray&amp; = ImageBufferSize&amp;(wide&amp;, deep&amp;, mode%) \ 2 ' returns size of an {{Cl|INTEGER}} array.
 {{Cl|PRINT}} IntegerArray&amp;
 {{Cl|END}}

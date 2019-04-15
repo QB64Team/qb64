@@ -15,13 +15,13 @@ The '''RSET''' statement right-justifies a string according to length of the str
 {{CodeStart}} '' ''
 {{Cl|CLS}}
 {{Cl|DIM}} thestring {{Cl|AS}} {{Cl|STRING}} * 10
-{{Cl|PRINT}} &quot;12345678901234567890
-{{Cl|RSET}} thestring = &quot;Hello!&quot;
+{{Cl|PRINT}} "12345678901234567890
+{{Cl|RSET}} thestring = "Hello!"
 {{Cl|PRINT}} thestring
 anystring$ = {{Cl|SPACE$}}(20)
-{{Cl|RSET}} anystring$ = &quot;Hello again!&quot;
+{{Cl|RSET}} anystring$ = "Hello again!"
 {{Cl|PRINT}} anystring$
-{{Cl|RSET}} thestring = &quot;Over ten characters long&quot;
+{{Cl|RSET}} thestring = "Over ten characters long"
 {{Cl|PRINT}} thestring '' ''
 {{CodeEnd}}
 {{OutputStart}}
@@ -31,7 +31,7 @@ anystring$ = {{Cl|SPACE$}}(20)
 Over ten c
 {{OutputEnd}}
 
-:''Explanation:'' Notice how &quot;Hello!&quot; ends at the tenth position because the length of ''thestring'' is 10. When we used SPACE$(20) the length of ''anystring$'' became 20 so &quot;Hello Again!&quot; ended at the 20th position. That is right-justified. The last line &quot;Over ten c&quot; is truncated as it didn't fit into ''thestring'''s length of only 10 characters.
+:''Explanation:'' Notice how "Hello!" ends at the tenth position because the length of ''thestring'' is 10. When we used SPACE$(20) the length of ''anystring$'' became 20 so "Hello Again!" ended at the 20th position. That is right-justified. The last line "Over ten c" is truncated as it didn't fit into ''thestring'''s length of only 10 characters.
 
 
 ''See also:'' 

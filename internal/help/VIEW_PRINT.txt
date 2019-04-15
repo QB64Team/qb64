@@ -22,30 +22,30 @@ The [[VIEW PRINT]] statement defines the boundaries of a text viewport {{KW|PRIN
 ''Example:'' Demonstrates how text scrolls within the text viewport.
 {{CodeStart}}' clear the entire screen and show the boundaries of the new text viewport
 {{Cl|CLS}}
-{{Cl|PRINT}} &quot;Start at top...&quot;
-{{Cl|LOCATE}} 9, 1: {{Cl|PRINT}} &quot;&lt;- row 9 -&gt;&quot;
-{{Cl|LOCATE}} 21, 1: {{Cl|PRINT}} &quot;&lt;- row 21 -&gt;&quot;
+{{Cl|PRINT}} "Start at top..."
+{{Cl|LOCATE}} 9, 1: {{Cl|PRINT}} "&lt;- row 9 ->"
+{{Cl|LOCATE}} 21, 1: {{Cl|PRINT}} "&lt;- row 21 ->"
 
 ' define new text viewport boundaries
 {{Cl|VIEW PRINT}} 10 {{Cl|TO}} 20
 
 ' print some text that will scroll the text viewport
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 15
-  {{Cl|PRINT}} &quot;This is viewport line:&quot;; i
+  {{Cl|PRINT}} "This is viewport line:"; i
   {{Cl|SLEEP}} 1
 {{Cl|NEXT}} i
 
 ' clear only the active text viewport with CLS or CLS 2
 {{Cl|CLS}}
-{{Cl|PRINT}} &quot;After clearing, the cursor location is reset to the top of the text viewport.&quot;
+{{Cl|PRINT}} "After clearing, the cursor location is reset to the top of the text viewport."
 
 ' disable the viewport
 {{Cl|VIEW PRINT}}
 {{Cl|_DELAY}} 4
-{{Cl|LOCATE}} 20, 20: {{Cl|PRINT}} &quot;Print anywhere after view port is disabled&quot;
+{{Cl|LOCATE}} 20, 20: {{Cl|PRINT}} "Print anywhere after view port is disabled"
 {{Cl|_DELAY}} 4
 {{Cl|CLS}}
-{{Cl|PRINT}} &quot;Back to top left after CLS!&quot; '' ''
+{{Cl|PRINT}} "Back to top left after CLS!" '' ''
 {{CodeEnd}}
 : ''Note:'' The bottom row of the VIEW PRINT port can be used only when located or prints end with semicolons.
 

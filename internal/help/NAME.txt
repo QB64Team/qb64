@@ -1,29 +1,27 @@
-The '''NAME''' statement changes the name of a file or directory to a new name.
+The [[NAME]] statement changes the name of a file or directory to a new name.
 
 
 
 {{PageSyntax}}
-:: NAME ''old_filename$'' AS ''new_filename$''
+: [[NAME]] {{Parameter|oldFileOrFolderName$}} '''AS''' {{Parameter|newFileOrFolderName$}}
 
 
 {{PageDescription}}
-* Filenames are variables or literal [[STRING]]s in quotes. Paths can be included.
-* Long filenames can be used in QB64 only! Qbasic requires the DOS 8.3 (folder maximum of 8) naming convention.
+* {{Parameter|oldFileOrFolderName$}} and {{Parameter|newFileOrFolderName$}} are variables or literal [[STRING]]s in quotes. Paths can be included.
 * If the two paths are different, the statement moves the original file to the new path and renames it.
 * If the path is the same or a path is not included, the original file is just renamed.
-* [[SHELL]] can use &quot;REN &quot; + filename$ + &quot; &quot; newname$ in DOS.
+* [[SHELL]] can use ''"REN " + filename$ + " " + newname$'' for the same purpose (Windows).
 * Path or filename [[ERROR Codes|errors]] are possible and should be handled in the program.
-* '''CAUTION: There is no prompt to continue or execution verification!'''
+* '''Caution: There is no prompt to continue or execution verification.'''
 
 
 {{PageExamples}}
-
 {{CodeStart}}
- {{Cl|NAME}} &quot;BIGBAD.TXT&quot; {{Cl|AS}} &quot;BADWOLF.TXT&quot;
+ {{Cl|NAME}} "BIGBAD.TXT" {{Cl|AS}} "BADWOLF.TXT"
 {{CodeEnd}}
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[SHELL]], [[MKDIR]], [[FILES]] 
 * [[CHDIR]], [[KILL]], [[RMDIR]]
 * [[DOS]], [[Batch Files]]

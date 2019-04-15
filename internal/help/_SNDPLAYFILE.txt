@@ -9,7 +9,7 @@ The [[_SNDPLAYFILE]] statement is used to play a sound file without generating a
 {{PageDescription}}
 * Supported file formats are '''WAV, OGG and MP3'''. See [[_SNDOPEN]].
 * {{Parameter|ignored%}} is an optional parameter , accepted for historical reasons.
-** In versions prior to '''build 20170811/60''', {{Parameter|ignored%}} identified if a sound was to be loaded with [[_SNDOPEN|&quot;SYNC&quot; capabilities]], (-1 for true, 0 for false). This is true for all sound files in the latest versions, making this parameter safe to be ignored.
+** In versions prior to '''build 20170811/60''', {{Parameter|ignored%}} identified if a sound was to be loaded with [[_SNDOPEN|"SYNC" capabilities]], (-1 for true, 0 for false). This is true for all sound files in the latest versions, making this parameter safe to be ignored.
 * {{Parameter|volume!}} is a [[SINGLE]] value from 0 (silence) to 1 (full volume). If not used or outside this range, the sound will be played at full volume.
 * [[_SNDPLAYFILE]] never creates an error. If the sound cannot be played it takes no further action.
 * The sound is closed automatically after it finishes playing.
@@ -19,7 +19,7 @@ The [[_SNDPLAYFILE]] statement is used to play a sound file without generating a
 {{PageExamples}}
 ''Example:'' Playing a sound file at half volume.
 {{CodeStart}} '' ''
-{{Cl|_SNDPLAYFILE}} &quot;dog.wav&quot;, , .5 '' ''
+{{Cl|_SNDPLAYFILE}} "dog.wav", , .5 '' ''
 {{CodeEnd}}
 
 

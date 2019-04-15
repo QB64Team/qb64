@@ -21,7 +21,7 @@ The [[_MEMIMAGE]] function returns a [[_MEM]] value referring to an image's memo
 ''Example 1:'' Darkening an image using memory with [[$CHECKING]]:OFF for greater speed. Use any 24 bit image file name on the second code line.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(1024, 768, 32)
-i&amp; = {{Cl|_LOADIMAGE}}(&quot;turtle.jpg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; use any 24 bit image file
+i&amp; = {{Cl|_LOADIMAGE}}("turtle.jpg") '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; use any 24 bit image file
 
 {{Cl|FOR...NEXT|FOR}} n! = 1 {{Cl|TO}} 0.01 {{Cl|STEP}} -0.01
     i2&amp; = {{Cl|_COPYIMAGE}}(i&amp;)
@@ -32,7 +32,7 @@ i&amp; = {{Cl|_LOADIMAGE}}(&quot;turtle.jpg&quot;) '&lt;&lt;&lt;&lt;&lt;&lt;&lt;
 {{Cl|NEXT}}
 
 {{Cl|SUB}} DarkenImage (Image {{Cl|AS}} {{Cl|LONG}}, Value_From_0_To_1 {{Cl|AS}} {{Cl|SINGLE}})
-{{Cl|IF...THEN|IF}} Value_From_0_To_1 &lt;= 0 {{Cl|OR (boolean)|OR}} Value_From_0_To_1 &gt;= 1 {{Cl|OR (boolean)|OR}} {{Cl|_PIXELSIZE}}(Image) &lt;&gt; 4 {{Cl|THEN}} {{Cl|EXIT SUB}}
+{{Cl|IF...THEN|IF}} Value_From_0_To_1 &lt;= 0 {{Cl|OR (boolean)|OR}} Value_From_0_To_1 >= 1 {{Cl|OR (boolean)|OR}} {{Cl|_PIXELSIZE}}(Image) &lt;> 4 {{Cl|THEN}} {{Cl|EXIT SUB}}
 {{Cl|DIM}} Buffer {{Cl|AS}} {{Cl|_MEM}}: Buffer = {{Cl|_MEMIMAGE}}(Image) 'Get a memory reference to our image
 {{Cl|DIM}} Frac_Value {{Cl|AS}} {{Cl|LONG}}: Frac_Value = Value_From_0_To_1 * 65536 'Used to avoid slow floating point calculations
 {{Cl|DIM}} O {{Cl|AS}} {{Cl|_OFFSET}}, O_Last {{Cl|AS}} {{Cl|_OFFSET}}
@@ -58,17 +58,17 @@ DO
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 13
 {{Cl|_FULLSCREEN}}
-{{Cl|PSET}} (0, 0), {{Cl|ASC}}(&quot;H&quot;)
-{{Cl|PSET}} (1, 0), {{Cl|ASC}}(&quot;E&quot;)
-{{Cl|PSET}} (2, 0), {{Cl|ASC}}(&quot;L&quot;)
-{{Cl|PSET}} (3, 0), {{Cl|ASC}}(&quot;L&quot;)
-{{Cl|PSET}} (4, 0), {{Cl|ASC}}(&quot;O&quot;)
+{{Cl|PSET}} (0, 0), {{Cl|ASC}}("H")
+{{Cl|PSET}} (1, 0), {{Cl|ASC}}("E")
+{{Cl|PSET}} (2, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (3, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (4, 0), {{Cl|ASC}}("O")
 {{Cl|PSET}} (5, 0), 32
-{{Cl|PSET}} (6, 0), {{Cl|ASC}}(&quot;W&quot;)
-{{Cl|PSET}} (7, 0), {{Cl|ASC}}(&quot;O&quot;)
-{{Cl|PSET}} (8, 0), {{Cl|ASC}}(&quot;R&quot;)
-{{Cl|PSET}} (9, 0), {{Cl|ASC}}(&quot;L&quot;)
-{{Cl|PSET}} (10, 0), {{Cl|ASC}}(&quot;D&quot;)
+{{Cl|PSET}} (6, 0), {{Cl|ASC}}("W")
+{{Cl|PSET}} (7, 0), {{Cl|ASC}}("O")
+{{Cl|PSET}} (8, 0), {{Cl|ASC}}("R")
+{{Cl|PSET}} (9, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (10, 0), {{Cl|ASC}}("D")
 {{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
 m = {{Cl|_MEMIMAGE}}
 x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 11) 'convert numbers to ASCII text characters

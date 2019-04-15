@@ -17,13 +17,13 @@ The [[_WHEEL]] function returns the relative position of a specified wheel numbe
 ''Example 1:'' Reading multiple controller device buttons, axis and wheels.
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} {{Cl|_DEVICES}}
-  {{Cl|PRINT}} {{Cl|STR$}}(i) + &quot;) &quot; + {{Cl|_DEVICE$}}(i) + &quot; Buttons:&quot;; {{Cl|_LASTBUTTON}}(i); &quot;,Axis:&quot;; {{Cl|_LASTAXIS}}(i); &quot;,Wheel:&quot;; {{Cl|_LASTWHEEL}}(i)
+  {{Cl|PRINT}} {{Cl|STR$}}(i) + ") " + {{Cl|_DEVICE$}}(i) + " Buttons:"; {{Cl|_LASTBUTTON}}(i); ",Axis:"; {{Cl|_LASTAXIS}}(i); ",Wheel:"; {{Cl|_LASTWHEEL}}(i)
 {{Cl|NEXT}}
 
 {{Cl|DO...LOOP|DO}}
   d&amp; = {{Cl|_DEVICEINPUT}}
   {{Cl|IF...THEN|IF}} d&amp; {{Cl|THEN}} '             the device number cannot be zero!
-    {{Cl|PRINT}} &quot;Found&quot;; d&amp;;
+    {{Cl|PRINT}} "Found"; d&amp;;
     {{Cl|FOR...NEXT|FOR}} b = 1 {{Cl|TO}} {{Cl|_LASTBUTTON}}(d&amp;)
       {{Cl|PRINT}} {{Cl|_BUTTONCHANGE}}(b); {{Cl|_BUTTON}}(b);
     {{Cl|NEXT}}
@@ -46,7 +46,7 @@ The [[_WHEEL]] function returns the relative position of a specified wheel numbe
 {{CodeStart}} '' ''
 ignore = {{Cl|_MOUSEMOVEMENTX}} 'dummy call to put mouse into relative movement mode
 
-{{Cl|PRINT}} &quot;Move your mouse and/or your mouse wheel (ESC to exit)&quot;
+{{Cl|PRINT}} "Move your mouse and/or your mouse wheel (ESC to exit)"
 
 d = {{Cl|_DEVICES}} '  always read number of devices to enable device input
 DO: {{Cl|_LIMIT}} 30  'main loop

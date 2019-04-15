@@ -10,7 +10,7 @@ The [[GET #]] statement reads data from a file or port device by bytes or record
 * The [[INTEGER]] or [[LONG]] byte {{Parameter|position}} in a [[BINARY]] file or the record {{Parameter|position}} in a [[RANDOM]] file '''must be greater than zero'''.
 * The {{Parameter|position}} can be omitted if the GET operations are consecutive based on the {{Parameter|targetVariable}} [[TYPE]] byte size.
 * The {{Parameter|targetVariable}} [[Data types|type]] or [[FIELD]] ''variable'' size determines the byte size and the next {{Parameter|position}} in the file.
-* The first byte position in a file is 1. &lt;!-- giving the previous information is enough: This may require adding one to an offset value when documentation uses that position as 0. --&gt;
+* The first byte position in a file is 1. &lt;!-- giving the previous information is enough: This may require adding one to an offset value when documentation uses that position as 0. -->
 * GET does not require a byte or record {{Parameter|position}} or {{Parameter|targetVariable}} (or comma) when using a [[FIELD]] statement.
 * '''QB64''' can [[PUT]] the entire contents of an array to a file and later GET those contents to a {{Parameter|targetArray()}} (include brackets).
 * '''GET may ignore the end of a file and return bad data. If the [[EOF]] function returns -1 after a GET operation, it indicates that the data has ended.'''
@@ -32,12 +32,12 @@ The [[GET #]] statement reads data from a file or port device by bytes or record
 {{Cl|DIM}} record {{Cl|AS}} variabletype
 {{Cl|DIM}} newrec {{Cl|AS}} variabletype
 
-file$ = &quot;testrand.inf&quot; '&lt;&lt;&lt;&lt; filename may overwrite existing file
+file$ = "testrand.inf" '&lt;&lt;&lt;&lt; filename may overwrite existing file
 number% = 1 '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; record number to write cannot be zero
 RecordLEN% = {{Cl|LEN}}(record)
-{{Cl|PRINT}} RecordLEN%; &quot;bytes&quot;
+{{Cl|PRINT}} RecordLEN%; "bytes"
 record.x = 255
-record.y = &quot;Hello world!&quot;
+record.y = "Hello world!"
 record.z = 65535
 {{Cl|PRINT}} record.x, record.y, record.z
 
@@ -47,7 +47,7 @@ record.z = 65535
 
 {{Cl|OPEN}} file$ {{Cl|FOR...NEXT|FOR}} {{Cl|RANDOM}} {{Cl|AS}} #2 {{Cl|LEN}} = RecordLEN%
 NumRecords% = {{Cl|LOF}}(2) \ RecordLEN%
-PRINT NumRecords%; &quot;records&quot;
+PRINT NumRecords%; "records"
 
 {{Cl|GET}} #2, NumRecords% , newrec 'GET last record available
 {{Cl|CLOSE}} #2
@@ -73,7 +73,7 @@ PRINT NumRecords%; &quot;records&quot;
 {{Cl|NEXT}}
 showme  'display array contents
 
-{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+{{Cl|OPEN}} "BINFILE.BIN" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
 
 {{Cl|PUT}} #1, , array()
 
@@ -81,7 +81,7 @@ showme  'display array contents
 showme
 {{Cl|CLOSE}} #1
 
-{{Cl|OPEN}} &quot;BINFILE.BIN&quot; {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2
+{{Cl|OPEN}} "BINFILE.BIN" {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #2
 {{Cl|GET}} #2, , array()
 {{Cl|CLOSE}} #2
 showme  'display array after transfer from file
@@ -92,7 +92,7 @@ showme  'display array after transfer from file
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 100
   {{Cl|PRINT}} array(i);
 {{Cl|NEXT}}
-{{Cl|PRINT}} &quot;done&quot;
+{{Cl|PRINT}} "done"
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 : ''Note:'' Use empty brackets in QB64 when using [[GET]] to create an array or [[PUT]] to create a [[BINARY]] data file.

@@ -35,14 +35,14 @@ Graphic cursor position syntax:
 * '''POINT cannot be used in SCREEN 0!''' Use the [[SCREEN (function)|SCREEN]] function to point text character codes and colors in SCREEN 0.
 
 
-&lt;center&gt;'''POINT in Qbasic Legacy Graphic SCREEN Modes:'''&lt;/center&gt;
+&lt;center>'''POINT in Qbasic Legacy Graphic SCREEN Modes:'''&lt;/center>
 * The [[INTEGER]] color attributes returned are limited by the number of colors in the legacy SCREEN mode used.
 * ''Column'' and ''row'' [[INTEGER]] parameters denote the graphic pixel coordinate to read.
-* In '''QB64''' the offscreen or off image value returned is -1. Use IF POINT(x, y) &lt;&gt; -1 THEN...
+* In '''QB64''' the offscreen or off image value returned is -1. Use IF POINT(x, y) &lt;> -1 THEN...
 * In Qbasic the coordinates MUST be on the screen or an [[ERROR Codes|Illegal Function Call error]] will occur. 
 
 
-&lt;center&gt;'''POINT in QB64 32 Bit Graphic [[_NEWIMAGE]] or [[_LOADIMAGE]] Modes:'''&lt;/center&gt;
+&lt;center>'''POINT in QB64 32 Bit Graphic [[_NEWIMAGE]] or [[_LOADIMAGE]] Modes:'''&lt;/center>
 * Returns [[_UNSIGNED]] [[LONG]] 32 bit color values. Use [[_UNSIGNED]] values when you don't want negative values.
 *  '''[[_UNSIGNED]] [[LONG]] variables should be used when comparing POINT returns with [[_RGB]] or [[_RGB32]] [[_ALPHA]] bit values'''
 * Convert 32 bit color values to RGB intensities(0 to 255) using the [[_RED32]], [[_GREEN32]] and [[_BLUE32]] functions.
@@ -56,12 +56,12 @@ Graphic cursor position syntax:
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|CLS}} , {{Cl|_RGB}}(255, 255, 255)  'makes the background opaque white
 
-{{Cl|PRINT}} &quot;POINT(100, 100) =&quot;; {{Cl|POINT}}(100, 100)
+{{Cl|PRINT}} "POINT(100, 100) ="; {{Cl|POINT}}(100, 100)
 clr = {{Cl|POINT}}(100, 100)
-{{Cl|PRINT}} &quot;Variable clr = &quot;;  clr
-{{Cl|IF...THEN|IF}} clr = {{Cl|_RGB}}(255, 255, 255) {{Cl|THEN}} {{Cl|PRINT}} &quot;Long OK&quot;
-{{Cl|IF...THEN|IF}} {{Cl|POINT}}(100, 100) = {{Cl|_RGB}}(255, 255, 255) {{Cl|THEN}} {{Cl|PRINT}} &quot;_RGB OK&quot;
-{{Cl|IF...THEN|IF}} {{Cl|POINT}}(100, 100) = clr {{Cl|THEN}} {{Cl|PRINT}} &quot;Type OK&quot; 'will not print with a LONG variable type'' ''
+{{Cl|PRINT}} "Variable clr = ";  clr
+{{Cl|IF...THEN|IF}} clr = {{Cl|_RGB}}(255, 255, 255) {{Cl|THEN}} {{Cl|PRINT}} "Long OK"
+{{Cl|IF...THEN|IF}} {{Cl|POINT}}(100, 100) = {{Cl|_RGB}}(255, 255, 255) {{Cl|THEN}} {{Cl|PRINT}} "_RGB OK"
+{{Cl|IF...THEN|IF}} {{Cl|POINT}}(100, 100) = clr {{Cl|THEN}} {{Cl|PRINT}} "Type OK" 'will not print with a LONG variable type'' ''
 {{CodeEnd}}
 :'''Note:''' Change the DIM ''clr'' variable type to [[LONG]] to see how the last IF statement doesn't PRINT as shown in the output below:
 {{OutputStart}}POINT(100, 100) = 4294967295
@@ -75,23 +75,23 @@ _RGB OK
 ''Example 2:'' Using a POINT mouse routine to get the 32 bit color values of the QB64 Bee. [http://www.qb64.net/forum/index.php Download image from top of Forum].
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
-{{Cl|_TITLE}} &quot;Mouse {{Cl|POINT}}er 32&quot;
+{{Cl|_TITLE}} "Mouse {{Cl|POINT}}er 32"
 
 
-'{{Cl|LINE INPUT}} &quot;Enter an image file: &quot;, image$  'use quotes around file names with spaces
-image$ = &quot;QB64bee.png&quot; 'up to 320 X 240 with current {{Cl|_PUTIMAGE}} settings
+'{{Cl|LINE INPUT}} "Enter an image file: ", image$  'use quotes around file names with spaces
+image$ = "QB64bee.png" 'up to 320 X 240 with current {{Cl|_PUTIMAGE}} settings
 i&amp; = {{Cl|_LOADIMAGE}}(image$, 32)
-{{Cl|IF...THEN|IF}} i&amp; &gt;= -1 {{Cl|THEN}} {{Cl|BEEP}}: {{Cl|PRINT}} &quot;Could {{Cl|NOT}} load image!&quot;: {{Cl|END}}
+{{Cl|IF...THEN|IF}} i&amp; >= -1 {{Cl|THEN}} {{Cl|BEEP}}: {{Cl|PRINT}} "Could {{Cl|NOT}} load image!": {{Cl|END}}
 w&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(i&amp;): h&amp; = {{Cl|_HEIGHT}}(i&amp;)
 
-{{Cl|PRINT}} &quot;Make background transparent?(Y\N)&quot;;
+{{Cl|PRINT}} "Make background transparent?(Y\N)";
 BG$ = {{Cl|UCASE$}}({{Cl|INPUT$}}(1))
 {{Cl|PRINT}} BG$
 {{Cl|_DELAY}} 1
 
 '{{Cl|CLS}} 'commented to keep background alpha 0
 
-{{Cl|IF...THEN|IF}} BG$ = &quot;Y&quot; {{Cl|THEN}} {{Cl|_CLEARCOLOR}} {{Cl|_RGB32}}(255, 255, 255), i&amp; 'make white Background transparent
+{{Cl|IF...THEN|IF}} BG$ = "Y" {{Cl|THEN}} {{Cl|_CLEARCOLOR}} {{Cl|_RGB32}}(255, 255, 255), i&amp; 'make white Background transparent
 {{Cl|_PUTIMAGE}} (320 - w&amp;, 240 - h&amp;)-((2 * w&amp;) + (320 - w&amp;), (2 * h&amp;) + (240 - h&amp;)), i&amp;, 0
 {{Cl|_FREEIMAGE}} i&amp;
 
@@ -106,10 +106,10 @@ BG$ = {{Cl|UCASE$}}({{Cl|INPUT$}}(1))
     g = {{Cl|_GREEN32}}(c&amp;)
     b = {{Cl|_BLUE32}}(c&amp;)
     a = {{Cl|_ALPHA32}}(c&amp;)
-    {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} mx; my, &quot;R:&quot;; r, &quot;G:&quot;; g, &quot;B:&quot;; b, &quot;A:&quot;; a; &quot;  &quot;
-    {{Cl|LOCATE}} 2, 2: {{Cl|PRINT}} &quot;HTML Color: {{Cl|&amp;H}}&quot; + {{Cl|RIGHT$}}({{Cl|HEX$}}(c&amp;), 6)
+    {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} mx; my, "R:"; r, "G:"; g, "B:"; b, "A:"; a; "  "
+    {{Cl|LOCATE}} 2, 2: {{Cl|PRINT}} "HTML Color: {{Cl|&amp;H}}" + {{Cl|RIGHT$}}({{Cl|HEX$}}(c&amp;), 6)
   {{Cl|LOOP}}
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot;
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} > ""
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}

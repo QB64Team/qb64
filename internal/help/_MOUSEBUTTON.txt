@@ -18,7 +18,7 @@ The [[_MOUSEBUTTON]] function returns the button status of a specified mouse but
 * Read [[_MOUSEINPUT]] first to return the current button up or down status. (See Example 2)
 * Button clicks and mouse movements will be remembered and should be cleared after an [[INPUT]] statement or other interruption. 
 * To clear unread mouse input, use a [[_MOUSEINPUT]] loop that loops until it returns 0.
-* Use [[_DEVICE$]] to find the &quot;[MOUSE]&quot; [[_DEVICES]] number to find the number of buttons available using [[_LASTBUTTON]].
+* Use [[_DEVICE$]] to find the "[MOUSE]" [[_DEVICES]] number to find the number of buttons available using [[_LASTBUTTON]].
 * '''Note:''' The center mouse button can also be read as [[_BUTTON]](2) on [[_DEVICEINPUT]](2) when a mouse is present.
 
 
@@ -27,24 +27,24 @@ The [[_MOUSEBUTTON]] function returns the button status of a specified mouse but
 {{CodeStart}} '' ''
 {{Cl|FOR...NEXT|FOR}} d = 1 {{Cl|TO}} {{Cl|_DEVICES}}  'number of input devices found
   dev$ = {{Cl|_DEVICE$}}(d)
-  {{Cl|IF...THEN|IF}} {{Cl|INSTR}}(dev$, &quot;[MOUSE]&quot;) {{Cl|THEN}} buttons = {{Cl|_LASTBUTTON}}(d): {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|IF...THEN|IF}} {{Cl|INSTR}}(dev$, "[MOUSE]") {{Cl|THEN}} buttons = {{Cl|_LASTBUTTON}}(d): {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
 {{Cl|NEXT}}
-{{Cl|PRINT}} buttons; &quot;mouse buttons available&quot; '' ''
+{{Cl|PRINT}} buttons; "mouse buttons available" '' ''
 {{CodeEnd}}
 
 
 ''Example 2:'' How to monitor when a button is down or wait until a mouse button is not held down.
 {{CodeStart}} '' ''
-{{Cl|PRINT}} &quot;Hold down the left mouse button until you want to quit!&quot;
+{{Cl|PRINT}} "Hold down the left mouse button until you want to quit!"
 DO
     i = {{Cl|_MOUSEINPUT}} ' read #1
-    {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|PRINT}} &quot;Left button down!&quot;: {{Cl|EXIT DO}}
+    {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} {{Cl|PRINT}} "Left button down!": {{Cl|EXIT DO}}
 {{Cl|LOOP}}
 {{Cl|DO...LOOP|DO}} '                                                      need to wait
     i = {{Cl|_MOUSEINPUT}} '  read #2                         until the mouse
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|NOT}} {{Cl|_MOUSEBUTTON}}(1) '                       button is released
 
-{{Cl|PRINT}} &quot;DONE!&quot; '' ''
+{{Cl|PRINT}} "DONE!" '' ''
 {{CodeEnd}}
 
 
@@ -67,7 +67,7 @@ DO
       i = {{Cl|_MOUSEINPUT}}
       {{Cl|IF...THEN|IF}} {{Cl|_MOUSEBUTTON}}(1) {{Cl|THEN}} Click = 2: {{Cl|EXIT DO}}
     {{Cl|LOOP}}
-    {{Cl|IF...THEN|IF}} Click = 2 {{Cl|THEN}} {{Cl|PRINT}} &quot;Double click&quot; {{Cl|ELSE}} {{Cl|PRINT}} &quot;Click&quot;
+    {{Cl|IF...THEN|IF}} Click = 2 {{Cl|THEN}} {{Cl|PRINT}} "Double click" {{Cl|ELSE}} {{Cl|PRINT}} "Click"
   {{Cl|END IF}}
   Click = 0: buttondown = 0            'reset where needed
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) '' ''
@@ -83,12 +83,12 @@ DO
 {{Cl|DO...LOOP|DO}}
   Mouser mx, my, mb
   {{Cl|IF...THEN|IF}} mb {{Cl|THEN}}
-    {{Cl|IF...THEN|IF}} mx &gt;= 250 {{Cl|AND (boolean)|AND}} my &gt;= 250 {{Cl|AND (boolean)|AND}} mx &lt;= 300 {{Cl|AND (boolean)|AND}} my &lt;= 300 {{Cl|THEN}} 'button down
+    {{Cl|IF...THEN|IF}} mx >= 250 {{Cl|AND (boolean)|AND}} my >= 250 {{Cl|AND (boolean)|AND}} mx &lt;= 300 {{Cl|AND (boolean)|AND}} my &lt;= 300 {{Cl|THEN}} 'button down
       {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} mb 'wait for button release
         Mouser mx, my, mb
       {{Cl|LOOP}}
       'verify mouse still in box area
-      {{Cl|IF...THEN|IF}} mx &gt;= 250 {{Cl|AND (boolean)|AND}} my &gt;= 250 {{Cl|AND (boolean)|AND}} mx &lt;= 300 {{Cl|AND (boolean)|AND}} my &lt;= 300 {{Cl|THEN}} {{Cl|PRINT}} &quot;Click verified on yellow box!&quot;
+      {{Cl|IF...THEN|IF}} mx >= 250 {{Cl|AND (boolean)|AND}} my >= 250 {{Cl|AND (boolean)|AND}} mx &lt;= 300 {{Cl|AND (boolean)|AND}} my &lt;= 300 {{Cl|THEN}} {{Cl|PRINT}} "Click verified on yellow box!"
     {{Cl|END IF}}
   {{Cl|END IF}}
 {{Cl|LOOP}}
@@ -112,9 +112,9 @@ y = {{Cl|_MOUSEY}}
 ''Example 5:'' Combining mouse button or keyboard selections in a menu or test:
 {{CodeStart}} '' ''
 {{Cl|DO...LOOP|DO}} 'main program loop in demo only
-  {{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} &quot;A&quot; 'position A, B &amp; C in same position on every question
-  {{Cl|LOCATE}} 12, 10: {{Cl|PRINT}} &quot;B&quot;
-  {{Cl|LOCATE}} 14, 10: {{Cl|PRINT}} &quot;C&quot; 'demo only
+  {{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} "A" 'position A, B &amp; C in same position on every question
+  {{Cl|LOCATE}} 12, 10: {{Cl|PRINT}} "B"
+  {{Cl|LOCATE}} 14, 10: {{Cl|PRINT}} "C" 'demo only
 
   {{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 10 'get user answer loop
     {{Cl|DO...LOOP|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}: {{Cl|LOOP}} 'read mouse
@@ -130,7 +130,7 @@ y = {{Cl|_MOUSEY}}
         x% = {{Cl|_MOUSEX}}
         y% = {{Cl|_MOUSEY}}
       {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEBUTTON}}(1)
-      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 10 {{Cl|THEN}} K$ = &quot;A&quot; 'position released
+      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 10 {{Cl|THEN}} K$ = "A" 'position released
     {{Cl|END IF}}
     {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 12 {{Cl|AND (boolean)|AND}} Lclick {{Cl|THEN}} 'position clicked
       DO
@@ -138,7 +138,7 @@ y = {{Cl|_MOUSEY}}
         x% = {{Cl|_MOUSEX}}
         y% = {{Cl|_MOUSEY}}
       {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEBUTTON}}(1)
-      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 12 {{Cl|THEN}} K$ = &quot;B&quot; 'position released
+      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 12 {{Cl|THEN}} K$ = "B" 'position released
     {{Cl|END IF}}
     {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 14 {{Cl|AND (boolean)|AND}} Lclick {{Cl|THEN}} 'position clicked
       DO
@@ -146,15 +146,15 @@ y = {{Cl|_MOUSEY}}
         x% = {{Cl|_MOUSEX}}
         y% = {{Cl|_MOUSEY}}
       {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|_MOUSEBUTTON}}(1)
-      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 14 {{Cl|THEN}} K$ = &quot;C&quot; 'position released
+      {{Cl|IF...THEN|IF}} x% = 10 {{Cl|AND (boolean)|AND}} y% = 14 {{Cl|THEN}} K$ = "C" 'position released
     {{Cl|END IF}}
-  {{Cl|LOOP}} {{Cl|UNTIL}} K$ = &quot;A&quot; {{Cl|OR (boolean)|OR}} K$ = &quot;B&quot; {{Cl|OR (boolean)|OR}} K$ = &quot;C&quot; '{{Cl|GOTO}} next question
+  {{Cl|LOOP}} {{Cl|UNTIL}} K$ = "A" {{Cl|OR (boolean)|OR}} K$ = "B" {{Cl|OR (boolean)|OR}} K$ = "C" '{{Cl|GOTO}} next question
 
   {{Cl|IF...THEN|IF}} {{Cl|LEN}}(K$) {{Cl|THEN}} 'DEMO ONLY
-    {{Cl|LOCATE}} 22, 35: {{Cl|PRINT}} &quot;  Answer = &quot;; K$ 'display user answer at location
+    {{Cl|LOCATE}} 22, 35: {{Cl|PRINT}} "  Answer = "; K$ 'display user answer at location
     {{Cl|_DELAY}} 2 'allow time for user to view answer
-    {{Cl|LOCATE}} 22, 35: {{Cl|PRINT}} &quot;SELECT AGAIN&quot;
-    K$ = &quot;&quot; 'reset K$
+    {{Cl|LOCATE}} 22, 35: {{Cl|PRINT}} "SELECT AGAIN"
+    K$ = "" 'reset K$
   {{Cl|END IF}}
 {{Cl|LOOP}} 'DEMO only loop use red X box to quit '' ''
 {{CodeEnd}} {{small|Code by Ted Weissgerber}}

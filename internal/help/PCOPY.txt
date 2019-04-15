@@ -1,27 +1,30 @@
-The '''PCOPY''' graphics statement copies one source screen page to a destination page in memory. 
-
+The [[PCOPY]] statement copies one source screen page to a destination page in memory. 
 
 
 {{PageSyntax}}
-:: PCOPY sourcePage%, desitinationPage%
+: [[PCOPY]] {{Parameter|sourcePage%}}, {{Parameter|destinationPage%}}
 
 
-
-* Source and destination page numbers are limited by the SCREEN mode used.
-* Source page is an image page in video memory.
-* Destination page is the video memory location to copy the source image to.
+{{PageDescription}}
+* {{Parameter|sourcePage%}} is an image page in video memory.
+* {{Parameter|destinationPage%}} is the video memory location to copy the source image to.
 * The working page is set as 0. All drawing occurs there.
 * The visible page is set as any page number that the SCREEN mode allows.
 * The [[_DISPLAY (function)]] return can be used a page number reference in '''QB64''' (See Example 1).
 * The '''QB64''' [[_DISPLAY]] statement can also be used to stop screen flicker without page flipping or [[CLS]] and '''is the recommended practice'''.
 
 
+==QBasic/QuickBASIC==
+* {{Parameter|sourcePage%}} and {{Parameter|destinationPage%}} numbers are limited by the SCREEN mode used. In '''QB64''', the same limits don't apply.
+
+
+{{PageExamples}}
 ''Example 1:'' Creating a mouse cursor using a page number that '''you create''' in memory without setting up page flipping.
 {{CodeStart}}
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32) 'any graphics mode should work without setting up pages
 {{Cl|_MOUSEHIDE}}
 SetupCursor
-{{Cl|PRINT}} &quot;Hello World!&quot;
+{{Cl|PRINT}} "Hello World!"
 {{Cl|DO}}: {{Cl|_LIMIT}} 30
   {{Cl|DO}} {{Cl|WHILE}} {{Cl|_MOUSEINPUT}}: {{Cl|LOOP}} 'main loop must contain _MOUSEINPUT   
 '       other program code    
@@ -35,7 +38,7 @@ SetupCursor
 {{Cl|SUB}} UpdateCursor
 {{Cl|PCOPY}} {{Cl|_DISPLAY (function)|_DISPLAY}}, 100  'any page number as desination with the _DISPLAY function as source
 {{Cl|PSET}} ({{Cl|_MOUSEX}}, {{Cl|_MOUSEY}}), {{Cl|_RGB}}(0, 255, 0)
-{{Cl|DRAW}} &quot;ND10F10L3F5L4H5L3&quot;
+{{Cl|DRAW}} "ND10F10L3F5L4H5L3"
 {{Cl|_DISPLAY}}                  'statement shows image
 {{Cl|PCOPY}} 100, {{Cl|_DISPLAY (function)|_DISPLAY}} 'function return as destination page
 {{Cl|END SUB}} '' ''
@@ -61,17 +64,17 @@ SetupCursor
    {{Cl|CIRCLE}}(x(a), y(a)), 5, 15          'all erasing and drawing is done on page 1
     x(a) = x(a) + dx(a)
     y(a) = y(a) + dy(a)
-   {{Cl|IF...THEN|IF}} x(a) &gt; 320 {{Cl|THEN}} dx(a) = -dx(a): x(a) = x(a) - 1
+   {{Cl|IF...THEN|IF}} x(a) > 320 {{Cl|THEN}} dx(a) = -dx(a): x(a) = x(a) - 1
    {{Cl|IF...THEN|IF}} x(a) &lt; 0 {{Cl|THEN}} dx(a) = -dx(a): x(a) = x(a) + 1
-   {{Cl|IF...THEN|IF}} y(a) &gt; 200 {{Cl|THEN}} dy(a) = -dy(a): y(a) = y(a) - 1
+   {{Cl|IF...THEN|IF}} y(a) > 200 {{Cl|THEN}} dy(a) = -dy(a): y(a) = y(a) - 1
    {{Cl|IF...THEN|IF}} y(a) &lt; 0 {{Cl|THEN}} dy(a) = -dy(a): y(a) = y(a) + 1
  {{Cl|NEXT}}
  {{Cl|DO...LOOP|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) ' escape exit
 {{CodeEnd}}
-:''Explanation:'' PCOPY reduces the flickering produced by clearing the screen. x(a) = x(a) - 1, etc. is just to be safe that the balls stay within the boundaries. dx(a) = -dx(a), etc. is to keep the actual speed while inverting it (so that the ball &quot;bounces&quot;). The rest should be self-explanatory, but if you are unsure about arrays you might want to look at QB64 Tutorials -&gt; [[Arrays]].
+:''Explanation:'' PCOPY reduces the flickering produced by clearing the screen. x(a) = x(a) - 1, etc. is just to be safe that the balls stay within the boundaries. dx(a) = -dx(a), etc. is to keep the actual speed while inverting it (so that the ball "bounces"). The rest should be self-explanatory, but if you are unsure about arrays you might want to look at QB64 Tutorials -> [[Arrays]].
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[_DISPLAY]]
 * [[SCREEN (statement)]]
 

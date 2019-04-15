@@ -78,7 +78,7 @@
  DIM Contact AS ContactInfo 'create contact record variable for {{Cl|RANDOM}} file 
  RecordLEN% = {{Cl|LEN}}(Contact) ' 118 bytes
   'define values
- Contact.First = &quot;Ted&quot; ' the fixed string length value will contain 7 extra spaces
+ Contact.First = "Ted" ' the fixed string length value will contain 7 extra spaces
  Contact.Zip = 15236 ' {{Cl|LONG}} value that can be used to search certain zip code numbers.
 
  {{Cl|PUT|PUT #}}1, 5,Contact  'place contact info into fifth record position
@@ -101,7 +101,7 @@ END TYPE
 
 {{Cl|DIM}} foobar {{Cl|AS}} foo   'create a variable to use the foo type
 foobar.a = 15.5
-foobar.c.b = &quot;this is me&quot;
+foobar.c.b = "this is me"
 
 PRINT foobar.a, foobar.c.b 
 {{Cl|END}} '' ''
@@ -114,7 +114,7 @@ PRINT foobar.a, foobar.c.b
 'Bitmap.BI can be included at start of program
 
  TYPE BMPHeaderType        ' Description                  Bytes      '''QB64''' 
-   ID AS STRING * 2        ' File ID is &quot;BM&quot;                2 
+   ID AS STRING * 2        ' File ID is "BM"                2 
    Size AS LONG            ' Size of the data file          4 
    Res1 AS INTEGER         ' Reserved 1 should be 0         2 
    Res2 AS INTEGER         ' Reserved 2 should be 0         2 

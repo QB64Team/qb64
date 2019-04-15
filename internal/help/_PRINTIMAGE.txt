@@ -25,28 +25,28 @@ CursorPosY = 0
 
 'example text to print
 PointSize = 12
-text$ = &quot;The rain in Spain falls mainly on the plain.&quot;
+text$ = "The rain in Spain falls mainly on the plain."
 {{Cl|GOSUB}} PrintText  
 
 PointSize = 50
-text$ = &quot;BUT!&quot;
+text$ = "BUT!"
 {{Cl|GOSUB}} PrintText
 
 PointSize = 12
-text$ = &quot;In Hartford, Hereford, and Hampshire, hurricanes hardly happen.&quot;
+text$ = "In Hartford, Hereford, and Hampshire, hurricanes hardly happen."
 {{Cl|GOSUB}} PrintText
 
-{{Cl|INPUT}} &quot;Preview (Y/N)?&quot;, i$                      'print preview of screen (optional)
-{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(i$) = &quot;Y&quot; {{Cl|THEN}}
+{{Cl|INPUT}} "Preview (Y/N)?", i$                      'print preview of screen (optional)
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(i$) = "Y" {{Cl|THEN}}
   Prev&amp; = {{Cl|_NEWIMAGE}}(600, 900, 32)               'print preview smaller image
   _PUTIMAGE Page&amp;, Prev&amp;
   {{Cl|SCREEN (statement)|SCREEN}} Prev&amp;
-  DO: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;&gt; &quot;&quot;
+  DO: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
   {{Cl|SCREEN (statement)|SCREEN}} 0
 {{Cl|END IF}}
 
-{{Cl|INPUT}} &quot;Print on printer (Y/N)?&quot;, i$             'print screen page on printer
-{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(i$) = &quot;Y&quot; {{Cl|THEN}}
+{{Cl|INPUT}} "Print on printer (Y/N)?", i$             'print screen page on printer
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(i$) = "Y" {{Cl|THEN}}
   {{Cl|_PRINTIMAGE}} Page&amp;
 {{Cl|END IF}}
 
@@ -54,7 +54,7 @@ text$ = &quot;In Hartford, Hereford, and Hampshire, hurricanes hardly happen.&qu
 
 PrintText:
 FontHeight = {{Cl|INT}}(PointSize * 0.3527 * PageScale)
-FontHandle = {{Cl|_LOADFONT}}(&quot;c:\windows\fonts\times.ttf&quot;, FontHeight)
+FontHandle = {{Cl|_LOADFONT}}("c:\windows\fonts\times.ttf", FontHeight)
 {{Cl|_DEST}} Page&amp;
 {{Cl|_FONT}} FontHandle
 {{Cl|COLOR}} {{Cl|_RGB}}(255, 0, 0), {{Cl|_RGBA}}(0, 0, 0, 0)        'RED text on clear black background
@@ -71,15 +71,15 @@ CursorPosY = CursorPosY + FontHeight            'adjust print position down
 
 ''Example 2:'' Printing an old SCREEN 12 [[ASCII]] table using a deeper sized page to prevent stretching by [[_PRINTIMAGE]].
 {{CodeStart}} '' ''
-{{Cl|_TITLE}} &quot;Print Preview ASCII Table&quot;
+{{Cl|_TITLE}} "Print Preview ASCII Table"
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 900, 256)  'size is proportional to 210mm X 297mm(8-1/2 X 11) paper
 
 {{Cl|OUT}} {{Cl|&amp;H}}3C8, 0: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63: {{Cl|OUT}} {{Cl|&amp;H}}3C9, 63 'white background saves ink! 
 
-Align 8, 2, &quot;ASCII and Extended Character Code Table using {{Cl|CHR$}}(n%)&quot;
+Align 8, 2, "ASCII and Extended Character Code Table using {{Cl|CHR$}}(n%)"
 {{Cl|PRINT}} {{Cl|STRING$}}(80, 223)
 {{Cl|COLOR}} 40 
-{{Cl|PRINT}} &quot; &quot;;
+{{Cl|PRINT}} " ";
 {{Cl|FOR...NEXT|FOR}} i% = 0 {{Cl|TO}} 13
   {{Cl|PRINT}} i%;: SetCHR {{Cl|CSRLIN}}, {{Cl|POS}}(0), 40, i%
   {{Cl|LOCATE}} {{Cl|CSRLIN}}, {{Cl|POS}}(0) + 1
@@ -100,7 +100,7 @@ Align 8, 2, &quot;ASCII and Extended Character Code Table using {{Cl|CHR$}}(n%)&
 {{Cl|FOR...NEXT|FOR}} i% = 33 {{Cl|TO}} 255
   {{Cl|SELECT CASE}} i%
     {{Cl|CASE}} 45, 58, 71, 84: {{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 1
-    {{Cl|CASE}} {{Cl|IS}} &gt; 96: {{Cl|IF...THEN|IF}} (i% - 97) {{Cl|MOD}} 11 = 0 {{Cl|THEN}} {{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 1
+    {{Cl|CASE}} {{Cl|IS}} > 96: {{Cl|IF...THEN|IF}} (i% - 97) {{Cl|MOD}} 11 = 0 {{Cl|THEN}} {{Cl|LOCATE}} {{Cl|CSRLIN}} + 1, 1
   {{Cl|END SELECT}}
   {{Cl|SELECT CASE}} i%
     {{Cl|CASE}} 48 {{Cl|TO}} 57: {{Cl|COLOR}} 9 'denotes number keys 48 to 57
@@ -108,25 +108,25 @@ Align 8, 2, &quot;ASCII and Extended Character Code Table using {{Cl|CHR$}}(n%)&
     {{Cl|CASE}} 97 {{Cl|TO}} 122: {{Cl|COLOR}} 36 'a to z keys 97 to 122
     {{Cl|CASE}} 127 {{Cl|TO}} 175: {{Cl|COLOR}} 42
     {{Cl|CASE}} 176 {{Cl|TO}} 223: {{Cl|COLOR}} 6 'drawing characters 176 to 223
-    {{Cl|CASE}} {{Cl|IS}} &gt; 223: {{Cl|COLOR}} 42
+    {{Cl|CASE}} {{Cl|IS}} > 223: {{Cl|COLOR}} 42
     {{Cl|CASE ELSE}}: {{Cl|COLOR}} 2
   {{Cl|END SELECT}}
   {{Cl|IF...THEN|IF}} i% = 98 {{Cl|OR (boolean)|OR}} i% = 99 {{Cl|OR (boolean)|OR}} i% = 100 {{Cl|THEN}} {{Cl|PRINT}} {{Cl|SPACE$}}(1);
-  {{Cl|PRINT}} &quot; &quot;; i%; {{Cl|CHR$}}(i%);
+  {{Cl|PRINT}} " "; i%; {{Cl|CHR$}}(i%);
 {{Cl|NEXT}} i%
-{{Cl|COLOR}} 3: {{Cl|PRINT}} &quot;= NBSP(Non-Breaking Space)&quot;
+{{Cl|COLOR}} 3: {{Cl|PRINT}} "= NBSP(Non-Breaking Space)"
 {{Cl|COLOR}} 8: {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|CHR$}}(220))
 Border 8
-{{Cl|COLOR}} 4: {{Cl|LOCATE}} 27, 4: {{Cl|PRINT}} &quot;7) BELL, 8) Backspace, 9) Tab, 10) LineFeed(printer), 12) FormFeed(printer)&quot;
-{{Cl|LOCATE}} 28, 4: {{Cl|PRINT}} &quot;  13) Return, 26) End Of File, 27) Escape  30) Line up, 31) Line down &quot;
+{{Cl|COLOR}} 4: {{Cl|LOCATE}} 27, 4: {{Cl|PRINT}} "7) BELL, 8) Backspace, 9) Tab, 10) LineFeed(printer), 12) FormFeed(printer)"
+{{Cl|LOCATE}} 28, 4: {{Cl|PRINT}} "  13) Return, 26) End Of File, 27) Escape  30) Line up, 31) Line down "
 
-Align 13, 29, &quot;Press Ctrl + P to PRINT!&quot;
+Align 13, 29, "Press Ctrl + P to PRINT!"
 
-DO: {{Cl|SLEEP}}: K$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} K$ &lt;&gt; &quot;&quot;
+DO: {{Cl|SLEEP}}: K$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} K$ &lt;> ""
 Align 13, 29, {{Cl|SPACE$}}(50)
 {{Cl|IF...THEN|IF}} K$ = {{Cl|CHR$}}(16) {{Cl|THEN}}
   {{Cl|_PRINTIMAGE}} 0              '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; to PRINTER
-  Align 11, 29, &quot;Use the ASCII Table for a reference of the codes!&quot;
+  Align 11, 29, "Use the ASCII Table for a reference of the codes!"
   {{Cl|SOUND}} 700, 4
 {{Cl|END IF}}
 K$ = {{Cl|INPUT$}}(1)

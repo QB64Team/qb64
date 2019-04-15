@@ -1,16 +1,17 @@
-The '''MKSMBF$''' function converts a single-precision IEEE number to a string value in the Microsoft Binary format.
+The [[MKSMBF$]] function encodes a single-precision IEEE number to a string value in the Microsoft Binary format.
 
 
-''Syntax:'' MKDMBF$(single-precision-expression!)
+{{PageSyntax}}
+: {{Parameter|result$}} = [[MKSMBF$]]({{Parameter|singlePrecisionVariableOrLiteral!}})
 
 
-* Converts [[SINGLE]] values to [[STRING|string]] values in Microsoft Binary format.
+{{PageDescription}}
+* Encodes [[SINGLE]] values to [[STRING|string]] values in Microsoft Binary format.
+* The resulting string value can be decoded using [[CVSMBF]].
 
 
-''See also:'' 
-
+{{PageSeeAlso}}
 * [[MKDMBF$]]
-
 * [[CVDMBF]], [[CVSMBF]]
 
 

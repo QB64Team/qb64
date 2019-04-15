@@ -18,28 +18,28 @@ The [[_PRINTWIDTH]] function returns the width in pixels of the text [[STRING|st
 ''Example:'' SUB returns font or screen mode's text block size using _PRINTWIDTH and [[_FONTHEIGHT]] without a handle parameter.
 {{CodeStart}} '' ''
 {{Cl|DO}}
-  {{Cl|INPUT}} &quot;Enter Screen mode 1, 2 or 7 to 13: &quot;, scr$
+  {{Cl|INPUT}} "Enter Screen mode 1, 2 or 7 to 13: ", scr$
   mode% = {{Cl|VAL}}(scr$)
-{{Cl|LOOP}} {{Cl|UNTIL}} mode% &gt; 0 
+{{Cl|LOOP}} {{Cl|UNTIL}} mode% > 0 
 {{Cl|SCREEN (statement)|SCREEN}} mode%
-{{Cl|INPUT}} &quot;Enter first name of TTF font to use or hit enter for text size: &quot;, TTFont$
-{{Cl|IF}} {{Cl|LEN}}(TTFont$) {{Cl|THEN}} {{Cl|INPUT (file mode)|INPUT}} &quot;Enter font height: &quot;, hi$
+{{Cl|INPUT}} "Enter first name of TTF font to use or hit enter for text size: ", TTFont$
+{{Cl|IF}} {{Cl|LEN}}(TTFont$) {{Cl|THEN}} {{Cl|INPUT (file mode)|INPUT}} "Enter font height: ", hi$
 height&amp; = {{Cl|VAL}}(hi$)
-{{Cl|IF}} height&amp; &gt; 0 {{Cl|THEN}} {{Cl|_FONT}} {{Cl|_LOADFONT}}(&quot;C:\Windows\Fonts\&quot; + TTFont$ + &quot;.ttf&quot;, height&amp;, style$)
+{{Cl|IF}} height&amp; > 0 {{Cl|THEN}} {{Cl|_FONT}} {{Cl|_LOADFONT}}("C:\Windows\Fonts\" + TTFont$ + ".ttf", height&amp;, style$)
 
 TextSize wide&amp;, high&amp;       'get the font or current screen mode's text block pixel size
 
-{{Cl|_PRINTSTRING}} (20, 100), {{Cl|CHR$}}(1) + {{Cl|STR$}}(wide&amp;) + &quot; X&quot; + {{Cl|STR$}}(high&amp;) + &quot; &quot; + {{Cl|CHR$}}(2)
+{{Cl|_PRINTSTRING}} (20, 100), {{Cl|CHR$}}(1) + {{Cl|STR$}}(wide&amp;) + " X" + {{Cl|STR$}}(high&amp;) + " " + {{Cl|CHR$}}(2)
 
 {{Cl|END}}
 
 {{Cl|SUB}} TextSize (TextWidth&amp;, TextHeight&amp;)
-TextWidth&amp; = {{Cl|_PRINTWIDTH}}(&quot;W&quot;)     'measure width of one font or text character
+TextWidth&amp; = {{Cl|_PRINTWIDTH}}("W")     'measure width of one font or text character
 TextHeight&amp; = {{Cl|_FONTHEIGHT}}         'can measure normal text block heights also   
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-&lt;center&gt;'''Note:''' The SUB procedure does not need the font handle for font sizes after [[_FONT]] enables one.&lt;/center&gt;
+&lt;center>'''Note:''' The SUB procedure does not need the font handle for font sizes after [[_FONT]] enables one.&lt;/center>
 
 
 {{PageSeeAlso}}

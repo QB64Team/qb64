@@ -17,7 +17,7 @@ The [[TAN]] function returns the ratio of [[SIN]]e to [[COS]]ine or tangent valu
 ''Example:'' Spiraling text using the [[SIN]] and [[TAN]] functions.
 {{CodeStart}} '' ''
 {{Cl|DIM}} {{Cl|SHARED}} text {{Cl|AS}} {{Cl|STRING}}
-text$ = &quot;S P I R A L&quot;
+text$ = "S P I R A L"
 {{Cl|DIM}} {{Cl|SHARED}} word(1 {{Cl|TO}} {{Cl|LEN}}(text$) * 8, 1 {{Cl|TO}} 16)
 
 {{Cl|CALL}} analyse
@@ -56,7 +56,7 @@ DO
         x = (SCALE * 60 - (row * xrot / 4)) * {{Cl|TAN}}({{Cl|COS}}(i))
         y = {{Cl|SIN}}(SCALE * 60 - (row * yrot)) * {{Cl|TAN}}({{Cl|SIN}}(i)) * pan
         cnt = cnt + 1
-        {{Cl|IF...THEN|IF}} word(cnt, row) &gt; 0 {{Cl|THEN}} 
+        {{Cl|IF...THEN|IF}} word(cnt, row) > 0 {{Cl|THEN}} 
           {{Cl|CIRCLE}} (x + 320, y + 220), SCALE + 1, 1              'circled letters
           '{{Cl|LINE}} (x + 320, y + 220)-{{Cl|STEP}}(12, 12), 1, BF  'boxed letters
         {{Cl|END IF}}
@@ -70,7 +70,7 @@ DO
   now! = {{Cl|TIMER}}
   DO
     newnow! = {{Cl|TIMER}}
-  {{Cl|LOOP}} {{Cl|UNTIL}} newnow! - now! &gt;= .15
+  {{Cl|LOOP}} {{Cl|UNTIL}} newnow! - now! >= .15
   {{Cl|LINE}} (1, 100)-(639, 280), 0, BF
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
 {{Cl|END SUB}} '' ''

@@ -30,7 +30,7 @@ The [[CLS]] statement clears the [[_DEST|current write page]].
 {{Cl|SCREEN}} 12
 {{Cl|CLS}} , 15
 {{Cl|_PRINTMODE }} _KEEPBACKGROUND        'keeps the text background visible
-{{Cl|COLOR}} 0: {{Cl|PRINT}} &quot;This is black text on a white background!&quot;
+{{Cl|COLOR}} 0: {{Cl|PRINT}} "This is black text on a white background!"
 K$ = {{Cl|INPUT$}}(1
 {{CodeEnd}}
 :''Explanation:'' [[_PRINTMODE]] can be used with [[PRINT]] or [[_PRINTSTRING]] to make the text or the text background transparent.
@@ -40,7 +40,7 @@ K$ = {{Cl|INPUT$}}(1
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|CLS}} , {{Cl|_RGB}}(0, 255, 0)
-i = {{Cl|_LOADIMAGE}}('''&quot;qb64_trans.png&quot;''') 'see note below examples to get the image 
+i = {{Cl|_LOADIMAGE}}('''"qb64_trans.png"''') 'see note below examples to get the image 
 {{Cl|_PUTIMAGE}} (0, 0), i 'places image at upper left corner of window w/o stretching it 
 '' ''
 {{CodeEnd}} '' ''

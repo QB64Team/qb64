@@ -41,13 +41,13 @@ The [[GET (graphics statement)|GET]] statement is used in graphics to store a bo
  {{Cl|DIM}} BG(300), Box(300), SC(127) ' BG holds background images. Box holds the Box image.
  {{Cl|SCREEN (statement)|SCREEN}} 13 ' graphic coordinate minimums are 0 to 319 column or 199 row maximums.
             ' set up screen background
-  {{Cl|COLOR}} 4: {{Cl|LOCATE}} 10, 5: {{Cl|PRINT}} &quot;Multikey Keyboard input routine&quot;
-  {{Cl|COLOR}} 10: {{Cl|LOCATE}} 12, 4: {{Cl|PRINT}} &quot;Use the arrow keys to move the box.&quot;
-  {{Cl|LOCATE}} 13, 4: {{Cl|PRINT}} &quot;Note that you can press two or more&quot;
-  {{Cl|LOCATE}} 14, 4: {{Cl|PRINT}} &quot;keys at once for diagonal movement!&quot;
-  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 16, 4: {{Cl|PRINT}} &quot; Also demonstrates how {{Cl|GET (graphics statement)|GET}} and PUT &quot;
-  {{Cl|LOCATE}} 17, 4: {{Cl|PRINT}} &quot;are used to preserve the background.&quot;
-  {{Cl|COLOR}} 11: {{Cl|LOCATE}} 20, 11: {{Cl|PRINT}} &quot;Press [Esc] to quit&quot;
+  {{Cl|COLOR}} 4: {{Cl|LOCATE}} 10, 5: {{Cl|PRINT}} "Multikey Keyboard input routine"
+  {{Cl|COLOR}} 10: {{Cl|LOCATE}} 12, 4: {{Cl|PRINT}} "Use the arrow keys to move the box."
+  {{Cl|LOCATE}} 13, 4: {{Cl|PRINT}} "Note that you can press two or more"
+  {{Cl|LOCATE}} 14, 4: {{Cl|PRINT}} "keys at once for diagonal movement!"
+  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 16, 4: {{Cl|PRINT}} " Also demonstrates how {{Cl|GET (graphics statement)|GET}} and PUT "
+  {{Cl|LOCATE}} 17, 4: {{Cl|PRINT}} "are used to preserve the background."
+  {{Cl|COLOR}} 11: {{Cl|LOCATE}} 20, 11: {{Cl|PRINT}} "Press [Esc] to quit"
   x = 150: y = 50: PX = x: PY = y ' actual box starting position
 
  {{Cl|GET (graphics statement)|GET}} (x, y)-(x + 15, y + 15), BG  ' {{Cl|GET (graphics statement)|GET}} original BG at start box position
@@ -60,14 +60,14 @@ The [[GET (graphics statement)|GET]] statement is used in graphics to store a bo
     a$ = {{Cl|INKEY$}} ' So the keyboard buffer won't get full
     code% = {{Cl|INP}}({{Cl|&amp;H}}60) ' Get keyboard scan code from port 96
     {{Cl|IF...THEN|IF}} code% &lt; 128 {{Cl|THEN}} SC(code%) = 1 {{Cl|ELSE}} SC(code% - 128) = 0 'true/false values to array
-  {{Cl|LOOP}} {{Cl|UNTIL}}  {{Cl|TIMER}} &gt; t!' loop until one tick has passed
+  {{Cl|LOOP}} {{Cl|UNTIL}}  {{Cl|TIMER}} > t!' loop until one tick has passed
 
   PX = x: PY = y  ' previous coordinates
   {{Cl|IF...THEN|IF}} SC(75) = 1 {{Cl|THEN}} x = x - 5: {{Cl|IF...THEN|IF}} x &lt; 0 {{Cl|THEN}} x = 0
-  {{Cl|IF...THEN|IF}} SC(77) = 1 {{Cl|THEN}} x = x + 5: {{Cl|IF...THEN|IF}} x &gt; 304 {{Cl|THEN}} x = 304
+  {{Cl|IF...THEN|IF}} SC(77) = 1 {{Cl|THEN}} x = x + 5: {{Cl|IF...THEN|IF}} x > 304 {{Cl|THEN}} x = 304
   {{Cl|IF...THEN|IF}} SC(72) = 1 {{Cl|THEN}} y = y - 5: {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|THEN}} y = 0
-  {{Cl|IF...THEN|IF}} SC(80) = 1 {{Cl|THEN}} y = y + 5: {{Cl|IF...THEN|IF}} y &gt; 184 {{Cl|THEN}} y = 184
-  {{Cl|IF...THEN|IF}} x &lt;&gt; PX {{Cl|OR (boolean)|OR}} y &lt;&gt; PY {{Cl|THEN}}             ' look for a changed coordinate value
+  {{Cl|IF...THEN|IF}} SC(80) = 1 {{Cl|THEN}} y = y + 5: {{Cl|IF...THEN|IF}} y > 184 {{Cl|THEN}} y = 184
+  {{Cl|IF...THEN|IF}} x &lt;> PX {{Cl|OR (boolean)|OR}} y &lt;> PY {{Cl|THEN}}             ' look for a changed coordinate value
     {{Cl|WAIT}} 936, 8: {{Cl|PUT (graphics statement)|PUT}}(PX, PY), BG, {{Cl|PSET}}  ' replace previous BG first
     {{Cl|GET (graphics statement)|GET}} (x, y)-(x + 15, y + 15), BG      ' {{Cl|GET (graphics statement)|GET}} BG at new position before box is set
     {{Cl|PUT (graphics statement)|PUT}}(x, y), Box, {{Cl|PSET}}                ' PUT box image at new position

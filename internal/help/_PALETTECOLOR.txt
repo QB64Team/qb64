@@ -15,7 +15,7 @@ The [[_PALETTECOLOR]] statement sets the color value of a palette entry of an im
 * If {{Parameter|destHandle&amp;}} is an invalid handle value, an [[ERROR Codes|invalid handle]] error occurs.
 
 
-&lt;center&gt;'''Basic's 16 Default Color Attributes (non-[[DAC]])'''&lt;/center&gt;
+&lt;center>'''Basic's 16 Default Color Attributes (non-[[DAC]])'''&lt;/center>
 {{OutputStart}}{{text|     Attribute        Description     Red   Green   Blue   32 HEX    HTML Name |Gold}}
          0            Black            0      0       0    000000    Black
 {{text|         1            Dark Blue        0      0      42    00008B    DarkBlue|#00208B}}   
@@ -34,7 +34,7 @@ The [[_PALETTECOLOR]] statement sets the color value of a palette entry of an im
 {{text|        14            Yellow          63     63      21    FFFF00    Yellow|#FFFF00}}
 {{text|        15            White           63     63      63    FFFFFF    White|#FFFFFF}} '' ''
 {{OutputEnd}}
-&lt;center&gt;[http://www.w3schools.com/html/html_colornames.asp HTML Color Table Values and Names] or [http://www.tayloredmktg.com/rgb/#OR Other RGB colors]&lt;/center&gt;
+&lt;center>[http://www.w3schools.com/html/html_colornames.asp HTML Color Table Values and Names] or [http://www.tayloredmktg.com/rgb/#OR Other RGB colors]&lt;/center>
 ::: ''Note:'' '''QB64''' 32 bit color intensity values from 0 to 255 can be found by multiplying above values by 4.
 
 ''Summary:'' The red, green, and blue intensity values can be changed using [[OUT]] or [[PALETTE]] statements. Some '''QBasic''' RGB color attribute values can be changed in [[DAC]] [[SCREEN (statement)|SCREEN]] modes and the [[DAC]] RGB intensity settings may be different. 
@@ -50,15 +50,15 @@ The [[_PALETTECOLOR]] statement sets the color value of a palette entry of an im
 {{Cl|_PALETTECOLOR}} 5, {{Cl|_RGB32}}(170, 0, 0) ' dark red.
 {{Cl|_PALETTECOLOR}} 6, {{Cl|_RGB32}}(85, 0, 0) ' darker red.
 
-{{Cl|COLOR}} 0, 1: {{Cl|PRINT}} &quot;black on white.&quot;
-{{Cl|COLOR}} 0, 2: {{Cl|PRINT}} &quot;black on lighter red.&quot;
-{{Cl|COLOR}} 0, 3: {{Cl|PRINT}} &quot;black on light red.&quot;
-{{Cl|COLOR}} 0, 4: {{Cl|PRINT}} &quot;black on red.&quot;
-{{Cl|COLOR}} 0, 5: {{Cl|PRINT}} &quot;black on dark red.&quot;
-{{Cl|COLOR}} 0, 6: {{Cl|PRINT}} &quot;black on darker red. 
+{{Cl|COLOR}} 0, 1: {{Cl|PRINT}} "black on white."
+{{Cl|COLOR}} 0, 2: {{Cl|PRINT}} "black on lighter red."
+{{Cl|COLOR}} 0, 3: {{Cl|PRINT}} "black on light red."
+{{Cl|COLOR}} 0, 4: {{Cl|PRINT}} "black on red."
+{{Cl|COLOR}} 0, 5: {{Cl|PRINT}} "black on dark red."
+{{Cl|COLOR}} 0, 6: {{Cl|PRINT}} "black on darker red. 
 
-{{Cl|COLOR}} 1, 6: {{Cl|PRINT}} &quot;white on darker red&quot;
-{{Cl|COLOR}} 2, 6: {{Cl|PRINT}} &quot;ligher red on darker red&quot; '' ''
+{{Cl|COLOR}} 1, 6: {{Cl|PRINT}} "white on darker red"
+{{Cl|COLOR}} 2, 6: {{Cl|PRINT}} "ligher red on darker red" '' ''
 {{CodeEnd}}
 
 : ''Note:'' [[_PALETTECOLOR]] expects [[LONG]] [[_RGB32]] or [[_RGBA32]] 32 bit color values, not [[_RGB]] or [[_RGBA]] palette attribute values.

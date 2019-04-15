@@ -22,13 +22,13 @@ The [[_CLIP]] option is used in a QB64 graphics [[PUT (graphics statement)|PUT]]
 {{Cl|CIRCLE}} (10,10),10
 {{Cl|GET (graphics statement)|GET}} (0,0)-(20,20), mypic(0)
 
-{{Cl|PRINT}} &quot;This program puts an image off screen.&quot;
-{{Cl|PRINT}} &quot;Select which option you'd like to try.&quot;
-{{Cl|PRINT}} &quot;1 will produce an illegal function call.&quot;
-{{Cl|PRINT}} &quot;1 is putting without _CLIP.&quot;
-{{Cl|PRINT}} &quot;2 is putting with _CLIP PSET.&quot;
-{{Cl|PRINT}} &quot;3 is putting with _CLIP XOR.&quot;
-{{Cl|PRINT}} &quot;4 is putting with _CLIP PSET, 4.&quot;
+{{Cl|PRINT}} "This program puts an image off screen."
+{{Cl|PRINT}} "Select which option you'd like to try."
+{{Cl|PRINT}} "1 will produce an illegal function call."
+{{Cl|PRINT}} "1 is putting without _CLIP."
+{{Cl|PRINT}} "2 is putting with _CLIP PSET."
+{{Cl|PRINT}} "3 is putting with _CLIP XOR."
+{{Cl|PRINT}} "4 is putting with _CLIP PSET, 4."
 
 {{Cl|INPUT}} sel
 {{Cl|IF...THEN|IF}} sel = 1 {{Cl|THEN}} {{Cl|PUT (graphics statement)|PUT}} (-10, 10), mypic(0), PSET ' this causes an illegal function call

@@ -19,8 +19,8 @@ The [[WRITE (file statement)|WRITE #]] file statement writes a list of comma sep
 
 ''Example:'' Writes new data to a text file sequentially and reads it back to the program screen.
 {{CodeStart}} '' ''
-filename$ = &quot;testfile.dat&quot; 
-x = 1: y = 2: z$ = &quot;Three&quot; 
+filename$ = "testfile.dat" 
+x = 1: y = 2: z$ = "Three" 
 
 {{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
 
@@ -28,7 +28,7 @@ x = 1: y = 2: z$ = &quot;Three&quot;
 
 {{Cl|CLOSE}} #1 
 
-{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+{{Cl|PRINT}} "File created with data. Press a key!" 
 
 K$ = {{Cl|INPUT$}}(1) 'press a key 
 
@@ -44,10 +44,10 @@ K$ = {{Cl|INPUT$}}(1) 'press a key
 {{Cl|END}} '' ''
 {{CodeEnd}}
 : ''File content:'' [[WRITE]] string values will include quotation marks, but they are not required to read the file.
-{{TextStart}}1,2,&quot;Three&quot; '' '' {{TextEnd}}
+{{TextStart}}1,2,"Three" '' '' {{TextEnd}}
 : ''Screen output:'' [[PRINT]] string values will not display enclosing quotes. [[WRITE]] screen displays will.
 {{OutputStart}} 1           2          Three
-1,2,&quot;Three&quot;
+1,2,"Three"
 {{OutputEnd}}
 
 

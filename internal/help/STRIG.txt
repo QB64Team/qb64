@@ -42,16 +42,16 @@ STRIG(2, 4): STRIG(3, 4): STRIG(6, 4): STRIG(7, 4): STRIG(10, 4): STRIG(11, 4) '
 {{Cl|DO}}: {{Cl|_LIMIT}} 10
 
   {{Cl|LOCATE}} 1, 1
-  {{Cl|PRINT}} &quot;JOY1: {{Cl|STICK}}&quot;; {{Cl|STICK}}(0); {{Cl|STICK}}(1); {{Cl|STICK}}(0, 2); {{Cl|STICK}}(1, 2);_ 
-  &quot;STRIG&quot;; {{Cl|STRIG}}(0); {{Cl|STRIG}}(1); {{Cl|STRIG}}(4); {{Cl|STRIG}}(5); {{Cl|STRIG}}(8); {{Cl|STRIG}}(9)
+  {{Cl|PRINT}} "JOY1: {{Cl|STICK}}"; {{Cl|STICK}}(0); {{Cl|STICK}}(1); {{Cl|STICK}}(0, 2); {{Cl|STICK}}(1, 2);_ 
+  "STRIG"; {{Cl|STRIG}}(0); {{Cl|STRIG}}(1); {{Cl|STRIG}}(4); {{Cl|STRIG}}(5); {{Cl|STRIG}}(8); {{Cl|STRIG}}(9)
 
-  {{Cl|PRINT}} &quot;JOY2: {{Cl|STICK}}&quot;; {{Cl|STICK}}(2); {{Cl|STICK}}(3); {{Cl|STICK}}(2, 2); {{Cl|STICK}}(3, 2);_ 
-  &quot;STRIG&quot;; {{Cl|STRIG}}(2); {{Cl|STRIG}}(3); {{Cl|STRIG}}(6); {{Cl|STRIG}}(7); {{Cl|STRIG}}(10); {{Cl|STRIG}}(11)
+  {{Cl|PRINT}} "JOY2: {{Cl|STICK}}"; {{Cl|STICK}}(2); {{Cl|STICK}}(3); {{Cl|STICK}}(2, 2); {{Cl|STICK}}(3, 2);_ 
+  "STRIG"; {{Cl|STRIG}}(2); {{Cl|STRIG}}(3); {{Cl|STRIG}}(6); {{Cl|STRIG}}(7); {{Cl|STRIG}}(10); {{Cl|STRIG}}(11)
 
-  {{Cl|PRINT}} &quot;JOY3: {{Cl|STICK}}&quot;; {{Cl|STICK}}(4); {{Cl|STICK}}(5); {{Cl|STICK}}(4, 2); {{Cl|STICK}}(5, 2);_ 
-  &quot;STRIG&quot;; {{Cl|STRIG}}(0, 3); {{Cl|STRIG}}(1, 3); {{Cl|STRIG}}(4, 3); {{Cl|STRIG}}(5, 3); {{Cl|STRIG}}(8, 3); {{Cl|STRIG}}(9, 3)
+  {{Cl|PRINT}} "JOY3: {{Cl|STICK}}"; {{Cl|STICK}}(4); {{Cl|STICK}}(5); {{Cl|STICK}}(4, 2); {{Cl|STICK}}(5, 2);_ 
+  "STRIG"; {{Cl|STRIG}}(0, 3); {{Cl|STRIG}}(1, 3); {{Cl|STRIG}}(4, 3); {{Cl|STRIG}}(5, 3); {{Cl|STRIG}}(8, 3); {{Cl|STRIG}}(9, 3)
     
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &gt; &quot;&quot; '' ''
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} > "" '' ''
 {{CodeEnd}}
 :''Explanation:'' Notice the extra '''QB64 only''' parameters used to cater for the 2nd stick and the buttons of the 3rd joystick.
 

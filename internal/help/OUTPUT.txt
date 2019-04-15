@@ -1,21 +1,23 @@
-The '''OUTPUT''' file mode is used in an [[OPEN]] statement to send new data to Files or Ports.
+#REDIRECT [[OPEN#File_Access_Modes]]
 
+The [[OUTPUT]] file mode is used in an [[OPEN]] statement to send new data to files or ports.
 
 
 {{PageSyntax}}
-:: OPEN FileName$ FOR OUTPUT AS #1
+: [[OPEN]] {{Parameter|fileName$}} '''FOR''' [[OUTPUT]] '''AS''' #1
 
 
-
-* OUTPUT mode erases all previous data in an existing file or clears a port receive buffer!
+{{PageDescription}}
+* OUTPUT mode erases all previous data in an existing file or clears a port receive buffer.
 * Creates an empty file if the filename does not exist. Use [[APPEND]] if previous file data is to be preserved.
 * Mode can use [[PRINT (file statement)|PRINT]], [[WRITE (file statement)|WRITE]] or [[PRINT USING (file statement)|PRINT USING]] to output file data.
 
 
+{{PageExamples}}
 ''Example:'' Writes new data to a text file sequentially and reads it back to the program screen.
 {{CodeStart}} '' ''
-filename$ = &quot;testfile.dat&quot; 
-x = 1: y = 2: z$ = &quot;Three&quot; 
+filename$ = "testfile.dat" 
+x = 1: y = 2: z$ = "Three" 
 
 {{Cl|OPEN}} filename$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #1 'opens and clears an existing file or creates new empty file 
 
@@ -23,7 +25,7 @@ x = 1: y = 2: z$ = &quot;Three&quot;
 
 {{Cl|CLOSE}} #1 
 
-{{Cl|PRINT}} &quot;File created with data. Press a key!&quot; 
+{{Cl|PRINT}} "File created with data. Press a key!" 
 
 K$ = {{Cl|INPUT$}}(1) 'press a key 
 
@@ -39,8 +41,7 @@ K$ = {{Cl|INPUT$}}(1) 'press a key
 {{CodeEnd}}
 
 
-''See also:'' 
-
+{{PageSeeAlso}}
 * [[APPEND]], [[RANDOM]]
 * [[INPUT (file mode)]], [[BINARY]]
 * [[WRITE]], [[INPUT (file statement)]]

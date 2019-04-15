@@ -9,8 +9,8 @@ The '''_FREEIMAGE''' statement releases the designated file image created by the
 {{PageDescription}}
 *If {{Parameter|handle&amp;}} is omitted, the current destination image is freed from memory.
 *Freeing the destination image or source image will result in the display page being selected instead.
-*'''Invalid image handle values of -1 or 0 cannot be freed or an [[ERROR Codes|&quot;Illegal Function&quot; error]] will occur.''' Check the handle value first.
-* '''[[SCREEN]] modes in use cannot be freed or an [[ERROR Codes|&quot;Illegal Function&quot; error]] will occur.''' Change SCREEN modes before freeing. 
+*'''Invalid image handle values of -1 or 0 cannot be freed or an [[ERROR Codes|"Illegal Function" error]] will occur.''' Check the handle value first.
+* '''[[SCREEN]] modes in use cannot be freed or an [[ERROR Codes|"Illegal Function" error]] will occur.''' Change SCREEN modes before freeing. 
 *Once a specific image handle is no longer used or referenced by your program, it can be freed with [[_FREEIMAGE]].
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
 * '''It is important to free unused or unneeded images with [[_FREEIMAGE]] to prevent memory overflow errors.'''
@@ -20,7 +20,7 @@ The '''_FREEIMAGE''' statement releases the designated file image created by the
 {{PageExamples}}
 ''Example:'' Loading a program splash screen and freeing image when no longer necessary:
 {{CodeStart}} '' ''
-s&amp; = {{Cl|_LOADIMAGE}}(&quot;SPLASH.BMP&quot;,32)  'load 32 bit(24 BPP) image
+s&amp; = {{Cl|_LOADIMAGE}}("SPLASH.BMP",32)  'load 32 bit(24 BPP) image
 {{Cl|IF}} s&amp; &lt; -1 THEN {{Cl|SCREEN (statement)|SCREEN}} s&amp;   'use image as a 32 bit SCREEN 
 {{Cl|_DELAY}} 6                          'display splash screen for 6 seconds
 {{Cl|SCREEN (statement)|SCREEN}} 0       'MUST change screen mode before freeing a SCREEN image!
