@@ -11499,8 +11499,6 @@ int32 hexoct2uint64(qbs* h){
 }
 
 
-extern void SUB_VKUPDATE();
-
 //input method (complex, calls other qbs functions)
 const char *uint64_max[] =    {"18446744073709551615"};
 const char *int64_max[] =     {"9223372036854775807"};
@@ -12191,10 +12189,6 @@ void qbs_input(int32 numvariables,uint8 newline){
                 }else{
                 Sleep(10);
                 qbs_set(key,qbs_inkey());
-                
-                disableEvents=1;//we don't want the ON TIMER bound version of VKUPDATE to fire during a call to itself!
-                SUB_VKUPDATE();
-                disableEvents=0;
                 
             }
             
