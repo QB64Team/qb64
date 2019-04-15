@@ -1,0 +1,35 @@
+'''$EXEICON''' pre-compiler  metacommand embeds a designated icon file into the compiled EXE file to be viewed in Windows Explorer.
+
+
+{{PageSyntax}}
+: [[$EXEICON]]:'{{Parameter|iconfile.ico}}'
+
+
+{{Parameters}}
+* '{{Parameter|iconfile.ico}}' is a valid [https://en.wikipedia.org/wiki/ICO_(file_format) ICO file]
+
+
+{{PageDescription}}
+
+* Calling [[_ICON]] without an {{Parameter|imageHandle&amp;}} uses the embeded icon, if available.
+** Starting with '''build 20170906/64''', the window will automatically use the icon embedded by [[$EXEICON]], without having to call _ICON.
+* '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''.
+
+
+{{PageExamples}}
+''Example:'' Embeds a designated icon file into the compiled EXE which can be viewed in Windows Explorer folders.
+{{CodeStart}}
+{{Cl|$EXEICON}}:'mush.ico'
+{{Cl|_ICON}}
+{{CodeEnd}}{{small|Code and command by Fellippe Heitor}} 
+
+&lt;center>[http://www.qb64.net/forum/index.php?action=dlattach;topic=13762.0;attach=4558 mush.ico download]&lt;/center>
+
+
+{{PageSeeAlso}}
+* [[_ICON]]
+* [[_TITLE]]
+ 
+
+
+{{PageNavigation}}

@@ -1,0 +1,32 @@
+{{DISPLAYTITLE:_ECHO}}
+The [[_ECHO]] statement allows outputting text to a [[$CONSOLE]] window without having to alternate between [[_DEST]] pages.
+
+
+{{PageSyntax}}
+: [[_ECHO]] {''"text to output"'' | {{Parameter|textVariable$}}}
+
+
+{{PageDescription}}
+* [[_ECHO]] is a shorthand to saving current [[_DEST]], switching to [[_DEST]] [[_CONSOLE]], [[PRINT]]ing, then switching back to the previous [[_DEST]].
+* To output numbers, use the [[STR$]] function.
+
+
+==Availability==
+* '''Version 1.3 and up'''.
+
+
+{{PageExamples}}
+{{CodeStart}}
+{{Cl|$CONSOLE}}
+{{Cl|PRINT}} "this will show in the main window"
+{{Cl|_ECHO}} "this will show in the console"
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_DEST]]
+* [[$CONSOLE]], [[_CONSOLE]]
+* [[STR$]]
+
+
+{{PageNavigation}}

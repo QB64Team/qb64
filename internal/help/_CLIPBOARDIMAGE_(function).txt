@@ -1,0 +1,51 @@
+{{DISPLAYTITLE:_CLIPBOARDIMAGE (function)}}
+The [[_CLIPBOARDIMAGE (function)|_CLIPBOARDIMAGE]] function pastes an image from the clipboard into a new 32-bit image in memory.
+
+
+{{PageSyntax}}
+: {{Parameter|newImageHandle&amp;}} = [[_CLIPBOARDIMAGE (function)|_CLIPBOARDIMAGE]]
+
+
+{{PageDescription}}
+* When the paste operation is successful, {{Parameter|newImageHandle&amp;}} will be &lt; -1. Handle values of -1 or 0 indicate that there wasn't an image in the clipboard or that the format wasn't accepted.
+* Use [[_FREEIMAGE]] to free the memory used by {{Parameter|newImageHandle&amp;}} when it's no longer needed by your program.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+
+
+==Availability==
+* '''Build 20170906/64''' onward.
+
+
+{{PageExamples}}
+''Example:'' Monitoring the clipboard for new images copied from other programs:
+{{CodeStart}}{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
+{{Cl|DO}}
+    {{Cl|CLS}}
+    {{Cl|COLOR}} {{Cl|_RGB32}}(177, 177, 177)
+    {{Cl|PRINT}} "Monitoring clipboard..."
+    {{Cl|IF}} img&amp; &lt; -1 {{Cl|THEN}} _FREEIMAGE img&amp;
+    img&amp; = {{Cl|_CLIPBOARDIMAGE}}
+    IF img&amp; &lt; -1 THEN
+        {{Cl|PRINT}} "Image found:"
+        {{Cl|COLOR}} _RGB32(255, 255, 255)
+        {{Cl|PRINT}} "Width :"; {{Cl|_WIDTH (function)|_WIDTH}}(img&amp;)
+        {{Cl|PRINT}} "Height:"; {{Cl|_HEIGHT|_HEIGHT}}(img&amp;)
+        w = {{Cl|_WIDTH (function)|_WIDTH}} / 2 - {{Cl|_WIDTH (function)|_WIDTH}}(img&amp;) / 2
+        IF w &lt; 0 THEN w = 0
+        {{Cl|_PUTIMAGE}} (w, {{Cl|CSRLIN}} * {{Cl|_FONTHEIGHT}}), img&amp;
+    ELSE
+        PRINT "No image found."
+    END IF
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 10
+{{Cl|LOOP}}
+{{CodeEnd}}
+{{small|Code by Fellippe Heitor}}
+
+
+{{PageSeeAlso}}
+* [[_CLIPBOARDIMAGE]] {{text|(statement - used to copy an image to the clipboard)}}
+* [[_CLIPBOARD$]], [[_CLIPBOARD$ (statement)]] {{text|(used to copy/paste text)}}
+
+
+{{PageNavigation}}

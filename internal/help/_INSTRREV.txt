@@ -1,0 +1,73 @@
+{{DISPLAYTITLE:_INSTRREV}}
+The [[_INSTRREV]] function searches for a substring inside another string, but unlike [[INSTR]] it searches from right to left.
+
+
+{{PageSyntax}}
+: {{Parameter|position%}} = [[_INSTRREV]]([{{Parameter|start%}},] {{Parameter|baseString$}}, {{Parameter|subString$}})
+
+
+{{Parameters}}
+* The optional literal or variable [[INTEGER]] {{Parameter|start%}} indicates where in the {{Parameter|baseString$}} the search must start, counted from the left. 
+* The {{Parameter|baseString$}} is a literal or variable [[STRING]] value to be searched for an exact match including [[UCASE$|letter cases]]. 
+* The {{Parameter|subString$}} is a literal or variable [[STRING]] value being searched.
+
+
+{{PageDescription}}
+* The function returns the {{Parameter|position%}} in the {{Parameter|baseString$}} where the {{Parameter|subString$}} was found, from right to left.
+* {{Parameter|position%}} will be 0 if the search found no matches in the base string.
+* [[_INSTRREV]] returns 0 if an empty {{Parameter|baseString$}} is passed, and returns [[LEN]]({{Parameter|baseString$}}) with an empty {{Parameter|subString$}}.
+* The {{Parameter|start%}} position is useful when making multiple searches in the same string. See the example below.
+* The {{Parameter|subString$}} should be smaller or equal in [[LEN|length]] to the {{Parameter|baseString$}}, or 0 is returned.
+* A {{Parameter|start%}} value of 0 or less starts search from the end of the {{Parameter|baseString$}} (same as not passing a {{Parameter|start%}} parameter).
+
+
+{{PageExamples}}
+''Example 1:'' Separating a file name from a full path.
+{{CodeStart}}
+fullPath$ = "C:\Documents and Settings\Administrator\Desktop\qb64\internal\c\libqb\os\win\libqb_1_2_000000000000.o"
+file$ = {{Cl|MID$}}(fullPath$, {{Cl|_INSTRREV}}(fullPath$, "\") + 1)
+{{Cl|PRINT}} file$
+{{CodeEnd}}
+{{OutputStart}}
+libqb_1_2_000000000000.o
+{{OutputEnd}}
+
+
+''Example 2:'' Searching for multiple instances of a substring inside a base string, going from the end to the start.
+{{CodeStart}}
+sentence$ = " This is a string full of spaces, including at start and end... "
+{{Cl|PRINT}} sentence$
+{{Cl|DO}}
+    findPrevSpace% = {{Cl|_INSTRREV}}(findPrevSpace% - 1, sentence$, {{Cl|SPACE$}}(1))
+    {{Cl|IF}} findPrevSpace% = 0 {{Cl|THEN}}
+        {{Cl|LOCATE}} 4, 1
+        {{Cl|PRINT}} "No more spaces"
+        {{Cl|EXIT}} {{Cl|DO}}
+    {{Cl|END IF}}
+
+    {{Cl|LOCATE}} 2, findPrevSpace%
+    {{Cl|PRINT}} "^"
+    totalSpaces = totalSpaces + 1
+
+    {{Cl|IF}} findPrevSpace% = 1 {{Cl|THEN}} 
+        {{Cl|LOCATE}} 4, 1
+        {{Cl|PRINT}} "Last space found at position 1"
+        {{Cl|EXIT}} {{Cl|DO}}
+    {{Cl|END IF}}
+{{Cl|LOOP}}
+{{Cl|PRINT}} "Total spaces found: "; totalSpaces
+{{CodeEnd}}
+{{OutputStart}}
+ This is a string full of spaces, including at start and end... 
+^    ^  ^ ^      ^    ^  ^       ^         ^  ^     ^   ^      ^
+
+Last space found at position 1
+Total spaces found: 13
+{{OutputEnd}}
+
+{{PageSeeAlso}}
+* [[MID$]], [[INSTR]]
+* [[SPACE$]]
+
+
+{{PageNavigation}}

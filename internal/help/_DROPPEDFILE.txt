@@ -1,0 +1,63 @@
+{{DISPLAYTITLE:_DROPPEDFILE}}
+The [[_DROPPEDFILE]] function returns the list of items (files or folders) dropped in a program's window after [[_ACCEPTFILEDROP]] is enabled.
+
+
+{{PageSyntax}}
+''Syntax 1''
+: {{Parameter|nextItem$}} = [[_DROPPEDFILE]]
+
+''Syntax 2''
+: {{Parameter|nextItem$}} = [[_DROPPEDFILE]]({{Parameter|index&amp;}})
+
+{{PageDescription}}
+* After [[_ACCEPTFILEDROP]] is enabled, once [[_TOTALDROPPEDFILES]] is greater than 0 the list of dropped items will be available for retrieval with [[_DROPPEDFILE]]
+* When using [[_DROPPEDFILE]] to read the list sequentially (without specifying an ''index&amp;''), an empty string ("") indicates the list is over and then [[_TOTALDROPPEDFILES]] gets reset to 0.
+* When using [[_DROPPEDFILE]] with an index (which goes from 1 to [[_TOTALDROPPEDFILES]]), you must call [[_FINISHDROP]] after you finish working with the list.
+* Because it returns a string, [[_DROPPEDFILE]] also accepts being followed by a string suffix ([[_DROPPEDFILE]]'''$''')
+* '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''.
+
+
+==Availability==
+* '''Version 1.3 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Accepting files dragged from a folder and processing the list received by specifying an index. 
+{{CodeStart}}
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(128, 25, 0)
+
+{{Cl|_ACCEPTFILEDROP}} 'enables drag/drop functionality
+{{Cl|PRINT}} "Drag files from a folder and drop them in this window..."
+
+{{Cl|DO}}
+    {{Cl|IF}} {{Cl|_TOTALDROPPEDFILES}} {{Cl|THEN}}
+        {{Cl|FOR}} i = 1 {{Cl|TO}} {{Cl|_TOTALDROPPEDFILES}}
+            a$ = {{Cl|_DROPPEDFILE}}(i)
+            {{Cl|COLOR}} 15
+            {{Cl|PRINT}} i,
+            {{Cl|IF}} {{Cl|_FILEEXISTS}}(a$) {{Cl|THEN}}
+                {{Cl|COLOR}} 2: {{Cl|PRINT}} "file",
+            {{Cl|ELSE}}
+                {{Cl|IF}} {{Cl|_DIREXISTS}}(a$) {{Cl|THEN}}
+                    {{Cl|COLOR}} 3: {{Cl|PRINT}} "folder",
+                {{Cl|ELSE}}
+                    {{Cl|COLOR}} 4: {{Cl|PRINT}} "not found", 'highly unlikely, but who knows?
+                {{Cl|END IF}}
+            {{Cl|END IF}}
+            {{Cl|COLOR}} 15
+            {{Cl|PRINT}} a$
+        {{Cl|NEXT}}
+        {{Cl|_FINISHDROP}}
+    {{Cl|END IF}}
+
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_ACCEPTFILEDROP]], [[_TOTALDROPPEDFILES]], [[_FINISHDROP]]
+* [[_FILEEXISTS]], [[_DIREXISTS]]
+
+
+{{PageNavigation}}

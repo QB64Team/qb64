@@ -1,0 +1,33 @@
+{{DISPLAYTITLE:_CONTINUE}}
+
+The [[_CONTINUE]] statement is used in a [[DO...LOOP]], [[WHILE...WEND]] or [[FOR...NEXT]] block to skip the remaining lines of code in a block (without exiting it) and start the next iteration. It works as a shortcut to a [[GOTO]], but without the need for a [[line numbers|line label]]. 
+
+
+{{PageSyntax}}
+: [[_CONTINUE]]
+
+
+==Availability==
+* Build 20170628/55 up.
+
+
+{{PageExamples}}
+''Example:''
+{{CodeStart}}
+{{Cl|FOR}} i = 1 {{Cl|TO}} 10
+    {{Cl|IF}} i = 5 {{Cl|THEN}} {{Cl|_CONTINUE}}
+    {{Cl|PRINT}} i;
+{{Cl|NEXT}}
+{{CodeEnd}}
+{{OutputStart}}
+ 1  2  3  4  6  7  8  9  10
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[DO...LOOP]]
+* [[WHILE...WEND]]
+* [[FOR...NEXT]]
+* [[GOTO]]
+
+{{PageNavigation}}

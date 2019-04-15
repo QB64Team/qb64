@@ -1,0 +1,96 @@
+{{DISPLAYTITLE:_WINDOWHANDLE}}
+The [[_WINDOWHANDLE]] function returns the window handle assigned to the current program by the OS. Windows-only.
+
+
+{{PageSyntax}}
+: {{Parameter|hwnd~&amp;}} = [[_WINDOWHANDLE]]
+
+
+{{PageDescription}}
+* The result is an [[_UNSIGNED]] [[LONG]] number assigned by Windows to your running program.
+* Use it to make [[Windows Libraries|API calls]] that require a window handle to be passed.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+
+
+==Availability==
+* '''Build 20170924/68'''.
+
+
+{{PageExamples}}
+''Example:'' Showing the system-default message box in Windows.
+{{CodeStart}} '' ''
+'Message Box Constant values as defined by Microsoft (MBType)
+{{Cl|CONST}} MB_OK&amp; = 0                'OK button only
+{{Cl|CONST}} MB_OKCANCEL&amp; = 1          'OK &amp; Cancel 
+{{Cl|CONST}} MB_ABORTRETRYIGNORE&amp; = 2  'Abort, Retry &amp; Ignore
+{{Cl|CONST}} MB_YESNOCANCEL&amp; = 3       'Yes, No &amp; Cancel
+{{Cl|CONST}} MB_YESNO&amp; = 4             'Yes &amp; No
+{{Cl|CONST}} MB_RETRYCANCEL&amp; = 5       'Retry &amp; Cancel
+{{Cl|CONST}} MB_CANCELTRYCONTINUE&amp; = 6 'Cancel, Try Again &amp; Continue
+{{Cl|CONST}} MB_ICONSTOP&amp; = 16         'Error stop sign icon
+{{Cl|CONST}} MB_ICONQUESTION&amp; = 32     'Question-mark icon
+{{Cl|CONST}} MB_ICONEXCLAMATION&amp; = 48  'Exclamation-point icon
+{{Cl|CONST}} MB_ICONINFORMATION&amp; = 64  'Letter i in a circle icon
+{{Cl|CONST}} MB_DEFBUTTON1&amp; = 0        '1st button default(left)
+{{Cl|CONST}} MB_DEFBUTTON2&amp; = 256      '2nd button default
+{{Cl|CONST}} MB_DEFBUTTON3&amp; = 512      '3rd button default(right)
+{{Cl|CONST}} MB_APPLMODAL&amp; = 0         'Message box applies to application only
+{{Cl|CONST}} MB_SYSTEMMODAL&amp; = 4096    'Message box on top of all other windows
+{{Cl|CONST}} MB_SETFOCUS&amp; = 65536      'Set message box as focus
+{{Cl|CONST}} IDOK&amp; = 1                 'OK button pressed
+{{Cl|CONST}} IDCANCEL&amp; = 2             'Cancel button pressed
+{{Cl|CONST}} IDABORT&amp; = 3              'Abort button pressed
+{{Cl|CONST}} IDRETRY&amp; = 4              'Retry button pressed
+{{Cl|CONST}} IDIGNORE&amp; = 5             'Ignore button pressed
+{{Cl|CONST}} IDYES&amp; = 6                'Yes button pressed
+{{Cl|CONST}} IDNO&amp; = 7                 'No button pressed
+{{Cl|CONST}} IDTRYAGAIN&amp; = 10          'Try again button pressed
+{{Cl|CONST}} IDCONTINUE&amp; = 1           'Continue button pressed
+'----------------------------------------------------------------------------------------
+
+{{Cl|DECLARE LIBRARY|DECLARE DYNAMIC LIBRARY}} "user32"
+{{Cl|FUNCTION}} MessageBoxA&amp; ({{Cl|BYVAL}} hwnd {{Cl|AS}} {{Cl|LONG}}, Message {{Cl|AS}} {{Cl|STRING}}, Title {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} MBType {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DECLARE LIBRARY|END DECLARE}}
+
+DO
+  msg&amp; = 0: icon&amp; = 0: DB&amp; = 0
+  {{Cl|INPUT}} "Enter Message Box type(0 to 6 other Quits): ", BOX&amp;
+  {{Cl|IF...THEN|IF}} BOX&amp; &lt; 0 {{Cl|OR (boolean)|OR}} BOX&amp; > 6 {{Cl|THEN}} {{Cl|EXIT DO}}
+
+  {{Cl|INPUT}} "Enter Icon&amp;(0=none, 1=stop, 2=?, 3=!, 4=info): ", Icon&amp;
+  
+  {{Cl|IF...THEN|IF}} BOX&amp; {{Cl|THEN}} {{Cl|INPUT (file mode)|INPUT}} "Enter Default Button(1st, 2nd or 3rd): ", DB&amp;
+  {{Cl|IF...THEN|IF}} DB&amp; {{Cl|THEN}} DB&amp; = DB&amp; - 1     'adjust value to 0, 1, or 2
+  msg&amp; = MsgBox&amp;("Box Title", "Box text message", BOX&amp;, Icon&amp;, DB&amp;, 4096) 'on top of all windows
+
+  {{Cl|PRINT}} "Button ="; msg&amp;
+{{Cl|LOOP}}
+{{Cl|END}}
+
+{{Cl|FUNCTION}} MsgBox&amp; (Title$, Message$, BoxType&amp;, Icon&amp;, DBtn&amp;, Mode&amp;)
+{{Cl|SELECT CASE}} Icon&amp;
+  {{Cl|CASE}} 1: Icon&amp; = MB_ICONSTOP&amp;          'warning X-sign icon
+  {{Cl|CASE}} 2: Icon&amp; = MB_ICONQUESTION&amp;      'question-mark icon
+  {{Cl|CASE}} 3: Icon&amp; = MB_ICONEXCLAMATION&amp;   'exclamation-point icon
+  {{Cl|CASE}} 4: Icon&amp; = MB_ICONINFORMATION&amp;   'lowercase letter i in circle
+  {{Cl|CASE ELSE}}: Icon&amp; = 0 'no icon
+{{Cl|END SELECT}}
+{{Cl|IF...THEN|IF}} BoxType&amp; > 0 {{Cl|AND (boolean)|AND}} DBtn&amp; > 0 {{Cl|THEN}} 'set default button as 2nd(256) or 3rd(512)
+  {{Cl|SELECT CASE}} BoxType&amp;    
+    {{Cl|CASE}} 2, 3, 6
+     {{Cl|IF...THEN|IF}} DBtn&amp; = 2 {{Cl|THEN}} Icon&amp; = Icon&amp; + MB_DEFBUTTON3&amp; {{Cl|ELSE}} Icon&amp; = Icon&amp; + MB_DEFBUTTON2&amp; '3 button
+    {{Cl|CASE ELSE}}: Icon&amp; = Icon&amp; + MB_DEFBUTTON2&amp; '2nd button default
+  {{Cl|END SELECT}}
+{{Cl|END IF}}
+Focus&amp; = MB_SetFocus&amp;
+MsgBox&amp; = MessageBoxA&amp;({{Cl|_WINDOWHANDLE}}, Message$, Title$, BoxType&amp; + Icon&amp; + Mode&amp; + Focus&amp;) 'focus on button
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+:''Explanation:'' Notice how the call to the external dynamic library function MessageBoxA&amp; passes _WINDOWHANDLE to the API and how the message box shown is created as a child of your program's window, not allowing the main window to be manipulated while the message box is open.
+
+{{PageSeeAlso}}
+* [[_WINDOWHASFOCUS]]
+* [[Windows Libraries]]
+
+
+{{PageNavigation}}

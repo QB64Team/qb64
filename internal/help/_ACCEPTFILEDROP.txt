@@ -1,0 +1,59 @@
+{{DISPLAYTITLE:_ACCEPTFILEDROP}}
+The [[_ACCEPTFILEDROP]] statement prepares a program window to receive files dropped from Windows Explorer in a drag/drop operation.
+
+
+{{PageSyntax}}
+: [[_ACCEPTFILEDROP]] [{ON|OFF}]
+
+
+{{PageDescription}}
+* Calling the statement with no parameters turns drag/dropping ON.
+* To know when files have been dropped into your program's window, check that [[_TOTALDROPPEDFILES]] is greater than 0.
+* Use [[_DROPPEDFILE]] to read the list, either sequentially or by index.
+* If using [[_DROPPEDFILE]] with an index, you must call [[_FINISHDROP]] after you finish working with the list.
+* '''[[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]'''.
+
+
+==Availability==
+* '''Version 1.3 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Accepting files dragged from a folder and processing the list received sequentially. 
+{{CodeStart}}
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(128, 25, 0)
+
+{{Cl|_ACCEPTFILEDROP}} 'enables drag/drop functionality
+{{Cl|PRINT}} "Drag files from a folder and drop them in this window..."
+
+{{Cl|DO}}
+    {{Cl|IF}} {{Cl|_TOTALDROPPEDFILES}} {{Cl|THEN}}
+        {{Cl|FOR}} i = 1 {{Cl|TO}} {{Cl|_TOTALDROPPEDFILES}}
+            a$ = {{Cl|_DROPPEDFILE}} 'reads the list sequentially; when the result is empty ("") it means the list is over
+            {{Cl|COLOR}} 15
+            {{Cl|PRINT}} i,
+            {{Cl|IF}} {{Cl|_FILEEXISTS}}(a$) {{Cl|THEN}}
+                {{Cl|COLOR}} 2: {{Cl|PRINT}} "file",
+            {{Cl|ELSE}}
+                {{Cl|IF}} {{Cl|_DIREXISTS}}(a$) {{Cl|THEN}}
+                    {{Cl|COLOR}} 3: {{Cl|PRINT}} "folder",
+                {{Cl|ELSE}}
+                    {{Cl|COLOR}} 4: {{Cl|PRINT}} "not found", 'highly unlikely, but who knows?
+                {{Cl|END IF}}
+            {{Cl|END IF}}
+            {{Cl|COLOR}} 15
+            {{Cl|PRINT}} a$
+        {{Cl|NEXT}}
+    {{Cl|END IF}}
+
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_TOTALDROPPEDFILES]], [[_DROPPEDFILE]], [[_FINISHDROP]]
+* [[_FILEEXISTS]], [[_DIREXISTS]]
+
+
+{{PageNavigation}}

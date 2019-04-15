@@ -1,0 +1,39 @@
+{{DISPLAYTITLE:$VERSIONINFO}}  
+The [[$VERSIONINFO]] [[Metacommand|metacommand]] adds text metadata to the resulting executable for identification purposes across the OS. Windows-only.
+
+
+{{PageSyntax}}
+: [[$VERSIONINFO]]:{{Parameter|key}}={{Parameter|value}}
+
+
+{{Parameters}}
+* Text ''keys'' can be: '''CompanyName, FileDescription, InternalName, LegalCopyright, LegalTrademarks, OriginalFilename, ProductName, Web, Comments'''
+* Numeric {{Parameter|keys}} can be:'''FILEVERSION#''' and '''PRODUCTVERSION#''' 
+
+
+{{PageDescription}}
+* Text and numerical values are string literals without quotes entered by programmer. '''No variables are accepted.''' (variable names would be interpreted as literals).
+* Numeric key=''value'' must be 4 comma-separated numerical text values entered by programmer which usually stand for major, minor, revision and build numbers).
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+
+
+==Availability==
+* '''Build 20170429/52 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Adding metadata to a Windows exe compiled with QB64:
+{{CodeStart}}
+{{Cl|$VERSIONINFO}}:CompanyName=Your company name goes here
+{{Cl|$VERSIONINFO}}:FILEVERSION#=1,0,0,0
+{{Cl|$VERSIONINFO}}:PRODUCTVERSION#=1,0,0,0
+{{CodeEnd}} 
+
+
+{{PageSeeAlso}}
+* [[$EXEICON]] 
+* [[_ICON]]
+* [https://msdn.microsoft.com/library/windows/desktop/aa381058(v=vs.85).aspx VERSIONINFO resource (MSDN)]
+
+
+{{PageNavigation}}

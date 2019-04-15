@@ -1,0 +1,45 @@
+The '''\''' mathematical operator performs [[INTEGER]] division on a numerical value.
+
+
+
+{{PageSyntax}} 
+::: return_value = number '''\''' divisor
+
+
+
+{{PageDescription}}
+
+* Number value can be any literal or variable numerical type.
+* '''Divisor (second value) must not be a  value of 0 to .5'''. This will create a [[ERROR Codes|"Division by zero" error!]] due to [[CINT]] rounding.
+* Return values will be [[INTEGER]] or [[LONG]] value types only.
+* Rounding is done to the closest EVEN [[INTEGER|integer]] or [[LONG|long integer]] value.
+* Use the [[/]] integer division operator for [[SINGLE]] or [[DOUBLE]] floating decimal point return values.
+* Division and multiplication operations are performed before addition and subtraction in Qbasic's order of operations.
+
+
+''Example:'' Displays how floating decimal point values are rounded to the closest even [[INTEGER|integer]] value.
+{{CodeStart}} '' ''
+{{Cl|PRINT}} 0.5 \ 1
+{{Cl|PRINT}} 1.5 \ 1
+{{Cl|PRINT}} 2.5 \ 1
+{{Cl|PRINT}} 3.5 \ 1
+{{Cl|PRINT}} 4.5 \ 1
+{{Cl|PRINT}} 5.5 \ 1 '' ''
+{{CodeEnd}}
+{{OutputStart}}0
+2
+2
+4
+4
+6
+{{OutputEnd}}
+
+
+''See also:''
+* [[MOD|MOD (remainder division operator)]] 
+* [[/|/ (normal division operator)]]
+* [[INT]], [[CINT]], [[FIX]], [[_ROUND]]
+* [[Mathematical Operations]]
+
+
+{{PageNavigation}}

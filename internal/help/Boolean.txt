@@ -1,0 +1,89 @@
+'''Boolean''' statements are numerical evaluations that return True (-1 or NOT 0) or False (0) values that can be used in other calculations.
+
+
+:::::::''Basic Returns:''
+* True evaluations return -1. [[NOT]] 0 = -1 in Basic. Can be used to increment a value.
+* For positive True results, subtract it, multiply it by a negative value or use [[ABS]].
+* False evaluations return 0. Watch out for [[ERROR Codes|"Division by 0" errors]]!
+
+
+{{Template:RelationalTable}}
+
+
+* When evaluating a True value, an IF value &lt; 0 statement is NOT necessary for return values not 0.
+
+
+&lt;center>''' Truth table of the BASIC Logical Operators:'''&lt;/center>
+
+{{Template:LogicalTruthTable}}
+
+
+&lt;center>'''Boolean Conditional Operators:'''&lt;/center>
+* [[AND (boolean)|AND]] can be used to add extra conditions to a boolean statement evaluation. Both must be True.
+* [[OR (boolean)|OR]] can be used to add alternate conditions to a boolean statement evaluation. One must be True.
+* Parenthesis are allowed inside of boolean statements to clarify an evaluation.
+* '''Note that Basic returns -1 for True and 0 for False.'''
+
+
+
+''Example 1:'' Using 2 different boolean evaluations to determine a leap year.
+{{CodeStart}} '' ''
+ INPUT "Enter a year greater than 1583: ", annum$
+ Y = {{Cl|VAL}}(annum$)
+ leap1 = (Y {{Cl|MOD}} 4 = 0 AND Y {{Cl|MOD}} 100 &lt;> 0) OR (Y {{Cl|MOD}} 400 = 0)
+ leap2 = (Y {{Cl|MOD}} 4 = 0) - (Y {{Cl|MOD}} 100 = 0) + (Y {{Cl|MOD}} 400 = 0)
+ PRINT "Year = "; annum$, "Leap1 = "; leap1, "Leap2 = "; leap2 '' ''
+{{CodeEnd}}
+:''Explanation:'' Both boolean evaluations will return -1 if the year is a leap year. It is not simply every four years as many people think. That is checked by the first evaluation (Y MOD 4 = 0) of each. In new century years like 1900 (which was not a leapyear) there is only one leap year every 400 years. 100 is used with [[MOD]] to see if there is a remainder. When that is true, the boolean return of that part of the first evaluation will be 0. The second returns -1 (which is actually added). In both evaluations the result of (Y MOD 400 = 0) indicates a century leap year. 
+
+
+:Entry year = 2000:
+
+::leap1 = (-1 AND 0) OR -1 = -1 ' the AND evaluation returns False(0) so the OR value is used.
+::leap2 = (-1) - (-1) + (-1) = -1 + 1 + -1 = -1 
+
+
+:Entry year = 1900:
+
+:: leap1 = (-1 AND 0) OR 0 = 0 OR 0 = 0
+:: leap2 = (-1) - (-1) + (0) = -1 + 1 + 0 = 0
+
+
+''Example 2:'' Moving an [[ASCII]] character using the arrow keys and boolean statements to determine the new coordinate.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+{{Cl|COLOR}} 7
+{{Cl|LOCATE}} 11, 20: {{Cl|PRINT}} "Using Screen 12 here to be in 80 X 30 coordinates mode"
+{{Cl|LOCATE}} 13, 6: {{Cl|PRINT}} "Simple Example of Alternative programming without IF-{{Cl|THEN}}-{{Cl|ELSE}} Statements"
+{{Cl|LOCATE}} 15, 1: {{Cl|PRINT}} "Use the four Cursor keys to move the yellow cursor, text will not be disturbed"
+{{Cl|LOCATE}} 17, 12: {{Cl|PRINT}} "When you {{Cl|END}} the program with the ESC key, cursor will disappear"
+
+cordx% = 40
+cordy% = 15
+
+{{Cl|DO...LOOP|DO}}
+oldcordx% = cordx%
+oldcordy% = cordy%
+p% = {{Cl|SCREEN (function)|SCREEN}}(cordy%, cordx%) 'get ASCII character code at present position
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} cordy%, cordx%: {{Cl|PRINT}} {{Cl|CHR$}}(178); 'print cursor character to position
+
+{{Cl|WHILE}} cordx% = oldcordx% {{Cl|AND (boolean)|AND}} cordy% = oldcordy% {{Cl|AND (boolean)|AND}} k$ &lt;> {{Cl|CHR$}}(27)
+k$ = {{Cl|INKEY$}}
+cordx% = cordx% + (k$ = ({{Cl|CHR$}}(0) + "K") {{Cl|AND (boolean)|AND}} cordx% > 1) + {{Cl|ABS}}(k$ = ({{Cl|CHR$}}(0) + "M") {{Cl|AND (boolean)|AND}} cordx% &lt; 80)
+cordy% = cordy% + (k$ = ({{Cl|CHR$}}(0) + "H") {{Cl|AND (boolean)|AND}} cordy% > 1) + {{Cl|ABS}}(k$ = ({{Cl|CHR$}}(0) + "P") {{Cl|AND (boolean)|AND}} cordy% &lt; 30)
+{{Cl|WEND}}
+
+{{Cl|COLOR}} 7: {{Cl|LOCATE}} oldcordy%, oldcordx%: {{Cl|PRINT}} {{Cl|CHR$}}(p%); 'replace overwritten screen characters
+
+{{Cl|LOOP}} {{Cl|UNTIL}} k$ = {{Cl|CHR$}}(27) '' ''
+{{CodeEnd}}
+{{small|Code by AlgoreIthm}}
+
+
+''See also:'' 
+* [[IF...THEN]], [[SELECT CASE]]
+* [[Binary]], [[ABS]], [[SGN]]
+* [[AND]], [[OR]], [[XOR]]
+
+
+{{PageNavigation}}

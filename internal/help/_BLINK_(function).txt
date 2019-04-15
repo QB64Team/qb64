@@ -1,0 +1,31 @@
+{{DISPLAYTITLE:_BLINK (function)}}
+The [[_BLINK]] function returns the current blink setting for SCREEN 0 colors. If enabled, returns -1 (default), otherwise returns 0.
+
+
+{{PageSyntax}}
+: {{Parameter|blinkState%%}} = [[_BLINK]]
+
+
+==Availability==
+* Build 20170816/61 up (August 16, 2017).
+
+
+{{PageExamples}}
+{{CodeStart}}{{Cl|COLOR}} 16, 7
+
+'Try uncommenting the line below:
+'{{Cl|_BLINK}} OFF
+
+{{Cl|IF}} _BLINK {{Cl|THEN}}
+    {{Cl|PRINT}} "I'm blinking"
+{{Cl|ELSE}}
+    {{Cl|PRINT}} "I'm not blinking"
+{{Cl|END IF}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_BLINK]] (statement)
+* [[OUT]]
+
+{{PageNavigation}}

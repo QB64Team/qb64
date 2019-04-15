@@ -1,0 +1,54 @@
+{{DISPLAYTITLE:_INCLERRORFILE$}}  
+The [[_INCLERRORFILE$]] function returns the name of the original source code [[$INCLUDE]] module that caused the most recent error.
+
+
+
+{{PageSyntax}}
+: {{Parameter|errfile$}} = [[_INCLERRORFILE$]]
+
+
+{{PageDescription}}
+If the last error occurred in the main module, [[_INCLERRORFILE$]] returns an empty string.
+
+
+==Availability==
+* '''Version 1.1 and up'''.
+
+
+{{PageExamples}}
+''Example:''
+{{CodeStart}}
+{{Cl|ON ERROR}} {{Cl|GOTO}} DebugLine
+
+{{Cl|ERROR}} 250 'simulated error code - an error in the main module leaves _INCLERRORLINE empty (= 0)
+
+'{{Cl|$INCLUDE}}:'haserror.bi'
+
+{{Cl|END}}
+
+DebugLine:
+{{Cl|PRINT}} "An error occurred. Please contact support with the following details:
+{{Cl|PRINT}} "ERROR "; {{Cl|ERR}}; " ON LINE: "; {{Cl|_ERRORLINE}}
+{{Cl|IF...THEN|IF}} {{Cl|_INCLERRORLINE}} {{Cl|THEN}}
+    {{Cl|PRINT}} "    IN MODULE "; {{Cl|_INCLERRORFILE$}}; " (line"; {{Cl|_INCLERRORLINE}}; ")"
+{{Cl|END IF}}
+{{Cl|RESUME}} {{Cl|NEXT}} '' ''
+{{CodeEnd}}
+{{OutputStart}}An error occurred. Please contact support with the following details:
+ERROR  250  ON LINE:  6
+
+An error occurred. Please contact support with the following details:
+ERROR  250  ON LINE:  9
+    IN MODULE haserror.bi ( line 1 )
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[_INCLERRORLINE]]
+* [[ON ERROR]], [[ERR]]
+* [[ERROR]]
+* [[ERROR Codes]]
+* [[$INCLUDE]]
+
+
+{{PageNavigation}}

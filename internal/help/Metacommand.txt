@@ -1,0 +1,59 @@
+'''Metacommands''' are program wide commands that start with $.
+
+
+==Legacy metacommands (Qbasic/QuickBASIC)==
+===Syntax===
+:REM [[$INCLUDE]]: '[[QB.BI]]' 'loads a reference file or library
+
+:REM [[$DYNAMIC]] 'enables resizing of array dimensions with REDIM
+
+:REM [[$STATIC]] 'arrays cannot be resized once dimensioned
+
+===Description===
+* Qbasic Metacommands are normally used at the program start and are in effect throughout the program.
+* Qbasic Metacommands are always prefixed with $ and MUST be commented with an apostrophe or [[REM]].
+* [[$INCLUDE]] is always followed by a colon and the full text code file name is commented on both sides.
+* [[$DYNAMIC]] allows larger arrays that are changeable in size at runtime.
+* [[$STATIC]] makes all arrays unchangeable in size.
+* '''Qbasic metacommands should have their own program line because they are commented.'''
+
+
+==QB64 metacommands==
+===Syntax===
+:[[$CHECKING]]{OFF|ON} 'disables QB64 C++ event and error checking (no spaces)
+
+:[[$CONSOLE]] 'creates a QB64 console window throughout the program
+
+:[[$RESIZE]]:{ON|OFF} 'determines if re-sizing of the program screen by the user is allowed(no spaces)
+
+:[[$SCREENHIDE]] 'hides the QB64 program window throughout the program
+
+:[[$SCREENSHOW]] 'displays the main QB64 program window
+
+:[[$EXEICON]]:'iconfile.ico' 'embeds an .ICO file into the final executable (Windows only)
+
+:[[$VERSIONINFO]]:key=value 'embeds version info metadata into the final executable (Windows only)
+
+:[[$IF]]...[[$END IF]] 'precompiler directive
+
+
+===Description===
+* [[$INCLUDE]] can be used at the beginning or at the end of program SUB procedures.
+* [[$CHECKING]]:OFF should only be used with '''errorless''' code where every CPU cycle counts! Use '''ON''' to re-enable event checking. Event checking can be turned OFF or ON throughout a program.
+* [[$CONSOLE]] creates a console window which can be turned off later with [[_CONSOLE]] OFF.
+* [[$RESIZE]]:ON allows a user to resize the program window. OFF is default.
+* [[$SCREENHIDE]] hides the QB64 program window throughout the program until [[$SCREENSHOW]] is used.
+* [[$IF]]...[[$END IF]] allows selective inclusion of code in the final program.
+* '''Do not comment out with ' or [[REM]] QB64-specific metacommands.'''
+
+
+{{PageSeeAlso}}
+* [[Statement]], [[Function (explanatory)]]
+* [[REM]]
+* [[DIM]], [[REDIM]]
+* [[ON TIMER(n)]]
+
+
+
+
+{{PageNavigation}}

@@ -1,0 +1,56 @@
+{{DISPLAYTITLE:_INCLERRORLINE}}  
+The [[_INCLERRORFILE$]] function returns the line number in an [[$INCLUDE]] file that caused the most recent error.
+
+
+
+{{PageSyntax}}
+: {{Parameter|errline&amp;}} = [[_INCLERRORLINE]]
+
+
+{{PageDescription}}
+* If the last error occurred in the main module, _INCLERRORLINE returns 0.
+* By checking _INCLERRORLINE you can report exactly what line inside an included module caused the last error.
+
+
+==Availability==
+* '''Version 1.1 and up'''.
+
+
+{{PageExamples}}
+''Example:''
+{{CodeStart}}
+{{Cl|ON ERROR}} {{Cl|GOTO}} DebugLine
+
+{{Cl|ERROR}} 250 'simulated error code - an error in the main module leaves _INCLERRORLINE empty (= 0)
+
+'{{Cl|$INCLUDE}}:'haserror.bi'
+
+{{Cl|END}}
+
+DebugLine:
+{{Cl|PRINT}} "An error occurred. Please contact support with the following details:
+{{Cl|PRINT}} "ERROR "; {{Cl|ERR}}; " ON LINE: "; {{Cl|_ERRORLINE}}
+{{Cl|IF...THEN|IF}} {{Cl|_INCLERRORLINE}} {{Cl|THEN}}
+    {{Cl|PRINT}} "    IN MODULE "; {{Cl|_INCLERRORFILE$}}; " (line"; {{Cl|_INCLERRORLINE}}; ")"
+{{Cl|END IF}}
+{{Cl|RESUME}} {{Cl|NEXT}} '' ''
+{{CodeEnd}}
+{{OutputStart}}An error occurred. Please contact support with the following details:
+ERROR  250  ON LINE:  6
+
+An error occurred. Please contact support with the following details:
+ERROR  250  ON LINE:  9
+    IN MODULE haserror.bi ( line 1 )
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[_INCLERRORFILE$]]
+* [[ON ERROR]], [[ERR]]
+* [[ERROR]]
+* [[ERROR Codes]]
+* [[$INCLUDE]]
+
+
+
+{{PageNavigation}}

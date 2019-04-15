@@ -1,0 +1,40 @@
+{{DISPLAYTITLE:_HYPOT}}
+The [[_HYPOT]] function returns the hypotenuse of a right-angled triangle whose legs are x and y.
+
+
+{{PageSyntax}}
+: {{Parameter|result!}} = [[_HYPOT]]({{Parameter|x}}, {{Parameter|y}})
+
+
+{{Parameters}}
+* {{Parameter|x}} and {{Parameter|y}} are the floating point values corresponding to the legs of a right-angled (90 degree) triangle for which the hypotenuse is computed.
+
+
+{{PageDescription}}
+* The function returns what would be the square root of the sum of the squares of x and y (as per the Pythagorean theorem).
+* The hypotenuse is the longest side between the two 90 degree angle sides
+
+
+{{PageExamples}}
+''Example:''
+{{CodeStart}} '' ''
+{{Cl|DIM}} leg_x {{Cl|AS}} {{Cl|DOUBLE}}, leg_y {{Cl|AS}} {{Cl|DOUBLE}}, result {{Cl|AS}} {{Cl|DOUBLE}}
+leg_x = 3
+leg_y = 4
+result = {{Cl|_HYPOT}}(leg_x, leg_y)
+{{Cl|PRINT}} {{Cl|USING}} "## , ## and ## form a right-angled triangle."; leg_x; leg_y; result
+{{CodeEnd}}
+
+{{OutputStart}}
+ 3 , 4 and 5 form a right-angled triangle.
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[ATN]] {{text|(arctangent)}}
+* [[_PI]] {{text|(function)}}
+* [[Mathematical Operations]]
+* [http://www.cplusplus.com/reference/cmath/hypot/ C++ reference for hypot() - source of the text and sample above]
+
+
+{{PageNavigation}}

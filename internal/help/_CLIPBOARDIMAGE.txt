@@ -1,0 +1,56 @@
+{{DISPLAYTITLE:_CLIPBOARDIMAGE}}
+The [[_CLIPBOARDIMAGE]] statement copies a valid QB64 image to the clipboard.
+
+
+{{PageSyntax}}
+: [[_CLIPBOARDIMAGE]] = {{Parameter|existingImageHandle&amp;}}
+
+
+{{PageDescription}}
+* {{Parameter|existingImageHandle&amp;}} is a valid handle to a graphic QB64 image in memory, created with [[_NEWIMAGE]], [[_LOADIMAGE]] or [[_COPYIMAGE]].
+* You can pass [[_SOURCE]], [[_DEST]] or [[_DISPLAY]] to copy the current source, destination or active display pages, as long as they are valid graphic images.
+* SCREEN 0 handles (created either with [[_NEWIMAGE]] or passed using _DEST while in a text screen) are not valid and will create an [[ERROR Codes|Illegal Function Call]] or [[ERROR Codes|Invalid Handle]] error.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+
+
+==Availability==
+* '''Build 20170906/64''' onward.
+
+
+{{PageExamples}}
+''Example:'' Create a sample image and copy it to the clipboard:
+{{CodeStart}}{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
+
+'Create image in memory:
+canvas&amp; = {{Cl|_NEWIMAGE}}(300, 200, 32)
+{{Cl|_DEST}} canvas&amp;
+
+'Draw some random rectangles:
+{{Cl|RANDOMIZE}} {{Cl|TIMER}}
+{{Cl|FOR}} i = 1 {{Cl|TO}} 100
+    {{Cl|LINE}} (-100 + RND * _WIDTH, -100 + RND * _HEIGHT)-STEP(RND * 150, RND * 150), _RGB(RND * 255, RND * 255, RND * 255), BF
+{{Cl|NEXT}}
+LINE (0, 0)-(_WIDTH - 1, _HEIGHT - 1), _RGB(255, 255, 255), B
+{{Cl|COLOR}} {{Cl|_RGB}}(0, 0, 0), _RGB(255, 255, 255)
+m$ = " Hello, world! "
+{{Cl|_PRINTSTRING}} (_WIDTH / 2 - _PRINTWIDTH(m$) / 2, _HEIGHT / 2 - _FONTHEIGHT / 2), m$
+
+'Show the image:
+{{Cl|_DEST}} 0
+{{Cl|_PUTIMAGE}} (_WIDTH / 2 - _WIDTH(canvas&amp;) / 2, _HEIGHT / 2 - _HEIGHT(canvas&amp;) / 2), canvas&amp;
+{{Cl|PRINT}} "Image generated."
+
+'Copy to the clipboard:
+{{Cl|_CLIPBOARDIMAGE}} = canvas&amp;
+
+PRINT "Image copied to clipboard."
+{{CodeEnd}}
+{{small|Code by Fellippe Heitor}}
+
+
+{{PageSeeAlso}}
+* [[_CLIPBOARDIMAGE (function)|_CLIPBOARDIMAGE]] {{text|(function - used to paste an image from the clipboard)}}
+* [[_CLIPBOARD$]], [[_CLIPBOARD$ (statement)]] {{text|(used to copy/paste text)}}
+
+
+{{PageNavigation}}

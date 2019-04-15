@@ -1,0 +1,35 @@
+{{DISPLAYTITLE:_BLINK}}
+The [[_BLINK]] statement toggles blinking colors in text mode (SCREEN 0). Default state is ON.
+
+
+{{PageSyntax}}
+: [[_BLINK]] {ON|OFF}
+
+
+{{PageDescription}}
+* SCREEN 0 emulates the VGA palette with regular colors from 0 to 15 and blinking colors from 16-31 (these are the same colors as 0-15, except their blink attribute is set to on). [[_BLINK]] OFF emulates writing to the video memory and disabling blinking for colors 16-31.
+* Using colors 16-31 for the foreground with [[_BLINK]] set to OFF will produce high intensity background colors.
+* [[_BLINK]] is only effective in SCREEN 0. It's ignored in graphic modes.
+* IF [[_DISPLAY]] is used, blinking is disabled, even if _BLINK is ON, but high intensity backgrounds aren't enabled in this case.
+
+
+==Availability:==
+* Build 20170816/61 up (August 16, 2017).
+
+
+{{PageExamples}}
+{{CodeStart}}{{Cl|COLOR}} 16, 7
+{{Cl|PRINT}} "This is printed in black over gray background. Black letters are blinking."
+{{Cl|PRINT}} "Hit a key..."
+{{Cl|SLEEP}}
+{{Cl|_BLINK}} OFF
+{{Cl|PRINT}} "Now the same text is printed in black over bright white, because blinking was disabled."
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_BLINK (function)]]
+* [[OUT]]
+* [[_DISPLAY]]
+
+{{PageNavigation}}

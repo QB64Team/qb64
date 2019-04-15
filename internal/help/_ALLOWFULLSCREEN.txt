@@ -1,0 +1,76 @@
+{{DISPLAYTITLE:_ALLOWFULLSCREEN}}
+The [[_ALLOWFULLSCREEN]] statement allows setting the behavior of the ALT+ENTER combo.
+
+
+{{PageSyntax}}
+: [[_ALLOWFULLSCREEN]] [{_STRETCH|_SQUAREPIXELS|OFF|_ALL}][, {_SMOOTH|OFF|_ALL}]
+
+
+{{PageDescription}}
+* Calling the statement with no parameters enables all four possible full screen modes (and is the default state when a program is started): both [[_STRETCH]] ([[_SMOOTH]] and [[_OFF]]) and [[_SQUAREPIXELS]] ([[_SMOOTH]] and [[_OFF]]).
+** Using [[_ALLOWFULLSCREEN]] [[_ALL]], [[_ALL]] has the same effect.
+* [[_ALLOWFULLSCREEN]] only affects the behavior of ALT+ENTER. The [[_FULLSCREEN]] statement is not bound by [[_ALLOWFULLSCREEN]]'s settings so all modes can be accessed programmatically.
+* To limit just the mode but allow both _SMOOTH + _OFF antialiasing modes, pass just the first parameter: ''Example:'' [[_ALLOWFULLSCREEN]] _SQUAREPIXELS
+* To allow multiple modes with _SMOOTH or _OFF as default, pass just the second parameter. ''Example:'' [[_ALLOWFULLSCREEN]] , _SMOOTH
+* And possible permutation of the parameters is allowed.
+* With [[_ALLOWFULLSCREEN]] _OFF you can trap Alt+Enter manually in your program and reassign it. See example 2 below.
+
+
+==Availability==
+* '''Version 1.3 and up'''.
+
+
+{{PageExamples}}
+''Example 1:'' Allowing only one fullscreen mode with square pixels and no antialiasing:
+{{CodeStart}}
+{{Cl|_ALLOWFULLSCREEN}} {{Cl|_SQUAREPIXELS}}, {{Cl|OFF}}
+{{CodeEnd}}
+
+
+''Example 2:'' Disabling _FULLSCREEN with Alt+ENTER so the combo can be manually trapped:
+{{CodeStart}}
+{{Cl|DO}}
+    {{Cl|CLS}}
+
+    {{Cl|LOCATE}} 7
+    {{Cl|PRINT}} "    - Press ALT+ENTER to test trapping the combo..."
+    {{Cl|PRINT}} "    _ Press SPACEBAR to allow fullscreen again..."
+
+    k&amp; = {{Cl|_KEYHIT}}
+
+    {{Cl|IF}} k&amp; = 13 {{Cl|THEN}}
+        {{Cl|IF}} {{Cl|_KEYDOWN}}(100307) {{Cl|OR}} {{Cl|_KEYDOWN}}(100308) {{Cl|THEN}}
+            altEnter = altEnter + 1
+        {{Cl|END IF}}
+    {{Cl|ELSEIF}} k&amp; = 32 {{Cl|THEN}}
+        fullscreenEnabled = {{Cl|NOT}} fullscreenEnabled
+    {{Cl|END IF}}
+
+    {{Cl|LOCATE}} 14
+    {{Cl|IF}} fullscreenEnabled {{Cl|THEN}}
+        {{Cl|_ALLOWFULLSCREEN}} {{Cl|_ALL}}, {{Cl|_ALL}}
+        altEnter = 0
+        {{Cl|PRINT}} "_ALLOWFULLSCREEN _ALL, _ALL"
+
+        {{Cl|LOCATE}} 18
+        {{Cl|PRINT}} "ALT+ENTER will trigger all four fullscreen modes now."
+    {{Cl|ELSE}}
+        {{Cl|_ALLOWFULLSCREEN}} {{Cl|OFF}}
+        {{Cl|PRINT}} "_ALLOWFULLSCREEN OFF"
+    {{Cl|END IF}}
+
+    {{Cl|IF}} altEnter {{Cl|THEN}}
+        {{Cl|LOCATE}} 18
+        {{Cl|PRINT}} "ALT+ENTER manually trapped"; altEnter; "times."
+    {{Cl|END IF}}
+
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 30
+{{Cl|LOOP}}
+{{CodeEnd}}
+
+{{PageSeeAlso}}
+* [[_FULLSCREEN]], [[_SMOOTH (function)]]
+
+
+{{PageNavigation}}
