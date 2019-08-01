@@ -2159,7 +2159,8 @@ DO
                                         altered = -1
                                         wholestv$ = LEFT$(wholestv$, L) + temp1$ + MID$(wholestv$, l2 + 1)
                                     ELSE
-                                        'We should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
+                                        IF LEFT$(temp1$, 5) = "ERROR" THEN a$ = temp1$: GOTO errmes
+                                        'If it's not an error, we should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
                                     END IF
                                     L = L + 1
                                 END IF
@@ -23703,7 +23704,13 @@ FUNCTION EvaluateNumbers$ (p, num() AS STRING)
             n1 = sign * (n1 ^ n3)
         CASE "*": n1 = VAL(num(1)) * VAL(num(2))
         CASE "/": n1 = VAL(num(1)) / VAL(num(2))
-        CASE "\": n1 = VAL(num(1)) \ VAL(num(2))
+        CASE "\"
+            IF VAL(num(2)) <> 0 THEN
+                n1 = VAL(num(1)) \ VAL(num(2))
+            ELSE
+                EvaluateNumbers$ = "ERROR - Division By Zero"
+                EXIT FUNCTION
+            END IF
         CASE "MOD": n1 = VAL(num(1)) MOD VAL(num(2))
         CASE "+": n1 = VAL(num(1)) + VAL(num(2))
         CASE "-": n1 = VAL(num(1)) - VAL(num(2))
