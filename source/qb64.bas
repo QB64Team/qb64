@@ -1574,7 +1574,7 @@ DO
     layout = ""
     layoutok = 0
 
-    linenumber = linenumber + 1
+    IF ColorHack = 0 THEN linenumber = linenumber + 1 'don't update line number when mass assigning CONST values from $COLOR statement
 
     DO UNTIL linenumber < UBOUND(InValidLine) 'color information flag for each line
         REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
