@@ -1,5 +1,26 @@
 #include "common.h"
 
+#ifdef QB64_WINDOWS
+    /* //Future placeholder for windows console support.  Best to introduce one new element at a time, I think.
+    extern int32 func__CInp (int32 toggle, int32 passed); //Console INP scan code reader
+    extern int func__capslock();
+    extern int func__scrollock();
+    extern int func__numlock();
+    extern void sub__toggle_capslock();
+    extern void sub__toggle_scrollock();
+    extern void sub__toggle_numlock();
+    extern void CFont(qbs* FontName, int FontSize);
+    extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
+    extern int32 func__getconsoleinput();
+    */
+
+    #ifdef DEPENDENCY_ZLIB
+        qbs *func__deflate(qbs *text);
+        qbs *func__inflate(qbs *text, int64 originalsize, int32 passed);
+        #include "parts\zlib-1.2.11\download\zlib.h"
+    #endif
+#endif
+
 #ifdef QB64_MACOSX
     #include <ApplicationServices/ApplicationServices.h>
 #endif

@@ -3279,3 +3279,27 @@ id.args = 2
 id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.ret = INTEGER64TYPE - ISPOINTER
 regid
+
+clearid
+id.n = "_DEFLATE"
+id.Dependency=DEPENDENCY_ZLIB
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__deflate"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.ret = STRINGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_INFLATE"
+id.Dependency=DEPENDENCY_ZLIB
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__inflate"
+id.args = 2
+id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(INTEGER64TYPE - ISPOINTER)
+id.specialformat = "?[,?]"
+id.ret = STRINGTYPE - ISPOINTER
+regid
+
