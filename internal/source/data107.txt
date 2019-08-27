@@ -1,10 +1,10 @@
-qbs*oldstr3569=NULL;
+qbs*oldstr3570=NULL;
 if(_SUB_ADDWARNING_STRING_TEXT->tmp||_SUB_ADDWARNING_STRING_TEXT->fixed||_SUB_ADDWARNING_STRING_TEXT->readonly){
-oldstr3569=_SUB_ADDWARNING_STRING_TEXT;
-if (oldstr3569->cmem_descriptor){
-_SUB_ADDWARNING_STRING_TEXT=qbs_new_cmem(oldstr3569->len,0);
+oldstr3570=_SUB_ADDWARNING_STRING_TEXT;
+if (oldstr3570->cmem_descriptor){
+_SUB_ADDWARNING_STRING_TEXT=qbs_new_cmem(oldstr3570->len,0);
 }else{
-_SUB_ADDWARNING_STRING_TEXT=qbs_new(oldstr3569->len,0);
+_SUB_ADDWARNING_STRING_TEXT=qbs_new(oldstr3570->len,0);
 }
-memcpy(_SUB_ADDWARNING_STRING_TEXT->chr,oldstr3569->chr,oldstr3569->len);
+memcpy(_SUB_ADDWARNING_STRING_TEXT->chr,oldstr3570->chr,oldstr3570->len);
 }

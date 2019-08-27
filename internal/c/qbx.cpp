@@ -1,7 +1,7 @@
 #include "common.h"
 
+
 #ifdef QB64_WINDOWS
-    /* //Future placeholder for windows console support.  Best to introduce one new element at a time, I think.
     extern int32 func__CInp (int32 toggle, int32 passed); //Console INP scan code reader
     extern int func__capslock();
     extern int func__scrollock();
@@ -12,7 +12,6 @@
     extern void CFont(qbs* FontName, int FontSize);
     extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
     extern int32 func__getconsoleinput();
-    */
 
     #ifdef DEPENDENCY_ZLIB
         qbs *func__deflate(qbs *text);
@@ -20,6 +19,7 @@
         #include "parts\zlib-1.2.11\download\zlib.h"
     #endif
 #endif
+
 
 #ifdef QB64_MACOSX
     #include <ApplicationServices/ApplicationServices.h>
@@ -174,6 +174,8 @@ extern int32 func_windowexists();
 extern int32 func_screenicon();
 extern int32 func_screenwidth();
 extern int32 func_screenheight();
+extern int32 func__borderwidth();
+extern int32 func__titlebarheight();
 extern void sub_screenicon();
 extern void sub__console(int32);
 extern int32 func__console();
@@ -377,7 +379,7 @@ extern void defaultcolors();
 extern void validatepage(int32 n);
 extern void qbg_screen(int32 mode,int32 color_switch,int32 active_page,int32 visual_page,int32 refresh,int32 passed);
 extern void sub_pcopy(int32 src,int32 dst);
-extern void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed);
+extern void qbsub_width(int32 option,int32 value1,int32 value2,int32 value3, int32 value4, int32 passed);
 extern void pset(int32 x,int32 y,uint32 col);
 extern void pset_and_clip(int32 x,int32 y,uint32 col);
 extern void qb32_boxfill(float x1f,float y1f,float x2f,float y2f,uint32 col);
@@ -2189,7 +2191,7 @@ void QBMAIN(void *unused)
         }
         chain_input();
         #include "..\\temp\\main.txt"
-        #else
+    #else
         #include "../temp/maindata.txt"
         #include "../temp/runline.txt"
         #include "../temp/mainerr.txt"
@@ -2210,4 +2212,3 @@ void QBMAIN(void *unused)
     #endif
     
 //} (closed by main.txt)
-

@@ -22,8 +22,15 @@
     
 #endif
 
-
 int32 disableEvents=0;
+
+#ifdef QB64_WINDOWS //Global console vvalues
+    static int32 consolekey;
+    static int32 consolemousex;
+    static int32 consolemousey;
+    static int32 consolebutton;
+    int32 func__getconsoleinput(); //declare here, so we can use with SLEEP and END commands
+#endif
 
 //This next block used to be in common.cpp; put here until I can find a better
 //place for it (LC, 2018-01-05)
@@ -7363,6 +7370,15 @@ void qbg_sub_color(uint32 col1,uint32 col2,uint32 bordercolor,int32 passed){
         //performs no action if nothing passed (as in QBASIC for some modes)
         return;
     }
+
+    #ifdef QB64_WINDOWS
+        if (write_page->console){
+            HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+            int color = col2 * 16 + col1;
+            SetConsoleTextAttribute(output, color);
+            return;
+        }
+    #endif
     
     if (write_page->compatible_mode==32){
         if (passed&4) goto error;
@@ -7995,7 +8011,7 @@ void sub_pcopy(int32 src,int32 dst){
     return;
 }
 
-void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
+void qbsub_width(int32 option,int32 value1,int32 value2,int32 value3, int32 value4, int32 passed){
     //[{#|LPRINT}][?],[?]
     static int32 i,i2;
     
@@ -8028,9 +8044,33 @@ void qbsub_width(int32 option,int32 value1,int32 value2,int32 passed){
         //COLOR selection is kept, all other values are lost (if staying in same "mode")
         static int32 f,f2,width,height;
         
-        if ((!(passed&1))&&(!(passed&2))) goto error;//cannot omit both arguments
-        
         width=value1; height=value2;
+
+        #ifdef QB64_WINDOWS
+            if (write_page->console){
+                SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+                HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+                HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+                CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+                
+                GetConsoleScreenBufferInfo(cl_conout, &cl_bufinfo); //get the screen buffer information, for blank entries
+
+                if (width<=0) width = cl_bufinfo.srWindow.Right - cl_bufinfo.srWindow.Left + 1;; //if width is omitted, then use existing width
+                if (height<=0) height = cl_bufinfo.srWindow.Bottom - cl_bufinfo.srWindow.Top + 1;; //if height is omitted, then use existing height
+                if (value3<=0) value3 = cl_bufinfo.dwSize.X; //if bufferwidth is omitted, then use existing buffer width
+                if (value4<=0) value4 = cl_bufinfo.dwSize.Y; //same as above, but for height
+                if (value3<value1)value3=value1; //don't make the buffer width smaller than the console width itself
+                if (value4<value2)value4=value2; //and don't make that buffer height smaller than the console height
+
+                SMALL_RECT rect = {0,0, width-1, height-1};
+                COORD bufferSize = {value3, value4};
+                SetConsoleScreenBufferSize(hConsole, bufferSize); //set the buffer
+                SetConsoleWindowInfo(hConsole, TRUE, &rect); //set the console itself
+                return;
+            }
+        #endif
+
+        if ((!(passed&1))&&(!(passed&2))) goto error;//cannot omit both arguments
         
         if ((write_page->compatible_mode==32)||(write_page->compatible_mode==256)){
             
@@ -10498,6 +10538,20 @@ void tab(){
         newline(); write_page->holding_cursor=0;
         return;
     }
+
+    #ifdef QB64_WINDOWS //if Windows console
+        if (write_page->console){
+            if (func_pos(0)>write_page->width-10){
+                printf("\n");
+                return;
+            }else{
+                do {
+                    printf(" ");
+                }while(func_pos(0) % 10!=0);
+            }
+            return;
+        }
+    #endif
     
     //text
     if (write_page->text){
@@ -11151,13 +11205,21 @@ void qbg_sub_view(int32 x1,int32 y1,int32 x2,int32 y2,int32 fillcolor,int32 bord
 }
 
 
-
+void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,int32 passed);
 void sub_cls(int32 method,uint32 use_color,int32 passed){
     if (new_error) return;
     static int32 characters,i;
     static uint16 *sp;
     static uint16 clearvalue;
     
+    #ifdef QB64_WINDOWS
+        if (write_page->console){ //note, I'm lazy and not adding color support for a console 
+            system("cls"); //it's just the simplest way to do things.  :P
+            qbg_sub_locate(1,1,0,0,0,3);
+            return;
+        }
+    #endif
+
     //validate
     if (passed&2){
         if (write_page->bytes_per_pixel!=4){
@@ -11321,11 +11383,25 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
 }
 
 
-
 void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,int32 passed){
     static int32 h,w,i;
     if (new_error) return;
-    
+
+    #ifdef QB64_WINDOWS //If trying to locate with windows console
+        if (write_page->console){
+            CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+            SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+            HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+            GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
+            if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
+            if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
+            COORD pos = {column-1, row-1};
+            HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
+            SetConsoleCursorPosition(output, pos);
+            return;
+        }
+    #endif
+
     //calculate height & width in characters
     if (write_page->compatible_mode){
         h=write_page->height/fontheight[write_page->font];
@@ -11355,7 +11431,7 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
                     buffer=(char*)malloc(80*25*2);
                     c=write_page->color; c2=write_page->background_color;
                     memcpy(buffer,&cmem[0xB8000],80*25*2);
-                    qbsub_width(0,80,50,3);
+                    qbsub_width(0,80,50,3,0,0);
                     memcpy(&cmem[0xB8000],buffer,80*25*2);
                     write_page->color=c; write_page->background_color=c2;
                     free(buffer);
@@ -15144,12 +15220,30 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     
     int32 func_csrlin(){
+        #ifdef QB64_WINDOWS //Windows console CSRLIN support
+            if (write_page->console){
+                CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+                SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+                HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+                GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
+                return cl_bufinfo.dwCursorPosition.Y + 1;
+            }
+        #endif
         if (write_page->holding_cursor){
             if (write_page->cursor_y>=write_page->bottom_row) return write_page->bottom_row; else return write_page->cursor_y+1;
         }
         return write_page->cursor_y;
     }
     int32 func_pos(int32 ignore){
+        #ifdef QB64_WINDOWS
+            if (write_page->console){ //qb64 console CSRLIN 
+                CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+                SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+                HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+                GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
+                return cl_bufinfo.dwCursorPosition.X + 1;
+            }
+        #endif
         if (write_page->holding_cursor) return 1;
         return write_page->cursor_x;
     }
@@ -15189,6 +15283,22 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     void sub_sleep(int32 seconds,int32 passed){
         if (new_error) return;
+        
+        #ifdef QB64_WINDOWS
+            if (read_page->console){ 
+                int32 junk=0,junk2=0;
+
+                do{ //ignore all console input
+                    junk=func__getconsoleinput();
+                    junk2=consolekey;
+                }while(junk!=1); //until we have a key down event
+                do{ //now continue to get the console input
+                    junk=func__getconsoleinput();
+                }while(consolekey!=-junk2); //until that key is released.  We don't need to leave the key up sequence in the buffer to screw things up with future reads.
+                return;
+            }
+        #endif
+
         sleep_break=0;
         double prev,ms,now,elapsed;//cannot be static
         if (passed) prev=GetTicks();
@@ -15674,6 +15784,23 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         uint8 *cp;
         
         if (!passed) returncol=0;
+
+        #ifdef QB64_WINDOWS
+            if (read_page->console){
+                SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+                HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+                COORD cp1 = {x-1, y-1};
+                DWORD t;
+                uint16 a; 
+                if (returncol){
+                    int x1 = ReadConsoleOutputAttribute(cl_conout, &a, 1, cp1, &t) ;
+                    return a;
+                } else {
+                    ReadConsoleOutputCharacterA(cl_conout, (char *) &a, 1, cp1, &t) ;
+                    return a & 0xff;
+                }
+            }
+        #endif
         
         if (read_page->text){
             //on screen?
@@ -17871,6 +17998,11 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             static float f;
             
             int32 handle;
+
+            #ifdef QB64_WINDOWS
+                if (read_page->console){return consolemousex;}
+            #endif
+
             handle=mouse_message_queue_default;
             if (passed) handle=context;    
             mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
@@ -17906,6 +18038,11 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             static float f;
             
             int32 handle;
+
+            #ifdef QB64_WINDOWS
+                if (read_page->console){return consolemousey;}
+            #endif
+
             handle=mouse_message_queue_default;
             if (passed) handle=context;    
             mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
@@ -18014,6 +18151,17 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         int32 func__mousebutton(int32 i, int32 context, int32 passed){
             if (i<1){error(5); return 0;}
+            #ifdef QB64_WINDOWS
+                if (read_page->console){ //console may support up to 5 mouse buttons according to the documentation.
+                    if (i==1)return consolebutton&1;
+                    if (i==2)return consolebutton&2;
+                    if (i==3)return consolebutton&4;                                       
+                    if (i==4)return consolebutton&8;
+                    if (i==5)return consolebutton&16;
+                    return 0;
+                }
+            #endif
+
             if (i>3) return 0;//current SDL only supports 3 mouse buttons!
             //swap indexes 2&3
             if (i==2){
@@ -18033,6 +18181,16 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         int32 func__mousewheel(int32 context, int32 passed){
             static uint32 x;
             int32 handle;
+
+            
+            #ifdef QB64_WINDOWS
+                if (read_page->console){
+                    if (consolebutton<-0x100)return -1;
+                    if (consolebutton>0x100)return 1;
+                    return 0;
+                }
+            #endif
+
             handle=mouse_message_queue_default;
             if (passed) handle=context;    
             mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
@@ -18491,6 +18649,17 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         int32 func__width(int32 i,int32 passed){
             if (new_error) return 0;
+
+            #ifdef QB64_WINDOWS
+                if (read_page->console||i==console_image){
+                    SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+                    HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+                    CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+                    GetConsoleScreenBufferInfo(cl_conout, &cl_bufinfo);
+                    return cl_bufinfo.srWindow.Right - cl_bufinfo.srWindow.Left + 1;
+                }
+            #endif
+
             if (passed){
                 if (i>=0){//validate i
                     validatepage(i); i=page[i];
@@ -18509,6 +18678,18 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         int32 func__height(int32 i,int32 passed){
             if (new_error) return 0;
+
+            #ifdef QB64_WINDOWS
+                if (read_page->console||i==console_image){
+                    SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+                    HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+                    CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+                    GetConsoleScreenBufferInfo(cl_conout, &cl_bufinfo);
+                    return cl_bufinfo.srWindow.Bottom - cl_bufinfo.srWindow.Top + 1;
+                    return cl_bufinfo.dwMaximumWindowSize.Y;
+                }
+            #endif
+
             if (passed){
                 if (i>=0){//validate i
                     validatepage(i); i=page[i];
@@ -19553,12 +19734,20 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 
                 }else{
                 if (console){
-                    //screen is hidden, console is visible
-                    cout<<"\nPress enter to continue";
-                    static int32 ignore;
-                    ignore=fgetc(stdin);
+                        //screen is hidden, console is visible
+                        #ifdef QB64_WINDOWS
+                            cout<<"\nPress any key to continue";
+                            int32 junk;
+                            do{ //ignore all console input
+                                junk=func__getconsoleinput();
+                            }while(junk!=1); //until we have a key down event
+                        #else
+                           cout<<"\nPress enter to continue";
+                           static int32 ignore;
+                           ignore=fgetc(stdin);
+                       #endif
+                   }
                 }
-            }
             close_program=1;
             end();
             exit(0);//<-- should never happen
@@ -20255,7 +20444,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             //set screen mode to 0 (80x25)
             qbg_screen(0,NULL,0,0,NULL,1|4|8);
             //make sure WIDTH is 80x25
-            qbsub_width(NULL,80,25,1|2);
+            qbsub_width(NULL,80,25,1|2,0,0);
             //restore palette
             restorepalette(write_page);
             //restore default colors
@@ -22235,7 +22424,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 if (i32==258){
                     generic_get(i,-1,(uint8*)&i32,4); i32b=i32;
                     generic_get(i,-1,(uint8*)&i32,4);
-                    qbsub_width(0,i32b,i32,1+2);
+                    qbsub_width(0,i32b,i32,1+2,0,0);
                     generic_get(i,-1,(uint8*)&i32,4);
                 }
             }
@@ -29361,3 +29550,112 @@ void reinit_glut_callbacks(){
         
     #endif
 }
+
+#ifdef QB64_WINDOWS
+    
+    int func__capslock(){
+        return GetKeyState(VK_CAPITAL);
+    }
+
+    int func__scrollock(){
+        return GetKeyState(VK_NUMLOCK);
+    }
+
+    int func__numlock(){
+        return GetKeyState(VK_SCROLL);
+    }
+
+    void sub__toggle_capslock(){
+        keybd_event (VK_CAPITAL, 0x45, 1, 0);
+        keybd_event (VK_CAPITAL, 0x45, 3, 0);
+    }
+
+    void sub__toggle_scrollock(){
+        keybd_event (VK_NUMLOCK, 0x45, 1, 0);
+        keybd_event (VK_NUMLOCK, 0x45, 3, 0);
+    }
+
+    void sub__toggle_numlock(){
+        keybd_event (VK_SCROLL, 0x45, 1, 0);
+        keybd_event (VK_SCROLL, 0x45, 3, 0);
+    }
+
+    void CFont(qbs* FontName, int FontSize){
+        SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+        HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+        static int OneTimePause;
+        if (!OneTimePause){ // a slight delay so the console can be properly created and registered with Windows, before we try and change fonts with it.       
+            Sleep(500); 
+            OneTimePause=1; //after the first pause, the console should be created, so we don't need any more delays in the future.
+        }
+        CONSOLE_FONT_INFOEX info = {0};
+        info.cbSize       = sizeof(info);
+        info.dwFontSize.Y = FontSize; // leave X as zero
+        info.FontWeight   = FW_NORMAL;
+        if (FontName->len>0){ //if we don't pass a font name, don't change the existing one.
+            const size_t cSize = FontName->len;
+            wchar_t* wc = new wchar_t[32];
+            mbstowcs (wc, (char *)FontName->chr, cSize);
+            wcscpy(info.FaceName, wc);
+            delete[] wc;
+        }
+
+        SetCurrentConsoleFontEx(cl_conout, NULL, &info);
+    }
+
+    void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed){
+        HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_CURSOR_INFO info;
+        
+        GetConsoleCursorInfo(consoleHandle, &info); //get the original info, so we reuse it, unless the user called for a change.
+
+        if (visible==1)info.bVisible = TRUE; //cursor is set to show
+        if (visible==2)info.bVisible = FALSE; //set to hide
+        if (passed&&cursorsize>=0&&cursorsize<=100)info.dwSize = cursorsize;  //the user passed the cursor size, of a suitable size
+            
+        SetConsoleCursorInfo(consoleHandle, &info);
+    }
+
+    int32 func__getconsoleinput(){
+        HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
+        INPUT_RECORD irInputRecord;
+        DWORD dwEventsRead, fdwMode;
+        CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+        SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+        HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+        HANDLE cl_conin =  CreateFileA("CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+        GetConsoleScreenBufferInfo(cl_conout, &cl_bufinfo);
+
+        fdwMode = ENABLE_EXTENDED_FLAGS;
+        SetConsoleMode(cl_conin, fdwMode);
+        fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+        SetConsoleMode(cl_conin, fdwMode);
+
+        ReadConsoleInputA (cl_conin, &irInputRecord, 1, &dwEventsRead);
+        switch(irInputRecord.EventType){
+            case KEY_EVENT: //keyboard input
+                consolekey = irInputRecord.Event.KeyEvent.wVirtualScanCode;
+                if (!irInputRecord.Event.KeyEvent.bKeyDown) consolekey = -consolekey; //positive/negative return of scan codes.
+                return 1;
+            case MOUSE_EVENT: //mouse input
+                consolemousex = irInputRecord.Event.MouseEvent.dwMousePosition.X + 1;
+                consolemousey = irInputRecord.Event.MouseEvent.dwMousePosition.Y - cl_bufinfo.srWindow.Top + 1; 
+                consolebutton = irInputRecord.Event.MouseEvent.dwButtonState; //button state for all buttons
+                return 2;
+        }
+        return 0; //in case it's some other odd input
+    }
+
+    int32 func__CInp (int32 toggle, int32 passed){
+        int32 temp = consolekey;
+        consolekey = 0; //reset the console key, now that we've read it
+        if (passed==0)toggle=1; //default return of positive/negative scan code values
+        if (toggle) {
+            return temp;
+        }else{
+            if (temp>=0)return temp;
+            return -temp + 128;
+        }
+    }
+
+#endif

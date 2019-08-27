@@ -2952,6 +2952,10 @@ __ARRAY_STRING_WARNING[5]=0;
 __ARRAY_STRING_WARNING[6]=0;
 __ARRAY_STRING_WARNING[0]=(ptrszint)&nothingstring;
 }
+if(__LONG_COLORHACK==NULL){
+__LONG_COLORHACK=(int32*)mem_static_malloc(4);
+*__LONG_COLORHACK=0;
+}
 if(__LONG_PTRSZ==NULL){
 __LONG_PTRSZ=(int32*)mem_static_malloc(4);
 *__LONG_PTRSZ=0;
@@ -3433,6 +3437,10 @@ static int64 fornext_value326;
 static int64 fornext_finalvalue326;
 static int64 fornext_step326;
 static uint8 fornext_step_negative326;
+if(__LONG_COLORHACKSET==NULL){
+__LONG_COLORHACKSET=(int32*)mem_static_malloc(4);
+*__LONG_COLORHACKSET=0;
+}
 static int64 fornext_value329;
 static int64 fornext_finalvalue329;
 static int64 fornext_step329;
@@ -3511,6 +3519,10 @@ static int64 fornext_value349;
 static int64 fornext_finalvalue349;
 static int64 fornext_step349;
 static uint8 fornext_step_negative349;
+if(__LONG_OLDLINENUMBER==NULL){
+__LONG_OLDLINENUMBER=(int32*)mem_static_malloc(4);
+*__LONG_OLDLINENUMBER=0;
+}
 if(__LONG_FIRSTDELIMITER==NULL){
 __LONG_FIRSTDELIMITER=(int32*)mem_static_malloc(4);
 *__LONG_FIRSTDELIMITER=0;

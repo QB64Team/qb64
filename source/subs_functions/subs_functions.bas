@@ -2734,9 +2734,10 @@ clearid
 id.n = "WIDTH"
 id.subfunc = 2
 id.callname = "qbsub_width"
-id.args = 3
-id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{#|LPRINT}][?][,?]" 'new!
+id.args = 5
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{#|LPRINT}][?][,[?][,[?][,[?]]]]" 'new!
+'id.specialformat = "[{#|LPRINT}][?][,?]" 'new!
 regid
 
 
@@ -3303,3 +3304,106 @@ id.specialformat = "?[,?]"
 id.ret = STRINGTYPE - ISPOINTER
 regid
 
+clearid
+id.n = "_BORDERWIDTH"
+id.subfunc =  1
+id.callname = "func__borderwidth"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_TITLEBARHEIGHT"
+id.subfunc =  1
+id.callname = "func__titlebarheight"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_CINP"
+id.subfunc =  1
+id.callname = "func__CInp"
+id.args = 1
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[?]"
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_CAPSLOCK"
+id.subfunc =  1
+id.callname = "func__capslock"
+id.args = 0
+id.ret = INTEGERTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_SCROLLOCK"
+id.subfunc =  1
+id.callname = "func__scrollock"
+id.args = 0
+id.ret = INTEGERTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_NUMLOCK"
+id.subfunc =  1
+id.callname = "func__numlock"
+id.args = 0
+id.ret = INTEGERTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_TOGGLE_CAPSLOCK"
+id.subfunc = 2
+id.callname = "sub__toggle_capslock"
+id.args = 0
+regid
+
+clearid
+id.n = "_TOGGLE_SCROLLOCK"
+id.subfunc = 2
+id.callname = "sub__toggle_scrollock"
+id.args = 0
+regid
+
+clearid
+id.n = "_TOGGLE_NUMLOCK"
+id.subfunc = 2
+id.callname = "sub__toggle_numlock"
+id.args = 0
+regid
+
+clearid
+id.n = "_CONSOLEFONT"
+id.subfunc = 2
+id.callname = "CFont"
+id.args = 2
+id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(INTEGERTYPE - ISPOINTER)
+regid
+
+clearid
+id.n = "_CONSOLECURSOR"
+id.subfunc = 2
+id.callname = "sub__console_cursor"
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER)  + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "[{_SHOW|_HIDE}][,?]"
+regid
+
+clearid
+id.n = "_CONSOLEMOUSEX"
+id.subfunc =  1
+id.callname = "func__consolemousex"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid
+
+clearid
+id.n = "_CONSOLEINPUT"
+id.subfunc =  1
+id.callname = "func__getconsoleinput"
+id.args = 0
+id.ret = LONGTYPE - ISPOINTER
+regid

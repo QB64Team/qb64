@@ -3,25 +3,25 @@ if(_FUNC_READCONFIGSETTING_LONG_READCONFIGSETTING==NULL){
 _FUNC_READCONFIGSETTING_LONG_READCONFIGSETTING=(int32*)mem_static_malloc(4);
 *_FUNC_READCONFIGSETTING_LONG_READCONFIGSETTING=0;
 }
-qbs*oldstr3486=NULL;
-if(_FUNC_READCONFIGSETTING_STRING_ITEM->tmp||_FUNC_READCONFIGSETTING_STRING_ITEM->fixed||_FUNC_READCONFIGSETTING_STRING_ITEM->readonly){
-oldstr3486=_FUNC_READCONFIGSETTING_STRING_ITEM;
-if (oldstr3486->cmem_descriptor){
-_FUNC_READCONFIGSETTING_STRING_ITEM=qbs_new_cmem(oldstr3486->len,0);
-}else{
-_FUNC_READCONFIGSETTING_STRING_ITEM=qbs_new(oldstr3486->len,0);
-}
-memcpy(_FUNC_READCONFIGSETTING_STRING_ITEM->chr,oldstr3486->chr,oldstr3486->len);
-}
 qbs*oldstr3487=NULL;
-if(_FUNC_READCONFIGSETTING_STRING_VALUE->tmp||_FUNC_READCONFIGSETTING_STRING_VALUE->fixed||_FUNC_READCONFIGSETTING_STRING_VALUE->readonly){
-oldstr3487=_FUNC_READCONFIGSETTING_STRING_VALUE;
+if(_FUNC_READCONFIGSETTING_STRING_ITEM->tmp||_FUNC_READCONFIGSETTING_STRING_ITEM->fixed||_FUNC_READCONFIGSETTING_STRING_ITEM->readonly){
+oldstr3487=_FUNC_READCONFIGSETTING_STRING_ITEM;
 if (oldstr3487->cmem_descriptor){
-_FUNC_READCONFIGSETTING_STRING_VALUE=qbs_new_cmem(oldstr3487->len,0);
+_FUNC_READCONFIGSETTING_STRING_ITEM=qbs_new_cmem(oldstr3487->len,0);
 }else{
-_FUNC_READCONFIGSETTING_STRING_VALUE=qbs_new(oldstr3487->len,0);
+_FUNC_READCONFIGSETTING_STRING_ITEM=qbs_new(oldstr3487->len,0);
 }
-memcpy(_FUNC_READCONFIGSETTING_STRING_VALUE->chr,oldstr3487->chr,oldstr3487->len);
+memcpy(_FUNC_READCONFIGSETTING_STRING_ITEM->chr,oldstr3487->chr,oldstr3487->len);
+}
+qbs*oldstr3488=NULL;
+if(_FUNC_READCONFIGSETTING_STRING_VALUE->tmp||_FUNC_READCONFIGSETTING_STRING_VALUE->fixed||_FUNC_READCONFIGSETTING_STRING_VALUE->readonly){
+oldstr3488=_FUNC_READCONFIGSETTING_STRING_VALUE;
+if (oldstr3488->cmem_descriptor){
+_FUNC_READCONFIGSETTING_STRING_VALUE=qbs_new_cmem(oldstr3488->len,0);
+}else{
+_FUNC_READCONFIGSETTING_STRING_VALUE=qbs_new(oldstr3488->len,0);
+}
+memcpy(_FUNC_READCONFIGSETTING_STRING_VALUE->chr,oldstr3488->chr,oldstr3488->len);
 }
 int32 *_FUNC_READCONFIGSETTING_LONG_INFILE=NULL;
 if(_FUNC_READCONFIGSETTING_LONG_INFILE==NULL){
@@ -42,7 +42,7 @@ _FUNC_READCONFIGSETTING_LONG_L=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_READCONFIGSETTING_STRING_COMPARE=NULL;
 if (!_FUNC_READCONFIGSETTING_STRING_COMPARE)_FUNC_READCONFIGSETTING_STRING_COMPARE=qbs_new(0,0);
-byte_element_struct *byte_element_3490=NULL;
-if (!byte_element_3490){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3490=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3490=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3491=NULL;
+if (!byte_element_3491){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3491=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3491=(byte_element_struct*)mem_static_malloc(12);
 }
