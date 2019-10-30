@@ -15287,11 +15287,12 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         #ifdef QB64_WINDOWS
             if (read_page->console){ 
                 int32 junk=0,junk2=0;
-
-                do{ //ignore all console input
-                    junk=func__getconsoleinput();
-                    junk2=consolekey;
-                }while(junk!=1); //until we have a key down event
+                do{ //ignore all console input unless it's a keydown event
+                    do{ //ignore all console input uless it's a keyboard event
+                        junk=func__getconsoleinput();
+                        junk2=consolekey;
+                    }while(junk!=1); //only when junk = 1 do we have a keyboard event
+                }while(junk2<=0); //only when junk2 > 0 do we have a key down event. (values less than 0 are key up events; 0 is a non event)  
                 do{ //now continue to get the console input
                     junk=func__getconsoleinput();
                 }while(consolekey!=-junk2); //until that key is released.  We don't need to leave the key up sequence in the buffer to screw things up with future reads.
