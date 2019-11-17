@@ -643,6 +643,10 @@ extern long double string2f(qbs*str);
 //Cobalt(aka Dave) added the next 2 lines
 int64 func__shr(int64 a1, int b1);
 int64 func__shl(int64 a1, int b1);
+int64 func__readbit(int64 a1, int b1);
+int64 func__setbit(int64 a1, int b1);
+int64 func__resetbit(int64 a1, int b1);
+int64 func__togglebit(int64 a1, int b1);
 #ifndef QB64_WINDOWS
     extern void Sleep(uint32 milliseconds);
     extern void ZeroMemory(void *ptr,int64 bytes);
@@ -976,6 +980,18 @@ inline int64 func__shl(int64 a1,int b1)
 
 inline int64 func__shr(int64 a1,int b1) 
 {return a1>>b1;}
+
+inline int64 func__readbit(int64 a1, int b1)
+{if (a1 & 1<<b1) return -1; else return 0;}
+
+inline int64 func__setbit(int64 a1, int b1)
+{return a1 | 1<<b1;}
+
+inline int64 func__resetbit(int64 a1, int b1)
+{return a1 & ~(1<<b1);}
+
+inline int64 func__togglebit(int64 a1, int b1)
+{return a1 ^ 1<<b1;}
 
 //Working with 32bit colors:
 inline uint32 func__rgb32(int32 r,int32 g,int32 b,int32 a){
