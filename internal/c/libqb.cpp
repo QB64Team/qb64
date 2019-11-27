@@ -3449,7 +3449,14 @@ void sub__putimage(double f_dx1,double f_dy1,double f_dx2,double f_dy2,int32 src
     if (d->text){error(5); return;}
     dbpp=d->bytes_per_pixel;
     if ((sbpp==4)&&(dbpp==1)){error(5); return;}
-    if (s==d){error(5); return;}//cannot put source onto itself!
+    if (s==d){
+        //{error(5); return;}//cannot put source onto itself!
+        int32 temphandle=func__copyimage(dst,NULL,0);
+        passed=passed|8; //make certain we set the flag TO LET QB64 know we're passing a handle to the temp image
+        sub__putimage(f_dx1, f_dy1, f_dx2, f_dy2,temphandle, dst, f_sx1, f_sy1, f_sx2, f_sy2, passed);
+        sub__freeimage(temphandle,1);
+        return;
+    }
     
     
     resolve_coordinates:
