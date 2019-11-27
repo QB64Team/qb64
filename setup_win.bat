@@ -35,12 +35,6 @@ if exist src.a del src.a
 call setup_build.bat
 cd ../../../../../..
 
-echo Building library 'Zlib'
-cd internal/c/parts/zlib-1.2.11/os/win
-if exist src.a del src.a
-call setup_build.bat
-cd ../../../../../..
-
 echo Building 'QB64'
 copy internal\source\*.* internal\temp\ >nul
 copy source\qb64.ico internal\temp\ >nul

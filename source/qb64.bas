@@ -1589,8 +1589,6 @@ DO
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
 
-        IF temp$ = "$COLOR:0" THEN GOTO finishedlinepp
-        IF temp$ = "$COLOR:32" THEN GOTO finishedlinepp
 
         IF LEFT$(temp$, 4) = "$IF " THEN
             IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$IF without THEN": GOTO errmes
@@ -1714,6 +1712,8 @@ DO
             GOTO finishedlinepp
         END IF
 
+        IF temp$ = "$COLOR:0" THEN GOTO finishedlinepp
+        IF temp$ = "$COLOR:32" THEN GOTO finishedlinepp
 
 
         cwholeline$ = wholeline$
@@ -2814,6 +2814,7 @@ subfuncn = 0
 lastLineReturn = 0
 lastLine = 0
 firstLine = 1
+UserDefineCount = 6
 ColorHackSet = 0
 
 FOR i = 0 TO constlast: constdefined(i) = 0: NEXT 'undefine constants
@@ -3058,11 +3059,6 @@ DO
             END IF
         END IF
 
-        IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
-            layoutdone = 0
-            GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
-        END IF
-
         IF LEFT$(a3u$, 5) = "$LET " THEN
             temp$ = a3u$
             temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
@@ -3083,6 +3079,12 @@ DO
             UserDefine(1, UserDefineCount) = r$
             GOTO finishednonexec
         END IF
+
+        IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
+            layoutdone = 0
+            GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
+        END IF
+
 
         IF a3u$ = "$COLOR:0" THEN
             IF NOT ColorHackSet THEN
@@ -24928,11 +24930,15 @@ FUNCTION EvalPreIF (text$, err$)
                 NEXT
             END IF
             IF INSTR(symbol$, "=") THEN 'check to see if we're equal in any case with =
+                UserFound = 0
                 FOR i = 0 TO UserDefineCount
-                    IF UserDefine(0, i) = l$ AND UserDefine(1, i) = r$ THEN result$ = " -1 ": GOTO finishedcheck
+                    IF UserDefine(0, i) = l$ THEN
+                        UserFound = -1
+                        IF UserDefine(1, i) = r$ THEN result$ = " -1 ": GOTO finishedcheck
+                    END IF
                 NEXT
-                IF NOT UserFound AND LTRIM$(RTRIM$(r$)) = "UNDEFINED" THEN result$ = " -1 ": GOTO finishedcheck
-                IF UserFound AND LTRIM$(RTRIM$(r$)) = "DEFINED" THEN result$ = " -1 ": GOTO finishedcheck
+                IF UserFound = 0 AND LTRIM$(RTRIM$(r$)) = "UNDEFINED" THEN result$ = " -1 ": GOTO finishedcheck
+                IF UserFound = -1 AND LTRIM$(RTRIM$(r$)) = "DEFINED" THEN result$ = " -1 ": GOTO finishedcheck
             END IF
 
             IF INSTR(symbol$, ">") THEN 'check to see if we're greater than in any case with >
