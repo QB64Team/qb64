@@ -29588,6 +29588,23 @@ void reinit_glut_callbacks(){
         keybd_event (VK_SCROLL, 0x45, 3, 0);
     }
 
+
+//CFont commented out as it requires more modern versions of Windows to run and work.
+//Adding it into QB64 would mean that we would no longer run on Windows XP and such,
+//and at this time, it's been decided that we dont actually want to drop compatability with those older operating systems.
+//I'll leave the code in here, in case it's decided later that we're no longer to stick
+//to Windows XP compatability.
+
+//For now, the easiest solution to this dilemma seems to be to just leave the code here, 
+//and place a stub which does nothing in place of it.
+//If people with newer operating systems want to make use of it, all they'd need to do is
+//comment out the stub and uncomment the actual working code, and then purge_libqb.bat to rebuild the library we link to.
+
+    void CFont(qbs* FontName, int FontSize){
+        return; //you can't get much stubbier than this!  LOL!
+    }
+
+/*
     void CFont(qbs* FontName, int FontSize){
         SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
         HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
@@ -29610,6 +29627,7 @@ void reinit_glut_callbacks(){
 
         SetCurrentConsoleFontEx(cl_conout, NULL, &info);
     }
+*/
 
     void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed){
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
