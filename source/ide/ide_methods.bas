@@ -332,6 +332,12 @@ FUNCTION ide2 (ignore)
             menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately)
         END IF
 
+        OptionsMenuIgnoreWarnings = i
+        menu$(m, 11) = "Ignore Warnings": i = 12
+        IF IgnoreWarnings THEN menu$(OptionsMenuID, 11) = CHR$(7) + "Ignore Warnings"
+
+
+
         menusize(m) = i - 1
 
         m = m + 1: i = 0
@@ -4652,6 +4658,22 @@ FUNCTION ide2 (ignore)
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show Compilation #Errors Immediately"
+                END IF
+                idechangemade = 1
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
+            IF RIGHT$(menu$(m, s), 15) = "Ignore Warnings" THEN
+                PCOPY 2, 0
+                IF Ignorewarnings = 0 THEN
+                    Ignorewarnings = -1
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "TRUE"
+                    menu$(OptionsMenuID, 11) = CHR$(7) + "Ignore Warnings"
+                ELSE
+                    Ignorewarnings = 0
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "FALSE"
+                    menu$(OptionsMenuID, 11) = "Ignore Warnings"
                 END IF
                 idechangemade = 1
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt

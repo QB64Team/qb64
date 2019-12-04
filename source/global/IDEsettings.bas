@@ -13,6 +13,7 @@ DIM SHARED PasteCursorAtEnd AS _BYTE
 DIM SHARED SaveExeWithSource AS _BYTE, EnableQuickNav AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
+DIM SHARED IgnoreWarnings AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -325,6 +326,17 @@ IF LoadedIDESettings = 0 THEN
             IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
             IDE_LeftPosition = 0
         END IF
+
+        result = ReadConfigSetting("IgnoreWarnings", value$)
+        IF result THEN
+            IF UCASE$(value$) = "TRUE" OR ABS(VAL(value$)) = 1 THEN
+                IgnoreWarnings = -1
+            ELSE
+                IgnoreWarnings = 0
+                WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "FALSE"
+            END IF
+        END IF
+
 
         'I was going to do some basic error checking for screen position to make certain that we appeared on the monitor,
         'but I decided not to.  Some people (like me) may have multiple monitors set up and may wish for QB64 to pop-up at

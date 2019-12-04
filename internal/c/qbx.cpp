@@ -982,16 +982,16 @@ inline int64 func__shr(int64 a1,int b1)
 {return a1>>b1;}
 
 inline int64 func__readbit(int64 a1, int b1)
-{if (a1 & 1<<b1) return -1; else return 0;}
+{if (a1 & 1ull<<b1) return -1; else return 0;}
 
 inline int64 func__setbit(int64 a1, int b1)
-{return a1 | 1<<b1;}
+{return a1 | 1ull<<b1;}
 
 inline int64 func__resetbit(int64 a1, int b1)
-{return a1 & ~(1<<b1);}
+{return a1 & ~(1ull<<b1);}
 
 inline int64 func__togglebit(int64 a1, int b1)
-{return a1 ^ 1<<b1;}
+{return a1 ^ 1ull<<b1;}
 
 //Working with 32bit colors:
 inline uint32 func__rgb32(int32 r,int32 g,int32 b,int32 a){
