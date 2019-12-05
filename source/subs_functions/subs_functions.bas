@@ -3268,8 +3268,8 @@ id.n = "_SHR"
 id.subfunc = 1
 id.callname = "func__shr"
 id.args = 2
-id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.ret = INTEGER64TYPE - ISPOINTER
+id.arg = MKL$(UINTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = UINTEGER64TYPE - ISPOINTER
 regid
 
 clearid
@@ -3277,8 +3277,8 @@ id.n = "_SHL"
 id.subfunc = 1
 id.callname = "func__shl"
 id.args = 2
-id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.ret = INTEGER64TYPE - ISPOINTER
+id.arg = MKL$(UINTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = UINTEGER64TYPE - ISPOINTER
 regid
 
 clearid
@@ -3413,7 +3413,7 @@ id.n = "_READBIT"
 id.subfunc = 1
 id.callname = "func__readbit"
 id.args = 2
-id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.arg = MKL$(UINTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.ret = INTEGER64TYPE - ISPOINTER
 regid
 
@@ -3422,8 +3422,8 @@ id.n = "_SETBIT"
 id.subfunc = 1
 id.callname = "func__setbit"
 id.args = 2
-id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.ret = INTEGER64TYPE - ISPOINTER
+id.arg = MKL$(UINTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = UINTEGER64TYPE - ISPOINTER
 regid
 
 clearid
@@ -3431,8 +3431,8 @@ id.n = "_RESETBIT"
 id.subfunc = 1
 id.callname = "func__resetbit"
 id.args = 2
-id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.ret = INTEGER64TYPE - ISPOINTER
+id.arg = MKL$(UINTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = UINTEGER64TYPE - ISPOINTER
 regid
 
 clearid
@@ -3440,6 +3440,6 @@ id.n = "_TOGGLEBIT"
 id.subfunc = 1
 id.callname = "func__togglebit"
 id.args = 2
-id.arg = MKL$(INTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.ret = INTEGER64TYPE - ISPOINTER
+id.arg = MKL$(UINTEGER64TYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = UINTEGER64TYPE - ISPOINTER
 regid
