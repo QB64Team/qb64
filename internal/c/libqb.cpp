@@ -6792,6 +6792,12 @@ void sub__keyclear(int32 buf, int32 passed) {
         //INP(&H60) buffer
         port60h_events = 0;
     }
+    #ifdef QB64_WINDOWS
+        //Windows Console Buffer
+        FlushConsoleInputBuffer(GetStdHandle (STD_INPUT_HANDLE));
+    #endif
+
+
 }
 
 //STR() functions
@@ -15290,27 +15296,51 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     void sub_sleep(int32 seconds,int32 passed){
         if (new_error) return;
+
+        sleep_break=0;
+        double prev,ms,now,elapsed;//cannot be static
+        prev=GetTicks();
+        ms=1000.0*(double)seconds;
         
         #ifdef QB64_WINDOWS
+
             if (read_page->console){ 
                 int32 junk=0,junk2=0;
+                DWORD dwRet;
+                HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
+                FlushConsoleInputBuffer(hStdin);
+                if (passed){
+                            do{
+                                now=GetTicks();
+                                if (now<prev)return;//value looped?
+                                elapsed=now-prev;//elapsed time since prev
+                                ms = ms-elapsed;
+                                prev=now;
+                                dwRet = WaitForSingleObject(hStdin,ms); //this should provide our pause
+                                if (dwRet==WAIT_TIMEOUT)return; //and if we timeout without any input, we exit early.
+                                if (dwRet==WAIT_OBJECT_0){//this says the console had input
+                                    junk=func__getconsoleinput();
+                                    if(junk==1){//this is a valid keyboard event.  Let's exit SLEEP in the console.
+                                        Sleep(100);//Give the user time to remove their finger from the key, before clearing the buffer.
+                                        FlushConsoleInputBuffer(hStdin);//flush the keyboard buffer after, so we don't leave stray events to be processed (such as key up events).
+                                        return;
+                                    }else{//we had an input event such as the mouse.  Ignore it and clear the buffer so we don't keep responding to mouse inputs
+                                        FlushConsoleInputBuffer(hStdin);
+                                    }
+                                }
+                            }while(ms>0);//as long as our timer hasn't expired, we continue to run the loop and countdown the time remaining
+                            return; //if we get here, something odd happened.  We should expire automatically with the WAIT_TIMEOUT event before this occurs.
+                }
                 do{ //ignore all console input unless it's a keydown event
-                    do{ //ignore all console input uless it's a keyboard event
-                        junk=func__getconsoleinput();
-                        junk2=consolekey;
-                    }while(junk!=1); //only when junk = 1 do we have a keyboard event
-                }while(junk2<=0); //only when junk2 > 0 do we have a key down event. (values less than 0 are key up events; 0 is a non event)  
-                do{ //now continue to get the console input
                     junk=func__getconsoleinput();
-                }while(consolekey!=-junk2); //until that key is released.  We don't need to leave the key up sequence in the buffer to screw things up with future reads.
+                }while(junk!=1); //only when junk = 1 do we have a keyboard event
+                Sleep(100); //Give the user time to remove their finger from the key, before clearing the buffer.
+                FlushConsoleInputBuffer(hStdin); //and flush the keyboard buffer after, so we don't leave stray events to be processed.
                 return;
             }
         #endif
 
-        sleep_break=0;
-        double prev,ms,now,elapsed;//cannot be static
-        if (passed) prev=GetTicks();
-        ms=1000.0*(double)seconds;
+
         recalculate:
         wait:
         evnt(0);//handle general events
@@ -19746,6 +19776,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                         #ifdef QB64_WINDOWS
                             cout<<"\nPress any key to continue";
                             int32 junk;
+                            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //clear any stray buffer events before we run END.
                             do{ //ignore all console input
                                 junk=func__getconsoleinput();
                             }while(junk!=1); //until we have a key down event
@@ -29631,19 +29662,16 @@ void reinit_glut_callbacks(){
     int32 func__getconsoleinput(){
         HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
         INPUT_RECORD irInputRecord;
-        DWORD dwEventsRead, fdwMode;
+        DWORD dwEventsRead, fdwMode, dwMode;
         CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
-        SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
-        HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
-        HANDLE cl_conin =  CreateFileA("CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
-        GetConsoleScreenBufferInfo(cl_conout, &cl_bufinfo);
-
+     
+        GetConsoleMode(hStdin, (LPDWORD)&dwMode);
         fdwMode = ENABLE_EXTENDED_FLAGS;
-        SetConsoleMode(cl_conin, fdwMode);
-        fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-        SetConsoleMode(cl_conin, fdwMode);
+        SetConsoleMode(hStdin, fdwMode);
+        fdwMode = dwMode | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+        SetConsoleMode(hStdin, fdwMode);
 
-        ReadConsoleInputA (cl_conin, &irInputRecord, 1, &dwEventsRead);
+        ReadConsoleInputA (hStdin, &irInputRecord, 1, &dwEventsRead);
         switch(irInputRecord.EventType){
             case KEY_EVENT: //keyboard input
                 consolekey = irInputRecord.Event.KeyEvent.wVirtualScanCode;
@@ -29653,6 +29681,7 @@ void reinit_glut_callbacks(){
                 consolemousex = irInputRecord.Event.MouseEvent.dwMousePosition.X + 1;
                 consolemousey = irInputRecord.Event.MouseEvent.dwMousePosition.Y - cl_bufinfo.srWindow.Top + 1; 
                 consolebutton = irInputRecord.Event.MouseEvent.dwButtonState; //button state for all buttons
+                //SetConsoleMode(hStdin, dwMode);
                 return 2;
         }
         return 0; //in case it's some other odd input
