@@ -4127,8 +4127,20 @@ FUNCTION ide2 (ignore)
     s = 0
     parentMenu = 0
     parentMenuSetup%% = 0
-    IF idecontextualmenu = 1 THEN idectxmenuX = mX: idectxmenuY = mY: m = idecontextualmenuID
-    IF idecontextualmenu = 2 THEN idectxmenuX = xx + w + 3: idectxmenuY = yy + r: parentMenu = m: m = ViewMenuShowLineNumbersSubMenuID
+    SELECT CASE idecontextualmenu
+        CASE 1
+            'right-click on text area
+            idectxmenuX = mX
+            idectxmenuY = mY
+            m = idecontextualmenuID
+        CASE 2
+            'line numbers menu item in View menu
+            idectxmenuX = xx + w + 3
+            idectxmenuY = yy + r
+            parentMenu = m
+            m = ViewMenuShowLineNumbersSubMenuID
+    END SELECT
+
     IdeMakeEditMenu
 
     IF totalWarnings = 0 THEN
@@ -4298,6 +4310,7 @@ FUNCTION ide2 (ignore)
                 m = parentMenu
                 r = parentMenuR
                 parentMenu = 0
+                parentMenuR = 0
                 idecontextualmenu = 0
                 PCOPY 3, 2
                 _CONTINUE
@@ -4308,6 +4321,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
         END IF
+
         IF NOT mouseup AND NOT mousedown THEN 'Check if we're hovering on menu options
             IF parentMenu > 0 AND oldmy <> mY AND oldmx <> mX AND _
                mX >= backToParent.x1 AND mX =< backToParent.x2 AND _
@@ -4315,6 +4329,7 @@ FUNCTION ide2 (ignore)
                 m = parentMenu
                 r = parentMenuR
                 parentMenu = 0
+                parentMenuR = 0
                 idecontextualmenu = 0
                 PCOPY 3, 2
                 _CONTINUE
@@ -4342,6 +4357,8 @@ FUNCTION ide2 (ignore)
                         IF mX >= x AND mX < x2 THEN
                             m = i
                             r = 1
+                            parentMenuR = 0
+                            parentMenu = 0
                             IF idecontextualmenu > 1 THEN idecontextualmenu = 0: PCOPY 3, 2
                             EXIT FOR
                         END IF
