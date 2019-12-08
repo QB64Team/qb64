@@ -11528,63 +11528,84 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
 
 //input helper functions:
 uint64 hexoct2uint64_value;
-int32 hexoct2uint64(qbs* h){
-    //returns 0=failed
-    //        1=HEX value (default if unspecified)
-    //        2=OCT value
-    static int32 i,i2;
-    static uint64 result;
-    result=0;
-    static int32 type;
-    type=0;
-    hexoct2uint64_value=0;
-    if (!h->len) return 1;
-    if (h->chr[0]!=38) return 0;//not "&"
-    if (h->len==1) return 1;//& received, but awaiting further input
-    i=h->chr[1];
-    if ((i==72)||(i==104)) type=1;//"H"or"h"
-    if ((i==79)||(i==111)) type=2;//"O"or"o"
-    if (!type) return 0;
-    if (h->len==2) return type;
-    
-    if (type==1){
-        if (h->len>18) return 0;//larger than int64
-        for (i=2;i<h->len;i++){
-            result<<=4;
-            i2=h->chr[i];
-            //          0  -      9             A  -      F             a  -      f
-            if ( ((i2>=48)&&(i2<=57)) || ((i2>=65)&&(i2<=70)) || ((i2>=97)&&(i2<=102)) ){
-                if (i2>=97) i2-=32;
-                if (i2>=65) i2-=7;
-                i2-=48;
-                //i2 is now a values between 0 and 15
-                result+=i2;
-            }else return 0;//invalid character
-        }//i
-        hexoct2uint64_value=result;
-        return 1;
-    }//type==1
-    
-    if (type==2){
-        //unsigned _int64 max=18446744073709551615 (decimal, 20 chars)
-        //                   =1777777777777777777777 (octal, 22 chars)
-        //                   =FFFFFFFFFFFFFFFF (hex, 16 chars)
-        if (h->len>24) return 0;//larger than int64
-        if (h->len==24){
-            if ((h->chr[2]!=48)&&(h->chr[2]!=49)) return 0;//larger than int64
-        }
-        for (i=2;i<h->len;i++){
-            result<<=3;
-            i2=h->chr[i];
-            if ((i2>=48)&&(i2<=55)){//0-7
-                i2-=48;
-                result+=i2;
-            }else return 0;//invalid character
-        }//i
-        hexoct2uint64_value=result;
-        return 2;
-    }//type==2
-    
+int32 hexoct2uint64(qbs *h) {
+  // returns 0 = failed
+  //         1 = HEX value (default if unspecified)
+  //         2 = OCT value
+  //         3 = BIN value
+  static int32 i, i2;
+  static uint64 result;
+  result = 0;
+  static int32 type;
+  type = 0;
+  hexoct2uint64_value = 0;
+  if (!h->len) return 1;
+  if (h->chr[0] != 38) return 0;  // not "&"
+  if (h->len == 1) return 1;      // "&" received, but awaiting further input
+  i = h->chr[1];
+  if ((i == 72) || (i == 104)) type = 1;  // "H" or "h"
+  if ((i == 79) || (i == 111)) type = 2;  // "O" or "o"
+  if ((i == 66) || (i ==  98)) type = 3;  // "B" or "b"
+  if (!type) return 0;
+  if (h->len == 2) return type;
+
+  // unsigned _int64 max = 18446744073709551615   (decimal, 20 chars)
+  //                     = 1111111 etc., max. 64x (binary, 64 chars)
+  //                     = 1777777777777777777777 (octal, 22 chars)
+  //                     = FFFFFFFFFFFFFFFF       (hex, 16 chars)
+
+  if (type == 1) {
+    if (h->len > 18) return 0;  // larger than int64
+    for (i = 2; i < h->len; i++) {
+      result <<= 4;
+      i2 = h->chr[i];
+      //           0      -      9       /       A      -      F       /       a      -      f
+      if (((i2 >= 48) && (i2 <= 57)) || ((i2 >= 65) && (i2 <= 70)) || ((i2 >= 97) && (i2 <= 102))) {
+        if (i2 >= 97) i2 -= 32;
+        if (i2 >= 65) i2 -= 7;
+        i2 -= 48;
+        // i2 is now a values between 0 and 15
+        result += i2;
+      } else
+        return 0;  // invalid character
+    }  // i
+    hexoct2uint64_value = result;
+    return 1;
+  }  // type == 1
+
+  if (type == 2) {
+    if (h->len > 24) return 0;  // larger than int64
+    if (h->len == 24) {
+      if ((h->chr[2] != 48) && (h->chr[2] != 49))
+        return 0;  // larger than int64
+    }
+    for (i = 2; i < h->len; i++) {
+      result <<= 3;
+      i2 = h->chr[i];
+      if ((i2 >= 48) && (i2 <= 55)) {  // 0-7
+        i2 -= 48;
+        result += i2;
+      } else
+        return 0;  // invalid character
+    }  // i
+    hexoct2uint64_value = result;
+    return 2;
+  }  // type == 2
+
+  if (type == 3) {
+    if (h->len > 66) return 0;  // larger than int64
+    for (i = 2; i < h->len; i++) {
+      result <<= 1;
+      i2 = h->chr[i];
+      if ((i2 >= 48) && (i2 <= 49)) {  // 0-1
+        i2 -= 48;
+        result += i2;
+      } else
+        return 0;  // invalid character
+    }  // i
+    hexoct2uint64_value = result;
+    return 3;
+  }  // type == 3
 }
 
 
@@ -11755,7 +11776,7 @@ void qbs_input(int32 numvariables,uint8 newline){
                     max<<=i4;
                     max--;
                     
-                    //check for hex/oct
+                    //check for hex/oct/bin
                     if (i3=hexoct2uint64(qbs_input_arguements[argn])){
                         hexvalue=hexoct2uint64_value;
                         if (hexvalue>max){valid=0; goto typechecked;}
@@ -11780,7 +11801,18 @@ void qbs_input(int32 numvariables,uint8 newline){
                                 value>>=3;
                             }
                             if (l>(2+i)){valid=0; goto typechecked;}
-                            if (l==1) completewith=111;//"O"
+                            if (l==1) completewith=79;//"O"
+                            if (l==2) completewith=48;//"0"
+                        }
+                        if (i3==3){
+                            value=max;
+                            i=0;
+                            for (i2=1;i2<=64;i2++){
+                                if (value&0x1) i=i2;
+                                value>>=1;
+                            }
+                            if (l>(2+i)){valid=0; goto typechecked;}
+                            if (l==1) completewith=66;//"B"
                             if (l==2) completewith=48;//"0"
                         }
                         finalvalue=hexvalue;
@@ -11852,13 +11884,14 @@ void qbs_input(int32 numvariables,uint8 newline){
                 if ((qbs_input_variabletypes[argn]&511)==64){
                     if (l==0){completewith=48; *(int64*)qbs_input_variableoffsets[argn]=0; goto typechecked;}
                     
-                    //check for hex/oct
+                    //check for hex/oct/bin
                     if (i3=hexoct2uint64(qbs_input_arguements[argn])){
                         hexvalue=hexoct2uint64_value;
                         if (hexvalue>max){valid=0; goto typechecked;}
                         //set completewith value (if necessary)
                         if (i3==1) if (l==1) completewith=72;//"H"
-                        if (i3==2) if (l==1) completewith=111;//"O"
+                        if (i3==2) if (l==1) completewith=79;//"O"
+                        if (i3==3) if (l==1) completewith=66;//"B"
                         if (l==2) completewith=48;//"0"
                         *(uint64*)qbs_input_variableoffsets[argn]=hexvalue;
                         goto typechecked;
@@ -11942,12 +11975,13 @@ void qbs_input(int32 numvariables,uint8 newline){
             //begin with a generic assessment, regardless of whether it is single, double or float
             if (l==0){completewith=48; goto typechecked;}
             
-            //check for hex/oct
+            //check for hex/oct/bin
             if (i3=hexoct2uint64(qbs_input_arguements[argn])){
                 hexvalue=hexoct2uint64_value;
                 //set completewith value (if necessary)
                 if (i3==1) if (l==1) completewith=72;//"H"
-                if (i3==2) if (l==1) completewith=111;//"O"
+                if (i3==2) if (l==1) completewith=79;//"O"
+                if (i3==3) if (l==1) completewith=66;//"B"
                 if (l==2) completewith=48;//"0"
                 //nb. because VC6 didn't support...
                 //error C2520: conversion from uint64 to double not implemented, use signed int64
@@ -13277,8 +13311,9 @@ uint8 n_digit[256];
 int64 n_exp;//if 0, there is one digit in front of the decimal place
 uint8 n_neg;//if 1, the number is negative
 uint8 n_hex;//if 1, the digits are in hexidecimal and n_exp should be ignored
-//if 2, the digits are in octal and n_exp should be ignored
-//(consider revising variable name n_hex)
+            //if 2, the digits are in octal and n_exp should be ignored
+            //if 3, the digits are in binary and n_exp should be ignored
+            //(consider revising variable name n_hex)
 
 int32 n_roundincrement(){
     static int32 i,i2,i3;
@@ -13324,6 +13359,17 @@ int32 n_float(){
         for (i=0;i<n_digits;i++){
             i2=n_digit[i]-48;
             value<<=3;
+            value|=i2;
+        }
+        n_float_value=value;
+        return 1;
+    }
+    //bin?
+    if (n_hex==3){
+        if (n_digits>64) return 0;
+        for (i=0;i<n_digits;i++){
+            i2=n_digit[i]-48;
+            value<<=1;
             value|=i2;
         }
         n_float_value=value;
@@ -13399,7 +13445,6 @@ int32 n_int64(){
         return 1;
     }
     //oct
-    
     if (n_hex==2){
         if (n_digits>=22){
             
@@ -13408,6 +13453,17 @@ int32 n_int64(){
         for (i=0;i<n_digits;i++){
             i2=n_digit[i]-48;
             value<<=3;
+            value|=i2;
+        }
+        n_int64_value=value;
+        return 1;
+    }
+    //bin
+    if (n_hex==3){
+        if (n_digits>64) return 0;
+        for (i=0;i<n_digits;i++){
+            i2=n_digit[i]-48;
+            value<<=1;
             value|=i2;
         }
         n_int64_value=value;
@@ -13493,6 +13549,17 @@ int32 n_uint64(){
         n_uint64_value=uvalue;
         return 1;
     }
+    //bin
+    if (n_hex==3){
+        if (n_digits>64) return 0;
+        for (i=0;i<n_digits;i++){
+            i2=n_digit[i]-48;
+            uvalue<<=1;
+            uvalue|=i2;
+        }
+        n_uint64_value=uvalue;
+        return 1;
+    }
     
     //negative?
     if (n_neg){
@@ -13561,41 +13628,72 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
     //read character
     c=data[*data_offset];
     
-    //hex/oct
-    if (c==38){//&
-        (*data_offset)++; if (*data_offset>=data_size) goto gotnumber;
-        c=data[*data_offset];
-        if (c==44){(*data_offset)++; goto gotnumber;}
-        if ((c==72)||(c==104)){//"H"or"h"
-            nexthexchr:
-            (*data_offset)++; if (*data_offset>=data_size) goto gotnumber;
-            c=data[*data_offset];
-            if (c==44){(*data_offset)++; goto gotnumber;}
-            if ( ((c>=48)&&(c<=57)) || ((c>=65)&&(c<=70)) || ((c>=97)&&(c<=102)) ){//0-9 or A-F or a-f
-                if (n_digits==256) return 1;//Overflow
-                n_digit[n_digits]=c;
-                n_digits++;
-                n_hex=1;
-                goto nexthexchr;
-            }
-            return 3;//Syntax error
+    // hex/oct/bin
+    if (c == 38) {  // "&"
+      (*data_offset)++;
+      if (*data_offset >= data_size) goto gotnumber;
+      c = data[*data_offset];
+      if (c == 44) {
+        (*data_offset)++;
+        goto gotnumber;
+      }
+      if ((c == 72) || (c == 104)) {  // "H" or "h"
+      nexthexchr:
+        (*data_offset)++;
+        if (*data_offset >= data_size) goto gotnumber;
+        c = data[*data_offset];
+        if (c == 44) {
+          (*data_offset)++;
+          goto gotnumber;
         }
-        if ((c==79)||(c==111)){//"O"or"o"
-            nexthexchr2:
-            (*data_offset)++; if (*data_offset>=data_size) goto gotnumber;
-            c=data[*data_offset];
-            if (c==44){(*data_offset)++; goto gotnumber;}
-            if ((c>=48)&&(c<=55)){//0-7
-                if (n_digits==256) return 1;//Overflow
-                n_digit[n_digits]=c;
-                n_digits++;
-                n_hex=2;
-                goto nexthexchr2;
-            }
-            return 3;//Syntax error
+        if (((c >= 48) && (c <= 57)) || ((c >= 65) && (c <= 70)) ||
+            ((c >= 97) && (c <= 102))) {  // 0-9 or A-F or a-f
+          if (n_digits == 256) return 1;  // Overflow
+          n_digit[n_digits] = c;
+          n_digits++;
+          n_hex = 1;
+          goto nexthexchr;
         }
-        return 3;//Syntax error
-    }//&
+        return 3;  // Syntax error
+      }
+      if ((c == 79) || (c == 111)) {  // "O" or "o"
+      nexthexchr2:
+        (*data_offset)++;
+        if (*data_offset >= data_size) goto gotnumber;
+        c = data[*data_offset];
+        if (c == 44) {
+          (*data_offset)++;
+          goto gotnumber;
+        }
+        if ((c >= 48) && (c <= 55)) {     // 0-7
+          if (n_digits == 256) return 1;  // Overflow
+          n_digit[n_digits] = c;
+          n_digits++;
+          n_hex = 2;
+          goto nexthexchr2;
+        }
+        return 3;  // Syntax error
+      }
+      if ((c == 66) || (c == 98)) {  // "B" or "b"
+      nexthexchr3:
+        (*data_offset)++;
+        if (*data_offset >= data_size) goto gotnumber;
+        c = data[*data_offset];
+        if (c == 44) {
+          (*data_offset)++;
+          goto gotnumber;
+        }
+        if ((c >= 48) && (c <= 49)) {     // 0-1
+          if (n_digits == 256) return 1;  // Overflow
+          n_digit[n_digits] = c;
+          n_digits++;
+          n_hex = 3;
+          goto nexthexchr3;
+        }
+        return 3;  // Syntax error
+      }
+      return 3;  // Syntax error
+    }  // "&"
     
     readnextchr:
     if (c==44){(*data_offset)++; goto gotnumber;}
@@ -13737,36 +13835,53 @@ int32 n_inputnumberfromfile(int32 fileno){
         if (c==-1){return_value=2; goto error;}//input past end of file
     }while(c==32);
     
-    //hex/oct
-    if (c==38){//&
-        c=file_input_chr(fileno); if (c==-2) return 3;
-        if (c==-1) goto gotnumber;
-        if ((c==72)||(c==104)){//"H"or"h"
-            nexthexchr:
-            c=file_input_chr(fileno); if (c==-2) return 3;
-            if ( ((c>=48)&&(c<=57)) || ((c>=65)&&(c<=70)) || ((c>=97)&&(c<=102)) ){//0-9 or A-F or a-f
-                if (n_digits==256) goto error;//overflow
-                n_digit[n_digits]=c;
-                n_digits++;
-                n_hex=1;
-                goto nexthexchr;
-            }
-            goto gotnumber;
-        }
-        if ((c==79)||(c==111)){//"O"or"o"
-            nexthexchr2:
-            c=file_input_chr(fileno); if (c==-2) return 3;
-            if ((c>=48)&&(c<=55)){//0-7
-                if (n_digits==256) goto error;//overflow
-                n_digit[n_digits]=c;
-                n_digits++;
-                n_hex=2;
-                goto nexthexchr2;
-            }
-            goto gotnumber;
+    // hex/oct/bin
+    if (c == 38) {  // "&"
+      c = file_input_chr(fileno);
+      if (c == -2) return 3;
+      if (c == -1) goto gotnumber;
+      if ((c == 72) || (c == 104)) {  // "H" or "h"
+      nexthexchr:
+        c = file_input_chr(fileno);
+        if (c == -2) return 3;
+        if (((c >= 48) && (c <= 57)) || ((c >= 65) && (c <= 70)) ||
+            ((c >= 97) && (c <= 102))) {    // 0-9 or A-F or a-f
+          if (n_digits == 256) goto error;  // overflow
+          n_digit[n_digits] = c;
+          n_digits++;
+          n_hex = 1;
+          goto nexthexchr;
         }
         goto gotnumber;
-    }//&
+      }
+      if ((c == 79) || (c == 111)) {  // "O" or "o"
+      nexthexchr2:
+        c = file_input_chr(fileno);
+        if (c == -2) return 3;
+        if ((c >= 48) && (c <= 55)) {       // 0-7
+          if (n_digits == 256) goto error;  // overflow
+          n_digit[n_digits] = c;
+          n_digits++;
+          n_hex = 2;
+          goto nexthexchr2;
+        }
+        goto gotnumber;
+      }
+      if ((c == 66) || (c == 98)) {  // "B" or "b"
+      nexthexchr3:
+        c = file_input_chr(fileno);
+        if (c == -2) return 3;
+        if ((c >= 48) && (c <= 49)) {       // 0-1
+          if (n_digits == 256) goto error;  // overflow
+          n_digit[n_digits] = c;
+          n_digits++;
+          n_hex = 3;
+          goto nexthexchr3;
+        }
+        goto gotnumber;
+      }
+      goto gotnumber;
+    }  // "&"
     
     readnextchr:
     if (c==-1) goto gotnumber;
@@ -14052,7 +14167,7 @@ long double func_read_float(uint8 *data,ptrszint *data_offset,ptrszint data_size
         }
         if ((value>maxval)||(value<minval)) goto overflow;
         
-        if (((typ&ISUNSIGNED)==0)&&n_hex){//signed hex/oct/...  
+        if (((typ&ISUNSIGNED)==0)&&n_hex){//signed hex/oct/bin/...  
             if (  ( ((int64)1) << ((typ&511)-1) )  &value){//if top bit is set, set all bits above it to form a negative value
                 value=(maxval^((int64)-1))+value;
             }
@@ -14157,7 +14272,7 @@ long double func_file_input_float(int32 fileno,int32 typ){
         }
         if ((value>maxval)||(value<minval)){error(6); return 0;}
         
-        if (((typ&ISUNSIGNED)==0)&&n_hex){//signed hex/oct/...  
+        if (((typ&ISUNSIGNED)==0)&&n_hex){//signed hex/oct/bin/...  
             if (  ( ((int64)1) << ((typ&511)-1) )  &value){//if top bit is set, set all bits above it to form a negative value
                 value=(maxval^((int64)-1))+value;
             }
@@ -18403,7 +18518,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             i2=newimg();
             d=&img[i2];
             memcpy(d,s,sizeof(img_struct));
-            img[i2].lock_id=NULL; img[i2].lock_offset=NULL; // force _MEMIMGAGE to get a new lock for the copy
+            //don't duplicate the memory lock (if any),
+            //_MEMIMAGE needs to obtain a new lock for the copy
+            img[i2].lock_id=NULL;
+            img[i2].lock_offset=NULL;
             //duplicate pixel data
             bytes=d->width*d->height*d->bytes_per_pixel;
             d->offset=(uint8*)malloc(bytes);
