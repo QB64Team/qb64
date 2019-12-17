@@ -641,12 +641,12 @@ extern float string2s(qbs*str);
 extern double string2d(qbs*str);
 extern long double string2f(qbs*str);
 //Cobalt(aka Dave) added the next 2 lines
-int64 func__shr(int64 a1, int b1);
-int64 func__shl(int64 a1, int b1);
-int64 func__readbit(int64 a1, int b1);
-int64 func__setbit(int64 a1, int b1);
-int64 func__resetbit(int64 a1, int b1);
-int64 func__togglebit(int64 a1, int b1);
+uint64 func__shr(uint64 a1, int b1);
+uint64 func__shl(uint64 a1, int b1);
+int64 func__readbit(uint64 a1, int b1);
+uint64 func__setbit(uint64 a1, int b1);
+uint64 func__resetbit(uint64 a1, int b1);
+uint64 func__togglebit(uint64 a1, int b1);
 #ifndef QB64_WINDOWS
     extern void Sleep(uint32 milliseconds);
     extern void ZeroMemory(void *ptr,int64 bytes);
@@ -975,22 +975,22 @@ inline int32 func_sgn(long double v){
 }
 
 //bit-shifting
-inline int64 func__shl(int64 a1,int b1) 
+inline uint64 func__shl(uint64 a1,int b1) 
 {return a1<<b1;}
 
-inline int64 func__shr(int64 a1,int b1) 
+inline uint64 func__shr(uint64 a1,int b1) 
 {return a1>>b1;}
 
-inline int64 func__readbit(int64 a1, int b1)
+inline int64 func__readbit(uint64 a1, int b1)
 {if (a1 & 1ull<<b1) return -1; else return 0;}
 
-inline int64 func__setbit(int64 a1, int b1)
+inline uint64 func__setbit(uint64 a1, int b1)
 {return a1 | 1ull<<b1;}
 
-inline int64 func__resetbit(int64 a1, int b1)
+inline uint64 func__resetbit(uint64 a1, int b1)
 {return a1 & ~(1ull<<b1);}
 
-inline int64 func__togglebit(int64 a1, int b1)
+inline uint64 func__togglebit(uint64 a1, int b1)
 {return a1 ^ 1ull<<b1;}
 
 //Working with 32bit colors:
