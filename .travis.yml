@@ -13,6 +13,7 @@ addons:
   apt:
     packages:
     - p7zip-full
+    - libglu1-mesa-dev
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_efd51ce9e893_key -iv $encrypted_efd51ce9e893_iv
   -in .travis/travis-qb64.org_rsa.enc -out /tmp/travis-qb64.org_rsa -d
@@ -28,5 +29,3 @@ deploy:
     - development
     - master
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y libglu1-mesa-dev
