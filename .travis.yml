@@ -8,12 +8,6 @@ matrix:
     compiler: clang
   - os: linux
     compiler: gcc
-notifications:
-  irc:
-    channels: chat.freenode.net#qb64
-    skip_join: true
-    template:
-    - 'Autobuild of branch %{branch}: %{message}'
 addons:
   ssh_known_hosts: qb64.org
   apt:
@@ -34,3 +28,5 @@ deploy:
     - development
     - master
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y libglu1-mesa-dev
