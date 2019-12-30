@@ -674,12 +674,12 @@ FUNCTION ide2 (ignore)
                     LOCATE idewy - 2, 2
                     PRINT "Location: ";
                     COLOR 11, 1
-                    IF path.exe$ = "" THEN path.exe$ = getfilepath$(COMMAND$(0))
-                    IF RIGHT$(path.exe$, 1) <> pathsep$ THEN path.exe$ = path.exe$ + pathsep$
-                    IF POS(0) + LEN(path.exe$) > idewx THEN
-                        PRINT "..."; RIGHT$(path.exe$, idewx - 15);
+                    location$ = lastBinaryGenerated$
+                    IF path.exe$ = "" THEN location$ = _STARTDIR$ + pathsep$ + location$
+                    IF POS(0) + LEN(location$) > idewx THEN
+                        PRINT "..."; RIGHT$(location$, idewx - 15);
                     ELSE
-                        PRINT path.exe$;
+                        PRINT location$;
                     END IF
                     statusarealink = 3
                 END IF
@@ -1418,7 +1418,7 @@ FUNCTION ide2 (ignore)
                         CASE 3
                             '3- Link to the output folder when "Output EXE to source #folder" is checked:
                             IF INSTR(_OS$, "WIN") THEN
-                                SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
+                                SHELL _DONTWAIT "explorer /select," + QuotedFilename$(lastBinaryGenerated$)
                             ELSEIF INSTR(_OS$, "MAC") THEN
                                 SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
                             ELSE
