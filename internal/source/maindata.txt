@@ -481,6 +481,10 @@ if(__LONG_IDEHELP==NULL){
 __LONG_IDEHELP=(int32*)mem_static_malloc(4);
 *__LONG_IDEHELP=0;
 }
+if(__INTEGER_STATUSAREALINK==NULL){
+__INTEGER_STATUSAREALINK=(int16*)mem_static_malloc(2);
+*__INTEGER_STATUSAREALINK=0;
+}
 if(__LONG_IDEEXIT==NULL){
 __LONG_IDEEXIT=(int32*)mem_static_malloc(4);
 *__LONG_IDEEXIT=0;
