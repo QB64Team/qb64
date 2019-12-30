@@ -126,7 +126,7 @@ listOfKeywords$ = listOfKeywords$ + "_DEFLATE$@_INFLATE$@_READBIT@_RESETBIT@_SET
 
 'IDE MODULE: shared data & definitions
 '---------------------------------------------------
-DIM SHARED idesubwindow, idehelp
+DIM SHARED idesubwindow, idehelp, statusarealink AS INTEGER
 DIM SHARED ideexit
 DIM SHARED idet AS STRING, idel, ideli, iden
 DIM SHARED ideundopos, ideundobase, ideundoflag

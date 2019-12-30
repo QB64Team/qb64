@@ -650,11 +650,13 @@ FUNCTION ide2 (ignore)
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN
                     LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+                    statusarealink = 0
                     IF totalWarnings > 0 AND showexecreated = 0 THEN
                         COLOR 11, 1
                         PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
                         IF totalWarnings > 1 THEN PRINT "s";
                         PRINT " - click here or Ctrl+W to view)";
+                        statusarealink = 4
                     END IF
                 END IF
             END IF
@@ -679,6 +681,7 @@ FUNCTION ide2 (ignore)
                     ELSE
                         PRINT path.exe$;
                     END IF
+                    statusarealink = 3
                 END IF
 
             END IF
@@ -915,6 +918,7 @@ FUNCTION ide2 (ignore)
                             LOCATE y, x
                             PRINT CHR$(ASC(a$, i));
                         NEXT
+                        statusarealink = 1
                     ELSE
                         a$ = MID$(c$, 2, LEN(c$) - 5)
 
@@ -942,6 +946,7 @@ FUNCTION ide2 (ignore)
                                 LOCATE y, x
                                 PRINT CHR$(ASC(a$, i));
                             NEXT
+                            statusarealink = 2
                         END IF
                     END IF
                 END IF
@@ -1392,46 +1397,41 @@ FUNCTION ide2 (ignore)
             IF mX >= 2 AND mX <= idewx AND mY >= idewy - 3 AND mY <= idewy - 1 THEN
                 IF SCREEN(mY, mX, 1) = 11 + 1 * 16 THEN 'if the text clicked is in COLOR 11 it's a link
                     'Status area links
-                    '1- Link to compilelog.txt:
-                    IF compfailed THEN
-                        IF INSTR(_OS$, "WIN") THEN
-                            SHELL _DONTWAIT QuotedFilename$(compilelog$)
-                        ELSEIF INSTR(_OS$, "MAC") THEN
-                            SHELL _DONTWAIT "open " + QuotedFilename$(compilelog$)
-                        ELSE
-                            SHELL _DONTWAIT "xdg-open " + QuotedFilename$(compilelog$)
-                        END IF
-                        GOTO specialchar
-                    END IF
-
-                    '2- Link to the line that has a compiler error:
-                    IF idefocusline THEN
-                        idecx = 1
-                        AddQuickNavHistory idecy
-                        idecy = idefocusline
-                        ideselect = 0
-                        GOTO specialchar
-                    END IF
-
-                    '3- Link to the output folder when "Output EXE to source #folder" is checked:
-                    IF showexecreated THEN
-                        IF INSTR(_OS$, "WIN") THEN
-                            SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
-                        ELSEIF INSTR(_OS$, "MAC") THEN
-                            SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
-                        ELSE
-                            SHELL _DONTWAIT "xdg-open " + QuotedFilename$(path.exe$)
-                        END IF
-                        GOTO specialchar
-                    END IF
-
-                    '4- Link to Warnings dialog:
-                    IF totalWarnings > 0 THEN
-                        retval = idewarningbox
-                        'retval is ignored
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                        GOTO specialchar
-                    END IF
+                    SELECT CASE statusarealink
+                        CASE 1
+                            '1- Link to compilelog.txt:
+                            IF INSTR(_OS$, "WIN") THEN
+                                SHELL _DONTWAIT QuotedFilename$(compilelog$)
+                            ELSEIF INSTR(_OS$, "MAC") THEN
+                                SHELL _DONTWAIT "open " + QuotedFilename$(compilelog$)
+                            ELSE
+                                SHELL _DONTWAIT "xdg-open " + QuotedFilename$(compilelog$)
+                            END IF
+                            GOTO specialchar
+                        CASE 2
+                            '2- Link to the line that has a compiler error:
+                            idecx = 1
+                            AddQuickNavHistory idecy
+                            idecy = idefocusline
+                            ideselect = 0
+                            GOTO specialchar
+                        CASE 3
+                            '3- Link to the output folder when "Output EXE to source #folder" is checked:
+                            IF INSTR(_OS$, "WIN") THEN
+                                SHELL _DONTWAIT "explorer /select," + QuotedFilename$(path.exe$ + file$ + extension$)
+                            ELSEIF INSTR(_OS$, "MAC") THEN
+                                SHELL _DONTWAIT "open " + QuotedFilename$(path.exe$)
+                            ELSE
+                                SHELL _DONTWAIT "xdg-open " + QuotedFilename$(path.exe$)
+                            END IF
+                            GOTO specialchar
+                        CASE 4
+                            '4- Link to Warnings dialog:
+                            retval = idewarningbox
+                            'retval is ignored
+                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            GOTO specialchar
+                    END SELECT
                 END IF
             END IF
         END IF
@@ -2735,11 +2735,13 @@ FUNCTION ide2 (ignore)
                                         PRINT "...";
                                     ELSE
                                         PRINT "OK"; 'report OK status
+                                        statusarealink = 0
                                         IF totalWarnings > 0 THEN
                                             COLOR 11, 1
                                             PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
                                             IF totalWarnings > 1 THEN PRINT "s";
                                             PRINT " - click here or Ctrl+W to view)";
+                                            statusarealink = 4
                                         END IF
                                     END IF
                                 END IF
@@ -5699,11 +5701,13 @@ FUNCTION ide2 (ignore)
             PRINT "...";
         ELSE
             PRINT "OK"; 'report OK status
+            statusarealink = 0
             IF totalWarnings > 0 THEN
                 COLOR 11, 1
                 PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
                 IF totalWarnings > 1 THEN PRINT "s";
                 PRINT " - click here or Ctrl+W to view)";
+                statusarealink = 4
             END IF
         END IF
     END IF
