@@ -8389,6 +8389,8 @@ SUB ideshowtext
     _PALETTECOLOR 14, IDEQuoteColor, 0
 
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()'"
+    initialNum.char$ = "0123456789-.&"
+    num.char$ = "0123456789EDed+-.`%&!#~HBOhboACFacf"
 
     STATIC prevListOfCustomWords$, manualList AS _BYTE
 
@@ -8567,14 +8569,6 @@ SUB ideshowtext
         END IF
 
         IF l <= iden THEN
-            'IF idecompiling = 0 AND INSTR(usedVariableList$, CHR$(1) + MKL$(l) + CHR$(2) + "VAR:" + CHR$(3)) > 0 THEN
-            '    LOCATE y + 3, 1
-            '    prevBG% = _BACKGROUNDCOLOR
-            '    COLOR 15, 7
-            '    PRINT CHR$(26); 'indicate there's an unused variable defined on this line
-            '    COLOR , prevBG%
-            'END IF
-
             a$ = idegetline(l)
             link_idecx = 0
             rgb_idecx = 0
@@ -8641,26 +8635,6 @@ SUB ideshowtext
                         brackets = 1
                         bracket2 = idecx - 1
                         GOTO ScanBracket1
-                    ELSE
-                        'Maybe there isn't an open bracket immediately to our left,
-                        'but maybe we're typing a line and there's an orphan open
-                        'bracket to our left, somewhere. It'll be highlighted until closed.
-                        brackets = 1
-                        orphanBracket = 0
-                        IF idecx >= LEN(a$) + 1 THEN
-                            FOR k = idecx - 1 TO 1 STEP -1
-                                SELECT CASE MID$(a$, k, 1)
-                                    CASE CHR$(34)
-                                        inquote = NOT inquote
-                                END SELECT
-                                IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
-                                    brackets = brackets - 1
-                                    IF brackets = 0 THEN bracket1 = k: orphanBracket = -1: EXIT FOR
-                                ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
-                                    brackets = brackets + 1
-                                END IF
-                            NEXT
-                        END IF
                     END IF
                 END IF
 
@@ -8715,10 +8689,10 @@ SUB ideshowtext
         prevBG% = _BACKGROUNDCOLOR
 
         FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
-            IF m > idesx + idewx - 2 THEN EXIT FOR
+            IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
             IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
-                'the current selection was found at this spot. Multi-highlight takes place:
                 IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
+                    'the current selection was found at this spot. Multi-highlight takes place:
                     IF m > 1 THEN
                         IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
                             IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
@@ -8741,8 +8715,10 @@ SUB ideshowtext
                 END IF
             END IF
 
+            thisChar$ = MID$(a2$, m, 1)
+
             IF comment = 0 THEN
-                SELECT CASE MID$(a2$, m, 1)
+                SELECT CASE thisChar$
                     CASE CHR$(34): inquote = NOT inquote
                     CASE "'": IF inquote = 0 THEN comment = -1
                 END SELECT
@@ -8750,8 +8726,26 @@ SUB ideshowtext
 
             COLOR 13
 
-            thisChar$ = MID$(a2$, m, 1)
             IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
+                IF INSTR(initialNum.char$, thisChar$) > 0 AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
+                    'a number literal
+                    checkKeyword$ = ""
+                    is_Number = 0
+
+                    FOR i = m TO LEN(a2$)
+                        IF INSTR(num.char$, MID$(a2$, i, 1)) = 0 THEN EXIT FOR
+                        checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                    NEXT
+
+                    IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
+                        checkKeyword$ = ""
+                    ELSE
+                        is_Number = -1
+                        isKeyword = LEN(checkKeyword$)
+                    END IF
+                    GOTO setOldChar
+                END IF
+
                 IF (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") AND INSTR(char.sep$, thisChar$) = 0 THEN
                     'a new "word" begins; check if it's an internal keyword
                     checkKeyword$ = ""
@@ -8774,74 +8768,6 @@ SUB ideshowtext
                     ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
                         isCustomKeyword = -1
                         isKeyword = LEN(checkKeyword$)
-                    ELSE
-                        'maybe a number literal?
-                        readFullNumber:
-                        is_Number = 0
-                        extraChars = 0
-
-                        'Continue reading if checkKeyword$ ended in a "."
-                        IF right.sep$ = "." OR thisChar$ = "-" OR thisChar$ = "." THEN
-                            checkKeyword$ = checkKeyword$ + right.sep$
-                            FOR i = i + 1 TO LEN(a2$)
-                                IF INSTR(char.sep$, MID$(a2$, i, 1)) THEN
-                                    IF MID$(a2$, i, 1) = "." AND right.sep$ = "." THEN
-                                        'a number won't contain two ".", so this
-                                        'can be safely discarded
-                                        checkKeyword$ = ""
-                                    END IF
-                                    EXIT FOR
-                                END IF
-                                checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
-                            NEXT
-                        END IF
-
-                        'Remove eventual type sygils
-                        SELECT CASE RIGHT$(checkKeyword$, 1)
-                            CASE "`", "%", "&", "!", "#"
-                                checkKeyword$ = LEFT$(checkKeyword$, LEN(checkKeyword$) - 1)
-                                extraChars = 1
-                        END SELECT
-
-                        SELECT CASE RIGHT$(checkKeyword$, 1)
-                            CASE "~", "%", "&", "#"
-                                checkKeyword$ = LEFT$(checkKeyword$, LEN(checkKeyword$) - 1)
-                                extraChars = extraChars + 1
-                        END SELECT
-
-                        IF RIGHT$(checkKeyword$, 1) = "~" THEN
-                            checkKeyword$ = LEFT$(checkKeyword$, LEN(checkKeyword$) - 1)
-                            extraChars = extraChars + 1
-                        END IF
-
-                        IF isnumber(checkKeyword$) THEN
-                            is_Number = -1
-                        ELSEIF LEFT$(checkKeyword$, 2) = "&H" OR _
-                            LEFT$(checkKeyword$, 2) = "&O" OR _
-                            LEFT$(checkKeyword$, 2) = "&B" THEN
-                            is_Number = -1
-                        END IF
-                        IF is_Number THEN isKeyword = LEN(checkKeyword$) + extraChars ELSE checkKeyword$ = ""
-                    END IF
-                ELSE
-                    'is this a negative number?
-                    IF thisChar$ = "-" AND LEN(oldChar$) > 0 AND INSTR(char.sep$, oldChar$) > 0 THEN
-                        nextChar$ = MID$(a2$, m + 1, 1)
-                        checkNegNumber:
-                        IF LEN(nextChar$) THEN
-                            IF (ASC(nextChar$) >= 48 AND ASC(nextChar$) <= 57) THEN
-                                'it's a number
-                                checkKeyword$ = "-"
-                                right.sep$ = ""
-                                i = m
-                                GOTO readFullNumber
-                            ELSEIF ASC(nextChar$) = 46 THEN
-                                nextChar$ = MID$(a2$, m + 2, 1)
-                                IF LEN(nextChar$) > 0 THEN
-                                    IF ASC(nextChar$) <> 46 THEN GOTO checkNegNumber
-                                END IF
-                            END IF
-                        END IF
                     END IF
                 END IF
             END IF
@@ -8865,13 +8791,12 @@ SUB ideshowtext
                     OR checkKeyword$ = "$STATIC") THEN COLOR 10
             ELSEIF metacommand THEN
                 COLOR 10
-            ELSEIF inquote OR MID$(a2$, m, 1) = CHR$(34) THEN
+            ELSEIF inquote OR thisChar$ = CHR$(34) THEN
                 COLOR 14
             END IF
 
             IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
                 COLOR , 5
-                IF orphanBracket THEN COLOR , 4
             ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
                 multiHighlightLength = multiHighlightLength - 1
                 COLOR , 5
@@ -8955,9 +8880,7 @@ SUB ideshowtext
     FOR b = 1 TO IdeBmkN
         y = IdeBmk(b).y
         IF y >= idesy AND y <= idesy + (idewy - 9) THEN
-            'IF INSTR(usedVariableList$, CHR$(1) + MKL$(y) + CHR$(2) + "VAR:" + CHR$(3)) = 0 THEN
             LOCATE 3 + y - idesy, 1: PRINT CHR$(197);
-            'END IF
         END IF
     NEXT
 
