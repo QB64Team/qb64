@@ -8757,12 +8757,17 @@ SUB ideshowtext
                     IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
                     checkKeyword$ = UCASE$(checkKeyword$)
                     IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 THEN
+                        'special cases
                         IF checkKeyword$ = "$END" THEN
                             IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
                         ELSEIF checkKeyword$ = "THEN" AND _
                                 (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
                                 UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
                             metacommand = -1
+                        ELSEIF checkKeyword$ = "$ASSERTS" THEN
+                            IF UCASE$(_TRIM$(a2$)) = "$ASSERTS:CONSOLE" THEN
+                                checkKeyword$ = "$ASSERTS:CONSOLE"
+                            END IF
                         END IF
                         isKeyword = LEN(checkKeyword$)
                     ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
