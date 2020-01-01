@@ -8727,7 +8727,7 @@ SUB ideshowtext
             COLOR 13
 
             IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
-                IF INSTR(initialNum.char$, thisChar$) > 0 AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
+                IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
                     'a number literal
                     checkKeyword$ = ""
                     is_Number = 0
