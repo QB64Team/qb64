@@ -116,6 +116,7 @@ DIM SHARED NoChecks
 
 DIM SHARED Console
 DIM SHARED ScreenHide
+DIM SHARED Asserts
 DIM SHARED OptMax AS LONG
 OptMax = 256
 REDIM SHARED Opt(1 TO OptMax, 1 TO 10) AS STRING * 256
@@ -1345,6 +1346,7 @@ HashAdd "WHILE", f, 0
 'clear/init variables
 Console = 0
 ScreenHide = 0
+Asserts = 0
 ResolveStaticFunctions = 0
 dynamiclibrary = 0
 dimsfarray = 0
@@ -3446,6 +3448,20 @@ DO
             Console = 1
             GOTO finishednonexec
         END IF
+
+        IF a3u$ = "$ASSERTS" THEN
+            layout$ = "$ASSERTS"
+            Asserts = 1
+            GOTO finishednonexec
+        END IF
+
+        IF a3u$ = "$ASSERTS:CONSOLE" THEN
+            layout$ = "$ASSERTS:CONSOLE"
+            Asserts = 1
+            Console = 1
+            GOTO finishednonexec
+        END IF
+
 
         IF a3u$ = "$SCREENHIDE" THEN
             layout$ = "$SCREENHIDE"
@@ -11363,6 +11379,12 @@ IF ScreenHide THEN
     PRINT #18, "int32 screen_hide_startup=1;"
 ELSE
     PRINT #18, "int32 screen_hide_startup=0;"
+END IF
+
+IF Asserts THEN
+    PRINT #18, "int32 asserts=1;"
+ELSE
+    PRINT #18, "int32 asserts=0;"
 END IF
 
 fh = FREEFILE

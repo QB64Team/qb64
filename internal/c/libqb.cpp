@@ -1396,6 +1396,7 @@ extern uint32 qbevent;
 
 extern int32 console;
 extern int32 screen_hide_startup;
+extern int32 asserts;
 //...
 
 int64 exit_code=0;
@@ -5426,10 +5427,25 @@ extern uint32 error_goto_line;
 extern uint32 error_handling;
 extern uint32 error_retry;
 
+void sub__echo(qbs *message);
+
+void sub__assert(int32 expression, qbs *assert_message, int32 passed) {
+    if (asserts==0) return;
+    if (expression==0) {
+        if (console==1 && passed==1) {
+            sub__echo(assert_message);
+            error(315);
+            return;
+        }
+        error(314);
+    }
+    return;
+}
+
 void fix_error(){
     char *errtitle = NULL, *errmess = NULL, *cp;
     int prevent_handling = 0, len, v;
-    if ((new_error >= 300) && (new_error <= 313)) prevent_handling = 1;
+    if ((new_error >= 300) && (new_error <= 315)) prevent_handling = 1;
     if (!error_goto_line || error_handling || prevent_handling) {
         switch (new_error) {
             case 1: cp="NEXT without FOR"; break;
@@ -5507,6 +5523,8 @@ void fix_error(){
             case 311: cp="Destination memory not initialized"; break;
             case 312: cp="Source and destination memory not initialized"; break;
             case 313: cp="Source and destination memory have been freed"; break;
+            case 314: cp="_ASSERT failed"; break;
+            case 315: cp="_ASSERT failed (check console for description)"; break;
             default: cp="Unprintable error"; break;
         }
         

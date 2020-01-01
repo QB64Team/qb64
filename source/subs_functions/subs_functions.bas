@@ -795,6 +795,14 @@ id.callname = "func__inclerrorline"
 id.ret = LONGTYPE - ISPOINTER
 regid
 
+clearid
+id.n = "_ASSERT"
+id.subfunc = 2
+id.callname = "sub__assert"
+id.args = 2
+id.specialformat = "?[,?]"
+id.arg = MKL$(INTEGERTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER)
+regid
 
 clearid
 id.n = "_DISPLAY"
