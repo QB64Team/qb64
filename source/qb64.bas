@@ -11978,6 +11978,10 @@ IF os$ = "WIN" THEN
         PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Web") + "," + QuotedFilename$(viWeb$ + "\0")
         PRINT #iconfilehandle, "        END"
         PRINT #iconfilehandle, "    END"
+        PRINT #iconfilehandle, "    BLOCK " + QuotedFilename$("VarFileInfo")
+        PRINT #iconfilehandle, "    BEGIN"
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Translation") + ", 0x409, 0x04E4"
+        PRINT #iconfilehandle, "    END"
         PRINT #iconfilehandle, "END"
         CLOSE #iconfilehandle
     END IF
@@ -25188,20 +25192,20 @@ END SUB
 
 SUB addWarning (lineNumber AS LONG, text$)
     IF NOT IgnoreWarnings THEN
-    IF lineNumber > 0 THEN
-        totalWarnings = totalWarnings + 1
-    ELSE
-        IF lastWarningHeader = text$ THEN
-            EXIT SUB
+        IF lineNumber > 0 THEN
+            totalWarnings = totalWarnings + 1
         ELSE
-            lastWarningHeader = text$
+            IF lastWarningHeader = text$ THEN
+                EXIT SUB
+            ELSE
+                lastWarningHeader = text$
+            END IF
         END IF
-    END IF
 
-    warningListItems = warningListItems + 1
-    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
-    warning$(warningListItems) = MKL$(lineNumber) + text$
-    end if
+        warningListItems = warningListItems + 1
+        IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+        warning$(warningListItems) = MKL$(lineNumber) + text$
+    END IF
 END SUB
 
 '$INCLUDE:'utilities\strings.bas'
