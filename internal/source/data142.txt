@@ -1,21 +1,21 @@
-qbs*oldstr4683=NULL;
+qbs*oldstr4687=NULL;
 if(_SUB_IDESAVE_STRING_F->tmp||_SUB_IDESAVE_STRING_F->fixed||_SUB_IDESAVE_STRING_F->readonly){
-oldstr4683=_SUB_IDESAVE_STRING_F;
-if (oldstr4683->cmem_descriptor){
-_SUB_IDESAVE_STRING_F=qbs_new_cmem(oldstr4683->len,0);
+oldstr4687=_SUB_IDESAVE_STRING_F;
+if (oldstr4687->cmem_descriptor){
+_SUB_IDESAVE_STRING_F=qbs_new_cmem(oldstr4687->len,0);
 }else{
-_SUB_IDESAVE_STRING_F=qbs_new(oldstr4683->len,0);
+_SUB_IDESAVE_STRING_F=qbs_new(oldstr4687->len,0);
 }
-memcpy(_SUB_IDESAVE_STRING_F->chr,oldstr4683->chr,oldstr4683->len);
+memcpy(_SUB_IDESAVE_STRING_F->chr,oldstr4687->chr,oldstr4687->len);
 }
 int32 *_SUB_IDESAVE_LONG_I=NULL;
 if(_SUB_IDESAVE_LONG_I==NULL){
 _SUB_IDESAVE_LONG_I=(int32*)mem_static_malloc(4);
 *_SUB_IDESAVE_LONG_I=0;
 }
-int64 fornext_value4685;
-int64 fornext_finalvalue4685;
-int64 fornext_step4685;
-uint8 fornext_step_negative4685;
+int64 fornext_value4689;
+int64 fornext_finalvalue4689;
+int64 fornext_step4689;
+uint8 fornext_step_negative4689;
 qbs *_SUB_IDESAVE_STRING_A=NULL;
 if (!_SUB_IDESAVE_STRING_A)_SUB_IDESAVE_STRING_A=qbs_new(0,0);
