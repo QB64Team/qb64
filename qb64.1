@@ -1,14 +1,17 @@
-.TH qb64 "1" "November 2018" "QB64 IDE COMPILER" "User Commands"
+.TH qb64 "1" "November 2018" "QB64 IDE AND COMPILER" "User Commands"
 .SH NAME
 qb64 \- manual page for QB64
 .SH DESCRIPTION
 QB64 COMPILER
 .PP
-USAGE: qb64 [switches] <inputs>
+USAGE: qb64 [switches] <file>
 .SS "OPTIONS:"
 .TP
 <file>
 Source file to load
+.TP
+\fB\-v\fR
+Verbose mode (detailed warnings)
 .TP
 \fB\-c\fR
 Compile instead of edit
@@ -23,8 +26,8 @@ Purge all pre\-compiled content first
 \fB\-z\fR
 Generate C code without compiling to executable
 .TP
-\fB\-o\fR <file>
-Write output executable to <file>
+\fB\-o\fR <output file>
+Write output executable to <output file>
 .TP
 \fB\-e\fR
 Enables OPTION _EXPLICIT, making variable declaration
@@ -38,4 +41,4 @@ View/edit compiler settings
 Starts the IDE at the specified line number
 .PP
 .SH "INTERNET"
-.B http://qb64.org/
+.B https://qb64.org/
