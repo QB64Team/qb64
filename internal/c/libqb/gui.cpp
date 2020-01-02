@@ -1,4 +1,4 @@
-// trigger recompilation = 1
+// trigger recompilation = 2
 
 int32 displayorder_screen=1;
 int32 displayorder_hardware=2;
