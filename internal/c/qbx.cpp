@@ -12,10 +12,12 @@
     extern void CFont(qbs* FontName, int FontSize);
     extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
     extern int32 func__getconsoleinput();
+#endif
 
-    #ifdef DEPENDENCY_ZLIB
-        qbs *func__deflate(qbs *text);
-        qbs *func__inflate(qbs *text, int64 originalsize, int32 passed);
+#ifdef DEPENDENCY_ZLIB
+    qbs *func__deflate(qbs *text);
+    qbs *func__inflate(qbs *text, int64 originalsize, int32 passed);
+    #ifdef QB64_WINDOWS
         #include "parts\zlib-1.2.11\download\zlib.h"
     #endif
 #endif

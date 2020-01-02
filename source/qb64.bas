@@ -12037,21 +12037,6 @@ IF DEPENDENCY(DEPENDENCY_GL) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_GL"
 END IF
 
-IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
-    IF win THEN 'ZLIB is only supported for windows versions so far
-        defines$ = defines$ + defines_header$ + "DEPENDENCY_ZLIB"
-
-        d$ = "internal\c\parts\zlib-1.2.11\"
-        'rebuild?
-        IF _FILEEXISTS(d$ + "os\" + o$ + "\src.a") = 0 THEN
-            Build d$ + "os\" + o$
-        END IF
-        defines$ = defines$ + defines_header$ + "DEPENDENCY_ZLIB"
-        libs$ = libs$ + " " + "parts\zlib-1.2.11\os\" + o$ + "\src.a -lz"
-    END IF
-END IF
-
-
 IF DEPENDENCY(DEPENDENCY_SCREENIMAGE) THEN
     DEPENDENCY(DEPENDENCY_IMAGE_CODEC) = 1 'used by OSX to read in screen capture files
 END IF
@@ -12158,6 +12143,18 @@ IF DEPENDENCY(DEPENDENCY_AUDIO_OUT) THEN
         Build d3$
     END IF
     libs$ = libs$ + " " + d2$ + "\src.a"
+END IF
+
+IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
+    defines$ = defines$ + defines_header$ + "DEPENDENCY_ZLIB"
+    IF win THEN 'ZLIB is only supported for windows versions so far
+        d$ = "internal\c\parts\zlib-1.2.11\"
+        'rebuild?
+        IF _FILEEXISTS(d$ + "os\" + o$ + "\src.a") = 0 THEN
+            Build d$ + "os\" + o$
+        END IF
+        libs$ = libs$ + " " + "parts\zlib-1.2.11\os\" + o$ + "\src.a -lz"
+    END IF
 END IF
 
 'finalize libs$ and defines$ strings
