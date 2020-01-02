@@ -3313,25 +3313,9 @@ id.ret = STRINGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_BORDERWIDTH"
-id.subfunc =  1
-id.callname = "func__borderwidth"
-id.args = 0
-id.ret = LONGTYPE - ISPOINTER
-regid
-
-clearid
-id.n = "_TITLEBARHEIGHT"
-id.subfunc =  1
-id.callname = "func__titlebarheight"
-id.args = 0
-id.ret = LONGTYPE - ISPOINTER
-regid
-
-clearid
 id.n = "_CINP"
 id.subfunc =  1
-id.callname = "func__CInp"
+id.callname = "func__cinp"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?]"
@@ -3398,14 +3382,6 @@ id.callname = "sub__console_cursor"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER)  + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[{_SHOW|_HIDE}][,?]"
-regid
-
-clearid
-id.n = "_CONSOLEMOUSEX"
-id.subfunc =  1
-id.callname = "func__consolemousex"
-id.args = 0
-id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
