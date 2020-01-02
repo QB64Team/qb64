@@ -12945,7 +12945,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 _DEST _CONSOLE
                 PRINT "QB64 COMPILER V" + Version$
                 PRINT
-                PRINT "USAGE: qb64 [switches] <inputs>"
+                PRINT "USAGE: qb64 [switches] <file>"
                 PRINT
                 PRINT "OPTIONS:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
@@ -12955,7 +12955,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "                             console"
                 PRINT "  -p                      Purge all pre-compiled content first"
                 PRINT "  -z                      Generate C code without compiling to executable"
-                PRINT "  -o <file>               Write output executable to <file>"
+                PRINT "  -o <output file>               Write output executable to <output file>"
                 PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
                 PRINT "                             mandatory (per-compilation; doesn't affect the"
                 PRINT "                             source file or global settings)"
