@@ -54,10 +54,12 @@
         typedef unsigned __int64 uint64_t;
         typedef   signed __int64  int64_t;
     #else
-        typedef unsigned long long uint64_t;
-        typedef   signed long long  int64_t;
-        // typedef __uint64_t uint64_t;
-        // typedef __int64_t int64_t;
+        #ifndef UINT64_MAX
+            typedef unsigned long long uint64_t;
+        #endif
+        #ifndef INT64_MAX
+            typedef   signed long long  int64_t;
+        #endif
     #endif
 #endif
 
