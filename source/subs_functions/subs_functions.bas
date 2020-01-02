@@ -3327,15 +3327,15 @@ id.n = "_CAPSLOCK"
 id.subfunc =  1
 id.callname = "func__capslock"
 id.args = 0
-id.ret = INTEGERTYPE - ISPOINTER
+id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_SCROLLOCK"
+id.n = "_SCROLLLOCK"
 id.subfunc =  1
-id.callname = "func__scrollock"
+id.callname = "func__scrolllock"
 id.args = 0
-id.ret = INTEGERTYPE - ISPOINTER
+id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
@@ -3343,34 +3343,40 @@ id.n = "_NUMLOCK"
 id.subfunc =  1
 id.callname = "func__numlock"
 id.args = 0
-id.ret = INTEGERTYPE - ISPOINTER
+id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "_TOGGLE_CAPSLOCK"
+id.n = "_CAPSLOCK"
 id.subfunc = 2
-id.callname = "sub__toggle_capslock"
-id.args = 0
+id.callname = "sub__capslock"
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.args = 1
+id.specialformat = "{ON|OFF|_TOGGLE}"
 regid
 
 clearid
-id.n = "_TOGGLE_SCROLLOCK"
+id.n = "_SCROLLLOCK"
 id.subfunc = 2
-id.callname = "sub__toggle_scrollock"
-id.args = 0
+id.callname = "sub__scrolllock"
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.args = 1
+id.specialformat = "{ON|OFF|_TOGGLE}"
 regid
 
 clearid
-id.n = "_TOGGLE_NUMLOCK"
+id.n = "_NUMLOCK"
 id.subfunc = 2
-id.callname = "sub__toggle_numlock"
-id.args = 0
+id.callname = "sub__numlock"
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.args = 1
+id.specialformat = "{ON|OFF|_TOGGLE}"
 regid
 
 clearid
 id.n = "_CONSOLEFONT"
 id.subfunc = 2
-id.callname = "CFont"
+id.callname = "sub__consolefont"
 id.args = 2
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(INTEGERTYPE - ISPOINTER)
 regid

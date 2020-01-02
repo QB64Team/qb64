@@ -24,13 +24,12 @@
 
 int32 disableEvents=0;
 
-#ifdef QB64_WINDOWS //Global console vvalues
-    static int32 consolekey;
-    static int32 consolemousex;
-    static int32 consolemousey;
-    static int32 consolebutton;
-    int32 func__getconsoleinput(); //declare here, so we can use with SLEEP and END commands
-#endif
+//Global console vvalues
+static int32 consolekey;
+static int32 consolemousex;
+static int32 consolemousey;
+static int32 consolebutton;
+int32 func__getconsoleinput(); //declare here, so we can use with SLEEP and END commands
 
 //This next block used to be in common.cpp; put here until I can find a better
 //place for it (LC, 2018-01-05)
@@ -29724,104 +29723,160 @@ void reinit_glut_callbacks(){
     #endif
 }
 
-#ifdef QB64_WINDOWS
+int32 func__capslock(){
+    #ifdef QB64_WINDOWS
+    return -GetKeyState(VK_CAPITAL);
+    #endif
+    return 0;
+}
+
+int32 func__scrolllock(){
+    #ifdef QB64_WINDOWS
+    return -GetKeyState(VK_SCROLL);
+    #endif
+    return 0;
+}
+
+int32 func__numlock(){
+    #ifdef QB64_WINDOWS
+    return -GetKeyState(VK_NUMLOCK);
+    #endif
+    return 0;
+}
+
+void toggle_lock_key(int32 key_code){
+    #ifdef QB64_WINDOWS
+    keybd_event (key_code, 0x45, 1, 0);
+    keybd_event (key_code, 0x45, 3, 0);
+    #endif
+}
+
+void sub__capslock(int32 options){
+    #ifdef QB64_WINDOWS
+    //VK_CAPITAL
+    int32 currentState = func__capslock();
+    switch(options){
+        case 1: //ON
+            if (currentState==-1) return;
+            break;
+        case 2: //OFF
+            if (currentState==0) return;
+            break;
+    }
+    // _TOGGLE:
+    toggle_lock_key(VK_CAPITAL);
+    #endif
+}
+
+void sub__scrolllock(int32 options){
+    #ifdef QB64_WINDOWS
+    //VK_SCROLL
+    int32 currentState = func__scrolllock();
+    switch(options){
+        case 1: //ON
+            if (currentState==-1) return;
+            break;
+        case 2: //OFF
+            if (currentState==0) return;
+            break;
+    }
+    // _TOGGLE:
+    toggle_lock_key(VK_SCROLL);
+    #endif
+}
+
+void sub__numlock(int32 options){
+    #ifdef QB64_WINDOWS
+    //VK_NUMLOCK
+    int32 currentState = func__numlock();
+    switch(options){
+        case 1: //ON
+            if (currentState==-1) return;
+            break;
+        case 2: //OFF
+            if (currentState==0) return;
+            break;
+    }
+    // _TOGGLE:
+    toggle_lock_key(VK_NUMLOCK);
+    #endif
+}
+
+void sub__consolefont(qbs* FontName, int FontSize){
+    /*
+    #ifdef QB64_WINDOWS
+    SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+    HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+    static int OneTimePause;
+    if (!OneTimePause){ // a slight delay so the console can be properly created and registered with Windows, before we try and change fonts with it.       
+        Sleep(500); 
+        OneTimePause=1; //after the first pause, the console should be created, so we don't need any more delays in the future.
+    }
+    CONSOLE_FONT_INFOEX info = {0};
+    info.cbSize       = sizeof(info);
+    info.dwFontSize.Y = FontSize; // leave X as zero
+    info.FontWeight   = FW_NORMAL;
+    if (FontName->len>0){ //if we don't pass a font name, don't change the existing one.
+        const size_t cSize = FontName->len;
+        wchar_t* wc = new wchar_t[32];
+        mbstowcs (wc, (char *)FontName->chr, cSize);
+        wcscpy(info.FaceName, wc);
+        delete[] wc;
+    }
+
+    SetCurrentConsoleFontEx(cl_conout, NULL, &info);
+    #endif
+    */
+}
+
+
+void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed){
+    #ifdef QB64_WINDOWS
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
     
-    int func__capslock(){
-        return GetKeyState(VK_CAPITAL);
-    }
+    GetConsoleCursorInfo(consoleHandle, &info); //get the original info, so we reuse it, unless the user called for a change.
 
-    int func__scrollock(){
-        return GetKeyState(VK_NUMLOCK);
-    }
-
-    int func__numlock(){
-        return GetKeyState(VK_SCROLL);
-    }
-
-    void sub__toggle_capslock(){
-        keybd_event (VK_CAPITAL, 0x45, 1, 0);
-        keybd_event (VK_CAPITAL, 0x45, 3, 0);
-    }
-
-    void sub__toggle_scrollock(){
-        keybd_event (VK_NUMLOCK, 0x45, 1, 0);
-        keybd_event (VK_NUMLOCK, 0x45, 3, 0);
-    }
-
-    void sub__toggle_numlock(){
-        keybd_event (VK_SCROLL, 0x45, 1, 0);
-        keybd_event (VK_SCROLL, 0x45, 3, 0);
-    }
-
-
-    void CFont(qbs* FontName, int FontSize){
-        /*
-        SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
-        HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
-        static int OneTimePause;
-        if (!OneTimePause){ // a slight delay so the console can be properly created and registered with Windows, before we try and change fonts with it.       
-            Sleep(500); 
-            OneTimePause=1; //after the first pause, the console should be created, so we don't need any more delays in the future.
-        }
-        CONSOLE_FONT_INFOEX info = {0};
-        info.cbSize       = sizeof(info);
-        info.dwFontSize.Y = FontSize; // leave X as zero
-        info.FontWeight   = FW_NORMAL;
-        if (FontName->len>0){ //if we don't pass a font name, don't change the existing one.
-            const size_t cSize = FontName->len;
-            wchar_t* wc = new wchar_t[32];
-            mbstowcs (wc, (char *)FontName->chr, cSize);
-            wcscpy(info.FaceName, wc);
-            delete[] wc;
-        }
-
-        SetCurrentConsoleFontEx(cl_conout, NULL, &info);
-        */
-    }
-
-
-    void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed){
-        HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_CURSOR_INFO info;
+    if (visible==1)info.bVisible = TRUE; //cursor is set to show
+    if (visible==2)info.bVisible = FALSE; //set to hide
+    if (passed&&cursorsize>=0&&cursorsize<=100)info.dwSize = cursorsize;  //the user passed the cursor size, of a suitable size
         
-        GetConsoleCursorInfo(consoleHandle, &info); //get the original info, so we reuse it, unless the user called for a change.
+    SetConsoleCursorInfo(consoleHandle, &info);
+    #endif
+}
 
-        if (visible==1)info.bVisible = TRUE; //cursor is set to show
-        if (visible==2)info.bVisible = FALSE; //set to hide
-        if (passed&&cursorsize>=0&&cursorsize<=100)info.dwSize = cursorsize;  //the user passed the cursor size, of a suitable size
-            
-        SetConsoleCursorInfo(consoleHandle, &info);
+int32 func__getconsoleinput(){
+    #ifdef QB64_WINDOWS
+    HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
+    INPUT_RECORD irInputRecord;
+    DWORD dwEventsRead, fdwMode, dwMode;
+    CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+ 
+    GetConsoleMode(hStdin, (LPDWORD)&dwMode);
+    fdwMode = ENABLE_EXTENDED_FLAGS;
+    SetConsoleMode(hStdin, fdwMode);
+    fdwMode = dwMode | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+    SetConsoleMode(hStdin, fdwMode);
+
+    ReadConsoleInputA (hStdin, &irInputRecord, 1, &dwEventsRead);
+    switch(irInputRecord.EventType){
+        case KEY_EVENT: //keyboard input
+            consolekey = irInputRecord.Event.KeyEvent.wVirtualScanCode;
+            if (!irInputRecord.Event.KeyEvent.bKeyDown) consolekey = -consolekey; //positive/negative return of scan codes.
+            return 1;
+        case MOUSE_EVENT: //mouse input
+            consolemousex = irInputRecord.Event.MouseEvent.dwMousePosition.X + 1;
+            consolemousey = irInputRecord.Event.MouseEvent.dwMousePosition.Y - cl_bufinfo.srWindow.Top + 1; 
+            consolebutton = irInputRecord.Event.MouseEvent.dwButtonState; //button state for all buttons
+            //SetConsoleMode(hStdin, dwMode);
+            return 2;
     }
+    #endif
+    return 0; //in case it's some other odd input
+}
 
-    int32 func__getconsoleinput(){
-        HANDLE hStdin = GetStdHandle (STD_INPUT_HANDLE);
-        INPUT_RECORD irInputRecord;
-        DWORD dwEventsRead, fdwMode, dwMode;
-        CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
-     
-        GetConsoleMode(hStdin, (LPDWORD)&dwMode);
-        fdwMode = ENABLE_EXTENDED_FLAGS;
-        SetConsoleMode(hStdin, fdwMode);
-        fdwMode = dwMode | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-        SetConsoleMode(hStdin, fdwMode);
-
-        ReadConsoleInputA (hStdin, &irInputRecord, 1, &dwEventsRead);
-        switch(irInputRecord.EventType){
-            case KEY_EVENT: //keyboard input
-                consolekey = irInputRecord.Event.KeyEvent.wVirtualScanCode;
-                if (!irInputRecord.Event.KeyEvent.bKeyDown) consolekey = -consolekey; //positive/negative return of scan codes.
-                return 1;
-            case MOUSE_EVENT: //mouse input
-                consolemousex = irInputRecord.Event.MouseEvent.dwMousePosition.X + 1;
-                consolemousey = irInputRecord.Event.MouseEvent.dwMousePosition.Y - cl_bufinfo.srWindow.Top + 1; 
-                consolebutton = irInputRecord.Event.MouseEvent.dwButtonState; //button state for all buttons
-                //SetConsoleMode(hStdin, dwMode);
-                return 2;
-        }
-        return 0; //in case it's some other odd input
-    }
-
-    int32 func__CInp (int32 toggle, int32 passed){
+int32 func__cinp (int32 toggle, int32 passed){
+    #ifdef QB64_WINDOWS
         int32 temp = consolekey;
         consolekey = 0; //reset the console key, now that we've read it
         if (passed==0)toggle=1; //default return of positive/negative scan code values
@@ -29831,6 +29886,7 @@ void reinit_glut_callbacks(){
             if (temp>=0)return temp;
             return -temp + 128;
         }
-    }
-
-#endif
+    #else
+        return 0;
+    #endif
+}

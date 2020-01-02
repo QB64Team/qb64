@@ -1,18 +1,16 @@
 #include "common.h"
 
 
-#ifdef QB64_WINDOWS
-    extern int32 func__CInp (int32 toggle, int32 passed); //Console INP scan code reader
-    extern int func__capslock();
-    extern int func__scrollock();
-    extern int func__numlock();
-    extern void sub__toggle_capslock();
-    extern void sub__toggle_scrollock();
-    extern void sub__toggle_numlock();
-    extern void CFont(qbs* FontName, int FontSize);
-    extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
-    extern int32 func__getconsoleinput();
-#endif
+extern int32 func__cinp (int32 toggle, int32 passed); //Console INP scan code reader
+extern int func__capslock();
+extern int func__scrolllock();
+extern int func__numlock();
+extern void sub__capslock(int32 options);
+extern void sub__scrolllock(int32 options);
+extern void sub__numlock(int32 options);
+extern void sub__consolefont(qbs* FontName, int FontSize);
+extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
+extern int32 func__getconsoleinput();
 
 #ifdef DEPENDENCY_ZLIB
     qbs *func__deflate(qbs *text);
