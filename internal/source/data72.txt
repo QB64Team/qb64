@@ -1,14 +1,14 @@
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION)_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=qbs_new(0,0);
-qbs*oldstr3353=NULL;
+qbs*oldstr3355=NULL;
 if(_FUNC_EVALUATE_EXPRESSION_STRING_E->tmp||_FUNC_EVALUATE_EXPRESSION_STRING_E->fixed||_FUNC_EVALUATE_EXPRESSION_STRING_E->readonly){
-oldstr3353=_FUNC_EVALUATE_EXPRESSION_STRING_E;
-if (oldstr3353->cmem_descriptor){
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr3353->len,0);
+oldstr3355=_FUNC_EVALUATE_EXPRESSION_STRING_E;
+if (oldstr3355->cmem_descriptor){
+_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr3355->len,0);
 }else{
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr3353->len,0);
+_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr3355->len,0);
 }
-memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr3353->chr,oldstr3353->len);
+memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr3355->chr,oldstr3355->len);
 }
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_T=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_T)_FUNC_EVALUATE_EXPRESSION_STRING_T=qbs_new(0,0);
@@ -40,8 +40,8 @@ qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVAL)_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=qbs_new(0,0);
 qbs *_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP=NULL;
 if (!_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP)_FUNC_EVALUATE_EXPRESSION_STRING_TEMPPP=qbs_new(0,0);
-static qbs *sc_3358=qbs_new(0,0);
-byte_element_struct *byte_element_3359=NULL;
-if (!byte_element_3359){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3359=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3359=(byte_element_struct*)mem_static_malloc(12);
+static qbs *sc_3360=qbs_new(0,0);
+byte_element_struct *byte_element_3361=NULL;
+if (!byte_element_3361){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3361=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3361=(byte_element_struct*)mem_static_malloc(12);
 }
