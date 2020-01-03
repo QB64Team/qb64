@@ -13,3 +13,5 @@ jobs:
       run: sudo apt update && sudo apt install libglu1-mesa-dev libncurses-dev
     - name: Bootstrap compiler
       run: .ci/bootstrap.sh
+    - name: Compile
+      run: .ci/compile.sh
