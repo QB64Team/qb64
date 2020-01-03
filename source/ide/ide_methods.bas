@@ -1,6 +1,7 @@
 FUNCTION ide (ignore)
     'Note: ide is a function which optimizes the interaction between the IDE and compiler (ide2)
     '      by avoiding unnecessary bloat associated with entering the main IDE function 'ide2'
+    ignore = ignore 'just to clear warnings of unused variables
     IF idecommand$ <> "" THEN cmd = ASC(idecommand$)
     IF cmd = 3 THEN 'request next line (compiler->ide)
         IF idecompiledline < iden THEN
@@ -130,6 +131,8 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selectx1, wholeword.idecx
     STATIC wholeword.selecty1, wholeword.idecy
     STATIC ForceResize, IDECompilationRequested AS _BYTE
+
+    ignore = ignore 'just to clear warnings of unused variables
 
     CONST idesystem2.w = 20 '"Find" field width (Status bar)
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
@@ -9435,7 +9438,7 @@ FUNCTION idelanguagebox
         mouseup = 0
     LOOP
 
-
+    idelanguagebox = 0
 
 END FUNCTION
 
@@ -9595,6 +9598,7 @@ FUNCTION idewarningbox
         mouseup = 0
     LOOP
 
+    idewarningbox = 0
 END FUNCTION
 
 SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, mousedown, mouseup, mx, my, info, mw)
@@ -9603,7 +9607,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
     sep = CHR$(0)
 
     t = o.typ
-
+    mouseup = mouseup 'just to clear warnings of unused variables
     IF t = 1 THEN 'text field
         IF mousedown THEN
             x1 = o.par.x + o.x: y = o.par.y + o.y
@@ -10973,6 +10977,7 @@ FUNCTION idemodifycommandbox
         mousedown = 0
         mouseup = 0
     LOOP
+    idemodifycommandbox = 0
 END FUNCTION
 
 FUNCTION idegotobox
@@ -11126,6 +11131,8 @@ FUNCTION idegotobox
         mousedown = 0
         mouseup = 0
     LOOP
+
+    idegotobox = 0
 END FUNCTION
 
 
@@ -11313,6 +11320,8 @@ FUNCTION ideadvancedbox
         mousedown = 0
         mouseup = 0
     LOOP
+
+    ideadvancedbox = 0
 END FUNCTION
 
 
@@ -12625,6 +12634,9 @@ FUNCTION idechoosecolorsbox
         mousedown = 0
         mouseup = 0
     LOOP
+
+    idechoosecolorsbox = 0
+
     EXIT FUNCTION
     NewUserScheme:
     IF SchemeID > 0 AND SchemeID <= PresetColorSchemes THEN
@@ -14750,6 +14762,8 @@ FUNCTION DarkenFGBG (Action AS _BYTE)
         _PALETTECOLOR 13, IDETextColor, 0
         _PALETTECOLOR 14, IDEQuoteColor, 0
     END IF
+
+    DarkenFGBG = 0
 END SUB
 
 SUB HideBracketHighlight
