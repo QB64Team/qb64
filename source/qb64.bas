@@ -12148,12 +12148,12 @@ END IF
 IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_ZLIB"
     IF win THEN 'ZLIB is only supported for windows versions so far
-        d$ = "internal\c\parts\zlib-1.2.11\"
+        d$ = "internal\c\parts\zlib\"
         'rebuild?
         IF _FILEEXISTS(d$ + "os\" + o$ + "\src.a") = 0 THEN
             Build d$ + "os\" + o$
         END IF
-        libs$ = libs$ + " " + "parts\zlib-1.2.11\os\" + o$ + "\src.a -lz"
+        libs$ = libs$ + " " + "parts\zlib\os\" + o$ + "\src.a -lz"
     END IF
 END IF
 

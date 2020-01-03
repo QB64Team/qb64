@@ -16455,9 +16455,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
     
     #ifdef DEPENDENCY_ZLIB
         #ifdef QB64_BACKSLASH_FILESYSTEM //change slashes depending on OS, I guess?  Included by copying audio template, and it works.  (SMcNeill comment)
-            #include "parts\\zlib-1.2.11\\src.c"
+            #include "parts\\zlib\\src.c"
         #else
-            #include "parts/zlib-1.2.11/src.c"
+            #include "parts/zlib/src.c"
         #endif
     #endif
     
