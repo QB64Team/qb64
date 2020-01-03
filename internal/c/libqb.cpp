@@ -11242,13 +11242,15 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     static uint16 *sp;
     static uint16 clearvalue;
     
-    #ifdef QB64_WINDOWS
-        if (write_page->console){ //note, I'm lazy and not adding color support for a console 
-            system("cls"); //it's just the simplest way to do things.  :P
-            qbg_sub_locate(1,1,0,0,0,3);
+        if (write_page->console){ 
+            #ifdef QB64_WINDOWS
+            system("cls"); //lazy but works
+            qbg_sub_locate(1,1,0,0,0,3); //is this really necessary?
+            #else
+            system("clear");
+            #endif
             return;
         }
-    #endif
 
     //validate
     if (passed&2){
