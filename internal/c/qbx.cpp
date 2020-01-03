@@ -16,7 +16,7 @@ extern int32 func__getconsoleinput();
     qbs *func__deflate(qbs *text);
     qbs *func__inflate(qbs *text, int64 originalsize, int32 passed);
     #ifdef QB64_WINDOWS
-        #include "parts\zlib-1.2.11\download\zlib.h"
+        #include "parts\zlib\download\zlib.h"
     #endif
 #endif
 
