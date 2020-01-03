@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: install dependencies
-      run: sudo apt update && sudo apt install libglu1-mesa-dev
-    - name: bootstrap
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install libglu1-mesa-dev libncurses-dev
+    - name: Bootstrap compiler
       run: .ci/bootstrap.sh
