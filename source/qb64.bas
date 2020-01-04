@@ -42,18 +42,6 @@ IF INSTR(_OS$, "MAC") THEN UserDefine(1, 3) = "-1": UserDefine(1, 4) = "-1" ELSE
 IF INSTR(_OS$, "32BIT") THEN UserDefine(1, 5) = "-1": UserDefine(1, 6) = "0" ELSE UserDefine(1, 5) = "0": UserDefine(1, 6) = "-1"
 
 
-
-'refactor patch
-DIM SHARED Refactor_Source AS STRING
-DIM SHARED Refactor_Dest AS STRING
-IF _FILEEXISTS("refactor.txt") THEN
-    fh = FREEFILE
-    OPEN "refactor.txt" FOR BINARY AS #fh
-    LINE INPUT #fh, Refactor_Source
-    LINE INPUT #fh, Refactor_Dest
-    CLOSE fh
-END IF
-
 NoInternalFolder:
 IF _DIREXISTS("internal") = 0 THEN
     _SCREENSHOW
