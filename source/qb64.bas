@@ -20589,14 +20589,6 @@ SUB regid
         id.cn = n$
     END IF
 
-    IF LEN(Refactor_Source) THEN
-        n$ = RTRIM$(id.n)
-        IF UCASE$(n$) = UCASE$(Refactor_Source) THEN
-            id.cn = Refactor_Dest
-        END IF
-    END IF
-
-
     id.insubfunc = subfunc
     id.insubfuncn = subfuncn
 
