@@ -15,3 +15,12 @@ jobs:
       run: .ci/bootstrap.sh
     - name: Compile
       run: .ci/compile.sh
+    - name: Update source
+      if: github.event_name == 'push'
+      run: .ci/update-source.sh
+    - name: Push to repository
+      if: github.event_name == 'push'
+      uses: ad-m/github-push-action@19caa5c351f47734055690f7d01aaaef2f9114d5
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: githubactions
