@@ -24,6 +24,7 @@ DEFLNG A-Z
 REDIM SHARED OName(0) AS STRING 'Operation Name
 REDIM SHARED PL(0) AS INTEGER 'Priority Level
 DIM SHARED QuickReturn AS INTEGER
+Set_OrderOfOperations
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 DIM ExecLevel(255), ExecCounter AS INTEGER
@@ -1535,9 +1536,7 @@ IF idemode = 0 THEN
     qberrorhappened = 0
 END IF
 
-Set_OrderOfOperations
 reginternal
-
 
 OPEN tmpdir$ + "global.txt" FOR OUTPUT AS #18
 
@@ -1554,7 +1553,7 @@ lineinput3load sourcefile$
 
 DO
 
-    stevewashere: '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
+    '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
 
     wholeline$ = lineinput3$
     IF wholeline$ = CHR$(13) THEN EXIT DO
@@ -1587,8 +1586,31 @@ DO
 
     IF LEN(wholeline$) THEN
 
+        IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
+            qb64prefix$ = ""
+            qb64prefix_set = 1
+
+            're-add internal keywords without the "_" prefix
+            reginternal
+
+            f = HASHFLAG_TYPE + HASHFLAG_RESERVED
+            HashAdd qb64prefix$ + "UNSIGNED", f, 0
+            HashAdd qb64prefix$ + "BIT", f, 0
+            HashAdd qb64prefix$ + "BYTE", f, 0
+            HashAdd qb64prefix$ + "INTEGER64", f, 0
+            HashAdd qb64prefix$ + "OFFSET", f, 0
+            HashAdd qb64prefix$ + "FLOAT", f, 0
+
+            f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
+            HashAdd qb64prefix$ + "EXPLICIT", f, 0
+
+            listOfKeywords$ = listOfKeywords$ + listOfKeywordsWithoutPrefix$
+            GOTO finishedlinepp
+        END IF
+
         wholeline$ = lineformat(wholeline$)
         IF Error_Happened THEN GOTO errmes
+
 
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
@@ -1930,7 +1952,7 @@ DO
 
 
 
-                        stevewashere2: ' ### STEVE EDIT ON 10/11/2013 (Const Expansion)
+                        ' ### STEVE EDIT ON 10/11/2013 (Const Expansion)
 
 
                         IF n >= 1 AND firstelement$ = "CONST" THEN
@@ -3087,6 +3109,12 @@ DO
             GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
         END IF
 
+        IF a3u$ = "$NOPREFIX" THEN
+            'already set in prepass
+            layout$ = "$NOPREFIX"
+            GOTO finishednonexec
+        END IF
+
         IF a3u$ = "$VIRTUALKEYBOARD:ON" THEN
             'Deprecated; does nothing.
             layout$ = "$VIRTUALKEYBOARD:ON"
@@ -3135,38 +3163,6 @@ DO
             Asserts = 1
             Console = 1
             GOTO finishednonexec
-        END IF
-
-        IF LEFT$(a3u$, 9) = "$NOPREFIX" THEN
-            IF qb64prefix_set = 0 THEN
-                IF linenumber > 1 THEN
-                    a$ = "$NOPREFIX must be set in the first line": GOTO errmes
-                END IF
-                layout$ = "$NOPREFIX"
-                qb64prefix$ = ""
-                qb64prefix_set = 1
-                're-add internal keywords without the "_" prefix
-
-                Set_OrderOfOperations
-                IF UseGL THEN gl_include_content
-                reginternal
-
-                f = HASHFLAG_TYPE + HASHFLAG_RESERVED
-                HashAdd qb64prefix$ + "UNSIGNED", f, 0
-                HashAdd qb64prefix$ + "BIT", f, 0
-                HashAdd qb64prefix$ + "BYTE", f, 0
-                HashAdd qb64prefix$ + "INTEGER64", f, 0
-                HashAdd qb64prefix$ + "OFFSET", f, 0
-                HashAdd qb64prefix$ + "FLOAT", f, 0
-
-                f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
-                HashAdd qb64prefix$ + "EXPLICIT", f, 0
-
-                listOfKeywords$ = listOfKeywordsWithoutPrefix$
-                GOTO finishednonexec
-            ELSE
-                a$ = "$NOPREFIX can only be set once": GOTO errmes
-            END IF
         END IF
 
         IF a3u$ = "$SCREENHIDE" THEN
@@ -13715,10 +13711,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
 
     'check if _UNSIGNED was specified
     unsgn = 0
-    IF LEFT$(typ$, 10 + (qb64prefix_set = 1)) = qb64prefix$ + "UNSIGNED " THEN
+    IF LEFT$(typ$, 10) = "_UNSIGNED " OR (LEFT$(typ$, 9) = "UNSIGNED " AND qb64prefix_set = 1) THEN
         unsgn = 1
-        typ$ = RIGHT$(typ$, LEN(typ$) - (10 + (qb64prefix_set = 1)))
-        IF LEN(typ$) = 0 THEN Give_Error "Expected more type information after _UNSIGNED!": EXIT FUNCTION
+        typ$ = MID$(typ$, INSTR(typ$, CHR$(32)) + 1)
+        IF LEN(typ$) = 0 THEN Give_Error "Expected more type information after " + qb64prefix$ + "UNSIGNED!": EXIT FUNCTION
     END IF
 
     n$ = "" 'n$ is assumed to be "" after branching into the code for each type
@@ -13963,10 +13959,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF LEFT$(typ$, 4 + (qb64prefix_set = 1)) = qb64prefix$ + "BIT" THEN
-        IF LEN(typ$) > (4 + (qb64prefix_set = 1)) THEN
-            IF LEFT$(typ$, 7 + (qb64prefix_set = 1)) <> qb64prefix$ + "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
-            c$ = RIGHT$(typ$, LEN(typ$) - (7 + (qb64prefix_set = 1)))
+    IF LEFT$(typ$, 4) = "_BIT" OR (LEFT$(typ$, 3) = "BIT" AND qb64prefix_set = 1) THEN
+        IF (LEFT$(typ$, 4) = "_BIT" AND LEN(typ$) > 4) OR (LEFT$(typ$, 3) = "BIT" AND LEN(typ$) > 3) THEN
+            IF LEFT$(typ$, 7) <> "_BIT * " AND LEFT$(typ$, 6) <> "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
+            c$ = MID$(typ$, INSTR(typ$, " * ") + 4)
             IF isuinteger(c$) = 0 THEN Give_Error "Number expected after *": EXIT FUNCTION
             IF LEN(c$) > 2 THEN Give_Error "Too many characters in number after *": EXIT FUNCTION
             bits = VAL(c$)
@@ -14066,7 +14062,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF typ$ = qb64prefix$ + "BYTE" THEN
+    IF typ$ = "_BYTE" OR (typ$ = "BYTE" AND qb64prefix_set = 1) THEN
         ct$ = "int8"
         IF unsgn THEN n$ = "U": ct$ = "u" + ct$
         n$ = n$ + "BYTE_" + varname$
@@ -14240,7 +14236,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
 
 
 
-    IF typ$ = qb64prefix$ + "OFFSET" THEN
+    IF typ$ = "_OFFSET" OR (typ$ = "OFFSET" AND qb64prefix_set = 1) THEN
         ct$ = "ptrszint"
         IF unsgn THEN n$ = "U": ct$ = "u" + ct$
         n$ = n$ + "OFFSET_" + varname$
@@ -14404,7 +14400,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF typ$ = qb64prefix$ + "INTEGER64" THEN
+    IF typ$ = "_INTEGER64" OR (typ$ = "INTEGER64" AND qb64prefix_set = 1) THEN
         ct$ = "int64"
         IF unsgn THEN n$ = "U": ct$ = "u" + ct$
         n$ = n$ + "INTEGER64_" + varname$
@@ -14654,7 +14650,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF typ$ = qb64prefix$ + "FLOAT" THEN
+    IF typ$ = "_FLOAT" OR (typ$ = "FLOAT" AND qb64prefix_set = 1) THEN
         ct$ = "long double"
         n$ = n$ + "FLOAT_" + varname$
         IF elements$ <> "" THEN
@@ -21839,7 +21835,7 @@ FUNCTION typname2typ& (t2$)
     IF t$ = "_FLOAT" OR (t$ = "FLOAT" AND qb64prefix_set = 1) THEN typname2typ& = FLOATTYPE: EXIT FUNCTION
     IF LEFT$(t$, 10) = "_UNSIGNED " OR (LEFT$(t$, 9) = "UNSIGNED " AND qb64prefix_set = 1) THEN
         u = 1
-        t$ = MID$(t$, INSTR(t$, CHR$(32)))
+        t$ = MID$(t$, INSTR(t$, CHR$(32)) + 1)
     END IF
     IF LEFT$(t$, 4) = "_BIT" OR (LEFT$(t$, 3) = "BIT" AND qb64prefix_set = 1) THEN
         IF t$ = "_BIT" OR (t$ = "BIT" AND qb64prefix_set = 1) THEN
@@ -23642,28 +23638,28 @@ SUB Set_OrderOfOperations
     'OName ended up becoming the name of our commands, as I modified things.... Go figure!  LOL!
 
     'Constants get evaluated first, with a Priority Level of 1
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "PI"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_PI"
     REDIM _PRESERVE PL(i): PL(i) = 1
     'I'm not certain where exactly percentages should go.  They kind of seem like a special case to me.  COS10% should be COS.1 I'd think...
     'I'm putting it here for now, and if anyone knows someplace better for it in our order of operations, let me know.
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "%"
     REDIM _PRESERVE PL(i): PL(i) = 5
     'Then Functions with PL 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "ACOS"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ACOS"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "ASIN"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ASIN"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "ARCSEC"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ARCSEC"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "ARCCSC"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ARCCSC"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "ARCCOT"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ARCCOT"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "SECH"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_SECH"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "CSCH"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_CSCH"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "COTH"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_COTH"
     REDIM _PRESERVE PL(i): PL(i) = 10
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "COS"
     REDIM _PRESERVE PL(i): PL(i) = 10
@@ -23677,17 +23673,17 @@ SUB Set_OrderOfOperations
     REDIM _PRESERVE PL(i): PL(i) = 10
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ATN"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "D2R"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_D2R"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "D2G"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_D2G"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "R2D"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_R2D"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "R2G"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_R2G"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "G2D"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_G2D"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "G2R"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_G2R"
     REDIM _PRESERVE PL(i): PL(i) = 10
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ABS"
     REDIM _PRESERVE PL(i): PL(i) = 10
@@ -23695,15 +23691,15 @@ SUB Set_OrderOfOperations
     REDIM _PRESERVE PL(i): PL(i) = 10
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "INT"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "ROUND"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ROUND"
     REDIM _PRESERVE PL(i): PL(i) = 10
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "FIX"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "SEC"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_SEC"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "CSC"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_CSC"
     REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = qb64prefix$ + "COT"
+    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_COT"
     REDIM _PRESERVE PL(i): PL(i) = 10
     i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ASC"
     REDIM _PRESERVE PL(i): PL(i) = 10
@@ -23772,36 +23768,36 @@ END SUB
 FUNCTION EvaluateNumbers$ (p, num() AS STRING)
     DIM n1 AS _FLOAT, n2 AS _FLOAT, n3 AS _FLOAT
     SELECT CASE OName(p) 'Depending on our operator..
-        CASE qb64prefix$ + "PI": n1 = 3.14159265358979323846264338327950288## 'Future compatible in case something ever stores extra digits for PI
+        CASE "_PI": n1 = 3.14159265358979323846264338327950288## 'Future compatable in case something ever stores extra digits for PI
         CASE "%": n1 = (VAL(num(1))) / 100 'Note percent is a special case and works with the number BEFORE the % command and not after
-        CASE qb64prefix$ + "ACOS": n1 = _ACOS(VAL(num(2)))
-        CASE qb64prefix$ + "ASIN": n1 = _ASIN(VAL(num(2)))
-        CASE qb64prefix$ + "ARCSEC": n1 = _ARCSEC(VAL(num(2)))
-        CASE qb64prefix$ + "ARCCSC": n1 = _ARCCSC(VAL(num(2)))
-        CASE qb64prefix$ + "ARCCOT": n1 = _ARCCOT(VAL(num(2)))
-        CASE qb64prefix$ + "SECH": n1 = _SECH(VAL(num(2)))
-        CASE qb64prefix$ + "CSCH": n1 = _CSCH(VAL(num(2)))
-        CASE qb64prefix$ + "COTH": n1 = _COTH(VAL(num(2)))
+        CASE "_ACOS": n1 = _ACOS(VAL(num(2)))
+        CASE "_ASIN": n1 = _ASIN(VAL(num(2)))
+        CASE "_ARCSEC": n1 = _ARCSEC(VAL(num(2)))
+        CASE "_ARCCSC": n1 = _ARCCSC(VAL(num(2)))
+        CASE "_ARCCOT": n1 = _ARCCOT(VAL(num(2)))
+        CASE "_SECH": n1 = _SECH(VAL(num(2)))
+        CASE "_CSCH": n1 = _CSCH(VAL(num(2)))
+        CASE "_COTH": n1 = _COTH(VAL(num(2)))
         CASE "COS": n1 = COS(VAL(num(2)))
         CASE "SIN": n1 = SIN(VAL(num(2)))
         CASE "TAN": n1 = TAN(VAL(num(2)))
         CASE "LOG": n1 = LOG(VAL(num(2)))
         CASE "EXP": n1 = EXP(VAL(num(2)))
         CASE "ATN": n1 = ATN(VAL(num(2)))
-        CASE qb64prefix$ + "D2R": n1 = 0.0174532925 * (VAL(num(2)))
-        CASE qb64prefix$ + "D2G": n1 = 1.1111111111 * (VAL(num(2)))
-        CASE qb64prefix$ + "R2D": n1 = 57.2957795 * (VAL(num(2)))
-        CASE qb64prefix$ + "R2G": n1 = 0.015707963 * (VAL(num(2)))
-        CASE qb64prefix$ + "G2D": n1 = 0.9 * (VAL(num(2)))
-        CASE qb64prefix$ + "G2R": n1 = 63.661977237 * (VAL(num(2)))
+        CASE "_D2R": n1 = 0.0174532925 * (VAL(num(2)))
+        CASE "_D2G": n1 = 1.1111111111 * (VAL(num(2)))
+        CASE "_R2D": n1 = 57.2957795 * (VAL(num(2)))
+        CASE "_R2G": n1 = 0.015707963 * (VAL(num(2)))
+        CASE "_G2D": n1 = 0.9 * (VAL(num(2)))
+        CASE "_G2R": n1 = 63.661977237 * (VAL(num(2)))
         CASE "ABS": n1 = ABS(VAL(num(2)))
         CASE "SGN": n1 = SGN(VAL(num(2)))
         CASE "INT": n1 = INT(VAL(num(2)))
-        CASE qb64prefix$ + "ROUND": n1 = _ROUND(VAL(num(2)))
+        CASE "_ROUND": n1 = _ROUND(VAL(num(2)))
         CASE "FIX": n1 = FIX(VAL(num(2)))
-        CASE qb64prefix$ + "SEC": n1 = _SEC(VAL(num(2)))
-        CASE qb64prefix$ + "CSC": n1 = _CSC(VAL(num(2)))
-        CASE qb64prefix$ + "COT": n1 = _COT(VAL(num(2)))
+        CASE "_SEC": n1 = _SEC(VAL(num(2)))
+        CASE "_CSC": n1 = _CSC(VAL(num(2)))
+        CASE "_COT": n1 = _COT(VAL(num(2)))
         CASE "^": n1 = VAL(num(1)) ^ VAL(num(2))
         CASE "SQR": n1 = SQR(VAL(num(2)))
         CASE "ROOT"
