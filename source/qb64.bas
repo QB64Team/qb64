@@ -23581,7 +23581,7 @@ SUB ParseExpression (exp$)
                     SELECT CASE MID$(exp$, op + c + 1, 1)
                         CASE "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "N": numset = -1 'Valid digit
                         CASE "-" 'We need to check if it's a minus or a negative
-                            IF OName(OpOn) = "_PI" OR (OName(OpOn) = "PI" AND qb64prefix_set = 1) OR numset THEN EXIT DO
+                            IF OName(OpOn) = "_PI" OR numset THEN EXIT DO
                         CASE ELSE 'Not a valid digit, we found our separator
                             EXIT DO
                     END SELECT
