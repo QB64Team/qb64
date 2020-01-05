@@ -2991,7 +2991,8 @@ DO
     IF LEFT$(a3u$, 4) = "REM " OR _
         (LEFT$(a3u$, 3) = "REM" AND LEN(a3u$) = 3) OR _
         LEFT$(a3u$, 1) = "'" OR _
-        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = qb64prefix$ + "EXPLICIT") OR _
+        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = "_EXPLICIT") OR _
+        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 8) = "EXPLICIT" AND qb64prefix_set = 1) OR _
         LEFT$(a3u$, 1) = "$" THEN
         'It's a comment, $metacommand, or OPTION _EXPLICIT itself, alright.
         'But even being a comment, there could be an $INCLUDE in there, let's check:
