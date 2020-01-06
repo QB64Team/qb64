@@ -13,3 +13,17 @@ jobs:
       run: .ci/bootstrap.sh osx
     - name: Compile
       run: .ci/compile.sh
+    - name: Set deployment SSH key
+      if: github.event_name == 'push'
+      uses: shimataro/ssh-key-action@v1
+      with:
+        private-key: ${{ secrets.SSH_KEY }}
+        public-key: ${{ secrets.SSH_KEY_PUBLIC }}
+        known-hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtmlTks7NPQHwvQiW+P2P8voWXfwYD+EuU39ERiaVw5g/lG/6pU1SKdrRBg2AtaPToPgK/nQyaid3sO2aWO00ixiKB3JPJoVp3nRY8YFi/AtVtVot/xh6+39fjP59tMCnMCbXTKjyMWL0kkwzd+OT8wryRZ/EgjK3vk9UGYzxKSr8G/KKV3GBDrJOdpHT2gNUcDFg6HSMvM860ZOF8n6jKRwp7MM0SpptufuQDgj/LhHcqQtFOqkhW9HXNmZR7IPchb5tsUubbPdSLu043B0ir2x5sCkK9V+inZExPg7KwIZ0yRsSv5esgLaBdyf1UToU3LU4ZM1hWjcJsp2fCBRkhw=="
+        config: |
+          Host remote-server
+          HostName qb64.org
+          User m6rosupy1q2t
+    - name: Package and deploy
+      if: github.event_name == 'push'
+      run: .ci/deploy.sh osx

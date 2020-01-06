@@ -1,9 +1,10 @@
 #!/bin/bash
 
+OS=$1
 TZ=UTC now=`date +"%F-%H-%M-%S"`
-filename="/tmp/qb64_${now}_`echo ${GITHUB_SHA} | sed 's/\(.......\).*$/\1/'`_lnx.tar.gz"
+filename="/tmp/qb64_${now}_`echo ${GITHUB_SHA} | sed 's/\(.......\).*$/\1/'`_$OS.tar.gz"
 cd ..
-tar --create --auto-compress --file ${filename} --exclude-from=qb64/.ci/common-exclusion.list --exclude-from=qb64/.ci/lnx-exclusion.list qb64
+tar --create --auto-compress --file ${filename} --exclude-from=qb64/.ci/common-exclusion.list --exclude-from=qb64/.ci/$OS-exclusion.list qb64
 
 # Send to server
 # Sometimes the connection can be a bit flakey, so try multiple times on error
