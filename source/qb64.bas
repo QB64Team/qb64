@@ -1594,15 +1594,15 @@ DO
             reginternal
 
             f = HASHFLAG_TYPE + HASHFLAG_RESERVED
-            HashAdd qb64prefix$ + "UNSIGNED", f, 0
-            HashAdd qb64prefix$ + "BIT", f, 0
-            HashAdd qb64prefix$ + "BYTE", f, 0
-            HashAdd qb64prefix$ + "INTEGER64", f, 0
-            HashAdd qb64prefix$ + "OFFSET", f, 0
-            HashAdd qb64prefix$ + "FLOAT", f, 0
+            HashAdd "UNSIGNED", f, 0
+            HashAdd "BIT", f, 0
+            HashAdd "BYTE", f, 0
+            HashAdd "INTEGER64", f, 0
+            HashAdd "OFFSET", f, 0
+            HashAdd "FLOAT", f, 0
 
             f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
-            HashAdd qb64prefix$ + "EXPLICIT", f, 0
+            HashAdd "EXPLICIT", f, 0
 
             listOfKeywords$ = listOfKeywords$ + listOfKeywordsWithoutPrefix$
             GOTO finishedlinepp
@@ -2416,7 +2416,7 @@ DO
                         IF firstelement$ = "DEFSNG" THEN d = 1
                         IF firstelement$ = "DEFDBL" THEN d = 1
                         IF firstelement$ = "DEFSTR" THEN d = 1
-                        IF firstelement$ = qb64prefix$ + "DEFINE" THEN d = 1
+                        IF firstelement$ = "_DEFINE" OR (firstelement$ = "DEFINE" AND qb64prefix_set = 1) THEN d = 1
                         IF d THEN
                             predefining = 1: GOTO predefine
                             predefined: predefining = 0
@@ -5292,7 +5292,7 @@ DO
         IF firstelement$ = "DEFSNG" THEN a$ = a$ + sp + "AS" + sp + "SINGLE": n = n + 2: GOTO definetype
         IF firstelement$ = "DEFDBL" THEN a$ = a$ + sp + "AS" + sp + "DOUBLE": n = n + 2: GOTO definetype
         IF firstelement$ = "DEFSTR" THEN a$ = a$ + sp + "AS" + sp + "STRING": n = n + 2: GOTO definetype
-        IF firstelement$ = qb64prefix$ + "DEFINE" THEN
+        IF firstelement$ = "_DEFINE" OR (firstelement$ = "DEFINE" AND qb64prefix_set = 1) THEN
             asreq = 1
             definetype:
             l$ = firstelement$
@@ -7575,9 +7575,9 @@ DO
         IF firstelement$ = "DIM" THEN dimoption = 1
         IF firstelement$ = "REDIM" THEN
             dimoption = 2: redimoption = 1
-            IF secondelement$ = qb64prefix$ + "PRESERVE" THEN
+            IF secondelement$ = "_PRESERVE" OR (secondelement$ = "PRESERVE" AND qb64prefix_set = 1) THEN
                 redimoption = 2
-                IF n = 2 THEN a$ = "Expected REDIM _PRESERVE ...": GOTO errmes
+                IF n = 2 THEN a$ = "Expected REDIM " + qb64prefix$ + "PRESERVE ...": GOTO errmes
             END IF
         END IF
         IF firstelement$ = "STATIC" THEN dimoption = 3
@@ -7590,7 +7590,7 @@ DO
             IF commonoption = 1 AND subfuncn <> 0 THEN a$ = "COMMON cannot be used within a SUB/FUNCTION": GOTO errmes
 
             i = 2
-            IF redimoption = 2 THEN i = 3: l$ = l$ + sp + qb64prefix$ + "PRESERVE"
+            IF redimoption = 2 THEN i = 3: l$ = l$ + sp + secondelement$
 
             IF dimoption <> 3 THEN 'shared cannot be static
                 a2$ = getelement(a$, i)
@@ -9828,7 +9828,7 @@ DO
                             IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
                             IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
                             optionexplicit = -1
-                            l$ = "OPTION" + sp + qb64prefix$ + "EXPLICIT"
+                            l$ = "OPTION" + sp + e$
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
                         CASE ELSE
