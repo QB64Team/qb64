@@ -13962,7 +13962,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     IF LEFT$(typ$, 4) = "_BIT" OR (LEFT$(typ$, 3) = "BIT" AND qb64prefix_set = 1) THEN
         IF (LEFT$(typ$, 4) = "_BIT" AND LEN(typ$) > 4) OR (LEFT$(typ$, 3) = "BIT" AND LEN(typ$) > 3) THEN
             IF LEFT$(typ$, 7) <> "_BIT * " AND LEFT$(typ$, 6) <> "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
-            c$ = MID$(typ$, INSTR(typ$, " * ") + 4)
+            c$ = MID$(typ$, INSTR(typ$, " * ") + 3)
             IF isuinteger(c$) = 0 THEN Give_Error "Number expected after *": EXIT FUNCTION
             IF LEN(c$) > 2 THEN Give_Error "Too many characters in number after *": EXIT FUNCTION
             bits = VAL(c$)
@@ -17704,10 +17704,18 @@ FUNCTION findid& (n2$)
     'some subs require a second argument (eg. PUT #, DEF SEG, etc.)
     IF ids(i).subfunc = 2 THEN
         IF ASC(ids(i).secondargmustbe) <> 32 THEN 'exists?
-            IF secondarg$ <> ids(i).secondargmustbe THEN GOTO findidnomatch
+            IF RTRIM$(secondarg$) = RTRIM$(ids(i).secondargmustbe) THEN
+            ELSEIF qb64prefix_set = 1 AND LEFT$(ids(i).secondargmustbe, 1) = "_" AND LEFT$(secondarg$, 1) <> "_" AND RTRIM$(secondarg$) = MID$(RTRIM$(ids(i).secondargmustbe), 2) THEN
+            ELSE
+                GOTO findidnomatch
+            END IF
         END IF
         IF ASC(ids(i).secondargcantbe) <> 32 THEN 'exists?
-            IF secondarg$ = ids(i).secondargcantbe THEN GOTO findidnomatch
+            IF RTRIM$(secondarg$) <> RTRIM$(ids(i).secondargcantbe) THEN
+            ELSEIF qb64prefix_set = 1 AND LEFT$(ids(i).secondargcantbe, 1) = "_" AND LEFT$(secondarg$, 1) <> "_" AND RTRIM$(secondarg$) <> MID$(RTRIM$(ids(i).secondargcantbe), 2) THEN
+            ELSE
+                GOTO findidnomatch
+            END IF
         END IF
     END IF 'second sub argument possible
 
@@ -21077,6 +21085,7 @@ FUNCTION seperateargs (a$, ca$, pass&)
                 OutOfRange = 2147483647
                 position = OutOfRange
                 which = 0
+                removePrefix = 0
                 IF i <= n THEN 'Past end of contect check
                     FOR o = 1 TO t
                         words = OptWords(x, o)
@@ -21090,11 +21099,13 @@ FUNCTION seperateargs (a$, ca$, pass&)
                                         c$ = c$ + " " + getelement$(a$, i3 + w - 1)
                                     NEXT w
                                     'Compare
-                                    IF c$ = RTRIM$(Opt(x, o)) THEN
+                                    noPrefixMatch = LEFT$(Opt(x, o), 1) = "_" AND qb64prefix_set = 1 AND c$ = MID$(RTRIM$(Opt(x, o)), 2)
+                                    IF c$ = RTRIM$(Opt(x, o)) OR noPrefixMatch THEN
                                         'Record Match
                                         IF i3 < position THEN
                                             position = i3
                                             which = o
+                                            IF noPrefixMatch THEN removePrefix = 1
                                             bvalue = b
                                             EXIT FOR 'Exit the i3 loop
                                         END IF 'position check
@@ -21137,7 +21148,7 @@ FUNCTION seperateargs (a$, ca$, pass&)
                         END IF
                     END IF 'Expression
                     i = i + OptWords(x, which)
-                    separgslayout(x) = CHR$(LEN(RTRIM$(Opt(x, which)))) + RTRIM$(Opt(x, which))
+                    separgslayout(x) = CHR$(LEN(RTRIM$(Opt(x, which))) - removePrefix) + MID$(RTRIM$(Opt(x, which)), removePrefix + 1)
                     separgs(x) = CHR$(0) + str2(which)
                 ELSE
                     'Not Found...

@@ -90,7 +90,7 @@ id.subfunc = 2
 id.callname = "sub__resize"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{ON|OFF}][,{" + qb64prefix$ + "STRETCH|" + qb64prefix$ + "SMOOTH}]"
+id.specialformat = "[{ON|OFF}][,{_STRETCH|_SMOOTH}]"
 regid
 
 clearid
@@ -135,7 +135,7 @@ id.subfunc = 2
 id.callname = "sub__glrender"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "{" + qb64prefix$ + "BEHIND|" + qb64prefix$ + "ONTOP|" + qb64prefix$ + "ONLY}"
+id.specialformat = "{_BEHIND|_ONTOP|_ONLY}"
 regid
 
 clearid
@@ -144,7 +144,7 @@ id.subfunc = 2
 id.callname = "sub__displayorder"
 id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "SOFTWARE|" + qb64prefix$ + "HARDWARE|" + qb64prefix$ + "HARDWARE1|" + qb64prefix$ + "GLRENDER}[,{" + qb64prefix$ + "SOFTWARE|" + qb64prefix$ + "HARDWARE|" + qb64prefix$ + "HARDWARE1|" + qb64prefix$ + "GLRENDER}[,{" + qb64prefix$ + "SOFTWARE|" + qb64prefix$ + "HARDWARE|" + qb64prefix$ + "HARDWARE1|" + qb64prefix$ + "GLRENDER}[,{" + qb64prefix$ + "SOFTWARE|" + qb64prefix$ + "HARDWARE|" + qb64prefix$ + "HARDWARE1|" + qb64prefix$ + "GLRENDER}]]]]"
+id.specialformat = "[{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}[,{_SOFTWARE|_HARDWARE|_HARDWARE1|_GLRENDER}]]]]"
 regid
 
 clearid
@@ -484,7 +484,7 @@ id.subfunc = 2
 id.callname = "sub__screenmove"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "MIDDLE}][?,?]"
+id.specialformat = "[{_MIDDLE}][?,?]"
 regid
 
 clearid
@@ -644,7 +644,7 @@ id.subfunc = 2
 id.callname = "sub__fullscreen"
 id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "OFF|" + qb64prefix$ + "STRETCH|" + qb64prefix$ + "SQUAREPIXELS|OFF}][,{" + qb64prefix$ + "SMOOTH}]"
+id.specialformat = "[{_OFF|_STRETCH|_SQUAREPIXELS|OFF}][,{_SMOOTH}]"
 regid
 
 clearid
@@ -653,7 +653,7 @@ id.subfunc = 2
 id.callname = "sub__allowfullscreen"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "STRETCH|" + qb64prefix$ + "SQUAREPIXELS|" + qb64prefix$ + "OFF|" + qb64prefix$ + "ALL|OFF}][,{" + qb64prefix$ + "SMOOTH|" + qb64prefix$ + "OFF|" + qb64prefix$ + "ALL|OFF}]"
+id.specialformat = "[{_STRETCH|_SQUAREPIXELS|_OFF|_ALL|OFF}][,{_SMOOTH|_OFF|_ALL|OFF}]"
 regid
 
 clearid
@@ -832,7 +832,7 @@ id.subfunc = 2
 id.callname = "sub__fps"
 id.args = 1
 id.arg = MKL$(DOUBLETYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "AUTO}][?]"
+id.specialformat = "[{_AUTO}][?]"
 regid
 
 clearid
@@ -1025,7 +1025,7 @@ id.subfunc = 2
 id.callname = "sub__clearcolor"
 id.args = 2
 id.arg = MKL$(ULONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "NONE}][?][,?]"
+id.specialformat = "[{_NONE}][?][,?]"
 regid
 
 'USING/CHANGING A SURFACE
@@ -1036,7 +1036,7 @@ id.subfunc = 2
 id.callname = "sub__putimage"
 id.args = 10
 id.arg = MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER) + MKL$(DOUBLETYPE - ISPOINTER)
-id.specialformat = "[[{STEP}](?,?)[-[{STEP}](?,?)]][,[?][,[?][,[[{STEP}](?,?)[-[{STEP}](?,?)]][,{" + qb64prefix$ + "SMOOTH}]]]]"
+id.specialformat = "[[{STEP}](?,?)[-[{STEP}](?,?)]][,[?][,[?][,[[{STEP}](?,?)[-[{STEP}](?,?)]][,{_SMOOTH}]]]]"
 regid
 
 clearid
@@ -1045,7 +1045,7 @@ id.subfunc = 2
 id.callname = "sub__maptriangle"
 id.args = 19
 id.arg = MKL$(LONGTYPE - ISPOINTER)+MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(SINGLETYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "CLOCKWISE|" + qb64prefix$ + "ANTICLOCKWISE}][{" + qb64prefix$ + "SEAMLESS}](?,?)-(?,?)-(?,?)[,?]{TO}(?,?[,?])-(?,?[,?])-(?,?[,?])[,[?][,{" + qb64prefix$ + "SMOOTH|" + qb64prefix$ + "SMOOTHSHRUNK|" + qb64prefix$ + "SMOOTHSTRETCHED}]]"
+id.specialformat = "[{_CLOCKWISE|_ANTICLOCKWISE}][{_SEAMLESS}](?,?)-(?,?)-(?,?)[,?]{TO}(?,?[,?])-(?,?[,?])-(?,?[,?])[,[?][,{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]"
 regid
 
 clearid
@@ -1054,7 +1054,7 @@ id.subfunc = 2
 id.callname = "sub__depthbuffer"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER)+MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "{ON|OFF|LOCK|" + qb64prefix$ + "CLEAR}[,?]"
+id.specialformat = "{ON|OFF|LOCK|_CLEAR}[,?]"
 regid
 
 clearid
@@ -1253,7 +1253,7 @@ id.subfunc = 2
 id.callname = "sub__printmode"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "{" + qb64prefix$ + "FILLBACKGROUND|" + qb64prefix$ + "KEEPBACKGROUND|" + qb64prefix$ + "ONLYBACKGROUND}[,?]"
+id.specialformat = "{_FILLBACKGROUND|_KEEPBACKGROUND|_ONLYBACKGROUND}[,?]"
 regid
 
 clearid
@@ -1583,7 +1583,7 @@ id.callname = "sub_shell"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "[?]"
-'id.secondargcantbe = qb64prefix$ + "HIDE"
+'id.secondargcantbe = "_HIDE"
 regid
 
 clearid
@@ -1592,8 +1592,8 @@ id.subfunc = 2
 id.callname = "sub_shell2"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.specialformat = "{" + qb64prefix$ + "HIDE}[{" + qb64prefix$ + "DONTWAIT}][?]"
-id.secondargmustbe = qb64prefix$ + "HIDE"
+id.specialformat = "{_HIDE}[{_DONTWAIT}][?]"
+id.secondargmustbe = "_HIDE"
 regid
 
 clearid
@@ -1602,8 +1602,8 @@ id.subfunc = 2
 id.callname = "sub_shell3"
 id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.specialformat = "{" + qb64prefix$ + "DONTWAIT}[{" + qb64prefix$ + "HIDE}][?]"
-id.secondargmustbe = qb64prefix$ + "DONTWAIT"
+id.specialformat = "{_DONTWAIT}[{_HIDE}][?]"
+id.secondargmustbe = "_DONTWAIT"
 regid
 
 clearid
@@ -2219,7 +2219,7 @@ id.subfunc = 2
 id.callname = "sub_graphics_put"
 id.args = 5
 id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{STEP}](?,?),?[,[{" + qb64prefix$ + "CLIP}][{PSET|PRESET|AND|OR|XOR}][,?]]"
+id.specialformat = "[{STEP}](?,?),?[,[{_CLIP}][{PSET|PRESET|AND|OR|XOR}][,?]]"
 'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
 'PUT (10, 10), myimage, _CLIP, 0
 id.secondargmustbe = "STEP"
@@ -2230,7 +2230,7 @@ id.subfunc = 2
 id.callname = "sub_graphics_put"
 id.args = 5
 id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{STEP}](?,?),?[,[{" + qb64prefix$ + "CLIP}][{PSET|PRESET|AND|OR|XOR}][,?]]"
+id.specialformat = "[{STEP}](?,?),?[,[{_CLIP}][{PSET|PRESET|AND|OR|XOR}][,?]]"
 'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
 'PUT (10, 10), myimage, _CLIP, 0
 id.secondargmustbe = "("
@@ -2760,7 +2760,7 @@ id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE
 'id.specialformat = "[?][,[?][,[?][,?]]]" 'new!
 'id.specialformat = "[?][,[?][,[?][,[?][,{_MANUALDISPLAY}]]]]" 'breaks compilation!
 'id.specialformat = "[?][,[?][,[?][,[?][,[{_MANUALDISPLAY}]]]]]" <-pre-bulletproofing
-id.specialformat = "[?][,[?][,[?][,[?][,[{" + qb64prefix$ + "MANUALDISPLAY}?]]]]]" 'a temp format for transition reasons"
+id.specialformat = "[?][,[?][,[?][,[?][,[{_MANUALDISPLAY}?]]]]]" 'a temp format for transition reasons"
 regid
 
 clearid
@@ -3354,7 +3354,7 @@ id.subfunc = 2
 id.callname = "sub__capslock"
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.args = 1
-id.specialformat = "{ON|OFF|" + qb64prefix$ + "TOGGLE}"
+id.specialformat = "{ON|OFF|_TOGGLE}"
 regid
 
 clearid
@@ -3363,7 +3363,7 @@ id.subfunc = 2
 id.callname = "sub__scrolllock"
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.args = 1
-id.specialformat = "{ON|OFF|" + qb64prefix$ + "TOGGLE}"
+id.specialformat = "{ON|OFF|_TOGGLE}"
 regid
 
 clearid
@@ -3372,7 +3372,7 @@ id.subfunc = 2
 id.callname = "sub__numlock"
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.args = 1
-id.specialformat = "{ON|OFF|" + qb64prefix$ + "TOGGLE}"
+id.specialformat = "{ON|OFF|_TOGGLE}"
 regid
 
 clearid
@@ -3389,7 +3389,7 @@ id.subfunc = 2
 id.callname = "sub__console_cursor"
 id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER)  + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "[{" + qb64prefix$ + "SHOW|" + qb64prefix$ + "HIDE}][,?]"
+id.specialformat = "[{_SHOW|_HIDE}][,?]"
 regid
 
 clearid
