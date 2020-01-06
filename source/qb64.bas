@@ -23931,7 +23931,16 @@ SUB PreParse (e$)
         IF l AND l > 2 THEN 'Don't check the starting bracket; there's nothing before it.
             good = 0
             FOR i = 1 TO UBOUND(OName)
-                IF MID$(t$, l - LEN(OName(i)), LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                IF MID$(t$, l - LEN(OName(i)), LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN
+                    good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                ELSE
+                    IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try without prefix
+                        IF MID$(t$, l - (LEN(OName(i)) - 1), LEN(OName(i)) - 1) = MID$(OName(i), 2) AND PL(i) > 1 AND PL(i) <= 250 THEN
+                            good = -1: EXIT FOR
+                        END IF
+                    END IF
+                END IF
             NEXT
             IF NOT good THEN e$ = "ERROR - Improper operations before (.": EXIT SUB
             l = l + 1
@@ -23945,7 +23954,16 @@ SUB PreParse (e$)
         IF l AND l < LEN(t$) THEN
             good = 0
             FOR i = 1 TO UBOUND(OName)
-                IF MID$(t$, l + 1, LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                IF MID$(t$, l + 1, LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN
+                    good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                ELSE
+                    IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try without prefix
+                        IF MID$(t$, l + 1, LEN(OName(i)) - 1) = MID$(OName(i), 2) AND PL(i) > 1 AND PL(i) <= 250 THEN
+                            good = -1: EXIT FOR
+                        END IF
+                    END IF
+                END IF
             NEXT
             IF MID$(t$, l + 1, 1) = ")" THEN good = -1
             IF NOT good THEN e$ = "ERROR - Improper operations after ).": EXIT SUB
