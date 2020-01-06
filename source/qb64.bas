@@ -1972,7 +1972,6 @@ DO
                                 firstelement$ = getelement(a$, 1): secondelement$ = getelement(a$, 2): thirdelement$ = getelement(a$, 3)
                             END IF
 
-
                             'Steve Tweak to add _RGB32 and _MATH support to CONST
                             'Our alteration to allow for multiple uses of RGB and RGBA inside a CONST //SMcNeill
                             altered = 0
@@ -7272,7 +7271,7 @@ DO
 
 
     '_ECHO checking
-    IF firstelement$ = qb64prefix$ + "ECHO" THEN
+    IF firstelement$ = "_ECHO" OR (firstelement$ = "ECHO" AND qb64prefix_set = 1) THEN
         IF Console = 0 THEN
             a$ = qb64prefix$ + "ECHO requires $CONSOLE or $CONSOLE:ONLY to be set first": GOTO errmes
         END IF
@@ -23551,6 +23550,7 @@ SUB ParseExpression (exp$)
     DIM num(10) AS STRING
     'We should now have an expression with no () to deal with
     IF MID$(exp$, 2, 1) = "-" THEN exp$ = "0+" + MID$(exp$, 2)
+
     FOR J = 1 TO 250
         lowest = 0
         DO UNTIL lowest = LEN(exp$)
@@ -23558,12 +23558,23 @@ SUB ParseExpression (exp$)
             FOR P = 1 TO UBOUND(OName)
                 'Look for first valid operator
                 IF J = PL(P) THEN 'Priority levels match
-                    IF LEFT$(exp$, 1) = "-" THEN op = INSTR(2, exp$, OName(P)) ELSE op = INSTR(exp$, OName(P))
+                    IF LEFT$(exp$, 1) = "-" THEN startAt = 2 ELSE startAt = 1
+                    op = INSTR(startAt, exp$, OName(P))
+                    IF op = 0 AND LEFT$(OName(P), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try again without prefix
+                        op = INSTR(startAt, exp$, MID$(OName(P), 2))
+                        IF op > 0 THEN
+                            exp$ = LEFT$(exp$, op - 1) + "_" + MID$(exp$, op)
+                            lowest = lowest + 1
+                        END IF
+                    END IF
                     IF op > 0 AND op < lowest THEN lowest = op: OpOn = P
                 END IF
             NEXT
             IF OpOn = 0 THEN EXIT DO 'We haven't gotten to the proper PL for this OP to be processed yet.
-            IF LEFT$(exp$, 1) = "-" THEN op = INSTR(2, exp$, OName(OpOn)) ELSE op = INSTR(exp$, OName(OpOn))
+            IF LEFT$(exp$, 1) = "-" THEN startAt = 2 ELSE startAt = 1
+            op = INSTR(startAt, exp$, OName(OpOn))
+
             numset = 0
 
             '*** SPECIAL OPERATION RULESETS
@@ -24013,11 +24024,21 @@ SUB VerifyString (t$)
             CASE "0" TO "9", ".", "(", ")": j = j + 1
             CASE ELSE
                 good = 0
+                extrachar = 0
                 FOR i = 1 TO UBOUND(OName)
-                    IF MID$(t$, j, LEN(OName(i))) = OName(i) THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                    IF MID$(t$, j, LEN(OName(i))) = OName(i) THEN
+                        good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                    ELSE
+                        IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                            'try without prefix
+                            IF MID$(t$, j, LEN(OName(i)) - 1) = MID$(OName(i), 2) THEN
+                                good = -1: extrachar = 1: EXIT FOR
+                            END IF
+                        END IF
+                    END IF
                 NEXT
                 IF NOT good THEN t$ = "ERROR - Bad Operational value. (" + comp$ + ")": EXIT SUB
-                j = j + LEN(OName(i))
+                j = j + (LEN(OName(i)) - extrachar)
         END SELECT
     LOOP UNTIL j > LEN(t$)
 END SUB
