@@ -3753,7 +3753,11 @@ DO
         IF Error_Happened THEN GOTO errmes
         IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
         IF typ AND ISUDT THEN
-            t$ = RTRIM$(udtxcname(typ AND 511))
+            IF UCASE$(RTRIM$(t$)) = "MEM" AND RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND qb64prefix_set = 1 THEN
+                t$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+            ELSE
+                t$ = RTRIM$(udtxcname(typ AND 511))
+            END IF
         END IF
         l$ = l$ + sp + t$
         layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -4906,6 +4910,9 @@ DO
                             IF Error_Happened THEN GOTO errmes
                             IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
                             IF typ AND ISUDT THEN
+                                IF RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND UCASE$(t3$) = "MEM" AND qb64prefix_set = 1 THEN
+                                    t3$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                                END IF
                                 t3$ = RTRIM$(udtxcname(typ AND 511))
                             ELSE
                                 FOR t3i = 1 TO LEN(t3i)
@@ -4959,6 +4966,9 @@ DO
                                 'is it a udt?
                                 FOR xx = 1 TO lasttype
                                     IF t2$ = RTRIM$(udtxname(xx)) THEN
+                                        PRINT #17, "void*"
+                                        GOTO decudt
+                                    ELSEIF RTRIM$(udtxname(xx)) = "_MEM" AND t2$ = "MEM" AND qb64prefix_set = 1 THEN
                                         PRINT #17, "void*"
                                         GOTO decudt
                                     END IF
@@ -7154,7 +7164,14 @@ DO
                 IF t AND ISREFERENCE THEN t = t - ISREFERENCE
                 tsize = typname2typsize
                 method = 0
-                IF (t AND ISUDT) = 0 THEN ts$ = type2symbol$(t$) ELSE t3$ = RTRIM$(udtxcname(t AND 511))
+                IF (t AND ISUDT) = 0 THEN
+                    ts$ = type2symbol$(t$)
+                ELSE
+                    t3$ = RTRIM$(udtxcname(t AND 511))
+                    IF RTRIM$(udtxcname(t AND 511)) = "_MEM" AND UCASE$(t$) = "MEM" AND qb64prefix_set = 1 THEN
+                        t3$ = MID$(RTRIM$(udtxcname(t AND 511)), 2)
+                    END IF
+                END IF
                 IF Error_Happened THEN GOTO errmes
                 l2$ = l2$ + sp + t3$
 
@@ -7937,6 +7954,9 @@ DO
                                     IF dimmethod = 0 THEN
                                         IF t AND ISUDT THEN
                                             dim2typepassback$ = RTRIM$(udtxcname(t AND 511))
+                                            IF UCASE$(typ$) = "MEM" AND qb64prefix_set = 1 AND RTRIM$(udtxcname(t AND 511)) = "_MEM" THEN
+                                                dim2typepassback$ = MID$(RTRIM$(udtxcname(t AND 511)), 2)
+                                            END IF
                                         ELSE
                                             dim2typepassback$ = typ$
                                             DO WHILE INSTR(dim2typepassback$, " ")
@@ -10365,7 +10385,11 @@ DO
                         IF explicitreference = 0 THEN
                             IF targettyp AND ISUDT THEN
                                 nth = i
-                                x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                                IF qb64prefix_set AND udtxcname(targettyp AND 511) = "_MEM" THEN
+                                    x$ = "'" + MID$(RTRIM$(udtxcname(targettyp AND 511)), 2) + "'"
+                                ELSE
+                                    x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                                END IF
                                 IF ids(targetid).args = 1 THEN a$ = "TYPE " + x$ + " required for sub": GOTO errmes
                                 a$ = str_nth$(nth) + " sub argument requires TYPE " + x$: GOTO errmes
                             END IF
@@ -13605,8 +13629,11 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     'UDT
     'is it a udt?
     FOR i = 1 TO lasttype
-        IF typ$ = RTRIM$(udtxname(i)) THEN
+        IF typ$ = RTRIM$(udtxname(i)) OR (typ$ = "MEM" AND RTRIM$(udtxname(i)) = "_MEM" AND qb64prefix_set = 1) THEN
             dim2typepassback$ = RTRIM$(udtxcname(i))
+            IF typ$ = "MEM" AND RTRIM$(udtxname(i)) = "_MEM" THEN
+                dim2typepassback$ = MID$(RTRIM$(udtxcname(i)), 2)
+            END IF
 
             n$ = "UDT_" + varname$
 
@@ -16881,7 +16908,11 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                     IF targettyp AND ISUDT THEN
                         nth = curarg
                         IF omitarg_last <> 0 AND nth > omitarg_last THEN nth = nth - 1
-                        x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                        IF qb64prefix_set AND udtxcname(targettyp AND 511) = "_MEM" THEN
+                            x$ = "'" + MID$(RTRIM$(udtxcname(targettyp AND 511)), 2) + "'"
+                        ELSE
+                            x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                        END IF
                         IF ids(targetid).args = 1 THEN Give_Error "TYPE " + x$ + " required for function": EXIT FUNCTION
                         Give_Error str_nth$(nth) + " function argument requires TYPE " + x$: EXIT FUNCTION
                     END IF
@@ -21880,6 +21911,9 @@ FUNCTION typname2typ& (t2$)
     'UDT?
     FOR i = 1 TO lasttype
         IF t$ = RTRIM$(udtxname(i)) THEN
+            typname2typ& = ISUDT + ISPOINTER + i
+            EXIT FUNCTION
+        ELSEIF RTRIM$(udtxname(i)) = "_MEM" AND t$ = "MEM" AND qb64prefix_set = 1 THEN
             typname2typ& = ISUDT + ISPOINTER + i
             EXIT FUNCTION
         END IF
