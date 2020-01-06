@@ -11,8 +11,9 @@ tar --create --auto-compress --file ${filename} --exclude-from=qb64/.ci/common-e
 for i in `seq 1 10`
 do scp ${filename} remote-server:autobuilds/development/
     if [ "$?" -eq 0 ]
-    then exit 0
+        then exit 0
     fi
     echo scp $i failed
 done
+exit 1
 
