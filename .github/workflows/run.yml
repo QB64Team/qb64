@@ -61,7 +61,7 @@ jobs:
           User m6rosupy1q2t
     - name: Package and deploy
       if: github.event_name == 'push'
-      run: .ci/deploy.sh
+      run: .ci/deploy.sh lnx
 
 
 
