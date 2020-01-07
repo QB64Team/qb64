@@ -1416,7 +1416,6 @@ REDIM SHARED warning$(1000)
 uniquenumbern = 0
 qb64prefix_set = 0
 qb64prefix$ = "_"
-listOfKeywords$ = backupListOfKeywords$
 
 ''create a type for storing memory blocks
 ''UDT
@@ -1604,7 +1603,6 @@ DO
             f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
             HashAdd "EXPLICIT", f, 0
 
-            listOfKeywords$ = listOfKeywords$ + listOfKeywordsWithoutPrefix$
             GOTO finishedlinepp
         END IF
 

@@ -8759,7 +8759,8 @@ SUB ideshowtext
                     NEXT
                     IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
                     checkKeyword$ = UCASE$(checkKeyword$)
-                    IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 THEN
+                    IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 OR _
+                       (qb64prefix_set = 1 AND INSTR(listOfKeywords$, "@_" + checkKeyword$ + "@") > 0) THEN
                         'special cases
                         IF checkKeyword$ = "$END" THEN
                             IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
