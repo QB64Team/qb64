@@ -2399,12 +2399,12 @@ FUNCTION ide2 (ignore)
                 a2$ = UCASE$(a2$)
                 'check if F1 is in help links
                 fh = FREEFILE
-                OPEN "internal\help\links.bin" FOR INPUT AS #fh
+                OPEN "internal\help\links.bin" FOR BINARY AS #fh
                 lnks = 0: lnks$ = CHR$(0)
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, l$
                     c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-                    IF a2$ = UCASE$(l1$) THEN
+                    IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
                         IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
                             lnks = lnks + 1
                             IF l2$ = l1$ THEN
@@ -4948,7 +4948,7 @@ FUNCTION ide2 (ignore)
 
                     'Add all linked pages to download list (if not already in list)
                     fh = FREEFILE
-                    OPEN "internal\help\links.bin" FOR INPUT AS #fh
+                    OPEN "internal\help\links.bin" FOR BINARY AS #fh
                     DO UNTIL EOF(fh)
                         LINE INPUT #fh, l$
                         IF LEN(l$) THEN
@@ -13906,12 +13906,12 @@ SUB IdeMakeContextualMenu
     IF LEN(a2$) > 0 THEN
         'check if F1 is in help links
         fh = FREEFILE
-        OPEN "internal\help\links.bin" FOR INPUT AS #fh
+        OPEN "internal\help\links.bin" FOR BINARY AS #fh
         lnks = 0: lnks$ = CHR$(0)
         DO UNTIL EOF(fh)
             LINE INPUT #fh, l$
             c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-            IF a2$ = UCASE$(l1$) THEN
+            IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
                 IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
                     lnks = lnks + 1
                     EXIT DO
