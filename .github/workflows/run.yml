@@ -45,7 +45,7 @@ jobs:
       uses: ad-m/github-push-action@19caa5c351f47734055690f7d01aaaef2f9114d5
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: githubactions
+        branch: development
     - name: Set deployment SSH key
       if: github.event_name == 'push'
       uses: shimataro/ssh-key-action@v1
