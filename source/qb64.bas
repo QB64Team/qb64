@@ -12946,7 +12946,7 @@ FUNCTION ParseCMDLineArgs$ ()
     'in which case they're simply asking for trouble).
     FOR i = 1 TO _COMMANDCOUNT
         token$ = COMMAND$(i)
-        IF LCASE$(token$) = "-help" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "-h" OR LCASE$(token$) = "/help" THEN token$ = "-?"
+        IF LCASE$(token$) = "/?" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
         SELECT CASE LCASE$(LEFT$(token$, 2))
             CASE "-?" 'Command-line help
                 _DEST _CONSOLE
@@ -12962,7 +12962,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "                             console"
                 PRINT "  -p                      Purge all pre-compiled content first"
                 PRINT "  -z                      Generate C code without compiling to executable"
-                PRINT "  -o <output file>               Write output executable to <output file>"
+                PRINT "  -o <output file>        Write output executable to <output file>"
                 PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
                 PRINT "                             mandatory (per-compilation; doesn't affect the"
                 PRINT "                             source file or global settings)"
