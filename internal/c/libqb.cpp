@@ -11262,15 +11262,17 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     static uint16 *sp;
     static uint16 clearvalue;
     
-        if (write_page->console){ 
-            #ifdef QB64_WINDOWS
-            system("cls"); //lazy but works
-            qbg_sub_locate(1,1,0,0,0,3); //is this really necessary?
-            #else
-            system("clear");
-            #endif
-            return;
-        }
+	if (write_page->console){ 
+		#ifdef QB64_WINDOWS
+			system("cls"); //lazy but works
+			qbg_sub_locate(1,1,0,0,0,3); //is this really necessary?
+		#else
+			if (passed&2) qbg_sub_color(NULL, use_color,NULL,2);
+			cout<<"\033[2J";
+			qbg_sub_locate(1,1,0,0,0,3);
+		#endif
+		return;
+	}
 
     //validate
     if (passed&2){
