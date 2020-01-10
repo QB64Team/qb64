@@ -7401,14 +7401,34 @@ void qbg_sub_color(uint32 col1,uint32 col2,uint32 bordercolor,int32 passed){
         return;
     }
 
-    #ifdef QB64_WINDOWS
-        if (write_page->console){
-            HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-            int color = col2 * 16 + col1;
-            SetConsoleTextAttribute(output, color);
-            return;
-        }
-    #endif
+	if (write_page->console){
+		#ifdef QB64_WINDOWS
+			HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+			int color = col2 * 16 + col1;
+			SetConsoleTextAttribute(output, color);
+			return;
+		#else
+		    // accepts colors 0-255 as specified at
+		    // https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+			static qbs* ansi; if (!ansi) ansi=qbs_new(0,0);
+			static qbs* closure;
+			if (!closure) {
+				closure=qbs_new(0,0);
+				qbs_set(closure,qbs_new_txt_len(")m",2));
+			}
+			if (passed&1) {
+				if (col1>255) goto error;
+				qbs_set(ansi,qbs_add(qbs_add(qbs_new_txt_len("\033[38;5;\050",8),qbs_ltrim(qbs_str((uint32)(col1)))),closure));
+				cout<<(char*)ansi->chr;
+			}
+			if (passed&2) {
+				if (col2>255) goto error;
+				qbs_set(ansi,qbs_add(qbs_add(qbs_new_txt_len("\033[48;5;\050",8),qbs_ltrim(qbs_str((uint32)(col2)))),closure));
+				cout<<(char*)ansi->chr;
+			}
+		    return;
+		#endif
+	}
     
     if (write_page->compatible_mode==32){
         if (passed&4) goto error;
