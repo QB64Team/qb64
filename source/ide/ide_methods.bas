@@ -493,7 +493,7 @@ FUNCTION ide2 (ignore)
                 END IF
                 IdeBmkN = 0
                 ideerror = 1
-                ideprogname = f$: _TITLE ideprogname + " - QB64"
+                ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
                 IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
                 IdeAddRecent idepath$ + idepathsep$ + ideprogname$
             END IF 'message 1
@@ -3131,7 +3131,7 @@ FUNCTION ide2 (ignore)
                         END IF
                         ideunsaved = 1
                         ideprogname$ = ""
-                        _TITLE "QB64"
+                        _TITLE WindowTitle
                         ideundobase = -1 'release base restriction
                     END IF
 
@@ -5404,7 +5404,7 @@ FUNCTION ide2 (ignore)
                 listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
                 QuickNavTotal = 0
                 ModifyCOMMAND$ = ""
-                _TITLE "QB64"
+                _TITLE WindowTitle
                 idechangemade = 1
                 idefocusline = 0
                 ideundobase = 0 'reset
@@ -7785,7 +7785,7 @@ FUNCTION ideopen$
             lineinput3buffer = ""
             iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
             ideerror = 1
-            ideprogname = f$: _TITLE ideprogname + " - QB64"
+            ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
             listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
             idepath$ = path$
             IdeAddRecent idepath$ + idepathsep$ + ideprogname$
@@ -8232,7 +8232,7 @@ FUNCTION idesaveas$ (programname$)
             ELSE
                 CLOSE #150
             END IF
-            ideprogname$ = f$: _TITLE ideprogname + " - QB64"
+            ideprogname$ = f$: _TITLE ideprogname + " - " + WindowTitle
             idesave path$ + idepathsep$ + f$
             idepath$ = path$
             IdeAddRecent idepath$ + idepathsep$ + ideprogname$
