@@ -8572,6 +8572,10 @@ SUB ideshowtext
         END IF
 
         IF l <= iden THEN
+            DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
+                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT '   to the end of a program before the IDE has finished
+            LOOP '                                                      verifying the code and growing the array during the IDE passes.
+
             a$ = idegetline(l)
             link_idecx = 0
             rgb_idecx = 0
@@ -8729,6 +8733,8 @@ SUB ideshowtext
 
             COLOR 13
 
+            IF InValidLine(l) AND 1 THEN COLOR 7: GOTO SkipSyntaxHighlighter
+
             IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
                 IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
                     'a number literal
@@ -8803,6 +8809,11 @@ SUB ideshowtext
                 COLOR 14
             END IF
 
+            SkipSyntaxHighlighter:
+
+            IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
+               (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
+
             IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
                 COLOR , 5
             ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
@@ -8811,14 +8822,6 @@ SUB ideshowtext
             ELSE
                 COLOR , prevBG%
             END IF
-
-            IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
-               (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
-
-            DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT '   to the end of a program before the IDE has finished
-            LOOP '                                                      verifying the code and growing the array during the IDE passes.
-            IF InValidLine(l) AND 1 THEN COLOR 7
 
             IF ShowLineNumbers THEN
                 IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
