@@ -8670,13 +8670,12 @@ SUB ideshowtext
                 FindInclude = INSTR(a2$, "$INCLUDE")
                 IF FindInclude > 0 THEN
                     link_idecx = LEN(a$)
-                    ActiveINCLUDELink = idecy
                     FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
                     FindApostrophe2 = INSTR(FindApostrophe1 + 1, a2$, "'")
                     ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
                     p$ = idepath$ + pathsep$
                     f$ = p$ + ActiveINCLUDELinkFile
-                    IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open"
+                    IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
                 END IF
             END IF 'l = idecy
 
