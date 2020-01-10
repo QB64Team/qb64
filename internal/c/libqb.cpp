@@ -11439,20 +11439,32 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
     static int32 h,w,i;
     if (new_error) return;
 
-    #ifdef QB64_WINDOWS //If trying to locate with windows console
-        if (write_page->console){
-            CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
-            SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
-            HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
-            GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
-            if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
-            if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
-            COORD pos = {column-1, row-1};
-            HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
-            SetConsoleCursorPosition(output, pos);
-            return;
-        }
-    #endif
+	if (write_page->console){
+		#ifdef QB64_WINDOWS //If trying to locate with windows console
+			CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+			SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+			HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+			GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
+			if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
+			if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
+			COORD pos = {column-1, row-1};
+			HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
+			SetConsoleCursorPosition(output, pos);
+			return;
+		#else
+			static qbs* ansi; if (!ansi) ansi=qbs_new(0,0);
+			static qbs* closure;
+			if (!closure) {
+				closure=qbs_new(0,0);
+				qbs_set(closure,qbs_new_txt_len("H",1));
+			}
+			if (passed&1 && passed&2 ) {
+				qbs_set(ansi,qbs_add(qbs_add(qbs_add(qbs_add(qbs_new_txt_len("\033[",2),qbs_ltrim(qbs_str((int32)(row)))),qbs_new_txt_len(";",1)),qbs_ltrim(qbs_str((int32)(column)))),closure));
+				cout<<(char*)ansi->chr;
+			}
+			return;
+		#endif
+	}
 
     //calculate height & width in characters
     if (write_page->compatible_mode){
