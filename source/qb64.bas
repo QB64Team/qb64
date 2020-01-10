@@ -24,7 +24,7 @@ DEFLNG A-Z
 REDIM SHARED OName(0) AS STRING 'Operation Name
 REDIM SHARED PL(0) AS INTEGER 'Priority Level
 DIM SHARED QuickReturn AS INTEGER
-Set_OrderOfOperations 'This will also make certain our directories are valid, and if not make them.
+Set_OrderOfOperations
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 DIM ExecLevel(255), ExecCounter AS INTEGER
@@ -53,7 +53,7 @@ IF _DIREXISTS("internal") = 0 THEN
     DO
         _LIMIT 1
     LOOP UNTIL INKEY$ <> ""
-    SYSTEM
+    SYSTEM 1
 END IF
 
 DIM SHARED Include_GDB_Debugging_Info 'set using "options.bin"
@@ -255,7 +255,7 @@ ELSE
     OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
     DO WHILE E
         i = i + 1
-        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END
+        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END 1
         MKDIR ".\internal\temp" + str2$(i)
         IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp" + str2$(i) + "\": tmpdir2$ = "..\\temp" + str2$(i) + "\\"
         IF os$ = "LNX" THEN tmpdir$ = "./internal/temp" + str2$(i) + "/": tmpdir2$ = "../temp" + str2$(i) + "/"
