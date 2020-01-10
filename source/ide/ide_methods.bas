@@ -3394,8 +3394,9 @@ FUNCTION ide2 (ignore)
                             IF idecy = 1 THEN idecx = 1: GOTO specialchar
                             idecy = idecy - 1
                             a$ = idegetline(idecy)
-                            idecx = LEN(a$)
+                            idecx = LEN(a$) + 1
                         LOOP UNTIL LEN(a$)
+                        GOTO specialchar 'stop at the end of the previous line
                     END IF
                     'check character
                     IF alphanumeric(ASC(a$, idecx)) THEN
@@ -3429,6 +3430,7 @@ FUNCTION ide2 (ignore)
                     'move
                     IF first = 0 THEN idecx = idecx + 1
                     'latch onto next character
+                    IF first = 0 AND idecx = LEN(a$) + 1 THEN GOTO specialchar 'stop at the end of the line
                     IF idecx > LEN(a$) THEN
                         DO
                             IF idecy = iden THEN GOTO specialchar
