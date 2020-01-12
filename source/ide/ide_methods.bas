@@ -10187,7 +10187,7 @@ FUNCTION idezfilelist$ (path$, method, mask$) 'method0=*.bas, method1=*.*, metho
         EXIT FUNCTION
 
         AddToList:
-        OPEN "./internal/temp/files.txt" FOR BINARY AS #150
+        OPEN "./internal/temp/files.txt" FOR INPUT AS #150
         DO UNTIL EOF(150)
             LINE INPUT #150, a$
             IF LEN(a$) = 0 THEN EXIT DO
