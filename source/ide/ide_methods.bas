@@ -3051,9 +3051,9 @@ FUNCTION ide2 (ignore)
             IF ideprogname = "" THEN
                 ProposedTitle$ = FindProposedTitle$
                 IF ProposedTitle$ = "" THEN
-                    a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                    a$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                 ELSE
-                    a$ = idesaveas$(ProposedTitle$ + ".bas")
+                    a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                 END IF
             ELSE
                 idesave idepath$ + idepathsep$ + ideprogname$
@@ -4932,7 +4932,7 @@ FUNCTION ide2 (ignore)
                     PRINT "Generating list of cached content..."
 
                     'Create a list of all files to be recached
-                    f$ = CHR$(0) + idezfilelist$("internal/help", 1) + CHR$(0)
+                    f$ = CHR$(0) + idezfilelist$("internal/help", 1, "") + CHR$(0)
                     IF LEN(f$) = 2 THEN f$ = CHR$(0)
 
                     'Prepend core pages to list
@@ -5355,9 +5355,9 @@ FUNCTION ide2 (ignore)
                         IF ideprogname = "" THEN
                             ProposedTitle$ = FindProposedTitle$
                             IF ProposedTitle$ = "" THEN
-                                r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                                r$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                             ELSE
-                                r$ = idesaveas$(ProposedTitle$ + ".bas")
+                                r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             IF r$ = "C" THEN
                                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
@@ -5383,9 +5383,9 @@ FUNCTION ide2 (ignore)
                         IF ideprogname = "" THEN
                             ProposedTitle$ = FindProposedTitle$
                             IF ProposedTitle$ = "" THEN
-                                r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                                r$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                             ELSE
-                                r$ = idesaveas$(ProposedTitle$ + ".bas")
+                                r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                             IF r$ = "C" THEN GOTO ideloop
@@ -5481,9 +5481,9 @@ FUNCTION ide2 (ignore)
                         IF ideprogname = "" THEN
                             ProposedTitle$ = FindProposedTitle$
                             IF ProposedTitle$ = "" THEN
-                                r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                                r$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                             ELSE
-                                r$ = idesaveas$(ProposedTitle$ + ".bas")
+                                r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             IF r$ = "C" THEN GOTO ideloop
                         ELSE
@@ -5492,7 +5492,7 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     END IF '"Y"
                 END IF 'unsaved
-                r$ = ideopen
+                r$ = idefiledialog$("", 1)
                 IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = ""
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
             END IF
@@ -5502,9 +5502,9 @@ FUNCTION ide2 (ignore)
                 IF ideprogname = "" THEN
                     ProposedTitle$ = FindProposedTitle$
                     IF ProposedTitle$ = "" THEN
-                        a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        a$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                     ELSE
-                        a$ = idesaveas$(ProposedTitle$ + ".bas")
+                        a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                     END IF
                 ELSE
                     idesave idepath$ + idepathsep$ + ideprogname$
@@ -5518,12 +5518,12 @@ FUNCTION ide2 (ignore)
                 IF ideprogname = "" THEN
                     ProposedTitle$ = FindProposedTitle$
                     IF ProposedTitle$ = "" THEN
-                        a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        a$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                     ELSE
-                        a$ = idesaveas$(ProposedTitle$ + ".bas")
+                        a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                     END IF
                 ELSE
-                    a$ = idesaveas$(ideprogname$)
+                    a$ = idefiledialog$(ideprogname$, 2)
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
             END IF
@@ -6627,7 +6627,7 @@ SUB ideerrormessage (mess$)
 
 END SUB
 
-FUNCTION idefileexists$
+FUNCTION idefileexists$(f$)
     '-------- generic dialog box header --------
     PCOPY 3, 0
     PCOPY 0, 2
@@ -6643,7 +6643,18 @@ FUNCTION idefileexists$
     '-------- init --------
     i = 0
     'idepar p, 30, 6, "File already exists. Overwrite?"
-    idepar p, 35, 4, ""
+
+    l = LEN(f$)
+    DO
+        IF l < LEN(f$) THEN
+            m$ = "File " + CHR$(34) + STRING$(3, 250) + RIGHT$(f$, l) + CHR$(34) + " already exists. Overwrite?"
+        ELSE
+            m$ = "File " + CHR$(34) + f$ + CHR$(34) + " already exists. Overwrite?"
+        END IF
+        l = l - 1
+    LOOP UNTIL LEN(m$) + 4 < (idewx - 6)
+
+    idepar p, LEN(m$) + 4, 4, ""
     i = i + 1
     o(i).typ = 3
     o(i).y = 4
@@ -6673,7 +6684,7 @@ FUNCTION idefileexists$
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "File already exists. Overwrite?";
+        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT m$;
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -7517,7 +7528,7 @@ SUB idenomatch
 
 END SUB
 
-FUNCTION ideopen$
+FUNCTION idefiledialog$(programname$, mode AS _BYTE)
     STATIC AllFiles
 
     '-------- generic dialog box header --------
@@ -7533,16 +7544,27 @@ FUNCTION ideopen$
 
     '-------- init --------
     path$ = idepath$
-    filelist$ = idezfilelist$(path$, AllFiles)
+    filelist$ = idezfilelist$(path$, AllFiles, "")
     pathlist$ = idezpathlist$(path$)
 
     i = 0
-    idepar p, 70, idewy + idesubwindow - 7, "Open"
+    IF mode = 1 THEN
+        idepar p, 70, idewy + idesubwindow - 7, "Open"
+    ELSEIF mode = 2 THEN
+        idepar p, 70, idewy + idesubwindow - 7, "Save As"
+    END IF
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
     o(i).y = 2
     o(i).nam = idenewtxt("File #Name")
+    IF mode = 2 THEN
+        o(i).txt = idenewtxt(programname$)
+        o(i).issel = -1
+        o(i).sx1 = 0
+        o(i).v1 = LEN(programname$)
+    END IF
+
     i = i + 1
     o(i).typ = 2
     o(i).y = 5
@@ -7561,6 +7583,7 @@ FUNCTION ideopen$
     o(i).y = idewy + idesubwindow - 9
     o(i).nam = idenewtxt(".BAS Only")
     IF AllFiles THEN o(i).sel = 0 ELSE o(i).sel = 1
+    prevBASOnly = o(i).sel
     i = i + 1
     o(i).typ = 3
     o(i).y = idewy + idesubwindow - 7
@@ -7572,7 +7595,7 @@ FUNCTION ideopen$
     FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
     '-------- end of generic init --------
 
-    IF LEN(IdeOpenFile) THEN f$ = IdeOpenFile: GOTO DirectLoad
+    IF mode = 1 AND LEN(IdeOpenFile) > 0 THEN f$ = IdeOpenFile: GOTO DirectLoad
 
     DO 'main loop
 
@@ -7616,12 +7639,14 @@ FUNCTION ideopen$
             alt = KALT: IF alt <> oldalt THEN change = 1
             oldalt = alt
 
-            IF _TOTALDROPPEDFILES > 0 THEN
-                idetxt(o(1).txt) = _DROPPEDFILE$(1)
-                o(1).v1 = LEN(idetxt(o(1).txt))
-                focus = 1
-                _FINISHDROP
-                change = 1
+            IF mode = 1 THEN
+                IF _TOTALDROPPEDFILES > 0 THEN
+                    idetxt(o(1).txt) = _DROPPEDFILE$(1)
+                    o(1).v1 = LEN(idetxt(o(1).txt))
+                    focus = 1
+                    _FINISHDROP
+                    change = 1
+                END IF
             END IF
 
             _LIMIT 100
@@ -7675,21 +7700,16 @@ FUNCTION ideopen$
             END IF
         END IF
 
-        IF AllFiles = 1 AND o(4).sel <> 0 THEN
-            AllFiles = 0
-            idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
-            o(2).sel = -1
-            GOTO ideopenloop
-        END IF
-        IF AllFiles = 0 AND o(4).sel = 0 THEN
-            AllFiles = 1
-            idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
+        IF o(4).sel <> prevBASOnly THEN
+            prevBASOnly = o(4).sel
+            IF o(4).sel = 0 THEN AllFiles = 1 ELSE AllFiles = 0
+            idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
             o(2).sel = -1
             GOTO ideopenloop
         END IF
 
         IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
-            ideopen$ = "C"
+            idefiledialog$ = "C"
             EXIT FUNCTION
         END IF
 
@@ -7700,99 +7720,158 @@ FUNCTION ideopen$
 
         IF focus = 3 THEN
             IF K$ = CHR$(13) OR info = 1 THEN
-
                 path$ = idezchangepath(path$, idetxt(o(3).stx))
-                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
+                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 idetxt(o(3).txt) = idezpathlist$(path$)
 
                 o(2).sel = -1
-                o(3).sel = 1
-                IF info = 1 THEN o(3).sel = -1
+                o(3).sel = -1
+                focus = 1
                 GOTO ideopenloop
             END IF
         END IF
 
-        'load file
+        'load or save file
         IF K$ = CHR$(13) OR (info = 1 AND focus = 2) OR (focus = 5 AND info <> 0) THEN
             f$ = idetxt(o(1).txt)
 
-            'change path?
-            IF f$ = ".." OR f$ = "." THEN f$ = f$ + idepathsep$
-            IF RIGHT$(f$, 1) = idepathsep$ THEN
-                path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
-                idetxt(o(1).txt) = ""
-                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
+            IF _FILEEXISTS(f$) THEN GOTO DirectLoad
+
+            IF f$ = "" AND focus = 1 AND K$ = CHR$(13) THEN
+                'reset filters
+                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 o(2).sel = -1
-                idetxt(o(3).txt) = idezpathlist$(path$)
-                o(3).sel = -1
+                GOTO ideopenloop
+            ELSEIF f$ = "" AND focus = 5 AND info <> 0 THEN
                 GOTO ideopenloop
             END IF
 
-            'add .bas if not given
-            IF (LCASE$(RIGHT$(f$, 4)) <> ".bas") AND AllFiles = 0 THEN f$ = f$ + ".bas"
-
-            DirectLoad:
-
-            'check/acquire file path
-            path$ = idezgetfilepath$(path$, f$)
-            'check file exists
-            ideerror = 2
-            OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
-
-            IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN
-                IF LEN(IdeOpenFile) THEN
-                    ideopen$ = "C"
-                    EXIT FUNCTION
-                ELSE
-                    info = 0: GOTO ideopenloop
-                END IF
+            'change path?
+            IF _DIREXISTS(path$ + idepathsep$ + f$) THEN
+                'check/acquire file path
+                path$ = idezgetfilepath$(path$, f$ + idepathsep$) 'note: path ending with pathsep needn't contain a file
+                idetxt(o(1).txt) = ""
+                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
+                o(2).sel = -1
+                idetxt(o(3).txt) = idezpathlist$(path$)
+                o(3).sel = -1
+                idetxt(o(1).txt) = ""
+                focus = 1
+                GOTO ideopenloop
             END IF
 
-            'load file
-            ideerror = 3
-            idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
-            idesx = 1
-            idesy = 1
-            idecx = 1
-            idecy = 1
-            ideselect = 0
-            idefocusline = 0
-            lineinput3load path$ + idepathsep$ + f$
-            idet$ = SPACE$(LEN(lineinput3buffer) * 8)
-            i2 = 1
-            n = 0
-            chrtab$ = CHR$(9)
-            space1$ = " ": space2$ = "  ": space3$ = "   ": space4$ = "    "
-            chr7$ = CHR$(7): chr11$ = CHR$(11): chr12$ = CHR$(12): chr28$ = CHR$(28): chr29$ = CHR$(29): chr30$ = CHR$(30): chr31$ = CHR$(31)
-            DO
-                a$ = lineinput3$
-                l = LEN(a$)
-                IF l THEN asca = ASC(a$) ELSE asca = -1
-                IF asca <> 13 THEN
-                    IF asca <> -1 THEN
-                        'fix tabs
-                        ideopenfixtabs:
-                        x = INSTR(a$, chrtab$)
-                        IF x THEN
-                            x2 = (x - 1) MOD 4
-                            IF x2 = 0 THEN a$ = LEFT$(a$, x - 1) + space4$ + RIGHT$(a$, l - x): l = l + 3: GOTO ideopenfixtabs
-                            IF x2 = 1 THEN a$ = LEFT$(a$, x - 1) + space3$ + RIGHT$(a$, l - x): l = l + 2: GOTO ideopenfixtabs
-                            IF x2 = 2 THEN a$ = LEFT$(a$, x - 1) + space2$ + RIGHT$(a$, l - x): l = l + 1: GOTO ideopenfixtabs
-                            IF x2 = 3 THEN a$ = LEFT$(a$, x - 1) + space1$ + RIGHT$(a$, l - x): GOTO ideopenfixtabs
-                        END IF
-                    END IF 'asca<>-1
-                    MID$(idet$, i2, l + 8) = MKL$(l) + a$ + MKL$(l): i2 = i2 + l + 8: n = n + 1
+            'wildcards search
+            IF INSTR(f$, "?") > 0 OR INSTR(f$, "*") > 0 THEN
+                IF INSTR(f$, "/") > 0 OR INSTR(f$, "\") > 0 THEN
+                    'path + wildcards
+                    path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
+                    idetxt(o(3).txt) = idezpathlist$(path$)
+                    o(3).sel = -1
                 END IF
-            LOOP UNTIL asca = 13
-            lineinput3buffer = ""
-            iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
-            ideerror = 1
-            ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
-            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
-            idepath$ = path$
-            IdeAddRecent idepath$ + idepathsep$ + ideprogname$
-            IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
-            EXIT FUNCTION
+                idetxt(o(1).txt) = f$
+                idetxt(o(2).txt) = idezfilelist$(path$, 2, f$)
+                o(2).sel = -1
+                o(1).v1 = LEN(idetxt(o(1).txt))
+                o(1).issel = -1
+                o(1).sx1 = 0
+                IF LCASE$(RIGHT$(f$, 4)) <> ".bas" THEN
+                    AllFiles = 0
+                    o(4).sel = 0
+                    prevBASOnly = o(4).sel
+                END IF
+                GOTO ideopenloop
+            END IF
+
+            DirectLoad:
+            path$ = idezgetfilepath$(path$, f$) 'repeat in case of DirectLoad
+
+            IF mode = 1 THEN
+                IF _FILEEXISTS(path$ + idepathsep$ + f$) = 0 THEN
+                    'add .bas if not given
+                    IF (LCASE$(RIGHT$(f$, 4)) <> ".bas") AND AllFiles = 0 THEN f$ = f$ + ".bas"
+                END IF
+
+                'check file exists
+                ideerror = 2
+                OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
+
+                IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN
+                    IF LEN(IdeOpenFile) THEN
+                        idefiledialog$ = "C"
+                        EXIT FUNCTION
+                    ELSE
+                        info = 0: GOTO ideopenloop
+                    END IF
+                END IF
+
+                'load file
+                ideerror = 3
+                idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
+                idesx = 1
+                idesy = 1
+                idecx = 1
+                idecy = 1
+                ideselect = 0
+                idefocusline = 0
+                lineinput3load path$ + idepathsep$ + f$
+                idet$ = SPACE$(LEN(lineinput3buffer) * 8)
+                i2 = 1
+                n = 0
+                chrtab$ = CHR$(9)
+                space1$ = " ": space2$ = "  ": space3$ = "   ": space4$ = "    "
+                chr7$ = CHR$(7): chr11$ = CHR$(11): chr12$ = CHR$(12): chr28$ = CHR$(28): chr29$ = CHR$(29): chr30$ = CHR$(30): chr31$ = CHR$(31)
+                DO
+                    a$ = lineinput3$
+                    l = LEN(a$)
+                    IF l THEN asca = ASC(a$) ELSE asca = -1
+                    IF asca <> 13 THEN
+                        IF asca <> -1 THEN
+                            'fix tabs
+                            ideopenfixtabs:
+                            x = INSTR(a$, chrtab$)
+                            IF x THEN
+                                x2 = (x - 1) MOD 4
+                                IF x2 = 0 THEN a$ = LEFT$(a$, x - 1) + space4$ + RIGHT$(a$, l - x): l = l + 3: GOTO ideopenfixtabs
+                                IF x2 = 1 THEN a$ = LEFT$(a$, x - 1) + space3$ + RIGHT$(a$, l - x): l = l + 2: GOTO ideopenfixtabs
+                                IF x2 = 2 THEN a$ = LEFT$(a$, x - 1) + space2$ + RIGHT$(a$, l - x): l = l + 1: GOTO ideopenfixtabs
+                                IF x2 = 3 THEN a$ = LEFT$(a$, x - 1) + space1$ + RIGHT$(a$, l - x): GOTO ideopenfixtabs
+                            END IF
+                        END IF 'asca<>-1
+                        MID$(idet$, i2, l + 8) = MKL$(l) + a$ + MKL$(l): i2 = i2 + l + 8: n = n + 1
+                    END IF
+                LOOP UNTIL asca = 13
+                lineinput3buffer = ""
+                iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                ideerror = 1
+                ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
+                idepath$ = path$
+                IdeAddRecent idepath$ + idepathsep$ + ideprogname$
+                IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
+                EXIT FUNCTION
+            ELSEIF mode = 2 THEN
+                IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
+
+                ideerror = 3
+                OPEN path$ + idepathsep$ + f$ FOR BINARY AS #150
+                ideerror = 1
+                IF LOF(150) THEN
+                    CLOSE #150
+                    a$ = idefileexists(f$)
+                    IF a$ = "N" THEN
+                        idefiledialog$ = "C"
+                        EXIT FUNCTION 'user didn't agree to overwrite
+                    END IF
+                ELSE
+                    CLOSE #150
+                END IF
+                ideprogname$ = f$: _TITLE ideprogname + " - " + WindowTitle
+                idesave path$ + idepathsep$ + f$
+                idepath$ = path$
+                IdeAddRecent idepath$ + idepathsep$ + ideprogname$
+                IdeSaveBookmarks idepath$ + idepathsep$ + ideprogname$
+                EXIT FUNCTION
+            END IF
         END IF
 
         ideopenloop:
@@ -8054,202 +8133,6 @@ SUB idesave (f$)
     IdeSaveBookmarks f$
     ideunsaved = 0
 END SUB
-
-FUNCTION idesaveas$ (programname$)
-    '-------- generic dialog box header --------
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    path$ = idepath$
-    pathlist$ = idezpathlist$(path$)
-
-    i = 0
-    idepar p, 48, idewy + idesubwindow - 7, "Save As"
-
-    i = i + 1
-    PrevFocus = 1
-    o(i).typ = 1
-    o(i).y = 2
-    o(i).nam = idenewtxt("File #Name")
-    o(i).txt = idenewtxt(programname$)
-    o(i).issel = -1
-    o(i).sx1 = 0
-    o(i).v1 = LEN(programname$)
-
-    'i = i + 1
-    'o(i).typ = 2
-    'o(i).y = 5
-    'o(i).w = 32: o(i).h = 11
-    'o(i).nam = idenewtxt("#Files")
-    'o(i).txt = idenewtxt(filelist$): filelist$ = ""
-
-    i = i + 1
-    o(i).typ = 2
-    'o(i).x = 10:
-    o(i).y = 5
-    o(i).w = 44: o(i).h = idewy + idesubwindow - 14
-    o(i).nam = idenewtxt("#Paths")
-    o(i).txt = idenewtxt(pathlist$): pathlist$ = ""
-
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 7
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 4, p.x + 2: PRINT "Path: ";
-        a$ = path$
-        w = p.w - 8
-        IF LEN(a$) > w - 3 THEN a$ = STRING$(3, 250) + RIGHT$(a$, w - 3)
-        PRINT a$;
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF focus <> PrevFocus THEN
-            'Always start with TextBox values selected upon getting focus
-            PrevFocus = focus
-            IF focus = 1 THEN
-                o(focus).v1 = LEN(idetxt(o(focus).txt))
-                IF o(focus).v1 > 0 THEN o(focus).issel = -1
-                o(focus).sx1 = 0
-            END IF
-        END IF
-
-        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
-            idesaveas$ = "C"
-            EXIT FUNCTION
-        END IF
-
-        IF focus = 2 THEN
-            IF K$ = CHR$(13) OR info = 1 THEN
-                path$ = idezchangepath(path$, idetxt(o(2).stx))
-                idetxt(o(2).txt) = idezpathlist$(path$)
-                o(2).sel = 1
-                IF info = 1 THEN o(2).sel = -1
-            END IF
-        END IF
-
-        IF (K$ = CHR$(13) AND focus <> 2) OR (focus = 3 AND info <> 0) THEN
-            f$ = idetxt(o(1).txt)
-
-            'change path?
-            IF f$ = ".." OR f$ = "." THEN f$ = f$ + idepathsep$
-            IF RIGHT$(f$, 1) = idepathsep$ THEN
-                path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
-                idetxt(o(1).txt) = ""
-                idetxt(o(2).txt) = idezpathlist$(path$)
-                o(2).sel = -1
-                GOTO idesaveasloop
-            END IF
-
-            IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
-
-            path$ = idezgetfilepath$(path$, f$)
-            ideerror = 3
-            OPEN path$ + idepathsep$ + f$ FOR BINARY AS #150
-            ideerror = 1
-            IF LOF(150) THEN
-                CLOSE #150
-                a$ = idefileexists
-                IF a$ = "N" THEN
-                    idesaveas$ = "C"
-                    EXIT FUNCTION 'user didn't agree to overwrite
-                END IF
-            ELSE
-                CLOSE #150
-            END IF
-            ideprogname$ = f$: _TITLE ideprogname + " - " + WindowTitle
-            idesave path$ + idepathsep$ + f$
-            idepath$ = path$
-            IdeAddRecent idepath$ + idepathsep$ + ideprogname$
-            IdeSaveBookmarks idepath$ + idepathsep$ + ideprogname$
-            EXIT FUNCTION
-        END IF
-
-        idesaveasloop:
-
-        'end of custom controls
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
-END FUNCTION
 
 FUNCTION idesavenow$
 
@@ -9922,7 +9805,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 END IF
 
                 IF k = 255 THEN
-                    IF o.sel > 0 THEN idetxt(o.stx) = ListBoxITEMS(o.sel)
+                    IF o.sel > 0 AND o.sel <= UBOUND(ListBoxITEMS) THEN idetxt(o.stx) = ListBoxITEMS(o.sel)
                     GOTO selected 'Search is not performed if kk$ isn't a printable character
                 ELSE
                     SearchTerm$ = SearchTerm$ + UCASE$(kk$)
@@ -10262,7 +10145,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
 
 END FUNCTION
 
-FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
+FUNCTION idezfilelist$ (path$, method, mask$) 'method0=*.bas, method1=*.*, method2=custom mask
     DIM sep AS STRING * 1
     sep = CHR$(0)
 
@@ -10270,6 +10153,7 @@ FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
         OPEN ".\internal\temp\files.txt" FOR OUTPUT AS #150: CLOSE #150
         IF method = 0 THEN SHELL _HIDE "dir /b /ON /A-D " + QuotedFilename$(path$) + "\*.bas >.\internal\temp\files.txt"
         IF method = 1 THEN SHELL _HIDE "dir /b /ON /A-D " + QuotedFilename$(path$) + "\*.* >.\internal\temp\files.txt"
+        IF method = 2 THEN SHELL _HIDE "dir /b /ON /A-D " + QuotedFilename$(path$) + "\" + QuotedFilename$(mask$) + " >.\internal\temp\files.txt"
         filelist$ = ""
         OPEN ".\internal\temp\files.txt" FOR INPUT AS #150
         DO UNTIL EOF(150)
@@ -10285,32 +10169,39 @@ FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
 
     IF os$ = "LNX" THEN
         filelist$ = ""
-        FOR i = 1 TO 2 - method
-            OPEN "./internal/temp/files.txt" FOR OUTPUT AS #150: CLOSE #150
-            IF method = 0 THEN
+        IF method = 0 THEN
+            FOR i = 1 TO 2
+                OPEN "./internal/temp/files.txt" FOR OUTPUT AS #150: CLOSE #150
                 IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.bas" + CHR$(34) + " | sort >./internal/temp/files.txt"
                 IF i = 2 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.BAS" + CHR$(34) + " | sort >./internal/temp/files.txt"
-            END IF
-            IF method = 1 THEN
-                IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*" + CHR$(34) + " | sort >./internal/temp/files.txt"
-            END IF
-            OPEN "./internal/temp/files.txt" FOR INPUT AS #150
-            DO UNTIL EOF(150)
-                LINE INPUT #150, a$
-                IF LEN(a$) = 0 THEN EXIT DO
-                FOR x = LEN(a$) TO 1 STEP -1
-                    a2$ = MID$(a$, x, 1)
-                    IF a2$ = "/" THEN
-                        a$ = RIGHT$(a$, LEN(a$) - x)
-                        EXIT FOR
-                    END IF
-                NEXT
-                IF filelist$ = "" THEN filelist$ = a$ ELSE filelist$ = filelist$ + sep + a$
-            LOOP
-            CLOSE #150
-        NEXT
+                GOSUB AddToList
+            NEXT
+        ELSEIF method = 1 THEN
+            SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*" + CHR$(34) + " | sort >./internal/temp/files.txt"
+            GOSUB AddToList
+        ELSEIF method = 2 THEN
+            SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + mask$ + CHR$(34) + " | sort >./internal/temp/files.txt"
+            GOSUB AddToList
+        END IF
         idezfilelist$ = filelist$
         EXIT FUNCTION
+
+        AddToList:
+        OPEN "./internal/temp/files.txt" FOR BINARY AS #150
+        DO UNTIL EOF(150)
+            LINE INPUT #150, a$
+            IF LEN(a$) = 0 THEN EXIT DO
+            FOR x = LEN(a$) TO 1 STEP -1
+                a2$ = MID$(a$, x, 1)
+                IF a2$ = "/" THEN
+                    a$ = RIGHT$(a$, LEN(a$) - x)
+                    EXIT FOR
+                END IF
+            NEXT
+            IF filelist$ = "" THEN filelist$ = a$ ELSE filelist$ = filelist$ + sep + a$
+        LOOP
+        CLOSE #150
+        RETURN
     END IF
 
 END FUNCTION
@@ -10318,23 +10209,7 @@ END FUNCTION
 FUNCTION idezgetroot$
     'note: does NOT including a trailing / or \ on the right
 
-    IF os$ = "WIN" THEN
-        SHELL _HIDE "cd >.\internal\temp\root.txt"
-        OPEN ".\internal\temp\root.txt" FOR INPUT AS #150
-        LINE INPUT #150, a$
-        idezgetroot$ = a$
-        CLOSE #150
-        EXIT FUNCTION
-    END IF
-
-    IF os$ = "LNX" THEN
-        SHELL _HIDE "pwd >./internal/temp/root.txt"
-        OPEN "./internal/temp/root.txt" FOR INPUT AS #150
-        LINE INPUT #150, a$
-        idezgetroot$ = a$
-        CLOSE #150
-        EXIT FUNCTION
-    END IF
+    idezgetroot$ = _CWD$
 
 END FUNCTION
 
@@ -10405,32 +10280,16 @@ END FUNCTION
 FUNCTION ideztakepath$ (f$) 'assume f$ contains a filename with an optional path
     p$ = ""
 
-    IF os$ = "WIN" THEN
-        FOR i = LEN(f$) TO 1 STEP -1
-            a$ = MID$(f$, i, 1)
-            IF a$ = "\" THEN
-                p$ = LEFT$(f$, i - 1)
-                f$ = RIGHT$(f$, LEN(f$) - i)
-                EXIT FOR
-            END IF
-        NEXT
-        ideztakepath$ = p$
-        EXIT FUNCTION
-    END IF
-
-    IF os$ = "LNX" THEN
-        FOR i = LEN(f$) TO 1 STEP -1
-            a$ = MID$(f$, i, 1)
-            IF a$ = "/" THEN
-                p$ = LEFT$(f$, i - 1)
-                f$ = RIGHT$(f$, LEN(f$) - i)
-                EXIT FOR
-            END IF
-        NEXT
-        ideztakepath$ = p$
-        EXIT FUNCTION
-    END IF
-
+    FOR i = LEN(f$) TO 1 STEP -1
+        a$ = MID$(f$, i, 1)
+        IF a$ = "\" OR a$ = "/" THEN
+            p$ = LEFT$(f$, i - 1)
+            f$ = RIGHT$(f$, LEN(f$) - i)
+            EXIT FOR
+        END IF
+    NEXT
+    ideztakepath$ = p$
+    EXIT FUNCTION
 END FUNCTION
 
 'file f$ exists, and may contain a path
@@ -10440,10 +10299,13 @@ END FUNCTION
 FUNCTION idezgetfilepath$ (root$, f$)
     'step #1: seperate file's name from its path (if any)
     p$ = ideztakepath$(f$) 'note: this is a simple seperation of the string
+
     'step #2: if path was undefined, set it to root
     IF LEN(p$) = 0 THEN p$ = root$
+
     'step #3: if path is relative, make it relative to root$
-    IF LEFT$(p$, 1) = "." THEN p$ = root$ + idepathsep$ + p$
+    IF _DIREXISTS(root$ + idepathsep$ + p$) THEN p$ = root$ + idepathsep$ + p$
+
     'step #4: attempt a CHDIR to the path to (i)  validate its existance
     '                                      & (ii) allow listing the paths full name
     ideerror = 4 'path not found
@@ -10451,22 +10313,11 @@ FUNCTION idezgetfilepath$ (root$, f$)
     IF os$ = "WIN" THEN
         IF RIGHT$(p2$, 1) = ":" THEN p2$ = p2$ + "\" 'force change to root of drive
     END IF
+
     CHDIR p2$
     ideerror = 1
     'step #5: get the path's full name (assume success)
-    IF os$ = "WIN" THEN
-        SHELL _HIDE "cd >" + QuotedFilename$(ideroot$) + "\internal\temp\root.txt"
-        OPEN ideroot$ + "\internal\temp\root.txt" FOR INPUT AS #150
-        LINE INPUT #150, p$
-        IF RIGHT$(p$, 1) = "\" THEN p$ = LEFT$(p$, LEN(p$) - 1) 'strip trailing \ after root drive path
-        CLOSE #150
-    END IF
-    IF os$ = "LNX" THEN
-        SHELL _HIDE "pwd >" + QuotedFilename$(ideroot$) + "/internal/temp/root.txt"
-        OPEN ideroot$ + "/internal/temp/root.txt" FOR INPUT AS #150
-        LINE INPUT #150, p$
-        CLOSE #150
-    END IF
+    p$ = _CWD$
     'step #6: restore root path (assume success)
     CHDIR ideroot$
     'important: no validation of f$ necessary
