@@ -23,7 +23,7 @@ if [ -z "$(which g++)" ]; then
 fi
 
 echo "Building library 'LibQB'"
-cd internal/c/libqb/os/osx
+pushd internal/c/libqb/os/osx
 rm -f libqb_setup.o
 ./setup_build.command
 if [ ! -f ./libqb_setup.o ]; then
@@ -31,10 +31,10 @@ if [ ! -f ./libqb_setup.o ]; then
   Pause
   exit 1
 fi
-cd ../../../../..
+popd
 
 echo "Building library 'FreeType'"
-cd internal/c/parts/video/font/ttf/os/osx
+pushd internal/c/parts/video/font/ttf/os/osx
 rm -f src.o
 ./setup_build.command
 if [ ! -f ./src.o ]; then
@@ -42,13 +42,13 @@ if [ ! -f ./src.o ]; then
   Pause
   exit 1
 fi
-cd ../../../../../../../..
+popd
 
 echo "Building 'QB64' (~3 min)"
 cp ./internal/source/* ./internal/temp/
-cd internal/c
+pushd internal/c
 g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64
-cd ../..
+popd
 
 echo ""
 if [ -f ./qb64 ]; then
