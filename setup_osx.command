@@ -12,18 +12,18 @@ echo ""
 find . -name "*.command" -exec chmod +x {} \;
 find . -type f -iname "*.a" -exec rm -f {} \;
 find . -type f -iname "*.o" -exec rm -f {} \;
-rm /internal/temp/*
+rm ./internal/temp/*
 
 if [ -z "$(which g++)" ]; then
   echo "GNU C++ compiler not detected (g++)"
-  echo "Please install Apple Xcode and Apple Command Line Tools for Xcode"
+  echo "Please install Apple's Command Line Tools for Xcode"
   echo "before launching QB64 setup."
   Pause
   exit 1
 fi
 
 echo "Building library 'LibQB'"
-pushd internal/c/libqb/os/osx
+pushd internal/c/libqb/os/osx >/dev/null
 rm -f libqb_setup.o
 ./setup_build.command
 if [ ! -f ./libqb_setup.o ]; then
@@ -31,10 +31,10 @@ if [ ! -f ./libqb_setup.o ]; then
   Pause
   exit 1
 fi
-popd
+popd >/dev/null
 
 echo "Building library 'FreeType'"
-pushd internal/c/parts/video/font/ttf/os/osx
+pushd internal/c/parts/video/font/ttf/os/osx >/dev/null
 rm -f src.o
 ./setup_build.command
 if [ ! -f ./src.o ]; then
@@ -42,13 +42,13 @@ if [ ! -f ./src.o ]; then
   Pause
   exit 1
 fi
-popd
+popd >/dev/null
 
 echo "Building 'QB64' (~3 min)"
 cp ./internal/source/* ./internal/temp/
-pushd internal/c
+pushd internal/c >/dev/null
 g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64
-popd
+popd >/dev/null
 
 echo ""
 if [ -f ./qb64 ]; then
