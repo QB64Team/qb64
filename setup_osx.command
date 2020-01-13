@@ -12,7 +12,7 @@ echo ""
 find . -name "*.command" -exec chmod +x {} \;
 find . -type f -iname "*.a" -exec rm -f {} \;
 find . -type f -iname "*.o" -exec rm -f {} \;
-rm /internal/temp/*
+rm ./internal/temp/*
 
 if [ -z "$(which g++)" ]; then
   echo "GNU C++ compiler not detected (g++)"
