@@ -24,7 +24,7 @@ DEFLNG A-Z
 REDIM SHARED OName(0) AS STRING 'Operation Name
 REDIM SHARED PL(0) AS INTEGER 'Priority Level
 DIM SHARED QuickReturn AS INTEGER
-Set_OrderOfOperations 'This will also make certain our directories are valid, and if not make them.
+Set_OrderOfOperations
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 DIM ExecLevel(255), ExecCounter AS INTEGER
@@ -53,7 +53,7 @@ IF _DIREXISTS("internal") = 0 THEN
     DO
         _LIMIT 1
     LOOP UNTIL INKEY$ <> ""
-    SYSTEM
+    SYSTEM 1
 END IF
 
 DIM SHARED Include_GDB_Debugging_Info 'set using "options.bin"
@@ -80,10 +80,11 @@ DIM SHARED DEPENDENCY(1 TO DEPENDENCY_LAST)
 DIM SHARED UseGL 'declared SUB _GL (no params)
 
 
-DIM SHARED OS_BITS AS LONG
+DIM SHARED OS_BITS AS LONG, WindowTitle AS STRING
 OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
 
-IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
+IF OS_BITS = 32 THEN WindowTitle = "QB64 x32" ELSE WindowTitle = "QB64 x64"
+_TITLE WindowTitle
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
 DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
@@ -255,7 +256,7 @@ ELSE
     OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
     DO WHILE E
         i = i + 1
-        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END
+        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END 1
         MKDIR ".\internal\temp" + str2$(i)
         IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp" + str2$(i) + "\": tmpdir2$ = "..\\temp" + str2$(i) + "\\"
         IF os$ = "LNX" THEN tmpdir$ = "./internal/temp" + str2$(i) + "/": tmpdir2$ = "../temp" + str2$(i) + "/"
@@ -4966,12 +4967,14 @@ DO
 
             'check for open controls (copy #2)
             IF controllevel <> 0 AND controltype(controllevel) <> 6 THEN 'It's OK for subs to be inside $IF blocks
-                x = controltype(controllevel)
-                IF x = 1 THEN a$ = "IF without END IF"
-                IF x = 2 THEN a$ = "FOR without NEXT"
-                IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-                IF x = 5 THEN a$ = "WHILE without WEND"
-                IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+                a$ = "Unidentified open control block"
+                SELECT CASE controltype(controllevel)
+                    CASE 1: a$ = "IF without END IF"
+                    CASE 2: a$ = "FOR without NEXT"
+                    CASE 3, 4: a$ = "DO without LOOP"
+                    CASE 5: a$ = "WHILE without WEND"
+                    CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+                END SELECT
                 linenumber = controlref(controllevel)
                 GOTO errmes
             END IF
@@ -5449,12 +5452,14 @@ DO
 
                 'check for open controls (copy #3)
                 IF controllevel <> 0 AND controltype(controllevel) <> 6 AND controltype(controllevel) <> 32 THEN 'It's OK for subs to be inside $IF blocks
-                    x = controltype(controllevel)
-                    IF x = 1 THEN a$ = "IF without END IF"
-                    IF x = 2 THEN a$ = "FOR without NEXT"
-                    IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-                    IF x = 5 THEN a$ = "WHILE without WEND"
-                    IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+                    a$ = "Unidentified open control block"
+                    SELECT CASE controltype(controllevel)
+                        CASE 1: a$ = "IF without END IF"
+                        CASE 2: a$ = "FOR without NEXT"
+                        CASE 3, 4: a$ = "DO without LOOP"
+                        CASE 5: a$ = "WHILE without WEND"
+                        CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+                    END SELECT
                     linenumber = controlref(controllevel)
                     GOTO errmes
                 END IF
@@ -11043,19 +11048,23 @@ IF definingtype THEN linenumber = definingtypeerror: a$ = "TYPE without END TYPE
 
 'check for open controls (copy #1)
 IF controllevel THEN
-    x = controltype(controllevel)
     a$ = "Unidentified open control block"
-    IF x = 1 THEN a$ = "IF without END IF"
-    IF x = 2 THEN a$ = "FOR without NEXT"
-    IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-    IF x = 5 THEN a$ = "WHILE without WEND"
-    IF x = 6 THEN a$ = "$IF without $END IF"
-    IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+    SELECT CASE controltype(controllevel)
+        CASE 1: a$ = "IF without END IF"
+        CASE 2: a$ = "FOR without NEXT"
+        CASE 3, 4: a$ = "DO without LOOP"
+        CASE 5: a$ = "WHILE without WEND"
+        CASE 6: a$ = "$IF without $END IF"
+        CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+        CASE 32: a$ = "SUB/FUNCTION without END SUB/FUNCTION"
+    END SELECT
     linenumber = controlref(controllevel)
     GOTO errmes
 END IF
 
-IF LEN(subfunc) THEN a$ = "SUB/FUNCTION without END SUB/FUNCTION": GOTO errmes
+IF ideindentsubs = 0 THEN
+    IF LEN(subfunc) THEN a$ = "SUB/FUNCTION without END SUB/FUNCTION": GOTO errmes
+END IF
 
 'close the error handler (cannot be put in 'closemain' because subs/functions can also add error jumps to this file)
 PRINT #14, "exit(99);" 'in theory this line should never be run!
@@ -12946,7 +12955,7 @@ FUNCTION ParseCMDLineArgs$ ()
     'in which case they're simply asking for trouble).
     FOR i = 1 TO _COMMANDCOUNT
         token$ = COMMAND$(i)
-        IF LCASE$(token$) = "-help" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "-h" OR LCASE$(token$) = "/help" THEN token$ = "-?"
+        IF LCASE$(token$) = "/?" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
         SELECT CASE LCASE$(LEFT$(token$, 2))
             CASE "-?" 'Command-line help
                 _DEST _CONSOLE
@@ -12962,7 +12971,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "                             console"
                 PRINT "  -p                      Purge all pre-compiled content first"
                 PRINT "  -z                      Generate C code without compiling to executable"
-                PRINT "  -o <output file>               Write output executable to <output file>"
+                PRINT "  -o <output file>        Write output executable to <output file>"
                 PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
                 PRINT "                             mandatory (per-compilation; doesn't affect the"
                 PRINT "                             source file or global settings)"
