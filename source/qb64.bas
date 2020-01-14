@@ -4967,12 +4967,14 @@ DO
 
             'check for open controls (copy #2)
             IF controllevel <> 0 AND controltype(controllevel) <> 6 THEN 'It's OK for subs to be inside $IF blocks
-                x = controltype(controllevel)
-                IF x = 1 THEN a$ = "IF without END IF"
-                IF x = 2 THEN a$ = "FOR without NEXT"
-                IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-                IF x = 5 THEN a$ = "WHILE without WEND"
-                IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+                a$ = "Unidentified open control block"
+                SELECT CASE controltype(controllevel)
+                    CASE 1: a$ = "IF without END IF"
+                    CASE 2: a$ = "FOR without NEXT"
+                    CASE 3, 4: a$ = "DO without LOOP"
+                    CASE 5: a$ = "WHILE without WEND"
+                    CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+                END SELECT
                 linenumber = controlref(controllevel)
                 GOTO errmes
             END IF
@@ -5450,12 +5452,14 @@ DO
 
                 'check for open controls (copy #3)
                 IF controllevel <> 0 AND controltype(controllevel) <> 6 AND controltype(controllevel) <> 32 THEN 'It's OK for subs to be inside $IF blocks
-                    x = controltype(controllevel)
-                    IF x = 1 THEN a$ = "IF without END IF"
-                    IF x = 2 THEN a$ = "FOR without NEXT"
-                    IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-                    IF x = 5 THEN a$ = "WHILE without WEND"
-                    IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+                    a$ = "Unidentified open control block"
+                    SELECT CASE controltype(controllevel)
+                        CASE 1: a$ = "IF without END IF"
+                        CASE 2: a$ = "FOR without NEXT"
+                        CASE 3, 4: a$ = "DO without LOOP"
+                        CASE 5: a$ = "WHILE without WEND"
+                        CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+                    END SELECT
                     linenumber = controlref(controllevel)
                     GOTO errmes
                 END IF
@@ -11044,19 +11048,23 @@ IF definingtype THEN linenumber = definingtypeerror: a$ = "TYPE without END TYPE
 
 'check for open controls (copy #1)
 IF controllevel THEN
-    x = controltype(controllevel)
     a$ = "Unidentified open control block"
-    IF x = 1 THEN a$ = "IF without END IF"
-    IF x = 2 THEN a$ = "FOR without NEXT"
-    IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-    IF x = 5 THEN a$ = "WHILE without WEND"
-    IF x = 6 THEN a$ = "$IF without $END IF"
-    IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+    SELECT CASE controltype(controllevel)
+        CASE 1: a$ = "IF without END IF"
+        CASE 2: a$ = "FOR without NEXT"
+        CASE 3, 4: a$ = "DO without LOOP"
+        CASE 5: a$ = "WHILE without WEND"
+        CASE 6: a$ = "$IF without $END IF"
+        CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+        CASE 32: a$ = "SUB/FUNCTION without END SUB/FUNCTION"
+    END SELECT
     linenumber = controlref(controllevel)
     GOTO errmes
 END IF
 
-IF LEN(subfunc) THEN a$ = "SUB/FUNCTION without END SUB/FUNCTION": GOTO errmes
+IF ideindentsubs = 0 THEN
+    IF LEN(subfunc) THEN a$ = "SUB/FUNCTION without END SUB/FUNCTION": GOTO errmes
+END IF
 
 'close the error handler (cannot be put in 'closemain' because subs/functions can also add error jumps to this file)
 PRINT #14, "exit(99);" 'in theory this line should never be run!
