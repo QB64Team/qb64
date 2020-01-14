@@ -1920,14 +1920,11 @@ DO
 
 
 
-                        stevewashere2: ' ### STEVE EDIT ON 10/11/2013 (Const Expansion)
-
-
+                        stevewashere2:
                         IF n >= 1 AND firstelement$ = "CONST" THEN
                             'l$ = "CONST"
                             'DEF... do not change type, the expression is stored in a suitable type
                             'based on its value if type isn't forced/specified
-
                             'convert periods to _046_
                             i2 = INSTR(a$, sp + "." + sp)
                             IF i2 THEN
@@ -1940,232 +1937,69 @@ DO
                                 firstelement$ = getelement(a$, 1): secondelement$ = getelement(a$, 2): thirdelement$ = getelement(a$, 3)
                             END IF
 
-
                             'Steve Tweak to add _RGB32 and _MATH support to CONST
                             'Our alteration to allow for multiple uses of RGB and RGBA inside a CONST //SMcNeill
                             altered = 0
-
-                            'Edit 02/23/2014 to add space between = and _ for statements like CONST x=_RGB(123,0,0) and stop us from gettting an error.
-                            DO
-                                L = INSTR(wholestv$, "=_")
-                                IF L THEN
-                                    wholestv$ = LEFT$(wholestv$, L) + " " + MID$(wholestv$, L + 1)
-                                END IF
-                            LOOP UNTIL L = 0
-                            'End of Edit on 02/23/2014
-
-                            DO
-                                finished = -1
-                                L = INSTR(L + 1, UCASE$(wholestv$), " _RGBA")
-                                IF L > 0 THEN
-                                    altered = -1
-                                    l$ = LEFT$(wholestv$, L - 1)
-                                    vp = INSTR(L, wholestv$, "(")
-                                    IF vp > 0 THEN
-                                        E = INSTR(vp + 1, wholestv$, ")")
-                                        IF E > 0 THEN
-                                            'get our 3 colors or 4 if we need RGBA values
-                                            first = INSTR(vp, wholestv$, ",")
-                                            second = INSTR(first + 1, wholestv$, ",")
-                                            third = INSTR(second + 1, wholestv$, ",")
-                                            fourth = INSTR(third + 1, wholestv$, ",") 'If we need RGBA we need this one as well
-                                            red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                            green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                            blue$ = MID$(wholestv$, second + 1, third - second - 1)
-                                            alpha$ = MID$(wholestv$, third + 1)
-                                            IF MID$(wholestv$, L + 6, 2) = "32" THEN
-                                                val$ = "32"
-                                            ELSE
-                                                val$ = MID$(wholestv$, fourth + 1)
-                                            END IF
-                                            SELECT CASE VAL(val$)
-                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
-                                                    wi& = _NEWIMAGE(240, 120, VAL(val$))
-                                                    clr~& = _RGBA(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$), wi&)
-                                                    _FREEIMAGE wi&
-                                                CASE 32
-                                                    clr~& = _RGBA32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
-                                                CASE ELSE
-                                                    a$ = "Invalid Screen Mode.": GOTO errmes
-                                            END SELECT
-
-                                            wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)
-                                            finished = 0
-                                        ELSE
-                                            'no finishing bracket
-                                            a$ = ") Expected": GOTO errmes
-                                        END IF
-                                    ELSE
-                                        'no starting bracket
-                                        a$ = "( Expected": GOTO errmes
-                                    END IF
-                                END IF
-                            LOOP UNTIL finished
-
-                            DO
-                                finished = -1
-                                L = INSTR(L + 1, UCASE$(wholestv$), " _RGB32")
-                                IF L = 0 THEN L = INSTR(L + 1, UCASE$(wholestv$), " _RGB")
-                                IF L > 0 THEN
-                                    altered = -1
-                                    l$ = LEFT$(wholestv$, L - 1)
-                                    vp = INSTR(L, wholestv$, "(")
-                                    IF vp > 0 THEN
-                                        E = INSTR(vp + 1, wholestv$, ")")
-                                        IF E > 0 THEN
-                                            IF E = vp + 1 THEN a$ = "Syntax error": GOTO errmes
-                                            red$ = ""
-                                            green$ = ""
-                                            blue$ = ""
-                                            alpha$ = ""
-                                            first = 0: second = 0: third = 0
-                                            first = INSTR(vp, wholestv$, ",")
-                                            IF first THEN second = INSTR(first + 1, wholestv$, ",")
-                                            IF second THEN third = INSTR(second + 1, wholestv$, ",")
-                                            IF first > 0 AND second > 0 AND third > 0 THEN
-                                                'rgb + alpha (or _RGB with screen mode)
-                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                                green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                                blue$ = MID$(wholestv$, second + 1)
-                                                alpha$ = MID$(wholestv$, third + 1)
-                                            ELSEIF first > 0 AND second > 0 THEN
-                                                'regular rgb
-                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                                green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                                blue$ = MID$(wholestv$, second + 1)
-                                            ELSEIF first > 0 THEN
-                                                'grayscale + alpha
-                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                                alpha$ = MID$(wholestv$, first + 1)
-                                            ELSE
-                                                'grayscale
-                                                red$ = MID$(wholestv$, vp + 1)
-                                            END IF
-
-                                            IF MID$(wholestv$, L + 5, 2) = "32" THEN
-                                                val$ = "32"
-                                            ELSE
-                                                val$ = MID$(wholestv$, third + 1)
-                                                IF VAL(val$) = 32 THEN val$ = "33"
-                                            END IF
-
-                                            SELECT CASE VAL(val$)
-                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 33, 256
-                                                    IF val$ = "33" THEN val$ = "32"
-                                                    wi& = _NEWIMAGE(240, 120, VAL(val$))
-                                                    clr~& = _RGB(VAL(red$), VAL(green$), VAL(blue$), wi&)
-                                                    _FREEIMAGE wi&
-                                                CASE 32
-                                                    IF first > 0 AND second > 0 AND third > 0 THEN
-                                                        'rgb + alpha
-                                                        clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
-                                                    ELSEIF first > 0 AND second > 0 THEN
-                                                        'regular rgb
-                                                        clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
-                                                    ELSEIF first > 0 THEN
-                                                        'grayscale + alpha
-                                                        clr~& = _RGB32(VAL(red$), VAL(alpha$))
-                                                    ELSE
-                                                        clr~& = _RGB32(VAL(red$))
-                                                    END IF
-                                                CASE ELSE
-                                                    a$ = "Invalid screen mode": GOTO errmes
-                                            END SELECT
-
-                                            wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)
-                                            finished = 0
-                                        ELSE
-                                            a$ = ") Expected": GOTO errmes
-                                        END IF
-                                    ELSE
-                                        a$ = "( Expected": GOTO errmes
-                                    END IF
-                                END IF
-                            LOOP UNTIL finished
-
-                            ' ### END OF STEVE EDIT FOR EXPANDED CONST SUPPORT ###
-
                             'New Edit by Steve on 02/23/2014 to add support for the new Math functions
 
-
                             L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
                             DO
                                 L = INSTR(L + 1, wholestv$, "=")
                                 IF L THEN
-                                    l2 = INSTR(L + 1, wholestv$, ",") 'Look for a comma after that
-                                    IF l2 = 0 THEN 'If there's no comma, then we're working to the end of the line
-                                        l2 = LEN(wholestv$)
-                                    ELSE
-                                        l2 = l2 - 1 'else we only want to take what's before that comma and see if we can use it
-                                    END IF
-                                    temp$ = " " + MID$(wholestv$, L + 1, l2 - L) + " "
-
-                                    FOR i2 = 0 TO constlast
-                                        cname(1) = " " + constname(i2) + " "
-                                        cname(2) = "(" + constname(i2) + " "
-                                        cname(3) = " " + constname(i2) + ")"
-                                        cname(4) = "(" + constname(i2) + ")"
-                                        DO
-                                            found = 0
-                                            FOR i3 = 1 TO 4
-                                                found = INSTR(UCASE$(temp$), cname(i3))
-                                                IF found THEN EXIT FOR
-                                            NEXT
-                                            IF found THEN
-                                                t = consttype(i2)
-                                                IF t AND ISSTRING THEN
-                                                    r$ = conststring(i2)
-                                                    i4 = _INSTRREV(r$, ",")
-                                                    r$ = LEFT$(r$, i4 - 1)
-                                                ELSE
-                                                    IF t AND ISFLOAT THEN
-                                                        r$ = STR$(constfloat(i2))
-                                                    ELSE
-                                                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
-                                                    END IF
-                                                END IF
-                                                temp$ = LEFT$(temp$, found) + r$ + MID$(temp$, found + LEN(constname(i2)) + 1)
-
-                                                altered = -1
-                                            END IF
-                                        LOOP UNTIL found = 0
+                                    'look for first instance of a comma or a left parenthesis
+                                    comma = 0: paren = 0
+                                    FOR t = L + 1 TO LEN(wholestv$)
+                                        SELECT CASE MID$(wholestv$, t, 1)
+                                            CASE ",": l2 = t: comma = 1: EXIT FOR
+                                            CASE "(": l2 = t: paren = 1: EXIT FOR
+                                        END SELECT
                                     NEXT
-                                    wholestv$ = LEFT$(wholestv$, L) + _TRIM$(temp$) + MID$(wholestv$, l2 + 1)
-                                    L = L + 1
-                                END IF
-                                Emergency_Exit = Emergency_Exit + 1
-                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Endless Loop trying to substitute values.": GOTO errmes
-                            LOOP UNTIL L = 0
-
-                            L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
-                            DO
-                                L = INSTR(L + 1, wholestv$, "=")
-                                IF L THEN
-                                    l2 = INSTR(L + 1, wholestv$, ",") 'Look for a comma after that
-                                    IF l2 = 0 THEN 'If there's no comma, then we're working to the end of the line
+                                    IF t >= LEN(wholestv$) THEN
+                                        'we went to the end of the line without any parenethis or commas
                                         l2 = LEN(wholestv$)
-                                    ELSE
-                                        l2 = l2 - 1 'else we only want to take what's before that comma and see if we can use it
+                                    ELSEIF comma THEN
+                                        'we found a comma before we found a parenthesis
+                                        'this would look something like CONST x = 3, y = 4
+                                        l2 = t - 1 'we only want to take what's before that comma and see if we can use it in our math substitution routines.
+                                    ELSEIF paren THEN
+                                        'we found a left parenthesis before we found a comma
+                                        'this might look like CONST Red = _RGB32(255,0,0), Green = _RGB32(0,255,0)
+                                        'now we move right, one step at a time, counting left parenthesis
+                                        'and subtracting right parenthesis
+                                        'until we reach 0,  and then we look for a comma after
+                                        FOR l2 = t + 1 TO LEN(wholestv$)
+                                            SELECT CASE MID$(wholestv$, l2, 1)
+                                                CASE "(": paren = paren + 1
+                                                CASE ")"
+                                                    paren = paren - 1
+                                                    IF paren < 0 THEN a$ = "Invalid Syntax -- Too many )": GOTO errmes
+                                                CASE ","
+                                                    IF paren = 0 THEN l2 = l2 - 1: EXIT FOR
+                                            END SELECT
+                                        NEXT
+                                        IF paren > 0 THEN a$ = "Invalid Syntax -- Too many (": GOTO errmes
+                                        IF l2 > LEN(wholestv$) THEN l2 = LEN(wholestv$)
                                     END IF
-                                    temp$ = MID$(wholestv$, L + 1, l2 - L)
-                                    temp$ = _TRIM$(temp$)
-                                    temp1$ = Evaluate_Expression$(temp$)
+                                    temp$ = RTRIM$(LTRIM$(MID$(wholestv$, L + 1, l2 - L)))
+                                    temp1$ = RTRIM$(LTRIM$(Evaluate_Expression$(temp$)))
                                     IF LEFT$(temp1$, 5) <> "ERROR" AND temp$ <> temp1$ THEN
                                         'The math routine should have did its replacement for us.
                                         altered = -1
                                         wholestv$ = LEFT$(wholestv$, L) + temp1$ + MID$(wholestv$, l2 + 1)
+
                                     ELSE
-                                        IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
-                                        'If it's not an error, we should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
+                                        'IF LEFT$(temp1$, 5) = "ERROR" THEN a$ = temp1$: GOTO errmes
+                                        'We should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
                                     END IF
                                     L = L + 1
                                 END IF
                                 Emergency_Exit = Emergency_Exit + 1
                                 IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Attempting to process MATH Function caused Endless Loop.  Please recheck your math formula.": GOTO errmes
                             LOOP UNTIL L = 0
-
-
                             'End of Math Support Edit
+
+                            'Forced error message so we can get a diagnostic of what type of change we're making -- if any.
+                            'a$ = "EVAL TO:" + wholestv$: GOTO errmes
 
                             'Steve edit to update the CONST with the Math and _RGB functions
                             IF altered THEN
@@ -23817,7 +23651,16 @@ SUB ParseExpression (exp$)
             FOR P = 1 TO UBOUND(OName)
                 'Look for first valid operator
                 IF J = PL(P) THEN 'Priority levels match
-                    IF LEFT$(exp$, 1) = "-" THEN op = INSTR(2, exp$, OName(P)) ELSE op = INSTR(exp$, OName(P))
+                    IF LEFT$(exp$, 1) = "-" THEN startAt = 2 ELSE startAt = 1
+                    op = INSTR(startAt, exp$, OName(P))
+                    IF op = 0 AND LEFT$(OName(P), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try again without prefix
+                        op = INSTR(startAt, exp$, MID$(OName(P), 2))
+                        IF op > 0 THEN
+                            exp$ = LEFT$(exp$, op - 1) + "_" + MID$(exp$, op)
+                            lowest = lowest + 1
+                        END IF
+                    END IF
                     IF op > 0 AND op < lowest THEN lowest = op: OpOn = P
                 END IF
             NEXT
@@ -24270,11 +24113,11 @@ END FUNCTION
 
 SUB PreParse (e$)
     DIM f AS _FLOAT
+    STATIC TotalPrefixedPP_TypeMod AS LONG, TotalPP_TypeMod AS LONG
 
     IF PP_TypeMod(0) = "" THEN
         REDIM PP_TypeMod(100) AS STRING, PP_ConvertedMod(100) AS STRING 'Large enough to hold all values to begin with
         PP_TypeMod(0) = "Initialized" 'Set so we don't do this section over and over, as we keep the values in shared memory.
-        Set_OrderOfOperations 'Call this once to set up our proper order of operations and variable list
         'and the below is a conversion list so symbols don't get cross confused.
         i = i + 1: PP_TypeMod(i) = "~`": PP_ConvertedMod(i) = "C_UBI" 'unsigned bit
         i = i + 1: PP_TypeMod(i) = "~%%": PP_ConvertedMod(i) = "C_UBY" 'unsigned byte
@@ -24297,6 +24140,14 @@ SUB PreParse (e$)
         i = i + 1: PP_TypeMod(i) = "_GREEN32": PP_ConvertedMod(i) = "C_GR" 'green32
         i = i + 1: PP_TypeMod(i) = "_BLUE32": PP_ConvertedMod(i) = "C_BL" 'blue32
         i = i + 1: PP_TypeMod(i) = "_ALPHA32": PP_ConvertedMod(i) = "C_AL" 'alpha32
+        TotalPrefixedPP_TypeMod = i
+        i = i + 1: PP_TypeMod(i) = "RGB32": PP_ConvertedMod(i) = "C_RG" 'rgb32
+        i = i + 1: PP_TypeMod(i) = "RGBA32": PP_ConvertedMod(i) = "C_RA" 'rgba32
+        i = i + 1: PP_TypeMod(i) = "RED32": PP_ConvertedMod(i) = "C_RX" 'red32
+        i = i + 1: PP_TypeMod(i) = "GREEN32": PP_ConvertedMod(i) = "C_GR" 'green32
+        i = i + 1: PP_TypeMod(i) = "BLUE32": PP_ConvertedMod(i) = "C_BL" 'blue32
+        i = i + 1: PP_TypeMod(i) = "ALPHA32": PP_ConvertedMod(i) = "C_AL" 'alpha32
+        TotalPP_TypeMod = i
         REDIM _PRESERVE PP_TypeMod(i) AS STRING, PP_ConvertedMod(i) AS STRING 'And then resized to just contain the necessary space in memory
     END IF
     t$ = e$
@@ -24341,7 +24192,9 @@ SUB PreParse (e$)
         END IF
     LOOP UNTIL l = 0
 
-    FOR j = 1 TO UBOUND(PP_TypeMod)
+    uboundPP_TypeMod = TotalPrefixedPP_TypeMod
+    IF qb64prefix_set = 1 THEN uboundPP_TypeMod = TotalPP_TypeMod
+    FOR j = 1 TO uboundPP_TypeMod
         l = 0
         DO
             l = INSTR(l + 1, t$, PP_TypeMod(j))
@@ -24377,7 +24230,14 @@ SUB PreParse (e$)
             good = 0
             FOR i = 1 TO UBOUND(OName)
                 m$ = MID$(t$, l - LEN(OName(i)), LEN(OName(i)))
-                IF m$ = OName(i) THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                IF m$ = OName(i) THEN
+                    good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                ELSE
+                    IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try without prefix
+                        IF m$ = MID$(OName(i), 2) THEN good = -1: EXIT FOR
+                    END IF
+                END IF
             NEXT
             IF NOT good THEN e$ = "ERROR - Improper operations before (.": EXIT SUB
             l = l + 1
@@ -24392,7 +24252,14 @@ SUB PreParse (e$)
             good = 0
             FOR i = 1 TO UBOUND(oname)
                 m$ = MID$(t$, l + 1, LEN(OName(i)))
-                IF m$ = OName(i) THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI
+                IF m$ = OName(i) THEN
+                    good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI
+                ELSE
+                    IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try without prefix
+                        IF m$ = MID$(OName(i), 2) THEN good = -1: EXIT FOR
+                    END IF
+                END IF
             NEXT
             IF MID$(t$, l + 1, 1) = ")" THEN good = -1
             IF NOT good THEN e$ = "ERROR - Improper operations after ).": EXIT SUB
@@ -24413,7 +24280,7 @@ SUB PreParse (e$)
                     CASE "0" TO "9", "A" TO "F" 'All is good, our next digit is a number, continue to add to the hex$
                     CASE ELSE
                         good = 0
-                        FOR i = 1 TO UBOUND(oname)
+                        FOR i = 1 TO UBOUND(OName)
                             IF MID$(t$, E, LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
                         NEXT
                         IF NOT good THEN e$ = "ERROR - Improper &H value. (" + comp$ + ")": EXIT SUB
@@ -24438,7 +24305,7 @@ SUB PreParse (e$)
                     CASE "0", "1" 'All is good, our next digit is a number, continue to add to the hex$
                     CASE ELSE
                         good = 0
-                        FOR i = 1 TO UBOUND(oname)
+                        FOR i = 1 TO UBOUND(OName)
                             IF MID$(t$, E, LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
                         NEXT
                         IF NOT good THEN e$ = "ERROR - Improper &B value. (" + comp$ + ")": EXIT SUB
@@ -24471,11 +24338,21 @@ SUB VerifyString (t$)
             CASE "0" TO "9", ".", "(", ")", ",": j = j + 1
             CASE ELSE
                 good = 0
+                extrachar = 0
                 FOR i = 1 TO UBOUND(OName)
-                    IF MID$(t$, j, LEN(OName(i))) = OName(i) THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                    IF MID$(t$, j, LEN(OName(i))) = OName(i) THEN
+                        good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                    ELSE
+                        IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                            'try without prefix
+                            IF MID$(t$, j, LEN(OName(i)) - 1) = MID$(OName(i), 2) THEN
+                                good = -1: extrachar = 1: EXIT FOR
+                            END IF
+                        END IF
+                    END IF
                 NEXT
                 IF NOT good THEN t$ = "ERROR - Bad Operational value. (" + comp$ + ")": EXIT SUB
-                j = j + LEN(OName(i))
+                j = j + (LEN(OName(i)) - extrachar)
         END SELECT
     LOOP UNTIL j > LEN(t$)
 END SUB
