@@ -1988,8 +1988,8 @@ DO
                                         wholestv$ = LEFT$(wholestv$, L) + temp1$ + MID$(wholestv$, l2 + 1)
 
                                     ELSE
-                                        'IF LEFT$(temp1$, 5) = "ERROR" THEN a$ = temp1$: GOTO errmes
-                                        'We should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
+                                        IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                                        'If it's not an error, we should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
                                     END IF
                                     L = L + 1
                                 END IF
@@ -23846,6 +23846,11 @@ END SUB
 FUNCTION EvaluateNumbers$ (p, num() AS STRING)
     DIM n1 AS _FLOAT, n2 AS _FLOAT, n3 AS _FLOAT
     'PRINT "EVALNUM:"; OName(p), num(1), num(2)
+
+    IF LEN(_TRIM$(num(1))) = 0 OR LEN(_TRIM$(num(2))) = 0 THEN
+        EvaluateNumbers$ = "ERROR - Missing operand": EXIT FUNCTION
+    END IF
+
     IF INSTR(num(1), ",") THEN
         EvaluateNumbers$ = "ERROR - Invalid comma (" + num(1) + ")": EXIT FUNCTION
     END IF
@@ -24045,12 +24050,18 @@ FUNCTION EvaluateNumbers$ (p, num() AS STRING)
                     IF n3 <> INT(n3) AND n2 < 1 THEN sign = SGN(n1): n1 = ABS(n1)
                     n1 = sign * (n1 ^ n3)
                 CASE "*": n1 = VAL(num(1)) * VAL(num(2))
-                CASE "/": n1 = VAL(num(1)) / VAL(num(2))
+                CASE "/"
+                    IF VAL(num(2)) <> 0 THEN
+                        n1 = VAL(num(1)) / VAL(num(2))
+                    ELSE
+                        EvaluateNumbers$ = "ERROR - Division By Zero"
+                        EXIT FUNCTION
+                    END IF
                 CASE "\"
                     IF VAL(num(2)) <> 0 THEN
                         n1 = VAL(num(1)) \ VAL(num(2))
                     ELSE
-                        EvaluateNumbers$ = "ERROR - Bad operation (We shouldn't see this)"
+                        EvaluateNumbers$ = "ERROR - Division By Zero"
                         EXIT FUNCTION
                     END IF
                 CASE "MOD": n1 = VAL(num(1)) MOD VAL(num(2))
