@@ -1965,6 +1965,55 @@ DO
                             DO
                                 L = INSTR(L + 1, wholestv$, "=")
                                 IF L THEN
+                                    l2 = INSTR(L + 1, wholestv$, ",") 'Look for a comma after that
+                                    IF l2 = 0 THEN 'If there's no comma, then we're working to the end of the line
+                                        l2 = LEN(wholestv$)
+                                    ELSE
+                                        l2 = l2 - 1 'else we only want to take what's before that comma and see if we can use it
+                                    END IF
+                                    temp$ = " " + MID$(wholestv$, L + 1, l2 - L) + " "
+
+                                    FOR i2 = 0 TO constlast
+                                        cname(1) = " " + constname(i2) + " "
+                                        cname(2) = "(" + constname(i2) + " "
+                                        cname(3) = " " + constname(i2) + ")"
+                                        cname(4) = "(" + constname(i2) + ")"
+                                        DO
+                                            found = 0
+                                            FOR i3 = 1 TO 4
+                                                found = INSTR(UCASE$(temp$), cname(i3))
+                                                IF found THEN EXIT FOR
+                                            NEXT
+                                            IF found THEN
+                                                t = consttype(i2)
+                                                IF t AND ISSTRING THEN
+                                                    r$ = conststring(i2)
+                                                    i4 = _INSTRREV(r$, ",")
+                                                    r$ = LEFT$(r$, i4 - 1)
+                                                ELSE
+                                                    IF t AND ISFLOAT THEN
+                                                        r$ = STR$(constfloat(i2))
+                                                    ELSE
+                                                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
+                                                    END IF
+                                                END IF
+                                                temp$ = LEFT$(temp$, found) + r$ + MID$(temp$, found + LEN(constname(i2)) + 1)
+
+                                                altered = -1
+                                            END IF
+                                        LOOP UNTIL found = 0
+                                    NEXT
+                                    wholestv$ = LEFT$(wholestv$, L) + _TRIM$(temp$) + MID$(wholestv$, l2 + 1)
+                                    L = L + 1
+                                END IF
+                                Emergency_Exit = Emergency_Exit + 1
+                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Endless Loop trying to substitute values.": GOTO errmes
+                            LOOP UNTIL L = 0
+
+                            L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
+                            DO
+                                L = INSTR(L + 1, wholestv$, "=")
+                                IF L THEN
                                     'look for first instance of a comma or a left parenthesis
                                     comma = 0: paren = 0
                                     FOR t = L + 1 TO LEN(wholestv$)
@@ -1991,12 +2040,12 @@ DO
                                                 CASE "(": paren = paren + 1
                                                 CASE ")"
                                                     paren = paren - 1
-                                                    IF paren < 0 THEN a$ = "Invalid Syntax -- Too many )": GOTO errmes
+                                                    IF paren < 0 THEN a$ = "Missing (": GOTO errmes
                                                 CASE ","
                                                     IF paren = 0 THEN l2 = l2 - 1: EXIT FOR
                                             END SELECT
                                         NEXT
-                                        IF paren > 0 THEN a$ = "Invalid Syntax -- Too many (": GOTO errmes
+                                        IF paren > 0 THEN a$ = "Missing )": GOTO errmes
                                         IF l2 > LEN(wholestv$) THEN l2 = LEN(wholestv$)
                                     END IF
                                     temp$ = RTRIM$(LTRIM$(MID$(wholestv$, L + 1, l2 - L)))
@@ -2028,8 +2077,6 @@ DO
                                 GOTO ideprepass
                             END IF
                             'End of Final Edits to CONST
-
-
 
 
                             IF n < 3 THEN a$ = "Expected CONST name = value/expression": GOTO errmes
@@ -23616,7 +23663,7 @@ FUNCTION EvaluateNumbers$ (p, num() AS STRING)
     DIM n1 AS _FLOAT, n2 AS _FLOAT, n3 AS _FLOAT
     'PRINT "EVALNUM:"; OName(p), num(1), num(2)
 
-    IF LEN(_TRIM$(num(1))) = 0 OR LEN(_TRIM$(num(2))) = 0 THEN
+    IF PL(p) >= 20 AND (LEN(_TRIM$(num(1))) = 0 OR LEN(_TRIM$(num(2))) = 0) THEN
         EvaluateNumbers$ = "ERROR - Missing operand": EXIT FUNCTION
     END IF
 
