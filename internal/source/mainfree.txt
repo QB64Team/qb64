@@ -181,6 +181,18 @@ free((void*)(__ARRAY_INTEGER_PL[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_PL)[8] );
+if (__ARRAY_STRING_PP_TYPEMOD[2]&1){
+tmp_long=__ARRAY_STRING_PP_TYPEMOD[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_PP_TYPEMOD[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_PP_TYPEMOD[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_PP_TYPEMOD)[8] );
+if (__ARRAY_STRING_PP_CONVERTEDMOD[2]&1){
+tmp_long=__ARRAY_STRING_PP_CONVERTEDMOD[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_PP_CONVERTEDMOD[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_PP_CONVERTEDMOD[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_PP_CONVERTEDMOD)[8] );
 if (__ARRAY_LONG_EVERYCASESET[2]&1){
 if (__ARRAY_LONG_EVERYCASESET[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_EVERYCASESET[0]));
@@ -876,11 +888,6 @@ qbs_free(__STRING_SIZ);
 qbs_free(__STRING_N);
 qbs_free(__STRING_T);
 qbs_free(__STRING_HASHNAME);
-qbs_free(__STRING_RED);
-qbs_free(__STRING_GREEN);
-qbs_free(__STRING_BLUE);
-qbs_free(__STRING_ALPHA);
-qbs_free(__STRING_VAL);
 qbs_free(__STRING_TEMP1);
 qbs_free(__STRING_S);
 qbs_free(__STRING_E2);
