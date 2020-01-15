@@ -326,8 +326,6 @@ DIM SHARED ideStartAtLine AS LONG, errorLineInInclude AS LONG
 DIM SHARED outputfile_cmd$
 DIM SHARED compilelog$
 
-DIM cname(4) AS STRING
-
 '$INCLUDE:'global\IDEsettings.bas'
 
 CMDLineFile = ParseCMDLineArgs$
@@ -1939,11 +1937,11 @@ DO
 
 
 
-                        stevewashere2:
                         IF n >= 1 AND firstelement$ = "CONST" THEN
                             'l$ = "CONST"
                             'DEF... do not change type, the expression is stored in a suitable type
                             'based on its value if type isn't forced/specified
+
                             'convert periods to _046_
                             i2 = INSTR(a$, sp + "." + sp)
                             IF i2 THEN
@@ -1956,136 +1954,12 @@ DO
                                 firstelement$ = getelement(a$, 1): secondelement$ = getelement(a$, 2): thirdelement$ = getelement(a$, 3)
                             END IF
 
-                            'Steve Tweak to add _RGB32 and _MATH support to CONST
-                            'Our alteration to allow for multiple uses of RGB and RGBA inside a CONST //SMcNeill
-                            altered = 0
-                            'New Edit by Steve on 02/23/2014 to add support for the new Math functions
-
-                            L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
-                            DO
-                                L = INSTR(L + 1, wholestv$, "=")
-                                IF L THEN
-                                    l2 = INSTR(L + 1, wholestv$, ",") 'Look for a comma after that
-                                    IF l2 = 0 THEN 'If there's no comma, then we're working to the end of the line
-                                        l2 = LEN(wholestv$)
-                                    ELSE
-                                        l2 = l2 - 1 'else we only want to take what's before that comma and see if we can use it
-                                    END IF
-                                    temp$ = " " + MID$(wholestv$, L + 1, l2 - L) + " "
-
-                                    FOR i2 = 0 TO constlast
-                                        cname(1) = " " + constname(i2) + " "
-                                        cname(2) = "(" + constname(i2) + " "
-                                        cname(3) = " " + constname(i2) + ")"
-                                        cname(4) = "(" + constname(i2) + ")"
-                                        DO
-                                            found = 0
-                                            FOR i3 = 1 TO 4
-                                                found = INSTR(UCASE$(temp$), cname(i3))
-                                                IF found THEN EXIT FOR
-                                            NEXT
-                                            IF found THEN
-                                                t = consttype(i2)
-                                                IF t AND ISSTRING THEN
-                                                    r$ = conststring(i2)
-                                                    i4 = _INSTRREV(r$, ",")
-                                                    r$ = LEFT$(r$, i4 - 1)
-                                                ELSE
-                                                    IF t AND ISFLOAT THEN
-                                                        r$ = STR$(constfloat(i2))
-                                                    ELSE
-                                                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
-                                                    END IF
-                                                END IF
-                                                temp$ = LEFT$(temp$, found) + r$ + MID$(temp$, found + LEN(constname(i2)) + 1)
-
-                                                altered = -1
-                                            END IF
-                                        LOOP UNTIL found = 0
-                                    NEXT
-                                    wholestv$ = LEFT$(wholestv$, L) + _TRIM$(temp$) + MID$(wholestv$, l2 + 1)
-                                    L = L + 1
-                                END IF
-                                Emergency_Exit = Emergency_Exit + 1
-                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Endless Loop trying to substitute values.": GOTO errmes
-                            LOOP UNTIL L = 0
-
-                            L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
-                            DO
-                                L = INSTR(L + 1, wholestv$, "=")
-                                IF L THEN
-                                    'look for first instance of a comma or a left parenthesis
-                                    comma = 0: paren = 0
-                                    FOR t = L + 1 TO LEN(wholestv$)
-                                        SELECT CASE MID$(wholestv$, t, 1)
-                                            CASE ",": l2 = t: comma = 1: EXIT FOR
-                                            CASE "(": l2 = t: paren = 1: EXIT FOR
-                                        END SELECT
-                                    NEXT
-                                    IF t >= LEN(wholestv$) THEN
-                                        'we went to the end of the line without any parenethis or commas
-                                        l2 = LEN(wholestv$)
-                                    ELSEIF comma THEN
-                                        'we found a comma before we found a parenthesis
-                                        'this would look something like CONST x = 3, y = 4
-                                        l2 = t - 1 'we only want to take what's before that comma and see if we can use it in our math substitution routines.
-                                    ELSEIF paren THEN
-                                        'we found a left parenthesis before we found a comma
-                                        'this might look like CONST Red = _RGB32(255,0,0), Green = _RGB32(0,255,0)
-                                        'now we move right, one step at a time, counting left parenthesis
-                                        'and subtracting right parenthesis
-                                        'until we reach 0,  and then we look for a comma after
-                                        FOR l2 = t + 1 TO LEN(wholestv$)
-                                            SELECT CASE MID$(wholestv$, l2, 1)
-                                                CASE "(": paren = paren + 1
-                                                CASE ")"
-                                                    paren = paren - 1
-                                                    IF paren < 0 THEN a$ = "Missing (": GOTO errmes
-                                                CASE ","
-                                                    IF paren = 0 THEN l2 = l2 - 1: EXIT FOR
-                                            END SELECT
-                                        NEXT
-                                        IF paren > 0 THEN a$ = "Missing )": GOTO errmes
-                                        IF l2 > LEN(wholestv$) THEN l2 = LEN(wholestv$)
-                                    END IF
-                                    temp$ = RTRIM$(LTRIM$(MID$(wholestv$, L + 1, l2 - L)))
-                                    temp1$ = RTRIM$(LTRIM$(Evaluate_Expression$(temp$)))
-                                    IF LEFT$(temp1$, 5) <> "ERROR" AND temp$ <> temp1$ THEN
-                                        'The math routine should have did its replacement for us.
-                                        altered = -1
-                                        wholestv$ = LEFT$(wholestv$, L) + temp1$ + MID$(wholestv$, l2 + 1)
-
-                                    ELSE
-                                        IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
-                                        'If it's not an error, we should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
-                                    END IF
-                                    L = L + 1
-                                END IF
-                                Emergency_Exit = Emergency_Exit + 1
-                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Attempting to process MATH Function caused Endless Loop.  Please recheck your math formula.": GOTO errmes
-                            LOOP UNTIL L = 0
-                            'End of Math Support Edit
-
-                            'Forced error message so we can get a diagnostic of what type of change we're making -- if any.
-                            'a$ = "EVAL TO:" + wholestv$: GOTO errmes
-
-                            'Steve edit to update the CONST with the Math and _RGB functions
-                            IF altered THEN
-                                altered = 0
-                                wholeline$ = wholestv$
-                                linenumber = linenumber - 1
-                                GOTO ideprepass
-                            END IF
-                            'End of Final Edits to CONST
-
-
                             IF n < 3 THEN a$ = "Expected CONST name = value/expression": GOTO errmes
                             i = 2
                             constdefpendingpp:
                             pending = 0
 
                             n$ = getelement$(ca$, i): i = i + 1
-                            'l$ = l$ + sp + n$ + sp + "="
                             typeoverride = 0
                             s$ = removesymbol$(n$)
                             IF Error_Happened THEN GOTO errmes
@@ -2101,6 +1975,7 @@ DO
 
                             'get expression
                             e$ = ""
+                            readable_e$ = ""
                             B = 0
                             FOR i2 = i TO n
                                 e2$ = getelement$(ca$, i2)
@@ -2113,12 +1988,27 @@ DO
                                     EXIT FOR
                                 END IF
                                 IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
+                                IF LEN(e2$) > 1 THEN removeComma = INSTR(e2$, ",") ELSE removeComma = 0
+                                IF removeComma THEN e3$ = MID$(e2$, removeComma + 1) ELSE e3$ = e2$
+                                IF LEN(readable_e$) = 0 THEN
+                                    readable_e$ = e3$
+                                ELSE
+                                    readable_e$ = readable_e$ + e3$
+                                END IF
                             NEXT
 
+                            'intercept current expression and pass it through Evaluate_Expression$
+                            temp1$ = _TRIM$(Evaluate_Expression$(readable_e$))
+                            IF LEFT$(temp1$, 5) <> "ERROR" AND e$ <> temp1$ THEN
+                                e$ = lineformat(temp1$) 'retrieve parseable format
+                            ELSE
+                                IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                            END IF
+
+                            'Proceed as usual
                             e$ = fixoperationorder(e$)
                             IF Error_Happened THEN GOTO errmes
 
-                            'l$ = l$ + sp + tlayout$
                             e$ = evaluateconst(e$, t)
                             IF Error_Happened THEN GOTO errmes
 
@@ -23663,6 +23553,8 @@ FUNCTION EvaluateNumbers$ (p, num() AS STRING)
     DIM n1 AS _FLOAT, n2 AS _FLOAT, n3 AS _FLOAT
     'PRINT "EVALNUM:"; OName(p), num(1), num(2)
 
+    IF _TRIM$(num(1)) = "" THEN num(1) = "0"
+
     IF PL(p) >= 20 AND (LEN(_TRIM$(num(1))) = 0 OR LEN(_TRIM$(num(2))) = 0) THEN
         EvaluateNumbers$ = "ERROR - Missing operand": EXIT FUNCTION
     END IF
@@ -23880,7 +23772,13 @@ FUNCTION EvaluateNumbers$ (p, num() AS STRING)
                         EvaluateNumbers$ = "ERROR - Division By Zero"
                         EXIT FUNCTION
                     END IF
-                CASE "MOD": n1 = VAL(num(1)) MOD VAL(num(2))
+                CASE "MOD"
+                    IF VAL(num(2)) <> 0 THEN
+                        n1 = VAL(num(1)) MOD VAL(num(2))
+                    ELSE
+                        EvaluateNumbers$ = "ERROR - Division By Zero"
+                        EXIT FUNCTION
+                    END IF
                 CASE "+": n1 = VAL(num(1)) + VAL(num(2))
                 CASE "-":
                     n1 = VAL(num(1)) - VAL(num(2))
@@ -24094,6 +23992,36 @@ SUB PreParse (e$)
             l = l + 1
         END IF
     LOOP UNTIL l = 0 OR l = LEN(t$) 'last symbol is a bracket
+
+    'replace existing CONST values
+    sep$ = "()+-*/\><=^"
+    FOR i2 = 0 TO constlast
+        found = 0
+        DO
+            found = INSTR(found + 1, UCASE$(t$), constname(i2))
+            IF found THEN
+                IF found > 1 THEN
+                    IF INSTR(sep$, MID$(t$, found - 1, 1)) = 0 THEN _CONTINUE
+                END IF
+                IF found + LEN(constname(i2)) <= LEN(t$) THEN
+                    IF INSTR(sep$, MID$(t$, found + LEN(constname(i2)), 1)) = 0 THEN _CONTINUE
+                END IF
+                t = consttype(i2)
+                IF t AND ISSTRING THEN
+                    r$ = conststring(i2)
+                    i4 = _INSTRREV(r$, ",")
+                    r$ = LEFT$(r$, i4 - 1)
+                ELSE
+                    IF t AND ISFLOAT THEN
+                        r$ = STR$(constfloat(i2))
+                    ELSE
+                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
+                    END IF
+                END IF
+                t$ = LEFT$(t$, found - 1) + _TRIM$(r$) + MID$(t$, found + LEN(constname(i2)))
+            END IF
+        LOOP UNTIL found = 0
+    NEXT
 
     'Turn all &H (hex) numbers into decimal values for the program to process properly
     l = 0
