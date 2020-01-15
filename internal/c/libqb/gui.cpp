@@ -526,6 +526,17 @@ void sub__glrender(int32 method){
             
             if (render_state.dest_handle==0){
                 static int32 dst_w,dst_h;
+                static int32 scale_factor=0;
+
+                #ifdef QB64_MACOSX
+                    if (scale_factor==0) {
+                        scale_factor=1;
+                        if (system("system_profiler SPDisplaysDataType | grep Retina")==0) scale_factor=2;
+                    }
+                #else
+                    scale_factor=1;
+                #endif
+
                 dst_w=environment__window_width;
                 dst_h=environment__window_height;
                 
@@ -539,7 +550,7 @@ void sub__glrender(int32 method){
                 glLoadIdentity();
                 glScalef(1, -1, 1);//flip vertically
                 glTranslatef(0, -dst_h, 0);//move to new vertical position
-                glViewport(0,0,dst_w,dst_h);
+                glViewport(0,0,dst_w * scale_factor,dst_h * scale_factor);
                 
                 
                 }else{
