@@ -71,7 +71,7 @@ SUB gl_scan_header
 
     d = 0: a2$ = ""
     h = FREEFILE
-    OPEN "internal\c\parts\core\gl_header_for_parsing\gl.h" FOR INPUT AS #h
+    OPEN "internal\c\parts\core\gl_header_for_parsing\gl.h" FOR BINARY AS #h
     DO UNTIL EOF(h)
         LINE INPUT #h, a$
         IF LEN(a$) THEN
@@ -332,9 +332,9 @@ SUB gl_include_content
 
     'add constants
     FOR d = 1 TO GL_DEFINES_LAST
-        IF ASC(GL_DEFINES(d)) <> 95 THEN
-            GL_DEFINES(d) = "_" + GL_DEFINES(d)
-        END IF
+        'IF ASC(GL_DEFINES(d)) <> 95 THEN
+        '    GL_DEFINES(d) = "_" + GL_DEFINES(d)
+        'END IF
         constlast = constlast + 1
         IF constlast > constmax THEN
             constmax = constmax * 2
@@ -350,8 +350,8 @@ SUB gl_include_content
             REDIM _PRESERVE constdefined(constmax) AS LONG
         END IF
         i = constlast
-        constname(i) = GL_DEFINES(d)
-        constcname(i) = GL_DEFINES(d)
+        constname(i) = qb64prefix$ + GL_DEFINES(d)
+        constcname(i) = qb64prefix$ + GL_DEFINES(d)
         constnamesymbol(i) = "&&"
         consttype(i) = INTEGER64TYPE - ISPOINTER
         constinteger(i) = GL_DEFINES_VALUE(d)
@@ -379,6 +379,7 @@ SUB gl_include_content
         clearid
         id.ccall = 1 '*** important for handling string returns correctly ***
         id.n = RTRIM$(g.cn)
+        IF qb64prefix_set = 1 THEN id.n = MID$(RTRIM$(g.cn), 2)
         s = g.subfunc
         id.subfunc = s
         id.callname = RTRIM$(g.callname)
@@ -394,7 +395,7 @@ SUB gl_include_content
     'SUB gluPerspective (BYVAL fovy#, BYVAL aspect#, BYVAL zNear#, BYVAL zFar#)
     reginternalsubfunc = 1
     clearid
-    id.n = "_gluPerspective"
+    id.n = qb64prefix$ + "gluPerspective"
     id.subfunc = 2 'sub
     id.callname = "gluPerspective"
     id.args = 4
