@@ -1,0 +1,49 @@
+qbs *_FUNC_IDEZCHANGEPATH_STRING_IDEZCHANGEPATH=NULL;
+if (!_FUNC_IDEZCHANGEPATH_STRING_IDEZCHANGEPATH)_FUNC_IDEZCHANGEPATH_STRING_IDEZCHANGEPATH=qbs_new(0,0);
+qbs*oldstr4991=NULL;
+if(_FUNC_IDEZCHANGEPATH_STRING_PATH->tmp||_FUNC_IDEZCHANGEPATH_STRING_PATH->fixed||_FUNC_IDEZCHANGEPATH_STRING_PATH->readonly){
+oldstr4991=_FUNC_IDEZCHANGEPATH_STRING_PATH;
+if (oldstr4991->cmem_descriptor){
+_FUNC_IDEZCHANGEPATH_STRING_PATH=qbs_new_cmem(oldstr4991->len,0);
+}else{
+_FUNC_IDEZCHANGEPATH_STRING_PATH=qbs_new(oldstr4991->len,0);
+}
+memcpy(_FUNC_IDEZCHANGEPATH_STRING_PATH->chr,oldstr4991->chr,oldstr4991->len);
+}
+qbs*oldstr4992=NULL;
+if(_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->tmp||_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->fixed||_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->readonly){
+oldstr4992=_FUNC_IDEZCHANGEPATH_STRING_NEWPATH;
+if (oldstr4992->cmem_descriptor){
+_FUNC_IDEZCHANGEPATH_STRING_NEWPATH=qbs_new_cmem(oldstr4992->len,0);
+}else{
+_FUNC_IDEZCHANGEPATH_STRING_NEWPATH=qbs_new(oldstr4992->len,0);
+}
+memcpy(_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->chr,oldstr4992->chr,oldstr4992->len);
+}
+int32 *_FUNC_IDEZCHANGEPATH_LONG_X=NULL;
+if(_FUNC_IDEZCHANGEPATH_LONG_X==NULL){
+_FUNC_IDEZCHANGEPATH_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_IDEZCHANGEPATH_LONG_X=0;
+}
+int64 fornext_value4994;
+int64 fornext_finalvalue4994;
+int64 fornext_step4994;
+uint8 fornext_step_negative4994;
+byte_element_struct *byte_element_4995=NULL;
+if (!byte_element_4995){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4995=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4995=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_IDEZCHANGEPATH_STRING_A=NULL;
+if (!_FUNC_IDEZCHANGEPATH_STRING_A)_FUNC_IDEZCHANGEPATH_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_4996=NULL;
+if (!byte_element_4996){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4996=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4996=(byte_element_struct*)mem_static_malloc(12);
+}
+int64 fornext_value4998;
+int64 fornext_finalvalue4998;
+int64 fornext_step4998;
+uint8 fornext_step_negative4998;
+byte_element_struct *byte_element_4999=NULL;
+if (!byte_element_4999){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4999=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4999=(byte_element_struct*)mem_static_malloc(12);
+}
