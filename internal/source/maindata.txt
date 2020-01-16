@@ -2979,6 +2979,10 @@ __ARRAY_STRING_WARNING[5]=0;
 __ARRAY_STRING_WARNING[6]=0;
 __ARRAY_STRING_WARNING[0]=(ptrszint)&nothingstring;
 }
+if(__LONG_COLORHACK==NULL){
+__LONG_COLORHACK=(int32*)mem_static_malloc(4);
+*__LONG_COLORHACK=0;
+}
 if(__LONG_PTRSZ==NULL){
 __LONG_PTRSZ=(int32*)mem_static_malloc(4);
 *__LONG_PTRSZ=0;
@@ -3394,6 +3398,10 @@ static int64 fornext_value316;
 static int64 fornext_finalvalue316;
 static int64 fornext_step316;
 static uint8 fornext_step_negative316;
+if(__LONG_COLORHACKSET==NULL){
+__LONG_COLORHACKSET=(int32*)mem_static_malloc(4);
+*__LONG_COLORHACKSET=0;
+}
 static int64 fornext_value319;
 static int64 fornext_finalvalue319;
 static int64 fornext_step319;
