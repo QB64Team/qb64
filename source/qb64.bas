@@ -1403,7 +1403,7 @@ REDIM SHARED warning$(1000)
 uniquenumbern = 0
 qb64prefix_set = 0
 qb64prefix$ = "_"
-ColorHack = 0
+ColorConst = 0
 
 ''create a type for storing memory blocks
 ''UDT
@@ -1560,16 +1560,20 @@ DO
 
     wholestv$ = wholeline$ '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
 
+
+
     prepass = 1
     layout = ""
     layoutok = 0
 
-    IF ColorHack = 0 THEN linenumber = linenumber + 1 'dont increment the line counter when adding all the color constants
+    IF ColorConst = 0 THEN linenumber = linenumber + 1 'dont increment the line counter when adding all the color constants
 
     DO UNTIL linenumber < UBOUND(InValidLine) 'color information flag for each line
         REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
     LOOP
     InValidLine(linenumber) = 0
+
+    ColorPass:
 
     IF LEN(wholeline$) THEN
 
@@ -2166,7 +2170,7 @@ DO
                             END IF
 
                             'layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
-                            IF ColorHack THEN RETURN
+                            IF ColorConst THEN RETURN
                             GOTO finishedlinepp
                         END IF
 
@@ -2601,7 +2605,7 @@ lastLineReturn = 0
 lastLine = 0
 firstLine = 1
 UserDefineCount = 6
-ColorHackSet = 0
+ColorConstSet = 0
 
 FOR i = 0 TO constlast: constdefined(i) = 0: NEXT 'undefine constants
 
@@ -2874,30 +2878,30 @@ DO
         END IF
 
         IF a3u$ = "$COLOR:0" THEN
-            IF NOT ColorHackSet THEN
-                ColorHackSet = -1
-                ColorHack = -1
-                wholeline$ = "CONST Black~%% = 0": GOSUB ideprepass
-                wholeline$ = "CONST Blue~%% = 1": GOSUB ideprepass
-                wholeline$ = "CONST Green~%% = 2": GOSUB ideprepass
-                wholeline$ = "CONST Cyan~%% = 3": GOSUB ideprepass
-                wholeline$ = "CONST Red~%% = 4": GOSUB ideprepass
-                wholeline$ = "CONST Magenta~%% = 5": GOSUB ideprepass
-                wholeline$ = "CONST Brown~%% = 6": GOSUB ideprepass
-                wholeline$ = "CONST White~%% = 7": GOSUB ideprepass
-                wholeline$ = "CONST Gray~%% = 8": GOSUB ideprepass
-                wholeline$ = "CONST LightBlue~%% = 9": GOSUB ideprepass
-                wholeline$ = "CONST LightGreen~%% = 10": GOSUB ideprepass
-                wholeline$ = "CONST LightCyan~%% = 11": GOSUB ideprepass
-                wholeline$ = "CONST LightRed~%% = 12": GOSUB ideprepass
-                wholeline$ = "CONST LightMagenta~%% = 13": GOSUB ideprepass
-                wholeline$ = "CONST Yellow~%% = 14": GOSUB ideprepass
-                wholeline$ = "CONST BrightWhite~%% = 15": GOSUB ideprepass
-                wholeline$ = "CONST Blink~%% = 16": GOSUB ideprepass
-                ColorHack = 0
+            IF NOT ColorConstSet THEN
+                ColorConstSet = -1
+                ColorConst = -1
+                wholeline$ = "CONST Black~%% = 0": GOSUB ColorPass
+                wholeline$ = "CONST Blue~%% = 1": GOSUB ColorPass
+                wholeline$ = "CONST Green~%% = 2": GOSUB ColorPass
+                wholeline$ = "CONST Cyan~%% = 3": GOSUB ColorPass
+                wholeline$ = "CONST Red~%% = 4": GOSUB ColorPass
+                wholeline$ = "CONST Magenta~%% = 5": GOSUB ColorPass
+                wholeline$ = "CONST Brown~%% = 6": GOSUB ColorPass
+                wholeline$ = "CONST White~%% = 7": GOSUB ColorPass
+                wholeline$ = "CONST Gray~%% = 8": GOSUB ColorPass
+                wholeline$ = "CONST LightBlue~%% = 9": GOSUB ColorPass
+                wholeline$ = "CONST LightGreen~%% = 10": GOSUB ColorPass
+                wholeline$ = "CONST LightCyan~%% = 11": GOSUB ColorPass
+                wholeline$ = "CONST LightRed~%% = 12": GOSUB ColorPass
+                wholeline$ = "CONST LightMagenta~%% = 13": GOSUB ColorPass
+                wholeline$ = "CONST Yellow~%% = 14": GOSUB ColorPass
+                wholeline$ = "CONST BrightWhite~%% = 15": GOSUB ColorPass
+                wholeline$ = "CONST Blink~%% = 16": GOSUB ColorPass
+                ColorConst = 0
                 layout$ = "$COLOR:0"
                 layoutdone = 1
-                GOTO finishedlinepp
+                GOTO finishednonexec
             ELSE
                 a$ = "$COLOR can only be set once.  Please remove multiple references to it."
                 GOTO errmes
@@ -2905,283 +2909,283 @@ DO
         END IF
 
         IF a3u$ = "$COLOR:32" THEN
-            IF NOT ColorHackSet THEN
-                ColorHackSet = -1
-                ColorHack = -1
-                wholeline$ = "CONST AliceBlue~& = 4293982463": GOSUB ideprepass
-                wholeline$ = "CONST Almond~& = 4293910221": GOSUB ideprepass
-                wholeline$ = "CONST AntiqueBrass~& = 4291663221": GOSUB ideprepass
-                wholeline$ = "CONST AntiqueWhite~& = 4294634455": GOSUB ideprepass
-                wholeline$ = "CONST Apricot~& = 4294826421": GOSUB ideprepass
-                wholeline$ = "CONST Aqua~& = 4278255615": GOSUB ideprepass
-                wholeline$ = "CONST Aquamarine~& = 4286578644": GOSUB ideprepass
-                wholeline$ = "CONST Asparagus~& = 4287080811": GOSUB ideprepass
-                wholeline$ = "CONST AtomicTangerine~& = 4294943860": GOSUB ideprepass
-                wholeline$ = "CONST Azure~& = 4293984255": GOSUB ideprepass
-                wholeline$ = "CONST BananaMania~& = 4294633397": GOSUB ideprepass
-                wholeline$ = "CONST Beaver~& = 4288643440": GOSUB ideprepass
-                wholeline$ = "CONST Beige~& = 4294309340": GOSUB ideprepass
-                wholeline$ = "CONST Bisque~& = 4294960324": GOSUB ideprepass
-                wholeline$ = "CONST Bittersweet~& = 4294802542": GOSUB ideprepass
-                wholeline$ = "CONST Black~& = 4278190080": GOSUB ideprepass
-                wholeline$ = "CONST BlanchedAlmond~& = 4294962125": GOSUB ideprepass
-                wholeline$ = "CONST BlizzardBlue~& = 4289521134": GOSUB ideprepass
-                wholeline$ = "CONST Blue~& = 4278190335": GOSUB ideprepass
-                wholeline$ = "CONST BlueBell~& = 4288848592": GOSUB ideprepass
-                wholeline$ = "CONST BlueGray~& = 4284914124": GOSUB ideprepass
-                wholeline$ = "CONST BlueGreen~& = 4279081146": GOSUB ideprepass
-                wholeline$ = "CONST BlueViolet~& = 4287245282": GOSUB ideprepass
-                wholeline$ = "CONST Blush~& = 4292763011": GOSUB ideprepass
-                wholeline$ = "CONST BrickRed~& = 4291510612": GOSUB ideprepass
-                wholeline$ = "CONST Brown~& = 4289014314": GOSUB ideprepass
-                wholeline$ = "CONST BurlyWood~& = 4292786311": GOSUB ideprepass
-                wholeline$ = "CONST BurntOrange~& = 4294934345": GOSUB ideprepass
-                wholeline$ = "CONST BurntSienna~& = 4293557853": GOSUB ideprepass
-                wholeline$ = "CONST CadetBlue~& = 4284456608": GOSUB ideprepass
-                wholeline$ = "CONST Canary~& = 4294967193": GOSUB ideprepass
-                wholeline$ = "CONST CaribbeanGreen~& = 4280079266": GOSUB ideprepass
-                wholeline$ = "CONST CarnationPink~& = 4294945484": GOSUB ideprepass
-                wholeline$ = "CONST Cerise~& = 4292691090": GOSUB ideprepass
-                wholeline$ = "CONST Cerulean~& = 4280134870": GOSUB ideprepass
-                wholeline$ = "CONST ChartReuse~& = 4286578432": GOSUB ideprepass
-                wholeline$ = "CONST Chestnut~& = 4290534744": GOSUB ideprepass
-                wholeline$ = "CONST Chocolate~& = 4291979550": GOSUB ideprepass
-                wholeline$ = "CONST Copper~& = 4292711541": GOSUB ideprepass
-                wholeline$ = "CONST Coral~& = 4294934352": GOSUB ideprepass
-                wholeline$ = "CONST Cornflower~& = 4288335595": GOSUB ideprepass
-                wholeline$ = "CONST CornflowerBlue~& = 4284782061": GOSUB ideprepass
-                wholeline$ = "CONST Cornsilk~& = 4294965468": GOSUB ideprepass
-                wholeline$ = "CONST CottonCandy~& = 4294950105": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaAquamarine~& = 4286110690": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaBlue~& = 4280251902": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaBlueViolet~& = 4285753021": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaBrown~& = 4290013005": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaCadetBlue~& = 4289771462": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaForestGreen~& = 4285378177": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGold~& = 4293379735": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGoldenrod~& = 4294760821": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGray~& = 4287992204": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGreen~& = 4280069240": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGreenYellow~& = 4293978257": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaIndigo~& = 4284315339": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaLavender~& = 4294751445": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaMagenta~& = 4294337711": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaMaroon~& = 4291311706": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaMidnightBlue~& = 4279912566": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaOrange~& = 4294931768": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaOrangeRed~& = 4294912811": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaOrchid~& = 4293306583": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaPlum~& = 4287513989": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaRed~& = 4293795917": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSalmon~& = 4294941610": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSeaGreen~& = 4288668351": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSilver~& = 4291675586": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSkyBlue~& = 4286634731": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSpringGreen~& = 4293716670": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaTann~& = 4294616940": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaThistle~& = 4293642207": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaViolet~& = 4287786670": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaYellow~& = 4294764675": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaYellowGreen~& = 4291158916": GOSUB ideprepass
-                wholeline$ = "CONST Crimson~& = 4292613180": GOSUB ideprepass
-                wholeline$ = "CONST Cyan~& = 4278255615": GOSUB ideprepass
-                wholeline$ = "CONST Dandelion~& = 4294826861": GOSUB ideprepass
-                wholeline$ = "CONST DarkBlue~& = 4278190219": GOSUB ideprepass
-                wholeline$ = "CONST DarkCyan~& = 4278225803": GOSUB ideprepass
-                wholeline$ = "CONST DarkGoldenRod~& = 4290283019": GOSUB ideprepass
-                wholeline$ = "CONST DarkGray~& = 4289309097": GOSUB ideprepass
-                wholeline$ = "CONST DarkGreen~& = 4278215680": GOSUB ideprepass
-                wholeline$ = "CONST DarkKhaki~& = 4290623339": GOSUB ideprepass
-                wholeline$ = "CONST DarkMagenta~& = 4287299723": GOSUB ideprepass
-                wholeline$ = "CONST DarkOliveGreen~& = 4283788079": GOSUB ideprepass
-                wholeline$ = "CONST DarkOrange~& = 4294937600": GOSUB ideprepass
-                wholeline$ = "CONST DarkOrchid~& = 4288230092": GOSUB ideprepass
-                wholeline$ = "CONST DarkRed~& = 4287299584": GOSUB ideprepass
-                wholeline$ = "CONST DarkSalmon~& = 4293498490": GOSUB ideprepass
-                wholeline$ = "CONST DarkSeaGreen~& = 4287609999": GOSUB ideprepass
-                wholeline$ = "CONST DarkSlateBlue~& = 4282924427": GOSUB ideprepass
-                wholeline$ = "CONST DarkSlateGray~& = 4281290575": GOSUB ideprepass
-                wholeline$ = "CONST DarkTurquoise~& = 4278243025": GOSUB ideprepass
-                wholeline$ = "CONST DarkViolet~& = 4287889619": GOSUB ideprepass
-                wholeline$ = "CONST DeepPink~& = 4294907027": GOSUB ideprepass
-                wholeline$ = "CONST DeepSkyBlue~& = 4278239231": GOSUB ideprepass
-                wholeline$ = "CONST Denim~& = 4281035972": GOSUB ideprepass
-                wholeline$ = "CONST DesertSand~& = 4293905848": GOSUB ideprepass
-                wholeline$ = "CONST DimGray~& = 4285098345": GOSUB ideprepass
-                wholeline$ = "CONST DodgerBlue~& = 4280193279": GOSUB ideprepass
-                wholeline$ = "CONST Eggplant~& = 4285419872": GOSUB ideprepass
-                wholeline$ = "CONST ElectricLime~& = 4291755805": GOSUB ideprepass
-                wholeline$ = "CONST Fern~& = 4285643896": GOSUB ideprepass
-                wholeline$ = "CONST FireBrick~& = 4289864226": GOSUB ideprepass
-                wholeline$ = "CONST Floralwhite~& = 4294966000": GOSUB ideprepass
-                wholeline$ = "CONST ForestGreen~& = 4280453922": GOSUB ideprepass
-                wholeline$ = "CONST Fuchsia~& = 4290995397": GOSUB ideprepass
-                wholeline$ = "CONST FuzzyWuzzy~& = 4291585638": GOSUB ideprepass
-                wholeline$ = "CONST Gainsboro~& = 4292664540": GOSUB ideprepass
-                wholeline$ = "CONST GhostWhite~& = 4294506751": GOSUB ideprepass
-                wholeline$ = "CONST Gold~& = 4294956800": GOSUB ideprepass
-                wholeline$ = "CONST GoldenRod~& = 4292519200": GOSUB ideprepass
-                wholeline$ = "CONST GrannySmithApple~& = 4289258656": GOSUB ideprepass
-                wholeline$ = "CONST Gray~& = 4286611584": GOSUB ideprepass
-                wholeline$ = "CONST Green~& = 4278222848": GOSUB ideprepass
-                wholeline$ = "CONST GreenBlue~& = 4279329972": GOSUB ideprepass
-                wholeline$ = "CONST GreenYellow~& = 4289593135": GOSUB ideprepass
-                wholeline$ = "CONST HoneyDew~& = 4293984240": GOSUB ideprepass
-                wholeline$ = "CONST HotMagenta~& = 4294909390": GOSUB ideprepass
-                wholeline$ = "CONST HotPink~& = 4294928820": GOSUB ideprepass
-                wholeline$ = "CONST Inchworm~& = 4289915997": GOSUB ideprepass
-                wholeline$ = "CONST IndianRed~& = 4291648604": GOSUB ideprepass
-                wholeline$ = "CONST Indigo~& = 4283105410": GOSUB ideprepass
-                wholeline$ = "CONST Ivory~& = 4294967280": GOSUB ideprepass
-                wholeline$ = "CONST JazzberryJam~& = 4291442535": GOSUB ideprepass
-                wholeline$ = "CONST JungleGreen~& = 4282101903": GOSUB ideprepass
-                wholeline$ = "CONST Khaki~& = 4293977740": GOSUB ideprepass
-                wholeline$ = "CONST LaserLemon~& = 4294901282": GOSUB ideprepass
-                wholeline$ = "CONST Lavender~& = 4293322490": GOSUB ideprepass
-                wholeline$ = "CONST LavenderBlush~& = 4294963445": GOSUB ideprepass
-                wholeline$ = "CONST LawnGreen~& = 4286381056": GOSUB ideprepass
-                wholeline$ = "CONST LemonChiffon~& = 4294965965": GOSUB ideprepass
-                wholeline$ = "CONST LemonYellow~& = 4294964303": GOSUB ideprepass
-                wholeline$ = "CONST LightBlue~& = 4289583334": GOSUB ideprepass
-                wholeline$ = "CONST LightCoral~& = 4293951616": GOSUB ideprepass
-                wholeline$ = "CONST LightCyan~& = 4292935679": GOSUB ideprepass
-                wholeline$ = "CONST LightGoldenRodYellow~& = 4294638290": GOSUB ideprepass
-                wholeline$ = "CONST LightGray~& = 4292072403": GOSUB ideprepass
-                wholeline$ = "CONST LightGreen~& = 4287688336": GOSUB ideprepass
-                wholeline$ = "CONST LightPink~& = 4294948545": GOSUB ideprepass
-                wholeline$ = "CONST LightSalmon~& = 4294942842": GOSUB ideprepass
-                wholeline$ = "CONST LightSeaGreen~& = 4280332970": GOSUB ideprepass
-                wholeline$ = "CONST LightSkyBlue~& = 4287090426": GOSUB ideprepass
-                wholeline$ = "CONST LightSlateGray~& = 4286023833": GOSUB ideprepass
-                wholeline$ = "CONST LightSteelBlue~& = 4289774814": GOSUB ideprepass
-                wholeline$ = "CONST LightYellow~& = 4294967264": GOSUB ideprepass
-                wholeline$ = "CONST Lime~& = 4278255360": GOSUB ideprepass
-                wholeline$ = "CONST LimeGreen~& = 4281519410": GOSUB ideprepass
-                wholeline$ = "CONST Linen~& = 4294635750": GOSUB ideprepass
-                wholeline$ = "CONST MacaroniAndCheese~& = 4294950280": GOSUB ideprepass
-                wholeline$ = "CONST Magenta~& = 4294902015": GOSUB ideprepass
-                wholeline$ = "CONST MagicMint~& = 4289392849": GOSUB ideprepass
-                wholeline$ = "CONST Mahogany~& = 4291643980": GOSUB ideprepass
-                wholeline$ = "CONST Maize~& = 4293775772": GOSUB ideprepass
-                wholeline$ = "CONST Manatee~& = 4288125610": GOSUB ideprepass
-                wholeline$ = "CONST MangoTango~& = 4294935107": GOSUB ideprepass
-                wholeline$ = "CONST Maroon~& = 4286578688": GOSUB ideprepass
-                wholeline$ = "CONST Mauvelous~& = 4293892266": GOSUB ideprepass
-                wholeline$ = "CONST MediumAquamarine~& = 4284927402": GOSUB ideprepass
-                wholeline$ = "CONST MediumBlue~& = 4278190285": GOSUB ideprepass
-                wholeline$ = "CONST MediumOrchid~& = 4290401747": GOSUB ideprepass
-                wholeline$ = "CONST MediumPurple~& = 4287852763": GOSUB ideprepass
-                wholeline$ = "CONST MediumSeaGreen~& = 4282168177": GOSUB ideprepass
-                wholeline$ = "CONST MediumSlateBlue~& = 4286277870": GOSUB ideprepass
-                wholeline$ = "CONST MediumSpringGreen~& = 4278254234": GOSUB ideprepass
-                wholeline$ = "CONST MediumTurquoise~& = 4282962380": GOSUB ideprepass
-                wholeline$ = "CONST MediumVioletRed~& = 4291237253": GOSUB ideprepass
-                wholeline$ = "CONST Melon~& = 4294818996": GOSUB ideprepass
-                wholeline$ = "CONST MidnightBlue~& = 4279834992": GOSUB ideprepass
-                wholeline$ = "CONST MintCream~& = 4294311930": GOSUB ideprepass
-                wholeline$ = "CONST MistyRose~& = 4294960353": GOSUB ideprepass
-                wholeline$ = "CONST Moccasin~& = 4294960309": GOSUB ideprepass
-                wholeline$ = "CONST MountainMeadow~& = 4281383567": GOSUB ideprepass
-                wholeline$ = "CONST Mulberry~& = 4291120012": GOSUB ideprepass
-                wholeline$ = "CONST NavajoWhite~& = 4294958765": GOSUB ideprepass
-                wholeline$ = "CONST Navy~& = 4278190208": GOSUB ideprepass
-                wholeline$ = "CONST NavyBlue~& = 4279858386": GOSUB ideprepass
-                wholeline$ = "CONST NeonCarrot~& = 4294943555": GOSUB ideprepass
-                wholeline$ = "CONST OldLace~& = 4294833638": GOSUB ideprepass
-                wholeline$ = "CONST Olive~& = 4286611456": GOSUB ideprepass
-                wholeline$ = "CONST OliveDrab~& = 4285238819": GOSUB ideprepass
-                wholeline$ = "CONST OliveGreen~& = 4290426988": GOSUB ideprepass
-                wholeline$ = "CONST Orange~& = 4294944000": GOSUB ideprepass
-                wholeline$ = "CONST OrangeRed~& = 4294919424": GOSUB ideprepass
-                wholeline$ = "CONST OrangeYellow~& = 4294497640": GOSUB ideprepass
-                wholeline$ = "CONST Orchid~& = 4292505814": GOSUB ideprepass
-                wholeline$ = "CONST OuterSpace~& = 4282468940": GOSUB ideprepass
-                wholeline$ = "CONST OutrageousOrange~& = 4294929994": GOSUB ideprepass
-                wholeline$ = "CONST PacificBlue~& = 4280068553": GOSUB ideprepass
-                wholeline$ = "CONST PaleGoldenRod~& = 4293847210": GOSUB ideprepass
-                wholeline$ = "CONST PaleGreen~& = 4288215960": GOSUB ideprepass
-                wholeline$ = "CONST PaleTurquoise~& = 4289720046": GOSUB ideprepass
-                wholeline$ = "CONST PaleVioletRed~& = 4292571283": GOSUB ideprepass
-                wholeline$ = "CONST PapayaWhip~& = 4294963157": GOSUB ideprepass
-                wholeline$ = "CONST Peach~& = 4294954923": GOSUB ideprepass
-                wholeline$ = "CONST PeachPuff~& = 4294957753": GOSUB ideprepass
-                wholeline$ = "CONST Periwinkle~& = 4291154150": GOSUB ideprepass
-                wholeline$ = "CONST Peru~& = 4291659071": GOSUB ideprepass
-                wholeline$ = "CONST PiggyPink~& = 4294827494": GOSUB ideprepass
-                wholeline$ = "CONST PineGreen~& = 4279599224": GOSUB ideprepass
-                wholeline$ = "CONST Pink~& = 4294951115": GOSUB ideprepass
-                wholeline$ = "CONST PinkFlamingo~& = 4294735101": GOSUB ideprepass
-                wholeline$ = "CONST PinkSherbet~& = 4294414247": GOSUB ideprepass
-                wholeline$ = "CONST Plum~& = 4292714717": GOSUB ideprepass
-                wholeline$ = "CONST PowderBlue~& = 4289781990": GOSUB ideprepass
-                wholeline$ = "CONST Purple~& = 4286578816": GOSUB ideprepass
-                wholeline$ = "CONST PurpleHeart~& = 4285809352": GOSUB ideprepass
-                wholeline$ = "CONST PurpleMountainsMajesty~& = 4288512442": GOSUB ideprepass
-                wholeline$ = "CONST PurplePizzazz~& = 4294856410": GOSUB ideprepass
-                wholeline$ = "CONST RadicalRed~& = 4294920556": GOSUB ideprepass
-                wholeline$ = "CONST RawSienna~& = 4292250201": GOSUB ideprepass
-                wholeline$ = "CONST RawUmber~& = 4285614883": GOSUB ideprepass
-                wholeline$ = "CONST RazzleDazzleRose~& = 4294920400": GOSUB ideprepass
-                wholeline$ = "CONST Razzmatazz~& = 4293076331": GOSUB ideprepass
-                wholeline$ = "CONST Red~& = 4294901760": GOSUB ideprepass
-                wholeline$ = "CONST RedOrange~& = 4294923081": GOSUB ideprepass
-                wholeline$ = "CONST RedViolet~& = 4290790543": GOSUB ideprepass
-                wholeline$ = "CONST RobinsEggBlue~& = 4280274635": GOSUB ideprepass
-                wholeline$ = "CONST RosyBrown~& = 4290547599": GOSUB ideprepass
-                wholeline$ = "CONST RoyalBlue~& = 4282477025": GOSUB ideprepass
-                wholeline$ = "CONST RoyalPurple~& = 4286075305": GOSUB ideprepass
-                wholeline$ = "CONST SaddleBrown~& = 4287317267": GOSUB ideprepass
-                wholeline$ = "CONST Salmon~& = 4294606962": GOSUB ideprepass
-                wholeline$ = "CONST SandyBrown~& = 4294222944": GOSUB ideprepass
-                wholeline$ = "CONST Scarlet~& = 4294715463": GOSUB ideprepass
-                wholeline$ = "CONST ScreaminGreen~& = 4285988730": GOSUB ideprepass
-                wholeline$ = "CONST SeaGreen~& = 4281240407": GOSUB ideprepass
-                wholeline$ = "CONST SeaShell~& = 4294964718": GOSUB ideprepass
-                wholeline$ = "CONST Sepia~& = 4289030479": GOSUB ideprepass
-                wholeline$ = "CONST Shadow~& = 4287265117": GOSUB ideprepass
-                wholeline$ = "CONST Shamrock~& = 4282764962": GOSUB ideprepass
-                wholeline$ = "CONST ShockingPink~& = 4294672125": GOSUB ideprepass
-                wholeline$ = "CONST Sienna~& = 4288696877": GOSUB ideprepass
-                wholeline$ = "CONST Silver~& = 4290822336": GOSUB ideprepass
-                wholeline$ = "CONST SkyBlue~& = 4287090411": GOSUB ideprepass
-                wholeline$ = "CONST SlateBlue~& = 4285160141": GOSUB ideprepass
-                wholeline$ = "CONST SlateGray~& = 4285563024": GOSUB ideprepass
-                wholeline$ = "CONST Snow~& = 4294966010": GOSUB ideprepass
-                wholeline$ = "CONST SpringGreen~& = 4278255487": GOSUB ideprepass
-                wholeline$ = "CONST SteelBlue~& = 4282811060": GOSUB ideprepass
-                wholeline$ = "CONST Sunglow~& = 4294954824": GOSUB ideprepass
-                wholeline$ = "CONST SunsetOrange~& = 4294794835": GOSUB ideprepass
-                wholeline$ = "CONST Tann~& = 4291998860": GOSUB ideprepass
-                wholeline$ = "CONST Teal~& = 4278222976": GOSUB ideprepass
-                wholeline$ = "CONST TealBlue~& = 4279805877": GOSUB ideprepass
-                wholeline$ = "CONST Thistle~& = 4292394968": GOSUB ideprepass
-                wholeline$ = "CONST TickleMePink~& = 4294740396": GOSUB ideprepass
-                wholeline$ = "CONST Timberwolf~& = 4292597714": GOSUB ideprepass
-                wholeline$ = "CONST Tomato~& = 4294927175": GOSUB ideprepass
-                wholeline$ = "CONST TropicalRainForest~& = 4279730285": GOSUB ideprepass
-                wholeline$ = "CONST Tumbleweed~& = 4292782728": GOSUB ideprepass
-                wholeline$ = "CONST Turquoise~& = 4282441936": GOSUB ideprepass
-                wholeline$ = "CONST TurquoiseBlue~& = 4286045671": GOSUB ideprepass
-                wholeline$ = "CONST UnmellowYellow~& = 4294967142": GOSUB ideprepass
-                wholeline$ = "CONST Violet~& = 4293821166": GOSUB ideprepass
-                wholeline$ = "CONST VioletBlue~& = 4281486002": GOSUB ideprepass
-                wholeline$ = "CONST VioletRed~& = 4294398868": GOSUB ideprepass
-                wholeline$ = "CONST VividTangerine~& = 4294942857": GOSUB ideprepass
-                wholeline$ = "CONST VividViolet~& = 4287582365": GOSUB ideprepass
-                wholeline$ = "CONST Wheat~& = 4294303411": GOSUB ideprepass
-                wholeline$ = "CONST White~& = 4294967295": GOSUB ideprepass
-                wholeline$ = "CONST Whitesmoke~& = 4294309365": GOSUB ideprepass
-                wholeline$ = "CONST WildBlueYonder~& = 4288851408": GOSUB ideprepass
-                wholeline$ = "CONST WildStrawberry~& = 4294919076": GOSUB ideprepass
-                wholeline$ = "CONST WildWatermelon~& = 4294732933": GOSUB ideprepass
-                wholeline$ = "CONST Wisteria~& = 4291667166": GOSUB ideprepass
-                wholeline$ = "CONST Yellow~& = 4294967040": GOSUB ideprepass
-                wholeline$ = "CONST YellowGreen~& = 4288335154": GOSUB ideprepass
-                wholeline$ = "CONST YellowOrange~& = 4294946370": GOSUB ideprepass
-                ColorHack = 0
+            IF NOT ColorConstSet THEN
+                ColorConstSet = -1
+                ColorConst = -1
+                wholeline$ = "CONST AliceBlue~& = 4293982463": GOSUB ColorPass
+                wholeline$ = "CONST Almond~& = 4293910221": GOSUB ColorPass
+                wholeline$ = "CONST AntiqueBrass~& = 4291663221": GOSUB ColorPass
+                wholeline$ = "CONST AntiqueWhite~& = 4294634455": GOSUB ColorPass
+                wholeline$ = "CONST Apricot~& = 4294826421": GOSUB ColorPass
+                wholeline$ = "CONST Aqua~& = 4278255615": GOSUB ColorPass
+                wholeline$ = "CONST Aquamarine~& = 4286578644": GOSUB ColorPass
+                wholeline$ = "CONST Asparagus~& = 4287080811": GOSUB ColorPass
+                wholeline$ = "CONST AtomicTangerine~& = 4294943860": GOSUB ColorPass
+                wholeline$ = "CONST Azure~& = 4293984255": GOSUB ColorPass
+                wholeline$ = "CONST BananaMania~& = 4294633397": GOSUB ColorPass
+                wholeline$ = "CONST Beaver~& = 4288643440": GOSUB ColorPass
+                wholeline$ = "CONST Beige~& = 4294309340": GOSUB ColorPass
+                wholeline$ = "CONST Bisque~& = 4294960324": GOSUB ColorPass
+                wholeline$ = "CONST Bittersweet~& = 4294802542": GOSUB ColorPass
+                wholeline$ = "CONST Black~& = 4278190080": GOSUB ColorPass
+                wholeline$ = "CONST BlanchedAlmond~& = 4294962125": GOSUB ColorPass
+                wholeline$ = "CONST BlizzardBlue~& = 4289521134": GOSUB ColorPass
+                wholeline$ = "CONST Blue~& = 4278190335": GOSUB ColorPass
+                wholeline$ = "CONST BlueBell~& = 4288848592": GOSUB ColorPass
+                wholeline$ = "CONST BlueGray~& = 4284914124": GOSUB ColorPass
+                wholeline$ = "CONST BlueGreen~& = 4279081146": GOSUB ColorPass
+                wholeline$ = "CONST BlueViolet~& = 4287245282": GOSUB ColorPass
+                wholeline$ = "CONST Blush~& = 4292763011": GOSUB ColorPass
+                wholeline$ = "CONST BrickRed~& = 4291510612": GOSUB ColorPass
+                wholeline$ = "CONST Brown~& = 4289014314": GOSUB ColorPass
+                wholeline$ = "CONST BurlyWood~& = 4292786311": GOSUB ColorPass
+                wholeline$ = "CONST BurntOrange~& = 4294934345": GOSUB ColorPass
+                wholeline$ = "CONST BurntSienna~& = 4293557853": GOSUB ColorPass
+                wholeline$ = "CONST CadetBlue~& = 4284456608": GOSUB ColorPass
+                wholeline$ = "CONST Canary~& = 4294967193": GOSUB ColorPass
+                wholeline$ = "CONST CaribbeanGreen~& = 4280079266": GOSUB ColorPass
+                wholeline$ = "CONST CarnationPink~& = 4294945484": GOSUB ColorPass
+                wholeline$ = "CONST Cerise~& = 4292691090": GOSUB ColorPass
+                wholeline$ = "CONST Cerulean~& = 4280134870": GOSUB ColorPass
+                wholeline$ = "CONST ChartReuse~& = 4286578432": GOSUB ColorPass
+                wholeline$ = "CONST Chestnut~& = 4290534744": GOSUB ColorPass
+                wholeline$ = "CONST Chocolate~& = 4291979550": GOSUB ColorPass
+                wholeline$ = "CONST Copper~& = 4292711541": GOSUB ColorPass
+                wholeline$ = "CONST Coral~& = 4294934352": GOSUB ColorPass
+                wholeline$ = "CONST Cornflower~& = 4288335595": GOSUB ColorPass
+                wholeline$ = "CONST CornflowerBlue~& = 4284782061": GOSUB ColorPass
+                wholeline$ = "CONST Cornsilk~& = 4294965468": GOSUB ColorPass
+                wholeline$ = "CONST CottonCandy~& = 4294950105": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaAquamarine~& = 4286110690": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaBlue~& = 4280251902": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaBlueViolet~& = 4285753021": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaBrown~& = 4290013005": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaCadetBlue~& = 4289771462": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaForestGreen~& = 4285378177": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaGold~& = 4293379735": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaGoldenrod~& = 4294760821": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaGray~& = 4287992204": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaGreen~& = 4280069240": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaGreenYellow~& = 4293978257": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaIndigo~& = 4284315339": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaLavender~& = 4294751445": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaMagenta~& = 4294337711": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaMaroon~& = 4291311706": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaMidnightBlue~& = 4279912566": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaOrange~& = 4294931768": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaOrangeRed~& = 4294912811": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaOrchid~& = 4293306583": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaPlum~& = 4287513989": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaRed~& = 4293795917": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaSalmon~& = 4294941610": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaSeaGreen~& = 4288668351": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaSilver~& = 4291675586": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaSkyBlue~& = 4286634731": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaSpringGreen~& = 4293716670": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaTann~& = 4294616940": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaThistle~& = 4293642207": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaViolet~& = 4287786670": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaYellow~& = 4294764675": GOSUB ColorPass
+                wholeline$ = "CONST CrayolaYellowGreen~& = 4291158916": GOSUB ColorPass
+                wholeline$ = "CONST Crimson~& = 4292613180": GOSUB ColorPass
+                wholeline$ = "CONST Cyan~& = 4278255615": GOSUB ColorPass
+                wholeline$ = "CONST Dandelion~& = 4294826861": GOSUB ColorPass
+                wholeline$ = "CONST DarkBlue~& = 4278190219": GOSUB ColorPass
+                wholeline$ = "CONST DarkCyan~& = 4278225803": GOSUB ColorPass
+                wholeline$ = "CONST DarkGoldenRod~& = 4290283019": GOSUB ColorPass
+                wholeline$ = "CONST DarkGray~& = 4289309097": GOSUB ColorPass
+                wholeline$ = "CONST DarkGreen~& = 4278215680": GOSUB ColorPass
+                wholeline$ = "CONST DarkKhaki~& = 4290623339": GOSUB ColorPass
+                wholeline$ = "CONST DarkMagenta~& = 4287299723": GOSUB ColorPass
+                wholeline$ = "CONST DarkOliveGreen~& = 4283788079": GOSUB ColorPass
+                wholeline$ = "CONST DarkOrange~& = 4294937600": GOSUB ColorPass
+                wholeline$ = "CONST DarkOrchid~& = 4288230092": GOSUB ColorPass
+                wholeline$ = "CONST DarkRed~& = 4287299584": GOSUB ColorPass
+                wholeline$ = "CONST DarkSalmon~& = 4293498490": GOSUB ColorPass
+                wholeline$ = "CONST DarkSeaGreen~& = 4287609999": GOSUB ColorPass
+                wholeline$ = "CONST DarkSlateBlue~& = 4282924427": GOSUB ColorPass
+                wholeline$ = "CONST DarkSlateGray~& = 4281290575": GOSUB ColorPass
+                wholeline$ = "CONST DarkTurquoise~& = 4278243025": GOSUB ColorPass
+                wholeline$ = "CONST DarkViolet~& = 4287889619": GOSUB ColorPass
+                wholeline$ = "CONST DeepPink~& = 4294907027": GOSUB ColorPass
+                wholeline$ = "CONST DeepSkyBlue~& = 4278239231": GOSUB ColorPass
+                wholeline$ = "CONST Denim~& = 4281035972": GOSUB ColorPass
+                wholeline$ = "CONST DesertSand~& = 4293905848": GOSUB ColorPass
+                wholeline$ = "CONST DimGray~& = 4285098345": GOSUB ColorPass
+                wholeline$ = "CONST DodgerBlue~& = 4280193279": GOSUB ColorPass
+                wholeline$ = "CONST Eggplant~& = 4285419872": GOSUB ColorPass
+                wholeline$ = "CONST ElectricLime~& = 4291755805": GOSUB ColorPass
+                wholeline$ = "CONST Fern~& = 4285643896": GOSUB ColorPass
+                wholeline$ = "CONST FireBrick~& = 4289864226": GOSUB ColorPass
+                wholeline$ = "CONST Floralwhite~& = 4294966000": GOSUB ColorPass
+                wholeline$ = "CONST ForestGreen~& = 4280453922": GOSUB ColorPass
+                wholeline$ = "CONST Fuchsia~& = 4290995397": GOSUB ColorPass
+                wholeline$ = "CONST FuzzyWuzzy~& = 4291585638": GOSUB ColorPass
+                wholeline$ = "CONST Gainsboro~& = 4292664540": GOSUB ColorPass
+                wholeline$ = "CONST GhostWhite~& = 4294506751": GOSUB ColorPass
+                wholeline$ = "CONST Gold~& = 4294956800": GOSUB ColorPass
+                wholeline$ = "CONST GoldenRod~& = 4292519200": GOSUB ColorPass
+                wholeline$ = "CONST GrannySmithApple~& = 4289258656": GOSUB ColorPass
+                wholeline$ = "CONST Gray~& = 4286611584": GOSUB ColorPass
+                wholeline$ = "CONST Green~& = 4278222848": GOSUB ColorPass
+                wholeline$ = "CONST GreenBlue~& = 4279329972": GOSUB ColorPass
+                wholeline$ = "CONST GreenYellow~& = 4289593135": GOSUB ColorPass
+                wholeline$ = "CONST HoneyDew~& = 4293984240": GOSUB ColorPass
+                wholeline$ = "CONST HotMagenta~& = 4294909390": GOSUB ColorPass
+                wholeline$ = "CONST HotPink~& = 4294928820": GOSUB ColorPass
+                wholeline$ = "CONST Inchworm~& = 4289915997": GOSUB ColorPass
+                wholeline$ = "CONST IndianRed~& = 4291648604": GOSUB ColorPass
+                wholeline$ = "CONST Indigo~& = 4283105410": GOSUB ColorPass
+                wholeline$ = "CONST Ivory~& = 4294967280": GOSUB ColorPass
+                wholeline$ = "CONST JazzberryJam~& = 4291442535": GOSUB ColorPass
+                wholeline$ = "CONST JungleGreen~& = 4282101903": GOSUB ColorPass
+                wholeline$ = "CONST Khaki~& = 4293977740": GOSUB ColorPass
+                wholeline$ = "CONST LaserLemon~& = 4294901282": GOSUB ColorPass
+                wholeline$ = "CONST Lavender~& = 4293322490": GOSUB ColorPass
+                wholeline$ = "CONST LavenderBlush~& = 4294963445": GOSUB ColorPass
+                wholeline$ = "CONST LawnGreen~& = 4286381056": GOSUB ColorPass
+                wholeline$ = "CONST LemonChiffon~& = 4294965965": GOSUB ColorPass
+                wholeline$ = "CONST LemonYellow~& = 4294964303": GOSUB ColorPass
+                wholeline$ = "CONST LightBlue~& = 4289583334": GOSUB ColorPass
+                wholeline$ = "CONST LightCoral~& = 4293951616": GOSUB ColorPass
+                wholeline$ = "CONST LightCyan~& = 4292935679": GOSUB ColorPass
+                wholeline$ = "CONST LightGoldenRodYellow~& = 4294638290": GOSUB ColorPass
+                wholeline$ = "CONST LightGray~& = 4292072403": GOSUB ColorPass
+                wholeline$ = "CONST LightGreen~& = 4287688336": GOSUB ColorPass
+                wholeline$ = "CONST LightPink~& = 4294948545": GOSUB ColorPass
+                wholeline$ = "CONST LightSalmon~& = 4294942842": GOSUB ColorPass
+                wholeline$ = "CONST LightSeaGreen~& = 4280332970": GOSUB ColorPass
+                wholeline$ = "CONST LightSkyBlue~& = 4287090426": GOSUB ColorPass
+                wholeline$ = "CONST LightSlateGray~& = 4286023833": GOSUB ColorPass
+                wholeline$ = "CONST LightSteelBlue~& = 4289774814": GOSUB ColorPass
+                wholeline$ = "CONST LightYellow~& = 4294967264": GOSUB ColorPass
+                wholeline$ = "CONST Lime~& = 4278255360": GOSUB ColorPass
+                wholeline$ = "CONST LimeGreen~& = 4281519410": GOSUB ColorPass
+                wholeline$ = "CONST Linen~& = 4294635750": GOSUB ColorPass
+                wholeline$ = "CONST MacaroniAndCheese~& = 4294950280": GOSUB ColorPass
+                wholeline$ = "CONST Magenta~& = 4294902015": GOSUB ColorPass
+                wholeline$ = "CONST MagicMint~& = 4289392849": GOSUB ColorPass
+                wholeline$ = "CONST Mahogany~& = 4291643980": GOSUB ColorPass
+                wholeline$ = "CONST Maize~& = 4293775772": GOSUB ColorPass
+                wholeline$ = "CONST Manatee~& = 4288125610": GOSUB ColorPass
+                wholeline$ = "CONST MangoTango~& = 4294935107": GOSUB ColorPass
+                wholeline$ = "CONST Maroon~& = 4286578688": GOSUB ColorPass
+                wholeline$ = "CONST Mauvelous~& = 4293892266": GOSUB ColorPass
+                wholeline$ = "CONST MediumAquamarine~& = 4284927402": GOSUB ColorPass
+                wholeline$ = "CONST MediumBlue~& = 4278190285": GOSUB ColorPass
+                wholeline$ = "CONST MediumOrchid~& = 4290401747": GOSUB ColorPass
+                wholeline$ = "CONST MediumPurple~& = 4287852763": GOSUB ColorPass
+                wholeline$ = "CONST MediumSeaGreen~& = 4282168177": GOSUB ColorPass
+                wholeline$ = "CONST MediumSlateBlue~& = 4286277870": GOSUB ColorPass
+                wholeline$ = "CONST MediumSpringGreen~& = 4278254234": GOSUB ColorPass
+                wholeline$ = "CONST MediumTurquoise~& = 4282962380": GOSUB ColorPass
+                wholeline$ = "CONST MediumVioletRed~& = 4291237253": GOSUB ColorPass
+                wholeline$ = "CONST Melon~& = 4294818996": GOSUB ColorPass
+                wholeline$ = "CONST MidnightBlue~& = 4279834992": GOSUB ColorPass
+                wholeline$ = "CONST MintCream~& = 4294311930": GOSUB ColorPass
+                wholeline$ = "CONST MistyRose~& = 4294960353": GOSUB ColorPass
+                wholeline$ = "CONST Moccasin~& = 4294960309": GOSUB ColorPass
+                wholeline$ = "CONST MountainMeadow~& = 4281383567": GOSUB ColorPass
+                wholeline$ = "CONST Mulberry~& = 4291120012": GOSUB ColorPass
+                wholeline$ = "CONST NavajoWhite~& = 4294958765": GOSUB ColorPass
+                wholeline$ = "CONST Navy~& = 4278190208": GOSUB ColorPass
+                wholeline$ = "CONST NavyBlue~& = 4279858386": GOSUB ColorPass
+                wholeline$ = "CONST NeonCarrot~& = 4294943555": GOSUB ColorPass
+                wholeline$ = "CONST OldLace~& = 4294833638": GOSUB ColorPass
+                wholeline$ = "CONST Olive~& = 4286611456": GOSUB ColorPass
+                wholeline$ = "CONST OliveDrab~& = 4285238819": GOSUB ColorPass
+                wholeline$ = "CONST OliveGreen~& = 4290426988": GOSUB ColorPass
+                wholeline$ = "CONST Orange~& = 4294944000": GOSUB ColorPass
+                wholeline$ = "CONST OrangeRed~& = 4294919424": GOSUB ColorPass
+                wholeline$ = "CONST OrangeYellow~& = 4294497640": GOSUB ColorPass
+                wholeline$ = "CONST Orchid~& = 4292505814": GOSUB ColorPass
+                wholeline$ = "CONST OuterSpace~& = 4282468940": GOSUB ColorPass
+                wholeline$ = "CONST OutrageousOrange~& = 4294929994": GOSUB ColorPass
+                wholeline$ = "CONST PacificBlue~& = 4280068553": GOSUB ColorPass
+                wholeline$ = "CONST PaleGoldenRod~& = 4293847210": GOSUB ColorPass
+                wholeline$ = "CONST PaleGreen~& = 4288215960": GOSUB ColorPass
+                wholeline$ = "CONST PaleTurquoise~& = 4289720046": GOSUB ColorPass
+                wholeline$ = "CONST PaleVioletRed~& = 4292571283": GOSUB ColorPass
+                wholeline$ = "CONST PapayaWhip~& = 4294963157": GOSUB ColorPass
+                wholeline$ = "CONST Peach~& = 4294954923": GOSUB ColorPass
+                wholeline$ = "CONST PeachPuff~& = 4294957753": GOSUB ColorPass
+                wholeline$ = "CONST Periwinkle~& = 4291154150": GOSUB ColorPass
+                wholeline$ = "CONST Peru~& = 4291659071": GOSUB ColorPass
+                wholeline$ = "CONST PiggyPink~& = 4294827494": GOSUB ColorPass
+                wholeline$ = "CONST PineGreen~& = 4279599224": GOSUB ColorPass
+                wholeline$ = "CONST Pink~& = 4294951115": GOSUB ColorPass
+                wholeline$ = "CONST PinkFlamingo~& = 4294735101": GOSUB ColorPass
+                wholeline$ = "CONST PinkSherbet~& = 4294414247": GOSUB ColorPass
+                wholeline$ = "CONST Plum~& = 4292714717": GOSUB ColorPass
+                wholeline$ = "CONST PowderBlue~& = 4289781990": GOSUB ColorPass
+                wholeline$ = "CONST Purple~& = 4286578816": GOSUB ColorPass
+                wholeline$ = "CONST PurpleHeart~& = 4285809352": GOSUB ColorPass
+                wholeline$ = "CONST PurpleMountainsMajesty~& = 4288512442": GOSUB ColorPass
+                wholeline$ = "CONST PurplePizzazz~& = 4294856410": GOSUB ColorPass
+                wholeline$ = "CONST RadicalRed~& = 4294920556": GOSUB ColorPass
+                wholeline$ = "CONST RawSienna~& = 4292250201": GOSUB ColorPass
+                wholeline$ = "CONST RawUmber~& = 4285614883": GOSUB ColorPass
+                wholeline$ = "CONST RazzleDazzleRose~& = 4294920400": GOSUB ColorPass
+                wholeline$ = "CONST Razzmatazz~& = 4293076331": GOSUB ColorPass
+                wholeline$ = "CONST Red~& = 4294901760": GOSUB ColorPass
+                wholeline$ = "CONST RedOrange~& = 4294923081": GOSUB ColorPass
+                wholeline$ = "CONST RedViolet~& = 4290790543": GOSUB ColorPass
+                wholeline$ = "CONST RobinsEggBlue~& = 4280274635": GOSUB ColorPass
+                wholeline$ = "CONST RosyBrown~& = 4290547599": GOSUB ColorPass
+                wholeline$ = "CONST RoyalBlue~& = 4282477025": GOSUB ColorPass
+                wholeline$ = "CONST RoyalPurple~& = 4286075305": GOSUB ColorPass
+                wholeline$ = "CONST SaddleBrown~& = 4287317267": GOSUB ColorPass
+                wholeline$ = "CONST Salmon~& = 4294606962": GOSUB ColorPass
+                wholeline$ = "CONST SandyBrown~& = 4294222944": GOSUB ColorPass
+                wholeline$ = "CONST Scarlet~& = 4294715463": GOSUB ColorPass
+                wholeline$ = "CONST ScreaminGreen~& = 4285988730": GOSUB ColorPass
+                wholeline$ = "CONST SeaGreen~& = 4281240407": GOSUB ColorPass
+                wholeline$ = "CONST SeaShell~& = 4294964718": GOSUB ColorPass
+                wholeline$ = "CONST Sepia~& = 4289030479": GOSUB ColorPass
+                wholeline$ = "CONST Shadow~& = 4287265117": GOSUB ColorPass
+                wholeline$ = "CONST Shamrock~& = 4282764962": GOSUB ColorPass
+                wholeline$ = "CONST ShockingPink~& = 4294672125": GOSUB ColorPass
+                wholeline$ = "CONST Sienna~& = 4288696877": GOSUB ColorPass
+                wholeline$ = "CONST Silver~& = 4290822336": GOSUB ColorPass
+                wholeline$ = "CONST SkyBlue~& = 4287090411": GOSUB ColorPass
+                wholeline$ = "CONST SlateBlue~& = 4285160141": GOSUB ColorPass
+                wholeline$ = "CONST SlateGray~& = 4285563024": GOSUB ColorPass
+                wholeline$ = "CONST Snow~& = 4294966010": GOSUB ColorPass
+                wholeline$ = "CONST SpringGreen~& = 4278255487": GOSUB ColorPass
+                wholeline$ = "CONST SteelBlue~& = 4282811060": GOSUB ColorPass
+                wholeline$ = "CONST Sunglow~& = 4294954824": GOSUB ColorPass
+                wholeline$ = "CONST SunsetOrange~& = 4294794835": GOSUB ColorPass
+                wholeline$ = "CONST Tann~& = 4291998860": GOSUB ColorPass
+                wholeline$ = "CONST Teal~& = 4278222976": GOSUB ColorPass
+                wholeline$ = "CONST TealBlue~& = 4279805877": GOSUB ColorPass
+                wholeline$ = "CONST Thistle~& = 4292394968": GOSUB ColorPass
+                wholeline$ = "CONST TickleMePink~& = 4294740396": GOSUB ColorPass
+                wholeline$ = "CONST Timberwolf~& = 4292597714": GOSUB ColorPass
+                wholeline$ = "CONST Tomato~& = 4294927175": GOSUB ColorPass
+                wholeline$ = "CONST TropicalRainForest~& = 4279730285": GOSUB ColorPass
+                wholeline$ = "CONST Tumbleweed~& = 4292782728": GOSUB ColorPass
+                wholeline$ = "CONST Turquoise~& = 4282441936": GOSUB ColorPass
+                wholeline$ = "CONST TurquoiseBlue~& = 4286045671": GOSUB ColorPass
+                wholeline$ = "CONST UnmellowYellow~& = 4294967142": GOSUB ColorPass
+                wholeline$ = "CONST Violet~& = 4293821166": GOSUB ColorPass
+                wholeline$ = "CONST VioletBlue~& = 4281486002": GOSUB ColorPass
+                wholeline$ = "CONST VioletRed~& = 4294398868": GOSUB ColorPass
+                wholeline$ = "CONST VividTangerine~& = 4294942857": GOSUB ColorPass
+                wholeline$ = "CONST VividViolet~& = 4287582365": GOSUB ColorPass
+                wholeline$ = "CONST Wheat~& = 4294303411": GOSUB ColorPass
+                wholeline$ = "CONST White~& = 4294967295": GOSUB ColorPass
+                wholeline$ = "CONST Whitesmoke~& = 4294309365": GOSUB ColorPass
+                wholeline$ = "CONST WildBlueYonder~& = 4288851408": GOSUB ColorPass
+                wholeline$ = "CONST WildStrawberry~& = 4294919076": GOSUB ColorPass
+                wholeline$ = "CONST WildWatermelon~& = 4294732933": GOSUB ColorPass
+                wholeline$ = "CONST Wisteria~& = 4291667166": GOSUB ColorPass
+                wholeline$ = "CONST Yellow~& = 4294967040": GOSUB ColorPass
+                wholeline$ = "CONST YellowGreen~& = 4288335154": GOSUB ColorPass
+                wholeline$ = "CONST YellowOrange~& = 4294946370": GOSUB ColorPass
+                ColorConst = 0
                 layout$ = "$COLOR:32"
                 layoutdone = 1
-                GOTO finishedlinepp
+                GOTO finishednonexec
             ELSE
                 a$ = "$COLOR can only be set once.  Please remove multiple references to it."
                 GOTO errmes
