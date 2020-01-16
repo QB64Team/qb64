@@ -10212,7 +10212,21 @@ END FUNCTION
 FUNCTION idezgetroot$
     'note: does NOT including a trailing / or \ on the right
 
-    idezgetroot$ = _CWD$
+     IF os$ = "WIN" THEN
+         SHELL _HIDE "cd >.\internal\temp\root.txt"
+         OPEN ".\internal\temp\root.txt" FOR INPUT AS #150
+         LINE INPUT #150, a$
+         idezgetroot$ = a$
+         CLOSE #150
+         EXIT FUNCTION
+     ELSE
+         SHELL _HIDE "pwd >./internal/temp/root.txt"
+         OPEN "./internal/temp/root.txt" FOR INPUT AS #150
+         LINE INPUT #150, a$
+         idezgetroot$ = a$
+         CLOSE #150
+         EXIT FUNCTION
+     END IF
 
 END FUNCTION
 
