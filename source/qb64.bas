@@ -969,7 +969,7 @@ IF C = 5 THEN 'end of program reached
         GOTO ide3
         ideret3:
         sendc$ = CHR$(7) 'repass request
-        firstLine = 1
+        '''firstLine = 1
         GOTO sendcommand
     END IF
     'assume idepass=2
@@ -1177,7 +1177,7 @@ recompile:
 
 lastLineReturn = 0
 lastLine = 0
-firstLine = 1
+'''firstLine = 1
 
 Resize = 0
 Resize_Scale = 0
@@ -1548,15 +1548,15 @@ DO
     ideprepass:
     prepassLastLine:
 
-    IF lastLine <> 0 OR firstLine <> 0 THEN
-        lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
-        IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-        IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
-        firstLine = 0: lastLine = 0
-        GOTO forceInclude_prepass
-        forceIncludeCompleted_prepass:
-        wholeline$ = lineBackup$
-    END IF
+    '''IF lastLine <> 0 OR firstLine <> 0 THEN
+    '''    lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
+    '''    IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+    '''    IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
+    '''    firstLine = 0: lastLine = 0
+    '''    GOTO forceInclude_prepass
+    '''    forceIncludeCompleted_prepass:
+    '''    wholeline$ = lineBackup$
+    '''END IF
 
     wholestv$ = wholeline$ '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
 
@@ -2488,24 +2488,24 @@ DO
         IF Debug THEN PRINT #9, "Pre-pass:INCLUDE$-ing file:'" + addmetainclude$ + "':On line"; linenumber
         a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
-        IF inclevel = 0 THEN
-            includingFromRoot = 0
-            forceIncludingFile = 0
-            forceInclude_prepass:
-            IF forceIncludeFromRoot$ <> "" THEN
-                a$ = forceIncludeFromRoot$
-                forceIncludeFromRoot$ = ""
-                forceIncludingFile = 1
-                includingFromRoot = 1
-            END IF
-        END IF
+        '''IF inclevel = 0 THEN
+        '''    includingFromRoot = 0
+        ''''    forceIncludingFile = 0
+        ''''    forceInclude_prepass:
+        '''IF forceIncludeFromRoot$ <> "" THEN
+        '''    a$ = forceIncludeFromRoot$
+        '''    forceIncludeFromRoot$ = ""
+        '''    forceIncludingFile = 1
+        '''    includingFromRoot = 1
+        '''END IF
+        '''END IF
 
         IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
         '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
         fh = 99 + inclevel + 1
 
         firstTryMethod = 1
-        IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
+        '''IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
         FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
             IF try = 1 THEN
                 IF inclevel = 0 THEN
@@ -2567,10 +2567,10 @@ DO
         '3. Close & return control
         CLOSE #fh
         inclevel = inclevel - 1
-        IF forceIncludingFile = 1 AND inclevel = 0 THEN
-            forceIncludingFile = 0
-            GOTO forceIncludeCompleted_prepass
-        END IF
+        '''IF forceIncludingFile = 1 AND inclevel = 0 THEN
+        '''    forceIncludingFile = 0
+        '''    GOTO forceIncludeCompleted_prepass
+        '''END IF
     LOOP
     '(end manager)
 
@@ -2603,7 +2603,7 @@ inclevel = 0
 subfuncn = 0
 lastLineReturn = 0
 lastLine = 0
-firstLine = 1
+'''firstLine = 1
 UserDefineCount = 6
 ColorConstSet = 0
 
@@ -2682,15 +2682,15 @@ DO
     includeline:
     mainpassLastLine:
 
-    IF lastLine <> 0 OR firstLine <> 0 THEN
-        lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
-        IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-        IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
-        firstLine = 0: lastLine = 0
-        GOTO forceInclude
-        forceIncludeCompleted:
-        a3$ = lineBackup$
-    END IF
+    '''IF lastLine <> 0 OR firstLine <> 0 THEN
+    '''    lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
+    '''    IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+    '''    IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
+    '''    firstLine = 0: lastLine = 0
+    '''    GOTO forceInclude
+    '''    forceIncludeCompleted:
+    '''    a3$ = lineBackup$
+    '''END IF
 
     prepass = 0
 
@@ -10721,24 +10721,24 @@ DO
 
             a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
-            IF inclevel = 0 THEN
-                includingFromRoot = 0
-                forceIncludingFile = 0
-                forceInclude:
-                IF forceIncludeFromRoot$ <> "" THEN
-                    a$ = forceIncludeFromRoot$
-                    forceIncludeFromRoot$ = ""
-                    forceIncludingFile = 1
-                    includingFromRoot = 1
-                END IF
-            END IF
+            '''IF inclevel = 0 THEN
+            '''    includingFromRoot = 0
+            '''    forceIncludingFile = 0
+            '''    forceInclude:
+            '''    IF forceIncludeFromRoot$ <> "" THEN
+            '''        a$ = forceIncludeFromRoot$
+            '''        forceIncludeFromRoot$ = ""
+            '''        forceIncludingFile = 1
+            '''        includingFromRoot = 1
+            '''    END IF
+            '''END IF
 
             IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
             '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
             fh = 99 + inclevel + 1
 
             firstTryMethod = 1
-            IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
+            '''IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
             FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
                 IF try = 1 THEN
                     IF inclevel = 0 THEN
@@ -10795,10 +10795,10 @@ DO
             CLOSE #fh
             inclevel = inclevel - 1
             IF inclevel = 0 THEN
-                IF forceIncludingFile = 1 THEN
-                    forceIncludingFile = 0
-                    GOTO forceIncludeCompleted
-                END IF
+                '''IF forceIncludingFile = 1 THEN
+                '''    forceIncludingFile = 0
+                '''    GOTO forceIncludeCompleted
+                '''END IF
                 'restore line formatting
                 layoutok = layoutok_backup
                 layout$ = layout_backup$
@@ -12750,11 +12750,11 @@ errmes: 'set a$ to message
 IF Error_Happened THEN a$ = Error_Message: Error_Happened = 0
 layout$ = "": layoutok = 0 'invalidate layout
 
-IF forceIncludingFile THEN 'If we're to the point where we're adding the automatic QB64 includes, we don't need to report the $INCLUDE information
-    IF INSTR(a$, "END SUB/FUNCTION before") THEN a$ = "SUB without END SUB" 'Just a simple rewrite of the error message to be less confusing for SUB/FUNCTIONs
-ELSE 'We want to let the user know which module the error occurred in
-    IF inclevel > 0 THEN a$ = a$ + incerror$
-END IF
+'''IF forceIncludingFile THEN 'If we're to the point where we're adding the automatic QB64 includes, we don't need to report the $INCLUDE information
+'''    IF INSTR(a$, "END SUB/FUNCTION before") THEN a$ = "SUB without END SUB" 'Just a simple rewrite of the error message to be less confusing for SUB/FUNCTIONs
+'''ELSE 'We want to let the user know which module the error occurred in
+IF inclevel > 0 THEN a$ = a$ + incerror$
+'''END IF
 
 IF idemode THEN
     ideerrorline = linenumber
