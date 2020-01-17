@@ -1995,8 +1995,18 @@ DO
                                     EXIT FOR
                                 END IF
                                 IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
-                                IF LEN(e2$) > 1 THEN removeComma = INSTR(e2$, ",") ELSE removeComma = 0
-                                IF removeComma THEN e3$ = MID$(e2$, removeComma + 1) ELSE e3$ = e2$
+
+                                e3$ = e2$
+                                IF LEN(e2$) > 1 THEN
+                                    IF ASC(e2$, 1) = 34 THEN
+                                        removeComma = _INSTRREV(e2$, ",")
+                                        e3$ = LEFT$(e2$, removeComma - 1)
+                                    ELSE
+                                        removeComma = INSTR(e2$, ",")
+                                        e3$ = MID$(e2$, removeComma + 1)
+                                    END IF
+                                END IF
+
                                 IF LEN(readable_e$) = 0 THEN
                                     readable_e$ = e3$
                                 ELSE
