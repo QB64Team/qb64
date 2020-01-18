@@ -4823,7 +4823,9 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#About..." THEN
                 PCOPY 2, 0
-                idemessagebox "About", "QB64 Version " + Version$ + CHR$(10) + "Revision " + BuildNum$ + CHR$(10) + AutoBuildMsg$
+                m$ = "QB64 Version " + Version$ + CHR$(10) + "Revision " + BuildNum$
+                IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
+                idemessagebox "About", m$
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
