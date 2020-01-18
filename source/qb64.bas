@@ -968,6 +968,7 @@ IF C = 5 THEN 'end of program reached
         GOTO ide3
         ideret3:
         sendc$ = CHR$(7) 'repass request
+        firstLine = 1
         GOTO sendcommand
     END IF
     'assume idepass=2
@@ -1175,6 +1176,7 @@ recompile:
 
 lastLineReturn = 0
 lastLine = 0
+firstLine = 1
 
 Resize = 0
 Resize_Scale = 0
@@ -1564,6 +1566,8 @@ DO
     IF LEN(wholeline$) THEN
 
         IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
+            IF firstLine = 0 THEN a$ = "$NOPREFIX must come before any other statements": GOTO errmes
+
             qb64prefix$ = ""
             qb64prefix_set = 1
 
@@ -2459,6 +2463,7 @@ DO
 
                         '========================================
                         finishedlinepp:
+                        firstLine = 0
                     END IF
                     a$ = ""
                     ca$ = ""
@@ -2577,6 +2582,7 @@ inclevel = 0
 subfuncn = 0
 lastLineReturn = 0
 lastLine = 0
+firstLine = 1
 UserDefineCount = 6
 
 FOR i = 0 TO constlast: constdefined(i) = 0: NEXT 'undefine constants
@@ -10364,6 +10370,8 @@ DO
     END IF
 
     finishednonexec:
+
+    firstLine = 0
 
     IF layoutdone = 0 THEN layoutok = 0 'invalidate layout if not handled
 
