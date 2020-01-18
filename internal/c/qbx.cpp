@@ -13,11 +13,9 @@ extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
 extern int32 func__getconsoleinput();
 
 #ifdef DEPENDENCY_ZLIB
+    #include <zlib.h>
     qbs *func__deflate(qbs *text);
     qbs *func__inflate(qbs *text, int64 originalsize, int32 passed);
-    #ifdef QB64_WINDOWS
-        #include "parts\zlib\download\zlib.h"
-    #endif
 #endif
 
 

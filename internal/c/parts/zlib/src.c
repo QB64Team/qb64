@@ -1,8 +1,4 @@
-#ifdef QB64_WINDOWS
-  #include "download\\zlib.h"
-#else
-  #include <zlib.h>
-#endif
+#include <zlib.h>
 
   qbs *func__deflate(qbs *text){
         uLongf filesize = (uint32)text->len;  //length of the text
