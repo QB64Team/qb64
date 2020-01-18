@@ -422,6 +422,14 @@ IF LoadedIDESettings = 0 THEN
        idecustomfont = 0
     END IF
 
+    result = ReadConfigSetting("IDE_UseFont8", value$)
+    IF UCASE$(value$) = "TRUE" THEN
+       IDE_UseFont8 = 1
+    ELSE
+       WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "FALSE"
+       IDE_UseFont8 = 0
+    END IF
+
     result = ReadConfigSetting("IDE_CustomFont$", value$)
     idecustomfontfile$ = value$
     if result = 0 OR idecustomfontfile$ = "" then
