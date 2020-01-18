@@ -29,7 +29,7 @@ Set_OrderOfOperations
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 DIM ExecLevel(255), ExecCounter AS INTEGER
 REDIM SHARED UserDefine(1, 100) AS STRING '0 element is the name, 1 element is the string value
-REDIM SHARED InValidLine(10000) AS _BIT
+REDIM SHARED InValidLine(10000) AS _BYTE
 DIM DefineElse(255) AS _BYTE
 DIM SHARED UserDefineCount AS INTEGER
 UserDefine(0, 0) = "WINDOWS": UserDefine(0, 1) = "WIN"
@@ -1569,7 +1569,7 @@ DO
     IF ColorConst = 0 THEN linenumber = linenumber + 1 'dont increment the line counter when adding all the color constants
 
     DO UNTIL linenumber < UBOUND(InValidLine) 'color information flag for each line
-        REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+        REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE
     LOOP
     InValidLine(linenumber) = 0
 
@@ -1668,7 +1668,7 @@ DO
 
         IF ExecLevel(ExecCounter) THEN
             DO UNTIL linenumber < UBOUND(InValidLine)
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE
             LOOP
 
             InValidLine(linenumber) = -1

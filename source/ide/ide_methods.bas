@@ -8462,7 +8462,7 @@ SUB ideshowtext
 
         IF l <= iden THEN
             DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT '   to the end of a program before the IDE has finished
+                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE '   to the end of a program before the IDE has finished
             LOOP '                                                      verifying the code and growing the array during the IDE passes.
 
             a$ = idegetline(l)
@@ -8621,7 +8621,7 @@ SUB ideshowtext
 
             COLOR 13
 
-            IF InValidLine(l) AND 1 THEN COLOR 7: GOTO SkipSyntaxHighlighter
+            IF InValidLine(l) THEN COLOR 7: GOTO SkipSyntaxHighlighter
 
             IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
                 IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
