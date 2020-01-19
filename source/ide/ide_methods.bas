@@ -2401,7 +2401,7 @@ FUNCTION ide2 (ignore)
                 a2$ = UCASE$(a2$)
                 'check if F1 is in help links
                 fh = FREEFILE
-                OPEN "internal\help\links.bin" FOR BINARY AS #fh
+                OPEN "internal\help\links.bin" FOR INPUT AS #fh
                 lnks = 0: lnks$ = CHR$(0)
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, l$
@@ -4954,7 +4954,7 @@ FUNCTION ide2 (ignore)
 
                     'Add all linked pages to download list (if not already in list)
                     fh = FREEFILE
-                    OPEN "internal\help\links.bin" FOR BINARY AS #fh
+                    OPEN "internal\help\links.bin" FOR INPUT AS #fh
                     DO UNTIL EOF(fh)
                         LINE INPUT #fh, l$
                         IF LEN(l$) THEN
@@ -13807,7 +13807,7 @@ SUB IdeMakeContextualMenu
     IF LEN(a2$) > 0 THEN
         'check if F1 is in help links
         fh = FREEFILE
-        OPEN "internal\help\links.bin" FOR BINARY AS #fh
+        OPEN "internal\help\links.bin" FOR INPUT AS #fh
         lnks = 0: lnks$ = CHR$(0)
         DO UNTIL EOF(fh)
             LINE INPUT #fh, l$
