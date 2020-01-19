@@ -16,8 +16,9 @@ rm ./internal/temp/*
 
 if [ -z "$(which g++)" ]; then
   echo "GNU C++ compiler not detected (g++)"
-  echo "Please install Apple's Command Line Tools for Xcode"
-  echo "before launching QB64 setup."
+  echo "Attempting to install Apple's Command Line Tools for Xcode..."
+  echo "After installation is finished, run this setup script again."
+  xcode-select --install
   Pause
   exit 1
 fi
