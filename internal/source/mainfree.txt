@@ -215,14 +215,14 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_USERDEFINE[0]))[tmp_l
 free((void*)(__ARRAY_STRING_USERDEFINE[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_USERDEFINE)[12] );
-if (__ARRAY_BIT1_INVALIDLINE[2]&1){
-if (__ARRAY_BIT1_INVALIDLINE[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_BIT1_INVALIDLINE[0]));
+if (__ARRAY_BYTE_INVALIDLINE[2]&1){
+if (__ARRAY_BYTE_INVALIDLINE[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_BYTE_INVALIDLINE[0]));
 }else{
-free((void*)(__ARRAY_BIT1_INVALIDLINE[0]));
+free((void*)(__ARRAY_BYTE_INVALIDLINE[0]));
 }
 }
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BIT1_INVALIDLINE)[8] );
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BYTE_INVALIDLINE)[8] );
 if (__ARRAY_BYTE_DEFINEELSE[2]&1){
 if (__ARRAY_BYTE_DEFINEELSE[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_BYTE_DEFINEELSE[0]));
@@ -865,8 +865,6 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_WARNING[0]))[tmp_long
 free((void*)(__ARRAY_STRING_WARNING[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_WARNING)[8] );
-qbs_free(__STRING_LINEBACKUP);
-qbs_free(__STRING_FORCEINCLUDEFROMROOT);
 qbs_free(__STRING_WHOLESTV);
 qbs_free(__STRING_L);
 qbs_free(__STRING_R);

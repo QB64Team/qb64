@@ -890,6 +890,10 @@ if(__LONG_IDERUNMODE==NULL){
 __LONG_IDERUNMODE=(int32*)mem_static_malloc(4);
 *__LONG_IDERUNMODE=0;
 }
+if(__BYTE_IDE_USEFONT8==NULL){
+__BYTE_IDE_USEFONT8=(int8*)mem_static_malloc(1);
+*__BYTE_IDE_USEFONT8=0;
+}
 if (!__ARRAY_STRING_ONAME){
 __ARRAY_STRING_ONAME=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
@@ -978,16 +982,16 @@ __ARRAY_STRING_USERDEFINE[9]=0;
 __ARRAY_STRING_USERDEFINE[10]=0;
 __ARRAY_STRING_USERDEFINE[0]=(ptrszint)&nothingstring;
 }
-if (!__ARRAY_BIT1_INVALIDLINE){
-__ARRAY_BIT1_INVALIDLINE=(ptrszint*)mem_static_malloc(9*ptrsz);
+if (!__ARRAY_BYTE_INVALIDLINE){
+__ARRAY_BYTE_INVALIDLINE=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
 mem_lock_tmp->type=4;
-((ptrszint*)__ARRAY_BIT1_INVALIDLINE)[8]=(ptrszint)mem_lock_tmp;
-__ARRAY_BIT1_INVALIDLINE[2]=0;
-__ARRAY_BIT1_INVALIDLINE[4]=2147483647;
-__ARRAY_BIT1_INVALIDLINE[5]=0;
-__ARRAY_BIT1_INVALIDLINE[6]=0;
-__ARRAY_BIT1_INVALIDLINE[0]=(ptrszint)nothingvalue;
+((ptrszint*)__ARRAY_BYTE_INVALIDLINE)[8]=(ptrszint)mem_lock_tmp;
+__ARRAY_BYTE_INVALIDLINE[2]=0;
+__ARRAY_BYTE_INVALIDLINE[4]=2147483647;
+__ARRAY_BYTE_INVALIDLINE[5]=0;
+__ARRAY_BYTE_INVALIDLINE[6]=0;
+__ARRAY_BYTE_INVALIDLINE[0]=(ptrszint)nothingvalue;
 }
 if (!__ARRAY_BYTE_DEFINEELSE){
 __ARRAY_BYTE_DEFINEELSE=(ptrszint*)mem_static_malloc(9*ptrsz);
@@ -2979,10 +2983,6 @@ __ARRAY_STRING_WARNING[5]=0;
 __ARRAY_STRING_WARNING[6]=0;
 __ARRAY_STRING_WARNING[0]=(ptrszint)&nothingstring;
 }
-if(__LONG_COLORCONST==NULL){
-__LONG_COLORCONST=(int32*)mem_static_malloc(4);
-*__LONG_COLORCONST=0;
-}
 if(__LONG_PTRSZ==NULL){
 __LONG_PTRSZ=(int32*)mem_static_malloc(4);
 *__LONG_PTRSZ=0;
@@ -3007,8 +3007,6 @@ if(__LONG_IDERECOMPILE==NULL){
 __LONG_IDERECOMPILE=(int32*)mem_static_malloc(4);
 *__LONG_IDERECOMPILE=0;
 }
-if (!__STRING_LINEBACKUP)__STRING_LINEBACKUP=qbs_new(0,0);
-if (!__STRING_FORCEINCLUDEFROMROOT)__STRING_FORCEINCLUDEFROMROOT=qbs_new(0,0);
 if (!__STRING_WHOLESTV)__STRING_WHOLESTV=qbs_new(0,0);
 byte_element_struct *byte_element_215=NULL;
 if (!byte_element_215){
@@ -3195,6 +3193,7 @@ byte_element_struct *byte_element_262=NULL;
 if (!byte_element_262){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_262=(byte_element_struct*)(mem_static_pointer-12); else byte_element_262=(byte_element_struct*)mem_static_malloc(12);
 }
+if (!__STRING_E3)__STRING_E3=qbs_new(0,0);
 byte_element_struct *byte_element_263=NULL;
 if (!byte_element_263){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_263=(byte_element_struct*)(mem_static_pointer-12); else byte_element_263=(byte_element_struct*)mem_static_malloc(12);
@@ -3203,7 +3202,6 @@ if(__LONG_REMOVECOMMA==NULL){
 __LONG_REMOVECOMMA=(int32*)mem_static_malloc(4);
 *__LONG_REMOVECOMMA=0;
 }
-if (!__STRING_E3)__STRING_E3=qbs_new(0,0);
 byte_element_struct *byte_element_264=NULL;
 if (!byte_element_264){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_264=(byte_element_struct*)(mem_static_pointer-12); else byte_element_264=(byte_element_struct*)mem_static_malloc(12);
@@ -3372,14 +3370,6 @@ byte_element_struct *byte_element_309=NULL;
 if (!byte_element_309){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_309=(byte_element_struct*)(mem_static_pointer-12); else byte_element_309=(byte_element_struct*)mem_static_malloc(12);
 }
-if(__LONG_INCLUDINGFROMROOT==NULL){
-__LONG_INCLUDINGFROMROOT=(int32*)mem_static_malloc(4);
-*__LONG_INCLUDINGFROMROOT=0;
-}
-if(__LONG_FORCEINCLUDINGFILE==NULL){
-__LONG_FORCEINCLUDINGFILE=(int32*)mem_static_malloc(4);
-*__LONG_FORCEINCLUDINGFILE=0;
-}
 if(__LONG_FIRSTTRYMETHOD==NULL){
 __LONG_FIRSTTRYMETHOD=(int32*)mem_static_malloc(4);
 *__LONG_FIRSTTRYMETHOD=0;
@@ -3398,10 +3388,6 @@ static int64 fornext_value316;
 static int64 fornext_finalvalue316;
 static int64 fornext_step316;
 static uint8 fornext_step_negative316;
-if(__LONG_COLORCONSTSET==NULL){
-__LONG_COLORCONSTSET=(int32*)mem_static_malloc(4);
-*__LONG_COLORCONSTSET=0;
-}
 static int64 fornext_value319;
 static int64 fornext_finalvalue319;
 static int64 fornext_step319;

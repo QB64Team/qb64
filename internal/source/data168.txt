@@ -51,6 +51,16 @@ byte_element_struct *byte_element_5188=NULL;
 if (!byte_element_5188){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5188=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5188=(byte_element_struct*)mem_static_malloc(12);
 }
+int32 *_FUNC_IDEDISPLAYBOX_LONG_PREVFONT8SETTING=NULL;
+if(_FUNC_IDEDISPLAYBOX_LONG_PREVFONT8SETTING==NULL){
+_FUNC_IDEDISPLAYBOX_LONG_PREVFONT8SETTING=(int32*)mem_static_malloc(4);
+*_FUNC_IDEDISPLAYBOX_LONG_PREVFONT8SETTING=0;
+}
+int32 *_FUNC_IDEDISPLAYBOX_LONG_PREVCUSTOMFONTSETTING=NULL;
+if(_FUNC_IDEDISPLAYBOX_LONG_PREVCUSTOMFONTSETTING==NULL){
+_FUNC_IDEDISPLAYBOX_LONG_PREVCUSTOMFONTSETTING=(int32*)mem_static_malloc(4);
+*_FUNC_IDEDISPLAYBOX_LONG_PREVCUSTOMFONTSETTING=0;
+}
 byte_element_struct *byte_element_5189=NULL;
 if (!byte_element_5189){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5189=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5189=(byte_element_struct*)mem_static_malloc(12);
