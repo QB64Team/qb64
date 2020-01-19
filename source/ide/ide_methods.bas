@@ -224,7 +224,7 @@ FUNCTION ide2 (ignore)
         idelaunched = 1
 
         WIDTH idewx, idewy
-        _FONT 16
+        IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
 
         'change codepage
         IF idecpindex THEN
@@ -4609,7 +4609,7 @@ FUNCTION ide2 (ignore)
                         IF idecustomfont THEN
                             _FONT idecustomfonthandle
                         ELSE
-                            _FONT 16
+                            IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                         END IF
                         skipdisplay = 0
                         GOTO redraweverything2
@@ -11514,9 +11514,17 @@ FUNCTION idedisplaybox
 
     i = i + 1
     o(i).typ = 4 'check box
+    o(i).y = 9
+    o(i).nam = idenewtxt("Use _FONT 8")
+    o(i).sel = IDE_UseFont8
+    prevFont8Setting = o(i).sel
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 10
     o(i).nam = idenewtxt("Custom #Font:")
     o(i).sel = idecustomfont
+    prevCustomFontSetting = o(i).sel
 
     a2$ = idecustomfontfile$
     i = i + 1
@@ -11622,7 +11630,7 @@ FUNCTION idedisplaybox
         IF focus <> PrevFocus THEN
             'Always start with TextBox values selected upon getting focus
             PrevFocus = focus
-            IF focus = 1 OR focus = 2 OR focus = 5 OR focus = 6 THEN
+            IF focus = 1 OR focus = 2 OR focus = 6 OR focus = 7 THEN
                 o(focus).v1 = LEN(idetxt(o(focus).txt))
                 IF o(focus).v1 > 0 THEN o(focus).issel = -1
                 o(focus).sx1 = 0
@@ -11655,40 +11663,54 @@ FUNCTION idedisplaybox
         END IF
         idetxt(o(2).txt) = a$
 
-        a$ = idetxt(o(5).txt)
-        IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
-        idetxt(o(5).txt) = a$
+        IF prevFont8Setting <> o(4).sel THEN
+            prevFont8Setting = o(4).sel
+            IF o(4).sel THEN o(5).sel = 0: prevCustomFontSetting = 0
+        END IF
+
+        IF prevCustomFontSetting <> o(5).sel THEN
+            prevCustomFontSetting = o(5).sel
+            IF o(5).sel THEN o(4).sel = 0: prevFont8Setting = 0
+        END IF
 
         a$ = idetxt(o(6).txt)
+        IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
+        idetxt(o(6).txt) = a$
+
+        a$ = idetxt(o(7).txt)
         IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
         FOR i = 1 TO LEN(a$)
             a = ASC(a$, i)
             IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
             IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
         NEXT
-        IF focus <> 6 THEN
+        IF focus <> 7 THEN
             IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
             IF a < 8 THEN a$ = "8"
         END IF
-        idetxt(o(6).txt) = a$
+        idetxt(o(7).txt) = a$
 
 
-
-        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN EXIT FUNCTION
-        IF K$ = CHR$(13) OR (focus = 7 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 9 AND info <> 0) THEN EXIT FUNCTION
+        IF K$ = CHR$(13) OR (focus = 8 AND info <> 0) THEN
 
             x = 0 'change to custom font
 
             'get size in v%
-            v$ = idetxt(o(6).txt): IF v$ = "" THEN v$ = "0"
+            v$ = idetxt(o(7).txt): IF v$ = "" THEN v$ = "0"
             v% = VAL(v$)
             IF v% < 8 THEN v% = 8
             IF v% > 99 THEN v% = 99
             IF v% <> idecustomfontheight THEN x = 1
 
-            IF o(4).sel <> idecustomfont THEN
-                IF o(4).sel = 0 THEN
-                    _FONT 16
+            IF o(4).sel <> IDE_UseFont8 THEN
+                IDE_UseFont8 = o(4).sel
+                idedisplaybox = 1
+            END IF
+
+            IF o(5).sel <> idecustomfont THEN
+                IF o(5).sel = 0 THEN
+                    IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                     _FREEFONT idecustomfonthandle
                 ELSE
                     x = 1
@@ -11696,14 +11718,14 @@ FUNCTION idedisplaybox
             END IF
 
 
-            v$ = idetxt(o(5).txt): IF v$ <> idecustomfontfile$ THEN x = 1
+            v$ = idetxt(o(6).txt): IF v$ <> idecustomfontfile$ THEN x = 1
 
-            IF o(4).sel = 1 AND x = 1 THEN
+            IF o(5).sel = 1 AND x = 1 THEN
                 oldhandle = idecustomfonthandle
                 idecustomfonthandle = _LOADFONT(v$, v%, "MONOSPACE")
                 IF idecustomfonthandle = -1 THEN
                     'failed! - revert to default settings
-                    o(4).sel = 0: idetxt(o(5).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(6).txt) = "21": _FONT 16
+                    o(5).sel = 0: idetxt(o(6).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(7).txt) = "21": IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                 ELSE
                     _FONT idecustomfonthandle
                 END IF
@@ -11730,16 +11752,16 @@ FUNCTION idedisplaybox
             IF v% <> 0 THEN v% = -1
             IDE_AutoPosition = v%
 
-            v% = o(4).sel
+            v% = o(5).sel
             IF v% <> 0 THEN v% = 1
             idecustomfont = v%
 
-            v$ = idetxt(o(5).txt)
+            v$ = idetxt(o(6).txt)
             IF LEN(v$) > 1024 THEN v$ = LEFT$(v$, 1024)
             idecustomfontfile$ = v$
             v$ = v$ + SPACE$(1024 - LEN(v$))
 
-            v$ = idetxt(o(6).txt): IF v$ = "" THEN v$ = "0"
+            v$ = idetxt(o(7).txt): IF v$ = "" THEN v$ = "0"
             v% = VAL(v$)
             IF v% < 8 THEN v% = 8
             IF v% > 99 THEN v% = 99
@@ -11752,6 +11774,11 @@ FUNCTION idedisplaybox
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "TRUE"
             ELSE
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+            END IF
+            IF IDE_UseFont8 THEN
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "TRUE"
+            ELSE
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "FALSE"
             END IF
             IF IDE_AutoPosition THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"

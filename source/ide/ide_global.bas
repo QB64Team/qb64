@@ -214,6 +214,6 @@ DIM SHARED ideundocombo, ideundocombochr, idenoundo, idemergeundo
 DIM SHARED idealthighlight, ideentermenu
 DIM SHARED ideautolayout, ideautoindent, ideautoindentsize, ideindentsubs, idebackupsize
 DIM SHARED idewx, idewy, idecustomfont, idecustomfontfile$, idecustomfontheight, idecustomfonthandle
-DIM SHARED iderunmode
+DIM SHARED iderunmode, IDE_UseFont8 AS _BYTE
 'IDE MODULE SECTION END: shared data & definitions
 
