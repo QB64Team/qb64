@@ -94,11 +94,12 @@ elif [ -z "$DISTRO" ]; then
   echo "  OpenGL developement libraries"
   echo "  ALSA development libraries"
   echo "  GNU C++ Compiler (g++)"
+  echo "  zlib"
 fi
 
 echo "Compiling and installing QB64..."
 
-### GL installation process
+### Build process
 find . -name "*.sh" -exec chmod +x {} \;
 find . -type f -iname "*.a" -exec rm -f {} \;
 find . -type f -iname "*.o" -exec rm -f {} \;
