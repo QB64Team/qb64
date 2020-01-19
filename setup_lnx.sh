@@ -72,7 +72,7 @@ fi
 #Find and install packages
 if [ "$DISTRO" == "arch" ]; then
   echo "ArchLinux detected."
-  pkg_list="gcc zlib1g-dev $GET_WGET"
+  pkg_list="gcc zlib $GET_WGET"
   installed_packages=`pacman -Q`
   installer_command="sudo pacman -S "
   pkg_install
@@ -84,7 +84,7 @@ elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" ==
   pkg_install
 elif [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "redhat" ] || [ "$DISTRO" == "centos" ]; then
   echo "Fedora/Redhat based distro detected."
-  pkg_list="gcc-c++ mesa-libGLU-devel alsa-lib-devel zlib1g-dev $GET_WGET"
+  pkg_list="gcc-c++ mesa-libGLU-devel alsa-lib-devel zlib-devel $GET_WGET"
   installed_packages=`yum list installed`
   installer_command="sudo yum install "
   pkg_install
