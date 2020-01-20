@@ -7,7 +7,6 @@ FUNCTION Back2BackName$ (a$)
 END FUNCTION
 
 FUNCTION Wiki$ (PageName$)
-    STATIC AlternativeServer AS _BYTE
     Help_PageLoaded$ = PageName$
     PageName2$ = PageName$
 
@@ -50,32 +49,12 @@ FUNCTION Wiki$ (PageName$)
     url$ = "www.qb64.org/wiki/index.php?title=" + PageName2$ + "&action=edit"
     'when fetching from .org, look for name="wpTextbox1">
     s1$ = "name=" + CHR$(34) + "wpTextbox1" + CHR$(34) + ">"
-    try:
-    IF AlternativeServer THEN
-        url$ = "www.qb64.net/wiki/index.php?title=" + PageName2$ + "&action=edit"
-        s1$ = "readonly=" + CHR$(34) + "readonly" + CHR$(34) + ">"
-    END IF
     url2$ = url$
     x = INSTR(url2$, "/")
     IF x THEN url2$ = LEFT$(url$, x - 1)
     c = _OPENCLIENT("TCP/IP:80:" + url2$)
     IF c = 0 THEN
-        IF INSTR(url$, ".net") = 0 THEN
-            AlternativeServer = -1
-            IF Help_Recaching = 0 THEN
-                a$ = "Downloading '" + PageName$ + "' page from alternative server..."
-                IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + STRING$(3, 250)
-                IF LEN(a$) < 60 THEN a$ = a$ + SPACE$(60 - LEN(a$))
-
-                COLOR 0, 3: LOCATE idewy + idesubwindow, 2
-                PRINT a$;
-
-                PCOPY 3, 0
-            END IF
-            GOTO try
-        ELSE
-            EXIT FUNCTION
-        END IF
+        EXIT FUNCTION
     END IF
     e$ = CHR$(13) + CHR$(10)
     url3$ = RIGHT$(url$, LEN(url$) - x + 1)
@@ -784,3 +763,4 @@ SUB WikiParse (a$)
 
 
 END SUB
+
