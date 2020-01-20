@@ -6,39 +6,18 @@
 
 [[QB64 FAQ|Go to Frequently Asked Questions about QB64]]
 
-
 [[Keyword Reference - Alphabetical|Go to Alphabetical keywords]]
-
-'''[[Known QB64 Issues]]'''
 
 [[Keywords currently not supported by QB64]]
 
 [[Keywords currently not supported by QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keywords Not Supported in Linux or MAC versions]]
 
 
-'''The underscore prefix is reserved for QB64 _KEYWORDS only. '''
-Listed _KEYWORDS and un-commented $[[Metacommand]]s only work when compiled in QB64.
+== [[Arrays]] and Data Storage: ==
 
-
-'''If code examples only display partial code, use the browser Refresh button!'''
-
-
-For comments or suggestions about this WIKI goto the Forum:  
-
-
-Keywords beginning with an _underscore can only be compiled in QB64.
-
-
-[[Main Page|Main Page with Appendix and Tutorials]]
-
-
-== [[Arrays|Array]] and Data Storage: ==
-
-&lt;center>'''Arrays in Memory'''&lt;/center>
+&lt;center>'''Arrays'''&lt;/center>
 * [[_DEFINE]] (statement)  {{text|defines a range of untyped variable names according to their first character as a datatype.}}
 * [[_PRESERVE]] ([[REDIM]] option) {{text|preserves the existing element values when an array is resized.}}
-
-
 * [[CLEAR]] (statement) {{text|resets all variable values and array element values to 0 or null [[STRING|strings]] and closes all open files.}}
 * [[DIM]] (statement) {{text|dimensions(sizes) a [[STATIC|static]] array and defines the type.}}
 * [[$DYNAMIC]] (metacommand) {{text|defines that all arrays are dynamic or changeable in size.}}
@@ -52,7 +31,7 @@ Keywords beginning with an _underscore can only be compiled in QB64.
 * [[SWAP]] (statement) {{text|trades the values of two numerical or string values or array elements.}}
 * [[UBOUND]] (array function) {{text|returns the highest valid index (upper boundary) of an [[arrays|array]].}}
 
-&lt;center>See also: [[Arrays]]&lt;/center>
+: See also: [[Arrays]]
 
 
 &lt;center>'''Fixed Program DATA'''&lt;/center>
@@ -60,9 +39,6 @@ Keywords beginning with an _underscore can only be compiled in QB64.
 * [[READ]] (statement) {{text|reads the DATA from the data field sequentially.}}
 * [[RESTORE]] (statement) {{text|sets the data pointer to the start of all DATA or a specified DATA field.}}
 
-
-* '''WARNING! Do not place DATA fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to compile properly!'''
-{{text| Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.}}
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
@@ -114,17 +90,12 @@ Keywords beginning with an _underscore can only be compiled in QB64.
 * [[$CONSOLE]] (QB64 [[Metacommand]]) {{text|creates a console window throughout the program.}}
 * [[_CONSOLE]] (statement) {{text|can be used to turn the console window OFF or ON or designate it as [[_DEST]] _CONSOLE for output.}}
 * [[_CONSOLETITLE]] (statement) {{Text|creates a title for the console window using a literal or variable [[STRING|string]].}}
-
-
 * [[$SCREENHIDE]] (QB64 [[Metacommand]]) {{text|hides the program window throughout the program until [[$SCREENSHOW]] is used.}}
 * [[_SCREENHIDE]] {{text|hides the main program window in a section of code until [[_SCREENSHOW]] is used.}}
 * [[$SCREENSHOW]] (QB64 [[Metacommand]]) {{text|displays the main program window throughout the program after [[$SCREENHIDE]] has been used.}}
 * [[_SCREENSHOW]] {{text|displays the main program window in a section of code after [[_SCREENHIDE]] has been used.}}
 * [[SHELL (function)|SHELL (QB64 function)]] {{text|executes a [[DOS]] command or calls another program. Returns codes sent by [[END]] or [[SYSTEM]].}}
 * [[_SHELLHIDE]] (function) {{text|hides a [[DOS]] command or call to another program. Returns codes sent by [[END]] or [[SYSTEM]].}}
-
-
-&lt;center>See also: [[Console Window]] and [[C_Libraries#Console_Window|C++ Console window Library]].&lt;/center>
 
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
@@ -156,8 +127,6 @@ Keywords beginning with an _underscore can only be compiled in QB64.
 * [[_MEM]] (variable type) {{text|contains read only dot elements for the OFFSET, SIZE, TYPE and ELEMENTSIZE of a block of memory.}}
 * [[_OFFSET]](%&amp; variable type) {{text|can store any memory offset integer value when using [[DECLARE LIBRARY]] or [[_MEM]]ory only.}}
 * [[_UNSIGNED]] {~ numerical [[TYPE|type]]) {{text|defines an integer numerical value as being positive only in QB64.}}
-
-
 * [[COMMON]] (statement) {{text|shares common variable values with other Linked or [[CHAIN]]ed programs.}}
 * [[COMMON SHARED]] (statement) {{text|shares common variable values with all sub-procedures and other Linked or CHAINed programs.}}
 * [[CONST]] (statement) {{text|defines one or more named numeric or string shared values which can  not change in a program.}}
@@ -183,23 +152,29 @@ Keywords beginning with an _underscore can only be compiled in QB64.
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
-== [[DOS]] and OS Environment: ==
+== External Disk and API calls ==
+* [[_ACCEPTFILEDROP]] (statement) {{text|turns a program window into a valid drop destination for dragging files from Windows Explorer.}}
 * [[_DEVICE$]] (function) {{text|returns a [[STRING]] expression listing device names and input types of system input devices.}}
 * [[_DEVICES]] (function) {{text|returns the number of input devices found on a computer system.}}
 * [[_DIREXISTS]] (function) {{text|returns -1 if the directory folder name [[STRING|string]] parameter exists. Zero if it does not.}}
+* [[_DROPPEDFILE]] (function) {{text| returns the list of items (files or folders) dropped in a program's window after [[_ACCEPTFILEDROP]] is enabled.}}
 * [[_CLIPBOARD$ (statement)]] {{text|sends [[STRING]] data to the Clipboard.}}
 * [[_CLIPBOARD$]] (function) {{text|returns the current contents of the Clipboard as a [[STRING|string]].}}
+* [[_CLIPBOARDIMAGE (function)]] {{text|pastes an image from the clipboard into a new QB64 image in memory.}}
+* [[_CLIPBOARDIMAGE]] (statement) {{text|copies a valid QB64 image to the clipboard.}}
 * [[_CWD$]] (function) {{text|returns the current working directory path as a [[STRING]].}}
 * [[_DONTWAIT]] (SHELL action) {{text|allows the program to continue without waiting for the other program to close.}}
 * [[_FILEEXISTS]] (function) {{text|returns -1 if the file name [[STRING|string]] parameter exists. Zero if it does not.}}
+* [[_FINISHDROP]] (statement) {{text| resets [[_TOTALDROPPEDFILES]] and clears the [[_DROPPEDFILE]] list of items (files/folders).}}
 * [[_HIDE]] (SHELL action) {{text|hides the [[DOS]] screen output during a shell.}}
-*[[_LASTBUTTON]] (function) {{text|returns the number of buttons available on a specified number device listed by [[DEVICE$]].}} 
+* [[_LASTBUTTON]] (function) {{text|returns the number of buttons available on a specified number device listed by [[DEVICE$]].}} 
 * [[_OS$]] (function) {{text| returns the QB64 compiler version in which the program was compiled as [WINDOWS], [LINUX] or [MACOSX] and [32BIT] or [64BIT].}}
 * [[_SCREENCLICK]]  {{text|simulates clicking the mouse at a position on the screen to get focus.}}
 * [[_SCREENIMAGE]]  {{text|captures the current desktop screen image.}}
 * [[_SCREENPRINT]]  {{text|simulates keyboard entries on the desktop.}} 
 * [[_SHELLHIDE]] (function) {{text|executes a [[DOS]] command or calls another program. Returns codes sent by [[END]] or [[SYSTEM]].}}
 * [[_STARTDIR$]] (function) {{text|returns the user's program calling path as a [[STRING]].}}
+* [[_TOTALDROPPEDFILES]] (function) {{text| returns the number of items (files or folders) dropped in a program's window after [[_ACCEPTFILEDROP]] is enabled.}}
 
 
 * [[CHDIR]] (statement) {{text|changes the program path to a new path.}}
@@ -213,8 +188,6 @@ Keywords beginning with an _underscore can only be compiled in QB64.
 * [[SHELL]] (statement) {{text|performs a command line operation in [[DOS]].}}
 * [[SHELL (function)|SHELL (QB64 function)]] {{text|executes a [[DOS]] command or calls another program. Returns codes sent by [[END]] or [[SYSTEM]].}}
 
-
-&lt;center>''See also:'' [[Keyword_Reference_-_By_usage#Console_Window|Console Window]] to display [[DOS]] commands.&lt;/center>
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
@@ -355,20 +328,16 @@ The following table describes the error codes that are reported by the '''QB64''
 
 == Error Trapping: ==
 
-* [[$CHECKING]] ([[Metacommand]]) {{text|turns off or on error event checking and strips error code from compiled programs.}}
+
+* [[_ASSERT]] (statement) {{text|Performs debug tests.}}
+* [[$ASSERTS]] (metacommand) {{text|Enables the [[_ASSERT]] macro}}* [[$CHECKING]] ([[Metacommand]]) {{text|turns off or on error event checking and strips error code from compiled programs.}}
 * [[_ERRORLINE]] (function) {{text|returns the actual text code line where a program error occurred.}} 
-
-
 * [[ERDEV]] (function) {{text|returns an error code from the last device to create an error. NOT IMPLEMENTED!}}
 * [[ERDEV$]] (function) {{text|returns the string name of the last device to declare an error. NOT IMPLEMENTED!}}
 * [[ERR]] (function) {{text|returns the error code number of the last error to occur.}}
 * [[ERROR]] (statement) {{text|simulates a program error based on the error code number used.}}
 * [[ERL]] (function) {{text|returns the closest line number before an error occurred if the program uses them.}}
-
-
 * [[ON ERROR]] (statement) [[GOTO]] {{text|sends the program to a line number or label when an error occurs. Use to avoid program errors.}}
-
-
 * [[RESUME]] (statement) {{text|error statement sends the program to the [[NEXT]] code line or a designated line number or label .}}
 
 
@@ -390,14 +359,9 @@ The following table describes the error codes that are reported by the '''QB64''
 
 * [[OFF]] {{text|turns event checking off and does not remember subsequent events.}}
 * [[ON]] {{text|turns event checking on.}}
-* [[ON COM(n)]] (event statement) {{text|executes when there is a value in the serial port specified. NOT IMPLEMENTED!}}
 * [[ON ERROR]] [[GOTO]] (event statement) {{text|executes when a program error occurs}}
 * [[ON KEY(n)]] (event statement) {{text|executes when a keypress or keypress combination occurs.}}
-* [[ON PEN]] (event statement) {{text|executes when a PEN event occurs. NOT IMPLEMENTED!}}
-* [[ON PLAY(n)]] (event statement) {{text|executes when the background music queue is low. NOT IMPLEMENTED! }}
-* [[ON STRIG(n)]] (event statement) {{text|executes when a joystick button event occurs. NOT IMPLEMENTED!}}
 * [[ON TIMER(n)]] (event statement) {{text|executes when a timed event occurs. QB64 can use multiple numbered timers.}}
-* [[ON UEVENT]] (event statement) {{text|executes when a user event occurs. NOT IMPLEMENTED!}}
 * [[ON...GOSUB]] (event statement) {{text|branches to a line number or label according to a numerical ordered list of labels.}}
 * [[ON...GOTO]] (event statement) {{text|branches to a line number or label according to a numerical ordered list of labels.}}
 * [[STOP]] {{text|suspends event checking and remembers subsequent events that are executed when events are turned back on.}}
@@ -411,8 +375,6 @@ The following table describes the error codes that are reported by the '''QB64''
 
 * [[_DIREXISTS]] (function) {{text|returns -1 if the directory folder name [[STRING|string]] parameter exists. Zero if it does not.}}
 * [[_FILEEXISTS]] (function) {{text|returns -1 if the file name [[STRING|string]] parameter exists. Zero if it does not.}}
-
-
 * [[ACCESS]] (clause) {{text|used in a networking [[OPEN]] statement to allow READ or WRITE access to files.}}
 * [[APPEND]] (file mode) {{text|opens or creates a file that can be appended with data at the end.}}
 * [[BINARY]] (file mode) {{text|opens or creates a file that can be byte accessed using both [[GET]] and [[PUT]].}}
@@ -454,21 +416,15 @@ The following table describes the error codes that are reported by the '''QB64''
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
-== Fonts and [[Unicode]]: ==
+== Fonts: ==
 
 * [[_FONT (function)]] {{text|creates a new alphablended font handle from a designated image handle}}
 * [[_FONT]] (statement) {{text|sets the current [[_LOADFONT]] function font handle to be used by [[PRINT]] or [[_PRINTSTRING]].}}
 * [[_FONTHEIGHT]] (function) {{text|returns the font height of a font handle created by [[_LOADFONT]].}}
 * [[_FONTWIDTH]] (function) {{text|returns the font width of a MONOSPACE font handle created by [[_LOADFONT]].}}
 * [[_FREEFONT]] (statement) {{text|frees a font handle value from memory}}
-
-
 * [[_LOADFONT]] (function) {{text|loads a TrueType font (.TTF) file of a specific size and style and returns a font handle value.}}
-
-
 * [[_MAPUNICODE]] (statement) {{text|maps a [[Unicode]] value to an [[ASCII]] character code value.}}
-
-
 * [[_PRINTMODE (function)]] {{text|returns the present _PRINTMODE status as a numerical value.}}
 * [[_PRINTMODE]] (statement) {{text|sets the text or [[_FONT]] printing mode on a background image when using [[PRINT]] or [[_PRINTSTRING]].}}
 :*_KEEPBACKGROUND {{text|(1): Text background transparent. Only the text is displayed over anything behind it.}}
@@ -476,14 +432,10 @@ The following table describes the error codes that are reported by the '''QB64''
 :*_FILLBACKGROUND {{text|(3): Text and background block anything behind them like a normal [[PRINT]]. Default setting.}}
 * [[_PRINTSTRING]] (statement) {{text|prints text or custom font strings using graphic column and row coordinate positions.}}
 * [[_PRINTWIDTH]] (function) {{text|returns the width in pixels of the [[_FONT]] or text [[STRING|string]] that a program will print.}}
-
-
 * [[PRINT]] (statement) {{text|prints numeric or [[STRING|string]] expressions to the program screen.}}
 * [[PRINT USING]] (statement) {{text|prints template formatted numeric or string values to the program screen.}}
 * [[WRITE]] (screen I/O statement) {{text|writes a comma-separated list of values to the screen.}}
 
-
-&lt;center> See also: [[Unicode]], [[Code Pages|Unicode Code Pages]] or [[ASCII|ASCII Code Table]]&lt;/center>
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
@@ -491,45 +443,31 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_AXIS]] (function) {{text|returns a [[SINGLE]] value between -1 and 1 indicating the maximum distance from device axis center 0.}}
 * [[_BUTTON]] (function) {{text|returns -1 when a device button is pressed and 0 when button is released.}}
 * [[_BUTTONCHANGE]] (function) {{text|returns -1 when a device button has been pressed and 1 when released. Zero indicates no change.}}
-
-
 * [[_DEVICE$]] (function) {{text|returns a [[STRING]] expression listing a designated numbered input device name and types of input.}}
 * [[_DEVICEINPUT]] (function) {{text|returns the [[_DEVICES]] number of an [[_AXIS]], [[_BUTTON]] or [[_WHEEL]] event.}}
 * [[_DEVICES]] (function) {{text|returns the number of input devices found on a computer system including the keyboard and mouse.}}
-
-
 * [[_LASTAXIS]] (function) {{text|returns the number of axis available on a specified number device listed by [[_DEVICE$]].}}
-*[[_LASTBUTTON]] (function) {{text|returns the number of buttons available on a specified number device listed by [[DEVICE$]].}} 
+* [[_LASTBUTTON]] (function) {{text|returns the number of buttons available on a specified number device listed by [[DEVICE$]].}} 
 * [[_LASTWHEEL]] (function) {{text|returns the number of scroll wheels available on a specified number device listed by [[_DEVICE$]].}}
-
-
 * [[_MOUSEMOVEMENTX]] (function) {{text|returns the relative horizontal position of the mouse cursor compared to the previous position.}}
 * [[_MOUSEMOVEMENTY]] (function) {{text|returns the relative vertical position of the mouse cursor compared to the previous position.}}
 * [[_WHEEL]] (function) {{text|returns -1 when a device wheel is scrolled up and 1 when scrolled down. Zero indicates no activity.}}
-
-
 * [[ON STRIG(n)]] (event statement) {{text|directs program flow upon a button press event of a game controller device.}}
 * [[STICK]] (function) {{text|returns the directional axis coordinate values from 1 to 254 of game port (&amp;H201) or USB controller devices.}}
 * [[STRIG]] (function) {{text|returns the True or False button press status of game port (&amp;H201) or USB controller devices.}}
 * [[STRIG(n)]] (statement) {{text|enables, suspends or disables event trapping of STRIG button return values.}}
 
 
-&lt;center> See also: [[Windows_Libraries#Game_Pad|Windows Game Pad]] or  [[SDL_Libraries#Joystick|SDL Joystick]] Libraries.&lt;/center>
-
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
-
-==Graphic GL Special Commands==
-
-&lt;center>[http://www.qb64.net/wiki/index.php/Keyword_Reference_-_Alphabetical#glA Full list of QB64 _GL prefixed statements and functions] &lt;/center>
+==Graphic Commands==
 
 * [[_COPYIMAGE]] (function) {{text|can copy a software surface to a hardware accelerated surface handle using mode 33.}}
-* [[_DISPLAY]] (statement) {{text|renders surfaces visible in the [[_DISPLAYORDER]] previously set in the QB64GL program.}}
-* [[_DISPLAYORDER]] (GL statement) {{text|sets the rendering order of _SOFTWARE, _HARDWARE and _GLRENDER with [[_DISPLAY]].}}
+* [[_DISPLAY]] (statement) {{text|renders surfaces visible in the [[_DISPLAYORDER]] previously set in the QB64 program.}}
+* [[_DISPLAYORDER]] {{text|sets the rendering order of _SOFTWARE, _HARDWARE and _GLRENDER with [[_DISPLAY]].}}
 * [[_LOADIMAGE]] (function) {{text|can load images as hardware accelerated using mode 33.}}
 * [[_MOUSESHOW]] (statement) {{text|a special string parameter after command in GL allows some special cursor shapes.}}
 * [[_PUTIMAGE]] (statement) {{text|can place GL surfaces and allows the _SMOOTH action to blend stretched surfaces.}}
-
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
@@ -547,7 +485,7 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_FULLSCREEN]] (statement) {{text|sets the full screen mode of the screen window. Alt + Enter can do it manually.}}
 * [[_FREEIMAGE]] (statement) {{text|releases an image handle value from memory when no longer needed.}}
 * [[_HEIGHT]] (function) {{text|returns the height of an image handle or current write page.}}
-* [[_ICON]] (function) {{text|places an image in the title bar using a [[_LOADIMAGE]] handle. (Icons can be used in GL only!)}}
+* [[_ICON]] (function) {{text|places an image in the title bar using a [[_LOADIMAGE]] handle.}}
 * [[_LOADIMAGE]] (function) {{text|loads a graphic file image into memory and returns an image handle.}}
 * [[_MAPTRIANGLE]] (statement) {{text|maps a triangular portion of an image to a destination image or screen page.}}
 * [[_NEWIMAGE]] (function) {{text|prepares a window image or page surface and returns the handle value.}}
@@ -603,9 +541,6 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[KEY LIST]] (statement) {{text|lists the 12 Function key soft key string assignments going down left side of screen.}}
 * [[LINE INPUT]] (statement) {{text|requests a [[STRING]] keyboard entry from a program user.}}
 * [[ON KEY(n)]] (event statement) {{text|defines a line number or label to go to when a specified key is pressed.}}
-* [[ON PEN]] (event statement) {{text|enables event handling for a lightpen. NOT IMPLEMENTED!}}
-* [[PEN]] (event function) {{text|returns requested information about the lightpen device used. NOT IMPLEMENTED!}}
-* [[PEN (statement)]] {{text|enables/disables or suspends event trapping of the lightpen device. NOT IMPLEMENTED!}}
 * [[SLEEP]] (statement) {{text|pauses the program for a specified number of seconds or a until a key press.}}
 
 
@@ -622,9 +557,9 @@ The following table describes the error codes that are reported by the '''QB64''
 
 * [[ALIAS]] (statement) {{text|tells the program that you will use a different name than the name used in the Library file.}}
 * [[BYVAL]] (statement) {{text|used to pass a parameter's value with sub-procedures from a Library.}}
-* [[DECLARE LIBRARY]] (QB64 Only) {{text|allows the use of OS specific, SDL or C++ external library [[SUB]] and [[FUNCTION]] procedures}}
-* [[DECLARE DYNAMIC LIBRARY]] (QB64 Only) {{text|declares DYNAMIC, CUSTOMTYPE or STATIC  library(DLL) [[SUB]]s or [[FUNCTION]]s.}}
-* [[DECLARE LIBRARY| END DECLARE]] (QB64 Only) {{text|required at the END of the block of Library declarations in QB64.}}
+* [[DECLARE LIBRARY]] {{text|allows the use of OS specific, SDL or C++ external library [[SUB]] and [[FUNCTION]] procedures}}
+* [[DECLARE DYNAMIC LIBRARY]] {{text|declares DYNAMIC, CUSTOMTYPE or STATIC  library(DLL) [[SUB]]s or [[FUNCTION]]s.}}
+* [[DECLARE LIBRARY| END DECLARE]] {{text|required at the END of the block of Library declarations in QB64.}}
 
 
 &lt;center>'''QB64 also supports [[$INCLUDE]] text code file Libraries. QB64 does not support QLB Libraries or OBJ files.'''&lt;/center>
@@ -781,7 +716,6 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[ABS]] (function) {{text|returns the the positive value of a variable or literal numerical value.}}
 * [[ASC]] (function) {{text|returns the [[ASCII]] code number of a certain [[STRING]] text character or a keyboard press.}}
 * [[CDBL]] (function) {{text|converts a numerical value to the closest [[DOUBLE]]-precision value.}}
-* [[CDECL]] (statement) {{text|used to indicate that the external procedure uses the C-language argument order.}}
 * [[CHR$]] (function) {{text|returns the character associated with a certain [[ASCII]] character code as a [[STRING]].}}
 * [[CINT]] (function) {{text|returns the closest [[INTEGER]] value of a number.}}
 * [[CLEAR]] (statement) {{text|clears all variable values to 0 or null [[STRING|strings]] and closes all open files.}}
@@ -875,7 +809,6 @@ The following table describes the error codes that are reported by the '''QB64''
 
 
 * [[CALL]] (statement) {{text|sends code execution to a subroutine procedure in a program.}}
-* [[CALLS]] (statement) {{text|transfers control to a procedure written in a different programming language. NOT IMPLEMENTED!}}
 * [[CASE]] ([[SELECT CASE]] statement) {{text|used within a SELECT CASE block to specify a conditional value of the compared variable.}}
 * [[CASE ELSE]] ([[SELECT CASE]] statement) {{text|used in a SELECT CASE block to specify an alternative to other CASE values.}}
 * [[CASE IS]] ([[SELECT CASE]] statement) {{text|used within a SELECT CASE block to specify a conditional value of the compared variable.}}
@@ -906,7 +839,7 @@ The following table describes the error codes that are reported by the '''QB64''
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
-== Sounds and Music using Sound Card: ==
+== Sounds and Music ==
 
 * [[_SNDBAL]] (statement) {{text|sets the balance or 3D position of a sound.}}
 * [[_SNDCLOSE]] (statement) {{text|frees and unloads an open sound using a _SNDOPEN or _SNDCOPY handle.}}
@@ -933,8 +866,6 @@ The following table describes the error codes that are reported by the '''QB64''
 
 
 * [[BEEP]] (statement) {{text|makes a beep sound when called or CHR$(7) is printed.}}
-* [[ON PLAY(n)]] (event statement) {{text|specifies the line-number or label to branch to when the background music queue is low. NA!}}
-* [[PLAY(n)]] (event function) {{text|returns the number of notes currently in the background music queue. NOT IMPLEMENTED!}}
 * [[PLAY]] (music statement) {{text|uses a custom string statement to play musical notes.}}
 * [[SOUND]] (statement) {{text|creates sounds of a specified frequency for a set duration.}}
 
@@ -985,10 +916,8 @@ The following table describes the error codes that are reported by the '''QB64''
 &lt;center>'''Qbasic and QB64'''&lt;/center>
 * [[CALL]] (statement) {{text|sends code execution to a [[SUB]] procedure in a program. Parameter brackets are required when used.}}
 * [[CALL ABSOLUTE|CALL ABSOLUTE]] (statement) {{text|used to access Interrupts on the computer or execute assembly type procedures.}}
-* [[CALLS]] (statement) {{text|transfers control to a procedure written in a different programming language. NOT IMPLEMENTED!}}
 * [[CHAIN]] (statement) {{text|changes seamlessly from one program module to another.}}
 * [[DECLARE]] (BASIC statement) {{text|used to tell that a SUB or FUNCTION is created to be used in the program. NOT USED by QB64!}}
-* [[DEF FN]] (statement) {{text|statement defines a function in the main module. NOT IMPLEMENTED!}}
 * [[END]] (statement) {{text|ends a [[SUB]] or [[FUNCTION]] procedure.}}
 * [[EXIT]] (statement) {{text|exits a [[SUB]] or [[FUNCTION]] procedure early.}}
 * [[FUNCTION]] (statement) {{text|a procedure that holds ONE return value in the function's name which is a variable type. }}
@@ -1084,7 +1013,6 @@ The following table describes the error codes that are reported by the '''QB64''
 
 
 * [[DATE$]] (function) {{text|returns the present computer date in a mm-dd-yyyy [[STRING|string]] format}}
-* [[DATE$ (statement)]] {{text|sets the computer date in a mm-dd-yyyy [[STRING|string]] format if allowed by the OS.}}
 
 * [[INKEY$]] (function) {{text| can be used in a loop to wait for a keypress or a [Ctrl] + letter key combination.}}
 * [[INPUT]] (statement) {{text|can be used to wait for an [Enter] key press or a text or numerical menu entry.}}
@@ -1095,7 +1023,6 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[SLEEP]] (statement) {{text|pauses the program for a specified number of seconds or a until a key press is made.}}
 * [[TIME$]] (function) {{text|returns the present computer time in a hh:mm:ss 24 hour [[STRING|string]] format}}
 
-* [[TIME$ (statement)]] {{text|sets the computer time in a hh:mm:ss 24 hour [[STRING|string]] format if allowed by the OS.}}
 * [[TIMER]] (function) {{text|returns the number of seconds past the previous midnite down to a QB64 accuracy of one millisecond.}}
 * [[TIMER (statement)]] {{text|enables, turns off or stops timer event trapping. In QB64 TIMER(n) FREE can free multiple timers. }}
 
@@ -1113,7 +1040,7 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_ICON]] (statement) {{text|creates a program icon from an image file handle created by [[_LOADIMAGE]]. Cannot use .ICO files!}}
 * [[_NEWIMAGE]] (statement) {{text|function prepares a window image surface and returns the handle value.}}
 * [[$RESIZE]] ([[Metacommand]]) {{text|used with ON allows a user to resize the program window where OFF does not.}}
-* [[_RESIZE (function)]] {{text|returns -1 when a program user wants to resize the GL program screen.}}
+* [[_RESIZE (function)]] {{text|returns -1 when a program user attempts to resize the program screen.}}
 * [[_RESIZEHEIGHT]] (function) {{text|returns the requested new user screen height when [[$RESIZE]]:ON allows it.}}
 * [[_RESIZEWIDTH]] (function) {{text|returns the requested new user screen width when [[$RESIZE]]:ON allows it.}}
 * [[_SCREENCLICK]]  {{text|simulates clicking the mouse at a position on the screen to get focus.}}
@@ -1224,20 +1151,9 @@ The following table describes the error codes that are reported by the '''QB64''
 
 [[QB64 FAQ|Visit the QB64 FAQ]]
 
-[http://www.qb64.net Visit the QB64 Main Site]
+[http://www.qb64.org Visit the QB64 Main Site]
 
-[http://www.qb64.net/forum/index.php Visit QB64 Community Forum]
-
-
-'''Links to other Qbasic Sites:'''
-
-[http://qbasicstation.com/index.php?c=p_member Member programs at Qbasic Station]
-
-[http://www.network54.com/Index/10167 Qbasic Forum at Network 54]
-
-[http://www.petesqbsite.com/forum/ Pete's Qbasic Forum]
-
-[http://www.petesqbsite.com/downloads/downloads.shtml Pete's Qbasic Downloads]&lt;/center>
+[http://www.qb64.org/forum Visit QB64 Community Forum]
 
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>

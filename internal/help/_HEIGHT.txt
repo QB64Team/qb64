@@ -1,1 +1,24 @@
-#REDIRECT [[_HEIGHT, _WIDTH]]
+{{DISPLAYTITLE:_HEIGHT}}
+The [[_HEIGHT]] function returns the height of an image handle or of the current write page.
+
+
+{{PageSyntax}}
+: {{Parameter|columns&amp;}} = [[_HEIGHT]][({{Parameter|imageHandle&amp;}})]
+
+
+{{PageDescription}}
+* If {{Parameter|imageHandle&amp;}} is omitted, it's assumed to be the handle of the current [[SCREEN]] or write page.
+* To get the height of the current program [[SCREEN|screen]] window use zero for the handle value or nothing: {{Parameter|lines&amp;}} = [[_HEIGHT]](0) ''or'' {{Parameter|lines&amp;}} = [[_HEIGHT]]
+* If the image specified by {{Parameter|imageHandle&amp;}} is in text only([[SCREEN]] 0) mode, the number of characters per row is returned.
+* If the image specified by {{Parameter|imageHandle&amp;}} is in graphics mode, the number of pixels per row is returned. 
+* If {{Parameter|imageHandle&amp;}} is an invalid handle, then an [[ERROR Codes|invalid handle error]] is returned.
+* The last visible pixel coordinate of a program [[SCREEN|screen]] is '''[[_HEIGHT]] - 1'''.
+
+
+
+{{PageSeeAlso}}
+* [[_WIDTH (function)]], [[_LOADIMAGE]], [[_NEWIMAGE]]
+* [[Bitmaps]]
+
+
+{{PageNavigation}}
