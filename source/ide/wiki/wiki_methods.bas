@@ -30,6 +30,20 @@ FUNCTION Wiki$ (PageName$)
             a$ = SPACE$(LOF(fh))
             GET #fh, , a$
             CLOSE #fh
+            chr13 = INSTR(a$, CHR$(13))
+            removedchr13 = 0
+            DO WHILE chr13 > 0
+                removedchr13 = -1
+                a$ = LEFT$(a$, chr13 - 1) + MID$(a$, chr13 + 1)
+                chr13 = INSTR(a$, CHR$(13))
+            LOOP
+            IF removedchr13 THEN
+                fh = FREEFILE
+                OPEN Cache_Folder$ + "/" + PageName2$ + ".txt" FOR OUTPUT AS #fh: CLOSE #fh
+                OPEN Cache_Folder$ + "/" + PageName2$ + ".txt" FOR BINARY AS #fh
+                PUT #fh, 1, a$
+                CLOSE #fh
+            END IF
             Wiki$ = a$
             EXIT FUNCTION
         END IF
