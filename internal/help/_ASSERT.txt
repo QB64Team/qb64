@@ -1,0 +1,47 @@
+{{DISPLAYTITLE:_ASSERT}}
+The [[_ASSERT]] statement can be used to perform tests in code that's in development, for debugging purposes.
+
+
+{{PageSyntax}}
+:[[_ASSERT]]  {{Parameter|condition}}[,  {{Parameter|errorMessage$}}]
+
+
+{{PageDescription}}
+* {{Parameter|condition}} is the condition that must be met in order to consider the _ASSERT valid.
+* Optional {{Parameter|errorMessage$}} is the message to be displayed in the console window if [[$ASSERTS|$ASSERTS:CONSOLE]] is used.
+* If the condition is not met (that is, if it evaluates to 0), an error occurs ("_ASSERT failed on line #") and program execution stops.
+
+
+==Availability==
+* '''Version 1.4 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Adding test checks for parameter inputs in a function. 
+{{CodeStart}}
+{{Cl|$ASSERTS}}:CONSOLE
+ 
+{{Cl|DO}}
+    a = {{Cl|INT}}({{Cl|RND}} * 10)
+    b$ = myFunc$(a)
+    {{Cl|PRINT}} a, , b$
+    {{Cl|_LIMIT}} 3
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|_KEYHIT}}
+ 
+{{Cl|FUNCTION}} myFunc$ (value {{Cl|AS}} {{Cl|SINGLE}})
+    {{Cl|_ASSERT}} value > 0, "Value cannot be zero"
+    {{Cl|_ASSERT}} value &lt;= 10, "Value cannot exceed 10"
+ 
+    {{Cl|IF}} value > 1 {{Cl|THEN}} plural$ = "s"
+    myFunc$ = {{Cl|STRING$}}(value, "*") + {{Cl|STR$}}(value) + " star" + plural$ + " :-)"
+{{Cl|END}} {{Cl|FUNCTION}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[$ASSERTS]]
+* [[$CHECKING]]
+* [[Relational Operations]]
+
+
+{{PageNavigation}}

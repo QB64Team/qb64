@@ -17,7 +17,7 @@ The [[_SHR]] function is used to shift the bits of a numerical value to the righ
 * Allows for division of a value by 2 faster than normal division (see example 2 below).
 * Bits that reach the end of a variables bit count are dropped.
 * The type of variable used to store the results should match the type of the variable being shifted.
-
+* NOTE: When dealing with SIGNED variables, shifting the bits right will leave the sign bit set. This is due to how C++ deals with bit shifting under the hood. 
 
 ==Availability==
 * '''Version 1.3 and up'''.

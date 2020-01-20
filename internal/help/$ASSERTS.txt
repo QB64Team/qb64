@@ -1,0 +1,45 @@
+The [[$ASSERTS]] metacommand enables debug tests with the [[_ASSERT]] macro.
+
+
+{{PageSyntax}}
+:[[$ASSERTS]]
+:[[$ASSERTS]]:CONSOLE
+
+
+{{PageDescription}}
+* If an error message is passed to the [[_ASSERT]] statement, it is displayed in the console window if [[$ASSERTS|$ASSERTS:CONSOLE]] is used.
+
+
+==Availability==
+* '''Version 1.4 and up'''.
+
+
+{{PageExamples}}
+''Example:'' Adding test checks for parameter inputs in a function. 
+{{CodeStart}}
+{{Cl|$ASSERTS}}:CONSOLE
+ 
+{{Cl|DO}}
+    a = {{Cl|INT}}({{Cl|RND}} * 10)
+    b$ = myFunc$(a)
+    {{Cl|PRINT}} a, , b$
+    {{Cl|_LIMIT}} 3
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|_KEYHIT}}
+ 
+{{Cl|FUNCTION}} myFunc$ (value {{Cl|AS}} {{Cl|SINGLE}})
+    {{Cl|_ASSERT}} value > 0, "Value cannot be zero"
+    {{Cl|_ASSERT}} value &lt;= 10, "Value cannot exceed 10"
+ 
+    {{Cl|IF}} value > 1 {{Cl|THEN}} plural$ = "s"
+    myFunc$ = {{Cl|STRING$}}(value, "*") + {{Cl|STR$}}(value) + " star" + plural$ + " :-)"
+{{Cl|END}} {{Cl|FUNCTION}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_ASSERT]]
+* [[$CHECKING]]
+* [[Relational Operations]]
+
+
+{{PageNavigation}}

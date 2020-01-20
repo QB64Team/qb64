@@ -276,9 +276,7 @@ pcolorp = gcolorp
       pcolorp = {{Cl|INSTR}}("0123456789abcdef", {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))) - 1
   {{Cl|END SELECT}}
   {{Cl|IF...THEN|IF}} {{Cl|NOT}} pcolorp = -1 {{Cl|THEN}}
-    {
-2b3c
-{Cl|IF...THEN|IF}} gscalep > 1 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} gscalep > 1 {{Cl|THEN}}
       {{Cl|LINE}} ((gposxp - 1) * gscalep, (gposyp - 1) * gscalep)-{{Cl|STEP}}(gscalep - 1, gscalep - 1), pcolorp, BF
     {{Cl|ELSE}}:
       {{Cl|PSET}} (gposxp, gposyp), pcolorp

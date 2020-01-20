@@ -48,16 +48,14 @@ Center 10, 15, "This text is centered." ' example module sub call
 
 {{Cl|DEFINT}} A-Z ' only code allowed before SUB line is a DEF statement or a comment
 {{Cl|SUB}} Center (Tclr, Trow, Text$)
-{{Cl|DEF SEG}} = &amp;H40
-Columns = {{Cl|PEEK}}(&amp;H4A)
-{{Cl|DEF SEG}}
+Columns = {{Cl|_WIDTH}} / {{Cl|_FONTWIDTH}} 'Convert _WIDTH (in pixels) to width in characters
 Middle = (Columns \ 2) + 1 ' reads any screen mode width
 Tcol = Middle - ({{Cl|LEN}}(Text$) \ 2)
 {{Cl|COLOR}} Tclr: {{Cl|LOCATE}} Trow, Tcol: {{Cl|PRINT}} Text$; ' end semicolon prevents screen roll
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 
-:''Explanation:'' The procedure centers text printed to the screen. The parameters are the text color, row and the text itself as a string or string variable. The maximum width of the screenmode is found and divided in half to find the center point. The text string's length is also divided in half and subtracted from the screen's center position. The procedure will also work when the [[WIDTH]] statement has been used. When adding variables to Text$ use the + concatenation operator. Not semicolons!
+:''Explanation:'' The procedure centers text printed to the screen. The parameters are the text color, row and the text itself as a string or string variable. The maximum width of the screen mode in characters is found and divided in half to find the center point. The text string's length is also divided in half and subtracted from the screen's center position. The procedure will also work when the [[WIDTH]] statement has been used. When adding variables to Text$ use the + concatenation operator. Not semicolons!
 
 
 ''Example 2:'' SUB and [[FUNCTION]] procedures always return to the place they were called in the main or other sub-procedures:

@@ -208,9 +208,7 @@ DO
         xx1% = DPLANE2D(0, 0): yy1% = DPLANE2D(0, 1)
         xx3% = DPLANE2D(2, 0): yy3% = DPLANE2D(2, 1)
         xx4% = DPLANE2D(3, 0): yy4% = DPLANE2D(3, 1)
-        {{Cl|_MAPTRIANGLE}} (0, 0
-4000
-)-(255, 255)-(255, 0), TextureImage&amp; TO(xx3%, yy3%)-(xx1%, yy1%)-(xx4%, yy4%)
+        {{Cl|_MAPTRIANGLE}} (0, 0)-(255, 255)-(255, 0), TextureImage&amp; TO(xx3%, yy3%)-(xx1%, yy1%)-(xx4%, yy4%)
         'CALL DrawTriangle(xx1%, yy1%, xx3%, yy3%, xx4%, yy4%, col%)
       {{Cl|END IF}}
     {{Cl|NEXT}}
@@ -636,9 +634,7 @@ DO
         y1% = y2%
         ydiff1% = y3% - y1%
         ydiff2% = y3% - y2%
-        {{Cl|IF...
-2fb2
-THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} ydiff1% &lt;> 0 {{Cl|THEN}}
             slope1! = (x3% - x1%) / ydiff1%
         {{Cl|ELSE}}
             slope1! = 0

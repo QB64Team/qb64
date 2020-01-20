@@ -1,0 +1,46 @@
+{{DISPLAYTITLE:_RESETBIT}}
+The [[_RESETBIT]] function is used to set a specified bit of a numerical value to 0 (OFF state).
+
+
+{{PageSyntax}}
+:{{Parameter|result}} = [[_RESETBIT]]({{Parameter|numericalVariable}}, {{Parameter|numericalValue}})
+
+
+{{Parameters}}
+* {{Parameter|numericalVariable}} is the variable to set the bit of and can be of the following types: [[_BYTE]], [[INTEGER]], [[LONG]], or [[_INTEGER64]].
+* Integer values can be signed or [[_UNSIGNED]].
+* {{Parameter|numericalValue}} the number of the bit to be set.
+
+
+{{PageDescription}}
+* Can be used to manually manipulate individual bits of an integer value by setting them to 0 (OFF state).
+* Resetting a bit that is already set to 0 will have no effect.
+* Bits start at 0 (so a [[_BYTE]] has bits 0 to 7, [[INTEGER]] 0 to 15, and so on)
+
+==Availability==
+* '''Version 1.4 and up'''.
+
+
+{{PageExamples}}
+''Example 1:''
+{{CodeStart}}A~%% = 0 '{{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+{{Cl|PRINT}} A~%%
+A~%% = {{Cl|_SETBIT}}(A~%%,6) 'set the seventh bit of A~%%
+{{Cl|PRINT}} A~%%
+A~%% = {{Cl|_RESETBIT}}(A~%%,6) 'Reset the seventh bit of A~%%
+{{Cl|PRINT}} A~%%
+{{CodeEnd}}
+{{OutputStart}}
+ 0
+ 64
+ 0
+{{OutputEnd}}
+
+
+
+{{PageSeeAlso}}
+* [[_SHL]], [[_SHR]], [[INTEGER]], [[LONG]]
+* [[_SETBIT]], [[_BYTE]], [[_INTEGER64]]
+* [[_READBIT]], [[_TOGGLEBIT]]
+
+{{PageNavigation}}

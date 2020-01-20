@@ -86,37 +86,6 @@ MouseMove 200, 200 '' ''
 : '''Note: What libraries are or aren't automatically used in the linking process is not formally defined, nor is it guaranteed to stay that way in future versions of QB64.'''
 
 
-''Example 3:'' For this next example, download the file 'add.lib' and place it in you QB64 folder: http://www.qb64.net/add.lib
-{{CodeStart}} '' ''
-{{Cl|DECLARE LIBRARY}} "add"
-    {{Cl|FUNCTION}} addtwo&amp; ({{Cl|BYVAL}} value&amp;)
-{{Cl|END}} DECLARE
-PRINT addtwo(1) '' ''
-{{CodeEnd}}
-:''Explanation:'' Here, we tell QB64 to link to '''add.lib''' (QB64 searches for '''add.lib''', '''add.a''', and '''add.o''' in that order and uses the first that it finds). The function '''addtwo''' exists inside the library file '''add.lib''' but isn't defined anywhere else. QB64 creates the C definition for the function '''addtwo''' so that it can be called from our QB64 code.
-
-: '''Note: If the C function definition auto-created by QB64 does not exactly match the definition in the library file, it will not work. As a result of this it is often better to provide the C function definitions in the form of a C header file, such as in the following example.'''
-
-
-''Example 4:'' NTport is a commercial library hosted at http://www.zealsoftstudio.com/ntport/, but it does provide an evaluation version (it has a 3 second wait pop-up window) which we will use here. You don't need to download NTport, just download the following 3 files and put them in your QB64 folder:
-&lt;center>[http://www.qb64.net/ntport/ntport.lib NTport.lib]            [http://www.qb64.net/ntport/ntport.h NTport.h]               [http://www.qb64.net/ntport/ntport.dll Ntport.dll]&lt;/center>
-:'''IMPORTANT:''' The DLL is loaded automatically by the static library, we are not linking directly to the DLL, we are '''static linking''' (NOT directly or dynamically linking). This is an important concept to understand!
-{{CodeStart}}
-DECLARE LIBRARY "ntport"
-    FUNCTION GetLPTPortAddress% (BYVAL PortNo%)
-END DECLARE
-PRINT "&amp;H" + HEX$(GetLPTPortAddress%(1))
-{{CodeEnd}}
-:''Explanation:'' DECLARE LIBRARY also searches for C header files with a '''.h''' extension. So in this case it is using the header '''ntport.h''' and linking with '''ntport.lib''' just by specifying "NTPORT". The C function definitions are stored in '''ntport.h''' so even if our QB64 functions don't exactly match (eg. LONG instead of INTEGER) it will still work.
-
-:If you look inside ''''ntport.h'''' you'll find the following line containing the C function definition of the command we used:
-{{TextStart}} WORD WINAPI GetLPTPortAddress(WORD PortNo);
-{{TextEnd}}
-
-
-&lt;center>Galleon's '''OpenGL''' Library with demo program download: http://www.qb64.net/gl_package.zip&lt;/center>
-
-
 &lt;center>'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center>
 &lt;center>'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center>
 
@@ -130,7 +99,6 @@ PRINT "&amp;H" + HEX$(GetLPTPortAddress%(1))
 * [[OpenGL Libraries]], [[SDL Libraries]]
 * [[SFML Libraries]]
 * [[SQL Client]]
-* [http://www.qb64.net/forum/index.php?topic=11810.msg102081#msg102081 DECLARE LIBRARY and C++ Variable Types]
 
 
 {{PageNavigation}}

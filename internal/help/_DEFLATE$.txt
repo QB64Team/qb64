@@ -1,0 +1,48 @@
+{{DISPLAYTITLE:_DEFLATE$}}
+The [[_DEFLATE$]] function compresses a [[STRING|string]].
+
+
+{{PageSyntax}}
+:{{Parameter|result$}} = [[_DEFLATE$]]({{Parameter|stringToCompress$}})
+
+
+{{PageDescription}}
+* {{Parameter|result$}} will contain the compressed version of {{Parameter|stringToCompress$}}.
+* To decompress the resulting string, use [[_INFLATE$]].
+
+
+==Availability==
+* '''Version 1.4 and up'''.
+
+
+{{PageExamples}}
+''Example 1:'' Compressing a long string of text.
+{{CodeStart}}
+a$ = "The quick brown fox jumps over the lazy dog. "
+{{Cl|PRINT}} "Original string (a$): "; a$
+{{Cl|FOR}} i = 1 {{Cl|TO}} 15
+    a$ = a$ + a$
+{{Cl|NEXT}}
+ 
+{{Cl|PRINT}} "After concatenating it into itself several times, LEN(a$) ="; {{Cl|LEN}}(a$)
+ 
+b$ = {{Cl|_DEFLATE$}}(a$)
+{{Cl|PRINT}} "After using _DEFLATE$ to compress it, LEN ="; {{Cl|LEN}}(b$)
+{{Cl|PRINT}} {{Cl|USING}} "(compressed size is #.###% of the original)"; (({{Cl|LEN}}(b$) * 100) / {{Cl|LEN}}(a$))
+c$ = {{Cl|_INFLATE$}}(b$)
+PRINT "After using _INFLATE$ to decompress it, LEN ="; {{Cl|LEN}}(c$)
+ {{CodeEnd}}
+{{OutputStart}}
+Original string (a$): The quick brown fox jumps over the lazy dog
+After concatenating it into itself several times, LEN(a$) = 1474560
+After using _DEFLATE$ to compress it, LEN = 4335
+(compressed size is 0.295% of the original)
+After using _INFLATE$ to decompress it, LEN = 1474560
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[_INFLATE$]]
+
+
+{{PageNavigation}}

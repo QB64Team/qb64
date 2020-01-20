@@ -12,9 +12,10 @@ The [[_DONTBLEND]] statement turns off 32 bit alpha blending for the current ima
 
 {{PageDescription}}
 * If {{Parameter|imageHandle&amp;}} is not valid, an [[ERROR Codes|Invalid handle]] error will occur.
-* [[_DONTBLEND]] is faster than the default [[_BLEND]] unless you really need to use it in 32 bit.
+* [[_DONTBLEND]] is faster than the default [[_BLEND]]. '''You may want to disable it''', unless you really need to use it in 32 bit.
 * '''32 bit screen surface backgrounds (black) have zero [[_ALPHA]] so that they are transparent when placed over other surfaces.'''
-* Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opaque.
+* Use [[CLS]] to make a new surface background [[_ALPHA]] 255 or opaque.
+* Both [[_SOURCE]] and [[_DEST]] must have [[_BLEND]] enabled, or else colors will NOT blend.
 
 
 {{PageExamples}}
@@ -41,7 +42,7 @@ SaveBackground&amp; = {{Cl|_COPYIMAGE}}(0)
 {{Cl|END FUNCTION}}
 
 {{Cl|SUB}} RestoreBackground (Image {{Cl|AS}} {{Cl|LONG}})
-{{Cl|_PUTIMAGE}} (200, 200), Image, 0
+{{Cl|_PUTIMAGE}} , Image, 0
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 
