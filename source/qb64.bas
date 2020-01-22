@@ -2776,7 +2776,6 @@ DO
     IF ASC(a3$) = 36 THEN '$
 
         'precompiler commands should always be executed FIRST.
-
         IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
             IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
             DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
