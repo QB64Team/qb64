@@ -3,7 +3,7 @@ DIM SHARED BuildNum AS STRING
 DIM SHARED AutoBuildMsg AS STRING
 
 Version$ = "1.4"
-BuildNum$ = "[release candidate]"
+BuildNum$ = "Release Candidate"
 IF _FILEEXISTS("internal/version.txt") THEN
     versionfile = FREEFILE
     OPEN "internal/version.txt" FOR INPUT AS #versionfile
