@@ -1094,7 +1094,7 @@ GOTO sendcommand
 
 
 noide:
-PRINT "QB64 COMPILER V" + Version$
+IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 COMPILER V" + Version$
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
@@ -12436,7 +12436,7 @@ FUNCTION ParseCMDLineArgs$ ()
         SELECT CASE LCASE$(LEFT$(token$, 2))
             CASE "-?" 'Command-line help
                 _DEST _CONSOLE
-                PRINT "QB64 COMPILER V" + Version$
+                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 COMPILER V" + Version$
                 PRINT
                 PRINT "USAGE: qb64 [switches] <file>"
                 PRINT
@@ -12458,6 +12458,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 SYSTEM
             CASE "-v" 'Verbose mode
                 VerboseMode = -1
+                cmdlineswitch = -1
             CASE "-p" 'Purge
                 IF os$ = "WIN" THEN
                     CHDIR "internal\c"
@@ -12474,9 +12475,11 @@ FUNCTION ParseCMDLineArgs$ ()
                     END IF
                     CHDIR "../.."
                 END IF
+                cmdlineswitch = -1
             CASE "-s" 'Settings
+                settingsMode = -1
                 _DEST _CONSOLE
-                PRINT "QB64 COMPILER V" + Version$
+                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 COMPILER V" + Version$
                 SELECT CASE LCASE$(MID$(token$, 3))
                     CASE ""
                         PRINT "debuginfo     = ";
@@ -12491,11 +12494,11 @@ FUNCTION ParseCMDLineArgs$ ()
                     CASE ":exewithsource=true"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
                         PRINT "exewithsource = TRUE"
-                        SYSTEM
+                        SaveExeWithSource = -1
                     CASE ":exewithsource=false"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
                         PRINT "exewithsource = FALSE"
-                        SYSTEM
+                        SaveExeWithSource = 0
                     CASE ":debuginfo"
                         PRINT "debuginfo = ";
                         IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
@@ -12520,7 +12523,6 @@ FUNCTION ParseCMDLineArgs$ ()
                             END IF
                             CHDIR "../.."
                         END IF
-                        SYSTEM
                     CASE ":debuginfo=false"
                         PRINT "debuginfo = FALSE"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
@@ -12541,7 +12543,6 @@ FUNCTION ParseCMDLineArgs$ ()
                             END IF
                             CHDIR "../.."
                         END IF
-                        SYSTEM
                     CASE ELSE
                         PRINT "INVALID SETTINGS SWITCH: "; token$
                         PRINT
@@ -12550,27 +12551,38 @@ FUNCTION ParseCMDLineArgs$ ()
                         PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                         SYSTEM
                 END SELECT
+                _DEST 0
             CASE "-e" 'Option Explicit
                 optionexplicit_cmd = -1
+                cmdlineswitch = -1
             CASE "-z" 'Not compiling C code
                 No_C_Compile_Mode = 1
                 ConsoleMode = 1 'Implies -x
                 NoIDEMode = 1 'Implies -c
+                cmdlineswitch = -1
             CASE "-x" 'Use the console
                 ConsoleMode = 1
                 NoIDEMode = 1 'Implies -c
+                cmdlineswitch = -1
             CASE "-c" 'Compile instead of edit
                 NoIDEMode = 1
+                cmdlineswitch = -1
             CASE "-o" 'Specify an output file
                 IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
+                cmdlineswitch = -1
             CASE "-l" 'goto line (ide mode only); -l:<line number>
                 IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
+                cmdlineswitch = -1
             CASE ELSE 'Something we don't recognise, assume it's a filename
                 IF PassedFileName$ = "" THEN PassedFileName$ = token$
         END SELECT
     NEXT i
 
-    IF LEN(PassedFileName$) THEN ParseCMDLineArgs$ = PassedFileName$
+    IF LEN(PassedFileName$) THEN
+        ParseCMDLineArgs$ = PassedFileName$
+    ELSE
+        IF cmdlineswitch = 0 AND settingsMode = -1 THEN SYSTEM
+    END IF
 END FUNCTION
 
 FUNCTION Type2MemTypeValue (t1)

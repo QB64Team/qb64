@@ -13,7 +13,7 @@ DIM SHARED PasteCursorAtEnd AS _BYTE
 DIM SHARED SaveExeWithSource AS _BYTE, EnableQuickNav AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
-DIM SHARED IgnoreWarnings AS _BYTE
+DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -449,7 +449,7 @@ IF LoadedIDESettings = 0 THEN
     idebackupsize = VAL(value$)
     IF idebackupsize < 10 OR idebackupsize > 2000 THEN idebackupsize = 100: WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
 
-    result = ReadConfigSetting("DeBugInfo", value$)
+    result = ReadConfigSetting("DebugInfo", value$)
     idedebuginfo = VAL(value$)
     IF UCASE$(LEFT$(value$, 4)) = "TRUE" THEN idedebuginfo = 1
     IF result = 0 OR idedebuginfo <> 1 THEN
