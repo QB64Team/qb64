@@ -7730,7 +7730,6 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
 
                 o(2).sel = -1
                 o(3).sel = -1
-                focus = 1
                 GOTO ideopenloop
             END IF
         END IF
