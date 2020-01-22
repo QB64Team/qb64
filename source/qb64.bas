@@ -744,7 +744,7 @@ DIM SHARED findidsecondarg AS STRING
 DIM SHARED findanotherid AS INTEGER
 DIM SHARED findidinternal AS LONG
 DIM SHARED currentid AS LONG 'is the index of the last ID accessed
-DIM SHARED linenumber AS LONG
+DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG
 DIM SHARED wholeline AS STRING
 DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
@@ -1094,7 +1094,7 @@ GOTO sendcommand
 
 
 noide:
-IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 COMPILER V" + Version$
+IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
@@ -1116,7 +1116,7 @@ path.source$ = getfilepath$(sourcefile$)
 IF LEN(path.source$) THEN
     IF _DIREXISTS(path.source$) = 0 THEN
         PRINT
-        PRINT "CANNOT LOCATE SOURCE FILE: " + sourcefile$
+        PRINT "Cannot locate source file: " + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     END IF
@@ -1512,7 +1512,7 @@ IF idemode = 0 THEN
     qberrorhappened1:
     IF qberrorhappened = 1 THEN
         PRINT
-        PRINT "CANNOT LOCATE SOURCE FILE:" + sourcefile$
+        PRINT "Cannot locate source file:" + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     ELSE
@@ -1534,6 +1534,9 @@ END IF
 
 IF idemode THEN GOTO ideret1
 
+PRINT
+PRINT "Beginning C++ output from QB64 code... ";
+
 lineinput3load sourcefile$
 
 DO
@@ -1554,7 +1557,8 @@ DO
     layout = ""
     layoutok = 0
 
-    linenumber = linenumber + 1 'dont increment the line counter when adding all the color constants
+    linenumber = linenumber + 1
+    reallinenumber = reallinenumber + 1
 
     DO UNTIL linenumber < UBOUND(InValidLine) 'color information flag for each line
         REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE
@@ -2115,7 +2119,7 @@ DO
                                                 addWarning 0, "Constant already defined (same value):"
                                                 addWarning linenumber, n$
                                                 IF idemode = 0 THEN
-                                                    IF duplicateConstWarning = 0 THEN PRINT "WARNING: duplicate constant definition";
+                                                    IF duplicateConstWarning = 0 THEN PRINT "Warning: duplicate constant definition";
                                                     IF VerboseMode THEN
                                                         PRINT ": '"; n$; "' (line"; STR$(linenumber); ")"
                                                     ELSE
@@ -2577,6 +2581,10 @@ END IF
 IF definingtype THEN definingtype = 0 'ignore this error so that auto-formatting can be performed and catch it again later
 IF declaringlibrary THEN declaringlibrary = 0 'ignore this error so that auto-formatting can be performed and catch it again later
 
+totallinenumber = reallinenumber
+
+IF idemode = 0 THEN PRINT "first pass finished.": PRINT "Translating code... "
+
 'prepass finished
 
 lineinput3index = 1 'reset input line
@@ -2655,6 +2663,7 @@ endifs = 0
 lineelseused = 0
 continuelinefrom = 0
 linenumber = 0
+reallinenumber = 0
 declaringlibrary = 0
 
 PRINT #12, "S_0:;" 'note: REQUIRED by run statement
@@ -2697,6 +2706,7 @@ DO
     IF idemode = 0 AND inclevel = 0 THEN a3$ = lineinput3$
     IF a3$ = CHR$(13) THEN EXIT DO
     linenumber = linenumber + 1
+    reallinenumber = reallinenumber + 1
     IF linenumber = 1 THEN opex_comments = -1
 
     IF InValidLine(linenumber) THEN
@@ -2709,8 +2719,22 @@ DO
     layoutok = 1
 
     IF idemode = 0 THEN
-        IF LEN(a3$) THEN
-            dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
+        'IF LEN(a3$) THEN
+        '    dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
+        'END IF
+        maxprogresswidth = 50 'arbitrary
+        percentage = INT(reallinenumber / totallinenumber * 100)
+        percentagechars = INT(maxprogresswidth * reallinenumber / totallinenumber)
+        IF ConsoleMode THEN
+            PRINT "[" + STRING$(percentagechars, ".") + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
+            IF os$ = "LNX" THEN
+                PRINT CHR$(27) + "[A"
+            ELSE
+                PRINT CHR$(13);
+            END IF
+        ELSE
+            LOCATE , 1
+            PRINT "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
         END IF
     END IF
 
@@ -11338,7 +11362,14 @@ OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
-
+IF idemode = 0 THEN
+    IF ConsoleMode THEN
+        PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
+    ELSE
+        LOCATE , 1
+        PRINT "[" + STRING$(maxprogresswidth, 254) + "] 100%"
+    END IF
+END IF
 
 'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
 'OPEN "unusedVariableList.txt" FOR BINARY AS #1
@@ -11347,7 +11378,7 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 IF NOT IgnoreWarnings THEN
     IF totalUnusedVariables > 0 THEN
         IF idemode = 0 THEN
-            PRINT "WARNING:"; STR$(totalUnusedVariables); " unused variable";
+            PRINT "Warning:"; STR$(totalUnusedVariables); " unused variable";
             IF totalUnusedVariables > 1 THEN PRINT "s";
             IF VerboseMode THEN
                 PRINT ":"
@@ -11403,9 +11434,9 @@ ide6:
 IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
     PRINT
     IF os$ = "LNX" THEN
-        PRINT "COMPILING C++ CODE INTO EXECUTABLE..."
+        PRINT "Compiling C++ code into executable..."
     ELSE
-        PRINT "COMPILING C++ CODE INTO EXE..."
+        PRINT "Compiling C++ code into EXE..."
     END IF
     IF LEN(outputfile_cmd$) THEN
         'resolve relative path for output file
@@ -11415,7 +11446,7 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
         IF LEN(path.out$) THEN
             IF _DIREXISTS(path.out$) = 0 THEN
                 PRINT
-                PRINT "CAN'T CREATE OUTPUT EXECUTABLE - PATH NOT FOUND: " + path.out$
+                PRINT "Can't create output executable - path not found: " + path.out$
                 IF ConsoleMode THEN SYSTEM 1
                 END 1
             END IF
@@ -12308,11 +12339,11 @@ IF compfailed THEN
         GOTO ideerror
     END IF
     IF compfailed THEN
-        PRINT "C++ COMPILATION FAILED!"
+        PRINT "ERROR: C++ compilation failed."
         PRINT "Check " + compilelog$ + " for details."
     END IF
 ELSE
-    IF idemode = 0 THEN PRINT "OUTPUT: "; lastBinaryGenerated$
+    IF idemode = 0 THEN PRINT "Output: "; lastBinaryGenerated$
 END IF
 
 
@@ -12436,13 +12467,13 @@ FUNCTION ParseCMDLineArgs$ ()
         SELECT CASE LCASE$(LEFT$(token$, 2))
             CASE "-?" 'Command-line help
                 _DEST _CONSOLE
-                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 COMPILER V" + Version$
+                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
                 PRINT
-                PRINT "USAGE: qb64 [switches] <file>"
+                PRINT "Usage: qb64 [switches] <file>"
                 PRINT
-                PRINT "OPTIONS:"
+                PRINT "Options:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
-                PRINT "  -v                      Verbose mode (detailed warnings)"
+                PRINT "  -v                      Verbose mode"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
                 PRINT "                             console"
@@ -12483,28 +12514,28 @@ FUNCTION ParseCMDLineArgs$ ()
                 SELECT CASE LCASE$(MID$(token$, 3))
                     CASE ""
                         PRINT "debuginfo     = ";
-                        IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF idedebuginfo THEN PRINT "true" ELSE PRINT "false"
                         PRINT "exewithsource = ";
-                        IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF SaveExeWithSource THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":exewithsource"
                         PRINT "exewithsource = ";
-                        IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF SaveExeWithSource THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":exewithsource=true"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
-                        PRINT "exewithsource = TRUE"
+                        PRINT "exewithsource = true"
                         SaveExeWithSource = -1
                     CASE ":exewithsource=false"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
-                        PRINT "exewithsource = FALSE"
+                        PRINT "exewithsource = false"
                         SaveExeWithSource = 0
                     CASE ":debuginfo"
                         PRINT "debuginfo = ";
-                        IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF idedebuginfo THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":debuginfo=true"
-                        PRINT "debuginfo = TRUE"
+                        PRINT "debuginfo = true"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
                         idedebuginfo = 1
                         Include_GDB_Debugging_Info = idedebuginfo
@@ -12524,7 +12555,7 @@ FUNCTION ParseCMDLineArgs$ ()
                             CHDIR "../.."
                         END IF
                     CASE ":debuginfo=false"
-                        PRINT "debuginfo = FALSE"
+                        PRINT "debuginfo = false"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
                         idedebuginfo = 0
                         Include_GDB_Debugging_Info = idedebuginfo
@@ -12544,9 +12575,9 @@ FUNCTION ParseCMDLineArgs$ ()
                             CHDIR "../.."
                         END IF
                     CASE ELSE
-                        PRINT "INVALID SETTINGS SWITCH: "; token$
+                        PRINT "Invalid settings switch: "; token$
                         PRINT
-                        PRINT "VALID SWITCHES:"
+                        PRINT "Valid switches:"
                         PRINT "    -s:debuginfo=true/false     (Embed C++ debug info into .EXE)"
                         PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                         SYSTEM
