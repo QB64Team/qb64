@@ -2724,9 +2724,10 @@ DO
         'END IF
         maxprogresswidth = 50 'arbitrary
         percentage = INT(reallinenumber / totallinenumber * 100)
-        IF percentage <> prevpercentage THEN
+        percentagechars = INT(maxprogresswidth * reallinenumber / totallinenumber)
+        IF percentage <> prevpercentage AND percentagechars <> prevpercentagechars THEN
             prevpercentage = percentage
-            percentagechars = INT(maxprogresswidth * reallinenumber / totallinenumber)
+            prevpercentagechars = percentagechars
             IF ConsoleMode THEN
                 PRINT "[" + STRING$(percentagechars, ".") + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
                 IF os$ = "LNX" THEN
