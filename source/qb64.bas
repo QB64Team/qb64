@@ -2724,17 +2724,20 @@ DO
         'END IF
         maxprogresswidth = 50 'arbitrary
         percentage = INT(reallinenumber / totallinenumber * 100)
-        percentagechars = INT(maxprogresswidth * reallinenumber / totallinenumber)
-        IF ConsoleMode THEN
-            PRINT "[" + STRING$(percentagechars, ".") + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
-            IF os$ = "LNX" THEN
-                PRINT CHR$(27) + "[A"
+        IF percentage <> prevpercentage THEN
+            prevpercentage = percentage
+            percentagechars = INT(maxprogresswidth * reallinenumber / totallinenumber)
+            IF ConsoleMode THEN
+                PRINT "[" + STRING$(percentagechars, ".") + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
+                IF os$ = "LNX" THEN
+                    PRINT CHR$(27) + "[A"
+                ELSE
+                    PRINT CHR$(13);
+                END IF
             ELSE
-                PRINT CHR$(13);
+                LOCATE , 1
+                PRINT "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
             END IF
-        ELSE
-            LOCATE , 1
-            PRINT "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
         END IF
     END IF
 
@@ -12509,7 +12512,7 @@ FUNCTION ParseCMDLineArgs$ ()
             CASE "-s" 'Settings
                 settingsMode = -1
                 _DEST _CONSOLE
-                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 COMPILER V" + Version$
+                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
                 SELECT CASE LCASE$(MID$(token$, 3))
                     CASE ""
                         PRINT "debuginfo     = ";
