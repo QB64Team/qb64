@@ -24035,6 +24035,7 @@ SUB PreParse (e$)
                 ELSE
                     IF t AND ISFLOAT THEN
                         r$ = STR$(constfloat(i2))
+                        r$ = N2S(r$)
                     ELSE
                         IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
                     END IF
