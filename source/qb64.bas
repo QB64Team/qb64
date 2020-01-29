@@ -24100,7 +24100,7 @@ SUB PreParse (e$)
     LOOP UNTIL l = 0
 
 
-    t$ = N2S(t$)
+    't$ = N2S(t$)
     VerifyString t$
     e$ = t$
 END SUB
