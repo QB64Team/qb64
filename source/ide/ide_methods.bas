@@ -1590,7 +1590,7 @@ FUNCTION ide2 (ignore)
                 idehelp = 1
                 skipdisplay = 0
                 IdeSystem = 3
-                retval = 1: GOTO redraweverything2
+                retval = 1: GOSUB redrawItAll
             END IF
             IdeSystem = 3
             GOTO specialchar
@@ -1985,7 +1985,7 @@ FUNCTION ide2 (ignore)
                     idesubwindow = 0
                     skipdisplay = 0
                     IdeSystem = 1
-                    retval = 1: GOTO redraweverything2
+                    retval = 1: GOSUB redrawItAll
 
                 END IF
             END IF
@@ -2481,7 +2481,7 @@ FUNCTION ide2 (ignore)
                         idehelp = 1
                         skipdisplay = 0
                         IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                        retval = 1: GOTO redraweverything2
+                        retval = 1: GOSUB redrawItAll
                     END IF
 
                     WikiParse a$
@@ -2555,7 +2555,7 @@ FUNCTION ide2 (ignore)
                                         idehelp = 1
                                         skipdisplay = 0
                                         IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                                        retval = 1: GOTO redraweverything2
+                                        retval = 1: GOSUB redrawItAll
                                     END IF
 
                                     WikiParse a$
@@ -4612,7 +4612,7 @@ FUNCTION ide2 (ignore)
                             IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                         END IF
                         skipdisplay = 0
-                        GOTO redraweverything2
+                        GOSUB redrawItAll
                     END IF
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -4836,7 +4836,7 @@ FUNCTION ide2 (ignore)
                 ideASCIIbox
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
-                GOTO redraweverything2
+                GOSUB redrawItAll
                 GOTO ideloop
             END IF
 
@@ -4892,7 +4892,7 @@ FUNCTION ide2 (ignore)
                     idehelp = 1
                     skipdisplay = 0
                     IdeSystem = 3
-                    retval = 1: GOTO redraweverything2
+                    retval = 1: GOSUB redrawItAll
                 END IF
 
                 GOTO ideloop
@@ -14106,6 +14106,7 @@ SUB ideASCIIbox
             _AUTODISPLAY
             SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
             IF _RESIZE THEN donothing = atall
+            DO UNTIL _MOUSEBUTTON(1) = 0 AND _MOUSEBUTTON(2) = 0: i = _MOUSEINPUT: LOOP
             EXIT FUNCTION
         END IF
 
@@ -14117,12 +14118,9 @@ SUB ideASCIIbox
         a$ = idegetline(l)
         l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
         text$ = l$ + CHR$(ret%) + r$
-        textlen = LEN(text$)
-        l$ = LEFT$(idet$, ideli - 1)
-        m$ = MKL$(textlen) + text$ + MKL$(textlen)
-        r$ = RIGHT$(idet$, LEN(idet$) - ideli - LEN(a$) - 7)
-        idet$ = l$ + m$ + r$
+        idesetline l, text$
         idecx = idecx + 1
+        idechangemade = 1
     END IF
 
     _AUTODISPLAY
@@ -14130,7 +14128,8 @@ SUB ideASCIIbox
     SCREEN 0: WIDTH w, h
     _FONT font
     _DEST 0: _DELAY .2
-    IF _RESIZE THEN donothing = atall
+    IF _RESIZE THEN REM
+    DO UNTIL _MOUSEBUTTON(1) = 0 AND _MOUSEBUTTON(2) = 0: i = _MOUSEINPUT: LOOP
 
 END FUNCTION
 
