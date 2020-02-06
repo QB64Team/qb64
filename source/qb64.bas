@@ -3123,7 +3123,7 @@ DO
 
             ExeIconSet = linenumber
             SetDependency DEPENDENCY_ICON
-            PRINT #12, "do{"
+            IF NoChecks = 0 THEN PRINT #12, "do{"
             PRINT #12, "sub__icon(NULL,NULL,0);"
             GOTO finishedline2
         END IF
