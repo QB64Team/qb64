@@ -11463,7 +11463,7 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
                     buffer=(char*)malloc(80*25*2);
                     c=write_page->color; c2=write_page->background_color;
                     memcpy(buffer,&cmem[0xB8000],80*25*2);
-                    qbsub_width(0,80,50,3,0,0);
+                    qbsub_width(0,80,50,0,0,3);
                     memcpy(&cmem[0xB8000],buffer,80*25*2);
                     write_page->color=c; write_page->background_color=c2;
                     free(buffer);
@@ -20618,7 +20618,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             //set screen mode to 0 (80x25)
             qbg_screen(0,NULL,0,0,NULL,1|4|8);
             //make sure WIDTH is 80x25
-            qbsub_width(NULL,80,25,1|2,0,0);
+            qbsub_width(NULL,80,25,0,0,1|2);
+            //restore view print
+            qbg_sub_view_print(NULL,NULL,0);
             //restore palette
             restorepalette(write_page);
             //restore default colors
@@ -20629,6 +20631,8 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             //Reset RND & RANDOMIZE state
             rnd_seed=327680;
             rnd_seed_first=327680;//Note: must contain the same value as rnd_seed
+            //clear keyboard buffers
+            sub__keyclear(NULL,0);
         }
         
         
@@ -22598,7 +22602,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 if (i32==258){
                     generic_get(i,-1,(uint8*)&i32,4); i32b=i32;
                     generic_get(i,-1,(uint8*)&i32,4);
-                    qbsub_width(0,i32b,i32,1+2,0,0);
+                    qbsub_width(0,i32b,i32,0,0,1+2);
                     generic_get(i,-1,(uint8*)&i32,4);
                 }
             }
