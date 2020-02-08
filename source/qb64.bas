@@ -11666,7 +11666,11 @@ END IF
 
 IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_ZLIB"
-    libs$ = libs$ + " -lz"
+    IF MacOSX THEN
+        libs$ = libs$ + " -lz"
+    ELSE
+        libs$ = libs$ + " -l:libz.a"
+    END IF
 END IF
 
 'finalize libs$ and defines$ strings
