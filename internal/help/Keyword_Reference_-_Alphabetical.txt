@@ -7,7 +7,7 @@ __NOTOC__
 
 &lt;p style="text-align: center">[[Keyword Reference - By usage|Go to keywords by Usage]]&lt;/p>
 
-&lt;p style="text-align: center">Keywords beginning with _underscores are QB64 specific.&lt;/p>
+&lt;p style="text-align: center">Keywords beginning with _underscores are QB64 specific. '''To use them without the prefix, use [[$NOPREFIX]].'''&lt;/p>
 
 &lt;p style="text-align: center">[[Keywords currently not supported by QB64]]&lt;/p>
 
@@ -75,6 +75,7 @@ __NOTOC__
 * [[_CAPSLOCK]] (statement) {{text|sets Caps Lock key state}}
 * [[$CHECKING]] (QB64 C++ [[Metacommand]]) {{text|turns event error checking OFF or ON.}}
 * [[_CEIL]] (function) {{text|Rounds x upward, returning the smallest integral value that is not less than x.}}
+* [[_CINP]] (function) {{text|Returns a key code from $CONSOLE input}}
 * [[_CLEARCOLOR (function)]] {{text|returns the current transparent color of an image.}}
 * [[_CLEARCOLOR]] (statement) {{text|sets a specific color index of an image to be transparent}}
 * [[_CLIP]] ([[PUT (graphics statement)|PUT]] graphics option) {{text|allows placement of an image partially off of the screen.}}
@@ -88,6 +89,7 @@ __NOTOC__
 * [[_CONNECTIONADDRESS$]] (TCP/IP function) {{text|returns a connected user's STRING IP address value using the handle.}}
 * [[$CONSOLE]] (QB64 [[Metacommand]]) {{text|creates a console window that can be used throughout a program.}}
 * [[_CONSOLE]] (statement) {{text|used to turn a console window OFF or ON or to designate [[_DEST]] _CONSOLE for output.}}
+* [[_CONSOLEINPUT]] (function) {{text|fetches input data from a [[$CONSOLE]] window to be read later (both mouse and keyboard)}}
 * [[_CONSOLETITLE]] (statement) {{text|creates the title of the console window using a literal or variable [[STRING|string]].}}
 * [[_CONTINUE]] (statement) {{text|skips the remaining lines in a control block (DO/LOOP, FOR/NEXT or WHILE/WEND)}}
 * [[_CONTROLCHR]] (statement) {{text|[[OFF]] allows the control characters to be used as text characters. [[ON]] (default) can use them as commands.}}
@@ -204,7 +206,7 @@ __NOTOC__
 
 
 &lt;div id = "uK">_K&lt;/div>
-*[[_KEYCLEAR]] (function) {{text|clears the keyboard buffers for INKEY$, _KEYHIT, and INP.}}
+*[[_KEYCLEAR]] (statement) {{text|clears the keyboard buffers for INKEY$, _KEYHIT, and INP.}}
 *[[_KEYHIT]] (function) {{text|returns [[ASCII]] one and two byte, SDL Virtual Key and [[Unicode]] keyboard key press codes.}}
 *[[_KEYDOWN]] (function) {{text|returns whether CTRL, ALT, SHIFT, combinations and other keys are pressed.}}
 
@@ -856,7 +858,7 @@ __NOTOC__
 
 ==OpenGL specific keywords:==
 &lt;center>'''All QB64 OpenGL keywords must use the underscore _gl prefix with the alphabetically listed function names.'''&lt;/center>
-&lt;center>'''The following keywords cannot be used in QB64 versions .954 and below.'''&lt;/center>
+&lt;center>Use [[$NOPREFIX]] to enable these to be used without the leading underscore.&lt;/center>
 
 
 &lt;div id = "glA">_glA&lt;/div>
