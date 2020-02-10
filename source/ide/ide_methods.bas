@@ -2481,7 +2481,7 @@ FUNCTION ide2 (ignore)
                         idehelp = 1
                         skipdisplay = 0
                         IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                        retval = 1: GOSUB redrawItAll
+                        retval = 1
                     END IF
 
                     WikiParse a$
@@ -2555,7 +2555,7 @@ FUNCTION ide2 (ignore)
                                         idehelp = 1
                                         skipdisplay = 0
                                         IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                                        retval = 1: GOSUB redrawItAll
+                                        retval = 1
                                     END IF
 
                                     WikiParse a$
