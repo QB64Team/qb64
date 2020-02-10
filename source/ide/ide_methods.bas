@@ -5498,7 +5498,8 @@ FUNCTION ide2 (ignore)
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
                 IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = ""
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOSUB redrawItAll: GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Save  Ctrl+S" THEN
@@ -5690,12 +5691,15 @@ FUNCTION ide2 (ignore)
         COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT CHR$(180) + "X" + CHR$(195);
     END IF
 
+    GOSUB UpdateSearchBar
+
     'status bar
     COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
     q = idevbar(idewx, idewy - 3, 3, 1, 1)
     q = idevbar(idewx, 3, idewy - 8, 1, 1)
     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
 
+    GOSUB UpdateTitleOfMainWindow
 
     DEF SEG = 0
     ideshowtext
