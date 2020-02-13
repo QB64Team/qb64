@@ -2486,6 +2486,7 @@ FUNCTION ide2 (ignore)
 
                     WikiParse a$
                     IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                    GOSUB redrawitall
                     GOTO specialchar
 
                 ELSE
