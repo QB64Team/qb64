@@ -22494,6 +22494,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     if ( (err) != noErr ) goto CantGetPasteboardItemIdentifier;
                     
                     err = PasteboardCopyItemFlavorData( inPasteboard, itemID, CFSTR("public.utf8-plain-text"), &flavorData );      
+                    if ( (err) != noErr ) goto CantGetPasteboardItemCount;
                     data = (char*)CFDataGetBytePtr(flavorData);
                     
                     uint32 size;
