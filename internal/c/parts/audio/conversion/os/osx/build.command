@@ -1,5 +1,5 @@
 cd "$(dirname "$0")"
-gcc -c ../../src/resample.c -o temp/resample.o
+clang -c ../../src/resample.c -o temp/resample.o
 ar rcs src.a temp/resample.o
 echo "Press any key to continue..."
 Pause()

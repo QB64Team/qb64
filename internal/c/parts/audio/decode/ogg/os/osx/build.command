@@ -1,5 +1,5 @@
 cd "$(dirname "$0")"
-gcc -c ../../src/stb_vorbis.c -o src.o
+clang -c ../../src/stb_vorbis.c -o src.o
 echo "Press any key to continue..."
 Pause()
 {

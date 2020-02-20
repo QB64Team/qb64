@@ -48,7 +48,7 @@ IF _DIREXISTS("internal") = 0 THEN
     PRINT "QB64 cannot locate the 'internal' folder"
     PRINT
     PRINT "Check that QB64 has been extracted properly."
-    PRINT "For MacOSX, launch 'qb64_start.command' or enter './qb64' in Terminal."
+    PRINT "For macOS, launch 'qb64_start_macos.command' or enter './qb64' in Terminal."
     PRINT "For Linux, in the console enter './qb64'."
     DO
         _LIMIT 1
@@ -12163,7 +12163,7 @@ IF os$ = "LNX" THEN
     END IF
 
     IF INSTR(_OS$, "[MACOSX]") THEN
-        OPEN "./internal/c/makeline_osx.txt" FOR INPUT AS #150
+        OPEN "./internal/c/makeline_macos.txt" FOR INPUT AS #150
     ELSE
         OPEN "./internal/c/makeline_lnx.txt" FOR INPUT AS #150
     END IF
@@ -12230,17 +12230,17 @@ IF os$ = "LNX" THEN
     IF INSTR(_OS$, "[MACOSX]") THEN
 
         ffh = FREEFILE
-        OPEN tmpdir$ + "recompile_osx.command" FOR OUTPUT AS #ffh
+        OPEN tmpdir$ + "recompile_macos.command" FOR OUTPUT AS #ffh
         PRINT #ffh, "cd " + CHR_QUOTE + "$(dirname " + CHR_QUOTE + "$0" + CHR_QUOTE + ")" + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "echo " + CHR_QUOTE + "Recompiling..." + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "cd ../c" + CHR$(10);
         PRINT #ffh, a$ + CHR$(10);
         PRINT #ffh, "read -p " + CHR_QUOTE + "Press ENTER to exit..." + CHR_QUOTE + CHR$(10);
         CLOSE ffh
-        SHELL _HIDE "chmod +x " + tmpdir$ + "recompile_osx.command"
+        SHELL _HIDE "chmod +x " + tmpdir$ + "recompile_macos.command"
 
         ffh = FREEFILE
-        OPEN tmpdir$ + "debug_osx.command" FOR OUTPUT AS #ffh
+        OPEN tmpdir$ + "debug_macos.command" FOR OUTPUT AS #ffh
         PRINT #ffh, "cd " + CHR_QUOTE + "$(dirname " + CHR_QUOTE + "$0" + CHR_QUOTE + ")" + CHR_QUOTE + CHR$(10);
         PRINT #ffh, "Pause()" + CHR$(10);
         PRINT #ffh, "{" + CHR$(10);
@@ -12257,7 +12257,7 @@ IF os$ = "LNX" THEN
         PRINT #ffh, "gdb " + CHR$(34) + path.exe$ + file$ + extension$ + CHR$(34) + CHR$(10);
         PRINT #ffh, "Pause" + CHR$(10);
         CLOSE ffh
-        SHELL _HIDE "chmod +x " + tmpdir$ + "debug_osx.command"
+        SHELL _HIDE "chmod +x " + tmpdir$ + "debug_macos.command"
 
     ELSE
 
@@ -12507,7 +12507,7 @@ FUNCTION ParseCMDLineArgs$ ()
                     CHDIR "./internal/c"
 
                     IF INSTR(_OS$, "[MACOSX]") THEN
-                        SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                        SHELL _HIDE "./purge_all_precompiled_content_macos.command"
                     ELSE
                         SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
                     END IF
@@ -12555,7 +12555,7 @@ FUNCTION ParseCMDLineArgs$ ()
                             CHDIR "./internal/c"
 
                             IF INSTR(_OS$, "[MACOSX]") THEN
-                                SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                                SHELL _HIDE "./purge_all_precompiled_content_macos.command"
                             ELSE
                                 SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
                             END IF
@@ -12575,7 +12575,7 @@ FUNCTION ParseCMDLineArgs$ ()
                             CHDIR "./internal/c"
 
                             IF INSTR(_OS$, "[MACOSX]") THEN
-                                SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                                SHELL _HIDE "./purge_all_precompiled_content_macos.command"
                             ELSE
                                 SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
                             END IF
