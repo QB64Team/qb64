@@ -15,3 +15,32 @@ We tweet from [@QB64Team](https://twitter.com/QB64team)
 Find us on Discord: http://discord.qb64.org
 
 Find us on IRC: http://irc.qb64.org/
+
+
+# Installation
+
+Windows
+--
+
+Download the respective Zip (or 7Zip) file for your version of Windows over at:  https://github.com/QB64Team/qb64/releases
+
+Once you have downloaded your file, make sure to Extract the file contents to C:\
+
+Failing to do so will reuslt in QB64 failing to comple your source.
+
+Additionally, the Gorilla editor that launches by default will produce IDE module errors, before proceeding to hang.
+
+``` IDE MODULE ERROR (module: ide_methods, on line: 10223)```
+
+``` IDE MODULE ERROR (module: ide_methods, on line: 7109)```
+
+Mac
+--
+Before installing QB64 make sure to install the Xcode comand line tools with
+```bash
+xcode-select --install
+```
+
+You can then download QB64 over at: https://github.com/QB64Team/qb64/releases
+
+Once you have downloaded the executable, it is advisable for QB64 to be placed in the Applications folder.
