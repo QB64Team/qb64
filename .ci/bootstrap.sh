@@ -28,7 +28,7 @@ cp -r internal/source/* internal/temp/
 cd internal/c
 echo -n "Bootstrapping QB64..."
 if [[ $OS == "osx" ]]; then
-    clang -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -lcurses -o ../../qb64_bootstrap
+    clang++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -lcurses -o ../../qb64_bootstrap
 else
     g++ -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lcurses -lpthread -ldl -lrt -D FREEGLUT_STATIC -DDEPENDENCY_USER_MODS -o ../../qb64_bootstrap
 fi
