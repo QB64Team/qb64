@@ -14,7 +14,7 @@ find . -type f -iname "*.a" -exec rm -f {} \;
 find . -type f -iname "*.o" -exec rm -f {} \;
 rm ./internal/temp/*
 
-if [ -z "$(which clang)" ]; then
+if [ -z "$(which clang++)" ]; then
   echo "Apple's C++ compiler not found."
   echo "Attempting to install Apple's Command Line Tools for Xcode..."
   echo "After installation is finished, run this setup script again."
