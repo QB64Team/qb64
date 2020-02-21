@@ -28,7 +28,7 @@ Once you have downloaded your file, make sure to Extract the file contents to C:
 
 Failing to do so will reuslt in QB64 failing to comple your source.
 
-Additionally, the Gorilla editor that launches by default will produce IDE module errors, before proceeding to hang.
+Additionally, the editor that launches by default will produce IDE module errors, before proceeding to hang.
 
 ``` IDE MODULE ERROR (module: ide_methods, on line: 10223)```
 
