@@ -1,5 +1,5 @@
 cd "$(dirname "$0")"
-g++ -c -w -Wall ../../../libqb.mm -D DEPENDENCY_AUDIO_OUT -D DEPENDENCY_AUDIO_DECODE -D DEPENDENCY_AUDIO_CONVERSION -o libqb_test_only.o
+clang++ -c -w -Wall ../../../libqb.mm -D DEPENDENCY_AUDIO_OUT -D DEPENDENCY_AUDIO_DECODE -D DEPENDENCY_AUDIO_CONVERSION -o libqb_test_only.o
 echo "Press any key to continue"
 Pause()
 {

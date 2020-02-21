@@ -14,8 +14,8 @@ find . -type f -iname "*.a" -exec rm -f {} \;
 find . -type f -iname "*.o" -exec rm -f {} \;
 rm ./internal/temp/*
 
-if [ -z "$(which g++)" ]; then
-  echo "GNU C++ compiler not detected (g++)"
+if [ -z "$(which clang++)" ]; then
+  echo "Apple's C++ compiler not found."
   echo "Attempting to install Apple's Command Line Tools for Xcode..."
   echo "After installation is finished, run this setup script again."
   xcode-select --install
@@ -48,7 +48,7 @@ popd >/dev/null
 echo "Building 'QB64' (~3 min)"
 cp ./internal/source/* ./internal/temp/
 pushd internal/c >/dev/null
-g++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64
+clang++ -w qbx.cpp libqb/os/osx/libqb_setup.o parts/video/font/ttf/os/osx/src.o -framework GLUT -framework OpenGL -framework Cocoa -o ../../qb64
 popd >/dev/null
 
 echo ""
