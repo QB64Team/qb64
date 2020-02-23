@@ -1,7 +1,7 @@
 # QB64
 
 <p align="center">
-<img src="https://qb64.org/images/QB64icon1.3small.png"/>
+<img src="https://user-images.githubusercontent.com/10699359/72663483-f768a580-39d1-11ea-8d1d-d3f0955ab542.png"/>
 </p
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/QB64Team/qb64/issues)
@@ -19,49 +19,43 @@ QB64 is a modern extended BASIC+OpenGL language that retains QB4.5/QBasic compat
 3.  [Additional Info](#Additional_Info)
 
 # Installation [](#Installation)
+Download the appropriate package for your operating system over at https://github.com/QB64Team/qb64/releases.
 
 ## Windows [](##Windows)
 
-Download the respective Zip (or 7Zip) file for your version of Windows over at:  https://github.com/QB64Team/qb64/releases
+Make sure to extract the package contents to a folder with full write permissions (failing to do so may result in IDE or compilation errors).
 
-Once you have downloaded your file, make sure to Extract the file contents to "C:\" or to a folder with full write permissions.
-
-Failing to do so will reuslt in QB64 failing to comple your source.
-
-Additionally, the Default editor that launches will produce IDE module errors, before proceeding to hang.
-
-``` IDE MODULE ERROR (module: ide_methods, on line: 10223)```
-
-``` IDE MODULE ERROR (module: ide_methods, on line: 7109)```
-
-*Some users may need to whitelist QB64 within their anti-malware software*
+* It is advisable to to whitelist the QB64 folder in your antivirus/antimalware software *
 
 ## Mac [](##Mac)
-Before installing QB64 make sure to install the Xcode comand line tools with
+Before using QB64 make sure to install the Xcode command line tools with:
 ```bash
 xcode-select --install
 ```
 
-You can then download QB64 over at: https://github.com/QB64Team/qb64/releases
-
-Once you have downloaded the executable, it is advisable for QB64 to be placed in the Applications folder or some other memorable location. You should then run ```./setup_osx.command```
+The package comes with a precompiled `qb64` binary that will run as is in macOS Catalina. For older versions of macOS, run ```./setup_osx.command``` to compile QB64 for your OS version.
 
 ## Linux [](##Linux)
-For Linux make sure to downloiad the appropriate package for your Linux Distribution. Afer downloading tha package run ```./setup_lnx.sh```
+The package comes with a precompiled `qb64` binary that will run as is in most Debian-based distributions. For other distributions, compile QB64 with ```./setup_lnx.sh```.
 
-Dependencies should automatically install. These are: OpenGL, ALSA and the GNU C++ Compiler.
+Dependencies should be automatically installed. Required packages include OpenGL, ALSA and the GNU C++ Compiler.
 
 # Usage [](#Usage)
-Run the QB64 executable or launch script to launch the default IDE. From there you are able to write Basic scripts and compile them.
+Run the QB64 executable to launch the IDE, which you can use to edit your .BAS files. From there, hit F5 to compile and run your code.
 
-Additionally, if you do not wish to use the integrated IDE and to only compile your program, you can use the following commands:
+To generate a binary without running it, hit F11.
 
-```QB64 -x yourfile.BAS``` (compiles using the console only)
+Additionally, if you do not wish to use the integrated IDE and to only compile your program, you can use the following command-line calls:
 
-```QB64 -c yourfile.BAS -o destination_path\destination executable_name.exe``` (compiles the .BAS file and outputs the executable to a separate folder)
+```qb64 -c yourfile.bas```
+
+```qb64 -c yourfile.bas -o outputname.exe```
+
+Replacing `-c` with `-x` will compile without opening a separate compiler window.
+
 
 # Additional Information [](#Additional_Info)
-More about it at our wiki: www.qb64.org/wiki
+More about QB64 at our wiki: www.qb64.org/wiki
 
 We have a community forum at: www.qb64.org/forum
 
