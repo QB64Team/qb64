@@ -19,13 +19,15 @@ QB64 is a modern extended BASIC+OpenGL language that retains QB4.5/QBasic compat
 # Installation <a name="Installation"></a>
 Download the appropriate package for your operating system over at https://github.com/QB64Team/qb64/releases.
 
-## Windows <a name="Windows"></a>
+<a name="Windows"></a>
+## Windows
 
 Make sure to extract the package contents to a folder with full write permissions (failing to do so may result in IDE or compilation errors).
 
 * It is advisable to to whitelist the QB64 folder in your antivirus/antimalware software *
 
-## macOS <a name="macOS"></a>
+<a name="macOS"></a>
+## macOS
 Before using QB64 make sure to install the Xcode command line tools with:
 ```bash
 xcode-select --install
@@ -33,12 +35,14 @@ xcode-select --install
 
 The package comes with a precompiled `qb64` binary that will run as is in macOS Catalina. For older versions of macOS, run ```./setup_osx.command``` to compile QB64 for your OS version.
 
-## Linux <a name="Linux"></a>
+<a name="Linux"></a>
+## Linux
 The package comes with a precompiled `qb64` binary that will run as is in most Debian-based distributions. For other distributions, compile QB64 with ```./setup_lnx.sh```.
 
 Dependencies should be automatically installed. Required packages include OpenGL, ALSA and the GNU C++ Compiler.
 
-# Usage <a name="Usage"></a>
+<a name="Usage"></a>
+# Usage
 Run the QB64 executable to launch the IDE, which you can use to edit your .BAS files. From there, hit F5 to compile and run your code.
 
 To generate a binary without running it, hit F11.
@@ -52,7 +56,8 @@ Additionally, if you do not wish to use the integrated IDE and to only compile y
 Replacing `-c` with `-x` will compile without opening a separate compiler window.
 
 
-# Additional Information <a name="Additional_Info"></a>
+<a name="Additional_Info"></a>
+# Additional Information
 More about QB64 at our wiki: www.qb64.org/wiki
 
 We have a community forum at: www.qb64.org/forum
