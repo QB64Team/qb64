@@ -1,12 +1,61 @@
 # QB64
 
 <p align="center">
-<img src="https://qb64.org/images/QB64icon1.3small.png"/>
+<img src="https://user-images.githubusercontent.com/10699359/72663483-f768a580-39d1-11ea-8d1d-d3f0955ab542.png"/>
 </p
+
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/QB64Team/qb64/issues)
+
 
 QB64 is a modern extended BASIC+OpenGL language that retains QB4.5/QBasic compatibility and compiles native binaries for Windows (XP and up), Linux and macOS.
 
-More about it at our wiki: www.qb64.org/wiki
+# Table of Contents
+1. [Installation](#Installation)
+    1. [Windows](##Windows)
+    2. [Mac](##Mac)
+    3. [Linux](##Linux)
+
+2.  [Usage](#Usage)
+3.  [Additional Info](#Additional_Info)
+
+# Installation [](#Installation)
+Download the appropriate package for your operating system over at https://github.com/QB64Team/qb64/releases.
+
+## Windows [](##Windows)
+
+Make sure to extract the package contents to a folder with full write permissions (failing to do so may result in IDE or compilation errors).
+
+* It is advisable to to whitelist the QB64 folder in your antivirus/antimalware software *
+
+## Mac [](##Mac)
+Before using QB64 make sure to install the Xcode command line tools with:
+```bash
+xcode-select --install
+```
+
+The package comes with a precompiled `qb64` binary that will run as is in macOS Catalina. For older versions of macOS, run ```./setup_osx.command``` to compile QB64 for your OS version.
+
+## Linux [](##Linux)
+The package comes with a precompiled `qb64` binary that will run as is in most Debian-based distributions. For other distributions, compile QB64 with ```./setup_lnx.sh```.
+
+Dependencies should be automatically installed. Required packages include OpenGL, ALSA and the GNU C++ Compiler.
+
+# Usage [](#Usage)
+Run the QB64 executable to launch the IDE, which you can use to edit your .BAS files. From there, hit F5 to compile and run your code.
+
+To generate a binary without running it, hit F11.
+
+Additionally, if you do not wish to use the integrated IDE and to only compile your program, you can use the following command-line calls:
+
+```qb64 -c yourfile.bas```
+
+```qb64 -c yourfile.bas -o outputname.exe```
+
+Replacing `-c` with `-x` will compile without opening a separate compiler window.
+
+
+# Additional Information [](#Additional_Info)
+More about QB64 at our wiki: www.qb64.org/wiki
 
 We have a community forum at: www.qb64.org/forum
 
