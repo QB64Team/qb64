@@ -14768,7 +14768,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
             IF INSTR(_OS$, "WIN") THEN
                 convertUtility$ = "internal\utilities\QB45BIN.exe"
             ELSE
-                convertUtility$ = "internal/utilities/QB45BIN"
+                convertUtility$ = "./internal/utilities/QB45BIN"
             END IF
             IF _FILEEXISTS(convertUtility$) THEN
                 what$ = ideyesnobox("Binary format", "QuickBASIC 4.5 binary format detected. Convert to plain text?")
@@ -14825,7 +14825,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                 what$ = ideyesnobox("Binary format", "QuickBASIC 4.5 binary format detected. Convert to plain text?")
                 IF what$ = "Y" THEN
                     'Compile the utility first, then convert the file
-                    IF _DIREXISTS("internal/utilities") = 0 THEN MKDIR "internal/utilities"
+                    IF _DIREXISTS("./internal/utilities") = 0 THEN MKDIR "./internal/utilities"
                     PCOPY 3, 0
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
@@ -14834,7 +14834,11 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     COLOR 15, 1
                     PRINT "Preparing to convert..."
                     PCOPY 3, 0
-                    SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                    IF INSTR(_OS$, "WIN") THEN
+                        SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                    ELSE
+                        SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
+                    END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
                     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     dummy = DarkenFGBG(0)
