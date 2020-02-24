@@ -3583,10 +3583,10 @@ FUNCTION ide2 (ignore)
 
                     a$ = idegetline(idecy)
                     Found_RGB = 0
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
                     IF Found_RGB THEN
                         oldkeywordHighlight = keywordHighlight
                         keywordHighlight = 0
@@ -8543,19 +8543,27 @@ SUB ideshowtext
                 'color mixer.
                 a2$ = UCASE$(a$)
                 IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
-                    IF RIGHT$(a2$, 5) = "_RGB(" OR _
+                    IF (RIGHT$(a2$, 5) = "_RGB(" OR _
                        RIGHT$(a2$, 7) = "_RGB32(" OR _
                        RIGHT$(a2$, 6) = "_RGBA(" OR _
-                       RIGHT$(a2$, 8) = "_RGBA32(" THEN
+                       RIGHT$(a2$, 8) = "_RGBA32(") OR _
+                       ((RIGHT$(a2$, 4) = "RGB(" OR _
+                       RIGHT$(a2$, 6) = "RGB32(" OR _
+                       RIGHT$(a2$, 5) = "RGBA(" OR _
+                       RIGHT$(a2$, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
                         rgb_idecx = LEN(a$)
                         a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
                         EnteringRGB = -1
                     END IF
                 ELSEIF idecx_comment + idecx_quote = 0 THEN
-                    IF MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
+                    IF (MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
                        MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
                        MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
-                       MID$(a2$, idecx - 8, 8) = "_RGBA32(" THEN
+                       MID$(a2$, idecx - 8, 8) = "_RGBA32(") OR _
+                       ((MID$(a2$, idecx - 4, 4) = "RGB(" OR _
+                       MID$(a2$, idecx - 6, 6) = "RGB32(" OR _
+                       MID$(a2$, idecx - 5, 5) = "RGBA(" OR _
+                       MID$(a2$, idecx - 7, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
                         IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
                     END IF
                 END IF
