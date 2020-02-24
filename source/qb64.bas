@@ -1094,7 +1094,7 @@ GOTO sendcommand
 
 
 noide:
-IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
+IF qb64versionprinted = 0 OR ConsoleMode = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
