@@ -435,7 +435,7 @@ DATA 0x045,*,"deffn::={#procdecl:2}"
 DATA 0x046,"DO"
 DATA 0x047,"DO UNTIL {0}"
 DATA 0x048,2,"DO WHILE {0}"
-DATA 0x049,2,"{newline:0}ELSE| ELSE "
+DATA 0x049,2,"{newline:0}ELSE | ELSE "
 
 ' 0x04a = implicit GOTO linenumber used in 0x04c ELSE
 DATA 0x04a,2,"{#id}"
@@ -570,7 +570,7 @@ DATA 0x09f,"CIRCLE {##circle-args}"
 DATA 0x0a0,"CIRCLE {##circle-args}"
 DATA 0x0a1,2,"CLEAR{##varargs}"
 DATA 0x0a2,2,"CLOSE{##varargs}"
-DATA 0x0a3,"CLS {expr:0}|CLS"
+DATA 0x0a3,"CLS {expr:0}|CLS "
 DATA 0x0a4,2,"COLOR{##varargs}"
 
 DATA 0x0a5,4,"decl::=COMMON {declmod:0}{#blockname:2}"
