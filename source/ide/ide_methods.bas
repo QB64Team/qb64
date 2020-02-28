@@ -7728,7 +7728,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
         END IF
 
         IF focus = 3 THEN
-            IF K$ = CHR$(13) OR info = 1 THEN
+            IF (K$ = CHR$(13) OR info = 1) AND o(3).sel >= 1 THEN
                 path$ = idezchangepath(path$, idetxt(o(3).stx))
                 idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 idetxt(o(3).txt) = idezpathlist$(path$)
