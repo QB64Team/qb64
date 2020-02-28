@@ -730,7 +730,7 @@ FUNCTION ide2 (ignore)
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
 
-        IF _RESIZE OR ForceResize THEN
+        IF (_RESIZE OR ForceResize) AND TIMER - QB64_uptime! > 1.5 THEN
             IF idesubwindow <> 0 THEN 'If there's a subwindow up, don't resize as it screws all sorts of things up.
                 ForceResize = -1
             ELSE
