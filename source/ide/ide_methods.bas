@@ -1266,6 +1266,14 @@ FUNCTION ide2 (ignore)
         END IF
 
         'Hover/click (QuickNav)
+        IF QuickNavTotal > 0 THEN
+            DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
+                'make sure that the line number in history still exists
+                QuickNavTotal = QuickNavTotal - 1
+                IF QuickNavTotal = 0 THEN EXIT DO
+            LOOP
+        END IF
+
         IF IdeSystem = 1 AND QuickNavTotal > 0 AND EnableQuickNav THEN
             IF mY = 2 THEN
                 IF mX >= 4 AND mX <= 6 THEN
