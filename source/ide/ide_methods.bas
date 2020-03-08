@@ -12653,7 +12653,7 @@ FUNCTION idecolorpicker$ (editing)
             'one closer to the cursor.
             Found_RGB = 0
             DO
-                Found_RGB = INSTR(Found_RGB + 1, a$, "_RGB")
+                Found_RGB = INSTR(Found_RGB + 1, a$, "RGB")
                 IF Found_RGB = 0 THEN EXIT DO
                 FindBracket1 = INSTR(Found_RGB, a$, "(")
                 FindBracket2 = INSTR(FindBracket1, a$, ")")
@@ -12688,10 +12688,10 @@ FUNCTION idecolorpicker$ (editing)
         END IF
 
         'Read RGB values and fill the textboxes
-    IF LEFT$(a2$, 5) = "_RGB(" OR _
-       LEFT$(a2$, 7) = "_RGB32(" OR _
-       LEFT$(a2$, 6) = "_RGBA(" OR _
-       LEFT$(a2$, 8) = "_RGBA32(" THEN
+        IF LEFT$(a2$, 4) = "RGB(" OR _
+           LEFT$(a2$, 6) = "RGB32(" OR _
+           LEFT$(a2$, 5) = "RGBA(" OR _
+           LEFT$(a2$, 7) = "RGBA32(" THEN
             IF InsertRGBAt = 0 THEN InsertRGBAt = sx1
             FindComma1 = INSTR(a2$, ",")
             IF FindComma1 > 0 THEN
