@@ -53,6 +53,7 @@ fi
 #Linux Mint  = linuxmint
 #Ubuntu      = ubuntu
 #Slackware   = slackware
+#VoidLinux   = voidlinux
 #XUbuntu     = ubuntu
 #Zorin       = Zorin
 if [ -n "$lsb_command" ]; then
@@ -88,6 +89,13 @@ elif [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "redhat" ] || [ "$DISTRO" == "c
   installed_packages=`yum list installed`
   installer_command="sudo yum install "
   pkg_install
+elif [ "$DISTRO" == "voidlinux" ]; then
+   echo "VoidLinux detected."
+   pkg_list="gcc glu-devel zlib-devel alsa-lib-devel $GET_WGET"
+   installed_packages=`xbps-query -l |grep -v libgcc`
+   installer_command="sudo xbps-install -Sy "
+   pkg_install
+
 elif [ -z "$DISTRO" ]; then
   echo "Unable to detect distro, skipping package installation"
   echo "Please be aware that for QB64 to compile, you will need the following installed:"
