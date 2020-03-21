@@ -92,7 +92,7 @@ elif [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "redhat" ] || [ "$DISTRO" == "c
 elif [ "$DISTRO" == "voidlinux" ]; then
    echo "VoidLinux detected."
    pkg_list="gcc glu-devel zlib-devel alsa-lib-devel $GET_WGET"
-   installed_packages=`xbps-query -l`
+   installed_packages=`xbps-query -l |grep -v libgcc`
    installer_command="sudo xbps-install -Sy "
    pkg_install
 
