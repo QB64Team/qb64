@@ -133,14 +133,14 @@ RANDOMIZE TIMER
 DO
     PlayGAME
 LOOP
- 
+
 END
 
 PaletteDATA:
-DATA   0,  4, 16,     0, 10, 21,    0, 16, 32,    32, 10, 0
-DATA  63,  0,  0,    63, 32,  0,   18, 18, 24,    30, 30, 37
-DATA  42, 42, 50,    55, 55, 63,    0,  0,  0,    43, 27, 20
-DATA   8,  8, 21,     0, 63, 21,   63, 55, 25,    63, 63, 63
+DATA 0, 4, 16, 0, 10, 21, 0, 16, 32, 32, 10, 0
+DATA 63, 0, 0, 63, 32, 0, 18, 18, 24, 30, 30, 37
+DATA 42, 42, 50, 55, 55, 63, 0, 0, 0, 43, 27, 20
+DATA 8, 8, 21, 0, 63, 21, 63, 55, 25, 63, 63, 63
 
 SUB ApeCHUCKLE (Which)
 
@@ -503,7 +503,7 @@ KongX = LBldg * 80 - 59
 KongY = Buildings(LBldg, 2) - 42
 YoungX = RBldg * 80 - 59
 YoungY = Buildings(RBldg, 2) - 42
- 
+
 DEF SEG = VARSEG(Box(1))
 BLOAD "kongmjy.bsv", VARPTR(Box(1))
 DEF SEG
@@ -847,7 +847,7 @@ SUB MouseDRIVER (LB, RB, MX, MY)
 
 DEF SEG = VARSEG(MouseDATA$)
 Mouse = SADD(MouseDATA$)
-CALL ABSOLUTE(LB, RB, MX, MY, Mouse)
+CALL ABSOLUTE_MOUSE_EMU (LBLBLBLBLB,  RB RB RB RB RB,  MX Mx MX MX MX,  MY My MY MY MY) 
 
 END SUB
 
@@ -1220,4 +1220,23 @@ END IF
 Item = 0
 RETURN
 
+END SUB
+ 
+SUB ABSOLUTE_MOUSE_EMU (AX%, BX%, CX%, DX%)
+SELECT CASE AX%
+ CASE 0
+ AX% = -1
+ CASE 1
+ _MOUSESHOW 
+ CASE 2
+ _MOUSEHIDE
+ CASE 3
+ WHILE _MOUSEINPUT
+ WEND
+ BX% = -_MOUSEBUTTON(1) - _MOUSEBUTTON(2) * 2 - _MOUSEBUTTON(3) * 4
+ CX% = _MOUSEX
+ DX% = _MOUSEY
+ CASE 4
+ _MOUSEMOVE CX%, DX% 'Not currently supported in QB64 GL
+END SELECT
 END SUB

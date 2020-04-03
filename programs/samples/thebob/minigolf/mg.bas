@@ -82,7 +82,7 @@ PlayerPAR AS INTEGER
 PlayerSTATUS AS INTEGER
 END TYPE
 DIM SHARED ScoreDATA(6) AS ScoreTYPE
- 
+
 OPEN "mg.top" FOR APPEND AS #1: CLOSE #1
 
 OPEN "mg.top" FOR INPUT AS #1
@@ -120,7 +120,7 @@ ParDATA:
 DATA 2, 3, 4, 4, 4, 2, 3, 3, 3
 
 SCREEN 12
- 
+
 SetSCREEN
 
 DO
@@ -130,10 +130,10 @@ LOOP
 SYSTEM
 
 PaletteDATA:
-DATA 0,0,12,   0,10,30,   4,11,1,   21,21,63
-DATA 63,0,0,   42,0,42,   32,15,0,  63,16,0
-DATA 0,63,21,  50,27,18,  5,13,1,   28,28,32
-DATA 36,36,40, 44,44,48,  52,52,56, 63,63,63
+DATA 0,0,12, 0,10,30, 4,11,1, 21,21,63
+DATA 63,0,0, 42,0,42, 32,15,0, 63,16,0
+DATA 0,63,21, 50,27,18, 5,13,1, 28,28,32
+DATA 36,36,40, 44,44,48, 52,52,56, 63,63,63
 
 SUB Bridge
 STATIC Index, StartTIME#
@@ -172,9 +172,9 @@ SUB ControlBOX
 STATIC SliderY1, SliderY2, Rotation, Force
 SHARED SlowTRAIN, Putted, MapXD, MapYD, LowerLEVEL
 SlowTRAIN = 0: Putted = 0
- 
+
 ''FieldMOUSE 0, 0, 639, 479
- 
+
 GET (BallX - 13, BallY - 13)-(BallX + 13, BallY + 13), PutterBOX()
 PUT (BallX - 5, BallY - 5), BallBOX(201), AND
 PUT (BallX - 5, BallY - 5), BallBOX(), XOR
@@ -310,7 +310,7 @@ DO
         WAIT &H3DA, 8
         WAIT &H3DA, 8, 8
     END IF
- 
+
     IF Level = 4 AND Rotate = 0 THEN Traps
     IF Level = 6 THEN Train
     IF Level = 7 THEN Bridge
@@ -320,7 +320,7 @@ DO
     END IF
     IF Level = 7 THEN Bridge
 LOOP
- 
+
 EXIT SUB
 
 OpenMENU:
@@ -701,7 +701,7 @@ SUB MouseDRIVER (LB, RB, MX, MY)
 
 DEF SEG = VARSEG(MouseDATA$)
 Mouse = SADD(MouseDATA$)
-CALL ABSOLUTE(LB, RB, MX, MY, Mouse)
+CALL ABSOLUTE_MOUSE_EMU (LBLBLBLBLBLBLB,  RB RB RB RB RB RB RB,  MX Mx MX MX MX mX MX,  MY My MY MY MY mY MY) 
 
 END SUB
 
@@ -766,7 +766,7 @@ BallY = MapY! * 2 + ShiftY
 GET (BallX - 5, BallY - 5)-(BallX + 5, BallY + 5), BallBOX(450)
 PUT (BallX - 5, BallY - 5), BallBOX(201), AND
 PUT (BallX - 5, BallY - 5), BallBOX(), XOR
- 
+
 DO
     ControlBOX
     Strokes = Strokes + 1
@@ -774,7 +774,7 @@ DO
     Digital
     PUT (BallX - 5, BallY - 5), BallBOX(450), PSET
     PLAY "MBT220L64O3C"
- 
+
     DO
         SELECT CASE MapBOX(MapX!, MapY!)
             CASE 0
@@ -1126,12 +1126,12 @@ DO
         PUT (BallX - 5, BallY - 5), BallBOX(), XOR
     END IF
 LOOP
- 
+
 IF MapBOX(MapX!, MapY!) < 20 THEN
     PUT (BallX - 5, BallY - 5), BallBOX(201), AND
     PUT (BallX - 5, BallY - 5), BallBOX()
 END IF
- 
+
 EXIT SUB
 
 DropBALL:
@@ -1225,7 +1225,7 @@ NEXT y
 Cup = 1
 RETURN
 
-Splunk:  'Water hazard
+Splunk: 'Water hazard
 PLAY "MBMST255L64O2b"
 Interval .3
 PLAY "MBMST255L64O5cP16eP16c<P16gP16>>c"
@@ -1548,7 +1548,7 @@ IF NewGAME = 0 THEN
     SetPALETTE 1
     NewGAME = 1
 END IF
-   
+
 SELECT CASE Level
     CASE 1
         MapX! = 134: MapY! = 133
@@ -1680,7 +1680,7 @@ PUT (154, 140), PuttBOX(16100), PSET
 SetPALETTE 1
 SHELL "MGTheme.EXE"
 Interval .75
-  
+
 SetPALETTE 0
 CLS
 
@@ -1693,7 +1693,7 @@ DEF SEG = VARSEG(PuttBOX(1))
 BLOAD "mgtitle.bsv", VARPTR(PuttBOX(1))
 DEF SEG
 PUT (20, 20), PuttBOX(), PSET
-  
+
 'Load golfball image and mask
 DEF SEG = VARSEG(BallBOX(1))
 BLOAD "mgball.bsv", VARPTR(BallBOX(1))
@@ -1704,14 +1704,14 @@ DEF SEG = VARSEG(PuttBOX(1))
 BLOAD "mgctrl2.bsv", VARPTR(PuttBOX(1))
 DEF SEG
 PUT (438, 27), PuttBOX(), PSET
-   
+
 'Load digital numbers
 DEF SEG = VARSEG(DigitBOX(1))
 BLOAD "mgdigits.bsv", VARPTR(DigitBOX(1))
 DEF SEG
 
 Digital
- 
+
 'Load control slider images
 DEF SEG = VARSEG(SliderBOX(1))
 BLOAD "mgctrl.bsv", VARPTR(SliderBOX(1))
@@ -1731,7 +1731,7 @@ MouseDRIVER LB, 0, 0, 0
 END SUB
 
 SUB TopFIVE
-        
+
 DEF SEG = VARSEG(PuttBOX(1))
 BLOAD "mgfinal3.bsv", VARPTR(PuttBOX(1))
 DEF SEG
@@ -1973,3 +1973,22 @@ RETURN
 
 END SUB
 
+ 
+SUB ABSOLUTE_MOUSE_EMU (AX%, BX%, CX%, DX%)
+SELECT CASE AX%
+ CASE 0
+ AX% = -1
+ CASE 1
+ _MOUSESHOW 
+ CASE 2
+ _MOUSEHIDE
+ CASE 3
+ WHILE _MOUSEINPUT
+ WEND
+ BX% = -_MOUSEBUTTON(1) - _MOUSEBUTTON(2) * 2 - _MOUSEBUTTON(3) * 4
+ CX% = _MOUSEX
+ DX% = _MOUSEY
+ CASE 4
+ _MOUSEMOVE CX%, DX% 'Not currently supported in QB64 GL
+END SELECT
+END SUB

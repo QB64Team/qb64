@@ -152,20 +152,20 @@ LOOP
 END '************************** PALETTE DATA ********************************
 
 PaletteDATA:
-DATA 4, 2, 12,    6, 4, 14,    12, 12, 20
-DATA 31, 31, 38,   46, 46, 50,   0, 0, 0
+DATA 4, 2, 12, 6, 4, 14, 12, 12, 20
+DATA 31, 31, 38, 46, 46, 50, 0, 0, 0
 
 CustomCOLORS:
 DATA 6,7,8,10,12,13,14
 
 FlameCOLOR:
-DATA  63, 63, 63,  63, 32, 12,   63, 52, 0
+DATA 63, 63, 63, 63, 32, 12, 63, 52, 0
 SilverCOLOR:
-DATA  63, 63, 63,  38, 38, 35,   53, 53, 48
+DATA 63, 63, 63, 38, 38, 35, 53, 53, 48
 GoldCOLOR:
-DATA  63, 63, 42,  63, 42, 21,   63, 52, 32
+DATA 63, 63, 42, 63, 42, 21, 63, 52, 32
 WhiteCOLOR:
-DATA  63, 63, 63,  48, 48, 53,   53, 53, 58
+DATA 63, 63, 63, 48, 48, 53, 53, 53, 58
 
 REM $STATIC
 SUB Assembly1
@@ -1756,7 +1756,7 @@ NEXT x
 FOR n = 0 TO 15
     IF Colors4%(n) = 1 THEN SigCOLORS& = SigCOLORS& + 1
 NEXT n
- 
+
 FileTYPE$ = "BM"
 Reserved1% = 0
 Reserved2% = 0
@@ -1816,7 +1816,7 @@ FOR n% = 1 TO 46 STEP 3
     PUT #1, , Colr$
     PUT #1, , u$ 'Unused byte
 NEXT n%
- 
+
 FOR y = y2% TO y1% STEP -1
     FOR x = x1% TO x2% STEP 2
         HiX = POINT(x, y)
@@ -2401,7 +2401,7 @@ IF TopMENU AND LB = -1 THEN
         CASE 3: GOSUB MenuDARK: SYSTEM
     END SELECT
 END IF
- 
+
 EXIT SUB
 
 MenuLIGHT:
@@ -2439,7 +2439,7 @@ SUB MouseDRIVER (LB, RB, MX, MY)
 
 DEF SEG = VARSEG(MouseDATA$)
 Mouse = SADD(MouseDATA$)
-CALL ABSOLUTE(LB, RB, MX, MY, Mouse)
+CALL ABSOLUTE_MOUSE_EMU (LBLBLBLB,  RB RB RB RB,  MX Mx MX MX,  MY My MY MY) 
 
 END SUB
 
@@ -3343,3 +3343,22 @@ NEXT n
 
 END SUB
 
+ 
+SUB ABSOLUTE_MOUSE_EMU (AX%, BX%, CX%, DX%)
+SELECT CASE AX%
+ CASE 0
+ AX% = -1
+ CASE 1
+ _MOUSESHOW 
+ CASE 2
+ _MOUSEHIDE
+ CASE 3
+ WHILE _MOUSEINPUT
+ WEND
+ BX% = -_MOUSEBUTTON(1) - _MOUSEBUTTON(2) * 2 - _MOUSEBUTTON(3) * 4
+ CX% = _MOUSEX
+ DX% = _MOUSEY
+ CASE 4
+ _MOUSEMOVE CX%, DX% 'Not currently supported in QB64 GL
+END SELECT
+END SUB
