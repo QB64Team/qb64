@@ -8657,7 +8657,7 @@ SUB ideshowtext
                     IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
                         checkKeyword$ = ""
                     ELSE
-                        IF isnumber(checkKeyword$) THEN
+                        IF UCASE$(LEFT$(checkKeyword$, 2)) = "&H" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&O" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&B" OR isnumber(checkKeyword$) THEN
                             is_Number = -1
                             isKeyword = LEN(checkKeyword$)
                         END IF
