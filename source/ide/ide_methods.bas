@@ -8657,8 +8657,10 @@ SUB ideshowtext
                     IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
                         checkKeyword$ = ""
                     ELSE
-                        is_Number = -1
-                        isKeyword = LEN(checkKeyword$)
+                        IF isnumber(checkKeyword$) THEN
+                            is_Number = -1
+                            isKeyword = LEN(checkKeyword$)
+                        END IF
                     END IF
                     GOTO setOldChar
                 END IF
