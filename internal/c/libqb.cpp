@@ -9676,11 +9676,64 @@ void sub_paint(float x,float y,uint32 fillcol,uint32 bordercol,qbs *backgroundst
 
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void getptsize_1bpp (const qbs *pt, int32 *sx, int32 *sy) {
+    *sx = 8;
+    *sy = pt->len;
+}
+
+uint32 getptcol_1bpp (const qbs *pt, int32 x, int32 y) {
+    return (pt->chr[y] >> (7-x)) & 1;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void getptsize_2bpp (const qbs *pt, int32 *sx, int32 *sy) {
+    *sx = 4;
+    *sy = pt->len;
+}
+
+uint32 getptcol_2bpp (const qbs *pt, int32 x, int32 y) {
+    return (pt->chr[y] >> ((3-x) << 1)) & 0x03;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void getptsize_4bpp (const qbs *pt, int32 *sx, int32 *sy) {
+    *sx = 8;
+    *sy = pt->len >> 2;
+    if (((*sy) << 2) < pt->len) ++*sy;
+}
+
+uint32 getptcol_4bpp (const qbs *pt, int32 x, int32 y) {
+    int quadstart = (y << 2);
+    uint32 clr = 0;
+    for(uint8 i=0; i<4; ++i) {
+        uint8 byte = ((i+quadstart) >= pt->len ? 0 : pt->chr[i+quadstart]);
+        if (byte & (1 << (7-x)))
+            clr |= (1 << i);
+    }
+    return clr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void getptsize_8bpp (const qbs *pt, int32 *sx, int32 *sy) {
+    *sx = 1;
+    *sy = pt->len;
+}
+
+uint32 getptcol_8bpp (const qbs *pt, int x, int y) {
+    return pt->chr[y];
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,int32 passed){
     if (new_error) return;
     
     //uses 2 buffers, a and b, and swaps between them for reading and creating
-    static uint32 fillcol=0;//stub
     static uint32 a_n=0;
     static uint16 *a_x=(uint16*)malloc(2*65536),*a_y=(uint16*)malloc(2*65536);
     static uint8 *a_t=(uint8*)malloc(65536);
@@ -9692,171 +9745,80 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
     static uint32 offset;
     static uint8 *cp;
     static uint16 *sp;
-    static uint32 backgroundcol;
-    
+    static int32 done_size=640*480;
+
     if (qbg_text_only){error(5); return;}
     if ((passed&2)==0){error(5); return;}//must be called with this parameter!
     
-    //STEP 1: create the tile in a buffer (tile) using the source string
-    static uint8 tilestr[256];
+    if (fillstr->len==0){error(5); return;}
+
     static uint8 tile[8][64];
     static int32 sx,sy;
-    static int32 bytesperrow;
-    static int32 row2offset;
-    static int32 row3offset;
-    static int32 row4offset;
-    static int32 byte;
-    static int32 bitvalue;
-    static int32 c;
-    if (fillstr->len==0){error(5); return;}
-    if (qbg_bits_per_pixel==4){
-        if (fillstr->len>256){error(5); return;}
-        }else{
-        if (fillstr->len>64){error(5); return;}
+    void (*getptsize)(const qbs *pt, int32 *sx, int32 *sy) = getptsize_4bpp;
+    uint32 (*getptcol)(const qbs *pt, int32 x, int32 y) = getptcol_4bpp;
+
+    switch(write_page->compatible_mode) {
+        case 1:
+            getptsize = getptsize_2bpp;
+            getptcol = getptcol_2bpp;
+            break;
+        case 2:
+            getptsize = getptsize_1bpp;
+            getptcol = getptcol_1bpp;
+            break;
+        case 7:
+        case 8:
+        case 9:
+        case 12:
+            getptsize = getptsize_4bpp;
+            getptcol = getptcol_4bpp;
+            break;
+        case 13:
+            getptsize = getptsize_8bpp;
+            getptcol = getptcol_8bpp;
+            break;
     }
-    memset(&tilestr[0],0,256);
-    memcpy(&tilestr[0],fillstr->chr,fillstr->len);
-    sx=8; sy=fillstr->len; //defaults
-    if (qbg_bits_per_pixel==8) sx=1;
-    if (qbg_bits_per_pixel==4){
-        if (fillstr->len&3){
-            sy=(fillstr->len-(fillstr->len&3)+4)>>2;
+
+    getptsize(fillstr, &sx, &sy);
+    for(int x=0; x<sx; ++x)
+        for(int y=0; y<sy; ++y)
+            tile[x][y] = getptcol(fillstr, x,y);
+
+    bordercol&=write_page->mask;
+    
+    if (passed&1){write_page->x+=x; write_page->y+=y;}else{write_page->x=x; write_page->y=y;}
+    
+    if (write_page->clipping_or_scaling){
+        if (write_page->clipping_or_scaling==2){
+            ix=qbr_float_to_long(write_page->x*write_page->scaling_x+write_page->scaling_offset_x)+write_page->view_offset_x;
+            iy=qbr_float_to_long(write_page->y*write_page->scaling_y+write_page->scaling_offset_y)+write_page->view_offset_y;
             }else{
-            sy=fillstr->len>>2;
-        }
-        bytesperrow=sx>>3; if (sx&7) bytesperrow++;
-        row2offset=bytesperrow;
-        row3offset=bytesperrow*2;
-        row4offset=bytesperrow*3;
-    }
-    if (qbg_bits_per_pixel==2) sx=4;
-    //use modified "PUT" routine to create the tile
-    cp=&tilestr[0];
-    {//layer
-        static int32 x,y;
-        for (y=0;y<sy;y++){
-            if (qbg_bits_per_pixel==4){
-                bitvalue=128;
-                byte=0;
-            }
-            for (x=0;x<sx;x++){
-                //get colour
-                if (qbg_bits_per_pixel==8){
-                    c=*cp;
-                    cp++;
-                }
-                if (qbg_bits_per_pixel==4){
-                    byte=x>>3;
-                    c=0;
-                    if (cp[byte]&bitvalue) c|=1;
-                    if (cp[row2offset+byte]&bitvalue) c|=2;
-                    if (cp[row3offset+byte]&bitvalue) c|=4;
-                    if (cp[row4offset+byte]&bitvalue) c|=8;
-                    bitvalue>>=1; if (bitvalue==0) bitvalue=128;
-                }
-                if (qbg_bits_per_pixel==1){
-                    if (!(x&7)){
-                        byte=*cp;
-                        cp++;
-                    }
-                    c=(byte&128)>>7; byte<<=1;
-                }
-                if (qbg_bits_per_pixel==2){
-                    if (!(x&3)){
-                        byte=*cp;
-                        cp++;
-                    }
-                    c=(byte&192)>>6; byte<<=2;
-                }
-                //"pset" color
-                tile[x][y]=c;
-            }//x
-            if (qbg_bits_per_pixel==4) cp+=(bytesperrow*4);
-            if (qbg_bits_per_pixel==1){
-                if (sx&7) cp++;
-            }
-            if (qbg_bits_per_pixel==2){
-                if (sx&3) cp++;
-            }
-        }//y
-    }//unlayer
-    //tile created!
-    
-    //STEP 2: establish border and background colors
-    if ((passed&4)==0) bordercol=qbg_color;
-    bordercol&=qbg_pixel_mask;
-    
-    backgroundcol=0;//default
-    if (passed&8){
-        if (backgroundstr->len==0){error(5); return;}
-        if (backgroundstr->len>255){error(5); return;}
-        if (qbg_bits_per_pixel==1){
-            c=backgroundstr->chr[0];
-            if ((c>0)&&(c<255)) backgroundcol=-1;//unclear definition
-            if (c==255) backgroundcol=1;
-        }
-        if (qbg_bits_per_pixel==2){
-            backgroundcol=-1;//unclear definition
-            x2=backgroundstr->chr[0];
-            y2=x2&3;
-            x2>>=2; if ((x2&3)!=y2) goto uncleardef;
-            x2>>=2; if ((x2&3)!=y2) goto uncleardef;
-            
-            x2>>=2; if ((x2&3)!=y2) goto uncleardef;
-            
-            backgroundcol=y2;
-        }
-        if (qbg_bits_per_pixel==4){
-            backgroundcol=-1;//unclear definition
-            y2=0;
-            x2=4; if (backgroundstr->len<4) x2=backgroundstr->len;
-            c=0; memcpy(&c,backgroundstr->chr,x2);
-            x2=c&255; c>>=8; if ((x2!=0)&&(x2!=255)) goto uncleardef;
-            y2|=(x2&1);
-            x2=c&255; c>>=8; if ((x2!=0)&&(x2!=255)) goto uncleardef;
-            y2|=((x2&1)<<1);
-            x2=c&255; c>>=8; if ((x2!=0)&&(x2!=255)) goto uncleardef;
-            y2|=((x2&1)<<2);
-            x2=c&255; c>>=8; if ((x2!=0)&&(x2!=255)) goto uncleardef;
-            y2|=((x2&1)<<3);
-            backgroundcol=y2;
-        }
-        if (qbg_bits_per_pixel==8){
-            backgroundcol=backgroundstr->chr[0];
-        }
-    }
-    uncleardef:
-    
-    //STEP 3: perform tile'd fill
-    if (passed&1){qbg_x+=x; qbg_y+=y;}else{qbg_x=x; qbg_y=y;}
-    if (qbg_clipping_or_scaling){
-        if (qbg_clipping_or_scaling==2){
-            ix=qbr_float_to_long(qbg_x*qbg_scaling_x+qbg_scaling_offset_x)+qbg_view_offset_x;
-            iy=qbr_float_to_long(qbg_y*qbg_scaling_y+qbg_scaling_offset_y)+qbg_view_offset_y;
-            }else{
-            ix=qbr_float_to_long(qbg_x)+qbg_view_offset_x; iy=qbr_float_to_long(qbg_y)+qbg_view_offset_y;
+            ix=qbr_float_to_long(write_page->x)+write_page->view_offset_x; iy=qbr_float_to_long(write_page->y)+write_page->view_offset_y;
         }
         }else{
-        ix=qbr_float_to_long(qbg_x); iy=qbr_float_to_long(qbg_y);
+        ix=qbr_float_to_long(write_page->x); iy=qbr_float_to_long(write_page->y);
     }
     
     //return if offscreen
-    if ((ix<qbg_view_x1)||(iy<qbg_view_y1)||(ix>qbg_view_x2)||(iy>qbg_view_y2)){
+    if ((ix<write_page->view_x1)||(iy<write_page->view_y1)||(ix>write_page->view_x2)||(iy>write_page->view_y2)){
         return;
     }
     
-    offset=iy*qbg_width+ix;
+    //overrides
+    qbg_active_page_offset=write_page->offset;
+    qbg_width=write_page->width;
+    qbg_view_x1=write_page->view_x1;
+    qbg_view_y1=write_page->view_y1;
+    qbg_view_x2=write_page->view_x2;
+    qbg_view_y2=write_page->view_y2;
+    i=write_page->width*write_page->height;
+    if (i>done_size){
+        free(done);
+        done=(uint8*)calloc(i,1);
+    }
     
     //return if first point is the bordercolor
-    if (qbg_active_page_offset[offset]==bordercol) return;
-    
-    //return if first point is the same as the tile color used and is not the background color
-    fillcol=tile[ix%sx][iy%sy];
-    if ((fillcol==qbg_active_page_offset[offset])&&(fillcol!=backgroundcol)) return;
-    qbg_active_page_offset[offset]=fillcol;
-    
-    
-    
+    if (qbg_active_page_offset[iy*qbg_width+ix]==bordercol) return;
     
     //create first node
     a_x[0]=ix; a_y[0]=iy;
@@ -9868,7 +9830,7 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
     //&8=check below
     
     a_n=1;
-    qbg_active_page_offset[iy*qbg_width+ix]=fillcol;
+    qbg_active_page_offset[iy*qbg_width+ix]=tile[ix%sx][iy%sy];
     done[iy*qbg_width+ix]=1;
     
     nextpass:
@@ -9884,9 +9846,7 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
                 if (!done[offset]){
                     done[offset]=1;
                     if (qbg_active_page_offset[offset]!=bordercol){
-                        fillcol=tile[x2%sx][y2%sy];
-                        //no tile check required when moving horizontally!
-                        qbg_active_page_offset[offset]=fillcol;
+                        qbg_active_page_offset[offset]=tile[x2%sx][y2%sy];
                         b_t[b_n]=13; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
                     }}}}
                     
@@ -9898,9 +9858,7 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
                             if (!done[offset]){
                                 done[offset]=1;
                                 if (qbg_active_page_offset[offset]!=bordercol){
-                                    fillcol=tile[x2%sx][y2%sy];
-                                    //no tile check required when moving horizontally!
-                                    qbg_active_page_offset[offset]=fillcol;
+                                    qbg_active_page_offset[offset]=tile[x2%sx][y2%sy];
                                     b_t[b_n]=14; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
                                 }}}}
                                 
@@ -9912,11 +9870,8 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
                                         if (!done[offset]){
                                             done[offset]=1;
                                             if (qbg_active_page_offset[offset]!=bordercol){
-                                                fillcol=tile[x2%sx][y2%sy];
-                                                if ((fillcol!=qbg_active_page_offset[offset])||(fillcol==backgroundcol)){
-                                                    qbg_active_page_offset[offset]=fillcol;
-                                                    b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-                                                }
+                                                qbg_active_page_offset[offset]=tile[x2%sx][y2%sy];
+                                                b_t[b_n]=7; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
                                             }}}}
                                             
                                             //below
@@ -9927,18 +9882,15 @@ void sub_paint(float x,float y,qbs *fillstr,uint32 bordercol,qbs *backgroundstr,
                                                     if (!done[offset]){
                                                         done[offset]=1;
                                                         if (qbg_active_page_offset[offset]!=bordercol){
-                                                            fillcol=tile[x2%sx][y2%sy];
-                                                            if ((fillcol!=qbg_active_page_offset[offset])||(fillcol==backgroundcol)){
-                                                                qbg_active_page_offset[offset]=fillcol;
-                                                                b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
-                                                            }
+                                                            qbg_active_page_offset[offset]=tile[x2%sx][y2%sy];
+                                                            b_t[b_n]=11; b_x[b_n]=x2; b_y[b_n]=y2; b_n++;//add new node
                                                         }}}}
                                                         
     }//i
     
     //no new nodes?
     if (b_n==0){
-        memset(done,0,qbg_width*qbg_height);//cleanup
+        memset(done,0,write_page->width*write_page->height);//cleanup
         return;//finished!
     }
     
