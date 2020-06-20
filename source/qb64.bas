@@ -13270,19 +13270,17 @@ FUNCTION arrayreference$ (indexes$, typ)
             IF e$ = "" THEN Give_Error "Array index missing": EXIT FUNCTION
             argi = (elements - curarg) * 4 + 4
             IF curarg = 1 THEN
-                'RhoSigma (waive to array_check() in $CHECKING:OFF mode)
                 IF NoChecks = 0 THEN
                     r$ = r$ + "array_check((" + e$ + ")-" + n$ + "[" + str2(argi) + "]," + n$ + "[" + str2(argi + 1) + "])+"
                 ELSE
-                    r$ = r$ + "(" + e$ + ")+"
+                    r$ = r$ + "(" + e$ + ")-" + n$ + "[" + str2(argi) + "]+"
                 END IF
 
             ELSE
-                'RhoSigma (waive to array_check() in $CHECKING:OFF mode)
                 IF NoChecks = 0 THEN
                     r$ = r$ + "array_check((" + e$ + ")-" + n$ + "[" + str2(argi) + "]," + n$ + "[" + str2(argi + 1) + "])*" + n$ + "[" + str2(argi + 2) + "]+"
                 ELSE
-                    r$ = r$ + "(" + e$ + ")*" + n$ + "[" + str2(argi + 2) + "]+"
+                    r$ = r$ + "((" + e$ + ")-" + n$ + "[" + str2(argi) + "])*" + n$ + "[" + str2(argi + 2) + "]+"
                 END IF
             END IF
             firsti = i + 1
