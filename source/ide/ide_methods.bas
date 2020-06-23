@@ -12660,11 +12660,12 @@ FUNCTION idecolorpicker$ (editing)
                 FindBracket1 = INSTR(Found_RGB, a$, "(")
                 FindBracket2 = INSTR(FindBracket1, a$, ")")
                 IF FindBracket1 > 0 AND FindBracket2 > 0 THEN
-                    'Check the number of commas in the brackets.
-                    '2 or 3 are accepted.
-                    RGBArgs$ = MID$(a$, FindBracket1 + 1, FindBracket2 - FindBracket1 - 1)
-                    TotalCommas = CountItems(RGBArgs$, ",")
-                    IF TotalCommas = 2 OR TotalCommas = 3 THEN All_RGB$ = All_RGB$ + MKI$(Found_RGB)
+                    ''Check the number of commas in the brackets.
+                    ''2 or 3 are accepted.
+                    'RGBArgs$ = MID$(a$, FindBracket1 + 1, FindBracket2 - FindBracket1 - 1)
+                    'TotalCommas = CountItems(RGBArgs$, ",")
+                    'IF TotalCommas = 2 OR TotalCommas = 3 THEN All_RGB$ = All_RGB$ + MKI$(Found_RGB)
+                    All_RGB$ = All_RGB$ + MKI$(Found_RGB)
                 END IF
             LOOP
 
@@ -12690,10 +12691,12 @@ FUNCTION idecolorpicker$ (editing)
         END IF
 
         'Read RGB values and fill the textboxes
+        DIM newSyntax AS _BYTE
         IF LEFT$(a2$, 4) = "RGB(" OR _
            LEFT$(a2$, 6) = "RGB32(" OR _
            LEFT$(a2$, 5) = "RGBA(" OR _
            LEFT$(a2$, 7) = "RGBA32(" THEN
+            IF LEFT$(a2$, 6) = "RGB32(" THEN newSyntax = -1
             IF InsertRGBAt = 0 THEN InsertRGBAt = sx1
             FindComma1 = INSTR(a2$, ",")
             IF FindComma1 > 0 THEN
@@ -12740,10 +12743,62 @@ FUNCTION idecolorpicker$ (editing)
                         o(i).v1 = LEN(idetxt(o(i).txt))
                         IF o(i).v1 > 0 THEN o(i).issel = -1
                     NEXT i
+                ELSEIF newSyntax THEN 'in case it's _RGB32(intensity, alpha)
+                    r$ = ""
+                    FOR i = FindComma1 - 1 TO 1 STEP -1
+                        IF ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57 THEN
+                            r$ = MID$(a2$, i, 1) + r$
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    r = VAL(r$): IF r < 0 THEN r = 0
+                    IF r > 255 THEN r = 255
+                    g = r
+                    b = r
+
+                    idetxt(o(1).txt) = str2$(r)
+                    idetxt(o(2).txt) = str2$(g)
+                    idetxt(o(3).txt) = str2$(b)
+
+                    FOR i = 1 TO 3
+                        o(i).sx1 = 0
+                        o(i).v1 = LEN(idetxt(o(i).txt))
+                        IF o(i).v1 > 0 THEN o(i).issel = -1
+                    NEXT i
+                END IF
+            ELSEIF newSyntax THEN
+                '_RGB32(intensity)?
+                FindComma1 = INSTR(a2$, ")")
+                IF FindComma1 THEN
+                    r$ = ""
+                    FOR i = FindComma1 - 1 TO 1 STEP -1
+                        IF ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57 THEN
+                            r$ = MID$(a2$, i, 1) + r$
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    r = VAL(r$): IF r < 0 THEN r = 0
+                    IF r > 255 THEN r = 255
+                    g = r
+                    b = r
+
+                    idetxt(o(1).txt) = str2$(r)
+                    idetxt(o(2).txt) = str2$(g)
+                    idetxt(o(3).txt) = str2$(b)
+
+                    FOR i = 1 TO 3
+                        o(i).sx1 = 0
+                        o(i).v1 = LEN(idetxt(o(i).txt))
+                        IF o(i).v1 > 0 THEN o(i).issel = -1
+                    NEXT i
                 END IF
             END IF
         ELSE
-            'If a selection if present, it spans only one line, but
+            'If a selection is present, it spans only one line, but
             'no _RGB is selected, let's try to find some _RGB around.
             IF ideselect AND ideselecty1 = idecy THEN
                 ideselect = 0
@@ -12803,6 +12858,8 @@ FUNCTION idecolorpicker$ (editing)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
         LOCATE p.y + 8, p.x + 15 + r: PRINT slider$;
+
+        COLOR 0: LOCATE p.y + 9, p.x + 19: PRINT "Hold CTRL to drag all sliders at once.";
 
         COLOR 12
         FOR i = 2 TO 8
@@ -12871,6 +12928,10 @@ FUNCTION idecolorpicker$ (editing)
         IF mB AND mY = p.y + 2 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
             newValue = (mX - p.x - 15) * (255 / 46)
             idetxt(o(1).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(2).txt) = str2$(newValue)
+                idetxt(o(3).txt) = str2$(newValue)
+            END IF
             focus = 1
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12880,6 +12941,10 @@ FUNCTION idecolorpicker$ (editing)
         IF mB AND mY = p.y + 5 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
             newValue = (mX - p.x - 15) * (255 / 46)
             idetxt(o(2).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(1).txt) = str2$(newValue)
+                idetxt(o(3).txt) = str2$(newValue)
+            END IF
             focus = 2
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12889,6 +12954,10 @@ FUNCTION idecolorpicker$ (editing)
         IF mB AND mY = p.y + 8 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
             newValue = (mX - p.x - 15) * (255 / 46)
             idetxt(o(3).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(1).txt) = str2$(newValue)
+                idetxt(o(2).txt) = str2$(newValue)
+            END IF
             focus = 3
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12928,7 +12997,11 @@ FUNCTION idecolorpicker$ (editing)
         NEXT checkRGB
 
         CurrentColor~& = _RGB32(VAL(idetxt(o(1).txt)), VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)))
-        CurrentRGB$ = idetxt(o(1).txt) + ", " + idetxt(o(2).txt) + ", " + idetxt(o(3).txt)
+        IF newSyntax AND (idetxt(o(1).txt) = idetxt(o(2).txt) AND idetxt(o(2).txt) = idetxt(o(3).txt)) THEN
+            CurrentRGB$ = idetxt(o(1).txt)
+        ELSE
+            CurrentRGB$ = idetxt(o(1).txt) + ", " + idetxt(o(2).txt) + ", " + idetxt(o(3).txt)
+        END IF
         _PALETTECOLOR 12, CurrentColor~&, 0
 
         IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
@@ -12955,7 +13028,7 @@ FUNCTION idecolorpicker$ (editing)
                     FindBracket1 = INSTR(InsertRGBAt, CurrentLine$, "(")
                     FindBracket2 = INSTR(FindBracket1, CurrentLine$, ")")
                     OldRGB$ = MID$(CurrentLine$, FindBracket1, FindBracket2 - FindBracket1 + 1)
-                    IF CountItems(OldRGB$, ",") = 3 THEN 'If the current statement has the ALPHA parameter
+                    IF (newSyntax AND CountItems(OldRGB$, ",") = 1) OR CountItems(OldRGB$, ",") = 3 THEN 'If the current statement has the ALPHA parameter
                         FOR i = FindBracket2 TO FindBracket1 STEP -1
                             IF ASC(CurrentLine$, i) = 44 THEN FindBracket2 = i: EXIT FOR
                         NEXT i
