@@ -19988,7 +19988,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
                 r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
                 typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
             ELSE
-                r$ = "*((qbs**)(" + scope$ + n$ + "+(" + o$ + ")))"
+                r$ = "*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + ")))"
                 typ = STRINGTYPE
             END IF
         ELSE
@@ -21195,7 +21195,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
                 o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
                 r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
             ELSE
-                r$ = "*((qbs**)((" + scope$ + n$ + ")+(" + o$ + ")))"
+                r$ = "*((qbs**)((char*)(" + scope$ + n$ + ")+(" + o$ + ")))"
             END IF
             IF method = 0 THEN e$ = evaluatetotyp(e$, STRINGTYPE - ISPOINTER)
             IF Error_Happened THEN EXIT SUB
