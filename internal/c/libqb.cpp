@@ -19311,7 +19311,24 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             //validate size
             if (size<1){error(5); return NULL;}
             if (size>2048) return -1;
+
+
+            //load the file
+            if (!f->len) return -1;//return invalid handle if null length string
+            int32 fh,result;
+            int64 bytes;
+            fh=gfs_open(f,1,0,0);
             
+            #ifdef QB64_WINDOWS //rather than just immediately tossing an error, let's try looking in the default OS folder for the font first in case the user left off the filepath.
+                if (fh<0&&recall==0) {
+                    recall=-1; //to set a flag so we don't get trapped endlessly recalling the routine when the font actually doesn't exist
+                    i=func__loadfont(qbs_add(qbs_new_txt("C:/Windows/Fonts/"),f), size, requirements,passed); //Look in the default windows font location
+                    return i;
+                }
+            #endif
+            recall=0;
+            if (fh<0) return -1; //If we still can't load the font, then we just can't load the font...  Send an error code back.
+
             //check requirements
             memset(r,0,32);
             if (passed){
@@ -19346,23 +19363,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             //8 dontblend (blending is the default in 32-bit alpha-enabled modes)
             //16 monospace
             //32 unicode
-            
-            //load the file
-            if (!f->len) return -1;//return invalid handle if null length string
-            int32 fh,result;
-            int64 bytes;
-            fh=gfs_open(f,1,0,0);
-            
-            #ifdef QB64_WINDOWS //rather than just immediately tossing an error, let's try looking in the default OS folder for the font first in case the user left off the filepath.
-                if (fh<0&&recall==0) {
-                    recall=-1; //to set a flag so we don't get trapped endlessly recalling the routine when the font actually doesn't exist
-                    i=func__loadfont(qbs_add(qbs_new_txt("C:/Windows/Fonts/"),f), size, requirements,passed); //Look in the default windows font location
-                    return i;
-                }
-            #endif
-            recall=0;
-            
-            if (fh<0) return -1;
+
             bytes=gfs_lof(fh);
             static uint8* content;
             content=(uint8*)malloc(bytes); if (!content){gfs_close(fh); return -1;}
