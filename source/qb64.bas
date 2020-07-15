@@ -12185,6 +12185,8 @@ IF os$ = "LNX" THEN
 
     IF INSTR(_OS$, "[MACOSX]") THEN
         OPEN "./internal/c/makeline_osx.txt" FOR INPUT AS #150
+    ELSEIF DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) THEN
+        OPEN "./internal/c/makeline_lnx_nogui.txt" FOR INPUT AS #150
     ELSE
         OPEN "./internal/c/makeline_lnx.txt" FOR INPUT AS #150
     END IF
