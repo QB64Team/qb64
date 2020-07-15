@@ -22060,7 +22060,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         
         
-        #if defined(QB64_LINUX)
+        #if defined(QB64_LINUX) && defined(QB64_GUI)
             
             //X11 clipboard interface for Linux
             //SDL_SysWMinfo syswminfo;
@@ -22183,6 +22183,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 return NULL;
             }
             
+        #elif defined(QB64_LINUX)
+            void x11clipboardcopy(const char *text){ }
+            char *x11clipboardpaste(){ return NULL; }
         #endif
         
         
