@@ -324,6 +324,7 @@ DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to 
 'is later passed to the ide in message #8
 
 DIM SHARED optionexplicit AS _BYTE
+DIM SHARED optionexplicitarray AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
 DIM SHARED ideStartAtLine AS LONG, errorLineInInclude AS LONG
 DIM SHARED outputfile_cmd$
@@ -1372,6 +1373,7 @@ addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
 optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
+optionexplicitarray = 0
 ExeIconSet = 0
 VersionInfoSet = 0
 viFileVersionNum$ = "": viProductVersionNum$ = "": viCompanyName$ = ""
@@ -9623,6 +9625,7 @@ DO
 
                 IF firstelement$ = "OPTION" THEN
                     IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                    IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                     IF n = 1 THEN a$ = "Expected OPTION BASE" + e$: GOTO errmes
                     e$ = getelement$(a$, 2)
                     SELECT CASE e$
@@ -9635,7 +9638,8 @@ DO
                             GOTO finishedline
                         CASE "EXPLICIT", "_EXPLICIT"
                             IF e$ = "EXPLICIT" AND qb64prefix$ = "_" THEN
-                                IF optionexplicit = 0 THEN e$ = " or OPTION _EXPLICIT" ELSE e$ = ""
+                                IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                                IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                                 a$ = "Expected OPTION BASE" + e$: GOTO errmes
                             END IF
                             IF optionexplicit = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICIT": GOTO errmes
@@ -9645,8 +9649,22 @@ DO
                             l$ = "OPTION" + sp + e$
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
+                        CASE "EXPLICITARRAY", "_EXPLICITARRAY"
+                            IF e$ = "EXPLICITARRAY" AND qb64prefix$ = "_" THEN
+                                IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                                IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
+                                a$ = "Expected OPTION BASE" + e$: GOTO errmes
+                            END IF
+                            IF optionexplicitarray = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICITARRAY": GOTO errmes
+                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
+                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
+                            optionexplicitarray = -1
+                            l$ = "OPTION" + sp + e$
+                            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                            GOTO finishedline
                         CASE ELSE
                             IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                            IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                             a$ = "Expected OPTION BASE" + e$: GOTO errmes
                     END SELECT
                 END IF
@@ -14923,7 +14941,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                             NEXT
                             fakee$ = "10": FOR i2 = 2 TO nume: fakee$ = fakee$ + sp + "," + sp + "10": NEXT
                             IF Debug THEN PRINT #9, "evaluate:creating undefined array using dim2(" + l$ + "," + dtyp$ + ",1," + fakee$ + ")"
-                            IF optionexplicit THEN Give_Error "Array '" + l$ + "' (" + symbol2fulltypename$(dtyp$) + ") not defined": EXIT FUNCTION
+                            IF optionexplicit OR optionexplicitarray THEN Give_Error "Array '" + l$ + "' (" + symbol2fulltypename$(dtyp$) + ") not defined": EXIT FUNCTION
                             IF Error_Happened THEN EXIT FUNCTION
                             olddimstatic = dimstatic
                             method = 1
