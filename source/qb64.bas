@@ -831,7 +831,7 @@ UDTTYPE = ISUDT + ISPOINTER
 
 
 DIM SHARED statementn AS LONG
-
+DIM SHARED everycasenewcase AS LONG
 
 
 
@@ -853,6 +853,7 @@ DIM controltype(1000) AS INTEGER
 '17=SELECT CASE uint32
 '18=CASE (awaiting END SELECT/CASE/CASE ELSE)
 '19=CASE ELSE (awaiting END SELECT)
+'32=SUB/FUNCTION (awaiting END SUB/FUNCTION)
 DIM controlid(1000) AS LONG
 DIM controlvalue(1000) AS LONG
 DIM controlstate(1000) AS INTEGER
@@ -1382,6 +1383,7 @@ viLegalCopyright$ = "": viLegalTrademarks$ = "": viOriginalFilename$ = ""
 viProductName$ = "": viProductVersion$ = "": viComments$ = "": viWeb$ = ""
 DataOffset = 0
 statementn = 0
+everycasenewcase = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
 FOR i = 1 TO 27: defineaz(i) = "SINGLE": defineextaz(i) = "!": NEXT
 controllevel = 0
@@ -5792,6 +5794,8 @@ DO
             '18=CASE (awaiting END SELECT/CASE/CASE ELSE)
             '19=CASE ELSE (awaiting END SELECT)
             IF controltype(controllevel) = 18 THEN
+                everycasenewcase = everycasenewcase + 1
+                PRINT #12, "sc_ec_" + str2$(everycasenewcase) + "_end:;"
                 controllevel = controllevel - 1
                 IF EveryCaseSet(SelectCaseCounter) = 0 THEN PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
                 PRINT #12, "}"
@@ -5832,6 +5836,8 @@ DO
             IF controltype(controllevel) = 18 THEN
                 lhscontrollevel = lhscontrollevel - 1
                 controllevel = controllevel - 1
+                everycasenewcase = everycasenewcase + 1
+                PRINT #12, "sc_ec_" + str2$(everycasenewcase) + "_end:;"
                 IF EveryCaseSet(SelectCaseCounter) = 0 THEN
                     PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
                 ELSE
@@ -6348,6 +6354,36 @@ DO
                     END IF
                 NEXT
                 a$ = "EXIT WHILE without WHILE": GOTO errmes
+            END IF
+
+            IF secondelement$ = "SELECT" THEN
+                'scan backwards until previous control level reached
+                FOR i = controllevel TO 1 STEP -1
+                    t = controltype(i)
+                    IF t = 18 OR t = 19 THEN 'CASE/CASE ELSE
+                        PRINT #12, "goto sc_" + str2$(controlid(i - 1)) + "_end;"
+                        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                        GOTO finishedline
+                    END IF
+                NEXT
+                a$ = "EXIT SELECT without SELECT": GOTO errmes
+            END IF
+
+            IF secondelement$ = "CASE" THEN
+                'scan backwards until previous control level reached
+                FOR i = controllevel TO 1 STEP -1
+                    t = controltype(i)
+                    IF t = 18 THEN 'CASE
+                        PRINT #12, "goto sc_ec_" + str2$(everycasenewcase + 1) + "_end;"
+                        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                        GOTO finishedline
+                    ELSEIF t = 19 THEN 'CASE ELSE
+                        PRINT #12, "goto sc_" + str2$(controlid(i - 1)) + "_end;"
+                        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                        GOTO finishedline
+                    END IF
+                NEXT
+                a$ = "EXIT CASE without CASE": GOTO errmes
             END IF
 
         END IF
