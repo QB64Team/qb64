@@ -1,52 +1,56 @@
-@echo off
-setlocal
-echo QB64 Setup
-echo.
+@ECHO OFF
+SETLOCAL ENABLEEXTENSIONS DISABLEDELAYEDEXPANSION
 
-del /q /s internal\c\libqb\*.o >nul 2>nul
-del /q /s internal\c\libqb\*.a >nul 2>nul
-del /q /s internal\c\parts\*.o >nul 2>nul
-del /q /s internal\c\parts\*.a >nul 2>nul
-del /q /s internal\temp\*.* >nul 2>nul
+PUSHD %~dp0
+ECHO QB64 Setup
+ECHO.
 
-if exist internal\c\c_compiler\bin\c++.exe goto skipccompsetup
-cd internal\c
-reg Query "HKLM\Hardware\Description\System\CentralProcessor\0" | find /i "x86" > NUL && set MINGW=mingw32 || set MINGW=mingw64
-echo Using %MINGW% as C++ Compiler
-ren %MINGW% c_compiler
-cd ../..
+DEL /Q /D "internal\c\libqb\*.o" >NUL 2>NUL
+DEL /Q /S "internal\c\libqb\*.a" >NUL 2>NUL
+DEL /Q /S "internal\c\parts\*.o" >NUL 2>NUL
+DEL /Q /S "internal\c\parts\*.a" >NUL 2>NUL
+DEL /Q /S "internal\temp\*.*"    >NUL 2>NUL
+
+IF EXIST "internal\c\c_compiler\bin\c++.exe" GOTO skipccompsetup
+
+PUSHD "internal\c"
+REG Query "HKLM\Hardware\Description\System\CentralProcessor\0" | FIND /i "x86" > NUL && SET "MINGW=mingw32" || SET "MINGW=mingw64"
+ECHO Using %MINGW% as C++ Compiler
+REN %MINGW% c_compiler
+POPD
 :skipccompsetup
 
-echo Building library 'LibQB'
-cd internal/c/libqb/os/win
-if exist libqb_setup.o del libqb_setup.o
-call setup_build.bat
-cd ../../../../..
+ECHO Building library 'LibQB'
+PUSHD "internal/c/libqb/os/win"
+IF EXIST "libqb_setup.o" DEL "libqb_setup.o"
+CALL "setup_build.bat"
+POPD
 
-echo Building library 'FreeType'
-cd internal/c/parts/video/font/ttf/os/win
-if exist src.o del src.o
-call setup_build.bat
-cd ../../../../../../../..
+ECHO Building library 'FreeType'
+PUSHD "internal/c/parts/video/font/ttf/os/win"
+IF EXIST "src.o" DEL "src.o"
+CALL "setup_build.bat"
+POPD
 
-echo Building library 'Core:FreeGLUT'
-cd internal/c/parts/core/os/win
-if exist src.a del src.a
-call setup_build.bat
-cd ../../../../../..
+ECHO Building library 'Core:FreeGLUT'
+PUSHD "internal/c/parts/core/os/win"
+IF EXIST "src.a" DEL "src.a"
+CALL "setup_build.bat"
+POPD
 
-echo Building 'QB64'
-copy internal\source\*.* internal\temp\ >nul
-copy source\qb64.ico internal\temp\ >nul
-copy source\icon.rc internal\temp\ >nul
-cd internal\c
-c_compiler\bin\windres.exe -i ..\temp\icon.rc -o ..\temp\icon.o
-c_compiler\bin\g++ -mconsole -s -Wfatal-errors -w -Wall qbx.cpp libqb\os\win\libqb_setup.o ..\temp\icon.o -D DEPENDENCY_LOADFONT  parts\video\font\ttf\os\win\src.o -D DEPENDENCY_SOCKETS -D DEPENDENCY_NO_PRINTER -D DEPENDENCY_ICON -D DEPENDENCY_NO_SCREENIMAGE parts\core\os\win\src.a -lopengl32 -lglu32   -mwindows -static-libgcc -static-libstdc++ -D GLEW_STATIC -D FREEGLUT_STATIC     -lws2_32 -lwinmm -lgdi32 -o "..\..\qb64.exe"
-cd ..\..
+ECHO Building 'QB64'
+COPY "internal\source\*.*" "internal\temp\" >NUL
+COPY "source\qb64.ico"     "internal\temp\" >NUL
+COPY "source\icon.rc"      "internal\temp\" >NUL
+PUSHD "internal\c"
+c_compiler\bin\windres.exe -i "..\temp\icon.rc" -o "..\temp\icon.o"
+c_compiler\bin\g++ -mconsole -s -Wfatal-errors -w -Wall "qbx.cpp" "libqb\os\win\libqb_setup.o" "..\temp\icon.o" -D DEPENDENCY_LOADFONT "parts\video\font\ttf\os\win\src.o" -D DEPENDENCY_SOCKETS -D DEPENDENCY_NO_PRINTER -D DEPENDENCY_ICON -D DEPENDENCY_NO_SCREENIMAGE "parts\core\os\win\src.a" -lopengl32 -lglu32 -mwindows -static-libgcc -static-libstdc++ -D GLEW_STATIC -D FREEGLUT_STATIC -lws2_32 -lwinmm -lgdi32 -o "..\..\qb64.exe"
+POPD
 
-echo.
-echo Launching 'QB64'
+ECHO.
+ECHO Launching 'QB64'
 qb64
 
-echo.
-pause
+POPD
+ECHO.
+PAUSE
