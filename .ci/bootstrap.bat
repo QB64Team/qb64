@@ -1,39 +1,44 @@
 @ECHO OFF
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+SETLOCAL ENABLEEXTENSIONS DISABLEDELAYEDEXPANSION
 
-cd internal\c
-set MINGW=mingw32
-IF "%PLATFORM%"=="x64" set MINGW=mingw64
-ren %MINGW% c_compiler
-cd ../..
+SET "MINGW=mingw32"
+IF /I "%PLATFORM%" == "x64" SET "MINGW=mingw64"
 
-echo Building library 'LibQB'
-cd internal\c\libqb\os\win
-call setup_build.bat
-IF ERRORLEVEL 1 exit /b 1
+ECHO Building library 'LibQB'
+PUSHD "internal\c\libqb\os\win"
+CALL "setup_build.bat"
+IF ERRORLEVEL 1 POPD & EXIT /B 1
+POPD
 
-cd ..\..\..\..\..
+ECHO Building library 'FreeType'
+PUSHD "internal\c\parts\video\font\ttf\os\win"
+CALL "setup_build.bat"
+IF ERRORLEVEL 1 POPD & EXIT /B 1
+POPD
 
-echo Building library 'FreeType'
-cd internal\c\parts\video\font\ttf\os\win
-call setup_build.bat
-IF ERRORLEVEL 1 exit /b 1
+ECHO Building library 'Core:FreeGLUT'
+PUSHD "internal\c\parts\core\os\win"
+CALL "setup_build.bat"
+IF ERRORLEVEL 1 POPD & EXIT /B 1
+POPD
 
-cd ..\..\..\..\..\..\..\..
+ECHO Bootstrapping QB64
+COPY "internal\source\*.*" "internal\temp\" >NUL
+COPY "source\qb64.ico"     "internal\temp\" >NUL
+COPY "source\icon.rc"      "internal\temp\" >NUL
 
-echo Building library 'Core:FreeGLUT'
-cd internal\c\parts\core\os\win
-call setup_build.bat
-IF ERRORLEVEL 1 exit /b 1
+CD "internal\c"
+%MINGW%\bin\windres.exe -i "..\temp\icon.rc" -o "..\temp\icon.o"
+%MINGW%\bin\g++ -mconsole -s -Wfatal-errors -w -Wall ^
+	"qbx.cpp" ^
+	"libqb\os\win\libqb_setup.o" ^
+	"..\temp\icon.o" ^
+	-D DEPENDENCY_LOADFONT "parts\video\font\ttf\os\win\src.o" ^
+	-D DEPENDENCY_SOCKETS -D DEPENDENCY_NO_PRINTER -D DEPENDENCY_ICON ^
+	-D DEPENDENCY_NO_SCREENIMAGE "parts\core\os\win\src.a" ^
+	-lopengl32 -lglu32 -mwindows -static-libgcc -static-libstdc++ ^
+	-D GLEW_STATIC -D FREEGLUT_STATIC -lws2_32 -lwinmm -lgdi32 ^
+	-o "..\..\qb64_bootstrap.exe"
 
-cd ..\..\..\..\..\..
-
-echo Bootstrapping QB64
-copy internal\source\*.* internal\temp\ >nul
-copy source\qb64.ico internal\temp\ >nul
-copy source\icon.rc internal\temp\ >nul
-cd internal\c
-c_compiler\bin\windres.exe -i ..\temp\icon.rc -o ..\temp\icon.o
-c_compiler\bin\g++ -mconsole -s -Wfatal-errors -w -Wall qbx.cpp libqb\os\win\libqb_setup.o ..\temp\icon.o -D DEPENDENCY_LOADFONT  parts\video\font\ttf\os\win\src.o -D DEPENDENCY_SOCKETS -D DEPENDENCY_NO_PRINTER -D DEPENDENCY_ICON -D DEPENDENCY_NO_SCREENIMAGE parts\core\os\win\src.a -lopengl32 -lglu32   -mwindows -static-libgcc -static-libstdc++ -D GLEW_STATIC -D FREEGLUT_STATIC     -lws2_32 -lwinmm -lgdi32 -o "..\..\qb64_bootstrap.exe"
-IF ERRORLEVEL 1 exit /b 1
+IF ERRORLEVEL 1 EXIT /B 1
 
