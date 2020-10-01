@@ -3,7 +3,7 @@ SETLOCAL ENABLEEXTENSIONS DISABLEDELAYEDEXPANSION
 
 PUSHD %~dp0
 ECHO QB64 Setup
-ECHO.
+ECHO:
 
 DEL /Q /D "internal\c\libqb\*.o" >NUL 2>NUL
 DEL /Q /S "internal\c\libqb\*.a" >NUL 2>NUL
@@ -11,11 +11,13 @@ DEL /Q /S "internal\c\parts\*.o" >NUL 2>NUL
 DEL /Q /S "internal\c\parts\*.a" >NUL 2>NUL
 DEL /Q /S "internal\temp\*.*"    >NUL 2>NUL
 
-PUSHD "internal\c"
+IF DEFINED MINGW GOTO arch_set
+
 REG Query "HKLM\Hardware\Description\System\CentralProcessor\0" | FIND /i "x86" > NUL && SET "MINGW=mingw32" || SET "MINGW=mingw64"
+
+:arch_set
 ECHO Using %MINGW% as C++ Compiler
 ECHO:
-POPD
 
 ECHO Building library 'LibQB'
 PUSHD "internal/c/libqb/os/win"
@@ -54,10 +56,10 @@ PUSHD "internal\c"
 	-o "..\..\qb64.exe"
 POPD
 
-ECHO.
+ECHO:
 ECHO Launching 'QB64'
 qb64
 
 POPD
-ECHO.
+ECHO:
 PAUSE
