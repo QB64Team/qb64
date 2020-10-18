@@ -65,5 +65,3 @@ We have a community forum at: www.qb64.org/forum
 We tweet from [@QB64Team](https://twitter.com/QB64team)
 
 Find us on Discord: http://discord.qb64.org
-
-Find us on IRC: http://irc.qb64.org/
