@@ -21311,10 +21311,15 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         qbs *func_environ(qbs *name)
         {
+            static char *withNull;
+            withNull=(char*)malloc(name->len+1);
+            withNull[name->len]=0;//add NULL terminator
+            memcpy(withNull,name->chr,name->len);
+
             static char *cp;
             static qbs *tqbs;
             static int32 bytes;
-            cp=getenv((char*)name->chr);
+            cp=getenv(withNull);
             if (cp){
                 bytes=strlen(cp);
                 tqbs=qbs_new(bytes,1);
