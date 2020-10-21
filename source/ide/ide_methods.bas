@@ -266,7 +266,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Search": i = i + 1
         menu$(m, i) = "#Find...  Ctrl+F3": i = i + 1
         menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
-        menu$(m, i) = "#Change...": i = i + 1
+        menu$(m, i) = "#Change...  Alt+F3": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clear Search #History...": i = i + 1
         menu$(m, i) = "-": i = i + 1
@@ -1570,6 +1570,11 @@ FUNCTION ide2 (ignore)
         IF KCTRL AND KB = KEY_F3 THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
             GOTO idefindjmp
+        END IF
+
+        IF KALT AND KB = KEY_F3 THEN
+            IF IdeSystem = 3 THEN IdeSystem = 1
+            GOTO idefindchangejmp
         END IF
 
         IF KB = KEY_F3 THEN
@@ -5131,10 +5136,13 @@ FUNCTION ide2 (ignore)
                 GOTO idemf3
             END IF
 
-            IF menu$(m, s) = "#Change..." THEN
+            IF menu$(m, s) = "#Change...  Alt+F3" THEN
                 PCOPY 2, 0
+                idefindchangejmp:
                 r$ = idechange
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                idealthighlight = 0
+                LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                 IF r$ = "C" OR r$ = "" THEN GOTO ideloop
                 'assume "V", verify changes
                 IdeAddSearched idefindtext
