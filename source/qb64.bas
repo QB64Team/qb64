@@ -90,7 +90,7 @@ IF OS_BITS = 32 THEN WindowTitle = "QB64 x32" ELSE WindowTitle = "QB64 x64"
 _TITLE WindowTitle
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
-DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
+DIM SHARED VerboseMode AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
@@ -1099,7 +1099,7 @@ GOTO sendcommand
 
 
 noide:
-IF qb64versionprinted = 0 OR ConsoleMode = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
+IF (qb64versionprinted = 0 OR ConsoleMode = 0) and not QuietMode THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
@@ -1541,8 +1541,10 @@ END IF
 
 IF idemode THEN GOTO ideret1
 
-PRINT
-PRINT "Beginning C++ output from QB64 code... ";
+IF NOT QuietMode THEN
+    PRINT
+    PRINT "Beginning C++ output from QB64 code... ";
+END IF
 
 lineinput3load sourcefile$
 
@@ -2590,7 +2592,7 @@ IF declaringlibrary THEN declaringlibrary = 0 'ignore this error so that auto-fo
 
 totallinenumber = reallinenumber
 
-IF idemode = 0 THEN PRINT "first pass finished.": PRINT "Translating code... "
+IF idemode = 0 AND NOT QuietMode THEN PRINT "first pass finished.": PRINT "Translating code... "
 
 'prepass finished
 
@@ -2725,7 +2727,7 @@ DO
     layout = ""
     layoutok = 1
 
-    IF idemode = 0 THEN
+    IF idemode = 0 AND NOT QuietMode THEN
         'IF LEN(a3$) THEN
         '    dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
         'END IF
@@ -11422,7 +11424,7 @@ OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
-IF idemode = 0 THEN
+IF idemode = 0 AND NOT QuietMode THEN
     IF ConsoleMode THEN
         PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
     ELSE
@@ -11492,11 +11494,13 @@ IF idemode THEN GOTO ideret5
 ide6:
 
 IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
-    PRINT
-    IF os$ = "LNX" THEN
-        PRINT "Compiling C++ code into executable..."
-    ELSE
-        PRINT "Compiling C++ code into EXE..."
+    IF NOT QuietMode THEN
+        PRINT
+        IF os$ = "LNX" THEN
+            PRINT "Compiling C++ code into executable..."
+        ELSE
+            PRINT "Compiling C++ code into EXE..."
+        END IF
     END IF
     IF LEN(outputfile_cmd$) THEN
         'resolve relative path for output file
@@ -12409,7 +12413,7 @@ IF compfailed THEN
         PRINT "Check " + compilelog$ + " for details."
     END IF
 ELSE
-    IF idemode = 0 THEN PRINT "Output: "; lastBinaryGenerated$
+    IF idemode = 0 AND NOT QuietMode THEN PRINT "Output: "; lastBinaryGenerated$
 END IF
 
 
@@ -12540,6 +12544,7 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "Options:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
                 PRINT "  -v                      Verbose mode"
+                PRINT "  -q                      Quiet mode"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
                 PRINT "                             console"
@@ -12555,6 +12560,9 @@ FUNCTION ParseCMDLineArgs$ ()
                 SYSTEM
             CASE "-v" 'Verbose mode
                 VerboseMode = -1
+                cmdlineswitch = -1
+            CASE "-q" 'Quiet mode
+                QuietMode = -1
                 cmdlineswitch = -1
             CASE "-p" 'Purge
                 IF os$ = "WIN" THEN
