@@ -531,7 +531,7 @@ void sub__glrender(int32 method){
                 #ifdef QB64_MACOSX
                     if (scale_factor==0) {
                         scale_factor=1;
-                        if (system("system_profiler SPDisplaysDataType | grep Retina")==0 || system("system_profiler SPDisplaysDataType | grep 5K")==0) scale_factor=2;
+                        if ((system("sw_vers -productVersion | grep -E '^(10\.15\.)'") == 0) && ((system("system_profiler SPDisplaysDataType | grep Retina") == 0) || (system("system_profiler SPDisplaysDataType | grep 5K") == 0))) scale_factor=2;
                     }
                 #else
                     scale_factor=1;
