@@ -27,6 +27,7 @@ REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name
 Set_OrderOfOperations
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
+REDIM SelectCaseHasCaseBlock(100)
 DIM ExecLevel(255), ExecCounter AS INTEGER
 REDIM SHARED UserDefine(1, 100) AS STRING '0 element is the name, 1 element is the string value
 REDIM SHARED InValidLine(10000) AS _BYTE
@@ -843,6 +844,7 @@ DIM controltype(1000) AS INTEGER
 '3=DO (awaiting LOOP [UNTIL|WHILE param])
 '4=DO WHILE/UNTIL (awaiting LOOP)
 '5=WHILE (awaiting WEND)
+'6=$IF (precompiler)
 '10=SELECT CASE qbs (awaiting END SELECT/CASE)
 '11=SELECT CASE int64 (awaiting END SELECT/CASE)
 '12=SELECT CASE uint64 (awaiting END SELECT/CASE)
@@ -1099,7 +1101,7 @@ GOTO sendcommand
 
 
 noide:
-IF (qb64versionprinted = 0 OR ConsoleMode = 0) and not QuietMode THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
+IF (qb64versionprinted = 0 OR ConsoleMode = 0) AND NOT QuietMode THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
@@ -2800,6 +2802,11 @@ DO
         END IF
 
         IF LEFT$(a3u$, 4) = "$IF " THEN
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             temp$ = LTRIM$(MID$(a3u$, 4)) 'strip off the $IF and extra spaces
             temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
             temp = INSTR(temp$, "=")
@@ -5246,6 +5253,11 @@ DO
         IF firstelement$ = "WHILE" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
 
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             controllevel = controllevel + 1
             controlref(controllevel) = linenumber
             controltype(controllevel) = 5
@@ -5292,6 +5304,12 @@ DO
     IF n >= 1 THEN
         IF firstelement$ = "DO" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             controllevel = controllevel + 1
             controlref(controllevel) = linenumber
             l$ = "DO"
@@ -5374,6 +5392,12 @@ DO
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
 
             l$ = "FOR"
+
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             controllevel = controllevel + 1
             controlref(controllevel) = linenumber
             controltype(controllevel) = 2
@@ -5609,6 +5633,11 @@ DO
         IF firstelement$ = "IF" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
 
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             e$ = getelement(a$, n)
             iftype = 0
             IF e$ = "THEN" THEN iftype = 1
@@ -5696,9 +5725,16 @@ DO
     IF n >= 1 THEN
         IF firstelement$ = "SELECT" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             SelectCaseCounter = SelectCaseCounter + 1
             IF UBOUND(EveryCaseSet) <= SelectCaseCounter THEN REDIM _PRESERVE EveryCaseSet(SelectCaseCounter)
-
+            IF UBOUND(SelectCaseHasCaseBlock) <= SelectCaseCounter THEN REDIM _PRESERVE SelectCaseHasCaseBlock(SelectCaseCounter)
+            SelectCaseHasCaseBlock(SelectCaseCounter) = 0
             IF secondelement$ = "EVERYCASE" THEN
                 EveryCaseSet(SelectCaseCounter) = -1
                 IF n = 2 THEN a$ = "Expected SELECT CASE expression": GOTO errmes
@@ -5816,14 +5852,10 @@ DO
         END IF
     END IF
 
-    'Steve Edit on 07-05-2014 to generate an error message if someone inserts code between SELECT CASE and CASE such as:
-    'SELECT CASE x
-    'm = 3
-    'CASE 1
-    'END SELECT
-    'The above used to give no errors, but this one line fix should correct that.  (I hope)
-    IF n >= 1 AND firstelement$ <> "CASE" AND controltype(controllevel) >= 10 AND controltype(controllevel) < 17 THEN a$ = "Expected CASE expression": GOTO errmes
-    'End of Edit
+    'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+    IF n >= 1 AND firstelement$ <> "CASE" AND SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+        a$ = "Expected CASE expression": GOTO errmes
+    END IF
 
 
     'CASE
@@ -5851,9 +5883,9 @@ DO
                 'if nochecks=0 then PRINT #12, "S_" + str2$(statementn) + ":;"
             END IF
 
-            IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "CASE without SELECT CASE": GOTO errmes
+            IF controltype(controllevel) <> 6 AND (controltype(controllevel) < 10 OR controltype(controllevel) > 17) THEN a$ = "CASE without SELECT CASE": GOTO errmes
             IF n = 1 THEN a$ = "Expected CASE expression": GOTO errmes
-
+            SelectCaseHasCaseBlock(SelectCaseCounter) = -1
 
 
             'upgrade:
