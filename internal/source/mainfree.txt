@@ -201,6 +201,14 @@ free((void*)(__ARRAY_LONG_EVERYCASESET[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_EVERYCASESET)[8] );
+if (__ARRAY_LONG_SELECTCASEHASCASEBLOCK[2]&1){
+if (__ARRAY_LONG_SELECTCASEHASCASEBLOCK[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_LONG_SELECTCASEHASCASEBLOCK[0]));
+}else{
+free((void*)(__ARRAY_LONG_SELECTCASEHASCASEBLOCK[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_SELECTCASEHASCASEBLOCK)[8] );
 if (__ARRAY_LONG_EXECLEVEL[2]&1){
 if (__ARRAY_LONG_EXECLEVEL[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_EXECLEVEL[0]));
