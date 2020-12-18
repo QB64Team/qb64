@@ -96,6 +96,7 @@ DIM SHARED VerboseMode AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE
+DIM SHARED emptySCWarning AS _BYTE
 DIM SHARED ExeIconSet AS LONG, qb64prefix$, qb64prefix_set
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1405,6 +1406,7 @@ usedVariableList$ = ""
 totalUnusedVariables = 0
 totalWarnings = 0
 duplicateConstWarning = 0
+emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 REDIM SHARED warning$(1000)
@@ -2130,7 +2132,7 @@ DO
                                                 addWarning 0, "Constant already defined (same value):"
                                                 addWarning linenumber, n$
                                                 IF idemode = 0 THEN
-                                                    IF duplicateConstWarning = 0 THEN PRINT "Warning: duplicate constant definition";
+                                                    IF duplicateConstWarning = 0 THEN PRINT: PRINT "Warning: duplicate constant definition";
                                                     IF VerboseMode THEN
                                                         PRINT ": '"; n$; "' (line"; STR$(linenumber); ")"
                                                     ELSE
@@ -5844,6 +5846,26 @@ DO
             END IF
             PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_end:;"
             IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "END SELECT without SELECT CASE": GOTO errmes
+
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                'warn user of empty SELECT CASE block
+                IF NOT IgnoreWarnings THEN
+                    addWarning 0, "Empty SELECT CASE block:"
+                    addWarning linenumber, "END SELECT"
+                    IF idemode = 0 THEN
+                        IF emptySCWarning = 0 THEN PRINT: PRINT "Warning: Empty SELECT CASE block";
+                        IF VerboseMode THEN
+                            PRINT ": 'END SELECT' (line"; STR$(linenumber); ")"
+                        ELSE
+                            IF emptySCWarning = 0 THEN
+                                emptySCWarning = -1
+                                PRINT
+                            END IF
+                        END IF
+                    END IF
+                END IF
+            END IF
+
             controllevel = controllevel - 1
             SelectCaseCounter = SelectCaseCounter - 1
             l$ = "END" + sp + "SELECT"
@@ -11472,6 +11494,7 @@ END IF
 IF NOT IgnoreWarnings THEN
     IF totalUnusedVariables > 0 THEN
         IF idemode = 0 THEN
+            PRINT
             PRINT "Warning:"; STR$(totalUnusedVariables); " unused variable";
             IF totalUnusedVariables > 1 THEN PRINT "s";
             IF VerboseMode THEN
