@@ -146,6 +146,7 @@ FUNCTION ide2 (ignore)
         IF ideerror = 2 THEN errorat$ = "File not found"
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
+        IF ideerror = 5 THEN errorat$ = "Cannot create folder"
 
         qberrorcode = ERR
         IF qberrorcode THEN
@@ -154,7 +155,7 @@ FUNCTION ide2 (ignore)
             ideerrormessageTITLE$ = "Error"
         END IF
 
-        IF (ideerror = 2 OR ideerror = 3 OR ideerror = 4) THEN
+        IF (ideerror > 1) THEN
             'Don't show too much detail if user just tried loading an invalid file
             ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE) + ")"
         ELSE
@@ -173,7 +174,7 @@ FUNCTION ide2 (ignore)
         idemessagebox ideerrormessageTITLE$, errorat$
     END IF
 
-    IF (ideerror = 2 OR ideerror = 3 OR ideerror = 4) AND (AttemptToLoadRecent = -1) THEN
+    IF (ideerror > 1) AND (AttemptToLoadRecent = -1) THEN
         'Offer to cleanup recent file list, removing invalid entries
         PCOPY 2, 0
         r$ = ideclearhistory$("INVALID")
@@ -7433,6 +7434,153 @@ SUB idenewsf (sf AS STRING)
 
 END SUB
 
+FUNCTION idenewfolder$(thispath$)
+
+
+    '-------- generic dialog box header --------
+    PCOPY 3, 0
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+
+    i = 0
+
+    idepar p, 60, 5, "New Folder"
+
+    i = i + 1
+    PrevFocus = 1
+    o(i).typ = 1
+    o(i).y = 2
+    o(i).nam = idenewtxt("#Name")
+    o(i).txt = idenewtxt(a2$)
+    IF LEN(a2$) > 0 THEN o(i).issel = -1
+    o(i).sx1 = 0
+    o(i).v1 = LEN(a2$)
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 5
+    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).dft = 1
+    '-------- end of init --------
+
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        change = 0
+        DO
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+        LOOP UNTIL change
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+            END IF
+        END IF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
+
+        '-------- generic input response --------
+        info = 0
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+
+        'specific post controls
+        IF focus <> PrevFocus THEN
+            'Always start with TextBox values selected upon getting focus
+            PrevFocus = focus
+            IF focus = 1 THEN
+                o(focus).v1 = LEN(idetxt(o(focus).txt))
+                IF o(focus).v1 > 0 THEN o(focus).issel = -1
+                o(focus).sx1 = 0
+            END IF
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+            EXIT SUB
+        END IF
+
+        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
+            IF _DIREXISTS(thispath$ + idepathsep$ + idetxt(o(1).txt)) THEN
+                idenewfolder$ = idetxt(o(1).txt)
+                EXIT SUB
+            END IF
+            ideerror = 5
+            MKDIR thispath$ + idepathsep$ + idetxt(o(1).txt)
+            idenewfolder$ = idetxt(o(1).txt)
+            EXIT SUB
+        END IF
+
+        'end of custom controls
+
+        mousedown = 0
+        mouseup = 0
+    LOOP
+
+
+
+END SUB
+
+
 FUNCTION idenewtxt (a$)
     idetxtlast = idetxtlast + 1
     idetxt$(idetxtlast) = a$
@@ -7611,6 +7759,11 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
     prevBASOnly = o(i).sel
     i = i + 1
     o(i).typ = 3
+    o(i).x = 56
+    o(i).y = idewy + idesubwindow - 9
+    o(i).txt = idenewtxt("Ne#w Folder")
+    i = i + 1
+    o(i).typ = 3
     o(i).y = idewy + idesubwindow - 7
     o(i).txt = idenewtxt("OK" + sep + "#Cancel")
     o(i).dft = 1
@@ -7733,7 +7886,18 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             GOTO ideopenloop
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
+        IF focus = 5 AND info <> 0 THEN
+            'create new folder
+            newpath$ = idenewfolder(path$)
+            IF LEN(newpath$) THEN
+                f$ = newpath$
+                GOTO changepath
+            ELSE
+                GOTO ideopenloop
+            END IF
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 7 AND info <> 0) THEN
             idefiledialog$ = "C"
             EXIT FUNCTION
         END IF
@@ -7756,7 +7920,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
         END IF
 
         'load or save file
-        IF K$ = CHR$(13) OR (info = 1 AND focus = 2) OR (focus = 5 AND info <> 0) THEN
+        IF K$ = CHR$(13) OR (info = 1 AND focus = 2) OR (focus = 6 AND info <> 0) THEN
             f$ = idetxt(o(1).txt)
 
             IF _FILEEXISTS(f$) THEN GOTO DirectLoad
@@ -7766,21 +7930,25 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 o(2).sel = -1
                 GOTO ideopenloop
-            ELSEIF f$ = "" AND focus = 5 AND info <> 0 THEN
+            ELSEIF f$ = "" AND focus = 6 AND info <> 0 THEN
                 GOTO ideopenloop
             END IF
 
             'change path?
+            changepath:
             IF _DIREXISTS(path$ + idepathsep$ + f$) THEN
                 'check/acquire file path
                 path$ = idezgetfilepath$(path$, f$ + idepathsep$) 'note: path ending with pathsep needn't contain a file
-                idetxt(o(1).txt) = ""
+                IF LEN(newpath$) = 0 THEN
+                    idetxt(o(1).txt) = ""
+                    focus = 1
+                ELSE
+                    newpath$ = ""
+                END IF
                 idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 o(2).sel = -1
                 idetxt(o(3).txt) = idezpathlist$(path$)
                 o(3).sel = -1
-                idetxt(o(1).txt) = ""
-                focus = 1
                 GOTO ideopenloop
             END IF
 
