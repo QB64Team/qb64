@@ -12750,6 +12750,7 @@ FUNCTION idechoosecolorsbox
 
         IF (focus = 9 AND info <> 0) THEN
             LoadDefaultScheme:
+            GOSUB enableHighlighter
             IDECommentColor = _RGB32(85, 255, 255)
             IDEMetaCommandColor = _RGB32(85, 255, 85)
             IDEQuoteColor = _RGB32(255, 255, 85)
@@ -12777,6 +12778,8 @@ FUNCTION idechoosecolorsbox
        (focus = 7 AND K$ = CHR$(13)) OR _
        (focus = 11 AND K$ = CHR$(13)) THEN
             'save changes
+            GOSUB enableHighlighter
+
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", str2$(SchemeID)
             FOR i = 1 TO 9
                 SELECT CASE i
@@ -12847,6 +12850,14 @@ FUNCTION idechoosecolorsbox
         'edited.
         SchemeID = 0
         idetxt(o(9).txt) = "User-defined"
+    END IF
+    RETURN
+
+    enableHighlighter:
+    IF DisableSyntaxHighlighter THEN
+        DisableSyntaxHighlighter = 0
+        WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+        menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
     END IF
     RETURN
 END FUNCTION
