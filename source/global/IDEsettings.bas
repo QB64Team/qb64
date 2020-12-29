@@ -14,6 +14,7 @@ DIM SHARED SaveExeWithSource AS _BYTE, EnableQuickNav AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
+DIM SHARED DisableSyntaxHighlighter AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -153,6 +154,15 @@ IF LoadedIDESettings = 0 THEN
         MouseButtonSwapped = 0
         WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
     end if
+
+    result = ReadConfigSetting("DisableSyntaxHighlighter", value$)
+    IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+        DisableSyntaxHighlighter = -1
+        WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+    ELSE
+        DisableSyntaxHighlighter = 0
+        WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+    END IF
 
     result = ReadConfigSetting("PasteCursorAtEnd", value$)
     IF result THEN

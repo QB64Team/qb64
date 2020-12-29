@@ -312,11 +312,18 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Options": i = i + 1
         menu$(m, i) = "#Display...": i = i + 1
         menu$(m, i) = "IDE C#olors...": i = i + 1
+        menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Language...": i = i + 1
         menu$(m, i) = "#Code Layout...": i = i + 1
         menu$(m, i) = "#Backup/Undo...": i = i + 1
-        menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Advanced...": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+
+        OptionsMenuDisableSyntax = i
+        menu$(m, i) = "Disable Syntax #Highlighter": i = i + 1
+        IF DisableSyntaxHighlighter THEN
+            menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuDisableSyntax)
+        END IF
 
         OptionsMenuSwapMouse = i
         menu$(m, i) = "#Swap Mouse Buttons": i = i + 1
@@ -4676,6 +4683,20 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
+            IF RIGHT$(menu$(m, s), 27) = "Disable Syntax #Highlighter" THEN
+                PCOPY 2, 0
+                DisableSyntaxHighlighter = NOT DisableSyntaxHighlighter
+                IF DisableSyntaxHighlighter THEN
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                ELSE
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
             IF RIGHT$(menu$(m, s), 28) = "Cursor After #Pasted Content" THEN
                 PCOPY 2, 0
                 PasteCursorAtEnd = NOT PasteCursorAtEnd
@@ -8455,6 +8476,11 @@ SUB idesetline (i, text$)
 
 END SUB
 
+FUNCTION timeElapsedSince! (startTime!)
+    IF startTime! > TIMER THEN startTime! = startTime! - 86400
+    timeElapsedSince! = TIMER - startTime!
+END FUNCTION
+
 SUB ideshowtext
 
     _PALETTECOLOR 1, IDEBackgroundColor, 0
@@ -8473,96 +8499,102 @@ SUB ideshowtext
     num.char$ = "0123456789EDed+-.`%&!#~HBOhboACFacf"
 
     STATIC prevListOfCustomWords$, manualList AS _BYTE
+    DIM startTime AS SINGLE
 
-    IF idefocusline <> 0 THEN
-        'there's an error and compilation is halted,
-        'so we'll build the list of subs/functions
-        'for proper highlighting:
-        IF idechangemade THEN manualList = 0
-        IF manualList = 0 THEN
-            manualList = -1
-            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
-            FOR y = 1 TO iden
-                a$ = UCASE$(LTRIM$(RTRIM$(idegetline(y))))
-                sf = 0
-                IF LEFT$(a$, 4) = "SUB " THEN sf = 1
-                IF LEFT$(a$, 9) = "FUNCTION " THEN sf = 2
-                IF sf THEN
-                    IF RIGHT$(a$, 7) = " STATIC" THEN
-                        a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+    startTime = TIMER
+
+    IF NOT DisableSyntaxHighlighter THEN
+        IF idefocusline <> 0 THEN
+            'there's an error and compilation is halted,
+            'so we'll build the list of subs/functions
+            'for proper highlighting:
+            IF idechangemade THEN manualList = 0
+            IF manualList = 0 THEN
+                manualList = -1
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
+                FOR y = 1 TO iden
+                    a$ = UCASE$(LTRIM$(RTRIM$(idegetline(y))))
+                    sf = 0
+                    IF LEFT$(a$, 4) = "SUB " THEN sf = 1
+                    IF LEFT$(a$, 9) = "FUNCTION " THEN sf = 2
+                    IF sf THEN
+                        IF RIGHT$(a$, 7) = " STATIC" THEN
+                            a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                        END IF
+
+                        IF sf = 1 THEN
+                            a$ = MID$(a$, 5)
+                        ELSE
+                            a$ = MID$(a$, 10)
+                        END IF
+
+                        a$ = LTRIM$(RTRIM$(a$))
+                        x = INSTR(a$, "(")
+                        IF x THEN
+                            a$ = RTRIM$(LEFT$(a$, x - 1))
+                        END IF
+
+                        'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                        FOR CleanseN = 1 TO LEN(a$)
+                            SELECT CASE MID$(a$, CleanseN, 1)
+                                CASE " ", "'", ":"
+                                    a$ = LEFT$(a$, CleanseN - 1)
+                                    EXIT FOR
+                            END SELECT
+                        NEXT
+                        listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + removesymbol2$(a$) + "@"
                     END IF
-
-                    IF sf = 1 THEN
-                        a$ = MID$(a$, 5)
-                    ELSE
-                        a$ = MID$(a$, 10)
-                    END IF
-
-                    a$ = LTRIM$(RTRIM$(a$))
-                    x = INSTR(a$, "(")
-                    IF x THEN
-                        a$ = RTRIM$(LEFT$(a$, x - 1))
-                    END IF
-
-                    'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-                    FOR CleanseN = 1 TO LEN(a$)
-                        SELECT CASE MID$(a$, CleanseN, 1)
-                            CASE " ", "'", ":"
-                                a$ = LEFT$(a$, CleanseN - 1)
-                                EXIT FOR
-                        END SELECT
-                    NEXT
-                    listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + removesymbol2$(a$) + "@"
-                END IF
-            NEXT
+                NEXT
+            END IF
+        ELSE
+            manualList = 0
         END IF
-    ELSE
-        manualList = 0
-    END IF
 
-    IF prevListOfCustomWords$ <> listOfCustomKeywords$ THEN
-        IF manualList = 0 THEN
-            DO
-                atSign = INSTR(atSign + 1, listOfCustomKeywords$, "@")
-                nextAt = INSTR(atSign + 1, listOfCustomKeywords$, "@")
-                IF nextAt = 0 THEN EXIT DO
-                IF atSign > customKeywordsLength THEN
-                    checkKeyword$ = removesymbol2$(MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1))
-                    IF LEN(checkKeyword$) THEN
-                        hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
-                        hashchkflags = hashchkflags + HASHFLAG_FUNCTION
-                        hashres1 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
-                        IF hashres1 <> 0 THEN hashres1 = 1
-                        hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
-                        hashchkflags = hashchkflags + HASHFLAG_SUB
-                        hashres2 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
-                        IF hashres2 <> 0 THEN hashres2 = 1
-                        IF hashres1 + hashres2 = 0 THEN
-                            'remove this custom keyword if not registered
-                            MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1) = STRING$(LEN(checkKeyword$), "@")
+        IF prevListOfCustomWords$ <> listOfCustomKeywords$ THEN
+            IF manualList = 0 THEN
+                DO
+                    atSign = INSTR(atSign + 1, listOfCustomKeywords$, "@")
+                    nextAt = INSTR(atSign + 1, listOfCustomKeywords$, "@")
+                    IF nextAt = 0 THEN EXIT DO
+                    IF atSign > customKeywordsLength THEN
+                        checkKeyword$ = removesymbol2$(MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1))
+                        IF LEN(checkKeyword$) THEN
+                            hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
+                            hashchkflags = hashchkflags + HASHFLAG_FUNCTION
+                            hashres1 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
+                            IF hashres1 <> 0 THEN hashres1 = 1
+                            hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
+                            hashchkflags = hashchkflags + HASHFLAG_SUB
+                            hashres2 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
+                            IF hashres2 <> 0 THEN hashres2 = 1
+                            IF hashres1 + hashres2 = 0 THEN
+                                'remove this custom keyword if not registered
+                                MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1) = STRING$(LEN(checkKeyword$), "@")
+                            END IF
                         END IF
                     END IF
-                END IF
-            LOOP
-        END IF
-
-        FOR i = 1 TO LEN(listOfCustomKeywords$)
-            checkChar = ASC(listOfCustomKeywords$, i)
-            IF checkChar = 64 THEN
-                IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
-            ELSE
-                tempList$ = tempList$ + CHR$(checkChar)
+                LOOP
             END IF
-        NEXT
-        listOfCustomKeywords$ = tempList$
 
-        DO WHILE INSTR(listOfCustomKeywords$, fix046$)
-            x = INSTR(listOfCustomKeywords$, fix046$)
-            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, x - 1) + "." + RIGHT$(listOfCustomKeywords$, LEN(listOfCustomKeywords$) - x + 1 - LEN(fix046$))
-        LOOP
+            FOR i = 1 TO LEN(listOfCustomKeywords$)
+                checkChar = ASC(listOfCustomKeywords$, i)
+                IF checkChar = 64 THEN
+                    IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
+                ELSE
+                    tempList$ = tempList$ + CHR$(checkChar)
+                END IF
+            NEXT
+            listOfCustomKeywords$ = tempList$
 
-        prevListOfCustomWords$ = listOfCustomKeywords$
+            DO WHILE INSTR(listOfCustomKeywords$, fix046$)
+                x = INSTR(listOfCustomKeywords$, fix046$)
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, x - 1) + "." + RIGHT$(listOfCustomKeywords$, LEN(listOfCustomKeywords$) - x + 1 - LEN(fix046$))
+            LOOP
+
+            prevListOfCustomWords$ = listOfCustomKeywords$
+        END IF
     END IF
+
 
     cc = -1
 
@@ -8581,32 +8613,12 @@ SUB ideshowtext
     l = idesy
     EnteringRGB = 0
 
-    idecy_multilinestart = 0
-    idecy_multilineend = 0
-    a$ = idegetline(idecy)
-    findquotecomment$ = a$: GOSUB FindQuoteComment
-    IF RIGHT$(a$, 1) = "_" AND ideshowtext_comment = 0 THEN
-        'Find the beginning of the multiline
-        FOR idecy_i = idecy - 1 TO 1 STEP -1
-            b$ = idegetline(idecy_i)
-            findquotecomment$ = b$: GOSUB FindQuoteComment
-            IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
-        NEXT
-        IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
-
-        'Find the end of the multiline
-        FOR idecy_i = idecy + 1 TO iden
-            b$ = idegetline(idecy_i)
-            findquotecomment$ = b$: GOSUB FindQuoteComment
-            IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilineend = idecy_i: EXIT FOR
-        NEXT
-        IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
-    ELSE
-        IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
-        findquotecomment$ = b$: GOSUB FindQuoteComment
-        IF RIGHT$(b$, 1) = "_" AND ideshowtext_comment = 0 THEN
-            idecy_multilineend = idecy
-
+    IF NOT DisableSyntaxHighlighter THEN
+        idecy_multilinestart = 0
+        idecy_multilineend = 0
+        a$ = idegetline(idecy)
+        findquotecomment$ = a$: GOSUB FindQuoteComment
+        IF RIGHT$(a$, 1) = "_" AND ideshowtext_comment = 0 THEN
             'Find the beginning of the multiline
             FOR idecy_i = idecy - 1 TO 1 STEP -1
                 b$ = idegetline(idecy_i)
@@ -8614,178 +8626,203 @@ SUB ideshowtext
                 IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
             NEXT
             IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
-        END IF
-    END IF
 
-    IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
+            'Find the end of the multiline
+            FOR idecy_i = idecy + 1 TO iden
+                b$ = idegetline(idecy_i)
+                findquotecomment$ = b$: GOSUB FindQuoteComment
+                IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilineend = idecy_i: EXIT FOR
+            NEXT
+            IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
+        ELSE
+            IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
+            findquotecomment$ = b$: GOSUB FindQuoteComment
+            IF RIGHT$(b$, 1) = "_" AND ideshowtext_comment = 0 THEN
+                idecy_multilineend = idecy
 
-    ActiveINCLUDELink = 0
-
-    FOR y = 0 TO (idewy - 9)
-        LOCATE y + 3, 1
-        COLOR 7, 1
-        PRINT CHR$(179); 'clear prev bookmarks from lhs
-
-        IF ShowLineNumbers THEN
-            IF ShowLineNumbersUseBG THEN COLOR , 6
-            PRINT SPACE$(maxLineNumberLength);
-            IF l <= iden THEN
-                l2$ = STR$(l)
-                IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
-                    LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
-                    PRINT l2$;
-                END IF
+                'Find the beginning of the multiline
+                FOR idecy_i = idecy - 1 TO 1 STEP -1
+                    b$ = idegetline(idecy_i)
+                    findquotecomment$ = b$: GOSUB FindQuoteComment
+                    IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
+                NEXT
+                IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
             END IF
-            IF ShowLineNumbersSeparator THEN LOCATE y + 3, 1 + maxLineNumberLength: PRINT CHR$(179);
-            COLOR , 1
         END IF
 
-        IF l = idefocusline AND idecy <> l THEN
-            COLOR 7, 4 'Line with error gets a red background
-        ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
-            IF HideCurrentLineHighlight = 0 THEN COLOR 7, 6 'Highlight the current line
-        ELSE
-            COLOR 7, 1 'Regular text color
-        END IF
+        IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
 
-        IF l <= iden THEN
-            DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE '   to the end of a program before the IDE has finished
-            LOOP '                                                      verifying the code and growing the array during the IDE passes.
+        ActiveINCLUDELink = 0
 
-            a$ = idegetline(l)
-            link_idecx = 0
-            rgb_idecx = 0
-            IF l = idecy THEN
-                IF idecx <= LEN(a$) AND idecx >= 1 THEN
-                    cc = ASC(a$, idecx)
-                    IF cc = 32 THEN
-                        IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
+        FOR y = 0 TO (idewy - 9)
+            LOCATE y + 3, 1
+            COLOR 7, 1
+            PRINT CHR$(179); 'clear prev bookmarks from lhs
+
+            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+
+            IF l = idefocusline AND idecy <> l THEN
+                COLOR 7, 4 'Line with error gets a red background
+            ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
+                IF HideCurrentLineHighlight = 0 THEN COLOR 7, 6 'Highlight the current line
+            ELSE
+                COLOR 7, 1 'Regular text color
+            END IF
+
+            IF l <= iden THEN
+                DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
+                    REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE '   to the end of a program before the IDE has finished
+                LOOP '                                                      verifying the code and growing the array during the IDE passes.
+
+                a$ = idegetline(l)
+                link_idecx = 0
+                rgb_idecx = 0
+                IF l = idecy THEN
+                    IF idecx <= LEN(a$) AND idecx >= 1 THEN
+                        cc = ASC(a$, idecx)
+                        IF cc = 32 THEN
+                            IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
+                        END IF
                     END IF
+
+                    'Check if the cursor is positioned inside a comment or
+                    'quotation marks:
+                    findquotecomment$ = LEFT$(a$, idecx): GOSUB FindQuoteComment
+                    idecx_comment = ideshowtext_comment
+                    idecx_quote = ideshowtext_quote
+
+                    'Check if we're on a bracket, to highlight it and its match
+                    brackets = 0
+                    bracket1 = 0
+                    bracket2 = 0
+                    IF idecx_comment + idecx_quote = 0 AND brackethighlight = -1 THEN
+                        inquote = 0
+                        comment = 0
+                        IF MID$(a$, idecx, 1) = "(" THEN
+                            brackets = 1
+                            bracket1 = idecx
+                            ScanBracket2:
+                            FOR k = bracket1 + 1 TO LEN(a$)
+                                SELECT CASE MID$(a$, k, 1)
+                                    CASE CHR$(34)
+                                        inquote = NOT inquote
+                                    CASE "'"
+                                        IF inquote = 0 THEN comment = -1: EXIT FOR
+                                END SELECT
+                                IF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                    brackets = brackets - 1
+                                    IF brackets = 0 THEN bracket2 = k: EXIT FOR
+                                ELSEIF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                    brackets = brackets + 1
+                                END IF
+                            NEXT
+                        ELSEIF MID$(a$, idecx - 1, 1) = "(" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
+                            brackets = 1
+                            bracket1 = idecx - 1
+                            GOTO ScanBracket2
+                        ELSEIF MID$(a$, idecx, 1) = ")" THEN
+                            brackets = 1
+                            bracket2 = idecx
+                            ScanBracket1:
+                            FOR k = bracket2 - 1 TO 1 STEP -1
+                                SELECT CASE MID$(a$, k, 1)
+                                    CASE CHR$(34)
+                                        inquote = NOT inquote
+                                END SELECT
+                                IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                    brackets = brackets - 1
+                                    IF brackets = 0 THEN bracket1 = k: EXIT FOR
+                                ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                    brackets = brackets + 1
+                                END IF
+                            NEXT
+                        ELSEIF MID$(a$, idecx - 1, 1) = ")" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
+                            brackets = 1
+                            bracket2 = idecx - 1
+                            GOTO ScanBracket1
+                        END IF
+                    END IF
+
+                    'If the user is typing on the current line and has just inserted
+                    'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
+                    'color mixer.
+                    a2$ = UCASE$(a$)
+                    IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
+                        IF (RIGHT$(a2$, 5) = "_RGB(" OR _
+                           RIGHT$(a2$, 7) = "_RGB32(" OR _
+                           RIGHT$(a2$, 6) = "_RGBA(" OR _
+                           RIGHT$(a2$, 8) = "_RGBA32(") OR _
+                           ((RIGHT$(a2$, 4) = "RGB(" OR _
+                           RIGHT$(a2$, 6) = "RGB32(" OR _
+                           RIGHT$(a2$, 5) = "RGBA(" OR _
+                           RIGHT$(a2$, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
+                            rgb_idecx = LEN(a$)
+                            a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
+                            EnteringRGB = -1
+                        END IF
+                    ELSEIF idecx_comment + idecx_quote = 0 THEN
+                        IF (MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
+                           MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
+                           MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
+                           MID$(a2$, idecx - 8, 8) = "_RGBA32(") OR _
+                           ((MID$(a2$, idecx - 4, 4) = "RGB(" OR _
+                           MID$(a2$, idecx - 6, 6) = "RGB32(" OR _
+                           MID$(a2$, idecx - 5, 5) = "RGBA(" OR _
+                           MID$(a2$, idecx - 7, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
+                            IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
+                        END IF
+                    END IF
+
+                    FindInclude = INSTR(a2$, "$INCLUDE")
+                    IF FindInclude > 0 THEN
+                        link_idecx = LEN(a$)
+                        FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
+                        FindApostrophe2 = INSTR(FindApostrophe1 + 1, a2$, "'")
+                        ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
+                        p$ = idepath$ + pathsep$
+                        f$ = p$ + ActiveINCLUDELinkFile
+                        IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                    END IF
+                END IF 'l = idecy
+
+                a2$ = SPACE$(idesx + (idewx - 3))
+                MID$(a2$, 1) = a$
+            ELSE
+                a2$ = SPACE$((idewx - 2))
+            END IF
+
+            'Syntax highlighter
+            inquote = 0
+            metacommand = 0
+            comment = 0
+            isKeyword = 0: oldChar$ = ""
+            isCustomKeyword = 0
+            multiHighlightLength = 0
+            prevBG% = _BACKGROUNDCOLOR
+
+            FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
+                IF timeElapsedSince(startTime) > 1 THEN
+                    idemessagebox "Syntax Highlighter Disabled", StrReplace$("Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "\n", CHR$(10))
+                    DisableSyntaxHighlighter = -1
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                    GOTO noSyntaxHighlighting
                 END IF
-
-                'Check if the cursor is positioned inside a comment or
-                'quotation marks:
-                findquotecomment$ = LEFT$(a$, idecx): GOSUB FindQuoteComment
-                idecx_comment = ideshowtext_comment
-                idecx_quote = ideshowtext_quote
-
-                'Check if we're on a bracket, to highlight it and its match
-                brackets = 0
-                bracket1 = 0
-                bracket2 = 0
-                IF idecx_comment + idecx_quote = 0 AND brackethighlight = -1 THEN
-                    inquote = 0
-                    comment = 0
-                    IF MID$(a$, idecx, 1) = "(" THEN
-                        brackets = 1
-                        bracket1 = idecx
-                        ScanBracket2:
-                        FOR k = bracket1 + 1 TO LEN(a$)
-                            SELECT CASE MID$(a$, k, 1)
-                                CASE CHR$(34)
-                                    inquote = NOT inquote
-                                CASE "'"
-                                    IF inquote = 0 THEN comment = -1: EXIT FOR
-                            END SELECT
-                            IF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
-                                brackets = brackets - 1
-                                IF brackets = 0 THEN bracket2 = k: EXIT FOR
-                            ELSEIF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
-                                brackets = brackets + 1
+                IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
+                IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
+                    IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
+                        'the current selection was found at this spot. Multi-highlight takes place:
+                        IF m > 1 THEN
+                            IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
+                                IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
+                                    (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
+                                     MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
+                                    multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                                ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
+                                    multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                                END IF
                             END IF
-                        NEXT
-                    ELSEIF MID$(a$, idecx - 1, 1) = "(" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
-                        brackets = 1
-                        bracket1 = idecx - 1
-                        GOTO ScanBracket2
-                    ELSEIF MID$(a$, idecx, 1) = ")" THEN
-                        brackets = 1
-                        bracket2 = idecx
-                        ScanBracket1:
-                        FOR k = bracket2 - 1 TO 1 STEP -1
-                            SELECT CASE MID$(a$, k, 1)
-                                CASE CHR$(34)
-                                    inquote = NOT inquote
-                            END SELECT
-                            IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
-                                brackets = brackets - 1
-                                IF brackets = 0 THEN bracket1 = k: EXIT FOR
-                            ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
-                                brackets = brackets + 1
-                            END IF
-                        NEXT
-                    ELSEIF MID$(a$, idecx - 1, 1) = ")" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
-                        brackets = 1
-                        bracket2 = idecx - 1
-                        GOTO ScanBracket1
-                    END IF
-                END IF
-
-                'If the user is typing on the current line and has just inserted
-                'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
-                'color mixer.
-                a2$ = UCASE$(a$)
-                IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
-                    IF (RIGHT$(a2$, 5) = "_RGB(" OR _
-                       RIGHT$(a2$, 7) = "_RGB32(" OR _
-                       RIGHT$(a2$, 6) = "_RGBA(" OR _
-                       RIGHT$(a2$, 8) = "_RGBA32(") OR _
-                       ((RIGHT$(a2$, 4) = "RGB(" OR _
-                       RIGHT$(a2$, 6) = "RGB32(" OR _
-                       RIGHT$(a2$, 5) = "RGBA(" OR _
-                       RIGHT$(a2$, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
-                        rgb_idecx = LEN(a$)
-                        a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
-                        EnteringRGB = -1
-                    END IF
-                ELSEIF idecx_comment + idecx_quote = 0 THEN
-                    IF (MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
-                       MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
-                       MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
-                       MID$(a2$, idecx - 8, 8) = "_RGBA32(") OR _
-                       ((MID$(a2$, idecx - 4, 4) = "RGB(" OR _
-                       MID$(a2$, idecx - 6, 6) = "RGB32(" OR _
-                       MID$(a2$, idecx - 5, 5) = "RGBA(" OR _
-                       MID$(a2$, idecx - 7, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
-                        IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
-                    END IF
-                END IF
-
-                FindInclude = INSTR(a2$, "$INCLUDE")
-                IF FindInclude > 0 THEN
-                    link_idecx = LEN(a$)
-                    FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
-                    FindApostrophe2 = INSTR(FindApostrophe1 + 1, a2$, "'")
-                    ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
-                    p$ = idepath$ + pathsep$
-                    f$ = p$ + ActiveINCLUDELinkFile
-                    IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
-                END IF
-            END IF 'l = idecy
-
-            a2$ = SPACE$(idesx + (idewx - 3))
-            MID$(a2$, 1) = a$
-        ELSE
-            a2$ = SPACE$((idewx - 2))
-        END IF
-
-        'Syntax highlighter
-        inquote = 0
-        metacommand = 0
-        comment = 0
-        isKeyword = 0: oldChar$ = ""
-        isCustomKeyword = 0
-        multiHighlightLength = 0
-        prevBG% = _BACKGROUNDCOLOR
-
-        FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
-            IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
-            IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
-                IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
-                    'the current selection was found at this spot. Multi-highlight takes place:
-                    IF m > 1 THEN
-                        IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
+                        ELSE
                             IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
                                 (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
                                  MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
@@ -8794,185 +8831,236 @@ SUB ideshowtext
                                 multiHighlightLength = LEN(ideCurrentSingleLineSelection)
                             END IF
                         END IF
-                    ELSE
-                        IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
-                            (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
-                             MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
-                            multiHighlightLength = LEN(ideCurrentSingleLineSelection)
-                        ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
-                            multiHighlightLength = LEN(ideCurrentSingleLineSelection)
-                        END IF
                     END IF
                 END IF
-            END IF
 
-            thisChar$ = MID$(a2$, m, 1)
+                thisChar$ = MID$(a2$, m, 1)
 
-            IF comment = 0 THEN
-                SELECT CASE thisChar$
-                    CASE CHR$(34): inquote = NOT inquote
-                    CASE "'": IF inquote = 0 THEN comment = -1
-                END SELECT
-            END IF
+                IF comment = 0 THEN
+                    SELECT CASE thisChar$
+                        CASE CHR$(34): inquote = NOT inquote
+                        CASE "'": IF inquote = 0 THEN comment = -1
+                    END SELECT
+                END IF
 
-            COLOR 13
+                COLOR 13
 
-            IF InValidLine(l) THEN COLOR 7: GOTO SkipSyntaxHighlighter
+                IF InValidLine(l) THEN COLOR 7: GOTO SkipSyntaxHighlighter
 
-            IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
-                IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
-                    'a number literal
-                    checkKeyword$ = ""
-                    is_Number = 0
-
-                    FOR i = m TO LEN(a2$)
-                        IF INSTR(num.char$, MID$(a2$, i, 1)) = 0 THEN EXIT FOR
-                        checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
-                    NEXT
-
-                    IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
+                IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
+                    IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
+                        'a number literal
                         checkKeyword$ = ""
-                    ELSE
-                        IF UCASE$(LEFT$(checkKeyword$, 2)) = "&H" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&O" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&B" OR isnumber(checkKeyword$) THEN
-                            is_Number = -1
+                        is_Number = 0
+
+                        FOR i = m TO LEN(a2$)
+                            IF INSTR(num.char$, MID$(a2$, i, 1)) = 0 THEN EXIT FOR
+                            checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                        NEXT
+
+                        IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
+                            checkKeyword$ = ""
+                        ELSE
+                            IF UCASE$(LEFT$(checkKeyword$, 2)) = "&H" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&O" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&B" OR isnumber(checkKeyword$) THEN
+                                is_Number = -1
+                                isKeyword = LEN(checkKeyword$)
+                            END IF
+                        END IF
+                        GOTO setOldChar
+                    END IF
+
+                    IF (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") AND INSTR(char.sep$, thisChar$) = 0 THEN
+                        'a new "word" begins; check if it's an internal keyword
+                        checkKeyword$ = ""
+                        right.sep$ = ""
+                        FOR i = m TO LEN(a2$)
+                            IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
+                            checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                        NEXT
+                        IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
+                        checkKeyword$ = UCASE$(checkKeyword$)
+                        IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 OR _
+                           (qb64prefix_set = 1 AND INSTR(listOfKeywords$, "@_" + checkKeyword$ + "@") > 0) THEN
+                            'special cases
+                            IF checkKeyword$ = "$END" THEN
+                                IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
+                            ELSEIF checkKeyword$ = "THEN" AND _
+                                    (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
+                                    UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
+                                metacommand = -1
+                            ELSEIF checkKeyword$ = "$ASSERTS" THEN
+                                IF UCASE$(_TRIM$(a2$)) = "$ASSERTS:CONSOLE" THEN
+                                    checkKeyword$ = "$ASSERTS:CONSOLE"
+                                END IF
+                            END IF
+                            isKeyword = LEN(checkKeyword$)
+                        ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
+                            isCustomKeyword = -1
                             isKeyword = LEN(checkKeyword$)
                         END IF
                     END IF
-                    GOTO setOldChar
+                END IF
+                setOldChar:
+                oldChar$ = thisChar$
+
+                IF isKeyword > 0 AND keywordHighlight THEN
+                    IF is_Number THEN
+                        COLOR 8
+                    ELSEIF isCustomKeyword THEN
+                        COLOR 10
+                    ELSE
+                        COLOR 12
+                    END IF
+                    IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1
                 END IF
 
-                IF (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") AND INSTR(char.sep$, thisChar$) = 0 THEN
-                    'a new "word" begins; check if it's an internal keyword
-                    checkKeyword$ = ""
-                    right.sep$ = ""
-                    FOR i = m TO LEN(a2$)
-                        IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
-                        checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
-                    NEXT
-                    IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
-                    checkKeyword$ = UCASE$(checkKeyword$)
-                    IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 OR _
-                       (qb64prefix_set = 1 AND INSTR(listOfKeywords$, "@_" + checkKeyword$ + "@") > 0) THEN
-                        'special cases
-                        IF checkKeyword$ = "$END" THEN
-                            IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
-                        ELSEIF checkKeyword$ = "THEN" AND _
-                                (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
-                                UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
-                            metacommand = -1
-                        ELSEIF checkKeyword$ = "$ASSERTS" THEN
-                            IF UCASE$(_TRIM$(a2$)) = "$ASSERTS:CONSOLE" THEN
-                                checkKeyword$ = "$ASSERTS:CONSOLE"
+                IF comment THEN
+                    COLOR 11
+                    IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
+                        OR checkKeyword$ = "$STATIC") THEN COLOR 10
+                ELSEIF metacommand THEN
+                    COLOR 10
+                ELSEIF inquote OR thisChar$ = CHR$(34) THEN
+                    COLOR 14
+                END IF
+
+                SkipSyntaxHighlighter:
+
+                IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
+                   (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
+
+                IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
+                    COLOR , 5
+                ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
+                    multiHighlightLength = multiHighlightLength - 1
+                    COLOR , 5
+                ELSE
+                    COLOR , prevBG%
+                END IF
+
+                IF ShowLineNumbers THEN
+                    IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
+                        LOCATE y + 3, (2 + m - idesx) + maxLineNumberLength
+                        PRINT thisChar$;
+                    END IF
+                ELSE
+                    IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
+                        LOCATE y + 3, 2 + m - idesx
+                        PRINT thisChar$;
+                    END IF
+                END IF
+
+                'Restore BG color in case a matching bracket was printed with different BG
+                IF l = idecy THEN COLOR , 6
+                IF isKeyword > 0 THEN isKeyword = isKeyword - 1
+                IF isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
+            NEXT m
+
+            'apply selection color change if necessary
+            IF ideselect THEN
+                IF l >= sy1 AND l <= sy2 THEN
+                    IF sy1 = sy2 THEN 'single line select
+                        COLOR 1, 7
+                        x2 = idesx
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                            IF x2 >= sx1 AND x2 < sx2 THEN
+                                a = SCREEN(y + 3, x)
+
+                                IF a = 63 THEN '"?"
+                                    c = SCREEN(y + 3, x, 1)
+                                ELSE
+                                    c = 1
+                                END IF
+                                IF (c AND 15) = 0 THEN 'black background
+                                    COLOR 0, 7
+                                    LOCATE y + 3, x: PRINT "?";
+                                    COLOR 1, 7
+                                ELSE
+                                    LOCATE y + 3, x: PRINT CHR$(a);
+                                END IF
+
+
                             END IF
-                        END IF
-                        isKeyword = LEN(checkKeyword$)
-                    ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
-                        isCustomKeyword = -1
-                        isKeyword = LEN(checkKeyword$)
+                            x2 = x2 + 1
+                        NEXT
+                        COLOR 7, 1
+                    ELSE 'multiline select
+                        IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect
+                        LOCATE y + 3, 2 + maxLineNumberLength
+                        COLOR 1, 7
+
+                        FOR x = idesx TO idesx + idewx - (2 + maxLineNumberLength)
+                            PRINT MID$(a2$, x, 1);
+                        NEXT
+
+                        COLOR 7, 1
+                        nofinalselect:
                     END IF
                 END IF
             END IF
-            setOldChar:
-            oldChar$ = thisChar$
 
-            IF isKeyword > 0 AND keywordHighlight THEN
-                IF is_Number THEN
-                    COLOR 8
-                ELSEIF isCustomKeyword THEN
-                    COLOR 10
-                ELSE
-                    COLOR 12
-                END IF
-                IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1
-            END IF
+            l = l + 1
+        NEXT
+    ELSE
+        noSyntaxHighlighting:
+        'original SUB ideshowtext routine:
+        COLOR 13, 1
+        l = idesy
+        FOR y = 0 TO (idewy - 9)
+            LOCATE y + 3, 1
+            COLOR 7, 1
+            PRINT CHR$(179); 'clear prev bookmarks from lhs
 
-            IF comment THEN
-                COLOR 11
-                IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
-                    OR checkKeyword$ = "$STATIC") THEN COLOR 10
-            ELSEIF metacommand THEN
-                COLOR 10
-            ELSEIF inquote OR thisChar$ = CHR$(34) THEN
-                COLOR 14
-            END IF
+            IF ShowLineNumbers THEN GOSUB ShowLineNumber
 
-            SkipSyntaxHighlighter:
+            IF l = idefocusline AND idecy <> l THEN COLOR 13, 4 ELSE COLOR 13, 1
+            LOCATE y + 3, 2 + maxLineNumberLength
 
-            IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
-               (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
-
-            IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
-                COLOR , 5
-            ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
-                multiHighlightLength = multiHighlightLength - 1
-                COLOR , 5
+            IF l <= iden THEN
+                a$ = idegetline(l)
+                a2$ = SPACE$(idesx + (idewx - 3) - maxLineNumberLength)
+                MID$(a2$, 1) = a$
+                a2$ = RIGHT$(a2$, (idewx - 2) - maxLineNumberLength)
             ELSE
-                COLOR , prevBG%
+                a2$ = SPACE$((idewx - 2) - maxLineNumberLength)
             END IF
+            PRINT a2$;
 
-            IF ShowLineNumbers THEN
-                IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
-                    LOCATE y + 3, (2 + m - idesx) + maxLineNumberLength
-                    PRINT thisChar$;
-                END IF
-            ELSE
-                IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
-                    LOCATE y + 3, 2 + m - idesx
-                    PRINT thisChar$;
+            IF l = idecy THEN
+                IF idecx <= LEN(a$) AND idecx >= 1 THEN
+                    cc = ASC(a$, idecx)
+                    IF cc = 32 THEN
+                        IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
+                    END IF
                 END IF
             END IF
 
-            'Restore BG color in case a matching bracket was printed with different BG
-            IF l = idecy THEN COLOR , 6
-            IF isKeyword > 0 THEN isKeyword = isKeyword - 1
-            IF isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
-        NEXT m
-
-        'apply selection color change if necessary
-        IF ideselect THEN
-            IF l >= sy1 AND l <= sy2 THEN
-                IF sy1 = sy2 THEN 'single line select
-                    COLOR 1, 7
-                    x2 = idesx
-                    FOR x = 2 + maxLineNumberLength TO (idewx - 2)
-                        IF x2 >= sx1 AND x2 < sx2 THEN
-                            a = SCREEN(y + 3, x)
-
-                            IF a = 63 THEN '"?"
-                                c = SCREEN(y + 3, x, 1)
-                            ELSE
-                                c = 1
+            'apply selection color change if necessary
+            IF ideselect THEN
+                IF l >= sy1 AND l <= sy2 THEN
+                    IF sy1 = sy2 THEN 'single line select
+                        COLOR 1, 7
+                        x2 = idesx
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                            IF x2 >= sx1 AND x2 < sx2 THEN
+                                a = SCREEN(y + 3, x): LOCATE y + 3, x: PRINT CHR$(a);
                             END IF
-                            IF (c AND 15) = 0 THEN 'black background
-                                COLOR 0, 7
-                                LOCATE y + 3, x: PRINT "?";
-                                COLOR 1, 7
-                            ELSE
-                                LOCATE y + 3, x: PRINT CHR$(a);
-                            END IF
-
-
-                        END IF
-                        x2 = x2 + 1
-                    NEXT
-                    COLOR 7, 1
-                ELSE 'multiline select
-                    IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect
-                    LOCATE y + 3, 2 + maxLineNumberLength
-                    COLOR 1, 7
-
-                    FOR x = idesx TO idesx + idewx - (2 + maxLineNumberLength)
-                        PRINT MID$(a2$, x, 1);
-                    NEXT
-
-                    COLOR 7, 1
-                    nofinalselect:
+                            x2 = x2 + 1
+                        NEXT
+                        COLOR 7, 1
+                    ELSE 'multiline select
+                        IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect0
+                        LOCATE y + 3, 2 + maxLineNumberLength
+                        COLOR 1, 7: PRINT a2$;
+                        COLOR 7, 1
+                        nofinalselect0:
+                    END IF
                 END IF
             END IF
-        END IF
 
-        l = l + 1
-    NEXT
+            l = l + 1
+        NEXT
+    END IF
 
     COLOR 7, 1
     FOR b = 1 TO IdeBmkN
@@ -9010,6 +9098,21 @@ SUB ideshowtext
         END SELECT
     NEXT ideshowtext_k
     RETURN
+
+    ShowLineNumber:
+    IF ShowLineNumbersUseBG THEN COLOR , 6
+    PRINT SPACE$(maxLineNumberLength);
+    IF l <= iden THEN
+        l2$ = STR$(l)
+        IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
+            LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
+            PRINT l2$;
+        END IF
+    END IF
+    IF ShowLineNumbersSeparator THEN LOCATE y + 3, 1 + maxLineNumberLength: PRINT CHR$(179);
+    COLOR , 1
+    RETURN
+
 END SUB
 
 FUNCTION idesubs$
