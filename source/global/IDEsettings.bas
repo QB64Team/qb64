@@ -57,10 +57,10 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("CommentColor", value$)
     IF result THEN
-        IDECommentColor = VRGBS(value$, _RGB32(85, 255, 255))
+        IDECommentColor = VRGBS(value$, _RGB32(98,98,98))
     ELSE
-        IDECommentColor = _RGB32(85, 255, 255)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "CommentColor", "_RGB32(85,255,255)"
+        IDECommentColor = _RGB32(98,98,98)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "CommentColor", "_RGB32(98,98,98)"
     END IF
 
     result = ReadConfigSetting("CustomKeywords$", value$)
@@ -84,66 +84,66 @@ IF LoadedIDESettings = 0 THEN
 
     result = ReadConfigSetting("MetaCommandColor", value$)
     IF result THEN
-        IDEMetaCommandColor = VRGBS(value$, _RGB32(85, 255, 85))
+        IDEMetaCommandColor = VRGBS(value$, _RGB32(85,206,85))
     ELSE
-        IDEMetaCommandColor = _RGB32(85, 255, 85)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "MetaCommandColor", "_RGB32(85,255,85)"
+        IDEMetaCommandColor = _RGB32(85,206,85)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "MetaCommandColor", "_RGB32(85,206,85)"
     END IF
 
     result = ReadConfigSetting("KeywordColor", value$)
     IF result THEN
-        IDEKeywordColor = VRGBS(value$, _RGB32(147, 196, 235))
+        IDEKeywordColor = VRGBS(value$, _RGB32(69,118,147))
     ELSE
-        IDEKeywordColor = _RGB32(147, 196, 235)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "KeywordColor", "_RGB32(147,196,235)"
+        IDEKeywordColor = _RGB32(69,118,147)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "KeywordColor", "_RGB32(69,118,147)"
     END IF
 
     result = ReadConfigSetting("HighlightColor", value$)
     IF result THEN
-        IDEBracketHighlightColor = VRGBS(value$, _RGB32(0, 147, 177))
+        IDEBracketHighlightColor = VRGBS(value$, _RGB32(0,88,108))
     ELSE
-        IDEBracketHighlightColor = _RGB32(0, 147, 177)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "HighlightColor", "_RGB32(0,147,177)"
+        IDEBracketHighlightColor = _RGB32(0,88,108)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "HighlightColor", "_RGB32(0,88,108)"
     END IF
 
     result = ReadConfigSetting("NumbersColor", value$)
     IF result THEN
-        IDENumbersColor = VRGBS(value$, _RGB32(245, 128, 177))
+        IDENumbersColor = VRGBS(value$, _RGB32(216,98,78))
     ELSE
-        IDENumbersColor = _RGB32(245, 128, 177)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "NumbersColor", "_RGB32(245,128,177)"
+        IDENumbersColor = _RGB32(216,98,78)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "NumbersColor", "_RGB32(216,98,78)"
     END IF
 
     result = ReadConfigSetting("QuoteColor", value$)
     IF result THEN
-        IDEQuoteColor = VRGBS(value$, _RGB32(255, 255, 85))
+        IDEQuoteColor = VRGBS(value$, _RGB32(255,167,0))
     ELSE
-        IDEQuoteColor = _RGB32(255, 255, 85)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "QuoteColor", "_RGB32(255,255,85)"
+        IDEQuoteColor = _RGB32(255,167,0)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "QuoteColor", "_RGB32(255,167,0)"
     END IF
 
     result = ReadConfigSetting("TextColor", value$)
     IF result THEN
-        IDETextColor = VRGBS(value$, _RGB32(226, 226, 226))
+        IDETextColor = VRGBS(value$, _RGB32(216,216,216))
     ELSE
-        IDETextColor = _RGB32(226, 226, 226)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(226,226,226)"
+        IDETextColor = _RGB32(216,216,216)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(216,216,216)"
     END IF
 
     result = ReadConfigSetting("BackgroundColor", value$)
     IF result THEN
-        IDEBackGroundColor = VRGBS(value$, _RGB32(0, 0, 170))
+        IDEBackGroundColor = VRGBS(value$, _RGB32(0,0,39))
     ELSE
-        IDEBackGroundColor = _RGB32(0, 0, 170)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
+        IDEBackGroundColor = _RGB32(0,0,39)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,39)"
     END IF
 
     result = ReadConfigSetting("BackgroundColor2", value$)
     IF result THEN
-        IDEBackGroundColor2 = VRGBS(value$, _RGB32(0, 108, 177))
+        IDEBackGroundColor2 = VRGBS(value$, _RGB32(0,49,78))
     ELSE
-        IDEBackGroundColor2 = _RGB32(0, 108, 177)
-        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor2", "_RGB32(0,108,177)"
+        IDEBackGroundColor2 = _RGB32(0,49,78)
+        WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor2", "_RGB32(0,49,78)"
     END IF
 
     result = ReadConfigSetting("SwapMouseButton", value$)
@@ -478,11 +478,6 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", "100 'in MB"
             WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", "1"
-            WriteConfigSetting "'[IDE COLOR SETTINGS]", "BackgroundColor", "_RGB32(0,0,170)"
-            WriteConfigSetting "'[IDE COLOR SETTINGS]", "CommentColor", "_RGB32(85,255,255)"
-            WriteConfigSetting "'[IDE COLOR SETTINGS]", "MetaCommandColor", "_RGB32(85,255,85)"
-            WriteConfigSetting "'[IDE COLOR SETTINGS]", "QuoteColor", "_RGB32(255,255,85)"
-            WriteConfigSetting "'[IDE COLOR SETTINGS]", "TextColor", "_RGB32(255,255,255)"
             IF INSTR(_OS$, "WIN") THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
             END IF

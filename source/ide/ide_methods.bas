@@ -312,9 +312,9 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Options": i = i + 1
         menu$(m, i) = "#Display...": i = i + 1
         menu$(m, i) = "IDE C#olors...": i = i + 1
+        menu$(m, i) = "#Code Layout...": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Language...": i = i + 1
-        menu$(m, i) = "#Code Layout...": i = i + 1
         menu$(m, i) = "#Backup/Undo...": i = i + 1
         menu$(m, i) = "#Advanced...": i = i + 1
         menu$(m, i) = "-": i = i + 1
@@ -15070,11 +15070,12 @@ END SUB
 SUB LoadColorSchemes
     DIM i AS LONG
     'Preset built-in schemes
-    PresetColorSchemes = 9
+    PresetColorSchemes = 10
     REDIM ColorSchemes$(1 TO PresetColorSchemes): i = 0
-    i = i + 1: ColorSchemes$(i) = "QB64 Default|226226226147196235245128177255255085085255085085255255000000170000108177000147177"
-    i = i + 1: ColorSchemes$(i) = "Classic QB4.5|177177177177177177177177177177177177177177177177177177000000170000000170000147177"
+    i = i + 1: ColorSchemes$(i) = "Super dark blue|216216216069118147216098078255167000085206085098098098000000039000049078000088108"
     i = i + 1: ColorSchemes$(i) = "Dark blue|226226226069147216245128177255177000085255085049196196000000069000068108000147177"
+    i = i + 1: ColorSchemes$(i) = "QB64 Original|226226226147196235245128177255255085085255085085255255000000170000108177000147177"
+    i = i + 1: ColorSchemes$(i) = "Classic QB4.5|177177177177177177177177177177177177177177177177177177000000170000000170000147177"
     i = i + 1: ColorSchemes$(i) = "CF Dark|226226226115222227255043138255178034185237049157118137043045037010000020088088088"
     i = i + 1: ColorSchemes$(i) = "Dark side|255255255206206000245010098000177000085255085049186245011022029100100100000147177"
     i = i + 1: ColorSchemes$(i) = "Camouflage|196196196255255255245128177255177000137177147147137020000039029098069020000147177"
