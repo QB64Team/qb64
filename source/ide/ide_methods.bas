@@ -4905,8 +4905,9 @@ FUNCTION ide2 (ignore)
                      _LIMIT 30
                   LOOP UNTIL tempk <> 0
                END IF
-               tempk$ = _trim$(tempk$)
+               tempk$ = _TRIM$(tempk$)
                a$ = idegetline(idecy)
+               DO UNTIL LEN(a$) >= idecx: a$ = a$ + " ": LOOP 'add spaces if necessary to the end of a$ so we insert in the proper position.
                l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
                text$ = l$ + tempk$ + r$
                idesetline idecy, text$
