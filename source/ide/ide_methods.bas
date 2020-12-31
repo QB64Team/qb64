@@ -4914,6 +4914,7 @@ FUNCTION ide2 (ignore)
                idechangemade = 1
                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                retval = 1
+               KCTRL = 0: KCONTROL = 0
                GOSUB redrawItAll
                GOTO ideloop
             END IF
