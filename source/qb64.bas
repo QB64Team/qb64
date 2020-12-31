@@ -1499,6 +1499,15 @@ udtetype(i2) = LONGTYPE: udtesize(i2) = 32
 udtetypesize(i2) = 0 'tsize
 udtenext(i3) = i2
 udtenext(i2) = 0
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "SOUND"
+udtecname(i2) = "SOUND"
+udtebytealign(i2) = 1
+udtetype(i2) = LONGTYPE: udtesize(i2) = 32
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+udtenext(i2) = 0
 
 
 

@@ -159,6 +159,7 @@ extern void sub__memfree(void *);
 extern void sub__memcopy(void *sblk,ptrszint soff,ptrszint bytes,void *dblk,ptrszint doff);
 extern mem_block func__memnew(ptrszint);
 extern mem_block func__memimage(int32,int32);
+extern mem_block func__memsound(int32 i,int32 targetChannel);
 
 extern int64 func__shellhide(qbs *str);
 extern int64 func_shell(qbs *str);

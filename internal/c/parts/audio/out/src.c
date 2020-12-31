@@ -152,6 +152,9 @@ list *snd_sequences=list_new(sizeof(snd_sequence_struct));
 
 
 struct snd_struct{
+    void *lock_offset;
+    int64 lock_id;
+
     uint8 internal;//1=internal
     uint8 type;//1=RAW, 2=SEQUENCE
 

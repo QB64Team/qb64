@@ -217,6 +217,15 @@ id.specialformat = "[?]" 'dest is default
 id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
 regid
 
+clearid
+id.n = qb64prefix$ + "MEMSOUND": id.Dependency = DEPENDENCY_AUDIO_DECODE
+id.subfunc = 1
+id.callname = "func__memsound"
+id.args = 2
+id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.ret = ISUDT + (1) 'the _MEM type is the first TYPE defined
+regid
+
 clearid '_MEMCOPY a, aoffset, bytes TO b, boffset
 id.n = qb64prefix$ + "MEMCOPY"
 id.subfunc = 2
