@@ -4903,8 +4903,10 @@ FUNCTION ide2 (ignore)
                     _PRINTSTRING (5, 5), "Keycode: " + k$
                     tempHWimage = _COPYIMAGE(tempimage, 33)
                     _PUTIMAGE (0, 0)-(w, h), tempHWimage
+                    _DISPLAY
                     _LIMIT 30
                LOOP UNTIL tempk$ <> ""
+               _AUTODISPLAY
                tempk$ = tempk$ + " "
                _DEST d: _SOURCE s
                _FREEIMAGE tempimage
