@@ -359,6 +359,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Keywords by Usage": i = i + 1
         menu$(m, i) = "ASCII C#hart": i = i + 1
         menu$(m, i) = "#Math": i = i + 1
+        menu$(m, i) = "Insert Quick Keycode...  Ctrl+K": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
         menu$(m, i) = "Update All #Pages": i = i + 1
@@ -1574,6 +1575,12 @@ FUNCTION ide2 (ignore)
             IdeSystem = 2
             IF LEN(idefindtext) THEN idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = LEN(idefindtext)
         END IF
+
+        IF KCTRL AND UCASE$(K$) = "K" THEN
+            K$ = ""
+            GOTO ideQuickKeycode
+        END IF
+
 
         IF KCTRL AND KB = KEY_F3 THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
@@ -4870,6 +4877,45 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "ASCII C#hart" THEN
                 PCOPY 2, 0
                 ideASCIIbox
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                retval = 1
+                GOSUB redrawItAll
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "Insert Quick Keycode...  Ctrl+K" THEN
+                ideQuickKeycode:
+                PCOPY 2, 0
+
+                tempimage = _NEWIMAGE(240, 120, 32)
+                w = _WIDTH * _FONTWIDTH: h = _HEIGHT * _FONTHEIGHT
+                d = _DEST: s = _SOURCE
+                _DEST tempimage
+                DO
+                    tempk = _KEYHIT
+                    _LIMIT 30
+                LOOP UNTIL tempk = 0
+                DO
+                    CLS , &HFF000077
+                    tempk = _KEYHIT
+                    IF tempk > 0 THEN tempk$ = STR$(tempk)
+                    LINE (5, 5)-(115, 20), &HFF000000, BF
+                    _PRINTSTRING (5, 5), "Keycode: " + k$
+                    tempHWimage = _COPYIMAGE(tempimage, 33)
+                    _PUTIMAGE (0, 0)-(w, h), tempHWimage
+                    _LIMIT 30
+               LOOP UNTIL tempk$ <> ""
+               tempk$ = tempk$ + " "
+               _DEST d: _SOURCE s
+               _FREEIMAGE tempimage
+               l = idecy
+               a$ = idegetline(l)
+               l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
+               text$ = l$ + tempk$ + r$
+               idesetline l, text$
+               idecx = idecx + len(tempk$)
+               idechangemade = 1
+
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
                 GOSUB redrawItAll
