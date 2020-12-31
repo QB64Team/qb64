@@ -4884,44 +4884,27 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "Insert Quick Keycode...  Ctrl+K" THEN
-                ideQuickKeycode:
-                PCOPY 2, 0
-
-                tempimage = _NEWIMAGE(240, 120, 32)
-                w = _WIDTH * _FONTWIDTH: h = _HEIGHT * _FONTHEIGHT
-                d = _DEST: s = _SOURCE
-                _DEST tempimage
-                DO
-                    tempk = _KEYHIT
-                    _LIMIT 30
-                LOOP UNTIL tempk = 0
-                DO
-                    CLS , &HFF000077
-                    tempk = _KEYHIT
-                    IF tempk > 0 THEN tempk$ = STR$(tempk)
-                    LINE (5, 5)-(115, 20), &HFF000000, BF
-                    _PRINTSTRING (5, 5), "Keycode: " + k$
-                    tempHWimage = _COPYIMAGE(tempimage, 33)
-                    _PUTIMAGE (0, 0)-(w, h), tempHWimage
-                    _DISPLAY
-                    _LIMIT 30
+               ideQuickKeycode:
+               DO: tempk = _KEYHIT: _LIMIT 30: LOOP UNTIL tempk = 0 'wait for key release
+               DO 'get the next key hit
+                  PCOPY 3, 0
+                  LOCATE idewy - 3, 2
+                  PRINT "PRESS ANY KEY TO INSERT _KEYHIT/_KEYDOWN CODE"
+                  tempk = _KEYHIT
+                  IF tempk > 0 THEN tempk$ = STR$(tempk)
+                  _LIMIT 30
                LOOP UNTIL tempk$ <> ""
-               _AUTODISPLAY
                tempk$ = tempk$ + " "
-               _DEST d: _SOURCE s
-               _FREEIMAGE tempimage
-               l = idecy
-               a$ = idegetline(l)
+               a$ = idegetline(idecy)
                l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
                text$ = l$ + tempk$ + r$
-               idesetline l, text$
+               idesetline idecy, text$
                idecx = idecx + len(tempk$)
                idechangemade = 1
-
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                retval = 1
-                GOSUB redrawItAll
-                GOTO ideloop
+               PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+               retval = 1
+               GOSUB redrawItAll
+               GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 10) = "#Help On '" THEN 'Contextual menu Help
