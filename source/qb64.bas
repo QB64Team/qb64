@@ -1440,7 +1440,7 @@ ptrsz = OS_BITS \ 8
 lasttype = lasttype + 1: i = lasttype
 udtxname(i) = "_MEM"
 udtxcname(i) = "_MEM"
-udtxsize(i) = ((ptrsz) * 5 + (4) * 1 + (8) * 1) * 8
+udtxsize(i) = ((ptrsz) * 5 + (4) * 2 + (8) * 1) * 8
 udtxbytealign(i) = 1
 lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
 udtename(i2) = "OFFSET"
