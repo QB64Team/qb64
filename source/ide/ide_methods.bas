@@ -4908,13 +4908,21 @@ FUNCTION ide2 (ignore)
                     LOOP UNTIL tempk <> 0
                 END IF
                 tempk$ = LTRIM$(tempk$)
+
+                'insert
+                IF ideselect THEN GOSUB delselect
                 a$ = idegetline(idecy)
-                DO UNTIL LEN(a$) >= idecx: a$ = a$ + " ": LOOP 'add spaces if necessary to the end of a$ so we insert in the proper position.
-                l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
-                text$ = l$ + tempk$ + r$
-                idesetline idecy, text$
-                idecx = idecx + len(tempk$)
+                IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                idesetline idecy, a$
+
+                IF PasteCursorAtEnd THEN
+                    'Place the cursor at the end of the inserted content:
+                    idecx = idecx + LEN(tempk$)
+                END IF
+
                 idechangemade = 1
+
                 dummy = DarkenFGBG(0)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
