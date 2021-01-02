@@ -4886,6 +4886,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "Insert #Quick Keycode...  Ctrl+K" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
+                dummy = DarkenFGBG(1)
                 COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                 LOCATE idewy - 3, 2
                 PRINT "Press any key to insert its _KEYHIT/_KEYDOWN code..."
@@ -4914,6 +4915,7 @@ FUNCTION ide2 (ignore)
                 idesetline idecy, text$
                 idecx = idecx + len(tempk$)
                 idechangemade = 1
+                dummy = DarkenFGBG(0)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
                 KCTRL = 0: KCONTROL = 0
