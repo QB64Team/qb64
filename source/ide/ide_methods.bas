@@ -4884,40 +4884,40 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "Insert #Quick Keycode...  Ctrl+K" THEN
-               ideQuickKeycode:
-               tempk$ = ""
-               DO: tempk = _KEYHIT: _LIMIT 30: LOOP UNTIL tempk = 0 'wait for key release
-               DO 'get the next key hit
-                  PCOPY 3, 0
-                  LOCATE idewy - 3, 2
-                  PRINT "PRESS ANY KEY TO INSERT _KEYHIT/_KEYDOWN CODE"
-                  tempk = _KEYHIT
-                  IF tempk > 0 THEN tempk$ = STR$(tempk)
-                  _LIMIT 30
-               LOOP UNTIL tempk > 0
-               IF tempk = 100303 OR tempk = 100304 THEN 'shift key
-                  DO 'get the next key hit
-                     PCOPY 3, 0
-                     LOCATE idewy - 3, 2
-                     PRINT "PRESS ANY KEY TO INSERT _KEYHIT/_KEYDOWN CODE"
-                     tempk = _KEYHIT 'see what the next key is, and use it
-                     IF tempk <> 0 THEN tempk$ = STR$(ABS(tempk)) 'if it's the SHFT UP code, then return the value for shift
-                     _LIMIT 30
-                  LOOP UNTIL tempk <> 0
-               END IF
-               tempk$ = _TRIM$(tempk$)
-               a$ = idegetline(idecy)
-               DO UNTIL LEN(a$) >= idecx: a$ = a$ + " ": LOOP 'add spaces if necessary to the end of a$ so we insert in the proper position.
-               l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
-               text$ = l$ + tempk$ + r$
-               idesetline idecy, text$
-               idecx = idecx + len(tempk$)
-               idechangemade = 1
-               PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-               retval = 1
-               KCTRL = 0: KCONTROL = 0
-               GOSUB redrawItAll
-               GOTO ideloop
+                ideQuickKeycode:
+                COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                LOCATE idewy - 3, 2
+                PRINT "Press any key to insert its _KEYHIT/_KEYDOWN code..."
+                PCOPY 3, 0
+
+                tempk$ = ""
+
+                DO: tempk = _KEYHIT: _LIMIT 30: LOOP UNTIL tempk = 0 'wait for key release
+                DO 'get the next key hit
+                    tempk = _KEYHIT
+                    IF tempk > 0 THEN tempk$ = STR$(tempk)
+                    _LIMIT 30
+                LOOP UNTIL tempk > 0
+                IF tempk = 100303 OR tempk = 100304 THEN 'shift key
+                    DO 'get the next key hit
+                        tempk = _KEYHIT 'see what the next key is, and use it
+                        IF tempk <> 0 THEN tempk$ = STR$(ABS(tempk)) 'if it's the SHFT UP code, then return the value for shift
+                        _LIMIT 30
+                    LOOP UNTIL tempk <> 0
+                END IF
+                tempk$ = LTRIM$(tempk$)
+                a$ = idegetline(idecy)
+                DO UNTIL LEN(a$) >= idecx: a$ = a$ + " ": LOOP 'add spaces if necessary to the end of a$ so we insert in the proper position.
+                l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
+                text$ = l$ + tempk$ + r$
+                idesetline idecy, text$
+                idecx = idecx + len(tempk$)
+                idechangemade = 1
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                retval = 1
+                KCTRL = 0: KCONTROL = 0
+                GOSUB redrawItAll
+                GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 10) = "#Help On '" THEN 'Contextual menu Help
