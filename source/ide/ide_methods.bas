@@ -359,7 +359,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Keywords by Usage": i = i + 1
         menu$(m, i) = "ASCII C#hart": i = i + 1
         menu$(m, i) = "#Math": i = i + 1
-        menu$(m, i) = "Insert Quick Keycode...  Ctrl+K": i = i + 1
+        menu$(m, i) = "Insert #Quick Keycode...  Ctrl+K": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
         menu$(m, i) = "Update All #Pages": i = i + 1
@@ -4883,7 +4883,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Insert Quick Keycode...  Ctrl+K" THEN
+            IF menu$(m, s) = "Insert #Quick Keycode...  Ctrl+K" THEN
                ideQuickKeycode:
                tempk$ = ""
                DO: tempk = _KEYHIT: _LIMIT 30: LOOP UNTIL tempk = 0 'wait for key release
