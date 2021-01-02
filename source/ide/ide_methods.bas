@@ -4510,7 +4510,7 @@ FUNCTION ide2 (ignore)
             menuChoiceMade:
             IF KALT THEN idehl = 1 ELSE idehl = 0 'set idehl, a shared variable used by various dialogue boxes
 
-            IF menu$(m, s) = "Add Comment (')  Ctrl+R" THEN
+            IF menu$(m, s) = "Add Co#mment (')  Ctrl+R" THEN
                 ctrlAddComment:
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
@@ -4541,7 +4541,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Remove Comment (')  Ctrl+Shift+R" THEN
+            IF menu$(m, s) = "Remove Comme#nt (')  Ctrl+Shift+R" THEN
                 ctrlRemoveComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4568,7 +4568,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Toggle Comment  Ctrl+T" THEN
+            IF menu$(m, s) = "To#ggle Comment  Ctrl+T" THEN
                 ctrlToggleComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4609,13 +4609,13 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Increase Indent  TAB" THEN
+            IF menu$(m, s) = "#Increase Indent  TAB" THEN
                 IF ideselect THEN GOTO IdeBlockIncreaseIndent
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF LEFT$(menu$(m, s), 15) = "Decrease Indent" THEN
+            IF LEFT$(menu$(m, s), 16) = "#Decrease Indent" THEN
                 IF ideselect THEN GOTO IdeBlockDecreaseIndent
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -14327,9 +14327,9 @@ SUB IdeMakeContextualMenu
     IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Toggle Comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add Comment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove Comment (')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -14342,15 +14342,15 @@ SUB IdeMakeContextualMenu
                 IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
             NEXT
             IF a2$ <> "" THEN
-                menu$(m, i) = "Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease Indent"
+                menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
                 menu$(m, i) = "-": i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "Increase Indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease Indent"
+            menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "#Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
             menu$(m, i) = "-": i = i + 1
@@ -14394,9 +14394,9 @@ SUB IdeMakeEditMenu
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Toggle Comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add Comment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove Comment (')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -14409,25 +14409,25 @@ SUB IdeMakeEditMenu
                 IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
             NEXT
             IF a2$ = "" THEN
-                menu$(m, i) = "~Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "~Decrease Indent"
+                menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "~#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             ELSE
-                menu$(m, i) = "Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease Indent"
+                menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "Increase Indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease Indent"
+            menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "#Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
         END IF
     ELSE
-        menu$(m, i) = "~Increase Indent  TAB": i = i + 1
-        menu$(m, i) = "~Decrease Indent"
+        menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+        menu$(m, i) = "~#Decrease Indent"
         IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
         i = i + 1
     END IF
