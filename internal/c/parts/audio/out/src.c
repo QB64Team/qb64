@@ -1051,6 +1051,10 @@ void sub__sndclose(int32 handle){
     }
     snd->close=1;//raw
     snd->raw_close_time=GetTicks();
+
+    if (snd->lock_id){
+        free_mem_lock((mem_lock*)snd->lock_offset);//untag
+    }
 }//sndclose
 
 //"macros"
