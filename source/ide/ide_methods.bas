@@ -4876,7 +4876,24 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "ASCII C#hart" THEN
                 PCOPY 2, 0
-                ideASCIIbox
+                retval = ideASCIIbox%
+                IF retval THEN
+                    tempk$ = CHR$(retval)
+
+                    'insert
+                    IF ideselect THEN GOSUB delselect
+                    a$ = idegetline(idecy)
+                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                    idesetline idecy, a$
+
+                    IF PasteCursorAtEnd THEN
+                        'Place the cursor at the end of the inserted content:
+                        idecx = idecx + LEN(tempk$)
+                    END IF
+
+                    idechangemade = 1
+                END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
                 GOSUB redrawItAll
@@ -14441,7 +14458,7 @@ SUB IdeAddSearched (s2$)
     CLOSE #fh
 END SUB
 
-SUB ideASCIIbox
+FUNCTION ideASCIIbox%
     'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
     '(code to fix font and arrow keys also written by Steve)
     w = _WIDTH: h = _HEIGHT
@@ -14555,13 +14572,7 @@ SUB ideASCIIbox
 
     ret% = (y - 1) * 16 + x - 1
     IF ret% > 0 AND ret% < 255 THEN
-        l = idecy
-        a$ = idegetline(l)
-        l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
-        text$ = l$ + CHR$(ret%) + r$
-        idesetline l, text$
-        idecx = idecx + 1
-        idechangemade = 1
+        ideASCIIbox% = ret%
     END IF
 
     _AUTODISPLAY
