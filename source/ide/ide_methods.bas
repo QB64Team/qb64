@@ -4884,6 +4884,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "Insert #Quick Keycode...  Ctrl+K" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
                 COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                 LOCATE idewy - 3, 2
