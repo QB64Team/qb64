@@ -4915,12 +4915,20 @@ FUNCTION ide2 (ignore)
                 DO 'get the next key hit
                     tempk = _KEYHIT
                     IF tempk > 0 THEN tempk$ = STR$(tempk)
+
+                    WHILE _MOUSEINPUT: WEND
+                    IF _MOUSEBUTTON(1) OR _MOUSEBUTTON(2) THEN GOTO bypassCtrlK
+
                     _LIMIT 30
                 LOOP UNTIL tempk > 0
                 IF tempk = 100303 OR tempk = 100304 THEN 'shift key
                     DO 'get the next key hit
                         tempk = _KEYHIT 'see what the next key is, and use it
                         IF tempk <> 0 THEN tempk$ = STR$(ABS(tempk)) 'if it's the SHFT UP code, then return the value for shift
+
+                        WHILE _MOUSEINPUT: WEND
+                        IF _MOUSEBUTTON(1) OR _MOUSEBUTTON(2) THEN GOTO bypassCtrlK
+
                         _LIMIT 30
                     LOOP UNTIL tempk <> 0
                 END IF
@@ -4939,7 +4947,7 @@ FUNCTION ide2 (ignore)
                 END IF
 
                 idechangemade = 1
-
+                bypassCtrlK:
                 dummy = DarkenFGBG(0)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
