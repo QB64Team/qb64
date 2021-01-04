@@ -739,7 +739,7 @@ FUNCTION ide2 (ignore)
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
 
-        IF (_RESIZE OR ForceResize) AND TIMER - QB64_uptime! > 1.5 THEN
+        IF (_RESIZE OR ForceResize) AND timeElapsedSince(QB64_uptime!) > 1.5 THEN
             IF idesubwindow <> 0 THEN 'If there's a subwindow up, don't resize as it screws all sorts of things up.
                 ForceResize = -1
             ELSE
@@ -2713,7 +2713,7 @@ FUNCTION ide2 (ignore)
         IF mCLICK THEN
             IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                 IF old.mX = mX AND old.mY = mY THEN
-                    IF TIMER - last.TBclick# > .5 THEN GOTO regularTextBox_click
+                    IF timeElapsedSince(last.TBclick#) > .5 THEN GOTO regularTextBox_click
                     'Double-click on text box: attempt to select "word" clicked
                     idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
@@ -10165,7 +10165,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
 
             IF LEN(kk$) = 1 THEN
                 ResetKeybTimer = 0
-                IF TIMER - LastKeybInput > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+                IF timeElapsedSince(LastKeybInput) > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
                 LastKeybInput = TIMER
                 k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
 
