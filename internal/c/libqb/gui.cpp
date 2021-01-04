@@ -554,7 +554,7 @@ void sub__glrender(int32 method){
                         }
                         pclose(consoleStream);
 
-                        if (b_isRetina || b_is5k) {
+                        if (b_isRetina && b_is5k) {
                             // apply only factor = 2 if macOS is Catalina (11.15.* // kern.osrelease 19.*)
                             char str[256];
                             size_t size = sizeof(str);
