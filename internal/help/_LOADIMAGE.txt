@@ -1,64 +1,49 @@
 {{DISPLAYTITLE:_LOADIMAGE}}
+
 The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]] image handle values that are less than -1. 
 
 
 {{PageSyntax}}
-: {{Parameter|handle&amp;}} = [[_LOADIMAGE]]({{Parameter|filename$}}[, {{Parameter|mode%}}])
+
+:{{Parameter|handle&amp;}} = [[_LOADIMAGE]]({{Parameter|filename$}}[, {{Parameter|mode%}}])
 
 
 {{Parameters}}
-* {{Parameter|filename$}} is literal or variable [[STRING]] file name value.
-* Optional {{Parameter|mode%}} [[INTEGER]] values can be:
-** 256 = 8-bit (256-color, ''QB64 versions prior to 1.000'')
-** 32 = 32-bit
-** 33 = hardware image
+
+*{{Parameter|filename$}} is literal or variable [[STRING]] file name value.
+*Optional {{Parameter|mode%}} [[INTEGER]] values can be:
+**32 = 32-bit
+**33 = hardware image
 
 
 {{PageDescription}}
-* Various common image file formats supported, like BMP, JPG, PNG, etc. A path can also be given.
-* The {{Parameter|mode%}} can designate 256 (8-bit - versions prior to 1.000), 32-bit color or 33 ('''version 1.000 and up'''). Omit to use the current graphic screen settings.
-* Mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ('''version 1.000 and up''').
-* Loaded images can be read invisibly using [[POINT]]. Image coordinates start at 0 up to the [[_WIDTH (function)|_WIDTH]] - 1 and [[_HEIGHT]] - 1.
-* Images can be made into a program [[SCREEN (statement)|SCREEN]] or page adopting the size and palette settings or placed using [[_PUTIMAGE]].
-* Returns -1 as an invalid handle if it can't load the image. Valid [[LONG]] handle returns are less than -1 ({{Parameter|handle&amp;}} &lt; -1).
-* Valid images only need to be loaded once. The handle can be used repeatedly until freed.
-*  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
+
+*Various common image file formats supported, like BMP, JPG, PNG, etc. A path can also be given.
+*The {{Parameter|mode%}} can designate 32-bit color or 33 ('''version 1.000 and up'''). Omit to use the current graphic screen settings.
+*Mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ('''version 1.000 and up''').
+*Loaded images can be read invisibly using [[POINT]]. Image coordinates start at 0 up to the [[_WIDTH (function)|_WIDTH]] - 1 and [[_HEIGHT]] - 1.
+*Images can be made into a program [[SCREEN (statement)|SCREEN]] or page adopting the size and palette settings or placed using [[_PUTIMAGE]].
+*Returns -1 as an invalid handle if it can't load the image. Valid [[LONG]] handle returns are less than -1 ({{Parameter|handle&amp;}} &lt; -1).
+*Valid images only need to be loaded once. The handle can be used repeatedly until freed.
+*'''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
 
 
 {{PageErrors}}
-* Some picture file images may not load when a {{Parameter|mode%}} value is designated. Try loading it without a {{Parameter|mode%}} designation.
-* '''It is important to free unused or discarded images with [[_FREEIMAGE]] to prevent CPU memory overflow errors.'''
-* '''In text-only [[SCREEN]] 0, {{Parameter|mode%}} 32 must be specified.''' When loading an [[_ICON]] image use 32 for the {{Parameter|mode%}} too.
+
+*Some picture file images may not load when a {{Parameter|mode%}} value is designated. Try loading it without a {{Parameter|mode%}} designation.
+*'''It is important to free unused or discarded images with [[_FREEIMAGE]] to prevent CPU memory overflow errors.'''
+*'''In text-only [[SCREEN]] 0, {{Parameter|mode%}} 32 must be specified.''' When loading an [[_ICON]] image use 32 for the {{Parameter|mode%}} too.
 
 
 {{PageExamples}}
-''Example 1:''  Already in SCREEN 13 and want computer to match the 32-bit jpg/etc. 
-colors to the current palette:
-{{CodeStart}} '' ''
-{{Cl|SCREEN (statement)|SCREEN}} 13
-i&amp; = {{Cl|_LOADIMAGE}}("mypic.jpg") 
-{{Cl|_PUTIMAGE}}, i&amp; '' ''
-{{CodeEnd}}
-
-
-''Example 2:'' Already in SCREEN 13 but want to load an 8-bit image and adopt its 
-palette as the current palette:
-{{CodeStart}} '' ''
-{{Cl|SCREEN (statement)|SCREEN}} 13
-i&amp; = {{Cl|_LOADIMAGE}}("mypic256col.bmp", 256)
-{{Cl|_COPYPALETTE}} i&amp;, 0
-{{Cl|_PUTIMAGE}}, i&amp; '' ''
-{{CodeEnd}}
-
-
-''Example 3:'' Want to display an image in 32-bit color using its resolution as a program screen:
+''Example 1:'' To display an image in 32-bit color using its resolution as a program screen:
 {{CodeStart}} '' ''
 i&amp; = {{Cl|_LOADIMAGE}}("mypic.jpg", 32)
 {{Cl|SCREEN (statement)|SCREEN}} i&amp; '' ''
 {{CodeEnd}}
 
 
-''Example 4:'' [[DRAW]]ing and rotating an image 360 degrees using Turn Angle. [[POINT]] is used to read the invisible image source.
+''Example 2:'' [[DRAW]]ing and rotating an image 360 degrees using Turn Angle. [[POINT]] is used to read the invisible image source.
 {{CodeStart}}
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 img&amp; = {{Cl|_LOADIMAGE}}("QB64.PNG")                           'load the image file to be drawn
@@ -83,24 +68,27 @@ DO
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} > "" '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
+
 :''NOTE:'' The ''QB64.PNG'' file picturing the QB64 bee can saved from the top of the [http://www.qb64.net/forum/index.php QB64 forum]. Speed varies with image size.
 
 
 ===More examples===
-* [[SAVEIMAGE]] (QB64 Image to Bitmap SUB by Galleon)
-* [[Program ScreenShots]] (Member-contributed program for legacy screen modes)
-* [[ThirtyTwoBit SUB]] (QB64 Image area to bitmap)
+
+*[[SAVEIMAGE]] (QB64 Image to Bitmap SUB by Galleon)
+*[[Program ScreenShots]] (Member-contributed program for legacy screen modes)
+*[[ThirtyTwoBit SUB]] (QB64 Image area to bitmap)
 
 
 {{PageSeeAlso}}
-* [[_FREEIMAGE]], [[_ICON]]
-* [[_PUTIMAGE]], [[_MAPTRIANGLE]]
-* [[_NEWIMAGE]], [[_COPYIMAGE]] 
-* [[_PRINTIMAGE]] (printer)
-* [[_PALETTECOLOR (function)]], [[_COPYPALETTE]], [[_ICON]]
-* [[SCREEN (statement)]]
-* [[Hardware images]]
-* [[Bitmaps]], [[Icons and Cursors]], [[GIF Images]]
+
+*[[_FREEIMAGE]], [[_ICON]]
+*[[_PUTIMAGE]], [[_MAPTRIANGLE]]
+*[[_NEWIMAGE]], [[_COPYIMAGE]]
+*[[_PRINTIMAGE]] (printer)
+*[[_PALETTECOLOR (function)]], [[_COPYPALETTE]], [[_ICON]]
+*[[SCREEN (statement)]]
+*[[Hardware images]]
+*[[Bitmaps]], [[Icons and Cursors]], [[GIF Images]]
 
 
 {{PageNavigation}}

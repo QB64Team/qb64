@@ -8,7 +8,7 @@ The [[_WINDOWHASFOCUS]] function returns true (-1) if the current program's wind
 
 {{PageDescription}}
 * The function returns true (-1) if the current program is the topmost window on the user's desktop and has focus. If the current program is running behind another window, the function returns false (0).
-* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in macOS]].
 
 
 ==Availability==
@@ -16,7 +16,7 @@ The [[_WINDOWHASFOCUS]] function returns true (-1) if the current program's wind
 
 
 {{PageExamples}}
-''Example:'' Detecting if the current program has focus. Windows-only.
+''Example:'' Detecting if the current program has focus. Windows and Linux-only.
 {{CodeStart}} '' ''
 DO
     {{Cl|IF}} {{Cl|_WINDOWHASFOCUS}} THEN

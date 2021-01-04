@@ -6,7 +6,7 @@
 :: OPEN Filename$ FOR RANDOM AS #1 [LEN = ''recordlength%'']
 
 
-* RANDOM is the Default mode if no mode is given in the OPEN statement.
+* RANDOM is the Default mode if no mode is given in the [[OPEN]] statement.
 * It creates the file if the legal file name given does NOT exist.
 * As a RANDOM file, it can read or write any record using [[GET]] and/or [[PUT]] statements. 
 * ''Recordlength%'' is determined by getting the LEN of a [[TYPE]] variable or a [[FIELD]] statement.

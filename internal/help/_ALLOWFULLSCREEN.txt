@@ -12,7 +12,7 @@ The [[_ALLOWFULLSCREEN]] statement allows setting the behavior of the ALT+ENTER 
 * [[_ALLOWFULLSCREEN]] only affects the behavior of ALT+ENTER. The [[_FULLSCREEN]] statement is not bound by [[_ALLOWFULLSCREEN]]'s settings so all modes can be accessed programmatically.
 * To limit just the mode but allow both _SMOOTH + _OFF antialiasing modes, pass just the first parameter: ''Example:'' [[_ALLOWFULLSCREEN]] _SQUAREPIXELS
 * To allow multiple modes with _SMOOTH or _OFF as default, pass just the second parameter. ''Example:'' [[_ALLOWFULLSCREEN]] , _SMOOTH
-* And possible permutation of the parameters is allowed.
+* Any possible permutation of the parameters is allowed.
 * With [[_ALLOWFULLSCREEN]] _OFF you can trap Alt+Enter manually in your program and reassign it. See example 2 below.
 
 

@@ -13,7 +13,7 @@ The '''PUT #'''  TCP/IP statement sends unformatted(raw) data to an open connect
 &lt;center>'''Communicating using unformatted/raw streamed data:'''&lt;/center>
 * Benefit: Communicate with any TCP/IP compatible protocol (eg. FTP, HTTP, web-pages, etc)
 * Disadvantage: Streamed data has no 'message length' as such, just a continuous bunch of bytes all in a row. Some messages get fragmented and parts of messages can (and often do) arrive at different times. 
-* The position parameter(between the commas) is not used in TCP/IP statements as all data is streamed consecutively.
+* The position parameter (between the commas) is not used in TCP/IP statements as all data is streamed consecutively.
 &lt;center>'''Your program MUST cater for these situations manually.'''&lt;/center>
 
 {{WhiteStart}}''Example: string variable b$'s length is adjusted to the number of bytes read.''
@@ -31,9 +31,8 @@ The '''PUT #'''  TCP/IP statement sends unformatted(raw) data to an open connect
 
 
 ''See also:'' 
-* [[GET (TCP/IP statement)]], [[PRINT (TCP/IP statement)]], [[INPUT (TCP/IP statement)]], [[PUT|PUT #]]
+* [[GET (TCP/IP statement)]], [[PUT|PUT #]]
 * [[_OPENCLIENT]], [[_OPENHOST]], [[_OPENCONNECTION]] 
-* [[IP Configuration]]
 
 
 {{PageNavigation}}

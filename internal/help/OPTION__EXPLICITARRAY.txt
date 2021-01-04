@@ -1,0 +1,39 @@
+{{DISPLAYTITLE:OPTION _EXPLICITARRAY}}  
+[[OPTION _EXPLICITARRAY]] instructs the compiler to require arrays be declared with [[DIM]], [[REDIM]] or equivalent.
+
+{{PageSyntax}}
+: [[OPTION _EXPLICITARRAY]]
+
+
+{{PageDescription}}
+* Normally statements like {{InlineCode}}x(2) = 3{{InlineCodeEnd}} will implicitly create an array x(). [[OPTION _EXPLICITARRAY]] requires a preceding declaration for the array, helping to catch mistyped array and function names.
+* Unlike [[OPTION _EXPLICIT]], simple variables can still be used without a declaration. Example: {{InlineCode}}i = 1{{InlineCodeEnd}}
+
+{{PageErrors}}
+* If used, [[OPTION _EXPLICITARRAY]] must be the very first statement in your program. No other statements can precede it (except for [[$NOPREFIX]] or comment lines started with an [[Apostrophe|apostrophe]] or [[REM]]).
+* Do not use [[OPTION _EXPLICITARRAY]] in [[$INCLUDE]]d modules.
+
+
+{{PageExamples}}
+''Example:'' Avoiding simple typos with [[OPTION _EXPLICITARRAY]] results shown in the QB64 IDE Status area.
+{{CodeStart}}{{Cl|OPTION _EXPLICITARRAY}}
+x = 1 'This is fine, it's not an array so not affected
+
+{{Cl|DIM}} z(5)
+z(2) = 3 'All good here, we've explicitly DIMmed our array
+
+y(2) = 3 'This now generates an error
+{{CodeEnd}}
+
+''QB64 IDE Status will show:''
+'''Array 'y' (SINGLE) not defined on line 7'''
+
+
+{{PageSeeAlso}}
+* [[OPTION _EXPLICIT]]
+* [[DIM]], [[REDIM]]
+* [[SHARED]]
+* [[STATIC]]
+
+
+{{PageNavigation}}
