@@ -13748,6 +13748,11 @@ FUNCTION idesearchedbox$
     idepar p, 20, h, ""
     p.x = idewx - 24
     p.y = idewy - 6 - h
+    IF p.y < 3 THEN
+        p.h = p.h - abs(3 - p.y)
+        h = p.h
+        p.y = 3
+    END IF
 
     i = i + 1
     o(i).typ = 2
