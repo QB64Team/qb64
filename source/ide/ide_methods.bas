@@ -3118,7 +3118,17 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
-            GOTO idesubsjmp
+            IF KCONTROL THEN
+                IF QuickNavTotal > 0 THEN
+                    ideselect = 0
+                    idecy = QuickNavHistory(QuickNavTotal)
+                    QuickNavTotal = QuickNavTotal - 1
+                    _DELAY .2
+                    GOTO waitforinput
+                END IF
+            ELSE
+                GOTO idesubsjmp
+            END IF
         END IF
 
         IF KCONTROL AND UCASE$(K$) = "W" THEN 'goto line
