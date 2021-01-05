@@ -214,7 +214,7 @@ int32 _dieeetomsbin(double *src8, double *dest8)
     /* Make a clobberable copy of the source number */ 
     memcpy(ieee,src8,8); //strncpy((char *)ieee,(char *)src8,8);
     
-    for (i=0; i<8; i++) msbin[i] = 0;
+   memset(msbin, 0, sizeof(*dest8)); //for (i=0; i<8; i++) msbin[i] = 0;
     
     /* If all are zero in src8, the msbin should be zero */
     for (i=0; i<8; i++) any_on |= ieee[i];
@@ -222,12 +222,15 @@ int32 _dieeetomsbin(double *src8, double *dest8)
     
     sign = ieee[7] & 0x80;
     msbin[6] |= sign;
-    msbin_exp = (unsigned)(ieee[7] & 0x7f) * 0x10;
+   msbin_exp = (unsigned)(ieee[7] & 0x7f) << 4;	//(unsigned)(ieee[7] & 0x7f) * 0x10;
     msbin_exp += ieee[6] >> 4;
     
-    if (msbin_exp-0x3ff > 0x80) return 1;
-    
-    msbin[7] = msbin_exp - 0x3ff + 0x80 + 1; 
+   // verify the exponent is in range for MBF encoding
+   msbin_exp = msbin_exp - 0x3ff + 0x80 + 1;
+   if ((msbin_exp & 0xff00) != 0) return 1;
+   msbin[7] = msbin_exp;
+   // if (msbin_exp-0x3ff > 0x80) return 1;
+   // msbin[7] = msbin_exp - 0x3ff + 0x80 + 1; 
     
     /* The ieee mantissa must be shifted up 3 bits */
     ieee[6] &= 0x0f; /* mask out the exponent in the second byte    */
