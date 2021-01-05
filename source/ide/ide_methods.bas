@@ -131,6 +131,7 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selectx1, wholeword.idecx
     STATIC wholeword.selecty1, wholeword.idecy
     STATIC ForceResize, IDECompilationRequested AS _BYTE
+    STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -1274,7 +1275,7 @@ FUNCTION ide2 (ignore)
             _FINISHDROP
         END IF
 
-        'Hover/click (QuickNav)
+        'Hover/click (QuickNav, "Find" field)
         IF QuickNavTotal > 0 THEN
             DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
                 'make sure that the line number in history still exists
@@ -1326,6 +1327,30 @@ FUNCTION ide2 (ignore)
                 END IF
             END IF
         END IF
+
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
+            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
+                'Highlight "Find"
+                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
+                COLOR 1, 3
+                PRINT "Find";
+                PCOPY 3, 0
+                FindFieldHover = -1
+            ELSE
+                GOTO RestoreFindButton
+            END IF
+        ELSE
+            RestoreFindButton:
+            IF FindFieldHover = -1 THEN
+                'Restore "Find" bg
+                FindFieldHover = 0
+                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
+                COLOR 3, 1
+                PRINT "Find";
+                PCOPY 3, 0
+            END IF
+        END IF
+
 
         IF os$ = "WIN" OR MacOSX = 1 THEN
             IF _WINDOWHASFOCUS THEN
