@@ -13037,7 +13037,7 @@ void sub_open(qbs *name,int32 type,int32 access,int32 sharing,int32 i,int64 reco
     if (type==1){//set record length
         f->record_length=128;
         if (passed) if (record_length!=-1) f->record_length=record_length;
-        f->field_buffer=(uint8*)calloc(record_length,1);
+        f->field_buffer=(uint8*)calloc(f->record_length,1);
     }
     
     if (type==5){//seek eof
