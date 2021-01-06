@@ -19,13 +19,13 @@ A [[FUNCTION]] block statement is used to create a function procedure to return 
 * All [[$DYNAMIC|dynamic]] variable values return to 0 or null strings when the procedure is exited except when a variable or the entire function is [[STATIC]]. This can save program memory as all [[$DYNAMIC|dynamic]] memory used in a FUNCTION is released on procedure exit.
 * FUNCTION procedure code can use [[GOSUB]] and [[GOTO]] line numbers or labels inside of the procedure when necessary. 
 * For early function exits use [[EXIT]] [[FUNCTION]] before [[END FUNCTION]] and [[GOSUB]] procedures using [[RETURN]].
-* '''QB64 ignores all procedural [[DECLARE]] statements.''' Define all ''parameter'' [[Data types|types]] in the FUNCTION procedure.
+* '''QB64 ignores all procedural DECLARE statements.''' Define all ''parameter'' [[Data types|types]] in the FUNCTION procedure.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
-* The [[IDE]] can create the FUNCTION and END FUNCTION lines for you. Use the ''New FUNCTION...'' option in the Edit Menu. A box will come up for you to enter a name for the FUNCTION. Enter all code between the FUNCTION and [[END FUNCTION]] lines.
+* The IDE can create the FUNCTION and END FUNCTION lines for you. Use the ''New FUNCTION...'' option in the Edit Menu. A box will come up for you to enter a name for the FUNCTION. Enter all code between the FUNCTION and [[END FUNCTION]] lines.
 
 
 ==QBasic/QuickBASIC==
-* Once a FUNCTION was created and used, the QBasic IDE would [[DECLARE]] it when the file was saved. '''QB64 doesn't need these declarations.'''
+* Once a FUNCTION was created and used, the QBasic IDE would DECLARE it when the file was saved. '''QB64 doesn't need these declarations.'''
 * QBasic's IDE could place a [[DEFINT]], [[DEFSNG]], [[DEFLNG]], [[DEFDBL]] or [[DEFSTR]] statement before the FUNCTION line if it is used in the main module. It may even be the wrong variable type needed.
 * QBasic allowed programmers to add DATA fields anywhere because the IDE separated the main code from other procedures.
 
@@ -75,7 +75,6 @@ IntegerArray&amp; = ImageBufferSize&amp;(wide&amp;, deep&amp;, mode%) \ 2 ' retu
 
 {{PageSeeAlso}}
 * [[SUB]], [[SCREEN (statement)]] 
-* [[DEF FN]]
 * [[EXIT]] (statement), [[END]]
 * [[_EXIT (function)]]
 

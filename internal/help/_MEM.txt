@@ -12,23 +12,22 @@ The [[_MEM]] variable type can be used when working with memory blocks. It has n
 {{WhiteStart}}TYPE memory_type
   OFFSET AS _OFFSET       'start location of block(changes with byte position)
   SIZE AS _OFFSET         'size of block remaining at offset(changes with position)
-  TYPE AS LONG            'type description of variable used(never changes)
+  TYPE AS _OFFSET         'type description of variable used(never changes)
   ELEMENTSIZE AS _OFFSET  'byte size of values inside the block(never changes)
   IMAGE AS LONG           'the image handle used when _MEMIMAGE(handle) is used
+  SOUND AS LONG           'the sound handle used when _MEMSOUND(handle) is used
 END TYPE
 
 {{text|The above [[TYPE]] is for clarification purposes only. It '''doesn't need''' to be pasted in a program to use _MEM.|red}}
-
-{{text|''IMPORTANT NOTE: As of Build 20170802/57 onward, mem.TYPE has been changed to be an _OFFSET, just as mem.SIZE and mem.ELEMENTSIZE.''|red}}
 {{WhiteEnd}}
 
 ===Usage===
 * The _MEM type contains the following '''read-only''' elements where ''name'' is the _MEM variable name:
 :: ''name'''''.OFFSET''' is the current start position in the memory block AS [[_OFFSET]]. Add bytes to change position.
 :: ''name'''''.SIZE''' is the remaining size of the block at current position in bytes AS [[_OFFSET]]
-:: ''name'''''.TYPE''' is the type (represented as bits combined to form a value) AS [[LONG]]:
+:: ''name'''''.TYPE''' is the type (represented as bits combined to form a value) AS [[_OFFSET]]:
 
-==.TYPE values (version 1.000 and up)==
+==.TYPE values ==
 :::* 0 = UDT ([[TYPE|user defined type]]) or memory created by [[_MEMNEW]]
 :::* 1 = 1 bit   ELEMENT.SIZE=1   *Only used along with specific types (currently integers or floats)
 :::* 2 = 2 bit. ELEMENT.SIZE=2   *
@@ -46,14 +45,6 @@ END TYPE
 :::* 8192 = [[_MEM]] type only
 :::* 16384(+ 512 + bit*)= [[_OFFSET]] type only
 ''Note: If a future integer, float or other type doesn't have a size that is 1,2,4,8,16,32,64,128 or 256 it won't have a size-bit set.''
-
-===Versions prior to 1.000===
-:::* 1 = Integer types such as [[_BYTE]], [[INTEGER]], [[LONG]], [[_INTEGER64]] or [[_OFFSET]]
-:::* 2 = [[_UNSIGNED]] variable types. Value must be added to the variable type value.(2 cannot be used by itself)
-:::* 3 = ALL [[_UNSIGNED]] [[INTEGER]] type values.(add 1 + 2)
-:::* 4 = Floating point types such as [[SINGLE]], [[DOUBLE]] or [[_FLOAT]]
-:::* 8 = [[STRING]] 
-:::* 0 = unknown(eg. created with [[_MEMNEW]]) or [[TYPE|user-defined-types]]
 
 * '''Note: [[_OFFSET]] values cannot be cast to other variable [[type]]s reliably. _MEM is a reserved custom variable [[type]].'''
 * '''[[_MEM (function)|_MEM]] cannot reference variable length [[STRING]] variable values. String values must be designated as a fixed-[[LEN|length]] string.'''
@@ -105,7 +96,7 @@ x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 5) 'get at 
 HELLO
  5448320  6400  1
 {{OutputEnd}}
-: ''Explanation:'' When a numerical [[_BYTE]] value is converted to a [[STRING]], each byte is converted to an [[ASCII]] character. The QB64 [[IDE]] will capitalize _MEM dot values.
+: ''Explanation:'' When a numerical [[_BYTE]] value is converted to a [[STRING]], each byte is converted to an [[ASCII]] character. The QB64 IDE will capitalize _MEM dot values.
 {{WhiteStart}}                                        m.SIZE = 320 * 200 = 6400 bytes
                                         m.ELEMENTSIZE = 1 byte
 {{WhiteEnd}}
@@ -145,6 +136,7 @@ END FUNCTION
 * [[_MEM (function)]]
 * [[_MEMELEMENT]], [[_MEMCOPY]]
 * [[_MEMIMAGE]], [[_MEMNEW]]
+* [[_MEMSOUND]]
 * [[_MEMGET]], [[_MEMPUT]]
 * [[_MEMFILL]], [[_MEMFREE]]
 

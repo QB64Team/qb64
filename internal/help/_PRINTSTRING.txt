@@ -75,7 +75,7 @@ col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}("W") 'finds current page text or
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-: ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the [[IDE]] '''Search Menu'''.
+: ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the IDE '''Search Menu'''.
 &lt;center>[https://www.dropbox.com/s/tcdik1ajegbeiz4/HOWIE.zip?dl=0 Download of Example 2 Bitmap images]&lt;/center>
 
 

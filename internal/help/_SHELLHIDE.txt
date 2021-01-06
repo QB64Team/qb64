@@ -1,5 +1,5 @@
 {{DISPLAYTITLE:_SHELLHIDE}}
-The [[_SHELLHIDE]] function hides the console window and returns any [[INTEGER]] code sent by [[END]] or [[SYSTEM]] when a program exits.
+The [[_SHELLHIDE]] function hides the console window and returns any [[INTEGER]] code sent when a program exits.
 
 
 {{PageSyntax}}
@@ -7,12 +7,12 @@ The [[_SHELLHIDE]] function hides the console window and returns any [[INTEGER]]
 
 
 {{Parameters}}
-* The literal or variable [[STRING]] {{Parameter|externalCommand$}} parameter can be any external [[DOS|command line]] or call to another program.
+* The literal or variable [[STRING]] {{Parameter|externalCommand$}} parameter can be any external command or call to another program.
 
 
 {{PageDescription}}
-* QB64 can return codes sent by program modules when a specified code is added after [[END]] or [[SYSTEM]].
-* The code can be used to verify that a previous SHELL command was executed.
+* A QB64 program can return codes specified after [[END]] or [[SYSTEM]] calls.
+* The {{Parameter|returnCode%}} is usually 0 when the external program ends with no errors.
 
 
 {{PageExamples}}

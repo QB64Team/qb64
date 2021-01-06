@@ -131,6 +131,7 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selectx1, wholeword.idecx
     STATIC wholeword.selecty1, wholeword.idecy
     STATIC ForceResize, IDECompilationRequested AS _BYTE
+    STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -739,7 +740,7 @@ FUNCTION ide2 (ignore)
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
 
-        IF (_RESIZE OR ForceResize) AND TIMER - QB64_uptime! > 1.5 THEN
+        IF (_RESIZE OR ForceResize) AND timeElapsedSince(QB64_uptime!) > 1.5 THEN
             IF idesubwindow <> 0 THEN 'If there's a subwindow up, don't resize as it screws all sorts of things up.
                 ForceResize = -1
             ELSE
@@ -1274,7 +1275,7 @@ FUNCTION ide2 (ignore)
             _FINISHDROP
         END IF
 
-        'Hover/click (QuickNav)
+        'Hover/click (QuickNav, "Find" field)
         IF QuickNavTotal > 0 THEN
             DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
                 'make sure that the line number in history still exists
@@ -1326,6 +1327,30 @@ FUNCTION ide2 (ignore)
                 END IF
             END IF
         END IF
+
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
+            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
+                'Highlight "Find"
+                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
+                COLOR 1, 3
+                PRINT "Find";
+                PCOPY 3, 0
+                FindFieldHover = -1
+            ELSE
+                GOTO RestoreFindButton
+            END IF
+        ELSE
+            RestoreFindButton:
+            IF FindFieldHover = -1 THEN
+                'Restore "Find" bg
+                FindFieldHover = 0
+                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
+                COLOR 3, 1
+                PRINT "Find";
+                PCOPY 3, 0
+            END IF
+        END IF
+
 
         IF os$ = "WIN" OR MacOSX = 1 THEN
             IF _WINDOWHASFOCUS THEN
@@ -2713,7 +2738,7 @@ FUNCTION ide2 (ignore)
         IF mCLICK THEN
             IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                 IF old.mX = mX AND old.mY = mY THEN
-                    IF TIMER - last.TBclick# > .5 THEN GOTO regularTextBox_click
+                    IF timeElapsedSince(last.TBclick#) > .5 THEN GOTO regularTextBox_click
                     'Double-click on text box: attempt to select "word" clicked
                     idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
@@ -3093,7 +3118,17 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
-            GOTO idesubsjmp
+            IF KCONTROL THEN
+                IF QuickNavTotal > 0 THEN
+                    ideselect = 0
+                    idecy = QuickNavHistory(QuickNavTotal)
+                    QuickNavTotal = QuickNavTotal - 1
+                    _DELAY .2
+                    GOTO waitforinput
+                END IF
+            ELSE
+                GOTO idesubsjmp
+            END IF
         END IF
 
         IF KCONTROL AND UCASE$(K$) = "W" THEN 'goto line
@@ -5251,6 +5286,7 @@ FUNCTION ide2 (ignore)
 
                 oldcx = idecx: oldcy = idecy
                 found = 0: looped = 0
+                changed = 0
 
                 s$ = idefindtext$
                 IF idefindcasesens = 0 THEN s$ = UCASE$(s$)
@@ -5316,6 +5352,15 @@ FUNCTION ide2 (ignore)
                     END IF
                 END IF
 
+                DIM comment AS _BYTE, quote AS _BYTE
+                IF x THEN
+                    FindQuoteComment l$, x, comment, quote
+                    IF idefindnocomments <> 0 AND comment THEN x = 0
+                    IF idefindnostrings <> 0 AND quote THEN x = 0
+                    IF idefindonlycomments <> 0 AND comment = 0 THEN x = 0
+                    IF idefindonlystrings <> 0 AND quote = 0 THEN x = 0
+                END IF
+
                 IF x THEN
                     ideselect = 1
                     idecx = x: idecy = y
@@ -5339,6 +5384,7 @@ FUNCTION ide2 (ignore)
                             l$ = LEFT$(l$, idecx - 1) + idechangeto$
                         END IF
                         idesetline idecy, l$
+                        changed = changed + 1
                         IF idefindcasesens = 0 THEN l$ = UCASE$(l$)
 
                         IF idefindbackwards THEN
@@ -5375,11 +5421,16 @@ FUNCTION ide2 (ignore)
 
                 finishedchange:
                 idecx = oldcx: idecy = oldcy
-                IF found THEN
+                IF changed THEN
                     ideshowtext
                     SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
                     PCOPY 3, 0
-                    idechanged
+                    idechanged changed
+                ELSEIF found THEN
+                    ideshowtext
+                    SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
+                    PCOPY 3, 0
+                    idemessagebox "Search complete", "No changes made."
                 ELSE
                     idenomatch
                 END IF
@@ -5933,7 +5984,7 @@ FUNCTION idechange$
     ln = 0
 
     i = 0
-    idepar p, 60, 12, "Change"
+    idepar p, 60, 14, "Change"
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
@@ -5974,8 +6025,34 @@ FUNCTION idechange$
     o(i).sel = idefindbackwards
 
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).y = 11
+    o(i).nam = idenewtxt("#Ignore 'comments")
+    o(i).sel = idefindnocomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 11
+    o(i).nam = idenewtxt("#Look only in 'comments")
+    o(i).sel = idefindonlycomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 12
+    o(i).nam = idenewtxt("Ignore " + CHR$(34) + "#strings" + CHR$(34))
+    o(i).sel = idefindnostrings
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 12
+    o(i).nam = idenewtxt("Look only in " + CHR$(34) + "st#rings" + CHR$(34))
+    o(i).sel = idefindonlystrings
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 14
     o(i).txt = idenewtxt("Find and #Verify" + sep + "#Change All" + sep + "Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -6068,7 +6145,22 @@ FUNCTION idechange$
             END IF
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
+        'mutually exclusive options
+        IF focus = 6 AND o(6).sel = 1 THEN
+            o(7).sel = 0
+        ELSEIF focus = 7 AND o(7).sel = 1 THEN
+            o(6).sel = 0
+            o(8).sel = 0
+            o(9).sel = 0
+        ELSEIF focus = 8 AND o(8).sel = 1 THEN
+            o(9).sel = 0
+        ELSEIF focus = 9 AND o(9).sel = 1 THEN
+            o(6).sel = 0
+            o(7).sel = 0
+            o(8).sel = 0
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 12 AND info <> 0) THEN
             idechange$ = "C"
             EXIT FUNCTION
         END IF
@@ -6093,10 +6185,14 @@ FUNCTION idechange$
             END IF
         END IF
 
-        IF focus = 7 AND info <> 0 THEN 'change all
+        IF focus = 11 AND info <> 0 THEN 'change all
             idefindcasesens = o(3).sel
             idefindwholeword = o(4).sel
             idefindbackwards = o(5).sel
+            idefindnocomments = o(6).sel
+            idefindonlycomments = o(7).sel
+            idefindnostrings = o(8).sel
+            idefindonlystrings = o(9).sel
 
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
@@ -6141,28 +6237,42 @@ FUNCTION idechange$
                     END IF
                 END IF
 
+                DIM comment AS _BYTE, quote AS _BYTE
+                IF x THEN
+                    FindQuoteComment l$, x, comment, quote
+                    IF idefindnocomments <> 0 AND comment THEN x = 0
+                    IF idefindnostrings <> 0 AND quote THEN x = 0
+                    IF idefindonlycomments <> 0 AND comment = 0 THEN x = 0
+                    IF idefindonlystrings <> 0 AND quote = 0 THEN x = 0
+                END IF
+
                 IF x THEN
                     l2$ = l2$ + MID$(l$, x1, x - x1) + idechangeto$
+                    changed = changed + 1
                     x1 = x + LEN(s$)
                     IF x1 <= LEN(l$) THEN GOTO idechangeall
                 END IF
 
                 l2$ = l2$ + MID$(l$, x1, LEN(l$) - x1 + 1)
 
-                IF l2$ <> l$ THEN idesetline y, l2$: changed = 1
+                IF l2$ <> l$ THEN idesetline y, l2$
 
             NEXT
 
-            IF changed = 0 THEN idenomatch ELSE idechanged: idechangemade = 1
+            IF changed = 0 THEN idenomatch ELSE idechanged changed: idechangemade = 1
             EXIT FUNCTION
 
         END IF 'change all
 
 
-        IF (focus = 6 AND info <> 0) OR K$ = CHR$(13) THEN
+        IF (focus = 10 AND info <> 0) OR K$ = CHR$(13) THEN
             idefindcasesens = o(3).sel
             idefindwholeword = o(4).sel
             idefindbackwards = o(5).sel
+            idefindnocomments = o(6).sel
+            idefindonlycomments = o(7).sel
+            idefindnostrings = o(8).sel
+            idefindonlystrings = o(9).sel
             idefindtext$ = idetxt(o(1).txt)
             idechangeto$ = idetxt(o(2).txt)
             idechange$ = "V"
@@ -6178,121 +6288,33 @@ FUNCTION idechange$
         mouseup = 0
     LOOP
 
-
 END FUNCTION
 
-SUB idechanged
+SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
+    c = 0: q = 0
+    cursor = __cursor
+    IF cursor > LEN(text$) THEN cursor = LEN(text$)
+    FOR find_k = 1 TO cursor
+        SELECT CASE MID$(text$, find_k, 1)
+            CASE CHR$(34): q = NOT q
+            CASE "'": IF q = 0 THEN c = -1: EXIT FOR
+            CASE "R", "r"
+                IF q = 0 THEN
+                    IF UCASE$(MID$(text$, find_k - 1, 5)) = " REM " OR _
+                       UCASE$(MID$(text$, find_k - 1, 5)) = ":REM " OR _
+                       (find_k + 2 = LEN(text$) AND UCASE$(MID$(text$, find_k - 1, 4)) = " REM") OR _
+                       (find_k + 2 = LEN(text$) AND UCASE$(MID$(text$, find_k - 1, 4)) = ":REM") OR _
+                       (find_k = 1 AND UCASE$(LEFT$(text$, 4)) = "REM ") OR _
+                       (find_k = 1 AND UCASE$(text$) = "REM") THEN
+                        c = -1: EXIT FOR
+                    END IF
+                END IF
+        END SELECT
+    NEXT find_k
+END SUB
 
-    '-------- generic dialog box header --------
-    PCOPY 3, 0
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    i = 0
-    idepar p, 19, 4, ""
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "Change Complete";
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
-        IF UCASE$(K$) = "N" THEN altletter$ = "N"
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF K$ = CHR$(27) THEN
-            EXIT SUB
-        END IF
-
-        IF info THEN
-            EXIT SUB
-        END IF
-
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
+SUB idechanged (totalChanges AS LONG)
+    idemessagebox "Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions."
 END SUB
 
 FUNCTION idechangeit$
@@ -6934,7 +6956,7 @@ FUNCTION idefind$
     ln = 0
 
     i = 0
-    idepar p, 60, 9, "Find"
+    idepar p, 60, 11, "Find"
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
@@ -6968,8 +6990,34 @@ FUNCTION idefind$
     o(i).sel = idefindbackwards
 
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).y = 8
+    o(i).nam = idenewtxt("#Ignore 'comments")
+    o(i).sel = idefindnocomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 8
+    o(i).nam = idenewtxt("#Look only in 'comments")
+    o(i).sel = idefindonlycomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 9
+    o(i).nam = idenewtxt("Ignore " + CHR$(34) + "s#trings" + CHR$(34))
+    o(i).sel = idefindnostrings
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 9
+    o(i).nam = idenewtxt("Look only in " + CHR$(34) + "st#rings" + CHR$(34))
+    o(i).sel = idefindonlystrings
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 11
     o(i).txt = idenewtxt("OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -7057,15 +7105,34 @@ FUNCTION idefind$
             END IF
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 10 AND info <> 0) THEN
             idefind$ = "C"
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 5 AND info <> 0) THEN
+        'mutually exclusive options
+        IF focus = 5 AND o(5).sel = 1 THEN
+            o(6).sel = 0
+        ELSEIF focus = 6 AND o(6).sel = 1 THEN
+            o(5).sel = 0
+            o(7).sel = 0
+            o(8).sel = 0
+        ELSEIF focus = 7 AND o(7).sel = 1 THEN
+            o(8).sel = 0
+        ELSEIF focus = 8 AND o(8).sel = 1 THEN
+            o(5).sel = 0
+            o(6).sel = 0
+            o(7).sel = 0
+        END IF
+
+        IF K$ = CHR$(13) OR (focus = 9 AND info <> 0) THEN
             idefindcasesens = o(2).sel
             idefindwholeword = o(3).sel
             idefindbackwards = o(4).sel
+            idefindnocomments = o(5).sel
+            idefindonlycomments = o(6).sel
+            idefindnostrings = o(7).sel
+            idefindonlystrings = o(8).sel
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
             IdeAddSearched idefindtext
@@ -7102,6 +7169,7 @@ FUNCTION idefind$
 END FUNCTION
 
 SUB idefindagain
+    DIM comment AS _BYTE, quote AS _BYTE
 
     IF idefindinvert THEN
         IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
@@ -7183,6 +7251,14 @@ SUB idefindagain
     END IF
 
     IF x THEN
+        FindQuoteComment l$, x, comment, quote
+        IF idefindnocomments <> 0 AND comment THEN x = 0
+        IF idefindnostrings <> 0 AND quote THEN x = 0
+        IF idefindonlycomments <> 0 AND comment = 0 THEN x = 0
+        IF idefindonlystrings <> 0 AND quote = 0 THEN x = 0
+    END IF
+
+    IF x THEN
         ideselect = 1
         idecx = x: idecy = y
         ideselectx1 = x + LEN(s$): ideselecty1 = y
@@ -7219,7 +7295,6 @@ SUB idefindagain
         IF y > iden THEN y = 1: looped = 1
         GOTO idefindnext2
     END IF
-
 END SUB
 
 FUNCTION idegetline$ (i)
@@ -7689,117 +7764,7 @@ FUNCTION idenewtxt (a$)
 END FUNCTION
 
 SUB idenomatch
-
-    '-------- generic dialog box header --------
-    PCOPY 3, 0
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    i = 0
-    idepar p, 19, 4, ""
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "Match not found";
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
-        IF UCASE$(K$) = "N" THEN altletter$ = "N"
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF K$ = CHR$(27) THEN
-            EXIT SUB
-        END IF
-
-        IF info THEN
-            EXIT SUB
-        END IF
-
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
+    idemessagebox "Search complete", "Match not found."
 END SUB
 
 FUNCTION idefiledialog$(programname$, mode AS _BYTE)
@@ -8578,6 +8543,8 @@ SUB ideshowtext
     initialNum.char$ = "0123456789-.&"
     num.char$ = "0123456789EDed+-.`%&!#~HBOhboACFacf"
 
+    DIM ideshowtext_comment AS _BYTE, ideshowtext_quote AS _BYTE
+
     STATIC prevListOfCustomWords$, manualList AS _BYTE
     DIM startTime AS SINGLE
 
@@ -8697,12 +8664,12 @@ SUB ideshowtext
         idecy_multilinestart = 0
         idecy_multilineend = 0
         a$ = idegetline(idecy)
-        findquotecomment$ = a$: GOSUB FindQuoteComment
+        FindQuoteComment a$, LEN(a$), ideshowtext_comment, ideshowtext_quote
         IF RIGHT$(a$, 1) = "_" AND ideshowtext_comment = 0 THEN
             'Find the beginning of the multiline
             FOR idecy_i = idecy - 1 TO 1 STEP -1
                 b$ = idegetline(idecy_i)
-                findquotecomment$ = b$: GOSUB FindQuoteComment
+                FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
                 IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
             NEXT
             IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
@@ -8710,20 +8677,20 @@ SUB ideshowtext
             'Find the end of the multiline
             FOR idecy_i = idecy + 1 TO iden
                 b$ = idegetline(idecy_i)
-                findquotecomment$ = b$: GOSUB FindQuoteComment
+                FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
                 IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilineend = idecy_i: EXIT FOR
             NEXT
             IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
         ELSE
             IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
-            findquotecomment$ = b$: GOSUB FindQuoteComment
+            FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
             IF RIGHT$(b$, 1) = "_" AND ideshowtext_comment = 0 THEN
                 idecy_multilineend = idecy
 
                 'Find the beginning of the multiline
                 FOR idecy_i = idecy - 1 TO 1 STEP -1
                     b$ = idegetline(idecy_i)
-                    findquotecomment$ = b$: GOSUB FindQuoteComment
+                    FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
                     IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
                 NEXT
                 IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
@@ -8767,7 +8734,7 @@ SUB ideshowtext
 
                     'Check if the cursor is positioned inside a comment or
                     'quotation marks:
-                    findquotecomment$ = LEFT$(a$, idecx): GOSUB FindQuoteComment
+                    FindQuoteComment a$, idecx, ideshowtext_comment, ideshowtext_quote
                     idecx_comment = ideshowtext_comment
                     idecx_quote = ideshowtext_quote
 
@@ -9169,16 +9136,6 @@ SUB ideshowtext
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
 
     EXIT SUB
-    FindQuoteComment:
-    ideshowtext_comment = 0: ideshowtext_quote = 0
-    FOR ideshowtext_k = 1 TO LEN(findquotecomment$)
-        SELECT CASE MID$(findquotecomment$, ideshowtext_k, 1)
-            CASE CHR$(34): ideshowtext_quote = NOT ideshowtext_quote
-            CASE "'": IF ideshowtext_quote = 0 THEN ideshowtext_comment = -1: EXIT FOR
-        END SELECT
-    NEXT ideshowtext_k
-    RETURN
-
     ShowLineNumber:
     IF ShowLineNumbersUseBG THEN COLOR , 6
     PRINT SPACE$(maxLineNumberLength);
@@ -10165,7 +10122,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
 
             IF LEN(kk$) = 1 THEN
                 ResetKeybTimer = 0
-                IF TIMER - LastKeybInput > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+                IF timeElapsedSince(LastKeybInput) > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
                 LastKeybInput = TIMER
                 k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
 
@@ -13748,6 +13705,11 @@ FUNCTION idesearchedbox$
     idepar p, 20, h, ""
     p.x = idewx - 24
     p.y = idewy - 6 - h
+    IF p.y < 3 THEN
+        p.h = p.h - abs(3 - p.y)
+        h = p.h
+        p.y = 3
+    END IF
 
     i = i + 1
     o(i).typ = 2

@@ -7,7 +7,7 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 
 
 {{PageDescription}}
-* If the ''[[DOS]]Command$'' [[STRING]] parameter isn't used, the "command console" is opened.
+* If the ''DOSCommand$'' [[STRING]] parameter isn't used, the "command console" is opened and execution is halted until the user closes it manually.
 * If [[_DONTWAIT]] is used, the '''QB64''' program doesn't wait for the SHELLed program/command to end.
 * When the [[_HIDE]] action is used, the [[CONSOLE|console]] window is hidden and screen info can be "redirected" (using redirection characters like >) to a file (recommended).
 * Commands are external commands, according to the user's operating system, passed as [[STRING|strings]] enclosed in quotes or string variables.
@@ -23,7 +23,7 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 
 
 ==QBasic/QuickBASIC==
-* '''QBasic BAS files could be run like compiled programs without returning to the [[IDE]] when [[SYSTEM]] was used to [[END|end]] them.'''
+* '''QBasic BAS files could be run like compiled programs without returning to the IDE when [[SYSTEM]] was used to [[END|end]] them.'''
 * A user would invoke it with {{InlineCode}}SHELL "QB.EXE /L /RUN program.BAS"{{InlineCodeEnd}}
 
 
@@ -146,11 +146,6 @@ PathExist% = 0
 
 
 ===Extra reference===
-* [[DOS]], [[Batch Files]], [[VB Script]]
-* [[WGET]] {{text|(HTTP and FTP file transfer)}}
-* [http://www.computerhope.com/msdos.htm MSDOS commands], [[DOS#DIR|DIR]]
-* [http://www.pixelbeat.org/cmdline.html Linux Commands]
-* [http://ss64.com/osx/ Mac OSX commands]
 * [[Windows_Libraries#File_Dialog_Boxes|Windows Open and Save Dialog Boxes]]
 * [[C_Libraries#Console_Window|C Console Library]]
 * [[Windows Printer Settings]]

@@ -3,11 +3,13 @@ The [[_INFLATE$]] function decompresses a [[STRING|string]] compressed by the [[
 
 
 {{PageSyntax}}
-:{{Parameter|result$}} = [[_INFLATE$]]({{Parameter|stringToDecompress$}})
+:{{Parameter|result$}} = [[_INFLATE$]]({{Parameter|stringToDecompress$[, originalSize&amp;]}})
 
 
 {{PageDescription}}
 * {{Parameter|result$}} will contain the original version of {{Parameter|stringToDecompress$}}.
+* Optional parameter {{Parameter|originalSize&amp;}} can be used if the original size of the uncompressed data is known beforehand, which makes the decompression routine run more efficiently.
+** If unspecified, decompression still works as expected, but may use more steps and need to allocate more memory internally.
 
 
 ==Availability==

@@ -1,4 +1,4 @@
-The '''SHELL''' function displays the console and returns the [[INTEGER]] code value sent by [[END]] or [[SYSTEM]] when a program exits.
+The '''SHELL''' function displays the console and returns the [[INTEGER]] code value sent when the external program exits.
 
 
 {{PageSyntax}}
@@ -6,11 +6,12 @@ The '''SHELL''' function displays the console and returns the [[INTEGER]] code v
 
 
 {{Parameters}}
-* The literal or variable [[STRING]] ''command'' parameter can be any valid [[DOS]] command or call to another program.
+* The literal or variable [[STRING]] ''command'' parameter can be any valid external command or call to another program.
 
 
 ''Usage:''
 * A SHELL to a QB64 EXE program with an exit return code parameter after [[END]] or [[SYSTEM]] will return that code value.
+* The return_code is usually 0 when the external program ends with no errors.
 * The console window may appear when using the SHELL function. The [[_SHELLHIDE]] function will hide the console from view.
 
 

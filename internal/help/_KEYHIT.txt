@@ -13,6 +13,8 @@ The [[_KEYHIT]] function returns [[ASCII]] one and two byte, OpenGL Virtual Key 
 :* 65536-&amp;H40000000: [[_KEYDOWN|QB64-specific Virtual Key codes]] (designated with + for 100000 on keyboard below)
 :* '''Negative''' [[LONG]] values returned indicate that a key was released or a lock function key has been turned off.
 * '''Note: _KEYHIT can only return one value at a time so use the [[_KEYDOWN]] keyhit value to find key combinations.'''
+* To receive input from a [[$CONSOLE]] window, use [[_CINP]].
+
 {{WhiteStart}}'                                '''_KEYHIT Keyboard Codes'''
 '
 ''''Esc  F1    F2    F3    F4    F5    F6    F7    F8    F9    F10   F11   F12   Sys  ScL Pause'''                  
@@ -106,7 +108,7 @@ unifont = {{Cl|_LOADFONT}}("cyberbit.ttf", 24, "UNICODE")
 
 
 {{PageSeeAlso}}
-* [[_KEYDOWN]] {{text|(virtual key codes)}}
+* [[_KEYDOWN]], [[_CINP]]
 * [[_MAPUNICODE]], [[_MAPUNICODE (function)]] 
 * [[INKEY$]], [[ASCII]] {{text|(code table)}}, 
 * [[Unicode]], [[Code Pages]] {{text|(by region)}}

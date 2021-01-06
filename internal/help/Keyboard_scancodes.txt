@@ -33,7 +33,8 @@
 &lt;center>GO TO: [[Keyboard_scancodes#INP_Scan_Codes|Scan Codes]], 
 [[Keyboard_scancodes#ON_KEY_Events|ON KEY]],  [[Keyboard_scancodes#KEYHIT_and_KEYDOWN_Codes|_KEYHIT]], [[Keyboard_scancodes#DEVICES_Button|_DEVICES]], [[Keyboard_scancodes#Windows_Virtual_Codes|Windows Virtual]]&lt;/center>
 
-==INP Scan Codes==
+==INP and _CINP Scan Codes==
+* [[_CINP]] can be used in [[$CONSOLE]] Windows to read individual key presses.
 * [[INP]]([[&amp;H]]60) returns multiple [[INTEGER]] press and release codes as keys are used. Use: '''{{text|code% &lt;nowiki>=&lt;/nowiki> INP(96)|green}}'''
 * To clear the keyboard buffer, use the [[INKEY$]] function before or after the [[INP]] read to avoid buffer overflows and beeps.          
 * Keys are assigned only one code irregardless of case or Lock mode with release codes being the press  code + 128.
@@ -188,8 +189,6 @@
 ''Example 1:'' An [[INP]] Function that retrieves multiple scancodes (allows 2 players and diagonal moves). Function includes it's own array.
 
 {{CodeStart}} '' ''
-{{Cl|DECLARE}} {{Cl|FUNCTION}} ScanKey%(code%)                   '{{Cl|NOT}} required in QB64
-
 {{Cl|CLS}}
 x = 40: px = x
 y = 20: py = y
