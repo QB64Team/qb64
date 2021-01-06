@@ -1493,7 +1493,24 @@ FUNCTION ide2 (ignore)
             idemrun:
             iderunmode = 1 'run detached; = 0 'standard run
             idemrunspecial:
+
             IDECompilationRequested = -1
+
+            IF ExeToSourceFolderFirstTimeMsg = 0 THEN
+                IF SaveExeWithSource THEN
+                    idemessagebox "Run", "Your program will be compiled to the same folder where your" + CHR$(10) + _
+                                         "source code is saved. You can change that by unchecking the" + CHR$(10) + _
+                                         "option 'Output EXE to Source Folder' in the Run menu."
+                ELSE
+                    idemessagebox "Run", "Your program will be compiled to your QB64 folder. You can" + CHR$(10) + _
+                                         "change that by checking the option 'Output EXE to Source" + CHR$(10) + _
+                                         "Folder' in the Run menu."
+                END IF
+                WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
+                ExeToSourceFolderFirstTimeMsg = -1
+            END IF
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+
             'run program
             IF ready <> 0 AND idechangemade = 0 THEN
 
