@@ -1,398 +1,434 @@
-qbs *_FUNC_IDECOLORPICKER_STRING_IDECOLORPICKER=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_IDECOLORPICKER)_FUNC_IDECOLORPICKER_STRING_IDECOLORPICKER=qbs_new(0,0);
-int32 *_FUNC_IDECOLORPICKER_LONG_FOCUS=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FOCUS==NULL){
-_FUNC_IDECOLORPICKER_LONG_FOCUS=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FOCUS=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_IDECHOOSECOLORSBOX=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_IDECHOOSECOLORSBOX==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_IDECHOOSECOLORSBOX=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_IDECHOOSECOLORSBOX=0;
 }
-void *_FUNC_IDECOLORPICKER_UDT_P=NULL;
-if(_FUNC_IDECOLORPICKER_UDT_P==NULL){
-_FUNC_IDECOLORPICKER_UDT_P=(void*)mem_static_malloc(20);
-memset(_FUNC_IDECOLORPICKER_UDT_P,0,20);
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDECOMMENTCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDECOMMENTCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDECOMMENTCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDECOMMENTCOLOR=0;
 }
-ptrszint *_FUNC_IDECOLORPICKER_ARRAY_UDT_O=NULL;
-if (!_FUNC_IDECOLORPICKER_ARRAY_UDT_O){
-_FUNC_IDECOLORPICKER_ARRAY_UDT_O=(ptrszint*)mem_static_malloc(9*ptrsz);
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEMETACOMMANDCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEMETACOMMANDCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEMETACOMMANDCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEMETACOMMANDCOLOR=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEQUOTECOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEQUOTECOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEQUOTECOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEQUOTECOLOR=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDETEXTCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDETEXTCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDETEXTCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDETEXTCOLOR=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEKEYWORDCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEKEYWORDCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEKEYWORDCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEKEYWORDCOLOR=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR2=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR2==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR2=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBACKGROUNDCOLOR2=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDENUMBERSCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDENUMBERSCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDENUMBERSCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDENUMBERSCOLOR=0;
+}
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBRACKETHIGHLIGHTCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBRACKETHIGHLIGHTCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBRACKETHIGHLIGHTCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_BKPIDEBRACKETHIGHLIGHTCOLOR=0;
+}
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_TOTALITEMS=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_TOTALITEMS==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_TOTALITEMS=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_TOTALITEMS=0;
+}
+ptrszint *_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR){
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
 mem_lock_tmp->type=4;
-((ptrszint*)_FUNC_IDECOLORPICKER_ARRAY_UDT_O)[8]=(ptrszint)mem_lock_tmp;
-_FUNC_IDECOLORPICKER_ARRAY_UDT_O[2]=0;
-_FUNC_IDECOLORPICKER_ARRAY_UDT_O[4]=2147483647;
-_FUNC_IDECOLORPICKER_ARRAY_UDT_O[5]=0;
-_FUNC_IDECOLORPICKER_ARRAY_UDT_O[6]=0;
-_FUNC_IDECOLORPICKER_ARRAY_UDT_O[0]=(ptrszint)nothingvalue;
+((ptrszint*)_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR)[8]=(ptrszint)mem_lock_tmp;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR[2]=0;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR[4]=2147483647;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR[5]=0;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR[6]=0;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_STRING_SELECTIONINDICATOR[0]=(ptrszint)&nothingstring;
 }
-qbs *_FUNC_IDECOLORPICKER_STRING1_SEP=NULL;
-if(_FUNC_IDECOLORPICKER_STRING1_SEP==NULL){
-_FUNC_IDECOLORPICKER_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
-memset(_FUNC_IDECOLORPICKER_STRING1_SEP->chr,0,1);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUS=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUS==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUS=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUS=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_I=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_I==NULL){
-_FUNC_IDECOLORPICKER_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_I=0;
+void *_FUNC_IDECHOOSECOLORSBOX_UDT_P=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_UDT_P==NULL){
+_FUNC_IDECHOOSECOLORSBOX_UDT_P=(void*)mem_static_malloc(20);
+memset(_FUNC_IDECHOOSECOLORSBOX_UDT_P,0,20);
 }
-int32 pass5393;
-int32 pass5394;
-qbs *_FUNC_IDECOLORPICKER_STRING_A2=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_A2)_FUNC_IDECOLORPICKER_STRING_A2=qbs_new(0,0);
-byte_element_struct *byte_element_5395=NULL;
-if (!byte_element_5395){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5395=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5395=(byte_element_struct*)mem_static_malloc(12);
+ptrszint *_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O){
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O=(ptrszint*)mem_static_malloc(9*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O)[8]=(ptrszint)mem_lock_tmp;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O[2]=0;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O[4]=2147483647;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O[5]=0;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O[6]=0;
+_FUNC_IDECHOOSECOLORSBOX_ARRAY_UDT_O[0]=(ptrszint)nothingvalue;
 }
-byte_element_struct *byte_element_5396=NULL;
-if (!byte_element_5396){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5396=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5396=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING1_SEP=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_STRING1_SEP==NULL){
+_FUNC_IDECHOOSECOLORSBOX_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
+memset(_FUNC_IDECHOOSECOLORSBOX_STRING1_SEP->chr,0,1);
 }
-byte_element_struct *byte_element_5397=NULL;
-if (!byte_element_5397){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5397=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5397=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_I=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_I==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_I=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_PREV__ASCII_CHR_046__IDESELECT=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_PREV__ASCII_CHR_046__IDESELECT==NULL){
-_FUNC_IDECOLORPICKER_LONG_PREV__ASCII_CHR_046__IDESELECT=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_PREV__ASCII_CHR_046__IDESELECT=0;
+int32 pass5292;
+int32 pass5293;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_L=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_L)_FUNC_IDECHOOSECOLORSBOX_STRING_L=qbs_new(0,0);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_SELECTEDITEM=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_SELECTEDITEM==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_SELECTEDITEM=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_SELECTEDITEM=0;
 }
-qbs *_FUNC_IDECOLORPICKER_STRING_A=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_A)_FUNC_IDECOLORPICKER_STRING_A=qbs_new(0,0);
-int32 *_FUNC_IDECOLORPICKER_LONG_SX1=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_SX1==NULL){
-_FUNC_IDECOLORPICKER_LONG_SX1=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_SX1=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_PREVFOCUS=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_PREVFOCUS==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_PREVFOCUS=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_PREVFOCUS=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_SX2=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_SX2==NULL){
-_FUNC_IDECOLORPICKER_LONG_SX2=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_SX2=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_A2=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_A2)_FUNC_IDECHOOSECOLORSBOX_STRING_A2=qbs_new(0,0);
+int32 pass5294;
+byte_element_struct *byte_element_5295=NULL;
+if (!byte_element_5295){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5295=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5295=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_X=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_X==NULL){
-_FUNC_IDECOLORPICKER_LONG_X=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_X=0;
+int32 pass5296;
+byte_element_struct *byte_element_5297=NULL;
+if (!byte_element_5297){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5297=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5297=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value5399;
-int64 fornext_finalvalue5399;
-int64 fornext_step5399;
-uint8 fornext_step_negative5399;
-byte_element_struct *byte_element_5400=NULL;
-if (!byte_element_5400){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5400=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5400=(byte_element_struct*)mem_static_malloc(12);
+int32 pass5298;
+byte_element_struct *byte_element_5299=NULL;
+if (!byte_element_5299){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5299=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5299=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5401=NULL;
-if (!byte_element_5401){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5401=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5401=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_RESULT=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_RESULT==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_RESULT=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_RESULT=0;
 }
-qbs *_FUNC_IDECOLORPICKER_STRING_ALL_RGB=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_ALL_RGB)_FUNC_IDECOLORPICKER_STRING_ALL_RGB=qbs_new(0,0);
-qbs *_FUNC_IDECOLORPICKER_STRING_CURRENTLINE=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_CURRENTLINE)_FUNC_IDECOLORPICKER_STRING_CURRENTLINE=qbs_new(0,0);
-int32 *_FUNC_IDECOLORPICKER_LONG_FOUND_RGB=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FOUND_RGB==NULL){
-_FUNC_IDECOLORPICKER_LONG_FOUND_RGB=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FOUND_RGB=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_VALUE=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_VALUE)_FUNC_IDECHOOSECOLORSBOX_STRING_VALUE=qbs_new(0,0);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEID=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEID==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEID=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEID=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_FINDBRACKET1=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FINDBRACKET1==NULL){
-_FUNC_IDECOLORPICKER_LONG_FINDBRACKET1=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FINDBRACKET1=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_FOUNDPIPE=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_FOUNDPIPE==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_FOUNDPIPE=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_FOUNDPIPE=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_FINDBRACKET2=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FINDBRACKET2==NULL){
-_FUNC_IDECOLORPICKER_LONG_FINDBRACKET2=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FINDBRACKET2=0;
+byte_element_struct *byte_element_5300=NULL;
+if (!byte_element_5300){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5300=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5300=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5403=NULL;
-if (!byte_element_5403){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5403=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5403=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5302;
+int64 fornext_finalvalue5302;
+int64 fornext_step5302;
+uint8 fornext_step_negative5302;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_F=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_F==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_F=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_F=0;
 }
-byte_element_struct *byte_element_5404=NULL;
-if (!byte_element_5404){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5404=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5404=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_CX=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_CX==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_CX=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_CX=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_INSERTRGBAT=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_INSERTRGBAT==NULL){
-_FUNC_IDECOLORPICKER_LONG_INSERTRGBAT=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_INSERTRGBAT=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_CY=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_CY==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_CY=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_CY=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_CHECK_RGB=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_CHECK_RGB==NULL){
-_FUNC_IDECOLORPICKER_LONG_CHECK_RGB=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_CHECK_RGB=0;
+int64 fornext_value5305;
+int64 fornext_finalvalue5305;
+int64 fornext_step5305;
+uint8 fornext_step_negative5305;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_LASTFOCUS=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_LASTFOCUS==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_LASTFOCUS=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_LASTFOCUS=0;
 }
-byte_element_struct *byte_element_5406=NULL;
-if (!byte_element_5406){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5406=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5406=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_SLIDER=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_SLIDER)_FUNC_IDECHOOSECOLORSBOX_STRING_SLIDER=qbs_new(0,0);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_T=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_T==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_T=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_T=0;
 }
-int8 *_FUNC_IDECOLORPICKER_BYTE_NEWSYNTAX=NULL;
-if(_FUNC_IDECOLORPICKER_BYTE_NEWSYNTAX==NULL){
-_FUNC_IDECOLORPICKER_BYTE_NEWSYNTAX=(int8*)mem_static_malloc(1);
-*_FUNC_IDECOLORPICKER_BYTE_NEWSYNTAX=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_R=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_R==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_R=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_R=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_FINDCOMMA1=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FINDCOMMA1==NULL){
-_FUNC_IDECOLORPICKER_LONG_FINDCOMMA1=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FINDCOMMA1=0;
+int32 sc_5322_var;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_SAMPLETEXT=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_SAMPLETEXT)_FUNC_IDECHOOSECOLORSBOX_STRING_SAMPLETEXT=qbs_new(0,0);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGE=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGE==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGE=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGE=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_FINDCOMMA2=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FINDCOMMA2==NULL){
-_FUNC_IDECOLORPICKER_LONG_FINDCOMMA2=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FINDCOMMA2=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEDOWN=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEDOWN==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEDOWN=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEDOWN=0;
 }
-qbs *_FUNC_IDECOLORPICKER_STRING_R=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_R)_FUNC_IDECOLORPICKER_STRING_R=qbs_new(0,0);
-qbs *_FUNC_IDECOLORPICKER_STRING_G=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_G)_FUNC_IDECOLORPICKER_STRING_G=qbs_new(0,0);
-qbs *_FUNC_IDECOLORPICKER_STRING_B=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_B)_FUNC_IDECOLORPICKER_STRING_B=qbs_new(0,0);
-int64 fornext_value5408;
-int64 fornext_finalvalue5408;
-int64 fornext_step5408;
-uint8 fornext_step_negative5408;
-int64 fornext_value5410;
-int64 fornext_finalvalue5410;
-int64 fornext_step5410;
-uint8 fornext_step_negative5410;
-int64 fornext_value5412;
-int64 fornext_finalvalue5412;
-int64 fornext_step5412;
-uint8 fornext_step_negative5412;
-byte_element_struct *byte_element_5413=NULL;
-if (!byte_element_5413){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5413=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5413=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEUP=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEUP==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEUP=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_MOUSEUP=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_R=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_R==NULL){
-_FUNC_IDECOLORPICKER_LONG_R=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_R=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MX=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MX==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MX=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MX=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_G=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_G==NULL){
-_FUNC_IDECOLORPICKER_LONG_G=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_G=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MY=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MY==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MY=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_PREV__ASCII_CHR_046__MY=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_B=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_B==NULL){
-_FUNC_IDECOLORPICKER_LONG_B=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_B=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_ALT=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_ALT==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_ALT=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_ALT=0;
 }
-int64 fornext_value5415;
-int64 fornext_finalvalue5415;
-int64 fornext_step5415;
-uint8 fornext_step_negative5415;
-byte_element_struct *byte_element_5416=NULL;
-if (!byte_element_5416){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5416=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5416=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_OLDALT=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_OLDALT==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_OLDALT=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_OLDALT=0;
 }
-int64 fornext_value5418;
-int64 fornext_finalvalue5418;
-int64 fornext_step5418;
-uint8 fornext_step_negative5418;
-int64 fornext_value5420;
-int64 fornext_finalvalue5420;
-int64 fornext_step5420;
-uint8 fornext_step_negative5420;
-byte_element_struct *byte_element_5421=NULL;
-if (!byte_element_5421){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5421=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5421=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_ALTLETTER=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_ALTLETTER)_FUNC_IDECHOOSECOLORSBOX_STRING_ALTLETTER=qbs_new(0,0);
+byte_element_struct *byte_element_5333=NULL;
+if (!byte_element_5333){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5333=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5333=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value5423;
-int64 fornext_finalvalue5423;
-int64 fornext_step5423;
-uint8 fornext_step_negative5423;
-int64 fornext_value5425;
-int64 fornext_finalvalue5425;
-int64 fornext_step5425;
-uint8 fornext_step_negative5425;
-byte_element_struct *byte_element_5426=NULL;
-if (!byte_element_5426){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5426=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5426=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_K=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_K==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_K=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_K=0;
 }
-uint32 *_FUNC_IDECOLORPICKER_ULONG_CURRENTCOLOR=NULL;
-if(_FUNC_IDECOLORPICKER_ULONG_CURRENTCOLOR==NULL){
-_FUNC_IDECOLORPICKER_ULONG_CURRENTCOLOR=(uint32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_ULONG_CURRENTCOLOR=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_INFO=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_INFO==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_INFO=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_INFO=0;
 }
-int64 fornext_value5428;
-int64 fornext_finalvalue5428;
-int64 fornext_step5428;
-uint8 fornext_step_negative5428;
-int32 *_FUNC_IDECOLORPICKER_LONG_F=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_F==NULL){
-_FUNC_IDECOLORPICKER_LONG_F=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_F=0;
+int64 fornext_value5335;
+int64 fornext_finalvalue5335;
+int64 fornext_step5335;
+uint8 fornext_step_negative5335;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUSOFFSET=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUSOFFSET==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUSOFFSET=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_FOCUSOFFSET=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_CX=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_CX==NULL){
-_FUNC_IDECOLORPICKER_LONG_CX=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_CX=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_TFOCUS=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_TFOCUS==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_TFOCUS=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_TFOCUS=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_CY=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_CY==NULL){
-_FUNC_IDECOLORPICKER_LONG_CY=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_CY=0;
+byte_element_struct *byte_element_5336=NULL;
+if (!byte_element_5336){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5336=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5336=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value5431;
-int64 fornext_finalvalue5431;
-int64 fornext_step5431;
-uint8 fornext_step_negative5431;
-int32 *_FUNC_IDECOLORPICKER_LONG_LASTFOCUS=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_LASTFOCUS==NULL){
-_FUNC_IDECOLORPICKER_LONG_LASTFOCUS=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_LASTFOCUS=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_PREVTB__ASCII_CHR_046__VALUE=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_PREVTB__ASCII_CHR_046__VALUE)_FUNC_IDECHOOSECOLORSBOX_STRING_PREVTB__ASCII_CHR_046__VALUE=qbs_new(0,0);
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_SCHEMESTRING=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_SCHEMESTRING)_FUNC_IDECHOOSECOLORSBOX_STRING_SCHEMESTRING=qbs_new(0,0);
+byte_element_struct *byte_element_5337=NULL;
+if (!byte_element_5337){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5337=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5337=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_IDECOLORPICKER_STRING_SLIDER=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_SLIDER)_FUNC_IDECOLORPICKER_STRING_SLIDER=qbs_new(0,0);
-int32 *_FUNC_IDECOLORPICKER_LONG_T=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_T==NULL){
-_FUNC_IDECOLORPICKER_LONG_T=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_T=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_J=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_J==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_J=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_J=0;
 }
-int64 fornext_value5443;
-int64 fornext_finalvalue5443;
-int64 fornext_step5443;
-uint8 fornext_step_negative5443;
-int32 *_FUNC_IDECOLORPICKER_LONG_CHANGE=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_CHANGE==NULL){
-_FUNC_IDECOLORPICKER_LONG_CHANGE=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_CHANGE=0;
+int64 fornext_value5340;
+int64 fornext_finalvalue5340;
+int64 fornext_step5340;
+uint8 fornext_step_negative5340;
+uint32 *_FUNC_IDECHOOSECOLORSBOX_ULONG_CURRENTCOLOR=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_ULONG_CURRENTCOLOR==NULL){
+_FUNC_IDECHOOSECOLORSBOX_ULONG_CURRENTCOLOR=(uint32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_ULONG_CURRENTCOLOR=0;
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_MOUSEDOWN=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_MOUSEDOWN==NULL){
-_FUNC_IDECOLORPICKER_LONG_MOUSEDOWN=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_MOUSEDOWN=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_R=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_R)_FUNC_IDECHOOSECOLORSBOX_STRING_R=qbs_new(0,0);
+int32 pass5342;
+byte_element_struct *byte_element_5343=NULL;
+if (!byte_element_5343){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5343=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5343=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_MOUSEUP=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_MOUSEUP==NULL){
-_FUNC_IDECOLORPICKER_LONG_MOUSEUP=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_MOUSEUP=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_G=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_G)_FUNC_IDECHOOSECOLORSBOX_STRING_G=qbs_new(0,0);
+int32 pass5344;
+byte_element_struct *byte_element_5345=NULL;
+if (!byte_element_5345){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5345=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5345=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_ALT=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_ALT==NULL){
-_FUNC_IDECOLORPICKER_LONG_ALT=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_ALT=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_B=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_B)_FUNC_IDECHOOSECOLORSBOX_STRING_B=qbs_new(0,0);
+int32 pass5346;
+byte_element_struct *byte_element_5347=NULL;
+if (!byte_element_5347){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5347=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5347=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_OLDALT=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_OLDALT==NULL){
-_FUNC_IDECOLORPICKER_LONG_OLDALT=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_OLDALT=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDSCHEME=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDSCHEME==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDSCHEME=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDSCHEME=0;
 }
-qbs *_FUNC_IDECOLORPICKER_STRING_ALTLETTER=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_ALTLETTER)_FUNC_IDECOLORPICKER_STRING_ALTLETTER=qbs_new(0,0);
-byte_element_struct *byte_element_5446=NULL;
-if (!byte_element_5446){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5446=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5446=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5349;
+int64 fornext_finalvalue5349;
+int64 fornext_step5349;
+uint8 fornext_step_negative5349;
+int32 pass5351;
+byte_element_struct *byte_element_5352=NULL;
+if (!byte_element_5352){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5352=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5352=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_K=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_K==NULL){
-_FUNC_IDECOLORPICKER_LONG_K=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_K=0;
+int32 pass5353;
+byte_element_struct *byte_element_5354=NULL;
+if (!byte_element_5354){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5354=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5354=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_INFO=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_INFO==NULL){
-_FUNC_IDECOLORPICKER_LONG_INFO=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_INFO=0;
+int32 pass5355;
+byte_element_struct *byte_element_5356=NULL;
+if (!byte_element_5356){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5356=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5356=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value5448;
-int64 fornext_finalvalue5448;
-int64 fornext_step5448;
-uint8 fornext_step_negative5448;
-int32 *_FUNC_IDECOLORPICKER_LONG_FOCUSOFFSET=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_FOCUSOFFSET==NULL){
-_FUNC_IDECOLORPICKER_LONG_FOCUSOFFSET=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_FOCUSOFFSET=0;
+byte_element_struct *byte_element_5357=NULL;
+if (!byte_element_5357){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5357=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5357=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_PREVFOCUS=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_PREVFOCUS==NULL){
-_FUNC_IDECOLORPICKER_LONG_PREVFOCUS=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_PREVFOCUS=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_WHAT=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_WHAT)_FUNC_IDECHOOSECOLORSBOX_STRING_WHAT=qbs_new(0,0);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_SCHEMEARROW=0;
 }
-byte_element_struct *byte_element_5449=NULL;
-if (!byte_element_5449){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5449=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5449=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5358=NULL;
+if (!byte_element_5358){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5358=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5358=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_NEWVALUE=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_NEWVALUE==NULL){
-_FUNC_IDECOLORPICKER_LONG_NEWVALUE=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_NEWVALUE=0;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_COLORDATA=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_COLORDATA)_FUNC_IDECHOOSECOLORSBOX_STRING_COLORDATA=qbs_new(0,0);
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_NEWVALUE=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_NEWVALUE==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_NEWVALUE=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_NEWVALUE=0;
 }
-byte_element_struct *byte_element_5450=NULL;
-if (!byte_element_5450){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5450=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5450=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5359=NULL;
+if (!byte_element_5359){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5359=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5359=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5451=NULL;
-if (!byte_element_5451){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5451=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5451=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5360=NULL;
+if (!byte_element_5360){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5360=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5360=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5452=NULL;
-if (!byte_element_5452){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5452=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5452=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5361=NULL;
+if (!byte_element_5361){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5361=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5361=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_CHANGEDWITHKEYS=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_CHANGEDWITHKEYS==NULL){
-_FUNC_IDECOLORPICKER_LONG_CHANGEDWITHKEYS=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_CHANGEDWITHKEYS=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDWITHKEYS=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDWITHKEYS==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDWITHKEYS=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_CHANGEDWITHKEYS=0;
 }
-int32 pass5453;
-byte_element_struct *byte_element_5454=NULL;
-if (!byte_element_5454){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5454=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5454=(byte_element_struct*)mem_static_malloc(12);
+int32 pass5362;
+byte_element_struct *byte_element_5363=NULL;
+if (!byte_element_5363){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5363=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5363=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 pass5455;
-byte_element_struct *byte_element_5456=NULL;
-if (!byte_element_5456){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5456=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5456=(byte_element_struct*)mem_static_malloc(12);
+int32 pass5364;
+byte_element_struct *byte_element_5365=NULL;
+if (!byte_element_5365){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5365=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5365=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_CHECKRGB=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_CHECKRGB==NULL){
-_FUNC_IDECOLORPICKER_LONG_CHECKRGB=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_CHECKRGB=0;
+int64 fornext_value5367;
+int64 fornext_finalvalue5367;
+int64 fornext_step5367;
+uint8 fornext_step_negative5367;
+int32 pass5369;
+int32 pass5370;
+int32 pass5371;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_CHECKRGB=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_CHECKRGB==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_CHECKRGB=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_CHECKRGB=0;
 }
-int64 fornext_value5458;
-int64 fornext_finalvalue5458;
-int64 fornext_step5458;
-uint8 fornext_step_negative5458;
-byte_element_struct *byte_element_5459=NULL;
-if (!byte_element_5459){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5459=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5459=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5373;
+int64 fornext_finalvalue5373;
+int64 fornext_step5373;
+uint8 fornext_step_negative5373;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_A=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_A)_FUNC_IDECHOOSECOLORSBOX_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_5374=NULL;
+if (!byte_element_5374){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5374=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5374=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value5461;
-int64 fornext_finalvalue5461;
-int64 fornext_step5461;
-uint8 fornext_step_negative5461;
-byte_element_struct *byte_element_5462=NULL;
-if (!byte_element_5462){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5462=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5462=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5376;
+int64 fornext_finalvalue5376;
+int64 fornext_step5376;
+uint8 fornext_step_negative5376;
+byte_element_struct *byte_element_5377=NULL;
+if (!byte_element_5377){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5377=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5377=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDECOLORPICKER_LONG_A=NULL;
-if(_FUNC_IDECOLORPICKER_LONG_A==NULL){
-_FUNC_IDECOLORPICKER_LONG_A=(int32*)mem_static_malloc(4);
-*_FUNC_IDECOLORPICKER_LONG_A=0;
+int32 *_FUNC_IDECHOOSECOLORSBOX_LONG_A=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_LONG_A==NULL){
+_FUNC_IDECHOOSECOLORSBOX_LONG_A=(int32*)mem_static_malloc(4);
+*_FUNC_IDECHOOSECOLORSBOX_LONG_A=0;
 }
-byte_element_struct *byte_element_5463=NULL;
-if (!byte_element_5463){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5463=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5463=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5378=NULL;
+if (!byte_element_5378){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5378=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5378=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_IDECOLORPICKER_STRING_CURRENTRGB=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_CURRENTRGB)_FUNC_IDECOLORPICKER_STRING_CURRENTRGB=qbs_new(0,0);
-qbs *_FUNC_IDECOLORPICKER_STRING_OLDRGB=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_OLDRGB)_FUNC_IDECOLORPICKER_STRING_OLDRGB=qbs_new(0,0);
-int64 fornext_value5465;
-int64 fornext_finalvalue5465;
-int64 fornext_step5465;
-uint8 fornext_step_negative5465;
-qbs *_FUNC_IDECOLORPICKER_STRING_NEWLINE=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_NEWLINE)_FUNC_IDECOLORPICKER_STRING_NEWLINE=qbs_new(0,0);
-byte_element_struct *byte_element_5466=NULL;
-if (!byte_element_5466){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5466=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5466=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_IDECOLORPICKER_STRING_DETAIL=NULL;
-if (!_FUNC_IDECOLORPICKER_STRING_DETAIL)_FUNC_IDECOLORPICKER_STRING_DETAIL=qbs_new(0,0);
-byte_element_struct *byte_element_5467=NULL;
-if (!byte_element_5467){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5467=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5467=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5468=NULL;
-if (!byte_element_5468){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5468=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5468=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5381;
+int64 fornext_finalvalue5381;
+int64 fornext_step5381;
+uint8 fornext_step_negative5381;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_COLORID=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_COLORID)_FUNC_IDECHOOSECOLORSBOX_STRING_COLORID=qbs_new(0,0);
+int32 pass5383;
+int32 pass5384;
+int32 pass5385;
+qbs *_FUNC_IDECHOOSECOLORSBOX_STRING_RGBSTRING=NULL;
+if (!_FUNC_IDECHOOSECOLORSBOX_STRING_RGBSTRING)_FUNC_IDECHOOSECOLORSBOX_STRING_RGBSTRING=qbs_new(0,0);
+int16 *_FUNC_IDECHOOSECOLORSBOX_INTEGER_V=NULL;
+if(_FUNC_IDECHOOSECOLORSBOX_INTEGER_V==NULL){
+_FUNC_IDECHOOSECOLORSBOX_INTEGER_V=(int16*)mem_static_malloc(2);
+*_FUNC_IDECHOOSECOLORSBOX_INTEGER_V=0;
 }
