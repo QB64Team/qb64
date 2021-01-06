@@ -5351,6 +5351,13 @@ FUNCTION ide2 (ignore)
                     END IF
                 END IF
 
+                DIM comment AS _BYTE, quote AS _BYTE
+                IF x THEN
+                    findquotecomment$ = LEFT$(l$, x): GOSUB FindQuoteComment
+                    IF idefindnocomments <> 0 AND comment THEN x = 0
+                    IF idefindnostrings <> 0 AND quote THEN x = 0
+                END IF
+
                 IF x THEN
                     ideselect = 1
                     idecx = x: idecy = y
@@ -5879,6 +5886,17 @@ FUNCTION ide2 (ignore)
         END IF
     END IF
     RETURN
+
+    FindQuoteComment:
+    comment = 0: quote = 0
+    FOR find_k = 1 TO LEN(findquotecomment$)
+        SELECT CASE MID$(findquotecomment$, find_k, 1)
+            CASE CHR$(34): quote = NOT quote
+            CASE "'": IF quote = 0 THEN comment = -1: EXIT FOR
+        END SELECT
+    NEXT find_k
+    RETURN
+
 END FUNCTION
 
 SUB idebox (x, y, w, h)
@@ -5968,7 +5986,7 @@ FUNCTION idechange$
     ln = 0
 
     i = 0
-    idepar p, 60, 12, "Change"
+    idepar p, 60, 14, "Change"
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
@@ -6009,8 +6027,20 @@ FUNCTION idechange$
     o(i).sel = idefindbackwards
 
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).y = 11
+    o(i).nam = idenewtxt("#Ignore 'comments")
+    o(i).sel = idefindnocomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 12
+    o(i).nam = idenewtxt("#Ignore " + CHR$(34) + "strings" + CHR$(34))
+    o(i).sel = idefindnostrings
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 14
     o(i).txt = idenewtxt("Find and #Verify" + sep + "#Change All" + sep + "Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -6103,7 +6133,7 @@ FUNCTION idechange$
             END IF
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 10 AND info <> 0) THEN
             idechange$ = "C"
             EXIT FUNCTION
         END IF
@@ -6128,10 +6158,12 @@ FUNCTION idechange$
             END IF
         END IF
 
-        IF focus = 7 AND info <> 0 THEN 'change all
+        IF focus = 9 AND info <> 0 THEN 'change all
             idefindcasesens = o(3).sel
             idefindwholeword = o(4).sel
             idefindbackwards = o(5).sel
+            idefindnocomments = o(6).sel
+            idefindnostrings = o(7).sel
 
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
@@ -6176,6 +6208,13 @@ FUNCTION idechange$
                     END IF
                 END IF
 
+                DIM comment AS _BYTE, quote AS _BYTE
+                IF x THEN
+                    findquotecomment$ = LEFT$(l$, x): GOSUB FindQuoteComment
+                    IF idefindnocomments <> 0 AND comment THEN x = 0
+                    IF idefindnostrings <> 0 AND quote THEN x = 0
+                END IF
+
                 IF x THEN
                     l2$ = l2$ + MID$(l$, x1, x - x1) + idechangeto$
                     x1 = x + LEN(s$)
@@ -6194,10 +6233,12 @@ FUNCTION idechange$
         END IF 'change all
 
 
-        IF (focus = 6 AND info <> 0) OR K$ = CHR$(13) THEN
+        IF (focus = 8 AND info <> 0) OR K$ = CHR$(13) THEN
             idefindcasesens = o(3).sel
             idefindwholeword = o(4).sel
             idefindbackwards = o(5).sel
+            idefindnocomments = o(6).sel
+            idefindnostrings = o(7).sel
             idefindtext$ = idetxt(o(1).txt)
             idechangeto$ = idetxt(o(2).txt)
             idechange$ = "V"
@@ -6213,6 +6254,16 @@ FUNCTION idechange$
         mouseup = 0
     LOOP
 
+    EXIT FUNCTION
+    FindQuoteComment:
+    comment = 0: quote = 0
+    FOR find_k = 1 TO LEN(findquotecomment$)
+        SELECT CASE MID$(findquotecomment$, find_k, 1)
+            CASE CHR$(34): quote = NOT quote
+            CASE "'": IF quote = 0 THEN comment = -1: EXIT FOR
+        END SELECT
+    NEXT find_k
+    RETURN
 
 END FUNCTION
 
@@ -6969,7 +7020,7 @@ FUNCTION idefind$
     ln = 0
 
     i = 0
-    idepar p, 60, 9, "Find"
+    idepar p, 60, 11, "Find"
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
@@ -7003,8 +7054,20 @@ FUNCTION idefind$
     o(i).sel = idefindbackwards
 
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).y = 8
+    o(i).nam = idenewtxt("#Ignore 'comments")
+    o(i).sel = idefindnocomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 9
+    o(i).nam = idenewtxt("#Ignore " + CHR$(34) + "strings" + CHR$(34))
+    o(i).sel = idefindnostrings
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 11
     o(i).txt = idenewtxt("OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -7092,15 +7155,17 @@ FUNCTION idefind$
             END IF
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
             idefind$ = "C"
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 5 AND info <> 0) THEN
+        IF K$ = CHR$(13) OR (focus = 7 AND info <> 0) THEN
             idefindcasesens = o(2).sel
             idefindwholeword = o(3).sel
             idefindbackwards = o(4).sel
+            idefindnocomments = o(5).sel
+            idefindnostrings = o(6).sel
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
             IdeAddSearched idefindtext
@@ -7137,6 +7202,7 @@ FUNCTION idefind$
 END FUNCTION
 
 SUB idefindagain
+    DIM comment AS _BYTE, quote AS _BYTE
 
     IF idefindinvert THEN
         IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
@@ -7218,6 +7284,12 @@ SUB idefindagain
     END IF
 
     IF x THEN
+        findquotecomment$ = LEFT$(l$, x): GOSUB FindQuoteComment
+        IF idefindnocomments <> 0 AND comment THEN x = 0
+        IF idefindnostrings <> 0 AND quote THEN x = 0
+    END IF
+
+    IF x THEN
         ideselect = 1
         idecx = x: idecy = y
         ideselectx1 = x + LEN(s$): ideselecty1 = y
@@ -7254,6 +7326,17 @@ SUB idefindagain
         IF y > iden THEN y = 1: looped = 1
         GOTO idefindnext2
     END IF
+
+    EXIT SUB
+    FindQuoteComment:
+    comment = 0: quote = 0
+    FOR find_k = 1 TO LEN(findquotecomment$)
+        SELECT CASE MID$(findquotecomment$, find_k, 1)
+            CASE CHR$(34): quote = NOT quote
+            CASE "'": IF quote = 0 THEN comment = -1: EXIT FOR
+        END SELECT
+    NEXT find_k
+    RETURN
 
 END SUB
 

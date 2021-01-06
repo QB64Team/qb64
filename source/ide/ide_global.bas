@@ -148,6 +148,7 @@ DIM SHARED idefindtext AS STRING
 DIM SHARED idefindcasesens AS INTEGER
 DIM SHARED idefindwholeword AS INTEGER
 DIM SHARED idefindbackwards AS INTEGER
+DIM SHARED idefindnocomments AS INTEGER, idefindnostrings AS INTEGER
 DIM SHARED idefindinvert AS INTEGER
 DIM SHARED idechangeto AS STRING
 DIM SHARED idechangemade AS INTEGER
