@@ -12805,21 +12805,12 @@ FUNCTION idechoosecolorsbox
         IF (focus = 9 AND info <> 0) THEN
             LoadDefaultScheme:
             GOSUB enableHighlighter
-            IDECommentColor = _RGB32(85, 255, 255)
-            IDEMetaCommandColor = _RGB32(85, 255, 85)
-            IDEQuoteColor = _RGB32(255, 255, 85)
-            IDETextColor = _RGB32(226, 226, 226)
-            IDEKeywordColor = _RGB32(147, 196, 235)
-            IDENumbersColor = _RGB32(245, 128, 177)
-            IDEBackgroundColor = _RGB32(0, 0, 170)
-            IDEBackgroundColor2 = _RGB32(0, 108, 177)
-            IDEBracketHighlightColor = _RGB32(0, 147, 177)
             SchemeID = 1
             FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
             idetxt(o(9).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
-            IF ChangedScheme THEN _DELAY .2
             info = 0
-            GOTO ChangeTextBoxes
+            IF ChangedScheme THEN _DELAY .2
+            GOTO ApplyScheme
         END IF
 
     IF (focus = 8 AND info <> 0) OR _
