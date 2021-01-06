@@ -5286,6 +5286,7 @@ FUNCTION ide2 (ignore)
 
                 oldcx = idecx: oldcy = idecy
                 found = 0: looped = 0
+                changed = 0
 
                 s$ = idefindtext$
                 IF idefindcasesens = 0 THEN s$ = UCASE$(s$)
@@ -5383,6 +5384,7 @@ FUNCTION ide2 (ignore)
                             l$ = LEFT$(l$, idecx - 1) + idechangeto$
                         END IF
                         idesetline idecy, l$
+                        changed = changed + 1
                         IF idefindcasesens = 0 THEN l$ = UCASE$(l$)
 
                         IF idefindbackwards THEN
@@ -5419,11 +5421,16 @@ FUNCTION ide2 (ignore)
 
                 finishedchange:
                 idecx = oldcx: idecy = oldcy
-                IF found THEN
+                IF changed THEN
                     ideshowtext
                     SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
                     PCOPY 3, 0
-                    idechanged
+                    idechanged changed
+                ELSEIF found THEN
+                    ideshowtext
+                    SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
+                    PCOPY 3, 0
+                    idemessagebox "Search complete", "No changes made."
                 ELSE
                     idenomatch
                 END IF
@@ -6241,17 +6248,18 @@ FUNCTION idechange$
 
                 IF x THEN
                     l2$ = l2$ + MID$(l$, x1, x - x1) + idechangeto$
+                    changed = changed + 1
                     x1 = x + LEN(s$)
                     IF x1 <= LEN(l$) THEN GOTO idechangeall
                 END IF
 
                 l2$ = l2$ + MID$(l$, x1, LEN(l$) - x1 + 1)
 
-                IF l2$ <> l$ THEN idesetline y, l2$: changed = 1
+                IF l2$ <> l$ THEN idesetline y, l2$
 
             NEXT
 
-            IF changed = 0 THEN idenomatch ELSE idechanged: idechangemade = 1
+            IF changed = 0 THEN idenomatch ELSE idechanged changed: idechangemade = 1
             EXIT FUNCTION
 
         END IF 'change all
@@ -6305,118 +6313,8 @@ SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
     NEXT find_k
 END SUB
 
-SUB idechanged
-
-    '-------- generic dialog box header --------
-    PCOPY 3, 0
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    i = 0
-    idepar p, 19, 4, ""
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "Change Complete";
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
-        IF UCASE$(K$) = "N" THEN altletter$ = "N"
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF K$ = CHR$(27) THEN
-            EXIT SUB
-        END IF
-
-        IF info THEN
-            EXIT SUB
-        END IF
-
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
+SUB idechanged (totalChanges AS LONG)
+    idemessagebox "Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions."
 END SUB
 
 FUNCTION idechangeit$
@@ -7866,117 +7764,7 @@ FUNCTION idenewtxt (a$)
 END FUNCTION
 
 SUB idenomatch
-
-    '-------- generic dialog box header --------
-    PCOPY 3, 0
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    i = 0
-    idepar p, 19, 4, ""
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "Match not found";
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
-        IF UCASE$(K$) = "N" THEN altletter$ = "N"
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF K$ = CHR$(27) THEN
-            EXIT SUB
-        END IF
-
-        IF info THEN
-            EXIT SUB
-        END IF
-
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
+    idemessagebox "Search complete", "Match not found."
 END SUB
 
 FUNCTION idefiledialog$(programname$, mode AS _BYTE)
