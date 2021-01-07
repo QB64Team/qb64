@@ -238,8 +238,8 @@ IF LoadedIDESettings = 0 THEN
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
         END IF
     ELSE
-        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
-        IDESubsLength = 0
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "TRUE"
+        IDESubsLength = -1
     END IF
 
     result = ReadConfigSetting("ShowErrorsImmediately", value$)
