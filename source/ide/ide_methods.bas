@@ -9217,20 +9217,33 @@ FUNCTION idesubs$
     FoundExternalSUBFUNC = 0
     l$ = ideprogname$
     IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+
+    IF LEN(l$) <= 22 THEN
+        l$ = l$ + SPACE$(22 - LEN(l$))
+    ELSE
+        l$ = LEFT$(l$, 19) + STRING$(3, 250)
+    END IF
+
+    lSized$ = l$
     lSorted$ = l$
+    lSortedSized$ = l$
+
+    REDIM TotalLines(0) AS LONG
 
     TotalSUBs = 0
+    ModuleSize = 0 'in lines
     SortedSubsFlag = idesortsubs
 
     FOR y = 1 TO iden
         a$ = idegetline(y)
+        ModuleSize = ModuleSize + 1
         a$ = LTRIM$(RTRIM$(a$))
         sf = 0
         nca$ = UCASE$(a$)
         IF LEFT$(nca$, 8) = "DECLARE " AND INSTR(nca$, " LIBRARY") > 0 THEN InsideDECLARE = -1
         IF LEFT$(nca$, 11) = "END DECLARE" THEN InsideDECLARE = 0
-        IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB  "
-        IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC "
+        IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB   "
+        IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC  "
         IF sf THEN
             IF RIGHT$(nca$, 7) = " STATIC" THEN
                 a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
@@ -9278,7 +9291,26 @@ FUNCTION idesubs$
             END IF
             IF a2$ = UCASE$(n2$) THEN PreferCurrentCursorSUBFUNC = (LEN(ly$) / 4)
 
-            IF InsideDECLARE = -1 THEN n$ = "*" + n$: FoundExternalSUBFUNC = -1
+            IF InsideDECLARE = -1 THEN
+                n$ = "*" + n$
+                FoundExternalSUBFUNC = -1
+            ELSE
+                TotalLines(TotalSUBs) = ModuleSize
+                ModuleSize = 0
+            END IF
+
+            IF TotalSUBs = 0 THEN
+                l$ = l$ + "  Type  Arguments"
+                lSorted$ = l$
+                lSized$ = lSized$ + " Line count  Type  Arguments" + sep
+                lSortedSized$ = lSortedSized$ + " Line count  Type  Arguments"
+            ELSE
+                num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
+                IF pInsideDECLARE THEN num$ = "external"
+                lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
+                          SPACE$(9 - LEN(num$)) + num$ + "  " _
+                          + psf$ + pargs$ + sep
+            END IF
 
             IF LEN(n$) <= 20 THEN
                 n$ = n$ + SPACE$(20 - LEN(n$))
@@ -9290,42 +9322,61 @@ FUNCTION idesubs$
             ELSE
                 args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
             END IF
-            l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + " " + sf$ + args$
+            l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + sf$ + args$
+            psf$ = sf$
+            pn$ = n$
+            pargs$ = args$
+            pInsideDECLARE = InsideDECLARE
 
             'Populate SortedSubsList()
             TotalSUBs = TotalSUBs + 1
             ListItemLength = LEN(n$ + " " + sf$ + args$)
             REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
             REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
-            CaseBkpSubsList(TotalSUBs) = n$ + " " + sf$ + args$
+            REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
+            CaseBkpSubsList(TotalSUBs) = n$ + "  " + CHR$(1) + sf$ + args$
             SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
             MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
             MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
         END IF
     NEXT
 
-    FOR x = LEN(l$) TO 1 STEP -1
-        a$ = MID$(l$, x, 1)
-        IF a$ = CHR$(195) THEN MID$(l$, x, 1) = CHR$(192): EXIT FOR
-    NEXT
+    TotalLines(TotalSUBs) = ModuleSize
+    IF TotalSUBs > 0 THEN
+        num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
+        IF pInsideDECLARE THEN num$ = "external"
+        lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
+                  SPACE$(9 - LEN(num$)) + num$ + "  " + psf$ + pargs$
+    END IF
+
+    MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
+    MID$(lSized$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
 
     IF TotalSUBs > 1 THEN
         sort SortedSubsList()
+
         FOR x = 1 TO TotalSUBs
             ListItemLength = CVI(MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 2, 2))
             lySorted$ = lySorted$ + MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4)
             FOR RestoreCaseBkp = 1 TO TotalSUBs
                 IF MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) = MID$(CaseBkpSubsList(RestoreCaseBkp), LEN(CaseBkpSubsList(RestoreCaseBkp)) - 6, 4) THEN
-                    lSorted$ = lSorted$ + sep + CHR$(195) + CHR$(196) + LEFT$(CaseBkpSubsList(RestoreCaseBkp), ListItemLength)
+                    lSorted$ = lSorted$ + sep + CHR$(195) + CHR$(196)
+                    temp$ = LEFT$(CaseBkpSubsList(RestoreCaseBkp), ListItemLength)
+                    lSorted$ = lSorted$ + LEFT$(temp$, INSTR(temp$, CHR$(1)) - 1) + _
+                               MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
+
+                    num$ = LTRIM$(STR$(TotalLines(RestoreCaseBkp)))
+                    IF LEFT$(temp$, 1) = "*" THEN num$ = "external"
+                    lSortedSized$ = lSortedSized$ + sep + CHR$(195) + CHR$(196)
+                    lSortedSized$ = lSortedSized$ + LEFT$(temp$, INSTR(temp$, CHR$(1)) - 1) + _
+                                    SPACE$(9 - LEN(num$)) + num$ + "  " + _
+                                    MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
                     EXIT FOR
                 END IF
             NEXT
         NEXT
 
-        FOR x = LEN(lSorted$) TO 1 STEP -1
-            a$ = MID$(lSorted$, x, 1)
-            IF a$ = CHR$(195) THEN MID$(lSorted$, x, 1) = CHR$(192): EXIT FOR
-        NEXT
+        MID$(lSorted$, _INSTRREV(lSorted$, CHR$(195)), 1) = CHR$(192)
         SortedSubsFlag = idesortsubs
     ELSE
         SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
@@ -9340,8 +9391,13 @@ FUNCTION idesubs$
     o(i).y = 1
     '68
     o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
-    o(i).txt = idenewtxt(l$)
     IF SortedSubsFlag = 0 THEN
+        IF IDESubsLength THEN
+            o(i).txt = idenewtxt(lSized$)
+        ELSE
+            o(i).txt = idenewtxt(l$)
+        END IF
+
         IF PreferCurrentCursorSUBFUNC <> 0 THEN
             o(i).sel = PreferCurrentCursorSUBFUNC
         ELSE
@@ -9349,6 +9405,11 @@ FUNCTION idesubs$
         END IF
     ELSE
         idetxt(o(i).txt) = lSorted$
+        IF IDESubsLength THEN
+            o(i).txt = idenewtxt(lSortedSized$)
+        ELSE
+            o(i).txt = idenewtxt(lSorted$)
+        END IF
         IF PreferCurrentCursorSUBFUNC <> 0 THEN
             FOR x = 1 TO TotalSUBs
                 IF MID$(ly$, PreferCurrentCursorSUBFUNC * 4 - 3, 4) = MID$(SortedSubsList(x), LEN(SortedSubsList(x)) - 6, 4) THEN
@@ -9367,21 +9428,28 @@ FUNCTION idesubs$
     END IF
     o(i).nam = idenewtxt("Program Items")
 
-
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).x = 2
     o(i).y = idewy + idesubwindow - 6
-    o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
-    o(i).dft = 1
+    o(i).nam = idenewtxt("Show #Line Count")
+    o(i).sel = IDESubsLength
 
     IF TotalSUBs > 1 THEN
         i = i + 1
         o(i).typ = 4 'check box
-        o(i).x = idewx - 22
+        o(i).x = 22
         o(i).y = idewy + idesubwindow - 6
         o(i).nam = idenewtxt("#Sorted A-Z")
         o(i).sel = SortedSubsFlag
     END IF
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).x = p.w - 30
+    o(i).y = idewy + idesubwindow - 6
+    o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
+    o(i).dft = 1
 
 
     '-------- end of init --------
@@ -9409,9 +9477,6 @@ FUNCTION idesubs$
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        IF FoundExternalSUBFUNC = -1 THEN
-            COLOR 2, 7: LOCATE idewy + idesubwindow - 3, p.x + 2: PRINT "* external";
-        END IF
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -9460,13 +9525,13 @@ FUNCTION idesubs$
         NEXT
         '-------- end of generic input response --------
 
-        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 5 AND info <> 0) THEN
             idesubs$ = "C"
             GOSUB SaveSortSettings
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
+        IF K$ = CHR$(13) OR (focus = 4 AND info <> 0) OR (info = 1 AND focus = 1) THEN
             y = o(1).sel
             IF y < 1 THEN y = -y
             AddQuickNavHistory idecy
@@ -9481,6 +9546,24 @@ FUNCTION idesubs$
 
             GOSUB SaveSortSettings
             EXIT FUNCTION
+        END IF
+
+        IF o(2).sel <> IDESubsLength THEN
+            IDESubsLength = o(2).sel
+            IF IDESubsLength THEN
+                IF o(3).sel THEN
+                    idetxt(o(1).txt) = lSortedSized$
+                ELSE
+                    idetxt(o(1).txt) = lSized$
+                END IF
+            ELSE
+                IF o(3).sel THEN
+                    idetxt(o(1).txt) = lSorted$
+                ELSE
+                    idetxt(o(1).txt) = l$
+                END IF
+            END IF
+            focus = 1
         END IF
 
         IF TotalSUBs > 1 THEN
@@ -9499,7 +9582,11 @@ FUNCTION idesubs$
                         NEXT
                     END IF
 
-                    idetxt(o(1).txt) = l$
+                    IF IDESubsLength THEN
+                        idetxt(o(1).txt) = lSized$
+                    ELSE
+                        idetxt(o(1).txt) = l$
+                    END IF
                     o(1).sel = PreviousSelection
                     focus = 1
                 ELSE
@@ -9514,7 +9601,11 @@ FUNCTION idesubs$
                         NEXT
                     END IF
 
-                    idetxt(o(1).txt) = lSorted$
+                    IF IDESubsLength THEN
+                        idetxt(o(1).txt) = lSortedSized$
+                    ELSE
+                        idetxt(o(1).txt) = lSorted$
+                    END IF
                     o(1).sel = PreviousSelection
                     focus = 1
                 END IF
@@ -9534,6 +9625,12 @@ FUNCTION idesubs$
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "TRUE"
         ELSE
             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
+        END IF
+
+        IF IDESubsLength THEN
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "TRUE"
+        ELSE
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
         END IF
     END IF
     RETURN
