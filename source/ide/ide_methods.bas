@@ -1888,6 +1888,7 @@ FUNCTION ide2 (ignore)
             IF LEN(K$) = 1 THEN
                 k = ASC(K$)
                 IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
+                    pasteIntoSearchField:
                     clip$ = _CLIPBOARD$ 'read clipboard
                     x = INSTR(clip$, CHR$(13))
                     IF x THEN clip$ = LEFT$(clip$, x - 1)
@@ -1914,6 +1915,7 @@ FUNCTION ide2 (ignore)
                 END IF
 
                 IF (KCONTROL AND UCASE$(K$) = "A") THEN 'select all
+                    selectAllInSearchField:
                     IF LEN(a$) > 0 THEN
                         idesystem2.issel = -1
                         idesystem2.sx1 = 0
@@ -1923,6 +1925,7 @@ FUNCTION ide2 (ignore)
                 END IF
 
                 IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) THEN 'copy to clipboard
+                    copysearchterm2clip:
                     IF idesystem2.issel THEN
                         sx1 = idesystem2.sx1: sx2 = idesystem2.v1
                         IF sx1 > sx2 THEN SWAP sx1, sx2
@@ -1932,6 +1935,7 @@ FUNCTION ide2 (ignore)
                 END IF
 
                 IF ((KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X")) THEN 'cut to clipboard
+                    cutToClipboardSearchField:
                     IF idesystem2.issel THEN
                         sx1 = idesystem2.sx1: sx2 = idesystem2.v1
                         IF sx1 > sx2 THEN SWAP sx1, sx2
@@ -2004,6 +2008,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF K$ = CHR$(0) + "S" THEN 'DEL
+                deleteSelectionSearchField:
                 IF idesystem2.issel THEN
                     sx1 = idesystem2.sx1: sx2 = idesystem2.v1
                     IF sx1 > sx2 THEN SWAP sx1, sx2
@@ -2108,6 +2113,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF KCONTROL AND UCASE$(K$) = "A" THEN 'select all
+                selectAllInHelp:
                 IF help_h THEN
                     Help_Select = 2
                     Help_SelX1 = 1
@@ -2120,6 +2126,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) AND Help_Select = 2 THEN 'copy to clipboard
+                copyhelp2clip:
                 clip$ = ""
                 FOR y = Help_SelY1 TO Help_SelY2
                     IF y <> Help_SelY1 THEN clip$ = clip$ + CHR$(13) + CHR$(10)
@@ -5474,29 +5481,36 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "Cl#ear  Del" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                IF ideselect = 1 THEN
+                IF IdeSystem = 1 AND ideselect = 1 THEN
                     idechangemade = 1
                     GOSUB delselect
+                ELSEIF IdeSystem = 2 THEN
+                    GOTO deleteSelectionSearchField
                 END IF
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Paste  Shift+Ins or Ctrl+V" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                GOTO idempaste
+                IF IdeSystem = 1 THEN GOTO idempaste
+                IF IdeSystem = 2 THEN GOTO pasteIntoSearchField
             END IF
 
             IF menu$(m, s) = "#Copy  Ctrl+Ins or Ctrl+C" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                IF ideselect = 1 THEN GOTO copy2clip
+                IF IdeSystem = 1 AND ideselect = 1 THEN GOTO copy2clip
+                IF IdeSystem = 2 THEN GOTO copysearchterm2clip
+                IF IdeSystem = 3 AND Help_Select = 2 THEN GOTO copyhelp2clip
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Cu#t  Shift+Del or Ctrl+X" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                IF ideselect = 1 THEN
+                IF IdeSystem = 1 AND ideselect = 1 THEN
                     K$ = CHR$(0) + "S" 'tricks handler into del after copy
                     GOTO idemcut
+                ELSEIF IdeSystem = 2 THEN
+                    GOTO cutToClipboardSearchField
                 END IF
                 GOTO ideloop
             END IF
@@ -5514,7 +5528,9 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "Select #All  Ctrl+A" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                GOTO idemselectall
+                IF IdeSystem = 1 THEN GOTO idemselectall
+                IF IdeSystem = 2 THEN GOTO selectAllInSearchField
+                IF IdeSystem = 3 THEN GOTO selectAllInHelp
             END IF
 
             IF menu$(m, s) = "#Start  F5" THEN
@@ -8728,7 +8744,7 @@ SUB ideshowtext
             IF l = idefocusline AND idecy <> l THEN
                 COLOR 7, 4 'Line with error gets a red background
             ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
-                IF HideCurrentLineHighlight = 0 THEN COLOR 7, 6 'Highlight the current line
+                IF HideCurrentLineHighlight = 0 AND IdeSystem = 1 THEN COLOR 7, 6 'Highlight the current line
             ELSE
                 COLOR 7, 1 'Regular text color
             END IF
@@ -9021,7 +9037,7 @@ SUB ideshowtext
             NEXT m
 
             'apply selection color change if necessary
-            IF ideselect THEN
+            IF IdeSystem = 1 AND ideselect <> 0 THEN
                 IF l >= sy1 AND l <= sy2 THEN
                     IF sy1 = sy2 THEN 'single line select
                         COLOR 1, 7
@@ -13708,7 +13724,7 @@ SUB Help_ShowText
             LOCATE sy, sx
             DO UNTIL c = 13
                 COLOR col AND 15, col \ 16
-                IF Help_Select = 2 THEN
+                IF IdeSystem = 3 AND Help_Select = 2 THEN
                     IF y >= Help_SelY1 AND y <= Help_SelY2 THEN
                         IF x3 >= Help_SelX1 AND x3 <= Help_SelX2 THEN
                             COLOR 0, 7
@@ -13729,7 +13745,7 @@ SUB Help_ShowText
             FOR x4 = 1 TO Help_wx2 - POS(0) + 1
                 IF col = 0 THEN col = 7
                 COLOR col AND 15, col \ 16
-                IF Help_Select = 2 THEN
+                IF IdeSystem = 3 AND Help_Select = 2 THEN
                     IF y >= Help_SelY1 AND y <= Help_SelY2 THEN
                         IF x3 >= Help_SelX1 AND x3 <= Help_SelX2 THEN
                             COLOR 0, 7
@@ -13747,7 +13763,7 @@ SUB Help_ShowText
             x3 = Help_sx
             FOR x4 = 1 TO Help_ww
                 COLOR 7, 0
-                IF Help_Select = 2 THEN
+                IF IdeSystem = 3 AND Help_Select = 2 THEN
                     IF y >= Help_SelY1 AND y <= Help_SelY2 THEN
                         IF x3 >= Help_SelX1 AND x3 <= Help_SelX2 THEN
                             COLOR 0, 7
@@ -14405,8 +14421,11 @@ SUB IdeMakeContextualMenu
     NoRGBFound:
     '--------- _RGB mixer check done.              --------------------------------------------
 
-    IF ideselect THEN menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-    IF ideselect THEN menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    IF (IdeSystem = 1 AND ideselect <> 0) THEN menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+    IF (IdeSystem = 1 AND ideselect = 1) OR _
+       (IdeSystem = 3 AND Help_Select = 2) THEN
+        menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    END IF
 
     clip$ = _CLIPBOARD$ 'read clipboard
     IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
@@ -14454,12 +14473,20 @@ SUB IdeMakeEditMenu
     m = ideeditmenuID: i = 0
     menu$(m, i) = "Edit": i = i + 1
 
-    menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
-    menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+    IF IdeSystem = 1 THEN
+        menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+        menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+    ELSE
+        menu$(m, i) = "~#Undo  Ctrl+Z": i = i + 1
+        menu$(m, i) = "~#Redo  Ctrl+Y": i = i + 1
+    END IF
     menu$(m, i) = "-": i = i + 1
 
-    IF ideselect THEN
+    IF (IdeSystem = 1 AND ideselect = 1) OR IdeSystem = 2 THEN
         menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+    ELSEIF (IdeSystem = 3 AND Help_Select = 2) THEN
+        menu$(m, i) = "~Cu#t  Shift+Del or Ctrl+X": i = i + 1
         menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
     ELSE
         menu$(m, i) = "~Cu#t  Shift+Del or Ctrl+X": i = i + 1
@@ -14467,39 +14494,47 @@ SUB IdeMakeEditMenu
     END IF
 
     clip$ = _CLIPBOARD$ 'read clipboard
-    IF LEN(clip$) THEN
+    IF (LEN(clip$) > 0 AND IdeSystem = 1) OR IdeSystem = 2 THEN
         menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
     ELSE
         menu$(m, i) = "~#Paste  Shift+Ins or Ctrl+V": i = i + 1
     END IF
 
-    IF ideselect THEN
+    IF (IdeSystem = 1 AND ideselect = 1) OR IdeSystem = 2 THEN
         menu$(m, i) = "Cl#ear  Del": i = i + 1
     ELSE
         menu$(m, i) = "~Cl#ear  Del": i = i + 1
     END IF
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
-    IF ideselect THEN
-        y1 = idecy
-        y2 = ideselecty1
-        IF y1 = y2 THEN 'single line selected
-            a$ = idegetline(idecy)
-            a2$ = ""
-            sx1 = ideselectx1: sx2 = idecx
-            IF sx2 < sx1 THEN SWAP sx1, sx2
-            FOR x = sx1 TO sx2 - 1
-                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
-            NEXT
-            IF a2$ = "" THEN
-                menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "~#Decrease Indent"
-                IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-                i = i + 1
+
+    IF IdeSystem = 1 THEN
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+        menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+        menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
+        IF ideselect THEN
+            y1 = idecy
+            y2 = ideselecty1
+            IF y1 = y2 THEN 'single line selected
+                a$ = idegetline(idecy)
+                a2$ = ""
+                sx1 = ideselectx1: sx2 = idecx
+                IF sx2 < sx1 THEN SWAP sx1, sx2
+                FOR x = sx1 TO sx2 - 1
+                    IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                NEXT
+                IF a2$ = "" THEN
+                    menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+                    menu$(m, i) = "~#Decrease Indent"
+                    IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                    i = i + 1
+                ELSE
+                    menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                    menu$(m, i) = "#Decrease Indent"
+                    IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                    i = i + 1
+                END IF
             ELSE
                 menu$(m, i) = "#Increase Indent  TAB": i = i + 1
                 menu$(m, i) = "#Decrease Indent"
@@ -14507,20 +14542,27 @@ SUB IdeMakeEditMenu
                 i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "#Increase Indent  TAB": i = i + 1
-            menu$(m, i) = "#Decrease Indent"
+            menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "~#Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
         END IF
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "New #SUB...": i = i + 1
+        menu$(m, i) = "New #FUNCTION...": i = i + 1
     ELSE
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "~To#ggle Comment  Ctrl+T": i = i + 1
+        menu$(m, i) = "~Add Co#mment (')  Ctrl+R": i = i + 1
+        menu$(m, i) = "~Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
         menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
         menu$(m, i) = "~#Decrease Indent"
         IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
         i = i + 1
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "~New #SUB...": i = i + 1
+        menu$(m, i) = "~New #FUNCTION...": i = i + 1
     END IF
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "New #SUB...": i = i + 1
-    menu$(m, i) = "New #FUNCTION...": i = i + 1
     menusize(m) = i - 1
 END SUB
 
