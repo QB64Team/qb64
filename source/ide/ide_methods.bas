@@ -131,6 +131,7 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selectx1, wholeword.idecx
     STATIC wholeword.selecty1, wholeword.idecy
     STATIC ForceResize, IDECompilationRequested AS _BYTE
+    STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -146,6 +147,7 @@ FUNCTION ide2 (ignore)
         IF ideerror = 2 THEN errorat$ = "File not found"
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
+        IF ideerror = 5 THEN errorat$ = "Cannot create folder"
 
         qberrorcode = ERR
         IF qberrorcode THEN
@@ -154,7 +156,7 @@ FUNCTION ide2 (ignore)
             ideerrormessageTITLE$ = "Error"
         END IF
 
-        IF (ideerror = 2 OR ideerror = 3 OR ideerror = 4) THEN
+        IF (ideerror > 1) THEN
             'Don't show too much detail if user just tried loading an invalid file
             ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE) + ")"
         ELSE
@@ -173,7 +175,7 @@ FUNCTION ide2 (ignore)
         idemessagebox ideerrormessageTITLE$, errorat$
     END IF
 
-    IF (ideerror = 2 OR ideerror = 3 OR ideerror = 4) AND (AttemptToLoadRecent = -1) THEN
+    IF (ideerror > 1) AND (AttemptToLoadRecent = -1) THEN
         'Offer to cleanup recent file list, removing invalid entries
         PCOPY 2, 0
         r$ = ideclearhistory$("INVALID")
@@ -224,7 +226,7 @@ FUNCTION ide2 (ignore)
         idelaunched = 1
 
         WIDTH idewx, idewy
-        _FONT 16
+        IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
 
         'change codepage
         IF idecpindex THEN
@@ -266,7 +268,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Search": i = i + 1
         menu$(m, i) = "#Find...  Ctrl+F3": i = i + 1
         menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
-        menu$(m, i) = "#Change...": i = i + 1
+        menu$(m, i) = "#Change...  Alt+F3": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clear Search #History...": i = i + 1
         menu$(m, i) = "-": i = i + 1
@@ -311,11 +313,18 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Options": i = i + 1
         menu$(m, i) = "#Display...": i = i + 1
         menu$(m, i) = "IDE C#olors...": i = i + 1
-        menu$(m, i) = "#Language...": i = i + 1
         menu$(m, i) = "#Code Layout...": i = i + 1
-        menu$(m, i) = "#Backup/Undo...": i = i + 1
         menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "#Language...": i = i + 1
+        menu$(m, i) = "#Backup/Undo...": i = i + 1
         menu$(m, i) = "#Advanced...": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+
+        OptionsMenuDisableSyntax = i
+        menu$(m, i) = "Disable Syntax #Highlighter": i = i + 1
+        IF DisableSyntaxHighlighter THEN
+            menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuDisableSyntax)
+        END IF
 
         OptionsMenuSwapMouse = i
         menu$(m, i) = "#Swap Mouse Buttons": i = i + 1
@@ -351,6 +360,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Keywords by Usage": i = i + 1
         menu$(m, i) = "ASCII C#hart": i = i + 1
         menu$(m, i) = "#Math": i = i + 1
+        menu$(m, i) = "Insert #Quick Keycode...  Ctrl+K": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
         menu$(m, i) = "Update All #Pages": i = i + 1
@@ -493,7 +503,7 @@ FUNCTION ide2 (ignore)
                 END IF
                 IdeBmkN = 0
                 ideerror = 1
-                ideprogname = f$: _TITLE ideprogname + " - QB64"
+                ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
                 IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
                 IdeAddRecent idepath$ + idepathsep$ + ideprogname$
             END IF 'message 1
@@ -730,7 +740,7 @@ FUNCTION ide2 (ignore)
         idedeltxt 'removes temporary strings (typically created by guibox commands) by setting an index to 0
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
 
-        IF _RESIZE OR ForceResize THEN
+        IF (_RESIZE OR ForceResize) AND timeElapsedSince(QB64_uptime!) > 1.5 THEN
             IF idesubwindow <> 0 THEN 'If there's a subwindow up, don't resize as it screws all sorts of things up.
                 ForceResize = -1
             ELSE
@@ -1265,7 +1275,15 @@ FUNCTION ide2 (ignore)
             _FINISHDROP
         END IF
 
-        'Hover/click (QuickNav)
+        'Hover/click (QuickNav, "Find" field)
+        IF QuickNavTotal > 0 THEN
+            DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
+                'make sure that the line number in history still exists
+                QuickNavTotal = QuickNavTotal - 1
+                IF QuickNavTotal = 0 THEN EXIT DO
+            LOOP
+        END IF
+
         IF IdeSystem = 1 AND QuickNavTotal > 0 AND EnableQuickNav THEN
             IF mY = 2 THEN
                 IF mX >= 4 AND mX <= 6 THEN
@@ -1310,14 +1328,40 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF _WINDOWHASFOCUS THEN
-            LOCATE , , 1
-            _PALETTECOLOR 5, IDEBracketHighlightColor, 0
-            _PALETTECOLOR 6, IDEBackgroundColor2, 0
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
+            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
+                'Highlight "Find"
+                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
+                COLOR 1, 3
+                PRINT "Find";
+                PCOPY 3, 0
+                FindFieldHover = -1
+            ELSE
+                GOTO RestoreFindButton
+            END IF
         ELSE
-            LOCATE , , 0
-            _PALETTECOLOR 5, IDEBackgroundColor, 0
-            _PALETTECOLOR 6, IDEBackgroundColor, 0
+            RestoreFindButton:
+            IF FindFieldHover = -1 THEN
+                'Restore "Find" bg
+                FindFieldHover = 0
+                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
+                COLOR 3, 1
+                PRINT "Find";
+                PCOPY 3, 0
+            END IF
+        END IF
+
+
+        IF os$ = "WIN" OR MacOSX = 1 THEN
+            IF _WINDOWHASFOCUS THEN
+                LOCATE , , 1
+                _PALETTECOLOR 5, IDEBracketHighlightColor, 0
+                _PALETTECOLOR 6, IDEBackgroundColor2, 0
+            ELSE
+                LOCATE , , 0
+                _PALETTECOLOR 5, IDEBackgroundColor, 0
+                _PALETTECOLOR 6, IDEBackgroundColor, 0
+            END IF
         END IF
 
         IF KALT THEN 'alt held
@@ -1342,7 +1386,7 @@ FUNCTION ide2 (ignore)
                 idealthighlight = 0
                 LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                 IF ideentermenu = 1 AND KCONTROL = 0 THEN 'alt was pressed then released
-                    IF _WINDOWHASFOCUS THEN
+                    IF _WINDOWHASFOCUS OR os$ = "LNX" THEN
                         LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
                         skipdisplay = 0
                         ideentermenu = 0
@@ -1557,9 +1601,20 @@ FUNCTION ide2 (ignore)
             IF LEN(idefindtext) THEN idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = LEN(idefindtext)
         END IF
 
+        IF KCTRL AND UCASE$(K$) = "K" THEN
+            K$ = ""
+            GOTO ideQuickKeycode
+        END IF
+
+
         IF KCTRL AND KB = KEY_F3 THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
             GOTO idefindjmp
+        END IF
+
+        IF KALT AND KB = KEY_F3 THEN
+            IF IdeSystem = 3 THEN IdeSystem = 1
+            GOTO idefindchangejmp
         END IF
 
         IF KB = KEY_F3 THEN
@@ -1588,7 +1643,7 @@ FUNCTION ide2 (ignore)
                 idehelp = 1
                 skipdisplay = 0
                 IdeSystem = 3
-                retval = 1: GOTO redraweverything2
+                retval = 1: GOSUB redrawItAll
             END IF
             IdeSystem = 3
             GOTO specialchar
@@ -1983,7 +2038,7 @@ FUNCTION ide2 (ignore)
                     idesubwindow = 0
                     skipdisplay = 0
                     IdeSystem = 1
-                    retval = 1: GOTO redraweverything2
+                    retval = 1: GOSUB redrawItAll
 
                 END IF
             END IF
@@ -2404,7 +2459,7 @@ FUNCTION ide2 (ignore)
                 DO UNTIL EOF(fh)
                     LINE INPUT #fh, l$
                     c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-                    IF a2$ = UCASE$(l1$) THEN
+                    IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
                         IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
                             lnks = lnks + 1
                             IF l2$ = l1$ THEN
@@ -2479,11 +2534,12 @@ FUNCTION ide2 (ignore)
                         idehelp = 1
                         skipdisplay = 0
                         IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                        retval = 1: GOTO redraweverything2
+                        retval = 1
                     END IF
 
                     WikiParse a$
                     IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                    GOSUB redrawitall
                     GOTO specialchar
 
                 ELSE
@@ -2553,7 +2609,7 @@ FUNCTION ide2 (ignore)
                                         idehelp = 1
                                         skipdisplay = 0
                                         IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
-                                        retval = 1: GOTO redraweverything2
+                                        retval = 1
                                     END IF
 
                                     WikiParse a$
@@ -2682,7 +2738,7 @@ FUNCTION ide2 (ignore)
         IF mCLICK THEN
             IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                 IF old.mX = mX AND old.mY = mY THEN
-                    IF TIMER - last.TBclick# > .5 THEN GOTO regularTextBox_click
+                    IF timeElapsedSince(last.TBclick#) > .5 THEN GOTO regularTextBox_click
                     'Double-click on text box: attempt to select "word" clicked
                     idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
@@ -3051,9 +3107,9 @@ FUNCTION ide2 (ignore)
             IF ideprogname = "" THEN
                 ProposedTitle$ = FindProposedTitle$
                 IF ProposedTitle$ = "" THEN
-                    a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                    a$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                 ELSE
-                    a$ = idesaveas$(ProposedTitle$ + ".bas")
+                    a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                 END IF
             ELSE
                 idesave idepath$ + idepathsep$ + ideprogname$
@@ -3062,7 +3118,17 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
-            GOTO idesubsjmp
+            IF KCONTROL THEN
+                IF QuickNavTotal > 0 THEN
+                    ideselect = 0
+                    idecy = QuickNavHistory(QuickNavTotal)
+                    QuickNavTotal = QuickNavTotal - 1
+                    _DELAY .2
+                    GOTO waitforinput
+                END IF
+            ELSE
+                GOTO idesubsjmp
+            END IF
         END IF
 
         IF KCONTROL AND UCASE$(K$) = "W" THEN 'goto line
@@ -3131,7 +3197,7 @@ FUNCTION ide2 (ignore)
                         END IF
                         ideunsaved = 1
                         ideprogname$ = ""
-                        _TITLE "QB64"
+                        _TITLE WindowTitle
                         ideundobase = -1 'release base restriction
                     END IF
 
@@ -3394,8 +3460,9 @@ FUNCTION ide2 (ignore)
                             IF idecy = 1 THEN idecx = 1: GOTO specialchar
                             idecy = idecy - 1
                             a$ = idegetline(idecy)
-                            idecx = LEN(a$)
+                            idecx = LEN(a$) + 1
                         LOOP UNTIL LEN(a$)
+                        GOTO specialchar 'stop at the end of the previous line
                     END IF
                     'check character
                     IF alphanumeric(ASC(a$, idecx)) THEN
@@ -3429,6 +3496,7 @@ FUNCTION ide2 (ignore)
                     'move
                     IF first = 0 THEN idecx = idecx + 1
                     'latch onto next character
+                    IF first = 0 AND idecx = LEN(a$) + 1 THEN GOTO specialchar 'stop at the end of the line
                     IF idecx > LEN(a$) THEN
                         DO
                             IF idecy = iden THEN GOTO specialchar
@@ -3578,10 +3646,10 @@ FUNCTION ide2 (ignore)
 
                     a$ = idegetline(idecy)
                     Found_RGB = 0
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
-                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA(")
+                    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
                     IF Found_RGB THEN
                         oldkeywordHighlight = keywordHighlight
                         keywordHighlight = 0
@@ -4035,7 +4103,7 @@ FUNCTION ide2 (ignore)
                 DO
                     _LIMIT 1000
                     GetInput
-                    IF _WINDOWHASFOCUS = 0 THEN
+                    IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                         LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                         SCREEN , , 3, 0: PCOPY 3, 0
                         GOTO ideloop
@@ -4048,7 +4116,7 @@ FUNCTION ide2 (ignore)
                 KB = KEY_ESC
             END IF
 
-            IF _WINDOWHASFOCUS = 0 THEN
+            IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                 LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                 SCREEN , , 3, 0: PCOPY 3, 0
                 GOTO ideloop
@@ -4256,7 +4324,7 @@ FUNCTION ide2 (ignore)
                 DO
                     _LIMIT 1000
                     GetInput
-                    IF _WINDOWHASFOCUS = 0 THEN
+                    IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                         LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
@@ -4270,7 +4338,7 @@ FUNCTION ide2 (ignore)
                 GOTO startmenu2
             END IF
             IF _EXIT THEN ideexit = 1: GOTO ideloop
-            IF _WINDOWHASFOCUS = 0 THEN
+            IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                 LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -4477,7 +4545,7 @@ FUNCTION ide2 (ignore)
             menuChoiceMade:
             IF KALT THEN idehl = 1 ELSE idehl = 0 'set idehl, a shared variable used by various dialogue boxes
 
-            IF menu$(m, s) = "Add Comment (')  Ctrl+R" THEN
+            IF menu$(m, s) = "Add Co#mment (')  Ctrl+R" THEN
                 ctrlAddComment:
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
@@ -4508,7 +4576,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Remove Comment (')  Ctrl+Shift+R" THEN
+            IF menu$(m, s) = "Remove Comme#nt (')  Ctrl+Shift+R" THEN
                 ctrlRemoveComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4535,7 +4603,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Toggle Comment  Ctrl+T" THEN
+            IF menu$(m, s) = "To#ggle Comment  Ctrl+T" THEN
                 ctrlToggleComment:
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 y1 = idecy: y2 = y1
@@ -4576,13 +4644,13 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Increase Indent  TAB" THEN
+            IF menu$(m, s) = "#Increase Indent  TAB" THEN
                 IF ideselect THEN GOTO IdeBlockIncreaseIndent
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
 
-            IF LEFT$(menu$(m, s), 15) = "Decrease Indent" THEN
+            IF LEFT$(menu$(m, s), 16) = "#Decrease Indent" THEN
                 IF ideselect THEN GOTO IdeBlockDecreaseIndent
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -4605,10 +4673,10 @@ FUNCTION ide2 (ignore)
                         IF idecustomfont THEN
                             _FONT idecustomfonthandle
                         ELSE
-                            _FONT 16
+                            IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                         END IF
                         skipdisplay = 0
-                        GOTO redraweverything2
+                        GOSUB redrawItAll
                     END IF
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -4652,6 +4720,20 @@ FUNCTION ide2 (ignore)
                 ELSE
                     WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuSwapMouse) = "#Swap Mouse Buttons"
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+
+            IF RIGHT$(menu$(m, s), 27) = "Disable Syntax #Highlighter" THEN
+                PCOPY 2, 0
+                DisableSyntaxHighlighter = NOT DisableSyntaxHighlighter
+                IF DisableSyntaxHighlighter THEN
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                ELSE
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -4819,7 +4901,9 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#About..." THEN
                 PCOPY 2, 0
-                idemessagebox "About", "QB64 Version " + Version$ + CHR$(10) + "Revision " + BuildNum$ + CHR$(10) + AutoBuildMsg$
+                m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
+                IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
+                idemessagebox "About", m$
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -4827,10 +4911,83 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "ASCII C#hart" THEN
                 PCOPY 2, 0
-                ideASCIIbox
+                retval = ideASCIIbox%
+                IF retval THEN
+                    tempk$ = CHR$(retval)
+
+                    'insert
+                    IF ideselect THEN GOSUB delselect
+                    a$ = idegetline(idecy)
+                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                    idesetline idecy, a$
+
+                    IF PasteCursorAtEnd THEN
+                        'Place the cursor at the end of the inserted content:
+                        idecx = idecx + LEN(tempk$)
+                    END IF
+
+                    idechangemade = 1
+                END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 retval = 1
-                GOTO redraweverything2
+                GOSUB redrawItAll
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "Insert #Quick Keycode...  Ctrl+K" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                ideQuickKeycode:
+                dummy = DarkenFGBG(1)
+                COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                LOCATE idewy - 3, 2
+                PRINT "Press any key to insert its _KEYHIT/_KEYDOWN code..."
+                PCOPY 3, 0
+
+                tempk$ = ""
+
+                DO: tempk = _KEYHIT: _LIMIT 30: LOOP UNTIL tempk = 0 'wait for key release
+                DO 'get the next key hit
+                    tempk = _KEYHIT
+                    IF tempk > 0 THEN tempk$ = STR$(tempk)
+
+                    WHILE _MOUSEINPUT: WEND
+                    IF _MOUSEBUTTON(1) OR _MOUSEBUTTON(2) THEN GOTO bypassCtrlK
+
+                    _LIMIT 30
+                LOOP UNTIL tempk > 0
+                IF tempk = 100303 OR tempk = 100304 THEN 'shift key
+                    DO 'get the next key hit
+                        tempk = _KEYHIT 'see what the next key is, and use it
+                        IF tempk <> 0 THEN tempk$ = STR$(ABS(tempk)) 'if it's the SHFT UP code, then return the value for shift
+
+                        WHILE _MOUSEINPUT: WEND
+                        IF _MOUSEBUTTON(1) OR _MOUSEBUTTON(2) THEN GOTO bypassCtrlK
+
+                        _LIMIT 30
+                    LOOP UNTIL tempk <> 0
+                END IF
+                tempk$ = LTRIM$(tempk$)
+
+                'insert
+                IF ideselect THEN GOSUB delselect
+                a$ = idegetline(idecy)
+                IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                idesetline idecy, a$
+
+                IF PasteCursorAtEnd THEN
+                    'Place the cursor at the end of the inserted content:
+                    idecx = idecx + LEN(tempk$)
+                END IF
+
+                idechangemade = 1
+                bypassCtrlK:
+                dummy = DarkenFGBG(0)
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                retval = 1
+                KCTRL = 0: KCONTROL = 0
+                GOSUB redrawItAll
                 GOTO ideloop
             END IF
 
@@ -4886,7 +5043,7 @@ FUNCTION ide2 (ignore)
                     idehelp = 1
                     skipdisplay = 0
                     IdeSystem = 3
-                    retval = 1: GOTO redraweverything2
+                    retval = 1: GOSUB redrawItAll
                 END IF
 
                 GOTO ideloop
@@ -4930,7 +5087,7 @@ FUNCTION ide2 (ignore)
                     PRINT "Generating list of cached content..."
 
                     'Create a list of all files to be recached
-                    f$ = CHR$(0) + idezfilelist$("internal/help", 1) + CHR$(0)
+                    f$ = CHR$(0) + idezfilelist$("internal/help", 1, "") + CHR$(0)
                     IF LEN(f$) = 2 THEN f$ = CHR$(0)
 
                     'Prepend core pages to list
@@ -5116,16 +5273,20 @@ FUNCTION ide2 (ignore)
                 GOTO idemf3
             END IF
 
-            IF menu$(m, s) = "#Change..." THEN
+            IF menu$(m, s) = "#Change...  Alt+F3" THEN
                 PCOPY 2, 0
+                idefindchangejmp:
                 r$ = idechange
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                idealthighlight = 0
+                LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                 IF r$ = "C" OR r$ = "" THEN GOTO ideloop
                 'assume "V", verify changes
                 IdeAddSearched idefindtext
 
                 oldcx = idecx: oldcy = idecy
                 found = 0: looped = 0
+                changed = 0
 
                 s$ = idefindtext$
                 IF idefindcasesens = 0 THEN s$ = UCASE$(s$)
@@ -5191,6 +5352,15 @@ FUNCTION ide2 (ignore)
                     END IF
                 END IF
 
+                DIM comment AS _BYTE, quote AS _BYTE
+                IF x THEN
+                    FindQuoteComment l$, x, comment, quote
+                    IF idefindnocomments <> 0 AND comment THEN x = 0
+                    IF idefindnostrings <> 0 AND quote THEN x = 0
+                    IF idefindonlycomments <> 0 AND comment = 0 THEN x = 0
+                    IF idefindonlystrings <> 0 AND quote = 0 THEN x = 0
+                END IF
+
                 IF x THEN
                     ideselect = 1
                     idecx = x: idecy = y
@@ -5214,6 +5384,7 @@ FUNCTION ide2 (ignore)
                             l$ = LEFT$(l$, idecx - 1) + idechangeto$
                         END IF
                         idesetline idecy, l$
+                        changed = changed + 1
                         IF idefindcasesens = 0 THEN l$ = UCASE$(l$)
 
                         IF idefindbackwards THEN
@@ -5250,11 +5421,16 @@ FUNCTION ide2 (ignore)
 
                 finishedchange:
                 idecx = oldcx: idecy = oldcy
-                IF found THEN
+                IF changed THEN
                     ideshowtext
                     SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
                     PCOPY 3, 0
-                    idechanged
+                    idechanged changed
+                ELSEIF found THEN
+                    ideshowtext
+                    SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
+                    PCOPY 3, 0
+                    idemessagebox "Search complete", "No changes made."
                 ELSE
                     idenomatch
                 END IF
@@ -5353,9 +5529,9 @@ FUNCTION ide2 (ignore)
                         IF ideprogname = "" THEN
                             ProposedTitle$ = FindProposedTitle$
                             IF ProposedTitle$ = "" THEN
-                                r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                                r$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                             ELSE
-                                r$ = idesaveas$(ProposedTitle$ + ".bas")
+                                r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             IF r$ = "C" THEN
                                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
@@ -5381,9 +5557,9 @@ FUNCTION ide2 (ignore)
                         IF ideprogname = "" THEN
                             ProposedTitle$ = FindProposedTitle$
                             IF ProposedTitle$ = "" THEN
-                                r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                                r$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                             ELSE
-                                r$ = idesaveas$(ProposedTitle$ + ".bas")
+                                r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                             IF r$ = "C" THEN GOTO ideloop
@@ -5404,7 +5580,7 @@ FUNCTION ide2 (ignore)
                 listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
                 QuickNavTotal = 0
                 ModifyCOMMAND$ = ""
-                _TITLE "QB64"
+                _TITLE WindowTitle
                 idechangemade = 1
                 idefocusline = 0
                 ideundobase = 0 'reset
@@ -5479,9 +5655,9 @@ FUNCTION ide2 (ignore)
                         IF ideprogname = "" THEN
                             ProposedTitle$ = FindProposedTitle$
                             IF ProposedTitle$ = "" THEN
-                                r$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                                r$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                             ELSE
-                                r$ = idesaveas$(ProposedTitle$ + ".bas")
+                                r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             IF r$ = "C" THEN GOTO ideloop
                         ELSE
@@ -5490,9 +5666,10 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     END IF '"Y"
                 END IF 'unsaved
-                r$ = ideopen
+                r$ = idefiledialog$("", 1)
                 IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = ""
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOSUB redrawItAll: GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Save  Ctrl+S" THEN
@@ -5500,9 +5677,9 @@ FUNCTION ide2 (ignore)
                 IF ideprogname = "" THEN
                     ProposedTitle$ = FindProposedTitle$
                     IF ProposedTitle$ = "" THEN
-                        a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        a$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                     ELSE
-                        a$ = idesaveas$(ProposedTitle$ + ".bas")
+                        a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                     END IF
                 ELSE
                     idesave idepath$ + idepathsep$ + ideprogname$
@@ -5516,12 +5693,12 @@ FUNCTION ide2 (ignore)
                 IF ideprogname = "" THEN
                     ProposedTitle$ = FindProposedTitle$
                     IF ProposedTitle$ = "" THEN
-                        a$ = idesaveas$("untitled" + tempfolderindexstr$ + ".bas")
+                        a$ = idefiledialog$("untitled" + tempfolderindexstr$ + ".bas", 2)
                     ELSE
-                        a$ = idesaveas$(ProposedTitle$ + ".bas")
+                        a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                     END IF
                 ELSE
-                    a$ = idesaveas$(ideprogname$)
+                    a$ = idefiledialog$(ideprogname$, 2)
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
             END IF
@@ -5684,12 +5861,15 @@ FUNCTION ide2 (ignore)
         COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT CHR$(180) + "X" + CHR$(195);
     END IF
 
+    GOSUB UpdateSearchBar
+
     'status bar
     COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
     q = idevbar(idewx, idewy - 3, 3, 1, 1)
     q = idevbar(idewx, 3, idewy - 8, 1, 1)
     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
 
+    GOSUB UpdateTitleOfMainWindow
 
     DEF SEG = 0
     ideshowtext
@@ -5804,7 +5984,7 @@ FUNCTION idechange$
     ln = 0
 
     i = 0
-    idepar p, 60, 12, "Change"
+    idepar p, 60, 14, "Change"
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
@@ -5845,8 +6025,34 @@ FUNCTION idechange$
     o(i).sel = idefindbackwards
 
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).y = 11
+    o(i).nam = idenewtxt("#Ignore 'comments")
+    o(i).sel = idefindnocomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 11
+    o(i).nam = idenewtxt("#Look only in 'comments")
+    o(i).sel = idefindonlycomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 12
+    o(i).nam = idenewtxt("Ignore " + CHR$(34) + "#strings" + CHR$(34))
+    o(i).sel = idefindnostrings
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 12
+    o(i).nam = idenewtxt("Look only in " + CHR$(34) + "st#rings" + CHR$(34))
+    o(i).sel = idefindonlystrings
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 14
     o(i).txt = idenewtxt("Find and #Verify" + sep + "#Change All" + sep + "Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -5939,7 +6145,22 @@ FUNCTION idechange$
             END IF
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN
+        'mutually exclusive options
+        IF focus = 6 AND o(6).sel = 1 THEN
+            o(7).sel = 0
+        ELSEIF focus = 7 AND o(7).sel = 1 THEN
+            o(6).sel = 0
+            o(8).sel = 0
+            o(9).sel = 0
+        ELSEIF focus = 8 AND o(8).sel = 1 THEN
+            o(9).sel = 0
+        ELSEIF focus = 9 AND o(9).sel = 1 THEN
+            o(6).sel = 0
+            o(7).sel = 0
+            o(8).sel = 0
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 12 AND info <> 0) THEN
             idechange$ = "C"
             EXIT FUNCTION
         END IF
@@ -5964,10 +6185,14 @@ FUNCTION idechange$
             END IF
         END IF
 
-        IF focus = 7 AND info <> 0 THEN 'change all
+        IF focus = 11 AND info <> 0 THEN 'change all
             idefindcasesens = o(3).sel
             idefindwholeword = o(4).sel
             idefindbackwards = o(5).sel
+            idefindnocomments = o(6).sel
+            idefindonlycomments = o(7).sel
+            idefindnostrings = o(8).sel
+            idefindonlystrings = o(9).sel
 
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
@@ -6012,28 +6237,42 @@ FUNCTION idechange$
                     END IF
                 END IF
 
+                DIM comment AS _BYTE, quote AS _BYTE
+                IF x THEN
+                    FindQuoteComment l$, x, comment, quote
+                    IF idefindnocomments <> 0 AND comment THEN x = 0
+                    IF idefindnostrings <> 0 AND quote THEN x = 0
+                    IF idefindonlycomments <> 0 AND comment = 0 THEN x = 0
+                    IF idefindonlystrings <> 0 AND quote = 0 THEN x = 0
+                END IF
+
                 IF x THEN
                     l2$ = l2$ + MID$(l$, x1, x - x1) + idechangeto$
+                    changed = changed + 1
                     x1 = x + LEN(s$)
                     IF x1 <= LEN(l$) THEN GOTO idechangeall
                 END IF
 
                 l2$ = l2$ + MID$(l$, x1, LEN(l$) - x1 + 1)
 
-                IF l2$ <> l$ THEN idesetline y, l2$: changed = 1
+                IF l2$ <> l$ THEN idesetline y, l2$
 
             NEXT
 
-            IF changed = 0 THEN idenomatch ELSE idechanged: idechangemade = 1
+            IF changed = 0 THEN idenomatch ELSE idechanged changed: idechangemade = 1
             EXIT FUNCTION
 
         END IF 'change all
 
 
-        IF (focus = 6 AND info <> 0) OR K$ = CHR$(13) THEN
+        IF (focus = 10 AND info <> 0) OR K$ = CHR$(13) THEN
             idefindcasesens = o(3).sel
             idefindwholeword = o(4).sel
             idefindbackwards = o(5).sel
+            idefindnocomments = o(6).sel
+            idefindonlycomments = o(7).sel
+            idefindnostrings = o(8).sel
+            idefindonlystrings = o(9).sel
             idefindtext$ = idetxt(o(1).txt)
             idechangeto$ = idetxt(o(2).txt)
             idechange$ = "V"
@@ -6049,121 +6288,33 @@ FUNCTION idechange$
         mouseup = 0
     LOOP
 
-
 END FUNCTION
 
-SUB idechanged
+SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
+    c = 0: q = 0
+    cursor = __cursor
+    IF cursor > LEN(text$) THEN cursor = LEN(text$)
+    FOR find_k = 1 TO cursor
+        SELECT CASE MID$(text$, find_k, 1)
+            CASE CHR$(34): q = NOT q
+            CASE "'": IF q = 0 THEN c = -1: EXIT FOR
+            CASE "R", "r"
+                IF q = 0 THEN
+                    IF UCASE$(MID$(text$, find_k - 1, 5)) = " REM " OR _
+                       UCASE$(MID$(text$, find_k - 1, 5)) = ":REM " OR _
+                       (find_k + 2 = LEN(text$) AND UCASE$(MID$(text$, find_k - 1, 4)) = " REM") OR _
+                       (find_k + 2 = LEN(text$) AND UCASE$(MID$(text$, find_k - 1, 4)) = ":REM") OR _
+                       (find_k = 1 AND UCASE$(LEFT$(text$, 4)) = "REM ") OR _
+                       (find_k = 1 AND UCASE$(text$) = "REM") THEN
+                        c = -1: EXIT FOR
+                    END IF
+                END IF
+        END SELECT
+    NEXT find_k
+END SUB
 
-    '-------- generic dialog box header --------
-    PCOPY 3, 0
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    i = 0
-    idepar p, 19, 4, ""
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "Change Complete";
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
-        IF UCASE$(K$) = "N" THEN altletter$ = "N"
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF K$ = CHR$(27) THEN
-            EXIT SUB
-        END IF
-
-        IF info THEN
-            EXIT SUB
-        END IF
-
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
+SUB idechanged (totalChanges AS LONG)
+    idemessagebox "Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions."
 END SUB
 
 FUNCTION idechangeit$
@@ -6625,7 +6776,7 @@ SUB ideerrormessage (mess$)
 
 END SUB
 
-FUNCTION idefileexists$
+FUNCTION idefileexists$(f$)
     '-------- generic dialog box header --------
     PCOPY 3, 0
     PCOPY 0, 2
@@ -6641,7 +6792,18 @@ FUNCTION idefileexists$
     '-------- init --------
     i = 0
     'idepar p, 30, 6, "File already exists. Overwrite?"
-    idepar p, 35, 4, ""
+
+    l = LEN(f$)
+    DO
+        IF l < LEN(f$) THEN
+            m$ = "File " + CHR$(34) + STRING$(3, 250) + RIGHT$(f$, l) + CHR$(34) + " already exists. Overwrite?"
+        ELSE
+            m$ = "File " + CHR$(34) + f$ + CHR$(34) + " already exists. Overwrite?"
+        END IF
+        l = l - 1
+    LOOP UNTIL LEN(m$) + 4 < (idewx - 6)
+
+    idepar p, LEN(m$) + 4, 4, ""
     i = i + 1
     o(i).typ = 3
     o(i).y = 4
@@ -6671,7 +6833,7 @@ FUNCTION idefileexists$
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "File already exists. Overwrite?";
+        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT m$;
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -6794,7 +6956,7 @@ FUNCTION idefind$
     ln = 0
 
     i = 0
-    idepar p, 60, 9, "Find"
+    idepar p, 60, 11, "Find"
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
@@ -6828,8 +6990,34 @@ FUNCTION idefind$
     o(i).sel = idefindbackwards
 
     i = i + 1
-    o(i).typ = 3
+    o(i).typ = 4 'check box
+    o(i).y = 8
+    o(i).nam = idenewtxt("#Ignore 'comments")
+    o(i).sel = idefindnocomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 8
+    o(i).nam = idenewtxt("#Look only in 'comments")
+    o(i).sel = idefindonlycomments
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 9
+    o(i).nam = idenewtxt("Ignore " + CHR$(34) + "s#trings" + CHR$(34))
+    o(i).sel = idefindnostrings
+
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 29
+    o(i).y = 9
+    o(i).nam = idenewtxt("Look only in " + CHR$(34) + "st#rings" + CHR$(34))
+    o(i).sel = idefindonlystrings
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = 11
     o(i).txt = idenewtxt("OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -6917,15 +7105,34 @@ FUNCTION idefind$
             END IF
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 10 AND info <> 0) THEN
             idefind$ = "C"
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 5 AND info <> 0) THEN
+        'mutually exclusive options
+        IF focus = 5 AND o(5).sel = 1 THEN
+            o(6).sel = 0
+        ELSEIF focus = 6 AND o(6).sel = 1 THEN
+            o(5).sel = 0
+            o(7).sel = 0
+            o(8).sel = 0
+        ELSEIF focus = 7 AND o(7).sel = 1 THEN
+            o(8).sel = 0
+        ELSEIF focus = 8 AND o(8).sel = 1 THEN
+            o(5).sel = 0
+            o(6).sel = 0
+            o(7).sel = 0
+        END IF
+
+        IF K$ = CHR$(13) OR (focus = 9 AND info <> 0) THEN
             idefindcasesens = o(2).sel
             idefindwholeword = o(3).sel
             idefindbackwards = o(4).sel
+            idefindnocomments = o(5).sel
+            idefindonlycomments = o(6).sel
+            idefindnostrings = o(7).sel
+            idefindonlystrings = o(8).sel
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
             IdeAddSearched idefindtext
@@ -6962,6 +7169,7 @@ FUNCTION idefind$
 END FUNCTION
 
 SUB idefindagain
+    DIM comment AS _BYTE, quote AS _BYTE
 
     IF idefindinvert THEN
         IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
@@ -7043,6 +7251,14 @@ SUB idefindagain
     END IF
 
     IF x THEN
+        FindQuoteComment l$, x, comment, quote
+        IF idefindnocomments <> 0 AND comment THEN x = 0
+        IF idefindnostrings <> 0 AND quote THEN x = 0
+        IF idefindonlycomments <> 0 AND comment = 0 THEN x = 0
+        IF idefindonlystrings <> 0 AND quote = 0 THEN x = 0
+    END IF
+
+    IF x THEN
         ideselect = 1
         idecx = x: idecy = y
         ideselectx1 = x + LEN(s$): ideselecty1 = y
@@ -7079,7 +7295,6 @@ SUB idefindagain
         IF y > iden THEN y = 1: looped = 1
         GOTO idefindnext2
     END IF
-
 END SUB
 
 FUNCTION idegetline$ (i)
@@ -7395,13 +7610,8 @@ SUB idenewsf (sf AS STRING)
 
 END SUB
 
-FUNCTION idenewtxt (a$)
-    idetxtlast = idetxtlast + 1
-    idetxt$(idetxtlast) = a$
-    idenewtxt = idetxtlast
-END FUNCTION
+FUNCTION idenewfolder$(thispath$)
 
-SUB idenomatch
 
     '-------- generic dialog box header --------
     PCOPY 3, 0
@@ -7416,12 +7626,25 @@ SUB idenomatch
     '-------- end of generic dialog box header --------
 
     '-------- init --------
+
     i = 0
-    idepar p, 19, 4, ""
+
+    idepar p, 60, 5, "New Folder"
+
+    i = i + 1
+    PrevFocus = 1
+    o(i).typ = 1
+    o(i).y = 2
+    o(i).nam = idenewtxt("#Name")
+    o(i).txt = idenewtxt(a2$)
+    IF LEN(a2$) > 0 THEN o(i).issel = -1
+    o(i).sx1 = 0
+    o(i).v1 = LEN(a2$)
+
     i = i + 1
     o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
+    o(i).y = 5
+    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -7431,11 +7654,13 @@ SUB idenomatch
 
     DO 'main loop
 
+
         '-------- generic display dialog box & objects --------
         idedrawpar p
         f = 1: cx = 0: cy = 0
         FOR i = 1 TO 100
             IF o(i).typ THEN
+
                 'prepare object
                 o(i).foc = focus - f 'focus offset
                 o(i).cx = 0: o(i).cy = 0
@@ -7447,7 +7672,6 @@ SUB idenomatch
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 3: PRINT "Match not found";
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -7479,9 +7703,6 @@ SUB idenomatch
         SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
         '-------- end of read input --------
 
-        IF UCASE$(K$) = "Y" THEN altletter$ = "Y"
-        IF UCASE$(K$) = "N" THEN altletter$ = "N"
-
         '-------- generic input response --------
         info = 0
         IF K$ = "" THEN K$ = CHR$(255)
@@ -7499,11 +7720,29 @@ SUB idenomatch
         NEXT
         '-------- end of generic input response --------
 
-        IF K$ = CHR$(27) THEN
+        'specific post controls
+        IF focus <> PrevFocus THEN
+            'Always start with TextBox values selected upon getting focus
+            PrevFocus = focus
+            IF focus = 1 THEN
+                o(focus).v1 = LEN(idetxt(o(focus).txt))
+                IF o(focus).v1 > 0 THEN o(focus).issel = -1
+                o(focus).sx1 = 0
+            END IF
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
             EXIT SUB
         END IF
 
-        IF info THEN
+        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
+            IF _DIREXISTS(thispath$ + idepathsep$ + idetxt(o(1).txt)) THEN
+                idenewfolder$ = idetxt(o(1).txt)
+                EXIT SUB
+            END IF
+            ideerror = 5
+            MKDIR thispath$ + idepathsep$ + idetxt(o(1).txt)
+            idenewfolder$ = idetxt(o(1).txt)
             EXIT SUB
         END IF
 
@@ -7513,9 +7752,22 @@ SUB idenomatch
         mouseup = 0
     LOOP
 
+
+
 END SUB
 
-FUNCTION ideopen$
+
+FUNCTION idenewtxt (a$)
+    idetxtlast = idetxtlast + 1
+    idetxt$(idetxtlast) = a$
+    idenewtxt = idetxtlast
+END FUNCTION
+
+SUB idenomatch
+    idemessagebox "Search complete", "Match not found."
+END SUB
+
+FUNCTION idefiledialog$(programname$, mode AS _BYTE)
     STATIC AllFiles
 
     '-------- generic dialog box header --------
@@ -7531,16 +7783,27 @@ FUNCTION ideopen$
 
     '-------- init --------
     path$ = idepath$
-    filelist$ = idezfilelist$(path$, AllFiles)
+    filelist$ = idezfilelist$(path$, AllFiles, "")
     pathlist$ = idezpathlist$(path$)
 
     i = 0
-    idepar p, 70, idewy + idesubwindow - 7, "Open"
+    IF mode = 1 THEN
+        idepar p, 70, idewy + idesubwindow - 7, "Open"
+    ELSEIF mode = 2 THEN
+        idepar p, 70, idewy + idesubwindow - 7, "Save As"
+    END IF
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
     o(i).y = 2
     o(i).nam = idenewtxt("File #Name")
+    IF mode = 2 THEN
+        o(i).txt = idenewtxt(programname$)
+        o(i).issel = -1
+        o(i).sx1 = 0
+        o(i).v1 = LEN(programname$)
+    END IF
+
     i = i + 1
     o(i).typ = 2
     o(i).y = 5
@@ -7559,6 +7822,12 @@ FUNCTION ideopen$
     o(i).y = idewy + idesubwindow - 9
     o(i).nam = idenewtxt(".BAS Only")
     IF AllFiles THEN o(i).sel = 0 ELSE o(i).sel = 1
+    prevBASOnly = o(i).sel
+    i = i + 1
+    o(i).typ = 3
+    o(i).x = 56
+    o(i).y = idewy + idesubwindow - 9
+    o(i).txt = idenewtxt("Ne#w Folder")
     i = i + 1
     o(i).typ = 3
     o(i).y = idewy + idesubwindow - 7
@@ -7570,7 +7839,7 @@ FUNCTION ideopen$
     FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
     '-------- end of generic init --------
 
-    IF LEN(IdeOpenFile) THEN f$ = IdeOpenFile: GOTO DirectLoad
+    IF mode = 1 AND LEN(IdeOpenFile) > 0 THEN f$ = IdeOpenFile: GOTO DirectLoad
 
     DO 'main loop
 
@@ -7614,12 +7883,14 @@ FUNCTION ideopen$
             alt = KALT: IF alt <> oldalt THEN change = 1
             oldalt = alt
 
-            IF _TOTALDROPPEDFILES > 0 THEN
-                idetxt(o(1).txt) = _DROPPEDFILE$(1)
-                o(1).v1 = LEN(idetxt(o(1).txt))
-                focus = 1
-                _FINISHDROP
-                change = 1
+            IF mode = 1 THEN
+                IF _TOTALDROPPEDFILES > 0 THEN
+                    idetxt(o(1).txt) = _DROPPEDFILE$(1)
+                    o(1).v1 = LEN(idetxt(o(1).txt))
+                    focus = 1
+                    _FINISHDROP
+                    change = 1
+                END IF
             END IF
 
             _LIMIT 100
@@ -7673,21 +7944,27 @@ FUNCTION ideopen$
             END IF
         END IF
 
-        IF AllFiles = 1 AND o(4).sel <> 0 THEN
-            AllFiles = 0
-            idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
-            o(2).sel = -1
-            GOTO ideopenloop
-        END IF
-        IF AllFiles = 0 AND o(4).sel = 0 THEN
-            AllFiles = 1
-            idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
+        IF o(4).sel <> prevBASOnly THEN
+            prevBASOnly = o(4).sel
+            IF o(4).sel = 0 THEN AllFiles = 1 ELSE AllFiles = 0
+            idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
             o(2).sel = -1
             GOTO ideopenloop
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
-            ideopen$ = "C"
+        IF focus = 5 AND info <> 0 THEN
+            'create new folder
+            newpath$ = idenewfolder(path$)
+            IF LEN(newpath$) THEN
+                f$ = newpath$
+                GOTO changepath
+            ELSE
+                GOTO ideopenloop
+            END IF
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 7 AND info <> 0) THEN
+            idefiledialog$ = "C"
             EXIT FUNCTION
         END IF
 
@@ -7697,100 +7974,162 @@ FUNCTION ideopen$
         END IF
 
         IF focus = 3 THEN
-            IF K$ = CHR$(13) OR info = 1 THEN
-
+            IF (K$ = CHR$(13) OR info = 1) AND o(3).sel >= 1 THEN
                 path$ = idezchangepath(path$, idetxt(o(3).stx))
-                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
+                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 idetxt(o(3).txt) = idezpathlist$(path$)
 
                 o(2).sel = -1
-                o(3).sel = 1
-                IF info = 1 THEN o(3).sel = -1
+                o(3).sel = -1
                 GOTO ideopenloop
             END IF
         END IF
 
-        'load file
-        IF K$ = CHR$(13) OR (info = 1 AND focus = 2) OR (focus = 5 AND info <> 0) THEN
+        'load or save file
+        IF K$ = CHR$(13) OR (info = 1 AND focus = 2) OR (focus = 6 AND info <> 0) THEN
             f$ = idetxt(o(1).txt)
 
+            IF _FILEEXISTS(f$) THEN GOTO DirectLoad
+
+            IF f$ = "" AND focus = 1 AND K$ = CHR$(13) THEN
+                'reset filters
+                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
+                o(2).sel = -1
+                GOTO ideopenloop
+            ELSEIF f$ = "" AND focus = 6 AND info <> 0 THEN
+                GOTO ideopenloop
+            END IF
+
             'change path?
-            IF f$ = ".." OR f$ = "." THEN f$ = f$ + idepathsep$
-            IF RIGHT$(f$, 1) = idepathsep$ THEN
-                path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
-                idetxt(o(1).txt) = ""
-                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles)
+            changepath:
+            IF _DIREXISTS(path$ + idepathsep$ + f$) THEN
+                'check/acquire file path
+                path$ = idezgetfilepath$(path$, f$ + idepathsep$) 'note: path ending with pathsep needn't contain a file
+                IF LEN(newpath$) = 0 THEN
+                    idetxt(o(1).txt) = ""
+                    focus = 1
+                ELSE
+                    newpath$ = ""
+                END IF
+                idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                 o(2).sel = -1
                 idetxt(o(3).txt) = idezpathlist$(path$)
                 o(3).sel = -1
                 GOTO ideopenloop
             END IF
 
-            'add .bas if not given
-            IF (LCASE$(RIGHT$(f$, 4)) <> ".bas") AND AllFiles = 0 THEN f$ = f$ + ".bas"
-
-            DirectLoad:
-
-            'check/acquire file path
-            path$ = idezgetfilepath$(path$, f$)
-            'check file exists
-            ideerror = 2
-            OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
-
-            IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN
-                IF LEN(IdeOpenFile) THEN
-                    ideopen$ = "C"
-                    EXIT FUNCTION
-                ELSE
-                    info = 0: GOTO ideopenloop
+            'wildcards search
+            IF INSTR(f$, "?") > 0 OR INSTR(f$, "*") > 0 THEN
+                IF INSTR(f$, "/") > 0 OR INSTR(f$, "\") > 0 THEN
+                    'path + wildcards
+                    path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
+                    idetxt(o(3).txt) = idezpathlist$(path$)
+                    o(3).sel = -1
                 END IF
+                idetxt(o(1).txt) = f$
+                idetxt(o(2).txt) = idezfilelist$(path$, 2, f$)
+                o(2).sel = -1
+                o(1).v1 = LEN(idetxt(o(1).txt))
+                o(1).issel = -1
+                o(1).sx1 = 0
+                IF LCASE$(RIGHT$(f$, 4)) <> ".bas" THEN
+                    AllFiles = 0
+                    o(4).sel = 0
+                    prevBASOnly = o(4).sel
+                END IF
+                GOTO ideopenloop
             END IF
 
-            'load file
-            ideerror = 3
-            idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
-            idesx = 1
-            idesy = 1
-            idecx = 1
-            idecy = 1
-            ideselect = 0
-            idefocusline = 0
-            lineinput3load path$ + idepathsep$ + f$
-            idet$ = SPACE$(LEN(lineinput3buffer) * 8)
-            i2 = 1
-            n = 0
-            chrtab$ = CHR$(9)
-            space1$ = " ": space2$ = "  ": space3$ = "   ": space4$ = "    "
-            chr7$ = CHR$(7): chr11$ = CHR$(11): chr12$ = CHR$(12): chr28$ = CHR$(28): chr29$ = CHR$(29): chr30$ = CHR$(30): chr31$ = CHR$(31)
-            DO
-                a$ = lineinput3$
-                l = LEN(a$)
-                IF l THEN asca = ASC(a$) ELSE asca = -1
-                IF asca <> 13 THEN
-                    IF asca <> -1 THEN
-                        'fix tabs
-                        ideopenfixtabs:
-                        x = INSTR(a$, chrtab$)
-                        IF x THEN
-                            x2 = (x - 1) MOD 4
-                            IF x2 = 0 THEN a$ = LEFT$(a$, x - 1) + space4$ + RIGHT$(a$, l - x): l = l + 3: GOTO ideopenfixtabs
-                            IF x2 = 1 THEN a$ = LEFT$(a$, x - 1) + space3$ + RIGHT$(a$, l - x): l = l + 2: GOTO ideopenfixtabs
-                            IF x2 = 2 THEN a$ = LEFT$(a$, x - 1) + space2$ + RIGHT$(a$, l - x): l = l + 1: GOTO ideopenfixtabs
-                            IF x2 = 3 THEN a$ = LEFT$(a$, x - 1) + space1$ + RIGHT$(a$, l - x): GOTO ideopenfixtabs
-                        END IF
-                    END IF 'asca<>-1
-                    MID$(idet$, i2, l + 8) = MKL$(l) + a$ + MKL$(l): i2 = i2 + l + 8: n = n + 1
+            DirectLoad:
+            path$ = idezgetfilepath$(path$, f$) 'repeat in case of DirectLoad
+
+            IF mode = 1 THEN
+                IF _FILEEXISTS(path$ + idepathsep$ + f$) = 0 THEN
+                    'add .bas if not given
+                    IF (LCASE$(RIGHT$(f$, 4)) <> ".bas") AND AllFiles = 0 THEN f$ = f$ + ".bas"
                 END IF
-            LOOP UNTIL asca = 13
-            lineinput3buffer = ""
-            iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
-            ideerror = 1
-            ideprogname = f$: _TITLE ideprogname + " - QB64"
-            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
-            idepath$ = path$
-            IdeAddRecent idepath$ + idepathsep$ + ideprogname$
-            IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
-            EXIT FUNCTION
+
+                'check file exists
+                ideerror = 2
+                OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
+
+                IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN
+                    IF LEN(IdeOpenFile) THEN
+                        idefiledialog$ = "C"
+                        EXIT FUNCTION
+                    ELSE
+                        info = 0: GOTO ideopenloop
+                    END IF
+                END IF
+
+                'load file
+                ideerror = 3
+                idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
+                idesx = 1
+                idesy = 1
+                idecx = 1
+                idecy = 1
+                ideselect = 0
+                idefocusline = 0
+                lineinput3load path$ + idepathsep$ + f$
+                idet$ = SPACE$(LEN(lineinput3buffer) * 8)
+                i2 = 1
+                n = 0
+                chrtab$ = CHR$(9)
+                space1$ = " ": space2$ = "  ": space3$ = "   ": space4$ = "    "
+                chr7$ = CHR$(7): chr11$ = CHR$(11): chr12$ = CHR$(12): chr28$ = CHR$(28): chr29$ = CHR$(29): chr30$ = CHR$(30): chr31$ = CHR$(31)
+                DO
+                    a$ = lineinput3$
+                    l = LEN(a$)
+                    IF l THEN asca = ASC(a$) ELSE asca = -1
+                    IF asca <> 13 THEN
+                        IF asca <> -1 THEN
+                            'fix tabs
+                            ideopenfixtabs:
+                            x = INSTR(a$, chrtab$)
+                            IF x THEN
+                                x2 = (x - 1) MOD 4
+                                IF x2 = 0 THEN a$ = LEFT$(a$, x - 1) + space4$ + RIGHT$(a$, l - x): l = l + 3: GOTO ideopenfixtabs
+                                IF x2 = 1 THEN a$ = LEFT$(a$, x - 1) + space3$ + RIGHT$(a$, l - x): l = l + 2: GOTO ideopenfixtabs
+                                IF x2 = 2 THEN a$ = LEFT$(a$, x - 1) + space2$ + RIGHT$(a$, l - x): l = l + 1: GOTO ideopenfixtabs
+                                IF x2 = 3 THEN a$ = LEFT$(a$, x - 1) + space1$ + RIGHT$(a$, l - x): GOTO ideopenfixtabs
+                            END IF
+                        END IF 'asca<>-1
+                        MID$(idet$, i2, l + 8) = MKL$(l) + a$ + MKL$(l): i2 = i2 + l + 8: n = n + 1
+                    END IF
+                LOOP UNTIL asca = 13
+                lineinput3buffer = ""
+                iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                ideerror = 1
+                ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
+                idepath$ = path$
+                IdeAddRecent idepath$ + idepathsep$ + ideprogname$
+                IdeImportBookmarks idepath$ + idepathsep$ + ideprogname$
+                EXIT FUNCTION
+            ELSEIF mode = 2 THEN
+                IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
+
+                ideerror = 3
+                OPEN path$ + idepathsep$ + f$ FOR BINARY AS #150
+                ideerror = 1
+                IF LOF(150) THEN
+                    CLOSE #150
+                    a$ = idefileexists(f$)
+                    IF a$ = "N" THEN
+                        idefiledialog$ = "C"
+                        EXIT FUNCTION 'user didn't agree to overwrite
+                    END IF
+                ELSE
+                    CLOSE #150
+                END IF
+                ideprogname$ = f$: _TITLE ideprogname + " - " + WindowTitle
+                idesave path$ + idepathsep$ + f$
+                idepath$ = path$
+                IdeAddRecent idepath$ + idepathsep$ + ideprogname$
+                IdeSaveBookmarks idepath$ + idepathsep$ + ideprogname$
+                EXIT FUNCTION
+            END IF
         END IF
 
         ideopenloop:
@@ -8053,202 +8392,6 @@ SUB idesave (f$)
     ideunsaved = 0
 END SUB
 
-FUNCTION idesaveas$ (programname$)
-    '-------- generic dialog box header --------
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    path$ = idepath$
-    pathlist$ = idezpathlist$(path$)
-
-    i = 0
-    idepar p, 48, idewy + idesubwindow - 7, "Save As"
-
-    i = i + 1
-    PrevFocus = 1
-    o(i).typ = 1
-    o(i).y = 2
-    o(i).nam = idenewtxt("File #Name")
-    o(i).txt = idenewtxt(programname$)
-    o(i).issel = -1
-    o(i).sx1 = 0
-    o(i).v1 = LEN(programname$)
-
-    'i = i + 1
-    'o(i).typ = 2
-    'o(i).y = 5
-    'o(i).w = 32: o(i).h = 11
-    'o(i).nam = idenewtxt("#Files")
-    'o(i).txt = idenewtxt(filelist$): filelist$ = ""
-
-    i = i + 1
-    o(i).typ = 2
-    'o(i).x = 10:
-    o(i).y = 5
-    o(i).w = 44: o(i).h = idewy + idesubwindow - 14
-    o(i).nam = idenewtxt("#Paths")
-    o(i).txt = idenewtxt(pathlist$): pathlist$ = ""
-
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 7
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 4, p.x + 2: PRINT "Path: ";
-        a$ = path$
-        w = p.w - 8
-        IF LEN(a$) > w - 3 THEN a$ = STRING$(3, 250) + RIGHT$(a$, w - 3)
-        PRINT a$;
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        IF focus <> PrevFocus THEN
-            'Always start with TextBox values selected upon getting focus
-            PrevFocus = focus
-            IF focus = 1 THEN
-                o(focus).v1 = LEN(idetxt(o(focus).txt))
-                IF o(focus).v1 > 0 THEN o(focus).issel = -1
-                o(focus).sx1 = 0
-            END IF
-        END IF
-
-        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
-            idesaveas$ = "C"
-            EXIT FUNCTION
-        END IF
-
-        IF focus = 2 THEN
-            IF K$ = CHR$(13) OR info = 1 THEN
-                path$ = idezchangepath(path$, idetxt(o(2).stx))
-                idetxt(o(2).txt) = idezpathlist$(path$)
-                o(2).sel = 1
-                IF info = 1 THEN o(2).sel = -1
-            END IF
-        END IF
-
-        IF (K$ = CHR$(13) AND focus <> 2) OR (focus = 3 AND info <> 0) THEN
-            f$ = idetxt(o(1).txt)
-
-            'change path?
-            IF f$ = ".." OR f$ = "." THEN f$ = f$ + idepathsep$
-            IF RIGHT$(f$, 1) = idepathsep$ THEN
-                path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
-                idetxt(o(1).txt) = ""
-                idetxt(o(2).txt) = idezpathlist$(path$)
-                o(2).sel = -1
-                GOTO idesaveasloop
-            END IF
-
-            IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
-
-            path$ = idezgetfilepath$(path$, f$)
-            ideerror = 3
-            OPEN path$ + idepathsep$ + f$ FOR BINARY AS #150
-            ideerror = 1
-            IF LOF(150) THEN
-                CLOSE #150
-                a$ = idefileexists
-                IF a$ = "N" THEN
-                    idesaveas$ = "C"
-                    EXIT FUNCTION 'user didn't agree to overwrite
-                END IF
-            ELSE
-                CLOSE #150
-            END IF
-            ideprogname$ = f$: _TITLE ideprogname + " - QB64"
-            idesave path$ + idepathsep$ + f$
-            idepath$ = path$
-            IdeAddRecent idepath$ + idepathsep$ + ideprogname$
-            IdeSaveBookmarks idepath$ + idepathsep$ + ideprogname$
-            EXIT FUNCTION
-        END IF
-
-        idesaveasloop:
-
-        'end of custom controls
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
-END FUNCTION
-
 FUNCTION idesavenow$
 
     '-------- generic dialog box header --------
@@ -8378,6 +8521,11 @@ SUB idesetline (i, text$)
 
 END SUB
 
+FUNCTION timeElapsedSince! (startTime!)
+    IF startTime! > TIMER THEN startTime! = startTime! - 86400
+    timeElapsedSince! = TIMER - startTime!
+END FUNCTION
+
 SUB ideshowtext
 
     _PALETTECOLOR 1, IDEBackgroundColor, 0
@@ -8395,97 +8543,105 @@ SUB ideshowtext
     initialNum.char$ = "0123456789-.&"
     num.char$ = "0123456789EDed+-.`%&!#~HBOhboACFacf"
 
+    DIM ideshowtext_comment AS _BYTE, ideshowtext_quote AS _BYTE
+
     STATIC prevListOfCustomWords$, manualList AS _BYTE
+    DIM startTime AS SINGLE
 
-    IF idefocusline <> 0 THEN
-        'there's an error and compilation is halted,
-        'so we'll build the list of subs/functions
-        'for proper highlighting:
-        IF idechangemade THEN manualList = 0
-        IF manualList = 0 THEN
-            manualList = -1
-            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
-            FOR y = 1 TO iden
-                a$ = UCASE$(LTRIM$(RTRIM$(idegetline(y))))
-                sf = 0
-                IF LEFT$(a$, 4) = "SUB " THEN sf = 1
-                IF LEFT$(a$, 9) = "FUNCTION " THEN sf = 2
-                IF sf THEN
-                    IF RIGHT$(a$, 7) = " STATIC" THEN
-                        a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+    startTime = TIMER
+
+    IF NOT DisableSyntaxHighlighter THEN
+        IF idefocusline <> 0 THEN
+            'there's an error and compilation is halted,
+            'so we'll build the list of subs/functions
+            'for proper highlighting:
+            IF idechangemade THEN manualList = 0
+            IF manualList = 0 THEN
+                manualList = -1
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
+                FOR y = 1 TO iden
+                    a$ = UCASE$(LTRIM$(RTRIM$(idegetline(y))))
+                    sf = 0
+                    IF LEFT$(a$, 4) = "SUB " THEN sf = 1
+                    IF LEFT$(a$, 9) = "FUNCTION " THEN sf = 2
+                    IF sf THEN
+                        IF RIGHT$(a$, 7) = " STATIC" THEN
+                            a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                        END IF
+
+                        IF sf = 1 THEN
+                            a$ = MID$(a$, 5)
+                        ELSE
+                            a$ = MID$(a$, 10)
+                        END IF
+
+                        a$ = LTRIM$(RTRIM$(a$))
+                        x = INSTR(a$, "(")
+                        IF x THEN
+                            a$ = RTRIM$(LEFT$(a$, x - 1))
+                        END IF
+
+                        'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                        FOR CleanseN = 1 TO LEN(a$)
+                            SELECT CASE MID$(a$, CleanseN, 1)
+                                CASE " ", "'", ":"
+                                    a$ = LEFT$(a$, CleanseN - 1)
+                                    EXIT FOR
+                            END SELECT
+                        NEXT
+                        listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + removesymbol2$(a$) + "@"
                     END IF
-
-                    IF sf = 1 THEN
-                        a$ = MID$(a$, 5)
-                    ELSE
-                        a$ = MID$(a$, 10)
-                    END IF
-
-                    a$ = LTRIM$(RTRIM$(a$))
-                    x = INSTR(a$, "(")
-                    IF x THEN
-                        a$ = RTRIM$(LEFT$(a$, x - 1))
-                    END IF
-
-                    'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-                    FOR CleanseN = 1 TO LEN(a$)
-                        SELECT CASE MID$(a$, CleanseN, 1)
-                            CASE " ", "'", ":"
-                                a$ = LEFT$(a$, CleanseN - 1)
-                                EXIT FOR
-                        END SELECT
-                    NEXT
-                    listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + removesymbol2$(a$) + "@"
-                END IF
-            NEXT
+                NEXT
+            END IF
+        ELSE
+            manualList = 0
         END IF
-    ELSE
-        manualList = 0
-    END IF
 
-    IF prevListOfCustomWords$ <> listOfCustomKeywords$ THEN
-        IF manualList = 0 THEN
-            DO
-                atSign = INSTR(atSign + 1, listOfCustomKeywords$, "@")
-                nextAt = INSTR(atSign + 1, listOfCustomKeywords$, "@")
-                IF nextAt = 0 THEN EXIT DO
-                IF atSign > customKeywordsLength THEN
-                    checkKeyword$ = removesymbol2$(MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1))
-                    IF LEN(checkKeyword$) THEN
-                        hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
-                        hashchkflags = hashchkflags + HASHFLAG_FUNCTION
-                        hashres1 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
-                        IF hashres1 <> 0 THEN hashres1 = 1
-                        hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
-                        hashchkflags = hashchkflags + HASHFLAG_SUB
-                        hashres2 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
-                        IF hashres2 <> 0 THEN hashres2 = 1
-                        IF hashres1 + hashres2 = 0 THEN
-                            'remove this custom keyword if not registered
-                            MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1) = STRING$(LEN(checkKeyword$), "@")
+        IF prevListOfCustomWords$ <> listOfCustomKeywords$ THEN
+            IF manualList = 0 THEN
+                DO
+                    atSign = INSTR(atSign + 1, listOfCustomKeywords$, "@")
+                    nextAt = INSTR(atSign + 1, listOfCustomKeywords$, "@")
+                    IF nextAt = 0 THEN EXIT DO
+                    IF atSign > customKeywordsLength THEN
+                        checkKeyword$ = removesymbol2$(MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1))
+                        IF LEN(checkKeyword$) THEN
+                            hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
+                            hashchkflags = hashchkflags + HASHFLAG_FUNCTION
+                            hashres1 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
+                            IF hashres1 <> 0 THEN hashres1 = 1
+                            hashchkflags = HASHFLAG_RESERVED + HASHFLAG_CONSTANT
+                            hashchkflags = hashchkflags + HASHFLAG_SUB
+                            hashres2 = HashFind(checkKeyword$, hashchkflags, hashresflags, hashresref)
+                            IF hashres2 <> 0 THEN hashres2 = 1
+                            IF hashres1 + hashres2 = 0 THEN
+                                'remove this custom keyword if not registered
+                                MID$(listOfCustomKeywords$, atSign + 1, (nextAt - atSign) - 1) = STRING$(LEN(checkKeyword$), "@")
+                            END IF
                         END IF
                     END IF
-                END IF
-            LOOP
-        END IF
-
-        FOR i = 1 TO LEN(listOfCustomKeywords$)
-            checkChar = ASC(listOfCustomKeywords$, i)
-            IF checkChar = 64 THEN
-                IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
-            ELSE
-                tempList$ = tempList$ + CHR$(checkChar)
+                LOOP
             END IF
-        NEXT
-        listOfCustomKeywords$ = tempList$
 
-        DO WHILE INSTR(listOfCustomKeywords$, fix046$)
-            x = INSTR(listOfCustomKeywords$, fix046$)
-            listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, x - 1) + "." + RIGHT$(listOfCustomKeywords$, LEN(listOfCustomKeywords$) - x + 1 - LEN(fix046$))
-        LOOP
+            FOR i = 1 TO LEN(listOfCustomKeywords$)
+                checkChar = ASC(listOfCustomKeywords$, i)
+                IF checkChar = 64 THEN
+                    IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
+                ELSE
+                    tempList$ = tempList$ + CHR$(checkChar)
+                END IF
+            NEXT
+            listOfCustomKeywords$ = tempList$
 
-        prevListOfCustomWords$ = listOfCustomKeywords$
+            DO WHILE INSTR(listOfCustomKeywords$, fix046$)
+                x = INSTR(listOfCustomKeywords$, fix046$)
+                listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, x - 1) + "." + RIGHT$(listOfCustomKeywords$, LEN(listOfCustomKeywords$) - x + 1 - LEN(fix046$))
+            LOOP
+
+            prevListOfCustomWords$ = listOfCustomKeywords$
+        END IF
     END IF
+
 
     cc = -1
 
@@ -8504,200 +8660,216 @@ SUB ideshowtext
     l = idesy
     EnteringRGB = 0
 
-    idecy_multilinestart = 0
-    idecy_multilineend = 0
-    a$ = idegetline(idecy)
-    findquotecomment$ = a$: GOSUB FindQuoteComment
-    IF RIGHT$(a$, 1) = "_" AND ideshowtext_comment = 0 THEN
-        'Find the beginning of the multiline
-        FOR idecy_i = idecy - 1 TO 1 STEP -1
-            b$ = idegetline(idecy_i)
-            findquotecomment$ = b$: GOSUB FindQuoteComment
-            IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
-        NEXT
-        IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
-
-        'Find the end of the multiline
-        FOR idecy_i = idecy + 1 TO iden
-            b$ = idegetline(idecy_i)
-            findquotecomment$ = b$: GOSUB FindQuoteComment
-            IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilineend = idecy_i: EXIT FOR
-        NEXT
-        IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
-    ELSE
-        IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
-        findquotecomment$ = b$: GOSUB FindQuoteComment
-        IF RIGHT$(b$, 1) = "_" AND ideshowtext_comment = 0 THEN
-            idecy_multilineend = idecy
-
+    IF NOT DisableSyntaxHighlighter THEN
+        idecy_multilinestart = 0
+        idecy_multilineend = 0
+        a$ = idegetline(idecy)
+        FindQuoteComment a$, LEN(a$), ideshowtext_comment, ideshowtext_quote
+        IF RIGHT$(a$, 1) = "_" AND ideshowtext_comment = 0 THEN
             'Find the beginning of the multiline
             FOR idecy_i = idecy - 1 TO 1 STEP -1
                 b$ = idegetline(idecy_i)
-                findquotecomment$ = b$: GOSUB FindQuoteComment
+                FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
                 IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
             NEXT
             IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
-        END IF
-    END IF
 
-    IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
+            'Find the end of the multiline
+            FOR idecy_i = idecy + 1 TO iden
+                b$ = idegetline(idecy_i)
+                FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
+                IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilineend = idecy_i: EXIT FOR
+            NEXT
+            IF idecy_multilineend = 0 THEN idecy_multilinestart = iden
+        ELSE
+            IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
+            FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
+            IF RIGHT$(b$, 1) = "_" AND ideshowtext_comment = 0 THEN
+                idecy_multilineend = idecy
 
-    ActiveINCLUDELink = 0
-
-    FOR y = 0 TO (idewy - 9)
-        LOCATE y + 3, 1
-        COLOR 7, 1
-        PRINT CHR$(179); 'clear prev bookmarks from lhs
-
-        IF ShowLineNumbers THEN
-            IF ShowLineNumbersUseBG THEN COLOR , 6
-            PRINT SPACE$(maxLineNumberLength);
-            IF l <= iden THEN
-                l2$ = STR$(l)
-                IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
-                    LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
-                    PRINT l2$;
-                END IF
+                'Find the beginning of the multiline
+                FOR idecy_i = idecy - 1 TO 1 STEP -1
+                    b$ = idegetline(idecy_i)
+                    FindQuoteComment b$, LEN(b$), ideshowtext_comment, ideshowtext_quote
+                    IF RIGHT$(b$, 1) <> "_" OR ideshowtext_comment = -1 THEN idecy_multilinestart = idecy_i + 1: EXIT FOR
+                NEXT
+                IF idecy_multilinestart = 0 THEN idecy_multilinestart = 1
             END IF
-            IF ShowLineNumbersSeparator THEN LOCATE y + 3, 1 + maxLineNumberLength: PRINT CHR$(179);
-            COLOR , 1
         END IF
 
-        IF l = idefocusline AND idecy <> l THEN
-            COLOR 7, 4 'Line with error gets a red background
-        ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
-            IF HideCurrentLineHighlight = 0 THEN COLOR 7, 6 'Highlight the current line
-        ELSE
-            COLOR 7, 1 'Regular text color
-        END IF
+        IF idecy > 1 THEN b$ = idegetline(idecy - 1) ELSE b$ = ""
 
-        IF l <= iden THEN
-            a$ = idegetline(l)
-            link_idecx = 0
-            rgb_idecx = 0
-            IF l = idecy THEN
-                IF idecx <= LEN(a$) AND idecx >= 1 THEN
-                    cc = ASC(a$, idecx)
-                    IF cc = 32 THEN
-                        IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
+        ActiveINCLUDELink = 0
+
+        FOR y = 0 TO (idewy - 9)
+            LOCATE y + 3, 1
+            COLOR 7, 1
+            PRINT CHR$(179); 'clear prev bookmarks from lhs
+
+            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+
+            IF l = idefocusline AND idecy <> l THEN
+                COLOR 7, 4 'Line with error gets a red background
+            ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
+                IF HideCurrentLineHighlight = 0 THEN COLOR 7, 6 'Highlight the current line
+            ELSE
+                COLOR 7, 1 'Regular text color
+            END IF
+
+            IF l <= iden THEN
+                DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
+                    REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE '   to the end of a program before the IDE has finished
+                LOOP '                                                      verifying the code and growing the array during the IDE passes.
+
+                a$ = idegetline(l)
+                link_idecx = 0
+                rgb_idecx = 0
+                IF l = idecy THEN
+                    IF idecx <= LEN(a$) AND idecx >= 1 THEN
+                        cc = ASC(a$, idecx)
+                        IF cc = 32 THEN
+                            IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
+                        END IF
                     END IF
+
+                    'Check if the cursor is positioned inside a comment or
+                    'quotation marks:
+                    FindQuoteComment a$, idecx, ideshowtext_comment, ideshowtext_quote
+                    idecx_comment = ideshowtext_comment
+                    idecx_quote = ideshowtext_quote
+
+                    'Check if we're on a bracket, to highlight it and its match
+                    brackets = 0
+                    bracket1 = 0
+                    bracket2 = 0
+                    IF idecx_comment + idecx_quote = 0 AND brackethighlight = -1 THEN
+                        inquote = 0
+                        comment = 0
+                        IF MID$(a$, idecx, 1) = "(" THEN
+                            brackets = 1
+                            bracket1 = idecx
+                            ScanBracket2:
+                            FOR k = bracket1 + 1 TO LEN(a$)
+                                SELECT CASE MID$(a$, k, 1)
+                                    CASE CHR$(34)
+                                        inquote = NOT inquote
+                                    CASE "'"
+                                        IF inquote = 0 THEN comment = -1: EXIT FOR
+                                END SELECT
+                                IF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                    brackets = brackets - 1
+                                    IF brackets = 0 THEN bracket2 = k: EXIT FOR
+                                ELSEIF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                    brackets = brackets + 1
+                                END IF
+                            NEXT
+                        ELSEIF MID$(a$, idecx - 1, 1) = "(" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
+                            brackets = 1
+                            bracket1 = idecx - 1
+                            GOTO ScanBracket2
+                        ELSEIF MID$(a$, idecx, 1) = ")" THEN
+                            brackets = 1
+                            bracket2 = idecx
+                            ScanBracket1:
+                            FOR k = bracket2 - 1 TO 1 STEP -1
+                                SELECT CASE MID$(a$, k, 1)
+                                    CASE CHR$(34)
+                                        inquote = NOT inquote
+                                END SELECT
+                                IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
+                                    brackets = brackets - 1
+                                    IF brackets = 0 THEN bracket1 = k: EXIT FOR
+                                ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
+                                    brackets = brackets + 1
+                                END IF
+                            NEXT
+                        ELSEIF MID$(a$, idecx - 1, 1) = ")" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
+                            brackets = 1
+                            bracket2 = idecx - 1
+                            GOTO ScanBracket1
+                        END IF
+                    END IF
+
+                    'If the user is typing on the current line and has just inserted
+                    'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
+                    'color mixer.
+                    a2$ = UCASE$(a$)
+                    IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
+                        IF (RIGHT$(a2$, 5) = "_RGB(" OR _
+                           RIGHT$(a2$, 7) = "_RGB32(" OR _
+                           RIGHT$(a2$, 6) = "_RGBA(" OR _
+                           RIGHT$(a2$, 8) = "_RGBA32(") OR _
+                           ((RIGHT$(a2$, 4) = "RGB(" OR _
+                           RIGHT$(a2$, 6) = "RGB32(" OR _
+                           RIGHT$(a2$, 5) = "RGBA(" OR _
+                           RIGHT$(a2$, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
+                            rgb_idecx = LEN(a$)
+                            a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
+                            EnteringRGB = -1
+                        END IF
+                    ELSEIF idecx_comment + idecx_quote = 0 THEN
+                        IF (MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
+                           MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
+                           MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
+                           MID$(a2$, idecx - 8, 8) = "_RGBA32(") OR _
+                           ((MID$(a2$, idecx - 4, 4) = "RGB(" OR _
+                           MID$(a2$, idecx - 6, 6) = "RGB32(" OR _
+                           MID$(a2$, idecx - 5, 5) = "RGBA(" OR _
+                           MID$(a2$, idecx - 7, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
+                            IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
+                        END IF
+                    END IF
+
+                    FindInclude = INSTR(a2$, "$INCLUDE")
+                    IF FindInclude > 0 THEN
+                        link_idecx = LEN(a$)
+                        FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
+                        FindApostrophe2 = INSTR(FindApostrophe1 + 1, a2$, "'")
+                        ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
+                        p$ = idepath$ + pathsep$
+                        f$ = p$ + ActiveINCLUDELinkFile
+                        IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                    END IF
+                END IF 'l = idecy
+
+                a2$ = SPACE$(idesx + (idewx - 3))
+                MID$(a2$, 1) = a$
+            ELSE
+                a2$ = SPACE$((idewx - 2))
+            END IF
+
+            'Syntax highlighter
+            inquote = 0
+            metacommand = 0
+            comment = 0
+            isKeyword = 0: oldChar$ = ""
+            isCustomKeyword = 0
+            multiHighlightLength = 0
+            prevBG% = _BACKGROUNDCOLOR
+
+            FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
+                IF timeElapsedSince(startTime) > 1 THEN
+                    idemessagebox "Syntax Highlighter Disabled", StrReplace$("Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "\n", CHR$(10))
+                    DisableSyntaxHighlighter = -1
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                    GOTO noSyntaxHighlighting
                 END IF
-
-                'Check if the cursor is positioned inside a comment or
-                'quotation marks:
-                findquotecomment$ = LEFT$(a$, idecx): GOSUB FindQuoteComment
-                idecx_comment = ideshowtext_comment
-                idecx_quote = ideshowtext_quote
-
-                'Check if we're on a bracket, to highlight it and its match
-                brackets = 0
-                bracket1 = 0
-                bracket2 = 0
-                IF idecx_comment + idecx_quote = 0 AND brackethighlight = -1 THEN
-                    inquote = 0
-                    comment = 0
-                    IF MID$(a$, idecx, 1) = "(" THEN
-                        brackets = 1
-                        bracket1 = idecx
-                        ScanBracket2:
-                        FOR k = bracket1 + 1 TO LEN(a$)
-                            SELECT CASE MID$(a$, k, 1)
-                                CASE CHR$(34)
-                                    inquote = NOT inquote
-                                CASE "'"
-                                    IF inquote = 0 THEN comment = -1: EXIT FOR
-                            END SELECT
-                            IF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
-                                brackets = brackets - 1
-                                IF brackets = 0 THEN bracket2 = k: EXIT FOR
-                            ELSEIF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
-                                brackets = brackets + 1
+                IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
+                IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
+                    IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
+                        'the current selection was found at this spot. Multi-highlight takes place:
+                        IF m > 1 THEN
+                            IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
+                                IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
+                                    (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
+                                     MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
+                                    multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                                ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
+                                    multiHighlightLength = LEN(ideCurrentSingleLineSelection)
+                                END IF
                             END IF
-                        NEXT
-                    ELSEIF MID$(a$, idecx - 1, 1) = "(" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
-                        brackets = 1
-                        bracket1 = idecx - 1
-                        GOTO ScanBracket2
-                    ELSEIF MID$(a$, idecx, 1) = ")" THEN
-                        brackets = 1
-                        bracket2 = idecx
-                        ScanBracket1:
-                        FOR k = bracket2 - 1 TO 1 STEP -1
-                            SELECT CASE MID$(a$, k, 1)
-                                CASE CHR$(34)
-                                    inquote = NOT inquote
-                            END SELECT
-                            IF MID$(a$, k, 1) = "(" AND inquote = 0 THEN
-                                brackets = brackets - 1
-                                IF brackets = 0 THEN bracket1 = k: EXIT FOR
-                            ELSEIF MID$(a$, k, 1) = ")" AND inquote = 0 THEN
-                                brackets = brackets + 1
-                            END IF
-                        NEXT
-                    ELSEIF MID$(a$, idecx - 1, 1) = ")" AND MID$(a$, idecx, 1) <> CHR$(34) THEN
-                        brackets = 1
-                        bracket2 = idecx - 1
-                        GOTO ScanBracket1
-                    END IF
-                END IF
-
-                'If the user is typing on the current line and has just inserted
-                'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
-                'color mixer.
-                a2$ = UCASE$(a$)
-                IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
-                    IF RIGHT$(a2$, 5) = "_RGB(" OR _
-                       RIGHT$(a2$, 7) = "_RGB32(" OR _
-                       RIGHT$(a2$, 6) = "_RGBA(" OR _
-                       RIGHT$(a2$, 8) = "_RGBA32(" THEN
-                        rgb_idecx = LEN(a$)
-                        a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
-                        EnteringRGB = -1
-                    END IF
-                ELSEIF idecx_comment + idecx_quote = 0 THEN
-                    IF MID$(a2$, idecx - 5, 5) = "_RGB(" OR _
-                       MID$(a2$, idecx - 7, 7) = "_RGB32(" OR _
-                       MID$(a2$, idecx - 6, 6) = "_RGBA(" OR _
-                       MID$(a2$, idecx - 8, 8) = "_RGBA32(" THEN
-                        IF INSTR("0123456789", MID$(a2$, idecx, 1)) = 0 THEN EnteringRGB = -1
-                    END IF
-                END IF
-
-                FindInclude = INSTR(a2$, "$INCLUDE")
-                IF FindInclude > 0 THEN
-                    link_idecx = LEN(a$)
-                    ActiveINCLUDELink = idecy
-                    FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
-                    FindApostrophe2 = INSTR(FindApostrophe1 + 1, a2$, "'")
-                    ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
-                    p$ = idepath$ + pathsep$
-                    f$ = p$ + ActiveINCLUDELinkFile
-                    IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open"
-                END IF
-            END IF 'l = idecy
-
-            a2$ = SPACE$(idesx + (idewx - 3))
-            MID$(a2$, 1) = a$
-        ELSE
-            a2$ = SPACE$((idewx - 2))
-        END IF
-
-        'Syntax highlighter
-        inquote = 0
-        metacommand = 0
-        comment = 0
-        isKeyword = 0: oldChar$ = ""
-        isCustomKeyword = 0
-        multiHighlightLength = 0
-        prevBG% = _BACKGROUNDCOLOR
-
-        FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
-            IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
-            IF ideselect = 1 AND LEN(ideCurrentSingleLineSelection) > 0 AND multiHighlightLength = 0 AND multihighlight = -1 THEN
-                IF LCASE$(MID$(a2$, m, LEN(ideCurrentSingleLineSelection))) = LCASE$(ideCurrentSingleLineSelection) THEN
-                    'the current selection was found at this spot. Multi-highlight takes place:
-                    IF m > 1 THEN
-                        IF INSTR(char.sep$, MID$(a2$, m - 1, 1)) > 0 THEN
+                        ELSE
                             IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
                                 (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
                                  MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
@@ -8706,183 +8878,236 @@ SUB ideshowtext
                                 multiHighlightLength = LEN(ideCurrentSingleLineSelection)
                             END IF
                         END IF
-                    ELSE
-                        IF m + LEN(ideCurrentSingleLineSelection) < LEN(a2$) AND _
-                            (INSTR(char.sep$, MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1)) > 0 OR _
-                             MID$(a2$, m + LEN(ideCurrentSingleLineSelection), 1) = ".") THEN
-                            multiHighlightLength = LEN(ideCurrentSingleLineSelection)
-                        ELSEIF m + LEN(ideCurrentSingleLineSelection) >= LEN(a2$) THEN
-                            multiHighlightLength = LEN(ideCurrentSingleLineSelection)
-                        END IF
                     END IF
                 END IF
-            END IF
 
-            thisChar$ = MID$(a2$, m, 1)
+                thisChar$ = MID$(a2$, m, 1)
 
-            IF comment = 0 THEN
-                SELECT CASE thisChar$
-                    CASE CHR$(34): inquote = NOT inquote
-                    CASE "'": IF inquote = 0 THEN comment = -1
-                END SELECT
-            END IF
+                IF comment = 0 THEN
+                    SELECT CASE thisChar$
+                        CASE CHR$(34): inquote = NOT inquote
+                        CASE "'": IF inquote = 0 THEN comment = -1
+                    END SELECT
+                END IF
 
-            COLOR 13
+                COLOR 13
 
-            IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
-                IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
-                    'a number literal
-                    checkKeyword$ = ""
-                    is_Number = 0
+                IF InValidLine(l) THEN COLOR 7: GOTO SkipSyntaxHighlighter
 
-                    FOR i = m TO LEN(a2$)
-                        IF INSTR(num.char$, MID$(a2$, i, 1)) = 0 THEN EXIT FOR
-                        checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
-                    NEXT
-
-                    IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
+                IF (LEN(oldChar$) > 0 OR m = 1) AND inquote = 0 AND isKeyword = 0 THEN
+                    IF INSTR(initialNum.char$, thisChar$) > 0 AND oldChar$ <> ")" AND (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") THEN
+                        'a number literal
                         checkKeyword$ = ""
+                        is_Number = 0
+
+                        FOR i = m TO LEN(a2$)
+                            IF INSTR(num.char$, MID$(a2$, i, 1)) = 0 THEN EXIT FOR
+                            checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                        NEXT
+
+                        IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
+                            checkKeyword$ = ""
+                        ELSE
+                            IF UCASE$(LEFT$(checkKeyword$, 2)) = "&H" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&O" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&B" OR isnumber(checkKeyword$) THEN
+                                is_Number = -1
+                                isKeyword = LEN(checkKeyword$)
+                            END IF
+                        END IF
+                        GOTO setOldChar
+                    END IF
+
+                    IF (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") AND INSTR(char.sep$, thisChar$) = 0 THEN
+                        'a new "word" begins; check if it's an internal keyword
+                        checkKeyword$ = ""
+                        right.sep$ = ""
+                        FOR i = m TO LEN(a2$)
+                            IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
+                            checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                        NEXT
+                        IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
+                        checkKeyword$ = UCASE$(checkKeyword$)
+                        IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 OR _
+                           (qb64prefix_set = 1 AND INSTR(listOfKeywords$, "@_" + checkKeyword$ + "@") > 0) THEN
+                            'special cases
+                            IF checkKeyword$ = "$END" THEN
+                                IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
+                            ELSEIF checkKeyword$ = "THEN" AND _
+                                    (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
+                                    UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
+                                metacommand = -1
+                            ELSEIF checkKeyword$ = "$ASSERTS" THEN
+                                IF UCASE$(_TRIM$(a2$)) = "$ASSERTS:CONSOLE" THEN
+                                    checkKeyword$ = "$ASSERTS:CONSOLE"
+                                END IF
+                            END IF
+                            isKeyword = LEN(checkKeyword$)
+                        ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
+                            isCustomKeyword = -1
+                            isKeyword = LEN(checkKeyword$)
+                        END IF
+                    END IF
+                END IF
+                setOldChar:
+                oldChar$ = thisChar$
+
+                IF isKeyword > 0 AND keywordHighlight THEN
+                    IF is_Number THEN
+                        COLOR 8
+                    ELSEIF isCustomKeyword THEN
+                        COLOR 10
                     ELSE
-                        is_Number = -1
-                        isKeyword = LEN(checkKeyword$)
+                        COLOR 12
                     END IF
-                    GOTO setOldChar
+                    IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1
                 END IF
 
-                IF (INSTR(char.sep$, oldChar$) > 0 OR oldChar$ = "?") AND INSTR(char.sep$, thisChar$) = 0 THEN
-                    'a new "word" begins; check if it's an internal keyword
-                    checkKeyword$ = ""
-                    right.sep$ = ""
-                    FOR i = m TO LEN(a2$)
-                        IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): EXIT FOR
-                        checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
-                    NEXT
-                    IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
-                    checkKeyword$ = UCASE$(checkKeyword$)
-                    IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 THEN
-                        'special cases
-                        IF checkKeyword$ = "$END" THEN
-                            IF UCASE$(MID$(a2$, m, 7)) = "$END IF" THEN checkKeyword$ = "$END IF"
-                        ELSEIF checkKeyword$ = "THEN" AND _
-                                (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
-                                UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
-                            metacommand = -1
-                        ELSEIF checkKeyword$ = "$ASSERTS" THEN
-                            IF UCASE$(_TRIM$(a2$)) = "$ASSERTS:CONSOLE" THEN
-                                checkKeyword$ = "$ASSERTS:CONSOLE"
-                            END IF
-                        END IF
-                        isKeyword = LEN(checkKeyword$)
-                    ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
-                        isCustomKeyword = -1
-                        isKeyword = LEN(checkKeyword$)
-                    END IF
-                END IF
-            END IF
-            setOldChar:
-            oldChar$ = thisChar$
-
-            IF isKeyword > 0 AND keywordHighlight THEN
-                IF is_Number THEN
-                    COLOR 8
-                ELSEIF isCustomKeyword THEN
+                IF comment THEN
+                    COLOR 11
+                    IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
+                        OR checkKeyword$ = "$STATIC") THEN COLOR 10
+                ELSEIF metacommand THEN
                     COLOR 10
+                ELSEIF inquote OR thisChar$ = CHR$(34) THEN
+                    COLOR 14
+                END IF
+
+                SkipSyntaxHighlighter:
+
+                IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
+                   (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
+
+                IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
+                    COLOR , 5
+                ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
+                    multiHighlightLength = multiHighlightLength - 1
+                    COLOR , 5
                 ELSE
-                    COLOR 12
+                    COLOR , prevBG%
                 END IF
-                IF LEFT$(checkKeyword$, 1) = "$" THEN metacommand = -1
-            END IF
 
-            IF comment THEN
-                COLOR 11
-                IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
-                    OR checkKeyword$ = "$STATIC") THEN COLOR 10
-            ELSEIF metacommand THEN
-                COLOR 10
-            ELSEIF inquote OR thisChar$ = CHR$(34) THEN
-                COLOR 14
-            END IF
-
-            IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
-                COLOR , 5
-            ELSEIF multiHighlightLength > 0 AND multihighlight = -1 THEN
-                multiHighlightLength = multiHighlightLength - 1
-                COLOR , 5
-            ELSE
-                COLOR , prevBG%
-            END IF
-
-            IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
-               (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
-
-            DO UNTIL l < UBOUND(InValidLine) 'make certain we have enough InValidLine elements to cover us in case someone scrolls QB64
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT '   to the end of a program before the IDE has finished
-            LOOP '                                                      verifying the code and growing the array during the IDE passes.
-            IF InValidLine(l) AND 1 THEN COLOR 7
-
-            IF ShowLineNumbers THEN
-                IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
-                    LOCATE y + 3, (2 + m - idesx) + maxLineNumberLength
-                    PRINT thisChar$;
+                IF ShowLineNumbers THEN
+                    IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
+                        LOCATE y + 3, (2 + m - idesx) + maxLineNumberLength
+                        PRINT thisChar$;
+                    END IF
+                ELSE
+                    IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
+                        LOCATE y + 3, 2 + m - idesx
+                        PRINT thisChar$;
+                    END IF
                 END IF
-            ELSE
-                IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
-                    LOCATE y + 3, 2 + m - idesx
-                    PRINT thisChar$;
-                END IF
-            END IF
 
-            'Restore BG color in case a matching bracket was printed with different BG
-            IF l = idecy THEN COLOR , 6
-            IF isKeyword > 0 THEN isKeyword = isKeyword - 1
-            IF isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
-        NEXT m
+                'Restore BG color in case a matching bracket was printed with different BG
+                IF l = idecy THEN COLOR , 6
+                IF isKeyword > 0 THEN isKeyword = isKeyword - 1
+                IF isKeyword = 0 THEN checkKeyword$ = "": metacommand = 0: is_Number = 0: isCustomKeyword = 0
+            NEXT m
 
-        'apply selection color change if necessary
-        IF ideselect THEN
-            IF l >= sy1 AND l <= sy2 THEN
-                IF sy1 = sy2 THEN 'single line select
-                    COLOR 1, 7
-                    x2 = idesx
-                    FOR x = 2 + maxLineNumberLength TO (idewx - 2)
-                        IF x2 >= sx1 AND x2 < sx2 THEN
-                            a = SCREEN(y + 3, x)
+            'apply selection color change if necessary
+            IF ideselect THEN
+                IF l >= sy1 AND l <= sy2 THEN
+                    IF sy1 = sy2 THEN 'single line select
+                        COLOR 1, 7
+                        x2 = idesx
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                            IF x2 >= sx1 AND x2 < sx2 THEN
+                                a = SCREEN(y + 3, x)
 
-                            IF a = 63 THEN '"?"
-                                c = SCREEN(y + 3, x, 1)
-                            ELSE
-                                c = 1
+                                IF a = 63 THEN '"?"
+                                    c = SCREEN(y + 3, x, 1)
+                                ELSE
+                                    c = 1
+                                END IF
+                                IF (c AND 15) = 0 THEN 'black background
+                                    COLOR 0, 7
+                                    LOCATE y + 3, x: PRINT "?";
+                                    COLOR 1, 7
+                                ELSE
+                                    LOCATE y + 3, x: PRINT CHR$(a);
+                                END IF
+
+
                             END IF
-                            IF (c AND 15) = 0 THEN 'black background
-                                COLOR 0, 7
-                                LOCATE y + 3, x: PRINT "?";
-                                COLOR 1, 7
-                            ELSE
-                                LOCATE y + 3, x: PRINT CHR$(a);
-                            END IF
+                            x2 = x2 + 1
+                        NEXT
+                        COLOR 7, 1
+                    ELSE 'multiline select
+                        IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect
+                        LOCATE y + 3, 2 + maxLineNumberLength
+                        COLOR 1, 7
 
+                        FOR x = idesx TO idesx + idewx - (2 + maxLineNumberLength)
+                            PRINT MID$(a2$, x, 1);
+                        NEXT
 
-                        END IF
-                        x2 = x2 + 1
-                    NEXT
-                    COLOR 7, 1
-                ELSE 'multiline select
-                    IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect
-                    LOCATE y + 3, 2 + maxLineNumberLength
-                    COLOR 1, 7
-
-                    FOR x = idesx TO idesx + idewx - (2 + maxLineNumberLength)
-                        PRINT MID$(a2$, x, 1);
-                    NEXT
-
-                    COLOR 7, 1
-                    nofinalselect:
+                        COLOR 7, 1
+                        nofinalselect:
+                    END IF
                 END IF
             END IF
-        END IF
 
-        l = l + 1
-    NEXT
+            l = l + 1
+        NEXT
+    ELSE
+        noSyntaxHighlighting:
+        'original SUB ideshowtext routine:
+        COLOR 13, 1
+        l = idesy
+        FOR y = 0 TO (idewy - 9)
+            LOCATE y + 3, 1
+            COLOR 7, 1
+            PRINT CHR$(179); 'clear prev bookmarks from lhs
+
+            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+
+            IF l = idefocusline AND idecy <> l THEN COLOR 13, 4 ELSE COLOR 13, 1
+            LOCATE y + 3, 2 + maxLineNumberLength
+
+            IF l <= iden THEN
+                a$ = idegetline(l)
+                a2$ = SPACE$(idesx + (idewx - 3) - maxLineNumberLength)
+                MID$(a2$, 1) = a$
+                a2$ = RIGHT$(a2$, (idewx - 2) - maxLineNumberLength)
+            ELSE
+                a2$ = SPACE$((idewx - 2) - maxLineNumberLength)
+            END IF
+            PRINT a2$;
+
+            IF l = idecy THEN
+                IF idecx <= LEN(a$) AND idecx >= 1 THEN
+                    cc = ASC(a$, idecx)
+                    IF cc = 32 THEN
+                        IF LTRIM$(LEFT$(a$, idecx)) = "" THEN cc = -1
+                    END IF
+                END IF
+            END IF
+
+            'apply selection color change if necessary
+            IF ideselect THEN
+                IF l >= sy1 AND l <= sy2 THEN
+                    IF sy1 = sy2 THEN 'single line select
+                        COLOR 1, 7
+                        x2 = idesx
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                            IF x2 >= sx1 AND x2 < sx2 THEN
+                                a = SCREEN(y + 3, x): LOCATE y + 3, x: PRINT CHR$(a);
+                            END IF
+                            x2 = x2 + 1
+                        NEXT
+                        COLOR 7, 1
+                    ELSE 'multiline select
+                        IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect0
+                        LOCATE y + 3, 2 + maxLineNumberLength
+                        COLOR 1, 7: PRINT a2$;
+                        COLOR 7, 1
+                        nofinalselect0:
+                    END IF
+                END IF
+            END IF
+
+            l = l + 1
+        NEXT
+    END IF
 
     COLOR 7, 1
     FOR b = 1 TO IdeBmkN
@@ -8911,15 +9136,20 @@ SUB ideshowtext
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
 
     EXIT SUB
-    FindQuoteComment:
-    ideshowtext_comment = 0: ideshowtext_quote = 0
-    FOR ideshowtext_k = 1 TO LEN(findquotecomment$)
-        SELECT CASE MID$(findquotecomment$, ideshowtext_k, 1)
-            CASE CHR$(34): ideshowtext_quote = NOT ideshowtext_quote
-            CASE "'": IF ideshowtext_quote = 0 THEN ideshowtext_comment = -1: EXIT FOR
-        END SELECT
-    NEXT ideshowtext_k
+    ShowLineNumber:
+    IF ShowLineNumbersUseBG THEN COLOR , 6
+    PRINT SPACE$(maxLineNumberLength);
+    IF l <= iden THEN
+        l2$ = STR$(l)
+        IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
+            LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
+            PRINT l2$;
+        END IF
+    END IF
+    IF ShowLineNumbersSeparator THEN LOCATE y + 3, 1 + maxLineNumberLength: PRINT CHR$(179);
+    COLOR , 1
     RETURN
+
 END SUB
 
 FUNCTION idesubs$
@@ -9892,7 +10122,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
 
             IF LEN(kk$) = 1 THEN
                 ResetKeybTimer = 0
-                IF TIMER - LastKeybInput > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+                IF timeElapsedSince(LastKeybInput) > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
                 LastKeybInput = TIMER
                 k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
 
@@ -9918,7 +10148,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 END IF
 
                 IF k = 255 THEN
-                    IF o.sel > 0 THEN idetxt(o.stx) = ListBoxITEMS(o.sel)
+                    IF o.sel > 0 AND o.sel <= UBOUND(ListBoxITEMS) THEN idetxt(o.stx) = ListBoxITEMS(o.sel)
                     GOTO selected 'Search is not performed if kk$ isn't a printable character
                 ELSE
                     SearchTerm$ = SearchTerm$ + UCASE$(kk$)
@@ -10258,7 +10488,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
 
 END FUNCTION
 
-FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
+FUNCTION idezfilelist$ (path$, method, mask$) 'method0=*.bas, method1=*.*, method2=custom mask
     DIM sep AS STRING * 1
     sep = CHR$(0)
 
@@ -10266,6 +10496,7 @@ FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
         OPEN ".\internal\temp\files.txt" FOR OUTPUT AS #150: CLOSE #150
         IF method = 0 THEN SHELL _HIDE "dir /b /ON /A-D " + QuotedFilename$(path$) + "\*.bas >.\internal\temp\files.txt"
         IF method = 1 THEN SHELL _HIDE "dir /b /ON /A-D " + QuotedFilename$(path$) + "\*.* >.\internal\temp\files.txt"
+        IF method = 2 THEN SHELL _HIDE "dir /b /ON /A-D " + QuotedFilename$(path$) + "\" + QuotedFilename$(mask$) + " >.\internal\temp\files.txt"
         filelist$ = ""
         OPEN ".\internal\temp\files.txt" FOR INPUT AS #150
         DO UNTIL EOF(150)
@@ -10281,32 +10512,39 @@ FUNCTION idezfilelist$ (path$, method) 'method0=*.bas, method1=*.*
 
     IF os$ = "LNX" THEN
         filelist$ = ""
-        FOR i = 1 TO 2 - method
-            OPEN "./internal/temp/files.txt" FOR OUTPUT AS #150: CLOSE #150
-            IF method = 0 THEN
+        IF method = 0 THEN
+            FOR i = 1 TO 2
+                OPEN "./internal/temp/files.txt" FOR OUTPUT AS #150: CLOSE #150
                 IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.bas" + CHR$(34) + " | sort >./internal/temp/files.txt"
                 IF i = 2 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*.BAS" + CHR$(34) + " | sort >./internal/temp/files.txt"
-            END IF
-            IF method = 1 THEN
-                IF i = 1 THEN SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*" + CHR$(34) + " | sort >./internal/temp/files.txt"
-            END IF
-            OPEN "./internal/temp/files.txt" FOR INPUT AS #150
-            DO UNTIL EOF(150)
-                LINE INPUT #150, a$
-                IF LEN(a$) = 0 THEN EXIT DO
-                FOR x = LEN(a$) TO 1 STEP -1
-                    a2$ = MID$(a$, x, 1)
-                    IF a2$ = "/" THEN
-                        a$ = RIGHT$(a$, LEN(a$) - x)
-                        EXIT FOR
-                    END IF
-                NEXT
-                IF filelist$ = "" THEN filelist$ = a$ ELSE filelist$ = filelist$ + sep + a$
-            LOOP
-            CLOSE #150
-        NEXT
+                GOSUB AddToList
+            NEXT
+        ELSEIF method = 1 THEN
+            SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + "*" + CHR$(34) + " | sort >./internal/temp/files.txt"
+            GOSUB AddToList
+        ELSEIF method = 2 THEN
+            SHELL _HIDE "find " + QuotedFilename$(path$) + " -maxdepth 1 -type f -name " + CHR$(34) + mask$ + CHR$(34) + " | sort >./internal/temp/files.txt"
+            GOSUB AddToList
+        END IF
         idezfilelist$ = filelist$
         EXIT FUNCTION
+
+        AddToList:
+        OPEN "./internal/temp/files.txt" FOR INPUT AS #150
+        DO UNTIL EOF(150)
+            LINE INPUT #150, a$
+            IF LEN(a$) = 0 THEN EXIT DO
+            FOR x = LEN(a$) TO 1 STEP -1
+                a2$ = MID$(a$, x, 1)
+                IF a2$ = "/" THEN
+                    a$ = RIGHT$(a$, LEN(a$) - x)
+                    EXIT FOR
+                END IF
+            NEXT
+            IF filelist$ = "" THEN filelist$ = a$ ELSE filelist$ = filelist$ + sep + a$
+        LOOP
+        CLOSE #150
+        RETURN
     END IF
 
 END FUNCTION
@@ -10314,23 +10552,21 @@ END FUNCTION
 FUNCTION idezgetroot$
     'note: does NOT including a trailing / or \ on the right
 
-    IF os$ = "WIN" THEN
-        SHELL _HIDE "cd >.\internal\temp\root.txt"
-        OPEN ".\internal\temp\root.txt" FOR INPUT AS #150
-        LINE INPUT #150, a$
-        idezgetroot$ = a$
-        CLOSE #150
-        EXIT FUNCTION
-    END IF
-
-    IF os$ = "LNX" THEN
-        SHELL _HIDE "pwd >./internal/temp/root.txt"
-        OPEN "./internal/temp/root.txt" FOR INPUT AS #150
-        LINE INPUT #150, a$
-        idezgetroot$ = a$
-        CLOSE #150
-        EXIT FUNCTION
-    END IF
+     IF os$ = "WIN" THEN
+         SHELL _HIDE "cd >.\internal\temp\root.txt"
+         OPEN ".\internal\temp\root.txt" FOR INPUT AS #150
+         LINE INPUT #150, a$
+         idezgetroot$ = a$
+         CLOSE #150
+         EXIT FUNCTION
+     ELSE
+         SHELL _HIDE "pwd >./internal/temp/root.txt"
+         OPEN "./internal/temp/root.txt" FOR INPUT AS #150
+         LINE INPUT #150, a$
+         idezgetroot$ = a$
+         CLOSE #150
+         EXIT FUNCTION
+     END IF
 
 END FUNCTION
 
@@ -10401,32 +10637,16 @@ END FUNCTION
 FUNCTION ideztakepath$ (f$) 'assume f$ contains a filename with an optional path
     p$ = ""
 
-    IF os$ = "WIN" THEN
-        FOR i = LEN(f$) TO 1 STEP -1
-            a$ = MID$(f$, i, 1)
-            IF a$ = "\" THEN
-                p$ = LEFT$(f$, i - 1)
-                f$ = RIGHT$(f$, LEN(f$) - i)
-                EXIT FOR
-            END IF
-        NEXT
-        ideztakepath$ = p$
-        EXIT FUNCTION
-    END IF
-
-    IF os$ = "LNX" THEN
-        FOR i = LEN(f$) TO 1 STEP -1
-            a$ = MID$(f$, i, 1)
-            IF a$ = "/" THEN
-                p$ = LEFT$(f$, i - 1)
-                f$ = RIGHT$(f$, LEN(f$) - i)
-                EXIT FOR
-            END IF
-        NEXT
-        ideztakepath$ = p$
-        EXIT FUNCTION
-    END IF
-
+    FOR i = LEN(f$) TO 1 STEP -1
+        a$ = MID$(f$, i, 1)
+        IF a$ = "\" OR a$ = "/" THEN
+            p$ = LEFT$(f$, i - 1)
+            f$ = RIGHT$(f$, LEN(f$) - i)
+            EXIT FOR
+        END IF
+    NEXT
+    ideztakepath$ = p$
+    EXIT FUNCTION
 END FUNCTION
 
 'file f$ exists, and may contain a path
@@ -10436,10 +10656,13 @@ END FUNCTION
 FUNCTION idezgetfilepath$ (root$, f$)
     'step #1: seperate file's name from its path (if any)
     p$ = ideztakepath$(f$) 'note: this is a simple seperation of the string
+
     'step #2: if path was undefined, set it to root
     IF LEN(p$) = 0 THEN p$ = root$
+
     'step #3: if path is relative, make it relative to root$
-    IF LEFT$(p$, 1) = "." THEN p$ = root$ + idepathsep$ + p$
+    IF _DIREXISTS(root$ + idepathsep$ + p$) THEN p$ = root$ + idepathsep$ + p$
+
     'step #4: attempt a CHDIR to the path to (i)  validate its existance
     '                                      & (ii) allow listing the paths full name
     ideerror = 4 'path not found
@@ -10447,22 +10670,11 @@ FUNCTION idezgetfilepath$ (root$, f$)
     IF os$ = "WIN" THEN
         IF RIGHT$(p2$, 1) = ":" THEN p2$ = p2$ + "\" 'force change to root of drive
     END IF
+
     CHDIR p2$
     ideerror = 1
     'step #5: get the path's full name (assume success)
-    IF os$ = "WIN" THEN
-        SHELL _HIDE "cd >" + QuotedFilename$(ideroot$) + "\internal\temp\root.txt"
-        OPEN ideroot$ + "\internal\temp\root.txt" FOR INPUT AS #150
-        LINE INPUT #150, p$
-        IF RIGHT$(p$, 1) = "\" THEN p$ = LEFT$(p$, LEN(p$) - 1) 'strip trailing \ after root drive path
-        CLOSE #150
-    END IF
-    IF os$ = "LNX" THEN
-        SHELL _HIDE "pwd >" + QuotedFilename$(ideroot$) + "/internal/temp/root.txt"
-        OPEN ideroot$ + "/internal/temp/root.txt" FOR INPUT AS #150
-        LINE INPUT #150, p$
-        CLOSE #150
-    END IF
+    p$ = _CWD$
     'step #6: restore root path (assume success)
     CHDIR ideroot$
     'important: no validation of f$ necessary
@@ -11640,9 +11852,17 @@ FUNCTION idedisplaybox
 
     i = i + 1
     o(i).typ = 4 'check box
+    o(i).y = 9
+    o(i).nam = idenewtxt("Use _FONT 8")
+    o(i).sel = IDE_UseFont8
+    prevFont8Setting = o(i).sel
+
+    i = i + 1
+    o(i).typ = 4 'check box
     o(i).y = 10
     o(i).nam = idenewtxt("Custom #Font:")
     o(i).sel = idecustomfont
+    prevCustomFontSetting = o(i).sel
 
     a2$ = idecustomfontfile$
     i = i + 1
@@ -11748,7 +11968,7 @@ FUNCTION idedisplaybox
         IF focus <> PrevFocus THEN
             'Always start with TextBox values selected upon getting focus
             PrevFocus = focus
-            IF focus = 1 OR focus = 2 OR focus = 5 OR focus = 6 THEN
+            IF focus = 1 OR focus = 2 OR focus = 6 OR focus = 7 THEN
                 o(focus).v1 = LEN(idetxt(o(focus).txt))
                 IF o(focus).v1 > 0 THEN o(focus).issel = -1
                 o(focus).sx1 = 0
@@ -11781,40 +12001,54 @@ FUNCTION idedisplaybox
         END IF
         idetxt(o(2).txt) = a$
 
-        a$ = idetxt(o(5).txt)
-        IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
-        idetxt(o(5).txt) = a$
+        IF prevFont8Setting <> o(4).sel THEN
+            prevFont8Setting = o(4).sel
+            IF o(4).sel THEN o(5).sel = 0: prevCustomFontSetting = 0
+        END IF
+
+        IF prevCustomFontSetting <> o(5).sel THEN
+            prevCustomFontSetting = o(5).sel
+            IF o(5).sel THEN o(4).sel = 0: prevFont8Setting = 0
+        END IF
 
         a$ = idetxt(o(6).txt)
+        IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
+        idetxt(o(6).txt) = a$
+
+        a$ = idetxt(o(7).txt)
         IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
         FOR i = 1 TO LEN(a$)
             a = ASC(a$, i)
             IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
             IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
         NEXT
-        IF focus <> 6 THEN
+        IF focus <> 7 THEN
             IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
             IF a < 8 THEN a$ = "8"
         END IF
-        idetxt(o(6).txt) = a$
+        idetxt(o(7).txt) = a$
 
 
-
-        IF K$ = CHR$(27) OR (focus = 8 AND info <> 0) THEN EXIT FUNCTION
-        IF K$ = CHR$(13) OR (focus = 7 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 9 AND info <> 0) THEN EXIT FUNCTION
+        IF K$ = CHR$(13) OR (focus = 8 AND info <> 0) THEN
 
             x = 0 'change to custom font
 
             'get size in v%
-            v$ = idetxt(o(6).txt): IF v$ = "" THEN v$ = "0"
+            v$ = idetxt(o(7).txt): IF v$ = "" THEN v$ = "0"
             v% = VAL(v$)
             IF v% < 8 THEN v% = 8
             IF v% > 99 THEN v% = 99
             IF v% <> idecustomfontheight THEN x = 1
 
-            IF o(4).sel <> idecustomfont THEN
-                IF o(4).sel = 0 THEN
-                    _FONT 16
+            IF o(4).sel <> IDE_UseFont8 THEN
+                IDE_UseFont8 = o(4).sel
+                idedisplaybox = 1
+            END IF
+
+            IF o(5).sel <> idecustomfont THEN
+                IF o(5).sel = 0 THEN
+                    IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                     _FREEFONT idecustomfonthandle
                 ELSE
                     x = 1
@@ -11822,14 +12056,14 @@ FUNCTION idedisplaybox
             END IF
 
 
-            v$ = idetxt(o(5).txt): IF v$ <> idecustomfontfile$ THEN x = 1
+            v$ = idetxt(o(6).txt): IF v$ <> idecustomfontfile$ THEN x = 1
 
-            IF o(4).sel = 1 AND x = 1 THEN
+            IF o(5).sel = 1 AND x = 1 THEN
                 oldhandle = idecustomfonthandle
                 idecustomfonthandle = _LOADFONT(v$, v%, "MONOSPACE")
                 IF idecustomfonthandle = -1 THEN
                     'failed! - revert to default settings
-                    o(4).sel = 0: idetxt(o(5).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(6).txt) = "21": _FONT 16
+                    o(5).sel = 0: idetxt(o(6).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(7).txt) = "21": IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                 ELSE
                     _FONT idecustomfonthandle
                 END IF
@@ -11856,16 +12090,16 @@ FUNCTION idedisplaybox
             IF v% <> 0 THEN v% = -1
             IDE_AutoPosition = v%
 
-            v% = o(4).sel
+            v% = o(5).sel
             IF v% <> 0 THEN v% = 1
             idecustomfont = v%
 
-            v$ = idetxt(o(5).txt)
+            v$ = idetxt(o(6).txt)
             IF LEN(v$) > 1024 THEN v$ = LEFT$(v$, 1024)
             idecustomfontfile$ = v$
             v$ = v$ + SPACE$(1024 - LEN(v$))
 
-            v$ = idetxt(o(6).txt): IF v$ = "" THEN v$ = "0"
+            v$ = idetxt(o(7).txt): IF v$ = "" THEN v$ = "0"
             v% = VAL(v$)
             IF v% < 8 THEN v% = 8
             IF v% > 99 THEN v% = 99
@@ -11878,6 +12112,11 @@ FUNCTION idedisplaybox
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "TRUE"
             ELSE
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+            END IF
+            IF IDE_UseFont8 THEN
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "TRUE"
+            ELSE
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "FALSE"
             END IF
             IF IDE_AutoPosition THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
@@ -12548,6 +12787,7 @@ FUNCTION idechoosecolorsbox
 
         IF (focus = 9 AND info <> 0) THEN
             LoadDefaultScheme:
+            GOSUB enableHighlighter
             IDECommentColor = _RGB32(85, 255, 255)
             IDEMetaCommandColor = _RGB32(85, 255, 85)
             IDEQuoteColor = _RGB32(255, 255, 85)
@@ -12575,6 +12815,8 @@ FUNCTION idechoosecolorsbox
        (focus = 7 AND K$ = CHR$(13)) OR _
        (focus = 11 AND K$ = CHR$(13)) THEN
             'save changes
+            GOSUB enableHighlighter
+
             WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", str2$(SchemeID)
             FOR i = 1 TO 9
                 SELECT CASE i
@@ -12645,6 +12887,14 @@ FUNCTION idechoosecolorsbox
         'edited.
         SchemeID = 0
         idetxt(o(9).txt) = "User-defined"
+    END IF
+    RETURN
+
+    enableHighlighter:
+    IF DisableSyntaxHighlighter THEN
+        DisableSyntaxHighlighter = 0
+        WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+        menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
     END IF
     RETURN
 END FUNCTION
@@ -12732,16 +12982,17 @@ FUNCTION idecolorpicker$ (editing)
             'one closer to the cursor.
             Found_RGB = 0
             DO
-                Found_RGB = INSTR(Found_RGB + 1, a$, "_RGB")
+                Found_RGB = INSTR(Found_RGB + 1, a$, "RGB")
                 IF Found_RGB = 0 THEN EXIT DO
                 FindBracket1 = INSTR(Found_RGB, a$, "(")
                 FindBracket2 = INSTR(FindBracket1, a$, ")")
                 IF FindBracket1 > 0 AND FindBracket2 > 0 THEN
-                    'Check the number of commas in the brackets.
-                    '2 or 3 are accepted.
-                    RGBArgs$ = MID$(a$, FindBracket1 + 1, FindBracket2 - FindBracket1 - 1)
-                    TotalCommas = CountItems(RGBArgs$, ",")
-                    IF TotalCommas = 2 OR TotalCommas = 3 THEN All_RGB$ = All_RGB$ + MKI$(Found_RGB)
+                    ''Check the number of commas in the brackets.
+                    ''2 or 3 are accepted.
+                    'RGBArgs$ = MID$(a$, FindBracket1 + 1, FindBracket2 - FindBracket1 - 1)
+                    'TotalCommas = CountItems(RGBArgs$, ",")
+                    'IF TotalCommas = 2 OR TotalCommas = 3 THEN All_RGB$ = All_RGB$ + MKI$(Found_RGB)
+                    All_RGB$ = All_RGB$ + MKI$(Found_RGB)
                 END IF
             LOOP
 
@@ -12767,10 +13018,12 @@ FUNCTION idecolorpicker$ (editing)
         END IF
 
         'Read RGB values and fill the textboxes
-    IF LEFT$(a2$, 5) = "_RGB(" OR _
-       LEFT$(a2$, 7) = "_RGB32(" OR _
-       LEFT$(a2$, 6) = "_RGBA(" OR _
-       LEFT$(a2$, 8) = "_RGBA32(" THEN
+        DIM newSyntax AS _BYTE
+        IF LEFT$(a2$, 4) = "RGB(" OR _
+           LEFT$(a2$, 6) = "RGB32(" OR _
+           LEFT$(a2$, 5) = "RGBA(" OR _
+           LEFT$(a2$, 7) = "RGBA32(" THEN
+            IF LEFT$(a2$, 6) = "RGB32(" THEN newSyntax = -1
             IF InsertRGBAt = 0 THEN InsertRGBAt = sx1
             FindComma1 = INSTR(a2$, ",")
             IF FindComma1 > 0 THEN
@@ -12817,10 +13070,62 @@ FUNCTION idecolorpicker$ (editing)
                         o(i).v1 = LEN(idetxt(o(i).txt))
                         IF o(i).v1 > 0 THEN o(i).issel = -1
                     NEXT i
+                ELSEIF newSyntax THEN 'in case it's _RGB32(intensity, alpha)
+                    r$ = ""
+                    FOR i = FindComma1 - 1 TO 1 STEP -1
+                        IF ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57 THEN
+                            r$ = MID$(a2$, i, 1) + r$
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    r = VAL(r$): IF r < 0 THEN r = 0
+                    IF r > 255 THEN r = 255
+                    g = r
+                    b = r
+
+                    idetxt(o(1).txt) = str2$(r)
+                    idetxt(o(2).txt) = str2$(g)
+                    idetxt(o(3).txt) = str2$(b)
+
+                    FOR i = 1 TO 3
+                        o(i).sx1 = 0
+                        o(i).v1 = LEN(idetxt(o(i).txt))
+                        IF o(i).v1 > 0 THEN o(i).issel = -1
+                    NEXT i
+                END IF
+            ELSEIF newSyntax THEN
+                '_RGB32(intensity)?
+                FindComma1 = INSTR(a2$, ")")
+                IF FindComma1 THEN
+                    r$ = ""
+                    FOR i = FindComma1 - 1 TO 1 STEP -1
+                        IF ASC(a2$, i) >= 48 AND ASC(a2$, i) <= 57 THEN
+                            r$ = MID$(a2$, i, 1) + r$
+                        ELSE
+                            EXIT FOR
+                        END IF
+                    NEXT i
+
+                    r = VAL(r$): IF r < 0 THEN r = 0
+                    IF r > 255 THEN r = 255
+                    g = r
+                    b = r
+
+                    idetxt(o(1).txt) = str2$(r)
+                    idetxt(o(2).txt) = str2$(g)
+                    idetxt(o(3).txt) = str2$(b)
+
+                    FOR i = 1 TO 3
+                        o(i).sx1 = 0
+                        o(i).v1 = LEN(idetxt(o(i).txt))
+                        IF o(i).v1 > 0 THEN o(i).issel = -1
+                    NEXT i
                 END IF
             END IF
         ELSE
-            'If a selection if present, it spans only one line, but
+            'If a selection is present, it spans only one line, but
             'no _RGB is selected, let's try to find some _RGB around.
             IF ideselect AND ideselecty1 = idecy THEN
                 ideselect = 0
@@ -12880,6 +13185,8 @@ FUNCTION idecolorpicker$ (editing)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
         LOCATE p.y + 8, p.x + 15 + r: PRINT slider$;
+
+        COLOR 0: LOCATE p.y + 9, p.x + 19: PRINT "Hold CTRL to drag all sliders at once.";
 
         COLOR 12
         FOR i = 2 TO 8
@@ -12948,6 +13255,10 @@ FUNCTION idecolorpicker$ (editing)
         IF mB AND mY = p.y + 2 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
             newValue = (mX - p.x - 15) * (255 / 46)
             idetxt(o(1).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(2).txt) = str2$(newValue)
+                idetxt(o(3).txt) = str2$(newValue)
+            END IF
             focus = 1
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12957,6 +13268,10 @@ FUNCTION idecolorpicker$ (editing)
         IF mB AND mY = p.y + 5 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
             newValue = (mX - p.x - 15) * (255 / 46)
             idetxt(o(2).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(1).txt) = str2$(newValue)
+                idetxt(o(3).txt) = str2$(newValue)
+            END IF
             focus = 2
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12966,6 +13281,10 @@ FUNCTION idecolorpicker$ (editing)
         IF mB AND mY = p.y + 8 AND mX >= p.x + 15 AND mX <= p.x + 15 + 46 THEN
             newValue = (mX - p.x - 15) * (255 / 46)
             idetxt(o(3).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(1).txt) = str2$(newValue)
+                idetxt(o(2).txt) = str2$(newValue)
+            END IF
             focus = 3
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -13005,7 +13324,11 @@ FUNCTION idecolorpicker$ (editing)
         NEXT checkRGB
 
         CurrentColor~& = _RGB32(VAL(idetxt(o(1).txt)), VAL(idetxt(o(2).txt)), VAL(idetxt(o(3).txt)))
-        CurrentRGB$ = idetxt(o(1).txt) + ", " + idetxt(o(2).txt) + ", " + idetxt(o(3).txt)
+        IF newSyntax AND (idetxt(o(1).txt) = idetxt(o(2).txt) AND idetxt(o(2).txt) = idetxt(o(3).txt)) THEN
+            CurrentRGB$ = idetxt(o(1).txt)
+        ELSE
+            CurrentRGB$ = idetxt(o(1).txt) + ", " + idetxt(o(2).txt) + ", " + idetxt(o(3).txt)
+        END IF
         _PALETTECOLOR 12, CurrentColor~&, 0
 
         IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN
@@ -13032,7 +13355,7 @@ FUNCTION idecolorpicker$ (editing)
                     FindBracket1 = INSTR(InsertRGBAt, CurrentLine$, "(")
                     FindBracket2 = INSTR(FindBracket1, CurrentLine$, ")")
                     OldRGB$ = MID$(CurrentLine$, FindBracket1, FindBracket2 - FindBracket1 + 1)
-                    IF CountItems(OldRGB$, ",") = 3 THEN 'If the current statement has the ALPHA parameter
+                    IF (newSyntax AND CountItems(OldRGB$, ",") = 1) OR CountItems(OldRGB$, ",") = 3 THEN 'If the current statement has the ALPHA parameter
                         FOR i = FindBracket2 TO FindBracket1 STEP -1
                             IF ASC(CurrentLine$, i) = 44 THEN FindBracket2 = i: EXIT FOR
                         NEXT i
@@ -13382,6 +13705,11 @@ FUNCTION idesearchedbox$
     idepar p, 20, h, ""
     p.x = idewx - 24
     p.y = idewy - 6 - h
+    IF p.y < 3 THEN
+        p.h = p.h - abs(3 - p.y)
+        h = p.h
+        p.y = 3
+    END IF
 
     i = i + 1
     o(i).typ = 2
@@ -13911,7 +14239,7 @@ SUB IdeMakeContextualMenu
         DO UNTIL EOF(fh)
             LINE INPUT #fh, l$
             c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-            IF a2$ = UCASE$(l1$) THEN
+            IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
                 IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
                     lnks = lnks + 1
                     EXIT DO
@@ -13961,9 +14289,9 @@ SUB IdeMakeContextualMenu
     IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Toggle Comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add Comment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove Comment (')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -13976,15 +14304,15 @@ SUB IdeMakeContextualMenu
                 IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
             NEXT
             IF a2$ <> "" THEN
-                menu$(m, i) = "Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease Indent"
+                menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
                 menu$(m, i) = "-": i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "Increase Indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease Indent"
+            menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "#Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
             menu$(m, i) = "-": i = i + 1
@@ -14028,9 +14356,9 @@ SUB IdeMakeEditMenu
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
     menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "Toggle Comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add Comment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove Comment (')  Ctrl+Shift+R": i = i + 1
+    menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+    menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+    menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
     IF ideselect THEN
         y1 = idecy
         y2 = ideselecty1
@@ -14043,25 +14371,25 @@ SUB IdeMakeEditMenu
                 IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
             NEXT
             IF a2$ = "" THEN
-                menu$(m, i) = "~Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "~Decrease Indent"
+                menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "~#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             ELSE
-                menu$(m, i) = "Increase Indent  TAB": i = i + 1
-                menu$(m, i) = "Decrease Indent"
+                menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                menu$(m, i) = "#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "Increase Indent  TAB": i = i + 1
-            menu$(m, i) = "Decrease Indent"
+            menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+            menu$(m, i) = "#Decrease Indent"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
         END IF
     ELSE
-        menu$(m, i) = "~Increase Indent  TAB": i = i + 1
-        menu$(m, i) = "~Decrease Indent"
+        menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+        menu$(m, i) = "~#Decrease Indent"
         IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
         i = i + 1
     END IF
@@ -14100,7 +14428,7 @@ SUB IdeAddSearched (s2$)
     CLOSE #fh
 END SUB
 
-SUB ideASCIIbox
+FUNCTION ideASCIIbox%
     'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
     '(code to fix font and arrow keys also written by Steve)
     w = _WIDTH: h = _HEIGHT
@@ -14206,6 +14534,7 @@ SUB ideASCIIbox
             _AUTODISPLAY
             SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
             IF _RESIZE THEN donothing = atall
+            DO UNTIL _MOUSEBUTTON(1) = 0 AND _MOUSEBUTTON(2) = 0: i = _MOUSEINPUT: LOOP
             EXIT FUNCTION
         END IF
 
@@ -14213,16 +14542,7 @@ SUB ideASCIIbox
 
     ret% = (y - 1) * 16 + x - 1
     IF ret% > 0 AND ret% < 255 THEN
-        l = idecy
-        a$ = idegetline(l)
-        l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
-        text$ = l$ + CHR$(ret%) + r$
-        textlen = LEN(text$)
-        l$ = LEFT$(idet$, ideli - 1)
-        m$ = MKL$(textlen) + text$ + MKL$(textlen)
-        r$ = RIGHT$(idet$, LEN(idet$) - ideli - LEN(a$) - 7)
-        idet$ = l$ + m$ + r$
-        idecx = idecx + 1
+        ideASCIIbox% = ret%
     END IF
 
     _AUTODISPLAY
@@ -14230,7 +14550,8 @@ SUB ideASCIIbox
     SCREEN 0: WIDTH w, h
     _FONT font
     _DEST 0: _DELAY .2
-    IF _RESIZE THEN donothing = atall
+    IF _RESIZE THEN REM
+    DO UNTIL _MOUSEBUTTON(1) = 0 AND _MOUSEBUTTON(2) = 0: i = _MOUSEINPUT: LOOP
 
 END FUNCTION
 
@@ -14785,11 +15106,12 @@ END SUB
 SUB LoadColorSchemes
     DIM i AS LONG
     'Preset built-in schemes
-    PresetColorSchemes = 9
+    PresetColorSchemes = 10
     REDIM ColorSchemes$(1 TO PresetColorSchemes): i = 0
-    i = i + 1: ColorSchemes$(i) = "QB64 Default|226226226147196235245128177255255085085255085085255255000000170000108177000147177"
-    i = i + 1: ColorSchemes$(i) = "Classic QB4.5|177177177177177177177177177177177177177177177177177177000000170000000170000147177"
+    i = i + 1: ColorSchemes$(i) = "Super dark blue|216216216069118147216098078255167000085206085098098098000000039000049078000088108"
     i = i + 1: ColorSchemes$(i) = "Dark blue|226226226069147216245128177255177000085255085049196196000000069000068108000147177"
+    i = i + 1: ColorSchemes$(i) = "QB64 Original|226226226147196235245128177255255085085255085085255255000000170000108177000147177"
+    i = i + 1: ColorSchemes$(i) = "Classic QB4.5|177177177177177177177177177177177177177177177177177177000000170000000170000147177"
     i = i + 1: ColorSchemes$(i) = "CF Dark|226226226115222227255043138255178034185237049157118137043045037010000020088088088"
     i = i + 1: ColorSchemes$(i) = "Dark side|255255255206206000245010098000177000085255085049186245011022029100100100000147177"
     i = i + 1: ColorSchemes$(i) = "Camouflage|196196196255255255245128177255177000137177147147137020000039029098069020000147177"
@@ -14864,7 +15186,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
             IF INSTR(_OS$, "WIN") THEN
                 convertUtility$ = "internal\utilities\QB45BIN.exe"
             ELSE
-                convertUtility$ = "internal/utilities/QB45BIN"
+                convertUtility$ = "./internal/utilities/QB45BIN"
             END IF
             IF _FILEEXISTS(convertUtility$) THEN
                 what$ = ideyesnobox("Binary format", "QuickBASIC 4.5 binary format detected. Convert to plain text?")
@@ -14921,7 +15243,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                 what$ = ideyesnobox("Binary format", "QuickBASIC 4.5 binary format detected. Convert to plain text?")
                 IF what$ = "Y" THEN
                     'Compile the utility first, then convert the file
-                    IF _DIREXISTS("internal/utilities") = 0 THEN MKDIR "internal/utilities"
+                    IF _DIREXISTS("./internal/utilities") = 0 THEN MKDIR "./internal/utilities"
                     PCOPY 3, 0
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
@@ -14930,7 +15252,11 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     COLOR 15, 1
                     PRINT "Preparing to convert..."
                     PCOPY 3, 0
-                    SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                    IF INSTR(_OS$, "WIN") THEN
+                        SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                    ELSE
+                        SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
+                    END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
                     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     dummy = DarkenFGBG(0)

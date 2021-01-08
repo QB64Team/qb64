@@ -1,3 +1,7 @@
+#ifdef QB64_MACOSX
+#include <sys/sysctl.h>
+#endif
+
 // trigger recompilation = 3
 
 int32 displayorder_screen=1;
@@ -19,7 +23,7 @@ void sub__displayorder(int32 method1,int32 method2,int32 method3,int32 method4){
     displayorder_hardware1=0;
     displayorder_glrender=0;
     static int32 i,method;
-    for (i=1;i<=4;i++){ 
+    for (i=1;i<=4;i++){
         if (i==1) method=method1;
         if (i==2) method=method2;
         if (i==3) method=method3;
@@ -99,7 +103,7 @@ void sub__glrender(int32 method){
     
     
     
-    void free_hardware_img(int32 handle, int32 caller_id){    
+    void free_hardware_img(int32 handle, int32 caller_id){
         
         hardware_img_struct* hardware_img;
         hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
@@ -117,7 +121,7 @@ void sub__glrender(int32 method){
             glDeleteFramebuffersEXT(1, &depthbuffer_handle);
         }
         GLuint texture=(GLuint)hardware_img->texture_handle;
-        glDeleteTextures(1, &texture); 
+        glDeleteTextures(1, &texture);
         
         //test reasset of hardware+img
         //hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,handle);
@@ -176,7 +180,7 @@ void sub__glrender(int32 method){
                 can_scale=1;
                 if (resize_auto==2) environment_2d__screen_smooth=1;
                 //note: screen will fix its aspect ratio automatically, so there is no need to enforce squarepixels
-            } 
+            }
         }
         
         if (environment_2d__screen_width==environment__window_width &&
@@ -248,7 +252,7 @@ void sub__glrender(int32 method){
             environment_2d__screen_scaled_height=environment_2d__screen_y2-environment_2d__screen_y1+1;
             environment_2d__screen_x_scale=(float)environment_2d__screen_scaled_width/(float)environment_2d__screen_width;
             environment_2d__screen_y_scale=(float)environment_2d__screen_scaled_height/(float)environment_2d__screen_height;
-        } 
+        }
         
     }//prepare_environment_2d
     
@@ -370,7 +374,7 @@ void sub__glrender(int32 method){
         if (new_mode_shrunk==SMOOTH_MODE__DONT_SMOOTH){
             if (render_state.source->PO2_fix==PO2_FIX__MIPMAPPED){
                 glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                }else{		
+                }else{
                 glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//Use _MAPTRIANGLE's _SMOOTHSHRUNK to apply linear filtering here
             }
         }
@@ -443,7 +447,7 @@ void sub__glrender(int32 method){
         }
         if (new_mode==DEPTHBUFFER_MODE__ON){
             glEnable(GL_DEPTH_TEST);
-            glDepthMask(GL_TRUE);	
+            glDepthMask(GL_TRUE);
             glAlphaFunc(GL_GREATER, 0.001);
             glEnable(GL_ALPHA_TEST);
         }
@@ -464,7 +468,7 @@ void sub__glrender(int32 method){
             glDisable(GL_CULL_FACE);
         }
         if (new_mode==CULL_MODE__CLOCKWISE_ONLY){
-            glFrontFace(GL_CW);	
+            glFrontFace(GL_CW);
             if (current_mode!=CULL_MODE__ANTICLOCKWISE_ONLY) glEnable(GL_CULL_FACE);
         }
         if (new_mode==CULL_MODE__ANTICLOCKWISE_ONLY){
@@ -494,7 +498,7 @@ void sub__glrender(int32 method){
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             glAlphaFunc(GL_ALWAYS, 0);
             if (framebufferobjects_supported) glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-            glBindTexture (GL_TEXTURE_2D, 0);	
+            glBindTexture (GL_TEXTURE_2D, 0);
             glClear(GL_DEPTH_BUFFER_BIT);
             glColor4f(1.f, 1.f, 1.f, 1.f);
             glMatrixMode(GL_PROJECTION);
@@ -507,11 +511,11 @@ void sub__glrender(int32 method){
             set_cull_mode(CULL_MODE__UNKNOWN);
             set_render_source(INVALID_HARDWARE_HANDLE);
             set_render_dest(INVALID_HARDWARE_HANDLE);
-            new_mode=VIEW_MODE__UNKNOWN;//resets are performed before unknown operations are executed	
+            new_mode=VIEW_MODE__UNKNOWN;//resets are performed before unknown operations are executed
         }
         if (new_mode==VIEW_MODE__2D){
             if (current_mode!=VIEW_MODE__3D){
-                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);		
+                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
                 glDisable(GL_COLOR_MATERIAL);
                 glDisable(GL_LIGHTING);
                 set_alpha(ALPHA_MODE__BLEND);
@@ -526,6 +530,44 @@ void sub__glrender(int32 method){
             
             if (render_state.dest_handle==0){
                 static int32 dst_w,dst_h;
+                static int32 scale_factor=0;
+
+                #ifdef QB64_MACOSX
+                    if (scale_factor==0) {
+                        // by default scale_factor should be 1, but in macOS Catalina (10.15.*) scale_factor must be setted in 2
+                        // * in cases where the app is executed on system with Retina Display
+                        scale_factor = 1; // by default
+
+                        // lookup for retina/5k output from system_profiler (storing all outpun in stream)
+                        bool b_isRetina, b_is5k;
+                        FILE* consoleStream = popen("system_profiler SPDisplaysDataType", "r");
+                        if (consoleStream) {
+                            char buffer[128];
+                            while (!feof(consoleStream)) {
+                                if (fgets(buffer, 128, consoleStream) != NULL) {
+                                    string szBuffer(buffer);
+                                    
+                                    if (!b_isRetina) b_isRetina = (szBuffer.rfind("Retina") != ULONG_MAX);
+                                    if (!b_is5k) b_is5k = (szBuffer.rfind("5K") != ULONG_MAX);
+                                }
+                            }
+                        }
+                        pclose(consoleStream);
+
+                        if (b_isRetina || b_is5k) {
+                            // apply only factor = 2 if macOS is Catalina (11.15.* // kern.osrelease 19.*)
+                            char str[256];
+                            size_t size = sizeof(str);
+                            int ret = sysctlbyname("kern.osrelease", str, &size, NULL, 0);
+                          
+                            string sz_osrelease(str);
+                            if (sz_osrelease.rfind("19.") == 0) scale_factor=2;
+                        }
+                    }
+                #else
+                    scale_factor=1;
+                #endif
+
                 dst_w=environment__window_width;
                 dst_h=environment__window_height;
                 
@@ -539,7 +581,7 @@ void sub__glrender(int32 method){
                 glLoadIdentity();
                 glScalef(1, -1, 1);//flip vertically
                 glTranslatef(0, -dst_h, 0);//move to new vertical position
-                glViewport(0,0,dst_w,dst_h);
+                glViewport(0,0,dst_w * scale_factor,dst_h * scale_factor);
                 
                 
                 }else{
@@ -581,7 +623,7 @@ void sub__glrender(int32 method){
                     }else{
                     fov=90.0f*((float)environment__window_height/(float)environment_2d__screen_scaled_height);
                 }
-                gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
+                gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes
                 glMatrixMode(GL_MODELVIEW);
                 glLoadIdentity();
                 }else{
@@ -605,7 +647,7 @@ void sub__glrender(int32 method){
                     }else{
                     fov=90.0f;
                 }
-                gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes  
+                gluPerspective(fov, (GLfloat)dst_w / (GLfloat)dst_h, 0.1, 10000.0); // Set the Field of view angle (in degrees), the aspect ratio of our window, and the new and far planes
                 glMatrixMode(GL_MODELVIEW);
                 glLoadIdentity();
                 //alert("3D rendering onto FBO not supported yet");
@@ -672,7 +714,7 @@ void sub__glrender(int32 method){
                 glGenFramebuffersEXT(1, &framebuffer_handle);
                 glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer_handle);
                 hardware_img->dest_context_handle=framebuffer_handle;
-                glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hardware_img->texture_handle, 0);   
+                glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hardware_img->texture_handle, 0);
                 
                 //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                 //glClear(GL_COLOR_BUFFER_BIT);
@@ -787,7 +829,7 @@ void sub__glrender(int32 method){
         if (src_hardware_img->source_state.PO2_fix){
             src_w=src_hardware_img->PO2_w;
             src_h=src_hardware_img->PO2_h;
-        } 
+        }
         
         //calc source texture co-ordinates
         static float x1f,y1f,x2f,y2f;
@@ -1067,7 +1109,7 @@ void sub__glrender(int32 method){
         if (src_hardware_img->source_state.PO2_fix){
             src_w=src_hardware_img->PO2_w;
             src_h=src_hardware_img->PO2_h;
-        } 
+        }
         
         //calc source texture co-ordinates
         static float x1f,y1f,x2f,y2f,x3f,y3f;
@@ -1131,7 +1173,7 @@ void sub__glrender(int32 method){
             static hardware_img_struct* dst_hardware_img;
             dst_hardware_img=(hardware_img_struct*)list_get(hardware_img_handles,dst_img);
             hardware_img_requires_depthbuffer(dst_hardware_img);
-            }else{ //dest is 0      
+            }else{ //dest is 0
         }
         
         set_render_source(src_img);
@@ -1179,7 +1221,7 @@ void sub__glrender(int32 method){
         if (src_hardware_img->source_state.PO2_fix){
             src_w=src_hardware_img->PO2_w;
             src_h=src_hardware_img->PO2_h;
-        } 
+        }
         
         //calc source texture co-ordinates
         static float x1f,y1f,x2f,y2f,x3f,y3f;
@@ -1276,7 +1318,7 @@ void sub__glrender(int32 method){
             if (temp_window_title_set==1) {
                 glutSetWindowTitle((char*)window_title);
                 temp_window_title_set=0;
-            } 
+            }
         #endif
 
         //general use variables
@@ -1306,7 +1348,7 @@ void sub__glrender(int32 method){
             in_GLUT_DISPLAY_REQUEST=0;
             return;//no frames exist yet, so screen size cannot be determined, therefore no action possible
         }
-        if (i!=last_i){ 
+        if (i!=last_i){
             for (i2=0; i2<=2;i2++){
                 if (display_frame[i2].order<display_frame[i].order&&(display_frame[i2].state==DISPLAY_FRAME_STATE__DISPLAYING||display_frame[i2].state==DISPLAY_FRAME_STATE__READY)) display_frame[i2].state=DISPLAY_FRAME_STATE__EMPTY;
             }
@@ -1326,7 +1368,7 @@ void sub__glrender(int32 method){
             if (i==last_i){
                 if (full_screen_set==-1){//no pending full-screen changes
                     if (os_resize_event==0){//no resize events
-                        #ifndef DEPENDENCY_GL //we aren't using SUB _GL 
+                        #ifndef DEPENDENCY_GL //we aren't using SUB _GL
                             in_GLUT_DISPLAY_REQUEST=0;
                             return;
                         #endif
@@ -1412,7 +1454,7 @@ void sub__glrender(int32 method){
                     
                     
                     
-                    goto auto_resized; 
+                    goto auto_resized;
                 }
             }//resize_auto
             
@@ -1434,7 +1476,7 @@ void sub__glrender(int32 method){
         
         //Pseudo-Fullscreen
         if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
-            if (full_screen_set!=-1){//full screen mode change requested 
+            if (full_screen_set!=-1){//full screen mode change requested
                 if (full_screen_set==0){
                     if (full_screen!=0){
                         //exit full screen
@@ -1466,7 +1508,7 @@ void sub__glrender(int32 method){
             static int32 glut_window;
             //fullscreen
             if (!resize_pending){//avoid switching to fullscreen before resize operations take effect
-            if (full_screen_set!=-1){//full screen mode change requested 
+            if (full_screen_set!=-1){//full screen mode change requested
             if (full_screen_set==0){
             //exit full screen
             glutLeaveGameMode();
@@ -1506,7 +1548,7 @@ void sub__glrender(int32 method){
             game_mode_string_i+=sprintf(&game_mode_string[game_mode_string_i], "%d", 32);
             glutGameModeString(game_mode_string);
             if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)){
-            //full screen using desktop dimensions  
+            //full screen using desktop dimensions
             if (full_screen==0) glut_window=glutGetWindow();
             glutEnterGameMode();
             fullscreen_width=w; fullscreen_height=h;
@@ -1514,7 +1556,7 @@ void sub__glrender(int32 method){
             screen_scale=full_screen_set;
             full_screen=full_screen_set;
             full_screen_set=-1;
-            return; 
+            return;
             }else{
             //cannot enter full screen
             full_screen=0;
@@ -1650,7 +1692,7 @@ void sub__glrender(int32 method){
                         free_hardware_img(software_screen_hardware_frame, 847001);
                     }
                     if (i!=last_i||software_screen_hardware_frame==0){
-                        software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL); 
+                        software_screen_hardware_frame=new_hardware_img(display_frame[i].w, display_frame[i].h,display_frame[i].bgra,NULL);
                     }
                     
                     static hardware_img_struct* f1;
@@ -1661,11 +1703,11 @@ void sub__glrender(int32 method){
                     if (f1==NULL) alert("Invalid software_screen_hardware_frame!");
                     
                     static int32 use_alpha;
-                    use_alpha=0; if (level>1) use_alpha=1; 
+                    use_alpha=0; if (level>1) use_alpha=1;
                     
                     
                     
-                    //put the software screen      
+                    //put the software screen
                     hardware_img_put(0,0,environment_2d__screen_width-1,environment_2d__screen_height-1,
                     software_screen_hardware_frame, 0,
                     0,0,f1->w-1,f1->h-1,
@@ -1792,7 +1834,7 @@ void sub__glrender(int32 method){
                                     if ((hgc->dst_img>0&&first_hardware_layer_rendered==0)||hgc->dst_img==dst){
                                         hardware_img_put(hgc->dst_x1,hgc->dst_y1,hgc->dst_x2,hgc->dst_y2,
                                         hgc->src_img, hgc->dst_img,
-                                        hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2, 
+                                        hgc->src_x1,hgc->src_y1,hgc->src_x2,hgc->src_y2,
                                         hgc->use_alpha,hgc->smooth);
                                     }
                                 }
@@ -2084,7 +2126,7 @@ void sub__glrender(int32 method){
                 fy*=2.0;//0 to 2
                 fy-=1.0;//-1 to 1
                 setDeviceEventAxisValue(d,eventIndex,0,fx);
-                setDeviceEventAxisValue(d,eventIndex,1,fy);    
+                setDeviceEventAxisValue(d,eventIndex,1,fy);
                 commitDeviceEvent(d);
                 
                 }else{
@@ -2097,7 +2139,7 @@ void sub__glrender(int32 method){
                 fx=xrel;
                 fy=yrel;
                 setDeviceEventWheelValue(d,eventIndex,0,fx);
-                setDeviceEventWheelValue(d,eventIndex,1,fy);    
+                setDeviceEventWheelValue(d,eventIndex,1,fy);
                 commitDeviceEvent(d);
                 
                 eventIndex=createDeviceEvent(d);

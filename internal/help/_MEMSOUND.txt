@@ -1,0 +1,88 @@
+{{DISPLAYTITLE:_MEMSOUND}}
+The [[_MEMSOUND]] function returns a [[_MEM]] value referring to a sound's raw data in memory using a designated sound handle created by the [[_SNDOPEN]] function.
+
+
+{{PageSyntax}}
+: {{Parameter|imageBlock}} = [[_MEMSOUND]][({{Parameter|soundHandle&amp;}}, {{Parameter|channel%}})]
+
+
+{{Parameters}}
+* The {{Parameter|imageBlock}} [[_MEM]] type variable holds the read-only elements .OFFSET, .SIZE, .ELEMENTSIZE, and .SOUND.
+** .ELEMENTSIZE will contain the number of bytes-per-sample the audio contains. Usually returns 2 (16-bit audio).
+** .SOUND will contain the same handle value as returned by the [[_SNDOPEN]] function.
+* The second parameter {{Parameter| channel%}} must be 1 (left channel/mono) or 2 (right channel, for stereo files).
+
+
+{{PageDescription}}
+* Use the function to access raw sound data in memory for direct access.
+* Sound handle values and the memory used must still be freed using [[_SNDCLOSE]] when no longer required.
+* If .SIZE returns 0, that means the data could not be accessed. It may happen if you try to access the right channel in a mono file, for example.
+
+
+==Availability==
+* Version 1.5 and up.
+
+
+{{PageExamples}}
+''Example 1:'' Checking that a sound file is stereo.
+{{CodeStart}} '' ''
+song&amp; = {{Cl|_SNDOPEN}}("song.wav") 'replace song.wav with a sound file you have
+{{Cl|IF}} song&amp; = 0 {{Cl|THEN}} {{Cl|PRINT}} "Load failed.": {{Cl|END}}
+
+{{Cl|DIM}} leftchannel {{Cl|AS}} {{Cl|_MEM}}, rightchannel {{Cl|AS}} {{Cl|_MEM}}
+leftchannel = {{Cl|_MEMSOUND}}(song&amp;, 1)
+rightchannel = {{Cl|_MEMSOUND}}(song&amp;, 2)
+
+{{Cl|IF}} rightchannel.SIZE > 0 {{Cl|THEN}} {{Cl|PRINT}} "This file is STEREO"
+{{Cl|IF}} rightchannel.SIZE = 0 {{Cl|AND}} leftchannel.SIZE > 0 {{Cl|THEN}}
+    {{Cl|PRINT}} "This file is MONO"
+{{Cl|ELSEIF}} rightchannel.SIZE = 0 {{Cl|AND}} leftchannel.SIZE = 0 {{Cl|THEN}}
+    {{Cl|PRINT}} "An error occurred."
+{{Cl|END IF}}
+
+{{Cl|_SNDCLOSE}} song&amp; 'closing the sound releases the mem blocks '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Plotting a sound's waves.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 327, 32)
+song&amp; = {{Cl|_SNDOPEN}}("drums.ogg") 'replace drums.ogg with a sound file you have
+{{Cl|IF}} song&amp; = 0 {{Cl|THEN}} {{Cl|PRINT}} "Load failed.": {{Cl|END}}
+
+{{Cl|DIM}} leftchannel {{Cl|AS}} {{Cl|_MEM}}
+leftchannel = {{Cl|_MEMSOUND}}(song&amp;, 1)
+
+{{Cl|IF}} leftchannel.SIZE = 0 {{Cl|THEN}}
+    {{Cl|PRINT}} "An error occurred."
+    {{Cl|END}}
+{{Cl|END IF}}
+
+{{Cl|DIM}} i {{Cl|AS}} {{Cl|_OFFSET}}
+i = 0
+{{Cl|DO}}
+    {{Cl|_MEMGET}} leftchannel, leftchannel.OFFSET + i, a% 'get sound data
+    {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} i; "/"; leftchannel.SIZE
+    {{Cl|LINE}} (x, {{Cl|_HEIGHT}} / 2)-{{Cl|STEP}}(0, a% / 100), {{Cl|_RGB32}}(0, 111, 0) 'plot wave
+    x = x + 1
+    {{Cl|IF}} x > {{Cl|_WIDTH}} {{Cl|THEN}}
+        x = 0
+        {{Cl|LINE}} (0, 0)-({{Cl|_WIDTH}}, {{Cl|_HEIGHT}}), {{Cl|_RGB32}}(0, 120), BF 'fade out screen
+    {{Cl|END}} {{Cl|IF}}
+    i = i + 2
+    {{Cl|IF}} i + 2 > leftchannel.SIZE {{Cl|THEN}} {{Cl|EXIT}} {{Cl|DO}}
+    {{Cl|_LIMIT}} 500
+{{Cl|LOOP}}
+
+{{Cl|_SNDCLOSE}} song&amp; 'closing the sound releases the mem blocks '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_MEM]], [[_MEMIMAGE]]
+* [[_MEMNEW]]
+* [[_MEMGET]], [[_MEMPUT]]
+* [[_MEMFREE]]
+* [[$CHECKING]]
+
+{{PageNavigation}}

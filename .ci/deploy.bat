@@ -8,9 +8,22 @@ set archive=qb64_%DATE:~10,4%-%DATE:~4,2%-%DATE:~7,2%-%TIMEX:~0,2%-%TIMEX:~3,2%-
 FOR /L %%i IN (1,1,10) DO (
     scp %archive% remote-server:autobuilds/development/
     IF ERRORLEVEL 1 (
-        ECHO scp failed - attempt %%i/10
+        ECHO scp %archive% failed - attempt %%i/10
+    ) ELSE (
+        GOTO :doversion
+    )
+)
+
+:doversion
+
+set archive=versioninfo.txt
+echo Dev build generated on %DATE:~10,4%-%DATE:~4,2%-%DATE:~7,2%, from git ^<a href="https://github.com/QB64Team/qb64/commits/development" target="_blank"^>%GITHUB_SHA:~0,7%^</a^> > %archive%
+
+FOR /L %%i IN (1,1,10) DO (
+    scp %archive% remote-server:autobuilds/development/
+    IF ERRORLEVEL 1 (
+        ECHO scp %archive% failed - attempt %%i/10
     ) ELSE (
         EXIT /B 0
     )
 )
-

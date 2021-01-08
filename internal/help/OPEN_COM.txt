@@ -25,7 +25,7 @@ The [[OPEN COM]] statement is used to access a computer's serial port COM.
 
 {{PageDescription}}
 * '''If any optional CD, CS, DS or OP timeouts occur the OPEN will fail or port access will stop. Try 0 to ignore.'''		   
-* '''QB64''' can open any [[COM(n)|COM''n'']] port number. QBasic could only open COM1 or COM2, but 3 and 4 could be swapped.
+* '''QB64''' can open any COM''n'' port number from 1 to 9.
 * See Windows System '''Device Manager''' for COM port numbers and port addresses &amp;H3F8, &amp;H2F8, &amp;H3E8 and &amp;H2E8.
 * Four commas are required after the Speed, Parity, Bits, and Stopbit, even if none of the Options are used.
 * Other [[OPEN]] ''options'' are optional and in any order separated by commas within the OPEN command [[STRING|string]].(See list below)
@@ -36,13 +36,6 @@ The [[OPEN COM]] statement is used to access a computer's serial port COM.
 * Use the [[LOC]](portnumber) function to determine that there is data in the receive buffer when the value is greater than 0.
 * OPEN AS number can use a [[FREEFILE]] value. Numbers used by files already open '''cannot''' be used by OPEN COM.
 * [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Keyword Not Supported in Linux or MAC versions]]
-
-
-==QBasic/QuickBASIC==
-*[[INPUT (file mode)|INPUT]] mode can use [[INPUT (file statement)|INPUT #]] or [[INPUT$]]. [[OUTPUT]] mode can use [[PRINT (file statement)|PRINT #]] or [[PRINT USING (file statement)|PRINT #, USING]].  
-*[[RANDOM]] or [[BINARY|BIN]] modes can use [[INPUT (file statement)|INPUT #]], [[INPUT$]], [[PRINT (file statement)|PRINT #]], [[GET]] or [[PUT]]. BIN cannot set a buffer size.
-* Note: If random use [[LEN]] = to set size of random buffer(default LEN = 128). Use multiples of 128 for larger buffers.
-* NOTE: NT or XP computers need a program like [http://www.beyondlogic.org/porttalk/porttalk.htm PortTalk] to access COM or other ports with QBasic. Not required for '''QB64'''.
 
 
 {{PageExamples}}

@@ -13,11 +13,9 @@ extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
 extern int32 func__getconsoleinput();
 
 #ifdef DEPENDENCY_ZLIB
+    #include <zlib.h>
     qbs *func__deflate(qbs *text);
     qbs *func__inflate(qbs *text, int64 originalsize, int32 passed);
-    #ifdef QB64_WINDOWS
-        #include "parts\zlib\download\zlib.h"
-    #endif
 #endif
 
 
@@ -161,6 +159,7 @@ extern void sub__memfree(void *);
 extern void sub__memcopy(void *sblk,ptrszint soff,ptrszint bytes,void *dblk,ptrszint doff);
 extern mem_block func__memnew(ptrszint);
 extern mem_block func__memimage(int32,int32);
+extern mem_block func__memsound(int32 i,int32 targetChannel);
 
 extern int64 func__shellhide(qbs *str);
 extern int64 func_shell(qbs *str);

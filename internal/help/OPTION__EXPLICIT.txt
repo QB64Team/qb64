@@ -12,12 +12,12 @@
 
 
 {{PageErrors}}
-* If used, [[OPTION _EXPLICIT]] must be the very first statement in your program. No other statements can precede it (except for comment lines started with an [[Apostrophe|apostrophe]] or [[REM]]).
+* If used, [[OPTION _EXPLICIT]] must be the very first statement in your program. No other statements can precede it (except for [[$NOPREFIX]] or comment lines started with an [[Apostrophe|apostrophe]] or [[REM]]).
 * Do not use [[OPTION _EXPLICIT]] in [[$INCLUDE]]d modules.
 
 
 {{PageExamples}}
-''Example:'' Avoiding simple typos with [[OPTION _EXPLICIT]] results shown in the QB64 [[IDE]] Status area.
+''Example:'' Avoiding simple typos with [[OPTION _EXPLICIT]] results shown in the QB64 IDE Status area.
 {{CodeStart}}{{Cl|OPTION _EXPLICIT}}
 
 {{Cl|DIM}} myVariable {{Cl|AS}} {{Cl|INTEGER}}
@@ -27,45 +27,15 @@ myVariable = 5
 {{Cl|PRINT}} myVariabe
 {{CodeEnd}}
 
-&lt;center>QB64 IDE Status:&lt;/center>
-{{CodeStart}}{{text|██|blue}} '''QB64'''                                                                                _  {{xbox| X }}{{CodeEnd}}
-{{TextStart}}  '''File   Edit   View   Search   Run   Options                                           Help''' {{TextEnd}}
-{{CodeStart}}┌────────────────────────────────────█{{title|Untitled}}█─────────────────────────────────────────────┐
-│OPTION _EXPLICIT                                                                           {{title|↑|black}}
-│                                                                                           {{text|█|black}}
-│DIM myVariable AS INTEGER                                                                  ▒
-│                                                                                           ▒
-│myVariable = 5                                                                             ▒
-│                                                                                           ▒
-│PRINT myVariabe_                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           {{title|↓|black}}
-{{title|←|black}}{{text|█|black}}▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒{{title|→|black}}│
-────────────────────────────────────── Status ──────────────┤{{text|{{Cl|Quick Search Bar|Find[                     }} {{Cl|Quick Search list|↕]}}|aqua}}├─┤
-│Variable 'myVariabe' (SINGLE) not defined on line 7                                        │
-│                                                                                           {{title|↑|black}}
-│                                                                                           ▒
-│                                                                                           ▒
-│                                                                                           {{title|↓|black}}
-{{CodeEnd}}
-{{BlueStart}}                                                                                    '''7:17'''{{BlueEnd}}
+''QB64 IDE Status will show:''
+'''Variable 'myVariabe' (SINGLE) not defined on line 4'''
 
 
 {{PageSeeAlso}}
+* [[OPTION _EXPLICITARRAY]]
 * [[DIM]], [[REDIM]]
 * [[SHARED]]
-* [[STATIC]] 
+* [[STATIC]]
 
 
 {{PageNavigation}}

@@ -46,7 +46,6 @@
 
 {{PageDescription}}
 * _PUTIMAGE can be used without any handle parameters if the [[_SOURCE]] and/or [[_DEST]] are already defined.
-* '''The {{Parameter|sourceHandle&amp;}} and {{Parameter|destHandle&amp;}} cannot be the same or an [[ERROR Codes|Illegal Function Call]] error will occur.'''
 * If the area of the source is bigger or smaller than the area of the destination then the image is adjusted to fit that area.
 * Supports 32 bit alpha blending, color key transparency, true type fonts, stretching, mirroring/flipping, and a variety of graphics file formats including gif, png, bmp &amp; jpg. '''32 bit screen surface backgrounds (black) have zero [[_ALPHA]] and are transparent when placed over other surfaces.''' Use [[CLS]] or [[_DONTBLEND]] to make a new surface background [[_ALPHA]] 255 or opaque.
 * All graphical surfaces, including screen pages, can be acted upon in the same manner, and are referred to as "images".
@@ -158,9 +157,7 @@ DO
         {{Cl|CASE}} "6": x = x + 10: {{Cl|IF...THEN|IF}} x > 1280 {{Cl|THEN}} x = 1280
         {{Cl|CASE}} "8": y = y - 10: {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|THEN}} y = 0
         {{Cl|CASE}} "2": y = y + 10: {{Cl|IF...THEN|IF}} y > 720 {{Cl|THEN}} y = 720
-        {{Cl|CA
-271a
-SE}} {{Cl|CHR$}}(32): {{Cl|SYSTEM}}
+        {{Cl|CASE}} {{Cl|CHR$}}(32): {{Cl|SYSTEM}}
     {{Cl|END SELECT}}
     {{Cl|_DISPLAY}}
 {{Cl|LOOP}} '' ''

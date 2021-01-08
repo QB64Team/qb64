@@ -1,0 +1,102 @@
+=== IMPORTANT LICENSING NOTE FOR QB64 PROGRAMMERS ===
+All executables which perform any kind of sound operation are subject to the LGPL license (due to incorporation of mpglibdll and OpenAL).
+Other components are licensed under various permissive licences.
+When sound components are included (thus the LGPL is in effect), the easiest way to meet terms of the LGPL is to make your program's source code (.BAS) available.
+If you are not using sound components, you do not need to release the program's source.
+If you are using fonts, you are bound by the terms of FreeType's license. Somewhere in your software package should include a notice that your program includes the FreeType library (see licence_freetype_ftl.txt for details)
+In all cases, you should distribute the licenses folder with your program.
+
+It should be noted that providing source code is not the only way to meet the conditions of the LGPL (eg dynamic linking) but it is by far the easiest from a technical point of view at this current time.
+=====================================================
+
+The license requirements for components of QB64 are as follows:
+
+Software/Library Name: QB64 (inclusive of all parts of this distribution not covered by separate licence below)
+Website(s): https://qb64.org
+License: MIT
+License Website: https://opensource.org/licenses/MIT
+License:
+Copyright 2007-2020 Galleon & The QB64 Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+Software/Library Name: MinGW 64
+Website: http://mingw-w64.sourceforge.net/
+License: (see below)
+Each of the various packages, which is distributed by MinGW.org, is governed by its own individual copyright and licensing terms. In summary, for the most commonly deployed packages:
+MinGW runtime: The MinGW base runtime package has been placed in the public domain, and is not governed by copyright. This basically means that you can do what you like with the code.
+w32api: You are free to use, modify and copy this package. No restrictions are imposed on programs or object files linked with this library. You may not restrict the the usage of this library. You may distribute this library as part of another package or as a modified package if, and only if, you do not restrict the usage of the portions consisting of this (optionally modified) library. If distributed as a modified package, then a copy of this notice must be included.
+This library is distributed in the hope that it will be useful, but WITHOUT WARRANTY OF ANY KIND; without even the implied warranties of MERCHANTABILITY or of FITNESS FOR A PARTICULAR PURPOSE.
+MinGW profiling code: MinGW profiling code is distributed under the terms of the GNU General Public License.
+Binutils, GCC, GDB, GNU Make: All of the GNU development tools, such as GNU binutils, GCC, GDB and GNU Make, are governed by the terms of the GNU General Public License.
+License Website: http://www.gnu.org/licenses/licenses.html#GPL
+License File: license_gnu_gpl_3.txt
+Location in QB64 distribution: internal/c/c_compiler/
+
+Software/Library Name: Opus Tools
+Website: http://www.opus-codec.org/
+License: BSD 2-clause license
+License Website: http://opensource.org/licenses/BSD-2-Clause
+License File: license_opus.txt
+Location in QB64 distribution: internal/c/parts/audio/conversion/
+OpusInfo, which is under a GPL licence, was included in Opus Tools but has been removed from the QB64 distribution.
+
+Software/Library Name: mpglibdll
+Website(s):
+http://www.rz.uni-frankfurt.de/~pesch
+http://www.mpg123.de
+http://www.sulaco.org/mp3
+License: LGPL 2.1
+License Website: http://www.gnu.org/licenses/licenses.html#LGPL
+License File: license_gnu_lgpl_2_1.txt
+Location in QB64 distribution: internal/c/parts/audio/decode/mp3/
+
+Software/Library Name: Ogg Vorbis I audio decoder version 1.05
+Website:http://nothings.org/stb_vorbis/
+Date:Written in April 2007
+Author:Sean Barrett, sponsored by RAD Game Tools
+License: Placed in the public domain April 2007 by the author: no copyright is claimed, and you may use it for any purpose you like.
+License Website: N/A - public domain
+License File: license_stbvorbis.txt
+Location in QB64 distribution: internal/c/parts/audio/decode/ogg/
+
+Software/Library Name: OpenAL-soft
+Website:http://kcat.strangesoft.net/openal.html
+License: LGPL 2
+License Website: http://www.gnu.org/licenses/licenses.html#LGPL
+License File: license_gnu_lgpl_2.txt
+Location in QB64 distribution: internal/c/parts/audio/out/
+
+Software/Library Name: FreeGLUT
+Website: http://freeglut.sourceforge.net/
+License: LGPL (note: website states LGPL, license file is not a copy of GNU LGPL)
+License Website: http://www.gnu.org/licenses/licenses.html#LGPL
+License File: license_freeglut.txt
+Location in QB64 distribution: internal/c/parts/core/
+
+Software/Library Name: FreeTYPE
+Website: http://www.freetype.org/
+License: GPL or FreeTYPE's FTL (programs must abide by one of these licenses)
+License Website(s): (see below)
+http://www.freetype.org/license.html
+http://www.gnu.org/licenses/licenses.html#GPL
+License File(s): (see below)
+license_freetype_ftl.txt
+license_gnu_gpl_2.txt
+Location in QB64 distribution: internal/c/parts/video/font/ttf/
+
+Software/Library Name: NanoJPEG - KeyJ's Tiny Baseline JPEG Decoder
+Author: Martin J. Fiedler <martin.fiedler@gmx.net>
+License: MIT
+License File: license_nanojpeg.txt
+Location in QB64 distribution: internal/c/parts/video/image/decode/jpg
+
+Software/Library Name: LodePNG
+License: (refer to license file)
+License File: license_lodepng.txt
+Location in QB64 distribution: internal/c/parts/video/image/decode/png

@@ -1,0 +1,40 @@
+[[$COLOR]] is a metacommand that adds named color [[CONST|constants]] in a program.
+
+
+{{PageSyntax}}
+: [[$COLOR]]:0
+: [[$COLOR]]:32
+
+
+{{PageDescription}}
+* [[$COLOR]]:0 adds [[CONST|constants]] for colors 0-15. The actual constant names can be found in the file '''source/utilities/color0.bi'''.
+* [[$COLOR]]:32 adds [[CONST|constants]] for 32-bit colors, similar to HTML color names. The actual constant names can be found in the file '''source/utilities/color32.bi'''.
+* [[$COLOR]] is a shorthand to manually using [[$INCLUDE]] pointing to the files listed above.
+* Not compatible with [[$NOPREFIX]].
+
+
+{{PageExamples}}
+''Example 1:'' Adding named color constants for SCREEN 0:
+{{CodeStart}}
+{{Cl|$COLOR}}:0
+{{Cl|COLOR}} BrightWhite, Red
+{{Cl|PRINT}} "Bright white on red."
+ {{CodeEnd}}
+
+
+''Example 2:'' Adding named color constants for 32-bit modes:
+{{CodeStart}}
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 400, 32)
+{{Cl|$COLOR}}:32
+{{Cl|COLOR}} CrayolaGold, DarkCyan
+{{Cl|PRINT}} "CrayolaGold on DarkCyan."
+ {{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[COLOR]], [[SCREEN]] 
+* [[_NEWIMAGE]], [[$INCLUDE]]
+* [[Metacommand]]
+
+
+{{PageNavigation}}

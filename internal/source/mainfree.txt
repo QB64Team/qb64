@@ -181,6 +181,18 @@ free((void*)(__ARRAY_INTEGER_PL[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_PL)[8] );
+if (__ARRAY_STRING_PP_TYPEMOD[2]&1){
+tmp_long=__ARRAY_STRING_PP_TYPEMOD[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_PP_TYPEMOD[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_PP_TYPEMOD[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_PP_TYPEMOD)[8] );
+if (__ARRAY_STRING_PP_CONVERTEDMOD[2]&1){
+tmp_long=__ARRAY_STRING_PP_CONVERTEDMOD[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_PP_CONVERTEDMOD[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_PP_CONVERTEDMOD[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_PP_CONVERTEDMOD)[8] );
 if (__ARRAY_LONG_EVERYCASESET[2]&1){
 if (__ARRAY_LONG_EVERYCASESET[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_EVERYCASESET[0]));
@@ -189,6 +201,14 @@ free((void*)(__ARRAY_LONG_EVERYCASESET[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_EVERYCASESET)[8] );
+if (__ARRAY_LONG_SELECTCASEHASCASEBLOCK[2]&1){
+if (__ARRAY_LONG_SELECTCASEHASCASEBLOCK[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_LONG_SELECTCASEHASCASEBLOCK[0]));
+}else{
+free((void*)(__ARRAY_LONG_SELECTCASEHASCASEBLOCK[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_SELECTCASEHASCASEBLOCK)[8] );
 if (__ARRAY_LONG_EXECLEVEL[2]&1){
 if (__ARRAY_LONG_EXECLEVEL[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_EXECLEVEL[0]));
@@ -203,14 +223,14 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_USERDEFINE[0]))[tmp_l
 free((void*)(__ARRAY_STRING_USERDEFINE[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_USERDEFINE)[12] );
-if (__ARRAY_BIT1_INVALIDLINE[2]&1){
-if (__ARRAY_BIT1_INVALIDLINE[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_BIT1_INVALIDLINE[0]));
+if (__ARRAY_BYTE_INVALIDLINE[2]&1){
+if (__ARRAY_BYTE_INVALIDLINE[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_BYTE_INVALIDLINE[0]));
 }else{
-free((void*)(__ARRAY_BIT1_INVALIDLINE[0]));
+free((void*)(__ARRAY_BYTE_INVALIDLINE[0]));
 }
 }
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BIT1_INVALIDLINE)[8] );
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BYTE_INVALIDLINE)[8] );
 if (__ARRAY_BYTE_DEFINEELSE[2]&1){
 if (__ARRAY_BYTE_DEFINEELSE[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_BYTE_DEFINEELSE[0]));
@@ -227,9 +247,11 @@ free((void*)(__ARRAY_LONG_DEPENDENCY[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_DEPENDENCY)[8] );
+qbs_free(__STRING_WINDOWTITLE);
 qbs_free(__STRING_CMDLINEFILE);
 qbs_free(__STRING_USEDVARIABLELIST);
 qbs_free(__STRING_LASTWARNINGHEADER);
+qbs_free(__STRING_QB64PREFIX);
 qbs_free(__STRING_VIFILEVERSIONNUM);
 qbs_free(__STRING_VIPRODUCTVERSIONNUM);
 qbs_free(__STRING_VICOMPANYNAME);
@@ -393,12 +415,6 @@ qbs_free(__STRING_IDERETURN);
 qbs_free(__STRING_IDEMESSAGE);
 qbs_free(__STRING_OUTPUTFILE_CMD);
 qbs_free(__STRING_COMPILELOG);
-if (__ARRAY_STRING_CNAME[2]&1){
-tmp_long=__ARRAY_STRING_CNAME[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_CNAME[0]))[tmp_long]);
-free((void*)(__ARRAY_STRING_CNAME[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_CNAME)[8] );
 qbs_free(__STRING_IDE_INDEX);
 qbs_free(__STRING_CONFIGFILE);
 qbs_free(__STRING_CONFIGBAK);
@@ -857,8 +873,6 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_WARNING[0]))[tmp_long
 free((void*)(__ARRAY_STRING_WARNING[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_WARNING)[8] );
-qbs_free(__STRING_LINEBACKUP);
-qbs_free(__STRING_FORCEINCLUDEFROMROOT);
 qbs_free(__STRING_WHOLESTV);
 qbs_free(__STRING_L);
 qbs_free(__STRING_R);
@@ -875,14 +889,11 @@ qbs_free(__STRING_SIZ);
 qbs_free(__STRING_N);
 qbs_free(__STRING_T);
 qbs_free(__STRING_HASHNAME);
-qbs_free(__STRING_RED);
-qbs_free(__STRING_GREEN);
-qbs_free(__STRING_BLUE);
-qbs_free(__STRING_ALPHA);
-qbs_free(__STRING_VAL);
-qbs_free(__STRING_TEMP1);
 qbs_free(__STRING_S);
+qbs_free(__STRING_READABLE_E);
 qbs_free(__STRING_E2);
+qbs_free(__STRING_E3);
+qbs_free(__STRING_TEMP1);
 qbs_free(__STRING_SYMBOL);
 qbs_free(__STRING_ALIASNAME);
 qbs_free(__STRING_PARAMS);
@@ -932,7 +943,6 @@ qbs_free(__STRING_TC);
 qbs_free(__STRING_F12);
 qbs_free(__STRING_EL);
 qbs_free(__STRING_ER);
-qbs_free(__STRING_E3);
 qbs_free(__STRING_O);
 qbs_free(__STRING_O2);
 qbs_free(__STRING_SIZEE);

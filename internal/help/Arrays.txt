@@ -253,9 +253,7 @@ Arrays can be sorted numerically or alphabetically using various sorting routine
 
 Since variables and arrays exist in memory, data is lost when a program closes. To preserve program data you must either create a permanent [[DATA]] field or save the data to files.
 
-The next time a program is used, it can [[OPEN]] that file and quickly restore all of the array data using a loop or '''QB64''' can [[GET]] the entire file's data in one GET. Use [[LINE INPUT (file statement)|LINE INPUT]] # to set the array sizes by counting the number of data rows in a file if you used a [[WRITE]] '''CSV'''(comma separated values) or a [[PRINT (file statement)|PRINT]] # sequencial file. The number of records in a [[TYPE]] or [[FIELD]] defined [[RANDOM]] access file can be found by dividing the record size into the [[LOF]]. You may want
-3640
- to make the array slightly larger for new entries.
+The next time a program is used, it can [[OPEN]] that file and quickly restore all of the array data using a loop or '''QB64''' can [[GET]] the entire file's data in one GET. Use [[LINE INPUT (file statement)|LINE INPUT]] # to set the array sizes by counting the number of data rows in a file if you used a [[WRITE]] '''CSV'''(comma separated values) or a [[PRINT (file statement)|PRINT]] # sequencial file. The number of records in a [[TYPE]] or [[FIELD]] defined [[RANDOM]] access file can be found by dividing the record size into the [[LOF]]. You may want to make the array slightly larger for new entries.
 
 
 &lt;center>[[#toc|Return to Top]]&lt;/center>

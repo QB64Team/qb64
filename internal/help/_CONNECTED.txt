@@ -11,33 +11,8 @@ The [[_CONNECTED]] function returns the status of a TCP/IP connection handle.
 * Returns -1 if still connected or 0 if connection has ended/failed. 
 * Do not rely solely on this function to check for ending communication.
 * Use "time-out" checking as well and [[CLOSE]] any suspect connections.
-* If this function indicates the handle is not connected, any unread messages can still be read using [[INPUT (TCP/IP statement)|INPUT #]] or [[GET (TCP/IP statement)|GET #]].
+* If this function indicates the handle is not connected, any unread messages can still be read using [[GET (TCP/IP statement)|GET #]].
 * Even if this function indicates the handle is not connected, it is important to [[CLOSE]] the connection anyway or important resources cannot be reallocated. 
-
-
-{{PageExamples}}
-''Snippet:'' Updating the [[_OPENHOST|_OPENHOST chat program example]] to manage the Users array when users are no longer connected.
-{{TextStart}} '' ''
-{{Cb|FOR...NEXT|FOR}} i = 1 {{Cb|TO}} numclients ' distribute incoming messages to all clients
-  {{Cb|IF...THEN|IF}} Users(i) {{Cb|THEN}} ' check for non-existing handle values(rare)
-      {{Cb|INPUT (TCP/IP statement)|INPUT #}}Users(i), message$
-      {{Cb|IF...THEN|IF}} message$ &lt;> "" {{Cb|THEN}}
-        {{Cb|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} numclients
-          {{Cb|IF...THEN|IF}} Users(p) {{Cb|THEN}} {{Cb|PRINT (TCP/IP statement)|PRINT #}}Users(p), message$
-        {{Cb|NEXT}} p
-      {{Cb|END IF}}
-      {{Cb|IF...THEN|IF}} {{Cb|_CONNECTED}}(Users(i)) {{Cl|IF...THEN|THEN}}
-        n = n + 1 ' new consecutive connected index 
-        Users(n) = Users(i) ' assign handle value to consecutive index
-      {{Cb|ELSE}} : {{Cb|CLOSE}} #(Users(i)): Users(i) = 0 ' close and clear index
-      {{Cb|END IF}} ' if connected
-  {{Cb|END IF}} ' array handle exist
-{{Cb|NEXT}} i
-numclients = n: n = 0 '' ''
-
-{{CodeEnd}}
-:The connection routine is added to the [[_OPENHOST|chat program's]] message distribution code to update the User array and close bad connections. The value of the n index does not change for non-existing handles or lost connections, so it will always either match the numclients value or be less. This overwrites lost connection handles. Setting handles to 0 clears upper array indices. After the FOR loop has gone through all of the client users, the number of clients is updated to the value of n and n is reset to 0. 
-
 
 {{PageSeeAlso}}
 * [[_OPENCONNECTION]]

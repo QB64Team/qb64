@@ -1,0 +1,43 @@
+{{DISPLAYTITLE:_CONSOLEINPUT}}
+The [[_CONSOLEINPUT]] function is used to monitor any new mouse or keyboard input coming from a $CONSOLE window. It must be called in order for [[_CINP]] to return valid values. Windows-only.
+
+
+{{PageSyntax}}
+:{{Parameter|infoExists%%}} = [[_CONSOLEINPUT]]
+
+
+{{PageDescription}}
+* Returns 1 if new keyboard information is available, 2 if mouse information is available, otherwise it returns 0.
+* Must be called before reading any of the other mouse functions and before reading [[_CINP]].
+* To clear all previous input data, read [[_CONSOLEINPUT]] in a loop until it returns 0.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+
+
+{{PageExamples}}
+''Example 1:'' Reading individual key strokes from a console window (Windows).
+{{CodeStart}} '' ''
+{{Cl|$CONSOLE}}:ONLY
+{{Cl|_DEST}} {{Cl|_CONSOLE}}: {{Cl|_SOURCE}} {{Cl|_CONSOLE}}
+
+{{Cl|PRINT}} "Press any key, and I'll give you the scan code for it.  &lt;ESC> quits the demo."
+{{Cl|PRINT}}
+{{Cl|PRINT}}
+{{Cl|DO}}
+    x = {{Cl|_CONSOLEINPUT}}
+    {{Cl|IF}} x = 1 {{Cl|THEN}} 'read only keyboard input ( = 1)
+        c = {{Cl|_CINP}}
+        {{Cl|PRINT}} c;
+    {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} c = 1
+{{Cl|END}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[$CONSOLE]], [[_CONSOLE]]
+* [[_CINP]], [[Keyboard_scancodes#INP_Scan_Codes|Scan Codes]]
+* [[_MOUSEX]], [[_MOUSEY]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
+
+
+
+{{PageNavigation}}

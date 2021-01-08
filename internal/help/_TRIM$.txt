@@ -1,0 +1,38 @@
+{{DISPLAYTITLE:_TRIM$}}
+The [[_TRIM$]] function removes both leading and trailing space characters from a [[STRING]] value.
+
+
+{{PageSyntax}}
+:{{Parameter|return$}} = [[_TRIM$]]({{Parameter|text$}})
+
+
+{{PageDescription}}
+* Shorthand to using [[LTRIM$]]([[RTRIM$]]("text"))
+* {{Parameter|text$}} is the [[STRING]] value to trim.
+* If {{Parameter|text$}} contains no leading or trailing space characters, it is returned unchanged.
+* Convert fixed length [[STRING]] values by using a different {{parameter|return$}} variable.
+
+
+{{PageExamples}}
+''Example: Demonstrating how _TRIM$(text$) can replace LTRIM$(RTRIM$(text$)):
+{{CodeStart}}
+text$ = {{Cl|SPACE$}}(10) + "some text" + {{Cl|SPACE$}}(10)
+{{Cl|PRINT}} "[" + text$ + "]" '' ''
+{{Cl|PRINT}} "[" + {{Cl|RTRIM$}}(text$) + "]" '' ''
+{{Cl|PRINT}} "[" + {{Cl|LTRIM$}}(text$) + "]" '' ''
+{{Cl|PRINT}} "[" + {{Cl|LTRIM$}}({{Cl|RTRIM$}}(text$)) + "]" '' ''
+{{Cl|PRINT}} "[" + {{Cl|_TRIM$}}(text$) + "]" '' ''
+{{CodeEnd}}
+{{OutputStart}}[          some text          ]
+[          some text]
+[some text          ]
+[some text]
+[some text]
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[RTRIM$]], [[LTRIM$]]
+
+
+{{PageNavigation}}

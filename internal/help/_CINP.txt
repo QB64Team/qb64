@@ -1,0 +1,59 @@
+{{DISPLAYTITLE:_CINP}}
+The [[_CINP]] function returns keyboard key press codes from a [[$CONSOLE]] window. Windows-only.
+
+
+{{PageSyntax}}
+:{{Parameter|keycode&amp;}} = [[_CINP]]
+
+
+{{PageDescription}}
+* Return values are the same as the ones for [[INP]] when used to read keyboard input. See table below.
+:* '''Negative''' [[LONG]] values returned indicate that a key was released or a lock function key has been turned off.
+* [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
+
+{{WhiteStart}}'                            '''Extended Keyboard Press Scancodes'''
+'
+''''  Esc  F1 F2 F3 F4 F5 F6 F7 F8 F9 F10  F11 F12   SysReq ScrL Pause'''                  
+'   1   59 60 61 62 63 64 65 66 67 68   87  88     0     70    29
+'  '''`~  1! 2@ 3# 4$ 5% 6^ 7&amp; 8* 9( 0) -_ =+ BkSpc  Insert Home PgUp   NumL   /     *    -''' 
+'   41 2  3  4  5  6  7  8  9  10 11 12 13  14     82    71    73     69    53    55   74
+'  '''Tab  Q  W  E  R  T  Y  U  I  O  P  [{ ]} \|    Delete End  PgDn   7/Home 8/▲  9/PU  + '''
+'   15  16 17 18 19 20 21 22 23 24 25 26 27 43     83    79    81     71    72    73   78
+'  '''CapL  A  S  D  F  G  H  J  K  L  ;: '"  Enter                     4/◄-   5    6/-►  E'''
+'   58   30 31 32 33 34 35 36 37 38 39 40   28                        75    76    77   '''n'''
+'  '''Shift  Z  X  C  V  B  N  M  ,&lt; .> /?    Shift         ▲           1/End  2/▼  3/PD  t'''
+'   42    44 45 46 47 48 49 50 51 52 53     54           72           79    80    81   '''e'''
+'  '''Ctrl Win Alt    Spacebar    Alt Win Menu Ctrl     ◄-  ▼   -►      0/Insert    ./Del r'''
+'   29  {{text|91|purple}}  56        57       56  {{text|92   93|purple}}  29       75  80  77       82          83   28 
+'
+{{WhiteEnd}}
+
+
+{{PageExamples}}
+''Example 1:'' Reading individual key strokes from a console window (Windows).
+{{CodeStart}} '' ''
+{{Cl|$CONSOLE}}:ONLY
+{{Cl|_DEST}} {{Cl|_CONSOLE}}: {{Cl|_SOURCE}} {{Cl|_CONSOLE}}
+
+{{Cl|PRINT}} "Press any key, and I'll give you the scan code for it.  &lt;ESC> quits the demo."
+{{Cl|PRINT}}
+{{Cl|PRINT}}
+{{Cl|DO}}
+    x = {{Cl|_CONSOLEINPUT}}
+    {{Cl|IF}} x = 1 {{Cl|THEN}} 'read only keyboard input ( = 1)
+        c = {{Cl|_CINP}}
+        {{Cl|PRINT}} c;
+    {{Cl|END IF}}
+{{Cl|LOOP}} {{Cl|UNTIL}} c = 1
+{{Cl|END}}
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[$CONSOLE]], [[_CONSOLE]]
+* [[_CONSOLEINPUT]]
+* [[_MOUSEX]], [[_MOUSEY]], [[_MOUSEBUTTON]], [[_MOUSEWHEEL]]
+
+
+
+{{PageNavigation}}

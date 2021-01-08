@@ -1,1 +1,0 @@
-P$="+CHR$(34):PRINT MID$(P$,35)+P$+P$'P$="+CHR$(34):PRINT MID$(P$,35)+P$+P$'P$="

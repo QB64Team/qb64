@@ -152,6 +152,9 @@ list *snd_sequences=list_new(sizeof(snd_sequence_struct));
 
 
 struct snd_struct{
+    void *lock_offset;
+    int64 lock_id;
+
     uint8 internal;//1=internal
     uint8 type;//1=RAW, 2=SEQUENCE
 
@@ -1048,6 +1051,10 @@ void sub__sndclose(int32 handle){
     }
     snd->close=1;//raw
     snd->raw_close_time=GetTicks();
+
+    if (snd->lock_id){
+        free_mem_lock((mem_lock*)snd->lock_offset);//untag
+    }
 }//sndclose
 
 //"macros"

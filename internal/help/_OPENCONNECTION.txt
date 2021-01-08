@@ -13,33 +13,7 @@ The [[_OPENCONNECTION]] function opens a connection from a client that the host 
 * [[CLOSE]] #{{Parameter|connectHandle}} closes the connection. Failed connections({{Parameter|connectHandle}} = 0) do not need to be closed.
 * As a '''Host''' you can check for new clients (users). Each will have a unique connection handle.
 * Creates an [[ERROR Codes|Illegal Function Call]] error if called with a string argument of the wrong syntax.
-* Handle values can be used as the open number by [[INPUT (TCP/IP statement)|INPUT #]] or [[GET (TCP/IP statement)|GET #]] read statements and [[PUT (TCP/IP statement)|PUT #]] or [[PRINT (TCP/IP statement)|PRINT #]] write statements.
-
-
-{{PageExamples}}
-''Example:'' Using the [[_OPENCONNECTION]] new client return with [[INPUT (TCP/IP statement)|INPUT]] # or [[GET (TCP/IP statement)|GET]] # message or data reads.
-
-{{CodeStart}}
-
- host = {{Cl|_OPENHOST}}("TCP/IP:8080")
- {{Cl|DO}}
-   newclient = {{Cl|_OPENCONNECTION}}(host) ' monitor host connection
-   {{Cl|IF...THEN|IF}} newclient {{Cl|THEN}}
-     {{Cl|SLEEP}} 1 ' wait one second for data to arrive
-     {{Cl|INPUT (TCP/IP statement)|INPUT}} #newclient, a
-     {{Cl|PRINT}} a 
-     {{Cl|CLOSE}} #newclient ' close after each read
-   {{Cl|ELSE}} : {{Cl|_DELAY}} .05 ' share resources with other programs (20 loops per second)
-   {{Cl|END IF}}
- {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" ' any keypress quits
- {{Cl|CLOSE}} #host
- {{Cl|SYSTEM}}
-
-{{CodeEnd}}
-
-''Explanation:'' The function finds new clients and waits one second to read a message or other data. If a message or data was sent, it displays it on the screen and closes the connection. 
-
-'''Note: When sending data, the client should wait about 3 seconds before closing their connection!'''
+* Handle values can be used as the open number by [[GET (TCP/IP statement)|GET #]] read statement and [[PUT (TCP/IP statement)|PUT #]] write statement.
 
 
 {{PageSeeAlso}}

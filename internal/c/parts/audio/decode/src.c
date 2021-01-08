@@ -244,6 +244,61 @@ got_seq:
     return handle;
 }
 
+mem_block func__memsound(int32 i,int32 targetChannel){
+    
+    static mem_block b;
+    
+    if (new_error) goto error;
+    if (i<=0) goto error;
+    
+    sndsetup();
+
+    static snd_struct *sn;
+    sn = (snd_struct*)list_get(snd_handles, i);
+    if (!sn){
+        goto error;
+    }
+    if (!snd_allow_internal){
+        if (sn->internal){
+            goto error;
+        }
+    }
+    if (targetChannel<1 || targetChannel>sn->seq->channels) goto error;
+    
+    if (sn->lock_id){
+        b.lock_offset=(ptrszint)sn->lock_offset; b.lock_id=sn->lock_id;//get existing tag
+        }else{
+        new_mem_lock();
+        mem_lock_tmp->type=5;//sound
+        b.lock_offset=(ptrszint)mem_lock_tmp; b.lock_id=mem_lock_id;
+        sn->lock_offset=(void*)mem_lock_tmp; sn->lock_id=mem_lock_id;//create tag
+    }
+    
+    if (targetChannel==1) {
+        b.offset=(ptrszint)sn->seq->data_left;
+        b.size=sn->seq->data_left_size;
+    }
+    
+    if (targetChannel==2) {
+        b.offset=(ptrszint)sn->seq->data_right;
+        b.size=sn->seq->data_right_size;
+    }
+
+    b.type=0;//sn->bytes_per_pixel+128+1024+2048;//integer+unsigned+pixeltype
+    b.elementsize=sn->seq->bits_per_sample/8;
+    b.sound=i;
+    
+    return b;
+    error:
+    b.offset=0;
+    b.size=0;
+    b.lock_offset=(ptrszint)mem_lock_base; b.lock_id=1073741821;//set invalid lock
+    b.type=0;
+    b.elementsize=0;
+    b.sound=0;
+    return b;
+}
+
 
 void sub__sndplayfile(qbs *filename, int32 sync, double volume, int32 passed){
     if (new_error) return;

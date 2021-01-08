@@ -435,7 +435,7 @@ DATA 0x045,*,"deffn::={#procdecl:2}"
 DATA 0x046,"DO"
 DATA 0x047,"DO UNTIL {0}"
 DATA 0x048,2,"DO WHILE {0}"
-DATA 0x049,2,"{newline:0}ELSE| ELSE "
+DATA 0x049,2,"{newline:0}ELSE | ELSE "
 
 ' 0x04a = implicit GOTO linenumber used in 0x04c ELSE
 DATA 0x04a,2,"{#id}"
@@ -570,7 +570,7 @@ DATA 0x09f,"CIRCLE {##circle-args}"
 DATA 0x0a0,"CIRCLE {##circle-args}"
 DATA 0x0a1,2,"CLEAR{##varargs}"
 DATA 0x0a2,2,"CLOSE{##varargs}"
-DATA 0x0a3,"CLS {expr:0}|CLS"
+DATA 0x0a3,"CLS {expr:0}|CLS "
 DATA 0x0a4,2,"COLOR{##varargs}"
 
 DATA 0x0a5,4,"decl::=COMMON {declmod:0}{#blockname:2}"
@@ -944,7 +944,7 @@ FUNCTION DelimitParseRule$ (ParseRule AS STRING, DefaultRuleID AS STRING)
     RuleEnd = LEN(ParseRule) + 1
 
     DO
-   
+
         BraceOffset = INSTR(RuleOffset, ParseRule, "{")
         IF BraceOffset = 0 THEN BraceOffset = RuleEnd
 
@@ -1376,10 +1376,10 @@ FUNCTION FindRuleDelimiter% (ParseRule AS STRING)
     RuleEnd = LEN(ParseRule) + 1
 
     DO WHILE RuleOffset < RuleEnd
-   
+
         BraceOffset = INSTR(RuleOffset, ParseRule, "{")
         PipeOffset = INSTR(RuleOffset, ParseRule, "|")
-   
+
         IF BraceOffset = 0 OR PipeOffset <= BraceOffset THEN EXIT DO
 
         RuleOffset = INSTR(BraceOffset + 1, ParseRule, "}")
@@ -1421,7 +1421,7 @@ FUNCTION GetHashedSymbol (ParseRuleSymbol AS STRING)
         GetHashedSymbol% = SymbolID%
         EXIT FUNCTION
     END IF
-    
+
     Hash = HashPJW(SymbolID$)
 
     LookupSymbol = "[" + SymbolID$ + "]"
@@ -1492,9 +1492,9 @@ FUNCTION GetID$ (SymTblOffset AS INTEGER)
     SymbolFlags = PEEK(Symbol& + 2)
 
     IF SymbolFlags AND 2 THEN
- 
+
         ' Short line numbers are stored as integers.
- 
+
         NumericID& = PEEK(Symbol& + 4) OR PEEK(Symbol& + 5) * &H100&
         GetID$ = LTRIM$(STR$(NumericID&))
     ELSE
@@ -1599,7 +1599,7 @@ FUNCTION GetTaggedItem$ (TagTxt AS STRING, DP AS INTEGER)
         CASE "int": SubstTxt = FetchLiteralINT(DP, 10)
         CASE "int&h": SubstTxt = FetchLiteralINT(DP, 16)
         CASE "int&o": SubstTxt = FetchLiteralINT(DP, 8)
-        CASE "label": SubstTxt = FetchID(DP): IF NOT IsLineNumber(SubstTxt) THEN SubstTxt = SubstTxt + ":"
+        CASE "label": SubstTxt = FetchID(DP): IF IsLineNumber(SubstTxt) THEN SubstTxt = SubstTxt + " " ELSE SubstTxt = SubstTxt + ":"
 
         CASE "lng": SubstTxt = FetchLiteralLNG(DP, 10)
         CASE "lng&h": SubstTxt = FetchLiteralLNG(DP, 16)
@@ -2307,7 +2307,7 @@ SUB ProcessProcDefType
             IP = IP - 1
             EXIT DO
         END IF
-   
+
         IF NOT ReadToken THEN EXIT DO
 
         UnwantedReturnValue$ = SubstTagDEFxxx(ProcDefType())
@@ -2682,7 +2682,7 @@ FUNCTION ReadToken
     '----------------------------------------------------------------------------
     IF PCODE < LBOUND(ParseRules) OR PCODE > UBOUND(ParseRules) THEN
         IP = IP + 1
-        PRINT "Bad token found.": SYSTEM 1 'ERROR QBErrBadToken
+        'PRINT "Bad token found.": SYSTEM 1 'ERROR QBErrBadToken
         PCODE = 0: HPARAM = 0: TOKEN = MKI$(0)
         EXIT FUNCTION
     END IF

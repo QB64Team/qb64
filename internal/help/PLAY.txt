@@ -11,7 +11,7 @@
 :*'''&lt;''' - Down one octave (cannot be below zero). Example: '''{{text|PLAY "&lt;&lt;"|green}}''' 'goes down two octaves.
 :*'''>''' - Up one octave (cannot be above 6). Example: '''{{text|PLAY ">>"|green}}''' ' goes up two octaves.
 :*'''A''', '''B''', '''C''', '''D''', '''E''', '''F''' or '''G''' are the notes in the current octave. Can use the following suffixes:
-::*'''+''' or '''#''' for a sharp note. Example: '''{{text|PLAY "C#"}green}}'''
+::*'''+''' or '''#''' for a sharp note. Example: '''{{text|PLAY "C#"|green}}'''
 ::*'''-''' for a flat note. Example: '''{{text|PLAY "C-"|green}}'''
 :*'''N'''n - Plays a note n by number(n can be between 0 to 84 in the 7 octaves, where 0 is a rest). Example: '''{{text|PLAY "N42"|green}}'''
 :*'''L'''n - Sets length of a note (n can be 1 to 64 where 1 is a whole note and 4 is a quarter of a note etc.). Example: '''{{text|PLAY "L4"|green}}'''
@@ -276,9 +276,7 @@ pcolorp = gcolorp
       pcolorp = {{Cl|INSTR}}("0123456789abcdef", {{Cl|LCASE$}}({{Cl|MID$}}(p$, p, 1))) - 1
   {{Cl|END SELECT}}
   {{Cl|IF...THEN|IF}} {{Cl|NOT}} pcolorp = -1 {{Cl|THEN}}
-    {
-2b3c
-{Cl|IF...THEN|IF}} gscalep > 1 {{Cl|THEN}}
+    {{Cl|IF...THEN|IF}} gscalep > 1 {{Cl|THEN}}
       {{Cl|LINE}} ((gposxp - 1) * gscalep, (gposyp - 1) * gscalep)-{{Cl|STEP}}(gscalep - 1, gscalep - 1), pcolorp, BF
     {{Cl|ELSE}}:
       {{Cl|PSET}} (gposxp, gposyp), pcolorp
@@ -324,11 +322,10 @@ x$ = x$ + "    ml      &lt;&lt;           b-         1,   >d   1,           "
 x$ = x$ + "    f1      ,mn>f.d8dc  l1           ml  f,    c,    &lt;a  ,f"&lt;/nowiki>
 {{Cl|PRINT}} x$;
 {{Cl|PLAY}} x '' ''
-{{CodeEnd}}{{small|Code by Johnny B}}
+{{CodeEnd}}{{small|Code by Luke}}
 
 
 ''See also:''' 
-* [[PLAY(n)]], [[ON PLAY(n)]] 
 * [[SOUND]], [[DRAW]]
 * [[_SNDRAW]] (play frequency waves)
 * [[_SNDOPEN]] (play sound files)

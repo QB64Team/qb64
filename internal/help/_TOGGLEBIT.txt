@@ -1,0 +1,46 @@
+{{DISPLAYTITLE:_TOGLEBIT}}
+The [[_TOGGLEBIT]] function is used to toggle a specified bit of a numerical value.
+
+
+{{PageSyntax}}
+:{{Parameter|result}} = [[_TOGGLEBIT]]({{Parameter|numericalVariable}}, {{Parameter|numericalValue}})
+
+
+{{Parameters}}
+* {{Parameter|numericalVariable}} is the variable to toggle the bit of and can be of the following types: [[_BYTE]], [[INTEGER]], [[LONG]], or [[_INTEGER64]].
+* Integer values can be signed or [[_UNSIGNED]].
+* {{Parameter|numericalValue}} the number of the bit to be set.
+
+
+{{PageDescription}}
+* Can be used to manually manipulate individual bits of an integer value by toggling their state.
+* A bit set to 1 is changed to 0 and a bit set to 0 is changed to 1.
+* Bits start at 0 (so a [[_BYTE]] has bits 0 to 7, [[INTEGER]] 0 to 15, and so on)
+
+==Availability==
+* '''Version 1.4 and up'''.
+
+
+{{PageExamples}}
+''Example 1:''
+{{CodeStart}}A~%% = 0 '{{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+{{Cl|PRINT}} A~%%
+A~%% = {{Cl|_TOGGLEBIT}}(A~%%,4) 'toggle the fourth bit of A~%%
+{{Cl|PRINT}} A~%%
+A~%% = {{Cl|_TOGGLEBIT}}(A~%%,4) 'toggle the fourth bit of A~%%
+{{Cl|PRINT}} A~%%
+{{CodeEnd}}
+{{OutputStart}}
+ 0
+ 16
+ 0
+{{OutputEnd}}
+
+
+
+{{PageSeeAlso}}
+* [[_SHL]], [[_SHR]], [[INTEGER]], [[LONG]]
+* [[_SETBIT]], [[_BYTE]], [[_INTEGER64]]
+* [[_RESETBIT]], [[_READBIT]]
+
+{{PageNavigation}}

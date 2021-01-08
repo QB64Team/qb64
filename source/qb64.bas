@@ -21,15 +21,16 @@ DEFLNG A-Z
 '-------- Optional IDE Component (1/2) --------
 '$INCLUDE:'ide\ide_global.bas'
 
-REDIM SHARED OName(0) AS STRING 'Operation Name
-REDIM SHARED PL(0) AS INTEGER 'Priority Level
-DIM SHARED QuickReturn AS INTEGER
-Set_OrderOfOperations 'This will also make certain our directories are valid, and if not make them.
+REDIM SHARED OName(1000) AS STRING 'Operation Name
+REDIM SHARED PL(1000) AS INTEGER 'Priority Level
+REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name Conversion variables.
+Set_OrderOfOperations
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
+REDIM SelectCaseHasCaseBlock(100)
 DIM ExecLevel(255), ExecCounter AS INTEGER
 REDIM SHARED UserDefine(1, 100) AS STRING '0 element is the name, 1 element is the string value
-REDIM SHARED InValidLine(10000) AS _BIT
+REDIM SHARED InValidLine(10000) AS _BYTE
 DIM DefineElse(255) AS _BYTE
 DIM SHARED UserDefineCount AS INTEGER
 UserDefine(0, 0) = "WINDOWS": UserDefine(0, 1) = "WIN"
@@ -41,6 +42,9 @@ IF INSTR(_OS$, "LINUX") THEN UserDefine(1, 2) = "-1" ELSE UserDefine(1, 2) = "0"
 IF INSTR(_OS$, "MAC") THEN UserDefine(1, 3) = "-1": UserDefine(1, 4) = "-1" ELSE UserDefine(1, 3) = "0": UserDefine(1, 4) = "0"
 IF INSTR(_OS$, "32BIT") THEN UserDefine(1, 5) = "-1": UserDefine(1, 6) = "0" ELSE UserDefine(1, 5) = "0": UserDefine(1, 6) = "-1"
 
+DIM SHARED QB64_uptime!
+
+QB64_uptime! = TIMER
 
 NoInternalFolder:
 IF _DIREXISTS("internal") = 0 THEN
@@ -53,7 +57,7 @@ IF _DIREXISTS("internal") = 0 THEN
     DO
         _LIMIT 1
     LOOP UNTIL INKEY$ <> ""
-    SYSTEM
+    SYSTEM 1
 END IF
 
 DIM SHARED Include_GDB_Debugging_Info 'set using "options.bin"
@@ -80,18 +84,20 @@ DIM SHARED DEPENDENCY(1 TO DEPENDENCY_LAST)
 DIM SHARED UseGL 'declared SUB _GL (no params)
 
 
-DIM SHARED OS_BITS AS LONG
+DIM SHARED OS_BITS AS LONG, WindowTitle AS STRING
 OS_BITS = 64: IF INSTR(_OS$, "[32BIT]") THEN OS_BITS = 32
 
-IF OS_BITS = 32 THEN _TITLE "QB64 x32" ELSE _TITLE "QB64 x64"
+IF OS_BITS = 32 THEN WindowTitle = "QB64 x32" ELSE WindowTitle = "QB64 x64"
+_TITLE WindowTitle
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
-DIM SHARED VerboseMode AS _BYTE, CMDLineFile AS STRING
+DIM SHARED VerboseMode AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 
 DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE
-DIM SHARED ExeIconSet AS LONG
+DIM SHARED emptySCWarning AS _BYTE
+DIM SHARED ExeIconSet AS LONG, qb64prefix$, qb64prefix_set
 DIM SHARED VersionInfoSet AS _BYTE
 
 'Variables to handle $VERSIONINFO metacommand:
@@ -255,7 +261,7 @@ ELSE
     OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26
     DO WHILE E
         i = i + 1
-        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END
+        IF i = 1000 THEN PRINT "Unable to locate the 'internal' folder": END 1
         MKDIR ".\internal\temp" + str2$(i)
         IF os$ = "WIN" THEN tmpdir$ = ".\internal\temp" + str2$(i) + "\": tmpdir2$ = "..\\temp" + str2$(i) + "\\"
         IF os$ = "LNX" THEN tmpdir$ = "./internal/temp" + str2$(i) + "/": tmpdir2$ = "../temp" + str2$(i) + "/"
@@ -320,12 +326,11 @@ DIM SHARED idemessage AS STRING 'set by qb64-error(...) to the error message to 
 'is later passed to the ide in message #8
 
 DIM SHARED optionexplicit AS _BYTE
+DIM SHARED optionexplicitarray AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
 DIM SHARED ideStartAtLine AS LONG, errorLineInInclude AS LONG
 DIM SHARED outputfile_cmd$
 DIM SHARED compilelog$
-
-DIM cname(4) AS STRING
 
 '$INCLUDE:'global\IDEsettings.bas'
 
@@ -745,7 +750,7 @@ DIM SHARED findidsecondarg AS STRING
 DIM SHARED findanotherid AS INTEGER
 DIM SHARED findidinternal AS LONG
 DIM SHARED currentid AS LONG 'is the index of the last ID accessed
-DIM SHARED linenumber AS LONG
+DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG
 DIM SHARED wholeline AS STRING
 DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
@@ -828,7 +833,7 @@ UDTTYPE = ISUDT + ISPOINTER
 
 
 DIM SHARED statementn AS LONG
-
+DIM SHARED everycasenewcase AS LONG
 
 
 
@@ -840,6 +845,7 @@ DIM controltype(1000) AS INTEGER
 '3=DO (awaiting LOOP [UNTIL|WHILE param])
 '4=DO WHILE/UNTIL (awaiting LOOP)
 '5=WHILE (awaiting WEND)
+'6=$IF (precompiler)
 '10=SELECT CASE qbs (awaiting END SELECT/CASE)
 '11=SELECT CASE int64 (awaiting END SELECT/CASE)
 '12=SELECT CASE uint64 (awaiting END SELECT/CASE)
@@ -850,6 +856,7 @@ DIM controltype(1000) AS INTEGER
 '17=SELECT CASE uint32
 '18=CASE (awaiting END SELECT/CASE/CASE ELSE)
 '19=CASE ELSE (awaiting END SELECT)
+'32=SUB/FUNCTION (awaiting END SUB/FUNCTION)
 DIM controlid(1000) AS LONG
 DIM controlvalue(1000) AS LONG
 DIM controlstate(1000) AS INTEGER
@@ -948,7 +955,6 @@ END IF
 
 IF C = 5 THEN 'end of program reached
 
-    'bas code can be force-included after the last line
     lastLine = 1
     lastLineReturn = 1
     IF idepass = 1 THEN
@@ -1096,7 +1102,7 @@ GOTO sendcommand
 
 
 noide:
-PRINT "QB64 COMPILER V" + Version$
+IF (qb64versionprinted = 0 OR ConsoleMode = 0) AND NOT QuietMode THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
@@ -1118,7 +1124,7 @@ path.source$ = getfilepath$(sourcefile$)
 IF LEN(path.source$) THEN
     IF _DIREXISTS(path.source$) = 0 THEN
         PRINT
-        PRINT "CANNOT LOCATE SOURCE FILE: " + sourcefile$
+        PRINT "Cannot locate source file: " + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     END IF
@@ -1371,6 +1377,7 @@ addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
 optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
+optionexplicitarray = 0
 ExeIconSet = 0
 VersionInfoSet = 0
 viFileVersionNum$ = "": viProductVersionNum$ = "": viCompanyName$ = ""
@@ -1379,6 +1386,7 @@ viLegalCopyright$ = "": viLegalTrademarks$ = "": viOriginalFilename$ = ""
 viProductName$ = "": viProductVersion$ = "": viComments$ = "": viWeb$ = ""
 DataOffset = 0
 statementn = 0
+everycasenewcase = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
 FOR i = 1 TO 27: defineaz(i) = "SINGLE": defineextaz(i) = "!": NEXT
 controllevel = 0
@@ -1398,11 +1406,13 @@ usedVariableList$ = ""
 totalUnusedVariables = 0
 totalWarnings = 0
 duplicateConstWarning = 0
+emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 REDIM SHARED warning$(1000)
 uniquenumbern = 0
-ColorHack = 0
+qb64prefix_set = 0
+qb64prefix$ = "_"
 
 ''create a type for storing memory blocks
 ''UDT
@@ -1430,7 +1440,7 @@ ptrsz = OS_BITS \ 8
 lasttype = lasttype + 1: i = lasttype
 udtxname(i) = "_MEM"
 udtxcname(i) = "_MEM"
-udtxsize(i) = ((ptrsz) * 5 + (4) * 1 + (8) * 1) * 8
+udtxsize(i) = ((ptrsz) * 5 + (4) * 2 + (8) * 1) * 8
 udtxbytealign(i) = 1
 lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
 udtename(i2) = "OFFSET"
@@ -1489,6 +1499,15 @@ udtetype(i2) = LONGTYPE: udtesize(i2) = 32
 udtetypesize(i2) = 0 'tsize
 udtenext(i3) = i2
 udtenext(i2) = 0
+i3 = i2
+lasttypeelement = lasttypeelement + 1: i2 = lasttypeelement
+udtename(i2) = "SOUND"
+udtecname(i2) = "SOUND"
+udtebytealign(i2) = 1
+udtetype(i2) = LONGTYPE: udtesize(i2) = 32
+udtetypesize(i2) = 0 'tsize
+udtenext(i3) = i2
+udtenext(i2) = 0
 
 
 
@@ -1513,7 +1532,7 @@ IF idemode = 0 THEN
     qberrorhappened1:
     IF qberrorhappened = 1 THEN
         PRINT
-        PRINT "CANNOT LOCATE SOURCE FILE:" + sourcefile$
+        PRINT "Cannot locate source file:" + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     ELSE
@@ -1523,7 +1542,6 @@ IF idemode = 0 THEN
 END IF
 
 reginternal
-
 
 OPEN tmpdir$ + "global.txt" FOR OUTPUT AS #18
 
@@ -1536,11 +1554,16 @@ END IF
 
 IF idemode THEN GOTO ideret1
 
+IF NOT QuietMode THEN
+    PRINT
+    PRINT "Beginning C++ output from QB64 code... ";
+END IF
+
 lineinput3load sourcefile$
 
 DO
 
-    stevewashere: '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
+    '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
 
     wholeline$ = lineinput3$
     IF wholeline$ = CHR$(13) THEN EXIT DO
@@ -1548,37 +1571,64 @@ DO
     ideprepass:
     prepassLastLine:
 
-    IF lastLine <> 0 OR firstLine <> 0 THEN
-        lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
-        IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-        IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
-        firstLine = 0: lastLine = 0
-        GOTO forceInclude_prepass
-        forceIncludeCompleted_prepass:
-        wholeline$ = lineBackup$
-    END IF
-
     wholestv$ = wholeline$ '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
+
+
 
     prepass = 1
     layout = ""
     layoutok = 0
 
-    IF ColorHack = 0 THEN linenumber = linenumber + 1 'don't update line number when mass assigning CONST values from $COLOR statement
+    linenumber = linenumber + 1
+    reallinenumber = reallinenumber + 1
 
     DO UNTIL linenumber < UBOUND(InValidLine) 'color information flag for each line
-        REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+        REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE
     LOOP
-    IF ColorHack = 0 THEN InValidLine(linenumber) = 0
+    InValidLine(linenumber) = 0
+
+    ColorPass:
 
     IF LEN(wholeline$) THEN
+
+        IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
+            IF firstLine = 0 THEN a$ = "$NOPREFIX must come before any other statements": GOTO errmes
+
+            qb64prefix$ = ""
+            qb64prefix_set = 1
+
+            're-add internal keywords without the "_" prefix
+            reginternal
+
+            f = HASHFLAG_TYPE + HASHFLAG_RESERVED
+            HashAdd "UNSIGNED", f, 0
+            HashAdd "BIT", f, 0
+            HashAdd "BYTE", f, 0
+            HashAdd "INTEGER64", f, 0
+            HashAdd "OFFSET", f, 0
+            HashAdd "FLOAT", f, 0
+
+            f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
+            HashAdd "EXPLICIT", f, 0
+
+            GOTO finishedlinepp
+        END IF
 
         wholeline$ = lineformat(wholeline$)
         IF Error_Happened THEN GOTO errmes
 
+
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
+        IF temp$ = "$COLOR:0" THEN
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            GOTO finishedlinepp
+        END IF
 
+        IF temp$ = "$COLOR:32" THEN
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            GOTO finishedlinepp
+        END IF
 
         IF LEFT$(temp$, 4) = "$IF " THEN
             IF RIGHT$(temp$, 5) <> " THEN" THEN a$ = "$IF without THEN": GOTO errmes
@@ -1640,7 +1690,7 @@ DO
 
         IF ExecLevel(ExecCounter) THEN
             DO UNTIL linenumber < UBOUND(InValidLine)
-                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BIT
+                REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE
             LOOP
 
             InValidLine(linenumber) = -1
@@ -1701,9 +1751,6 @@ DO
             UserDefine(1, UserDefineCount) = r$
             GOTO finishedlinepp
         END IF
-
-        IF temp$ = "$COLOR:0" THEN GOTO finishedlinepp
-        IF temp$ = "$COLOR:32" THEN GOTO finishedlinepp
 
 
         cwholeline$ = wholeline$
@@ -1919,9 +1966,6 @@ DO
 
 
 
-                        stevewashere2: ' ### STEVE EDIT ON 10/11/2013 (Const Expansion)
-
-
                         IF n >= 1 AND firstelement$ = "CONST" THEN
                             'l$ = "CONST"
                             'DEF... do not change type, the expression is stored in a suitable type
@@ -1939,252 +1983,12 @@ DO
                                 firstelement$ = getelement(a$, 1): secondelement$ = getelement(a$, 2): thirdelement$ = getelement(a$, 3)
                             END IF
 
-
-                            'Steve Tweak to add _RGB32 and _MATH support to CONST
-                            'Our alteration to allow for multiple uses of RGB and RGBA inside a CONST //SMcNeill
-                            altered = 0
-
-                            'Edit 02/23/2014 to add space between = and _ for statements like CONST x=_RGB(123,0,0) and stop us from gettting an error.
-                            DO
-                                L = INSTR(wholestv$, "=_")
-                                IF L THEN
-                                    wholestv$ = LEFT$(wholestv$, L) + " " + MID$(wholestv$, L + 1)
-                                END IF
-                            LOOP UNTIL L = 0
-                            'End of Edit on 02/23/2014
-
-                            DO
-                                finished = -1
-                                L = INSTR(L + 1, UCASE$(wholestv$), " _RGBA")
-                                IF L > 0 THEN
-                                    altered = -1
-                                    l$ = LEFT$(wholestv$, L - 1)
-                                    vp = INSTR(L, wholestv$, "(")
-                                    IF vp > 0 THEN
-                                        E = INSTR(vp + 1, wholestv$, ")")
-                                        IF E > 0 THEN
-                                            'get our 3 colors or 4 if we need RGBA values
-                                            first = INSTR(vp, wholestv$, ",")
-                                            second = INSTR(first + 1, wholestv$, ",")
-                                            third = INSTR(second + 1, wholestv$, ",")
-                                            fourth = INSTR(third + 1, wholestv$, ",") 'If we need RGBA we need this one as well
-                                            red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                            green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                            blue$ = MID$(wholestv$, second + 1, third - second - 1)
-                                            alpha$ = MID$(wholestv$, third + 1)
-                                            IF MID$(wholestv$, L + 6, 2) = "32" THEN
-                                                val$ = "32"
-                                            ELSE
-                                                val$ = MID$(wholestv$, fourth + 1)
-                                            END IF
-                                            SELECT CASE VAL(val$)
-                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 256
-                                                    wi& = _NEWIMAGE(240, 120, VAL(val$))
-                                                    clr~& = _RGBA(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$), wi&)
-                                                    _FREEIMAGE wi&
-                                                CASE 32
-                                                    clr~& = _RGBA32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
-                                                CASE ELSE
-                                                    a$ = "Invalid Screen Mode.": GOTO errmes
-                                            END SELECT
-
-                                            wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)
-                                            finished = 0
-                                        ELSE
-                                            'no finishing bracket
-                                            a$ = ") Expected": GOTO errmes
-                                        END IF
-                                    ELSE
-                                        'no starting bracket
-                                        a$ = "( Expected": GOTO errmes
-                                    END IF
-                                END IF
-                            LOOP UNTIL finished
-
-                            DO
-                                finished = -1
-                                L = INSTR(L + 1, UCASE$(wholestv$), " _RGB32")
-                                IF L = 0 THEN L = INSTR(L + 1, UCASE$(wholestv$), " _RGB")
-                                IF L > 0 THEN
-                                    altered = -1
-                                    l$ = LEFT$(wholestv$, L - 1)
-                                    vp = INSTR(L, wholestv$, "(")
-                                    IF vp > 0 THEN
-                                        E = INSTR(vp + 1, wholestv$, ")")
-                                        IF E > 0 THEN
-                                            IF E = vp + 1 THEN a$ = "Syntax error": GOTO errmes
-                                            red$ = ""
-                                            green$ = ""
-                                            blue$ = ""
-                                            alpha$ = ""
-                                            first = 0: second = 0: third = 0
-                                            first = INSTR(vp, wholestv$, ",")
-                                            IF first THEN second = INSTR(first + 1, wholestv$, ",")
-                                            IF second THEN third = INSTR(second + 1, wholestv$, ",")
-                                            IF first > 0 AND second > 0 AND third > 0 THEN
-                                                'rgb + alpha (or _RGB with screen mode)
-                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                                green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                                blue$ = MID$(wholestv$, second + 1)
-                                                alpha$ = MID$(wholestv$, third + 1)
-                                            ELSEIF first > 0 AND second > 0 THEN
-                                                'regular rgb
-                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                                green$ = MID$(wholestv$, first + 1, second - first - 1)
-                                                blue$ = MID$(wholestv$, second + 1)
-                                            ELSEIF first > 0 THEN
-                                                'grayscale + alpha
-                                                red$ = MID$(wholestv$, vp + 1, first - vp - 1)
-                                                alpha$ = MID$(wholestv$, first + 1)
-                                            ELSE
-                                                'grayscale
-                                                red$ = MID$(wholestv$, vp + 1)
-                                            END IF
-
-                                            IF MID$(wholestv$, L + 5, 2) = "32" THEN
-                                                val$ = "32"
-                                            ELSE
-                                                val$ = MID$(wholestv$, third + 1)
-                                                IF VAL(val$) = 32 THEN val$ = "33"
-                                            END IF
-
-                                            SELECT CASE VAL(val$)
-                                                CASE 0, 1, 2, 7, 8, 9, 10, 11, 12, 13, 33, 256
-                                                    IF val$ = "33" THEN val$ = "32"
-                                                    wi& = _NEWIMAGE(240, 120, VAL(val$))
-                                                    clr~& = _RGB(VAL(red$), VAL(green$), VAL(blue$), wi&)
-                                                    _FREEIMAGE wi&
-                                                CASE 32
-                                                    IF first > 0 AND second > 0 AND third > 0 THEN
-                                                        'rgb + alpha
-                                                        clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$), VAL(alpha$))
-                                                    ELSEIF first > 0 AND second > 0 THEN
-                                                        'regular rgb
-                                                        clr~& = _RGB32(VAL(red$), VAL(green$), VAL(blue$))
-                                                    ELSEIF first > 0 THEN
-                                                        'grayscale + alpha
-                                                        clr~& = _RGB32(VAL(red$), VAL(alpha$))
-                                                    ELSE
-                                                        clr~& = _RGB32(VAL(red$))
-                                                    END IF
-                                                CASE ELSE
-                                                    a$ = "Invalid screen mode": GOTO errmes
-                                            END SELECT
-
-                                            wholestv$ = l$ + STR$(clr~&) + RIGHT$(wholestv$, LEN(wholestv$) - E)
-                                            finished = 0
-                                        ELSE
-                                            a$ = ") Expected": GOTO errmes
-                                        END IF
-                                    ELSE
-                                        a$ = "( Expected": GOTO errmes
-                                    END IF
-                                END IF
-                            LOOP UNTIL finished
-
-                            ' ### END OF STEVE EDIT FOR EXPANDED CONST SUPPORT ###
-
-                            'New Edit by Steve on 02/23/2014 to add support for the new Math functions
-
-
-                            L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
-                            DO
-                                L = INSTR(L + 1, wholestv$, "=")
-                                IF L THEN
-                                    l2 = INSTR(L + 1, wholestv$, ",") 'Look for a comma after that
-                                    IF l2 = 0 THEN 'If there's no comma, then we're working to the end of the line
-                                        l2 = LEN(wholestv$)
-                                    ELSE
-                                        l2 = l2 - 1 'else we only want to take what's before that comma and see if we can use it
-                                    END IF
-                                    temp$ = " " + MID$(wholestv$, L + 1, l2 - L) + " "
-
-                                    FOR i2 = 0 TO constlast
-                                        cname(1) = " " + constname(i2) + " "
-                                        cname(2) = "(" + constname(i2) + " "
-                                        cname(3) = " " + constname(i2) + ")"
-                                        cname(4) = "(" + constname(i2) + ")"
-                                        DO
-                                            found = 0
-                                            FOR i3 = 1 TO 4
-                                                found = INSTR(UCASE$(temp$), cname(i3))
-                                                IF found THEN EXIT FOR
-                                            NEXT
-                                            IF found THEN
-                                                t = consttype(i2)
-                                                IF t AND ISSTRING THEN
-                                                    r$ = conststring(i2)
-                                                    i4 = _INSTRREV(r$, ",")
-                                                    r$ = LEFT$(r$, i4 - 1)
-                                                ELSE
-                                                    IF t AND ISFLOAT THEN
-                                                        r$ = STR$(constfloat(i2))
-                                                    ELSE
-                                                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
-                                                    END IF
-                                                END IF
-                                                temp$ = LEFT$(temp$, found) + r$ + MID$(temp$, found + LEN(constname(i2)) + 1)
-
-                                                altered = -1
-                                            END IF
-                                        LOOP UNTIL found = 0
-                                    NEXT
-                                    wholestv$ = LEFT$(wholestv$, L) + _TRIM$(temp$) + MID$(wholestv$, l2 + 1)
-                                    L = L + 1
-                                END IF
-                                Emergency_Exit = Emergency_Exit + 1
-                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Endless Loop trying to substitute values.": GOTO errmes
-                            LOOP UNTIL L = 0
-
-                            L = 0: Emergency_Exit = 0 'A counter where if we're inside the same DO-Loop for more than 10,000 times, we assume it's an endless loop that didn't process properly and toss out an error message instead of locking up the program.
-                            DO
-                                L = INSTR(L + 1, wholestv$, "=")
-                                IF L THEN
-                                    l2 = INSTR(L + 1, wholestv$, ",") 'Look for a comma after that
-                                    IF l2 = 0 THEN 'If there's no comma, then we're working to the end of the line
-                                        l2 = LEN(wholestv$)
-                                    ELSE
-                                        l2 = l2 - 1 'else we only want to take what's before that comma and see if we can use it
-                                    END IF
-                                    temp$ = MID$(wholestv$, L + 1, l2 - L)
-                                    temp$ = _TRIM$(temp$)
-                                    temp1$ = Evaluate_Expression$(temp$)
-                                    IF LEFT$(temp1$, 5) <> "ERROR" AND temp$ <> temp1$ THEN
-                                        'The math routine should have did its replacement for us.
-                                        altered = -1
-                                        wholestv$ = LEFT$(wholestv$, L) + temp1$ + MID$(wholestv$, l2 + 1)
-                                    ELSE
-                                        IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
-                                        'If it's not an error, we should leave it as it is and let the normal CONST routine handle things from here on out and see if it passes the rest of the error checks.
-                                    END IF
-                                    L = L + 1
-                                END IF
-                                Emergency_Exit = Emergency_Exit + 1
-                                IF Emergency_Exit > 10000 THEN a$ = "CONST ERROR: Attempting to process MATH Function caused Endless Loop.  Please recheck your math formula.": GOTO errmes
-                            LOOP UNTIL L = 0
-
-
-                            'End of Math Support Edit
-
-                            'Steve edit to update the CONST with the Math and _RGB functions
-                            IF altered THEN
-                                altered = 0
-                                wholeline$ = wholestv$
-                                linenumber = linenumber - 1
-                                GOTO ideprepass
-                            END IF
-                            'End of Final Edits to CONST
-
-
-
-
                             IF n < 3 THEN a$ = "Expected CONST name = value/expression": GOTO errmes
                             i = 2
                             constdefpendingpp:
                             pending = 0
 
                             n$ = getelement$(ca$, i): i = i + 1
-                            'l$ = l$ + sp + n$ + sp + "="
                             typeoverride = 0
                             s$ = removesymbol$(n$)
                             IF Error_Happened THEN GOTO errmes
@@ -2200,6 +2004,7 @@ DO
 
                             'get expression
                             e$ = ""
+                            readable_e$ = ""
                             B = 0
                             FOR i2 = i TO n
                                 e2$ = getelement$(ca$, i2)
@@ -2212,12 +2017,37 @@ DO
                                     EXIT FOR
                                 END IF
                                 IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
+
+                                e3$ = e2$
+                                IF LEN(e2$) > 1 THEN
+                                    IF ASC(e2$, 1) = 34 THEN
+                                        removeComma = _INSTRREV(e2$, ",")
+                                        e3$ = LEFT$(e2$, removeComma - 1)
+                                    ELSE
+                                        removeComma = INSTR(e2$, ",")
+                                        e3$ = MID$(e2$, removeComma + 1)
+                                    END IF
+                                END IF
+
+                                IF LEN(readable_e$) = 0 THEN
+                                    readable_e$ = e3$
+                                ELSE
+                                    readable_e$ = readable_e$ + e3$
+                                END IF
                             NEXT
 
+                            'intercept current expression and pass it through Evaluate_Expression$
+                            temp1$ = _TRIM$(Evaluate_Expression$(readable_e$))
+                            IF LEFT$(temp1$, 5) <> "ERROR" AND e$ <> temp1$ THEN
+                                e$ = lineformat(temp1$) 'retrieve parseable format
+                            ELSE
+                                IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                            END IF
+
+                            'Proceed as usual
                             e$ = fixoperationorder(e$)
                             IF Error_Happened THEN GOTO errmes
 
-                            'l$ = l$ + sp + tlayout$
                             e$ = evaluateconst(e$, t)
                             IF Error_Happened THEN GOTO errmes
 
@@ -2311,7 +2141,7 @@ DO
                                                 addWarning 0, "Constant already defined (same value):"
                                                 addWarning linenumber, n$
                                                 IF idemode = 0 THEN
-                                                    IF duplicateConstWarning = 0 THEN PRINT "WARNING: duplicate constant definition";
+                                                    IF duplicateConstWarning = 0 THEN PRINT: PRINT "Warning: duplicate constant definition";
                                                     IF VerboseMode THEN
                                                         PRINT ": '"; n$; "' (line"; STR$(linenumber); ")"
                                                     ELSE
@@ -2372,7 +2202,6 @@ DO
                             END IF
 
                             'layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
-                            IF ColorHack THEN RETURN
                             GOTO finishedlinepp
                         END IF
 
@@ -2385,7 +2214,7 @@ DO
                         IF firstelement$ = "DEFSNG" THEN d = 1
                         IF firstelement$ = "DEFDBL" THEN d = 1
                         IF firstelement$ = "DEFSTR" THEN d = 1
-                        IF firstelement$ = "_DEFINE" THEN d = 1
+                        IF firstelement$ = "_DEFINE" OR (firstelement$ = "DEFINE" AND qb64prefix_set = 1) THEN d = 1
                         IF d THEN
                             predefining = 1: GOTO predefine
                             predefined: predefining = 0
@@ -2670,6 +2499,7 @@ DO
 
                         '========================================
                         finishedlinepp:
+                        firstLine = 0
                     END IF
                     a$ = ""
                     ca$ = ""
@@ -2690,24 +2520,11 @@ DO
         IF Debug THEN PRINT #9, "Pre-pass:INCLUDE$-ing file:'" + addmetainclude$ + "':On line"; linenumber
         a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
-        IF inclevel = 0 THEN
-            includingFromRoot = 0
-            forceIncludingFile = 0
-            forceInclude_prepass:
-            IF forceIncludeFromRoot$ <> "" THEN
-                a$ = forceIncludeFromRoot$
-                forceIncludeFromRoot$ = ""
-                forceIncludingFile = 1
-                includingFromRoot = 1
-            END IF
-        END IF
-
         IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
         '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
         fh = 99 + inclevel + 1
 
         firstTryMethod = 1
-        IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
         FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
             IF try = 1 THEN
                 IF inclevel = 0 THEN
@@ -2769,10 +2586,6 @@ DO
         '3. Close & return control
         CLOSE #fh
         inclevel = inclevel - 1
-        IF forceIncludingFile = 1 AND inclevel = 0 THEN
-            forceIncludingFile = 0
-            GOTO forceIncludeCompleted_prepass
-        END IF
     LOOP
     '(end manager)
 
@@ -2789,6 +2602,10 @@ END IF
 
 IF definingtype THEN definingtype = 0 'ignore this error so that auto-formatting can be performed and catch it again later
 IF declaringlibrary THEN declaringlibrary = 0 'ignore this error so that auto-formatting can be performed and catch it again later
+
+totallinenumber = reallinenumber
+
+IF idemode = 0 AND NOT QuietMode THEN PRINT "first pass finished.": PRINT "Translating code... "
 
 'prepass finished
 
@@ -2807,7 +2624,6 @@ lastLineReturn = 0
 lastLine = 0
 firstLine = 1
 UserDefineCount = 6
-ColorHackSet = 0
 
 FOR i = 0 TO constlast: constdefined(i) = 0: NEXT 'undefine constants
 
@@ -2869,6 +2685,7 @@ endifs = 0
 lineelseused = 0
 continuelinefrom = 0
 linenumber = 0
+reallinenumber = 0
 declaringlibrary = 0
 
 PRINT #12, "S_0:;" 'note: REQUIRED by run statement
@@ -2883,16 +2700,6 @@ DO
     ide4:
     includeline:
     mainpassLastLine:
-
-    IF lastLine <> 0 OR firstLine <> 0 THEN
-        lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
-        IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-        IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\footer_stub.bas"
-        firstLine = 0: lastLine = 0
-        GOTO forceInclude
-        forceIncludeCompleted:
-        a3$ = lineBackup$
-    END IF
 
     prepass = 0
 
@@ -2921,6 +2728,7 @@ DO
     IF idemode = 0 AND inclevel = 0 THEN a3$ = lineinput3$
     IF a3$ = CHR$(13) THEN EXIT DO
     linenumber = linenumber + 1
+    reallinenumber = reallinenumber + 1
     IF linenumber = 1 THEN opex_comments = -1
 
     IF InValidLine(linenumber) THEN
@@ -2932,9 +2740,27 @@ DO
     layout = ""
     layoutok = 1
 
-    IF idemode = 0 THEN
-        IF LEN(a3$) THEN
-            dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
+    IF idemode = 0 AND NOT QuietMode THEN
+        'IF LEN(a3$) THEN
+        '    dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
+        'END IF
+        maxprogresswidth = 50 'arbitrary
+        percentage = INT(reallinenumber / totallinenumber * 100)
+        percentagechars = INT(maxprogresswidth * reallinenumber / totallinenumber)
+        IF percentage <> prevpercentage AND percentagechars <> prevpercentagechars THEN
+            prevpercentage = percentage
+            prevpercentagechars = percentagechars
+            IF ConsoleMode THEN
+                PRINT "[" + STRING$(percentagechars, ".") + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
+                IF os$ = "LNX" THEN
+                    PRINT CHR$(27) + "[A"
+                ELSE
+                    PRINT CHR$(13);
+                END IF
+            ELSE
+                LOCATE , 1
+                PRINT "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
+            END IF
         END IF
     END IF
 
@@ -2960,8 +2786,10 @@ DO
     IF LEFT$(a3u$, 4) = "REM " OR _
         (LEFT$(a3u$, 3) = "REM" AND LEN(a3u$) = 3) OR _
         LEFT$(a3u$, 1) = "'" OR _
-        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = "_EXPLICIT") THEN
-        'It's a comment or OPTION _EXPLICIT itself, alright.
+        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = "_EXPLICIT") OR _
+        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 8) = "EXPLICIT" AND qb64prefix_set = 1) OR _
+        LEFT$(a3u$, 1) = "$" THEN
+        'It's a comment, $metacommand, or OPTION _EXPLICIT itself, alright.
         'But even being a comment, there could be an $INCLUDE in there, let's check:
         IF LEFT$(a3u$, 4) = "REM " THEN i = 5 ELSE i = 2
         IF LEFT$(LTRIM$(MID$(a3u$, i)), 8) = "$INCLUDE" THEN opex_comments = 0
@@ -2974,7 +2802,6 @@ DO
     IF ASC(a3$) = 36 THEN '$
 
         'precompiler commands should always be executed FIRST.
-
         IF a3u$ = "$END IF" OR a3u$ = "$ENDIF" THEN
             IF DefineElse(ExecCounter) = 0 THEN a$ = "$END IF without $IF": GOTO errmes
             DefineElse(ExecCounter) = 0 'We no longer have an $IF block at this level
@@ -2986,6 +2813,11 @@ DO
         END IF
 
         IF LEFT$(a3u$, 4) = "$IF " THEN
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             temp$ = LTRIM$(MID$(a3u$, 4)) 'strip off the $IF and extra spaces
             temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
             temp = INSTR(temp$, "=")
@@ -3051,6 +2883,11 @@ DO
             END IF
         END IF
 
+        IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
+            layoutdone = 0
+            GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
+        END IF
+
         IF LEFT$(a3u$, 5) = "$LET " THEN
             temp$ = a3u$
             temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
@@ -3072,333 +2909,25 @@ DO
             GOTO finishednonexec
         END IF
 
-        IF ExecLevel(ExecCounter) THEN 'don't check for any more metacommands except the one's which worth with the precompiler
-            layoutdone = 0
-            GOTO finishednonexec 'we don't check for anything inside lines that we've marked for skipping
-        END IF
-
-
         IF a3u$ = "$COLOR:0" THEN
-            IF NOT ColorHackSet THEN
-                ColorHackSet = -1
-                ColorHack = -1
-                oldlinenumber = linenumber
-                wholeline$ = "CONST Black~%% = 0": GOSUB ideprepass
-                wholeline$ = "CONST Blue~%% = 1": GOSUB ideprepass
-                wholeline$ = "CONST Green~%% = 2": GOSUB ideprepass
-                wholeline$ = "CONST Cyan~%% = 3": GOSUB ideprepass
-                wholeline$ = "CONST Red~%% = 4": GOSUB ideprepass
-                wholeline$ = "CONST Magenta~%% = 5": GOSUB ideprepass
-                wholeline$ = "CONST Brown~%% = 6": GOSUB ideprepass
-                wholeline$ = "CONST White~%% = 7": GOSUB ideprepass
-                wholeline$ = "CONST Gray~%% = 8": GOSUB ideprepass
-                wholeline$ = "CONST LightBlue~%% = 9": GOSUB ideprepass
-                wholeline$ = "CONST LightGreen~%% = 10": GOSUB ideprepass
-                wholeline$ = "CONST LightCyan~%% = 11": GOSUB ideprepass
-                wholeline$ = "CONST LightRed~%% = 12": GOSUB ideprepass
-                wholeline$ = "CONST LightMagenta~%% = 13": GOSUB ideprepass
-                wholeline$ = "CONST Yellow~%% = 14": GOSUB ideprepass
-                wholeline$ = "CONST BrightWhite~%% = 15": GOSUB ideprepass
-                wholeline$ = "CONST Blink~%% = 16": GOSUB ideprepass
-                ColorHack = 0
-                layout$ = "$COLOR:0"
-                layoutdone = 1
-                linenumber = oldlinenumber
-                GOTO ideret4
-            ELSE
-                a$ = "$COLOR can only be set once.  Please remove multiple references to it."
-                GOTO errmes
-            END IF
+            layout$ = "$COLOR:0"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            layoutdone = 1
+            GOTO finishednonexec
         END IF
 
         IF a3u$ = "$COLOR:32" THEN
-            IF NOT ColorHackSet THEN
-                ColorHackSet = -1
-                ColorHack = -1
-                oldlinenumber = linenumber
-                wholeline$ = "CONST AliceBlue~& = 4293982463": GOSUB ideprepass
-                wholeline$ = "CONST Almond~& = 4293910221": GOSUB ideprepass
-                wholeline$ = "CONST AntiqueBrass~& = 4291663221": GOSUB ideprepass
-                wholeline$ = "CONST AntiqueWhite~& = 4294634455": GOSUB ideprepass
-                wholeline$ = "CONST Apricot~& = 4294826421": GOSUB ideprepass
-                wholeline$ = "CONST Aqua~& = 4278255615": GOSUB ideprepass
-                wholeline$ = "CONST Aquamarine~& = 4286578644": GOSUB ideprepass
-                wholeline$ = "CONST Asparagus~& = 4287080811": GOSUB ideprepass
-                wholeline$ = "CONST AtomicTangerine~& = 4294943860": GOSUB ideprepass
-                wholeline$ = "CONST Azure~& = 4293984255": GOSUB ideprepass
-                wholeline$ = "CONST BananaMania~& = 4294633397": GOSUB ideprepass
-                wholeline$ = "CONST Beaver~& = 4288643440": GOSUB ideprepass
-                wholeline$ = "CONST Beige~& = 4294309340": GOSUB ideprepass
-                wholeline$ = "CONST Bisque~& = 4294960324": GOSUB ideprepass
-                wholeline$ = "CONST Bittersweet~& = 4294802542": GOSUB ideprepass
-                wholeline$ = "CONST Black~& = 4278190080": GOSUB ideprepass
-                wholeline$ = "CONST BlanchedAlmond~& = 4294962125": GOSUB ideprepass
-                wholeline$ = "CONST BlizzardBlue~& = 4289521134": GOSUB ideprepass
-                wholeline$ = "CONST Blue~& = 4278190335": GOSUB ideprepass
-                wholeline$ = "CONST BlueBell~& = 4288848592": GOSUB ideprepass
-                wholeline$ = "CONST BlueGray~& = 4284914124": GOSUB ideprepass
-                wholeline$ = "CONST BlueGreen~& = 4279081146": GOSUB ideprepass
-                wholeline$ = "CONST BlueViolet~& = 4287245282": GOSUB ideprepass
-                wholeline$ = "CONST Blush~& = 4292763011": GOSUB ideprepass
-                wholeline$ = "CONST BrickRed~& = 4291510612": GOSUB ideprepass
-                wholeline$ = "CONST Brown~& = 4289014314": GOSUB ideprepass
-                wholeline$ = "CONST BurlyWood~& = 4292786311": GOSUB ideprepass
-                wholeline$ = "CONST BurntOrange~& = 4294934345": GOSUB ideprepass
-                wholeline$ = "CONST BurntSienna~& = 4293557853": GOSUB ideprepass
-                wholeline$ = "CONST CadetBlue~& = 4284456608": GOSUB ideprepass
-                wholeline$ = "CONST Canary~& = 4294967193": GOSUB ideprepass
-                wholeline$ = "CONST CaribbeanGreen~& = 4280079266": GOSUB ideprepass
-                wholeline$ = "CONST CarnationPink~& = 4294945484": GOSUB ideprepass
-                wholeline$ = "CONST Cerise~& = 4292691090": GOSUB ideprepass
-                wholeline$ = "CONST Cerulean~& = 4280134870": GOSUB ideprepass
-                wholeline$ = "CONST ChartReuse~& = 4286578432": GOSUB ideprepass
-                wholeline$ = "CONST Chestnut~& = 4290534744": GOSUB ideprepass
-                wholeline$ = "CONST Chocolate~& = 4291979550": GOSUB ideprepass
-                wholeline$ = "CONST Copper~& = 4292711541": GOSUB ideprepass
-                wholeline$ = "CONST Coral~& = 4294934352": GOSUB ideprepass
-                wholeline$ = "CONST Cornflower~& = 4288335595": GOSUB ideprepass
-                wholeline$ = "CONST CornflowerBlue~& = 4284782061": GOSUB ideprepass
-                wholeline$ = "CONST Cornsilk~& = 4294965468": GOSUB ideprepass
-                wholeline$ = "CONST CottonCandy~& = 4294950105": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaAquamarine~& = 4286110690": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaBlue~& = 4280251902": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaBlueViolet~& = 4285753021": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaBrown~& = 4290013005": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaCadetBlue~& = 4289771462": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaForestGreen~& = 4285378177": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGold~& = 4293379735": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGoldenrod~& = 4294760821": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGray~& = 4287992204": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGreen~& = 4280069240": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaGreenYellow~& = 4293978257": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaIndigo~& = 4284315339": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaLavender~& = 4294751445": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaMagenta~& = 4294337711": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaMaroon~& = 4291311706": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaMidnightBlue~& = 4279912566": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaOrange~& = 4294931768": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaOrangeRed~& = 4294912811": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaOrchid~& = 4293306583": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaPlum~& = 4287513989": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaRed~& = 4293795917": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSalmon~& = 4294941610": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSeaGreen~& = 4288668351": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSilver~& = 4291675586": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSkyBlue~& = 4286634731": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaSpringGreen~& = 4293716670": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaTann~& = 4294616940": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaThistle~& = 4293642207": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaViolet~& = 4287786670": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaYellow~& = 4294764675": GOSUB ideprepass
-                wholeline$ = "CONST CrayolaYellowGreen~& = 4291158916": GOSUB ideprepass
-                wholeline$ = "CONST Crimson~& = 4292613180": GOSUB ideprepass
-                wholeline$ = "CONST Cyan~& = 4278255615": GOSUB ideprepass
-                wholeline$ = "CONST Dandelion~& = 4294826861": GOSUB ideprepass
-                wholeline$ = "CONST DarkBlue~& = 4278190219": GOSUB ideprepass
-                wholeline$ = "CONST DarkCyan~& = 4278225803": GOSUB ideprepass
-                wholeline$ = "CONST DarkGoldenRod~& = 4290283019": GOSUB ideprepass
-                wholeline$ = "CONST DarkGray~& = 4289309097": GOSUB ideprepass
-                wholeline$ = "CONST DarkGreen~& = 4278215680": GOSUB ideprepass
-                wholeline$ = "CONST DarkKhaki~& = 4290623339": GOSUB ideprepass
-                wholeline$ = "CONST DarkMagenta~& = 4287299723": GOSUB ideprepass
-                wholeline$ = "CONST DarkOliveGreen~& = 4283788079": GOSUB ideprepass
-                wholeline$ = "CONST DarkOrange~& = 4294937600": GOSUB ideprepass
-                wholeline$ = "CONST DarkOrchid~& = 4288230092": GOSUB ideprepass
-                wholeline$ = "CONST DarkRed~& = 4287299584": GOSUB ideprepass
-                wholeline$ = "CONST DarkSalmon~& = 4293498490": GOSUB ideprepass
-                wholeline$ = "CONST DarkSeaGreen~& = 4287609999": GOSUB ideprepass
-                wholeline$ = "CONST DarkSlateBlue~& = 4282924427": GOSUB ideprepass
-                wholeline$ = "CONST DarkSlateGray~& = 4281290575": GOSUB ideprepass
-                wholeline$ = "CONST DarkTurquoise~& = 4278243025": GOSUB ideprepass
-                wholeline$ = "CONST DarkViolet~& = 4287889619": GOSUB ideprepass
-                wholeline$ = "CONST DeepPink~& = 4294907027": GOSUB ideprepass
-                wholeline$ = "CONST DeepSkyBlue~& = 4278239231": GOSUB ideprepass
-                wholeline$ = "CONST Denim~& = 4281035972": GOSUB ideprepass
-                wholeline$ = "CONST DesertSand~& = 4293905848": GOSUB ideprepass
-                wholeline$ = "CONST DimGray~& = 4285098345": GOSUB ideprepass
-                wholeline$ = "CONST DodgerBlue~& = 4280193279": GOSUB ideprepass
-                wholeline$ = "CONST Eggplant~& = 4285419872": GOSUB ideprepass
-                wholeline$ = "CONST ElectricLime~& = 4291755805": GOSUB ideprepass
-                wholeline$ = "CONST Fern~& = 4285643896": GOSUB ideprepass
-                wholeline$ = "CONST FireBrick~& = 4289864226": GOSUB ideprepass
-                wholeline$ = "CONST Floralwhite~& = 4294966000": GOSUB ideprepass
-                wholeline$ = "CONST ForestGreen~& = 4280453922": GOSUB ideprepass
-                wholeline$ = "CONST Fuchsia~& = 4290995397": GOSUB ideprepass
-                wholeline$ = "CONST FuzzyWuzzy~& = 4291585638": GOSUB ideprepass
-                wholeline$ = "CONST Gainsboro~& = 4292664540": GOSUB ideprepass
-                wholeline$ = "CONST GhostWhite~& = 4294506751": GOSUB ideprepass
-                wholeline$ = "CONST Gold~& = 4294956800": GOSUB ideprepass
-                wholeline$ = "CONST GoldenRod~& = 4292519200": GOSUB ideprepass
-                wholeline$ = "CONST GrannySmithApple~& = 4289258656": GOSUB ideprepass
-                wholeline$ = "CONST Gray~& = 4286611584": GOSUB ideprepass
-                wholeline$ = "CONST Green~& = 4278222848": GOSUB ideprepass
-                wholeline$ = "CONST GreenBlue~& = 4279329972": GOSUB ideprepass
-                wholeline$ = "CONST GreenYellow~& = 4289593135": GOSUB ideprepass
-                wholeline$ = "CONST HoneyDew~& = 4293984240": GOSUB ideprepass
-                wholeline$ = "CONST HotMagenta~& = 4294909390": GOSUB ideprepass
-                wholeline$ = "CONST HotPink~& = 4294928820": GOSUB ideprepass
-                wholeline$ = "CONST Inchworm~& = 4289915997": GOSUB ideprepass
-                wholeline$ = "CONST IndianRed~& = 4291648604": GOSUB ideprepass
-                wholeline$ = "CONST Indigo~& = 4283105410": GOSUB ideprepass
-                wholeline$ = "CONST Ivory~& = 4294967280": GOSUB ideprepass
-                wholeline$ = "CONST JazzberryJam~& = 4291442535": GOSUB ideprepass
-                wholeline$ = "CONST JungleGreen~& = 4282101903": GOSUB ideprepass
-                wholeline$ = "CONST Khaki~& = 4293977740": GOSUB ideprepass
-                wholeline$ = "CONST LaserLemon~& = 4294901282": GOSUB ideprepass
-                wholeline$ = "CONST Lavender~& = 4293322490": GOSUB ideprepass
-                wholeline$ = "CONST LavenderBlush~& = 4294963445": GOSUB ideprepass
-                wholeline$ = "CONST LawnGreen~& = 4286381056": GOSUB ideprepass
-                wholeline$ = "CONST LemonChiffon~& = 4294965965": GOSUB ideprepass
-                wholeline$ = "CONST LemonYellow~& = 4294964303": GOSUB ideprepass
-                wholeline$ = "CONST LightBlue~& = 4289583334": GOSUB ideprepass
-                wholeline$ = "CONST LightCoral~& = 4293951616": GOSUB ideprepass
-                wholeline$ = "CONST LightCyan~& = 4292935679": GOSUB ideprepass
-                wholeline$ = "CONST LightGoldenRodYellow~& = 4294638290": GOSUB ideprepass
-                wholeline$ = "CONST LightGray~& = 4292072403": GOSUB ideprepass
-                wholeline$ = "CONST LightGreen~& = 4287688336": GOSUB ideprepass
-                wholeline$ = "CONST LightPink~& = 4294948545": GOSUB ideprepass
-                wholeline$ = "CONST LightSalmon~& = 4294942842": GOSUB ideprepass
-                wholeline$ = "CONST LightSeaGreen~& = 4280332970": GOSUB ideprepass
-                wholeline$ = "CONST LightSkyBlue~& = 4287090426": GOSUB ideprepass
-                wholeline$ = "CONST LightSlateGray~& = 4286023833": GOSUB ideprepass
-                wholeline$ = "CONST LightSteelBlue~& = 4289774814": GOSUB ideprepass
-                wholeline$ = "CONST LightYellow~& = 4294967264": GOSUB ideprepass
-                wholeline$ = "CONST Lime~& = 4278255360": GOSUB ideprepass
-                wholeline$ = "CONST LimeGreen~& = 4281519410": GOSUB ideprepass
-                wholeline$ = "CONST Linen~& = 4294635750": GOSUB ideprepass
-                wholeline$ = "CONST MacaroniAndCheese~& = 4294950280": GOSUB ideprepass
-                wholeline$ = "CONST Magenta~& = 4294902015": GOSUB ideprepass
-                wholeline$ = "CONST MagicMint~& = 4289392849": GOSUB ideprepass
-                wholeline$ = "CONST Mahogany~& = 4291643980": GOSUB ideprepass
-                wholeline$ = "CONST Maize~& = 4293775772": GOSUB ideprepass
-                wholeline$ = "CONST Manatee~& = 4288125610": GOSUB ideprepass
-                wholeline$ = "CONST MangoTango~& = 4294935107": GOSUB ideprepass
-                wholeline$ = "CONST Maroon~& = 4286578688": GOSUB ideprepass
-                wholeline$ = "CONST Mauvelous~& = 4293892266": GOSUB ideprepass
-                wholeline$ = "CONST MediumAquamarine~& = 4284927402": GOSUB ideprepass
-                wholeline$ = "CONST MediumBlue~& = 4278190285": GOSUB ideprepass
-                wholeline$ = "CONST MediumOrchid~& = 4290401747": GOSUB ideprepass
-                wholeline$ = "CONST MediumPurple~& = 4287852763": GOSUB ideprepass
-                wholeline$ = "CONST MediumSeaGreen~& = 4282168177": GOSUB ideprepass
-                wholeline$ = "CONST MediumSlateBlue~& = 4286277870": GOSUB ideprepass
-                wholeline$ = "CONST MediumSpringGreen~& = 4278254234": GOSUB ideprepass
-                wholeline$ = "CONST MediumTurquoise~& = 4282962380": GOSUB ideprepass
-                wholeline$ = "CONST MediumVioletRed~& = 4291237253": GOSUB ideprepass
-                wholeline$ = "CONST Melon~& = 4294818996": GOSUB ideprepass
-                wholeline$ = "CONST MidnightBlue~& = 4279834992": GOSUB ideprepass
-                wholeline$ = "CONST MintCream~& = 4294311930": GOSUB ideprepass
-                wholeline$ = "CONST MistyRose~& = 4294960353": GOSUB ideprepass
-                wholeline$ = "CONST Moccasin~& = 4294960309": GOSUB ideprepass
-                wholeline$ = "CONST MountainMeadow~& = 4281383567": GOSUB ideprepass
-                wholeline$ = "CONST Mulberry~& = 4291120012": GOSUB ideprepass
-                wholeline$ = "CONST NavajoWhite~& = 4294958765": GOSUB ideprepass
-                wholeline$ = "CONST Navy~& = 4278190208": GOSUB ideprepass
-                wholeline$ = "CONST NavyBlue~& = 4279858386": GOSUB ideprepass
-                wholeline$ = "CONST NeonCarrot~& = 4294943555": GOSUB ideprepass
-                wholeline$ = "CONST OldLace~& = 4294833638": GOSUB ideprepass
-                wholeline$ = "CONST Olive~& = 4286611456": GOSUB ideprepass
-                wholeline$ = "CONST OliveDrab~& = 4285238819": GOSUB ideprepass
-                wholeline$ = "CONST OliveGreen~& = 4290426988": GOSUB ideprepass
-                wholeline$ = "CONST Orange~& = 4294944000": GOSUB ideprepass
-                wholeline$ = "CONST OrangeRed~& = 4294919424": GOSUB ideprepass
-                wholeline$ = "CONST OrangeYellow~& = 4294497640": GOSUB ideprepass
-                wholeline$ = "CONST Orchid~& = 4292505814": GOSUB ideprepass
-                wholeline$ = "CONST OuterSpace~& = 4282468940": GOSUB ideprepass
-                wholeline$ = "CONST OutrageousOrange~& = 4294929994": GOSUB ideprepass
-                wholeline$ = "CONST PacificBlue~& = 4280068553": GOSUB ideprepass
-                wholeline$ = "CONST PaleGoldenRod~& = 4293847210": GOSUB ideprepass
-                wholeline$ = "CONST PaleGreen~& = 4288215960": GOSUB ideprepass
-                wholeline$ = "CONST PaleTurquoise~& = 4289720046": GOSUB ideprepass
-                wholeline$ = "CONST PaleVioletRed~& = 4292571283": GOSUB ideprepass
-                wholeline$ = "CONST PapayaWhip~& = 4294963157": GOSUB ideprepass
-                wholeline$ = "CONST Peach~& = 4294954923": GOSUB ideprepass
-                wholeline$ = "CONST PeachPuff~& = 4294957753": GOSUB ideprepass
-                wholeline$ = "CONST Periwinkle~& = 4291154150": GOSUB ideprepass
-                wholeline$ = "CONST Peru~& = 4291659071": GOSUB ideprepass
-                wholeline$ = "CONST PiggyPink~& = 4294827494": GOSUB ideprepass
-                wholeline$ = "CONST PineGreen~& = 4279599224": GOSUB ideprepass
-                wholeline$ = "CONST Pink~& = 4294951115": GOSUB ideprepass
-                wholeline$ = "CONST PinkFlamingo~& = 4294735101": GOSUB ideprepass
-                wholeline$ = "CONST PinkSherbet~& = 4294414247": GOSUB ideprepass
-                wholeline$ = "CONST Plum~& = 4292714717": GOSUB ideprepass
-                wholeline$ = "CONST PowderBlue~& = 4289781990": GOSUB ideprepass
-                wholeline$ = "CONST Purple~& = 4286578816": GOSUB ideprepass
-                wholeline$ = "CONST PurpleHeart~& = 4285809352": GOSUB ideprepass
-                wholeline$ = "CONST PurpleMountainsMajesty~& = 4288512442": GOSUB ideprepass
-                wholeline$ = "CONST PurplePizzazz~& = 4294856410": GOSUB ideprepass
-                wholeline$ = "CONST RadicalRed~& = 4294920556": GOSUB ideprepass
-                wholeline$ = "CONST RawSienna~& = 4292250201": GOSUB ideprepass
-                wholeline$ = "CONST RawUmber~& = 4285614883": GOSUB ideprepass
-                wholeline$ = "CONST RazzleDazzleRose~& = 4294920400": GOSUB ideprepass
-                wholeline$ = "CONST Razzmatazz~& = 4293076331": GOSUB ideprepass
-                wholeline$ = "CONST Red~& = 4294901760": GOSUB ideprepass
-                wholeline$ = "CONST RedOrange~& = 4294923081": GOSUB ideprepass
-                wholeline$ = "CONST RedViolet~& = 4290790543": GOSUB ideprepass
-                wholeline$ = "CONST RobinsEggBlue~& = 4280274635": GOSUB ideprepass
-                wholeline$ = "CONST RosyBrown~& = 4290547599": GOSUB ideprepass
-                wholeline$ = "CONST RoyalBlue~& = 4282477025": GOSUB ideprepass
-                wholeline$ = "CONST RoyalPurple~& = 4286075305": GOSUB ideprepass
-                wholeline$ = "CONST SaddleBrown~& = 4287317267": GOSUB ideprepass
-                wholeline$ = "CONST Salmon~& = 4294606962": GOSUB ideprepass
-                wholeline$ = "CONST SandyBrown~& = 4294222944": GOSUB ideprepass
-                wholeline$ = "CONST Scarlet~& = 4294715463": GOSUB ideprepass
-                wholeline$ = "CONST ScreaminGreen~& = 4285988730": GOSUB ideprepass
-                wholeline$ = "CONST SeaGreen~& = 4281240407": GOSUB ideprepass
-                wholeline$ = "CONST SeaShell~& = 4294964718": GOSUB ideprepass
-                wholeline$ = "CONST Sepia~& = 4289030479": GOSUB ideprepass
-                wholeline$ = "CONST Shadow~& = 4287265117": GOSUB ideprepass
-                wholeline$ = "CONST Shamrock~& = 4282764962": GOSUB ideprepass
-                wholeline$ = "CONST ShockingPink~& = 4294672125": GOSUB ideprepass
-                wholeline$ = "CONST Sienna~& = 4288696877": GOSUB ideprepass
-                wholeline$ = "CONST Silver~& = 4290822336": GOSUB ideprepass
-                wholeline$ = "CONST SkyBlue~& = 4287090411": GOSUB ideprepass
-                wholeline$ = "CONST SlateBlue~& = 4285160141": GOSUB ideprepass
-                wholeline$ = "CONST SlateGray~& = 4285563024": GOSUB ideprepass
-                wholeline$ = "CONST Snow~& = 4294966010": GOSUB ideprepass
-                wholeline$ = "CONST SpringGreen~& = 4278255487": GOSUB ideprepass
-                wholeline$ = "CONST SteelBlue~& = 4282811060": GOSUB ideprepass
-                wholeline$ = "CONST Sunglow~& = 4294954824": GOSUB ideprepass
-                wholeline$ = "CONST SunsetOrange~& = 4294794835": GOSUB ideprepass
-                wholeline$ = "CONST Tann~& = 4291998860": GOSUB ideprepass
-                wholeline$ = "CONST Teal~& = 4278222976": GOSUB ideprepass
-                wholeline$ = "CONST TealBlue~& = 4279805877": GOSUB ideprepass
-                wholeline$ = "CONST Thistle~& = 4292394968": GOSUB ideprepass
-                wholeline$ = "CONST TickleMePink~& = 4294740396": GOSUB ideprepass
-                wholeline$ = "CONST Timberwolf~& = 4292597714": GOSUB ideprepass
-                wholeline$ = "CONST Tomato~& = 4294927175": GOSUB ideprepass
-                wholeline$ = "CONST TropicalRainForest~& = 4279730285": GOSUB ideprepass
-                wholeline$ = "CONST Tumbleweed~& = 4292782728": GOSUB ideprepass
-                wholeline$ = "CONST Turquoise~& = 4282441936": GOSUB ideprepass
-                wholeline$ = "CONST TurquoiseBlue~& = 4286045671": GOSUB ideprepass
-                wholeline$ = "CONST UnmellowYellow~& = 4294967142": GOSUB ideprepass
-                wholeline$ = "CONST Violet~& = 4293821166": GOSUB ideprepass
-                wholeline$ = "CONST VioletBlue~& = 4281486002": GOSUB ideprepass
-                wholeline$ = "CONST VioletRed~& = 4294398868": GOSUB ideprepass
-                wholeline$ = "CONST VividTangerine~& = 4294942857": GOSUB ideprepass
-                wholeline$ = "CONST VividViolet~& = 4287582365": GOSUB ideprepass
-                wholeline$ = "CONST Wheat~& = 4294303411": GOSUB ideprepass
-                wholeline$ = "CONST White~& = 4294967295": GOSUB ideprepass
-                wholeline$ = "CONST Whitesmoke~& = 4294309365": GOSUB ideprepass
-                wholeline$ = "CONST WildBlueYonder~& = 4288851408": GOSUB ideprepass
-                wholeline$ = "CONST WildStrawberry~& = 4294919076": GOSUB ideprepass
-                wholeline$ = "CONST WildWatermelon~& = 4294732933": GOSUB ideprepass
-                wholeline$ = "CONST Wisteria~& = 4291667166": GOSUB ideprepass
-                wholeline$ = "CONST Yellow~& = 4294967040": GOSUB ideprepass
-                wholeline$ = "CONST YellowGreen~& = 4288335154": GOSUB ideprepass
-                wholeline$ = "CONST YellowOrange~& = 4294946370": GOSUB ideprepass
-                ColorHack = 0
-                layout$ = "$COLOR:32"
-                layoutdone = 1
-                linenumber = oldlinenumber
-                GOTO ideret4
-            ELSE
-                a$ = "$COLOR can only be set once.  Please remove multiple references to it."
-                GOTO errmes
-            END IF
+            layout$ = "$COLOR:32"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            layoutdone = 1
+            GOTO finishednonexec
         END IF
 
-
-
+        IF a3u$ = "$NOPREFIX" THEN
+            'already set in prepass
+            layout$ = "$NOPREFIX"
+            GOTO finishednonexec
+        END IF
 
         IF a3u$ = "$VIRTUALKEYBOARD:ON" THEN
             'Deprecated; does nothing.
@@ -3449,7 +2978,6 @@ DO
             Console = 1
             GOTO finishednonexec
         END IF
-
 
         IF a3u$ = "$SCREENHIDE" THEN
             layout$ = "$SCREENHIDE"
@@ -3548,12 +3076,12 @@ DO
 
             ValidateVersion:
             'Check if only numbers and commas (4 comma-separated values)
-            IF LEN(VersionInfoValue$) = 0 THEN a$ = "Expected: $VERSIONINFO:" + VersionInfoKey$ + "=#,#,#,# (4 comma-separated numeric values: major, minor, revision and build)": GOTO errmes
+            IF LEN(VersionInfoValue$) = 0 THEN a$ = "Expected $VERSIONINFO:" + VersionInfoKey$ + "=#,#,#,# (4 comma-separated numeric values: major, minor, revision and build)": GOTO errmes
             viCommas = 0
             FOR i = 1 TO LEN(VersionInfoValue$)
                 IF ASC(VersionInfoValue$, i) = 44 THEN viCommas = viCommas + 1
                 IF INSTR("0123456789,", MID$(VersionInfoValue$, i, 1)) = 0 OR (i = LEN(VersionInfoValue$) AND viCommas <> 3) OR RIGHT$(VersionInfoValue$, 1) = "," THEN
-                    a$ = "Expected: $VERSIONINFO:" + VersionInfoKey$ + "=#,#,#,# (4 comma-separated numeric values: major, minor, revision and build)": GOTO errmes
+                    a$ = "Expected $VERSIONINFO:" + VersionInfoKey$ + "=#,#,#,# (4 comma-separated numeric values: major, minor, revision and build)": GOTO errmes
                 END IF
             NEXT
             RETURN
@@ -3622,7 +3150,7 @@ DO
 
             ExeIconSet = linenumber
             SetDependency DEPENDENCY_ICON
-            PRINT #12, "do{"
+            IF NoChecks = 0 THEN PRINT #12, "do{"
             PRINT #12, "sub__icon(NULL,NULL,0);"
             GOTO finishedline2
         END IF
@@ -4039,7 +3567,11 @@ DO
         IF Error_Happened THEN GOTO errmes
         IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
         IF typ AND ISUDT THEN
-            t$ = RTRIM$(udtxcname(typ AND 511))
+            IF UCASE$(RTRIM$(t$)) = "MEM" AND RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND qb64prefix_set = 1 THEN
+                t$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+            ELSE
+                t$ = RTRIM$(udtxcname(typ AND 511))
+            END IF
         END IF
         l$ = l$ + sp + t$
         layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -4966,12 +4498,14 @@ DO
 
             'check for open controls (copy #2)
             IF controllevel <> 0 AND controltype(controllevel) <> 6 THEN 'It's OK for subs to be inside $IF blocks
-                x = controltype(controllevel)
-                IF x = 1 THEN a$ = "IF without END IF"
-                IF x = 2 THEN a$ = "FOR without NEXT"
-                IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-                IF x = 5 THEN a$ = "WHILE without WEND"
-                IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+                a$ = "Unidentified open control block"
+                SELECT CASE controltype(controllevel)
+                    CASE 1: a$ = "IF without END IF"
+                    CASE 2: a$ = "FOR without NEXT"
+                    CASE 3, 4: a$ = "DO without LOOP"
+                    CASE 5: a$ = "WHILE without WEND"
+                    CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+                END SELECT
                 linenumber = controlref(controllevel)
                 GOTO errmes
             END IF
@@ -5192,6 +4726,9 @@ DO
                             IF Error_Happened THEN GOTO errmes
                             IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
                             IF typ AND ISUDT THEN
+                                IF RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND UCASE$(t3$) = "MEM" AND qb64prefix_set = 1 THEN
+                                    t3$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                                END IF
                                 t3$ = RTRIM$(udtxcname(typ AND 511))
                             ELSE
                                 FOR t3i = 1 TO LEN(t3i)
@@ -5245,6 +4782,9 @@ DO
                                 'is it a udt?
                                 FOR xx = 1 TO lasttype
                                     IF t2$ = RTRIM$(udtxname(xx)) THEN
+                                        PRINT #17, "void*"
+                                        GOTO decudt
+                                    ELSEIF RTRIM$(udtxname(xx)) = "_MEM" AND t2$ = "MEM" AND qb64prefix_set = 1 THEN
                                         PRINT #17, "void*"
                                         GOTO decudt
                                     END IF
@@ -5449,12 +4989,14 @@ DO
 
                 'check for open controls (copy #3)
                 IF controllevel <> 0 AND controltype(controllevel) <> 6 AND controltype(controllevel) <> 32 THEN 'It's OK for subs to be inside $IF blocks
-                    x = controltype(controllevel)
-                    IF x = 1 THEN a$ = "IF without END IF"
-                    IF x = 2 THEN a$ = "FOR without NEXT"
-                    IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-                    IF x = 5 THEN a$ = "WHILE without WEND"
-                    IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+                    a$ = "Unidentified open control block"
+                    SELECT CASE controltype(controllevel)
+                        CASE 1: a$ = "IF without END IF"
+                        CASE 2: a$ = "FOR without NEXT"
+                        CASE 3, 4: a$ = "DO without LOOP"
+                        CASE 5: a$ = "WHILE without WEND"
+                        CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+                    END SELECT
                     linenumber = controlref(controllevel)
                     GOTO errmes
                 END IF
@@ -5578,7 +5120,7 @@ DO
         IF firstelement$ = "DEFSNG" THEN a$ = a$ + sp + "AS" + sp + "SINGLE": n = n + 2: GOTO definetype
         IF firstelement$ = "DEFDBL" THEN a$ = a$ + sp + "AS" + sp + "DOUBLE": n = n + 2: GOTO definetype
         IF firstelement$ = "DEFSTR" THEN a$ = a$ + sp + "AS" + sp + "STRING": n = n + 2: GOTO definetype
-        IF firstelement$ = "_DEFINE" THEN
+        IF firstelement$ = "_DEFINE" OR (firstelement$ = "DEFINE" AND qb64prefix_set = 1) THEN
             asreq = 1
             definetype:
             l$ = firstelement$
@@ -5593,8 +5135,8 @@ DO
                 typ2$ = t$ + sp + typ2$
             NEXT
             typ$ = RTRIM$(typ$)
-            IF t$ <> "AS" THEN a$ = "_DEFINE: Expected ... AS ...": GOTO errmes
-            IF i = n OR i = 2 THEN a$ = "_DEFINE: Expected ... AS ...": GOTO errmes
+            IF t$ <> "AS" THEN a$ = qb64prefix$ + "DEFINE: Expected ... AS ...": GOTO errmes
+            IF i = n OR i = 2 THEN a$ = qb64prefix$ + "DEFINE: Expected ... AS ...": GOTO errmes
 
 
             n = i - 1
@@ -5603,8 +5145,8 @@ DO
             definenext:
             'expects an alphabet letter or underscore
             i = i + 1: e$ = getelement$(a$, i): E = ASC(UCASE$(e$))
-            IF LEN(e$) > 1 THEN a$ = "_DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
-            IF E <> 95 AND (E > 90 OR E < 65) THEN a$ = "_DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
+            IF LEN(e$) > 1 THEN a$ = qb64prefix$ + "DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
+            IF E <> 95 AND (E > 90 OR E < 65) THEN a$ = qb64prefix$ + "DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
             IF E = 95 THEN E = 27 ELSE E = E - 64
             defineaz(E) = typ$
             defineextaz(E) = type2symbol(typ$)
@@ -5621,14 +5163,14 @@ DO
 
             'expects "-" or ","
             i = i + 1: e$ = getelement$(a$, i)
-            IF e$ <> "-" AND e$ <> "," THEN a$ = "_DEFINE: Expected - or ,": GOTO errmes
+            IF e$ <> "-" AND e$ <> "," THEN a$ = qb64prefix$ + "DEFINE: Expected - or ,": GOTO errmes
             IF e$ = "-" THEN
                 l$ = l$ + sp2 + "-"
-                IF i = n THEN a$ = "_DEFINE: Syntax incomplete": GOTO errmes
+                IF i = n THEN a$ = qb64prefix$ + "DEFINE: Syntax incomplete": GOTO errmes
                 'expects an alphabet letter or underscore
                 i = i + 1: e$ = getelement$(a$, i): E = ASC(UCASE$(e$))
-                IF LEN(e$) > 1 THEN a$ = "_DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
-                IF E <> 95 AND (E > 90 OR E < 65) THEN a$ = "_DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
+                IF LEN(e$) > 1 THEN a$ = qb64prefix$ + "DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
+                IF E <> 95 AND (E > 90 OR E < 65) THEN a$ = qb64prefix$ + "DEFINE: Expected an alphabet letter or the underscore character (_)": GOTO errmes
                 IF E = 95 THEN E = 27 ELSE E = E - 64
                 IF firste > E THEN SWAP E, firste
                 FOR e2 = firste TO E
@@ -5645,7 +5187,7 @@ DO
                 END IF
                 'expects ","
                 i = i + 1: e$ = getelement$(a$, i)
-                IF e$ <> "," THEN a$ = "_DEFINE: Expected ,": GOTO errmes
+                IF e$ <> "," THEN a$ = qb64prefix$ + "DEFINE: Expected ,": GOTO errmes
             END IF
             l$ = l$ + sp2 + ","
             GOTO definenext
@@ -5722,6 +5264,11 @@ DO
         IF firstelement$ = "WHILE" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
 
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             controllevel = controllevel + 1
             controlref(controllevel) = linenumber
             controltype(controllevel) = 5
@@ -5768,6 +5315,12 @@ DO
     IF n >= 1 THEN
         IF firstelement$ = "DO" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             controllevel = controllevel + 1
             controlref(controllevel) = linenumber
             l$ = "DO"
@@ -5850,6 +5403,12 @@ DO
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
 
             l$ = "FOR"
+
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             controllevel = controllevel + 1
             controlref(controllevel) = linenumber
             controltype(controllevel) = 2
@@ -6085,6 +5644,11 @@ DO
         IF firstelement$ = "IF" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
 
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             e$ = getelement(a$, n)
             iftype = 0
             IF e$ = "THEN" THEN iftype = 1
@@ -6172,9 +5736,16 @@ DO
     IF n >= 1 THEN
         IF firstelement$ = "SELECT" THEN
             IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+
+            'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                a$ = "Expected CASE expression": GOTO errmes
+            END IF
+
             SelectCaseCounter = SelectCaseCounter + 1
             IF UBOUND(EveryCaseSet) <= SelectCaseCounter THEN REDIM _PRESERVE EveryCaseSet(SelectCaseCounter)
-
+            IF UBOUND(SelectCaseHasCaseBlock) <= SelectCaseCounter THEN REDIM _PRESERVE SelectCaseHasCaseBlock(SelectCaseCounter)
+            SelectCaseHasCaseBlock(SelectCaseCounter) = 0
             IF secondelement$ = "EVERYCASE" THEN
                 EveryCaseSet(SelectCaseCounter) = -1
                 IF n = 2 THEN a$ = "Expected SELECT CASE expression": GOTO errmes
@@ -6272,6 +5843,8 @@ DO
             '18=CASE (awaiting END SELECT/CASE/CASE ELSE)
             '19=CASE ELSE (awaiting END SELECT)
             IF controltype(controllevel) = 18 THEN
+                everycasenewcase = everycasenewcase + 1
+                PRINT #12, "sc_ec_" + str2$(everycasenewcase) + "_end:;"
                 controllevel = controllevel - 1
                 IF EveryCaseSet(SelectCaseCounter) = 0 THEN PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
                 PRINT #12, "}"
@@ -6282,6 +5855,26 @@ DO
             END IF
             PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_end:;"
             IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "END SELECT without SELECT CASE": GOTO errmes
+
+            IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+                'warn user of empty SELECT CASE block
+                IF NOT IgnoreWarnings THEN
+                    addWarning 0, "Empty SELECT CASE block:"
+                    addWarning linenumber, "END SELECT"
+                    IF idemode = 0 THEN
+                        IF emptySCWarning = 0 THEN PRINT: PRINT "Warning: Empty SELECT CASE block";
+                        IF VerboseMode THEN
+                            PRINT ": 'END SELECT' (line"; STR$(linenumber); ")"
+                        ELSE
+                            IF emptySCWarning = 0 THEN
+                                emptySCWarning = -1
+                                PRINT
+                            END IF
+                        END IF
+                    END IF
+                END IF
+            END IF
+
             controllevel = controllevel - 1
             SelectCaseCounter = SelectCaseCounter - 1
             l$ = "END" + sp + "SELECT"
@@ -6290,14 +5883,10 @@ DO
         END IF
     END IF
 
-    'Steve Edit on 07-05-2014 to generate an error message if someone inserts code between SELECT CASE and CASE such as:
-    'SELECT CASE x
-    'm = 3
-    'CASE 1
-    'END SELECT
-    'The above used to give no errors, but this one line fix should correct that.  (I hope)
-    IF n >= 1 AND firstelement$ <> "CASE" AND controltype(controllevel) >= 10 AND controltype(controllevel) < 17 THEN a$ = "Expected CASE expression": GOTO errmes
-    'End of Edit
+    'prevents code from being placed before 'CASE condition' in a SELECT CASE block
+    IF n >= 1 AND firstelement$ <> "CASE" AND SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
+        a$ = "Expected CASE expression": GOTO errmes
+    END IF
 
 
     'CASE
@@ -6312,6 +5901,8 @@ DO
             IF controltype(controllevel) = 18 THEN
                 lhscontrollevel = lhscontrollevel - 1
                 controllevel = controllevel - 1
+                everycasenewcase = everycasenewcase + 1
+                PRINT #12, "sc_ec_" + str2$(everycasenewcase) + "_end:;"
                 IF EveryCaseSet(SelectCaseCounter) = 0 THEN
                     PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
                 ELSE
@@ -6323,9 +5914,9 @@ DO
                 'if nochecks=0 then PRINT #12, "S_" + str2$(statementn) + ":;"
             END IF
 
-            IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "CASE without SELECT CASE": GOTO errmes
+            IF controltype(controllevel) <> 6 AND (controltype(controllevel) < 10 OR controltype(controllevel) > 17) THEN a$ = "CASE without SELECT CASE": GOTO errmes
             IF n = 1 THEN a$ = "Expected CASE expression": GOTO errmes
-
+            SelectCaseHasCaseBlock(SelectCaseCounter) = -1
 
 
             'upgrade:
@@ -6828,6 +6419,36 @@ DO
                     END IF
                 NEXT
                 a$ = "EXIT WHILE without WHILE": GOTO errmes
+            END IF
+
+            IF secondelement$ = "SELECT" THEN
+                'scan backwards until previous control level reached
+                FOR i = controllevel TO 1 STEP -1
+                    t = controltype(i)
+                    IF t = 18 OR t = 19 THEN 'CASE/CASE ELSE
+                        PRINT #12, "goto sc_" + str2$(controlid(i - 1)) + "_end;"
+                        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                        GOTO finishedline
+                    END IF
+                NEXT
+                a$ = "EXIT SELECT without SELECT": GOTO errmes
+            END IF
+
+            IF secondelement$ = "CASE" THEN
+                'scan backwards until previous control level reached
+                FOR i = controllevel TO 1 STEP -1
+                    t = controltype(i)
+                    IF t = 18 THEN 'CASE
+                        PRINT #12, "goto sc_ec_" + str2$(everycasenewcase + 1) + "_end;"
+                        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                        GOTO finishedline
+                    ELSEIF t = 19 THEN 'CASE ELSE
+                        PRINT #12, "goto sc_" + str2$(controlid(i - 1)) + "_end;"
+                        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                        GOTO finishedline
+                    END IF
+                NEXT
+                a$ = "EXIT CASE without CASE": GOTO errmes
             END IF
 
         END IF
@@ -7440,7 +7061,14 @@ DO
                 IF t AND ISREFERENCE THEN t = t - ISREFERENCE
                 tsize = typname2typsize
                 method = 0
-                IF (t AND ISUDT) = 0 THEN ts$ = type2symbol$(t$) ELSE t3$ = RTRIM$(udtxcname(t AND 511))
+                IF (t AND ISUDT) = 0 THEN
+                    ts$ = type2symbol$(t$)
+                ELSE
+                    t3$ = RTRIM$(udtxcname(t AND 511))
+                    IF RTRIM$(udtxcname(t AND 511)) = "_MEM" AND UCASE$(t$) = "MEM" AND qb64prefix_set = 1 THEN
+                        t3$ = MID$(RTRIM$(udtxcname(t AND 511)), 2)
+                    END IF
+                END IF
                 IF Error_Happened THEN GOTO errmes
                 l2$ = l2$ + sp + t3$
 
@@ -7557,9 +7185,9 @@ DO
 
 
     '_ECHO checking
-    IF firstelement$ = "_ECHO" THEN
+    IF firstelement$ = "_ECHO" OR (firstelement$ = "ECHO" AND qb64prefix_set = 1) THEN
         IF Console = 0 THEN
-            a$ = "_ECHO requires $CONSOLE or $CONSOLE:ONLY to be set first": GOTO errmes
+            a$ = qb64prefix$ + "ECHO requires $CONSOLE or $CONSOLE:ONLY to be set first": GOTO errmes
         END IF
     END IF
 
@@ -7861,9 +7489,9 @@ DO
         IF firstelement$ = "DIM" THEN dimoption = 1
         IF firstelement$ = "REDIM" THEN
             dimoption = 2: redimoption = 1
-            IF secondelement$ = "_PRESERVE" THEN
+            IF secondelement$ = "_PRESERVE" OR (secondelement$ = "PRESERVE" AND qb64prefix_set = 1) THEN
                 redimoption = 2
-                IF n = 2 THEN a$ = "Expected REDIM _PRESERVE ...": GOTO errmes
+                IF n = 2 THEN a$ = "Expected REDIM " + qb64prefix$ + "PRESERVE ...": GOTO errmes
             END IF
         END IF
         IF firstelement$ = "STATIC" THEN dimoption = 3
@@ -7876,7 +7504,7 @@ DO
             IF commonoption = 1 AND subfuncn <> 0 THEN a$ = "COMMON cannot be used within a SUB/FUNCTION": GOTO errmes
 
             i = 2
-            IF redimoption = 2 THEN i = 3: l$ = l$ + sp + "_PRESERVE"
+            IF redimoption = 2 THEN i = 3: l$ = l$ + sp + secondelement$
 
             IF dimoption <> 3 THEN 'shared cannot be static
                 a2$ = getelement(a$, i)
@@ -8223,6 +7851,9 @@ DO
                                     IF dimmethod = 0 THEN
                                         IF t AND ISUDT THEN
                                             dim2typepassback$ = RTRIM$(udtxcname(t AND 511))
+                                            IF UCASE$(typ$) = "MEM" AND qb64prefix_set = 1 AND RTRIM$(udtxcname(t AND 511)) = "_MEM" THEN
+                                                dim2typepassback$ = MID$(RTRIM$(udtxcname(t AND 511)), 2)
+                                            END IF
                                         ELSE
                                             dim2typepassback$ = typ$
                                             DO WHILE INSTR(dim2typepassback$, " ")
@@ -8500,8 +8131,8 @@ DO
     END IF
 
     IF n = 1 THEN
-        IF firstelement$ = "_CONTINUE" THEN
-            l$ = "_CONTINUE"
+        IF firstelement$ = "_CONTINUE" OR (firstelement$ = "CONTINUE" AND qb64prefix_set = 1) THEN
+            l$ = UCASE$(firstelement$)
             'scan backwards until previous control level reached
             FOR i = controllevel TO 1 STEP -1
                 t = controltype(i)
@@ -8519,7 +8150,7 @@ DO
                     GOTO finishedline
                 END IF
             NEXT
-            a$ = "_CONTINUE outside DO..LOOP/FOR..NEXT/WHILE..WEND block": GOTO errmes
+            a$ = qb64prefix$ + "CONTINUE outside DO..LOOP/FOR..NEXT/WHILE..WEND block": GOTO errmes
         END IF
     END IF
 
@@ -8891,7 +8522,7 @@ DO
 
     '(_MEM) _MEMPUT _MEMGET
     IF n >= 1 THEN
-        IF firstelement$ = "_MEMGET" THEN
+        IF firstelement$ = "_MEMGET" OR (firstelement$ = "MEMGET" AND qb64prefix_set = 1) THEN
             'get expressions
             e$ = ""
             B = 0
@@ -8910,15 +8541,15 @@ DO
                 END IF
             NEXT
             var$ = e$
-            IF e$ = "" OR ne <> 2 THEN a$ = "Expected _MEMGET mem-reference,offset,variable": GOTO errmes
+            IF e$ = "" OR ne <> 2 THEN a$ = "Expected " + qb64prefix$ + "MEMGET mem-reference, offset, variable": GOTO errmes
 
-            l$ = "_MEMGET" + sp
+            l$ = UCASE$(firstelement$) + sp
 
             e$ = fixoperationorder$(blk$): IF Error_Happened THEN GOTO errmes
             l$ = l$ + tlayout$
 
             test$ = evaluate(e$, typ): IF Error_Happened THEN GOTO errmes
-            IF (typ AND ISUDT) = 0 OR (typ AND 511) <> 1 THEN a$ = "Expected _MEM type": GOTO errmes
+            IF (typ AND ISUDT) = 0 OR (typ AND 511) <> 1 THEN a$ = "Expected " + qb64prefix$ + "MEM type": GOTO errmes
             blkoffs$ = evaluatetotyp(e$, -6)
 
             '            IF typ AND ISREFERENCE THEN e$ = refer(e$, typ, 0)
@@ -8990,7 +8621,7 @@ DO
 
 
     IF n >= 1 THEN
-        IF firstelement$ = "_MEMPUT" THEN
+        IF firstelement$ = "_MEMPUT" OR (firstelement$ = "MEMPUT" AND qb64prefix_set = 1) THEN
             'get expressions
             typ$ = ""
             e$ = ""
@@ -9010,16 +8641,16 @@ DO
                     IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
                 END IF
             NEXT
-            IF ne < 2 OR e$ = "" THEN a$ = "Expected _MEMPUT mem-reference,offset,variable|value[AS type]": GOTO errmes
+            IF ne < 2 OR e$ = "" THEN a$ = "Expected " + qb64prefix$ + "MEMPUT mem-reference, offset, variable|value[AS type]": GOTO errmes
             IF ne = 2 THEN var$ = e$ ELSE typ$ = UCASE$(e$)
 
-            l$ = "_MEMPUT" + sp
+            l$ = UCASE$(firstelement$) + sp
 
             e$ = fixoperationorder$(blk$): IF Error_Happened THEN GOTO errmes
             l$ = l$ + tlayout$
 
             test$ = evaluate(e$, typ): IF Error_Happened THEN GOTO errmes
-            IF (typ AND ISUDT) = 0 OR (typ AND 511) <> 1 THEN a$ = "Expected _MEM type": GOTO errmes
+            IF (typ AND ISUDT) = 0 OR (typ AND 511) <> 1 THEN a$ = "Expected " + qb64prefix$ + "MEM type": GOTO errmes
             blkoffs$ = evaluatetotyp(e$, -6)
 
             e$ = fixoperationorder$(offs$): IF Error_Happened THEN GOTO errmes
@@ -9084,7 +8715,7 @@ DO
                 'typname2typsize = 0 'the default
                 t = typname2typ(typ$)
                 IF t = 0 THEN a$ = "Invalid type": GOTO errmes
-                IF (t AND ISOFFSETINBITS) <> 0 OR (t AND ISUDT) <> 0 OR (t AND ISSTRING) THEN a$ = "_MEMPUT requires numeric type": GOTO errmes
+                IF (t AND ISOFFSETINBITS) <> 0 OR (t AND ISUDT) <> 0 OR (t AND ISSTRING) THEN a$ = qb64prefix$ + "MEMPUT requires numeric type": GOTO errmes
                 IF (t AND ISPOINTER) THEN t = t - ISPOINTER
                 'attempt conversion...
                 e$ = fixoperationorder$(var$): IF Error_Happened THEN GOTO errmes
@@ -9126,7 +8757,7 @@ DO
 
 
     IF n >= 1 THEN
-        IF firstelement$ = "_MEMFILL" THEN
+        IF firstelement$ = "_MEMFILL" OR (firstelement$ = "MEMFILL" AND qb64prefix_set = 1) THEN
             'get expressions
             typ$ = ""
             e$ = ""
@@ -9147,16 +8778,16 @@ DO
                     IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
                 END IF
             NEXT
-            IF ne < 3 OR e$ = "" THEN a$ = "Expected _MEMFILL mem-reference,offset,bytes,variable|value[AS type]": GOTO errmes
+            IF ne < 3 OR e$ = "" THEN a$ = "Expected " + qb64prefix$ + "MEMFILL mem-reference, offset, bytes, variable|value[AS type]": GOTO errmes
             IF ne = 3 THEN var$ = e$ ELSE typ$ = UCASE$(e$)
 
-            l$ = "_MEMFILL" + sp
+            l$ = UCASE$(firstelement$) + sp
 
             e$ = fixoperationorder$(blk$): IF Error_Happened THEN GOTO errmes
             l$ = l$ + tlayout$
 
             test$ = evaluate(e$, typ): IF Error_Happened THEN GOTO errmes
-            IF (typ AND ISUDT) = 0 OR (typ AND 511) <> 1 THEN a$ = "Expected _MEM type": GOTO errmes
+            IF (typ AND ISUDT) = 0 OR (typ AND 511) <> 1 THEN a$ = "Expected " + qb64prefix$ + "MEM type": GOTO errmes
             blkoffs$ = evaluatetotyp(e$, -6)
 
             e$ = fixoperationorder$(offs$): IF Error_Happened THEN GOTO errmes
@@ -9193,7 +8824,7 @@ DO
                 '... AS type method
                 t = typname2typ(typ$)
                 IF t = 0 THEN a$ = "Invalid type": GOTO errmes
-                IF (t AND ISOFFSETINBITS) <> 0 OR (t AND ISUDT) <> 0 OR (t AND ISSTRING) THEN a$ = "_MEMFILL requires numeric type": GOTO errmes
+                IF (t AND ISOFFSETINBITS) <> 0 OR (t AND ISUDT) <> 0 OR (t AND ISSTRING) THEN a$ = qb64prefix$ + "MEMFILL requires numeric type": GOTO errmes
                 IF (t AND ISPOINTER) THEN t = t - ISPOINTER
                 'attempt conversion...
                 e$ = fixoperationorder$(var$): IF Error_Happened THEN GOTO errmes
@@ -9488,7 +9119,9 @@ DO
 
 
                 'generate error on driect _GL call
-                IF firstelement$ = "_GL" THEN a$ = "Cannot call SUB _GL directly": GOTO errmes
+                IF firstelement$ = "_GL" THEN
+                    a$ = "Cannot call SUB _GL directly": GOTO errmes
+                END IF
 
                 IF firstelement$ = "OPEN" THEN
                     'gwbasic or qbasic version?
@@ -10092,7 +9725,8 @@ DO
                 END IF
 
                 IF firstelement$ = "OPTION" THEN
-                    IF optionexplicit = 0 THEN e$ = " or OPTION _EXPLICIT" ELSE e$ = ""
+                    IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                    IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                     IF n = 1 THEN a$ = "Expected OPTION BASE" + e$: GOTO errmes
                     e$ = getelement$(a$, 2)
                     SELECT CASE e$
@@ -10103,16 +9737,35 @@ DO
                             l$ = "OPTION" + sp + "BASE" + sp + l$
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
-                        CASE "_EXPLICIT"
-                            IF optionexplicit = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION _EXPLICIT": GOTO errmes
-                            IF LEN(layout$) THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
-                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION _EXPLICIT must come before any other statement": GOTO errmes
+                        CASE "EXPLICIT", "_EXPLICIT"
+                            IF e$ = "EXPLICIT" AND qb64prefix$ = "_" THEN
+                                IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                                IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
+                                a$ = "Expected OPTION BASE" + e$: GOTO errmes
+                            END IF
+                            IF optionexplicit = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICIT": GOTO errmes
+                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
+                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
                             optionexplicit = -1
-                            l$ = "OPTION" + sp + "_EXPLICIT"
+                            l$ = "OPTION" + sp + e$
+                            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                            GOTO finishedline
+                        CASE "EXPLICITARRAY", "_EXPLICITARRAY"
+                            IF e$ = "EXPLICITARRAY" AND qb64prefix$ = "_" THEN
+                                IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                                IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
+                                a$ = "Expected OPTION BASE" + e$: GOTO errmes
+                            END IF
+                            IF optionexplicitarray = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICITARRAY": GOTO errmes
+                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
+                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
+                            optionexplicitarray = -1
+                            l$ = "OPTION" + sp + e$
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                             GOTO finishedline
                         CASE ELSE
-                            IF optionexplicit = 0 THEN e$ = " or OPTION _EXPLICIT" ELSE e$ = ""
+                            IF optionexplicit = 0 THEN e$ = " or OPTION " + qb64prefix$ + "EXPLICIT" ELSE e$ = ""
+                            IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                             a$ = "Expected OPTION BASE" + e$: GOTO errmes
                     END SELECT
                 END IF
@@ -10645,7 +10298,11 @@ DO
                         IF explicitreference = 0 THEN
                             IF targettyp AND ISUDT THEN
                                 nth = i
-                                x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                                IF qb64prefix_set AND udtxcname(targettyp AND 511) = "_MEM" THEN
+                                    x$ = "'" + MID$(RTRIM$(udtxcname(targettyp AND 511)), 2) + "'"
+                                ELSE
+                                    x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                                END IF
                                 IF ids(targetid).args = 1 THEN a$ = "TYPE " + x$ + " required for sub": GOTO errmes
                                 a$ = str_nth$(nth) + " sub argument requires TYPE " + x$: GOTO errmes
                             END IF
@@ -10873,6 +10530,8 @@ DO
 
     finishednonexec:
 
+    firstLine = 0
+
     IF layoutdone = 0 THEN layoutok = 0 'invalidate layout if not handled
 
     IF continuelinefrom = 0 THEN 'note: manager #2 requires this condition
@@ -10889,24 +10548,11 @@ DO
 
             a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
-            IF inclevel = 0 THEN
-                includingFromRoot = 0
-                forceIncludingFile = 0
-                forceInclude:
-                IF forceIncludeFromRoot$ <> "" THEN
-                    a$ = forceIncludeFromRoot$
-                    forceIncludeFromRoot$ = ""
-                    forceIncludingFile = 1
-                    includingFromRoot = 1
-                END IF
-            END IF
-
             IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
             '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
             fh = 99 + inclevel + 1
 
             firstTryMethod = 1
-            IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
             FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
                 IF try = 1 THEN
                     IF inclevel = 0 THEN
@@ -10963,10 +10609,6 @@ DO
             CLOSE #fh
             inclevel = inclevel - 1
             IF inclevel = 0 THEN
-                IF forceIncludingFile = 1 THEN
-                    forceIncludingFile = 0
-                    GOTO forceIncludeCompleted
-                END IF
                 'restore line formatting
                 layoutok = layoutok_backup
                 layout$ = layout_backup$
@@ -11043,19 +10685,23 @@ IF definingtype THEN linenumber = definingtypeerror: a$ = "TYPE without END TYPE
 
 'check for open controls (copy #1)
 IF controllevel THEN
-    x = controltype(controllevel)
     a$ = "Unidentified open control block"
-    IF x = 1 THEN a$ = "IF without END IF"
-    IF x = 2 THEN a$ = "FOR without NEXT"
-    IF x = 3 OR x = 4 THEN a$ = "DO without LOOP"
-    IF x = 5 THEN a$ = "WHILE without WEND"
-    IF x = 6 THEN a$ = "$IF without $END IF"
-    IF (x >= 10 AND x <= 17) OR x = 18 OR x = 19 THEN a$ = "SELECT CASE without END SELECT"
+    SELECT CASE controltype(controllevel)
+        CASE 1: a$ = "IF without END IF"
+        CASE 2: a$ = "FOR without NEXT"
+        CASE 3, 4: a$ = "DO without LOOP"
+        CASE 5: a$ = "WHILE without WEND"
+        CASE 6: a$ = "$IF without $END IF"
+        CASE 10 TO 19: a$ = "SELECT CASE without END SELECT"
+        CASE 32: a$ = "SUB/FUNCTION without END SUB/FUNCTION"
+    END SELECT
     linenumber = controlref(controllevel)
     GOTO errmes
 END IF
 
-IF LEN(subfunc) THEN a$ = "SUB/FUNCTION without END SUB/FUNCTION": GOTO errmes
+IF ideindentsubs = 0 THEN
+    IF LEN(subfunc) THEN a$ = "SUB/FUNCTION without END SUB/FUNCTION": GOTO errmes
+END IF
 
 'close the error handler (cannot be put in 'closemain' because subs/functions can also add error jumps to this file)
 PRINT #14, "exit(99);" 'in theory this line should never be run!
@@ -11841,7 +11487,14 @@ OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
-
+IF idemode = 0 AND NOT QuietMode THEN
+    IF ConsoleMode THEN
+        PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
+    ELSE
+        LOCATE , 1
+        PRINT "[" + STRING$(maxprogresswidth, 254) + "] 100%"
+    END IF
+END IF
 
 'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
 'OPEN "unusedVariableList.txt" FOR BINARY AS #1
@@ -11850,7 +11503,8 @@ OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 IF NOT IgnoreWarnings THEN
     IF totalUnusedVariables > 0 THEN
         IF idemode = 0 THEN
-            PRINT "WARNING:"; STR$(totalUnusedVariables); " unused variable";
+            PRINT
+            PRINT "Warning:"; STR$(totalUnusedVariables); " unused variable";
             IF totalUnusedVariables > 1 THEN PRINT "s";
             IF VerboseMode THEN
                 PRINT ":"
@@ -11904,11 +11558,13 @@ IF idemode THEN GOTO ideret5
 ide6:
 
 IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
-    PRINT
-    IF os$ = "LNX" THEN
-        PRINT "COMPILING C++ CODE INTO EXECUTABLE..."
-    ELSE
-        PRINT "COMPILING C++ CODE INTO EXE..."
+    IF NOT QuietMode THEN
+        PRINT
+        IF os$ = "LNX" THEN
+            PRINT "Compiling C++ code into executable..."
+        ELSE
+            PRINT "Compiling C++ code into EXE..."
+        END IF
     END IF
     IF LEN(outputfile_cmd$) THEN
         'resolve relative path for output file
@@ -11918,7 +11574,7 @@ IF idemode = 0 AND No_C_Compile_Mode = 0 THEN
         IF LEN(path.out$) THEN
             IF _DIREXISTS(path.out$) = 0 THEN
                 PRINT
-                PRINT "CAN'T CREATE OUTPUT EXECUTABLE - PATH NOT FOUND: " + path.out$
+                PRINT "Can't create output executable - path not found: " + path.out$
                 IF ConsoleMode THEN SYSTEM 1
                 END 1
             END IF
@@ -12135,13 +11791,10 @@ END IF
 
 IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
     defines$ = defines$ + defines_header$ + "DEPENDENCY_ZLIB"
-    IF win THEN 'ZLIB is only supported for windows versions so far
-        d$ = "internal\c\parts\zlib\"
-        'rebuild?
-        IF _FILEEXISTS(d$ + "os\" + o$ + "\src.a") = 0 THEN
-            Build d$ + "os\" + o$
-        END IF
-        libs$ = libs$ + " " + "parts\zlib\os\" + o$ + "\src.a -lz"
+    IF MacOSX THEN
+        libs$ = libs$ + " -lz"
+    ELSE
+        libs$ = libs$ + " -l:libz.a"
     END IF
 END IF
 
@@ -12636,6 +12289,8 @@ IF os$ = "LNX" THEN
 
     IF INSTR(_OS$, "[MACOSX]") THEN
         OPEN "./internal/c/makeline_osx.txt" FOR INPUT AS #150
+    ELSEIF DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) THEN
+        OPEN "./internal/c/makeline_lnx_nogui.txt" FOR INPUT AS #150
     ELSE
         OPEN "./internal/c/makeline_lnx.txt" FOR INPUT AS #150
     END IF
@@ -12818,11 +12473,11 @@ IF compfailed THEN
         GOTO ideerror
     END IF
     IF compfailed THEN
-        PRINT "C++ COMPILATION FAILED!"
+        PRINT "ERROR: C++ compilation failed."
         PRINT "Check " + compilelog$ + " for details."
     END IF
 ELSE
-    IF idemode = 0 THEN PRINT "OUTPUT: "; lastBinaryGenerated$
+    IF idemode = 0 AND NOT QuietMode THEN PRINT "Output: "; lastBinaryGenerated$
 END IF
 
 
@@ -12914,11 +12569,7 @@ errmes: 'set a$ to message
 IF Error_Happened THEN a$ = Error_Message: Error_Happened = 0
 layout$ = "": layoutok = 0 'invalidate layout
 
-IF forceIncludingFile THEN 'If we're to the point where we're adding the automatic QB64 includes, we don't need to report the $INCLUDE information
-    IF INSTR(a$, "END SUB/FUNCTION before") THEN a$ = "SUB without END SUB" 'Just a simple rewrite of the error message to be less confusing for SUB/FUNCTIONs
-ELSE 'We want to let the user know which module the error occurred in
-    IF inclevel > 0 THEN a$ = a$ + incerror$
-END IF
+IF inclevel > 0 THEN a$ = a$ + incerror$
 
 IF idemode THEN
     ideerrorline = linenumber
@@ -12946,23 +12597,24 @@ FUNCTION ParseCMDLineArgs$ ()
     'in which case they're simply asking for trouble).
     FOR i = 1 TO _COMMANDCOUNT
         token$ = COMMAND$(i)
-        IF LCASE$(token$) = "-help" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "-h" OR LCASE$(token$) = "/help" THEN token$ = "-?"
+        IF LCASE$(token$) = "/?" OR LCASE$(token$) = "--help" OR LCASE$(token$) = "/help" THEN token$ = "-?"
         SELECT CASE LCASE$(LEFT$(token$, 2))
             CASE "-?" 'Command-line help
                 _DEST _CONSOLE
-                PRINT "QB64 COMPILER V" + Version$
+                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
                 PRINT
-                PRINT "USAGE: qb64 [switches] <file>"
+                PRINT "Usage: qb64 [switches] <file>"
                 PRINT
-                PRINT "OPTIONS:"
+                PRINT "Options:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
-                PRINT "  -v                      Verbose mode (detailed warnings)"
+                PRINT "  -v                      Verbose mode"
+                PRINT "  -q                      Quiet mode"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
                 PRINT "                             console"
                 PRINT "  -p                      Purge all pre-compiled content first"
                 PRINT "  -z                      Generate C code without compiling to executable"
-                PRINT "  -o <output file>               Write output executable to <output file>"
+                PRINT "  -o <output file>        Write output executable to <output file>"
                 PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
                 PRINT "                             mandatory (per-compilation; doesn't affect the"
                 PRINT "                             source file or global settings)"
@@ -12972,6 +12624,10 @@ FUNCTION ParseCMDLineArgs$ ()
                 SYSTEM
             CASE "-v" 'Verbose mode
                 VerboseMode = -1
+                cmdlineswitch = -1
+            CASE "-q" 'Quiet mode
+                QuietMode = -1
+                cmdlineswitch = -1
             CASE "-p" 'Purge
                 IF os$ = "WIN" THEN
                     CHDIR "internal\c"
@@ -12988,34 +12644,36 @@ FUNCTION ParseCMDLineArgs$ ()
                     END IF
                     CHDIR "../.."
                 END IF
+                cmdlineswitch = -1
             CASE "-s" 'Settings
+                settingsMode = -1
                 _DEST _CONSOLE
-                PRINT "QB64 COMPILER V" + Version$
+                IF qb64versionprinted = 0 THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
                 SELECT CASE LCASE$(MID$(token$, 3))
                     CASE ""
                         PRINT "debuginfo     = ";
-                        IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF idedebuginfo THEN PRINT "true" ELSE PRINT "false"
                         PRINT "exewithsource = ";
-                        IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF SaveExeWithSource THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":exewithsource"
                         PRINT "exewithsource = ";
-                        IF SaveExeWithSource THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF SaveExeWithSource THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":exewithsource=true"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
-                        PRINT "exewithsource = TRUE"
-                        SYSTEM
+                        PRINT "exewithsource = true"
+                        SaveExeWithSource = -1
                     CASE ":exewithsource=false"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
-                        PRINT "exewithsource = FALSE"
-                        SYSTEM
+                        PRINT "exewithsource = false"
+                        SaveExeWithSource = 0
                     CASE ":debuginfo"
                         PRINT "debuginfo = ";
-                        IF idedebuginfo THEN PRINT "TRUE" ELSE PRINT "FALSE"
+                        IF idedebuginfo THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":debuginfo=true"
-                        PRINT "debuginfo = TRUE"
+                        PRINT "debuginfo = true"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
                         idedebuginfo = 1
                         Include_GDB_Debugging_Info = idedebuginfo
@@ -13034,9 +12692,8 @@ FUNCTION ParseCMDLineArgs$ ()
                             END IF
                             CHDIR "../.."
                         END IF
-                        SYSTEM
                     CASE ":debuginfo=false"
-                        PRINT "debuginfo = FALSE"
+                        PRINT "debuginfo = false"
                         WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
                         idedebuginfo = 0
                         Include_GDB_Debugging_Info = idedebuginfo
@@ -13055,36 +12712,46 @@ FUNCTION ParseCMDLineArgs$ ()
                             END IF
                             CHDIR "../.."
                         END IF
-                        SYSTEM
                     CASE ELSE
-                        PRINT "INVALID SETTINGS SWITCH: "; token$
+                        PRINT "Invalid settings switch: "; token$
                         PRINT
-                        PRINT "VALID SWITCHES:"
+                        PRINT "Valid switches:"
                         PRINT "    -s:debuginfo=true/false     (Embed C++ debug info into .EXE)"
                         PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
                         SYSTEM
                 END SELECT
+                _DEST 0
             CASE "-e" 'Option Explicit
                 optionexplicit_cmd = -1
+                cmdlineswitch = -1
             CASE "-z" 'Not compiling C code
                 No_C_Compile_Mode = 1
                 ConsoleMode = 1 'Implies -x
                 NoIDEMode = 1 'Implies -c
+                cmdlineswitch = -1
             CASE "-x" 'Use the console
                 ConsoleMode = 1
                 NoIDEMode = 1 'Implies -c
+                cmdlineswitch = -1
             CASE "-c" 'Compile instead of edit
                 NoIDEMode = 1
+                cmdlineswitch = -1
             CASE "-o" 'Specify an output file
                 IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
+                cmdlineswitch = -1
             CASE "-l" 'goto line (ide mode only); -l:<line number>
                 IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
+                cmdlineswitch = -1
             CASE ELSE 'Something we don't recognise, assume it's a filename
                 IF PassedFileName$ = "" THEN PassedFileName$ = token$
         END SELECT
     NEXT i
 
-    IF LEN(PassedFileName$) THEN ParseCMDLineArgs$ = PassedFileName$
+    IF LEN(PassedFileName$) THEN
+        ParseCMDLineArgs$ = PassedFileName$
+    ELSE
+        IF cmdlineswitch = 0 AND settingsMode = -1 THEN SYSTEM
+    END IF
 END FUNCTION
 
 FUNCTION Type2MemTypeValue (t1)
@@ -13731,19 +13398,17 @@ FUNCTION arrayreference$ (indexes$, typ)
             IF e$ = "" THEN Give_Error "Array index missing": EXIT FUNCTION
             argi = (elements - curarg) * 4 + 4
             IF curarg = 1 THEN
-                'RhoSigma (waive to array_check() in $CHECKING:OFF mode)
                 IF NoChecks = 0 THEN
                     r$ = r$ + "array_check((" + e$ + ")-" + n$ + "[" + str2(argi) + "]," + n$ + "[" + str2(argi + 1) + "])+"
                 ELSE
-                    r$ = r$ + "(" + e$ + ")+"
+                    r$ = r$ + "(" + e$ + ")-" + n$ + "[" + str2(argi) + "]+"
                 END IF
 
             ELSE
-                'RhoSigma (waive to array_check() in $CHECKING:OFF mode)
                 IF NoChecks = 0 THEN
                     r$ = r$ + "array_check((" + e$ + ")-" + n$ + "[" + str2(argi) + "]," + n$ + "[" + str2(argi + 1) + "])*" + n$ + "[" + str2(argi + 2) + "]+"
                 ELSE
-                    r$ = r$ + "(" + e$ + ")*" + n$ + "[" + str2(argi + 2) + "]+"
+                    r$ = r$ + "((" + e$ + ")-" + n$ + "[" + str2(argi) + "])*" + n$ + "[" + str2(argi + 2) + "]+"
                 END IF
             END IF
             firsti = i + 1
@@ -13885,8 +13550,11 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     'UDT
     'is it a udt?
     FOR i = 1 TO lasttype
-        IF typ$ = RTRIM$(udtxname(i)) THEN
+        IF typ$ = RTRIM$(udtxname(i)) OR (typ$ = "MEM" AND RTRIM$(udtxname(i)) = "_MEM" AND qb64prefix_set = 1) THEN
             dim2typepassback$ = RTRIM$(udtxcname(i))
+            IF typ$ = "MEM" AND RTRIM$(udtxname(i)) = "_MEM" THEN
+                dim2typepassback$ = MID$(RTRIM$(udtxcname(i)), 2)
+            END IF
 
             n$ = "UDT_" + varname$
 
@@ -13991,10 +13659,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
 
     'check if _UNSIGNED was specified
     unsgn = 0
-    IF LEFT$(typ$, 10) = "_UNSIGNED " THEN
+    IF LEFT$(typ$, 10) = "_UNSIGNED " OR (LEFT$(typ$, 9) = "UNSIGNED " AND qb64prefix_set = 1) THEN
         unsgn = 1
-        typ$ = RIGHT$(typ$, LEN(typ$) - 10)
-        IF LEN(typ$) = 0 THEN Give_Error "Expected more type information after _UNSIGNED!": EXIT FUNCTION
+        typ$ = MID$(typ$, INSTR(typ$, CHR$(32)) + 1)
+        IF LEN(typ$) = 0 THEN Give_Error "Expected more type information after " + qb64prefix$ + "UNSIGNED!": EXIT FUNCTION
     END IF
 
     n$ = "" 'n$ is assumed to be "" after branching into the code for each type
@@ -14239,10 +13907,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF LEFT$(typ$, 4) = "_BIT" THEN
-        IF LEN(typ$) > 4 THEN
-            IF LEFT$(typ$, 7) <> "_BIT * " THEN Give_Error "Expected _BIT * number": EXIT FUNCTION
-            c$ = RIGHT$(typ$, LEN(typ$) - 7)
+    IF LEFT$(typ$, 4) = "_BIT" OR (LEFT$(typ$, 3) = "BIT" AND qb64prefix_set = 1) THEN
+        IF (LEFT$(typ$, 4) = "_BIT" AND LEN(typ$) > 4) OR (LEFT$(typ$, 3) = "BIT" AND LEN(typ$) > 3) THEN
+            IF LEFT$(typ$, 7) <> "_BIT * " AND LEFT$(typ$, 6) <> "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
+            c$ = MID$(typ$, INSTR(typ$, " * ") + 3)
             IF isuinteger(c$) = 0 THEN Give_Error "Number expected after *": EXIT FUNCTION
             IF LEN(c$) > 2 THEN Give_Error "Too many characters in number after *": EXIT FUNCTION
             bits = VAL(c$)
@@ -14342,7 +14010,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF typ$ = "_BYTE" THEN
+    IF typ$ = "_BYTE" OR (typ$ = "BYTE" AND qb64prefix_set = 1) THEN
         ct$ = "int8"
         IF unsgn THEN n$ = "U": ct$ = "u" + ct$
         n$ = n$ + "BYTE_" + varname$
@@ -14516,7 +14184,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
 
 
 
-    IF typ$ = "_OFFSET" THEN
+    IF typ$ = "_OFFSET" OR (typ$ = "OFFSET" AND qb64prefix_set = 1) THEN
         ct$ = "ptrszint"
         IF unsgn THEN n$ = "U": ct$ = "u" + ct$
         n$ = n$ + "OFFSET_" + varname$
@@ -14680,7 +14348,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF typ$ = "_INTEGER64" THEN
+    IF typ$ = "_INTEGER64" OR (typ$ = "INTEGER64" AND qb64prefix_set = 1) THEN
         ct$ = "int64"
         IF unsgn THEN n$ = "U": ct$ = "u" + ct$
         n$ = n$ + "INTEGER64_" + varname$
@@ -14930,7 +14598,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         GOTO dim2exitfunc
     END IF
 
-    IF typ$ = "_FLOAT" THEN
+    IF typ$ = "_FLOAT" OR (typ$ = "FLOAT" AND qb64prefix_set = 1) THEN
         ct$ = "long double"
         n$ = n$ + "FLOAT_" + varname$
         IF elements$ <> "" THEN
@@ -15383,7 +15051,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                             NEXT
                             fakee$ = "10": FOR i2 = 2 TO nume: fakee$ = fakee$ + sp + "," + sp + "10": NEXT
                             IF Debug THEN PRINT #9, "evaluate:creating undefined array using dim2(" + l$ + "," + dtyp$ + ",1," + fakee$ + ")"
-                            IF optionexplicit THEN Give_Error "Array '" + l$ + "' (" + symbol2fulltypename$(dtyp$) + ") not defined": EXIT FUNCTION
+                            IF optionexplicit OR optionexplicitarray THEN Give_Error "Array '" + l$ + "' (" + symbol2fulltypename$(dtyp$) + ") not defined": EXIT FUNCTION
                             IF Error_Happened THEN EXIT FUNCTION
                             olddimstatic = dimstatic
                             method = 1
@@ -16080,7 +15748,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
 
 
                 '*special case CVI,CVL,CVS,CVD,_CV (part #1)
-                IF n$ = "_CV" THEN
+                IF n$ = "_CV" OR (n$ = "CV" AND qb64prefix_set = 1) THEN
                     IF curarg = 1 THEN
                         cvtype$ = type2symbol$(e$)
                         IF Error_Happened THEN EXIT FUNCTION
@@ -16091,7 +15759,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
 
                 '*special case MKI,MKL,MKS,MKD,_MK (part #1)
 
-                IF n$ = "_MK" THEN
+                IF n$ = "_MK" OR (n$ = "MK" AND qb64prefix_set = 1) THEN
                     IF RTRIM$(id2.musthave) = "$" THEN
                         IF curarg = 1 THEN
                             mktype$ = type2symbol$(e$)
@@ -16149,7 +15817,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 'PRINT #12, "r$="; r$
 
                 '*special case*
-                IF n$ = "_MEMGET" THEN
+                IF n$ = "_MEMGET" OR (n$ = "MEMGET" AND qb64prefix_set = 1) THEN
                     IF curarg = 1 THEN
                         memget_blk$ = e$
                     END IF
@@ -16167,7 +15835,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         END IF
                         t = typname2typ(e$)
                         IF t = 0 THEN Give_Error "Invalid TYPE name": EXIT FUNCTION
-                        IF t AND ISOFFSETINBITS THEN Give_Error "_BIT TYPE unsupported": EXIT FUNCTION
+                        IF t AND ISOFFSETINBITS THEN Give_Error qb64prefix$ + "BIT TYPE unsupported": EXIT FUNCTION
                         memget_size = typname2typsize
                         IF t AND ISSTRING THEN
                             IF (t AND ISFIXEDLENGTH) = 0 THEN Give_Error "Expected STRING * ...": EXIT FUNCTION
@@ -16225,7 +15893,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 '------------------------------------------------------------------------------------------------------------
 
                 '***special case***
-                IF n$ = "_MEM" THEN
+                IF n$ = "_MEM" OR (n$ = "MEM" AND qb64prefix_set = 1) THEN
                     IF curarg = 1 THEN
                         IF args = 1 THEN
                             targettyp = -7
@@ -16238,12 +15906,12 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 END IF
 
                 '*special case*
-                IF n$ = "_OFFSET" THEN
+                IF n$ = "_OFFSET" OR (n$ = "OFFSET" AND qb64prefix_set = 1) THEN
                     IF (sourcetyp AND ISREFERENCE) = 0 THEN
-                        Give_Error "_OFFSET expects the name of a variable/array": EXIT FUNCTION
+                        Give_Error qb64prefix$ + "OFFSET expects the name of a variable/array": EXIT FUNCTION
                     END IF
                     IF (sourcetyp AND ISARRAY) THEN
-                        IF (sourcetyp AND ISOFFSETINBITS) THEN Give_Error "_OFFSET cannot reference _BIT type arrays": EXIT FUNCTION
+                        IF (sourcetyp AND ISOFFSETINBITS) THEN Give_Error qb64prefix$ + "OFFSET cannot reference _BIT type arrays": EXIT FUNCTION
                     END IF
                     r$ = "((uptrszint)(" + evaluatetotyp$(e2$, -6) + "))"
                     IF Error_Happened THEN EXIT FUNCTION
@@ -16402,7 +16070,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 END IF
 
                 '*special case*
-                IF n$ = "_ROUND" THEN
+                IF n$ = "_ROUND" OR (n$ = "ROUND" AND qb64prefix_set = 1) THEN
                     IF (sourcetyp AND ISSTRING) THEN Give_Error "Expected numeric value": EXIT FUNCTION
                     IF (sourcetyp AND ISREFERENCE) THEN e$ = refer(e$, sourcetyp, 0)
                     IF Error_Happened THEN EXIT FUNCTION
@@ -16514,10 +16182,10 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 IF n$ = "MKL" THEN mktype = 2: mktype$ = "&"
                 IF n$ = "MKS" THEN mktype = 3: mktype$ = "!"
                 IF n$ = "MKD" THEN mktype = 4: mktype$ = "#"
-                IF n$ = "_MK" THEN mktype = -1
+                IF n$ = "_MK" OR (n$ = "MK" AND qb64prefix_set = 1) THEN mktype = -1
                 IF mktype THEN
                     IF mktype <> -1 OR curarg = 2 THEN
-                        IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert _OFFSET type to other types": EXIT FUNCTION
+                        IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
                         'both _MK and trad. process the following
                         qtyp& = 0
                         IF mktype$ = "%%" THEN ctype$ = "b": qtyp& = BYTETYPE - ISPOINTER
@@ -16533,7 +16201,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF mktype$ = "##" THEN ctype$ = "f": qtyp& = FLOATTYPE - ISPOINTER
                         IF LEFT$(mktype$, 2) = "~`" THEN ctype$ = "ubit": qtyp& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 2))
                         IF LEFT$(mktype$, 1) = "`" THEN ctype$ = "bit": qtyp& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 1))
-                        IF qtyp& = 0 THEN Give_Error "_MK only accepts numeric types": EXIT FUNCTION
+                        IF qtyp& = 0 THEN Give_Error qb64prefix$ + "MK only accepts numeric types": EXIT FUNCTION
                         IF size THEN
                             r$ = ctype$ + "2string(" + str2(size) + ","
                         ELSE
@@ -16550,7 +16218,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 IF n$ = "CVL" THEN cvtype = 2: cvtype$ = "&"
                 IF n$ = "CVS" THEN cvtype = 3: cvtype$ = "!"
                 IF n$ = "CVD" THEN cvtype = 4: cvtype$ = "#"
-                IF n$ = "_CV" THEN cvtype = -1
+                IF n$ = "_CV" OR (n$ = "CV" AND qb64prefix_set = 1) THEN cvtype = -1
                 IF cvtype THEN
                     IF cvtype <> -1 OR curarg = 2 THEN
                         IF (sourcetyp AND ISSTRING) = 0 THEN Give_Error n$ + " requires a STRING argument": EXIT FUNCTION
@@ -16570,7 +16238,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF cvtype$ = "##" THEN ctype$ = "f": typ& = FLOATTYPE - ISPOINTER
                         IF LEFT$(cvtype$, 2) = "~`" THEN ctype$ = "ubit": typ& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 2))
                         IF LEFT$(cvtype$, 1) = "`" THEN ctype$ = "bit": typ& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 1))
-                        IF typ& = 0 THEN Give_Error "_CV cannot return STRING type!": EXIT FUNCTION
+                        IF typ& = 0 THEN Give_Error qb64prefix$ + "CV cannot return STRING type!": EXIT FUNCTION
                         IF ctype$ = "bit" OR ctype$ = "ubit" THEN
                             r$ = "string2" + ctype$ + "(" + e$ + "," + str2(size) + ")"
                         ELSE
@@ -17161,7 +16829,11 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                     IF targettyp AND ISUDT THEN
                         nth = curarg
                         IF omitarg_last <> 0 AND nth > omitarg_last THEN nth = nth - 1
-                        x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                        IF qb64prefix_set AND udtxcname(targettyp AND 511) = "_MEM" THEN
+                            x$ = "'" + MID$(RTRIM$(udtxcname(targettyp AND 511)), 2) + "'"
+                        ELSE
+                            x$ = "'" + RTRIM$(udtxcname(targettyp AND 511)) + "'"
+                        END IF
                         IF ids(targetid).args = 1 THEN Give_Error "TYPE " + x$ + " required for function": EXIT FUNCTION
                         Give_Error str_nth$(nth) + " function argument requires TYPE " + x$: EXIT FUNCTION
                     END IF
@@ -17249,7 +16921,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 r$ = r$ + e$
 
                 '***special case****
-                IF n$ = "_MEM" THEN
+                IF n$ = "_MEM" OR (n$ = "MEM" AND qb64prefix_set = 1) THEN
                     IF args = 1 THEN
                         IF curarg = 1 THEN r$ = r$ + ")": GOTO evalfuncspecial
                     END IF
@@ -17581,7 +17253,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
 
                 ELSE
 
-                    Give_Error "_MEMELEMENT cannot reference variable-length strings": EXIT FUNCTION
+                    Give_Error qb64prefix$ + "MEMELEMENT cannot reference variable-length strings": EXIT FUNCTION
 
                 END IF
                 EXIT FUNCTION
@@ -17610,7 +17282,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
                 e$ = refer(e$, sourcetyp, 0)
                 IF Error_Happened THEN EXIT FUNCTION
             ELSE
-                Give_Error "_MEMELEMENT cannot reference variable-length strings": EXIT FUNCTION
+                Give_Error qb64prefix$ + "MEMELEMENT cannot reference variable-length strings": EXIT FUNCTION
             END IF
 
             'evaluatetotyp$ = "byte_element((uint64)" + e$ + "->chr," + bytes$ + "," + NewByteElement$ + ")"
@@ -17687,7 +17359,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
         IF (sourcetyp AND ISARRAY) THEN
             IF sourcetyp AND ISSTRING THEN
                 IF (sourcetyp AND ISFIXEDLENGTH) = 0 THEN
-                    Give_Error "_MEM cannot reference variable-length strings": EXIT FUNCTION
+                    Give_Error qb64prefix$ + "MEM cannot reference variable-length strings": EXIT FUNCTION
                 END IF
             END IF
 
@@ -17729,7 +17401,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
 
         'String
         IF sourcetyp AND ISSTRING THEN
-            IF (sourcetyp AND ISFIXEDLENGTH) = 0 THEN Give_Error "_MEM cannot reference variable-length strings": EXIT FUNCTION
+            IF (sourcetyp AND ISFIXEDLENGTH) = 0 THEN Give_Error qb64prefix$ + "MEM cannot reference variable-length strings": EXIT FUNCTION
 
             idnumber = VAL(e$)
             getid idnumber: IF Error_Happened THEN EXIT FUNCTION
@@ -17984,10 +17656,18 @@ FUNCTION findid& (n2$)
     'some subs require a second argument (eg. PUT #, DEF SEG, etc.)
     IF ids(i).subfunc = 2 THEN
         IF ASC(ids(i).secondargmustbe) <> 32 THEN 'exists?
-            IF secondarg$ <> ids(i).secondargmustbe THEN GOTO findidnomatch
+            IF RTRIM$(secondarg$) = RTRIM$(ids(i).secondargmustbe) THEN
+            ELSEIF qb64prefix_set = 1 AND LEFT$(ids(i).secondargmustbe, 1) = "_" AND LEFT$(secondarg$, 1) <> "_" AND RTRIM$(secondarg$) = MID$(RTRIM$(ids(i).secondargmustbe), 2) THEN
+            ELSE
+                GOTO findidnomatch
+            END IF
         END IF
         IF ASC(ids(i).secondargcantbe) <> 32 THEN 'exists?
-            IF secondarg$ = ids(i).secondargcantbe THEN GOTO findidnomatch
+            IF RTRIM$(secondarg$) <> RTRIM$(ids(i).secondargcantbe) THEN
+            ELSEIF qb64prefix_set = 1 AND LEFT$(ids(i).secondargcantbe, 1) = "_" AND LEFT$(secondarg$, 1) <> "_" AND RTRIM$(secondarg$) <> MID$(RTRIM$(ids(i).secondargcantbe), 2) THEN
+            ELSE
+                GOTO findidnomatch
+            END IF
         END IF
     END IF 'second sub argument possible
 
@@ -18926,16 +18606,16 @@ FUNCTION fixoperationorder$ (savea$)
                 f3$ = UCASE$(f2$)
                 internaltype = 0
                 IF f3$ = "STRING" THEN internaltype = 1
-                IF f3$ = "_UNSIGNED" THEN internaltype = 1
-                IF f3$ = "_BIT" THEN internaltype = 1
-                IF f3$ = "_BYTE" THEN internaltype = 1
+                IF f3$ = "_UNSIGNED" OR (f3$ = "UNSIGNED" AND qb64prefix_set = 1) THEN internaltype = 1
+                IF f3$ = "_BIT" OR (f3$ = "BIT" AND qb64prefix_set = 1) THEN internaltype = 1
+                IF f3$ = "_BYTE" OR (f3$ = "BYTE" AND qb64prefix_set = 1) THEN internaltype = 1
                 IF f3$ = "INTEGER" THEN internaltype = 1
                 IF f3$ = "LONG" THEN internaltype = 1
-                IF f3$ = "_INTEGER64" THEN internaltype = 1
+                IF f3$ = "_INTEGER64" OR (f3$ = "INTEGER64" AND qb64prefix_set = 1) THEN internaltype = 1
                 IF f3$ = "SINGLE" THEN internaltype = 1
                 IF f3$ = "DOUBLE" THEN internaltype = 1
-                IF f3$ = "_FLOAT" THEN internaltype = 1
-                IF f3$ = "_OFFSET" THEN internaltype = 1
+                IF f3$ = "_FLOAT" OR (f3$ = "FLOAT" AND qb64prefix_set = 1) THEN internaltype = 1
+                IF f3$ = "_OFFSET" OR (f3$ = "OFFSET" AND qb64prefix_set = 1) THEN internaltype = 1
                 IF internaltype = 1 THEN
                     f2$ = f3$
                     removeelements a$, i, i, 0
@@ -20436,7 +20116,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
                 r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
                 typ = STRINGTYPE + ISFIXEDLENGTH 'ISPOINTER retained, it is still a pointer!
             ELSE
-                r$ = "*((qbs**)(" + scope$ + n$ + "+(" + o$ + ")))"
+                r$ = "*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + ")))"
                 typ = STRINGTYPE
             END IF
         ELSE
@@ -21349,6 +21029,7 @@ FUNCTION seperateargs (a$, ca$, pass&)
                 OutOfRange = 2147483647
                 position = OutOfRange
                 which = 0
+                removePrefix = 0
                 IF i <= n THEN 'Past end of contect check
                     FOR o = 1 TO t
                         words = OptWords(x, o)
@@ -21362,11 +21043,13 @@ FUNCTION seperateargs (a$, ca$, pass&)
                                         c$ = c$ + " " + getelement$(a$, i3 + w - 1)
                                     NEXT w
                                     'Compare
-                                    IF c$ = RTRIM$(Opt(x, o)) THEN
+                                    noPrefixMatch = LEFT$(Opt(x, o), 1) = "_" AND qb64prefix_set = 1 AND c$ = MID$(RTRIM$(Opt(x, o)), 2)
+                                    IF c$ = RTRIM$(Opt(x, o)) OR noPrefixMatch THEN
                                         'Record Match
                                         IF i3 < position THEN
                                             position = i3
                                             which = o
+                                            IF noPrefixMatch THEN removePrefix = 1
                                             bvalue = b
                                             EXIT FOR 'Exit the i3 loop
                                         END IF 'position check
@@ -21409,7 +21092,7 @@ FUNCTION seperateargs (a$, ca$, pass&)
                         END IF
                     END IF 'Expression
                     i = i + OptWords(x, which)
-                    separgslayout(x) = CHR$(LEN(RTRIM$(Opt(x, which)))) + RTRIM$(Opt(x, which))
+                    separgslayout(x) = CHR$(LEN(RTRIM$(Opt(x, which))) - removePrefix) + MID$(RTRIM$(Opt(x, which)), removePrefix + 1)
                     separgs(x) = CHR$(0) + str2(which)
                 ELSE
                     'Not Found...
@@ -21640,7 +21323,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
                 o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
                 r$ = "qbs_new_fixed(" + o2$ + "," + str2(udtetypesize(E)) + ",1)"
             ELSE
-                r$ = "*((qbs**)((" + scope$ + n$ + ")+(" + o$ + ")))"
+                r$ = "*((qbs**)((char*)(" + scope$ + n$ + ")+(" + o$ + ")))"
             END IF
             IF method = 0 THEN e$ = evaluatetotyp(e$, STRINGTYPE - ISPOINTER)
             IF Error_Happened THEN EXIT SUB
@@ -21953,6 +21636,17 @@ FUNCTION type2symbol$ (typ$)
     t2$ = "DOUBLE": s$ = "#": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
     t2$ = "_FLOAT": s$ = "##": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
     t2$ = "STRING": s$ = "$": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED BIT": s$ = "~`1": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED BYTE": s$ = "~%%": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED INTEGER": s$ = "~%": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED LONG": s$ = "~&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED INTEGER64": s$ = "~&&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED OFFSET": s$ = "~%&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "BIT": s$ = "`1": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "BYTE": s$ = "%%": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "INTEGER64": s$ = "&&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "OFFSET": s$ = "%&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "FLOAT": s$ = "##": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
     Give_Error e$: EXIT FUNCTION
     t2sfound:
     type2symbol$ = s$
@@ -22093,30 +21787,33 @@ FUNCTION typname2typ& (t2$)
 
     IF t$ = "SINGLE" THEN typname2typ& = SINGLETYPE: EXIT FUNCTION
     IF t$ = "DOUBLE" THEN typname2typ& = DOUBLETYPE: EXIT FUNCTION
-    IF t$ = "_FLOAT" THEN typname2typ& = FLOATTYPE: EXIT FUNCTION
-    IF LEFT$(t$, 10) = "_UNSIGNED " THEN u = 1: t$ = RIGHT$(t$, LEN(t$) - 10)
-    IF LEFT$(t$, 4) = "_BIT" THEN
-        IF t$ = "_BIT" THEN
+    IF t$ = "_FLOAT" OR (t$ = "FLOAT" AND qb64prefix_set = 1) THEN typname2typ& = FLOATTYPE: EXIT FUNCTION
+    IF LEFT$(t$, 10) = "_UNSIGNED " OR (LEFT$(t$, 9) = "UNSIGNED " AND qb64prefix_set = 1) THEN
+        u = 1
+        t$ = MID$(t$, INSTR(t$, CHR$(32)) + 1)
+    END IF
+    IF LEFT$(t$, 4) = "_BIT" OR (LEFT$(t$, 3) = "BIT" AND qb64prefix_set = 1) THEN
+        IF t$ = "_BIT" OR (t$ = "BIT" AND qb64prefix_set = 1) THEN
             IF u THEN typname2typ& = UBITTYPE ELSE typname2typ& = BITTYPE
             EXIT FUNCTION
         END IF
-        IF LEFT$(t$, 7) <> "_BIT * " THEN Give_Error "Expected _BIT * number": EXIT FUNCTION
+        IF LEFT$(t$, 7) <> "_BIT * " OR (LEFT$(t$, 6) = "BIT * " AND qb64prefix_set = 1) THEN Give_Error "Expected _BIT * number": EXIT FUNCTION
 
         n$ = RIGHT$(t$, LEN(t$) - 7)
-        IF isuinteger(n$) = 0 THEN Give_Error "Invalid size after _BIT *": EXIT FUNCTION
+        IF isuinteger(n$) = 0 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         b = VAL(n$)
-        IF b = 0 OR b > 56 THEN Give_Error "Invalid size after _BIT *": EXIT FUNCTION
+        IF b = 0 OR b > 56 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         t = BITTYPE - 1 + b: IF u THEN t = t + ISUNSIGNED
         typname2typ& = t
         EXIT FUNCTION
     END IF
 
     t = 0
-    IF t$ = "_BYTE" THEN t = BYTETYPE
+    IF t$ = "_BYTE" OR (t$ = "BYTE" AND qb64prefix_set = 1) THEN t = BYTETYPE
     IF t$ = "INTEGER" THEN t = INTEGERTYPE
     IF t$ = "LONG" THEN t = LONGTYPE
-    IF t$ = "_INTEGER64" THEN t = INTEGER64TYPE
-    IF t$ = "_OFFSET" THEN t = OFFSETTYPE
+    IF t$ = "_INTEGER64" OR (t$ = "INTEGER64" AND qb64prefix_set = 1) THEN t = INTEGER64TYPE
+    IF t$ = "_OFFSET" OR (t$ = "OFFSET" AND qb64prefix_set = 1) THEN t = OFFSETTYPE
     IF t THEN
         IF u THEN t = t + ISUNSIGNED
         typname2typ& = t
@@ -22127,6 +21824,9 @@ FUNCTION typname2typ& (t2$)
     'UDT?
     FOR i = 1 TO lasttype
         IF t$ = RTRIM$(udtxname(i)) THEN
+            typname2typ& = ISUDT + ISPOINTER + i
+            EXIT FUNCTION
+        ELSEIF RTRIM$(udtxname(i)) = "_MEM" AND t$ = "MEM" AND qb64prefix_set = 1 THEN
             typname2typ& = ISUDT + ISPOINTER + i
             EXIT FUNCTION
         END IF
@@ -23471,20 +23171,20 @@ FUNCTION id2fulltypename$
         id2fulltypename$ = a$: EXIT FUNCTION
     END IF
     IF t AND ISOFFSETINBITS THEN
-        IF bits > 1 THEN a$ = "_BIT * " + str2(bits) ELSE a$ = "_BIT"
-        IF t AND ISUNSIGNED THEN a$ = "_UNSIGNED " + a$
+        IF bits > 1 THEN a$ = qb64prefix$ + "BIT * " + str2(bits) ELSE a$ = qb64prefix$ + "BIT"
+        IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
         id2fulltypename$ = a$: EXIT FUNCTION
     END IF
     IF t AND ISFLOAT THEN
         IF bits = 32 THEN a$ = "SINGLE"
         IF bits = 64 THEN a$ = "DOUBLE"
-        IF bits = 256 THEN a$ = "_FLOAT"
+        IF bits = 256 THEN a$ = qb64prefix$ + "FLOAT"
     ELSE 'integer-based
-        IF bits = 8 THEN a$ = "_BYTE"
+        IF bits = 8 THEN a$ = qb64prefix$ + "BYTE"
         IF bits = 16 THEN a$ = "INTEGER"
         IF bits = 32 THEN a$ = "LONG"
-        IF bits = 64 THEN a$ = "_INTEGER64"
-        IF t AND ISUNSIGNED THEN a$ = "_UNSIGNED " + a$
+        IF bits = 64 THEN a$ = qb64prefix$ + "INTEGER64"
+        IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
     END IF
     id2fulltypename$ = a$
 END FUNCTION
@@ -23536,23 +23236,23 @@ FUNCTION symbol2fulltypename$ (s2$)
         u = 1
         IF LEN(typ$) = 1 THEN Give_Error "Expected ~...": EXIT FUNCTION
         s$ = RIGHT$(s$, LEN(s$) - 1)
-        u$ = "_UNSIGNED "
+        u$ = qb64prefix$ + "UNSIGNED "
     END IF
 
-    IF s$ = "%%" THEN t$ = u$ + "_BYTE": GOTO gotsym2typ
+    IF s$ = "%%" THEN t$ = u$ + qb64prefix$ + "BYTE": GOTO gotsym2typ
     IF s$ = "%" THEN t$ = u$ + "INTEGER": GOTO gotsym2typ
     IF s$ = "&" THEN t$ = u$ + "LONG": GOTO gotsym2typ
-    IF s$ = "&&" THEN t$ = u$ + "_INTEGER64": GOTO gotsym2typ
-    IF s$ = "%&" THEN t$ = u$ + "_OFFSET": GOTO gotsym2typ
+    IF s$ = "&&" THEN t$ = u$ + qb64prefix$ + "INTEGER64": GOTO gotsym2typ
+    IF s$ = "%&" THEN t$ = u$ + qb64prefix$ + "OFFSET": GOTO gotsym2typ
 
     IF LEFT$(s$, 1) = "`" THEN
         IF LEN(s$) = 1 THEN
-            t$ = u$ + "_BIT * 1"
+            t$ = u$ + qb64prefix$ + "BIT * 1"
             GOTO gotsym2typ
         END IF
         n$ = RIGHT$(s$, LEN(s$) - 1)
         IF isuinteger(n$) = 0 THEN Give_Error "Expected number after symbol `": EXIT FUNCTION
-        t$ = u$ + "_BIT * " + n$
+        t$ = u$ + qb64prefix$ + "BIT * " + n$
         GOTO gotsym2typ
     END IF
 
@@ -23560,7 +23260,7 @@ FUNCTION symbol2fulltypename$ (s2$)
 
     IF s$ = "!" THEN t$ = "SINGLE": GOTO gotsym2typ
     IF s$ = "#" THEN t$ = "DOUBLE": GOTO gotsym2typ
-    IF s$ = "##" THEN t$ = "_FLOAT": GOTO gotsym2typ
+    IF s$ = "##" THEN t$ = qb64prefix$ + "FLOAT": GOTO gotsym2typ
     IF s$ = "$" THEN t$ = "STRING": GOTO gotsym2typ
 
     IF LEFT$(s$, 1) = "$" THEN
@@ -23753,14 +23453,8 @@ END SUB
 'Steve Subs/Functins for _MATH support with CONST
 FUNCTION Evaluate_Expression$ (e$)
     t$ = e$ 'So we preserve our original data, we parse a temp copy of it
-
-    b = INSTR(UCASE$(e$), "EQL") 'take out assignment before the preparser sees it
-    IF b THEN t$ = MID$(e$, b + 3): var$ = UCASE$(LTRIM$(RTRIM$(MID$(e$, 1, b - 1))))
-
-    QuickReturn = 0
     PreParse t$
 
-    IF QuickReturn THEN Evaluate_Expression$ = t$: EXIT FUNCTION
 
     IF LEFT$(t$, 5) = "ERROR" THEN Evaluate_Expression$ = t$: EXIT FUNCTION
 
@@ -23778,16 +23472,14 @@ FUNCTION Evaluate_Expression$ (e$)
                 END IF
             LOOP
             s = Eval_E - c + 1
-            IF s < 1 THEN PRINT "ERROR -- BAD () Count": END
+            IF s < 1 THEN Evaluate_Expression$ = "ERROR -- BAD () Count": EXIT SUB
             eval$ = " " + MID$(exp$, s, Eval_E - s) + " " 'pad with a space before and after so the parser can pick up the values properly.
-            ParseExpression eval$
 
+            ParseExpression eval$
             eval$ = LTRIM$(RTRIM$(eval$))
             IF LEFT$(eval$, 5) = "ERROR" THEN Evaluate_Expression$ = eval$: EXIT SUB
             exp$ = DWD(LEFT$(exp$, s - 2) + eval$ + MID$(exp$, Eval_E + 1))
             IF MID$(exp$, 1, 1) = "N" THEN MID$(exp$, 1) = "-"
-
-            temppp$ = DWD(LEFT$(exp$, s - 2) + " ## " + eval$ + " ## " + MID$(exp$, E + 1))
         END IF
     LOOP UNTIL Eval_E = 0
     c = 0
@@ -23806,8 +23498,10 @@ END FUNCTION
 
 SUB ParseExpression (exp$)
     DIM num(10) AS STRING
+    'PRINT exp$
+    exp$ = DWD(exp$)
     'We should now have an expression with no () to deal with
-    IF MID$(exp$, 2, 1) = "-" THEN exp$ = "0+" + MID$(exp$, 2)
+
     FOR J = 1 TO 250
         lowest = 0
         DO UNTIL lowest = LEN(exp$)
@@ -23815,12 +23509,23 @@ SUB ParseExpression (exp$)
             FOR P = 1 TO UBOUND(OName)
                 'Look for first valid operator
                 IF J = PL(P) THEN 'Priority levels match
-                    IF LEFT$(exp$, 1) = "-" THEN op = INSTR(2, exp$, OName(P)) ELSE op = INSTR(exp$, OName(P))
+                    IF LEFT$(exp$, 1) = "-" THEN startAt = 2 ELSE startAt = 1
+                    op = INSTR(startAt, exp$, OName(P))
+                    IF op = 0 AND LEFT$(OName(P), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try again without prefix
+                        op = INSTR(startAt, exp$, MID$(OName(P), 2))
+                        IF op > 0 THEN
+                            exp$ = LEFT$(exp$, op - 1) + "_" + MID$(exp$, op)
+                            lowest = lowest + 1
+                        END IF
+                    END IF
                     IF op > 0 AND op < lowest THEN lowest = op: OpOn = P
                 END IF
             NEXT
             IF OpOn = 0 THEN EXIT DO 'We haven't gotten to the proper PL for this OP to be processed yet.
-            IF LEFT$(exp$, 1) = "-" THEN op = INSTR(2, exp$, OName(OpOn)) ELSE op = INSTR(exp$, OName(OpOn))
+            IF LEFT$(exp$, 1) = "-" THEN startAt = 2 ELSE startAt = 1
+            op = INSTR(startAt, exp$, OName(OpOn))
+
             numset = 0
 
             '*** SPECIAL OPERATION RULESETS
@@ -23839,6 +23544,7 @@ SUB ParseExpression (exp$)
                         CASE "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "N": numset = -1 'Valid digit
                         CASE "-" 'We need to check if it's a minus or a negative
                             IF OName(OpOn) = "_PI" OR numset THEN EXIT DO
+                        CASE ",": numset = 0
                         CASE ELSE 'Not a valid digit, we found our separator
                             EXIT DO
                     END SELECT
@@ -23874,13 +23580,14 @@ SUB ParseExpression (exp$)
                 num(2) = MID$(exp$, op + LEN(OName(OpOn)), E - op - LEN(OName(OpOn)) + 1) 'Get our second number
                 IF MID$(num(1), 1, 1) = "N" THEN MID$(num(1), 1) = "-"
                 IF MID$(num(2), 1, 1) = "N" THEN MID$(num(2), 1) = "-"
-                num(3) = EvaluateNumbers(OpOn, num())
+                IF num(1) = "-" THEN
+                    num(3) = "N" + EvaluateNumbers(OpOn, num())
+                ELSE
+                    num(3) = EvaluateNumbers(OpOn, num())
+                END IF
                 IF MID$(num(3), 1, 1) = "-" THEN MID$(num(3), 1) = "N"
-                'PRINT "*************"
-                'PRINT num(1), OName(OpOn), num(2), num(3), exp$
                 IF LEFT$(num(3), 5) = "ERROR" THEN exp$ = num(3): EXIT SUB
                 exp$ = LTRIM$(N2S(DWD(LEFT$(exp$, s) + RTRIM$(LTRIM$(num(3))) + MID$(exp$, E + 1))))
-                'PRINT exp$
             END IF
             op = 0
         LOOP
@@ -23894,205 +23601,363 @@ SUB Set_OrderOfOperations
     'PL sets our priortity level. 1 is highest to 65535 for the lowest.
     'I used a range here so I could add in new priority levels as needed.
     'OName ended up becoming the name of our commands, as I modified things.... Go figure!  LOL!
-
+    REDIM OName(10000) AS STRING, PL(10000) AS INTEGER
     'Constants get evaluated first, with a Priority Level of 1
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_PI"
-    REDIM _PRESERVE PL(i): PL(i) = 1
-    'I'm not certain where exactly percentages should go.  They kind of seem like a special case to me.  COS10% should be COS.1 I'd think...
-    'I'm putting it here for now, and if anyone knows someplace better for it in our order of operations, let me know.
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "%"
-    REDIM _PRESERVE PL(i): PL(i) = 5
+
+    i = i + 1: OName(i) = "C_UOF": PL(i) = 5 'convert to unsigned offset
+    i = i + 1: OName(i) = "C_OF": PL(i) = 5 'convert to offset
+    i = i + 1: OName(i) = "C_UBY": PL(i) = 5 'convert to unsigned byte
+    i = i + 1: OName(i) = "C_BY": PL(i) = 5 'convert to byte
+    i = i + 1: OName(i) = "C_UIN": PL(i) = 5 'convert to unsigned integer
+    i = i + 1: OName(i) = "C_IN": PL(i) = 5 'convert to integer
+    i = i + 1: OName(i) = "C_UIF": PL(i) = 5 'convert to unsigned int64
+    i = i + 1: OName(i) = "C_IF": PL(i) = 5 'convert to int64
+    i = i + 1: OName(i) = "C_ULO": PL(i) = 5 'convert to unsigned long
+    i = i + 1: OName(i) = "C_LO": PL(i) = 5 'convert to long
+    i = i + 1: OName(i) = "C_SI": PL(i) = 5 'convert to single
+    i = i + 1: OName(i) = "C_FL": PL(i) = 5 'convert to float
+    i = i + 1: OName(i) = "C_DO": PL(i) = 5 'convert to double
+    i = i + 1: OName(i) = "C_UBI": PL(i) = 5 'convert to unsigned bit
+    i = i + 1: OName(i) = "C_BI": PL(i) = 5 'convert to bit
+
     'Then Functions with PL 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ACOS"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ASIN"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ARCSEC"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ARCCSC"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ARCCOT"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_SECH"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_CSCH"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_COTH"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "COS"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "SIN"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "TAN"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "LOG"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "EXP"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ATN"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_D2R"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_D2G"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_R2D"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_R2G"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_G2D"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_G2R"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ABS"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "SGN"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "INT"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_ROUND"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "FIX"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_SEC"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_CSC"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "_COT"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ASC"
-    REDIM _PRESERVE PL(i): PL(i) = 10
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "CHR$"
-    REDIM _PRESERVE PL(i): PL(i) = 10
+    i = i + 1:: OName(i) = "_PI": PL(i) = 10
+    i = i + 1: OName(i) = "_ACOS": PL(i) = 10
+    i = i + 1: OName(i) = "_ASIN": PL(i) = 10
+    i = i + 1: OName(i) = "_ARCSEC": PL(i) = 10
+    i = i + 1: OName(i) = "_ARCCSC": PL(i) = 10
+    i = i + 1: OName(i) = "_ARCCOT": PL(i) = 10
+    i = i + 1: OName(i) = "_SECH": PL(i) = 10
+    i = i + 1: OName(i) = "_CSCH": PL(i) = 10
+    i = i + 1: OName(i) = "_COTH": PL(i) = 10
+    i = i + 1: OName(i) = "COS": PL(i) = 10
+    i = i + 1: OName(i) = "SIN": PL(i) = 10
+    i = i + 1: OName(i) = "TAN": PL(i) = 10
+    i = i + 1: OName(i) = "LOG": PL(i) = 10
+    i = i + 1: OName(i) = "EXP": PL(i) = 10
+    i = i + 1: OName(i) = "ATN": PL(i) = 10
+    i = i + 1: OName(i) = "_D2R": PL(i) = 10
+    i = i + 1: OName(i) = "_D2G": PL(i) = 10
+    i = i + 1: OName(i) = "_R2D": PL(i) = 10
+    i = i + 1: OName(i) = "_R2G": PL(i) = 10
+    i = i + 1: OName(i) = "_G2D": PL(i) = 10
+    i = i + 1: OName(i) = "_G2R": PL(i) = 10
+    i = i + 1: OName(i) = "ABS": PL(i) = 10
+    i = i + 1: OName(i) = "SGN": PL(i) = 10
+    i = i + 1: OName(i) = "INT": PL(i) = 10
+    i = i + 1: OName(i) = "_ROUND": PL(i) = 10
+    i = i + 1: OName(i) = "_CEIL": PL(i) = 10
+    i = i + 1: OName(i) = "FIX": PL(i) = 10
+    i = i + 1: OName(i) = "_SEC": PL(i) = 10
+    i = i + 1: OName(i) = "_CSC": PL(i) = 10
+    i = i + 1: OName(i) = "_COT": PL(i) = 10
+    i = i + 1: OName(i) = "ASC": PL(i) = 10
+    i = i + 1: OName(i) = "CHR$": PL(i) = 10
+    i = i + 1: OName(i) = "C_RG": PL(i) = 10 '_RGB32 converted
+    i = i + 1: OName(i) = "C_RA": PL(i) = 10 '_RGBA32 converted
+    i = i + 1: OName(i) = "_RGB": PL(i) = 10
+    i = i + 1: OName(i) = "_RGBA": PL(i) = 10
+    i = i + 1: OName(i) = "C_RX": PL(i) = 10 '_RED32 converted
+    i = i + 1: OName(i) = "C_GR": PL(i) = 10 ' _GREEN32 converted
+    i = i + 1: OName(i) = "C_BL": PL(i) = 10 '_BLUE32 converted
+    i = i + 1: OName(i) = "C_AL": PL(i) = 10 '_ALPHA32 converted
+    i = i + 1: OName(i) = "_RED": PL(i) = 10
+    i = i + 1: OName(i) = "_GREEN": PL(i) = 10
+    i = i + 1: OName(i) = "_BLUE": PL(i) = 10
+    i = i + 1: OName(i) = "_ALPHA": PL(i) = 10
 
     'Exponents with PL 20
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "^"
-    REDIM _PRESERVE PL(i): PL(i) = 20
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "SQR"
-    REDIM _PRESERVE PL(i): PL(i) = 20
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "ROOT"
-    REDIM _PRESERVE PL(i): PL(i) = 20
+    i = i + 1: OName(i) = "^": PL(i) = 20
+    i = i + 1: OName(i) = "SQR": PL(i) = 20
+    i = i + 1: OName(i) = "ROOT": PL(i) = 20
     'Multiplication and Division PL 30
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "*"
-    REDIM _PRESERVE PL(i): PL(i) = 30
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "/"
-    REDIM _PRESERVE PL(i): PL(i) = 30
+    i = i + 1: OName(i) = "*": PL(i) = 30
+    i = i + 1: OName(i) = "/": PL(i) = 30
     'Integer Division PL 40
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "\"
-    REDIM _PRESERVE PL(i): PL(i) = 40
+    i = i + 1: OName(i) = "\": PL(i) = 40
     'MOD PL 50
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "MOD"
-    REDIM _PRESERVE PL(i): PL(i) = 50
+    i = i + 1: OName(i) = "MOD": PL(i) = 50
     'Addition and Subtraction PL 60
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "+"
-    REDIM _PRESERVE PL(i): PL(i) = 60
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "-"
-    REDIM _PRESERVE PL(i): PL(i) = 60
+    i = i + 1: OName(i) = "+": PL(i) = 60
+    i = i + 1: OName(i) = "-": PL(i) = 60
 
     'Relational Operators =, >, <, <>, <=, >=   PL 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "<>"
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "><" 'These next three are just reversed symbols as an attempt to help process a common typo
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "<="
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = ">="
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "=<" 'I personally can never keep these things straight.  Is it < = or = <...
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "=>" 'Who knows, check both!
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = ">"
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "<"
-    REDIM _PRESERVE PL(i): PL(i) = 70
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "="
-    REDIM _PRESERVE PL(i): PL(i) = 70
+    i = i + 1: OName(i) = "<>": PL(i) = 70 'These next three are just reversed symbols as an attempt to help process a common typo
+    i = i + 1: OName(i) = "><": PL(i) = 70
+    i = i + 1: OName(i) = "<=": PL(i) = 70
+    i = i + 1: OName(i) = ">=": PL(i) = 70
+    i = i + 1: OName(i) = "=<": PL(i) = 70 'I personally can never keep these things straight.  Is it < = or = <...
+    i = i + 1: OName(i) = "=>": PL(i) = 70 'Who knows, check both!
+    i = i + 1: OName(i) = ">": PL(i) = 70
+    i = i + 1: OName(i) = "<": PL(i) = 70
+    i = i + 1: OName(i) = "=": PL(i) = 70
     'Logical Operations PL 80+
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "NOT"
-    REDIM _PRESERVE PL(i): PL(i) = 80
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "AND"
-    REDIM _PRESERVE PL(i): PL(i) = 90
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "OR"
-    REDIM _PRESERVE PL(i): PL(i) = 100
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "XOR"
-    REDIM _PRESERVE PL(i): PL(i) = 110
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "EQV"
-    REDIM _PRESERVE PL(i): PL(i) = 120
-    i = i + 1: REDIM _PRESERVE OName(i): OName(i) = "IMP"
-    REDIM _PRESERVE PL(i): PL(i) = 130
+    i = i + 1: OName(i) = "NOT": PL(i) = 80
+    i = i + 1: OName(i) = "AND": PL(i) = 90
+    i = i + 1: OName(i) = "OR": PL(i) = 100
+    i = i + 1: OName(i) = "XOR": PL(i) = 110
+    i = i + 1: OName(i) = "EQV": PL(i) = 120
+    i = i + 1: OName(i) = "IMP": PL(i) = 130
+    i = i + 1: OName(i) = ",": PL(i) = 1000
 
+    REDIM _PRESERVE OName(i) AS STRING, PL(i) AS INTEGER
 END SUB
 
 FUNCTION EvaluateNumbers$ (p, num() AS STRING)
     DIM n1 AS _FLOAT, n2 AS _FLOAT, n3 AS _FLOAT
-    SELECT CASE OName(p) 'Depending on our operator..
-        CASE "_PI": n1 = 3.14159265358979323846264338327950288## 'Future compatable in case something ever stores extra digits for PI
-        CASE "%": n1 = (VAL(num(1))) / 100 'Note percent is a special case and works with the number BEFORE the % command and not after
-        CASE "_ACOS": n1 = _ACOS(VAL(num(2)))
-        CASE "_ASIN": n1 = _ASIN(VAL(num(2)))
-        CASE "_ARCSEC": n1 = _ARCSEC(VAL(num(2)))
-        CASE "_ARCCSC": n1 = _ARCCSC(VAL(num(2)))
-        CASE "_ARCCOT": n1 = _ARCCOT(VAL(num(2)))
-        CASE "_SECH": n1 = _SECH(VAL(num(2)))
-        CASE "_CSCH": n1 = _CSCH(VAL(num(2)))
-        CASE "_COTH": n1 = _COTH(VAL(num(2)))
-        CASE "COS": n1 = COS(VAL(num(2)))
-        CASE "SIN": n1 = SIN(VAL(num(2)))
-        CASE "TAN": n1 = TAN(VAL(num(2)))
-        CASE "LOG": n1 = LOG(VAL(num(2)))
-        CASE "EXP": n1 = EXP(VAL(num(2)))
-        CASE "ATN": n1 = ATN(VAL(num(2)))
-        CASE "_D2R": n1 = 0.0174532925 * (VAL(num(2)))
-        CASE "_D2G": n1 = 1.1111111111 * (VAL(num(2)))
-        CASE "_R2D": n1 = 57.2957795 * (VAL(num(2)))
-        CASE "_R2G": n1 = 0.015707963 * (VAL(num(2)))
-        CASE "_G2D": n1 = 0.9 * (VAL(num(2)))
-        CASE "_G2R": n1 = 63.661977237 * (VAL(num(2)))
-        CASE "ABS": n1 = ABS(VAL(num(2)))
-        CASE "SGN": n1 = SGN(VAL(num(2)))
-        CASE "INT": n1 = INT(VAL(num(2)))
-        CASE "_ROUND": n1 = _ROUND(VAL(num(2)))
-        CASE "FIX": n1 = FIX(VAL(num(2)))
-        CASE "_SEC": n1 = _SEC(VAL(num(2)))
-        CASE "_CSC": n1 = _CSC(VAL(num(2)))
-        CASE "_COT": n1 = _COT(VAL(num(2)))
-        CASE "^": n1 = VAL(num(1)) ^ VAL(num(2))
-        CASE "SQR": n1 = SQR(VAL(num(2)))
-        CASE "ROOT"
-            n1 = VAL(num(1)): n2 = VAL(num(2))
-            IF n2 = 1 THEN EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1))): EXIT FUNCTION
-            IF n1 < 0 AND n2 >= 1 THEN sign = -1: n1 = -n1 ELSE sign = 1
-            n3 = 1## / n2
-            IF n3 <> INT(n3) AND n2 < 1 THEN sign = SGN(n1): n1 = ABS(n1)
-            n1 = sign * (n1 ^ n3)
-        CASE "*": n1 = VAL(num(1)) * VAL(num(2))
-        CASE "/": n1 = VAL(num(1)) / VAL(num(2))
-        CASE "\"
-            IF VAL(num(2)) <> 0 THEN
-                n1 = VAL(num(1)) \ VAL(num(2))
-            ELSE
-                EvaluateNumbers$ = "ERROR - Division By Zero"
-                EXIT FUNCTION
-            END IF
-        CASE "MOD": n1 = VAL(num(1)) MOD VAL(num(2))
-        CASE "+": n1 = VAL(num(1)) + VAL(num(2))
-        CASE "-": n1 = VAL(num(1)) - VAL(num(2))
-        CASE "=": n1 = VAL(num(1)) = VAL(num(2))
-        CASE ">": n1 = VAL(num(1)) > VAL(num(2))
-        CASE "<": n1 = VAL(num(1)) < VAL(num(2))
-        CASE "<>", "><": n1 = VAL(num(1)) <> VAL(num(2))
-        CASE "<=", "=<": n1 = VAL(num(1)) <= VAL(num(2))
-        CASE ">=", "=>": n1 = VAL(num(1)) >= VAL(num(2))
-        CASE "NOT": n1 = NOT VAL(num(2))
-        CASE "AND": n1 = VAL(num(1)) AND VAL(num(2))
-        CASE "OR": n1 = VAL(num(1)) OR VAL(num(2))
-        CASE "XOR": n1 = VAL(num(1)) XOR VAL(num(2))
-        CASE "EQV": n1 = VAL(num(1)) EQV VAL(num(2))
-        CASE "IMP": n1 = VAL(num(1)) IMP VAL(num(2))
-        CASE ELSE
-            EvaluateNumbers$ = "ERROR - Bad operation (We shouldn't see this)" 'Let's say we're bad...
+    'PRINT "EVALNUM:"; OName(p), num(1), num(2)
+
+    IF _TRIM$(num(1)) = "" THEN num(1) = "0"
+
+    IF PL(p) >= 20 AND (LEN(_TRIM$(num(1))) = 0 OR LEN(_TRIM$(num(2))) = 0) THEN
+        EvaluateNumbers$ = "ERROR - Missing operand": EXIT FUNCTION
+    END IF
+
+    IF INSTR(num(1), ",") THEN
+        EvaluateNumbers$ = "ERROR - Invalid comma (" + num(1) + ")": EXIT FUNCTION
+    END IF
+    l2 = INSTR(num(2), ",")
+    IF l2 THEN
+        SELECT CASE OName(p) 'only certain commands should pass a comma value
+            CASE "C_RG", "C_RA", "_RGB", "_RGBA", "_RED", "_GREEN", "C_BL", "_ALPHA"
+            CASE ELSE
+                C$ = MID$(num(2), l2)
+                num(2) = LEFT$(num(2), l2 - 1)
+        END SELECT
+    END IF
+
+    SELECT CASE PL(p) 'divide up the work so we want do as much case checking
+        CASE 5 'Type conversions
+            'Note, these are special cases and work with the number BEFORE the command and not after
+            SELECT CASE OName(p) 'Depending on our operator..
+                CASE "C_UOF": n1~%& = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1~%&)))
+                CASE "C_ULO": n1%& = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1%&)))
+                CASE "C_UBY": n1~%% = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1~%%)))
+                CASE "C_UIN": n1~% = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1~%)))
+                CASE "C_BY": n1%% = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1%%)))
+                CASE "C_IN": n1% = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1%)))
+                CASE "C_UIF": n1~&& = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1~&&)))
+                CASE "C_OF": n1~& = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1~&)))
+                CASE "C_IF": n1&& = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1&&)))
+                CASE "C_LO": n1& = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1&)))
+                CASE "C_UBI": n1~` = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1~`)))
+                CASE "C_BI": n1` = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1`)))
+                CASE "C_FL": n1## = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1##)))
+                CASE "C_DO": n1# = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1#)))
+                CASE "C_SI": n1! = VAL(num(1)): EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1!)))
+            END SELECT
+            EXIT FUNCTION
+        CASE 10 'functions
+            SELECT CASE OName(p) 'Depending on our operator..
+                CASE "_PI"
+                    n1 = 3.14159265358979323846264338327950288## 'Future compatable in case something ever stores extra digits for PI
+                    IF num(2) <> "" THEN n1 = n1 * VAL(num(2))
+                CASE "_ACOS": n1 = _ACOS(VAL(num(2)))
+                CASE "_ASIN": n1 = _ASIN(VAL(num(2)))
+                CASE "_ARCSEC": n1 = _ARCSEC(VAL(num(2)))
+                CASE "_ARCCSC": n1 = _ARCCSC(VAL(num(2)))
+                CASE "_ARCCOT": n1 = _ARCCOT(VAL(num(2)))
+                CASE "_SECH": n1 = _SECH(VAL(num(2)))
+                CASE "_CSCH": n1 = _CSCH(VAL(num(2)))
+                CASE "_COTH": n1 = _COTH(VAL(num(2)))
+                CASE "C_RG"
+                    n$ = num(2)
+                    IF n$ = "" THEN EvaluateNumbers$ = "ERROR - Invalid null _RGB32": EXIT FUNCTION
+                    c1 = INSTR(n$, ",")
+                    IF c1 THEN c2 = INSTR(c1 + 1, n$, ",")
+                    IF c2 THEN c3 = INSTR(c2 + 1, n$, ",")
+                    IF c3 THEN c4 = INSTR(c3 + 1, n$, ",")
+                    IF c1 = 0 THEN 'there's no comma in the command to parse.  It's a grayscale value
+                        n = VAL(num(2))
+                        n1 = _RGB32(n, n, n)
+                    ELSEIF c2 = 0 THEN 'there's one comma and not 2.  It's grayscale with alpha.
+                        n = VAL(LEFT$(num(2), c1))
+                        n2 = VAL(MID$(num(2), c1 + 1))
+                        n1 = _RGBA32(n, n, n, n2)
+                    ELSEIF c3 = 0 THEN 'there's two commas.  It's _RGB values
+                        n = VAL(LEFT$(num(2), c1))
+                        n2 = VAL(MID$(num(2), c1 + 1))
+                        n3 = VAL(MID$(num(2), c2 + 1))
+                        n1 = _RGB32(n, n2, n3)
+                    ELSEIF c4 = 0 THEN 'there's three commas.  It's _RGBA values
+                        n = VAL(LEFT$(num(2), c1))
+                        n2 = VAL(MID$(num(2), c1 + 1))
+                        n3 = VAL(MID$(num(2), c2 + 1))
+                        n4 = VAL(MID$(num(2), c3 + 1))
+                        n1 = _RGBA32(n, n2, n3, n4)
+                    ELSE 'we have more than three commas.  I have no idea WTH type of values got passed here!
+                        EvaluateNumbers$ = "ERROR - Invalid comma count (" + num(2) + ")": EXIT FUNCTION
+                    END IF
+                CASE "C_RA"
+                    n$ = num(2)
+                    IF n$ = "" THEN EvaluateNumbers$ = "ERROR - Invalid null _RGBA32": EXIT FUNCTION
+                    c1 = INSTR(n$, ",")
+                    IF c1 THEN c2 = INSTR(c1 + 1, n$, ",")
+                    IF c2 THEN c3 = INSTR(c2 + 1, n$, ",")
+                    IF c3 THEN c4 = INSTR(c3 + 1, n$, ",")
+                    IF c3 = 0 OR c4 <> 0 THEN EvaluateNumbers$ = "ERROR - Invalid comma count (" + num(2) + ")": EXIT FUNCTION
+                    'we have to have 3 commas; not more, not less.
+                    n = VAL(LEFT$(num(2), c1))
+                    n2 = VAL(MID$(num(2), c1 + 1))
+                    n3 = VAL(MID$(num(2), c2 + 1))
+                    n4 = VAL(MID$(num(2), c3 + 1))
+                    n1 = _RGBA32(n, n2, n3, n4)
+                CASE "_RGB"
+                    n$ = num(2)
+                    IF n$ = "" THEN EvaluateNumbers$ = "ERROR - Invalid null _RGB": EXIT FUNCTION
+                    c1 = INSTR(n$, ",")
+                    IF c1 THEN c2 = INSTR(c1 + 1, n$, ",")
+                    IF c2 THEN c3 = INSTR(c2 + 1, n$, ",")
+                    IF c3 THEN c4 = INSTR(c3 + 1, n$, ",")
+                    IF c3 = 0 OR c4 <> 0 THEN EvaluateNumbers$ = "ERROR - Invalid comma count (" + num(2) + "). _RGB requires 4 parameters for Red, Green, Blue, ScreenMode.": EXIT FUNCTION
+                    'we have to have 3 commas; not more, not less.
+                    n = VAL(LEFT$(num(2), c1))
+                    n2 = VAL(MID$(num(2), c1 + 1))
+                    n3 = VAL(MID$(num(2), c2 + 1))
+                    n4 = VAL(MID$(num(2), c3 + 1))
+                    SELECT CASE n4
+                        CASE 0 TO 2, 7 TO 13, 256, 32 'these are the good screen values
+                        CASE ELSE
+                            EvaluateNumbers$ = "ERROR - Invalid Screen Mode (" + STR$(n4) + ")": EXIT FUNCTION
+                    END SELECT
+                    t = _NEWIMAGE(1, 1, n4)
+                    n1 = _RGB(n, n2, n3, t)
+                    _FREEIMAGE t
+                CASE "_RGBA"
+                    n$ = num(2)
+                    IF n$ = "" THEN EvaluateNumbers$ = "ERROR - Invalid null _RGBA": EXIT FUNCTION
+                    c1 = INSTR(n$, ",")
+                    IF c1 THEN c2 = INSTR(c1 + 1, n$, ",")
+                    IF c2 THEN c3 = INSTR(c2 + 1, n$, ",")
+                    IF c3 THEN c4 = INSTR(c3 + 1, n$, ",")
+                    IF c4 THEN c5 = INSTR(c4 + 1, n$, ",")
+                    IF c4 = 0 OR c5 <> 0 THEN EvaluateNumbers$ = "ERROR - Invalid comma count (" + num(2) + "). _RGBA requires 5 parameters for Red, Green, Blue, Alpha, ScreenMode.": EXIT FUNCTION
+                    'we have to have 4 commas; not more, not less.
+                    n = VAL(LEFT$(num(2), c1))
+                    n2 = VAL(MID$(num(2), c1 + 1))
+                    n3 = VAL(MID$(num(2), c2 + 1))
+                    n4 = VAL(MID$(num(2), c3 + 1))
+                    n5 = VAL(MID$(num(2), c4 + 1))
+                    SELECT CASE n5
+                        CASE 0 TO 2, 7 TO 13, 256, 32 'these are the good screen values
+                        CASE ELSE
+                            EvaluateNumbers$ = "ERROR - Invalid Screen Mode (" + STR$(n5) + ")": EXIT FUNCTION
+                    END SELECT
+                    t = _NEWIMAGE(1, 1, n5)
+                    n1 = _RGBA(n, n2, n3, n4, t)
+                    _FREEIMAGE t
+                CASE "_RED", "_GREEN", "_BLUE", "_ALPHA"
+                    n$ = num(2)
+                    IF n$ = "" THEN EvaluateNumbers$ = "ERROR - Invalid null " + OName(p): EXIT FUNCTION
+                    c1 = INSTR(n$, ",")
+                    IF c1 = 0 THEN EvaluateNumbers$ = "ERROR - " + OName(p) + " requires 2 parameters for Color, ScreenMode.": EXIT FUNCTION
+                    IF c1 THEN c2 = INSTR(c1 + 1, n$, ",")
+                    IF c2 THEN EvaluateNumbers$ = "ERROR - " + OName(p) + " requires 2 parameters for Color, ScreenMode.": EXIT FUNCTION
+                    n = VAL(LEFT$(num(2), c1))
+                    n2 = VAL(MID$(num(2), c1 + 1))
+                    SELECT CASE n2
+                        CASE 0 TO 2, 7 TO 13, 256, 32 'these are the good screen values
+                        CASE ELSE
+                            EvaluateNumbers$ = "ERROR - Invalid Screen Mode (" + STR$(n2) + ")": EXIT FUNCTION
+                    END SELECT
+                    t = _NEWIMAGE(1, 1, n4)
+                    SELECT CASE OName(p)
+                        CASE "_RED": n1 = _RED(n, t)
+                        CASE "_BLUE": n1 = _BLUE(n, t)
+                        CASE "_GREEN": n1 = _GREEN(n, t)
+                        CASE "_ALPHA": n1 = _ALPHA(n, t)
+                    END SELECT
+                    _FREEIMAGE t
+                CASE "C_RX", "C_GR", "C_BL", "C_AL"
+                    n$ = num(2)
+                    IF n$ = "" THEN EvaluateNumbers$ = "ERROR - Invalid null " + OName(p): EXIT FUNCTION
+                    n = VAL(num(2))
+                    SELECT CASE OName(p)
+                        CASE "C_RX": n1 = _RED32(n)
+                        CASE "C_BL": n1 = _BLUE32(n)
+                        CASE "C_GR": n1 = _GREEN32(n)
+                        CASE "C_AL": n1 = _ALPHA32(n)
+                    END SELECT
+                CASE "COS": n1 = COS(VAL(num(2)))
+                CASE "SIN": n1 = SIN(VAL(num(2)))
+                CASE "TAN": n1 = TAN(VAL(num(2)))
+                CASE "LOG": n1 = LOG(VAL(num(2)))
+                CASE "EXP": n1 = EXP(VAL(num(2)))
+                CASE "ATN": n1 = ATN(VAL(num(2)))
+                CASE "_D2R": n1 = 0.0174532925 * (VAL(num(2)))
+                CASE "_D2G": n1 = 1.1111111111 * (VAL(num(2)))
+                CASE "_R2D": n1 = 57.2957795 * (VAL(num(2)))
+                CASE "_R2G": n1 = 0.015707963 * (VAL(num(2)))
+                CASE "_G2D": n1 = 0.9 * (VAL(num(2)))
+                CASE "_G2R": n1 = 63.661977237 * (VAL(num(2)))
+                CASE "ABS": n1 = ABS(VAL(num(2)))
+                CASE "SGN": n1 = SGN(VAL(num(2)))
+                CASE "INT": n1 = INT(VAL(num(2)))
+                CASE "_ROUND": n1 = _ROUND(VAL(num(2)))
+                CASE "_CEIL": n1 = _CEIL(VAL(num(2)))
+                CASE "FIX": n1 = FIX(VAL(num(2)))
+                CASE "_SEC": n1 = _SEC(VAL(num(2)))
+                CASE "_CSC": n1 = _CSC(VAL(num(2)))
+                CASE "_COT": n1 = _COT(VAL(num(2)))
+            END SELECT
+        CASE 20 TO 60 'Math Operators
+            SELECT CASE OName(p) 'Depending on our operator..
+                CASE "^": n1 = VAL(num(1)) ^ VAL(num(2))
+                CASE "SQR": n1 = SQR(VAL(num(2)))
+                CASE "ROOT"
+                    n1 = VAL(num(1)): n2 = VAL(num(2))
+                    IF n2 = 1 THEN EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1))): EXIT FUNCTION
+                    IF n1 < 0 AND n2 >= 1 THEN sign = -1: n1 = -n1 ELSE sign = 1
+                    n3 = 1## / n2
+                    IF n3 <> INT(n3) AND n2 < 1 THEN sign = SGN(n1): n1 = ABS(n1)
+                    n1 = sign * (n1 ^ n3)
+                CASE "*": n1 = VAL(num(1)) * VAL(num(2))
+                CASE "/"
+                    IF VAL(num(2)) <> 0 THEN
+                        n1 = VAL(num(1)) / VAL(num(2))
+                    ELSE
+                        EvaluateNumbers$ = "ERROR - Division By Zero"
+                        EXIT FUNCTION
+                    END IF
+                CASE "\"
+                    IF VAL(num(2)) <> 0 THEN
+                        n1 = VAL(num(1)) \ VAL(num(2))
+                    ELSE
+                        EvaluateNumbers$ = "ERROR - Division By Zero"
+                        EXIT FUNCTION
+                    END IF
+                CASE "MOD"
+                    IF VAL(num(2)) <> 0 THEN
+                        n1 = VAL(num(1)) MOD VAL(num(2))
+                    ELSE
+                        EvaluateNumbers$ = "ERROR - Division By Zero"
+                        EXIT FUNCTION
+                    END IF
+                CASE "+": n1 = VAL(num(1)) + VAL(num(2))
+                CASE "-":
+                    n1 = VAL(num(1)) - VAL(num(2))
+            END SELECT
+        CASE 70 'Relational Operators =, >, <, <>, <=, >=
+            SELECT CASE OName(p) 'Depending on our operator..
+                CASE "=": n1 = VAL(num(1)) = VAL(num(2))
+                CASE ">": n1 = VAL(num(1)) > VAL(num(2))
+                CASE "<": n1 = VAL(num(1)) < VAL(num(2))
+                CASE "<>", "><": n1 = VAL(num(1)) <> VAL(num(2))
+                CASE "<=", "=<": n1 = VAL(num(1)) <= VAL(num(2))
+                CASE ">=", "=>": n1 = VAL(num(1)) >= VAL(num(2))
+            END SELECT
+        CASE ELSE 'a value we haven't processed elsewhere
+            SELECT CASE OName(p) 'Depending on our operator..
+                CASE "NOT": n1 = NOT VAL(num(2))
+                CASE "AND": n1 = VAL(num(1)) AND VAL(num(2))
+                CASE "OR": n1 = VAL(num(1)) OR VAL(num(2))
+                CASE "XOR": n1 = VAL(num(1)) XOR VAL(num(2))
+                CASE "EQV": n1 = VAL(num(1)) EQV VAL(num(2))
+                CASE "IMP": n1 = VAL(num(1)) IMP VAL(num(2))
+            END SELECT
     END SELECT
-    EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1)))
+
+    EvaluateNumbers$ = RTRIM$(LTRIM$(STR$(n1))) + C$
 END FUNCTION
 
 FUNCTION DWD$ (exp$) 'Deal With Duplicates
@@ -24122,12 +23987,47 @@ FUNCTION DWD$ (exp$) 'Deal With Duplicates
         LOOP UNTIL l = 0
     LOOP UNTIL NOT bad
     DWD$ = t$
-    VerifyString t$
 END FUNCTION
 
 SUB PreParse (e$)
     DIM f AS _FLOAT
+    STATIC TotalPrefixedPP_TypeMod AS LONG, TotalPP_TypeMod AS LONG
 
+    IF PP_TypeMod(0) = "" THEN
+        REDIM PP_TypeMod(100) AS STRING, PP_ConvertedMod(100) AS STRING 'Large enough to hold all values to begin with
+        PP_TypeMod(0) = "Initialized" 'Set so we don't do this section over and over, as we keep the values in shared memory.
+        'and the below is a conversion list so symbols don't get cross confused.
+        i = i + 1: PP_TypeMod(i) = "~`": PP_ConvertedMod(i) = "C_UBI" 'unsigned bit
+        i = i + 1: PP_TypeMod(i) = "~%%": PP_ConvertedMod(i) = "C_UBY" 'unsigned byte
+        i = i + 1: PP_TypeMod(i) = "~%&": PP_ConvertedMod(i) = "C_UOF" 'unsigned offset
+        i = i + 1: PP_TypeMod(i) = "~%": PP_ConvertedMod(i) = "C_UIN" 'unsigned integer
+        i = i + 1: PP_TypeMod(i) = "~&&": PP_ConvertedMod(i) = "C_UIF" 'unsigned integer64
+        i = i + 1: PP_TypeMod(i) = "~&": PP_ConvertedMod(i) = "C_ULO" 'unsigned long
+        i = i + 1: PP_TypeMod(i) = "`": PP_ConvertedMod(i) = "C_BI" 'bit
+        i = i + 1: PP_TypeMod(i) = "%%": PP_ConvertedMod(i) = "C_BY" 'byte
+        i = i + 1: PP_TypeMod(i) = "%&": PP_ConvertedMod(i) = "C_OF" 'offset
+        i = i + 1: PP_TypeMod(i) = "%": PP_ConvertedMod(i) = "C_IN" 'integer
+        i = i + 1: PP_TypeMod(i) = "&&": PP_ConvertedMod(i) = "C_IF" 'integer64
+        i = i + 1: PP_TypeMod(i) = "&": PP_ConvertedMod(i) = "C_LO" 'long
+        i = i + 1: PP_TypeMod(i) = "!": PP_ConvertedMod(i) = "C_SI" 'single
+        i = i + 1: PP_TypeMod(i) = "##": PP_ConvertedMod(i) = "C_FL" 'float
+        i = i + 1: PP_TypeMod(i) = "#": PP_ConvertedMod(i) = "C_DO" 'double
+        i = i + 1: PP_TypeMod(i) = "_RGB32": PP_ConvertedMod(i) = "C_RG" 'rgb32
+        i = i + 1: PP_TypeMod(i) = "_RGBA32": PP_ConvertedMod(i) = "C_RA" 'rgba32
+        i = i + 1: PP_TypeMod(i) = "_RED32": PP_ConvertedMod(i) = "C_RX" 'red32
+        i = i + 1: PP_TypeMod(i) = "_GREEN32": PP_ConvertedMod(i) = "C_GR" 'green32
+        i = i + 1: PP_TypeMod(i) = "_BLUE32": PP_ConvertedMod(i) = "C_BL" 'blue32
+        i = i + 1: PP_TypeMod(i) = "_ALPHA32": PP_ConvertedMod(i) = "C_AL" 'alpha32
+        TotalPrefixedPP_TypeMod = i
+        i = i + 1: PP_TypeMod(i) = "RGB32": PP_ConvertedMod(i) = "C_RG" 'rgb32
+        i = i + 1: PP_TypeMod(i) = "RGBA32": PP_ConvertedMod(i) = "C_RA" 'rgba32
+        i = i + 1: PP_TypeMod(i) = "RED32": PP_ConvertedMod(i) = "C_RX" 'red32
+        i = i + 1: PP_TypeMod(i) = "GREEN32": PP_ConvertedMod(i) = "C_GR" 'green32
+        i = i + 1: PP_TypeMod(i) = "BLUE32": PP_ConvertedMod(i) = "C_BL" 'blue32
+        i = i + 1: PP_TypeMod(i) = "ALPHA32": PP_ConvertedMod(i) = "C_AL" 'alpha32
+        TotalPP_TypeMod = i
+        REDIM _PRESERVE PP_TypeMod(i) AS STRING, PP_ConvertedMod(i) AS STRING 'And then resized to just contain the necessary space in memory
+    END IF
     t$ = e$
 
     'First strip all spaces
@@ -24170,14 +24070,53 @@ SUB PreParse (e$)
         END IF
     LOOP UNTIL l = 0
 
+    uboundPP_TypeMod = TotalPrefixedPP_TypeMod
+    IF qb64prefix_set = 1 THEN uboundPP_TypeMod = TotalPP_TypeMod
+    FOR j = 1 TO uboundPP_TypeMod
+        l = 0
+        DO
+            l = INSTR(l + 1, t$, PP_TypeMod(j))
+            IF l = 0 THEN EXIT DO
+            i = 0: l1 = 0: l2 = 0: lo = LEN(PP_TypeMod(j))
+            DO
+                IF PL(i) > 10 THEN
+                    l2 = _INSTRREV(l, t$, OName$(i))
+                    IF l2 > 0 AND l2 > l1 THEN l1 = l2
+                END IF
+                i = i + lo
+            LOOP UNTIL i > UBOUND(PL)
+            l$ = LEFT$(t$, l1)
+            m$ = MID$(t$, l1 + 1, l - l1 - 1)
+            r$ = PP_ConvertedMod(j) + MID$(t$, l + lo)
+            IF j > 15 THEN
+                t$ = l$ + m$ + r$ 'replacement routine for commands which might get confused with others, like _RGB and _RGB32
+            ELSE
+                'the first 15 commands need to properly place the parenthesis around the value we want to convert.
+                t$ = l$ + "(" + m$ + ")" + r$
+            END IF
+            l = l + 2 + LEN(PP_TypeMod(j)) 'move forward from the length of the symbol we checked + the new "(" and  ")"
+        LOOP
+    NEXT
+
+
+
     'Check for bad operators before a ( bracket
     l = 0
     DO
         l = INSTR(l + 1, t$, "(")
-        IF l AND l > 2 THEN 'Don't check the starting bracket; there's nothing before it.
+        IF l > 0 AND l > 2 THEN 'Don't check the starting bracket; there's nothing before it.
             good = 0
             FOR i = 1 TO UBOUND(OName)
-                IF MID$(t$, l - LEN(OName(i)), LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                m$ = MID$(t$, l - LEN(OName(i)), LEN(OName(i)))
+                IF m$ = OName(i) THEN
+                    good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                ELSE
+                    IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try without prefix
+                        m$ = MID$(t$, l - (LEN(OName(i)) - 1), LEN(OName(i)) - 1)
+                        IF m$ = MID$(OName(i), 2) THEN good = -1: EXIT FOR
+                    END IF
+                END IF
             NEXT
             IF NOT good THEN e$ = "ERROR - Improper operations before (.": EXIT SUB
             l = l + 1
@@ -24188,16 +24127,56 @@ SUB PreParse (e$)
     l = 0
     DO
         l = INSTR(l + 1, t$, ")")
-        IF l AND l < LEN(t$) THEN
+        IF l > 0 AND l < LEN(t$) THEN
             good = 0
             FOR i = 1 TO UBOUND(OName)
-                IF MID$(t$, l + 1, LEN(OName(i))) = OName(i) AND PL(i) > 1 AND PL(i) <= 250 THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                m$ = MID$(t$, l + 1, LEN(OName(i)))
+                IF m$ = OName(i) THEN
+                    good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI
+                ELSE
+                    IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                        'try without prefix
+                        m$ = MID$(t$, l + 1, LEN(OName(i)) - 1)
+                        IF m$ = MID$(OName(i), 2) THEN good = -1: EXIT FOR
+                    END IF
+                END IF
             NEXT
             IF MID$(t$, l + 1, 1) = ")" THEN good = -1
             IF NOT good THEN e$ = "ERROR - Improper operations after ).": EXIT SUB
             l = l + 1
         END IF
     LOOP UNTIL l = 0 OR l = LEN(t$) 'last symbol is a bracket
+
+    'replace existing CONST values
+    sep$ = "()+-*/\><=^"
+    FOR i2 = 0 TO constlast
+        found = 0
+        DO
+            found = INSTR(found + 1, UCASE$(t$), constname(i2))
+            IF found THEN
+                IF found > 1 THEN
+                    IF INSTR(sep$, MID$(t$, found - 1, 1)) = 0 THEN _CONTINUE
+                END IF
+                IF found + LEN(constname(i2)) <= LEN(t$) THEN
+                    IF INSTR(sep$, MID$(t$, found + LEN(constname(i2)), 1)) = 0 THEN _CONTINUE
+                END IF
+                t = consttype(i2)
+                IF t AND ISSTRING THEN
+                    r$ = conststring(i2)
+                    i4 = _INSTRREV(r$, ",")
+                    r$ = LEFT$(r$, i4 - 1)
+                ELSE
+                    IF t AND ISFLOAT THEN
+                        r$ = STR$(constfloat(i2))
+                        r$ = N2S(r$)
+                    ELSE
+                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
+                    END IF
+                END IF
+                t$ = LEFT$(t$, found - 1) + _TRIM$(r$) + MID$(t$, found + LEN(constname(i2)))
+            END IF
+        LOOP UNTIL found = 0
+    NEXT
 
     'Turn all &H (hex) numbers into decimal values for the program to process properly
     l = 0
@@ -24253,9 +24232,9 @@ SUB PreParse (e$)
         END IF
     LOOP UNTIL l = 0
 
-    t$ = N2S(t$)
-    VerifyString t$
 
+    't$ = N2S(t$)
+    VerifyString t$
     e$ = t$
 END SUB
 
@@ -24267,21 +24246,32 @@ SUB VerifyString (t$)
     DO
         comp$ = MID$(t$, j, 1)
         SELECT CASE comp$
-            CASE "0" TO "9", ".", "(", ")": j = j + 1
+            CASE "0" TO "9", ".", "(", ")", ",": j = j + 1
             CASE ELSE
                 good = 0
+                extrachar = 0
                 FOR i = 1 TO UBOUND(OName)
-                    IF MID$(t$, j, LEN(OName(i))) = OName(i) THEN good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                    IF MID$(t$, j, LEN(OName(i))) = OName(i) THEN
+                        good = -1: EXIT FOR 'We found an operator after our ), and it's not a CONST (like PI)
+                    ELSE
+                        IF LEFT$(OName(i), 1) = "_" AND qb64prefix_set = 1 THEN
+                            'try without prefix
+                            IF MID$(t$, j, LEN(OName(i)) - 1) = MID$(OName(i), 2) THEN
+                                good = -1: extrachar = 1: EXIT FOR
+                            END IF
+                        END IF
+                    END IF
                 NEXT
                 IF NOT good THEN t$ = "ERROR - Bad Operational value. (" + comp$ + ")": EXIT SUB
-                j = j + LEN(OName(i))
+                j = j + (LEN(OName(i)) - extrachar)
         END SELECT
     LOOP UNTIL j > LEN(t$)
 END SUB
 
 FUNCTION N2S$ (exp$) 'scientific Notation to String
+
     t$ = LTRIM$(RTRIM$(exp$))
-    IF LEFT$(t$, 1) = "-" THEN sign$ = "-": t$ = MID$(t$, 2)
+    IF LEFT$(t$, 1) = "-" OR LEFT$(t$, 1) = "N" THEN sign$ = "-": t$ = MID$(t$, 2)
 
     dp = INSTR(t$, "D+"): dm = INSTR(t$, "D-")
     ep = INSTR(t$, "E+"): em = INSTR(t$, "E-")

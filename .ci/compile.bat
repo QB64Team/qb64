@@ -11,7 +11,7 @@ cd ..\..
 del qb64_bootstrap.exe
 del /q /s secure-file
 del /q /s internal\source\*
-move internal\temp\* internal\source\
+del /q /s internal\temp\*
 del /q /s internal\c\libqb\*.o >nul 2>nul
 del /q /s internal\c\libqb\*.a >nul 2>nul
 del /q /s internal\c\parts\*.o >nul 2>nul

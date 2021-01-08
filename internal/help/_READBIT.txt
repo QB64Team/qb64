@@ -1,0 +1,57 @@
+{{DISPLAYTITLE:_READBIT}}
+The [[_READBIT]] function is used to check the state of a specified bit of a integer value.
+
+
+{{PageSyntax}}
+:{{Parameter|result}} = [[_READBIT]]({{Parameter|numericalVariable}}, {{Parameter|numericalValue}})
+
+
+{{Parameters}}
+* {{Parameter|numericalVariable}} is the variable to read the state of a bit of and can be of the following types: [[_BYTE]], [[INTEGER]], [[LONG]], or [[_INTEGER64]].
+* Integer values can be signed or [[_UNSIGNED]].
+* {{Parameter|numericalValue}} the number of the bit to be read.
+
+
+{{PageDescription}}
+* Used to check the current state of a bit in an integer value.
+* Returns -1 if the bit is set(1), otherwise returns 0 if the bit is not set(0)
+* Bits start at 0 (so a [[_BYTE]] has bits 0 to 7, [[INTEGER]] 0 to 15, and so on)
+
+==Availability==
+* '''Version 1.4 and up'''.
+
+
+{{PageExamples}}
+''Example 1:''
+{{CodeStart}}
+A~%% = {{Cl|_SETBIT}}(A~%%,4)
+{{Cl|PRINT}} "Bit 4 is currently ";
+IF {{Cl|_READBIT}}(A~%%,4) = -1 THEN {{Cl|PRINT}} "ON" ELSE {{Cl|PRINT}} "OFF"
+{{Cl|PRINT}} "And bit 2 is currently ";
+IF {{Cl|_READBIT}}(A~%%,2) = -1 THEN {{Cl|PRINT}} "ON" ELSE {{Cl|PRINT}} "OFF"
+{{CodeEnd}}
+{{OutputStart}}
+Bit 4 is currently ON
+And bit 2 is currently OFF
+{{OutputEnd}}
+
+''Example 2:''
+{{CodeStart}}
+B&amp; = 12589575
+{{Cl|PRINT}} "B&amp; ="; B&amp;
+FOR I%% = 31 TO 0 STEP -1 '32 bits for a {{Cl|LONG}} value
+ Binary$ = Binary$ + {{Cl|LTRIM$}}({{Cl|STR$}}({{Cl|ABS}}({{Cl|_READBIT}}(B&amp;, I%%))))
+NEXT I%%
+{{Cl|PRINT}} "B&amp; in binary is: "; Binary${{CodeEnd}}
+{{OutputStart}}
+B&amp; = 12589575
+B&amp; in binary is: 00000000110000000001101000000111
+{{OutputEnd}}
+
+
+{{PageSeeAlso}}
+* [[_SHL]], [[_SHR]], [[INTEGER]], [[LONG]]
+* [[_SETBIT]], [[_BYTE]], [[_INTEGER64]]
+* [[_RESETBIT]], [[_TOGGLEBIT]]
+
+{{PageNavigation}}

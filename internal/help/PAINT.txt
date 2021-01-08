@@ -9,11 +9,7 @@ The [[PAINT]] statement is used to fill a delimited area in a graphic screen mod
 * Can use the [[STEP]] keyword for relative coordinate placements. See example 1 below.
 * {{Parameter|fillColor}} is an [[INTEGER]] or [[LONG]] 32-bit value to paint the inside of an object. Colors are limited to the [[SCREEN]] mode used.
 * Optional [[INTEGER]] or [[LONG]] 32-bit {{Parameter|borderColor%}} is the color of the border of the shape to be filled when this is different from the fill color. 
-
-
-==QBasic/QuickBASIC==
-* {{Parameter|fillColor}} could be a string made up of a sequence of [[CHR$]] values, each representing a tiling pattern to fill the shape.
-* While this is not implemented in QB64, a string value is still accepted, though it won't produce any results.
+* {{Parameter|fillColor}} can be a string made up of a sequence of [[CHR$]] values, each representing a tiling pattern to fill the shape. See Example 3 below.
 
 
 {{PageDescription}}
@@ -76,7 +72,6 @@ drw$ = "C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5R1BF4
 : ''Explanation:'' If the [[DRAW]] string is fully closed, the end values should each be 0. In the example, the proper result should be 4, 4 as there is a BF4 offset for PAINT which cannot be on a border. The result is 4, 5 because the shape is not completely closed.
 
 
-&lt;!-- Example hidden, as this technique cannot be used with QB64
 ''Example 3:'' Tiling using PAINT to create a red brick pattern inside a yellow border:
 {{CodeStart}}
 {{Cl|DIM}} Row$(1 {{Cl|TO}} 8) 
@@ -97,7 +92,49 @@ drw$ = "C15S20R9D4R6U3R3D3R7U5H3U2R9D3G2D6F1D3F5L10D1G1L4H2L7G2L3H2L3U8L2U5R1BF4
     {{Cl|PAINT}} (320, 240), Tile$, 14 'paints brick tiles within yellow border
 {{CodeEnd}}
 
---!>
+
+''Example 4:'' Generating a tiling pattern for PAINT from [[DATA]] statements:
+{{CodeStart}}
+ptndata:
+{{Cl|DATA}} "c4444444"
+{{Cl|DATA}} "c4444444"
+{{Cl|DATA}} "cccccccc"
+{{Cl|DATA}} "444c4444"
+{{Cl|DATA}} "444c4444"
+{{Cl|DATA}} "444c4444"
+{{Cl|DATA}} "cccccccc"
+{{Cl|DATA}} "c4444444"
+{{Cl|DATA}} ---
+
+{{Cl|RESTORE}} ptndata: ptn$ = loadpattern$
+
+{{Cl|SCREEN}} 7
+{{Cl|DRAW}} "c15l15f10g10r30g10f10l50u80r100m160,100"
+{{Cl|PAINT}} (160, 90), ptn$, 15
+
+{{Cl|FUNCTION}} loadpattern$
+    {{Cl|DIM}} quad(0 TO 3) {{Cl|AS}} {{Cl|INTEGER}}
+    res$ = ""
+    {{Cl|DO}}
+        {{Cl|READ}} row$
+        {{Cl|IF}} {{Cl|LEFT$}}(row$, 3) = "---" {{Cl|THEN}} {{Cl|EXIT}} {{Cl|DO}}
+        {{Cl|FOR}} x = 0 {{Cl|TO}} 7
+            pixel = {{Cl|VAL}}("&amp;h" + {{Cl|MID$}}(row$, x + 1, 1))
+            {{Cl|FOR}} bit = 0 {{Cl|TO}} 3
+                {{Cl|IF}} pixel {{Cl|AND}} 2 ^ bit {{Cl|THEN}}
+                    quad(bit) = quad(bit) {{Cl|OR}} (2 ^ (7 - x))
+                {{Cl|END}} {{Cl|IF}}
+            {{Cl|NEXT}}
+        {{Cl|NEXT}}
+        {{Cl|FOR}} i = 0 {{Cl|TO}} 3
+            res$ = res$ + {{Cl|CHR$}}(quad(i))
+            quad(i) = 0
+        {{Cl|NEXT}}
+    {{Cl|LOOP}}
+    loadpattern$ = res$
+{{Cl|END}} {{Cl|FUNCTION}}
+{{CodeEnd}}
+:: ''Code provided by collaborator https://github.com/NEONTEC75''
 
 
 {{PageSeeAlso}}

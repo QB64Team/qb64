@@ -1,8 +1,6 @@
-#ifdef QB64_WINDOWS
-    #include "download\zlib.h"
-#endif
+#include <zlib.h>
+
   qbs *func__deflate(qbs *text){
-    #ifdef QB64_WINDOWS
         uLongf filesize = (uint32)text->len;  //length of the text
         uLongf compsize = compressBound(filesize);
         unsigned char *dest = (unsigned char *)malloc(compsize);
@@ -11,13 +9,9 @@
         memcpy(ret->chr, dest, compsize);
         free(dest);
         return ret;
-    #else
-        return text;
-    #endif
   }
 
   qbs *func__inflate(qbs *text, int64 originalsize, int32 passed){
-  #ifdef QB64_WINDOWS
         int32 result=0;
         if (passed==1){
             uLongf uncompsize = originalsize;
@@ -41,7 +35,4 @@
             free(dest);
             return ret;
         }
-  #else
-        return text;
-  #endif
   }
