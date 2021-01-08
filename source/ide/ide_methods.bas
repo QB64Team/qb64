@@ -9641,19 +9641,17 @@ FUNCTION idesubs$
 
     EXIT FUNCTION
     SaveSortSettings:
-    IF TotalSUBs > 1 AND idesortsubs <> SortedSubsFlag THEN
-        idesortsubs = SortedSubsFlag
-        IF idesortsubs THEN
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "TRUE"
-        ELSE
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
-        END IF
+    idesortsubs = SortedSubsFlag
+    IF idesortsubs THEN
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "TRUE"
+    ELSE
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
+    END IF
 
-        IF IDESubsLength THEN
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "TRUE"
-        ELSE
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
-        END IF
+    IF IDESubsLength THEN
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "TRUE"
+    ELSE
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
     END IF
     RETURN
 
