@@ -33,11 +33,11 @@ The [[_MAPTRIANGLE]] statement maps a triangular portion of an image onto a dest
 
 
 {{PageExamples}}
-''Example 1:'' Rotating the [http://www.qb64.net/qb64_trans.png QB64 bee] image using a rotation and zoom SUB with _MAPTRIANGLE.
+''Example 1:'' Rotating an image using a rotation and zoom SUB with _MAPTRIANGLE.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 
-Image&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png")   '&lt;&lt;&lt; [http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
+Image&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png")   'replace with your own image
 
 {{Cl|DO}}
   {{Cl|CLS}}
@@ -72,7 +72,7 @@ sinr! = {{Cl|SIN}}(-Rotation / 57.2957795131): cosr! = {{Cl|COS}}(-Rotation / 57
 {{WhiteEnd}}
 
 
-''Example 2:'' A 3D Spinning Cube demo using the [http://www.qb64.net/qb64_trans.png QB64 bee] software image and [[_MAPTRIANGLE]]:
+''Example 2:'' A 3D Spinning Cube demo using a software image and [[_MAPTRIANGLE]]:
 {{CodeStart}} '' ''
 ' Copyright (C) 2011 by Andrew L. Ayers
 
@@ -149,7 +149,7 @@ PLANECOL(5) = 8
 '
 {{Cl|_TITLE}} "QB64 _MAPTRIANGLE CUBE DEMO"
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
-TextureImage&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") ''''&lt;&lt;&lt;&lt; '''[http://www.qb64.net/qb64_trans.png Image from top of QB64 Forum]
+TextureImage&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") ''''&lt;&lt;&lt;&lt; '''replace with your own image
 '{{Cl|_PUTIMAGE}} , Image&amp;
 
 DO
@@ -359,7 +359,7 @@ DO
 {{CodeEnd}}{{small|Demo by Andrew L. Ayers}}
 
 
-''Example 3:'' A 3D Spinning Cube demo using the [http://www.qb64.net/qb64_trans.png QB64 bee] hardware image  and '''QB64GL''' hardware acceleration with [[_MAPTRIANGLE]]:
+''Example 3:'' A 3D Spinning Cube demo using a hardware image  and '''QB64GL''' hardware acceleration with [[_MAPTRIANGLE]]:
 {{CodeStart}} '' ''
 ' Copyright (C) 2011 by Andrew L. Ayers
 
@@ -437,7 +437,7 @@ PLANECOL(5) = 8
 {{Cl|_TITLE}} "QB64 {{Cl|_MAPTRIANGLE}} CUBE DEMO"
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 32)
 
-TextureImage&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png", 32)'&lt;&lt;&lt;&lt; Image from top of QB64 Forum http://www.qb64.net/qb64_trans.png
+TextureImage&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png", 32)'replace with your own image
 {{Cl|_SETALPHA}} 128, , TextureImage&amp;
 TextureImage&amp; = {{Cl|_COPYIMAGE}}(TextureImage&amp;, 33)'copy of hardware image
 

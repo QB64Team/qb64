@@ -43,7 +43,7 @@ The '''PUT''' graphics statement is used to place [[GET (graphics statement)|GET
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)
 {{Cl|_SCREENMOVE}} {{Cl|_SCREENMOVE|_MIDDLE}}
-image&amp; = {{Cl|_LOADIMAGE}}("QB64.png")  '[http://www.qb64.net/forum/index.php QB64 bee image from Forum]
+image&amp; = {{Cl|_LOADIMAGE}}("QB64.png")  'replace with your own image
 
 wide&amp; = {{Cl|_WIDTH (function)|_WIDTH}}(image&amp;): deep&amp; = {{Cl|_HEIGHT}}(image&amp;)
 {{Cl|DIM}} Array(wide&amp; * deep&amp;) {{Cl|AS}} {{Cl|INTEGER}}

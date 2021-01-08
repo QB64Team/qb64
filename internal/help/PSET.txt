@@ -30,10 +30,6 @@ SCREEN 12
 
 ''Example 2:'' Magnifying a box portion of a Mandelbrot image with PSET
 {{CodeStart}} '' ''
-{{Cl|DECLARE}} {{Cl|SUB}} readmouse (x {{Cl|AS}} {{Cl|INTEGER}}, y {{Cl|AS}} {{Cl|INTEGER}}, z {{Cl|AS}} {{Cl|INTEGER}})
-{{Cl|DECLARE}} {{Cl|SUB}} rectangle (x1 {{Cl|AS}} {{Cl|INTEGER}}, y1 {{Cl|AS}} {{Cl|INTEGER}}, x2 {{Cl|AS}} {{Cl|INTEGER}}, y2 {{Cl|AS}} {{Cl|INTEGER}})
-{{Cl|DECLARE}} {{Cl|FUNCTION}} mandel% (x {{Cl|AS}} {{Cl|DOUBLE}}, y {{Cl|AS}} {{Cl|DOUBLE}}, limit {{Cl|AS}} {{Cl|INTEGER}})
-{{Cl|DECLARE}} {{Cl|SUB}} drawmand (x {{Cl|AS}} {{Cl|DOUBLE}}, y {{Cl|AS}} {{Cl|DOUBLE}}, mag {{Cl|AS}} {{Cl|DOUBLE}})
 {{Cl|DEFSTR}} A-Z
 {{Cl|DIM}} red(15) {{Cl|AS}} {{Cl|INTEGER}}, green(15) {{Cl|AS}} {{Cl|INTEGER}}, blue(15) {{Cl|AS}} {{Cl|INTEGER}}
 {{Cl|DIM}} i {{Cl|AS}} {{Cl|INTEGER}}

@@ -11,7 +11,6 @@ The '''_KEYDOWN''' function returns whether modifying keys like CTRL, ALT, SHIFT
 * Unicode references:
 :* 1) What is the glyph represented by that UNICODE value: [http://www.fileformat.info/info/unicode/char/search.htm Unicode Format Info]
 :* 2) Which fonts support the characters I want to use: [http://en.wikipedia.org/wiki/Unicode_typefaces#Comparison_of_fonts Unicode Fonts]
-:* 3) What was the format again?: [http://www.birds-eye.net/definition/u/unicode.shtml Unicode Formats]
 :* A UTF32 value is usually(but by no means always!) the same as a UTF16 value just with the top 2 bytes set to 0.
 * An important difference between [[INKEY$]] and [[_KEYHIT]] is how they work when '''CTRL, ALT''' or '''SHIFT''' are used. [[INKEY$]] returns a different code if you hold down CTRL, ALT or SHIFT before pressing F1 (for example). [[_KEYHIT]] will return the same code regardless of which modifiers were used but you can check _KEYDOWN to see which modifying keys are being used.
 * '''Keyboards with Alt Gr key:''' [[_KEYHIT]] may return both Alt(100307) and Ctrl(100306) codes when key is pressed or released.
@@ -22,7 +21,7 @@ The '''_KEYDOWN''' function returns whether modifying keys like CTRL, ALT, SHIFT
 
          '''0-255''': [[ASCII|ASCII and Extended code]] values (Refer to [http://en.wikipedia.org/wiki/Code_page_437 CP437])
 
-         '''256-65535''': [http://qb64.net/wiki/index.php?title=ASCII#Two_Byte_Codes ASCII 2-byte] character codes (unaffected by SHIFT/ALT/CTRL modifiers)
+         '''256-65535''': [http://www.qb64.org/wiki/ASCII#Two_Byte_Codes] character codes (unaffected by SHIFT/ALT/CTRL modifiers)
                   Use [[CVI]] to convert ASCII 2-byte codes to _KEYDOWN values.
 
 '                                '''_KEYDOWN Keyboard Values'''
