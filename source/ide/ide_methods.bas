@@ -9233,10 +9233,11 @@ FUNCTION idesubs$
     TotalSUBs = 0
     ModuleSize = 0 'in lines
     SortedSubsFlag = idesortsubs
+    SubClosed = 0
 
     FOR y = 1 TO iden
         a$ = idegetline(y)
-        ModuleSize = ModuleSize + 1
+        IF SubClosed = 0 THEN ModuleSize = ModuleSize + 1
         a$ = LTRIM$(RTRIM$(a$))
         sf = 0
         nca$ = UCASE$(a$)
@@ -9295,7 +9296,7 @@ FUNCTION idesubs$
                 n$ = "*" + n$
                 FoundExternalSUBFUNC = -1
             ELSE
-                TotalLines(TotalSUBs) = ModuleSize
+                SubClosed = 0
                 ModuleSize = 0
             END IF
 
@@ -9338,6 +9339,26 @@ FUNCTION idesubs$
             SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
             MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
             MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+        ELSE 'no sf
+            'remove double spaces
+            i = INSTR(nca$, "  ")
+            DO WHILE i > 0
+                nca$ = LEFT$(nca$, i) + MID$(nca$, i + 2)
+                i = INSTR(i, nca$, "  ")
+            LOOP
+
+            cursor = 0
+            LookForENDSUB:
+            sf = INSTR(cursor + 1, nca$, "END SUB")
+            IF sf = 0 THEN sf = INSTR(cursor + 1, nca$, "END FUNCTION")
+
+            IF sf THEN
+                DIM comment AS _BYTE, quote AS _BYTE
+                FindQuoteComment nca$, sf, comment, quote
+                IF comment OR quote THEN cursor = sf: GOTO LookForENDSUB
+                TotalLines(TotalSUBs) = ModuleSize
+                SubClosed = -1
+            END IF
         END IF
     NEXT
 
@@ -9350,7 +9371,7 @@ FUNCTION idesubs$
     END IF
 
     MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
-    MID$(lSized$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
+    MID$(lSized$, _INSTRREV(lSized$, CHR$(195)), 1) = CHR$(192)
 
     IF TotalSUBs > 1 THEN
         sort SortedSubsList()
@@ -9377,6 +9398,7 @@ FUNCTION idesubs$
         NEXT
 
         MID$(lSorted$, _INSTRREV(lSorted$, CHR$(195)), 1) = CHR$(192)
+        MID$(lSortedSized$, _INSTRREV(lSortedSized$, CHR$(195)), 1) = CHR$(192)
         SortedSubsFlag = idesortsubs
     ELSE
         SortedSubsFlag = 0 'Override idesortsubs if the current program doesn't have more than 1 subprocedure
