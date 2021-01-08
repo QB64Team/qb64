@@ -7406,28 +7406,23 @@ void qbg_sub_color(uint32 col1,uint32 col2,uint32 bordercolor,int32 passed){
 			HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
 			int color = col2 * 16 + col1;
 			SetConsoleTextAttribute(output, color);
-			return;
 		#else
-		    // accepts colors 0-255 as specified at
-		    // https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-			static qbs* ansi; if (!ansi) ansi=qbs_new(0,0);
-			static qbs* closure;
-			if (!closure) {
-				closure=qbs_new(0,0);
-				qbs_set(closure,qbs_new_txt_len(")m",2));
-			}
-			if (passed&1) {
-				if (col1>255) goto error;
-				qbs_set(ansi,qbs_add(qbs_add(qbs_new_txt_len("\033[38;5;\050",8),qbs_ltrim(qbs_str((uint32)(col1)))),closure));
-				cout<<(char*)ansi->chr;
-			}
-			if (passed&2) {
-				if (col2>255) goto error;
-				qbs_set(ansi,qbs_add(qbs_add(qbs_new_txt_len("\033[48;5;\050",8),qbs_ltrim(qbs_str((uint32)(col2)))),closure));
-				cout<<(char*)ansi->chr;
-			}
-		    return;
+            // Exactly how the colour is rendered depends on your terminal emulator and
+            // colour palette. Themes and user-customisation aside, the first 16 colours
+            // line up with the old VGA colour scheme.
+            // Most terminal emulators can handle 8 bit colour, see
+            // https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit for the 8 bit colour palette.
+            if ((passed & 1 && (col1 > 255 || col1 < 0))
+                    || (passed & 2 && (col2 > 255 || col2 < 0)))
+                goto error;
+
+            if (passed & 1)
+                printf("\033[38;5;%dm", col1);
+
+            if (passed & 2)
+                printf("\033[48;5;%dm", col2);
 		#endif
+        return;
 	}
     
     if (write_page->compatible_mode==32){
@@ -11217,11 +11212,11 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
 	if (write_page->console){ 
 		#ifdef QB64_WINDOWS
 			system("cls"); //lazy but works
-			qbg_sub_locate(1,1,0,0,0,3); //is this really necessary?
+			qbg_sub_locate(1, 1, 0, 0, 0, 3); //is this really necessary?
 		#else
-			if (passed&2) qbg_sub_color(NULL, use_color,NULL,2);
+			if (passed&2) qbg_sub_color(0, use_color, 0, 2);
 			cout<<"\033[2J";
-			qbg_sub_locate(1,1,0,0,0,3);
+			qbg_sub_locate(1, 1, 0, 0, 0, 3);
 		#endif
 		return;
 	}
@@ -11404,20 +11399,14 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
 			COORD pos = {column-1, row-1};
 			HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
 			SetConsoleCursorPosition(output, pos);
-			return;
 		#else
-			static qbs* ansi; if (!ansi) ansi=qbs_new(0,0);
-			static qbs* closure;
-			if (!closure) {
-				closure=qbs_new(0,0);
-				qbs_set(closure,qbs_new_txt_len("H",1));
-			}
-			if (passed&1 && passed&2 ) {
-				qbs_set(ansi,qbs_add(qbs_add(qbs_add(qbs_add(qbs_new_txt_len("\033[",2),qbs_ltrim(qbs_str((int32)(row)))),qbs_new_txt_len(";",1)),qbs_ltrim(qbs_str((int32)(column)))),closure));
-				cout<<(char*)ansi->chr;
-			}
-			return;
+            // We don't have a good way of getting the current cursor position, so we ignore any LOCATEs
+            // that don't give an absolute position.
+            if (!(passed & 1 && passed & 2))
+                return;
+            printf("\033[%d;%dH", row, column);
 		#endif
+        return;
 	}
 
     //calculate height & width in characters
