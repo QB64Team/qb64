@@ -7401,14 +7401,29 @@ void qbg_sub_color(uint32 col1,uint32 col2,uint32 bordercolor,int32 passed){
         return;
     }
 
-    #ifdef QB64_WINDOWS
-        if (write_page->console){
-            HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-            int color = col2 * 16 + col1;
-            SetConsoleTextAttribute(output, color);
-            return;
-        }
-    #endif
+	if (write_page->console){
+		#ifdef QB64_WINDOWS
+			HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+			int color = col2 * 16 + col1;
+			SetConsoleTextAttribute(output, color);
+		#else
+            // Exactly how the colour is rendered depends on your terminal emulator and
+            // colour palette. Themes and user-customisation aside, the first 16 colours
+            // line up with the old VGA colour scheme.
+            // Most terminal emulators can handle 8 bit colour, see
+            // https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit for the 8 bit colour palette.
+            if ((passed & 1 && (col1 > 255 || col1 < 0))
+                    || (passed & 2 && (col2 > 255 || col2 < 0)))
+                goto error;
+
+            if (passed & 1)
+                printf("\033[38;5;%dm", col1);
+
+            if (passed & 2)
+                printf("\033[48;5;%dm", col2);
+		#endif
+        return;
+	}
     
     if (write_page->compatible_mode==32){
         if (passed&4) goto error;
@@ -11194,15 +11209,17 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     static uint16 *sp;
     static uint16 clearvalue;
     
-        if (write_page->console){ 
-            #ifdef QB64_WINDOWS
-            system("cls"); //lazy but works
-            qbg_sub_locate(1,1,0,0,0,3); //is this really necessary?
-            #else
-            system("clear");
-            #endif
-            return;
-        }
+	if (write_page->console){ 
+		#ifdef QB64_WINDOWS
+			system("cls"); //lazy but works
+			qbg_sub_locate(1, 1, 0, 0, 0, 3); //is this really necessary?
+		#else
+			if (passed&2) qbg_sub_color(0, use_color, 0, 2);
+			cout<<"\033[2J";
+			qbg_sub_locate(1, 1, 0, 0, 0, 3);
+		#endif
+		return;
+	}
 
     //validate
     if (passed&2){
@@ -11371,20 +11388,26 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
     static int32 h,w,i;
     if (new_error) return;
 
-    #ifdef QB64_WINDOWS //If trying to locate with windows console
-        if (write_page->console){
-            CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
-            SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
-            HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
-            GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
-            if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
-            if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
-            COORD pos = {column-1, row-1};
-            HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
-            SetConsoleCursorPosition(output, pos);
-            return;
-        }
-    #endif
+	if (write_page->console){
+		#ifdef QB64_WINDOWS //If trying to locate with windows console
+			CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+			SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+			HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+			GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
+			if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
+			if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
+			COORD pos = {column-1, row-1};
+			HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
+			SetConsoleCursorPosition(output, pos);
+		#else
+            // We don't have a good way of getting the current cursor position, so we ignore any LOCATEs
+            // that don't give an absolute position.
+            if (!(passed & 1 && passed & 2))
+                return;
+            printf("\033[%d;%dH", row, column);
+		#endif
+        return;
+	}
 
     //calculate height & width in characters
     if (write_page->compatible_mode){
