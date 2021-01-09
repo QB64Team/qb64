@@ -33,8 +33,6 @@ K$ = INPUT$(1)
 {{Cl|PRINT}} {{Cl|_CLEARCOLOR}}(img&amp;)           'displays closest clear color attribute
 {{Cl|END}} '' ''
 {{CodeEnd}}
-: ''Note:'' The ''QB64.PNG'' image can be downloaded here: [http://www.qb64.net/qb64_trans.png qb64_trans.png]. Right click and Save as ''qb64_trans.png''.
-
 
 ''Example 2:'' Using a _CLEARCOLOR transparency with images created on a [[_NEWIMAGE]] page. Does not require an image file.
 {{CodeStart}}{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(512, 384, 32) ' screen uses handle value
@@ -81,7 +79,7 @@ DO
 {{Cl|LOOP}} {{Cl|UNTIL}} a&amp; = 0
 {{Cl|END}}
 {{CodeEnd}}
-:''Note:'' If the _CLEARCOLOR [http://www.qb64.net/qb64_trans.png qb64_trans.png] background was not put onto a separate page, [[_SETALPHA]] would display it also.
+:''Note:'' If the _CLEARCOLOR background was not put onto a separate page, [[_SETALPHA]] would display it also.
 
 
 

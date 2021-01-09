@@ -4,7 +4,7 @@ DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG, IDEBracketHighlightColor AS _UNSIGNED LONG
 DIM SHARED IDEKeywordColor AS _UNSIGNED LONG, IDENumbersColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
-DIM SHARED IDE_BypassAutoPosition AS _BYTE, idesortsubs AS _BYTE
+DIM SHARED IDE_BypassAutoPosition AS _BYTE, idesortsubs AS _BYTE, IDESubsLength AS _BYTE
 DIM SHARED IDENormalCursorStart AS LONG, IDENormalCursorEnd AS LONG
 DIM SHARED IDE_Index$
 DIM SHARED LoadedIDESettings AS INTEGER
@@ -14,7 +14,8 @@ DIM SHARED SaveExeWithSource AS _BYTE, EnableQuickNav AS _BYTE
 DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
-DIM SHARED DisableSyntaxHighlighter AS _BYTE
+DIM SHARED DisableSyntaxHighlighter AS _BYTE, ExeToSourceFolderFirstTimeMsg AS _BYTE
+DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -177,6 +178,32 @@ IF LoadedIDESettings = 0 THEN
         PasteCursorAtEnd = -1
     END IF
 
+    result = ReadConfigSetting("ExeToSourceFolderFirstTimeMsg", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            ExeToSourceFolderFirstTimeMsg = -1
+        ELSE
+            ExeToSourceFolderFirstTimeMsg = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "FALSE"
+        ExeToSourceFolderFirstTimeMsg = 0
+    END IF
+
+    result = ReadConfigSetting("WhiteListQB64FirstTimeMsg", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            WhiteListQB64FirstTimeMsg = -1
+        ELSE
+            WhiteListQB64FirstTimeMsg = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "FALSE"
+        WhiteListQB64FirstTimeMsg = 0
+    END IF
+
     result = ReadConfigSetting("SaveExeWithSource", value$)
     IF result THEN
         IF value$ = "TRUE" OR VAL(value$) = -1 THEN
@@ -214,6 +241,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
         idesortsubs = 0
+    END IF
+
+    result = ReadConfigSetting("IDE_SUBsLength", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            IDESubsLength = -1
+        ELSE
+            IDESubsLength = 0
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "TRUE"
+        IDESubsLength = -1
     END IF
 
     result = ReadConfigSetting("ShowErrorsImmediately", value$)

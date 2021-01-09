@@ -1,11 +1,11 @@
 The '''POINT''' function returns the pixel [[COLOR]] attribute at a specified graphics coordinate or the current graphic cursor position.
 
 
-''Color'' {{PageSyntax}} 
+== ''Color'' Syntax ==
 ::::color_attribute% = '''POINT ('''''column%, row%''''')'''
 
 
-''Graphic cursor position'' {{PageSyntax}} 
+== ''Graphic cursor position'' Syntax ==
 ::::pointer_coordinate% = '''POINT('''{0|1|2|3}''')'''
 
 
@@ -72,7 +72,7 @@ _RGB OK
 
 
 
-''Example 2:'' Using a POINT mouse routine to get the 32 bit color values of the QB64 Bee. [http://www.qb64.net/forum/index.php Download image from top of Forum].
+''Example 2:'' Using a POINT mouse routine to get the 32 bit color values of an image.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|_TITLE}} "Mouse {{Cl|POINT}}er 32"
@@ -148,7 +148,6 @@ BG$ = {{Cl|UCASE$}}({{Cl|INPUT$}}(1))
 * [[SCREEN]], [[SCREEN (function)]] {{text|(text pointer function)}}
 * [[GET (graphics statement)]], [[PUT (graphics statement)]]
 * [[Bitmaps]], [[Creating Sprite Masks]], [[Text Using Graphics]] (Demo)
-* [http://www.qb64.net/forum/index.php?topic=11052.0 Reading pixel colors faster using _MEMIMAGE]
 
 
 {{PageNavigation}}

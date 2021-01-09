@@ -26,7 +26,7 @@
 
 
 {{Parameters}}
-* Relative coordinates to a previous graphical object can be designated using [[STEP]] as opposed to literal surface coordinates (version '''1.000''' and up).
+* Relative coordinates to a previous graphical object can be designated using [[STEP]] as opposed to literal surface coordinates.
 * Coordinates ''dx'' and ''dy'' map the box area of the [[_DEST|destination]] area to use. When omitted the entire desination area is used. If only one coordinate is used, the source is placed with its original dimensions. Coordinates can be set to flip or resize the image.
 ** {{Parameter|dx1}} = the column coordinate at which the insertion of the source will begin (leftmost); when larger than ''dx2'', reverses image.
 ** {{Parameter|dy1}} = the row coordinate at which the insertion of the source will begin (topmost); when larger than ''dy2'', inverts image.
@@ -39,7 +39,7 @@
 ** {{Parameter|sy1}} = the row coordinate of the upper-most pixel to include of the source. When omitted, the entire image is used
 ** {{Parameter|sx2}} = the column coordinate of the right-most pixel to include of the source. Can be omitted to get rest of image.
 ** {{Parameter|sy2}} = the row coordinate of the bottom-most pixel to include of the source. Can be omitted to get rest of image.
-* ''_SMOOTH'' applies linear filtering ('''version 1.000 and up''').
+* ''_SMOOTH'' applies linear filtering.
 
 &lt;center>'''Note: The [[PUT (graphics statement)|PUT]] options PSET, PRESET, AND, OR and XOR are not available with _PUTIMAGE. QB64 can use [[_ALPHA|transparency]] of colors to achieve the same results.'''&lt;/center>
 
@@ -82,12 +82,10 @@
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|CLS}} , {{Cl|_RGB}}(0, 255, 0)
-i = {{Cl|_LOADIMAGE}}('''"QB64.PNG"''') 'see note below examples to get the image 
+i = {{Cl|_LOADIMAGE}}('''"QB64.PNG"''')
 {{Cl|_PUTIMAGE}} (0, 0), i ' places image at upper left corner of window w/o stretching it 
 '' ''
 {{CodeEnd}} '' ''
-
-: ''Explanation:'' When QB64 loads a 256 color .PNG file containing a transparent color, that color will be treated as transparent when _PUTIMAGE is used to put it onto another image. So actually, you can use a 256-color .PNG file containing transparency information in a 256 color screen mode in QB64.
 
 
 ''Example 3:'' Flipping and enlarging an image with _PUTIMAGE by swapping or increasing the desination coordinates.
@@ -127,7 +125,6 @@ K$ = {{Cl|INPUT$}}(1)
 {{Cl|END}} '' ''
 {{CodeEnd}}
 {{small|Adapted from code by Darth Who}}
-&lt;center>''Note:'' The ''QB64.PNG'' Bee image used can be copied from the top of the [http://www.qb64.net/forum/index.php Main Forum Page]&lt;/center>
 
 
 ''Example 4:'' Using _PUTIMAGE to scroll a larger image created on a separate [[_NEWIMAGE]] screen page with QB64.
@@ -157,7 +154,7 @@ DO
         {{Cl|CASE}} "6": x = x + 10: {{Cl|IF...THEN|IF}} x > 1280 {{Cl|THEN}} x = 1280
         {{Cl|CASE}} "8": y = y - 10: {{Cl|IF...THEN|IF}} y &lt; 0 {{Cl|THEN}} y = 0
         {{Cl|CASE}} "2": y = y + 10: {{Cl|IF...THEN|IF}} y > 720 {{Cl|THEN}} y = 720
-        {{Cl|CASE}} {{Cl|CHR$}}(32): {{Cl|SYSTEM}}
+        {{Cl|CASE}} {{Cl|CHR$}}(27): {{Cl|SYSTEM}}
     {{Cl|END SELECT}}
     {{Cl|_DISPLAY}}
 {{Cl|LOOP}} '' ''

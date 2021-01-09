@@ -24,7 +24,7 @@ The [[_RESIZE]] function returns true (-1) when a user has attempted to resize t
 s&amp; = {{Cl|_NEWIMAGE}}(300, 300, 32)
 {{Cl|SCREEN}} s&amp;
 
-bee&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") 'QB64's bee from http://www.qb64.net/qb64_trans.png
+bee&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") 'replace with your own image
 
 {{Cl|DO}}
     {{Cl|IF}} {{Cl|_RESIZE (function)|_RESIZE}} THEN
@@ -36,7 +36,7 @@ bee&amp; = {{Cl|_LOADIMAGE}}("qb64_trans.png") 'QB64's bee from http://www.qb64.
 
     {{Cl|CLS}}
 
-    'Center the QB64 bee image:
+    'Center the image:
     x = {{Cl|_WIDTH (function)|_WIDTH}} / 2 - _WIDTH(bee&amp;) / 2
     y = {{Cl|_HEIGHT}} / 2 - _HEIGHT(bee&amp;) / 2
     {{Cl|_PUTIMAGE}} (x, y), bee&amp;

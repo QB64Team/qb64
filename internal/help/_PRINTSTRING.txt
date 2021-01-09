@@ -24,12 +24,9 @@ The [[_PRINTSTRING]] statement prints text [[STRING|strings]] using graphic colu
 * In SCREEN 0 (text only), [[_PRINTSTRING]] works as one-line replacement for '''LOCATE x, y: PRINT text$''', without changing the current cursor position.
 
 
-==Availability==
-* In versions of QB64 prior to 1.000 _PRINTSTRING can only be used in graphic, 256 color or 32 bit screen modes, not SCREEN 0.''
-
 
 {{PageExamples}}
-''Example 1:'' Printing those unprintable [[ASCII]] control characters is no longer a problem!
+''Example 1:'' Printing those unprintable [[ASCII]] control characters is no longer a problem.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(800, 600, 256)
 
@@ -48,38 +45,7 @@ The [[_PRINTSTRING]] statement prints text [[STRING|strings]] using graphic colu
 {{OutputEnd}}
 
 
-''Example 2:'' Making any '''QB64 program window''' larger using a SUB that easily converts PRINT to [[_PRINTSTRING]]. 
-{{CodeStart}}
-Scr13&amp; = {{Cl|_NEWIMAGE}}(320, 200, 13)  'this is the old SCREEN 13 image page to set the image
-Big13&amp; = {{Cl|_NEWIMAGE}}(640, 480, 256) 'use 4 X 3 aspect ratio that Qbasic used when full screen
-
-{{Cl|SCREEN (statement)|SCREEN}} Big13&amp;
-{{Cl|_DEST}} Scr13&amp;
-image1&amp; = {{Cl|_LOADIMAGE}}("Howie.BMP", 256)
-image2&amp; = {{Cl|_LOADIMAGE}}("Howie2.BMP", 256)
-{{Cl|_PUTIMAGE}} (10, 20), image1&amp;, Scr13&amp;
-{{Cl|_PUTIMAGE}} (160, 20), image2&amp;, Scr13&amp;
-{{Cl|_COPYPALETTE}} image1&amp;, Scr13&amp;
-{{Cl|COLOR}} 151: {{Cl|LOCATE}} 2, 4: PRINTS "Screen 13 Height Reduction to 83%" 
-{{Cl|LOCATE}} 22, 22: PRINTS {{Cl|CHR$}}(24) + " 4 X 3 Proportion"  'use {{Cl|concatenation}}
-{{Cl|LOCATE}} 24, 21: PRINTS {{Cl|CHR$}}(27) + " Stretched at 100%" 'instead of a {{Cl|semicolon}}!
-{{Cl|_COPYPALETTE}} Scr13&amp;, Big13&amp;  'required when imported image colors are used
-{{Cl|_PUTIMAGE}} , Scr13&amp;, Big13&amp;   'stretches the screen to double the size
-K$ = {{Cl|INPUT$}}(1)
-{{Cl|END}}
-
-{{Cl|SUB}} PRINTS (Text$)
-row% = ({{Cl|CSRLIN}} - 1) * {{Cl|_FONTHEIGHT}}      'finds current screen page text or font row height
-col% = ({{Cl|POS}}(0) - 1) * {{Cl|_PRINTWIDTH}}("W") 'finds current page text or font column width
-{{Cl|_PRINTSTRING}} (col%, row%), Text$
-{{Cl|END SUB}} '' ''
-{{CodeEnd}}
-{{small|Code by Ted Weissgerber}}
-: ''Explanation:'' The procedure above creates a larger version of a SCREEN 13 window by stretching it with [[_PUTIMAGE]]. It cannot stretch PRINTed text so [[_PRINTSTRING]] must be used instead. [[LOCATE]] sets the PRINT cursor position for [[CSRLIN]] and [[POS]](0) to read. The SUB then converts the coordinates to graphical ones. Then '''change''' [[PRINT]] to PRINTS using the IDE '''Search Menu'''.
-&lt;center>[https://www.dropbox.com/s/tcdik1ajegbeiz4/HOWIE.zip?dl=0 Download of Example 2 Bitmap images]&lt;/center>
-
-
-''Example 3:'' Rotating a text string around a graphic object.
+''Example 2:'' Rotating a text string around a graphic object.
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12 '' ''
 {{Cl|DIM}} row {{Cl|AS}} {{Cl|INTEGER}}, cnt {{Cl|AS}} {{Cl|INTEGER}}, cstart {{Cl|AS}} {{Cl|SINGLE}}, cend {{Cl|AS}} {{Cl|SINGLE}}
