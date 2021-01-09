@@ -148,6 +148,7 @@ FUNCTION ide2 (ignore)
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
         IF ideerror = 5 THEN errorat$ = "Cannot create folder"
+        IF ideerror = -1 THEN GOTO errorReportDone 'fail quietly - like ON ERROR RESUME NEXT
 
         qberrorcode = ERR
         IF qberrorcode THEN
@@ -173,6 +174,7 @@ FUNCTION ide2 (ignore)
 
         PCOPY 3, 0
         idemessagebox ideerrormessageTITLE$, errorat$
+        errorReportDone:
     END IF
 
     IF (ideerror > 1) AND (AttemptToLoadRecent = -1) THEN
@@ -989,45 +991,8 @@ FUNCTION ide2 (ignore)
 
                 'COLOR 0, 7: LOCATE idewy, (idewx - 6) / 2: PRINT " Help "
                 'create and draw back string
-                Back_Str$ = STRING$(1000, 0)
-                Back_Str_I$ = STRING$(4000, 0)
-                top = UBOUND(back$)
-                FOR x = 1 TO top
-                    n$ = Back_Name$(x)
-                    IF x = Help_Back_Pos THEN p = LEN(Back_Str$)
-                    Back_Str$ = Back_Str$ + " "
-                    Back_Str_I$ = Back_Str_I$ + MKL$(x)
-                    FOR x2 = 1 TO LEN(n$)
-                        Back_Str$ = Back_Str$ + CHR$(ASC(n$, x2))
-                        Back_Str_I$ = Back_Str_I$ + MKL$(x)
-                    NEXT
-                    Back_Str$ = Back_Str$ + " "
-                    Back_Str_I$ = Back_Str_I$ + MKL$(x)
+                GOSUB HelpAreaShowBackLinks
 
-                    IF x <> top THEN
-                        Back_Str$ = Back_Str$ + CHR$(0)
-                        Back_Str_I$ = Back_Str_I$ + MKL$(0)
-                    END IF
-                NEXT
-                Back_Str$ = Back_Str$ + STRING$(1000, 0)
-                Back_Str_I$ = Back_Str_I$ + STRING$(4000, 0)
-                Back_Str_Pos = p - idewx \ 2 + (LEN(Back_Name$(Help_Back_Pos)) + 2) \ 2 + 3
-                'COLOR 1, 2
-                'LOCATE idewy, 2: PRINT MID$(Back_Str$, Back_Str_Pos, idewx - 5)
-                LOCATE idewy, 2
-                FOR x = Back_Str_Pos TO Back_Str_Pos + idewx - 6
-                    i = CVL(MID$(Back_Str_I$, (x - 1) * 4 + 1, 4))
-                    a = ASC(Back_Str$, x)
-                    IF a THEN
-                        IF IdeSystem = 3 THEN COLOR 0, 7 ELSE COLOR 7, 0
-                        IF i < Help_Back_Pos THEN COLOR 9
-                        IF i > Help_Back_Pos THEN COLOR 9
-                        PRINT CHR$(a);
-                    ELSE
-                        COLOR 7, 0
-                        PRINT CHR$(196);
-                    END IF
-                NEXT
                 'Help_Search_Str
                 IF IdeSystem = 3 AND LEFT$(IdeInfo, 1) <> CHR$(0) THEN
                     a$ = ""
@@ -1869,6 +1834,10 @@ FUNCTION ide2 (ignore)
                         IdeSystem = 3
                     END IF
                 END IF
+
+                IF mCLICK2 THEN
+                    GOTO invokecontextualmenu
+                END IF
             END IF
         END IF
 
@@ -2040,6 +2009,9 @@ FUNCTION ide2 (ignore)
                 IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
                     IdeSystem = 1
                     IF mCLICK2 THEN GOTO invokecontextualmenu ELSE GOTO ideloop
+                ELSEIF mY >= idewy AND mY < idewy + idesubwindow THEN 'inside help
+                    IdeSystem = 3
+                    IF mCLICK2 THEN GOTO invokecontextualmenu ELSE GOTO ideloop
                 END IF
             END IF
 
@@ -2054,7 +2026,7 @@ FUNCTION ide2 (ignore)
 
                     'IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
                     'idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
-
+                    closeHelp:
                     idewy = idewy + idesubwindow
                     idehelp = 0
                     idesubwindow = 0
@@ -2127,6 +2099,7 @@ FUNCTION ide2 (ignore)
 
             IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) AND Help_Select = 2 THEN 'copy to clipboard
                 copyhelp2clip:
+                ideerror = -1 'if it fails, just carry on
                 clip$ = ""
                 FOR y = Help_SelY1 TO Help_SelY2
                     IF y <> Help_SelY1 THEN clip$ = clip$ + CHR$(13) + CHR$(10)
@@ -2151,6 +2124,7 @@ FUNCTION ide2 (ignore)
                 NEXT
                 IF Help_SelY1 = Help_SelY2 AND Help_cy > Help_cy1 THEN clip$ = clip$ + CHR$(13) + CHR$(10)
                 IF clip$ <> "" THEN _CLIPBOARD$ = clip$
+                ideerror = 1
                 GOTO keep_select
             END IF
 
@@ -2898,6 +2872,7 @@ FUNCTION ide2 (ignore)
         IF mCLICK2 THEN 'Second mouse button pressed.
             invokecontextualmenu:
             IF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
+                IdeSystem = 1
                 IF ideselect = 0 THEN 'Right click only positions the cursor if no selection is active
                     idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                     idecy = mY - 2 + idesy - 1
@@ -2924,16 +2899,12 @@ FUNCTION ide2 (ignore)
                                 idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                                 idecy = mY - 2 + idesy - 1
                                 IF idecy > iden THEN idecy = iden
-                                ideshowtext
-                                PCOPY 3, 0
                             END IF
                             IF mY - 2 + idesy - 1 < idecy OR mY - 2 + idesy - 1 > idecy THEN
                                 ideselect = 0
                                 idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                                 idecy = mY - 2 + idesy - 1
                                 IF idecy > iden THEN idecy = iden
-                                ideshowtext
-                                PCOPY 3, 0
                             END IF
                         END IF
                     ELSE 'Multiple lines selected
@@ -2946,11 +2917,18 @@ FUNCTION ide2 (ignore)
                             idecx = (mX - 1 + idesx - 1) - maxLineNumberLength
                             idecy = mY - 2 + idesy - 1
                             IF idecy > iden THEN idecy = iden
-                            ideshowtext
-                            PCOPY 3, 0
                         END IF
                     END IF
                 END IF
+                GOSUB redrawitall
+                PCOPY 3, 0
+                idecontextualmenu = 1
+                IdeMakeContextualMenu
+                GOTO showmenu
+            ELSEIF idehelp = 1 AND mY >= idewy AND mY < idewy + idesubwindow THEN 'inside help area
+                IdeSystem = 3
+                GOSUB redrawitall
+                PCOPY 3, 0
                 idecontextualmenu = 1
                 IdeMakeContextualMenu
                 GOTO showmenu
@@ -4381,7 +4359,8 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF mCLICK2 AND idecontextualmenu = 1 THEN 'A new right click in the text area repositions the contextual menu
-            IF mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN
+            IF (mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5)) OR _
+                (mY >= idewy AND mY < idewy + idesubwindow) THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO invokecontextualmenu
             ELSE
@@ -5533,6 +5512,11 @@ FUNCTION ide2 (ignore)
                 IF IdeSystem = 3 THEN GOTO selectAllInHelp
             END IF
 
+            IF menu$(m, s) = "Clo#se Help  ESC" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO closeHelp
+            END IF
+
             IF menu$(m, s) = "#Start  F5" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO idemrun
@@ -5907,6 +5891,15 @@ FUNCTION ide2 (ignore)
     DEF SEG = 0
     ideshowtext
 
+    IF idehelp THEN
+        Help_ShowText
+
+        q = idehbar(2, idewy + idesubwindow - 1, idewx - 2, Help_cx, help_w + 1)
+        q = idevbar(idewx, idewy + 1, idesubwindow - 2, Help_cy, help_h + 1)
+
+        GOSUB HelpAreaShowBackLinks
+    END IF
+
     IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
         COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
 
@@ -5916,7 +5909,11 @@ FUNCTION ide2 (ignore)
         IF idecompiling = 1 THEN
             PRINT "...";
         ELSE
-            PRINT "OK"; 'report OK status
+            IF idefocusline THEN
+                PRINT "...";
+            ELSE
+                PRINT "OK"; 'report OK status
+            END IF
             statusarealink = 0
             IF totalWarnings > 0 THEN
                 COLOR 11, 1
@@ -5928,6 +5925,49 @@ FUNCTION ide2 (ignore)
         END IF
     END IF
     RETURN
+
+    HelpAreaShowBackLinks:
+    Back_Str$ = STRING$(1000, 0)
+    Back_Str_I$ = STRING$(4000, 0)
+    top = UBOUND(back$)
+    FOR x = 1 TO top
+        n$ = Back_Name$(x)
+        IF x = Help_Back_Pos THEN p = LEN(Back_Str$)
+        Back_Str$ = Back_Str$ + " "
+        Back_Str_I$ = Back_Str_I$ + MKL$(x)
+        FOR x2 = 1 TO LEN(n$)
+            Back_Str$ = Back_Str$ + CHR$(ASC(n$, x2))
+            Back_Str_I$ = Back_Str_I$ + MKL$(x)
+        NEXT
+        Back_Str$ = Back_Str$ + " "
+        Back_Str_I$ = Back_Str_I$ + MKL$(x)
+
+        IF x <> top THEN
+            Back_Str$ = Back_Str$ + CHR$(0)
+            Back_Str_I$ = Back_Str_I$ + MKL$(0)
+        END IF
+    NEXT
+    Back_Str$ = Back_Str$ + STRING$(1000, 0)
+    Back_Str_I$ = Back_Str_I$ + STRING$(4000, 0)
+    Back_Str_Pos = p - idewx \ 2 + (LEN(Back_Name$(Help_Back_Pos)) + 2) \ 2 + 3
+    'COLOR 1, 2
+    'LOCATE idewy, 2: PRINT MID$(Back_Str$, Back_Str_Pos, idewx - 5)
+    LOCATE idewy, 2
+    FOR x = Back_Str_Pos TO Back_Str_Pos + idewx - 6
+        i = CVL(MID$(Back_Str_I$, (x - 1) * 4 + 1, 4))
+        a = ASC(Back_Str$, x)
+        IF a THEN
+            IF IdeSystem = 3 THEN COLOR 0, 7 ELSE COLOR 7, 0
+            IF i < Help_Back_Pos THEN COLOR 9
+            IF i > Help_Back_Pos THEN COLOR 9
+            PRINT CHR$(a);
+        ELSE
+            COLOR 7, 0
+            PRINT CHR$(196);
+        END IF
+    NEXT
+    RETURN
+
 END FUNCTION
 
 SUB idebox (x, y, w, h)
@@ -5949,14 +5989,14 @@ SUB ideboxshadow (x, y, w, h)
     COLOR 2, 0
     FOR y2 = y + 1 TO y + h - 1
         FOR x2 = x + w TO x + w + 1
-            IF x2 <= idewx AND y2 <= idewy THEN
+            IF x2 <= idewx AND y2 <= idewy + idesubwindow THEN
                 LOCATE y2, x2: PRINT CHR$(SCREEN(y2, x2));
             END IF
         NEXT
     NEXT
 
     y2 = y + h
-    IF y2 <= idewy THEN
+    IF y2 <= idewy + idesubwindow THEN
         FOR x2 = x + 2 TO x + w + 1
             IF x2 <= idewx THEN
                 LOCATE y2, x2: PRINT CHR$(SCREEN(y2, x2));
@@ -7775,6 +7815,7 @@ FUNCTION idenewfolder$(thispath$)
             END IF
             ideerror = 5
             MKDIR thispath$ + idepathsep$ + idetxt(o(1).txt)
+            ideerror = 1
             idenewfolder$ = idetxt(o(1).txt)
             EXIT SUB
         END IF
@@ -9037,7 +9078,7 @@ SUB ideshowtext
             NEXT m
 
             'apply selection color change if necessary
-            IF IdeSystem = 1 AND ideselect <> 0 THEN
+            IF (IdeSystem = 1 OR IdeSystem = 2) AND ideselect <> 0 THEN
                 IF l >= sy1 AND l <= sy2 THEN
                     IF sy1 = sy2 THEN 'single line select
                         COLOR 1, 7
@@ -14217,237 +14258,244 @@ SUB IdeMakeContextualMenu
     m = idecontextualmenuID: i = 0
     menu$(m, i) = "Contextual": i = i + 1
 
-    'Figure out if the user wants to search for a selected term -- copied from idefind$
-    IF ideselect THEN
-        IF ideselecty1 = idecy THEN 'single line selected
-            a$ = idegetline(idecy)
-            a2$ = ""
-            sx1 = ideselectx1: sx2 = idecx
-            IF sx2 < sx1 THEN SWAP sx1, sx2
-            FOR x = sx1 TO sx2 - 1
-                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
-            NEXT
+    IF IdeSystem = 1 OR IdeSystem = 2 THEN
+        'Figure out if the user wants to search for a selected term -- copied from idefind$
+        IF ideselect THEN
+            IF ideselecty1 = idecy THEN 'single line selected
+                a$ = idegetline(idecy)
+                a2$ = ""
+                sx1 = ideselectx1: sx2 = idecx
+                IF sx2 < sx1 THEN SWAP sx1, sx2
+                FOR x = sx1 TO sx2 - 1
+                    IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                NEXT
+            END IF
+            IF LEN(a2$) > 0 THEN
+                sela2$ = UCASE$(a2$)
+                idecontextualSearch$ = a2$
+                IF LEN(a2$) > 22 THEN
+                    a2$ = LEFT$(a2$, 19) + STRING$(3, 250)
+                END IF
+                menu$(m, i) = "Find '" + a2$ + "'": i = i + 1
+                Selection$ = a2$
+            END IF
         END IF
-        IF LEN(a2$) > 0 THEN
-            sela2$ = UCASE$(a2$)
-            idecontextualSearch$ = a2$
-            IF LEN(a2$) > 22 THEN
-                a2$ = LEFT$(a2$, 19) + STRING$(3, 250)
-            END IF
-            menu$(m, i) = "Find '" + a2$ + "'": i = i + 1
-            Selection$ = a2$
-        END IF
-    END IF
-    'build SUB/FUNCTION list:
-    TotalSF = 0
-    FOR y = 1 TO iden
-        a$ = idegetline(y)
-        a$ = LTRIM$(RTRIM$(a$))
-        sf = 0
-        nca$ = UCASE$(a$)
-        IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB  "
-        IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC "
-        IF sf THEN
-            IF RIGHT$(nca$, 7) = " STATIC" THEN
-                a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
-            END IF
-
-            IF sf = 1 THEN
-                a$ = RIGHT$(a$, LEN(a$) - 4)
-            ELSE
-                a$ = RIGHT$(a$, LEN(a$) - 9)
-            END IF
-
+        'build SUB/FUNCTION list:
+        TotalSF = 0
+        FOR y = 1 TO iden
+            a$ = idegetline(y)
             a$ = LTRIM$(RTRIM$(a$))
-            x = INSTR(a$, "(")
-            IF x THEN
-                n$ = RTRIM$(LEFT$(a$, x - 1))
+            sf = 0
+            nca$ = UCASE$(a$)
+            IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB  "
+            IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC "
+            IF sf THEN
+                IF RIGHT$(nca$, 7) = " STATIC" THEN
+                    a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                END IF
+
+                IF sf = 1 THEN
+                    a$ = RIGHT$(a$, LEN(a$) - 4)
+                ELSE
+                    a$ = RIGHT$(a$, LEN(a$) - 9)
+                END IF
+
+                a$ = LTRIM$(RTRIM$(a$))
+                x = INSTR(a$, "(")
+                IF x THEN
+                    n$ = RTRIM$(LEFT$(a$, x - 1))
+                ELSE
+                    n$ = a$
+                END IF
+
+                'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
+                FOR CleanseN = 1 TO LEN(n$)
+                    SELECT CASE MID$(n$, CleanseN, 1)
+                        CASE " ", "'", ":"
+                            n$ = LEFT$(n$, CleanseN - 1)
+                            EXIT FOR
+                    END SELECT
+                NEXT
+
+                n2$ = n$
+                IF LEN(n2$) > 1 THEN
+                    DO UNTIL alphanumeric(ASC(RIGHT$(n2$, 1)))
+                        n2$ = LEFT$(n$, LEN(n2$) - 1) 'removes sigil, if any
+                    LOOP
+                END IF
+
+                'Populate SubFuncLIST()
+                TotalSF = TotalSF + 1
+                REDIM _PRESERVE SubFuncLIST(1 TO TotalSF) AS STRING
+                SubFuncLIST(TotalSF) = MKL$(y) + CHR$(sf) + n2$
+            END IF
+        NEXT
+
+        'identify if word or character at current cursor position is in the help system OR a sub/func
+        '(copied/adapted from ide2)
+        a$ = idegetline(idecy)
+        a2$ = ""
+        x = idecx
+        IF x <= LEN(a$) AND x >= 1 THEN
+            IF alphanumeric(ASC(a$, x)) THEN
+                x1 = x
+                DO WHILE x1 > 1
+                    IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
+                LOOP
+                x2 = x
+                DO WHILE x2 < LEN(a$)
+                    IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
+                LOOP
+                a2$ = MID$(a$, x1, x2 - x1 + 1)
             ELSE
-                n$ = a$
+                a2$ = CHR$(ASC(a$, x))
             END IF
+            a2$ = UCASE$(a2$)
+        END IF
 
-            'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-            FOR CleanseN = 1 TO LEN(n$)
-                SELECT CASE MID$(n$, CleanseN, 1)
-                    CASE " ", "'", ":"
-                        n$ = LEFT$(n$, CleanseN - 1)
+        'check if cursor is on sub/func/label name
+        IF LEN(LTRIM$(RTRIM$(Selection$))) > 0 THEN
+            DO UNTIL alphanumeric(ASC(RIGHT$(Selection$, 1)))
+                Selection$ = LEFT$(Selection$, LEN(Selection$) - 1) 'removes sigil, if any
+                IF LEN(Selection$) = 0 THEN EXIT DO
+            LOOP
+            Selection$ = LTRIM$(RTRIM$(Selection$))
+        END IF
+
+        IF RIGHT$(a2$, 1) = "$" THEN a3$ = LEFT$(a2$, LEN(a2$) - 1) ELSE a3$ = a2$ 'creates a new version without $
+
+        IF LEN(a3$) > 0 OR LEN(Selection$) > 0 THEN
+
+            FOR CheckSF = 1 TO TotalSF
+                IF a3$ = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) OR UCASE$(Selection$) = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) THEN
+                    CurrSF$ = FindCurrentSF$(idecy)
+                    IF LEN(CurrSF$) = 0 THEN GOTO SkipCheckCurrSF
+
+                    DO UNTIL alphanumeric(ASC(RIGHT$(CurrSF$, 1)))
+                        CurrSF$ = LEFT$(CurrSF$, LEN(CurrSF$) - 1) 'removes sigil, if any
+                        IF LEN(CurrSF$) = 0 THEN EXIT DO
+                    LOOP
+                    CurrSF$ = UCASE$(CurrSF$)
+
+                    SkipCheckCurrSF:
+                    IF ASC(SubFuncLIST(CheckSF), 5) = 1 THEN
+                        CursorSF$ = "SUB "
+                    ELSE
+                        CursorSF$ = "FUNCTION "
+                    END IF
+                    CursorSF$ = CursorSF$ + MID$(SubFuncLIST(CheckSF), 6)
+
+                    IF UCASE$(CursorSF$) = CurrSF$ THEN
                         EXIT FOR
-                END SELECT
-            NEXT
+                    ELSE
+                        menu$(m, i) = "#Go To " + CursorSF$: i = i + 1
+                        SubFuncLIST(1) = SubFuncLIST(CheckSF)
+                        EXIT FOR
+                    END IF
+                END IF
+            NEXT CheckSF
 
-            n2$ = n$
-            IF LEN(n2$) > 1 THEN
-                DO UNTIL alphanumeric(ASC(RIGHT$(n2$, 1)))
-                    n2$ = LEFT$(n$, LEN(n2$) - 1) 'removes sigil, if any
-                LOOP
+            v = 0
+            CurrSF$ = FindCurrentSF$(idecy)
+            IF NOT Error_Happened THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
+            CheckThisLabel:
+            IF v THEN
+                LabelLineNumber = Labels(r).SourceLineNumber
+                ThisLabelScope$ = FindCurrentSF$(LabelLineNumber)
+                IF ThisLabelScope$ <> CurrSF$ AND v = 2 THEN
+                    v = HashFindCont(ignore, r)
+                    GOTO CheckThisLabel
+                END IF
+                IF LabelLineNumber > 0 AND LabelLineNumber <> idecy THEN
+                    menu$(m, i) = "Go To #Label " + RTRIM$(Labels(r).cn): i = i + 1
+                    REDIM _PRESERVE SubFuncLIST(1 TO UBOUND(SubFuncLIST) + 1) AS STRING
+                    SubFuncLIST(UBOUND(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
+                END IF
             END IF
-
-            'Populate SubFuncLIST()
-            TotalSF = TotalSF + 1
-            REDIM _PRESERVE SubFuncLIST(1 TO TotalSF) AS STRING
-            SubFuncLIST(TotalSF) = MKL$(y) + CHR$(sf) + n2$
         END IF
-    NEXT
 
-    'identify if word or character at current cursor position is in the help system OR a sub/func
-    '(copied/adapted from ide2)
-    a$ = idegetline(idecy)
-    a2$ = ""
-    x = idecx
-    IF x <= LEN(a$) AND x >= 1 THEN
-        IF alphanumeric(ASC(a$, x)) THEN
-            x1 = x
-            DO WHILE x1 > 1
-                IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
+        IF LEN(a2$) > 0 THEN
+            'check if F1 is in help links
+            fh = FREEFILE
+            OPEN "internal\help\links.bin" FOR INPUT AS #fh
+            lnks = 0: lnks$ = CHR$(0)
+            DO UNTIL EOF(fh)
+                LINE INPUT #fh, l$
+                c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
+                IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
+                    IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
+                        lnks = lnks + 1
+                        EXIT DO
+                    END IF
+                END IF
             LOOP
-            x2 = x
-            DO WHILE x2 < LEN(a$)
-                IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
-            LOOP
-            a2$ = MID$(a$, x1, x2 - x1 + 1)
-        ELSE
-            a2$ = CHR$(ASC(a$, x))
-        END IF
-        a2$ = UCASE$(a2$)
-    END IF
+            CLOSE #fh
 
-    'check if cursor is on sub/func/label name
-    IF LEN(LTRIM$(RTRIM$(Selection$))) > 0 THEN
-        DO UNTIL alphanumeric(ASC(RIGHT$(Selection$, 1)))
-            Selection$ = LEFT$(Selection$, LEN(Selection$) - 1) 'removes sigil, if any
-            IF LEN(Selection$) = 0 THEN EXIT DO
-        LOOP
-        Selection$ = LTRIM$(RTRIM$(Selection$))
-    END IF
-
-    IF RIGHT$(a2$, 1) = "$" THEN a3$ = LEFT$(a2$, LEN(a2$) - 1) ELSE a3$ = a2$ 'creates a new version without $
-
-    IF LEN(a3$) > 0 OR LEN(Selection$) > 0 THEN
-
-        FOR CheckSF = 1 TO TotalSF
-            IF a3$ = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) OR UCASE$(Selection$) = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) THEN
-                CurrSF$ = FindCurrentSF$(idecy)
-                IF LEN(CurrSF$) = 0 THEN GOTO SkipCheckCurrSF
-
-                DO UNTIL alphanumeric(ASC(RIGHT$(CurrSF$, 1)))
-                    CurrSF$ = LEFT$(CurrSF$, LEN(CurrSF$) - 1) 'removes sigil, if any
-                    IF LEN(CurrSF$) = 0 THEN EXIT DO
-                LOOP
-                CurrSF$ = UCASE$(CurrSF$)
-
-                SkipCheckCurrSF:
-                IF ASC(SubFuncLIST(CheckSF), 5) = 1 THEN
-                    CursorSF$ = "SUB "
-                ELSE
-                    CursorSF$ = "FUNCTION "
+            IF lnks THEN
+                IF LEN(l2$) > 15 THEN
+                    l2$ = LEFT$(l2$, 12) + STRING$(3, 250)
                 END IF
-                CursorSF$ = CursorSF$ + MID$(SubFuncLIST(CheckSF), 6)
-
-                IF UCASE$(CursorSF$) = CurrSF$ THEN
-                    EXIT FOR
-                ELSE
-                    menu$(m, i) = "#Go To " + CursorSF$: i = i + 1
-                    SubFuncLIST(1) = SubFuncLIST(CheckSF)
-                    EXIT FOR
+                IF INSTR(l2$, "Parenthesis") = 0 THEN
+                    menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
                 END IF
             END IF
-        NEXT CheckSF
-
-        v = 0
-        CurrSF$ = FindCurrentSF$(idecy)
-        IF NOT Error_Happened THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
-        CheckThisLabel:
-        IF v THEN
-            LabelLineNumber = Labels(r).SourceLineNumber
-            ThisLabelScope$ = FindCurrentSF$(LabelLineNumber)
-            IF ThisLabelScope$ <> CurrSF$ AND v = 2 THEN
-                v = HashFindCont(ignore, r)
-                GOTO CheckThisLabel
-            END IF
-            IF LabelLineNumber > 0 AND LabelLineNumber <> idecy THEN
-                menu$(m, i) = "Go To #Label " + RTRIM$(Labels(r).cn): i = i + 1
-                REDIM _PRESERVE SubFuncLIST(1 TO UBOUND(SubFuncLIST) + 1) AS STRING
-                SubFuncLIST(UBOUND(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
-            END IF
         END IF
-    END IF
 
-    IF LEN(a2$) > 0 THEN
-        'check if F1 is in help links
-        fh = FREEFILE
-        OPEN "internal\help\links.bin" FOR INPUT AS #fh
-        lnks = 0: lnks$ = CHR$(0)
-        DO UNTIL EOF(fh)
-            LINE INPUT #fh, l$
-            c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-            IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
-                IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
-                    lnks = lnks + 1
-                    EXIT DO
-                END IF
-            END IF
-        LOOP
-        CLOSE #fh
-
-        IF lnks THEN
-            IF LEN(l2$) > 15 THEN
-                l2$ = LEFT$(l2$, 12) + STRING$(3, 250)
-            END IF
-            IF INSTR(l2$, "Parenthesis") = 0 THEN
-                menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
-            END IF
+        IF i > 1 THEN
+            menu$(m, i) = "-": i = i + 1
         END IF
-    END IF
 
-    IF i > 1 THEN
+        '--------- Check if _RGB mixer should be offered: -----------------------------------------
+        a$ = idegetline(idecy)
+        IF ideselect THEN
+            IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
+        END IF
+
+        Found_RGB = 0
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
+        IF Found_RGB THEN
+            menu$(m, i) = "Open _RGB Color Mi#xer": i = i + 1
+            menu$(m, i) = "-": i = i + 1
+        END IF
+        NoRGBFound:
+        '--------- _RGB mixer check done.              --------------------------------------------
+
+        IF (ideselect <> 0) THEN menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        IF (ideselect = 1) THEN
+            menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+        END IF
+
+        clip$ = _CLIPBOARD$ 'read clipboard
+        IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+
+        IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
+        menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
         menu$(m, i) = "-": i = i + 1
-    END IF
-
-    '--------- Check if _RGB mixer should be offered: -----------------------------------------
-    a$ = idegetline(idecy)
-    IF ideselect THEN
-        IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
-    END IF
-
-    Found_RGB = 0
-    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
-    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
-    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
-    Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
-    IF Found_RGB THEN
-        menu$(m, i) = "Open _RGB Color Mi#xer": i = i + 1
-        menu$(m, i) = "-": i = i + 1
-    END IF
-    NoRGBFound:
-    '--------- _RGB mixer check done.              --------------------------------------------
-
-    IF (IdeSystem = 1 AND ideselect <> 0) THEN menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-    IF (IdeSystem = 1 AND ideselect = 1) OR _
-       (IdeSystem = 3 AND Help_Select = 2) THEN
-        menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-    END IF
-
-    clip$ = _CLIPBOARD$ 'read clipboard
-    IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
-
-    IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
-    menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-    menu$(m, i) = "-": i = i + 1
-    menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
-    menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
-    menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
-    IF ideselect THEN
-        y1 = idecy
-        y2 = ideselecty1
-        IF y1 = y2 THEN 'single line selected
-            a$ = idegetline(idecy)
-            a2$ = ""
-            sx1 = ideselectx1: sx2 = idecx
-            IF sx2 < sx1 THEN SWAP sx1, sx2
-            FOR x = sx1 TO sx2 - 1
-                IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
-            NEXT
-            IF a2$ <> "" THEN
+        menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+        menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+        menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
+        IF ideselect THEN
+            y1 = idecy
+            y2 = ideselecty1
+            IF y1 = y2 THEN 'single line selected
+                a$ = idegetline(idecy)
+                a2$ = ""
+                sx1 = ideselectx1: sx2 = idecx
+                IF sx2 < sx1 THEN SWAP sx1, sx2
+                FOR x = sx1 TO sx2 - 1
+                    IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                NEXT
+                IF a2$ <> "" THEN
+                    menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                    menu$(m, i) = "#Decrease Indent"
+                    IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                    i = i + 1
+                    menu$(m, i) = "-": i = i + 1
+                END IF
+            ELSE
                 menu$(m, i) = "#Increase Indent  TAB": i = i + 1
                 menu$(m, i) = "#Decrease Indent"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
@@ -14455,17 +14503,18 @@ SUB IdeMakeContextualMenu
                 menu$(m, i) = "-": i = i + 1
             END IF
         ELSE
-            menu$(m, i) = "#Increase Indent  TAB": i = i + 1
-            menu$(m, i) = "#Decrease Indent"
-            IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-            i = i + 1
             menu$(m, i) = "-": i = i + 1
         END IF
-    ELSE
+        menu$(m, i) = "New #SUB...": i = i + 1
+        menu$(m, i) = "New #FUNCTION...": i = i + 1
+    ELSEIF IdeSystem = 3 THEN
+        IF (Help_Select = 2) THEN
+            menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+        END IF
+        menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
         menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "Clo#se Help  ESC": i = i + 1
     END IF
-    menu$(m, i) = "New #SUB...": i = i + 1
-    menu$(m, i) = "New #FUNCTION...": i = i + 1
     menusize(m) = i - 1
 END SUB
 
