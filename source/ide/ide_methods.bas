@@ -173,7 +173,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         PCOPY 3, 0
-        idemessagebox ideerrormessageTITLE$, errorat$
+        result = idemessagebox(ideerrormessageTITLE$, errorat$, "")
         errorReportDone:
     END IF
 
@@ -1037,6 +1037,20 @@ FUNCTION ide2 (ignore)
 
         END IF 'skipdisplay
 
+        IF WhiteListQB64FirstTimeMsg = 0 THEN
+            result = idemessagebox("Welcome to QB64", "QB64 is an independent compiler and as such both 'qb64" + extension$ + "'" + CHR$(10) + _
+                                             "and the programs you create with it may eventually be flagged" + CHR$(10) + _
+                                             "as false positives by your antivirus/antimalware software." + CHR$(10) + CHR$(10) + _
+                                             "It is advisable to whitelist your whole QB64 folder to avoid" + CHR$(10) + _
+                                             "operation errors.", "OK;Don't show this again")
+
+            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            IF result = 2 THEN
+                WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "TRUE"
+            END IF
+            WhiteListQB64FirstTimeMsg = -1
+        END IF
+
         STATIC idechangedbefore AS _BYTE
         IF idechangemade THEN
 
@@ -1463,16 +1477,18 @@ FUNCTION ide2 (ignore)
 
             IF ExeToSourceFolderFirstTimeMsg = 0 THEN
                 IF SaveExeWithSource THEN
-                    idemessagebox "Run", "Your program will be compiled to the same folder where your" + CHR$(10) + _
-                                         "source code is saved. You can change that by unchecking the" + CHR$(10) + _
-                                         "option 'Output EXE to Source Folder' in the Run menu."
+                    result = idemessagebox("Run", "Your program will be compiled to the same folder where your" + CHR$(10) + _
+                                           "source code is saved. You can change that by unchecking the" + CHR$(10) + _
+                                           "option 'Output EXE to Source Folder' in the Run menu.", "OK;Don't show this again")
                 ELSE
-                    idemessagebox "Run", "Your program will be compiled to your QB64 folder. You can" + CHR$(10) + _
+                    result = idemessagebox("Run", "Your program will be compiled to your QB64 folder. You can" + CHR$(10) + _
                                          "change that by checking the option 'Output EXE to Source" + CHR$(10) + _
-                                         "Folder' in the Run menu."
+                                         "Folder' in the Run menu.", "OK;Don't show this again")
                 END IF
-                WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
-                ExeToSourceFolderFirstTimeMsg = -1
+                IF result = 2 THEN
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
+                    ExeToSourceFolderFirstTimeMsg = -1
+                END IF
             END IF
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
 
@@ -2655,7 +2671,7 @@ FUNCTION ide2 (ignore)
 
         IF KALT AND (KB = KEY_DOWN OR KB = KEY_UP) THEN
             IF IdeBmkN = 0 THEN
-                idemessagebox "Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)"
+                result = idemessagebox("Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)", "")
                 SCREEN , , 3, 0: idewait4mous: idewait4alt
                 idealthighlight = 0
                 LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
@@ -2663,7 +2679,7 @@ FUNCTION ide2 (ignore)
             END IF
             IF IdeBmkN = 1 THEN
                 IF idecy = IdeBmk(1).y THEN
-                    idemessagebox "Bookmarks", "No other bookmarks exist"
+                    result = idemessagebox("Bookmarks", "No other bookmarks exist", "")
                     SCREEN , , 3, 0: idewait4mous: idewait4alt
                     idealthighlight = 0
                     LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
@@ -3140,7 +3156,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO specialchar
             ELSE
-                idemessagebox "Compilation status", "No warnings to display."
+                result = idemessagebox("Compilation status", "No warnings to display.", "")
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -4862,13 +4878,13 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Next Bookmark  Alt+Down" OR menu$(m, s) = "#Previous Bookmark  Alt+Up" THEN
                 PCOPY 2, 0
                 IF IdeBmkN = 0 THEN
-                    idemessagebox "Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)"
+                    result = idemessagebox("Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)", "")
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     GOTO ideloop
                 END IF
                 IF IdeBmkN = 1 THEN
                     IF idecy = IdeBmk(1).y THEN
-                        idemessagebox "Bookmarks", "No other bookmarks exist"
+                        result = idemessagebox("Bookmarks", "No other bookmarks exist", "")
                         PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                         GOTO ideloop
                     END IF
@@ -4916,7 +4932,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
                 IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
-                idemessagebox "About", m$
+                result = idemessagebox("About", m$, "")
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -5443,7 +5459,7 @@ FUNCTION ide2 (ignore)
                     ideshowtext
                     SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
                     PCOPY 3, 0
-                    idemessagebox "Search complete", "No changes made."
+                    result = idemessagebox("Search complete", "No changes made.", "")
                 ELSE
                     idenomatch
                 END IF
@@ -6397,7 +6413,7 @@ SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
 END SUB
 
 SUB idechanged (totalChanges AS LONG)
-    idemessagebox "Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions."
+    result = idemessagebox("Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions.", "")
 END SUB
 
 FUNCTION idechangeit$
@@ -7848,7 +7864,7 @@ FUNCTION idenewtxt (a$)
 END FUNCTION
 
 SUB idenomatch
-    idemessagebox "Search complete", "Match not found."
+    result = idemessagebox("Search complete", "Match not found.", "")
 END SUB
 
 FUNCTION idefiledialog$(programname$, mode AS _BYTE)
@@ -8933,7 +8949,7 @@ SUB ideshowtext
 
             FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
                 IF timeElapsedSince(startTime) > 1 THEN
-                    idemessagebox "Syntax Highlighter Disabled", StrReplace$("Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "\n", CHR$(10))
+                    result = idemessagebox("Syntax Highlighter Disabled", StrReplace$("Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "\n", CHR$(10)), "")
                     DisableSyntaxHighlighter = -1
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
@@ -11743,7 +11759,7 @@ END FUNCTION
 
 
 
-SUB idemessagebox (titlestr$, messagestr$)
+FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -11758,7 +11774,7 @@ SUB idemessagebox (titlestr$, messagestr$)
 
     '-------- init --------
     MessageLines = 1
-    DIM FullMessage$(1 TO 4)
+    DIM FullMessage$(1 TO 8)
     PrevScan = 1
     DO
         NextScan = INSTR(NextScan + 1, messagestr$, CHR$(10))
@@ -11785,7 +11801,8 @@ SUB idemessagebox (titlestr$, messagestr$)
     i = i + 1
     o(i).typ = 3
     o(i).y = 3 + MessageLines
-    o(i).txt = idenewtxt("OK")
+    IF buttons$ = "" THEN buttons$ = "OK"
+    o(i).txt = idenewtxt(StrReplace$(buttons$, ";", sep))
     o(i).dft = 1
     '-------- end of init --------
 
@@ -11867,13 +11884,15 @@ SUB idemessagebox (titlestr$, messagestr$)
         '-------- end of generic input response --------
 
         'specific post controls
-        IF K$ = CHR$(27) OR K$ = CHR$(13) OR (focus = 1 AND info <> 0) THEN EXIT SUB
+        IF K$ = CHR$(27) THEN EXIT FUNCTION
+
+        IF K$ = CHR$(13) OR (info <> 0) THEN idemessagebox = focus: EXIT FUNCTION
         'end of custom controls
 
         mousedown = 0
         mouseup = 0
     LOOP
-END SUB
+END FUNCTION
 
 
 
@@ -15403,10 +15422,10 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
 
     SELECT CASE Format%
         CASE 2300 'VBDOS
-            idemessagebox "Invalid format", "VBDOS binary format not supported."
+            result = idemessagebox("Invalid format", "VBDOS binary format not supported.", "")
             BinaryFormatCheck% = 1
         CASE 764 'QBX 7.1
-            idemessagebox "Invalid format", "QBX 7.1 binary format not supported."
+            result = idemessagebox("Invalid format", "QBX 7.1 binary format not supported.", "")
             BinaryFormatCheck% = 1
         CASE 252 'QuickBASIC 4.5
             IF INSTR(_OS$, "WIN") THEN
@@ -15446,7 +15465,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     PCOPY 3, 0
 
                     IF _FILEEXISTS(ofile$) = 0 THEN
-                        idemessagebox "Binary format", "Conversion failed."
+                        result = idemessagebox("Binary format", "Conversion failed.", "")
                         BinaryFormatCheck% = 2 'conversion failed
                     ELSE
                         pathToCheck$ = getfilepath$(ofile$)
@@ -15462,7 +15481,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                 END IF
             ELSE
                 IF _FILEEXISTS("source/utilities/QB45BIN.bas") = 0 THEN
-                    idemessagebox "Binary format", "Conversion utility not found. Cannot open QuickBASIC 4.5 binary format."
+                    result = idemessagebox("Binary format", "Conversion utility not found. Cannot open QuickBASIC 4.5 binary format.", "")
                     BinaryFormatCheck% = 1
                     EXIT FUNCTION
                 END IF
@@ -15487,7 +15506,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
-                    idemessagebox "Binary format", "Error launching conversion utility."
+                    result = idemessagebox("Binary format", "Error launching conversion utility.", "")
                 END IF
                 BinaryFormatCheck% = 1
             END IF

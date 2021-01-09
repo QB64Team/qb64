@@ -15,6 +15,7 @@ DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
 DIM SHARED DisableSyntaxHighlighter AS _BYTE, ExeToSourceFolderFirstTimeMsg AS _BYTE
+DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -188,6 +189,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "FALSE"
         ExeToSourceFolderFirstTimeMsg = 0
+    END IF
+
+    result = ReadConfigSetting("WhiteListQB64FirstTimeMsg", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            WhiteListQB64FirstTimeMsg = -1
+        ELSE
+            WhiteListQB64FirstTimeMsg = 0
+            WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "FALSE"
+        WhiteListQB64FirstTimeMsg = 0
     END IF
 
     result = ReadConfigSetting("SaveExeWithSource", value$)
