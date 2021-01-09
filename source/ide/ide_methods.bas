@@ -1038,11 +1038,12 @@ FUNCTION ide2 (ignore)
         END IF 'skipdisplay
 
         IF WhiteListQB64FirstTimeMsg = 0 THEN
-            result = idemessagebox("Welcome to QB64", "QB64 is an independent compiler and as such both 'qb64" + extension$ + "'" + CHR$(10) + _
-                                             "and the programs you create with it may eventually be flagged" + CHR$(10) + _
-                                             "as false positives by your antivirus/antimalware software." + CHR$(10) + CHR$(10) + _
-                                             "It is advisable to whitelist your whole QB64 folder to avoid" + CHR$(10) + _
-                                             "operation errors.", "OK;Don't show this again")
+            result = idemessagebox("Welcome to QB64", "QB64 is an independently distributed program, and as such" + CHR$(10) + _
+                                                      "both 'qb64" + extension$ + "' and the programs you create with it may" + CHR$(10) + _
+                                                      "eventually be flagged as false positives by your" + CHR$(10) + _
+                                                      "antivirus/antimalware software." + CHR$(10) + CHR$(10) + _
+                                                      "It is advisable to whitelist your whole QB64 folder to avoid" + CHR$(10) + _
+                                                      "operation errors.", "OK;Don't show this again")
 
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             IF result = 2 THEN
