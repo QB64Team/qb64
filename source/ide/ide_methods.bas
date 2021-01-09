@@ -4035,7 +4035,7 @@ FUNCTION ide2 (ignore)
                             END IF
                         NEXT i
                     END IF
-                    IdeInfo = "Selection length = " + str2$(sx2 - sx1)
+                    IdeInfo = "Selection length = " + str2$(sx2 - sx1) + " character" + LEFT$("s", ABS(sx2 - sx1 > 1))
                     UpdateIdeInfo
                 ELSE
                     IdeInfo = ""
@@ -4043,7 +4043,17 @@ FUNCTION ide2 (ignore)
                     UpdateIdeInfo
                 END IF
             ELSE
-                IdeInfo = ""
+                IF ideselect THEN
+                    sy1 = ideselecty1
+                    sy2 = idecy
+                    IF sy1 > sy2 OR idecx > 1 THEN
+                        IdeInfo = "Selection length = " + str2$(ABS(sy2 - sy1) + 1) + " line" + LEFT$("s", ABS((ABS(sy2 - sy1) + 1) > 1))
+                    ELSE
+                        IdeInfo = "Selection length = " + str2$(sy2 - sy1) + " line" + LEFT$("s", ABS(sy2 - sy1 > 1))
+                    END IF
+                ELSE
+                    IdeInfo = ""
+                END IF
                 ideCurrentSingleLineSelection = ""
                 UpdateIdeInfo
             END IF
