@@ -2251,13 +2251,11 @@ LRESULT CALLBACK fgWindowProc( HWND hWnd, UINT uMsg, WPARAM wParam,
  static RAWINPUTDEVICE Rid[1];
  case WM_INPUT:
     {
-
-
-if (raw_setup){
-    //QB64
-    //adapted from http://msdn.microsoft.com/en-us/library/windows/desktop/ee418864%28v=vs.85%29.aspx#WM_INPUT
-        UINT dwSize = 40;
-        static BYTE lpb[40];
+    if (raw_setup){
+        //QB64
+        //adapted from http://msdn.microsoft.com/en-us/library/windows/desktop/ee418864%28v=vs.85%29.aspx#WM_INPUT
+        UINT dwSize = sizeof(RAWINPUT);
+        static BYTE lpb[sizeof(RAWINPUT)];
         GetRawInputData((HRAWINPUT)lParam, RID_INPUT,
                         lpb, &dwSize, sizeof(RAWINPUTHEADER));
         RAWINPUT* raw = (RAWINPUT*)lpb;
@@ -2268,9 +2266,8 @@ if (raw_setup){
             if (xPosRelative||yPosRelative) qb64_custom_event(QB64_EVENT_RELATIVE_MOUSE_MOVEMENT,xPosRelative,yPosRelative,0,0,0,0,0,0,NULL,NULL);
         }
 
-}
-
-        break;
+    }
+    break;
 
     }
 
