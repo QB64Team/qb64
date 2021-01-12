@@ -1065,7 +1065,7 @@ FUNCTION ide2 (ignore)
                                                       "eventually be flagged as false positives by your" + CHR$(10) + _
                                                       "antivirus/antimalware software." + CHR$(10) + CHR$(10) + _
                                                       "It is advisable to whitelist your whole QB64 folder to avoid" + CHR$(10) + _
-                                                      "operation errors.", "OK;Don't show this again")
+                                                      "operation errors.", "#OK;#Don't show this again")
 
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             IF result = 2 THEN
@@ -1502,11 +1502,11 @@ FUNCTION ide2 (ignore)
                 IF SaveExeWithSource THEN
                     result = idemessagebox("Run", "Your program will be compiled to the same folder where your" + CHR$(10) + _
                                            "source code is saved. You can change that by unchecking the" + CHR$(10) + _
-                                           "option 'Output EXE to Source Folder' in the Run menu.", "OK;Don't show this again")
+                                           "option 'Output EXE to Source Folder' in the Run menu.", "#OK;#Don't show this again")
                 ELSE
                     result = idemessagebox("Run", "Your program will be compiled to your QB64 folder. You can" + CHR$(10) + _
                                          "change that by checking the option 'Output EXE to Source" + CHR$(10) + _
-                                         "Folder' in the Run menu.", "OK;Don't show this again")
+                                         "Folder' in the Run menu.", "#OK;#Don't show this again")
                 END IF
                 IF result = 2 THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
@@ -11891,6 +11891,9 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
 
         '-------- generic input response --------
         info = 0
+
+        IF UCASE$(K$) >= "A" AND UCASE$(K$) <= "Z" THEN altletter$ = UCASE$(K$)
+
         IF K$ = "" THEN K$ = CHR$(255)
         IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
         IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
