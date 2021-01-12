@@ -963,6 +963,28 @@ FUNCTION ide2 (ignore)
                             NEXT
                             statusarealink = 2
                         END IF
+
+                        IF y < idewy - 1 AND linefragment <> "[INFORMATION UNAVAILABLE]" THEN
+                            temp$ = linefragment
+                            FOR i = 1 TO LEN(temp$)
+                                IF MID$(temp$, i, 1) = sp$ THEN MID$(temp$, i, 1) = " "
+                            NEXT
+                            temp$ = _TRIM$(temp$)
+                            IF LEN(temp$) THEN
+                                y = y + 1: x = 1
+                                temp$ = "Caused by (or after): " + CHR$(1) + temp$
+
+                                COLOR 7, 1
+                                FOR i = 1 TO LEN(temp$)
+                                    x = x + 1: IF x = idewx THEN x = 2: y = y + 1
+                                    IF y > idewy - 1 THEN EXIT FOR
+                                    IF ASC(temp$, i) = 1 THEN i = i + 1: COLOR 11, 1
+                                    LOCATE y, x
+                                    PRINT CHR$(ASC(temp$, i));
+                                NEXT
+                            END IF
+                        END IF
+
                     END IF
                 END IF
             END IF
