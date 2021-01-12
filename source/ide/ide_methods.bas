@@ -6705,7 +6705,7 @@ SUB idedrawobj (o AS idedbotype, f)
     IF o.typ = 3 THEN
         IF o.x = 0 THEN o.x = 2
         IF o.w = 0 THEN o.w = o.par.w - o.x 'spanable width
-        IF o.txt = 0 THEN o.txt = idenewtxt("OK")
+        IF o.txt = 0 THEN o.txt = idenewtxt("#OK")
         a$ = idetxt(o.txt)
         n = 1
         c = 0
@@ -6803,7 +6803,7 @@ SUB ideerrormessage (mess$)
     i = i + 1
     o(i).typ = 3
     o(i).y = 4
-    o(i).txt = idenewtxt("OK")
+    o(i).txt = idenewtxt("#OK")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -7140,7 +7140,7 @@ FUNCTION idefind$
     i = i + 1
     o(i).typ = 3
     o(i).y = 11
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -7618,7 +7618,7 @@ SUB idenewsf (sf AS STRING)
     i = i + 1
     o(i).typ = 3
     o(i).y = 5
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -7766,7 +7766,7 @@ FUNCTION idenewfolder$(thispath$)
     i = i + 1
     o(i).typ = 3
     o(i).y = 5
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -7954,7 +7954,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
     i = i + 1
     o(i).typ = 3
     o(i).y = idewy + idesubwindow - 7
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -10971,13 +10971,13 @@ FUNCTION idelayoutbox
     i = i + 1
     o(i).typ = 4
     o(i).y = 6
-    o(i).nam = idenewtxt("Indent #SUBs and FUNCTIONs")
+    o(i).nam = idenewtxt("Indent SUBs and #FUNCTIONs")
     o(i).sel = ideindentsubs
 
     i = i + 1
     o(i).typ = 3
     o(i).y = 8
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -11162,7 +11162,7 @@ FUNCTION idebackupbox
     i = i + 1
     o(i).typ = 3
     o(i).y = 5
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -11329,7 +11329,7 @@ FUNCTION idemodifycommandbox
     i = i + 1
     o(i).typ = 3
     o(i).y = 5
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -11464,7 +11464,7 @@ FUNCTION idegotobox
     i = i + 1
     o(i).typ = 3
     o(i).y = 5
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -11824,7 +11824,7 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
     i = i + 1
     o(i).typ = 3
     o(i).y = 3 + MessageLines
-    IF buttons$ = "" THEN buttons$ = "OK"
+    IF buttons$ = "" THEN buttons$ = "#OK"
     o(i).txt = idenewtxt(StrReplace$(buttons$, ";", sep))
     o(i).dft = 1
     '-------- end of init --------
@@ -12014,7 +12014,7 @@ FUNCTION idedisplaybox
     i = i + 1
     o(i).typ = 3
     o(i).y = 18
-    o(i).txt = idenewtxt("OK" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
 
@@ -14864,7 +14864,7 @@ SUB Mathbox
     i = i + 1
     o(i).typ = 3
     o(i).y = 4
-    o(i).txt = idenewtxt("OK")
+    o(i).txt = idenewtxt("#OK")
     o(i).dft = 1
     '-------- end of init --------
 
