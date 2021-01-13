@@ -1,23 +1,5 @@
-qbs*oldstr4836=NULL;
-if(_SUB_IDESETLINE_STRING_TEXT->tmp||_SUB_IDESETLINE_STRING_TEXT->fixed||_SUB_IDESETLINE_STRING_TEXT->readonly){
-oldstr4836=_SUB_IDESETLINE_STRING_TEXT;
-if (oldstr4836->cmem_descriptor){
-_SUB_IDESETLINE_STRING_TEXT=qbs_new_cmem(oldstr4836->len,0);
-}else{
-_SUB_IDESETLINE_STRING_TEXT=qbs_new(oldstr4836->len,0);
-}
-memcpy(_SUB_IDESETLINE_STRING_TEXT->chr,oldstr4836->chr,oldstr4836->len);
-}
-int32 *_SUB_IDESETLINE_LONG_TEXTLEN=NULL;
-if(_SUB_IDESETLINE_LONG_TEXTLEN==NULL){
-_SUB_IDESETLINE_LONG_TEXTLEN=(int32*)mem_static_malloc(4);
-*_SUB_IDESETLINE_LONG_TEXTLEN=0;
-}
-byte_element_struct *byte_element_4837=NULL;
-if (!byte_element_4837){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4837=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4837=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_4838=NULL;
-if (!byte_element_4838){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4838=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4838=(byte_element_struct*)mem_static_malloc(12);
+float *_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=NULL;
+if(_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE==NULL){
+_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=(float*)mem_static_malloc(4);
+*_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=0;
 }
