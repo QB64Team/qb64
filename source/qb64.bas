@@ -4513,6 +4513,7 @@ DO
             IF ideindentsubs THEN
                 controllevel = controllevel + 1
                 controltype(controllevel) = 32
+                controlref(controllevel) = linenumber
             END IF
 
             subfunc = RTRIM$(id.callname) 'SUB_..."
