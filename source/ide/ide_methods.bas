@@ -2828,6 +2828,8 @@ FUNCTION ide2 (ignore)
                             p$ = QuotedFilename$(COMMAND$(0)) + " " + QuotedFilename$(f$)
                             IF errorLineInInclude > 0 AND idefocusline = idecy THEN
                                 p$ = p$ + " -l:" + str2$(errorLineInInclude)
+                            ELSEIF warningInIncludeLine > 0 AND warningInInclude = idecy THEN
+                                p$ = p$ + " -l:" + str2$(warningInIncludeLine)
                             END IF
                             SHELL p$
 
@@ -9285,18 +9287,25 @@ FUNCTION idewarningbox
     '-------- init --------
 
     DIM warningLines(1 TO warningListItems) AS LONG
+    DIM warningIncLines(1 TO warningListItems) AS LONG
+    DIM warningIncFiles(1 TO warningListItems) AS STRING
 
     FOR x = 1 TO warningListItems
         warningLines(x) = CVL(LEFT$(warning$(x), 4))
         IF warningLines(x) = 0 THEN
-            l$ = l$ + MID$(warning$(x), 5)
+            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
-            l2$ = "line" + STR$(warningLines(x))
-            l3$ = SPACE$(maxLineNumberLength + 4)
-            RSET l3$ = l2$
+            warningIncLevel = CVL(MID$(warning$(x), 5, 4))
+            IF warningIncLevel > 0 THEN
+                warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
+                warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(2)) - 13)
+                l3$ = "line" + STR$(warningIncLines(x)) + " in '" + warningIncFiles(x) + "'"
+            ELSE
+                l3$ = "line" + STR$(warningLines(x))
+            END IF
             treeConnection = LEN(l$) + 1
-            l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + MID$(warning$(x), 5)
+            l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
         END IF
         IF x < warningListItems THEN l$ = l$ + sep
     NEXT
@@ -9415,6 +9424,10 @@ FUNCTION idewarningbox
                 idegotobox_LastLineNum = warningLines(y)
                 AddQuickNavHistory idecy
                 idecy = idegotobox_LastLineNum
+                IF warningIncLines(y) > 0 THEN
+                    warningInInclude = idecy
+                    warningInIncludeLine = warningIncLines(y)
+                END IF
                 ideselect = 0
                 EXIT FUNCTION
             END IF

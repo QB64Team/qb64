@@ -92,7 +92,18 @@ _TITLE WindowTitle
 DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
 DIM SHARED VerboseMode AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 
-DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
+TYPE usedVarList
+    used AS _BYTE
+    linenumber AS LONG
+    includeLevel AS LONG
+    includedLine AS LONG
+    includedFile AS STRING
+    cname AS STRING
+    name AS STRING
+END TYPE
+
+REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LONG
+DIM SHARED totalUnusedVariables AS LONG, bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE
 DIM SHARED emptySCWarning AS _BYTE
@@ -328,6 +339,7 @@ DIM SHARED optionexplicit AS _BYTE
 DIM SHARED optionexplicitarray AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
 DIM SHARED ideStartAtLine AS LONG, errorLineInInclude AS LONG
+DIM SHARED warningInInclude AS LONG, warningInIncludeLine AS LONG
 DIM SHARED outputfile_cmd$
 DIM SHARED compilelog$
 
@@ -1401,8 +1413,8 @@ subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 6
-usedVariableList$ = ""
 totalUnusedVariables = 0
+totalVariablesCreated = 0
 totalWarnings = 0
 duplicateConstWarning = 0
 emptySCWarning = 0
@@ -2123,22 +2135,22 @@ DO
                                         'just issue a warning instead of an error
                                         issueWarning = 0
                                         IF t AND ISSTRING THEN
-                                            IF conststring(hashresref) = e$ THEN issueWarning = -1
+                                            IF conststring(hashresref) = e$ THEN issueWarning = -1: thisconstval$ = e$
                                         ELSE
                                             IF t AND ISFLOAT THEN
-                                                IF constfloat(hashresref) = constval## THEN issueWarning = -1
+                                                IF constfloat(hashresref) = constval## THEN issueWarning = -1: thisconstval$ = STR$(constval##)
                                             ELSE
                                                 IF t AND ISUNSIGNED THEN
-                                                    IF constuinteger(hashresref) = constval~&& THEN issueWarning = -1
+                                                    IF constuinteger(hashresref) = constval~&& THEN issueWarning = -1: thisconstval$ = STR$(constval~&&)
                                                 ELSE
-                                                    IF constinteger(hashresref) = constval&& THEN issueWarning = -1
+                                                    IF constinteger(hashresref) = constval&& THEN issueWarning = -1: thisconstval$ = STR$(constval&&)
                                                 END IF
                                             END IF
                                         END IF
                                         IF issueWarning THEN
                                             IF NOT IgnoreWarnings THEN
-                                                addWarning 0, "Constant already defined (same value):"
-                                                addWarning linenumber, n$
+                                                addWarning 0, 0, 0, "", "Constant already defined (same value):"
+                                                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), n$ + " =" + thisconstval$
                                                 IF idemode = 0 THEN
                                                     IF duplicateConstWarning = 0 THEN PRINT: PRINT "Warning: duplicate constant definition";
                                                     IF VerboseMode THEN
@@ -5859,8 +5871,8 @@ DO
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
                 'warn user of empty SELECT CASE block
                 IF NOT IgnoreWarnings THEN
-                    addWarning 0, "Empty SELECT CASE block:"
-                    addWarning linenumber, "END SELECT"
+                    addWarning 0, 0, 0, "", "Empty SELECT CASE block:"
+                    addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "END SELECT"
                     IF idemode = 0 THEN
                         IF emptySCWarning = 0 THEN PRINT: PRINT "Warning: Empty SELECT CASE block";
                         IF VerboseMode THEN
@@ -11508,48 +11520,33 @@ IF NOT IgnoreWarnings THEN
             IF totalUnusedVariables > 1 THEN PRINT "s";
             IF VerboseMode THEN
                 PRINT ":"
-                findItem = 0
-                DO
-                    s$ = CHR$(2) + "VAR:" + CHR$(3)
-                    findItem = INSTR(findItem + 1, usedVariableList$, s$)
-                    IF findItem = 0 THEN EXIT DO
-                    whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
-                    varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
-                    internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
-                    findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
-                    varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-                    PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
-                LOOP
+                FOR i = 1 TO totalVariablesCreated
+                    IF usedVariableList(i).used = 0 THEN
+                        PRINT SPACE$(4); usedVariableList(i).name; " ("; usedVariableList(i).cname; ", ";
+                        IF usedVariableList(i).includeLevel > 0 THEN
+                            PRINT "line"; STR$(usedVariableList(i).includedLine); " in file '"; usedVariableList(i).includedFile; "')"
+                        ELSE
+                            PRINT "line"; STR$(whichLine); ")"
+                        END IF
+                    END IF
+                NEXT
             ELSE
                 PRINT
             END IF
         ELSE
-            findItem = 0
             maxVarNameLen = 0
-            DO
-                s$ = CHR$(2) + "VAR:" + CHR$(3)
-                findItem = INSTR(findItem + 1, usedVariableList$, s$)
-                IF findItem = 0 THEN EXIT DO
-                varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
-                internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
-                findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
-                varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-                IF LEN(varname$) > maxVarNameLen THEN maxVarNameLen = LEN(varname$)
-            LOOP
+            FOR i = 1 TO totalVariablesCreated
+                IF usedVariableList(i).used = 0 THEN
+                    IF LEN(usedVariableList(i).name) > maxVarNameLen THEN maxVarNameLen = LEN(usedVariableList(i).name)
+                END IF
+            NEXT
 
-            findItem = 0
-            addWarning 0, "Unused variables (" + LTRIM$(STR$(totalUnusedVariables)) + "):"
-            DO
-                s$ = CHR$(2) + "VAR:" + CHR$(3)
-                findItem = INSTR(findItem + 1, usedVariableList$, s$)
-                IF findItem = 0 THEN EXIT DO
-                whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
-                varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
-                internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
-                findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
-                varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-                addWarning whichLine, varname$ + SPACE$((maxVarNameLen + 1) - LEN(varname$)) + " (" + internalVarName$ + ")"
-            LOOP
+            addWarning 0, 0, 0, "", "Unused variables (" + LTRIM$(STR$(totalUnusedVariables)) + "):"
+            FOR i = 1 TO totalVariablesCreated
+                IF usedVariableList(i).used = 0 THEN
+                    addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
+                END IF
+            NEXT
         END IF
     END IF
 END IF
@@ -25150,7 +25147,7 @@ SUB dump_udts
 END SUB
 
 SUB manageVariableList (name$, __cname$, action AS _BYTE)
-    DIM findItem AS LONG, s$, cname$
+    DIM findItem AS LONG, s$, cname$, i AS LONG
     cname$ = __cname$
 
     findItem = INSTR(cname$, "[")
@@ -25158,54 +25155,62 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
         cname$ = LEFT$(cname$, findItem - 1)
     END IF
 
+    found = 0
+    FOR i = 1 TO totalVariablesCreated
+        IF usedVariableList(i).cname = cname$ THEN found = -1: EXIT FOR
+    NEXT
+
     SELECT CASE action
         CASE 0 'add
-            s$ = CHR$(4) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
-            IF INSTR(usedVariableList$, s$) = 0 THEN
-                ASC(s$, 1) = 3
-                usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + MKL$(inclevel) + MKL$(inclinenumber(inclevel)) + incname$(inclevel) + CHR$(2)
-                usedVariableList$ = usedVariableList$ + "VAR:" + s$ + name$ + CHR$(10)
+            IF found = 0 THEN
+                IF i > UBOUND(usedVariableList) THEN
+                    REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
+                END IF
+                usedVariableList(i).used = 0
+                usedVariableList(i).linenumber = linenumber
+                usedVariableList(i).includeLevel = inclevel
+                IF inclevel > 0 THEN
+                    usedVariableList(i).includedLine = inclinenumber(inclevel)
+                    thisincname$ = getfilepath$(incname$(inclevel))
+                    thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                    usedVariableList(i).includedFile = thisincname$
+                ELSE
+                    usedVariableList(i).includedLine = 0
+                    usedVariableList(i).includedFile = ""
+                END IF
+                usedVariableList(i).cname = cname$
+                usedVariableList(i).name = name$
                 totalUnusedVariables = totalUnusedVariables + 1
-                'warning$(1) = warning$(1) + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+                totalVariablesCreated = totalVariablesCreated + 1
             END IF
-        CASE ELSE 'find and remove
-            s$ = CHR$(3) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
-            findItem = INSTR(usedVariableList$, s$)
-            IF findItem THEN
-                ASC(usedVariableList$, findItem) = 4
+        CASE ELSE 'find and mark as used
+            IF found THEN
+                usedVariableList(i).used = -1
                 totalUnusedVariables = totalUnusedVariables - 1
             END IF
-            'warning$(1) = warning$(1) + "Action:" + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
     END SELECT
 END SUB
 
-SUB addWarning (lineNumber AS LONG, text$)
+SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS LONG, incFileName$, text$)
     IF NOT IgnoreWarnings THEN
-        IF idemode = 0 THEN
-            PRINT
-            IF lineNumber = 0 THEN
-                PRINT "Warning: "; text$;
-            ELSE
-                IF VerboseMode THEN
-                    PRINT "; "; text$; " (line"; STR$(lineNumber); ")"
-                ELSE
-                    PRINT " (line"; STR$(lineNumber); ")"
-                END IF
-            END IF
+        IF whichLineNumber > 0 THEN
+            totalWarnings = totalWarnings + 1
         ELSE
-            IF lineNumber > 0 THEN
-                totalWarnings = totalWarnings + 1
+            IF lastWarningHeader = text$ THEN
+                EXIT SUB
             ELSE
-                IF lastWarningHeader = text$ THEN
-                    EXIT SUB
-                ELSE
-                    lastWarningHeader = text$
-                END IF
+                lastWarningHeader = text$
             END IF
+        END IF
 
-            warningListItems = warningListItems + 1
-            IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
-            warning$(warningListItems) = MKL$(lineNumber) + MKL$(inclevel) + MKL$(inclinenumber(inclevel)) + incname$(inclevel) + CHR$(2) + text$
+        warningListItems = warningListItems + 1
+        IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+        IF includeLevel > 0 THEN
+            thisincname$ = getfilepath$(incFileName$)
+            thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
+            warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(2) + text$
+        ELSE
+            warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(2) + text$
         END IF
     END IF
 END SUB
