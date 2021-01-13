@@ -1502,15 +1502,22 @@ FUNCTION ide2 (ignore)
                 IF SaveExeWithSource THEN
                     result = idemessagebox("Run", "Your program will be compiled to the same folder where your" + CHR$(10) + _
                                            "source code is saved. You can change that by unchecking the" + CHR$(10) + _
-                                           "option 'Output EXE to Source Folder' in the Run menu.", "#OK;#Don't show this again")
+                                           "option 'Output EXE to Source Folder' in the Run menu.", "#OK;#Don't show this again;#Cancel")
                 ELSE
                     result = idemessagebox("Run", "Your program will be compiled to your QB64 folder. You can" + CHR$(10) + _
                                          "change that by checking the option 'Output EXE to Source" + CHR$(10) + _
-                                         "Folder' in the Run menu.", "#OK;#Don't show this again")
+                                         "Folder' in the Run menu.", "#OK;#Don't show this again;#Cancel")
                 END IF
                 IF result = 2 THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
                     ExeToSourceFolderFirstTimeMsg = -1
+                ELSEIF result = 3 THEN
+                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    LOCATE , , 0
+                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    LOCATE idewy - 3, 2
+                    PRINT "Compilation request canceled."
+                    GOTO specialchar
                 END IF
             END IF
             PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -1531,6 +1538,18 @@ FUNCTION ide2 (ignore)
                         ELSE
                             PRINT "Already created .EXE file!";
                         END IF
+
+                        LOCATE idewy - 2, 2
+                        PRINT "Location: ";
+                        COLOR 11, 1
+                        location$ = lastBinaryGenerated$
+                        IF path.exe$ = "" THEN location$ = _STARTDIR$ + pathsep$ + location$
+                        IF POS(0) + LEN(location$) > idewx THEN
+                            PRINT "..."; RIGHT$(location$, idewx - 15);
+                        ELSE
+                            PRINT location$;
+                        END IF
+                        statusarealink = 3
 
                         GOTO specialchar
                     ELSEIF _FILEEXISTS(lastBinaryGenerated$) = 0 THEN
@@ -4847,6 +4866,7 @@ FUNCTION ide2 (ignore)
                     menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to Source #Folder"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                idecompiled = 0
                 GOTO ideloop
             END IF
 
