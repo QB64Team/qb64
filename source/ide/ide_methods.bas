@@ -148,6 +148,7 @@ FUNCTION ide2 (ignore)
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
         IF ideerror = 5 THEN errorat$ = "Cannot create folder"
+        IF ideerror = 6 THEN errorat$ = "Cannot save file"
         IF ideerror = -1 THEN GOTO errorReportDone 'fail quietly - like ON ERROR RESUME NEXT
 
         qberrorcode = ERR
@@ -160,6 +161,16 @@ FUNCTION ide2 (ignore)
         IF (ideerror > 1) THEN
             'Don't show too much detail if user just tried loading an invalid file
             ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE) + ")"
+            IF AttemptToLoadRecent = -1 THEN
+                'Offer to cleanup recent file list, removing invalid entries
+                PCOPY 2, 0
+                result = idemessagebox(ideerrormessageTITLE$, errorat$ + "." + CHR$(10) + CHR$(10) + "Remove broken links from recent files?", "#Yes;#No")
+                IF result = 1 THEN
+                    GOSUB CleanUpRecentList
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO errorReportDone
+            END IF
         ELSE
             'a more serious error; let's report something that'll help bug reporting
             inclerrorline = _INCLERRORLINE
@@ -175,16 +186,6 @@ FUNCTION ide2 (ignore)
         PCOPY 3, 0
         result = idemessagebox(ideerrormessageTITLE$, errorat$, "")
         errorReportDone:
-    END IF
-
-    IF (ideerror > 1) AND (AttemptToLoadRecent = -1) THEN
-        'Offer to cleanup recent file list, removing invalid entries
-        PCOPY 2, 0
-        r$ = ideclearhistory$("INVALID")
-        IF r$ = "Y" THEN
-            GOSUB CleanUpRecentList
-        END IF
-        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
     END IF
 
     ideerror = 1 'unknown IDE error
@@ -7963,14 +7964,15 @@ FUNCTION ideclearhistory$ (WhichHistory$)
     SELECT CASE WhichHistory$
         CASE "SEARCH": t$ = "Clear search history": m$ = "This cannot be undone. Proceed?"
         CASE "FILES": t$ = "Clear recent files": m$ = "This cannot be undone. Proceed?"
-        CASE "INVALID": t$ = "Recent files": m$ = "Remove broken links from recent files?"
     END SELECT
     result = idemessagebox(t$, m$, "#Yes;#No")
     IF result = 1 THEN ideclearhistory$ = "Y" ELSE ideclearhistory$ = "N"
 END FUNCTION
 
 SUB idesave (f$)
+    ideerror = 6
     OPEN f$ FOR OUTPUT AS #151
+    ideerror = 1
     FOR i = 1 TO iden
         a$ = idegetline(i)
         PRINT #151, a$
