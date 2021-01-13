@@ -25162,7 +25162,7 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
             s$ = CHR$(4) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
             IF INSTR(usedVariableList$, s$) = 0 THEN
                 ASC(s$, 1) = 3
-                usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
+                usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + MKL$(inclevel) + MKL$(inclinenumber(inclevel)) + incname$(inclevel) + CHR$(2)
                 usedVariableList$ = usedVariableList$ + "VAR:" + s$ + name$ + CHR$(10)
                 totalUnusedVariables = totalUnusedVariables + 1
                 'warning$(1) = warning$(1) + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
@@ -25180,19 +25180,32 @@ END SUB
 
 SUB addWarning (lineNumber AS LONG, text$)
     IF NOT IgnoreWarnings THEN
-        IF lineNumber > 0 THEN
-            totalWarnings = totalWarnings + 1
-        ELSE
-            IF lastWarningHeader = text$ THEN
-                EXIT SUB
+        IF idemode = 0 THEN
+            PRINT
+            IF lineNumber = 0 THEN
+                PRINT "Warning: "; text$;
             ELSE
-                lastWarningHeader = text$
+                IF VerboseMode THEN
+                    PRINT "; "; text$; " (line"; STR$(lineNumber); ")"
+                ELSE
+                    PRINT " (line"; STR$(lineNumber); ")"
+                END IF
             END IF
-        END IF
+        ELSE
+            IF lineNumber > 0 THEN
+                totalWarnings = totalWarnings + 1
+            ELSE
+                IF lastWarningHeader = text$ THEN
+                    EXIT SUB
+                ELSE
+                    lastWarningHeader = text$
+                END IF
+            END IF
 
-        warningListItems = warningListItems + 1
-        IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
-        warning$(warningListItems) = MKL$(lineNumber) + text$
+            warningListItems = warningListItems + 1
+            IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+            warning$(warningListItems) = MKL$(lineNumber) + MKL$(inclevel) + MKL$(inclinenumber(inclevel)) + incname$(inclevel) + CHR$(2) + text$
+        END IF
     END IF
 END SUB
 
