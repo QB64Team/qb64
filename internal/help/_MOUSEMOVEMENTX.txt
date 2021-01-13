@@ -7,10 +7,8 @@ The [[_MOUSEMOVEMENTX]] function returns the relative horizontal position of the
 
 
 * Returns the relative horizontal cursor pixel position compared to the previous cursor position. Negative values are moves to the left.
-* '''Note:''' A [[_MOUSESHOW]] statement will disable [[_MOUSEMOVEMENTX]] or [[_MOUSEMOVEMENTY]] relative mouse movement reads.
 * Can also be used to check for any mouse movements to enable a program or close [[Screen Saver Programs]]. 
-* Sets the mouse to a relative movement mode which can be read by [[_WHEEL]] instead of [[_AXIS]] as mouse [[_DEVICES|device]] 2.
-
+* On Windows only, [[_MOUSEMOVEMENTX]] will continue to track the mouse when it is outside the program window.
 
 {{PageExamples}}
 ''Example 1:'' Since values returned are relative to the last position, the returns can be positive or negative.
