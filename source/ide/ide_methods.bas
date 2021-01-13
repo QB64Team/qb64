@@ -3136,7 +3136,7 @@ FUNCTION ide2 (ignore)
                 idecy = idefocusline
                 ideselect = 0
             ELSE
-                retval = idegotobox
+                idegotobox
                 'retval is ignored
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
             END IF
@@ -4958,8 +4958,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#Go To Line...  Ctrl+G" THEN
                 PCOPY 2, 0
-                retval = idegotobox
-                'retval is ignored
+                idegotobox
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -10651,10 +10650,10 @@ FUNCTION idebackupbox
     LOOP
 END FUNCTION
 
-FUNCTION idegotobox
+SUB idegotobox
     IF idegotobox_LastLineNum > 0 THEN a2$ = str2$(idegotobox_LastLineNum) ELSE a2$ = ""
     v$ = ideinputbox$("Go To Line", "#Line", a2$, "0123456789", 30, 8)
-    IF v$ = "" THEN EXIT FUNCTION
+    IF v$ = "" THEN EXIT SUB
 
     v& = VAL(v$)
     IF v& < 1 THEN v& = 1
@@ -10663,7 +10662,7 @@ FUNCTION idegotobox
     AddQuickNavHistory idecy
     idecy = v&
     ideselect = 0
-END FUNCTION
+END SUB
 
 
 

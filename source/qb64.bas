@@ -15,7 +15,6 @@ $SCREENHIDE
 '$INCLUDE:'global\constants.bas'
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_global.bas'
 
-'INCLUDE:'qb_framework\qb_framework_global.bas'
 DEFLNG A-Z
 
 '-------- Optional IDE Component (1/2) --------
@@ -25201,7 +25200,6 @@ END SUB
 
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'
 
-'INCLUDE:'qb_framework\qb_framework_methods.bas'
 DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
