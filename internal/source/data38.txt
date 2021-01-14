@@ -1,14 +1,14 @@
 qbs *_FUNC_REMOVESYMBOL_STRING_REMOVESYMBOL=NULL;
 if (!_FUNC_REMOVESYMBOL_STRING_REMOVESYMBOL)_FUNC_REMOVESYMBOL_STRING_REMOVESYMBOL=qbs_new(0,0);
-qbs*oldstr2888=NULL;
+qbs*oldstr2872=NULL;
 if(_FUNC_REMOVESYMBOL_STRING_VARNAME->tmp||_FUNC_REMOVESYMBOL_STRING_VARNAME->fixed||_FUNC_REMOVESYMBOL_STRING_VARNAME->readonly){
-oldstr2888=_FUNC_REMOVESYMBOL_STRING_VARNAME;
-if (oldstr2888->cmem_descriptor){
-_FUNC_REMOVESYMBOL_STRING_VARNAME=qbs_new_cmem(oldstr2888->len,0);
+oldstr2872=_FUNC_REMOVESYMBOL_STRING_VARNAME;
+if (oldstr2872->cmem_descriptor){
+_FUNC_REMOVESYMBOL_STRING_VARNAME=qbs_new_cmem(oldstr2872->len,0);
 }else{
-_FUNC_REMOVESYMBOL_STRING_VARNAME=qbs_new(oldstr2888->len,0);
+_FUNC_REMOVESYMBOL_STRING_VARNAME=qbs_new(oldstr2872->len,0);
 }
-memcpy(_FUNC_REMOVESYMBOL_STRING_VARNAME->chr,oldstr2888->chr,oldstr2888->len);
+memcpy(_FUNC_REMOVESYMBOL_STRING_VARNAME->chr,oldstr2872->chr,oldstr2872->len);
 }
 int32 *_FUNC_REMOVESYMBOL_LONG_I=NULL;
 if(_FUNC_REMOVESYMBOL_LONG_I==NULL){
@@ -17,7 +17,7 @@ _FUNC_REMOVESYMBOL_LONG_I=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_REMOVESYMBOL_STRING_SYMBOL=NULL;
 if (!_FUNC_REMOVESYMBOL_STRING_SYMBOL)_FUNC_REMOVESYMBOL_STRING_SYMBOL=qbs_new(0,0);
-byte_element_struct *byte_element_2889=NULL;
-if (!byte_element_2889){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2889=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2889=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2873=NULL;
+if (!byte_element_2873){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2873=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2873=(byte_element_struct*)mem_static_malloc(12);
 }

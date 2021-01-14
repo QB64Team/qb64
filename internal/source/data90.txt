@@ -1,14 +1,14 @@
 qbs *_FUNC_CONVERTTABS_STRING_CONVERTTABS=NULL;
 if (!_FUNC_CONVERTTABS_STRING_CONVERTTABS)_FUNC_CONVERTTABS_STRING_CONVERTTABS=qbs_new(0,0);
-qbs*oldstr3522=NULL;
+qbs*oldstr3506=NULL;
 if(_FUNC_CONVERTTABS_STRING_A2->tmp||_FUNC_CONVERTTABS_STRING_A2->fixed||_FUNC_CONVERTTABS_STRING_A2->readonly){
-oldstr3522=_FUNC_CONVERTTABS_STRING_A2;
-if (oldstr3522->cmem_descriptor){
-_FUNC_CONVERTTABS_STRING_A2=qbs_new_cmem(oldstr3522->len,0);
+oldstr3506=_FUNC_CONVERTTABS_STRING_A2;
+if (oldstr3506->cmem_descriptor){
+_FUNC_CONVERTTABS_STRING_A2=qbs_new_cmem(oldstr3506->len,0);
 }else{
-_FUNC_CONVERTTABS_STRING_A2=qbs_new(oldstr3522->len,0);
+_FUNC_CONVERTTABS_STRING_A2=qbs_new(oldstr3506->len,0);
 }
-memcpy(_FUNC_CONVERTTABS_STRING_A2->chr,oldstr3522->chr,oldstr3522->len);
+memcpy(_FUNC_CONVERTTABS_STRING_A2->chr,oldstr3506->chr,oldstr3506->len);
 }
 int32 *_FUNC_CONVERTTABS_LONG_S=NULL;
 if(_FUNC_CONVERTTABS_LONG_S==NULL){
@@ -22,7 +22,7 @@ if(_FUNC_CONVERTTABS_LONG_X==NULL){
 _FUNC_CONVERTTABS_LONG_X=(int32*)mem_static_malloc(4);
 *_FUNC_CONVERTTABS_LONG_X=0;
 }
-byte_element_struct *byte_element_3524=NULL;
-if (!byte_element_3524){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3524=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3524=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3508=NULL;
+if (!byte_element_3508){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3508=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3508=(byte_element_struct*)mem_static_malloc(12);
 }

@@ -249,7 +249,16 @@ free((void*)(__ARRAY_LONG_DEPENDENCY[0]));
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_DEPENDENCY)[8] );
 qbs_free(__STRING_WINDOWTITLE);
 qbs_free(__STRING_CMDLINEFILE);
-qbs_free(__STRING_USEDVARIABLELIST);
+if (__ARRAY_UDT_USEDVARIABLELIST[2]&1){
+tmp_long=__ARRAY_UDT_USEDVARIABLELIST[5];
+while(tmp_long--) {
+
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(296/8+1-1)*tmp_long+ 13));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(296/8+1-1)*tmp_long+ 21));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(296/8+1-1)*tmp_long+ 29));}
+free((void*)(__ARRAY_UDT_USEDVARIABLELIST[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8] );
 qbs_free(__STRING_LASTWARNINGHEADER);
 qbs_free(__STRING_QB64PREFIX);
 qbs_free(__STRING_VIFILEVERSIONNUM);
@@ -894,6 +903,7 @@ qbs_free(__STRING_READABLE_E);
 qbs_free(__STRING_E2);
 qbs_free(__STRING_E3);
 qbs_free(__STRING_TEMP1);
+qbs_free(__STRING_THISCONSTVAL);
 qbs_free(__STRING_SYMBOL);
 qbs_free(__STRING_ALIASNAME);
 qbs_free(__STRING_PARAMS);
@@ -996,7 +1006,7 @@ qbs_free(__STRING_LAYOUTCOMMENT_BACKUP);
 qbs_free(__STRING_LAYOUT_BACKUP);
 qbs_free(__STRING_PUREVARNAME);
 qbs_free(__STRING_X1);
-qbs_free(__STRING_INTERNALVARNAME);
+qbs_free(__STRING_HEADER);
 qbs_free(__STRING_PATH__ASCII_CHR_046__OUT);
 qbs_free(__STRING_T__ASCII_CHR_046__PATH__ASCII_CHR_046__EXE);
 qbs_free(__STRING_DEFINES);
