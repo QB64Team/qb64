@@ -10260,8 +10260,10 @@ FUNCTION idezpathlist$ (path$)
         END IF
         'add drive paths
         FOR i = 0 TO 25
-            IF LEN(pathlist$) THEN pathlist$ = pathlist$ + sep
-            pathlist$ = pathlist$ + CHR$(65 + i) + ":"
+            IF RIGHT$(pathlist$, 1) <> sep AND LEN(pathlist$) > 0 THEN pathlist$ = pathlist$ + sep
+            IF _DIREXISTS(CHR$(65 + i) + ":\") THEN
+                pathlist$ = pathlist$ + CHR$(65 + i) + ":"
+            END IF
         NEXT
         idezpathlist$ = pathlist$
         EXIT FUNCTION
