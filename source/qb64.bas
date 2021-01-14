@@ -104,7 +104,7 @@ TYPE usedVarList
 END TYPE
 
 REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LONG
-DIM SHARED totalUnusedVariables AS LONG, bypassNextVariable AS _BYTE
+DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
 DIM SHARED emptySCWarning AS _BYTE
@@ -1130,6 +1130,7 @@ f$ = LTRIM$(RTRIM$(f$))
 IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
 
 sourcefile$ = f$
+CMDLineFile = sourcefile$
 'derive name from sourcefile
 f$ = RemoveFileExtension$(f$)
 
@@ -1417,7 +1418,6 @@ subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 6
-totalUnusedVariables = 0
 totalVariablesCreated = 0
 totalWarnings = 0
 duplicateConstWarning = 0
@@ -1571,7 +1571,7 @@ IF idemode THEN GOTO ideret1
 
 IF NOT QuietMode THEN
     PRINT
-    PRINT "Beginning C++ output from QB64 code... ";
+    PRINT "Beginning C++ output from QB64 code... "
 END IF
 
 lineinput3load sourcefile$
@@ -2153,51 +2153,7 @@ DO
                                         END IF
                                         IF issueWarning THEN
                                             IF NOT IgnoreWarnings THEN
-                                                addWarning 0, 0, 0, "", "Constant already defined (same value):"
-                                                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), n$ + " =" + thisconstval$
-                                                IF idemode = 0 AND NOT QuietMode THEN
-                                                    IF ColorVerboseMode THEN COLOR 5
-                                                    IF duplicateConstWarning = 0 THEN PRINT: PRINT "Warning: ";
-                                                    IF ColorVerboseMode THEN COLOR 7
-                                                    PRINT "duplicate constant definition";
-                                                    IF VerboseMode THEN
-                                                        thisincname$ = getfilepath$(incname$(inclevel))
-                                                        thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
-                                                        IF inclevel = 0 THEN
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT ": '";
-                                                            IF ColorVerboseMode THEN COLOR 15
-                                                            PRINT n$;
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT "' (line";
-                                                            IF ColorVerboseMode THEN COLOR 15
-                                                            PRINT STR$(linenumber);
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT ")"
-                                                        ELSE
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT ": '";
-                                                            IF ColorVerboseMode THEN COLOR 15
-                                                            PRINT n$;
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT "' (line";
-                                                            IF ColorVerboseMode THEN COLOR 15
-                                                            PRINT STR$(linenumber);
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT " in file '";
-                                                            IF ColorVerboseMode THEN COLOR 2
-                                                            PRINT thisincname$;
-                                                            IF ColorVerboseMode THEN COLOR 8
-                                                            PRINT "')"
-                                                        END IF
-                                                        IF ColorVerboseMode THEN COLOR 7
-                                                    ELSE
-                                                        IF duplicateConstWarning = 0 THEN
-                                                            duplicateConstWarning = -1
-                                                            PRINT
-                                                        END IF
-                                                    END IF
-                                                END IF
+                                                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "duplicate constant definition", n$ + " =" + thisconstval$
                                             END IF
                                             GOTO constAddDone
                                         ELSE
@@ -2652,7 +2608,7 @@ IF declaringlibrary THEN declaringlibrary = 0 'ignore this error so that auto-fo
 
 totallinenumber = reallinenumber
 
-IF idemode = 0 AND NOT QuietMode THEN PRINT "first pass finished.": PRINT "Translating code... "
+'IF idemode = 0 AND NOT QuietMode THEN PRINT "first pass finished.": PRINT "Translating code... "
 
 'prepass finished
 
@@ -2787,7 +2743,7 @@ DO
     layout = ""
     layoutok = 1
 
-    IF idemode = 0 AND NOT QuietMode THEN
+    IF idemode = 0 AND NOT QuietMode AND NOT VerboseMode THEN
         'IF LEN(a3$) THEN
         '    dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
         'END IF
@@ -5907,47 +5863,7 @@ DO
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
                 'warn user of empty SELECT CASE block
                 IF NOT IgnoreWarnings THEN
-                    addWarning 0, 0, 0, "", "Empty SELECT CASE block:"
-                    addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "END SELECT"
-                    IF idemode = 0 AND NOT QuietMode THEN
-                        IF ColorVerboseMode THEN COLOR 5
-                        IF emptySCWarning = 0 THEN PRINT: PRINT "Warning: ";
-                        IF ColorVerboseMode THEN COLOR 7
-                        PRINT "Empty SELECT CASE block";
-                        IF VerboseMode THEN
-                            IF ColorVerboseMode THEN COLOR 8
-                            PRINT ": ";
-                            IF ColorVerboseMode THEN COLOR 15
-                            PRINT "'END SELECT' ";
-                            IF inclevel = 0 THEN
-                                IF ColorVerboseMode THEN COLOR 8
-                                PRINT "(line";
-                                IF ColorVerboseMode THEN COLOR 15
-                                PRINT STR$(linenumber);
-                                IF ColorVerboseMode THEN COLOR 8
-                                PRINT ")"
-                            ELSE
-                                thisincname$ = getfilepath$(incname$(inclevel))
-                                thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
-                                IF ColorVerboseMode THEN COLOR 8
-                                PRINT "' (line";
-                                IF ColorVerboseMode THEN COLOR 15
-                                PRINT STR$(linenumber);
-                                IF ColorVerboseMode THEN COLOR 8
-                                PRINT " in file '";
-                                IF ColorVerboseMode THEN COLOR 2
-                                PRINT thisincname$;
-                                IF ColorVerboseMode THEN COLOR 8
-                                PRINT "')"
-                            END IF
-                            IF ColorVerboseMode THEN COLOR 7
-                        ELSE
-                            IF emptySCWarning = 0 THEN
-                                emptySCWarning = -1
-                                PRINT
-                            END IF
-                        END IF
-                    END IF
+                    addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "empty SELECT CASE block", ""
                 END IF
             END IF
 
@@ -11563,7 +11479,7 @@ OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
-IF idemode = 0 AND NOT QuietMode THEN
+IF idemode = 0 AND NOT QuietMode AND NOT VerboseMode THEN
     IF ConsoleMode THEN
         PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
     ELSE
@@ -11577,58 +11493,27 @@ END IF
 'PUT #1, 1, usedVariableList$ 'warning$(1)
 'CLOSE #1
 IF NOT IgnoreWarnings THEN
-    IF totalUnusedVariables > 0 THEN
-        IF idemode = 0 AND NOT QuietMode THEN
-            PRINT
-            IF ColorVerboseMode THEN COLOR 5
-            PRINT "Warning:";
-            IF ColorVerboseMode THEN COLOR 7
-            PRINT STR$(totalUnusedVariables); " unused variable";
-            IF totalUnusedVariables > 1 THEN PRINT "s";
-            IF VerboseMode THEN
-                PRINT ":"
-                FOR i = 1 TO totalVariablesCreated
-                    IF usedVariableList(i).used = 0 THEN
-                        IF ColorVerboseMode THEN COLOR 8
-                        PRINT SPACE$(4); usedVariableList(i).name; " ("; usedVariableList(i).cname; ", ";
-                        IF usedVariableList(i).includeLevel > 0 THEN
-                            PRINT "line";
-                            IF ColorVerboseMode THEN COLOR 15
-                            PRINT STR$(usedVariableList(i).includedLine);
-                            IF ColorVerboseMode THEN COLOR 8
-                            PRINT " in file '";
-                            IF ColorVerboseMode THEN COLOR 2
-                            PRINT usedVariableList(i).includedFile;
-                            IF ColorVerboseMode THEN COLOR 8
-                            PRINT "')"
-                        ELSE
-                            PRINT "line";
-                            IF ColorVerboseMode THEN COLOR 15
-                            PRINT STR$(usedVariableList(i).linenumber);
-                            IF ColorVerboseMode THEN COLOR 8
-                            PRINT ")"
-                        END IF
-                        IF ColorVerboseMode THEN COLOR 7
-                    END IF
-                NEXT
-            ELSE
-                PRINT
-            END IF
-        ELSE
-            maxVarNameLen = 0
-            FOR i = 1 TO totalVariablesCreated
-                IF usedVariableList(i).used = 0 THEN
-                    IF LEN(usedVariableList(i).name) > maxVarNameLen THEN maxVarNameLen = LEN(usedVariableList(i).name)
-                END IF
-            NEXT
-
-            addWarning 0, 0, 0, "", "Unused variables (" + LTRIM$(STR$(totalUnusedVariables)) + "):"
-            FOR i = 1 TO totalVariablesCreated
-                IF usedVariableList(i).used = 0 THEN
-                    addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
-                END IF
-            NEXT
+    totalUnusedVariables = 0
+    FOR i = 1 TO totalVariablesCreated
+        IF usedVariableList(i).used = 0 THEN
+            totalUnusedVariables = totalUnusedVariables + 1
         END IF
+    NEXT
+
+    IF totalUnusedVariables > 0 THEN
+        maxVarNameLen = 0
+        FOR i = 1 TO totalVariablesCreated
+            IF usedVariableList(i).used = 0 THEN
+                IF LEN(usedVariableList(i).name) > maxVarNameLen THEN maxVarNameLen = LEN(usedVariableList(i).name)
+            END IF
+        NEXT
+
+        header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
+        FOR i = 1 TO totalVariablesCreated
+            IF usedVariableList(i).used = 0 THEN
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
+            END IF
+        NEXT
     END IF
 END IF
 
@@ -21612,7 +21497,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 END SUB
 
 FUNCTION str2$ (v AS LONG)
-    str2$ = LTRIM$(RTRIM$(STR$(v)))
+    str2$ = _TRIM$(STR$(v))
 END FUNCTION
 
 FUNCTION str2u64$ (v~&&)
@@ -25270,40 +25155,67 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                 END IF
                 usedVariableList(i).cname = cname$
                 usedVariableList(i).name = name$
-                totalUnusedVariables = totalUnusedVariables + 1
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used
             IF found THEN
                 usedVariableList(i).used = -1
-                totalUnusedVariables = totalUnusedVariables - 1
             END IF
     END SELECT
 END SUB
 
-SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS LONG, incFileName$, text$)
-    IF NOT IgnoreWarnings THEN
-        warningsissued = -1
-        IF whichLineNumber > 0 THEN
-            totalWarnings = totalWarnings + 1
+SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS LONG, incFileName$, header$, text$)
+    warningsissued = -1
+    totalWarnings = totalWarnings + 1
+
+    IF idemode = 0 AND NOT QuietMode AND VerboseMode THEN
+        thissource$ = getfilepath$(CMDLineFile)
+        thissource$ = MID$(CMDLineFile, LEN(thissource$) + 1)
+        thisincname$ = getfilepath$(incFileName$)
+        thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
+
+        IF ColorVerboseMode THEN COLOR 15
+        IF includeLevel > 0 AND incLineNumber > 0 THEN
+            PRINT thisincname$; ":";
+            PRINT str2$(incLineNumber); ": ";
         ELSE
-            IF lastWarningHeader = text$ THEN
-                EXIT SUB
-            ELSE
-                lastWarningHeader = text$
-            END IF
+            PRINT thissource$; ":";
+            PRINT str2$(whichLineNumber); ": ";
         END IF
 
-        warningListItems = warningListItems + 1
-        IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
-        IF includeLevel > 0 THEN
-            thisincname$ = getfilepath$(incFileName$)
-            thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
-            warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(2) + text$
-        ELSE
-            warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(2) + text$
+        IF ColorVerboseMode THEN COLOR 13
+        PRINT "warning: ";
+        IF ColorVerboseMode THEN COLOR 7
+        PRINT header$
+
+        IF LEN(text$) > 0 THEN
+            IF ColorVerboseMode THEN COLOR 2
+            PRINT SPACE$(4); text$
+            IF ColorVerboseMode THEN COLOR 7
+        END IF
+    ELSEIF idemode THEN
+        IF NOT IgnoreWarnings THEN
+            IF lastWarningHeader <> header$ THEN
+                lastWarningHeader = header$
+                GOSUB increaseWarningCount
+                warning$(warningListItems) = MKL$(0) + CHR$(2) + header$
+            END IF
+
+            GOSUB increaseWarningCount
+            IF includeLevel > 0 THEN
+                thisincname$ = getfilepath$(incFileName$)
+                thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
+                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(2) + text$
+            ELSE
+                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(2) + text$
+            END IF
         END IF
     END IF
+    EXIT SUB
+    increaseWarningCount:
+    warningListItems = warningListItems + 1
+    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+    RETURN
 END SUB
 
 '$INCLUDE:'utilities\strings.bas'
