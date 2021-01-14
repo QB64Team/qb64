@@ -15,7 +15,6 @@ $SCREENHIDE
 '$INCLUDE:'global\constants.bas'
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_global.bas'
 
-'INCLUDE:'qb_framework\qb_framework_global.bas'
 DEFLNG A-Z
 
 '-------- Optional IDE Component (1/2) --------
@@ -92,10 +91,22 @@ _TITLE WindowTitle
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
 DIM SHARED VerboseMode AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
+DIM SHARED ColorVerboseMode AS _BYTE
 
-DIM SHARED totalUnusedVariables AS LONG, usedVariableList$, bypassNextVariable AS _BYTE
+TYPE usedVarList
+    used AS _BYTE
+    linenumber AS LONG
+    includeLevel AS LONG
+    includedLine AS LONG
+    includedFile AS STRING
+    cname AS STRING
+    name AS STRING
+END TYPE
+
+REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LONG
+DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
-DIM SHARED duplicateConstWarning AS _BYTE
+DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
 DIM SHARED emptySCWarning AS _BYTE
 DIM SHARED ExeIconSet AS LONG, qb64prefix$, qb64prefix_set
 DIM SHARED VersionInfoSet AS _BYTE
@@ -329,6 +340,7 @@ DIM SHARED optionexplicit AS _BYTE
 DIM SHARED optionexplicitarray AS _BYTE
 DIM SHARED optionexplicit_cmd AS _BYTE
 DIM SHARED ideStartAtLine AS LONG, errorLineInInclude AS LONG
+DIM SHARED warningInInclude AS LONG, warningInIncludeLine AS LONG
 DIM SHARED outputfile_cmd$
 DIM SHARED compilelog$
 
@@ -1102,7 +1114,10 @@ GOTO sendcommand
 
 
 noide:
-IF (qb64versionprinted = 0 OR ConsoleMode = 0) AND NOT QuietMode THEN qb64versionprinted = -1: PRINT "QB64 Compiler V" + Version$
+IF (qb64versionprinted = 0 OR ConsoleMode = 0) AND NOT QuietMode THEN
+    qb64versionprinted = -1
+    PRINT "QB64 Compiler V" + Version$
+END IF
 
 IF CMDLineFile = "" THEN
     LINE INPUT ; "COMPILE (.bas)>", f$
@@ -1115,6 +1130,7 @@ f$ = LTRIM$(RTRIM$(f$))
 IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
 
 sourcefile$ = f$
+CMDLineFile = sourcefile$
 'derive name from sourcefile
 f$ = RemoveFileExtension$(f$)
 
@@ -1402,8 +1418,7 @@ subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 6
-usedVariableList$ = ""
-totalUnusedVariables = 0
+totalVariablesCreated = 0
 totalWarnings = 0
 duplicateConstWarning = 0
 emptySCWarning = 0
@@ -1556,7 +1571,7 @@ IF idemode THEN GOTO ideret1
 
 IF NOT QuietMode THEN
     PRINT
-    PRINT "Beginning C++ output from QB64 code... ";
+    PRINT "Beginning C++ output from QB64 code... "
 END IF
 
 lineinput3load sourcefile$
@@ -2124,33 +2139,21 @@ DO
                                         'just issue a warning instead of an error
                                         issueWarning = 0
                                         IF t AND ISSTRING THEN
-                                            IF conststring(hashresref) = e$ THEN issueWarning = -1
+                                            IF conststring(hashresref) = e$ THEN issueWarning = -1: thisconstval$ = e$
                                         ELSE
                                             IF t AND ISFLOAT THEN
-                                                IF constfloat(hashresref) = constval## THEN issueWarning = -1
+                                                IF constfloat(hashresref) = constval## THEN issueWarning = -1: thisconstval$ = STR$(constval##)
                                             ELSE
                                                 IF t AND ISUNSIGNED THEN
-                                                    IF constuinteger(hashresref) = constval~&& THEN issueWarning = -1
+                                                    IF constuinteger(hashresref) = constval~&& THEN issueWarning = -1: thisconstval$ = STR$(constval~&&)
                                                 ELSE
-                                                    IF constinteger(hashresref) = constval&& THEN issueWarning = -1
+                                                    IF constinteger(hashresref) = constval&& THEN issueWarning = -1: thisconstval$ = STR$(constval&&)
                                                 END IF
                                             END IF
                                         END IF
                                         IF issueWarning THEN
                                             IF NOT IgnoreWarnings THEN
-                                                addWarning 0, "Constant already defined (same value):"
-                                                addWarning linenumber, n$
-                                                IF idemode = 0 THEN
-                                                    IF duplicateConstWarning = 0 THEN PRINT: PRINT "Warning: duplicate constant definition";
-                                                    IF VerboseMode THEN
-                                                        PRINT ": '"; n$; "' (line"; STR$(linenumber); ")"
-                                                    ELSE
-                                                        IF duplicateConstWarning = 0 THEN
-                                                            duplicateConstWarning = -1
-                                                            PRINT
-                                                        END IF
-                                                    END IF
-                                                END IF
+                                                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "duplicate constant definition", n$ + " =" + thisconstval$
                                             END IF
                                             GOTO constAddDone
                                         ELSE
@@ -2605,7 +2608,7 @@ IF declaringlibrary THEN declaringlibrary = 0 'ignore this error so that auto-fo
 
 totallinenumber = reallinenumber
 
-IF idemode = 0 AND NOT QuietMode THEN PRINT "first pass finished.": PRINT "Translating code... "
+'IF idemode = 0 AND NOT QuietMode THEN PRINT "first pass finished.": PRINT "Translating code... "
 
 'prepass finished
 
@@ -2740,7 +2743,7 @@ DO
     layout = ""
     layoutok = 1
 
-    IF idemode = 0 AND NOT QuietMode THEN
+    IF idemode = 0 AND NOT QuietMode AND NOT VerboseMode THEN
         'IF LEN(a3$) THEN
         '    dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
         'END IF
@@ -5860,19 +5863,7 @@ DO
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
                 'warn user of empty SELECT CASE block
                 IF NOT IgnoreWarnings THEN
-                    addWarning 0, "Empty SELECT CASE block:"
-                    addWarning linenumber, "END SELECT"
-                    IF idemode = 0 THEN
-                        IF emptySCWarning = 0 THEN PRINT: PRINT "Warning: Empty SELECT CASE block";
-                        IF VerboseMode THEN
-                            PRINT ": 'END SELECT' (line"; STR$(linenumber); ")"
-                        ELSE
-                            IF emptySCWarning = 0 THEN
-                                emptySCWarning = -1
-                                PRINT
-                            END IF
-                        END IF
-                    END IF
+                    addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "empty SELECT CASE block", ""
                 END IF
             END IF
 
@@ -11488,7 +11479,7 @@ OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
-IF idemode = 0 AND NOT QuietMode THEN
+IF idemode = 0 AND NOT QuietMode AND NOT VerboseMode THEN
     IF ConsoleMode THEN
         PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
     ELSE
@@ -11502,56 +11493,27 @@ END IF
 'PUT #1, 1, usedVariableList$ 'warning$(1)
 'CLOSE #1
 IF NOT IgnoreWarnings THEN
-    IF totalUnusedVariables > 0 THEN
-        IF idemode = 0 THEN
-            PRINT
-            PRINT "Warning:"; STR$(totalUnusedVariables); " unused variable";
-            IF totalUnusedVariables > 1 THEN PRINT "s";
-            IF VerboseMode THEN
-                PRINT ":"
-                findItem = 0
-                DO
-                    s$ = CHR$(2) + "VAR:" + CHR$(3)
-                    findItem = INSTR(findItem + 1, usedVariableList$, s$)
-                    IF findItem = 0 THEN EXIT DO
-                    whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
-                    varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
-                    internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
-                    findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
-                    varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-                    PRINT SPACE$(4); varname$; " ("; internalVarName$; ", line"; STR$(whichLine); ")"
-                LOOP
-            ELSE
-                PRINT
-            END IF
-        ELSE
-            findItem = 0
-            maxVarNameLen = 0
-            DO
-                s$ = CHR$(2) + "VAR:" + CHR$(3)
-                findItem = INSTR(findItem + 1, usedVariableList$, s$)
-                IF findItem = 0 THEN EXIT DO
-                varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
-                internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
-                findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
-                varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-                IF LEN(varname$) > maxVarNameLen THEN maxVarNameLen = LEN(varname$)
-            LOOP
-
-            findItem = 0
-            addWarning 0, "Unused variables (" + LTRIM$(STR$(totalUnusedVariables)) + "):"
-            DO
-                s$ = CHR$(2) + "VAR:" + CHR$(3)
-                findItem = INSTR(findItem + 1, usedVariableList$, s$)
-                IF findItem = 0 THEN EXIT DO
-                whichLine = CVL(MID$(usedVariableList$, findItem - 4, 4))
-                varNameLen = CVI(MID$(usedVariableList$, findItem + 6, 2))
-                internalVarName$ = MID$(usedVariableList$, findItem + 8, varNameLen)
-                findLF = INSTR(findItem + 9 + varNameLen, usedVariableList$, CHR$(10))
-                varname$ = MID$(usedVariableList$, findItem + 9 + varNameLen, findLF - (findItem + 9 + varNameLen))
-                addWarning whichLine, varname$ + SPACE$((maxVarNameLen + 1) - LEN(varname$)) + " (" + internalVarName$ + ")"
-            LOOP
+    totalUnusedVariables = 0
+    FOR i = 1 TO totalVariablesCreated
+        IF usedVariableList(i).used = 0 THEN
+            totalUnusedVariables = totalUnusedVariables + 1
         END IF
+    NEXT
+
+    IF totalUnusedVariables > 0 THEN
+        maxVarNameLen = 0
+        FOR i = 1 TO totalVariablesCreated
+            IF usedVariableList(i).used = 0 THEN
+                IF LEN(usedVariableList(i).name) > maxVarNameLen THEN maxVarNameLen = LEN(usedVariableList(i).name)
+            END IF
+        NEXT
+
+        header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
+        FOR i = 1 TO totalVariablesCreated
+            IF usedVariableList(i).used = 0 THEN
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
+            END IF
+        NEXT
     END IF
 END IF
 
@@ -12491,7 +12453,7 @@ IF idemode THEN GOTO ideret6
 
 No_C_Compile:
 
-IF compfailed <> 0 AND ConsoleMode = 0 THEN END 1
+IF (compfailed <> 0 OR warningsissued <> 0) AND ConsoleMode = 0 THEN END 1
 IF compfailed <> 0 THEN SYSTEM 1
 SYSTEM 0
 
@@ -12579,7 +12541,9 @@ IF idemode THEN
 END IF
 'non-ide mode output
 PRINT
+IF ColorVerboseMode THEN COLOR 4
 PRINT a$
+IF ColorVerboseMode THEN COLOR 7
 FOR i = 1 TO LEN(linefragment)
     IF MID$(linefragment, i, 1) = sp$ THEN MID$(linefragment, i, 1) = " "
 NEXT
@@ -12587,7 +12551,12 @@ FOR i = 1 TO LEN(wholeline)
     IF MID$(wholeline, i, 1) = sp$ THEN MID$(wholeline, i, 1) = " "
 NEXT
 PRINT "Caused by (or after):" + linefragment
-PRINT "LINE " + str2(linenumber) + ":" + wholeline
+IF ColorVerboseMode THEN COLOR 8
+PRINT "LINE ";
+IF ColorVerboseMode THEN COLOR 15
+PRINT str2(linenumber) + ":";
+IF ColorVerboseMode THEN COLOR 7
+PRINT wholeline
 
 IF ConsoleMode THEN SYSTEM 1
 END 1
@@ -12608,7 +12577,8 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT
                 PRINT "Options:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
-                PRINT "  -v                      Verbose mode"
+                PRINT "  -v                      Verbose mode (colorized)"
+                PRINT "  -vc                     Verbose mode (no color)"
                 PRINT "  -q                      Quiet mode"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
@@ -12626,6 +12596,8 @@ FUNCTION ParseCMDLineArgs$ ()
             CASE "-v" 'Verbose mode
                 VerboseMode = -1
                 cmdlineswitch = -1
+                ColorVerboseMode = -1
+                IF LCASE$(token$) = "-vc" THEN ColorVerboseMode = 0
             CASE "-q" 'Quiet mode
                 QuietMode = -1
                 cmdlineswitch = -1
@@ -21526,7 +21498,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 END SUB
 
 FUNCTION str2$ (v AS LONG)
-    str2$ = LTRIM$(RTRIM$(STR$(v)))
+    str2$ = _TRIM$(STR$(v))
 END FUNCTION
 
 FUNCTION str2u64$ (v~&&)
@@ -25151,7 +25123,7 @@ SUB dump_udts
 END SUB
 
 SUB manageVariableList (name$, __cname$, action AS _BYTE)
-    DIM findItem AS LONG, s$, cname$
+    DIM findItem AS LONG, s$, cname$, i AS LONG
     cname$ = __cname$
 
     findItem = INSTR(cname$, "[")
@@ -25159,50 +25131,98 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
         cname$ = LEFT$(cname$, findItem - 1)
     END IF
 
+    found = 0
+    FOR i = 1 TO totalVariablesCreated
+        IF usedVariableList(i).cname = cname$ THEN found = -1: EXIT FOR
+    NEXT
+
     SELECT CASE action
         CASE 0 'add
-            s$ = CHR$(4) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
-            IF INSTR(usedVariableList$, s$) = 0 THEN
-                ASC(s$, 1) = 3
-                usedVariableList$ = usedVariableList$ + CHR$(1) + MKL$(linenumber) + CHR$(2)
-                usedVariableList$ = usedVariableList$ + "VAR:" + s$ + name$ + CHR$(10)
-                totalUnusedVariables = totalUnusedVariables + 1
-                'warning$(1) = warning$(1) + "Adding " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
+            IF found = 0 THEN
+                IF i > UBOUND(usedVariableList) THEN
+                    REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
+                END IF
+                usedVariableList(i).used = 0
+                usedVariableList(i).linenumber = linenumber
+                usedVariableList(i).includeLevel = inclevel
+                IF inclevel > 0 THEN
+                    usedVariableList(i).includedLine = inclinenumber(inclevel)
+                    thisincname$ = getfilepath$(incname$(inclevel))
+                    thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                    usedVariableList(i).includedFile = thisincname$
+                ELSE
+                    usedVariableList(i).includedLine = 0
+                    usedVariableList(i).includedFile = ""
+                END IF
+                usedVariableList(i).cname = cname$
+                usedVariableList(i).name = name$
+                totalVariablesCreated = totalVariablesCreated + 1
             END IF
-        CASE ELSE 'find and remove
-            s$ = CHR$(3) + MKI$(LEN(cname$)) + cname$ + CHR$(5)
-            findItem = INSTR(usedVariableList$, s$)
-            IF findItem THEN
-                ASC(usedVariableList$, findItem) = 4
-                totalUnusedVariables = totalUnusedVariables - 1
+        CASE ELSE 'find and mark as used
+            IF found THEN
+                usedVariableList(i).used = -1
             END IF
-            'warning$(1) = warning$(1) + "Action:" + STR$(action) + " Searching " + cname$ + " at line" + STR$(linenumber) + CHR$(10)
     END SELECT
 END SUB
 
-SUB addWarning (lineNumber AS LONG, text$)
-    IF NOT IgnoreWarnings THEN
-        IF lineNumber > 0 THEN
-            totalWarnings = totalWarnings + 1
+SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS LONG, incFileName$, header$, text$)
+    warningsissued = -1
+    totalWarnings = totalWarnings + 1
+
+    IF idemode = 0 AND NOT QuietMode AND VerboseMode THEN
+        thissource$ = getfilepath$(CMDLineFile)
+        thissource$ = MID$(CMDLineFile, LEN(thissource$) + 1)
+        thisincname$ = getfilepath$(incFileName$)
+        thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
+
+        IF ColorVerboseMode THEN COLOR 15
+        IF includeLevel > 0 AND incLineNumber > 0 THEN
+            PRINT thisincname$; ":";
+            PRINT str2$(incLineNumber); ": ";
         ELSE
-            IF lastWarningHeader = text$ THEN
-                EXIT SUB
-            ELSE
-                lastWarningHeader = text$
-            END IF
+            PRINT thissource$; ":";
+            PRINT str2$(whichLineNumber); ": ";
         END IF
 
-        warningListItems = warningListItems + 1
-        IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
-        warning$(warningListItems) = MKL$(lineNumber) + text$
+        IF ColorVerboseMode THEN COLOR 13
+        PRINT "warning: ";
+        IF ColorVerboseMode THEN COLOR 7
+        PRINT header$
+
+        IF LEN(text$) > 0 THEN
+            IF ColorVerboseMode THEN COLOR 2
+            PRINT SPACE$(4); text$
+            IF ColorVerboseMode THEN COLOR 7
+        END IF
+    ELSEIF idemode THEN
+        IF NOT IgnoreWarnings THEN
+            IF lastWarningHeader <> header$ THEN
+                lastWarningHeader = header$
+                GOSUB increaseWarningCount
+                warning$(warningListItems) = MKL$(0) + CHR$(2) + header$
+            END IF
+
+            GOSUB increaseWarningCount
+            IF includeLevel > 0 THEN
+                thisincname$ = getfilepath$(incFileName$)
+                thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
+                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(2) + text$
+            ELSE
+                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(2) + text$
+            END IF
+        END IF
     END IF
+    EXIT SUB
+    increaseWarningCount:
+    warningListItems = warningListItems + 1
+    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+    RETURN
 END SUB
 
 '$INCLUDE:'utilities\strings.bas'
 
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'
 
-'INCLUDE:'qb_framework\qb_framework_methods.bas'
 DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
