@@ -90,8 +90,8 @@ IF OS_BITS = 32 THEN WindowTitle = "QB64 x32" ELSE WindowTitle = "QB64 x64"
 _TITLE WindowTitle
 
 DIM SHARED ConsoleMode, No_C_Compile_Mode, NoIDEMode
-DIM SHARED VerboseMode AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
-DIM SHARED ColorVerboseMode AS _BYTE
+DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
+DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
     used AS _BYTE
@@ -2743,7 +2743,7 @@ DO
     layout = ""
     layoutok = 1
 
-    IF idemode = 0 AND NOT QuietMode AND NOT VerboseMode THEN
+    IF idemode = 0 AND NOT QuietMode THEN
         'IF LEN(a3$) THEN
         '    dotlinecount = dotlinecount + 1: IF dotlinecount >= 100 THEN dotlinecount = 0: PRINT ".";
         'END IF
@@ -11479,7 +11479,7 @@ OPEN tmpdir$ + "temp.bin" FOR OUTPUT LOCK WRITE AS #26 'relock
 compilelog$ = tmpdir$ + "compilelog.txt"
 OPEN compilelog$ FOR OUTPUT AS #1: CLOSE #1 'Clear log
 
-IF idemode = 0 AND NOT QuietMode AND NOT VerboseMode THEN
+IF idemode = 0 AND NOT QuietMode THEN
     IF ConsoleMode THEN
         PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
     ELSE
@@ -12541,9 +12541,9 @@ IF idemode THEN
 END IF
 'non-ide mode output
 PRINT
-IF ColorVerboseMode THEN COLOR 4
+IF NOT MonochromeLoggingMode THEN COLOR 4
 PRINT a$
-IF ColorVerboseMode THEN COLOR 7
+IF NOT MonochromeLoggingMode THEN COLOR 7
 FOR i = 1 TO LEN(linefragment)
     IF MID$(linefragment, i, 1) = sp$ THEN MID$(linefragment, i, 1) = " "
 NEXT
@@ -12551,11 +12551,11 @@ FOR i = 1 TO LEN(wholeline)
     IF MID$(wholeline, i, 1) = sp$ THEN MID$(wholeline, i, 1) = " "
 NEXT
 PRINT "Caused by (or after):" + linefragment
-IF ColorVerboseMode THEN COLOR 8
+IF NOT MonochromeLoggingMode THEN COLOR 8
 PRINT "LINE ";
-IF ColorVerboseMode THEN COLOR 15
+IF NOT MonochromeLoggingMode THEN COLOR 15
 PRINT str2(linenumber) + ":";
-IF ColorVerboseMode THEN COLOR 7
+IF NOT MonochromeLoggingMode THEN COLOR 7
 PRINT wholeline
 
 IF ConsoleMode THEN SYSTEM 1
@@ -12577,46 +12577,43 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT
                 PRINT "Options:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
-                PRINT "  -v                      Verbose mode (colorized)"
-                PRINT "  -vc                     Verbose mode (no color)"
-                PRINT "  -q                      Quiet mode"
                 PRINT "  -c                      Compile instead of edit"
+                PRINT "  -o <output file>        Write output executable to <output file>"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
                 PRINT "                             console"
-                PRINT "  -p                      Purge all pre-compiled content first"
-                PRINT "  -z                      Generate C code without compiling to executable"
-                PRINT "  -o <output file>        Write output executable to <output file>"
-                PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
+                PRINT "  -w                      Show warnings"
+                PRINT "  -q                      Quiet mode (does not inhibit warnings or errors)"
+                PRINT "  -m                      Do not colorize compiler output (monochrome mode)"
+                PRINT "  -e                      Enable OPTION _EXPLICIT, making variable declaration"
                 PRINT "                             mandatory (per-compilation; doesn't affect the"
                 PRINT "                             source file or global settings)"
                 PRINT "  -s[:switch=true/false]  View/edit compiler settings"
-                PRINT "  -l:<line number>        Starts the IDE at the specified line number"
+                PRINT "  -l:<line number>        Start the IDE at the specified line number"
+                PRINT "  -p                      Purge all pre-compiled content first"
+                PRINT "  -z                      Generate C code without compiling to executable"
                 PRINT
                 SYSTEM
-            CASE "-v" 'Verbose mode
-                VerboseMode = -1
+            CASE "-c" 'Compile instead of edit
+                NoIDEMode = 1
                 cmdlineswitch = -1
-                ColorVerboseMode = -1
-                IF LCASE$(token$) = "-vc" THEN ColorVerboseMode = 0
+            CASE "-o" 'Specify an output file
+                IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
+                cmdlineswitch = -1
+            CASE "-x" 'Use the console
+                ConsoleMode = 1
+                NoIDEMode = 1 'Implies -c
+                cmdlineswitch = -1
+            CASE "-w" 'Show warnings
+                ShowWarnings = -1
+                cmdlineswitch = -1
             CASE "-q" 'Quiet mode
                 QuietMode = -1
                 cmdlineswitch = -1
-            CASE "-p" 'Purge
-                IF os$ = "WIN" THEN
-                    CHDIR "internal\c"
-                    SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
-                    CHDIR "..\.."
-                END IF
-                IF os$ = "LNX" THEN
-                    CHDIR "./internal/c"
-
-                    IF INSTR(_OS$, "[MACOSX]") THEN
-                        SHELL _HIDE "./purge_all_precompiled_content_osx.command"
-                    ELSE
-                        SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
-                    END IF
-                    CHDIR "../.."
-                END IF
+            CASE "-m" 'Monochrome mode
+                MonochromeLoggingMode = -1
+                cmdlineswitch = -1
+            CASE "-e" 'Option Explicit
+                optionexplicit_cmd = -1
                 cmdlineswitch = -1
             CASE "-s" 'Settings
                 settingsMode = -1
@@ -12694,26 +12691,30 @@ FUNCTION ParseCMDLineArgs$ ()
                         SYSTEM
                 END SELECT
                 _DEST 0
-            CASE "-e" 'Option Explicit
-                optionexplicit_cmd = -1
+            CASE "-l" 'goto line (ide mode only); -l:<line number>
+                IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
+                cmdlineswitch = -1
+            CASE "-p" 'Purge
+                IF os$ = "WIN" THEN
+                    CHDIR "internal\c"
+                    SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
+                    CHDIR "..\.."
+                END IF
+                IF os$ = "LNX" THEN
+                    CHDIR "./internal/c"
+
+                    IF INSTR(_OS$, "[MACOSX]") THEN
+                        SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+                    ELSE
+                        SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
+                    END IF
+                    CHDIR "../.."
+                END IF
                 cmdlineswitch = -1
             CASE "-z" 'Not compiling C code
                 No_C_Compile_Mode = 1
                 ConsoleMode = 1 'Implies -x
                 NoIDEMode = 1 'Implies -c
-                cmdlineswitch = -1
-            CASE "-x" 'Use the console
-                ConsoleMode = 1
-                NoIDEMode = 1 'Implies -c
-                cmdlineswitch = -1
-            CASE "-c" 'Compile instead of edit
-                NoIDEMode = 1
-                cmdlineswitch = -1
-            CASE "-o" 'Specify an output file
-                IF LEN(COMMAND$(i + 1)) > 0 THEN outputfile_cmd$ = COMMAND$(i + 1): i = i + 1
-                cmdlineswitch = -1
-            CASE "-l" 'goto line (ide mode only); -l:<line number>
-                IF MID$(token$, 3, 1) = ":" THEN ideStartAtLine = VAL(MID$(token$, 4))
                 cmdlineswitch = -1
             CASE ELSE 'Something we don't recognise, assume it's a filename
                 IF PassedFileName$ = "" THEN PassedFileName$ = token$
@@ -25123,7 +25124,7 @@ SUB dump_udts
 END SUB
 
 SUB manageVariableList (name$, __cname$, action AS _BYTE)
-    DIM findItem AS LONG, s$, cname$, i AS LONG
+    DIM findItem AS LONG, cname$, i AS LONG
     cname$ = __cname$
 
     findItem = INSTR(cname$, "[")
@@ -25169,13 +25170,13 @@ SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS 
     warningsissued = -1
     totalWarnings = totalWarnings + 1
 
-    IF idemode = 0 AND NOT QuietMode AND VerboseMode THEN
+    IF idemode = 0 AND ShowWarnings THEN
         thissource$ = getfilepath$(CMDLineFile)
         thissource$ = MID$(CMDLineFile, LEN(thissource$) + 1)
         thisincname$ = getfilepath$(incFileName$)
         thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
 
-        IF ColorVerboseMode THEN COLOR 15
+        IF NOT MonochromeLoggingMode THEN COLOR 15
         IF includeLevel > 0 AND incLineNumber > 0 THEN
             PRINT thisincname$; ":";
             PRINT str2$(incLineNumber); ": ";
@@ -25184,15 +25185,15 @@ SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS 
             PRINT str2$(whichLineNumber); ": ";
         END IF
 
-        IF ColorVerboseMode THEN COLOR 13
+        IF NOT MonochromeLoggingMode THEN COLOR 13
         PRINT "warning: ";
-        IF ColorVerboseMode THEN COLOR 7
+        IF NOT MonochromeLoggingMode THEN COLOR 7
         PRINT header$
 
         IF LEN(text$) > 0 THEN
-            IF ColorVerboseMode THEN COLOR 2
+            IF NOT MonochromeLoggingMode THEN COLOR 2
             PRINT SPACE$(4); text$
-            IF ColorVerboseMode THEN COLOR 7
+            IF NOT MonochromeLoggingMode THEN COLOR 7
         END IF
     ELSEIF idemode THEN
         IF NOT IgnoreWarnings THEN
