@@ -12577,8 +12577,8 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT
                 PRINT "Options:"
                 PRINT "  <file>                  Source file to load" '                                '80 columns
-                PRINT "  -v                      Verbose mode"
-                PRINT "  -vc                     Verbose mode with color"
+                PRINT "  -v                      Verbose mode (colorized)"
+                PRINT "  -vc                     Verbose mode (no color)"
                 PRINT "  -q                      Quiet mode"
                 PRINT "  -c                      Compile instead of edit"
                 PRINT "  -x                      Compile instead of edit and output the result to the"
@@ -12596,7 +12596,8 @@ FUNCTION ParseCMDLineArgs$ ()
             CASE "-v" 'Verbose mode
                 VerboseMode = -1
                 cmdlineswitch = -1
-                IF LCASE$(token$) = "-vc" THEN ColorVerboseMode = -1
+                ColorVerboseMode = -1
+                IF LCASE$(token$) = "-vc" THEN ColorVerboseMode = 0
             CASE "-q" 'Quiet mode
                 QuietMode = -1
                 cmdlineswitch = -1
