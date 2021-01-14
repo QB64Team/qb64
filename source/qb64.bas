@@ -12584,11 +12584,11 @@ FUNCTION ParseCMDLineArgs$ ()
                 PRINT "  -w                      Show warnings"
                 PRINT "  -q                      Quiet mode (does not inhibit warnings or errors)"
                 PRINT "  -m                      Do not colorize compiler output (monochrome mode)"
-                PRINT "  -e                      Enables OPTION _EXPLICIT, making variable declaration"
+                PRINT "  -e                      Enable OPTION _EXPLICIT, making variable declaration"
                 PRINT "                             mandatory (per-compilation; doesn't affect the"
                 PRINT "                             source file or global settings)"
                 PRINT "  -s[:switch=true/false]  View/edit compiler settings"
-                PRINT "  -l:<line number>        Starts the IDE at the specified line number"
+                PRINT "  -l:<line number>        Start the IDE at the specified line number"
                 PRINT "  -p                      Purge all pre-compiled content first"
                 PRINT "  -z                      Generate C code without compiling to executable"
                 PRINT
@@ -12609,7 +12609,7 @@ FUNCTION ParseCMDLineArgs$ ()
             CASE "-q" 'Quiet mode
                 QuietMode = -1
                 cmdlineswitch = -1
-            case "-m" 'Monochrome mode
+            CASE "-m" 'Monochrome mode
                 MonochromeLoggingMode = -1
                 cmdlineswitch = -1
             CASE "-e" 'Option Explicit
@@ -25124,7 +25124,7 @@ SUB dump_udts
 END SUB
 
 SUB manageVariableList (name$, __cname$, action AS _BYTE)
-    DIM findItem AS LONG, s$, cname$, i AS LONG
+    DIM findItem AS LONG, cname$, i AS LONG
     cname$ = __cname$
 
     findItem = INSTR(cname$, "[")
