@@ -25169,7 +25169,7 @@ SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS 
     warningsissued = -1
     totalWarnings = totalWarnings + 1
 
-    IF idemode = 0 AND NOT QuietMode AND VerboseMode THEN
+    IF idemode = 0 AND VerboseMode THEN
         thissource$ = getfilepath$(CMDLineFile)
         thissource$ = MID$(CMDLineFile, LEN(thissource$) + 1)
         thisincname$ = getfilepath$(incFileName$)
