@@ -7650,7 +7650,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
     o(i).typ = 4 'check box
     o(i).x = 37
     o(i).y = idewy + idesubwindow - 9
-    o(i).nam = idenewtxt(".BAS Only")
+    o(i).nam = idenewtxt(".#BAS Only")
     IF AllFiles THEN o(i).sel = 0 ELSE o(i).sel = 1
     prevBASOnly = o(i).sel
     i = i + 1
