@@ -6698,9 +6698,36 @@ SUB idedrawobj (o AS idedbotype, f)
                         IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
                         IF (o.sel = n OR -o.sel = n) AND o.foc = 0 THEN o.cx = o.par.x + o.x + 2: o.cy = o.par.y + o.y + y
                         LOCATE o.par.y + o.y + y, o.par.x + o.x + 1
-                        a3$ = " " + a3$ + SPACE$(o.w)
-                        a3$ = LEFT$(a3$, o.w)
-                        PRINT a3$;
+                        a3$ = " " + a3$
+                        IF INSTR(a3$, CHR$(16)) THEN
+                            'color formatting: CHR$(16) + CHR$(color)
+                            '                  CHR$(16) + CHR$(16) restores default
+                            position = 0: character = 0
+                            FOR cf = POS(1) TO POS(1) + o.w
+                                character = character + 1
+                                IF character > LEN(a3$) THEN
+                                    PRINT SPACE$(o.w - (POS(1) - (o.par.x + o.x)) + 1);
+                                    EXIT FOR
+                                END IF
+                                IF ASC(a3$, character) = 16 AND character < LEN(a3$) THEN
+                                    IF ASC(a3$, character + 1) >= 0 AND ASC(a3$, character + 1) <= 15 THEN
+                                        COLOR ASC(a3$, character + 1)
+                                        character = character + 1
+                                        _CONTINUE
+                                    ELSEIF ASC(a3$, character + 1) = 16 THEN
+                                        IF o.sel = n THEN COLOR 7 ELSE COLOR 0
+                                        character = character + 1
+                                        _CONTINUE
+                                    END IF
+                                END IF
+                                position = position + 1
+                                PRINT MID$(a3$, character, 1);
+                            NEXT
+                        ELSE
+                            a3$ = a3$ + SPACE$(o.w)
+                            a3$ = LEFT$(a3$, o.w)
+                            PRINT a3$;
+                        END IF
                         'customization specific for the SUBs list, when there are external procedures:
                         IF INSTR(a3$, CHR$(196) + "*") > 0 THEN
                             IF o.sel = n THEN COLOR 2, 0 ELSE COLOR 2, 7
@@ -8774,8 +8801,8 @@ FUNCTION idesubs$
                 num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
                 IF pInsideDECLARE THEN num$ = "external"
                 lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
-                          SPACE$(9 - LEN(num$)) + num$ + "  " _
-                          + psf$ + pargs$ + sep
+                          CHR$(16) + CHR$(2) + SPACE$(9 - LEN(num$)) + num$ + "  " _
+                          + psf$ + CHR$(16) + CHR$(16) + pargs$ + sep
             END IF
 
             IF LEN(n$) <= 20 THEN
@@ -8788,7 +8815,8 @@ FUNCTION idesubs$
             ELSE
                 args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
             END IF
-            l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + sf$ + args$
+            l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
+                 sf$ + CHR$(16) + CHR$(16) + args$
             psf$ = sf$
             pn$ = n$
             pargs$ = args$
@@ -8800,7 +8828,7 @@ FUNCTION idesubs$
             REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
             REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
             REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
-            CaseBkpSubsList(TotalSUBs) = n$ + "  " + CHR$(1) + sf$ + args$
+            CaseBkpSubsList(TotalSUBs) = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
             SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
             MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
             MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
@@ -8832,7 +8860,8 @@ FUNCTION idesubs$
         num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
         IF pInsideDECLARE THEN num$ = "external"
         lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
-                  SPACE$(9 - LEN(num$)) + num$ + "  " + psf$ + pargs$
+                  SPACE$(9 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
+                  psf$ + CHR$(16) + CHR$(16) + pargs$
     END IF
 
     MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
@@ -8855,7 +8884,7 @@ FUNCTION idesubs$
                     IF LEFT$(temp$, 1) = "*" THEN num$ = "external"
                     lSortedSized$ = lSortedSized$ + sep + CHR$(195) + CHR$(196)
                     lSortedSized$ = lSortedSized$ + LEFT$(temp$, INSTR(temp$, CHR$(1)) - 1) + _
-                                    SPACE$(9 - LEN(num$)) + num$ + "  " + _
+                                    SPACE$(9 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
                                     MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
                     EXIT FOR
                 END IF
@@ -9290,22 +9319,47 @@ FUNCTION idewarningbox
     DIM warningIncLines(1 TO warningListItems) AS LONG
     DIM warningIncFiles(1 TO warningListItems) AS STRING
 
+    IF LEN(ideprogname) THEN thisprog$ = ideprogname ELSE thisprog$ = "Untitled" + tempfolderindexstr$
+    maxModuleNameLen = LEN(thisprog$)
+
+    'fill arrays
     FOR x = 1 TO warningListItems
         warningLines(x) = CVL(LEFT$(warning$(x), 4))
+        IF warningLines(x) = 0 THEN _CONTINUE
+
+        warningIncLevel = CVL(MID$(warning$(x), 5, 4))
+        IF warningIncLevel > 0 THEN
+            warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
+            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(2)) - 13)
+            IF LEN(warningIncFiles(x)) > maxModuleNameLen THEN
+                maxModuleNameLen = LEN(warningIncFiles(x))
+            END IF
+        END IF
+    NEXT
+
+    'build list
+    FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
             l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
-            warningIncLevel = CVL(MID$(warning$(x), 5, 4))
+            l3$ = CHR$(16) + CHR$(2) 'dark grey
             IF warningIncLevel > 0 THEN
-                warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
-                warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(2)) - 13)
-                l3$ = "line" + STR$(warningIncLines(x)) + " in '" + warningIncFiles(x) + "'"
+                num$ = SPACE$(maxLineNumberLength)
+                RSET num$ = str2$(warningIncLines(x))
+                l3$ = l3$ + warningIncFiles(x) + SPACE$(maxModuleNameLen - LEN(warningIncFiles(x))) + ":" + CHR$(16) + CHR$(16) + num$
             ELSE
-                l3$ = "line" + STR$(warningLines(x))
+                num$ = SPACE$(maxLineNumberLength)
+                RSET num$ = str2$(warningLines(x))
+                l3$ = l3$ + thisprog$ + SPACE$(maxModuleNameLen - LEN(thisprog$)) + ":" + CHR$(16) + CHR$(16) + num$
             END IF
             treeConnection = LEN(l$) + 1
-            l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
+            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
+            IF LEN(text$) THEN
+                l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
+            ELSE
+                l$ = l$ + CHR$(195) + CHR$(196) + l3$
+            END IF
         END IF
         IF x < warningListItems THEN l$ = l$ + sep
     NEXT
