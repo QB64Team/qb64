@@ -9344,7 +9344,7 @@ FUNCTION idewarningbox
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
-            IF warningIncLevel > 0 THEN
+            IF warningIncLines(x) > 0 THEN
                 num$ = SPACE$(maxLineNumberLength)
                 RSET num$ = str2$(warningIncLines(x))
                 l3$ = l3$ + warningIncFiles(x) + SPACE$(maxModuleNameLen - LEN(warningIncFiles(x))) + ":" + CHR$(16) + CHR$(16) + num$
