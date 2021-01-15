@@ -12047,6 +12047,10 @@ FUNCTION idechoosecolorsbox
         IF mB AND mY = p.y + 5 AND mX >= p.x + 39 AND mX <= p.x + 39 + 26 THEN
             newValue = (mX - p.x - 39) * (255 / 26)
             idetxt(o(2).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(3).txt) = str2$(newValue)
+                idetxt(o(4).txt) = str2$(newValue)
+            END IF
             focus = 2
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12057,6 +12061,10 @@ FUNCTION idechoosecolorsbox
         IF mB AND mY = p.y + 8 AND mX >= p.x + 39 AND mX <= p.x + 39 + 26 THEN
             newValue = (mX - p.x - 39) * (255 / 26)
             idetxt(o(3).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(2).txt) = str2$(newValue)
+                idetxt(o(4).txt) = str2$(newValue)
+            END IF
             focus = 3
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
@@ -12067,6 +12075,10 @@ FUNCTION idechoosecolorsbox
         IF mB AND mY = p.y + 11 AND mX >= p.x + 39 AND mX <= p.x + 39 + 26 THEN
             newValue = (mX - p.x - 39) * (255 / 26)
             idetxt(o(4).txt) = str2$(newValue)
+            IF _KEYDOWN(100305) OR _KEYDOWN(100306) THEN
+                idetxt(o(2).txt) = str2$(newValue)
+                idetxt(o(3).txt) = str2$(newValue)
+            END IF
             focus = 4
             o(focus).v1 = LEN(idetxt(o(focus).txt))
             o(focus).issel = -1
