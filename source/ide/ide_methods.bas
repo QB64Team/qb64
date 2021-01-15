@@ -13918,6 +13918,8 @@ FUNCTION ideASCIIbox$
         SELECT EVERYCASE KB
             CASE 19712, 19200, 20480, 18432
                 IF Selected = 0 AND Hover > 0 THEN Selected = Hover
+            CASE 18176: Selected = 1
+            CASE 20224: Selected = 255
             CASE 19712
                 IF KCTRL AND Selected > 0 THEN
                     DO UNTIL Selected MOD 16 = 0 OR Selected = 255
