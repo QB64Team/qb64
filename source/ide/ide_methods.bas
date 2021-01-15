@@ -13863,7 +13863,15 @@ FUNCTION ideASCIIbox$
     '-------- end of generic dialog box header --------
 
     '-------- init --------
+    i = 0
+
     idepar p, 56, 21, "ASCII Chart"
+
+    i = i + 1
+    o(i).typ = 1 'hidden text box to give focus to the chart
+    o(i).y = 3
+    o(i).x = 5
+    o(i).w = 5
 
     TYPE position
         x AS INTEGER
@@ -13890,13 +13898,12 @@ FUNCTION ideASCIIbox$
     NEXT
 
     i = i + 1
-    ButtonsID = i
     o(i).typ = 3
     o(i).y = 21
-    o(i).txt = idenewtxt("#Cancel")
+    o(i).txt = idenewtxt("#Insert character" + sep + "Insert C#HR$" + sep + "#Cancel")
     o(i).dft = 1
 
-    Selected = 0
+    Selected = 1
 
     '-------- end of init --------
 
@@ -13905,12 +13912,6 @@ FUNCTION ideASCIIbox$
     '-------- end of generic init --------
 
     DO 'main loop
-        IF Selected THEN
-            idetxt(o(ButtonsID).txt) = "#Insert character" + sep + "Insert C#HR$" + sep + "#Cancel"
-        ELSE
-            idetxt(o(ButtonsID).txt) = "#Cancel"
-        END IF
-
         '-------- generic display dialog box & objects --------
         idedrawpar p
         f = 1: cx = 0: cy = 0
@@ -13927,12 +13928,17 @@ FUNCTION ideASCIIbox$
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
+        IF focus = 1 THEN
+            idebox p.x + 4, p.y + 1, 50, 18
+        END IF
+
         Hover = 0
         FOR i = 1 TO 255
             IF mX >= asciiTable(i).x AND mX <= asciiTable(i).x + 2 AND mY = asciiTable(i).y THEN
-                Hover = i
+                IF mouseMoved THEN Hover = i: COLOR 7, 0
                 IF mCLICK THEN
                     Selected = i
+                    focus = 1
                     IF timeElapsedSince(lastClick!) <= .3 and lastClickOn = i THEN
                         'double click on chart
                         GOTO insertChar
@@ -13940,7 +13946,6 @@ FUNCTION ideASCIIbox$
                     lastClick! = TIMER
                     lastClickOn = i
                 END IF
-                COLOR 7, 0
             ELSE
                 COLOR 2, 7
             END IF
@@ -13949,20 +13954,34 @@ FUNCTION ideASCIIbox$
         NEXT
 
         COLOR 0, 7
-        IF Selected = 0 AND Hover > 0 THEN
-            _PRINTSTRING (p.x + 5, p.y + 19), "Hovered (click to select):" + STR$(Hover)
-        ELSEIF Selected > 0 THEN
-            _PRINTSTRING (p.x + 5, p.y + 19), "Selected (ESC to clear):  " + STR$(Selected)
+        IF Selected > 0 THEN
+            _PRINTSTRING (p.x + 5, p.y + 19), "Selected:" + STR$(Selected)
+        END IF
+
+        COLOR 2, 7
+        IF Hover > 0 AND Hover <> Selected THEN
+            _PRINTSTRING (p.x + 5, p.y + 20), "Hovered: " + STR$(Hover)
         END IF
 
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
         PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+        IF cx THEN
+            SCREEN , , 0, 0
+            IF focus = 1 THEN
+                IF Selected THEN
+                    LOCATE asciiTable(Selected).y, asciiTable(Selected).x + 1, 1
+                END IF
+            ELSE
+                LOCATE cy, cx, 1
+            END IF
+            SCREEN , , 1, 0
+        END IF
 
         '-------- read input --------
         change = 0
+        mouseMoved = 0
         DO
             GetInput
             IF mWHEEL THEN change = 1
@@ -13970,7 +13989,7 @@ FUNCTION ideASCIIbox$
             IF mCLICK THEN mousedown = 1: change = 1
             IF mRELEASE THEN mouseup = 1: change = 1
             IF mB THEN change = 1
-            IF mX <> prev.mX OR mY <> prev.mY THEN change = 1: prev.mX = mX: prev.mY = mY
+            IF mX <> prev.mX OR mY <> prev.mY THEN change = 1: prev.mX = mX: prev.mY = mY: mouseMoved = -1
             alt = KALT: IF alt <> oldalt THEN change = 1
             oldalt = alt
             _LIMIT 100
@@ -14005,91 +14024,91 @@ FUNCTION ideASCIIbox$
         '-------- end of generic input response --------
 
         IF mY > p.y AND mY < p.y + p.h AND mX > p.x AND mX < p.x + p.w THEN
-            IF Hover = 0 AND mCLICK THEN Selected = 0
+            IF Hover = 0 AND mCLICK THEN Selected = 0: focus = 1
         END IF
 
-        IF K$ = CHR$(13) OR (Selected > 0 AND focus = 1 AND info <> 0) THEN
-            IF Selected = 0 AND Hover > 0 THEN
-                Selected = Hover
-            ELSEIF Selected THEN
-                insertChar:
-                ideASCIIbox$ = CHR$(Selected)
-                EXIT FUNCTION
-            END IF
+        IF (K$ = CHR$(13) AND focus = 1) THEN
+            ideASCIIbox$ = CHR$(Selected)
+            EXIT FUNCTION
         END IF
 
-        IF (Selected > 0 AND focus = 2 AND info <> 0) THEN
+        IF focus = 2 AND (K$ = CHR$(13) OR info <> 0) THEN
+            insertChar:
+            ideASCIIbox$ = CHR$(Selected)
+            EXIT FUNCTION
+        END IF
+
+        IF (focus = 3 AND (info <> 0 OR K$ = CHR$(13))) THEN
             ideASCIIbox$ = "CHR$(" + str2$(Selected) + ")"
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(27) THEN
-            IF Selected THEN Selected = 0 ELSE EXIT FUNCTION
-        END IF
+        'Cancel:
+        IF (info <> 0 OR K$ = CHR$(13)) AND focus = 4 THEN EXIT FUNCTION
 
-        IF (Selected = 0 AND focus = 1 AND info <> 0) OR _
-           (Selected > 0 AND focus = 3 AND info <> 0) THEN EXIT FUNCTION
+        IF K$ = CHR$(27) THEN EXIT FUNCTION
 
-        SELECT EVERYCASE KB
-            CASE 19712, 19200, 20480, 18432
-                IF Selected = 0 AND Hover > 0 THEN Selected = Hover
-            CASE 18176: Selected = 1
-            CASE 20224: Selected = 255
-            CASE 19712
-                IF KCTRL AND Selected > 0 THEN
-                    DO UNTIL Selected MOD 16 = 0 OR Selected = 255
-                        Selected = Selected + 1
-                    LOOP
-                ELSE
-                    Selected = Selected + 1
-                END IF
-                IF Selected > 255 THEN Selected = 1
-            CASE 19200
-                IF KCTRL AND Selected > 0 THEN
-                    DO UNTIL Selected MOD 16 = 1
-                        Selected = Selected - 1
-                    LOOP
-                ELSE
-                    Selected = Selected - 1
-                END IF
-                IF Selected < 1 THEN Selected = 255
-            CASE 20480
-                IF KCTRL AND Selected > 0 THEN
-                    IF Selected = 240 THEN
-                        Selected = 255
-                    ELSE
-                        DO UNTIL Selected >= 240
-                            Selected = Selected + 16
+        IF focus = 1 THEN 'chart control (keyboard)
+            KCTRL = _KEYDOWN(100305) OR _KEYDOWN(100306)
+            SELECT CASE KB
+                CASE 18176: Selected = 1 'Home
+                CASE 20224: Selected = 255 'End
+                CASE 19712 'Right
+                    IF KCTRL AND Selected > 0 THEN
+                        DO UNTIL Selected MOD 16 = 0 OR Selected = 255
+                            Selected = Selected + 1
                         LOOP
-                    END IF
-                    IF Selected > 255 THEN Selected = 255
-                ELSE
-                    IF Selected = 240 THEN
-                        'corner case
-                        Selected = 255
-                    ELSEIF Selected + 16 <= 255 THEN
-                        Selected = Selected + 16
                     ELSE
-                        Selected = Selected + 16 - 256
+                        Selected = Selected + 1
                     END IF
-                END IF
-            CASE 18432
-                IF KCTRL AND Selected > 0 THEN
-                    DO UNTIL Selected <= 16
-                        Selected = Selected - 16
-                    LOOP
-                    IF Selected < 1 THEN Selected = 0
-                ELSE
-                    IF Selected = 16 THEN
-                        'corner case
-                        Selected = 240
-                    ELSEIF Selected - 16 >= 1 THEN
-                        Selected = Selected - 16
+                    IF Selected > 255 THEN Selected = 1
+                CASE 19200 'Left
+                    IF KCTRL AND Selected > 0 THEN
+                        DO UNTIL Selected MOD 16 = 1
+                            Selected = Selected - 1
+                        LOOP
                     ELSE
-                        Selected = Selected - 16 + 256
+                        Selected = Selected - 1
                     END IF
-                END IF
-        END SELECT
+                    IF Selected < 1 THEN Selected = 255
+                CASE 20480 'Up
+                    IF KCTRL AND Selected > 0 THEN
+                        IF Selected = 240 THEN
+                            Selected = 255
+                        ELSE
+                            DO UNTIL Selected >= 240
+                                Selected = Selected + 16
+                            LOOP
+                        END IF
+                        IF Selected > 255 THEN Selected = 255
+                    ELSE
+                        IF Selected = 240 THEN
+                            'corner case
+                            Selected = 255
+                        ELSEIF Selected + 16 <= 255 THEN
+                            Selected = Selected + 16
+                        ELSE
+                            Selected = Selected + 16 - 256
+                        END IF
+                    END IF
+                CASE 18432 'Down
+                    IF KCTRL AND Selected > 0 THEN
+                        DO UNTIL Selected <= 16
+                            Selected = Selected - 16
+                        LOOP
+                        IF Selected < 1 THEN Selected = 0
+                    ELSE
+                        IF Selected = 16 THEN
+                            'corner case
+                            Selected = 240
+                        ELSEIF Selected - 16 >= 1 THEN
+                            Selected = Selected - 16
+                        ELSE
+                            Selected = Selected - 16 + 256
+                        END IF
+                    END IF
+            END SELECT
+        END IF
 
         'end of custom controls
         mousedown = 0
