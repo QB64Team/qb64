@@ -5137,21 +5137,36 @@ FUNCTION ide2 (ignore)
 
 
             IF menu$(m, s) = "#Math Evaluator" THEN
+                STATIC mathEvalExpr$
+                'build initial name if word selected
+                IF ideselect THEN
+                    IF ideselecty1 = idecy THEN 'single line selected
+                        a$ = idegetline(idecy)
+                        a2$ = ""
+                        sx1 = ideselectx1: sx2 = idecx
+                        IF sx2 < sx1 THEN SWAP sx1, sx2
+                        FOR x = sx1 TO sx2 - 1
+                            IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE EXIT FOR
+                        NEXT
+                        a2$ = _TRIM$(a2$)
+                        IF LEN(a2$) THEN mathEvalExpr$ = a2$
+                    END IF
+                END IF
+
                 DO
                     PCOPY 2, 0
-                    STATIC mathEvalResult$
-                    retval$ = ideinputbox$("Math Evaluator", "#Enter expression", mathEvalResult$, "", 60, 0)
+                    retval$ = ideinputbox$("Math Evaluator", "#Enter expression", mathEvalExpr$, "", 60, 0)
                     result = 0
                     IF LEN(retval$) THEN
-                        mathEvalResult$ = retval$
+                        mathEvalExpr$ = retval$
                         ev0$ = Evaluate_Expression$(retval$)
                         ev$ = ev0$
                         mathEvalError%% = INSTR(ev$, "ERROR") > 0
-                        IF mathEvalHEX%% THEN ev$ = "&H" + HEX$(VAL(ev$))
+                        IF mathEvalError%% = 0 AND mathEvalHEX%% THEN ev$ = "&H" + HEX$(VAL(ev$))
                         DO
                             b1$ = "#Insert;"
                             IF mathEvalHEX%% THEN b2$ = "#Decimal;" ELSE b2$ = "#HEX$;"
-                            IF mathEvalComment%% THEN
+                            IF mathEvalError%% = 0 AND mathEvalComment%% THEN
                                 mathMsg$ = ev$ + " '" + retval$
                                 b3$ = "#Uncomment;"
                             ELSE
