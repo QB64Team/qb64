@@ -5024,27 +5024,31 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#ASCII Chart..." THEN
                 PCOPY 2, 0
-                retval$ = ideASCIIbox$
-                IF LEN(retval$) THEN
-                    tempk$ = retval$
+                DO
+                    retval$ = ideASCIIbox$(relaunch)
+                    IF LEN(retval$) THEN
+                        tempk$ = retval$
 
-                    'insert
-                    IF ideselect THEN GOSUB delselect
-                    a$ = idegetline(idecy)
-                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                    idesetline idecy, a$
+                        'insert
+                        IF ideselect THEN GOSUB delselect
+                        a$ = idegetline(idecy)
+                        IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                        a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                        idesetline idecy, a$
 
-                    IF PasteCursorAtEnd THEN
-                        'Place the cursor at the end of the inserted content:
-                        idecx = idecx + LEN(tempk$)
+                        IF PasteCursorAtEnd THEN
+                            'Place the cursor at the end of the inserted content:
+                            idecx = idecx + LEN(tempk$)
+                        END IF
+
+                        idechangemade = 1
                     END IF
-
-                    idechangemade = 1
-                END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    GOSUB redrawItAll
+                    ideshowtext
+                    PCOPY 3, 0
+                LOOP WHILE relaunch
                 retval = 1
-                GOSUB redrawItAll
                 GOTO ideloop
             END IF
 
@@ -14004,7 +14008,7 @@ SUB ideupdatehelpbox
     LOOP
 END SUB
 
-FUNCTION ideASCIIbox$
+FUNCTION ideASCIIbox$(relaunch)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -14019,7 +14023,7 @@ FUNCTION ideASCIIbox$
 
     '-------- init --------
     i = 0
-
+    relaunch = 0
     idepar p, 56, 21, "ASCII Chart"
 
     i = i + 1
@@ -14096,6 +14100,7 @@ FUNCTION ideASCIIbox$
                     focus = 1
                     IF timeElapsedSince(lastClick!) <= .3 and lastClickOn = i THEN
                         'double click on chart
+                        relaunch = -1
                         GOTO insertChar
                     END IF
                     lastClick! = TIMER
