@@ -3700,12 +3700,13 @@ FUNCTION ide2 (ignore)
 
         IF K$ = CHR$(13) THEN
             IF KSHIFT THEN
+                retval$ = ""
                 IF EnteringRGB THEN 'The "Hit Shift+ENTER" message is being shown
                     oldkeywordHighlight = keywordHighlight
                     keywordHighlight = 0
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
-                    retval$ = idecolorpicker$(0)
+                    retval$ = idergbmixer$(0)
                 ELSE
                     IF ideselect THEN
                         IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
@@ -3722,8 +3723,25 @@ FUNCTION ide2 (ignore)
                         keywordHighlight = 0
                         HideBracketHighlight
                         keywordHighlight = oldkeywordHighlight
-                        retval$ = idecolorpicker$(-1)
+                        retval$ = idergbmixer$(-1)
                     END IF
+                END IF
+                IF LEN(retval$) THEN
+                    tempk$ = retval$
+
+                    'insert
+                    IF ideselect THEN GOSUB delselect
+                    a$ = idegetline(idecy)
+                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                    idesetline idecy, a$
+
+                    IF PasteCursorAtEnd THEN
+                        'Place the cursor at the end of the inserted content:
+                        idecx = idecx + LEN(tempk$)
+                    END IF
+
+                    idechangemade = 1
                 END IF
                 GOTO specialchar
             ELSE
@@ -4769,13 +4787,30 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Open _RGB Color Mi#xer" THEN
+            IF menu$(m, s) = "#RGB Color Mixer" THEN
                 PCOPY 2, 0
                 oldkeywordHighlight = keywordHighlight
                 keywordHighlight = 0
                 HideBracketHighlight
                 keywordHighlight = oldkeywordHighlight
-                retval$ = idecolorpicker$(-1) 'retval is ignored
+                retval$ = idergbmixer$(-1) 'retval is ignored
+                IF LEN(retval$) THEN
+                    tempk$ = retval$
+
+                    'insert
+                    IF ideselect THEN GOSUB delselect
+                    a$ = idegetline(idecy)
+                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                    idesetline idecy, a$
+
+                    IF PasteCursorAtEnd THEN
+                        'Place the cursor at the end of the inserted content:
+                        idecx = idecx + LEN(tempk$)
+                    END IF
+
+                    idechangemade = 1
+                END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -12257,7 +12292,7 @@ FUNCTION idechoosecolorsbox
 END FUNCTION
 
 
-FUNCTION idecolorpicker$ (editing)
+FUNCTION idergbmixer$ (editing)
     '-------- generic dialog box header --------
     PCOPY 0, 2
     PCOPY 0, 1
@@ -12694,8 +12729,14 @@ FUNCTION idecolorpicker$ (editing)
         END IF
 
         IF (focus = 5 AND info <> 0) THEN
+            'Return the current RGB string
+            IF (idetxt(o(1).txt) = idetxt(o(2).txt) AND idetxt(o(2).txt) = idetxt(o(3).txt)) THEN
+                CurrentRGB$ = "_RGB32(" + idetxt(o(1).txt) + ")"
+            ELSE
+                CurrentRGB$ = "_RGB32(" + idetxt(o(1).txt) + ", " + idetxt(o(2).txt) + ", " + idetxt(o(3).txt) + ")"
+            END IF
+
             _CLIPBOARD$ = CurrentRGB$
-            idecolorpicker$ = CurrentRGB$
             ideselect = prev.ideselect
             EXIT FUNCTION
         END IF
@@ -12729,49 +12770,20 @@ FUNCTION idecolorpicker$ (editing)
                     idecx = ideselectx1 + LEN(CurrentRGB$)
                     ideselecty1 = idecy
                     prev.ideselect = 1
-                ELSE
-                    detail$ = "no _RGB statement found"
-                    IF ideselect AND ideselecty1 <> idecy THEN
-                        detail$ = "can't insert - multiple lines"
-                    END IF
-                    _CLIPBOARD$ = CurrentRGB$
-                    result = idemessagebox("RGB Color Mixer", "Copied to the clipboard (" + detail$ + ").", "#OK")
-                END IF
-            ELSE
-                IF ideselect THEN
-                    IF ideselecty1 <> idecy THEN
-                        _CLIPBOARD$ = CurrentRGB$
-                        result = idemessagebox("RGB Color Mixer", "Copied to the clipboard (can't insert - multiple lines).", "#OK")
-                    ELSE
-                        'Delete selection and insert current RGB values
-                        sx1 = ideselectx1: sx2 = idecx
-                        IF sx1 > sx2 THEN SWAP sx1, sx2
-                        NewLine$ = LEFT$(CurrentLine$, sx1 - 1)
-                        NewLine$ = NewLine$ + CurrentRGB$
-                        NewLine$ = NewLine$ + MID$(CurrentLine$, sx2)
-                        idechangemade = 1
-                        idesetline idecy, NewLine$
-
-                        'Select the inserted bit
-                        ideselectx1 = sx1
-                        idecx = ideselectx1 + LEN(CurrentRGB$)
-                        ideselecty1 = idecy
-                        prev.ideselect = 1
-                    END IF
-                ELSE
-                    'Insert current RGB values at the cursor
-                    NewLine$ = LEFT$(CurrentLine$, idecx - 1)
-                    NewLine$ = NewLine$ + CurrentRGB$
-                    NewLine$ = NewLine$ + MID$(CurrentLine$, idecx)
-                    idechangemade = 1
-                    idesetline idecy, NewLine$
-
-                    idecx = idecx + LEN(CurrentRGB$)
-                    prev.ideselect = 0
+                    CurrentRGB$ = "" 'return nothing since we've already inserted it above
                 END IF
             END IF
-            'Return the current RGB string
-            idecolorpicker$ = CurrentRGB$
+
+            IF LEN(CurrentRGB$) THEN
+                'Return the current RGB string
+                IF (idetxt(o(1).txt) = idetxt(o(2).txt) AND idetxt(o(2).txt) = idetxt(o(3).txt)) THEN
+                    CurrentRGB$ = "_RGB32(" + idetxt(o(1).txt) + ")"
+                ELSE
+                    CurrentRGB$ = "_RGB32(" + idetxt(o(1).txt) + ", " + idetxt(o(2).txt) + ", " + idetxt(o(3).txt) + ")"
+                END IF
+            END IF
+
+            idergbmixer$ = CurrentRGB$
             ideselect = prev.ideselect
             EXIT FUNCTION
         END IF
