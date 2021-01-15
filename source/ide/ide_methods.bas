@@ -14340,16 +14340,21 @@ SUB Mathbox
 
     IF INSTR(messagestr$, " LINES INSERTED") THEN EXIT SUB
 
-    l = idecy
-    a$ = idegetline(l)
-    l$ = LEFT$(a$, idecx - 1): r$ = RIGHT$(a$, LEN(a$) - idecx + 1)
-    text$ = l$ + messagestr$ + r$
-    textlen = LEN(text$)
-    l$ = LEFT$(idet$, ideli - 1)
-    m$ = MKL$(textlen) + text$ + MKL$(textlen)
-    r$ = RIGHT$(idet$, LEN(idet$) - ideli - LEN(a$) - 7)
-    idet$ = l$ + m$ + r$
-    idecx = idecx + LEN(messagestr$)
+    tempk$ = messagestr$
+
+    'insert
+    IF ideselect THEN GOSUB delselect
+    a$ = idegetline(idecy)
+    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+    idesetline idecy, a$
+
+    IF PasteCursorAtEnd THEN
+        'Place the cursor at the end of the inserted content:
+        idecx = idecx + LEN(tempk$)
+    END IF
+
+    idechangemade = 1
 END SUB
 
 'After Cormen, Leiserson, Rivest & Stein "Introduction To Algoritms" via Wikipedia
