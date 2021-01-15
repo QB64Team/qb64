@@ -5138,7 +5138,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#Math" THEN
                 PCOPY 2, 0
-                Mathbox
+                idemathbox
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -14110,7 +14110,7 @@ FUNCTION idef1box$ (lnks$, lnks)
 
 END FUNCTION
 
-SUB Mathbox
+SUB idemathbox
     'Draw a box
 
     '-------- generic dialog box header --------
@@ -14125,7 +14125,7 @@ SUB Mathbox
     '-------- end of generic dialog box header --------
 
     DoAnother:
-    titlestr$ = "          Give me a Math Equation          "
+    titlestr$ = "           Enter a Math Equation           "
     messagestr$ = ""
 
     '-------- init --------
