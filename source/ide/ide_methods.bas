@@ -13818,11 +13818,12 @@ FUNCTION ideASCIIbox$
                 Hover = i
                 IF mCLICK THEN
                     Selected = i
-                    IF timeElapsedSince(lastClick!) <= .3 THEN
+                    IF timeElapsedSince(lastClick!) <= .3 and lastClickOn = i THEN
                         'double click on chart
                         GOTO insertChar
                     END IF
                     lastClick! = TIMER
+                    lastClickOn = i
                 END IF
                 COLOR 7, 0
             ELSE
@@ -13888,6 +13889,10 @@ FUNCTION ideASCIIbox$
         NEXT
         '-------- end of generic input response --------
 
+        IF mY > p.y AND mY < p.y + p.h AND mX > p.x AND mX < p.x + p.w THEN
+            IF Hover = 0 AND mCLICK THEN Selected = 0
+        END IF
+
         IF K$ = CHR$(13) OR (Selected > 0 AND focus = 1 AND info <> 0) THEN
             IF Selected = 0 AND Hover > 0 THEN
                 Selected = Hover
@@ -13914,28 +13919,58 @@ FUNCTION ideASCIIbox$
             CASE 19712, 19200, 20480, 18432
                 IF Selected = 0 AND Hover > 0 THEN Selected = Hover
             CASE 19712
-                Selected = Selected + 1
+                IF KCTRL AND Selected > 0 THEN
+                    DO UNTIL Selected MOD 16 = 0 OR Selected = 255
+                        Selected = Selected + 1
+                    LOOP
+                ELSE
+                    Selected = Selected + 1
+                END IF
                 IF Selected > 255 THEN Selected = 1
             CASE 19200
-                Selected = Selected - 1
+                IF KCTRL AND Selected > 0 THEN
+                    DO UNTIL Selected MOD 16 = 1
+                        Selected = Selected - 1
+                    LOOP
+                ELSE
+                    Selected = Selected - 1
+                END IF
                 IF Selected < 1 THEN Selected = 255
             CASE 20480
-                IF Selected = 240 THEN
-                    'corner case
-                    Selected = 255
-                ELSEIF Selected + 16 <= 255 THEN
-                    Selected = Selected + 16
+                IF KCTRL AND Selected > 0 THEN
+                    IF Selected = 240 THEN
+                        Selected = 255
+                    ELSE
+                        DO UNTIL Selected >= 240
+                            Selected = Selected + 16
+                        LOOP
+                    END IF
+                    IF Selected > 255 THEN Selected = 255
                 ELSE
-                    Selected = Selected + 16 - 256
+                    IF Selected = 240 THEN
+                        'corner case
+                        Selected = 255
+                    ELSEIF Selected + 16 <= 255 THEN
+                        Selected = Selected + 16
+                    ELSE
+                        Selected = Selected + 16 - 256
+                    END IF
                 END IF
             CASE 18432
-                IF Selected = 16 THEN
-                    'corner case
-                    Selected = 240
-                ELSEIF Selected - 16 >= 1 THEN
-                    Selected = Selected - 16
+                IF KCTRL AND Selected > 0 THEN
+                    DO UNTIL Selected <= 16
+                        Selected = Selected - 16
+                    LOOP
+                    IF Selected < 1 THEN Selected = 0
                 ELSE
-                    Selected = Selected - 16 + 256
+                    IF Selected = 16 THEN
+                        'corner case
+                        Selected = 240
+                    ELSEIF Selected - 16 >= 1 THEN
+                        Selected = Selected - 16
+                    ELSE
+                        Selected = Selected - 16 + 256
+                    END IF
                 END IF
         END SELECT
 
