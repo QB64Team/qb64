@@ -11089,6 +11089,7 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
     w2 = LEN(titlestr$) + 4
     IF w < w2 THEN w = w2
     IF w < buttonsLen THEN w = buttonsLen
+    IF w > idewx - 4 THEN w = idewx - 4
     idepar p, w, 3 + MessageLines, titlestr$
 
     i = i + 1
@@ -11124,6 +11125,9 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
         '-------- custom display changes --------
         COLOR 0, 7
         FOR i = 1 TO MessageLines
+            IF LEN(FullMessage$(i)) > p.w - 2 THEN
+                FullMessage$(i) = LEFT$(FullMessage$(i), p.w - 5) + STRING$(3, 250)
+            END IF
             LOCATE p.y + 1 + i, p.x + (w \ 2 - LEN(FullMessage$(i)) \ 2) + 1
             PRINT FullMessage$(i);
         NEXT i
