@@ -4985,9 +4985,9 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "ASCII C#hart" THEN
                 PCOPY 2, 0
-                retval = ideASCIIbox%
-                IF retval THEN
-                    tempk$ = CHR$(retval)
+                retval$ = ideASCIIbox$
+                IF LEN(retval$) THEN
+                    tempk$ = retval$
 
                     'insert
                     IF ideselect THEN GOSUB delselect
@@ -5015,6 +5015,7 @@ FUNCTION ide2 (ignore)
                 dummy = DarkenFGBG(1)
                 COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
                 LOCATE idewy - 3, 2
+                COLOR 15, 1
                 PRINT "Press any key to insert its _KEYHIT/_KEYDOWN code..."
                 PCOPY 3, 0
 
@@ -5136,6 +5137,7 @@ FUNCTION ide2 (ignore)
 
 
             IF menu$(m, s) = "#Math" THEN
+                PCOPY 2, 0
                 Mathbox
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -7650,7 +7652,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
     o(i).typ = 4 'check box
     o(i).x = 37
     o(i).y = idewy + idesubwindow - 9
-    o(i).nam = idenewtxt(".BAS Only")
+    o(i).nam = idenewtxt(".#BAS Only")
     IF AllFiles THEN o(i).sel = 0 ELSE o(i).sel = 1
     prevBASOnly = o(i).sel
     i = i + 1
@@ -10260,8 +10262,10 @@ FUNCTION idezpathlist$ (path$)
         END IF
         'add drive paths
         FOR i = 0 TO 25
-            IF LEN(pathlist$) THEN pathlist$ = pathlist$ + sep
-            pathlist$ = pathlist$ + CHR$(65 + i) + ":"
+            IF RIGHT$(pathlist$, 1) <> sep AND LEN(pathlist$) > 0 THEN pathlist$ = pathlist$ + sep
+            IF _DIREXISTS(CHR$(65 + i) + ":\") THEN
+                pathlist$ = pathlist$ + CHR$(65 + i) + ":"
+            END IF
         NEXT
         idezpathlist$ = pathlist$
         EXIT FUNCTION
@@ -13730,130 +13734,215 @@ SUB IdeAddSearched (s2$)
     CLOSE #fh
 END SUB
 
-FUNCTION ideASCIIbox%
-    'IF INSTR(_OS$, "WIN") THEN ret% = SHELL("internal\ASCII-Picker.exe") ELSE ret% = SHELL("internal/ASCII-Picker")
-    '(code to fix font and arrow keys also written by Steve)
-    w = _WIDTH: h = _HEIGHT
-    font = _FONT
-    temp = _NEWIMAGE(640, 480, 32)
-    temp1 = _NEWIMAGE(640, 480, 32)
-    ws = _NEWIMAGE(640, 480, 32)
-    SCREEN temp
-    CLS , _RGB(0, 0, 170)
-    COLOR , _RGB(0, 0, 170)
-    FOR y = 1 TO 16
-        FOR x = 1 TO 16
-            LINE (x * 40, 0)-(x * 40, 480), _RGB32(255, 255, 0)
-            LINE (0, y * 30)-(640, y * 30), _RGB32(255, 255, 0)
-            IF counter THEN _PRINTSTRING (x * 40 - 28, y * 30 - 23), CHR$(counter)
-            counter = counter + 1
+FUNCTION ideASCIIbox$
+
+    '-------- generic dialog box header --------
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+    idepar p, 56, 21, "ASCII Chart"
+
+    TYPE position
+        x AS INTEGER
+        y AS INTEGER
+        caption AS STRING
+    END TYPE
+    DIM asciiTable(1 TO 255) AS position
+
+    a = 0
+    x = 5
+    y = 2
+    FOR i = 0 TO 15
+        FOR j = 0 TO 15
+            a = a + 1
+            IF a > 255 THEN EXIT FOR
+            asciiTable(a).x = p.x + x
+            asciiTable(a).y = p.y + y
+            asciiTable(a).caption = " " + CHR$(a) + " "
+            x = x + 3
         NEXT
+        IF a > 255 THEN EXIT FOR
+        x = 5
+        y = y + 1
     NEXT
 
-    _DEST temp1
-    CLS , _RGB(0, 0, 170)
-    COLOR , _RGB(0, 0, 170)
-    counter = 0
-    FOR y = 1 TO 16
-        FOR x = 1 TO 16
-            LINE (x * 40, 0)-(x * 40, 480), _RGB32(255, 255, 0)
-            LINE (0, y * 30)-(640, y * 30), _RGB32(255, 255, 0)
-            text$ = LTRIM$(STR$(counter))
-            IF counter THEN _PRINTSTRING (x * 40 - 24 - (LEN(text$)) * 4, y * 30 - 23), text$
-            counter = counter + 1
-        NEXT
-    NEXT
-    _DEST temp
+    i = i + 1
+    ButtonsID = i
+    o(i).typ = 3
+    o(i).y = 21
+    o(i).txt = idenewtxt("#Cancel")
+    o(i).dft = 1
 
-    x = 1: y = 1
-    _PUTIMAGE , temp, ws
-    DO: LOOP WHILE _MOUSEINPUT 'clear the mouse input buffer
-    oldmousex = _MOUSEX: oldmousey = _MOUSEY
+    Selected = 0
 
-    DO
-        _LIMIT 60
-        DO: LOOP WHILE _MOUSEINPUT
-        IF oldx <> _MOUSEX AND oldy <> _MOUSEY THEN
-            x = _MOUSEX \ 40 + 1 'If mouse moved, where are we now?
-            y = _MOUSEY \ 30 + 1
-        END IF
-        oldx = _MOUSEX: oldy = _MOUSEY
+    '-------- end of init --------
 
-        num = (y - 1) * 16 + x - 1
-        IF num = 0 THEN
-            text$ = ""
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+        IF Selected THEN
+            idetxt(o(ButtonsID).txt) = "#Insert character" + sep + "Insert C#HR$" + sep + "#Cancel"
         ELSE
-            flashcounter = flashcounter + 1
-            IF flashcounter > 30 THEN
-                COLOR _RGB32(255, 255, 255), _RGB(0, 0, 170)
-                text$ = CHR$(num)
-                IF LEN(text$) = 1 THEN text$ = " " + text$ + " "
+            idetxt(o(ButtonsID).txt) = "#Cancel"
+        END IF
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        Hover = 0
+        FOR i = 1 TO 255
+            IF mX >= asciiTable(i).x AND mX <= asciiTable(i).x + 2 AND mY = asciiTable(i).y THEN
+                Hover = i
+                IF mCLICK THEN
+                    Selected = i
+                    IF timeElapsedSince(lastClick!) <= .3 THEN
+                        'double click on chart
+                        GOTO insertChar
+                    END IF
+                    lastClick! = TIMER
+                END IF
+                COLOR 7, 0
             ELSE
-                COLOR _RGB32(255, 255, 255), _RGB(0, 0, 170)
-                text$ = RTRIM$(LTRIM$(STR$(num)))
+                COLOR 2, 7
+            END IF
+            IF Selected = i THEN COLOR 15, 0
+            _PRINTSTRING (asciiTable(i).x, asciiTable(i).y), asciiTable(i).caption
+        NEXT
+
+        COLOR 0, 7
+        IF Selected = 0 AND Hover > 0 THEN
+            _PRINTSTRING (p.x + 5, p.y + 19), "Hovered (click to select):" + STR$(Hover)
+        ELSEIF Selected > 0 THEN
+            _PRINTSTRING (p.x + 5, p.y + 19), "Selected (ESC to clear):  " + STR$(Selected)
+        END IF
+
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        change = 0
+        DO
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            IF mX <> prev.mX OR mY <> prev.mY THEN change = 1: prev.mX = mX: prev.mY = mY
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+        LOOP UNTIL change
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
             END IF
         END IF
-        IF flashcounter = 60 THEN flashcounter = 1
-        CLS
-        IF toggle THEN _PUTIMAGE , temp1, temp ELSE _PUTIMAGE , ws, temp
-        _PRINTSTRING (x * 40 - 24 - (LEN(text$)) * 4, y * 30 - 23), text$
-        LINE (x * 40 - 40, y * 30 - 30)-(x * 40, y * 30), _RGBA32(255, 255, 255, 150), BF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
 
-        k1 = _KEYHIT
-        MouseClick = 0: MouseExit = 0
-        IF MouseButtonSwapped THEN
-            MouseClick = _MOUSEBUTTON(2): MouseExit = _MOUSEBUTTON(1)
-        ELSE
-            MouseClick = _MOUSEBUTTON(1): MouseExit = _MOUSEBUTTON(2)
+        '-------- generic input response --------
+        info = 0
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+
+        IF K$ = CHR$(13) OR (Selected > 0 AND focus = 1 AND info <> 0) THEN
+            IF Selected = 0 AND Hover > 0 THEN
+                Selected = Hover
+            ELSEIF Selected THEN
+                insertChar:
+                ideASCIIbox$ = CHR$(Selected)
+                EXIT FUNCTION
+            END IF
         END IF
-        SELECT CASE k1
-            CASE 13: EXIT DO
-            CASE 27
-                _AUTODISPLAY
-                SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
-                IF _RESIZE THEN donothing = atall
-                EXIT SUB
-            CASE 32: toggle = NOT toggle
-            CASE 18432: y = y - 1
-            CASE 19200: x = x - 1
-            CASE 20480: y = y + 1
-            CASE 19712: x = x + 1
+
+        IF (Selected > 0 AND focus = 2 AND info <> 0) THEN
+            ideASCIIbox$ = "CHR$(" + str2$(Selected) + ")"
+            EXIT FUNCTION
+        END IF
+
+        IF K$ = CHR$(27) THEN
+            IF Selected THEN Selected = 0 ELSE EXIT FUNCTION
+        END IF
+
+        IF (Selected = 0 AND focus = 1 AND info <> 0) OR _
+           (Selected > 0 AND focus = 3 AND info <> 0) THEN EXIT FUNCTION
+
+        SELECT EVERYCASE KB
+            CASE 19712, 19200, 20480, 18432
+                IF Selected = 0 AND Hover > 0 THEN Selected = Hover
+            CASE 19712
+                Selected = Selected + 1
+                IF Selected > 255 THEN Selected = 1
+            CASE 19200
+                Selected = Selected - 1
+                IF Selected < 1 THEN Selected = 255
+            CASE 20480
+                IF Selected = 240 THEN
+                    'corner case
+                    Selected = 255
+                ELSEIF Selected + 16 <= 255 THEN
+                    Selected = Selected + 16
+                ELSE
+                    Selected = Selected + 16 - 256
+                END IF
+            CASE 18432
+                IF Selected = 16 THEN
+                    'corner case
+                    Selected = 240
+                ELSEIF Selected - 16 >= 1 THEN
+                    Selected = Selected - 16
+                ELSE
+                    Selected = Selected - 16 + 256
+                END IF
         END SELECT
 
-        IF x < 1 THEN x = 1
-        IF x > 16 THEN x = 16
-        IF y < 1 THEN y = 1
-        IF y > 16 THEN y = 16
-        _DISPLAY
-        Ex = _EXIT
-        IF Ex THEN
-            _AUTODISPLAY
-            SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
-            IF _RESIZE THEN donothing = atall
-            EXIT FUNCTION
-        END IF
-        IF MouseExit THEN
-            _AUTODISPLAY
-            SCREEN 0: WIDTH w, h: _FONT font: _DEST 0: _DELAY .2
-            IF _RESIZE THEN donothing = atall
-            DO UNTIL _MOUSEBUTTON(1) = 0 AND _MOUSEBUTTON(2) = 0: i = _MOUSEINPUT: LOOP
-            EXIT FUNCTION
-        END IF
-
-    LOOP UNTIL MouseClick
-
-    ret% = (y - 1) * 16 + x - 1
-    IF ret% > 0 AND ret% < 255 THEN
-        ideASCIIbox% = ret%
-    END IF
-
-    _AUTODISPLAY
-
-    SCREEN 0: WIDTH w, h
-    _FONT font
-    _DEST 0: _DELAY .2
-    IF _RESIZE THEN REM
-    DO UNTIL _MOUSEBUTTON(1) = 0 AND _MOUSEBUTTON(2) = 0: i = _MOUSEINPUT: LOOP
+        'end of custom controls
+        mousedown = 0
+        mouseup = 0
+    LOOP
 
 END FUNCTION
 
