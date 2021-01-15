@@ -42,10 +42,6 @@ The [[_KEYHIT]] function returns [[ASCII]] one and two byte, OpenGL Virtual Key 
  
 :* >= &amp;H40000000: [[Unicode]].
 
-* Font '''cyberbit.ttf''', included with QB64 ('''version 0.92 and up'''), is required to facilitate the '''IME'''(in Chinese settings) only. The 12.7 MB font is free for '''non-commercial''' use and is not loaded unless the user switches to the '''Input Mode Editor'''. Set to "UNICODE".
-&lt;center>'''[http://www.fileformat.info/tip/microsoft/enter_unicode.htm Setting up the Unicode Input Method Editor in Windows]'''&lt;/center>
-&lt;center>If you need help with IME support in '''Vista''' see the following article: [http://blogs.msdn.com/b/michkap/archive/2006/07/20/671835.aspx Setting up IME in Vista]&lt;/center>
-* QB64 can use several Windows fonts when '''cyberbit''' is not present so it is not necessary to include with program packages. 
 * An '''important difference''' between [[INKEY$]] and _KEYHIT is how they work when '''CTRL, ALT''' or '''SHIFT''' are used. INKEY$ returns a different code if you hold down CTRL, ALT or SHIFT before pressing  F1 (for example). _KEYHIT will return the same code regardless of which modifiers were used but you can check [[_KEYDOWN]] to see which modifying keys are being used.
 * '''Keyboards with an Alt Gr key note:''' _KEYHIT may return both Alt (100307) and Ctrl (100306) codes when AltGr key is pressed or released.
 

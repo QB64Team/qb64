@@ -2762,7 +2762,7 @@ DO
                 END IF
             ELSE
                 LOCATE , 1
-                PRINT "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%";
+                PRINT STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176) + STR$(percentage) + "%";
             END IF
         END IF
     END IF
@@ -11484,7 +11484,7 @@ IF idemode = 0 AND NOT QuietMode THEN
         PRINT "[" + STRING$(maxprogresswidth, ".") + "] 100%"
     ELSE
         LOCATE , 1
-        PRINT "[" + STRING$(maxprogresswidth, 254) + "] 100%"
+        PRINT STRING$(maxprogresswidth, 219) + " 100%"
     END IF
 END IF
 
