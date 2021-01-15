@@ -78,7 +78,6 @@ FUNCTION Wiki$ (PageName$)
     t! = TIMER
 
     DO
-        _DELAY 0.1
         GET #c, , a2$
         IF LEN(a2$) THEN
             a$ = a$ + a2$
@@ -110,6 +109,7 @@ FUNCTION Wiki$ (PageName$)
                 EXIT FUNCTION
             END IF
         END IF
+        _LIMIT 100
     LOOP UNTIL ABS(TIMER - t!) > 20
     CLOSE #c
 END FUNCTION

@@ -355,10 +355,10 @@ FUNCTION ide2 (ignore)
 
         m = m + 1: i = 0
         menu$(m, i) = "Tools": i = i + 1
-        menu$(m, i) = "#ASCII Chart": i = i + 1
-        menu$(m, i) = "Insert Quick #Keycode...  Ctrl+K": i = i + 1
-        menu$(m, i) = "#Math Evaluator": i = i + 1
-        menu$(m, i) = "#RGB Color Mixer": i = i + 1
+        menu$(m, i) = "#ASCII Chart...": i = i + 1
+        menu$(m, i) = "Insert Quick #Keycode  Ctrl+K": i = i + 1
+        menu$(m, i) = "#Math Evaluator...": i = i + 1
+        menu$(m, i) = "#RGB Color Mixer...": i = i + 1
         menusize(m) = i - 1
 
 
@@ -370,7 +370,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Keywords by Usage": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
-        menu$(m, i) = "Update All #Pages": i = i + 1
+        menu$(m, i) = "Update All #Pages...": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#About...": i = i + 1
         menusize(m) = i - 1
@@ -4787,7 +4787,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#RGB Color Mixer" THEN
+            IF menu$(m, s) = "#RGB Color Mixer..." THEN
                 PCOPY 2, 0
                 oldkeywordHighlight = keywordHighlight
                 keywordHighlight = 0
@@ -5022,7 +5022,7 @@ FUNCTION ide2 (ignore)
             END IF
 
 
-            IF menu$(m, s) = "#ASCII Chart" THEN
+            IF menu$(m, s) = "#ASCII Chart..." THEN
                 PCOPY 2, 0
                 retval$ = ideASCIIbox$
                 IF LEN(retval$) THEN
@@ -5048,7 +5048,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Insert Quick #Keycode...  Ctrl+K" THEN
+            IF menu$(m, s) = "Insert Quick #Keycode  Ctrl+K" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
                 dummy = DarkenFGBG(1)
@@ -5175,7 +5175,7 @@ FUNCTION ide2 (ignore)
             END IF
 
 
-            IF menu$(m, s) = "#Math Evaluator" THEN
+            IF menu$(m, s) = "#Math Evaluator..." THEN
                 STATIC mathEvalExpr$
                 'build initial name if word selected
                 IF ideselect THEN
@@ -5257,102 +5257,12 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Update All #Pages" THEN
+            IF menu$(m, s) = "Update All #Pages..." THEN
                 PCOPY 2, 0
-                q$ = ideyesnobox("Update Help", "Redownload all cached help content? (~10 min)")
+                q$ = ideyesnobox("Update Help", "This can take up to 10 minutes.\nRedownload all cached help content from the wiki?")
+                PCOPY 2, 0
+                IF q$ = "Y" THEN ideupdatehelpbox
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                IF q$ = "Y" THEN
-
-                    IF idehelp = 0 THEN
-                        old_idesubwindow = idesubwindow: old_idewy = idewy
-                        idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
-                        Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
-                        idesubwindow = old_idesubwindow: idewy = old_idewy
-                    END IF
-
-                    SCREEN , , 4, 4
-                    COLOR 7, 1
-                    CLS
-
-                    PRINT "Generating list of cached content..."
-
-                    'Create a list of all files to be recached
-                    f$ = CHR$(0) + idezfilelist$("internal/help", 1, "") + CHR$(0)
-                    IF LEN(f$) = 2 THEN f$ = CHR$(0)
-
-                    'Prepend core pages to list
-                    f$ = CHR$(0) + "Keyword_Reference_-_By_usage.txt" + f$
-                    f$ = CHR$(0) + "QB64_Help_Menu.txt" + f$
-                    f$ = CHR$(0) + "QB64_FAQ.txt" + f$
-                    PRINT "Adding core help pages added to list..."
-
-                    'Download and PARSE alphabetical index to build required F1 help links
-                    PRINT "Regenerating keyword list..."
-                    Help_Recaching = 1: Help_IgnoreCache = 1
-                    a$ = Wiki$("Keyword Reference - Alphabetical")
-                    Help_Recaching = 0: Help_IgnoreCache = 0
-                    WikiParse a$
-
-                    'Add all linked pages to download list (if not already in list)
-                    fh = FREEFILE
-                    OPEN "internal\help\links.bin" FOR INPUT AS #fh
-                    DO UNTIL EOF(fh)
-                        LINE INPUT #fh, l$
-                        IF LEN(l$) THEN
-                            c = INSTR(l$, ","): PageName2$ = RIGHT$(l$, LEN(l$) - c)
-                            DO WHILE INSTR(PageName2$, " ")
-                                ASC(PageName2$, INSTR(PageName2$, " ")) = 95
-                            LOOP
-                            DO WHILE INSTR(PageName2$, "&")
-                                i = INSTR(PageName2$, "&")
-                                PageName2$ = LEFT$(PageName2$, i - 1) + "%26" + RIGHT$(PageName2$, LEN(PageName2$) - i)
-                            LOOP
-                            DO WHILE INSTR(PageName2$, "/")
-                                i = INSTR(PageName2$, "/")
-                                PageName2$ = LEFT$(PageName2$, i - 1) + "%2F" + RIGHT$(PageName2$, LEN(PageName2$) - i)
-                            LOOP
-                            PageName2$ = PageName2$ + ".txt"
-                            IF INSTR(f$, CHR$(0) + PageName2$ + CHR$(0)) = 0 THEN
-                                f$ = f$ + PageName2$ + CHR$(0)
-                            END IF
-                        END IF
-                    LOOP
-                    CLOSE #fh
-
-                    'Redownload all listed files
-                    IF f$ <> CHR$(0) THEN
-                        c = 0 'count files to download
-                        FOR x = 2 TO LEN(f$)
-                            IF ASC(f$, x) = 0 THEN c = c + 1
-                        NEXT
-                        c = c - 1
-                        PRINT "Updating"; c; "help content files: (Press ESC to cancel)"
-
-                        f$ = RIGHT$(f$, LEN(f$) - 1)
-                        z$ = CHR$(0)
-                        n = 0
-                        DO UNTIL LEN(f$) = 0
-                            x2 = INSTR(f$, z$)
-                            f2$ = LEFT$(f$, x2 - 1): f$ = RIGHT$(f$, LEN(f$) - x2)
-
-                            IF RIGHT$(f2$, 4) = ".txt" THEN
-                                f2$ = LEFT$(f2$, LEN(f2$) - 4)
-                                n = n + 1
-                                PRINT "(" + str2$(n) + "/" + str2$(c) + ") " + f2$
-
-                                Help_IgnoreCache = 1: Help_Recaching = 1: ignore$ = Wiki(f2$): Help_Recaching = 0: Help_IgnoreCache = 0
-                            END IF
-
-                            GetInput
-                            DO WHILE iCHANGED
-                                IF K$ = CHR$(27) THEN GOTO stoprecache
-                                GetInput
-                            LOOP
-                        LOOP
-                    END IF
-                    stoprecache:
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
-                END IF
                 GOTO ideloop
             END IF
 
@@ -8474,7 +8384,7 @@ SUB ideshowtext
 
             FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
                 IF timeElapsedSince(startTime) > 1 THEN
-                    result = idemessagebox("Syntax Highlighter Disabled", StrReplace$("Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "\n", CHR$(10)), "")
+                    result = idemessagebox("Syntax Highlighter Disabled", "Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "")
                     DisableSyntaxHighlighter = -1
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
@@ -11058,6 +10968,7 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
     '-------- end of generic dialog box header --------
 
     '-------- init --------
+    messagestr$ = StrReplace$(messagestr$, "\n", CHR$(10))
     MessageLines = 1
     DIM FullMessage$(1 TO 8)
     PrevScan = 1
@@ -13659,7 +13570,7 @@ SUB IdeMakeContextualMenu
         Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA(")
         Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
         IF Found_RGB THEN
-            menu$(m, i) = "#RGB Color Mixer": i = i + 1
+            menu$(m, i) = "#RGB Color Mixer...": i = i + 1
             menu$(m, i) = "-": i = i + 1
         END IF
         NoRGBFound:
@@ -13720,7 +13631,7 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "#Keywords by Usage": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
-        menu$(m, i) = "Update All #Pages": i = i + 1
+        menu$(m, i) = "Update All #Pages...": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clo#se Help  ESC": i = i + 1
     END IF
@@ -13851,6 +13762,246 @@ SUB IdeAddSearched (s2$)
     END IF
     PUT #fh, 1, a$
     CLOSE #fh
+END SUB
+
+SUB ideupdatehelpbox
+    '-------- generic dialog box header --------
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+    IF idehelp = 0 THEN
+        old_idesubwindow = idesubwindow: old_idewy = idewy
+        idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
+        Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
+        idesubwindow = old_idesubwindow: idewy = old_idewy
+    END IF
+
+    MessageLines = 2
+    DIM FullMessage$(1 TO 2)
+    UpdateStep = 1
+
+    i = 0
+    w2 = LEN(titlestr$) + 4
+    IF w < w2 THEN w = w2
+    IF w < buttonsLen THEN w = buttonsLen
+    IF w > idewx - 4 THEN w = idewx - 4
+    idepar p, 60, 6, "Update Help"
+
+    i = i + 1
+    ButtonID = i
+    o(i).typ = 3
+    o(i).y = 6
+    o(i).txt = idenewtxt("#Cancel")
+    o(i).dft = 1
+    '-------- end of init --------
+
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        'update steps
+        SELECT CASE UpdateStep
+            CASE 1
+                FullMessage$(2) = "Generating list of cached content..."
+            CASE 2
+                FullMessage$(2) = "Adding core help pages to list..."
+            CASE 3
+                FullMessage$(2) = "Regenerating keyword list..."
+            CASE 4
+                FullMessage$(2) = "Building download queue..."
+            CASE 5
+                FullMessage$(1) = "Updating help content file " + str2$(n) + "/" + str2$(c) +"..."
+        END SELECT
+
+        FOR i = 1 TO MessageLines
+            IF i = 1 THEN COLOR 0, 7 ELSE COLOR 2, 7
+            IF LEN(FullMessage$(i)) > p.w - 2 THEN
+                FullMessage$(i) = LEFT$(FullMessage$(i), p.w - 5) + STRING$(3, 250)
+            END IF
+            LOCATE p.y + 1 + i, p.x + (p.w \ 2 - LEN(FullMessage$(i)) \ 2) + 1
+            PRINT FullMessage$(i);
+        NEXT i
+
+        COLOR 0, 7
+        IF UpdateStep >= 5 THEN
+            maxprogresswidth = 52 'arbitrary
+            percentage = INT(n / c * 100)
+            percentagechars = INT(maxprogresswidth * n / c)
+            'percentageMsg$ = "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%"
+            percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176) + STR$(percentage) + "%"
+            LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
+            PRINT percentageMsg$;
+        END IF
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        GetInput
+        IF mCLICK THEN mousedown = 1
+        IF mRELEASE THEN mouseup = 1
+        alt = KALT
+        oldalt = alt
+
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+            END IF
+        END IF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
+
+        '-------- generic input response --------
+        info = 0
+
+        IF UCASE$(K$) = "C" THEN altletter$ = UCASE$(K$)
+
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+
+        'specific post controls
+        IF K$ = CHR$(27) OR K$ = CHR$(13) OR (info <> 0) THEN
+            IF UpdateStep < 6 THEN q$ = ideyesnobox("", "Cancel download?") ELSE q$ = "Y"
+            IF q$ = "Y" THEN EXIT FUNCTION
+        END IF
+        'end of custom controls
+
+        '-------- update routine -------------------------------------
+        SELECT CASE UpdateStep
+            CASE 1
+                'Create a list of all files to be recached
+                f$ = CHR$(0) + idezfilelist$("internal/help", 1, "") + CHR$(0)
+                IF LEN(f$) = 2 THEN f$ = CHR$(0)
+
+                'Prepend core pages to list
+                f$ = CHR$(0) + "Keyword_Reference_-_By_usage.txt" + f$
+                f$ = CHR$(0) + "QB64_Help_Menu.txt" + f$
+                f$ = CHR$(0) + "QB64_FAQ.txt" + f$
+                UpdateStep = UpdateStep + 1
+            CASE 2
+                UpdateStep = UpdateStep + 1
+            CASE 3
+                'Download and PARSE alphabetical index to build required F1 help links
+                FullMessage$(1) = "Regenerating keyword list..."
+                Help_Recaching = 1: Help_IgnoreCache = 1
+                a$ = Wiki$("Keyword Reference - Alphabetical")
+                Help_Recaching = 0: Help_IgnoreCache = 0
+                WikiParse a$
+                UpdateStep = UpdateStep + 1
+            CASE 4
+                'Add all linked pages to download list (if not already in list)
+                fh = FREEFILE
+                OPEN "internal\help\links.bin" FOR INPUT AS #fh
+                DO UNTIL EOF(fh)
+                    LINE INPUT #fh, l$
+                    IF LEN(l$) THEN
+                        c = INSTR(l$, ","): PageName2$ = RIGHT$(l$, LEN(l$) - c)
+                        DO WHILE INSTR(PageName2$, " ")
+                            ASC(PageName2$, INSTR(PageName2$, " ")) = 95
+                        LOOP
+                        DO WHILE INSTR(PageName2$, "&")
+                            i = INSTR(PageName2$, "&")
+                            PageName2$ = LEFT$(PageName2$, i - 1) + "%26" + RIGHT$(PageName2$, LEN(PageName2$) - i)
+                        LOOP
+                        DO WHILE INSTR(PageName2$, "/")
+                            i = INSTR(PageName2$, "/")
+                            PageName2$ = LEFT$(PageName2$, i - 1) + "%2F" + RIGHT$(PageName2$, LEN(PageName2$) - i)
+                        LOOP
+                        PageName2$ = PageName2$ + ".txt"
+                        IF INSTR(f$, CHR$(0) + PageName2$ + CHR$(0)) = 0 THEN
+                            f$ = f$ + PageName2$ + CHR$(0)
+                        END IF
+                    END IF
+                LOOP
+                CLOSE #fh
+
+                'Redownload all listed files
+                IF f$ <> CHR$(0) THEN
+                    c = 0 'count files to download
+                    FOR x = 2 TO LEN(f$)
+                        IF ASC(f$, x) = 0 THEN c = c + 1
+                    NEXT
+                    c = c - 1
+
+                    f$ = RIGHT$(f$, LEN(f$) - 1)
+                    z$ = CHR$(0)
+                    n = 0
+                ELSE
+                    GOTO stoprecache
+                END IF
+                FullMessage$(2) = ""
+                UpdateStep = UpdateStep + 1
+            CASE 5
+                IF LEN(f$) > 0 THEN
+                    x2 = INSTR(f$, z$)
+                    f2$ = LEFT$(f$, x2 - 1): f$ = RIGHT$(f$, LEN(f$) - x2)
+
+                    IF RIGHT$(f2$, 4) = ".txt" THEN
+                        f2$ = LEFT$(f2$, LEN(f2$) - 4)
+                        n = n + 1
+                        FullMessage$(2) = "Page title: " + f2$
+                        Help_IgnoreCache = 1: Help_Recaching = 1: ignore$ = Wiki(f2$): Help_Recaching = 0: Help_IgnoreCache = 0
+                    END IF
+                ELSE
+                    UpdateStep = UpdateStep + 1
+                END IF
+            CASE 6
+                stoprecache:
+                FullMessage$(1) = "All pages updated."
+                FullMessage$(2) = ""
+                idetxt(o(ButtonID).txt) = "#Close"
+        END SELECT
+        '-------- end of update routine ------------------------------
+
+        mousedown = 0
+        mouseup = 0
+    LOOP
 END SUB
 
 FUNCTION ideASCIIbox$
