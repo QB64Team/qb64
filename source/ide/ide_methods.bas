@@ -14024,7 +14024,7 @@ FUNCTION ideASCIIbox$
         '-------- end of generic input response --------
 
         IF mY > p.y AND mY < p.y + p.h AND mX > p.x AND mX < p.x + p.w THEN
-            IF Hover = 0 AND mCLICK THEN Selected = 0: focus = 1
+            IF Hover = 0 AND mCLICK THEN focus = 1
         END IF
 
         IF (K$ = CHR$(13) AND focus = 1) THEN
@@ -14071,7 +14071,7 @@ FUNCTION ideASCIIbox$
                         Selected = Selected - 1
                     END IF
                     IF Selected < 1 THEN Selected = 255
-                CASE 20480 'Up
+                CASE 20480 'Down
                     IF KCTRL AND Selected > 0 THEN
                         IF Selected = 240 THEN
                             Selected = 255
@@ -14091,12 +14091,12 @@ FUNCTION ideASCIIbox$
                             Selected = Selected + 16 - 256
                         END IF
                     END IF
-                CASE 18432 'Down
+                CASE 18432 'Up
                     IF KCTRL AND Selected > 0 THEN
                         DO UNTIL Selected <= 16
                             Selected = Selected - 16
                         LOOP
-                        IF Selected < 1 THEN Selected = 0
+                        IF Selected < 1 THEN Selected = 1
                     ELSE
                         IF Selected = 16 THEN
                             'corner case
