@@ -351,9 +351,16 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Ignore #Warnings": i = i + 1
         IF IgnoreWarnings THEN menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
 
-
-
         menusize(m) = i - 1
+
+        m = m + 1: i = 0
+        menu$(m, i) = "Tools": i = i + 1
+        menu$(m, i) = "#ASCII Chart": i = i + 1
+        menu$(m, i) = "Insert Quick #Keycode...  Ctrl+K": i = i + 1
+        menu$(m, i) = "#Math Evaluator": i = i + 1
+        menu$(m, i) = "#RGB Color Mixer": i = i + 1
+        menusize(m) = i - 1
+
 
         m = m + 1: i = 0
         menu$(m, i) = "Help": i = i + 1
@@ -361,9 +368,6 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Contents Page": i = i + 1
         menu$(m, i) = "Keyword #Index": i = i + 1
         menu$(m, i) = "#Keywords by Usage": i = i + 1
-        menu$(m, i) = "ASCII C#hart": i = i + 1
-        menu$(m, i) = "#Math Evaluator": i = i + 1
-        menu$(m, i) = "Insert #Quick Keycode...  Ctrl+K": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
         menu$(m, i) = "Update All #Pages": i = i + 1
@@ -4983,7 +4987,7 @@ FUNCTION ide2 (ignore)
             END IF
 
 
-            IF menu$(m, s) = "ASCII C#hart" THEN
+            IF menu$(m, s) = "#ASCII Chart" THEN
                 PCOPY 2, 0
                 retval$ = ideASCIIbox$
                 IF LEN(retval$) THEN
@@ -5009,7 +5013,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Insert #Quick Keycode...  Ctrl+K" THEN
+            IF menu$(m, s) = "Insert Quick #Keycode...  Ctrl+K" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
                 dummy = DarkenFGBG(1)
@@ -13624,12 +13628,12 @@ SUB IdeMakeContextualMenu
         END IF
 
         Found_RGB = 0
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB(")
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGB32(")
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA(")
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "_RGBA32(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA(")
+        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
         IF Found_RGB THEN
-            menu$(m, i) = "Open _RGB Color Mi#xer": i = i + 1
+            menu$(m, i) = "#RGB Color Mixer": i = i + 1
             menu$(m, i) = "-": i = i + 1
         END IF
         NoRGBFound:
@@ -13684,6 +13688,13 @@ SUB IdeMakeContextualMenu
             menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
         END IF
         menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "#Contents Page": i = i + 1
+        menu$(m, i) = "Keyword #Index": i = i + 1
+        menu$(m, i) = "#Keywords by Usage": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "#Update Current Page": i = i + 1
+        menu$(m, i) = "Update All #Pages": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clo#se Help  ESC": i = i + 1
     END IF
