@@ -362,7 +362,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Keyword #Index": i = i + 1
         menu$(m, i) = "#Keywords by Usage": i = i + 1
         menu$(m, i) = "ASCII C#hart": i = i + 1
-        menu$(m, i) = "#Math": i = i + 1
+        menu$(m, i) = "#Math Evaluator": i = i + 1
         menu$(m, i) = "Insert #Quick Keycode...  Ctrl+K": i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
@@ -5136,9 +5136,69 @@ FUNCTION ide2 (ignore)
             END IF
 
 
-            IF menu$(m, s) = "#Math" THEN
-                PCOPY 2, 0
-                idemathbox
+            IF menu$(m, s) = "#Math Evaluator" THEN
+                DO
+                    PCOPY 2, 0
+                    STATIC mathEvalResult$
+                    retval$ = ideinputbox$("Math Evaluator", "#Enter expression", mathEvalResult$, "", 60, 0)
+                    result = 0
+                    IF LEN(retval$) THEN
+                        mathEvalResult$ = retval$
+                        ev0$ = Evaluate_Expression$(retval$)
+                        ev$ = ev0$
+                        mathEvalError%% = INSTR(ev$, "ERROR") > 0
+                        IF mathEvalHEX%% THEN ev$ = "&H" + HEX$(VAL(ev$))
+                        DO
+                            b1$ = "#Insert;"
+                            IF mathEvalHEX%% THEN b2$ = "#Decimal;" ELSE b2$ = "#HEX$;"
+                            IF mathEvalComment%% THEN
+                                mathMsg$ = ev$ + " '" + retval$
+                                b3$ = "#Uncomment;"
+                            ELSE
+                                mathMsg$ = ev$
+                                b3$ = "Co#mment;"
+                            END IF
+                            IF mathEvalError%% THEN b1$ = "": b2$ = "": b3$ = ""
+                            PCOPY 2, 0
+                            result = idemessagebox("Math Evaluator - Result", mathMsg$, b1$ + b2$ + b3$ + "#Redo;#Cancel")
+                            IF mathEvalError%% = 0 THEN
+                                SELECT CASE result
+                                    CASE 1, 4, 5
+                                        EXIT DO
+                                    CASE 2
+                                        mathEvalHEX%% = NOT mathEvalHEX%%
+                                        IF mathEvalHEX%% THEN ev$ = "&H" + HEX$(VAL(ev$)) ELSE ev$ = ev0$
+                                    CASE 3
+                                        mathEvalComment%% = NOT mathEvalComment%%
+                                END SELECT
+                            ELSE
+                                EXIT DO
+                            END IF
+                        LOOP
+                        IF mathEvalError%% AND result = 2 THEN EXIT DO
+                        IF mathEvalError%% = 0 AND (result = 1 OR result = 5) THEN EXIT DO
+                    ELSE
+                        EXIT DO
+                    END IF
+                LOOP
+
+                IF mathEvalError%% = 0 AND result = 1 THEN
+                    tempk$ = mathMsg$
+
+                    'insert
+                    IF ideselect THEN GOSUB delselect
+                    a$ = idegetline(idecy)
+                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+                    idesetline idecy, a$
+
+                    IF PasteCursorAtEnd THEN
+                        'Place the cursor at the end of the inserted content:
+                        idecx = idecx + LEN(tempk$)
+                    END IF
+
+                    idechangemade = 1
+                END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -10964,15 +11024,22 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
         END IF
     LOOP
 
+    IF buttons$ = "" THEN buttons$ = "#OK"
+    totalButtons = 1
+    FOR i = 1 TO LEN(buttons$)
+        IF ASC(buttons$, i) = 59 THEN totalButtons = totalButtons + 1
+    NEXT
+    buttonsLen = LEN(buttons$) + totalButtons * 6
+
     i = 0
     w2 = LEN(titlestr$) + 4
     IF w < w2 THEN w = w2
+    IF w < buttonsLen THEN w = buttonsLen
     idepar p, w, 3 + MessageLines, titlestr$
 
     i = i + 1
     o(i).typ = 3
     o(i).y = 3 + MessageLines
-    IF buttons$ = "" THEN buttons$ = "#OK"
     o(i).txt = idenewtxt(StrReplace$(buttons$, ";", sep))
     o(i).dft = 1
     '-------- end of init --------
@@ -14109,253 +14176,6 @@ FUNCTION idef1box$ (lnks$, lnks)
 
 
 END FUNCTION
-
-SUB idemathbox
-    'Draw a box
-
-    '-------- generic dialog box header --------
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    DoAnother:
-    titlestr$ = "           Enter a Math Equation           "
-    messagestr$ = ""
-
-    '-------- init --------
-    i = 0
-    w = LEN(messagestr$) + 2
-    w2 = LEN(titlestr$) + 4
-    IF w < w2 THEN w = w2
-    idepar p, w, 4, titlestr$
-
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("#OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 2: PRINT messagestr$;
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-                IF K$ = CHR$(27) THEN EXIT SUB
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        IF K$ > CHR$(31) AND K$ < CHR$(123) THEN messagestr$ = messagestr$ + K$
-        IF K$ = CHR$(8) THEN messagestr$ = LEFT$(messagestr$, LEN(messagestr$) - 1)
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        'specific post controls
-        IF K$ = CHR$(27) OR K$ = CHR$(13) OR (focus = 1 AND info <> 0) THEN EXIT DO
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
-
-    temp$ = messagestr$ 'Make a back up of our user return
-    titlestr$ = "(H)ex/(D)ec  (U)n(C)omment  (ESC)ape/(R)edo"
-    ev$ = Evaluate_Expression$(messagestr$)
-    messagestr$ = ev$
-
-    '-------- init --------
-    i = 0
-    w = LEN(messagestr$) + 2
-    w2 = LEN(titlestr$) + 4
-    IF w < w2 THEN w = w2
-    idepar p, w, 4, titlestr$
-
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 4
-    o(i).txt = idenewtxt("OK")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-
-
-
-    DO 'main loop
-
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 2: PRINT messagestr$;
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        IF K$ = "H" OR K$ = "h" THEN ev$ = "&H" + HEX$(VAL(ev$))
-        IF K$ = "D" OR K$ = "d" THEN ev$ = STR$(VAL(ev$))
-        IF K$ = "U" OR K$ = "u" THEN comment = 0
-        IF K$ = "C" OR K$ = "c" THEN comment = -1
-        IF K$ = "R" OR K$ = "r" THEN GOTO DoAnother
-        IF K$ = CHR$(27) THEN EXIT SUB
-        IF comment THEN messagestr$ = ev$ + " ' " + temp$ ELSE messagestr$ = ev$
-
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        'specific post controls
-        IF K$ = CHR$(27) OR K$ = CHR$(13) OR (focus = 1 AND info <> 0) THEN EXIT DO
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
-
-    IF INSTR(messagestr$, " LINES INSERTED") THEN EXIT SUB
-
-    tempk$ = messagestr$
-
-    'insert
-    IF ideselect THEN GOSUB delselect
-    a$ = idegetline(idecy)
-    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-    idesetline idecy, a$
-
-    IF PasteCursorAtEnd THEN
-        'Place the cursor at the end of the inserted content:
-        idecx = idecx + LEN(tempk$)
-    END IF
-
-    idechangemade = 1
-END SUB
 
 'After Cormen, Leiserson, Rivest & Stein "Introduction To Algoritms" via Wikipedia
 SUB sort (arr() AS STRING * 998)
