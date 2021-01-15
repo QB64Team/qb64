@@ -11639,7 +11639,7 @@ FUNCTION idechoosecolorsbox
     i = i + 1
     o(i).typ = 4 'check box
     o(i).y = 17
-    o(i).nam = idenewtxt("#Keyword highlight")
+    o(i).nam = idenewtxt("Highlight #keywords and numbers")
     IF keywordHighlight THEN o(i).sel = 1
 
     i = i + 1
@@ -11869,7 +11869,7 @@ FUNCTION idechoosecolorsbox
         END IF
 
         'Save and Erase color scheme (Buttons):
-        IF (SchemeID = 0 OR SchemeID > PresetColorSchemes) AND mB THEN
+        IF (SchemeID = 0 OR SchemeID > PresetColorSchemes) AND mCLICK THEN
             IF mY = p.y + 2 AND mX >= p.x + 60 AND mX <= p.x + 65 THEN
                 'Save
                 IF SchemeID = 0 THEN
@@ -11974,7 +11974,7 @@ FUNCTION idechoosecolorsbox
         'Scheme selection arrows:
         ChangedScheme = 0
         SchemeArrow = 0
-        IF (mB AND mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4) OR _
+        IF (mCLICK AND mY = p.y + 2 AND mX >= p.x + 2 AND mX <= p.x + 4) OR _
            (K$ = CHR$(0) + CHR$(75) AND (focus = 1)) THEN
             SchemeArrow = -1
             IF SchemeID = 0 THEN
@@ -11983,7 +11983,7 @@ FUNCTION idechoosecolorsbox
             ELSE
                 IF SchemeID > 1 THEN SchemeID = SchemeID - 1: ChangedScheme = -1
             END IF
-        ELSEIF (mB AND mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7) OR _
+        ELSEIF (mCLICK AND mY = p.y + 2 AND mX >= p.x + 5 AND mX <= p.x + 7) OR _
                (K$ = CHR$(0) + CHR$(77) AND (focus = 1)) THEN
             SchemeArrow = 1
             IF SchemeID = 0 THEN
@@ -12040,7 +12040,6 @@ FUNCTION idechoosecolorsbox
             IDEBackgroundColor2 = _RGB32(VAL(r$), VAL(g$), VAL(b$))
             r$ = MID$(ColorData$, i, 3): i = i + 3: g$ = MID$(ColorData$, i, 3): i = i + 3: b$ = MID$(ColorData$, i, 3): i = i + 3
             IDEBracketHighlightColor = _RGB32(VAL(r$), VAL(g$), VAL(b$))
-            _DELAY .2
             GOTO ChangeTextBoxes
         END IF
 
@@ -12205,7 +12204,6 @@ FUNCTION idechoosecolorsbox
             FoundPipe = INSTR(ColorSchemes$(SchemeID), "|")
             idetxt(o(9).txt) = LEFT$(ColorSchemes$(SchemeID), FoundPipe - 1)
             info = 0
-            IF ChangedScheme THEN _DELAY .2
             GOTO ApplyScheme
         END IF
 
