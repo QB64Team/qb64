@@ -14059,7 +14059,7 @@ FUNCTION ideASCIIbox$(relaunch)
     i = i + 1
     o(i).typ = 3
     o(i).y = 21
-    o(i).txt = idenewtxt("#Insert character" + sep + "Insert C#HR$" + sep + "#Cancel")
+    o(i).txt = idenewtxt("#Insert character" + sep + "Insert C#HR$" + sep + "#Close")
     o(i).dft = 1
 
     Selected = 1
