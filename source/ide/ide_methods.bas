@@ -13855,12 +13855,16 @@ SUB ideupdatehelpbox
         NEXT i
 
         COLOR 0, 7
-        IF UpdateStep >= 5 THEN
+        IF UpdateStep = 5 THEN
             maxprogresswidth = 52 'arbitrary
             percentage = INT(n / c * 100)
             percentagechars = INT(maxprogresswidth * n / c)
             'percentageMsg$ = "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%"
             percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176) + STR$(percentage) + "%"
+            LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
+            PRINT percentageMsg$;
+        ELSEIF UpdateStep = 6 THEN
+            percentageMsg$ = STRING$(maxprogresswidth, 219) + "100%"
             LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
             PRINT percentageMsg$;
         END IF
