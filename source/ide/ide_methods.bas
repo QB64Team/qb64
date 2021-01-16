@@ -13864,7 +13864,7 @@ SUB ideupdatehelpbox
             LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
             PRINT percentageMsg$;
         ELSEIF UpdateStep = 6 THEN
-            percentageMsg$ = STRING$(maxprogresswidth, 219) + "100%"
+            percentageMsg$ = STRING$(maxprogresswidth, 219) + " 100%"
             LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
             PRINT percentageMsg$;
         END IF
