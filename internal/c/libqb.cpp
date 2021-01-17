@@ -5441,92 +5441,95 @@ void sub__assert(int32 expression, qbs *assert_message, int32 passed) {
     return;
 }
 
+char *human_error(int32 errorcode) {
+    switch (errorcode) {
+        case 0: return "No error";
+        case 1: return "NEXT without FOR";
+        case 2: return "Syntax error";
+        case 3: return "RETURN without GOSUB";
+        case 4: return "Out of DATA";
+        case 5: return "Illegal function call";
+        case 6: return "Overflow";
+        case 7: return "Out of memory";
+        case 8: return "Label not defined";
+        case 9: return "Subscript out of range";
+        case 10: return "Duplicate definition";
+        case 12: return "Illegal in direct mode";
+        case 13: return "Type mismatch";
+        case 14: return "Out of string space";
+        //error 15 undefined
+        case 16: return "String formula too complex";
+        case 17: return "Cannot continue";
+        case 18: return "Function not defined";
+        case 19: return "No RESUME";
+        case 20: return "RESUME without error";
+        //error 21-23 undefined
+        case 24: return "Device timeout";
+        case 25: return "Device fault";
+        case 26: return "FOR without NEXT";
+        case 27: return "Out of paper";
+        //error 28 undefined
+        case 29: return "WHILE without WEND";
+        case 30: return "WEND without WHILE";
+        //error 31-32 undefined
+        case 33: return "Duplicate label";
+        //error 34 undefined
+        case 35: return "Subprogram not defined";
+        //error 36 undefined
+        case 37: return "Argument-count mismatch";
+        case 38: return "Array not defined";
+        case 40: return "Variable required";
+        case 50: return "FIELD overflow";
+        case 51: return "Internal error";
+        case 52: return "Bad file name or number";
+        case 53: return "File not found";
+        case 54: return "Bad file mode";
+        case 55: return "File already open";
+        case 56: return "FIELD statement active";
+        case 57: return "Device I/O error";
+        case 58: return "File already exists";
+        case 59: return "Bad record length";
+        case 61: return "Disk full";
+        case 62: return "Input past end of file";
+        case 63: return "Bad record number";
+        case 64: return "Bad file name";
+        case 67: return "Too many files";
+        case 68: return "Device unavailable";
+        case 69: return "Communication-buffer overflow";
+        case 70: return "Permission denied";
+        case 71: return "Disk not ready";
+        case 72: return "Disk-media error";
+        case 73: return "Feature unavailable";
+        case 74: return "Rename across disks";
+        case 75: return "Path/File access error";
+        case 76: return "Path not found";
+        case 258: return "Invalid handle";
+        case 300: return "Memory region out of range";
+        case 301: return "Invalid size";
+        case 302: return "Source memory region out of range";
+        case 303: return "Destination memory region out of range";
+        case 304: return "Source and destination memory regions out of range";
+        case 305: return "Source memory has been freed";
+        case 306: return "Destination memory has been freed";
+        case 307: return "Memory already freed";
+        case 308: return "Memory has been freed";
+        case 309: return "Memory not initialized";
+        case 310: return "Source memory not initialized";
+        case 311: return "Destination memory not initialized";
+        case 312: return "Source and destination memory not initialized";
+        case 313: return "Source and destination memory have been freed";
+        case 314: return "_ASSERT failed";
+        case 315: return "_ASSERT failed (check console for description)";
+        default: return "Unprintable error";
+    }
+}
+
 void fix_error(){
     char *errtitle = NULL, *errmess = NULL, *cp;
     int prevent_handling = 0, len, v;
     if ((new_error >= 300) && (new_error <= 315)) prevent_handling = 1;
     if (!error_goto_line || error_handling || prevent_handling) {
-        switch (new_error) {
-            case 1: cp="NEXT without FOR"; break;
-            case 2: cp="Syntax error"; break;
-            case 3: cp="RETURN without GOSUB"; break;
-            case 4: cp="Out of DATA"; break;
-            case 5: cp="Illegal function call"; break;
-            case 6: cp="Overflow"; break;
-            case 7: cp="Out of memory"; break;
-            case 8: cp="Label not defined"; break;
-            case 9: cp="Subscript out of range"; break;
-            case 10: cp="Duplicate definition"; break;
-            case 12: cp="Illegal in direct mode"; break;
-            case 13: cp="Type mismatch"; break;
-            case 14: cp="Out of string space"; break;
-            //error 15 undefined
-            case 16: cp="String formula too complex"; break;
-            case 17: cp="Cannot continue"; break;
-            case 18: cp="Function not defined"; break;
-            case 19: cp="No RESUME"; break;
-            case 20: cp="RESUME without error"; break;
-            //error 21-23 undefined
-            case 24: cp="Device timeout"; break;
-            case 25: cp="Device fault"; break;
-            case 26: cp="FOR without NEXT"; break;
-            case 27: cp="Out of paper"; break;
-            //error 28 undefined
-            case 29: cp="WHILE without WEND"; break;
-            case 30: cp="WEND without WHILE"; break;
-            //error 31-32 undefined
-            case 33: cp="Duplicate label"; break;
-            //error 34 undefined
-            case 35: cp="Subprogram not defined"; break;
-            //error 36 undefined
-            case 37: cp="Argument-count mismatch"; break;
-            case 38: cp="Array not defined"; break;
-            case 40: cp="Variable required"; break;
-            case 50: cp="FIELD overflow"; break;
-            case 51: cp="Internal error"; break;
-            case 52: cp="Bad file name or number"; break;
-            case 53: cp="File not found"; break;
-            case 54: cp="Bad file mode"; break;
-            case 55: cp="File already open"; break;
-            case 56: cp="FIELD statement active"; break;
-            case 57: cp="Device I/O error"; break;
-            case 58: cp="File already exists"; break;
-            case 59: cp="Bad record length"; break;
-            case 61: cp="Disk full"; break;
-            case 62: cp="Input past end of file"; break;
-            case 63: cp="Bad record number"; break;
-            case 64: cp="Bad file name"; break;
-            case 67: cp="Too many files"; break;
-            case 68: cp="Device unavailable"; break;
-            case 69: cp="Communication-buffer overflow"; break;
-            case 70: cp="Permission denied"; break;
-            case 71: cp="Disk not ready"; break;
-            case 72: cp="Disk-media error"; break;
-            case 73: cp="Feature unavailable"; break;
-            case 74: cp="Rename across disks"; break;
-            case 75: cp="Path/File access error"; break;
-            case 76: cp="Path not found"; break;
-            case 258: cp="Invalid handle"; break;
-            
-            case 300: cp="Memory region out of range"; break;
-            case 301: cp="Invalid size"; break;
-            case 302: cp="Source memory region out of range"; break;
-            case 303: cp="Destination memory region out of range"; break;
-            case 304: cp="Source and destination memory regions out of range"; break;
-            case 305: cp="Source memory has been freed"; break;
-            case 306: cp="Destination memory has been freed"; break;
-            case 307: cp="Memory already freed"; break;
-            case 308: cp="Memory has been freed"; break;
-            case 309: cp="Memory not initialized"; break;
-            case 310: cp="Source memory not initialized"; break;
-            case 311: cp="Destination memory not initialized"; break;
-            case 312: cp="Source and destination memory not initialized"; break;
-            case 313: cp="Source and destination memory have been freed"; break;
-            case 314: cp="_ASSERT failed"; break;
-            case 315: cp="_ASSERT failed (check console for description)"; break;
-            default: cp="Unprintable error"; break;
-        }
-        
+        cp = human_error(new_error);        
         #define FIXERRMSG_TITLE "%s%u"
         #define FIXERRMSG_BODY "Line: %u (in %s)\n%s%s"
         #define FIXERRMSG_MAINFILE "main module"

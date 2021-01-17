@@ -807,6 +807,17 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
+id.n = qb64prefix$ + "ERRORMESSAGE"
+id.musthave = "$"
+id.subfunc = 1
+id.callname = "func__errormessage"
+id.arg = MKL$(LONGTYPE - ISPOINTER)
+id.args = 1
+id.specialformat = "[?]"
+id.ret = STRINGTYPE - ISPOINTER
+regid
+
+clearid
 id.n = qb64prefix$ + "ASSERT"
 id.subfunc = 2
 id.callname = "sub__assert"

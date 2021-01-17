@@ -280,6 +280,7 @@ extern uint64 build_uint64(uint32 val2,uint32 val1);
 extern void fix_error();
 extern double get_error_erl();
 extern uint32 get_error_err();
+extern char *human_error(int32 errorcode);
 extern void end();
 extern uint8 *mem_static_malloc(uint32 size);
 extern void mem_static_restore(uint8* restore_point);
@@ -1146,6 +1147,12 @@ int32 func__inclerrorline(){
 
 qbs *func__inclerrorfile(){
     return qbs_new_txt(includedfilename);
+}
+
+qbs *func__errormessage(int32 errorcode, int32 passed){
+    if (!passed)
+        errorcode = get_error_err();
+    return qbs_new_txt(human_error(errorcode));
 }
 
 void chain_input(){
