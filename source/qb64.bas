@@ -1101,7 +1101,7 @@ ideerror:
 IF INSTR(idemessage$, sp$) THEN
     'Something went wrong here, so let's give a generic error message to the user.
     '(No error message should contain sp$ - that is, CHR$(13), when not in Debug mode)
-    idemessage$ = "Compiler error (check for syntax errors) (Reference:"
+    idemessage$ = "Compiler error (check for syntax errors) (" + _ERRORMESSAGE$ + ":"
     IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
     IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
     IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)
@@ -12474,6 +12474,7 @@ IF Debug THEN 'A more in-your-face error handler
     PRINT "A QB error has occurred (and you have compiled in debugging support)."
     PRINT "Some key information (qb64.bas):"
     PRINT "Error"; ERR
+    PRINT "Description: "; _ERRORMESSAGE$
     PRINT "Line"; _ERRORLINE
     IF _INCLERRORLINE THEN
         PRINT "Included line"; _INCLERRORLINE
@@ -12491,7 +12492,10 @@ IF ideerror THEN 'error happened inside the IDE
     fh = FREEFILE
     OPEN "internal\temp\ideerror.txt" FOR OUTPUT AS #fh
     PRINT #fh, ERR
+    PRINT #fh, _ERRORMESSAGE$
     PRINT #fh, _ERRORLINE
+    PRINT #fh, _INCLERRORLINE
+    PRINT #fh, _INCLERRORFILE$
     CLOSE #fh
     sendc$ = CHR$(255) 'a runtime error has occurred
     RESUME sendcommand 'allow IDE to handle error recovery
@@ -12507,7 +12511,7 @@ IF Debug THEN PRINT #9, "ERL="; ERL
 IF idemode AND qberrorhappenedvalue >= 0 THEN
     'real qb error occurred
     ideerrorline = linenumber
-    idemessage$ = "Compiler error (check for syntax errors) (Reference:"
+    idemessage$ = "Compiler error (check for syntax errors) (" + _ERRORMESSAGE$ + ":"
     IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
     IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
     IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)

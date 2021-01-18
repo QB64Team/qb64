@@ -132,6 +132,7 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selecty1, wholeword.idecy
     STATIC ForceResize, IDECompilationRequested AS _BYTE
     STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
+    STATIC VersionInfoHover AS _BYTE, LineNumberHover AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -143,7 +144,7 @@ FUNCTION ide2 (ignore)
     'report any IDE errors which have occurred
     IF ideerror THEN
         mustdisplay = 1
-        IF ideerror = 1 THEN errorat$ = "IDE module error"
+        IF ideerror = 1 THEN errorat$ = _ERRORMESSAGE$
         IF ideerror = 2 THEN errorat$ = "File not found"
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
@@ -789,6 +790,7 @@ FUNCTION ide2 (ignore)
 
                     'status bar
                     COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
+                    UpdateIdeInfo
                     q = idevbar(idewx, idewy - 3, 3, 1, 1)
                     q = idevbar(idewx, 3, idewy - 8, 1, 1)
                     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
@@ -1308,11 +1310,10 @@ FUNCTION ide2 (ignore)
 
                     PCOPY 3, 0
 
-                    IF mB THEN
+                    IF mCLICK THEN
                         ideselect = 0
                         idecy = QuickNavHistory(QuickNavTotal)
                         QuickNavTotal = QuickNavTotal - 1
-                        _DELAY .2
                         GOTO waitforinput
                     END IF
                 ELSE
@@ -1354,6 +1355,51 @@ FUNCTION ide2 (ignore)
                 LOCATE idewy - 4, idewx - (idesystem2.w + 9)
                 COLOR 3, 1
                 PRINT "Find";
+                PCOPY 3, 0
+            END IF
+        END IF
+
+        IF mY = idewy + idesubwindow AND mX >= idewx - 22 - LEN(versionStringStatus$) AND mX < idewx - 22 THEN
+            'Highlight Version Number
+            IF VersionInfoHover = 0 THEN
+                LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
+                COLOR 13, 6
+                PRINT versionStringStatus$;
+                PCOPY 3, 0
+                VersionInfoHover = -1
+            END IF
+            IF mCLICK THEN PCOPY 0, 2: GOTO helpabout
+        ELSE
+            IF VersionInfoHover = -1 THEN
+                'Restore "Find" bg
+                VersionInfoHover = 0
+                LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
+                COLOR 2, 3
+                PRINT versionStringStatus$;
+                PCOPY 3, 0
+            END IF
+        END IF
+
+        IF mY = idewy + idesubwindow AND mX >= idewx - 20 AND mX =< idewx THEN
+            'Highlight line number
+            IF LineNumberHover = 0 THEN
+                COLOR 13, 6
+                LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
+                PCOPY 3, 0
+                LineNumberHover = -1
+            END IF
+            IF mCLICK THEN
+                PCOPY 0, 2
+                idegotobox
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+        ELSE
+            IF LineNumberHover = -1 THEN
+                'Restore "Find" bg
+                LineNumberHover = 0
+                COLOR 0, 3
+                LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
                 PCOPY 3, 0
             END IF
         END IF
@@ -1674,7 +1720,7 @@ FUNCTION ide2 (ignore)
                 GOSUB UpdateSearchBar
                 IF KSHIFT THEN idefindinvert = 1
                 IdeAddSearched idefindtext
-                idefindagain
+                idefindagain -1
             ELSE
                 GOTO idefindjmp
             END IF
@@ -5013,6 +5059,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#About..." THEN
+                helpabout:
                 PCOPY 2, 0
                 m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
                 IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
@@ -5478,7 +5525,16 @@ FUNCTION ide2 (ignore)
                     idedeltxt
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     ideselect = 0
-                    IF r$ = "C" THEN idecx = oldcx: idecy = oldcy: GOTO ideloop
+                    IF r$ = "C" THEN
+                        idecx = oldcx: idecy = oldcy
+                        IF changed THEN
+                            ideshowtext
+                            SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
+                            PCOPY 3, 0
+                            idechanged changed
+                        END IF
+                        GOTO ideloop
+                    END IF
                     IF r$ = "Y" THEN
                         l$ = idegetline(idecy)
                         idechangemade = 1
@@ -5536,7 +5592,7 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0
                     result = idemessagebox("Search complete", "No changes made.", "")
                 ELSE
-                    idenomatch
+                    idenomatch -1
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -5786,7 +5842,7 @@ FUNCTION ide2 (ignore)
                     END IF '"Y"
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
-                IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = ""
+                IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOSUB redrawItAll: GOTO ideloop
             END IF
@@ -5987,6 +6043,8 @@ FUNCTION ide2 (ignore)
     q = idevbar(idewx, idewy - 3, 3, 1, 1)
     q = idevbar(idewx, 3, idewy - 8, 1, 1)
     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
+
+    UpdateIdeInfo
 
     GOSUB UpdateTitleOfMainWindow
 
@@ -6226,6 +6284,7 @@ FUNCTION idechange$
     o(i).sel = idefindonlystrings
 
     i = i + 1
+    ButtonsID = i
     o(i).typ = 3
     o(i).y = 14
     o(i).txt = idenewtxt("Find and #Verify" + sep + "#Change All" + sep + "Cancel")
@@ -6239,24 +6298,7 @@ FUNCTION idechange$
     DO 'main loop
 
         '-------- generic display dialog box & objects --------
-
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-
-            IF o(i).typ THEN
-
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-
-                o(i).cx = 0: o(i).cy = 0
-
-                idedrawobj o(i), f 'display object
-
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-
-            END IF
-        NEXT i
+        GOSUB displayDialog
         lastfocus = f - 1
         '-------- end of generic display dialog box & objects --------
 
@@ -6380,6 +6422,15 @@ FUNCTION idechange$
             IF idefindcasesens = 0 THEN s$ = UCASE$(s$)
 
             FOR y = 1 TO iden
+                COLOR 0, 7
+                maxprogresswidth = p.w - 4
+                percentage = INT(y / iden * 100)
+                percentagechars = INT(maxprogresswidth * y / iden)
+                percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176)
+                LOCATE p.y + 7, p.x + 2
+                PRINT percentageMsg$;
+                PCOPY 1, 0
+
                 l$ = idegetline(y)
                 l2$ = ""
 
@@ -6434,9 +6485,24 @@ FUNCTION idechange$
 
             NEXT
 
-            IF changed = 0 THEN idenomatch ELSE idechanged changed: idechangemade = 1
-            EXIT FUNCTION
+            SCREEN , , 3, 0
+            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+            idefocusline = 0
+            ideshowtext
+            PCOPY 3, 0
+            PCOPY 0, 2
+            PCOPY 0, 1
+            SCREEN , , 1, 0
+            GOSUB displayDialog
+            PCOPY 1, 0
 
+            IF changed = 0 THEN
+                idenomatch 0
+            ELSE
+                idechanged changed: idechangemade = 1
+            END IF
+
+            idetxt(o(ButtonsID).txt) = "Find and #Verify" + sep + "#Change All" + sep + "Close"
         END IF 'change all
 
 
@@ -6462,7 +6528,26 @@ FUNCTION idechange$
         mousedown = 0
         mouseup = 0
     LOOP
+    EXIT FUNCTION
+    displayDialog:
+    idedrawpar p
+    f = 1: cx = 0: cy = 0
+    FOR i = 1 TO 100
 
+        IF o(i).typ THEN
+
+            'prepare object
+            o(i).foc = focus - f 'focus offset
+
+            o(i).cx = 0: o(i).cy = 0
+
+            idedrawobj o(i), f 'display object
+
+            IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+
+        END IF
+    NEXT i
+    RETURN
 END FUNCTION
 
 SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
@@ -6489,7 +6574,8 @@ SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
 END SUB
 
 SUB idechanged (totalChanges AS LONG)
-    result = idemessagebox("Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions.", "")
+    IF totalChanges > 1 THEN pl$ = "s"
+    result = idemessagebox("Change Complete", LTRIM$(STR$(totalChanges)) + " substitution" + pl$ + ".", "")
 END SUB
 
 FUNCTION idechangeit$
@@ -7107,7 +7193,7 @@ FUNCTION idefind$
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
             IdeAddSearched idefindtext
-            idefindagain
+            idefindagain 0
             EXIT FUNCTION
         END IF
 
@@ -7139,7 +7225,7 @@ FUNCTION idefind$
     LOOP
 END FUNCTION
 
-SUB idefindagain
+SUB idefindagain (showFlags AS _BYTE)
     DIM comment AS _BYTE, quote AS _BYTE
 
     IF idefindinvert THEN
@@ -7244,7 +7330,7 @@ SUB idefindagain
     IF idefindbackwards THEN
         y = y - 1
         IF y = start - 1 AND looped = 1 THEN
-            idenomatch
+            idenomatch showFlags
             IF idefindinvert THEN
                 IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
                 idefindinvert = 0
@@ -7256,7 +7342,7 @@ SUB idefindagain
     ELSE
         y = y + 1
         IF y = start + 1 AND looped = 1 THEN
-            idenomatch
+            idenomatch showFlags
             IF idefindinvert THEN
                 IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
                 idefindinvert = 0
@@ -7623,8 +7709,20 @@ FUNCTION idenewtxt (a$)
     idenewtxt = idetxtlast
 END FUNCTION
 
-SUB idenomatch
-    result = idemessagebox("Search complete", "Match not found.", "")
+SUB idenomatch (showFlags AS _BYTE)
+    msg$ = "Match not found."
+    c$ = ", "
+    IF showFlags THEN
+        IF idefindcasesens THEN flags$ = flags$ + "match case": flagset = flagset + 1
+        IF idefindwholeword THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "whole word": flagset = flagset + 1
+        IF idefindnocomments THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "no comments": flagset = flagset + 1
+        IF idefindonlycomments THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "only comments": flagset = flagset + 1
+        IF idefindnostrings THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "no strings": flagset = flagset + 1
+        IF idefindonlystrings THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "only strings": flagset = flagset + 1
+        IF flagset > 1 THEN pl$ = "s"
+        IF flagset THEN msg$ = msg$ + "\n(Flag" + pl$ + ": " + flags$ + ")"
+    END IF
+    result = idemessagebox("Search complete", msg$, "")
 END SUB
 
 FUNCTION idefiledialog$(programname$, mode AS _BYTE)
@@ -8661,16 +8759,17 @@ SUB ideshowtext
 
     'update cursor pos in status bar
     COLOR 0, 3
-    LOCATE idewy + idesubwindow, idewx - 20: PRINT "          :          ";
+    a$ = SPACE$(10)
+    b$ = ""
+    RSET a$ = LTRIM$(STR$(idecy))
     IF idecx < 100000 THEN
-        LOCATE idewy + idesubwindow, idewx - 9
-        a$ = LTRIM$(STR$(idecx))
-        PRINT a$;
-        IF cc <> -1 THEN PRINT "(" + str2$(cc) + ")";
+        b$ = SPACE$(10)
+        c$ = LTRIM$(STR$(idecx))
+        IF cc <> -1 THEN c$ = c$ + "(" + str2$(cc) + ")"
+        LSET b$ = c$
     END IF
-    a$ = LTRIM$(STR$(idecy))
-    LOCATE idewy + idesubwindow, (idewx - 10) - LEN(a$)
-    PRINT a$;
+    lineNumberStatus$ = a$ + ":" + b$
+    LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
 
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
 
@@ -14532,6 +14631,15 @@ SUB UpdateIdeInfo
     IF LEN(a$) < (idewx - 20) THEN a$ = a$ + SPACE$((idewx - 20) - LEN(a$))
     COLOR 0, 3: LOCATE idewy + idesubwindow, 2
     PRINT a$;
+
+    COLOR 2, 3
+    IF LEN(versionStringStatus$) = 0 THEN
+        versionStringStatus$ = "v" + Version$
+        IF LEN(AutoBuildMsg$) THEN versionStringStatus$ = versionStringStatus$ + MID$(AutoBuildMsg$, _INSTRREV(AutoBuildMsg$, " "))
+    END IF
+    LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
+    PRINT versionStringStatus$;
+
     PCOPY 3, 0
 END SUB
 
