@@ -5786,7 +5786,7 @@ FUNCTION ide2 (ignore)
                     END IF '"Y"
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
-                IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = ""
+                IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOSUB redrawItAll: GOTO ideloop
             END IF
