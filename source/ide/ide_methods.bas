@@ -5478,7 +5478,15 @@ FUNCTION ide2 (ignore)
                     idedeltxt
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     ideselect = 0
-                    IF r$ = "C" THEN idecx = oldcx: idecy = oldcy: GOTO ideloop
+                    IF r$ = "C" THEN
+                        idecx = oldcx: idecy = oldcy: GOTO ideloop
+                        IF changed THEN
+                            ideshowtext
+                            SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
+                            PCOPY 3, 0
+                            idechanged changed
+                        END IF
+                    END IF
                     IF r$ = "Y" THEN
                         l$ = idegetline(idecy)
                         idechangemade = 1

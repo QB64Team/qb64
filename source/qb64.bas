@@ -12511,7 +12511,7 @@ IF Debug THEN PRINT #9, "ERL="; ERL
 IF idemode AND qberrorhappenedvalue >= 0 THEN
     'real qb error occurred
     ideerrorline = linenumber
-    idemessage$ = "Compiler error (check for syntax errors) (" _ERRORMESSAGE$ + ":"
+    idemessage$ = "Compiler error (check for syntax errors) (" + _ERRORMESSAGE$ + ":"
     IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
     IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
     IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)
