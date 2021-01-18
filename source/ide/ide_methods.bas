@@ -132,6 +132,7 @@ FUNCTION ide2 (ignore)
     STATIC wholeword.selecty1, wholeword.idecy
     STATIC ForceResize, IDECompilationRequested AS _BYTE
     STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
+    STATIC VersionInfoHover AS _BYTE, LineNumberHover AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -789,6 +790,7 @@ FUNCTION ide2 (ignore)
 
                     'status bar
                     COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
+                    UpdateIdeInfo
                     q = idevbar(idewx, idewy - 3, 3, 1, 1)
                     q = idevbar(idewx, 3, idewy - 8, 1, 1)
                     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
@@ -1308,11 +1310,10 @@ FUNCTION ide2 (ignore)
 
                     PCOPY 3, 0
 
-                    IF mB THEN
+                    IF mCLICK THEN
                         ideselect = 0
                         idecy = QuickNavHistory(QuickNavTotal)
                         QuickNavTotal = QuickNavTotal - 1
-                        _DELAY .2
                         GOTO waitforinput
                     END IF
                 ELSE
@@ -1354,6 +1355,51 @@ FUNCTION ide2 (ignore)
                 LOCATE idewy - 4, idewx - (idesystem2.w + 9)
                 COLOR 3, 1
                 PRINT "Find";
+                PCOPY 3, 0
+            END IF
+        END IF
+
+        IF mY = idewy + idesubwindow AND mX >= idewx - 22 - LEN(versionStringStatus$) AND mX < idewx - 22 THEN
+            'Highlight Version Number
+            IF VersionInfoHover = 0 THEN
+                LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
+                COLOR 13, 6
+                PRINT versionStringStatus$;
+                PCOPY 3, 0
+                VersionInfoHover = -1
+            END IF
+            IF mCLICK THEN PCOPY 0, 2: GOTO helpabout
+        ELSE
+            IF VersionInfoHover = -1 THEN
+                'Restore "Find" bg
+                VersionInfoHover = 0
+                LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
+                COLOR 2, 3
+                PRINT versionStringStatus$;
+                PCOPY 3, 0
+            END IF
+        END IF
+
+        IF mY = idewy + idesubwindow AND mX >= idewx - 20 AND mX =< idewx THEN
+            'Highlight line number
+            IF LineNumberHover = 0 THEN
+                COLOR 13, 6
+                LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
+                PCOPY 3, 0
+                LineNumberHover = -1
+            END IF
+            IF mCLICK THEN
+                PCOPY 0, 2
+                idegotobox
+                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                GOTO ideloop
+            END IF
+        ELSE
+            IF LineNumberHover = -1 THEN
+                'Restore "Find" bg
+                LineNumberHover = 0
+                COLOR 0, 3
+                LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
                 PCOPY 3, 0
             END IF
         END IF
@@ -5013,6 +5059,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#About..." THEN
+                helpabout:
                 PCOPY 2, 0
                 m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
                 IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
@@ -5996,6 +6043,8 @@ FUNCTION ide2 (ignore)
     q = idevbar(idewx, idewy - 3, 3, 1, 1)
     q = idevbar(idewx, 3, idewy - 8, 1, 1)
     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
+
+    UpdateIdeInfo
 
     GOSUB UpdateTitleOfMainWindow
 
@@ -8710,16 +8759,17 @@ SUB ideshowtext
 
     'update cursor pos in status bar
     COLOR 0, 3
-    LOCATE idewy + idesubwindow, idewx - 20: PRINT "          :          ";
+    a$ = SPACE$(10)
+    b$ = ""
+    RSET a$ = LTRIM$(STR$(idecy))
     IF idecx < 100000 THEN
-        LOCATE idewy + idesubwindow, idewx - 9
-        a$ = LTRIM$(STR$(idecx))
-        PRINT a$;
-        IF cc <> -1 THEN PRINT "(" + str2$(cc) + ")";
+        b$ = SPACE$(10)
+        c$ = LTRIM$(STR$(idecx))
+        IF cc <> -1 THEN c$ = c$ + "(" + str2$(cc) + ")"
+        LSET b$ = c$
     END IF
-    a$ = LTRIM$(STR$(idecy))
-    LOCATE idewy + idesubwindow, (idewx - 10) - LEN(a$)
-    PRINT a$;
+    lineNumberStatus$ = a$ + ":" + b$
+    LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
 
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
 
@@ -14581,6 +14631,15 @@ SUB UpdateIdeInfo
     IF LEN(a$) < (idewx - 20) THEN a$ = a$ + SPACE$((idewx - 20) - LEN(a$))
     COLOR 0, 3: LOCATE idewy + idesubwindow, 2
     PRINT a$;
+
+    COLOR 2, 3
+    IF LEN(versionStringStatus$) = 0 THEN
+        versionStringStatus$ = "v" + Version$
+        IF LEN(AutoBuildMsg$) THEN versionStringStatus$ = versionStringStatus$ + MID$(AutoBuildMsg$, _INSTRREV(AutoBuildMsg$, " "))
+    END IF
+    LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
+    PRINT versionStringStatus$;
+
     PCOPY 3, 0
 END SUB
 

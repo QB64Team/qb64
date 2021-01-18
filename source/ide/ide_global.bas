@@ -159,6 +159,7 @@ DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
 DIM SHARED SearchMenuEnableQuickNav AS INTEGER
 DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
+DIM SHARED versionStringStatus$, lineNumberStatus$
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype
