@@ -6443,8 +6443,6 @@ FUNCTION idechange$
             NEXT
 
             IF changed = 0 THEN idenomatch ELSE idechanged changed: idechangemade = 1
-            EXIT FUNCTION
-
         END IF 'change all
 
 
