@@ -703,6 +703,8 @@ if(__LONG_MAXLINENUMBERLENGTH==NULL){
 __LONG_MAXLINENUMBERLENGTH=(int32*)mem_static_malloc(4);
 *__LONG_MAXLINENUMBERLENGTH=0;
 }
+if (!__STRING_VERSIONSTRINGSTATUS)__STRING_VERSIONSTRINGSTATUS=qbs_new(0,0);
+if (!__STRING_LINENUMBERSTATUS)__STRING_LINENUMBERSTATUS=qbs_new(0,0);
 if(__LONG_IDEFOCUSLINE==NULL){
 __LONG_IDEFOCUSLINE=(int32*)mem_static_malloc(4);
 *__LONG_IDEFOCUSLINE=0;
@@ -6312,24 +6314,24 @@ if(__LONG_QBERRORHAPPENEDVALUE==NULL){
 __LONG_QBERRORHAPPENEDVALUE=(int32*)mem_static_malloc(4);
 *__LONG_QBERRORHAPPENEDVALUE=0;
 }
-int32 pass1993;
-int32 pass1994;
-int32 pass1995;
-static int64 fornext_value1999;
-static int64 fornext_finalvalue1999;
-static int64 fornext_step1999;
-static uint8 fornext_step_negative1999;
-byte_element_struct *byte_element_2000=NULL;
-if (!byte_element_2000){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2000=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2000=(byte_element_struct*)mem_static_malloc(12);
+int32 pass1997;
+int32 pass1998;
+int32 pass1999;
+static int64 fornext_value2003;
+static int64 fornext_finalvalue2003;
+static int64 fornext_step2003;
+static uint8 fornext_step_negative2003;
+byte_element_struct *byte_element_2004=NULL;
+if (!byte_element_2004){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2004=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2004=(byte_element_struct*)mem_static_malloc(12);
 }
-static int64 fornext_value2002;
-static int64 fornext_finalvalue2002;
-static int64 fornext_step2002;
-static uint8 fornext_step_negative2002;
-byte_element_struct *byte_element_2003=NULL;
-if (!byte_element_2003){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2003=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2003=(byte_element_struct*)mem_static_malloc(12);
+static int64 fornext_value2006;
+static int64 fornext_finalvalue2006;
+static int64 fornext_step2006;
+static uint8 fornext_step_negative2006;
+byte_element_struct *byte_element_2007=NULL;
+if (!byte_element_2007){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2007=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2007=(byte_element_struct*)mem_static_malloc(12);
 }
 if(_SUB_PREPARSE_LONG_TOTALPREFIXEDPP_TYPEMOD==NULL){
 _SUB_PREPARSE_LONG_TOTALPREFIXEDPP_TYPEMOD=(int32*)mem_static_malloc(4);
@@ -6403,6 +6405,14 @@ _FUNC_IDE2_BYTE_QUICKNAVHOVER=(int8*)mem_static_malloc(1);
 if(_FUNC_IDE2_BYTE_FINDFIELDHOVER==NULL){
 _FUNC_IDE2_BYTE_FINDFIELDHOVER=(int8*)mem_static_malloc(1);
 *_FUNC_IDE2_BYTE_FINDFIELDHOVER=0;
+}
+if(_FUNC_IDE2_BYTE_VERSIONINFOHOVER==NULL){
+_FUNC_IDE2_BYTE_VERSIONINFOHOVER=(int8*)mem_static_malloc(1);
+*_FUNC_IDE2_BYTE_VERSIONINFOHOVER=0;
+}
+if(_FUNC_IDE2_BYTE_LINENUMBERHOVER==NULL){
+_FUNC_IDE2_BYTE_LINENUMBERHOVER=(int8*)mem_static_malloc(1);
+*_FUNC_IDE2_BYTE_LINENUMBERHOVER=0;
 }
 if(_FUNC_IDE2_BYTE_IDECHANGEDBEFORE==NULL){
 _FUNC_IDE2_BYTE_IDECHANGEDBEFORE=(int8*)mem_static_malloc(1);
