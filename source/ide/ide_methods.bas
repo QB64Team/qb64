@@ -1674,7 +1674,7 @@ FUNCTION ide2 (ignore)
                 GOSUB UpdateSearchBar
                 IF KSHIFT THEN idefindinvert = 1
                 IdeAddSearched idefindtext
-                idefindagain
+                idefindagain -1
             ELSE
                 GOTO idefindjmp
             END IF
@@ -5545,7 +5545,7 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0
                     result = idemessagebox("Search complete", "No changes made.", "")
                 ELSE
-                    idenomatch
+                    idenomatch -1
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
@@ -6448,7 +6448,7 @@ FUNCTION idechange$
             PCOPY 1, 0
 
             IF changed = 0 THEN
-                idenomatch
+                idenomatch 0
             ELSE
                 idechanged changed: idechangemade = 1
             END IF
@@ -7144,7 +7144,7 @@ FUNCTION idefind$
             s$ = idetxt(o(1).txt)
             idefindtext$ = s$
             IdeAddSearched idefindtext
-            idefindagain
+            idefindagain 0
             EXIT FUNCTION
         END IF
 
@@ -7176,7 +7176,7 @@ FUNCTION idefind$
     LOOP
 END FUNCTION
 
-SUB idefindagain
+SUB idefindagain (showFlags AS _BYTE)
     DIM comment AS _BYTE, quote AS _BYTE
 
     IF idefindinvert THEN
@@ -7281,7 +7281,7 @@ SUB idefindagain
     IF idefindbackwards THEN
         y = y - 1
         IF y = start - 1 AND looped = 1 THEN
-            idenomatch
+            idenomatch showFlags
             IF idefindinvert THEN
                 IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
                 idefindinvert = 0
@@ -7293,7 +7293,7 @@ SUB idefindagain
     ELSE
         y = y + 1
         IF y = start + 1 AND looped = 1 THEN
-            idenomatch
+            idenomatch showFlags
             IF idefindinvert THEN
                 IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
                 idefindinvert = 0
@@ -7660,8 +7660,20 @@ FUNCTION idenewtxt (a$)
     idenewtxt = idetxtlast
 END FUNCTION
 
-SUB idenomatch
-    result = idemessagebox("Search complete", "Match not found.", "")
+SUB idenomatch (showFlags AS _BYTE)
+    msg$ = "Match not found."
+    c$ = ", "
+    IF showFlags THEN
+        IF idefindcasesens THEN flags$ = flags$ + "match case": flagset = flagset + 1
+        IF idefindwholeword THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "whole word": flagset = flagset + 1
+        IF idefindnocomments THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "no comments": flagset = flagset + 1
+        IF idefindonlycomments THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "only comments": flagset = flagset + 1
+        IF idefindnostrings THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "no strings": flagset = flagset + 1
+        IF idefindonlystrings THEN flags$ = flags$ + LEFT$(c$, ABS(flagset) * 2) + "only strings": flagset = flagset + 1
+        IF flagset > 1 THEN pl$ = "s"
+        IF flagset THEN msg$ = msg$ + "\n(Flag" + pl$ + ": " + flags$ + ")"
+    END IF
+    result = idemessagebox("Search complete", msg$, "")
 END SUB
 
 FUNCTION idefiledialog$(programname$, mode AS _BYTE)
