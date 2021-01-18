@@ -5479,13 +5479,14 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     ideselect = 0
                     IF r$ = "C" THEN
-                        idecx = oldcx: idecy = oldcy: GOTO ideloop
+                        idecx = oldcx: idecy = oldcy
                         IF changed THEN
                             ideshowtext
                             SCREEN , , 0, 0: LOCATE , , 1: SCREEN , , 3, 0
                             PCOPY 3, 0
                             idechanged changed
                         END IF
+                        GOTO ideloop
                     END IF
                     IF r$ = "Y" THEN
                         l$ = idegetline(idecy)
@@ -6234,6 +6235,7 @@ FUNCTION idechange$
     o(i).sel = idefindonlystrings
 
     i = i + 1
+    ButtonsID = i
     o(i).typ = 3
     o(i).y = 14
     o(i).txt = idenewtxt("Find and #Verify" + sep + "#Change All" + sep + "Cancel")
@@ -6247,24 +6249,7 @@ FUNCTION idechange$
     DO 'main loop
 
         '-------- generic display dialog box & objects --------
-
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-
-            IF o(i).typ THEN
-
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-
-                o(i).cx = 0: o(i).cy = 0
-
-                idedrawobj o(i), f 'display object
-
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-
-            END IF
-        NEXT i
+        GOSUB displayDialog
         lastfocus = f - 1
         '-------- end of generic display dialog box & objects --------
 
@@ -6388,6 +6373,15 @@ FUNCTION idechange$
             IF idefindcasesens = 0 THEN s$ = UCASE$(s$)
 
             FOR y = 1 TO iden
+                COLOR 0, 7
+                maxprogresswidth = p.w - 4
+                percentage = INT(y / iden * 100)
+                percentagechars = INT(maxprogresswidth * y / iden)
+                percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176)
+                LOCATE p.y + 7, p.x + 2
+                PRINT percentageMsg$;
+                PCOPY 1, 0
+
                 l$ = idegetline(y)
                 l2$ = ""
 
@@ -6442,7 +6436,24 @@ FUNCTION idechange$
 
             NEXT
 
-            IF changed = 0 THEN idenomatch ELSE idechanged changed: idechangemade = 1
+            SCREEN , , 3, 0
+            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+            idefocusline = 0
+            ideshowtext
+            PCOPY 3, 0
+            PCOPY 0, 2
+            PCOPY 0, 1
+            SCREEN , , 1, 0
+            GOSUB displayDialog
+            PCOPY 1, 0
+
+            IF changed = 0 THEN
+                idenomatch
+            ELSE
+                idechanged changed: idechangemade = 1
+            END IF
+
+            idetxt(o(ButtonsID).txt) = "Find and #Verify" + sep + "#Change All" + sep + "Close"
         END IF 'change all
 
 
@@ -6468,7 +6479,26 @@ FUNCTION idechange$
         mousedown = 0
         mouseup = 0
     LOOP
+    EXIT FUNCTION
+    displayDialog:
+    idedrawpar p
+    f = 1: cx = 0: cy = 0
+    FOR i = 1 TO 100
 
+        IF o(i).typ THEN
+
+            'prepare object
+            o(i).foc = focus - f 'focus offset
+
+            o(i).cx = 0: o(i).cy = 0
+
+            idedrawobj o(i), f 'display object
+
+            IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+
+        END IF
+    NEXT i
+    RETURN
 END FUNCTION
 
 SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
@@ -6495,7 +6525,8 @@ SUB FindQuoteComment (text$, __cursor AS LONG, c AS _BYTE, q AS _BYTE)
 END SUB
 
 SUB idechanged (totalChanges AS LONG)
-    result = idemessagebox("Change Complete", LTRIM$(STR$(totalChanges)) + " substitutions.", "")
+    IF totalChanges > 1 THEN pl$ = "s"
+    result = idemessagebox("Change Complete", LTRIM$(STR$(totalChanges)) + " substitution" + pl$ + ".", "")
 END SUB
 
 FUNCTION idechangeit$
