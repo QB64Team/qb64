@@ -143,7 +143,7 @@ FUNCTION ide2 (ignore)
     'report any IDE errors which have occurred
     IF ideerror THEN
         mustdisplay = 1
-        IF ideerror = 1 THEN errorat$ = "IDE module error"
+        IF ideerror = 1 THEN errorat$ = _ERRORMESSAGE$
         IF ideerror = 2 THEN errorat$ = "File not found"
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
