@@ -195,7 +195,7 @@ FUNCTION ide2 (ignore)
     IF LEFT$(c$, 1) = CHR$(12) THEN
         f$ = RIGHT$(c$, LEN(c$) - 1)
         LOCATE , , 0
-        COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+        clearStatusWindow
 
         dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
@@ -664,7 +664,7 @@ FUNCTION ide2 (ignore)
         'COLOR 0, 7: LOCATE 1, 1: PRINT menubar$; 'repair menu bar
 
         IF c$ <> CHR$(3) THEN
-            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+            clearStatusWindow
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN
                     LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
@@ -913,7 +913,7 @@ FUNCTION ide2 (ignore)
                     IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
                     UpdateIdeInfo
 
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
@@ -988,7 +988,7 @@ FUNCTION ide2 (ignore)
 
             IF idechangemade THEN
                 IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
 
                     IdeInfo = ""
 
@@ -1555,7 +1555,7 @@ FUNCTION ide2 (ignore)
                 ELSEIF result = 3 THEN
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     LOCATE , , 0
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
                     LOCATE idewy - 3, 2
                     PRINT "Compilation request canceled."
                     GOTO specialchar
@@ -1567,7 +1567,7 @@ FUNCTION ide2 (ignore)
             IF ready <> 0 AND idechangemade = 0 THEN
 
                 LOCATE , , 0
-                COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                clearStatusWindow
 
                 IF idecompiled THEN
 
@@ -1636,7 +1636,7 @@ FUNCTION ide2 (ignore)
 
             'correct status message
             LOCATE , , 0
-            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+            clearStatusWindow
 
             LOCATE idewy - 3, 2: PRINT "Checking program... (editing program will cancel request)";
 
@@ -2850,7 +2850,7 @@ FUNCTION ide2 (ignore)
                             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", "25"
 
                             SCREEN , , 3, 0
-                            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                            clearStatusWindow
                             LOCATE idewy - 3, 2
                             COLOR 15, 1
                             PRINT "Editing $INCLUDE file..."
@@ -2877,7 +2877,7 @@ FUNCTION ide2 (ignore)
                             CLOSE #backupIncludeFile
 
                             dummy = DarkenFGBG(0)
-                            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                            clearStatusWindow
 
                             IF tempInclude1$ = tempInclude2$ THEN
                                 IF IDEShowErrorsImmediately THEN
@@ -5086,7 +5086,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
                 dummy = DarkenFGBG(1)
-                COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                clearStatusWindow
                 LOCATE idewy - 3, 2
                 COLOR 15, 1
                 PRINT "Press any key to insert its _KEYHIT/_KEYDOWN code..."
@@ -6044,7 +6044,7 @@ FUNCTION ide2 (ignore)
     END IF
 
     IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
-        COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+        clearStatusWindow
 
         IdeInfo = ""
 
@@ -6469,7 +6469,7 @@ FUNCTION idechange$
             NEXT
 
             SCREEN , , 3, 0
-            COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+            clearStatusWindow
             idefocusline = 0
             ideshowtext
             PCOPY 3, 0
@@ -14751,7 +14751,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
 
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
                     LOCATE idewy - 3, 2
                     COLOR 15, 1
                     PRINT "Converting...          "
@@ -14760,7 +14760,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     convertLine$ = convertUtility$ + " " + QuotedFilename$(file$) + " -o " + QuotedFilename$(ofile$)
                     SHELL _HIDE convertLine$
 
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
 
@@ -14792,7 +14792,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     PCOPY 3, 0
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
                     LOCATE idewy - 3, 2
                     COLOR 15, 1
                     PRINT "Preparing to convert..."
@@ -14803,7 +14803,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                         SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
                     END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
-                    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
+                    clearStatusWindow
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
                     result = idemessagebox("Binary format", "Error launching conversion utility.", "")
@@ -14832,6 +14832,16 @@ SUB cleanSubName (n$)
     x = INSTR(n$, "'"): IF x THEN n$ = LEFT$(n$, x - 1)
     x = INSTR(n$, ":"): IF x THEN n$ = LEFT$(n$, x - 1)
     x = INSTR(n$, " "): IF x THEN n$ = LEFT$(n$, x - 1)
+END SUB
+
+SUB clearStatusWindow
+    COLOR 7, 1
+    LOCATE idewy - 3, 2
+    PRINT SPACE$(idewx - 2);
+    LOCATE idewy - 2, 2
+    PRINT SPACE$(idewx - 2);
+    LOCATE idewy - 1, 2
+    PRINT SPACE$(idewx - 2);
 END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'
