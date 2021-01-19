@@ -405,9 +405,6 @@ FUNCTION ide2 (ignore)
             idepathsep$ = "/"
         END IF
 
-        initmouse
-        a$ = "QWERTYUIOP????ASDFGHJKL?????ZXCVBNM": x = 16: FOR i = 1 TO LEN(a$): idealtcode(ASC(MID$(a$, i, 1))) = x: x = x + 1: NEXT
-
         ideroot$ = idezgetroot$
         idepath$ = _STARTDIR$
 
@@ -10448,15 +10445,6 @@ FUNCTION idezgetfilepath$ (root$, f$)
     'important: no validation of f$ necessary
     idezgetfilepath$ = p$
 END FUNCTION
-
-SUB initmouse
-    _MOUSESHOW
-END SUB
-
-
-
-
-
 
 FUNCTION idelayoutbox
 
