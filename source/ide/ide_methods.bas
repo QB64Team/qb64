@@ -896,14 +896,7 @@ FUNCTION ide2 (ignore)
                 END IF
             NEXT
 
-            'attempt to cleanse sfname$, just in case there are any comments or other unwanted stuff
-            FOR CleanseSFNAME = 1 TO LEN(sfname$)
-                SELECT CASE MID$(sfname$, CleanseSFNAME, 1)
-                    CASE " ", "'", ":"
-                        sfname$ = LEFT$(sfname$, CleanseSFNAME - 1)
-                        EXIT FOR
-                END SELECT
-            NEXT
+            cleanSubName sfname$
 
             'update title of main window
             GOSUB UpdateTitleOfMainWindow
@@ -2680,19 +2673,12 @@ FUNCTION ide2 (ignore)
                                 IF x THEN
                                     n$ = RTRIM$(LEFT$(a$, x - 1))
                                     args$ = RIGHT$(a$, LEN(a$) - x + 1)
+                                    x = INSTR(args$, ")"): IF x THEN args$ = LEFT$(args$, x)
                                 ELSE
                                     n$ = a$
                                     args$ = ""
+                                    cleanSubName  n$
                                 END IF
-
-                                'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-                                FOR CleanseN = 1 TO LEN(n$)
-                                    SELECT CASE MID$(n$, CleanseN, 1)
-                                        CASE " ", "'", ":"
-                                            n$ = LEFT$(n$, CleanseN - 1)
-                                            EXIT FOR
-                                    END SELECT
-                                NEXT
 
                                 backupn$ = n$
 
@@ -8197,7 +8183,7 @@ SUB ideshowtext
                 manualList = -1
                 listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
                 FOR y = 1 TO iden
-                    a$ = UCASE$(LTRIM$(RTRIM$(idegetline(y))))
+                    a$ = UCASE$(_TRIM$(idegetline(y)))
                     sf = 0
                     IF LEFT$(a$, 4) = "SUB " THEN sf = 1
                     IF LEFT$(a$, 9) = "FUNCTION " THEN sf = 2
@@ -8216,16 +8202,9 @@ SUB ideshowtext
                         x = INSTR(a$, "(")
                         IF x THEN
                             a$ = RTRIM$(LEFT$(a$, x - 1))
+                        ELSE
+                            cleanSubName a$
                         END IF
-
-                        'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-                        FOR CleanseN = 1 TO LEN(a$)
-                            SELECT CASE MID$(a$, CleanseN, 1)
-                                CASE " ", "'", ":"
-                                    a$ = LEFT$(a$, CleanseN - 1)
-                                    EXIT FOR
-                            END SELECT
-                        NEXT
                         listOfCustomKeywords$ = listOfCustomKeywords$ + "@" + removesymbol2$(a$) + "@"
                     END IF
                 NEXT
@@ -8889,19 +8868,13 @@ FUNCTION idesubs$
             IF x THEN
                 n$ = RTRIM$(LEFT$(a$, x - 1))
                 args$ = RIGHT$(a$, LEN(a$) - x + 1)
+                x = INSTR(args$, ")"): IF x THEN args$ = LEFT$(args$, x)
             ELSE
                 n$ = a$
                 args$ = ""
-            END IF
 
-            'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-            FOR CleanseN = 1 TO LEN(n$)
-                SELECT CASE MID$(n$, CleanseN, 1)
-                    CASE " ", "'", ":"
-                        n$ = LEFT$(n$, CleanseN - 1)
-                        EXIT FOR
-                END SELECT
-            NEXT
+                cleanSubName n$
+            END IF
 
             'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
             'instead of the currently in edition, for a quick link functionality:
@@ -13522,16 +13495,8 @@ SUB IdeMakeContextualMenu
                     n$ = RTRIM$(LEFT$(a$, x - 1))
                 ELSE
                     n$ = a$
+                    cleanSubName n$
                 END IF
-
-                'attempt to cleanse n$, just in case there are any comments or other unwanted stuff
-                FOR CleanseN = 1 TO LEN(n$)
-                    SELECT CASE MID$(n$, CleanseN, 1)
-                        CASE " ", "'", ":"
-                            n$ = LEFT$(n$, CleanseN - 1)
-                            EXIT FOR
-                    END SELECT
-                NEXT
 
                 n2$ = n$
                 IF LEN(n2$) > 1 THEN
@@ -14874,6 +14839,12 @@ FUNCTION removesymbol2$ (varname$)
     IF i = 1 THEN removesymbol2$ = varname$: EXIT FUNCTION
     removesymbol2$ = LEFT$(varname$, i - 1)
 END FUNCTION
+
+SUB cleanSubName (n$)
+    x = INSTR(n$, "'"): IF x THEN n$ = LEFT$(n$, x - 1)
+    x = INSTR(n$, ":"): IF x THEN n$ = LEFT$(n$, x - 1)
+    x = INSTR(n$, " "): IF x THEN n$ = LEFT$(n$, x - 1)
+END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'
 
