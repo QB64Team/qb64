@@ -29,27 +29,19 @@ IF LoadedIDESettings = 0 THEN
 
     GOSUB CheckConfigFileExists 'make certain the config file exists and if not, create one
 
-    IF INSTR(_OS$, "WIN") THEN
-
-        result = ReadConfigSetting("AllowIndependentSettings", value$)
-        IF result THEN
-            IF value$ = "TRUE" OR ABS(VAL(value$)) = 1 THEN 'We default to false and only use one set of IDE settings, no matter how many windows we open up
-                IDE_Index$ = "(" + LTRIM$(RTRIM$(STR$(tempfolderindex))) + ")"
-                ConfigFile$ = "internal/config" + IDE_Index$ + ".txt"
-                ConfigBak$ = "internal/config" + IDE_Index$ + ".bak"
-                GOSUB CheckConfigFileExists
-            ELSE
-                WriteConfigSetting "'[GENERAL SETTINGS]", "AllowIndependentSettings", "FALSE"
-                IDE_Index$ = ""
-            END IF
+    result = ReadConfigSetting("AllowIndependentSettings", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR ABS(VAL(value$)) = 1 THEN 'We default to false and only use one set of IDE settings, no matter how many windows we open up
+            IDE_Index$ = "(" + LTRIM$(RTRIM$(STR$(tempfolderindex))) + ")"
+            ConfigFile$ = "internal/config" + IDE_Index$ + ".txt"
+            ConfigBak$ = "internal/config" + IDE_Index$ + ".bak"
+            GOSUB CheckConfigFileExists
         ELSE
             WriteConfigSetting "'[GENERAL SETTINGS]", "AllowIndependentSettings", "FALSE"
             IDE_Index$ = ""
         END IF
-
     ELSE
-        'Linux doesn't offer multiple temp folders and thus can not work properly with independent settings
-        'This option is not included on Linux, and if manually inserted will simply be ignored.
+        WriteConfigSetting "'[GENERAL SETTINGS]", "AllowIndependentSettings", "FALSE"
         IDE_Index$ = ""
     END IF
 
