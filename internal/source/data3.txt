@@ -3,28 +3,28 @@ if(_FUNC_FILEHASEXTENSION_LONG_FILEHASEXTENSION==NULL){
 _FUNC_FILEHASEXTENSION_LONG_FILEHASEXTENSION=(int32*)mem_static_malloc(4);
 *_FUNC_FILEHASEXTENSION_LONG_FILEHASEXTENSION=0;
 }
-qbs*oldstr2060=NULL;
+qbs*oldstr2055=NULL;
 if(_FUNC_FILEHASEXTENSION_STRING_F->tmp||_FUNC_FILEHASEXTENSION_STRING_F->fixed||_FUNC_FILEHASEXTENSION_STRING_F->readonly){
-oldstr2060=_FUNC_FILEHASEXTENSION_STRING_F;
-if (oldstr2060->cmem_descriptor){
-_FUNC_FILEHASEXTENSION_STRING_F=qbs_new_cmem(oldstr2060->len,0);
+oldstr2055=_FUNC_FILEHASEXTENSION_STRING_F;
+if (oldstr2055->cmem_descriptor){
+_FUNC_FILEHASEXTENSION_STRING_F=qbs_new_cmem(oldstr2055->len,0);
 }else{
-_FUNC_FILEHASEXTENSION_STRING_F=qbs_new(oldstr2060->len,0);
+_FUNC_FILEHASEXTENSION_STRING_F=qbs_new(oldstr2055->len,0);
 }
-memcpy(_FUNC_FILEHASEXTENSION_STRING_F->chr,oldstr2060->chr,oldstr2060->len);
+memcpy(_FUNC_FILEHASEXTENSION_STRING_F->chr,oldstr2055->chr,oldstr2055->len);
 }
 int32 *_FUNC_FILEHASEXTENSION_LONG_I=NULL;
 if(_FUNC_FILEHASEXTENSION_LONG_I==NULL){
 _FUNC_FILEHASEXTENSION_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_FILEHASEXTENSION_LONG_I=0;
 }
-int64 fornext_value2062;
-int64 fornext_finalvalue2062;
-int64 fornext_step2062;
-uint8 fornext_step_negative2062;
-byte_element_struct *byte_element_2063=NULL;
-if (!byte_element_2063){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2063=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2063=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value2057;
+int64 fornext_finalvalue2057;
+int64 fornext_step2057;
+uint8 fornext_step_negative2057;
+byte_element_struct *byte_element_2058=NULL;
+if (!byte_element_2058){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2058=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2058=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_FILEHASEXTENSION_LONG_A=NULL;
 if(_FUNC_FILEHASEXTENSION_LONG_A==NULL){

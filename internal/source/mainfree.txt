@@ -115,14 +115,6 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_IDETXT[0]))[tmp_long]
 free((void*)(__ARRAY_STRING_IDETXT[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_IDETXT)[8] );
-if (__ARRAY_INTEGER_IDEALTCODE[2]&1){
-if (__ARRAY_INTEGER_IDEALTCODE[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_INTEGER_IDEALTCODE[0]));
-}else{
-free((void*)(__ARRAY_INTEGER_IDEALTCODE[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_IDEALTCODE)[8] );
 qbs_free(__STRING_IDEPROGNAME);
 qbs_free(__STRING_IDEPATH);
 qbs_free(__STRING_IDEFINDTEXT);

@@ -7,7 +7,6 @@ free((void*)(_FUNC_IDESUBS_ARRAY_UDT_O[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDESUBS_ARRAY_UDT_O)[8] );
 qbs_free(_FUNC_IDESUBS_STRING1_SEP);
-qbs_free(_FUNC_IDESUBS_STRING_A);
 qbs_free(_FUNC_IDESUBS_STRING_A2);
 qbs_free(_FUNC_IDESUBS_STRING_LY);
 qbs_free(_FUNC_IDESUBS_STRING_LYSORTED);
@@ -23,6 +22,7 @@ free((void*)(_FUNC_IDESUBS_ARRAY_LONG_TOTALLINES[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDESUBS_ARRAY_LONG_TOTALLINES)[8] );
+qbs_free(_FUNC_IDESUBS_STRING_A);
 qbs_free(_FUNC_IDESUBS_STRING_NCA);
 qbs_free(_FUNC_IDESUBS_STRING_SF);
 qbs_free(_FUNC_IDESUBS_STRING_N);
