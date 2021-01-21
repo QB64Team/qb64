@@ -2930,17 +2930,17 @@ FUNCTION ide2 (ignore)
                         END IF
                     END IF
                 END IF
-                GOSUB redrawitall
+                ideshowtext
                 PCOPY 3, 0
-                idecontextualmenu = 1
                 IdeMakeContextualMenu
+                idecontextualmenu = 1
                 GOTO showmenu
             ELSEIF idehelp = 1 AND mY >= idewy AND mY < idewy + idesubwindow THEN 'inside help area
                 IdeSystem = 3
-                GOSUB redrawitall
+                ideshowtext
                 PCOPY 3, 0
-                idecontextualmenu = 1
                 IdeMakeContextualMenu
+                idecontextualmenu = 1
                 GOTO showmenu
             END IF
         END IF
@@ -10404,167 +10404,24 @@ END FUNCTION
 
 
 FUNCTION idebackupbox
-
-    '-------- generic dialog box header --------
-    PCOPY 0, 2
-    PCOPY 0, 1
-    SCREEN , , 1, 0
-    focus = 1
-    DIM p AS idedbptype
-    DIM o(1 TO 100) AS idedbotype
-    DIM sep AS STRING * 1
-    sep = CHR$(0)
-    '-------- end of generic dialog box header --------
-
-    '-------- init --------
-    i = 0
-    idepar p, 50, 5, "Backup/Undo"
-
     a2$ = str2$(idebackupsize)
-    i = i + 1
-    PrevFocus = 1
-    o(i).typ = 1
-    o(i).y = 2
-    o(i).nam = idenewtxt("#Undo buffer limit (10-2000MB)")
-    o(i).txt = idenewtxt(a2$)
-    o(i).v1 = LEN(a2$)
-    IF o(i).v1 > 0 THEN
-        o(i).issel = -1
-        o(i).sx1 = 0
+    v$ = ideinputbox$("Backup/Undo", "#Undo buffer limit (10-2000MB)", a2$, "0123456789", 50, 4)
+    IF v$ = "" THEN EXIT FUNCTION
+
+    'save changes
+    v& = VAL(v$)
+    IF v& < 10 THEN v& = 10
+    IF v& > 2000 THEN v& = 2000
+
+    IF v& < idebackupsize THEN
+        OPEN tmpdir$ + "undo2.bin" FOR OUTPUT AS #151: CLOSE #151
+        ideundobase = 0
+        ideundopos = 0
     END IF
 
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = 5
-    o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
-    o(i).dft = 1
-    '-------- end of init --------
-
-    '-------- generic init --------
-    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
-    '-------- end of generic init --------
-
-    DO 'main loop
-
-
-        '-------- generic display dialog box & objects --------
-        idedrawpar p
-        f = 1: cx = 0: cy = 0
-        FOR i = 1 TO 100
-            IF o(i).typ THEN
-
-                'prepare object
-                o(i).foc = focus - f 'focus offset
-                o(i).cx = 0: o(i).cy = 0
-                idedrawobj o(i), f 'display object
-                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
-            END IF
-        NEXT i
-        lastfocus = f - 1
-        '-------- end of generic display dialog box & objects --------
-
-        '-------- custom display changes --------
-        '-------- end of custom display changes --------
-
-        'update visual page and cursor position
-        PCOPY 1, 0
-        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
-
-        '-------- read input --------
-        change = 0
-        DO
-            GetInput
-            IF mWHEEL THEN change = 1
-            IF KB THEN change = 1
-            IF mCLICK THEN mousedown = 1: change = 1
-            IF mRELEASE THEN mouseup = 1: change = 1
-            IF mB THEN change = 1
-            alt = KALT: IF alt <> oldalt THEN change = 1
-            oldalt = alt
-            _LIMIT 100
-        LOOP UNTIL change
-        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
-        'convert "alt+letter" scancode to letter's ASCII character
-        altletter$ = ""
-        IF alt AND NOT KCTRL THEN
-            IF LEN(K$) = 1 THEN
-                k = ASC(UCASE$(K$))
-                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
-            END IF
-        END IF
-        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
-        '-------- end of read input --------
-
-        '-------- generic input response --------
-        info = 0
-        IF K$ = "" THEN K$ = CHR$(255)
-        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
-        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
-        IF focus < 1 THEN focus = lastfocus
-        IF focus > lastfocus THEN focus = 1
-        f = 1
-        FOR i = 1 TO 100
-            t = o(i).typ
-            IF t THEN
-                focusoffset = focus - f
-                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
-            END IF
-        NEXT
-        '-------- end of generic input response --------
-
-        'specific post controls
-        IF focus <> PrevFocus THEN
-            'Always start with TextBox values selected upon getting focus
-            PrevFocus = focus
-            IF focus = 1 THEN
-                o(focus).v1 = LEN(idetxt(o(focus).txt))
-                IF o(focus).v1 > 0 THEN o(focus).issel = -1
-                o(focus).sx1 = 0
-            END IF
-        END IF
-
-        a$ = idetxt(o(1).txt)
-        IF LEN(a$) > 4 THEN a$ = LEFT$(a$, 4) '4 character limit
-        FOR i = 1 TO LEN(a$)
-            a = ASC(a$, i)
-            IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
-            IF a < 48 OR a > 57 THEN a$ = LEFT$(a$, i - 1): EXIT FOR
-        NEXT
-        IF focus <> 1 THEN
-            a = VAL(a$)
-            IF a < 10 THEN a$ = "10"
-            IF a > 2000 THEN a$ = "2000"
-        END IF
-        idetxt(o(1).txt) = a$
-
-
-
-        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN EXIT FUNCTION
-
-        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
-            'save changes
-            v$ = idetxt(o(1).txt) 'idebackupsize
-            v& = VAL(v$)
-            IF v& < 10 THEN v& = 10
-            IF v& > 2000 THEN v& = 2000
-
-            IF v& < idebackupsize THEN
-                OPEN tmpdir$ + "undo2.bin" FOR OUTPUT AS #151: CLOSE #151
-                ideundobase = 0
-                ideundopos = 0
-            END IF
-
-            idebackupsize = v&
-            WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", STR$(v&) + " 'in MB"
-            idebackupbox = 1
-            EXIT FUNCTION
-        END IF
-
-        'end of custom controls
-
-        mousedown = 0
-        mouseup = 0
-    LOOP
+    idebackupsize = v&
+    WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", STR$(v&) + " 'in MB"
+    idebackupbox = 1
 END FUNCTION
 
 SUB idegotobox
