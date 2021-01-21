@@ -824,75 +824,7 @@ FUNCTION ide2 (ignore)
 
             LOCATE , , 0
 
-            'Get the currently being edited SUB/FUNCTION name to show after the main window title
-            '(standard QB4.5 behavior). The FOR...NEXT loop was taken and adapted from FUNCTION
-            'idesubs$, but it goes backwards from the current line to the start of the program
-            'to see if we're inside a SUB/FUNCTION. EXITs FOR once that is figured.
-            sfname$ = ""
-            FOR currSF_CHECK = idecy TO 1 STEP -1
-                thisline$ = idegetline(currSF_CHECK)
-                thisline$ = LTRIM$(RTRIM$(thisline$))
-                isSF = 0
-                ncthisline$ = UCASE$(thisline$)
-                IF LEFT$(ncthisline$, 4) = "SUB " THEN isSF = 1
-                IF LEFT$(ncthisline$, 9) = "FUNCTION " THEN isSF = 2
-                IF LEFT$(ncthisline$, 7) = "END SUB" AND currSF_CHECK < idecy THEN EXIT FOR
-                IF LEFT$(ncthisline$, 12) = "END FUNCTION" AND currSF_CHECK < idecy THEN EXIT FOR
-                IF isSF THEN
-                    IF RIGHT$(ncthisline$, 7) = " STATIC" THEN
-                        thisline$ = RTRIM$(LEFT$(thisline$, LEN(thisline$) - 7))
-                    END IF
-
-                    IF isSF = 1 THEN
-                        thisline$ = RIGHT$(thisline$, LEN(thisline$) - 4)
-                    ELSE
-                        thisline$ = RIGHT$(thisline$, LEN(thisline$) - 9)
-                    END IF
-                    thisline$ = LTRIM$(RTRIM$(thisline$))
-                    checkargs = INSTR(thisline$, "(")
-                    IF checkargs THEN
-                        sfname$ = RTRIM$(LEFT$(thisline$, checkargs - 1))
-                    ELSE
-                        sfname$ = thisline$
-                    END IF
-
-                    'It could be that SUB or FUNCTION is inside a DECLARE LIBRARY.
-                    'In such case, it must be ignored:
-                    InsideDECLARE = 0
-                    FOR declib_CHECK = currSF_CHECK TO 1 STEP -1
-                        thisline$ = idegetline(declib_CHECK)
-                        thisline$ = LTRIM$(RTRIM$(thisline$))
-                        ncthisline$ = UCASE$(thisline$)
-                        IF LEFT$(ncthisline$, 8) = "DECLARE " AND INSTR(ncthisline$, " LIBRARY") > 0 THEN InsideDECLARE = -1: EXIT FOR
-                        IF LEFT$(ncthisline$, 11) = "END DECLARE" THEN EXIT FOR
-                    NEXT
-
-                    IF InsideDECLARE = -1 THEN
-                        sfname$ = ""
-                    ELSE
-                        'Ok, we're not inside a DECLARE LIBRARY.
-                        'But what if we're past the end of this module's SUBs and FUNCTIONs,
-                        'and all that's left is a bunch of comments or $INCLUDES?
-                        'We'll also check for that:
-                        endedSF = 0
-                        FOR endSF_CHECK = idecy TO iden
-                            thisline$ = idegetline(endSF_CHECK)
-                            thisline$ = LTRIM$(RTRIM$(thisline$))
-                            ncthisline$ = UCASE$(thisline$)
-                            IF LEFT$(ncthisline$, 7) = "END SUB" THEN endedSF = 1: EXIT FOR
-                            IF LEFT$(ncthisline$, 12) = "END FUNCTION" THEN endedSF = 2: EXIT FOR
-                            IF LEFT$(ncthisline$, 4) = "SUB " AND endSF_CHECK = idecy THEN endedSF = 1: EXIT FOR
-                            IF LEFT$(ncthisline$, 9) = "FUNCTION " AND endSF_CHECK = idecy THEN endedSF = 2: EXIT FOR
-                            IF LEFT$(ncthisline$, 4) = "SUB " AND InsideDECLARE = 0 THEN EXIT FOR
-                            IF LEFT$(ncthisline$, 9) = "FUNCTION " AND InsideDECLARE = 0 THEN EXIT FOR
-                            IF LEFT$(ncthisline$, 8) = "DECLARE " AND INSTR(ncthisline$, " LIBRARY") > 0 THEN InsideDECLARE = -1
-                            IF LEFT$(ncthisline$, 11) = "END DECLARE" THEN InsideDECLARE = 0
-                        NEXT
-                        IF endedSF = 0 THEN sfname$ = "" ELSE EXIT FOR
-                    END IF
-                END IF
-            NEXT
-
+            sfname$ = FindCurrentSF$(idecy)
             cleanSubName sfname$
 
             'update title of main window
@@ -2612,12 +2544,12 @@ FUNCTION ide2 (ignore)
                         WikiParse a$
                         idehelp = 1
                         skipdisplay = 0
-                        IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                        IdeSystem = 3
                         retval = 1
                     END IF
 
                     WikiParse a$
-                    IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                    IdeSystem = 3
                     GOSUB redrawitall
                     GOTO specialchar
 
@@ -2680,12 +2612,12 @@ FUNCTION ide2 (ignore)
                                         WikiParse a$
                                         idehelp = 1
                                         skipdisplay = 0
-                                        IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                                        IdeSystem = 3
                                         retval = 1
                                     END IF
 
                                     WikiParse a$
-                                    IdeSystem = 3 'Standard qb45 behaviour. Allows for quick peek at help then ESC.
+                                    IdeSystem = 3
                                     GOTO specialchar
 
                                     EXIT FOR
@@ -13264,13 +13196,13 @@ SUB IdeMakeContextualMenu
     IF IdeSystem = 1 OR IdeSystem = 2 THEN
         'Figure out if the user wants to search for a selected term
         Selection$ = getSelectedText$(0)
+        sela2$ = Selection$
         IF LEN(Selection$) > 0 THEN
-            sela2$ = UCASE$(Selection$)
             idecontextualSearch$ = Selection$
-            IF LEN(Selection$) > 22 THEN
-                Selection$ = LEFT$(Selection$, 19) + STRING$(3, 250)
+            IF LEN(sela2$) > 22 THEN
+                sela2$ = LEFT$(sela2$, 19) + STRING$(3, 250)
             END IF
-            menu$(m, i) = "Find '" + Selection$ + "'": i = i + 1
+            menu$(m, i) = "Find '" + sela2$ + "'": i = i + 1
         END IF
 
         'build SUB/FUNCTION list:
@@ -14306,7 +14238,9 @@ FUNCTION FindProposedTitle$
 END FUNCTION
 
 FUNCTION FindCurrentSF$ (whichline)
-    'Get the name of the SUB/FUNCTION whichline is in.
+    'Get the SUB/FUNCTION name 'whichline' is in.
+    'The FOR...NEXT loop goes backwards from 'whichline' to the start of the program
+    'to see if we're inside a SUB/FUNCTION. EXITs FOR once that is figured.
 
     sfname$ = ""
     IF whichline > 0 THEN
@@ -14317,14 +14251,21 @@ FUNCTION FindCurrentSF$ (whichline)
             ncthisline$ = UCASE$(thisline$)
             IF LEFT$(ncthisline$, 4) = "SUB " THEN isSF = 1
             IF LEFT$(ncthisline$, 9) = "FUNCTION " THEN isSF = 2
-            IF isSF > 0 THEN
+            IF LEFT$(ncthisline$, 7) = "END SUB" AND currSF_CHECK < whichline THEN EXIT FOR
+            IF LEFT$(ncthisline$, 12) = "END FUNCTION" AND currSF_CHECK < whichline THEN EXIT FOR
+            IF isSF THEN
                 IF RIGHT$(ncthisline$, 7) = " STATIC" THEN
                     thisline$ = RTRIM$(LEFT$(thisline$, LEN(thisline$) - 7))
                 END IF
 
-                thisline$ = RTRIM$(LTRIM$(thisline$))
+                IF isSF = 1 THEN
+                    thisline$ = RIGHT$(thisline$, LEN(thisline$) - 4)
+                ELSE
+                    thisline$ = RIGHT$(thisline$, LEN(thisline$) - 9)
+                END IF
+                thisline$ = LTRIM$(RTRIM$(thisline$))
                 checkargs = INSTR(thisline$, "(")
-                IF checkargs > 0 THEN
+                IF checkargs THEN
                     sfname$ = RTRIM$(LEFT$(thisline$, checkargs - 1))
                 ELSE
                     sfname$ = thisline$
@@ -14335,7 +14276,7 @@ FUNCTION FindCurrentSF$ (whichline)
                 InsideDECLARE = 0
                 FOR declib_CHECK = currSF_CHECK TO 1 STEP -1
                     thisline$ = idegetline(declib_CHECK)
-                    thisline$ = RTRIM$(LTRIM$(thisline$))
+                    thisline$ = LTRIM$(RTRIM$(thisline$))
                     ncthisline$ = UCASE$(thisline$)
                     IF LEFT$(ncthisline$, 8) = "DECLARE " AND INSTR(ncthisline$, " LIBRARY") > 0 THEN InsideDECLARE = -1: EXIT FOR
                     IF LEFT$(ncthisline$, 11) = "END DECLARE" THEN EXIT FOR
@@ -14343,8 +14284,27 @@ FUNCTION FindCurrentSF$ (whichline)
 
                 IF InsideDECLARE = -1 THEN
                     sfname$ = ""
+                ELSE
+                    'Ok, we're not inside a DECLARE LIBRARY block.
+                    'But what if we're past the end of this module's SUBs and FUNCTIONs,
+                    'and all that's left is a bunch of comments or $INCLUDES?
+                    'We'll also check for that:
+                    endedSF = 0
+                    FOR endSF_CHECK = whichline TO iden
+                        thisline$ = idegetline(endSF_CHECK)
+                        thisline$ = LTRIM$(RTRIM$(thisline$))
+                        ncthisline$ = UCASE$(thisline$)
+                        IF LEFT$(ncthisline$, 7) = "END SUB" THEN endedSF = 1: EXIT FOR
+                        IF LEFT$(ncthisline$, 12) = "END FUNCTION" THEN endedSF = 2: EXIT FOR
+                        IF LEFT$(ncthisline$, 4) = "SUB " AND endSF_CHECK = whichline THEN endedSF = 1: EXIT FOR
+                        IF LEFT$(ncthisline$, 9) = "FUNCTION " AND endSF_CHECK = whichline THEN endedSF = 2: EXIT FOR
+                        IF LEFT$(ncthisline$, 4) = "SUB " AND InsideDECLARE = 0 THEN EXIT FOR
+                        IF LEFT$(ncthisline$, 9) = "FUNCTION " AND InsideDECLARE = 0 THEN EXIT FOR
+                        IF LEFT$(ncthisline$, 8) = "DECLARE " AND INSTR(ncthisline$, " LIBRARY") > 0 THEN InsideDECLARE = -1
+                        IF LEFT$(ncthisline$, 11) = "END DECLARE" THEN InsideDECLARE = 0
+                    NEXT
+                    IF endedSF = 0 THEN sfname$ = "" ELSE EXIT FOR
                 END IF
-                EXIT FOR
             END IF
         NEXT
     END IF
