@@ -3377,7 +3377,7 @@ FUNCTION ide2 (ignore)
         IF (KB = KEY_DELETE OR KB = 8) AND ideselect = 1 THEN 'delete selection
             IF ideselecty1 <> idecy OR ideselectx1 <> idecx THEN
                 idechangemade = 1
-                GOSUB delselect
+                delselect
                 GOTO specialchar
             ELSE
                 ideselect = 0
@@ -3391,10 +3391,10 @@ FUNCTION ide2 (ignore)
             clip$ = _CLIPBOARD$ 'read clipboard
 
             IF LEN(clip$) THEN
-                IF ideselect THEN GOSUB delselect
                 IF INSTR(clip$, CHR$(13)) OR INSTR(clip$, CHR$(10)) THEN
 
                     'full lines paste
+                    IF ideselect THEN delselect
 
                     idelayoutallow = 2
                     a$ = clip$
@@ -3433,17 +3433,8 @@ FUNCTION ide2 (ignore)
                         END IF
                     END IF
                 ELSE
-
                     'insert single line paste
-                    a$ = idegetline(idecy)
-                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                    a$ = LEFT$(a$, idecx - 1) + clip$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                    idesetline idecy, converttabs$(a$)
-
-                    IF PasteCursorAtEnd THEN
-                        'Place the cursor at the end of the pasted content:
-                        idecx = idecx + LEN(clip$)
-                    END IF
+                    insertAtCursor clip$
                 END IF
 
                 idechangemade = 1
@@ -3455,7 +3446,7 @@ FUNCTION ide2 (ignore)
             copy2clip:
             clip$ = getSelectedText$(-1)
             IF clip$ <> "" THEN _CLIPBOARD$ = clip$
-            IF (K$ = CHR$(0) + "S") OR (KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X") THEN GOSUB delselect
+            IF (K$ = CHR$(0) + "S") OR (KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X") THEN delselect
             GOTO specialchar
         END IF
 
@@ -3649,45 +3640,6 @@ FUNCTION ide2 (ignore)
         END IF
         RETURN
 
-        delselect:
-        sy1 = ideselecty1
-        sy2 = idecy
-        IF sy1 > sy2 THEN SWAP sy1, sy2
-        sx1 = ideselectx1
-        sx2 = idecx
-        IF sx1 > sx2 THEN SWAP sx1, sx2
-        nolastlinedel = 0
-        IF sy1 <> sy2 AND idecx = 1 AND idecy > sy1 THEN sy2 = sy2 - 1: nolastlinedel = 1 'ignore last line of multi-line select?
-
-
-
-
-
-
-
-
-        FOR y = sy2 TO sy1 STEP -1
-            IF sy1 = sy2 AND nolastlinedel = 0 THEN 'single line select
-                a$ = idegetline(y)
-                a2$ = ""
-                IF sx1 <= LEN(a$) THEN a2$ = LEFT$(a$, sx1 - 1) ELSE a2$ = a$
-                IF sx2 <= LEN(a$) THEN a2$ = a2$ + RIGHT$(a$, LEN(a$) - sx2 + 1)
-                idesetline y, a2$
-            ELSE 'multiline select
-
-
-                IF iden = 1 AND y = 1 THEN idesetline y, "" ELSE idedelline y
-
-
-            END IF
-        NEXT
-
-
-        idecx = sx1: IF sy1 <> sy2 OR nolastlinedel = 1 THEN idecx = 1
-        idecy = sy1
-        ideselect = 0
-        RETURN
-
         skipgosubs:
 
         IF K$ = CHR$(13) THEN
@@ -3718,23 +3670,7 @@ FUNCTION ide2 (ignore)
                         retval$ = idergbmixer$(-1)
                     END IF
                 END IF
-                IF LEN(retval$) THEN
-                    tempk$ = retval$
-
-                    'insert
-                    IF ideselect THEN GOSUB delselect
-                    a$ = idegetline(idecy)
-                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                    idesetline idecy, a$
-
-                    IF PasteCursorAtEnd THEN
-                        'Place the cursor at the end of the inserted content:
-                        idecx = idecx + LEN(tempk$)
-                    END IF
-
-                    idechangemade = 1
-                END IF
+                IF LEN(retval$) THEN insertAtCursor retval$
                 GOTO specialchar
             ELSE
                 ideselect = 0
@@ -4058,7 +3994,7 @@ FUNCTION ide2 (ignore)
         IF KALT AND NOT KCTRL AND NOT AltSpecial THEN GOTO specialchar
 
         'standard character
-        IF ideselect THEN GOSUB delselect
+        IF ideselect THEN delselect
         idechangemade = 1
 
         'undocombos
@@ -4786,23 +4722,7 @@ FUNCTION ide2 (ignore)
                 HideBracketHighlight
                 keywordHighlight = oldkeywordHighlight
                 retval$ = idergbmixer$(-1) 'retval is ignored
-                IF LEN(retval$) THEN
-                    tempk$ = retval$
-
-                    'insert
-                    IF ideselect THEN GOSUB delselect
-                    a$ = idegetline(idecy)
-                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                    idesetline idecy, a$
-
-                    IF PasteCursorAtEnd THEN
-                        'Place the cursor at the end of the inserted content:
-                        idecx = idecx + LEN(tempk$)
-                    END IF
-
-                    idechangemade = 1
-                END IF
+                IF LEN(retval$) THEN insertAtCursor retval$
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 GOTO ideloop
             END IF
@@ -5019,23 +4939,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 DO
                     retval$ = ideASCIIbox$(relaunch)
-                    IF LEN(retval$) THEN
-                        tempk$ = retval$
-
-                        'insert
-                        IF ideselect THEN GOSUB delselect
-                        a$ = idegetline(idecy)
-                        IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                        a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                        idesetline idecy, a$
-
-                        IF PasteCursorAtEnd THEN
-                            'Place the cursor at the end of the inserted content:
-                            idecx = idecx + LEN(tempk$)
-                        END IF
-
-                        idechangemade = 1
-                    END IF
+                    IF LEN(retval$) THEN insertAtCursor retval$
                     PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                     GOSUB redrawItAll
                     ideshowtext
@@ -5081,18 +4985,8 @@ FUNCTION ide2 (ignore)
                 tempk$ = LTRIM$(tempk$)
 
                 'insert
-                IF ideselect THEN GOSUB delselect
-                a$ = idegetline(idecy)
-                IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                idesetline idecy, a$
+                insertAtCursor tempk$
 
-                IF PasteCursorAtEnd THEN
-                    'Place the cursor at the end of the inserted content:
-                    idecx = idecx + LEN(tempk$)
-                END IF
-
-                idechangemade = 1
                 bypassCtrlK:
                 dummy = DarkenFGBG(0)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
@@ -5234,21 +5128,7 @@ FUNCTION ide2 (ignore)
                 LOOP
 
                 IF mathEvalError%% = 0 AND result = 1 THEN
-                    tempk$ = mathMsg$
-
-                    'insert
-                    IF ideselect THEN GOSUB delselect
-                    a$ = idegetline(idecy)
-                    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
-                    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
-                    idesetline idecy, a$
-
-                    IF PasteCursorAtEnd THEN
-                        'Place the cursor at the end of the inserted content:
-                        idecx = idecx + LEN(tempk$)
-                    END IF
-
-                    idechangemade = 1
+                    insertAtCursor mathMsg$
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -5565,7 +5445,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
                 IF IdeSystem = 1 AND ideselect = 1 THEN
                     idechangemade = 1
-                    GOSUB delselect
+                    delselect
                 ELSEIF IdeSystem = 2 THEN
                     GOTO deleteSelectionSearchField
                 END IF
@@ -14809,5 +14689,49 @@ FUNCTION getSelectedText$(multiline AS _BYTE)
         getSelectedText$ = clip$
     END IF
 END FUNCTION
+
+SUB delselect
+    sy1 = ideselecty1
+    sy2 = idecy
+    IF sy1 > sy2 THEN SWAP sy1, sy2
+    sx1 = ideselectx1
+    sx2 = idecx
+    IF sx1 > sx2 THEN SWAP sx1, sx2
+    nolastlinedel = 0
+    IF sy1 <> sy2 AND idecx = 1 AND idecy > sy1 THEN sy2 = sy2 - 1: nolastlinedel = 1 'ignore last line of multi-line select?
+
+
+    FOR y = sy2 TO sy1 STEP -1
+        IF sy1 = sy2 AND nolastlinedel = 0 THEN 'single line select
+            a$ = idegetline(y)
+            a2$ = ""
+            IF sx1 <= LEN(a$) THEN a2$ = LEFT$(a$, sx1 - 1) ELSE a2$ = a$
+            IF sx2 <= LEN(a$) THEN a2$ = a2$ + RIGHT$(a$, LEN(a$) - sx2 + 1)
+            idesetline y, a2$
+        ELSE 'multiline select
+            IF iden = 1 AND y = 1 THEN idesetline y, "" ELSE idedelline y
+        END IF
+    NEXT
+
+    idecx = sx1: IF sy1 <> sy2 OR nolastlinedel = 1 THEN idecx = 1
+    idecy = sy1
+    ideselect = 0
+END SUB
+
+SUB insertAtCursor (tempk$)
+    'insert
+    IF ideselect THEN delselect
+    a$ = idegetline(idecy)
+    IF LEN(a$) < idecx - 1 THEN a$ = a$ + SPACE$(idecx - 1 - LEN(a$))
+    a$ = LEFT$(a$, idecx - 1) + tempk$ + RIGHT$(a$, LEN(a$) - idecx + 1)
+    idesetline idecy, converttabs$(a$)
+
+    IF PasteCursorAtEnd THEN
+        'Place the cursor at the end of the inserted content:
+        idecx = idecx + LEN(tempk$)
+    END IF
+
+    idechangemade = 1
+END SUB
 
 '$INCLUDE:'wiki\wiki_methods.bas'
