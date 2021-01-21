@@ -3451,28 +3451,7 @@ FUNCTION ide2 (ignore)
 
         IF ((KCTRL AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "C")) AND ideselect = 1 THEN 'copy to clipboard
             copy2clip:
-            clip$ = ""
-            sy1 = ideselecty1
-            sy2 = idecy
-            IF sy1 > sy2 THEN SWAP sy1, sy2
-            sx1 = ideselectx1
-            sx2 = idecx
-            IF sx1 > sx2 THEN SWAP sx1, sx2
-            FOR y = sy1 TO sy2
-                IF y <= iden THEN
-                    a$ = idegetline(y)
-                    IF sy1 = sy2 THEN 'single line select
-                        FOR x = sx1 TO sx2 - 1
-                            IF x <= LEN(a$) THEN clip$ = clip$ + MID$(a$, x, 1) ELSE clip$ = clip$ + " "
-                        NEXT
-                    ELSE 'multiline select
-                        IF idecx = 1 AND y = sy2 AND idecy > sy1 THEN GOTO nofinalcopy
-                        clip$ = clip$ + a$ + CHR$(13) + CHR$(10)
-                        nofinalcopy:
-                        IF y = sy2 AND idecx > 1 AND LEN(a$) > 0 THEN clip$ = LEFT$(clip$, LEN(clip$) - 2)
-                    END IF
-                END IF
-            NEXT
+            clip$ = getSelectedText$(-1)
             IF clip$ <> "" THEN _CLIPBOARD$ = clip$
             IF (K$ = CHR$(0) + "S") OR (KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X") THEN GOSUB delselect
             GOTO specialchar
@@ -8761,7 +8740,7 @@ FUNCTION idesubs$
     sep = CHR$(0)
     '-------- end of generic dialog box header --------
 
-    '------- identify word or character at current cursor position - copied/adapted from FUNCTION ide2:
+    '------- identify word or character at current cursor position
     a2$ = UCASE$(getWordAtCursor$)
     IF LEN(a2$) > 1 THEN
         DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
@@ -13401,27 +13380,17 @@ SUB IdeMakeContextualMenu
     menu$(m, i) = "Contextual": i = i + 1
 
     IF IdeSystem = 1 OR IdeSystem = 2 THEN
-        'Figure out if the user wants to search for a selected term -- copied from idefind$
-        IF ideselect THEN
-            IF ideselecty1 = idecy THEN 'single line selected
-                a$ = idegetline(idecy)
-                a2$ = ""
-                sx1 = ideselectx1: sx2 = idecx
-                IF sx2 < sx1 THEN SWAP sx1, sx2
-                FOR x = sx1 TO sx2 - 1
-                    IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
-                NEXT
+        'Figure out if the user wants to search for a selected term
+        Selection$ = getSelectedText$(0)
+        IF LEN(Selection$) > 0 THEN
+            sela2$ = UCASE$(Selection$)
+            idecontextualSearch$ = Selection$
+            IF LEN(Selection$) > 22 THEN
+                Selection$ = LEFT$(Selection$, 19) + STRING$(3, 250)
             END IF
-            IF LEN(a2$) > 0 THEN
-                sela2$ = UCASE$(a2$)
-                idecontextualSearch$ = a2$
-                IF LEN(a2$) > 22 THEN
-                    a2$ = LEFT$(a2$, 19) + STRING$(3, 250)
-                END IF
-                menu$(m, i) = "Find '" + a2$ + "'": i = i + 1
-                Selection$ = a2$
-            END IF
+            menu$(m, i) = "Find '" + Selection$ + "'": i = i + 1
         END IF
+
         'build SUB/FUNCTION list:
         TotalSF = 0
         FOR y = 1 TO iden
@@ -14808,6 +14777,34 @@ FUNCTION getWordAtCursor$
             a2$ = CHR$(ASC(a$, x))
         END IF
         getWordAtCursor$ = a2$ 'a2$ now holds the word or character at current cursor position
+    END IF
+END FUNCTION
+
+FUNCTION getSelectedText$(multiline AS _BYTE)
+    IF ideselect THEN
+        sy1 = ideselecty1
+        sy2 = idecy
+        IF sy1 > sy2 THEN SWAP sy1, sy2
+        sx1 = ideselectx1
+        sx2 = idecx
+        IF sx1 > sx2 THEN SWAP sx1, sx2
+        FOR y = sy1 TO sy2
+            IF y <= iden THEN
+                a$ = idegetline(y)
+                IF sy1 = sy2 THEN 'single line select
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN clip$ = clip$ + MID$(a$, x, 1) ELSE clip$ = clip$ + " "
+                    NEXT
+                ELSE 'multiline select
+                    IF NOT multiline THEN EXIT FUNCTION
+                    IF idecx = 1 AND y = sy2 AND idecy > sy1 THEN GOTO nofinalcopy
+                    clip$ = clip$ + a$ + CHR$(13) + CHR$(10)
+                    nofinalcopy:
+                    IF y = sy2 AND idecx > 1 AND LEN(a$) > 0 THEN clip$ = LEFT$(clip$, LEN(clip$) - 2)
+                END IF
+            END IF
+        NEXT
+        getSelectedText$ = clip$
     END IF
 END FUNCTION
 
