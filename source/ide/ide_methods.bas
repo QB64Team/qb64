@@ -14207,16 +14207,14 @@ FUNCTION FindProposedTitle$
     'Finds the first occurence of _TITLE to suggest a file name
     'when saving for the first time or saving as.
 
-    FOR find_TITLE = 1 TO iden
-        thisline$ = idegetline(find_TITLE)
+    DIM c AS _BYTE, q AS _BYTE, i
+    FOR i = 1 TO iden
+        thisline$ = idegetline(i)
         thisline$ = LTRIM$(RTRIM$(thisline$))
         found_TITLE = INSTR(UCASE$(thisline$), "_TITLE " + CHR$(34))
         IF found_TITLE > 0 THEN
-            InQuote%% = 0
-            FOR check_quotes = 1 TO found_TITLE
-                IF MID$(thisline$, check_quotes, 1) = CHR$(34) THEN InQuote%% = NOT InQuote%%
-            NEXT check_quotes
-            IF NOT InQuote%% THEN
+            FindQuoteComment thisline$, found_TITLE, c, q
+            IF NOT q THEN
                 Find_ClosingQuote = INSTR(found_TITLE + 8, thisline$, CHR$(34))
                 IF Find_ClosingQuote > 0 THEN
                     TempFound_TITLE$ = MID$(thisline$, found_TITLE + 8, (Find_ClosingQuote - found_TITLE) - 8)
@@ -14227,12 +14225,12 @@ FUNCTION FindProposedTitle$
     NEXT
 
     InvalidChars$ = ":/\?*><|" + CHR$(34)
-    FOR wipe_INVALID = 1 TO LEN(TempFound_TITLE$)
-        ThisChar$ = MID$(TempFound_TITLE$, wipe_INVALID, 1)
+    FOR i = 1 TO LEN(TempFound_TITLE$)
+        ThisChar$ = MID$(TempFound_TITLE$, i, 1)
         IF INSTR(InvalidChars$, ThisChar$) = 0 THEN
             Found_TITLE$ = Found_TITLE$ + ThisChar$
         END IF
-    NEXT wipe_INVALID
+    NEXT i
 
     FindProposedTitle$ = LTRIM$(RTRIM$(Found_TITLE$))
 END FUNCTION
