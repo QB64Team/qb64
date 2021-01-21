@@ -2530,21 +2530,7 @@ FUNCTION ide2 (ignore)
             x = idecx
             IF LEN(a$) > 0 AND x = LEN(a$) + 1 THEN x = x - 1
             IF x <= LEN(a$) THEN
-                IF (MID$(a$, x, 1) = " " OR MID$(a$, x, 1) = "(") AND x > 1 THEN x = x - 1
-                IF alphanumeric(ASC(a$, x)) THEN
-                    x1 = x
-                    DO WHILE x1 > 1
-                        IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
-                    LOOP
-                    x2 = x
-                    DO WHILE x2 < LEN(a$)
-                        IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
-                    LOOP
-                    a2$ = MID$(a$, x1, x2 - x1 + 1)
-                ELSE
-                    a2$ = CHR$(ASC(a$, x))
-                END IF
-                a2$ = UCASE$(a2$)
+                a2$ = UCASE$(getWordAtCursor$)
                 'check if F1 is in help links
                 fh = FREEFILE
                 OPEN "internal\help\links.bin" FOR INPUT AS #fh
@@ -8776,28 +8762,11 @@ FUNCTION idesubs$
     '-------- end of generic dialog box header --------
 
     '------- identify word or character at current cursor position - copied/adapted from FUNCTION ide2:
-    a$ = idegetline(idecy)
-    x = idecx
-    IF x <= LEN(a$) THEN
-        IF alphanumeric(ASC(a$, x)) THEN
-            x1 = x
-            DO WHILE x1 > 1
-                IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
-            LOOP
-            x2 = x
-            DO WHILE x2 < LEN(a$)
-                IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
-            LOOP
-            a2$ = MID$(a$, x1, x2 - x1 + 1)
-        ELSE
-            a2$ = CHR$(ASC(a$, x))
-        END IF
-        a2$ = UCASE$(a2$) 'a2$ now holds the word or character at current cursor position
-        IF LEN(a2$) > 1 THEN
-            DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
-                a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
-            LOOP
-        END IF
+    a2$ = UCASE$(getWordAtCursor$)
+    IF LEN(a2$) > 1 THEN
+        DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
+            a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
+        LOOP
     END IF
 
     '-------- init --------
@@ -13497,26 +13466,7 @@ SUB IdeMakeContextualMenu
         NEXT
 
         'identify if word or character at current cursor position is in the help system OR a sub/func
-        '(copied/adapted from ide2)
-        a$ = idegetline(idecy)
-        a2$ = ""
-        x = idecx
-        IF x <= LEN(a$) AND x >= 1 THEN
-            IF alphanumeric(ASC(a$, x)) THEN
-                x1 = x
-                DO WHILE x1 > 1
-                    IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
-                LOOP
-                x2 = x
-                DO WHILE x2 < LEN(a$)
-                    IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
-                LOOP
-                a2$ = MID$(a$, x1, x2 - x1 + 1)
-            ELSE
-                a2$ = CHR$(ASC(a$, x))
-            END IF
-            a2$ = UCASE$(a2$)
-        END IF
+        a2$ = UCASE$(getWordAtCursor$)
 
         'check if cursor is on sub/func/label name
         IF LEN(LTRIM$(RTRIM$(Selection$))) > 0 THEN
@@ -14840,5 +14790,25 @@ SUB clearStatusWindow
     PRINT SPACE$(idewx - 2);
 END SUB
 
-'$INCLUDE:'wiki\wiki_methods.bas'
+FUNCTION getWordAtCursor$
+    a$ = idegetline(idecy)
+    x = idecx
+    IF x <= LEN(a$) THEN
+        IF alphanumeric(ASC(a$, x)) THEN
+            x1 = x
+            DO WHILE x1 > 1
+                IF alphanumeric(ASC(a$, x1 - 1)) OR ASC(a$, x1 - 1) = 36 THEN x1 = x1 - 1 ELSE EXIT DO
+            LOOP
+            x2 = x
+            DO WHILE x2 < LEN(a$)
+                IF alphanumeric(ASC(a$, x2 + 1)) OR ASC(a$, x2 + 1) = 36 THEN x2 = x2 + 1 ELSE EXIT DO
+            LOOP
+            a2$ = MID$(a$, x1, x2 - x1 + 1)
+        ELSE
+            a2$ = CHR$(ASC(a$, x))
+        END IF
+        getWordAtCursor$ = a2$ 'a2$ now holds the word or character at current cursor position
+    END IF
+END FUNCTION
 
+'$INCLUDE:'wiki\wiki_methods.bas'
