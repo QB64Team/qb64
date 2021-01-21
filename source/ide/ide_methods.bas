@@ -989,9 +989,7 @@ FUNCTION ide2 (ignore)
             IF idechangemade THEN
                 IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
                     clearStatusWindow
-
                     IdeInfo = ""
-
                     LOCATE idewy - 3, 2: PRINT "..."; 'assume new compilation will begin
                 END IF
             END IF
@@ -1071,7 +1069,6 @@ FUNCTION ide2 (ignore)
             WhiteListQB64FirstTimeMsg = -1
         END IF
 
-        STATIC idechangedbefore AS _BYTE
         IF idechangemade THEN
 
             IF idelayoutallow THEN idelayoutallow = idelayoutallow - 1
@@ -1079,7 +1076,6 @@ FUNCTION ide2 (ignore)
             idecurrentlinelayouti = 0 'invalidate
             idefocusline = 0
             idechangemade = 0
-            idechangedbefore = -1
             IDECompilationRequested = 0
             compfailed = 0
             IF ideunsaved = -1 THEN ideunsaved = 0 ELSE ideunsaved = 1
