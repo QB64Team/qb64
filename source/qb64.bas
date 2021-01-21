@@ -1048,16 +1048,6 @@ IF C = 9 THEN 'run
         GOTO sendcommand
     END IF
 
-    'hack! (a new message should be sent to the IDE stating C++ compilation was successful)
-    COLOR 7, 1: LOCATE idewy - 3, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 2, 2: PRINT SPACE$(idewx - 2);: LOCATE idewy - 1, 2: PRINT SPACE$(idewx - 2); 'clear status window
-    IF idemode THEN
-        'Darken fg/bg colors
-        dummy = DarkenFGBG(1)
-        COLOR 15
-    END IF
-    LOCATE idewy - 3, 2: PRINT "Starting program...";
-    PCOPY 3, 0
-
     'execute program
 
     IF iderunmode = 1 THEN
