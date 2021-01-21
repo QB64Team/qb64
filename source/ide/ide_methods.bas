@@ -2825,6 +2825,7 @@ FUNCTION ide2 (ignore)
                             backupIncludeFile = FREEFILE
                             OPEN f$ FOR BINARY AS #backupIncludeFile
                             tempInclude1$ = SPACE$(LOF(backupIncludeFile))
+                            GET #backupIncludeFile, 1, tempInclude1$
                             CLOSE #backupIncludeFile
 
                             WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
@@ -2856,6 +2857,7 @@ FUNCTION ide2 (ignore)
 
                             OPEN f$ FOR BINARY AS #backupIncludeFile
                             tempInclude2$ = SPACE$(LOF(backupIncludeFile))
+                            GET #backupIncludeFile, 1, tempInclude2$
                             CLOSE #backupIncludeFile
 
                             dummy = DarkenFGBG(0)
