@@ -169,7 +169,7 @@ FUNCTION ide2 (ignore)
                 IF result = 1 THEN
                     GOSUB CleanUpRecentList
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO errorReportDone
             END IF
         ELSE
@@ -431,7 +431,7 @@ FUNCTION ide2 (ignore)
         IF LOF(150) = 1 THEN
             CLOSE #150
             r$ = iderestore$
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            PCOPY 3, 0: SCREEN , , 3, 0
             IF r$ = "Y" THEN
                 'restore
                 OPEN tmpdir$ + "undo2.bin" FOR BINARY AS #150
@@ -994,7 +994,7 @@ FUNCTION ide2 (ignore)
                                                       "It is advisable to whitelist your whole QB64 folder to avoid" + CHR$(10) + _
                                                       "operation errors.", "#OK;#Don't show this again")
 
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            PCOPY 3, 0: SCREEN , , 3, 0
             IF result = 2 THEN
                 WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "TRUE"
             END IF
@@ -1168,7 +1168,12 @@ FUNCTION ide2 (ignore)
 
         GetInput
         IF iCHANGED THEN
-            IF (mX <> mox OR mY <> moy) AND mB <> 0 THEN change = 1 'dragging mouse
+            STATIC mox, moy
+            IF (mX <> mox OR mY <> moy) AND mB <> 0 THEN 'dragging mouse
+                mox = mX
+                moy = mY
+                change = 1
+            END IF
             IF mB <> mOB THEN change = 1 'button changed
             IF mB2 <> mOB2 THEN change = 1 'button changed
             IF mCLICK <> 0 OR mCLICK2 <> 0 THEN change = 1
@@ -1202,7 +1207,8 @@ FUNCTION ide2 (ignore)
             _FINISHDROP
         END IF
 
-        'Hover/click (QuickNav, "Find" field)
+        'Hover/click (QuickNav, "Find" field, version number, line number)
+        updateHover = 0
         IF QuickNavTotal > 0 THEN
             DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
                 'make sure that the line number in history still exists
@@ -1214,25 +1220,26 @@ FUNCTION ide2 (ignore)
         IF IdeSystem = 1 AND QuickNavTotal > 0 AND EnableQuickNav THEN
             IF mY = 2 THEN
                 IF mX >= 4 AND mX <= 6 THEN
-                    QuickNavHover = -1
-                    LOCATE 2, 4
-                    COLOR 15, 3
-                    popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
-                    PRINT popup$;
+                    IF QuickNavHover = 0 THEN
+                        QuickNavHover = -1
+                        LOCATE 2, 4
+                        COLOR 15, 3
+                        popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
+                        PRINT popup$;
 
-                    'shadow
-                    COLOR 2, 0
-                    FOR x2 = 6 TO 4 + LEN(popup$)
-                        LOCATE 3, x2: PRINT CHR$(SCREEN(3, x2));
-                    NEXT
-
-                    PCOPY 3, 0
+                        'shadow
+                        COLOR 2, 0
+                        FOR x2 = 6 TO 4 + LEN(popup$)
+                            LOCATE 3, x2: PRINT CHR$(SCREEN(3, x2));
+                        NEXT
+                        updateHover = -1
+                    END IF
 
                     IF mCLICK THEN
                         ideselect = 0
                         idecy = QuickNavHistory(QuickNavTotal)
                         QuickNavTotal = QuickNavTotal - 1
-                        GOTO waitforinput
+                        GOTO ideloop
                     END IF
                 ELSE
                     IF QuickNavHover = -1 THEN
@@ -1240,7 +1247,7 @@ FUNCTION ide2 (ignore)
                         GOSUB UpdateTitleOfMainWindow
                         GOSUB DrawQuickNav
                         ideshowtext
-                        PCOPY 3, 0
+                        updateHover = -1
                     END IF
                 END IF
             ELSE
@@ -1249,31 +1256,28 @@ FUNCTION ide2 (ignore)
                     GOSUB UpdateTitleOfMainWindow
                     GOSUB DrawQuickNav
                     ideshowtext
-                    PCOPY 3, 0
+                    updateHover = -1
                 END IF
             END IF
         END IF
 
-        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
-            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX <= idewx - (idesystem2.w + 8) + 2 THEN '"Find" button
+            IF FindFieldHover = 0 THEN
                 'Highlight "Find"
                 LOCATE idewy - 4, idewx - (idesystem2.w + 9)
                 COLOR 1, 3
                 PRINT "Find";
-                PCOPY 3, 0
+                updateHover = -1
                 FindFieldHover = -1
-            ELSE
-                GOTO RestoreFindButton
             END IF
         ELSE
-            RestoreFindButton:
             IF FindFieldHover = -1 THEN
                 'Restore "Find" bg
                 FindFieldHover = 0
                 LOCATE idewy - 4, idewx - (idesystem2.w + 9)
                 COLOR 3, 1
                 PRINT "Find";
-                PCOPY 3, 0
+                updateHover = -1
             END IF
         END IF
 
@@ -1283,7 +1287,7 @@ FUNCTION ide2 (ignore)
                 LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
                 COLOR 13, 6
                 PRINT versionStringStatus$;
-                PCOPY 3, 0
+                updateHover = -1
                 VersionInfoHover = -1
             END IF
             IF mCLICK THEN PCOPY 0, 2: GOTO helpabout
@@ -1294,7 +1298,7 @@ FUNCTION ide2 (ignore)
                 LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
                 COLOR 2, 3
                 PRINT versionStringStatus$;
-                PCOPY 3, 0
+                updateHover = -1
             END IF
         END IF
 
@@ -1303,13 +1307,13 @@ FUNCTION ide2 (ignore)
             IF LineNumberHover = 0 THEN
                 COLOR 13, 6
                 LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
-                PCOPY 3, 0
                 LineNumberHover = -1
+                updateHover = -1
             END IF
             IF mCLICK THEN
                 PCOPY 0, 2
                 idegotobox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
         ELSE
@@ -1318,10 +1322,9 @@ FUNCTION ide2 (ignore)
                 LineNumberHover = 0
                 COLOR 0, 3
                 LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
-                PCOPY 3, 0
+                updateHover = -1
             END IF
         END IF
-
 
         IF os$ = "WIN" OR MacOSX = 1 THEN
             IF _WINDOWHASFOCUS THEN
@@ -1369,6 +1372,8 @@ FUNCTION ide2 (ignore)
             END IF
 
         END IF 'alt not held
+
+        IF updateHover THEN PCOPY 3, 0
 
         IF change = 0 THEN
 
@@ -1447,7 +1452,7 @@ FUNCTION ide2 (ignore)
                             '4- Link to Warnings dialog:
                             retval = idewarningbox
                             'retval is ignored
-                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            PCOPY 3, 0: SCREEN , , 3, 0
                             GOTO specialchar
                     END SELECT
                 END IF
@@ -1481,7 +1486,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
                     ExeToSourceFolderFirstTimeMsg = -1
                 ELSEIF result = 3 THEN
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     LOCATE , , 0
                     clearStatusWindow
                     LOCATE idewy - 3, 2
@@ -1489,7 +1494,7 @@ FUNCTION ide2 (ignore)
                     GOTO specialchar
                 END IF
             END IF
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            PCOPY 3, 0: SCREEN , , 3, 0
 
             'run program
             IF ready <> 0 AND idechangemade = 0 THEN
@@ -1810,7 +1815,7 @@ FUNCTION ide2 (ignore)
                         GOSUB UpdateSearchBar
                         f$ = idesearchedbox
                         IF LEN(f$) THEN idefindtext = f$
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         idealthighlight = 0
                         LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                         IdeSystem = 1
@@ -2538,7 +2543,7 @@ FUNCTION ide2 (ignore)
                     a$ = Wiki(lnk$)
 
                     IF idehelp = 0 THEN
-                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                         idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                         Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                         WikiParse a$
@@ -2606,7 +2611,7 @@ FUNCTION ide2 (ignore)
                                     IdeContextHelpSF = -1
 
                                     IF idehelp = 0 THEN
-                                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                                         idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                                         Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                                         WikiParse a$
@@ -2662,7 +2667,7 @@ FUNCTION ide2 (ignore)
         IF KALT AND (KB = KEY_DOWN OR KB = KEY_UP) THEN
             IF IdeBmkN = 0 THEN
                 result = idemessagebox("Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)", "")
-                SCREEN , , 3, 0: idewait4mous: idewait4alt
+                SCREEN , , 3, 0
                 idealthighlight = 0
                 LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                 GOTO specialchar
@@ -2670,7 +2675,7 @@ FUNCTION ide2 (ignore)
             IF IdeBmkN = 1 THEN
                 IF idecy = IdeBmk(1).y THEN
                     result = idemessagebox("Bookmarks", "No other bookmarks exist", "")
-                    SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    SCREEN , , 3, 0
                     idealthighlight = 0
                     LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                     GOTO specialchar
@@ -3089,7 +3094,7 @@ FUNCTION ide2 (ignore)
             ELSE
                 idegotobox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
             END IF
             GOTO specialchar
         END IF
@@ -3126,7 +3131,7 @@ FUNCTION ide2 (ignore)
             ELSE
                 idesave idepath$ + idepathsep$ + ideprogname$
             END IF
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+            PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
         END IF
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
@@ -3135,8 +3140,7 @@ FUNCTION ide2 (ignore)
                     ideselect = 0
                     idecy = QuickNavHistory(QuickNavTotal)
                     QuickNavTotal = QuickNavTotal - 1
-                    _DELAY .2
-                    GOTO waitforinput
+                    GOTO ideloop
                 END IF
             ELSE
                 GOTO idesubsjmp
@@ -3147,11 +3151,11 @@ FUNCTION ide2 (ignore)
             IF totalWarnings > 0 THEN
                 retval = idewarningbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO specialchar
             ELSE
                 result = idemessagebox("Compilation status", "No warnings to display.", "")
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
         END IF
@@ -3193,7 +3197,7 @@ FUNCTION ide2 (ignore)
                         'warn
                         PCOPY 3, 0
                         what$ = ideyesnobox("Undo", "Undo through previous program content?")
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         IF what$ = "N" THEN
                             CLOSE #150
                             GOTO skipundo
@@ -3201,7 +3205,7 @@ FUNCTION ide2 (ignore)
                         IF ideunsaved = 1 AND ideprogname <> "" THEN
                             PCOPY 3, 0
                             r$ = idesavenow
-                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            PCOPY 3, 0: SCREEN , , 3, 0
                             IF r$ = "C" THEN CLOSE #150: GOTO skipundo
                             IF r$ = "Y" THEN
                                 idesave idepath$ + idepathsep$ + ideprogname$
@@ -3856,7 +3860,7 @@ FUNCTION ide2 (ignore)
                         idecx = idecx - BlockIndentLevel
                         IF idecx < 1 THEN idecx = 1: ideselectx1 = idecx
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 ELSE
                     IdeBlockIncreaseIndent:
@@ -3903,7 +3907,7 @@ FUNCTION ide2 (ignore)
                         ideselectx1 = ideselectx1 + BlockIndentLevel
                         idecx = idecx + BlockIndentLevel
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
             ELSE
@@ -4408,7 +4412,7 @@ FUNCTION ide2 (ignore)
                     IF mX >= x AND mX < x + x2 THEN
                         m = i
                         r = 1
-                        IF lastm = m AND mousedown = 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: GOTO ideloop
+                        IF lastm = m AND mousedown = 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                         idecontextualmenu = 0
                         EXIT FOR
                     END IF
@@ -4528,13 +4532,13 @@ FUNCTION ide2 (ignore)
                         idechangemade = 1
                     END IF
                 NEXT
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Remove Comme#nt (')  Ctrl+Shift+R" THEN
                 ctrlRemoveComment:
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
                     y1 = ideselecty1
@@ -4555,13 +4559,13 @@ FUNCTION ide2 (ignore)
                         END IF
                     END IF
                 NEXT
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "To#ggle Comment  Ctrl+T" THEN
                 ctrlToggleComment:
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
                     y1 = ideselecty1
@@ -4596,26 +4600,26 @@ FUNCTION ide2 (ignore)
                         END IF
                     END IF
                 NEXT
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Increase Indent  TAB" THEN
                 IF ideselect THEN GOTO IdeBlockIncreaseIndent
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 16) = "#Decrease Indent" THEN
                 IF ideselect THEN GOTO IdeBlockDecreaseIndent
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Language..." THEN
                 PCOPY 2, 0
                 retval = idelanguagebox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4635,7 +4639,7 @@ FUNCTION ide2 (ignore)
                         GOSUB redrawItAll
                     END IF
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4643,7 +4647,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 HideBracketHighlight
                 retval = idechoosecolorsbox 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4655,7 +4659,7 @@ FUNCTION ide2 (ignore)
                 keywordHighlight = oldkeywordHighlight
                 retval$ = idergbmixer$(-1) 'retval is ignored
                 IF LEN(retval$) THEN insertAtCursor retval$
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4663,7 +4667,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = ideadvancedbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4678,7 +4682,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuSwapMouse) = "#Swap Mouse Buttons"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4692,7 +4696,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4706,7 +4710,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor After #Pasted Content"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4721,7 +4725,7 @@ FUNCTION ide2 (ignore)
                     menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show Compilation #Errors Immediately"
                 END IF
                 idechangemade = 1
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4737,7 +4741,7 @@ FUNCTION ide2 (ignore)
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = "Ignore #Warnings"
                 END IF
                 idechangemade = 1
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4751,7 +4755,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
                     menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to Source #Folder"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 idecompiled = 0
                 GOTO ideloop
             END IF
@@ -4766,7 +4770,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
                     menu$(SearchMenuID, SearchMenuEnableQuickNav) = "Enable #Quick Navigation (Back Arrow)"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4774,7 +4778,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = idelayoutbox
                 IF retval THEN idechangemade = 1: idelayoutallow = 2 'recompile if options changed
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4800,7 +4804,7 @@ FUNCTION ide2 (ignore)
                     IdeBmk(IdeBmkN).x = idecx
                     ideunsaved = 1
                 END IF
-                SCREEN , , 3, 0: idewait4mous: idewait4alt
+                SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4808,13 +4812,13 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 IF IdeBmkN = 0 THEN
                     result = idemessagebox("Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)", "")
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
                 IF IdeBmkN = 1 THEN
                     IF idecy = IdeBmk(1).y THEN
                         result = idemessagebox("Bookmarks", "No other bookmarks exist", "")
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
                 END IF
@@ -4832,7 +4836,7 @@ FUNCTION ide2 (ignore)
                 idecy = l
                 idecx = IdeBmk(b).x
                 ideselect = 0
-                SCREEN , , 3, 0: idewait4mous: idewait4alt
+                SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4844,7 +4848,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Go To Line...  Ctrl+G" THEN
                 PCOPY 2, 0
                 idegotobox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4852,7 +4856,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = idebackupbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4862,7 +4866,7 @@ FUNCTION ide2 (ignore)
                 m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
                 IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
                 result = idemessagebox("About", m$, "")
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4872,7 +4876,7 @@ FUNCTION ide2 (ignore)
                 DO
                     retval$ = ideASCIIbox$(relaunch)
                     IF LEN(retval$) THEN insertAtCursor retval$
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOSUB redrawItAll
                     ideshowtext
                     PCOPY 3, 0
@@ -4921,7 +4925,7 @@ FUNCTION ide2 (ignore)
 
                 bypassCtrlK:
                 dummy = DarkenFGBG(0)
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 retval = 1
                 KCTRL = 0: KCONTROL = 0
                 GOSUB redrawItAll
@@ -4929,12 +4933,12 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF LEFT$(menu$(m, s), 10) = "#Help On '" THEN 'Contextual menu Help
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO contextualhelp
             END IF
 
             IF LEFT$(menu$(m, s), 10) = "#Go To SUB" OR LEFT$(menu$(m, s), 15) = "#Go To FUNCTION" THEN 'Contextual menu Goto
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 AddQuickNavHistory idecy
                 idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
                 idesy = idecy
@@ -4945,7 +4949,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF LEFT$(menu$(m, s), 12) = "Go To #Label" THEN 'Contextual menu Goto label
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 AddQuickNavHistory idecy
                 idecy = CVL(MID$(SubFuncLIST(UBOUND(SubFuncLIST)), 1, 4))
                 idesy = idecy
@@ -4956,17 +4960,17 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Contents Page" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 lnk$ = "QB64 Help Menu"
                 GOTO OpenHelpLnk
             END IF
             IF menu$(m, s) = "Keyword #Index" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 lnk$ = "Keyword Reference - Alphabetical"
                 GOTO OpenHelpLnk
             END IF
             IF menu$(m, s) = "#Keywords by Usage" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 lnk$ = "Keyword Reference - By usage"
                 GOTO OpenHelpLnk
             END IF
@@ -4974,7 +4978,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#View  Shift+F1" THEN
 
                 IF idehelp = 0 THEN
-                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                     idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                     Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                     idehelp = 1
@@ -4987,7 +4991,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Update Current Page" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF idehelp THEN
                     Help_IgnoreCache = 1
                     a$ = Wiki$(Back$(Help_Back_Pos))
@@ -5071,7 +5075,7 @@ FUNCTION ide2 (ignore)
                 q$ = ideyesnobox("Update Help", "This can take up to 10 minutes.\nRedownload all cached help content from the wiki?")
                 PCOPY 2, 0
                 IF q$ = "Y" THEN ideupdatehelpbox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5079,14 +5083,14 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 idenewsf "SUB"
                 ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
             IF LEFT$(menu$(m, s), 13) = "New #FUNCTION" THEN
                 PCOPY 2, 0
                 idenewsf "FUNCTION"
                 ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5095,7 +5099,7 @@ FUNCTION ide2 (ignore)
                 idesubsjmp:
                 r$ = idesubs
                 IF r$ <> "C" THEN ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5111,7 +5115,7 @@ FUNCTION ide2 (ignore)
                 menu$(m, s) = "#Hide Line Numbers"
                 menu$(m, ViewMenuShowBGID) = MID$(menu$(m, ViewMenuShowBGID), 2)
                 menu$(m, ViewMenuShowSeparatorID) = MID$(menu$(m, ViewMenuShowSeparatorID), 2)
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5122,7 +5126,7 @@ FUNCTION ide2 (ignore)
                 menu$(m, s) = "#Show Line Numbers"
                 menu$(m, ViewMenuShowBGID) = "~" + menu$(m, ViewMenuShowBGID)
                 menu$(m, ViewMenuShowSeparatorID) = "~" + menu$(m, ViewMenuShowSeparatorID)
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5137,7 +5141,7 @@ FUNCTION ide2 (ignore)
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "FALSE"
                         menu$(m, s) = "#Background Color"
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
             END IF
@@ -5153,7 +5157,7 @@ FUNCTION ide2 (ignore)
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "FALSE"
                         menu$(m, s) = "Sho#w Separator"
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
             END IF
@@ -5162,7 +5166,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = idewarningbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5170,7 +5174,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 idefindjmp:
                 r$ = idefind
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 '...
                 GOTO ideloop
             END IF
@@ -5178,7 +5182,7 @@ FUNCTION ide2 (ignore)
             IF LEFT$(menu$(m, s), 6) = "Find '" THEN 'Contextual menu Find
                 idefindtext = idecontextualSearch$
                 IdeAddSearched idefindtext
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemf3
             END IF
 
@@ -5186,7 +5190,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 idefindchangejmp:
                 r$ = idechange
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 idealthighlight = 0
                 LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
                 IF r$ = "C" OR r$ = "" THEN GOTO ideloop
@@ -5281,7 +5285,7 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0
                     r$ = idechangeit
                     idedeltxt
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     ideselect = 0
                     IF r$ = "C" THEN
                         idecx = oldcx: idecy = oldcy
@@ -5352,7 +5356,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     idenomatch -1
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF '#Change...
 
@@ -5364,17 +5368,17 @@ FUNCTION ide2 (ignore)
                     OPEN ".\internal\temp\searched.bin" FOR OUTPUT AS #fh: CLOSE #fh
                     idefindtext = ""
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Repeat Last Find  (Shift+) F3" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemf3
             END IF
 
             IF menu$(m, s) = "Cl#ear  Del" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN
                     idechangemade = 1
                     delselect
@@ -5385,13 +5389,13 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Paste  Shift+Ins or Ctrl+V" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 THEN GOTO idempaste
                 IF IdeSystem = 2 THEN GOTO pasteIntoSearchField
             END IF
 
             IF menu$(m, s) = "#Copy  Ctrl+Ins or Ctrl+C" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN GOTO copy2clip
                 IF IdeSystem = 2 THEN GOTO copysearchterm2clip
                 IF IdeSystem = 3 AND Help_Select = 2 THEN GOTO copyhelp2clip
@@ -5399,7 +5403,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "Cu#t  Shift+Del or Ctrl+X" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN
                     K$ = CHR$(0) + "S" 'tricks handler into del after copy
                     GOTO idemcut
@@ -5410,30 +5414,30 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Undo  Ctrl+Z" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemundo
             END IF
 
             IF menu$(m, s) = "#Redo  Ctrl+Y" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemredo
             END IF
 
 
             IF menu$(m, s) = "Select #All  Ctrl+A" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 THEN GOTO idemselectall
                 IF IdeSystem = 2 THEN GOTO selectAllInSearchField
                 IF IdeSystem = 3 THEN GOTO selectAllInHelp
             END IF
 
             IF menu$(m, s) = "Clo#se Help  ESC" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO closeHelp
             END IF
 
             IF menu$(m, s) = "#Start  F5" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemrun
             END IF
 
@@ -5442,12 +5446,12 @@ FUNCTION ide2 (ignore)
                 ModifyCOMMAND$ = " " + ideinputbox$("Modify COMMAND$", "#Enter text for COMMAND$", _TRIM$(ModifyCOMMAND$), "", 60, 0)
                 IF _TRIM$(ModifyCOMMAND$) = "" THEN ModifyCOMMAND$ = ""
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Make E#XE Only  F11" OR menu$(m, s) = "Make E#xecutable Only  F11" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemexe
             END IF
 
@@ -5456,7 +5460,7 @@ FUNCTION ide2 (ignore)
                 quickexit:
                 IF ideunsaved = 1 THEN
                     r$ = idesavenow
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     IF r$ = "C" THEN GOTO ideloop
                     IF r$ = "Y" THEN
                         IF ideprogname = "" THEN
@@ -5467,7 +5471,7 @@ FUNCTION ide2 (ignore)
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             IF r$ = "C" THEN
-                                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                             END IF
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
@@ -5484,7 +5488,7 @@ FUNCTION ide2 (ignore)
                 ctrlNew:
                 IF ideunsaved = 1 THEN
                     r$ = idesavenow
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     IF r$ = "C" THEN GOTO ideloop
                     IF r$ = "Y" THEN
                         IF ideprogname = "" THEN
@@ -5494,7 +5498,7 @@ FUNCTION ide2 (ignore)
                             ELSE
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
-                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            PCOPY 3, 0: SCREEN , , 3, 0
                             IF r$ = "C" THEN GOTO ideloop
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
@@ -5543,7 +5547,7 @@ FUNCTION ide2 (ignore)
                         fh = FREEFILE
                         OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
                         IdeMakeFileMenu
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     ELSE
                         GOTO ideshowrecentbox
@@ -5557,7 +5561,7 @@ FUNCTION ide2 (ignore)
                     AttemptToLoadRecent = -1
                     GOTO directopen
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5568,10 +5572,10 @@ FUNCTION ide2 (ignore)
                     fh = FREEFILE
                     OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
                     IdeMakeFileMenu
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5582,7 +5586,7 @@ FUNCTION ide2 (ignore)
                 ctrlOpen:
                 IF ideunsaved THEN
                     r$ = idesavenow
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     IF r$ = "C" THEN GOTO ideloop
                     IF r$ = "Y" THEN
                         IF ideprogname = "" THEN
@@ -5596,12 +5600,12 @@ FUNCTION ide2 (ignore)
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
                         END IF
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                     END IF '"Y"
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
                 IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB redrawItAll: GOTO ideloop
             END IF
 
@@ -5617,7 +5621,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     idesave idepath$ + idepathsep$ + ideprogname$
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
             END IF
 
 
@@ -5633,7 +5637,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     a$ = idefiledialog$(ideprogname$, 2)
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 1) = "~" THEN 'Ignore disabled items (starting with "~")
@@ -9954,14 +9958,6 @@ END FUNCTION
 
 SUB idewait
     _DELAY 0.1
-END SUB
-
-SUB idewait4alt
-    'stub
-END SUB
-
-SUB idewait4mous
-    'stub
 END SUB
 
 FUNCTION idezchangepath$ (path$, newpath$)
