@@ -1242,15 +1242,10 @@ FUNCTION ide2 (ignore)
                         GOTO ideloop
                     END IF
                 ELSE
-                    IF QuickNavHover = -1 THEN
-                        QuickNavHover = 0
-                        GOSUB UpdateTitleOfMainWindow
-                        GOSUB DrawQuickNav
-                        ideshowtext
-                        updateHover = -1
-                    END IF
+                    GOTO RestoreBGQuickNav
                 END IF
             ELSE
+                RestoreBGQuickNav:
                 IF QuickNavHover = -1 THEN
                     QuickNavHover = 0
                     GOSUB UpdateTitleOfMainWindow
