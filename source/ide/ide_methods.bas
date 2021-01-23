@@ -169,7 +169,7 @@ FUNCTION ide2 (ignore)
                 IF result = 1 THEN
                     GOSUB CleanUpRecentList
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO errorReportDone
             END IF
         ELSE
@@ -199,14 +199,13 @@ FUNCTION ide2 (ignore)
 
         dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
-        COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+        COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
         COLOR 15, 1
 
-        LOCATE idewy - 3, 2
         IF os$ = "LNX" THEN
-            PRINT "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
+            _PRINTSTRING (2, idewy - 3), "Creating executable file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
         ELSE
-            PRINT "Creating .EXE file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
+            _PRINTSTRING (2, idewy - 3),  "Creating .EXE file named " + CHR$(34) + f$ + extension$ + CHR$(34) + "..."
         END IF
 
         PCOPY 3, 0
@@ -431,7 +430,7 @@ FUNCTION ide2 (ignore)
         IF LOF(150) = 1 THEN
             CLOSE #150
             r$ = iderestore$
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            PCOPY 3, 0: SCREEN , , 3, 0
             IF r$ = "Y" THEN
                 'restore
                 OPEN tmpdir$ + "undo2.bin" FOR BINARY AS #150
@@ -661,44 +660,42 @@ FUNCTION ide2 (ignore)
         LOCATE , , 0
 
         'note: menu bar shouldn't need repairing!
-        'COLOR 0, 7: LOCATE 1, 1: PRINT menubar$; 'repair menu bar
+        'COLOR 0, 7: _PRINTSTRING (1, 1), menubar$ 'repair menu bar
 
         IF c$ <> CHR$(3) THEN
             clearStatusWindow
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN
-                    LOCATE idewy - 3, 2: PRINT "OK"; 'report OK status
+                    _PRINTSTRING (2, idewy - 3), "OK" 'report OK status
                     statusarealink = 0
                     IF totalWarnings > 0 AND showexecreated = 0 THEN
                         COLOR 11, 1
-                        PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
-                        IF totalWarnings > 1 THEN PRINT "s";
-                        PRINT " - click here or Ctrl+W to view)";
+                        msg$ = " (" + LTRIM$(STR$(totalWarnings)) + " warning"
+                        IF totalWarnings > 1 THEN msg$ = msg$ + "s"
+                        msg$ = msg$ + " - click here or Ctrl+W to view)"
+                        _PRINTSTRING (4, idewy - 3), msg$
                         statusarealink = 4
                     END IF
                 END IF
             END IF
             IF showexecreated THEN
                 showexecreated = 0
-                LOCATE idewy - 3, 2
 
                 IF os$ = "LNX" THEN
-                    PRINT "Executable file created";
+                    _PRINTSTRING (2, idewy - 3), "Executable file created"
                 ELSE
-                    PRINT ".EXE file created";
+                    _PRINTSTRING (2, idewy - 3), ".EXE file created"
                 END IF
 
                 IF SaveExeWithSource THEN
-                    LOCATE idewy - 2, 2
-                    PRINT "Location: ";
                     COLOR 11, 1
                     location$ = lastBinaryGenerated$
                     IF path.exe$ = "" THEN location$ = _STARTDIR$ + pathsep$ + location$
-                    IF POS(0) + LEN(location$) > idewx THEN
-                        PRINT "..."; RIGHT$(location$, idewx - 15);
-                    ELSE
-                        PRINT location$;
+                    msg$ = "Location: " + location$
+                    IF 2 + LEN(msg$) > idewx THEN
+                        msg$ = "Location: " + STRING$(3, 250) + RIGHT$(location$, idewx - 15)
                     END IF
+                    _PRINTSTRING (2, idewy - 2), msg$
                     statusarealink = 3
                 END IF
 
@@ -775,18 +772,18 @@ FUNCTION ide2 (ignore)
 
                     'static background
                     COLOR 0, 7
-                    LOCATE 1, 1: PRINT SPACE$(idewx);
-                    LOCATE 1, 1: PRINT LEFT$(menubar$, idewx);
+                    _PRINTSTRING (1, 1), SPACE$(idewx)
+                    _PRINTSTRING (1, 1), LEFT$(menubar$, idewx)
                     COLOR 7, 1: idebox 1, 2, idewx, idewy - 5
 
                     COLOR 7, 1: idebox 1, idewy - 4, idewx, 5
                     'edit corners
-                    COLOR 7, 1: LOCATE idewy - 4, 1: PRINT CHR$(195);: LOCATE idewy - 4, idewx: PRINT CHR$(180);
+                    COLOR 7, 1: _PRINTSTRING (1, idewy - 4), CHR$(195): _PRINTSTRING (idewx, idewy - 4), CHR$(180)
 
                     GOSUB UpdateSearchBar
 
                     'status bar
-                    COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
+                    COLOR 0, 3: _PRINTSTRING (1, idewy + idesubwindow), SPACE$(idewx)
                     UpdateIdeInfo
                     q = idevbar(idewx, idewy - 3, 3, 1, 1)
                     q = idevbar(idewx, 3, idewy - 8, 1, 1)
@@ -859,8 +856,7 @@ FUNCTION ide2 (ignore)
                             END IF
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                             IF y > idewy - 1 THEN EXIT FOR
-                            LOCATE y, x
-                            PRINT CHR$(ASC(a$, i));
+                            _PRINTSTRING (x, y), CHR$(ASC(a$, i))
                         NEXT
                         statusarealink = 1
                     ELSE
@@ -877,8 +873,7 @@ FUNCTION ide2 (ignore)
                         FOR i = 1 TO LEN(a$)
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                             IF y > idewy - 1 THEN EXIT FOR
-                            LOCATE y, x
-                            PRINT CHR$(ASC(a$, i));
+                            _PRINTSTRING (x, y), CHR$(ASC(a$, i))
                         NEXT
 
                         IF l <> 0 AND idecy <> l THEN
@@ -887,8 +882,7 @@ FUNCTION ide2 (ignore)
                             FOR i = 1 TO LEN(a$)
                                 x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                                 IF y > idewy - 1 THEN EXIT FOR
-                                LOCATE y, x
-                                PRINT CHR$(ASC(a$, i));
+                                _PRINTSTRING (x, y), CHR$(ASC(a$, i))
                             NEXT
                             statusarealink = 2
                         END IF
@@ -908,8 +902,7 @@ FUNCTION ide2 (ignore)
                                     x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                                     IF y > idewy - 1 THEN EXIT FOR
                                     IF ASC(temp$, i) = 1 THEN i = i + 1: COLOR 11, 1
-                                    LOCATE y, x
-                                    PRINT CHR$(ASC(temp$, i));
+                                    _PRINTSTRING (x, y), CHR$(ASC(temp$, i))
                                 NEXT
                             END IF
                         END IF
@@ -922,7 +915,7 @@ FUNCTION ide2 (ignore)
                 IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
                     clearStatusWindow
                     IdeInfo = ""
-                    LOCATE idewy - 3, 2: PRINT "..."; 'assume new compilation will begin
+                    _PRINTSTRING (2, idewy - 3), "..." 'assume new compilation will begin
                 END IF
             END IF
 
@@ -948,7 +941,7 @@ FUNCTION ide2 (ignore)
                     IF LEN(Help_Search_Str) THEN
                         a$ = Help_Search_Str
                         IF LEN(a$) > 20 THEN a$ = STRING$(3, 250) + RIGHT$(a$, 17)
-                        a$ = "[" + a$ + "](DELETE=next)"
+                        a$ = "[" + a$ + "] (TAB=next)"
                         IdeInfo = a$
                     ELSE
                         IdeInfo = "Start typing to search for text in this help page"
@@ -994,7 +987,7 @@ FUNCTION ide2 (ignore)
                                                       "It is advisable to whitelist your whole QB64 folder to avoid" + CHR$(10) + _
                                                       "operation errors.", "#OK;#Don't show this again")
 
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            PCOPY 3, 0: SCREEN , , 3, 0
             IF result = 2 THEN
                 WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "TRUE"
             END IF
@@ -1168,7 +1161,12 @@ FUNCTION ide2 (ignore)
 
         GetInput
         IF iCHANGED THEN
-            IF (mX <> mox OR mY <> moy) AND mB <> 0 THEN change = 1 'dragging mouse
+            STATIC mox, moy
+            IF (mX <> mox OR mY <> moy) AND mB <> 0 THEN 'dragging mouse
+                mox = mX
+                moy = mY
+                change = 1
+            END IF
             IF mB <> mOB THEN change = 1 'button changed
             IF mB2 <> mOB2 THEN change = 1 'button changed
             IF mCLICK <> 0 OR mCLICK2 <> 0 THEN change = 1
@@ -1202,7 +1200,8 @@ FUNCTION ide2 (ignore)
             _FINISHDROP
         END IF
 
-        'Hover/click (QuickNav, "Find" field)
+        'Hover/click (QuickNav, "Find" field, version number, line number)
+        updateHover = 0
         IF QuickNavTotal > 0 THEN
             DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
                 'make sure that the line number in history still exists
@@ -1214,76 +1213,65 @@ FUNCTION ide2 (ignore)
         IF IdeSystem = 1 AND QuickNavTotal > 0 AND EnableQuickNav THEN
             IF mY = 2 THEN
                 IF mX >= 4 AND mX <= 6 THEN
-                    QuickNavHover = -1
-                    LOCATE 2, 4
-                    COLOR 15, 3
-                    popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
-                    PRINT popup$;
+                    IF QuickNavHover = 0 THEN
+                        QuickNavHover = -1
+                        COLOR 15, 3
+                        popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
+                        _PRINTSTRING (4, 2), popup$
 
-                    'shadow
-                    COLOR 2, 0
-                    FOR x2 = 6 TO 4 + LEN(popup$)
-                        LOCATE 3, x2: PRINT CHR$(SCREEN(3, x2));
-                    NEXT
-
-                    PCOPY 3, 0
+                        'shadow
+                        COLOR 2, 0
+                        FOR x2 = 6 TO 4 + LEN(popup$)
+                            _PRINTSTRING (x2, 3), CHR$(SCREEN(3, x2))
+                        NEXT
+                        updateHover = -1
+                    END IF
 
                     IF mCLICK THEN
                         ideselect = 0
                         idecy = QuickNavHistory(QuickNavTotal)
                         QuickNavTotal = QuickNavTotal - 1
-                        GOTO waitforinput
+                        GOTO ideloop
                     END IF
                 ELSE
-                    IF QuickNavHover = -1 THEN
-                        QuickNavHover = 0
-                        GOSUB UpdateTitleOfMainWindow
-                        GOSUB DrawQuickNav
-                        ideshowtext
-                        PCOPY 3, 0
-                    END IF
+                    GOTO RestoreBGQuickNav
                 END IF
             ELSE
+                RestoreBGQuickNav:
                 IF QuickNavHover = -1 THEN
                     QuickNavHover = 0
                     GOSUB UpdateTitleOfMainWindow
                     GOSUB DrawQuickNav
                     ideshowtext
-                    PCOPY 3, 0
+                    updateHover = -1
                 END IF
             END IF
         END IF
 
-        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN 'inside text box
-            IF mX <= idewx - (idesystem2.w + 8) + 2 THEN
+        IF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX <= idewx - (idesystem2.w + 8) + 2 THEN '"Find" button
+            IF FindFieldHover = 0 THEN
                 'Highlight "Find"
-                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
                 COLOR 1, 3
-                PRINT "Find";
-                PCOPY 3, 0
+                _PRINTSTRING (idewx - (idesystem2.w + 9), idewy - 4), "Find"
+                updateHover = -1
                 FindFieldHover = -1
-            ELSE
-                GOTO RestoreFindButton
             END IF
         ELSE
-            RestoreFindButton:
             IF FindFieldHover = -1 THEN
                 'Restore "Find" bg
                 FindFieldHover = 0
-                LOCATE idewy - 4, idewx - (idesystem2.w + 9)
                 COLOR 3, 1
-                PRINT "Find";
-                PCOPY 3, 0
+                _PRINTSTRING (idewx - (idesystem2.w + 9), idewy - 4), "Find"
+                updateHover = -1
             END IF
         END IF
 
         IF mY = idewy + idesubwindow AND mX >= idewx - 22 - LEN(versionStringStatus$) AND mX < idewx - 22 THEN
             'Highlight Version Number
             IF VersionInfoHover = 0 THEN
-                LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
                 COLOR 13, 6
-                PRINT versionStringStatus$;
-                PCOPY 3, 0
+                _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
+                updateHover = -1
                 VersionInfoHover = -1
             END IF
             IF mCLICK THEN PCOPY 0, 2: GOTO helpabout
@@ -1291,10 +1279,9 @@ FUNCTION ide2 (ignore)
             IF VersionInfoHover = -1 THEN
                 'Restore "Find" bg
                 VersionInfoHover = 0
-                LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
                 COLOR 2, 3
-                PRINT versionStringStatus$;
-                PCOPY 3, 0
+                _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
+                updateHover = -1
             END IF
         END IF
 
@@ -1302,14 +1289,14 @@ FUNCTION ide2 (ignore)
             'Highlight line number
             IF LineNumberHover = 0 THEN
                 COLOR 13, 6
-                LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
-                PCOPY 3, 0
+                _PRINTSTRING (idewx - 20, idewy + idesubwindow), lineNumberStatus$
                 LineNumberHover = -1
+                updateHover = -1
             END IF
             IF mCLICK THEN
                 PCOPY 0, 2
                 idegotobox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
         ELSE
@@ -1317,11 +1304,10 @@ FUNCTION ide2 (ignore)
                 'Restore "Find" bg
                 LineNumberHover = 0
                 COLOR 0, 3
-                LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
-                PCOPY 3, 0
+                _PRINTSTRING (idewx - 20, idewy + idesubwindow), lineNumberStatus$
+                updateHover = -1
             END IF
         END IF
-
 
         IF os$ = "WIN" OR MacOSX = 1 THEN
             IF _WINDOWHASFOCUS THEN
@@ -1342,7 +1328,7 @@ FUNCTION ide2 (ignore)
                 idealthighlight = 1
                 LOCATE , , 0: COLOR 15, 7: x = 4
                 FOR i = 1 TO menus
-                    LOCATE 1, x: PRINT LEFT$(menu$(i, 0), 1);
+                    _PRINTSTRING (x, 1), LEFT$(menu$(i, 0), 1)
                     x = x + LEN(menu$(i, 0)) + 2
                     IF i = menus - 1 THEN x = idewx - LEN(menu$(menus, 0)) - 1
                 NEXT
@@ -1355,7 +1341,7 @@ FUNCTION ide2 (ignore)
             IF idealthighlight = 1 THEN
                 'remove highlight
                 idealthighlight = 0
-                LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+                LOCATE , , 0: COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 IF ideentermenu = 1 AND KCONTROL = 0 THEN 'alt was pressed then released
                     IF _WINDOWHASFOCUS OR os$ = "LNX" THEN
                         LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
@@ -1369,6 +1355,8 @@ FUNCTION ide2 (ignore)
             END IF
 
         END IF 'alt not held
+
+        IF updateHover THEN PCOPY 3, 0
 
         IF change = 0 THEN
 
@@ -1447,7 +1435,7 @@ FUNCTION ide2 (ignore)
                             '4- Link to Warnings dialog:
                             retval = idewarningbox
                             'retval is ignored
-                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            PCOPY 3, 0: SCREEN , , 3, 0
                             GOTO specialchar
                     END SELECT
                 END IF
@@ -1481,15 +1469,14 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
                     ExeToSourceFolderFirstTimeMsg = -1
                 ELSEIF result = 3 THEN
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     LOCATE , , 0
                     clearStatusWindow
-                    LOCATE idewy - 3, 2
-                    PRINT "Compilation request canceled."
+                    _PRINTSTRING (2, idewy - 3), "Compilation request canceled."
                     GOTO specialchar
                 END IF
             END IF
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+            PCOPY 3, 0: SCREEN , , 3, 0
 
             'run program
             IF ready <> 0 AND idechangemade = 0 THEN
@@ -1500,25 +1487,22 @@ FUNCTION ide2 (ignore)
                 IF idecompiled THEN
 
                     IF iderunmode = 2 AND _FILEEXISTS(lastBinaryGenerated$) THEN
-                        LOCATE idewy - 3, 2
-
                         IF os$ = "LNX" THEN
-                            PRINT "Already created executable file!";
+                            _PRINTSTRING (2, idewy - 3), "Already created executable file!"
                         ELSE
-                            PRINT "Already created .EXE file!";
+                            _PRINTSTRING (2, idewy - 3), "Already created .EXE file!"
                         END IF
 
-                        LOCATE idewy - 2, 2
-                        PRINT "Location: ";
                         COLOR 11, 1
                         location$ = lastBinaryGenerated$
                         IF path.exe$ = "" THEN location$ = _STARTDIR$ + pathsep$ + location$
-                        IF POS(0) + LEN(location$) > idewx THEN
-                            PRINT "..."; RIGHT$(location$, idewx - 15);
-                        ELSE
-                            PRINT location$;
+                        msg$ = "Location: " + location$
+                        IF 2 + LEN(msg$) > idewx THEN
+                            msg$ = "Location: " + STRING$(3, 250) + RIGHT$(location$, idewx - 15)
                         END IF
+                        _PRINTSTRING (2, idewy - 2), msg$
                         statusarealink = 3
+
 
                         GOTO specialchar
                     ELSEIF _FILEEXISTS(lastBinaryGenerated$) = 0 THEN
@@ -1528,19 +1512,19 @@ FUNCTION ide2 (ignore)
 
                     dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
-                    COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+                    COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
                     COLOR 15, 1
-                    LOCATE idewy - 3, 2: PRINT "Starting program...";
+                    _PRINTSTRING (2, idewy - 3), "Starting program..."
                 ELSE
                     mustGenerateExe:
                     dummy = DarkenFGBG(1)
                     BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
-                    COLOR 1, 7: LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+                    COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
                     COLOR 15, 1
                     IF os$ = "LNX" THEN
-                        LOCATE idewy - 3, 2: PRINT "Creating executable file...";
+                        _PRINTSTRING (2, idewy - 3), "Creating executable file..."
                     ELSE
-                        LOCATE idewy - 3, 2: PRINT "Creating .EXE file...";
+                        _PRINTSTRING (2, idewy - 3), "Creating .EXE file..."
                     END IF
 
                 END IF
@@ -1566,7 +1550,7 @@ FUNCTION ide2 (ignore)
             LOCATE , , 0
             clearStatusWindow
 
-            LOCATE idewy - 3, 2: PRINT "Checking program... (editing program will cancel request)";
+            _PRINTSTRING (2, idewy - 3), "Checking program... (editing program will cancel request)"
 
             'must move the cursor back to its correct location
             ideshowtext
@@ -1598,7 +1582,7 @@ FUNCTION ide2 (ignore)
             a$ = UCASE$(LEFT$(menu$(i, 0), 1))
             IF KALT AND UCASE$(K$) = a$ THEN
                 m = i
-                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 PCOPY 3, 0
                 GOTO showmenu
             END IF
@@ -1810,9 +1794,9 @@ FUNCTION ide2 (ignore)
                         GOSUB UpdateSearchBar
                         f$ = idesearchedbox
                         IF LEN(f$) THEN idefindtext = f$
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         idealthighlight = 0
-                        LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+                        LOCATE , , 0: COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                         IdeSystem = 1
                         IF LEN(f$) THEN GOTO idemf3 'F3 functionality
                         GOTO ideloop
@@ -2192,7 +2176,7 @@ FUNCTION ide2 (ignore)
             END IF
             keep_select:
 
-            IF KB = KEY_DELETE THEN
+            IF KB = 9 THEN
                 IF LEN(Help_Search_Str) THEN norep = 1: GOTO delsrchagain
             END IF
 
@@ -2538,7 +2522,7 @@ FUNCTION ide2 (ignore)
                     a$ = Wiki(lnk$)
 
                     IF idehelp = 0 THEN
-                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                         idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                         Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                         WikiParse a$
@@ -2606,7 +2590,7 @@ FUNCTION ide2 (ignore)
                                     IdeContextHelpSF = -1
 
                                     IF idehelp = 0 THEN
-                                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                                         idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                                         Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                                         WikiParse a$
@@ -2662,17 +2646,17 @@ FUNCTION ide2 (ignore)
         IF KALT AND (KB = KEY_DOWN OR KB = KEY_UP) THEN
             IF IdeBmkN = 0 THEN
                 result = idemessagebox("Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)", "")
-                SCREEN , , 3, 0: idewait4mous: idewait4alt
+                SCREEN , , 3, 0
                 idealthighlight = 0
-                LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+                LOCATE , , 0: COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 GOTO specialchar
             END IF
             IF IdeBmkN = 1 THEN
                 IF idecy = IdeBmk(1).y THEN
                     result = idemessagebox("Bookmarks", "No other bookmarks exist", "")
-                    SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    SCREEN , , 3, 0
                     idealthighlight = 0
-                    LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+                    LOCATE , , 0: COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                     GOTO specialchar
                 END IF
             END IF
@@ -2766,9 +2750,8 @@ FUNCTION ide2 (ignore)
 
                             SCREEN , , 3, 0
                             clearStatusWindow
-                            LOCATE idewy - 3, 2
                             COLOR 15, 1
-                            PRINT "Editing $INCLUDE file..."
+                            _PRINTSTRING (2, idewy - 3), "Editing $INCLUDE file..."
                             dummy = DarkenFGBG(1)
                             PCOPY 3, 0
 
@@ -2797,17 +2780,17 @@ FUNCTION ide2 (ignore)
 
                             IF tempInclude1$ = tempInclude2$ THEN
                                 IF IDEShowErrorsImmediately THEN
-                                    LOCATE idewy - 3, 2
                                     IF idecompiling = 1 THEN
-                                        PRINT "...";
+                                        _PRINTSTRING (2, idewy - 3), "..."
                                     ELSE
-                                        PRINT "OK"; 'report OK status
+                                        _PRINTSTRING (2, idewy - 3),  "OK" 'report OK status
                                         statusarealink = 0
                                         IF totalWarnings > 0 THEN
                                             COLOR 11, 1
-                                            PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
-                                            IF totalWarnings > 1 THEN PRINT "s";
-                                            PRINT " - click here or Ctrl+W to view)";
+                                            msg$ = " (" + LTRIM$(STR$(totalWarnings)) + " warning"
+                                            IF totalWarnings > 1 THEN msg$ = msg$ + "s"
+                                            msg$ = msg$ + " - click here or Ctrl+W to view)"
+                                            _PRINTSTRING (4, idewy - 3), msg$
                                             statusarealink = 4
                                         END IF
                                     END IF
@@ -3089,7 +3072,7 @@ FUNCTION ide2 (ignore)
             ELSE
                 idegotobox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
             END IF
             GOTO specialchar
         END IF
@@ -3126,7 +3109,7 @@ FUNCTION ide2 (ignore)
             ELSE
                 idesave idepath$ + idepathsep$ + ideprogname$
             END IF
-            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+            PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
         END IF
 
         IF K$ = CHR$(0) + CHR$(60) THEN 'F2
@@ -3135,8 +3118,7 @@ FUNCTION ide2 (ignore)
                     ideselect = 0
                     idecy = QuickNavHistory(QuickNavTotal)
                     QuickNavTotal = QuickNavTotal - 1
-                    _DELAY .2
-                    GOTO waitforinput
+                    GOTO ideloop
                 END IF
             ELSE
                 GOTO idesubsjmp
@@ -3147,11 +3129,11 @@ FUNCTION ide2 (ignore)
             IF totalWarnings > 0 THEN
                 retval = idewarningbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO specialchar
             ELSE
                 result = idemessagebox("Compilation status", "No warnings to display.", "")
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
         END IF
@@ -3193,7 +3175,7 @@ FUNCTION ide2 (ignore)
                         'warn
                         PCOPY 3, 0
                         what$ = ideyesnobox("Undo", "Undo through previous program content?")
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         IF what$ = "N" THEN
                             CLOSE #150
                             GOTO skipundo
@@ -3201,7 +3183,7 @@ FUNCTION ide2 (ignore)
                         IF ideunsaved = 1 AND ideprogname <> "" THEN
                             PCOPY 3, 0
                             r$ = idesavenow
-                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            PCOPY 3, 0: SCREEN , , 3, 0
                             IF r$ = "C" THEN CLOSE #150: GOTO skipundo
                             IF r$ = "Y" THEN
                                 idesave idepath$ + idepathsep$ + ideprogname$
@@ -3856,7 +3838,7 @@ FUNCTION ide2 (ignore)
                         idecx = idecx - BlockIndentLevel
                         IF idecx < 1 THEN idecx = 1: ideselectx1 = idecx
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 ELSE
                     IdeBlockIncreaseIndent:
@@ -3903,7 +3885,7 @@ FUNCTION ide2 (ignore)
                         ideselectx1 = ideselectx1 + BlockIndentLevel
                         idecx = idecx + BlockIndentLevel
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
             ELSE
@@ -4006,7 +3988,7 @@ FUNCTION ide2 (ignore)
             AltSpecial = 0
             ideentermenu = 0
             KALT = 0
-            LOCATE 1, 1: COLOR 0, 7: PRINT menubar$
+            COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
         END IF
     LOOP
 
@@ -4059,7 +4041,7 @@ FUNCTION ide2 (ignore)
                     _LIMIT 1000
                     GetInput
                     IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
-                        LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                        COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                         SCREEN , , 3, 0: PCOPY 3, 0
                         GOTO ideloop
                     END IF
@@ -4072,7 +4054,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
-                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 SCREEN , , 3, 0: PCOPY 3, 0
                 GOTO ideloop
             END IF
@@ -4088,7 +4070,7 @@ FUNCTION ide2 (ignore)
                         x2 = CVI(MID$(MenuLocations, i * 2 - 1, 2)) + LEN(menu$(i, 0))
                         IF mX >= x AND mX < x2 THEN
                             m = i
-                            LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                            COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                             PCOPY 3, 0
                             GOTO showmenu
                         END IF
@@ -4103,7 +4085,7 @@ FUNCTION ide2 (ignore)
         K$ = UCASE$(K$)
         IF LEN(K$) > 0 AND KCTRL THEN
             'ctrl+key combos are not valid while a menu is active
-            LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+            COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
             SCREEN , , 3, 0: PCOPY 3, 0
             GOTO ideloop
         END IF
@@ -4112,7 +4094,7 @@ FUNCTION ide2 (ignore)
             a$ = UCASE$(LEFT$(menu$(i, 0), 1))
             IF K$ = a$ THEN
                 m = i
-                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 PCOPY 3, 0
                 GOTO showmenu
             END IF
@@ -4121,13 +4103,13 @@ FUNCTION ide2 (ignore)
         IF KB = KEY_LEFT THEN m = m - 1
         IF KB = KEY_RIGHT THEN m = m + 1
         IF KB = KEY_ESC THEN
-            LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+            COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
             GOTO ideloop
         END IF
         IF m < 1 THEN m = menus
         IF m > menus AND idecontextualmenu = 0 THEN m = 1
         IF KB = KEY_UP OR KB = KEY_DOWN OR KB = KEY_ENTER THEN
-            LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+            COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
             PCOPY 3, 0
             GOTO showmenu
         END IF
@@ -4136,7 +4118,7 @@ FUNCTION ide2 (ignore)
         IF KB > 0 AND KB <= 255 THEN
             IF KALT = 0 THEN
                 iCHECKLATER = 1
-                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 GOTO ideloop
             END IF
         END IF
@@ -4186,7 +4168,7 @@ FUNCTION ide2 (ignore)
             x = 4: FOR i = 1 TO m - 1: x = x + LEN(menu$(i, 0)) + 2
                 IF i = menus - 1 THEN x = idewx - LEN(menu$(menus, 0)) - 1
             NEXT: xx = x
-            LOCATE 1, xx - 1: COLOR 7, 0: PRINT " " + menu$(m, 0) + " "
+            COLOR 7, 0: _PRINTSTRING (xx - 1, 1), " " + menu$(m, 0) + " "
         ELSE
             IF parentMenu > 0 AND parentMenuSetup%% = 0 THEN
                 parentMenuSetup%% = -1
@@ -4227,10 +4209,10 @@ FUNCTION ide2 (ignore)
         FOR i = 1 TO menusize(m)
             m$ = menu$(m, i)
             IF m$ = "-" THEN
-                COLOR 0, 7: LOCATE i + yy, xx - 2: PRINT CHR$(195) + STRING$(w + 2, CHR$(196)) + CHR$(180);
+                COLOR 0, 7: _PRINTSTRING (xx - 2, i + yy), CHR$(195) + STRING$(w + 2, CHR$(196)) + CHR$(180)
             ELSEIF LEFT$(m$, 1) = "~" THEN
                 m$ = RIGHT$(m$, LEN(m$) - 1) 'Remove the tilde before printing
-                IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
+                IF r = i THEN COLOR 7, 0: _PRINTSTRING (xx - 1, i + yy), SPACE$(w + 2)
                 IF LEFT$(m$, 1) = CHR$(7) THEN LOCATE i + yy, xx - 1 ELSE LOCATE i + yy, xx
                 h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
                 x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
@@ -4239,7 +4221,7 @@ FUNCTION ide2 (ignore)
                     PRINT MID$(m$, x, 1);
                 NEXT
             ELSE
-                IF r = i THEN LOCATE i + yy, xx - 1: COLOR 7, 0: PRINT SPACE$(w + 2);
+                IF r = i THEN COLOR 7, 0: _PRINTSTRING (xx - 1, i + yy), SPACE$(w + 2)
                 IF LEFT$(m$, 1) = CHR$(7) THEN LOCATE i + yy, xx - 1 ELSE LOCATE i + yy, xx
                 h = -1: x = INSTR(m$, "#"): IF x THEN h = x: m$ = LEFT$(m$, x - 1) + RIGHT$(m$, LEN(m$) - x)
                 x = INSTR(m$, "  "): IF x THEN m1$ = LEFT$(m$, x - 1): m2$ = RIGHT$(m$, LEN(m$) - x - 1): m$ = m1$ + SPACE$(w - LEN(m1$) - LEN(m2$)) + m2$
@@ -4280,7 +4262,7 @@ FUNCTION ide2 (ignore)
                     _LIMIT 1000
                     GetInput
                     IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
-                        LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                        COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
@@ -4294,7 +4276,7 @@ FUNCTION ide2 (ignore)
             END IF
             IF _EXIT THEN ideexit = 1: GOTO ideloop
             IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
-                LOCATE 1, 1: COLOR 0, 7: PRINT menubar$;
+                COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -4408,7 +4390,7 @@ FUNCTION ide2 (ignore)
                     IF mX >= x AND mX < x + x2 THEN
                         m = i
                         r = 1
-                        IF lastm = m AND mousedown = 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: GOTO ideloop
+                        IF lastm = m AND mousedown = 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                         idecontextualmenu = 0
                         EXIT FOR
                     END IF
@@ -4528,13 +4510,13 @@ FUNCTION ide2 (ignore)
                         idechangemade = 1
                     END IF
                 NEXT
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Remove Comme#nt (')  Ctrl+Shift+R" THEN
                 ctrlRemoveComment:
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
                     y1 = ideselecty1
@@ -4555,13 +4537,13 @@ FUNCTION ide2 (ignore)
                         END IF
                     END IF
                 NEXT
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "To#ggle Comment  Ctrl+T" THEN
                 ctrlToggleComment:
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 y1 = idecy: y2 = y1
                 IF ideselect = 1 THEN
                     y1 = ideselecty1
@@ -4596,26 +4578,26 @@ FUNCTION ide2 (ignore)
                         END IF
                     END IF
                 NEXT
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Increase Indent  TAB" THEN
                 IF ideselect THEN GOTO IdeBlockIncreaseIndent
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 16) = "#Decrease Indent" THEN
                 IF ideselect THEN GOTO IdeBlockDecreaseIndent
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Language..." THEN
                 PCOPY 2, 0
                 retval = idelanguagebox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4635,7 +4617,7 @@ FUNCTION ide2 (ignore)
                         GOSUB redrawItAll
                     END IF
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4643,7 +4625,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 HideBracketHighlight
                 retval = idechoosecolorsbox 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4655,7 +4637,7 @@ FUNCTION ide2 (ignore)
                 keywordHighlight = oldkeywordHighlight
                 retval$ = idergbmixer$(-1) 'retval is ignored
                 IF LEN(retval$) THEN insertAtCursor retval$
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4663,7 +4645,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = ideadvancedbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4678,7 +4660,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuSwapMouse) = "#Swap Mouse Buttons"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4692,7 +4674,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4706,7 +4688,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor After #Pasted Content"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4721,7 +4703,7 @@ FUNCTION ide2 (ignore)
                     menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show Compilation #Errors Immediately"
                 END IF
                 idechangemade = 1
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4737,7 +4719,7 @@ FUNCTION ide2 (ignore)
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = "Ignore #Warnings"
                 END IF
                 idechangemade = 1
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4751,7 +4733,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
                     menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to Source #Folder"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 idecompiled = 0
                 GOTO ideloop
             END IF
@@ -4766,7 +4748,7 @@ FUNCTION ide2 (ignore)
                     WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
                     menu$(SearchMenuID, SearchMenuEnableQuickNav) = "Enable #Quick Navigation (Back Arrow)"
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4774,7 +4756,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = idelayoutbox
                 IF retval THEN idechangemade = 1: idelayoutallow = 2 'recompile if options changed
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4800,7 +4782,7 @@ FUNCTION ide2 (ignore)
                     IdeBmk(IdeBmkN).x = idecx
                     ideunsaved = 1
                 END IF
-                SCREEN , , 3, 0: idewait4mous: idewait4alt
+                SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4808,13 +4790,13 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 IF IdeBmkN = 0 THEN
                     result = idemessagebox("Bookmarks", "No bookmarks exist (Use Alt+Left to create a bookmark)", "")
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
                 IF IdeBmkN = 1 THEN
                     IF idecy = IdeBmk(1).y THEN
                         result = idemessagebox("Bookmarks", "No other bookmarks exist", "")
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
                 END IF
@@ -4832,7 +4814,7 @@ FUNCTION ide2 (ignore)
                 idecy = l
                 idecx = IdeBmk(b).x
                 ideselect = 0
-                SCREEN , , 3, 0: idewait4mous: idewait4alt
+                SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4844,7 +4826,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Go To Line...  Ctrl+G" THEN
                 PCOPY 2, 0
                 idegotobox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4852,7 +4834,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = idebackupbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4862,7 +4844,7 @@ FUNCTION ide2 (ignore)
                 m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
                 IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
                 result = idemessagebox("About", m$, "")
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -4872,7 +4854,7 @@ FUNCTION ide2 (ignore)
                 DO
                     retval$ = ideASCIIbox$(relaunch)
                     IF LEN(retval$) THEN insertAtCursor retval$
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOSUB redrawItAll
                     ideshowtext
                     PCOPY 3, 0
@@ -4886,9 +4868,8 @@ FUNCTION ide2 (ignore)
                 ideQuickKeycode:
                 dummy = DarkenFGBG(1)
                 clearStatusWindow
-                LOCATE idewy - 3, 2
                 COLOR 15, 1
-                PRINT "Press any key to insert its _KEYHIT/_KEYDOWN code..."
+                _PRINTSTRING (2, idewy - 3), "Press any key to insert its _KEYHIT/_KEYDOWN code..."
                 PCOPY 3, 0
 
                 tempk$ = ""
@@ -4921,7 +4902,7 @@ FUNCTION ide2 (ignore)
 
                 bypassCtrlK:
                 dummy = DarkenFGBG(0)
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 retval = 1
                 KCTRL = 0: KCONTROL = 0
                 GOSUB redrawItAll
@@ -4929,12 +4910,12 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF LEFT$(menu$(m, s), 10) = "#Help On '" THEN 'Contextual menu Help
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO contextualhelp
             END IF
 
             IF LEFT$(menu$(m, s), 10) = "#Go To SUB" OR LEFT$(menu$(m, s), 15) = "#Go To FUNCTION" THEN 'Contextual menu Goto
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 AddQuickNavHistory idecy
                 idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
                 idesy = idecy
@@ -4945,7 +4926,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF LEFT$(menu$(m, s), 12) = "Go To #Label" THEN 'Contextual menu Goto label
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 AddQuickNavHistory idecy
                 idecy = CVL(MID$(SubFuncLIST(UBOUND(SubFuncLIST)), 1, 4))
                 idesy = idecy
@@ -4956,17 +4937,17 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Contents Page" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 lnk$ = "QB64 Help Menu"
                 GOTO OpenHelpLnk
             END IF
             IF menu$(m, s) = "Keyword #Index" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 lnk$ = "Keyword Reference - Alphabetical"
                 GOTO OpenHelpLnk
             END IF
             IF menu$(m, s) = "#Keywords by Usage" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 lnk$ = "Keyword Reference - By usage"
                 GOTO OpenHelpLnk
             END IF
@@ -4974,7 +4955,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#View  Shift+F1" THEN
 
                 IF idehelp = 0 THEN
-                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                     idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                     Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                     idehelp = 1
@@ -4987,7 +4968,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Update Current Page" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF idehelp THEN
                     Help_IgnoreCache = 1
                     a$ = Wiki$(Back$(Help_Back_Pos))
@@ -5071,7 +5052,7 @@ FUNCTION ide2 (ignore)
                 q$ = ideyesnobox("Update Help", "This can take up to 10 minutes.\nRedownload all cached help content from the wiki?")
                 PCOPY 2, 0
                 IF q$ = "Y" THEN ideupdatehelpbox
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5079,14 +5060,14 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 idenewsf "SUB"
                 ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
             IF LEFT$(menu$(m, s), 13) = "New #FUNCTION" THEN
                 PCOPY 2, 0
                 idenewsf "FUNCTION"
                 ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5095,7 +5076,7 @@ FUNCTION ide2 (ignore)
                 idesubsjmp:
                 r$ = idesubs
                 IF r$ <> "C" THEN ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5111,7 +5092,7 @@ FUNCTION ide2 (ignore)
                 menu$(m, s) = "#Hide Line Numbers"
                 menu$(m, ViewMenuShowBGID) = MID$(menu$(m, ViewMenuShowBGID), 2)
                 menu$(m, ViewMenuShowSeparatorID) = MID$(menu$(m, ViewMenuShowSeparatorID), 2)
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5122,7 +5103,7 @@ FUNCTION ide2 (ignore)
                 menu$(m, s) = "#Show Line Numbers"
                 menu$(m, ViewMenuShowBGID) = "~" + menu$(m, ViewMenuShowBGID)
                 menu$(m, ViewMenuShowSeparatorID) = "~" + menu$(m, ViewMenuShowSeparatorID)
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5137,7 +5118,7 @@ FUNCTION ide2 (ignore)
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "FALSE"
                         menu$(m, s) = "#Background Color"
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
             END IF
@@ -5153,7 +5134,7 @@ FUNCTION ide2 (ignore)
                         WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "FALSE"
                         menu$(m, s) = "Sho#w Separator"
                     END IF
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
             END IF
@@ -5162,7 +5143,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 retval = idewarningbox
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5170,7 +5151,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 idefindjmp:
                 r$ = idefind
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 '...
                 GOTO ideloop
             END IF
@@ -5178,7 +5159,7 @@ FUNCTION ide2 (ignore)
             IF LEFT$(menu$(m, s), 6) = "Find '" THEN 'Contextual menu Find
                 idefindtext = idecontextualSearch$
                 IdeAddSearched idefindtext
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemf3
             END IF
 
@@ -5186,9 +5167,9 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 idefindchangejmp:
                 r$ = idechange
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 idealthighlight = 0
-                LOCATE , , 0: COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+                LOCATE , , 0: COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 IF r$ = "C" OR r$ = "" THEN GOTO ideloop
                 'assume "V", verify changes
                 IdeAddSearched idefindtext
@@ -5281,7 +5262,7 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0
                     r$ = idechangeit
                     idedeltxt
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     ideselect = 0
                     IF r$ = "C" THEN
                         idecx = oldcx: idecy = oldcy
@@ -5352,7 +5333,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     idenomatch -1
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF '#Change...
 
@@ -5364,17 +5345,17 @@ FUNCTION ide2 (ignore)
                     OPEN ".\internal\temp\searched.bin" FOR OUTPUT AS #fh: CLOSE #fh
                     idefindtext = ""
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Repeat Last Find  (Shift+) F3" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemf3
             END IF
 
             IF menu$(m, s) = "Cl#ear  Del" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN
                     idechangemade = 1
                     delselect
@@ -5385,13 +5366,13 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Paste  Shift+Ins or Ctrl+V" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 THEN GOTO idempaste
                 IF IdeSystem = 2 THEN GOTO pasteIntoSearchField
             END IF
 
             IF menu$(m, s) = "#Copy  Ctrl+Ins or Ctrl+C" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN GOTO copy2clip
                 IF IdeSystem = 2 THEN GOTO copysearchterm2clip
                 IF IdeSystem = 3 AND Help_Select = 2 THEN GOTO copyhelp2clip
@@ -5399,7 +5380,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "Cu#t  Shift+Del or Ctrl+X" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN
                     K$ = CHR$(0) + "S" 'tricks handler into del after copy
                     GOTO idemcut
@@ -5410,30 +5391,30 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Undo  Ctrl+Z" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemundo
             END IF
 
             IF menu$(m, s) = "#Redo  Ctrl+Y" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemredo
             END IF
 
 
             IF menu$(m, s) = "Select #All  Ctrl+A" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 THEN GOTO idemselectall
                 IF IdeSystem = 2 THEN GOTO selectAllInSearchField
                 IF IdeSystem = 3 THEN GOTO selectAllInHelp
             END IF
 
             IF menu$(m, s) = "Clo#se Help  ESC" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO closeHelp
             END IF
 
             IF menu$(m, s) = "#Start  F5" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemrun
             END IF
 
@@ -5442,12 +5423,12 @@ FUNCTION ide2 (ignore)
                 ModifyCOMMAND$ = " " + ideinputbox$("Modify COMMAND$", "#Enter text for COMMAND$", _TRIM$(ModifyCOMMAND$), "", 60, 0)
                 IF _TRIM$(ModifyCOMMAND$) = "" THEN ModifyCOMMAND$ = ""
                 'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Make E#XE Only  F11" OR menu$(m, s) = "Make E#xecutable Only  F11" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemexe
             END IF
 
@@ -5456,7 +5437,7 @@ FUNCTION ide2 (ignore)
                 quickexit:
                 IF ideunsaved = 1 THEN
                     r$ = idesavenow
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     IF r$ = "C" THEN GOTO ideloop
                     IF r$ = "Y" THEN
                         IF ideprogname = "" THEN
@@ -5467,7 +5448,7 @@ FUNCTION ide2 (ignore)
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             IF r$ = "C" THEN
-                                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
                             END IF
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
@@ -5484,7 +5465,7 @@ FUNCTION ide2 (ignore)
                 ctrlNew:
                 IF ideunsaved = 1 THEN
                     r$ = idesavenow
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     IF r$ = "C" THEN GOTO ideloop
                     IF r$ = "Y" THEN
                         IF ideprogname = "" THEN
@@ -5494,7 +5475,7 @@ FUNCTION ide2 (ignore)
                             ELSE
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
-                            PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                            PCOPY 3, 0: SCREEN , , 3, 0
                             IF r$ = "C" THEN GOTO ideloop
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
@@ -5543,7 +5524,7 @@ FUNCTION ide2 (ignore)
                         fh = FREEFILE
                         OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
                         IdeMakeFileMenu
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     ELSE
                         GOTO ideshowrecentbox
@@ -5557,7 +5538,7 @@ FUNCTION ide2 (ignore)
                     AttemptToLoadRecent = -1
                     GOTO directopen
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5568,10 +5549,10 @@ FUNCTION ide2 (ignore)
                     fh = FREEFILE
                     OPEN ".\internal\temp\recent.bin" FOR OUTPUT AS #fh: CLOSE #fh
                     IdeMakeFileMenu
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     GOTO ideloop
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
@@ -5582,7 +5563,7 @@ FUNCTION ide2 (ignore)
                 ctrlOpen:
                 IF ideunsaved THEN
                     r$ = idesavenow
-                    PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                    PCOPY 3, 0: SCREEN , , 3, 0
                     IF r$ = "C" THEN GOTO ideloop
                     IF r$ = "Y" THEN
                         IF ideprogname = "" THEN
@@ -5596,12 +5577,12 @@ FUNCTION ide2 (ignore)
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
                         END IF
-                        PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                        PCOPY 3, 0: SCREEN , , 3, 0
                     END IF '"Y"
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
                 IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB redrawItAll: GOTO ideloop
             END IF
 
@@ -5617,7 +5598,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     idesave idepath$ + idepathsep$ + ideprogname$
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
             END IF
 
 
@@ -5633,7 +5614,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     a$ = idefiledialog$(ideprogname$, 2)
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 1) = "~" THEN 'Ignore disabled items (starting with "~")
@@ -5652,7 +5633,7 @@ FUNCTION ide2 (ignore)
     '--------------------------------------------------------------------------------
     EXIT FUNCTION
     UpdateTitleOfMainWindow:
-    COLOR 7, 1: LOCATE 2, 2: PRINT STRING$(idewx - 2, CHR$(196));
+    COLOR 7, 1: _PRINTSTRING (2, 2), STRING$(idewx - 2, CHR$(196))
     IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
     a$ = " " + a$
     IF ideunsaved THEN a$ = a$ + "*"
@@ -5660,32 +5641,28 @@ FUNCTION ide2 (ignore)
     a$ = a$ + " "
     IF LEN(a$) > idewx - 5 THEN a$ = LEFT$(a$, idewx - 11) + STRING$(3, 250) + " "
     IF IdeSystem = 1 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    LOCATE 2, ((idewx / 2) - 1) - (LEN(a$) - 1) \ 2: PRINT a$;
+    _PRINTSTRING (((idewx / 2) - 1) - (LEN(a$) - 1) \ 2, 2), a$
     RETURN
 
     DrawQuickNav:
     IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
-        LOCATE 2, 4
         COLOR 15, 7
-        PRINT " " + CHR$(17) + " ";
+        _PRINTSTRING (4, 2), " " + CHR$(17) + " "
     ELSE
         COLOR 7, 1
-        LOCATE 2, 4
-        PRINT STRING$(3, 196);
+        _PRINTSTRING (4, 2), STRING$(3, 196)
     END IF
     RETURN
 
     UpdateSearchBar:
-    LOCATE idewy - 4, idewx - (idesystem2.w + 10)
-    COLOR 7, 1: PRINT CHR$(180);
+    COLOR 7, 1: _PRINTSTRING (idewx - (idesystem2.w + 10), idewy - 4), CHR$(180)
     COLOR 3, 1
-    PRINT "Find";
-    PRINT "[" + SPACE$(idesystem2.w + 1) + CHR$(18) + "]";
-    COLOR 7, 1: PRINT CHR$(195);
+    _PRINTSTRING (1 + idewx - (idesystem2.w + 10), idewy - 4), "Find[" + SPACE$(idesystem2.w + 1) + CHR$(18) + "]"
+    COLOR 7, 1: _PRINTSTRING (idewx - 2, idewy - 4), CHR$(195)
 
     'add status title
     IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    LOCATE idewy - 4, (idewx - 8) / 2: PRINT " Status "
+    _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
 
     a$ = idefindtext
     tx = 1
@@ -5706,12 +5683,11 @@ FUNCTION ide2 (ignore)
     'apply selection color change if necessary
     IF idesystem2.issel = 0 OR IdeSystem <> 2 THEN
         COLOR 3, 1
-        LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4: PRINT a$;
+        _PRINTSTRING (idewx - (idesystem2.w + 8) + 4, idewy - 4), a$
     ELSE
         FOR ColorCHAR = 1 TO LEN(a$)
             IF ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 1, 3 ELSE COLOR 3, 1
-            LOCATE idewy - 4, idewx - (idesystem2.w + 8) + 4 - 1 + ColorCHAR
-            PRINT MID$(a$, ColorCHAR, 1);
+            _PRINTSTRING (idewx - (idesystem2.w + 8) + 4 - 1 + ColorCHAR, idewy - 4), MID$(a$, ColorCHAR, 1)
         NEXT
     END IF
     RETURN
@@ -5780,24 +5756,24 @@ FUNCTION ide2 (ignore)
     LOCATE , , , IDENormalCursorStart, IDENormalCursorEnd
 
     'static background
-    COLOR 0, 7: LOCATE 1, 1: PRINT menubar$;
+    COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
     COLOR 7, 1: idebox 1, 2, idewx, idewy - 5
 
 
     COLOR 7, 1: idebox 1, idewy - 4, idewx, 5
     'edit corners
-    COLOR 7, 1: LOCATE idewy - 4, 1: PRINT CHR$(195);: LOCATE idewy - 4, idewx: PRINT CHR$(180);
+    COLOR 7, 1: _PRINTSTRING (1, idewy - 4), CHR$(195): _PRINTSTRING (idewx, idewy - 4), CHR$(180)
 
     IF idehelp = 1 THEN
         COLOR 7, 0: idebox 1, idewy, idewx, idesubwindow + 1
-        COLOR 7, 0: LOCATE idewy, 1: PRINT CHR$(195);: LOCATE idewy, idewx: PRINT CHR$(180);
-        COLOR 7, 0: LOCATE idewy, idewx - 3: PRINT CHR$(180) + "X" + CHR$(195);
+        COLOR 7, 0: _PRINTSTRING (1, idewy), CHR$(195): _PRINTSTRING (idewx, idewy), CHR$(180)
+        COLOR 7, 0: _PRINTSTRING (idewx - 3, idewy), CHR$(180) + "X" + CHR$(195)
     END IF
 
     GOSUB UpdateSearchBar
 
     'status bar
-    COLOR 0, 3: LOCATE idewy + idesubwindow, 1: PRINT SPACE$(idewx);
+    COLOR 0, 3: _PRINTSTRING (1, idewy + idesubwindow), SPACE$(idewx)
     q = idevbar(idewx, idewy - 3, 3, 1, 1)
     q = idevbar(idewx, 3, idewy - 8, 1, 1)
     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
@@ -5823,21 +5799,21 @@ FUNCTION ide2 (ignore)
 
         IdeInfo = ""
 
-        LOCATE idewy - 3, 2
         IF idecompiling = 1 THEN
-            PRINT "...";
+            _PRINTSTRING (2, idewy - 3), "..."
         ELSE
             IF idefocusline THEN
-                PRINT "...";
+                _PRINTSTRING (2, idewy - 3), "..."
             ELSE
-                PRINT "OK"; 'report OK status
+                _PRINTSTRING (2, idewy - 3), "OK" 'report OK status
             END IF
             statusarealink = 0
             IF totalWarnings > 0 THEN
                 COLOR 11, 1
-                PRINT " ("; LTRIM$(STR$(totalWarnings)) + " warning";
-                IF totalWarnings > 1 THEN PRINT "s";
-                PRINT " - click here or Ctrl+W to view)";
+                msg$ = " (" + LTRIM$(STR$(totalWarnings)) + " warning"
+                IF totalWarnings > 1 THEN msg$ = msg$ + "s"
+                msg$ = msg$ + " - click here or Ctrl+W to view)"
+                _PRINTSTRING (4, idewy - 3), msg$
                 statusarealink = 4
             END IF
         END IF
@@ -5889,26 +5865,23 @@ FUNCTION ide2 (ignore)
 END FUNCTION
 
 SUB idebox (x, y, w, h)
-    LOCATE y, x: PRINT CHR$(218) + STRING$(w - 2, 196) + CHR$(191);
+    _PRINTSTRING (x, y), CHR$(218) + STRING$(w - 2, 196) + CHR$(191)
     FOR y2 = y + 1 TO y + h - 2
-        LOCATE y2, x: PRINT CHR$(179) + SPACE$(w - 2) + CHR$(179);
+        _PRINTSTRING (x, y2), CHR$(179) + SPACE$(w - 2) + CHR$(179)
     NEXT
-    LOCATE y + h - 1, x: PRINT CHR$(192) + STRING$(w - 2, 196) + CHR$(217);
+    _PRINTSTRING (x, y + h - 1), CHR$(192) + STRING$(w - 2, 196) + CHR$(217)
 END SUB
 
 SUB ideboxshadow (x, y, w, h)
 
-    LOCATE y, x: PRINT CHR$(218) + STRING$(w - 2, 196) + CHR$(191);
-    FOR y2 = y + 1 TO y + h - 2
-        LOCATE y2, x: PRINT CHR$(179) + SPACE$(w - 2) + CHR$(179);
-    NEXT
-    LOCATE y + h - 1, x: PRINT CHR$(192) + STRING$(w - 2, 196) + CHR$(217);
+    idebox x, y, w, h
+    
     'shadow
     COLOR 2, 0
     FOR y2 = y + 1 TO y + h - 1
         FOR x2 = x + w TO x + w + 1
             IF x2 <= idewx AND y2 <= idewy + idesubwindow THEN
-                LOCATE y2, x2: PRINT CHR$(SCREEN(y2, x2));
+                _PRINTSTRING (x2, y2), CHR$(SCREEN(y2, x2))
             END IF
         NEXT
     NEXT
@@ -5917,7 +5890,7 @@ SUB ideboxshadow (x, y, w, h)
     IF y2 <= idewy + idesubwindow THEN
         FOR x2 = x + 2 TO x + w + 1
             IF x2 <= idewx THEN
-                LOCATE y2, x2: PRINT CHR$(SCREEN(y2, x2));
+                _PRINTSTRING (x2, y2), CHR$(SCREEN(y2, x2))
             END IF
         NEXT
     END IF
@@ -6185,8 +6158,7 @@ FUNCTION idechange$
                 percentage = INT(y / iden * 100)
                 percentagechars = INT(maxprogresswidth * y / iden)
                 percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176)
-                LOCATE p.y + 7, p.x + 2
-                PRINT percentageMsg$;
+                _PRINTSTRING (p.x + 2, p.y + 7), percentageMsg$
                 PCOPY 1, 0
 
                 l$ = idegetline(y)
@@ -6520,12 +6492,11 @@ SUB idedrawobj (o AS idedbotype, f)
         x = x + 2
         'apply selection color change if necessary
         IF o.issel = 0 OR o.foc <> 0 THEN
-            LOCATE y, x: PRINT a$;
+            _PRINTSTRING (x, y), a$
         ELSE
             FOR ColorCHAR = 1 TO LEN(a$)
                 IF ColorCHAR + tx - 2 >= sx1 AND ColorCHAR + tx - 2 < sx2 THEN COLOR 7, 0 ELSE COLOR 0, 7
-                LOCATE y, x - 1 + ColorCHAR
-                PRINT MID$(a$, ColorCHAR, 1);
+                _PRINTSTRING (x - 1 + ColorCHAR, y), MID$(a$, ColorCHAR, 1)
             NEXT
         END IF
 
@@ -6605,8 +6576,7 @@ SUB idedrawobj (o AS idedbotype, f)
                         'customization specific for the SUBs list, when there are external procedures:
                         IF INSTR(a3$, CHR$(196) + "*") > 0 THEN
                             IF o.sel = n THEN COLOR 2, 0 ELSE COLOR 2, 7
-                            LOCATE o.par.y + o.y + y, o.par.x + o.x + 4
-                            PRINT "*";
+                            _PRINTSTRING (o.par.x + o.x + 4, o.par.y + o.y + y), "*"
                         END IF
                         y = y + 1
                     END IF
@@ -6702,7 +6672,7 @@ SUB idedrawpar (p AS idedbptype)
     COLOR 0, 7: ideboxshadow p.x, p.y, p.w + 2, p.h + 2
     IF p.nam THEN
         x = LEN(idetxt(p.nam)) + 2
-        COLOR 0, 7: LOCATE p.y, p.x + (p.w \ 2) - (x - 1) \ 2: PRINT " " + idetxt(p.nam) + " ";
+        COLOR 0, 7: _PRINTSTRING (p.x + (p.w \ 2) - (x - 1) \ 2, p.y), " " + idetxt(p.nam) + " "
     END IF
 END SUB
 
@@ -7156,10 +7126,10 @@ FUNCTION idehbar (x, y, h, i2, n2)
 
     'draw background & arrows
     COLOR 0, 7
-    LOCATE y, x: PRINT CHR$(27);
-    LOCATE y, x + h - 1: PRINT CHR$(26);
+    _PRINTSTRING (x, y), CHR$(27)
+    _PRINTSTRING (x + h - 1, y), CHR$(26)
     FOR x2 = x + 1 TO x + h - 2
-        LOCATE y, x2: PRINT CHR$(176);
+        _PRINTSTRING (x2, y), CHR$(176)
     NEXT
 
     'draw slider
@@ -7188,7 +7158,7 @@ FUNCTION idehbar (x, y, h, i2, n2)
             'show whichever is closer of the two positions
             p! = (i - 1) / (n - 1)
             IF p! < .5 THEN x2 = x + 1 ELSE x2 = x + 2
-            LOCATE y, x2: PRINT CHR$(219);
+            _PRINTSTRING (x2, y), CHR$(219)
             idehbar = x2
             EXIT FUNCTION
         END IF
@@ -7202,13 +7172,13 @@ FUNCTION idehbar (x, y, h, i2, n2)
         END IF
         IF i = 1 THEN
             x2 = x + 1
-            LOCATE y, x2: PRINT CHR$(219);
+            _PRINTSTRING (x2, y), CHR$(219)
             idehbar = x2
             EXIT FUNCTION
         END IF
         IF i = n THEN
             x2 = x + h - 2
-            LOCATE y, x2: PRINT CHR$(219);
+            _PRINTSTRING (x2, y), CHR$(219)
             idehbar = x2
             EXIT FUNCTION
         END IF
@@ -7216,7 +7186,7 @@ FUNCTION idehbar (x, y, h, i2, n2)
         p! = (i - 1) / (n - 1)
         p! = p! * (h - 4)
         x2 = x + 2 + INT(p!)
-        LOCATE y, x2: PRINT CHR$(219);
+        _PRINTSTRING (x2, y), CHR$(219)
         idehbar = x2
         EXIT FUNCTION
     END IF
@@ -7575,11 +7545,11 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 4, p.x + 2: PRINT "Path: ";
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 4), "Path: "
         a$ = path$
         w = p.w - 8
         IF LEN(a$) > w - 3 THEN a$ = STRING$(3, 250) + RIGHT$(a$, w - 3)
-        PRINT a$;
+        _PRINTSTRING (p.x + 2 + 6, p.y + 4), a$
         '-------- end of custom display changes --------
 
 
@@ -8090,9 +8060,8 @@ SUB ideshowtext
         ActiveINCLUDELink = 0
 
         FOR y = 0 TO (idewy - 9)
-            LOCATE y + 3, 1
             COLOR 7, 1
-            PRINT CHR$(179); 'clear prev bookmarks from lhs
+            _PRINTSTRING (1, y + 3), CHR$(179) 'clear prev bookmarks from lhs
 
             IF ShowLineNumbers THEN GOSUB ShowLineNumber
 
@@ -8375,13 +8344,11 @@ SUB ideshowtext
 
                 IF ShowLineNumbers THEN
                     IF (2 + m - idesx) + maxLineNumberLength >= 2 + maxLineNumberLength AND (2 + m - idesx) + maxLineNumberLength < idewx THEN
-                        LOCATE y + 3, (2 + m - idesx) + maxLineNumberLength
-                        PRINT thisChar$;
+                        _PRINTSTRING ((2 + m - idesx) + maxLineNumberLength, y + 3), thisChar$
                     END IF
                 ELSE
                     IF 2 + m - idesx >= 2 AND 2 + m - idesx < idewx THEN
-                        LOCATE y + 3, 2 + m - idesx
-                        PRINT thisChar$;
+                        _PRINTSTRING (2 + m - idesx, y + 3), thisChar$
                     END IF
                 END IF
 
@@ -8408,10 +8375,10 @@ SUB ideshowtext
                                 END IF
                                 IF (c AND 15) = 0 THEN 'black background
                                     COLOR 0, 7
-                                    LOCATE y + 3, x: PRINT "?";
+                                    _PRINTSTRING (x, y + 3), "?"
                                     COLOR 1, 7
                                 ELSE
-                                    LOCATE y + 3, x: PRINT CHR$(a);
+                                    _PRINTSTRING (x, y + 3), CHR$(a)
                                 END IF
 
 
@@ -8442,15 +8409,13 @@ SUB ideshowtext
         COLOR 13, 1
         l = idesy
         FOR y = 0 TO (idewy - 9)
-            LOCATE y + 3, 1
             COLOR 7, 1
-            PRINT CHR$(179); 'clear prev bookmarks from lhs
+            _PRINTSTRING (1, y + 3), CHR$(179) 'clear prev bookmarks from lhs
 
             IF ShowLineNumbers THEN GOSUB ShowLineNumber
 
             IF l = idefocusline AND idecy <> l THEN COLOR 13, 4 ELSE COLOR 13, 1
-            LOCATE y + 3, 2 + maxLineNumberLength
-
+            
             IF l <= iden THEN
                 a$ = idegetline(l)
                 a2$ = SPACE$(idesx + (idewx - 3) - maxLineNumberLength)
@@ -8459,7 +8424,7 @@ SUB ideshowtext
             ELSE
                 a2$ = SPACE$((idewx - 2) - maxLineNumberLength)
             END IF
-            PRINT a2$;
+            _PRINTSTRING (2 + maxLineNumberLength, y + 3), a2$
 
             IF l = idecy THEN
                 IF idecx <= LEN(a$) AND idecx >= 1 THEN
@@ -8478,15 +8443,14 @@ SUB ideshowtext
                         x2 = idesx
                         FOR x = 2 + maxLineNumberLength TO (idewx - 2)
                             IF x2 >= sx1 AND x2 < sx2 THEN
-                                a = SCREEN(y + 3, x): LOCATE y + 3, x: PRINT CHR$(a);
+                                a = SCREEN(y + 3, x): _PRINTSTRING (x, y + 3), CHR$(a)
                             END IF
                             x2 = x2 + 1
                         NEXT
                         COLOR 7, 1
                     ELSE 'multiline select
                         IF idecx = 1 AND l = sy2 AND idecy > sy1 THEN GOTO nofinalselect0
-                        LOCATE y + 3, 2 + maxLineNumberLength
-                        COLOR 1, 7: PRINT a2$;
+                        COLOR 1, 7: _PRINTSTRING (2 + maxLineNumberLength, y + 3), a2$
                         COLOR 7, 1
                         nofinalselect0:
                     END IF
@@ -8501,7 +8465,7 @@ SUB ideshowtext
     FOR b = 1 TO IdeBmkN
         y = IdeBmk(b).y
         IF y >= idesy AND y <= idesy + (idewy - 9) THEN
-            LOCATE 3 + y - idesy, 1: PRINT CHR$(197);
+            _PRINTSTRING (1, 3 + y - idesy), CHR$(197)
         END IF
     NEXT
 
@@ -8520,22 +8484,21 @@ SUB ideshowtext
         LSET b$ = c$
     END IF
     lineNumberStatus$ = a$ + ":" + b$
-    LOCATE idewy + idesubwindow, idewx - 20: PRINT lineNumberStatus$;
+    _PRINTSTRING (idewx - 20, idewy + idesubwindow), lineNumberStatus$
 
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
 
     EXIT SUB
     ShowLineNumber:
     IF ShowLineNumbersUseBG THEN COLOR , 6
-    PRINT SPACE$(maxLineNumberLength);
+    _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
     IF l <= iden THEN
         l2$ = STR$(l)
-        IF POS(1) - (LEN(l2$) + 1) >= 2 THEN
-            LOCATE y + 3, POS(1) - (LEN(l2$) + 1)
-            PRINT l2$;
+        IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
+            _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
         END IF
     END IF
-    IF ShowLineNumbersSeparator THEN LOCATE y + 3, 1 + maxLineNumberLength: PRINT CHR$(179);
+    IF ShowLineNumbersSeparator THEN _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
     COLOR , 1
     RETURN
 
@@ -9076,7 +9039,7 @@ FUNCTION idelanguagebox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 1, p.x + 2: PRINT "Code-page for ASCII-UNICODE mapping: (Default: CP437)"
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Code-page for ASCII-UNICODE mapping: (Default: CP437)"
 
         '-------- end of custom display changes --------
 
@@ -9275,7 +9238,7 @@ FUNCTION idewarningbox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 1, p.x + 2: PRINT "Double-click on an item to jump to the line indicated"
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on an item to jump to the line indicated"
 
         '-------- end of custom display changes --------
 
@@ -9886,10 +9849,10 @@ FUNCTION idevbar (x, y, h, i2, n2)
 
     'draw background & arrows
     COLOR 0, 7
-    LOCATE y, x: PRINT CHR$(24);
-    LOCATE y + h - 1, x: PRINT CHR$(25);
+    _PRINTSTRING (x, y), CHR$(24)
+    _PRINTSTRING (x, y + h - 1), CHR$(25)
     FOR y2 = y + 1 TO y + h - 2
-        LOCATE y2, x: PRINT CHR$(176);
+        _PRINTSTRING (x, y2), CHR$(176)
     NEXT
 
     'draw slider
@@ -9918,7 +9881,7 @@ FUNCTION idevbar (x, y, h, i2, n2)
             'show whichever is closer of the two positions
             p! = (i - 1) / (n - 1)
             IF p! < .5 THEN y2 = y + 1 ELSE y2 = y + 2
-            LOCATE y2, x: PRINT CHR$(219);
+            _PRINTSTRING (x, y2), CHR$(219)
             idevbar = y2
             EXIT FUNCTION
         END IF
@@ -9932,13 +9895,13 @@ FUNCTION idevbar (x, y, h, i2, n2)
         END IF
         IF i = 1 THEN
             y2 = y + 1
-            LOCATE y2, x: PRINT CHR$(219);
+            _PRINTSTRING (x, y2), CHR$(219)
             idevbar = y2
             EXIT FUNCTION
         END IF
         IF i = n THEN
             y2 = y + h - 2
-            LOCATE y2, x: PRINT CHR$(219);
+            _PRINTSTRING (x, y2), CHR$(219)
             idevbar = y2
             EXIT FUNCTION
         END IF
@@ -9946,7 +9909,7 @@ FUNCTION idevbar (x, y, h, i2, n2)
         p! = (i - 1) / (n - 1)
         p! = p! * (h - 4)
         y2 = y + 2 + INT(p!)
-        LOCATE y2, x: PRINT CHR$(219);
+        _PRINTSTRING (x, y2), CHR$(219)
         idevbar = y2
         EXIT FUNCTION
     END IF
@@ -9954,14 +9917,6 @@ END FUNCTION
 
 SUB idewait
     _DELAY 0.1
-END SUB
-
-SUB idewait4alt
-    'stub
-END SUB
-
-SUB idewait4mous
-    'stub
 END SUB
 
 FUNCTION idezchangepath$ (path$, newpath$)
@@ -10514,7 +10469,7 @@ FUNCTION ideadvancedbox
         '-------- custom display changes --------
         FOR y = 1 TO 100
             IF LEN(Direct_Text$(y)) THEN
-                COLOR 0, 7: LOCATE p.y + y, p.x + 1: PRINT Direct_Text$(y)
+                COLOR 0, 7: _PRINTSTRING (p.x + 1, p.y + y), Direct_Text$(y)
             END IF
         NEXT
         '-------- end of custom display changes --------
@@ -10718,8 +10673,7 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
             IF LEN(FullMessage$(i)) > p.w - 2 THEN
                 FullMessage$(i) = LEFT$(FullMessage$(i), p.w - 5) + STRING$(3, 250)
             END IF
-            LOCATE p.y + 1 + i, p.x + (w \ 2 - LEN(FullMessage$(i)) \ 2) + 1
-            PRINT FullMessage$(i);
+            _PRINTSTRING (p.x + (w \ 2 - LEN(FullMessage$(i)) \ 2) + 1, p.y + 1 + i), FullMessage$(i)
         NEXT i
         '-------- end of custom display changes --------
 
@@ -10908,8 +10862,8 @@ FUNCTION idedisplaybox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: LOCATE p.y + 2, p.x + 2: PRINT "Window Size -";
-        COLOR 0, 7: LOCATE p.y + 10, p.x + 29: PRINT " Monospace TTF Font ";
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 2), "Window Size -"
+        COLOR 0, 7: _PRINTSTRING (p.x + 29, p.y + 10), " Monospace TTF Font "
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -11333,7 +11287,7 @@ FUNCTION idechoosecolorsbox
         T = VAL(idetxt(o(2).txt)): r = ((T / 255) * 26)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 5, p.x + 39 + r: PRINT slider$;
+        _PRINTSTRING (p.x + 39 + r, p.y + 5), slider$
 
         COLOR 0: LOCATE p.y + 8, p.x + 36: PRINT "G: ";
         COLOR 5: PRINT STRING$(26, 196);
@@ -11341,7 +11295,7 @@ FUNCTION idechoosecolorsbox
         T = VAL(idetxt(o(3).txt)): r = ((T / 255) * 26)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 8, p.x + 39 + r: PRINT slider$;
+        _PRINTSTRING (p.x + 39 + r, p.y + 8), slider$
 
         COLOR 0: LOCATE p.y + 11, p.x + 36: PRINT "B: ";
         COLOR 9: PRINT STRING$(26, 196);
@@ -11349,12 +11303,12 @@ FUNCTION idechoosecolorsbox
         T = VAL(idetxt(o(4).txt)): r = ((T / 255) * 26)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 11, p.x + 39 + r: PRINT slider$;
+        _PRINTSTRING (p.x + 39 + r, p.y + 11), slider$
 
         COLOR 7, 1
-        LOCATE p.y + 13, p.x + 39: PRINT CHR$(218); STRING$(25, 196);
-        LOCATE p.y + 14, p.x + 39: PRINT CHR$(179); SPACE$(25);
-        LOCATE p.y + 15, p.x + 39: PRINT CHR$(179); SPACE$(25);
+        _PRINTSTRING (p.x + 39, p.y + 13), CHR$(218) + STRING$(25, 196)
+        _PRINTSTRING (p.x + 39, p.y + 14), CHR$(179) + SPACE$(25)
+        _PRINTSTRING (p.x + 39, p.y + 15), CHR$(179) + SPACE$(25)
 
         SELECT EVERYCASE SelectedITEM
             CASE 1: COLOR 13, 1: SampleText$ = "myVar% = " 'Normal text
@@ -11370,19 +11324,19 @@ FUNCTION idechoosecolorsbox
                 _PALETTECOLOR 6, IDEBracketHighlightColor, 0
         END SELECT
 
-        LOCATE p.y + 14, p.x + 40: PRINT SampleText$;
+        _PRINTSTRING (p.x + 40, p.y + 14), SampleText$
         IF SelectedITEM = 1 OR SelectedITEM = 3 THEN
             COLOR 8, 1
-            LOCATE p.y + 14, p.x + 49: PRINT "5";
+            _PRINTSTRING (p.x + 49, p.y + 14), "5"
         ELSEIF SelectedITEM = 2 THEN
             COLOR 13, 1
-            LOCATE p.y + 14, p.x + 51: PRINT "myVar%";
+            _PRINTSTRING (p.x + 51, p.y + 14), "myVar%"
         ELSEIF SelectedITEM = 4 THEN
             COLOR 12, 1
-            LOCATE p.y + 14, p.x + 40: PRINT "PRINT";
+            _PRINTSTRING (p.x + 40, p.y + 14), "PRINT"
         ELSEIF SelectedITEM = 5 THEN
             COLOR 11, 1
-            LOCATE p.y + 14, p.x + 40: PRINT "'";
+            _PRINTSTRING (p.x + 40, p.y + 14), "'"
         ELSEIF SelectedITEM = 9 THEN
             LOCATE p.y + 14, p.x + 40
             COLOR 13, 1: PRINT "myVar% = ";
@@ -12164,7 +12118,7 @@ FUNCTION idergbmixer$ (editing)
         T = VAL(idetxt(o(1).txt)): r = ((T / 255) * 46)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 2, p.x + 15 + r: PRINT slider$;
+        _PRINTSTRING (p.x + 15 + r, p.y + 2), slider$
 
         COLOR 0: LOCATE p.y + 5, p.x + 13: PRINT "G: ";
         COLOR 5: PRINT STRING$(46, 196);
@@ -12172,7 +12126,7 @@ FUNCTION idergbmixer$ (editing)
         T = VAL(idetxt(o(2).txt)): r = ((T / 255) * 46)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 5, p.x + 15 + r: PRINT slider$;
+        _PRINTSTRING (p.x + 15 + r, p.y + 5), slider$
 
         COLOR 0: LOCATE p.y + 8, p.x + 13: PRINT "B: ";
         COLOR 9: PRINT STRING$(46, 196);
@@ -12180,14 +12134,13 @@ FUNCTION idergbmixer$ (editing)
         T = VAL(idetxt(o(3).txt)): r = ((T / 255) * 46)
         IF T = 0 THEN slider$ = CHR$(195)
         IF T = 255 THEN slider$ = CHR$(180)
-        LOCATE p.y + 8, p.x + 15 + r: PRINT slider$;
+        _PRINTSTRING (p.x + 15 + r, p.y + 8), slider$
 
-        COLOR 0: LOCATE p.y + 9, p.x + 19: PRINT "Hold CTRL to drag all sliders at once.";
+        COLOR 0: _PRINTSTRING (p.x + 19, p.y + 9), "Hold CTRL to drag all sliders at once."
 
         COLOR 12
         FOR i = 2 TO 8
-            LOCATE p.y + i, p.x + 2
-            PRINT STRING$(10, 219);
+            _PRINTSTRING (p.x + 2, p.y + i), STRING$(10, 219)
         NEXT i
         '-------- end of custom display changes --------
 
@@ -13488,8 +13441,7 @@ SUB ideupdatehelpbox
             IF LEN(FullMessage$(i)) > p.w - 2 THEN
                 FullMessage$(i) = LEFT$(FullMessage$(i), p.w - 5) + STRING$(3, 250)
             END IF
-            LOCATE p.y + 1 + i, p.x + (p.w \ 2 - LEN(FullMessage$(i)) \ 2) + 1
-            PRINT FullMessage$(i);
+            _PRINTSTRING (p.x + (p.w \ 2 - LEN(FullMessage$(i)) \ 2) + 1, p.y + 1 + i), FullMessage$(i)
         NEXT i
 
         COLOR 0, 7
@@ -13499,12 +13451,10 @@ SUB ideupdatehelpbox
             percentagechars = INT(maxprogresswidth * n / c)
             'percentageMsg$ = "[" + STRING$(percentagechars, 254) + SPACE$(maxprogresswidth - percentagechars) + "]" + STR$(percentage) + "%"
             percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176) + STR$(percentage) + "%"
-            LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
-            PRINT percentageMsg$;
+            _PRINTSTRING (p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1, p.y + 4), percentageMsg$
         ELSEIF UpdateStep = 6 THEN
             percentageMsg$ = STRING$(maxprogresswidth, 219) + " 100%"
-            LOCATE p.y + 4, p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1
-            PRINT percentageMsg$;
+            _PRINTSTRING (p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1, p.y + 4), percentageMsg$
         END IF
         '-------- end of custom display changes --------
 
@@ -14187,23 +14137,21 @@ SUB UpdateIdeInfo
             IdeInfo = MID$(IdeInfo, 2)
             Percentage% = VAL(MID$(IdeInfo, 1, 3))
             COLOR 13, 1
-            LOCATE idewy - 1, 2
-            PRINT STRING$(((idewx - 2) * Percentage%) / 100, "_");
+            _PRINTSTRING (2, idewy - 1), STRING$(((idewx - 2) * Percentage%) / 100, "_")
         END IF
     END IF
     a$ = IdeInfo
     IF LEN(a$) > (idewx - 20) THEN a$ = LEFT$(a$, (idewx - 23)) + STRING$(3, 250)
     IF LEN(a$) < (idewx - 20) THEN a$ = a$ + SPACE$((idewx - 20) - LEN(a$))
-    COLOR 0, 3: LOCATE idewy + idesubwindow, 2
-    PRINT a$;
+    COLOR 0, 3: 
+    _PRINTSTRING (2, idewy + idesubwindow), a$
 
     COLOR 2, 3
     IF LEN(versionStringStatus$) = 0 THEN
         versionStringStatus$ = "v" + Version$
         IF LEN(AutoBuildMsg$) THEN versionStringStatus$ = versionStringStatus$ + MID$(AutoBuildMsg$, _INSTRREV(AutoBuildMsg$, " "))
     END IF
-    LOCATE idewy + idesubwindow, idewx - 22 - LEN(versionStringStatus$)
-    PRINT versionStringStatus$;
+    _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
 
     PCOPY 3, 0
 END SUB
@@ -14364,9 +14312,8 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
                     clearStatusWindow
-                    LOCATE idewy - 3, 2
                     COLOR 15, 1
-                    PRINT "Converting...          "
+                    _PRINTSTRING (2, idewy - 3), "Converting...          "
                     PCOPY 3, 0
 
                     convertLine$ = convertUtility$ + " " + QuotedFilename$(file$) + " -o " + QuotedFilename$(ofile$)
@@ -14405,9 +14352,8 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
                     clearStatusWindow
-                    LOCATE idewy - 3, 2
                     COLOR 15, 1
-                    PRINT "Preparing to convert..."
+                    _PRINTSTRING (2, idewy - 3), "Preparing to convert..."
                     PCOPY 3, 0
                     IF INSTR(_OS$, "WIN") THEN
                         SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
@@ -14448,12 +14394,9 @@ END SUB
 
 SUB clearStatusWindow
     COLOR 7, 1
-    LOCATE idewy - 3, 2
-    PRINT SPACE$(idewx - 2);
-    LOCATE idewy - 2, 2
-    PRINT SPACE$(idewx - 2);
-    LOCATE idewy - 1, 2
-    PRINT SPACE$(idewx - 2);
+    _PRINTSTRING (2, idewy - 3), SPACE$(idewx - 2)
+    _PRINTSTRING (2, idewy - 2), SPACE$(idewx - 2)
+    _PRINTSTRING (2, idewy - 1), SPACE$(idewx - 2)
 END SUB
 
 FUNCTION getWordAtCursor$
