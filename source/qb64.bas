@@ -10944,7 +10944,7 @@ FOR r = 1 TO nLabels
             END IF
         END IF
 
-        linenumber = Labels(r).Error_Line: a$ = "Label not defined": GOTO errmes
+        linenumber = Labels(r).Error_Line: a$ = "Label '" + RTRIM$(Labels(r).cn) + "' not defined": GOTO errmes
     END IF
 
 
