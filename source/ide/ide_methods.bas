@@ -941,7 +941,7 @@ FUNCTION ide2 (ignore)
                     IF LEN(Help_Search_Str) THEN
                         a$ = Help_Search_Str
                         IF LEN(a$) > 20 THEN a$ = STRING$(3, 250) + RIGHT$(a$, 17)
-                        a$ = "[" + a$ + "](DELETE=next)"
+                        a$ = "[" + a$ + "] (TAB=next)"
                         IdeInfo = a$
                     ELSE
                         IdeInfo = "Start typing to search for text in this help page"
@@ -2176,7 +2176,7 @@ FUNCTION ide2 (ignore)
             END IF
             keep_select:
 
-            IF KB = KEY_DELETE THEN
+            IF KB = 9 THEN
                 IF LEN(Help_Search_Str) THEN norep = 1: GOTO delsrchagain
             END IF
 
