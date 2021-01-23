@@ -1,67 +1,76 @@
-qbs *_FUNC_IDEZFILELIST_STRING_IDEZFILELIST=NULL;
-if (!_FUNC_IDEZFILELIST_STRING_IDEZFILELIST)_FUNC_IDEZFILELIST_STRING_IDEZFILELIST=qbs_new(0,0);
-qbs*oldstr4981=NULL;
-if(_FUNC_IDEZFILELIST_STRING_PATH->tmp||_FUNC_IDEZFILELIST_STRING_PATH->fixed||_FUNC_IDEZFILELIST_STRING_PATH->readonly){
-oldstr4981=_FUNC_IDEZFILELIST_STRING_PATH;
-if (oldstr4981->cmem_descriptor){
-_FUNC_IDEZFILELIST_STRING_PATH=qbs_new_cmem(oldstr4981->len,0);
+qbs *_FUNC_IDEZPATHLIST_STRING_IDEZPATHLIST=NULL;
+if (!_FUNC_IDEZPATHLIST_STRING_IDEZPATHLIST)_FUNC_IDEZPATHLIST_STRING_IDEZPATHLIST=qbs_new(0,0);
+qbs*oldstr4855=NULL;
+if(_FUNC_IDEZPATHLIST_STRING_PATH->tmp||_FUNC_IDEZPATHLIST_STRING_PATH->fixed||_FUNC_IDEZPATHLIST_STRING_PATH->readonly){
+oldstr4855=_FUNC_IDEZPATHLIST_STRING_PATH;
+if (oldstr4855->cmem_descriptor){
+_FUNC_IDEZPATHLIST_STRING_PATH=qbs_new_cmem(oldstr4855->len,0);
 }else{
-_FUNC_IDEZFILELIST_STRING_PATH=qbs_new(oldstr4981->len,0);
+_FUNC_IDEZPATHLIST_STRING_PATH=qbs_new(oldstr4855->len,0);
 }
-memcpy(_FUNC_IDEZFILELIST_STRING_PATH->chr,oldstr4981->chr,oldstr4981->len);
+memcpy(_FUNC_IDEZPATHLIST_STRING_PATH->chr,oldstr4855->chr,oldstr4855->len);
 }
-qbs*oldstr4982=NULL;
-if(_FUNC_IDEZFILELIST_STRING_MASK->tmp||_FUNC_IDEZFILELIST_STRING_MASK->fixed||_FUNC_IDEZFILELIST_STRING_MASK->readonly){
-oldstr4982=_FUNC_IDEZFILELIST_STRING_MASK;
-if (oldstr4982->cmem_descriptor){
-_FUNC_IDEZFILELIST_STRING_MASK=qbs_new_cmem(oldstr4982->len,0);
-}else{
-_FUNC_IDEZFILELIST_STRING_MASK=qbs_new(oldstr4982->len,0);
+qbs *_FUNC_IDEZPATHLIST_STRING1_SEP=NULL;
+if(_FUNC_IDEZPATHLIST_STRING1_SEP==NULL){
+_FUNC_IDEZPATHLIST_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
+memset(_FUNC_IDEZPATHLIST_STRING1_SEP->chr,0,1);
 }
-memcpy(_FUNC_IDEZFILELIST_STRING_MASK->chr,oldstr4982->chr,oldstr4982->len);
+qbs *_FUNC_IDEZPATHLIST_STRING_A=NULL;
+if (!_FUNC_IDEZPATHLIST_STRING_A)_FUNC_IDEZPATHLIST_STRING_A=qbs_new(0,0);
+qbs *_FUNC_IDEZPATHLIST_STRING_PATHLIST=NULL;
+if (!_FUNC_IDEZPATHLIST_STRING_PATHLIST)_FUNC_IDEZPATHLIST_STRING_PATHLIST=qbs_new(0,0);
+int32 *_FUNC_IDEZPATHLIST_LONG_C=NULL;
+if(_FUNC_IDEZPATHLIST_LONG_C==NULL){
+_FUNC_IDEZPATHLIST_LONG_C=(int32*)mem_static_malloc(4);
+*_FUNC_IDEZPATHLIST_LONG_C=0;
 }
-qbs *_FUNC_IDEZFILELIST_STRING1_SEP=NULL;
-if(_FUNC_IDEZFILELIST_STRING1_SEP==NULL){
-_FUNC_IDEZFILELIST_STRING1_SEP=qbs_new_fixed((uint8*)mem_static_malloc(1),1,0);
-memset(_FUNC_IDEZFILELIST_STRING1_SEP->chr,0,1);
+int32 *_FUNC_IDEZPATHLIST_LONG_X=NULL;
+if(_FUNC_IDEZPATHLIST_LONG_X==NULL){
+_FUNC_IDEZPATHLIST_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_IDEZPATHLIST_LONG_X=0;
 }
-qbs *_FUNC_IDEZFILELIST_STRING_FILELIST=NULL;
-if (!_FUNC_IDEZFILELIST_STRING_FILELIST)_FUNC_IDEZFILELIST_STRING_FILELIST=qbs_new(0,0);
-qbs *_FUNC_IDEZFILELIST_STRING_A=NULL;
-if (!_FUNC_IDEZFILELIST_STRING_A)_FUNC_IDEZFILELIST_STRING_A=qbs_new(0,0);
-byte_element_struct *byte_element_4985=NULL;
-if (!byte_element_4985){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4985=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4985=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value4859;
+int64 fornext_finalvalue4859;
+int64 fornext_step4859;
+uint8 fornext_step_negative4859;
+byte_element_struct *byte_element_4860=NULL;
+if (!byte_element_4860){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4860=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4860=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_IDEZFILELIST_LONG_I=NULL;
-if(_FUNC_IDEZFILELIST_LONG_I==NULL){
-_FUNC_IDEZFILELIST_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_IDEZFILELIST_LONG_I=0;
+qbs *_FUNC_IDEZPATHLIST_STRING_B=NULL;
+if (!_FUNC_IDEZPATHLIST_STRING_B)_FUNC_IDEZPATHLIST_STRING_B=qbs_new(0,0);
+byte_element_struct *byte_element_4861=NULL;
+if (!byte_element_4861){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4861=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4861=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value4987;
-int64 fornext_finalvalue4987;
-int64 fornext_step4987;
-uint8 fornext_step_negative4987;
-byte_element_struct *byte_element_4990=NULL;
-if (!byte_element_4990){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4990=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4990=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_IDEZPATHLIST_LONG_I=NULL;
+if(_FUNC_IDEZPATHLIST_LONG_I==NULL){
+_FUNC_IDEZPATHLIST_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_IDEZPATHLIST_LONG_I=0;
 }
-int32 *_FUNC_IDEZFILELIST_LONG_X=NULL;
-if(_FUNC_IDEZFILELIST_LONG_X==NULL){
-_FUNC_IDEZFILELIST_LONG_X=(int32*)mem_static_malloc(4);
-*_FUNC_IDEZFILELIST_LONG_X=0;
+int64 fornext_value4863;
+int64 fornext_finalvalue4863;
+int64 fornext_step4863;
+uint8 fornext_step_negative4863;
+byte_element_struct *byte_element_4864=NULL;
+if (!byte_element_4864){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4864=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4864=(byte_element_struct*)mem_static_malloc(12);
 }
-int64 fornext_value4992;
-int64 fornext_finalvalue4992;
-int64 fornext_step4992;
-uint8 fornext_step_negative4992;
-byte_element_struct *byte_element_4993=NULL;
-if (!byte_element_4993){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4993=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4993=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4867=NULL;
+if (!byte_element_4867){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4867=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4867=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_IDEZFILELIST_STRING_A2=NULL;
-if (!_FUNC_IDEZFILELIST_STRING_A2)_FUNC_IDEZFILELIST_STRING_A2=qbs_new(0,0);
-byte_element_struct *byte_element_4994=NULL;
-if (!byte_element_4994){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4994=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4994=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value4869;
+int64 fornext_finalvalue4869;
+int64 fornext_step4869;
+uint8 fornext_step_negative4869;
+byte_element_struct *byte_element_4870=NULL;
+if (!byte_element_4870){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4870=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4870=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_IDEZPATHLIST_STRING_A2=NULL;
+if (!_FUNC_IDEZPATHLIST_STRING_A2)_FUNC_IDEZPATHLIST_STRING_A2=qbs_new(0,0);
+byte_element_struct *byte_element_4871=NULL;
+if (!byte_element_4871){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4871=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4871=(byte_element_struct*)mem_static_malloc(12);
 }
