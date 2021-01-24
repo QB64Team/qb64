@@ -1,0 +1,475 @@
+==Icon Viewer and Bitmap Creator==
+The following program can be used to view Icon or Cursor images and save them as Bitmaps. When you answer Y the bitmap is saved with a black background so that it can be PUT using [[XOR]] on to the [[AND]] image. The AND image will be black and white if the image is irregularly shaped(not a full box image). It is placed first using [[PUT (graphics statement)|PUT]] with the AND action or can be placed using [[_PUTIMAGE]] with the color white [[_ALPHA]] being set to 0. In that case, try just placing the XOR image with the color black 0 [[_ALPHA|alpha]] with [[_SETALPHA]].
+
+{{small|Code by Ted Weissgerber}}
+{{TextStart}}
+'' ''
+'********************************* IconType.BI INCLUDE FILE ********************************
+
+{{Cb|TYPE}} IconType            'Icon or cursor file header
+  Reserved {{Cb|AS}} {{Cb|INTEGER}}    'Reserved (always 0)
+  ID {{Cb|AS}} {{Cb|INTEGER}}          'Resource ID (Icon = 1, Cursor = 2)
+  Count {{Cb|AS}} {{Cb|INTEGER}}       'Number of icon bitmaps in Directory of icon entries array
+{{Cb|END}} {{Cb|TYPE}} '6 bytes
+
+{{Cb|TYPE}} ICONENTRY           'or unanimated Cursor entry (see ANI for animated cursors)
+  PWidth {{Cb|AS}} {{Cb|_BYTE}}        'Width of icon in pixels (USE THIS)
+  PDepth {{Cb|AS}} {{Cb|_BYTE}}        'Height of icon in pixels (USE THIS)
+  NumColors {{Cb|AS}} {{Cb|_BYTE}}     'Maximum number of colors: (2 or 16 colors. 256 or 24/32 bit = 0}
+  RES2 {{Cb|AS}} {{Cb|_BYTE}}          'Reserved. Not used (always 0)
+  HotSpotX {{Cb|AS}} {{Cb|INTEGER}}    'Icon: NumberPlanes(normally 0), Cursor: hotspot pixels from left
+  HotSpotY {{Cb|AS}} {{Cb|INTEGER}}    'Icon: BitsPerPixel(normally 0), Cursor: hotspot pixels from top
+  DataSize {{Cb|AS}} {{Cb|LONG}}       'Length of icon bitmap in bytes (USE THIS)
+  DataOffset {{Cb|AS}} {{Cb|LONG}}     'Offset byte position of icon bitmap data header in file(add 1)
+{{Cb|END}} {{Cb|TYPE}} '16 bytes
+
+{{Cb|TYPE}} ICONHEADER          'Bitmap type header found using entry DataOffset + 1
+  IconHSize {{Cb|AS}} {{Cb|LONG}}      'size of ICON header (always 40 bytes) 
+  ICONWidth {{Cb|AS}} {{Cb|LONG}}      'bitmap width in pixels. (width and double height may be missing)
+  ICONDepth {{Cb|AS}} {{Cb|LONG}}      'Total map height in pixels (TWO TIMES the image height).
+  NumPlanes {{Cb|AS}} {{Cb|INTEGER}}   'number of color planes. Must be set to 1.
+  BPP {{Cb|AS}} {{Cb|INTEGER}}         'bits per pixel  1, 4, 8, 16, 24 or 32.(USE THIS for BPP)
+  Compress {{Cb|AS}} {{Cb|LONG}}       'compression method should always be 0.
+  RAWSize {{Cb|AS}} {{Cb|LONG}}        'size of the raw ICON image data(may only be {{Cb|XOR}} mask size).
+  Hres {{Cb|AS}} {{Cb|LONG}}           'horizontal resolution of the image(not normally used)
+  Vres {{Cb|AS}} {{Cb|LONG}}           'vertical resolution of the image(not normally used)
+  NumColors {{Cb|AS}} {{Cb|LONG}}      'number of colors in the color palette(not normally used)
+  SigColors {{Cb|AS}} {{Cb|LONG}}      'number of important colors used(not normally used)
+{{Cb|END}} {{Cb|TYPE}} '40 byte
+'' ''
+{{TextEnd}}
+{{CodeStart}}
+'' ''
+{{Cl|REM}} {{Cl|$INCLUDE}}: 'IconType.BI' 
+{{Cl|DEFINT}} A-Z
+{{Cl|DIM}} Icon {{Cl|AS}} IconType
+{{Cl|DIM}} {{Cl|SHARED}} Item, BPP
+{{Cl|DIM}} {{Cl|SHARED}} wide&amp;, deep&amp;, bmp&amp;, bmpStretch&amp;
+{{Cl|DIM}} Image(26000)
+dst&amp; = {{Cl|_NEWIMAGE}}(800, 600, 32)
+{{Cl|SCREEN (statement)|SCREEN}} dst&amp;
+
+hdr$ = " &amp; File  ID = #  ## Image(s) in file  #######, bytes "
+ico$ = "              Size = ## X ##   Colors = ##        Planes = #   BPP = ## "
+cur$ = "              Size = ## X ##   Colors = ##   HotSpot X = ##      Y = ## "
+dat$ = "              DATA Size = #####, bytes        {{Cl|DATA}} Offset =  ######,    "
+bm1$ = "              HeaderSize = ## MaskArea = ## X ##  Planes = #   BPP = ## "
+bm2$ = "              Compression = #   RAW Data Size = ######, bytes         "
+
+{{Cl|LOCATE}} 20, 20: {{Cl|LINE INPUT}} "Enter an ICOn or CURsor file name: ", IconName$
+L = {{Cl|LEN}}(IconName$) 
+{{Cl|IF}} L = 0 {{Cl|THEN}} {{Cl|SOUND}} 400, 4: {{Cl|SYSTEM}}
+dot = {{Cl|INSTR}}(IconName$, ".")
+{{Cl|IF}} dot = 0 {{Cl|THEN}} 
+   Save$ = IconName$: IconName$ = IconName$ + ".ICO" 
+{{Cl|ELSE}} Save$ = {{Cl|LEFT$}}(IconName$, dot - 1)
+{{Cl|END IF}}   
+{{Cl|OPEN}} IconName$ {{Cl|FOR (file statement)|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
+length&amp; = {{Cl|LOF}}(1)
+{{Cl|PRINT}} 
+{{Cl|IF}} length&amp; {{Cl|THEN}}
+  {{Cl|GET}} #1, 1, Icon
+  {{Cl|SELECT CASE}} Icon.ID
+    {{Cl|CASE}} 1: IC$ = "Icon": ent$ = ico$
+    {{Cl|CASE}} 2: IC$ = "Cursor": ent$ = cur$
+    {{Cl|CASE ELSE}}: IC$ = "Bitmap?"
+  {{Cl|END SELECT}}
+  {{Cl|LOCATE}} 22, 20: {{Cl|PRINT USING}} hdr$; IC$; Icon.ID; Icon.Count; length&amp;
+  {{Cl|IF}} Icon.Count {{Cl|THEN}}
+    count = Icon.Count
+    {{Cl|DIM}} {{Cl|SHARED}} Entry(count) {{Cl|AS}} ICONENTRY
+    {{Cl|DIM}} {{Cl|SHARED}} Header(count) {{Cl|AS}} ICONHEADER
+    {{Cl|FOR...NEXT|FOR}} Item = 1 {{Cl|TO}} count                            '16 bytes each entry
+      {{Cl|GET}} #1, , Entry(Item)
+    {{Cl|NEXT}}
+    {{Cl|VIEW PRINT}} 24 {{Cl|TO}} 32
+    {{Cl|FOR...NEXT|FOR}} Item = 1 {{Cl|TO}} count
+      {{Cl|GET}} #1, Entry(Item).DataOffset + 1, Header(Item) 'ADD 1 to offsets!
+      {{Cl|COLOR}} {{Cl|_RGB}}(255, 255, 0): {{Cl|LOCATE}} 24, 30
+      {{Cl|IF}} count > 1 {{Cl|THEN}} {{Cl|PRINT}} " IMAGE ENTRY #"; Item {{Cl|ELSE}} {{Cl|PRINT}} " IMAGE ENTRY"
+      {{Cl|COLOR}} {{Cl|_RGB}}(50, 200, 255)
+      {{Cl|PRINT USING}} ent$; Entry(Item).PWidth; Entry(Item).PDepth; Entry(Item).NumColors; Entry(Item).HotSpotX; Entry(Item).HotSpotY
+      {{Cl|PRINT USING}} dat$; Entry(Item).DataSize; Entry(Item).DataOffset
+      {{Cl|PRINT USING}} bm1$; Header(Item).IconHSize; Header(Item).ICONWidth; Header(Item).ICONDepth, Header(Item).NumPlanes; Header(Item).BPP
+      {{Cl|PRINT USING}} bm2$; Header(Item).Compress; Header(Item).RAWSize
+      {{Cl|PRINT}} 
+      k$ = {{Cl|INPUT$}}(1) 'Palette(4 or 8BPP) and/or {{Cl|XOR (boolean)|XOR}} mask starts immediately after an ICONHEADER
+      wide&amp; = Entry(Item).PWidth: deep&amp; = Entry(Item).PDepth: BPP = Header(Item).BPP
+      {{Cl|IF}} BPP > 8 {{Cl|THEN}} BitColor = 32 {{Cl|ELSE}} BitColor = 256  'assign for proper colors
+      bmpStretch&amp; = {{Cl|_NEWIMAGE}}(4 * wide&amp;, 4 * deep&amp;, BitColor) 'set either 256 or 32
+      bmp&amp; = {{Cl|_NEWIMAGE}}(wide&amp;, deep&amp;, BitColor) 'don't bother with {{Cl|_FREEIMAGE}}, reuse them!
+      {{Cl|SELECT CASE}} BPP
+        {{Cl|CASE}} 1: OneBit
+        {{Cl|CASE}} 4: FourBIT
+        {{Cl|CASE}} 8: EightBIT
+        {{Cl|CASE}} {{Cl|IS}} > 8: True{{Cl|COLOR}}
+      {{Cl|END SELECT}}
+      {{Cl|IF}} BPP &lt; 24 {{Cl|THEN}} {{Cl|_COPYPALETTE}} bmp&amp;, bmpStretch&amp;
+      {{Cl|_PUTIMAGE}} , bmp&amp;, bmpStretch&amp;
+      {{Cl|_DEST}} 0: {{Cl|_PUTIMAGE}} (100, 0), bmpStretch&amp;
+      {{Cl|SOUND}} 600, 3
+      {{Cl|COLOR}} {{Cl|_RGB}}(255, 0, 255): {{Cl|LOCATE}} {{Cl|CSRLIN}}, 30: {{Cl|PRINT}} "Save as Bitmap? (Y/N)";
+      k$ = {{Cl|INPUT$}}(1)
+      k$ = {{Cl|UCASE$}}(k$)
+      {{Cl|PRINT}} k$ + {{Cl|SPACE$}}(1);
+      {{Cl|IF}} k$ = "Y" {{Cl|THEN}} 
+          SaveFile$ = Save$ + {{Cl|LTRIM$}}({{Cl|STR$}}(Item)) + ".BMP"
+          ThirtyTwoBit 0, 0, wide&amp; - 1, deep&amp; - 1, bmp&amp;, SaveFile$
+      {{Cl|END IF}} 
+      {{Cl|IF}} k$ = "Y" {{Cl|THEN}} {{Cl|PRINT}} "Saved!" {{Cl|ELSE}} {{Cl|PRINT}} "Not saved"
+      {{Cl|AND (boolean)|AND}}Mask
+      {{Cl|IF}} BPP &lt; 24 {{Cl|THEN}} {{Cl|_COPYPALETTE}} bmp&amp;, bmpStretch&amp;
+      {{Cl|_PUTIMAGE}} , bmp&amp;, bmpStretch&amp;
+      {{Cl|_DEST}} 0: {{Cl|_PUTIMAGE}} (400, 0), bmpStretch&amp;
+      {{Cl|IF}} k$ = "Y" {{Cl|THEN}} 
+          ANDFile$ = Save$ + {{Cl|LTRIM$}}({{Cl|STR$}}(Item)) + "BG.BMP"
+          ThirtyTwoBit 0, 0, wide&amp; - 1, deep&amp; - 1, bmp&amp;, ANDFile$
+      {{Cl|END IF}} 
+      k$ = {{Cl|INPUT$}}(1)
+      {{Cl|CLS}}
+    {{Cl|NEXT}}
+    {{Cl|VIEW PRINT}}
+  {{Cl|ELSE}} {{Cl|SOUND}} 400, 4: {{Cl|CLOSE}} #1: {{Cl|PRINT}} "No images entries found!": {{Cl|END}}
+  {{Cl|END IF}}
+{{Cl|ELSE}}: {{Cl|CLOSE}} #1: {{Cl|SOUND}} 400, 4: {{Cl|KILL}} IconName$: {{Cl|END}}
+{{Cl|END IF}}
+{{Cl|CLOSE}} #1
+{{Cl|END}}
+
+{{Cl|SUB}} OneBit 'adapted from TheBob's Winbit 'B &amp; W monochrome images ONLY (NO {{Cl|PALETTE}} data)
+BitsOver = wide&amp; {{Cl|MOD}} 32
+{{Cl|IF}} BitsOver {{Cl|THEN}} ZeroPAD$ = {{Cl|SPACE$}}((32 - BitsOver) \ 8) 
+{{Cl|_DEST}} bmp&amp;
+y = deep&amp; - 1: p$ = " "
+{{Cl|DO}}
+  x = 0
+  {{Cl|DO}}
+    {{Cl|GET}} #1, , p$
+    Byte{{Cl|VAL}} = {{Cl|ASC}}(p$)
+    {{Cl|FOR...NEXT|FOR}} Bit% = 7 {{Cl|TO}} 0 {{Cl|STEP}} -1 'read bits left to right
+      {{Cl|IF}} Byte{{Cl|VAL}} {{Cl|AND}} 2 ^ Bit% {{Cl|THEN}} {{Cl|PSET}} (x, y), 15 {{Cl|ELSE}} {{Cl|PSET}} (x, y), 0
+      x = x + 1
+    {{Cl|NEXT}} Bit%
+  {{Cl|LOOP}} {{Cl|WHILE}} x &lt; wide&amp;
+  {{Cl|GET}} #1, , ZeroPAD$  '         'prevents odd width image skewing  
+  y = y - 1 '            
+{{Cl|LOOP}} {{Cl|UNTIL}} y = -1
+{{Cl|END SUB}}
+
+{{Cl|SUB}} EightBIT 'adapted from TheBob's Winbit      '256 palette data Colors (8 BPP)
+{{Cl|IF}} wide&amp; {{Cl|MOD}} 4 {{Cl|THEN}} ZeroPAD$ = {{Cl|SPACE$}}(4 - (wide&amp; {{Cl|MOD}} 4)) 
+{{Cl|_DEST}} bmp&amp;
+a$ = " ": u$ = " "
+{{Cl|OUT}} {{Cl|&amp;H}}3C8, 0
+{{Cl|FOR...NEXT|FOR}} Colr = 0 {{Cl|TO}} 255
+  {{Cl|GET}} #1, , a$: Blu = {{Cl|ASC}}(a$) \ 4
+  {{Cl|GET}} #1, , a$: Grn = {{Cl|ASC}}(a$) \ 4
+  {{Cl|GET}} #1, , a$: Red = {{Cl|ASC}}(a$) \ 4
+  {{Cl|OUT}} {{Cl|&amp;H}}3C9, Red
+  {{Cl|OUT}} {{Cl|&amp;H}}3C9, Grn
+  {{Cl|OUT}} {{Cl|&amp;H}}3C9, Blu
+  {{Cl|GET}} #1, , u$ '--- unused byte
+{{Cl|NEXT}} Colr
+y = deep&amp; - 1: p$ = " "
+{{Cl|DO}}: x = 0
+  {{Cl|DO}}
+    {{Cl|GET}} #1, , p$
+    {{Cl|PSET}} (x, y), {{Cl|ASC}}(p$)
+    x = x + 1
+  {{Cl|LOOP}} {{Cl|WHILE}} x &lt; wide&amp;
+  {{Cl|GET}} #1, , ZeroPAD$  '           'prevents odd width image skewing
+  y = y - 1
+{{Cl|LOOP}} {{Cl|UNTIL}} y = -1
+{{Cl|END SUB}}
+
+{{Cl|SUB}} FourBIT 'adapted from TheBob's Winbit  '16 palette data colors (4 BPP = 8 or 16 color) 
+{{Cl|_DEST}} bmp&amp;
+{{Cl|IF}} wide&amp; {{Cl|MOD}} 8 {{Cl|THEN}} ZeroPAD$ = {{Cl|SPACE$}}((8 - wide&amp; {{Cl|MOD}} 8) \ 2) 'prevents odd width image skewing
+a$ = " ": u$ = " "
+{{Cl|FOR...NEXT|FOR}} Colr = 0 {{Cl|TO}} 15
+  {{Cl|OUT}} {{Cl|&amp;H}}3C8, Colr
+  {{Cl|GET}} #1, , a$: Blu = {{Cl|ASC}}(a$) \ 4
+  {{Cl|GET}} #1, , a$: Grn = {{Cl|ASC}}(a$) \ 4
+  {{Cl|GET}} #1, , a$: Red = {{Cl|ASC}}(a$) \ 4
+  {{Cl|OUT}} {{Cl|&amp;H}}3C9, Red
+  {{Cl|OUT}} {{Cl|&amp;H}}3C9, Grn
+  {{Cl|OUT}} {{Cl|&amp;H}}3C9, Blu
+  {{Cl|GET}} #1, , u$ '--- unused byte
+{{Cl|NEXT}} Colr
+y = deep&amp; - 1: p$ = " "
+{{Cl|DO}}
+  x = 0
+  {{Cl|DO}}
+    {{Cl|GET}} #1, , p$
+    HiNIBBLE = {{Cl|ASC}}(p$) \ {{Cl|&amp;H}}10
+    LoNIBBLE = {{Cl|ASC}}(p$) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F
+    {{Cl|PSET}} (x, y), HiNIBBLE
+    x = x + 1
+    {{Cl|PSET}} (x, y), LoNIBBLE
+    x = x + 1
+  {{Cl|LOOP}} {{Cl|WHILE}} x &lt; wide&amp;
+  {{Cl|GET}} #1, , ZeroPAD$  '              'prevents odd width image skewing
+  y = y - 1
+{{Cl|LOOP}} {{Cl|UNTIL}} y = -1
+{{Cl|END SUB}}
+
+{{Cl|SUB}} ANDMask '   '{{Cl|AND (boolean)|AND}} MASK is B &amp; W. Black area holds {{Cl|XOR (boolean)|XOR}} colors, white displays background
+BitsOver = wide&amp; {{Cl|MOD}} 32
+{{Cl|IF}} BitsOver {{Cl|THEN}} ZeroPAD$ = {{Cl|SPACE$}}((32 - BitsOver) \ 8) 'look for sizes not multiples of 32 bits
+{{Cl|_DEST}} bmp&amp;
+{{Cl|IF}} BPP &lt; 24 {{Cl|THEN}} {{Cl|PALETTE}} '        'remove for a PUT using previous {{Cl|XOR (boolean)|XOR}} mask palette data
+y = deep&amp; - 1: a$ = " ": p$ = " "
+{{Cl|DO}}
+  x = 0
+  {{Cl|DO}}
+    {{Cl|GET}} #1, , a$
+    Byte{{Cl|VAL}} = {{Cl|ASC}}(a$) 'MSBit is left when calculating 16 X 16 cursor map 2 byte integer
+    {{Cl|FOR...NEXT|FOR}} Bit% = 7 {{Cl|TO}} 0 {{Cl|STEP}} -1 'values despite M$ documentation that says otherwise!
+      {{Cl|IF}} Byte{{Cl|VAL}} {{Cl|AND}} 2 ^ Bit% {{Cl|THEN}} '{{Cl|LONG}} values cannot be used in a cursor file!
+        {{Cl|IF}} BPP > 8 {{Cl|THEN}} {{Cl|PSET}} (x, y), {{Cl|_RGB32}}(255, 255, 255) {{Cl|ELSE}} {{Cl|PSET}} (x, y), 15
+      {{Cl|ELSE}}: {{Cl|IF}} BPP > 8 {{Cl|THEN}} {{Cl|PSET}} (x, y), {{Cl|_RGB32}}(0, 0, 0) {{Cl|ELSE}} {{Cl|PSET}} (x, y), 0
+      {{Cl|END IF}}
+      x = x + 1        '16 X 16 = 32 bytes, 32 X 32 = 128 bytes {{Cl|AND (boolean)|AND}} MASK SIZES
+    {{Cl|NEXT}} Bit%          '48 X 48 = 288 bytes, 64 X 64 = 512 bytes, 128 X 128 = 2048 bytes
+  {{Cl|LOOP}} {{Cl|WHILE}} x &lt; wide&amp;  
+  {{Cl|GET}} #1, , ZeroPAD$   '16 X 16 and 48 X 48 = 2 byte end padder per row in the {{Cl|AND (boolean)|AND}} MASK
+  y = y - 1            'adds 32 and 96 bytes respectively to the raw data size!
+{{Cl|LOOP}} {{Cl|UNTIL}} y = -1
+{{Cl|END SUB}}
+
+{{Cl|SUB}} True{{Cl|COLOR}} '     ' 16 Million colors. NO {{Cl|PALETTE}}! Colored by pixels (24 or 32 BPP)
+{{Cl|_DEST}} bmp&amp;
+{{Cl|IF}} ((BMP.PWidth * 3) {{Cl|MOD}} 4) &lt;> 0 {{Cl|THEN}}        '3 byte pixels
+ZeroPAD$ = {{Cl|SPACE$}}((4 - ((BMP.PWidth * 3) {{Cl|MOD}} 4)))
+{{Cl|END IF}}
+R$ = " ": G$ = " ": B$ = " "
+y = deep&amp; - 1
+{{Cl|DO}}
+  x = 0
+  {{Cl|DO}}
+    {{Cl|GET}} #1, , B$            '3 bytes set RGB color intensities
+    {{Cl|GET}} #1, , G$
+    {{Cl|GET}} #1, , R$
+    red&amp; = {{Cl|ASC}}(R$)
+    green&amp; = {{Cl|ASC}}(G$)
+    blue&amp; = {{Cl|ASC}}(B$)
+    {{Cl|PSET}} (x, y), {{Cl|_RGB}}(red&amp;, green&amp;, blue&amp;) 'returns closest attribute in 4 or 8 bit
+    x = x + 1
+  {{Cl|LOOP}} {{Cl|WHILE}} x &lt; wide&amp;
+  {{Cl|GET}} #1, , ZeroPAD$  '     'prevents odd width image skewing       
+  y = y - 1
+{{Cl|LOOP}} {{Cl|UNTIL}} y = -1
+{{Cl|END SUB}} '' ''
+
+{{Cl|REM}} {{Cl|$INCLUDE}}: '32BitSUB.BM'
+
+{{CodeEnd}}
+{{TextStart}}
+
+'*********************************** 32BitSUB.BM INCLUDE FILE *******************************
+
+{{Cb|SUB}} ThirtyTwoBit (x1%, y1%, x2%, y2%, image&amp;, Filename$)                           
+  {{Cb|DIM}} Colors8%(255)
+  {{Cb|IF}} x1% > x2% {{Cb|THEN}} {{Cb|SWAP}} x1%, x2%
+  {{Cb|IF}} y1% > y2% {{Cb|THEN}} {{Cb|SWAP}} y1%, y2%
+
+  {{Cb|_SOURCE}} image&amp; 
+  pixelbytes&amp; = {{Cb|_PIXELSIZE}}(image&amp;)
+  {{Cb|IF}} pixelbytes&amp; = 0 {{Cb|THEN}} {{Cb|BEEP}}: {{Cb|EXIT SUB}} 'no text screens
+
+  FileType$ = "BM"
+  QB64$ = "QB64"           'free advertiising in reserved bytes
+  {{Cb|IF}} pixelbytes&amp; = 1 {{Cb|THEN}} OffsetBITS&amp; = 1078 {{Cb|ELSE}} OffsetBITS&amp; = 54 'no palette in 24/32 bit
+  InfoHEADER&amp; = 40
+  PictureWidth&amp; = (x2% - x1%) + 1  ' don't exceed maximum screen resolutions!
+  PictureDepth&amp; = (y2% - y1%) + 1   
+  NumPLANES% = 1
+  {{Cb|IF}} pixelbytes&amp; = 1 {{Cb|THEN}} BPP% = 8 {{Cb|ELSE}} BPP% = 24
+  Compression&amp; = 0
+  WidthPELS&amp; = 3780
+  DepthPELS&amp; = 3780
+  {{Cb|IF}} pixelbytes&amp; = 1 {{Cb|THEN}} NumColors&amp; = 256    '24/32 bit say none
+
+  {{Cb|IF}} (PictureWidth&amp; {{Cb|AND (boolean)|AND}} 3) {{Cb|THEN}} ZeroPAD$ = {{Cb|SPACE$}}(4 - (PictureWidth&amp; {{Cb|AND (boolean)|AND}} 3))
+
+  ImageSize&amp; = (PictureWidth&amp; + {{Cb|LEN}}(ZeroPAD$)) * PictureDepth&amp;
+  FileSize&amp; = ImageSIZE&amp; + OffsetBITS&amp;  
+  f = {{Cb|FREEFILE}}
+  {{Cb|OPEN}} Filename$ {{Cb|FOR (file statement)|FOR}} {{Cb|BINARY}} {{Cb|AS}} #f
+   
+  {{Cb|PUT}} #f, , FileType$
+  {{Cb|PUT}} #f, , FileSize&amp;
+  {{Cb|PUT}} #f, , QB64$
+  {{Cb|PUT}} #f, , OffsetBITS&amp;
+  {{Cb|PUT}} #f, , InfoHEADER&amp;
+  {{Cb|PUT}} #f, , PictureWidth&amp;
+  {{Cb|PUT}} #f, , PictureDepth&amp;
+  {{Cb|PUT}} #f, , NumPLANES%
+  {{Cb|PUT}} #f, , BPP%
+  {{Cb|PUT}} #f, , Compression&amp;
+  {{Cb|PUT}} #f, , ImageSize&amp;
+  {{Cb|PUT}} #f, , WidthPELS&amp;
+  {{Cb|PUT}} #f, , DepthPELS&amp;
+  {{Cb|PUT}} #f, , NumColors&amp;
+  {{Cb|PUT}} #f, , SigColors&amp;     '51 offset
+
+  {{Cb|IF}} pixelbytes&amp; = 1 {{Cb|THEN}}     '4 or 8 BPP Palettes set for 256 colors
+    u$ = {{Cb|CHR$}}(0)
+    {{Cb|FOR...NEXT|FOR}} c&amp; = 0 {{Cb|TO}} 255  'PUT as BGR order colors
+      cv&amp; = {{Cb|_PALETTECOLOR (function)|_PALLETTECOLOR}}(c&amp;, image&amp;)
+      Colr$ = {{Cb|CHR$}}({{Cb|_BLUE32}}(cv&amp;))                       
+      {{Cb|PUT}} #f, , Colr$
+      Colr$ = {{Cb|CHR$}}({{Cb|_GREEN32}}(cv&amp;))
+      {{Cb|PUT}} #f, , Colr$
+      Colr$ = {{Cb|CHR$}}({{Cb|_RED32}}(cv&amp;))
+      {{Cb|PUT}} #f, , Colr$
+      {{Cb|PUT}} #f, , u$  'Unused byte
+    {{Cb|NEXT}}
+  {{Cb|END IF}}
+ 
+  {{Cb|FOR...NEXT|FOR}} y% = y2% {{Cb|TO}} y1% {{Cb|STEP}} -1   'place bottom up
+    {{Cb|FOR...NEXT|FOR}} x% = x1% {{Cb|TO}} x2% 
+     c&amp; = {{Cb|POINT}}(x%, y%) 
+     {{Cb|IF}} pixelbytes&amp; = 1 {{Cb|THEN}} 
+       a$ = {{Cb|CHR$}}(c&amp;) 
+       Colors8%({{Cb|ASC}}(a$)) = 1
+     {{Cb|ELSE}} : a$ = {{Cb|LEFT$}}({{Cb|MKL$}}(c&amp;), 3)
+     {{Cb|END IF}}            
+     {{Cb|PUT}} #f, , a$
+    {{Cb|NEXT}} 
+    {{Cb|PUT}} #f, , ZeroPAD$
+  {{Cb|NEXT}} 
+
+  {{Cb|FOR...NEXT|FOR}} n = 0 {{Cb|TO}} 255
+    {{Cb|IF}} Colors8%(n) = 1 {{Cb|THEN}} SigColors&amp; = SigColors&amp; + 1
+  {{Cb|NEXT}} n
+  {{Cb|PUT}} #f, 51, SigColors&amp;
+  {{Cb|CLOSE}} #f
+{{Cb|END SUB}} '' ''
+'' ''
+{{TextEnd}}
+{{small|Adapted from code by Bob Seguin}}
+&lt;center>'''If full code is not displayed, refresh browser!'''&lt;/center>
+
+
+&lt;center>'''NOTE: Black areas of an image may become "see through" unless another color attribute is used and set to black!'''&lt;/center>
+
+: This can be done by changing another color attribute's RGB settings to 0 or almost 0 and creating a mask after using it in solid black areas of a 4 or 8 BPP palette image. This can also be done using [[_PUTIMAGE]] with 32 bit [[_CLEARCOLOR]] settings.
+
+&lt;center>''See the following page:'' [[Creating Sprite Masks]]&lt;/center>
+
+==Icon to Bitmap Conversion Function==
+
+The following program uses a conversion function with the [[TYPE]] definitions inside of the function to eliminate an [[$INCLUDE]] library file.
+{{CodeStart}}
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)
+{{Cl|_TITLE}} "Icon Converter"
+icon$ = "daphne.ico" '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change icon file name
+bitmap$ = "tempfile.bmp"
+indx% = 5 '1 minimum &lt;&lt;&lt;&lt;&lt;&lt;&lt; higher values than count get highest entry image in icon file
+
+{{Cl|IF...THEN|IF}} Icon2BMP(icon$, bitmap$, indx%) {{Cl|THEN}} 
+  img&amp; = {{Cl|_LOADIMAGE}}(bitmap$)
+  {{Cl|PRINT}} img&amp;
+  {{Cl|IF...THEN|IF}} img&amp; &lt; -1 {{Cl|THEN}} '           check that handle value is good before loading
+    {{Cl|_ICON}} img&amp; '                place image in header
+    {{Cl|_PUTIMAGE}} (300, 250), img&amp; 'place image on screen
+    {{Cl|_FREEIMAGE}} img&amp; '           always free unused handles to save memory
+    '{{Cl|KILL}} bitmap$ '              comment out and/or rename to save the bitmaps
+  {{Cl|END IF}}
+{{Cl|ELSE}} {{Cl|PRINT}} "Could not create bitmap!"
+{{Cl|END IF}}
+{{Cl|END}}
+'                ----------------------------------------------------
+
+{{Cl|FUNCTION}} Icon2BMP% (filein {{Cl|AS}} {{Cl|STRING}}, fileout {{Cl|AS}} {{Cl|STRING}}, index {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|TYPE}} ICONTYPE '              Icon or cursor file header
+  Reserved {{Cl|AS}} {{Cl|INTEGER}} '         Reserved (always 0)
+  ID {{Cl|AS}} {{Cl|INTEGER}} '               Resource ID (Icon = 1, Cursor = 2)
+  Count {{Cl|AS}} {{Cl|INTEGER}} '            Number of icon bitmaps in Directory of icon entries array
+{{Cl|END}} {{Cl|TYPE}} '6 bytes
+{{Cl|TYPE}} ENTRYTYPE '             or unanimated Cursor entry (ANI are animated cursors)
+  Wide {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}} '     Width of icon in pixels (USE THIS) Use {{Cl|_UNSIGNED}} over 127
+  High {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}} '     Height of icon in pixels (USE THIS) Use {{Cl|_UNSIGNED}} over 127
+  NumColors {{Cl|AS}} {{Cl|_BYTE}} '          Maximum number of colors. (2, 8 or 16 colors. 256 or 24/32 bit = 0)
+  RES2 {{Cl|AS}} {{Cl|_BYTE}} '               Reserved. Not used (always 0)
+  HotSpotX {{Cl|AS}} {{Cl|INTEGER}} '         Icon: NumberPlanes(normally 0), Cursor: hotspot pixels from left
+  HotSpotY {{Cl|AS}} {{Cl|INTEGER}} '         Icon: BitsPerPixel(normally 0), Cursor: hotspot pixels from top
+  DataSize {{Cl|AS}} {{Cl|LONG}} '            Length of image data in bytes minus Icon and Entry headers (USE THIS)
+  Offset {{Cl|AS}} {{Cl|LONG}} '              Start Offset byte position of icon bitmap header(add 1 if {{Cl|TYPE}} GET)
+{{Cl|END}} {{Cl|TYPE}} '16 bytes              
+{{Cl|TYPE}} PREHEADER '             Bitmap information not in icon BM header
+  BM {{Cl|AS}} {{Cl|INTEGER}} '               Integer value changed to "BM" by PUT
+  Size {{Cl|AS}} {{Cl|LONG}} '                Size of the data file({{Cl|LOF}})
+  Reser {{Cl|AS}} {{Cl|LONG}}'                2 reserved integers are zero automatically
+  BOffset {{Cl|AS}} {{Cl|LONG}} '             Start offset of pixel data(next byte)
+{{Cl|END}} {{Cl|TYPE}} '14 bytes
+{{Cl|TYPE}} BMPHEADER '             Bitmap type header found using entry DataOffset + 1
+  IconHSize {{Cl|AS}} {{Cl|LONG}} '           size of ICON header (always 40 bytes)
+  PWidth {{Cl|AS}} {{Cl|LONG}} '              bitmap width in pixels (signed integer).
+  PDepth {{Cl|AS}} {{Cl|LONG}} '              Total map height in pixels (signed integer is 2 times image height)
+  NumPlanes {{Cl|AS}} {{Cl|INTEGER}} '        number of color planes. Must be set to 1.
+  BPP {{Cl|AS}} {{Cl|INTEGER}} '              bits per pixel  1, 4, 8, 16, 24 or 32.(USE THIS)
+  Compress {{Cl|AS}} {{Cl|LONG}} '            compression method should always be 0.
+  RAWSize {{Cl|AS}} {{Cl|LONG}} '             size of the raw ICON image data(may only be {{Cl|XOR (boolean)|XOR}} mask size).
+  Hres {{Cl|AS}} {{Cl|LONG}} '                horizontal resolution of the image(not normally used)
+  Vres {{Cl|AS}} {{Cl|LONG}} '                vertical resolution of the image(not normally used)
+  NumColors {{Cl|AS}} {{Cl|LONG}} '           number of colors in the color palette(not normally used)
+  SigColors {{Cl|AS}} {{Cl|LONG}} '           number of important colors used(not normally used)
+{{Cl|END}} {{Cl|TYPE}} '40 bytes              palette and image data immediately follow this header!
+
+{{Cl|DIM}} ICON {{Cl|AS}} ICONTYPE, ENT {{Cl|AS}} ENTRYTYPE, PRE {{Cl|AS}} PREHEADER, BMP {{Cl|AS}} BMPHEADER
+
+rf = {{Cl|FREEFILE}}
+{{Cl|IF...THEN|IF}} {{Cl|LCASE$}}({{Cl|RIGHT$}}(filein, 4)) = ".ico" {{Cl|THEN}} 'check file extension is ICO only
+  {{Cl|OPEN}} filein {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|READ}} {{Cl|AS}} rf
+{{Cl|ELSE}} {{Cl|EXIT FUNCTION}}
+{{Cl|END IF}}
+{{Cl|GET}} rf, , ICON 'GET 6 byte icon header
+{{Cl|IF...THEN|IF}} ICON.ID &lt;> 1 {{Cl|OR (boolean)|OR}} ICON.Count = 0 {{Cl|THEN}} {{Cl|CLOSE}} rf: {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} index > 0 {{Cl|AND (boolean)|AND}} index &lt;= ICON.Count {{Cl|THEN}} entry = 16 * (index - 1) {{Cl|ELSE}} entry = 16 * (ICON.Count - 1)
+{{Cl|PRINT}} ICON.Count, entry
+{{Cl|SEEK}} rf, 1 + 6 + entry 'start of indexed Entry header selected
+{{Cl|GET}} rf, , ENT 'GET 16 byte Entry Header set by index request or highest available
+
+{{Cl|SEEK}} rf, 1 + ENT.Offset 'go to BMP header offset given in Entry header
+{{Cl|GET}} rf, , BMP 'GET 40 byte icon bitmap header information
+{{Cl|IF...THEN|IF}} BMP.BPP &lt;= 24 {{Cl|THEN}} pixelbytes = BMP.BPP / 8 {{Cl|ELSE}} pixelbytes = 3
+{{Cl|IF...THEN|IF}} BMP.BPP > 1 {{Cl|AND (boolean)|AND}} BMP.BPP &lt;= 8 {{Cl|THEN}} palettebytes = 4 * (2 ^ BMP.BPP) {{Cl|ELSE}} palettebytes = 0
+datasize&amp; = (ENT.Wide * ENT.High * pixelbytes) + palettebytes 'no padder should be necessary
+filesize&amp; = datasize&amp; + 14 + 40 '                      data and palette + header
+bmpoffset&amp; = palettebytes + 54 '                       data offset from start of bitmap
+BMP.PWidth = ENT.Wide
+BMP.PDepth = ENT.High
+BMP.RAWSize = datasize&amp; - palettebytes
+
+PRE.BM = {{Cl|CVI}}("BM") 'integer value changes to "BM" in file
+PRE.Size = filesize&amp;
+PRE.BOffset = bmpoffset&amp; 'start of data after header and palette if used
+
+wf = {{Cl|FREEFILE}}
+{{Cl|OPEN}} fileout {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} wf
+{{Cl|PUT}} wf, , PRE 'PUT 14 byte bitmap information
+{{Cl|PUT}} wf, , BMP 'PUT 40 byte bitmap header information
+{{Cl|SEEK}} rf, 1 + ENT.Offset + 40
+dat$ = {{Cl|STRING$}}(datasize&amp;, 0) 'create string variable the length of remaining image data
+{{Cl|GET}} rf, , dat$ 'GET remaining palette and only the XOR image data after the indexed header
+{{Cl|PUT}} wf, , dat$ 'PUT remaining data into new bitmap file
+{{Cl|CLOSE}} rf, wf
+Icon2BMP = ICON.Count 'function returns number of images available in icon file
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+: ''Note:'' The index selected or the highest numbered icon image less than the index value is the image displayed.
+
+==References==
+
+''See also:''
+* [[Creating Icons from Bitmaps]]
+* [[Bitmaps]], [[Icons and Cursors]]
+* [[_CLEARCOLOR]]
+* [[_ALPHA]], [[_ICON]]
+* [[SaveIcon32]] {{text|(create icons from any image)}}
+
+
+{{PageNavigation}}

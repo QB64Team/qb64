@@ -1,5 +1,5 @@
 {{DISPLAYTITLE:_MEM}}
-The [[_MEM]] variable type can be used when working with memory blocks. It has no variable [[type]] suffix.
+The [[_MEM]] variable type can be used when working with memory blocks. It has no variable [[Variable Types|type]] suffix.
 
 
 {{PageSyntax}}
@@ -8,7 +8,7 @@ The [[_MEM]] variable type can be used when working with memory blocks. It has n
 
 {{PageDescription}}
 ''Variable TYPE:''
-* Memory DOT values are actually part of the built in memory variable [[type]] in QB64. The following [[TYPE]] is built in:
+* Memory DOT values are actually part of the built in memory variable [[Variable Types|type]] in QB64. The following [[TYPE]] is built in:
 {{WhiteStart}}TYPE memory_type
   OFFSET AS _OFFSET       'start location of block(changes with byte position)
   SIZE AS _OFFSET         'size of block remaining at offset(changes with position)
@@ -46,7 +46,7 @@ END TYPE
 :::* 16384(+ 512 + bit*)= [[_OFFSET]] type only
 ''Note: If a future integer, float or other type doesn't have a size that is 1,2,4,8,16,32,64,128 or 256 it won't have a size-bit set.''
 
-* '''Note: [[_OFFSET]] values cannot be cast to other variable [[type]]s reliably. _MEM is a reserved custom variable [[type]].'''
+* '''Note: [[_OFFSET]] values cannot be cast to other variable [[Variable Types|type]]s reliably. _MEM is a reserved custom variable [[Variable Types|type]].'''
 * '''[[_MEM (function)|_MEM]] cannot reference variable length [[STRING]] variable values. String values must be designated as a fixed-[[LEN|length]] string.'''
 
 

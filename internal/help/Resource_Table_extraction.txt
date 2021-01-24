@@ -1,0 +1,1878 @@
+The following information was supplied by Michael Calkins in a member's request to find a way to extract icons from EXE files. There is no warranty implied and users should use the information and code at their own risk! We are not responsible for any damages!
+
+==COFF Specifications==
+There are 3 layers to the resource tables, Type, Name, and Language, The Microsoft PE and COFF specifications can be found here: 
+
+&lt;center>http://msdn.microsoft.com/en-us/windows/hardware/gg463119&lt;/center>
+
+
+&lt;center>'''Image Extraction Procedure'''&lt;/center>
+{{CodeStart}} '' ''
+{{Cl|DIM}} nam {{Cl|AS}} {{Cl|STRING}} * 8
+{{Cl|DIM}} fil {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} coff {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} SectionTable {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ImageBase {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} rsrc {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} pe32plus {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} SizeOfOptionalHeader {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} {{Cl|SHARED}} NumberOfSections {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} NumberOfRvaAndSizes {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+{{Cl|CLS}}
+{{Cl|LINE INPUT}} "Name of the PE image to open? "; fil
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(fil) = 0 {{Cl|THEN}} {{Cl|PRINT}} "File not found.": {{Cl|END}}
+{{Cl|OPEN}} fil {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|READ}} {{Cl|AS}} 1
+{{Cl|GET}} 1, 1 + 0, w
+{{Cl|IF...THEN|IF}} w &lt;> {{Cl|&amp;H}}5A4D {{Cl|THEN}} {{Cl|PRINT}} "No MZ signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + {{Cl|&amp;H}}3C, dw
+coff = dw + 4
+{{Cl|GET}} 1, dw + 1, dw
+{{Cl|IF...THEN|IF}} dw &lt;> {{Cl|&amp;H}}4550&amp; {{Cl|THEN}} {{Cl|PRINT}} "No PE signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + coff + 2, NumberOfSections
+{{Cl|IF...THEN|IF}} NumberOfSections = 0 {{Cl|THEN}} {{Cl|PRINT}} "No sections.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfSections:"; NumberOfSections
+{{Cl|DIM}} {{Cl|SHARED}} secsva(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} {{Cl|SHARED}} secsfp(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|GET}} 1, 1 + coff + 16, SizeOfOptionalHeader
+{{Cl|IF...THEN|IF}} SizeOfOptionalHeader = 0 {{Cl|THEN}} {{Cl|PRINT}} "No optional header.": {{Cl|END}}
+{{Cl|PRINT}} "SizeOfOptionalHeader:", {{Cl|SPACE$}}(4); word$(SizeOfOptionalHeader)
+{{Cl|GET}} 1, 1 + coff + 20, w
+{{Cl|SELECT CASE}} w
+ {{Cl|CASE}} {{Cl|&amp;H}}10B: pe32plus = 0: {{Cl|PRINT}} "PE32"
+ {{Cl|CASE}} {{Cl|&amp;H}}20B: pe32plus = -1: {{Cl|PRINT}} "PE32+"
+ {{Cl|CASE ELSE}}: {{Cl|PRINT}} "Unknown Magic.": {{Cl|END}}
+{{Cl|END SELECT}}
+{{Cl|GET}} 1, 1 + coff + 20 + 28 + (-4 {{Cl|AND}} pe32plus), ImageBase
+{{Cl|PRINT}} "ImageBase:", "", dword$(ImageBase)
+{{Cl|GET}} 1, 1 + coff + 20 + 92 + (16 {{Cl|AND}} pe32plus), NumberOfRvaAndSizes
+{{Cl|IF...THEN|IF}} NumberOfRvaAndSizes &lt; 3 {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfRvaAndSizes:"; NumberOfRvaAndSizes
+{{Cl|GET}} 1, 1 + coff + 20 + 112 + (16 {{Cl|AND}} pe32plus), rsrc
+{{Cl|PRINT}} "Rva of resource table:", dword$(rsrc)
+{{Cl|GET}} 1, 1 + coff + 20 + 4 + 112 + (16 {{Cl|AND}} pe32plus), dw
+{{Cl|PRINT}} "Size of resource table:", dword$(dw)
+{{Cl|IF...THEN|IF}} (rsrc = 0) {{Cl|OR (boolean)|OR}} (dw = 0) {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+SectionTable = coff + 20 + SizeOfOptionalHeader
+{{Cl|PRINT}} "section", "va", "file ptr"
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+ {{Cl|GET}} 1, 1 + SectionTable + (40 * w), nam
+ {{Cl|GET}} 1, 1 + SectionTable + 12 + (40 * w), ul
+ {{Cl|GET}} 1, 1 + SectionTable + 20 + (40 * w), dw
+ {{Cl|PRINT}} nam, dword$(ul), dword$(dw)
+ secsva(w) = ul
+ secsfp(w) = dw
+{{Cl|NEXT}}
+{{Cl|PRINT}}
+{{Cl|PRINT}} "Proceed? ";
+DO
+ k = {{Cl|LCASE$}}({{Cl|INKEY$}})
+ {{Cl|IF...THEN|IF}} k = "n" {{Cl|THEN}} {{Cl|PRINT}} k: {{Cl|END}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k = "y"
+{{Cl|PRINT}} k
+processtable rva2fp(rsrc), rva2fp(rsrc), 0
+{{Cl|SYSTEM}}
+
+{{Cl|SUB}} processtable (bs {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, level {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} numnamest8 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} dat {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} siz {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} so {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} sc {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} numnames {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} numids {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} ln {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} y {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|GET}} 1, 1 + addr + 12, numnames
+{{Cl|GET}} 1, 1 + addr + 14, numids
+{{Cl|DIM}} nams(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} namsrva(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ids(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} idsrva(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+'get named entries
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numnames - 1
+ {{Cl|GET}} 1, 1 + addr + 16 + (x * 8), dw
+ dw = rva2fp(dw)
+ {{Cl|GET}} 1, 1 + dw, ln
+ {{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} ln - 1
+  {{Cl|GET}} 1, , w
+  {{Cl|SELECT CASE}} w
+   {{Cl|CASE}} {{Cl|&amp;H}}20 {{Cl|TO}} {{Cl|&amp;H}}7E: nams(x) = nams(x) + {{Cl|CHR$}}(w)
+   {{Cl|CASE ELSE}}: nams(x) = nams(x) + {{Cl|CHR$}}({{Cl|&amp;H}}1A)
+  {{Cl|END SELECT}}
+  {{Cl|IF...THEN|IF}} y = 68 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+ {{Cl|NEXT}}
+ {{Cl|GET}} 1, 1 + addr + 16 + 4 + (x * 8), namsrva(x)
+{{Cl|NEXT}}
+
+'get numbered entries:
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+ {{Cl|GET}} 1, 1 + addr + 16 + numnamest8 + (x * 8), ids(x)
+ {{Cl|GET}} 1, 1 + addr + 16 + 4 + numnamest8 + (x * 8), idsrva(x)
+{{Cl|NEXT}}
+
+'display:
+{{Cl|VIEW PRINT}}
+DO
+ {{Cl|CLS}} 0 'qb64 bug? not locating to 1,1?
+ {{Cl|LOCATE}} 1, 1
+ {{Cl|SELECT CASE}} level
+  {{Cl|CASE}} 0: {{Cl|PRINT}} "1st level - Type";
+  {{Cl|CASE}} 1: {{Cl|PRINT}} "2nd level - Name";
+  {{Cl|CASE}} 2: {{Cl|PRINT}} "3rd level - Language";
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|LTRIM$}}({{Cl|STR$}}(level)) + "th level";
+ {{Cl|END SELECT}}
+ {{Cl|PRINT}} "", "file ptr: "; dword$(addr); ". Press 'D' to dump."
+ {{Cl|PRINT}} numnames; "names in this level, in this branch."
+ {{Cl|PRINT}} numids; "IDs in this level, in this branch."
+ {{Cl|IF...THEN|IF}} (numnames {{Cl|OR (boolean)|OR}} numids) = 0 {{Cl|THEN}}
+  {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+   {{Cl|PRINT}} "Press any key to go up one level."
+   {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+   {{Cl|EXIT SUB}}
+  {{Cl|ELSE}}
+   {{Cl|END}}
+  {{Cl|END IF}}
+ {{Cl|END IF}}
+ {{Cl|PRINT}} "names are unicode. For simplicity, non ASCII chars will be shown as " + {{Cl|CHR$}}({{Cl|&amp;H}}1A) + "."
+ {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+  {{Cl|PRINT}} "BKSP or ESC to go up one level."
+ {{Cl|ELSE}}
+  {{Cl|PRINT}} "BKSP or ESC to exit."
+ {{Cl|END IF}}
+ {{Cl|PRINT}} "UP, DOWN, PGUP, PGDN, HOME, {{Cl|END}} to navigate list."
+ {{Cl|PRINT}} "ENTER to select."
+ {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+ {{Cl|LOCATE}} 22, 1
+ {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+ sc = 0
+ so = 0
+ DO
+  {{Cl|COLOR}} 7, 0
+  {{Cl|LOCATE}} 8, 1: {{Cl|PRINT}} dword$(sc)
+  {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 11
+   {{Cl|LOCATE}} 10 + x, 1
+   {{Cl|IF...THEN|IF}} x + so = sc {{Cl|THEN}} {{Cl|COLOR}} 15, 1 {{Cl|ELSE}} {{Cl|COLOR}} 7, 0
+   {{Cl|IF...THEN|IF}} (x + so) &lt; numnames {{Cl|THEN}}
+    {{Cl|PRINT}} nams(x + so); {{Cl|SPACE$}}(70 - {{Cl|LEN}}(nams(x + so)));
+    {{Cl|PRINT}} dword$(bs + (namsrva(x + so) {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;));
+    {{Cl|COLOR}} 7, 0
+    {{Cl|LOCATE}} 7, 18
+    {{Cl|IF...THEN|IF}} namsrva(x + so) {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     {{Cl|PRINT}} "(descend)";
+    {{Cl|ELSE}}
+     {{Cl|PRINT}} "(extract)";
+    {{Cl|END IF}}
+   {{Cl|ELSEIF}} (x + so) &lt; (numnames + numids) {{Cl|THEN}}
+    {{Cl|PRINT}} "ID: " + dword$(ids(x + so - numnames)); {{Cl|SPACE$}}(56);
+    {{Cl|PRINT}} dword$(bs + (idsrva(x + so - numnames)));
+    {{Cl|COLOR}} 7, 0
+    {{Cl|LOCATE}} 7, 18
+    {{Cl|IF...THEN|IF}} idsrva(x + (so - numnames)) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     {{Cl|PRINT}} "(descend)";
+    {{Cl|ELSE}}
+     {{Cl|PRINT}} "(extract)";
+    {{Cl|END IF}}
+   {{Cl|ELSE}}
+    {{Cl|PRINT}} {{Cl|SPACE$}}(80);
+   {{Cl|END IF}}
+  {{Cl|NEXT}}
+  DO
+   k = {{Cl|INKEY$}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(k)
+  {{Cl|SELECT CASE}} k
+   {{Cl|CASE}} "d", "D"
+    dump addr
+    {{Cl|EXIT DO}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4800) 'up
+    {{Cl|IF...THEN|IF}} sc > 0 {{Cl|THEN}}
+     sc = sc - 1
+     {{Cl|IF...THEN|IF}} sc &lt; so {{Cl|THEN}} so = sc
+    {{Cl|END IF}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5000) 'down
+    {{Cl|IF...THEN|IF}} sc &lt; (numnames + numids - 1) {{Cl|THEN}}
+     sc = sc + 1
+     {{Cl|IF...THEN|IF}} sc > (so + 11) {{Cl|THEN}}
+      so = sc - 11
+      {{Cl|IF...THEN|IF}} so > sc {{Cl|THEN}} so = 0 'unsigned
+     {{Cl|END IF}}
+    {{Cl|END IF}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4700) 'home
+    sc = 0
+    so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4F00) 'end
+    sc = numnames + numids - 1
+    so = sc - 11
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4900) 'pgup
+    sc = sc - 12
+    so = so - 12
+    {{Cl|IF...THEN|IF}} sc &lt; 0 {{Cl|THEN}} sc = 0
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5100) 'pgdn
+    sc = sc + 12
+    {{Cl|IF...THEN|IF}} sc > (numnames + numids - 1) {{Cl|THEN}} sc = numnames + numids - 1
+    so = sc - 11
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}8), {{Cl|CHR$}}({{Cl|&amp;H}}1B) 'bksp, esc
+    {{Cl|EXIT SUB}}
+   {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}D) 'enter
+    {{Cl|IF...THEN|IF}} sc &lt; numnames {{Cl|THEN}}
+     dw = namsrva(sc)
+    {{Cl|ELSE}}
+     dw = idsrva(sc - numnames)
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     'the spec says its an rfa, but it seems to be an offset in the section/table
+     processtable bs, bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;), level + 1
+     {{Cl|EXIT DO}}
+    {{Cl|ELSE}}
+     'the spec says its an rfa, but it seems to be an offset in the section/table
+     dw = bs + dw
+     {{Cl|GET}} 1, 1 + dw, dat
+     {{Cl|GET}} 1, 1 + 4 + dw, siz
+     {{Cl|LOCATE}} 24, 1
+     {{Cl|PRINT}} dword$(siz) + " bytes.";
+     {{Cl|LOCATE}} 23, 1
+     {{Cl|LINE INPUT}} "(leave blank to cancel) Output file? "; k
+     {{Cl|IF...THEN|IF}} {{Cl|LEN}}(k) {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(k) {{Cl|THEN}}
+       {{Cl|PRINT}}
+       {{Cl|PRINT}} "File already exists.";
+      {{Cl|ELSE}}
+       {{Cl|OPEN}} k {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} 2
+       {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+       {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+        {{Cl|GET}} 1, , b
+        {{Cl|PUT}} 2, , b
+       {{Cl|NEXT}}
+       {{Cl|CLOSE}} 2
+       {{Cl|PRINT}}
+       {{Cl|PRINT}} "Done.";
+      {{Cl|END IF}}
+      {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+     {{Cl|END IF}}
+     {{Cl|EXIT DO}}
+    {{Cl|END IF}}
+  {{Cl|END SELECT}}
+ {{Cl|LOOP}}
+{{Cl|LOOP}}
+{{Cl|END SUB}}
+
+{{Cl|FUNCTION}} word$ (w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(w))
+word = "0x" + {{Cl|STRING$}}(4 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} dword$ (dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+dword = "0x" + {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} rva2fp~&amp; (rva {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+ {{Cl|IF...THEN|IF}} rva &lt; secsva(w) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}}
+w = w - 1
+{{Cl|IF...THEN|IF}} w > NumberOfSections - 1 {{Cl|THEN}} {{Cl|PRINT}} dword$(rva), w: {{Cl|SLEEP}}
+rva2fp = rva + (secsfp(w) - secsva(w))
+{{Cl|END FUNCTION}}
+
+{{Cl|SUB}} dump (addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|VIEW PRINT}}
+ul = addr
+DO
+ {{Cl|COLOR}} 7, 0
+ {{Cl|CLS}} 0
+ {{Cl|SEEK}} 1, 1 + ul
+ {{Cl|FOR...NEXT|FOR}} dw = ul {{Cl|TO}} (ul {{Cl|AND}} {{Cl|&amp;H}}FFFFFFF0) + {{Cl|&amp;H}}15F
+  {{Cl|IF...THEN|IF}} (1 + ul) > {{Cl|LOF}}(1) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|GET}} 1, , b
+  {{Cl|IF...THEN|IF}} (dw {{Cl|AND}} {{Cl|&amp;H}}F) = 0 {{Cl|THEN}}
+   t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+   {{Cl|COLOR}} 7
+   {{Cl|PRINT}} {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t; {{Cl|SPACE$}}(2);
+  {{Cl|END IF}}
+  {{Cl|IF...THEN|IF}} (dw {{Cl|AND}} {{Cl|&amp;H}}4) {{Cl|THEN}} {{Cl|COLOR}} 3 {{Cl|ELSE}} {{Cl|COLOR}} 2
+  {{Cl|LOCATE}} , 14 + ((dw {{Cl|AND}} {{Cl|&amp;H}}F) * 3)
+  t = {{Cl|LCASE$}}({{Cl|HEX$}}(b))
+  {{Cl|IF...THEN|IF}} b &lt; {{Cl|&amp;H}}10 {{Cl|THEN}} {{Cl|PRINT}} "0" + t; {{Cl|ELSE}} {{Cl|PRINT}} t;
+  {{Cl|LOCATE}} , 65 + (dw {{Cl|AND}} {{Cl|&amp;H}}F)
+  {{Cl|SELECT CASE}} b
+   {{Cl|CASE}} 7, 9 {{Cl|TO}} {{Cl|&amp;H}}D, {{Cl|&amp;H}}1F: {{Cl|PRINT}} ".";
+   {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|CHR$}}(b);
+  {{Cl|END SELECT}}
+ {{Cl|NEXT}}
+ {{Cl|PRINT}}
+ {{Cl|COLOR}} 7
+ {{Cl|LINE INPUT}} "(leave blank to cancel) Address: 0x"; t
+ {{Cl|IF...THEN|IF}} {{Cl|LTRIM$}}(t) = "" {{Cl|THEN}} {{Cl|EXIT DO}}
+ ul = {{Cl|VAL}}("&amp;h" + t + "&amp;") {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF
+{{Cl|LOOP}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Public domain October 2011 by Michael Calkins based on the Microsoft PE and COFF spec, Revision 8.2 - September 21, 2010}}
+
+
+:If you open ''c:\windows\system32\shell32.dll'', and save the first item (descend the first entry, then the first entry of the next level, etc), it's an .AVI file of a flashlight searching a folder. If you go down the first entry of the first level, but the last entry of the second level, it's an .AVI of a globe throwing a page at a folder. Save both files as AVI to view the video.
+
+:I wouldn't consider the program finished. There's some double checking, tweaking, and optimizing that could be done. For example, the dump sub could probably use an extra variable, and could probably use some increased functionality. I wrote it to help me debug the part that reads the resource tables. As I say in the comments, the part that gives the address of either the "leaf" or the next table lower seems to be relative to the start of the main table or section, not an actual RVA. 
+
+:With things like:
+
+{{WhiteStart}}                GET 1, 1 + coff + 20 + 28 + (-4 AND pe32plus), ImageBase {{WhiteEnd}}
+
+:That could obviously be optimized by combining the 1 + 20 + 28. By leaving it uncombined, though, it documents itself better in terms of helping the human reader match it up with the specification. 1 because QBASIC's GET/PUT/SEEK idiotically starts at 1 instead of 0. Coff because we want an offset from the start of the coff header, 20 to skip the 20 byte coff main header, 28 because that's the offset of ImageBase in the optional header, and (-4 AND pe32plus) because the offset is 24 if the Magic is PE32+. Either QB64 or GCC will probably optimize it anyway, I would think.
+
+:In the Section table, the name of the field is VirtualAddress, but the description seems to say that it is an RVA. My program assumes that it is an RVA. The rva2fp function finds which section a given RVA is in, and then uses the difference between the RVA and the file pointer for that section to turn the given RVA into a file pointer.
+
+:Regards, Michael Calkins
+
+
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
+
+==Revision 2==
+: I've made a few minor changes to the program. It will show you the first 400 bytes when you choose to export the data. Also, by moving the initialization of sc and so outside the loop, you will now come back to the correct entry upon ascending a level. I experimented with code to PSET the data, but it is commented out.
+{{CodeStart}} '' ''
+'october 2011, michael calkins
+'my code is public domain, but it's based on Microsoft's spec, so I'm not sure
+'what kind of patents or copyrights apply.
+'based on the Microsoft PE and COFF spec, Revision 8.2 - September 21, 2010
+'http://msdn.microsoft.com/en-us/windows/hardware/gg463119.aspx
+
+{{Cl|DIM}} nam {{Cl|AS}} {{Cl|STRING}} * 8
+{{Cl|DIM}} fil {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} coff {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} SectionTable {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ImageBase {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} rsrc {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} pe32plus {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} SizeOfOptionalHeader {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} {{Cl|SHARED}} NumberOfSections {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} NumberOfRvaAndSizes {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+{{Cl|CLS}}
+{{Cl|LINE INPUT}} "Name of the PE image to open? "; fil
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(fil) = 0 {{Cl|THEN}} {{Cl|PRINT}} "File not found.": {{Cl|END}}
+{{Cl|OPEN}} fil {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|READ}} {{Cl|AS}} 1
+{{Cl|GET}} 1, 1 + 0, w
+{{Cl|IF...THEN|IF}} w &lt;> {{Cl|&amp;H}}5A4D {{Cl|THEN}} {{Cl|PRINT}} "No MZ signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + {{Cl|&amp;H}}3C, dw
+coff = dw + 4
+{{Cl|GET}} 1, dw + 1, dw
+{{Cl|IF...THEN|IF}} dw &lt;> {{Cl|&amp;H}}4550&amp; {{Cl|THEN}} {{Cl|PRINT}} "No PE signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + coff + 2, NumberOfSections
+{{Cl|IF...THEN|IF}} NumberOfSections = 0 {{Cl|THEN}} {{Cl|PRINT}} "No sections.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfSections:"; NumberOfSections
+{{Cl|DIM}} {{Cl|SHARED}} secsva(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} {{Cl|SHARED}} secsfp(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|GET}} 1, 1 + coff + 16, SizeOfOptionalHeader
+{{Cl|IF...THEN|IF}} SizeOfOptionalHeader = 0 {{Cl|THEN}} {{Cl|PRINT}} "No optional header.": {{Cl|END}}
+{{Cl|PRINT}} "SizeOfOptionalHeader:", {{Cl|SPACE$}}(4); word$(SizeOfOptionalHeader)
+{{Cl|GET}} 1, 1 + coff + 20, w
+{{Cl|SELECT CASE}} w
+ {{Cl|CASE}} {{Cl|&amp;H}}10B: pe32plus = 0: {{Cl|PRINT}} "PE32"
+ {{Cl|CASE}} {{Cl|&amp;H}}20B: pe32plus = -1: {{Cl|PRINT}} "PE32+"
+ {{Cl|CASE ELSE}}: {{Cl|PRINT}} "Unknown Magic.": {{Cl|END}}
+{{Cl|END SELECT}}
+{{Cl|GET}} 1, 1 + coff + 20 + 28 + (-4 {{Cl|AND}} pe32plus), ImageBase
+{{Cl|PRINT}} "ImageBase:", "", dword$(ImageBase)
+{{Cl|GET}} 1, 1 + coff + 20 + 92 + (16 {{Cl|AND}} pe32plus), NumberOfRvaAndSizes
+{{Cl|IF...THEN|IF}} NumberOfRvaAndSizes &lt; 3 {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfRvaAndSizes:"; NumberOfRvaAndSizes
+{{Cl|GET}} 1, 1 + coff + 20 + 112 + (16 {{Cl|AND}} pe32plus), rsrc
+{{Cl|PRINT}} "Rva of resource table:", dword$(rsrc)
+{{Cl|GET}} 1, 1 + coff + 20 + 4 + 112 + (16 {{Cl|AND}} pe32plus), dw
+{{Cl|PRINT}} "Size of resource table:", dword$(dw)
+{{Cl|IF...THEN|IF}} (rsrc = 0) {{Cl|OR}} (dw = 0) {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+SectionTable = coff + 20 + SizeOfOptionalHeader
+{{Cl|PRINT}} "section", "va", "file ptr"
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+ {{Cl|GET}} 1, 1 + SectionTable + (40 * w), nam
+ {{Cl|GET}} 1, 1 + SectionTable + 12 + (40 * w), ul
+ {{Cl|GET}} 1, 1 + SectionTable + 20 + (40 * w), dw
+ {{Cl|PRINT}} nam, dword$(ul), dword$(dw)
+ secsva(w) = ul
+ secsfp(w) = dw
+{{Cl|NEXT}}
+{{Cl|PRINT}}
+{{Cl|PRINT}} "Proceed? ";
+DO
+ k = {{Cl|LCASE$}}({{Cl|INKEY$}})
+ {{Cl|IF...THEN|IF}} k = "n" {{Cl|THEN}} {{Cl|PRINT}} k: {{Cl|END}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k = "y"
+{{Cl|PRINT}} k
+processtable rva2fp(rsrc), rva2fp(rsrc), 0
+{{Cl|SYSTEM}}
+
+{{Cl|SUB}} processtable (bs {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, level {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} numnamest8 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} dat {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} siz {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} so {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} sc {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} numnames {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} numids {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} ln {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} y {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|GET}} 1, 1 + addr + 12, numnames
+{{Cl|GET}} 1, 1 + addr + 14, numids
+{{Cl|DIM}} nams(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} namsrva(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ids(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} idsrva(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+'get named entries
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numnames - 1
+ {{Cl|GET}} 1, 1 + addr + 16 + (x * 8), dw
+ dw = rva2fp(dw)
+ {{Cl|GET}} 1, 1 + dw, ln
+ {{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} ln - 1
+  {{Cl|GET}} 1, , w
+  {{Cl|SELECT CASE}} w
+   {{Cl|CASE}} {{Cl|&amp;H}}20 {{Cl|TO}} {{Cl|&amp;H}}7E: nams(x) = nams(x) + {{Cl|CHR$}}(w)
+   {{Cl|CASE ELSE}}: nams(x) = nams(x) + {{Cl|CHR$}}({{Cl|&amp;H}}1A)
+  {{Cl|END SELECT}}
+  {{Cl|IF...THEN|IF}} y = 68 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+ {{Cl|NEXT}}
+ {{Cl|GET}} 1, 1 + addr + 16 + 4 + (x * 8), namsrva(x)
+{{Cl|NEXT}}
+
+'get numbered entries:
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+ {{Cl|GET}} 1, 1 + addr + 16 + numnamest8 + (x * 8), ids(x)
+ {{Cl|GET}} 1, 1 + addr + 16 + 4 + numnamest8 + (x * 8), idsrva(x)
+{{Cl|NEXT}}
+
+'display:
+{{Cl|VIEW PRINT}}
+sc = 0
+so = 0
+DO
+ {{Cl|CLS}} 0 'qb64 bug? not locating to 1,1?
+ {{Cl|LOCATE}} 1, 1
+ {{Cl|SELECT CASE}} level
+  {{Cl|CASE}} 0: {{Cl|PRINT}} "1st level - Type";
+  {{Cl|CASE}} 1: {{Cl|PRINT}} "2nd level - Name";
+  {{Cl|CASE}} 2: {{Cl|PRINT}} "3rd level - Language";
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|LTRIM$}}({{Cl|STR$}}(level)) + "th level";
+ {{Cl|END SELECT}}
+ {{Cl|PRINT}} "", "file ptr: "; dword$(addr); ". Press 'D' to dump."
+ {{Cl|PRINT}} numnames; "names in this level, in this branch."
+ {{Cl|PRINT}} numids; "IDs in this level, in this branch."
+ {{Cl|IF...THEN|IF}} (numnames {{Cl|OR (boolean)|OR}} numids) = 0 {{Cl|THEN}}
+  {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+   {{Cl|PRINT}} "Press any key to go up one level."
+   {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+   {{Cl|EXIT SUB}}
+  {{Cl|ELSE}}
+   {{Cl|END}}
+  {{Cl|END IF}}
+ {{Cl|END IF}}
+ {{Cl|PRINT}} "names are unicode. For simplicity, non ASCII chars will be shown as " + {{Cl|CHR$}}({{Cl|&amp;H}}1A) + "."
+ {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+  {{Cl|PRINT}} "BKSP or ESC to go up one level."
+ {{Cl|ELSE}}
+  {{Cl|PRINT}} "BKSP or ESC to exit."
+ {{Cl|END IF}}
+ {{Cl|PRINT}} "UP, DOWN, PGUP, PGDN, HOME, {{Cl|END}} to navigate list."
+ {{Cl|PRINT}} "ENTER to select."
+ {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+ {{Cl|LOCATE}} 22, 1
+ {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+ DO
+  {{Cl|COLOR}} 7, 0
+  {{Cl|LOCATE}} 8, 1: {{Cl|PRINT}} dword$(sc)
+  {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 11
+   {{Cl|LOCATE}} 10 + x, 1
+   {{Cl|IF...THEN|IF}} x + so = sc {{Cl|THEN}} {{Cl|COLOR}} 15, 1 {{Cl|ELSE}} {{Cl|COLOR}} 7, 0
+   {{Cl|IF...THEN|IF}} (x + so) &lt; numnames {{Cl|THEN}}
+    {{Cl|PRINT}} nams(x + so); {{Cl|SPACE$}}(70 - {{Cl|LEN}}(nams(x + so)));
+    {{Cl|PRINT}} dword$(bs + (namsrva(x + so) {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;));
+    {{Cl|COLOR}} 7, 0
+    {{Cl|LOCATE}} 7, 18
+    {{Cl|IF...THEN|IF}} namsrva(x + so) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     {{Cl|PRINT}} "(descend)";
+    {{Cl|ELSE}}
+     {{Cl|PRINT}} "(extract)";
+    {{Cl|END IF}}
+   {{Cl|ELSEIF}} (x + so) &lt; (numnames + numids) {{Cl|THEN}}
+    {{Cl|PRINT}} "ID: " + dword$(ids(x + so - numnames)); {{Cl|SPACE$}}(56);
+    {{Cl|PRINT}} dword$(bs + (idsrva(x + so - numnames)));
+    {{Cl|COLOR}} 7, 0
+    {{Cl|LOCATE}} 7, 18
+    {{Cl|IF...THEN|IF}} idsrva(x + (so - numnames)) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     {{Cl|PRINT}} "(descend)";
+    {{Cl|ELSE}}
+     {{Cl|PRINT}} "(extract)";
+    {{Cl|END IF}}
+   {{Cl|ELSE}}
+    {{Cl|PRINT}} {{Cl|SPACE$}}(80);
+   {{Cl|END IF}}
+  {{Cl|NEXT}}
+  DO
+   k = {{Cl|INKEY$}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(k)
+  {{Cl|SELECT CASE}} k
+   {{Cl|CASE}} "d", "D"
+    dump addr
+    {{Cl|EXIT DO}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4800) 'up
+    {{Cl|IF...THEN|IF}} sc > 0 {{Cl|THEN}}
+     sc = sc - 1
+     {{Cl|IF...THEN|IF}} sc &lt; so {{Cl|THEN}} so = sc
+    {{Cl|END IF}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5000) 'down
+    {{Cl|IF...THEN|IF}} sc &lt; (numnames + numids - 1) {{Cl|THEN}}
+     sc = sc + 1
+     {{Cl|IF...THEN|IF}} sc > (so + 11) {{Cl|THEN}}
+      so = sc - 11
+      {{Cl|IF...THEN|IF}} so > sc {{Cl|THEN}} so = 0 'unsigned
+     {{Cl|END IF}}
+    {{Cl|END IF}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4700) 'home
+    sc = 0
+    so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4F00) 'end
+    sc = numnames + numids - 1
+    so = sc - 11
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4900) 'pgup
+    sc = sc - 12
+    so = so - 12
+    {{Cl|IF...THEN|IF}} sc &lt; 0 {{Cl|THEN}} sc = 0
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5100) 'pgdn
+    sc = sc + 12
+    {{Cl|IF...THEN|IF}} sc > (numnames + numids - 1) {{Cl|THEN}} sc = numnames + numids - 1
+    so = sc - 11
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}8), {{Cl|CHR$}}({{Cl|&amp;H}}1B) 'bksp, esc
+    {{Cl|EXIT SUB}}
+   {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}D) 'enter
+    {{Cl|IF...THEN|IF}} sc &lt; numnames {{Cl|THEN}}
+     dw = namsrva(sc)
+    {{Cl|ELSE}}
+     dw = idsrva(sc - numnames)
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     'the spec says its an rva, but it seems to be an offset in the section/table
+     processtable bs, bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;), level + 1
+     {{Cl|EXIT DO}}
+    {{Cl|ELSE}}
+     'the spec says its an rva, but it seems to be an offset in the section/table
+     dw = bs + dw
+     {{Cl|GET}} 1, 1 + dw, dat
+     {{Cl|GET}} 1, 1 + 4 + dw, siz
+     {{Cl|CLS}}
+     {{Cl|LOCATE}} 1, 1 'qb64 seems to default to line 2
+     {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+     {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+      {{Cl|IF...THEN|IF}} dw > 400 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+      {{Cl|GET}} 1, , b
+      {{Cl|SELECT CASE}} b
+       {{Cl|CASE}} 7, 9 {{Cl|TO}} {{Cl|&amp;H}}D, {{Cl|&amp;H}}1F: {{Cl|PRINT}} ".";
+       {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|CHR$}}(b);
+      {{Cl|END SELECT}}
+     {{Cl|NEXT}}
+     {{Cl|LOCATE}} 24, 1
+     {{Cl|PRINT}} dword$(siz) + " bytes.";
+     {{Cl|LOCATE}} 23, 1
+     {{Cl|LINE INPUT}} "(leave blank to cancel) Output file? "; k
+
+     '     {{Cl|IF...THEN|IF}} k = "v" {{Cl|THEN}}
+     '      {{Cl|INPUT}} "width in pixels"; w
+     '      {{Cl|SCREEN}} 13
+     '      {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+     '      {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+     '       {{Cl|IF...THEN|IF}} dw \ w >= 200 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+     '       {{Cl|GET}} 1, , b
+     '      {{Cl|PSET}} (dw {{Cl|MOD}} w, dw \ w), b
+     '      {{Cl|NEXT}}
+     '      {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+     '      {{Cl|SCREEN}} 0
+     '      {{Cl|WIDTH}} 80, 25
+     '      {{Cl|VIEW PRINT}}
+     '      {{Cl|CLS}}
+     '     {{Cl|END IF}}
+
+     {{Cl|IF...THEN|IF}} {{Cl|LEN}}(k) {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(k) {{Cl|THEN}}
+       {{Cl|PRINT}}
+       {{Cl|PRINT}} "File already exists.";
+      {{Cl|ELSE}}
+       {{Cl|OPEN}} k {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} 2
+       {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+       {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+        {{Cl|GET}} 1, , b
+        {{Cl|PUT}} 2, , b
+       {{Cl|NEXT}}
+       {{Cl|CLOSE}} 2
+       {{Cl|PRINT}}
+       {{Cl|PRINT}} "Done.";
+      {{Cl|END IF}}
+      {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+     {{Cl|END IF}}
+     {{Cl|EXIT DO}}
+    {{Cl|END IF}}
+  {{Cl|END SELECT}}
+ {{Cl|LOOP}}
+{{Cl|LOOP}}
+{{Cl|END SUB}}
+
+{{Cl|FUNCTION}} word$ (w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(w))
+word = "0x" + {{Cl|STRING$}}(4 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} dword$ (dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+dword = "0x" + {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} rva2fp~&amp; (rva {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+ {{Cl|IF...THEN|IF}} rva &lt; secsva(w) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}}
+w = w - 1
+{{Cl|IF...THEN|IF}} w > NumberOfSections - 1 {{Cl|THEN}} {{Cl|PRINT}} dword$(rva), w: {{Cl|SLEEP}}
+rva2fp = rva + (secsfp(w) - secsva(w))
+{{Cl|END FUNCTION}}
+
+{{Cl|SUB}} dump (addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|VIEW PRINT}}
+ul = addr
+DO
+ {{Cl|COLOR}} 7, 0
+ {{Cl|CLS}} 0
+ {{Cl|SEEK}} 1, 1 + ul
+ {{Cl|FOR...NEXT|FOR}} dw = ul {{Cl|TO}} (ul {{Cl|AND}} {{Cl|&amp;H}}FFFFFFF0) + {{Cl|&amp;H}}15F
+  {{Cl|IF...THEN|IF}} (1 + ul) > {{Cl|LOF}}(1) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|GET}} 1, , b
+  {{Cl|IF...THEN|IF}} (dw {{Cl|AND}} {{Cl|&amp;H}}F) = 0 {{Cl|THEN}}
+   t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+   {{Cl|COLOR}} 7
+   {{Cl|PRINT}} {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t; {{Cl|SPACE$}}(2);
+  {{Cl|END IF}}
+  {{Cl|IF...THEN|IF}} (dw {{Cl|AND}} {{Cl|&amp;H}}4) {{Cl|THEN}} {{Cl|COLOR}} 3 {{Cl|ELSE}} {{Cl|COLOR}} 2
+  {{Cl|LOCATE}} , 14 + ((dw {{Cl|AND}} {{Cl|&amp;H}}F) * 3)
+  t = {{Cl|LCASE$}}({{Cl|HEX$}}(b))
+  {{Cl|IF...THEN|IF}} b &lt; {{Cl|&amp;H}}10 {{Cl|THEN}} {{Cl|PRINT}} "0" + t; {{Cl|ELSE}} {{Cl|PRINT}} t;
+  {{Cl|LOCATE}} , 65 + (dw {{Cl|AND}} {{Cl|&amp;H}}F)
+  {{Cl|SELECT CASE}} b
+   {{Cl|CASE}} 7, 9 {{Cl|TO}} {{Cl|&amp;H}}D, {{Cl|&amp;H}}1F: {{Cl|PRINT}} ".";
+   {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|CHR$}}(b);
+  {{Cl|END SELECT}}
+ {{Cl|NEXT}}
+ {{Cl|PRINT}}
+ {{Cl|COLOR}} 7
+ {{Cl|LINE INPUT}} "(leave blank to cancel) Address: 0x"; t
+ {{Cl|IF...THEN|IF}} {{Cl|LTRIM$}}(t) = "" {{Cl|THEN}} {{Cl|EXIT DO}}
+ ul = {{Cl|VAL}}("&amp;h" + t + "&amp;") {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF
+{{Cl|LOOP}}
+{{Cl|END SUB}}
+{{CodeEnd}}
+
+: The .ICO format:
+
+&lt;center>http://en.wikipedia.org/wiki/ICO_%28file_format%29
+
+http://www.iconolog.org/info/icoFormat.html
+
+http://en.wikipedia.org/wiki/BMP_file_format &lt;/center>
+
+
+:Note that the BMP file header is excluded, but the DIB information header is included. My observations from using Resource Hacker on ''c:\windows\notepad.exe'':
+
+:I've downloaded Resource Hacker. Note that if you export the first icon of \windows\notepad.exe as a binary file, it is identical to the file exported from my program (verifiable with fc /b). However, if you export it as an icon file, Resource Hacker adds 22 bytes to the beginning of it, a 6 byte ICONDIR structure, and a 16 byte ICONDIRENTRY structure. Resource Hacker is getting this information from the Icon Group resource.
+
+:If you export the Icon Group resource as a binary file, you will see that it starts with an ICONDIR structure specifying 9 images. It is followed by an array of 9 structures, 14 bytes each. The first 12 bytes are the same as an ICONDIRENTRY structure. (with a 2x Height difference). The last element, which would be a dword offset in a ICONDIRENTRY structure is instead a word index identifying the particular icon.
+
+:You can see what I mean: Use Resource Hacker to export the Icon Group as a binary file, named rhig.bin:
+
+{{WhiteStart}}                          edit /78 rhig.bin {{WhiteEnd}}
+
+: Delete the first 6 bytes, and save it as rhigmod.bin.
+
+{{WhiteStart}}                          edit /14 rhigmod.bin {{WhiteEnd}}
+
+: and you can clearly see the array.
+
+: Note that, according to:
+
+&lt;center>http://www.iconolog.org/info/icoFormat.html&lt;/center>
+
+: There is supposed to be a 2x Height difference between the ICONDIRENTRY structure in the icon file, and the DIB header within the icon file, with the DIB header having 2x the Height. However, when Resource Hacker exported the Icon file, it put 2x the Height in the ICONDIRENTRY structure also, doubling it from the Icon Group data. Icons seem to be Type ID 0x3, and Icon Groups seem to be Type ID 0xe. This seems consistent with:
+
+&lt;center>http://msdn.microsoft.com/en-us/library/ms648009(v=VS.85).aspx&lt;/center>
+
+: I'll probably write some code in the next day or two to automate the process of extracting icons from a PE. My observations would need to be double checked before being relied upon. (as always)
+
+:Regards, Michael Calkins
+
+
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
+
+==Revision 3==
+: The addresses of the strings were also offsets from the start of the main table. So now, it should correctly display the names of named entries. It now displays the names of known Type IDs. It can now accept the PE file name as a command line parameter, so that you can press up, enter, from the cmd prompt to restart it without having to type the name again.
+
+:I've moved the first horizontal line down 1 line. There is a minor optimization in that there is one less call to rva2fp.
+{{CodeStart}} '' ''
+'revision 20120316, michael calkins
+'october 2011, michael calkins
+'my code is public domain, but it's based on Microsoft's spec, so I'm not sure
+'what kind of patents or copyrights apply.
+'based on the Microsoft PE and COFF spec, Revision 8.2 - September 21, 2010
+'http://msdn.microsoft.com/en-us/windows/hardware/gg463119.aspx
+
+'bug fixes on 2012 03 16:
+' changed NumberOfRvaAndSizes to an _unsigned long
+' added {{Cl|_CONTROLCHR}} OFF to the dump sub, and replaced the select case
+
+{{Cl|DIM}} nam {{Cl|AS}} {{Cl|STRING}} * 8
+{{Cl|DIM}} fil {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} coff {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} SectionTable {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ImageBase {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} rsrc {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} pe32plus {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} SizeOfOptionalHeader {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} {{Cl|SHARED}} NumberOfSections {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} NumberOfRvaAndSizes {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+{{Cl|CLS}}
+fil = {{Cl|COMMAND$}}
+{{Cl|IF...THEN|IF}} {{Cl|LEN}}(fil) = 0 {{Cl|THEN}} {{Cl|LINE INPUT}} "Name of the PE image to open? "; fil
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(fil) = 0 {{Cl|THEN}} {{Cl|PRINT}} "File not found.": {{Cl|END}}
+{{Cl|OPEN}} fil {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|READ}} {{Cl|AS}} 1
+{{Cl|GET}} 1, 1 + 0, w
+{{Cl|IF...THEN|IF}} w &lt;> {{Cl|&amp;H}}5A4D {{Cl|THEN}} {{Cl|PRINT}} "No MZ signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + {{Cl|&amp;H}}3C, dw
+coff = dw + 4
+{{Cl|GET}} 1, dw + 1, dw
+{{Cl|IF...THEN|IF}} dw &lt;> {{Cl|&amp;H}}4550&amp; {{Cl|THEN}} {{Cl|PRINT}} "No PE signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + coff + 2, NumberOfSections
+{{Cl|IF...THEN|IF}} NumberOfSections = 0 {{Cl|THEN}} {{Cl|PRINT}} "No sections.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfSections:"; NumberOfSections
+{{Cl|DIM}} {{Cl|SHARED}} secsva(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} {{Cl|SHARED}} secsfp(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|GET}} 1, 1 + coff + 16, SizeOfOptionalHeader
+{{Cl|IF...THEN|IF}} SizeOfOptionalHeader = 0 {{Cl|THEN}} {{Cl|PRINT}} "No optional header.": {{Cl|END}}
+{{Cl|PRINT}} "SizeOfOptionalHeader:", {{Cl|SPACE$}}(4); word$(SizeOfOptionalHeader)
+{{Cl|GET}} 1, 1 + coff + 20, w
+{{Cl|SELECT CASE}} w
+ {{Cl|CASE}} {{Cl|&amp;H}}10B: pe32plus = 0: {{Cl|PRINT}} "PE32"
+ {{Cl|CASE}} {{Cl|&amp;H}}20B: pe32plus = -1: {{Cl|PRINT}} "PE32+"
+ {{Cl|CASE ELSE}}: {{Cl|PRINT}} "Unknown Magic.": {{Cl|END}}
+{{Cl|END SELECT}}
+{{Cl|GET}} 1, 1 + coff + 20 + 28 + (-4 {{Cl|AND (boolean)|AND}} pe32plus), ImageBase
+{{Cl|PRINT}} "ImageBase:", "", dword$(ImageBase)
+{{Cl|GET}} 1, 1 + coff + 20 + 92 + (16 {{Cl|AND (boolean)|AND}} pe32plus), NumberOfRvaAndSizes
+{{Cl|IF...THEN|IF}} NumberOfRvaAndSizes &lt; 3 {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfRvaAndSizes:"; NumberOfRvaAndSizes
+{{Cl|GET}} 1, 1 + coff + 20 + 112 + (16 {{Cl|AND (boolean)|AND}} pe32plus), rsrc
+{{Cl|PRINT}} "Rva of resource table:", dword$(rsrc)
+{{Cl|GET}} 1, 1 + coff + 20 + 4 + 112 + (16 {{Cl|AND (boolean)|AND}} pe32plus), dw
+{{Cl|PRINT}} "Size of resource table:", dword$(dw)
+{{Cl|IF...THEN|IF}} (rsrc = 0) {{Cl|OR (boolean)|OR}} (dw = 0) {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+SectionTable = coff + 20 + SizeOfOptionalHeader
+{{Cl|PRINT}} "section", "va", "file ptr"
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+ {{Cl|GET}} 1, 1 + SectionTable + (40 * w), nam
+ {{Cl|GET}} 1, 1 + SectionTable + 12 + (40 * w), ul
+ {{Cl|GET}} 1, 1 + SectionTable + 20 + (40 * w), dw
+ {{Cl|PRINT}} nam, dword$(ul), dword$(dw)
+ secsva(w) = ul
+ secsfp(w) = dw
+{{Cl|NEXT}}
+{{Cl|PRINT}}
+{{Cl|PRINT}} "Proceed? ";
+DO
+ k = {{Cl|LCASE$}}({{Cl|INKEY$}})
+ {{Cl|IF...THEN|IF}} k = "n" {{Cl|THEN}} {{Cl|PRINT}} k: {{Cl|END}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k = "y"
+{{Cl|PRINT}} k
+dw = rva2fp(rsrc)
+processtable dw, dw, 0
+{{Cl|SYSTEM}}
+
+{{Cl|SUB}} processtable (bs {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, level {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} numnamest8 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} dat {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} siz {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} so {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} sc {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} numnames {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} numids {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} ln {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} y {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|GET}} 1, 1 + addr + 12, numnames
+{{Cl|GET}} 1, 1 + addr + 14, numids
+{{Cl|DIM}} nams(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} namsrva(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ids(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} idsrva(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+'get named entries
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numnames - 1
+ {{Cl|GET}} 1, 1 + addr + 16 + (x * 8), dw
+ 'the spec says its an rva, but it seems to be an offset in the section/table
+ 'low 31 bits are an offset from bs
+ {{Cl|GET}} 1, 1 + bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF), ln
+ {{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} ln - 1
+  {{Cl|GET}} 1, , w
+  {{Cl|SELECT CASE}} w
+   {{Cl|CASE}} {{Cl|&amp;H}}20 {{Cl|TO}} {{Cl|&amp;H}}7E: nams(x) = nams(x) + {{Cl|CHR$}}(w)
+   {{Cl|CASE ELSE}}: nams(x) = nams(x) + {{Cl|CHR$}}({{Cl|&amp;H}}1A)
+  {{Cl|END SELECT}}
+  {{Cl|IF...THEN|IF}} y = 68 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+ {{Cl|NEXT}}
+ {{Cl|GET}} 1, 1 + addr + 16 + 4 + (x * 8), namsrva(x)
+{{Cl|NEXT}}
+
+'get numbered entries:
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+ {{Cl|GET}} 1, 1 + addr + 16 + numnamest8 + (x * 8), ids(x)
+ {{Cl|GET}} 1, 1 + addr + 16 + 4 + numnamest8 + (x * 8), idsrva(x)
+{{Cl|NEXT}}
+
+'display:
+{{Cl|VIEW PRINT}}
+sc = 0
+so = 0
+DO
+ {{Cl|CLS}} 0 'qb64 bug? not locating to 1,1?
+ {{Cl|LOCATE}} 1, 1
+ {{Cl|SELECT CASE}} level
+  {{Cl|CASE}} 0: {{Cl|PRINT}} "1st level - Type";
+  {{Cl|CASE}} 1: {{Cl|PRINT}} "2nd level - Name";
+  {{Cl|CASE}} 2: {{Cl|PRINT}} "3rd level - Language";
+  {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|LTRIM$}}({{Cl|STR$}}(level)) + "th level";
+ {{Cl|END SELECT}}
+ {{Cl|PRINT}} "", "file ptr: "; dword$(addr); ". Press 'D' to dump."
+ {{Cl|PRINT}} numnames; "names in this level, in this branch."
+ {{Cl|PRINT}} numids; "IDs in this level, in this branch."
+ {{Cl|IF...THEN|IF}} (numnames {{Cl|OR (boolean)|OR}} numids) = 0 {{Cl|THEN}}
+  {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+   {{Cl|PRINT}} "Press any key to go up one level."
+   {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+   {{Cl|EXIT SUB}}
+  {{Cl|ELSE}}
+   {{Cl|END}}
+  {{Cl|END IF}}
+ {{Cl|END IF}}
+ {{Cl|PRINT}} "names are unicode. For simplicity, non ASCII chars will be shown as " + {{Cl|CHR$}}({{Cl|&amp;H}}1A) + "."
+ {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+  {{Cl|PRINT}} "BKSP or ESC to go up one level."
+ {{Cl|ELSE}}
+  {{Cl|PRINT}} "BKSP or ESC to exit."
+ {{Cl|END IF}}
+ {{Cl|PRINT}} "UP, DOWN, PGUP, PGDN, HOME, {{Cl|END}} to navigate list."
+ {{Cl|PRINT}} "ENTER to select."
+ {{Cl|LOCATE}} 9, 1
+ {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+ {{Cl|LOCATE}} 22, 1
+ {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+ DO
+  {{Cl|COLOR}} 7, 0
+  {{Cl|LOCATE}} 8, 1: {{Cl|PRINT}} dword$(sc)
+  {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 11
+   {{Cl|LOCATE}} 10 + x, 1
+   {{Cl|IF...THEN|IF}} x + so = sc {{Cl|THEN}} {{Cl|COLOR}} 15, 1 {{Cl|ELSE}} {{Cl|COLOR}} 7, 0
+   {{Cl|IF...THEN|IF}} (x + so) &lt; numnames {{Cl|THEN}}
+    {{Cl|PRINT}} nams(x + so); {{Cl|SPACE$}}(70 - {{Cl|LEN}}(nams(x + so)));
+    {{Cl|PRINT}} dword$(bs + (namsrva(x + so) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;));
+    {{Cl|COLOR}} 7, 0
+    {{Cl|LOCATE}} 7, 18
+    {{Cl|IF...THEN|IF}} namsrva(x + so) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     {{Cl|PRINT}} "(descend)";
+    {{Cl|ELSE}}
+     {{Cl|PRINT}} "(extract)";
+    {{Cl|END IF}}
+   {{Cl|ELSEIF}} (x + so) &lt; (numnames + numids) {{Cl|THEN}}
+    {{Cl|PRINT}} "ID: " + dword$(ids(x + so - numnames));
+    {{Cl|IF...THEN|IF}} level = 0 {{Cl|THEN}}
+     {{Cl|PRINT}} " (RT_";
+     'derived from:
+     ' http://msdn.microsoft.com/en-us/library/ms648009(v=VS.85).aspx
+     {{Cl|SELECT CASE}} ids(x + so - numnames)
+      {{Cl|CASE}} 9: {{Cl|PRINT}} "ACCELERATOR";
+      {{Cl|CASE}} 21: {{Cl|PRINT}} "ANICURSOR";
+      {{Cl|CASE}} 22: {{Cl|PRINT}} "ANIICON";
+      {{Cl|CASE}} 2: {{Cl|PRINT}} "BITMAP";
+      {{Cl|CASE}} 1: {{Cl|PRINT}} "CURSOR";
+      {{Cl|CASE}} 5: {{Cl|PRINT}} "DIALOG";
+      {{Cl|CASE}} 17: {{Cl|PRINT}} "DLGINCLUDE";
+      {{Cl|CASE}} 8: {{Cl|PRINT}} "FONT";
+      {{Cl|CASE}} 7: {{Cl|PRINT}} "FONTDIR";
+      {{Cl|CASE}} 12: {{Cl|PRINT}} "GROUP_CURSOR";
+      {{Cl|CASE}} 14: {{Cl|PRINT}} "GROUP_ICON";
+      {{Cl|CASE}} 23: {{Cl|PRINT}} "HTML";
+      {{Cl|CASE}} 3: {{Cl|PRINT}} "ICON";
+      {{Cl|CASE}} 24: {{Cl|PRINT}} "MANIFEST";
+      {{Cl|CASE}} 4: {{Cl|PRINT}} "MENU";
+      {{Cl|CASE}} 11: {{Cl|PRINT}} "MESSAGETABLE";
+      {{Cl|CASE}} 19: {{Cl|PRINT}} "PLUGPLAY";
+      {{Cl|CASE}} 10: {{Cl|PRINT}} "RCDATA";
+      {{Cl|CASE}} 6: {{Cl|PRINT}} "{{Cl|STRING}}";
+      {{Cl|CASE}} 16: {{Cl|PRINT}} "VERSION";
+      {{Cl|CASE}} 20: {{Cl|PRINT}} "VXD";
+     {{Cl|END SELECT}}
+     {{Cl|PRINT}} ")";
+    {{Cl|END IF}}
+    {{Cl|PRINT}} {{Cl|SPACE$}}(71 - {{Cl|POS}}(0));
+    {{Cl|PRINT}} dword$(bs + (idsrva(x + so - numnames)));
+    {{Cl|COLOR}} 7, 0
+    {{Cl|LOCATE}} 7, 18
+    {{Cl|IF...THEN|IF}} idsrva(x + (so - numnames)) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     {{Cl|PRINT}} "(descend)";
+    {{Cl|ELSE}}
+     {{Cl|PRINT}} "(extract)";
+    {{Cl|END IF}}
+   {{Cl|ELSE}}
+    {{Cl|PRINT}} {{Cl|SPACE$}}(80);
+   {{Cl|END IF}}
+  {{Cl|NEXT}}
+  DO
+   k = {{Cl|INKEY$}}
+  {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(k)
+  {{Cl|SELECT CASE}} k
+   {{Cl|CASE}} "d", "D"
+    dump addr
+    {{Cl|EXIT DO}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4800) 'up
+    {{Cl|IF...THEN|IF}} sc > 0 {{Cl|THEN}}
+     sc = sc - 1
+     {{Cl|IF...THEN|IF}} sc &lt; so {{Cl|THEN}} so = sc
+    {{Cl|END IF}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5000) 'down
+    {{Cl|IF...THEN|IF}} sc &lt; (numnames + numids - 1) {{Cl|THEN}}
+     sc = sc + 1
+     {{Cl|IF...THEN|IF}} sc > (so + 11) {{Cl|THEN}}
+      so = sc - 11
+      {{Cl|IF...THEN|IF}} so > sc {{Cl|THEN}} so = 0 'unsigned
+     {{Cl|END IF}}
+    {{Cl|END IF}}
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4700) 'home
+    sc = 0
+    so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4F00) 'end
+    sc = numnames + numids - 1
+    so = sc - 11
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4900) 'pgup
+    sc = sc - 12
+    so = so - 12
+    {{Cl|IF...THEN|IF}} sc &lt; 0 {{Cl|THEN}} sc = 0
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5100) 'pgdn
+    sc = sc + 12
+    {{Cl|IF...THEN|IF}} sc > (numnames + numids - 1) {{Cl|THEN}} sc = numnames + numids - 1
+    so = sc - 11
+    {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+   {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}8), {{Cl|CHR$}}({{Cl|&amp;H}}1B) 'bksp, esc
+    {{Cl|EXIT SUB}}
+   {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}D) 'enter
+    {{Cl|IF...THEN|IF}} sc &lt; numnames {{Cl|THEN}}
+     dw = namsrva(sc)
+    {{Cl|ELSE}}
+     dw = idsrva(sc - numnames)
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+     'the spec says its an rva, but it seems to be an offset in the section/table
+     processtable bs, bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;), level + 1
+     {{Cl|EXIT DO}}
+    {{Cl|ELSE}}
+     'the spec says its an rva, but it seems to be an offset in the section/table
+     dw = bs + dw
+     {{Cl|GET}} 1, 1 + dw, dat
+     {{Cl|GET}} 1, 1 + 4 + dw, siz
+     {{Cl|CLS}}
+     {{Cl|LOCATE}} 1, 1 'qb64 seems to default to line 2
+     {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+     {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+      {{Cl|IF...THEN|IF}} dw > 400 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+      {{Cl|GET}} 1, , b
+      {{Cl|SELECT CASE}} b
+       {{Cl|CASE}} 7, 9 {{Cl|TO}} {{Cl|&amp;H}}D, {{Cl|&amp;H}}1F: {{Cl|PRINT}} ".";
+       {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|CHR$}}(b);
+      {{Cl|END SELECT}}
+     {{Cl|NEXT}}
+     {{Cl|LOCATE}} 24, 1
+     {{Cl|PRINT}} dword$(siz) + " bytes.";
+     {{Cl|LOCATE}} 23, 1
+     {{Cl|LINE INPUT}} "(leave blank to cancel) Output file? "; k
+     {{Cl|IF...THEN|IF}} {{Cl|LEN}}(k) {{Cl|THEN}}
+      {{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(k) {{Cl|THEN}}
+       {{Cl|PRINT}}
+       {{Cl|PRINT}} "File already exists.";
+      {{Cl|ELSE}}
+       {{Cl|OPEN}} k {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} 2
+       {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+       {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+        {{Cl|GET}} 1, , b
+        {{Cl|PUT}} 2, , b
+       {{Cl|NEXT}}
+       {{Cl|CLOSE}} 2
+       {{Cl|PRINT}}
+       {{Cl|PRINT}} "Done.";
+      {{Cl|END IF}}
+      {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+     {{Cl|END IF}}
+     {{Cl|EXIT DO}}
+    {{Cl|END IF}}
+  {{Cl|END SELECT}}
+ {{Cl|LOOP}}
+{{Cl|LOOP}}
+{{Cl|END SUB}}
+
+{{Cl|FUNCTION}} word$ (w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(w))
+word = "0x" + {{Cl|STRING$}}(4 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} dword$ (dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+dword = "0x" + {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} rva2fp~&amp; (rva {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+ {{Cl|IF...THEN|IF}} rva &lt; secsva(w) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}}
+w = w - 1
+{{Cl|IF...THEN|IF}} w > NumberOfSections - 1 {{Cl|THEN}} {{Cl|PRINT}} dword$(rva), w: {{Cl|SLEEP}}
+rva2fp = rva + (secsfp(w) - secsva(w))
+{{Cl|END FUNCTION}}
+
+{{Cl|SUB}} dump (addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|_CONTROLCHR}} OFF
+{{Cl|VIEW PRINT}}
+ul = addr
+DO
+ {{Cl|COLOR}} 7, 0
+ {{Cl|CLS}} 0
+ {{Cl|SEEK}} 1, 1 + ul
+ {{Cl|FOR...NEXT|FOR}} dw = ul {{Cl|TO}} (ul {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FFFFFFF0) + {{Cl|&amp;H}}15F
+  {{Cl|IF...THEN|IF}} (1 + ul) > {{Cl|LOF}}(1) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|GET}} 1, , b
+  {{Cl|IF...THEN|IF}} (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) = 0 {{Cl|THEN}}
+   t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+   {{Cl|COLOR}} 7
+   {{Cl|PRINT}} {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t; {{Cl|SPACE$}}(2);
+  {{Cl|END IF}}
+  {{Cl|IF...THEN|IF}} (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}4) {{Cl|THEN}} {{Cl|COLOR}} 3 {{Cl|ELSE}} {{Cl|COLOR}} 2
+  {{Cl|LOCATE}} , 14 + ((dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) * 3)
+  t = {{Cl|LCASE$}}({{Cl|HEX$}}(b))
+  {{Cl|IF...THEN|IF}} b &lt; {{Cl|&amp;H}}10 {{Cl|THEN}} {{Cl|PRINT}} "0" + t; {{Cl|ELSE}} {{Cl|PRINT}} t;
+  {{Cl|LOCATE}} , 65 + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F)
+  {{Cl|PRINT}} {{Cl|CHR$}}(b);
+ {{Cl|NEXT}}
+ {{Cl|PRINT}}
+ {{Cl|COLOR}} 7
+ {{Cl|LINE INPUT}} "(leave blank to cancel) Address: 0x"; t
+ {{Cl|IF...THEN|IF}} {{Cl|LTRIM$}}(t) = "" {{Cl|THEN}} {{Cl|EXIT DO}}
+ ul = {{Cl|VAL}}("&amp;h" + t + "&amp;") {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF
+{{Cl|LOOP}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+
+
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
+
+==Extract Icon==
+: Here is a program to extract an icon from a PE file. You specify the PE file, the index of the icon group (the first is 0), the maximum width and colors, and the output file. It will try to find the best matching icon, and extract the icon from the first language. I had earlier said that Resource Hacker gets the information for the ICO header from the icon group data. It could, but it could also get the data from the DIB header. Resource Hacker seems to use several fields that are reserved according to:
+
+&lt;center>http://www.iconolog.org/info/icoFormat.html&lt;/center>
+
+:I use some of those fields in the icon group data to select the best icon from the group.
+
+: ''Notepad.exe'' has 1 group of 9 icons: 48, 32, and 16 pixels; 32, 8, and 4 bpp each. The 4 bpp icons are the old fashioned ones. :-) I like both the old and new. ''C:\Windows\System32\shell32.dll'' and ''pifmgr.dll'' have numerous icons.
+{{CodeStart}} '' ''
+'revision date, last person to revise
+'revision 20111101, michael calkins
+'(derivitives may list sources of derivision)
+
+'october 2011, michael calkins
+'my code is public domain, but it's based on Microsoft's spec, so I'm not sure
+'what kind of patents or copyrights apply.
+'based on the Microsoft PE and COFF spec, Revision 8.2 - September 21, 2010
+'{{Cl|http://msdn.microsoft.com/en-us/windows/hardware/gg463119.aspx}}
+
+
+{{Cl|DIM}} fil {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} n {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} gi {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} wi {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} bpp {{Cl|AS}} {{Cl|LONG}}
+
+fil = "\windows\notepad.exe"
+
+{{Cl|IF...THEN|IF}} {{Cl|LEN}}(fil) = 0 {{Cl|THEN}} {{Cl|LINE INPUT}} fil
+gi = 0 'first icon group is normally 0 in most EXE or DLL files      
+wi = 32 '16 to 256 max width     '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; change settings for other sizes      
+bpp = 8 '4 to 32 bit max color   '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; 4 bit may use older style images
+mode = 0 ' 0 = icon, 1 = bitmap
+del$ = "delme.ico" 'change file extension to .BMP with mode 1 for bitmaps
+
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(del$) {{Cl|THEN}} {{Cl|KILL}} del$ 'this file will be erased.
+n = geticon(fil, del$, gi, wi, bpp, mode)
+{{Cl|IF...THEN|IF}} n {{Cl|THEN}}
+  {{Cl|PRINT}} "error:"; n, geticonerror(n)
+  {{Cl|END}}
+{{Cl|ELSE}}
+  {{Cl|SHELL}} {{Cl|_DONTWAIT}} "mspaint " + del$
+{{Cl|END IF}}
+{{Cl|SYSTEM}}
+'               ---------------------------------------------------
+
+{{Cl|FUNCTION}} geticon&amp; (fin {{Cl|AS}} {{Cl|STRING}}, fout {{Cl|AS}} {{Cl|STRING}}, gi {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, wi {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, co {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, m {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+'function extracts the best matching icon from a specified icon group from
+'a specified PE image, and saves it to a specified file in a specified format.
+'extracts the first language.
+
+'fil = input file name
+'fout = output file name
+'gi = the number of the Icon Group (0 is first)
+'wi = the preferred width (width is given priority over color)
+'co = the preferred bits per pixel
+'m = mode (0 for .ico, nonzero for .bmp)
+
+'returns 0 for success, nonzero for error.
+
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} coff {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} SectionTable {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} pe32plus {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} bs {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} nfin {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} nfout {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} numnamest8 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} dat {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} siz {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} rva {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} fp {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} bc {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} bw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} SizeOfOptionalHeader {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} NumberOfSections {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} NumberOfRvaAndSizes {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} numnames {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} numids {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} y {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} z {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(fin) = 0 {{Cl|THEN}} geticon = 1: {{Cl|EXIT FUNCTION}}
+nfin = {{Cl|FREEFILE}}
+{{Cl|OPEN}} fin {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|READ}} {{Cl|AS}} nfin
+{{Cl|GET}} nfin, 1 + 0, w
+{{Cl|IF...THEN|IF}} w &lt;> {{Cl|&amp;H}}5A4D {{Cl|THEN}} geticon = 2: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + {{Cl|&amp;H}}3C, dw
+coff = dw + 4
+{{Cl|GET}} nfin, dw + 1, dw
+{{Cl|IF...THEN|IF}} dw &lt;> {{Cl|&amp;H}}4550&amp; {{Cl|THEN}} geticon = 3: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + coff + 2, NumberOfSections
+{{Cl|IF...THEN|IF}} NumberOfSections = 0 {{Cl|THEN}} geticon = 4: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|DIM}} secsva(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} secsfp(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|GET}} nfin, 1 + coff + 16, SizeOfOptionalHeader
+{{Cl|IF...THEN|IF}} SizeOfOptionalHeader = 0 {{Cl|THEN}} geticon = 5: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + coff + 20, w
+{{Cl|SELECT CASE}} w
+  {{Cl|CASE}} {{Cl|&amp;H}}10B: pe32plus = 0
+  {{Cl|CASE}} {{Cl|&amp;H}}20B: pe32plus = -1
+  {{Cl|CASE ELSE}}: geticon = 6: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|END SELECT}}
+{{Cl|GET}} nfin, 1 + coff + 20 + 92 + (16 {{Cl|AND}} pe32plus), NumberOfRvaAndSizes
+{{Cl|IF...THEN|IF}} NumberOfRvaAndSizes &lt; 3 {{Cl|THEN}} geticon = 7: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + coff + 20 + 112 + (16 {{Cl|AND}} pe32plus), bs
+{{Cl|GET}} nfin, 1 + coff + 20 + 4 + 112 + (16 {{Cl|AND}} pe32plus), dw
+{{Cl|IF...THEN|IF}} (bs = 0) {{Cl|OR}} (dw = 0) {{Cl|THEN}} geticon = 8: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+SectionTable = coff + 20 + SizeOfOptionalHeader
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+  {{Cl|GET}} nfin, 1 + SectionTable + 12 + (40 * w), secsva(w)
+  {{Cl|GET}} nfin, 1 + SectionTable + 20 + (40 * w), secsfp(w)
+{{Cl|NEXT}}
+
+rva = bs
+{{Cl|GOSUB}} rva2fp
+bs = fp
+
+addr = bs
+'group icon, first level
+{{Cl|GET}} nfin, 1 + addr + 12, numnames
+{{Cl|GET}} nfin, 1 + addr + 14, numids
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+  {{Cl|GET}} nfin, 1 + addr + 16 + numnamest8 + (x * 8), dw
+  {{Cl|IF...THEN|IF}} dw = {{Cl|&amp;H}}E {{Cl|THEN}}
+    {{Cl|GET}} nfin, 1 + addr + 16 + 4 + numnamest8 + (x * 8), dw: {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+{{Cl|IF...THEN|IF}} x = numids {{Cl|THEN}} geticon = 9: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} dw {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; = 0 {{Cl|THEN}} geticon = 10: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+addr = bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;)
+'group icon, second level
+{{Cl|GET}} nfin, 1 + addr + 12, numnames
+{{Cl|GET}} nfin, 1 + addr + 14, numids
+{{Cl|IF...THEN|IF}} gi >= numnames + numids {{Cl|THEN}} geticon = 11: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + addr + 16 + 4 + (gi * 8), dw
+{{Cl|IF...THEN|IF}} dw {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; = 0 {{Cl|THEN}} geticon = 12: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+addr = bs + (dw {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;)
+'group icon, third level
+{{Cl|GET}} nfin, 1 + addr + 12, numnames
+{{Cl|GET}} nfin, 1 + addr + 14, numids
+{{Cl|IF...THEN|IF}} 0 = (numnames + numids) {{Cl|THEN}} geticon = 13: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + addr + 16 + 4, dw
+{{Cl|IF...THEN|IF}} dw {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}} geticon = 14: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+'search for best icon within icon group
+dw = bs + dw
+{{Cl|GET}} nfin, 1 + dw, rva
+{{Cl|GET}} nfin, 1 + 4 + dw, siz
+{{Cl|GOSUB}} rva2fp
+dat = fp
+{{Cl|SEEK}} nfin, 1 + dat
+{{Cl|IF...THEN|IF}} siz &lt; 6 {{Cl|THEN}} geticon = 15: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + dat, dw
+{{Cl|IF...THEN|IF}} dw &lt;> {{Cl|&amp;H}}10000 {{Cl|THEN}} geticon = 16: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + dat + 4, y
+{{Cl|IF...THEN|IF}} y = 0 {{Cl|THEN}} geticon = 17: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} siz &lt; (6 + (y * 14)) {{Cl|THEN}} geticon = 18: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+bc = 0
+bw = 0
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} y - 1
+  {{Cl|GET}} nfin, 1 + dat + 6 + (x * 14), b
+  {{Cl|IF...THEN|IF}} b = 0 {{Cl|THEN}} b = 255
+  'best width, then best color
+  {{Cl|IF...THEN|IF}} (b >= bw) {{Cl|AND}} (b &lt;= wi) {{Cl|THEN}}
+    {{Cl|GET}} nfin, 1 + dat + 6 + (x * 14) + 6, w
+    {{Cl|IF...THEN|IF}} ((w > bc) {{Cl|OR}} (b > bw)) {{Cl|AND (boolean)|AND}} (w &lt;= co) {{Cl|THEN}}
+      bc = w
+      bw = b
+      {{Cl|GET}} nfin, 1 + dat + 6 + (x * 14) + 12, z
+    {{Cl|END IF}}
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+{{Cl|IF...THEN|IF}} bc = 0 {{Cl|THEN}} geticon = 19: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+addr = bs
+'icon, first level
+{{Cl|GET}} nfin, 1 + addr + 12, numnames
+{{Cl|GET}} nfin, 1 + addr + 14, numids
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+  {{Cl|GET}} nfin, 1 + addr + 16 + numnamest8 + (x * 8), dw
+  {{Cl|IF...THEN|IF}} dw = {{Cl|&amp;H}}3 {{Cl|THEN}}
+    {{Cl|GET}} nfin, 1 + addr + 16 + 4 + numnamest8 + (x * 8), dw: {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+{{Cl|IF...THEN|IF}} x = numids {{Cl|THEN}} geticon = 20: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} dw {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; = 0 {{Cl|THEN}} geticon = 21: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+addr = bs + (dw {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;)
+'icon, second level
+{{Cl|GET}} nfin, 1 + addr + 12, numnames
+{{Cl|GET}} nfin, 1 + addr + 14, numids
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+  {{Cl|GET}} nfin, 1 + addr + 16 + numnamest8 + (x * 8), dw
+  {{Cl|IF...THEN|IF}} dw = z {{Cl|THEN}}
+    {{Cl|GET}} nfin, 1 + addr + 16 + 4 + numnamest8 + (x * 8), dw: {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+  {{Cl|END IF}}
+{{Cl|NEXT}}
+{{Cl|IF...THEN|IF}} x = numids {{Cl|THEN}} geticon = 22: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|IF...THEN|IF}} dw {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; = 0 {{Cl|THEN}} geticon = 23: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+addr = bs + (dw {{Cl|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;)
+'icon, third level
+{{Cl|GET}} nfin, 1 + addr + 12, numnames
+{{Cl|GET}} nfin, 1 + addr + 14, numids
+{{Cl|IF...THEN|IF}} 0 = (numnames + numids) {{Cl|THEN}} geticon = 24: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+{{Cl|GET}} nfin, 1 + addr + 16 + 4, dw
+{{Cl|IF...THEN|IF}} dw {{Cl|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}} geticon = 25: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+
+'extract icon
+dw = bs + dw
+{{Cl|GET}} nfin, 1 + dw, rva
+{{Cl|GET}} nfin, 1 + 4 + dw, siz
+{{Cl|GOSUB}} rva2fp
+dat = fp
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(fout) {{Cl|THEN}} geticon = 26: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+nfout = {{Cl|FREEFILE}}
+{{Cl|OPEN}} fout {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} nfout
+{{Cl|GET}} nfin, 1 + dat + 4, dw 'width, start 4 bytes into BMP header
+  {{Cl|IF...THEN|IF}} dw &lt; {{Cl|&amp;H}}100 {{Cl|THEN}} wide = dw {{Cl|ELSE}} wide = wi
+{{Cl|GET}} nfin, , dw 'double height
+  {{Cl|IF...THEN|IF}} dw &lt; {{Cl|&amp;H}}1FF {{Cl|THEN}} high = dw \ 2 {{Cl|ELSE}} high = wi
+{{Cl|GET}} nfin, 1 + dat + 14, w 'bpp
+  {{Cl|IF...THEN|IF}} w &lt;= {{Cl|&amp;H}}20 {{Cl|THEN}} bpp = w {{Cl|ELSE}} bpp = co
+
+{{Cl|IF...THEN|IF}} m {{Cl|THEN}}
+  'Create bitmap format pre-header info of 14 bytes
+  w = {{Cl|CVI}}("BM")
+  {{Cl|PUT}} nfout, 1, w 'magic 
+  {{Cl|IF...THEN|IF}} bpp &lt;= 8 {{Cl|THEN}} pal = (2 ^ bpp) * 4: pb = bpp / 8 {{Cl|ELSE}} pal = 0: pb = 3
+  dw = 54 + (wide * high * pb) + pal 'file size
+  {{Cl|PUT}} nfout, , dw 'file size
+  dw = 0
+  {{Cl|PUT}} nfout, , dw '2 reserved  
+  dw = 54 + pal 'bitmap header offset + palette if used
+  {{Cl|PUT}} nfout, , dw 'data offset
+{{Cl|ELSE}}
+  'Create icon format Icon header and Entry header
+  w = 0
+  {{Cl|PUT}} nfout, 1, w 'reserved
+  w = 1 '1 = icon, 2 = cursor(this could be set by mode value)
+  {{Cl|PUT}} nfout, , w 'resource id 
+  {{Cl|PUT}} nfout, , w 'icon count is always one in this procedure 
+  b = wide
+  {{Cl|PUT}} nfout, , b 'width in Entry header
+  b = high
+  {{Cl|PUT}} nfout, , b 'height
+  {{Cl|IF...THEN|IF}} bpp &lt; 8 {{Cl|THEN}} b = 2 ^ bpp {{Cl|ELSE}} b = 0
+  {{Cl|PUT}} nfout, , b 'num of colors
+  b = 0: w = 0
+  {{Cl|PUT}} nfout, , b 'reserved
+  {{Cl|PUT}} nfout, , w 'column hot spot for cursor
+  {{Cl|PUT}} nfout, , w 'row hot spot for cursor
+  {{Cl|PUT}} nfout, , siz 'size of data
+  dw = 22 'offset of bmp header is 6 + 16 bytes
+  {{Cl|PUT}} nfout, , dw
+{{Cl|END IF}}
+{{Cl|SEEK}} nfin, 1 + dat 'seek start of bmp 40 byte header
+{{Cl|IF...THEN|IF}} m {{Cl|THEN}}
+  {{Cl|GET}} nfin, , dw
+  {{Cl|PUT}} nfout, , dw 'header size
+  {{Cl|GET}} nfin, , dw
+  dw = wide
+  {{Cl|PUT}} nfout, , dw 'width
+  dw = high
+  {{Cl|PUT}} nfout, , dw 'height
+  {{Cl|GET}} nfin, , dw 'ignore double height
+  siz = (wide * high * pb) + 28 + pal 'stop at {{Cl|AND}} mask
+{{Cl|END IF}}
+{{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz 'GET remaining image data including 
+  {{Cl|GET}} nfin, , b '     'BMP header, palette and mask(s)
+  {{Cl|PUT}} nfout, , b
+{{Cl|NEXT}} dw
+{{Cl|CLOSE}} nfout
+{{Cl|CLOSE}} nfin
+
+geticon = 0
+{{Cl|EXIT FUNCTION}}
+
+rva2fp: 'call with rva returns fp modifies w
+
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+  {{Cl|IF...THEN|IF}} rva &lt; secsva(w) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}}
+w = w - 1
+{{Cl|IF...THEN|IF}} w > NumberOfSections - 1 {{Cl|THEN}} geticon = 27: {{Cl|CLOSE}} nfin: {{Cl|EXIT FUNCTION}}
+fp = rva + (secsfp(w) - secsva(w))
+{{Cl|RETURN}}
+
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} geticonerror$ (n {{Cl|AS}} {{Cl|LONG}})
+'revision date, last person to revise revision 20111031, michael calkins
+'(derivitives may list sources of derivision) october 2011, public domain, michael calkins
+{{Cl|SELECT CASE}} n
+  {{Cl|CASE}} 0: geticonerror = "success"
+  {{Cl|CASE}} 1: geticonerror = "input file not found"
+  {{Cl|CASE}} 2: geticonerror = "MZ signature not found"
+  {{Cl|CASE}} 3: geticonerror = "PE signature not found"
+  {{Cl|CASE}} 4: geticonerror = "no sections found"
+  {{Cl|CASE}} 5: geticonerror = "optional header not found"
+  {{Cl|CASE}} 6: geticonerror = "unknown PE optional header"
+  {{Cl|CASE}} 7: geticonerror = "no resource table"
+  {{Cl|CASE}} 8: geticonerror = "no resource table"
+  {{Cl|CASE}} 9: geticonerror = "icon groups not found"
+  {{Cl|CASE}} 10: geticonerror = "icon group: 1st level entry is a leaf"
+  {{Cl|CASE}} 11: geticonerror = "specified icon group not found"
+  {{Cl|CASE}} 12: geticonerror = "icon group: 2nd level entry is a leaf"
+  {{Cl|CASE}} 13: geticonerror = "no language for specified icon group"
+  {{Cl|CASE}} 14: geticonerror = "icon group: 3rd level entry is not a leaf"
+  {{Cl|CASE}} 15: geticonerror = "icon group data is too small"
+  {{Cl|CASE}} 16: geticonerror = "icon group data is not as expected"
+  {{Cl|CASE}} 17: geticonerror = "no icons in group"
+  {{Cl|CASE}} 18: geticonerror = "icon array is too small"
+  {{Cl|CASE}} 19: geticonerror = "could not find an icon matching the specifications"
+  {{Cl|CASE}} 20: geticonerror = "icons not found"
+  {{Cl|CASE}} 21: geticonerror = "icon: 1st level entry is a leaf"
+  {{Cl|CASE}} 22: geticonerror = "target icon not found"
+  {{Cl|CASE}} 23: geticonerror = "icon: 2nd level entry is a leaf"
+  {{Cl|CASE}} 24: geticonerror = "no language for target icon"
+  {{Cl|CASE}} 25: geticonerror = "icon: 3rd level is not a leaf"
+  {{Cl|CASE}} 26: geticonerror = "output file already exists"
+  {{Cl|CASE}} 27: geticonerror = "could not convert rva to fp"
+  {{Cl|CASE ELSE}}: geticonerror = "unknown error"
+{{Cl|END SELECT}}
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
+: ''Note:'' Change the file name to .BMP and mode to 1 to extract the icon as a bitmap for QB64 to use. QB64 cannot load icons!
+
+: Have fun, and don't forget to double check it before relying on it. I appreciate bug reports, but I'm not responsible for errors.
+
+: Regards, Michael Calkins
+
+
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
+
+==Extract Resources==
+
+{{CodeStart}} '' ''
+'revision 20120316, michael calkins
+'october 2011, michael calkins
+'my code is public domain, but it's based on Microsoft's spec, so I'm not sure
+'what kind of patents or copyrights apply.
+'based on the Microsoft PE and COFF spec, Revision 8.2 - September 21, 2010
+'http://msdn.microsoft.com/en-us/windows/hardware/gg463119.aspx
+
+'bug fixes on 2012 03 16:
+' changed NumberOfRvaAndSizes to an _unsigned long
+' added {{Cl|_CONTROLCHR}} OFF to the dump sub, and replaced the select case
+
+{{Cl|DIM}} nam {{Cl|AS}} {{Cl|STRING}} * 8
+{{Cl|DIM}} fil {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} coff {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} SectionTable {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ImageBase {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} rsrc {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} pe32plus {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} SizeOfOptionalHeader {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} {{Cl|SHARED}} NumberOfSections {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} NumberOfRvaAndSizes {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+{{Cl|CLS}}
+fil = {{Cl|COMMAND$}}
+{{Cl|IF...THEN|IF}} {{Cl|LEN}}(fil) = 0 {{Cl|THEN}} {{Cl|LINE INPUT}} "Name of the PE image to open? "; fil
+{{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(fil) = 0 {{Cl|THEN}} {{Cl|PRINT}} "File not found.": {{Cl|END}}
+{{Cl|OPEN}} fil {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|ACCESS}} {{Cl|READ}} {{Cl|AS}} 1
+{{Cl|GET}} 1, 1 + 0, w
+{{Cl|IF...THEN|IF}} w &lt;> {{Cl|&amp;H}}5A4D {{Cl|THEN}} {{Cl|PRINT}} "No MZ signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + {{Cl|&amp;H}}3C, dw
+coff = dw + 4
+{{Cl|GET}} 1, dw + 1, dw
+{{Cl|IF...THEN|IF}} dw &lt;> {{Cl|&amp;H}}4550&amp; {{Cl|THEN}} {{Cl|PRINT}} "No PE signature.": {{Cl|END}}
+{{Cl|GET}} 1, 1 + coff + 2, NumberOfSections
+{{Cl|IF...THEN|IF}} NumberOfSections = 0 {{Cl|THEN}} {{Cl|PRINT}} "No sections.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfSections:"; NumberOfSections
+{{Cl|DIM}} {{Cl|SHARED}} secsva(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} {{Cl|SHARED}} secsfp(0 {{Cl|TO}} NumberOfSections - 1) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|GET}} 1, 1 + coff + 16, SizeOfOptionalHeader
+{{Cl|IF...THEN|IF}} SizeOfOptionalHeader = 0 {{Cl|THEN}} {{Cl|PRINT}} "No optional header.": {{Cl|END}}
+{{Cl|PRINT}} "SizeOfOptionalHeader:", {{Cl|SPACE$}}(4); word$(SizeOfOptionalHeader)
+{{Cl|GET}} 1, 1 + coff + 20, w
+{{Cl|SELECT CASE}} w
+    {{Cl|CASE}} {{Cl|&amp;H}}10B: pe32plus = 0: {{Cl|PRINT}} "PE32"
+    {{Cl|CASE}} {{Cl|&amp;H}}20B: pe32plus = -1: {{Cl|PRINT}} "PE32+"
+    {{Cl|CASE ELSE}}: {{Cl|PRINT}} "Unknown Magic.": {{Cl|END}}
+{{Cl|END SELECT}}
+{{Cl|GET}} 1, 1 + coff + 20 + 28 + (-4 {{Cl|AND (boolean)|AND}} pe32plus), ImageBase
+{{Cl|PRINT}} "ImageBase:", "", dword$(ImageBase)
+{{Cl|GET}} 1, 1 + coff + 20 + 92 + (16 {{Cl|AND (boolean)|AND}} pe32plus), NumberOfRvaAndSizes
+{{Cl|IF...THEN|IF}} NumberOfRvaAndSizes &lt; 3 {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+{{Cl|PRINT}} "NumberOfRvaAndSizes:"; NumberOfRvaAndSizes
+{{Cl|GET}} 1, 1 + coff + 20 + 112 + (16 {{Cl|AND (boolean)|AND}} pe32plus), rsrc
+{{Cl|PRINT}} "Rva of resource table:", dword$(rsrc)
+{{Cl|GET}} 1, 1 + coff + 20 + 4 + 112 + (16 {{Cl|AND (boolean)|AND}} pe32plus), dw
+{{Cl|PRINT}} "Size of resource table:", dword$(dw)
+{{Cl|IF...THEN|IF}} (rsrc = 0) {{Cl|OR (boolean)|OR}} (dw = 0) {{Cl|THEN}} {{Cl|PRINT}} "No resource table.": {{Cl|END}}
+SectionTable = coff + 20 + SizeOfOptionalHeader
+{{Cl|PRINT}} "section", "va", "file ptr"
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+    {{Cl|GET}} 1, 1 + SectionTable + (40 * w), nam
+    {{Cl|GET}} 1, 1 + SectionTable + 12 + (40 * w), ul
+    {{Cl|GET}} 1, 1 + SectionTable + 20 + (40 * w), dw
+    {{Cl|PRINT}} nam, dword$(ul), dword$(dw)
+    secsva(w) = ul
+    secsfp(w) = dw
+{{Cl|NEXT}}
+{{Cl|PRINT}}
+{{Cl|PRINT}} "Proceed? ";
+DO
+    k = {{Cl|LCASE$}}({{Cl|INKEY$}})
+    {{Cl|IF...THEN|IF}} k = "n" {{Cl|THEN}} {{Cl|PRINT}} k: {{Cl|END}}
+{{Cl|LOOP}} {{Cl|UNTIL}} k = "y"
+{{Cl|PRINT}} k
+dw = rva2fp(rsrc)
+processtable dw, dw, 0
+{{Cl|SYSTEM}}
+
+{{Cl|SUB}} processtable (bs {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}, level {{Cl|AS}} {{Cl|INTEGER}})
+{{Cl|DIM}} k {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} numnamest8 {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} dat {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} siz {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} so {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} sc {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} numnames {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} numids {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} ln {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} x {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} y {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|GET}} 1, 1 + addr + 12, numnames
+{{Cl|GET}} 1, 1 + addr + 14, numids
+{{Cl|DIM}} nams(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} namsrva(0 {{Cl|TO}} numnames + (numnames > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ids(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} idsrva(0 {{Cl|TO}} numids + (numids > 0)) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+
+'get named entries
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numnames - 1
+    {{Cl|GET}} 1, 1 + addr + 16 + (x * 8), dw
+    'the spec says its an rva, but it seems to be an offset in the section/table
+    'low 31 bits are an offset from bs
+    {{Cl|GET}} 1, 1 + bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF), ln
+    {{Cl|FOR...NEXT|FOR}} y = 0 {{Cl|TO}} ln - 1
+        {{Cl|GET}} 1, , w
+        {{Cl|SELECT CASE}} w
+            {{Cl|CASE}} {{Cl|&amp;H}}20 {{Cl|TO}} {{Cl|&amp;H}}7E: nams(x) = nams(x) + {{Cl|CHR$}}(w)
+            {{Cl|CASE ELSE}}: nams(x) = nams(x) + {{Cl|CHR$}}({{Cl|&amp;H}}1A)
+        {{Cl|END SELECT}}
+        {{Cl|IF...THEN|IF}} y = 68 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+    {{Cl|NEXT}}
+    {{Cl|GET}} 1, 1 + addr + 16 + 4 + (x * 8), namsrva(x)
+{{Cl|NEXT}}
+
+'get numbered entries:
+numnamest8 = numnames * 8
+{{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} numids - 1
+    {{Cl|GET}} 1, 1 + addr + 16 + numnamest8 + (x * 8), ids(x)
+    {{Cl|GET}} 1, 1 + addr + 16 + 4 + numnamest8 + (x * 8), idsrva(x)
+{{Cl|NEXT}}
+
+'display:
+{{Cl|VIEW PRINT}}
+sc = 0
+so = 0
+DO
+    {{Cl|CLS}} 0 'qb64 bug? not locating to 1,1?
+    {{Cl|LOCATE}} 1, 1
+    {{Cl|SELECT CASE}} level
+        {{Cl|CASE}} 0: {{Cl|PRINT}} "1st level - Type";
+        {{Cl|CASE}} 1: {{Cl|PRINT}} "2nd level - Name";
+        {{Cl|CASE}} 2: {{Cl|PRINT}} "3rd level - Language";
+        {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|LTRIM$}}({{Cl|STR$}}(level)) + "th level";
+    {{Cl|END SELECT}}
+    {{Cl|PRINT}} "", "file ptr: "; dword$(addr); ". Press 'D' to dump."
+    {{Cl|PRINT}} numnames; "names in this level, in this branch."
+    {{Cl|PRINT}} numids; "IDs in this level, in this branch."
+    {{Cl|IF...THEN|IF}} (numnames {{Cl|OR (boolean)|OR}} numids) = 0 {{Cl|THEN}}
+        {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+            {{Cl|PRINT}} "Press any key to go up one level."
+            {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+            {{Cl|EXIT SUB}}
+        {{Cl|ELSE}}
+            {{Cl|END}}
+        {{Cl|END IF}}
+    {{Cl|END IF}}
+    {{Cl|PRINT}} "names are unicode. For simplicity, non ASCII chars will be shown as " + {{Cl|CHR$}}({{Cl|&amp;H}}1A) + "."
+    {{Cl|IF...THEN|IF}} level {{Cl|THEN}}
+        {{Cl|PRINT}} "BKSP or ESC to go up one level."
+    {{Cl|ELSE}}
+        {{Cl|PRINT}} "BKSP or ESC to exit."
+    {{Cl|END IF}}
+    {{Cl|PRINT}} "UP, DOWN, PGUP, PGDN, HOME, {{Cl|END}} to navigate list."
+    {{Cl|PRINT}} "ENTER to select."
+    {{Cl|LOCATE}} 9, 1
+    {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+    {{Cl|LOCATE}} 22, 1
+    {{Cl|PRINT}} {{Cl|STRING$}}(80, {{Cl|&amp;H}}C4);
+    DO
+        {{Cl|COLOR}} 7, 0
+        {{Cl|LOCATE}} 8, 1: {{Cl|PRINT}} dword$(sc)
+        {{Cl|FOR...NEXT|FOR}} x = 0 {{Cl|TO}} 11
+            {{Cl|LOCATE}} 10 + x, 1
+            {{Cl|IF...THEN|IF}} x + so = sc {{Cl|THEN}} {{Cl|COLOR}} 15, 1 {{Cl|ELSE}} {{Cl|COLOR}} 7, 0
+            {{Cl|IF...THEN|IF}} (x + so) &lt; numnames {{Cl|THEN}}
+                {{Cl|PRINT}} nams(x + so); {{Cl|SPACE$}}(70 - {{Cl|LEN}}(nams(x + so)));
+                {{Cl|PRINT}} dword$(bs + (namsrva(x + so) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;));
+                {{Cl|COLOR}} 7, 0
+                {{Cl|LOCATE}} 7, 18
+                {{Cl|IF...THEN|IF}} namsrva(x + so) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+                    {{Cl|PRINT}} "(descend)";
+                {{Cl|ELSE}}
+                    {{Cl|PRINT}} "(extract)";
+                {{Cl|END IF}}
+            {{Cl|ELSEIF}} (x + so) &lt; (numnames + numids) {{Cl|THEN}}
+                {{Cl|PRINT}} "ID: " + dword$(ids(x + so - numnames));
+                {{Cl|IF...THEN|IF}} level = 0 {{Cl|THEN}}
+                    {{Cl|PRINT}} " (RT_";
+                    'derived from:
+                    ' http://msdn.microsoft.com/en-us/library/ms648009(v=VS.85).aspx
+                    {{Cl|SELECT CASE}} ids(x + so - numnames)
+                        {{Cl|CASE}} 9: {{Cl|PRINT}} "ACCELERATOR";
+                        {{Cl|CASE}} 21: {{Cl|PRINT}} "ANICURSOR";
+                        {{Cl|CASE}} 22: {{Cl|PRINT}} "ANIICON";
+                        {{Cl|CASE}} 2: {{Cl|PRINT}} "BITMAP";
+                        {{Cl|CASE}} 1: {{Cl|PRINT}} "CURSOR";
+                        {{Cl|CASE}} 5: {{Cl|PRINT}} "DIALOG";
+                        {{Cl|CASE}} 17: {{Cl|PRINT}} "DLGINCLUDE";
+                        {{Cl|CASE}} 8: {{Cl|PRINT}} "FONT";
+                        {{Cl|CASE}} 7: {{Cl|PRINT}} "FONTDIR";
+                        {{Cl|CASE}} 12: {{Cl|PRINT}} "GROUP_CURSOR";
+                        {{Cl|CASE}} 14: {{Cl|PRINT}} "GROUP_ICON";
+                        {{Cl|CASE}} 23: {{Cl|PRINT}} "HTML";
+                        {{Cl|CASE}} 3: {{Cl|PRINT}} "ICON";
+                        {{Cl|CASE}} 24: {{Cl|PRINT}} "MANIFEST";
+                        {{Cl|CASE}} 4: {{Cl|PRINT}} "MENU";
+                        {{Cl|CASE}} 11: {{Cl|PRINT}} "MESSAGETABLE";
+                        {{Cl|CASE}} 19: {{Cl|PRINT}} "PLUGPLAY";
+                        {{Cl|CASE}} 10: {{Cl|PRINT}} "RCDATA";
+                        {{Cl|CASE}} 6: {{Cl|PRINT}} "STRING";
+                        {{Cl|CASE}} 16: {{Cl|PRINT}} "VERSION";
+                        {{Cl|CASE}} 20: {{Cl|PRINT}} "VXD";
+                    {{Cl|END SELECT}}
+                    {{Cl|PRINT}} ")";
+                {{Cl|END IF}}
+                {{Cl|PRINT}} {{Cl|SPACE$}}(71 - {{Cl|POS}}(0));
+                {{Cl|PRINT}} dword$(bs + (idsrva(x + so - numnames)));
+                {{Cl|COLOR}} 7, 0
+                {{Cl|LOCATE}} 7, 18
+                {{Cl|IF...THEN|IF}} idsrva(x + (so - numnames)) {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+                    {{Cl|PRINT}} "(descend)";
+                {{Cl|ELSE}}
+                    {{Cl|PRINT}} "(extract)";
+                {{Cl|END IF}}
+            {{Cl|ELSE}}
+                {{Cl|PRINT}} {{Cl|SPACE$}}(80);
+            {{Cl|END IF}}
+        {{Cl|NEXT}}
+        DO
+            k = {{Cl|INKEY$}}
+        {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}(k)
+        {{Cl|SELECT CASE}} k
+            {{Cl|CASE}} "d", "D"
+                dump addr
+                {{Cl|EXIT DO}}
+            {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4800) 'up
+                {{Cl|IF...THEN|IF}} sc > 0 {{Cl|THEN}}
+                    sc = sc - 1
+                    {{Cl|IF...THEN|IF}} sc &lt; so {{Cl|THEN}} so = sc
+                {{Cl|END IF}}
+            {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5000) 'down
+                {{Cl|IF...THEN|IF}} sc &lt; (numnames + numids - 1) {{Cl|THEN}}
+                    sc = sc + 1
+                    {{Cl|IF...THEN|IF}} sc > (so + 11) {{Cl|THEN}}
+                        so = sc - 11
+                        {{Cl|IF...THEN|IF}} so > sc {{Cl|THEN}} so = 0 'unsigned
+                    {{Cl|END IF}}
+                {{Cl|END IF}}
+            {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4700) 'home
+                sc = 0
+                so = 0
+            {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4F00) 'end
+                sc = numnames + numids - 1
+                so = sc - 11
+                {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+            {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}4900) 'pgup
+                sc = sc - 12
+                so = so - 12
+                {{Cl|IF...THEN|IF}} sc &lt; 0 {{Cl|THEN}} sc = 0
+                {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+            {{Cl|CASE}} {{Cl|MKI$}}({{Cl|&amp;H}}5100) 'pgdn
+                sc = sc + 12
+                {{Cl|IF...THEN|IF}} sc > (numnames + numids - 1) {{Cl|THEN}} sc = numnames + numids - 1
+                so = sc - 11
+                {{Cl|IF...THEN|IF}} so &lt; 0 {{Cl|THEN}} so = 0
+            {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}8), {{Cl|CHR$}}({{Cl|&amp;H}}1B) 'bksp, esc
+                {{Cl|EXIT SUB}}
+            {{Cl|CASE}} {{Cl|CHR$}}({{Cl|&amp;H}}D) 'enter
+                {{Cl|IF...THEN|IF}} sc &lt; numnames {{Cl|THEN}}
+                    dw = namsrva(sc)
+                {{Cl|ELSE}}
+                    dw = idsrva(sc - numnames)
+                {{Cl|END IF}}
+                {{Cl|IF...THEN|IF}} dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}80000000~&amp; {{Cl|THEN}}
+                    'the spec says its an rva, but it seems to be an offset in the section/table
+                    processtable bs, bs + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF&amp;), level + 1
+                    {{Cl|EXIT DO}}
+                {{Cl|ELSE}}
+                    'the spec says its an rva, but it seems to be an offset in the section/table
+                    dw = bs + dw
+                    {{Cl|GET}} 1, 1 + dw, dat
+                    {{Cl|GET}} 1, 1 + 4 + dw, siz
+                    {{Cl|CLS}}
+                    {{Cl|LOCATE}} 1, 1 'qb64 seems to default to line 2
+                    {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+                    {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+                        {{Cl|IF...THEN|IF}} dw > 400 {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+                        {{Cl|GET}} 1, , b
+                        {{Cl|SELECT CASE}} b
+                            {{Cl|CASE}} 7, 9 {{Cl|TO}} {{Cl|&amp;H}}D, {{Cl|&amp;H}}1F: {{Cl|PRINT}} ".";
+                            {{Cl|CASE ELSE}}: {{Cl|PRINT}} {{Cl|CHR$}}(b);
+                        {{Cl|END SELECT}}
+                    {{Cl|NEXT}}
+                    {{Cl|LOCATE}} 24, 1
+                    {{Cl|PRINT}} dword$(siz) + " bytes.";
+                    {{Cl|LOCATE}} 23, 1
+                    {{Cl|LINE INPUT}} "(leave blank to cancel) Output file? "; k
+                    {{Cl|IF...THEN|IF}} {{Cl|LEN}}(k) {{Cl|THEN}}
+                        {{Cl|IF...THEN|IF}} {{Cl|_FILEEXISTS}}(k) {{Cl|THEN}}
+                            {{Cl|PRINT}}
+                            {{Cl|PRINT}} "File already exists.";
+                        {{Cl|ELSE}}
+                            {{Cl|OPEN}} k {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} 2
+                            {{Cl|SEEK}} 1, 1 + rva2fp(dat)
+                            {{Cl|FOR...NEXT|FOR}} dw = 1 {{Cl|TO}} siz
+                                {{Cl|GET}} 1, , b
+                                {{Cl|PUT}} 2, , b
+                            {{Cl|NEXT}}
+                            {{Cl|CLOSE}} 2
+                            {{Cl|PRINT}}
+                            {{Cl|PRINT}} "Done.";
+                        {{Cl|END IF}}
+                        {{Cl|SLEEP}}: {{Cl|DO...LOOP|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|LEN}}({{Cl|INKEY$}})
+                    {{Cl|END IF}}
+                    {{Cl|EXIT DO}}
+                {{Cl|END IF}}
+        {{Cl|END SELECT}}
+    {{Cl|LOOP}}
+{{Cl|LOOP}}
+{{Cl|END SUB}}
+
+{{Cl|FUNCTION}} word$ (w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(w))
+word = "0x" + {{Cl|STRING$}}(4 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} dword$ (dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+dword = "0x" + {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t
+{{Cl|END FUNCTION}}
+
+{{Cl|FUNCTION}} rva2fp~&amp; (rva {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} w {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|INTEGER}}
+{{Cl|FOR...NEXT|FOR}} w = 0 {{Cl|TO}} NumberOfSections - 1
+    {{Cl|IF...THEN|IF}} rva &lt; secsva(w) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+{{Cl|NEXT}}
+w = w - 1
+{{Cl|IF...THEN|IF}} w > NumberOfSections - 1 {{Cl|THEN}} {{Cl|PRINT}} dword$(rva), w: {{Cl|SLEEP}}
+rva2fp = rva + (secsfp(w) - secsva(w))
+{{Cl|END FUNCTION}}
+
+{{Cl|SUB}} dump (addr {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}})
+{{Cl|DIM}} t {{Cl|AS}} {{Cl|STRING}}
+{{Cl|DIM}} dw {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} ul {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|LONG}}
+{{Cl|DIM}} b {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+{{Cl|_CONTROLCHR}} OFF
+{{Cl|VIEW PRINT}}
+ul = addr
+DO
+    {{Cl|COLOR}} 7, 0
+    {{Cl|CLS}} 0
+    {{Cl|SEEK}} 1, 1 + ul
+    {{Cl|FOR...NEXT|FOR}} dw = ul {{Cl|TO}} (ul {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}FFFFFFF0) + {{Cl|&amp;H}}15F
+        {{Cl|IF...THEN|IF}} (1 + ul) > {{Cl|LOF}}(1) {{Cl|THEN}} {{Cl|EXIT}} {{Cl|FOR...NEXT|FOR}}
+        {{Cl|GET}} 1, , b
+        {{Cl|IF...THEN|IF}} (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) = 0 {{Cl|THEN}}
+            t = {{Cl|LCASE$}}({{Cl|HEX$}}(dw))
+            {{Cl|COLOR}} 7
+            {{Cl|PRINT}} {{Cl|STRING$}}(8 - {{Cl|LEN}}(t), {{Cl|&amp;H}}30) + t; {{Cl|SPACE$}}(2);
+        {{Cl|END IF}}
+        {{Cl|IF...THEN|IF}} (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}4) {{Cl|THEN}} {{Cl|COLOR}} 3 {{Cl|ELSE}} {{Cl|COLOR}} 2
+        {{Cl|LOCATE}} , 14 + ((dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F) * 3)
+        t = {{Cl|LCASE$}}({{Cl|HEX$}}(b))
+        {{Cl|IF...THEN|IF}} b &lt; {{Cl|&amp;H}}10 {{Cl|THEN}} {{Cl|PRINT}} "0" + t; {{Cl|ELSE}} {{Cl|PRINT}} t;
+        {{Cl|LOCATE}} , 65 + (dw {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}F)
+        {{Cl|PRINT}} {{Cl|CHR$}}(b);
+    {{Cl|NEXT}}
+    {{Cl|PRINT}}
+    {{Cl|COLOR}} 7
+    {{Cl|LINE INPUT}} "(leave blank to cancel) Address: 0x"; t
+    {{Cl|IF...THEN|IF}} {{Cl|LTRIM$}}(t) = "" {{Cl|THEN}} {{Cl|EXIT DO}}
+    ul = {{Cl|VAL}}("&amp;h" + t + "&amp;") {{Cl|AND (boolean)|AND}} {{Cl|&amp;H}}7FFFFFFF
+{{Cl|LOOP}}
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code courtesy of Michael Calkins}}
+
+
+&lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
+
+==References==
+''See also:''
+* [[Icons and Cursors]]
+* [[Bitmaps]], [[_ICON]], [[$EXEICON]]
+* [[SaveIcon32]] {{text|(create icons from any image)}}
+
+
+{{PageNavigation}}

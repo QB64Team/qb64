@@ -24,7 +24,7 @@ The [[$SCREENHIDE]] [[Metacommand|metacommand]] can be used to hide the main pro
 {{Cl|DIM}} s1 {{Cl|AS}} {{Cl|STRING}}
 s0 = "Text" + {{Cl|CHR$}}(0)
 s1 = "Caption" + {{Cl|CHR$}}(0)
-ExitProcess MessageBoxA(0, {{Cl|_OFFSET (function)|_OFFSET}}(s0), {{Cl|_OFFSET(function)|_OFFSET}}(s1), 0)
+ExitProcess MessageBoxA(0, {{Cl|_OFFSET (function)|_OFFSET}}(s0), {{Cl|_OFFSET (function)|_OFFSET}}(s1), 0)
 {{CodeEnd}}{{small|Code by Michael Calkins}}
 
 

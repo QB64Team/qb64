@@ -1,0 +1,114 @@
+The following Icon creation procedure was adapted from Galleon's [[SAVEIMAGE]] sup-procedure that creates 8 BPP or 32 bit bitmaps:
+
+'''NOTE: QB64 can use .ico files natively for Windows executables with [[$EXEICON]].'''
+{{CodeStart}} '' ''
+DO
+  {{Cl|LINE INPUT}} "Use 8 bit(256 colors) or 32 bit image? ", bit$
+  clrmode% = {{Cl|VAL}}(bit$)
+{{Cl|LOOP}} {{Cl|UNTIL}} clrmode% = 8 {{Cl|OR (boolean)|OR}} clrmode% = 32
+{{Cl|IF...THEN|IF}} clrmode% = 8 {{Cl|THEN}} clrmode% = 256
+{{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} "Do you wish to make black transparent? (Y/N) ";
+K$ = {{Cl|INPUT$}}(1): {{Cl|PRINT}} K$
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(K$) = "Y" {{Cl|THEN}} mode% = 1
+{{Cl|_DELAY}} 1
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, clrmode%)
+DO
+  {{Cl|LOCATE}} 10, 10: {{Cl|LINE INPUT}} "Enter the icon size to use(multiple of 16): ", sz$
+  size&amp; = {{Cl|VAL}}(sz$)
+{{Cl|LOOP}} {{Cl|UNTIL}} size&amp; {{Cl|MOD}} 16 = 0 AND size&amp; >= 16 AND size&amp; &lt;= 128
+DO
+  {{Cl|LOCATE}} 10, 10: {{Cl|LINE INPUT}} "Enter the image file name to convert to an icon: ", BMP$
+  {{Cl|CLS}}
+{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|_FILEEXISTS}}(BMP$)
+img&amp; = {{Cl|_LOADIMAGE}}(BMP$)
+{{Cl|IF...THEN|IF}} img&amp; = -1 {{Cl|OR (boolean)|OR}} img&amp; = 0 {{Cl|THEN}} {{Cl|LOCATE}} 15, 25: {{Cl|PRINT}} "Image failed to load!": {{Cl|END}}
+
+{{Cl|IF...THEN|IF}} mode% = 0 THEN {{Cl|CLS}} , {{Cl|_RGB}}(255, 255, 255)
+{{Cl|IF...THEN|IF}} clrmode% = 256 {{Cl|THEN}} {{Cl|_COPYPALETTE}} (img&amp;)
+{{Cl|_PUTIMAGE}} (0, 0)-(size&amp; - 1, size&amp; - 1), img&amp;, 0 '(31, 31), img&amp;, 0  '&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+
+{{Cl|LOCATE}} 20, 10: {{Cl|PRINT}} "Do you want to make an icon out of the image? (Y/N) ";
+K$ = {{Cl|INPUT$}}(1): {{Cl|PRINT}} K$
+{{Cl|IF...THEN|IF}} {{Cl|UCASE$}}(K$) &lt;> "Y" {{Cl|THEN}} {{Cl|END}}
+SaveFile$ = {{Cl|LEFT$}}(BMP$, {{Cl|INSTR}}(BMP$, ".")) + "ico"
+SaveIcon32 img&amp;, size&amp;, mode%, SaveFile$
+
+{{Cl|END}} 
+'             ---------------------------------------------------------
+
+{{Cl|SUB}} SaveIcon32 (image {{Cl|AS}} {{Cl|LONG}}, size {{Cl|AS}} {{Cl|LONG}}, mode AS {{Cl|INTEGER}}, filename {{Cl|AS}} {{Cl|STRING}})
+bytesperpixel&amp; = {{Cl|_PIXELSIZE}}(image&amp;)
+{{Cl|IF...THEN|IF}} bytesperpixel&amp; = 0 {{Cl|THEN}} {{Cl|PRINT}} "Text modes unsupported!": {{Cl|END}}
+{{Cl|IF...THEN|IF}} bytesperpixel&amp; = 1 {{Cl|THEN}} bpp&amp; = 8 {{Cl|ELSE}} bpp&amp; = 24 '256 or 32 bit color
+{{Cl|IF...THEN|IF}} size&amp; {{Cl|MOD}} 16 {{Cl|OR}} size&amp; &lt; 16 {{Cl|OR}} size&amp; > 128 THEN {{Cl|PRINT}} "Size not supported!": {{Cl|END}}
+x&amp; = size&amp; 'supports sizes from 16 to 128 only!
+y&amp; = size&amp;
+'Headers:   icon    count   width    depth    colors          cursor hotspots  size - offset
+b$= {{Cl|MKI$}}(0)+{{Cl|MKI$}}(1)+{{Cl|MKI$}}(1)+{{Cl|CHR$}}(x&amp;)+{{Cl|CHR$}}(y&amp;)+{{Cl|CHR$}}(0)+{{Cl|CHR$}}(0)+{{Cl|MKI$}}(0)+{{Cl|MKI$}}(0)+"????"+{{Cl|MKL$}}(22) _
+ +{{Cl|MKL$}}(40)+{{Cl|MKL$}}(x&amp;)+{{Cl|MKL$}}(2 * y&amp;)+{{Cl|MKI$}}(1)+{{Cl|MKI$}}(bpp&amp;)+{{Cl|MKL$}}(0)+"????" + {{Cl|STRING$}}(16, 0)
+'BMP size  width   double height  plane     BPP             raw size
+{{Cl|IF...THEN|IF}} bytesperpixel&amp; = 1 {{Cl|THEN}}
+  {{Cl|FOR...NEXT|FOR}} c&amp; = 0 {{Cl|TO}} 255 ' read BGR color settings from image + 1 byte spacer({{Cl|CHR$}}(0))
+    cv&amp; = {{Cl|_PALETTECOLOR (function)|_PALETTECOLOR}}(c&amp;, image&amp;) ' color attribute to read.
+    b$ = b$ + {{Cl|CHR$}}({{Cl|_BLUE32}}(cv&amp;)) + {{Cl|CHR$}}({{Cl|_GREEN32}}(cv&amp;)) + {{Cl|CHR$}}({{Cl|_RED32}}(cv&amp;)) + {{Cl|CHR$}}(0) 'spacer
+  {{Cl|NEXT}}
+{{Cl|END IF}}
+lastsource&amp; = {{Cl|_SOURCE}}
+{{Cl|_SOURCE}} 0 'set source as program screen. Do NOT use loaded image handle as size has changed!
+{{Cl|IF...THEN|IF}} ((x&amp; * 3) {{Cl|MOD}} 4) {{Cl|THEN}} padder$ = {{Cl|STRING$}}(4 - ((x&amp; * 3) {{Cl|MOD}} 4), 0)
+{{Cl|FOR...NEXT|FOR}} py&amp; = y&amp; - 1 {{Cl|TO}} 0 {{Cl|STEP}} -1 ' read target image pixel color data
+  r$ = ""
+  {{Cl|FOR...NEXT|FOR}} px&amp; = 0 {{Cl|TO}} x&amp; - 1
+    c&amp; = {{Cl|POINT}}(px&amp;, py&amp;)
+    {{Cl|IF...THEN|IF}} bytesperpixel&amp; = 1 {{Cl|THEN}} r$ = r$ + {{Cl|CHR$}}(c&amp;) {{Cl|ELSE}} r$ = r$ + {{Cl|LEFT$}}({{Cl|MKL$}}(c&amp;), 3)
+  {{Cl|NEXT}} px&amp;
+  d$ = d$ + r$ + padder$
+{{Cl|NEXT}} py&amp;
+{{Cl|IF...THEN|IF}} (x&amp; {{Cl|MOD}} 32) {{Cl|THEN}} bitpad&amp; = 32 - (x&amp; {{Cl|MOD}} 32) 'padder bits when not multiples of 32
+{{Cl|IF...THEN|IF}} mode% {{Cl|THEN}} 'make black pixels white in AND mask so they become transparent
+  {{Cl|FOR...NEXT|FOR}} py&amp; = y&amp; - 1 {{Cl|TO}} 0 {{Cl|STEP}} -1 'read image to find black pixels
+    px&amp; = 0
+    {{Cl|DO...LOOP|DO}}: byte% = 0
+      {{Cl|FOR...NEXT|FOR}} bit% = 7 {{Cl|TO}} 0 {{Cl|STEP}} -1 'change transparent color to suit your needs
+        byte% = 2 * byte% - ({{Cl|POINT}}(px&amp;, py&amp;) = {{Cl|_RGB}}(0, 0, 0)) 'bitpacking adds 1 when true
+        px&amp; = px&amp; + 1
+      {{Cl|NEXT}}
+      a$ = a$ + {{Cl|CHR$}}(byte%)
+    {{Cl|LOOP}} {{Cl|WHILE}} px&amp; &lt; x&amp; - 1
+    {{Cl|IF...THEN|IF}} bitpad&amp; {{Cl|THEN}} a$ = a$ + {{Cl|STRING$}}((bitpad&amp; + 7) \ 8, 0) 'add padder at end of row when necessary
+  {{Cl|NEXT}}
+{{Cl|ELSE}} a$ = {{Cl|STRING$}}(y&amp; * ((x&amp; + bitpad&amp; + 7) \ 8), 0) 'totally black {{Cl|AND (boolean)|AND}} mask
+{{Cl|END IF}}
+d$ = d$ + a$
+{{Cl|_SOURCE}} lastsource&amp;
+{{Cl|MID$}}(b$, 43, 4) = {{Cl|MKL$}}({{Cl|LEN}}(d$)) 'raw image size with {{Cl|AND}} mask
+b$ = b$ + d$ ' total file data bytes to create file
+{{Cl|MID$}}(b$, 15, 4) = {{Cl|MKL$}}({{Cl|LEN}}(b$) - 22) ' size of data file minus Entry header offset
+{{Cl|IF...THEN|IF}} {{Cl|LCASE$}}({{Cl|RIGHT$}}(filename$, 4)) &lt;> ".ico" {{Cl|THEN}} ext$ = ".ico"
+f&amp; = {{Cl|FREEFILE}}
+{{Cl|OPEN}} filename$ + ext$ {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #f&amp;: {{Cl|CLOSE}} #f&amp; ' erases an existing file
+{{Cl|OPEN}} filename$ + ext$ {{Cl|FOR...NEXT|FOR}} {{Cl|BINARY}} {{Cl|AS}} #f&amp;
+{{Cl|PUT}} #f&amp;, , b$
+{{Cl|CLOSE}} #f&amp;
+{{Cl|END SUB}} '' ''
+{{CodeEnd}}
+{{small|Code by Ted Weissgerber}}
+
+:''Explanation:'' The icons created can have a full black [[AND]] mask for a solid square image when mode% is zero. If mode% is a value other than 0, the AND mask routine looks for black pixels and sets the background pixel on for transparency. Icons with dimensions that are not a multiple of 32 would require padding. In the header, ???? is later replaced with size data. If the image is 24/32 BPP, the size of the [[XOR]] image data will triple because each pixel uses 3 bytes for red, green and blue values up to 255.
+:{{text|To create '''.CUR''' cursor files change the second value from 1 to 2 and set the 2 cursor click hotspot offset [[INTEGER]] values.|purple}}
+
+
+:Icons that are 16 X 16 or 48 X 48 require 2 padder bytes to be added at the end of each row increasing data size by 32 and 96.
+
+
+''See also:''
+
+*[[_ICON]], [[$EXEICON]]
+*[[SAVEIMAGE]]
+*[[Icons and Cursors]]
+*[[Resource Table extraction|Resource Extraction]]
+*[[Bitmaps]]
+*[[GIF Images]]
+
+
+{{PageNavigation}}

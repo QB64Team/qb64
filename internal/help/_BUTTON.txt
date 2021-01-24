@@ -7,6 +7,7 @@ The [[_BUTTON]] function returns -1 when specified button number on a controller
 
 
 {{PageDescription}}
+* The '''[[_DEVICEINPUT]] function should be read first to specify which device [[_BUTTON]] is intended to check.'''
 * Values returned are -1 for a press and 0 when a button is released or not pressed.
 * The {{Parameter|button_number%}} must be a number which does not exceed the number of buttons found by the [[_LASTBUTTON]] function.
 * '''The number of [[_DEVICES]] must be read before using [[_DEVICE$]], [[_DEVICEINPUT]] or [[_LASTBUTTON]].'''

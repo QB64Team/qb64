@@ -7,13 +7,13 @@ The [[INPUT #]] file or port statement reads sequential data using one variable 
 
 {{Parameters}}
 * {{Parameter|fileNumber&amp;}} is a positive [[LONG]] integer value used to [[OPEN]] the file FOR [[INPUT (file mode)|INPUT]] mode. 
-* The [[type]] of the ''variable'' used defines the value or list of values to be returned from the file. Numeric types must match the values returned.
+* The [[Variable Types|type]] of the ''variable'' used defines the value or list of values to be returned from the file. Numeric types must match the values returned.
 * As reflected in the syntax you can list a number of variables with different types seperated by a comma and they will hold the values in the file (keep in mind that the information in the file should match the variable types used).
 
 
 {{PageDescription}}
 * The file number can be determined by the programmer or be an unused number returned by the [[FREEFILE]] function.
-* Variable types must match the numerical [[type]]s being read. [[STRING]] variables can return unquoted numeric values.
+* Variable types must match the numerical [[Variable Types|type]]s being read. [[STRING]] variables can return unquoted numeric values.
 * Leading or trailing spaces of [[STRING]] values must be inside of quotes. [[WRITE (file statement)|WRITE #]] writes strings inside of quotes automatically. [[PRINT (file statement)|PRINT #]] removes quotes.
 * [[INPUT #]] will read each value until it encounters a comma for the next value in a list.
 * Use the [[EOF]] function to avoid reading past the end of a file.
