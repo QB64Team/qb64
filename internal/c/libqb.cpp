@@ -15812,7 +15812,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         if ((pos<-32768)||(pos>32767)){
             if (tab_LPRINT) sub__dest(tab_LPRINT_olddest);
             tqbs=qbs_new(0,1);
-            error(7); return tqbs;//Overflow
+            error(6); return tqbs;//Overflow
         }
         if (pos>w) pos%=w;
         if (pos<1) pos=1;
@@ -15844,7 +15844,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         if (new_error) return qbs_new(0,1);
         
         static qbs *tqbs;
-        if ((spaces<-32768)||(spaces>32767)){tqbs=qbs_new(0,1); error(7); return tqbs;}//Overflow
+        if ((spaces<-32768)||(spaces>32767)){tqbs=qbs_new(0,1); error(6); return tqbs;}//Overflow
         if (spaces<0) spaces=0;
         
         //for files, spc simply adds that many spaces
