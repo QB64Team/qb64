@@ -581,10 +581,79 @@ SUB WikiParse (a$)
 
         s$ = "{|"
         IF c$(LEN(s$)) = s$ THEN
-            i = i + 1
-            FOR ii = i TO LEN(a$) - 1
-                IF MID$(a$, ii, 2) = "|}" THEN i = ii + 1: EXIT FOR
-            NEXT
+            IF MID$(a$, i, 20) = "{| class=" + CHR$(34) + "wikitable" + CHR$(34) THEN
+                REDIM tableRow(1 TO 100) AS STRING
+                REDIM tableCol(1 TO 100) AS INTEGER
+                DIM totalCols AS INTEGER
+                DIM totalRows AS INTEGER
+                DIM thisCol AS INTEGER
+                totalCols = 0: totalRows = 0
+                DO
+                    l$ = wikiGetLine$(a$, i)
+                    IF l$ = "|}" OR i >= LEN(a$) THEN EXIT DO
+                    IF l$ = "|-" THEN _CONTINUE
+
+                    m$ = ""
+                    IF LEFT$(l$, 2) = "! " THEN m$ = "!!"
+                    IF LEFT$(l$, 2) = "| " THEN m$ = "||"
+
+                    IF LEN(m$) THEN
+                        'new row
+                        totalRows = totalRows + 1
+                        IF totalRows > UBOUND(tableRow) THEN
+                            REDIM _PRESERVE tableRow(1 TO UBOUND(tableRow) + 99) AS STRING
+                        END IF
+
+                        'columns
+                        j = 3
+                        thisCol = 0
+                        DO
+                            p$ = wikiGetUntil$(l$, j, m$)
+                            j = j + 1
+                            IF LEN(_TRIM$(p$)) THEN
+                                thisCol = thisCol + 1
+                                IF totalCols < thisCol THEN totalCols = thisCol
+                                IF thisCol > UBOUND(tableCol) THEN
+                                    REDIM _PRESERVE tableCol(1 TO UBOUND(tableCol) + 99) AS INTEGER
+                                END IF
+                                IF tableCol(thisCol) < LEN(_TRIM$(p$)) + 2 THEN tableCol(thisCol) = LEN(_TRIM$(p$)) + 2
+                                p$ = StrReplace$(p$, "&lt;", "<")
+                                tableRow(totalRows) = tableRow(totalRows) + _TRIM$(p$) + CHR$(0)
+                            END IF
+                        LOOP WHILE j < LEN(l$)
+                    END IF
+                LOOP
+                backupHelp_BG_Col = Help_BG_Col
+                backupBold = Help_Bold
+                Help_BG_Col = 2
+                FOR printTable = 1 TO totalRows
+                    IF printTable = 1 THEN
+                        Help_Bold = 1
+                    ELSE
+                        Help_Bold = 0
+                    END IF
+                    col = Help_Col
+
+                    j = 1
+                    tableOutput$ = ""
+                    FOR checkCol = 1 TO totalCols
+                        p$ = wikiGetUntil$(tableRow(printTable), j, CHR$(0))
+                        thisCol$ = SPACE$(tableCol(checkCol))
+                        MID$(thisCol$, 2) = p$
+                        tableOutput$ = tableOutput$ + thisCol$
+                    NEXT
+                    Help_AddTxt tableOutput$, col, 0
+                    Help_AddTxt CHR$(13), col, 0
+                NEXT
+                Help_BG_Col = backupHelp_BG_Col
+                Help_Bold = backupBold
+                Help_AddTxt CHR$(13), col, 0
+            ELSE
+                i = i + 1
+                FOR ii = i TO LEN(a$) - 1
+                    IF MID$(a$, ii, 2) = "|}" THEN i = ii + 1: EXIT FOR
+                NEXT
+            END IF
             GOTO Special
         END IF
 
@@ -777,4 +846,20 @@ SUB WikiParse (a$)
 
 
 END SUB
+
+FUNCTION wikiGetLine$ (a$, i)
+    wikiGetLine$ = wikiGetUntil(a$, i, CHR$(10))
+END FUNCTION
+
+FUNCTION wikiGetUntil$ (a$, i, separator$)
+    IF i >= LEN(a$) THEN EXIT FUNCTION
+    j = INSTR(i, a$, separator$)
+    IF j = 0 THEN
+        wikiGetUntil$ = MID$(a$, i)
+        i = LEN(a$)
+    ELSE
+        wikiGetUntil$ = MID$(a$, i, j - i)
+        i = j + 1
+    END IF
+END FUNCTION
 

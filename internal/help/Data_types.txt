@@ -67,12 +67,12 @@ Strings have a property called ''length'', which is the number of characters cur
 
 ===Variable-length strings===
 
-Variable length strings are undefined length string variables. Fixed length strings MUST be defined in a program before they are used. Undefined strings can be up to 32767 characters in Qbasic. 
+Variable length strings are undefined length string variables. Fixed length strings MUST be defined in a program before they are used. Undefined strings can be up to 32767 characters in Qbasic.
 
 
 {{CodeStart}}
  message$ = "Hello"
- message$ = message$ + " world!" 'add to string variables using string concatenation only! 
+ message$ = message$ + " world!" 'add to string variables using string concatenation only!
  PRINT message$
 {{CodeEnd}}
 {{OutputStart}}
@@ -96,7 +96,63 @@ Fixed length strings must be defined in a {{KW|DIM}} statement, {{KW|SUB}} or {{
 
 ==Data type limits==
 The following table lists the numerical and string data types, their type suffix symbol, and the range of the values they can represent:
-{{DataTypeTable}}
+
+'''Numerical types'''
+
+{| class="wikitable"
+! Type Name !! Type suffix symbol !! Minimum value !! Maximum value !! Size in Bytes
+|-
+| _BIT                    || `  ||                        -1 ||                         0 || 1/8
+|-
+| _BIT * n            || `n  ||                        -128 ||                         127 ||   n/8
+|-
+| _UNSIGNED _BIT      || ~`  ||                        0 ||                         1 || 1/8
+|-
+| _BYTE                    || %%  ||                        -128 ||                         127 || 1
+|-
+| _UNSIGNED _BYTE      || ~%% ||                           0 ||                         255 || 1
+|-
+| INTEGER                  || %   ||                     -32,768 ||                      32,767 || 2
+|-
+| _UNSIGNED INTEGER    || ~%  ||                           0 ||                      65,535 || 2
+|-
+| LONG                     || &   ||              -2,147,483,648 ||               2,147,483,647 || 4
+|-
+| _UNSIGNED LONG       || ~&  ||                           0 ||               4,294,967,295 || 4
+|-
+| _INTEGER64               || &&  ||  -9,223,372,036,854,775,808 ||  9,223,372,036,854,775,807 || 8
+|-
+| _UNSIGNED _INTEGER64 || ~&& ||                           0 ||  18,446,744,073,709,551,615 || 8
+|-
+| SINGLE                   || ! or none   ||               -2.802597E-45 ||               +3.402823E+38 || 4
+|-
+| DOUBLE                   || #   ||     -4.490656458412465E-324 ||     +1.797693134862310E+308 || 8
+|-
+| _FLOAT                   || ##  ||                 -1.18E-4932 ||                 +1.18E+4932 || 32(10 used)
+|-
+| _OFFSET                   || %&  ||                 -9,223,372,036,854,775,808  ||  9,223,372,036,854,775,807 || Use LEN
+|-
+| _UNSIGNED _OFFSET     || ~%&  ||                 0  ||  18,446,744,073,709,551,615 || Use LEN
+|-
+| _MEM                   || none  ||             combined memory variable type ||       N/A || Use LEN
+|}
+
+
+:''Note: For the floating-point numeric types [[SINGLE]] (default when not assigned), [[DOUBLE]] and [[_FLOAT]], the minimum values represent the smallest values closest to zero, while the maximum values represent the largest values closest to (+/-)infinity. OFFSET dot values are used as a part of the [[_MEM]] variable type in QB64 to return or set the position in memory.''
+
+
+'''String text type'''
+{| class="wikitable"
+! Type Name !! Type suffix symbol !! Minimum length !! Maximum length !! Size in Bytes
+|-
+| STRING || $ || 0 || 2,147,483,647 || Use LEN
+|-
+| STRING * n || $n || 1 || 2,147,483,647 || n
+|}
+
+
+''Note: For the fixed-length string type [[STRING|STRING * ''n'']], where ''n'' is an integer length value from 1 (one) to 2,147,483,647.
+
 
 
 ==References==
