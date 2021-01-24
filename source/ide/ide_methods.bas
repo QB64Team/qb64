@@ -4851,6 +4851,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#ASCII Chart..." THEN
                 PCOPY 2, 0
+                relaunch = 0
                 DO
                     retval$ = ideASCIIbox$(relaunch)
                     IF LEN(retval$) THEN insertAtCursor retval$
@@ -5875,7 +5876,7 @@ END SUB
 SUB ideboxshadow (x, y, w, h)
 
     idebox x, y, w, h
-    
+
     'shadow
     COLOR 2, 0
     FOR y2 = y + 1 TO y + h - 1
@@ -8415,7 +8416,7 @@ SUB ideshowtext
             IF ShowLineNumbers THEN GOSUB ShowLineNumber
 
             IF l = idefocusline AND idecy <> l THEN COLOR 13, 4 ELSE COLOR 13, 1
-            
+
             IF l <= iden THEN
                 a$ = idegetline(l)
                 a2$ = SPACE$(idesx + (idewx - 3) - maxLineNumberLength)
@@ -13614,8 +13615,10 @@ FUNCTION ideASCIIbox$(relaunch)
     '-------- end of generic dialog box header --------
 
     '-------- init --------
-    i = 0
+    STATIC ASCIIWarningShown
     relaunch = 0
+
+    i = 0
     idepar p, 56, 21, "ASCII Chart"
 
     i = i + 1
@@ -13780,12 +13783,17 @@ FUNCTION ideASCIIbox$(relaunch)
         END IF
 
         IF (K$ = CHR$(13) AND focus = 1) THEN
-            ideASCIIbox$ = CHR$(Selected)
-            EXIT FUNCTION
+            GOTO insertChar
         END IF
 
         IF focus = 2 AND (K$ = CHR$(13) OR info <> 0) THEN
             insertChar:
+            IF Selected < 32 AND ASCIIWarningShown = 0 THEN
+                ASCIIWarningShown = -1
+                result = idemessagebox("Control Characters", "Inserting ASCII control characters (1-32) may cause\nunexpected IDE behavior. Consider inserting CHR$ instead.\nProceed anyway?", "#Yes;#No;#Cancel")
+                IF result = 2 THEN EXIT FUNCTION
+                IF result = 3 THEN GOTO dlgLoop
+            END IF
             ideASCIIbox$ = CHR$(Selected)
             EXIT FUNCTION
         END IF
@@ -13865,6 +13873,8 @@ FUNCTION ideASCIIbox$(relaunch)
         'end of custom controls
         mousedown = 0
         mouseup = 0
+
+        dlgLoop:
     LOOP
 
 END FUNCTION
@@ -14143,7 +14153,7 @@ SUB UpdateIdeInfo
     a$ = IdeInfo
     IF LEN(a$) > (idewx - 20) THEN a$ = LEFT$(a$, (idewx - 23)) + STRING$(3, 250)
     IF LEN(a$) < (idewx - 20) THEN a$ = a$ + SPACE$((idewx - 20) - LEN(a$))
-    COLOR 0, 3: 
+    COLOR 0, 3
     _PRINTSTRING (2, idewy + idesubwindow), a$
 
     COLOR 2, 3
