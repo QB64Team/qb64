@@ -617,6 +617,7 @@ SUB WikiParse (a$)
                                     REDIM _PRESERVE tableCol(1 TO UBOUND(tableCol) + 99) AS INTEGER
                                 END IF
                                 IF tableCol(thisCol) < LEN(_TRIM$(p$)) + 2 THEN tableCol(thisCol) = LEN(_TRIM$(p$)) + 2
+                                p$ = StrReplace$(p$, "&lt;", "<")
                                 tableRow(totalRows) = tableRow(totalRows) + _TRIM$(p$) + CHR$(0)
                             END IF
                         LOOP WHILE j < LEN(l$)
@@ -646,6 +647,7 @@ SUB WikiParse (a$)
                 NEXT
                 Help_BG_Col = backupHelp_BG_Col
                 Help_Bold = backupBold
+                Help_AddTxt CHR$(13), col, 0
             ELSE
                 i = i + 1
                 FOR ii = i TO LEN(a$) - 1
