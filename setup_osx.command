@@ -10,8 +10,17 @@ echo "QB64 Setup"
 echo ""
 
 find . -name "*.command" -exec chmod +x {} \;
+
+pushd internal/c/libqb >/dev/null
 find . -type f -iname "*.a" -exec rm -f {} \;
 find . -type f -iname "*.o" -exec rm -f {} \;
+popd >/dev/null
+
+pushd internal/c/parts >/dev/null
+find . -type f -iname "*.a" -exec rm -f {} \;
+find . -type f -iname "*.o" -exec rm -f {} \;
+popd >/dev/null
+
 rm ./internal/temp/*
 
 if [ -z "$(which clang++)" ]; then
@@ -64,4 +73,3 @@ else
   Pause
   exit 1
 fi
-
