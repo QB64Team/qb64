@@ -143,6 +143,7 @@ __NOTOC__
 * [[$ELSEIF]] (Pre-Compiler [[Metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
 * [[$END IF]] (Pre-Compiler [[Metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
 * [[_ERRORLINE]] (function) {{text|returns the source code line number that caused the most recent runtime error.}}
+* [[_ERRORMESSAGE$]] (function) {{text|returns a human-readable message describing the most recent runtime error.}}
 * [[$EXEICON]] (Pre-Compiler [[Metacommand]]) {{text|used with a .ICO icon file name to embed the image into the QB64 executable.}}
 * [[_EXIT (function)]] {{text|prevents a user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.}}
 
@@ -251,7 +252,6 @@ __NOTOC__
 * [[_MOUSEMOVE]] (statement) {{text|moves the mouse pointer to a designated position on the program [[SCREEN]].}}
 * [[_MOUSEMOVEMENTX]] (function) {{text|returns the relative horizontal position of the mouse cursor compared to the previous position.}}
 * [[_MOUSEMOVEMENTY]] (function) {{text|returns the relative vertical position of the mouse cursor compared to the previous position.}}
-* [[_MOUSEPIPEOPEN]] (function) {{text|creates a pipe handle value for a mouse when using a virtual keyboard.}}
 * [[_MOUSESHOW]] (statement) {{text|displays the mouse cursor after it has been hidden or can change the cursor shape.}}
 * [[_MOUSEWHEEL]] (function) {{text|returns the number of mouse scroll wheel "clicks" since last read.}}
 * [[_MOUSEX]] (function) {{text|returns the current horizontal position of the mouse cursor.}}
@@ -462,12 +462,9 @@ __NOTOC__
 &lt;div id = "C">C&lt;/div>
 * [[CALL]] (statement) {{text|optional statement that sends the program to a [[SUB]] procedure.  Requires parameters be enclosed in brackets(parenthesis).}}
 * [[CALL ABSOLUTE]] (statement) {{text|is used to access computer interrupt registers.}}
-* [[CALLS]] (non-BASIC call statement)
 * [[CASE]] ([[SELECT CASE]] condition) {{text|designates specific conditions in a [[SELECT CASE]] statement block.}}
 * [[CASE ELSE]] ([[SELECT CASE]] condition) {{text|designates an alternative condition to be evaluated in a [[SELECT CASE]] statement block.}}
 * [[CASE IS]] ([[SELECT CASE]] condition) {{text|designates specific conditions in a [[SELECT CASE]] statement block.}}
-* [[CDBL]] (function) {{text|returns the closest [[DOUBLE]] value of a number.}}
-* [[CDECL]] ([[DECLARE (non-BASIC statement)]])
 * [[CHAIN]] (statement) {{text|sends a program to another specified program module or compiled program.}}
 * [[CHDIR]] (statement) {{text|changes the current program path for file access.}}
 * [[CHR$]] (function) {{text|returns a text [[STRING|string]] character by the specified [[ASCII]] code number.}}
@@ -499,9 +496,6 @@ __NOTOC__
 &lt;div id = "D">D&lt;/div>
 * [[DATA]] (statement) {{text|creates a line of fixed program information separated by commas.}}
 * [[DATE$]] (function) {{text|returns the present Operating System date [[STRING|string]] formatted as mm-dd-yyyy.}}
-* [[DATE$ (statement)]] {{text|sets the date of the Operating System using a mm-dd-yyyy [[STRING|string]] format.}}
-* DECLARE (BASIC statement) {{text|declares a [[SUB]] or [[FUNCTION]] procedure at the start of a program. Not required in QB64.}}
-* [[DECLARE (non-BASIC statement)]] {{text|declares non-basic [[SUB]] or [[FUNCTION]] procedures. Not implemented in QB64.}}
 * [[DECLARE LIBRARY|DECLARE LIBRARY (QB64 statement block)]] {{text|declares a C++, SDL or Operating System [[SUB]] or [[FUNCTION]] to be used.}}
 * [[DECLARE DYNAMIC LIBRARY|DECLARE DYNAMIC LIBRARY (QB64 statement)]] {{text|declares DYNAMIC, CUSTOMTYPE or STATIC  library(DLL) [[SUB]] or [[FUNCTION]].}}
 * [[DEF SEG]] (statement) {{text|defines a segment in memory to be accessed by a memory procedure.}}
@@ -531,8 +525,6 @@ __NOTOC__
 * [[EOF]] (file function) {{text|returns -1 when a file [[INPUT (file statement)|INPUT]] or [[GET]] has reached the end of a file.}}
 * [[EQV]] (logic operator) {{text|is used to compare two numerical values bitwise.}}
 * [[ERASE]] (statement) {{text|clears the values from [[$STATIC]] arrays and completely removes [[$DYNAMIC]] arrays.}}
-* [[ERDEV]] (function) {{text|returns an error code from the last device to create an error.}}
-* [[ERDEV$]] (function) {{text|returns the 8 character name of the last device to declare an error as a [[STRING|string]].}}
 * [[ERL]] (error function) {{text|returns the closest line number before an error occurred if line numbers are used.}}
 * [[ERR]] (function) {{text|returns the [[ERROR Codes|ERROR code]] when a program error occurs.}}
 * [[ERROR]] (statement) {{text|sets a specific [[ERROR Codes|ERROR code]] to be simulated.}}
@@ -546,12 +538,10 @@ __NOTOC__
 
 &lt;div id = "F">F&lt;/div>
 * [[FIELD]] (statement) {{text|defines the variable sizes to be written or read from a file.}}
-* [[FILEATTR]] (function) {{text|returns the current file access mode.}}
 * [[FILES]] (statement) {{text|returns a list of files in the current directory path to the [[SCREEN]].}}
 * [[FIX]] (function) {{text|returns the rounded [[INTEGER]] value of a numerical value.}}
 * [[FOR...NEXT]] (statement) {{text|creates a recursive loop procedure that loop a specified number of times.}}
 * [[FOR (file statement)]] {{text|used in an [[OPEN]] file or device statement to indicate the access mode.}}
-* [[FRE]] (function) {{text|returns the number of bytes of Memory available to running programs.}}
 * [[TIMER (statement)|FREE (QB64 TIMER statement)]] {{text|frees a numbered TIMER event in QB64.}}
 * [[FREEFILE]] (file function) {{text|returns a file number that is currently not in use by the Operating System.}}
 * [[FUNCTION]] (procedure block) {{text|sub-procedure that can calculate and return one value to a program in its name.}}
@@ -594,8 +584,6 @@ __NOTOC__
 * [[INTEGER]] (% numerical type) {{text|2 byte whole values from -32768 to 32767.}}
 * [[INTERRUPT]] (statement) {{text|is used to access computer interrupt registers.}}
 * [[INTERRUPTX]] (statement) {{text|is used to access computer interrupt registers.}}
-* [[IOCTL]] (statement)
-* [[IOCTL$]] (function)
 
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
@@ -671,14 +659,10 @@ __NOTOC__
 &lt;div id = "O">O&lt;/div>
 * [[OCT$]] (function) {{text|returns the octal (base 8) [[STRING]] representation of a decimal [[INTEGER]] value.}}
 * [[OFF]] (event statement) {{text|turns off all [[ON]] event checking.}}
-* [[ON COM(n)]] (statement) {{text|sets up a COM port event procedure call.}}
 * [[ON ERROR]] (statement) {{text|sets up and activates an error event checking procedure call. Use to avoid program errors.}}
 * [[ON KEY(n)]] (statement) {{text|sets up a keyboard key entry event procedure.}}
-* [[ON PEN]] (statement) {{text|sets up a pen event procedure call.}}
-* [[ON PLAY(n)]] (statement) {{text|sets up a [[PLAY]] event procedure call.}}
 * [[ON STRIG(n)]] (statement) {{text|sets up a joystick button event procedure call.}}
 * [[ON TIMER(n)]] (statement) {{text|sets up a timed event procedure call.}}
-* [[ON UEVENT]] (statement) '''{{text|Not implemented in QB64.}}'''
 * [[ON...GOSUB]] (statement) {{text|sets up a numerical event procedure call.}}
 * [[ON...GOTO]] (statement) {{text|sets up a numerical event procedure call.}}
 * [[OPEN]] (file statement) {{text|opens a file name for an access mode with a specific file number.}}
@@ -700,9 +684,6 @@ __NOTOC__
 * [[PALETTE USING]] (statement) {{text|sets the color intensity settings using a designated [[arrays|array]].}}
 * [[PCOPY]] (statement) {{text|swaps two designated memory page images when page swapping is enabled in the [[SCREEN]] statement.}}
 * [[PEEK]] (function) {{text|returns a numerical value from a specified segment address in memory.}} 
-* [[PEN]] (function) {{text|returns requested information about the lightpen device used.}}
-* [[PEN (statement)]] {{text|enables/disables or suspends event trapping of a lightpen device.}}
-* [[PLAY(n)]] (function) {{text|returns the number of notes currently in the background music queue.}}
 * [[PLAY]] (statement) {{text|uses a special [[STRING|string]] format that can produce musical tones and effects.}}
 * [[PMAP]] (function) {{text|returns the physical or WINDOW view graphic coordinates.}}
 * [[POINT]] (function) {{text|returns the color attribute number or 32 bit [[_RGB32]] value.}}
@@ -753,12 +734,10 @@ __NOTOC__
 * [[SEEK]] (function) {{text|returns the present byte position in an [[OPEN|opened]] file.}}
 * [[SEEK (statement)]] {{text|moves to a specified position in an [[OPEN|opened]] file.}}
 * [[SELECT CASE]] (statement) {{text|a program flow block that can handle numerous conditional evaluations.}}
-* [[SETMEM]] (function) {{text|sets the memory to use.}}
 * [[SGN]] (function) {{text|returns -1 for negative, 0 for zero, and 1 for positive numerical values.}}
 * [[SHARED]] (statement) {{text|designates that a variable can be used by other procedures or the main procedure when in a sub-procedure.}}
 * [[SHELL]] (statement) {{text|sends [[STRING]] commands to the command line. SHELL calls will not affect the current path.}}
 * [[SHELL (function)|SHELL (QB64 function)]] {{text|executes an external command or calls another program. Returns codes sent by [[END]] or [[SYSTEM]].}}
-* [[SIGNAL]] (OS 2 event)
 * [[SIN]] (function) {{text|returns the sine of a radian angle.}}
 * [[SINGLE]] (! numerical type) {{text|4 byte floating decimal point values up to 7 decimal places.}}
 * [[SLEEP]] (statement) {{text|pauses the program for a designated number of seconds or until a key is pressed.}}
@@ -802,7 +781,6 @@ __NOTOC__
 &lt;div id = "U">U&lt;/div>
 * [[UBOUND]] (function) {{text|returns the upper-most index number of a designated [[arrays|array]].}}
 * [[UCASE$]] (function) {{text|returns an uppercase representation of a specified [[STRING]].}}
-* [[UEVENT]] (statement) '''{{text|Not implemented in QB64.}}'''
 * [[UNLOCK]] (statement) {{text|unlocks a designated file or portions of it.}}
 * [[UNTIL]] (condition) {{text|evaluates a [[DO...LOOP]] condition until it is True.}}
 

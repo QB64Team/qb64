@@ -47,7 +47,7 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 
 ===File Access Modes===
 * FOR mode can be:
-** '''OUTPUT''': Sequential mode creates a new file or erases an existing file for new program output. Use [[WRITE (file statement)|WRITE #]] to write numerical or text data or [[PRINT (file statement)|PRINT #]] for text. '''OUTPUT clears files of all data''' and clears the receive buffer on other devices such as [[ON COM(n)|COM]].
+** '''OUTPUT''': Sequential mode creates a new file or erases an existing file for new program output. Use [[WRITE (file statement)|WRITE #]] to write numerical or text data or [[PRINT (file statement)|PRINT #]] for text. '''OUTPUT clears files of all data''' and clears the receive buffer on other devices such as COM ports.
 ** '''APPEND''': Sequential mode creates a new file if it doesn't exist or appends program output to the end of an existing file. Use [[WRITE (file statement)|WRITE #]] for numerical or text data or [[PRINT (file statement)|PRINT #]] for text as in the OUTPUT mode. '''APPEND does not remove previous data.''' 
 ** '''INPUT''' : Sequential mode '''only reads input''' from an existing file. '''[[ERROR Codes|File error]] if file does not exist.''' Use [[INPUT (file statement)|INPUT #]] for comma separated numerical or text data and [[LINE INPUT (file statement)|LINE INPUT #]] or [[INPUT$]] to only read text data. '''Use [[_FILEEXISTS]] or [[_DIREXISTS]] to avoid errors.'''
 ** '''BINARY''': Creates a new file when it doesn't exist or reads and writes to an existing binary file. Use [[GET|GET #]] to read or [[PUT|PUT #]] to write byte positions simultaneously. [[LEN]] = statements are ignored in this mode.

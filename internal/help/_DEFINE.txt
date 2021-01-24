@@ -3,7 +3,7 @@
 
 
 {{PageSyntax}}
-:[[_DEFINE]] {{Parameter|letter}}[{{Parameter|-range}}, ...] [[AS]] [{{KW|_UNSIGNED}}] data[[type]]
+:[[_DEFINE]] {{Parameter|letter}}[{{Parameter|-range}}, ...] [[AS]] [{{KW|_UNSIGNED}}] data[[Variable Types|type]]
 
 
 {{Parameters}}
@@ -14,7 +14,7 @@
 
 {{PageDescription}}
 * '''When a variable has not been defined or has no type suffix, the value defaults to a [[SINGLE]] precision floating point value.'''
-* _DEFINE sets the [[type]] of all variable names with the starting letter(s) or letter ranges  when encountered in the progression of the program (even in conditional statement blocks not executed and subsequent [[SUB]] procedures). 
+* _DEFINE sets the [[Variable Types|type]] of all variable names with the starting letter(s) or letter ranges  when encountered in the progression of the program (even in conditional statement blocks not executed and subsequent [[SUB]] procedures). 
 * '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix ($)! You cannot use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements.'''
 * '''Qbasic's IDE''' added DEF statements before any [[SUB]] or [[FUNCTION]]. '''QB64''' (like QB) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|"Parameter Type Mismatch"]] warning or adding the proper DEF statement to subsequent procedures. If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures.
 * May also affect [[$INCLUDE]] procedures.

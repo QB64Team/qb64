@@ -332,6 +332,9 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_ASSERT]] (statement) {{text|Performs debug tests.}}
 * [[$ASSERTS]] (metacommand) {{text|Enables the [[_ASSERT]] macro}}* [[$CHECKING]] ([[Metacommand]]) {{text|turns off or on error event checking and strips error code from compiled programs.}}
 * [[_ERRORLINE]] (function) {{text|returns the actual text code line where a program error occurred.}} 
+* [[_INCLERRORFILE$]] {function) {{text|returns the name of the original source code $INCLUDE module that caused the most recent error.}}
+* [[_INCLERRORLINE]] (function) {{text|returns the line number in an included file that caused the most recent error.}}
+* [[_ERRORMESSAGE$]] (function) {{text|returns a human-readable message describing the most recent runtime error.}}
 * [[ERR]] (function) {{text|returns the error code number of the last error to occur.}}
 * [[ERROR]] (statement) {{text|simulates a program error based on the error code number used.}}
 * [[ERL]] (function) {{text|returns the closest line number before an error occurred if the program uses them.}}
@@ -382,7 +385,6 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[CLOSE]] (statement) {{text|closes a specified file or all open files.}}
 * [[EOF]] (file function) {{text|returns -1 when the end of a file has been read.}}
 * [[FIELD]] (statement) {{text|creates a [[STRING]] type definition for a random-access file buffer.}}
-* [[FILEATTR]] (function) {{text|can return a file's current file mode or DOS handle number.}}
 * [[FILES]] (statement) {{text|displays a specified list of files.}}
 * [[FREEFILE]] (file function) {{text|returns a file access number that is currently not in use.}}
 * [[GET]] (file I/O statement) {{text|reads file data by byte or record positions.}}
@@ -524,7 +526,7 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_CONTROLCHR (function)]]  {{text| returns the current state of _CONTROLCHR as 1 when OFF and 0 when ON.}}
 * [[_EXIT (function)]] {{text|prevents a program user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.}}
 * [[_KEYDOWN]] (function) {{text|returns whether modifying keys like CTRL, ALT, SHIFT, and any other keys are pressed.}}
-* [[_KEYHIT]] (function) {{text|returns ASCII one and two byte, SDL Virtual Key and Unicode keyboard key press codes.}}
+* [[_KEYHIT]] (function) {{text|returns ASCII one and two byte, Virtual Key and Unicode keyboard key press codes.}}
 * [[_SCREENPRINT]] (statement) {{text|simulates typing text into another OS program using the keyboard.}}
 
 
@@ -553,7 +555,7 @@ The following table describes the error codes that are reported by the '''QB64''
 
 * [[ALIAS]] (statement) {{text|tells the program that you will use a different name than the name used in the Library file.}}
 * [[BYVAL]] (statement) {{text|used to pass a parameter's value with sub-procedures from a Library.}}
-* [[DECLARE LIBRARY]] {{text|allows the use of OS specific, SDL or C++ external library [[SUB]] and [[FUNCTION]] procedures}}
+* [[DECLARE LIBRARY]] {{text|allows the use of OS specific or C++ external library [[SUB]] and [[FUNCTION]] procedures}}
 * [[DECLARE DYNAMIC LIBRARY]] {{text|declares DYNAMIC, CUSTOMTYPE or STATIC  library(DLL) [[SUB]]s or [[FUNCTION]]s.}}
 * [[DECLARE LIBRARY| END DECLARE]] {{text|required at the END of the block of Library declarations in QB64.}}
 
@@ -740,14 +742,11 @@ The following table describes the error codes that are reported by the '''QB64''
 
 == Port Input and Output (COM and LPT) ==
 
-* [[COM(n)]] (statement) {{text|used in an OPEN COM statement to open "COM1" or "COM2".}}
-
 
 * [[GET]] (file I/O statement) {{text|reads port data data by byte or record positions.}}
 * [[LOC]] (function) {{text|finds the current file location or size of a [[COM]] port receive buffer.}}
 
 
-* [[ON COM(n)]] (event statement) {{text|branches to a line number or label when there is a value in the serial port specified.}}
 * [[OPEN COM]] (statement) {{text|opens a computer serial COMmunications port.}}
 * [[OUT]] (statement) {{text|sends values to register or port hardware addresses (emulated - limited access).}}
 
@@ -993,7 +992,7 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[_DISPLAY]] (statement) {{text|turns off automatic display while only displaying the screen changes when called.}}
 *[[_FREETIMER]] (function) {{text|returns a free TIMER number for multiple [[ON TIMER(n)]] events.}}
 * [[_KEYDOWN]] (function) {{text|returns whether modifying keys like CTRL, ALT, SHIFT, and any other keys are pressed.}}
-* [[_KEYHIT]] (function) {{text|returns ASCII one and two byte, SDL Virtual Key and Unicode keyboard key press codes.}}
+* [[_KEYHIT]] (function) {{text|returns ASCII one and two byte, Virtual Key and Unicode keyboard key press codes.}}
 * [[_LIMIT]] (statement) {{text|sets the loop repeat rate of a program to so many per second, relinquishing spare cpu cycles.}}
 
 
@@ -1046,7 +1045,7 @@ The following table describes the error codes that are reported by the '''QB64''
 * [[SCREEN]] {{text|sets the screen mode of a program. No statement defaults the program to SCREEN 0 text mode.}}
 
 
-&lt;center>''See also:'' [[C_Libraries#Console_Window|Console Window]],  [[SDL_Libraries#Window|SDL Frameless Window Library]],  [[Windows_Libraries#Hot_Keys_.28maximize.29|Windows Hot Keys]] or [[Windows_Libraries#Focus|Focus on Program]].&lt;/center>
+&lt;center>''See also:'' [[C_Libraries#Console_Window|Console Window]],  [[Windows_Libraries#Hot_Keys_.28maximize.29|Windows Hot Keys]] or [[Windows_Libraries#Focus|Focus on Program]].&lt;/center>
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 

@@ -28,7 +28,7 @@ a$ = "The quick brown fox jumps over the lazy dog. "
  
 b$ = {{Cl|_DEFLATE$}}(a$)
 {{Cl|PRINT}} "After using _DEFLATE$ to compress it, LEN ="; {{Cl|LEN}}(b$)
-{{Cl|PRINT}} {{Cl|USING}} "(compressed size is #.###% of the original)"; (({{Cl|LEN}}(b$) * 100) / {{Cl|LEN}}(a$))
+{{Cl|PRINT USING}} "(compressed size is #.###% of the original)"; (({{Cl|LEN}}(b$) * 100) / {{Cl|LEN}}(a$))
 c$ = {{Cl|_INFLATE$}}(b$)
 PRINT "After using _INFLATE$ to decompress it, LEN ="; {{Cl|LEN}}(c$)
  {{CodeEnd}}
