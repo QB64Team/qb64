@@ -38,36 +38,30 @@ Negative (signed) numerical values can affect calculations when using any of the
 ==Mathematical Operation Symbols==
 Most of the BASIC math operators are ones that require no introduction. The addition, subtraction, multplication and division operators are ones commonly used as shown below:
 
-{| align="center" border=1 
-! Symbol 
-! Procedure Type
-! Example Usage
-! Operation Order 
+{| class="wikitable"
+! Symbol !! Procedure Type !! Example Usage !! Operation Order 
 |- 
-| align="center" |[[+]] ||  Addition || align="center" | c = a + b  || align="center" | Last
+| + || Addition || c = a + b || Last
 |-
-| align="center" |[[-]] ||  Subtraction  || align="center" | c = a - b || align="center" | Last
+| - || Subtraction || c = a - b || Last
 |-
-| align="center" |[[-]] ||  Negation  || align="center" | c = - a || align="center" | Last
+| - || Negation || c = -a || Last
 |- 
-| align="center" |[[*]] ||  Multiplication || align="center" | c = a * b || align="center" | Second
+| * || Multiplication || c = a * b || Second
 |-
-| align="center" |[[/]] ||  Division  || align="center" | c = a / b || align="center" | Second
+| / || Division || c = a / b || Second
 |}
 
 
 BASIC can also use two other operators for '''[[INTEGER]] division'''. Integer division returns only whole number values. [[MOD]] '''remainder division''' returns a value only if an integer division cannot divide a number exactly. Returns 0 if a value is exactly divisible.
 
 
-{| align="center" border=1
-!Symbol
-!Procedure Type
-!Example Usage
-!Operation Order 
+{| class="wikitable"
+! Symbol !!Procedure Type !!Example Usage !!Operation Order 
 |-
-| align="center" |[[\]] ||  Integer division || align="center" | c = a \ b || align="center" | Second 
+| \ || Integer division ||  c = a \ b || Second 
 |-
-| align="center" |[[MOD]] ||  Remainder division  || align="center" | c = a MOD b || align="center" | Second
+| MOD || Remainder division ||  c = a MOD b ||  Second
 |}
 
 
@@ -77,15 +71,12 @@ BASIC can also use two other operators for '''[[INTEGER]] division'''. Integer d
 There is also an operator for '''exponential''' calculations. The exponential operator is used to raise a number's value to a designated exponent of itself. In QB the exponential return values are [[DOUBLE]] values. The [[SQR]] function can return a number's Square Root. For other '''exponential roots''' the operator can be used with fractions such as (1 / 3) designating the cube root of a number. 
 
 
-{| align="center" border=1
-!Symbol
-!Procedure
-!Example Usage 
-!Operation Order
+{| class="wikitable"
+! Symbol !!Procedure !!Example Usage !!Operation Order
 |-
-| align="center" |[[^]] || Exponent || align="center" | c = a [[^]] (1 / 2) || align="center" | First
+| ^ || Exponent ||  c = a ^ (1 / 2) ||  First
 |-
-| align="center" | [[SQR]] || Square Root || align="center" | c = [[SQR]](a [[^]] 2 + b [[^]] 2) || align="center" | First 
+|  SQR || Square Root ||  c = SQR(a ^ 2 + b ^ 2) ||  First 
 |}
 
 
@@ -113,28 +104,27 @@ Sometimes a calculation may need BASIC to do them in another order or the calcul
 
 ==Basic's Mathematical Functions==
 
-{| align=center border=1
- ! Function
- ! Description
- |-
- | [[ABS]](n) || returns the absolute (positive) value of n: ABS(-5) = 5
- |- 
- | [[ATN]](angle*) || returns the arctangent of an angle in radians: π = 4 * ATN(1)
- |-
- | [[COS]](angle*) || returns the cosine of an angle in radians. (horizontal component)
- |-
- | [[EXP]](n) || returns e&lt;sup>x&lt;/sup>, '''(n &lt;= 88.02969)''': e = EXP(1) ' (e = 2.718281828459045)
- |-
- | [[LOG]](n) || returns the base e natural logarithm of n. '''(n > 0)'''
- |-
- | [[SGN]](n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
- |-
- | [[SIN]](angle*) || returns the sine of an angle in radians. (vertical component)
- |-
- | [[SQR]](n) || returns the square root of a number. '''(n >= 0)'''
- |-
- | [[TAN]](angle*) ||  returns the tangent of an angle in radians
- |}
+{| class="wikitable"
+! Function !! Description
+|-
+| ABS(n) || returns the absolute (positive) value of n: ABS(-5) = 5
+|- 
+| ATN(angle*) || returns the arctangent of an angle in radians: pi = 4 * ATN(1)
+|-
+| COS(angle*) || returns the cosine of an angle in radians. (horizontal component)
+|-
+| EXP(n) || returns e ^ x, (n &lt;= 88.02969): e = EXP(1) ' (e = 2.718281828459045)
+|-
+| LOG(n) || returns the base e natural logarithm of n. (n > 0)
+|-
+| SGN(n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
+|-
+| SIN(angle*) || returns the sine of an angle in radians. (vertical component)
+|-
+| SQR(n) || returns the square root of a number. (n >= 0)
+|-
+| TAN(angle*) ||  returns the tangent of an angle in radians
+|}
 
 &lt;center> '''* angles measured in radians'''&lt;/center>
 
@@ -326,24 +316,22 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 
 : Rounding is used when the program needs a certain number value or type. There are 4 [[INTEGER]] or [[LONG]] Integer functions and one function each for closest [[SINGLE]] and closest [[DOUBLE]] numerical types. Closest functions use "bankers" rounding which rounds up if the decimal point value is over one half. Variable types should match the return value.
 
-{| align=center border=1
-! Name
-! Description
+{| class="wikitable"
+! Name !! Description
 |-
-
-|[[INT]](n) || rounds down to lower Integer value whether positive or negative
+|INT(n) || rounds down to lower Integer value whether positive or negative
 |-
-|[[FIX]](n) || rounds positive values lower and negative to a less negative Integer value
+|FIX(n) || rounds positive values lower and negative to a less negative Integer value
 |-
-|[[CINT]](n) ||rounds to closest Integer. Rounds up for decimal point values over one half.
+|CINT(n) ||rounds to closest Integer. Rounds up for decimal point values over one half.
 |-
-| [[CLNG]](n) || rounds Integer or Long values to closest value like CINT.(values over 32767)
+| CLNG(n) || rounds Integer or Long values to closest value like CINT.(values over 32767)
 |-
-| [[CSNG]](n) || rounds Single values to closest last decimal point value.
+| CSNG(n) || rounds Single values to closest last decimal point value.
 |-
-| [[CDBL]](n) || rounds Double values to closest last decimal point value.
+| CDBL(n) || rounds Double values to closest last decimal point value.
 |-
-| [[_ROUND]] || rounds to closest numerical integer value in '''QB64''' only.
+| _ROUND || rounds to closest numerical integer value.
 |}
 
 ===Note===
