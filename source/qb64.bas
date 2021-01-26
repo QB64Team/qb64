@@ -1843,89 +1843,142 @@ DO
                                 END IF
                             END IF
 
-                            lasttypeelement = lasttypeelement + 1
-                            i2 = lasttypeelement
-                            udtenext(i2) = 0
-
-                            IF n < 3 THEN a$ = "Expected variablename AS type or END TYPE": GOTO errmes
+                            IF n < 3 THEN a$ = "Expected element-name AS type, AS type element-list, or END TYPE": GOTO errmes
                             n$ = firstelement$
 
-                            ii = 2
+                            IF n$ <> "AS" THEN
+                                'traditional variable-name AS type syntax, single-element
+                                lasttypeelement = lasttypeelement + 1
+                                i2 = lasttypeelement
+                                udtenext(i2) = 0
 
-                            udtearrayelements(i2) = 0
+                                ii = 2
 
-                            IF ii >= n OR getelement$(a$, ii) <> "AS" THEN a$ = "Expected variablename AS type or END TYPE": GOTO errmes
-                            t$ = getelements$(a$, ii + 1, n)
+                                udtearrayelements(i2) = 0
 
-                            typ = typname2typ(t$)
-                            IF Error_Happened THEN GOTO errmes
-                            IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
-                            typsize = typname2typsize
+                                IF ii >= n OR getelement$(a$, ii) <> "AS" THEN a$ = "Expected element-name AS type, AS type element-list, or END TYPE": GOTO errmes
+                                t$ = getelements$(a$, ii + 1, n)
 
-                            IF validname(n$) = 0 THEN a$ = "Invalid name": GOTO errmes
-                            udtename(i2) = n$
+                                typ = typname2typ(t$)
+                                IF Error_Happened THEN GOTO errmes
+                                IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
+                                typsize = typname2typsize
 
-                            udtecname(i2) = getelement$(ca$, 1)
-                            udtetype(i2) = typ
-                            udtetypesize(i2) = typsize
+                                IF validname(n$) = 0 THEN a$ = "Invalid name": GOTO errmes
+                                udtename(i2) = n$
 
-                            hashname$ = n$
+                                udtecname(i2) = getelement$(ca$, 1)
+                                NormalTypeBlock:
+                                udtetype(i2) = typ
+                                udtetypesize(i2) = typsize
 
-                            'check for name conflicts (any similar reserved or element from current UDT)
-                            hashchkflags = HASHFLAG_RESERVED + HASHFLAG_UDTELEMENT
-                            hashres = HashFind(hashname$, hashchkflags, hashresflags, hashresref)
-                            DO WHILE hashres
-                                IF hashresflags AND HASHFLAG_UDTELEMENT THEN
-                                    IF hashresref = i THEN a$ = "Name already in use": GOTO errmes
-                                END IF
-                                IF hashresflags AND HASHFLAG_RESERVED THEN
-                                    IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use": GOTO errmes
-                                END IF
-                                IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
-                            LOOP
-                            'add to hash table
-                            HashAdd hashname$, HASHFLAG_UDTELEMENT, i
+                                hashname$ = n$
 
-                            'Calculate element's size
-                            IF typ AND ISUDT THEN
-                                u = typ AND 511
-                                udtesize(i2) = udtxsize(u)
-                                IF udtxbytealign(u) THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
-                                IF udtxvariable(u) THEN udtxvariable(i) = -1
-                            ELSE
-                                IF (typ AND ISSTRING) THEN
-                                    IF (typ AND ISFIXEDLENGTH) = 0 THEN
-                                        udtesize(i2) = OFFSETTYPE AND 511
-                                        udtxvariable(i) = -1
-                                    ELSE
-                                        udtesize(i2) = typsize * 8
+                                'check for name conflicts (any similar reserved or element from current UDT)
+                                hashchkflags = HASHFLAG_RESERVED + HASHFLAG_UDTELEMENT
+                                hashres = HashFind(hashname$, hashchkflags, hashresflags, hashresref)
+                                DO WHILE hashres
+                                    IF hashresflags AND HASHFLAG_UDTELEMENT THEN
+                                        IF hashresref = i THEN a$ = "Name already in use": GOTO errmes
                                     END IF
-                                    udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                    IF hashresflags AND HASHFLAG_RESERVED THEN
+                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use": GOTO errmes
+                                    END IF
+                                    IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
+                                LOOP
+                                'add to hash table
+                                HashAdd hashname$, HASHFLAG_UDTELEMENT, i
+
+                                'Calculate element's size
+                                IF typ AND ISUDT THEN
+                                    u = typ AND 511
+                                    udtesize(i2) = udtxsize(u)
+                                    IF udtxbytealign(u) THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                    IF udtxvariable(u) THEN udtxvariable(i) = -1
                                 ELSE
-                                    udtesize(i2) = typ AND 511
-                                    IF (typ AND ISOFFSETINBITS) = 0 THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                    IF (typ AND ISSTRING) THEN
+                                        IF (typ AND ISFIXEDLENGTH) = 0 THEN
+                                            udtesize(i2) = OFFSETTYPE AND 511
+                                            udtxvariable(i) = -1
+                                        ELSE
+                                            udtesize(i2) = typsize * 8
+                                        END IF
+                                        udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                    ELSE
+                                        udtesize(i2) = typ AND 511
+                                        IF (typ AND ISOFFSETINBITS) = 0 THEN udtxbytealign(i) = 1: udtebytealign(i2) = 1
+                                    END IF
                                 END IF
-                            END IF
 
-                            'Increase block size
-                            IF udtebytealign(i2) THEN
-                                IF udtxsize(i) MOD 8 THEN
-                                    udtxsize(i) = udtxsize(i) + (8 - (udtxsize(i) MOD 8))
+                                'Increase block size
+                                IF udtebytealign(i2) THEN
+                                    IF udtxsize(i) MOD 8 THEN
+                                        udtxsize(i) = udtxsize(i) + (8 - (udtxsize(i) MOD 8))
+                                    END IF
                                 END IF
-                            END IF
-                            udtxsize(i) = udtxsize(i) + udtesize(i2)
+                                udtxsize(i) = udtxsize(i) + udtesize(i2)
 
-                            'Link element to previous element
-                            IF udtxnext(i) = 0 THEN
-                                udtxnext(i) = i2
+                                'Link element to previous element
+                                IF udtxnext(i) = 0 THEN
+                                    udtxnext(i) = i2
+                                ELSE
+                                    udtenext(i2 - 1) = i2
+                                END IF
+
+                                'print "+"+rtrim$(udtename(i2));udtetype(i2);udtesize(i2);udtebytealign(i2);udtxsize(i)
+                                IF newAsTypeBlockSyntax THEN RETURN
+                                GOTO finishedlinepp
                             ELSE
-                                udtenext(i2 - 1) = i2
+                                'new AS type variable-list syntax, multiple elements
+                                ii = 2
+
+                                IF ii >= n THEN a$ = "Expected element-name AS type, AS type element-list, or END TYPE": GOTO errmes
+                                previousElement$ = ""
+                                t$ = ""
+                                lastElement$ = ""
+                                buildTypeName:
+                                lastElement$ = getelement$(a$, ii)
+                                IF lastElement$ <> "," AND lastElement$ <> "" THEN
+                                    n$ = lastElement$
+                                    cn$ = getelement$(ca$, ii)
+                                    IF LEN(previousElement$) THEN t$ = t$ + previousElement$ + " "
+                                    previousElement$ = n$
+                                    lastElement$ = ""
+                                    ii = ii + 1
+                                    GOTO buildTypeName
+                                END IF
+
+                                t$ = RTRIM$(t$)
+                                typ = typname2typ(t$)
+                                IF Error_Happened THEN GOTO errmes
+                                IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
+                                typsize = typname2typsize
+
+                                nexttypeelement:
+                                lasttypeelement = lasttypeelement + 1
+                                i2 = lasttypeelement
+                                udtenext(i2) = 0
+                                udtearrayelements(i2) = 0
+
+                                udtename(i2) = n$
+                                udtecname(i2) = cn$
+
+                                IF validname(n$) = 0 THEN a$ = "Invalid name": GOTO errmes
+
+                                newAsTypeBlockSyntax = -1
+                                GOSUB NormalTypeBlock
+                                newAsTypeBlockSyntax = 0
+
+                                getNextElement:
+                                ii = ii + 1
+                                lastElement$ = getelement$(a$, ii)
+                                IF lastElement$ = "" THEN GOTO finishedlinepp
+                                IF ii = n AND lastElement$ = "," THEN a$ = "Expected element-name": GOTO errmes
+                                IF lastElement$ = "," THEN GOTO getNextElement
+                                n$ = lastElement$
+                                cn$ = getelement$(ca$, ii)
+                                GOTO nexttypeelement
                             END IF
-
-                            'print "+"+rtrim$(udtename(i2));udtetype(i2);udtesize(i2);udtebytealign(i2);udtxsize(i)
-
-                            GOTO finishedlinepp
-
                         END IF 'definingtype
 
                         IF definingtype AND n >= 1 THEN a$ = "Expected END TYPE": GOTO errmes
@@ -3558,22 +3611,65 @@ DO
             GOTO finishednonexec
         END IF
 
-        IF n < 3 OR secondelement$ <> "AS" THEN a$ = "Expected element-name AS type-name": GOTO errmes
+        IF n < 3 THEN a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
         definingtype = 2
-        l$ = getelement(ca$, 1) + sp + "AS"
-        t$ = getelements$(a$, 3, n)
-        typ = typname2typ(t$)
-        IF Error_Happened THEN GOTO errmes
-        IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
-        IF typ AND ISUDT THEN
-            IF UCASE$(RTRIM$(t$)) = "MEM" AND RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND qb64prefix_set = 1 THEN
-                t$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
-            ELSE
-                t$ = RTRIM$(udtxcname(typ AND 511))
+        IF firstelement$ = "AS" THEN
+            l$ = "AS"
+            t$ = ""
+            wordsInTypeName = 0
+            DO
+                nextElement$ = getelement$(a$, 2 + wordsInTypeName)
+                IF nextElement$ = "," THEN
+                    'element-list
+                    wordsInTypeName = wordsInTypeName - 2
+                    EXIT DO
+                END IF
+
+                wordsInTypeName = wordsInTypeName + 1
+                IF wordsInTypeName = n - 2 THEN
+                    'single element in line
+                    wordsInTypeName = wordsInTypeName - 1
+                    EXIT DO
+                END IF
+            LOOP
+
+            t$ = getelements$(a$, 2, 2 + wordsInTypeName)
+            typ = typname2typ(t$)
+            IF Error_Happened THEN GOTO errmes
+            IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
+            IF typ AND ISUDT THEN
+                IF UCASE$(RTRIM$(t$)) = "MEM" AND RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND qb64prefix_set = 1 THEN
+                    t$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                ELSE
+                    t$ = RTRIM$(udtxcname(typ AND 511))
+                END IF
             END IF
+            l$ = l$ + sp + t$
+            FOR i = 3 + wordsInTypeName TO n
+                thisElement$ = getelement$(ca$, i)
+                IF thisElement$ = "," THEN
+                    l$ = l$ + thisElement$
+                ELSE
+                    l$ = l$ + sp + thisElement$
+                END IF
+            NEXT
+            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+        ELSE
+            l$ = getelement(ca$, 1) + sp + "AS"
+            t$ = getelements$(a$, 3, n)
+            typ = typname2typ(t$)
+            IF Error_Happened THEN GOTO errmes
+            IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
+            IF typ AND ISUDT THEN
+                IF UCASE$(RTRIM$(t$)) = "MEM" AND RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND qb64prefix_set = 1 THEN
+                    t$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                ELSE
+                    t$ = RTRIM$(udtxcname(typ AND 511))
+                END IF
+            END IF
+            l$ = l$ + sp + t$
+            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
         END IF
-        l$ = l$ + sp + t$
-        layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
         GOTO finishednonexec
 
     END IF 'defining type
@@ -7009,7 +7105,7 @@ DO
             'get variable name
             n$ = getelement$(ca$, i): i = i + 1
 
-            IF n$ = "" THEN a$ = "Expected SHARED variable-name or SHARED AS type variable-name": GOTO errmes
+            IF n$ = "" THEN a$ = "Expected SHARED variable-name or SHARED AS type variable-list": GOTO errmes
 
             IF UCASE$(n$) <> "AS" THEN
                 'traditional dim syntax for SHARED
@@ -7190,7 +7286,7 @@ DO
                     previousElement$ = t2$
                     GOTO getshrtyp2
                 END IF
-                IF t$ = "" THEN a$ = "Expected SHARED AS type variable-name or SHARED variable-name AS type": GOTO errmes
+                IF t$ = "" THEN a$ = "Expected SHARED AS type variable-list or SHARED variable-name AS type": GOTO errmes
 
                 t = typname2typ(t$)
                 IF Error_Happened THEN GOTO errmes
@@ -7214,7 +7310,7 @@ DO
                 s$ = removesymbol(n$)
                 IF Error_Happened THEN GOTO errmes
                 IF s$ <> "" THEN
-                    a$ = "Cannot use type symbol with SHARED AS type variable-name (" + s$ + ")"
+                    a$ = "Cannot use type symbol with SHARED AS type variable-list (" + s$ + ")"
                     GOTO errmes
                 END IF
 
@@ -7614,7 +7710,7 @@ DO
                 'chaincommonarray=0
 
                 varname$ = getelement(ca$, i): i = i + 1
-                IF varname$ = "" THEN a$ = "Expected " + firstelement$ + " variable-name or " + firstelement$ + " AS type variable-name": GOTO errmes
+                IF varname$ = "" THEN a$ = "Expected " + firstelement$ + " variable-name or " + firstelement$ + " AS type variable-list": GOTO errmes
 
                 'get the next element
                 IF i >= n + 1 THEN e$ = "" ELSE e$ = getelement(a$, i): i = i + 1
@@ -8195,7 +8291,7 @@ DO
                 notype = 0
                 listarray = 0
 
-                IF typ$ = "" OR varname$ = "" THEN a$ = "Expected " + firstelement$ + " AS type variable-name or " + firstelement$ + " variable-name AS type": GOTO errmes
+                IF typ$ = "" OR varname$ = "" THEN a$ = "Expected " + firstelement$ + " AS type variable-list or " + firstelement$ + " variable-name AS type": GOTO errmes
 
                 'get the next element
                 IF i >= n + 1 THEN e$ = "" ELSE e$ = getelement(a$, i): i = i + 1
@@ -8245,7 +8341,7 @@ DO
                 IF validname(varname$) = 0 THEN a$ = "Invalid variable name": GOTO errmes
 
                 IF s$ <> "" THEN
-                    a$ = "Cannot use type symbol with " + firstelement$ + " AS type variable-name (" + s$ + ")"
+                    a$ = "Cannot use type symbol with " + firstelement$ + " AS type variable-list (" + s$ + ")"
                     GOTO errmes
                 END IF
 
