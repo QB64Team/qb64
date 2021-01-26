@@ -770,6 +770,7 @@ FUNCTION ide2 (ignore)
                     _PALETTECOLOR 13, IDETextColor, 0
                     _PALETTECOLOR 14, IDEQuoteColor, 0
 
+                    SCREEN , , 3, 0
                     'static background
                     COLOR 0, 7
                     _PRINTSTRING (1, 1), SPACE$(idewx)
@@ -800,8 +801,10 @@ FUNCTION ide2 (ignore)
                         ideshowtext
                     END IF
 
+                    PCOPY 3, 0
+
                     _DISPLAY
-                    _LIMIT 30
+                    _LIMIT 15
                 LOOP WHILE _RESIZE
 
                 IF retval = 1 THEN 'screen dimensions have changed and everything must be redrawn/reapplied
