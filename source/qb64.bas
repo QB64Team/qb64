@@ -7009,38 +7009,188 @@ DO
             'get variable name
             n$ = getelement$(ca$, i): i = i + 1
 
-            IF n$ = "" THEN a$ = "Expected SHARED variable-name": GOTO errmes
+            IF n$ = "" THEN a$ = "Expected SHARED variable-name or SHARED AS type variable-name": GOTO errmes
 
-            s$ = removesymbol(n$)
-            IF Error_Happened THEN GOTO errmes
-            l2$ = s$ 'either symbol or nothing
+            IF UCASE$(n$) <> "AS" THEN
+                'traditional dim syntax for SHARED
+                s$ = removesymbol(n$)
+                IF Error_Happened THEN GOTO errmes
+                l2$ = s$ 'either symbol or nothing
 
-            'array?
-            a = 0
-            IF getelement$(a$, i) = "(" THEN
-                IF getelement$(a$, i + 1) <> ")" THEN a$ = "Expected ()": GOTO errmes
-                i = i + 2
-                a = 1
-                l2$ = l2$ + sp2 + "(" + sp2 + ")"
-            END IF
+                'array?
+                a = 0
+                IF getelement$(a$, i) = "(" THEN
+                    IF getelement$(a$, i + 1) <> ")" THEN a$ = "Expected ()": GOTO errmes
+                    i = i + 2
+                    a = 1
+                    l2$ = l2$ + sp2 + "(" + sp2 + ")"
+                END IF
 
-            method = 1
+                method = 1
 
-            'specific type?
-            t$ = ""
-            ts$ = ""
-            t3$ = ""
-            IF getelement$(a$, i) = "AS" THEN
-                l2$ = l2$ + sp + "AS"
-                getshrtyp:
+                'specific type?
+                t$ = ""
+                ts$ = ""
+                t3$ = ""
+                IF getelement$(a$, i) = "AS" THEN
+                    l2$ = l2$ + sp + "AS"
+                    getshrtyp:
+                    i = i + 1
+                    t2$ = getelement$(a$, i)
+                    IF t2$ <> "," AND t2$ <> "" THEN
+                        IF t$ = "" THEN t$ = t2$ ELSE t$ = t$ + " " + t2$
+                        IF t3$ = "" THEN t3$ = t2$ ELSE t3$ = t3$ + sp + t2$
+                        GOTO getshrtyp
+                    END IF
+                    IF t$ = "" THEN a$ = "Expected AS type": GOTO errmes
+
+                    t = typname2typ(t$)
+                    IF Error_Happened THEN GOTO errmes
+                    IF t AND ISINCONVENTIONALMEMORY THEN t = t - ISINCONVENTIONALMEMORY
+                    IF t AND ISPOINTER THEN t = t - ISPOINTER
+                    IF t AND ISREFERENCE THEN t = t - ISREFERENCE
+                    tsize = typname2typsize
+                    method = 0
+                    IF (t AND ISUDT) = 0 THEN
+                        ts$ = type2symbol$(t$)
+                    ELSE
+                        t3$ = RTRIM$(udtxcname(t AND 511))
+                        IF RTRIM$(udtxcname(t AND 511)) = "_MEM" AND UCASE$(t$) = "MEM" AND qb64prefix_set = 1 THEN
+                            t3$ = MID$(RTRIM$(udtxcname(t AND 511)), 2)
+                        END IF
+                    END IF
+                    IF Error_Happened THEN GOTO errmes
+                    l2$ = l2$ + sp + t3$
+
+                END IF 'as
+
+                IF LEN(s$) <> 0 AND LEN(t$) <> 0 THEN a$ = "Expected symbol or AS type after variable name": GOTO errmes
+
+                'no symbol of type specified, apply default
+                IF s$ = "" AND t$ = "" THEN
+                    IF LEFT$(n$, 1) = "_" THEN v = 27 ELSE v = ASC(UCASE$(n$)) - 64
+                    s$ = defineextaz(v)
+                END IF
+
+                NormalSharedBlock:
+                'switch to main module
+                oldsubfunc$ = subfunc$
+                subfunc$ = ""
+                defdatahandle = 18
+                CLOSE #13: OPEN tmpdir$ + "maindata.txt" FOR APPEND AS #13
+                CLOSE #19: OPEN tmpdir$ + "mainfree.txt" FOR APPEND AS #19
+
+                'use 'try' to locate the variable (if it already exists)
+                n2$ = n$ + s$ + ts$ 'note: either ts$ or s$ will exist unless it is a UDT
+                try = findid(n2$)
+                IF Error_Happened THEN GOTO errmes
+                DO WHILE try
+                    IF a THEN
+                        'an array
+
+                        IF id.arraytype THEN
+                            IF LEN(t$) = 0 THEN GOTO shrfound
+                            t2 = id.arraytype: t2size = id.tsize
+                            IF t2 AND ISINCONVENTIONALMEMORY THEN t2 = t2 - ISINCONVENTIONALMEMORY
+                            IF t2 AND ISPOINTER THEN t2 = t2 - ISPOINTER
+                            IF t2 AND ISREFERENCE THEN t2 = t2 - ISREFERENCE
+                            IF t = t2 AND tsize = t2size THEN GOTO shrfound
+                        END IF
+
+                    ELSE
+                        'not an array
+
+                        IF id.t THEN
+                            IF LEN(t$) = 0 THEN GOTO shrfound
+                            t2 = id.t: t2size = id.tsize
+                            IF t2 AND ISINCONVENTIONALMEMORY THEN t2 = t2 - ISINCONVENTIONALMEMORY
+                            IF t2 AND ISPOINTER THEN t2 = t2 - ISPOINTER
+                            IF t2 AND ISREFERENCE THEN t2 = t2 - ISREFERENCE
+
+                            IF Debug THEN PRINT #9, "SHARED:comparing:"; t; t2, tsize; t2size
+
+                            IF t = t2 AND tsize = t2size THEN GOTO shrfound
+                        END IF
+
+                    END IF
+
+                    IF try = 2 THEN findanotherid = 1: try = findid(n2$) ELSE try = 0
+                    IF Error_Happened THEN GOTO errmes
+                LOOP
+                'unknown variable
+                IF a THEN a$ = "Array '" + n$ + "' not defined": GOTO errmes
+                'create variable
+                IF LEN(s$) THEN typ$ = s$ ELSE typ$ = t$
+                IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
+                bypassNextVariable = -1
+                retval = dim2(n$, typ$, method, "")
+                IF Error_Happened THEN GOTO errmes
+                'note: variable created!
+
+                shrfound:
+                IF newSharedSyntax = 0 THEN
+                    l$ = l$ + sp + RTRIM$(id.cn) + l2$
+                ELSE
+                    IF sharedAsLayoutAdded = 0 THEN
+                        sharedAsLayoutAdded = -1
+                        l$ = l$ + l2$ + sp$ + RTRIM$(id.cn) + l3$
+                    ELSE
+                        l$ = l$ + sp$ + RTRIM$(id.cn) + l3$
+                    END IF
+                END IF
+
+                ids(currentid).share = ids(currentid).share OR 2 'set as temporarily shared
+
+                'method must apply to the current sub/function regardless of how the variable was defined in 'main'
+                lmay = LEN(RTRIM$(id.mayhave)): lmust = LEN(RTRIM$(id.musthave))
+                IF lmay <> 0 OR lmust <> 0 THEN
+                    IF (method = 1 AND lmust = 0) OR (method = 0 AND lmay = 0) THEN
+                        revertmaymusthaven = revertmaymusthaven + 1
+                        revertmaymusthave(revertmaymusthaven) = currentid
+                        SWAP ids(currentid).musthave, ids(currentid).mayhave
+                    END IF
+                END IF
+
+                'switch back to sub/func
+                subfunc$ = oldsubfunc$
+                defdatahandle = 13
+                CLOSE #13: OPEN tmpdir$ + "data" + str2$(subfuncn) + ".txt" FOR APPEND AS #13
+                CLOSE #19: OPEN tmpdir$ + "free" + str2$(subfuncn) + ".txt" FOR APPEND AS #19
+
+                IF newSharedSyntax THEN RETURN
+
+                IF getelement$(a$, i) = "," THEN i = i + 1: l$ = l$ + sp2 + ",": GOTO subfuncshr
+                IF getelement$(a$, i) <> "" THEN a$ = "Expected ,": GOTO errmes
+
+                layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                GOTO finishedline
+            ELSE
+                'new dim syntax for SHARED!
+                i = i - 1 'relocate back to "AS"
+
+                'estabilish the data type:
+                t$ = ""
+                ts$ = ""
+                t3$ = ""
+                n$ = ""
+                previousElement$ = ""
+                l2$ = sp + "AS"
+                sharedAsLayoutAdded = 0
+                getshrtyp2:
                 i = i + 1
                 t2$ = getelement$(a$, i)
-                IF t2$ <> "," AND t2$ <> "" THEN
-                    IF t$ = "" THEN t$ = t2$ ELSE t$ = t$ + " " + t2$
-                    IF t3$ = "" THEN t3$ = t2$ ELSE t3$ = t3$ + sp + t2$
-                    GOTO getshrtyp
+                IF t2$ <> "," AND t2$ <> "(" AND t2$ <> "" THEN
+                    'get first variable name
+                    n$ = getelement$(ca$, i)
+
+                    IF LEN(previousElement$) THEN
+                        IF t$ = "" THEN t$ = previousElement$ ELSE t$ = t$ + " " + previousElement$
+                        IF t3$ = "" THEN t3$ = previousElement$ ELSE t3$ = t3$ + sp + previousElement$
+                    END IF
+                    previousElement$ = t2$
+                    GOTO getshrtyp2
                 END IF
-                IF t$ = "" THEN a$ = "Expected AS type": GOTO errmes
+                IF t$ = "" THEN a$ = "Expected SHARED AS type variable-name or SHARED variable-name AS type": GOTO errmes
 
                 t = typname2typ(t$)
                 IF Error_Happened THEN GOTO errmes
@@ -7060,96 +7210,41 @@ DO
                 IF Error_Happened THEN GOTO errmes
                 l2$ = l2$ + sp + t3$
 
-            END IF 'as
-
-            IF LEN(s$) <> 0 AND LEN(t$) <> 0 THEN a$ = "Expected symbol or AS type after variable name": GOTO errmes
-
-            'no symbol of type specified, apply default
-            IF s$ = "" AND t$ = "" THEN
-                IF LEFT$(n$, 1) = "_" THEN v = 27 ELSE v = ASC(UCASE$(n$)) - 64
-                s$ = defineextaz(v)
-            END IF
-
-            'switch to main module
-            oldsubfunc$ = subfunc$
-            subfunc$ = ""
-            defdatahandle = 18
-            CLOSE #13: OPEN tmpdir$ + "maindata.txt" FOR APPEND AS #13
-            CLOSE #19: OPEN tmpdir$ + "mainfree.txt" FOR APPEND AS #19
-
-            'use 'try' to locate the variable (if it already exists)
-            n2$ = n$ + s$ + ts$ 'note: either ts$ or s$ will exist unless it is a UDT
-            try = findid(n2$)
-            IF Error_Happened THEN GOTO errmes
-            DO WHILE try
-                IF a THEN
-                    'an array
-
-                    IF id.arraytype THEN
-                        IF LEN(t$) = 0 THEN GOTO shrfound
-                        t2 = id.arraytype: t2size = id.tsize
-                        IF t2 AND ISINCONVENTIONALMEMORY THEN t2 = t2 - ISINCONVENTIONALMEMORY
-                        IF t2 AND ISPOINTER THEN t2 = t2 - ISPOINTER
-                        IF t2 AND ISREFERENCE THEN t2 = t2 - ISREFERENCE
-                        IF t = t2 AND tsize = t2size THEN GOTO shrfound
-                    END IF
-
-                ELSE
-                    'not an array
-
-                    IF id.t THEN
-                        IF LEN(t$) = 0 THEN GOTO shrfound
-                        t2 = id.t: t2size = id.tsize
-                        IF t2 AND ISINCONVENTIONALMEMORY THEN t2 = t2 - ISINCONVENTIONALMEMORY
-                        IF t2 AND ISPOINTER THEN t2 = t2 - ISPOINTER
-                        IF t2 AND ISREFERENCE THEN t2 = t2 - ISREFERENCE
-
-                        IF Debug THEN PRINT #9, "SHARED:comparing:"; t; t2, tsize; t2size
-
-                        IF t = t2 AND tsize = t2size THEN GOTO shrfound
-                    END IF
-
-                END IF
-
-                IF try = 2 THEN findanotherid = 1: try = findid(n2$) ELSE try = 0
+                subfuncshr2:
+                s$ = removesymbol(n$)
                 IF Error_Happened THEN GOTO errmes
-            LOOP
-            'unknown variable
-            IF a THEN a$ = "Array '" + n$ + "' not defined": GOTO errmes
-            'create variable
-            IF LEN(s$) THEN typ$ = s$ ELSE typ$ = t$
-            IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
-            bypassNextVariable = -1
-            retval = dim2(n$, typ$, method, "")
-            IF Error_Happened THEN GOTO errmes
-            'note: variable created!
-
-            shrfound:
-            l$ = l$ + sp + RTRIM$(id.cn) + l2$
-
-            ids(currentid).share = ids(currentid).share OR 2 'set as temporarily shared
-
-            'method must apply to the current sub/function regardless of how the variable was defined in 'main'
-            lmay = LEN(RTRIM$(id.mayhave)): lmust = LEN(RTRIM$(id.musthave))
-            IF lmay <> 0 OR lmust <> 0 THEN
-                IF (method = 1 AND lmust = 0) OR (method = 0 AND lmay = 0) THEN
-                    revertmaymusthaven = revertmaymusthaven + 1
-                    revertmaymusthave(revertmaymusthaven) = currentid
-                    SWAP ids(currentid).musthave, ids(currentid).mayhave
+                IF s$ <> "" THEN
+                    a$ = "Cannot use type symbol with SHARED AS type variable-name (" + s$ + ")"
+                    GOTO errmes
                 END IF
+
+                'array?
+                a = 0
+                l3$ = ""
+                IF getelement$(a$, i) = "(" THEN
+                    IF getelement$(a$, i + 1) <> ")" THEN a$ = "Expected ()": GOTO errmes
+                    i = i + 2
+                    a = 1
+                    l3$ = sp2 + "(" + sp2 + ")"
+                END IF
+
+                newSharedSyntax = -1
+                GOSUB NormalSharedBlock
+                newSharedSyntax = 0
+
+                IF getelement$(a$, i) = "," THEN
+                    i = i + 1
+                    l$ = l$ + sp2 + ","
+
+                    'get next variable name
+                    n$ = getelement$(ca$, i): i = i + 1
+                    GOTO subfuncshr2
+                END IF
+                IF getelement$(a$, i) <> "" THEN a$ = "Expected ,": GOTO errmes
+
+                layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
+                GOTO finishedline
             END IF
-
-            'switch back to sub/func
-            subfunc$ = oldsubfunc$
-            defdatahandle = 13
-            CLOSE #13: OPEN tmpdir$ + "data" + str2$(subfuncn) + ".txt" FOR APPEND AS #13
-            CLOSE #19: OPEN tmpdir$ + "free" + str2$(subfuncn) + ".txt" FOR APPEND AS #19
-
-            IF getelement$(a$, i) = "," THEN i = i + 1: l$ = l$ + sp2 + ",": GOTO subfuncshr
-            IF getelement$(a$, i) <> "" THEN a$ = "Expected ,": GOTO errmes
-
-            layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
-            GOTO finishedline
         END IF
     END IF
 
@@ -7509,7 +7604,7 @@ DO
             'look for new dim syntax: DIM AS variabletype var1, var2, etc....
             e$ = getelement$(a$, i)
             IF e$ <> "AS" THEN
-                'no "AS", so this is the standard dim syntax
+                'no "AS", so this is the traditional dim syntax
                 dimnext:
                 notype = 0
                 listarray = 0
@@ -7519,7 +7614,7 @@ DO
                 'chaincommonarray=0
 
                 varname$ = getelement(ca$, i): i = i + 1
-                IF varname$ = "" THEN a$ = "Expected DIM variable-name or DIM AS data-type variable-name": GOTO errmes
+                IF varname$ = "" THEN a$ = "Expected " + firstelement$ + " variable-name or " + firstelement$ + " AS type variable-name": GOTO errmes
 
                 'get the next element
                 IF i >= n + 1 THEN e$ = "" ELSE e$ = getelement(a$, i): i = i + 1
@@ -8077,6 +8172,7 @@ DO
                 newDimSyntaxTypePassBack = 0
 
                 'estabilish the data type:
+                appendname$ = ""
                 appendtype$ = sp + "AS"
                 typ$ = ""
                 varname$ = ""
@@ -8099,7 +8195,7 @@ DO
                 notype = 0
                 listarray = 0
 
-                IF typ$ = "" OR varname$ = "" THEN a$ = "Expected " + firstelement$ + " AS data-type variable-name or " + firstelement$ + " variable-name AS data-type": GOTO errmes
+                IF typ$ = "" OR varname$ = "" THEN a$ = "Expected " + firstelement$ + " AS type variable-name or " + firstelement$ + " variable-name AS type": GOTO errmes
 
                 'get the next element
                 IF i >= n + 1 THEN e$ = "" ELSE e$ = getelement(a$, i): i = i + 1
@@ -8149,7 +8245,7 @@ DO
                 IF validname(varname$) = 0 THEN a$ = "Invalid variable name": GOTO errmes
 
                 IF s$ <> "" THEN
-                    a$ = "Cannot use type symbol with DIM AS data-type variable-name (" + s$ + ")"
+                    a$ = "Cannot use type symbol with " + firstelement$ + " AS type variable-name (" + s$ + ")"
                     GOTO errmes
                 END IF
 
