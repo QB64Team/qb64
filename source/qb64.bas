@@ -2956,7 +2956,13 @@ DO
             layout$ = "$CONSOLE:ONLY"
             DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) OR 1
             Console = 1
-            GOTO finishednonexec
+            IF prepass = 0 THEN
+                IF NoChecks = 0 THEN PRINT #12, "do{"
+                PRINT #12, "sub__dest(func__console());"
+                GOTO finishedline2
+            ELSE
+                GOTO finishednonexec
+            END IF
         END IF
 
         IF a3u$ = "$ASSERTS" THEN
