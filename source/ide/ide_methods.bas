@@ -2446,25 +2446,8 @@ FUNCTION ide2 (ignore)
             IdeContextHelpSF = 0
             'identify word or character at current cursor position
             a2$ = UCASE$(getWordAtCursor$)
-            'check if F1 is in help links
-            fh = FREEFILE
-            OPEN "internal\help\links.bin" FOR INPUT AS #fh
-            lnks = 0: lnks$ = CHR$(0)
-            DO UNTIL EOF(fh)
-                LINE INPUT #fh, l$
-                c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-                IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
-                    IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
-                        lnks = lnks + 1
-                        IF l2$ = l1$ THEN
-                            lnks$ = CHR$(0) + l2$ + lnks$
-                        ELSE
-                            lnks$ = lnks$ + l2$ + CHR$(0)
-                        END IF
-                    END IF
-                END IF
-            LOOP
-            CLOSE #fh
+            lnks = 0
+            lnks$ = findHelpTopic$(a2$, lnks, 0)
 
             IF lnks THEN
                 lnks$ = MID$(lnks$, 2, LEN(lnks$) - 2)
@@ -13122,21 +13105,9 @@ SUB IdeMakeContextualMenu
         END IF
 
         IF LEN(a2$) > 0 THEN
-            'check if F1 is in help links
-            fh = FREEFILE
-            OPEN "internal\help\links.bin" FOR INPUT AS #fh
-            lnks = 0: lnks$ = CHR$(0)
-            DO UNTIL EOF(fh)
-                LINE INPUT #fh, l$
-                c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-                IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
-                    IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
-                        lnks = lnks + 1
-                        EXIT DO
-                    END IF
-                END IF
-            LOOP
-            CLOSE #fh
+            'check if a2$ is in help links
+            lnks = 0
+            l2$ = findHelpTopic$(a2$, lnks, -1)
 
             IF lnks THEN
                 IF LEN(l2$) > 15 THEN
@@ -14505,5 +14476,32 @@ SUB insertAtCursor (tempk$)
 
     idechangemade = 1
 END SUB
+
+FUNCTION findHelpTopic$(topic$, lnks, firstOnly AS _BYTE)
+    'check if topic$ is in help links
+    '    - returns a list of help links separated by CHR$(0)
+    '    - returns the total number of links found by changing 'lnks'
+    a2$ = UCASE$(topic$)
+    fh = FREEFILE
+    OPEN "internal\help\links.bin" FOR BINARY AS #fh
+    lnks = 0: lnks$ = CHR$(0)
+    DO UNTIL EOF(fh)
+        LINE INPUT #fh, l$
+        c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
+        IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
+            IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
+                lnks = lnks + 1
+                IF firstOnly THEN findHelpTopic$ = l2$: CLOSE #fh: EXIT FUNCTION
+                IF l2$ = l1$ THEN
+                    lnks$ = CHR$(0) + l2$ + lnks$
+                ELSE
+                    lnks$ = lnks$ + l2$ + CHR$(0)
+                END IF
+            END IF
+        END IF
+    LOOP
+    CLOSE #fh
+    findHelpTopic$ = lnks$
+END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'
