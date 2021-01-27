@@ -2445,177 +2445,172 @@ FUNCTION ide2 (ignore)
             contextualhelp:
             IdeContextHelpSF = 0
             'identify word or character at current cursor position
-            a$ = idegetline(idecy)
-            x = idecx
-            IF LEN(a$) > 0 AND x = LEN(a$) + 1 THEN x = x - 1
-            IF x <= LEN(a$) THEN
-                a2$ = UCASE$(getWordAtCursor$)
-                'check if F1 is in help links
-                fh = FREEFILE
-                OPEN "internal\help\links.bin" FOR INPUT AS #fh
-                lnks = 0: lnks$ = CHR$(0)
-                DO UNTIL EOF(fh)
-                    LINE INPUT #fh, l$
-                    c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
-                    IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
-                        IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
-                            lnks = lnks + 1
-                            IF l2$ = l1$ THEN
-                                lnks$ = CHR$(0) + l2$ + lnks$
-                            ELSE
-                                lnks$ = lnks$ + l2$ + CHR$(0)
-                            END IF
+            a2$ = UCASE$(getWordAtCursor$)
+            'check if F1 is in help links
+            fh = FREEFILE
+            OPEN "internal\help\links.bin" FOR INPUT AS #fh
+            lnks = 0: lnks$ = CHR$(0)
+            DO UNTIL EOF(fh)
+                LINE INPUT #fh, l$
+                c = INSTR(l$, ","): l1$ = LEFT$(l$, c - 1): l2$ = RIGHT$(l$, LEN(l$) - c)
+                IF a2$ = UCASE$(l1$) OR (qb64prefix_set = 1 AND LEFT$(l1$, 1) = "_" AND a2$ = MID$(l1$, 2)) THEN
+                    IF INSTR(lnks$, CHR$(0) + l2$ + CHR$(0)) = 0 THEN
+                        lnks = lnks + 1
+                        IF l2$ = l1$ THEN
+                            lnks$ = CHR$(0) + l2$ + lnks$
+                        ELSE
+                            lnks$ = lnks$ + l2$ + CHR$(0)
                         END IF
                     END IF
-                LOOP
-                CLOSE #fh
+                END IF
+            LOOP
+            CLOSE #fh
 
-                IF lnks THEN
-                    lnks$ = MID$(lnks$, 2, LEN(lnks$) - 2)
-                    lnk$ = lnks$
-                    IF lnks > 1 THEN
-                        'clarify context
-                        lnk$ = idef1box$(lnks$, lnks)
-                        IF lnk$ = "C" THEN GOTO ideloop
+            IF lnks THEN
+                lnks$ = MID$(lnks$, 2, LEN(lnks$) - 2)
+                lnk$ = lnks$
+                IF lnks > 1 THEN
+                    'clarify context
+                    lnk$ = idef1box$(lnks$, lnks)
+                    IF lnk$ = "C" THEN GOTO ideloop
+                END IF
+
+                IF INSTR(UCASE$(lnk$), "PARENTHESIS") THEN GOTO ideloop
+
+                OpenHelpLnk:
+
+
+                Help_Back(Help_Back_Pos).sx = Help_sx 'update position
+                Help_Back(Help_Back_Pos).sy = Help_sy
+                Help_Back(Help_Back_Pos).cx = Help_cx
+                Help_Back(Help_Back_Pos).cy = Help_cy
+
+                top = UBOUND(back$)
+
+
+                IF Back$(Help_Back_Pos) = lnk$ THEN Help_Back_Pos = Help_Back_Pos - 1: GOTO usenextentry2
+                IF Help_Back_Pos < top THEN
+                    IF Back$(Help_Back_Pos + 1) = lnk$ THEN
+                        GOTO usenextentry2
                     END IF
+                END IF
 
 
-                    OpenHelpLnk:
+                top = top + 1
+                REDIM _PRESERVE Back(top) AS STRING
+                REDIM _PRESERVE Help_Back(top) AS Help_Back_Type
+                REDIM _PRESERVE Back_Name(top) AS STRING
+                'Shuffle array upwards after current pos
+                FOR x = top - 1 TO Help_Back_Pos + 1 STEP -1
+                    Back_Name$(x + 1) = Back_Name$(x)
+                    Back$(x + 1) = Back$(x)
+                    Help_Back(x + 1).sx = Help_Back(x).sx
+                    Help_Back(x + 1).sy = Help_Back(x).sy
+                    Help_Back(x + 1).cx = Help_Back(x).cx
+                    Help_Back(x + 1).cy = Help_Back(x).cy
+                NEXT
+                usenextentry2:
+                Help_Back_Pos = Help_Back_Pos + 1
+                Back$(Help_Back_Pos) = lnk$
+                Back_Name$(Help_Back_Pos) = Back2BackName$(lnk$)
+                Help_Back(Help_Back_Pos).sx = 1
+                Help_Back(Help_Back_Pos).sy = 1
+                Help_Back(Help_Back_Pos).cx = 1
+                Help_Back(Help_Back_Pos).cy = 1
+                Help_sx = 1: Help_sy = 1: Help_cx = 1: Help_cy = 1
 
+                a$ = Wiki(lnk$)
 
-                    Help_Back(Help_Back_Pos).sx = Help_sx 'update position
-                    Help_Back(Help_Back_Pos).sy = Help_sy
-                    Help_Back(Help_Back_Pos).cx = Help_cx
-                    Help_Back(Help_Back_Pos).cy = Help_cy
-
-                    top = UBOUND(back$)
-
-
-                    IF Back$(Help_Back_Pos) = lnk$ THEN Help_Back_Pos = Help_Back_Pos - 1: GOTO usenextentry2
-                    IF Help_Back_Pos < top THEN
-                        IF Back$(Help_Back_Pos + 1) = lnk$ THEN
-                            GOTO usenextentry2
-                        END IF
-                    END IF
-
-
-                    top = top + 1
-                    REDIM _PRESERVE Back(top) AS STRING
-                    REDIM _PRESERVE Help_Back(top) AS Help_Back_Type
-                    REDIM _PRESERVE Back_Name(top) AS STRING
-                    'Shuffle array upwards after current pos
-                    FOR x = top - 1 TO Help_Back_Pos + 1 STEP -1
-                        Back_Name$(x + 1) = Back_Name$(x)
-                        Back$(x + 1) = Back$(x)
-                        Help_Back(x + 1).sx = Help_Back(x).sx
-                        Help_Back(x + 1).sy = Help_Back(x).sy
-                        Help_Back(x + 1).cx = Help_Back(x).cx
-                        Help_Back(x + 1).cy = Help_Back(x).cy
-                    NEXT
-                    usenextentry2:
-                    Help_Back_Pos = Help_Back_Pos + 1
-                    Back$(Help_Back_Pos) = lnk$
-                    Back_Name$(Help_Back_Pos) = Back2BackName$(lnk$)
-                    Help_Back(Help_Back_Pos).sx = 1
-                    Help_Back(Help_Back_Pos).sy = 1
-                    Help_Back(Help_Back_Pos).cx = 1
-                    Help_Back(Help_Back_Pos).cy = 1
-                    Help_sx = 1: Help_sy = 1: Help_cx = 1: Help_cy = 1
-
-                    a$ = Wiki(lnk$)
-
-                    IF idehelp = 0 THEN
-                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
-                        idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
-                        Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
-                        WikiParse a$
-                        idehelp = 1
-                        skipdisplay = 0
-                        IdeSystem = 3
-                        retval = 1
-                    END IF
-
+                IF idehelp = 0 THEN
+                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
+                    idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
+                    Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
                     WikiParse a$
+                    idehelp = 1
+                    skipdisplay = 0
                     IdeSystem = 3
-                    GOSUB redrawitall
-                    GOTO specialchar
+                    retval = 1
+                END IF
 
-                ELSE
-                    'No help found; Does the user want help for a SUB or FUNCTION?
-                    a2$ = LTRIM$(RTRIM$(a2$))
-                    IF LEN(a2$) THEN
-                        DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
-                            a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
-                            IF LEN(a2$) = 0 THEN GOTO NoKeywordFound
-                        LOOP
+                WikiParse a$
+                IdeSystem = 3
+                GOSUB redrawitall
+                GOTO specialchar
 
-                        FOR y = 1 TO iden
-                            a$ = idegetline(y)
-                            a$ = LTRIM$(RTRIM$(a$))
-                            sf = 0
-                            nca$ = UCASE$(a$)
-                            IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB "
-                            IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNCTION "
-                            IF sf THEN
-                                IF RIGHT$(nca$, 7) = " STATIC" THEN
-                                    a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
-                                END IF
+            ELSE
+                'No help found; Does the user want help for a SUB or FUNCTION?
+                a2$ = LTRIM$(RTRIM$(a2$))
+                IF LEN(a2$) THEN
+                    DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
+                        a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
+                        IF LEN(a2$) = 0 THEN GOTO NoKeywordFound
+                    LOOP
 
-                                IF sf = 1 THEN
-                                    a$ = RIGHT$(a$, LEN(a$) - 4)
-                                ELSE
-                                    a$ = RIGHT$(a$, LEN(a$) - 9)
-                                END IF
-                                a$ = LTRIM$(RTRIM$(a$))
-                                x = INSTR(a$, "(")
-                                IF x THEN
-                                    n$ = RTRIM$(LEFT$(a$, x - 1))
-                                    args$ = RIGHT$(a$, LEN(a$) - x + 1)
-                                    x = INSTR(args$, ")"): IF x THEN args$ = LEFT$(args$, x)
-                                ELSE
-                                    n$ = a$
-                                    args$ = ""
-                                    cleanSubName  n$
-                                END IF
-
-                                backupn$ = n$
-
-                                DO UNTIL alphanumeric(ASC(RIGHT$(n$, 1)))
-                                    n$ = LEFT$(n$, LEN(n$) - 1) 'removes sigil, if any
-                                LOOP
-
-                                IF UCASE$(n$) = a2$ THEN
-                                    a$ = "'''" + backupn$ + "''' is a symbol that is used in your program as follows:"
-                                    a$ = a$ + CHR$(10) + CHR$(10) + "{{PageSyntax}}" + CHR$(10)
-                                    a$ = a$ + ": " + sf$ + "'''" + backupn$ + "''' " + args$
-                                    a$ = a$ + CHR$(10) + "{{PageNavigation}}"
-
-                                    IdeContextHelpSF = -1
-
-                                    IF idehelp = 0 THEN
-                                        IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
-                                        idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
-                                        Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
-                                        WikiParse a$
-                                        idehelp = 1
-                                        skipdisplay = 0
-                                        IdeSystem = 3
-                                        retval = 1
-                                    END IF
-
-                                    WikiParse a$
-                                    IdeSystem = 3
-                                    GOTO specialchar
-
-                                    EXIT FOR
-                                END IF
+                    FOR y = 1 TO iden
+                        a$ = idegetline(y)
+                        a$ = LTRIM$(RTRIM$(a$))
+                        sf = 0
+                        nca$ = UCASE$(a$)
+                        IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB "
+                        IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNCTION "
+                        IF sf THEN
+                            IF RIGHT$(nca$, 7) = " STATIC" THEN
+                                a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
                             END IF
-                        NEXT
-                    END IF
-                    NoKeywordFound:
-                END IF 'lnks
 
-            END IF
+                            IF sf = 1 THEN
+                                a$ = RIGHT$(a$, LEN(a$) - 4)
+                            ELSE
+                                a$ = RIGHT$(a$, LEN(a$) - 9)
+                            END IF
+                            a$ = LTRIM$(RTRIM$(a$))
+                            x = INSTR(a$, "(")
+                            IF x THEN
+                                n$ = RTRIM$(LEFT$(a$, x - 1))
+                                args$ = RIGHT$(a$, LEN(a$) - x + 1)
+                                x = INSTR(args$, ")"): IF x THEN args$ = LEFT$(args$, x)
+                            ELSE
+                                n$ = a$
+                                args$ = ""
+                                cleanSubName  n$
+                            END IF
+
+                            backupn$ = n$
+
+                            DO UNTIL alphanumeric(ASC(RIGHT$(n$, 1)))
+                                n$ = LEFT$(n$, LEN(n$) - 1) 'removes sigil, if any
+                            LOOP
+
+                            IF UCASE$(n$) = a2$ THEN
+                                a$ = "'''" + backupn$ + "''' is a symbol that is used in your program as follows:"
+                                a$ = a$ + CHR$(10) + CHR$(10) + "{{PageSyntax}}" + CHR$(10)
+                                a$ = a$ + ": " + sf$ + "'''" + backupn$ + "''' " + args$
+                                a$ = a$ + CHR$(10) + "{{PageNavigation}}"
+
+                                IdeContextHelpSF = -1
+
+                                IF idehelp = 0 THEN
+                                    IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
+                                    idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
+                                    Help_wx1 = 2: Help_wy1 = idewy + 1: Help_wx2 = idewx - 1: Help_wy2 = idewy + idesubwindow - 2: Help_ww = Help_wx2 - Help_wx1 + 1: Help_wh = Help_wy2 - Help_wy1 + 1
+                                    WikiParse a$
+                                    idehelp = 1
+                                    skipdisplay = 0
+                                    IdeSystem = 3
+                                    retval = 1
+                                END IF
+
+                                WikiParse a$
+                                IdeSystem = 3
+                                GOTO specialchar
+
+                                EXIT FOR
+                            END IF
+                        END IF
+                    NEXT
+                END IF
+                NoKeywordFound:
+            END IF 'lnks
             GOTO specialchar
         END IF
 
@@ -13147,7 +13142,7 @@ SUB IdeMakeContextualMenu
                 IF LEN(l2$) > 15 THEN
                     l2$ = LEFT$(l2$, 12) + STRING$(3, 250)
                 END IF
-                IF INSTR(l2$, "Parenthesis") = 0 THEN
+                IF INSTR(l2$, "PARENTHESIS") = 0 THEN
                     menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
                 END IF
             END IF
@@ -14416,6 +14411,10 @@ FUNCTION getWordAtCursor$
     a$ = idegetline(idecy)
     x = idecx
     IF x <= LEN(a$) THEN
+        IF ASC(a$, x) = 32 AND x > 1 THEN
+            IF ASC(a$, x - 1) <> 32 THEN x = x - 1
+        END IF
+        try:
         IF alphanumeric(ASC(a$, x)) THEN
             x1 = x
             DO WHILE x1 > 1
@@ -14430,6 +14429,8 @@ FUNCTION getWordAtCursor$
             a2$ = CHR$(ASC(a$, x))
         END IF
         getWordAtCursor$ = a2$ 'a2$ now holds the word or character at current cursor position
+    ELSEIF x = LEN(a$) + 1 AND x > 1 THEN
+        IF ASC(a$, x - 1) <> 32 THEN x = x - 1: GOTO try
     END IF
 END FUNCTION
 
