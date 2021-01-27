@@ -36,6 +36,8 @@
 
 :[[$IF]]...[[$END IF]] 'precompiler directive
 
+: [[$ERROR]] MESSAGE 'trigger a compilation error, useful inside $IF blocks
+
 
 ===Description===
 * [[$INCLUDE]] can be used at the beginning or at the end of program SUB procedures.
@@ -44,6 +46,7 @@
 * [[$RESIZE]]:ON allows a user to resize the program window. OFF is default.
 * [[$SCREENHIDE]] hides the QB64 program window throughout the program until [[$SCREENSHOW]] is used.
 * [[$IF]]...[[$END IF]] allows selective inclusion of code in the final program.
+* [[$ERROR]] MESSAGE causes a compilation error whenever QB64 attempts to compile it, displaying MESSAGE to the user. This is useful if inside a $IF block, as the error can be conditional.
 * '''Do not comment out with ' or [[REM]] QB64-specific metacommands.'''
 
 
