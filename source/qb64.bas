@@ -3257,7 +3257,7 @@ DO
                 s = Labels(r).Scope
                 IF s = subfuncn OR s = -1 THEN 'same scope?
                     IF s = -1 THEN Labels(r).Scope = subfuncn 'acquire scope
-                    IF Labels(r).State = 1 THEN a$ = "Duplicate label": GOTO errmes
+                    IF Labels(r).State = 1 THEN a$ = "Duplicate label (" + RTRIM$(Labels(r).cn) + ")": GOTO errmes
                     'aquire state 0 types
                     tlayout$ = RTRIM$(Labels(r).cn)
                     GOTO addlabaq100
@@ -3319,7 +3319,7 @@ DO
                     s = Labels(r).Scope
                     IF s = subfuncn OR s = -1 THEN 'same scope?
                         IF s = -1 THEN Labels(r).Scope = subfuncn 'acquire scope
-                        IF Labels(r).State = 1 THEN a$ = "Duplicate label": GOTO errmes
+                        IF Labels(r).State = 1 THEN a$ = "Duplicate label (" + RTRIM$(Labels(r).cn) + ")": GOTO errmes
                         'aquire state 0 types
                         tlayout$ = RTRIM$(Labels(r).cn)
                         GOTO addlabaq
@@ -25366,7 +25366,7 @@ SUB free_udt_varstrings (n$, udt, file, base_offset)
         element = udtenext(element)
     LOOP
 END SUB
-    
+
 SUB initialise_array_udt_varstrings (n$, udt, base_offset, bytesperelement$, acc$)
     IF NOT udtxvariable(udt) THEN EXIT SUB
     offset = base_offset
@@ -25420,7 +25420,7 @@ SUB copy_full_udt (dst$, src$, file, base_offset, udt)
         element = udtenext(element)
     LOOP
 END SUB
-        
+
 SUB dump_udts
     f = FREEFILE
     OPEN "types.txt" FOR OUTPUT AS #f

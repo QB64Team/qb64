@@ -3,23 +3,24 @@ A {{KW|REDIM}} statement can re-dimension one [[$DYNAMIC|dynamic]](flexible) [[A
 
 {{PageSyntax}}
 :[[REDIM]] [{{KW|_PRESERVE}}] [{{KW|SHARED}}] ArrayName[''typesuffix''] ({''max_element''|low_element[{{KW|TO}} ''upper_element'', ...]}) [{{KW|AS}} {{KW|TYPE|Type}}]
+:[[REDIM]] [{{KW|_PRESERVE}}] [{{KW|SHARED}}] [{{KW|AS}} {{KW|TYPE|Type}}] ArrayName({''max_element''|low_element[{{KW|TO}} ''upper_element'', ...]})
 
 
 {{PageDescription}}
 * Can change the number of elements in an array (the present array data is lost unless [[_PRESERVE]] is used).
 * Dynamic array elements can also be sized or resized by a program user's entry.
-* The [[_PRESERVE]] option also allows the ''element'' range values to be moved upward or downward in '''QB64 only!'''
+* The [[_PRESERVE]] option also allows the ''element'' range values to be moved upward or downward.
 * {{Parameter|Array}} is the name of the array to be dimensioned or re-dimensioned.
 * {{Parameter|elements}} is the number of elements the array should hold. Use the optional [[TO]] {{Parameter|elements2}} to set a range.
 * '''Always use the same array [[TYPE]] suffix ([[AS]] type) or a new array type with the same name may be created.'''
-* REDIM cannot change [[$STATIC]] arrays created with a [[DIM]] statement unless the [[$DYNAMIC]] [[Metacommand]] is used! 
+* REDIM cannot change [[$STATIC]] arrays created with a [[DIM]] statement unless the [[$DYNAMIC]] [[Metacommand]] is used. 
 * To create a dynamic array use the [[$DYNAMIC]] metacommand or use [[REDIM]] rather than [[DIM]] when first creating the array.
 * Use REDIM [[_PRESERVE]] to change the range or number of array elements without losing the remaining elements. Data may move up or down to accommodate those boundary changes.  
-* '''REDIM [[_PRESERVE]] cannot change the number of array dimensions or type!'''
+* '''REDIM [[_PRESERVE]] cannot change the number of array dimensions or type.'''
 * [[$DYNAMIC|Dynamic]] arrays MUST be [[REDIM]]ensioned if [[ERASE]] or [[CLEAR]] are used to clear the arrays as they no longer exist. 
 * When [[AS]] is used to declare the type, use [[AS]] to retain that type or it will change to [[SINGLE]]!
-* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
-* '''Warning! Do not use negative array upper bound index values as OS access or "Out of Memory" [[ERROR Codes|errors]] will occur!'''
+* '''Warning! Do not use negative array upper bound index values as OS access or "Out of Memory" [[ERROR Codes|errors]] will occur.'''
+* When using the '''AS type variable-list''' syntax, type symbols cannot be used.
 
 
 ''Example 1:'' The [[$DYNAMIC]] Metacommand allows an array to be re-sized using [[DIM]] and REDIM.
