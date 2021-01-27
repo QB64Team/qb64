@@ -2,11 +2,15 @@ The [[DIM]] statement is used to declare a variable or a list of variables as a 
 
 
 {{PageSyntax}}
-::''Syntax 1:'' [[DIM]] [{{KW|SHARED}}] ''variable''[{suffix| {{KW|AS}} ''type''}] [, ''variable2''...]]
+::''To declare variables:''
+:::[[DIM]] [{{KW|SHARED}}] ''variable''[{suffix| {{KW|AS}} [{{KW|_UNSIGNED}}] ''type''}] [, ''variable2''...]]
 
-::''Syntax 2:'' [[DIM]] [{{KW|SHARED}}] ''array(lowest% [{{KW|TO}}) highest%])''[{suffix| {{KW|AS}} ''type''}] [, ''variable2''...]
+::''To declare arrays:''
+:::[[DIM]] [{{KW|SHARED}}] ''array([lowest% {{KW|TO}}] highest%])''[{suffix| {{KW|AS}} [{{KW|_UNSIGNED}}] ''type''}] [, ''variable2''...]
 
-:'' '''QB64''' Syntax:'' [[DIM]] [{{KW|SHARED}}] ''variable''[{suffix| {{KW|AS}} [{{KW|_UNSIGNED}}] ''type''}] [, ''variable2''...]
+::'' '''QB64''' Alternative Syntax:''
+:::[[DIM]] [{{KW|SHARED}}] {{KW|AS}} [{{KW|_UNSIGNED}}] ''type'' ''variable''  [, ''variable2''...]
+:::[[DIM]] [{{KW|SHARED}}] {{KW|AS}} [{{KW|_UNSIGNED}}] ''type'' ''array([lowest% {{KW|TO}}] highest%])'' [, ''array2(elements)''...]
 
 
 {{PageDescription}}
@@ -26,7 +30,8 @@ The [[DIM]] statement is used to declare a variable or a list of variables as a 
 ** [[_FLOAT]] (or use variable suffix '''##''')
 ** [[_OFFSET]] (or use variable suffix '''%&amp;''')
 ** DIM AS [[_MEM]] (the _MEM type has no type suffix).
-* '''Note: When a variable has not been defined or has no type suffix, the value defaults to [[SINGLE]].'''
+* '''Note: When a variable has not been defined or has no type suffix, the type defaults to [[SINGLE]].'''
+* When using the '''AS type variable-list''' syntax, type symbols cannot be used.
 * When the [[$DYNAMIC]] metacommand or [[REDIM]] is used, array element sizes are changeable (not [[$STATIC]]).
 * Use [[REDIM]] instead of DIM to dimension arrays as dynamic without the {{KW|$DYNAMIC}} metacommand.
 * Use [[REDIM]] [[_PRESERVE]] in '''QB64''' to retain previous array values when changing the size of an array. 
@@ -82,6 +87,13 @@ x = 1 'x is a {{Cl|SINGLE}} variable
 {{Cl|PRINT}} x '' ''
 {{CodeEnd}}
 : ''Explanation:'' QB64 gives an error because the creation of the new variable would make referring to the existing one impossible.
+
+
+''Example 8:'' Using QB64's alternative syntax to declare multiple variables/arrays of the same type.
+{{CodeStart}} '' ''
+{{Cl|DIM}} {{Cl|AS}} {{Cl|LONG}} w, h, id, weight, index 'all of these variables are created as type LONG
+{{Cl|DIM}} {{Cl|AS}} {{Cl|SINGLE}} x, y, z '              all of these variables are created as type SINGLE
+{{CodeEnd}} '' ''
 
 
 {{PageSeeAlso}}

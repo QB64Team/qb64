@@ -1,31 +1,40 @@
-'''TYPE''' definitions are used to create variables that can hold more than one variable type of a fixed byte length.
+'''TYPE''' definitions are used to create variables that can hold more than one element.
 
 
 {{PageSyntax}}
 ::'''TYPE''' typename
+::: element-name1 AS type
+::: element-name2 AS type
+::: .
+::: .
+::: .
+::: element-nameN AS type
+::'''END TYPE'''
 
-::.
 
-::. variable(s) AS type
-
-::.
-
+::'''TYPE''' typename
+::: AS type element-list1
+::: AS type element-list2
+::: .
+::: .
+::: .
+::: AS type element-listN
 ::'''END TYPE'''
 
 
 * Typename is an undefined type name holder as it can hold any variable types.
-* TYPE definitions should be placed in the main module before the start of the program code execution.
-* TYPE definitions CAN be placed in [[SUB]] or [[FUNCTION]] procedures using QB64 only!
-* TYPE definitions cannot contain Array variables! Arrays can be [[DIM]]ensioned as a TYPE definition.
-* TYPE definitions cannot be inside of another TYPE definition, but variables can be defined AS another type.(See Example 3)
+* TYPE definitions are usually placed in the main module before the start of the program code execution.
+* TYPE definitions cam also be placed in [[SUB]] or [[FUNCTION]] procedures.
+* TYPE definitions cannot contain Array variables. Arrays can be [[DIM]]ensioned as a TYPE definition.
+* TYPE definitions cannot be inside of another TYPE definition, but variables can be defined AS another type.(See Example 4)
 * TYPE definitions must be ended with [[END TYPE]].
-* A TYPE variable MUST be assigned to the type after it is defined. Array variables are allowed.
+* A TYPE variable must be assigned to the type after it is defined. Array variables are allowed.
 * Type variables must be defined in every SUB or FUNCTION unless the type variable is [[DIM]]ensioned as [[SHARED]].
 * Type variables use DOT variable names to read or write specific values. They do not use type suffixes as they can hold ANY variable type values! The name before the dot is the one you defined after the type definition and the name after is the variable name used inside of the TYPE. The name of the dimensioned type variable alone can be used to [[PUT]] # or [[GET]] # all of the data at once!
 * Once the TYPE variable is created you can find the record or byte size by using [[LEN]](typevariable).
 * TYPE definitions can also be placed in [[$INCLUDE]] .BI text files such as [[QB.BI]] is used by [[INTERRUPT]] and [[INTERRUPTX]]. 
-* '''[[_BIT]] is not currently supported in User Defined [[TYPE]]s'''.
-* '''NOTE: Many Qbasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
+* You can mix the '''element-name AS type''' syntax with the '''AS type element-list''' syntax in the same TYPE block.
+* '''[[_BIT]] is not supported in User Defined [[TYPE]]s'''.
 
 
 {{DataTypeTable}}
@@ -58,11 +67,20 @@
 
 ::::Each TYPE variable is designated as the DOT variable's suffix.
 
-'''* Note: Omitting variables in the RegType definition can change other program variable values!'''
+'''* Note: Omitting variables in the RegType definition can change other program variable values.'''
+
+
+''Example 2:'' Simplifying the TYPE from Example 1 using the alternative TYPE syntax.
+{{CodeStart}}
+ TYPE RegType
+   AS INTEGER AX, BX, CX, DX, BP, SI, DI, Flags, FS, ES
+ END TYPE
+{{CodeEnd}}
+:''Explanation:'' By using '''AS type element-list''' you reduce typing in your TYPE definition, while achieving the same results.
 
 
 
-''Example 2:'' Creating an addressbook database for a [[RANDOM]] file.
+''Example 4:'' Creating an addressbook database for a [[RANDOM]] file.
 {{CodeStart}}
  TYPE ContactInfo
    First AS STRING * 10
@@ -85,10 +103,10 @@
 {{CodeEnd}}
 
 :''Explanation:'' Use the assigned type variable to find the RANDOM record length which is 118 bytes. 
-::::The DOT variable names consist of Contact as the prefix:
 
 
-''Example 3:'' Defining a TYPE variable as another variable type from a previous TYPE definition in QB64.
+
+''Example 4:'' Defining a TYPE variable as another variable type from a previous TYPE definition in QB64.
 {{CodeStart}}
 {{Cl|TYPE}} bar
   b {{Cl|AS}} {{Cl|STRING}} * 10
@@ -108,7 +126,7 @@ PRINT foobar.a, foobar.c.b
 {{CodeEnd}}
 
 
-''Example 4:'' A bitmap header information TYPE [[$INCLUDE]] File.
+''Example 5:'' A bitmap header information TYPE [[$INCLUDE]] File.
 {{TextStart}}
 ' ********
 'Bitmap.BI can be included at start of program
@@ -153,6 +171,7 @@ PRINT foobar.a, foobar.c.b
 
 
 ''See also:'' 
+* [[DIM]], [[REDIM]]
 * [[INTEGER]], [[SINGLE]], [[DOUBLE]]
 * [[LONG]], [[_INTEGER64]], [[_FLOAT]]
 * [[STRING]], [[_BYTE]], [[_BIT]], [[_OFFSET]]
