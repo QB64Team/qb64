@@ -36,10 +36,12 @@ UserDefine(0, 0) = "WINDOWS": UserDefine(0, 1) = "WIN"
 UserDefine(0, 2) = "LINUX"
 UserDefine(0, 3) = "MAC": UserDefine(0, 4) = "MACOSX"
 UserDefine(0, 5) = "32BIT": UserDefine(0, 6) = "64BIT"
+UserDefine(0, 7) = "VERSION"
 IF INSTR(_OS$, "WIN") THEN UserDefine(1, 0) = "-1": UserDefine(1, 1) = "-1" ELSE UserDefine(1, 0) = "0": UserDefine(1, 1) = "0"
 IF INSTR(_OS$, "LINUX") THEN UserDefine(1, 2) = "-1" ELSE UserDefine(1, 2) = "0"
 IF INSTR(_OS$, "MAC") THEN UserDefine(1, 3) = "-1": UserDefine(1, 4) = "-1" ELSE UserDefine(1, 3) = "0": UserDefine(1, 4) = "0"
 IF INSTR(_OS$, "32BIT") THEN UserDefine(1, 5) = "-1": UserDefine(1, 6) = "0" ELSE UserDefine(1, 5) = "0": UserDefine(1, 6) = "-1"
+UserDefine(1, 7) = Version$
 
 DIM SHARED QB64_uptime!
 
@@ -1407,7 +1409,7 @@ subfuncn = 0
 subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
-UserDefineCount = 6
+UserDefineCount = 7
 totalVariablesCreated = 0
 totalWarnings = 0
 duplicateConstWarning = 0
@@ -1702,6 +1704,12 @@ DO
             GOTO finishedlinepp 'we don't check for anything inside lines that we've marked for skipping
         END IF
 
+        IF LEFT$(temp$, 7) = "$ERROR " THEN
+            temp$ = LTRIM$(MID$(temp$, 7))
+            a$ = "Compilation check failed: " + temp$
+            GOTO errmes
+        END IF
+
         IF LEFT$(temp$, 5) = "$LET " THEN
             temp$ = LTRIM$(MID$(temp$, 5)) 'simply shorten our string to parse
             'For starters, let's make certain that we have 3 elements to deal with
@@ -1744,7 +1752,7 @@ DO
             r$ = r1$
             layout$ = "$LET " + l$ + " = " + r$
             'First look to see if we have an existing setting like this and if so, update it
-            FOR i = 7 TO UserDefineCount 'UserDefineCount 1-6 are reserved for automatic OS/BIT detection
+            FOR i = 8 TO UserDefineCount 'UserDefineCount 1-7 are reserved for automatic OS/BIT detection & version
                 IF UserDefine(0, i) = l$ THEN UserDefine(1, i) = r$: GOTO finishedlinepp
             NEXT
             'Otherwise create a new setting and set the initial value for it
@@ -2669,7 +2677,7 @@ subfuncn = 0
 lastLineReturn = 0
 lastLine = 0
 firstLine = 1
-UserDefineCount = 6
+UserDefineCount = 7
 
 FOR i = 0 TO constlast: constdefined(i) = 0: NEXT 'undefine constants
 
@@ -2942,7 +2950,7 @@ DO
             l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
             layout$ = "$LET " + l$ + " = " + r$
             'First look to see if we have an existing setting like this and if so, update it
-            FOR i = 7 TO UserDefineCount 'UserDefineCount 1-6 are reserved for automatic OS/BIT detection
+            FOR i = 7 TO UserDefineCount 'UserDefineCount 1-7 are reserved for automatic OS/BIT detection & version
                 IF UserDefine(0, i) = l$ THEN UserDefine(1, i) = r$: GOTO finishednonexec
             NEXT
             'Otherwise create a new setting and set the initial value for it
