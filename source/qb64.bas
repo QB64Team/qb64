@@ -5110,6 +5110,7 @@ DO
                     controllevel = controllevel - 1
                 END IF
 
+                IF LEFT$(subfunc, 4) = "SUB_" THEN secondelement$ = "SUB" ELSE secondelement$ = "FUNCTION"
                 l$ = firstelement$ + sp + secondelement$
                 layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
 
@@ -7360,9 +7361,10 @@ DO
             IF secondelement$ = "SUB" THEN sf = 2
             IF sf THEN
 
-                IF LEN(subfunc) = 0 THEN a$ = "EXIT " + secondelement$ + " must be used within a SUB/FUNCTION": GOTO errmes
+                IF LEN(subfunc) = 0 THEN a$ = "EXIT " + secondelement$ + " must be used within a " + secondelement$: GOTO errmes
 
                 PRINT #12, "goto exit_subfunc;"
+                IF LEFT$(subfunc, 4) = "SUB_" THEN secondelement$ = "SUB" ELSE secondelement$ = "FUNCTION"
                 l$ = firstelement$ + sp + secondelement$
                 layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                 GOTO finishedline
