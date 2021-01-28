@@ -23355,6 +23355,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     }
                 }
                 f->pos=position;
+                if (f->pos<=gfs_lof(i)){
+                    f->eof_passed=0;
+                    f->eof_reached=0;
+                }
                 return 0;
             #endif
             
