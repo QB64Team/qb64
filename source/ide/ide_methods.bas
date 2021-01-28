@@ -3565,7 +3565,14 @@ FUNCTION ide2 (ignore)
                         retval$ = idergbmixer$(-1)
                     END IF
                 END IF
-                IF LEN(retval$) THEN insertAtCursor retval$
+                IF LEN(retval$) THEN
+                    'the mixer dialog could not insert the value, so let's do it here
+                    IF EnteringRGB THEN
+                        insertAtCursor MID$(retval$, INSTR(retval$, "(") + 1)
+                    ELSE
+                        insertAtCursor retval$
+                    END IF
+                END IF
                 GOTO specialchar
             ELSE
                 ideselect = 0
@@ -11919,11 +11926,6 @@ FUNCTION idergbmixer$ (editing)
                 FindBracket1 = INSTR(Found_RGB, a$, "(")
                 FindBracket2 = INSTR(FindBracket1, a$, ")")
                 IF FindBracket1 > 0 AND FindBracket2 > 0 THEN
-                    ''Check the number of commas in the brackets.
-                    ''2 or 3 are accepted.
-                    'RGBArgs$ = MID$(a$, FindBracket1 + 1, FindBracket2 - FindBracket1 - 1)
-                    'TotalCommas = CountItems(RGBArgs$, ",")
-                    'IF TotalCommas = 2 OR TotalCommas = 3 THEN All_RGB$ = All_RGB$ + MKI$(Found_RGB)
                     All_RGB$ = All_RGB$ + MKI$(Found_RGB)
                 END IF
             LOOP
@@ -12280,11 +12282,11 @@ FUNCTION idergbmixer$ (editing)
             EXIT FUNCTION
         END IF
 
-    IF (focus = 4 AND info <> 0) OR _
-       (focus = 1 AND K$ = CHR$(13)) OR _
-       (focus = 2 AND K$ = CHR$(13)) OR _
-       (focus = 3 AND K$ = CHR$(13)) OR _
-       (focus = 4 AND K$ = CHR$(13)) THEN
+        IF (focus = 4 AND info <> 0) OR _
+           (focus = 1 AND K$ = CHR$(13)) OR _
+           (focus = 2 AND K$ = CHR$(13)) OR _
+           (focus = 3 AND K$ = CHR$(13)) OR _
+           (focus = 4 AND K$ = CHR$(13)) THEN
             IF CurrentLine$ = "" THEN CurrentLine$ = idegetline(idecy)
             IF editing THEN
                 'If we're changing an existing statement, let's insert the values
