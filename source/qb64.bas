@@ -23768,12 +23768,12 @@ FUNCTION Evaluate_Expression$ (e$)
                 END IF
             LOOP
             s = Eval_E - c + 1
-            IF s < 1 THEN Evaluate_Expression$ = "ERROR -- BAD () Count": EXIT SUB
+            IF s < 1 THEN Evaluate_Expression$ = "ERROR -- BAD () Count": EXIT FUNCTION
             eval$ = " " + MID$(exp$, s, Eval_E - s) + " " 'pad with a space before and after so the parser can pick up the values properly.
 
             ParseExpression eval$
             eval$ = LTRIM$(RTRIM$(eval$))
-            IF LEFT$(eval$, 5) = "ERROR" THEN Evaluate_Expression$ = eval$: EXIT SUB
+            IF LEFT$(eval$, 5) = "ERROR" THEN Evaluate_Expression$ = eval$: EXIT FUNCTION
             exp$ = DWD(LEFT$(exp$, s - 2) + eval$ + MID$(exp$, Eval_E + 1))
             IF MID$(exp$, 1, 1) = "N" THEN MID$(exp$, 1) = "-"
         END IF
@@ -23783,7 +23783,7 @@ FUNCTION Evaluate_Expression$ (e$)
         c = c + 1
         SELECT CASE MID$(exp$, c, 1)
             CASE "0" TO "9", ".", "-" 'At this point, we should only have number values left.
-            CASE ELSE: Evaluate_Expression$ = "ERROR - Unknown Diagnosis: (" + exp$ + ") ": EXIT SUB
+            CASE ELSE: Evaluate_Expression$ = "ERROR - Unknown Diagnosis: (" + exp$ + ") ": EXIT FUNCTION
         END SELECT
     LOOP UNTIL c >= LEN(exp$)
 
@@ -24366,6 +24366,41 @@ SUB PreParse (e$)
         END IF
     LOOP UNTIL l = 0
 
+    'replace existing CONST values
+    sep$ = "()+-*/\><=^"
+    FOR i2 = 0 TO constlast
+        thisConstName$ = constname(i2)
+        FOR replaceConstPass = 1 TO 2
+            found = 0
+            DO
+                found = INSTR(found + 1, UCASE$(t$), thisConstName$)
+                IF found THEN
+                    IF found > 1 THEN
+                        IF INSTR(sep$, MID$(t$, found - 1, 1)) = 0 THEN _CONTINUE
+                    END IF
+                    IF found + LEN(thisConstName$) <= LEN(t$) THEN
+                        IF INSTR(sep$, MID$(t$, found + LEN(thisConstName$), 1)) = 0 THEN _CONTINUE
+                    END IF
+                    t = consttype(i2)
+                    IF t AND ISSTRING THEN
+                        r$ = conststring(i2)
+                        i4 = _INSTRREV(r$, ",")
+                        r$ = LEFT$(r$, i4 - 1)
+                    ELSE
+                        IF t AND ISFLOAT THEN
+                            r$ = STR$(constfloat(i2))
+                            r$ = N2S(r$)
+                        ELSE
+                            IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
+                        END IF
+                    END IF
+                    t$ = LEFT$(t$, found - 1) + _TRIM$(r$) + MID$(t$, found + LEN(thisConstName$))
+                END IF
+            LOOP UNTIL found = 0
+            thisConstName$ = constname(i2) + constnamesymbol(i2)
+        NEXT
+    NEXT
+
     uboundPP_TypeMod = TotalPrefixedPP_TypeMod
     IF qb64prefix_set = 1 THEN uboundPP_TypeMod = TotalPP_TypeMod
     FOR j = 1 TO uboundPP_TypeMod
@@ -24393,8 +24428,6 @@ SUB PreParse (e$)
             l = l + 2 + LEN(PP_TypeMod(j)) 'move forward from the length of the symbol we checked + the new "(" and  ")"
         LOOP
     NEXT
-
-
 
     'Check for bad operators before a ( bracket
     l = 0
@@ -24442,37 +24475,6 @@ SUB PreParse (e$)
             l = l + 1
         END IF
     LOOP UNTIL l = 0 OR l = LEN(t$) 'last symbol is a bracket
-
-    'replace existing CONST values
-    sep$ = "()+-*/\><=^"
-    FOR i2 = 0 TO constlast
-        found = 0
-        DO
-            found = INSTR(found + 1, UCASE$(t$), constname(i2))
-            IF found THEN
-                IF found > 1 THEN
-                    IF INSTR(sep$, MID$(t$, found - 1, 1)) = 0 THEN _CONTINUE
-                END IF
-                IF found + LEN(constname(i2)) <= LEN(t$) THEN
-                    IF INSTR(sep$, MID$(t$, found + LEN(constname(i2)), 1)) = 0 THEN _CONTINUE
-                END IF
-                t = consttype(i2)
-                IF t AND ISSTRING THEN
-                    r$ = conststring(i2)
-                    i4 = _INSTRREV(r$, ",")
-                    r$ = LEFT$(r$, i4 - 1)
-                ELSE
-                    IF t AND ISFLOAT THEN
-                        r$ = STR$(constfloat(i2))
-                        r$ = N2S(r$)
-                    ELSE
-                        IF t AND ISUNSIGNED THEN r$ = STR$(constuinteger(i2)) ELSE r$ = STR$(constinteger(i2))
-                    END IF
-                END IF
-                t$ = LEFT$(t$, found - 1) + _TRIM$(r$) + MID$(t$, found + LEN(constname(i2)))
-            END IF
-        LOOP UNTIL found = 0
-    NEXT
 
     'Turn all &H (hex) numbers into decimal values for the program to process properly
     l = 0
@@ -24572,7 +24574,7 @@ FUNCTION N2S$ (exp$) 'scientific Notation to String
     dp = INSTR(t$, "D+"): dm = INSTR(t$, "D-")
     ep = INSTR(t$, "E+"): em = INSTR(t$, "E-")
     check1 = SGN(dp) + SGN(dm) + SGN(ep) + SGN(em)
-    IF check1 < 1 OR check1 > 1 THEN N2S = exp$: EXIT SUB 'If no scientic notation is found, or if we find more than 1 type, it's not SN!
+    IF check1 < 1 OR check1 > 1 THEN N2S = exp$: EXIT FUNCTION 'If no scientic notation is found, or if we find more than 1 type, it's not SN!
 
     SELECT CASE l 'l now tells us where the SN starts at.
         CASE IS < dp: l = dp
@@ -24609,7 +24611,7 @@ FUNCTION N2S$ (exp$) 'scientific Notation to String
     END SELECT
 
     N2S$ = sign$ + l$
-END SUB
+END FUNCTION
 
 
 FUNCTION QuotedFilename$ (f$)
@@ -25187,7 +25189,7 @@ FUNCTION EvalPreIF (text$, err$)
                 SELECT CASE a$
                     CASE " " 'ignore spaces
                     CASE "=", "<", ">"
-                        IF a$ = firstsymbol$ THEN err$ = "Duplicate operator (" + a$ + ")": EXIT SUB
+                        IF a$ = firstsymbol$ THEN err$ = "Duplicate operator (" + a$ + ")": EXIT FUNCTION
                         second = i: secondsymbol$ = a$
                     CASE ELSE 'we found a symbol we don't recognize
                         EXIT FOR
@@ -25334,7 +25336,7 @@ FUNCTION EvalPreIF (text$, err$)
         NEXT
     END IF
 
-END SUB
+END FUNCTION
 
 FUNCTION VerifyNumber (text$)
     t$ = LTRIM$(RTRIM$(text$))
