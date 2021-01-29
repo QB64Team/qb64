@@ -29,7 +29,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtmlTks7NPQHwvQiW+P2P8voWXfwYD+EuU39ERiaVw5g/lG/6pU1SKdrRBg2AtaPToPgK/nQyaid3sO2aWO00ixiKB3JPJoVp3nRY8YFi/AtVtVot/xh6+39fjP59tMCnMCbXTKjyMWL0kkwzd+OT8wryRZ/EgjK3vk9UGYzxKSr8G/KKV3GBDrJOdpHT2gNUcDFg6HSMvM860ZOF8n6jKRwp7MM0SpptufuQDgj/LhHcqQtFOqkhW9HXNmZR7IPchb5tsUubbPdSLu043B0ir2x5sCkK9V+inZExPg7KwIZ0yRsSv5esgLaBdyf1UToU3LU4ZM1hWjcJsp2fCBRkhw=="
+        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDV1rDTpxtQDosKL7CMwxtICwjAizgpyxNd1SuvKAO3VCFLL52H4IAbahW8P1KPL4zCN0tL4BNdNDXCa/y/884NVVx1IRBFTVQaRm0+ZypG/WoNXElPANu95GAwexVdRQFITVyfdU2GWm6ch7AFnPYte7WJCQo4nV1b/Hh3Ra0muZjxJRTmRGa0Y2u5txlGvTjyYsM+MZ65jFuISs0qSxS9UPNjElW43HX9YyKGij8rQD+pWBFonDf1i0X9gvoVNbTM9pkSo5t8cVN/TU+tWjjhUw+L5P0vWkahQAMDnHDFzmK3V8cIHcSA3uGVIgGZvphTZ6CFk984JtWvCIGGJxG/q4lDxVDLddCfnBXFErMeHTw61AFVOLdXF7n4xz+Spy9kvgtHyOJodWxRjSWAMGL4T09WOXD0Cy8hX03Si9Pq6EnHGnVv6r1mIG56LCmeTPFhsBVtL+X63MQdG7+vKXM+2RbXr1N+IQvnE4asNJkRTeLiwe86sojiTxcexIxMus8UZ6co94ZNImP585/na1k5G7ke5ihDsLIbx9kKGS1V582A7VpX3Ci0iQ6LqZLII4ruR2swjQnzxeP0k5QPdBISZXvaKkqRBlVaSbpubxQBKvL3MNugJTPaeQimYnhQmnxDltfvGuErM9XHK0TMCSMrEXmN+MFecwUAEmgzl8VW2w== autobuilds-qb64"
         config: |
           Host remote-server
           HostName qb64.org
@@ -52,7 +52,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtmlTks7NPQHwvQiW+P2P8voWXfwYD+EuU39ERiaVw5g/lG/6pU1SKdrRBg2AtaPToPgK/nQyaid3sO2aWO00ixiKB3JPJoVp3nRY8YFi/AtVtVot/xh6+39fjP59tMCnMCbXTKjyMWL0kkwzd+OT8wryRZ/EgjK3vk9UGYzxKSr8G/KKV3GBDrJOdpHT2gNUcDFg6HSMvM860ZOF8n6jKRwp7MM0SpptufuQDgj/LhHcqQtFOqkhW9HXNmZR7IPchb5tsUubbPdSLu043B0ir2x5sCkK9V+inZExPg7KwIZ0yRsSv5esgLaBdyf1UToU3LU4ZM1hWjcJsp2fCBRkhw=="
+        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDV1rDTpxtQDosKL7CMwxtICwjAizgpyxNd1SuvKAO3VCFLL52H4IAbahW8P1KPL4zCN0tL4BNdNDXCa/y/884NVVx1IRBFTVQaRm0+ZypG/WoNXElPANu95GAwexVdRQFITVyfdU2GWm6ch7AFnPYte7WJCQo4nV1b/Hh3Ra0muZjxJRTmRGa0Y2u5txlGvTjyYsM+MZ65jFuISs0qSxS9UPNjElW43HX9YyKGij8rQD+pWBFonDf1i0X9gvoVNbTM9pkSo5t8cVN/TU+tWjjhUw+L5P0vWkahQAMDnHDFzmK3V8cIHcSA3uGVIgGZvphTZ6CFk984JtWvCIGGJxG/q4lDxVDLddCfnBXFErMeHTw61AFVOLdXF7n4xz+Spy9kvgtHyOJodWxRjSWAMGL4T09WOXD0Cy8hX03Si9Pq6EnHGnVv6r1mIG56LCmeTPFhsBVtL+X63MQdG7+vKXM+2RbXr1N+IQvnE4asNJkRTeLiwe86sojiTxcexIxMus8UZ6co94ZNImP585/na1k5G7ke5ihDsLIbx9kKGS1V582A7VpX3Ci0iQ6LqZLII4ruR2swjQnzxeP0k5QPdBISZXvaKkqRBlVaSbpubxQBKvL3MNugJTPaeQimYnhQmnxDltfvGuErM9XHK0TMCSMrEXmN+MFecwUAEmgzl8VW2w== autobuilds-qb64"
         config: |
           Host remote-server
           HostName qb64.org
@@ -77,7 +77,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtmlTks7NPQHwvQiW+P2P8voWXfwYD+EuU39ERiaVw5g/lG/6pU1SKdrRBg2AtaPToPgK/nQyaid3sO2aWO00ixiKB3JPJoVp3nRY8YFi/AtVtVot/xh6+39fjP59tMCnMCbXTKjyMWL0kkwzd+OT8wryRZ/EgjK3vk9UGYzxKSr8G/KKV3GBDrJOdpHT2gNUcDFg6HSMvM860ZOF8n6jKRwp7MM0SpptufuQDgj/LhHcqQtFOqkhW9HXNmZR7IPchb5tsUubbPdSLu043B0ir2x5sCkK9V+inZExPg7KwIZ0yRsSv5esgLaBdyf1UToU3LU4ZM1hWjcJsp2fCBRkhw=="
+        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDV1rDTpxtQDosKL7CMwxtICwjAizgpyxNd1SuvKAO3VCFLL52H4IAbahW8P1KPL4zCN0tL4BNdNDXCa/y/884NVVx1IRBFTVQaRm0+ZypG/WoNXElPANu95GAwexVdRQFITVyfdU2GWm6ch7AFnPYte7WJCQo4nV1b/Hh3Ra0muZjxJRTmRGa0Y2u5txlGvTjyYsM+MZ65jFuISs0qSxS9UPNjElW43HX9YyKGij8rQD+pWBFonDf1i0X9gvoVNbTM9pkSo5t8cVN/TU+tWjjhUw+L5P0vWkahQAMDnHDFzmK3V8cIHcSA3uGVIgGZvphTZ6CFk984JtWvCIGGJxG/q4lDxVDLddCfnBXFErMeHTw61AFVOLdXF7n4xz+Spy9kvgtHyOJodWxRjSWAMGL4T09WOXD0Cy8hX03Si9Pq6EnHGnVv6r1mIG56LCmeTPFhsBVtL+X63MQdG7+vKXM+2RbXr1N+IQvnE4asNJkRTeLiwe86sojiTxcexIxMus8UZ6co94ZNImP585/na1k5G7ke5ihDsLIbx9kKGS1V582A7VpX3Ci0iQ6LqZLII4ruR2swjQnzxeP0k5QPdBISZXvaKkqRBlVaSbpubxQBKvL3MNugJTPaeQimYnhQmnxDltfvGuErM9XHK0TMCSMrEXmN+MFecwUAEmgzl8VW2w== autobuilds-qb64"
         config: |
           Host remote-server
           HostName qb64.org
@@ -102,7 +102,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtmlTks7NPQHwvQiW+P2P8voWXfwYD+EuU39ERiaVw5g/lG/6pU1SKdrRBg2AtaPToPgK/nQyaid3sO2aWO00ixiKB3JPJoVp3nRY8YFi/AtVtVot/xh6+39fjP59tMCnMCbXTKjyMWL0kkwzd+OT8wryRZ/EgjK3vk9UGYzxKSr8G/KKV3GBDrJOdpHT2gNUcDFg6HSMvM860ZOF8n6jKRwp7MM0SpptufuQDgj/LhHcqQtFOqkhW9HXNmZR7IPchb5tsUubbPdSLu043B0ir2x5sCkK9V+inZExPg7KwIZ0yRsSv5esgLaBdyf1UToU3LU4ZM1hWjcJsp2fCBRkhw=="
+        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDV1rDTpxtQDosKL7CMwxtICwjAizgpyxNd1SuvKAO3VCFLL52H4IAbahW8P1KPL4zCN0tL4BNdNDXCa/y/884NVVx1IRBFTVQaRm0+ZypG/WoNXElPANu95GAwexVdRQFITVyfdU2GWm6ch7AFnPYte7WJCQo4nV1b/Hh3Ra0muZjxJRTmRGa0Y2u5txlGvTjyYsM+MZ65jFuISs0qSxS9UPNjElW43HX9YyKGij8rQD+pWBFonDf1i0X9gvoVNbTM9pkSo5t8cVN/TU+tWjjhUw+L5P0vWkahQAMDnHDFzmK3V8cIHcSA3uGVIgGZvphTZ6CFk984JtWvCIGGJxG/q4lDxVDLddCfnBXFErMeHTw61AFVOLdXF7n4xz+Spy9kvgtHyOJodWxRjSWAMGL4T09WOXD0Cy8hX03Si9Pq6EnHGnVv6r1mIG56LCmeTPFhsBVtL+X63MQdG7+vKXM+2RbXr1N+IQvnE4asNJkRTeLiwe86sojiTxcexIxMus8UZ6co94ZNImP585/na1k5G7ke5ihDsLIbx9kKGS1V582A7VpX3Ci0iQ6LqZLII4ruR2swjQnzxeP0k5QPdBISZXvaKkqRBlVaSbpubxQBKvL3MNugJTPaeQimYnhQmnxDltfvGuErM9XHK0TMCSMrEXmN+MFecwUAEmgzl8VW2w== autobuilds-qb64"
         config: |
           Host remote-server
           HostName qb64.org
