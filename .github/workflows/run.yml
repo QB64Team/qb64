@@ -42,7 +42,7 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Bootstrap compiler
@@ -65,7 +65,7 @@ jobs:
 
   windows-x86-build:
     runs-on: windows-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     env:
       PLATFORM: x86
     steps:
@@ -90,7 +90,7 @@ jobs:
 
   windows-x64-build:
     runs-on: windows-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     env:
       PLATFORM: x64
     steps:
