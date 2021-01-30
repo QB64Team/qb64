@@ -10,21 +10,21 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: sudo apt update && sudo apt install libglu1-mesa-dev libncurses-dev
-    - name: Bootstrap compiler
-      run: .ci/bootstrap.sh lnx
-    - name: Compile
-      run: .ci/compile.sh
-    - name: Update source
-      if: github.event_name == 'push'
-      run: .ci/update-source.sh
-    - name: Push to repository
-      if: github.event_name == 'push'
-      uses: ad-m/github-push-action@19caa5c351f47734055690f7d01aaaef2f9114d5
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: development
+      # - name: Install dependencies
+      #run: sudo apt update && sudo apt install libglu1-mesa-dev libncurses-dev
+      #- name: Bootstrap compiler
+      #run: .ci/bootstrap.sh lnx
+      #- name: Compile
+      #run: .ci/compile.sh
+      #- name: Update source
+      #if: github.event_name == 'push'
+      #run: .ci/update-source.sh
+      #- name: Push to repository
+      #if: github.event_name == 'push'
+      #uses: ad-m/github-push-action@19caa5c351f47734055690f7d01aaaef2f9114d5
+      #with:
+      #  github_token: ${{ secrets.GITHUB_TOKEN }}
+      #  branch: development
     - name: Set deployment SSH key
       if: github.event_name == 'push'
       uses: shimataro/ssh-key-action@v2.1.0
