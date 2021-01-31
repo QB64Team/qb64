@@ -10200,6 +10200,7 @@ FUNCTION idelayoutbox
     i = i + 1
     ideindentsubsid = i
     o(i).typ = 4
+    o(i).x = 6
     o(i).y = 7
     o(i).nam = idenewtxt("Indent SUBs and #FUNCTIONs")
     o(i).sel = ideindentsubs
@@ -10307,6 +10308,9 @@ FUNCTION idelayoutbox
             IF a > 64 THEN a$ = "64"
         END IF
         idetxt(o(ideautoindentsizeid).txt) = a$
+
+        IF o(ideautolayoutid).sel = 0 THEN o(ideautolayoutkwcapitalsid).sel = 0
+        IF o(ideautoindentID).sel = 0 THEN o(ideindentsubsid).sel = 0
 
         IF K$ = CHR$(27) OR (focus = buttonsid + 1 AND info <> 0) THEN EXIT FUNCTION 'cancel
         IF K$ = CHR$(13) OR (focus = buttonsid AND info <> 0) THEN 'ok
