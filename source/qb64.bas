@@ -8317,7 +8317,7 @@ DO
                     previousElement$ = d$
                     d$ = ""
                 NEXT
-                appendtype$ = UCASE$(appendtype$) 'capitalise default types (udt override this later if necessary)
+                appendtype$ = SCase2$(appendtype$) 'capitalise default types (udt override this later if necessary)
                 typ$ = RTRIM$(typ$)
 
                 dimnext2:
@@ -18177,6 +18177,7 @@ END FUNCTION
 
 
 
+
 FUNCTION fixoperationorder$ (savea$)
     a$ = savea$
     IF Debug THEN PRINT #9, "fixoperationorder:in:" + a$
@@ -18423,8 +18424,8 @@ FUNCTION fixoperationorder$ (savea$)
                     IF b = 0 THEN
                         IF UCASE$(a2$) = "NOT" THEN
                             IF i = n THEN Give_Error "Expected NOT ...": EXIT FUNCTION
-                            IF i = 1 THEN a$ = SCase$("Not") + sp + "{" + sp + getelements$(a$, 2, n) + sp + "}": n = n + 2: GOTO lco_bracketting_done
-                            a$ = getelements$(a$, 1, i - 1) + sp + "{" + sp + SCase$("Not") + sp + "{" + sp + getelements$(a$, i + 1, n) + sp + "}" + sp + "}"
+                            IF i = 1 THEN a$ = "NOT" + sp + "{" + sp + getelements$(a$, 2, n) + sp + "}": n = n + 2: GOTO lco_bracketting_done
+                            a$ = getelements$(a$, 1, i - 1) + sp + "{" + sp + "NOT" + sp + "{" + sp + getelements$(a$, i + 1, n) + sp + "}" + sp + "}"
                             n = n + 4
                             GOTO NOT_recheck
                         END IF 'not
@@ -18618,8 +18619,8 @@ FUNCTION fixoperationorder$ (savea$)
             IF isoperator(f2$) THEN
                 lastt = 3: lastti = i
                 IF LEN(f2$) > 1 THEN
-                    IF f2$ <> UCASE$(f2$) THEN
-                        f2$ = UCASE$(f2$)
+                    IF f2$ <> SCase2$(f2$) THEN
+                        f2$ = SCase2$(f2$)
                         removeelements a$, i, i, 0
                         insertelements a$, i - 1, f2$
                     END IF
@@ -18628,7 +18629,6 @@ FUNCTION fixoperationorder$ (savea$)
                 IF f2$ = CHR$(241) THEN f$ = f$ + sp + "-": GOTO classdone_special
                 GOTO classdone
             END IF
-
 
             IF alphanumeric(c) THEN
                 lastt = 4: lastti = i
@@ -18977,11 +18977,11 @@ FUNCTION fixoperationorder$ (savea$)
         f$ = f$ + sp
         classdone_special:
     NEXT
+
     IF LEN(f$) THEN f$ = LEFT$(f$, LEN(f$) - 1) 'remove trailing 'sp'
 
     IF Debug THEN PRINT #9, "fixoperationorder:identification:" + a$, n
     IF Debug THEN PRINT #9, "fixoperationorder:identification(layout):" + f$, n
-
 
 
     '----------------I. Pass (){}bracketed items (if any) to fixoperationorder & build return----------------
@@ -20404,6 +20404,7 @@ FUNCTION operatorusage (operator$, typ AS LONG, info$, lhs AS LONG, rhs AS LONG,
     IF operator$ = ">=" THEN info$ = ">=": operatorusage = 3: EXIT FUNCTION
 
     lhs = 1: rhs = 1: result = 1
+    operator$ = UCASE$(operator$)
     IF operator$ = "MOD" THEN info$ = "%": operatorusage = 1: EXIT FUNCTION
     IF operator$ = "\" THEN info$ = "/ ": operatorusage = 1: EXIT FUNCTION
     IF operator$ = "IMP" THEN info$ = "|": operatorusage = 4: EXIT FUNCTION

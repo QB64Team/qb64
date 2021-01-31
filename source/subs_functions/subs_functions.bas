@@ -2466,7 +2466,7 @@ id.ret = LONGTYPE - ISPOINTER
 regid
 
 clearid
-id.n = "CLS"
+id.n = "Cls"
 id.subfunc = 2
 id.callname = "sub_cls"
 id.args = 2
