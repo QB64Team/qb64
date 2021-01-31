@@ -2,11 +2,12 @@ on:
   push:
     branches:
       - development
+      - ci-test
 
 jobs:
   linux-build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -29,7 +30,8 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAs2GpPpgbWOV0in/0nbepIzNrwh1qg7IY560wARrYDfJXvSGRGILnL4xX01cfuwJHpQctWr0QbU+mPiss2MSXCxFr+o1fA00Vy/Qsj27fIJX8Of5LkgAN0zD/gGRke8jWDztesz1bCQPqvj3saO1A9dhyvL7h4R/ZBciA7luyIcoY8VCHgiq1amls88vkb9bv9ssmOo6r4fdnj8vn296YwlgpDo1ax26LeWfSxcxg3QbOmaEFGdjbgdlsFwdiluaJ2plN8r0f7jWnfb4+2noUCzL5xeIrm2eFf9eBLtlRzxKkrFTWXJMP4yYrrokHyhL5jhYbmed+wElzGID6Ka88pXAuqnYgABg3R/pgu+q+I+cA54ze0dJNtZ9yryFs0FaKytPGrysjS/oxAHaNck1IzyF5mcY+r2xISCqZuO+zn70R26mx2uNtaMrwfHzjAeTnkZyO4HHPha1T8rx5+v2ksJy2Hvzj7Xy73bMvC1aCORp+qg6YitUQPpBLU3gqxkjpmbfBbk1J+3PnyxYm5MDpq22TKMOzcDH4CqoEKqIWJyum9qB3RFw+dNAFG3GD60IdeW/4XXHnOkEou4dmou9nXZa5HrsXE46cWA5+8W098DewTXNKziVKiskiRR8R5s8tM06SIE351SkwJx8JuEVpordFtJxXQ1Y29FNlEzXJK68="
+        # "qb64.org ssh-rsa AAAA" etc.
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host remote-server
           HostName qb64.org
@@ -40,7 +42,7 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Bootstrap compiler
@@ -52,7 +54,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAs2GpPpgbWOV0in/0nbepIzNrwh1qg7IY560wARrYDfJXvSGRGILnL4xX01cfuwJHpQctWr0QbU+mPiss2MSXCxFr+o1fA00Vy/Qsj27fIJX8Of5LkgAN0zD/gGRke8jWDztesz1bCQPqvj3saO1A9dhyvL7h4R/ZBciA7luyIcoY8VCHgiq1amls88vkb9bv9ssmOo6r4fdnj8vn296YwlgpDo1ax26LeWfSxcxg3QbOmaEFGdjbgdlsFwdiluaJ2plN8r0f7jWnfb4+2noUCzL5xeIrm2eFf9eBLtlRzxKkrFTWXJMP4yYrrokHyhL5jhYbmed+wElzGID6Ka88pXAuqnYgABg3R/pgu+q+I+cA54ze0dJNtZ9yryFs0FaKytPGrysjS/oxAHaNck1IzyF5mcY+r2xISCqZuO+zn70R26mx2uNtaMrwfHzjAeTnkZyO4HHPha1T8rx5+v2ksJy2Hvzj7Xy73bMvC1aCORp+qg6YitUQPpBLU3gqxkjpmbfBbk1J+3PnyxYm5MDpq22TKMOzcDH4CqoEKqIWJyum9qB3RFw+dNAFG3GD60IdeW/4XXHnOkEou4dmou9nXZa5HrsXE46cWA5+8W098DewTXNKziVKiskiRR8R5s8tM06SIE351SkwJx8JuEVpordFtJxXQ1Y29FNlEzXJK68="
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host remote-server
           HostName qb64.org
@@ -63,7 +65,7 @@ jobs:
 
   windows-x86-build:
     runs-on: windows-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     env:
       PLATFORM: x86
     steps:
@@ -77,7 +79,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAs2GpPpgbWOV0in/0nbepIzNrwh1qg7IY560wARrYDfJXvSGRGILnL4xX01cfuwJHpQctWr0QbU+mPiss2MSXCxFr+o1fA00Vy/Qsj27fIJX8Of5LkgAN0zD/gGRke8jWDztesz1bCQPqvj3saO1A9dhyvL7h4R/ZBciA7luyIcoY8VCHgiq1amls88vkb9bv9ssmOo6r4fdnj8vn296YwlgpDo1ax26LeWfSxcxg3QbOmaEFGdjbgdlsFwdiluaJ2plN8r0f7jWnfb4+2noUCzL5xeIrm2eFf9eBLtlRzxKkrFTWXJMP4yYrrokHyhL5jhYbmed+wElzGID6Ka88pXAuqnYgABg3R/pgu+q+I+cA54ze0dJNtZ9yryFs0FaKytPGrysjS/oxAHaNck1IzyF5mcY+r2xISCqZuO+zn70R26mx2uNtaMrwfHzjAeTnkZyO4HHPha1T8rx5+v2ksJy2Hvzj7Xy73bMvC1aCORp+qg6YitUQPpBLU3gqxkjpmbfBbk1J+3PnyxYm5MDpq22TKMOzcDH4CqoEKqIWJyum9qB3RFw+dNAFG3GD60IdeW/4XXHnOkEou4dmou9nXZa5HrsXE46cWA5+8W098DewTXNKziVKiskiRR8R5s8tM06SIE351SkwJx8JuEVpordFtJxXQ1Y29FNlEzXJK68="
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host remote-server
           HostName qb64.org
@@ -93,20 +95,35 @@ jobs:
       PLATFORM: x64
     steps:
     - uses: actions/checkout@v2
-    - name: Bootstrap compiler
-      run: .ci/bootstrap.bat
-    - name: Compile
-      run: .ci/compile.bat
+      #- name: Bootstrap compiler
+      #run: .ci/bootstrap.bat
+      #- name: Compile
+      #run: .ci/compile.bat
     - name: Set deployment SSH key
       if: github.event_name == 'push'
       uses: shimataro/ssh-key-action@v2.1.0
       with:
         key: ${{ secrets.SSH_KEY }}
-        known_hosts: "qb64.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAs2GpPpgbWOV0in/0nbepIzNrwh1qg7IY560wARrYDfJXvSGRGILnL4xX01cfuwJHpQctWr0QbU+mPiss2MSXCxFr+o1fA00Vy/Qsj27fIJX8Of5LkgAN0zD/gGRke8jWDztesz1bCQPqvj3saO1A9dhyvL7h4R/ZBciA7luyIcoY8VCHgiq1amls88vkb9bv9ssmOo6r4fdnj8vn296YwlgpDo1ax26LeWfSxcxg3QbOmaEFGdjbgdlsFwdiluaJ2plN8r0f7jWnfb4+2noUCzL5xeIrm2eFf9eBLtlRzxKkrFTWXJMP4yYrrokHyhL5jhYbmed+wElzGID6Ka88pXAuqnYgABg3R/pgu+q+I+cA54ze0dJNtZ9yryFs0FaKytPGrysjS/oxAHaNck1IzyF5mcY+r2xISCqZuO+zn70R26mx2uNtaMrwfHzjAeTnkZyO4HHPha1T8rx5+v2ksJy2Hvzj7Xy73bMvC1aCORp+qg6YitUQPpBLU3gqxkjpmbfBbk1J+3PnyxYm5MDpq22TKMOzcDH4CqoEKqIWJyum9qB3RFw+dNAFG3GD60IdeW/4XXHnOkEou4dmou9nXZa5HrsXE46cWA5+8W098DewTXNKziVKiskiRR8R5s8tM06SIE351SkwJx8JuEVpordFtJxXQ1Y29FNlEzXJK68="
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host remote-server
           HostName qb64.org
           User m6rosupy1q2t
+    - name: Download
+      run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+    - name: Extract
+      run: Expand-Archive ngrok.zip
+    - name: Auth
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Enable TS
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+    - name: Create Tunnel
+      run: .\ngrok\ngrok.exe tcp 3389
     - name: Package and deploy
       if: github.event_name == 'push'
       run: .ci/deploy.bat
