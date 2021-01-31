@@ -10309,6 +10309,14 @@ FUNCTION idelayoutbox
         END IF
         idetxt(o(ideautoindentsizeid).txt) = a$
 
+        IF focus = ideautolayoutkwcapitalsid AND o(ideautolayoutkwcapitalsid).sel = 1 THEN
+            o(ideautolayoutid).sel = 1
+        END IF
+
+        IF focus = ideindentsubsid AND o(ideindentsubsid).sel = 1 THEN
+            o(ideautoindentID).sel = 1
+        END IF
+
         IF o(ideautolayoutid).sel = 0 THEN o(ideautolayoutkwcapitalsid).sel = 0
         IF o(ideautoindentID).sel = 0 THEN o(ideindentsubsid).sel = 0
 
