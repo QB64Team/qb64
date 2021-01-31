@@ -15,7 +15,7 @@ DIM SHARED IDEShowErrorsImmediately AS _BYTE
 DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
 DIM SHARED DisableSyntaxHighlighter AS _BYTE, ExeToSourceFolderFirstTimeMsg AS _BYTE
-DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE
+DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE, ideautolayoutkwcapitals AS _BYTE
 
 IF LoadedIDESettings = 0 THEN
     'We only want to load the file once when QB64 first starts
@@ -233,6 +233,19 @@ IF LoadedIDESettings = 0 THEN
     ELSE
         WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
         idesortsubs = 0
+    END IF
+
+    result = ReadConfigSetting("IDE_KeywordCapital", value$)
+    IF result THEN
+        IF value$ = "TRUE" OR VAL(value$) = -1 THEN
+            ideautolayoutkwcapitals = -1
+        ELSE
+            ideautolayoutkwcapitals = 0
+            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_KeywordCapital", "FALSE"
+        END IF
+    ELSE
+        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_KeywordCapital", "FALSE"
+        ideautolayoutkwcapitals = 0
     END IF
 
     result = ReadConfigSetting("IDE_SUBsLength", value$)

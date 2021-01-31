@@ -10163,38 +10163,52 @@ FUNCTION idelayoutbox
 
     '-------- init --------
     i = 0
-    idepar p, 60, 8, "Code Layout"
+    idepar p, 60, 9, "Code Layout"
 
     i = i + 1
+    ideautolayoutid = i
     o(i).typ = 4 'check box
     o(i).y = 2
     o(i).nam = idenewtxt("#Auto Spacing & Upper/Lowercase Formatting")
     o(i).sel = ideautolayout
 
     i = i + 1
+    ideautolayoutkwcapitalsid = i
     o(i).typ = 4 'check box
-    o(i).y = 4
+    o(i).y = 3
+    o(i).x = 6
+    o(i).nam = idenewtxt("#Keywords in CAPITALS")
+    o(i).sel = ideautolayoutkwcapitals
+
+    i = i + 1
+    ideautoindentID = i
+    o(i).typ = 4 'check box
+    o(i).y = 5
     o(i).nam = idenewtxt("Auto #Indent -")
     o(i).sel = ideautoindent
 
     a2$ = str2$(ideautoindentsize)
     i = i + 1
+    ideautoindentsizeid = i
     o(i).typ = 1
     o(i).x = 20
-    o(i).y = 4
+    o(i).y = 5
     o(i).nam = idenewtxt("#Spacing")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
 
     i = i + 1
+    ideindentsubsid = i
     o(i).typ = 4
-    o(i).y = 6
+    o(i).x = 6
+    o(i).y = 7
     o(i).nam = idenewtxt("Indent SUBs and #FUNCTIONs")
     o(i).sel = ideindentsubs
 
     i = i + 1
+    buttonsid = i
     o(i).typ = 3
-    o(i).y = 8
+    o(i).y = 9
     o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -10275,14 +10289,14 @@ FUNCTION idelayoutbox
         IF focus <> PrevFocus THEN
             'Always start with TextBox values selected upon getting focus
             PrevFocus = focus
-            IF focus = 3 THEN
+            IF o(focus).typ = 1 THEN
                 o(focus).v1 = LEN(idetxt(o(focus).txt))
                 IF o(focus).v1 > 0 THEN o(focus).issel = -1
                 o(focus).sx1 = 0
             END IF
         END IF
 
-        a$ = idetxt(o(3).txt)
+        a$ = idetxt(o(ideautoindentsizeid).txt)
         IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
         FOR i = 1 TO LEN(a$)
             a = ASC(a$, i)
@@ -10293,18 +10307,32 @@ FUNCTION idelayoutbox
             a = VAL(a$)
             IF a > 64 THEN a$ = "64"
         END IF
-        idetxt(o(3).txt) = a$
+        idetxt(o(ideautoindentsizeid).txt) = a$
 
-        IF K$ = CHR$(27) OR (focus = 6 AND info <> 0) THEN EXIT FUNCTION
-        IF K$ = CHR$(13) OR (focus = 5 AND info <> 0) THEN
+        IF focus = ideautolayoutkwcapitalsid AND o(ideautolayoutkwcapitalsid).sel = 1 THEN
+            o(ideautolayoutid).sel = 1
+        END IF
+
+        IF focus = ideindentsubsid AND o(ideindentsubsid).sel = 1 THEN
+            o(ideautoindentID).sel = 1
+        END IF
+
+        IF o(ideautolayoutid).sel = 0 THEN o(ideautolayoutkwcapitalsid).sel = 0
+        IF o(ideautoindentID).sel = 0 THEN o(ideindentsubsid).sel = 0
+
+        IF K$ = CHR$(27) OR (focus = buttonsid + 1 AND info <> 0) THEN EXIT FUNCTION 'cancel
+        IF K$ = CHR$(13) OR (focus = buttonsid AND info <> 0) THEN 'ok
             'save changes
-            v% = o(1).sel: IF v% <> 0 THEN v% = 1 'ideautolayout
-
+            v% = o(ideautolayoutid).sel: IF v% <> 0 THEN v% = 1 'ideautolayout
             IF ideautolayout <> v% THEN ideautolayout = v%: idelayoutbox = 1
-            v% = o(2).sel: IF v% <> 0 THEN v% = 1 'ideautoindent
 
+            v% = o(ideautolayoutkwcapitalsid).sel: IF v% <> 0 THEN v% = 1 'ideautolayoutkwcapitals
+            IF ideautolayoutkwcapitals <> v% THEN ideautolayoutkwcapitals = v%: idelayoutbox = 1
+
+            v% = o(ideautoindentid).sel: IF v% <> 0 THEN v% = 1 'ideautoindent
             IF ideautoindent <> v% THEN ideautoindent = v%: idelayoutbox = 1
-            v$ = idetxt(o(3).txt) 'ideautoindentsize
+
+            v$ = idetxt(o(ideautoindentsizeid).txt) 'ideautoindentsize
             IF v$ = "" THEN v$ = "4"
             v% = VAL(v$)
             IF v% < 0 OR v% > 64 THEN v% = 4
@@ -10313,13 +10341,18 @@ FUNCTION idelayoutbox
                 IF ideautoindent <> 0 THEN idelayoutbox = 1
             END IF
 
-            v% = o(4).sel: IF v% <> 0 THEN v% = 1 'ideindentsubs
+            v% = o(ideindentsubsid).sel: IF v% <> 0 THEN v% = 1 'ideindentsubs
             IF ideindentsubs <> v% THEN ideindentsubs = v%: idelayoutbox = 1
 
             IF ideautolayout THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
             ELSE
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "FALSE"
+            END IF
+            IF ideautolayoutkwcapitals THEN
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_KeywordCapital", "TRUE"
+            ELSE
+                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_KeywordCapital", "FALSE"
             END IF
             IF ideautoindent THEN
                 WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "TRUE"
