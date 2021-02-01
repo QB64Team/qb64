@@ -9,6 +9,6 @@ tar --create --auto-compress --file ${filename} --exclude-from=qb64/.ci/common-e
 
 current_files=$(aws --output text --query 'Contents[].Key' s3api list-objects --bucket ${BUCKET} --prefix ${OS})
 aws s3 cp ${filename} s3://${BUCKET}/${OS}/
-for f in current_files; do
+for f in $current_files; do
     aws s3 rm s3://${BUCKET}/$f
 done

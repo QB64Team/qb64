@@ -38,24 +38,21 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Bootstrap compiler
       run: .ci/bootstrap.sh osx
     - name: Compile
       run: .ci/compile.sh
-    - name: Set deployment SSH key
+    - name: Setup aws
       if: github.event_name == 'push'
-      uses: shimataro/ssh-key-action@v2.1.0
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host remote-server
-          HostName qb64.org
-          User m6rosupy1q2t
-    - name: Package and deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.sh osx
 
