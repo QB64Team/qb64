@@ -7,7 +7,7 @@ on:
 jobs:
   linux-build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -38,7 +38,7 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    if: "contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Bootstrap compiler
@@ -85,35 +85,17 @@ jobs:
       PLATFORM: x64
     steps:
     - uses: actions/checkout@v2
-      #- name: Bootstrap compiler
-      #run: .ci/bootstrap.bat
-      #- name: Compile
-      #run: .ci/compile.bat
-    - name: Set deployment SSH key
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.bat
+    - name: Compile
+      run: .ci/compile.bat
+    - name: Setup aws
       if: github.event_name == 'push'
-      uses: shimataro/ssh-key-action@v2.1.0
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host remote-server
-          HostName qb64.org
-          User m6rosupy1q2t
-    - name: Download
-      run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract
-      run: Expand-Archive ngrok.zip
-    - name: Auth
-      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
-      env:
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Create Tunnel
-      run: .\ngrok\ngrok.exe tcp 3389
-    - name: Package and deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.bat
