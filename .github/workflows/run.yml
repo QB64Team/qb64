@@ -2,12 +2,11 @@ on:
   push:
     branches:
       - development
-      - ci-test
 
 jobs:
   linux-build:
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -38,7 +37,7 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Bootstrap compiler
@@ -80,7 +79,7 @@ jobs:
 
   windows-x64-build:
     runs-on: windows-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     env:
       PLATFORM: x64
     steps:
@@ -98,4 +97,4 @@ jobs:
         aws-region: us-east-2
     - name: Publish to S3
       if: github.event_name == 'push'
-      run: .ci/deploy.bat
+      run: .ci/deploy.ps1
