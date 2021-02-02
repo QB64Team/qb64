@@ -76,7 +76,7 @@ jobs:
         aws-region: us-east-2
     - name: Publish to S3
       if: github.event_name == 'push'
-      run: .ci/deploy.bat
+      run: .ci/deploy.ps1
 
   windows-x64-build:
     runs-on: windows-latest
