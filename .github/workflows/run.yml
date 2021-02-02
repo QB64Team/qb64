@@ -2,12 +2,11 @@ on:
   push:
     branches:
       - development
-      - ci-test
 
 jobs:
   linux-build:
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -25,47 +24,40 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: development
-    - name: Set deployment SSH key
+    - name: Setup aws
       if: github.event_name == 'push'
-      uses: shimataro/ssh-key-action@v2.1.0
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        key: ${{ secrets.SSH_KEY }}
-        # "qb64.org ssh-rsa AAAA" etc.
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host remote-server
-          HostName qb64.org
-          User m6rosupy1q2t
-    - name: Package and deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.sh lnx
 
   macos-build:
     runs-on: macos-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     steps:
     - uses: actions/checkout@v2
     - name: Bootstrap compiler
       run: .ci/bootstrap.sh osx
     - name: Compile
       run: .ci/compile.sh
-    - name: Set deployment SSH key
+    - name: Setup aws
       if: github.event_name == 'push'
-      uses: shimataro/ssh-key-action@v2.1.0
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host remote-server
-          HostName qb64.org
-          User m6rosupy1q2t
-    - name: Package and deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.sh osx
 
   windows-x86-build:
     runs-on: windows-latest
-    if: "contains(github.event.head_commit.message, 'ci-skip')"
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
     env:
       PLATFORM: x86
     steps:
@@ -74,19 +66,16 @@ jobs:
       run: .ci/bootstrap.bat
     - name: Compile
       run: .ci/compile.bat
-    - name: Set deployment SSH key
+    - name: Setup aws
       if: github.event_name == 'push'
-      uses: shimataro/ssh-key-action@v2.1.0
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host remote-server
-          HostName qb64.org
-          User m6rosupy1q2t
-    - name: Package and deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
       if: github.event_name == 'push'
-      run: .ci/deploy.bat
+      run: .ci/deploy.ps1
 
   windows-x64-build:
     runs-on: windows-latest
@@ -95,35 +84,17 @@ jobs:
       PLATFORM: x64
     steps:
     - uses: actions/checkout@v2
-      #- name: Bootstrap compiler
-      #run: .ci/bootstrap.bat
-      #- name: Compile
-      #run: .ci/compile.bat
-    - name: Set deployment SSH key
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.bat
+    - name: Compile
+      run: .ci/compile.bat
+    - name: Setup aws
       if: github.event_name == 'push'
-      uses: shimataro/ssh-key-action@v2.1.0
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        key: ${{ secrets.SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host remote-server
-          HostName qb64.org
-          User m6rosupy1q2t
-    - name: Download
-      run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract
-      run: Expand-Archive ngrok.zip
-    - name: Auth
-      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
-      env:
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Create Tunnel
-      run: .\ngrok\ngrok.exe tcp 3389
-    - name: Package and deploy
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
       if: github.event_name == 'push'
-      run: .ci/deploy.bat
+      run: .ci/deploy.ps1
