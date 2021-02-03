@@ -2513,10 +2513,11 @@ FUNCTION ide2 (ignore)
                     skipdisplay = 0
                     IdeSystem = 3
                     retval = 1
+                ELSE
+                    WikiParse a$
+                    IdeSystem = 3
                 END IF
 
-                WikiParse a$
-                IdeSystem = 3
                 GOSUB redrawitall
                 GOTO specialchar
 
