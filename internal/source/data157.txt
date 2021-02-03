@@ -1,4 +1,49 @@
-qbs *_FUNC_IDEZGETROOT_STRING_IDEZGETROOT=NULL;
-if (!_FUNC_IDEZGETROOT_STRING_IDEZGETROOT)_FUNC_IDEZGETROOT_STRING_IDEZGETROOT=qbs_new(0,0);
-qbs *_FUNC_IDEZGETROOT_STRING_A=NULL;
-if (!_FUNC_IDEZGETROOT_STRING_A)_FUNC_IDEZGETROOT_STRING_A=qbs_new(0,0);
+qbs *_FUNC_IDEZCHANGEPATH_STRING_IDEZCHANGEPATH=NULL;
+if (!_FUNC_IDEZCHANGEPATH_STRING_IDEZCHANGEPATH)_FUNC_IDEZCHANGEPATH_STRING_IDEZCHANGEPATH=qbs_new(0,0);
+qbs*oldstr4856=NULL;
+if(_FUNC_IDEZCHANGEPATH_STRING_PATH->tmp||_FUNC_IDEZCHANGEPATH_STRING_PATH->fixed||_FUNC_IDEZCHANGEPATH_STRING_PATH->readonly){
+oldstr4856=_FUNC_IDEZCHANGEPATH_STRING_PATH;
+if (oldstr4856->cmem_descriptor){
+_FUNC_IDEZCHANGEPATH_STRING_PATH=qbs_new_cmem(oldstr4856->len,0);
+}else{
+_FUNC_IDEZCHANGEPATH_STRING_PATH=qbs_new(oldstr4856->len,0);
+}
+memcpy(_FUNC_IDEZCHANGEPATH_STRING_PATH->chr,oldstr4856->chr,oldstr4856->len);
+}
+qbs*oldstr4857=NULL;
+if(_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->tmp||_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->fixed||_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->readonly){
+oldstr4857=_FUNC_IDEZCHANGEPATH_STRING_NEWPATH;
+if (oldstr4857->cmem_descriptor){
+_FUNC_IDEZCHANGEPATH_STRING_NEWPATH=qbs_new_cmem(oldstr4857->len,0);
+}else{
+_FUNC_IDEZCHANGEPATH_STRING_NEWPATH=qbs_new(oldstr4857->len,0);
+}
+memcpy(_FUNC_IDEZCHANGEPATH_STRING_NEWPATH->chr,oldstr4857->chr,oldstr4857->len);
+}
+int32 *_FUNC_IDEZCHANGEPATH_LONG_X=NULL;
+if(_FUNC_IDEZCHANGEPATH_LONG_X==NULL){
+_FUNC_IDEZCHANGEPATH_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_IDEZCHANGEPATH_LONG_X=0;
+}
+int64 fornext_value4859;
+int64 fornext_finalvalue4859;
+int64 fornext_step4859;
+uint8 fornext_step_negative4859;
+byte_element_struct *byte_element_4860=NULL;
+if (!byte_element_4860){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4860=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4860=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_IDEZCHANGEPATH_STRING_A=NULL;
+if (!_FUNC_IDEZCHANGEPATH_STRING_A)_FUNC_IDEZCHANGEPATH_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_4861=NULL;
+if (!byte_element_4861){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4861=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4861=(byte_element_struct*)mem_static_malloc(12);
+}
+int64 fornext_value4863;
+int64 fornext_finalvalue4863;
+int64 fornext_step4863;
+uint8 fornext_step_negative4863;
+byte_element_struct *byte_element_4864=NULL;
+if (!byte_element_4864){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4864=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4864=(byte_element_struct*)mem_static_malloc(12);
+}
