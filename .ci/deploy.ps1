@@ -7,7 +7,7 @@ Set-Location ..
 $OldFiles = aws --output json --query Contents[].Key s3api list-objects --bucket $Bucket --prefix win-$Env:PLATFORM | ConvertFrom-Json
 aws s3 cp $Filename "s3://${Bucket}/win-${Env:PLATFORM}/"
 Set-Content -Path latest.txt -NoNewline -Value $Filename
-aws s3 cp latest.txt "s3://${Bucket}/win-${Env:PLATFORM}/"
 foreach ($f in $OldFiles) {
     aws s3 rm "s3://$Bucket/$f"
 }
+aws s3 cp latest.txt "s3://${Bucket}/win-${Env:PLATFORM}/"
