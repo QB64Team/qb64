@@ -351,6 +351,11 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Ignore #Warnings": i = i + 1
         IF IgnoreWarnings THEN menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
 
+        OptionsMenuAutoComplete = i
+        menu$(m, i) = "Code Suggest#ions": i = i + 1
+        IF IdeAutoComplete THEN menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
+
+
         menusize(m) = i - 1
 
         m = m + 1: i = 0
@@ -3549,8 +3554,7 @@ FUNCTION ide2 (ignore)
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
                     retval$ = idergbmixer$(0)
-                ELSEIF idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
-
+                ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
                     'close open block
                     IF idefocusline = definingtypeerror THEN
                         insertAtCursor SCase$("End Type"): GOTO specialchar
@@ -4720,14 +4724,30 @@ FUNCTION ide2 (ignore)
 
             IF RIGHT$(menu$(m, s), 16) = "Ignore #Warnings" THEN
                 PCOPY 2, 0
-                IF Ignorewarnings = 0 THEN
-                    Ignorewarnings = -1
+                IF IgnoreWarnings = 0 THEN
+                    IgnoreWarnings = -1
                     WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "TRUE"
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
                 ELSE
-                    Ignorewarnings = 0
+                    IgnoreWarnings = 0
                     WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = "Ignore #Warnings"
+                END IF
+                idechangemade = 1
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
+            IF RIGHT$(menu$(m, s), 17) = "Code Suggest#ions" THEN
+                PCOPY 2, 0
+                IF IdeAutoComplete = 0 THEN
+                    IdeAutoComplete = -1
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "IdeAutoComplete", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
+                ELSE
+                    IdeAutoComplete = 0
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "IdeAutoComplete", "FALSE"
+                    menu$(OptionsMenuID, OptionsMenuAutoComplete) = "Code Suggest#ions"
                 END IF
                 idechangemade = 1
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -8163,7 +8183,7 @@ SUB ideshowtext
                     'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
                     'color mixer.
                     a2$ = UCASE$(a$)
-                    IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
+                    IF IdeAutoComplete AND idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
                         IF (RIGHT$(a2$, 5) = "_RGB(" OR _
                            RIGHT$(a2$, 7) = "_RGB32(" OR _
                            RIGHT$(a2$, 6) = "_RGBA(" OR _
@@ -8201,7 +8221,7 @@ SUB ideshowtext
                     END IF
                 ELSE
                     temp_a$ = idegetline(idecy)
-                    IF idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
+                    IF IdeAutoComplete AND idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
                         'some errors are mere blocks the user just opened and is still
                         'working on. This bit will offer to close said blocks.
                         IF idefocusline = definingtypeerror THEN
