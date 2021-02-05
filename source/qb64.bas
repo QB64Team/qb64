@@ -23297,7 +23297,7 @@ FUNCTION evaluateconst$ (a2$, t AS LONG)
             EXIT FUNCTION
         END IF
 
-        IF o$ = "NOT" THEN
+        IF UCASE$(o$) = "NOT" THEN
             IF btype(2) AND ISFLOAT THEN
                 r&& = _CV(_FLOAT, block(2))
             ELSE
@@ -23325,7 +23325,7 @@ FUNCTION evaluateconst$ (a2$, t AS LONG)
 
     'get operator
     IF i >= n THEN Give_Error "Invalid CONST expression.8": EXIT FUNCTION
-    o$ = block(i)
+    o$ = UCASE$(block(i))
     i = i + 1
     IF isoperator(o$) = 0 THEN Give_Error "Invalid CONST expression.9": EXIT FUNCTION
     IF i > n THEN Give_Error "Invalid CONST expression.10": EXIT FUNCTION
