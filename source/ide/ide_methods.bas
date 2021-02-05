@@ -324,8 +324,8 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "-": i = i + 1
 
         OptionsMenuDisableSyntax = i
-        menu$(m, i) = "Disable Syntax #Highlighter": i = i + 1
-        IF DisableSyntaxHighlighter THEN
+        menu$(m, i) = "Syntax #Highlighter": i = i + 1
+        IF NOT DisableSyntaxHighlighter THEN
             menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuDisableSyntax)
         END IF
 
@@ -4683,15 +4683,15 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 27) = "Disable Syntax #Highlighter" THEN
+            IF RIGHT$(menu$(m, s), 19) = "Syntax #Highlighter" THEN
                 PCOPY 2, 0
                 DisableSyntaxHighlighter = NOT DisableSyntaxHighlighter
                 IF DisableSyntaxHighlighter THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Syntax #Highlighter"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
-                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Syntax #Highlighter"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -8258,10 +8258,10 @@ SUB ideshowtext
 
             FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
                 IF timeElapsedSince(startTime) > 1 THEN
-                    result = idemessagebox("Syntax Highlighter Disabled", "Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "")
+                    result = idemessagebox("Syntax Highlighter Disabled", "Syntax Highlighter has been disabled to avoid slowing down the IDE.\nYou can reenable the Highlighter in the 'Options' menu.", "")
                     DisableSyntaxHighlighter = -1
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Syntax #Highlighter"
                     GOTO noSyntaxHighlighting
                 END IF
                 IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
@@ -11929,7 +11929,7 @@ FUNCTION idechoosecolorsbox
     IF DisableSyntaxHighlighter THEN
         DisableSyntaxHighlighter = 0
         WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
-        menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
+        menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Syntax #Highlighter"
     END IF
     RETURN
 END FUNCTION
