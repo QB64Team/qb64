@@ -191,6 +191,7 @@ TYPE idedbotype
 END TYPE
 '--------------------------------------------------------------------------------
 DIM SHARED idefocusline 'simply stores the location of the line to highlight in red
+DIM SHARED idecompilererrormessage$
 DIM SHARED ideautorun
 DIM SHARED menu$(1 TO 10, 0 TO 20)
 DIM SHARED menusize(1 TO 10)

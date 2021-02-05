@@ -849,11 +849,12 @@ FUNCTION ide2 (ignore)
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-
+                        idecompilererrormessage$ = a$
                         x = 1
                         y = idewy - 3
                         FOR i = 1 TO LEN(a$)
                             IF ASC(a$, i) = 0 THEN
+                                idecompilererrormessage$ = LEFT$(a$, i - 1)
                                 IF _DEFAULTCOLOR = 7 THEN COLOR 11 ELSE COLOR 7
                                 _CONTINUE
                             END IF
@@ -864,7 +865,7 @@ FUNCTION ide2 (ignore)
                         statusarealink = 1
                     ELSE
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-
+                        idecompilererrormessage$ = a$
 
                         l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
 
@@ -3541,18 +3542,39 @@ FUNCTION ide2 (ignore)
         IF K$ = CHR$(13) THEN
             IF KSHIFT THEN
                 retval$ = ""
-                IF EnteringRGB THEN 'The "Hit Shift+ENTER" message is being shown
+                a$ = idegetline(idecy)
+                IF EnteringRGB THEN 'The "Shift+ENTER" message is being shown
                     oldkeywordHighlight = keywordHighlight
                     keywordHighlight = 0
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
                     retval$ = idergbmixer$(0)
+                ELSEIF idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
+
+                    'close open block
+                    IF idefocusline = definingtypeerror THEN
+                        insertAtCursor SCase$("End Type"): GOTO specialchar
+                    ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                        SELECT EVERYCASE controltype(controllevel)
+                            CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
+                            CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
+                            CASE 3, 4: insertAtCursor SCase$("Loop"): GOTO specialchar
+                            CASE 5: insertAtCursor SCase$("Wend"): GOTO specialchar
+                            CASE 6: insertAtCursor SCase$("$End If"): GOTO specialchar
+                            CASE 10 TO 19: insertAtCursor SCase$("End Select"): GOTO specialchar
+                            CASE 32
+                                IF LEFT$(subfunc, 4) = "SUB_" THEN
+                                    insertAtCursor SCase$("End Sub"): GOTO specialchar
+                                ELSE
+                                    insertAtCursor SCase$("End Function"): GOTO specialchar
+                                END IF
+                        END SELECT
+                    END IF
                 ELSE
                     IF ideselect THEN
                         IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
                     END IF
 
-                    a$ = idegetline(idecy)
                     Found_RGB = 0
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
@@ -8070,7 +8092,7 @@ SUB ideshowtext
 
                 a$ = idegetline(l)
                 link_idecx = 0
-                rgb_idecx = 0
+                shiftEnter_idecx = 0
                 IF l = idecy THEN
                     IF idecx <= LEN(a$) AND idecx >= 1 THEN
                         cc = ASC(a$, idecx)
@@ -8150,8 +8172,8 @@ SUB ideshowtext
                            RIGHT$(a2$, 6) = "RGB32(" OR _
                            RIGHT$(a2$, 5) = "RGBA(" OR _
                            RIGHT$(a2$, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
-                            rgb_idecx = LEN(a$)
-                            a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
+                            shiftEnter_idecx = LEN(a$)
+                            a$ = a$ + " --> Shift+ENTER to open the RGB mixer"
                             EnteringRGB = -1
                         END IF
                     ELSEIF idecx_comment + idecx_quote = 0 THEN
@@ -8176,6 +8198,22 @@ SUB ideshowtext
                         p$ = idepath$ + pathsep$
                         f$ = p$ + ActiveINCLUDELinkFile
                         IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                    END IF
+                ELSE
+                    temp_a$ = idegetline(idecy)
+                    IF idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
+                        'some errors are mere blocks the user just opened and is still
+                        'working on. This bit will offer to close said blocks.
+                        IF idefocusline = definingtypeerror THEN
+                            shiftEnter_idecx = LEN(a$)
+                            a$ = a$ + " --> Shift+ENTER to close block"
+                        ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                            SELECT EVERYCASE controltype(controllevel)
+                                CASE 1 to 6,10 to 19,32
+                                    shiftEnter_idecx = LEN(a$)
+                                    a$ = a$ + " --> Shift+ENTER to close block"
+                            END SELECT
+                        END IF
                     END IF
                 END IF 'l = idecy
 
@@ -8320,8 +8358,8 @@ SUB ideshowtext
 
                 SkipSyntaxHighlighter:
 
-                IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
-                   (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
+                IF l = idecy AND (link_idecx > 0 AND m > link_idecx) THEN COLOR 10
+                IF (shiftEnter_idecx > 0 AND m > shiftEnter_idecx) THEN COLOR 10
 
                 IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
                     COLOR , 5
