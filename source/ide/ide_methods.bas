@@ -324,8 +324,8 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "-": i = i + 1
 
         OptionsMenuDisableSyntax = i
-        menu$(m, i) = "Disable Syntax #Highlighter": i = i + 1
-        IF DisableSyntaxHighlighter THEN
+        menu$(m, i) = "Syntax #Highlighter": i = i + 1
+        IF NOT DisableSyntaxHighlighter THEN
             menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuDisableSyntax)
         END IF
 
@@ -350,6 +350,11 @@ FUNCTION ide2 (ignore)
         OptionsMenuIgnoreWarnings = i
         menu$(m, i) = "Ignore #Warnings": i = i + 1
         IF IgnoreWarnings THEN menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
+
+        OptionsMenuAutoComplete = i
+        menu$(m, i) = "Code Suggest#ions": i = i + 1
+        IF IdeAutoComplete THEN menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
+
 
         menusize(m) = i - 1
 
@@ -849,11 +854,12 @@ FUNCTION ide2 (ignore)
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-
+                        idecompilererrormessage$ = a$
                         x = 1
                         y = idewy - 3
                         FOR i = 1 TO LEN(a$)
                             IF ASC(a$, i) = 0 THEN
+                                idecompilererrormessage$ = LEFT$(a$, i - 1)
                                 IF _DEFAULTCOLOR = 7 THEN COLOR 11 ELSE COLOR 7
                                 _CONTINUE
                             END IF
@@ -864,7 +870,7 @@ FUNCTION ide2 (ignore)
                         statusarealink = 1
                     ELSE
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-
+                        idecompilererrormessage$ = a$
 
                         l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
 
@@ -3541,18 +3547,42 @@ FUNCTION ide2 (ignore)
         IF K$ = CHR$(13) THEN
             IF KSHIFT THEN
                 retval$ = ""
-                IF EnteringRGB THEN 'The "Hit Shift+ENTER" message is being shown
+                a$ = idegetline(idecy)
+                IF EnteringRGB THEN 'The "Shift+ENTER" message is being shown
                     oldkeywordHighlight = keywordHighlight
                     keywordHighlight = 0
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
                     retval$ = idergbmixer$(0)
+                ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
+                    'close open block
+                    tempIndent$ = idegetline(idefocusline)
+                    tempIndent$ = SPACE$(LEN(tempIndent$) - LEN(LTRIM$(tempindent$)))
+                    IF idefocusline = definingtypeerror THEN
+                        idecx = LEN(tempIndent$) + 1
+                        insertAtCursor SCase$("End Type"): GOTO specialchar
+                    ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                        idecx = LEN(tempIndent$) + 1
+                        SELECT EVERYCASE controltype(controllevel)
+                            CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
+                            CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
+                            CASE 3, 4: insertAtCursor SCase$("Loop"): GOTO specialchar
+                            CASE 5: insertAtCursor SCase$("Wend"): GOTO specialchar
+                            CASE 6: insertAtCursor SCase$("$End If"): GOTO specialchar
+                            CASE 10 TO 19: insertAtCursor SCase$("End Select"): GOTO specialchar
+                            CASE 32
+                                IF LEFT$(subfunc, 4) = "SUB_" THEN
+                                    insertAtCursor SCase$("End Sub"): GOTO specialchar
+                                ELSE
+                                    insertAtCursor SCase$("End Function"): GOTO specialchar
+                                END IF
+                        END SELECT
+                    END IF
                 ELSE
                     IF ideselect THEN
                         IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
                     END IF
 
-                    a$ = idegetline(idecy)
                     Found_RGB = 0
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
                     Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
@@ -4653,15 +4683,15 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 27) = "Disable Syntax #Highlighter" THEN
+            IF RIGHT$(menu$(m, s), 19) = "Syntax #Highlighter" THEN
                 PCOPY 2, 0
                 DisableSyntaxHighlighter = NOT DisableSyntaxHighlighter
                 IF DisableSyntaxHighlighter THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Syntax #Highlighter"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
-                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Syntax #Highlighter"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -4698,14 +4728,30 @@ FUNCTION ide2 (ignore)
 
             IF RIGHT$(menu$(m, s), 16) = "Ignore #Warnings" THEN
                 PCOPY 2, 0
-                IF Ignorewarnings = 0 THEN
-                    Ignorewarnings = -1
+                IF IgnoreWarnings = 0 THEN
+                    IgnoreWarnings = -1
                     WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "TRUE"
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
                 ELSE
-                    Ignorewarnings = 0
+                    IgnoreWarnings = 0
                     WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "FALSE"
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = "Ignore #Warnings"
+                END IF
+                idechangemade = 1
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
+            IF RIGHT$(menu$(m, s), 17) = "Code Suggest#ions" THEN
+                PCOPY 2, 0
+                IF IdeAutoComplete = 0 THEN
+                    IdeAutoComplete = -1
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "IdeAutoComplete", "TRUE"
+                    menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
+                ELSE
+                    IdeAutoComplete = 0
+                    WriteConfigSetting "'[GENERAL SETTINGS]", "IdeAutoComplete", "FALSE"
+                    menu$(OptionsMenuID, OptionsMenuAutoComplete) = "Code Suggest#ions"
                 END IF
                 idechangemade = 1
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -8070,7 +8116,7 @@ SUB ideshowtext
 
                 a$ = idegetline(l)
                 link_idecx = 0
-                rgb_idecx = 0
+                shiftEnter_idecx = 0
                 IF l = idecy THEN
                     IF idecx <= LEN(a$) AND idecx >= 1 THEN
                         cc = ASC(a$, idecx)
@@ -8141,7 +8187,7 @@ SUB ideshowtext
                     'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
                     'color mixer.
                     a2$ = UCASE$(a$)
-                    IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
+                    IF IdeAutoComplete AND idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
                         IF (RIGHT$(a2$, 5) = "_RGB(" OR _
                            RIGHT$(a2$, 7) = "_RGB32(" OR _
                            RIGHT$(a2$, 6) = "_RGBA(" OR _
@@ -8150,8 +8196,8 @@ SUB ideshowtext
                            RIGHT$(a2$, 6) = "RGB32(" OR _
                            RIGHT$(a2$, 5) = "RGBA(" OR _
                            RIGHT$(a2$, 7) = "RGBA32(") AND qb64prefix_set = 1) THEN
-                            rgb_idecx = LEN(a$)
-                            a$ = a$ + " --> Hit Shift+ENTER to open the RGB mixer"
+                            shiftEnter_idecx = LEN(a$)
+                            a$ = a$ + " --> Shift+ENTER to open the RGB mixer"
                             EnteringRGB = -1
                         END IF
                     ELSEIF idecx_comment + idecx_quote = 0 THEN
@@ -8177,6 +8223,22 @@ SUB ideshowtext
                         f$ = p$ + ActiveINCLUDELinkFile
                         IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
                     END IF
+                ELSE
+                    temp_a$ = idegetline(idecy)
+                    IF IdeAutoComplete AND idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
+                        'some errors are mere blocks the user just opened and is still
+                        'working on. This bit will offer to close said blocks.
+                        IF idefocusline = definingtypeerror THEN
+                            shiftEnter_idecx = LEN(a$)
+                            a$ = a$ + " --> Shift+ENTER to close block"
+                        ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                            SELECT EVERYCASE controltype(controllevel)
+                                CASE 1 to 6,10 to 19,32
+                                    shiftEnter_idecx = LEN(a$)
+                                    a$ = a$ + " --> Shift+ENTER to close block"
+                            END SELECT
+                        END IF
+                    END IF
                 END IF 'l = idecy
 
                 a2$ = SPACE$(idesx + (idewx - 3))
@@ -8196,10 +8258,10 @@ SUB ideshowtext
 
             FOR m = 1 TO LEN(a2$) 'print to the screen while checking required color changes
                 IF timeElapsedSince(startTime) > 1 THEN
-                    result = idemessagebox("Syntax Highlighter Disabled", "Syntax Highlighter has been disabled to avoid locking up the IDE.\nThis may have been caused by lines that are too long.\nYou can reenable the Highlighter in the 'Options' menu.", "")
+                    result = idemessagebox("Syntax Highlighter Disabled", "Syntax Highlighter has been disabled to avoid slowing down the IDE.\nYou can reenable the Highlighter in the 'Options' menu.", "")
                     DisableSyntaxHighlighter = -1
                     WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Disable Syntax #Highlighter"
+                    menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Syntax #Highlighter"
                     GOTO noSyntaxHighlighting
                 END IF
                 IF m > idesx + idewx - 2 THEN EXIT FOR 'stop printing when off screen
@@ -8320,8 +8382,8 @@ SUB ideshowtext
 
                 SkipSyntaxHighlighter:
 
-                IF l = idecy AND ((link_idecx > 0 AND m > link_idecx) OR _
-                   (rgb_idecx > 0 AND m > rgb_idecx)) THEN COLOR 10
+                IF l = idecy AND (link_idecx > 0 AND m > link_idecx) THEN COLOR 10
+                IF (shiftEnter_idecx > 0 AND m > shiftEnter_idecx) THEN COLOR 10
 
                 IF l = idecy AND (m = bracket1 OR m = bracket2) THEN
                     COLOR , 5
@@ -11867,7 +11929,7 @@ FUNCTION idechoosecolorsbox
     IF DisableSyntaxHighlighter THEN
         DisableSyntaxHighlighter = 0
         WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
-        menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Disable Syntax #Highlighter"
+        menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Syntax #Highlighter"
     END IF
     RETURN
 END FUNCTION

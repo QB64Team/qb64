@@ -764,7 +764,7 @@ DIM SHARED findidsecondarg AS STRING
 DIM SHARED findanotherid AS INTEGER
 DIM SHARED findidinternal AS LONG
 DIM SHARED currentid AS LONG 'is the index of the last ID accessed
-DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG
+DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG, definingtypeerror AS LONG
 DIM SHARED wholeline AS STRING
 DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
@@ -852,8 +852,8 @@ DIM SHARED everycasenewcase AS LONG
 
 
 
-DIM controllevel AS INTEGER '0=not in a control block
-DIM controltype(1000) AS INTEGER
+DIM SHARED controllevel AS INTEGER '0=not in a control block
+DIM SHARED controltype(1000) AS INTEGER
 '1=IF (awaiting END IF)
 '2=FOR (awaiting NEXT)
 '3=DO (awaiting LOOP [UNTIL|WHILE param])
@@ -874,7 +874,7 @@ DIM controltype(1000) AS INTEGER
 DIM controlid(1000) AS LONG
 DIM controlvalue(1000) AS LONG
 DIM controlstate(1000) AS INTEGER
-DIM controlref(1000) AS LONG 'the line number the control was created on
+DIM SHARED controlref(1000) AS LONG 'the line number the control was created on
 
 
 
@@ -1376,6 +1376,7 @@ nextrunlineindex = 1
 lasttype = 0
 lasttypeelement = 0
 definingtype = 0
+definingtypeerror = 0
 constlast = -1
 'constlastshared = -1
 defdatahandle = 18
@@ -3619,7 +3620,7 @@ DO
             GOTO finishednonexec
         END IF
 
-        IF n < 3 THEN a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
+        IF n < 3 THEN definingtypeerror = linenumber: a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
         definingtype = 2
         IF firstelement$ = "AS" THEN
             l$ = SCase$("As")

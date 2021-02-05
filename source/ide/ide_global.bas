@@ -191,6 +191,7 @@ TYPE idedbotype
 END TYPE
 '--------------------------------------------------------------------------------
 DIM SHARED idefocusline 'simply stores the location of the line to highlight in red
+DIM SHARED idecompilererrormessage$
 DIM SHARED ideautorun
 DIM SHARED menu$(1 TO 10, 0 TO 20)
 DIM SHARED menusize(1 TO 10)
@@ -198,7 +199,7 @@ DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER, SearchMenuID AS INTEGER
 DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMenuPasteCursor AS INTEGER
 DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER, OptionsMenuIgnoreWarnings AS INTEGER
-DIM SHARED OptionsMenuDisableSyntax AS INTEGER
+DIM SHARED OptionsMenuDisableSyntax AS INTEGER, OptionsMenuAutoComplete
 DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
 DIM SHARED ViewMenuCompilerWarnings AS INTEGER
