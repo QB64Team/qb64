@@ -19216,8 +19216,25 @@ SUB insertelements (a$, i, elements$)
 
 END SUB
 
-FUNCTION isnumber (a$)
+FUNCTION isnumber (__a$)
+    a$ = __a$
     IF LEN(a$) = 0 THEN EXIT FUNCTION
+
+    i = INSTR(a$, "~"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "`"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "%"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "&"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "!"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "#"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "$"): IF i THEN GOTO foundsymbol
+    GOTO proceedWithoutSymbol
+    foundsymbol:
+    IF i = 1 THEN EXIT FUNCTION
+    symbol$ = RIGHT$(a$, LEN(a$) - i + 1)
+    IF symboltype(symbol$) = 0 THEN EXIT FUNCTION
+    a$ = LEFT$(a$, i - 1)
+
+    proceedWithoutSymbol:
     FOR i = 1 TO LEN(a$)
         a = ASC(MID$(a$, i, 1))
         IF a = 45 THEN
