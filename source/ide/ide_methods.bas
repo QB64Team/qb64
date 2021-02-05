@@ -3556,9 +3556,13 @@ FUNCTION ide2 (ignore)
                     retval$ = idergbmixer$(0)
                 ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
                     'close open block
+                    tempIndent$ = idegetline(idefocusline)
+                    tempIndent$ = SPACE$(LEN(tempIndent$) - LEN(LTRIM$(tempindent$)))
                     IF idefocusline = definingtypeerror THEN
+                        idecx = LEN(tempIndent$) + 1
                         insertAtCursor SCase$("End Type"): GOTO specialchar
                     ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                        idecx = LEN(tempIndent$) + 1
                         SELECT EVERYCASE controltype(controllevel)
                             CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
                             CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
