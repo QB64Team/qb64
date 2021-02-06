@@ -19,6 +19,16 @@ byte_element_struct *byte_element_5224=NULL;
 if (!byte_element_5224){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5224=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5224=(byte_element_struct*)mem_static_malloc(12);
 }
+int32 *_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU=NULL;
+if(_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU==NULL){
+_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU=(int32*)mem_static_malloc(4);
+*_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU=0;
+}
+int32 *_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES=NULL;
+if(_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES==NULL){
+_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES=(int32*)mem_static_malloc(4);
+*_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES=0;
+}
 int32 *_SUB_IDEMAKEFILEMENU_LONG_R=NULL;
 if(_SUB_IDEMAKEFILEMENU_LONG_R==NULL){
 _SUB_IDEMAKEFILEMENU_LONG_R=(int32*)mem_static_malloc(4);
@@ -46,4 +56,8 @@ if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5228=(byte_element_s
 byte_element_struct *byte_element_5229=NULL;
 if (!byte_element_5229){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5229=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5229=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5230=NULL;
+if (!byte_element_5230){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5230=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5230=(byte_element_struct*)mem_static_malloc(12);
 }

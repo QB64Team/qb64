@@ -145,6 +145,12 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_MENU[0]))[tmp_long]);
 free((void*)(__ARRAY_STRING_MENU[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_MENU)[12] );
+if (__ARRAY_STRING_MENUDESC[2]&1){
+tmp_long=__ARRAY_STRING_MENUDESC[5]*__ARRAY_STRING_MENUDESC[9];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_MENUDESC[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_MENUDESC[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_MENUDESC)[12] );
 if (__ARRAY_LONG_MENUSIZE[2]&1){
 if (__ARRAY_LONG_MENUSIZE[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_MENUSIZE[0]));

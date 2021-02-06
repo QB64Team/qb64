@@ -717,6 +717,20 @@ __ARRAY_STRING_MENU[9]=0;
 __ARRAY_STRING_MENU[10]=0;
 __ARRAY_STRING_MENU[0]=(ptrszint)&nothingstring;
 }
+if (!__ARRAY_STRING_MENUDESC){
+__ARRAY_STRING_MENUDESC=(ptrszint*)mem_static_malloc(13*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)__ARRAY_STRING_MENUDESC)[12]=(ptrszint)mem_lock_tmp;
+__ARRAY_STRING_MENUDESC[2]=0;
+__ARRAY_STRING_MENUDESC[4]=2147483647;
+__ARRAY_STRING_MENUDESC[5]=0;
+__ARRAY_STRING_MENUDESC[6]=0;
+__ARRAY_STRING_MENUDESC[8]=2147483647;
+__ARRAY_STRING_MENUDESC[9]=0;
+__ARRAY_STRING_MENUDESC[10]=0;
+__ARRAY_STRING_MENUDESC[0]=(ptrszint)&nothingstring;
+}
 if (!__ARRAY_LONG_MENUSIZE){
 __ARRAY_LONG_MENUSIZE=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
