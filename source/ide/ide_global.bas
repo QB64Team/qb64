@@ -194,6 +194,7 @@ DIM SHARED idefocusline 'simply stores the location of the line to highlight in 
 DIM SHARED idecompilererrormessage$
 DIM SHARED ideautorun
 DIM SHARED menu$(1 TO 10, 0 TO 20)
+DIM SHARED menuDesc$(1 TO 10, 0 TO 20)
 DIM SHARED menusize(1 TO 10)
 DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER, SearchMenuID AS INTEGER
