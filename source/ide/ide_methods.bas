@@ -293,9 +293,9 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "Add/Remove #Bookmark  Alt+Left": i = i + 1
         menuDesc$(m, i - 1) = "Toggles a bookmark in the current line"
         menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
-        menuDesc$(m, i - 1) = "Navigates to the next bookmark set"
+        menuDesc$(m, i - 1) = "Navigates to the next bookmark"
         menu$(m, i) = "#Previous Bookmark  Alt+Up": i = i + 1
-        menuDesc$(m, i - 1) = "Navigates to the previous bookmark set"
+        menuDesc$(m, i - 1) = "Navigates to the previous bookmark"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Go To Line...  Ctrl+G": i = i + 1
         menuDesc$(m, i - 1) = "Jumps to the specified line number"
@@ -346,7 +346,7 @@ FUNCTION ide2 (ignore)
 
         OptionsMenuDisableSyntax = i
         menu$(m, i) = "Syntax #Highlighter": i = i + 1
-        menuDesc$(m, i - 1) = "Toggles Syntax Highlighter"
+        menuDesc$(m, i - 1) = "Toggles syntax highlighter"
         IF NOT DisableSyntaxHighlighter THEN
             menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuDisableSyntax)
         END IF
@@ -5582,7 +5582,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             AttemptToLoadRecent = 0
-            FOR ml = 1 TO 4
+            FOR ml = 1 TO UBOUND(IdeRecentLink, 1)
                 IF LEN(IdeRecentLink(ml, 1)) THEN
                     IF menu$(m, s) = IdeRecentLink(ml, 1) THEN
                         IdeOpenFile$ = IdeRecentLink(ml, 2)
@@ -13102,17 +13102,31 @@ SUB IdeMakeFileMenu
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
     a$ = RIGHT$(a$, LEN(a$) - 2)
-    FOR r = 1 TO 5
-        IF r <= 4 THEN IdeRecentLink(r, 1) = ""
+    maxRecentInFileMenu = UBOUND(IdeRecentLink, 1)
+    maxLengthRecentFiles = 35
+    FOR r = 1 TO maxRecentInFileMenu + 1
+        IF r <= maxRecentInFileMenu THEN IdeRecentLink(r, 1) = ""
         ai = INSTR(a$, CRLF)
         IF ai THEN
             IF r = 1 THEN menu$(m, i) = "-": i = i + 1
             f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
-            IF r <= 4 THEN IdeRecentLink(r, 2) = f$
-            IF r = 5 THEN f$ = "#Recent..."
-            IF LEN(f$) > 25 THEN f$ = STRING$(3, 250) + RIGHT$(f$, 22)
-            IF r <= 4 THEN IdeRecentLink(r, 1) = f$
-            menu$(m, i) = f$: i = i + 1
+            IF r <= maxRecentInFileMenu THEN IdeRecentLink(r, 2) = f$
+            'f$ = MID$(f$, _INSTRREV(f$, pathsep$) + 1)
+            IF LEN(f$) > maxLengthRecentFiles THEN f$ = STRING$(3, 250) + RIGHT$(f$, maxLengthRecentFiles - 3)
+            f$ = "#" + str2$(r) + " " + f$
+            IF r = maxRecentInFileMenu + 1 THEN f$ = "#Recent..."
+            menu$(m, i) = f$
+            IF r <= maxRecentInFileMenu THEN
+                IdeRecentLink(r, 1) = f$
+                f$ = "Open '" + IdeRecentLink(r, 2) + "'"
+                ai = 3
+                DO UNTIL LEN(f$) <= idewx - 2
+                    ai = ai + 1
+                    f$ = "Open '" + STRING$(3, 250) + MID$(IdeRecentLink(r, 2), ai) + "'"
+                LOOP
+                menuDesc$(m, i) = f$
+            END IF
+            i = i + 1
         END IF
     NEXT
     CLOSE #fh
@@ -13145,7 +13159,7 @@ SUB IdeMakeContextualMenu
                 sela2$ = LEFT$(sela2$, 19) + STRING$(3, 250)
             END IF
             menu$(m, i) = "Find '" + sela2$ + "'": i = i + 1
-            menuDesc$(m, i - 1) = "Searches for the currently selected text"
+            menuDesc$(m, i - 1) = "Searches for the text currently selected"
         END IF
 
         'build SUB/FUNCTION list:
