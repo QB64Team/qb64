@@ -9781,7 +9781,7 @@ DO
                             IF lineinput THEN a$ = "Expected string variable": GOTO errmes
                             IF (t AND ISARRAY) THEN
                                 IF (t AND ISOFFSETINBITS) THEN
-                                    a$ = "INPUT cannot handle BIT array elements yet": GOTO errmes
+                                    a$ = "INPUT cannot handle BIT array elements": GOTO errmes
                                 END IF
                             END IF
                             e$ = "&(" + refer(e$, t, 0) + ")"
@@ -10515,7 +10515,7 @@ DO
                                             'the number of array elements required is known AND
                                             'the number of elements in the array to be passed is known
 
-                                            IF id.arrayelements <> nelereq THEN a$ = "Passing arrays with a differing number of elements to a SUB/FUNCTION is not supported (yet)": GOTO errmes
+                                            IF id.arrayelements <> nelereq THEN a$ = "Passing arrays with a differing number of elements to a SUB/FUNCTION is not supported": GOTO errmes
 
 
                                         END IF
@@ -10577,7 +10577,7 @@ DO
                                             ELSE
                                                 'not a udt
                                                 IF arr THEN
-                                                    IF (sourcetyp2 AND ISOFFSETINBITS) THEN a$ = "Cannot pass BIT array offsets yet": GOTO errmes
+                                                    IF (sourcetyp2 AND ISOFFSETINBITS) THEN a$ = "Cannot pass BIT array offsets": GOTO errmes
                                                     e$ = "(&(" + refer(e$, sourcetyp, 0) + "))"
                                                     IF Error_Happened THEN GOTO errmes
                                                 ELSE
@@ -15120,7 +15120,7 @@ FUNCTION udtreference$ (o$, a$, typ AS LONG)
 
     r$ = r$ + str2$(u) + sp3 + str2$(E) + sp3
 
-    IF o MOD 8 THEN Give_Error "QB64 cannot handle bit offsets within user defined types yet": EXIT FUNCTION
+    IF o MOD 8 THEN Give_Error "QB64 cannot handle bit offsets within user defined types": EXIT FUNCTION
     o = o \ 8
 
     IF o$ <> "" THEN
@@ -16991,7 +16991,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                                     'print id.arrayelements,nelereq
                                     '             1       ,  2
 
-                                    IF id.arrayelements <> nelereq THEN Give_Error "Passing arrays with a differing number of elements to a SUB/FUNCTION is not supported (yet)": EXIT FUNCTION
+                                    IF id.arrayelements <> nelereq THEN Give_Error "Passing arrays with a differing number of elements to a SUB/FUNCTION is not supported": EXIT FUNCTION
 
 
 
@@ -17066,7 +17066,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                                     ELSE
                                         'not a udt
                                         IF arr THEN
-                                            IF (sourcetyp2 AND ISOFFSETINBITS) THEN Give_Error "Cannot pass BIT array offsets yet": EXIT FUNCTION
+                                            IF (sourcetyp2 AND ISOFFSETINBITS) THEN Give_Error "Cannot pass BIT array offsets": EXIT FUNCTION
                                             e$ = "(&(" + refer(e$, sourcetyp, 0) + "))"
                                             IF Error_Happened THEN EXIT FUNCTION
                                         ELSE
@@ -17879,7 +17879,7 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
 
     'pointer required?
     IF (targettyp AND ISPOINTER) THEN
-        Give_Error "evaluatetotyp received a request for a pointer! (as yet unsupported)": EXIT FUNCTION
+        Give_Error "evaluatetotyp received a request for a pointer (unsupported)": EXIT FUNCTION
         '...
         Give_Error "Invalid pointer": EXIT FUNCTION
     END IF
@@ -20472,7 +20472,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         i = INSTR(a$, sp3): o$ = RIGHT$(a$, LEN(a$) - i)
         n$ = "UDT_" + RTRIM$(id.n): IF id.t = 0 THEN n$ = "ARRAY_" + n$ + "[0]"
         IF E = 0 THEN Give_Error "User defined types in expressions are invalid": EXIT FUNCTION
-        IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types yet": EXIT FUNCTION
+        IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types": EXIT FUNCTION
 
         IF typ AND ISSTRING THEN
             IF typ AND ISFIXEDLENGTH THEN
@@ -21681,7 +21681,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
 
         END IF 'e=0
 
-        IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types yet": EXIT SUB
+        IF typ AND ISOFFSETINBITS THEN Give_Error "Cannot resolve bit-length variables inside user defined types": EXIT SUB
         IF typ AND ISSTRING THEN
             IF typ AND ISFIXEDLENGTH THEN
                 o2$ = "(((uint8*)" + scope$ + n$ + ")+(" + o$ + "))"
