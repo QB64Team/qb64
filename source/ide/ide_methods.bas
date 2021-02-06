@@ -8363,7 +8363,7 @@ SUB ideshowtext
                         IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
                             checkKeyword$ = ""
                         ELSE
-                            IF UCASE$(LEFT$(checkKeyword$, 2)) = "&H" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&O" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&B" OR isnumber(checkKeyword$) THEN
+                            IF isnumber(checkKeyword$) THEN
                                 is_Number = -1
                                 isKeyword = LEN(checkKeyword$)
                             END IF
@@ -14741,6 +14741,63 @@ FUNCTION findHelpTopic$(topic$, lnks, firstOnly AS _BYTE)
     LOOP
     CLOSE #fh
     findHelpTopic$ = lnks$
+END FUNCTION
+
+FUNCTION isnumber (__a$)
+    a$ = UCASE$(__a$)
+    IF LEN(a$) = 0 THEN EXIT FUNCTION
+
+    IF INSTR("@&H@&O@&B@", "@" + LEFT$(a$, 2) + "@") THEN isnumber = 1: EXIT FUNCTION
+
+    i = INSTR(a$, "~"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "`"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "%"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "&"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "!"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "#"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "$"): IF i THEN GOTO foundsymbol
+    GOTO proceedWithoutSymbol
+    foundsymbol:
+    IF i = 1 THEN EXIT FUNCTION
+    symbol$ = RIGHT$(a$, LEN(a$) - i + 1)
+    IF symboltype(symbol$) = 0 THEN EXIT FUNCTION
+    a$ = LEFT$(a$, i - 1)
+
+    proceedWithoutSymbol:
+    ee = 0
+    dd = 0
+    FOR i = 1 TO LEN(a$)
+        a = ASC(a$, i)
+        IF a = 45 THEN
+            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND ((dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1))) THEN _CONTINUE
+            EXIT FUNCTION
+        END IF
+        IF a = 46 THEN
+            IF dp = 1 THEN EXIT FUNCTION
+            dp = 1
+            _CONTINUE
+        END IF
+        IF a = 68 THEN 'dd
+            IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
+            IF i = 1 THEN EXIT FUNCTION
+            dd = i
+            _CONTINUE
+        END IF
+        IF a = 69 THEN 'eE
+            IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
+            IF i = 1 THEN EXIT FUNCTION
+            ee = i
+            _CONTINUE
+        END IF
+        IF a = 43 THEN '+
+            IF (dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1) THEN _CONTINUE
+            EXIT FUNCTION
+        END IF
+
+        IF a >= 48 AND a <= 57 THEN _CONTINUE
+        EXIT FUNCTION
+    NEXT
+    isnumber = 1
 END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'
