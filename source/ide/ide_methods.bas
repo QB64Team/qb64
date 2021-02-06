@@ -260,99 +260,126 @@ FUNCTION ide2 (ignore)
         m = m + 1: i = 0: ViewMenuID = m
         menu$(m, i) = "View": i = i + 1
         menu$(m, i) = "#SUBs...  F2": i = i + 1
+        menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
         menu$(m, i) = "#Line Numbers  " + CHR$(16): i = i + 1
+        menuDesc$(m, i - 1) = "Toggles and customizes line numbers (side bar)"
         menu$(m, i) = "-": i = i + 1
 
         ViewMenuCompilerWarnings = i
         menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W": i = i + 1
+        menuDesc$(m, i - 1) = "Displays a list of recent code warnings"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: SearchMenuID = m
         menu$(m, i) = "Search": i = i + 1
         menu$(m, i) = "#Find...  Ctrl+F3": i = i + 1
+        menuDesc$(m, i - 1) = "Finds specified text"
         menu$(m, i) = "#Repeat Last Find  (Shift+) F3": i = i + 1
+        menuDesc$(m, i - 1) = "Finds next occurrence of text specified in previous search"
         menu$(m, i) = "#Change...  Alt+F3": i = i + 1
+        menuDesc$(m, i - 1) = "Finds and changes specified text"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clear Search #History...": i = i + 1
+        menuDesc$(m, i - 1) = "Clears history of searched text items"
         menu$(m, i) = "-": i = i + 1
 
         SearchMenuEnableQuickNav = i
-        menu$(m, i) = "Enable #Quick Navigation (Back Arrow)": i = i + 1
+        menu$(m, i) = "#Quick Navigation": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles Quick Navigation (back arrow)"
         IF EnableQuickNav THEN
             menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + menu$(SearchMenuID, SearchMenuEnableQuickNav)
         END IF
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Add/Remove #Bookmark  Alt+Left": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles a bookmark in the current line"
         menu$(m, i) = "#Next Bookmark  Alt+Down": i = i + 1
+        menuDesc$(m, i - 1) = "Navigates to the next bookmark"
         menu$(m, i) = "#Previous Bookmark  Alt+Up": i = i + 1
+        menuDesc$(m, i - 1) = "Navigates to the previous bookmark"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Go To Line...  Ctrl+G": i = i + 1
+        menuDesc$(m, i - 1) = "Jumps to the specified line number"
 
         menusize(m) = i - 1
 
         m = m + 1: i = 0: RunMenuID = m
         menu$(m, i) = "Run": i = i + 1
         menu$(m, i) = "#Start  F5": i = i + 1
+        menuDesc$(m, i - 1) = "Compiles current program and runs it"
         menu$(m, i) = "Modify #COMMAND$...": i = i + 1
+        menuDesc$(m, i - 1) = "Sets string returned by COMMAND$ function"
         menu$(m, i) = "-": i = i + 1
 
         RunMenuSaveExeWithSource = i
         menu$(m, i) = "Output EXE to Source #Folder": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles compiling program to QB64's folder or to source folder"
         IF SaveExeWithSource THEN
             menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
         END IF
         menu$(m, i) = "-": i = i + 1
 
-        'menu$(m, i) = "Start (#Detached)  Ctrl+F5": i = i + 1
         IF os$ = "LNX" THEN
             menu$(m, i) = "Make E#xecutable Only  F11": i = i + 1
         ELSE
             menu$(m, i) = "Make E#XE Only  F11": i = i + 1
         END IF
+        menuDesc$(m, i - 1) = "Compiles current program without running it"
 
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
         menu$(m, i) = "Options": i = i + 1
         menu$(m, i) = "#Display...": i = i + 1
+        menuDesc$(m, i - 1) = "Changes screen size and font"
         menu$(m, i) = "IDE C#olors...": i = i + 1
+        menuDesc$(m, i - 1) = "Changes or customizes IDE color scheme"
         menu$(m, i) = "#Code Layout...": i = i + 1
+        menuDesc$(m, i - 1) = "Changes auto-format features"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Language...": i = i + 1
+        menuDesc$(m, i - 1) = "Changes code page to use with TTF fonts"
         menu$(m, i) = "#Backup/Undo...": i = i + 1
+        menuDesc$(m, i - 1) = "Sets size of backup/undo buffer"
         menu$(m, i) = "#Advanced...": i = i + 1
+        menuDesc$(m, i - 1) = "Enables embedding C++ debug information into compiled program"
         menu$(m, i) = "-": i = i + 1
 
         OptionsMenuDisableSyntax = i
         menu$(m, i) = "Syntax #Highlighter": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles syntax highlighter"
         IF NOT DisableSyntaxHighlighter THEN
             menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuDisableSyntax)
         END IF
 
         OptionsMenuSwapMouse = i
         menu$(m, i) = "#Swap Mouse Buttons": i = i + 1
+        menuDesc$(m, i - 1) = "Swaps functionality of left/right mouse buttons"
         IF MouseButtonSwapped THEN
             menu$(OptionsMenuID, OptionsMenuSwapMouse) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuSwapMouse)
         END IF
 
         OptionsMenuPasteCursor = i
-        menu$(m, i) = "Cursor After #Pasted Content": i = i + 1
+        menu$(m, i) = "Cursor After #Paste": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles placing the cursor before/after the pasted content"
         IF PasteCursorAtEnd THEN
             menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuPasteCursor)
         END IF
 
         OptionsMenuShowErrorsImmediately = i
-        menu$(m, i) = "Show Compilation #Errors Immediately": i = i + 1
+        menu$(m, i) = "Syntax Ch#ecker": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles instant syntax checker (status area)"
         IF IDEShowErrorsImmediately THEN
             menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately)
         END IF
 
         OptionsMenuIgnoreWarnings = i
         menu$(m, i) = "Ignore #Warnings": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles display of warning messages (unused variables, etc)"
         IF IgnoreWarnings THEN menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
 
         OptionsMenuAutoComplete = i
         menu$(m, i) = "Code Suggest#ions": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles code suggestions/auto-complete"
         IF IdeAutoComplete THEN menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
 
 
@@ -361,23 +388,34 @@ FUNCTION ide2 (ignore)
         m = m + 1: i = 0
         menu$(m, i) = "Tools": i = i + 1
         menu$(m, i) = "#ASCII Chart...": i = i + 1
+        menuDesc$(m, i - 1) = "Displays ASCII characters and allows inserting in current program"
         menu$(m, i) = "Insert Quick #Keycode  Ctrl+K": i = i + 1
+        menuDesc$(m, i - 1) = "Captures key codes and inserts in current program"
         menu$(m, i) = "#Math Evaluator...": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the math evaluator dialog"
         menu$(m, i) = "#RGB Color Mixer...": i = i + 1
+        menuDesc$(m, i - 1) = "Allows mixing colors to edit/insert _RGB statements"
         menusize(m) = i - 1
 
 
         m = m + 1: i = 0
         menu$(m, i) = "Help": i = i + 1
         menu$(m, i) = "#View  Shift+F1": i = i + 1
+        menuDesc$(m, i - 1) = "Displays help window"
         menu$(m, i) = "#Contents Page": i = i + 1
+        menuDesc$(m, i - 1) = "Displays help contents page"
         menu$(m, i) = "Keyword #Index": i = i + 1
+        menuDesc$(m, i - 1) = "Displays keyword index page"
         menu$(m, i) = "#Keywords by Usage": i = i + 1
+        menuDesc$(m, i - 1) = "Displays keywords index by usage"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
+        menuDesc$(m, i - 1) = "Downloads the latest version of an article from the wiki"
         menu$(m, i) = "Update All #Pages...": i = i + 1
+        menuDesc$(m, i - 1) = "Downloads the latest version of all articles from the wiki"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#About...": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the current version of QB64"
         menusize(m) = i - 1
 
         menus = m
@@ -391,12 +429,15 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "ViewMenuShowLineNumbersSubMenu": i = i + 1
         ViewMenuShowLineNumbersSubMenuID = m
         IF ShowLineNumbers THEN menu$(m, i) = "#Hide Line Numbers" ELSE menu$(m, i) = "#Show Line Numbers"
+        menuDesc$(m, i) = "Toggles displaying line numbers (side bar)"
         i = i + 1
         menu$(m, i) = "#Background Color": IF ShowLineNumbersUseBG THEN menu$(m, i) = CHR$(7) + menu$(m, i)
+        menuDesc$(m, i) = "Toggles displaying a different background (side bar)"
         ViewMenuShowBGID = i
         IF ShowLineNumbers = 0 THEN menu$(m, i) = "~" + menu$(m, i)
         i = i + 1
         menu$(m, i) = "Sho#w Separator": IF ShowLineNumbersSeparator THEN menu$(m, i) = CHR$(7) + menu$(m, i)
+        menuDesc$(m, i) = "Toggles showing a separator line (side bar)"
         ViewMenuShowSeparatorID = i
         IF ShowLineNumbers = 0 THEN menu$(m, i) = "~" + menu$(m, i)
         i = i + 1
@@ -4123,6 +4164,7 @@ FUNCTION ide2 (ignore)
         IF KB = KEY_RIGHT THEN m = m + 1
         IF KB = KEY_ESC THEN
             COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
+            IdeInfo = ""
             GOTO ideloop
         END IF
         IF m < 1 THEN m = menus
@@ -4197,7 +4239,6 @@ FUNCTION ide2 (ignore)
                 backToParent.y2 = backToParent.y1 + menusize(parentMenu)
             END IF
         END IF
-        COLOR 0, 7
         'calculate menu width
         w = 0
         FOR i = 1 TO menusize(m)
@@ -4222,6 +4263,9 @@ FUNCTION ide2 (ignore)
         END IF
         IF xx > idewx - w - 3 THEN xx = idewx - w - 3
 
+        UpdateMenuHelpLine menuDesc$(m, r)
+
+        COLOR 0, 7
         ideboxshadow xx - 2, yy, w + 4, menusize(m) + 2
 
         'draw menu items
@@ -4697,29 +4741,29 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 28) = "Cursor After #Pasted Content" THEN
+            IF RIGHT$(menu$(m, s), 19) = "Cursor After #Paste" THEN
                 PCOPY 2, 0
                 PasteCursorAtEnd = NOT PasteCursorAtEnd
                 IF PasteCursorAtEnd THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + "Cursor After #Pasted Content"
+                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + "Cursor After #Paste"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
-                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor After #Pasted Content"
+                    menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor After #Paste"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 36) = "Show Compilation #Errors Immediately" THEN
+            IF RIGHT$(menu$(m, s), 15) = "Syntax Ch#ecker" THEN
                 PCOPY 2, 0
                 IDEShowErrorsImmediately = NOT IDEShowErrorsImmediately
                 IF IDEShowErrorsImmediately THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "TRUE"
-                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + "Show Compilation #Errors Immediately"
+                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + "Syntax Ch#ecker"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "FALSE"
-                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Show Compilation #Errors Immediately"
+                    menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Syntax Ch#ecker"
                 END IF
                 idechangemade = 1
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4773,15 +4817,15 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF MID$(menu$(m, s), 1, 24) = "Enable #Quick Navigation" OR MID$(menu$(m, s), 2, 24) = "Enable #Quick Navigation" THEN
+            IF MID$(menu$(m, s), 1, 17) = "#Quick Navigation" OR MID$(menu$(m, s), 2, 17) = "#Quick Navigation" THEN
                 PCOPY 2, 0
                 EnableQuickNav = NOT EnableQuickNav
                 IF EnableQuickNav THEN
                     WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "TRUE"
-                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + "Enable #Quick Navigation (Back Arrow)"
+                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + "#Quick Navigation"
                 ELSE
                     WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
-                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = "Enable #Quick Navigation (Back Arrow)"
+                    menu$(SearchMenuID, SearchMenuEnableQuickNav) = "#Quick Navigation"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -5538,7 +5582,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             AttemptToLoadRecent = 0
-            FOR ml = 1 TO 4
+            FOR ml = 1 TO UBOUND(IdeRecentLink, 1)
                 IF LEN(IdeRecentLink(ml, 1)) THEN
                     IF menu$(m, s) = IdeRecentLink(ml, 1) THEN
                         IdeOpenFile$ = IdeRecentLink(ml, 2)
@@ -5578,7 +5622,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Clear #Recent..." THEN
+            IF menu$(m, s) = "#Clear Recent..." THEN
                 PCOPY 2, 0
                 r$ = ideclearhistory$("FILES")
                 IF r$ = "Y" THEN
@@ -13048,31 +13092,53 @@ SUB IdeMakeFileMenu
     m = 1: i = 0
     menu$(m, i) = "File": i = i + 1
     menu$(m, i) = "#New  Ctrl+N": i = i + 1
+    menuDesc$(m, i - 1) = "Closes current program and starts a blank one"
     menu$(m, i) = "#Open...  Ctrl+O": i = i + 1
+    menuDesc$(m, i - 1) = "Loads a program into memory"
     menu$(m, i) = "#Save  Ctrl+S": i = i + 1
+    menuDesc$(m, i - 1) = "Writes current program to a file on disk"
     menu$(m, i) = "Save #As...": i = i + 1
+    menuDesc$(m, i - 1) = "Saves current program with specified name"
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
     a$ = RIGHT$(a$, LEN(a$) - 2)
-    FOR r = 1 TO 5
-        IF r <= 4 THEN IdeRecentLink(r, 1) = ""
+    maxRecentInFileMenu = UBOUND(IdeRecentLink, 1)
+    maxLengthRecentFiles = 35
+    FOR r = 1 TO maxRecentInFileMenu + 1
+        IF r <= maxRecentInFileMenu THEN IdeRecentLink(r, 1) = ""
         ai = INSTR(a$, CRLF)
         IF ai THEN
             IF r = 1 THEN menu$(m, i) = "-": i = i + 1
             f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
-            IF r <= 4 THEN IdeRecentLink(r, 2) = f$
-            IF r = 5 THEN f$ = "#Recent..."
-            IF LEN(f$) > 25 THEN f$ = STRING$(3, 250) + RIGHT$(f$, 22)
-            IF r <= 4 THEN IdeRecentLink(r, 1) = f$
-            menu$(m, i) = f$: i = i + 1
+            IF r <= maxRecentInFileMenu THEN IdeRecentLink(r, 2) = f$
+            'f$ = MID$(f$, _INSTRREV(f$, pathsep$) + 1)
+            IF LEN(f$) > maxLengthRecentFiles THEN f$ = STRING$(3, 250) + RIGHT$(f$, maxLengthRecentFiles - 3)
+            f$ = "#" + str2$(r) + " " + f$
+            IF r = maxRecentInFileMenu + 1 THEN f$ = "#Recent..."
+            menu$(m, i) = f$
+            IF r <= maxRecentInFileMenu THEN
+                IdeRecentLink(r, 1) = f$
+                f$ = "Open '" + IdeRecentLink(r, 2) + "'"
+                ai = 3
+                DO UNTIL LEN(f$) <= idewx - 2
+                    ai = ai + 1
+                    f$ = "Open '" + STRING$(3, 250) + MID$(IdeRecentLink(r, 2), ai) + "'"
+                LOOP
+                menuDesc$(m, i) = f$
+            END IF
+            i = i + 1
         END IF
     NEXT
     CLOSE #fh
     IF menu$(m, i - 1) <> "#Recent..." AND menu$(m, i - 1) <> "Save #As..." THEN
-        menu$(m, i) = "Clear #Recent...": i = i + 1
+        menu$(m, i) = "#Clear Recent...": i = i + 1
+        menuDesc$(m, i - 1) = "Clears list of recently loaded files"
+    ELSE
+        menuDesc$(m, i - 1) = "Displays a complete list of recently loaded files"
     END IF
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "E#xit": i = i + 1
+    menuDesc$(m, i - 1) = "Exits QB64"
     menusize(m) = i - 1
 END SUB
 
@@ -13093,6 +13159,7 @@ SUB IdeMakeContextualMenu
                 sela2$ = LEFT$(sela2$, 19) + STRING$(3, 250)
             END IF
             menu$(m, i) = "Find '" + sela2$ + "'": i = i + 1
+            menuDesc$(m, i - 1) = "Searches for the text currently selected"
         END IF
 
         'build SUB/FUNCTION list:
@@ -13177,6 +13244,7 @@ SUB IdeMakeContextualMenu
                         EXIT FOR
                     ELSE
                         menu$(m, i) = "#Go To " + CursorSF$: i = i + 1
+                        menuDesc$(m, i - 1) = "Jumps to procedure definition"
                         SubFuncLIST(1) = SubFuncLIST(CheckSF)
                         EXIT FOR
                     END IF
@@ -13196,6 +13264,7 @@ SUB IdeMakeContextualMenu
                 END IF
                 IF LabelLineNumber > 0 AND LabelLineNumber <> idecy THEN
                     menu$(m, i) = "Go To #Label " + RTRIM$(Labels(r).cn): i = i + 1
+                    menuDesc$(m, i - 1) = "Jumps to label"
                     REDIM _PRESERVE SubFuncLIST(1 TO UBOUND(SubFuncLIST) + 1) AS STRING
                     SubFuncLIST(UBOUND(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
                 END IF
@@ -13213,6 +13282,7 @@ SUB IdeMakeContextualMenu
                 END IF
                 IF INSTR(l2$, "PARENTHESIS") = 0 THEN
                     menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
+                    menuDesc$(m, i - 1) = "Opens help article on the selected term"
                 END IF
             END IF
         END IF
@@ -13234,25 +13304,38 @@ SUB IdeMakeContextualMenu
         Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
         IF Found_RGB THEN
             menu$(m, i) = "#RGB Color Mixer...": i = i + 1
+            menuDesc$(m, i - 1) = "Allows mixing colors to edit/insert _RGB statements"
             menu$(m, i) = "-": i = i + 1
         END IF
         NoRGBFound:
         '--------- _RGB mixer check done.              --------------------------------------------
 
-        IF (ideselect <> 0) THEN menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-        IF (ideselect = 1) THEN
+        IF (ideselect <> 0) THEN
+            menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+            menuDesc$(m, i - 1) = "Deletes selected text and copies it to clipboard"
             menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+            menuDesc$(m, i - 1) = "Copies selected text to clipboard"
         END IF
 
         clip$ = _CLIPBOARD$ 'read clipboard
-        IF LEN(clip$) THEN menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+        IF LEN(clip$) THEN
+            menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+            menuDesc$(m, i - 1) = "Inserts clipboard contents at current location"
+        END IF
 
-        IF ideselect THEN menu$(m, i) = "Cl#ear  Del": i = i + 1
+        IF ideselect THEN
+            menu$(m, i) = "Cl#ear  Del": i = i + 1
+            menuDesc$(m, i - 1) = "Deletes selected text"
+        END IF
         menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+        menuDesc$(m, i - 1) = "Selects all contents of current program"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles comment (') on the current selection"
         menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+        menuDesc$(m, i - 1) = "Adds comment marker (') to the current selection"
         menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
+        menuDesc$(m, i - 1) = "Removes comment marker (') from the current selection"
         IF ideselect THEN
             y1 = idecy
             y2 = ideselecty1
@@ -13266,14 +13349,18 @@ SUB IdeMakeContextualMenu
                 NEXT
                 IF a2$ <> "" THEN
                     menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                    menuDesc$(m, i - 1) = "Increases indentation of the current selection"
                     menu$(m, i) = "#Decrease Indent"
+                    menuDesc$(m, i) = "Decreases indentation of the current selection"
                     IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                     i = i + 1
                     menu$(m, i) = "-": i = i + 1
                 END IF
             ELSE
                 menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                menuDesc$(m, i - 1) = "Increases indentation of the current selection"
                 menu$(m, i) = "#Decrease Indent"
+                menuDesc$(m, i) = "Decreases indentation of the current selection"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
                 menu$(m, i) = "-": i = i + 1
@@ -13282,21 +13369,31 @@ SUB IdeMakeContextualMenu
             menu$(m, i) = "-": i = i + 1
         END IF
         menu$(m, i) = "New #SUB...": i = i + 1
+        menuDesc$(m, i - 1) = "Creates a new subprocedure at the end of the current program"
         menu$(m, i) = "New #FUNCTION...": i = i + 1
+        menuDesc$(m, i - 1) = "Creates a new function at the end of the current program"
     ELSEIF IdeSystem = 3 THEN
         IF (Help_Select = 2) THEN
             menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+            menuDesc$(m, i - 1) = "Copies selected text to clipboard"
         END IF
         menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+        menuDesc$(m, i - 1) = "Selects all contents of current article"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Contents Page": i = i + 1
+        menuDesc$(m, i - 1) = "Displays help contents page"
         menu$(m, i) = "Keyword #Index": i = i + 1
+        menuDesc$(m, i - 1) = "Displays keyword index page"
         menu$(m, i) = "#Keywords by Usage": i = i + 1
+        menuDesc$(m, i - 1) = "Displays keywords index by usage"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Update Current Page": i = i + 1
+        menuDesc$(m, i - 1) = "Downloads the latest version of this article from the wiki"
         menu$(m, i) = "Update All #Pages...": i = i + 1
+        menuDesc$(m, i - 1) = "Downloads the latest version of all articles from the wiki"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Clo#se Help  ESC": i = i + 1
+        menuDesc$(m, i - 1) = "Closes help window"
     END IF
     menusize(m) = i - 1
 END SUB
@@ -13307,44 +13404,62 @@ SUB IdeMakeEditMenu
 
     IF IdeSystem = 1 THEN
         menu$(m, i) = "#Undo  Ctrl+Z": i = i + 1
+        menuDesc$(m, i - 1) = "Restores program state before last edit"
         menu$(m, i) = "#Redo  Ctrl+Y": i = i + 1
+        menuDesc$(m, i - 1) = "Redoes latest undo action"
     ELSE
         menu$(m, i) = "~#Undo  Ctrl+Z": i = i + 1
+        menuDesc$(m, i - 1) = "Restores program state before last edit"
         menu$(m, i) = "~#Redo  Ctrl+Y": i = i + 1
+        menuDesc$(m, i - 1) = "Redoes latest undo action"
     END IF
     menu$(m, i) = "-": i = i + 1
 
     IF (IdeSystem = 1 AND ideselect = 1) OR IdeSystem = 2 THEN
         menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menuDesc$(m, i - 1) = "Deletes selected text and copies it to clipboard"
         menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+        menuDesc$(m, i - 1) = "Copies selected text to clipboard"
     ELSEIF (IdeSystem = 3 AND Help_Select = 2) THEN
         menu$(m, i) = "~Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menuDesc$(m, i - 1) = "Deletes selected text and copies it to clipboard"
         menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+        menuDesc$(m, i - 1) = "Copies selected text to clipboard"
     ELSE
         menu$(m, i) = "~Cu#t  Shift+Del or Ctrl+X": i = i + 1
+        menuDesc$(m, i - 1) = "Deletes selected text and copies it to clipboard"
         menu$(m, i) = "~#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+        menuDesc$(m, i - 1) = "Copies selected text to clipboard"
     END IF
 
     clip$ = _CLIPBOARD$ 'read clipboard
     IF (LEN(clip$) > 0 AND IdeSystem = 1) OR IdeSystem = 2 THEN
         menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+        menuDesc$(m, i - 1) = "Inserts clipboard contents at current location"
     ELSE
         menu$(m, i) = "~#Paste  Shift+Ins or Ctrl+V": i = i + 1
+        menuDesc$(m, i - 1) = "Inserts clipboard contents at current location"
     END IF
 
     IF (IdeSystem = 1 AND ideselect = 1) OR IdeSystem = 2 THEN
         menu$(m, i) = "Cl#ear  Del": i = i + 1
+        menuDesc$(m, i - 1) = "Deletes selected text"
     ELSE
         menu$(m, i) = "~Cl#ear  Del": i = i + 1
+        menuDesc$(m, i - 1) = "Deletes selected text"
     END IF
 
     menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+    menuDesc$(m, i - 1) = "Selects all contents of current program"
 
     IF IdeSystem = 1 THEN
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles comment (') on the current selection"
         menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+        menuDesc$(m, i - 1) = "Adds comment marker (') to the current selection"
         menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
+        menuDesc$(m, i - 1) = "Removes comment marker (') from the current selection"
         IF ideselect THEN
             y1 = idecy
             y2 = ideselecty1
@@ -13358,42 +13473,59 @@ SUB IdeMakeEditMenu
                 NEXT
                 IF a2$ = "" THEN
                     menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+                    menuDesc$(m, i - 1) = "Increases indentation of the current selection"
                     menu$(m, i) = "~#Decrease Indent"
+                    menuDesc$(m, i) = "Decreases indentation of the current selection"
                     IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                     i = i + 1
                 ELSE
                     menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                    menuDesc$(m, i - 1) = "Increases indentation of the current selection"
                     menu$(m, i) = "#Decrease Indent"
+                    menuDesc$(m, i) = "Decreases indentation of the current selection"
                     IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                     i = i + 1
                 END IF
             ELSE
                 menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                menuDesc$(m, i - 1) = "Increases indentation of the current selection"
                 menu$(m, i) = "#Decrease Indent"
+                menuDesc$(m, i) = "Decreases indentation of the current selection"
                 IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
                 i = i + 1
             END IF
         ELSE
             menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+            menuDesc$(m, i - 1) = "Increases indentation of the current selection"
             menu$(m, i) = "~#Decrease Indent"
+            menuDesc$(m, i) = "Decreases indentation of the current selection"
             IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
             i = i + 1
         END IF
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "New #SUB...": i = i + 1
+        menuDesc$(m, i - 1) = "Creates a new subprocedure at the end of the current program"
         menu$(m, i) = "New #FUNCTION...": i = i + 1
+        menuDesc$(m, i - 1) = "Creates a new function at the end of the current program"
     ELSE
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "~To#ggle Comment  Ctrl+T": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles comment (') on the current selection"
         menu$(m, i) = "~Add Co#mment (')  Ctrl+R": i = i + 1
+        menuDesc$(m, i - 1) = "Adds comment marker (') to the current selection"
         menu$(m, i) = "~Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
+        menuDesc$(m, i - 1) = "Removes comment marker (') from the current selection"
         menu$(m, i) = "~#Increase Indent  TAB": i = i + 1
+        menuDesc$(m, i - 1) = "Increases indentation of the current selection"
         menu$(m, i) = "~#Decrease Indent"
+        menuDesc$(m, i) = "Decreases indentation of the current selection"
         IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
         i = i + 1
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "~New #SUB...": i = i + 1
+        menuDesc$(m, i - 1) = "Creates a new subprocedure at the end of the current program"
         menu$(m, i) = "~New #FUNCTION...": i = i + 1
+        menuDesc$(m, i - 1) = "Creates a new function at the end of the current program"
     END IF
     menusize(m) = i - 1
 END SUB
@@ -14231,6 +14363,13 @@ SUB UpdateIdeInfo
     _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
 
     PCOPY 3, 0
+END SUB
+
+SUB UpdateMenuHelpLine (a$)
+    IF LEN(a$) > (idewx - 2) THEN a$ = LEFT$(a$, (idewx - 4)) + STRING$(3, 250)
+    COLOR 0, 3
+    _PRINTSTRING (1, idewy + idesubwindow), SPACE$(idewx)
+    _PRINTSTRING (2, idewy + idesubwindow), a$
 END SUB
 
 FUNCTION DarkenFGBG (Action AS _BYTE)

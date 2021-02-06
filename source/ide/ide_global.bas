@@ -18,7 +18,7 @@ DIM SHARED IdeSystem AS LONG
 '3=Scrolling within the help window
 IdeSystem = 1
 
-DIM SHARED IdeRecentLink(1 TO 4, 1 TO 2) AS STRING
+DIM SHARED IdeRecentLink(1 TO 6, 1 TO 2) AS STRING
 DIM SHARED IdeOpenFile AS STRING 'makes IdeOpen directly open the file passed
 
 TYPE IdeBmkType
@@ -194,6 +194,7 @@ DIM SHARED idefocusline 'simply stores the location of the line to highlight in 
 DIM SHARED idecompilererrormessage$
 DIM SHARED ideautorun
 DIM SHARED menu$(1 TO 10, 0 TO 20)
+DIM SHARED menuDesc$(1 TO 10, 0 TO 20)
 DIM SHARED menusize(1 TO 10)
 DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER, SearchMenuID AS INTEGER
