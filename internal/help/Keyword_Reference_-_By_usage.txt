@@ -24,6 +24,8 @@
 * [[ERASE]] (array statement) {{text|clears a [[STATIC|static]] array of all values and totally removes a [[$DYNAMIC|dynamic]] array.}}
 * [[LBOUND]] (array function) {{text|returns the lowest valid index (lower boundary) of an [[arrays|array]].}}
 * [[OPTION BASE]] (statement) {{text|sets the default starting index of an array to 0 or 1.}}
+* [[OPTION _EXPLICIT]] (precompiler directive) {{text|instructs the compiler to require variable declaration with [[DIM]] or an equivalent statement.}}
+* [[OPTION _EXPLICITARRAY]] (precompiler directive) {{text|instructs the compiler to require array declaration with [[DIM]] or an equivalent statement.}} 
 * [[REDIM]] (statement) {{text|re-dimensions the number of elements in a [[$DYNAMIC|dynamic]](resizeable) [[arrays|array]] and defines the type.}}
 * [[SHARED]] (statement) {{text|designates variable values that can be shared with sub-procedures without using parameters.}}
 * [[STATIC]] (statement) {{text|defines a variable or list of variables that will retain their values after the sub-procedure is exited.}}
@@ -43,6 +45,9 @@
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
 == [[COLOR|Colors]] and Transparency ==
+
+* [[$COLOR]] (Metacommand) {{text|adds named color constants in a program.}}
+
 
 * [[_ALPHA]] (function) {{text|returns the alpha channel transparency level of a color value used on a screen page or image.}}
 * [[_ALPHA32]] (function) {{text|function returns the alpha channel level of a 32 bit color value only.}}
@@ -140,6 +145,8 @@
 * [[INTEGER]] {% numerical [[TYPE|type]]) {{text|a two byte variable type with values from -32768 to 32767. [[_UNSIGNED|Unsigned]] to 65535.}}
 * [[LONG]] {&amp; numerical [[TYPE|type]]) {{text|Integer values can be from -2147483648 to 2147483647. [[_UNSIGNED]] values to 4294967295.}}
 * [[OPTION BASE]] (statement) {{text|sets the default starting index of an [[arrays|array]] to 0 or 1.}}
+* [[OPTION _EXPLICIT]] (precompiler directive) {{text|instructs the compiler to require variable declaration with [[DIM]] or an equivalent statement.}}
+* [[OPTION _EXPLICITARRAY]] (precompiler directive) {{text|instructs the compiler to require array declaration with [[DIM]] or an equivalent statement.}} 
 * [[REDIM]] {{text|defines and sizes a [[$DYNAMIC|dynamic]](changeable) array and can define the type of value returned.}}
 * [[SHARED]] (statement) {{text|designates variable values that can be shared with sub-procedures without using [[SUB]] parameters.}}
 * [[SINGLE]] (! numerical [[TYPE|type]]) {{text|a 4 byte floating decimal variable type with numerical values up to 7 decimal places.}}
@@ -329,10 +336,11 @@ The following table describes the error codes that are reported by the '''QB64''
 == Error Trapping ==
 
 
-* [[_ASSERT]] (statement) {{text|Performs debug tests.}}
-* [[$ASSERTS]] (metacommand) {{text|Enables the [[_ASSERT]] macro}}* [[$CHECKING]] ([[Metacommand]]) {{text|turns off or on error event checking and strips error code from compiled programs.}}
+* [[_ASSERT]] (statement) {{text|performs debug tests.}}
+* [[$ASSERTS]] ([[Metacommand]]) {{text|enables the [[_ASSERT]] macro.}}
+* [[$CHECKING]] ([[Metacommand]]) {{text|turns off or on error event checking and strips error code from compiled programs.}}
 * [[_ERRORLINE]] (function) {{text|returns the actual text code line where a program error occurred.}} 
-* [[_INCLERRORFILE$]] {function) {{text|returns the name of the original source code $INCLUDE module that caused the most recent error.}}
+* [[_INCLERRORFILE$]] (function) {{text|returns the name of the original source code $INCLUDE module that caused the most recent error.}}
 * [[_INCLERRORLINE]] (function) {{text|returns the line number in an included file that caused the most recent error.}}
 * [[_ERRORMESSAGE$]] (function) {{text|returns a human-readable message describing the most recent runtime error.}}
 * [[ERR]] (function) {{text|returns the error code number of the last error to occur.}}
@@ -653,18 +661,28 @@ The following table describes the error codes that are reported by the '''QB64''
 
 == Metacommands ==
 :Metacommands are commands that affect a program globally after they are in used. Error checking can be turned [[OFF]] or [[ON]].
-&lt;center>'''QB64 [[Metacommand]]s do NOT allow commenting or [[REM]]!'''&lt;/center>
+&lt;center>'''QB64 [[Metacommand]]s DO NOT allow commenting or [[REM]]!'''&lt;/center>
  
-* [[$CHECKING]]:OFF/ON {{text|(QB64 only) turns event and error checking ON and OFF. ON (default) can only be used after it is OFF.}}
+
+* [[$ASSERTS]] {{text|enables the [[_ASSERT]] macro.}}
+* [[$CHECKING]] {{text|turns event and error checking ON and OFF. ON (default) can only be used after it is OFF.}}
+* [[$COLOR]] {{text|includes named color constants in a program.}}
 * [[$CONSOLE]] {{text|creates a console window throughout the program.}}
-* [[$ERROR]]  (Pre-Compiler [[Metacommand]]) {{text|used to trigger compiler errors.}}
-* [[$SCREENHIDE]] {{text|hides the program window throughout the program until [[$SCREENSHOW]] is used.}}
+* [[$ERROR]] {{text|used to trigger compiler errors.}}
+* [[$EXEICON]] {{text|embeds a designated icon file into the compiled EXE file. (Windows ONLY)}}
+* [[$IF]]...[[$ELSEIF]]...[[$ELSE]]...[[$END IF]] {{text|used to set an IF condition for the precompiler.}}
+* [[$LET]] {{text|used to set a flag variable for the precompiler.}}
+* [[$NOPREFIX]] {{text|allows all QB64 functions and statements to be used without the leading underscore (_).}}
+* [[$RESIZE]] {{text|determines if a program window can be resized by the user.}}
+* [[$SCREENHIDE]] {{text|hides the main program window throughout the program until [[$SCREENSHOW]] is used.}}
 * [[$SCREENSHOW]] {{text|displays the main program window throughout the program only after [[$SCREENHIDE]] or [[_SCREENHIDE]] has been used.}}
+* [[$VERSIONINFO]] {{text|adds metadata to Windows only binaries for identification purposes across the OS.}}
+* [[$VIRTUALKEYBOARD]] {{text|turns the virtual keyboard ON or OFF for use in touch-enabled devices. (DEPRECATED)}} 
 
 
-&lt;center>'''Qbasic [[Metacommand]]s do not require commenting or [[REM]] in QB64!'''&lt;/center>
+&lt;center>'''QBasic [[Metacommand]]s DO require commenting or [[REM]] in QB64!'''&lt;/center>
 * '[[$DYNAMIC]] {{text|defines that all arrays are dynamic or changeable in size using [[DIM]] or [[REDIM]].}}
-* '[[$INCLUDE]]: 'filename$' {{text|includes a text library file with procedures to be used in a program. Comment both sides of file name also.}}
+* '[[$INCLUDE]] {{text|includes a text library file with procedures to be used in a program. Comment both sides of file name also.}}
 * '[[$STATIC]] {{text|defines that all arrays are static or unchangeable in size using [[DIM]].}}  
 
 

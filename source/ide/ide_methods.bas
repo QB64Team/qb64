@@ -13794,6 +13794,7 @@ SUB ideupdatehelpbox
                 FullMessage$(1) = "All pages updated."
                 FullMessage$(2) = ""
                 idetxt(o(ButtonID).txt) = "#Close"
+                _LIMIT 20
         END SELECT
         '-------- end of update routine ------------------------------
 
