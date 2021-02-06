@@ -5578,7 +5578,7 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Clear #Recent..." THEN
+            IF menu$(m, s) = "#Clear Recent..." THEN
                 PCOPY 2, 0
                 r$ = ideclearhistory$("FILES")
                 IF r$ = "Y" THEN
@@ -13069,7 +13069,7 @@ SUB IdeMakeFileMenu
     NEXT
     CLOSE #fh
     IF menu$(m, i - 1) <> "#Recent..." AND menu$(m, i - 1) <> "Save #As..." THEN
-        menu$(m, i) = "Clear #Recent...": i = i + 1
+        menu$(m, i) = "#Clear Recent...": i = i + 1
     END IF
     menu$(m, i) = "-": i = i + 1
     menu$(m, i) = "E#xit": i = i + 1
