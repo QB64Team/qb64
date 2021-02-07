@@ -1,25 +1,70 @@
-int32 *_FUNC_OPERATORUSAGE_LONG_OPERATORUSAGE=NULL;
-if(_FUNC_OPERATORUSAGE_LONG_OPERATORUSAGE==NULL){
-_FUNC_OPERATORUSAGE_LONG_OPERATORUSAGE=(int32*)mem_static_malloc(4);
-*_FUNC_OPERATORUSAGE_LONG_OPERATORUSAGE=0;
-}
-qbs*oldstr2872=NULL;
-if(_FUNC_OPERATORUSAGE_STRING_OPERATOR->tmp||_FUNC_OPERATORUSAGE_STRING_OPERATOR->fixed||_FUNC_OPERATORUSAGE_STRING_OPERATOR->readonly){
-oldstr2872=_FUNC_OPERATORUSAGE_STRING_OPERATOR;
-if (oldstr2872->cmem_descriptor){
-_FUNC_OPERATORUSAGE_STRING_OPERATOR=qbs_new_cmem(oldstr2872->len,0);
+qbs *_FUNC_REFER_STRING_REFER=NULL;
+if (!_FUNC_REFER_STRING_REFER)_FUNC_REFER_STRING_REFER=qbs_new(0,0);
+qbs*oldstr2869=NULL;
+if(_FUNC_REFER_STRING_A2->tmp||_FUNC_REFER_STRING_A2->fixed||_FUNC_REFER_STRING_A2->readonly){
+oldstr2869=_FUNC_REFER_STRING_A2;
+if (oldstr2869->cmem_descriptor){
+_FUNC_REFER_STRING_A2=qbs_new_cmem(oldstr2869->len,0);
 }else{
-_FUNC_OPERATORUSAGE_STRING_OPERATOR=qbs_new(oldstr2872->len,0);
+_FUNC_REFER_STRING_A2=qbs_new(oldstr2869->len,0);
 }
-memcpy(_FUNC_OPERATORUSAGE_STRING_OPERATOR->chr,oldstr2872->chr,oldstr2872->len);
+memcpy(_FUNC_REFER_STRING_A2->chr,oldstr2869->chr,oldstr2869->len);
 }
-qbs*oldstr2873=NULL;
-if(_FUNC_OPERATORUSAGE_STRING_INFO->tmp||_FUNC_OPERATORUSAGE_STRING_INFO->fixed||_FUNC_OPERATORUSAGE_STRING_INFO->readonly){
-oldstr2873=_FUNC_OPERATORUSAGE_STRING_INFO;
-if (oldstr2873->cmem_descriptor){
-_FUNC_OPERATORUSAGE_STRING_INFO=qbs_new_cmem(oldstr2873->len,0);
-}else{
-_FUNC_OPERATORUSAGE_STRING_INFO=qbs_new(oldstr2873->len,0);
+int32 *_FUNC_REFER_LONG_TYPBAK=NULL;
+if(_FUNC_REFER_LONG_TYPBAK==NULL){
+_FUNC_REFER_LONG_TYPBAK=(int32*)mem_static_malloc(4);
+*_FUNC_REFER_LONG_TYPBAK=0;
 }
-memcpy(_FUNC_OPERATORUSAGE_STRING_INFO->chr,oldstr2873->chr,oldstr2873->len);
+qbs *_FUNC_REFER_STRING_A=NULL;
+if (!_FUNC_REFER_STRING_A)_FUNC_REFER_STRING_A=qbs_new(0,0);
+int32 *_FUNC_REFER_LONG_I=NULL;
+if(_FUNC_REFER_LONG_I==NULL){
+_FUNC_REFER_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_REFER_LONG_I=0;
+}
+int32 *_FUNC_REFER_LONG_IDNUMBER=NULL;
+if(_FUNC_REFER_LONG_IDNUMBER==NULL){
+_FUNC_REFER_LONG_IDNUMBER=(int32*)mem_static_malloc(4);
+*_FUNC_REFER_LONG_IDNUMBER=0;
+}
+byte_element_struct *byte_element_2870=NULL;
+if (!byte_element_2870){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2870=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2870=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_REFER_STRING_N=NULL;
+if (!_FUNC_REFER_STRING_N)_FUNC_REFER_STRING_N=qbs_new(0,0);
+int32 *_FUNC_REFER_LONG_U=NULL;
+if(_FUNC_REFER_LONG_U==NULL){
+_FUNC_REFER_LONG_U=(int32*)mem_static_malloc(4);
+*_FUNC_REFER_LONG_U=0;
+}
+byte_element_struct *byte_element_2871=NULL;
+if (!byte_element_2871){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2871=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2871=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_REFER_STRING_O=NULL;
+if (!_FUNC_REFER_STRING_O)_FUNC_REFER_STRING_O=qbs_new(0,0);
+byte_element_struct *byte_element_2872=NULL;
+if (!byte_element_2872){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2872=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2872=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_REFER_STRING_O2=NULL;
+if (!_FUNC_REFER_STRING_O2)_FUNC_REFER_STRING_O2=qbs_new(0,0);
+qbs *_FUNC_REFER_STRING_R=NULL;
+if (!_FUNC_REFER_STRING_R)_FUNC_REFER_STRING_R=qbs_new(0,0);
+qbs *_FUNC_REFER_STRING_T=NULL;
+if (!_FUNC_REFER_STRING_T)_FUNC_REFER_STRING_T=qbs_new(0,0);
+qbs *_FUNC_REFER_STRING_OFFSET=NULL;
+if (!_FUNC_REFER_STRING_OFFSET)_FUNC_REFER_STRING_OFFSET=qbs_new(0,0);
+int32 pass2873;
+int32 *_FUNC_REFER_LONG_T=NULL;
+if(_FUNC_REFER_LONG_T==NULL){
+_FUNC_REFER_LONG_T=(int32*)mem_static_malloc(4);
+*_FUNC_REFER_LONG_T=0;
+}
+int32 pass2874;
+int32 pass2875;
+byte_element_struct *byte_element_2876=NULL;
+if (!byte_element_2876){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2876=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2876=(byte_element_struct*)mem_static_malloc(12);
 }

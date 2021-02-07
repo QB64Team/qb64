@@ -1,44 +1,162 @@
-qbs *_FUNC_READCHUNK_STRING_READCHUNK=NULL;
-if (!_FUNC_READCHUNK_STRING_READCHUNK)_FUNC_READCHUNK_STRING_READCHUNK=qbs_new(0,0);
-qbs*oldstr3683=NULL;
-if(_FUNC_READCHUNK_STRING_A->tmp||_FUNC_READCHUNK_STRING_A->fixed||_FUNC_READCHUNK_STRING_A->readonly){
-oldstr3683=_FUNC_READCHUNK_STRING_A;
-if (oldstr3683->cmem_descriptor){
-_FUNC_READCHUNK_STRING_A=qbs_new_cmem(oldstr3683->len,0);
-}else{
-_FUNC_READCHUNK_STRING_A=qbs_new(oldstr3683->len,0);
+int32 *_SUB_GL_SCAN_HEADER_LONG_HK=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_HK==NULL){
+_SUB_GL_SCAN_HEADER_LONG_HK=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_HK=0;
 }
-memcpy(_FUNC_READCHUNK_STRING_A->chr,oldstr3683->chr,oldstr3683->len);
+int32 *_SUB_GL_SCAN_HEADER_LONG_D=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_D==NULL){
+_SUB_GL_SCAN_HEADER_LONG_D=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_D=0;
 }
-qbs*oldstr3684=NULL;
-if(_FUNC_READCHUNK_STRING_LAST_CHARACTER->tmp||_FUNC_READCHUNK_STRING_LAST_CHARACTER->fixed||_FUNC_READCHUNK_STRING_LAST_CHARACTER->readonly){
-oldstr3684=_FUNC_READCHUNK_STRING_LAST_CHARACTER;
-if (oldstr3684->cmem_descriptor){
-_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new_cmem(oldstr3684->len,0);
-}else{
-_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new(oldstr3684->len,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_A2=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_A2)_SUB_GL_SCAN_HEADER_STRING_A2=qbs_new(0,0);
+int32 *_SUB_GL_SCAN_HEADER_LONG_H=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_H==NULL){
+_SUB_GL_SCAN_HEADER_LONG_H=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_H=0;
 }
-memcpy(_FUNC_READCHUNK_STRING_LAST_CHARACTER->chr,oldstr3684->chr,oldstr3684->len);
+qbs *_SUB_GL_SCAN_HEADER_STRING_A=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_A)_SUB_GL_SCAN_HEADER_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_3685=NULL;
+if (!byte_element_3685){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3685=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3685=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_READCHUNK_LONG_X=NULL;
-if(_FUNC_READCHUNK_LONG_X==NULL){
-_FUNC_READCHUNK_LONG_X=(int32*)mem_static_malloc(4);
-*_FUNC_READCHUNK_LONG_X=0;
+int32 *_SUB_GL_SCAN_HEADER_LONG_X=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_X==NULL){
+_SUB_GL_SCAN_HEADER_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_X=0;
 }
-int64 fornext_value3686;
-int64 fornext_finalvalue3686;
-int64 fornext_step3686;
-uint8 fornext_step_negative3686;
-byte_element_struct *byte_element_3687=NULL;
-if (!byte_element_3687){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3687=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3687=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_FUNC_READCHUNK_LONG_C=NULL;
-if(_FUNC_READCHUNK_LONG_C==NULL){
-_FUNC_READCHUNK_LONG_C=(int32*)mem_static_malloc(4);
-*_FUNC_READCHUNK_LONG_C=0;
-}
+int64 fornext_value3687;
+int64 fornext_finalvalue3687;
+int64 fornext_step3687;
+uint8 fornext_step_negative3687;
 byte_element_struct *byte_element_3688=NULL;
 if (!byte_element_3688){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3688=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3688=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_SUB_GL_SCAN_HEADER_LONG_C=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_C==NULL){
+_SUB_GL_SCAN_HEADER_LONG_C=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_C=0;
+}
+int32 *_SUB_GL_SCAN_HEADER_LONG_X2=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_X2==NULL){
+_SUB_GL_SCAN_HEADER_LONG_X2=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_X2=0;
+}
+int64 fornext_value3690;
+int64 fornext_finalvalue3690;
+int64 fornext_step3690;
+uint8 fornext_step_negative3690;
+byte_element_struct *byte_element_3691=NULL;
+if (!byte_element_3691){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3691=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3691=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_SUB_GL_SCAN_HEADER_LONG_C2=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_C2==NULL){
+_SUB_GL_SCAN_HEADER_LONG_C2=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_C2=0;
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_VALUE=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_VALUE)_SUB_GL_SCAN_HEADER_STRING_VALUE=qbs_new(0,0);
+byte_element_struct *byte_element_3692=NULL;
+if (!byte_element_3692){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3692=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3692=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3693=NULL;
+if (!byte_element_3693){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3693=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3693=(byte_element_struct*)mem_static_malloc(12);
+}
+int64 *_SUB_GL_SCAN_HEADER_INTEGER64_VALUE=NULL;
+if(_SUB_GL_SCAN_HEADER_INTEGER64_VALUE==NULL){
+_SUB_GL_SCAN_HEADER_INTEGER64_VALUE=(int64*)mem_static_malloc(8);
+*_SUB_GL_SCAN_HEADER_INTEGER64_VALUE=0;
+}
+byte_element_struct *byte_element_3694=NULL;
+if (!byte_element_3694){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3694=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3694=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_SUB_GL_SCAN_HEADER_LONG_I=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_I==NULL){
+_SUB_GL_SCAN_HEADER_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_I=0;
+}
+int64 fornext_value3696;
+int64 fornext_finalvalue3696;
+int64 fornext_step3696;
+uint8 fornext_step_negative3696;
+qbs *_SUB_GL_SCAN_HEADER_STRING_L=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_L)_SUB_GL_SCAN_HEADER_STRING_L=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_RET_TYPE=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_RET_TYPE)_SUB_GL_SCAN_HEADER_STRING_RET_TYPE=qbs_new(0,0);
+int32 *_SUB_GL_SCAN_HEADER_LONG_IS_FUNC=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_IS_FUNC==NULL){
+_SUB_GL_SCAN_HEADER_LONG_IS_FUNC=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_IS_FUNC=0;
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_HC=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_HC)_SUB_GL_SCAN_HEADER_STRING_HC=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_HD=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_HD)_SUB_GL_SCAN_HEADER_STRING_HD=qbs_new(0,0);
+int32 *_SUB_GL_SCAN_HEADER_LONG_NEED_HELPER_FUNCTION=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_NEED_HELPER_FUNCTION==NULL){
+_SUB_GL_SCAN_HEADER_LONG_NEED_HELPER_FUNCTION=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_NEED_HELPER_FUNCTION=0;
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_PROC_NAME=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_PROC_NAME)_SUB_GL_SCAN_HEADER_STRING_PROC_NAME=qbs_new(0,0);
+int32 *_SUB_GL_SCAN_HEADER_LONG_POINTER=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_POINTER==NULL){
+_SUB_GL_SCAN_HEADER_LONG_POINTER=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_POINTER=0;
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_T=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_T)_SUB_GL_SCAN_HEADER_STRING_T=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_S=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_S)_SUB_GL_SCAN_HEADER_STRING_S=qbs_new(0,0);
+int32 *_SUB_GL_SCAN_HEADER_LONG_TYP=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_TYP==NULL){
+_SUB_GL_SCAN_HEADER_LONG_TYP=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_TYP=0;
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_CTYP=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_CTYP)_SUB_GL_SCAN_HEADER_STRING_CTYP=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_VAR_TYPE=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_VAR_TYPE)_SUB_GL_SCAN_HEADER_STRING_VAR_TYPE=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_VAR_NAME=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_VAR_NAME)_SUB_GL_SCAN_HEADER_STRING_VAR_NAME=qbs_new(0,0);
+byte_element_struct *byte_element_3703=NULL;
+if (!byte_element_3703){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3703=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3703=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3704=NULL;
+if (!byte_element_3704){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3704=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3704=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_VAR_TYPE_BACKUP=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_VAR_TYPE_BACKUP)_SUB_GL_SCAN_HEADER_STRING_VAR_TYPE_BACKUP=qbs_new(0,0);
+byte_element_struct *byte_element_3705=NULL;
+if (!byte_element_3705){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3705=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3705=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3706=NULL;
+if (!byte_element_3706){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3706=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3706=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_SUB_GL_SCAN_HEADER_STRING_QB_TYPE=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_QB_TYPE)_SUB_GL_SCAN_HEADER_STRING_QB_TYPE=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_ARG=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_ARG)_SUB_GL_SCAN_HEADER_STRING_ARG=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_LETTER=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_LETTER)_SUB_GL_SCAN_HEADER_STRING_LETTER=qbs_new(0,0);
+qbs *_SUB_GL_SCAN_HEADER_STRING_H=NULL;
+if (!_SUB_GL_SCAN_HEADER_STRING_H)_SUB_GL_SCAN_HEADER_STRING_H=qbs_new(0,0);
+int64 fornext_value3713;
+int64 fornext_finalvalue3713;
+int64 fornext_step3713;
+uint8 fornext_step_negative3713;
+int32 *_SUB_GL_SCAN_HEADER_LONG_FH=NULL;
+if(_SUB_GL_SCAN_HEADER_LONG_FH==NULL){
+_SUB_GL_SCAN_HEADER_LONG_FH=(int32*)mem_static_malloc(4);
+*_SUB_GL_SCAN_HEADER_LONG_FH=0;
 }
