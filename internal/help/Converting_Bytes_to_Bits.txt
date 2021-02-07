@@ -1,5 +1,13 @@
-Although QB64 has [[_BYTE]] and [[_BIT]] variable types, there may be times that you just want to know which bits are on of off in the byte value or convert the value to a [[Binary]] number.
+Although QB64 has [[_BYTE]] and [[_BIT]] variable types, there may be times that you just want to know which bits are on or off in the byte value or convert the value to a [[Binary]] number.
 
+The tutorial below shows you how to do things manually, for instructional purposes. Bear in mind, though, that QB64 has the following suite of commands aimed at working with bits:
+:: [[_SETBIT]]
+:: [[_READBIT]]
+:: [[_TOGGLEBIT]]
+:: [[_RESETBIT]]
+:: [[_SHR]], [[_SHL]]
+
+== Doing it yourself ==
 
 Bits are numbered from 0 to 7 and normally are read from the most significant bit(MSB = 7) to the least significant bit(LSB = 0).
 
@@ -60,7 +68,6 @@ DO
 
 ''See also:''
 * [[Binary]]
-* [[_SHL]], [[_SHR]]
 * [[_BIT]], [[&amp;B]]
 * [[_BYTE]]
 

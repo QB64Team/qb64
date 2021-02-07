@@ -41,15 +41,15 @@ Most of the BASIC math operators are ones that require no introduction. The addi
 {| class="wikitable"
 ! Symbol !! Procedure Type !! Example Usage !! Operation Order 
 |- 
-| + || Addition || c = a + b || Last
+| [[+]] || Addition || c = a + b || Last
 |-
-| - || Subtraction || c = a - b || Last
+| [[-]] || Subtraction || c = a - b || Last
 |-
-| - || Negation || c = -a || Last
+| [[-]] || Negation || c = -a || Last
 |- 
-| * || Multiplication || c = a * b || Second
+| [[*]] || Multiplication || c = a * b || Second
 |-
-| / || Division || c = a / b || Second
+| [[/]] || Division || c = a / b || Second
 |}
 
 
@@ -59,9 +59,9 @@ BASIC can also use two other operators for '''[[INTEGER]] division'''. Integer d
 {| class="wikitable"
 ! Symbol !!Procedure Type !!Example Usage !!Operation Order 
 |-
-| \ || Integer division ||  c = a \ b || Second 
+| [[\]] || Integer division ||  c = a \ b || Second 
 |-
-| MOD || Remainder division ||  c = a MOD b ||  Second
+| [[MOD]] || Remainder division ||  c = a MOD b ||  Second
 |}
 
 
@@ -74,9 +74,9 @@ There is also an operator for '''exponential''' calculations. The exponential op
 {| class="wikitable"
 ! Symbol !!Procedure !!Example Usage !!Operation Order
 |-
-| ^ || Exponent ||  c = a ^ (1 / 2) ||  First
+| [[^]] || Exponent ||  c = a ^ (1 / 2) ||  First
 |-
-|  SQR || Square Root ||  c = SQR(a ^ 2 + b ^ 2) ||  First 
+|  [[SQR]] || Square Root ||  c = SQR(a ^ 2 + b ^ 2) ||  First 
 |}
 
 
@@ -107,23 +107,23 @@ Sometimes a calculation may need BASIC to do them in another order or the calcul
 {| class="wikitable"
 ! Function !! Description
 |-
-| ABS(n) || returns the absolute (positive) value of n: ABS(-5) = 5
+| [[ABS]](n) || returns the absolute (positive) value of n: ABS(-5) = 5
 |- 
-| ATN(angle*) || returns the arctangent of an angle in radians: pi = 4 * ATN(1)
+| [[ATN]](angle*) || returns the arctangent of an angle in radians: pi = 4 * ATN(1)
 |-
-| COS(angle*) || returns the cosine of an angle in radians. (horizontal component)
+| [[COS]](angle*) || returns the cosine of an angle in radians. (horizontal component)
 |-
-| EXP(n) || returns e ^ x, (n &lt;= 88.02969): e = EXP(1) ' (e = 2.718281828459045)
+| [[EXP]](n) || returns e ^ x, (n &lt;= 88.02969): e = EXP(1) ' (e = 2.718281828459045)
 |-
-| LOG(n) || returns the base e natural logarithm of n. (n > 0)
+| [[LOG]](n) || returns the base e natural logarithm of n. (n > 0)
 |-
-| SGN(n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
+| [[SGN]](n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
 |-
-| SIN(angle*) || returns the sine of an angle in radians. (vertical component)
+| [[SIN]](angle*) || returns the sine of an angle in radians. (vertical component)
 |-
-| SQR(n) || returns the square root of a number. (n >= 0)
+| [[SQR]](n) || returns the square root of a number. (n >= 0)
 |-
-| TAN(angle*) ||  returns the tangent of an angle in radians
+| [[TAN]](angle*) ||  returns the tangent of an angle in radians
 |}
 
 &lt;center> '''* angles measured in radians'''&lt;/center>
@@ -319,19 +319,19 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 {| class="wikitable"
 ! Name !! Description
 |-
-|INT(n) || rounds down to lower Integer value whether positive or negative
+|[[INT]](n) || rounds down to lower Integer value whether positive or negative
 |-
-|FIX(n) || rounds positive values lower and negative to a less negative Integer value
+|[[FIX]](n) || rounds positive values lower and negative to a less negative Integer value
 |-
-|CINT(n) ||rounds to closest Integer. Rounds up for decimal point values over one half.
+|[[CINT]](n) ||rounds to closest Integer. Rounds up for decimal point values over one half.
 |-
-| CLNG(n) || rounds Integer or Long values to closest value like CINT.(values over 32767)
+|[[CLNG]](n) || rounds Integer or Long values to closest value like CINT.(values over 32767)
 |-
-| CSNG(n) || rounds Single values to closest last decimal point value.
+|[[CSNG]](n) || rounds Single values to closest last decimal point value.
 |-
-| CDBL(n) || rounds Double values to closest last decimal point value.
+|[[CDBL]](n) || rounds Double values to closest last decimal point value.
 |-
-| _ROUND || rounds to closest numerical integer value.
+|[[_ROUND]](n) || rounds to closest numerical integer value.
 |}
 
 ===Note===

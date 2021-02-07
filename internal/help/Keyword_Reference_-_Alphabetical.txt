@@ -40,7 +40,7 @@ __NOTOC__
 * [[_ASIN]] (function) {{text|Returns the principal value of the arc sine of x, expressed in radians.}}
 * [[_ASINH]] (function) {{text|Returns the arc hyperbolic sine of x, expressed in radians.}}
 * [[_ASSERT]] (statement) {{text|Performs debug tests.}}
-* [[$ASSERTS]] (metacommand) {{text|Enables the [[_ASSERT]] macro}}
+* [[$ASSERTS]] ([[metacommand]]) {{text|Enables the [[_ASSERT]] macro}}
 * [[_ATAN2]] (function) {{text|Returns the principal value of the [[ATN|arc tangent]] of y/x, expressed in radians.}}
 * [[_ATANH]] (function) {{text|Returns the arc hyperbolic tangent of x, expressed in radians.}}
 * [[_AUTODISPLAY]] (statement) {{text|enables the automatic display of the screen image changes previously disabled by [[_DISPLAY]].}}
@@ -71,7 +71,7 @@ __NOTOC__
 &lt;div id = "uC">_C&lt;/div>
 * [[_CAPSLOCK (function)]] {{text|returns -1 when Caps Lock is on}}
 * [[_CAPSLOCK]] (statement) {{text|sets Caps Lock key state}}
-* [[$CHECKING]] (QB64 C++ [[Metacommand]]) {{text|turns event error checking OFF or ON.}}
+* [[$CHECKING]] ([[metacommand]]) {{text|turns event error checking OFF or ON.}}
 * [[_CEIL]] (function) {{text|Rounds x upward, returning the smallest integral value that is not less than x.}}
 * [[_CINP]] (function) {{text|Returns a key code from $CONSOLE input}}
 * [[_CLEARCOLOR (function)]] {{text|returns the current transparent color of an image.}}
@@ -81,11 +81,11 @@ __NOTOC__
 * [[_CLIPBOARD$ (statement)]] {{text|sets and overwrites the [[STRING]] value in the operating system's clipboard.}} 
 * [[_CLIPBOARDIMAGE (function)]] {{text|pastes an image from the clipboard into a new QB64 image in memory.}}
 * [[_CLIPBOARDIMAGE]] {{text|(statement) copies a valid QB64 image to the clipboard.}}
-* [[$COLOR]] (metacommand) {{text|includes named color constants in a program}}
+* [[$COLOR]] ([[metacommand]]) {{text|includes named color constants in a program}}
 * [[_COMMANDCOUNT]] (function) {{text|returns the number of arguments passed to the compiled program from the command line.}}
 * [[_CONNECTED]] (function) {{text|returns the status of a TCP/IP connection handle.}}
 * [[_CONNECTIONADDRESS$]] (TCP/IP function) {{text|returns a connected user's STRING IP address value using the handle.}}
-* [[$CONSOLE]] (QB64 [[Metacommand]]) {{text|creates a console window that can be used throughout a program.}}
+* [[$CONSOLE]] ([[metacommand]]) {{text|creates a console window that can be used throughout a program.}}
 * [[_CONSOLE]] (statement) {{text|used to turn a console window OFF or ON or to designate [[_DEST]] _CONSOLE for output.}}
 * [[_CONSOLEINPUT]] (function) {{text|fetches input data from a [[$CONSOLE]] window to be read later (both mouse and keyboard)}}
 * [[_CONSOLETITLE]] (statement) {{text|creates the title of the console window using a literal or variable [[STRING|string]].}}
@@ -139,13 +139,13 @@ __NOTOC__
 
 &lt;div id = "uE">_E&lt;/div>
 * [[_ECHO]] (statement) {{text|used in conjunction with $IF for the precompiler.}}
-* [[$ELSE]] (Pre-Compiler [[Metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
-* [[$ELSEIF]] (Pre-Compiler [[Metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
-* [[$END IF]] (Pre-Compiler [[Metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
-* [[$ERROR]]  (Pre-Compiler [[Metacommand]]) {{text|used to trigger compiler errors.}}
+* [[$ELSE]] (precompiler [[metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
+* [[$ELSEIF]] (precompiler [[metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
+* [[$END IF]] (precompiler [[metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
+* [[$ERROR]]  (precompiler [[metacommand]]) {{text|used to trigger compiler errors.}}
 * [[_ERRORLINE]] (function) {{text|returns the source code line number that caused the most recent runtime error.}}
 * [[_ERRORMESSAGE$]] (function) {{text|returns a human-readable message describing the most recent runtime error.}}
-* [[$EXEICON]] (Pre-Compiler [[Metacommand]]) {{text|used with a .ICO icon file name to embed the image into the QB64 executable.}}
+* [[$EXEICON]] (precompiler [[metacommand]]) {{text|used with a .ICO icon file name to embed the image into the QB64 executable.}}
 * [[_EXIT (function)]] {{text|prevents a user exit and indicates if a user has clicked the close X window button or CTRL + BREAK.}}
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
@@ -191,7 +191,7 @@ __NOTOC__
 
 
 &lt;div id = "uI">_I&lt;/div>
-* [[$IF]] (Pre-Compiler [[Metacommand]]) {{text|used to set an IF condition for the precompiler.}}
+* [[$IF]] (precompiler [[metacommand]]) {{text|used to set an IF condition for the precompiler.}}
 * [[_ICON]] (statement) {{text|designates a [[_LOADIMAGE]] image file handle to be used as the program's icon or loads the embedded icon (see [[$EXEICON]]).}}
 * [[_INCLERRORFILE$]] {function) {{text|returns the name of the original source code $INCLUDE module that caused the most recent error.}}
 * [[_INCLERRORLINE]] (function) {{text|returns the line number in an included file that caused the most recent error.}}
@@ -215,7 +215,7 @@ __NOTOC__
 
 
 &lt;div id = "uL">_L&lt;/div>
-* [[$LET]] (Pre-Compiler [[Metacommand]]) {{text|used to set a flag variable for the precompiler.}}
+* [[$LET]] (precompiler [[metacommand]]) {{text|used to set a flag variable for the precompiler.}}
 * [[_LASTAXIS]] (function) {{text|returns the number of axis available on a specified number device listed by [[_DEVICE$]].}}
 * [[_LASTBUTTON]] (function) {{text|returns the number of buttons available on a specified number device listed by [[DEVICE$]].}} 
 * [[_LASTWHEEL]] (function) {{text|returns the number of scroll wheels available on a specified number device listed by [[_DEVICE$]].}}
@@ -264,7 +264,7 @@ __NOTOC__
 
 &lt;div id = "uN">_N&lt;/div>
 * [[_NEWIMAGE]] (function) {{text|creates a designated size program [[SCREEN]] or page image and returns a handle value.}}
-* [[$NOPREFIX]] (metacommand) {{text|allows QB64-specific keywords to be used without the underscore prefix.}}
+* [[$NOPREFIX]] ([[metacommand]]) {{text|allows QB64-specific keywords to be used without the underscore prefix.}}
 * [[_NUMLOCK (function)]] {{text|returns -1 when Num Lock is on}}
 * [[_NUMLOCK]] (statement) {{text|sets Num Lock key state}}
 
@@ -279,8 +279,8 @@ __NOTOC__
 * [[_OPENCLIENT]] (TCP/IP function) {{text|connects to a Host on the Internet as a Client and returns the Client status handle.}}
 * [[_OPENCONNECTION]] (TCP/IP function) {{text|open's a connection from a client that the host has detected and returns a status handle.}}
 * [[_OPENHOST]] (TCP/IP function) {{text|opens a Host and returns a Host status handle.}}
-* [[OPTION _EXPLICIT]] (Pre-compiler directive) {{text|instructs the compiler to require variable declaration with [[DIM]] or an equivalent statement.}}
-* [[OPTION _EXPLICITARRAY]] (Pre-compiler directive) {{text|instructs the compiler to require array declaration with [[DIM]] or an equivalent statement.}} 
+* [[OPTION _EXPLICIT]] (precompiler directive) {{text|instructs the compiler to require variable declaration with [[DIM]] or an equivalent statement.}}
+* [[OPTION _EXPLICITARRAY]] (precompiler directive) {{text|instructs the compiler to require array declaration with [[DIM]] or an equivalent statement.}} 
 * [[_OS$]] (function) {{text|returns the QB64 compiler version in which the program was compiled as [WINDOWS], [LINUX] or [MACOSX] and [32BIT] or [64BIT].}}
 
 
@@ -312,7 +312,7 @@ __NOTOC__
 * [[_RED32]] (function) {{text|returns the red component intensity of a 32-bit color value.}}
 * [[_READBIT]] (function) {{text|returns the state of the specified bit of an integer variable.}}
 * [[_RESETBIT]] (function) {{text|is used to set the specified bit of an integer variable to 0.}}
-* [[$RESIZE]] ([[Metacommand]]) {{text|used with ON allows a user to resize the program window where OFF does not.}}
+* [[$RESIZE]] ([[metacommand]]) {{text|used with ON allows a user to resize the program window where OFF does not.}}
 * [[_RESIZE]] (statement) {{text|sets resizing of the window ON or OFF and sets the method as _STRETCH or _SMOOTH.}}
 * [[_RESIZE (function)]] {{text|returns -1 when a program user wants to resize the program screen.}}
 * [[_RESIZEHEIGHT]] (function) {{text|returns the requested new user screen height when [[$RESIZE]]:ON allows it.}}
@@ -333,14 +333,14 @@ __NOTOC__
 * [[Mathematical_Operations#Derived_Mathematical_Functions|_SECH]] (function) {{text|Returns the hyperbolic secant.  http://mathworld.wolfram.com/HyperbolicSecant.html}}
 * [[_SCREENCLICK]] (statement) {{text|simulates clicking on a point on the desktop screen with the left mouse button.}}
 * [[_SCREENEXISTS]] (function) {{text|returns a -1 value once a screen has been created.}}
-* [[$SCREENHIDE]] ([QB64 [Metacommand]]) {{text|hides the program window from view.}}
+* [[$SCREENHIDE]] ([[metacommand]]) {{text|hides the program window from view.}}
 * [[_SCREENHIDE]] (statement) {{text|hides the program window from view.}}
 * [[_SCREENICON (function)]] {{text|returns -1 or 0 to indicate if the window has been minimized to an icon on the taskbar.}} 
 * [[_SCREENICON]] (statement) {{text|minimizes the program window to an icon on the taskbar.}} 
 * [[_SCREENIMAGE]] (function) {{text|creates an image of the current desktop and returns an image handle.}}
 * [[_SCREENMOVE]] (statement) {{text|positions program window on the desktop using designated coordinates or the _MIDDLE option.}}
 * [[_SCREENPRINT]] (statement) {{text|simulates typing text into a Windows program using the keyboard.}}
-* [[$SCREENSHOW]] (QB64 [[Metacommand]]) {{text|displays that program window after it was hidden by [[$SCREENHIDE]].}}
+* [[$SCREENSHOW]] ([[metacommand]]) {{text|displays that program window after it was hidden by [[$SCREENHIDE]].}}
 * [[_SCREENSHOW]] (statement) {{text|displays the program window after it has been hidden by [[_SCREENHIDE]].}}
 * [[_SCREENX]] (function) {{text|returns the program window's upper left corner horizontal position on the desktop.}}
 * [[_SCREENY]] (function) {{text|returns the program window's upper left corner vertical position on the desktop.}}
@@ -409,8 +409,8 @@ __NOTOC__
 
 &lt;div id = "uV">_V&lt;/div>
 
-* [[$VERSIONINFO]] ([[Metacommand]]) {{text|adds metadata to Windows only binaries for identification purposes across the OS.}}
-* [[$VIRTUALKEYBOARD]] ([[Metacommand]] - Deprecated) {{text|turns the virtual keyboard ON or OFF for use in touch-enabled devices}}
+* [[$VERSIONINFO]] ([[metacommand]]) {{text|adds metadata to Windows only binaries for identification purposes across the OS.}}
+* [[$VIRTUALKEYBOARD]] ([[metacommand]] - Deprecated) {{text|turns the virtual keyboard ON or OFF for use in touch-enabled devices}}
 
 
 ----
@@ -509,7 +509,7 @@ __NOTOC__
 * [[DO...LOOP]] (statement) {{text|sets a recursive procedure loop that can be ignored or exited using conditional arguments.}}
 * [[DOUBLE]] (numerical type #) {{text|8 byte value limited to values up to 15 decimal places.}}
 * [[DRAW]] (statement) {{text|uses a special [[STRING|string]] format that draws graphical lines in specific directions.}}
-* [[$DYNAMIC]] ([[Metacommand]]) {{text|used at the start of a program to set all program arrays as changeable in size using [[REDIM]].}}
+* [[$DYNAMIC]] ([[metacommand]]) {{text|used at the start of a program to set all program arrays as changeable in size using [[REDIM]].}}
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
@@ -573,7 +573,7 @@ __NOTOC__
 &lt;div id = "I">I&lt;/div>
 * [[IF...THEN]] (statement) {{text|a conditional block statement used control program flow.}}
 * [[IMP]] (logic operator) {{text|is used to compare two numerical values bitwise.}}
-* [[$INCLUDE]] ([[Metacommand]]) {{text|designates a text code library file to include with the program.}}
+* [[$INCLUDE]] ([[metacommand]]) {{text|designates a text code library file to include with the program.}}
 * [[INKEY$]] (function) [[ASCII]] {{text|returns a [[STRING|string]] value entry from the keyboard.}}
 * [[INP]] (function) {{text|returns a numerical value from a specified port register address. See [[Keyboard scancodes]]}}
 * [[INPUT]] (statement) {{text|a user input that returns a value to one or more specified variable(s).}}
@@ -747,7 +747,7 @@ __NOTOC__
 * [[SPC]] (function) {{text|moves the text cursor a number of spaces on the [[SCREEN]].}}
 * [[SQR]] (function) {{text|returns the square root of a non-negative number.}}
 * [[STATIC]] (statement) {{text|creates a [[SUB]] or [[FUNCTION]] variable that retains its value.}}
-* [[$STATIC]] ([[Metacommand]]) {{text|used at the start of a program to set all program arrays as unchangeable in size using [[DIM]].}}
+* [[$STATIC]] ([[metacommand]]) {{text|used at the start of a program to set all program arrays as unchangeable in size using [[DIM]].}}
 * [[STEP]] (keyword) {{text|move relatively from one graphic position or change the counting increment in a [[FOR...NEXT]] loop.}}
 * [[STICK]] (function) {{text|returns the present joystick position.}}
 * [[STOP]] (statement) {{text|stops a program when troubleshooting or stops an [[ON]] event.}}
@@ -1269,10 +1269,10 @@ __NOTOC__
 
 
 :'''Program Code Markers'''
-* [[Apostrophe|' Apostrophe]] ignores a line of code or program comment and MUST be used before a [[Metacommand]]. Same as using [[REM]].
+* [[Apostrophe|' Apostrophe]] ignores a line of code or program comment and MUST be used before a [[metacommand]]. Same as using [[REM]].
 * [[Comma|, Comma]] is used to separate [[DATA]], [[SUB]] or [[FUNCTION]] parameter variables. 
 * [[Colon|: Colon]]s can be used to separate two procedure statements on one code line.
-* [[Dollar_Sign|$ Dollar sign]] prefix denotes a QBasic [[Metacommand]].
+* [[Dollar_Sign|$ Dollar sign]] prefix denotes a QBasic [[metacommand]].
 * [[Parenthesis|( ) Parenthesis]] enclose a math or conditional procedure order, [[SUB]] or [[FUNCTION]] parameters or to pass by value.
 * [[+|+ Plus]] [[concatenation]] operator MUST be used to combine literal string values in a variable definition.
 * [[Quotation mark|" Quotation mark]] designates the ends of a literal [[STRING]] value. Use [[CHR$]](34) to insert quotes in a text [[STRING]].

@@ -144,7 +144,7 @@ FUNCTION ide2 (ignore)
     'report any IDE errors which have occurred
     IF ideerror THEN
         mustdisplay = 1
-        IF ideerror = 1 THEN errorat$ = _ERRORMESSAGE$
+        IF ideerror = 1 THEN errorat$ = "Internal IDE error"
         IF ideerror = 2 THEN errorat$ = "File not found"
         IF ideerror = 3 THEN errorat$ = "File access error": CLOSE #150
         IF ideerror = 4 THEN errorat$ = "Path not found"
@@ -161,7 +161,9 @@ FUNCTION ide2 (ignore)
 
         IF (ideerror > 1) THEN
             'Don't show too much detail if user just tried loading an invalid file
-            ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE) + ")"
+            ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE)
+            IF LEN(AutoBuildMsg$) THEN ideerrormessageTITLE$ = ideerrormessageTITLE$ + "-" + MID$(AutoBuildMsg$, 10)
+            ideerrormessageTITLE$ = ideerrormessageTITLE$ + ")"
             IF AttemptToLoadRecent = -1 THEN
                 'Offer to cleanup recent file list, removing invalid entries
                 PCOPY 2, 0
@@ -178,9 +180,9 @@ FUNCTION ide2 (ignore)
             IF inclerrorline THEN
             errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(module: " + _
                        RemoveFileExtension$(LEFT$(_INCLERRORFILE$, 60))
-                errorat$ = errorat$ + ", on line: " + str2$(inclerrorline) + ")"
+                errorat$ = errorat$ + ", on line: " + str2$(inclerrorline) + ", " + MID$(AutoBuildMsg$, 10) + ")"
             ELSE
-                errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(on line: " + str2$(_ERRORLINE) + ")"
+                errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(on line: " + str2$(_ERRORLINE) + ", " + MID$(AutoBuildMsg$, 10) + ")"
             END IF
         END IF
 
@@ -4920,7 +4922,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#About..." THEN
                 helpabout:
                 PCOPY 2, 0
-                m$ = "QB64 Version " + Version$ + CHR$(10) + BuildNum$
+                m$ = "QB64 Version " + Version$ + CHR$(10) + DevChannel$
                 IF LEN(AutoBuildMsg$) THEN m$ = m$ + CHR$(10) + AutoBuildMsg$
                 result = idemessagebox("About", m$, "")
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -8361,7 +8363,7 @@ SUB ideshowtext
                         IF checkKeyword$ = "-" OR checkKeyword$ = "." OR checkKeyword$ = "&" THEN
                             checkKeyword$ = ""
                         ELSE
-                            IF UCASE$(LEFT$(checkKeyword$, 2)) = "&H" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&O" OR UCASE$(LEFT$(checkKeyword$, 2)) = "&B" OR isnumber(checkKeyword$) THEN
+                            IF isnumber(checkKeyword$) THEN
                                 is_Number = -1
                                 isKeyword = LEN(checkKeyword$)
                             END IF
@@ -13792,6 +13794,7 @@ SUB ideupdatehelpbox
                 FullMessage$(1) = "All pages updated."
                 FullMessage$(2) = ""
                 idetxt(o(ButtonID).txt) = "#Close"
+                _LIMIT 20
         END SELECT
         '-------- end of update routine ------------------------------
 
@@ -14739,6 +14742,63 @@ FUNCTION findHelpTopic$(topic$, lnks, firstOnly AS _BYTE)
     LOOP
     CLOSE #fh
     findHelpTopic$ = lnks$
+END FUNCTION
+
+FUNCTION isnumber (__a$)
+    a$ = UCASE$(__a$)
+    IF LEN(a$) = 0 THEN EXIT FUNCTION
+
+    IF INSTR("@&H@&O@&B@", "@" + LEFT$(a$, 2) + "@") THEN isnumber = 1: EXIT FUNCTION
+
+    i = INSTR(a$, "~"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "`"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "%"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "&"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "!"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "#"): IF i THEN GOTO foundsymbol
+    i = INSTR(a$, "$"): IF i THEN GOTO foundsymbol
+    GOTO proceedWithoutSymbol
+    foundsymbol:
+    IF i = 1 THEN EXIT FUNCTION
+    symbol$ = RIGHT$(a$, LEN(a$) - i + 1)
+    IF symboltype(symbol$) = 0 THEN EXIT FUNCTION
+    a$ = LEFT$(a$, i - 1)
+
+    proceedWithoutSymbol:
+    ee = 0
+    dd = 0
+    FOR i = 1 TO LEN(a$)
+        a = ASC(a$, i)
+        IF a = 45 THEN
+            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND ((dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1))) THEN _CONTINUE
+            EXIT FUNCTION
+        END IF
+        IF a = 46 THEN
+            IF dp = 1 THEN EXIT FUNCTION
+            dp = 1
+            _CONTINUE
+        END IF
+        IF a = 68 THEN 'dd
+            IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
+            IF i = 1 THEN EXIT FUNCTION
+            dd = i
+            _CONTINUE
+        END IF
+        IF a = 69 THEN 'eE
+            IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
+            IF i = 1 THEN EXIT FUNCTION
+            ee = i
+            _CONTINUE
+        END IF
+        IF a = 43 THEN '+
+            IF (dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1) THEN _CONTINUE
+            EXIT FUNCTION
+        END IF
+
+        IF a >= 48 AND a <= 57 THEN _CONTINUE
+        EXIT FUNCTION
+    NEXT
+    isnumber = 1
 END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'

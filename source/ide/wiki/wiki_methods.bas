@@ -282,6 +282,23 @@ SUB WikiParse (a$)
         c$(ii) = SPACE$(ii)
     NEXT
 
+    a$ = StrReplace$(a$, "&lt;", "<")
+    a$ = StrReplace$(a$, "&gt;", ">")
+    a$ = StrReplace$(a$, CHR$(194) + CHR$(160), "")
+    a$ = StrReplace$(a$, "&amp;", "&")
+    a$ = StrReplace$(a$, CHR$(226) + CHR$(136) + CHR$(146), "-")
+    a$ = StrReplace$(a$, "<nowiki>", "")
+    a$ = StrReplace$(a$, "</nowiki>", "")
+    a$ = StrReplace$(a$, "<center>", "")
+    a$ = StrReplace$(a$, "</center>", "")
+    a$ = StrReplace$(a$, "</span>", "")
+
+    i = INSTR(a$, "<span ")
+    DO WHILE i
+        a$ = LEFT$(a$, i - 1) + MID$(a$, INSTR(i + 1, a$, ">") + 1)
+        i = INSTR(a$, "<span ")
+    LOOP
+
     n = LEN(a$)
     i = 1
     DO WHILE i <= n
@@ -617,7 +634,6 @@ SUB WikiParse (a$)
                                     REDIM _PRESERVE tableCol(1 TO UBOUND(tableCol) + 99) AS INTEGER
                                 END IF
                                 IF tableCol(thisCol) < LEN(_TRIM$(p$)) + 2 THEN tableCol(thisCol) = LEN(_TRIM$(p$)) + 2
-                                p$ = StrReplace$(p$, "&lt;", "<")
                                 tableRow(totalRows) = tableRow(totalRows) + _TRIM$(p$) + CHR$(0)
                             END IF
                         LOOP WHILE j < LEN(l$)
