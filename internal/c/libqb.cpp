@@ -13628,11 +13628,11 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
     // hex/oct/bin
     if (c == 38) {  // "&"
       (*data_offset)++;
-      if (*data_offset >= data_size) goto gotnumber;
+      if (*data_offset >= data_size) return 3; // Syntax error (missing H/O/B after &)
       c = data[*data_offset];
       if (c == 44) {
         (*data_offset)++;
-        goto gotnumber;
+        return 3; // Syntax error (missing H/O/B after &)
       }
       if ((c == 72) || (c == 104)) {  // "H" or "h"
       nexthexchr:
@@ -13645,13 +13645,18 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
         }
         if (((c >= 48) && (c <= 57)) || ((c >= 65) && (c <= 70)) ||
             ((c >= 97) && (c <= 102))) {  // 0-9 or A-F or a-f
+          if (step == 5) return 3;        // Syntax error (digits after type suffix)
           if (n_digits == 256) return 1;  // Overflow
           n_digit[n_digits] = c;
           n_digits++;
           n_hex = 1;
           goto nexthexchr;
         }
-        return 3;  // Syntax error
+        if ((c == 33) || (c == 35) || (c == 36) ||
+            (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+            if (step <= 5) {step = 5; goto nexthexchr;}
+        }
+        return 3;  // Syntax error (invalid HEX char)
       }
       if ((c == 79) || (c == 111)) {  // "O" or "o"
       nexthexchr2:
@@ -13663,13 +13668,18 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
           goto gotnumber;
         }
         if ((c >= 48) && (c <= 55)) {     // 0-7
+          if (step == 5) return 3;        // Syntax error (digits after type suffix)
           if (n_digits == 256) return 1;  // Overflow
           n_digit[n_digits] = c;
           n_digits++;
           n_hex = 2;
           goto nexthexchr2;
         }
-        return 3;  // Syntax error
+        if ((c == 33) || (c == 35) || (c == 36) ||
+            (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+            if (step <= 5) {step = 5; goto nexthexchr2;}
+        }
+        return 3;  // Syntax error (invalid OCT char)
       }
       if ((c == 66) || (c == 98)) {  // "B" or "b"
       nexthexchr3:
@@ -13681,33 +13691,39 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
           goto gotnumber;
         }
         if ((c >= 48) && (c <= 49)) {     // 0-1
+          if (step == 5) return 3;        // Syntax error (digits after type suffix)
           if (n_digits == 256) return 1;  // Overflow
           n_digit[n_digits] = c;
           n_digits++;
           n_hex = 3;
           goto nexthexchr3;
         }
-        return 3;  // Syntax error
+        if ((c == 33) || (c == 35) || (c == 36) ||
+            (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+            if (step <= 5) {step = 5; goto nexthexchr3;}
+        }
+        return 3;  // Syntax error (invalid BIN char)
       }
-      return 3;  // Syntax error
+      return 3;  // Syntax error (missing H/O/B after &)
     }  // "&"
     
     readnextchr:
     if (c==44){(*data_offset)++; goto gotnumber;}
     
     if (c==45){//-
-        if (step==0){n_neg=1; step=1; goto nextchr;}
-        if (step==3){negate_exponent=1; step=4; goto nextchr;}
-        return 3;//Syntax error
+        if (step==0){n_neg=1; step=1; goto nextchr;}//sign before integer part
+        if (step==3){negate_exponent=1; step=4; goto nextchr;}//exponent sign
+        return 3;//Syntax error (no - allowed in fraction part of number or after type suffix)
     }
     
     if (c==43){//+
-        if (step==0){step=1; goto nextchr;}
-        if (step==3){step=4; goto nextchr;}
-        return 3;//Syntax error
+        if (step==0){step=1; goto nextchr;}//sign before integer part
+        if (step==3){step=4; goto nextchr;}//exponent sign
+        return 3;//Syntax error (no + allowed in fraction part of number or after type suffix)
     }
     
     if ((c>=48)&&(c<=57)){//0-9
+        if (step == 5) return 3; // Syntax error (digit after type suffix)
         
         if (step<=1){//before decimal point
             step=1;
@@ -13742,17 +13758,21 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
     }
     
     if (c==46){//.
-        if (step>1) return 3;//Syntax error
+        if (step>1) return 3;//Syntax error (multiple . or after type suffix)
         if (n_digits==0) n_exp=-1;
         step=2; goto nextchr;
     }
     
     if ((c==68)||(c==69)||(c==100)||(c==101)){//D,E,d,e
-        if (step>2) return 3;//Syntax error
+        if (step>2) return 3;//Syntax error (multiple exponents or after type suffix)
         step=3; goto nextchr;
     }
     
-    return 3;//Syntax error
+    if ((c == 33) || (c == 35) || (c == 36) ||
+        (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+        if (step <= 5) {step = 5; goto nextchr;}
+    }
+    return 3;//Syntax error (invalid number char)
     nextchr:
     (*data_offset)++; if (*data_offset>=data_size) goto gotnumber;
     c=data[*data_offset];
