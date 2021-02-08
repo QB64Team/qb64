@@ -12902,7 +12902,13 @@ IF idemode THEN
 END IF
 'non-ide mode output
 PRINT
-IF NOT MonochromeLoggingMode THEN COLOR 4
+IF NOT MonochromeLoggingMode THEN
+    IF INSTR(_OS$, "WIN") THEN
+        COLOR 4
+    ELSE
+        COLOR 9
+    END IF
+END IF
 PRINT a$
 IF NOT MonochromeLoggingMode THEN COLOR 7
 FOR i = 1 TO LEN(linefragment)
