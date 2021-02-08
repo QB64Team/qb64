@@ -1,130 +1,6 @@
 'INI Manager v1.01
 'Fellippe Heitor, 2017-2021 - fellippe@qb64.org - @fellippeheitor
 
-SUB IniSortSection (file$, __section$)
-    SHARED IniCODE, IniLastKey$, IniWholeFile$
-    SHARED IniDisableAutoCommit
-
-    REDIM Keys(1 TO 100) AS STRING
-    DIM TotalKeys, tempValue$, i AS LONG, Backup$, CommitBackup
-
-    IF IniFormatSection$(__section$) = "[]" THEN IniCODE = 15: EXIT SUB
-
-    DO
-        tempValue$ = ReadSetting(file$, __section$, "")
-        IF LEFT$(IniINFO$, 7) = "ERROR: " THEN EXIT SUB
-        IF IniCODE = 10 THEN EXIT DO
-
-        TotalKeys = TotalKeys + 1
-        IF TotalKeys > UBOUND(Keys) THEN
-            REDIM _PRESERVE Keys(1 TO UBOUND(Keys) + 100) AS STRING
-        END IF
-
-        Keys(TotalKeys) = IniLastKey$ + "=" + tempValue$
-    LOOP
-
-    REDIM _PRESERVE Keys(1 TO TotalKeys) AS STRING
-    IF IniArraySort(Keys()) = 0 THEN IniCODE = 23: EXIT SUB
-
-    CommitBackup = IniDisableAutoCommit
-    IniDisableAutoCommit = -1 'Prevent every minor change from being written to disk
-    Backup$ = IniWholeFile$
-
-    FOR i = 1 TO TotalKeys
-        IniDeleteKey file$, __section$, LEFT$(Keys(i), INSTR(Keys(i), "=") - 1)
-        IF LEFT$(IniINFO$, 7) = "ERROR: " THEN
-            IniDisableAutoCommit = CommitBackup
-            IniWholeFile$ = Backup$
-            EXIT SUB
-        END IF
-    NEXT
-
-    FOR i = 1 TO TotalKeys
-        WriteSetting file$, __section$, LEFT$(Keys(i), INSTR(Keys(i), "=") - 1), MID$(Keys(i), INSTR(Keys(i), "=") + 1)
-        IF LEFT$(IniINFO$, 7) = "ERROR: " THEN
-            IniDisableAutoCommit = CommitBackup
-            IniWholeFile$ = Backup$
-            EXIT SUB
-        END IF
-    NEXT
-
-    IniDisableAutoCommit = CommitBackup 'Restore writing to disk (or previously set state) and
-    IniCommit '                          commit changes.
-
-    IniCODE = 22
-END SUB
-
-SUB IniDeleteSection (file$, __section$)
-    SHARED IniNewFile$, IniCODE, currentIniFileName$
-    SHARED IniLF$, IniWholeFile$, currentIniFileLOF AS _UNSIGNED LONG
-
-    IniLoad file$
-    IF IniCODE THEN EXIT SUB
-
-    DIM a$
-    IniCODE = 0
-    a$ = IniGetSection(__section$)
-    IF IniCODE THEN EXIT SUB
-
-    IniNewFile$ = LEFT$(IniWholeFile$, INSTR(IniWholeFile$, a$) - 1)
-    IniNewFile$ = IniNewFile$ + MID$(IniWholeFile$, INSTR(IniWholeFile$, a$) + LEN(a$ + IniLF$))
-
-    IniCommit
-    IniCODE = 13
-END SUB
-
-SUB IniDeleteKey (file$, __section$, __key$)
-    SHARED IniPosition AS _UNSIGNED LONG, IniCODE
-    SHARED IniLF$, IniWholeFile$, IniSectionData$
-    SHARED IniLastSection$, IniLastKey$, IniNewFile$
-
-    DIM tempValue$
-    DIM section$, key$
-    DIM FoundLF AS _UNSIGNED LONG
-
-    IniCODE = 0
-
-    'prepare variables for the write operation
-    section$ = IniFormatSection$(__section$)
-    IF IniCODE THEN EXIT SUB
-
-    key$ = LTRIM$(RTRIM$(__key$))
-    IF key$ = "" THEN IniCODE = 12: EXIT SUB
-    IniLastKey$ = key$
-
-    'Read the existing key to fill IniPosition
-    tempValue$ = ReadSetting$(file$, section$, key$)
-    IF IniCODE > 0 AND IniCODE <> 2 THEN EXIT SUB 'key not found
-
-    'map IniPosition (set in the section block) to the global file position
-    IniPosition = INSTR(IniWholeFile$, IniSectionData$) + IniPosition - 1
-
-    FoundLF = INSTR(IniPosition, IniWholeFile$, IniLF$)
-    IF FoundLF = 0 THEN FoundLF = LEN(IniWholeFile$)
-
-    IniNewFile$ = LEFT$(IniWholeFile$, IniPosition - 1) + MID$(IniWholeFile$, FoundLF + LEN(IniLF$))
-
-    IniCommit
-    IniCODE = 19
-END SUB
-
-SUB IniMoveKey (file$, __section$, __key$, __newsection$)
-    'A move operation is a copy operation + a delete operation
-
-    SHARED IniCODE
-
-    DIM tempValue$
-
-    tempValue$ = ReadSetting(file$, __section$, __key$)
-    IF IniCODE > 0 AND IniCODE <> 2 THEN EXIT SUB
-
-    WriteSetting file$, __newsection$, __key$, tempValue$
-    IF IniCODE > 0 AND IniCODE <> 2 AND IniCODE <> 7 AND IniCODE <> 9 THEN EXIT SUB
-
-    IniDeleteKey file$, __section$, __key$
-    IF IniCODE = 19 THEN IniCODE = 20
-END SUB
-
 SUB IniCommit
     SHARED currentIniFileName$, IniWholeFile$, currentIniFileLOF AS _UNSIGNED LONG
     SHARED IniNewFile$, IniDisableAutoCommit, IniCODE
@@ -273,15 +149,7 @@ FUNCTION ReadSetting$ (file$, __section$, __key$)
 
     key$ = LTRIM$(RTRIM$(__key$))
     IniLastKey$ = ""
-    IF key$ = "" THEN
-        IF section$ = "[]" THEN IniSectionData$ = IniWholeFile$
-        key$ = IniNextKey
-        IF IniCODE THEN EXIT FUNCTION
-        IF key$ = "" THEN
-            IniCODE = 10
-            EXIT FUNCTION
-        END IF
-    END IF
+    IF key$ = "" THEN IniCODE = 12: EXIT FUNCTION
 
     IF LEFT$(key$, 1) = ";" OR LEFT$(key$, 1) = "'" OR INSTR(key$, "[") > 0 OR INSTR(key$, "]") > 0 OR INSTR(key$, "=") > 0 THEN
         IniCODE = 12
@@ -582,20 +450,6 @@ SUB IniSetAutoCommit (state AS _BYTE)
     END IF
 END SUB
 
-SUB IniClose
-    SHARED currentIniFileName$
-    DIM CommitBackup
-
-    IF currentIniFileName$ = "" THEN EXIT SUB
-
-    CommitBackup = IniDisableAutoCommit
-    IniDisableAutoCommit = 0
-    IniCommit
-    IniDisableAutoCommit = CommitBackup
-
-    currentIniFileName$ = ""
-END SUB
-
 SUB IniLoad (file$)
     SHARED IniCODE, currentIniFileName$, IniLF$, IniWholeFile$
     SHARED currentIniFileLOF AS _UNSIGNED LONG
@@ -603,7 +457,6 @@ SUB IniLoad (file$)
     DIM fileNum AS INTEGER
 
     'Error messages are returned with IniCODE
-    'Error descriptions can be fetched with function IniINFO$
     IniCODE = 0
 
     IF file$ <> "" AND currentIniFileName$ <> file$ THEN currentIniFileName$ = ""
@@ -646,148 +499,3 @@ SUB IniLoad (file$)
         GOTO IniFileNotFound
     END IF
 END SUB
-
-FUNCTION IniNextKey$
-    SHARED IniCODE, IniLF$, currentIniFileName$, IniSectionData$
-    SHARED IniPosition AS _UNSIGNED LONG
-    STATIC lastDataBlock$, position AS _UNSIGNED LONG, tempLF$
-
-    IF currentIniFileName$ = "" THEN IniCODE = 18: EXIT FUNCTION
-
-    IF IniSectionData$ <> lastDataBlock$ THEN
-        position = 0
-        lastDataBlock$ = IniSectionData$
-
-        'data blocks must end with a line feed for parsing purposes
-        IF RIGHT$(IniSectionData$, LEN(IniLF$)) <> IniLF$ THEN tempLF$ = IniLF$ ELSE tempLF$ = ""
-    END IF
-
-    DIM Equal AS _UNSIGNED LONG, tempKey$
-
-    FindKey:
-    Equal = INSTR(position, IniSectionData$ + tempLF$, "=")
-    IF Equal = 0 THEN position = 0: EXIT FUNCTION
-
-    tempKey$ = LTRIM$(RTRIM$(MID$(IniSectionData$ + tempLF$, position + 1, Equal - position - 1)))
-
-    IF INSTR(tempKey$, CHR$(10)) > 0 THEN
-        position = position + INSTR(tempKey$, CHR$(10)) + 1
-        tempKey$ = MID$(tempKey$, INSTR(tempKey$, CHR$(10)) + 1)
-    END IF
-
-    DO WHILE LEFT$(tempKey$, LEN(IniLF$)) = IniLF$
-        tempKey$ = MID$(tempKey$, LEN(IniLF$) + 1)
-        position = position + LEN(IniLF$)
-    LOOP
-
-    position = INSTR(position + 1, IniSectionData$ + tempLF$, IniLF$)
-
-    IF LEFT$(tempKey$, 1) = ";" OR LEFT$(tempKey$, 1) = "'" OR INSTR(tempKey$, "[") > 0 OR INSTR(tempKey$, "]") > 0 OR INSTR(tempKey$, "=") > 0 THEN
-        GOTO FindKey
-    END IF
-
-    IniNextKey$ = tempKey$
-    IniPosition = Equal
-END FUNCTION
-
-FUNCTION IniNextSection$ (file$)
-    SHARED IniCODE, IniLF$, IniWholeFile$
-
-    STATIC sectionStart AS _UNSIGNED LONG
-
-    IniLoad file$
-    IF LEFT$(IniINFO$, 6) = "ERROR:" THEN EXIT FUNCTION
-
-    IniCODE = 0
-
-    DIM foundSection AS _UNSIGNED LONG, endSection AS _UNSIGNED LONG
-    DIM i AS _UNSIGNED LONG, Bracket1 AS _UNSIGNED LONG, Bracket2 AS _UNSIGNED LONG
-
-    FindNext:
-    sectionStart = INSTR(sectionStart + 1, IniWholeFile$, "[")
-    IF sectionStart = 0 THEN IniCODE = 24: EXIT FUNCTION
-
-    'make sure it's a valid section header
-    foundSection = 0
-    FOR i = sectionStart - 1 TO 1 STEP -1
-        IF ASC(IniWholeFile$, i) = 10 THEN foundSection = i + 1: EXIT FOR
-        IF ASC(IniWholeFile$, i) <> 32 THEN GOTO FindNext
-    NEXT
-
-    IF i = 0 THEN foundSection = 1
-
-    IF foundSection > 0 THEN
-        'we found it; time to identify where this section ends
-        '(either another [section] or the end of the file
-        Bracket2 = INSTR(sectionStart + 1, IniWholeFile$, "]")
-        IF Bracket2 = 0 THEN IniCODE = 24: EXIT FUNCTION
-        Bracket1 = INSTR(sectionStart + 1, IniWholeFile$, "[")
-        IF Bracket1 > 0 THEN
-            FOR i = Bracket1 - 1 TO 1 STEP -1
-                IF ASC(IniWholeFile$, i) = 10 THEN endSection = i + 1 - LEN(IniLF$): EXIT FOR
-                IF i <= foundSection THEN EXIT FOR
-            NEXT
-            IniNextSection$ = MID$(IniWholeFile$, foundSection, Bracket2 - foundSection + 1)
-        ELSE
-            IniNextSection$ = MID$(IniWholeFile$, foundSection, Bracket2 - foundSection + 1)
-            IniCODE = 24
-            sectionStart = 0
-        END IF
-    ELSE
-        IniCODE = 24
-    END IF
-END FUNCTION
-
-FUNCTION IniINFO$
-    SHARED IniCODE
-    SELECT CASE IniCODE
-        CASE 0: IniINFO$ = "Operation successful"
-        Case 1: IniINFO$ = "ERROR: File not found"
-        CASE 2: IniINFO$ = "Empty value"
-        CASE 3: IniINFO$ = "ERROR: Key not found"
-        CASE 4: IniINFO$ = "Key updated"
-        CASE 5: IniINFO$ = "Global key created"
-        CASE 7: IniINFO$ = "Key created in existing section"
-        CASE 8: IniINFO$ = "No changes applied (same value)"
-        CASE 9: IniINFO$ = "New section created; key created"
-        CASE 10: IniINFO$ = "No more keys"
-        CASE 11: IniINFO$ = "File created; new key added"
-        CASE 12: IniINFO$ = "ERROR: Invalid key"
-        CASE 13: IniINFO$ = "Section deleted"
-        CASE 14: IniINFO$ = "ERROR: Section not found"
-        CASE 15: IniINFO$ = "ERROR: Invalid section"
-        CASE 16: IniINFO$ = "New section created; existing key moved"
-        CASE 17: IniINFO$ = "ERROR: Empty file"
-        CASE 18: IniINFO$ = "ERROR: No file open"
-        CASE 19: IniINFO$ = "Key deleted"
-        CASE 20: IniINFO$ = "Key moved"
-        CASE 21: IniINFO$ = "ERROR: Invalid file name/path"
-        CASE 22: IniINFO$ = "Section sorted"
-        CASE 23: IniINFO$ = "No changes applied; section already sorted"
-        CASE 24: IniINFO$ = "No more sections"
-        CASE ELSE: IniINFO$ = "ERROR: <invalid error code>"
-    END SELECT
-END FUNCTION
-
-'Written in BASIC by Luke Ceddia for ide_methods.bas (QB64)
-'After Cormen, Leiserson, Rivest & Stein "Introduction To Algoritms" via Wikipedia
-'Adapted for use in .INI Manager
-FUNCTION IniArraySort%% (arr() AS STRING)
-    DIM i&, x$, j&, moves&
-
-    FOR i& = LBOUND(arr) + 1 TO UBOUND(arr)
-        x$ = arr(i&)
-        j& = i& - 1
-        WHILE j& >= LBOUND(arr)
-            IF arr(j&) <= x$ THEN EXIT WHILE
-            moves& = moves& + 1
-            arr$(j& + 1) = arr$(j&)
-            j& = j& - 1
-        WEND
-        arr$(j& + 1) = x$
-    NEXT i&
-
-    'Returns -1 (true) if any changes were made
-    IniArraySort%% = moves& > 0
-END FUNCTION
-
