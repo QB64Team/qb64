@@ -14,6 +14,7 @@ $SCREENHIDE
 '$INCLUDE:'global\settings.bas'
 '$INCLUDE:'global\constants.bas'
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_global.bas'
+'$INCLUDE:'utilities\ini-manager\ini.bi'
 
 DEFLNG A-Z
 
@@ -3620,7 +3621,8 @@ DO
             GOTO finishednonexec
         END IF
 
-        IF n < 3 THEN definingtypeerror = linenumber: a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
+        'IF n < 3 THEN definingtypeerror = linenumber: a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
+        IF n < 3 THEN a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
         definingtype = 2
         IF firstelement$ = "AS" THEN
             l$ = SCase$("As")
@@ -12901,7 +12903,13 @@ IF idemode THEN
 END IF
 'non-ide mode output
 PRINT
-IF NOT MonochromeLoggingMode THEN COLOR 4
+IF NOT MonochromeLoggingMode THEN
+    IF INSTR(_OS$, "WIN") THEN
+        COLOR 4
+    ELSE
+        COLOR 9
+    END IF
+END IF
 PRINT a$
 IF NOT MonochromeLoggingMode THEN COLOR 7
 FOR i = 1 TO LEN(linefragment)
@@ -12991,11 +12999,11 @@ FUNCTION ParseCMDLineArgs$ ()
                         IF SaveExeWithSource THEN PRINT "true" ELSE PRINT "false"
                         SYSTEM
                     CASE ":exewithsource=true"
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
+                        WriteConfigSetting generalSettingsSection$, "SaveExeWithSource", "True"
                         PRINT "exewithsource = true"
                         SaveExeWithSource = -1
                     CASE ":exewithsource=false"
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
+                        WriteConfigSetting generalSettingsSection$, "SaveExeWithSource", "False"
                         PRINT "exewithsource = false"
                         SaveExeWithSource = 0
                     CASE ":debuginfo"
@@ -13004,7 +13012,7 @@ FUNCTION ParseCMDLineArgs$ ()
                         SYSTEM
                     CASE ":debuginfo=true"
                         PRINT "debuginfo = true"
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+                        WriteConfigSetting generalSettingsSection$, "DebugInfo", "True" + DebugInfoIniWarning$
                         idedebuginfo = 1
                         Include_GDB_Debugging_Info = idedebuginfo
                         IF os$ = "WIN" THEN
@@ -13024,7 +13032,7 @@ FUNCTION ParseCMDLineArgs$ ()
                         END IF
                     CASE ":debuginfo=false"
                         PRINT "debuginfo = false"
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+                        WriteConfigSetting generalSettingsSection$, "DebugInfo", "False" + DebugInfoIniWarning$
                         idedebuginfo = 0
                         Include_GDB_Debugging_Info = idedebuginfo
                         IF os$ = "WIN" THEN
@@ -25063,122 +25071,37 @@ SUB Give_Error (a$)
     Error_Message = a$
 END SUB
 
-SUB WriteConfigSetting (heading$, item$, tvalue$)
-    value$ = tvalue$
-    SHARED ConfigFile$, ConfigBak$
-
-    InFile = FREEFILE: OPEN ConfigFile$ FOR BINARY AS #InFile
-    OutFile = FREEFILE: OPEN ConfigBak$ FOR OUTPUT AS #OutFile
-    placed = 0
-
-    'check for quotes where needed for strings
-    IF RIGHT$(RTRIM$(item$), 1) = "$" THEN
-        IF LEFT$(value$, 1) <> CHR$(34) THEN value$ = CHR$(34) + value$
-        IF RIGHT$(value$, 1) <> CHR$(34) THEN value$ = value$ + CHR$(34)
-    END IF
-
-    IF LOF(InFile) THEN
-        DO UNTIL EOF(InFile)
-            LINE INPUT #InFile, junk$
-            'we really don't care about heading$ here; it's only used to make things easier for the user to locate in the config file
-            junk$ = LTRIM$(RTRIM$(junk$))
-            l = INSTR(junk$, "=") 'compare the values to the left of the equal sign
-            compare$ = RTRIM$(LEFT$(junk$, l - 1))
-
-            IF UCASE$(compare$) = UCASE$(item$) THEN 'if it's a match, replace it
-                PRINT #OutFile, item$; " = "; value$
-                placed = -1
-            ELSE
-                PRINT #OutFile, junk$ 'otherwise put that line back and check the next one
-            END IF
-        LOOP
-    END IF
-
-    CLOSE #InFile, #OutFile
-    KILL ConfigFile$
-    IF NOT placed THEN 'we didn't find the proper setting already in the file somewhere.
-        'Either the file was corrupted, or the user deleted this particulat setting sometime in the past.
-        'Now we look to see if the heading exists in the file or not.
-        'If it does, then we place the new setting under that heading.
-        'If not then we write that heading to the end of the file to make it easier for the user to locate in the future
-        'and then we write it below there.
-        OPEN ConfigBak$ FOR BINARY AS #InFile
-        OPEN "internal/config.tmp" FOR OUTPUT AS #OutFile
-        out$ = item$ + " = " + value$
-        DO UNTIL EOF(InFile) OR LOF(InFile) = 0
-            LINE INPUT #InFile, temp$
-            PRINT #OutFile, temp$
-            IF INSTR(temp$, heading$) THEN PRINT #OutFile, out$: placed = -1 'If we have the heading, we want to print the item after it
-        LOOP
-        IF NOT placed THEN 'If the heading doesn't exist already then we'll make the heading and the item
-            PRINT #OutFile, ""
-            PRINT #OutFile, heading$
-            PRINT #OutFile, out$
-        END IF
-        CLOSE #InFile, #OutFile
-        KILL ConfigBak$
-        NAME "internal/config.tmp" AS ConfigFile$
-    ELSE
-        NAME ConfigBak$ AS ConfigFile$
-    END IF
+SUB WriteConfigSetting (section$, item$, value$)
+    WriteSetting ConfigFile$, section$, item$, value$
 END SUB
 
-FUNCTION ReadConfigSetting (item$, value$)
-    SHARED ConfigFile$
-    value$ = "" 'We start by blanking the value$ as a default return state
-    InFile = FREEFILE: OPEN ConfigFile$ FOR BINARY AS #InFile
-
-    IF LOF(InFile) THEN
-        found = 0
-        DO UNTIL EOF(InFile)
-            LINE INPUT #InFile, temp$
-            temp$ = LTRIM$(RTRIM$(temp$))
-            l = INSTR(temp$, "=")
-            compare$ = LTRIM$(RTRIM$(LEFT$(temp$, l - 1)))
-            IF UCASE$(compare$) = UCASE$(item$) THEN found = -1: EXIT DO
-        LOOP
-        CLOSE #InFile
-        IF found THEN 'we found what we're looking for
-            IF l THEN
-                value$ = MID$(temp$, l + 1)
-                l = INSTR(value$, CHR$(13)) 'we only want what's before a CR
-                IF l THEN value$ = LEFT$(value$, l)
-                l = INSTR(value$, CHR$(10)) 'or a LineFeed
-                'These are basic text files; they shouldn't have stray CHR$(10) or CHR$(13) characters in them!
-                IF l THEN value$ = LEFT$(value$, l)
-                value$ = LTRIM$(RTRIM$(value$))
-                'check for quotes where needed for strings and remove them so our return value doesn't contain them
-                IF RIGHT$(RTRIM$(item$), 1) = "$" THEN
-                    IF LEFT$(value$, 1) = CHR$(34) THEN value$ = MID$(value$, 2)
-                    IF RIGHT$(value$, 1) = CHR$(34) THEN value$ = LEFT$(value$, LEN(value$) - 1)
-                END IF
-                ReadConfigSetting = -1
-                EXIT FUNCTION
-            END IF
-        END IF
-    END IF
-    CLOSE #InFile
-    ReadConfigSetting = 0 'failed to find the setting
+FUNCTION ReadConfigSetting (section$, item$, value$)
+    value$ = ReadSetting$(ConfigFile$, section$, item$)
+    ReadConfigSetting = (LEN(value$) > 0)
 END FUNCTION
 
-FUNCTION VRGBS (text$, DefaultColor AS _UNSIGNED LONG)
+FUNCTION VRGBS~& (text$, DefaultColor AS _UNSIGNED LONG)
     'Value of RGB String = VRGBS without a ton of typing
     'A function to get the RGB value back from a string such as _RGB32(255,255,255)
     'text$ is the string that we send to check for a value
     'DefaultColor is the value we send back if the string isn't in the proper format
 
-    VRGBS = DefaultColor 'A return the default value if we can't parse the string properly
+    VRGBS~& = DefaultColor 'A return the default value if we can't parse the string properly
     IF UCASE$(LEFT$(text$, 4)) = "_RGB" THEN
         rpos = INSTR(text$, "(")
         gpos = INSTR(rpos, text$, ",")
         bpos = INSTR(gpos + 1, text$, ",")
         IF rpos <> 0 AND bpos <> 0 AND gpos <> 0 THEN
-            red = VAL(MID$(text$, rpos + 1))
-            green = VAL(MID$(text$, gpos + 1))
-            blue = VAL(MID$(text$, bpos + 1))
-            VRGBS = _RGB32(red, green, blue)
+            red = VAL(_TRIM$(MID$(text$, rpos + 1)))
+            green = VAL(_TRIM$(MID$(text$, gpos + 1)))
+            blue = VAL(_TRIM$(MID$(text$, bpos + 1)))
+            VRGBS~& = _RGB32(red, green, blue)
         END IF
     END IF
+END FUNCTION
+
+FUNCTION rgbs$ (c AS _UNSIGNED LONG)
+    rgbs$ = "_RGB32(" + _TRIM$(STR$(_RED32(c))) + ", " + _TRIM$(STR$(_GREEN32(c))) + ", " + _TRIM$(STR$(_BLUE32(c))) + ")"
 END FUNCTION
 
 FUNCTION EvalPreIF (text$, err$)
@@ -25593,8 +25516,8 @@ FUNCTION SCase2$ (t$)
 END FUNCTION
 
 '$INCLUDE:'utilities\strings.bas'
-
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'
+'$INCLUDE:'utilities\ini-manager\ini.bm'
 
 DEFLNG A-Z
 
