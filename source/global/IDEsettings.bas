@@ -462,7 +462,7 @@ IF ReadConfigSetting(customDictionarySection$, "CustomKeywords$", value$) THEN
     customKeywordsLength = LEN(listOfCustomKeywords$)
 ELSE
     IniSetAddQuotes -1
-    WriteConfigSetting customDictionarySection$, "Instructions1", "Add custom keywords @separated@by@the@at@sign@ below."
+    WriteConfigSetting customDictionarySection$, "Instructions1", "Add custom keywords separated by the 'at' sign."
     WriteConfigSetting customDictionarySection$, "Instructions2", "Useful to colorize constants (eg @true@false@)."
     IniSetAddQuotes 0
     WriteConfigSetting customDictionarySection$, "CustomKeywords$", "@"
