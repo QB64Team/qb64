@@ -1,12 +1,56 @@
-qbs *_FUNC_WIKIGETLINE_STRING_WIKIGETLINE=NULL;
-if (!_FUNC_WIKIGETLINE_STRING_WIKIGETLINE)_FUNC_WIKIGETLINE_STRING_WIKIGETLINE=qbs_new(0,0);
-qbs*oldstr5572=NULL;
-if(_FUNC_WIKIGETLINE_STRING_A->tmp||_FUNC_WIKIGETLINE_STRING_A->fixed||_FUNC_WIKIGETLINE_STRING_A->readonly){
-oldstr5572=_FUNC_WIKIGETLINE_STRING_A;
-if (oldstr5572->cmem_descriptor){
-_FUNC_WIKIGETLINE_STRING_A=qbs_new_cmem(oldstr5572->len,0);
-}else{
-_FUNC_WIKIGETLINE_STRING_A=qbs_new(oldstr5572->len,0);
+qbs *_FUNC_GETSELECTEDTEXT_STRING_GETSELECTEDTEXT=NULL;
+if (!_FUNC_GETSELECTEDTEXT_STRING_GETSELECTEDTEXT)_FUNC_GETSELECTEDTEXT_STRING_GETSELECTEDTEXT=qbs_new(0,0);
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SY1=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SY1==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SY1=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SY1=0;
 }
-memcpy(_FUNC_WIKIGETLINE_STRING_A->chr,oldstr5572->chr,oldstr5572->len);
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SY2=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SY2==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SY2=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SY2=0;
+}
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SX1=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SX1==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SX1=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SX1=0;
+}
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SX2=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SX2==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SX2=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SX2=0;
+}
+int32 *_FUNC_GETSELECTEDTEXT_LONG_Y=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_Y==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_Y=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_Y=0;
+}
+int64 fornext_value5419;
+int64 fornext_finalvalue5419;
+int64 fornext_step5419;
+uint8 fornext_step_negative5419;
+qbs *_FUNC_GETSELECTEDTEXT_STRING_A=NULL;
+if (!_FUNC_GETSELECTEDTEXT_STRING_A)_FUNC_GETSELECTEDTEXT_STRING_A=qbs_new(0,0);
+int32 *_FUNC_GETSELECTEDTEXT_LONG_X=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_X==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_X=0;
+}
+int64 fornext_value5421;
+int64 fornext_finalvalue5421;
+int64 fornext_step5421;
+uint8 fornext_step_negative5421;
+byte_element_struct *byte_element_5422=NULL;
+if (!byte_element_5422){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5422=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5422=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_GETSELECTEDTEXT_STRING_CLIP=NULL;
+if (!_FUNC_GETSELECTEDTEXT_STRING_CLIP)_FUNC_GETSELECTEDTEXT_STRING_CLIP=qbs_new(0,0);
+byte_element_struct *byte_element_5423=NULL;
+if (!byte_element_5423){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5423=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5423=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5424=NULL;
+if (!byte_element_5424){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5424=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5424=(byte_element_struct*)mem_static_malloc(12);
 }

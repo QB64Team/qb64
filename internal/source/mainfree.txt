@@ -30,6 +30,13 @@ free((void*)(__ARRAY_INTEGER64_GL_DEFINES_VALUE[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER64_GL_DEFINES_VALUE)[8] );
+qbs_free(__STRING_CURRENTINIFILENAME);
+qbs_free(__STRING_INIWHOLEFILE);
+qbs_free(__STRING_INISECTIONDATA);
+qbs_free(__STRING_ININEWFILE);
+qbs_free(__STRING_INILASTSECTION);
+qbs_free(__STRING_INILASTKEY);
+qbs_free(__STRING_INILF);
 qbs_free(__STRING_CACHE_FOLDER);
 qbs_free(__STRING_HELP_TXT);
 qbs_free(__STRING_HELP_LINE);
@@ -425,12 +432,18 @@ qbs_free(__STRING_IDERETURN);
 qbs_free(__STRING_IDEMESSAGE);
 qbs_free(__STRING_OUTPUTFILE_CMD);
 qbs_free(__STRING_COMPILELOG);
-qbs_free(__STRING_IDE_INDEX);
+qbs_free(__STRING_WINDOWSETTINGSSECTION);
+qbs_free(__STRING_COLORSETTINGSSECTION);
+qbs_free(__STRING_CUSTOMDICTIONARYSECTION);
+qbs_free(__STRING_MOUSESETTINGSSECTION);
+qbs_free(__STRING_GENERALSETTINGSSECTION);
+qbs_free(__STRING_DISPLAYSETTINGSSECTION);
+qbs_free(__STRING_COLORSCHEMESSECTION);
+qbs_free(__STRING_INIFOLDERINDEX);
+qbs_free(__STRING_DEBUGINFOINIWARNING);
 qbs_free(__STRING_CONFIGFILE);
-qbs_free(__STRING_CONFIGBAK);
 qbs_free(__STRING_VALUE);
 qbs_free(__STRING_TEMPLIST);
-qbs_free(__STRING_TEMP);
 qbs_free(__STRING_HASHFIND_NAME);
 if (__ARRAY_INTEGER_HASH1CHAR[2]&1){
 if (__ARRAY_INTEGER_HASH1CHAR[2]&4){
@@ -884,6 +897,7 @@ free((void*)(__ARRAY_STRING_WARNING[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_WARNING)[8] );
 qbs_free(__STRING_WHOLESTV);
+qbs_free(__STRING_TEMP);
 qbs_free(__STRING_L);
 qbs_free(__STRING_R);
 qbs_free(__STRING_L1);

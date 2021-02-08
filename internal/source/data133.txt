@@ -1,23 +1,7 @@
-int32 *_FUNC_IDEHLEN_LONG_IDEHLEN=NULL;
-if(_FUNC_IDEHLEN_LONG_IDEHLEN==NULL){
-_FUNC_IDEHLEN_LONG_IDEHLEN=(int32*)mem_static_malloc(4);
-*_FUNC_IDEHLEN_LONG_IDEHLEN=0;
-}
-qbs*oldstr4529=NULL;
-if(_FUNC_IDEHLEN_STRING_A->tmp||_FUNC_IDEHLEN_STRING_A->fixed||_FUNC_IDEHLEN_STRING_A->readonly){
-oldstr4529=_FUNC_IDEHLEN_STRING_A;
-if (oldstr4529->cmem_descriptor){
-_FUNC_IDEHLEN_STRING_A=qbs_new_cmem(oldstr4529->len,0);
-}else{
-_FUNC_IDEHLEN_STRING_A=qbs_new(oldstr4529->len,0);
-}
-memcpy(_FUNC_IDEHLEN_STRING_A->chr,oldstr4529->chr,oldstr4529->len);
-}
-byte_element_struct *byte_element_4530=NULL;
-if (!byte_element_4530){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4530=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4530=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_4531=NULL;
-if (!byte_element_4531){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4531=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4531=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_IDECHANGED_STRING_PL=NULL;
+if (!_SUB_IDECHANGED_STRING_PL)_SUB_IDECHANGED_STRING_PL=qbs_new(0,0);
+int32 *_SUB_IDECHANGED_LONG_RESULT=NULL;
+if(_SUB_IDECHANGED_LONG_RESULT==NULL){
+_SUB_IDECHANGED_LONG_RESULT=(int32*)mem_static_malloc(4);
+*_SUB_IDECHANGED_LONG_RESULT=0;
 }
