@@ -246,7 +246,7 @@ FUNCTION ide2 (ignore)
             idecustomfonthandle = _LOADFONT(idecustomfontfile$, idecustomfontheight, "MONOSPACE")
             IF idecustomfonthandle = -1 THEN
                 'failed! - revert to default settings
-                idecustomfont = 0: idecustomfontfile$ = "c:\windows\fonts\lucon.ttf": idecustomfontheight = 21
+                idecustomfont = 0: idecustomfontfile$ = "C:\Windows\Fonts\lucon.ttf": idecustomfontheight = 21
             ELSE
                 _FONT idecustomfonthandle
             END IF
@@ -856,8 +856,8 @@ FUNCTION ide2 (ignore)
                 LOOP WHILE _RESIZE
 
                 IF retval = 1 THEN 'screen dimensions have changed and everything must be redrawn/reapplied
-                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", STR$(idewx)
-                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", STR$(idewy)
+                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Width", STR$(idewx)
+                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Height", STR$(idewy)
                 END IF
 
                 retval = 1
@@ -1041,7 +1041,7 @@ FUNCTION ide2 (ignore)
 
             PCOPY 3, 0: SCREEN , , 3, 0
             IF result = 2 THEN
-                WriteConfigSetting "'[GENERAL SETTINGS]", "WhiteListQB64FirstTimeMsg", "TRUE"
+                WriteConfigSetting generalSettingsSection$, "WhiteListQB64FirstTimeMsg", "True"
             END IF
             WhiteListQB64FirstTimeMsg = -1
         END IF
@@ -1236,8 +1236,8 @@ FUNCTION ide2 (ignore)
         IF IDE_AutoPosition THEN
             IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
                 IF _SCREENY >= -_HEIGHT * _FONTHEIGHT AND _SCREENX >= -_WIDTH * _FONTWIDTH THEN 'Don't record the position if it's off the screen, past the point where we can drag it back into a different position.
-                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_TopPosition", STR$(_SCREENY)
-                    WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_LeftPosition", STR$(_SCREENX)
+                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_TopPosition", STR$(_SCREENY)
+                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_LeftPosition", STR$(_SCREENX)
                     IDE_TopPosition = _SCREENY: IDE_LeftPosition = _SCREENX
                 END IF
             END IF
@@ -1518,7 +1518,7 @@ FUNCTION ide2 (ignore)
                                          "Folder' in the Run menu.", "#OK;#Don't show this again;#Cancel")
                 END IF
                 IF result = 2 THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "ExeToSourceFolderFirstTimeMsg", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "ExeToSourceFolderFirstTimeMsg", "True"
                     ExeToSourceFolderFirstTimeMsg = -1
                 ELSEIF result = 3 THEN
                     PCOPY 3, 0: SCREEN , , 3, 0
@@ -2775,10 +2775,6 @@ FUNCTION ide2 (ignore)
                             GET #backupIncludeFile, 1, tempInclude1$
                             CLOSE #backupIncludeFile
 
-                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
-                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", "80"
-                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", "25"
-
                             SCREEN , , 3, 0
                             clearStatusWindow
                             COLOR 15, 1
@@ -2794,12 +2790,6 @@ FUNCTION ide2 (ignore)
                                 p$ = p$ + " -l:" + str2$(warningInIncludeLine)
                             END IF
                             SHELL p$
-
-                            IF IDE_AutoPosition THEN
-                                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
-                            END IF
-                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", STR$(idewx)
-                            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", STR$(idewy)
 
                             OPEN f$ FOR BINARY AS #backupIncludeFile
                             tempInclude2$ = SPACE$(LOF(backupIncludeFile))
@@ -4719,10 +4709,10 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 MouseButtonSwapped = NOT MouseButtonSwapped
                 IF MouseButtonSwapped THEN
-                    WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "TRUE"
+                    WriteConfigSetting mouseSettingsSection$, "SwapMouseButton", "True"
                     menu$(OptionsMenuID, OptionsMenuSwapMouse) = CHR$(7) + "#Swap Mouse Buttons"
                 ELSE
-                    WriteConfigSetting "'[MOUSE SETTINGS]", "SwapMouseButton", "FALSE"
+                    WriteConfigSetting mouseSettingsSection$, "SwapMouseButton", "False"
                     menu$(OptionsMenuID, OptionsMenuSwapMouse) = "#Swap Mouse Buttons"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4733,10 +4723,10 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 DisableSyntaxHighlighter = NOT DisableSyntaxHighlighter
                 IF DisableSyntaxHighlighter THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "DisableSyntaxHighlighter", "True"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Syntax #Highlighter"
                 ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "DisableSyntaxHighlighter", "False"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Syntax #Highlighter"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4747,10 +4737,10 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 PasteCursorAtEnd = NOT PasteCursorAtEnd
                 IF PasteCursorAtEnd THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "PasteCursorAtEnd", "True"
                     menu$(OptionsMenuID, OptionsMenuPasteCursor) = CHR$(7) + "Cursor After #Paste"
                 ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "PasteCursorAtEnd", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "PasteCursorAtEnd", "False"
                     menu$(OptionsMenuID, OptionsMenuPasteCursor) = "Cursor After #Paste"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4761,10 +4751,10 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 IDEShowErrorsImmediately = NOT IDEShowErrorsImmediately
                 IF IDEShowErrorsImmediately THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "ShowErrorsImmediately", "True"
                     menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = CHR$(7) + "Syntax Ch#ecker"
                 ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "ShowErrorsImmediately", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "ShowErrorsImmediately", "False"
                     menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Syntax Ch#ecker"
                 END IF
                 idechangemade = 1
@@ -4776,11 +4766,11 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 IF IgnoreWarnings = 0 THEN
                     IgnoreWarnings = -1
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "IgnoreWarnings", "True"
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
                 ELSE
                     IgnoreWarnings = 0
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "IgnoreWarnings", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "IgnoreWarnings", "False"
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = "Ignore #Warnings"
                 END IF
                 idechangemade = 1
@@ -4792,11 +4782,11 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 IF IdeAutoComplete = 0 THEN
                     IdeAutoComplete = -1
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "IdeAutoComplete", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
                     menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
                 ELSE
                     IdeAutoComplete = 0
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "IdeAutoComplete", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
                     menu$(OptionsMenuID, OptionsMenuAutoComplete) = "Code Suggest#ions"
                 END IF
                 idechangemade = 1
@@ -4808,10 +4798,10 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 SaveExeWithSource = NOT SaveExeWithSource
                 IF SaveExeWithSource THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "SaveExeWithSource", "True"
                     menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Output EXE to Source #Folder"
                 ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "SaveExeWithSource", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "SaveExeWithSource", "False"
                     menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to Source #Folder"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4823,10 +4813,10 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 EnableQuickNav = NOT EnableQuickNav
                 IF EnableQuickNav THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "EnableQuickNav", "True"
                     menu$(SearchMenuID, SearchMenuEnableQuickNav) = CHR$(7) + "#Quick Navigation"
                 ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "EnableQuickNav", "FALSE"
+                    WriteConfigSetting generalSettingsSection$, "EnableQuickNav", "False"
                     menu$(SearchMenuID, SearchMenuEnableQuickNav) = "#Quick Navigation"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -5170,7 +5160,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Show Line Numbers" THEN
                 PCOPY 2, 0
                 ShowLineNumbers = -1
-                WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "TRUE"
+                WriteConfigSetting generalSettingsSection$, "ShowLineNumbers", "True"
                 menu$(m, s) = "#Hide Line Numbers"
                 menu$(m, ViewMenuShowBGID) = MID$(menu$(m, ViewMenuShowBGID), 2)
                 menu$(m, ViewMenuShowSeparatorID) = MID$(menu$(m, ViewMenuShowSeparatorID), 2)
@@ -5181,7 +5171,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Hide Line Numbers" THEN
                 PCOPY 2, 0
                 ShowLineNumbers = 0
-                WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbers", "FALSE"
+                WriteConfigSetting generalSettingsSection$, "ShowLineNumbers", "False"
                 menu$(m, s) = "#Show Line Numbers"
                 menu$(m, ViewMenuShowBGID) = "~" + menu$(m, ViewMenuShowBGID)
                 menu$(m, ViewMenuShowSeparatorID) = "~" + menu$(m, ViewMenuShowSeparatorID)
@@ -5194,10 +5184,10 @@ FUNCTION ide2 (ignore)
                     PCOPY 2, 0
                     ShowLineNumbersUseBG = NOT ShowLineNumbersUseBG
                     IF ShowLineNumbersUseBG THEN
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "TRUE"
+                        WriteConfigSetting generalSettingsSection$, "ShowLineNumbersUseBG", "True"
                         menu$(m, s) = CHR$(7) + "#Background Color"
                     ELSE
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersUseBG", "FALSE"
+                        WriteConfigSetting generalSettingsSection$, "ShowLineNumbersUseBG", "False"
                         menu$(m, s) = "#Background Color"
                     END IF
                     PCOPY 3, 0: SCREEN , , 3, 0
@@ -5210,10 +5200,10 @@ FUNCTION ide2 (ignore)
                     PCOPY 2, 0
                     ShowLineNumbersSeparator = NOT ShowLineNumbersSeparator
                     IF ShowLineNumbersSeparator THEN
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "TRUE"
+                        WriteConfigSetting generalSettingsSection$, "ShowLineNumbersSeparator", "True"
                         menu$(m, s) = CHR$(7) + "Sho#w Separator"
                     ELSE
-                        WriteConfigSetting "'[GENERAL SETTINGS]", "ShowLineNumbersSeparator", "FALSE"
+                        WriteConfigSetting generalSettingsSection$, "ShowLineNumbersSeparator", "False"
                         menu$(m, s) = "Sho#w Separator"
                     END IF
                     PCOPY 3, 0: SCREEN , , 3, 0
@@ -8306,7 +8296,7 @@ SUB ideshowtext
                 IF timeElapsedSince(startTime) > 1 THEN
                     result = idemessagebox("Syntax Highlighter Disabled", "Syntax Highlighter has been disabled to avoid slowing down the IDE.\nYou can reenable the Highlighter in the 'Options' menu.", "")
                     DisableSyntaxHighlighter = -1
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "TRUE"
+                    WriteConfigSetting generalSettingsSection$, "DisableSyntaxHighlighter", "True"
                     menu$(OptionsMenuID, OptionsMenuDisableSyntax) = "Syntax #Highlighter"
                     GOTO noSyntaxHighlighting
                 END IF
@@ -9055,15 +9045,15 @@ FUNCTION idesubs$
     SaveSortSettings:
     idesortsubs = SortedSubsFlag
     IF idesortsubs THEN
-        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "TRUE"
+        WriteConfigSetting displaySettingsSection$, "IDE_SortSUBs", "True"
     ELSE
-        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SortSUBs", "FALSE"
+        WriteConfigSetting displaySettingsSection$, "IDE_SortSUBs", "False"
     END IF
 
     IF IDESubsLength THEN
-        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "TRUE"
+        WriteConfigSetting displaySettingsSection$, "IDE_SUBsLength", "True"
     ELSE
-        WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_SUBsLength", "FALSE"
+        WriteConfigSetting displaySettingsSection$, "IDE_SUBsLength", "False"
     END IF
     RETURN
 
@@ -9204,7 +9194,7 @@ FUNCTION idelanguagebox
 
             'save changes
             v% = y: idecpindex = v%
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CodePage", STR$(idecpindex)
+            WriteConfigSetting displaySettingsSection$, "IDE_CodePage", STR$(idecpindex)
             EXIT FUNCTION
         END IF
 
@@ -10454,25 +10444,25 @@ FUNCTION idelayoutbox
             IF ideindentsubs <> v% THEN ideindentsubs = v%: idelayoutbox = 1
 
             IF ideautolayout THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_AutoFormat", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoFormat", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_AutoFormat", "False"
             END IF
             IF ideautolayoutkwcapitals THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_KeywordCapital", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_KeywordCapital", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_KeywordCapital", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_KeywordCapital", "False"
             END IF
             IF ideautoindent THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_AutoIndent", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoIndent", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_AutoIndent", "False"
             END IF
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSize", STR$(ideautoindentsize)
+            WriteConfigSetting displaySettingsSection$, "IDE_IndentSize", STR$(ideautoindentsize)
             IF ideindentsubs THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_IndentSUBs", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_IndentSUBs", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_IndentSUBs", "False"
             END IF
             EXIT FUNCTION
         END IF
@@ -10506,7 +10496,7 @@ FUNCTION idebackupbox
     END IF
 
     idebackupsize = v&
-    WriteConfigSetting "'[GENERAL SETTINGS]", "BackupSize", STR$(v&) + " 'in MB"
+    WriteConfigSetting generalSettingsSection$, "BackupSize", STR$(v&) + " 'in MB"
     idebackupbox = 1
 END FUNCTION
 
@@ -10663,9 +10653,9 @@ FUNCTION ideadvancedbox
             IF v% <> idedebuginfo THEN
                 idedebuginfo = v%
                 IF idedebuginfo THEN
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "TRUE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+                    WriteConfigSetting generalSettingsSection$, "DebugInfo", "True" + DebugInfoIniWarning$
                 ELSE
-                    WriteConfigSetting "'[GENERAL SETTINGS]", "DebugInfo", "FALSE 'INTERNAL VARIABLE USE ONLY!! DO NOT MANUALLY CHANGE!"
+                    WriteConfigSetting generalSettingsSection$, "DebugInfo", "False" + DebugInfoIniWarning$
                 END IF
                 Include_GDB_Debugging_Info = idedebuginfo
                 IF os$ = "WIN" THEN
@@ -11143,7 +11133,7 @@ FUNCTION idedisplaybox
                 idecustomfonthandle = _LOADFONT(v$, v%, "MONOSPACE")
                 IF idecustomfonthandle = -1 THEN
                     'failed! - revert to default settings
-                    o(5).sel = 0: idetxt(o(6).txt) = "c:\windows\fonts\lucon.ttf": idetxt(o(7).txt) = "21": IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
+                    o(5).sel = 0: idetxt(o(6).txt) = "C:\Windows\Fonts\lucon.ttf": idetxt(o(7).txt) = "21": IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                 ELSE
                     _FONT idecustomfonthandle
                 END IF
@@ -11186,25 +11176,25 @@ FUNCTION idedisplaybox
             idecustomfontheight = v%
 
 
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Width", STR$(idewx)
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_Height", STR$(idewy)
+            WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Width", STR$(idewx)
+            WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Height", STR$(idewy)
             IF idecustomfont THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_CustomFont", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_CustomFont", "False"
             END IF
             IF IDE_UseFont8 THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_UseFont8", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_UseFont8", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_UseFont8", "False"
             END IF
             IF IDE_AutoPosition THEN
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "TRUE"
+                WriteConfigSetting displaySettingsSection$, "IDE_AutoPosition", "True"
             ELSE
-                WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_AutoPosition", "FALSE"
+                WriteConfigSetting displaySettingsSection$, "IDE_AutoPosition", "False"
             END IF
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFont$", idecustomfontfile$
-            WriteConfigSetting "'[IDE DISPLAY SETTINGS]", "IDE_CustomFontSize", STR$(idecustomfontheight)
+            WriteConfigSetting displaySettingsSection$, "IDE_CustomFont$", idecustomfontfile$
+            WriteConfigSetting displaySettingsSection$, "IDE_CustomFontSize", STR$(idecustomfontheight)
 
 
             EXIT FUNCTION
@@ -11327,7 +11317,7 @@ FUNCTION idechoosecolorsbox
     o(i).txt = idenewtxt("#OK" + sep + "Restore #defaults" + sep + "#Cancel")
     o(i).dft = 1
 
-    result = ReadConfigSetting("SchemeID", value$)
+    result = ReadConfigSetting(colorSettingsSection$, "SchemeID", value$)
     SchemeID = VAL(value$)
     IF SchemeID > TotalColorSchemes THEN SchemeID = 0
 
@@ -11559,7 +11549,7 @@ FUNCTION idechoosecolorsbox
                     i = 0
                     DO
                         i = i + 1
-                        result = ReadConfigSetting("Scheme" + str2$(i) + "$", value$)
+                        result = ReadConfigSetting(colorSchemesSection$, "Scheme" + str2$(i) + "$", value$)
                         IF value$ = "" OR value$ = "0" THEN EXIT DO
                     LOOP
 
@@ -11585,7 +11575,7 @@ FUNCTION idechoosecolorsbox
                     NEXT j
 
                     'Save user scheme
-                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", SchemeString$
+                    WriteConfigSetting colorSchemesSection$, "Scheme" + str2$(i) + "$", SchemeString$
                     LoadColorSchemes
                     SchemeID = PresetColorSchemes + i
                     ChangedScheme = -1
@@ -11623,7 +11613,7 @@ FUNCTION idechoosecolorsbox
                     NEXT j
 
                     'Save user scheme
-                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", SchemeString$
+                    WriteConfigSetting colorSchemesSection$, "Scheme" + str2$(i) + "$", SchemeString$
                     LoadColorSchemes
                     SchemeID = PresetColorSchemes + i
                     ChangedScheme = -1
@@ -11639,7 +11629,7 @@ FUNCTION idechoosecolorsbox
                     K$ = ""
                     IF what$ = "Y" THEN
                         i = SchemeID - PresetColorSchemes
-                        WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", "0"
+                        WriteConfigSetting colorSchemesSection$, "Scheme" + str2$(i) + "$", "0"
                         LoadColorSchemes
                         SchemeID = SchemeID - 1
                         ChangedScheme = -1
@@ -11898,7 +11888,7 @@ FUNCTION idechoosecolorsbox
             'save changes
             GOSUB enableHighlighter
 
-            WriteConfigSetting "'[IDE COLOR SETTINGS]", "SchemeID", str2$(SchemeID)
+            WriteConfigSetting colorSettingsSection$, "SchemeID", str2$(SchemeID)
             FOR i = 1 TO 9
                 SELECT CASE i
                     CASE 1: CurrentColor~& = IDETextColor: colorid$ = "TextColor"
@@ -11911,12 +11901,7 @@ FUNCTION idechoosecolorsbox
                     CASE 8: CurrentColor~& = IDEBackgroundColor2: colorid$ = "BackgroundColor2"
                     CASE 9: CurrentColor~& = IDEBracketHighlightColor: colorid$ = "HighlightColor"
                 END SELECT
-                r$ = str2$(_RED32(CurrentColor~&))
-                g$ = str2$(_GREEN32(CurrentColor~&))
-                b$ = str2$(_BLUE32(CurrentColor~&))
-
-                RGBString$ = "_RGB32(" + r$ + "," + g$ + "," + b$ + ")"
-                WriteConfigSetting "'[IDE COLOR SETTINGS]", colorid$, RGBString$
+                WriteConfigSetting colorSettingsSection$, colorid$, rgbs$(CurrentColor~&)
             NEXT i
 
             v% = o(5).sel
@@ -11924,9 +11909,9 @@ FUNCTION idechoosecolorsbox
             brackethighlight = v%
 
             IF brackethighlight THEN
-                WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "TRUE"
+                WriteConfigSetting generalSettingsSection$, "BracketHighlight", "True"
             ELSE
-                WriteConfigSetting "'[GENERAL SETTINGS]", "BracketHighlight", "FALSE"
+                WriteConfigSetting generalSettingsSection$, "BracketHighlight", "False"
             END IF
 
             v% = o(6).sel
@@ -11934,9 +11919,9 @@ FUNCTION idechoosecolorsbox
             multihighlight = v%
 
             IF multihighlight THEN
-                WriteConfigSetting "'[GENERAL SETTINGS]", "MultiHighlight", "TRUE"
+                WriteConfigSetting generalSettingsSection$, "MultiHighlight", "True"
             ELSE
-                WriteConfigSetting "'[GENERAL SETTINGS]", "MultiHighlight", "FALSE"
+                WriteConfigSetting generalSettingsSection$, "MultiHighlight", "False"
             END IF
 
             v% = o(7).sel
@@ -11944,9 +11929,9 @@ FUNCTION idechoosecolorsbox
             keywordHighlight = v%
 
             IF keywordHighlight THEN
-                WriteConfigSetting "'[GENERAL SETTINGS]", "KeywordHighlight", "TRUE"
+                WriteConfigSetting generalSettingsSection$, "KeywordHighlight", "True"
             ELSE
-                WriteConfigSetting "'[GENERAL SETTINGS]", "KeywordHighlight", "FALSE"
+                WriteConfigSetting generalSettingsSection$, "KeywordHighlight", "False"
             END IF
 
             EXIT FUNCTION
@@ -11974,7 +11959,7 @@ FUNCTION idechoosecolorsbox
     enableHighlighter:
     IF DisableSyntaxHighlighter THEN
         DisableSyntaxHighlighter = 0
-        WriteConfigSetting "'[GENERAL SETTINGS]", "DisableSyntaxHighlighter", "FALSE"
+        WriteConfigSetting generalSettingsSection$, "DisableSyntaxHighlighter", "False"
         menu$(OptionsMenuID, OptionsMenuDisableSyntax) = CHR$(7) + "Syntax #Highlighter"
     END IF
     RETURN
@@ -14449,7 +14434,7 @@ SUB LoadColorSchemes
     i = 0
     DO
         i = i + 1
-        result = ReadConfigSetting("Scheme" + str2$(i) + "$", value$)
+        result = ReadConfigSetting(colorSchemesSection$, "Scheme" + str2$(i) + "$", value$)
         IF result THEN
             TotalColorSchemes = TotalColorSchemes + 1
             IF TotalColorSchemes > UBOUND(ColorSchemes$) THEN
@@ -14468,7 +14453,7 @@ SUB LoadColorSchemes
                     temp$ = temp$ + MID$(value$, FoundPipe + 1, 9) + "069147216245128177"
                     temp$ = temp$ + MID$(value$, FoundPipe + 10) + "000147177"
                     ColorSchemes$(TotalColorSchemes) = temp$
-                    WriteConfigSetting "'[IDE COLOR SCHEMES]", "Scheme" + str2$(i) + "$", temp$
+                    WriteConfigSetting colorSchemesSection$, "Scheme" + str2$(i) + "$", temp$
                     LastValidColorScheme = TotalColorSchemes
                 ELSE
                     GOTO DiscardInvalid
