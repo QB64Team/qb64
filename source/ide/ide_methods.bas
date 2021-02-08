@@ -379,11 +379,10 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Toggles display of warning messages (unused variables, etc)"
         IF IgnoreWarnings THEN menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = CHR$(7) + "Ignore #Warnings"
 
-        OptionsMenuAutoComplete = i
-        menu$(m, i) = "Code Suggest#ions": i = i + 1
-        menuDesc$(m, i - 1) = "Toggles code suggestions/auto-complete"
-        IF IdeAutoComplete THEN menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
-
+        'OptionsMenuAutoComplete = i
+        'menu$(m, i) = "Code Suggest#ions": i = i + 1
+        'menuDesc$(m, i - 1) = "Toggles code suggestions/auto-complete"
+        'IF IdeAutoComplete THEN menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
 
         menusize(m) = i - 1
 
@@ -3588,30 +3587,30 @@ FUNCTION ide2 (ignore)
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
                     retval$ = idergbmixer$(0)
-                ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
-                    'close open block
-                    tempIndent$ = idegetline(idefocusline)
-                    tempIndent$ = SPACE$(LEN(tempIndent$) - LEN(LTRIM$(tempindent$)))
-                    IF idefocusline = definingtypeerror THEN
-                        idecx = LEN(tempIndent$) + 1
-                        insertAtCursor SCase$("End Type"): GOTO specialchar
-                    ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
-                        idecx = LEN(tempIndent$) + 1
-                        SELECT EVERYCASE controltype(controllevel)
-                            CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
-                            CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
-                            CASE 3, 4: insertAtCursor SCase$("Loop"): GOTO specialchar
-                            CASE 5: insertAtCursor SCase$("Wend"): GOTO specialchar
-                            CASE 6: insertAtCursor SCase$("$End If"): GOTO specialchar
-                            CASE 10 TO 19: insertAtCursor SCase$("End Select"): GOTO specialchar
-                            CASE 32
-                                IF LEFT$(subfunc, 4) = "SUB_" THEN
-                                    insertAtCursor SCase$("End Sub"): GOTO specialchar
-                                ELSE
-                                    insertAtCursor SCase$("End Function"): GOTO specialchar
-                                END IF
-                        END SELECT
-                    END IF
+                'ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
+                '    'close open block
+                '    tempIndent$ = idegetline(idefocusline)
+                '    tempIndent$ = SPACE$(LEN(tempIndent$) - LEN(LTRIM$(tempindent$)))
+                '    IF idefocusline = definingtypeerror THEN
+                '        idecx = LEN(tempIndent$) + 1
+                '        insertAtCursor SCase$("End Type"): GOTO specialchar
+                '    ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                '        idecx = LEN(tempIndent$) + 1
+                '        SELECT EVERYCASE controltype(controllevel)
+                '            CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
+                '            CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
+                '            CASE 3, 4: insertAtCursor SCase$("Loop"): GOTO specialchar
+                '            CASE 5: insertAtCursor SCase$("Wend"): GOTO specialchar
+                '            CASE 6: insertAtCursor SCase$("$End If"): GOTO specialchar
+                '            CASE 10 TO 19: insertAtCursor SCase$("End Select"): GOTO specialchar
+                '            CASE 32
+                '                IF LEFT$(subfunc, 4) = "SUB_" THEN
+                '                    insertAtCursor SCase$("End Sub"): GOTO specialchar
+                '                ELSE
+                '                    insertAtCursor SCase$("End Function"): GOTO specialchar
+                '                END IF
+                '        END SELECT
+                '    END IF
                 ELSE
                     IF ideselect THEN
                         IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
@@ -4779,21 +4778,21 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 17) = "Code Suggest#ions" THEN
-                PCOPY 2, 0
-                IF IdeAutoComplete = 0 THEN
-                    IdeAutoComplete = -1
-                    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
-                    menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
-                ELSE
-                    IdeAutoComplete = 0
-                    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
-                    menu$(OptionsMenuID, OptionsMenuAutoComplete) = "Code Suggest#ions"
-                END IF
-                idechangemade = 1
-                PCOPY 3, 0: SCREEN , , 3, 0
-                GOTO ideloop
-            END IF
+            'IF RIGHT$(menu$(m, s), 17) = "Code Suggest#ions" THEN
+            '    PCOPY 2, 0
+            '    IF IdeAutoComplete = 0 THEN
+            '        IdeAutoComplete = -1
+            '        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
+            '        menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
+            '    ELSE
+            '        IdeAutoComplete = 0
+            '        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
+            '        menu$(OptionsMenuID, OptionsMenuAutoComplete) = "Code Suggest#ions"
+            '    END IF
+            '    idechangemade = 1
+            '    PCOPY 3, 0: SCREEN , , 3, 0
+            '    GOTO ideloop
+            'END IF
 
             IF RIGHT$(menu$(m, s), 28) = "Output EXE to Source #Folder" THEN
                 PCOPY 2, 0
@@ -8224,7 +8223,8 @@ SUB ideshowtext
                     'an _RGB(, _RGB32(, _RGBA( or _RGBA32(, we'll offer the RGB
                     'color mixer.
                     a2$ = UCASE$(a$)
-                    IF IdeAutoComplete AND idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
+                    'IF IdeAutoComplete AND idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
+                    IF idecx = LEN(a$) + 1 AND idecx_comment + idecx_quote = 0 THEN
                         IF (RIGHT$(a2$, 5) = "_RGB(" OR _
                            RIGHT$(a2$, 7) = "_RGB32(" OR _
                            RIGHT$(a2$, 6) = "_RGBA(" OR _
@@ -8260,22 +8260,22 @@ SUB ideshowtext
                         f$ = p$ + ActiveINCLUDELinkFile
                         IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
                     END IF
-                ELSE
-                    temp_a$ = idegetline(idecy)
-                    IF IdeAutoComplete AND idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
-                        'some errors are mere blocks the user just opened and is still
-                        'working on. This bit will offer to close said blocks.
-                        IF idefocusline = definingtypeerror THEN
-                            shiftEnter_idecx = LEN(a$)
-                            a$ = a$ + " --> Shift+ENTER to close block"
-                        ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
-                            SELECT EVERYCASE controltype(controllevel)
-                                CASE 1 to 6,10 to 19,32
-                                    shiftEnter_idecx = LEN(a$)
-                                    a$ = a$ + " --> Shift+ENTER to close block"
-                            END SELECT
-                        END IF
-                    END IF
+                'ELSE
+                '    temp_a$ = idegetline(idecy)
+                '    IF IdeAutoComplete AND idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
+                '        'some errors are mere blocks the user just opened and is still
+                '        'working on. This bit will offer to close said blocks.
+                '        IF idefocusline = definingtypeerror THEN
+                '            shiftEnter_idecx = LEN(a$)
+                '            a$ = a$ + " --> Shift+ENTER to close block"
+                '        ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
+                '            SELECT EVERYCASE controltype(controllevel)
+                '                CASE 1 to 6,10 to 19,32
+                '                    shiftEnter_idecx = LEN(a$)
+                '                    a$ = a$ + " --> Shift+ENTER to close block"
+                '            END SELECT
+                '        END IF
+                '    END IF
                 END IF 'l = idecy
 
                 a2$ = SPACE$(idesx + (idewx - 3))

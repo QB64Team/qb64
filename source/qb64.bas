@@ -3621,7 +3621,8 @@ DO
             GOTO finishednonexec
         END IF
 
-        IF n < 3 THEN definingtypeerror = linenumber: a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
+        'IF n < 3 THEN definingtypeerror = linenumber: a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
+        IF n < 3 THEN a$ = "Expected element-name AS type or AS type element-list": GOTO errmes
         definingtype = 2
         IF firstelement$ = "AS" THEN
             l$ = SCase$("As")

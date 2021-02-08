@@ -14,7 +14,7 @@ DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
 DIM SHARED DisableSyntaxHighlighter AS _BYTE, ExeToSourceFolderFirstTimeMsg AS _BYTE
 DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE, ideautolayoutkwcapitals AS _BYTE
-DIM SHARED IdeAutoComplete AS _BYTE
+'DIM SHARED IdeAutoComplete AS _BYTE
 DIM SHARED windowSettingsSection$, colorSettingsSection$, customDictionarySection$
 DIM SHARED mouseSettingsSection$, generalSettingsSection$, displaySettingsSection$
 DIM SHARED colorSchemesSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
@@ -202,17 +202,17 @@ ELSE
     WriteConfigSetting generalSettingsSection$, "IgnoreWarnings", "False"
 END IF
 
-IF ReadConfigSetting(generalSettingsSection$, "IdeAutoComplete", value$) THEN
-    IF UCASE$(value$) = "TRUE" OR ABS(VAL(value$)) = 1 THEN
-        IdeAutoComplete = -1
-    ELSE
-        IdeAutoComplete = 0
-        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
-    END IF
-ELSE
-    IdeAutoComplete = -1
-    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
-END IF
+'IF ReadConfigSetting(generalSettingsSection$, "IdeAutoComplete", value$) THEN
+'    IF UCASE$(value$) = "TRUE" OR ABS(VAL(value$)) = 1 THEN
+'        IdeAutoComplete = -1
+'    ELSE
+'        IdeAutoComplete = 0
+'        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
+'    END IF
+'ELSE
+'    IdeAutoComplete = -1
+'    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
+'END IF
 
 result = ReadConfigSetting(generalSettingsSection$, "BackupSize", value$)
 idebackupsize = VAL(value$)
