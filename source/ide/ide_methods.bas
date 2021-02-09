@@ -8456,7 +8456,7 @@ SUB ideshowtext
                     IF sy1 = sy2 THEN 'single line select
                         COLOR 1, 7
                         x2 = idesx
-                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 1)
                             IF x2 >= sx1 AND x2 < sx2 THEN
                                 a = SCREEN(y + 3, x)
 
@@ -8533,7 +8533,7 @@ SUB ideshowtext
                     IF sy1 = sy2 THEN 'single line select
                         COLOR 1, 7
                         x2 = idesx
-                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 1)
                             IF x2 >= sx1 AND x2 < sx2 THEN
                                 a = SCREEN(y + 3, x): _PRINTSTRING (x, y + 3), CHR$(a)
                             END IF
