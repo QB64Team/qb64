@@ -11846,10 +11846,6 @@ IF idemode = 0 AND NOT QuietMode THEN
     END IF
 END IF
 
-'OPEN "unusedVariableList.txt" FOR OUTPUT AS #1: CLOSE #1
-'OPEN "unusedVariableList.txt" FOR BINARY AS #1
-'PUT #1, 1, usedVariableList$ 'warning$(1)
-'CLOSE #1
 IF NOT IgnoreWarnings THEN
     totalUnusedVariables = 0
     FOR i = 1 TO totalVariablesCreated
@@ -25462,16 +25458,16 @@ SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS 
             IF lastWarningHeader <> header$ THEN
                 lastWarningHeader = header$
                 GOSUB increaseWarningCount
-                warning$(warningListItems) = MKL$(0) + CHR$(2) + header$
+                warning$(warningListItems) = MKL$(0) + CHR$(255) + header$
             END IF
 
             GOSUB increaseWarningCount
             IF includeLevel > 0 THEN
                 thisincname$ = getfilepath$(incFileName$)
                 thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
-                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(2) + text$
+                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(255) + text$
             ELSE
-                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(2) + text$
+                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(255) + text$
             END IF
         END IF
     END IF

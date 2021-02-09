@@ -9242,7 +9242,7 @@ FUNCTION idewarningbox
         warningIncLevel = CVL(MID$(warning$(x), 5, 4))
         IF warningIncLevel > 0 THEN
             warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
-            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(2)) - 13)
+            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(255)) - 13)
             IF LEN(warningIncFiles(x)) > maxModuleNameLen THEN
                 maxModuleNameLen = LEN(warningIncFiles(x))
             END IF
@@ -9252,7 +9252,7 @@ FUNCTION idewarningbox
     'build list
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
-            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
+            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
@@ -9266,7 +9266,7 @@ FUNCTION idewarningbox
                 l3$ = l3$ + thisprog$ + SPACE$(maxModuleNameLen - LEN(thisprog$)) + ":" + CHR$(16) + CHR$(16) + num$
             END IF
             treeConnection = LEN(l$) + 1
-            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
+            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
