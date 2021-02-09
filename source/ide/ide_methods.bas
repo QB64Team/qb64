@@ -2768,6 +2768,7 @@ FUNCTION ide2 (ignore)
                         'a separate instance of QB64:
                         p$ = idepath$ + pathsep$
                         f$ = p$ + ActiveINCLUDELinkFile
+                        IF _FILEEXISTS(f$) = 0 THEN f$ = ActiveINCLUDELinkFile
                         IF _FILEEXISTS(f$) THEN
                             backupIncludeFile = FREEFILE
                             OPEN f$ FOR BINARY AS #backupIncludeFile
@@ -8258,7 +8259,9 @@ SUB ideshowtext
                         ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
                         p$ = idepath$ + pathsep$
                         f$ = p$ + ActiveINCLUDELinkFile
-                        IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                        IF _FILEEXISTS(f$) OR _FILEEXISTS(ActiveINCLUDELinkFile) THEN
+                            a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                        END IF
                     END IF
                 'ELSE
                 '    temp_a$ = idegetline(idecy)
