@@ -25083,9 +25083,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
                 while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
                 return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
-            #elif defined(QB64_GUI) && defined(QB64_GLUT)
-                while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
-                return glutGet(GLUT_WINDOW_X);
             #endif
             return 0; //if not windows then return 0
         }
@@ -25094,9 +25091,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
                 while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
                 return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
-            #elif defined(QB64_GUI) && defined(QB64_GLUT)
-                while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
-                return glutGet(GLUT_WINDOW_Y);
             #endif
             return 0; //if not windows then return 0
         }
