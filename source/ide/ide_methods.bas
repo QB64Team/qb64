@@ -14626,7 +14626,20 @@ FUNCTION getWordAtCursor$
             LOOP
             a2$ = MID$(a$, x1, x2 - x1 + 1)
         ELSE
-            a2$ = CHR$(ASC(a$, x))
+            symbol$ = CHR$(ASC(a$, x))
+            IF symbol$ = "~" THEN getWordAtCursor$ = "~": EXIT FUNCTION
+            IF symbol$ = "`" THEN getWordAtCursor$ = "`": EXIT FUNCTION
+            IF symbol$ = "%" AND MID$(a$, x + 1) = "&" THEN getWordAtCursor$ = "%&": EXIT FUNCTION
+            IF symbol$ = "&" AND MID$(a$, x - 1) = "%" THEN getWordAtCursor$ = "%&": EXIT FUNCTION
+            x1 = x
+            DO WHILE x1 > 1
+                IF MID$(a$, x1 - 1, 1) = symbol$ THEN x1 = x1 - 1 ELSE EXIT DO
+            LOOP
+            x2 = x
+            DO WHILE x2 < LEN(a$)
+                IF MID$(a$, x2 + 1, 1) = symbol$ THEN x2 = x2 + 1 ELSE EXIT DO
+            LOOP
+            a2$ = MID$(a$, x1, x2 - x1 + 1)
         END IF
         getWordAtCursor$ = a2$ 'a2$ now holds the word or character at current cursor position
     ELSEIF x = LEN(a$) + 1 AND x > 1 THEN
