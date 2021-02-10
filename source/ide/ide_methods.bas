@@ -2768,6 +2768,7 @@ FUNCTION ide2 (ignore)
                         'a separate instance of QB64:
                         p$ = idepath$ + pathsep$
                         f$ = p$ + ActiveINCLUDELinkFile
+                        IF _FILEEXISTS(f$) = 0 THEN f$ = ActiveINCLUDELinkFile
                         IF _FILEEXISTS(f$) THEN
                             backupIncludeFile = FREEFILE
                             OPEN f$ FOR BINARY AS #backupIncludeFile
@@ -8258,7 +8259,9 @@ SUB ideshowtext
                         ActiveINCLUDELinkFile = MID$(a$, FindApostrophe1 + 1, FindApostrophe2 - FindApostrophe1 - 1)
                         p$ = idepath$ + pathsep$
                         f$ = p$ + ActiveINCLUDELinkFile
-                        IF _FILEEXISTS(f$) THEN a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                        IF _FILEEXISTS(f$) OR _FILEEXISTS(ActiveINCLUDELinkFile) THEN
+                            a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
+                        END IF
                     END IF
                 'ELSE
                 '    temp_a$ = idegetline(idecy)
@@ -8453,7 +8456,7 @@ SUB ideshowtext
                     IF sy1 = sy2 THEN 'single line select
                         COLOR 1, 7
                         x2 = idesx
-                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 1)
                             IF x2 >= sx1 AND x2 < sx2 THEN
                                 a = SCREEN(y + 3, x)
 
@@ -8530,7 +8533,7 @@ SUB ideshowtext
                     IF sy1 = sy2 THEN 'single line select
                         COLOR 1, 7
                         x2 = idesx
-                        FOR x = 2 + maxLineNumberLength TO (idewx - 2)
+                        FOR x = 2 + maxLineNumberLength TO (idewx - 1)
                             IF x2 >= sx1 AND x2 < sx2 THEN
                                 a = SCREEN(y + 3, x): _PRINTSTRING (x, y + 3), CHR$(a)
                             END IF
@@ -9239,7 +9242,7 @@ FUNCTION idewarningbox
         warningIncLevel = CVL(MID$(warning$(x), 5, 4))
         IF warningIncLevel > 0 THEN
             warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
-            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(2)) - 13)
+            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(255)) - 13)
             IF LEN(warningIncFiles(x)) > maxModuleNameLen THEN
                 maxModuleNameLen = LEN(warningIncFiles(x))
             END IF
@@ -9249,7 +9252,7 @@ FUNCTION idewarningbox
     'build list
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
-            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
+            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
@@ -9263,7 +9266,7 @@ FUNCTION idewarningbox
                 l3$ = l3$ + thisprog$ + SPACE$(maxModuleNameLen - LEN(thisprog$)) + ":" + CHR$(16) + CHR$(16) + num$
             END IF
             treeConnection = LEN(l$) + 1
-            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(2)) + 1)
+            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
@@ -14623,7 +14626,20 @@ FUNCTION getWordAtCursor$
             LOOP
             a2$ = MID$(a$, x1, x2 - x1 + 1)
         ELSE
-            a2$ = CHR$(ASC(a$, x))
+            symbol$ = CHR$(ASC(a$, x))
+            IF symbol$ = "~" THEN getWordAtCursor$ = "~": EXIT FUNCTION
+            IF symbol$ = "`" THEN getWordAtCursor$ = "`": EXIT FUNCTION
+            IF symbol$ = "%" AND MID$(a$, x + 1) = "&" THEN getWordAtCursor$ = "%&": EXIT FUNCTION
+            IF symbol$ = "&" AND MID$(a$, x - 1) = "%" THEN getWordAtCursor$ = "%&": EXIT FUNCTION
+            x1 = x
+            DO WHILE x1 > 1
+                IF MID$(a$, x1 - 1, 1) = symbol$ THEN x1 = x1 - 1 ELSE EXIT DO
+            LOOP
+            x2 = x
+            DO WHILE x2 < LEN(a$)
+                IF MID$(a$, x2 + 1, 1) = symbol$ THEN x2 = x2 + 1 ELSE EXIT DO
+            LOOP
+            a2$ = MID$(a$, x1, x2 - x1 + 1)
         END IF
         getWordAtCursor$ = a2$ 'a2$ now holds the word or character at current cursor position
     ELSEIF x = LEN(a$) + 1 AND x > 1 THEN
