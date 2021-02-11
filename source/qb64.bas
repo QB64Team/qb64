@@ -7138,6 +7138,7 @@ DO
 
             IF UCASE$(n$) <> "AS" THEN
                 'traditional dim syntax for SHARED
+                newSharedSyntax = 0
                 s$ = removesymbol(n$)
                 IF Error_Happened THEN GOTO errmes
                 l2$ = s$ 'either symbol or nothing
@@ -7738,6 +7739,7 @@ DO
             IF e$ <> "AS" THEN
                 'no "AS", so this is the traditional dim syntax
                 dimnext:
+                newDimSyntax = 0
                 notype = 0
                 listarray = 0
 
@@ -8259,7 +8261,7 @@ DO
 
                     commonarraylisted:
 
-                    IF LEN(appendtype$) AND newDimSyntax = -1 THEN
+                    IF LEN(appendtype$) > 0 AND newDimSyntax = -1 THEN
                         IF LEN(dim2typepassback$) THEN appendtype$ = sp + SCase$("As") + sp + dim2typepassback$
                         IF newDimSyntaxTypePassBack = 0 THEN
                             newDimSyntaxTypePassBack = -1
@@ -8273,7 +8275,7 @@ DO
                         l$ = l$ + sp2 + getelements$(tlayout$, 2, n2)
                     END IF
 
-                    IF LEN(appendtype$) AND newDimSyntax = 0 THEN
+                    IF LEN(appendtype$) > 0 AND newDimSyntax = 0 THEN
                         IF LEN(dim2typepassback$) THEN appendtype$ = sp + SCase$("As") + sp + dim2typepassback$
                         l$ = l$ + appendtype$
                     END IF
@@ -14048,6 +14050,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 END IF
                 IF v&& < 1 OR v&& > 9999999999 THEN Give_Error "STRING * out-of-range constant": EXIT FUNCTION
                 bytes = v&&
+                dim2typepassback$ = SCase$("String * ") + constcname(i2)
                 GOTO constantlenstr
             END IF
 

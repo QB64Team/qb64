@@ -1318,11 +1318,11 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF mY = idewy + idesubwindow AND mX >= idewx - 22 - LEN(versionStringStatus$) AND mX < idewx - 22 THEN
+        IF mY = idewy + idesubwindow AND mX >= idewx - 21 - LEN(versionStringStatus$) AND mX < idewx - 21 THEN
             'Highlight Version Number
             IF VersionInfoHover = 0 THEN
                 COLOR 13, 6
-                _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
+                _PRINTSTRING (idewx - 21 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
                 updateHover = -1
                 VersionInfoHover = -1
             END IF
@@ -1332,7 +1332,7 @@ FUNCTION ide2 (ignore)
                 'Restore "Find" bg
                 VersionInfoHover = 0
                 COLOR 2, 3
-                _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
+                _PRINTSTRING (idewx - 21 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
                 updateHover = -1
             END IF
         END IF
@@ -8576,6 +8576,7 @@ SUB ideshowtext
         LSET b$ = c$
     END IF
     lineNumberStatus$ = a$ + ":" + b$
+    '_PRINTSTRING (idewx - 21, idewy + idesubwindow), CHR$(179)
     _PRINTSTRING (idewx - 20, idewy + idesubwindow), lineNumberStatus$
 
     SCREEN , , 0, 0: LOCATE idecy - idesy + 3, maxLineNumberLength + idecx - idesx + 2: SCREEN , , 3, 0
@@ -14347,12 +14348,14 @@ SUB UpdateIdeInfo
     COLOR 0, 3
     _PRINTSTRING (2, idewy + idesubwindow), a$
 
-    COLOR 2, 3
     IF LEN(versionStringStatus$) = 0 THEN
-        versionStringStatus$ = "v" + Version$
+        versionStringStatus$ = " v" + Version$
         IF LEN(AutoBuildMsg$) THEN versionStringStatus$ = versionStringStatus$ + MID$(AutoBuildMsg$, _INSTRREV(AutoBuildMsg$, " "))
+        versionStringStatus$ = versionStringStatus$ + " "
     END IF
-    _PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
+    '_PRINTSTRING (idewx - 22 - LEN(versionStringStatus$), idewy + idesubwindow), CHR$(179)
+    COLOR 2, 3
+    _PRINTSTRING (idewx - 21 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
 
     PCOPY 3, 0
 END SUB
