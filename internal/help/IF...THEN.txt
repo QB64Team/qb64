@@ -96,17 +96,17 @@
 ''Example 5:'' Using multiple IF options in a one line statement.
 {{CodeStart}} '' ''
 {{Cl|INPUT}} "Enter a number over or under 200: ", x
-{{Cl|IF...THEN|IF}} x > 200 {{Cl|THEN}} {{Cl|PRINT}} "High" {{Cl|{{Cl|ELSEIF}}}} x &lt; 0 {{Cl|THEN}} {{Cl|PRINT}} "Low" {{Cl|{{Cl|ELSE}}}} {{Cl|PRINT}} "OK"
+{{Cl|IF...THEN|IF}} x > 200 {{Cl|THEN}} {{Cl|PRINT}} "High" {{Cl|ELSEIF}} x &lt; 0 {{Cl|THEN}} {{Cl|PRINT}} "Low" {{Cl|ELSE}} {{Cl|PRINT}} "OK"
 '' ''
 {{CodeEnd}}
 
 
 ''Example 6:'' [[STRING]] values can be compared using greater than, less than, not equal to or equal to operators only.
 {{CodeStart}} '' ''
-PRINT "Press a letter key: ";
+{{Cl|PRINT}} "Press a letter key: ";
 Key$ = {{Cl|INPUT$}}(1)
-PRINT Key$ 
-IF Key$ >= {{Cl|CHR$}}(65) AND Key$ &lt;= {{Cl|CHR$}}(90) THEN PRINT "A to Z"
+{{Cl|PRINT}} Key$ 
+{{Cl|IF}} Key$ >= {{Cl|CHR$}}(65) {{Cl|AND}} Key$ &lt;= {{Cl|CHR$}}(90) {{Cl|THEN}} {{Cl|PRINT}} "A to Z"
 {{CodeEnd}}
 : ''Explanation:'' Long [[STRING]] expression values are compared by their cumulative [[ASCII]] code values.
 

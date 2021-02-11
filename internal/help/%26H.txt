@@ -48,31 +48,31 @@ Min _INTEGER64 value = 8000000000000000 with 16 digits
 
 ''Example 2:'' Converting a decimal number to a binary string value using [[HEX$]].
 {{CodeStart}} '' ''
-FUNCTION BIN$ (n&amp;)
+{{Cl|FUNCTION}} BIN$ (n&amp;)
   h$ = {{Cl|HEX$}}(n&amp;)                     'get hexadecimal string value
-  FOR i = 1 TO {{Cl|LEN}}(h$)              'scan the HEX$ digits
-    SELECT CASE {{Cl|MID$}}(h$, i, 1)      'read each HEX$ digit
-        CASE "0": b$ = b$ + "0000"
-        CASE "1": b$ = b$ + "0001"
-        CASE "2": b$ = b$ + "0010"
-        CASE "3": b$ = b$ + "0011"
-        CASE "4": b$ = b$ + "0100"
-        CASE "5": b$ = b$ + "0101"
-        CASE "6": b$ = b$ + "0110"
-        CASE "7": b$ = b$ + "0111"
-        CASE "8": b$ = b$ + "1000"
-        CASE "9": b$ = b$ + "1001"
-        CASE "A": b$ = b$ + "1010"
-        CASE "B": b$ = b$ + "1011"
-        CASE "C": b$ = b$ + "1100"
-        CASE "D": b$ = b$ + "1101"
-        CASE "E": b$ = b$ + "1110"
-        CASE "F": b$ = b$ + "1111"
-    END SELECT
-  NEXT i
-  b$ = {{Cl|RIGHT$}}(b$, LEN(b$) - {{Cl|INSTR}}(b$, "1") + 1)   'eliminate leading zeroes
-  IF {{Cl|VAL}}(b$) THEN BIN$ = b$ ELSE BIN$ = "0"       'return zero if n&amp; = 0
-END FUNCTION '' ''
+  {{Cl|FOR}} i = 1 {{Cl|TO}} {{Cl|LEN}}(h$)              'scan the HEX$ digits
+    {{Cl|SELECT CASE}} {{Cl|MID$}}(h$, i, 1)      'read each HEX$ digit
+        {{Cl|CASE}} "0": b$ = b$ + "0000"
+        {{Cl|CASE}} "1": b$ = b$ + "0001"
+        {{Cl|CASE}} "2": b$ = b$ + "0010"
+        {{Cl|CASE}} "3": b$ = b$ + "0011"
+        {{Cl|CASE}} "4": b$ = b$ + "0100"
+        {{Cl|CASE}} "5": b$ = b$ + "0101"
+        {{Cl|CASE}} "6": b$ = b$ + "0110"
+        {{Cl|CASE}} "7": b$ = b$ + "0111"
+        {{Cl|CASE}} "8": b$ = b$ + "1000"
+        {{Cl|CASE}} "9": b$ = b$ + "1001"
+        {{Cl|CASE}} "A": b$ = b$ + "1010"
+        {{Cl|CASE}} "B": b$ = b$ + "1011"
+        {{Cl|CASE}} "C": b$ = b$ + "1100"
+        {{Cl|CASE}} "D": b$ = b$ + "1101"
+        {{Cl|CASE}} "E": b$ = b$ + "1110"
+        {{Cl|CASE}} "F": b$ = b$ + "1111"
+    {{Cl|END SELECT}}
+  {{Cl|NEXT}} i
+  b$ = {{Cl|RIGHT$}}(b$, {{Cl|LEN}}(b$) - {{Cl|INSTR}}(b$, "1") + 1)   'eliminate leading zeroes
+  {{Cl|IF}} {{Cl|VAL}}(b$) {{Cl|THEN}} BIN$ = b$ {{Cl|ELSE}} BIN$ = "0"       'return zero if n&amp; = 0
+{{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 {{small|Code by CodeGuy}}
 :''Explanation:'' Hexadecimal digits can be any value up to 15 which also corresponds to all four bits on in binary. The function above just adds every four bit binary string value together to return the binary value. After they are concatenated, the leading bit on is found by [[INSTR]] and everything from that point is kept removing the leading "0"'s.

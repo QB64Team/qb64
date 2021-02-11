@@ -81,7 +81,7 @@ items% = ICO.Count
 ::* The [[LONG]] Data Offset value will indicate the byte position of the image bitmap header. Add one byte in QB and QB64.
 
 &lt;center>'''Bitmap Header Information'''&lt;/center>
-: The Bitmap header information is located one byte after the Data Offset position because Qbasic sets the first byte of a file as 1 instead of zero. This bitmap image information is identical to a bitmap image header's last 40 bytes, but the height is doubled.
+: The Bitmap header information is located one byte after the Data Offset position because QBasic sets the first byte of a file as 1 instead of zero. This bitmap image information is identical to a bitmap image header's last 40 bytes, but the height is doubled.
 
 ::* The [[LONG]] header size is always 40 bytes. This can be used to verify the start position of the header.
 ::* The [[LONG]] image width should be the same as the Entry header width.

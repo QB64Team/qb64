@@ -36,9 +36,9 @@
 ''Example 1:'' Using WHILE to clear the keyboard buffer.
 {{CodeStart}}
 
-DO WHILE {{Cl|INKEY$}} &lt;> "": LOOP ' checks evaluation before running loop code
+{{Cl|DO}} {{Cl|WHILE}} {{Cl|INKEY$}} &lt;> "": {{Cl|LOOP}} ' checks evaluation before running loop code
 
-DO: LOOP WHILE INKEY$ &lt;> "" ' checks evaluation after one run of loop code
+{{Cl|DO}}: {{Cl|LOOP}} {{Cl|WHILE}} {{Cl|INKEY$}} &lt;> "" ' checks evaluation after one run of loop code
 
 {{CodeEnd}}
 
@@ -46,9 +46,9 @@ DO: LOOP WHILE INKEY$ &lt;> "" ' checks evaluation after one run of loop code
 ''Example 2:'' Using UNTIL to clear the keyboard buffer.
 {{CodeStart}}
 
-DO UNTIL {{Cl|INKEY$}} = "": LOOP ' checks evaluation before running loop code
+{{Cl|DO}} {{Cl|UNTIL}} {{Cl|INKEY$}} = "": {{Cl|LOOP}} ' checks evaluation before running loop code
 
-DO: LOOP UNTIL {{Cl|INKEY$}} = "" ' checks evaluation after one run of loop code
+{{Cl|DO}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = "" ' checks evaluation after one run of loop code
 
 {{CodeEnd}}
 
@@ -64,70 +64,70 @@ CheckScreen filenm$
 
 {{Cl|DEFINT}} A-Z
 {{Cl|SUB}} CheckScreen (Filename$)        'find Screen mode (12 or 13) and image dimensions
-   DIM Bsv AS {{Cl|STRING}} * 1
-   DIM Header AS STRING * 6
+   {{Cl|DIM}} Bsv {{Cl|AS}} {{Cl|STRING}} * 1
+   {{Cl|DIM}} Header {{Cl|AS}} {{Cl|STRING}} * 6
 
    Scr = 0: MaxColors = 0
-   {{Cl|OPEN}} Filename$ FOR {{Cl|BINARY}} AS #1
+   {{Cl|OPEN}} Filename$ {{Cl|FOR (file statement)|FOR}} {{Cl|BINARY}} {{Cl|AS}} #1
 
    {{Cl|GET}} #1, , Bsv           '1 check for small 2 character
-   GET #1, , Header        '2 - 7 rest of file header
+   {{Cl|GET}} #1, , Header        '2 - 7 rest of file header
 
-   IF Bsv &lt;> {{Cl|CHR$}}(253) THEN   ' small 2 character denotes a {{Cl|BSAVE}} file
-      COLOR 12: LOCATE 15, 33: PRINT "Not a BSAVE file!": SLEEP 3: {{Cl|EXIT}} SUB
-   END IF
+   {{Cl|IF}} Bsv &lt;> {{Cl|CHR$}}(253) {{Cl|THEN}}   ' small 2 character denotes a {{Cl|BSAVE}} file
+      {{Cl|COLOR}} 12: {{Cl|LOCATE}} 15, 33: {{Cl|PRINT}} "Not a BSAVE file!": {{Cl|SLEEP}} 3: {{Cl|EXIT SUB}}
+   {{Cl|END IF}}
 
-   GET #1, , widN           '8 no color info bmp sizes
-   GET #1, , depN           '9   "        "      "
+   {{Cl|GET}} #1, , widN           '8 no color info bmp sizes
+   {{Cl|GET}} #1, , depN           '9   "        "      "
 
-DO
-  IF widN > 63 OR depN > 63 THEN {{Cl|EXIT DO}}  ' width and depth already found
+{{Cl|DO}}
+  {{Cl|IF}} widN > 63 {{Cl|OR}} depN > 63 {{Cl|THEN}} {{Cl|EXIT DO}}  ' width and depth already found
 
-  FOR i = 10 TO 55       'check for Screen 12 embedded colors
-    GET #1, , RGB
+  {{Cl|FOR}} i = 10 {{Cl|TO}} 55       'check for Screen 12 embedded colors
+    {{Cl|GET}} #1, , RGB
     tot12&amp; = tot12&amp; + RGB
     'PRINT i; RGB; : SOUND 300, 1         'test sound slows loop in QB
-    IF RGB > 63 OR RGB &lt; 0 THEN {{Cl|EXIT DO}}
-    IF i = 55 AND tot12&amp; = 0 THEN {{Cl|EXIT DO}}
-  NEXT
+    {{Cl|IF}} RGB > 63 {{Cl|OR}} RGB &lt; 0 {{Cl|THEN}} {{Cl|EXIT DO}}
+    {{Cl|IF}} i = 55 {{Cl|AND}} tot12&amp; = 0 {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|NEXT}}
 
-  GET #1, , wid12          '56
-  GET #1, , dep12          '57
-  IF wid12 > 63 OR dep12 > 63 THEN {{Cl|EXIT DO}}
+  {{Cl|GET}} #1, , wid12          '56
+  {{Cl|GET}} #1, , dep12          '57
+  {{Cl|IF}} wid12 > 63 {{Cl|OR}} dep12 > 63 {{Cl|THEN}} {{Cl|EXIT DO}}
 
-  FOR i = 58 TO 775      'check for Screen 13 embedded colors
-    GET #1, , RGB
+  {{Cl|FOR}} i = 58 TO 775      'check for Screen 13 embedded colors
+    {{Cl|GET}} #1, , RGB
     tot13&amp; = tot13&amp; + RGB
     'PRINT i; RGB; : SOUND 300, 1          'test
-    IF RGB > 63 OR RGB &lt; 0 THEN {{Cl|EXIT DO}}
-    IF i = 775 AND tot13&amp; = 0 THEN {{Cl|EXIT DO}}
-  NEXT
-  GET #1, , wid13          '776
-  GET #1, , dep13          '777
-LOOP {{Cl|UNTIL}} 1 = 1    'TRUE statement exits one-time LOOP
-CLOSE #1
+    {{Cl|IF}} RGB > 63 {{Cl|OR}} RGB &lt; 0 {{Cl|THEN}} {{Cl|EXIT DO}}
+    {{Cl|IF}} i = 775 {{Cl|AND}} tot13&amp; = 0 {{Cl|THEN}} {{Cl|EXIT DO}}
+  {{Cl|NEXT}}
+  {{Cl|GET}} #1, , wid13          '776
+  {{Cl|GET}} #1, , dep13          '777
+{{Cl|LOOP}} {{Cl|UNTIL}} 1 = 1    'TRUE statement exits one-time LOOP
+{{Cl|CLOSE}} #1
 
-COLOR 14: LOCATE 10, 25
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 10, 25
 {{Cl|SELECT CASE}} i
   {{Cl|CASE IS}} &lt; 56:
-   IF widN > 640 THEN
+   {{Cl|IF}} widN > 640 {{Cl|THEN}}
        Scr = 13: MaxColors = 0
-       PRINT "Default Screen 13:"; widN \ 8; "X"; depN
-   ELSE
-    LOCATE 10, 15
-    PRINT "Screen 12 ("; widN; "X"; depN; ") OR 13 ("; widN \ 8; "X"; depN; ")" 
-    DO: SOUND 600, 4
-       COLOR 13: LOCATE 12, 23  'ask if no data found. Prevents ERROR opening in wrong mode
+       {{Cl|PRINT}} "Default Screen 13:"; widN \ 8; "X"; depN
+   {{Cl|ELSE}}
+    {{Cl|LOCATE}} 10, 15
+    {{Cl|PRINT}} "Screen 12 ("; widN; "X"; depN; ") OR 13 ("; widN \ 8; "X"; depN; ")" 
+    {{Cl|DO}}: {{Cl|SOUND}} 600, 4
+       {{Cl|COLOR}} 13: {{Cl|LOCATE}} 12, 23  'ask if no data found. Prevents ERROR opening in wrong mode
        {{Cl|INPUT}} "Enter a Screen mode 12 or 13 : ", Scrn$  
-       Scr = VAL(Scrn$)
-    LOOP UNTIL Scr = 12 OR Scr = 13
-   END IF
-   IF Scr = 12 THEN MaxColors = 0: PWidth = widN: PDepth = depN
-   IF Scr = 13 THEN MaxColors = 0: PWidth = widN \ 8: PDepth = depN
+       Scr = {{Cl|VAL}}(Scrn$)
+    {{Cl|LOOP}} {{Cl|UNTIL}} Scr = 12 {{Cl|OR}} Scr = 13
+   {{Cl|END IF}}
+   {{Cl|IF}} Scr = 12 {{Cl|THEN}} MaxColors = 0: PWidth = widN: PDepth = depN
+   {{Cl|IF}} Scr = 13 {{Cl|THEN}} MaxColors = 0: PWidth = widN \ 8: PDepth = depN
   {{Cl|CASE}} 56 TO 775
-     PRINT "Custom Screen 12:"; wid12; "X"; dep12
+     {{Cl|PRINT}} "Custom Screen 12:"; wid12; "X"; dep12
      Scr = 12: MaxColors = 16: PWidth = wid12: PDepth = dep12
-  {{Cl|CASE}} 776: PRINT "Custom Screen 13:"; wid13 \ 8; "X"; dep13
+  {{Cl|CASE}} 776: {{Cl|PRINT}} "Custom Screen 13:"; wid13 \ 8; "X"; dep13
      Scr = 13: MaxColors = 256: PWidth = wid13 \ 8: PDepth = dep13
 {{Cl|END SELECT}}
 

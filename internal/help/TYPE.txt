@@ -22,6 +22,7 @@
 ::'''END TYPE'''
 
 
+{{PageDescription}}
 * Typename is an undefined type name holder as it can hold any variable types.
 * TYPE definitions are usually placed in the main module before the start of the program code execution.
 * TYPE definitions cam also be placed in [[SUB]] or [[FUNCTION]] procedures.
@@ -40,6 +41,7 @@
 {{DataTypeTable}}
 
 
+{{PageExamples}}
 ''Example 1:'' Creating a mouse [[INTERRUPT]] TYPE definition. Each [[INTEGER]] value is 2 bytes.
 {{CodeStart}}
  TYPE RegType
@@ -159,7 +161,7 @@ PRINT foobar.a, foobar.c.b
 {{CodeEnd}}
 :''Explanation:'' Use one [[GET]] to read all of the header information from the start of the bitmap file opened AS [[BINARY]]. It reads all 54 bytes as [[STRING]], [[INTEGER]] and [[LONG]] type DOT variable values. 
 
-:NOTE: BPP returns 4(16 colors), 8(256 colors) or 24(16 million colors) bits per pixel in Qbasic. 24 bit can only be in greyscale.  
+:NOTE: BPP returns 4(16 colors), 8(256 colors) or 24(16 million colors) bits per pixel in QBasic. 24 bit can only be in greyscale.  
 
 :Then use the DOT variable name values like this [[GET (graphics statement)]] after you load the bitmap image to the screen:
 
@@ -170,7 +172,7 @@ PRINT foobar.a, foobar.c.b
 :The bitmap image is now stored in an {{KW|Arrays|array}} to {{KW|BSAVE}} to a file. The RGB color information follows the file header as [[ASCII]] character values read using {{KW|ASC}}. The color values could be indexed at the start of the Array with the image being offset to: index = NumberOfColors * 3. As determined by the {{KW|SCREEN (statement)|SCREEN}} mode used. In SCREEN 13(256 colors) the index would be 768.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[DIM]], [[REDIM]]
 * [[INTEGER]], [[SINGLE]], [[DOUBLE]]
 * [[LONG]], [[_INTEGER64]], [[_FLOAT]]

@@ -17,7 +17,7 @@ The '''SCREEN''' function returns the [[ASCII]] code of a text character or the 
 * When the ''flag'' value is greater than 0 in '''SCREEN 0''', the function returns the foreground and background color attribute of text position.
 :: * The foreground color(0 to 15) is the returned SCREEN color value AND 15: '''{{text|FG &lt;nowiki>=&lt;/nowiki> SCREEN(1, 1, 1) AND 15|green}}'''
 :: * The background color(0 to 7) is the returned SCREEN color value \ 16: '''{{text|BG &lt;nowiki>=&lt;/nowiki> SCREEN(1, 1, 1) \ 16|green}}'''
-* '''QB64''' can return color values in screen modes other than [[SCREEN]] 0. Qbasic returned the wrong color values in graphic screen modes!
+* '''QB64''' can return color values in screen modes other than [[SCREEN]] 0. QBasic returned the wrong color values in graphic screen modes!
 
 
 ''Example 1:'' Finding the text foreground and background colors in SCREEN 0 only:
@@ -37,7 +37,7 @@ The '''SCREEN''' function returns the [[ASCII]] code of a text character or the 
 : ''Note:'' How the SCREEN 0 background color can only be changed to colors 0 through 7! 7 * 16 = 112.
 
 
-''Example 2:'' Reading the [[ASCII]] code and color of a text character using the SCREEN function. Graphic colors were not reliable in Qbasic!
+''Example 2:'' Reading the [[ASCII]] code and color of a text character using the SCREEN function. Graphic colors were not reliable in QBasic!
 {{CodeStart}} '' ''
 {{Cl|SCREEN (statement)|SCREEN}} 12
 row = 10: column = 10

@@ -91,9 +91,9 @@ The [[ASC]] function returns the [[ASCII]] code number of a certain [[STRING]] t
 {{PageExamples}}
 ''Example 1:'' How ASC can be used to find any ASCII code in a string of characters using QB64.
 {{CodeStart}} '' ''
- {{Cl|PRINT}} ASC("A")
- {{Cl|PRINT}} ASC("Be a rockstar")
- {{Cl|PRINT}} ASC("QB64 is not only COMPATIBLE, it can find any part of the string!", 18) '' ''
+ {{Cl|PRINT}} {{Cl|ASC}}("A")
+ {{Cl|PRINT}} {{Cl|ASC}}("Be a rockstar")
+ {{Cl|PRINT}} {{Cl|ASC}}("QB64 is not only COMPATIBLE, it can find any part of the string!", 18) '' ''
 {{CodeEnd}}
 
 ''Returns:''
@@ -114,8 +114,8 @@ The [[ASC]] function returns the [[ASCII]] code number of a certain [[STRING]] t
 Q$ = {{Cl|CHR$}}(34) ' quote character
 {{Cl|COLOR}} 10: {{Cl|LOCATE}} 5, 22: {{Cl|PRINT}} "Press some keys or combinations!"
 {{Cl|COLOR}} 13: {{Cl|LOCATE}} 23, 30: {{Cl|PRINT}} "Escape key Quits"
-DO
-   DO: {{Cl|SLEEP}}: key$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} key$ &lt;> "" ' prevent ASC empty string read error
+{{Cl|DO}}
+   {{Cl|DO}}: {{Cl|SLEEP}}: key$ = {{Cl|INKEY$}}: {{Cl|LOOP}} {{Cl|UNTIL}} key$ &lt;> "" ' prevent ASC empty string read error
    code% = {{Cl|ASC}}(key$): {{Cl|COLOR}} 11: {{Cl|LOCATE}} 10, 10
    {{Cl|IF...THEN|IF}} code% {{Cl|THEN}}    ' ASC returns any value greater than 0
     {{Cl|PRINT}} "{{Cl|CHR$}}(" + {{Cl|LTRIM$}}({{Cl|STR$}}(code%)) + ")" + {{Cl|SPACE$}}(13): 
@@ -133,18 +133,18 @@ DO
 
 ''Example 3:'' Reading only numerical values input by a program user.
 {{CodeStart}}
- DO: {{Cl|SLEEP}} ' requires a keypress to run loop once
-   K$ = {{Cl|{{Cl|INKEY$}}}}
+ {{Cl|DO}}: {{Cl|SLEEP}} ' requires a keypress to run loop once
+   K$ = {{Cl|INKEY$}}
    code = {{Cl|ASC}}(K$)
-   {{Cl|IF...THEN|IF}} code >= 48 {{Cl|AND (boolean)|AND}} code &lt;= 57 {{Cl|THEN}} entry$ = entry$ + {{Cl|{{Cl|CHR$}}}}(code) ' numbers only
-   {{Cl|IF...THEN|IF}} code = 46 {{Cl|AND (boolean)|AND}} flag = 0 {{Cl|THEN}} 
+   {{Cl|IF}} code >= 48 {{Cl|AND (boolean)|AND}} code &lt;= 57 {{Cl|THEN}} entry$ = entry$ + {{Cl|CHR$}}(code) ' numbers only
+   {{Cl|IF}} code = 46 {{Cl|AND (boolean)|AND}} flag = 0 {{Cl|THEN}} 
       entry$ = entry$ + K$: flag = 1: mark = {{Cl|LEN}}(entry$) ' decimal point
    {{Cl|END IF}}
-   L = {{Cl|{{Cl|LEN}}}}(entry$) ' check entry length for possible backspace
-   {{Cl|IF...THEN|IF}} code = 8 {{Cl|AND (boolean)|AND}} L > 0 {{Cl|THEN}} ' backspace pressed and entry has a length
-     entry$ = {{Cl|{{Cl|MID$}}}}(entry$, 1, L - 1) ' remove one character from entry$
-     {{Cl|IF...THEN|IF}} L - 1 &lt; mark {{Cl|THEN}} flag = 0 ' allow another decimal point if removed.
-     {{Cl|LOCATE}} 10, {{Cl|POS}}(0) - 1: {{Cl|PRINT}} {{Cl|{{Cl|SPACE$}}}}(1); ' remove character from screen
+   L = {{Cl|LEN}}(entry$) ' check entry length for possible backspace
+   {{Cl|IF}} code = 8 {{Cl|AND (boolean)|AND}} L > 0 {{Cl|THEN}} ' backspace pressed and entry has a length
+     entry$ = {{Cl|MID$}}(entry$, 1, L - 1) ' remove one character from entry$
+     {{Cl|IF}} L - 1 &lt; mark {{Cl|THEN}} flag = 0 ' allow another decimal point if removed.
+     {{Cl|LOCATE}} 10, {{Cl|POS}}(0) - 1: {{Cl|PRINT}} {{Cl|SPACE$}}(1); ' remove character from screen
    {{Cl|END IF}}
    {{Cl|LOCATE}} 10, 10: {{Cl|PRINT}} entry$; 
    ' display present entry to user(semicolon required for correct POS return)

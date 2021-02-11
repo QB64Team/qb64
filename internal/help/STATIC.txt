@@ -41,7 +41,7 @@ The {{KW|STATIC}} keyword is used in declaration statements to control where var
 {{Cl|IF...THEN|IF}} s$ = "" {{Cl|THEN}} Bin$ = "0" {{Cl|ELSE}} Bin$ = s$
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
-: ''Explanation:'' The [[FUNCTION]] above returns a [[STRING]] value representing the bits ON in an [[INTEGER]] value. The string can be printed to the screen to see what is happening in a port register. '''STATIC''' keeps the function from overloading the memory "Stack" and is normally REQUIRED when recursive calls are used in Qbasic! '''QB64 procedures will close without warning or error!'''
+: ''Explanation:'' The [[FUNCTION]] above returns a [[STRING]] value representing the bits ON in an [[INTEGER]] value. The string can be printed to the screen to see what is happening in a port register. '''STATIC''' keeps the function from overloading the memory "Stack" and is normally REQUIRED when recursive calls are used in QBasic! '''QB64 procedures will close without warning or error!'''
 
 
 ''Example 2:'' Using a static array to cache factorials, speeding up repeated calculations:

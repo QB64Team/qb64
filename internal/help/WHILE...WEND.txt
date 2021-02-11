@@ -12,7 +12,7 @@ The {{KW|WHILE...WEND}} statement is used to repeat a block of statements while 
 {{PageDescription}}
 * {{Parameter|condition}} is a numeric expression used to determine if the loop will execute.
 * {{Parameter|statements}} will execute repeatedly while {{Parameter|condition}} is a non-zero value.
-* [[EXIT]] WHILE can be used for emergency exits from the loop in QB64 only.
+* [[EXIT WHILE]] can be used for emergency exits from the loop in QB64 only.
 * A [[DO...LOOP]] can use the same DO WHILE condition to get the same results.
 * WHILE loops only run if the WHILE condition is True.
 
@@ -24,11 +24,11 @@ The {{KW|WHILE...WEND}} statement is used to repeat a block of statements while 
 ''Example 1:'' Reading an entire file. Example assumes the program has a [[OPEN|file opened]] as #1
 
 {{CodeStart}}  '' ''
-{{Cl|OPEN}} "Readme.txt" FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
+{{Cl|OPEN}} "Readme.txt" {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT}} {{Cl|AS}} #1
 {{Cl|WHILE...WEND|WHILE}} {{Cl|NOT}} {{Cl|EOF}}(1)
     {{Cl|_LIMIT}} 1                                    'limit line prints to one per second 
     {{Cl|LINE INPUT (file statement)|LINE INPUT #}}1, text$
-    IF {{Cl|INKEY$}} = {{Cl|CHR$}}(27) THEN {{Cl|EXIT}} {{Cl|WHILE}}        'ESC key exits
+    {{Cl|IF}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|EXIT WHILE}}        'ESC key exits
     {{Cl|PRINT}} text$
 {{Cl|WEND}} '' ''
 {{CodeEnd}}

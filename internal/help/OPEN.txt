@@ -22,7 +22,7 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 * '''QB64 will allocate 4 bytes of memory for every possible file number up to the highest number used in a program.'''
 * {{Parameter|mode}} defaults to RANDOM if the {{Parameter|mode}} or FOR access statement is omitted. (see open modes described below)
 * '''Only the {{Parameter|fileName$}}, {{Parameter|fileNumber&amp;}} and LEN = {{Parameter|recordLength}} values can use variable values in the QBasic syntax.'''
-* If [[LEN]] = is ommitted, sequential file record sizes default to 512 and [[RANDOM]] to 128 bytes in Qbasic.
+* If [[LEN]] = is ommitted, sequential file record sizes default to 512 and [[RANDOM]] to 128 bytes in QBasic.
 * {{Parameter|fileName$}} can be up to 255 characters with no limit on file name extension length in '''QB64'''. 
 * Once a file or port is opened, it can be used in any program procedure using the assigned file number. 
 * The '''"SCRN:"''' device is supported in '''version 1.000 and up''' (see Example 3).
@@ -68,8 +68,8 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 ''Example 1:'' Function that displays errors and the number of errors in QBasic filenames. Returns 0 when filename is OK.
 
 {{CodeStart}}
- file$ = "Hello,~1.mp3"      'example call below
- {{Cl|LOCATE}} 20, 30: errors% = CheckName%(file$): {{Cl|COLOR}} 14: {{Cl|PRINT}} "  Total Errors ="; errors% 
+file$ = "Hello,~1.mp3"      'example call below
+{{Cl|LOCATE}} 20, 30: errors% = CheckName%(file$): {{Cl|COLOR}} 14: {{Cl|PRINT}} "  Total Errors ="; errors% 
 
 {{Cl|FUNCTION}} CheckName% (Filename$)
   '{{Cl|NOT}}E: Function also displays filename errors so {{Cl|LOCATE}} on screen before call!
@@ -101,13 +101,13 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 ''Example 2:'' When '''OPEN "SCRN:" FOR OUTPUT AS #f''' is used, '''PRINT #f''' will print the text to the screen instead of to a file:
 {{CodeStart}} '' ''
 f% = {{Cl|FREEFILE}} 'should always be 1 at program start
-{{Cl|OPEN}} "SCRN:" {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #f%
+{{Cl|OPEN}} "SCRN:" {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #f%
 g% = {{Cl|FREEFILE}} 'should always be 2 after 1
-{{Cl|OPEN}} "temp.txt" {{Cl|FOR...NEXT|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #g%
+{{Cl|OPEN}} "temp.txt" {{Cl|FOR (file statement)|FOR}} {{Cl|OUTPUT}} {{Cl|AS}} #g%
 
 {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 2
     {{Cl|PRINT (file statement)|PRINT}} #i, "Hello World, Screen and File version"
-NEXT '' ''
+{{Cl|NEXT}} '' ''
 {{CodeEnd}}{{small|code by Steve McNeill}}
 : ''Note:'' Linux or Mac file names can use a path destination such as ".\SCRN:" to use SCRN: as an actual file name. 
 

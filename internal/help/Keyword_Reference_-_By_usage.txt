@@ -23,7 +23,7 @@
 * [[$DYNAMIC]] (metacommand) {{text|defines that all arrays are dynamic or changeable in size.}}
 * [[ERASE]] (array statement) {{text|clears a [[STATIC|static]] array of all values and totally removes a [[$DYNAMIC|dynamic]] array.}}
 * [[LBOUND]] (array function) {{text|returns the lowest valid index (lower boundary) of an [[arrays|array]].}}
-* [[OPTION BASE]] (statement) {{text|sets the default starting index of an array to 0 or 1.}}
+* [[OPTION BASE]] (precompiler statement) {{text|sets the default starting index of an array to 0 or 1.}}
 * [[OPTION _EXPLICIT]] (precompiler directive) {{text|instructs the compiler to require variable declaration with [[DIM]] or an equivalent statement.}}
 * [[OPTION _EXPLICITARRAY]] (precompiler directive) {{text|instructs the compiler to require array declaration with [[DIM]] or an equivalent statement.}} 
 * [[REDIM]] (statement) {{text|re-dimensions the number of elements in a [[$DYNAMIC|dynamic]](resizeable) [[arrays|array]] and defines the type.}}
@@ -144,7 +144,7 @@
 * [[DOUBLE]] {# numerical [[TYPE|type]]) {{text|an 8 byte floating decimal variable type with numerical values up to 15 decimal places.}}
 * [[INTEGER]] {% numerical [[TYPE|type]]) {{text|a two byte variable type with values from -32768 to 32767. [[_UNSIGNED|Unsigned]] to 65535.}}
 * [[LONG]] {&amp; numerical [[TYPE|type]]) {{text|Integer values can be from -2147483648 to 2147483647. [[_UNSIGNED]] values to 4294967295.}}
-* [[OPTION BASE]] (statement) {{text|sets the default starting index of an [[arrays|array]] to 0 or 1.}}
+* [[OPTION BASE]] (precompiler statement) {{text|sets the default starting index of an [[arrays|array]] to 0 or 1.}}
 * [[OPTION _EXPLICIT]] (precompiler directive) {{text|instructs the compiler to require variable declaration with [[DIM]] or an equivalent statement.}}
 * [[OPTION _EXPLICITARRAY]] (precompiler directive) {{text|instructs the compiler to require array declaration with [[DIM]] or an equivalent statement.}} 
 * [[REDIM]] {{text|defines and sizes a [[$DYNAMIC|dynamic]](changeable) array and can define the type of value returned.}}
@@ -260,7 +260,7 @@ The following table describes the error codes that are reported by the '''QB64''
 |-
 | 33 || Duplicate label || Line numbers or labels cannot be used twice in a procedure. || none
 |-
-| 35 || Subprogram not defined. || Often occurs when the Quickbasic Library is not used with [[CALL ABSOLUTE]] or [[INTERRUPT]] or a [[SUB]] or [[FUNCTION]] procedure has not been created for a [[CALL]]. || none
+| 35 || Subprogram not defined. || Often occurs when the QuickBASIC Library is not used with [[CALL ABSOLUTE]] or [[INTERRUPT]] or a [[SUB]] or [[FUNCTION]] procedure has not been created for a [[CALL]]. || none
 |-
 | 37 || Argument-count mismatch || The number of sub-procedure [[parameters]] do not match the call. || none
 |-
@@ -296,7 +296,7 @@ The following table describes the error codes that are reported by the '''QB64''
 |-
 | 64 || Bad file name || File name contains illegal characters or exceeds 12 characters. || none
 |-
-| 67 || Too many files || Over 15 files are open in Qbasic. || none
+| 67 || Too many files || Over 15 files are open in QBasic. || none
 |-
 | 68 || Device unavailable. || Device does not exist, busy or not connected. || none
 |-
@@ -921,7 +921,7 @@ The following table describes the error codes that are reported by the '''QB64''
 
 == Sub procedures and Functions == 
 
-&lt;center>'''Qbasic and QB64'''&lt;/center>
+&lt;center>'''QBasic and QB64'''&lt;/center>
 * [[CALL]] (statement) {{text|sends code execution to a [[SUB]] procedure in a program. Parameter brackets are required when used.}}
 * [[CALL ABSOLUTE|CALL ABSOLUTE]] (statement) {{text|used to access Interrupts on the computer or execute assembly type procedures.}}
 * [[CHAIN]] (statement) {{text|changes seamlessly from one program module to another.}}
@@ -1083,10 +1083,10 @@ The following table describes the error codes that are reported by the '''QB64''
 
 
 :'''Program Code Markers'''
-* [[Apostrophe|' Apostrophe]] denotes a program comment, to ignore a code line or a Qbasic [[Metacommand]]. Same as using [[REM]].
+* [[Apostrophe|' Apostrophe]] denotes a program comment, to ignore a code line or a QBasic [[Metacommand]]. Same as using [[REM]].
 * [[Comma|, Comma]] is a statement variable or [[DATA]], [[SUB]] or [[FUNCTION]] parameter separator. 
 * [[Colon|: Colon]]s can be used to separate two procedure statements on one code line.
-* [[Dollar_Sign|$ Dollar sign]] prefix denotes a Qbasic [[Metacommand]]. Only '''QB64''''s event [[$CHECKING]] should NOT be commented. 
+* [[Dollar_Sign|$ Dollar sign]] prefix denotes a QBasic [[Metacommand]]. Only '''QB64''''s event [[$CHECKING]] should NOT be commented. 
 * [[Parenthesis|( ) Parenthesis]] enclose a math or conditional procedure order, [[SUB]] or [[FUNCTION]] parameters or to pass by value.
 * [[+|+ Plus]] [[concatenation]] operator MUST be used to combine literal string values in a variable definition.
 * [[Quotation mark|" Quotation mark]] delimits the ends of a literal [[STRING]] value. Use [[CHR$]](34) to insert quotes in a text [[STRING]].

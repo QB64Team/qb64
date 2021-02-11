@@ -63,11 +63,11 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 
 ==Legacy Screen Modes==
 
-* '''[[SCREEN]] 0''' (default mode) is a '''text only''' screen mode. 64 (VGA) colors with hi-intensity(blinking) colors 16 to 31. ([[DAC]] attrib 6, 8 to 15). 8 Background colors intensities only(0 - 7). No graphics are possible! Normally runs in a window. ALT-Enter switches from a window to fullscreen. To automatically run in '''Qbasic''' fullscreen, use another Screen mode before using {{KW|SCREEN (statement)|SCREEN}} 0.  Can use {{KW|PCOPY}} with video pages 0 to 7. Text is 25, 43 or 50 rows by 40 or 80 columns. Default is 25 by 80. See {{KW|WIDTH}}.
+* '''[[SCREEN]] 0''' (default mode) is a '''text only''' screen mode. 64 (VGA) colors with hi-intensity(blinking) colors 16 to 31. ([[DAC]] attrib 6, 8 to 15). 8 Background colors intensities only(0 - 7). No graphics are possible! Normally runs in a window. ALT-Enter switches from a window to fullscreen. To automatically run in '''QBasic''' fullscreen, use another Screen mode before using {{KW|SCREEN (statement)|SCREEN}} 0.  Can use {{KW|PCOPY}} with video pages 0 to 7. Text is 25, 43 or 50 rows by 40 or 80 columns. Default is 25 by 80. See {{KW|WIDTH}}.
 
 : '''Note:''' Use [[OUT]] or [[_PALETTECOLOR]] to create higher intensity color backgrounds than [[COLOR]] , 7.  
 
-:::'''All other available [[SCREEN]] modes can use text and graphics and are fullscreen in Qbasic ONLY.''' 
+:::'''All other available [[SCREEN]] modes can use text and graphics and are fullscreen in QBasic ONLY.''' 
 
 * '''[[SCREEN]] 1''' has 4 background color attributes. 0 = black, 1 = blue, 2 = green, 3 = grey. White foreground only. Text is 25 by 40. White graphics is 320 by 200. 
 
@@ -114,7 +114,7 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 * The minimum on screen graphics pixel coordinates are 0 for columns and rows in the top left corner.
 * Maximum pixel coordinates are one less than the maximum dimensions above because the pixel count starts at 0.
 * Graphic objects such as [[PSET]], [[PRESET]], [[LINE]], [[CIRCLE]] and [[DRAW]] can be placed partially off of the screen.
-* [[GET (graphics statement)|GET]] and [[PUT (graphics statement)|PUT]] screen image operations MUST be located completely on the screen in Qbasic!
+* [[GET (graphics statement)|GET]] and [[PUT (graphics statement)|PUT]] screen image operations MUST be located completely on the screen in QBasic!
 * [[VIEW]] can be used to designate a graphic view port area of the screen.
 * [[WINDOW]] can be used to set the graphics SCREEN coordinates to almost any size needed. Use the SCREEN option for normal row coordinate values. Row coordinates are Cartesian(decrease in value going down the screen) otherwise.
 * In '''QB64''' the [[_WIDTH (function)|_WIDTH]] and [[_HEIGHT]] functions will return the graphic pixel dimensions in SCREENs other than 0.
@@ -134,7 +134,7 @@ The [[SCREEN]] statement sets the video display mode and size of the program win
 
 ==Examples==
 
-:''Example 1:'' Shows an example of each legacy screen mode available to Qbasic and QB64.
+:''Example 1:'' Shows an example of each legacy screen mode available to QBasic and QB64.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 0
 {{Cl|PRINT}} "This is {{Cl|SCREEN}} 0 - only text is allowed!"

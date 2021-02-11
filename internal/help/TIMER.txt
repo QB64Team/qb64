@@ -10,10 +10,10 @@ The '''TIMER''' function returns the number of seconds past the previous midnite
 
 * TIMER return values range from 0 at midnight to 86399! A comparison value must stay within that range!
 * [[INTEGER]] or [[LONG]] second values range from 0 at midnight to 86399 seconds each day.
-* Qbasic can return [[SINGLE]] values down to about .04 or 1/18th (one tick) of a second accurately. 
+* QBasic can return [[SINGLE]] values down to about .04 or 1/18th (one tick) of a second accurately. 
 * '''QB64''' can read [[DOUBLE]] ''accuracy'' down to 1 millisecond. Example: {{text|start# &lt;nowiki>=&lt;/nowiki> TIMER(.001)|green}} 
 * Use [[DOUBLE]] variables for millisecond accuracy as [[SINGLE]] values are only accurate to 100ths of a second later in the day!
-* TIMER loops should use a midnight adjustment to avoid non-ending loops in Qbasic. 
+* TIMER loops should use a midnight adjustment to avoid non-ending loops in QBasic. 
 * TIMER can also be used for timing program Events. See [[ON TIMER(n)]] or the [[TIMER (statement)]]
 * '''QB64''' can use a [[_DELAY]] down to .001(one millisecond) or [[_LIMIT]] loops per second. Both help limit program CPU usage.
 
@@ -22,7 +22,7 @@ The '''TIMER''' function returns the number of seconds past the previous midnite
 {{CodeStart}} '' ''
 {{Cl|DO...LOOP|DO}}
   {{Cl|PRINT}} "Hello";
-  Delay .5  'accuracy down to .05 seconds or 1/18th of a second in Qbasic
+  Delay .5  'accuracy down to .05 seconds or 1/18th of a second in QBasic
   {{Cl|PRINT}} "World!";
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27) 'escape key exit
 
