@@ -24,7 +24,7 @@ The [[MOD]] operator gives the remainder after division of one number by another
 {{CodeStart}}
   I% = 100 {{Cl|\}} 9 
   R% = 100 {{Cl|MOD}} 9
-  PRINT "Integer division ="; I%, "Remainder ="; R% 
+  {{Cl|PRINT}} "Integer division ="; I%, "Remainder ="; R% 
 {{CodeEnd}}
 {{OutputStart}}
   Integer division = 11        Remainder = 1 '' ''
@@ -38,27 +38,27 @@ The [[MOD]] operator gives the remainder after division of one number by another
 tmp1$ = " Normal:         ####.# / #### = ##.###   "
 tmp2$ = " Integer:        ####.# \ #### = ###      "
 tmp3$ = " Remainder:    ####.# MOD #### = ####     "
-FOR i = 1 TO 6
-   SELECT CASE i
-     CASE 1: numerator = 1: divisor = 5
-     CASE 2: numerator = 13: divisor = 10
-     CASE 3: numerator = 990: divisor = 100
-     CASE 4: numerator = 1100: divisor = 100
-     CASE 5: numerator = 4501: divisor = 1000
-     CASE 6: numerator = 50.6: divisor = 10
-   END SELECT
-LOCATE 5, 20: PRINT USING tmp1$; numerator; divisor; numerator / divisor
-LOCATE 7, 20: PRINT USING tmp2$; numerator; divisor; numerator \ divisor
-LOCATE 9, 20: PRINT USING tmp3$; numerator; divisor; numerator MOD divisor
-DO: SLEEP: LOOP UNTIL INKEY$ &lt;> ""                              
-NEXT '' ''
+{{Cl|FOR}} i = 1 {{Cl|TO}} 6
+   {{Cl|SELECT CASE}} i
+     {{Cl|CASE}} 1: numerator = 1: divisor = 5
+     {{Cl|CASE}} 2: numerator = 13: divisor = 10
+     {{Cl|CASE}} 3: numerator = 990: divisor = 100
+     {{Cl|CASE}} 4: numerator = 1100: divisor = 100
+     {{Cl|CASE}} 5: numerator = 4501: divisor = 1000
+     {{Cl|CASE}} 6: numerator = 50.6: divisor = 10
+   {{Cl|END SELECT}}
+{{Cl|LOCATE}} 5, 20: {{Cl|PRINT USING}} tmp1$; numerator; divisor; numerator / divisor
+{{Cl|LOCATE}} 7, 20: {{Cl|PRINT USING}} tmp2$; numerator; divisor; numerator \ divisor
+{{Cl|LOCATE}} 9, 20: {{Cl|PRINT USING}} tmp3$; numerator; divisor; numerator {{Cl|MOD}} divisor
+{{Cl|DO}}: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""                              
+{{Cl|NEXT}} '' ''
 {{CodeEnd}}
 
 
 ''Example 3:'' Integer division and MOD can be used to convert values to different base numbering systems from base 2 to 36 as [[STRING|strings]]:
 {{CodeStart}} '' ''
 {{Cl|CLS}}
-DO
+{{Cl|DO}}
   {{Cl|INPUT}} "Enter a base number system 2 to 36: ", b%
   {{Cl|IF...THEN|IF}} b% &lt; 2 {{Cl|OR (boolean)|OR}} b% > 36 {{Cl|THEN}} {{Cl|EXIT DO}}
   {{Cl|PRINT}} "Enter a positive value to convert: ";
@@ -78,7 +78,7 @@ DO
 {{Cl|FUNCTION}} BASEN$ (number&amp;, basenum%)
 {{Cl|IF...THEN|IF}} basenum% &lt; 2 {{Cl|OR (boolean)|OR}} basenum% > 36 {{Cl|OR (boolean)|OR}} number&amp; = 0 {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
 num&amp; = number&amp; 'protect value of number!
-DO
+{{Cl|DO}}
   remain% = {{Cl|ABS}}(num&amp;) {{Cl|MOD}} basenum% ' remainder is used to create actual digit 0 to Z
   num&amp; = num&amp; \ basenum% ' move up one exponent of base% with integer division
   {{Cl|IF...THEN|IF}} remain% > 9 {{Cl|THEN}}

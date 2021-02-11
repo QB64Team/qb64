@@ -1,0 +1,157 @@
+Any [[Expression|expression]], including [[CONST|constants]] and [[Variable|variables]] all have an associated type to describe their value. QB64 has various built-in data types used to represent number and text values. [[#Numeric types|Numeric types]] represent number values, while [[#String types|string types]] represent text values.
+
+==Numeric types==
+QB64 supports several numeric types, capable of representing a wide range of numbers. There are two kinds of numeric data type: ''integer types'' and ''floating-point types''.
+
+===Integer types===
+Integer types represent integer (whole number) values, such as 1 and 100. They are divided into two flavors: ''signed'' and ''unsigned''.
+
+====Signed Integer types====
+Signed integers can represent positive and negative integer (whole number) values, such as 3, 10 and -16. These values are stored as a series of bits in [http://en.wikipedia.org/wiki/Two%27s_complement two's complement form], a common representation that makes them both straightforward and efficient to perform calculations with.
+
+Signed integers are typically used in simple mathematical equations.
+
+The range of values that these types can represent is based on their size, in bits; the greater number of bits, the larger positive and lesser negative value the types can represent.
+
+The signed integer types are: [[_BYTE]], [[INTEGER]], [[LONG]], [[_INTEGER64]] and [[_OFFSET]]
+
+{{CodeStart}}DIM n AS INTEGER
+n = -1
+PRINT n
+{{CodeEnd}}
+{{OutputStart}}-1
+{{OutputEnd}}
+
+====Unsigned Integer types====
+Unsigned integers can represent positive integer values only, such as 3, 10 and 16. These values are also stored as a series of bits, but unlike signed integers, all of the bits contribute to their value. Thus, these types can represent larger positive integer values than their signed counterparts.
+
+Unsigned integers are typically used to represent a simple quantity, like a ''count'' or a ''length''. They are also often used as ''bit masks'', where certain bits that make up the value represent separate information (such as the state of one or more ''flags'').
+
+Types: [[_UNSIGNED]] [[_BYTE]], [[_UNSIGNED]] [[INTEGER]], [[_UNSIGNED]] [[LONG]], [[_UNSIGNED]] [[_INTEGER64]], [[_UNSIGNED]] [[_OFFSET]]
+
+
+{{CodeStart}}' display the largest value representable by an _UNSIGNED INTEGER:
+DIM n AS _UNSIGNED INTEGER
+n = -1
+PRINT n
+{{CodeEnd}}
+{{OutputStart}}65535
+{{OutputEnd}}
+
+
+====_OFFSET Integer types====
+
+Offset Integer types can be any byte size integer value that can be used to designate pointer offset positions in memory. DO NOT TRANSFER offset values to other Integer types!
+
+
+===Floating-point types===
+Floating-point types can represent both positive and negative number values, as well as fractional number values, such as 1.2 and -34.56.
+
+Floating-point types are used in mathematical equations where fractional precision is important, such as trigonometry.
+
+The floating-point types are: [[SINGLE]], [[DOUBLE]] and [[_FLOAT]].
+
+
+{{CodeStart}}f! = 76.0
+c! = (5.0 / 9.0) * (f! - 32.0)
+
+PRINT f! ; "degrees Fahrenheit is" ; c! ; "degrees Celcius."
+{{CodeEnd}}
+{{OutputStart}} 76 degrees Fahrenheit is 24.44444 degrees Celcius.
+{{OutputEnd}}
+
+==String types==
+QB64 has built-in support for strings, which are contiguous sequences of characters represented as &lt;tt>[[_UNSIGNED]] [[_BYTE]]&lt;/tt> values. Strings are usually used to store and manipulate text, but can also be used as a general storage area for arbitrary data (like a binary file).
+
+Strings have a property called ''length'', which is the number of characters currently stored in the string, and QB64 supports two kinds of string types based on this property: ''variable-length strings'' and ''fixed-length strings''.
+
+===Variable-length strings===
+
+Variable length strings are undefined length string variables. Fixed length strings MUST be defined in a program before they are used. Undefined strings can be up to 32767 characters in QBasic. 
+
+
+{{CodeStart}}
+ message$ = "Hello"
+ message$ = message$ + " world!" 'add to string variables using string concatenation only! 
+ PRINT message$
+{{CodeEnd}}
+{{OutputStart}}
+ Hello world!
+{{OutputEnd}}
+
+===Fixed-length strings===
+
+Fixed length strings must be defined in a {{KW|DIM}} statement, {{KW|SUB}} or {{KW|FUNCTION}} parameter or {{KW|TYPE}} definition. The designated multiple is the maximum number of {{KW|STRING}} character bytes that the variable or {{KW|Arrays|array}} can hold. Excess bytes will not be included. No error is created.
+
+
+{{CodeStart}}
+ DIM message AS STRING * 5
+ message$ = "Hello"
+ message$ = message$ + " world!"
+ PRINT message$
+{{CodeEnd}}
+{{OutputStart}}
+ Hello
+{{OutputEnd}}
+
+==Data type limits==
+The following table lists the numerical and string data types, their type suffix symbol, and the range of the values they can represent:
+
+
+'''Numerical types'''
+
+{| class="wikitable"
+!  Type Name !! Type suffix symbol !! Minimum value !! Maximum value !! Size in Bytes
+|-
+| _BIT                    || `  ||                        -1 ||                         0 || 1/8
+|-
+| _BIT|_BIT * n            || `n  ||                        -128 ||                         127 ||   n/8
+|-
+| _UNSIGNED _BIT      || ~`  ||                        0 ||                         1 || 1/8
+|-
+| _BYTE                    || %%  ||                        -128 ||                         127 || 1
+|-
+| _UNSIGNED _BYTE      || ~%% ||                           0 ||                         255 || 1
+|-
+| INTEGER                  || %   ||                     -32,768 ||                      32,767 || 2
+|-
+| _UNSIGNED INTEGER    || ~%  ||                           0 ||                      65,535 || 2
+|-
+| LONG                     || &amp;   ||              -2,147,483,648 ||               2,147,483,647 || 4
+|-
+| _UNSIGNED LONG       || ~&amp;  ||                           0 ||               4,294,967,295 || 4
+|-
+| _INTEGER64               || &amp;&amp;  ||  -9,223,372,036,854,775,808 ||  9,223,372,036,854,775,807 || 8
+|-
+| _UNSIGNED _INTEGER64 || ~&amp;&amp; ||                           0 ||  18,446,744,073,709,551,615 || 8
+|-
+| SINGLE                   || ! or none   ||               -2.802597E-45 ||               +3.402823E+38 || 4
+|-
+| DOUBLE                   || #   ||     -4.490656458412465E-324 ||     +1.797693134862310E+308 || 8
+|-
+| _FLOAT                   || ##  ||                 -1.18E−4932 ||                 +1.18E+4932 || 32(10 used)
+|-
+| _OFFSET                   || %&amp;  ||                 -9,223,372,036,854,775,808  ||  9,223,372,036,854,775,807 || Use LEN
+|-
+| _UNSIGNED _OFFSET     || ~%&amp;  ||                 0  ||  18,446,744,073,709,551,615 || Use LEN
+|-
+| _MEM                   || none  ||             combined memory variable type ||       N/A || Use LEN
+|}
+
+
+:''Note: For the floating-point numeric types [[SINGLE]] (default when not assigned), [[DOUBLE]] and [[_FLOAT]], the minimum values represent the smallest values closest to zero, while the maximum values represent the largest values closest to ±infinity. OFFSET dot values are used as a part of the [[_MEM]] variable type in QB64 to return or set the position in memory.''
+
+
+'''String text type'''
+{| class="wikitable"
+!       Type Name      !! Type suffix symbol !! Minimum length !! Maximum length || Size in Bytes
+|-
+|           STRING                || $ ||             0 ||                2,147,483,647  || Use LEN
+|-
+|          STRING|STRING * ''n''             || $''n'' ||          1 ||        2,147,483,647  || n
+|}
+
+
+&lt;center>''Note: For the fixed-length string type [[STRING|STRING * ''n'']], where ''n'' is an integer length value from 1 (one) to 2,147,483,647.&lt;/center>
+
+{{PageNavigation}}

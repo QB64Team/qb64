@@ -1,11 +1,11 @@
 The '''POINT''' function returns the pixel [[COLOR]] attribute at a specified graphics coordinate or the current graphic cursor position.
 
 
-''Color'' {{PageSyntax}} 
+== ''Color'' Syntax ==
 ::::color_attribute% = '''POINT ('''''column%, row%''''')'''
 
 
-''Graphic cursor position'' {{PageSyntax}} 
+== ''Graphic cursor position'' Syntax ==
 ::::pointer_coordinate% = '''POINT('''{0|1|2|3}''')'''
 
 
@@ -35,11 +35,11 @@ Graphic cursor position syntax:
 * '''POINT cannot be used in SCREEN 0!''' Use the [[SCREEN (function)|SCREEN]] function to point text character codes and colors in SCREEN 0.
 
 
-&lt;center>'''POINT in Qbasic Legacy Graphic SCREEN Modes:'''&lt;/center>
+&lt;center>'''POINT in QBasic Legacy Graphic SCREEN Modes:'''&lt;/center>
 * The [[INTEGER]] color attributes returned are limited by the number of colors in the legacy SCREEN mode used.
 * ''Column'' and ''row'' [[INTEGER]] parameters denote the graphic pixel coordinate to read.
 * In '''QB64''' the offscreen or off image value returned is -1. Use IF POINT(x, y) &lt;> -1 THEN...
-* In Qbasic the coordinates MUST be on the screen or an [[ERROR Codes|Illegal Function Call error]] will occur. 
+* In QBasic the coordinates MUST be on the screen or an [[ERROR Codes|Illegal Function Call error]] will occur. 
 
 
 &lt;center>'''POINT in QB64 32 Bit Graphic [[_NEWIMAGE]] or [[_LOADIMAGE]] Modes:'''&lt;/center>
@@ -72,7 +72,7 @@ _RGB OK
 
 
 
-''Example 2:'' Using a POINT mouse routine to get the 32 bit color values of the QB64 Bee. [http://www.qb64.net/forum/index.php Download image from top of Forum].
+''Example 2:'' Using a POINT mouse routine to get the 32 bit color values of an image.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 {{Cl|_TITLE}} "Mouse {{Cl|POINT}}er 32"
@@ -148,7 +148,6 @@ BG$ = {{Cl|UCASE$}}({{Cl|INPUT$}}(1))
 * [[SCREEN]], [[SCREEN (function)]] {{text|(text pointer function)}}
 * [[GET (graphics statement)]], [[PUT (graphics statement)]]
 * [[Bitmaps]], [[Creating Sprite Masks]], [[Text Using Graphics]] (Demo)
-* [http://www.qb64.net/forum/index.php?topic=11052.0 Reading pixel colors faster using _MEMIMAGE]
 
 
 {{PageNavigation}}

@@ -1,12 +1,56 @@
-qbs *_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME=NULL;
-if (!_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME)_FUNC_BACK2BACKNAME_STRING_BACK2BACKNAME=qbs_new(0,0);
-qbs*oldstr5699=NULL;
-if(_FUNC_BACK2BACKNAME_STRING_A->tmp||_FUNC_BACK2BACKNAME_STRING_A->fixed||_FUNC_BACK2BACKNAME_STRING_A->readonly){
-oldstr5699=_FUNC_BACK2BACKNAME_STRING_A;
-if (oldstr5699->cmem_descriptor){
-_FUNC_BACK2BACKNAME_STRING_A=qbs_new_cmem(oldstr5699->len,0);
-}else{
-_FUNC_BACK2BACKNAME_STRING_A=qbs_new(oldstr5699->len,0);
+qbs *_FUNC_GETSELECTEDTEXT_STRING_GETSELECTEDTEXT=NULL;
+if (!_FUNC_GETSELECTEDTEXT_STRING_GETSELECTEDTEXT)_FUNC_GETSELECTEDTEXT_STRING_GETSELECTEDTEXT=qbs_new(0,0);
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SY1=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SY1==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SY1=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SY1=0;
 }
-memcpy(_FUNC_BACK2BACKNAME_STRING_A->chr,oldstr5699->chr,oldstr5699->len);
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SY2=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SY2==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SY2=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SY2=0;
+}
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SX1=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SX1==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SX1=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SX1=0;
+}
+int32 *_FUNC_GETSELECTEDTEXT_LONG_SX2=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_SX2==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_SX2=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_SX2=0;
+}
+int32 *_FUNC_GETSELECTEDTEXT_LONG_Y=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_Y==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_Y=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_Y=0;
+}
+int64 fornext_value5422;
+int64 fornext_finalvalue5422;
+int64 fornext_step5422;
+uint8 fornext_step_negative5422;
+qbs *_FUNC_GETSELECTEDTEXT_STRING_A=NULL;
+if (!_FUNC_GETSELECTEDTEXT_STRING_A)_FUNC_GETSELECTEDTEXT_STRING_A=qbs_new(0,0);
+int32 *_FUNC_GETSELECTEDTEXT_LONG_X=NULL;
+if(_FUNC_GETSELECTEDTEXT_LONG_X==NULL){
+_FUNC_GETSELECTEDTEXT_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_GETSELECTEDTEXT_LONG_X=0;
+}
+int64 fornext_value5424;
+int64 fornext_finalvalue5424;
+int64 fornext_step5424;
+uint8 fornext_step_negative5424;
+byte_element_struct *byte_element_5425=NULL;
+if (!byte_element_5425){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5425=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5425=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_FUNC_GETSELECTEDTEXT_STRING_CLIP=NULL;
+if (!_FUNC_GETSELECTEDTEXT_STRING_CLIP)_FUNC_GETSELECTEDTEXT_STRING_CLIP=qbs_new(0,0);
+byte_element_struct *byte_element_5426=NULL;
+if (!byte_element_5426){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5426=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5426=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5427=NULL;
+if (!byte_element_5427){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5427=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5427=(byte_element_struct*)mem_static_malloc(12);
 }

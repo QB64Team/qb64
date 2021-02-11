@@ -14,9 +14,15 @@
 * $IF is the start of a precompiler code block which includes or excludes sections of code from being compiled.
 * There is no single line $IF statement.  $IF must be in a valid $IF THEN...$END IF block to work properly.
 * Like all other metacommands, you can not use more than one metacommand per line. '''Use of : to separate statements in a single line is not allowed.'''
-* Variable names can contain numbers, letters, and periods -- in any order.
-* Expressions can contain one set of leading and/or trailing quotes; and any number of numbers, letters, and periods, in any order.
-* The precompiler comes with some preset values which can be used to help determine which code blocks to include/exclude for us.  These are: '''WIN''' or '''WINDOWS''' if the user is running QB64 in a Windows environment.  '''LINUX''' if the user is running QB64 in a Linux environment.  '''MAC''' or '''MACOSX''' if the user is running QB64 in a macOS environment.  '''32BIT''' if the user is running a 32-bit version of QB64.  '''64BIT''' if the user is running a 64-bit version of QB64.
+* Variable names can contain numbers, letters and periods, in any order.
+* Expressions can contain one set of leading and/or trailing quotes; and any number of numbers, letters and periods, in any order.
+* The precompiler comes with some preset values which can be used to help determine which code blocks to include/exclude.  These are:
+** '''WIN''' or '''WINDOWS''' if the user is running QB64 in a Windows environment.
+** '''LINUX''' if the user is running QB64 in a Linux environment.
+** '''MAC''' or '''MACOSX''' if the user is running QB64 in a macOS environment.
+** '''32BIT''' if the user is running a 32-bit version of QB64.
+** '''64BIT''' if the user is running a 64-bit version of QB64.
+** '''VERSION''', which is set to the version of the QB64 compiler. This is a number and can be ordered, see example below.
 * [[$END IF]] denotes the end of a valid precompiler $IF block.
 * [[$ELSEIF]] must follow a valid $IF or $ELSEIF statement.
 * If [[$ELSE]] is used, it must be used as the last conditional check before $END IF.  $ELSEIF cannot come after $ELSE.
@@ -58,8 +64,19 @@ The [[$LET]] and $IF statements let the programmer control the code that actuall
 ''Explanation:'' For the above, the CONST slash is defined by the automatic internal flags which returns what operating system is being used at compile time. On a Windows PC, the Slash will be the backslash; for any other OS it will be the forward slash.
 
 
+''Example 3:''
+{{CodeStart}} '' ''
+{{Cl|$IF}} VERSION &lt; 1.5 THEN
+    {{Cl|$ERROR}} Requires QB64 version 1.5 or greater
+{{Cl|$END IF}}
+{{CodeEnd}}
+
+''Explanation:'' VERSION is a predefined variable that holds the QB64 compiler version. If we know our program needs features only available above a certain version, we can check for that and give the user a helpful error message instead of a confusing error elsewhere in the program.
+
+
 {{PageSeeAlso}}
 * [[$LET]]
+* [[$ERROR]]
 * [[Metacommand]]s
 
 

@@ -7,9 +7,8 @@ The [[_MOUSEMOVEMENTY]] function returns the relative vertical position of the m
 
 
 * Returns the relative vertical cursor pixel position compared to the previous cursor position. Negative values are up moves.
-* '''Note:''' A [[_MOUSESHOW]] statement will disable [[_MOUSEMOVEMENTX]] or [[_MOUSEMOVEMENTY]] relative mouse movement reads.
 * Can also be used to check for any mouse movements to enable a program or close [[Screen Saver Programs]].
-* Sets the mouse to a relative movement mode which can be read by [[_WHEEL]] instead of [[_AXIS]] as mouse [[_DEVICES|device]] 2.
+* On Windows only, [[_MOUSEMOVEMENTY]] will continue to track the mouse when it is outside the program window.
 
 
 ''Example:'' MOD is used to keep vertical movement of circle and cursor inside of the SCREEN 13 window(200). 

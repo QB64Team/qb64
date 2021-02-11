@@ -1,0 +1,37 @@
+Although you cannot use LPRINT if you are not using Windows, you can still send raw data to a printer by connecting to it using TCP/IP. The code below showcases how to do so.
+
+== Code ==
+
+{{CodeStart}}
+'TCP/IP Printing
+'********************************
+'this explains how to connect to a printer and send raw text to the printer
+'this is very useful to linux users who cant use the LPRINT command.
+'********************************
+{{Cl|DIM}} PrinterConnect {{Cl|AS}} {{Cl|LONG}}
+{{Cl|DIM}} CRLF AS {{Cl|STRING}}
+{{Cl|DIM}} CRFF AS {{Cl|STRING}}
+{{Cl|DIM}} LinePrint {{Cl|AS}} {{Cl|STRING}}
+CRLF$ = {{Cl|CHR$}}(13) + {{Cl|CHR$}}(10) ' end current print line and starts new line
+FF$ = {{Cl|CHR$}}(12) ' end current print line and finish printing
+CLS
+PrinterConnect = {{Cl|_OPENCLIENT}}("TCP/IP:9100:***.***.***.***") 'Replace asterisks with your printer's IP address. Opens a connection to your printer
+{{Cl|IF}} PrinterConnect {{Cl|THEN}}
+    {{Cl|PRINT}} "[Connected to " + {{Cl|_CONNECTIONADDRESS}}(PrinterConnect) + "]"
+{{Cl|ELSE}} {{Cl|PRINT}} "[Connection Failed!]"
+{{Cl|END}} {{Cl|IF}}
+
+printstring1$ = "this is a printed line" + CRLF$
+
+{{Cl|PRINT}}
+{{Cl|INPUT}} "please enter the name of the file you want to print>", FileName$
+{{Cl|OPEN}} FileName$ {{Cl|FOR}} {{Cl|INPUT}} {{Cl|AS}} #1
+{{Cl|DO}}
+    {{Cl|LINE}} {{Cl|INPUT}} #1, LinePrint$
+    PrintString$ = LinePrint$ + CRLF$
+    {{Cl|PUT}} #PrinterConnect, , PrintString$:
+LOOP UNTIL EOF(1)
+{{Cl|PUT}} #PrinterConnect, , FF$
+{{CodeEnd}}
+
+''Thanks to SpriggsySpriggs and Atomic Kevin for the code above''

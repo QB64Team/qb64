@@ -1,5 +1,5 @@
 qbs_free(__STRING_VERSION);
-qbs_free(__STRING_BUILDNUM);
+qbs_free(__STRING_DEVCHANNEL);
 qbs_free(__STRING_AUTOBUILDMSG);
 qbs_free(__STRING1_SP);
 qbs_free(__STRING1_SP2);
@@ -30,6 +30,13 @@ free((void*)(__ARRAY_INTEGER64_GL_DEFINES_VALUE[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER64_GL_DEFINES_VALUE)[8] );
+qbs_free(__STRING_CURRENTINIFILENAME);
+qbs_free(__STRING_INIWHOLEFILE);
+qbs_free(__STRING_INISECTIONDATA);
+qbs_free(__STRING_ININEWFILE);
+qbs_free(__STRING_INILASTSECTION);
+qbs_free(__STRING_INILASTKEY);
+qbs_free(__STRING_INILF);
 qbs_free(__STRING_CACHE_FOLDER);
 qbs_free(__STRING_HELP_TXT);
 qbs_free(__STRING_HELP_LINE);
@@ -115,14 +122,6 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_IDETXT[0]))[tmp_long]
 free((void*)(__ARRAY_STRING_IDETXT[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_IDETXT)[8] );
-if (__ARRAY_INTEGER_IDEALTCODE[2]&1){
-if (__ARRAY_INTEGER_IDEALTCODE[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_INTEGER_IDEALTCODE[0]));
-}else{
-free((void*)(__ARRAY_INTEGER_IDEALTCODE[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_IDEALTCODE)[8] );
 qbs_free(__STRING_IDEPROGNAME);
 qbs_free(__STRING_IDEPATH);
 qbs_free(__STRING_IDEFINDTEXT);
@@ -144,12 +143,21 @@ free((void*)(__ARRAY_LONG_QUICKNAVHISTORY[0]));
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_QUICKNAVHISTORY)[8] );
 qbs_free(__STRING_MODIFYCOMMAND);
 qbs_free(__STRING_ACTIVEINCLUDELINKFILE);
+qbs_free(__STRING_VERSIONSTRINGSTATUS);
+qbs_free(__STRING_LINENUMBERSTATUS);
+qbs_free(__STRING_IDECOMPILERERRORMESSAGE);
 if (__ARRAY_STRING_MENU[2]&1){
 tmp_long=__ARRAY_STRING_MENU[5]*__ARRAY_STRING_MENU[9];
 while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_MENU[0]))[tmp_long]);
 free((void*)(__ARRAY_STRING_MENU[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_MENU)[12] );
+if (__ARRAY_STRING_MENUDESC[2]&1){
+tmp_long=__ARRAY_STRING_MENUDESC[5]*__ARRAY_STRING_MENUDESC[9];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_MENUDESC[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_MENUDESC[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_MENUDESC)[12] );
 if (__ARRAY_LONG_MENUSIZE[2]&1){
 if (__ARRAY_LONG_MENUSIZE[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_MENUSIZE[0]));
@@ -249,7 +257,16 @@ free((void*)(__ARRAY_LONG_DEPENDENCY[0]));
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_DEPENDENCY)[8] );
 qbs_free(__STRING_WINDOWTITLE);
 qbs_free(__STRING_CMDLINEFILE);
-qbs_free(__STRING_USEDVARIABLELIST);
+if (__ARRAY_UDT_USEDVARIABLELIST[2]&1){
+tmp_long=__ARRAY_UDT_USEDVARIABLELIST[5];
+while(tmp_long--) {
+
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(296/8+1-1)*tmp_long+ 13));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(296/8+1-1)*tmp_long+ 21));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(296/8+1-1)*tmp_long+ 29));}
+free((void*)(__ARRAY_UDT_USEDVARIABLELIST[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8] );
 qbs_free(__STRING_LASTWARNINGHEADER);
 qbs_free(__STRING_QB64PREFIX);
 qbs_free(__STRING_VIFILEVERSIONNUM);
@@ -415,12 +432,18 @@ qbs_free(__STRING_IDERETURN);
 qbs_free(__STRING_IDEMESSAGE);
 qbs_free(__STRING_OUTPUTFILE_CMD);
 qbs_free(__STRING_COMPILELOG);
-qbs_free(__STRING_IDE_INDEX);
+qbs_free(__STRING_WINDOWSETTINGSSECTION);
+qbs_free(__STRING_COLORSETTINGSSECTION);
+qbs_free(__STRING_CUSTOMDICTIONARYSECTION);
+qbs_free(__STRING_MOUSESETTINGSSECTION);
+qbs_free(__STRING_GENERALSETTINGSSECTION);
+qbs_free(__STRING_DISPLAYSETTINGSSECTION);
+qbs_free(__STRING_COLORSCHEMESSECTION);
+qbs_free(__STRING_INIFOLDERINDEX);
+qbs_free(__STRING_DEBUGINFOINIWARNING);
 qbs_free(__STRING_CONFIGFILE);
-qbs_free(__STRING_CONFIGBAK);
 qbs_free(__STRING_VALUE);
 qbs_free(__STRING_TEMPLIST);
-qbs_free(__STRING_TEMP);
 qbs_free(__STRING_HASHFIND_NAME);
 if (__ARRAY_INTEGER_HASH1CHAR[2]&1){
 if (__ARRAY_INTEGER_HASH1CHAR[2]&4){
@@ -874,6 +897,7 @@ free((void*)(__ARRAY_STRING_WARNING[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_WARNING)[8] );
 qbs_free(__STRING_WHOLESTV);
+qbs_free(__STRING_TEMP);
 qbs_free(__STRING_L);
 qbs_free(__STRING_R);
 qbs_free(__STRING_L1);
@@ -889,11 +913,15 @@ qbs_free(__STRING_SIZ);
 qbs_free(__STRING_N);
 qbs_free(__STRING_T);
 qbs_free(__STRING_HASHNAME);
+qbs_free(__STRING_PREVIOUSELEMENT);
+qbs_free(__STRING_LASTELEMENT);
+qbs_free(__STRING_CN);
 qbs_free(__STRING_S);
 qbs_free(__STRING_READABLE_E);
 qbs_free(__STRING_E2);
 qbs_free(__STRING_E3);
 qbs_free(__STRING_TEMP1);
+qbs_free(__STRING_THISCONSTVAL);
 qbs_free(__STRING_SYMBOL);
 qbs_free(__STRING_ALIASNAME);
 qbs_free(__STRING_PARAMS);
@@ -920,6 +948,8 @@ qbs_free(__STRING_INCLINENUMP);
 qbs_free(__STRING_THISINCNAME);
 qbs_free(__STRING_E1);
 qbs_free(__STRING_AA);
+qbs_free(__STRING_NEXTELEMENT);
+qbs_free(__STRING_THISELEMENT);
 qbs_free(__STRING_LIBNAME);
 qbs_free(__STRING_HEADERNAME);
 qbs_free(__STRING_AUTOFORMAT_X);
@@ -953,6 +983,7 @@ qbs_free(__STRING_CT);
 qbs_free(__STRING_L2);
 qbs_free(__STRING_TS);
 qbs_free(__STRING_OLDSUBFUNC);
+qbs_free(__STRING_L3);
 qbs_free(__STRING_STRINGVARIABLE);
 qbs_free(__STRING_POSITION);
 qbs_free(__STRING_EXPRESSION);
@@ -979,7 +1010,6 @@ qbs_free(__STRING_VARSIZE);
 qbs_free(__STRING_VAROFFS);
 qbs_free(__STRING_ST);
 qbs_free(__STRING_BYTES);
-qbs_free(__STRING_CN);
 qbs_free(__STRING_NEXTCHAR);
 qbs_free(__STRING_TEXTVALUE);
 qbs_free(__STRING_DEST);
@@ -996,7 +1026,7 @@ qbs_free(__STRING_LAYOUTCOMMENT_BACKUP);
 qbs_free(__STRING_LAYOUT_BACKUP);
 qbs_free(__STRING_PUREVARNAME);
 qbs_free(__STRING_X1);
-qbs_free(__STRING_INTERNALVARNAME);
+qbs_free(__STRING_HEADER);
 qbs_free(__STRING_PATH__ASCII_CHR_046__OUT);
 qbs_free(__STRING_T__ASCII_CHR_046__PATH__ASCII_CHR_046__EXE);
 qbs_free(__STRING_DEFINES);
@@ -1012,6 +1042,7 @@ qbs_free(__STRING_DEPSTR);
 qbs_free(__STRING_LIBQB);
 qbs_free(__STRING_B);
 qbs_free(_FUNC_IDE2_STRING_MENULOCATIONS);
+qbs_free(_FUNC_IDE2_STRING_MATHEVALEXPR);
 qbs_free(_SUB_IDESHOWTEXT_STRING_PREVLISTOFCUSTOMWORDS);
 qbs_free(_SUB_IDEOBJUPDATE_STRING_SEARCHTERM);
 qbs_free(_SUB_GETINPUT_STRING_ASCVALUE);

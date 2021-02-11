@@ -7,7 +7,7 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 
 
 {{PageDescription}}
-* If the ''[[DOS]]Command$'' [[STRING]] parameter isn't used, the "command console" is opened.
+* If the ''DOSCommand$'' [[STRING]] parameter isn't used, the "command console" is opened and execution is halted until the user closes it manually.
 * If [[_DONTWAIT]] is used, the '''QB64''' program doesn't wait for the SHELLed program/command to end.
 * When the [[_HIDE]] action is used, the [[CONSOLE|console]] window is hidden and screen info can be "redirected" (using redirection characters like >) to a file (recommended).
 * Commands are external commands, according to the user's operating system, passed as [[STRING|strings]] enclosed in quotes or string variables.
@@ -23,7 +23,7 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 
 
 ==QBasic/QuickBASIC==
-* '''QBasic BAS files could be run like compiled programs without returning to the [[IDE]] when [[SYSTEM]] was used to [[END|end]] them.'''
+* '''QBasic BAS files could be run like compiled programs without returning to the IDE when [[SYSTEM]] was used to [[END|end]] them.'''
 * A user would invoke it with {{InlineCode}}SHELL "QB.EXE /L /RUN program.BAS"{{InlineCodeEnd}}
 
 
@@ -33,9 +33,10 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 {{Cl|SHELL}} {{Cl|_HIDE}} "dir " + {{Cl|CHR$}}(34) + "free cell.ico" + {{Cl|CHR$}}(34) + " /b > temp.dir" '' '' 
 {{Cl|SHELL}} "start Notepad temp.dir" ' display temp file contents in Notepad window '' ''
 {{CodeEnd}}
-:{{small|Contents of ''temp.dir'' text file:}}
-{{TextStart}}Free Cell.ico
-{{TextEnd}}
+:Contents of ''temp.dir'' text file:
+{{OutputStart}}
+Free Cell.ico
+{{OutputEnd}}
 
 
 ''Example 2:'' Opening a Windows program (Notepad) to read or print a Basic created text file.
@@ -57,20 +58,20 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 ''Example 3:'' Function that returns the program's current working path.
 {{CodeStart}}
  currentpath$ = Path$ ' function call saves a path for later program use
- PRINT currentpath$
+ {{Cl|PRINT}} currentpath$
 
  {{Cl|FUNCTION}} Path$   
-   {{Cl|SHELL}} {{Cl|_HIDE}} "CD > D0S-DATA.INF"   'code to hide window in '''QB64'''
-   {{Cl|OPEN}} "D0S-DATA.INF" FOR {{Cl|APPEND}} AS #1  'this may create the file
+   {{Cl|SHELL}} {{Cl|_HIDE}} "CD > D0S-DATA.INF"  'code to hide window in '''QB64'''
+   {{Cl|OPEN}} "D0S-DATA.INF" {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #1  'this may create the file
         L% = {{Cl|LOF}}(1)          'verify that file and data exist
    {{Cl|CLOSE}} #1   
    {{Cl|IF}} L% {{Cl|THEN}}                       'read file if it has data
-     {{Cl|OPEN}} "D0S-DATA.INF" FOR {{Cl|INPUT (file mode)|INPUT}} AS #1
+     {{Cl|OPEN}} "DOS-DATA.INF" {{Cl|FOR (file statement)|FOR}} {{Cl|INPUT (file mode)|INPUT}} {{Cl|AS}} #1
      {{Cl|LINE INPUT (file statement)|LINE INPUT}} #1, line$           'read only line in file
      Path$ = line$ + "\"            'add slash to path so only a filename needs added later
      {{Cl|CLOSE}} #1
    {{Cl|ELSE}} : Path = ""                 'returns zero length string if path not found
-   END IF
+   {{Cl|END IF}}
    {{Cl|KILL}} "D0S-DATA.INF"              'deleting the file is optional
  {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
@@ -82,7 +83,7 @@ The [[SHELL]] statement allows a program to run external programs or command lin
 ''Example 4:'' Determining if a drive or path exists. Cannot use with a file name specification.
 {{CodeStart}} '' ''
 {{Cl|LINE INPUT}} "Enter a drive or path (no file name): ", DirPath$
-{{Cl|IF}} PathExist%(DirPath$) {{Cl|THEN}} PRINT "Drive Path exists!" {{Cl|ELSE}} PRINT "Drive Path does not exist!"
+{{Cl|IF}} PathExist%(DirPath$) {{Cl|THEN}} {{Cl|PRINT}} "Drive Path exists!" {{Cl|ELSE}} PRINT "Drive Path does not exist!"
 {{Cl|END}}
 
 {{Cl|FUNCTION}} PathExist% (Path$)
@@ -91,39 +92,41 @@ PathExist% = 0
 {{Cl|IF}} {{Cl|LEN}}({{Cl|ENVIRON$}}("OS")) {{Cl|THEN}} CMD$ = "CMD /C " {{Cl|ELSE}} CMD$ = "COMMAND /C "
 {{Cl|SHELL}} {{Cl|_HIDE}} CMD$ + "If Exist " + Path$ + "\nul echo yes > D0S-DATA.INF"
 {{Cl|OPEN}} "D0S-DATA.INF" {{Cl|FOR (file statement)|FOR}} {{Cl|APPEND}} {{Cl|AS}} #1
-{{Cl|IF}} {{Cl|LOF}}(1) {{Cl|THEN}} PathExist% = -1             'yes will be in file if path exists
+{{Cl|IF}} {{Cl|LOF}}(1) {{Cl|THEN}} PathExist% = -1       'yes will be in file if path exists
 {{Cl|CLOSE}} #1
-{{Cl|KILL}} "D0S-DATA.INF"               'delete data file optional
+{{Cl|KILL}} "D0S-DATA.INF"                  'delete data file optional
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 {{small|Code by Ted Weissgerber}}
-:''Explanation: IF Exist'' checks for the drive path. ''\Nul'' allows an emply folder at end of path. ''Echo'' prints '''yes''' in the file if it exists.
+:''Explanation: IF Exist'' checks for the drive path. ''\Nul'' allows an empty folder at end of path. ''Echo'' prints '''yes''' in the file if it exists.
 : In '''QB64''' you can simply use the [[_FILEEXISTS]] statement for the same purpose of the example above.
 
 
 ''Snippet 1:'' When looking for '''printers''' this command gives you a file list with the default printer marked as '''TRUE''':
-{{TextStart}}{{Cb|SHELL}} {{Cb|_HIDE}} "CMD /C" + "wmic printer get name,default > default.txt"
-{{TextEnd}}
-'''Created file's text:'''
-{{TextStart}}Default  Name                           
+{{CodeStart}}
+{{Cl|SHELL}} {{Cl|_HIDE}} "CMD /C" + "wmic printer get name,default > default.txt"
+{{CodeEnd}}
+: Created file's text:
+{{OutputStart}}Default  Name                           
   FALSE    Microsoft XPS Document Writer 
   TRUE     HP Photosmart C7200 series     
   FALSE    HP Officejet Pro 8600         
   FALSE    Fax
-{{TextEnd}}
+{{OutputEnd}}
 : ''Explanation:'' [[LINE INPUT]] could be used to find the printer names as [[STRING]] variables.
 
 
 ''Snippet 2:'' Here is the code to set the default printer to the "HP Officejet Pro 8600":
-{{TextStart}}SHELL _HIDE "CMD /C" + "wmic printer where name='HP Officejet Pro 8600' call setdefaultprinter"
-{{TextEnd}}
-: After executing this program, and then running the first snippet again, we see the following '''contents of the text file:'''
-{{TextStart}}Default  Name 
+{{CodeStart}}
+{{Cl|SHELL}} {{Cl|_HIDE}} "CMD /C" + "wmic printer where name='HP Officejet Pro 8600' call setdefaultprinter"
+{{CodeEnd}}
+: After executing this program, and then running the first snippet again, we see the following contents of the text file:
+{{OutputStart}}Default  Name 
   FALSE    Microsoft XPS Document Writer 
   FALSE    HP Photosmart C7200 series     
   TRUE     HP Officejet Pro 8600         
   FALSE    Fax
-{{TextEnd}}
+{{OutputEnd}}
 
 
 ===More examples===
@@ -146,11 +149,6 @@ PathExist% = 0
 
 
 ===Extra reference===
-* [[DOS]], [[Batch Files]], [[VB Script]]
-* [[WGET]] {{text|(HTTP and FTP file transfer)}}
-* [http://www.computerhope.com/msdos.htm MSDOS commands], [[DOS#DIR|DIR]]
-* [http://www.pixelbeat.org/cmdline.html Linux Commands]
-* [http://ss64.com/osx/ Mac OSX commands]
 * [[Windows_Libraries#File_Dialog_Boxes|Windows Open and Save Dialog Boxes]]
 * [[C_Libraries#Console_Window|C Console Library]]
 * [[Windows Printer Settings]]

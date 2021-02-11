@@ -1,0 +1,77 @@
+A '''variable''' is a "container" name that can hold a numerical or string value which can be referenced or changed by the program (as opposed to [[CONST]]ant values which never change).
+
+
+&lt;center>'''Variable names'''&lt;/center>
+Variables in QB64 can be any name except the names of QB64 or QBasic keywords and may not contain spaces or non-alphabetical/non-numerical characters (except "." and "_"). Numerical characters cannot be  used as the first character of a variable or array name! '''QB64 reserves the use of a leading underscore to QB64 procedural or variable type names only!'''
+
+
+Variable values can be passed to sub-procedures by using the name as a [[SUB]] or [[FUNCTION]] parameter in a [[CALL]]. Variable names in the main program module can be passed to sub-procedures by using [[DIM]] [[SHARED]] without using them as [[CALL]] parameters.
+
+
+Variable names dimensioned in [[SUB]] or [[FUNCTION]] procedures can be the same as names used in the main procedure and can hold different values. [[SHARED]] sub-procedure variables can only be shared with the main program module! 
+
+
+Dot variable names are normally used with [[TYPE]] variable definitions. The first name before the dot is the name of the variable [[DIM|dimensioned]] [[AS]] the type. The name after the dot is the name of the variable assigned inside of the [[TYPE]].
+
+
+&lt;center>'''Variable types'''&lt;/center>
+Variables can be defined as a specific type using a variable type suffix or by using a [[DIM]] or [[REDIM]](for dynamic arrays only) statement [[AS]] a variable type of [[_BIT]], [[_BYTE]], [[INTEGER]], [[LONG]], [[SINGLE]], [[DOUBLE]], [[_INTEGER64]], [[_FLOAT]] or [[STRING]] in QB64. 
+
+
+Groups of variable names can be type defined by the first letter or list of letters of the names using [[DEFINT]], [[DEFLNG]], [[DEFSNG]], [[DEFDBL]], [[DEFSTR]] or [[_DEFINE]] [[AS]] in QB64.
+
+
+[[$DYNAMIC]] arrays can be resized and can retain their remaining element values when used with [[REDIM]] [[_PRESERVE]] in QB64. [[ERASE]] or [[CLEAR]] removes the array entirely from memory!
+
+
+[[$STATIC]] arrays cannot be resized, but cannot be removed either. [[ERASE]] or [[CLEAR]] will clear the array element values only!
+
+
+&lt;center>'''Variable values'''&lt;/center>
+All numerical variables default to 0 and all string variables default to "" at the start of a program and when first referenced inside of a [[SUB]] or [[FUNCTION]] procedure except when the variable is defined as a [[STATIC]] value.
+
+
+[[Arrays]] variable names can hold many values in one variable name by specifying a reference index enclosed in parentheses.
+
+
+[[STATIC]] sub-procedure values keep their value after the sub-procedure is exited. They will hold an empty value when first used.
+
+
+Variables are used to hold program data information that is attained through the program flow, either by user input, calculations or by other ways of communicaton (as with I/O, memory, TCP/IP or files).
+
+
+Assignment of variable values can be done using the = assignment symbol (variable1.number = 500, for example).
+
+
+To pass variable values to a sub-procedure without altering or affecting the variable name's value, parenthesis can be used around the variable name in the [[CALL]].
+
+
+{{PageExamples}}
+''Example of different usages of variables:''
+{{CodeStart}}
+max = 1000 
+{{Cl|DIM}} d(max) 
+{{Cl|FOR...NEXT|FOR}} c = 1 {{Cl|TO}} max 
+d(c) = c + d(c - 1) 
+{{Cl|NEXT}}
+{{Cl|PRINT}} "Show the result of the addition from 1 to n (1+2+3...+n)" 
+{{Cl|PRINT}} "n = (0-" + {{Cl|LTRIM$}}({{Cl|STR$}}(max)) + "): "; 
+{{Cl|INPUT}} "", n 
+{{Cl|IF...THEN|IF}} n &lt;= max {{Cl|AND (boolean)|AND}} n >= 0 {{Cl|THEN}} {{Cl|PRINT}} d(n) {{Cl|ELSE}} {{Cl|PRINT}} "Invalid value (only 0 to" + {{Cl|STR$}}(max) + " is permitted)." 
+{{CodeEnd}}
+
+{{OutputStart}}
+Show the result of the addition from 1 to n (1+2+3...+n)
+n = (1-1000): 10
+ 55
+{{OutputEnd}}
+
+
+
+
+
+{{PageSeeAlso}}
+* [[Argument]], [[Expression]], [[Arrays]]
+
+
+{{PageNavigation}}

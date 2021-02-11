@@ -15,113 +15,11 @@ The [[_OPENHOST]] function opens a Host which listens for new connections and re
 * [[CLOSE]] {{Parameter|hostHandle}} closes the host. A failed handle value of 0 does not need to be closed.
 
 
-{{PageExamples}}
-''Example:'' Chat program that attempts to connect as a Client. If not it attempts to become the Host.
-
-{{CodeStart}}
-
- {{Cl|PRINT}} "Mini Messenger"
- {{Cl|LOCATE}} , , 1 ' display the print cursor for INKEY$
- client = {{Cl|_OPENCLIENT}}("TCP/IP:7319:localhost") ' Attempt to connect to local host as a client 
- {{Cl|IF...THEN|IF}} client {{Cl|THEN}}
-  {{Cl|PRINT}} "[connected to " + {{Cl|_CONNECTIONADDRESS}}(client) + "]"
-  {{Cl|_TITLE}} "Client - Mini Messenger"
-  {{Cl|INPUT}} "Enter your name: ", myname$
-  {{Cl|PRINT (TCP/IP statement)|PRINT}} #client, myname$ + " connected!"
-  {{Cl|DO...LOOP|DO}}
-   GetMessage client
-   SendMessage myname$, mymessage$, client ' display current input on screen
-   {{Cl|_DELAY}} 0.01 ' reduce CPU usage
-  {{Cl|LOOP}}
- {{Cl|ELSE}} ' "if client" alternative to open a new Host
-  {{Cl|PRINT}} "[No existing host found]"
-  host = {{Cl|_OPENHOST}}("TCP/IP:7319") ' no host found, so begin new host
-  {{Cl|IF...THEN|IF}} host {{Cl|THEN}}
-   {{Cl|_TITLE}} "Host - Mini Messenger"
-   {{Cl|PRINT}} "[Beginning new host chat session!]"
-   {{Cl|DIM}} Users(1 to 1000) ' array to hold other client info
-   numclients = 0
-   client = {{Cl|_OPENCLIENT}}("TCP/IP:7319:localhost")
-   IF client = 0 THEN PRINT "ERROR: could not attach host's personal client to host!"
-   {{Cl|INPUT}} "Enter your name:", myname$
-   {{Cl|PRINT (TCP/IP statement)|PRINT}} #client, myname$ + " connected!"
-   {{Cl|PRINT}} "[Chat session active!]"
-   {{Cl|DO...LOOP|DO}} ' host main loop
-    newclient = {{Cl|_OPENCONNECTION}}(host) ' receive any new connection
-    {{Cl|IF...THEN|IF}} newclient {{Cl|THEN}}
-     numclients = numclients + 1
-     Users(numclients) = newclient
-     {{Cl|PRINT (TCP/IP statement)|PRINT}} #Users(numclients),"Welcome!"
-    {{Cl|END IF}}
-    {{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} numclients ' distribute incoming messages to all clients
-     {{Cl|IF...THEN|IF}} Users(i) {{Cl|THEN}}
-      {{Cl|INPUT (TCP/IP statement)|INPUT}} #Users(i), message$
-      {{Cl|IF...THEN|IF}} message$ &lt;> "" {{Cl|THEN}}
-       {{Cl|FOR...NEXT|FOR}} p = 1 {{Cl|TO}} numclients
-        {{Cl|IF...THEN|IF}} Users(p) {{Cl|THEN}} {{Cl|PRINT (TCP/IP statement)|PRINT}} #Users(p), message$
-       {{Cl|NEXT}} p
-      {{Cl|END IF}}
-     {{Cl|END IF}}
-    {{Cl|NEXT}} i
-    GetMessage client ' allow host to get messages and chat also
-    SendMessage myname$, mymessage$, client
-    {{Cl|_DELAY}} 0.01 ' reduce CPU usage
-   {{Cl|LOOP}}
-  {{Cl|END IF}} ' host 
-  {{Cl|PRINT}} "ERROR: Could not begin new host!" 
- {{Cl|END IF}} ' if client from start
- {{Cl|SLEEP}}
- {{Cl|SYSTEM}}
-
-   '.................... END OF MAIN PROGRAM ................
- 
-
- {{Cl|SUB}} GetMessage (client) ' get &amp; display any new message
-  {{Cl|INPUT (TCP/IP statement)|INPUT}} #client, newmessage$
-  {{Cl|IF...THEN|IF}} newmessage$ &lt;> "" {{Cl|THEN}}
-   {{Cl|VIEW PRINT}} 1 {{Cl|TO}} 23
-   {{Cl|LOCATE}} 23,1
-   {{Cl|PRINT}} newmessage$
-   {{Cl|VIEW PRINT}} 1 {{Cl|TO}} 24
-  {{Cl|END IF}}
- {{Cl|END SUB}}
-
- {{Cl|SUB}} SendMessage (myname$, mymessage$, client) ' simple input handler
-  k$ = {{Cl|INKEY$}}
-  {{Cl|IF...THEN|IF}} {{Cl|LEN}}(k$) {{Cl|THEN}}
-   {{Cl|IF...THEN|IF}} k$ = {{Cl|CHR$}}(8) {{Cl|AND (boolean)|AND}} [[LEN]](mymessage$) &lt;> 0 {{Cl|THEN}}
-    mymessage$ = {{Cl|LEFT$}}(mymessage$, {{Cl|LEN}}(mymessage$) - 1)
-   {{Cl|ELSE}}
-    {{Cl|IF...THEN|IF}} {{Cl|LEN}}(k$) = 1 {{Cl|AND (boolean)|AND}} {{Cl|ASC}}(k$) >= 32 {{Cl|THEN}} mymessage$ = mymessage$ + k$
-   {{Cl|END IF}}
-  {{Cl|END IF}}
-  {{Cl|LOCATE}} 24, 1: {{Cl|PRINT}} {{Cl|SPACE$}}(80); ' erase previous message displayed
-  {{Cl|LOCATE}} 24, 1: {{Cl|PRINT}} myname$ + ": ";mymessage$;
-  {{Cl|IF...THEN|IF}} k$ = {{Cl|CHR$}}(13) {{Cl|THEN}} ' [Enter] sends the message
-   {{Cl|IF...THEN|IF}} mymessage$ = "" {{Cl|THEN}} {{Cl|SYSTEM}} ' [Enter] with no message ends program
-   {{Cl|PRINT (TCP/IP statement)|PRINT}} #client, myname$ + ": " + mymessage$
-   mymessage$ = ""
-  {{Cl|END IF}}
-  {{Cl|IF...THEN|IF}} k$ = {{Cl|CHR$}}(27) {{Cl|THEN}} {{Cl|SYSTEM}} ' [Esc] key ends program
- {{Cl|END SUB}}
-
-{{CodeEnd}}
-{{OutputStart}}
-Mini Messenger
-[No existing host found]
-[Beginning new host chat session!]
-Enter your name:_
-{{OutputEnd}}
-
-''Explanation:'' The SendMessage SUB program controls the program exit unless both Client and Host fail. Entering no message and hitting [Enter] or pressing the [Esc]] key closes the program. Both SUB programs allow a Client or Host to communicate with others simply. {{KW|INPUT (TCP/IP statement)|INPUT #}} is used to read messages and {{KW|PRINT (TCP/IP statement)|PRINT #}} is used to send messages. The client handle value is used as the port number. Keep in mind that this is just an example. A lot could be added, like recording IP addresses.
-&lt;center>'''To manage the users array, see the [[_CONNECTED]] page example.'''&lt;/center>
-
 
 {{PageSeeAlso}}
 * [[_OPENCONNECTION]], [[_OPENCLIENT]]
 * [[_CONNECTED]], [[_CONNECTIONADDRESS]]
 * [[Email Demo]], [[Inter-Program Data Sharing Demo]] 
-* [[IP Configuration]], [[WGET]] {{text|(HTTP and FTP file transfer)}}
 * [[Downloading Files]]
 
 

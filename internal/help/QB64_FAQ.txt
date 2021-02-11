@@ -1,5 +1,5 @@
 {| align="center"
-  | __TOC__
+  |__TOC__
   |}
 
 
@@ -11,7 +11,7 @@ As with everything else, this list will be updated to correspond to new progress
 
 ==Q: What is QB64?==
 
-A: '''QB64''' is a BASIC compatible Editor and C++ emitter that creates working Executable files from Qbasic BAS files that can be run on 32 or 64 bit PC's using '''Windows''' (XP to 10), '''Linux''' or '''macOS'''. The goal is to be 100% compatible with QuickBasic 4.5 plus add hundreds of new abilities such as program icons and custom sized windows and a great retro [[IDE|Editor]] with builtin help. 
+A: '''QB64''' is a BASIC compatible Editor and C++ emitter that creates working Executable files from QBasic BAS files that can be run on 32 or 64 bit PC's using '''Windows''' (XP to 10), '''Linux''' or '''macOS'''. The goal is to be 100% compatible with QuickBASIC 4.5 plus add hundreds of new abilities such as program icons and custom sized windows and a great retro Editor with builtin help. 
 
 
 The '''new keywords''' add some '''new features''' such as playing '''music or sound''' files and instant access to '''32 bit graphics''' file images. Also '''TCP/IP''' internet communication is available to '''download''' files, '''email''' messages over the web or play '''internet games'''. '''DLL Libraries''' can add more programming options and QB64 can access all of the new USB gaming '''controllers''' and '''printers'''.
@@ -63,14 +63,16 @@ The modern statements are designed to go along with the BASIC philosophy and exp
 A: QB64 supports the following Operating Systems:
 
 &lt;center>'''Windows NT (XP), Windows Vista, Windows 7, 8 or 10:'''&lt;/center>
-:'''1)''' Download the appropriate package according to your system from [http://www.qb64.org QB64.org]
-:'''2)''' Unpack the contents to any location on your computer. Avoid unpacking to Program Files or other system folders that may require administrative privileges. QB64 need to have full write permissions to its own folder.
 
-:* Executable programs are portable between like systems by copying the stand-alone executable file.
+:'''1)''' Download the appropriate package according to your system from [http://www.qb64.org QB64.org]
+:'''2)''' Unpack the contents to any location on your computer. Avoid unpacking to Program Files or other system folders that may require administrative privileges. QB64 needs to have full write permissions to its own folder.
+
+:*Executable programs are portable between like systems by copying the stand-alone executable file.
 
 
 ----
 &lt;center>'''Most distributions of Linux, both 32 and 64 bit'''&lt;/center>
+
 :'''1)''' Download the appropriate package according to your system from [http://www.qb64.org QB64.org]
 :'''2)''' After extracting the downloaded package, run the installation batch/script called ''./setup_lnx.sh'' in the main ''qb64'' folder to setup QB64.
 :'''3)'''  Most dependencies should be automatically downloaded by the setup script, but these are the ones you should look for if compilation fails: OpenGL developement libraries, ALSA development libraries, GNU C++ Compiler (g++)
@@ -84,15 +86,16 @@ A: QB64 supports the following Operating Systems:
 
 ----
 &lt;center>'''macOS'''&lt;/center>
+
 :'''1)''' You must install Apple's '''Xcode command line tools''' for C++ compilation from their website. The simplest way to do so is opening a terminal window and typing the following command: '''xcode-select --install''' (more info here: [http://developer.apple.com/technologies/tools/xcode.html Xcode download])
-:     (you won't be using the Xcode interface, QB64 just needs to have access to the C++ compiler and libraries it installs)
+:    (you won't be using the Xcode interface, QB64 just needs to have access to the C++ compiler and libraries it installs)
 :'''3)''' Download the appropriate package according to your system from [http://www.qb64.org QB64.org]
-:     Extract the downloaded package and run ''./setup_osx.command'', found within the QB64 folder to install the QB64 compiler.
+:    Extract the downloaded package and run ''./setup_osx.command'', found within the QB64 folder to install the QB64 compiler.
 
 &lt;center>'''After installation you should run '''./qb64''' or '''./qb64_start_osx.command''' to run qb64.'''&lt;/center>
 
-:* Executable programs are portable between macOS systems by copying the executable file.
-:* To help launch executables without a console, a file called ''programname_start.command'' is created along with the program.
+:*Executable programs are portable between macOS systems by copying the executable file.
+:*To help launch executables without a console, a file called ''programname_start.command'' is created along with the program.
 &lt;center>'''Note: Some QB64 keywords and procedures are not available for macOS.'''&lt;/center>
 
 
@@ -106,9 +109,9 @@ A: QB64 supports the following Operating Systems:
 ==Q: Why won't QB64 work on my computer?==
 QB64 currently supports Windows versions from XP to the latest version. Most Linux and macOS versions are also supported.
 
-: '''Don't move QB64 executable out of the QB64 folder. The various sub-folders hold the C++ compiler files and libraries.'''
+:'''Don't move QB64 executable out of the QB64 folder. The various sub-folders hold the C++ compiler files and libraries.'''
 
-: '''QB64 does not change any settings on your machine. All required files are in the QB64 folder.'''
+:'''QB64 does not change any settings on your machine. All required files are in the QB64 folder.'''
 
 
 &lt;p style="text-align: center">([[#toc|Return to FAQ topics]])&lt;/p>
@@ -123,13 +126,13 @@ See: [[Keywords currently not supported by QB64]]
 
 You should be careful with '''CPU usage'''. QB64 is a lot faster than QBasic was and it does not have many of the size limitations that confined QBasic programming abilities. Having said that, '''care must be taken to assure that programs do not hog resources.''' To do that, use speed limits when possible to keep the resources used to a minimum. Also, '''Monitor Task Manager''' when your programs are running, as it can tell you how much or system resources are being used in different parts of a program. The following keywords can lower the impact of your programs on those resources by releasing them to other programs:
 
-:::::* [[_LIMIT]]: Limits the loops per second in any loop and thus lowers the overall CPU usage.
+:::::*[[_LIMIT]]: Limits the loops per second in any loop and thus lowers the overall CPU usage.
 
-:::::* [[_DELAY]]: Pauses a procedure and releases unused resources for other programs.
+:::::*[[_DELAY]]: Pauses a procedure and releases unused resources for other programs.
 
-:::::* [[SLEEP]]: Stops or delays program procedures and shares resources.
+:::::*[[SLEEP]]: Stops or delays program procedures and shares resources.
 
-:::::* [[INPUT]] and [[INPUT$]] stop program procedures until an entry or key press is given.
+:::::*[[INPUT]] and [[INPUT$]] stop program procedures until an entry or key press is given.
 
 
 QB64 can be fast when you need it to be, but take the time to consider the impact of your program on other programs as people seldom have only one program running and the OS has tasks it must do too. 
@@ -139,7 +142,7 @@ QB64 can be fast when you need it to be, but take the time to consider the impac
 
 ==Q: How do I update the information in QB64's help system?==
 
-A: The help provided in the QB64 IDE Help System fetches the pages from this wiki. Use the '''Update current page''' in the [[IDE]] Help menu selection to update a page. Use the '''Update all pages''' choice to update them all, but this may take longer. 
+A: The help provided in the QB64 IDE Help System fetches the pages from this wiki. Use the '''Update current page''' in the IDE Help menu selection to update a page. Use the '''Update all pages''' choice to update them all, but this may take longer. 
 
 
 ==Q: Can I use the same libraries with QB64 that I used with QB 4.5?==
@@ -172,15 +175,15 @@ A: Programs compiled by QB64 (version 1.000 and up) are stand-alone so no extern
 
 A: Yes! No other program files besides the BAS file are required. Use the following command to compile a program without running it: 
 
-* '''QB64 -c yourfile.BAS'''
-* '''QB64 -x yourfile.BAS''' ''(compiles using the console only)''
-* '''QB64 -c yourfile.BAS -o destination_path\destination executable_name.exe''' ''(compiles the .BAS file and outputs the executable to a separate folder)''
+*'''QB64 -c yourfile.BAS'''
+*'''QB64 -x yourfile.BAS''' ''(compiles using the console only)''
+*'''QB64 -c yourfile.BAS -o destination_path\destination executable_name.exe''' ''(compiles the .BAS file and outputs the executable to a separate folder)''
 
 
 &lt;p style="text-align: center">([[#toc|Return to FAQ topics]])&lt;/p>
 
 
-==Q: How do I link modules or include SUB procedures in QB64? ==
+==Q: How do I link modules or include SUB procedures in QB64?==
 
 A: QB64 allows you to [[$INCLUDE]] code or BAS modules into one module when it is compiled. Text .BI files containing SUB or FUNCTION code or entire BAS modules can be included in one module that will be compiled. 
 
@@ -194,13 +197,13 @@ See: [[$INCLUDE]]
 
 ==Q: Some screens look small. Can I enlarge them or make them fullscreen?==
 
-* You can use the [[_FULLSCREEN]] statement to make your programs run fullscreen.
-* [[$RESIZE]] can be added to a program so you can track window resize events.
-* You can also create custom sized screens with page flipping and up to 32 bit colors using [[_NEWIMAGE]].
-* Page flipping is available in most screens and the new [[_DISPLAY]] feature allows the images to be displayed when YOU desire.
-* Picture or image files such as BMP, PNG, JPEG and GIF are EASY to load using [[_LOADIMAGE]].
-* Once images are loaded, all you have to do is use the image handle with any of the new statements and functions.
-* [[_PUTIMAGE]] GETs and PUTs images fast in ONE call. It can even stretch or compress the image sizes.
+*You can use the [[_FULLSCREEN]] statement to make your programs run fullscreen.
+*[[$RESIZE]] can be added to a program so you can track window resize events.
+*You can also create custom sized screens with page flipping and up to 32 bit colors using [[_NEWIMAGE]].
+*Page flipping is available in most screens and the new [[_DISPLAY]] feature allows the images to be displayed when YOU desire.
+*Picture or image files such as BMP, PNG, JPEG and GIF are EASY to load using [[_LOADIMAGE]].
+*Once images are loaded, all you have to do is use the image handle with any of the new statements and functions.
+*[[_PUTIMAGE]] GETs and PUTs images fast in ONE call. It can even stretch or compress the image sizes.
 
 
 &lt;p style="text-align: center">([[#toc|Return to FAQ topics]])&lt;/p>
@@ -214,20 +217,20 @@ A: Yes, they are emulated to use the soundcard.
 
 Capabilities include:
 
-# Multiple sound tracks
-# Volume and speaker control
-# Background music
+#Multiple sound tracks
+#Volume and speaker control
+#Background music
 
 
-'''Get started with [[_SNDOPEN|music]]:
+'''Get started with [[_SNDOPEN|music]]:'''
 
-: [[_SNDCLOSE]] (statement), [[_SNDCOPY]] (function), [[_SNDGETPOS]] (function), [[_SNDLEN]] (function), [[_SNDLIMIT]] (statement)
+:[[_SNDCLOSE]] (statement), [[_SNDCOPY]] (function), [[_SNDGETPOS]] (function), [[_SNDLEN]] (function), [[_SNDLIMIT]] (statement)
 
-: [[_SNDLOOP]] (statement), [[_SNDOPEN]] (function), [[_SNDPAUSE]] (statement), [[_SNDPAUSED]] (function), [[_SNDPLAY]] (statement)
+:[[_SNDLOOP]] (statement), [[_SNDOPEN]] (function), [[_SNDPAUSE]] (statement), [[_SNDPAUSED]] (function), [[_SNDPLAY]] (statement)
 
-: [[_SNDPLAYCOPY]] (statement), [[_SNDPLAYFILE]] (statement), [[_SNDPLAYING]] (function), [[_SNDSETPOS]] (statement) 
+:[[_SNDPLAYCOPY]] (statement), [[_SNDPLAYFILE]] (statement), [[_SNDPLAYING]] (function), [[_SNDSETPOS]] (statement)
 
-: [[_SNDRAW]] (statement), [[_SNDSTOP]] (statement), [[_SNDVOL]] (statement)
+:[[_SNDRAW]] (statement), [[_SNDSTOP]] (statement), [[_SNDVOL]] (statement)
 
 
 &lt;p style="text-align: center">([[#toc|Return to FAQ topics]])&lt;/p>
@@ -246,7 +249,6 @@ A: Because there is no '''QB64''' interpreter. All C code has to be compiled bef
 ==Q: Does it work on Windows 98 or any OS older than Windows 2000?==
 
 A: No, it doesn't. QB64 is made to run on new systems (Windows XP and up, Linux and macOS).
-enter>
 
 
 ==Q: Does QB64 support CURRENCY values from PDS or VB programs?==
@@ -264,12 +266,9 @@ A: Not directly, but [[_FLOAT]] currency values up to 4 decimal places can be mu
 
 ==Q: Do you provide changelogs?==
 
-We do. Check below:
+We do.
 
-* [[Version .9 changelog]]
-* [[Version 1.000 changelog]]
-* [[Version 1.1 changelog]]
-* For more recent changelogs, check [http://www.qb64.org QB64.org]
+*For all recent changelogs, check [http://www.qb64.org QB64.org]
 
 &lt;p style="text-align: center">([[#toc|Return to FAQ topics]])&lt;/p>
 

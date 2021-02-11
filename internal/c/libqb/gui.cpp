@@ -2066,20 +2066,29 @@ void sub__glrender(int32 method){
     
     void GLUT_MOTION_FUNC(int x, int y){
         
-        static int32 i,last_i;
-        static int32 xrel=0,yrel=0;
-        
+        int32 i, last_i;
         int32 handle;
+        int32 xrel, yrel;
         handle=mouse_message_queue_first;
         mouse_message_queue_struct *queue=(mouse_message_queue_struct*)list_get(mouse_message_queue_handles,handle);
         
         //message #1
         last_i=queue->last;
-        i=queue->last+1; if (i>queue->lastIndex) i=0;
+        i=queue->last+1; if (i>queue->lastIndex) i=0; //wrap around
         if (i==queue->current){
-            int32 nextIndex=queue->last+1; if (nextIndex>queue->lastIndex) nextIndex=0;
+            int32 nextIndex=queue->last+1;
+            if (nextIndex>queue->lastIndex) nextIndex=0;
             queue->current=nextIndex;
         }
+        #ifdef QB64_WINDOWS
+        // Windows calculates relative movement by intercepting WM_INPUT events instead
+        xrel = 0;
+        yrel = 0;
+        #else
+        xrel = x - queue->queue[queue->last].x;
+        yrel = y - queue->queue[queue->last].y;
+        #endif
+
         queue->queue[i].x=x;
         queue->queue[i].y=y;
         queue->queue[i].movementx=xrel;

@@ -48,7 +48,7 @@ DO: {{Cl|SLEEP}}: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 : ''Note:'' Only free valid handle values with [[_FREEIMAGE]] AFTER a new [[SCREEN]] mode is being used by the program.
 
 
-''Example 2:'' Program that copies desktop to a hardware image to form a 3D triangle ('''version 1.000 and up'''):
+''Example 2:'' Program that copies desktop to a hardware image to form a 3D triangle:
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 32)
 my_hardware_handle = {{Cl|_COPYIMAGE}}({{Cl|_SCREENIMAGE}}, 33) 'take a screenshot and use it as our texture
@@ -57,8 +57,6 @@ my_hardware_handle = {{Cl|_COPYIMAGE}}({{Cl|_SCREENIMAGE}}, 33) 'take a screensh
 {{Cl|_DISPLAY}}
 {{Cl|DO...LOOP|DO}}: {{Cl|_LIMIT}} 30: {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> "" '' ''
 {{CodeEnd}}{{small|Code courtesy of Galleon}}
-
-&lt;center>[http://www.qb64.net/forum/index.php?action=dlattach;topic=12049.0;attach=2595 Example 2 PNG image]&lt;/center>
 
 
 {{PageSeeAlso}}

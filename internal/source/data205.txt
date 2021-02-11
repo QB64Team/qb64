@@ -1,10 +1,14 @@
-int32 *_FUNC_HELP_COL_LONG_HELP_COL=NULL;
-if(_FUNC_HELP_COL_LONG_HELP_COL==NULL){
-_FUNC_HELP_COL_LONG_HELP_COL=(int32*)mem_static_malloc(4);
-*_FUNC_HELP_COL_LONG_HELP_COL=0;
+qbs*oldstr5392=NULL;
+if(_SUB_UPDATEMENUHELPLINE_STRING_A->tmp||_SUB_UPDATEMENUHELPLINE_STRING_A->fixed||_SUB_UPDATEMENUHELPLINE_STRING_A->readonly){
+oldstr5392=_SUB_UPDATEMENUHELPLINE_STRING_A;
+if (oldstr5392->cmem_descriptor){
+_SUB_UPDATEMENUHELPLINE_STRING_A=qbs_new_cmem(oldstr5392->len,0);
+}else{
+_SUB_UPDATEMENUHELPLINE_STRING_A=qbs_new(oldstr5392->len,0);
 }
-int32 *_FUNC_HELP_COL_LONG_COL=NULL;
-if(_FUNC_HELP_COL_LONG_COL==NULL){
-_FUNC_HELP_COL_LONG_COL=(int32*)mem_static_malloc(4);
-*_FUNC_HELP_COL_LONG_COL=0;
+memcpy(_SUB_UPDATEMENUHELPLINE_STRING_A->chr,oldstr5392->chr,oldstr5392->len);
+}
+byte_element_struct *byte_element_5393=NULL;
+if (!byte_element_5393){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5393=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5393=(byte_element_struct*)mem_static_malloc(12);
 }

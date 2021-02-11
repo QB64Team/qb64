@@ -109,8 +109,9 @@ echo "Compiling and installing QB64..."
 
 ### Build process
 find . -name "*.sh" -exec chmod +x {} \;
-find . -type f -iname "*.a" -exec rm -f {} \;
-find . -type f -iname "*.o" -exec rm -f {} \;
+find internal/c/parts -type f -iname "*.a" -exec rm -f {} \;
+find internal/c/parts -type f -iname "*.o" -exec rm -f {} \;
+find internal/c/libqb -type f -iname "*.o" -exec rm -f {} \;
 rm ./internal/temp/*
 
 echo "Building library 'LibQB'"

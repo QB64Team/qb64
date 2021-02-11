@@ -3,11 +3,11 @@ The [[_WINDOWHANDLE]] function returns the window handle assigned to the current
 
 
 {{PageSyntax}}
-: {{Parameter|hwnd~&amp;}} = [[_WINDOWHANDLE]]
+: {{Parameter|hwnd&amp;&amp;}} = [[_WINDOWHANDLE]]
 
 
 {{PageDescription}}
-* The result is an [[_UNSIGNED]] [[LONG]] number assigned by Windows to your running program.
+* The result is an [[_INTEGER64]] number assigned by Windows to your running program.
 * Use it to make [[Windows Libraries|API calls]] that require a window handle to be passed.
 * [[Keywords_currently_not_supported_by_QB64#Keywords_Not_Supported_in_Linux_or_MAC_OSX_versions|Not available in Linux or macOS]].
 

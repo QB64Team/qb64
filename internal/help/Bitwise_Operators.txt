@@ -1,0 +1,102 @@
+Bitwise operators are much like the regular mathematics operators (+, * etc.) but are defined in terms of the individual bits of their operands. The full list of bitwise operators, with a brief summary of its operation:
+* '''AND''': True if both inputs are true
+* '''OR''': True if one or both inputs are true
+* '''NOT''': Invert all bits
+* '''XOR''': True if exactly one input is true
+* '''IMP''': True if both inputs are the same
+* '''EQV''': True unless first input is true and second is false
+
+== Syntax ==
+With the exception of NOT, all the bitwise operators take two operands:
+::: ''result'' = ''value1'' '''AND''' ''value2''
+NOT goes before the value it operates on:
+::: ''result'' = '''NOT''' ''value1''
+If ''value1'' or ''value2'' are non-integer numeric types, they are rounded to the nearest integer.
+
+== Details ==
+Bitwise operators work by comparing the corresponding bits in each of the input values to generate a single bit in the output value. The operators differ in how they do the comparison. The table below shows the output bit for each pair of input bits:
+{| class="wikitable"
+!colspan="2"|'''Operands'''
+!colspan="6"|'''Operations'''
+|-
+!A !! B !! A AND B !! A OR B !! NOT A !! A XOR B !! A IMP B !! A EQV B
+|-
+|0 || 0 || 0 || 0 || 1 || 0 || 1 || 1
+|-
+|0 || 1 || 0 || 1 || 1 || 1 || 1 || 0
+|-
+|1 || 0 || 0 || 1 || 0 || 1 || 0 || 0
+|-
+|1 || 1 || 1 || 1 || 0 || 0 || 1 || 1
+|}
+Again, note that the NOT operator only has one operand. It is shown in the same table for convenience.
+
+If one input has more bits than the other (say, an INTEGER vs a LONG) the shorter will be considered to have 0's in the missing bit positions if it is positive, or 1's if it is negative. This scheme comes about because of the [[wikipedia:Two's_complement|Two's Complement]] system for representing negative numbers. As a general rule, there should not be any surprises.
+
+=== Use as logical operators ===
+QB64 does not have AND/OR/NOT operators dedicated to operating on the overall truth of values. A numeric value is defined to be ''false'' if it is equal to 0, and ''true'' for any other value, though -1 is the standard ''true'' value,  returned by the &lt;, &lt;= etc. operators. One can use the bitwise operators mostly like regular logical operators, but with caution. For instance, 3 is a true value, so as a logical operator NOT 3 would be 0 (false). Because it is in fact a bitwise operator, it evaluates to -4.
+
+== Examples ==
+Use '''AND''' to mask certain bits in a value. In this example, the 1's in the mask (y&amp;) specify which bits in (x&amp;) we are interested in, forcing all others to 0.
+&lt;source lang="qbasic">
+x&amp; = VAL("&amp;B101010") 'Arbitrary collection of bits
+y&amp; = VAL("&amp;B001100") 'A bit mask
+PRINT "Input 1: "; BIN$(x&amp;, 6) '6 indicates we want 6 bits of output
+PRINT "Input 2: "; BIN$(y&amp;, 6)
+PRINT "Output:  "; BIN$(x&amp; AND y&amp;, 6)
+
+'Converts the number n&amp; to a string of binary digits, digits&amp; long (padding or truncating as necessary).
+FUNCTION BIN$ (n&amp;, digits&amp;)
+    FOR i&amp; = digits&amp; - 1 TO 0 STEP -1
+        IF (n&amp; AND 2 ^ i&amp;) THEN B$ = B$ + "1" ELSE B$ = B$ + "0"
+    NEXT
+    BIN$ = B$
+END FUNCTION
+&lt;/source>
+Output:
+&lt;pre>Input 1: 101010
+Input 2: 001100
+Output:  001000&lt;/pre>
+
+Use '''OR''' to combine bit flags into a single value. The presence of a flag can then be tested by using the flag as a mask with '''AND''':
+&lt;source lang="qbasic">
+'The trick here is to give each flag a value corresponding to a different bit being 1
+FLAG_A&amp; = VAL("&amp;B0001")
+FLAG_B&amp; = VAL("&amp;B0010")
+FLAG_C&amp; = VAL("&amp;B0100")
+FLAG_D&amp; = VAL("&amp;B1000")
+
+flags&amp; = FLAG_A&amp; OR FLAG_C&amp; 'Set flags A, C
+
+'Use each flag as a bitmask to test for its presence:
+IF flags&amp; AND FLAG_A&amp; THEN PRINT "Flag A is set"
+IF flags&amp; AND FLAG_B&amp; THEN PRINT "Flag B is set"
+IF flags&amp; AND FLAG_C&amp; THEN PRINT "Flag C is set"
+IF flags&amp; AND FLAG_D&amp; THEN PRINT "Flag D is set"
+&lt;/source>
+Output:
+&lt;pre>Flag A is set
+Flag C is set&lt;/pre>
+
+Use '''XOR''' to toggle a bit flag (that is, change its state to the opposite of what it was). This example is the same as the '''OR''' example above, but with one extra line added. This time we enable flags A &amp; C, then toggle flags A &amp; B. This will disable flag A and enable B.
+&lt;source lang="qbasic">
+'The trick here is to give each flag a value corresponding to a different bit being 1
+FLAG_A&amp; = VAL("&amp;B0001")
+FLAG_B&amp; = VAL("&amp;B0010")
+FLAG_C&amp; = VAL("&amp;B0100")
+FLAG_D&amp; = VAL("&amp;B1000")
+
+flags&amp; = FLAG_A&amp; OR FLAG_C&amp; 'Set flags A, C
+flags&amp; = flags&amp; XOR FLAG_A&amp; XOR FLAG_B&amp; 'Toggle flags A, B
+
+'Use each flag as a bitmask to test for its presence:
+IF flags&amp; AND FLAG_A&amp; THEN PRINT "Flag A is set"
+IF flags&amp; AND FLAG_B&amp; THEN PRINT "Flag B is set"
+IF flags&amp; AND FLAG_C&amp; THEN PRINT "Flag C is set"
+IF flags&amp; AND FLAG_D&amp; THEN PRINT "Flag D is set"
+&lt;/source>
+Output:
+&lt;pre>Flag B is set
+Flag C is set&lt;/pre>
+
+{{PageNavigation}}

@@ -5441,92 +5441,95 @@ void sub__assert(int32 expression, qbs *assert_message, int32 passed) {
     return;
 }
 
+char *human_error(int32 errorcode) {
+    switch (errorcode) {
+        case 0: return "No error";
+        case 1: return "NEXT without FOR";
+        case 2: return "Syntax error";
+        case 3: return "RETURN without GOSUB";
+        case 4: return "Out of DATA";
+        case 5: return "Illegal function call";
+        case 6: return "Overflow";
+        case 7: return "Out of memory";
+        case 8: return "Label not defined";
+        case 9: return "Subscript out of range";
+        case 10: return "Duplicate definition";
+        case 12: return "Illegal in direct mode";
+        case 13: return "Type mismatch";
+        case 14: return "Out of string space";
+        //error 15 undefined
+        case 16: return "String formula too complex";
+        case 17: return "Cannot continue";
+        case 18: return "Function not defined";
+        case 19: return "No RESUME";
+        case 20: return "RESUME without error";
+        //error 21-23 undefined
+        case 24: return "Device timeout";
+        case 25: return "Device fault";
+        case 26: return "FOR without NEXT";
+        case 27: return "Out of paper";
+        //error 28 undefined
+        case 29: return "WHILE without WEND";
+        case 30: return "WEND without WHILE";
+        //error 31-32 undefined
+        case 33: return "Duplicate label";
+        //error 34 undefined
+        case 35: return "Subprogram not defined";
+        //error 36 undefined
+        case 37: return "Argument-count mismatch";
+        case 38: return "Array not defined";
+        case 40: return "Variable required";
+        case 50: return "FIELD overflow";
+        case 51: return "Internal error";
+        case 52: return "Bad file name or number";
+        case 53: return "File not found";
+        case 54: return "Bad file mode";
+        case 55: return "File already open";
+        case 56: return "FIELD statement active";
+        case 57: return "Device I/O error";
+        case 58: return "File already exists";
+        case 59: return "Bad record length";
+        case 61: return "Disk full";
+        case 62: return "Input past end of file";
+        case 63: return "Bad record number";
+        case 64: return "Bad file name";
+        case 67: return "Too many files";
+        case 68: return "Device unavailable";
+        case 69: return "Communication-buffer overflow";
+        case 70: return "Permission denied";
+        case 71: return "Disk not ready";
+        case 72: return "Disk-media error";
+        case 73: return "Feature unavailable";
+        case 74: return "Rename across disks";
+        case 75: return "Path/File access error";
+        case 76: return "Path not found";
+        case 258: return "Invalid handle";
+        case 300: return "Memory region out of range";
+        case 301: return "Invalid size";
+        case 302: return "Source memory region out of range";
+        case 303: return "Destination memory region out of range";
+        case 304: return "Source and destination memory regions out of range";
+        case 305: return "Source memory has been freed";
+        case 306: return "Destination memory has been freed";
+        case 307: return "Memory already freed";
+        case 308: return "Memory has been freed";
+        case 309: return "Memory not initialized";
+        case 310: return "Source memory not initialized";
+        case 311: return "Destination memory not initialized";
+        case 312: return "Source and destination memory not initialized";
+        case 313: return "Source and destination memory have been freed";
+        case 314: return "_ASSERT failed";
+        case 315: return "_ASSERT failed (check console for description)";
+        default: return "Unprintable error";
+    }
+}
+
 void fix_error(){
     char *errtitle = NULL, *errmess = NULL, *cp;
     int prevent_handling = 0, len, v;
     if ((new_error >= 300) && (new_error <= 315)) prevent_handling = 1;
     if (!error_goto_line || error_handling || prevent_handling) {
-        switch (new_error) {
-            case 1: cp="NEXT without FOR"; break;
-            case 2: cp="Syntax error"; break;
-            case 3: cp="RETURN without GOSUB"; break;
-            case 4: cp="Out of DATA"; break;
-            case 5: cp="Illegal function call"; break;
-            case 6: cp="Overflow"; break;
-            case 7: cp="Out of memory"; break;
-            case 8: cp="Label not defined"; break;
-            case 9: cp="Subscript out of range"; break;
-            case 10: cp="Duplicate definition"; break;
-            case 12: cp="Illegal in direct mode"; break;
-            case 13: cp="Type mismatch"; break;
-            case 14: cp="Out of string space"; break;
-            //error 15 undefined
-            case 16: cp="String formula too complex"; break;
-            case 17: cp="Cannot continue"; break;
-            case 18: cp="Function not defined"; break;
-            case 19: cp="No RESUME"; break;
-            case 20: cp="RESUME without error"; break;
-            //error 21-23 undefined
-            case 24: cp="Device timeout"; break;
-            case 25: cp="Device fault"; break;
-            case 26: cp="FOR without NEXT"; break;
-            case 27: cp="Out of paper"; break;
-            //error 28 undefined
-            case 29: cp="WHILE without WEND"; break;
-            case 30: cp="WEND without WHILE"; break;
-            //error 31-32 undefined
-            case 33: cp="Duplicate label"; break;
-            //error 34 undefined
-            case 35: cp="Subprogram not defined"; break;
-            //error 36 undefined
-            case 37: cp="Argument-count mismatch"; break;
-            case 38: cp="Array not defined"; break;
-            case 40: cp="Variable required"; break;
-            case 50: cp="FIELD overflow"; break;
-            case 51: cp="Internal error"; break;
-            case 52: cp="Bad file name or number"; break;
-            case 53: cp="File not found"; break;
-            case 54: cp="Bad file mode"; break;
-            case 55: cp="File already open"; break;
-            case 56: cp="FIELD statement active"; break;
-            case 57: cp="Device I/O error"; break;
-            case 58: cp="File already exists"; break;
-            case 59: cp="Bad record length"; break;
-            case 61: cp="Disk full"; break;
-            case 62: cp="Input past end of file"; break;
-            case 63: cp="Bad record number"; break;
-            case 64: cp="Bad file name"; break;
-            case 67: cp="Too many files"; break;
-            case 68: cp="Device unavailable"; break;
-            case 69: cp="Communication-buffer overflow"; break;
-            case 70: cp="Permission denied"; break;
-            case 71: cp="Disk not ready"; break;
-            case 72: cp="Disk-media error"; break;
-            case 73: cp="Feature unavailable"; break;
-            case 74: cp="Rename across disks"; break;
-            case 75: cp="Path/File access error"; break;
-            case 76: cp="Path not found"; break;
-            case 258: cp="Invalid handle"; break;
-            
-            case 300: cp="Memory region out of range"; break;
-            case 301: cp="Invalid size"; break;
-            case 302: cp="Source memory region out of range"; break;
-            case 303: cp="Destination memory region out of range"; break;
-            case 304: cp="Source and destination memory regions out of range"; break;
-            case 305: cp="Source memory has been freed"; break;
-            case 306: cp="Destination memory has been freed"; break;
-            case 307: cp="Memory already freed"; break;
-            case 308: cp="Memory has been freed"; break;
-            case 309: cp="Memory not initialized"; break;
-            case 310: cp="Source memory not initialized"; break;
-            case 311: cp="Destination memory not initialized"; break;
-            case 312: cp="Source and destination memory not initialized"; break;
-            case 313: cp="Source and destination memory have been freed"; break;
-            case 314: cp="_ASSERT failed"; break;
-            case 315: cp="_ASSERT failed (check console for description)"; break;
-            default: cp="Unprintable error"; break;
-        }
-        
+        cp = human_error(new_error);        
         #define FIXERRMSG_TITLE "%s%u"
         #define FIXERRMSG_BODY "Line: %u (in %s)\n%s%s"
         #define FIXERRMSG_MAINFILE "main module"
@@ -7401,14 +7404,29 @@ void qbg_sub_color(uint32 col1,uint32 col2,uint32 bordercolor,int32 passed){
         return;
     }
 
-    #ifdef QB64_WINDOWS
-        if (write_page->console){
-            HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-            int color = col2 * 16 + col1;
-            SetConsoleTextAttribute(output, color);
-            return;
-        }
-    #endif
+	if (write_page->console){
+		#ifdef QB64_WINDOWS
+			HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+			int color = col2 * 16 + col1;
+			SetConsoleTextAttribute(output, color);
+		#else
+            // Exactly how the colour is rendered depends on your terminal emulator and
+            // colour palette. Themes and user-customisation aside, the first 16 colours
+            // line up with the old VGA colour scheme.
+            // Most terminal emulators can handle 8 bit colour, see
+            // https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit for the 8 bit colour palette.
+            if ((passed & 1 && (col1 > 255 || col1 < 0))
+                    || (passed & 2 && (col2 > 255 || col2 < 0)))
+                goto error;
+
+            if (passed & 1)
+                printf("\033[38;5;%dm", col1);
+
+            if (passed & 2)
+                printf("\033[48;5;%dm", col2);
+		#endif
+        return;
+	}
     
     if (write_page->compatible_mode==32){
         if (passed&4) goto error;
@@ -11194,15 +11212,17 @@ void sub_cls(int32 method,uint32 use_color,int32 passed){
     static uint16 *sp;
     static uint16 clearvalue;
     
-        if (write_page->console){ 
-            #ifdef QB64_WINDOWS
-            system("cls"); //lazy but works
-            qbg_sub_locate(1,1,0,0,0,3); //is this really necessary?
-            #else
-            system("clear");
-            #endif
-            return;
-        }
+	if (write_page->console){ 
+		#ifdef QB64_WINDOWS
+			system("cls"); //lazy but works
+			qbg_sub_locate(1, 1, 0, 0, 0, 3); //is this really necessary?
+		#else
+			if (passed&2) qbg_sub_color(0, use_color, 0, 2);
+			cout<<"\033[2J";
+			qbg_sub_locate(1, 1, 0, 0, 0, 3);
+		#endif
+		return;
+	}
 
     //validate
     if (passed&2){
@@ -11371,20 +11391,26 @@ void qbg_sub_locate(int32 row,int32 column,int32 cursor,int32 start,int32 stop,i
     static int32 h,w,i;
     if (new_error) return;
 
-    #ifdef QB64_WINDOWS //If trying to locate with windows console
-        if (write_page->console){
-            CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
-            SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
-            HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
-            GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
-            if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
-            if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
-            COORD pos = {column-1, row-1};
-            HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
-            SetConsoleCursorPosition(output, pos);
-            return;
-        }
-    #endif
+	if (write_page->console){
+		#ifdef QB64_WINDOWS //If trying to locate with windows console
+			CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
+			SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
+			HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
+			GetConsoleScreenBufferInfo(cl_conout, & cl_bufinfo);
+			if (column==0)column=cl_bufinfo.dwCursorPosition.X + 1;
+			if (row==0)row=cl_bufinfo.dwCursorPosition.Y + 1;
+			COORD pos = {column-1, row-1};
+			HANDLE output = GetStdHandle (STD_OUTPUT_HANDLE);
+			SetConsoleCursorPosition(output, pos);
+		#else
+            // We don't have a good way of getting the current cursor position, so we ignore any LOCATEs
+            // that don't give an absolute position.
+            if (!(passed & 1 && passed & 2))
+                return;
+            printf("\033[%d;%dH", row, column);
+		#endif
+        return;
+	}
 
     //calculate height & width in characters
     if (write_page->compatible_mode){
@@ -13602,11 +13628,11 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
     // hex/oct/bin
     if (c == 38) {  // "&"
       (*data_offset)++;
-      if (*data_offset >= data_size) goto gotnumber;
+      if (*data_offset >= data_size) return 3; // Syntax error (missing H/O/B after &)
       c = data[*data_offset];
       if (c == 44) {
         (*data_offset)++;
-        goto gotnumber;
+        return 3; // Syntax error (missing H/O/B after &)
       }
       if ((c == 72) || (c == 104)) {  // "H" or "h"
       nexthexchr:
@@ -13619,13 +13645,18 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
         }
         if (((c >= 48) && (c <= 57)) || ((c >= 65) && (c <= 70)) ||
             ((c >= 97) && (c <= 102))) {  // 0-9 or A-F or a-f
+          if (step == 5) return 3;        // Syntax error (digits after type suffix)
           if (n_digits == 256) return 1;  // Overflow
           n_digit[n_digits] = c;
           n_digits++;
           n_hex = 1;
           goto nexthexchr;
         }
-        return 3;  // Syntax error
+        if ((c == 33) || (c == 35) || (c == 36) ||
+            (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+            if (step <= 5) {step = 5; goto nexthexchr;}
+        }
+        return 3;  // Syntax error (invalid HEX char)
       }
       if ((c == 79) || (c == 111)) {  // "O" or "o"
       nexthexchr2:
@@ -13637,13 +13668,18 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
           goto gotnumber;
         }
         if ((c >= 48) && (c <= 55)) {     // 0-7
+          if (step == 5) return 3;        // Syntax error (digits after type suffix)
           if (n_digits == 256) return 1;  // Overflow
           n_digit[n_digits] = c;
           n_digits++;
           n_hex = 2;
           goto nexthexchr2;
         }
-        return 3;  // Syntax error
+        if ((c == 33) || (c == 35) || (c == 36) ||
+            (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+            if (step <= 5) {step = 5; goto nexthexchr2;}
+        }
+        return 3;  // Syntax error (invalid OCT char)
       }
       if ((c == 66) || (c == 98)) {  // "B" or "b"
       nexthexchr3:
@@ -13655,33 +13691,39 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
           goto gotnumber;
         }
         if ((c >= 48) && (c <= 49)) {     // 0-1
+          if (step == 5) return 3;        // Syntax error (digits after type suffix)
           if (n_digits == 256) return 1;  // Overflow
           n_digit[n_digits] = c;
           n_digits++;
           n_hex = 3;
           goto nexthexchr3;
         }
-        return 3;  // Syntax error
+        if ((c == 33) || (c == 35) || (c == 36) ||
+            (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+            if (step <= 5) {step = 5; goto nexthexchr3;}
+        }
+        return 3;  // Syntax error (invalid BIN char)
       }
-      return 3;  // Syntax error
+      return 3;  // Syntax error (missing H/O/B after &)
     }  // "&"
     
     readnextchr:
     if (c==44){(*data_offset)++; goto gotnumber;}
     
     if (c==45){//-
-        if (step==0){n_neg=1; step=1; goto nextchr;}
-        if (step==3){negate_exponent=1; step=4; goto nextchr;}
-        return 3;//Syntax error
+        if (step==0){n_neg=1; step=1; goto nextchr;}//sign before integer part
+        if (step==3){negate_exponent=1; step=4; goto nextchr;}//exponent sign
+        return 3;//Syntax error (no - allowed in fraction part of number or after type suffix)
     }
     
     if (c==43){//+
-        if (step==0){step=1; goto nextchr;}
-        if (step==3){step=4; goto nextchr;}
-        return 3;//Syntax error
+        if (step==0){step=1; goto nextchr;}//sign before integer part
+        if (step==3){step=4; goto nextchr;}//exponent sign
+        return 3;//Syntax error (no + allowed in fraction part of number or after type suffix)
     }
     
     if ((c>=48)&&(c<=57)){//0-9
+        if (step == 5) return 3; // Syntax error (digit after type suffix)
         
         if (step<=1){//before decimal point
             step=1;
@@ -13716,17 +13758,21 @@ int32 n_inputnumberfromdata(uint8 *data,ptrszint *data_offset,ptrszint data_size
     }
     
     if (c==46){//.
-        if (step>1) return 3;//Syntax error
+        if (step>1) return 3;//Syntax error (multiple . or after type suffix)
         if (n_digits==0) n_exp=-1;
         step=2; goto nextchr;
     }
     
     if ((c==68)||(c==69)||(c==100)||(c==101)){//D,E,d,e
-        if (step>2) return 3;//Syntax error
+        if (step>2) return 3;//Syntax error (multiple exponents or after type suffix)
         step=3; goto nextchr;
     }
     
-    return 3;//Syntax error
+    if ((c == 33) || (c == 35) || (c == 36) ||
+        (c == 37) || (c == 38) || (c == 96) || (c == 126)) { // type suffix
+        if (step <= 5) {step = 5; goto nextchr;}
+    }
+    return 3;//Syntax error (invalid number char)
     nextchr:
     (*data_offset)++; if (*data_offset>=data_size) goto gotnumber;
     c=data[*data_offset];
@@ -15786,7 +15832,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         if ((pos<-32768)||(pos>32767)){
             if (tab_LPRINT) sub__dest(tab_LPRINT_olddest);
             tqbs=qbs_new(0,1);
-            error(7); return tqbs;//Overflow
+            error(6); return tqbs;//Overflow
         }
         if (pos>w) pos%=w;
         if (pos<1) pos=1;
@@ -15818,7 +15864,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         if (new_error) return qbs_new(0,1);
         
         static qbs *tqbs;
-        if ((spaces<-32768)||(spaces>32767)){tqbs=qbs_new(0,1); error(7); return tqbs;}//Overflow
+        if ((spaces<-32768)||(spaces>32767)){tqbs=qbs_new(0,1); error(6); return tqbs;}//Overflow
         if (spaces<0) spaces=0;
         
         //for files, spc simply adds that many spaces
@@ -23311,6 +23357,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     f->file_handle->seekp(position);
                 }
                 f->pos=position;
+                if (f->pos<=gfs_lof(i)){
+                    f->eof_passed=0;
+                    f->eof_reached=0;
+                }
                 return 0;
             #endif
             
@@ -23325,6 +23375,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     }
                 }
                 f->pos=position;
+                if (f->pos<=gfs_lof(i)){
+                    f->eof_passed=0;
+                    f->eof_reached=0;
+                }
                 return 0;
             #endif
             
@@ -25029,6 +25083,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
                 while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
                 return glutGet(GLUT_WINDOW_X) - glutGet(GLUT_WINDOW_BORDER_WIDTH);
+            #elif defined(QB64_GUI) && defined(QB64_MACOSX) && defined(QB64_GLUT)
+                while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
+                return glutGet(GLUT_WINDOW_X);
             #endif
             return 0; //if not windows then return 0
         }
@@ -25037,6 +25094,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #if defined(QB64_GUI) && defined(QB64_WINDOWS) && defined(QB64_GLUT)
                 while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
                 return glutGet(GLUT_WINDOW_Y) - glutGet(GLUT_WINDOW_BORDER_WIDTH) - glutGet(GLUT_WINDOW_HEADER_HEIGHT);
+            #elif defined(QB64_GUI) && defined(QB64_MACOSX) && defined(QB64_GLUT)
+                while (!window_exists){Sleep(100);} //Wait for window to be created before checking position
+                return glutGet(GLUT_WINDOW_Y);
             #endif
             return 0; //if not windows then return 0
         }

@@ -16,13 +16,13 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 * In QB64 use an [[INTEGER]] return variable to hold integer values  returned by VAL [[HEX$|Hex]] strings: '''{{text|value% &lt;nowiki>= VAL("&amp;HFFFF") =&lt;/nowiki> -1|green}}'''
 
 
-''Example 1:'' Differences in values returned with Qbasic and QB64:
+''Example 1:'' Differences in values returned with QBasic and QB64:
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|VAL}}("{{Cl|&amp;H}}") '203 in QB, 0 in QB64
 {{Cl|PRINT}} {{Cl|VAL}}("{{Cl|&amp;H}}FFFF") ' -1 QB, 65535 in QB64
 {{Cl|PRINT}} {{Cl|VAL}}("{{Cl|&amp;H}}FFFF&amp;") '65535 in both '' ''
 {{CodeEnd}}
-:''Explanation:'' A quirk in Qbasic returned VAL values of 203 for "&amp;" and "&amp;H" that was never fixed until PDS(7.1).
+:''Explanation:'' A quirk in QBasic returned VAL values of 203 for "&amp;" and "&amp;H" that was never fixed until PDS(7.1).
 
 
 ''Example 2:'' Converting a string with some number characters

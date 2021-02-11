@@ -3,6 +3,7 @@ The {{KW|STATIC}} keyword is used in declaration statements to control where var
 
 {{PageSyntax}}
 :{{KW|STATIC}} {{Parameter|variableName}}[()] [{{KW|AS}} {{Parameter|dataType}}][, ...]
+:{{KW|STATIC}} [{{KW|AS}} {{Parameter|dataType}}] {{Parameter|variableName}}[()][, ...]
 
 {{PageSyntax}}
 :{[[SUB]]|[[FUNCTION]]} {{Parameter|procedureName}} [({{Parameter|parameterList}})] STATIC
@@ -14,7 +15,7 @@ The {{KW|STATIC}} keyword is used in declaration statements to control where var
 :* {{Parameter|variableName}} may include a type suffix or use [[AS]] to specify a type other than the default [[SINGLE]] type.
 :* Arrays with static storage are declared by specifying empty parenthesis following the array name. See [[Arrays]]
 * STATIC can be used after the name of a [[SUB]] or [[FUNCTION]] in the procedure to force all variables to retain their values.
-* '''Recursive procedures may be required to be STATIC to avoid a Stack Overflow! QB64 programs may just close!'''
+* '''Recursive procedures may be required to be STATIC to avoid a Stack Overflow error. QB64 programs may just close.'''
 * [[$STATIC]] defined program [[arrays]] cannot be [[REDIM|re-sized]] or use [[_PRESERVE]].
 
 
@@ -40,7 +41,7 @@ The {{KW|STATIC}} keyword is used in declaration statements to control where var
 {{Cl|IF...THEN|IF}} s$ = "" {{Cl|THEN}} Bin$ = "0" {{Cl|ELSE}} Bin$ = s$
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
-: ''Explanation:'' The [[FUNCTION]] above returns a [[STRING]] value representing the bits ON in an [[INTEGER]] value. The string can be printed to the screen to see what is happening in a port register. '''STATIC''' keeps the function from overloading the memory "Stack" and is normally REQUIRED when recursive calls are used in Qbasic! '''QB64 procedures will close without warning or error!'''
+: ''Explanation:'' The [[FUNCTION]] above returns a [[STRING]] value representing the bits ON in an [[INTEGER]] value. The string can be printed to the screen to see what is happening in a port register. '''STATIC''' keeps the function from overloading the memory "Stack" and is normally REQUIRED when recursive calls are used in QBasic! '''QB64 procedures will close without warning or error!'''
 
 
 ''Example 2:'' Using a static array to cache factorials, speeding up repeated calculations:

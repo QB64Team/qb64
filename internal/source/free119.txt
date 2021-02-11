@@ -1,10 +1,15 @@
-if (_SUB_IDECHANGED_ARRAY_UDT_O[2]&1){
-if (_SUB_IDECHANGED_ARRAY_UDT_O[2]&4){
-cmem_dynamic_free((uint8*)(_SUB_IDECHANGED_ARRAY_UDT_O[0]));
-}else{
-free((void*)(_SUB_IDECHANGED_ARRAY_UDT_O[0]));
+if(oldstr3724){
+if(oldstr3724->fixed)qbs_set(oldstr3724,_FUNC_READSETTING_STRING_FILE);
+qbs_free(_FUNC_READSETTING_STRING_FILE);
 }
+if(oldstr3725){
+if(oldstr3725->fixed)qbs_set(oldstr3725,_FUNC_READSETTING_STRING___SECTION);
+qbs_free(_FUNC_READSETTING_STRING___SECTION);
 }
-free_mem_lock( (mem_lock*)((ptrszint*)_SUB_IDECHANGED_ARRAY_UDT_O)[8] );
-qbs_free(_SUB_IDECHANGED_STRING1_SEP);
-qbs_free(_SUB_IDECHANGED_STRING_ALTLETTER);
+if(oldstr3726){
+if(oldstr3726->fixed)qbs_set(oldstr3726,_FUNC_READSETTING_STRING___KEY);
+qbs_free(_FUNC_READSETTING_STRING___KEY);
+}
+qbs_free(_FUNC_READSETTING_STRING_TEMPVALUE);
+qbs_free(_FUNC_READSETTING_STRING_KEY);
+qbs_free(_FUNC_READSETTING_STRING_SECTION);

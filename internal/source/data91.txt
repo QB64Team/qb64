@@ -1,5 +1,56 @@
-qbs *_FUNC_NEWBYTEELEMENT_STRING_NEWBYTEELEMENT=NULL;
-if (!_FUNC_NEWBYTEELEMENT_STRING_NEWBYTEELEMENT)_FUNC_NEWBYTEELEMENT_STRING_NEWBYTEELEMENT=qbs_new(0,0);
-qbs *_FUNC_NEWBYTEELEMENT_STRING_A=NULL;
-if (!_FUNC_NEWBYTEELEMENT_STRING_A)_FUNC_NEWBYTEELEMENT_STRING_A=qbs_new(0,0);
-int32 pass3525;
+int32 *_FUNC_VALIDNAME_LONG_VALIDNAME=NULL;
+if(_FUNC_VALIDNAME_LONG_VALIDNAME==NULL){
+_FUNC_VALIDNAME_LONG_VALIDNAME=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDNAME_LONG_VALIDNAME=0;
+}
+qbs*oldstr3532=NULL;
+if(_FUNC_VALIDNAME_STRING_A->tmp||_FUNC_VALIDNAME_STRING_A->fixed||_FUNC_VALIDNAME_STRING_A->readonly){
+oldstr3532=_FUNC_VALIDNAME_STRING_A;
+if (oldstr3532->cmem_descriptor){
+_FUNC_VALIDNAME_STRING_A=qbs_new_cmem(oldstr3532->len,0);
+}else{
+_FUNC_VALIDNAME_STRING_A=qbs_new(oldstr3532->len,0);
+}
+memcpy(_FUNC_VALIDNAME_STRING_A->chr,oldstr3532->chr,oldstr3532->len);
+}
+int32 *_FUNC_VALIDNAME_LONG_L=NULL;
+if(_FUNC_VALIDNAME_LONG_L==NULL){
+_FUNC_VALIDNAME_LONG_L=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDNAME_LONG_L=0;
+}
+byte_element_struct *byte_element_3533=NULL;
+if (!byte_element_3533){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3533=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3533=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_VALIDNAME_LONG_I=NULL;
+if(_FUNC_VALIDNAME_LONG_I==NULL){
+_FUNC_VALIDNAME_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDNAME_LONG_I=0;
+}
+byte_element_struct *byte_element_3535=NULL;
+if (!byte_element_3535){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3535=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3535=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3536=NULL;
+if (!byte_element_3536){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3536=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3536=(byte_element_struct*)mem_static_malloc(12);
+}
+int64 fornext_value3538;
+int64 fornext_finalvalue3538;
+int64 fornext_step3538;
+uint8 fornext_step_negative3538;
+int32 *_FUNC_VALIDNAME_LONG_A=NULL;
+if(_FUNC_VALIDNAME_LONG_A==NULL){
+_FUNC_VALIDNAME_LONG_A=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDNAME_LONG_A=0;
+}
+int32 *_FUNC_VALIDNAME_LONG_TRAILINGUNDERSCORE=NULL;
+if(_FUNC_VALIDNAME_LONG_TRAILINGUNDERSCORE==NULL){
+_FUNC_VALIDNAME_LONG_TRAILINGUNDERSCORE=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDNAME_LONG_TRAILINGUNDERSCORE=0;
+}
+int32 *_FUNC_VALIDNAME_LONG_ALPHABETLETTER=NULL;
+if(_FUNC_VALIDNAME_LONG_ALPHABETLETTER==NULL){
+_FUNC_VALIDNAME_LONG_ALPHABETLETTER=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDNAME_LONG_ALPHABETLETTER=0;
+}

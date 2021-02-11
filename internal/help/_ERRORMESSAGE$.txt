@@ -1,0 +1,42 @@
+{{DISPLAYTITLE:_ERRORMESSAGE$}}
+The [[_ERRORMESSAGE$]] function returns a human-readable description of the most recent runtime error, or the description of an arbitrary error code passed to it.
+
+
+{{PageSyntax}}
+:{{Parameter|e$}} = [[_ERRORMESSAGE$]]
+:{{Parameter|e$}} = [[_ERRORMESSAGE$]]({{Parameter|errorCode%}})
+
+
+{{PageDescription}}
+* Used in program error troubleshooting.
+* The message returned is identical to the message shown in the dialog box that appears if your program has no error handler. See [[ERROR Codes]] for the full list of error codes and their messages.
+
+{{PageExamples}}
+''Example 1:'' Using an error handler that ignores any error.
+
+{{CodeStart}} '' ''
+ {{Cl|ON ERROR}} {{Cl|GOTO}} Errhandler
+   ' Main module program error simulation code
+ {{Cl|ERROR}} 7           ' simulate an Out of Memory Error
+ PRINT "Error handled...ending program"
+ {{Cl|SLEEP}} 4
+ {{Cl|SYSTEM}}            ' end of program code
+
+ Errhandler:              'error handler sub program line label
+  PRINT "Error"; {{Cl|ERR}}; "on program file line"; {{Cl|_ERRORLINE}}
+  PRINT "Description: "; {{Cl|_ERRORMESSAGE$}}; "."
+  {{Cl|BEEP}}             ' warning beep
+ {{Cl|RESUME}} NEXT       ' moves program to code following the error. '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[ON ERROR]]
+* [[_ERRORLINE]]
+* [[_INCLERRORLINE]], [[_INCLERRORFILE$]]
+* [[ERR]], [[ERL]]
+* [[ERROR]]
+* [[ERROR Codes]]
+
+
+{{PageNavigation}}

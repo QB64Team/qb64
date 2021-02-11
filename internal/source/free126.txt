@@ -1,15 +1,4 @@
-if(oldstr4604){
-if(oldstr4604->fixed)qbs_set(oldstr4604,_FUNC_IDEFILEEXISTS_STRING_F);
-qbs_free(_FUNC_IDEFILEEXISTS_STRING_F);
+if(oldstr3753){
+if(oldstr3753->fixed)qbs_set(oldstr3753,_SUB_INILOAD_STRING_FILE);
+qbs_free(_SUB_INILOAD_STRING_FILE);
 }
-if (_FUNC_IDEFILEEXISTS_ARRAY_UDT_O[2]&1){
-if (_FUNC_IDEFILEEXISTS_ARRAY_UDT_O[2]&4){
-cmem_dynamic_free((uint8*)(_FUNC_IDEFILEEXISTS_ARRAY_UDT_O[0]));
-}else{
-free((void*)(_FUNC_IDEFILEEXISTS_ARRAY_UDT_O[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDEFILEEXISTS_ARRAY_UDT_O)[8] );
-qbs_free(_FUNC_IDEFILEEXISTS_STRING1_SEP);
-qbs_free(_FUNC_IDEFILEEXISTS_STRING_M);
-qbs_free(_FUNC_IDEFILEEXISTS_STRING_ALTLETTER);

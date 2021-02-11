@@ -12,7 +12,7 @@ The [[INKEY$]] function returns user input as [[ASCII]] [[STRING]] character(s) 
 * INKEY$ can also be used to clear a [[SLEEP]] key press or the keyboard buffer in a loop.
 * Assign the INKEY$ return to a string variable to save the key entry.
 * &lt;span style="font-family: Courier New, monospace, Courier; background: #dddddd">[[LOCATE]] , , 1&lt;/span> displays the INKEY$ cursor. Use &lt;span style="font-family: Courier New, monospace, Courier; background: #dddddd">LOCATE , , 0&lt;/span> to turn it off.
-* Use [[_DEST]] [[_CONSOLE]] before reading INKEY$ to receive input from a [[$CONSOLE|console]] window.
+* To receive input from a [[$CONSOLE]] window, use [[_CINP]].
 * Returns can be evaluated as certain [[ASCII]] characters or codes.
 {{WhiteStart}}'                                '''ASCII Keyboard Codes'''
 '

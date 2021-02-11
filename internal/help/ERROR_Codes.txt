@@ -1,156 +1,201 @@
-&lt;center>'''QB64 Compiler Errors''': To troubleshoot compiler errors try this: [[QB64_FAQ#Q:_How_can_I_find_what_caused_a_Compiler_error.3F|recompile scripts]]&lt;/center>
+This page lists all the error codes defined in QB64 that can occur in a program when running. Unless overridden with an [[ON ERROR]] handler, these result in a dialog box appearing. Due to legacy holdovers from previous BASIC dialects, not all of these errors may actually occur in a program (unless manually triggered with [[ERROR]]).
 
-&lt;center>'''Please report any Operating System or Compiler errors or failures you cannot fix  [http://www.qb64.net/forum/index.php?board=3.0 HERE!]'''&lt;/center>
+If you encounter an error while editing in the QB64 IDE or when compiling (especially a "C++ Compilation Failed" message), or believe your program is correct, please report the error at https://github.com/QB64Team/qb64/issues.
 
+It's a good idea to exclude qb64.exe from any real-time anti-virus scanning to prevent generic strange errors when editing or compiling.
 
-&lt;center>'''It's a good idea to exclude "QB64.exe" from any real-time anti-virus scanning to prevent IDE Module Errors!'''&lt;/center>
-
-
-The following table describes the error codes that are reported by the '''QB64''' compiler, as well as possible causes and solutions:
-
-{| border="1" cellpadding="2"
+== Recoverable errors ==
+These errors can be triggered in QB64, and may be caught by an [[ON ERROR]] handler. The default error handler gives the user option to continue program execution.
+{| class="wikitable"
 |-
-! colspan="6"|QB/64 Error Codes
+! Code !! Description !! Possible Cause
 |-
-! Code || Description || Common cause/Resolution || QB64 Differences
+| 2 || Syntax error || [[READ]] attempted to read a number but could not parse the next [[DATA]] item.
 |-
-|  1 || [[NEXT]] without [[FOR]] || Missing loop end or look for a missing [[END IF]] or [[END SELECT]] statement. || none
+| 3 || RETURN without GOSUB || The [[RETURN]] statement was encounted without first executing a corresponding [[GOSUB]].
 |-
-|  2 || Syntax error || Mistyped keyword statements or puctuation errors can create syntax errors. || none
+| 4 || Out of DATA || The [[READ]] statement has read past the end of a [[DATA]] block. Use [[RESTORE]] to change the current data item if necessary.
 |-
-|  3 || [[RETURN]] without [[GOSUB]] || Place sub-procedure line label after program [[END]] or [[EXIT]] in a [[SUB]]-procedure.|| none
+| 5 || Illegal function call || A function was called with invalid parameters, in the wrong graphics mode or otherwise in an illegal fashion. [[Illegal Function]] gives some suggestions.
 |-
-|  4 || Out of DATA || A [[READ]] has read past the end of [[DATA]]. Use [[RESTORE]] to reset to data start. . || none
+| 6 || Overflow || A numeric operation has resulted in a value beyond a variable's allowed range. See [[Variable Types|variable type]].
 |-
-|  5 || Illegal function call || A parameter passed does not match the function type or exceeds certain function limitations. See [[Illegal Function]]. || none
+| 7 || Out of memory || Generic out of memory condition.
 |-
-|  6 || Overflow || A numerical value has exceeded the limitations of a [[Variable Types|variable type]]. || none
+| 9 || Subscript out of range || An [[Arrays|array's]] [[UBOUND|upper]] or [[LBOUND|lower]] [[DIM|dimensioned]] boundary has been exceeded.
 |-
-|  7 || Out of memory || A module has exceeded the 64K memory limitation of QB. Try breaking the code up to smaller modules.|| no limit
+| 10 || Duplicate definition || An array created with [[DIM]] was redefined with [[DIM]] or [[REDIM]].
 |-
-|  8 || Label not defined || [[GOTO]] or [[GOSUB]] tries to branch to a label that doesn't exist. || none
+| 13 || Type mismatch || A [[PRINT USING]] format string did not match the type of the supplied variables.
 |-
-|  9 || Subscript out of range || An [[Arrays|array's]] [[UBOUND|upper]] or [[LBOUND|lower]] [[DIM|dimensioned]] boundary has been exceeded. || none
+| 20 || RESUME without error || The [[RESUME]] statement was encountered outside of an [[ON ERROR]] error handler.
 |-
-| 10 || Duplicate definition || You can't define a variable twice with [[DIM]], the first time a variable is used it is also defined. || none
+| 50 || FIELD overflow || The [[FIELD]] statement tried to allocate more bytes than were specified for the record length of a random access file.
 |-
-| 11 || Division by zero || You cannot divide any value by zero! Even using [[MOD]]. || none
+| 51 || Internal error || Generic error
 |-
-| 12 || Illegal in direct mode || A statement (like [[DIM]]) in the Immediate window wasn't allowed. ||  N/A
+| 52 || Bad file name or number || A file handle was used that does not correspond to a valid opened file.
 |-
-| 13 || Type mismatch || A [[SUB]] or [[FUNCTION]] parameter does not match the procedure Declaration. || none
+| 53 || File not found || File error, see below
 |-
-| 14 || Out of [[STRING|string]] space || A module has exceeded the 32767 text character limit. Use SUB print procedures. || no limit.
+| 54 || Bad file mode || A file operation was not compatible with the mode used in the [[OPEN]] statement.
 |-
-| 16 || String formula too complex. || A string formula was too long or [[INPUT]] statement requested more than 15 strings || N/A
+| 55 || File already open || An [[OPEN]] statement attempted to use a file handle that is already in use. Consider using [[FREEFILE]].
 |-
-| 17 || Cannot continue. || The program while debugging has changed in a way that it cannot continue. || no debug
+| 59 || Bad record length || The record length used for a [[RANDOM]] file was insufficient to perform the operation.
 |-
-| 18 || Function not defined. || The function used by the program must be defined. Did you include the .bi file while using a library? || none
+| 62 || Input past end of file || A file was read past its end. Ensure [[EOF]] is being correctly checked.
 |-
-| 19 || No [[RESUME]]. || Use [[RESUME]] at the end of the [[ON ERROR]] [[GOTO]] routine, not [[RETURN]]. || none
+| 63 || Bad record number || The record (for [[RANDOM]]) or offset (for [[BINARY]]) is outside the allowed range.
 |-
-| 20 || RESUME without error. || [[RESUME]] can only be used in an error handler called by [[ON ERROR]] [[GOTO]]. || none
+| 64 || Bad file name || File error, see below
 |-
-| 24 || Device timeout. || Use DS0 (DSzero)in the [[OPEN COM]] statement to avoid modem timeouts. || none
+| 68 || Device unavailable || A serial port (COM device) failed to behave as expected
 |-
-| 25 || Device fault. || Device not connected or does not exist. || none
+| 70 || Permission denied || File error, see below
 |-
-| 26 || [[FOR]] without [[NEXT]]. || Missing loop end or look for a missing [[END IF]] or [[END SELECT]] statement. || none
+| 75 || Path/File access error || File error, see below
 |-
-| 27 || Out of paper || A printer paper error when using [[LPRINT]]. || none
+| 76 || Path not found || File error, see below
 |-
-| 29 || [[WHILE]] without [[WEND]]. || [[WEND]] must end a [[WHILE]] loop. Otherwise look for missing [[END IF]] or [[END SELECT]] || none
-|-
-| 30 || [[WEND]] without [[WHILE]] || Missing loop end or look for a missing [[END IF]] or [[END SELECT]] statement. || none
-|-
-| 33 || Duplicate label || Line numbers or labels cannot be used twice in a procedure. || none
-|-
-| 35 || Subprogram not defined. || Often occurs when the Quickbasic Library is not used with [[CALL ABSOLUTE]] or [[INTERRUPT]] or a [[SUB]] or [[FUNCTION]] procedure has not been created for a [[CALL]]. || none
-|-
-| 37 || Argument-count mismatch || The number of sub-procedure [[parameters]] do not match the call. || none
-|-
-| 38 || Array not defined || [[Arrays]] using more than 10 elements must be [[DIM|DIMensioned]]. || none
-|-
-| 40 || Variable required. || [[LEN]] cannot read literal numerical values. A [[GET]] or [[PUT]] statement must specify a variable when reading or writing a file opened in [[BINARY]] mode. || none
-|-
-| 50 || [[FIELD]] overflow. || A [[FIELD]] statement tried to allocate more bytes than were specified for the record length of a random access file. || none
-|-
-| 51 || Internal error. || An internal malfunction occured in QuickBASIC or QB64. || none
-|-
-| 52 || Bad file name or number. || The filename must follow the rules for filenames in the OS and use filenumbers from 1 and 255. Use [[FREEFILE]] to avoid duplicate [[OPEN]] file numbers. || none
-|-
-| 53 || File not found. || File not in current directory or path. Use [[_FILEEXISTS]] to verify file names. || none
-|-
-| 54 || Bad file mode. || File access mode does not match a current [[OPEN]] file procedure. || none
-|-
-| 55 || File already open. || [[CLOSE]] a file to open it in a different mode. || none
-|-
-| 56 || FIELD statement active. || '''WRITEME''' || N/A
-|-
-| 57 || Device I/O error. || '''WRITEME''' || N/A
-|-
-| 58 || File already exists. || The filename specified in the [[NAME]] statement was identical to a file that already exists. || none
-|-
-| 59 || Bad record length. || Record length exceeds 32767 bytes or is 0 || none
-|-
-| 61 || Disk full. || The amount of data to write to the disk was more than the free space available, remove some files you don't need and try again. || none
-|-
-| 62 || Input past end of file. || Check for the end of file with [[EOF]] when reading from a file. || none
-|-
-| 63 || Bad record number. || [[GET]] read exceeds number of records in a [[RANDOM]] file. || none
-|-
-| 64 || Bad file name || File name contains illegal characters or exceeds 12 characters. || none
-|-
-| 67 || Too many files || Over 15 files are open in Qbasic. || none
-|-
-| 68 || Device unavailable. || Device does not exist, busy or not connected. || none
-|-
-| 69 || Communication-buffer overflow. || '''WRITEME''' || N/A
-|-
-| 70 || Permission denied || A file or port is in use on a network, blocked, read only or locked. || none
-|-
-| 71 || Disk not ready. || Disk is busy or has no media. || none
-|-
-| 72 || Disk-media error. || Improper media format or bad data. || none
-|-
-| 73 || Feature unavailable. || Based on the DOS version available. || none
-|-
-| 74 || Rename across disks. || '''WRITEME''' || N/A
-|-
-| 75 || Path/File access error. || File or path cannot be accessed. || none
-|-
-| 76 || Path not found. || Path is not access-able or does not exist. Use [[_DIREXISTS]] to check paths.|| none
-|-
-| 97 || (no error message) || Can be used to trigger an error trap event with [[ERROR]] 97, nothing else will cause this error, so create your own errors for [[ON ERROR]]. || none
-|-
-|}
-&lt;center>'''N/A means Not Available or Not Applicable to QB64.'''&lt;/center>
-
-
-{| border="1" cellpadding="2"
-! colspan="6"|QB64 Error Codes
-|-
-! Code || Description || Common cause/resolution || QB Differences
-|-
-| 258 || Invalid handle || Zero or bad handle values cannot be used by the QB64 procedure creating the error. || N/A
+| 258 || Invalid handle || An handle used for an image, sound, font etc. was invalid. Be sure to check the return values of functions like _LOADFONT and _LOADIMAGE.
 |}
 
+Error handling of file operations varies between operating systems and is highly dependent on the exact circumstances. The errors marked "file error" above should all be equally treated as a generic failure to read or write from disk.
 
+== Critical errors ==
+These errors can be triggered in QB64 but will not be caught by an [[ON ERROR]] handler. They are always fatal, causing the program to exit.
+{| class="wikitable"
+|-
+! Code !! Description !! Notes
+|-
+| 11 || Division by zero || Only relevant for integer division, and may not be caught on all operating systems.
+|-
+| 256 || Out of stack space || Too many nested [[GOSUB]] calls.
+|-
+| 257 || Out of memory || Generic out of memory condition.
+|-
+| 259 || Cannot find dynamic library file || A .dll, .so or .dylib file referred to by [[DECLARE LIBRARY]] was not found.
+|-
+| 260, 261 || Sub/Function does not exist in dynamic library || A function declared with [[DECLARE LIBRARY]] does not exist.
+|-
+| 270 || _GL command called outside of SUB _GL's scope
+|-
+| 271 || END/SYSTEM called within SUB _GL's scope
+|-
+| 300 || Memory region out of range || Triggrered by _MEM commands
+|-
+| 301 || Invalid size || Triggrered by _MEM commands
+|-
+| 302 || Source memory region out of range || Triggrered by _MEM commands
+|-
+| 303 || Destination memory region out of range || Triggrered by _MEM commands
+|-
+| 304 || Source and destination memory regions out of range || Triggrered by _MEM commands
+|-
+| 305 || Source memory has been freed || Triggrered by _MEM commands
+|-
+| 306 || Destination memory has been freed || Triggrered by _MEM commands
+|-
+| 307 || Memory already freed || Triggrered by _MEM commands
+|-
+| 308 || Memory has been freed || Triggrered by _MEM commands
+|-
+| 309 || Memory not initialized || Triggrered by _MEM commands
+|-
+| 310 || Source memory not initialized || Triggrered by _MEM commands
+|-
+| 311 || Destination memory not initialized || Triggrered by _MEM commands
+|-
+| 312 || Source and destination memory not initialized || Triggrered by _MEM commands
+|-
+| 313 || Source and destination memory have been freed || Triggrered by _MEM commands
+|-
+| 314 || _ASSERT failed || See [[_ASSERT]].
+|-
+| 315 || _ASSERT failed (check console for description) || See [[_ASSERT]].
+|-
+| 502 to 518 || Out of memory || Generic out of memory condition.
+|}
+
+== Legacy errors ==
+These errors will never be generated by a genuine error condition, and can only be triggered by explicit use of the [[ERROR]] command. They can all be caught by [[ON ERROR]].
+{| class="wikitable"
+|-
+! Code !! Description
+|-
+| 1 || NEXT without FOR
+|-
+| 8 || Label not defined
+|-
+| 12 || Illegal in direct mode
+|-
+| 14 || Out of string space
+|-
+| 16 || String formula too complex
+|-
+| 17 || Cannot continue
+|-
+| 18 || Function not defined
+|-
+| 19 || No RESUME
+|-
+| 24 || Device timeout
+|-
+| 25 || Device fault
+|-
+| 26 || FOR without NEXT
+|-
+| 27 || Out of paper
+|-
+| 29 || WHILE without WEND
+|-
+| 30 || WEND without WHILE
+|-
+| 33 || Duplicate label
+|-
+| 35 || Subprogram not defined
+|-
+| 37 || Argument-count mismatch
+|-
+| 38 || Array not defined
+|-
+| 40 || Variable required
+|-
+| 56 || FIELD statement active
+|-
+| 57 || Device I/O error
+|-
+| 58 || File already exists
+|-
+| 61 || Disk full
+|-
+| 67 || Too many files
+|-
+| 69 || Communication-buffer overflow
+|-
+| 71 || Disk not ready
+|-
+| 72 || Disk-media error
+|-
+| 73 || Feature unavailable
+|-
+| 74 || Rename across disks
+|}
+
+==Custom errors==
+Any code not listed above may be used as a custom error code with [[ERROR]] to signal other errors in your application. To avoid confusion, it is a good idea to start at error code 100 and go up from there.
 
 ==Other Errors==
-
-* '''Syntax errors''': '''QB64''' will display most statement syntax and parameter errors in the Status area below the editing area in the [[IDE]]. It may also show missing brackets or other syntax punctuation required. Check the keyword's [[Syntax Notation Conventions|syntax]] when necessary!
-
-
-* '''CPU Memory errors''' can be created when QB64 loads too many images at one time using [[_LOADIMAGE]] or [[_NEWIMAGE]] without freeing them. Use [[_FREEIMAGE]] to free unused handles. Also may be caused by continually running loops.
-
-
-* '''Parameter Type Mismatch''': Qbasic's IDE may add DEF statements before any [[SUB]] or [[FUNCTION]]. '''QB64'''(like QB) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|"Parameter Type Mismatch"]] warning or adding the proper DEF statement to subsequent procedures! If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures!
+*Syntax errors: QB64 will display most statement syntax and parameter errors in the Status area below the editing area in the IDE. It may also show missing brackets or other syntax punctuation required. Check the keyword's syntax when necessary.
+*Memory errors: Loading many resources with a function like [[_LOADIMAGE]] and not freeing (e.g. [[_FREEIMAGE]]) can cause out of memory conditions, especially when executed in a loop.
+*CPU consumption: Loops will tend to use 100% of a processor by default. Consider using [[_LIMIT]] to restrict CPU usage.
 
 ==See also==
-* [[ERROR]] (simulates error), [[ERR]] ('''QB''' error code number), [[ERL]] (closest line number when line numbers are used)
-* [[ON ERROR]] (calls error handing routine using [[GOTO]] only), [[_ERRORLINE]] (actual '''QB64''' text code line)
+
+*[[ERROR]] (simulates error), [[ERR]] (error code number), [[ERL]] (closest line number when line numbers are used)
+*[[ON ERROR]] (calls error handing routine using [[GOTO]] only), [[_ERRORLINE]] (actual text code line)
+*[[_INCLERRORLINE]], [[_INCLERRORFILE$]], [[_ERRORMESSAGE$]]
 
 
 {{PageNavigation}}

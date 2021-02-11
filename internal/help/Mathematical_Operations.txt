@@ -3,7 +3,7 @@
   |}
 
 ==Basic and QB64 Numerical Types==
-&lt;center>'''Qbasic Number Types'''&lt;/center>
+&lt;center>'''QBasic Number Types'''&lt;/center>
 
 * [[INTEGER]] ['''%''']: 2 Byte signed whole number values from -32768 to 32767. 0 to 65535 unsigned. (not checked in QB64) 
 * [[LONG]] ['''&amp;''']: 4 byte signed whole number values from -2147483648 to 2147483647. 0 to 4294967295 unsigned.
@@ -18,7 +18,7 @@
 * [[_BYTE]] ['''%%''']: 1 byte signed whole number values from -128 to 127. Unsigned values from 0 to 255.
 * [[_INTEGER64]] ['''&amp;&amp;''']: 8 byte signed whole number values from -9223372036854775808 to 9223372036854775807
 * [[_FLOAT]] [##]: currently set as 10 byte signed floating decimal point values up to 1.1897E+4932. '''Cannot be unsigned.'''
-* [[_OFFSET]] [%&amp;]: undefined flexable length integer offset values used in [[DECLARE DYNAMIC LIBRARY]] declarations. 
+* [[_OFFSET]] [%&amp;]: undefined flexible length integer offset values used in [[DECLARE DYNAMIC LIBRARY]] declarations. 
 
 
 &lt;center>'''Signed and Unsigned Integer Values'''&lt;/center>
@@ -36,38 +36,32 @@ Negative (signed) numerical values can affect calculations when using any of the
 &lt;center>[[#toc|Return to Top]]&lt;/center>
 
 ==Mathematical Operation Symbols==
-Most of the BASIC math operators are ones that require no introduction. The addition, subtraction, multplication and division operators are ones commonly used as shown below:
+Most of the BASIC math operators are ones that require no introduction. The addition, subtraction, multiplication and division operators are ones commonly used as shown below:
 
-{| align="center" border=1 
-! Symbol 
-! Procedure Type
-! Example Usage
-! Operation Order 
+{| class="wikitable"
+! Symbol !! Procedure Type !! Example Usage !! Operation Order 
 |- 
-| align="center" |[[+]] ||  Addition || align="center" | c = a + b  || align="center" | Last
+| [[+]] || Addition || c = a + b || Last
 |-
-| align="center" |[[-]] ||  Subtraction  || align="center" | c = a - b || align="center" | Last
+| [[-]] || Subtraction || c = a - b || Last
 |-
-| align="center" |[[-]] ||  Negation  || align="center" | c = - a || align="center" | Last
+| [[-]] || Negation || c = -a || Last
 |- 
-| align="center" |[[*]] ||  Multiplication || align="center" | c = a * b || align="center" | Second
+| [[*]] || Multiplication || c = a * b || Second
 |-
-| align="center" |[[/]] ||  Division  || align="center" | c = a / b || align="center" | Second
+| [[/]] || Division || c = a / b || Second
 |}
 
 
 BASIC can also use two other operators for '''[[INTEGER]] division'''. Integer division returns only whole number values. [[MOD]] '''remainder division''' returns a value only if an integer division cannot divide a number exactly. Returns 0 if a value is exactly divisible.
 
 
-{| align="center" border=1
-!Symbol
-!Procedure Type
-!Example Usage
-!Operation Order 
+{| class="wikitable"
+! Symbol !!Procedure Type !!Example Usage !!Operation Order 
 |-
-| align="center" |[[\]] ||  Integer division || align="center" | c = a \ b || align="center" | Second 
+| [[\]] || Integer division ||  c = a \ b || Second 
 |-
-| align="center" |[[MOD]] ||  Remainder division  || align="center" | c = a MOD b || align="center" | Second
+| [[MOD]] || Remainder division ||  c = a MOD b ||  Second
 |}
 
 
@@ -77,15 +71,12 @@ BASIC can also use two other operators for '''[[INTEGER]] division'''. Integer d
 There is also an operator for '''exponential''' calculations. The exponential operator is used to raise a number's value to a designated exponent of itself. In QB the exponential return values are [[DOUBLE]] values. The [[SQR]] function can return a number's Square Root. For other '''exponential roots''' the operator can be used with fractions such as (1 / 3) designating the cube root of a number. 
 
 
-{| align="center" border=1
-!Symbol
-!Procedure
-!Example Usage 
-!Operation Order
+{| class="wikitable"
+! Symbol !!Procedure !!Example Usage !!Operation Order
 |-
-| align="center" |[[^]] || Exponent || align="center" | c = a [[^]] (1 / 2) || align="center" | First
+| [[^]] || Exponent ||  c = a ^ (1 / 2) ||  First
 |-
-| align="center" | [[SQR]] || Square Root || align="center" | c = [[SQR]](a [[^]] 2 + b [[^]] 2) || align="center" | First 
+|  [[SQR]] || Square Root ||  c = SQR(a ^ 2 + b ^ 2) ||  First 
 |}
 
 
@@ -113,50 +104,52 @@ Sometimes a calculation may need BASIC to do them in another order or the calcul
 
 ==Basic's Mathematical Functions==
 
-{| align=center border=1
- ! Function
- ! Description
- |-
- | [[ABS]](n) || returns the absolute (positive) value of n: ABS(-5) = 5
- |- 
- | [[ATN]](angle*) || returns the arctangent of an angle in radians: π = 4 * ATN(1)
- |-
- | [[COS]](angle*) || returns the cosine of an angle in radians. (horizontal component)
- |-
- | [[EXP]](n) || returns e&lt;sup>x&lt;/sup>, '''(n &lt;= 88.02969)''': e = EXP(1) ' (e = 2.718281828459045)
- |-
- | [[LOG]](n) || returns the base e natural logarithm of n. '''(n > 0)'''
- |-
- | [[SGN]](n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
- |-
- | [[SIN]](angle*) || returns the sine of an angle in radians. (vertical component)
- |-
- | [[SQR]](n) || returns the square root of a number. '''(n >= 0)'''
- |-
- | [[TAN]](angle*) ||  returns the tangent of an angle in radians
- |}
+{| class="wikitable"
+! Function !! Description
+|-
+| [[ABS]](n) || returns the absolute (positive) value of n: ABS(-5) = 5
+|- 
+| [[ATN]](angle*) || returns the arctangent of an angle in radians: pi = 4 * ATN(1)
+|-
+| [[COS]](angle*) || returns the cosine of an angle in radians. (horizontal component)
+|-
+| [[EXP]](n) || returns e ^ x, (n &lt;= 88.02969): e = EXP(1) ' (e = 2.718281828459045)
+|-
+| [[LOG]](n) || returns the base e natural logarithm of n. (n > 0)
+|-
+| [[SGN]](n) || returns -1 if n &lt; 0, 0 if n = 0, 1 if n > 0: SGN(-5) = -1
+|-
+| [[SIN]](angle*) || returns the sine of an angle in radians. (vertical component)
+|-
+| [[SQR]](n) || returns the square root of a number. (n >= 0)
+|-
+| [[TAN]](angle*) ||  returns the tangent of an angle in radians
+|}
 
 &lt;center> '''* angles measured in radians'''&lt;/center>
 
 
-{{TextStart}}                                '''Degree to Radian Conversion:'''
-FUNCTION Radian (degrees)
-Radian = degrees * (4 * {{Cb|ATN}}(1)) / 180
-END FUNCTION '' ''
+''Example:'' Degree to Radian Conversion.
+{{CodeStart}} '' ''
+{{Cl|FUNCTION}} Radian (degrees)
+  Radian = degrees * (4 * {{Cl|ATN}}(1)) / 180
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION Degree (radians)
-Degree = radians * 180 / (4 * {{Cb|ATN}}(1))
-END FUNCTION
+{{Cl|FUNCTION}} Degree (radians)
+  Degree = radians * 180 / (4 * {{Cl|ATN}}(1))
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
 
-                                    '''Logarithm to base n'''
-FUNCTION LOGN (X, n)    
-IF n > 0 AND n &lt;> 1 AND X > 0 THEN LOGN = {{Cb|LOG}}(X) / {{Cb|LOG}}(n) ELSE BEEP
-END FUNCTION '' '' 
+''Example:'' Logarithm to base n.
+{{CodeStart}} '' ''
+{{Cl|FUNCTION}} LOGN (X, n)    
+  {{Cl|IF}} n > 0 {{Cl|AND}} n &lt;> 1 {{Cl|AND}} X > 0 {{Cl|THEN}} LOGN = {{Cl|LOG}}(X) / {{Cl|LOG}}(n) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} '' '' 
 
-FUNCTION LOG10 (X)    'base 10 logarithm
-IF X > 0 THEN LOG10 = {{Cb|LOG}}(X) / {{Cb|LOG}}(10) ELSE BEEP
-END FUNCTION '' ''
-{{TextEnd}}
+{{Cl|FUNCTION}} LOG10 (X)    'base 10 logarithm
+  {{Cl|IF}} X > 0 {{Cl|THEN}} LOG10 = {{Cl|LOG}}(X) / {{Cl|LOG}}(10) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
 
 
 &lt;center>'''The numerical value of n in the [[LOG]](n) evaluation must be a positive value.'''&lt;/center>
@@ -174,102 +167,107 @@ END FUNCTION '' ''
 The following Trigonometric functions can be derived from the '''BASIC Mathematical Functions''' listed above. Each function checks that certain values can be used without error or a [[BEEP]] will notify the user that a value could not be returned. An error handling routine can be substituted if desired. '''Note:''' Functions requiring '''π''' use 4 * [[ATN]](1) for [[SINGLE]] accuracy. Use [[ATN]](1.#) for [[DOUBLE]] accuracy.
 
 
-{{TextStart}}'' ''
-FUNCTION SEC (x)  'Secant
-IF COS(x) &lt;> 0 THEN SEC = 1 / {{Cb|COS}}(x) ELSE BEEP
-END FUNCTION
+{{CodeStart}}'' ''
+{{Cl|FUNCTION}} SEC (x)  'Secant
+  {{Cl|IF}} COS(x) &lt;> 0 {{Cl|THEN}} SEC = 1 / {{Cl|COS}}(x) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}}
 
-FUNCTION CSC (x)  'CoSecant 
-IF SIN(x) &lt;> 0 THEN CSC = 1 / {{Cb|SIN}}(x) ELSE BEEP
-END FUNCTION 
+{{Cl|FUNCTION}} CSC (x)  'CoSecant 
+  {{Cl|IF}} SIN(x) &lt;> 0 {{Cl|THEN}} CSC = 1 / {{Cl|SIN}}(x) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} 
 
-FUNCTION COT (x)  'CoTangent 
-IF TAN(x) &lt;> 0 THEN COT = 1 / {{Cb|TAN}}(x) ELSE BEEP
-END FUNCTION 
+{{Cl|FUNCTION}} COT (x)  'CoTangent 
+  {{Cl|IF}} TAN(x) &lt;> 0 {{Cl|THEN}} COT = 1 / {{Cl|TAN}}(x) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} 
 
-FUNCTION ARCSIN (x)   'Inverse Sine           
-IF x &lt; 1 THEN ARCSIN = {{Cb|ATN}}(x / {{Cb|SQR}}(1 - (x * x))) ELSE BEEP
-END FUNCTION 
+{{Cl|FUNCTION}} ARCSIN (x)   'Inverse Sine           
+  {{Cl|IF}} x &lt; 1 {{Cl|THEN}} ARCSIN = {{Cl|ATN}}(x / {{Cl|SQR}}(1 - (x * x))) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} 
 
-FUNCTION ARCCOS (x) ' Inverse Cosine
-IF x &lt; 1 THEN ARCCOS = (2 * ATN(1)) - {{Cb|ATN}}(x / {{Cb|SQR}}(1 - x * x)) ELSE BEEP
-END FUNCTION
+{{Cl|FUNCTION}} ARCCOS (x) ' Inverse Cosine
+  {{Cl|IF}} x &lt; 1 {{Cl|THEN}} ARCCOS = (2 * {{Cl|ATN}}(1)) - {{Cl|ATN}}(x / {{Cl|SQR}}(1 - x * x)) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}}
 
-FUNCTION ARCSEC (x)   ' Inverse Secant        
-IF x &lt; 1 THEN ARCSEC = {{Cb|ATN}}(x / {{Cb|SQR}}(1 - x * x)) + ({{Cb|SGN}}(x) - 1) * (2 * ATN(1)) ELSE BEEP
-END FUNCTION 
+{{Cl|FUNCTION}} ARCSEC (x)   ' Inverse Secant        
+  {{Cl|IF}} x &lt; 1 {{Cl|THEN}} ARCSEC = {{Cl|ATN}}(x / {{Cl|SQR}}(1 - x * x)) + ({{Cl|SGN}}(x) - 1) * (2 * ATN(1)) {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} 
 
-FUNCTION ARCCSC (x)  ' Inverse CoSecant 
-IF x &lt; 1 THEN ARCCSC = ATN(1 / SQR(1 - x * x)) + (SGN(x)-1) * (2 * ATN(1)) ELSE BEEP 
-END FUNCTION 
+{{Cl|FUNCTION}} ARCCSC (x)  ' Inverse CoSecant 
+  {{Cl|IF}} x &lt; 1 {{Cl|THEN}} ARCCSC = {{Cl|ATN}}(1 / {{Cl|SQR}}(1 - x * x)) + ({{Cl|SGN}}(x)-1) * (2 * {{Cl|ATN}}(1)) {{Cl|ELSE}} {{Cl|BEEP}} 
+{{Cl|END FUNCTION}} 
 
-FUNCTION ARCCOT (x)  ' Inverse CoTangent 
-ARCCOT = (2 * {{Cb|ATN}}(1)) - {{Cb|ATN}}(x)
-END FUNCTION '' ''
+{{Cl|FUNCTION}} ARCCOT (x)  ' Inverse CoTangent 
+  ARCCOT = (2 * {{Cl|ATN}}(1)) - {{Cl|ATN}}(x)
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION SINH (x)  ' Hyperbolic Sine 
-IF x &lt;= 88.02969 THEN SINH = ({{Cb|EXP}}(x) - {{Cb|EXP}}(-x)) / 2 ELSE BEEP
-END FUNCTION '' ''
+{{Cl|FUNCTION}} SINH (x)  ' Hyperbolic Sine 
+  {{Cl|IF}} x &lt;= 88.02969 {{Cl|THEN}} SINH = ({{Cl|EXP}}(x) - {{Cl|EXP}}(-x)) / 2 {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION COSH (x)  ' Hyperbolic CoSine 
-IF x &lt;= 88.02969 THEN COSH = (EXP(x) + EXP(-x)) / 2 ELSE BEEP
-END FUNCTION '' ''
+{{Cl|FUNCTION}} COSH (x)  ' Hyperbolic CoSine 
+  {{Cl|IF}} x &lt;= 88.02969 {{Cl|THEN}} COSH = ({{Cl|EXP}}(x) + {{Cl|EXP}}(-x)) / 2 {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION TANH (x)  ' Hyperbolic Tangent or SINH(x) / COSH(x)
-IF 2 * x &lt;= 88.02969 AND EXP(2 * x) + 1 &lt;> 0 THEN 
-     TANH = ({{Cb|EXP}}(2 * x) - 1) / ({{Cb|EXP}}(2 * x) + 1) 
-ELSE BEEP 
-END IF 
-END FUNCTION '' ''
+{{Cl|FUNCTION}} TANH (x)  ' Hyperbolic Tangent or SINH(x) / COSH(x)
+  {{Cl|IF}} 2 * x &lt;= 88.02969 {{Cl|AND}} {{Cl|EXP}}(2 * x) + 1 &lt;> 0 {{Cl|THEN}} 
+    TANH = ({{Cl|EXP}}(2 * x) - 1) / ({{Cl|EXP}}(2 * x) + 1) 
+  {{Cl|ELSE}}
+    {{Cl|BEEP}} 
+  {{Cl|END IF}} 
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION SECH (x)  ' Hyperbolic Secant or (COSH(x)) ^ -1
-IF x &lt;= 88.02969 AND (EXP(x) + EXP(-x)) &lt;> 0 THEN SECH = 2 / ({{Cb|EXP}}(x) + {{Cb|EXP}}(-x)) ELSE BEEP  
-END FUNCTION '' ''
+{{Cl|FUNCTION}} SECH (x)  ' Hyperbolic Secant or (COSH(x)) ^ -1
+  {{Cl|IF}} x &lt;= 88.02969 {{Cl|AND}} ({{Cl|EXP}}(x) + {{Cl|EXP}}(-x)) &lt;> 0 {{Cl|THEN}} SECH = 2 / ({{Cl|EXP}}(x) + {{Cl|EXP}}(-x)) {{Cl|ELSE}} {{Cl|BEEP}}  
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION CSCH (x)  ' Hyperbolic CoSecant or (SINH(x)) ^ -1
-IF x &lt;= 88.02969 AND (EXP(x) - EXP(-x)) &lt;> 0 THEN CSCH = 2 / ({{Cb|EXP}}(x) - {{Cb|EXP}}(-x)) ELSE BEEP  
-END FUNCTION '' ''
+{{Cl|FUNCTION}} CSCH (x)  ' Hyperbolic CoSecant or (SINH(x)) ^ -1
+  {{Cl|IF}} x &lt;= 88.02969 {{Cl|AND}} ({{Cl|EXP}}(x) - {{Cl|EXP}}(-x)) &lt;> 0 {{Cl|THEN}} CSCH = 2 / ({{Cl|EXP}}(x) - {{Cl|EXP}}(-x)) {{Cl|ELSE}} {{Cl|BEEP}}  
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION COTH (x)  ' Hyperbolic CoTangent or COSH(x) / SINH(x)
-IF 2 * x &lt;= 88.02969 AND EXP(2 * x) - 1 &lt;> 0 THEN 
-     COTH = ({{Cb|EXP}}(2 * x) + 1) / ({{Cb|EXP}}(2 * x) - 1) 
-ELSE BEEP  
-END IF
-END FUNCTION '' ''
+{{Cl|FUNCTION}} COTH (x)  ' Hyperbolic CoTangent or COSH(x) / SINH(x)
+  {{Cl|IF}} 2 * x &lt;= 88.02969 {{Cl|AND}} {{Cl|EXP}}(2 * x) - 1 &lt;> 0 {{Cl|THEN}} 
+     COTH = ({{Cl|EXP}}(2 * x) + 1) / ({{Cl|EXP}}(2 * x) - 1) 
+  {{Cl|ELSE}}
+    {{Cl|BEEP}}  
+  {{Cl|END IF}}
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION ARCSINH (x)  ' Inverse Hyperbolic Sine 
-IF (x * x) + 1 >= 0 AND x + SQR((x * x) + 1) > 0 THEN 
-ARCSINH = {{Cb|LOG}}(x + {{Cb|SQR}}(x * x + 1)) 
-ELSE BEEP
-END IF
-END FUNCTION '' ''
+{{Cl|FUNCTION}} ARCSINH (x)  ' Inverse Hyperbolic Sine 
+  {{Cl|IF}} (x * x) + 1 >= 0 {{Cl|AND}} x + {{Cl|SQR}}((x * x) + 1) > 0 {{Cl|THEN}} 
+    ARCSINH = {{Cl|LOG}}(x + {{Cl|SQR}}(x * x + 1)) 
+  {{Cl|ELSE}}
+    {{Cl|BEEP}}
+  {{Cl|END IF}}
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION ARCCOSH (x)  ' Inverse Hyperbolic CoSine 
-IF x >= 1 AND x * x - 1 >= 0 AND x + SQR(x * x - 1) > 0 THEN 
-ARCCOSH = {{Cb|LOG}}(x + {{Cb|SQR}}(x * x - 1)) 
-ELSE BEEP
-END IF
-END FUNCTION '' ''
+{{Cl|FUNCTION}} ARCCOSH (x)  ' Inverse Hyperbolic CoSine 
+  {{Cl|IF}} x >= 1 {{Cl|AND}} x * x - 1 >= 0 {{Cl|AND}} x + {{Cl|SQR}}(x * x - 1) > 0 {{Cl|THEN}} 
+    ARCCOSH = {{Cl|LOG}}(x + {{Cl|SQR}}(x * x - 1)) 
+  {{Cl|ELSE}}
+    {{Cl|BEEP}}
+  {{Cl|END IF}}
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION ARCTANH (x)  ' Inverse Hyperbolic Tangent 
-IF x &lt; 1 THEN ARCTANH = {{Cb|LOG}}((1 + x) / (1 - x)) / 2 ELSE BEEP
-END FUNCTION 
+{{Cl|FUNCTION}} ARCTANH (x)  ' Inverse Hyperbolic Tangent 
+  {{Cl|IF}} x &lt; 1 {{Cl|THEN}} ARCTANH = {{Cl|LOG}}((1 + x) / (1 - x)) / 2 {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} 
 
-FUNCTION ARCSECH (x)  ' Inverse Hyperbolic Secant 
-IF x > 0 AND x &lt;= 1 THEN ARCSECH = {{Cb|LOG}}(({{Cb|SGN}}(x) * {{Cb|SQR}}(1 - x * x) + 1) / x) ELSE BEEP  
-END FUNCTION '' ''
+{{Cl|FUNCTION}} ARCSECH (x)  ' Inverse Hyperbolic Secant 
+  {{Cl|IF}} x > 0 {{Cl|AND}} x &lt;= 1 {{Cl|THEN}} ARCSECH = {{Cl|LOG}}(({{Cl|SGN}}(x) * {{Cl|SQR}}(1 - x * x) + 1) / x) {{Cl|ELSE}} {{Cl|BEEP}}  
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION ARCCSCH (x)  ' Inverse Hyperbolic CoSecant 
-IF x &lt;> 0 AND x * x + 1 >= 0 AND (SGN(x) * SQR(x * x + 1) + 1) / x > 0 THEN 
-     ARCCSCH = {{Cb|LOG}}(({{Cb|SGN}}(x) * {{Cb|SQR}}(x * x + 1) + 1) / x) 
-ELSE BEEP
-END IF
-END FUNCTION '' ''
+{{Cl|FUNCTION}} ARCCSCH (x)  ' Inverse Hyperbolic CoSecant 
+  {{Cl|IF}} x &lt;> 0 {{Cl|AND}} x * x + 1 >= 0 {{Cl|AND}} ({{Cl|SGN}}(x) * {{Cl|SQR}}(x * x + 1) + 1) / x > 0 {{Cl|THEN}} 
+     ARCCSCH = {{Cl|LOG}}(({{Cl|SGN}}(x) * {{Cl|SQR}}(x * x + 1) + 1) / x) 
+  {{Cl|ELSE}}
+    {{Cl|BEEP}}
+  {{Cl|END IF}}
+{{Cl|END FUNCTION}} '' ''
 
-FUNCTION ARCCOTH (x)  ' Inverse Hyperbolic CoTangent 
-IF x > 1 THEN ARCCOTH = {{Cb|LOG}}((x + 1) / (x - 1)) / 2 ELSE BEEP
-END FUNCTION '' ''
-{{TextEnd}}
+{{Cl|FUNCTION}} ARCCOTH (x)  ' Inverse Hyperbolic CoTangent 
+  {{Cl|IF}} x > 1 {{Cl|THEN}} ARCCOTH = {{Cl|LOG}}((x + 1) / (x - 1)) / 2 {{Cl|ELSE}} {{Cl|BEEP}}
+{{Cl|END FUNCTION}} '' ''
+{{CodeEnd}}
 {{WhiteStart}}
                            '''Hyperbolic Function Relationships:'''
 
@@ -293,7 +291,7 @@ END FUNCTION '' ''
 
 {{WhiteEnd}}
 
-&lt;center>[http://support.microsoft.com/kb/28249 Microsoft's Derived BASIC Functions (KB 28249)]&lt;/center>
+&lt;center>[https://web.archive.org/web/20140417011701/http://support.microsoft.com/kb/28249 Microsoft's Derived BASIC Functions (KB 28249)]&lt;/center>
 
 
 &lt;center>[[#toc|Return to Top]]&lt;/center>
@@ -326,24 +324,22 @@ Relational Operations are used to compare values in a Conditional [[IF...THEN]],
 
 : Rounding is used when the program needs a certain number value or type. There are 4 [[INTEGER]] or [[LONG]] Integer functions and one function each for closest [[SINGLE]] and closest [[DOUBLE]] numerical types. Closest functions use "bankers" rounding which rounds up if the decimal point value is over one half. Variable types should match the return value.
 
-{| align=center border=1
-! Name
-! Description
+{| class="wikitable"
+! Name !! Description
 |-
-
 |[[INT]](n) || rounds down to lower Integer value whether positive or negative
 |-
 |[[FIX]](n) || rounds positive values lower and negative to a less negative Integer value
 |-
 |[[CINT]](n) ||rounds to closest Integer. Rounds up for decimal point values over one half.
 |-
-| [[CLNG]](n) || rounds Integer or Long values to closest value like CINT.(values over 32767)
+|[[CLNG]](n) || rounds Integer or Long values to closest value like CINT.(values over 32767)
 |-
-| [[CSNG]](n) || rounds Single values to closest last decimal point value.
+|[[CSNG]](n) || rounds Single values to closest last decimal point value.
 |-
-| [[CDBL]](n) || rounds Double values to closest last decimal point value.
+|[[CDBL]](n) || rounds Double values to closest last decimal point value.
 |-
-| [[_ROUND]] || rounds to closest numerical integer value in '''QB64''' only.
+|[[_ROUND]](n) || rounds to closest numerical integer value.
 |}
 
 ===Note===

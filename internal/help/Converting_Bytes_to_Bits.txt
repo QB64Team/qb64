@@ -1,0 +1,75 @@
+Although QB64 has [[_BYTE]] and [[_BIT]] variable types, there may be times that you just want to know which bits are on or off in the byte value or convert the value to a [[Binary]] number.
+
+The tutorial below shows you how to do things manually, for instructional purposes. Bear in mind, though, that QB64 has the following suite of commands aimed at working with bits:
+:: [[_SETBIT]]
+:: [[_READBIT]]
+:: [[_TOGGLEBIT]]
+:: [[_RESETBIT]]
+:: [[_SHR]], [[_SHL]]
+
+== Doing it yourself ==
+
+Bits are numbered from 0 to 7 and normally are read from the most significant bit(MSB = 7) to the least significant bit(LSB = 0).
+
+
+: The following example shows how to convert an [[_UNSIGNED]] [[_BYTE]] or [[INTEGER]] value(0 to 255) to a [[Binary]] [[STRING]] number in QBasic.
+{{CodeStart}} '' ''
+{{Cl|DIM}} byte as {{Cl|_UNSIGNED}} {{Cl|_BYTE}}
+
+byte = 222
+
+{{Cl|FOR...NEXT|FOR}} bit = 7 to 0 {{Cl|STEP}} -1
+  {{Cl|IF...THEN|IF}} byte {{Cl|AND (boolean)|AND}} 2 ^ bit {{Cl|THEN}} {{Cl|PRINT}} "1"; {{Cl|ELSE}} {{Cl|PRINT}} "0";
+{{Cl|NEXT}} '' ''
+{{CodeEnd}}
+: ''Notes:'' The above code can be adapted to place a value into a bit [[Arrays|Array]] for up to 8 flag values in a single Byte.
+
+
+: How upper and lower [[_BYTE|byte]] bits are read from an [[INTEGER]] value using whole decimal or [[HEX$|hexadecimal]] values. 
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 12
+
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 10, 2: {{Cl|PRINT}} "      AH (High Register Byte Bits)           AL (Low Register Byte Bits)"
+{{Cl|COLOR}} 14: {{Cl|LOCATE}} 11, 2: {{Cl|PRINT}} "    15   14  13   12   11  10    9   8    7   6    5   4    3    2   1    0"
+{{Cl|COLOR}} 13: {{Cl|LOCATE}} 14, 2: {{Cl|PRINT}} " {{Cl|&amp;H}}8000 4000 2000 1000 800 400  200 100  80   40  20   10   8    4   2  {{Cl|&amp;H}}1"
+{{Cl|COLOR}} 11: {{Cl|LOCATE}} 15, 2: {{Cl|PRINT}} "-32768 16384 8192 4096 2048 1024 512 256 128  64  32   16   8    4   2    1"
+{{Cl|FOR...NEXT|FOR}} i = 1 {{Cl|TO}} 16
+  {{Cl|CIRCLE}} (640 - (37 * i), 189), 8, 9 'place bit circles
+{{Cl|NEXT}}
+{{Cl|LINE}} (324, 160)-(326, 207), 11, BF 'line splits bytes
+DO
+  {{Cl|IF...THEN|IF}} Num {{Cl|THEN}}
+    {{Cl|FOR...NEXT|FOR}} i = 15 {{Cl|TO}} 0 {{Cl|STEP}} -1
+      {{Cl|IF...THEN|IF}} (Num {{Cl|AND (boolean)|AND}} 2 ^ i) {{Cl|THEN}}
+        {{Cl|PAINT}} (640 - (37 * (i + 1)), 189), 12, 9
+        Bin$ = Bin$ + "1"
+      {{Cl|ELSE}}: {{Cl|PAINT}} (640 - (37 * (i + 1)), 189), 0, 9
+        Bin$ = Bin$ + "0"
+      {{Cl|END IF}}
+    {{Cl|NEXT}}
+    {{Cl|COLOR}} 10: {{Cl|LOCATE}} 16, 50: {{Cl|PRINT}} "Binary ="; {{Cl|VAL}}(Bin$)
+    {{Cl|COLOR}} 9: {{Cl|LOCATE}} 16, 10: {{Cl|PRINT}} "Decimal ="; Num;: {{Cl|COLOR}} 13: {{Cl|PRINT}} "       Hex = "; Hexa$
+    Hexa$ = "": Bin$ = ""
+  {{Cl|END IF}}
+  {{Cl|COLOR}} 14: {{Cl|LOCATE}} 17, 15: {{Cl|INPUT}} "Enter a decimal or HEX({{Cl|&amp;H}}) value (0 Quits): ", frst$
+  first = {{Cl|VAL}}(frst$)
+  {{Cl|LOCATE}} 17, 15: {{Cl|PRINT}} {{Cl|SPACE$}}(55)
+  {{Cl|IF...THEN|IF}} first {{Cl|THEN}}
+    {{Cl|COLOR}} 13: {{Cl|LOCATE}} 17, 15: {{Cl|INPUT}} "Enter a second value: ", secnd$
+    second = {{Cl|VAL}}(secnd$)
+    {{Cl|LOCATE}} 16, 10: {{Cl|PRINT}} {{Cl|SPACE$}}(69)
+  {{Cl|END IF}}
+  Num = first + second
+  Hexa$ = "{{Cl|&amp;H}}" + {{Cl|HEX$}}(Num)
+{{Cl|LOOP}} {{Cl|UNTIL}} first = 0 {{Cl|OR (boolean)|OR}} Num > 32767 {{Cl|OR (boolean)|OR}} Num &lt; -32768 {{Cl|OR (boolean)|OR}} (Num &lt; -1 {{Cl|AND (boolean)|AND}} Num > -32768 '' ''
+{{Cl|END}}
+{{CodeEnd}}{{small|Code by Ted Weissgerber}}
+
+
+''See also:''
+* [[Binary]]
+* [[_BIT]], [[&amp;B]]
+* [[_BYTE]]
+
+
+{{PageNavigation}}

@@ -15,7 +15,7 @@ The [[LEN]] function returns the number of bytes used by a variable value and th
 ** [[_FLOAT]] variable types return 32 bytes.
 ** [[_OFFSET]] and [[_MEM]] variable types return varying byte sizes.
 ** ''Note:'' [[_BIT]] variable types and bit multiples '''cannot be measured in bytes'''. 
-* '''LEN cannot return lengths of literal numerical values and will create a "variable required" status error in the [[IDE]].'''
+* '''LEN cannot return lengths of literal numerical values and will create a "variable required" status error in the IDE.'''
 * '''LEN =''' can be used with a user defined [[TYPE]] variable to determine the number of bytes used in [[RANDOM]] file records:
 :::: {{InlineCode}}[[OPEN]] file$ FOR [[RANDOM]] AS #n LEN &lt;nowiki>=&lt;/nowiki> LEN(recordTypeVariable){{InlineCodeEnd}}''' 
 :* If a LEN = statement is not used, [[RANDOM]] default record length is 128 or sequencial is 512 up to a maximum of 32767 bytes. 

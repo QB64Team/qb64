@@ -8,18 +8,18 @@ The [[_MEMGET]] statement reads a portion of a memory block at an OFFSET positio
 
 * {{Parameter|memoryBlock}} is a [[_MEM]] variable type memory block name created by [[_MEMNEW]] or the [[_MEM (function)|_MEM]] function.
 * {{Parameter|bytePosition}} is the {{Parameter|memoryBlock}}.[[OFFSET]] memory start position plus any bytes to move into the block. 
-* {{Parameter|destinationVariable}} is the variable assigned to hold the data. The number of bytes read is determined by the variable [[type]] used.
+* {{Parameter|destinationVariable}} is the variable assigned to hold the data. The number of bytes read is determined by the variable [[Variable Types|type]] used.
 
 
 {{PageDescription}}
 * The [[_MEMGET]] statement is similar to the [[GET]] statement used in files, but the position is required.
 * The memory block name.[[OFFSET]] returns the starting byte position of the block. Add bytes to move into the block.
 * The variable type held in the memory block can determine the next {{Parameter|bytePosition}} to read. 
-* [[LEN]] can be used to determine the byte size of numerical or user defined variable [[type]]s regardless of the value held.
+* [[LEN]] can be used to determine the byte size of numerical or user defined variable [[Variable Types|type]]s regardless of the value held.
 * [[STRING]] values should be of a defined length. Variable length strings can actually move around in memory and not be found.
 
 
-{{PageExamples]]
+{{PageExamples}}
 ''Example:'' Shows how to read the PSET color values from a program's [[SCREEN]] memory to an array.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 13

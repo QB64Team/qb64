@@ -12,7 +12,7 @@ The '''RESTORE''' statement is used to reset the DATA pointer to the beginning o
 * Use RESTORE to avoid an [[ERROR Codes|"Out of Data" error]] when reading a data field!
 * See the [[DATA]] statement for [[STRING]] data value specifications.
 * '''Do not place [[DATA]] fields after [[SUB]] or [[FUNCTION]] procedures! QB64 will FAIL to [[RESTORE]] properly!'''
-: Qbasic allowed programmers to add DATA fields anywhere because the [[IDE]] separated the main code from other procedures.
+: QBasic allowed programmers to add DATA fields anywhere because the IDE separated the main code from other procedures.
 
 
 ''Example:'' Restoring a labeled DATA field to avoid going past the end of DATA.
@@ -35,7 +35,7 @@ LOOP UNTIL monthnum% &lt; 1 OR monthnum% > 12
 Enter a month number(1 to 12): 6
 The month June has 30 days.
 {{OutputEnd}}
-:''Note:'' String DATA values do not require quotes unless they have commas, end spaces or Qbasic keywords in them.
+:''Note:'' String DATA values do not require quotes unless they have commas, end spaces or QBasic keywords in them.
 
 
 

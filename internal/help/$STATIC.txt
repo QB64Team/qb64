@@ -1,18 +1,19 @@
-The '''$STATIC''' Metacommand allows the creation of STATIC(un-changeable) arrays.
-
+The '''$STATIC''' [[Metacommand|metacommand]] allows the creation of static (unresizable) arrays.
 
 
 {{PageSyntax}}
-::: REM '''$STATIC'''
+:{[[REM]] | ' } '''$STATIC'''
 
 
-* Qbasic [[Metacommand]]s require a REM or apostrophy (') before them and are normally placed at the start of the main module.
+{{PageDescription}}
+* QBasic [[Metacommand]]s require a REM or apostrophy (') before them and are normally placed at the start of the main module.
 * Static arrays cannot be resized. If a variable is used to size any array, it becomes [[$DYNAMIC]].
-* A [[REDIM]] statement has no effect on [[$STATIC]] arrays except perhaps a [[ERROR Codes|duplicate definition error]] at the [[REDIM]] code.
+* A [[REDIM]] statement has no effect on [[$STATIC]] arrays except perhaps a [[ERROR Codes|duplicate definition error]] at the [[REDIM]] statement.
 * The array's type cannot be changed once [[DIM]] and a literal value sets the dimensions and element size.
 * [[$STATIC]] defined program [[arrays]] cannot be [[REDIM|re-sized]] or use [[_PRESERVE]].
 
 
+{{PageExamples}}
 ''Example:'' When a variable is used, the array can be resized despite $STATIC. The array becomes [[$DYNAMIC]].
 {{CodeStart}} '' ''
 '{{Cl|$STATIC}}
@@ -27,7 +28,7 @@ The '''$STATIC''' Metacommand allows the creation of STATIC(un-changeable) array
 : ''Note:'' [[DIM]] using a literal numerical size will create a Duplicate definition error.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[$DYNAMIC]], [[STATIC]]
 * [[Arrays]], [[Metacommand]]
 

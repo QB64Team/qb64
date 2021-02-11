@@ -31,9 +31,10 @@ client = {{Cl|_OPENCLIENT}}("TCP/IP:7319:localhost")
 ''Example 2:'' Using a "raw" Download function to download the QB64 bee image and displays it.
 {{CodeStart}}
 '' ''
-{{Cl|IF...THEN|IF}} Download("www.qb64.net/qb64.png", "qb64logo.png", 10) {{Cl|THEN}} ' timelimit = 10 seconds
+'replace the fake image address below with a real image address you want to download
+{{Cl|IF...THEN|IF}} Download("www.qb64.org/qb64.png", "qb64logo.png", 10) {{Cl|THEN}} ' timelimit = 10 seconds
  {{Cl|SCREEN}} {{Cl|_LOADIMAGE}}("qb64logo.png",32)
-{{Cl|ELSE}}: {{Cl|PRINT}} "Couldn't download QB64 logo."
+{{Cl|ELSE}}: {{Cl|PRINT}} "Couldn't download image."
 {{Cl|END IF}}
 {{Cl|SLEEP}}
 {{Cl|SYSTEM}}
@@ -89,8 +90,6 @@ t! = {{Cl|TIMER}} ' start time
 * [[_OPENHOST]], [[_OPENCONNECTION]]
 * [[_CONNECTED]], [[_CONNECTIONADDRESS$]]
 * [[Email Demo]], [[Inter-Program Data Sharing Demo]] 
-* [[Computer File Sharing Demo]]
-* [[IP Configuration]], [[WGET]] {{text|(HTTP and FTP file transfer)}}
 * [[Downloading Files]]
 
 
