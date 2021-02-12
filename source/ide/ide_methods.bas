@@ -3628,6 +3628,8 @@ FUNCTION ide2 (ignore)
                         HideBracketHighlight
                         keywordHighlight = oldkeywordHighlight
                         retval$ = idergbmixer$(-1)
+                    ELSE
+                        GOTO RegularEnter
                     END IF
                 END IF
                 IF LEN(retval$) THEN
@@ -3640,11 +3642,11 @@ FUNCTION ide2 (ignore)
                 END IF
                 GOTO specialchar
             ELSE
+                a$ = idegetline(idecy)
+                RegularEnter:
                 ideselect = 0
                 desiredcolumn = 1
                 idechangemade = 1
-
-                a$ = idegetline(idecy)
                 IF idecx > LEN(a$) THEN
                     ideinsline idecy + 1, ""
                     IF LEN(a$) = 0 THEN
