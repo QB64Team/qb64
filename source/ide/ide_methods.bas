@@ -8617,6 +8617,7 @@ FUNCTION idesubs$
     IF LEN(a2$) > 1 THEN
         DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
             a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
+            IF LEN(a2$) = 0 THEN EXIT DO
         LOOP
     END IF
 
