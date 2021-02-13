@@ -282,17 +282,6 @@ SUB WikiParse (a$)
         c$(ii) = SPACE$(ii)
     NEXT
 
-    a$ = StrReplace$(a$, "&lt;", "<")
-    a$ = StrReplace$(a$, "&gt;", ">")
-    a$ = StrReplace$(a$, CHR$(194) + CHR$(160), "")
-    a$ = StrReplace$(a$, "&amp;", "&")
-    a$ = StrReplace$(a$, CHR$(226) + CHR$(136) + CHR$(146), "-")
-    a$ = StrReplace$(a$, "<nowiki>", "")
-    a$ = StrReplace$(a$, "</nowiki>", "")
-    a$ = StrReplace$(a$, "<center>", "")
-    a$ = StrReplace$(a$, "</center>", "")
-    a$ = StrReplace$(a$, "</span>", "")
-
     i = INSTR(a$, "<span ")
     DO WHILE i
         a$ = LEFT$(a$, i - 1) + MID$(a$, INSTR(i + 1, a$, ">") + 1)
@@ -654,6 +643,17 @@ SUB WikiParse (a$)
                     tableOutput$ = ""
                     FOR checkCol = 1 TO totalCols
                         p$ = wikiGetUntil$(tableRow(printTable), j, CHR$(0))
+                        p$ = StrReplace$(p$, "&lt;", "<")
+                        p$ = StrReplace$(p$, "&gt;", ">")
+                        p$ = StrReplace$(p$, CHR$(194) + CHR$(160), "")
+                        p$ = StrReplace$(p$, "&amp;", "&")
+                        p$ = StrReplace$(p$, CHR$(226) + CHR$(136) + CHR$(146), "-")
+                        p$ = StrReplace$(p$, "<nowiki>", "")
+                        p$ = StrReplace$(p$, "</nowiki>", "")
+                        p$ = StrReplace$(p$, "<center>", "")
+                        p$ = StrReplace$(p$, "</center>", "")
+                        p$ = StrReplace$(p$, "</span>", "")
+
                         thisCol$ = SPACE$(tableCol(checkCol))
                         MID$(thisCol$, 2) = p$
                         tableOutput$ = tableOutput$ + thisCol$
