@@ -14632,6 +14632,7 @@ FUNCTION getWordAtCursor$
             a2$ = MID$(a$, x1, x2 - x1 + 1)
         ELSE
             symbol$ = CHR$(ASC(a$, x))
+            IF symbol$ = CHR$(32) THEN EXIT FUNCTION
             IF symbol$ = "~" THEN getWordAtCursor$ = "~": EXIT FUNCTION
             IF symbol$ = "`" THEN getWordAtCursor$ = "`": EXIT FUNCTION
             IF symbol$ = "%" AND MID$(a$, x + 1) = "&" THEN getWordAtCursor$ = "%&": EXIT FUNCTION
