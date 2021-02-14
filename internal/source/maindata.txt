@@ -1177,6 +1177,10 @@ if(__BYTE_EMPTYSCWARNING==NULL){
 __BYTE_EMPTYSCWARNING=(int8*)mem_static_malloc(1);
 *__BYTE_EMPTYSCWARNING=0;
 }
+if(__LONG_MAXLINENUMBER==NULL){
+__LONG_MAXLINENUMBER=(int32*)mem_static_malloc(4);
+*__LONG_MAXLINENUMBER=0;
+}
 if(__LONG_EXEICONSET==NULL){
 __LONG_EXEICONSET=(int32*)mem_static_malloc(4);
 *__LONG_EXEICONSET=0;
@@ -2907,6 +2911,7 @@ __LONG_DUMMY=(int32*)mem_static_malloc(4);
 *__LONG_DUMMY=0;
 }
 int8 pass64;
+if (!__STRING_TERRMSG)__STRING_TERRMSG=qbs_new(0,0);
 int32 pass66;
 int32 pass67;
 int32 pass68;
@@ -3124,6 +3129,39 @@ __ARRAY_STRING_WARNING[4]=2147483647;
 __ARRAY_STRING_WARNING[5]=0;
 __ARRAY_STRING_WARNING[6]=0;
 __ARRAY_STRING_WARNING[0]=(ptrszint)&nothingstring;
+}
+if (!__ARRAY_LONG_WARNINGLINES){
+__ARRAY_LONG_WARNINGLINES=(ptrszint*)mem_static_malloc(9*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)__ARRAY_LONG_WARNINGLINES)[8]=(ptrszint)mem_lock_tmp;
+__ARRAY_LONG_WARNINGLINES[2]=0;
+__ARRAY_LONG_WARNINGLINES[4]=2147483647;
+__ARRAY_LONG_WARNINGLINES[5]=0;
+__ARRAY_LONG_WARNINGLINES[6]=0;
+__ARRAY_LONG_WARNINGLINES[0]=(ptrszint)nothingvalue;
+}
+if (!__ARRAY_LONG_WARNINGINCLINES){
+__ARRAY_LONG_WARNINGINCLINES=(ptrszint*)mem_static_malloc(9*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)__ARRAY_LONG_WARNINGINCLINES)[8]=(ptrszint)mem_lock_tmp;
+__ARRAY_LONG_WARNINGINCLINES[2]=0;
+__ARRAY_LONG_WARNINGINCLINES[4]=2147483647;
+__ARRAY_LONG_WARNINGINCLINES[5]=0;
+__ARRAY_LONG_WARNINGINCLINES[6]=0;
+__ARRAY_LONG_WARNINGINCLINES[0]=(ptrszint)nothingvalue;
+}
+if (!__ARRAY_STRING_WARNINGINCFILES){
+__ARRAY_STRING_WARNINGINCFILES=(ptrszint*)mem_static_malloc(9*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)__ARRAY_STRING_WARNINGINCFILES)[8]=(ptrszint)mem_lock_tmp;
+__ARRAY_STRING_WARNINGINCFILES[2]=0;
+__ARRAY_STRING_WARNINGINCFILES[4]=2147483647;
+__ARRAY_STRING_WARNINGINCFILES[5]=0;
+__ARRAY_STRING_WARNINGINCFILES[6]=0;
+__ARRAY_STRING_WARNINGINCFILES[0]=(ptrszint)&nothingstring;
 }
 if(__LONG_PTRSZ==NULL){
 __LONG_PTRSZ=(int32*)mem_static_malloc(4);
