@@ -110,7 +110,7 @@ REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LON
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
-DIM SHARED emptySCWarning AS _BYTE
+DIM SHARED emptySCWarning AS _BYTE, maxLineNumber AS LONG
 DIM SHARED ExeIconSet AS LONG, qb64prefix$, qb64prefix_set
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -1094,7 +1094,9 @@ ideerror:
 IF INSTR(idemessage$, sp$) THEN
     'Something went wrong here, so let's give a generic error message to the user.
     '(No error message should contain sp$ - that is, CHR$(13), when not in Debug mode)
-    idemessage$ = "Compiler error (check for syntax errors) (" + _ERRORMESSAGE$ + ":"
+    terrmsg$ = _ERRORMESSAGE$
+    IF terrmsg$ = "No error" THEN terrmsg$ = "Internal error"
+    idemessage$ = "Compiler error (check for syntax errors) (" + terrmsg$ + ":"
     IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
     IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
     IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)
@@ -1419,6 +1421,10 @@ emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 REDIM SHARED warning$(1000)
+REDIM SHARED warningLines(1000) AS LONG
+REDIM SHARED warningIncLines(1000) AS LONG
+REDIM SHARED warningIncFiles(1000) AS STRING
+maxLineNumber = 0
 uniquenumbern = 0
 qb64prefix_set = 0
 qb64prefix$ = "_"
@@ -25458,26 +25464,37 @@ SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS 
         END IF
     ELSEIF idemode THEN
         IF NOT IgnoreWarnings THEN
+            IF whichLineNumber > maxLineNumber THEN maxLineNumber = whichLineNumber
             IF lastWarningHeader <> header$ THEN
                 lastWarningHeader = header$
                 GOSUB increaseWarningCount
-                warning$(warningListItems) = MKL$(0) + CHR$(255) + header$
+                warning$(warningListItems) = header$
+                warningLines(warningListItems) = 0
             END IF
 
             GOSUB increaseWarningCount
+            warning$(warningListItems) = text$
+            warningLines(warningListItems) = whichLineNumber
             IF includeLevel > 0 THEN
                 thisincname$ = getfilepath$(incFileName$)
                 thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
-                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(255) + text$
+                warningIncLines(warningListItems) = incLineNumber
+                warningIncFiles(warningListItems) = thisincname$
             ELSE
-                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(255) + text$
+                warningIncLines(warningListItems) = 0
+                warningIncFiles(warningListItems) = ""
             END IF
         END IF
     END IF
     EXIT SUB
     increaseWarningCount:
     warningListItems = warningListItems + 1
-    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+    IF warningListItems > UBOUND(warning$) THEN
+        REDIM _PRESERVE warning$(warningListItems + 999)
+        REDIM _PRESERVE warningLines(warningListItems + 999) AS LONG
+        REDIM _PRESERVE warningIncLines(warningListItems + 999) AS LONG
+        REDIM _PRESERVE warningIncFiles(warningListItems + 999) AS STRING
+    END IF
     RETURN
 END SUB
 
