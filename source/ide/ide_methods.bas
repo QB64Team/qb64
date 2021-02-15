@@ -9255,22 +9255,14 @@ FUNCTION idewarningbox
 
     '-------- init --------
 
-    DIM warningLines(1 TO warningListItems) AS LONG
-    DIM warningIncLines(1 TO warningListItems) AS LONG
-    DIM warningIncFiles(1 TO warningListItems) AS STRING
-
     IF LEN(ideprogname) THEN thisprog$ = ideprogname ELSE thisprog$ = "Untitled" + tempfolderindexstr$
     maxModuleNameLen = LEN(thisprog$)
 
-    'fill arrays
+    'calculate longest module name
     FOR x = 1 TO warningListItems
-        warningLines(x) = CVL(LEFT$(warning$(x), 4))
         IF warningLines(x) = 0 THEN _CONTINUE
 
-        warningIncLevel = CVL(MID$(warning$(x), 5, 4))
-        IF warningIncLevel > 0 THEN
-            warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
-            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(255)) - 13)
+        IF warningIncLines(x) > 0 THEN
             IF LEN(warningIncFiles(x)) > maxModuleNameLen THEN
                 maxModuleNameLen = LEN(warningIncFiles(x))
             END IF
@@ -9280,21 +9272,21 @@ FUNCTION idewarningbox
     'build list
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
-            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
+            l$ = l$ + warning$(x)
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
             IF warningIncLines(x) > 0 THEN
-                num$ = SPACE$(maxLineNumberLength)
+                num$ = SPACE$(LEN(STR$(maxLineNumber)) + 1)
                 RSET num$ = str2$(warningIncLines(x))
                 l3$ = l3$ + warningIncFiles(x) + SPACE$(maxModuleNameLen - LEN(warningIncFiles(x))) + ":" + CHR$(16) + CHR$(16) + num$
             ELSE
-                num$ = SPACE$(maxLineNumberLength)
+                num$ = SPACE$(LEN(STR$(maxLineNumber)) + 1)
                 RSET num$ = str2$(warningLines(x))
                 l3$ = l3$ + thisprog$ + SPACE$(maxModuleNameLen - LEN(thisprog$)) + ":" + CHR$(16) + CHR$(16) + num$
             END IF
             treeConnection = LEN(l$) + 1
-            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
+            text$ = warning$(x)
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
