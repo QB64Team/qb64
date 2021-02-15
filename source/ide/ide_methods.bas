@@ -6615,14 +6615,19 @@ SUB idedrawobj (o AS idedbotype, f)
                     'skip
                 ELSE
                     IF y <= o.h THEN
-                        IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
-                        IF (o.sel = n OR -o.sel = n) AND o.foc = 0 THEN o.cx = o.par.x + o.x + 2: o.cy = o.par.y + o.y + y
-                        LOCATE o.par.y + o.y + y, o.par.x + o.x + 1
                         a3$ = " " + a3$
+                        IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                        IF (o.sel = n OR -o.sel = n) AND o.foc = 0 THEN
+                            o.cx = o.par.x + o.x + 2: o.cy = o.par.y + o.y + y
+                            IF LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192) THEN
+                                o.cx = o.cx + 2
+                            END IF
+                        END IF
+                        LOCATE o.par.y + o.y + y, o.par.x + o.x + 1
                         IF INSTR(a3$, CHR$(16)) THEN
                             'color formatting: CHR$(16) + CHR$(color)
                             '                  CHR$(16) + CHR$(16) restores default
-                            position = 0: character = 0
+                            character = 0
                             FOR cf = POS(1) TO POS(1) + o.w
                                 character = character + 1
                                 IF character > LEN(a3$) THEN
@@ -6639,14 +6644,27 @@ SUB idedrawobj (o AS idedbotype, f)
                                         character = character + 1
                                         _CONTINUE
                                     END IF
+                                ELSEIF character = 1 AND (LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192)) THEN
+                                    COLOR 0, 7
+                                    PRINT LEFT$(a3$, 3);
+                                    IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                                    character = 3
+                                    _CONTINUE
                                 END IF
-                                position = position + 1
                                 PRINT MID$(a3$, character, 1);
                             NEXT
                         ELSE
                             a3$ = a3$ + SPACE$(o.w)
                             a3$ = LEFT$(a3$, o.w)
-                            PRINT a3$;
+                            'customization specific for the SUBs list, due to the tree characters:
+                            IF LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192) THEN
+                                COLOR 0, 7
+                                PRINT LEFT$(a3$, 3);
+                                IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                                PRINT MID$(a3$, 4);
+                            ELSE
+                                PRINT a3$;
+                            END IF
                         END IF
                         'customization specific for the SUBs list, when there are external procedures:
                         IF INSTR(a3$, CHR$(196) + "*") > 0 THEN
@@ -8632,10 +8650,16 @@ FUNCTION idesubs$
     l$ = ideprogname$
     IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
 
-    IF LEN(l$) <= 22 THEN
-        l$ = l$ + SPACE$(22 - LEN(l$))
+    SELECT CASE idewx
+        CASE 80: maxModuleNameLen = 20
+        CASE 81 TO 100: maxModuleNameLen = 30
+        CASE ELSE: maxModuleNameLen = 42 'longest valid identifier + max 2 type symbols
+    END SELECT
+
+    IF LEN(l$) <= maxModuleNameLen + 2 THEN
+        l$ = l$ + SPACE$((maxModuleNameLen + 2) - LEN(l$))
     ELSE
-        l$ = LEFT$(l$, 19) + STRING$(3, 250)
+        l$ = LEFT$(l$, maxModuleNameLen - 1) + STRING$(3, 250)
     END IF
 
     lSized$ = l$
@@ -8721,10 +8745,10 @@ FUNCTION idesubs$
                           + psf$ + CHR$(16) + CHR$(16) + pargs$ + sep
             END IF
 
-            IF LEN(n$) <= 20 THEN
-                n$ = n$ + SPACE$(20 - LEN(n$))
+            IF LEN(n$) <= maxModuleNameLen THEN
+                n$ = n$ + SPACE$(maxModuleNameLen - LEN(n$))
             ELSE
-                n$ = LEFT$(n$, 17) + STRING$(3, 250)
+                n$ = LEFT$(n$, (maxModuleNameLen - 3)) + STRING$(3, 250)
             END IF
             IF LEN(args$) <= (idewx - 41) THEN
                 args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
