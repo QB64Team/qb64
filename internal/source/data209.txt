@@ -3,35 +3,35 @@ if(_FUNC_BINARYFORMATCHECK_INTEGER_BINARYFORMATCHECK==NULL){
 _FUNC_BINARYFORMATCHECK_INTEGER_BINARYFORMATCHECK=(int16*)mem_static_malloc(2);
 *_FUNC_BINARYFORMATCHECK_INTEGER_BINARYFORMATCHECK=0;
 }
-qbs*oldstr5396=NULL;
+qbs*oldstr5400=NULL;
 if(_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK->tmp||_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK->fixed||_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK->readonly){
-oldstr5396=_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK;
-if (oldstr5396->cmem_descriptor){
-_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK=qbs_new_cmem(oldstr5396->len,0);
+oldstr5400=_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK;
+if (oldstr5400->cmem_descriptor){
+_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK=qbs_new_cmem(oldstr5400->len,0);
 }else{
-_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK=qbs_new(oldstr5396->len,0);
+_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK=qbs_new(oldstr5400->len,0);
 }
-memcpy(_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK->chr,oldstr5396->chr,oldstr5396->len);
+memcpy(_FUNC_BINARYFORMATCHECK_STRING_PATHTOCHECK->chr,oldstr5400->chr,oldstr5400->len);
 }
-qbs*oldstr5397=NULL;
+qbs*oldstr5401=NULL;
 if(_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK->tmp||_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK->fixed||_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK->readonly){
-oldstr5397=_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK;
-if (oldstr5397->cmem_descriptor){
-_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK=qbs_new_cmem(oldstr5397->len,0);
+oldstr5401=_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK;
+if (oldstr5401->cmem_descriptor){
+_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK=qbs_new_cmem(oldstr5401->len,0);
 }else{
-_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK=qbs_new(oldstr5397->len,0);
+_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK=qbs_new(oldstr5401->len,0);
 }
-memcpy(_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK->chr,oldstr5397->chr,oldstr5397->len);
+memcpy(_FUNC_BINARYFORMATCHECK_STRING_PATHSEPTOCHECK->chr,oldstr5401->chr,oldstr5401->len);
 }
-qbs*oldstr5398=NULL;
+qbs*oldstr5402=NULL;
 if(_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK->tmp||_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK->fixed||_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK->readonly){
-oldstr5398=_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK;
-if (oldstr5398->cmem_descriptor){
-_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK=qbs_new_cmem(oldstr5398->len,0);
+oldstr5402=_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK;
+if (oldstr5402->cmem_descriptor){
+_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK=qbs_new_cmem(oldstr5402->len,0);
 }else{
-_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK=qbs_new(oldstr5398->len,0);
+_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK=qbs_new(oldstr5402->len,0);
 }
-memcpy(_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK->chr,oldstr5398->chr,oldstr5398->len);
+memcpy(_FUNC_BINARYFORMATCHECK_STRING_FILETOCHECK->chr,oldstr5402->chr,oldstr5402->len);
 }
 int32 *_FUNC_BINARYFORMATCHECK_LONG_FH=NULL;
 if(_FUNC_BINARYFORMATCHECK_LONG_FH==NULL){
@@ -45,18 +45,18 @@ if(_FUNC_BINARYFORMATCHECK_INTEGER_FORMAT==NULL){
 _FUNC_BINARYFORMATCHECK_INTEGER_FORMAT=(int16*)mem_static_malloc(2);
 *_FUNC_BINARYFORMATCHECK_INTEGER_FORMAT=0;
 }
-byte_element_struct *byte_element_5399=NULL;
-if (!byte_element_5399){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5399=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5399=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5403=NULL;
+if (!byte_element_5403){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5403=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5403=(byte_element_struct*)mem_static_malloc(12);
 }
 int16 *_FUNC_BINARYFORMATCHECK_INTEGER_VERSION=NULL;
 if(_FUNC_BINARYFORMATCHECK_INTEGER_VERSION==NULL){
 _FUNC_BINARYFORMATCHECK_INTEGER_VERSION=(int16*)mem_static_malloc(2);
 *_FUNC_BINARYFORMATCHECK_INTEGER_VERSION=0;
 }
-byte_element_struct *byte_element_5400=NULL;
-if (!byte_element_5400){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5400=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5400=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5404=NULL;
+if (!byte_element_5404){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5404=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5404=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_BINARYFORMATCHECK_LONG_RESULT=NULL;
 if(_FUNC_BINARYFORMATCHECK_LONG_RESULT==NULL){
@@ -72,13 +72,13 @@ if(_FUNC_BINARYFORMATCHECK_LONG_I==NULL){
 _FUNC_BINARYFORMATCHECK_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_BINARYFORMATCHECK_LONG_I=0;
 }
-int64 fornext_value5403;
-int64 fornext_finalvalue5403;
-int64 fornext_step5403;
-uint8 fornext_step_negative5403;
-byte_element_struct *byte_element_5404=NULL;
-if (!byte_element_5404){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5404=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5404=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5407;
+int64 fornext_finalvalue5407;
+int64 fornext_step5407;
+uint8 fornext_step_negative5407;
+byte_element_struct *byte_element_5408=NULL;
+if (!byte_element_5408){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5408=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5408=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_BINARYFORMATCHECK_STRING_OFILE=NULL;
 if (!_FUNC_BINARYFORMATCHECK_STRING_OFILE)_FUNC_BINARYFORMATCHECK_STRING_OFILE=qbs_new(0,0);
@@ -87,21 +87,21 @@ if(_FUNC_BINARYFORMATCHECK_LONG_DUMMY==NULL){
 _FUNC_BINARYFORMATCHECK_LONG_DUMMY=(int32*)mem_static_malloc(4);
 *_FUNC_BINARYFORMATCHECK_LONG_DUMMY=0;
 }
-int8 pass5405;
+int8 pass5409;
 qbs *_FUNC_BINARYFORMATCHECK_STRING_CONVERTLINE=NULL;
 if (!_FUNC_BINARYFORMATCHECK_STRING_CONVERTLINE)_FUNC_BINARYFORMATCHECK_STRING_CONVERTLINE=qbs_new(0,0);
-int8 pass5406;
-byte_element_struct *byte_element_5407=NULL;
-if (!byte_element_5407){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5407=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5407=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5408=NULL;
-if (!byte_element_5408){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5408=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5408=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5409=NULL;
-if (!byte_element_5409){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5409=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5409=(byte_element_struct*)mem_static_malloc(12);
-}
 int8 pass5410;
-int8 pass5411;
+byte_element_struct *byte_element_5411=NULL;
+if (!byte_element_5411){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5411=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5411=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5412=NULL;
+if (!byte_element_5412){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5412=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5412=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5413=NULL;
+if (!byte_element_5413){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5413=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5413=(byte_element_struct*)mem_static_malloc(12);
+}
+int8 pass5414;
+int8 pass5415;
