@@ -8641,40 +8641,37 @@ FUNCTION idesubs$
 
     '-------- init --------
 
+    l$ = ideprogname$
+    IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+
+    IF idewx < 100 THEN
+        moduleNameLenLimit = 20
+    ELSE
+        moduleNameLenLimit = 42
+    END IF
+
+    maxModuleNameLen = LEN(l$)
+    IF maxModuleNameLen > moduleNameLenLimit + 2 THEN
+        l$ = LEFT$(l$, moduleNameLenLimit - 1) + STRING$(3, 250)
+        maxModuleNameLen = moduleNameLenLimit
+    ELSEIF maxModuleNameLen < 20 THEN
+        maxModuleNameLen = 20
+    END IF
+
     ly$ = MKL$(1)
     lySorted$ = ly$
     CurrentlyViewingWhichSUBFUNC = 1
     PreferCurrentCursorSUBFUNC = 0
     InsideDECLARE = 0
     FoundExternalSUBFUNC = 0
-    l$ = ideprogname$
-    IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
-
-    SELECT CASE idewx
-        CASE 80: maxModuleNameLen = 20
-        CASE 81 TO 100: maxModuleNameLen = 30
-        CASE ELSE: maxModuleNameLen = 42 'longest valid identifier + max 2 type symbols
-    END SELECT
-
-    IF LEN(l$) <= maxModuleNameLen + 2 THEN
-        l$ = l$ + SPACE$((maxModuleNameLen + 2) - LEN(l$))
-    ELSE
-        l$ = LEFT$(l$, maxModuleNameLen - 1) + STRING$(3, 250)
-    END IF
-
-    lSized$ = l$
-    lSorted$ = l$
-    lSortedSized$ = l$
-
-    'build headers (normal, sorted, normal with line count, sorted with line count)
-    l$ = l$ + "  Type  Arguments"
-    lSorted$ = l$
-    lSized$ = lSized$ + " Line count  Type  Arguments" + sep
-    lSortedSized$ = lSortedSized$ + " Line count  Type  Arguments"
 
     REDIM SortedSubsList(1 TO 100) AS STRING * 998
     REDIM CaseBkpSubsList(1 TO 100) AS STRING * 998
     REDIM TotalLines(0 TO 100) AS LONG
+    REDIM SubNames(0 TO 100) AS STRING
+    REDIM SubLines(0 TO 100) AS LONG
+    REDIM Args(0 TO 100) AS STRING
+    REDIM SF(0 TO 100) AS STRING
 
     TotalSUBs = 0
     ModuleSize = 0 'in lines
@@ -8693,9 +8690,24 @@ FUNCTION idesubs$
         IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB   "
         IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC  "
         IF sf THEN
+            'Resize SortedSubsList() and helper arrays
+            TotalSUBs = TotalSUBs + 1
+            IF NOT InsideDECLARE THEN LastOpenSUB = TotalSUBs
+            IF TotalSUBs > UBOUND(SortedSubsList) THEN
+                REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs + 99) AS STRING * 998
+                REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs + 99) AS STRING * 998
+                REDIM _PRESERVE TotalLines(0 TO TotalSUBs + 99) AS LONG
+                REDIM _PRESERVE SubNames(0 TO TotalSUBs + 99) AS STRING
+                REDIM _PRESERVE SubLines(0 TO TotalSUBs + 99) AS LONG
+                REDIM _PRESERVE Args(0 TO TotalSUBs + 99) AS STRING
+                REDIM _PRESERVE SF(0 TO TotalSUBs + 99) AS STRING
+            END IF
+
             IF RIGHT$(nca$, 7) = " STATIC" THEN
                 a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
             END IF
+
+            'Store line number
             ly$ = ly$ + MKL$(y)
 
             'Check if the cursor is currently inside this SUB/FUNCTION to position the
@@ -8726,6 +8738,8 @@ FUNCTION idesubs$
                 args$ = "()"
             END IF
             cleanSubName n$
+            IF LEN(n$) > maxModuleNameLen THEN maxModuleNameLen = LEN(n$)
+            IF maxModuleNameLen > moduleNameLenLimit THEN maxModuleNameLen = moduleNameLenLimit
 
             'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
             'instead of the currently in edition, for a quick link functionality:
@@ -8746,39 +8760,11 @@ FUNCTION idesubs$
                 ModuleSize = 0
             END IF
 
-            IF LEN(n$) <= maxModuleNameLen THEN
-                n$ = n$ + SPACE$(maxModuleNameLen - LEN(n$))
-            ELSE
-                n$ = LEFT$(n$, (maxModuleNameLen - 3)) + STRING$(3, 250)
-            END IF
-            IF LEN(args$) <= (idewx - 41) THEN
-                args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
-            ELSE
-                args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
-            END IF
-            l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
-                 sf$ + CHR$(16) + CHR$(16) + args$
-
-            num$ = CHR$(254) 'placeholder - will be replaced when End Sub/Function is found
-            IF InsideDECLARE THEN num$ = "external"
-            lSized$ = lSized$ + CHR$(195) + CHR$(196) + n$ + "  " + _
-                      CHR$(16) + CHR$(2) + SPACE$(9 - LEN(num$)) + num$ + "  " _
-                      + sf$ + CHR$(16) + CHR$(16) + args$ + sep
-
-            'Populate SortedSubsList() and helper arrays
-            TotalSUBs = TotalSUBs + 1
-            IF NOT InsideDECLARE THEN LastOpenSUB = TotalSUBs
-            listItem$ = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
-            ListItemLength = LEN(listItem$)
-            IF TotalSUBs > UBOUND(SortedSubsList) THEN
-                REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs + 99) AS STRING * 998
-                REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs + 99) AS STRING * 998
-                REDIM _PRESERVE TotalLines(0 TO TotalSUBs + 99) AS LONG
-            END IF
-            SortedSubsList(TotalSUBs) = UCASE$(listItem$)
-            CaseBkpSubsList(TotalSUBs) = listItem$
-            MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
-            MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+            'Populate arrays
+            SubNames(TotalSUBs) = n$
+            SubLines(TotalSUBs) = y
+            Args(TotalSUBs) = args$
+            SF(TotalSUBs) = sf$
         ELSE 'no sf
             'remove double spaces
             i = INSTR(nca$, "  ")
@@ -8802,13 +8788,68 @@ FUNCTION idesubs$
     NEXT
 
     IF SubClosed = 0 THEN GOSUB AddLineCount
-    MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
-    MID$(lSized$, _INSTRREV(lSized$, CHR$(195)), 1) = CHR$(192)
 
     'fix arrays to remove empty items
     REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
     REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
     REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
+    REDIM _PRESERVE SubNames(0 TO TotalSUBs) AS STRING
+    REDIM _PRESERVE SubLines(0 TO TotalSUBs) AS LONG
+    REDIM _PRESERVE Args(0 TO TotalSUBs) AS STRING
+    REDIM _PRESERVE SF(0 TO TotalSUBs) AS STRING
+
+    'build headers (normal, sorted, normal with line count, sorted with line count)
+    IF TotalSUBs > 0 THEN
+        l$ = l$ + SPACE$((maxModuleNameLen + 2) - LEN(l$))
+        lSized$ = l$
+        lSortedSized$ = l$
+        l$ = l$ + "  Type  Arguments"
+        lSorted$ = l$
+        lSorted$ = l$
+        lSized$ = lSized$ + "  Line count  Type  Arguments" + sep
+        lSortedSized$ = lSortedSized$ + "  Line count  Type  Arguments"
+    ELSE
+        l$ = ideprogname$
+        IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+        lSized$ = l$
+    END IF
+
+    'build lists
+    FOR x = 1 TO TotalSUBs
+        n$ = SubNames(x)
+        IF LEN(n$) > maxModuleNameLen THEN
+            n$ = LEFT$(n$, maxModuleNameLen - 3) + STRING$(3, 250)
+        ELSE
+            n$ = n$ + SPACE$(maxModuleNameLen - LEN(n$))
+        END IF
+
+        args$ = Args(x)
+        IF LEN(args$) <= (idewx - 41) THEN
+            args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
+        ELSE
+            args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
+        END IF
+
+        sf$ = SF(x)
+
+        l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
+             sf$ + CHR$(16) + CHR$(16) + args$
+
+        IF TotalLines(x) = 0 THEN num$ = "external" ELSE num$ = LTRIM$(STR$(TotalLines(x)))
+        lSized$ = lSized$ + CHR$(195) + CHR$(196) + n$ + "  " + _
+                  CHR$(16) + CHR$(2) + SPACE$(10 - LEN(num$)) + num$ + "  " _
+                  + sf$ + CHR$(16) + CHR$(16) + args$ + sep
+
+        listItem$ = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
+        ListItemLength = LEN(listItem$)
+        SortedSubsList(x) = UCASE$(listItem$)
+        CaseBkpSubsList(x) = listItem$
+        MID$(CaseBkpSubsList(x), 992, 6) = MKL$(SubLines(x)) + MKI$(ListItemLength)
+        MID$(SortedSubsList(x), 992, 6) = MKL$(SubLines(x)) + MKI$(ListItemLength)
+    NEXT
+
+    MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
+    MID$(lSized$, _INSTRREV(lSized$, CHR$(195)), 1) = CHR$(192)
 
     IF TotalSUBs > 1 THEN
         sort SortedSubsList()
@@ -8827,7 +8868,7 @@ FUNCTION idesubs$
                     IF LEFT$(temp$, 1) = "*" THEN num$ = "external"
                     lSortedSized$ = lSortedSized$ + sep + CHR$(195) + CHR$(196)
                     lSortedSized$ = lSortedSized$ + LEFT$(temp$, INSTR(temp$, CHR$(1)) - 1) + _
-                                    SPACE$(9 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
+                                    SPACE$(10 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
                                     MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
                     EXIT FOR
                 END IF
@@ -9095,11 +9136,6 @@ FUNCTION idesubs$
     AddLineCount:
     ModuleSize = ModuleSize + 1
     TotalLines(LastOpenSUB) = ModuleSize
-    i = INSTR(lSized$, CHR$(254))
-    IF i THEN 'check if it's there, but it *has* to be there.
-        num$ = LTRIM$(STR$(ModuleSize))
-        lSized$ = LEFT$(lSized$, i - LEN(num$)) + num$ + MID$(lSized$, i + 1)
-    END IF
     SubClosed = -1
     RETURN
 END FUNCTION
