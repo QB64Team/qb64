@@ -11933,6 +11933,7 @@ FUNCTION idechoosecolorsbox
             IDEQuoteColor = bkpIDEQuoteColor
             IDETextColor = bkpIDETextColor
             IDEKeywordColor = bkpIDEKeywordColor
+            IDENumbersColor = bkpIDENumbersColor
             IDEBackgroundColor = bkpIDEBackgroundColor
             IDEBackgroundColor2 = bkpIDEBackgroundColor2
             IDEBracketHighlightColor = bkpIDEBracketHighlightColor
