@@ -14477,14 +14477,17 @@ SUB HideBracketHighlight
     'color will be used differently in this dialog.
     oldBracketHighlightSetting = brackethighlight
     oldMultiHighlightSetting = multihighlight
+    oldShowLineNumbersUseBG = ShowLineNumbersUseBG
     brackethighlight = 0
     multihighlight = 0
+    ShowLineNumbersUseBG = 0
     SCREEN , , 0
     HideCurrentLineHighlight = -1
     ideshowtext
     HideCurrentLineHighlight = 0
     brackethighlight = oldBracketHighlightSetting
     multihighlight = oldMultiHighlightSetting
+    ShowLineNumbersUseBG = oldShowLineNumbersUseBG
 END SUB
 
 SUB LoadColorSchemes
