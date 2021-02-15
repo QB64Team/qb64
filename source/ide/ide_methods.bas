@@ -8666,12 +8666,21 @@ FUNCTION idesubs$
     lSorted$ = l$
     lSortedSized$ = l$
 
-    REDIM TotalLines(0) AS LONG
+    'build headers (normal, sorted, normal with line count, sorted with line count)
+    l$ = l$ + "  Type  Arguments"
+    lSorted$ = l$
+    lSized$ = lSized$ + " Line count  Type  Arguments" + sep
+    lSortedSized$ = lSortedSized$ + " Line count  Type  Arguments"
+
+    REDIM SortedSubsList(1 TO 100) AS STRING * 998
+    REDIM CaseBkpSubsList(1 TO 100) AS STRING * 998
+    REDIM TotalLines(0 TO 100) AS LONG
 
     TotalSUBs = 0
     ModuleSize = 0 'in lines
     SortedSubsFlag = idesortsubs
     SubClosed = 0
+
 
     FOR y = 1 TO iden
         a$ = idegetline(y)
@@ -8715,9 +8724,8 @@ FUNCTION idesubs$
             ELSE
                 n$ = a$
                 args$ = "()"
-
-                cleanSubName n$
             END IF
+            cleanSubName n$
 
             'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
             'instead of the currently in edition, for a quick link functionality:
@@ -8733,21 +8741,9 @@ FUNCTION idesubs$
                 n$ = "*" + n$
                 FoundExternalSUBFUNC = -1
             ELSE
+                IF SubClosed = 0 THEN ModuleSize = 0: GOSUB AddLineCount
                 SubClosed = 0
                 ModuleSize = 0
-            END IF
-
-            IF TotalSUBs = 0 THEN
-                l$ = l$ + "  Type  Arguments"
-                lSorted$ = l$
-                lSized$ = lSized$ + " Line count  Type  Arguments" + sep
-                lSortedSized$ = lSortedSized$ + " Line count  Type  Arguments"
-            ELSE
-                num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
-                IF pInsideDECLARE THEN num$ = "external"
-                lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
-                          CHR$(16) + CHR$(2) + SPACE$(9 - LEN(num$)) + num$ + "  " _
-                          + psf$ + CHR$(16) + CHR$(16) + pargs$ + sep
             END IF
 
             IF LEN(n$) <= maxModuleNameLen THEN
@@ -8762,19 +8758,25 @@ FUNCTION idesubs$
             END IF
             l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
                  sf$ + CHR$(16) + CHR$(16) + args$
-            psf$ = sf$
-            pn$ = n$
-            pargs$ = args$
-            pInsideDECLARE = InsideDECLARE
 
-            'Populate SortedSubsList()
+            num$ = CHR$(254) 'placeholder - will be replaced when End Sub/Function is found
+            IF InsideDECLARE THEN num$ = "external"
+            lSized$ = lSized$ + CHR$(195) + CHR$(196) + n$ + "  " + _
+                      CHR$(16) + CHR$(2) + SPACE$(9 - LEN(num$)) + num$ + "  " _
+                      + sf$ + CHR$(16) + CHR$(16) + args$ + sep
+
+            'Populate SortedSubsList() and helper arrays
             TotalSUBs = TotalSUBs + 1
-            ListItemLength = LEN(n$ + " " + sf$ + args$)
-            REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
-            REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
-            REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
-            CaseBkpSubsList(TotalSUBs) = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
-            SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
+            IF NOT InsideDECLARE THEN LastOpenSUB = TotalSUBs
+            listItem$ = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
+            ListItemLength = LEN(listItem$)
+            IF TotalSUBs > UBOUND(SortedSubsList) THEN
+                REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs + 99) AS STRING * 998
+                REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs + 99) AS STRING * 998
+                REDIM _PRESERVE TotalLines(0 TO TotalSUBs + 99) AS LONG
+            END IF
+            SortedSubsList(TotalSUBs) = UCASE$(listItem$)
+            CaseBkpSubsList(TotalSUBs) = listItem$
             MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
             MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
         ELSE 'no sf
@@ -8794,23 +8796,19 @@ FUNCTION idesubs$
                 DIM comment AS _BYTE, quote AS _BYTE
                 FindQuoteComment nca$, sf, comment, quote
                 IF comment OR quote THEN cursor = sf: GOTO LookForENDSUB
-                TotalLines(TotalSUBs) = ModuleSize
-                SubClosed = -1
+                GOSUB AddLineCount
             END IF
         END IF
     NEXT
 
-    TotalLines(TotalSUBs) = ModuleSize
-    IF TotalSUBs > 0 THEN
-        num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
-        IF pInsideDECLARE THEN num$ = "external"
-        lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
-                  SPACE$(9 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
-                  psf$ + CHR$(16) + CHR$(16) + pargs$
-    END IF
-
+    IF SubClosed = 0 THEN GOSUB AddLineCount
     MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
     MID$(lSized$, _INSTRREV(lSized$, CHR$(195)), 1) = CHR$(192)
+
+    'fix arrays to remove empty items
+    REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
+    REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
+    REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
 
     IF TotalSUBs > 1 THEN
         sort SortedSubsList()
@@ -9094,6 +9092,16 @@ FUNCTION idesubs$
     END IF
     RETURN
 
+    AddLineCount:
+    ModuleSize = ModuleSize + 1
+    TotalLines(LastOpenSUB) = ModuleSize
+    i = INSTR(lSized$, CHR$(254))
+    IF i THEN 'check if it's there, but it *has* to be there.
+        num$ = LTRIM$(STR$(ModuleSize))
+        lSized$ = LEFT$(lSized$, i - LEN(num$)) + num$ + MID$(lSized$, i + 1)
+    END IF
+    SubClosed = -1
+    RETURN
 END FUNCTION
 
 
