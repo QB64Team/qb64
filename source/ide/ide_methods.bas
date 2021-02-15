@@ -8706,10 +8706,15 @@ FUNCTION idesubs$
             IF x THEN
                 n$ = RTRIM$(LEFT$(a$, x - 1))
                 args$ = RIGHT$(a$, LEN(a$) - x + 1)
-                x = INSTR(args$, ")"): IF x THEN args$ = LEFT$(args$, x)
+                x = 1
+                FOR i = 2 TO LEN(args$)
+                    IF ASC(args$, i) = 40 THEN x = x + 1
+                    IF ASC(args$, i) = 41 THEN x = x - 1
+                    IF x = 0 THEN args$ = LEFT$(args$, i): EXIT FOR
+                NEXT
             ELSE
                 n$ = a$
-                args$ = ""
+                args$ = "()"
 
                 cleanSubName n$
             END IF
