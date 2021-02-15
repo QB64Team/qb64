@@ -267,7 +267,8 @@ SUB WikiParse (a$)
     '      {{Parameter|expression}}=a parameter, in italics
     '      {{PageSyntax}} {{PageDescription}} {{PageExamples}}
     '      {{CodeStart}} {{CodeEnd}} {{OutputStart}} {{OutputEnd}}
-    '      {{PageSeeAlso}} {{PageNavigation}}
+    '      {{PageSeeAlso}} {{PageNavigation}} {{PageLegacySupport}}
+    '      {{PageQBasic}}
     ' [[SPACE$]]=a link to wikipage called "SPACE$"
     ' [[INTEGER|integer]]=a link, link's name is on left and text to appear is on right
     ' *=a dot point
@@ -481,6 +482,8 @@ SUB WikiParse (a$)
                 IF cb$ = "PageDescription" THEN Help_AddTxt "Description:" + CHR$(13), Help_Col_Section, 0
                 IF cb$ = "PageExamples" THEN Help_AddTxt "Code Examples:" + CHR$(13), Help_Col_Section, 0
                 IF cb$ = "PageSeeAlso" THEN Help_AddTxt "See also:" + CHR$(13), Help_Col_Section, 0
+                IF cb$ = "PageLegacySupport" THEN Help_AddTxt "Legacy support" + CHR$(13), Help_Col_Section, 0
+                IF cb$ = "PageQBasic" THEN Help_AddTxt "QBasic/QuickBASIC" + CHR$(13), Help_Col_Section, 0
 
                 IF cb$ = "CodeStart" THEN
                     Help_NewLine
