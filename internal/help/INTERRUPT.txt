@@ -1,7 +1,7 @@
 The [[INTERRUPT]] statement is an assembly routine for accessing computer information registers.
 
 
-==Legacy support==
+{{PageLegacySupport}}
 * Registers are emulated in '''QB64''' to allow older programs to be compiled. To enable mouse input in your programs, the recommended practice is to use [[_MOUSEINPUT]] and related functions.
 
 
@@ -14,7 +14,7 @@ The [[INTERRUPT]] statement is an assembly routine for accessing computer inform
 * {{Parameter|inRegs}} are the values placed into the call and {{Parameter|outRegs}} are the register return values.
 
 
-==QBasic/QuickBASIC==
+{{PageQBasic}}
 * Available in QuickBASIC versions 4 and up and required an external library to be loaded. &lt;!-- Command line: QB.EXE /L in QB4.5 --> '''QB64''' emulates the statement without an external library.
 * {{Parameter|intNum}} is the interrupt reference vector table address. For historic reference, see: [http://www.ctyme.com/intr/cat.htm Ralf Brown's Interrupt List]
 * The [[TYPE]] definition below will work for both [[INTERRUPT]] and INTERRUPTX statement calls

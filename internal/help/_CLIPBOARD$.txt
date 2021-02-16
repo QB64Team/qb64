@@ -1,5 +1,5 @@
 {{DISPLAYTITLE:_CLIPBOARD$}}
-The [[_CLIPBOARD$]] function returns the current Operating System's clipboard contents as a [[STRING]].
+The [[_CLIPBOARD$]] function returns the current operating system's clipboard contents as a [[STRING]].
 
 
 {{PageSyntax}}
@@ -19,7 +19,7 @@ The [[_CLIPBOARD$]] function returns the current Operating System's clipboard co
 {{Cl|PRINT}} "Start Program2 to read your text entries! Empty entry quits!"
 {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = "Entry program started!"            'set clipboard initially
 
-DO
+{{Cl|DO}}
   {{Cl|LINE INPUT}} "Enter some text to send to other program: ", text$
   {{Cl|IF...THEN|IF}} text$ = "" {{Cl|THEN}} {{Cl|EXIT DO}}
   {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = text$
@@ -31,11 +31,11 @@ DO
 {{CodeStart}}
 {{Cl|PRINT}} "Enter text in Program1 and this program will read it. Esc key quits!"
 
-DO: {{Cl|_LIMIT}} 100
+{{Cl|DO}}: {{Cl|_LIMIT}} 100
   text$ = {{Cl|_CLIPBOARD$}}                       'function returns clipboard contents
   {{Cl|IF...THEN|IF}} {{Cl|LEN}}(text$) {{Cl|THEN}} 
-     {{Cl|PRINT}} text$
-     {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = ""                       'clear clipboard after a read
+    {{Cl|PRINT}} text$
+    {{Cl|_CLIPBOARD$ (statement)|_CLIPBOARD$}} = ""                       'clear clipboard after a read
   {{Cl|END IF}}
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} = {{Cl|CHR$}}(27)
 

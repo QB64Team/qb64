@@ -1,7 +1,7 @@
 The [[DEFSTR]] statement defines all variables with names starting with the specified letter (or letter range) AS [[STRING]] variables instead of the [[SINGLE]] type default.
 
 
-==Legacy support==
+{{PageLegacySupport}}
 * '''DEF''' statements ([[DEFDBL]], [[DEFSNG]], [[DEFLNG]], [[DEFINT]], [[DEFSTR]]) were used when storage space was a concern in older computers, as their usage could save up typing. Instead of {{InlineCode}}'''DIM a AS STRING, a2 AS STRING, a3 AS STRING'''{{InlineCodeEnd}}, simply having {{InlineCode}}'''DEFSTR A'''{{InlineCodeEnd}} in the code before using variables starting with letter '''A''' would do the same job.
 * '''For clarity, it is recommended to declare variables with meaningful names'''.
 
@@ -18,7 +18,7 @@ The [[DEFSTR]] statement defines all variables with names starting with the spec
 * '''Warning: QBasic keyword names can only be used as string variable names when they are followed by the string type suffix ($).'''
 
 
-==QBasic/QuickBASIC==
+{{PageQBasic}}
 * QBasic's IDE would add DEF statements before any [[SUB]] or [[FUNCTION]]. QB64 (like QBasic) will change all variable types in subsequent sub-procedures to that default variable type without giving a [[ERROR Codes|"Parameter Type Mismatch"]] warning or adding DEF statement to subsequent procedures. If you do not want that to occur, either remove that DEF statement or add the proper DEF type statements to subsequent procedures. May also affect [[$INCLUDE]] procedures.
 
 
