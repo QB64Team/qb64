@@ -8654,8 +8654,8 @@ FUNCTION idesubs$
     IF maxModuleNameLen > moduleNameLenLimit + 2 THEN
         l$ = LEFT$(l$, moduleNameLenLimit - 1) + STRING$(3, 250)
         maxModuleNameLen = moduleNameLenLimit
-    ELSEIF maxModuleNameLen < 20 THEN
-        maxModuleNameLen = 20
+    ELSEIF maxModuleNameLen < 10 THEN
+        maxModuleNameLen = 10
     END IF
 
     ly$ = MKL$(1)
@@ -8664,6 +8664,7 @@ FUNCTION idesubs$
     PreferCurrentCursorSUBFUNC = 0
     InsideDECLARE = 0
     FoundExternalSUBFUNC = 0
+    maxLineCount = 0
 
     REDIM SortedSubsList(1 TO 100) AS STRING * 998
     REDIM CaseBkpSubsList(1 TO 100) AS STRING * 998
@@ -8800,14 +8801,25 @@ FUNCTION idesubs$
 
     'build headers (normal, sorted, normal with line count, sorted with line count)
     IF TotalSUBs > 0 THEN
+        IF LEN(LTRIM$(STR$(maxLineCount))) <= 10 THEN
+            maxLineCountSpace = 10
+            linesHeader$ = "Line count"
+            external$ = "external"
+        END IF
+        IF LEN(LTRIM$(STR$(maxLineCount))) <= 5 THEN
+            maxLineCountSpace = 5
+            linesHeader$ = "Lines"
+            external$ = CHR$(196)
+        END IF
+
         l$ = l$ + SPACE$((maxModuleNameLen + 2) - LEN(l$))
         lSized$ = l$
         lSortedSized$ = l$
         l$ = l$ + "  Type  Arguments"
         lSorted$ = l$
         lSorted$ = l$
-        lSized$ = lSized$ + "  Line count  Type  Arguments" + sep
-        lSortedSized$ = lSortedSized$ + "  Line count  Type  Arguments"
+        lSized$ = lSized$ + "  " + linesHeader$ + "  Type  Arguments" + sep
+        lSortedSized$ = lSortedSized$ + "  " + linesHeader$ + "  Type  Arguments"
     ELSE
         l$ = ideprogname$
         IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
@@ -8835,9 +8847,9 @@ FUNCTION idesubs$
         l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
              sf$ + CHR$(16) + CHR$(16) + args$
 
-        IF TotalLines(x) = 0 THEN num$ = "external" ELSE num$ = LTRIM$(STR$(TotalLines(x)))
+        IF TotalLines(x) = 0 THEN num$ = external$ ELSE num$ = LTRIM$(STR$(TotalLines(x)))
         lSized$ = lSized$ + CHR$(195) + CHR$(196) + n$ + "  " + _
-                  CHR$(16) + CHR$(2) + SPACE$(10 - LEN(num$)) + num$ + "  " _
+                  CHR$(16) + CHR$(2) + SPACE$(maxLineCountSpace - LEN(num$)) + num$ + "  " _
                   + sf$ + CHR$(16) + CHR$(16) + args$ + sep
 
         listItem$ = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
@@ -8865,10 +8877,10 @@ FUNCTION idesubs$
                                MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
 
                     num$ = LTRIM$(STR$(TotalLines(RestoreCaseBkp)))
-                    IF LEFT$(temp$, 1) = "*" THEN num$ = "external"
+                    IF LEFT$(temp$, 1) = "*" THEN num$ = external$
                     lSortedSized$ = lSortedSized$ + sep + CHR$(195) + CHR$(196)
                     lSortedSized$ = lSortedSized$ + LEFT$(temp$, INSTR(temp$, CHR$(1)) - 1) + _
-                                    SPACE$(10 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
+                                    SPACE$(maxLineCountSpace - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
                                     MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
                     EXIT FOR
                 END IF
@@ -8932,21 +8944,20 @@ FUNCTION idesubs$
     o(i).typ = 4 'check box
     o(i).x = 2
     o(i).y = idewy + idesubwindow - 6
-    o(i).nam = idenewtxt("Show #Line Count")
+    o(i).nam = idenewtxt("#Line Count")
     o(i).sel = IDESubsLength
 
-    IF TotalSUBs > 1 THEN
-        i = i + 1
-        o(i).typ = 4 'check box
-        o(i).x = 22
-        o(i).y = idewy + idesubwindow - 6
-        o(i).nam = idenewtxt("#Sorted A-Z")
-        o(i).sel = SortedSubsFlag
-    END IF
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 18
+    o(i).y = idewy + idesubwindow - 6
+    o(i).nam = idenewtxt("#Sort")
+    o(i).sel = SortedSubsFlag
 
     i = i + 1
     o(i).typ = 3
-    o(i).x = p.w - 30
+    o(i).x = p.x + p.w - 26
+    o(i).w = 26
     o(i).y = idewy + idesubwindow - 6
     o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
     o(i).dft = 1
@@ -8977,6 +8988,10 @@ FUNCTION idesubs$
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
+        IF FoundExternalSUBFUNC THEN
+            COLOR 2, 7
+            _PRINTSTRING (p.x + p.w - 32, p.y + p.h), "* external"
+        END IF
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -9136,6 +9151,7 @@ FUNCTION idesubs$
     AddLineCount:
     ModuleSize = ModuleSize + 1
     TotalLines(LastOpenSUB) = ModuleSize
+    IF ModuleSize > maxLineCount THEN maxLineCount = ModuleSize
     SubClosed = -1
     RETURN
 END FUNCTION
