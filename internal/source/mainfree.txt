@@ -247,6 +247,7 @@ free((void*)(__ARRAY_BYTE_DEFINEELSE[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_BYTE_DEFINEELSE)[8] );
+qbs_free(__STRING_USERDEFINELIST);
 if (__ARRAY_LONG_DEPENDENCY[2]&1){
 if (__ARRAY_LONG_DEPENDENCY[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_DEPENDENCY[0]));
@@ -960,6 +961,7 @@ qbs_free(__STRING_P);
 qbs_free(__STRING_X);
 qbs_free(__STRING_LAYOUTORIGINAL);
 qbs_free(__STRING_A3U);
+qbs_free(__STRING_TEMPOP);
 qbs_free(__STRING_VERSIONINFOKEY);
 qbs_free(__STRING_VERSIONINFOVALUE);
 qbs_free(__STRING_EXEICONFILE);
