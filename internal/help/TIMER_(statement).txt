@@ -9,7 +9,7 @@ QB64
 :::TIMER(''number%'') {ON|STOP|OFF|FREE}
 
 
-{{Parameters}}
+{{PageParameters}}
 * ''number'' denotes a specific numbered timer event in '''QB64 only'''. QB64 can run many timer events at once including the base timer.
 * TIMER ON enables event trapping of an [[ON TIMER (n)]] statement. While enabled, a check is made after every code statement to see if the specified time has elapsed and the ON TIMER [[GOSUB]] (or [[SUB]] in QB64) procedure is executed.
 * TIMER STOP disables timer event trapping. When an event occurs while stopped, it is remembered. If timer events are turned back on later, any remembered events are immediately executed. 

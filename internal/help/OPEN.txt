@@ -9,7 +9,7 @@ The [[OPEN]] statement is used to open a file or [[OPEN_COM|COM]] serial communi
 : [[OPEN]] {{Parameter|modeLetter$}}, [#]{{Parameter|fileNumber&amp;}}, {{Parameter|fileName$}}[, {{Parameter|recordLength}}]
 
 
-{{Parameters}}
+{{PageParameters}}
 * The {{Parameter|fileName$}} is a [[STRING]] variable or literal file name (path optional) in quotes. 
 * FOR mode can be: [[APPEND]] (write to end), [[BINARY]] (read/write), [[INPUT (file mode)|INPUT]] (read), [[OUTPUT]] (write new) or [[RANDOM]] (read/write).
 * GW-BASIC's {{Parameter|modeLetter$}} is a [[STRING]] variable or the letter "A", "B", "I", "O" or "R" designating the OPEN modes above.
@@ -72,7 +72,7 @@ file$ = "Hello,~1.mp3"      'example call below
 {{Cl|LOCATE}} 20, 30: errors% = CheckName%(file$): {{Cl|COLOR}} 14: {{Cl|PRINT}} "  Total Errors ="; errors% 
 
 {{Cl|FUNCTION}} CheckName% (Filename$)
-  '{{Cl|NOT}}E: Function also displays filename errors so {{Cl|LOCATE}} on screen before call!
+  'NOTE: Function also displays filename errors so {{Cl|LOCATE}} on screen before call!
   {{Cl|DIM}} L {{Cl|AS}} {{Cl|INTEGER}}, DP {{Cl|AS}} {{Cl|INTEGER}}, XL {{Cl|AS}} {{Cl|INTEGER}}
   L = {{Cl|LEN}}(Filename$): DP = {{Cl|INSTR}}(Filename$, "."): {{Cl|IF...THEN|IF}} DP {{Cl|THEN}} XL = L - DP 'extension
   {{Cl|IF...THEN|IF}} L = 0 {{Cl|OR (boolean)|OR}} L > 12 {{Cl|OR (boolean)|OR}} DP > 9 {{Cl|OR (boolean)|OR}} XL > 3 {{Cl|THEN}} 

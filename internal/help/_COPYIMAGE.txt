@@ -6,7 +6,7 @@ The [[_COPYIMAGE]] function creates an identical designated image in memory with
 : newhandle&amp; = [[_COPYIMAGE]][({{Parameter|imageHandle&amp;}}[, {{Parameter|mode%}})]]
 
 
-{{Parameters}}
+{{PageParameters}}
 * The [[LONG]] ''newhandle&amp;'' value returned will be different than the source handle value supplied.
 * If ''imageHandle&amp;'' parameter is omitted or zero is designated, the current software [[_DEST|destination]] screen or image is copied.
 * If 1 is designated instead of an ''imageHandle&amp;'', it designates the last OpenGL hardware surface to copy.

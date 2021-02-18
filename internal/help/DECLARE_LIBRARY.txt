@@ -10,7 +10,7 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 : '''END DECLARE'''
 
 
-{{Parameters}}
+{{PageParameters}}
 * The {{Parameter|Library_filename}} is needed if a Library is not already loaded by QB64. Do not include the ''.DLL'', ''LIB'' or ''.H'' file extension.
 ** It's always a good idea to try declaring Windows API libraries without a {{Parameter|Library_filename}} first, as most Windows headers are already included in QB64 source.
 * Begin the {{Parameter|Library_filename}} with '''./''' or '''.\''' to make it relative to the path where your source file is saved, so you can keep all your project files together.
@@ -33,28 +33,28 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 
 * The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
 * Declarations can be made inside of [[SUB]] or [[FUNCTION]] procedures. Declarations do not need to be at program start.
-* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that any procedure will work and cannot quarantee any troubleshooting help.'''
+* '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use! QB64 cannot guarantee that any procedure will work and cannot guarantee any troubleshooting help.'''
 
 
 {{PageExamples}}
 ''Example 1:'' Using an '''SDL''' library procedure as a program SUB procedure to move the mouse pointer to a coordinate (works in versions prior to 1.000):
 {{CodeStart}} '' ''
 {{Cl|DECLARE LIBRARY}}
-  {{Cl|SUB}} SDL_WarpMouse ({{Cl|BYVAL}} column {{Cl|AS}} {{Cl|LONG}}, {{Cl|BYVAL}} row {{Cl|AS}} {{Cl|LONG}}) 'SDL procedure name
+    {{Cl|SUB}} SDL_WarpMouse ({{Cl|BYVAL}} column {{Cl|AS}} {{Cl|LONG}}, {{Cl|BYVAL}} row {{Cl|AS}} {{Cl|LONG}}) 'SDL procedure name
 {{Cl|DECLARE LIBRARY|END DECLARE}}
 {{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)  'simulate screen 12 with 256 colors
 {{Cl|RANDOMIZE}} {{Cl|TIMER}}
 
-DO
-  {{Cl|_DELAY}} 1
-  x = {{Cl|RND}} * 640: y = {{Cl|RND}} * 480
-  {{Cl|LINE}} (x, y)-{{Cl|STEP}}(10, 10), {{Cl|RND}} * 100 + 32, BF
-  MouseMove x + 5, y + 5
+{{Cl|DO}}
+    {{Cl|_DELAY}} 1
+    x = {{Cl|RND}} * 640: y = {{Cl|RND}} * 480
+    {{Cl|LINE}} (x, y)-{{Cl|STEP}}(10, 10), {{Cl|RND}} * 100 + 32, BF
+    MouseMove x + 5, y + 5
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}({{Cl|INKEY$}})  'any keypress quits
 {{Cl|END}}
 
 {{Cl|SUB}} MouseMove (x {{Cl|AS}} {{Cl|LONG}}, y {{Cl|AS}} {{Cl|LONG}})
-SDL_WarpMouse x, y     'call SDL library procedure
+    SDL_WarpMouse x, y     'call SDL library procedure
 {{Cl|END SUB}} '' ''
 {{CodeEnd}}
 {{small|Code by Galleon}}
@@ -64,7 +64,7 @@ SDL_WarpMouse x, y     'call SDL library procedure
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 {{Cl|DECLARE LIBRARY}}
-  {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} column&amp;, {{Cl|BYVAL}} row&amp;)
+    {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} column&amp;, {{Cl|BYVAL}} row&amp;)
 {{Cl|DECLARE LIBRARY|END DECLARE}}
 
 {{Cl|_DELAY}} 2
@@ -79,11 +79,11 @@ MouseMove 200, 200 '' ''
 {{CodeStart}} '' ''
 {{Cl|DECLARE LIBRARY}} ""
     {{Cl|FUNCTION}} addone&amp; ({{Cl|BYVAL}} value&amp;)
-{{Cl|END}} DECLARE '' ''
+{{Cl|END DECLARE}} '' ''
 {{CodeEnd}}
 :''Explanation:'' The C function 'addone' exists in a library QB64 already links to, but it hasn't been defined as a C function or a QB64 function. By using "" we are telling QB64 the function exists in a library which is already linked to and that it must define the C function before calling it, as well as allowing QB64 code to call it. Trying the above code without the "" will fail.
 
-: '''Note: What libraries are or aren't automatically used in the linking process is not formally defined, nor is it guaranteed to stay that way in future versions of QB64.'''
+: '''Note: Which libraries are or aren't automatically used in the linking process is not formally defined, nor is it guaranteed to stay that way in future versions of QB64.'''
 
 
 &lt;center>'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center>

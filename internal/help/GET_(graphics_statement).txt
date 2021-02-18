@@ -8,7 +8,7 @@ The [[GET (graphics statement)|GET]] statement is used in graphics to store a bo
 : [[GET]] [STEP] ({{Parameter|column1}}, {{Parameter|row1}})-[STEP]({{Parameter|column2}}, {{Parameter|row2}}), {{Parameter|array}}([{{Parameter|index}}])[, {{Parameter|offscreenColor}}]
 
 
-{{Parameters}}
+{{PageParameters}}
 * ''column'' and ''row'' [[INTEGER]] coordinates for the box area must be on the screen except when using an ''offscreenColor''.
 * [[INTEGER]] array sizes must be large enough (use width * height of the box area + 4) to hold the data or an error will occur.
 * The [[arrays|array]] ''index'' offset is optional. If the offset is zero the brackets may be empty.
