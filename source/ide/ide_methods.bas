@@ -8413,6 +8413,11 @@ SUB ideshowtext
                         ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
                             isCustomKeyword = -1
                             isKeyword = LEN(checkKeyword$)
+                        ELSEIF INSTR(UserDefineList$, "@" + checkKeyword$ + "@") > 0 AND _
+                                (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
+                                UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
+                            isCustomKeyword = -1
+                            isKeyword = LEN(checkKeyword$)
                         END IF
                     END IF
                 END IF

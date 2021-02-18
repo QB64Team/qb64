@@ -32,7 +32,8 @@ DIM ExecLevel(255), ExecCounter AS INTEGER
 REDIM SHARED UserDefine(1, 100) AS STRING '0 element is the name, 1 element is the string value
 REDIM SHARED InValidLine(10000) AS _BYTE
 DIM DefineElse(255) AS _BYTE
-DIM SHARED UserDefineCount AS INTEGER
+DIM SHARED UserDefineCount AS INTEGER, UserDefineList$
+UserDefineList$ = "@DEFINED@UNDEFINED@WINDOWS@WIN@LINUX@MAC@MACOSX@32BIT@64BIT@VERSION@"
 UserDefine(0, 0) = "WINDOWS": UserDefine(0, 1) = "WIN"
 UserDefine(0, 2) = "LINUX"
 UserDefine(0, 3) = "MAC": UserDefine(0, 4) = "MACOSX"
@@ -2881,7 +2882,16 @@ DO
 
             temp$ = LTRIM$(MID$(a3u$, 4)) 'strip off the $IF and extra spaces
             temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-            temp = INSTR(temp$, "=")
+            temp = 0
+            IF temp = 0 THEN tempOp$ = "<=": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "=<": temp = INSTR(temp$, tempOp$): tempOp$ = "<="
+            IF temp = 0 THEN tempOp$ = ">=": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "=>": temp = INSTR(temp$, tempOp$): tempOp$ = ">="
+            IF temp = 0 THEN tempOp$ = "<>": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "><": temp = INSTR(temp$, tempOp$): tempOp$ = "<>"
+            IF temp = 0 THEN tempOp$ = "=": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = ">": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "<": temp = INSTR(temp$, tempOp$)
 
             ExecCounter = ExecCounter + 1
             ExecLevel(ExecCounter) = -1 'default to a skip value
@@ -2896,8 +2906,8 @@ DO
             controllevel = controllevel + 1
             controltype(controllevel) = 6
             IF temp = 0 THEN layout$ = SCase$("$If ") + temp$ + SCase$(" Then"): GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
-            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
-            layout$ = SCase$("$If ") + l$ + " = " + r$ + SCase$(" Then")
+            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + LEN(tempOp$)))
+            layout$ = SCase$("$If ") + l$ + " " + tempOp$ + " " + r$ + SCase$(" Then")
             GOTO finishednonexec
         END IF
 
