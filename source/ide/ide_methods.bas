@@ -8380,6 +8380,13 @@ SUB ideshowtext
                             IF isnumber(checkKeyword$) THEN
                                 is_Number = -1
                                 isKeyword = LEN(checkKeyword$)
+                            ELSEIF INSTR(UserDefineList$, "@" + UCASE$(checkKeyword$)) > 0 THEN
+                                'keep checking
+                                FOR i = i TO LEN(a2$)
+                                    IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): GOTO keywordAcquired
+                                    checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                                NEXT
+                                GOTO keywordAcquired
                             END IF
                         END IF
                         GOTO setOldChar
@@ -8394,6 +8401,7 @@ SUB ideshowtext
                             checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                         NEXT
                         IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
+                        keywordAcquired:
                         checkKeyword$ = UCASE$(checkKeyword$)
                         IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 OR _
                            (qb64prefix_set = 1 AND INSTR(listOfKeywords$, "@_" + checkKeyword$ + "@") > 0) THEN
