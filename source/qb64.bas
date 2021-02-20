@@ -3276,6 +3276,8 @@ DO
         label$ = getelement(entireline$, 1)
         IF validlabel(label$) THEN
 
+            IF closedmain <> 0 AND subfunc = "" THEN a$ = "Labels cannot be placed between SUB/FUNCTIONs": GOTO errmes
+
             v = HashFind(label$, HASHFLAG_LABEL, ignore, r)
             addlabchk100:
             IF v THEN
@@ -3337,6 +3339,8 @@ DO
             IF validlabel(a$) THEN
 
                 IF validname(a$) = 0 THEN a$ = "Invalid name": GOTO errmes
+
+                IF closedmain <> 0 AND subfunc = "" THEN a$ = "Labels cannot be placed between SUB/FUNCTIONs": GOTO errmes
 
                 v = HashFind(a$, HASHFLAG_LABEL, ignore, r)
                 addlabchk:
