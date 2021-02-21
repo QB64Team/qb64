@@ -8271,7 +8271,7 @@ SUB ideshowtext
                         END IF
                     END IF
 
-                    FindInclude = INSTR(a2$, "$INCLUDE")
+                    FindInclude = _INSTRREV(a2$, "$INCLUDE")
                     IF FindInclude > 0 THEN
                         link_idecx = LEN(a$)
                         FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
