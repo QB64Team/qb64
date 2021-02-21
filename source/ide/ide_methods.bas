@@ -8445,8 +8445,8 @@ SUB ideshowtext
 
                 IF comment THEN
                     COLOR 11
-                    IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
-                        OR checkKeyword$ = "$STATIC") THEN COLOR 10
+                    IF metacommand AND ((checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
+                        OR checkKeyword$ = "$STATIC") AND INSTR(m + 1, UCASE$(a2$), checkKeyword$) = 0) THEN COLOR 10
                 ELSEIF metacommand THEN
                     COLOR 10
                 ELSEIF inquote OR thisChar$ = CHR$(34) THEN
