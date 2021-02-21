@@ -20197,58 +20197,49 @@ FUNCTION lineformat$ (a$)
     c$ = LTRIM$(c$)
     IF LEN(c$) = 0 THEN GOTO lineformatdone2
     ac = ASC(c$)
+    'note: any non-whitespace character between the comment leader and the
+    '      first '$' renders this a plain comment
+    '    : the leading '$' does NOT have to be part of a valid metacommand.
+    '      E.g., REM $FOO $DYNAMIC is a valid metacommand line
     IF ac <> 36 THEN GOTO lineformatdone2
     nocasec$ = LTRIM$(RIGHT$(ca$, LEN(ca$) - i + 1))
     memmode = 0
-    FOR x = 1 TO LEN(c$)
-        mcnext:
-        IF MID$(c$, x, 1) = "$" THEN
+    x = 1
+    DO
+        'note: metacommands may appear on a line any number of times but only
+        '      the last appearance of $INCLUDE, and either $STATIC or $DYNAMIC,
+        '      is processed
+        '    : metacommands do not need to be terminated by word boundaries.
+        '      E.g., $STATICanychars$DYNAMIC is valid
 
-            'note: $STATICksdcdweh$DYNAMIC is valid!
+        IF MID$(c$, x, 7) = "$STATIC" THEN
+            memmode = 1
+        ELSEIF MID$(c$, x, 8) = "$DYNAMIC" THEN
+            memmode = 2
+        ELSEIF MID$(c$, x, 8) = "$INCLUDE" THEN
+            'note: INCLUDE adds the file AFTER the line it is on has been processed
+            'skip spaces until :
+            FOR xx = x + 8 TO LEN(c$)
+                ac = ASC(MID$(c$, xx, 1))
+                IF ac = 58 THEN EXIT FOR ':
+                IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+            NEXT
+            x = xx
+            'skip spaces until '
+            FOR xx = x + 1 TO LEN(c$)
+                ac = ASC(MID$(c$, xx, 1))
+                IF ac = 39 THEN EXIT FOR 'character:'
+                IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+            NEXT
+            x = xx
+            xx = INSTR(x + 1, c$, "'")
+            IF xx = 0 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+            addmetainclude$ = MID$(nocasec$, x + 1, xx - x - 1)
+            IF addmetainclude$ = "" THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+        END IF
 
-            IF MID$(c$, x, 7) = "$STATIC" THEN
-                memmode = 1
-                xx = INSTR(x + 1, c$, "$")
-                if xx=0 then exit for else
-                x = xx: GOTO mcnext
-            END IF
-
-            IF MID$(c$, x, 8) = "$DYNAMIC" THEN
-                memmode = 2
-                xx = INSTR(x + 1, c$, "$")
-                IF xx = 0 THEN EXIT FOR
-                x = xx: GOTO mcnext
-            END IF
-
-            IF MID$(c$, x, 8) = "$INCLUDE" THEN
-                'note: INCLUDE adds the file AFTER the line it is on has been processed
-                'note: No other metacommands can follow the INCLUDE metacommand!
-                'skip spaces until :
-                FOR xx = x + 8 TO LEN(c$)
-                    ac = ASC(MID$(c$, xx, 1))
-                    IF ac = 58 THEN EXIT FOR ':
-                    IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                NEXT
-                x = xx
-                'skip spaces until '
-                FOR xx = x + 1 TO LEN(c$)
-                    ac = ASC(MID$(c$, xx, 1))
-                    IF ac = 39 THEN EXIT FOR 'character:'
-                    IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                NEXT
-                x = xx
-                xx = INSTR(x + 1, c$, "'")
-                IF xx = 0 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                addmetainclude$ = MID$(nocasec$, x + 1, xx - x - 1)
-                IF addmetainclude$ = "" THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                GOTO mcfinal
-            END IF
-
-            'add more metacommands here
-
-        END IF '$
-    NEXT
-    mcfinal:
+        x = INSTR(x + 1, c$, "$")
+    LOOP WHILE x <> 0
 
     IF memmode = 1 THEN addmetastatic = 1
     IF memmode = 2 THEN addmetadynamic = 1
