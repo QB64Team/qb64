@@ -18094,6 +18094,8 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     if (qbs_equal(str,qbs_new_txt("HORIZONTAL"))) {mouse_cursor_style=GLUT_CURSOR_LEFT_RIGHT; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt("TOPLEFT_BOTTOMRIGHT"))) {mouse_cursor_style=GLUT_CURSOR_TOP_LEFT_CORNER; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt ("TOPRIGHT_BOTTOMLEFT"))) {mouse_cursor_style=GLUT_CURSOR_TOP_RIGHT_CORNER; goto cursor_valid;}
+                    if (qbs_equal(str,qbs_new_txt ("WAIT"))) {mouse_cursor_style=GLUT_CURSOR_WAIT; goto cursor_valid;}
+                    if (qbs_equal(str,qbs_new_txt ("HELP"))) {mouse_cursor_style=GLUT_CURSOR_HELP; goto cursor_valid;}
                     error(5); return;
                 }
                 cursor_valid:
