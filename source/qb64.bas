@@ -788,6 +788,7 @@ DIM SHARED module AS STRING
 
 DIM SHARED subfunc AS STRING
 DIM SHARED subfuncn AS LONG
+DIM SHARED closedsubfunc AS _BYTE
 DIM SHARED subfuncid AS LONG
 
 DIM SHARED defdatahandle AS INTEGER
@@ -1411,6 +1412,7 @@ idn = 0
 arrayprocessinghappened = 0
 stringprocessinghappened = 0
 subfuncn = 0
+closedsubfunc = 0
 subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
@@ -1824,6 +1826,10 @@ DO
                         thirdelement$ = getelement(a$, 3)
                         '========================================
 
+                        IF n = 2 AND firstelement$ = "END" AND (secondelement$ = "SUB" OR secondelement$ = "FUNCTION") THEN
+                            closedsubfunc = -1
+                        END IF
+
                         'declare library
                         IF declaringlibrary THEN
 
@@ -2044,6 +2050,8 @@ DO
                             'l$ = "CONST"
                             'DEF... do not change type, the expression is stored in a suitable type
                             'based on its value if type isn't forced/specified
+
+                            IF subfuncn > 0 AND closedsubfunc <> 0 THEN a$ = "Statement cannot be placed between SUB/FUNCTIONs": GOTO errmes
 
                             'convert periods to _046_
                             i2 = INSTR(a$, sp + "." + sp)
@@ -2303,6 +2311,7 @@ DO
                         IF sf THEN
 
                             subfuncn = subfuncn + 1
+                            closedsubfunc = 0
 
                             IF n = 1 THEN a$ = "Expected name after SUB/FUNCTION": GOTO errmes
 
@@ -4653,6 +4662,7 @@ DO
 
             subfunc = RTRIM$(id.callname) 'SUB_..."
             subfuncn = subfuncn + 1
+            closedsubfunc = 0
             subfuncid = targetid
 
             subfuncret$ = ""
@@ -5166,6 +5176,7 @@ DO
                 PRINT #15, "}"
                 PRINT #15, "error(3);" 'no valid return possible
                 subfunc = ""
+                closedsubfunc = -1
 
                 'unshare temp. shared variables
                 FOR i = 1 TO idn
