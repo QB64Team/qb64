@@ -2666,6 +2666,10 @@ if(__LONG_SUBFUNCN==NULL){
 __LONG_SUBFUNCN=(int32*)mem_static_malloc(4);
 *__LONG_SUBFUNCN=0;
 }
+if(__BYTE_CLOSEDSUBFUNC==NULL){
+__BYTE_CLOSEDSUBFUNC=(int8*)mem_static_malloc(1);
+*__BYTE_CLOSEDSUBFUNC=0;
+}
 if(__LONG_SUBFUNCID==NULL){
 __LONG_SUBFUNCID=(int32*)mem_static_malloc(4);
 *__LONG_SUBFUNCID=0;
