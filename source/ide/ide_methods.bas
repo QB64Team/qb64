@@ -8810,13 +8810,15 @@ FUNCTION idesubs$
     IF SubClosed = 0 THEN GOSUB AddLineCount
 
     'fix arrays to remove empty items
-    REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
-    REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
-    REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
-    REDIM _PRESERVE SubNames(0 TO TotalSUBs) AS STRING
-    REDIM _PRESERVE SubLines(0 TO TotalSUBs) AS LONG
-    REDIM _PRESERVE Args(0 TO TotalSUBs) AS STRING
-    REDIM _PRESERVE SF(0 TO TotalSUBs) AS STRING
+    IF TotalSUBs > 0 AND TotalSUBs < UBOUND(SortedSubsList) THEN
+        REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
+        REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
+        REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
+        REDIM _PRESERVE SubNames(0 TO TotalSUBs) AS STRING
+        REDIM _PRESERVE SubLines(0 TO TotalSUBs) AS LONG
+        REDIM _PRESERVE Args(0 TO TotalSUBs) AS STRING
+        REDIM _PRESERVE SF(0 TO TotalSUBs) AS STRING
+    END IF
 
     'build headers (normal, sorted, normal with line count, sorted with line count)
     IF TotalSUBs > 0 THEN
