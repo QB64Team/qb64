@@ -12,7 +12,7 @@ The [[_MAPTRIANGLE]] statement maps a triangular portion of an image onto a dest
 :[[_MAPTRIANGLE]] [{_CLOCKWISE|_ANTICLOCKWISE}] [{_SEAMLESS}] '''('''{{Parameter|sx1}}''',''' {{Parameter|sy1}}''')-('''{{Parameter|sx2}}''',''' {{Parameter|sy2}}''')-('''{{Parameter|sx3}}''',''' {{Parameter|sy3}}'''),''' {{Parameter|source&amp;}} '''TO ('''{{Parameter|dx1}}''',''' {{Parameter|dy1}}''',''' {{Parameter|dz1}}''')-('''{{Parameter|dx2}}''',''' {{Parameter|dy2}}''',''' {{Parameter|dz2}}''')-('''{{Parameter|dx3}}''',''' {{Parameter|dy3}}''',''' {{Parameter|dz3}}''')'''[, {{Parameter|destination&amp;}}][{_SMOOTH|_SMOOTHSHRUNK|_SMOOTHSTRETCHED}]]
 
 
-{{Parameters}}
+{{PageParameters}}
 * The '''_SEAMLESS''' option makes the triangle skip the right-most and bottom-most pixels of the triangle. When you make larger objects using several triangles, there can be a "seam" where they overlap when using alpha transparency and the seam would be twice as bright. '''_SEAMLESS''' is ignored when rendering 3D content and is not yet supported when drawing 2D hardware images.'''
 * For 3D drawing use the '''_CLOCKWISE''' and '''_ANTICLOCKWISE''' arguments to only draw triangles in the correct direction. See ''Example 4''. 
 * Coordinates are [[SINGLE]] values where whole numbers represent the exact center of a pixel of the source texture. 

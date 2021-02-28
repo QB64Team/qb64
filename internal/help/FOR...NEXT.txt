@@ -24,6 +24,7 @@ The [[FOR]] statement creates a counter loop using specified start and stop nume
 ** If {{Parameter|startValue}} is more than {{Parameter|stopValue}}, use a negative [[STEP]] interval or the loop will not be executed.
 ** The [[STEP]] {{Parameter|increment}} value cannot be changed inside of the loop.
 * Use '''[[EXIT]] FOR''' to leave a FOR loop early when a certain condition is met inside of the loop.
+* Use [[_CONTINUE]] to skip the remaining lines in the current iteration of a FOR/NEXT block without leaving the loop.
 * The [[NEXT]] counter variable name is not required. NEXT loop increments can be separated by colons in nested FOR loops. 
 * '''NOTE: When the FOR loop is exited after the {{Parameter|stopValue}} is reached, the {{Parameter|counterVariable}}'s value will be {{Parameter|stopValue}} + 1 (or {{Parameter|stopValue}} + {{Parameter|increment}})
 * '''Beware of FOR loop counts that exceed the {{Parameter|counterVariable}} type limits and may repeat without error in QB64.'''
@@ -62,6 +63,7 @@ bye {{OutputEnd}}
 {{PageSeeAlso}}
 * [[STEP]] 
 * [[DO...LOOP]], [[WHILE...WEND]]
+* [[EXIT]], [[_CONTINUE]]
 
 
 {{PageNavigation}}

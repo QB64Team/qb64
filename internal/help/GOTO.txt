@@ -5,8 +5,10 @@ The [[GOTO]] statement sends the procedure to a line label or a line number in t
 : [[GOTO]] {''lineNumber''|''lineLabel''}
 
 
-'''''IF''' Syntax:''
+[[IF]] Syntax:''
 : IF condition [[GOTO]] {''lineNumber''|''lineLabel''}
+: IF condition THEN [[GOTO]] {''lineNumber''|''lineLabel''}
+: IF condition THEN ''lineNumber'' ' GOTO may be omitted when line numbers are used
 
 
 {{PageDescription}}
@@ -19,7 +21,7 @@ The [[GOTO]] statement sends the procedure to a line label or a line number in t
 {{PageExamples}}
 ''Example:''
 {{CodeStart}} '' ''
-1 {{Cl|PRINT}} "first line": {{Cl|GOTO}} gohere
+1 {{Cl|PRINT}} "first line" : {{Cl|GOTO}} gohere
 2 {{Cl|PRINT}} "second line": {{Cl|GOTO}} 3
 
 gohere:

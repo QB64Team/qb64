@@ -16,6 +16,8 @@ The [[_MOUSESHOW]] statement displays the mouse cursor and can change its shape.
 ::_MOUSESHOW "HORIZONTAL" will display horizontal arrow cursor for movement
 ::_MOUSESHOW "TOPLEFT_BOTTOMRIGHT" will display bottom diagonal arrow cursor for movement
 ::_MOUSESHOW "TOPRIGHT_BOTTOMLEFT" will display bottom diagonal arrow cursor for movement
+::_MOUSESHOW "WAIT" will display an hourglass or spinning circle used to indicate the program is busy with a task
+::_MOUSESHOW "HELP" will display a question mark cursor used to denote more information available
 ::_MOUSESHOW "DEFAULT" can be used after a mouse cursor statement above was previously used.
 
 {{PageExamples}}
@@ -29,8 +31,10 @@ The [[_MOUSESHOW]] statement displays the mouse cursor and can change its shape.
 {{Cl|_MOUSESHOW}} "horizontal": {{Cl|_DELAY}} 0.5
 {{Cl|_MOUSESHOW}} "topleft_bottomright": {{Cl|_DELAY}} 0.5
 {{Cl|_MOUSESHOW}} "topright_bottomleft": {{Cl|_DELAY}} 0.5 
+{{Cl|_MOUSESHOW}} "wait": {{Cl|_DELAY}} 0.5
+{{Cl|_MOUSESHOW}} "help": {{Cl|_DELAY}} 0.5
 {{CodeEnd}}
-: '''Note:''' There is no hourglass, stopwatch or spinning colorful wheel in the list. These typically only appear in a program when something has gone terribly wrong and the program has crashed or frozen.
+: '''Note:''' The hourglass and question mark cursors are available in v1.5 and above.
 
 
 {{PageSeeAlso}}
