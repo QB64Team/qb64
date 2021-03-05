@@ -268,7 +268,7 @@ SUB WikiParse (a$)
     '      {{PageSyntax}} {{PageParameters}} {{PageDescription}} {{PageExamples}}
     '      {{CodeStart}} {{CodeEnd}} {{OutputStart}} {{OutputEnd}}
     '      {{PageSeeAlso}} {{PageNavigation}} {{PageLegacySupport}}
-    '      {{PageQBasic}} {{Availability}}
+    '      {{PageQBasic}} {{PageAvailability}}
     ' [[SPACE$]]=a link to wikipage called "SPACE$"
     ' [[INTEGER|integer]]=a link, link's name is on left and text to appear is on right
     ' *=a dot point
