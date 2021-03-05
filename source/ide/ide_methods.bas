@@ -13351,7 +13351,7 @@ SUB IdeMakeContextualMenu
 
             v = 0
             CurrSF$ = FindCurrentSF$(idecy)
-            IF NOT Error_Happened THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
+            IF validname(a2$) THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
             CheckThisLabel:
             IF v THEN
                 LabelLineNumber = Labels(r).SourceLineNumber
