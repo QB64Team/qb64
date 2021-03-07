@@ -13084,7 +13084,7 @@ FUNCTION ParseCMDLineArgs$ ()
                         PRINT "Valid switches:"
                         PRINT "    -s:debuginfo=true/false     (Embed C++ debug info into .EXE)"
                         PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
-                        SYSTEM
+                        SYSTEM 1
                 END SELECT
                 _DEST 0
             CASE "-l" 'goto line (ide mode only); -l:<line number>
