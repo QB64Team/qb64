@@ -11027,7 +11027,11 @@ FUNCTION idedisplaybox
     i = i + 1
     o(i).typ = 4 'check box
     o(i).y = 8
-    o(i).nam = idenewtxt("Restore window #position at startup")
+    IF INSTR(_OS$, "WIN") > 0 OR INSTR(_OS$, "MAC") > 0 THEN
+        o(i).nam = idenewtxt("Restore window #position and size at startup")
+    ELSE
+        o(i).nam = idenewtxt("Restore window size at startu#p")
+    END IF
     IF IDE_AutoPosition THEN o(i).sel = 1
 
     i = i + 1
