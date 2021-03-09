@@ -1,5 +1,5 @@
-FUNCTION ide (ignore)
-    'Note: ide is a function which optimizes the interaction between the IDE and compiler (ide2)
+FUNCTION ide (ignore) 'ide is a function which optimizes the interaction between the IDE and compiler (ide2)
+    'Note:
     '      by avoiding unnecessary bloat associated with entering the main IDE function 'ide2'
     ignore = ignore 'just to clear warnings of unused variables
     IF idecommand$ <> "" THEN cmd = ASC(idecommand$)
@@ -8636,7 +8636,7 @@ SUB ideshowtext
 
 END SUB
 
-FUNCTION idesubs$
+FUNCTION idesubs$ 'F2 / SUB list dialog
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -8677,34 +8677,38 @@ FUNCTION idesubs$
         maxModuleNameLen = 10
     END IF
 
-    ly$ = MKL$(1)
-    lySorted$ = ly$
-    CurrentlyViewingWhichSUBFUNC = 1
-    PreferCurrentCursorSUBFUNC = 0
-    InsideDECLARE = 0
-    FoundExternalSUBFUNC = 0
-    maxLineCount = 0
-
     REDIM SortedSubsList(1 TO 100) AS STRING * 998
     REDIM CaseBkpSubsList(1 TO 100) AS STRING * 998
     REDIM TotalLines(0 TO 100) AS LONG
     REDIM SubNames(0 TO 100) AS STRING
     REDIM SubLines(0 TO 100) AS LONG
     REDIM Args(0 TO 100) AS STRING
+    REDIM Comment(0 TO 100) AS STRING
     REDIM SF(0 TO 100) AS STRING
 
+    '-- are these even necessary? would reset anyway for each function call
+    PreferCurrentCursorSUBFUNC = 0
+    InsideDECLARE = 0
+    FoundExternalSUBFUNC = 0
+    maxLineCount = 0
     TotalSUBs = 0
     ModuleSize = 0 'in lines
-    SortedSubsFlag = idesortsubs
     SubClosed = 0
+    '--- end of question of necessity ---
+
+    ly$ = MKL$(1)
+    lySorted$ = ly$
+    CurrentlyViewingWhichSUBFUNC = 1
+    SortedSubsFlag = idesortsubs
 
 
     FOR y = 1 TO iden
-        a$ = idegetline(y)
+        templine$ = idegetline(y)
+        templine$ = LTRIM$(RTRIM$(templine$))
         IF SubClosed = 0 THEN ModuleSize = ModuleSize + 1
-        a$ = LTRIM$(RTRIM$(a$))
         sf = 0
-        nca$ = UCASE$(a$)
+
+        nca$ = UCASE$(templine$) '[ca] for CAPS, only used for checking for keywords
         IF LEFT$(nca$, 8) = "DECLARE " AND INSTR(nca$, " LIBRARY") > 0 THEN InsideDECLARE = -1
         IF LEFT$(nca$, 11) = "END DECLARE" THEN InsideDECLARE = 0
         IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB   "
@@ -8720,11 +8724,12 @@ FUNCTION idesubs$
                 REDIM _PRESERVE SubNames(0 TO TotalSUBs + 99) AS STRING
                 REDIM _PRESERVE SubLines(0 TO TotalSUBs + 99) AS LONG
                 REDIM _PRESERVE Args(0 TO TotalSUBs + 99) AS STRING
+                REDIM _PRESERVE Comment(0 TO TotalSUBs + 99) AS STRING
                 REDIM _PRESERVE SF(0 TO TotalSUBs + 99) AS STRING
             END IF
 
             IF RIGHT$(nca$, 7) = " STATIC" THEN
-                a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                templine$ = RTRIM$(LEFT$(templine$, LEN(templine$) - 7))
             END IF
 
             'Store line number
@@ -8737,26 +8742,28 @@ FUNCTION idesubs$
             END IF
             'End of current SUB/FUNCTION check
 
+           '--- start of getting func/sub data ---
             IF sf = 1 THEN
-                a$ = RIGHT$(a$, LEN(a$) - 4)
+                templine$ = RIGHT$(templine$, LEN(templine$) - 4)
             ELSE
-                a$ = RIGHT$(a$, LEN(a$) - 9)
+                templine$ = RIGHT$(templine$, LEN(templine$) - 9)
             END IF
-            a$ = LTRIM$(RTRIM$(a$))
-            x = INSTR(a$, "(")
-            IF x THEN
-                n$ = RTRIM$(LEFT$(a$, x - 1))
-                args$ = RIGHT$(a$, LEN(a$) - x + 1)
-                x = 1
+            templine$ = LTRIM$(RTRIM$(templine$))
+            argstart = INSTR(templine$, "(")
+            IF argstart THEN
+                n$ = RTRIM$(LEFT$(templine$, argstart - 1))
+                args$ = RIGHT$(templine$, LEN(templine$) - argstart + 1)
+                argstart = 1
                 FOR i = 2 TO LEN(args$)
-                    IF ASC(args$, i) = 40 THEN x = x + 1
-                    IF ASC(args$, i) = 41 THEN x = x - 1
-                    IF x = 0 THEN args$ = LEFT$(args$, i): EXIT FOR
+                    IF ASC(args$, i) = 40 THEN argstart = argstart + 1
+                    IF ASC(args$, i) = 41 THEN argstart = argstart - 1: argend = i
+                    IF argstart = 0 THEN args$ = LEFT$(args$, i): EXIT FOR
                 NEXT
             ELSE
-                n$ = a$
+                n$ = templine$
                 args$ = "()"
             END IF
+            IF INSTR(templine$, CHR$(39)) then comment$ = _TRIM$(MID$(templine$, INSTR(templine$, CHR$(39)), LEN(templine$))) ELSE comment$ = ""
             cleanSubName n$
             IF LEN(n$) > maxModuleNameLen THEN maxModuleNameLen = LEN(n$)
             IF maxModuleNameLen > moduleNameLenLimit THEN maxModuleNameLen = moduleNameLenLimit
@@ -8779,11 +8786,13 @@ FUNCTION idesubs$
                 SubClosed = 0
                 ModuleSize = 0
             END IF
+            '--- end of getting func/sub data ---
 
             'Populate arrays
             SubNames(TotalSUBs) = n$
             SubLines(TotalSUBs) = y
             Args(TotalSUBs) = args$
+            Comment(TotalSUBs) = comment$
             SF(TotalSUBs) = sf$
         ELSE 'no sf
             'remove double spaces
@@ -8817,6 +8826,7 @@ FUNCTION idesubs$
         REDIM _PRESERVE SubNames(0 TO TotalSUBs) AS STRING
         REDIM _PRESERVE SubLines(0 TO TotalSUBs) AS LONG
         REDIM _PRESERVE Args(0 TO TotalSUBs) AS STRING
+        REDIM _PRESERVE Comment(0 TO TotalSUBs) AS STRING
         REDIM _PRESERVE SF(0 TO TotalSUBs) AS STRING
     END IF
 
@@ -8856,7 +8866,7 @@ FUNCTION idesubs$
             n$ = n$ + SPACE$(maxModuleNameLen - LEN(n$))
         END IF
 
-        args$ = Args(x)
+        args$ = Args(x) + " " + Comment(x)
         IF LEN(args$) <= (idewx - 41) THEN
             args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
         ELSE
