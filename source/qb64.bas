@@ -1550,7 +1550,7 @@ IF idemode = 0 THEN
     qberrorhappened1:
     IF qberrorhappened = 1 THEN
         PRINT
-        PRINT "Cannot locate source file:" + sourcefile$
+        PRINT "Cannot locate source file: " + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     ELSE
