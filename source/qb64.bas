@@ -185,11 +185,14 @@ DIM SHARED Error_Happened AS LONG
 DIM SHARED Error_Message AS STRING
 
 DIM SHARED os AS STRING
+
 os$ = "WIN"
+'TODO: set to "MAC" if, um, is a Mac or get rid of os$ and add flags for
+'      Windows and Linux and group in a type container. -- djk
 IF INSTR(_OS$, "[LINUX]") THEN os$ = "LNX"
 
-DIM SHARED MacOSX AS LONG
-IF INSTR(_OS$, "[MACOSX]") THEN MacOSX = 1
+DIM SHARED MacOSX AS _BYTE
+IF INSTR(_OS$, "[MACOSX]") THEN MacOSX = -1
 
 DIM SHARED inline_DATA
 IF MacOSX THEN inline_DATA = 1
