@@ -18608,7 +18608,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             static int32 i;
             //note: handles 0 & -1(1) are reserved
             for (i=2;i<nextimg;i++){
-                if (img[i].valid){
+                if (img[i].valid && i != abs(console_image)){
                     if ((img[i].flags&IMG_SCREEN)==0){//The SCREEN's pages cannot be freed!
                         sub__freeimage(-i,1);
                     }
