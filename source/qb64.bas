@@ -4862,6 +4862,7 @@ DO
                             IF t2$ = "" THEN t2$ = e$ ELSE t2$ = t2$ + " " + e$
                             gotaa2:
                         NEXT i2
+                        IF m = 1 THEN a$ = "Syntax error": GOTO errmes
                         IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error": GOTO errmes
 
 
