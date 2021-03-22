@@ -14899,13 +14899,13 @@ FUNCTION isnumber (__a$)
         END IF
         IF a = 68 THEN 'dd
             IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i = 1 THEN EXIT FUNCTION
+            IF i < 3 THEN EXIT FUNCTION
             dd = i
             _CONTINUE
         END IF
         IF a = 69 THEN 'eE
             IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i = 1 THEN EXIT FUNCTION
+            IF i < 3 THEN EXIT FUNCTION
             ee = i
             _CONTINUE
         END IF
