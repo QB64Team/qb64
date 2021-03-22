@@ -18464,6 +18464,20 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         //Creating/destroying an image surface:
         
         int32 func__newimage(int32 x,int32 y,int32 bpp,int32 passed){
+            #ifdef QB64_WINDOWS
+            static bool j;
+            if(j != 1){
+                FARPROC dpiaware;
+                HMODULE user32 = LoadLibrary(TEXT("user32.dll"));
+                if(user32 != NULL){
+                    dpiaware = GetProcAddress(user32, "SetProcessDPIAware");
+                    if(NULL != dpiaware){
+                        (dpiaware) ();
+                        j = 1;
+                    }
+                }
+            }
+            #endif
             static int32 i;
             if (new_error) return 0;
             if (x<=0||y<=0){error(5); return 0;}
@@ -18824,7 +18838,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (new_error) return 0;
 
             #ifdef QB64_WINDOWS
-                if (read_page->console||i==console_image){
+                if (i==console_image){
                     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
                     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
                     CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
@@ -18853,7 +18867,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (new_error) return 0;
 
             #ifdef QB64_WINDOWS
-                if (read_page->console||i==console_image){
+                if (i==console_image){
                     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
                     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
                     CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
