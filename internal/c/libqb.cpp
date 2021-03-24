@@ -18838,7 +18838,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (new_error) return 0;
 
             #ifdef QB64_WINDOWS
-                if (i==console_image){
+                if ((read_page->console && !passed)||i==console_image){
                     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
                     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
                     CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
@@ -18867,7 +18867,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (new_error) return 0;
 
             #ifdef QB64_WINDOWS
-                if (i==console_image){
+                if ((read_page->console && !passed)||i==console_image){
                     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
                     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
                     CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
