@@ -18474,7 +18474,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     if(NULL != dpiaware){
                         (dpiaware) ();
                         j = 1;
+						FreeLibrary(user32);
                     }
+					FreeLibrary(user32);
                 }
             }
             #endif
