@@ -15796,8 +15796,11 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         //returns a string to advance to the horizontal position "pos" on either
         //the current line or the next line.
         static int32 w,div,cursor;
+  
+        static int32 cr_size;         // a local in case file is SCRN
+        cr_size = tab_spc_cr_size;    // init to caller's value
         //calculate width in spaces & current position
-        if (tab_spc_cr_size==2){
+        if (cr_size==2){
             //print to file
             div=1;
             w=2147483647;
@@ -15808,9 +15811,14 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (i<0) goto invalid_file;//TCP/IP unsupported
             if (gfs_fileno_valid(i)!=1) goto invalid_file;//Bad file name or number
             i=gfs_fileno[i];//convert fileno to gfs index
+            if (gfs_file[i].scrn == 1) {    // going to screen, change the cr size
+                cr_size = 1;
+            } else {
             cursor=gfs_file[i].column;
+            }
             invalid_file:;
-            }else{
+        }
+        if (cr_size == 1) {
             //print to surface
             if (write_page->text){
                 w=write_page->width;
@@ -15840,7 +15848,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         size=0; spaces=0; cr=0;
         if (cursor>pos){
             cr=1;
-            size=tab_spc_cr_size;
+            size=cr_size;
             spaces=pos/div; if (pos%div) spaces++;
             spaces--;//don't put a space on the dest position
             size+=spaces;
@@ -15851,8 +15859,8 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         //build custom string
         tqbs=qbs_new(size,1);
         if (cr){
-            tqbs->chr[0]=13; if (tab_spc_cr_size==2) tqbs->chr[1]=10;
-            memset(&tqbs->chr[tab_spc_cr_size],32,spaces);
+            tqbs->chr[0]=13; if (cr_size==2) tqbs->chr[1]=10;
+            memset(&tqbs->chr[cr_size],32,spaces);
             }else{
             memset(tqbs->chr,32,spaces);
         }
