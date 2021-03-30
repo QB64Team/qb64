@@ -14,7 +14,7 @@ The [[_RGBA32]] function returns the 32-bit ''RGBA'' color value with the specif
 * {{Parameter|blue&amp;}} specifies the blue component intensity from 0 to 255.
 * {{Parameter|alpha&amp;}} specifies the [[_ALPHA|''alpha'']] component transparency value from 0 (fully transparent) to 255 (opaque).
 * Alpha or intensity values outside of the valid range of 0 to 255 are clipped.
-* Returns [[LONG]] 32-bit hexadecimal values from '''&amp;H00{{text|00|red}}{{text|00|green}}{{text|00|blue}}''' to '''&amp;HFF{{text|FF|red}}{{text|FF|green}}{{text|FF|blue}}''' with varying [[_ALPHA]] transparency.
+* Returns [[LONG]] 32-bit hexadecimal values from '''&amp;H00000000''' to '''&amp;HFFFFFFFF''' with varying [[_ALPHA]] transparency.
 * When [[LONG]] values are [[PUT]] to file, the ARGB values become BGRA. Use [[LEFT$]]([[MKL$]]({{Parameter|color32value~&amp;}}), 3) to place 3 colors.
 * '''NOTE: Default 32-bit backgrounds are clear black or [[_RGBA]](0, 0, 0, 0). Use [[CLS]] to make the black opaque.'''
 

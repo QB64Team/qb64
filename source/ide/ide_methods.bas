@@ -3628,6 +3628,8 @@ FUNCTION ide2 (ignore)
                         HideBracketHighlight
                         keywordHighlight = oldkeywordHighlight
                         retval$ = idergbmixer$(-1)
+                    ELSE
+                        GOTO RegularEnter
                     END IF
                 END IF
                 IF LEN(retval$) THEN
@@ -3640,11 +3642,11 @@ FUNCTION ide2 (ignore)
                 END IF
                 GOTO specialchar
             ELSE
+                a$ = idegetline(idecy)
+                RegularEnter:
                 ideselect = 0
                 desiredcolumn = 1
                 idechangemade = 1
-
-                a$ = idegetline(idecy)
                 IF idecx > LEN(a$) THEN
                     ideinsline idecy + 1, ""
                     IF LEN(a$) = 0 THEN
@@ -6613,14 +6615,19 @@ SUB idedrawobj (o AS idedbotype, f)
                     'skip
                 ELSE
                     IF y <= o.h THEN
-                        IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
-                        IF (o.sel = n OR -o.sel = n) AND o.foc = 0 THEN o.cx = o.par.x + o.x + 2: o.cy = o.par.y + o.y + y
-                        LOCATE o.par.y + o.y + y, o.par.x + o.x + 1
                         a3$ = " " + a3$
+                        IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                        IF (o.sel = n OR -o.sel = n) AND o.foc = 0 THEN
+                            o.cx = o.par.x + o.x + 2: o.cy = o.par.y + o.y + y
+                            IF LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192) THEN
+                                o.cx = o.cx + 2
+                            END IF
+                        END IF
+                        LOCATE o.par.y + o.y + y, o.par.x + o.x + 1
                         IF INSTR(a3$, CHR$(16)) THEN
                             'color formatting: CHR$(16) + CHR$(color)
                             '                  CHR$(16) + CHR$(16) restores default
-                            position = 0: character = 0
+                            character = 0
                             FOR cf = POS(1) TO POS(1) + o.w
                                 character = character + 1
                                 IF character > LEN(a3$) THEN
@@ -6637,14 +6644,27 @@ SUB idedrawobj (o AS idedbotype, f)
                                         character = character + 1
                                         _CONTINUE
                                     END IF
+                                ELSEIF character = 1 AND (LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192)) THEN
+                                    COLOR 0, 7
+                                    PRINT LEFT$(a3$, 3);
+                                    IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                                    character = 3
+                                    _CONTINUE
                                 END IF
-                                position = position + 1
                                 PRINT MID$(a3$, character, 1);
                             NEXT
                         ELSE
                             a3$ = a3$ + SPACE$(o.w)
                             a3$ = LEFT$(a3$, o.w)
-                            PRINT a3$;
+                            'customization specific for the SUBs list, due to the tree characters:
+                            IF LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192) THEN
+                                COLOR 0, 7
+                                PRINT LEFT$(a3$, 3);
+                                IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                                PRINT MID$(a3$, 4);
+                            ELSE
+                                PRINT a3$;
+                            END IF
                         END IF
                         'customization specific for the SUBs list, when there are external procedures:
                         IF INSTR(a3$, CHR$(196) + "*") > 0 THEN
@@ -8251,7 +8271,7 @@ SUB ideshowtext
                         END IF
                     END IF
 
-                    FindInclude = INSTR(a2$, "$INCLUDE")
+                    FindInclude = _INSTRREV(a2$, "$INCLUDE")
                     IF FindInclude > 0 THEN
                         link_idecx = LEN(a$)
                         FindApostrophe1 = INSTR(FindInclude + 8, a2$, "'")
@@ -8360,6 +8380,13 @@ SUB ideshowtext
                             IF isnumber(checkKeyword$) THEN
                                 is_Number = -1
                                 isKeyword = LEN(checkKeyword$)
+                            ELSEIF INSTR(UserDefineList$, "@" + UCASE$(checkKeyword$)) > 0 THEN
+                                'keep checking
+                                FOR i = i TO LEN(a2$)
+                                    IF INSTR(char.sep$, MID$(a2$, i, 1)) > 0 THEN right.sep$ = MID$(a2$, i, 1): GOTO keywordAcquired
+                                    checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
+                                NEXT
+                                GOTO keywordAcquired
                             END IF
                         END IF
                         GOTO setOldChar
@@ -8374,6 +8401,7 @@ SUB ideshowtext
                             checkKeyword$ = checkKeyword$ + MID$(a2$, i, 1)
                         NEXT
                         IF comment = 0 AND LEFT$(checkKeyword$, 1) = "?" THEN isKeyword = 1: GOTO setOldChar
+                        keywordAcquired:
                         checkKeyword$ = UCASE$(checkKeyword$)
                         IF INSTR(listOfKeywords$, "@" + checkKeyword$ + "@") > 0 OR _
                            (qb64prefix_set = 1 AND INSTR(listOfKeywords$, "@_" + checkKeyword$ + "@") > 0) THEN
@@ -8391,6 +8419,11 @@ SUB ideshowtext
                             END IF
                             isKeyword = LEN(checkKeyword$)
                         ELSEIF INSTR(listOfCustomKeywords$, "@" + removesymbol2$(checkKeyword$) + "@") > 0 THEN
+                            isCustomKeyword = -1
+                            isKeyword = LEN(checkKeyword$)
+                        ELSEIF INSTR(UserDefineList$, "@" + checkKeyword$ + "@") > 0 AND _
+                                (UCASE$(LEFT$(LTRIM$(a2$), 3)) = "$IF" OR _
+                                UCASE$(LEFT$(LTRIM$(a2$), 7)) = "$ELSEIF") THEN
                             isCustomKeyword = -1
                             isKeyword = LEN(checkKeyword$)
                         END IF
@@ -8412,8 +8445,14 @@ SUB ideshowtext
 
                 IF comment THEN
                     COLOR 11
-                    IF metacommand AND (checkKeyword$ = "$INCLUDE" OR checkKeyword$ = "$DYNAMIC" _
-                        OR checkKeyword$ = "$STATIC") THEN COLOR 10
+                    IF metacommand THEN
+                        SELECT CASE checkKeyword$
+                            CASE "$INCLUDE"
+                                IF INSTR(m + 1, UCASE$(a2$), checkKeyword$) = 0 THEN COLOR 10
+                            CASE "$DYNAMIC", "$STATIC"
+                                IF INSTR(m + 1, UCASE$(a2$), "$DYNAMIC") = 0 AND INSTR(m + 1, UCASE$(a2$), "$STATIC") = 0 THEN COLOR 10
+                        END SELECT
+                    END IF
                 ELSEIF metacommand THEN
                     COLOR 10
                 ELSEIF inquote OR thisChar$ = CHR$(34) THEN
@@ -8615,10 +8654,28 @@ FUNCTION idesubs$
     IF LEN(a2$) > 1 THEN
         DO UNTIL alphanumeric(ASC(RIGHT$(a2$, 1)))
             a2$ = LEFT$(a2$, LEN(a2$) - 1) 'removes sigil, if any
+            IF LEN(a2$) = 0 THEN EXIT DO
         LOOP
     END IF
 
     '-------- init --------
+
+    l$ = ideprogname$
+    IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+
+    IF idewx < 100 THEN
+        moduleNameLenLimit = 20
+    ELSE
+        moduleNameLenLimit = 42
+    END IF
+
+    maxModuleNameLen = LEN(l$)
+    IF maxModuleNameLen > moduleNameLenLimit + 2 THEN
+        l$ = LEFT$(l$, moduleNameLenLimit - 1) + STRING$(3, 250)
+        maxModuleNameLen = moduleNameLenLimit
+    ELSEIF maxModuleNameLen < 10 THEN
+        maxModuleNameLen = 10
+    END IF
 
     ly$ = MKL$(1)
     lySorted$ = ly$
@@ -8626,25 +8683,21 @@ FUNCTION idesubs$
     PreferCurrentCursorSUBFUNC = 0
     InsideDECLARE = 0
     FoundExternalSUBFUNC = 0
-    l$ = ideprogname$
-    IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+    maxLineCount = 0
 
-    IF LEN(l$) <= 22 THEN
-        l$ = l$ + SPACE$(22 - LEN(l$))
-    ELSE
-        l$ = LEFT$(l$, 19) + STRING$(3, 250)
-    END IF
-
-    lSized$ = l$
-    lSorted$ = l$
-    lSortedSized$ = l$
-
-    REDIM TotalLines(0) AS LONG
+    REDIM SortedSubsList(1 TO 100) AS STRING * 998
+    REDIM CaseBkpSubsList(1 TO 100) AS STRING * 998
+    REDIM TotalLines(0 TO 100) AS LONG
+    REDIM SubNames(0 TO 100) AS STRING
+    REDIM SubLines(0 TO 100) AS LONG
+    REDIM Args(0 TO 100) AS STRING
+    REDIM SF(0 TO 100) AS STRING
 
     TotalSUBs = 0
     ModuleSize = 0 'in lines
     SortedSubsFlag = idesortsubs
     SubClosed = 0
+
 
     FOR y = 1 TO iden
         a$ = idegetline(y)
@@ -8657,9 +8710,24 @@ FUNCTION idesubs$
         IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB   "
         IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC  "
         IF sf THEN
+            'Resize SortedSubsList() and helper arrays
+            TotalSUBs = TotalSUBs + 1
+            IF NOT InsideDECLARE THEN LastOpenSUB = TotalSUBs
+            IF TotalSUBs > UBOUND(SortedSubsList) THEN
+                REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs + 99) AS STRING * 998
+                REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs + 99) AS STRING * 998
+                REDIM _PRESERVE TotalLines(0 TO TotalSUBs + 99) AS LONG
+                REDIM _PRESERVE SubNames(0 TO TotalSUBs + 99) AS STRING
+                REDIM _PRESERVE SubLines(0 TO TotalSUBs + 99) AS LONG
+                REDIM _PRESERVE Args(0 TO TotalSUBs + 99) AS STRING
+                REDIM _PRESERVE SF(0 TO TotalSUBs + 99) AS STRING
+            END IF
+
             IF RIGHT$(nca$, 7) = " STATIC" THEN
                 a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
             END IF
+
+            'Store line number
             ly$ = ly$ + MKL$(y)
 
             'Check if the cursor is currently inside this SUB/FUNCTION to position the
@@ -8679,13 +8747,19 @@ FUNCTION idesubs$
             IF x THEN
                 n$ = RTRIM$(LEFT$(a$, x - 1))
                 args$ = RIGHT$(a$, LEN(a$) - x + 1)
-                x = INSTR(args$, ")"): IF x THEN args$ = LEFT$(args$, x)
+                x = 1
+                FOR i = 2 TO LEN(args$)
+                    IF ASC(args$, i) = 40 THEN x = x + 1
+                    IF ASC(args$, i) = 41 THEN x = x - 1
+                    IF x = 0 THEN args$ = LEFT$(args$, i): EXIT FOR
+                NEXT
             ELSE
                 n$ = a$
-                args$ = ""
-
-                cleanSubName n$
+                args$ = "()"
             END IF
+            cleanSubName n$
+            IF LEN(n$) > maxModuleNameLen THEN maxModuleNameLen = LEN(n$)
+            IF maxModuleNameLen > moduleNameLenLimit THEN maxModuleNameLen = moduleNameLenLimit
 
             'If the user currently has the cursor over a SUB/FUNC name, let's highlight it
             'instead of the currently in edition, for a quick link functionality:
@@ -8701,50 +8775,16 @@ FUNCTION idesubs$
                 n$ = "*" + n$
                 FoundExternalSUBFUNC = -1
             ELSE
+                IF SubClosed = 0 THEN ModuleSize = 0: GOSUB AddLineCount
                 SubClosed = 0
                 ModuleSize = 0
             END IF
 
-            IF TotalSUBs = 0 THEN
-                l$ = l$ + "  Type  Arguments"
-                lSorted$ = l$
-                lSized$ = lSized$ + " Line count  Type  Arguments" + sep
-                lSortedSized$ = lSortedSized$ + " Line count  Type  Arguments"
-            ELSE
-                num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
-                IF pInsideDECLARE THEN num$ = "external"
-                lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
-                          CHR$(16) + CHR$(2) + SPACE$(9 - LEN(num$)) + num$ + "  " _
-                          + psf$ + CHR$(16) + CHR$(16) + pargs$ + sep
-            END IF
-
-            IF LEN(n$) <= 20 THEN
-                n$ = n$ + SPACE$(20 - LEN(n$))
-            ELSE
-                n$ = LEFT$(n$, 17) + STRING$(3, 250)
-            END IF
-            IF LEN(args$) <= (idewx - 41) THEN
-                args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
-            ELSE
-                args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
-            END IF
-            l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
-                 sf$ + CHR$(16) + CHR$(16) + args$
-            psf$ = sf$
-            pn$ = n$
-            pargs$ = args$
-            pInsideDECLARE = InsideDECLARE
-
-            'Populate SortedSubsList()
-            TotalSUBs = TotalSUBs + 1
-            ListItemLength = LEN(n$ + " " + sf$ + args$)
-            REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
-            REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
-            REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
-            CaseBkpSubsList(TotalSUBs) = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
-            SortedSubsList(TotalSUBs) = UCASE$(CaseBkpSubsList(TotalSUBs))
-            MID$(CaseBkpSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
-            MID$(SortedSubsList(TotalSUBs), 992, 6) = MKL$(y) + MKI$(ListItemLength)
+            'Populate arrays
+            SubNames(TotalSUBs) = n$
+            SubLines(TotalSUBs) = y
+            Args(TotalSUBs) = args$
+            SF(TotalSUBs) = sf$
         ELSE 'no sf
             'remove double spaces
             i = INSTR(nca$, "  ")
@@ -8762,20 +8802,84 @@ FUNCTION idesubs$
                 DIM comment AS _BYTE, quote AS _BYTE
                 FindQuoteComment nca$, sf, comment, quote
                 IF comment OR quote THEN cursor = sf: GOTO LookForENDSUB
-                TotalLines(TotalSUBs) = ModuleSize
-                SubClosed = -1
+                GOSUB AddLineCount
             END IF
         END IF
     NEXT
 
-    TotalLines(TotalSUBs) = ModuleSize
-    IF TotalSUBs > 0 THEN
-        num$ = LTRIM$(STR$(TotalLines(TotalSUBs)))
-        IF pInsideDECLARE THEN num$ = "external"
-        lSized$ = lSized$ + CHR$(195) + CHR$(196) + pn$ + "  " + _
-                  SPACE$(9 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
-                  psf$ + CHR$(16) + CHR$(16) + pargs$
+    IF SubClosed = 0 THEN GOSUB AddLineCount
+
+    'fix arrays to remove empty items
+    IF TotalSUBs > 0 AND TotalSUBs < UBOUND(SortedSubsList) THEN
+        REDIM _PRESERVE SortedSubsList(1 TO TotalSUBs) AS STRING * 998
+        REDIM _PRESERVE CaseBkpSubsList(1 TO TotalSUBs) AS STRING * 998
+        REDIM _PRESERVE TotalLines(0 TO TotalSUBs) AS LONG
+        REDIM _PRESERVE SubNames(0 TO TotalSUBs) AS STRING
+        REDIM _PRESERVE SubLines(0 TO TotalSUBs) AS LONG
+        REDIM _PRESERVE Args(0 TO TotalSUBs) AS STRING
+        REDIM _PRESERVE SF(0 TO TotalSUBs) AS STRING
     END IF
+
+    'build headers (normal, sorted, normal with line count, sorted with line count)
+    IF TotalSUBs > 0 THEN
+        IF LEN(LTRIM$(STR$(maxLineCount))) <= 10 THEN
+            maxLineCountSpace = 10
+            linesHeader$ = "Line count"
+            external$ = "external"
+        END IF
+        IF LEN(LTRIM$(STR$(maxLineCount))) <= 5 THEN
+            maxLineCountSpace = 5
+            linesHeader$ = "Lines"
+            external$ = CHR$(196)
+        END IF
+
+        l$ = l$ + SPACE$((maxModuleNameLen + 2) - LEN(l$))
+        lSized$ = l$
+        lSortedSized$ = l$
+        l$ = l$ + "  Type  Arguments"
+        lSorted$ = l$
+        lSorted$ = l$
+        lSized$ = lSized$ + "  " + linesHeader$ + "  Type  Arguments" + sep
+        lSortedSized$ = lSortedSized$ + "  " + linesHeader$ + "  Type  Arguments"
+    ELSE
+        l$ = ideprogname$
+        IF l$ = "" THEN l$ = "Untitled" + tempfolderindexstr$
+        lSized$ = l$
+    END IF
+
+    'build lists
+    FOR x = 1 TO TotalSUBs
+        n$ = SubNames(x)
+        IF LEN(n$) > maxModuleNameLen THEN
+            n$ = LEFT$(n$, maxModuleNameLen - 3) + STRING$(3, 250)
+        ELSE
+            n$ = n$ + SPACE$(maxModuleNameLen - LEN(n$))
+        END IF
+
+        args$ = Args(x)
+        IF LEN(args$) <= (idewx - 41) THEN
+            args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
+        ELSE
+            args$ = LEFT$(args$, (idewx - 44)) + STRING$(3, 250)
+        END IF
+
+        sf$ = SF(x)
+
+        l$ = l$ + sep + CHR$(195) + CHR$(196) + n$ + "  " + CHR$(16) + CHR$(2) + _
+             sf$ + CHR$(16) + CHR$(16) + args$
+
+        IF TotalLines(x) = 0 THEN num$ = external$ ELSE num$ = LTRIM$(STR$(TotalLines(x)))
+        lSized$ = lSized$ + CHR$(195) + CHR$(196) + n$ + "  " + _
+                  CHR$(16) + CHR$(2) + SPACE$(maxLineCountSpace - LEN(num$)) + num$ + "  " _
+                  + sf$ + CHR$(16) + CHR$(16) + args$ + sep
+
+        listItem$ = n$ + "  " + CHR$(1) + CHR$(16) + CHR$(2) + sf$ + CHR$(16) + CHR$(16) + args$
+        ListItemLength = LEN(listItem$)
+        SortedSubsList(x) = UCASE$(listItem$)
+        CaseBkpSubsList(x) = listItem$
+        MID$(CaseBkpSubsList(x), 992, 6) = MKL$(SubLines(x)) + MKI$(ListItemLength)
+        MID$(SortedSubsList(x), 992, 6) = MKL$(SubLines(x)) + MKI$(ListItemLength)
+    NEXT
 
     MID$(l$, _INSTRREV(l$, CHR$(195)), 1) = CHR$(192)
     MID$(lSized$, _INSTRREV(lSized$, CHR$(195)), 1) = CHR$(192)
@@ -8794,10 +8898,10 @@ FUNCTION idesubs$
                                MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
 
                     num$ = LTRIM$(STR$(TotalLines(RestoreCaseBkp)))
-                    IF LEFT$(temp$, 1) = "*" THEN num$ = "external"
+                    IF LEFT$(temp$, 1) = "*" THEN num$ = external$
                     lSortedSized$ = lSortedSized$ + sep + CHR$(195) + CHR$(196)
                     lSortedSized$ = lSortedSized$ + LEFT$(temp$, INSTR(temp$, CHR$(1)) - 1) + _
-                                    SPACE$(9 - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
+                                    SPACE$(maxLineCountSpace - LEN(num$)) + CHR$(16) + CHR$(2) + num$ + "  " + _
                                     MID$(temp$, INSTR(temp$, CHR$(1)) + 1)
                     EXIT FOR
                 END IF
@@ -8861,21 +8965,20 @@ FUNCTION idesubs$
     o(i).typ = 4 'check box
     o(i).x = 2
     o(i).y = idewy + idesubwindow - 6
-    o(i).nam = idenewtxt("Show #Line Count")
+    o(i).nam = idenewtxt("#Line Count")
     o(i).sel = IDESubsLength
 
-    IF TotalSUBs > 1 THEN
-        i = i + 1
-        o(i).typ = 4 'check box
-        o(i).x = 22
-        o(i).y = idewy + idesubwindow - 6
-        o(i).nam = idenewtxt("#Sorted A-Z")
-        o(i).sel = SortedSubsFlag
-    END IF
+    i = i + 1
+    o(i).typ = 4 'check box
+    o(i).x = 18
+    o(i).y = idewy + idesubwindow - 6
+    o(i).nam = idenewtxt("#Sort")
+    o(i).sel = SortedSubsFlag
 
     i = i + 1
     o(i).typ = 3
-    o(i).x = p.w - 30
+    o(i).x = p.x + p.w - 26
+    o(i).w = 26
     o(i).y = idewy + idesubwindow - 6
     o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
     o(i).dft = 1
@@ -8906,6 +9009,10 @@ FUNCTION idesubs$
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
+        IF FoundExternalSUBFUNC THEN
+            COLOR 2, 7
+            _PRINTSTRING (p.x + p.w - 32, p.y + p.h), "* external"
+        END IF
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -9062,6 +9169,12 @@ FUNCTION idesubs$
     END IF
     RETURN
 
+    AddLineCount:
+    ModuleSize = ModuleSize + 1
+    TotalLines(LastOpenSUB) = ModuleSize
+    IF ModuleSize > maxLineCount THEN maxLineCount = ModuleSize
+    SubClosed = -1
+    RETURN
 END FUNCTION
 
 
@@ -9228,22 +9341,14 @@ FUNCTION idewarningbox
 
     '-------- init --------
 
-    DIM warningLines(1 TO warningListItems) AS LONG
-    DIM warningIncLines(1 TO warningListItems) AS LONG
-    DIM warningIncFiles(1 TO warningListItems) AS STRING
-
     IF LEN(ideprogname) THEN thisprog$ = ideprogname ELSE thisprog$ = "Untitled" + tempfolderindexstr$
     maxModuleNameLen = LEN(thisprog$)
 
-    'fill arrays
+    'calculate longest module name
     FOR x = 1 TO warningListItems
-        warningLines(x) = CVL(LEFT$(warning$(x), 4))
         IF warningLines(x) = 0 THEN _CONTINUE
 
-        warningIncLevel = CVL(MID$(warning$(x), 5, 4))
-        IF warningIncLevel > 0 THEN
-            warningIncLines(x) = CVL(MID$(warning$(x), 9, 4))
-            warningIncFiles(x) = MID$(warning$(x), 13, INSTR(warning$(x), CHR$(255)) - 13)
+        IF warningIncLines(x) > 0 THEN
             IF LEN(warningIncFiles(x)) > maxModuleNameLen THEN
                 maxModuleNameLen = LEN(warningIncFiles(x))
             END IF
@@ -9253,21 +9358,21 @@ FUNCTION idewarningbox
     'build list
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
-            l$ = l$ + MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
+            l$ = l$ + warning$(x)
             IF x > 1 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
             IF warningIncLines(x) > 0 THEN
-                num$ = SPACE$(maxLineNumberLength)
+                num$ = SPACE$(LEN(STR$(maxLineNumber)) + 1)
                 RSET num$ = str2$(warningIncLines(x))
                 l3$ = l3$ + warningIncFiles(x) + SPACE$(maxModuleNameLen - LEN(warningIncFiles(x))) + ":" + CHR$(16) + CHR$(16) + num$
             ELSE
-                num$ = SPACE$(maxLineNumberLength)
+                num$ = SPACE$(LEN(STR$(maxLineNumber)) + 1)
                 RSET num$ = str2$(warningLines(x))
                 l3$ = l3$ + thisprog$ + SPACE$(maxModuleNameLen - LEN(thisprog$)) + ":" + CHR$(16) + CHR$(16) + num$
             END IF
             treeConnection = LEN(l$) + 1
-            text$ = MID$(warning$(x), INSTR(warning$(x), CHR$(255)) + 1)
+            text$ = warning$(x)
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
@@ -10922,7 +11027,11 @@ FUNCTION idedisplaybox
     i = i + 1
     o(i).typ = 4 'check box
     o(i).y = 8
-    o(i).nam = idenewtxt("Restore window #position at startup")
+    IF INSTR(_OS$, "WIN") > 0 OR INSTR(_OS$, "MAC") > 0 THEN
+        o(i).nam = idenewtxt("Restore window #position and size at startup")
+    ELSE
+        o(i).nam = idenewtxt("Restore window size at startu#p")
+    END IF
     IF IDE_AutoPosition THEN o(i).sel = 1
 
     i = i + 1
@@ -11865,6 +11974,7 @@ FUNCTION idechoosecolorsbox
             IDEQuoteColor = bkpIDEQuoteColor
             IDETextColor = bkpIDETextColor
             IDEKeywordColor = bkpIDEKeywordColor
+            IDENumbersColor = bkpIDENumbersColor
             IDEBackgroundColor = bkpIDEBackgroundColor
             IDEBackgroundColor2 = bkpIDEBackgroundColor2
             IDEBracketHighlightColor = bkpIDEBracketHighlightColor
@@ -13245,7 +13355,7 @@ SUB IdeMakeContextualMenu
 
             v = 0
             CurrSF$ = FindCurrentSF$(idecy)
-            IF NOT Error_Happened THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
+            IF validname(a2$) THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
             CheckThisLabel:
             IF v THEN
                 LabelLineNumber = Labels(r).SourceLineNumber
@@ -14409,14 +14519,17 @@ SUB HideBracketHighlight
     'color will be used differently in this dialog.
     oldBracketHighlightSetting = brackethighlight
     oldMultiHighlightSetting = multihighlight
+    oldShowLineNumbersUseBG = ShowLineNumbersUseBG
     brackethighlight = 0
     multihighlight = 0
+    ShowLineNumbersUseBG = 0
     SCREEN , , 0
     HideCurrentLineHighlight = -1
     ideshowtext
     HideCurrentLineHighlight = 0
     brackethighlight = oldBracketHighlightSetting
     multihighlight = oldMultiHighlightSetting
+    ShowLineNumbersUseBG = oldShowLineNumbersUseBG
 END SUB
 
 SUB LoadColorSchemes
@@ -14630,6 +14743,7 @@ FUNCTION getWordAtCursor$
             a2$ = MID$(a$, x1, x2 - x1 + 1)
         ELSE
             symbol$ = CHR$(ASC(a$, x))
+            IF symbol$ = CHR$(32) THEN EXIT FUNCTION
             IF symbol$ = "~" THEN getWordAtCursor$ = "~": EXIT FUNCTION
             IF symbol$ = "`" THEN getWordAtCursor$ = "`": EXIT FUNCTION
             IF symbol$ = "%" AND MID$(a$, x + 1) = "&" THEN getWordAtCursor$ = "%&": EXIT FUNCTION
@@ -14785,13 +14899,13 @@ FUNCTION isnumber (__a$)
         END IF
         IF a = 68 THEN 'dd
             IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i = 1 THEN EXIT FUNCTION
+            IF i < 3 THEN EXIT FUNCTION
             dd = i
             _CONTINUE
         END IF
         IF a = 69 THEN 'eE
             IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i = 1 THEN EXIT FUNCTION
+            IF i < 3 THEN EXIT FUNCTION
             ee = i
             _CONTINUE
         END IF

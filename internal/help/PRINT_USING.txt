@@ -5,7 +5,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 :: '''PRINT''' [''text$''{;|,}] '''USING''' ''template$''; ''variable''[; ...][{;|,}]
 
 
-{{Parameters}}
+{{PageParameters}}
 * Literal or variable [[STRING]] ''text$'' can be placed between PRINT and USING or it can be included in the ''template''.
 * A [[semicolon]] or [[comma]] may follow the ''text'' to stop or tab the print cursor before the ''template'' [[PRINT]].
 * The literal or variable [[STRING]] ''template'' should use the template symbols to display each variable [[Variable Types|type]] in the list following it.
@@ -13,7 +13,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 * In '''QB64''' ONE [[semicolon]] or [[comma]] may follow the variable list to stop the print cursor for pending prints. QB only allowed a semicolon.
 
 
-''Usage:''
+{{PageDescription}}
 * The ''variables'' should be listed in the order that they are used in the template from left to right.
 * '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an "Illegal Function Call" [[ERROR Codes|ERROR]] will occur!'''
 * No more than 25 # digit places are allowed in a template number or an [[ERROR Codes|error]] will occur.
@@ -25,6 +25,7 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 {{PrintUsing}}
 
 
+{{PageExamples}}
 ''Example 1:'' Printing formatted data using a predefined [[STRING|string]] template variable.
 {{CodeStart}} '' ''
 first$ = "Bobby": last$ = "Smith"
@@ -77,7 +78,7 @@ tmp$ = "$$#######,.##"
 : ''Note:'' This can also be used to print the USING formatting characters outside of the template.
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[PRINT]], [[PRINT USING (file statement)|PRINT #, USING]]
 * [[LPRINT]], [[LPRINT USING]]
 

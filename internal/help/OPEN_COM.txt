@@ -5,7 +5,7 @@ The [[OPEN COM]] statement is used to access a computer's serial port COM.
 : '''OPEN''' "COMn: ''Speed'', ''Parity'', ''Bits'', ''Stopbit'', [''Options'']" [FOR {[[RANDOM]]|[[BINARY]]|[[OUTPUT]]|[[INPUT (file mode)|INPUT]]}] AS #''P'' [LEN = {{Parameter|byteSize}}]
 
 
-{{Parameters}}
+{{PageParameters}}
 * ''Speed'' (baud rate): 50, 150, 300, 600, 1200, 1800, 2400, '''9600''' (QBasic's maximum), 19200 or '''115200''' ('''QB64''''s maximum).
 * ''Parity'': '''N''' (none), E (even), O (odd), S (space) or M (mark). Note: If 8 bits, use parity N for numerical data.
 * ''Bits'' = number of bits/byte: Valid numbers: 5, 6, 7 or '''8'''

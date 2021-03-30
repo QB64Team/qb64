@@ -5,7 +5,7 @@ The [[MID$]] function returns a portion of a [[STRING|string]].
 : {{Parameter|portion$}} = [[MID$]]({{Parameter|stringValue$}}, {{Parameter|startPosition%}}[, {{Parameter|bytes%}}])
 
 
-{{Parameters}}
+{{PageParameters}}
 * {{Parameter|stringValue$}} can be any literal or variable non-empty [[STRING]] value. Use [[LEN]] to check the length of a string.
 * {{Parameter|startPosition%}} designates the non-zero position of the first character to be returned by the function.
 * {{Parameter|bytes%}} (optional) tells the function how many characters to return including the first character at {{Parameter|startPosition%}}. 
@@ -18,7 +18,7 @@ The [[MID$]] function returns a portion of a [[STRING|string]].
 * In '''QB64''', [[ASC]] string byte position reads are about '''5 times faster''' than MID$ when parsing strings. See ''Example 2'' below.
 
 
-==QBasic/QuickBASIC==
+{{PageQBasic}}
 * In QBasic the {{Parameter|startPosition%}} could not be zero (0) or an [[ERROR Codes|Illegal function call error]] would occur.
 
 

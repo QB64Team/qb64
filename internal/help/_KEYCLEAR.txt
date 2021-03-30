@@ -4,7 +4,7 @@
 {{PageSyntax}}
 :[[_KEYCLEAR]] {{Parameter|buffer&amp;}}
 
-{{Parameters}}
+{{PageParameters}}
 *{{Parameter|buffer&amp;}} indicates the buffer to be cleared:
 ** 1 - Clear the regular keyboard buffer, as used by all input command except the following:  _KEYHIT, _KEYDOWN, INP(&amp;H60.  This is the same as the the emulated BIOS keyboard buffer, so legacy code reading from it via PEEK/POKE/CALL ABSOLUTE will also be affected.
 ** 2 - Clear the buffer used by _KEYHIT.

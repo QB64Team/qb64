@@ -23,6 +23,7 @@
 ** '''32BIT''' if the user is running a 32-bit version of QB64.
 ** '''64BIT''' if the user is running a 64-bit version of QB64.
 ** '''VERSION''', which is set to the version of the QB64 compiler. This is a number and can be ordered, see example below.
+* Special values '''DEFINED''' and '''UNDEFINED''' can be used to check whether a precompiler variable has already been assigned a value. Useful for code in libraries which may be repeated.
 * [[$END IF]] denotes the end of a valid precompiler $IF block.
 * [[$ELSEIF]] must follow a valid $IF or $ELSEIF statement.
 * If [[$ELSE]] is used, it must be used as the last conditional check before $END IF.  $ELSEIF cannot come after $ELSE.

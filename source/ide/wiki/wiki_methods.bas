@@ -265,9 +265,10 @@ SUB WikiParse (a$)
     '  eg. {{KW|PRINT}}=a key word, a link to a page
     '      {{Cl|PRINT}}=a key word in a code example, will be printed in bold and aqua
     '      {{Parameter|expression}}=a parameter, in italics
-    '      {{PageSyntax}} {{PageDescription}} {{PageExamples}}
+    '      {{PageSyntax}} {{PageParameters}} {{PageDescription}} {{PageExamples}}
     '      {{CodeStart}} {{CodeEnd}} {{OutputStart}} {{OutputEnd}}
-    '      {{PageSeeAlso}} {{PageNavigation}}
+    '      {{PageSeeAlso}} {{PageNavigation}} {{PageLegacySupport}}
+    '      {{PageQBasic}} {{PageAvailability}}
     ' [[SPACE$]]=a link to wikipage called "SPACE$"
     ' [[INTEGER|integer]]=a link, link's name is on left and text to appear is on right
     ' *=a dot point
@@ -281,17 +282,6 @@ SUB WikiParse (a$)
     FOR ii = 1 TO prefetch
         c$(ii) = SPACE$(ii)
     NEXT
-
-    a$ = StrReplace$(a$, "&lt;", "<")
-    a$ = StrReplace$(a$, "&gt;", ">")
-    a$ = StrReplace$(a$, CHR$(194) + CHR$(160), "")
-    a$ = StrReplace$(a$, "&amp;", "&")
-    a$ = StrReplace$(a$, CHR$(226) + CHR$(136) + CHR$(146), "-")
-    a$ = StrReplace$(a$, "<nowiki>", "")
-    a$ = StrReplace$(a$, "</nowiki>", "")
-    a$ = StrReplace$(a$, "<center>", "")
-    a$ = StrReplace$(a$, "</center>", "")
-    a$ = StrReplace$(a$, "</span>", "")
 
     i = INSTR(a$, "<span ")
     DO WHILE i
@@ -489,9 +479,13 @@ SUB WikiParse (a$)
                 cb = 0
 
                 IF cb$ = "PageSyntax" THEN Help_AddTxt "Syntax:" + CHR$(13), Help_Col_Section, 0
+                IF cb$ = "PageParameters" THEN Help_AddTxt "Parameters:" + CHR$(13), Help_Col_Section, 0
                 IF cb$ = "PageDescription" THEN Help_AddTxt "Description:" + CHR$(13), Help_Col_Section, 0
+                IF cb$ = "PageAvailability" THEN Help_AddTxt "Availability:" + CHR$(13), Help_Col_Section, 0
                 IF cb$ = "PageExamples" THEN Help_AddTxt "Code Examples:" + CHR$(13), Help_Col_Section, 0
                 IF cb$ = "PageSeeAlso" THEN Help_AddTxt "See also:" + CHR$(13), Help_Col_Section, 0
+                IF cb$ = "PageLegacySupport" THEN Help_AddTxt "Legacy support" + CHR$(13), Help_Col_Section, 0
+                IF cb$ = "PageQBasic" THEN Help_AddTxt "QBasic/QuickBASIC" + CHR$(13), Help_Col_Section, 0
 
                 IF cb$ = "CodeStart" THEN
                     Help_NewLine
@@ -654,6 +648,17 @@ SUB WikiParse (a$)
                     tableOutput$ = ""
                     FOR checkCol = 1 TO totalCols
                         p$ = wikiGetUntil$(tableRow(printTable), j, CHR$(0))
+                        p$ = StrReplace$(p$, "&lt;", "<")
+                        p$ = StrReplace$(p$, "&gt;", ">")
+                        p$ = StrReplace$(p$, CHR$(194) + CHR$(160), "")
+                        p$ = StrReplace$(p$, "&amp;", "&")
+                        p$ = StrReplace$(p$, CHR$(226) + CHR$(136) + CHR$(146), "-")
+                        p$ = StrReplace$(p$, "<nowiki>", "")
+                        p$ = StrReplace$(p$, "</nowiki>", "")
+                        p$ = StrReplace$(p$, "<center>", "")
+                        p$ = StrReplace$(p$, "</center>", "")
+                        p$ = StrReplace$(p$, "</span>", "")
+
                         thisCol$ = SPACE$(tableCol(checkCol))
                         MID$(thisCol$, 2) = p$
                         tableOutput$ = tableOutput$ + thisCol$

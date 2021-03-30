@@ -13037,7 +13037,7 @@ void sub_open(qbs *name,int32 type,int32 access,int32 sharing,int32 i,int64 reco
     if (type==1){//set record length
         f->record_length=128;
         if (passed) if (record_length!=-1) f->record_length=record_length;
-        f->field_buffer=(uint8*)calloc(record_length,1);
+        f->field_buffer=(uint8*)calloc(f->record_length,1);
     }
     
     if (type==5){//seek eof
@@ -18094,6 +18094,8 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     if (qbs_equal(str,qbs_new_txt("HORIZONTAL"))) {mouse_cursor_style=GLUT_CURSOR_LEFT_RIGHT; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt("TOPLEFT_BOTTOMRIGHT"))) {mouse_cursor_style=GLUT_CURSOR_TOP_LEFT_CORNER; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt ("TOPRIGHT_BOTTOMLEFT"))) {mouse_cursor_style=GLUT_CURSOR_TOP_RIGHT_CORNER; goto cursor_valid;}
+                    if (qbs_equal(str,qbs_new_txt ("WAIT"))) {mouse_cursor_style=GLUT_CURSOR_WAIT; goto cursor_valid;}
+                    if (qbs_equal(str,qbs_new_txt ("HELP"))) {mouse_cursor_style=GLUT_CURSOR_HELP; goto cursor_valid;}
                     error(5); return;
                 }
                 cursor_valid:
@@ -18462,6 +18464,22 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         //Creating/destroying an image surface:
         
         int32 func__newimage(int32 x,int32 y,int32 bpp,int32 passed){
+            #ifdef QB64_WINDOWS && WINVER >= 0x0600 //this block is not compatible with XP
+            static bool j;
+            if(j != 1){
+                FARPROC dpiaware;
+                HMODULE user32 = LoadLibrary(TEXT("user32.dll"));
+                if(user32 != NULL){
+                    dpiaware = GetProcAddress(user32, "SetProcessDPIAware");
+                    if(NULL != dpiaware){
+                        (dpiaware) ();
+                        j = 1;
+						FreeLibrary(user32);
+                    }
+					FreeLibrary(user32);
+                }
+            }
+            #endif
             static int32 i;
             if (new_error) return 0;
             if (x<=0||y<=0){error(5); return 0;}
@@ -18606,7 +18624,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             static int32 i;
             //note: handles 0 & -1(1) are reserved
             for (i=2;i<nextimg;i++){
-                if (img[i].valid){
+                if (img[i].valid && i != abs(console_image)){
                     if ((img[i].flags&IMG_SCREEN)==0){//The SCREEN's pages cannot be freed!
                         sub__freeimage(-i,1);
                     }
@@ -18822,7 +18840,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (new_error) return 0;
 
             #ifdef QB64_WINDOWS
-                if (read_page->console||i==console_image){
+                if ((read_page->console && !passed)||i==console_image){
                     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
                     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
                     CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
@@ -18851,7 +18869,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if (new_error) return 0;
 
             #ifdef QB64_WINDOWS
-                if (read_page->console||i==console_image){
+                if ((read_page->console && !passed)||i==console_image){
                     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
                     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
                     CONSOLE_SCREEN_BUFFER_INFO cl_bufinfo;
@@ -29831,8 +29849,7 @@ void sub__numlock(int32 options){
 }
 
 void sub__consolefont(qbs* FontName, int FontSize){
-    /*
-    #ifdef QB64_WINDOWS
+    #ifdef QB64_WINDOWS && WINVER >= 0x0600 //this block is not compatible with XP
     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
     static int OneTimePause;
@@ -29854,7 +29871,6 @@ void sub__consolefont(qbs* FontName, int FontSize){
 
     SetCurrentConsoleFontEx(cl_conout, NULL, &info);
     #endif
-    */
 }
 
 

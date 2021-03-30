@@ -5,7 +5,7 @@ The [[INSTR]] function searches for the first occurence of a search [[STRING]] w
 : {{Parameter|position%}} = [[INSTR]]([{{Parameter|start%}},] {{Parameter|baseString$}}, {{Parameter|searchString$}})
 
 
-{{Parameters}}
+{{PageParameters}}
 * The optional literal or variable [[INTEGER]] {{Parameter|start%}} indicates where in the {{Parameter|baseString$}} the search must start. 
 * The {{Parameter|baseString$}} is a literal or variable [[STRING]] value to be searched for an exact match including [[UCASE$|letter cases]]. 
 * The {{Parameter|searchString$}} is a literal or variable [[STRING]] value being searched.
@@ -21,7 +21,7 @@ The [[INSTR]] function searches for the first occurence of a search [[STRING]] w
 * In a loop, INSTR can search an entire file for occurences of certain words. See the [[MID$ (statement)|MID$]] statement example.
 
 
-==QBasic/QuickBASIC==
+{{PageQBasic}}
 * The {{Parameter|start%}} position had to be at least 1 or greater when used or there will be an [[ERROR Codes|Illegal function call]] error. In '''QB64''', a {{Parameter|start%}} value of 0 or negative is interpreted as 1 and doesn't generate an error.
 
 

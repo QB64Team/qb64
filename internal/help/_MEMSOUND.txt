@@ -6,7 +6,7 @@ The [[_MEMSOUND]] function returns a [[_MEM]] value referring to a sound's raw d
 : {{Parameter|imageBlock}} = [[_MEMSOUND]][({{Parameter|soundHandle&amp;}}, {{Parameter|channel%}})]
 
 
-{{Parameters}}
+{{PageParameters}}
 * The {{Parameter|imageBlock}} [[_MEM]] type variable holds the read-only elements .OFFSET, .SIZE, .ELEMENTSIZE, and .SOUND.
 ** .ELEMENTSIZE will contain the number of bytes-per-sample the audio contains. Usually returns 2 (16-bit audio).
 ** .SOUND will contain the same handle value as returned by the [[_SNDOPEN]] function.

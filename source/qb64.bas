@@ -32,7 +32,8 @@ DIM ExecLevel(255), ExecCounter AS INTEGER
 REDIM SHARED UserDefine(1, 100) AS STRING '0 element is the name, 1 element is the string value
 REDIM SHARED InValidLine(10000) AS _BYTE
 DIM DefineElse(255) AS _BYTE
-DIM SHARED UserDefineCount AS INTEGER
+DIM SHARED UserDefineCount AS INTEGER, UserDefineList$
+UserDefineList$ = "@DEFINED@UNDEFINED@WINDOWS@WIN@LINUX@MAC@MACOSX@32BIT@64BIT@VERSION@"
 UserDefine(0, 0) = "WINDOWS": UserDefine(0, 1) = "WIN"
 UserDefine(0, 2) = "LINUX"
 UserDefine(0, 3) = "MAC": UserDefine(0, 4) = "MACOSX"
@@ -110,7 +111,7 @@ REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LON
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
-DIM SHARED emptySCWarning AS _BYTE
+DIM SHARED emptySCWarning AS _BYTE, maxLineNumber AS LONG
 DIM SHARED ExeIconSet AS LONG, qb64prefix$, qb64prefix_set
 DIM SHARED VersionInfoSet AS _BYTE
 
@@ -787,6 +788,7 @@ DIM SHARED module AS STRING
 
 DIM SHARED subfunc AS STRING
 DIM SHARED subfuncn AS LONG
+DIM SHARED closedsubfunc AS _BYTE
 DIM SHARED subfuncid AS LONG
 
 DIM SHARED defdatahandle AS INTEGER
@@ -1094,7 +1096,9 @@ ideerror:
 IF INSTR(idemessage$, sp$) THEN
     'Something went wrong here, so let's give a generic error message to the user.
     '(No error message should contain sp$ - that is, CHR$(13), when not in Debug mode)
-    idemessage$ = "Compiler error (check for syntax errors) (" + _ERRORMESSAGE$ + ":"
+    terrmsg$ = _ERRORMESSAGE$
+    IF terrmsg$ = "No error" THEN terrmsg$ = "Internal error"
+    idemessage$ = "Compiler error (check for syntax errors) (" + terrmsg$ + ":"
     IF ERR THEN idemessage$ = idemessage$ + str2$(ERR) + "-"
     IF _ERRORLINE THEN idemessage$ = idemessage$ + str2$(_ERRORLINE)
     IF _INCLERRORLINE THEN idemessage$ = idemessage$ + "-" + _INCLERRORFILE$ + "-" + str2$(_INCLERRORLINE)
@@ -1408,6 +1412,7 @@ idn = 0
 arrayprocessinghappened = 0
 stringprocessinghappened = 0
 subfuncn = 0
+closedsubfunc = 0
 subfunc = ""
 SelectCaseCounter = 0
 ExecCounter = 0
@@ -1419,6 +1424,10 @@ emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 REDIM SHARED warning$(1000)
+REDIM SHARED warningLines(1000) AS LONG
+REDIM SHARED warningIncLines(1000) AS LONG
+REDIM SHARED warningIncFiles(1000) AS STRING
+maxLineNumber = 0
 uniquenumbern = 0
 qb64prefix_set = 0
 qb64prefix$ = "_"
@@ -1541,7 +1550,7 @@ IF idemode = 0 THEN
     qberrorhappened1:
     IF qberrorhappened = 1 THEN
         PRINT
-        PRINT "Cannot locate source file:" + sourcefile$
+        PRINT "Cannot locate source file: " + sourcefile$
         IF ConsoleMode THEN SYSTEM 1
         END 1
     ELSE
@@ -1752,7 +1761,6 @@ DO
                 END SELECT
             NEXT
             r$ = r1$
-            layout$ = SCase$("$Let ") + l$ + " = " + r$
             'First look to see if we have an existing setting like this and if so, update it
             FOR i = 8 TO UserDefineCount 'UserDefineCount 1-7 are reserved for automatic OS/BIT detection & version
                 IF UserDefine(0, i) = l$ THEN UserDefine(1, i) = r$: GOTO finishedlinepp
@@ -1817,6 +1825,10 @@ DO
                         secondelement$ = getelement(a$, 2)
                         thirdelement$ = getelement(a$, 3)
                         '========================================
+
+                        IF n = 2 AND firstelement$ = "END" AND (secondelement$ = "SUB" OR secondelement$ = "FUNCTION") THEN
+                            closedsubfunc = -1
+                        END IF
 
                         'declare library
                         IF declaringlibrary THEN
@@ -2038,6 +2050,8 @@ DO
                             'l$ = "CONST"
                             'DEF... do not change type, the expression is stored in a suitable type
                             'based on its value if type isn't forced/specified
+
+                            IF subfuncn > 0 AND closedsubfunc <> 0 THEN a$ = "Statement cannot be placed between SUB/FUNCTIONs": GOTO errmes
 
                             'convert periods to _046_
                             i2 = INSTR(a$, sp + "." + sp)
@@ -2297,6 +2311,7 @@ DO
                         IF sf THEN
 
                             subfuncn = subfuncn + 1
+                            closedsubfunc = 0
 
                             IF n = 1 THEN a$ = "Expected name after SUB/FUNCTION": GOTO errmes
 
@@ -2876,7 +2891,16 @@ DO
 
             temp$ = LTRIM$(MID$(a3u$, 4)) 'strip off the $IF and extra spaces
             temp$ = RTRIM$(LEFT$(temp$, LEN(temp$) - 4)) 'and strip off the THEN and extra spaces
-            temp = INSTR(temp$, "=")
+            temp = 0
+            IF temp = 0 THEN tempOp$ = "<=": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "=<": temp = INSTR(temp$, tempOp$): tempOp$ = "<="
+            IF temp = 0 THEN tempOp$ = ">=": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "=>": temp = INSTR(temp$, tempOp$): tempOp$ = ">="
+            IF temp = 0 THEN tempOp$ = "<>": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "><": temp = INSTR(temp$, tempOp$): tempOp$ = "<>"
+            IF temp = 0 THEN tempOp$ = "=": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = ">": temp = INSTR(temp$, tempOp$)
+            IF temp = 0 THEN tempOp$ = "<": temp = INSTR(temp$, tempOp$)
 
             ExecCounter = ExecCounter + 1
             ExecLevel(ExecCounter) = -1 'default to a skip value
@@ -2891,8 +2915,8 @@ DO
             controllevel = controllevel + 1
             controltype(controllevel) = 6
             IF temp = 0 THEN layout$ = SCase$("$If ") + temp$ + SCase$(" Then"): GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
-            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
-            layout$ = SCase$("$If ") + l$ + " = " + r$ + SCase$(" Then")
+            l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + LEN(tempOp$)))
+            layout$ = SCase$("$If ") + l$ + " " + tempOp$ + " " + r$ + SCase$(" Then")
             GOTO finishednonexec
         END IF
 
@@ -3022,6 +3046,7 @@ DO
             IF prepass = 0 THEN
                 IF NoChecks = 0 THEN PRINT #12, "do{"
                 PRINT #12, "sub__dest(func__console());"
+                PRINT #12, "sub__source(func__console());"
                 GOTO finishedline2
             ELSE
                 GOTO finishednonexec
@@ -3261,6 +3286,8 @@ DO
         label$ = getelement(entireline$, 1)
         IF validlabel(label$) THEN
 
+            IF closedmain <> 0 AND subfunc = "" THEN a$ = "Labels cannot be placed between SUB/FUNCTIONs": GOTO errmes
+
             v = HashFind(label$, HASHFLAG_LABEL, ignore, r)
             addlabchk100:
             IF v THEN
@@ -3322,6 +3349,8 @@ DO
             IF validlabel(a$) THEN
 
                 IF validname(a$) = 0 THEN a$ = "Invalid name": GOTO errmes
+
+                IF closedmain <> 0 AND subfunc = "" THEN a$ = "Labels cannot be placed between SUB/FUNCTIONs": GOTO errmes
 
                 v = HashFind(a$, HASHFLAG_LABEL, ignore, r)
                 addlabchk:
@@ -4634,6 +4663,7 @@ DO
 
             subfunc = RTRIM$(id.callname) 'SUB_..."
             subfuncn = subfuncn + 1
+            closedsubfunc = 0
             subfuncid = targetid
 
             subfuncret$ = ""
@@ -4833,6 +4863,7 @@ DO
                             IF t2$ = "" THEN t2$ = e$ ELSE t2$ = t2$ + " " + e$
                             gotaa2:
                         NEXT i2
+                        IF m = 1 THEN a$ = "Syntax error": GOTO errmes
                         IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error": GOTO errmes
 
 
@@ -5147,6 +5178,7 @@ DO
                 PRINT #15, "}"
                 PRINT #15, "error(3);" 'no valid return possible
                 subfunc = ""
+                closedsubfunc = -1
 
                 'unshare temp. shared variables
                 FOR i = 1 TO idn
@@ -13054,7 +13086,7 @@ FUNCTION ParseCMDLineArgs$ ()
                         PRINT "Valid switches:"
                         PRINT "    -s:debuginfo=true/false     (Embed C++ debug info into .EXE)"
                         PRINT "    -s:exewithsource=true/false (Save .EXE in the source folder)"
-                        SYSTEM
+                        SYSTEM 1
                 END SELECT
                 _DEST 0
             CASE "-l" 'goto line (ide mode only); -l:<line number>
@@ -20178,58 +20210,49 @@ FUNCTION lineformat$ (a$)
     c$ = LTRIM$(c$)
     IF LEN(c$) = 0 THEN GOTO lineformatdone2
     ac = ASC(c$)
+    'note: any non-whitespace character between the comment leader and the
+    '      first '$' renders this a plain comment
+    '    : the leading '$' does NOT have to be part of a valid metacommand.
+    '      E.g., REM $FOO $DYNAMIC is a valid metacommand line
     IF ac <> 36 THEN GOTO lineformatdone2
     nocasec$ = LTRIM$(RIGHT$(ca$, LEN(ca$) - i + 1))
     memmode = 0
-    FOR x = 1 TO LEN(c$)
-        mcnext:
-        IF MID$(c$, x, 1) = "$" THEN
+    x = 1
+    DO
+        'note: metacommands may appear on a line any number of times but only
+        '      the last appearance of $INCLUDE, and either $STATIC or $DYNAMIC,
+        '      is processed
+        '    : metacommands do not need to be terminated by word boundaries.
+        '      E.g., $STATICanychars$DYNAMIC is valid
 
-            'note: $STATICksdcdweh$DYNAMIC is valid!
+        IF MID$(c$, x, 7) = "$STATIC" THEN
+            memmode = 1
+        ELSEIF MID$(c$, x, 8) = "$DYNAMIC" THEN
+            memmode = 2
+        ELSEIF MID$(c$, x, 8) = "$INCLUDE" THEN
+            'note: INCLUDE adds the file AFTER the line it is on has been processed
+            'skip spaces until :
+            FOR xx = x + 8 TO LEN(c$)
+                ac = ASC(MID$(c$, xx, 1))
+                IF ac = 58 THEN EXIT FOR ':
+                IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+            NEXT
+            x = xx
+            'skip spaces until '
+            FOR xx = x + 1 TO LEN(c$)
+                ac = ASC(MID$(c$, xx, 1))
+                IF ac = 39 THEN EXIT FOR 'character:'
+                IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+            NEXT
+            x = xx
+            xx = INSTR(x + 1, c$, "'")
+            IF xx = 0 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+            addmetainclude$ = MID$(nocasec$, x + 1, xx - x - 1)
+            IF addmetainclude$ = "" THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
+        END IF
 
-            IF MID$(c$, x, 7) = "$STATIC" THEN
-                memmode = 1
-                xx = INSTR(x + 1, c$, "$")
-                if xx=0 then exit for else
-                x = xx: GOTO mcnext
-            END IF
-
-            IF MID$(c$, x, 8) = "$DYNAMIC" THEN
-                memmode = 2
-                xx = INSTR(x + 1, c$, "$")
-                IF xx = 0 THEN EXIT FOR
-                x = xx: GOTO mcnext
-            END IF
-
-            IF MID$(c$, x, 8) = "$INCLUDE" THEN
-                'note: INCLUDE adds the file AFTER the line it is on has been processed
-                'note: No other metacommands can follow the INCLUDE metacommand!
-                'skip spaces until :
-                FOR xx = x + 8 TO LEN(c$)
-                    ac = ASC(MID$(c$, xx, 1))
-                    IF ac = 58 THEN EXIT FOR ':
-                    IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                NEXT
-                x = xx
-                'skip spaces until '
-                FOR xx = x + 1 TO LEN(c$)
-                    ac = ASC(MID$(c$, xx, 1))
-                    IF ac = 39 THEN EXIT FOR 'character:'
-                    IF ac <> 32 AND ac <> 9 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                NEXT
-                x = xx
-                xx = INSTR(x + 1, c$, "'")
-                IF xx = 0 THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                addmetainclude$ = MID$(nocasec$, x + 1, xx - x - 1)
-                IF addmetainclude$ = "" THEN Give_Error "Expected $INCLUDE:'filename'": EXIT FUNCTION
-                GOTO mcfinal
-            END IF
-
-            'add more metacommands here
-
-        END IF '$
-    NEXT
-    mcfinal:
+        x = INSTR(x + 1, c$, "$")
+    LOOP WHILE x <> 0
 
     IF memmode = 1 THEN addmetastatic = 1
     IF memmode = 2 THEN addmetadynamic = 1
@@ -25458,26 +25481,37 @@ SUB addWarning (whichLineNumber AS LONG, includeLevel AS LONG, incLineNumber AS 
         END IF
     ELSEIF idemode THEN
         IF NOT IgnoreWarnings THEN
+            IF whichLineNumber > maxLineNumber THEN maxLineNumber = whichLineNumber
             IF lastWarningHeader <> header$ THEN
                 lastWarningHeader = header$
                 GOSUB increaseWarningCount
-                warning$(warningListItems) = MKL$(0) + CHR$(255) + header$
+                warning$(warningListItems) = header$
+                warningLines(warningListItems) = 0
             END IF
 
             GOSUB increaseWarningCount
+            warning$(warningListItems) = text$
+            warningLines(warningListItems) = whichLineNumber
             IF includeLevel > 0 THEN
                 thisincname$ = getfilepath$(incFileName$)
                 thisincname$ = MID$(incFileName$, LEN(thisincname$) + 1)
-                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(includeLevel) + MKL$(incLineNumber) + thisincname$ + CHR$(255) + text$
+                warningIncLines(warningListItems) = incLineNumber
+                warningIncFiles(warningListItems) = thisincname$
             ELSE
-                warning$(warningListItems) = MKL$(whichLineNumber) + MKL$(0) + CHR$(255) + text$
+                warningIncLines(warningListItems) = 0
+                warningIncFiles(warningListItems) = ""
             END IF
         END IF
     END IF
     EXIT SUB
     increaseWarningCount:
     warningListItems = warningListItems + 1
-    IF warningListItems > UBOUND(warning$) THEN REDIM _PRESERVE warning$(warningListItems + 999)
+    IF warningListItems > UBOUND(warning$) THEN
+        REDIM _PRESERVE warning$(warningListItems + 999)
+        REDIM _PRESERVE warningLines(warningListItems + 999) AS LONG
+        REDIM _PRESERVE warningIncLines(warningListItems + 999) AS LONG
+        REDIM _PRESERVE warningIncFiles(warningListItems + 999) AS STRING
+    END IF
     RETURN
 END SUB
 
