@@ -14362,7 +14362,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         END IF
         'standard bit-length variable
         n$ = scope2$ + n$
-        'PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
+        PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
         PRINT #13, "if(" + n$ + "==NULL){"
         PRINT #13, "cmem_sp-=4;"
         PRINT #13, "if (cmem_sp<qbs_cmem_sp) error(257);"
