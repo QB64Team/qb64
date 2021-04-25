@@ -13,7 +13,7 @@ The [[_SCREENEXISTS]] function returns true (-1) once a screen has been created.
 
 
 {{PageExamples}}
-''Example:'' The loop waits until the screen exists to add the title.
+''Example:'' The loop busy-waits until the screen exists to add the title.
 {{CodeStart}} '' ''
 {{Cl|SCREEN}} 12
 {{Cl|DO}}: {{Cl|LOOP}} {{Cl|UNTIL}} _{{Cl|SCREENEXISTS}}

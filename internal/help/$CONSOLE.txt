@@ -1,19 +1,20 @@
-The [[$CONSOLE]] [[Metacommand]] creates a console window that can be used throughout a QB64 program module.
+The [[$CONSOLE]] [[metacommand]] creates a console window that can be used throughout a QB64 program module.
 
 
 {{PageSyntax}}
 : [[$CONSOLE]][:ONLY]
 
 
+{{Description}}
 * [[_CONSOLE]] '''ON''' or '''OFF''' may be used to show or hide the console window at run time.
 * The ''':ONLY''' option can be used when only a console window is desired without a program window.
 * [[_DEST]] [[_CONSOLE]] may be used to send screen output to the console window.
 * [[_SCREENHIDE]] and [[_SCREENSHOW]] can be used to hide or show the main program window.
 * [[_DELAY]] or [[SLEEP]] can be used to allow the console window to be set in front of the main program window.
-* '''QB64 [[Metacommand]]s are not commented out with ' or REM, differently from QBasic metacommands'''
-* Change the title of the [[$CONSOLE]] windows created using [[_CONSOLETITLE]]
+* [[_CONSOLETITLE]] can be used to change the title of the console window.
 * '''Note:''' Text can be copied partially or totally from console screens in Windows by highlighting and using the title bar menu. 
-:: To copy console text output, right click the title bar and select ''Edit'' for ''Mark'' to highlight and repeat to ''Copy'' 
+:: To copy console text output, right click the title bar and select ''Edit'' for ''Mark'' to highlight and repeat to ''Copy''
+* QB64 [[Metacommand]]s are not commented out with ' or REM, differently from QBasic metacommands. 
 
 
 {{PageExamples}}

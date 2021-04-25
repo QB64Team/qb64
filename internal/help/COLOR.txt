@@ -10,6 +10,8 @@ The [[COLOR]] statement is used to change the foreground and background colors f
 * To change the {{Parameter|background&amp;}} color only, use a comma and the desired color. Ex: [[COLOR]] , {{Parameter|background&amp;}}
 * Graphic drawing statements like [[PSET]], [[PRESET]], [[LINE]], etc, also use the colors set by the [[COLOR]] statement if no color is passed when they are called.
 * The [[$COLOR]] metacommand adds named color constants for both text and 32-bit modes.
+* [[COLOR]] works when outputting text to [[$CONSOLE]].
+** On macOS, colors in console mode will not match the VGA palette. See [https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit 8-bit ANSI colors]
 
 
 ==Screen Mode Attributes==

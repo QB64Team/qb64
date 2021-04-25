@@ -1,4 +1,4 @@
-The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Screen or a file using a [[STRING]] template.
+The [[PRINT USING]] statement is used to [[PRINT]] formatted data to the Screen or a file using a [[STRING]] template.
 
 
 {{PageSyntax}}
@@ -9,20 +9,23 @@ The '''PRINT USING''' statement is used to [[PRINT]] formatted data to the Scree
 * Literal or variable [[STRING]] ''text$'' can be placed between PRINT and USING or it can be included in the ''template''.
 * A [[semicolon]] or [[comma]] may follow the ''text'' to stop or tab the print cursor before the ''template'' [[PRINT]].
 * The literal or variable [[STRING]] ''template'' should use the template symbols to display each variable [[Variable Types|type]] in the list following it.
-* The list of data ''variables'' used in the ''template'' are '''separated by semicolons''' after the template string value. 
-* In '''QB64''' ONE [[semicolon]] or [[comma]] may follow the variable list to stop the print cursor for pending prints. QB only allowed a semicolon.
+* The list of data ''variables'' used in the ''template'' are separated by semicolons after the template string value. 
+* In QB64 one [[semicolon]] or [[comma]] may follow the variable list to stop the print cursor for pending prints. QB only allowed a semicolon.
 
 
 {{PageDescription}}
 * The ''variables'' should be listed in the order that they are used in the template from left to right.
-* '''If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an "Illegal Function Call" [[ERROR Codes|ERROR]] will occur!'''
-* No more than 25 # digit places are allowed in a template number or an [[ERROR Codes|error]] will occur.
+* If the ''template'' string is omitted or symbols don't match the ''variable(s)'' an "Illegal Function Call" [[ERROR Codes|ERROR]] will occur.
 * Can convert numerical exponential or [[scientific notation]] values to normal decimal point values using less digits.
-* '''NOTE:''' If the numerical value exceeds the template's digit range a % symbol will appear in the leftmost digit area.
-* '''WARNING: The numbers displayed are rounded so the actual values are never changed and are actually more accurate.'''
+* NOTE: If the numerical value exceeds the template's digit range a % symbol will appear in the leftmost digit area.
+* WARNING: The numbers displayed are rounded so the actual values are never changed and are actually more accurate.
 
 
 {{PrintUsing}}
+
+
+{{PageQBasic}}
+* QBasic limited the number of specified digit positions to 24; QB64 has no such restriction.
 
 
 {{PageExamples}}
@@ -40,15 +43,14 @@ tmp$ = "Salesperson: &amp; &amp;  #####,.   $$#####,.##"
 
 
 ''Example 2:'' How to display formatting symbols as normal text using underscores in a PRINT USING template.
-{{CodeStart}} '' ''
+{{CodeStart}}
 errcode = 35
-{{Cl|PRINT USING}} "Error ## occurred!!"; errcode
-'now there are the !! at the end of the printed string
-{{Cl|PRINT USING}} "Error ## occurred_!_!"; errcode
-{{Cl|END}} ''
+{{Cl|PRINT USING}} "Error ## occurred!"; errcode
+'the ! is now displayed at the end of the printed string
+{{Cl|PRINT USING}} "Error ## occurred_!"; errcode
 {{CodeEnd}}
 {{OutputStart}}Error 35 occurred
-Error 35 occurred!!
+Error 35 occurred!
 {{OutputEnd}} 
 : ''Explanation:'' The first template will not print the exclamation points or error when the requested text parameters are omitted.
 
@@ -75,6 +77,9 @@ tmp$ = "$$#######,.##"
 
 {{Cl|PRINT}} "I have this much money!"; {{Cl|PRINT USING|USING}} tmp$; money '' ''
 {{CodeEnd}}
+{{OutputStart}}
+I have this much money!   $12,345.45
+{{OutputEnd}}
 : ''Note:'' This can also be used to print the USING formatting characters outside of the template.
 
 

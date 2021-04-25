@@ -15,9 +15,9 @@ The [[LOG]] math function returns the natural logarithm of a specified numerical
 {{PageExamples}}
 ''Example 1:'' [[FUNCTION]] to find the base ten logarithm of a numerical value.
 {{CodeStart}}
- FUNCTION Log10#(value AS DOUBLE) {{Cl|STATIC}}
-   Log10# = LOG(value) / LOG(10.#) 
- END FUNCTION '' ''
+{{Cl|FUNCTION}} Log10#(value {{Cl|AS}} {{Cl|DOUBLE}}) {{Cl|STATIC}}
+    Log10# = {{Cl|LOG}}(value) / LOG(10.#) 
+{{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 
 :''Explanation:'' The natural logarithm of the value is divided by the base 10 logarithm. The LOG of ten is designated as a DOUBLE precision return by using # after the Log10 value. The return tells you the number of times 10 goes into a value.
@@ -25,13 +25,13 @@ The [[LOG]] math function returns the natural logarithm of a specified numerical
 
 ''Example 2:'' A binary FUNCTION to convert [[INTEGER]] values using LOG to find the number of digits the return will be.
 {{CodeStart}} '' ''
-FUNCTION BIN$ (n&amp;)
-  IF n&amp; &lt; 0 THEN EXIT FUNCTION            'positive numbers only! negative error!
-  FOR p% = 0 TO INT({{Cl|LOG}}(n&amp; + .1) / {{Cl|LOG}}(2))     ' added +.1 to get 0 to work
-    IF n&amp; {{Cl|AND}} 2 ^ p% THEN s$ = "1" + s$ ELSE s$ = "0" + s$  'find bits on
-  NEXT p%
-  IF s$ = "" THEN BIN$ = "&amp;B0" ELSE BIN$ = "&amp;B" + s$       'check for zero return '' ''
-END FUNCTION
+{{Cl|FUNCTION}} BIN$ (n&amp;)
+    {{Cl|IF}} n&amp; &lt; 0 {{Cl|THEN}} {{Cl|EXIT FUNCTION}}                               'positive numbers only! negative error!
+    {{Cl|FOR}} p% = 0 {{Cl|TO}} {{Cl|INT}}({{Cl|LOG}}(n&amp; + .1) / {{Cl|LOG}}(2))                   'added +.1 to get 0 to work
+	{{Cl|IF}} n&amp; {{Cl|AND}} 2 ^ p% {{Cl|THEN}} s$ = "1" + s$ {{Cl|ELSE}} s$ = "0" + s$ 'find bits on
+    {{Cl|NEXT}} p%
+    {{Cl|IF}} s$ = "" {{Cl|THEN}} BIN$ = "&amp;B0" {{Cl|ELSE}} BIN$ = "&amp;B" + s$         'check for zero return '' ''
+{{Cl|END FUNCTION}}
 
 {{CodeEnd}}
 : ''Explanation:'' The LOG of a '''positive''' [[INTEGER]] value is divided by the LOG of 2 to determine the number of binary digits that will be returned. The FOR loop compares the value with the exponents of two and determines if a bit is ON or OFF as "1" or "0". 

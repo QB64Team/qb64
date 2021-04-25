@@ -1,10 +1,11 @@
-The '''VAL''' Function returns the decimal numerical equivalent value of a [[STRING]] numerical value.
+The [[VAL]] Function returns the decimal numerical equivalent value of a [[STRING]] numerical value.
 
 
 {{PageSyntax}}
-:: value = VAL(string_value$)
+:: value = [[VAL]](string_value$)
 
 
+{{PageDescription}}
 * VAL converts string numbers to numerical values including decimal point values and prefixed "[[&amp;H]]" hexadecimal, "[[&amp;O]]" octal. 
 * VAL conversion stops at non-numeric characters except for letter "D" or "E" exponential notation values.
 :String values with "D" and "E" letters between numbers may be converted also! EX: '''{{text|VAL("9D4") &lt;nowiki>=&lt;/nowiki> 90000|green}}'''
@@ -16,6 +17,7 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 * In QB64 use an [[INTEGER]] return variable to hold integer values  returned by VAL [[HEX$|Hex]] strings: '''{{text|value% &lt;nowiki>= VAL("&amp;HFFFF") =&lt;/nowiki> -1|green}}'''
 
 
+{{PageExamples}}
 ''Example 1:'' Differences in values returned with QBasic and QB64:
 {{CodeStart}} '' ''
 {{Cl|PRINT}} {{Cl|VAL}}("{{Cl|&amp;H}}") '203 in QB, 0 in QB64
@@ -28,8 +30,8 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 ''Example 2:'' Converting a string with some number characters
 {{CodeStart}} '' ''
  text$ = "1.23Hello"
- number! = VAL(text$)
- PRINT number! '' ''
+ number! = {{Cl|VAL}}(text$)
+ {{Cl|PRINT}} number! '' ''
 {{CodeEnd}}
 {{OutputStart}}
 1.23
@@ -39,7 +41,7 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 ''Example 3:'' Converting literal and variable [[STRING|string]] values to numerical values.
 {{CodeStart}} '' ''
  a$ = "33"
- PRINT VAL("10") + VAL(a$) + 1 '' ''
+ {{Cl|PRINT}} {{Cl|VAL}}("10") + {{Cl|VAL}}(a$) + 1 '' ''
 {{CodeEnd}}
 {{OutputStart}}
 44
@@ -55,9 +57,9 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 {{CodeStart}}
  decnumber% = 96
  hexnumber$ = "&amp;H" + {{Cl|HEX$}}(decnumber%)  'convert decimal value to hex and add hex prefix
- PRINT hexnumber$
+ {{Cl|PRINT}} hexnumber$
  decimal% = {{Cl|VAL}}(hexnumber$)
- PRINT decimal% '' ''
+ {{Cl|PRINT}} decimal% '' ''
 {{CodeEnd}}
 {{OutputStart}}
 &amp;H60
@@ -66,7 +68,7 @@ The '''VAL''' Function returns the decimal numerical equivalent value of a [[STR
 : ''Explanation:'' [[HEX$]] converts a decimal number to hexadecimal, but [[VAL]] will only recognize it as a valid value with the "&amp;H" prefix. Especially since hexadecimal numbers can use "A" through "F" in them. Create a converter function from this code!
 
 
-''See also:'' 
+{{PageSeeAlso}}
 * [[STR$]], [[HEX$]]
 * [[OCT$]], [[ASC]]
 
