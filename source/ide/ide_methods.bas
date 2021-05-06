@@ -313,7 +313,7 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "-": i = i + 1
 
         RunMenuSaveExeWithSource = i
-        menu$(m, i) = "Output EXE to Source #Folder": i = i + 1
+        menu$(m, i) = "Output executable to source #folder": i = i + 1
         menuDesc$(m, i - 1) = "Toggles compiling program to QB64's folder or to source folder"
         IF SaveExeWithSource THEN
             menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + menu$(RunMenuID, RunMenuSaveExeWithSource)
@@ -1474,7 +1474,7 @@ FUNCTION ide2 (ignore)
                             ideselect = 0
                             GOTO specialchar
                         CASE 3
-                            '3- Link to the output folder when "Output EXE to source #folder" is checked:
+                            '3- Link to the output folder when "Output executable to source #folder" is checked:
                             IF INSTR(_OS$, "WIN") THEN
                                 SHELL _DONTWAIT "explorer /select," + QuotedFilename$(lastBinaryGenerated$)
                             ELSEIF INSTR(_OS$, "MAC") THEN
@@ -1511,10 +1511,10 @@ FUNCTION ide2 (ignore)
                 IF SaveExeWithSource THEN
                     result = idemessagebox("Run", "Your program will be compiled to the same folder where your" + CHR$(10) + _
                                            "source code is saved. You can change that by unchecking the" + CHR$(10) + _
-                                           "option 'Output EXE to Source Folder' in the Run menu.", "#OK;#Don't show this again;#Cancel")
+                                           "option 'Output executable to source folder' in the Run menu.", "#OK;#Don't show this again;#Cancel")
                 ELSE
                     result = idemessagebox("Run", "Your program will be compiled to your QB64 folder. You can" + CHR$(10) + _
-                                         "change that by checking the option 'Output EXE to Source" + CHR$(10) + _
+                                         "change that by checking the option 'Output executable to source folder" + CHR$(10) + _
                                          "Folder' in the Run menu.", "#OK;#Don't show this again;#Cancel")
                 END IF
                 IF result = 2 THEN
@@ -4797,15 +4797,15 @@ FUNCTION ide2 (ignore)
             '    GOTO ideloop
             'END IF
 
-            IF RIGHT$(menu$(m, s), 28) = "Output EXE to Source #Folder" THEN
+            IF RIGHT$(menu$(m, s), 28) = "Output executable to source #folder" THEN
                 PCOPY 2, 0
                 SaveExeWithSource = NOT SaveExeWithSource
                 IF SaveExeWithSource THEN
                     WriteConfigSetting generalSettingsSection$, "SaveExeWithSource", "True"
-                    menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Output EXE to Source #Folder"
+                    menu$(RunMenuID, RunMenuSaveExeWithSource) = CHR$(7) + "Output executable to source #folder"
                 ELSE
                     WriteConfigSetting generalSettingsSection$, "SaveExeWithSource", "False"
-                    menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output EXE to Source #Folder"
+                    menu$(RunMenuID, RunMenuSaveExeWithSource) = "Output executable to source #folder"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 idecompiled = 0
@@ -11027,11 +11027,7 @@ FUNCTION idedisplaybox
     i = i + 1
     o(i).typ = 4 'check box
     o(i).y = 8
-    IF INSTR(_OS$, "WIN") > 0 OR INSTR(_OS$, "MAC") > 0 THEN
-        o(i).nam = idenewtxt("Restore window #position and size at startup")
-    ELSE
-        o(i).nam = idenewtxt("Restore window size at startu#p")
-    END IF
+    o(i).nam = idenewtxt("Restore window #position at startup")
     IF IDE_AutoPosition THEN o(i).sel = 1
 
     i = i + 1
@@ -13355,7 +13351,7 @@ SUB IdeMakeContextualMenu
 
             v = 0
             CurrSF$ = FindCurrentSF$(idecy)
-            IF validname(a2$) THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
+            IF NOT Error_Happened THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
             CheckThisLabel:
             IF v THEN
                 LabelLineNumber = Labels(r).SourceLineNumber
@@ -14899,13 +14895,13 @@ FUNCTION isnumber (__a$)
         END IF
         IF a = 68 THEN 'dd
             IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i < 3 THEN EXIT FUNCTION
+            IF i = 1 THEN EXIT FUNCTION
             dd = i
             _CONTINUE
         END IF
         IF a = 69 THEN 'eE
             IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i < 3 THEN EXIT FUNCTION
+            IF i = 1 THEN EXIT FUNCTION
             ee = i
             _CONTINUE
         END IF
