@@ -152,8 +152,8 @@ if [ -e "./qb64" ]; then
   echo "Adding QB64 menu entry..."
   cat > ~/.local/share/applications/qb64.desktop <<EOF
 [Desktop Entry]
-Name=QB64 Programming IDE
-GenericName=QB64 Programming IDE
+Name=QB64
+GenericName=Programming IDE
 Exec=$_pwd/run_qb64.sh
 Icon=$_pwd/$QB64_ICON_PATH/$QB64_ICON_NAME
 Terminal=false
@@ -169,7 +169,7 @@ EOF
   echo "`pwd`"
   echo "There is a ./run_qb64.sh script in this folder that should let you run qb64 if using the executable directly isn't working."
   echo 
-  echo "You should also find a QB64 option in the Programming/Development section of your menu you can use."
+  echo "You should also find a QB64 option in the Development/IDE/Programming section of your menu you can use."
 else
   ### QB64 didn't compile
   echo "It appears that the qb64 executable file was not created, this is usually an indication of a compile failure (You probably saw lots of error messages pop up on the screen)"
