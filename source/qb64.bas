@@ -2124,6 +2124,9 @@ DO
                                 e$ = lineformat(temp1$) 'retrieve parseable format
                             ELSE
                                 IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                                IF INSTR(temp1$, "Improper operations") THEN
+                                    a$ = "Invalid CONST expression.14": GOTO errmes
+                                END IF
                             END IF
 
                             'Proceed as usual
@@ -23993,7 +23996,6 @@ SUB Set_OrderOfOperations
     i = i + 1: OName(i) = "_CSC": PL(i) = 10
     i = i + 1: OName(i) = "_COT": PL(i) = 10
     i = i + 1: OName(i) = "ASC": PL(i) = 10
-    i = i + 1: OName(i) = "CHR$": PL(i) = 10
     i = i + 1: OName(i) = "C_RG": PL(i) = 10 '_RGB32 converted
     i = i + 1: OName(i) = "C_RA": PL(i) = 10 '_RGBA32 converted
     i = i + 1: OName(i) = "_RGB": PL(i) = 10
