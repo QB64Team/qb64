@@ -8744,7 +8744,9 @@ FUNCTION idesubs$
             END IF
             a$ = LTRIM$(RTRIM$(a$))
             x = INSTR(a$, "(")
-            IF x THEN
+            DIM comment AS _BYTE, quote AS _BYTE
+            IF x THEN FindQuoteComment a$, x, comment, quote
+            IF x > 0 AND comment = 0 AND quote = 0 THEN
                 n$ = RTRIM$(LEFT$(a$, x - 1))
                 args$ = RIGHT$(a$, LEN(a$) - x + 1)
                 x = 1
@@ -8799,7 +8801,6 @@ FUNCTION idesubs$
             IF sf = 0 THEN sf = INSTR(cursor + 1, nca$, "END FUNCTION")
 
             IF sf THEN
-                DIM comment AS _BYTE, quote AS _BYTE
                 FindQuoteComment nca$, sf, comment, quote
                 IF comment OR quote THEN cursor = sf: GOTO LookForENDSUB
                 GOSUB AddLineCount
