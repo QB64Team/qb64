@@ -6776,7 +6776,7 @@ int32 func__str_compare(qbs *s1, qbs *s2) {
 qbs *qbs_inkey(){
     if (new_error) return qbs_new(0,1);
     qbs *tqbs;
-    Sleep(0);
+    // Sleep(0);
     tqbs=qbs_new(2,1);
     if (cmem[0x41a]!=cmem[0x41c]){
         tqbs->chr[0]=cmem[0x400+cmem[0x41a]];
