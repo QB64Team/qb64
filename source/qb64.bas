@@ -2119,13 +2119,16 @@ DO
                             NEXT
 
                             'intercept current expression and pass it through Evaluate_Expression$
-                            temp1$ = _TRIM$(Evaluate_Expression$(readable_e$))
-                            IF LEFT$(temp1$, 5) <> "ERROR" AND e$ <> temp1$ THEN
-                                e$ = lineformat(temp1$) 'retrieve parseable format
-                            ELSE
-                                IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
-                                IF INSTR(temp1$, "Improper operations") THEN
-                                    a$ = "Invalid CONST expression.14": GOTO errmes
+                            '(unless it is a literal string)
+                            IF LEFT$(readable_e$, 1) <> CHR$(34) THEN
+                                temp1$ = _TRIM$(Evaluate_Expression$(readable_e$))
+                                IF LEFT$(temp1$, 5) <> "ERROR" AND e$ <> temp1$ THEN
+                                    e$ = lineformat(temp1$) 'retrieve parseable format
+                                ELSE
+                                    IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                                    IF INSTR(temp1$, "Improper operations") THEN
+                                        a$ = "Invalid CONST expression.14": GOTO errmes
+                                    END IF
                                 END IF
                             END IF
 
