@@ -73,25 +73,25 @@ fi
 #Find and install packages
 if [ "$DISTRO" == "arch" ]; then
   echo "ArchLinux detected."
-  pkg_list="gcc zlib xorg-xmessage $GET_WGET"
+  pkg_list="gcc zlib $GET_WGET"
   installed_packages=`pacman -Q`
   installer_command="sudo pacman -S "
   pkg_install
 elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "zorin" ]; then
   echo "Debian based distro detected."
-  pkg_list="g++ x11-utils mesa-common-dev libglu1-mesa-dev libasound2-dev zlib1g-dev $GET_WGET"
+  pkg_list="g++ mesa-common-dev libglu1-mesa-dev libasound2-dev zlib1g-dev $GET_WGET"
   installed_packages=`dpkg -l`
   installer_command="sudo apt-get -y install "
   pkg_install
 elif [ "$DISTRO" == "fedora" ] || [ "$DISTRO" == "redhat" ] || [ "$DISTRO" == "centos" ]; then
   echo "Fedora/Redhat based distro detected."
-  pkg_list="gcc-c++ xmessage mesa-libGLU-devel alsa-lib-devel zlib-devel $GET_WGET"
+  pkg_list="gcc-c++ mesa-libGLU-devel alsa-lib-devel zlib-devel $GET_WGET"
   installed_packages=`yum list installed`
   installer_command="sudo yum install "
   pkg_install
 elif [ "$DISTRO" == "voidlinux" ]; then
    echo "VoidLinux detected."
-   pkg_list="gcc xmessage glu-devel zlib-devel alsa-lib-devel $GET_WGET"
+   pkg_list="gcc glu-devel zlib-devel alsa-lib-devel $GET_WGET"
    installed_packages=`xbps-query -l |grep -v libgcc`
    installer_command="sudo xbps-install -Sy "
    pkg_install
@@ -102,7 +102,6 @@ elif [ -z "$DISTRO" ]; then
   echo "  OpenGL developement libraries"
   echo "  ALSA development libraries"
   echo "  GNU C++ Compiler (g++)"
-  echo "  xmessage (x11-utils)"
   echo "  zlib"
 fi
 
