@@ -2390,8 +2390,9 @@ __ARRAY_LONG_UDTENEXT[6]=0;
 __ARRAY_LONG_UDTENEXT[0]=(ptrszint)nothingvalue;
 }
 if(__UDT_ID==NULL){
-__UDT_ID=(void*)mem_static_malloc(2861);
-memset(__UDT_ID,0,2861);
+__UDT_ID=(void*)mem_static_malloc(2869);
+memset(__UDT_ID,0,2869);
+*(qbs**)(((char*)__UDT_ID)+ 2861) = qbs_new(0,0);
 }
 if(__LONG_IDN==NULL){
 __LONG_IDN=(int32*)mem_static_malloc(4);
@@ -2446,8 +2447,9 @@ __ARRAY_INTEGER_ARRAYELEMENTSLIST[6]=0;
 __ARRAY_INTEGER_ARRAYELEMENTSLIST[0]=(ptrszint)nothingvalue;
 }
 if(__UDT_CLEARIDDATA==NULL){
-__UDT_CLEARIDDATA=(void*)mem_static_malloc(2861);
-memset(__UDT_CLEARIDDATA,0,2861);
+__UDT_CLEARIDDATA=(void*)mem_static_malloc(2869);
+memset(__UDT_CLEARIDDATA,0,2869);
+*(qbs**)(((char*)__UDT_CLEARIDDATA)+ 2861) = qbs_new(0,0);
 }
 if(__LONG_ISSTRING==NULL){
 __LONG_ISSTRING=(int32*)mem_static_malloc(4);
@@ -2830,8 +2832,9 @@ static int64 fornext_finalvalue57;
 static int64 fornext_step57;
 static uint8 fornext_step_negative57;
 if(__UDT_ID2==NULL){
-__UDT_ID2=(void*)mem_static_malloc(2861);
-memset(__UDT_ID2,0,2861);
+__UDT_ID2=(void*)mem_static_malloc(2869);
+memset(__UDT_ID2,0,2869);
+*(qbs**)(((char*)__UDT_ID2)+ 2861) = qbs_new(0,0);
 }
 if (!__ARRAY_LONG_SFIDLIST){
 __ARRAY_LONG_SFIDLIST=(ptrszint*)mem_static_malloc(9*ptrsz);

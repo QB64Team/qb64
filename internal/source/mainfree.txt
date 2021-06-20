@@ -751,12 +751,13 @@ free((void*)(__ARRAY_LONG_UDTENEXT[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_UDTENEXT)[8] );
+qbs_free(*((qbs**)(((char*)__UDT_ID)+ 2861)));
 if (__ARRAY_UDT_IDS[2]&1){
-if (__ARRAY_UDT_IDS[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_UDT_IDS[0]));
-}else{
+tmp_long=__ARRAY_UDT_IDS[5];
+while(tmp_long--) {
+
+qbs_free(*(qbs**)(__ARRAY_UDT_IDS[0]+(22952/8+1-1)*tmp_long+ 2861));}
 free((void*)(__ARRAY_UDT_IDS[0]));
-}
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_IDS)[8] );
 if (__ARRAY_INTEGER_CMEMLIST[2]&1){
@@ -783,6 +784,7 @@ free((void*)(__ARRAY_INTEGER_ARRAYELEMENTSLIST[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_INTEGER_ARRAYELEMENTSLIST)[8] );
+qbs_free(*((qbs**)(((char*)__UDT_CLEARIDDATA)+ 2861)));
 qbs_free(__STRING_SOURCEFILE);
 qbs_free(__STRING_FILE);
 qbs_free(__STRING_FINDIDSECONDARG);
@@ -860,6 +862,7 @@ free((void*)(__ARRAY_LONG_CONTROLREF[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_CONTROLREF)[8] );
+qbs_free(*((qbs**)(((char*)__UDT_ID2)+ 2861)));
 if (__ARRAY_LONG_SFIDLIST[2]&1){
 if (__ARRAY_LONG_SFIDLIST[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_LONG_SFIDLIST[0]));
