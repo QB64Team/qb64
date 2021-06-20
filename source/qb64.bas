@@ -686,6 +686,8 @@ TYPE idstruct
     'For variables which are arguments passed to a sub/function
     sfid AS LONG 'id number of variable's parent sub/function
     sfarg AS INTEGER 'argument/parameter # within call (1=first)
+
+    hr_syntax AS STRING
 END TYPE
 
 DIM SHARED id AS idstruct
@@ -2427,23 +2429,23 @@ DO
                                         FOR i2 = i2 TO n2
                                             e$ = getelement$(a2$, i2)
                                             IF e$ = "(" THEN
-                                                IF m <> 0 THEN a$ = "Syntax error": GOTO errmes
+                                                IF m <> 0 THEN a$ = "Syntax error - too many opening brackets": GOTO errmes
                                                 m = 1
                                                 array = 1
                                                 GOTO gotaa
                                             END IF
                                             IF e$ = ")" THEN
-                                                IF m <> 1 THEN a$ = "Syntax error": GOTO errmes
+                                                IF m <> 1 THEN a$ = "Syntax error - closing bracket without opening bracket": GOTO errmes
                                                 m = 2
                                                 GOTO gotaa
                                             END IF
                                             IF e$ = "AS" THEN
-                                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error": GOTO errmes
+                                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                                                 m = 3
                                                 GOTO gotaa
                                             END IF
                                             IF m = 1 THEN GOTO gotaa 'ignore contents of bracket
-                                            IF m <> 3 THEN a$ = "Syntax error": GOTO errmes
+                                            IF m <> 3 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                                             IF t2$ = "" THEN t2$ = e$ ELSE t2$ = t2$ + " " + e$
                                             gotaa:
                                         NEXT i2
@@ -2452,7 +2454,7 @@ DO
 
                                         argnelereq = 0
 
-                                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error": GOTO errmes
+                                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error - check parameter types": GOTO errmes
                                         IF t2$ = "" THEN t2$ = symbol2$
                                         IF t2$ = "" THEN
                                             IF LEFT$(n2$, 1) = "_" THEN v = 27 ELSE v = ASC(UCASE$(n2$)) - 64
@@ -4825,7 +4827,7 @@ DO
 
                         byvalue = 0
                         IF UCASE$(e$) = "BYVAL" THEN
-                            IF declaringlibrary = 0 THEN a$ = "BYVAL can currently only be used with DECLARE LIBRARY": GOTO errmes
+                            IF declaringlibrary = 0 THEN a$ = "BYVAL can only be used with DECLARE LIBRARY": GOTO errmes
                             byvalue = 1: a2$ = RIGHT$(a2$, LEN(a2$) - 6)
                             IF RIGHT$(l$, 1) = "(" THEN l$ = l$ + sp2 + SCase$("ByVal") ELSE l$ = l$ + sp + SCase$("Byval")
                             n2 = numelements(a2$): e$ = getelement$(a2$, 1)
@@ -4846,31 +4848,31 @@ DO
                         FOR i2 = 2 TO n2
                             e$ = getelement$(a2$, i2)
                             IF e$ = "(" THEN
-                                IF m <> 0 THEN a$ = "Syntax error": GOTO errmes
+                                IF m <> 0 THEN a$ = "Syntax error - too many opening brackets": GOTO errmes
                                 m = 1
                                 array = 1
                                 l$ = l$ + sp2 + "("
                                 GOTO gotaa2
                             END IF
                             IF e$ = ")" THEN
-                                IF m <> 1 THEN a$ = "Syntax error": GOTO errmes
+                                IF m <> 1 THEN a$ = "Syntax error - closing bracket without opening bracket": GOTO errmes
                                 m = 2
                                 l$ = l$ + sp2 + ")"
                                 GOTO gotaa2
                             END IF
                             IF UCASE$(e$) = "AS" THEN
-                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error": GOTO errmes
+                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                                 m = 3
                                 l$ = l$ + sp + SCase$("As")
                                 GOTO gotaa2
                             END IF
                             IF m = 1 THEN l$ = l$ + sp + e$: GOTO gotaa2 'ignore contents of option bracket telling how many dimensions (add to layout as is)
-                            IF m <> 3 THEN a$ = "Syntax error": GOTO errmes
+                            IF m <> 3 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                             IF t2$ = "" THEN t2$ = e$ ELSE t2$ = t2$ + " " + e$
                             gotaa2:
                         NEXT i2
-                        IF m = 1 THEN a$ = "Syntax error": GOTO errmes
-                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error": GOTO errmes
+                        IF m = 1 THEN a$ = "Syntax error - check your brackets": GOTO errmes
+                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error - check parameter types": GOTO errmes
 
 
                         IF LEN(t2$) THEN 'add type-name after AS
@@ -7590,8 +7592,8 @@ DO
                 midgotpart:
                 i = i + 1
             LOOP
-            IF stringvariable$ = "" THEN a$ = "Syntax error": GOTO errmes
-            IF start$ = "" THEN a$ = "Syntax error": GOTO errmes
+            IF stringvariable$ = "" THEN a$ = "Syntax error - first parameter must be a string variable/array-element": GOTO errmes
+            IF start$ = "" THEN a$ = "Syntax error - second parameter not optional": GOTO errmes
             'check if it is a valid source string
             stringvariable$ = fixoperationorder$(stringvariable$)
             IF Error_Happened THEN GOTO errmes
@@ -8850,7 +8852,7 @@ DO
             IF n = 1 THEN
                 PRINT #12, "data_offset=0;"
             ELSE
-                IF n > 2 THEN a$ = "Syntax error": GOTO errmes
+                IF n > 2 THEN a$ = "Syntax error - too many parameters (expected RESTORE label/line number)": GOTO errmes
                 lbl$ = getelement$(ca$, 2)
                 IF validlabel(lbl$) = 0 THEN a$ = "Invalid label": GOTO errmes
 
@@ -8911,7 +8913,7 @@ DO
                     ne = ne + 1
                     IF ne = 1 THEN blk$ = e$: e$ = ""
                     IF ne = 2 THEN offs$ = e$: e$ = ""
-                    IF ne = 3 THEN a$ = "Syntax error": GOTO errmes
+                    IF ne = 3 THEN a$ = "Syntax error - too many parameters (Expected " + qb64prefix$ + "MEMGET mem-reference, offset, variable)": GOTO errmes
                 ELSE
                     IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
                 END IF
@@ -9523,7 +9525,7 @@ DO
 
                 IF firstelement$ = "CLOSE" OR firstelement$ = "RESET" THEN
                     IF firstelement$ = "RESET" THEN
-                        IF n > 1 THEN a$ = "Syntax error": GOTO errmes
+                        IF n > 1 THEN a$ = "Syntax error - RESET takes no parameters": GOTO errmes
                         l$ = SCase$("Reset")
                     ELSE
                         l$ = SCase$("Close")
@@ -9776,7 +9778,7 @@ DO
                         IF a2$ = "," THEN
                             GOTO finishedpromptstring
                         END IF
-                        a$ = "INPUT STATEMENT: SYNTAX ERROR!": GOTO errmes
+                        a$ = "Syntax error - Expected INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     END IF
                     'there was no promptstring, so print a ?
                     IF lineinput = 0 THEN PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "? " + CHR$(34) + "),0);"
@@ -9785,7 +9787,7 @@ DO
                     FOR i = i TO n
                         IF commaneeded = 1 THEN
                             a2$ = getelement$(ca$, i)
-                            IF a2$ <> "," THEN a$ = "INPUT STATEMENT: SYNTAX ERROR! (COMMA EXPECTED)": GOTO errmes
+                            IF a2$ <> "," THEN a$ = "Syntax error - comma expected": GOTO errmes
                         ELSE
 
                             B = 0
@@ -9852,7 +9854,7 @@ DO
                         gotinputvar:
                         commaneeded = commaneeded + 1: IF commaneeded = 2 THEN commaneeded = 0
                     NEXT
-                    IF numvar = 0 THEN a$ = "INPUT STATEMENT: SYNTAX ERROR! (NO VARIABLES LISTED FOR INPUT)": GOTO errmes
+                    IF numvar = 0 THEN a$ = "Syntax error - Expected INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     IF lineinput = 1 AND numvar > 1 THEN a$ = "Too many variables": GOTO errmes
                     PRINT #12, "qbs_input(" + str2(numvar) + "," + str2$(newline) + ");"
                     PRINT #12, "if (stop_program) end();"
@@ -10870,7 +10872,7 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "LET" THEN
-            IF n = 1 THEN a$ = "Syntax error": GOTO errmes
+            IF n = 1 THEN a$ = "Syntax error - Expected LET variable = expression (tip: LET is entirely optional)": GOTO errmes
             ca$ = RIGHT$(ca$, LEN(ca$) - 4)
             n = n - 1
             l$ = SCase$("Let")
@@ -21462,6 +21464,7 @@ FUNCTION seperateargs (a$, ca$, pass&)
                         IF Branches = 0 THEN 'All options have been exhausted
                             seperateargs_error = 1
                             seperateargs_error_message = "Syntax error"
+                            IF LEN(id2.hr_syntax) > 0 THEN seperateargs_error_message = seperateargs_error_message + " - Reference: " + id2.hr_syntax
                             EXIT FUNCTION
                         END IF
                         '2)Toggle taken branch to untaken and revert
