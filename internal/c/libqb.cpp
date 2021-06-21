@@ -27029,6 +27029,24 @@ qbs *func__dir(qbs* context_in){
             }
         #endif
     }
+	
+		if (qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES"))){
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x0026,NULL,0,osPath))){ //CSIDL_PROGRAM_FILES (%PROGRAMFILES%)
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+            }
+        #endif
+    }
+	
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILESX86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILES X86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES X86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES 86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES (X86)"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILES (X86)"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES(X86)"))){
+		#ifdef QB64_WINDOWS && _WIN64
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x002a,NULL,0,osPath))){ //CSIDL_PROGRAM_FILES (%PROGRAMFILES(X86)%)
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+            }
+        #endif
+    }
     
 	//general fallback location
 	#ifdef QB64_WINDOWS
