@@ -27047,6 +27047,19 @@ qbs *func__dir(qbs* context_in){
             }
         #endif
     }
+	
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("TEMP"))||qbs_equal(qbs_ucase(context),qbs_new_txt("TEMP FILES"))){
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH+1];
+			DWORD pathlen;
+			pathlen = GetTempPathA(261, osPath); //%TEMP%
+			char path[pathlen];
+			memcpy(path, &osPath, pathlen);
+			if (pathlen > 0){
+				return qbs_new_txt(path);
+			}
+        #endif
+    }
     
 	//general fallback location
 	#ifdef QB64_WINDOWS
