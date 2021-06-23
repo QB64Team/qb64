@@ -902,7 +902,7 @@ FUNCTION ide2 (ignore)
                         FOR i = 1 TO LEN(a$)
                             IF ASC(a$, i) = 0 THEN
                                 idecompilererrormessage$ = LEFT$(a$, i - 1)
-                                IF _DEFAULTCOLOR = 7 THEN COLOR 11 ELSE COLOR 7
+                                IF _DEFAULTCOLOR <> 11 THEN COLOR 11 ELSE COLOR 7
                                 _CONTINUE
                             END IF
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
@@ -919,9 +919,13 @@ FUNCTION ide2 (ignore)
                         x = 1
                         y = idewy - 3
 
-                        IF l <> 0 AND idecy = l THEN a$ = a$ + " on current line"
+                        IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + " on current line"
 
+                        hasReference = INSTR(a$, " - Reference: ")
+                        IF hasReference THEN hasReference = hasReference + 14
                         FOR i = 1 TO LEN(a$)
+                            IF hasReference > 0 AND i >= hasReference THEN COLOR 12, 6
+                            IF onCurrentLine > 0 AND i > onCurrentLine THEN COLOR 7, 1
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                             IF y > idewy - 1 THEN EXIT FOR
                             _PRINTSTRING (x, y), CHR$(ASC(a$, i))
