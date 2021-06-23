@@ -922,7 +922,14 @@ FUNCTION ide2 (ignore)
                         IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + " on current line"
 
                         hasReference = INSTR(a$, " - Reference: ")
-                        IF hasReference THEN hasReference = hasReference + 14
+                        IF hasReference THEN
+                            hasReference = hasReference + 14
+                        ELSE
+                            hasReference = INSTR(a$, "Expected ")
+                            IF hasReference THEN
+                                hasReference = hasReference + 9
+                            END IF
+                        END IF
                         FOR i = 1 TO LEN(a$)
                             IF hasReference > 0 AND i >= hasReference THEN COLOR 12, 6
                             IF onCurrentLine > 0 AND i > onCurrentLine THEN COLOR 7, 1

@@ -9778,7 +9778,7 @@ DO
                         IF a2$ = "," THEN
                             GOTO finishedpromptstring
                         END IF
-                        a$ = "Syntax error - Expected INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
+                        a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     END IF
                     'there was no promptstring, so print a ?
                     IF lineinput = 0 THEN PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "? " + CHR$(34) + "),0);"
@@ -9854,7 +9854,7 @@ DO
                         gotinputvar:
                         commaneeded = commaneeded + 1: IF commaneeded = 2 THEN commaneeded = 0
                     NEXT
-                    IF numvar = 0 THEN a$ = "Syntax error - Expected INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
+                    IF numvar = 0 THEN a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     IF lineinput = 1 AND numvar > 1 THEN a$ = "Too many variables": GOTO errmes
                     PRINT #12, "qbs_input(" + str2(numvar) + "," + str2$(newline) + ");"
                     PRINT #12, "if (stop_program) end();"
@@ -10872,7 +10872,7 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "LET" THEN
-            IF n = 1 THEN a$ = "Syntax error - Expected LET variable = expression (tip: LET is entirely optional)": GOTO errmes
+            IF n = 1 THEN a$ = "Syntax error - Reference: LET variable = expression (tip: LET is entirely optional)": GOTO errmes
             ca$ = RIGHT$(ca$, LEN(ca$) - 4)
             n = n - 1
             l$ = SCase$("Let")
