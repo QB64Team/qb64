@@ -12633,12 +12633,17 @@ int32 func__blink(){
 }
 
 int64 func__handle(){
-    #ifdef QB64_GUI
+    //#ifdef QB64_GUI
         #ifdef QB64_WINDOWS
+            #ifdef DEPENDENCY_CONSOLE_ONLY
+                char pszConsoleTitle[1024];
+                GetConsoleTitle(pszConsoleTitle,1024);
+                window_handle = FindWindow(NULL, pszConsoleTitle);
+            #endif
             while (!window_handle){Sleep(100);}
             return (ptrszint)window_handle;
         #endif
-    #endif
+    //#endif
     
     return 0;
 }
