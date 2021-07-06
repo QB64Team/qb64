@@ -12376,8 +12376,6 @@ void qbs_input(int32 numvariables,uint8 newline){
             goto qbs_input_next;
         }
         
-        if (inpstr2->len>=255) goto qbs_input_next;
-        
         //affect inpstr2 with key
         qbs_set(inpstr2,qbs_add(inpstr2,key));
         
