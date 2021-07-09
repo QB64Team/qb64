@@ -2062,6 +2062,10 @@ void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename =
     
 }
 
+#ifdef VWATCH
+    #include "vwatch.cpp"
+#endif
+
 uint8 *redim_preserve_cmem_buffer=(uint8*)malloc(65536);//used for temporary storage only (move to libqbx?)
 
 #include "myip.cpp"
@@ -2073,7 +2077,6 @@ void division_by_zero_handler(int ignore){
 //void SIGSEGV_handler(int ignore){
 //    error(256);//assume stack overflow? (the most likely cause)
 //}
-
 
 #ifdef QB64_WINDOWS
     void QBMAIN_WINDOWS(void *unused){

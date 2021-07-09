@@ -121,7 +121,7 @@ DIM SHARED viFileDescription$, viFileVersion$, viInternalName$
 DIM SHARED viLegalCopyright$, viLegalTrademarks$, viOriginalFilename$
 DIM SHARED viProductName$, viProductVersion$, viComments$, viWeb$
 
-DIM SHARED NoChecks
+DIM SHARED NoChecks, vWatch
 
 DIM SHARED Console
 DIM SHARED ScreenHide
@@ -1376,6 +1376,7 @@ fooindwel = 0
 layout = ""
 layoutok = 0
 NoChecks = 0
+vWatch = 0
 inclevel = 0
 errorLineInInclude = 0
 addmetainclude$ = ""
@@ -3029,8 +3030,20 @@ DO
             GOTO finishednonexec
         END IF
 
+        IF a3u$ = "$DEBUG" THEN
+            layout$ = SCase$("$Debug")
+            IF NoChecks THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$DEBUG is disabled in $CHECKING:OFF blocks", ""
+            END IF
+            vWatch = 1
+            GOTO finishednonexec
+        END IF
+
         IF a3u$ = "$CHECKING:OFF" THEN
             layout$ = SCase$("$Checking:Off")
+            IF vWatch THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$DEBUG is disabled in $CHECKING:OFF blocks", ""
+            END IF
             NoChecks = 1
             GOTO finishednonexec
         END IF
@@ -5444,6 +5457,9 @@ DO
                 IF Error_Happened THEN GOTO errmes
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
+                IF NoChecks = 0 AND vWatch = 1 THEN
+                    PRINT #12, "vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
                 a$ = "WHILE ERROR! Expected expression after WHILE.": GOTO errmes
@@ -5503,7 +5519,11 @@ DO
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
-                PRINT #12, "do{"
+                IF vWatch THEN
+                    PRINT #12, "do{vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                ELSE
+                    PRINT #12, "do{"
+                END IF
             END IF
             controlid(controllevel) = uniquenumber
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -5536,6 +5556,11 @@ DO
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
+
+                IF NoChecks = 0 AND vWatch = 1 THEN
+                    PRINT #12, "vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                END IF
+
                 IF controltype(controllevel) = 4 THEN
                     PRINT #12, "}"
                 ELSE
@@ -5684,6 +5709,11 @@ DO
             IF stepused = 1 THEN l$ = l$ + sp + SCase$("Step") + sp + tlayout$
             e$ = evaluatetotyp(e$, ctyp)
             IF Error_Happened THEN GOTO errmes
+
+            IF NoChecks = 0 AND vWatch = 1 THEN
+                PRINT #12, "vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+            END IF
+
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
             PRINT #12, "if (fornext_step" + u$ + "<0) fornext_step_negative" + u$ + "=1; else fornext_step_negative" + u$ + "=0;"
 
@@ -6313,7 +6343,11 @@ DO
     'static scope commands:
 
     IF NoChecks = 0 THEN
-        PRINT #12, "do{"
+        IF vWatch THEN
+            PRINT #12, "do{vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+        ELSE
+            PRINT #12, "do{"
+        END IF
         'PRINT #12, "S_" + str2$(statementn) + ":;"
     END IF
 
@@ -11979,81 +12013,81 @@ IF os$ = "WIN" THEN
     END IF
 
     IF VersionInfoSet THEN
-        manifest = FreeFile
-        Open tmpdir$ + file$ + extension$ + ".manifest" For Output As #manifest
-        Print #manifest, "<?xml version=" + QuotedFilename("1.0") + " encoding=" + QuotedFilename("UTF-8") + " standalone=" + QuotedFilename("yes") + "?>"
-        Print #manifest, "<assembly xmlns=" + QuotedFilename("urn:schemas-microsoft-com:asm.v1") + " manifestVersion=" + QuotedFilename("1.0") + ">"
-        Print #manifest, "<assemblyIdentity"
-        Print #manifest, "    version=" + QuotedFilename("1.0.0.0")
-        Print #manifest, "    processorArchitecture=" + QuotedFilename("*")
-        Print #manifest, "    name=" + QuotedFilename(viCompanyName$ + "." + viProductName$ + "." + viProductName$)
-        Print #manifest, "    type=" + QuotedFilename("win32")
-        Print #manifest, "/>"
-        Print #manifest, "<description>" + viFileDescription$ + "</description>"
-        Print #manifest, "<dependency>"
-        Print #manifest, "    <dependentAssembly>"
-        Print #manifest, "        <assemblyIdentity"
-        Print #manifest, "            type=" + QuotedFilename("win32")
-        Print #manifest, "            name=" + QuotedFilename("Microsoft.Windows.Common-Controls")
-        Print #manifest, "            version=" + QuotedFilename("6.0.0.0")
-        Print #manifest, "            processorArchitecture=" + QuotedFilename("*")
-        Print #manifest, "            publicKeyToken=" + QuotedFilename("6595b64144ccf1df")
-        Print #manifest, "            language=" + QuotedFilename("*")
-        Print #manifest, "        />"
-        Print #manifest, "    </dependentAssembly>"
-        Print #manifest, "</dependency>"
-        Print #manifest, "</assembly>"
-        Close #manifest
+        manifest = FREEFILE
+        OPEN tmpdir$ + file$ + extension$ + ".manifest" FOR OUTPUT AS #manifest
+        PRINT #manifest, "<?xml version=" + QuotedFilename("1.0") + " encoding=" + QuotedFilename("UTF-8") + " standalone=" + QuotedFilename("yes") + "?>"
+        PRINT #manifest, "<assembly xmlns=" + QuotedFilename("urn:schemas-microsoft-com:asm.v1") + " manifestVersion=" + QuotedFilename("1.0") + ">"
+        PRINT #manifest, "<assemblyIdentity"
+        PRINT #manifest, "    version=" + QuotedFilename("1.0.0.0")
+        PRINT #manifest, "    processorArchitecture=" + QuotedFilename("*")
+        PRINT #manifest, "    name=" + QuotedFilename(viCompanyName$ + "." + viProductName$ + "." + viProductName$)
+        PRINT #manifest, "    type=" + QuotedFilename("win32")
+        PRINT #manifest, "/>"
+        PRINT #manifest, "<description>" + viFileDescription$ + "</description>"
+        PRINT #manifest, "<dependency>"
+        PRINT #manifest, "    <dependentAssembly>"
+        PRINT #manifest, "        <assemblyIdentity"
+        PRINT #manifest, "            type=" + QuotedFilename("win32")
+        PRINT #manifest, "            name=" + QuotedFilename("Microsoft.Windows.Common-Controls")
+        PRINT #manifest, "            version=" + QuotedFilename("6.0.0.0")
+        PRINT #manifest, "            processorArchitecture=" + QuotedFilename("*")
+        PRINT #manifest, "            publicKeyToken=" + QuotedFilename("6595b64144ccf1df")
+        PRINT #manifest, "            language=" + QuotedFilename("*")
+        PRINT #manifest, "        />"
+        PRINT #manifest, "    </dependentAssembly>"
+        PRINT #manifest, "</dependency>"
+        PRINT #manifest, "</assembly>"
+        CLOSE #manifest
 
-        manifestembed = FreeFile
-        Open tmpdir$ + "manifest.h" For Output As #manifestembed
-        Print #manifestembed, "#ifndef RESOURCE_H"
-        Print #manifestembed, "#define   RESOURCE_H"
-        Print #manifestembed, "#ifdef    __cplusplus"
-        Print #manifestembed, "extern " + QuotedFilename("C") + " {"
-        Print #manifestembed, "#endif"
-        Print #manifestembed, "#ifdef    __cplusplus"
-        Print #manifestembed, "}"
-        Print #manifestembed, "#endif"
-        Print #manifestembed, "#endif    /* RESOURCE_H */"
-        Print #manifestembed, "#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1 /*Defined manifest file*/"
-        Print #manifestembed, "#define RT_MANIFEST                       24"
-        Close #manifestembed
+        manifestembed = FREEFILE
+        OPEN tmpdir$ + "manifest.h" FOR OUTPUT AS #manifestembed
+        PRINT #manifestembed, "#ifndef RESOURCE_H"
+        PRINT #manifestembed, "#define   RESOURCE_H"
+        PRINT #manifestembed, "#ifdef    __cplusplus"
+        PRINT #manifestembed, "extern " + QuotedFilename("C") + " {"
+        PRINT #manifestembed, "#endif"
+        PRINT #manifestembed, "#ifdef    __cplusplus"
+        PRINT #manifestembed, "}"
+        PRINT #manifestembed, "#endif"
+        PRINT #manifestembed, "#endif    /* RESOURCE_H */"
+        PRINT #manifestembed, "#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1 /*Defined manifest file*/"
+        PRINT #manifestembed, "#define RT_MANIFEST                       24"
+        CLOSE #manifestembed
 
-        iconfilehandle = FreeFile
-        Open tmpdir$ + "icon.rc" For Append As #iconfilehandle
-        Print #iconfilehandle, ""
-        Print #iconfilehandle, "#include " + QuotedFilename("manifest.h")
-        Print #iconfilehandle, ""
-        Print #iconfilehandle, "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST " + QuotedFilename(file$ + extension$ + ".manifest")
-        Print #iconfilehandle, ""
-        Print #iconfilehandle, "1 VERSIONINFO"
-        If Len(viFileVersionNum$) Then Print #iconfilehandle, "FILEVERSION     "; viFileVersionNum$
-        If Len(viProductVersionNum$) Then Print #iconfilehandle, "PRODUCTVERSION  "; viProductVersionNum$
-        Print #iconfilehandle, "BEGIN"
-        Print #iconfilehandle, "    BLOCK " + QuotedFilename$("StringFileInfo")
-        Print #iconfilehandle, "    BEGIN"
-        Print #iconfilehandle, "        BLOCK " + QuotedFilename$("040904E4")
-        Print #iconfilehandle, "        BEGIN"
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("CompanyName") + "," + QuotedFilename$(viCompanyName$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("FileDescription") + "," + QuotedFilename$(viFileDescription$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("FileVersion") + "," + QuotedFilename$(viFileVersion$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("InternalName") + "," + QuotedFilename$(viInternalName$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("LegalCopyright") + "," + QuotedFilename$(viLegalCopyright$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("LegalTrademarks") + "," + QuotedFilename$(viLegalTrademarks$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("OriginalFilename") + "," + QuotedFilename$(viOriginalFilename$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("ProductName") + "," + QuotedFilename$(viProductName$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("ProductVersion") + "," + QuotedFilename$(viProductVersion$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("Comments") + "," + QuotedFilename$(viComments$ + "\0")
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("Web") + "," + QuotedFilename$(viWeb$ + "\0")
-        Print #iconfilehandle, "        END"
-        Print #iconfilehandle, "    END"
-        Print #iconfilehandle, "    BLOCK " + QuotedFilename$("VarFileInfo")
-        Print #iconfilehandle, "    BEGIN"
-        Print #iconfilehandle, "            VALUE " + QuotedFilename$("Translation") + ", 0x409, 0x04E4"
-        Print #iconfilehandle, "    END"
-        Print #iconfilehandle, "END"
-        Close #iconfilehandle
+        iconfilehandle = FREEFILE
+        OPEN tmpdir$ + "icon.rc" FOR APPEND AS #iconfilehandle
+        PRINT #iconfilehandle, ""
+        PRINT #iconfilehandle, "#include " + QuotedFilename("manifest.h")
+        PRINT #iconfilehandle, ""
+        PRINT #iconfilehandle, "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST " + QuotedFilename(file$ + extension$ + ".manifest")
+        PRINT #iconfilehandle, ""
+        PRINT #iconfilehandle, "1 VERSIONINFO"
+        IF LEN(viFileVersionNum$) THEN PRINT #iconfilehandle, "FILEVERSION     "; viFileVersionNum$
+        IF LEN(viProductVersionNum$) THEN PRINT #iconfilehandle, "PRODUCTVERSION  "; viProductVersionNum$
+        PRINT #iconfilehandle, "BEGIN"
+        PRINT #iconfilehandle, "    BLOCK " + QuotedFilename$("StringFileInfo")
+        PRINT #iconfilehandle, "    BEGIN"
+        PRINT #iconfilehandle, "        BLOCK " + QuotedFilename$("040904E4")
+        PRINT #iconfilehandle, "        BEGIN"
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("CompanyName") + "," + QuotedFilename$(viCompanyName$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("FileDescription") + "," + QuotedFilename$(viFileDescription$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("FileVersion") + "," + QuotedFilename$(viFileVersion$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("InternalName") + "," + QuotedFilename$(viInternalName$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("LegalCopyright") + "," + QuotedFilename$(viLegalCopyright$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("LegalTrademarks") + "," + QuotedFilename$(viLegalTrademarks$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("OriginalFilename") + "," + QuotedFilename$(viOriginalFilename$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("ProductName") + "," + QuotedFilename$(viProductName$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("ProductVersion") + "," + QuotedFilename$(viProductVersion$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Comments") + "," + QuotedFilename$(viComments$ + "\0")
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Web") + "," + QuotedFilename$(viWeb$ + "\0")
+        PRINT #iconfilehandle, "        END"
+        PRINT #iconfilehandle, "    END"
+        PRINT #iconfilehandle, "    BLOCK " + QuotedFilename$("VarFileInfo")
+        PRINT #iconfilehandle, "    BEGIN"
+        PRINT #iconfilehandle, "            VALUE " + QuotedFilename$("Translation") + ", 0x409, 0x04E4"
+        PRINT #iconfilehandle, "    END"
+        PRINT #iconfilehandle, "END"
+        CLOSE #iconfilehandle
     END IF
 
     IF ExeIconSet OR VersionInfoSet THEN
@@ -12200,6 +12234,10 @@ IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
     ELSE
         libs$ = libs$ + " -l:libz.a"
     END IF
+END IF
+
+IF vWatch THEN
+    defines$ = defines$ + defines_header$ + "VWATCH"
 END IF
 
 'finalize libs$ and defines$ strings
