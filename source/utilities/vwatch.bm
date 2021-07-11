@@ -1,0 +1,43 @@
+$CHECKING:OFF
+SUB vwatch (linenumber AS LONG)
+    STATIC AS LONG ide, bypass
+
+    IF bypass THEN EXIT SUB
+
+    endc$ = "<END>"
+
+    IF ide = 0 THEN
+        ide = _OPENCLIENT("TCP/IP:9000:localhost")
+        IF ide = 0 THEN bypass = -1: EXIT SUB
+
+        me$ = COMMAND$(0) + endc$
+        PUT #ide, , me$
+
+        DO
+            GET #ide, , temp$
+            buffer$ = buffer$ + temp$
+        LOOP UNTIL INSTR(buffer$, endc$) > 0
+
+        buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
+        IF buffer$ <> "vwatch:ok" THEN
+            CLOSE #ide
+            bypass = -1
+            EXIT SUB
+        END IF
+    END IF
+
+    DO
+        temp$ = "line number:" + MKL$(linenumber) + endc$
+        PUT #ide, , temp$
+        buffer$ = ""
+        DO
+            GET #ide, , temp$
+            buffer$ = buffer$ + temp$
+        LOOP UNTIL INSTR(buffer$, endc$) > 0
+
+        buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
+        IF buffer$ = "run" THEN
+            EXIT SUB
+        END IF
+    LOOP
+END SUB

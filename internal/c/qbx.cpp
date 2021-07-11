@@ -2062,10 +2062,6 @@ void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename =
     
 }
 
-#ifdef VWATCH
-    #include "vwatch.cpp"
-#endif
-
 uint8 *redim_preserve_cmem_buffer=(uint8*)malloc(65536);//used for temporary storage only (move to libqbx?)
 
 #include "myip.cpp"

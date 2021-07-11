@@ -291,7 +291,6 @@ extern "C" int QB64_Resizable(){
 int32 sub_gl_called=0;
 
 extern void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename = NULL);
-extern void vwatch(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename = NULL);
 
 extern "C" int qb64_custom_event(int event,int v1,int v2,int v3,int v4,int v5,int v6,int v7,int v8,void *p1,void *p2);
 #ifdef QB64_WINDOWS

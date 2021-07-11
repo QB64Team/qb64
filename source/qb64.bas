@@ -121,7 +121,7 @@ DIM SHARED viFileDescription$, viFileVersion$, viInternalName$
 DIM SHARED viLegalCopyright$, viLegalTrademarks$, viOriginalFilename$
 DIM SHARED viProductName$, viProductVersion$, viComments$, viWeb$
 
-DIM SHARED NoChecks, vWatch
+DIM SHARED NoChecks, vWatch, addingvWatch
 
 DIM SHARED Console
 DIM SHARED ScreenHide
@@ -1377,6 +1377,7 @@ layout = ""
 layoutok = 0
 NoChecks = 0
 vWatch = 0
+addingvWatch = 0
 inclevel = 0
 errorLineInInclude = 0
 addmetainclude$ = ""
@@ -1592,9 +1593,23 @@ DO
     ideprepass:
     prepassLastLine:
 
+    IF lastLine <> 0 OR firstLine <> 0 THEN
+        lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
+        IF vWatch THEN
+            addingvWatch = 1
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+        ELSE
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+        END IF
+        firstLine = 0: lastLine = 0
+        GOTO forceInclude_prepass
+        forceIncludeCompleted_prepass:
+        addingvWatch = 0
+        wholeline$ = lineBackup$
+    END IF
+
     wholestv$ = wholeline$ '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
-
-
 
     prepass = 1
     layout = ""
@@ -2600,11 +2615,24 @@ DO
         IF Debug THEN PRINT #9, "Pre-pass:INCLUDE$-ing file:'" + addmetainclude$ + "':On line"; linenumber
         a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
+        IF inclevel = 0 THEN
+            includingFromRoot = 0
+            forceIncludingFile = 0
+            forceInclude_prepass:
+            IF forceIncludeFromRoot$ <> "" THEN
+                a$ = forceIncludeFromRoot$
+                forceIncludeFromRoot$ = ""
+                forceIncludingFile = 1
+                includingFromRoot = 1
+            END IF
+        END IF
+
         IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
         '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
         fh = 99 + inclevel + 1
 
         firstTryMethod = 1
+        IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
         FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
             IF try = 1 THEN
                 IF inclevel = 0 THEN
@@ -2666,6 +2694,10 @@ DO
         '3. Close & return control
         CLOSE #fh
         inclevel = inclevel - 1
+        IF forceIncludingFile = 1 AND inclevel = 0 THEN
+            forceIncludingFile = 0
+            GOTO forceIncludeCompleted_prepass
+        END IF
     LOOP
     '(end manager)
 
@@ -2780,6 +2812,22 @@ DO
     ide4:
     includeline:
     mainpassLastLine:
+
+    IF lastLine <> 0 OR firstLine <> 0 THEN
+        lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
+        IF vWatch THEN
+            addingvWatch = 1
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+        ELSE
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+        END IF
+        firstLine = 0: lastLine = 0
+        GOTO forceInclude
+        forceIncludeCompleted:
+        addingvWatch = 0
+        a3$ = lineBackup$
+    END IF
 
     prepass = 0
 
@@ -3041,7 +3089,7 @@ DO
 
         IF a3u$ = "$CHECKING:OFF" THEN
             layout$ = SCase$("$Checking:Off")
-            IF vWatch THEN
+            IF vWatch = 1 AND addingvWatch = 0 THEN
                 addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$DEBUG is disabled in $CHECKING:OFF blocks", ""
             END IF
             NoChecks = 1
@@ -5458,7 +5506,7 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF NoChecks = 0 AND vWatch = 1 THEN
-                    PRINT #12, "vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                    PRINT #12, "vwatch(" + str2$(linenumber) + ");"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
@@ -5520,7 +5568,7 @@ DO
             ELSE
                 controltype(controllevel) = 3
                 IF vWatch THEN
-                    PRINT #12, "do{vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                    PRINT #12, "do{vwatch(" + str2$(linenumber) + ");"
                 ELSE
                     PRINT #12, "do{"
                 END IF
@@ -5558,7 +5606,7 @@ DO
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
 
                 IF NoChecks = 0 AND vWatch = 1 THEN
-                    PRINT #12, "vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                    PRINT #12, "vwatch(" + str2$(linenumber) + ");"
                 END IF
 
                 IF controltype(controllevel) = 4 THEN
@@ -5711,7 +5759,7 @@ DO
             IF Error_Happened THEN GOTO errmes
 
             IF NoChecks = 0 AND vWatch = 1 THEN
-                PRINT #12, "vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+                PRINT #12, "vwatch(" + str2$(linenumber) + ");"
             END IF
 
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
@@ -6344,7 +6392,7 @@ DO
 
     IF NoChecks = 0 THEN
         IF vWatch THEN
-            PRINT #12, "do{vwatch(" + str2$(linenumber) + inclinenump$ + ");"
+            PRINT #12, "do{vwatch(" + str2$(linenumber) + ");"
         ELSE
             PRINT #12, "do{"
         END IF
@@ -10974,11 +11022,24 @@ DO
 
             a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
+            IF inclevel = 0 THEN
+                includingFromRoot = 0
+                forceIncludingFile = 0
+                forceInclude:
+                IF forceIncludeFromRoot$ <> "" THEN
+                    a$ = forceIncludeFromRoot$
+                    forceIncludeFromRoot$ = ""
+                    forceIncludingFile = 1
+                    includingFromRoot = 1
+                END IF
+            END IF
+
             IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
             '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
             fh = 99 + inclevel + 1
 
             firstTryMethod = 1
+            IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
             FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
                 IF try = 1 THEN
                     IF inclevel = 0 THEN
@@ -11035,6 +11096,10 @@ DO
             CLOSE #fh
             inclevel = inclevel - 1
             IF inclevel = 0 THEN
+                IF forceIncludingFile = 1 THEN
+                    forceIncludingFile = 0
+                    GOTO forceIncludeCompleted
+                END IF
                 'restore line formatting
                 layoutok = layoutok_backup
                 layout$ = layout_backup$
@@ -12236,9 +12301,9 @@ IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
     END IF
 END IF
 
-IF vWatch THEN
-    defines$ = defines$ + defines_header$ + "VWATCH"
-END IF
+'IF vWatch THEN
+'    defines$ = defines$ + defines_header$ + "VWATCH"
+'END IF
 
 'finalize libs$ and defines$ strings
 IF LEN(libs$) THEN libs$ = libs$ + " "
@@ -13015,7 +13080,11 @@ errmes: 'set a$ to message
 IF Error_Happened THEN a$ = Error_Message: Error_Happened = 0
 layout$ = "": layoutok = 0 'invalidate layout
 
-IF inclevel > 0 THEN a$ = a$ + incerror$
+IF forceIncludingFile THEN 'If we're to the point where we're adding the automatic QB64 includes, we don't need to report the $INCLUDE information
+    IF INSTR(a$, "END SUB/FUNCTION before") THEN a$ = "SUB without END SUB" 'Just a simple rewrite of the error message to be less confusing for SUB/FUNCTIONs
+ELSE 'We want to let the user know which module the error occurred in
+    IF inclevel > 0 THEN a$ = a$ + incerror$
+END IF
 
 IF idemode THEN
     ideerrorline = linenumber
