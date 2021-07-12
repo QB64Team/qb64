@@ -1,12 +1,12 @@
 qbs *_FUNC_WIKIGETLINE_STRING_WIKIGETLINE=NULL;
 if (!_FUNC_WIKIGETLINE_STRING_WIKIGETLINE)_FUNC_WIKIGETLINE_STRING_WIKIGETLINE=qbs_new(0,0);
-qbs*oldstr5683=NULL;
+qbs*oldstr5684=NULL;
 if(_FUNC_WIKIGETLINE_STRING_A->tmp||_FUNC_WIKIGETLINE_STRING_A->fixed||_FUNC_WIKIGETLINE_STRING_A->readonly){
-oldstr5683=_FUNC_WIKIGETLINE_STRING_A;
-if (oldstr5683->cmem_descriptor){
-_FUNC_WIKIGETLINE_STRING_A=qbs_new_cmem(oldstr5683->len,0);
+oldstr5684=_FUNC_WIKIGETLINE_STRING_A;
+if (oldstr5684->cmem_descriptor){
+_FUNC_WIKIGETLINE_STRING_A=qbs_new_cmem(oldstr5684->len,0);
 }else{
-_FUNC_WIKIGETLINE_STRING_A=qbs_new(oldstr5683->len,0);
+_FUNC_WIKIGETLINE_STRING_A=qbs_new(oldstr5684->len,0);
 }
-memcpy(_FUNC_WIKIGETLINE_STRING_A->chr,oldstr5683->chr,oldstr5683->len);
+memcpy(_FUNC_WIKIGETLINE_STRING_A->chr,oldstr5684->chr,oldstr5684->len);
 }
