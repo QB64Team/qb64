@@ -8804,6 +8804,9 @@ SUB ideshowtext
     _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
     IF l <= iden THEN
         l2$ = STR$(l)
+        DO WHILE l > UBOUND(IdeBreakpoints)
+            REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
+        LOOP
         IF IdeBreakpoints(l) THEN COLOR , 4
         IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
             _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
