@@ -1,10 +1,10 @@
-qbs*oldstr3581=NULL;
+qbs*oldstr3583=NULL;
 if(_SUB_GIVE_ERROR_STRING_A->tmp||_SUB_GIVE_ERROR_STRING_A->fixed||_SUB_GIVE_ERROR_STRING_A->readonly){
-oldstr3581=_SUB_GIVE_ERROR_STRING_A;
-if (oldstr3581->cmem_descriptor){
-_SUB_GIVE_ERROR_STRING_A=qbs_new_cmem(oldstr3581->len,0);
+oldstr3583=_SUB_GIVE_ERROR_STRING_A;
+if (oldstr3583->cmem_descriptor){
+_SUB_GIVE_ERROR_STRING_A=qbs_new_cmem(oldstr3583->len,0);
 }else{
-_SUB_GIVE_ERROR_STRING_A=qbs_new(oldstr3581->len,0);
+_SUB_GIVE_ERROR_STRING_A=qbs_new(oldstr3583->len,0);
 }
-memcpy(_SUB_GIVE_ERROR_STRING_A->chr,oldstr3581->chr,oldstr3581->len);
+memcpy(_SUB_GIVE_ERROR_STRING_A->chr,oldstr3583->chr,oldstr3583->len);
 }

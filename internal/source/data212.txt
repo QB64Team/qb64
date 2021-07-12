@@ -1,0 +1,15 @@
+qbs*oldstr5491=NULL;
+if(_SUB_CLEANSUBNAME_STRING_N->tmp||_SUB_CLEANSUBNAME_STRING_N->fixed||_SUB_CLEANSUBNAME_STRING_N->readonly){
+oldstr5491=_SUB_CLEANSUBNAME_STRING_N;
+if (oldstr5491->cmem_descriptor){
+_SUB_CLEANSUBNAME_STRING_N=qbs_new_cmem(oldstr5491->len,0);
+}else{
+_SUB_CLEANSUBNAME_STRING_N=qbs_new(oldstr5491->len,0);
+}
+memcpy(_SUB_CLEANSUBNAME_STRING_N->chr,oldstr5491->chr,oldstr5491->len);
+}
+int32 *_SUB_CLEANSUBNAME_LONG_X=NULL;
+if(_SUB_CLEANSUBNAME_LONG_X==NULL){
+_SUB_CLEANSUBNAME_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_CLEANSUBNAME_LONG_X=0;
+}

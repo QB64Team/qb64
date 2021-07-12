@@ -1,15 +1,20 @@
-int32 *_FUNC_IDENEWTXT_LONG_IDENEWTXT=NULL;
-if(_FUNC_IDENEWTXT_LONG_IDENEWTXT==NULL){
-_FUNC_IDENEWTXT_LONG_IDENEWTXT=(int32*)mem_static_malloc(4);
-*_FUNC_IDENEWTXT_LONG_IDENEWTXT=0;
-}
-qbs*oldstr4650=NULL;
-if(_FUNC_IDENEWTXT_STRING_A->tmp||_FUNC_IDENEWTXT_STRING_A->fixed||_FUNC_IDENEWTXT_STRING_A->readonly){
-oldstr4650=_FUNC_IDENEWTXT_STRING_A;
-if (oldstr4650->cmem_descriptor){
-_FUNC_IDENEWTXT_STRING_A=qbs_new_cmem(oldstr4650->len,0);
+qbs *_FUNC_IDENEWFOLDER_STRING_IDENEWFOLDER=NULL;
+if (!_FUNC_IDENEWFOLDER_STRING_IDENEWFOLDER)_FUNC_IDENEWFOLDER_STRING_IDENEWFOLDER=qbs_new(0,0);
+qbs*oldstr4666=NULL;
+if(_FUNC_IDENEWFOLDER_STRING_THISPATH->tmp||_FUNC_IDENEWFOLDER_STRING_THISPATH->fixed||_FUNC_IDENEWFOLDER_STRING_THISPATH->readonly){
+oldstr4666=_FUNC_IDENEWFOLDER_STRING_THISPATH;
+if (oldstr4666->cmem_descriptor){
+_FUNC_IDENEWFOLDER_STRING_THISPATH=qbs_new_cmem(oldstr4666->len,0);
 }else{
-_FUNC_IDENEWTXT_STRING_A=qbs_new(oldstr4650->len,0);
+_FUNC_IDENEWFOLDER_STRING_THISPATH=qbs_new(oldstr4666->len,0);
 }
-memcpy(_FUNC_IDENEWTXT_STRING_A->chr,oldstr4650->chr,oldstr4650->len);
+memcpy(_FUNC_IDENEWFOLDER_STRING_THISPATH->chr,oldstr4666->chr,oldstr4666->len);
+}
+qbs *_FUNC_IDENEWFOLDER_STRING_NEWFOLDER=NULL;
+if (!_FUNC_IDENEWFOLDER_STRING_NEWFOLDER)_FUNC_IDENEWFOLDER_STRING_NEWFOLDER=qbs_new(0,0);
+int32 pass4667;
+int32 pass4668;
+byte_element_struct *byte_element_4669=NULL;
+if (!byte_element_4669){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4669=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4669=(byte_element_struct*)mem_static_malloc(12);
 }
