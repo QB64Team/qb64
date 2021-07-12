@@ -456,6 +456,7 @@ FUNCTION ide2 (ignore)
 
         'new blank text field
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
+        REDIM IdeBreakpoints(iden) AS _BYTE
         ideunsaved = -1
         idechangemade = 1
 
@@ -546,6 +547,7 @@ FUNCTION ide2 (ignore)
                 LOOP UNTIL asca = 13
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                REDIM IdeBreakpoints(iden) AS _BYTE
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
                     idecy = ideStartAtLine
                     IF idecy - 10 >= 1 THEN idesy = idecy - 10
@@ -670,6 +672,14 @@ FUNCTION ide2 (ignore)
         idecompiling = 0
         ready = 1
         IF ideautorun THEN ideautorun = 0: GOTO idemrunspecial
+    END IF
+
+    IF c$ = CHR$(254) THEN
+        '$DEBUG mode on
+        idecompiling = 0
+        ready = 1
+        DebugMode
+        GOTO ideloop
     END IF
 
     IF c$ = CHR$(11) THEN
@@ -1503,6 +1513,10 @@ FUNCTION ide2 (ignore)
                     END SELECT
                 END IF
             END IF
+        END IF
+
+        IF KB = KEY_F9 THEN 'toggle breakpoint
+            IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
         END IF
 
         IF KB = KEY_F11 THEN 'make exe only
@@ -2873,23 +2887,25 @@ FUNCTION ide2 (ignore)
                 END IF
             ELSEIF mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
                 'line numbers are visible and been clicked
-                ideselect = 1
-                idecy = mY - 2 + idesy - 1
-                IF idecy < iden THEN
-                    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
-                    idecy = idecy + 1
-                    idecx = 1
-                ELSEIF idecy = iden THEN
-                    a$ = idegetline$(idecy)
-                    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
-                    idecx = LEN(a$) + 1
-                ELSEIF idecy > iden THEN
-                    idecy = iden
-                    ideselect = 0
-                    idecx = 1
+                ideselect = 0
+                idecytemp = mY - 2 + idesy - 1
+                IF idecytemp =< iden THEN
+                    'IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
+                    'idecy = idecy + 1
+                    'idecx = 1
+                    idecy = idecytemp
+                    IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                'ELSEIF idecy = iden THEN
+                '    a$ = idegetline$(idecy)
+                '    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
+                '    idecx = LEN(a$) + 1
+                'ELSEIF idecy > iden THEN
+                '    idecy = iden
+                '    ideselect = 0
+                '    idecx = 1
                 END IF
-                wholeword.select = 0
-                idemouseselect = 0
+                'wholeword.select = 0
+                'idemouseselect = 0
             END IF
         END IF
 
@@ -5570,6 +5586,7 @@ FUNCTION ide2 (ignore)
                 END IF
                 ideunsaved = -1
                 'new blank text field
+                REDIM IdeBreakpoints(1) AS _BYTE
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
                 idesy = 1
@@ -5949,6 +5966,149 @@ FUNCTION ide2 (ignore)
     RETURN
 
 END FUNCTION
+
+SUB DebugMode
+    STATIC host&
+    DIM PauseMode AS _BYTE
+
+    SCREEN , , 3, 0
+    dummy = DarkenFGBG(1)
+    clearStatusWindow
+    COLOR 15, 1
+    _PRINTSTRING (2, idewy - 3), "Entering $DEBUG mode..."
+    PCOPY 3, 0
+
+    IF host& = 0 THEN
+        host& = _OPENHOST("TCP/IP:9000")
+        IF host& = 0 THEN
+            clearStatusWindow
+            dummy = DarkenFGBG(0)
+            COLOR 7, 1
+            _PRINTSTRING (2, idewy - 3), "Failed to initiate debug session."
+            PCOPY 3, 0
+            EXIT SUB
+        END IF
+    END IF
+
+    endc$ = "<END>"
+
+    DO
+        client& = _OPENCONNECTION(host&)
+        IF client& THEN EXIT DO
+
+        k& = _KEYHIT
+        IF k& = 27 THEN
+            clearStatusWindow
+            dummy = DarkenFGBG(0)
+            COLOR 7, 1
+            _PRINTSTRING (2, idewy - 3), "Debug session aborted."
+            PCOPY 3, 0
+            EXIT SUB
+        END IF
+
+        _LIMIT 100
+    LOOP
+
+    clearStatusWindow
+    COLOR 15, 1
+    _PRINTSTRING (2, idewy - 3), "$DEBUG MODE: <F5=Continue> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>"
+    PCOPY 3, 0
+
+    IF client& THEN
+        a$ = "": b$ = ""
+        DO UNTIL INSTR(a$, endc$) > 0
+            GET #client&, , b$
+            a$ = a$ + b$
+        LOOP
+        program$ = LEFT$(a$, INSTR(a$, endc$) - 1)
+
+        IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
+
+        IF program$ <> lastBinaryGenerated$ THEN
+            COLOR 7, 1
+            _PRINTSTRING (2, idewy - 3), "Failed to initiate debug session."
+            clearStatusWindow
+            dummy = DarkenFGBG(0)
+            PCOPY 3, 0
+            EXIT SUB
+        END IF
+
+        a$ = "vwatch:ok" + endc$
+        PUT #client&, , a$
+
+        DO
+            'Waiting for line number...
+            a$ = "": b$ = ""
+            DO UNTIL INSTR(a$, endc$) > 0
+                IF k& = 27 THEN
+                    a$ = "free" + endc$
+                    PUT #client&, , a$
+                    CLOSE #client&
+                    client& = 0
+                    clearStatusWindow
+                    dummy = DarkenFGBG(0)
+                    COLOR 7, 1
+                    _PRINTSTRING (2, idewy - 3), "Debug session aborted."
+                    PCOPY 3, 0
+                    EXIT SUB
+                END IF
+                GET #client&, , b$
+                a$ = a$ + b$
+                _LIMIT 100
+            LOOP
+
+            a$ = LEFT$(a$, INSTR(a$, endc$) - 1)
+            IF LEFT$(a$, 12) = "line number:" THEN
+                l = CVL(RIGHT$(a$, 4))
+            END IF
+
+            idecy = l
+            ideshowtext
+            PCOPY 3, 0
+
+            k& = _KEYHIT
+            IF k& = 16896 THEN 'F8
+                PauseMode = -1
+            END IF
+
+            IF IdeBreakpoints(l) = 0 AND PauseMode = 0 THEN
+                a$ = "run" + endc$
+                PUT #client&, , a$
+            ELSE
+                DO
+                    k& = _KEYHIT
+                    IF k& = 27 THEN
+                        a$ = "free" + endc$
+                        PUT #client&, , a$
+                        CLOSE #client&
+                        client& = 0
+                        clearStatusWindow
+                        dummy = DarkenFGBG(0)
+                        COLOR 7, 1
+                        _PRINTSTRING (2, idewy - 3), "Debug session aborted."
+                        PCOPY 3, 0
+                        EXIT SUB
+                    ELSEIF k& = 16896 THEN 'F8
+                        PauseMode = -1
+                        a$ = "run" + endc$
+                        PUT #client&, , a$
+                        EXIT DO
+                    ELSEIF k& = 16128 THEN 'F5
+                        PauseMode = 0
+                        a$ = "run" + endc$
+                        PUT #client&, , a$
+                        EXIT DO
+                    ELSEIF k& = 17152 THEN 'F9
+                        IdeBreakpoints(l) = NOT IdeBreakpoints(l)
+                        ideshowtext
+                        PCOPY 3, 0
+                    END IF
+                    _LIMIT 100
+                LOOP
+            END IF
+        LOOP
+    END IF
+END SUB
 
 SUB idebox (x, y, w, h)
     _PRINTSTRING (x, y), CHR$(218) + STRING$(w - 2, 196) + CHR$(191)
@@ -6525,6 +6685,11 @@ SUB idedelline (i)
             IdeBmk(b).y = y
         END IF
     NEXT
+
+    FOR b = i + 1 TO iden
+        IdeBreakpoints(b - 1) = IdeBreakpoints(b)
+    NEXT
+    REDIM _PRESERVE IdeBreakpoints(iden) AS _BYTE
 
     idegotoline i
     textlen = CVL(MID$(idet$, ideli, 4))
@@ -7337,6 +7502,7 @@ SUB ideinsline (i, text$)
     textlen = LEN(text$)
     idet$ = LEFT$(idet$, ideli - 1) + MKL$(textlen) + text$ + MKL$(textlen) + RIGHT$(idet$, LEN(idet$) - ideli + 1)
     iden = iden + 1
+    REDIM _PRESERVE IdeBreakpoints(iden) AS _BYTE
 END SUB
 
 FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, maxlength)
@@ -7890,6 +8056,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 LOOP UNTIL asca = 13
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                REDIM IdeBreakpoints(iden) AS _BYTE
                 ideerror = 1
                 ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
                 listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
@@ -8637,6 +8804,7 @@ SUB ideshowtext
     _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
     IF l <= iden THEN
         l2$ = STR$(l)
+        IF IdeBreakpoints(l) THEN COLOR , 4
         IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
             _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
         END IF

@@ -30,6 +30,8 @@ END TYPE
 REDIM SHARED IdeBmk(1) AS IdeBmkType
 DIM SHARED IdeBmkN
 
+REDIM SHARED IdeBreakpoints(1) AS _BYTE
+
 'GetInput global variables
 DIM SHARED iCHECKLATER 'the values will be checked later
 DIM SHARED iCHANGED

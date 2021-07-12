@@ -7,16 +7,21 @@ SUB vwatch (linenumber AS LONG)
     endc$ = "<END>"
 
     IF ide = 0 THEN
-        ide = _OPENCLIENT("TCP/IP:9000:localhost")
+        start! = TIMER
+        DO
+            ide = _OPENCLIENT("TCP/IP:9000:localhost")
+            _LIMIT 30
+        LOOP UNTIL ide <> 0 OR TIMER - start! > 10
         IF ide = 0 THEN bypass = -1: EXIT SUB
 
         me$ = COMMAND$(0) + endc$
         PUT #ide, , me$
 
+        'start! = TIMER
         DO
             GET #ide, , temp$
             buffer$ = buffer$ + temp$
-        LOOP UNTIL INSTR(buffer$, endc$) > 0
+        LOOP UNTIL INSTR(buffer$, endc$) > 0 'OR TIMER - start! > 2
 
         buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
         IF buffer$ <> "vwatch:ok" THEN
@@ -37,6 +42,9 @@ SUB vwatch (linenumber AS LONG)
 
         buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
         IF buffer$ = "run" THEN
+            EXIT SUB
+        ELSEIF buffer$ = "free" THEN
+            bypass = -1
             EXIT SUB
         END IF
     LOOP

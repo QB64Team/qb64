@@ -121,7 +121,7 @@ DIM SHARED viFileDescription$, viFileVersion$, viInternalName$
 DIM SHARED viLegalCopyright$, viLegalTrademarks$, viOriginalFilename$
 DIM SHARED viProductName$, viProductVersion$, viComments$, viWeb$
 
-DIM SHARED NoChecks, vWatch, addingvWatch
+DIM SHARED NoChecks, vWatchOn, addingvWatch
 
 DIM SHARED Console
 DIM SHARED ScreenHide
@@ -1088,7 +1088,11 @@ IF C = 9 THEN 'run
         dummy = DarkenFGBG(0)
     END IF
 
-    sendc$ = CHR$(6) 'ready
+    IF vWatchOn THEN
+        sendc$ = CHR$(254) 'launch debug interface
+    ELSE
+        sendc$ = CHR$(6) 'ready
+    END IF
     GOTO sendcommand
 END IF
 
@@ -1376,8 +1380,7 @@ fooindwel = 0
 layout = ""
 layoutok = 0
 NoChecks = 0
-vWatch = 0
-addingvWatch = 0
+vWatchOn = 0
 inclevel = 0
 errorLineInInclude = 0
 addmetainclude$ = ""
@@ -1595,7 +1598,8 @@ DO
 
     IF lastLine <> 0 OR firstLine <> 0 THEN
         lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
-        IF vWatch THEN
+        forceIncludeFromRoot$ = ""
+        IF vWatchOn THEN
             addingvWatch = 1
             IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
         ELSE
@@ -1603,7 +1607,7 @@ DO
             IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
-        GOTO forceInclude_prepass
+        IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude_prepass
         forceIncludeCompleted_prepass:
         addingvWatch = 0
         wholeline$ = lineBackup$
@@ -2815,7 +2819,8 @@ DO
 
     IF lastLine <> 0 OR firstLine <> 0 THEN
         lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
-        IF vWatch THEN
+        forceIncludeFromRoot$ = ""
+        IF vWatchOn THEN
             addingvWatch = 1
             IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
         ELSE
@@ -2823,7 +2828,7 @@ DO
             IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
-        GOTO forceInclude
+        IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude
         forceIncludeCompleted:
         addingvWatch = 0
         a3$ = lineBackup$
@@ -3079,19 +3084,21 @@ DO
         END IF
 
         IF a3u$ = "$DEBUG" THEN
+            IF vWatchOn THEN
+                a$ = "Duplicate $DEBUG metacommand": GOTO errmes
+            END IF
+
             layout$ = SCase$("$Debug")
             IF NoChecks THEN
                 addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$DEBUG is disabled in $CHECKING:OFF blocks", ""
             END IF
-            vWatch = 1
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "vwatch.bi"
+            vWatchOn = 1
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$CHECKING:OFF" THEN
             layout$ = SCase$("$Checking:Off")
-            IF vWatch = 1 AND addingvWatch = 0 THEN
-                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$DEBUG is disabled in $CHECKING:OFF blocks", ""
-            END IF
             NoChecks = 1
             GOTO finishednonexec
         END IF
@@ -5505,8 +5512,8 @@ DO
                 IF Error_Happened THEN GOTO errmes
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
-                IF NoChecks = 0 AND vWatch = 1 THEN
-                    PRINT #12, "vwatch(" + str2$(linenumber) + ");"
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
@@ -5567,8 +5574,8 @@ DO
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
-                IF vWatch THEN
-                    PRINT #12, "do{vwatch(" + str2$(linenumber) + ");"
+                IF vWatchOn = 1 AND NoChecks = 0 THEN
+                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 ELSE
                     PRINT #12, "do{"
                 END IF
@@ -5605,8 +5612,8 @@ DO
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
 
-                IF NoChecks = 0 AND vWatch = 1 THEN
-                    PRINT #12, "vwatch(" + str2$(linenumber) + ");"
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 END IF
 
                 IF controltype(controllevel) = 4 THEN
@@ -5758,8 +5765,8 @@ DO
             e$ = evaluatetotyp(e$, ctyp)
             IF Error_Happened THEN GOTO errmes
 
-            IF NoChecks = 0 AND vWatch = 1 THEN
-                PRINT #12, "vwatch(" + str2$(linenumber) + ");"
+            IF NoChecks = 0 AND vWatchOn = 1 THEN
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
             END IF
 
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
@@ -6391,8 +6398,8 @@ DO
     'static scope commands:
 
     IF NoChecks = 0 THEN
-        IF vWatch THEN
-            PRINT #12, "do{vwatch(" + str2$(linenumber) + ");"
+        IF vWatchOn THEN
+            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
         ELSE
             PRINT #12, "do{"
         END IF
@@ -9583,6 +9590,10 @@ DO
                     a$ = "Cannot call SUB _GL directly": GOTO errmes
                 END IF
 
+                IF firstelement$ = "VWATCH" THEN
+                    a$ = "Cannot call SUB VWATCH directly": GOTO errmes
+                END IF
+
                 IF firstelement$ = "OPEN" THEN
                     'gwbasic or qbasic version?
                     B = 0
@@ -12301,7 +12312,7 @@ IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
     END IF
 END IF
 
-'IF vWatch THEN
+'IF vWatchOn THEN
 '    defines$ = defines$ + defines_header$ + "VWATCH"
 'END IF
 
