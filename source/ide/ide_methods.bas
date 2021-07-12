@@ -674,6 +674,14 @@ FUNCTION ide2 (ignore)
         IF ideautorun THEN ideautorun = 0: GOTO idemrunspecial
     END IF
 
+    STATIC attemptToHost AS _BYTE
+    IF vWatchOn = 1 AND attemptToHost = 0 THEN
+        IF host& = 0 THEN
+            host& = _OPENHOST("TCP/IP:9000")
+            attemptToHost = -1
+        END IF
+    END IF
+
     IF c$ = CHR$(254) THEN
         '$DEBUG mode on
         idecompiling = 0
@@ -5968,8 +5976,9 @@ FUNCTION ide2 (ignore)
 END FUNCTION
 
 SUB DebugMode
-    STATIC host&
     DIM PauseMode AS _BYTE
+
+    _KEYCLEAR
 
     SCREEN , , 3, 0
     dummy = DarkenFGBG(1)
@@ -6040,6 +6049,7 @@ SUB DebugMode
             'Waiting for line number...
             a$ = "": b$ = ""
             DO UNTIL INSTR(a$, endc$) > 0
+                k& = _KEYHIT
                 IF k& = 27 THEN
                     a$ = "free" + endc$
                     PUT #client&, , a$
