@@ -6025,9 +6025,9 @@ SUB DebugMode
         IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
 
         IF program$ <> lastBinaryGenerated$ THEN
+            clearStatusWindow
             COLOR 7, 1
             _PRINTSTRING (2, idewy - 3), "Failed to initiate debug session."
-            clearStatusWindow
             dummy = DarkenFGBG(0)
             PCOPY 3, 0
             EXIT SUB
@@ -6062,10 +6062,6 @@ SUB DebugMode
                 l = CVL(RIGHT$(a$, 4))
             END IF
 
-            idecy = l
-            ideshowtext
-            PCOPY 3, 0
-
             k& = _KEYHIT
             IF k& = 16896 THEN 'F8
                 PauseMode = -1
@@ -6074,7 +6070,11 @@ SUB DebugMode
             IF IdeBreakpoints(l) = 0 AND PauseMode = 0 THEN
                 a$ = "run" + endc$
                 PUT #client&, , a$
+                dummy = DarkenFGBG(1)
             ELSE
+                idecy = l
+                ideshowtext
+                PCOPY 3, 0
                 DO
                     k& = _KEYHIT
                     IF k& = 27 THEN

@@ -1,6 +1,8 @@
 $CHECKING:OFF
+
 SUB vwatch (linenumber AS LONG)
     STATIC AS LONG ide, bypass
+    DIM endc$, start!, me$, temp$, buffer$, k&
 
     IF bypass THEN EXIT SUB
 
@@ -19,9 +21,11 @@ SUB vwatch (linenumber AS LONG)
 
         'start! = TIMER
         DO
+            k& = _KEYHIT
             GET #ide, , temp$
             buffer$ = buffer$ + temp$
-        LOOP UNTIL INSTR(buffer$, endc$) > 0 'OR TIMER - start! > 2
+            _LIMIT 100
+        LOOP UNTIL k& = 27 OR INSTR(buffer$, endc$) > 0 'OR TIMER - start! > 2
 
         buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
         IF buffer$ <> "vwatch:ok" THEN
@@ -38,7 +42,9 @@ SUB vwatch (linenumber AS LONG)
         DO
             GET #ide, , temp$
             buffer$ = buffer$ + temp$
-        LOOP UNTIL INSTR(buffer$, endc$) > 0
+            k& = _KEYHIT
+            _LIMIT 100
+        LOOP UNTIL k& = 27 OR INSTR(buffer$, endc$) > 0
 
         buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
         IF buffer$ = "run" THEN
