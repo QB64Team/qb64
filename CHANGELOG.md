@@ -25,7 +25,6 @@
 - Fixes a syntax highlighter issue regarding scientific notation.
 - Fixes an issue in Windows Vista and up with incorrect resolution returned on a scaled desktop.
 - Fixes `Const` parser (no string functions allowed).
-- Fixes `InKey$` acting too slow in Linux.
 - Explicitly sets x87 fpu to extended precision mode.
 - Removes 255 character limit for INPUT/LINE INPUT with strings.
 - Fixes DATA commands failing to compile in some circumstances.
@@ -39,6 +38,7 @@
 
 ### Linux
 - `xmessage` added to dependency list (setup script).
+- Fixes `InKey$` acting too slow.
 <!---
 - Patches condition that would leave zombie processes behind when using `Shell _DontWait`.
 --->
