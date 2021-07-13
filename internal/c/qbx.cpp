@@ -2097,10 +2097,6 @@ void QBMAIN(void *unused)
         sigemptyset(&(sig_act.sa_mask));
         sig_act.sa_flags = 0;
         sigaction(SIGFPE, &sig_act, NULL);
-        #ifdef QB64_LINUX
-            sig_act.sa_handler = SIG_IGN;
-            sigaction(SIGCHLD, &sig_act, NULL);
-        #endif
     #endif
 
     ptrszint tmp_long;
