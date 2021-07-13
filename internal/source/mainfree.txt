@@ -88,6 +88,14 @@ free((void*)(__ARRAY_UDT_IDEBMK[0]));
 }
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_IDEBMK)[8] );
+if (__ARRAY_UDT_QUICKNAVHISTORY[2]&1){
+if (__ARRAY_UDT_QUICKNAVHISTORY[2]&4){
+cmem_dynamic_free((uint8*)(__ARRAY_UDT_QUICKNAVHISTORY[0]));
+}else{
+free((void*)(__ARRAY_UDT_QUICKNAVHISTORY[0]));
+}
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_QUICKNAVHISTORY)[8] );
 if (__ARRAY_BYTE_IDEBREAKPOINTS[2]&1){
 if (__ARRAY_BYTE_IDEBREAKPOINTS[2]&4){
 cmem_dynamic_free((uint8*)(__ARRAY_BYTE_IDEBREAKPOINTS[0]));
@@ -141,14 +149,6 @@ while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_SUBFUNCLIST[0]))[tmp_
 free((void*)(__ARRAY_STRING_SUBFUNCLIST[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_SUBFUNCLIST)[8] );
-if (__ARRAY_LONG_QUICKNAVHISTORY[2]&1){
-if (__ARRAY_LONG_QUICKNAVHISTORY[2]&4){
-cmem_dynamic_free((uint8*)(__ARRAY_LONG_QUICKNAVHISTORY[0]));
-}else{
-free((void*)(__ARRAY_LONG_QUICKNAVHISTORY[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_QUICKNAVHISTORY)[8] );
 qbs_free(__STRING_MODIFYCOMMAND);
 qbs_free(__STRING_ACTIVEINCLUDELINKFILE);
 qbs_free(__STRING_VERSIONSTRINGSTATUS);
