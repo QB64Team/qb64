@@ -197,7 +197,7 @@ FUNCTION ide2 (ignore)
     IF LEFT$(c$, 1) = CHR$(12) THEN
         f$ = RIGHT$(c$, LEN(c$) - 1)
         LOCATE , , 0
-        clearStatusWindow
+        clearStatusWindow 0
 
         dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
@@ -728,7 +728,7 @@ FUNCTION ide2 (ignore)
         'COLOR 0, 7: _PRINTSTRING (1, 1), menubar$ 'repair menu bar
 
         IF c$ <> CHR$(3) THEN
-            clearStatusWindow
+            clearStatusWindow 0
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN
                     _PRINTSTRING (2, idewy - 3), "OK" 'report OK status
@@ -910,7 +910,7 @@ FUNCTION ide2 (ignore)
                     IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
                     UpdateIdeInfo
 
-                    clearStatusWindow
+                    clearStatusWindow 0
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
@@ -993,7 +993,7 @@ FUNCTION ide2 (ignore)
 
             IF idechangemade THEN
                 IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
-                    clearStatusWindow
+                    clearStatusWindow 0
                     IdeInfo = ""
                     _PRINTSTRING (2, idewy - 3), "..." 'assume new compilation will begin
                 END IF
@@ -1526,6 +1526,11 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
+        IF KB = KEY_F8 THEN
+            startPaused = -1
+            GOTO idemrun
+        END IF
+
         IF KB = KEY_F9 THEN 'toggle breakpoint
             IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
         END IF
@@ -1537,6 +1542,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
+            startPaused = 0
             idemrun:
             iderunmode = 1 'run detached; = 0 'standard run
             idemrunspecial:
@@ -1559,7 +1565,7 @@ FUNCTION ide2 (ignore)
                 ELSEIF result = 3 THEN
                     PCOPY 3, 0: SCREEN , , 3, 0
                     LOCATE , , 0
-                    clearStatusWindow
+                    clearStatusWindow 0
                     _PRINTSTRING (2, idewy - 3), "Compilation request canceled."
                     GOTO specialchar
                 END IF
@@ -1570,7 +1576,7 @@ FUNCTION ide2 (ignore)
             IF ready <> 0 AND idechangemade = 0 THEN
 
                 LOCATE , , 0
-                clearStatusWindow
+                clearStatusWindow 0
 
                 IF idecompiled THEN
 
@@ -1636,7 +1642,7 @@ FUNCTION ide2 (ignore)
 
             'correct status message
             LOCATE , , 0
-            clearStatusWindow
+            clearStatusWindow 0
 
             _PRINTSTRING (2, idewy - 3), "Checking program... (editing program will cancel request)"
 
@@ -2813,7 +2819,7 @@ FUNCTION ide2 (ignore)
                             CLOSE #backupIncludeFile
 
                             SCREEN , , 3, 0
-                            clearStatusWindow
+                            clearStatusWindow 0
                             COLOR 15, 1
                             _PRINTSTRING (2, idewy - 3), "Editing $INCLUDE file..."
                             dummy = DarkenFGBG(1)
@@ -2834,7 +2840,7 @@ FUNCTION ide2 (ignore)
                             CLOSE #backupIncludeFile
 
                             dummy = DarkenFGBG(0)
-                            clearStatusWindow
+                            clearStatusWindow 0
 
                             IF tempInclude1$ = tempInclude2$ THEN
                                 IF IDEShowErrorsImmediately THEN
@@ -4983,7 +4989,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
                 dummy = DarkenFGBG(1)
-                clearStatusWindow
+                clearStatusWindow 0
                 COLOR 15, 1
                 _PRINTSTRING (2, idewy - 3), "Press any key to insert its _KEYHIT/_KEYDOWN code..."
                 PCOPY 3, 0
@@ -5531,6 +5537,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#Start  F5" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
+                startPaused = 0
                 GOTO idemrun
             END IF
 
@@ -5912,7 +5919,7 @@ FUNCTION ide2 (ignore)
     END IF
 
     IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
-        clearStatusWindow
+        clearStatusWindow 0
 
         IdeInfo = ""
 
@@ -5984,146 +5991,217 @@ END FUNCTION
 SUB DebugMode
     DIM PauseMode AS _BYTE
 
+    timeout = 10
+
     _KEYCLEAR
 
     SCREEN , , 3, 0
     dummy = DarkenFGBG(1)
-    clearStatusWindow
-    COLOR 15, 1
-    _PRINTSTRING (2, idewy - 3), "Entering $DEBUG mode..."
-    PCOPY 3, 0
+    clearStatusWindow 0
+    setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 15
 
     IF host& = 0 THEN
         host& = _OPENHOST("TCP/IP:9000")
         IF host& = 0 THEN
-            clearStatusWindow
             dummy = DarkenFGBG(0)
-            COLOR 7, 1
-            _PRINTSTRING (2, idewy - 3), "Failed to initiate debug session."
-            PCOPY 3, 0
+            clearStatusWindow 1
+            setStatusMessage 1, "Failed to initiate debug session.", 7
+            setStatusMessage 2, "Cannot receive connections. Check your firewall permissions.", 2
             EXIT SUB
         END IF
     END IF
 
     endc$ = "<END>"
 
+    'wait for client to connect
+    start! = TIMER
     DO
         client& = _OPENCONNECTION(host&)
         IF client& THEN EXIT DO
 
         k& = _KEYHIT
-        IF k& = 27 THEN
-            clearStatusWindow
+        IF k& = 27 OR TIMER - start! > timeout THEN
             dummy = DarkenFGBG(0)
-            COLOR 7, 1
-            _PRINTSTRING (2, idewy - 3), "Debug session aborted."
-            PCOPY 3, 0
+            clearStatusWindow 0
+            setStatusMessage 1, temp$ + "Debug session aborted.", 7
+            IF k& <> 27 THEN
+                setStatusMessage 2, "Connection timeout.", 2
+            END IF
+            _KEYCLEAR
             EXIT SUB
         END IF
 
         _LIMIT 100
     LOOP
 
-    clearStatusWindow
-    COLOR 15, 1
-    _PRINTSTRING (2, idewy - 3), "$DEBUG MODE: <F5=Continue> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>"
-    PCOPY 3, 0
+    ideselect = 0
+    clearStatusWindow 1
+    setStatusMessage 1, "Handshaking...", 15
 
-    IF client& THEN
-        a$ = "": b$ = ""
-        DO UNTIL INSTR(a$, endc$) > 0
-            GET #client&, , b$
-            a$ = a$ + b$
-        LOOP
-        program$ = LEFT$(a$, INSTR(a$, endc$) - 1)
-
-        IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
-
-        IF program$ <> lastBinaryGenerated$ THEN
-            clearStatusWindow
-            COLOR 7, 1
-            _PRINTSTRING (2, idewy - 3), "Failed to initiate debug session."
+    start! = TIMER
+    DO
+        k& = _KEYHIT
+        IF k& = 27 OR TIMER - start! > timeout THEN
             dummy = DarkenFGBG(0)
-            PCOPY 3, 0
+            clearStatusWindow 0
+            setStatusMessage 1, temp$ + "Debug session aborted.", 7
+            IF k& <> 27 THEN
+                setStatusMessage 2, "Connection timeout.", 2
+            END IF
+            _KEYCLEAR
             EXIT SUB
         END IF
 
-        a$ = "vwatch:ok" + endc$
-        PUT #client&, , a$
+        GOSUB GetCommand
+        SELECT CASE cmd$
+            CASE "me"
+                program$ = value$
+                IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
 
-        DO
-            'Waiting for line number...
-            a$ = "": b$ = ""
-            DO UNTIL INSTR(a$, endc$) > 0
-                k& = _KEYHIT
-                IF k& = 27 THEN
-                    a$ = "free" + endc$
-                    PUT #client&, , a$
-                    CLOSE #client&
-                    client& = 0
-                    clearStatusWindow
+                IF program$ <> lastBinaryGenerated$ THEN
                     dummy = DarkenFGBG(0)
-                    COLOR 7, 1
-                    _PRINTSTRING (2, idewy - 3), "Debug session aborted."
-                    PCOPY 3, 0
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Failed to initiate debug session.", 7
+                    setStatusMessage 2, LEFT$("Expected: " + lastBinaryGenerated$, idewx - 2), 2
+                    setStatusMessage 3, LEFT$("Received: " + program$, idewx - 2), 2
+                    CLOSE #client&
                     EXIT SUB
+                ELSE
+                    EXIT DO
                 END IF
-                GET #client&, , b$
-                a$ = a$ + b$
-                _LIMIT 100
-            LOOP
+        END SELECT
+    LOOP
 
-            a$ = LEFT$(a$, INSTR(a$, endc$) - 1)
-            IF LEFT$(a$, 12) = "line number:" THEN
-                l = CVL(RIGHT$(a$, 4))
+    cmd$ = "vwatch:ok"
+    GOSUB SendCommand
+    cmd$ = "line count:" + MKL$(iden)
+    GOSUB SendCommand
+
+    breakpointCount = 0
+    breakpointList$ = ""
+    FOR i = 1 TO UBOUND(IdeBreakpoints)
+        IF IdeBreakpoints(i) THEN
+            breakpointCount = breakpointCount + 1
+            breakpointList$ = breakpointList$ + MKL$(i)
+        END IF
+    NEXT
+    IF breakpointCount THEN
+        cmd$ = "breakpoint count:" + MKL$(breakpointCount)
+        GOSUB SendCommand
+        cmd$ = "breakpoint list:" + breakpointList$
+        GOSUB SendCommand
+    END IF
+
+    IF startPaused THEN
+        cmd$ = "break"
+        setStatusMessage 2, "Paused.", 2
+    ELSE
+        cmd$ = "run"
+        setStatusMessage 2, "Running...", 10
+    END IF
+    GOSUB SendCommand
+
+    clearStatusWindow 1
+    setStatusMessage 1, "$DEBUG MODE: Set focus to the IDE to control execution", 15
+    noFocusMessage = -1
+
+    DO 'main loop
+        IF _WINDOWHASFOCUS THEN
+            IF noFocusMessage THEN
+                clearStatusWindow 1
+                setStatusMessage 1, "$DEBUG MODE: <F5=Continue> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
+                noFocusMessage = 0
             END IF
-
-            k& = _KEYHIT
-            IF k& = 16896 THEN 'F8
-                PauseMode = -1
+        ELSE
+            IF noFocusMessage = 0 THEN
+                clearStatusWindow 1
+                setStatusMessage 1, "$DEBUG MODE: Set focus to the IDE to control execution", 15
+                noFocusMessage = -1
             END IF
+        END IF
 
-            IF IdeBreakpoints(l) = 0 AND PauseMode = 0 THEN
-                a$ = "run" + endc$
-                PUT #client&, , a$
+        k& = _KEYHIT
+        SELECT CASE k&
+            CASE 27
+                cmd$ = "free"
+                GOSUB SendCommand
+                CLOSE #client&
+                dummy = DarkenFGBG(0)
+                clearStatusWindow 0
+                setStatusMessage 1, "Debug session aborted.", 7
+                EXIT SUB
+            CASE 16128 'F5
+                PauseMode = 0
+                cmd$ = "run"
+                GOSUB SendCommand
+                clearStatusWindow 2
+                setStatusMessage 2, "Running...", 10
                 dummy = DarkenFGBG(1)
-            ELSE
+            CASE 16896 'F8
+                IF PauseMode = 0 THEN cmd$ = "break" ELSE cmd$ = "step"
+                PauseMode = -1
+                GOSUB SendCommand
+                clearStatusWindow 2
+                setStatusMessage 2, "Paused.", 2
+            CASE 17152 'F9
+                IF PauseMode THEN
+                    IdeBreakpoints(l) = NOT IdeBreakpoints(l)
+                    IF IdeBreakpoints(l) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                    cmd$ = cmd$ + MKL$(l)
+                    GOSUB SendCommand
+                    ideshowtext
+                    PCOPY 3, 0
+                END IF
+        END SELECT
+
+        GOSUB GetCommand
+
+        SELECT CASE cmd$
+            CASE "breakpoint", "line number"
+                l = CVL(value$)
                 idecy = l
                 ideshowtext
-                PCOPY 3, 0
-                DO
-                    k& = _KEYHIT
-                    IF k& = 27 THEN
-                        a$ = "free" + endc$
-                        PUT #client&, , a$
-                        CLOSE #client&
-                        client& = 0
-                        clearStatusWindow
-                        dummy = DarkenFGBG(0)
-                        COLOR 7, 1
-                        _PRINTSTRING (2, idewy - 3), "Debug session aborted."
-                        PCOPY 3, 0
-                        EXIT SUB
-                    ELSEIF k& = 16896 THEN 'F8
-                        PauseMode = -1
-                        a$ = "run" + endc$
-                        PUT #client&, , a$
-                        EXIT DO
-                    ELSEIF k& = 16128 THEN 'F5
-                        PauseMode = 0
-                        a$ = "run" + endc$
-                        PUT #client&, , a$
-                        EXIT DO
-                    ELSEIF k& = 17152 THEN 'F9
-                        IdeBreakpoints(l) = NOT IdeBreakpoints(l)
-                        ideshowtext
-                        PCOPY 3, 0
-                    END IF
-                    _LIMIT 100
-                LOOP
-            END IF
-        LOOP
+                clearStatusWindow 2
+                IF cmd$ = "breakpoint" THEN
+                    setStatusMessage 2, "Breakpoint reached on line" + STR$(l), 2
+                ELSE
+                    setStatusMessage 2, "Paused.", 2
+                END IF
+            CASE "error"
+                clearStatusWindow 1
+                setStatusMessage 1, "Debug session aborted.", 7
+                IF value$ = "" THEN
+                    setStatusMessage 2, "Communication error.", 2
+                ELSE
+                    setStatusMessage 2, LEFT$(value$, idewx - 2), 2
+                END IF
+        END SELECT
+
+        _LIMIT 100
+    LOOP
+
+    EXIT SUB
+    GetCommand:
+    GET #client&, , temp$
+    buffer$ = buffer$ + temp$
+
+    IF INSTR(buffer$, endc$) THEN
+        cmd$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
+        buffer$ = MID$(buffer$, INSTR(buffer$, endc$) + LEN(endc$))
+
+        IF INSTR(cmd$, ":") THEN
+            value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
+            cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        END IF
+    ELSE
+        cmd$ = "": value$ = ""
     END IF
+    RETURN
+
+    SendCommand:
+    cmd$ = cmd$ + endc$
+    PUT #client&, , cmd$
+    RETURN
 END SUB
 
 SUB idebox (x, y, w, h)
@@ -6478,7 +6556,7 @@ FUNCTION idechange$
             NEXT
 
             SCREEN , , 3, 0
-            clearStatusWindow
+            clearStatusWindow 0
             idefocusline = 0
             ideshowtext
             PCOPY 3, 0
@@ -6701,11 +6779,6 @@ SUB idedelline (i)
             IdeBmk(b).y = y
         END IF
     NEXT
-
-    FOR b = i + 1 TO iden
-        IdeBreakpoints(b - 1) = IdeBreakpoints(b)
-    NEXT
-    REDIM _PRESERVE IdeBreakpoints(iden) AS _BYTE
 
     idegotoline i
     textlen = CVL(MID$(idet$, ideli, 4))
@@ -14837,7 +14910,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
 
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
-                    clearStatusWindow
+                    clearStatusWindow 0
                     COLOR 15, 1
                     _PRINTSTRING (2, idewy - 3), "Converting...          "
                     PCOPY 3, 0
@@ -14845,7 +14918,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     convertLine$ = convertUtility$ + " " + QuotedFilename$(file$) + " -o " + QuotedFilename$(ofile$)
                     SHELL _HIDE convertLine$
 
-                    clearStatusWindow
+                    clearStatusWindow 0
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
 
@@ -14877,7 +14950,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     PCOPY 3, 0
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
-                    clearStatusWindow
+                    clearStatusWindow 0
                     COLOR 15, 1
                     _PRINTSTRING (2, idewy - 3), "Preparing to convert..."
                     PCOPY 3, 0
@@ -14887,7 +14960,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                         SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
                     END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
-                    clearStatusWindow
+                    clearStatusWindow 0
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
                     result = idemessagebox("Binary format", "Error launching conversion utility.", "")
@@ -14918,11 +14991,21 @@ SUB cleanSubName (n$)
     x = INSTR(n$, " "): IF x THEN n$ = LEFT$(n$, x - 1)
 END SUB
 
-SUB clearStatusWindow
+SUB clearStatusWindow(whichLine)
     COLOR 7, 1
-    _PRINTSTRING (2, idewy - 3), SPACE$(idewx - 2)
-    _PRINTSTRING (2, idewy - 2), SPACE$(idewx - 2)
-    _PRINTSTRING (2, idewy - 1), SPACE$(idewx - 2)
+    IF whichLine = 0 THEN
+        FOR whichLine = 1 TO 3
+            _PRINTSTRING (2, (idewy - 4) + whichLine), SPACE$(idewx - 2)
+        NEXT
+    ELSE
+        _PRINTSTRING (2, (idewy - 4) + whichLine), SPACE$(idewx - 2)
+    END IF
+END SUB
+
+SUB setStatusMessage(row, text$, fg)
+    COLOR fg
+    _PRINTSTRING (2, (idewy - 4) + row), text$
+    PCOPY 3, 0
 END SUB
 
 FUNCTION getWordAtCursor$

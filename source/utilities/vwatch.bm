@@ -1,57 +1,126 @@
 $CHECKING:OFF
 
 SUB vwatch (linenumber AS LONG)
-    STATIC AS LONG ide, bypass
-    DIM endc$, start!, me$, temp$, buffer$, k&
+    STATIC AS LONG ide, breakpointCount, timeout
+    STATIC AS _BYTE PauseMode, bypass
+    STATIC buffer$, endc$
+    DIM AS LONG i
+    DIM start!, temp$, cmd$, value$, k&
 
     IF bypass THEN EXIT SUB
 
-    endc$ = "<END>"
-
     IF ide = 0 THEN
-        start! = TIMER
+        timeout = 10
+        endc$ = "<END>"
+
+        'initial setup
+        GOSUB Connect
+
+        'send this binary's path/exe name
+        cmd$ = "me:" + COMMAND$(0)
+        GOSUB SendCommand
+
         DO
-            ide = _OPENCLIENT("TCP/IP:9000:localhost")
-            _LIMIT 30
-        LOOP UNTIL ide <> 0 OR TIMER - start! > 10
-        IF ide = 0 THEN bypass = -1: EXIT SUB
-
-        me$ = COMMAND$(0) + endc$
-        PUT #ide, , me$
-
-        'start! = TIMER
-        DO
-            k& = _KEYHIT
-            GET #ide, , temp$
-            buffer$ = buffer$ + temp$
-            _LIMIT 100
-        LOOP UNTIL k& = 27 OR INSTR(buffer$, endc$) > 0 'OR TIMER - start! > 2
-
-        buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
-        IF buffer$ <> "vwatch:ok" THEN
-            CLOSE #ide
-            bypass = -1
-            EXIT SUB
-        END IF
+            GOSUB GetCommand
+            SELECT CASE cmd$
+                CASE "vwatch"
+                    IF value$ <> "ok" THEN
+                        CLOSE #ide
+                        bypass = -1
+                        EXIT SUB
+                    END IF
+                CASE "line count"
+                    REDIM vwatch_breakpoints(CVL(value$)) AS _BYTE
+                CASE "breakpoint count"
+                    breakpointCount = CVL(value$)
+                CASE "breakpoint list"
+                    IF LEN(value$) \ 4 <> breakpointCount THEN
+                        cmd$ = "error"
+                        GOSUB SendCommand
+                        CLOSE #ide
+                        bypass = -1
+                        EXIT SUB
+                    END IF
+                    FOR i = 1 TO breakpointCount
+                        temp$ = MID$(value$, i * 4 - 3, 4)
+                        vwatch_breakpoints(CVL(temp$)) = -1
+                    NEXT
+                CASE "run"
+                    IF vwatch_breakpoints(linenumber) THEN EXIT DO
+                    PauseMode = 0
+                    EXIT SUB
+                CASE "break"
+                    PauseMode = -1
+                    EXIT DO
+            END SELECT
+        LOOP
     END IF
 
-    DO
-        temp$ = "line number:" + MKL$(linenumber) + endc$
-        PUT #ide, , temp$
-        buffer$ = ""
-        DO
-            GET #ide, , temp$
-            buffer$ = buffer$ + temp$
-            k& = _KEYHIT
-            _LIMIT 100
-        LOOP UNTIL k& = 27 OR INSTR(buffer$, endc$) > 0
+    GOSUB GetCommand
+    IF cmd$ = "break" THEN PauseMode = -1: cmd$ = ""
 
-        buffer$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
-        IF buffer$ = "run" THEN
-            EXIT SUB
-        ELSEIF buffer$ = "free" THEN
-            bypass = -1
-            EXIT SUB
-        END IF
+    IF vwatch_breakpoints(linenumber) = 0 AND PauseMode = 0 THEN
+        EXIT SUB
+    END IF
+
+    cmd$ = "line number:"
+    IF vwatch_breakpoints(linenumber) THEN cmd$ = "breakpoint:"
+    cmd$ = cmd$ + MKL$(linenumber)
+    GOSUB SendCommand
+
+    DO 'main loop
+        SELECT CASE cmd$
+            CASE "run"
+                PauseMode = 0
+                EXIT SUB
+            CASE "step"
+                PauseMode = -1
+                EXIT SUB
+            CASE "free"
+                CLOSE #ide
+                ide = 0
+                bypass = -1
+                EXIT SUB
+            CASE "set breakpoint"
+                vwatch_breakpoints(CVL(value$)) = -1
+            CASE "clear breakpoint"
+                vwatch_breakpoints(CVL(value$)) = 0
+        END SELECT
+
+        GOSUB GetCommand
+        _LIMIT 100
     LOOP
+
+    EXIT SUB
+    Connect:
+    start! = TIMER
+    DO
+        k& = _KEYHIT
+        ide = _OPENCLIENT("TCP/IP:9000:localhost")
+        _LIMIT 30
+    LOOP UNTIL k& = 27 OR ide <> 0 OR TIMER - start! > timeout
+    IF ide = 0 THEN bypass = -1: EXIT SUB
+    RETURN
+
+    GetCommand:
+    GET #ide, , temp$
+    buffer$ = buffer$ + temp$
+
+    IF INSTR(buffer$, endc$) THEN
+        cmd$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
+        buffer$ = MID$(buffer$, INSTR(buffer$, endc$) + LEN(endc$))
+
+        IF INSTR(cmd$, ":") THEN
+            value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
+            cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        END IF
+    ELSE
+        cmd$ = "": value$ = ""
+    END IF
+    RETURN
+
+    SendCommand:
+    cmd$ = cmd$ + endc$
+    PUT #ide, , cmd$
+    RETURN
 END SUB
