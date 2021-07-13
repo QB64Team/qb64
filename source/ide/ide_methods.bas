@@ -1284,7 +1284,7 @@ FUNCTION ide2 (ignore)
         'Hover/click (QuickNav, "Find" field, version number, line number)
         updateHover = 0
         IF QuickNavTotal > 0 THEN
-            DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
+            DO UNTIL QuickNavHistory(QuickNavTotal).idecy <= iden
                 'make sure that the line number in history still exists
                 QuickNavTotal = QuickNavTotal - 1
                 IF QuickNavTotal = 0 THEN EXIT DO
@@ -1297,7 +1297,7 @@ FUNCTION ide2 (ignore)
                     IF QuickNavHover = 0 THEN
                         QuickNavHover = -1
                         COLOR 15, 3
-                        popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
+                        popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal).idecy) + " "
                         _PRINTSTRING (4, 2), popup$
 
                         'shadow
@@ -1310,7 +1310,10 @@ FUNCTION ide2 (ignore)
 
                     IF mCLICK THEN
                         ideselect = 0
-                        idecy = QuickNavHistory(QuickNavTotal)
+                        idecy = QuickNavHistory(QuickNavTotal).idecy
+                        idecx = QuickNavHistory(QuickNavTotal).idecx
+                        idesy = QuickNavHistory(QuickNavTotal).idesy
+                        idesx = QuickNavHistory(QuickNavTotal).idesx
                         QuickNavTotal = QuickNavTotal - 1
                         GOTO ideloop
                     END IF
@@ -1498,7 +1501,7 @@ FUNCTION ide2 (ignore)
                         CASE 2
                             '2- Link to the line that has a compiler error:
                             idecx = 1
-                            AddQuickNavHistory idecy
+                            AddQuickNavHistory
                             idecy = idefocusline
                             ideselect = 0
                             GOTO specialchar
@@ -2733,7 +2736,7 @@ FUNCTION ide2 (ignore)
                     IF IdeBmk(b).y = l THEN EXIT DO
                 NEXT
             LOOP
-            AddQuickNavHistory idecy
+            AddQuickNavHistory
             idecy = l
             idecx = IdeBmk(b).x
             ideselect = 0
@@ -3123,7 +3126,7 @@ FUNCTION ide2 (ignore)
         IF KCONTROL AND UCASE$(K$) = "G" THEN 'goto line
             IF KSHIFT AND idefocusline > 0 THEN
                 idecx = 1
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = idefocusline
                 ideselect = 0
             ELSE
@@ -3173,7 +3176,10 @@ FUNCTION ide2 (ignore)
             IF KCONTROL THEN
                 IF QuickNavTotal > 0 THEN
                     ideselect = 0
-                    idecy = QuickNavHistory(QuickNavTotal)
+                    idecy = QuickNavHistory(QuickNavTotal).idecy
+                    idecx = QuickNavHistory(QuickNavTotal).idecx
+                    idesy = QuickNavHistory(QuickNavTotal).idesy
+                    idesx = QuickNavHistory(QuickNavTotal).idesx
                     QuickNavTotal = QuickNavTotal - 1
                     GOTO ideloop
                 END IF
@@ -4919,7 +4925,7 @@ FUNCTION ide2 (ignore)
                         IF IdeBmk(b).y = l THEN EXIT DO
                     NEXT
                 LOOP
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = l
                 idecx = IdeBmk(b).x
                 ideselect = 0
@@ -5026,7 +5032,7 @@ FUNCTION ide2 (ignore)
 
             IF LEFT$(menu$(m, s), 10) = "#Go To SUB" OR LEFT$(menu$(m, s), 15) = "#Go To FUNCTION" THEN 'Contextual menu Goto
                 PCOPY 3, 0: SCREEN , , 3, 0
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
                 idesy = idecy
                 idecx = 1
@@ -5037,7 +5043,7 @@ FUNCTION ide2 (ignore)
 
             IF LEFT$(menu$(m, s), 12) = "Go To #Label" THEN 'Contextual menu Goto label
                 PCOPY 3, 0: SCREEN , , 3, 0
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = CVL(MID$(SubFuncLIST(UBOUND(SubFuncLIST)), 1, 4))
                 idesy = idecy
                 idecx = 1
@@ -9263,7 +9269,7 @@ FUNCTION idesubs$
         IF K$ = CHR$(13) OR (focus = 4 AND info <> 0) OR (info = 1 AND focus = 1) THEN
             y = o(1).sel
             IF y < 1 THEN y = -y
-            AddQuickNavHistory idecy
+            AddQuickNavHistory
             IF SortedSubsFlag = 0 THEN
                 idecy = CVL(MID$(ly$, y * 4 - 3, 4))
             ELSE
@@ -9687,7 +9693,7 @@ FUNCTION idewarningbox
             y = ABS(o(1).sel)
             IF y >= 1 AND y <= warningListItems AND warningLines(y) > 0 THEN
                 idegotobox_LastLineNum = warningLines(y)
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = idegotobox_LastLineNum
                 IF warningIncLines(y) > 0 THEN
                     warningInInclude = idecy
@@ -10812,7 +10818,7 @@ SUB idegotobox
     IF v& < 1 THEN v& = 1
     IF v& > iden THEN v& = iden
     idegotobox_LastLineNum = v&
-    AddQuickNavHistory idecy
+    AddQuickNavHistory
     idecy = v&
     ideselect = 0
 END SUB
@@ -14622,16 +14628,19 @@ FUNCTION FindCurrentSF$ (whichline)
     FindCurrentSF$ = sfname$
 END FUNCTION
 
-SUB AddQuickNavHistory (LineNumber&)
+SUB AddQuickNavHistory
 
     IF QuickNavTotal > 0 THEN
-        IF QuickNavHistory(QuickNavTotal) = LineNumber& THEN EXIT SUB
+        IF QuickNavHistory(QuickNavTotal).idecy = idecy THEN EXIT SUB
     END IF
 
     QuickNavTotal = QuickNavTotal + 1
-    REDIM _PRESERVE QuickNavHistory(1 TO QuickNavTotal) AS LONG
+    REDIM _PRESERVE QuickNavHistory(1 TO QuickNavTotal) AS QuickNavType
 
-    QuickNavHistory(QuickNavTotal) = LineNumber&
+    QuickNavHistory(QuickNavTotal).idecy = idecy
+    QuickNavHistory(QuickNavTotal).idecx = idecx
+    QuickNavHistory(QuickNavTotal).idesy = idesy
+    QuickNavHistory(QuickNavTotal).idesx = idesx
 END SUB
 
 SUB UpdateIdeInfo

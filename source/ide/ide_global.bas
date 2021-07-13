@@ -31,6 +31,13 @@ END TYPE
 REDIM SHARED IdeBmk(1) AS IdeBmkType
 DIM SHARED IdeBmkN
 
+TYPE QuickNavType
+    AS LONG idesx, idesy, idecx, idecy
+END TYPE
+
+DIM SHARED QuickNavTotal AS LONG
+DIM SHARED QuickNavHistory(0) AS QuickNavType
+
 REDIM SHARED IdeBreakpoints(1) AS _BYTE
 
 'GetInput global variables
@@ -152,8 +159,6 @@ DIM SHARED idechangemade AS INTEGER
 DIM SHARED ideinsert AS INTEGER
 DIM SHARED idepathsep AS STRING * 1
 DIM SHARED SubFuncLIST(0) AS STRING
-DIM SHARED QuickNavTotal AS LONG
-DIM SHARED QuickNavHistory(0) AS LONG
 DIM SHARED ModifyCOMMAND$
 DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
