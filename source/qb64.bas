@@ -12821,7 +12821,7 @@ IF os$ = "LNX" THEN
     IF inline_DATA = 0 THEN
         'add data.o?
         IF DataOffset THEN
-            x = INSTR(a$, "-lX11")
+            x = INSTR(a$, "-lrt")
             IF x THEN
                 a$ = LEFT$(a$, x - 1) + " " + tmpdir2$ + "data.o " + RIGHT$(a$, LEN(a$) - x + 1)
             END IF
