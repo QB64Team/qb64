@@ -3,15 +3,33 @@ if(_SUB_DEBUGMODE_BYTE_PAUSEMODE==NULL){
 _SUB_DEBUGMODE_BYTE_PAUSEMODE=(int8*)mem_static_malloc(1);
 *_SUB_DEBUGMODE_BYTE_PAUSEMODE=0;
 }
+int32 *_SUB_DEBUGMODE_LONG_TIMEOUT=NULL;
+if(_SUB_DEBUGMODE_LONG_TIMEOUT==NULL){
+_SUB_DEBUGMODE_LONG_TIMEOUT=(int32*)mem_static_malloc(4);
+*_SUB_DEBUGMODE_LONG_TIMEOUT=0;
+}
 int32 *_SUB_DEBUGMODE_LONG_DUMMY=NULL;
 if(_SUB_DEBUGMODE_LONG_DUMMY==NULL){
 _SUB_DEBUGMODE_LONG_DUMMY=(int32*)mem_static_malloc(4);
 *_SUB_DEBUGMODE_LONG_DUMMY=0;
 }
-int8 pass4446;
-int8 pass4447;
+int8 pass4457;
+int32 pass4458;
+int32 pass4459;
+int32 pass4460;
+int8 pass4461;
+int32 pass4462;
+int32 pass4463;
+int32 pass4464;
+int32 pass4465;
+int32 pass4466;
 qbs *_SUB_DEBUGMODE_STRING_ENDC=NULL;
 if (!_SUB_DEBUGMODE_STRING_ENDC)_SUB_DEBUGMODE_STRING_ENDC=qbs_new(0,0);
+float *_SUB_DEBUGMODE_SINGLE_START=NULL;
+if(_SUB_DEBUGMODE_SINGLE_START==NULL){
+_SUB_DEBUGMODE_SINGLE_START=(float*)mem_static_malloc(4);
+*_SUB_DEBUGMODE_SINGLE_START=0;
+}
 int32 *_SUB_DEBUGMODE_LONG_CLIENT=NULL;
 if(_SUB_DEBUGMODE_LONG_CLIENT==NULL){
 _SUB_DEBUGMODE_LONG_CLIENT=(int32*)mem_static_malloc(4);
@@ -22,43 +40,106 @@ if(_SUB_DEBUGMODE_LONG_K==NULL){
 _SUB_DEBUGMODE_LONG_K=(int32*)mem_static_malloc(4);
 *_SUB_DEBUGMODE_LONG_K=0;
 }
-int8 pass4449;
-qbs *_SUB_DEBUGMODE_STRING_A=NULL;
-if (!_SUB_DEBUGMODE_STRING_A)_SUB_DEBUGMODE_STRING_A=qbs_new(0,0);
-qbs *_SUB_DEBUGMODE_STRING_B=NULL;
-if (!_SUB_DEBUGMODE_STRING_B)_SUB_DEBUGMODE_STRING_B=qbs_new(0,0);
+int8 pass4468;
+int32 pass4469;
+int32 pass4470;
+qbs *_SUB_DEBUGMODE_STRING_TEMP=NULL;
+if (!_SUB_DEBUGMODE_STRING_TEMP)_SUB_DEBUGMODE_STRING_TEMP=qbs_new(0,0);
+int32 pass4471;
+int32 pass4472;
+int32 pass4473;
+int32 pass4474;
+int32 pass4475;
+int32 pass4476;
+int8 pass4478;
+int32 pass4479;
+int32 pass4480;
+int32 pass4481;
+int32 pass4482;
+int32 pass4483;
+qbs *_SUB_DEBUGMODE_STRING_CMD=NULL;
+if (!_SUB_DEBUGMODE_STRING_CMD)_SUB_DEBUGMODE_STRING_CMD=qbs_new(0,0);
 qbs *_SUB_DEBUGMODE_STRING_PROGRAM=NULL;
 if (!_SUB_DEBUGMODE_STRING_PROGRAM)_SUB_DEBUGMODE_STRING_PROGRAM=qbs_new(0,0);
-int8 pass4451;
-byte_element_struct *byte_element_4452=NULL;
-if (!byte_element_4452){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4452=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4452=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_DEBUGMODE_STRING_VALUE=NULL;
+if (!_SUB_DEBUGMODE_STRING_VALUE)_SUB_DEBUGMODE_STRING_VALUE=qbs_new(0,0);
+int8 pass4485;
+int32 pass4486;
+int32 pass4487;
+int32 pass4488;
+int32 pass4489;
+int32 pass4490;
+int32 pass4491;
+int32 pass4492;
+int32 *_SUB_DEBUGMODE_LONG_BREAKPOINTCOUNT=NULL;
+if(_SUB_DEBUGMODE_LONG_BREAKPOINTCOUNT==NULL){
+_SUB_DEBUGMODE_LONG_BREAKPOINTCOUNT=(int32*)mem_static_malloc(4);
+*_SUB_DEBUGMODE_LONG_BREAKPOINTCOUNT=0;
 }
-byte_element_struct *byte_element_4455=NULL;
-if (!byte_element_4455){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4455=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4455=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_DEBUGMODE_STRING_BREAKPOINTLIST=NULL;
+if (!_SUB_DEBUGMODE_STRING_BREAKPOINTLIST)_SUB_DEBUGMODE_STRING_BREAKPOINTLIST=qbs_new(0,0);
+int32 *_SUB_DEBUGMODE_LONG_I=NULL;
+if(_SUB_DEBUGMODE_LONG_I==NULL){
+_SUB_DEBUGMODE_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_DEBUGMODE_LONG_I=0;
 }
-int8 pass4456;
+int64 fornext_value4494;
+int64 fornext_finalvalue4494;
+int64 fornext_step4494;
+uint8 fornext_step_negative4494;
+int32 pass4495;
+int32 pass4496;
+int32 pass4497;
+int32 pass4498;
+int32 pass4499;
+int32 pass4500;
+int32 pass4501;
+int32 *_SUB_DEBUGMODE_LONG_NOFOCUSMESSAGE=NULL;
+if(_SUB_DEBUGMODE_LONG_NOFOCUSMESSAGE==NULL){
+_SUB_DEBUGMODE_LONG_NOFOCUSMESSAGE=(int32*)mem_static_malloc(4);
+*_SUB_DEBUGMODE_LONG_NOFOCUSMESSAGE=0;
+}
+int32 pass4503;
+int32 pass4504;
+int32 pass4505;
+int32 pass4506;
+int32 pass4507;
+int32 pass4508;
+int8 pass4510;
+int32 pass4511;
+int32 pass4512;
+int32 pass4513;
+int32 pass4514;
+int32 pass4515;
+int32 pass4516;
+int8 pass4517;
+int32 pass4518;
+int32 pass4519;
+int32 pass4520;
 int32 *_SUB_DEBUGMODE_LONG_L=NULL;
 if(_SUB_DEBUGMODE_LONG_L==NULL){
 _SUB_DEBUGMODE_LONG_L=(int32*)mem_static_malloc(4);
 *_SUB_DEBUGMODE_LONG_L=0;
 }
-byte_element_struct *byte_element_4457=NULL;
-if (!byte_element_4457){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4457=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4457=(byte_element_struct*)mem_static_malloc(12);
+int32 pass4522;
+int32 pass4523;
+int32 pass4524;
+int32 pass4525;
+int32 pass4526;
+int32 pass4527;
+int32 pass4528;
+int32 pass4529;
+int32 pass4530;
+int32 pass4531;
+int32 pass4532;
+int32 pass4533;
+qbs *_SUB_DEBUGMODE_STRING_BUFFER=NULL;
+if (!_SUB_DEBUGMODE_STRING_BUFFER)_SUB_DEBUGMODE_STRING_BUFFER=qbs_new(0,0);
+byte_element_struct *byte_element_4534=NULL;
+if (!byte_element_4534){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4534=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4534=(byte_element_struct*)mem_static_malloc(12);
 }
-int8 pass4458;
-byte_element_struct *byte_element_4460=NULL;
-if (!byte_element_4460){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4460=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4460=(byte_element_struct*)mem_static_malloc(12);
-}
-int8 pass4461;
-byte_element_struct *byte_element_4462=NULL;
-if (!byte_element_4462){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4462=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4462=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_4463=NULL;
-if (!byte_element_4463){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4463=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4463=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4535=NULL;
+if (!byte_element_4535){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4535=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4535=(byte_element_struct*)mem_static_malloc(12);
 }

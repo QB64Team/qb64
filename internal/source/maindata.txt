@@ -753,6 +753,10 @@ if(__LONG_IDEAUTORUN==NULL){
 __LONG_IDEAUTORUN=(int32*)mem_static_malloc(4);
 *__LONG_IDEAUTORUN=0;
 }
+if(__LONG_STARTPAUSED==NULL){
+__LONG_STARTPAUSED=(int32*)mem_static_malloc(4);
+*__LONG_STARTPAUSED=0;
+}
 if (!__ARRAY_STRING_MENU){
 __ARRAY_STRING_MENU=(ptrszint*)mem_static_malloc(13*ptrsz);
 new_mem_lock();

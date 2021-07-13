@@ -1,28 +1,50 @@
-qbs*oldstr5514=NULL;
-if(_SUB_INSERTATCURSOR_STRING_TEMPK->tmp||_SUB_INSERTATCURSOR_STRING_TEMPK->fixed||_SUB_INSERTATCURSOR_STRING_TEMPK->readonly){
-oldstr5514=_SUB_INSERTATCURSOR_STRING_TEMPK;
-if (oldstr5514->cmem_descriptor){
-_SUB_INSERTATCURSOR_STRING_TEMPK=qbs_new_cmem(oldstr5514->len,0);
-}else{
-_SUB_INSERTATCURSOR_STRING_TEMPK=qbs_new(oldstr5514->len,0);
+int32 *_SUB_DELSELECT_LONG_SY1=NULL;
+if(_SUB_DELSELECT_LONG_SY1==NULL){
+_SUB_DELSELECT_LONG_SY1=(int32*)mem_static_malloc(4);
+*_SUB_DELSELECT_LONG_SY1=0;
 }
-memcpy(_SUB_INSERTATCURSOR_STRING_TEMPK->chr,oldstr5514->chr,oldstr5514->len);
+int32 *_SUB_DELSELECT_LONG_SY2=NULL;
+if(_SUB_DELSELECT_LONG_SY2==NULL){
+_SUB_DELSELECT_LONG_SY2=(int32*)mem_static_malloc(4);
+*_SUB_DELSELECT_LONG_SY2=0;
 }
-qbs *_SUB_INSERTATCURSOR_STRING_A=NULL;
-if (!_SUB_INSERTATCURSOR_STRING_A)_SUB_INSERTATCURSOR_STRING_A=qbs_new(0,0);
-byte_element_struct *byte_element_5515=NULL;
-if (!byte_element_5515){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5515=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5515=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_DELSELECT_LONG_SX1=NULL;
+if(_SUB_DELSELECT_LONG_SX1==NULL){
+_SUB_DELSELECT_LONG_SX1=(int32*)mem_static_malloc(4);
+*_SUB_DELSELECT_LONG_SX1=0;
 }
-byte_element_struct *byte_element_5516=NULL;
-if (!byte_element_5516){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5516=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5516=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_DELSELECT_LONG_SX2=NULL;
+if(_SUB_DELSELECT_LONG_SX2==NULL){
+_SUB_DELSELECT_LONG_SX2=(int32*)mem_static_malloc(4);
+*_SUB_DELSELECT_LONG_SX2=0;
 }
-byte_element_struct *byte_element_5517=NULL;
-if (!byte_element_5517){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5517=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5517=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_DELSELECT_LONG_NOLASTLINEDEL=NULL;
+if(_SUB_DELSELECT_LONG_NOLASTLINEDEL==NULL){
+_SUB_DELSELECT_LONG_NOLASTLINEDEL=(int32*)mem_static_malloc(4);
+*_SUB_DELSELECT_LONG_NOLASTLINEDEL=0;
 }
-byte_element_struct *byte_element_5518=NULL;
-if (!byte_element_5518){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5518=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5518=(byte_element_struct*)mem_static_malloc(12);
+int32 *_SUB_DELSELECT_LONG_Y=NULL;
+if(_SUB_DELSELECT_LONG_Y==NULL){
+_SUB_DELSELECT_LONG_Y=(int32*)mem_static_malloc(4);
+*_SUB_DELSELECT_LONG_Y=0;
+}
+int64 fornext_value5588;
+int64 fornext_finalvalue5588;
+int64 fornext_step5588;
+uint8 fornext_step_negative5588;
+qbs *_SUB_DELSELECT_STRING_A=NULL;
+if (!_SUB_DELSELECT_STRING_A)_SUB_DELSELECT_STRING_A=qbs_new(0,0);
+qbs *_SUB_DELSELECT_STRING_A2=NULL;
+if (!_SUB_DELSELECT_STRING_A2)_SUB_DELSELECT_STRING_A2=qbs_new(0,0);
+byte_element_struct *byte_element_5589=NULL;
+if (!byte_element_5589){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5589=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5589=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5590=NULL;
+if (!byte_element_5590){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5590=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5590=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5591=NULL;
+if (!byte_element_5591){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5591=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5591=(byte_element_struct*)mem_static_malloc(12);
 }
