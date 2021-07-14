@@ -1018,6 +1018,18 @@ __ARRAY_STRING_PP_CONVERTEDMOD[5]=0;
 __ARRAY_STRING_PP_CONVERTEDMOD[6]=0;
 __ARRAY_STRING_PP_CONVERTEDMOD[0]=(ptrszint)&nothingstring;
 }
+if(__LONG_VWATCHON==NULL){
+__LONG_VWATCHON=(int32*)mem_static_malloc(4);
+*__LONG_VWATCHON=0;
+}
+if(__LONG_VWATCHRECOMPILEATTEMPTS==NULL){
+__LONG_VWATCHRECOMPILEATTEMPTS=(int32*)mem_static_malloc(4);
+*__LONG_VWATCHRECOMPILEATTEMPTS=0;
+}
+if(__LONG_VWATCHDESIREDSTATE==NULL){
+__LONG_VWATCHDESIREDSTATE=(int32*)mem_static_malloc(4);
+*__LONG_VWATCHDESIREDSTATE=0;
+}
 if (!__ARRAY_LONG_EVERYCASESET){
 __ARRAY_LONG_EVERYCASESET=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
@@ -1230,14 +1242,6 @@ if (!__STRING_VIWEB)__STRING_VIWEB=qbs_new(0,0);
 if(__LONG_NOCHECKS==NULL){
 __LONG_NOCHECKS=(int32*)mem_static_malloc(4);
 *__LONG_NOCHECKS=0;
-}
-if(__LONG_VWATCHON==NULL){
-__LONG_VWATCHON=(int32*)mem_static_malloc(4);
-*__LONG_VWATCHON=0;
-}
-if(__LONG_ADDINGVWATCH==NULL){
-__LONG_ADDINGVWATCH=(int32*)mem_static_malloc(4);
-*__LONG_ADDINGVWATCH=0;
 }
 if(__LONG_CONSOLE==NULL){
 __LONG_CONSOLE=(int32*)mem_static_malloc(4);
@@ -3224,6 +3228,10 @@ __LONG_IDERECOMPILE=(int32*)mem_static_malloc(4);
 }
 if (!__STRING_LINEBACKUP)__STRING_LINEBACKUP=qbs_new(0,0);
 if (!__STRING_FORCEINCLUDEFROMROOT)__STRING_FORCEINCLUDEFROMROOT=qbs_new(0,0);
+if(__LONG_ADDINGVWATCH==NULL){
+__LONG_ADDINGVWATCH=(int32*)mem_static_malloc(4);
+*__LONG_ADDINGVWATCH=0;
+}
 byte_element_struct *byte_element_209=NULL;
 if (!byte_element_209){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_209=(byte_element_struct*)(mem_static_pointer-12); else byte_element_209=(byte_element_struct*)mem_static_malloc(12);
