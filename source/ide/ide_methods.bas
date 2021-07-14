@@ -6056,14 +6056,23 @@ SUB DebugMode
         SELECT CASE cmd$
             CASE "me"
                 program$ = value$
+                expected$ = lastBinaryGenerated$
                 IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
 
-                IF program$ <> lastBinaryGenerated$ THEN
+                IF INSTR(_OS$, "WIN") THEN
+                    IF INSTR(expected$, "/") = 0 AND INSTR(expected$, "\") = 0 THEN
+                        expected$ = getfilepath$(COMMAND$(0)) + expected$
+                    END IF
+                END IF
+
+                IF program$ <> expected$ THEN
                     dummy = DarkenFGBG(0)
                     clearStatusWindow 1
                     setStatusMessage 1, "Failed to initiate debug session.", 7
-                    setStatusMessage 2, LEFT$("Expected: " + lastBinaryGenerated$, idewx - 2), 2
+                    setStatusMessage 2, LEFT$("Expected: " + expected$, idewx - 2), 2
                     setStatusMessage 3, LEFT$("Received: " + program$, idewx - 2), 2
+                    cmd$ = "vwatch:file mismatch"
+                    GOSUB SendCommand
                     CLOSE #client&
                     EXIT SUB
                 ELSE
