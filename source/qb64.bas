@@ -26,6 +26,8 @@ REDIM SHARED PL(1000) AS INTEGER 'Priority Level
 REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name Conversion variables.
 Set_OrderOfOperations
 
+DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState
+
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 REDIM SelectCaseHasCaseBlock(100)
 DIM ExecLevel(255), ExecCounter AS INTEGER
@@ -121,7 +123,7 @@ DIM SHARED viFileDescription$, viFileVersion$, viInternalName$
 DIM SHARED viLegalCopyright$, viLegalTrademarks$, viOriginalFilename$
 DIM SHARED viProductName$, viProductVersion$, viComments$, viWeb$
 
-DIM SHARED NoChecks, vWatchOn, addingvWatch
+DIM SHARED NoChecks
 
 DIM SHARED Console
 DIM SHARED ScreenHide
@@ -1199,7 +1201,11 @@ sflistn = -1 'no entries
 
 SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labels
 
+vWatchDesiredState = 0
+vWatchRecompileAttempts = 0
+
 recompile:
+vWatchOn = vWatchDesiredState
 
 lastLineReturn = 0
 lastLine = 0
@@ -1380,7 +1386,6 @@ fooindwel = 0
 layout = ""
 layoutok = 0
 NoChecks = 0
-vWatchOn = 0
 inclevel = 0
 errorLineInInclude = 0
 addmetainclude$ = ""
@@ -1601,6 +1606,7 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
             IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
         ELSE
             'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
@@ -1668,6 +1674,19 @@ DO
         IF temp$ = "$COLOR:32" THEN
             addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
             GOTO finishedlinepp
+        END IF
+
+        IF temp$ = "$DEBUG" THEN
+            vWatchDesiredState = 1
+            IF vWatchOn = 0 THEN
+                IF vWatchRecompileAttempts = 0 THEN
+                    'this is the first time a conflict has occurred, so react immediately with a full recompilation using the desired state
+                    vWatchRecompileAttempts = vWatchRecompileAttempts + 1
+                    GOTO do_recompile
+                ELSE
+                    'continue compilation to retrieve the final state requested and act on that as required
+                END IF
+            END IF
         END IF
 
         IF LEFT$(temp$, 4) = "$IF " THEN
@@ -2822,6 +2841,7 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
             IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
         ELSE
             'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
@@ -3074,26 +3094,19 @@ DO
         IF a3u$ = "$VIRTUALKEYBOARD:ON" THEN
             'Deprecated; does nothing.
             layout$ = SCase$("$VirtualKeyboard:On")
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Deprecated feature", "$VirtualKeyboard"
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$VIRTUALKEYBOARD:OFF" THEN
             'Deprecated; does nothing.
             layout$ = SCase$("$VirtualKeyboard:Off")
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Deprecated feature", "$VirtualKeyboard"
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$DEBUG" THEN
-            IF vWatchOn THEN
-                a$ = "Duplicate $DEBUG metacommand": GOTO errmes
-            END IF
-
             layout$ = SCase$("$Debug")
-            IF NoChecks THEN
-                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$DEBUG is disabled in $CHECKING:OFF blocks", ""
-            END IF
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "vwatch.bi"
-            vWatchOn = 1
             GOTO finishednonexec
         END IF
 
@@ -11426,6 +11439,11 @@ FOR x = 1 TO commonarraylistn
     END IF
 NEXT
 IF Debug THEN PRINT #9, "Finished COMMON array list check!"
+
+IF vWatchDesiredState <> vWatchOn THEN
+    vWatchRecompileAttempts = vWatchRecompileAttempts + 1
+    recompile = 1
+END IF
 
 IF recompile THEN
     do_recompile:
