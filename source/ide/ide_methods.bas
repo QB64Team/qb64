@@ -6103,9 +6103,11 @@ SUB DebugMode
 
     IF startPaused THEN
         cmd$ = "break"
+        PauseMode = -1
         setStatusMessage 2, "Paused.", 2
     ELSE
         cmd$ = "run"
+        PauseMode = 0
         setStatusMessage 2, "Running...", 10
     END IF
     GOSUB SendCommand
@@ -6176,6 +6178,7 @@ SUB DebugMode
                 ELSE
                     setStatusMessage 2, "Paused.", 2
                 END IF
+                PauseMode = -1
             CASE "error"
                 clearStatusWindow 1
                 setStatusMessage 1, "Debug session aborted.", 7
