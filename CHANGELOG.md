@@ -4,11 +4,11 @@
 ### All platforms
 - `_Source` is now also set to `_Console` when `$Console:Only` is used.
 - Quick reference for commands is now shown in the status bar when syntax errors are detected.
-- New `$DEBUG` metacommand, with added breakpoint/step abilities to the IDE.
+- New `$Debug` metacommand, with added breakpoint/step abilities to the IDE.
 
 ### Windows
-- Automatically embeds a manifest file when compiling an exe with `$VERSIONINFO`, so that Common Controls v6.0 gets linked at runtime.
-- Adds the %TEMP%, Program Files and Program Files (x86) directories to `_DIR$()` folder specifications.
+- Automatically embeds a manifest file when compiling an exe with `$VersionInfo`, so that Common Controls v6.0 gets linked at runtime.
+- Adds the %TEMP%, Program Files and Program Files (x86) directories to `_Dir$()` folder specifications.
 
 <!--- 
 ### macOS
@@ -26,11 +26,13 @@
 - Fixes an issue in Windows Vista and up with incorrect resolution returned on a scaled desktop.
 - Fixes `Const` parser (no string functions allowed).
 - Explicitly sets x87 fpu to extended precision mode.
-- Removes 255 character limit for INPUT/LINE INPUT with strings.
-- Fixes DATA commands failing to compile in some circumstances.
+- Removes 255 character limit for `Input/Line Input` with strings.
+- Fixes `Data` commands failing to compile in some circumstances.
+- `$NoPrefix`, `Option _Explicit` and `Option _ExplicitArray` can now be placed anywhere in a program, no longer having to be the first statement.
 
 ### Windows
-- Allows $CONSOLE:ONLY programs to return `_WINDOWHANDLE`.
+- Allows $CONSOLE:ONLY programs to return `_WindowHandle`.
+- Saving a file to the root of a drive would display double backslashes in the Recent Files list.
 
 <!---
 ### macOS
