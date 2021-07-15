@@ -1,7 +1,7 @@
 $CHECKING:OFF
 
 SUB vwatch (linenumber AS LONG)
-    STATIC AS LONG ide, breakpointCount, timeout, startLevel
+    STATIC AS LONG ide, breakpointCount, timeout, startLevel, lastLine
     STATIC AS _BYTE pauseMode, stepOver, bypass
     STATIC buffer$, endc$
     DIM AS LONG i
@@ -55,6 +55,9 @@ SUB vwatch (linenumber AS LONG)
             END SELECT
         LOOP
     END IF
+
+    IF linenumber = lastLine THEN EXIT SUB
+    lastLine = linenumber
 
     GOSUB GetCommand
     IF cmd$ = "break" THEN pauseMode = -1: stepOver = 0: cmd$ = ""

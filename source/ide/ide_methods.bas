@@ -1532,7 +1532,9 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F9 THEN 'toggle breakpoint
-            IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+            IF vWatchOn THEN
+                IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+            END IF
         END IF
 
         IF KB = KEY_F11 THEN 'make exe only
@@ -2903,26 +2905,15 @@ FUNCTION ide2 (ignore)
                     wholeword.select = 0
                 END IF
             ELSEIF mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
-                'line numbers are visible and been clicked
-                ideselect = 0
-                idecytemp = mY - 2 + idesy - 1
-                IF idecytemp =< iden THEN
-                    'IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
-                    'idecy = idecy + 1
-                    'idecx = 1
-                    idecy = idecytemp
-                    IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
-                'ELSEIF idecy = iden THEN
-                '    a$ = idegetline$(idecy)
-                '    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
-                '    idecx = LEN(a$) + 1
-                'ELSEIF idecy > iden THEN
-                '    idecy = iden
-                '    ideselect = 0
-                '    idecx = 1
+                'line numbers are visible and have been clicked
+                IF vWatchOn THEN
+                    ideselect = 0
+                    idecytemp = mY - 2 + idesy - 1
+                    IF idecytemp =< iden THEN
+                        idecy = idecytemp
+                        IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                    END IF
                 END IF
-                'wholeword.select = 0
-                'idemouseselect = 0
             END IF
         END IF
 
@@ -8934,13 +8925,13 @@ SUB ideshowtext
     EXIT SUB
     ShowLineNumber:
     IF ShowLineNumbersUseBG THEN COLOR , 6
+    DO WHILE l > UBOUND(IdeBreakpoints)
+        REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
+    LOOP
+    IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
     _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
     IF l <= iden THEN
         l2$ = STR$(l)
-        DO WHILE l > UBOUND(IdeBreakpoints)
-            REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
-        LOOP
-        IF IdeBreakpoints(l) THEN COLOR , 4
         IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
             _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
         END IF
