@@ -2914,6 +2914,16 @@ FUNCTION ide2 (ignore)
                         IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
                     END IF
                 END IF
+            ELSEIF mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0 THEN
+                'line numbers are hidden and the left border has been clicked
+                IF vWatchOn THEN
+                    ideselect = 0
+                    idecytemp = mY - 2 + idesy - 1
+                    IF idecytemp =< iden THEN
+                        idecy = idecytemp
+                        IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                    END IF
+                END IF
             END IF
         END IF
 
@@ -5998,6 +6008,7 @@ SUB DebugMode
             clearStatusWindow 1
             setStatusMessage 1, "Failed to initiate debug session.", 7
             setStatusMessage 2, "Cannot receive connections. Check your firewall permissions.", 2
+            WHILE _MOUSEINPUT: WEND
             EXIT SUB
         END IF
     END IF
@@ -6019,6 +6030,7 @@ SUB DebugMode
                 setStatusMessage 2, "Connection timeout.", 2
             END IF
             _KEYCLEAR
+            WHILE _MOUSEINPUT: WEND
             EXIT SUB
         END IF
 
@@ -6040,6 +6052,7 @@ SUB DebugMode
                 setStatusMessage 2, "Connection timeout.", 2
             END IF
             _KEYCLEAR
+            WHILE _MOUSEINPUT: WEND
             EXIT SUB
         END IF
 
@@ -6065,6 +6078,7 @@ SUB DebugMode
                     cmd$ = "vwatch:file mismatch"
                     GOSUB SendCommand
                     CLOSE #client&
+                    WHILE _MOUSEINPUT: WEND
                     EXIT SUB
                 ELSE
                     EXIT DO
@@ -6146,6 +6160,7 @@ SUB DebugMode
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
+                WHILE _MOUSEINPUT: WEND
                 EXIT SUB
             CASE 16128 'F5
                 PauseMode = 0
@@ -6215,6 +6230,7 @@ SUB DebugMode
         _LIMIT 100
     LOOP
 
+    WHILE _MOUSEINPUT: WEND
     EXIT SUB
     GetCommand:
     GET #client&, , temp$
@@ -8458,7 +8474,7 @@ SUB ideshowtext
             COLOR 7, 1
             _PRINTSTRING (1, y + 3), CHR$(179) 'clear prev bookmarks from lhs
 
-            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+            GOSUB ShowLineNumber
 
             IF l = idefocusline AND idecy <> l THEN
                 COLOR 7, 4 'Line with error gets a red background
@@ -8845,7 +8861,7 @@ SUB ideshowtext
             COLOR 7, 1
             _PRINTSTRING (1, y + 3), CHR$(179) 'clear prev bookmarks from lhs
 
-            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+            GOSUB ShowLineNumber
 
             IF l = idefocusline AND idecy <> l THEN COLOR 13, 4 ELSE COLOR 13, 1
 
@@ -8924,20 +8940,27 @@ SUB ideshowtext
 
     EXIT SUB
     ShowLineNumber:
-    IF ShowLineNumbersUseBG THEN COLOR , 6
-    DO WHILE l > UBOUND(IdeBreakpoints)
-        REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
-    LOOP
-    IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
-    _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
-    IF l <= iden THEN
-        l2$ = STR$(l)
-        IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
-            _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
+    IF ShowLineNumbers THEN
+        IF ShowLineNumbersUseBG THEN COLOR , 6
+        DO WHILE l > UBOUND(IdeBreakpoints)
+            REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
+        LOOP
+        IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
+        _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
+        IF l <= iden THEN
+            l2$ = STR$(l)
+            IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
+                _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
+            END IF
+        END IF
+        IF ShowLineNumbersSeparator THEN _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
+        COLOR , 1
+    ELSE
+        IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN
+            COLOR 7, 4
+            _PRINTSTRING (1, y + 3), CHR$(179)
         END IF
     END IF
-    IF ShowLineNumbersSeparator THEN _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
-    COLOR , 1
     RETURN
 
 END SUB
