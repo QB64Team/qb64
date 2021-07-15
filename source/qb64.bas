@@ -5256,6 +5256,9 @@ DO
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
                 IF vWatchOn THEN
+                    IF NoChecks = 0 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
                 END IF
 
@@ -5590,6 +5593,9 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "DO ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
@@ -5627,6 +5633,9 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
@@ -5869,8 +5878,12 @@ DO
 
     IF n >= 3 THEN
         IF firstelement$ = "ELSEIF" THEN
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
-
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
             FOR i = controllevel TO 1 STEP -1
                 t = controltype(i)
                 IF t = 1 THEN
@@ -5906,7 +5919,12 @@ DO
 
     IF n >= 3 THEN
         IF firstelement$ = "IF" THEN
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
 
             'prevents code from being placed before 'CASE condition' in a SELECT CASE block
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
@@ -5999,7 +6017,12 @@ DO
     'SELECT CASE
     IF n >= 1 THEN
         IF firstelement$ = "SELECT" THEN
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
 
             'prevents code from being placed before 'CASE condition' in a SELECT CASE block
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
@@ -6232,7 +6255,12 @@ DO
                 END IF
             END IF
 
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
 
 
 
@@ -12335,10 +12363,6 @@ IF DEPENDENCY(DEPENDENCY_ZLIB) THEN
         libs$ = libs$ + " -l:libz.a"
     END IF
 END IF
-
-'IF vWatchOn THEN
-'    defines$ = defines$ + defines_header$ + "VWATCH"
-'END IF
 
 'finalize libs$ and defines$ strings
 IF LEN(libs$) THEN libs$ = libs$ + " "
