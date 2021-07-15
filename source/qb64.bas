@@ -28,6 +28,8 @@ Set_OrderOfOperations
 
 DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
+DIM SHARED opex_recompileAttempts, opex_desiredState
+DIM SHARED opexarray_recompileAttempts, opexarray_desiredState
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 REDIM SelectCaseHasCaseBlock(100)
@@ -1208,11 +1210,21 @@ vWatchRecompileAttempts = 0
 qb64prefix_set_desiredState = 0
 qb64prefix_set_recompileAttempts = 0
 
+opex_desiredState = 0
+opex_recompileAttempts = 0
+
+opexarray_desiredState = 0
+opexarray_recompileAttempts = 0
+
 recompile:
+vWatchOn = vWatchDesiredState
+
 qb64prefix_set = qb64prefix_set_desiredState
 qb64prefix$ = "_"
 
-vWatchOn = vWatchDesiredState
+optionexplicit = opex_desiredState
+IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
+optionexplicitarray = opexarray_desiredState
 
 lastLineReturn = 0
 lastLine = 0
@@ -1409,8 +1421,6 @@ addmetastatic = 0
 addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
-optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
-optionexplicitarray = 0
 ExeIconSet = 0
 VersionInfoSet = 0
 viFileVersionNum$ = "": viProductVersionNum$ = "": viCompanyName$ = ""
@@ -2893,7 +2903,6 @@ DO
     IF a3$ = CHR$(13) THEN EXIT DO
     linenumber = linenumber + 1
     reallinenumber = reallinenumber + 1
-    IF linenumber = 1 THEN opex_comments = -1
 
     IF InValidLine(linenumber) THEN
         layoutok = 1
@@ -2946,21 +2955,6 @@ DO
     'IF InValidLine(linenumber) THEN goto skipide4 'layoutdone = 0: GOTO finishednonexec
 
     a3u$ = UCASE$(a3$)
-
-    IF LEFT$(a3u$, 4) = "REM " OR _
-        (LEFT$(a3u$, 3) = "REM" AND LEN(a3u$) = 3) OR _
-        LEFT$(a3u$, 1) = "'" OR _
-        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = "_EXPLICIT") OR _
-        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 8) = "EXPLICIT" AND qb64prefix_set = 1) OR _
-        LEFT$(a3u$, 1) = "$" THEN
-        'It's a comment, $metacommand, or OPTION _EXPLICIT itself, alright.
-        'But even being a comment, there could be an $INCLUDE in there, let's check:
-        IF LEFT$(a3u$, 4) = "REM " THEN i = 5 ELSE i = 2
-        IF LEFT$(LTRIM$(MID$(a3u$, i)), 8) = "$INCLUDE" THEN opex_comments = 0
-    ELSE
-        'As soon as a line isn't a comment anymore, it can't come before OPTION _EXPLICIT
-        opex_comments = 0
-    END IF
 
     'QB64 Metacommands
     IF ASC(a3$) = 36 THEN '$
@@ -10275,10 +10269,15 @@ DO
                                 IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                                 a$ = "Expected OPTION BASE" + e$: GOTO errmes
                             END IF
-                            IF optionexplicit = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICIT": GOTO errmes
-                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
-                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
-                            optionexplicit = -1
+
+                            opex_desiredState = -1
+                            IF optionexplicit = 0 THEN
+                                IF opex_recompileAttempts = 0 THEN
+                                    opex_recompileAttempts = opex_recompileAttempts + 1
+                                    GOTO do_recompile
+                                END IF
+                            END IF
+
                             l$ = SCase$("Option") + sp
                             IF e$ = "EXPLICIT" THEN l$ = l$ + SCase$("Explicit") ELSE l$ = l$ + SCase$("_Explicit")
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -10289,10 +10288,15 @@ DO
                                 IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                                 a$ = "Expected OPTION BASE" + e$: GOTO errmes
                             END IF
-                            IF optionexplicitarray = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICITARRAY": GOTO errmes
-                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
-                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
-                            optionexplicitarray = -1
+
+                            opexarray_desiredState = -1
+                            IF optionexplicitarray = 0 THEN
+                                IF opexarray_recompileAttempts = 0 THEN
+                                    opexarray_recompileAttempts = opexarray_recompileAttempts + 1
+                                    GOTO do_recompile
+                                END IF
+                            END IF
+
                             l$ = SCase$("Option") + sp
                             IF e$ = "EXPLICITARRAY" THEN l$ = l$ + SCase$("ExplicitArray") ELSE l$ = l$ + SCase$("_ExplicitArray")
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
