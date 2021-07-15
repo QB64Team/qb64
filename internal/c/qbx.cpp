@@ -1782,6 +1782,15 @@ ontimer_struct *ontimer=(ontimer_struct*)malloc(sizeof(ontimer_struct));
 
 int32 ontimerthread_lock=0;
 
+void stop_timers() {
+  ontimerthread_lock = 1;
+  while (ontimerthread_lock != 2);
+}
+
+void start_timers() {
+  ontimerthread_lock = 0;
+}
+
 int32 func__freetimer(){
     if (new_error) return 0;
     static int32 i;

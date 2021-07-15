@@ -7,6 +7,11 @@ SUB vwatch (linenumber AS LONG)
     DIM AS LONG i
     DIM start!, temp$, cmd$, value$, k&
 
+    DECLARE LIBRARY
+        SUB vwatch_stoptimers ALIAS stop_timers
+        SUB vwatch_starttimers ALIAS start_timers
+    END DECLARE
+
     IF bypass THEN EXIT SUB
 
     IF ide = 0 THEN
@@ -73,6 +78,7 @@ SUB vwatch (linenumber AS LONG)
         EXIT SUB
     END IF
 
+    vwatch_stoptimers
     cmd$ = "line number:"
     IF vwatch_breakpoints(linenumber) THEN cmd$ = "breakpoint:"
     cmd$ = cmd$ + MKL$(linenumber)
@@ -83,20 +89,24 @@ SUB vwatch (linenumber AS LONG)
             CASE "run"
                 pauseMode = 0
                 stepOver = 0
+                vwatch_starttimers
                 EXIT SUB
             CASE "step"
                 pauseMode = -1
                 stepOver = 0
+                vwatch_starttimers
                 EXIT SUB
             CASE "step over"
                 pauseMode = -1
                 stepOver = -1
                 startLevel = vwatch_sublevel
+                vwatch_starttimers
                 EXIT SUB
             CASE "free"
                 CLOSE #ide
                 ide = 0
                 bypass = -1
+                vwatch_starttimers
                 EXIT SUB
             CASE "set breakpoint"
                 vwatch_breakpoints(CVL(value$)) = -1
@@ -108,6 +118,7 @@ SUB vwatch (linenumber AS LONG)
         _LIMIT 100
     LOOP
 
+    vwatch_starttimers
     EXIT SUB
     Connect:
     start! = TIMER
