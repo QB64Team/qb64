@@ -5112,7 +5112,7 @@ DO
             PRINT #12, "uint8 *tmp_mem_static_pointer=mem_static_pointer;"
             PRINT #12, "uint32 tmp_cmem_sp=cmem_sp;"
             PRINT #12, "#include " + CHR$(34) + "data" + str2$(subfuncn) + ".txt" + CHR$(34)
-            IF vWatchOn THEN
+            IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                 PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
             END IF
 
@@ -5255,7 +5255,7 @@ DO
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
-                IF vWatchOn THEN
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     IF NoChecks = 0 THEN
                         PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                     END IF
@@ -5599,7 +5599,7 @@ DO
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
-                IF vWatchOn = 1 AND NoChecks = 0 THEN
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
                     PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 ELSE
                     PRINT #12, "do{"
@@ -5880,7 +5880,7 @@ DO
         IF firstelement$ = "ELSEIF" THEN
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
-                IF vWatchOn = 1 THEN
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 END IF
             END IF
@@ -5921,7 +5921,7 @@ DO
         IF firstelement$ = "IF" THEN
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
-                IF vWatchOn = 1 THEN
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 END IF
             END IF
@@ -6019,7 +6019,7 @@ DO
         IF firstelement$ = "SELECT" THEN
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
-                IF vWatchOn = 1 THEN
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 END IF
             END IF
@@ -6257,7 +6257,7 @@ DO
 
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
-                IF vWatchOn = 1 THEN
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
                 END IF
             END IF
@@ -6445,7 +6445,7 @@ DO
     'static scope commands:
 
     IF NoChecks = 0 THEN
-        IF vWatchOn THEN
+        IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
             PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
         ELSE
             PRINT #12, "do{"
