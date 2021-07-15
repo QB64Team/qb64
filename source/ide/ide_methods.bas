@@ -6124,23 +6124,9 @@ SUB DebugMode
 
     DO 'main loop
         IF _WINDOWHASFOCUS THEN
-            IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN 'SHIFT
-                IF shiftDown = 0 THEN
-                    stepOverMsg$ = " Over"
-                    noFocusMessage = -1
-                END IF
-                shiftDown = -1
-            ELSE
-                IF shiftDown THEN
-                    stepOverMsg$ = ""
-                    noFocusMessage = -1
-                END IF
-                shiftDown = 0
-            END IF
-
             IF noFocusMessage THEN
                 clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG MODE: <F5=Continue> <F8=Step" + stepOverMsg$ + "> <F9=Toggle Breakpoint> <ESC=Abort>", 15
+                setStatusMessage 1, "$DEBUG <F5=Run> <F7=Step Over> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
                 noFocusMessage = 0
             END IF
         ELSE
@@ -6169,29 +6155,32 @@ SUB DebugMode
                 clearStatusWindow 2
                 setStatusMessage 2, "Running...", 10
                 dummy = DarkenFGBG(1)
+            CASE 16640 'F7
+                clearStatusWindow 2
+                IF PauseMode = 0 THEN
+                    cmd$ = "break"
+                    PauseMode = -1
+                    GOSUB SendCommand
+                    setStatusMessage 2, "Paused.", 2
+                ELSE
+                    cmd$ = "step over"
+                    PauseMode = 0
+                    GOSUB SendCommand
+                    setStatusMessage 2, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                END IF
             CASE 16896 'F8
                 IF PauseMode = 0 THEN
                     cmd$ = "break"
                     PauseMode = -1
                     GOSUB SendCommand
-                    clearStatusWindow 2
-                    setStatusMessage 2, "Paused.", 2
                 ELSE
-                    IF shiftDown THEN
-                        cmd$ = "step over"
-                        PauseMode = 0
-                        GOSUB SendCommand
-                        clearStatusWindow 2
-                        setStatusMessage 2, "Running...", 10
-                        dummy = DarkenFGBG(1)
-                    ELSE
-                        cmd$ = "step"
-                        PauseMode = -1
-                        GOSUB SendCommand
-                        clearStatusWindow 2
-                        setStatusMessage 2, "Paused.", 2
-                    END IF
+                    cmd$ = "step"
+                    PauseMode = -1
+                    GOSUB SendCommand
                 END IF
+                clearStatusWindow 2
+                setStatusMessage 2, "Paused.", 2
             CASE 17152 'F9
                 IF PauseMode THEN
                     IdeBreakpoints(l) = NOT IdeBreakpoints(l)
@@ -8940,11 +8929,11 @@ SUB ideshowtext
 
     EXIT SUB
     ShowLineNumber:
+    DO WHILE l > UBOUND(IdeBreakpoints)
+        REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
+    LOOP
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
-        DO WHILE l > UBOUND(IdeBreakpoints)
-            REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
-        LOOP
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
         _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
         IF l <= iden THEN
