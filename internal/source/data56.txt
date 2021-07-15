@@ -1,12 +1,12 @@
-qbs*oldstr3336=NULL;
+qbs*oldstr3343=NULL;
 if(_SUB_XREAD_STRING_CA->tmp||_SUB_XREAD_STRING_CA->fixed||_SUB_XREAD_STRING_CA->readonly){
-oldstr3336=_SUB_XREAD_STRING_CA;
-if (oldstr3336->cmem_descriptor){
-_SUB_XREAD_STRING_CA=qbs_new_cmem(oldstr3336->len,0);
+oldstr3343=_SUB_XREAD_STRING_CA;
+if (oldstr3343->cmem_descriptor){
+_SUB_XREAD_STRING_CA=qbs_new_cmem(oldstr3343->len,0);
 }else{
-_SUB_XREAD_STRING_CA=qbs_new(oldstr3336->len,0);
+_SUB_XREAD_STRING_CA=qbs_new(oldstr3343->len,0);
 }
-memcpy(_SUB_XREAD_STRING_CA->chr,oldstr3336->chr,oldstr3336->len);
+memcpy(_SUB_XREAD_STRING_CA->chr,oldstr3343->chr,oldstr3343->len);
 }
 qbs *_SUB_XREAD_STRING_L=NULL;
 if (!_SUB_XREAD_STRING_L)_SUB_XREAD_STRING_L=qbs_new(0,0);
@@ -22,10 +22,10 @@ if(_SUB_XREAD_LONG_B==NULL){
 _SUB_XREAD_LONG_B=(int32*)mem_static_malloc(4);
 *_SUB_XREAD_LONG_B=0;
 }
-int64 fornext_value3338;
-int64 fornext_finalvalue3338;
-int64 fornext_step3338;
-uint8 fornext_step_negative3338;
+int64 fornext_value3345;
+int64 fornext_finalvalue3345;
+int64 fornext_step3345;
+uint8 fornext_step_negative3345;
 qbs *_SUB_XREAD_STRING_A2=NULL;
 if (!_SUB_XREAD_STRING_A2)_SUB_XREAD_STRING_A2=qbs_new(0,0);
 qbs *_SUB_XREAD_STRING_E=NULL;
@@ -35,12 +35,12 @@ if(_SUB_XREAD_LONG_T==NULL){
 _SUB_XREAD_LONG_T=(int32*)mem_static_malloc(4);
 *_SUB_XREAD_LONG_T=0;
 }
-int32 pass3339;
-int32 pass3341;
-int32 pass3342;
-int32 pass3343;
-int32 pass3344;
-byte_element_struct *byte_element_3346=NULL;
-if (!byte_element_3346){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3346=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3346=(byte_element_struct*)mem_static_malloc(12);
+int32 pass3346;
+int32 pass3348;
+int32 pass3349;
+int32 pass3350;
+int32 pass3351;
+byte_element_struct *byte_element_3353=NULL;
+if (!byte_element_3353){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3353=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3353=(byte_element_struct*)mem_static_malloc(12);
 }

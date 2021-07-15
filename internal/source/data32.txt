@@ -1,14 +1,14 @@
 qbs *_FUNC_REFER_STRING_REFER=NULL;
 if (!_FUNC_REFER_STRING_REFER)_FUNC_REFER_STRING_REFER=qbs_new(0,0);
-qbs*oldstr2913=NULL;
+qbs*oldstr2920=NULL;
 if(_FUNC_REFER_STRING_A2->tmp||_FUNC_REFER_STRING_A2->fixed||_FUNC_REFER_STRING_A2->readonly){
-oldstr2913=_FUNC_REFER_STRING_A2;
-if (oldstr2913->cmem_descriptor){
-_FUNC_REFER_STRING_A2=qbs_new_cmem(oldstr2913->len,0);
+oldstr2920=_FUNC_REFER_STRING_A2;
+if (oldstr2920->cmem_descriptor){
+_FUNC_REFER_STRING_A2=qbs_new_cmem(oldstr2920->len,0);
 }else{
-_FUNC_REFER_STRING_A2=qbs_new(oldstr2913->len,0);
+_FUNC_REFER_STRING_A2=qbs_new(oldstr2920->len,0);
 }
-memcpy(_FUNC_REFER_STRING_A2->chr,oldstr2913->chr,oldstr2913->len);
+memcpy(_FUNC_REFER_STRING_A2->chr,oldstr2920->chr,oldstr2920->len);
 }
 int32 *_FUNC_REFER_LONG_TYPBAK=NULL;
 if(_FUNC_REFER_LONG_TYPBAK==NULL){
@@ -27,9 +27,9 @@ if(_FUNC_REFER_LONG_IDNUMBER==NULL){
 _FUNC_REFER_LONG_IDNUMBER=(int32*)mem_static_malloc(4);
 *_FUNC_REFER_LONG_IDNUMBER=0;
 }
-byte_element_struct *byte_element_2914=NULL;
-if (!byte_element_2914){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2914=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2914=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2921=NULL;
+if (!byte_element_2921){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2921=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2921=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_REFER_STRING_N=NULL;
 if (!_FUNC_REFER_STRING_N)_FUNC_REFER_STRING_N=qbs_new(0,0);
@@ -38,15 +38,15 @@ if(_FUNC_REFER_LONG_U==NULL){
 _FUNC_REFER_LONG_U=(int32*)mem_static_malloc(4);
 *_FUNC_REFER_LONG_U=0;
 }
-byte_element_struct *byte_element_2915=NULL;
-if (!byte_element_2915){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2915=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2915=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2922=NULL;
+if (!byte_element_2922){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2922=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2922=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_REFER_STRING_O=NULL;
 if (!_FUNC_REFER_STRING_O)_FUNC_REFER_STRING_O=qbs_new(0,0);
-byte_element_struct *byte_element_2916=NULL;
-if (!byte_element_2916){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2916=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2916=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2923=NULL;
+if (!byte_element_2923){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2923=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2923=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_REFER_STRING_O2=NULL;
 if (!_FUNC_REFER_STRING_O2)_FUNC_REFER_STRING_O2=qbs_new(0,0);
@@ -56,15 +56,15 @@ qbs *_FUNC_REFER_STRING_T=NULL;
 if (!_FUNC_REFER_STRING_T)_FUNC_REFER_STRING_T=qbs_new(0,0);
 qbs *_FUNC_REFER_STRING_OFFSET=NULL;
 if (!_FUNC_REFER_STRING_OFFSET)_FUNC_REFER_STRING_OFFSET=qbs_new(0,0);
-int32 pass2917;
+int32 pass2924;
 int32 *_FUNC_REFER_LONG_T=NULL;
 if(_FUNC_REFER_LONG_T==NULL){
 _FUNC_REFER_LONG_T=(int32*)mem_static_malloc(4);
 *_FUNC_REFER_LONG_T=0;
 }
-int32 pass2918;
-int32 pass2919;
-byte_element_struct *byte_element_2920=NULL;
-if (!byte_element_2920){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2920=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2920=(byte_element_struct*)mem_static_malloc(12);
+int32 pass2925;
+int32 pass2926;
+byte_element_struct *byte_element_2927=NULL;
+if (!byte_element_2927){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2927=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2927=(byte_element_struct*)mem_static_malloc(12);
 }
