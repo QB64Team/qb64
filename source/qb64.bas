@@ -27,6 +27,7 @@ REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name
 Set_OrderOfOperations
 
 DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState
+DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 REDIM SelectCaseHasCaseBlock(100)
@@ -1204,7 +1205,13 @@ SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labe
 vWatchDesiredState = 0
 vWatchRecompileAttempts = 0
 
+qb64prefix_set_desiredState = 0
+qb64prefix_set_recompileAttempts = 0
+
 recompile:
+qb64prefix_set = qb64prefix_set_desiredState
+qb64prefix$ = "_"
+
 vWatchOn = vWatchDesiredState
 
 lastLineReturn = 0
@@ -1441,8 +1448,7 @@ REDIM SHARED warningIncLines(1000) AS LONG
 REDIM SHARED warningIncFiles(1000) AS STRING
 maxLineNumber = 0
 uniquenumbern = 0
-qb64prefix_set = 0
-qb64prefix$ = "_"
+
 
 ''create a type for storing memory blocks
 ''UDT
@@ -1573,6 +1579,24 @@ END IF
 
 reginternal
 
+IF qb64prefix_set THEN
+    qb64prefix$ = ""
+
+    're-add internal keywords without the "_" prefix
+    reginternal
+
+    f = HASHFLAG_TYPE + HASHFLAG_RESERVED
+    HashAdd "UNSIGNED", f, 0
+    HashAdd "BIT", f, 0
+    HashAdd "BYTE", f, 0
+    HashAdd "INTEGER64", f, 0
+    HashAdd "OFFSET", f, 0
+    HashAdd "FLOAT", f, 0
+
+    f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
+    HashAdd "EXPLICIT", f, 0
+END IF
+
 OPEN tmpdir$ + "global.txt" FOR OUTPUT AS #18
 
 IF iderecompile THEN
@@ -1638,26 +1662,13 @@ DO
     IF LEN(wholeline$) THEN
 
         IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
-            IF firstLine = 0 THEN a$ = "$NOPREFIX must come before any other statements": GOTO errmes
-
-            qb64prefix$ = ""
-            qb64prefix_set = 1
-
-            're-add internal keywords without the "_" prefix
-            reginternal
-
-            f = HASHFLAG_TYPE + HASHFLAG_RESERVED
-            HashAdd "UNSIGNED", f, 0
-            HashAdd "BIT", f, 0
-            HashAdd "BYTE", f, 0
-            HashAdd "INTEGER64", f, 0
-            HashAdd "OFFSET", f, 0
-            HashAdd "FLOAT", f, 0
-
-            f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
-            HashAdd "EXPLICIT", f, 0
-
-            GOTO finishedlinepp
+            qb64prefix_set_desiredState = 1
+            IF qb64prefix_set = 0 THEN
+                IF qb64prefix_set_recompileAttempts = 0 THEN
+                    qb64prefix_set_recompileAttempts = qb64prefix_set_recompileAttempts + 1
+                    GOTO do_recompile
+                END IF
+            END IF
         END IF
 
         wholeline$ = lineformat(wholeline$)

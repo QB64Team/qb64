@@ -6118,7 +6118,7 @@ SUB DebugMode
     GOSUB SendCommand
 
     clearStatusWindow 1
-    setStatusMessage 1, "$DEBUG MODE: Set focus to the IDE to control execution", 15
+    setStatusMessage 1, "$DEBUG: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
@@ -6126,13 +6126,13 @@ SUB DebugMode
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
                 clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG <F5=Run> <F7=Step Over> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
+                setStatusMessage 1, "$DEBUG: <F5=Run> <F7=Step Over> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
                 clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG MODE: Set focus to the IDE to control execution", 15
+                setStatusMessage 1, "$DEBUG: Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
