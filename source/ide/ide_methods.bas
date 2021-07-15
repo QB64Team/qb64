@@ -6123,6 +6123,39 @@ SUB DebugMode
     noFocusMessage = -1
 
     DO 'main loop
+        WHILE _MOUSEINPUT: WEND
+        mB = _MOUSEBUTTON(1)
+        mB2 = _MOUSEBUTTON(2)
+        mX = _MOUSEX
+        mY = _MOUSEY
+
+        IF mB THEN
+            IF mouseDown = 0 THEN
+                mouseDown = -1
+                mouseDownOnX = mX
+                mouseDownOnY = mY
+            ELSE
+                'drag
+            END IF
+        ELSE
+            IF mouseDown THEN
+                IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
+                    ideselect = 0
+                    idecytemp = mY - 2 + idesy - 1
+                    IF idecytemp =< iden THEN
+                        IdeBreakpoints(idecytemp) = NOT IdeBreakpoints(idecytemp)
+                        IF IdeBreakpoints(idecytemp) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                        cmd$ = cmd$ + MKL$(idecytemp)
+                        GOSUB SendCommand
+                        ideshowtext
+                        PCOPY 3, 0
+                    END IF
+                END IF
+            END IF
+            mouseDown = 0
+        END IF
+
+
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
                 clearStatusWindow 1
