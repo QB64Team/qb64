@@ -10454,7 +10454,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
         END IF
         'change drive
         IF LEN(newpath$) = 2 AND RIGHT$(newpath$, 1) = ":" THEN
-            idezchangepath$ = newpath$
+            idezchangepath$ = newpath$ + "\"
             EXIT FUNCTION
         END IF
         idezchangepath$ = path$ + "\" + newpath$
@@ -13952,7 +13952,20 @@ SUB IdeMakeEditMenu
 END SUB
 
 SUB IdeAddRecent (f2$)
-    f$ = CRLF + f2$ + CRLF
+    f$ = f2$
+    x = INSTR(f$, "//")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "//")
+    LOOP
+
+    x = INSTR(f$, "\\")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "\\")
+    LOOP
+
+    f$ = CRLF + f$ + CRLF
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
     x = INSTR(UCASE$(a$), UCASE$(f$))
