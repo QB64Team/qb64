@@ -6114,13 +6114,28 @@ SUB DebugMode
 
     clearStatusWindow 1
     setStatusMessage 1, "$DEBUG MODE: Set focus to the IDE to control execution", 15
+
     noFocusMessage = -1
 
     DO 'main loop
         IF _WINDOWHASFOCUS THEN
+            IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN 'SHIFT
+                IF shiftDown = 0 THEN
+                    stepOverMsg$ = " Over"
+                    noFocusMessage = -1
+                END IF
+                shiftDown = -1
+            ELSE
+                IF shiftDown THEN
+                    stepOverMsg$ = ""
+                    noFocusMessage = -1
+                END IF
+                shiftDown = 0
+            END IF
+
             IF noFocusMessage THEN
                 clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG MODE: <F5=Continue> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
+                setStatusMessage 1, "$DEBUG MODE: <F5=Continue> <F8=Step" + stepOverMsg$ + "> <F9=Toggle Breakpoint> <ESC=Abort>", 15
                 noFocusMessage = 0
             END IF
         ELSE
@@ -6149,11 +6164,28 @@ SUB DebugMode
                 setStatusMessage 2, "Running...", 10
                 dummy = DarkenFGBG(1)
             CASE 16896 'F8
-                IF PauseMode = 0 THEN cmd$ = "break" ELSE cmd$ = "step"
-                PauseMode = -1
-                GOSUB SendCommand
-                clearStatusWindow 2
-                setStatusMessage 2, "Paused.", 2
+                IF PauseMode = 0 THEN
+                    cmd$ = "break"
+                    PauseMode = -1
+                    GOSUB SendCommand
+                    clearStatusWindow 2
+                    setStatusMessage 2, "Paused.", 2
+                ELSE
+                    IF shiftDown THEN
+                        cmd$ = "step over"
+                        PauseMode = 0
+                        GOSUB SendCommand
+                        clearStatusWindow 2
+                        setStatusMessage 2, "Running...", 10
+                        dummy = DarkenFGBG(1)
+                    ELSE
+                        cmd$ = "step"
+                        PauseMode = -1
+                        GOSUB SendCommand
+                        clearStatusWindow 2
+                        setStatusMessage 2, "Paused.", 2
+                    END IF
+                END IF
             CASE 17152 'F9
                 IF PauseMode THEN
                     IdeBreakpoints(l) = NOT IdeBreakpoints(l)

@@ -5112,6 +5112,9 @@ DO
             PRINT #12, "uint8 *tmp_mem_static_pointer=mem_static_pointer;"
             PRINT #12, "uint32 tmp_cmem_sp=cmem_sp;"
             PRINT #12, "#include " + CHR$(34) + "data" + str2$(subfuncn) + ".txt" + CHR$(34)
+            IF vWatchOn THEN
+                PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
+            END IF
 
             'create new _MEM lock for this scope
             PRINT #12, "mem_lock *sf_mem_lock;" 'MUST not be static for recursion reasons
@@ -5252,6 +5255,9 @@ DO
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
+                IF vWatchOn THEN
+                    PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
+                END IF
 
                 'release _MEM lock for this scope
                 PRINT #12, "free_mem_lock(sf_mem_lock);"

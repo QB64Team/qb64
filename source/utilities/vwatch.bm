@@ -1,8 +1,8 @@
 $CHECKING:OFF
 
 SUB vwatch (linenumber AS LONG)
-    STATIC AS LONG ide, breakpointCount, timeout
-    STATIC AS _BYTE PauseMode, bypass
+    STATIC AS LONG ide, breakpointCount, timeout, startLevel
+    STATIC AS _BYTE pauseMode, stepOver, bypass
     STATIC buffer$, endc$
     DIM AS LONG i
     DIM start!, temp$, cmd$, value$, k&
@@ -47,19 +47,26 @@ SUB vwatch (linenumber AS LONG)
                     NEXT
                 CASE "run"
                     IF vwatch_breakpoints(linenumber) THEN EXIT DO
-                    PauseMode = 0
+                    pauseMode = 0
                     EXIT SUB
                 CASE "break"
-                    PauseMode = -1
+                    pauseMode = -1
                     EXIT DO
             END SELECT
         LOOP
     END IF
 
     GOSUB GetCommand
-    IF cmd$ = "break" THEN PauseMode = -1: cmd$ = ""
+    IF cmd$ = "break" THEN pauseMode = -1: stepOver = 0: cmd$ = ""
 
-    IF vwatch_breakpoints(linenumber) = 0 AND PauseMode = 0 THEN
+    IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(linenumber) = 0 THEN
+        EXIT SUB
+    ELSEIF stepOver = -1 AND vwatch_sublevel = startLevel THEN
+        stepOver = 0
+        pauseMode = -1
+    END IF
+
+    IF vwatch_breakpoints(linenumber) = 0 AND pauseMode = 0 THEN
         EXIT SUB
     END IF
 
@@ -71,10 +78,17 @@ SUB vwatch (linenumber AS LONG)
     DO 'main loop
         SELECT CASE cmd$
             CASE "run"
-                PauseMode = 0
+                pauseMode = 0
+                stepOver = 0
                 EXIT SUB
             CASE "step"
-                PauseMode = -1
+                pauseMode = -1
+                stepOver = 0
+                EXIT SUB
+            CASE "step over"
+                pauseMode = -1
+                stepOver = -1
+                startLevel = vwatch_sublevel
                 EXIT SUB
             CASE "free"
                 CLOSE #ide
