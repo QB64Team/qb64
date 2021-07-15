@@ -1,6 +1,6 @@
 $CHECKING:OFF
 
-SUB vwatch (linenumber AS LONG)
+SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
     STATIC AS LONG ide, breakpointCount, timeout, startLevel, lastLine
     STATIC AS _BYTE pauseMode, stepOver, bypass
     STATIC buffer$, endc$

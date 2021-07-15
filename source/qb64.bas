@@ -108,6 +108,7 @@ TYPE usedVarList
     includeLevel AS LONG
     includedLine AS LONG
     includedFile AS STRING
+    scope AS LONG
     cname AS STRING
     name AS STRING
 END TYPE
@@ -5257,12 +5258,27 @@ DO
                 l$ = SCase$("End") + sp + secondelement$
                 layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
 
+                IF vWatchOn = 1 THEN
+                    totalLocalVariables = 0
+                    localVariablesList$ = ""
+                    FOR i = 1 TO totalVariablesCreated
+                        IF usedVariableList(i).scope = subfuncn THEN
+                            totalLocalVariables = totalLocalVariables + 1
+                            localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + usedVariableList(i).cname + ";" + CRLF
+                        END IF
+                    NEXT
+                    IF totalLocalVariables > 0 THEN
+                        PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
+                        PRINT #13, localVariablesList$
+                    END IF
+                END IF
+
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     IF NoChecks = 0 THEN
-                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
                 END IF
@@ -5540,7 +5556,7 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
@@ -5599,13 +5615,13 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "DO ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
-                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 ELSE
                     PRINT #12, "do{"
                 END IF
@@ -5639,14 +5655,14 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
 
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
 
                 IF controltype(controllevel) = 4 THEN
@@ -5799,7 +5815,7 @@ DO
             IF Error_Happened THEN GOTO errmes
 
             IF NoChecks = 0 AND vWatchOn = 1 THEN
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
             END IF
 
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
@@ -5886,7 +5902,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
             END IF
             FOR i = controllevel TO 1 STEP -1
@@ -5927,7 +5943,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
             END IF
 
@@ -6025,7 +6041,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
             END IF
 
@@ -6263,7 +6279,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
                 END IF
             END IF
 
@@ -6451,7 +6467,7 @@ DO
 
     IF NoChecks = 0 THEN
         IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint)*vwatch_local_vars);"
         ELSE
             PRINT #12, "do{"
         END IF
@@ -11599,6 +11615,22 @@ IF Resize_Scale THEN
     PRINT #fh, "ScreenResizeScale=" + str2(Resize_Scale) + ";"
 END IF
 CLOSE #fh
+
+IF vWatchOn = 1 THEN
+    totalLocalVariables = 0
+    localVariablesList$ = ""
+    FOR i = 1 TO totalVariablesCreated
+        IF usedVariableList(i).scope = 0 THEN
+            totalLocalVariables = totalLocalVariables + 1
+            localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + usedVariableList(i).cname + ";" + CRLF
+        END IF
+    NEXT
+    IF totalLocalVariables > 0 THEN
+        PRINT #18, "void *vwatch_local_vars["; totalLocalVariables; "];"
+        PRINT #18, localVariablesList$
+    END IF
+END IF
+
 
 'DATA_finalize
 PRINT #18, "ptrszint data_size=" + str2(DataOffset) + ";"
@@ -25673,6 +25705,7 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                     usedVariableList(i).includedLine = 0
                     usedVariableList(i).includedFile = ""
                 END IF
+                usedVariableList(i).scope = subfuncn
                 usedVariableList(i).cname = cname$
                 usedVariableList(i).name = name$
                 totalVariablesCreated = totalVariablesCreated + 1
