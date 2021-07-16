@@ -5278,7 +5278,7 @@ DO
                 PRINT #12, "exit_subfunc:;"
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     IF NoChecks = 0 THEN
-                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
                 END IF
@@ -5556,7 +5556,7 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
@@ -5615,13 +5615,13 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "DO ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
-                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 ELSE
                     PRINT #12, "do{"
                 END IF
@@ -5655,14 +5655,14 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
 
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
 
                 IF controltype(controllevel) = 4 THEN
@@ -5815,7 +5815,7 @@ DO
             IF Error_Happened THEN GOTO errmes
 
             IF NoChecks = 0 AND vWatchOn = 1 THEN
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
             END IF
 
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
@@ -5902,7 +5902,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
             END IF
             FOR i = controllevel TO 1 STEP -1
@@ -5943,7 +5943,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
             END IF
 
@@ -6041,7 +6041,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
             END IF
 
@@ -6279,7 +6279,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
             END IF
 
@@ -6467,7 +6467,7 @@ DO
 
     IF NoChecks = 0 THEN
         IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER,(ptrszint*)vwatch_local_vars);"
+            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
         ELSE
             PRINT #12, "do{"
         END IF
@@ -8812,7 +8812,7 @@ DO
 
 
         IF vWatchOn = 1 AND NoChecks = 0 THEN
-            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
         END IF
         PRINT #12, "if (sub_gl_called) error(271);"
         PRINT #12, "close_program=1;"
@@ -22585,7 +22585,7 @@ END FUNCTION
 
 SUB xend
     IF vWatchOn = 1 AND NoChecks = 0 THEN
-        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
     END IF
     PRINT #12, "sub_end();"
 END SUB

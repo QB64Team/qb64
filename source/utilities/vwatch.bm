@@ -1,6 +1,6 @@
 $CHECKING:OFF
 
-SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
+SUB vwatch (localVariables AS _OFFSET)
     STATIC AS LONG ide, breakpointCount, timeout, startLevel, lastLine
     STATIC AS _BYTE pauseMode, stepOver, bypass
     STATIC buffer$, endc$
@@ -53,7 +53,7 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
                         vwatch_breakpoints(CVL(temp$)) = -1
                     NEXT
                 CASE "run"
-                    IF vwatch_breakpoints(linenumber) THEN EXIT DO
+                    IF vwatch_breakpoints(vwatch_linenumber) THEN EXIT DO
                     pauseMode = 0
                     EXIT SUB
                 CASE "break"
@@ -63,10 +63,10 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
         LOOP
     END IF
 
-    IF linenumber = lastLine THEN EXIT SUB
-    lastLine = linenumber
+    IF vwatch_linenumber = lastLine THEN EXIT SUB
+    lastLine = vwatch_linenumber
 
-    IF linenumber = 0 THEN
+    IF vwatch_linenumber = 0 THEN
         cmd$ = "quit"
         GOSUB SendCommand
         CLOSE #ide
@@ -89,21 +89,21 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
             REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
     END SELECT
 
-    IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(linenumber) = 0 THEN
+    IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(vwatch_linenumber) = 0 THEN
         EXIT SUB
     ELSEIF stepOver = -1 AND vwatch_sublevel = startLevel THEN
         stepOver = 0
         pauseMode = -1
     END IF
 
-    IF vwatch_breakpoints(linenumber) = 0 AND pauseMode = 0 THEN
+    IF vwatch_breakpoints(vwatch_linenumber) = 0 AND pauseMode = 0 THEN
         EXIT SUB
     END IF
 
     vwatch_stoptimers
     cmd$ = "line number:"
-    IF vwatch_breakpoints(linenumber) THEN cmd$ = "breakpoint:"
-    cmd$ = cmd$ + MKL$(linenumber)
+    IF vwatch_breakpoints(vwatch_linenumber) THEN cmd$ = "breakpoint:"
+    cmd$ = cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
 
     DO 'main loop
