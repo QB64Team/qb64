@@ -1,22 +1,22 @@
-qbs*oldstr3654=NULL;
+qbs*oldstr3656=NULL;
 if(_SUB_COPY_FULL_UDT_STRING_DST->tmp||_SUB_COPY_FULL_UDT_STRING_DST->fixed||_SUB_COPY_FULL_UDT_STRING_DST->readonly){
-oldstr3654=_SUB_COPY_FULL_UDT_STRING_DST;
-if (oldstr3654->cmem_descriptor){
-_SUB_COPY_FULL_UDT_STRING_DST=qbs_new_cmem(oldstr3654->len,0);
+oldstr3656=_SUB_COPY_FULL_UDT_STRING_DST;
+if (oldstr3656->cmem_descriptor){
+_SUB_COPY_FULL_UDT_STRING_DST=qbs_new_cmem(oldstr3656->len,0);
 }else{
-_SUB_COPY_FULL_UDT_STRING_DST=qbs_new(oldstr3654->len,0);
+_SUB_COPY_FULL_UDT_STRING_DST=qbs_new(oldstr3656->len,0);
 }
-memcpy(_SUB_COPY_FULL_UDT_STRING_DST->chr,oldstr3654->chr,oldstr3654->len);
+memcpy(_SUB_COPY_FULL_UDT_STRING_DST->chr,oldstr3656->chr,oldstr3656->len);
 }
-qbs*oldstr3655=NULL;
+qbs*oldstr3657=NULL;
 if(_SUB_COPY_FULL_UDT_STRING_SRC->tmp||_SUB_COPY_FULL_UDT_STRING_SRC->fixed||_SUB_COPY_FULL_UDT_STRING_SRC->readonly){
-oldstr3655=_SUB_COPY_FULL_UDT_STRING_SRC;
-if (oldstr3655->cmem_descriptor){
-_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new_cmem(oldstr3655->len,0);
+oldstr3657=_SUB_COPY_FULL_UDT_STRING_SRC;
+if (oldstr3657->cmem_descriptor){
+_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new_cmem(oldstr3657->len,0);
 }else{
-_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new(oldstr3655->len,0);
+_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new(oldstr3657->len,0);
 }
-memcpy(_SUB_COPY_FULL_UDT_STRING_SRC->chr,oldstr3655->chr,oldstr3655->len);
+memcpy(_SUB_COPY_FULL_UDT_STRING_SRC->chr,oldstr3657->chr,oldstr3657->len);
 }
 int32 *_SUB_COPY_FULL_UDT_LONG_OFFSET=NULL;
 if(_SUB_COPY_FULL_UDT_LONG_OFFSET==NULL){
@@ -28,5 +28,5 @@ if(_SUB_COPY_FULL_UDT_LONG_ELEMENT==NULL){
 _SUB_COPY_FULL_UDT_LONG_ELEMENT=(int32*)mem_static_malloc(4);
 *_SUB_COPY_FULL_UDT_LONG_ELEMENT=0;
 }
-int32 pass3659;
-int32 pass3660;
+int32 pass3661;
+int32 pass3662;
