@@ -5,6 +5,8 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
     STATIC AS _BYTE pauseMode, stepOver, bypass
     STATIC buffer$, endc$
     DIM AS LONG i
+    DIM AS _OFFSET address
+    DIM AS _MEM m
     DIM start!, temp$, cmd$, value$, k&
 
     DECLARE LIBRARY
@@ -140,6 +142,10 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
                 vwatch_breakpoints(CVL(value$)) = 0
             CASE "clear all breakpoints"
                 REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+            CASE "local"
+                i = CVL(value$)
+                address = localVariables + LEN(address) * i
+                PRINT "Local"; i; "is at"; _MEMGET(m, address, _OFFSET)
         END SELECT
 
         GOSUB GetCommand
