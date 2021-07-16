@@ -18358,32 +18358,32 @@ FUNCTION findid& (n2$)
     id = ids(i)
 
     t = id.t
-    IF id.subfunc = 0 THEN
-        IF t = 0 THEN
-            t = id.arraytype
-            IF t AND ISUDT THEN
-                manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 1
-            ELSE
-                n$ = id2shorttypename$
-                IF LEFT$(n$, 1) = "_" THEN
-                    manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
-                ELSE
-                    manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 3
-                END IF
-            END IF
-        ELSE
-            IF t AND ISUDT THEN
-                manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
-            ELSE
-                n$ = id2shorttypename$
-                IF LEFT$(n$, 1) = "_" THEN
-                    manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
-                ELSE
-                    manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
-                END IF
-            END IF
-        END IF
-    END IF
+    'IF id.subfunc = 0 THEN
+    '    IF t = 0 THEN
+    '        t = id.arraytype
+    '        IF t AND ISUDT THEN
+    '            manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 1
+    '        ELSE
+    '            n$ = id2shorttypename$
+    '            IF LEFT$(n$, 1) = "_" THEN
+    '                manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
+    '            ELSE
+    '                manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 3
+    '            END IF
+    '        END IF
+    '    ELSE
+    '        IF t AND ISUDT THEN
+    '            manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
+    '        ELSE
+    '            n$ = id2shorttypename$
+    '            IF LEFT$(n$, 1) = "_" THEN
+    '                manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
+    '            ELSE
+    '                manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
+    '            END IF
+    '        END IF
+    '    END IF
+    'END IF
 
     currentid = i
     EXIT FUNCTION
