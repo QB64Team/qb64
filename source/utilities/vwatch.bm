@@ -64,8 +64,28 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
     IF linenumber = lastLine THEN EXIT SUB
     lastLine = linenumber
 
+    IF linenumber = 0 THEN
+        cmd$ = "quit"
+        GOSUB SendCommand
+        CLOSE #ide
+        bypass = -1
+        ide = 0
+        EXIT SUB
+    END IF
+
     GOSUB GetCommand
-    IF cmd$ = "break" THEN pauseMode = -1: stepOver = 0: cmd$ = ""
+    SELECT CASE cmd$
+        CASE "break"
+            pauseMode = -1
+            stepOver = 0
+            cmd$ = ""
+        CASE "set breakpoint"
+            vwatch_breakpoints(CVL(value$)) = -1
+        CASE "clear breakpoint"
+            vwatch_breakpoints(CVL(value$)) = 0
+        CASE "clear all breakpoints"
+            REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+    END SELECT
 
     IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(linenumber) = 0 THEN
         EXIT SUB
@@ -102,6 +122,12 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
                 startLevel = vwatch_sublevel
                 vwatch_starttimers
                 EXIT SUB
+            CASE "step out"
+                pauseMode = -1
+                stepOver = -1
+                startLevel = vwatch_sublevel - 1
+                vwatch_starttimers
+                EXIT SUB
             CASE "free"
                 CLOSE #ide
                 ide = 0
@@ -112,6 +138,8 @@ SUB vwatch (linenumber AS LONG, localVariables AS _OFFSET)
                 vwatch_breakpoints(CVL(value$)) = -1
             CASE "clear breakpoint"
                 vwatch_breakpoints(CVL(value$)) = 0
+            CASE "clear all breakpoints"
+                REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
         END SELECT
 
         GOSUB GetCommand

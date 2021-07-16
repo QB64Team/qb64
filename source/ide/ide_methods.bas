@@ -326,7 +326,14 @@ FUNCTION ide2 (ignore)
             menu$(m, i) = "Make E#XE Only  F11": i = i + 1
         END IF
         menuDesc$(m, i - 1) = "Compiles current program without running it"
+        menusize(m) = i - 1
 
+        m = m + 1: i = 0
+        menu$(m, i) = "Debug": i = i + 1
+        menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
+        menuDesc$(m, i - 1) = "Sets/clears breakpoint at cursor location"
+        menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all breakpoints"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -397,7 +404,6 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#RGB Color Mixer...": i = i + 1
         menuDesc$(m, i - 1) = "Allows mixing colors to edit/insert _RGB statements"
         menusize(m) = i - 1
-
 
         m = m + 1: i = 0
         menu$(m, i) = "Help": i = i + 1
@@ -684,9 +690,19 @@ FUNCTION ide2 (ignore)
 
     IF c$ = CHR$(254) THEN
         '$DEBUG mode on
+        IdeDebugMode = 1
+
+        EnterDebugMode:
         idecompiling = 0
         ready = 1
+        _RESIZE OFF
         DebugMode
+        SELECT CASE IdeDebugMode
+            CASE 1
+                IdeDebugMode = 0
+        END SELECT
+        COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
+        IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
         GOTO ideloop
     END IF
 
@@ -1532,9 +1548,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F9 THEN 'toggle breakpoint
-            IF vWatchOn THEN
-                IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
-            END IF
+            GOTO toggleBreakpoint
         END IF
 
         IF KB = KEY_F11 THEN 'make exe only
@@ -2904,25 +2918,15 @@ FUNCTION ide2 (ignore)
                     idemouseselect = 1
                     wholeword.select = 0
                 END IF
-            ELSEIF mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
-                'line numbers are visible and have been clicked
-                IF vWatchOn THEN
-                    ideselect = 0
-                    idecytemp = mY - 2 + idesy - 1
-                    IF idecytemp =< iden THEN
-                        idecy = idecytemp
-                        IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
-                    END IF
-                END IF
-            ELSEIF mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0 THEN
+            ELSEIF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
+                   (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                'line numbers are visible and have been clicked or
                 'line numbers are hidden and the left border has been clicked
-                IF vWatchOn THEN
-                    ideselect = 0
-                    idecytemp = mY - 2 + idesy - 1
-                    IF idecytemp =< iden THEN
-                        idecy = idecytemp
-                        IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
-                    END IF
+                ideselect = 0
+                idecytemp = mY - 2 + idesy - 1
+                IF idecytemp =< iden THEN
+                    idecy = idecytemp
+                    GOTO toggleBreakpoint
                 END IF
             END IF
         END IF
@@ -5556,6 +5560,30 @@ FUNCTION ide2 (ignore)
                 GOTO idemexe
             END IF
 
+            IF menu$(m, s) = "Toggle #Breakpoint  F9" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                toggleBreakpoint:
+                IF vWatchOn = 0 THEN
+                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    IF result = 1 THEN
+                        ideselect = 0
+                        ideinsline 1, SCase$("$Debug")
+                        idecy = idecy + 1
+                        idechangemade = 1
+                        IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                    END IF
+                ELSE
+                    IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                END IF
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "#Clear All Breakpoints  F10" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                REDIM IdeBreakpoints(iden) AS _BYTE
+                GOTO ideloop
+            END IF
+
             IF menu$(m, s) = "E#xit" THEN
                 PCOPY 2, 0
                 quickexit:
@@ -5990,13 +6018,19 @@ FUNCTION ide2 (ignore)
 END FUNCTION
 
 SUB DebugMode
-    DIM PauseMode AS _BYTE
+    STATIC PauseMode AS _BYTE
 
     timeout = 10
-
     _KEYCLEAR
 
+    IF IdeDebugMode = 1 THEN PauseMode = 0
+
     SCREEN , , 3, 0
+    COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
+    m$ = "$DEBUG MODE ACTIVE"
+    COLOR 2
+    _PRINTSTRING ((idewx - LEN(m$)) \ 2, 1), m$
+
     dummy = DarkenFGBG(1)
     clearStatusWindow 0
     setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 15
@@ -6106,33 +6140,74 @@ SUB DebugMode
         GOSUB SendCommand
     END IF
 
+    clearStatusWindow 1
     IF startPaused THEN
         cmd$ = "break"
         PauseMode = -1
-        setStatusMessage 2, "Paused.", 2
+        setStatusMessage 1, "Paused.", 2
     ELSE
         cmd$ = "run"
         PauseMode = 0
-        setStatusMessage 2, "Running...", 10
+        setStatusMessage 1, "Running...", 10
     END IF
     GOSUB SendCommand
 
-    clearStatusWindow 1
-    setStatusMessage 1, "$DEBUG: Set focus to the IDE to control execution", 15
+    clearStatusWindow 2
+    setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
     DO 'main loop
+        WHILE _MOUSEINPUT: WEND
+        mB = _MOUSEBUTTON(1)
+        mB2 = _MOUSEBUTTON(2)
+        mX = _MOUSEX
+        mY = _MOUSEY
+
+        IF mB THEN
+            IF mouseDown = 0 THEN
+                mouseDown = -1
+                mouseDownOnX = mX
+                mouseDownOnY = mY
+            ELSE
+                'drag
+            END IF
+        ELSE
+            IF mouseDown THEN
+                IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
+                    IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
+                       (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                        ideselect = 0
+                        idecytemp = mY - 2 + idesy - 1
+                        IF idecytemp =< iden THEN
+                            IdeBreakpoints(idecytemp) = NOT IdeBreakpoints(idecytemp)
+                            IF IdeBreakpoints(idecytemp) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                            cmd$ = cmd$ + MKL$(idecytemp)
+                            GOSUB SendCommand
+                            ideshowtext
+                            IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
+                            PCOPY 3, 0
+                        END IF
+                    END IF
+                END IF
+            END IF
+            mouseDown = 0
+        END IF
+
+
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
-                clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG: <F5=Run> <F7=Step Over> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
+                clearStatusWindow 2
+                clearStatusWindow 3
+                setStatusMessage 2, "$DEBUG: <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
+                setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
-                clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG: Set focus to the IDE to control execution", 15
+                clearStatusWindow 2
+                clearStatusWindow 3
+                setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
@@ -6147,26 +6222,31 @@ SUB DebugMode
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
                 WHILE _MOUSEINPUT: WEND
+                _KEYCLEAR
                 EXIT SUB
             CASE 16128 'F5
                 PauseMode = 0
                 cmd$ = "run"
                 GOSUB SendCommand
-                clearStatusWindow 2
-                setStatusMessage 2, "Running...", 10
+                clearStatusWindow 1
+                setStatusMessage 1, "Running...", 10
                 dummy = DarkenFGBG(1)
-            CASE 16640 'F7
-                clearStatusWindow 2
-                IF PauseMode = 0 THEN
-                    cmd$ = "break"
-                    PauseMode = -1
+            CASE 16384 'F6
+                IF PauseMode THEN
+                    PauseMode = 0
+                    cmd$ = "step out"
                     GOSUB SendCommand
-                    setStatusMessage 2, "Paused.", 2
-                ELSE
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                END IF
+            CASE 16640 'F7
+                IF PauseMode THEN
                     cmd$ = "step over"
                     PauseMode = 0
                     GOSUB SendCommand
-                    setStatusMessage 2, "Running...", 10
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16896 'F8
@@ -6179,8 +6259,8 @@ SUB DebugMode
                     PauseMode = -1
                     GOSUB SendCommand
                 END IF
-                clearStatusWindow 2
-                setStatusMessage 2, "Paused.", 2
+                clearStatusWindow 1
+                setStatusMessage 1, "Paused.", 2
             CASE 17152 'F9
                 IF PauseMode THEN
                     IdeBreakpoints(l) = NOT IdeBreakpoints(l)
@@ -6190,6 +6270,13 @@ SUB DebugMode
                     ideshowtext
                     PCOPY 3, 0
                 END IF
+            CASE 17408 'F10
+                REDIM IdeBreakpoints(iden) AS _BYTE
+                cmd$ = "clear all breakpoints"
+                GOSUB SendCommand
+                ideshowtext
+                IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
+                PCOPY 3, 0
         END SELECT
 
         GOSUB GetCommand
@@ -6199,15 +6286,23 @@ SUB DebugMode
                 l = CVL(value$)
                 idecy = l
                 ideshowtext
-                clearStatusWindow 2
+                clearStatusWindow 1
                 IF cmd$ = "breakpoint" THEN
-                    setStatusMessage 2, "Breakpoint reached on line" + STR$(l), 2
+                    setStatusMessage 1, "Breakpoint reached on line" + STR$(l), 2
                 ELSE
-                    setStatusMessage 2, "Paused.", 2
+                    setStatusMessage 1, "Paused.", 2
                 END IF
                 PauseMode = -1
+            CASE "quit"
+                CLOSE #client&
+                dummy = DarkenFGBG(0)
+                clearStatusWindow 0
+                setStatusMessage 1, "Debug session aborted.", 7
+                WHILE _MOUSEINPUT: WEND
+                _KEYCLEAR
+                EXIT SUB
             CASE "error"
-                clearStatusWindow 1
+                clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
                 IF value$ = "" THEN
                     setStatusMessage 2, "Communication error.", 2
@@ -6220,7 +6315,9 @@ SUB DebugMode
     LOOP
 
     WHILE _MOUSEINPUT: WEND
+    _KEYCLEAR
     EXIT SUB
+
     GetCommand:
     GET #client&, , temp$
     buffer$ = buffer$ + temp$
@@ -7618,6 +7715,12 @@ SUB ideinsline (i, text$)
         END IF
     NEXT
 
+    REDIM _PRESERVE IdeBreakpoints(iden + 1) AS _BYTE
+    FOR b = iden + 1 TO i STEP -1
+        SWAP IdeBreakpoints(b), IdeBreakpoints(b - 1)
+    NEXT
+    IdeBreakpoints(i) = 0
+
     text$ = RTRIM$(text$)
 
     IF i = -1 THEN i = idel
@@ -7631,7 +7734,6 @@ SUB ideinsline (i, text$)
     textlen = LEN(text$)
     idet$ = LEFT$(idet$, ideli - 1) + MKL$(textlen) + text$ + MKL$(textlen) + RIGHT$(idet$, LEN(idet$) - ideli + 1)
     iden = iden + 1
-    REDIM _PRESERVE IdeBreakpoints(iden) AS _BYTE
 END SUB
 
 FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, maxlength)

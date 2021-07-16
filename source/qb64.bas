@@ -8811,6 +8811,9 @@ DO
         END IF
 
 
+        IF vWatchOn = 1 AND NoChecks = 0 THEN
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+        END IF
         PRINT #12, "if (sub_gl_called) error(271);"
         PRINT #12, "close_program=1;"
         PRINT #12, "end();"
@@ -22581,7 +22584,9 @@ FUNCTION validlabel (LABEL2$)
 END FUNCTION
 
 SUB xend
-
+    IF vWatchOn = 1 AND NoChecks = 0 THEN
+        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+    END IF
     PRINT #12, "sub_end();"
 END SUB
 
