@@ -18375,12 +18375,12 @@ FUNCTION findid& (n2$)
             IF t AND ISUDT THEN
                 manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
             ELSE
-                'n$ = id2shorttypename$
-                'IF LEFT$(n$, 1) = "_" THEN
-                '    manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
-                'ELSE
-                '    manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
-                'END IF
+                n$ = id2shorttypename$
+                IF LEFT$(n$, 1) = "_" THEN
+                    'manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
+                ELSE
+                    manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
+                END IF
             END IF
         END IF
     END IF
