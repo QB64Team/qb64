@@ -65,7 +65,16 @@ SUB vwatch (linenumber AS LONG)
     lastLine = linenumber
 
     GOSUB GetCommand
-    IF cmd$ = "break" THEN pauseMode = -1: stepOver = 0: cmd$ = ""
+    SELECT CASE cmd$
+        CASE "break"
+            pauseMode = -1
+            stepOver = 0
+            cmd$ = ""
+        CASE "set breakpoint"
+            vwatch_breakpoints(CVL(value$)) = -1
+        CASE "clear breakpoint"
+            vwatch_breakpoints(CVL(value$)) = 0
+    END SELECT
 
     IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(linenumber) = 0 THEN
         EXIT SUB
