@@ -6199,8 +6199,8 @@ SUB DebugMode
             IF noFocusMessage THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: <F5 = Run> <F7 = Step Over> <F8 = Step> <F9 = Toggle Breakpoint>", 15
-                setStatusMessage 3, "        <F10 = Clear All Breakpoints> <ESC = Abort>", 15
+                setStatusMessage 2, "$DEBUG: <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
+                setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
                 noFocusMessage = 0
             END IF
         ELSE
@@ -6231,17 +6231,21 @@ SUB DebugMode
                 clearStatusWindow 1
                 setStatusMessage 1, "Running...", 10
                 dummy = DarkenFGBG(1)
-            CASE 16640 'F7
-                clearStatusWindow 1
-                IF PauseMode = 0 THEN
-                    cmd$ = "break"
-                    PauseMode = -1
+            CASE 16384 'F6
+                IF PauseMode THEN
+                    PauseMode = 0
+                    cmd$ = "step out"
                     GOSUB SendCommand
-                    setStatusMessage 1, "Paused.", 2
-                ELSE
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                END IF
+            CASE 16640 'F7
+                IF PauseMode THEN
                     cmd$ = "step over"
                     PauseMode = 0
                     GOSUB SendCommand
+                    clearStatusWindow 1
                     setStatusMessage 1, "Running...", 10
                     dummy = DarkenFGBG(1)
                 END IF

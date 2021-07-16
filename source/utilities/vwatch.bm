@@ -122,6 +122,12 @@ SUB vwatch (linenumber AS LONG)
                 startLevel = vwatch_sublevel
                 vwatch_starttimers
                 EXIT SUB
+            CASE "step out"
+                pauseMode = -1
+                stepOver = -1
+                startLevel = vwatch_sublevel - 1
+                vwatch_starttimers
+                EXIT SUB
             CASE "free"
                 CLOSE #ide
                 ide = 0
