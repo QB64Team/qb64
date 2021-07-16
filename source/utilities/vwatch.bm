@@ -64,6 +64,15 @@ SUB vwatch (linenumber AS LONG)
     IF linenumber = lastLine THEN EXIT SUB
     lastLine = linenumber
 
+    IF linenumber = 0 THEN
+        cmd$ = "quit"
+        GOSUB SendCommand
+        CLOSE #ide
+        bypass = -1
+        ide = 0
+        EXIT SUB
+    END IF
+
     GOSUB GetCommand
     SELECT CASE cmd$
         CASE "break"

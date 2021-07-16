@@ -6222,6 +6222,7 @@ SUB DebugMode
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
                 WHILE _MOUSEINPUT: WEND
+                _KEYCLEAR
                 EXIT SUB
             CASE 16128 'F5
                 PauseMode = 0
@@ -6288,6 +6289,14 @@ SUB DebugMode
                     setStatusMessage 1, "Paused.", 2
                 END IF
                 PauseMode = -1
+            CASE "quit"
+                CLOSE #client&
+                dummy = DarkenFGBG(0)
+                clearStatusWindow 0
+                setStatusMessage 1, "Debug session aborted.", 7
+                WHILE _MOUSEINPUT: WEND
+                _KEYCLEAR
+                EXIT SUB
             CASE "error"
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
@@ -6302,7 +6311,9 @@ SUB DebugMode
     LOOP
 
     WHILE _MOUSEINPUT: WEND
+    _KEYCLEAR
     EXIT SUB
+
     GetCommand:
     GET #client&, , temp$
     buffer$ = buffer$ + temp$
