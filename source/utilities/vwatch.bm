@@ -74,6 +74,8 @@ SUB vwatch (linenumber AS LONG)
             vwatch_breakpoints(CVL(value$)) = -1
         CASE "clear breakpoint"
             vwatch_breakpoints(CVL(value$)) = 0
+        CASE "clear all breakpoints"
+            REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
     END SELECT
 
     IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(linenumber) = 0 THEN
@@ -121,6 +123,8 @@ SUB vwatch (linenumber AS LONG)
                 vwatch_breakpoints(CVL(value$)) = -1
             CASE "clear breakpoint"
                 vwatch_breakpoints(CVL(value$)) = 0
+            CASE "clear all breakpoints"
+                REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
         END SELECT
 
         GOSUB GetCommand

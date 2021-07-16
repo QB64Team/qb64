@@ -695,12 +695,14 @@ FUNCTION ide2 (ignore)
         EnterDebugMode:
         idecompiling = 0
         ready = 1
+        _RESIZE OFF
         DebugMode
         SELECT CASE IdeDebugMode
             CASE 1
                 IdeDebugMode = 0
         END SELECT
         COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
+        IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
         GOTO ideloop
     END IF
 
@@ -6138,19 +6140,20 @@ SUB DebugMode
         GOSUB SendCommand
     END IF
 
+    clearStatusWindow 1
     IF startPaused THEN
         cmd$ = "break"
         PauseMode = -1
-        setStatusMessage 2, "Paused.", 2
+        setStatusMessage 1, "Paused.", 2
     ELSE
         cmd$ = "run"
         PauseMode = 0
-        setStatusMessage 2, "Running...", 10
+        setStatusMessage 1, "Running...", 10
     END IF
     GOSUB SendCommand
 
-    clearStatusWindow 1
-    setStatusMessage 1, "$DEBUG: Set focus to the IDE to control execution", 15
+    clearStatusWindow 2
+    setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
@@ -6182,6 +6185,7 @@ SUB DebugMode
                             cmd$ = cmd$ + MKL$(idecytemp)
                             GOSUB SendCommand
                             ideshowtext
+                            IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
                             PCOPY 3, 0
                         END IF
                     END IF
@@ -6193,14 +6197,17 @@ SUB DebugMode
 
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
-                clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG: <F5=Run> <F7=Step Over> <F8=Step> <F9=Toggle Breakpoint> <ESC=Abort>", 15
+                clearStatusWindow 2
+                clearStatusWindow 3
+                setStatusMessage 2, "$DEBUG: <F5 = Run> <F7 = Step Over> <F8 = Step> <F9 = Toggle Breakpoint>", 15
+                setStatusMessage 3, "        <F10 = Clear All Breakpoints> <ESC = Abort>", 15
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
-                clearStatusWindow 1
-                setStatusMessage 1, "$DEBUG: Set focus to the IDE to control execution", 15
+                clearStatusWindow 2
+                clearStatusWindow 3
+                setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
@@ -6220,21 +6227,21 @@ SUB DebugMode
                 PauseMode = 0
                 cmd$ = "run"
                 GOSUB SendCommand
-                clearStatusWindow 2
-                setStatusMessage 2, "Running...", 10
+                clearStatusWindow 1
+                setStatusMessage 1, "Running...", 10
                 dummy = DarkenFGBG(1)
             CASE 16640 'F7
-                clearStatusWindow 2
+                clearStatusWindow 1
                 IF PauseMode = 0 THEN
                     cmd$ = "break"
                     PauseMode = -1
                     GOSUB SendCommand
-                    setStatusMessage 2, "Paused.", 2
+                    setStatusMessage 1, "Paused.", 2
                 ELSE
                     cmd$ = "step over"
                     PauseMode = 0
                     GOSUB SendCommand
-                    setStatusMessage 2, "Running...", 10
+                    setStatusMessage 1, "Running...", 10
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16896 'F8
@@ -6247,8 +6254,8 @@ SUB DebugMode
                     PauseMode = -1
                     GOSUB SendCommand
                 END IF
-                clearStatusWindow 2
-                setStatusMessage 2, "Paused.", 2
+                clearStatusWindow 1
+                setStatusMessage 1, "Paused.", 2
             CASE 17152 'F9
                 IF PauseMode THEN
                     IdeBreakpoints(l) = NOT IdeBreakpoints(l)
@@ -6258,6 +6265,13 @@ SUB DebugMode
                     ideshowtext
                     PCOPY 3, 0
                 END IF
+            CASE 17408 'F10
+                REDIM IdeBreakpoints(iden) AS _BYTE
+                cmd$ = "clear all breakpoints"
+                GOSUB SendCommand
+                ideshowtext
+                IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
+                PCOPY 3, 0
         END SELECT
 
         GOSUB GetCommand
@@ -6267,15 +6281,15 @@ SUB DebugMode
                 l = CVL(value$)
                 idecy = l
                 ideshowtext
-                clearStatusWindow 2
+                clearStatusWindow 1
                 IF cmd$ = "breakpoint" THEN
-                    setStatusMessage 2, "Breakpoint reached on line" + STR$(l), 2
+                    setStatusMessage 1, "Breakpoint reached on line" + STR$(l), 2
                 ELSE
-                    setStatusMessage 2, "Paused.", 2
+                    setStatusMessage 1, "Paused.", 2
                 END IF
                 PauseMode = -1
             CASE "error"
-                clearStatusWindow 1
+                clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
                 IF value$ = "" THEN
                     setStatusMessage 2, "Communication error.", 2
