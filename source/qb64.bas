@@ -25713,6 +25713,9 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
         CASE ELSE 'find and mark as used
             IF found THEN
                 usedVariableList(i).used = -1
+            ELSE
+                manageVariableList name$, __cname$, 0
+                manageVariableList name$, __cname$, 12
             END IF
     END SELECT
 END SUB
