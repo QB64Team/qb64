@@ -21418,10 +21418,19 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             *separator = '\0';
             if (separator == &buf[str->len] - 1) {
                 //Separator is at end of string, so remove the variable
-                unsetenv(buf);
+				#ifdef QB64_WINDOWS
+					*separator = '=';
+					_putenv(buf);
+				#else
+					unsetenv(buf);
+				#endif
             }
             else {
-                setenv(buf, separator + 1, 1);
+				#ifdef QB64_WINDOWS
+					_putenv_s(buf, separator + 1);
+				#else
+					setenv(buf, separator + 1, 1);
+				#endif
             }
             free(buf);
         }
