@@ -21343,64 +21343,80 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             goto nextchar;
         }
         
-        
-        
-        #ifdef QB64_UNIX
-            extern char** environ;
-            #define envp environ
-            #else /* WINDOWS */
+        #ifdef QB64_WINDOWS
             #define envp _environ
+        #else
+            extern char **environ;
+            #define envp environ
         #endif
-        size_t environ_count;
-        
-        qbs *func_environ(qbs *name)
-        {
-            static char *cp;
-            static qbs *tqbs;
-            static int32 bytes;
-            #ifdef QB64_WINDOWS
-                static char *withNull;
-                withNull=(char*)malloc(name->len+1);
-                withNull[name->len]=0;//add NULL terminator
-                memcpy(withNull,name->chr,name->len);
 
-                cp=getenv(withNull);
-            #else
-                cp=getenv((char*)name->chr);
-            #endif
-            if (cp){
-                bytes=strlen(cp);
-                tqbs=qbs_new(bytes,1);
-                memcpy(tqbs->chr,cp,bytes); 
-                }else{
-                tqbs=qbs_new(0,1);
+        qbs *func_environ(qbs *name) {
+            char *query, *result;
+            qbs *tqbs;
+            query = (char *)malloc(name->len + 1);
+            query[name->len] = '\0'; //add NULL terminator
+            memcpy(query, name->chr, name->len);
+            result = getenv(query);
+            if (result) {
+                int result_length = strlen(result);
+                tqbs = qbs_new(result_length, 1);
+                memcpy(tqbs->chr, result, result_length);
+            }
+            else {
+                tqbs = qbs_new(0, 1);
             }
             return tqbs;
         }
-        
-        qbs *func_environ(int32 number)
-        {
-            static qbs *tqbs;
-            static char *cp;
-            static int32 bytes;
-            if (number<=0){tqbs=qbs_new(0,1); error(5); return tqbs;}
-            if (number>=environ_count){tqbs=qbs_new(0,1); return tqbs;}
-            cp=*(envp+number-1);
-            bytes=strlen(cp);
-            tqbs=qbs_new(bytes,1);
-            memcpy(tqbs->chr,cp,bytes);
+
+        qbs *func_environ(int32 number) {
+            char *result;
+            qbs *tqbs;
+            int result_length;
+            if (number <= 0) {
+                tqbs = qbs_new(0, 1);
+                error(5);
+                return tqbs;
+            }
+            //Check we do not go beyond array bound
+            char **p = envp;
+            while (*++p);
+            if (number > p - envp) {
+                tqbs = qbs_new(0, 1);
+                return tqbs;
+            }
+            result = envp[number - 1];
+            result_length = strlen(result);
+            tqbs = qbs_new(result_length, 1);
+            memcpy(tqbs->chr, result, result_length);
             return tqbs;
         }
         
-        void sub_environ(qbs *str)
-        {
-            static char *cp;
-            cp=(char*)malloc(str->len+1);
-            cp[str->len]=0;//add NULL terminator
-            memcpy(cp,str->chr,str->len);
-            putenv(cp);
-            free(cp);
-            environ_count++;
+        void sub_environ(qbs *str) {
+            char *buf;
+            char *separator;
+            buf = (char *)malloc(str->len + 1);
+            buf[str->len] = '\0';
+            memcpy(buf, str->chr, str->len);
+            //Name and value may be separated by = or space
+            separator = strchr(buf, ' ');
+            if (!separator) {
+                separator = strchr(buf, '=');
+            }
+            if (!separator) {
+                //It is an error is there is no separator
+                error(5);
+                return;
+            }
+            // Split into two separate strings
+            *separator = '\0';
+            if (separator == &buf[str->len] - 1) {
+                //Separator is at end of string, so remove the variable
+                unsetenv(buf);
+            }
+            else {
+                setenv(buf, separator + 1, 1);
+            }
+            free(buf);
         }
         
         #ifdef QB64_WINDOWS
@@ -21411,16 +21427,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 MessageBox2(NULL,(char*)s->chr,"showvalue",MB_OK|MB_SYSTEMMODAL);
             }
         #endif
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         
         //Referenced: http://johnnie.jerrata.com/winsocktutorial/
         //Much of the unix sockets code based on http://beej.us/guide/bgnet/
@@ -21433,8 +21440,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #include <sys/socket.h>
             #include <netdb.h>
         #endif
-        
-        
         
         #define NETWORK_ERROR -1
         #define NETWORK_OK     0
@@ -27194,19 +27199,6 @@ int main( int argc, char* argv[] ){
     ontimer[0].id=0;
     ontimer[0].state=0;
     ontimer[0].active=0;
-    
-    
-    
-    
-    
-    
-    
-    {
-        /* For bounds check on numeric ENVIRON$ */
-        char **p = envp;
-        while (*p++);
-        environ_count = p - envp;
-    }
     
     fontwidth[8]=8; fontwidth[14]=8; fontwidth[16]=8;
     fontheight[8]=8; fontheight[14]=14; fontheight[16]=16;
