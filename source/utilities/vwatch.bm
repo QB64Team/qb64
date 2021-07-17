@@ -42,7 +42,7 @@ SUB vwatch (localVariables AS _OFFSET)
                     breakpointCount = CVL(value$)
                 CASE "breakpoint list"
                     IF LEN(value$) \ 4 <> breakpointCount THEN
-                        cmd$ = "error"
+                        cmd$ = "quit:Communication error."
                         GOSUB SendCommand
                         CLOSE #ide
                         bypass = -1
@@ -63,17 +63,22 @@ SUB vwatch (localVariables AS _OFFSET)
         LOOP
     END IF
 
-    IF vwatch_linenumber = lastLine THEN EXIT SUB
-    lastLine = vwatch_linenumber
-
     IF vwatch_linenumber = 0 THEN
-        cmd$ = "quit"
+        cmd$ = "quit:Program ended."
         GOSUB SendCommand
         CLOSE #ide
         bypass = -1
         ide = 0
         EXIT SUB
+    ELSEIF vwatch_linenumber = -1 THEN
+        'report an error in the most recent line
+        cmd$ = "error:" + MKL$(lastLine)
+        GOSUB SendCommand
+        EXIT SUB
     END IF
+
+    IF vwatch_linenumber = lastLine THEN EXIT SUB
+    lastLine = vwatch_linenumber
 
     GOSUB GetCommand
     SELECT CASE cmd$

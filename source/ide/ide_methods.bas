@@ -700,6 +700,7 @@ FUNCTION ide2 (ignore)
         SELECT CASE IdeDebugMode
             CASE 1
                 IdeDebugMode = 0
+                idefocusline = 0
         END SELECT
         COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
@@ -6285,6 +6286,7 @@ SUB DebugMode
             CASE "breakpoint", "line number"
                 l = CVL(value$)
                 idecy = l
+                idefocusline = 0
                 ideshowtext
                 clearStatusWindow 1
                 IF cmd$ = "breakpoint" THEN
@@ -6297,18 +6299,22 @@ SUB DebugMode
                 CLOSE #client&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
-                setStatusMessage 1, "Debug session aborted.", 7
+                setStatusMessage 1, "Debug session aborted.", 15
+                IF LEN(value$) THEN
+                    setStatusMessage 2, value$, 7
+                END IF
                 WHILE _MOUSEINPUT: WEND
                 _KEYCLEAR
                 EXIT SUB
             CASE "error"
-                clearStatusWindow 0
-                setStatusMessage 1, "Debug session aborted.", 7
-                IF value$ = "" THEN
-                    setStatusMessage 2, "Communication error.", 2
-                ELSE
-                    setStatusMessage 2, LEFT$(value$, idewx - 2), 2
-                END IF
+                l = CVL(value$)
+                idecy = l
+                idefocusline = l
+                ideshowtext
+                clearStatusWindow 1
+                COLOR , 4
+                setStatusMessage 1, "Error occurred on line" + STR$(l), 13
+                PauseMode = -1
         END SELECT
 
         _LIMIT 100
@@ -8567,7 +8573,7 @@ SUB ideshowtext
 
             GOSUB ShowLineNumber
 
-            IF l = idefocusline AND idecy <> l THEN
+            IF (l = idefocusline AND idecy <> l AND IdeDebugMode = 0) OR (l = idefocusline AND idecy = l AND IdeDebugMode <> 0) THEN
                 COLOR 7, 4 'Line with error gets a red background
             ELSEIF idecy = l OR (l >= idecy_multilinestart AND l <= idecy_multilineend) THEN
                 IF HideCurrentLineHighlight = 0 AND IdeSystem = 1 THEN COLOR 7, 6 'Highlight the current line

@@ -1364,6 +1364,7 @@ extern uint32 qbevent;
 extern int32 console;
 extern int32 screen_hide_startup;
 extern int32 asserts;
+extern int32 vwatch;
 //...
 
 int64 exit_code=0;

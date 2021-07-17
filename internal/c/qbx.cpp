@@ -706,6 +706,7 @@ double error_erl=0;
 uint32 qbs_tmp_list_nexti=1;
 uint32 error_occurred=0;
 uint32 new_error=0;
+uint32 bkp_new_error=0;
 qbs* nothingstring;
 uint32 qbevent=0;
 uint8 suspend_program=0;

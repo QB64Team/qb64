@@ -26,7 +26,9 @@ REDIM SHARED PL(1000) AS INTEGER 'Priority Level
 REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name Conversion variables.
 Set_OrderOfOperations
 
-DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState
+DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState, vWatchErrorCall$
+vWatchErrorCall$ = "if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
+
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
 DIM SHARED opexarray_recompileAttempts, opexarray_desiredState
@@ -3423,7 +3425,8 @@ DO
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
             IF NoChecks = 0 THEN
-                PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
+                IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+                PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
             END IF
             IF n = 1 THEN GOTO finishednonexec
             entireline$ = getelements(entireline$, 2, n): u$ = UCASE$(entireline$): n = n - 1
@@ -3483,7 +3486,8 @@ DO
                     inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
                 END IF
                 IF NoChecks = 0 THEN
-                    PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
+                    IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+                    PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
                 END IF
                 entireline$ = RIGHT$(entireline$, LEN(entireline$) - x3): u$ = UCASE$(entireline$)
                 n = numelements(entireline$): IF n = 0 THEN GOTO finishednonexec
@@ -8782,7 +8786,8 @@ DO
                 thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
+            IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+            PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
         END IF
@@ -8805,7 +8810,8 @@ DO
                 thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
+            IF vWatchOn = 1 AND NoChecks = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+            PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
         END IF
@@ -11086,11 +11092,12 @@ DO
         inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
     END IF
     IF NoChecks = 0 THEN
+        IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
         IF dynscope THEN
             dynscope = 0
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");if(r)goto S_" + str2$(statementn) + ";}"
+            PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");if(r)goto S_" + str2$(statementn) + ";}"
         ELSE
-            PRINT #12, "if(!qbevent)break;evnt(" + str2$(linenumber) + inclinenump$ + ");}while(r);"
+            PRINT #12, "if(!qbevent)break;" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}while(r);"
         END IF
     END IF
 
@@ -11607,6 +11614,12 @@ IF Asserts THEN
     PRINT #18, "int32 asserts=1;"
 ELSE
     PRINT #18, "int32 asserts=0;"
+END IF
+
+IF vWatchOn THEN
+    PRINT #18, "int32 vwatch=1;"
+ELSE
+    PRINT #18, "int32 vwatch=0;"
 END IF
 
 fh = FREEFILE
