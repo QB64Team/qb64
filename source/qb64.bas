@@ -1643,11 +1643,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bm"
         ELSE
             'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude_prepass
@@ -2865,11 +2865,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bm"
         ELSE
             'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude
@@ -5122,7 +5122,7 @@ DO
             PRINT #12, "uint8 *tmp_mem_static_pointer=mem_static_pointer;"
             PRINT #12, "uint32 tmp_cmem_sp=cmem_sp;"
             PRINT #12, "#include " + CHR$(34) + "data" + str2$(subfuncn) + ".txt" + CHR$(34)
-            IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+            IF vWatchOn = 1 THEN
                 PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
             END IF
 
@@ -5280,7 +5280,7 @@ DO
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
-                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                IF vWatchOn = 1 THEN
                     IF NoChecks = 0 THEN
                         PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                     END IF
