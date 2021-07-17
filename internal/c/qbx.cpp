@@ -246,6 +246,7 @@ extern int32 func__openconnection(int32);
 extern int32 func__openclient(qbs*);
 extern int32 func__connected(int32);
 extern qbs *func__connectionaddress(int32);
+extern int32 func__environcount();
 extern qbs *func_environ(qbs*);
 extern qbs *func_environ(int32);
 extern void sub_environ(qbs*);

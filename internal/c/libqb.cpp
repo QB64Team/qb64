@@ -21350,6 +21350,13 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #define envp environ
         #endif
 
+        int32 func__environcount() {
+            //count array bound
+             char **p = envp;
+             while (*++p);
+             return p - envp;
+         }
+             
         qbs *func_environ(qbs *name) {
             char *query, *result;
             qbs *tqbs;

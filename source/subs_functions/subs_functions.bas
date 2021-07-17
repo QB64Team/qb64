@@ -852,6 +852,14 @@ regid
 
 
 clearid
+id.n = qb64prefix$ + "EnvironCount"
+id.subfunc = 1
+id.callname = "func__environcount"
+id.ret = LONGTYPE - ISPOINTER
+id.hr_syntax = "_ENVIRONCOUNT"
+regid
+
+clearid
 id.n = "Environ"
 id.musthave = "$"
 id.subfunc = 1
