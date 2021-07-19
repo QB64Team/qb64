@@ -133,6 +133,7 @@ FUNCTION ide2 (ignore)
     STATIC ForceResize, IDECompilationRequested AS _BYTE
     STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
     STATIC VersionInfoHover AS _BYTE, LineNumberHover AS _BYTE
+    STATIC startPausedPending AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -330,10 +331,16 @@ FUNCTION ide2 (ignore)
 
         m = m + 1: i = 0
         menu$(m, i) = "Debug": i = i + 1
+        menu$(m, i) = "Start #Paused  F8": i = i + 1
+        menuDesc$(m, i - 1) = "Compiles current program and starts it in pause mode"
+        menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
         menuDesc$(m, i - 1) = "Sets/clears breakpoint at cursor location"
         menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
         menuDesc$(m, i - 1) = "Removes all breakpoints"
+        'menu$(m, i) = "-": i = i + 1
+        'menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
+        'menuDesc$(m, i - 1) = "Removes all breakpoints"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -1555,7 +1562,8 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF KB = KEY_F8 THEN
+        IF KB = KEY_F8 OR startPausedPending = -1 THEN
+            startPausedPending = 0
             startPaused = -1
             GOTO idemrun
         END IF
@@ -5571,6 +5579,27 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "Make E#XE Only  F11" OR menu$(m, s) = "Make E#xecutable Only  F11" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemexe
+            END IF
+
+            IF menu$(m, s) = "Start #Paused  F8" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                IF vWatchOn = 0 THEN
+                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    IF result = 1 THEN
+                        ideselect = 0
+                        ideinsline 1, SCase$("$Debug")
+                        idecy = idecy + 1
+                        idechangemade = 1
+                        startPaused = -1
+                        startPausedPending = -1
+                        GOTO ideloop
+                    ELSE
+                        GOTO ideloop
+                    END IF
+                ELSE
+                    startPaused = -1
+                    GOTO idemrun
+                END IF
             END IF
 
             IF menu$(m, s) = "Toggle #Breakpoint  F9" THEN
