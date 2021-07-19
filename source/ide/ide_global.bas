@@ -139,7 +139,7 @@ DIM SHARED ideundopos, ideundobase, ideundoflag
 DIM SHARED idelaunched, idecompiling
 DIM SHARED idecompiledline 'stores the number of the last line sent to the compiler, used only to know which line to send next
 DIM SHARED idecompiledline$ 'stores the last line sent to the compiler
-DIM SHARED idesx, idesy, idecx, idecy
+DIM SHARED idesx, idesy, idecx, idecy, debugnextline
 DIM SHARED ideselect, ideselectx1, ideselecty1, idemouseselect, idembmonitor
 DIM SHARED ideCurrentSingleLineSelection AS STRING
 DIM SHARED ideunsaved

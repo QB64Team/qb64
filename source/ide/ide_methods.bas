@@ -712,6 +712,7 @@ FUNCTION ide2 (ignore)
             CASE 1
                 IdeDebugMode = 0
                 idefocusline = 0
+                debugnextline = 0
         END SELECT
         COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
@@ -6165,7 +6166,13 @@ SUB DebugMode
     noFocusMessage = -1
 
     DO 'main loop
-        WHILE _MOUSEINPUT: WEND
+        bkpidecy = idecy
+        WHILE _MOUSEINPUT: idecy = idecy + _MOUSEWHEEL * 3: WEND
+
+        IF idecy < 1 THEN idecy = 1
+        IF idecy > iden THEN idecy = iden
+        IF idecy <> bkpidecy THEN GOSUB UpdateDisplay
+
         mB = _MOUSEBUTTON(1)
         mB2 = _MOUSEBUTTON(2)
         mX = _MOUSEX
@@ -6176,14 +6183,70 @@ SUB DebugMode
                 mouseDown = -1
                 mouseDownOnX = mX
                 mouseDownOnY = mY
+                IF mX = idewx THEN
+                    IF mY = idevbar(idewx, 3, idewy - 8, idecy, iden) THEN
+                        draggingVThumb = -1
+                    ELSE
+                        draggingVThumb = 0
+                    END IF
+                ELSE
+                    draggingVThumb = 0
+                END IF
+
+                IF mY = idewy - 5 THEN
+                    IF mX = idehbar(2, idewy - 5, idewx - 2, idesx, 608) THEN
+                        draggingHThumb = -1
+                    ELSE
+                        draggingHThumb = 0
+                    END IF
+                ELSE
+                    draggingHThumb = 0
+                END IF
             ELSE
                 'drag
+                IF draggingVThumb = -1 THEN
+                    IF mouseDownOnY <> mY THEN
+                        mouseDownOnY = mY
+                        IF iden > 1 THEN
+                            IF mY <= 4 THEN idecy = 1
+                            IF mY >= idewy - 7 THEN idecy = iden
+                            IF mY > 4 AND mY < idewy - 7 THEN
+                                y = mY
+                                p! = y - 3 - 2 + .5
+                                p! = p! / ((idewy - 8) - 4)
+                                i = p! * (iden - 1) + 1
+                                idecy = i
+                            END IF
+                        END IF
+                        GOSUB UpdateDisplay
+                    END IF
+                END IF
+
+                IF draggingHThumb = -1 THEN
+                    IF mouseDownOnX <> mX THEN
+                        mouseDownOnX = mX
+                        IF mX <= 3 THEN idesx = 1: idecx = idesx
+                        IF mX >= idewx - 2 THEN idesx = 608: idecx = idesx
+                        IF mX > 3 AND mX < idewx - 2 THEN
+                            x = mX
+                            p! = x - 2 - 2 + .5
+                            p! = p! / ((idewx - 2) - 4)
+                            i = p! * (608 - 1) + 1
+                            idesx = i
+                            idecx = idesx
+                        END IF
+                        GOSUB UpdateDisplay
+                    END IF
+                END IF
             END IF
         ELSE
             IF mouseDown THEN
-                IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
-                    IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
-                       (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                mouseDown = 0
+                draggingVThumb = 0
+                draggingHThumb = 0
+                IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
+                   (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                    IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
                         ideselect = 0
                         idecytemp = mY - 2 + idesy - 1
                         IF idecytemp =< iden THEN
@@ -6191,14 +6254,38 @@ SUB DebugMode
                             IF IdeBreakpoints(idecytemp) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
                             cmd$ = cmd$ + MKL$(idecytemp)
                             GOSUB SendCommand
-                            ideshowtext
-                            IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
-                            PCOPY 3, 0
+                            GOSUB UpdateDisplay
+                        END IF
+                    END IF
+                ELSEIF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
+                    bkpidecy = idecy
+                    idecy = mY - 2 + idesy - 1
+                    IF idecy > iden THEN idecy = iden
+                    IF bkpidecy <> idecy THEN GOSUB UpdateDisplay
+                ELSEIF mX = idewx AND mY > 2 AND mY < idewy - 5 THEN 'inside vbar
+                    IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
+                        IF mY = 3 THEN GOTO keyUp
+                        IF mY = idewy - 6 THEN GOTO keyDown
+                        IF mY > 3 AND mY < (idewy - 6) THEN
+                            'assume not on slider
+                            IF iden > 1 THEN 'take no action if not slider available
+                                y = idevbar(idewx, 3, idewy - 8, idecy, iden)
+                                IF y <> mY THEN
+                                    IF mY < y THEN
+                                        GOTO pageUp
+                                    ELSE
+                                        GOTO pageDown
+                                    END IF
+                                END IF
+                            END IF
                         END IF
                     END IF
                 END IF
+            ELSE
+                mouseDown = 0
+                draggingVThumb = 0
+                draggingHThumb = 0
             END IF
-            mouseDown = 0
         END IF
 
 
@@ -6206,7 +6293,7 @@ SUB DebugMode
             IF noFocusMessage THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
+                setStatusMessage 2, "$DEBUG: <F4 = Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
                 setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
                 noFocusMessage = 0
             END IF
@@ -6221,6 +6308,50 @@ SUB DebugMode
 
         k& = _KEYHIT
         SELECT CASE k&
+            CASE 18432 'Up arrow
+                keyUp:
+                bkpidecy = idecy: bkpidesy = idesy
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN 'scroll the window, instead of moving the cursor
+                    idesy = idesy - 1
+                    IF idesy < 1 THEN idesy = 1
+                    IF idecy > idesy + (idewy - 9) THEN idecy = idesy + (idewy - 9)
+                ELSE
+                    idecy = idecy - 1
+                    IF idecy < 1 THEN idecy = 1
+                END IF
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+            CASE 20480 'Down arrow
+                keyDown:
+                bkpidecy = idecy: bkpidesy = idesy
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN 'scroll the window, instead of moving the cursor
+                    idesy = idesy + 1
+                    IF idesy > iden THEN idesy = iden
+                    IF idecy < idesy THEN idecy = idesy
+                ELSE
+                    idecy = idecy + 1
+                    IF idecy > iden THEN idecy = iden
+                END IF
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+            CASE 18688 'Page up
+                pageUp:
+                bkpidecy = idecy: bkpidesy = idesy
+                idecy = idecy - (idewy - 9)
+                IF idecy < 1 THEN idecy = 1
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+            CASE 20736 'Page down
+                pageDown:
+                bkpidecy = idecy: bkpidesy = idesy
+                idecy = idecy + (idewy - 9)
+                IF idecy > iden THEN idecy = iden
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+            CASE 18176 'Home
+                bkpidecy = idecy: bkpidesy = idesy
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN idecy = 1
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+            CASE 20224 'End
+                bkpidecy = idecy: bkpidesy = idesy
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN idecy = iden
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
             CASE 27
                 cmd$ = "free"
                 GOSUB SendCommand
@@ -6231,6 +6362,10 @@ SUB DebugMode
                 WHILE _MOUSEINPUT: WEND
                 _KEYCLEAR
                 EXIT SUB
+            CASE 15360 'F2
+                r$ = idesubs
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOSUB UpdateDisplay
             CASE 15872 'F4
                 IF PauseMode THEN
                     cmd$ = "call stack"
@@ -6261,10 +6396,12 @@ SUB DebugMode
                 END IF
             CASE 16128 'F5
                 PauseMode = 0
+                debugnextline = 0
                 cmd$ = "run"
                 GOSUB SendCommand
                 clearStatusWindow 1
                 setStatusMessage 1, "Running...", 10
+                GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
             CASE 16384 'F6
                 IF PauseMode THEN
@@ -6298,20 +6435,17 @@ SUB DebugMode
                 setStatusMessage 1, "Paused.", 2
             CASE 17152 'F9
                 IF PauseMode THEN
-                    IdeBreakpoints(l) = NOT IdeBreakpoints(l)
-                    IF IdeBreakpoints(l) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
-                    cmd$ = cmd$ + MKL$(l)
+                    IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                    IF IdeBreakpoints(idecy) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                    cmd$ = cmd$ + MKL$(idecy)
                     GOSUB SendCommand
-                    ideshowtext
-                    PCOPY 3, 0
+                    GOSUB UpdateDisplay
                 END IF
             CASE 17408 'F10
                 REDIM IdeBreakpoints(iden) AS _BYTE
                 cmd$ = "clear all breakpoints"
                 GOSUB SendCommand
-                ideshowtext
-                IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
-                PCOPY 3, 0
+                GOSUB UpdateDisplay
         END SELECT
 
         GOSUB GetCommand
@@ -6320,6 +6454,7 @@ SUB DebugMode
             CASE "breakpoint", "line number"
                 l = CVL(value$)
                 idecy = l
+                debugnextline = l
                 idefocusline = 0
                 idecentercurrentline
                 ideshowtext
@@ -6386,6 +6521,13 @@ SUB DebugMode
     PUT #client&, , cmd$
     cmd$ = ""
     RETURN
+
+    UpdateDisplay:
+    ideshowtext
+    IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
+    PCOPY 3, 0
+    RETURN
+
 END SUB
 
 FUNCTION idecallstackbox(callstacklist$, callStackLength)
@@ -9221,12 +9363,29 @@ SUB ideshowtext
                 _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
             END IF
         END IF
-        IF ShowLineNumbersSeparator THEN _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
+        IF ShowLineNumbersSeparator THEN
+            IF l = debugnextline THEN
+                COLOR 10
+                _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(16)
+            ELSE
+                _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
+            END IF
+        ELSE
+            IF l = debugnextline THEN
+                COLOR 10
+                _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(16)
+            END IF
+        END IF
         COLOR , 1
     ELSE
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN
             COLOR 7, 4
-            _PRINTSTRING (1, y + 3), CHR$(179)
+            IF l = debugnextline THEN
+                COLOR 10
+                _PRINTSTRING (1, y + 3), CHR$(16)
+            ELSE
+                _PRINTSTRING (1, y + 3), CHR$(179)
+            END IF
         END IF
     END IF
     RETURN
