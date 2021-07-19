@@ -25712,6 +25712,8 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
     DIM findItem AS LONG, cname$, i AS LONG
     cname$ = __cname$
 
+    IF LEN(cname$) = 0 THEN EXIT SUB
+
     findItem = INSTR(cname$, "[")
     IF findItem THEN
         cname$ = LEFT$(cname$, findItem - 1)
