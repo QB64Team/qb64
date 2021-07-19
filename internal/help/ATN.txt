@@ -30,7 +30,7 @@ y = 100 * {{Cl|SIN}}({{Cl|ATN}}(1))
 {{CodeStart}} '' ''
 Pi = 4 * {{Cl|ATN}}(1)   '{{Cl|SINGLE}} precision
 Pi# = 4 * {{Cl|ATN}}(1#) '{{Cl|DOUBLE}} precision
-PRINT Pi, Pi# '' ''
+{{Cl|PRINT}} Pi, Pi# '' ''
 {{CodeEnd}}
 :''Note:'' You can use QB64's native [[_PI]] function.
 
@@ -41,38 +41,38 @@ PRINT Pi, Pi# '' ''
 x1! = 320
 y1! = 240
 
-DO
-  {{Cl|PRESET}} (x1!, y1!), {{Cl|_RGB}}(255, 255, 255)
-  dummy% = {{Cl|_MOUSEINPUT}}
-  x2! = {{Cl|_MOUSEX}}
-  y2! = {{Cl|_MOUSEY}}
-  {{Cl|LINE}} (x1, y1)-(x2, y2), {{Cl|_RGB}}(255, 0, 0)
-  {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} getangle(x1!, y1!, x2!, y2!)
-  {{Cl|_DISPLAY}}
-  {{Cl|_LIMIT}} 200
-  {{Cl|CLS}}
+{{Cl|DO}}
+    {{Cl|PRESET}} (x1!, y1!), {{Cl|_RGB}}(255, 255, 255)
+    dummy% = {{Cl|_MOUSEINPUT}}
+    x2! = {{Cl|_MOUSEX}}
+    y2! = {{Cl|_MOUSEY}}
+    {{Cl|LINE}} (x1, y1)-(x2, y2), {{Cl|_RGB}}(255, 0, 0)
+    {{Cl|LOCATE}} 1, 1: {{Cl|PRINT}} getangle(x1!, y1!, x2!, y2!)
+    {{Cl|_DISPLAY}}
+    {{Cl|_LIMIT}} 200
+    {{Cl|CLS}}
 {{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|INKEY$}} &lt;> ""
 {{Cl|END}}
 
 {{Cl|FUNCTION}} getangle# (x1#, y1#, x2#, y2#) 'returns 0-359.99...
-{{Cl|IF...THEN|IF}} y2# = y1# {{Cl|THEN}}
-  {{Cl|IF...THEN|IF}} x1# = x2# {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
-  {{Cl|IF...THEN|IF}} x2# > x1# {{Cl|THEN}} getangle# = 90 {{Cl|ELSE}} getangle# = 270
-  {{Cl|EXIT FUNCTION}}
-{{Cl|END IF}}
-{{Cl|IF...THEN|IF}} x2# = x1# {{Cl|THEN}}
-  {{Cl|IF...THEN|IF}} y2# > y1# {{Cl|THEN}} getangle# = 180
-  {{Cl|EXIT FUNCTION}}
-{{Cl|END IF}}
-{{Cl|IF...THEN|IF}} y2# &lt; y1# {{Cl|THEN}}
-  {{Cl|IF...THEN|IF}} x2# > x1# {{Cl|THEN}}
-    getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131
-  {{Cl|ELSE}}
-    getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131 + 360
-  {{Cl|END IF}}
-{{Cl|ELSE}}
-  getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131 + 180
-{{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} y2# = y1# {{Cl|THEN}}
+	{{Cl|IF...THEN|IF}} x1# = x2# {{Cl|THEN}} {{Cl|EXIT FUNCTION}}
+	{{Cl|IF...THEN|IF}} x2# > x1# {{Cl|THEN}} getangle# = 90 {{Cl|ELSE}} getangle# = 270
+	{{Cl|EXIT FUNCTION}}
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} x2# = x1# {{Cl|THEN}}
+	{{Cl|IF...THEN|IF}} y2# > y1# {{Cl|THEN}} getangle# = 180
+	{{Cl|EXIT FUNCTION}}
+    {{Cl|END IF}}
+    {{Cl|IF...THEN|IF}} y2# &lt; y1# {{Cl|THEN}}
+	{{Cl|IF...THEN|IF}} x2# > x1# {{Cl|THEN}}
+	    getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131
+	{{Cl|ELSE}}
+	    getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131 + 360
+	{{Cl|END IF}}
+    {{Cl|ELSE}}
+	getangle# = {{Cl|ATN}}((x2# - x1#) / (y2# - y1#)) * -57.2957795131 + 180
+    {{Cl|END IF}}
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}{{small|Function by Galleon}}
 

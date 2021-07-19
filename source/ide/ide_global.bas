@@ -11,12 +11,15 @@ DIM SHARED IDEBuildModeChanged
 DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
+DIM SHARED host&
 
 DIM SHARED IdeSystem AS LONG
 '1=Entering text into the main IDE window
 '2=Entering text into the quick search bar
 '3=Scrolling within the help window
 IdeSystem = 1
+
+DIM SHARED IdeDebugMode AS LONG
 
 DIM SHARED IdeRecentLink(1 TO 6, 1 TO 2) AS STRING
 DIM SHARED IdeOpenFile AS STRING 'makes IdeOpen directly open the file passed
@@ -29,6 +32,15 @@ TYPE IdeBmkType
 END TYPE
 REDIM SHARED IdeBmk(1) AS IdeBmkType
 DIM SHARED IdeBmkN
+
+TYPE QuickNavType
+    AS LONG idesx, idesy, idecx, idecy
+END TYPE
+
+DIM SHARED QuickNavTotal AS LONG
+DIM SHARED QuickNavHistory(0) AS QuickNavType
+
+REDIM SHARED IdeBreakpoints(1) AS _BYTE
 
 'GetInput global variables
 DIM SHARED iCHECKLATER 'the values will be checked later
@@ -149,8 +161,6 @@ DIM SHARED idechangemade AS INTEGER
 DIM SHARED ideinsert AS INTEGER
 DIM SHARED idepathsep AS STRING * 1
 DIM SHARED SubFuncLIST(0) AS STRING
-DIM SHARED QuickNavTotal AS LONG
-DIM SHARED QuickNavHistory(0) AS LONG
 DIM SHARED ModifyCOMMAND$
 DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
@@ -192,10 +202,10 @@ END TYPE
 '--------------------------------------------------------------------------------
 DIM SHARED idefocusline 'simply stores the location of the line to highlight in red
 DIM SHARED idecompilererrormessage$
-DIM SHARED ideautorun
-DIM SHARED menu$(1 TO 10, 0 TO 20)
-DIM SHARED menuDesc$(1 TO 10, 0 TO 20)
-DIM SHARED menusize(1 TO 10)
+DIM SHARED ideautorun, startPaused
+DIM SHARED menu$(1 TO 11, 0 TO 20)
+DIM SHARED menuDesc$(1 TO 11, 0 TO 20)
+DIM SHARED menusize(1 TO 11)
 DIM SHARED menus AS INTEGER, idecontextualmenuID AS INTEGER
 DIM SHARED ideeditmenuID AS INTEGER, SearchMenuID AS INTEGER
 DIM SHARED OptionsMenuID AS INTEGER, OptionsMenuSwapMouse AS INTEGER, OptionsMenuPasteCursor AS INTEGER

@@ -64,90 +64,58 @@ return (word << shift) | (word >> (32 - shift));
     uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
+    void fpu_reinit() { // do nothing }
     #else
     //QBASIC compatible rounding via FPU:
-    #ifdef QB64_MICROSOFT
-        int64 qbr(long double f){
-            int64 i; int temp=0;
-            if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
-            __asm{
-                fld   f
-                fistp i
-            }
-            if (temp) return i|0x8000000000000000;//+9223372036854775808;
-            return i;
-        }
-        uint64 qbr_longdouble_to_uint64(long double f){
-            uint64 i;
-            __asm{
-                fld   f
-                fistp i
-            }
-            return i;
-        }
-        int32 qbr_float_to_long(float f){
-            int32 i;
-            __asm{
-                fld   f
-                fistp i
-            }
-            return i;
-        }
-        int32 qbr_double_to_long(double f){
-            int32 i;
-            __asm{
-                fld   f
-                fistp i
-            }
-            return i;
-        }
-        #else
-        //FLDS=load single
-        //FLDL=load double
-        //FLDT=load long double
-        int64 qbr(long double f){
-            int64 i; int temp=0;
-            if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
-            __asm__ (
+    //FLDS=load single
+    //FLDL=load double
+    //FLDT=load long double
+    int64 qbr(long double f){
+        int64 i; int temp=0;
+        if (f>9223372036854775807) {temp=1;f=f-9223372036854775808u;} //if it's too large for a signed int64, make it an unsigned int64 and return that value if possible.
+        __asm__ (
             "fldt %1;"
             "fistpll %0;"              
             :"=m" (i)
             :"m" (f)
-            );
-            if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
-            return i;
-        }
-        uint64 qbr_longdouble_to_uint64(long double f){
-            uint64 i;
-            __asm__ (
+        );
+        if (temp) return i|0x8000000000000000;// if it's an unsigned int64, manually set the bit flag
+        return i;
+    }
+    uint64 qbr_longdouble_to_uint64(long double f){
+        uint64 i;
+        __asm__ (
             "fldt %1;"
             "fistpll %0;"              
             :"=m" (i)
             :"m" (f)
-            );
-            return i;
-        }
-        int32 qbr_float_to_long(float f){
-            int32 i;
-            __asm__ (
+        );
+        return i;
+    }
+    int32 qbr_float_to_long(float f){
+        int32 i;
+        __asm__ (
             "flds %1;"
             "fistpl %0;"              
             :"=m" (i)
             :"m" (f)
-            );
-            return i;
-        }
-        int32 qbr_double_to_long(double f){
-            int32 i;
-            __asm__ (
+        );
+        return i;
+    }
+    int32 qbr_double_to_long(double f){
+        int32 i;
+        __asm__ (
             "fldl %1;"
             "fistpl %0;"              
             :"=m" (i)
             :"m" (f)
-            );
-            return i;
-        }
-    #endif
+        );
+        return i;
+    }
+    void fpu_reinit(){
+        unsigned int mode = 0x37F;
+        asm("fldcw %0" : : "m" (*&mode));
+    }
 #endif //x86 support
 //bit-array access functions (note: used to be included through 'bit.cpp')
 uint64 getubits(uint32 bsize,uint8 *base,ptrszint i){
@@ -6776,7 +6744,7 @@ int32 func__str_compare(qbs *s1, qbs *s2) {
 qbs *qbs_inkey(){
     if (new_error) return qbs_new(0,1);
     qbs *tqbs;
-    Sleep(0);
+    // Sleep(0);
     tqbs=qbs_new(2,1);
     if (cmem[0x41a]!=cmem[0x41c]){
         tqbs->chr[0]=cmem[0x400+cmem[0x41a]];
@@ -12408,8 +12376,6 @@ void qbs_input(int32 numvariables,uint8 newline){
             goto qbs_input_next;
         }
         
-        if (inpstr2->len>=255) goto qbs_input_next;
-        
         //affect inpstr2 with key
         qbs_set(inpstr2,qbs_add(inpstr2,key));
         
@@ -12665,12 +12631,17 @@ int32 func__blink(){
 }
 
 int64 func__handle(){
-    #ifdef QB64_GUI
+    //#ifdef QB64_GUI
         #ifdef QB64_WINDOWS
+            #ifdef DEPENDENCY_CONSOLE_ONLY
+                char pszConsoleTitle[1024];
+                GetConsoleTitle(pszConsoleTitle,1024);
+                window_handle = FindWindow(NULL, pszConsoleTitle);
+            #endif
             while (!window_handle){Sleep(100);}
             return (ptrszint)window_handle;
         #endif
-    #endif
+    //#endif
     
     return 0;
 }
@@ -27059,6 +27030,37 @@ qbs *func__dir(qbs* context_in){
 			if(SUCCEEDED(SHGetFolderPathA(NULL,0x001c,NULL,0,osPath))){ //CSIDL_LOCAL_APPDATA (%LOCALAPPDATA%)
 				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
             }
+        #endif
+    }
+	
+		if (qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILES"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES"))){
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x0026,NULL,0,osPath))){ //CSIDL_PROGRAM_FILES (%PROGRAMFILES%)
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+            }
+        #endif
+    }
+	
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILESX86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILES X86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES X86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES 86"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES (X86)"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAMFILES (X86)"))||qbs_equal(qbs_ucase(context),qbs_new_txt("PROGRAM FILES(X86)"))){
+		#ifdef QB64_WINDOWS && _WIN64
+			CHAR osPath[MAX_PATH];
+			if(SUCCEEDED(SHGetFolderPathA(NULL,0x002a,NULL,0,osPath))){ //CSIDL_PROGRAM_FILES (%PROGRAMFILES(X86)%)
+				return qbs_add(qbs_new_txt(osPath),qbs_new_txt("\\"));
+            }
+        #endif
+    }
+	
+	if (qbs_equal(qbs_ucase(context),qbs_new_txt("TEMP"))||qbs_equal(qbs_ucase(context),qbs_new_txt("TEMP FILES"))){
+		#ifdef QB64_WINDOWS
+			CHAR osPath[MAX_PATH+1];
+			DWORD pathlen;
+			pathlen = GetTempPathA(261, osPath); //%TEMP%
+			char path[pathlen];
+			memcpy(path, &osPath, pathlen);
+			if (pathlen > 0){
+				return qbs_new_txt(path);
+			}
         #endif
     }
     

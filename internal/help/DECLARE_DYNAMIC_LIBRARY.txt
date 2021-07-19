@@ -18,7 +18,7 @@
 * ''Procedure_name'' is any procedure name you want to designate by using [[ALIAS]] with the ''Library_procedure'' name following. 
 * ''Parameters'' used by the Library procedure must be passed by value ([[BYVAL]]) except for [[STRING]] values.
 * '''''.h'' header files cannot be used with DECLARE DYNAMIC LIBRARY. Existence of any ''.h'' file of the same name as the ''.DLL'' file will cause DECLARE DYNAMIC LIBRARY to fail.'''
-* '''IMPORTANT:''' [[DECLARE DYNAMIC LIBRARY]] let's you specify any SUB/FUNCTION calling format you wish, but '''if the size of the parameters does not match, the size expected within the library your code will probably cause a GPF (General Protection Fault).''' It is important to understand that you are creating a 32-bit program (even under 64-bit Windows) so '''pointers (if required) will be 32-bits in size, the equivalent of a [[LONG]].'''
+* '''IMPORTANT:''' [[DECLARE DYNAMIC LIBRARY]] let's you specify any SUB/FUNCTION calling with the format you wish, but '''if the size of the parameter list does not match the size expected within the library, then your code will probably cause a GPF (General Protection Fault).
 * '''STATIC''' is the same as [[DECLARE LIBRARY]] except that it prioritizes linking to static libraries (*.a/*.o) over shared object (*.so) libraries, if both exist. As Windows doesn't really use shared libraries (DLLs are a bit different) this does not affect Windows users.
 * The [[_OFFSET]] in memory can be used in '''CUSTOMTYPE''', '''STATIC''' and '''DYNAMIC LIBRARY''' declarations.
 * [[SUB]] procedures using DECLARE CUSTOMTYPE LIBRARY API procedures '''may error'''. Try DYNAMIC with the DLL name.
@@ -26,10 +26,9 @@
 * '''NOTE: It is up to the user to document and determine the suitability of all Libraries and procedures they choose to use. QB64 cannot guarantee that any procedure will work and cannot quarantee any troubleshooting help.'''
 
 
-==Availability==
-* '''Version 0.923 and up (Windows)'''
-* '''Version 0.94 and up (Linux and macOS)'''
-
+{{PageAvailability}}
+* Version 0.923 and up (Windows).
+* Version 0.94 and up (Linux and macOS).
 
 
 {{PageExamples}}

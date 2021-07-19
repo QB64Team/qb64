@@ -656,6 +656,7 @@ extern int64 qbr(long double f);
 extern uint64 qbr_longdouble_to_uint64(long double f);
 extern int32 qbr_float_to_long(float f);
 extern int32 qbr_double_to_long(double f);
+extern void fpu_reinit(void);
 
 extern uint64 getubits(uint32 bsize,uint8 *base,ptrszint i);
 extern int64 getbits(uint32 bsize,uint8 *base,ptrszint i);
@@ -1781,6 +1782,15 @@ ontimer_struct *ontimer=(ontimer_struct*)malloc(sizeof(ontimer_struct));
 
 int32 ontimerthread_lock=0;
 
+void stop_timers() {
+  ontimerthread_lock = 1;
+  while (ontimerthread_lock != 2);
+}
+
+void start_timers() {
+  ontimerthread_lock = 0;
+}
+
 int32 func__freetimer(){
     if (new_error) return 0;
     static int32 i;
@@ -2073,7 +2083,6 @@ void division_by_zero_handler(int ignore){
 //    error(256);//assume stack overflow? (the most likely cause)
 //}
 
-
 #ifdef QB64_WINDOWS
     void QBMAIN_WINDOWS(void *unused){
         QBMAIN(NULL);
@@ -2087,80 +2096,7 @@ void division_by_zero_handler(int ignore){
 #endif
 void QBMAIN(void *unused)
 {
-    
-    
-    
-    
-    
-    
-    /*
-        lame_t lame = lame_init();
-        lame_set_in_samplerate(lame, 44100);
-        //lame_set_VBR(lame, vbr_default);
-        lame_init_params(lame);
-    */
-    
-    
-    /*
-        ///OPENAL
-        dev = alcOpenDevice(NULL); if(!dev) exit(111);
-        ctx = alcCreateContext(dev, NULL);
-        alcMakeContextCurrent(ctx); if(!ctx) exit(222);
-        #define NUM_BUFFERS 3
-        #define BUFFER_SIZE 4096
-        ALuint source, buffers[NUM_BUFFERS];
-        ALuint frequency;
-        ALenum format;
-        unsigned char *buf;
-        alGenBuffers(NUM_BUFFERS, buffers);
-        alGenSources(1, &source);
-        if(alGetError() != AL_NO_ERROR) exit(333);
-        int channels, bits;
-        channels=1;
-        bits=8;
-        frequency=22050;
-        format = 0;
-        if(bits == 8)
-        {
-        if(channels == 1)
-        format = AL_FORMAT_MONO8;
-        else if(channels == 2)
-        format = AL_FORMAT_STEREO8;
-        }
-        else if(bits == 16)
-        {
-        if(channels == 1)
-        format = AL_FORMAT_MONO16;
-        else if(channels == 2)
-        format = AL_FORMAT_STEREO16;
-        }
-        int ret;
-        
-        //qbs_print(qbs_str((int32)ALC_FREQUENCY),1);
-        
-        
-        //uint8 *buf;
-        buf=(unsigned char*)malloc(4096);
-        //fill with crap!
-        int ii;
-        for (ii=0;ii<4096;ii++){
-        buf[ii]=func_rnd(NULL,0)*255.0;
-        }
-        alBufferData(buffers[0], format, buf, BUFFER_SIZE, frequency);
-        alBufferData(buffers[1], format, buf, BUFFER_SIZE, frequency);
-        alBufferData(buffers[2], format, buf, BUFFER_SIZE, frequency);
-        
-        alSourceQueueBuffers(source, NUM_BUFFERS, buffers);
-        alSourcePlay(source);
-        if(alGetError() != AL_NO_ERROR) exit(444);
-    */
-    
-    
-    #ifdef QB64_WINDOWS
-        static uint8 controlfp_set=0;
-        if (!controlfp_set){controlfp_set=1; _controlfp(_PC_64,0x00030000);}//_MCW_PC=0x00030000
-    #endif
-    
+    fpu_reinit();
     #ifdef QB64_WINDOWS
         signal(SIGFPE, division_by_zero_handler);
         //signal(SIGSEGV, SIGSEGV_handler);
@@ -2171,28 +2107,11 @@ void QBMAIN(void *unused)
         sig_act.sa_flags = 0;
         sigaction(SIGFPE, &sig_act, NULL);
     #endif
-    
-    
-    
-    
-    
-    
-    /*
-        ptrszint z;
-        z=(ptrszint)&dummyfunc;
-        myfunc=(functype*)z;
-        exit(myfunc(0,0));
-    */
-    
+
     ptrszint tmp_long;
     int32 tmp_fileno;
     qbs* tqbs;
     uint32 qbs_tmp_base=qbs_tmp_list_nexti;
-    
-    
-    
-    
-    
     static mem_lock *sf_mem_lock=NULL;
     if (!sf_mem_lock){new_mem_lock(); sf_mem_lock=mem_lock_tmp; sf_mem_lock->type=3;}
     

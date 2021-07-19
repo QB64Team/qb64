@@ -197,7 +197,7 @@ FUNCTION ide2 (ignore)
     IF LEFT$(c$, 1) = CHR$(12) THEN
         f$ = RIGHT$(c$, LEN(c$) - 1)
         LOCATE , , 0
-        clearStatusWindow
+        clearStatusWindow 0
 
         dummy = DarkenFGBG(1)
         BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
@@ -326,7 +326,14 @@ FUNCTION ide2 (ignore)
             menu$(m, i) = "Make E#XE Only  F11": i = i + 1
         END IF
         menuDesc$(m, i - 1) = "Compiles current program without running it"
+        menusize(m) = i - 1
 
+        m = m + 1: i = 0
+        menu$(m, i) = "Debug": i = i + 1
+        menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
+        menuDesc$(m, i - 1) = "Sets/clears breakpoint at cursor location"
+        menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all breakpoints"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -398,7 +405,6 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Allows mixing colors to edit/insert _RGB statements"
         menusize(m) = i - 1
 
-
         m = m + 1: i = 0
         menu$(m, i) = "Help": i = i + 1
         menu$(m, i) = "#View  Shift+F1": i = i + 1
@@ -456,6 +462,7 @@ FUNCTION ide2 (ignore)
 
         'new blank text field
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
+        REDIM IdeBreakpoints(iden) AS _BYTE
         ideunsaved = -1
         idechangemade = 1
 
@@ -546,6 +553,7 @@ FUNCTION ide2 (ignore)
                 LOOP UNTIL asca = 13
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                REDIM IdeBreakpoints(iden) AS _BYTE
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
                     idecy = ideStartAtLine
                     IF idecy - 10 >= 1 THEN idesy = idecy - 10
@@ -672,6 +680,32 @@ FUNCTION ide2 (ignore)
         IF ideautorun THEN ideautorun = 0: GOTO idemrunspecial
     END IF
 
+    STATIC attemptToHost AS _BYTE
+    IF vWatchOn = 1 AND attemptToHost = 0 THEN
+        IF host& = 0 THEN
+            host& = _OPENHOST("TCP/IP:9000")
+            attemptToHost = -1
+        END IF
+    END IF
+
+    IF c$ = CHR$(254) THEN
+        '$DEBUG mode on
+        IdeDebugMode = 1
+
+        EnterDebugMode:
+        idecompiling = 0
+        ready = 1
+        _RESIZE OFF
+        DebugMode
+        SELECT CASE IdeDebugMode
+            CASE 1
+                IdeDebugMode = 0
+        END SELECT
+        COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
+        IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
+        GOTO ideloop
+    END IF
+
     IF c$ = CHR$(11) THEN
         idecompiling = 0
         ready = 1
@@ -710,7 +744,7 @@ FUNCTION ide2 (ignore)
         'COLOR 0, 7: _PRINTSTRING (1, 1), menubar$ 'repair menu bar
 
         IF c$ <> CHR$(3) THEN
-            clearStatusWindow
+            clearStatusWindow 0
             IF ready THEN
                 IF IDEShowErrorsImmediately THEN
                     _PRINTSTRING (2, idewy - 3), "OK" 'report OK status
@@ -892,7 +926,7 @@ FUNCTION ide2 (ignore)
                     IF LEFT$(IdeInfo, 19) <> "Selection length = " THEN IdeInfo = ""
                     UpdateIdeInfo
 
-                    clearStatusWindow
+                    clearStatusWindow 0
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
@@ -902,7 +936,7 @@ FUNCTION ide2 (ignore)
                         FOR i = 1 TO LEN(a$)
                             IF ASC(a$, i) = 0 THEN
                                 idecompilererrormessage$ = LEFT$(a$, i - 1)
-                                IF _DEFAULTCOLOR = 7 THEN COLOR 11 ELSE COLOR 7
+                                IF _DEFAULTCOLOR <> 11 THEN COLOR 11 ELSE COLOR 7
                                 _CONTINUE
                             END IF
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
@@ -919,9 +953,20 @@ FUNCTION ide2 (ignore)
                         x = 1
                         y = idewy - 3
 
-                        IF l <> 0 AND idecy = l THEN a$ = a$ + " on current line"
+                        IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + " on current line"
 
+                        hasReference = INSTR(a$, " - Reference: ")
+                        IF hasReference THEN
+                            hasReference = hasReference + 14
+                        ELSE
+                            hasReference = INSTR(a$, "Expected ")
+                            IF hasReference THEN
+                                hasReference = hasReference + 9
+                            END IF
+                        END IF
                         FOR i = 1 TO LEN(a$)
+                            IF hasReference > 0 AND i >= hasReference THEN COLOR 12, 6
+                            IF onCurrentLine > 0 AND i > onCurrentLine THEN COLOR 7, 1
                             x = x + 1: IF x = idewx THEN x = 2: y = y + 1
                             IF y > idewy - 1 THEN EXIT FOR
                             _PRINTSTRING (x, y), CHR$(ASC(a$, i))
@@ -964,7 +1009,7 @@ FUNCTION ide2 (ignore)
 
             IF idechangemade THEN
                 IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
-                    clearStatusWindow
+                    clearStatusWindow 0
                     IdeInfo = ""
                     _PRINTSTRING (2, idewy - 3), "..." 'assume new compilation will begin
                 END IF
@@ -1255,7 +1300,7 @@ FUNCTION ide2 (ignore)
         'Hover/click (QuickNav, "Find" field, version number, line number)
         updateHover = 0
         IF QuickNavTotal > 0 THEN
-            DO UNTIL QuickNavHistory(QuickNavTotal) <= iden
+            DO UNTIL QuickNavHistory(QuickNavTotal).idecy <= iden
                 'make sure that the line number in history still exists
                 QuickNavTotal = QuickNavTotal - 1
                 IF QuickNavTotal = 0 THEN EXIT DO
@@ -1268,7 +1313,7 @@ FUNCTION ide2 (ignore)
                     IF QuickNavHover = 0 THEN
                         QuickNavHover = -1
                         COLOR 15, 3
-                        popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal)) + " "
+                        popup$ = " " + CHR$(17) + " back to line " + str2$(QuickNavHistory(QuickNavTotal).idecy) + " "
                         _PRINTSTRING (4, 2), popup$
 
                         'shadow
@@ -1281,7 +1326,10 @@ FUNCTION ide2 (ignore)
 
                     IF mCLICK THEN
                         ideselect = 0
-                        idecy = QuickNavHistory(QuickNavTotal)
+                        idecy = QuickNavHistory(QuickNavTotal).idecy
+                        idecx = QuickNavHistory(QuickNavTotal).idecx
+                        idesy = QuickNavHistory(QuickNavTotal).idesy
+                        idesx = QuickNavHistory(QuickNavTotal).idesx
                         QuickNavTotal = QuickNavTotal - 1
                         GOTO ideloop
                     END IF
@@ -1469,7 +1517,7 @@ FUNCTION ide2 (ignore)
                         CASE 2
                             '2- Link to the line that has a compiler error:
                             idecx = 1
-                            AddQuickNavHistory idecy
+                            AddQuickNavHistory
                             idecy = idefocusline
                             ideselect = 0
                             GOTO specialchar
@@ -1494,6 +1542,15 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
+        IF KB = KEY_F8 THEN
+            startPaused = -1
+            GOTO idemrun
+        END IF
+
+        IF KB = KEY_F9 THEN 'toggle breakpoint
+            GOTO toggleBreakpoint
+        END IF
+
         IF KB = KEY_F11 THEN 'make exe only
             idemexe:
             iderunmode = 2
@@ -1501,6 +1558,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
+            startPaused = 0
             idemrun:
             iderunmode = 1 'run detached; = 0 'standard run
             idemrunspecial:
@@ -1523,7 +1581,7 @@ FUNCTION ide2 (ignore)
                 ELSEIF result = 3 THEN
                     PCOPY 3, 0: SCREEN , , 3, 0
                     LOCATE , , 0
-                    clearStatusWindow
+                    clearStatusWindow 0
                     _PRINTSTRING (2, idewy - 3), "Compilation request canceled."
                     GOTO specialchar
                 END IF
@@ -1534,7 +1592,7 @@ FUNCTION ide2 (ignore)
             IF ready <> 0 AND idechangemade = 0 THEN
 
                 LOCATE , , 0
-                clearStatusWindow
+                clearStatusWindow 0
 
                 IF idecompiled THEN
 
@@ -1600,7 +1658,7 @@ FUNCTION ide2 (ignore)
 
             'correct status message
             LOCATE , , 0
-            clearStatusWindow
+            clearStatusWindow 0
 
             _PRINTSTRING (2, idewy - 3), "Checking program... (editing program will cancel request)"
 
@@ -2700,7 +2758,7 @@ FUNCTION ide2 (ignore)
                     IF IdeBmk(b).y = l THEN EXIT DO
                 NEXT
             LOOP
-            AddQuickNavHistory idecy
+            AddQuickNavHistory
             idecy = l
             idecx = IdeBmk(b).x
             ideselect = 0
@@ -2777,7 +2835,7 @@ FUNCTION ide2 (ignore)
                             CLOSE #backupIncludeFile
 
                             SCREEN , , 3, 0
-                            clearStatusWindow
+                            clearStatusWindow 0
                             COLOR 15, 1
                             _PRINTSTRING (2, idewy - 3), "Editing $INCLUDE file..."
                             dummy = DarkenFGBG(1)
@@ -2798,7 +2856,7 @@ FUNCTION ide2 (ignore)
                             CLOSE #backupIncludeFile
 
                             dummy = DarkenFGBG(0)
-                            clearStatusWindow
+                            clearStatusWindow 0
 
                             IF tempInclude1$ = tempInclude2$ THEN
                                 IF IDEShowErrorsImmediately THEN
@@ -2860,25 +2918,16 @@ FUNCTION ide2 (ignore)
                     idemouseselect = 1
                     wholeword.select = 0
                 END IF
-            ELSEIF mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers THEN
-                'line numbers are visible and been clicked
-                ideselect = 1
-                idecy = mY - 2 + idesy - 1
-                IF idecy < iden THEN
-                    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
-                    idecy = idecy + 1
-                    idecx = 1
-                ELSEIF idecy = iden THEN
-                    a$ = idegetline$(idecy)
-                    IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
-                    idecx = LEN(a$) + 1
-                ELSEIF idecy > iden THEN
-                    idecy = iden
-                    ideselect = 0
-                    idecx = 1
+            ELSEIF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
+                   (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                'line numbers are visible and have been clicked or
+                'line numbers are hidden and the left border has been clicked
+                ideselect = 0
+                idecytemp = mY - 2 + idesy - 1
+                IF idecytemp =< iden THEN
+                    idecy = idecytemp
+                    GOTO toggleBreakpoint
                 END IF
-                wholeword.select = 0
-                idemouseselect = 0
             END IF
         END IF
 
@@ -3088,7 +3137,7 @@ FUNCTION ide2 (ignore)
         IF KCONTROL AND UCASE$(K$) = "G" THEN 'goto line
             IF KSHIFT AND idefocusline > 0 THEN
                 idecx = 1
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = idefocusline
                 ideselect = 0
             ELSE
@@ -3138,7 +3187,10 @@ FUNCTION ide2 (ignore)
             IF KCONTROL THEN
                 IF QuickNavTotal > 0 THEN
                     ideselect = 0
-                    idecy = QuickNavHistory(QuickNavTotal)
+                    idecy = QuickNavHistory(QuickNavTotal).idecy
+                    idecx = QuickNavHistory(QuickNavTotal).idecx
+                    idesy = QuickNavHistory(QuickNavTotal).idesy
+                    idesx = QuickNavHistory(QuickNavTotal).idesx
                     QuickNavTotal = QuickNavTotal - 1
                     GOTO ideloop
                 END IF
@@ -4884,7 +4936,7 @@ FUNCTION ide2 (ignore)
                         IF IdeBmk(b).y = l THEN EXIT DO
                     NEXT
                 LOOP
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = l
                 idecx = IdeBmk(b).x
                 ideselect = 0
@@ -4942,7 +4994,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 ideQuickKeycode:
                 dummy = DarkenFGBG(1)
-                clearStatusWindow
+                clearStatusWindow 0
                 COLOR 15, 1
                 _PRINTSTRING (2, idewy - 3), "Press any key to insert its _KEYHIT/_KEYDOWN code..."
                 PCOPY 3, 0
@@ -4991,7 +5043,7 @@ FUNCTION ide2 (ignore)
 
             IF LEFT$(menu$(m, s), 10) = "#Go To SUB" OR LEFT$(menu$(m, s), 15) = "#Go To FUNCTION" THEN 'Contextual menu Goto
                 PCOPY 3, 0: SCREEN , , 3, 0
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = CVL(MID$(SubFuncLIST(1), 1, 4))
                 idesy = idecy
                 idecx = 1
@@ -5002,7 +5054,7 @@ FUNCTION ide2 (ignore)
 
             IF LEFT$(menu$(m, s), 12) = "Go To #Label" THEN 'Contextual menu Goto label
                 PCOPY 3, 0: SCREEN , , 3, 0
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = CVL(MID$(SubFuncLIST(UBOUND(SubFuncLIST)), 1, 4))
                 idesy = idecy
                 idecx = 1
@@ -5490,6 +5542,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "#Start  F5" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
+                startPaused = 0
                 GOTO idemrun
             END IF
 
@@ -5505,6 +5558,30 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "Make E#XE Only  F11" OR menu$(m, s) = "Make E#xecutable Only  F11" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO idemexe
+            END IF
+
+            IF menu$(m, s) = "Toggle #Breakpoint  F9" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                toggleBreakpoint:
+                IF vWatchOn = 0 THEN
+                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    IF result = 1 THEN
+                        ideselect = 0
+                        ideinsline 1, SCase$("$Debug")
+                        idecy = idecy + 1
+                        idechangemade = 1
+                        IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                    END IF
+                ELSE
+                    IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                END IF
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "#Clear All Breakpoints  F10" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                REDIM IdeBreakpoints(iden) AS _BYTE
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "E#xit" THEN
@@ -5559,6 +5636,7 @@ FUNCTION ide2 (ignore)
                 END IF
                 ideunsaved = -1
                 'new blank text field
+                REDIM IdeBreakpoints(1) AS _BYTE
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
                 idesy = 1
@@ -5870,7 +5948,7 @@ FUNCTION ide2 (ignore)
     END IF
 
     IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
-        clearStatusWindow
+        clearStatusWindow 0
 
         IdeInfo = ""
 
@@ -5938,6 +6016,330 @@ FUNCTION ide2 (ignore)
     RETURN
 
 END FUNCTION
+
+SUB DebugMode
+    STATIC PauseMode AS _BYTE
+
+    timeout = 10
+    _KEYCLEAR
+
+    IF IdeDebugMode = 1 THEN PauseMode = 0
+
+    SCREEN , , 3, 0
+    COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
+    m$ = "$DEBUG MODE ACTIVE"
+    COLOR 2
+    _PRINTSTRING ((idewx - LEN(m$)) \ 2, 1), m$
+
+    dummy = DarkenFGBG(1)
+    clearStatusWindow 0
+    setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 15
+
+    IF host& = 0 THEN
+        host& = _OPENHOST("TCP/IP:9000")
+        IF host& = 0 THEN
+            dummy = DarkenFGBG(0)
+            clearStatusWindow 1
+            setStatusMessage 1, "Failed to initiate debug session.", 7
+            setStatusMessage 2, "Cannot receive connections. Check your firewall permissions.", 2
+            WHILE _MOUSEINPUT: WEND
+            EXIT SUB
+        END IF
+    END IF
+
+    endc$ = "<END>"
+
+    'wait for client to connect
+    start! = TIMER
+    DO
+        client& = _OPENCONNECTION(host&)
+        IF client& THEN EXIT DO
+
+        k& = _KEYHIT
+        IF k& = 27 OR TIMER - start! > timeout THEN
+            dummy = DarkenFGBG(0)
+            clearStatusWindow 0
+            setStatusMessage 1, temp$ + "Debug session aborted.", 7
+            IF k& <> 27 THEN
+                setStatusMessage 2, "Connection timeout.", 2
+            END IF
+            _KEYCLEAR
+            WHILE _MOUSEINPUT: WEND
+            EXIT SUB
+        END IF
+
+        _LIMIT 100
+    LOOP
+
+    ideselect = 0
+    clearStatusWindow 1
+    setStatusMessage 1, "Handshaking...", 15
+
+    start! = TIMER
+    DO
+        k& = _KEYHIT
+        IF k& = 27 OR TIMER - start! > timeout THEN
+            dummy = DarkenFGBG(0)
+            clearStatusWindow 0
+            setStatusMessage 1, temp$ + "Debug session aborted.", 7
+            IF k& <> 27 THEN
+                setStatusMessage 2, "Connection timeout.", 2
+            END IF
+            _KEYCLEAR
+            WHILE _MOUSEINPUT: WEND
+            EXIT SUB
+        END IF
+
+        GOSUB GetCommand
+        SELECT CASE cmd$
+            CASE "me"
+                program$ = value$
+                expected$ = lastBinaryGenerated$
+                IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
+
+                IF INSTR(_OS$, "WIN") THEN
+                    IF INSTR(expected$, "/") = 0 AND INSTR(expected$, "\") = 0 THEN
+                        expected$ = getfilepath$(COMMAND$(0)) + expected$
+                    END IF
+                END IF
+
+                IF program$ <> expected$ THEN
+                    dummy = DarkenFGBG(0)
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Failed to initiate debug session.", 7
+                    setStatusMessage 2, LEFT$("Expected: " + expected$, idewx - 2), 2
+                    setStatusMessage 3, LEFT$("Received: " + program$, idewx - 2), 2
+                    cmd$ = "vwatch:file mismatch"
+                    GOSUB SendCommand
+                    CLOSE #client&
+                    WHILE _MOUSEINPUT: WEND
+                    EXIT SUB
+                ELSE
+                    EXIT DO
+                END IF
+        END SELECT
+    LOOP
+
+    cmd$ = "vwatch:ok"
+    GOSUB SendCommand
+    cmd$ = "line count:" + MKL$(iden)
+    GOSUB SendCommand
+
+    breakpointCount = 0
+    breakpointList$ = ""
+    FOR i = 1 TO UBOUND(IdeBreakpoints)
+        IF IdeBreakpoints(i) THEN
+            breakpointCount = breakpointCount + 1
+            breakpointList$ = breakpointList$ + MKL$(i)
+        END IF
+    NEXT
+    IF breakpointCount THEN
+        cmd$ = "breakpoint count:" + MKL$(breakpointCount)
+        GOSUB SendCommand
+        cmd$ = "breakpoint list:" + breakpointList$
+        GOSUB SendCommand
+    END IF
+
+    clearStatusWindow 1
+    IF startPaused THEN
+        cmd$ = "break"
+        PauseMode = -1
+        setStatusMessage 1, "Paused.", 2
+    ELSE
+        cmd$ = "run"
+        PauseMode = 0
+        setStatusMessage 1, "Running...", 10
+    END IF
+    GOSUB SendCommand
+
+    clearStatusWindow 2
+    setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+
+    noFocusMessage = -1
+
+    DO 'main loop
+        WHILE _MOUSEINPUT: WEND
+        mB = _MOUSEBUTTON(1)
+        mB2 = _MOUSEBUTTON(2)
+        mX = _MOUSEX
+        mY = _MOUSEY
+
+        IF mB THEN
+            IF mouseDown = 0 THEN
+                mouseDown = -1
+                mouseDownOnX = mX
+                mouseDownOnY = mY
+            ELSE
+                'drag
+            END IF
+        ELSE
+            IF mouseDown THEN
+                IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
+                    IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
+                       (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                        ideselect = 0
+                        idecytemp = mY - 2 + idesy - 1
+                        IF idecytemp =< iden THEN
+                            IdeBreakpoints(idecytemp) = NOT IdeBreakpoints(idecytemp)
+                            IF IdeBreakpoints(idecytemp) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                            cmd$ = cmd$ + MKL$(idecytemp)
+                            GOSUB SendCommand
+                            ideshowtext
+                            IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
+                            PCOPY 3, 0
+                        END IF
+                    END IF
+                END IF
+            END IF
+            mouseDown = 0
+        END IF
+
+
+        IF _WINDOWHASFOCUS THEN
+            IF noFocusMessage THEN
+                clearStatusWindow 2
+                clearStatusWindow 3
+                setStatusMessage 2, "$DEBUG: <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
+                setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
+                noFocusMessage = 0
+            END IF
+        ELSE
+            IF noFocusMessage = 0 THEN
+                clearStatusWindow 2
+                clearStatusWindow 3
+                setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+                noFocusMessage = -1
+            END IF
+        END IF
+
+        k& = _KEYHIT
+        SELECT CASE k&
+            CASE 27
+                cmd$ = "free"
+                GOSUB SendCommand
+                CLOSE #client&
+                dummy = DarkenFGBG(0)
+                clearStatusWindow 0
+                setStatusMessage 1, "Debug session aborted.", 7
+                WHILE _MOUSEINPUT: WEND
+                _KEYCLEAR
+                EXIT SUB
+            CASE 16128 'F5
+                PauseMode = 0
+                cmd$ = "run"
+                GOSUB SendCommand
+                clearStatusWindow 1
+                setStatusMessage 1, "Running...", 10
+                dummy = DarkenFGBG(1)
+            CASE 16384 'F6
+                IF PauseMode THEN
+                    PauseMode = 0
+                    cmd$ = "step out"
+                    GOSUB SendCommand
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                END IF
+            CASE 16640 'F7
+                IF PauseMode THEN
+                    cmd$ = "step over"
+                    PauseMode = 0
+                    GOSUB SendCommand
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                END IF
+            CASE 16896 'F8
+                IF PauseMode = 0 THEN
+                    cmd$ = "break"
+                    PauseMode = -1
+                    GOSUB SendCommand
+                ELSE
+                    cmd$ = "step"
+                    PauseMode = -1
+                    GOSUB SendCommand
+                END IF
+                clearStatusWindow 1
+                setStatusMessage 1, "Paused.", 2
+            CASE 17152 'F9
+                IF PauseMode THEN
+                    IdeBreakpoints(l) = NOT IdeBreakpoints(l)
+                    IF IdeBreakpoints(l) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                    cmd$ = cmd$ + MKL$(l)
+                    GOSUB SendCommand
+                    ideshowtext
+                    PCOPY 3, 0
+                END IF
+            CASE 17408 'F10
+                REDIM IdeBreakpoints(iden) AS _BYTE
+                cmd$ = "clear all breakpoints"
+                GOSUB SendCommand
+                ideshowtext
+                IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
+                PCOPY 3, 0
+        END SELECT
+
+        GOSUB GetCommand
+
+        SELECT CASE cmd$
+            CASE "breakpoint", "line number"
+                l = CVL(value$)
+                idecy = l
+                ideshowtext
+                clearStatusWindow 1
+                IF cmd$ = "breakpoint" THEN
+                    setStatusMessage 1, "Breakpoint reached on line" + STR$(l), 2
+                ELSE
+                    setStatusMessage 1, "Paused.", 2
+                END IF
+                PauseMode = -1
+            CASE "quit"
+                CLOSE #client&
+                dummy = DarkenFGBG(0)
+                clearStatusWindow 0
+                setStatusMessage 1, "Debug session aborted.", 7
+                WHILE _MOUSEINPUT: WEND
+                _KEYCLEAR
+                EXIT SUB
+            CASE "error"
+                clearStatusWindow 0
+                setStatusMessage 1, "Debug session aborted.", 7
+                IF value$ = "" THEN
+                    setStatusMessage 2, "Communication error.", 2
+                ELSE
+                    setStatusMessage 2, LEFT$(value$, idewx - 2), 2
+                END IF
+        END SELECT
+
+        _LIMIT 100
+    LOOP
+
+    WHILE _MOUSEINPUT: WEND
+    _KEYCLEAR
+    EXIT SUB
+
+    GetCommand:
+    GET #client&, , temp$
+    buffer$ = buffer$ + temp$
+
+    IF INSTR(buffer$, endc$) THEN
+        cmd$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
+        buffer$ = MID$(buffer$, INSTR(buffer$, endc$) + LEN(endc$))
+
+        IF INSTR(cmd$, ":") THEN
+            value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
+            cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        END IF
+    ELSE
+        cmd$ = "": value$ = ""
+    END IF
+    RETURN
+
+    SendCommand:
+    cmd$ = cmd$ + endc$
+    PUT #client&, , cmd$
+    RETURN
+END SUB
 
 SUB idebox (x, y, w, h)
     _PRINTSTRING (x, y), CHR$(218) + STRING$(w - 2, 196) + CHR$(191)
@@ -6291,7 +6693,7 @@ FUNCTION idechange$
             NEXT
 
             SCREEN , , 3, 0
-            clearStatusWindow
+            clearStatusWindow 0
             idefocusline = 0
             ideshowtext
             PCOPY 3, 0
@@ -7313,6 +7715,12 @@ SUB ideinsline (i, text$)
         END IF
     NEXT
 
+    REDIM _PRESERVE IdeBreakpoints(iden + 1) AS _BYTE
+    FOR b = iden + 1 TO i STEP -1
+        SWAP IdeBreakpoints(b), IdeBreakpoints(b - 1)
+    NEXT
+    IdeBreakpoints(i) = 0
+
     text$ = RTRIM$(text$)
 
     IF i = -1 THEN i = idel
@@ -7879,6 +8287,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 LOOP UNTIL asca = 13
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
+                REDIM IdeBreakpoints(iden) AS _BYTE
                 ideerror = 1
                 ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
                 listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
@@ -8156,7 +8565,7 @@ SUB ideshowtext
             COLOR 7, 1
             _PRINTSTRING (1, y + 3), CHR$(179) 'clear prev bookmarks from lhs
 
-            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+            GOSUB ShowLineNumber
 
             IF l = idefocusline AND idecy <> l THEN
                 COLOR 7, 4 'Line with error gets a red background
@@ -8543,7 +8952,7 @@ SUB ideshowtext
             COLOR 7, 1
             _PRINTSTRING (1, y + 3), CHR$(179) 'clear prev bookmarks from lhs
 
-            IF ShowLineNumbers THEN GOSUB ShowLineNumber
+            GOSUB ShowLineNumber
 
             IF l = idefocusline AND idecy <> l THEN COLOR 13, 4 ELSE COLOR 13, 1
 
@@ -8622,16 +9031,27 @@ SUB ideshowtext
 
     EXIT SUB
     ShowLineNumber:
-    IF ShowLineNumbersUseBG THEN COLOR , 6
-    _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
-    IF l <= iden THEN
-        l2$ = STR$(l)
-        IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
-            _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
+    DO WHILE l > UBOUND(IdeBreakpoints)
+        REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
+    LOOP
+    IF ShowLineNumbers THEN
+        IF ShowLineNumbersUseBG THEN COLOR , 6
+        IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
+        _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
+        IF l <= iden THEN
+            l2$ = STR$(l)
+            IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
+                _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
+            END IF
+        END IF
+        IF ShowLineNumbersSeparator THEN _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
+        COLOR , 1
+    ELSE
+        IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN
+            COLOR 7, 4
+            _PRINTSTRING (1, y + 3), CHR$(179)
         END IF
     END IF
-    IF ShowLineNumbersSeparator THEN _PRINTSTRING (1 + maxLineNumberLength, y + 3), CHR$(179)
-    COLOR , 1
     RETURN
 
 END SUB
@@ -8744,7 +9164,9 @@ FUNCTION idesubs$
             END IF
             a$ = LTRIM$(RTRIM$(a$))
             x = INSTR(a$, "(")
-            IF x THEN
+            DIM comment AS _BYTE, quote AS _BYTE
+            IF x THEN FindQuoteComment a$, x, comment, quote
+            IF x > 0 AND comment = 0 AND quote = 0 THEN
                 n$ = RTRIM$(LEFT$(a$, x - 1))
                 args$ = RIGHT$(a$, LEN(a$) - x + 1)
                 x = 1
@@ -8799,7 +9221,6 @@ FUNCTION idesubs$
             IF sf = 0 THEN sf = INSTR(cursor + 1, nca$, "END FUNCTION")
 
             IF sf THEN
-                DIM comment AS _BYTE, quote AS _BYTE
                 FindQuoteComment nca$, sf, comment, quote
                 IF comment OR quote THEN cursor = sf: GOTO LookForENDSUB
                 GOSUB AddLineCount
@@ -9070,7 +9491,7 @@ FUNCTION idesubs$
         IF K$ = CHR$(13) OR (focus = 4 AND info <> 0) OR (info = 1 AND focus = 1) THEN
             y = o(1).sel
             IF y < 1 THEN y = -y
-            AddQuickNavHistory idecy
+            AddQuickNavHistory
             IF SortedSubsFlag = 0 THEN
                 idecy = CVL(MID$(ly$, y * 4 - 3, 4))
             ELSE
@@ -9494,7 +9915,7 @@ FUNCTION idewarningbox
             y = ABS(o(1).sel)
             IF y >= 1 AND y <= warningListItems AND warningLines(y) > 0 THEN
                 idegotobox_LastLineNum = warningLines(y)
-                AddQuickNavHistory idecy
+                AddQuickNavHistory
                 idecy = idegotobox_LastLineNum
                 IF warningIncLines(y) > 0 THEN
                     warningInInclude = idecy
@@ -10135,7 +10556,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
         END IF
         'change drive
         IF LEN(newpath$) = 2 AND RIGHT$(newpath$, 1) = ":" THEN
-            idezchangepath$ = newpath$
+            idezchangepath$ = newpath$ + "\"
             EXIT FUNCTION
         END IF
         idezchangepath$ = path$ + "\" + newpath$
@@ -10619,7 +11040,7 @@ SUB idegotobox
     IF v& < 1 THEN v& = 1
     IF v& > iden THEN v& = iden
     idegotobox_LastLineNum = v&
-    AddQuickNavHistory idecy
+    AddQuickNavHistory
     idecy = v&
     ideselect = 0
 END SUB
@@ -13633,7 +14054,20 @@ SUB IdeMakeEditMenu
 END SUB
 
 SUB IdeAddRecent (f2$)
-    f$ = CRLF + f2$ + CRLF
+    f$ = f2$
+    x = INSTR(f$, "//")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "//")
+    LOOP
+
+    x = INSTR(f$, "\\")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "\\")
+    LOOP
+
+    f$ = CRLF + f$ + CRLF
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
     x = INSTR(UCASE$(a$), UCASE$(f$))
@@ -14429,16 +14863,19 @@ FUNCTION FindCurrentSF$ (whichline)
     FindCurrentSF$ = sfname$
 END FUNCTION
 
-SUB AddQuickNavHistory (LineNumber&)
+SUB AddQuickNavHistory
 
     IF QuickNavTotal > 0 THEN
-        IF QuickNavHistory(QuickNavTotal) = LineNumber& THEN EXIT SUB
+        IF QuickNavHistory(QuickNavTotal).idecy = idecy THEN EXIT SUB
     END IF
 
     QuickNavTotal = QuickNavTotal + 1
-    REDIM _PRESERVE QuickNavHistory(1 TO QuickNavTotal) AS LONG
+    REDIM _PRESERVE QuickNavHistory(1 TO QuickNavTotal) AS QuickNavType
 
-    QuickNavHistory(QuickNavTotal) = LineNumber&
+    QuickNavHistory(QuickNavTotal).idecy = idecy
+    QuickNavHistory(QuickNavTotal).idecx = idecx
+    QuickNavHistory(QuickNavTotal).idesy = idesy
+    QuickNavHistory(QuickNavTotal).idesx = idesx
 END SUB
 
 SUB UpdateIdeInfo
@@ -14635,7 +15072,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
 
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
-                    clearStatusWindow
+                    clearStatusWindow 0
                     COLOR 15, 1
                     _PRINTSTRING (2, idewy - 3), "Converting...          "
                     PCOPY 3, 0
@@ -14643,7 +15080,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     convertLine$ = convertUtility$ + " " + QuotedFilename$(file$) + " -o " + QuotedFilename$(ofile$)
                     SHELL _HIDE convertLine$
 
-                    clearStatusWindow
+                    clearStatusWindow 0
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
 
@@ -14675,7 +15112,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     PCOPY 3, 0
                     SCREEN , , 3, 0
                     dummy = DarkenFGBG(1)
-                    clearStatusWindow
+                    clearStatusWindow 0
                     COLOR 15, 1
                     _PRINTSTRING (2, idewy - 3), "Preparing to convert..."
                     PCOPY 3, 0
@@ -14685,7 +15122,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                         SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
                     END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
-                    clearStatusWindow
+                    clearStatusWindow 0
                     dummy = DarkenFGBG(0)
                     PCOPY 3, 0
                     result = idemessagebox("Binary format", "Error launching conversion utility.", "")
@@ -14716,11 +15153,21 @@ SUB cleanSubName (n$)
     x = INSTR(n$, " "): IF x THEN n$ = LEFT$(n$, x - 1)
 END SUB
 
-SUB clearStatusWindow
+SUB clearStatusWindow(whichLine)
     COLOR 7, 1
-    _PRINTSTRING (2, idewy - 3), SPACE$(idewx - 2)
-    _PRINTSTRING (2, idewy - 2), SPACE$(idewx - 2)
-    _PRINTSTRING (2, idewy - 1), SPACE$(idewx - 2)
+    IF whichLine = 0 THEN
+        FOR whichLine = 1 TO 3
+            _PRINTSTRING (2, (idewy - 4) + whichLine), SPACE$(idewx - 2)
+        NEXT
+    ELSE
+        _PRINTSTRING (2, (idewy - 4) + whichLine), SPACE$(idewx - 2)
+    END IF
+END SUB
+
+SUB setStatusMessage(row, text$, fg)
+    COLOR fg
+    _PRINTSTRING (2, (idewy - 4) + row), text$
+    PCOPY 3, 0
 END SUB
 
 FUNCTION getWordAtCursor$

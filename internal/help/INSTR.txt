@@ -19,6 +19,7 @@ The [[INSTR]] function searches for the first occurence of a search [[STRING]] w
 * The {{Parameter|searchString$}} should be smaller or equal in [[LEN|length]] to the {{Parameter|baseString$}}, or 0 is returned.
 * Non-zero {{Parameter|position%}} return values can be used as a new start position by adding 1 to re-search the base string. See the example below.
 * In a loop, INSTR can search an entire file for occurences of certain words. See the [[MID$ (statement)|MID$]] statement example.
+* To search right to left, use [[_INSTRREV]]
 
 
 {{PageQBasic}}
@@ -49,6 +50,7 @@ There is 'cats' in the string at position: 62
 * [[LEFT$]], [[RIGHT$]]
 * [[LCASE$]], [[UCASE$]]
 * [[STRING]], [[INTEGER]]
+* [[_INSTRREV]]
 
 
 {{PageNavigation}}

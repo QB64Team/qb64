@@ -1,5 +1,5 @@
 {{DISPLAYTITLE:_TITLE}}
-The [[_TITLE]] statement provides the program name in the title bar of the program window.
+The [[_TITLE]] statement sets the program window's title-bar text.
 
 
 {{PageSyntax}}
@@ -7,18 +7,17 @@ The [[_TITLE]] statement provides the program name in the title bar of the progr
 
 
 {{PageParameters}}
-* {{Parameter|text$}} can be any literal or variable [[STRING]] or [[ASCII]] character value.
+* {{Parameter|text$}} can be any literal or variable [[STRING]] value.
 
 
 {{PageDescription}}
-* The title can be changed anywhere in a program procedure.
-* The title bar will say "Untitled" if a title is not set.
-* Change the title of the [[$CONSOLE]] windows created using [[_CONSOLETITLE]]
-* '''Note: A [[_DELAY|delay]] may be required before the title can be set.''' See [[_SCREENEXISTS]].
+* The title bar will display "Untitled" if a title is not set with this statement.
+* The title of created [[$CONSOLE]] windows can be set using [[_CONSOLETITLE]].
+* Note: A [[_DELAY|delay]] may be required before the title can be set. See [[_SCREENEXISTS]].
 
 
 {{PageExamples}}
-''Example 1:'' How to create the window title bar.
+''Example 1:'' How to set the program window's title-bar text.
 {{CodeStart}} '' ''
 {{Cl|_TITLE}} "My New Program" '' ''
 {{CodeEnd}}
@@ -35,25 +34,25 @@ The [[_TITLE]] statement provides the program name in the title bar of the progr
 
 
 {{Cl|FUNCTION}} TITLE$ '=== SHOW CURRENT PROGRAM
-{{Cl|SHARED}} PATH$
-{{Cl|DECLARE LIBRARY}} 'Directory Information using KERNEL32 provided by Dav
-  {{Cl|FUNCTION}} GetModuleFileNameA ({{Cl|BYVAL}} Module {{Cl|AS}} {{Cl|LONG}}, FileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
-{{Cl|DECLARE LIBRARY|END DECLARE}}
+    {{Cl|SHARED}} PATH$
+    {{Cl|DECLARE LIBRARY}} 'Directory Information using KERNEL32 provided by Dav
+	{{Cl|FUNCTION}} GetModuleFileNameA ({{Cl|BYVAL}} Module {{Cl|AS}} {{Cl|LONG}}, FileName {{Cl|AS}} {{Cl|STRING}}, {{Cl|BYVAL}} nSize {{Cl|AS}} {{Cl|LONG}})
+    {{Cl|DECLARE LIBRARY|END DECLARE}}
 
-FileName$ = {{Cl|SPACE$}}(256)
-Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
-{{Cl|IF...THEN|IF}} Result {{Cl|THEN}}
-  PATH$ = {{Cl|LEFT$}}(FileName$, Result)
-  start = 1
-  DO
-    posit = {{Cl|INSTR}}(start, PATH$, "\")
-    {{Cl|IF...THEN|IF}} posit {{Cl|THEN}} last = posit
-    start = posit + 1
-  {{Cl|LOOP}} {{Cl|UNTIL}} posit = 0
-  TITLE$ = {{Cl|MID$}}(PATH$, last + 1)
-  PATH$ = {{Cl|LEFT$}}(PATH$, last)
-{{Cl|ELSE}} TITLE$ = "": PATH$ = ""
-{{Cl|END IF}}
+    FileName$ = {{Cl|SPACE$}}(256)
+    Result = GetModuleFileNameA(0, FileName$, {{Cl|LEN}}(FileName$))
+    {{Cl|IF...THEN|IF}} Result {{Cl|THEN}}
+	PATH$ = {{Cl|LEFT$}}(FileName$, Result)
+	start = 1
+	{{Cl|DO}}
+	    posit = {{Cl|INSTR}}(start, PATH$, "\")
+	    {{Cl|IF...THEN|IF}} posit {{Cl|THEN}} last = posit
+	    start = posit + 1
+	{{Cl|LOOP}} {{Cl|UNTIL}} posit = 0
+	TITLE$ = {{Cl|MID$}}(PATH$, last + 1)
+	PATH$ = {{Cl|LEFT$}}(PATH$, last)
+    {{Cl|ELSE}} TITLE$ = "": PATH$ = ""
+    {{Cl|END IF}}
 {{Cl|END FUNCTION}} '' ''
 {{CodeEnd}}
 : ''Note:'' The actual module file name is returned. Not necessarily the Title value. The value returned can be used however.

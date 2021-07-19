@@ -1,13 +1,17 @@
 An '''underscore''' can be used at the end of a line of code to continue a code line to the next line.
 
 
+{{PageSyntax}}
 
-''Usage:'' IF x + y > 500 AND x + y &lt; 600 THEN_              
+::IF x + y > 500 AND x + y &lt; 600 THEN_              
 :::PRINT x + y
 
 
+{{PageDescription}}
+
 * The underscore can be anywhere after the code on that line to continue the code to the next line in QB64.
 * Multiple underscores can be used for the same line of code.
+* Comments cannot follow an underscore and are not continued on the next line if they end in an underscore. 
 * Modern QB64 keywords are preceded by an underscore, unless [[$NOPREFIX]] is used. Variables and user procedures names cannot start with a single underscore.
 ** Variables and user procedures names can be preceded by double underscores if necessary.
 * Underscores can be used in the middle of variable, sub procedure or [[CONST|constant]] names.

@@ -26,6 +26,11 @@ REDIM SHARED PL(1000) AS INTEGER 'Priority Level
 REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name Conversion variables.
 Set_OrderOfOperations
 
+DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState
+DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
+DIM SHARED opex_recompileAttempts, opex_desiredState
+DIM SHARED opexarray_recompileAttempts, opexarray_desiredState
+
 REDIM EveryCaseSet(100), SelectCaseCounter AS _UNSIGNED LONG
 REDIM SelectCaseHasCaseBlock(100)
 DIM ExecLevel(255), ExecCounter AS INTEGER
@@ -686,6 +691,8 @@ TYPE idstruct
     'For variables which are arguments passed to a sub/function
     sfid AS LONG 'id number of variable's parent sub/function
     sfarg AS INTEGER 'argument/parameter # within call (1=first)
+
+    hr_syntax AS STRING
 END TYPE
 
 DIM SHARED id AS idstruct
@@ -1086,7 +1093,11 @@ IF C = 9 THEN 'run
         dummy = DarkenFGBG(0)
     END IF
 
-    sendc$ = CHR$(6) 'ready
+    IF vWatchOn THEN
+        sendc$ = CHR$(254) 'launch debug interface
+    ELSE
+        sendc$ = CHR$(6) 'ready
+    END IF
     GOTO sendcommand
 END IF
 
@@ -1193,7 +1204,27 @@ sflistn = -1 'no entries
 
 SubNameLabels = sp 'QB64 will perform a repass to resolve sub names used as labels
 
+vWatchDesiredState = 0
+vWatchRecompileAttempts = 0
+
+qb64prefix_set_desiredState = 0
+qb64prefix_set_recompileAttempts = 0
+
+opex_desiredState = 0
+opex_recompileAttempts = 0
+
+opexarray_desiredState = 0
+opexarray_recompileAttempts = 0
+
 recompile:
+vWatchOn = vWatchDesiredState
+
+qb64prefix_set = qb64prefix_set_desiredState
+qb64prefix$ = "_"
+
+optionexplicit = opex_desiredState
+IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
+optionexplicitarray = opexarray_desiredState
 
 lastLineReturn = 0
 lastLine = 0
@@ -1390,8 +1421,6 @@ addmetastatic = 0
 addmetadynamic = 0
 DynamicMode = 0
 optionbase = 0
-optionexplicit = 0: IF optionexplicit_cmd = -1 AND NoIDEMode = 1 THEN optionexplicit = -1
-optionexplicitarray = 0
 ExeIconSet = 0
 VersionInfoSet = 0
 viFileVersionNum$ = "": viProductVersionNum$ = "": viCompanyName$ = ""
@@ -1429,8 +1458,7 @@ REDIM SHARED warningIncLines(1000) AS LONG
 REDIM SHARED warningIncFiles(1000) AS STRING
 maxLineNumber = 0
 uniquenumbern = 0
-qb64prefix_set = 0
-qb64prefix$ = "_"
+
 
 ''create a type for storing memory blocks
 ''UDT
@@ -1561,6 +1589,24 @@ END IF
 
 reginternal
 
+IF qb64prefix_set THEN
+    qb64prefix$ = ""
+
+    're-add internal keywords without the "_" prefix
+    reginternal
+
+    f = HASHFLAG_TYPE + HASHFLAG_RESERVED
+    HashAdd "UNSIGNED", f, 0
+    HashAdd "BIT", f, 0
+    HashAdd "BYTE", f, 0
+    HashAdd "INTEGER64", f, 0
+    HashAdd "OFFSET", f, 0
+    HashAdd "FLOAT", f, 0
+
+    f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
+    HashAdd "EXPLICIT", f, 0
+END IF
+
 OPEN tmpdir$ + "global.txt" FOR OUTPUT AS #18
 
 IF iderecompile THEN
@@ -1589,9 +1635,25 @@ DO
     ideprepass:
     prepassLastLine:
 
+    IF lastLine <> 0 OR firstLine <> 0 THEN
+        lineBackup$ = wholeline$ 'backup the real line (will be blank when lastline is set)
+        forceIncludeFromRoot$ = ""
+        IF vWatchOn THEN
+            addingvWatch = 1
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+        ELSE
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+        END IF
+        firstLine = 0: lastLine = 0
+        IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude_prepass
+        forceIncludeCompleted_prepass:
+        addingvWatch = 0
+        wholeline$ = lineBackup$
+    END IF
+
     wholestv$ = wholeline$ '### STEVE EDIT FOR CONST EXPANSION 10/11/2013
-
-
 
     prepass = 1
     layout = ""
@@ -1610,26 +1672,13 @@ DO
     IF LEN(wholeline$) THEN
 
         IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
-            IF firstLine = 0 THEN a$ = "$NOPREFIX must come before any other statements": GOTO errmes
-
-            qb64prefix$ = ""
-            qb64prefix_set = 1
-
-            're-add internal keywords without the "_" prefix
-            reginternal
-
-            f = HASHFLAG_TYPE + HASHFLAG_RESERVED
-            HashAdd "UNSIGNED", f, 0
-            HashAdd "BIT", f, 0
-            HashAdd "BYTE", f, 0
-            HashAdd "INTEGER64", f, 0
-            HashAdd "OFFSET", f, 0
-            HashAdd "FLOAT", f, 0
-
-            f = HASHFLAG_RESERVED + HASHFLAG_CUSTOMSYNTAX
-            HashAdd "EXPLICIT", f, 0
-
-            GOTO finishedlinepp
+            qb64prefix_set_desiredState = 1
+            IF qb64prefix_set = 0 THEN
+                IF qb64prefix_set_recompileAttempts = 0 THEN
+                    qb64prefix_set_recompileAttempts = qb64prefix_set_recompileAttempts + 1
+                    GOTO do_recompile
+                END IF
+            END IF
         END IF
 
         wholeline$ = lineformat(wholeline$)
@@ -1646,6 +1695,19 @@ DO
         IF temp$ = "$COLOR:32" THEN
             addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
             GOTO finishedlinepp
+        END IF
+
+        IF temp$ = "$DEBUG" THEN
+            vWatchDesiredState = 1
+            IF vWatchOn = 0 THEN
+                IF vWatchRecompileAttempts = 0 THEN
+                    'this is the first time a conflict has occurred, so react immediately with a full recompilation using the desired state
+                    vWatchRecompileAttempts = vWatchRecompileAttempts + 1
+                    GOTO do_recompile
+                ELSE
+                    'continue compilation to retrieve the final state requested and act on that as required
+                END IF
+            END IF
         END IF
 
         IF LEFT$(temp$, 4) = "$IF " THEN
@@ -2119,11 +2181,17 @@ DO
                             NEXT
 
                             'intercept current expression and pass it through Evaluate_Expression$
-                            temp1$ = _TRIM$(Evaluate_Expression$(readable_e$))
-                            IF LEFT$(temp1$, 5) <> "ERROR" AND e$ <> temp1$ THEN
-                                e$ = lineformat(temp1$) 'retrieve parseable format
-                            ELSE
-                                IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                            '(unless it is a literal string)
+                            IF LEFT$(readable_e$, 1) <> CHR$(34) THEN
+                                temp1$ = _TRIM$(Evaluate_Expression$(readable_e$))
+                                IF LEFT$(temp1$, 5) <> "ERROR" AND e$ <> temp1$ THEN
+                                    e$ = lineformat(temp1$) 'retrieve parseable format
+                                ELSE
+                                    IF temp1$ = "ERROR - Division By Zero" THEN a$ = temp1$: GOTO errmes
+                                    IF INSTR(temp1$, "Improper operations") THEN
+                                        a$ = "Invalid CONST expression.14": GOTO errmes
+                                    END IF
+                                END IF
                             END IF
 
                             'Proceed as usual
@@ -2421,23 +2489,23 @@ DO
                                         FOR i2 = i2 TO n2
                                             e$ = getelement$(a2$, i2)
                                             IF e$ = "(" THEN
-                                                IF m <> 0 THEN a$ = "Syntax error": GOTO errmes
+                                                IF m <> 0 THEN a$ = "Syntax error - too many opening brackets": GOTO errmes
                                                 m = 1
                                                 array = 1
                                                 GOTO gotaa
                                             END IF
                                             IF e$ = ")" THEN
-                                                IF m <> 1 THEN a$ = "Syntax error": GOTO errmes
+                                                IF m <> 1 THEN a$ = "Syntax error - closing bracket without opening bracket": GOTO errmes
                                                 m = 2
                                                 GOTO gotaa
                                             END IF
                                             IF e$ = "AS" THEN
-                                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error": GOTO errmes
+                                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                                                 m = 3
                                                 GOTO gotaa
                                             END IF
                                             IF m = 1 THEN GOTO gotaa 'ignore contents of bracket
-                                            IF m <> 3 THEN a$ = "Syntax error": GOTO errmes
+                                            IF m <> 3 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                                             IF t2$ = "" THEN t2$ = e$ ELSE t2$ = t2$ + " " + e$
                                             gotaa:
                                         NEXT i2
@@ -2446,7 +2514,7 @@ DO
 
                                         argnelereq = 0
 
-                                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error": GOTO errmes
+                                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error - check parameter types": GOTO errmes
                                         IF t2$ = "" THEN t2$ = symbol2$
                                         IF t2$ = "" THEN
                                             IF LEFT$(n2$, 1) = "_" THEN v = 27 ELSE v = ASC(UCASE$(n2$)) - 64
@@ -2591,11 +2659,24 @@ DO
         IF Debug THEN PRINT #9, "Pre-pass:INCLUDE$-ing file:'" + addmetainclude$ + "':On line"; linenumber
         a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
+        IF inclevel = 0 THEN
+            includingFromRoot = 0
+            forceIncludingFile = 0
+            forceInclude_prepass:
+            IF forceIncludeFromRoot$ <> "" THEN
+                a$ = forceIncludeFromRoot$
+                forceIncludeFromRoot$ = ""
+                forceIncludingFile = 1
+                includingFromRoot = 1
+            END IF
+        END IF
+
         IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
         '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
         fh = 99 + inclevel + 1
 
         firstTryMethod = 1
+        IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
         FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
             IF try = 1 THEN
                 IF inclevel = 0 THEN
@@ -2657,6 +2738,10 @@ DO
         '3. Close & return control
         CLOSE #fh
         inclevel = inclevel - 1
+        IF forceIncludingFile = 1 AND inclevel = 0 THEN
+            forceIncludingFile = 0
+            GOTO forceIncludeCompleted_prepass
+        END IF
     LOOP
     '(end manager)
 
@@ -2772,6 +2857,24 @@ DO
     includeline:
     mainpassLastLine:
 
+    IF lastLine <> 0 OR firstLine <> 0 THEN
+        lineBackup$ = a3$ 'backup the real first line (will be blank when lastline is set)
+        forceIncludeFromRoot$ = ""
+        IF vWatchOn THEN
+            addingvWatch = 1
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+        ELSE
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+        END IF
+        firstLine = 0: lastLine = 0
+        IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude
+        forceIncludeCompleted:
+        addingvWatch = 0
+        a3$ = lineBackup$
+    END IF
+
     prepass = 0
 
     stringprocessinghappened = 0
@@ -2800,7 +2903,6 @@ DO
     IF a3$ = CHR$(13) THEN EXIT DO
     linenumber = linenumber + 1
     reallinenumber = reallinenumber + 1
-    IF linenumber = 1 THEN opex_comments = -1
 
     IF InValidLine(linenumber) THEN
         layoutok = 1
@@ -2853,21 +2955,6 @@ DO
     'IF InValidLine(linenumber) THEN goto skipide4 'layoutdone = 0: GOTO finishednonexec
 
     a3u$ = UCASE$(a3$)
-
-    IF LEFT$(a3u$, 4) = "REM " OR _
-        (LEFT$(a3u$, 3) = "REM" AND LEN(a3u$) = 3) OR _
-        LEFT$(a3u$, 1) = "'" OR _
-        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 9) = "_EXPLICIT") OR _
-        (LEFT$(a3u$, 7) = "OPTION " AND LEFT$(LTRIM$(MID$(a3u$, 8)), 8) = "EXPLICIT" AND qb64prefix_set = 1) OR _
-        LEFT$(a3u$, 1) = "$" THEN
-        'It's a comment, $metacommand, or OPTION _EXPLICIT itself, alright.
-        'But even being a comment, there could be an $INCLUDE in there, let's check:
-        IF LEFT$(a3u$, 4) = "REM " THEN i = 5 ELSE i = 2
-        IF LEFT$(LTRIM$(MID$(a3u$, i)), 8) = "$INCLUDE" THEN opex_comments = 0
-    ELSE
-        'As soon as a line isn't a comment anymore, it can't come before OPTION _EXPLICIT
-        opex_comments = 0
-    END IF
 
     'QB64 Metacommands
     IF ASC(a3$) = 36 THEN '$
@@ -3012,12 +3099,19 @@ DO
         IF a3u$ = "$VIRTUALKEYBOARD:ON" THEN
             'Deprecated; does nothing.
             layout$ = SCase$("$VirtualKeyboard:On")
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Deprecated feature", "$VirtualKeyboard"
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$VIRTUALKEYBOARD:OFF" THEN
             'Deprecated; does nothing.
             layout$ = SCase$("$VirtualKeyboard:Off")
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Deprecated feature", "$VirtualKeyboard"
+            GOTO finishednonexec
+        END IF
+
+        IF a3u$ = "$DEBUG" THEN
+            layout$ = SCase$("$Debug")
             GOTO finishednonexec
         END IF
 
@@ -4819,7 +4913,7 @@ DO
 
                         byvalue = 0
                         IF UCASE$(e$) = "BYVAL" THEN
-                            IF declaringlibrary = 0 THEN a$ = "BYVAL can currently only be used with DECLARE LIBRARY": GOTO errmes
+                            IF declaringlibrary = 0 THEN a$ = "BYVAL can only be used with DECLARE LIBRARY": GOTO errmes
                             byvalue = 1: a2$ = RIGHT$(a2$, LEN(a2$) - 6)
                             IF RIGHT$(l$, 1) = "(" THEN l$ = l$ + sp2 + SCase$("ByVal") ELSE l$ = l$ + sp + SCase$("Byval")
                             n2 = numelements(a2$): e$ = getelement$(a2$, 1)
@@ -4840,31 +4934,31 @@ DO
                         FOR i2 = 2 TO n2
                             e$ = getelement$(a2$, i2)
                             IF e$ = "(" THEN
-                                IF m <> 0 THEN a$ = "Syntax error": GOTO errmes
+                                IF m <> 0 THEN a$ = "Syntax error - too many opening brackets": GOTO errmes
                                 m = 1
                                 array = 1
                                 l$ = l$ + sp2 + "("
                                 GOTO gotaa2
                             END IF
                             IF e$ = ")" THEN
-                                IF m <> 1 THEN a$ = "Syntax error": GOTO errmes
+                                IF m <> 1 THEN a$ = "Syntax error - closing bracket without opening bracket": GOTO errmes
                                 m = 2
                                 l$ = l$ + sp2 + ")"
                                 GOTO gotaa2
                             END IF
                             IF UCASE$(e$) = "AS" THEN
-                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error": GOTO errmes
+                                IF m <> 0 AND m <> 2 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                                 m = 3
                                 l$ = l$ + sp + SCase$("As")
                                 GOTO gotaa2
                             END IF
                             IF m = 1 THEN l$ = l$ + sp + e$: GOTO gotaa2 'ignore contents of option bracket telling how many dimensions (add to layout as is)
-                            IF m <> 3 THEN a$ = "Syntax error": GOTO errmes
+                            IF m <> 3 THEN a$ = "Syntax error - check your brackets": GOTO errmes
                             IF t2$ = "" THEN t2$ = e$ ELSE t2$ = t2$ + " " + e$
                             gotaa2:
                         NEXT i2
-                        IF m = 1 THEN a$ = "Syntax error": GOTO errmes
-                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error": GOTO errmes
+                        IF m = 1 THEN a$ = "Syntax error - check your brackets": GOTO errmes
+                        IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error - check parameter types": GOTO errmes
 
 
                         IF LEN(t2$) THEN 'add type-name after AS
@@ -5023,6 +5117,9 @@ DO
             PRINT #12, "uint8 *tmp_mem_static_pointer=mem_static_pointer;"
             PRINT #12, "uint32 tmp_cmem_sp=cmem_sp;"
             PRINT #12, "#include " + CHR$(34) + "data" + str2$(subfuncn) + ".txt" + CHR$(34)
+            IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
+            END IF
 
             'create new _MEM lock for this scope
             PRINT #12, "mem_lock *sf_mem_lock;" 'MUST not be static for recursion reasons
@@ -5163,6 +5260,12 @@ DO
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    IF NoChecks = 0 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    END IF
+                    PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
+                END IF
 
                 'release _MEM lock for this scope
                 PRINT #12, "free_mem_lock(sf_mem_lock);"
@@ -5436,6 +5539,9 @@ DO
                 IF Error_Happened THEN GOTO errmes
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
                 a$ = "WHILE ERROR! Expected expression after WHILE.": GOTO errmes
@@ -5492,10 +5598,17 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "DO ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
-                PRINT #12, "do{"
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
+                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                ELSE
+                    PRINT #12, "do{"
+                END IF
             END IF
             controlid(controllevel) = uniquenumber
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -5525,9 +5638,17 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
+
+                IF NoChecks = 0 AND vWatchOn = 1 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+
                 IF controltype(controllevel) = 4 THEN
                     PRINT #12, "}"
                 ELSE
@@ -5676,6 +5797,11 @@ DO
             IF stepused = 1 THEN l$ = l$ + sp + SCase$("Step") + sp + tlayout$
             e$ = evaluatetotyp(e$, ctyp)
             IF Error_Happened THEN GOTO errmes
+
+            IF NoChecks = 0 AND vWatchOn = 1 THEN
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+            END IF
+
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
             PRINT #12, "if (fornext_step" + u$ + "<0) fornext_step_negative" + u$ + "=1; else fornext_step_negative" + u$ + "=0;"
 
@@ -5757,8 +5883,12 @@ DO
 
     IF n >= 3 THEN
         IF firstelement$ = "ELSEIF" THEN
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
-
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
             FOR i = controllevel TO 1 STEP -1
                 t = controltype(i)
                 IF t = 1 THEN
@@ -5794,7 +5924,12 @@ DO
 
     IF n >= 3 THEN
         IF firstelement$ = "IF" THEN
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
 
             'prevents code from being placed before 'CASE condition' in a SELECT CASE block
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
@@ -5887,7 +6022,12 @@ DO
     'SELECT CASE
     IF n >= 1 THEN
         IF firstelement$ = "SELECT" THEN
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
 
             'prevents code from being placed before 'CASE condition' in a SELECT CASE block
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
@@ -6120,7 +6260,12 @@ DO
                 END IF
             END IF
 
-            IF NoChecks = 0 THEN PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+            IF NoChecks = 0 THEN
+                PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
+                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                END IF
+            END IF
 
 
 
@@ -6305,7 +6450,11 @@ DO
     'static scope commands:
 
     IF NoChecks = 0 THEN
-        PRINT #12, "do{"
+        IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+        ELSE
+            PRINT #12, "do{"
+        END IF
         'PRINT #12, "S_" + str2$(statementn) + ":;"
     END IF
 
@@ -7584,8 +7733,8 @@ DO
                 midgotpart:
                 i = i + 1
             LOOP
-            IF stringvariable$ = "" THEN a$ = "Syntax error": GOTO errmes
-            IF start$ = "" THEN a$ = "Syntax error": GOTO errmes
+            IF stringvariable$ = "" THEN a$ = "Syntax error - first parameter must be a string variable/array-element": GOTO errmes
+            IF start$ = "" THEN a$ = "Syntax error - second parameter not optional": GOTO errmes
             'check if it is a valid source string
             stringvariable$ = fixoperationorder$(stringvariable$)
             IF Error_Happened THEN GOTO errmes
@@ -8646,6 +8795,9 @@ DO
         END IF
 
 
+        IF vWatchOn = 1 AND NoChecks = 0 THEN
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+        END IF
         PRINT #12, "if (sub_gl_called) error(271);"
         PRINT #12, "close_program=1;"
         PRINT #12, "end();"
@@ -8844,7 +8996,7 @@ DO
             IF n = 1 THEN
                 PRINT #12, "data_offset=0;"
             ELSE
-                IF n > 2 THEN a$ = "Syntax error": GOTO errmes
+                IF n > 2 THEN a$ = "Syntax error - too many parameters (expected RESTORE label/line number)": GOTO errmes
                 lbl$ = getelement$(ca$, 2)
                 IF validlabel(lbl$) = 0 THEN a$ = "Invalid label": GOTO errmes
 
@@ -8905,7 +9057,7 @@ DO
                     ne = ne + 1
                     IF ne = 1 THEN blk$ = e$: e$ = ""
                     IF ne = 2 THEN offs$ = e$: e$ = ""
-                    IF ne = 3 THEN a$ = "Syntax error": GOTO errmes
+                    IF ne = 3 THEN a$ = "Syntax error - too many parameters (Expected " + qb64prefix$ + "MEMGET mem-reference, offset, variable)": GOTO errmes
                 ELSE
                     IF LEN(e$) = 0 THEN e$ = e2$ ELSE e$ = e$ + sp + e2$
                 END IF
@@ -9493,6 +9645,10 @@ DO
                     a$ = "Cannot call SUB _GL directly": GOTO errmes
                 END IF
 
+                IF firstelement$ = "VWATCH" THEN
+                    a$ = "Cannot call SUB VWATCH directly": GOTO errmes
+                END IF
+
                 IF firstelement$ = "OPEN" THEN
                     'gwbasic or qbasic version?
                     B = 0
@@ -9517,7 +9673,7 @@ DO
 
                 IF firstelement$ = "CLOSE" OR firstelement$ = "RESET" THEN
                     IF firstelement$ = "RESET" THEN
-                        IF n > 1 THEN a$ = "Syntax error": GOTO errmes
+                        IF n > 1 THEN a$ = "Syntax error - RESET takes no parameters": GOTO errmes
                         l$ = SCase$("Reset")
                     ELSE
                         l$ = SCase$("Close")
@@ -9770,7 +9926,7 @@ DO
                         IF a2$ = "," THEN
                             GOTO finishedpromptstring
                         END IF
-                        a$ = "INPUT STATEMENT: SYNTAX ERROR!": GOTO errmes
+                        a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     END IF
                     'there was no promptstring, so print a ?
                     IF lineinput = 0 THEN PRINT #12, "qbs_print(qbs_new_txt(" + CHR$(34) + "? " + CHR$(34) + "),0);"
@@ -9779,7 +9935,7 @@ DO
                     FOR i = i TO n
                         IF commaneeded = 1 THEN
                             a2$ = getelement$(ca$, i)
-                            IF a2$ <> "," THEN a$ = "INPUT STATEMENT: SYNTAX ERROR! (COMMA EXPECTED)": GOTO errmes
+                            IF a2$ <> "," THEN a$ = "Syntax error - comma expected": GOTO errmes
                         ELSE
 
                             B = 0
@@ -9846,7 +10002,7 @@ DO
                         gotinputvar:
                         commaneeded = commaneeded + 1: IF commaneeded = 2 THEN commaneeded = 0
                     NEXT
-                    IF numvar = 0 THEN a$ = "INPUT STATEMENT: SYNTAX ERROR! (NO VARIABLES LISTED FOR INPUT)": GOTO errmes
+                    IF numvar = 0 THEN a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     IF lineinput = 1 AND numvar > 1 THEN a$ = "Too many variables": GOTO errmes
                     PRINT #12, "qbs_input(" + str2(numvar) + "," + str2$(newline) + ");"
                     PRINT #12, "if (stop_program) end();"
@@ -10116,10 +10272,15 @@ DO
                                 IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                                 a$ = "Expected OPTION BASE" + e$: GOTO errmes
                             END IF
-                            IF optionexplicit = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICIT": GOTO errmes
-                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
-                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICIT must come before any other statement": GOTO errmes
-                            optionexplicit = -1
+
+                            opex_desiredState = -1
+                            IF optionexplicit = 0 THEN
+                                IF opex_recompileAttempts = 0 THEN
+                                    opex_recompileAttempts = opex_recompileAttempts + 1
+                                    GOTO do_recompile
+                                END IF
+                            END IF
+
                             l$ = SCase$("Option") + sp
                             IF e$ = "EXPLICIT" THEN l$ = l$ + SCase$("Explicit") ELSE l$ = l$ + SCase$("_Explicit")
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -10130,10 +10291,15 @@ DO
                                 IF optionexplicitarray = 0 THEN e$ = e$ + " or OPTION " + qb64prefix$ + "EXPLICITARRAY"
                                 a$ = "Expected OPTION BASE" + e$: GOTO errmes
                             END IF
-                            IF optionexplicitarray = -1 AND NoIDEMode = 0 THEN a$ = "Duplicate OPTION " + qb64prefix$ + "EXPLICITARRAY": GOTO errmes
-                            IF LEN(layout$) THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
-                            IF linenumber > 1 AND opex_comments = 0 THEN a$ = "OPTION " + qb64prefix$ + "EXPLICITARRAY must come before any other statement": GOTO errmes
-                            optionexplicitarray = -1
+
+                            opexarray_desiredState = -1
+                            IF optionexplicitarray = 0 THEN
+                                IF opexarray_recompileAttempts = 0 THEN
+                                    opexarray_recompileAttempts = opexarray_recompileAttempts + 1
+                                    GOTO do_recompile
+                                END IF
+                            END IF
+
                             l$ = SCase$("Option") + sp
                             IF e$ = "EXPLICITARRAY" THEN l$ = l$ + SCase$("ExplicitArray") ELSE l$ = l$ + SCase$("_ExplicitArray")
                             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -10864,7 +11030,7 @@ DO
 
     IF n >= 1 THEN
         IF firstelement$ = "LET" THEN
-            IF n = 1 THEN a$ = "Syntax error": GOTO errmes
+            IF n = 1 THEN a$ = "Syntax error - Reference: LET variable = expression (tip: LET is entirely optional)": GOTO errmes
             ca$ = RIGHT$(ca$, LEN(ca$) - 4)
             n = n - 1
             l$ = SCase$("Let")
@@ -10932,11 +11098,24 @@ DO
 
             a$ = addmetainclude$: addmetainclude$ = "" 'read/clear message
 
+            IF inclevel = 0 THEN
+                includingFromRoot = 0
+                forceIncludingFile = 0
+                forceInclude:
+                IF forceIncludeFromRoot$ <> "" THEN
+                    a$ = forceIncludeFromRoot$
+                    forceIncludeFromRoot$ = ""
+                    forceIncludingFile = 1
+                    includingFromRoot = 1
+                END IF
+            END IF
+
             IF inclevel = 100 THEN a$ = "Too many indwelling INCLUDE files": GOTO errmes
             '1. Verify file exists (location is either (a)relative to source file or (b)absolute)
             fh = 99 + inclevel + 1
 
             firstTryMethod = 1
+            IF includingFromRoot <> 0 AND inclevel = 0 THEN firstTryMethod = 2
             FOR try = firstTryMethod TO 2 'if including file from root, do not attempt including from relative location
                 IF try = 1 THEN
                     IF inclevel = 0 THEN
@@ -10993,6 +11172,10 @@ DO
             CLOSE #fh
             inclevel = inclevel - 1
             IF inclevel = 0 THEN
+                IF forceIncludingFile = 1 THEN
+                    forceIncludingFile = 0
+                    GOTO forceIncludeCompleted
+                END IF
                 'restore line formatting
                 layoutok = layoutok_backup
                 layout$ = layout_backup$
@@ -11308,6 +11491,11 @@ FOR x = 1 TO commonarraylistn
     END IF
 NEXT
 IF Debug THEN PRINT #9, "Finished COMMON array list check!"
+
+IF vWatchDesiredState <> vWatchOn THEN
+    vWatchRecompileAttempts = vWatchRecompileAttempts + 1
+    recompile = 1
+END IF
 
 IF recompile THEN
     do_recompile:
@@ -11971,8 +12159,53 @@ IF os$ = "WIN" THEN
     END IF
 
     IF VersionInfoSet THEN
+        manifest = FREEFILE
+        OPEN tmpdir$ + file$ + extension$ + ".manifest" FOR OUTPUT AS #manifest
+        PRINT #manifest, "<?xml version=" + QuotedFilename("1.0") + " encoding=" + QuotedFilename("UTF-8") + " standalone=" + QuotedFilename("yes") + "?>"
+        PRINT #manifest, "<assembly xmlns=" + QuotedFilename("urn:schemas-microsoft-com:asm.v1") + " manifestVersion=" + QuotedFilename("1.0") + ">"
+        PRINT #manifest, "<assemblyIdentity"
+        PRINT #manifest, "    version=" + QuotedFilename("1.0.0.0")
+        PRINT #manifest, "    processorArchitecture=" + QuotedFilename("*")
+        PRINT #manifest, "    name=" + QuotedFilename(viCompanyName$ + "." + viProductName$ + "." + viProductName$)
+        PRINT #manifest, "    type=" + QuotedFilename("win32")
+        PRINT #manifest, "/>"
+        PRINT #manifest, "<description>" + viFileDescription$ + "</description>"
+        PRINT #manifest, "<dependency>"
+        PRINT #manifest, "    <dependentAssembly>"
+        PRINT #manifest, "        <assemblyIdentity"
+        PRINT #manifest, "            type=" + QuotedFilename("win32")
+        PRINT #manifest, "            name=" + QuotedFilename("Microsoft.Windows.Common-Controls")
+        PRINT #manifest, "            version=" + QuotedFilename("6.0.0.0")
+        PRINT #manifest, "            processorArchitecture=" + QuotedFilename("*")
+        PRINT #manifest, "            publicKeyToken=" + QuotedFilename("6595b64144ccf1df")
+        PRINT #manifest, "            language=" + QuotedFilename("*")
+        PRINT #manifest, "        />"
+        PRINT #manifest, "    </dependentAssembly>"
+        PRINT #manifest, "</dependency>"
+        PRINT #manifest, "</assembly>"
+        CLOSE #manifest
+
+        manifestembed = FREEFILE
+        OPEN tmpdir$ + "manifest.h" FOR OUTPUT AS #manifestembed
+        PRINT #manifestembed, "#ifndef RESOURCE_H"
+        PRINT #manifestembed, "#define   RESOURCE_H"
+        PRINT #manifestembed, "#ifdef    __cplusplus"
+        PRINT #manifestembed, "extern " + QuotedFilename("C") + " {"
+        PRINT #manifestembed, "#endif"
+        PRINT #manifestembed, "#ifdef    __cplusplus"
+        PRINT #manifestembed, "}"
+        PRINT #manifestembed, "#endif"
+        PRINT #manifestembed, "#endif    /* RESOURCE_H */"
+        PRINT #manifestembed, "#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1 /*Defined manifest file*/"
+        PRINT #manifestembed, "#define RT_MANIFEST                       24"
+        CLOSE #manifestembed
+
         iconfilehandle = FREEFILE
         OPEN tmpdir$ + "icon.rc" FOR APPEND AS #iconfilehandle
+        PRINT #iconfilehandle, ""
+        PRINT #iconfilehandle, "#include " + QuotedFilename("manifest.h")
+        PRINT #iconfilehandle, ""
+        PRINT #iconfilehandle, "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST " + QuotedFilename(file$ + extension$ + ".manifest")
         PRINT #iconfilehandle, ""
         PRINT #iconfilehandle, "1 VERSIONINFO"
         IF LEN(viFileVersionNum$) THEN PRINT #iconfilehandle, "FILEVERSION     "; viFileVersionNum$
@@ -12654,7 +12887,7 @@ IF os$ = "LNX" THEN
     IF inline_DATA = 0 THEN
         'add data.o?
         IF DataOffset THEN
-            x = INSTR(a$, "-lX11")
+            x = INSTR(a$, "-lrt")
             IF x THEN
                 a$ = LEFT$(a$, x - 1) + " " + tmpdir2$ + "data.o " + RIGHT$(a$, LEN(a$) - x + 1)
             END IF
@@ -12924,7 +13157,11 @@ errmes: 'set a$ to message
 IF Error_Happened THEN a$ = Error_Message: Error_Happened = 0
 layout$ = "": layoutok = 0 'invalidate layout
 
-IF inclevel > 0 THEN a$ = a$ + incerror$
+IF forceIncludingFile THEN 'If we're to the point where we're adding the automatic QB64 includes, we don't need to report the $INCLUDE information
+    IF INSTR(a$, "END SUB/FUNCTION before") THEN a$ = "SUB without END SUB" 'Just a simple rewrite of the error message to be less confusing for SUB/FUNCTIONs
+ELSE 'We want to let the user know which module the error occurred in
+    IF inclevel > 0 THEN a$ = a$ + incerror$
+END IF
 
 IF idemode THEN
     ideerrorline = linenumber
@@ -21456,6 +21693,7 @@ FUNCTION seperateargs (a$, ca$, pass&)
                         IF Branches = 0 THEN 'All options have been exhausted
                             seperateargs_error = 1
                             seperateargs_error_message = "Syntax error"
+                            IF LEN(id2.hr_syntax) > 0 THEN seperateargs_error_message = seperateargs_error_message + " - Reference: " + id2.hr_syntax
                             EXIT FUNCTION
                         END IF
                         '2)Toggle taken branch to untaken and revert
@@ -22312,7 +22550,9 @@ FUNCTION validlabel (LABEL2$)
 END FUNCTION
 
 SUB xend
-
+    IF vWatchOn = 1 AND NoChecks = 0 THEN
+        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+    END IF
     PRINT #12, "sub_end();"
 END SUB
 
@@ -23993,7 +24233,6 @@ SUB Set_OrderOfOperations
     i = i + 1: OName(i) = "_CSC": PL(i) = 10
     i = i + 1: OName(i) = "_COT": PL(i) = 10
     i = i + 1: OName(i) = "ASC": PL(i) = 10
-    i = i + 1: OName(i) = "CHR$": PL(i) = 10
     i = i + 1: OName(i) = "C_RG": PL(i) = 10 '_RGB32 converted
     i = i + 1: OName(i) = "C_RA": PL(i) = 10 '_RGBA32 converted
     i = i + 1: OName(i) = "_RGB": PL(i) = 10

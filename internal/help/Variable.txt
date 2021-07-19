@@ -1,8 +1,8 @@
-A '''variable''' is a "container" name that can hold a numerical or string value which can be referenced or changed by the program (as opposed to [[CONST]]ant values which never change).
+A '''variable''' is a named "container" that can hold a numerical or string value and which can be referenced or changed by the program (as opposed to [[CONST]]ant values which never change).
 
 
 &lt;center>'''Variable names'''&lt;/center>
-Variables in QB64 can be any name except the names of QB64 or QBasic keywords and may not contain spaces or non-alphabetical/non-numerical characters (except "." and "_"). Numerical characters cannot be  used as the first character of a variable or array name! '''QB64 reserves the use of a leading underscore to QB64 procedural or variable type names only!'''
+Variables in QB64 can be any name except the names of QB64 or QBasic keywords and may not contain spaces or non-alphabetical/non-numerical characters (except "." and "_"). Numerical characters cannot be  used as the first character of a variable or array name. QB64 reserves the use of a single leading underscore for QB64 procedural or variable type names.
 
 
 Variable values can be passed to sub-procedures by using the name as a [[SUB]] or [[FUNCTION]] parameter in a [[CALL]]. Variable names in the main program module can be passed to sub-procedures by using [[DIM]] [[SHARED]] without using them as [[CALL]] parameters.
@@ -28,13 +28,13 @@ Groups of variable names can be type defined by the first letter or list of lett
 
 
 &lt;center>'''Variable values'''&lt;/center>
-All numerical variables default to 0 and all string variables default to "" at the start of a program and when first referenced inside of a [[SUB]] or [[FUNCTION]] procedure except when the variable is defined as a [[STATIC]] value.
+Variables are initialized to empty values (0 for numerical values, and "" for strings) at the start of a program, or when first referenced inside of a [[SUB]] or [[FUNCTION]] call. 
+
+
+[[STATIC]] variables are also initialized to empty values, however, STATIC variables will retain their values in between SUB or FUNCTION calls, and exist for the life of the program.
 
 
 [[Arrays]] variable names can hold many values in one variable name by specifying a reference index enclosed in parentheses.
-
-
-[[STATIC]] sub-procedure values keep their value after the sub-procedure is exited. They will hold an empty value when first used.
 
 
 Variables are used to hold program data information that is attained through the program flow, either by user input, calculations or by other ways of communicaton (as with I/O, memory, TCP/IP or files).
