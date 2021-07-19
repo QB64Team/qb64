@@ -6543,9 +6543,20 @@ SUB DebugMode
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
                 PauseMode = -1
-            CASE "call stack"
-                'call stack gets sent automatically when the
-                'program is about to end.
+            CASE "call stack size"
+                'call stack is only received without having been
+                'requested when the program is about to quit
+                callStackLength = CVL(value$)
+                start! = TIMER
+                DO
+                    GOSUB GetCommand
+                    _LIMIT 100
+                LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
+
+                IF cmd$ = "call stack" THEN
+                    'store call stack
+                    callstacklist$ = value$
+                END IF
         END SELECT
 
         _LIMIT 100
