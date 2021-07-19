@@ -27,7 +27,7 @@ REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name
 Set_OrderOfOperations
 
 DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState, vWatchErrorCall$
-vWatchErrorCall$ = "if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
+vWatchErrorCall$ = "if (stop_program) {*__LONG_VWATCH_LINENUMBER=0; SUB_VWATCH((ptrszint*)vwatch_local_vars);};if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
 
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
