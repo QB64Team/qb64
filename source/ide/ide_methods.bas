@@ -6315,6 +6315,11 @@ SUB DebugMode
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
                 PauseMode = -1
+            CASE "call"
+                callstack = callstack + 1
+                onLine$ = STR$(CVL(RIGHT$(value$, 4)))
+                procedure$ = LEFT$(value$, LEN(value$) - 4)
+                'store this in an array and allow it to be inspected
         END SELECT
 
         _LIMIT 100

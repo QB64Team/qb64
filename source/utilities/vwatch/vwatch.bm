@@ -75,6 +75,11 @@ SUB vwatch (localVariables AS _OFFSET)
         cmd$ = "error:" + MKL$(lastLine)
         GOSUB SendCommand
         EXIT SUB
+    ELSEIF vwatch_linenumber = -2 THEN
+        'report a new sub/function has been "entered"
+        cmd$ = "call:" + vwatch_subname + MKL$(lastLine)
+        GOSUB SendCommand
+        EXIT SUB
     END IF
 
     IF vwatch_linenumber = lastLine THEN EXIT SUB

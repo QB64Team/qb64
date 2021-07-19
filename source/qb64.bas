@@ -4761,6 +4761,7 @@ DO
             END IF
 
             subfunc = RTRIM$(id.callname) 'SUB_..."
+            subfuncoriginalname$ = RTRIM$(id.cn)
             subfuncn = subfuncn + 1
             closedsubfunc = 0
             subfuncid = targetid
@@ -5122,15 +5123,24 @@ DO
             PRINT #12, "uint8 *tmp_mem_static_pointer=mem_static_pointer;"
             PRINT #12, "uint32 tmp_cmem_sp=cmem_sp;"
             PRINT #12, "#include " + CHR$(34) + "data" + str2$(subfuncn) + ".txt" + CHR$(34)
-            IF vWatchOn = 1 THEN
-                PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
-            END IF
 
             'create new _MEM lock for this scope
             PRINT #12, "mem_lock *sf_mem_lock;" 'MUST not be static for recursion reasons
             PRINT #12, "new_mem_lock();"
             PRINT #12, "sf_mem_lock=mem_lock_tmp;"
             PRINT #12, "sf_mem_lock->type=3;"
+
+            IF vWatchOn = 1 THEN
+                PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
+                IF subfunc <> "SUB_VWATCH" THEN
+                    temp$ = "FUNCTION "
+                    IF id.subfunc = 2 THEN temp$ = "SUB "
+                    temp$ = temp$ + subfuncoriginalname$
+                    PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + temp$ + CHR$(34) + "," + str2$(LEN(temp$)) + "));"
+                    PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER=-2; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
+                END IF
+            END IF
 
             PRINT #12, "if (new_error) goto exit_subfunc;"
 
