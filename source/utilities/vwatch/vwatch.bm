@@ -141,7 +141,6 @@ SUB vwatch (localVariables AS _OFFSET)
             CASE "step"
                 pauseMode = -1
                 stepOver = 0
-                vwatch_starttimers
                 EXIT SUB
             CASE "step over"
                 pauseMode = -1
@@ -185,6 +184,7 @@ SUB vwatch (localVariables AS _OFFSET)
 
     vwatch_starttimers
     EXIT SUB
+
     Connect:
     ideport$ = ENVIRON$("QB64DEBUGPORT")
     IF ideport$ = "" THEN bypass = -1: EXIT SUB
