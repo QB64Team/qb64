@@ -65,6 +65,10 @@ SUB vwatch (localVariables AS _OFFSET)
     END IF
 
     IF vwatch_linenumber = 0 THEN
+        cmd$ = "call stack size:" + MKL$(callStackLength)
+        GOSUB SendCommand
+        cmd$ = "call stack:" + vwatch_callstack
+        GOSUB SendCommand
         cmd$ = "quit:Program ended."
         GOSUB SendCommand
         CLOSE #ide
@@ -78,6 +82,11 @@ SUB vwatch (localVariables AS _OFFSET)
         EXIT SUB
     ELSEIF vwatch_linenumber = -2 THEN
         'report a new sub/function has been "entered"
+        IF LEN(vwatch_callstack) > 100000 THEN
+            vwatch_callstack = ""
+            callStackLength = 0
+        END IF
+        callStackLength = callStackLength + 1
         IF LEN(vwatch_callstack) THEN vwatch_callstack = vwatch_callstack + CHR$(0)
         vwatch_callstack = vwatch_callstack + vwatch_subname$ + ", line" + STR$(lastLine)
         EXIT SUB
@@ -155,6 +164,10 @@ SUB vwatch (localVariables AS _OFFSET)
                 REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
             CASE "call stack"
                 'send call stack history"
+                cmd$ = "call stack size:" + MKL$(callStackLength)
+                GOSUB SendCommand
+                cmd$ = "call stack:" + vwatch_callstack
+                GOSUB SendCommand
             CASE "local"
                 i = CVL(value$)
                 address = localVariables + LEN(address) * i

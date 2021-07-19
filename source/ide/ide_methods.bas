@@ -6222,6 +6222,34 @@ SUB DebugMode
                 WHILE _MOUSEINPUT: WEND
                 _KEYCLEAR
                 EXIT SUB
+            CASE 15872 'F4
+                IF PauseMode THEN
+                    cmd$ = "call stack"
+                    GOSUB SendCommand
+
+                    dummy = DarkenFGBG(0)
+                    clearStatusWindow 0
+                    setStatusMessage 1, "Requesting call stack...", 7
+                    noFocusMessage = -1
+
+                    start! = TIMER
+                    DO
+                        GOSUB GetCommand
+                        IF cmd$ = "call stack size" THEN callStackLength = CVL(value$)
+                        _LIMIT 100
+                    LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
+
+                    IF cmd$ = "call stack" THEN
+                        'display call stack
+                        retval = idecallstackbox(value$, callStackLength)
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        clearStatusWindow 0
+                        setStatusMessage 1, "Paused.", 2
+                    ELSE
+                        clearStatusWindow 0
+                        setStatusMessage 1, "Error retrieving call stack.", 2
+                    END IF
+                END IF
             CASE 16128 'F5
                 PauseMode = 0
                 cmd$ = "run"
@@ -6312,6 +6340,9 @@ SUB DebugMode
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
                 PauseMode = -1
+            CASE "call stack"
+                'call stack gets sent automatically when the
+                'program is about to end.
         END SELECT
 
         _LIMIT 100
@@ -6346,6 +6377,131 @@ SUB DebugMode
     cmd$ = ""
     RETURN
 END SUB
+
+FUNCTION idecallstackbox(callstacklist$, callStackLength)
+
+    '-------- generic dialog box header --------
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+
+    i = 0
+    idepar p, idewx - 8, idewy + idesubwindow - 6, "$DEBUG MODE"
+
+    i = i + 1
+    o(i).typ = 2
+    o(i).y = 2
+    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 10
+    o(i).txt = idenewtxt(callstacklist$)
+    o(i).sel = callStackLength
+    o(i).nam = idenewtxt("Call Stack")
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = idewy + idesubwindow - 6
+    o(i).txt = idenewtxt("#Close")
+    o(i).dft = 1
+
+
+    '-------- end of init --------
+
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "These are the most recent sub/function calls in your program:"
+
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        change = 0
+        DO
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+        LOOP UNTIL change
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+            END IF
+        END IF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
+
+        '-------- generic input response --------
+        info = 0
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+
+        IF K$ = CHR$(27) OR (focus = 2 AND info <> 0) THEN
+            EXIT FUNCTION
+        END IF
+
+        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
+            EXIT FUNCTION
+        END IF
+
+
+        'end of custom controls
+        mousedown = 0
+        mouseup = 0
+    LOOP
+
+    idecallstackbox = 0
+
+END FUNCTION
 
 SUB idebox (x, y, w, h)
     _PRINTSTRING (x, y), CHR$(218) + STRING$(w - 2, 196) + CHR$(191)
