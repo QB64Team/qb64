@@ -8855,8 +8855,12 @@ DO
                 'note: this value is currently ignored but evaluated for checking reasons
             END IF
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
-            PRINT #12, "close_program=1;"
-            PRINT #12, "end();"
+            IF vWatchOn = 1 AND NoChecks = 0 THEN
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
+            ELSE
+                PRINT #12, "close_program=1;"
+                PRINT #12, "end();"
+            END IF
             GOTO finishedline
         END IF
     END IF

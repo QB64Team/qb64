@@ -90,6 +90,11 @@ SUB vwatch (localVariables AS _OFFSET)
         IF LEN(vwatch_callstack) THEN vwatch_callstack = vwatch_callstack + CHR$(0)
         vwatch_callstack = vwatch_callstack + vwatch_subname$ + ", line" + STR$(lastLine)
         EXIT SUB
+    ELSEIF vwatch_linenumber = -3 THEN
+        'handle STOP - instead of quitting, pause execution
+        pauseMode = -1
+        stepOver = 0
+        EXIT SUB
     END IF
 
     IF vwatch_linenumber = lastLine THEN EXIT SUB
