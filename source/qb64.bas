@@ -4761,7 +4761,8 @@ DO
             END IF
 
             subfunc = RTRIM$(id.callname) 'SUB_..."
-            subfuncoriginalname$ = RTRIM$(id.cn)
+            IF id.subfunc = 1 THEN subfuncoriginalname$ = "FUNCTION " ELSE subfuncoriginalname$ = "SUB "
+            subfuncoriginalname$ = subfuncoriginalname$ + RTRIM$(id.cn)
             subfuncn = subfuncn + 1
             closedsubfunc = 0
             subfuncid = targetid
@@ -5133,10 +5134,7 @@ DO
             IF vWatchOn = 1 THEN
                 PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
                 IF subfunc <> "SUB_VWATCH" THEN
-                    temp$ = "FUNCTION "
-                    IF id.subfunc = 2 THEN temp$ = "SUB "
-                    temp$ = temp$ + subfuncoriginalname$
-                    PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + temp$ + CHR$(34) + "," + str2$(LEN(temp$)) + "));"
+                    PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + subfuncoriginalname$ + CHR$(34) + "," + str2$(LEN(subfuncoriginalname$)) + "));"
                     PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER=-2; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
