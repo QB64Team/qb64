@@ -683,7 +683,9 @@ FUNCTION ide2 (ignore)
     STATIC attemptToHost AS _BYTE
     IF vWatchOn = 1 AND attemptToHost = 0 THEN
         IF host& = 0 THEN
-            host& = _OPENHOST("TCP/IP:9000")
+            hostport$ = _TRIM$(STR$(9000 + tempfolderindex))
+            ENVIRON "QB64DEBUGPORT=" + hostport$
+            host& = _OPENHOST("TCP/IP:" + hostport$)
             attemptToHost = -1
         END IF
     END IF
@@ -4146,7 +4148,7 @@ FUNCTION ide2 (ignore)
 
             IF altheld <> 0 AND lastaltheld = 0 THEN
                 DO
-                    _LIMIT 1000
+                    _LIMIT 100
                     GetInput
                     IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                         COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
@@ -4370,7 +4372,7 @@ FUNCTION ide2 (ignore)
             'revert to previous menuwhen alt pressed again
             IF altheld <> 0 AND lastaltheld = 0 THEN
                 DO
-                    _LIMIT 1000
+                    _LIMIT 100
                     GetInput
                     IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                         COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
@@ -6029,7 +6031,7 @@ SUB DebugMode
     SCREEN , , 3, 0
     COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
     m$ = "$DEBUG MODE ACTIVE"
-    COLOR 2
+    COLOR 0
     _PRINTSTRING ((idewx - LEN(m$)) \ 2, 1), m$
 
     dummy = DarkenFGBG(1)
@@ -6037,7 +6039,7 @@ SUB DebugMode
     setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 15
 
     IF host& = 0 THEN
-        host& = _OPENHOST("TCP/IP:9000")
+        host& = _OPENHOST("TCP/IP:" + hostport$)
         IF host& = 0 THEN
             dummy = DarkenFGBG(0)
             clearStatusWindow 1
@@ -6096,13 +6098,8 @@ SUB DebugMode
             CASE "me"
                 program$ = value$
                 expected$ = lastBinaryGenerated$
-                IF LEFT$(program$, 2) = "./" THEN program$ = MID$(program$, 3)
-
-                IF INSTR(_OS$, "WIN") THEN
-                    IF INSTR(expected$, "/") = 0 AND INSTR(expected$, "\") = 0 THEN
-                        expected$ = getfilepath$(COMMAND$(0)) + expected$
-                    END IF
-                END IF
+                p$ = ideztakepath$(program$)
+                p$ = ideztakepath$(expected$)
 
                 IF program$ <> expected$ THEN
                     dummy = DarkenFGBG(0)
@@ -6315,11 +6312,6 @@ SUB DebugMode
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
                 PauseMode = -1
-            CASE "call"
-                callstack = callstack + 1
-                onLine$ = STR$(CVL(RIGHT$(value$, 4)))
-                procedure$ = LEFT$(value$, LEN(value$) - 4)
-                'store this in an array and allow it to be inspected
         END SELECT
 
         _LIMIT 100
@@ -6340,6 +6332,8 @@ SUB DebugMode
         IF INSTR(cmd$, ":") THEN
             value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
             cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        ELSE
+            value$ = ""
         END IF
     ELSE
         cmd$ = "": value$ = ""
@@ -6349,6 +6343,7 @@ SUB DebugMode
     SendCommand:
     cmd$ = cmd$ + endc$
     PUT #client&, , cmd$
+    cmd$ = ""
     RETURN
 END SUB
 

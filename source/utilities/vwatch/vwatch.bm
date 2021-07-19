@@ -2,6 +2,7 @@ $CHECKING:OFF
 
 SUB vwatch (localVariables AS _OFFSET)
     STATIC AS LONG ide, breakpointCount, timeout, startLevel, lastLine
+    STATIC AS LONG callStackLength
     STATIC AS _BYTE pauseMode, stepOver, bypass
     STATIC buffer$, endc$
     DIM AS LONG i
@@ -77,8 +78,8 @@ SUB vwatch (localVariables AS _OFFSET)
         EXIT SUB
     ELSEIF vwatch_linenumber = -2 THEN
         'report a new sub/function has been "entered"
-        cmd$ = "call:" + vwatch_subname + MKL$(lastLine)
-        GOSUB SendCommand
+        IF LEN(vwatch_callstack) THEN vwatch_callstack = vwatch_callstack + CHR$(0)
+        vwatch_callstack = vwatch_callstack + vwatch_subname$ + ", line" + STR$(lastLine)
         EXIT SUB
     END IF
 
@@ -152,6 +153,8 @@ SUB vwatch (localVariables AS _OFFSET)
                 vwatch_breakpoints(CVL(value$)) = 0
             CASE "clear all breakpoints"
                 REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+            CASE "call stack"
+                'send call stack history"
             CASE "local"
                 i = CVL(value$)
                 address = localVariables + LEN(address) * i
@@ -165,10 +168,13 @@ SUB vwatch (localVariables AS _OFFSET)
     vwatch_starttimers
     EXIT SUB
     Connect:
+    ideport$ = ENVIRON$("QB64DEBUGPORT")
+    IF ideport$ = "" THEN bypass = -1: EXIT SUB
+
     start! = TIMER
     DO
         k& = _KEYHIT
-        ide = _OPENCLIENT("TCP/IP:9000:localhost")
+        ide = _OPENCLIENT("TCP/IP:" + ideport$ + ":localhost")
         _LIMIT 30
     LOOP UNTIL k& = 27 OR ide <> 0 OR TIMER - start! > timeout
     IF ide = 0 THEN bypass = -1: EXIT SUB
@@ -185,6 +191,8 @@ SUB vwatch (localVariables AS _OFFSET)
         IF INSTR(cmd$, ":") THEN
             value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
             cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        ELSE
+            value$ = ""
         END IF
     ELSE
         cmd$ = "": value$ = ""
@@ -194,5 +202,6 @@ SUB vwatch (localVariables AS _OFFSET)
     SendCommand:
     cmd$ = cmd$ + endc$
     PUT #ide, , cmd$
+    cmd$ = ""
     RETURN
 END SUB

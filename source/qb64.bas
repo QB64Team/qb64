@@ -5134,7 +5134,14 @@ DO
             IF vWatchOn = 1 THEN
                 PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
                 IF subfunc <> "SUB_VWATCH" THEN
-                    PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + subfuncoriginalname$ + CHR$(34) + "," + str2$(LEN(subfuncoriginalname$)) + "));"
+                    inclinenump$ = ""
+                    IF inclinenumber(inclevel) THEN
+                        thisincname$ = getfilepath$(incname$(inclevel))
+                        thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                        inclinenump$ = "(" + thisincname$ + "," + STR$(inclinenumber(inclevel)) + ") "
+                    END IF
+
+                    PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + inclinenump$ + subfuncoriginalname$ + CHR$(34) + "," + str2$(LEN(inclinenump$ + subfuncoriginalname$)) + "));"
                     PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER=-2; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
                 END IF
