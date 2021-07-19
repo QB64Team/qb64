@@ -695,6 +695,15 @@ FUNCTION ide2 (ignore)
         IdeDebugMode = 1
 
         EnterDebugMode:
+        IF idehelp THEN
+            idewy = idewy + idesubwindow
+            idehelp = 0
+            idesubwindow = 0
+            skipdisplay = 0
+            IdeSystem = 1
+            retval = 1: GOSUB redrawItAll
+       END IF
+
         idecompiling = 0
         ready = 1
         _RESIZE OFF
@@ -1331,8 +1340,8 @@ FUNCTION ide2 (ignore)
                         ideselect = 0
                         idecy = QuickNavHistory(QuickNavTotal).idecy
                         idecx = QuickNavHistory(QuickNavTotal).idecx
-                        idesy = QuickNavHistory(QuickNavTotal).idesy
                         idesx = QuickNavHistory(QuickNavTotal).idesx
+                        idecentercurrentline
                         QuickNavTotal = QuickNavTotal - 1
                         GOTO ideloop
                     END IF
@@ -6312,6 +6321,7 @@ SUB DebugMode
                 l = CVL(value$)
                 idecy = l
                 idefocusline = 0
+                idecentercurrentline
                 ideshowtext
                 clearStatusWindow 1
                 IF cmd$ = "breakpoint" THEN
@@ -7743,6 +7753,11 @@ FUNCTION idegetline$ (i)
     IF i <> -1 THEN idegotoline i
     idegetline$ = MID$(idet$, ideli + 4, CVL(MID$(idet$, ideli, 4)))
 END FUNCTION
+
+SUB idecentercurrentline
+    idesy = idecy - (idewy - 8) \ 2
+    IF idesy < 1 THEN idesy = 1
+END SUB
 
 SUB idegotoline (i)
     IF idel = i THEN EXIT SUB
