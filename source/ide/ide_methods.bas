@@ -271,6 +271,10 @@ FUNCTION ide2 (ignore)
         ViewMenuCompilerWarnings = i
         menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of recent code warnings"
+
+        ViewMenuCallStack = i
+        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F4": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: SearchMenuID = m
@@ -470,6 +474,7 @@ FUNCTION ide2 (ignore)
         'new blank text field
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
         REDIM IdeBreakpoints(iden) AS _BYTE
+        callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
         idechangemade = 1
 
@@ -1563,9 +1568,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F8 OR startPausedPending = -1 THEN
-            startPausedPending = 0
-            startPaused = -1
-            GOTO idemrun
+            GOTO startPausedMenuHandler
         END IF
 
         IF KB = KEY_F9 THEN 'toggle breakpoint
@@ -1576,6 +1579,10 @@ FUNCTION ide2 (ignore)
             idemexe:
             iderunmode = 2
             GOTO idemrunspecial
+        END IF
+
+        IF KB = KEY_F4 THEN
+            GOTO showCallStackDialog
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -4288,6 +4295,12 @@ FUNCTION ide2 (ignore)
         menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W"
     END IF
 
+    IF callStackLength = 0 THEN
+        menu$(ViewMenuID, ViewMenuCallStack) = "~Call #Stack...  F4"
+    ELSE
+        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F4"
+    END IF
+
     oldmy = mY: oldmx = mX
     DO
         PCOPY 2, 1
@@ -5295,6 +5308,15 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
+            IF menu$(m, s) = "Call #Stack...  F4" THEN
+                PCOPY 2, 0
+                showCallStackDialog:
+                retval = idecallstackbox
+                'retval is ignored
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
             IF menu$(m, s) = "#Find...  Ctrl+F3" THEN
                 PCOPY 2, 0
                 idefindjmp:
@@ -5583,6 +5605,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "Start #Paused  F8" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
+                startPausedMenuHandler:
                 IF vWatchOn = 0 THEN
                     result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
                     IF result = 1 THEN
@@ -5679,6 +5702,7 @@ FUNCTION ide2 (ignore)
                 ideunsaved = -1
                 'new blank text field
                 REDIM IdeBreakpoints(1) AS _BYTE
+                callstacklist$ = "": callStackLength = 0
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
                 idesy = 1
@@ -6065,7 +6089,11 @@ SUB DebugMode
     timeout = 10
     _KEYCLEAR
 
-    IF IdeDebugMode = 1 THEN PauseMode = 0
+    IF IdeDebugMode = 1 THEN
+        PauseMode = 0
+        callStackLength = 0
+        callstacklist$ = ""
+    END IF
 
     SCREEN , , 3, 0
     COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
@@ -6414,7 +6442,8 @@ SUB DebugMode
 
                     IF cmd$ = "call stack" THEN
                         'display call stack
-                        retval = idecallstackbox(value$, callStackLength)
+                        callstacklist$ = value$
+                        retval = idecallstackbox
                         PCOPY 3, 0: SCREEN , , 3, 0
                         clearStatusWindow 0
                         setStatusMessage 1, "Paused.", 2
@@ -6559,7 +6588,7 @@ SUB DebugMode
 
 END SUB
 
-FUNCTION idecallstackbox(callstacklist$, callStackLength)
+FUNCTION idecallstackbox
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -8636,6 +8665,8 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
+                callstacklist$ = "": callStackLength = 0
+
                 ideerror = 1
                 ideprogname = f$: _TITLE ideprogname + " - " + WindowTitle
                 listOfCustomKeywords$ = LEFT$(listOfCustomKeywords$, customKeywordsLength)
