@@ -474,6 +474,7 @@ FUNCTION ide2 (ignore)
         'new blank text field
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
         REDIM IdeBreakpoints(iden) AS _BYTE
+        REDIM IdeSkipLines(iden) AS _BYTE
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
         idechangemade = 1
@@ -566,6 +567,7 @@ FUNCTION ide2 (ignore)
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
+                REDIM IdeSkipLines(iden) AS _BYTE
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
                     idecy = ideStartAtLine
                     IF idecy - 10 >= 1 THEN idesy = idecy - 10
@@ -5646,6 +5648,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
                 END IF
+                IF IdeBreakpoints(idecy) THEN IdeSkipLines(idecy) = 0
                 GOTO ideloop
             END IF
 
@@ -5708,6 +5711,7 @@ FUNCTION ide2 (ignore)
                 ideunsaved = -1
                 'new blank text field
                 REDIM IdeBreakpoints(1) AS _BYTE
+                REDIM IdeSkipLines(1) AS _BYTE
                 callstacklist$ = "": callStackLength = 0
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
@@ -6211,6 +6215,21 @@ SUB DebugMode
         GOSUB SendCommand
     END IF
 
+    skipCount = 0
+    skipList$ = ""
+    FOR i = 1 TO UBOUND(IdeSkipLines)
+        IF IdeSkipLines(i) THEN
+            skipCount = skipCount + 1
+            skipList$ = skipList$ + MKL$(i)
+        END IF
+    NEXT
+    IF skipCount THEN
+        cmd$ = "skip count:" + MKL$(skipCount)
+        GOSUB SendCommand
+        cmd$ = "skip list:" + skipList$
+        GOSUB SendCommand
+    END IF
+
     clearStatusWindow 1
     IF startPaused THEN
         cmd$ = "break"
@@ -6313,9 +6332,26 @@ SUB DebugMode
                         ideselect = 0
                         idecytemp = mY - 2 + idesy - 1
                         IF idecytemp =< iden THEN
-                            IdeBreakpoints(idecytemp) = NOT IdeBreakpoints(idecytemp)
-                            IF IdeBreakpoints(idecytemp) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
-                            cmd$ = cmd$ + MKL$(idecytemp)
+                            IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                                IF IdeSkipLines(idecytemp) = -1 THEN
+                                    IdeSkipLines(idecytemp) = 0
+                                    cmd$ = "clear skip line:" + MKL$(idecytemp)
+                                ELSE
+                                    IdeSkipLines(idecytemp) = -1
+                                    IdeBreakpoints(idecytemp) = 0
+                                    cmd$ = "set skip line:" + MKL$(idecytemp)
+                                END IF
+                            ELSE
+                                IF IdeBreakpoints(idecytemp) THEN
+                                    IdeBreakpoints(idecytemp) = 0
+                                    cmd$ = "clear breakpoint:"
+                                ELSE
+                                    IdeBreakpoints(idecytemp) = -1
+                                    IdeSkipLines(idecytemp) = 0
+                                    cmd$ = "set breakpoint:"
+                                END IF
+                                cmd$ = cmd$ + MKL$(idecytemp)
+                            END IF
                             GOSUB SendCommand
                             GOSUB UpdateDisplay
                         END IF
@@ -6502,7 +6538,12 @@ SUB DebugMode
             CASE 17152 'F9
                 IF PauseMode THEN
                     IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
-                    IF IdeBreakpoints(idecy) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                    IF IdeBreakpoints(idecy) THEN
+                        IdeSkipLines(idecy) = 0
+                        cmd$ = "set breakpoint:"
+                    ELSE
+                        cmd$ = "clear breakpoint:"
+                    END IF
                     cmd$ = cmd$ + MKL$(idecy)
                     GOSUB SendCommand
                     GOSUB UpdateDisplay
@@ -6514,11 +6555,22 @@ SUB DebugMode
                 GOSUB UpdateDisplay
             CASE 103, 71 'g, G
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
-                    result = idesetnextlinebox
+                    result = idegetlinenumberbox("Set Next Line")
                     PCOPY 3, 0: SCREEN , , 3, 0
-                    IF result > 0 THEN
+                    IF result > 0 AND result < iden THEN
                         cmd$ = "set next line:" + MKL$(result)
                         GOSUB SendCommand
+                    END IF
+                END IF
+            CASE 112, 80 'p, P
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    result = idegetlinenumberbox("Skip Line")
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    IF result > 0 AND result <= iden THEN
+                        cmd$ = "set skip line:" + MKL$(result)
+                        GOSUB SendCommand
+                        IdeSkipLines(result) = -1
+                        GOSUB UpdateDisplay
                     END IF
                 END IF
         END SELECT
@@ -8129,6 +8181,13 @@ SUB ideinsline (i, text$)
     NEXT
     IdeBreakpoints(i) = 0
 
+    REDIM _PRESERVE IdeSkipLines(iden + 1) AS _BYTE
+    FOR b = iden + 1 TO i STEP -1
+        SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
+    NEXT
+    IdeSkipLines(i) = 0
+
+
     text$ = RTRIM$(text$)
 
     IF i = -1 THEN i = idel
@@ -8696,6 +8755,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
+                REDIM IdeSkipLines(iden) AS _BYTE
                 callstacklist$ = "": callStackLength = 0
 
                 ideerror = 1
@@ -9444,14 +9504,23 @@ SUB ideshowtext
     DO WHILE l > UBOUND(IdeBreakpoints)
         REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
     LOOP
+
+    DO WHILE l > UBOUND(IdeSkipLines)
+        REDIM _PRESERVE IdeSkipLines(UBOUND(IdeSkipLines) + 100) AS _BYTE
+    LOOP
+
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
+        IF vWatchOn = 1 AND IdeSkipLines(l) <> 0 THEN COLOR 14
         _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
         IF l <= iden THEN
             l2$ = STR$(l)
             IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
                 _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
+                IF vWatchOn AND IdeSkipLines(l) <> 0 THEN
+                    _PRINTSTRING (2, y + 3), "!"
+                END IF
             END IF
         END IF
         IF ShowLineNumbersSeparator THEN
@@ -9474,6 +9543,9 @@ SUB ideshowtext
             IF l = debugnextline THEN
                 COLOR 10
                 _PRINTSTRING (1, y + 3), CHR$(16)
+            ELSEIF IdeSkipLines(l) <> 0 THEN
+                COLOR 14
+                _PRINTSTRING (1, y + 3), "!"
             ELSE
                 _PRINTSTRING (1, y + 3), CHR$(179)
             END IF
@@ -11472,16 +11544,16 @@ SUB idegotobox
     ideselect = 0
 END SUB
 
-FUNCTION idesetnextlinebox
+FUNCTION idegetlinenumberbox(title$)
     a2$ = ""
-    v$ = ideinputbox$("Set Next Line", "#Line", a2$, "0123456789", 30, 8)
+    v$ = ideinputbox$(title$, "#Line", a2$, "0123456789", 30, 8)
     IF v$ = "" THEN EXIT FUNCTION
 
     v& = VAL(v$)
     IF v& < 1 THEN v& = 1
     IF v& > iden THEN v& = iden
 
-    idesetnextlinebox = v&
+    idegetlinenumberbox = v&
 END FUNCTION
 
 

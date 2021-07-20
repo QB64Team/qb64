@@ -1,7 +1,7 @@
 $CHECKING:OFF
 
 SUB vwatch (localVariables AS _OFFSET)
-    STATIC AS LONG ide, breakpointCount, timeout, startLevel, lastLine
+    STATIC AS LONG ide, breakpointCount, skipCount, timeout, startLevel, lastLine
     STATIC AS LONG callStackLength
     STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
@@ -41,6 +41,7 @@ SUB vwatch (localVariables AS _OFFSET)
                     END IF
                 CASE "line count"
                     REDIM vwatch_breakpoints(CVL(value$)) AS _BYTE
+                    REDIM vwatch_skiplines(CVL(value$)) AS _BYTE
                 CASE "breakpoint count"
                     breakpointCount = CVL(value$)
                 CASE "breakpoint list"
@@ -54,6 +55,20 @@ SUB vwatch (localVariables AS _OFFSET)
                     FOR i = 1 TO breakpointCount
                         temp$ = MID$(value$, i * 4 - 3, 4)
                         vwatch_breakpoints(CVL(temp$)) = -1
+                    NEXT
+                CASE "skip count"
+                    skipCount = CVL(value$)
+                CASE "skip list"
+                    IF LEN(value$) \ 4 <> skipCount THEN
+                        cmd$ = "quit:Communication error."
+                        GOSUB SendCommand
+                        CLOSE #ide
+                        bypass = -1
+                        EXIT SUB
+                    END IF
+                    FOR i = 1 TO skipCount
+                        temp$ = MID$(value$, i * 4 - 3, 4)
+                        vwatch_skiplines(CVL(temp$)) = -1
                     NEXT
                 CASE "run"
                     IF vwatch_breakpoints(vwatch_linenumber) THEN EXIT DO
@@ -109,11 +124,19 @@ SUB vwatch (localVariables AS _OFFSET)
             cmd$ = ""
         CASE "set breakpoint"
             vwatch_breakpoints(CVL(value$)) = -1
+            vwatch_skiplines(CVL(value$)) = 0
         CASE "clear breakpoint"
             vwatch_breakpoints(CVL(value$)) = 0
+        CASE "set skip line"
+            vwatch_skiplines(CVL(value$)) = -1
+            vwatch_breakpoints(CVL(value$)) = 0
+        CASE "clear skip line"
+            vwatch_skiplines(CVL(value$)) = 0
         CASE "clear all breakpoints"
             REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
     END SELECT
+
+    IF vwatch_skiplines(vwatch_linenumber) THEN vwatch_goto = -vwatch_linenumber: EXIT SUB
 
     IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(vwatch_linenumber) = 0 THEN
         EXIT SUB
@@ -163,6 +186,7 @@ SUB vwatch (localVariables AS _OFFSET)
                 EXIT SUB
             CASE "set breakpoint"
                 vwatch_breakpoints(CVL(value$)) = -1
+                vwatch_skiplines(CVL(value$)) = 0
             CASE "clear breakpoint"
                 vwatch_breakpoints(CVL(value$)) = 0
             CASE "clear all breakpoints"
@@ -180,6 +204,11 @@ SUB vwatch (localVariables AS _OFFSET)
                 setNextLine = -1
                 vwatch_goto = CVL(value$)
                 EXIT SUB
+            CASE "set skip line"
+                vwatch_skiplines(CVL(value$)) = -1
+                vwatch_breakpoints(CVL(value$)) = 0
+            CASE "clear skip line"
+                vwatch_skiplines(CVL(value$)) = 0
         END SELECT
 
         GOSUB GetCommand
@@ -190,6 +219,7 @@ SUB vwatch (localVariables AS _OFFSET)
     EXIT SUB
 
     Connect:
+    DIM ideport$
     ideport$ = ENVIRON$("QB64DEBUGPORT")
     IF ideport$ = "" THEN bypass = -1: EXIT SUB
 

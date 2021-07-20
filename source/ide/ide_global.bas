@@ -42,6 +42,7 @@ DIM SHARED QuickNavTotal AS LONG
 DIM SHARED QuickNavHistory(0) AS QuickNavType
 
 REDIM SHARED IdeBreakpoints(1) AS _BYTE
+REDIM SHARED IdeSkipLines(1) AS _BYTE
 
 'GetInput global variables
 DIM SHARED iCHECKLATER 'the values will be checked later
