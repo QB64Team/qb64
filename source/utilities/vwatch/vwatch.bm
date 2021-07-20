@@ -3,7 +3,7 @@ $CHECKING:OFF
 SUB vwatch (localVariables AS _OFFSET)
     STATIC AS LONG ide, breakpointCount, timeout, startLevel, lastLine
     STATIC AS LONG callStackLength
-    STATIC AS _BYTE pauseMode, stepOver, bypass
+    STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
     DIM AS LONG i
     DIM AS _OFFSET address
@@ -16,6 +16,8 @@ SUB vwatch (localVariables AS _OFFSET)
     END DECLARE
 
     IF bypass THEN EXIT SUB
+
+    vwatch_goto = 0
 
     IF ide = 0 THEN
         timeout = 10
@@ -95,7 +97,8 @@ SUB vwatch (localVariables AS _OFFSET)
         EXIT SUB
     END IF
 
-    IF vwatch_linenumber = lastLine THEN EXIT SUB
+    IF vwatch_linenumber = lastLine AND setNextLine = 0 THEN EXIT SUB
+    setNextLine = 0
     lastLine = vwatch_linenumber
 
     GOSUB GetCommand
@@ -171,6 +174,12 @@ SUB vwatch (localVariables AS _OFFSET)
                 i = CVL(value$)
                 address = localVariables + LEN(address) * i
                 PRINT "Local"; i; "is at"; _MEMGET(m, address, _OFFSET)
+            CASE "set next line"
+                pauseMode = -1
+                stepOver = 0
+                setNextLine = -1
+                vwatch_goto = CVL(value$)
+                EXIT SUB
         END SELECT
 
         GOSUB GetCommand

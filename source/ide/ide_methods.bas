@@ -6512,6 +6512,15 @@ SUB DebugMode
                 cmd$ = "clear all breakpoints"
                 GOSUB SendCommand
                 GOSUB UpdateDisplay
+            CASE 103, 71 'g, G
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    result = idesetnextlinebox
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    IF result > 0 THEN
+                        cmd$ = "set next line:" + MKL$(result)
+                        GOSUB SendCommand
+                    END IF
+                END IF
         END SELECT
 
         GOSUB GetCommand
@@ -11463,7 +11472,17 @@ SUB idegotobox
     ideselect = 0
 END SUB
 
+FUNCTION idesetnextlinebox
+    a2$ = ""
+    v$ = ideinputbox$("Set Next Line", "#Line", a2$, "0123456789", 30, 8)
+    IF v$ = "" THEN EXIT FUNCTION
 
+    v& = VAL(v$)
+    IF v& < 1 THEN v& = 1
+    IF v& > iden THEN v& = iden
+
+    idesetnextlinebox = v&
+END FUNCTION
 
 
 
