@@ -14215,11 +14215,12 @@ SUB clearid
 END SUB
 
 SUB vWatchTagLabel (this AS LONG, lastLine AS _BYTE)
-    STATIC prevLabel AS LONG
+    STATIC prevLabel AS LONG, prevSkipLabel AS LONG
 
     IF lastLine THEN
-        IF prevLabel > 0 THEN
+        IF prevLabel > 0 AND prevLabel <> prevSkipLabel THEN
             PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+            prevSkipLabel = prevLabel
         END IF
     ELSE
         WHILE this > LEN(vWatchUsedLabels)
