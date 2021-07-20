@@ -342,9 +342,8 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Sets/clears breakpoint at cursor location"
         menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
         menuDesc$(m, i - 1) = "Removes all breakpoints"
-        'menu$(m, i) = "-": i = i + 1
-        'menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
-        'menuDesc$(m, i - 1) = "Removes all breakpoints"
+        menu$(m, i) = "Toggle #Skip Line": i = i + 1
+        menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -2962,7 +2961,11 @@ FUNCTION ide2 (ignore)
                 idecytemp = mY - 2 + idesy - 1
                 IF idecytemp =< iden THEN
                     idecy = idecytemp
-                    GOTO toggleBreakpoint
+                    IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                        GOTO toggleSkipLine
+                    ELSE
+                        GOTO toggleBreakpoint
+                    END IF
                 END IF
             END IF
         END IF
@@ -5655,6 +5658,25 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Clear All Breakpoints  F10" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 REDIM IdeBreakpoints(iden) AS _BYTE
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "Toggle #Skip Line" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                toggleSkipLine:
+                IF vWatchOn = 0 THEN
+                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    IF result = 1 THEN
+                        ideselect = 0
+                        ideinsline 1, SCase$("$Debug")
+                        idecy = idecy + 1
+                        idechangemade = 1
+                        IdeSkipLines(idecy) = NOT IdeSkipLines(idecy)
+                    END IF
+                ELSE
+                    IdeSkipLines(idecy) = NOT IdeSkipLines(idecy)
+                END IF
+                IF IdeSkipLines(idecy) THEN IdeBreakpoints(idecy) = 0
                 GOTO ideloop
             END IF
 
