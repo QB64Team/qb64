@@ -5571,7 +5571,7 @@ DO
                     IF n <> 1 AND controlvalue(controllevel) <> currentid THEN a$ = "Incorrect variable after NEXT": GOTO errmes
                     PRINT #12, "fornext_continue_" + str2$(controlid(controllevel)) + ":;"
                     IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
-                    vWatchAddLabel linenumber, 0
+                        vWatchAddLabel linenumber, 0
                         PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                     END IF
                     PRINT #12, "}"
@@ -14239,6 +14239,7 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
         IF prevLabel <> this THEN
             PRINT #12, "VWATCH_LABEL_" + str2$(this) + ":;"
             prevLabel = this
+            lastLineNumberLabelvWatch = this
         END IF
     ELSE
         IF prevSkip <> prevLabel THEN
