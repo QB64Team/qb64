@@ -7394,6 +7394,16 @@ SUB idedelline (i)
         END IF
     NEXT
 
+    FOR b = i TO iden - 1
+        SWAP IdeBreakpoints(b), IdeBreakpoints(b + 1)
+    NEXT
+    REDIM _PRESERVE IdeBreakpoints(iden - 1) AS _BYTE
+
+    FOR b = i TO iden - 1
+        SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
+    NEXT
+    REDIM _PRESERVE IdeSkipLines(iden - 1) AS _BYTE
+
     idegotoline i
     textlen = CVL(MID$(idet$, ideli, 4))
     idet$ = LEFT$(idet$, ideli - 1) + RIGHT$(idet$, LEN(idet$) - ideli + 1 - 8 - textlen)
@@ -8208,7 +8218,6 @@ SUB ideinsline (i, text$)
         SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
     NEXT
     IdeSkipLines(i) = 0
-
 
     text$ = RTRIM$(text$)
 
