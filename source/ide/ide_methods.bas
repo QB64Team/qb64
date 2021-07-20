@@ -2961,7 +2961,7 @@ FUNCTION ide2 (ignore)
                 idecytemp = mY - 2 + idesy - 1
                 IF idecytemp =< iden THEN
                     idecy = idecytemp
-                    IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
                         GOTO toggleSkipLine
                     ELSE
                         GOTO toggleBreakpoint
@@ -6354,7 +6354,7 @@ SUB DebugMode
                         ideselect = 0
                         idecytemp = mY - 2 + idesy - 1
                         IF idecytemp =< iden THEN
-                            IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                            IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
                                 IF IdeSkipLines(idecytemp) = -1 THEN
                                     IdeSkipLines(idecytemp) = 0
                                     cmd$ = "clear skip line:" + MKL$(idecytemp)
@@ -9549,8 +9549,12 @@ SUB ideshowtext
             l2$ = STR$(l)
             IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
                 _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
-                IF vWatchOn AND IdeSkipLines(l) <> 0 THEN
-                    _PRINTSTRING (2, y + 3), "!"
+                IF vWatchOn THEN
+                    IF IdeBreakpoints(l) <> 0 THEN
+                        _PRINTSTRING (2, y + 3), CHR$(7)
+                    ELSEIF IdeSkipLines(l) <> 0 THEN
+                        _PRINTSTRING (2, y + 3), "!"
+                    END IF
                 END IF
             END IF
         END IF
@@ -9569,16 +9573,16 @@ SUB ideshowtext
         END IF
         COLOR , 1
     ELSE
-        IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN
+        IF vWatchOn = 1 AND (IdeBreakpoints(l) <> 0 OR IdeSkipLines(l) <> 0) THEN
             COLOR 7, 4
             IF l = debugnextline THEN
                 COLOR 10
                 _PRINTSTRING (1, y + 3), CHR$(16)
             ELSEIF IdeSkipLines(l) <> 0 THEN
-                COLOR 14
+                COLOR 14, 1
                 _PRINTSTRING (1, y + 3), "!"
             ELSE
-                _PRINTSTRING (1, y + 3), CHR$(179)
+                _PRINTSTRING (1, y + 3), CHR$(7)
             END IF
         END IF
     END IF
