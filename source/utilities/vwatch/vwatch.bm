@@ -1,7 +1,7 @@
 $CHECKING:OFF
 
 SUB vwatch (localVariables AS _OFFSET)
-    STATIC AS LONG ide, breakpointCount, skipCount, timeout, startLevel, lastLine
+    STATIC AS LONG ideHost, breakpointCount, skipCount, timeout, startLevel, lastLine
     STATIC AS LONG callStackLength
     STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
@@ -19,7 +19,7 @@ SUB vwatch (localVariables AS _OFFSET)
 
     vwatch_goto = 0
 
-    IF ide = 0 THEN
+    IF ideHost = 0 THEN
         timeout = 10
         endc$ = "<END>"
 
@@ -35,7 +35,7 @@ SUB vwatch (localVariables AS _OFFSET)
             SELECT CASE cmd$
                 CASE "vwatch"
                     IF value$ <> "ok" THEN
-                        CLOSE #ide
+                        CLOSE #ideHost
                         bypass = -1
                         EXIT SUB
                     END IF
@@ -48,7 +48,7 @@ SUB vwatch (localVariables AS _OFFSET)
                     IF LEN(value$) \ 4 <> breakpointCount THEN
                         cmd$ = "quit:Communication error."
                         GOSUB SendCommand
-                        CLOSE #ide
+                        CLOSE #ideHost
                         bypass = -1
                         EXIT SUB
                     END IF
@@ -62,7 +62,7 @@ SUB vwatch (localVariables AS _OFFSET)
                     IF LEN(value$) \ 4 <> skipCount THEN
                         cmd$ = "quit:Communication error."
                         GOSUB SendCommand
-                        CLOSE #ide
+                        CLOSE #ideHost
                         bypass = -1
                         EXIT SUB
                     END IF
@@ -85,9 +85,9 @@ SUB vwatch (localVariables AS _OFFSET)
         GOSUB SendCallStack
         cmd$ = "quit:Program ended."
         GOSUB SendCommand
-        CLOSE #ide
+        CLOSE #ideHost
         bypass = -1
-        ide = 0
+        ideHost = 0
         EXIT SUB
     ELSEIF vwatch_linenumber = -1 THEN
         'report an error in the most recent line
@@ -179,8 +179,8 @@ SUB vwatch (localVariables AS _OFFSET)
                 vwatch_starttimers
                 EXIT SUB
             CASE "free"
-                CLOSE #ide
-                ide = 0
+                CLOSE #ideHost
+                ideHost = 0
                 bypass = -1
                 vwatch_starttimers
                 EXIT SUB
@@ -226,14 +226,14 @@ SUB vwatch (localVariables AS _OFFSET)
     start! = TIMER
     DO
         k& = _KEYHIT
-        ide = _OPENCLIENT("TCP/IP:" + ideport$ + ":localhost")
+        ideHost = _OPENCLIENT("TCP/IP:" + ideport$ + ":localhost")
         _LIMIT 30
-    LOOP UNTIL k& = 27 OR ide <> 0 OR TIMER - start! > timeout
-    IF ide = 0 THEN bypass = -1: EXIT SUB
+    LOOP UNTIL k& = 27 OR ideHost <> 0 OR TIMER - start! > timeout
+    IF ideHost = 0 THEN bypass = -1: EXIT SUB
     RETURN
 
     GetCommand:
-    GET #ide, , temp$
+    GET #ideHost, , temp$
     buffer$ = buffer$ + temp$
 
     IF INSTR(buffer$, endc$) THEN
@@ -260,7 +260,7 @@ SUB vwatch (localVariables AS _OFFSET)
 
     SendCommand:
     cmd$ = cmd$ + endc$
-    PUT #ide, , cmd$
+    PUT #ideHost, , cmd$
     cmd$ = ""
     RETURN
 END SUB
