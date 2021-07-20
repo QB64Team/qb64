@@ -1582,7 +1582,13 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN
-            GOTO showCallStackDialog
+            IF callStackLength > 0 THEN
+                GOTO showCallStackDialog
+            ELSE
+                result = idemessagebox("$DEBUG MODE", "No call stack log available.", "")
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -6432,7 +6438,6 @@ SUB DebugMode
                     dummy = DarkenFGBG(0)
                     clearStatusWindow 0
                     setStatusMessage 1, "Requesting call stack...", 7
-                    noFocusMessage = -1
 
                     start! = TIMER
                     DO
@@ -6453,6 +6458,7 @@ SUB DebugMode
                         clearStatusWindow 0
                         setStatusMessage 1, "Error retrieving call stack.", 2
                     END IF
+                    noFocusMessage = NOT noFocusMessage
                 END IF
             CASE 16128 'F5
                 PauseMode = 0
