@@ -5303,9 +5303,9 @@ DO
                 PRINT #12, "exit_subfunc:;"
                 IF vWatchOn = 1 THEN
                     IF NoChecks = 0 THEN
-                        vWatchTagLabel linenumber, 0
+                        vWatchAddLabel linenumber, 0
                         PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
-                        vWatchTagLabel 0, -1
+                        vWatchAddLabel 0, -1
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
 
@@ -5617,7 +5617,7 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
@@ -5677,14 +5677,14 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "DO ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 ELSE
                     PRINT #12, "do{"
@@ -5719,7 +5719,7 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
@@ -5727,7 +5727,7 @@ DO
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
 
                 IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
 
@@ -5881,7 +5881,7 @@ DO
             IF Error_Happened THEN GOTO errmes
 
             IF NoChecks = 0 AND vWatchOn = 1 THEN
-                vWatchTagLabel linenumber, 0
+                vWatchAddLabel linenumber, 0
                 PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
@@ -5969,7 +5969,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
@@ -6011,7 +6011,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
@@ -6094,7 +6094,7 @@ DO
             END IF
 
             IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                vWatchTagLabel linenumber, 0
+                vWatchAddLabel linenumber, 0
                 PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
@@ -6115,7 +6115,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
@@ -6241,7 +6241,7 @@ DO
             IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "END SELECT without SELECT CASE": GOTO errmes
 
             IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                vWatchTagLabel linenumber, 0
+                vWatchAddLabel linenumber, 0
                 PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
@@ -6360,7 +6360,7 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    vWatchTagLabel linenumber, 0
+                    vWatchAddLabel linenumber, 0
                     PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
@@ -6549,7 +6549,7 @@ DO
 
     IF NoChecks = 0 THEN
         IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-            vWatchTagLabel linenumber, 0
+            vWatchAddLabel linenumber, 0
             PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
         ELSE
             PRINT #12, "do{"
@@ -8897,7 +8897,7 @@ DO
 
 
         IF vWatchOn = 1 THEN
-            vWatchTagLabel linenumber, 0
+            vWatchAddLabel linenumber, 0
             PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
         END IF
         PRINT #12, "if (sub_gl_called) error(271);"
@@ -8921,7 +8921,7 @@ DO
             END IF
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             IF vWatchOn = 1 AND NoChecks = 0 THEN
-                vWatchTagLabel linenumber, 0
+                vWatchAddLabel linenumber, 0
                 PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             ELSE
                 PRINT #12, "close_program=1;"
@@ -14214,15 +14214,10 @@ SUB clearid
     id = cleariddata
 END SUB
 
-SUB vWatchTagLabel (this AS LONG, lastLine AS _BYTE)
-    STATIC prevLabel AS LONG, prevSkipLabel AS LONG
+SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
+    STATIC prevLabel AS LONG, prevSkip AS LONG
 
-    IF lastLine THEN
-        IF prevLabel > 0 AND prevLabel <> prevSkipLabel THEN
-            PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
-            prevSkipLabel = prevLabel
-        END IF
-    ELSE
+    IF lastLine = 0 THEN
         WHILE this > LEN(vWatchUsedLabels)
             vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
         WEND
@@ -14230,14 +14225,22 @@ SUB vWatchTagLabel (this AS LONG, lastLine AS _BYTE)
 
         IF firstLineNumberLabelvWatch = 0 THEN
             firstLineNumberLabelvWatch = this
-            prevLabel = 0
         ELSE
-            IF prevLabel <> this THEN
+            IF prevSkip <> prevLabel THEN
                 PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+                prevSkip = prevLabel
             END IF
         END IF
-        prevLabel = this
-        IF lastLineNumberLabelvWatch <> this THEN PRINT #12, "VWATCH_LABEL_" + str2$(this) + ":;": lastLineNumberLabelvWatch = this
+
+        IF prevLabel <> this THEN
+            PRINT #12, "VWATCH_LABEL_" + str2$(this) + ":;"
+            prevLabel = this
+        END IF
+    ELSE
+        IF prevSkip <> prevLabel THEN
+            PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+            prevSkip = prevLabel
+        END IF
     END IF
 END SUB
 
@@ -22740,7 +22743,7 @@ END FUNCTION
 
 SUB xend
     IF vWatchOn = 1 THEN
-        vWatchTagLabel 0, -1
+        vWatchAddLabel 0, -1
         PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
     END IF
     PRINT #12, "sub_end();"
