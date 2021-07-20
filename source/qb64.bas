@@ -5293,6 +5293,8 @@ DO
                     IF totalLocalVariables > 0 THEN
                         PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
                         PRINT #13, localVariablesList$
+                    ELSE
+                        PRINT #13, "void *vwatch_local_vars[0];"
                     END IF
                 END IF
 
@@ -11724,6 +11726,8 @@ IF vWatchOn = 1 THEN
     IF totalLocalVariables > 0 THEN
         PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
         PRINT #13, localVariablesList$
+    ELSE
+        PRINT #13, "void *vwatch_local_vars[0];"
     END IF
 END IF
 
