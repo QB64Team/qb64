@@ -6428,6 +6428,7 @@ SUB DebugMode
                     cmd$ = "call stack"
                     GOSUB SendCommand
 
+                    IF BypassRequestCallStack THEN GOTO ShowCallStack
                     dummy = DarkenFGBG(0)
                     clearStatusWindow 0
                     setStatusMessage 1, "Requesting call stack...", 7
@@ -6443,6 +6444,7 @@ SUB DebugMode
                     IF cmd$ = "call stack" THEN
                         'display call stack
                         callstacklist$ = value$
+                        ShowCallStack:
                         retval = idecallstackbox
                         PCOPY 3, 0: SCREEN , , 3, 0
                         clearStatusWindow 0
@@ -6510,6 +6512,7 @@ SUB DebugMode
 
         SELECT CASE cmd$
             CASE "breakpoint", "line number"
+                BypassRequestCallStack = 0
                 l = CVL(value$)
                 idecy = l
                 debugnextline = l
@@ -6542,10 +6545,12 @@ SUB DebugMode
                 clearStatusWindow 1
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
+                BypassRequestCallStack = -1
                 PauseMode = -1
             CASE "call stack size"
                 'call stack is only received without having been
-                'requested when the program is about to quit
+                'requested when the program is about to quit or
+                'when an error just occurred
                 callStackLength = CVL(value$)
                 start! = TIMER
                 DO
