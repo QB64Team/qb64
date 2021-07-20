@@ -7394,15 +7394,17 @@ SUB idedelline (i)
         END IF
     NEXT
 
-    FOR b = i TO iden - 1
-        SWAP IdeBreakpoints(b), IdeBreakpoints(b + 1)
-    NEXT
-    REDIM _PRESERVE IdeBreakpoints(iden - 1) AS _BYTE
+    IF vWatchOn THEN
+        FOR b = i TO iden - 1
+            SWAP IdeBreakpoints(b), IdeBreakpoints(b + 1)
+        NEXT
+        REDIM _PRESERVE IdeBreakpoints(iden - 1) AS _BYTE
 
-    FOR b = i TO iden - 1
-        SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
-    NEXT
-    REDIM _PRESERVE IdeSkipLines(iden - 1) AS _BYTE
+        FOR b = i TO iden - 1
+            SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
+        NEXT
+        REDIM _PRESERVE IdeSkipLines(iden - 1) AS _BYTE
+    END IF
 
     idegotoline i
     textlen = CVL(MID$(idet$, ideli, 4))
@@ -8207,17 +8209,19 @@ SUB ideinsline (i, text$)
         END IF
     NEXT
 
-    REDIM _PRESERVE IdeBreakpoints(iden + 1) AS _BYTE
-    FOR b = iden + 1 TO i STEP -1
-        SWAP IdeBreakpoints(b), IdeBreakpoints(b - 1)
-    NEXT
-    IdeBreakpoints(i) = 0
+    IF vWatchOn THEN
+        REDIM _PRESERVE IdeBreakpoints(iden + 1) AS _BYTE
+        FOR b = iden + 1 TO i STEP -1
+            SWAP IdeBreakpoints(b), IdeBreakpoints(b - 1)
+        NEXT
+        IdeBreakpoints(i) = 0
 
-    REDIM _PRESERVE IdeSkipLines(iden + 1) AS _BYTE
-    FOR b = iden + 1 TO i STEP -1
-        SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
-    NEXT
-    IdeSkipLines(i) = 0
+        REDIM _PRESERVE IdeSkipLines(iden + 1) AS _BYTE
+        FOR b = iden + 1 TO i STEP -1
+            SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
+        NEXT
+        IdeSkipLines(i) = 0
+    END IF
 
     text$ = RTRIM$(text$)
 
