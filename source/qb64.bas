@@ -6043,6 +6043,10 @@ DO
                 IF LEN(layout$) = 0 THEN layout$ = l$ ELSE layout$ = layout$ + sp + l$
             END IF
 
+            IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
+            END IF
+
             PRINT #12, "}"
             FOR i = 1 TO controlvalue(controllevel)
                 PRINT #12, "}"
@@ -6180,8 +6184,13 @@ DO
                 controllevel = controllevel - 1
                 IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "} /* End of SELECT EVERYCASE ELSE */"
             END IF
+
             PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_end:;"
             IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "END SELECT without SELECT CASE": GOTO errmes
+
+            IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
+            END IF
 
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
                 'warn user of empty SELECT CASE block
