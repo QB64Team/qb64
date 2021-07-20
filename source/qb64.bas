@@ -5309,11 +5309,14 @@ DO
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
 
-                    IF subfunc <> "SUB_VWATCH" THEN
+                    IF subfunc <> "SUB_VWATCH" AND firstLineNumberLabelvWatch > 0 THEN
                         PRINT #12, "goto VWATCH_SKIPSETNEXTLINE;"
                         PRINT #12, "VWATCH_SETNEXTLINE:;"
                         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
                         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
+                            WHILE i > LEN(vWatchUsedLabels)
+                                vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+                            WEND
                             IF ASC(vWatchUsedLabels, i) = 1 THEN
                                 PRINT #12, "    case " + str2$(i) + ":"
                                 PRINT #12, "        goto VWATCH_LABEL_" + str2$(i) + ";"
@@ -14215,7 +14218,9 @@ SUB vWatchTagLabel (this AS LONG, lastLine AS _BYTE)
     STATIC prevLabel AS LONG
 
     IF lastLine THEN
-        PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+        IF prevLabel > 0 THEN
+            PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+        END IF
     ELSE
         WHILE this > LEN(vWatchUsedLabels)
             vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
@@ -14224,6 +14229,7 @@ SUB vWatchTagLabel (this AS LONG, lastLine AS _BYTE)
 
         IF firstLineNumberLabelvWatch = 0 THEN
             firstLineNumberLabelvWatch = this
+            prevLabel = 0
         ELSE
             IF prevLabel <> this THEN
                 PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
@@ -14239,7 +14245,7 @@ SUB closemain
 
     PRINT #12, "return;"
 
-    IF vWatchOn THEN
+    IF vWatchOn AND firstLineNumberLabelvWatch > 0 THEN
         PRINT #12, "VWATCH_SETNEXTLINE:;"
         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
