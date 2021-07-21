@@ -1071,16 +1071,14 @@ IF C = 9 THEN 'run
 
         CASE "LNX"
             IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths (why?)
-            IF os$ = "LNX" THEN
-                IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
-                    shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
-                ELSE
-                    shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
-                END IF
+            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
+                shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+            ELSE
+                shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
             END IF
             IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
 
-            IF Console THEN
+            IF Console AND (NOT MacOSX) THEN
                 SHELL _DONTWAIT "x-terminal-emulator -e " + QuotedFilename$(shellcmdline$) 'bring up a terminal when using $Console
             ELSE SHELL _DONTWAIT shellcmdline$
             END IF
