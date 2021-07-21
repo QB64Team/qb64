@@ -5282,20 +5282,7 @@ DO
                 layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
 
                 IF vWatchOn = 1 THEN
-                    totalLocalVariables = 0
-                    localVariablesList$ = ""
-                    FOR i = 1 TO totalVariablesCreated
-                        IF usedVariableList(i).scope = subfuncn THEN
-                            totalLocalVariables = totalLocalVariables + 1
-                            localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + usedVariableList(i).cname + ";" + CRLF
-                        END IF
-                    NEXT
-                    IF totalLocalVariables > 0 THEN
-                        PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
-                        PRINT #13, localVariablesList$
-                    ELSE
-                        PRINT #13, "void *vwatch_local_vars[0];"
-                    END IF
+                    vWatchVariable "", 1
                 END IF
 
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
@@ -11722,20 +11709,7 @@ END IF
 CLOSE #fh
 
 IF vWatchOn = 1 THEN
-    totalLocalVariables = 0
-    localVariablesList$ = ""
-    FOR i = 1 TO totalVariablesCreated
-        IF usedVariableList(i).scope = 0 THEN
-            totalLocalVariables = totalLocalVariables + 1
-            localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + usedVariableList(i).cname + ";" + CRLF
-        END IF
-    NEXT
-    IF totalLocalVariables > 0 THEN
-        PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
-        PRINT #13, localVariablesList$
-    ELSE
-        PRINT #13, "void *vwatch_local_vars[0];"
-    END IF
+    vWatchVariable "", 1
 END IF
 
 
@@ -13714,6 +13688,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
     'Begin creation of array descriptor (if array has not been defined yet)
     IF arraydesc = 0 THEN
         PRINT #defdatahandle, "ptrszint *" + n$ + "=NULL;"
+        vWatchVariable n$, 0
         PRINT #13, "if (!" + n$ + "){"
         PRINT #13, n$ + "=(ptrszint*)mem_static_malloc(" + str2(4 * nume + 4 + 1) + "*ptrsz);" '+1 is for the lock
         'create _MEM lock
@@ -14218,6 +14193,56 @@ SUB clearid
     id = cleariddata
 END SUB
 
+SUB vWatchVariable (this$, action AS _BYTE)
+    STATIC totalLocalVariables AS LONG, localVariablesList$
+    STATIC totalMainModuleVariables AS LONG, mainModuleVariablesList$
+    STATIC exclusions$
+
+    IF LEN(exclusions$) = 0 THEN
+        exclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__LONG_VWATCH_GOTO@" + _
+                      "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
+                      "@__ARRAY_BYTE_VWATCH_SKIPLINES@"
+    END IF
+
+    SELECT CASE action
+        CASE 0 'add
+            IF INSTR(exclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
+                EXIT SUB
+            END IF
+
+            IF subfunc = "" THEN
+                totalMainModuleVariables = totalMainModuleVariables + 1
+                mainModuleVariablesList$ = mainModuleVariablesList$ + "vwatch_local_vars[" + str2$(totalMainModuleVariables - 1) + "] = &" + this$ + ";" + CRLF
+            ELSE
+                totalLocalVariables = totalLocalVariables + 1
+                localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + this$ + ";" + CRLF
+            END IF
+            manageVariableList RTRIM$(id.cn), this$, 0
+        CASE 1 'dump to data[].txt & reset
+            IF subfunc = "" THEN
+                IF totalMainModuleVariables > 0 THEN
+                    PRINT #13, "void *vwatch_local_vars["; totalMainModuleVariables; "];"
+                    PRINT #13, mainModuleVariablesList$
+                ELSE
+                    PRINT #13, "void *vwatch_local_vars[0];"
+                END IF
+
+                mainModuleVariablesList$ = ""
+                totalMainModuleVariables = 0
+            ELSE
+                IF totalLocalVariables > 0 THEN
+                    PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
+                    PRINT #13, localVariablesList$
+                ELSE
+                    PRINT #13, "void *vwatch_local_vars[0];"
+                END IF
+
+                localVariablesList$ = ""
+                totalLocalVariables = 0
+            END IF
+    END SELECT
+END SUB
+
 SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
     STATIC prevLabel AS LONG, prevSkip AS LONG
 
@@ -14429,6 +14454,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             clearid
             id.n = cvarname$
             id.t = UDTTYPE + i
+            vWatchVariable n$, 0
             IF cmemlist(idn + 1) THEN
                 id.t = id.t + ISINCONVENTIONALMEMORY
                 IF f THEN
@@ -14595,6 +14621,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             clearid
             id.n = cvarname$
             id.t = STRINGTYPE + ISFIXEDLENGTH
+            vWatchVariable n$, 0
             IF cmemlist(idn + 1) THEN
                 id.t = id.t + ISINCONVENTIONALMEMORY
                 IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
@@ -14692,6 +14719,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         clearid
         id.n = cvarname$
         id.t = STRINGTYPE
+        vWatchVariable n$, 0
         IF cmemlist(idn + 1) THEN
             IF f THEN PRINT #defdatahandle, "qbs *" + n$ + "=NULL;"
             IF f THEN PRINT #13, "if (!" + n$ + ")" + n$ + "=qbs_new_cmem(0,0);"
@@ -14794,6 +14822,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         END IF
         'standard bit-length variable
         n$ = scope2$ + n$
+        vWatchVariable n$, 0
         PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
         PRINT #13, "if(" + n$ + "==NULL){"
         PRINT #13, "cmem_sp-=4;"
@@ -14875,6 +14904,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = BYTETYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -14957,6 +14987,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = INTEGERTYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15044,6 +15075,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = OFFSETTYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15128,6 +15160,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = LONGTYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15212,6 +15245,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = INTEGER64TYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15296,6 +15330,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = SINGLETYPE
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15378,6 +15413,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = DOUBLETYPE
+            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15460,6 +15496,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = FLOATTYPE
+            vWatchVariable n$, 0
             IF f THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15488,9 +15525,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     Give_Error "Unknown type": EXIT FUNCTION
     dim2exitfunc:
 
-    IF bypassNextVariable = 0 THEN
-        manageVariableList cvarname$, n$, 0
-    END IF
     bypassNextVariable = 0
 
     IF dimsfarray THEN
@@ -25886,9 +25920,6 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
         CASE ELSE 'find and mark as used
             IF found THEN
                 usedVariableList(i).used = -1
-            ELSE
-                manageVariableList name$, __cname$, 0
-                manageVariableList name$, __cname$, 12
             END IF
     END SELECT
 END SUB
