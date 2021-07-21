@@ -6237,8 +6237,9 @@ SUB DebugMode
             IdeDebugMode = 1
             GOTO requestPause
         CASE 8
-            'IdeDebugMode = 1
-            'GOTO requestPause
+            IdeDebugMode = 1
+            result = idecy
+            GOTO requestRunToThisLine
         CASE 9
             IdeDebugMode = 1
             GOTO requestQuit
@@ -6747,12 +6748,28 @@ SUB DebugMode
                 GOSUB UpdateDisplay
             CASE 103, 71 'g, G
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
-                    result = idegetlinenumberbox("Set Next Line")
-                    PCOPY 3, 0: SCREEN , , 3, 0
-                    requestSetNextLine:
-                    IF result > 0 AND result < iden THEN
-                        cmd$ = "set next line:" + MKL$(result)
-                        GOSUB SendCommand
+                    IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
+                        result = idegetlinenumberbox("Run To Line")
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        requestRunToThisLine:
+                        IF result > 0 AND result < iden THEN
+                            PauseMode = 0
+                            debugnextline = 0
+                            cmd$ = "run to line:" + MKL$(result)
+                            GOSUB SendCommand
+                            clearStatusWindow 1
+                            setStatusMessage 1, "Running...", 10
+                            GOSUB UpdateDisplay
+                            dummy = DarkenFGBG(1)
+                        END IF
+                    ELSE
+                        result = idegetlinenumberbox("Set Next Line")
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        requestSetNextLine:
+                        IF result > 0 AND result < iden THEN
+                            cmd$ = "set next line:" + MKL$(result)
+                            GOSUB SendCommand
+                        END IF
                     END IF
                 END IF
             CASE 112, 80 'p, P

@@ -2,7 +2,7 @@ $CHECKING:OFF
 
 SUB vwatch (localVariables AS _OFFSET)
     STATIC AS LONG ideHost, breakpointCount, skipCount, timeout, startLevel, lastLine
-    STATIC AS LONG callStackLength
+    STATIC AS LONG callStackLength, runToLine
     STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
     DIM AS LONG i
@@ -121,6 +121,7 @@ SUB vwatch (localVariables AS _OFFSET)
         CASE "break"
             pauseMode = -1
             stepOver = 0
+            runToLine = 0
             cmd$ = ""
         CASE "set breakpoint"
             vwatch_breakpoints(CVL(value$)) = -1
@@ -145,6 +146,13 @@ SUB vwatch (localVariables AS _OFFSET)
         pauseMode = -1
     END IF
 
+    IF runToLine > 0 AND runToLine <> vwatch_linenumber THEN
+        EXIT SUB
+    ELSEIF runToLine > 0 AND runToLine = vwatch_linenumber THEN
+        pauseMode = -1
+        runToLine = 0
+    END IF
+
     IF vwatch_breakpoints(vwatch_linenumber) = 0 AND pauseMode = 0 THEN
         EXIT SUB
     END IF
@@ -160,6 +168,12 @@ SUB vwatch (localVariables AS _OFFSET)
             CASE "run"
                 pauseMode = 0
                 stepOver = 0
+                vwatch_starttimers
+                EXIT SUB
+            CASE "run to line"
+                pauseMode = 0
+                stepOver = 0
+                runToLine = CVL(value$)
                 vwatch_starttimers
                 EXIT SUB
             CASE "step"
