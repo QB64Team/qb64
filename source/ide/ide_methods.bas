@@ -3201,6 +3201,10 @@ FUNCTION ide2 (ignore)
             GOTO ctrlOpen
         END IF
 
+        IF KCONTROL AND UCASE$(K$) = "P" THEN 'Debug -> Toggle Skip Line
+            GOTO toggleSkipLine
+        END IF
+
         IF (NOT KSHIFT) AND KCONTROL AND UCASE$(K$) = "R" THEN 'Comment (add ') - R for REMark
             GOTO ctrlAddComment
         END IF
@@ -5691,7 +5695,7 @@ FUNCTION ide2 (ignore)
                 GOTO EnterDebugMode
             END IF
 
-            IF menu$(m, s) = "#Run To This Line" THEN
+            IF menu$(m, s) = "#Run To This Line  Ctrl+Shift+G" THEN
                 IdeDebugMode = 8
                 GOTO EnterDebugMode
             END IF
@@ -6749,7 +6753,7 @@ SUB DebugMode
             CASE 103, 71 'g, G
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
                     IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
-                        result = idegetlinenumberbox("Run To Line")
+                        result = idegetlinenumberbox("Run To Line", idecy)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         requestRunToThisLine:
                         IF result > 0 AND result < iden THEN
@@ -6763,7 +6767,7 @@ SUB DebugMode
                             dummy = DarkenFGBG(1)
                         END IF
                     ELSE
-                        result = idegetlinenumberbox("Set Next Line")
+                        result = idegetlinenumberbox("Set Next Line", idecy)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         requestSetNextLine:
                         IF result > 0 AND result < iden THEN
@@ -6774,7 +6778,7 @@ SUB DebugMode
                 END IF
             CASE 112, 80 'p, P
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
-                    result = idegetlinenumberbox("Skip Line")
+                    result = idegetlinenumberbox("Skip Line", idecy)
                     PCOPY 3, 0: SCREEN , , 3, 0
                     requestToggleSkipLine:
                     IF result > 0 AND result <= iden THEN
@@ -11774,8 +11778,9 @@ SUB idegotobox
     ideselect = 0
 END SUB
 
-FUNCTION idegetlinenumberbox(title$)
-    a2$ = ""
+FUNCTION idegetlinenumberbox(title$, initialValue&)
+    a2$ = str2$(initialValue&)
+    IF a2$ = "0" THEN a2$ = ""
     v$ = ideinputbox$(title$, "#Line", a2$, "0123456789", 30, 8)
     IF v$ = "" THEN EXIT FUNCTION
 
@@ -14423,7 +14428,7 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Set #Next Line  Ctrl+G": i = i + 1
         menuDesc$(m, i - 1) = "Jumps to the selected line before continuing execution"
-        menu$(m, i) = "#Run To This Line": i = i + 1
+        menu$(m, i) = "#Run To This Line  Ctrl+Shift+G": i = i + 1
         menuDesc$(m, i - 1) = "Runs until the selected line is reached"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
