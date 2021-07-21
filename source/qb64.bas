@@ -13688,7 +13688,6 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
     'Begin creation of array descriptor (if array has not been defined yet)
     IF arraydesc = 0 THEN
         PRINT #defdatahandle, "ptrszint *" + n$ + "=NULL;"
-        vWatchVariable n$, 0
         PRINT #13, "if (!" + n$ + "){"
         PRINT #13, n$ + "=(ptrszint*)mem_static_malloc(" + str2(4 * nume + 4 + 1) + "*ptrsz);" '+1 is for the lock
         'create _MEM lock
@@ -14440,6 +14439,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 id.arrayelements = nume
                 id.callname = n$
                 regid
+                vWatchVariable n$, 0
                 IF Error_Happened THEN EXIT FUNCTION
                 GOTO dim2exitfunc
             END IF
@@ -14454,7 +14454,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             clearid
             id.n = cvarname$
             id.t = UDTTYPE + i
-            vWatchVariable n$, 0
             IF cmemlist(idn + 1) THEN
                 id.t = id.t + ISINCONVENTIONALMEMORY
                 IF f THEN
@@ -14478,6 +14477,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 END IF
             END IF
             regid
+            vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
             GOTO dim2exitfunc
         END IF
@@ -14621,7 +14621,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             clearid
             id.n = cvarname$
             id.t = STRINGTYPE + ISFIXEDLENGTH
-            vWatchVariable n$, 0
             IF cmemlist(idn + 1) THEN
                 id.t = id.t + ISINCONVENTIONALMEMORY
                 IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
@@ -14645,6 +14644,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 id.musthave = "$" + str2(bytes)
             END IF
             regid
+            vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
             GOTO dim2exitfunc
         END IF
@@ -14719,7 +14719,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         clearid
         id.n = cvarname$
         id.t = STRINGTYPE
-        vWatchVariable n$, 0
         IF cmemlist(idn + 1) THEN
             IF f THEN PRINT #defdatahandle, "qbs *" + n$ + "=NULL;"
             IF f THEN PRINT #13, "if (!" + n$ + ")" + n$ + "=qbs_new_cmem(0,0);"
@@ -14736,6 +14735,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             id.musthave = "$"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14822,7 +14822,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         END IF
         'standard bit-length variable
         n$ = scope2$ + n$
-        vWatchVariable n$, 0
         PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
         PRINT #13, "if(" + n$ + "==NULL){"
         PRINT #13, "cmem_sp-=4;"
@@ -14840,6 +14839,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF unsgn THEN id.musthave = "~`" + str2(bits) ELSE id.musthave = "`" + str2(bits)
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14904,7 +14904,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = BYTETYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -14926,6 +14925,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF unsgn THEN id.musthave = "~%%" ELSE id.musthave = "%%"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14987,7 +14987,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = INTEGERTYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15009,6 +15008,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF unsgn THEN id.musthave = "~%" ELSE id.musthave = "%"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15075,7 +15075,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = OFFSETTYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15097,6 +15096,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF unsgn THEN id.musthave = "~%&" ELSE id.musthave = "%&"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15160,7 +15160,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = LONGTYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15182,6 +15181,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF unsgn THEN id.musthave = "~&" ELSE id.musthave = "&"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15245,7 +15245,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = INTEGER64TYPE: IF unsgn THEN id.t = id.t + ISUNSIGNED
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15267,6 +15266,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF unsgn THEN id.musthave = "~&&" ELSE id.musthave = "&&"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15330,7 +15330,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = SINGLETYPE
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15352,6 +15351,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             id.musthave = "!"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15413,7 +15413,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = DOUBLETYPE
-            vWatchVariable n$, 0
             IF f = 1 THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f = 1 THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15435,6 +15434,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             id.musthave = "#"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15496,7 +15496,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             n$ = scope2$ + n$
             clearid
             id.t = FLOATTYPE
-            vWatchVariable n$, 0
             IF f THEN PRINT #defdatahandle, ct$ + " *" + n$ + "=NULL;"
             IF f THEN PRINT #13, "if(" + n$ + "==NULL){"
             IF cmemlist(idn + 1) THEN
@@ -15518,6 +15517,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             id.musthave = "##"
         END IF
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
