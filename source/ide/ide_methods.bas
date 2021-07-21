@@ -10653,6 +10653,7 @@ FUNCTION idewarningbox
                 idegotobox_LastLineNum = warningLines(y)
                 AddQuickNavHistory
                 idecy = idegotobox_LastLineNum
+                idecentercurrentline
                 IF warningIncLines(y) > 0 THEN
                     warningInInclude = idecy
                     warningInIncludeLine = warningIncLines(y)
@@ -11778,6 +11779,7 @@ SUB idegotobox
     idegotobox_LastLineNum = v&
     AddQuickNavHistory
     idecy = v&
+    idecentercurrentline
     ideselect = 0
 END SUB
 
