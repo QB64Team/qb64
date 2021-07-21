@@ -1,22 +1,22 @@
-qbs*oldstr2256=NULL;
+qbs*oldstr2294=NULL;
 if(_SUB_ASSIGN_STRING_A->tmp||_SUB_ASSIGN_STRING_A->fixed||_SUB_ASSIGN_STRING_A->readonly){
-oldstr2256=_SUB_ASSIGN_STRING_A;
-if (oldstr2256->cmem_descriptor){
-_SUB_ASSIGN_STRING_A=qbs_new_cmem(oldstr2256->len,0);
+oldstr2294=_SUB_ASSIGN_STRING_A;
+if (oldstr2294->cmem_descriptor){
+_SUB_ASSIGN_STRING_A=qbs_new_cmem(oldstr2294->len,0);
 }else{
-_SUB_ASSIGN_STRING_A=qbs_new(oldstr2256->len,0);
+_SUB_ASSIGN_STRING_A=qbs_new(oldstr2294->len,0);
 }
-memcpy(_SUB_ASSIGN_STRING_A->chr,oldstr2256->chr,oldstr2256->len);
+memcpy(_SUB_ASSIGN_STRING_A->chr,oldstr2294->chr,oldstr2294->len);
 }
 int32 *_SUB_ASSIGN_LONG_I=NULL;
 if(_SUB_ASSIGN_LONG_I==NULL){
 _SUB_ASSIGN_LONG_I=(int32*)mem_static_malloc(4);
 *_SUB_ASSIGN_LONG_I=0;
 }
-int64 fornext_value2258;
-int64 fornext_finalvalue2258;
-int64 fornext_step2258;
-uint8 fornext_step_negative2258;
+int64 fornext_value2296;
+int64 fornext_finalvalue2296;
+int64 fornext_step2296;
+uint8 fornext_step_negative2296;
 int32 *_SUB_ASSIGN_LONG_C=NULL;
 if(_SUB_ASSIGN_LONG_C==NULL){
 _SUB_ASSIGN_LONG_C=(int32*)mem_static_malloc(4);
@@ -29,8 +29,8 @@ _SUB_ASSIGN_LONG_B=(int32*)mem_static_malloc(4);
 }
 qbs *_SUB_ASSIGN_STRING_A2=NULL;
 if (!_SUB_ASSIGN_STRING_A2)_SUB_ASSIGN_STRING_A2=qbs_new(0,0);
-int32 pass2259;
-int32 pass2260;
+int32 pass2297;
+int32 pass2298;
 qbs *_SUB_ASSIGN_STRING_L=NULL;
 if (!_SUB_ASSIGN_STRING_L)_SUB_ASSIGN_STRING_L=qbs_new(0,0);
 int32 *_SUB_ASSIGN_LONG_TRY=NULL;
@@ -43,5 +43,5 @@ if(_SUB_ASSIGN_LONG_TYP==NULL){
 _SUB_ASSIGN_LONG_TYP=(int32*)mem_static_malloc(4);
 *_SUB_ASSIGN_LONG_TYP=0;
 }
-int32 pass2262;
-int32 pass2263;
+int32 pass2300;
+int32 pass2301;

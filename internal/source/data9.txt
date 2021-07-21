@@ -1,0 +1,17 @@
+qbs*oldstr2302=NULL;
+if(_SUB_VWATCHVARIABLE_STRING_THIS->tmp||_SUB_VWATCHVARIABLE_STRING_THIS->fixed||_SUB_VWATCHVARIABLE_STRING_THIS->readonly){
+oldstr2302=_SUB_VWATCHVARIABLE_STRING_THIS;
+if (oldstr2302->cmem_descriptor){
+_SUB_VWATCHVARIABLE_STRING_THIS=qbs_new_cmem(oldstr2302->len,0);
+}else{
+_SUB_VWATCHVARIABLE_STRING_THIS=qbs_new(oldstr2302->len,0);
+}
+memcpy(_SUB_VWATCHVARIABLE_STRING_THIS->chr,oldstr2302->chr,oldstr2302->len);
+}
+byte_element_struct *byte_element_2303=NULL;
+if (!byte_element_2303){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2303=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2303=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 pass2305;
+int32 pass2306;
+int8 pass2307;

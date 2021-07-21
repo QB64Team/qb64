@@ -1,2 +1,38 @@
-qbs *_FUNC_SCOPE_STRING_SCOPE=NULL;
-if (!_FUNC_SCOPE_STRING_SCOPE)_FUNC_SCOPE_STRING_SCOPE=qbs_new(0,0);
+int32 *_FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE=NULL;
+if(_FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE==NULL){
+_FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE=(int32*)mem_static_malloc(4);
+*_FUNC_SYMBOLTYPE_LONG_SYMBOLTYPE=0;
+}
+qbs*oldstr3036=NULL;
+if(_FUNC_SYMBOLTYPE_STRING_S->tmp||_FUNC_SYMBOLTYPE_STRING_S->fixed||_FUNC_SYMBOLTYPE_STRING_S->readonly){
+oldstr3036=_FUNC_SYMBOLTYPE_STRING_S;
+if (oldstr3036->cmem_descriptor){
+_FUNC_SYMBOLTYPE_STRING_S=qbs_new_cmem(oldstr3036->len,0);
+}else{
+_FUNC_SYMBOLTYPE_STRING_S=qbs_new(oldstr3036->len,0);
+}
+memcpy(_FUNC_SYMBOLTYPE_STRING_S->chr,oldstr3036->chr,oldstr3036->len);
+}
+byte_element_struct *byte_element_3037=NULL;
+if (!byte_element_3037){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3037=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3037=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_SYMBOLTYPE_LONG_A=NULL;
+if(_FUNC_SYMBOLTYPE_LONG_A==NULL){
+_FUNC_SYMBOLTYPE_LONG_A=(int32*)mem_static_malloc(4);
+*_FUNC_SYMBOLTYPE_LONG_A=0;
+}
+int32 *_FUNC_SYMBOLTYPE_LONG_L=NULL;
+if(_FUNC_SYMBOLTYPE_LONG_L==NULL){
+_FUNC_SYMBOLTYPE_LONG_L=(int32*)mem_static_malloc(4);
+*_FUNC_SYMBOLTYPE_LONG_L=0;
+}
+byte_element_struct *byte_element_3038=NULL;
+if (!byte_element_3038){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3038=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3038=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_SYMBOLTYPE_LONG_N=NULL;
+if(_FUNC_SYMBOLTYPE_LONG_N==NULL){
+_FUNC_SYMBOLTYPE_LONG_N=(int32*)mem_static_malloc(4);
+*_FUNC_SYMBOLTYPE_LONG_N=0;
+}

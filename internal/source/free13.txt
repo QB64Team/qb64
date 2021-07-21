@@ -1,45 +1,22 @@
-if(oldstr2443){
-if(oldstr2443->fixed)qbs_set(oldstr2443,_FUNC_EVALUATE_STRING_A2);
-qbs_free(_FUNC_EVALUATE_STRING_A2);
+if(oldstr2346){
+if(oldstr2346->fixed)qbs_set(oldstr2346,_FUNC_DIM2_STRING_VARNAME);
+qbs_free(_FUNC_DIM2_STRING_VARNAME);
 }
-if (_FUNC_EVALUATE_ARRAY_STRING_BLOCK[2]&1){
-tmp_long=_FUNC_EVALUATE_ARRAY_STRING_BLOCK[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(_FUNC_EVALUATE_ARRAY_STRING_BLOCK[0]))[tmp_long]);
-free((void*)(_FUNC_EVALUATE_ARRAY_STRING_BLOCK[0]));
+if(oldstr2347){
+if(oldstr2347->fixed)qbs_set(oldstr2347,_FUNC_DIM2_STRING_TYP2);
+qbs_free(_FUNC_DIM2_STRING_TYP2);
 }
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_EVALUATE_ARRAY_STRING_BLOCK)[8] );
-if (_FUNC_EVALUATE_ARRAY_INTEGER_EVALEDBLOCK[2]&1){
-if (_FUNC_EVALUATE_ARRAY_INTEGER_EVALEDBLOCK[2]&4){
-cmem_dynamic_free((uint8*)(_FUNC_EVALUATE_ARRAY_INTEGER_EVALEDBLOCK[0]));
-}else{
-free((void*)(_FUNC_EVALUATE_ARRAY_INTEGER_EVALEDBLOCK[0]));
+if(oldstr2348){
+if(oldstr2348->fixed)qbs_set(oldstr2348,_FUNC_DIM2_STRING_ELEMENTS);
+qbs_free(_FUNC_DIM2_STRING_ELEMENTS);
 }
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_EVALUATE_ARRAY_INTEGER_EVALEDBLOCK)[8] );
-if (_FUNC_EVALUATE_ARRAY_LONG_BLOCKTYPE[2]&1){
-if (_FUNC_EVALUATE_ARRAY_LONG_BLOCKTYPE[2]&4){
-cmem_dynamic_free((uint8*)(_FUNC_EVALUATE_ARRAY_LONG_BLOCKTYPE[0]));
-}else{
-free((void*)(_FUNC_EVALUATE_ARRAY_LONG_BLOCKTYPE[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_EVALUATE_ARRAY_LONG_BLOCKTYPE)[8] );
-qbs_free(_FUNC_EVALUATE_STRING_A);
-qbs_free(_FUNC_EVALUATE_STRING_L);
-qbs_free(_FUNC_EVALUATE_STRING_NEXTL);
-qbs_free(_FUNC_EVALUATE_STRING_L2);
-qbs_free(_FUNC_EVALUATE_STRING_DTYP);
-qbs_free(_FUNC_EVALUATE_STRING_C);
-qbs_free(_FUNC_EVALUATE_STRING_O);
-qbs_free(_FUNC_EVALUATE_STRING_E2);
-qbs_free(_FUNC_EVALUATE_STRING_E);
-qbs_free(_FUNC_EVALUATE_STRING_FAKEE);
-qbs_free(_FUNC_EVALUATE_STRING_VARNAME2);
-qbs_free(_FUNC_EVALUATE_STRING_TYP2);
-qbs_free(_FUNC_EVALUATE_STRING_L3);
-qbs_free(_FUNC_EVALUATE_STRING_S);
-qbs_free(_FUNC_EVALUATE_STRING_R);
-qbs_free(_FUNC_EVALUATE_STRING_NUM);
-qbs_free(_FUNC_EVALUATE_STRING_X);
-qbs_free(_FUNC_EVALUATE_STRING_TYP);
-qbs_free(_FUNC_EVALUATE_STRING_I);
+qbs_free(_FUNC_DIM2_STRING_TYP);
+qbs_free(_FUNC_DIM2_STRING_CVARNAME);
+qbs_free(_FUNC_DIM2_STRING_L);
+qbs_free(_FUNC_DIM2_STRING_SCOPE2);
+qbs_free(_FUNC_DIM2_STRING_N);
+qbs_free(_FUNC_DIM2_STRING_C);
+qbs_free(_FUNC_DIM2_STRING_HASHNAME);
+qbs_free(_FUNC_DIM2_STRING_O);
+qbs_free(_FUNC_DIM2_STRING_CT);
+qbs_free(_FUNC_DIM2_STRING_CMPS);
