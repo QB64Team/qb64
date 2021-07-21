@@ -18555,33 +18555,6 @@ FUNCTION findid& (n2$)
     id = ids(i)
 
     t = id.t
-    IF id.subfunc = 0 THEN
-        IF t = 0 THEN
-            t = id.arraytype
-            IF t AND ISUDT THEN
-                manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 1
-            ELSE
-                n$ = id2shorttypename$
-                IF LEFT$(n$, 1) = "_" THEN
-                    manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
-                ELSE
-                    manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 3
-                END IF
-            END IF
-        ELSE
-            IF t AND ISUDT THEN
-                manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
-            ELSE
-                n$ = id2shorttypename$
-                IF LEFT$(n$, 1) = "_" THEN
-                    'manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
-                ELSE
-                    manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
-                END IF
-            END IF
-        END IF
-    END IF
-
     currentid = i
     EXIT FUNCTION
 
@@ -20906,6 +20879,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
             n$ = "UDT_" + RTRIM$(id.n)
             IF id.t = 0 THEN n$ = "ARRAY_" + n$
             n$ = scope$ + n$
+            manageVariableList "", n$, 1
             refer$ = n$
             EXIT FUNCTION
         END IF
@@ -20938,6 +20912,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         END IF
 
         'print "REFER:"+r$+","+str2$(typ)
+        manageVariableList "", r$, 2
         refer$ = r$
         EXIT FUNCTION
     END IF
@@ -20949,6 +20924,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         n$ = RTRIM$(id.callname)
         IF method = 1 THEN
             refer$ = n$
+            manageVariableList "", n$, 3
             typ = typbak
             EXIT FUNCTION
         END IF
@@ -20962,6 +20938,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
                 r$ = "((qbs*)(((uint64*)(" + n$ + "[0]))[" + a$ + "]))"
             END IF
             stringprocessinghappened = 1
+            manageVariableList "", r$, 4
             refer$ = r$
             EXIT FUNCTION
         END IF
@@ -20973,6 +20950,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
             r$ = r$ + "(" + str2(typ AND 511) + ","
             r$ = r$ + "(uint8*)(" + n$ + "[0])" + ","
             r$ = r$ + a$ + ")"
+            manageVariableList "", r$, 5
             refer$ = r$
             EXIT FUNCTION
         ELSE
@@ -20999,6 +20977,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         END IF
         IF t$ = "" THEN Give_Error "Cannot find C type to return array data": EXIT FUNCTION
         r$ = "((" + t$ + "*)(" + n$ + "[0]))[" + a$ + "]"
+        manageVariableList "", r$, 6
         refer$ = r$
         EXIT FUNCTION
     END IF 'array
@@ -21046,6 +21025,7 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
             IF LEFT$(r$, 1) = "*" THEN r$ = RIGHT$(r$, LEN(r$) - 1)
             typ = typbak
         END IF
+        manageVariableList "", r$, 7
         refer$ = r$
         EXIT FUNCTION
     END IF 'variable
@@ -22114,10 +22094,11 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             'we have now established we have 2 pointers to similar data types!
             'ASSUME BYTE TYPE!!!
             src$ = "((char*)" + scope$ + n2$ + ")+(" + o2$ + ")"
+            manageVariableList "", scope$ + n2$, 8
             directudt:
             IF u <> u2 OR e2 <> 0 THEN Give_Error "Expected = similar user defined type": EXIT SUB
             dst$ = "((char*)" + lhsscope$ + n$ + ")+(" + o$ + ")"
-
+            manageVariableList "", lhsscope$ + n$, 9
             copy_full_udt dst$, src$, 12, 0, u
 
             'print "setFULLUDTrefer!"
@@ -22154,7 +22135,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         'print "setUDTrefer:"+r$,e$
         tlayout$ = tl$
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", scope$ + n$, 7
+        manageVariableList "", r$, 10
         EXIT SUB
     END IF
 
@@ -22189,7 +22170,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 8
+            manageVariableList "", r$, 11
             EXIT SUB
         END IF
 
@@ -22236,6 +22217,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF Error_Happened THEN EXIT SUB
         ELSE
             l$ = "if (!new_error) ((" + t$ + "*)(" + n$ + "[0]))[tmp_long]=" + e$ + ";"
+            manageVariableList "", e$, 12
         END IF
 
         PRINT #12, l$
@@ -22265,7 +22247,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 9
+            manageVariableList "", r$, 13
             EXIT SUB
         END IF
 
@@ -22297,7 +22279,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 10
+            manageVariableList "", r$, 14
             EXIT SUB
         END IF
 
@@ -22326,8 +22308,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         tlayout$ = tl$
 
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", r$, 11
-
+        manageVariableList "", r$, 15
         EXIT SUB
     END IF 'variable
 
@@ -25878,8 +25859,9 @@ SUB dump_udts
     CLOSE #f
 END SUB
 
-SUB manageVariableList (name$, __cname$, action AS _BYTE)
-    DIM findItem AS LONG, cname$, i AS LONG
+SUB manageVariableList (__name$, __cname$, action AS _BYTE)
+    DIM findItem AS LONG, cname$, i AS LONG, name$
+    name$ = __name$
     cname$ = __cname$
 
     IF LEN(cname$) = 0 THEN EXIT SUB
@@ -25914,6 +25896,7 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                 END IF
                 usedVariableList(i).scope = subfuncn
                 usedVariableList(i).cname = cname$
+                IF LEN(RTRIM$(id.musthave)) > 0 THEN name$ = name$ + RTRIM$(id.musthave)
                 usedVariableList(i).name = name$
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
