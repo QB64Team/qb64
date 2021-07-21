@@ -1065,31 +1065,27 @@ IF C = 9 THEN 'run
 
     'execute program
 
-    IF iderunmode = 1 THEN
-        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
-        IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN
-            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
-                SHELL _DONTWAIT QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
-            ELSE
-                SHELL _DONTWAIT QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
+
+    SELECT CASE os$
+        CASE "WIN": SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
+
+        CASE "LNX"
+            IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths (why?)
+            IF os$ = "LNX" THEN
+                IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
+                    shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+                ELSE
+                    shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
+                END IF
             END IF
-        END IF
-        IF path.exe$ = "./" THEN path.exe$ = ""
-    ELSE
-        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
-        IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN
-            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
-                SHELL QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
-            ELSE
-                SHELL QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
+            IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
+
+            IF Console THEN
+                SHELL _DONTWAIT "x-terminal-emulator -e " + QuotedFilename$(shellcmdline$) 'bring up a terminal when using $Console
+            ELSE SHELL _DONTWAIT shellcmdline$
             END IF
-        END IF
-        IF path.exe$ = "./" THEN path.exe$ = ""
-        DO: LOOP UNTIL INKEY$ = ""
-        DO: LOOP UNTIL _KEYHIT = 0
-    END IF
+    END SELECT
+
 
     IF idemode THEN
         'Darken fg/bg colors
@@ -24965,17 +24961,18 @@ END FUNCTION
 
 
 FUNCTION QuotedFilename$ (f$)
+    SELECT CASE os$
+        CASE "WIN": QuotedFilename$ = CHR$(34) + f$ + CHR$(34)
 
-    IF os$ = "WIN" THEN
-        QuotedFilename$ = CHR$(34) + f$ + CHR$(34)
-        EXIT FUNCTION
-    END IF
+        CASE "LNX"
+            i~% = INSTR(f$, "'") 'do escapes to be safe
+            WHILE i~%
+                f$ = LEFT$(f$, i~%) + "\" + MID$(f$, i~%) 'escape "'" (' -> \')
+                i~% = INSTR(i~% + 2, f$, "'")
+            WEND
 
-    IF os$ = "LNX" THEN
-        QuotedFilename$ = "'" + f$ + "'"
-        EXIT FUNCTION
-    END IF
-
+            QuotedFilename$ = "'" + f$ + "'"
+    END SELECT
 END FUNCTION
 
 
