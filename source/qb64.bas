@@ -19755,7 +19755,7 @@ FUNCTION isvalidvariable (a$)
     NEXT
 
     isvalidvariable = 1
-    IF i > n THEN EXIT FUNCTION
+    IF i > n THEN EXIT FUNCTION 'i is always greater than n because n is undefined here. Why didn't I remove this line and the ones below it, which will never run? Cause I'm a coward. F.h.
     e$ = RIGHT$(a$, LEN(a$) - i - 1)
     IF e$ = "%%" OR e$ = "~%%" THEN EXIT FUNCTION
     IF e$ = "%" OR e$ = "~%" THEN EXIT FUNCTION
