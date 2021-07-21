@@ -5461,6 +5461,7 @@ FUNCTION ide2 (ignore)
                 IF x THEN
                     ideselect = 1
                     idecx = x: idecy = y
+                    idecentercurrentline
                     ideselectx1 = x + LEN(s$): ideselecty1 = y
 
                     found = 1
@@ -8232,6 +8233,7 @@ SUB idefindagain (showFlags AS _BYTE)
             IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
             idefindinvert = 0
         END IF
+        idecentercurrentline
         EXIT SUB
     END IF
 
