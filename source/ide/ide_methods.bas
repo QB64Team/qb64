@@ -14902,7 +14902,6 @@ SUB ideupdatehelpbox
     i = 0
     w2 = LEN(titlestr$) + 4
     IF w < w2 THEN w = w2
-    IF w < buttonsLen THEN w = buttonsLen
     IF w > idewx - 4 THEN w = idewx - 4
     idepar p, 60, 6, "Update Help"
 
