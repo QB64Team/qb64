@@ -14055,7 +14055,7 @@ END FUNCTION
 
 FUNCTION arrayreference$ (indexes$, typ)
     arrayprocessinghappened = 1
-    '*returns an array reference: idnumber CHR$(179) index$
+    '*returns an array reference: idnumber | index$
     '*does not take into consideration the type of the array
 
     '*expects array id to be passed in the global id structure
@@ -15615,7 +15615,7 @@ FUNCTION udtreference$ (o$, a$, typ AS LONG)
         GOTO udtfindelenext
     END IF
 
-    'Change e reference to u CHR$(179) 0 reference?
+    'Change e reference to u | 0 reference?
     IF udtetype(E) AND ISUDT THEN
         u = udtetype(E) AND 511
         E = 0
@@ -18451,7 +18451,7 @@ FUNCTION findid& (n2$)
         '''    END IF 'safeguard
     END IF
 
-    'optomizations for later comparisons
+    'optimizations for later comparisons
     insf$ = subfunc + SPACE$(256 - LEN(subfunc))
     secondarg$ = secondarg$ + SPACE$(256 - LEN(secondarg$))
     IF LEN(sc$) THEN scpassed = 1: sc$ = sc$ + SPACE$(8 - LEN(sc$)) ELSE scpassed = 0
