@@ -27,6 +27,7 @@ REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name
 Set_OrderOfOperations
 
 DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState, vWatchErrorCall$
+DIM SHARED vWatchNewVariable$
 vWatchErrorCall$ = "if (stop_program) {*__LONG_VWATCH_LINENUMBER=0; SUB_VWATCH((ptrszint*)vwatch_local_vars);};if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
 
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
@@ -7522,6 +7523,7 @@ DO
                 IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
                 bypassNextVariable = -1
                 retval = dim2(n$, typ$, method, "")
+                manageVariableList "", vWatchNewVariable$, 2
                 IF Error_Happened THEN GOTO errmes
                 'note: variable created!
 
@@ -14209,6 +14211,7 @@ SUB vWatchVariable (this$, action AS _BYTE)
                 EXIT SUB
             END IF
 
+            vWatchNewVariable$ = this$
             IF subfunc = "" THEN
                 totalMainModuleVariables = totalMainModuleVariables + 1
                 mainModuleVariablesList$ = mainModuleVariablesList$ + "vwatch_local_vars[" + str2$(totalMainModuleVariables - 1) + "] = &" + this$ + ";" + CRLF
@@ -16115,6 +16118,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
                     bypassNextVariable = -1
                     retval = dim2(x$, typ$, 1, "")
+                    manageVariableList "", vWatchNewVariable$, 3
                     IF Error_Happened THEN EXIT FUNCTION
 
                     simplevarfound:
@@ -18555,6 +18559,8 @@ FUNCTION findid& (n2$)
     id = ids(i)
 
     t = id.t
+    temp$ = refer$(str2$(i), t, 1)
+    manageVariableList "", temp$, 1
     currentid = i
     EXIT FUNCTION
 
@@ -20879,7 +20885,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
             n$ = "UDT_" + RTRIM$(id.n)
             IF id.t = 0 THEN n$ = "ARRAY_" + n$
             n$ = scope$ + n$
-            manageVariableList "", n$, 1
             refer$ = n$
             EXIT FUNCTION
         END IF
@@ -20912,7 +20917,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         END IF
 
         'print "REFER:"+r$+","+str2$(typ)
-        manageVariableList "", r$, 2
         refer$ = r$
         EXIT FUNCTION
     END IF
@@ -20924,7 +20928,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         n$ = RTRIM$(id.callname)
         IF method = 1 THEN
             refer$ = n$
-            manageVariableList "", n$, 3
             typ = typbak
             EXIT FUNCTION
         END IF
@@ -20938,7 +20941,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
                 r$ = "((qbs*)(((uint64*)(" + n$ + "[0]))[" + a$ + "]))"
             END IF
             stringprocessinghappened = 1
-            manageVariableList "", r$, 4
             refer$ = r$
             EXIT FUNCTION
         END IF
@@ -20950,7 +20952,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
             r$ = r$ + "(" + str2(typ AND 511) + ","
             r$ = r$ + "(uint8*)(" + n$ + "[0])" + ","
             r$ = r$ + a$ + ")"
-            manageVariableList "", r$, 5
             refer$ = r$
             EXIT FUNCTION
         ELSE
@@ -20977,7 +20978,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
         END IF
         IF t$ = "" THEN Give_Error "Cannot find C type to return array data": EXIT FUNCTION
         r$ = "((" + t$ + "*)(" + n$ + "[0]))[" + a$ + "]"
-        manageVariableList "", r$, 6
         refer$ = r$
         EXIT FUNCTION
     END IF 'array
@@ -21025,7 +21025,6 @@ FUNCTION refer$ (a2$, typ AS LONG, method AS LONG)
             IF LEFT$(r$, 1) = "*" THEN r$ = RIGHT$(r$, LEN(r$) - 1)
             typ = typbak
         END IF
-        manageVariableList "", r$, 7
         refer$ = r$
         EXIT FUNCTION
     END IF 'variable
@@ -22094,11 +22093,9 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             'we have now established we have 2 pointers to similar data types!
             'ASSUME BYTE TYPE!!!
             src$ = "((char*)" + scope$ + n2$ + ")+(" + o2$ + ")"
-            manageVariableList "", scope$ + n2$, 8
             directudt:
             IF u <> u2 OR e2 <> 0 THEN Give_Error "Expected = similar user defined type": EXIT SUB
             dst$ = "((char*)" + lhsscope$ + n$ + ")+(" + o$ + ")"
-            manageVariableList "", lhsscope$ + n$, 9
             copy_full_udt dst$, src$, 12, 0, u
 
             'print "setFULLUDTrefer!"
@@ -22135,7 +22132,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         'print "setUDTrefer:"+r$,e$
         tlayout$ = tl$
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", r$, 10
         EXIT SUB
     END IF
 
@@ -22170,7 +22166,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 11
             EXIT SUB
         END IF
 
@@ -22217,7 +22212,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF Error_Happened THEN EXIT SUB
         ELSE
             l$ = "if (!new_error) ((" + t$ + "*)(" + n$ + "[0]))[tmp_long]=" + e$ + ";"
-            manageVariableList "", e$, 12
         END IF
 
         PRINT #12, l$
@@ -22247,7 +22241,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 13
             EXIT SUB
         END IF
 
@@ -22279,7 +22272,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 14
             EXIT SUB
         END IF
 
@@ -22308,7 +22300,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         tlayout$ = tl$
 
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", r$, 15
         EXIT SUB
     END IF 'variable
 
