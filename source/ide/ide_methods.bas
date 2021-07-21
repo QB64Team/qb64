@@ -1574,6 +1574,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F8 OR startPausedPending = -1 THEN
+            startPausedPending = 0
             GOTO startPausedMenuHandler
         END IF
 
