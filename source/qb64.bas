@@ -14225,7 +14225,6 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
         WHILE this > LEN(vWatchUsedLabels)
             vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
         WEND
-        ASC(vWatchUsedLabels, this) = 1
 
         IF firstLineNumberLabelvWatch = 0 THEN
             firstLineNumberLabelvWatch = this
@@ -14237,6 +14236,7 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
         END IF
 
         IF prevLabel <> this THEN
+            ASC(vWatchUsedLabels, this) = 1
             PRINT #12, "VWATCH_LABEL_" + str2$(this) + ":;"
             prevLabel = this
             lastLineNumberLabelvWatch = this
