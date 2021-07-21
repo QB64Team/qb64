@@ -22371,7 +22371,7 @@ FUNCTION typ2ctyp$ (t AS LONG, tstr AS STRING)
             IF b = 16 THEN ctyp$ = "int16"
             IF b = 32 THEN ctyp$ = "int32"
             IF b = 64 THEN ctyp$ = "int64"
-            IF typ AND ISOFFSET THEN ctyp$ = "ptrszint"
+            IF t AND ISOFFSET THEN ctyp$ = "ptrszint"
             IF (t AND ISUNSIGNED) THEN ctyp$ = "u" + ctyp$
         END IF
         IF t AND ISOFFSET THEN
