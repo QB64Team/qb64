@@ -119,7 +119,7 @@ TYPE usedVarList
     name AS STRING
 END TYPE
 
-REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LONG
+DIM SHARED totalVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
@@ -1456,6 +1456,7 @@ SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 7
 totalVariablesCreated = 0
+REDIM SHARED usedVariableList(1000) AS usedVarList
 totalWarnings = 0
 duplicateConstWarning = 0
 emptySCWarning = 0
