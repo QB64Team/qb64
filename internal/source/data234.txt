@@ -1,35 +1,12 @@
-qbs *_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL=NULL;
-if (!_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL)_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL=qbs_new(0,0);
-qbs*oldstr5959=NULL;
-if(_FUNC_WIKIGETUNTIL_STRING_A->tmp||_FUNC_WIKIGETUNTIL_STRING_A->fixed||_FUNC_WIKIGETUNTIL_STRING_A->readonly){
-oldstr5959=_FUNC_WIKIGETUNTIL_STRING_A;
-if (oldstr5959->cmem_descriptor){
-_FUNC_WIKIGETUNTIL_STRING_A=qbs_new_cmem(oldstr5959->len,0);
+qbs *_FUNC_WIKIGETLINE_STRING_WIKIGETLINE=NULL;
+if (!_FUNC_WIKIGETLINE_STRING_WIKIGETLINE)_FUNC_WIKIGETLINE_STRING_WIKIGETLINE=qbs_new(0,0);
+qbs*oldstr5965=NULL;
+if(_FUNC_WIKIGETLINE_STRING_A->tmp||_FUNC_WIKIGETLINE_STRING_A->fixed||_FUNC_WIKIGETLINE_STRING_A->readonly){
+oldstr5965=_FUNC_WIKIGETLINE_STRING_A;
+if (oldstr5965->cmem_descriptor){
+_FUNC_WIKIGETLINE_STRING_A=qbs_new_cmem(oldstr5965->len,0);
 }else{
-_FUNC_WIKIGETUNTIL_STRING_A=qbs_new(oldstr5959->len,0);
+_FUNC_WIKIGETLINE_STRING_A=qbs_new(oldstr5965->len,0);
 }
-memcpy(_FUNC_WIKIGETUNTIL_STRING_A->chr,oldstr5959->chr,oldstr5959->len);
-}
-qbs*oldstr5960=NULL;
-if(_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->tmp||_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->fixed||_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->readonly){
-oldstr5960=_FUNC_WIKIGETUNTIL_STRING_SEPARATOR;
-if (oldstr5960->cmem_descriptor){
-_FUNC_WIKIGETUNTIL_STRING_SEPARATOR=qbs_new_cmem(oldstr5960->len,0);
-}else{
-_FUNC_WIKIGETUNTIL_STRING_SEPARATOR=qbs_new(oldstr5960->len,0);
-}
-memcpy(_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->chr,oldstr5960->chr,oldstr5960->len);
-}
-byte_element_struct *byte_element_5961=NULL;
-if (!byte_element_5961){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5961=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5961=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_FUNC_WIKIGETUNTIL_LONG_J=NULL;
-if(_FUNC_WIKIGETUNTIL_LONG_J==NULL){
-_FUNC_WIKIGETUNTIL_LONG_J=(int32*)mem_static_malloc(4);
-*_FUNC_WIKIGETUNTIL_LONG_J=0;
-}
-byte_element_struct *byte_element_5962=NULL;
-if (!byte_element_5962){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5962=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5962=(byte_element_struct*)mem_static_malloc(12);
+memcpy(_FUNC_WIKIGETLINE_STRING_A->chr,oldstr5965->chr,oldstr5965->len);
 }

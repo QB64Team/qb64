@@ -759,6 +759,10 @@ if(__INTEGER_SEARCHMENUENABLEQUICKNAV==NULL){
 __INTEGER_SEARCHMENUENABLEQUICKNAV=(int16*)mem_static_malloc(2);
 *__INTEGER_SEARCHMENUENABLEQUICKNAV=0;
 }
+if(__LONG_SEARCHSTRINGFOUNDON==NULL){
+__LONG_SEARCHSTRINGFOUNDON=(int32*)mem_static_malloc(4);
+*__LONG_SEARCHSTRINGFOUNDON=0;
+}
 if(__LONG_IDEGOTOBOX_LASTLINENUM==NULL){
 __LONG_IDEGOTOBOX_LASTLINENUM=(int32*)mem_static_malloc(4);
 *__LONG_IDEGOTOBOX_LASTLINENUM=0;
@@ -1224,17 +1228,6 @@ if (!__STRING_CMDLINEFILE)__STRING_CMDLINEFILE=qbs_new(0,0);
 if(__BYTE_MONOCHROMELOGGINGMODE==NULL){
 __BYTE_MONOCHROMELOGGINGMODE=(int8*)mem_static_malloc(1);
 *__BYTE_MONOCHROMELOGGINGMODE=0;
-}
-if (!__ARRAY_UDT_USEDVARIABLELIST){
-__ARRAY_UDT_USEDVARIABLELIST=(ptrszint*)mem_static_malloc(9*ptrsz);
-new_mem_lock();
-mem_lock_tmp->type=4;
-((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8]=(ptrszint)mem_lock_tmp;
-__ARRAY_UDT_USEDVARIABLELIST[2]=0;
-__ARRAY_UDT_USEDVARIABLELIST[4]=2147483647;
-__ARRAY_UDT_USEDVARIABLELIST[5]=0;
-__ARRAY_UDT_USEDVARIABLELIST[6]=0;
-__ARRAY_UDT_USEDVARIABLELIST[0]=(ptrszint)nothingvalue;
 }
 if(__LONG_TOTALVARIABLESCREATED==NULL){
 __LONG_TOTALVARIABLESCREATED=(int32*)mem_static_malloc(4);
@@ -1836,6 +1829,10 @@ if (!__STRING_COLORSCHEMESSECTION)__STRING_COLORSCHEMESSECTION=qbs_new(0,0);
 if (!__STRING_INIFOLDERINDEX)__STRING_INIFOLDERINDEX=qbs_new(0,0);
 if (!__STRING_DEBUGINFOINIWARNING)__STRING_DEBUGINFOINIWARNING=qbs_new(0,0);
 if (!__STRING_CONFIGFILE)__STRING_CONFIGFILE=qbs_new(0,0);
+if(__LONG_IDEBASETCPPORT==NULL){
+__LONG_IDEBASETCPPORT=(int32*)mem_static_malloc(4);
+*__LONG_IDEBASETCPPORT=0;
+}
 int8 pass26;
 int8 pass27;
 int8 pass28;
@@ -3223,6 +3220,17 @@ static int64 fornext_value201;
 static int64 fornext_finalvalue201;
 static int64 fornext_step201;
 static uint8 fornext_step_negative201;
+if (!__ARRAY_UDT_USEDVARIABLELIST){
+__ARRAY_UDT_USEDVARIABLELIST=(ptrszint*)mem_static_malloc(9*ptrsz);
+new_mem_lock();
+mem_lock_tmp->type=4;
+((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8]=(ptrszint)mem_lock_tmp;
+__ARRAY_UDT_USEDVARIABLELIST[2]=0;
+__ARRAY_UDT_USEDVARIABLELIST[4]=2147483647;
+__ARRAY_UDT_USEDVARIABLELIST[5]=0;
+__ARRAY_UDT_USEDVARIABLELIST[6]=0;
+__ARRAY_UDT_USEDVARIABLELIST[0]=(ptrszint)nothingvalue;
+}
 if (!__ARRAY_STRING_WARNING){
 __ARRAY_STRING_WARNING=(ptrszint*)mem_static_malloc(9*ptrsz);
 new_mem_lock();
@@ -5562,7 +5570,7 @@ byte_element_struct *byte_element_1282=NULL;
 if (!byte_element_1282){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1282=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1282=(byte_element_struct*)mem_static_malloc(12);
 }
-int8 pass1283;
+int8 pass1284;
 byte_element_struct *byte_element_1288=NULL;
 if (!byte_element_1288){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_1288=(byte_element_struct*)(mem_static_pointer-12); else byte_element_1288=(byte_element_struct*)mem_static_malloc(12);
@@ -6758,6 +6766,10 @@ if(_FUNC_IDE2_BYTE_ATTEMPTTOHOST==NULL){
 _FUNC_IDE2_BYTE_ATTEMPTTOHOST=(int8*)mem_static_malloc(1);
 *_FUNC_IDE2_BYTE_ATTEMPTTOHOST=0;
 }
+if(_FUNC_IDE2_BYTE_CHANGINGTCPPORT==NULL){
+_FUNC_IDE2_BYTE_CHANGINGTCPPORT=(int8*)mem_static_malloc(1);
+*_FUNC_IDE2_BYTE_CHANGINGTCPPORT=0;
+}
 if(_FUNC_IDE2_LONG_MOX==NULL){
 _FUNC_IDE2_LONG_MOX=(int32*)mem_static_malloc(4);
 *_FUNC_IDE2_LONG_MOX=0;
@@ -6778,6 +6790,10 @@ if (!_FUNC_IDE2_STRING_MATHEVALEXPR)_FUNC_IDE2_STRING_MATHEVALEXPR=qbs_new(0,0);
 if(_SUB_DEBUGMODE_BYTE_PAUSEMODE==NULL){
 _SUB_DEBUGMODE_BYTE_PAUSEMODE=(int8*)mem_static_malloc(1);
 *_SUB_DEBUGMODE_BYTE_PAUSEMODE=0;
+}
+if(_SUB_DEBUGMODE_BYTE_NOFOCUSMESSAGE==NULL){
+_SUB_DEBUGMODE_BYTE_NOFOCUSMESSAGE=(int8*)mem_static_malloc(1);
+*_SUB_DEBUGMODE_BYTE_NOFOCUSMESSAGE=0;
 }
 if(_SUB_DEBUGMODE_LONG_CLIENT==NULL){
 _SUB_DEBUGMODE_LONG_CLIENT=(int32*)mem_static_malloc(4);

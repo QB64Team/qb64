@@ -279,16 +279,6 @@ free((void*)(__ARRAY_LONG_DEPENDENCY[0]));
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_DEPENDENCY)[8] );
 qbs_free(__STRING_WINDOWTITLE);
 qbs_free(__STRING_CMDLINEFILE);
-if (__ARRAY_UDT_USEDVARIABLELIST[2]&1){
-tmp_long=__ARRAY_UDT_USEDVARIABLELIST[5];
-while(tmp_long--) {
-
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(328/8+1-1)*tmp_long+ 13));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(328/8+1-1)*tmp_long+ 25));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(328/8+1-1)*tmp_long+ 33));}
-free((void*)(__ARRAY_UDT_USEDVARIABLELIST[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8] );
 qbs_free(__STRING_LASTWARNINGHEADER);
 qbs_free(__STRING_QB64PREFIX);
 qbs_free(__STRING_VIFILEVERSIONNUM);
@@ -917,6 +907,16 @@ qbs_free(__STRING_TERRMSG);
 qbs_free(__STRING_CURRENTDIR);
 qbs_free(__STRING_MYLIB);
 qbs_free(__STRING_MYLIBOPT);
+if (__ARRAY_UDT_USEDVARIABLELIST[2]&1){
+tmp_long=__ARRAY_UDT_USEDVARIABLELIST[5];
+while(tmp_long--) {
+
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(328/8+1-1)*tmp_long+ 13));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(328/8+1-1)*tmp_long+ 25));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(328/8+1-1)*tmp_long+ 33));}
+free((void*)(__ARRAY_UDT_USEDVARIABLELIST[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8] );
 if (__ARRAY_STRING_WARNING[2]&1){
 tmp_long=__ARRAY_STRING_WARNING[5];
 while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_WARNING[0]))[tmp_long]);

@@ -1,4 +1,15 @@
-int64 fornext_value5766;
-int64 fornext_finalvalue5766;
-int64 fornext_step5766;
-uint8 fornext_step_negative5766;
+qbs*oldstr5771=NULL;
+if(_SUB_CLEANSUBNAME_STRING_N->tmp||_SUB_CLEANSUBNAME_STRING_N->fixed||_SUB_CLEANSUBNAME_STRING_N->readonly){
+oldstr5771=_SUB_CLEANSUBNAME_STRING_N;
+if (oldstr5771->cmem_descriptor){
+_SUB_CLEANSUBNAME_STRING_N=qbs_new_cmem(oldstr5771->len,0);
+}else{
+_SUB_CLEANSUBNAME_STRING_N=qbs_new(oldstr5771->len,0);
+}
+memcpy(_SUB_CLEANSUBNAME_STRING_N->chr,oldstr5771->chr,oldstr5771->len);
+}
+int32 *_SUB_CLEANSUBNAME_LONG_X=NULL;
+if(_SUB_CLEANSUBNAME_LONG_X==NULL){
+_SUB_CLEANSUBNAME_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_CLEANSUBNAME_LONG_X=0;
+}
