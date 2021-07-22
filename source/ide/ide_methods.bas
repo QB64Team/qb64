@@ -11334,7 +11334,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
         END IF
         'change drive
         IF LEN(newpath$) = 2 AND RIGHT$(newpath$, 1) = ":" THEN
-            idezchangepath$ = newpath$ + "\"
+            idezchangepath$ = newpath$
             EXIT FUNCTION
         END IF
         idezchangepath$ = path$ + "\" + newpath$
