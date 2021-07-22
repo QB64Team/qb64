@@ -8926,8 +8926,8 @@ DO
             END IF
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             IF vWatchOn = 1 AND NoChecks = 0 THEN
-                vWatchAddLabel linenumber, 0
                 PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                vWatchAddLabel linenumber, 0
             ELSE
                 PRINT #12, "close_program=1;"
                 PRINT #12, "end();"
