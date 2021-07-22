@@ -1,12 +1,12 @@
-qbs*oldstr3431=NULL;
+qbs*oldstr3433=NULL;
 if(_SUB_BUILD_STRING_PATH->tmp||_SUB_BUILD_STRING_PATH->fixed||_SUB_BUILD_STRING_PATH->readonly){
-oldstr3431=_SUB_BUILD_STRING_PATH;
-if (oldstr3431->cmem_descriptor){
-_SUB_BUILD_STRING_PATH=qbs_new_cmem(oldstr3431->len,0);
+oldstr3433=_SUB_BUILD_STRING_PATH;
+if (oldstr3433->cmem_descriptor){
+_SUB_BUILD_STRING_PATH=qbs_new_cmem(oldstr3433->len,0);
 }else{
-_SUB_BUILD_STRING_PATH=qbs_new(oldstr3431->len,0);
+_SUB_BUILD_STRING_PATH=qbs_new(oldstr3433->len,0);
 }
-memcpy(_SUB_BUILD_STRING_PATH->chr,oldstr3431->chr,oldstr3431->len);
+memcpy(_SUB_BUILD_STRING_PATH->chr,oldstr3433->chr,oldstr3433->len);
 }
 qbs *_SUB_BUILD_STRING_PREVIOUS_DIR=NULL;
 if (!_SUB_BUILD_STRING_PREVIOUS_DIR)_SUB_BUILD_STRING_PREVIOUS_DIR=qbs_new(0,0);
@@ -20,20 +20,20 @@ if(_SUB_BUILD_LONG_X==NULL){
 _SUB_BUILD_LONG_X=(int32*)mem_static_malloc(4);
 *_SUB_BUILD_LONG_X=0;
 }
-int64 fornext_value3433;
-int64 fornext_finalvalue3433;
-int64 fornext_step3433;
-uint8 fornext_step_negative3433;
-byte_element_struct *byte_element_3434=NULL;
-if (!byte_element_3434){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3434=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3434=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value3435;
+int64 fornext_finalvalue3435;
+int64 fornext_step3435;
+uint8 fornext_step_negative3435;
+byte_element_struct *byte_element_3436=NULL;
+if (!byte_element_3436){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3436=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3436=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_SUB_BUILD_STRING_RETURN_PATH=NULL;
 if (!_SUB_BUILD_STRING_RETURN_PATH)_SUB_BUILD_STRING_RETURN_PATH=qbs_new(0,0);
-int64 fornext_value3436;
-int64 fornext_finalvalue3436;
-int64 fornext_step3436;
-uint8 fornext_step_negative3436;
+int64 fornext_value3438;
+int64 fornext_finalvalue3438;
+int64 fornext_step3438;
+uint8 fornext_step_negative3438;
 int32 *_SUB_BUILD_LONG_BFH=NULL;
 if(_SUB_BUILD_LONG_BFH==NULL){
 _SUB_BUILD_LONG_BFH=(int32*)mem_static_malloc(4);
@@ -46,7 +46,7 @@ if(_SUB_BUILD_LONG_USE==NULL){
 _SUB_BUILD_LONG_USE=(int32*)mem_static_malloc(4);
 *_SUB_BUILD_LONG_USE=0;
 }
-byte_element_struct *byte_element_3439=NULL;
-if (!byte_element_3439){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3439=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3439=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3441=NULL;
+if (!byte_element_3441){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3441=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3441=(byte_element_struct*)mem_static_malloc(12);
 }
