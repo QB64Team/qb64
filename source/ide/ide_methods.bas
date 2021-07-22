@@ -714,13 +714,15 @@ FUNCTION ide2 (ignore)
             idesubwindow = 0
             skipdisplay = 0
             IdeSystem = 1
-            retval = 1: GOSUB redrawItAll
+            retval = 1
        END IF
 
+        GOSUB redrawItAll
         idecompiling = 0
         ready = 1
         _RESIZE OFF
         DebugMode
+        UpdateMenuHelpLine  ""
         SELECT CASE IdeDebugMode
             CASE 1 'clean exit
                 IdeDebugMode = 0
@@ -6004,8 +6006,17 @@ FUNCTION ide2 (ignore)
     COLOR 7, 1: _PRINTSTRING (idewx - 2, idewy - 4), CHR$(195)
 
     'add status title
-    IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
+    COLOR 7, 1
+    a$ = STRING$(14, 196)
+    _PRINTSTRING ((idewx - LEN(a$)) / 2, idewy - 4), a$
+    IF IdeDebugMode THEN
+        COLOR 1, 7
+        a$ = " $DEBUG MODE "
+    ELSE
+        IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
+        a$ = " Status "
+    END IF
+    _PRINTSTRING ((idewx - LEN(a$)) / 2, idewy - 4), a$
 
     a$ = idefindtext
     tx = 1
@@ -6208,7 +6219,7 @@ FUNCTION ide2 (ignore)
 END FUNCTION
 
 SUB DebugMode
-    STATIC PauseMode AS _BYTE
+    STATIC AS _BYTE PauseMode, noFocusMessage
     STATIC client&
     STATIC buffer$
     STATIC endc$
@@ -6218,44 +6229,31 @@ SUB DebugMode
 
     SCREEN , , 3, 0
 
-    SELECT CASE IdeDebugMode
+    SELECT EVERYCASE IdeDebugMode
         CASE 1
             PauseMode = 0
             callStackLength = 0
             callstacklist$ = ""
             buffer$ = ""
             client& = 0
-        CASE 2
-            IdeDebugMode = 1
-            GOTO returnFromContextMenu
-        CASE 3
-            IdeDebugMode = 1
-            GOTO requestCallStack
-        CASE 4
-            IdeDebugMode = 1
-            GOTO requestContinue
-        CASE 5
-            IdeDebugMode = 1
-            GOTO requestStepOut
-        CASE 6
-            IdeDebugMode = 1
-            GOTO requestStepOver
-        CASE 7
-            IdeDebugMode = 1
-            GOTO requestPause
+        CASE IS > 1
+            noFocusMessage = NOT noFocusMessage
+            GOSUB UpdateStatusArea
+            clearStatusWindow 1
+            setStatusMessage 1, "Paused.", 2
+        CASE 2: IdeDebugMode = 1: GOTO returnFromContextMenu
+        CASE 3: IdeDebugMode = 1: GOTO requestCallStack
+        CASE 4: IdeDebugMode = 1: GOTO requestContinue
+        CASE 5: IdeDebugMode = 1: GOTO requestStepOut
+        CASE 6: IdeDebugMode = 1: GOTO requestStepOver
+        CASE 7: IdeDebugMode = 1: GOTO requestPause
         CASE 8
             IdeDebugMode = 1
             result = idecy
             GOTO requestRunToThisLine
-        CASE 9
-            IdeDebugMode = 1
-            GOTO requestQuit
-        CASE 10
-            IdeDebugMode = 1
-            GOTO requestToggleBreakpoint
-        CASE 11
-            IdeDebugMode = 1
-            GOTO requestClearBreakpoints
+        CASE 9: IdeDebugMode = 1: GOTO requestQuit
+        CASE 10: IdeDebugMode = 1: GOTO requestToggleBreakpoint
+        CASE 11: IdeDebugMode = 1: GOTO requestClearBreakpoints
         CASE 12
             IdeDebugMode = 1
             result = idecy
@@ -6264,9 +6262,7 @@ SUB DebugMode
             IdeDebugMode = 1
             result = idecy
             GOTO requestSetNextLine
-        CASE 14
-            IdeDebugMode = 1
-            GOTO requestSubsDialog
+        CASE 14: IdeDebugMode = 1: GOTO requestSubsDialog
     END SELECT
 
     COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
@@ -6406,7 +6402,7 @@ SUB DebugMode
     GOSUB SendCommand
 
     clearStatusWindow 2
-    setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
@@ -6580,22 +6576,25 @@ SUB DebugMode
         END IF
 
 
+        UpdateStatusArea:
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: <F4 = Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
-                setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
+                setStatusMessage 2, "<F4 = Call Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
+                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints>", 15
+                UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+                setStatusMessage 2, "Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
+        IF IdeDebugMode > 1 THEN RETURN
 
         k& = _KEYHIT
         SELECT CASE k&
