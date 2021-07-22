@@ -2734,6 +2734,7 @@ FUNCTION ide2 (ignore)
 
                                 WikiParse a$
                                 IdeSystem = 3
+                                GOSUB redrawItAll
                                 GOTO specialchar
 
                                 EXIT FOR
