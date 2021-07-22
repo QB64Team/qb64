@@ -1078,7 +1078,7 @@ IF C = 9 THEN 'run
             END IF
             IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
 
-            IF Console AND (NOT MacOSX) THEN
+            IF Console AND (MacOSX = 0) THEN
                 SHELL _DONTWAIT "x-terminal-emulator -e " + QuotedFilename$(shellcmdline$) 'bring up a terminal when using $Console
             ELSE SHELL _DONTWAIT shellcmdline$
             END IF
