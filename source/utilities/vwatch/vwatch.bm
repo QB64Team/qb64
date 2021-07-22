@@ -136,6 +136,8 @@ SUB vwatch (localVariables AS _OFFSET)
             vwatch_skiplines(CVL(value$)) = 0
         CASE "clear all breakpoints"
             REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+        CASE "clear all skips"
+            REDIM vwatch_skiplines(UBOUND(vwatch_skiplines)) AS _BYTE
     END SELECT
 
     IF vwatch_skiplines(vwatch_linenumber) THEN vwatch_goto = -vwatch_linenumber: EXIT SUB
@@ -206,6 +208,8 @@ SUB vwatch (localVariables AS _OFFSET)
                 vwatch_breakpoints(CVL(value$)) = 0
             CASE "clear all breakpoints"
                 REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+            CASE "clear all skips"
+                REDIM vwatch_skiplines(UBOUND(vwatch_skiplines)) AS _BYTE
             CASE "call stack"
                 'send call stack history"
                 GOSUB SendCallStack

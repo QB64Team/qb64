@@ -344,6 +344,11 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Removes all breakpoints"
         menu$(m, i) = "Toggle #Skip Line  Ctrl+P": i = i + 1
         menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
+        menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all line skip flags"
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
+        menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -693,14 +698,19 @@ FUNCTION ide2 (ignore)
         IF ideautorun THEN ideautorun = 0: GOTO idemrunspecial
     END IF
 
-    STATIC attemptToHost AS _BYTE
+    STATIC AS _BYTE attemptToHost, changingTcpPort
     IF vWatchOn = 1 AND attemptToHost = 0 THEN
         IF host& = 0 THEN
-            hostport$ = _TRIM$(STR$(9000 + tempfolderindex))
+            hostport$ = _TRIM$(STR$(idebaseTcpPort + tempfolderindex))
             ENVIRON "QB64DEBUGPORT=" + hostport$
             host& = _OPENHOST("TCP/IP:" + hostport$)
             attemptToHost = -1
         END IF
+        IF changingTcpPort AND (host& = 0) THEN
+            result = idemessagebox("$DEBUG MODE", "Cannot receive connections on port" + STR$(idebaseTcpPort) + ".\nCheck your firewall permissions.", "")
+            PCOPY 3, 0: SCREEN , , 3, 0
+        END IF
+        changingTcpPort = 0
     END IF
 
     IF c$ = CHR$(254) THEN
@@ -714,13 +724,15 @@ FUNCTION ide2 (ignore)
             idesubwindow = 0
             skipdisplay = 0
             IdeSystem = 1
-            retval = 1: GOSUB redrawItAll
+            retval = 1
        END IF
 
+        GOSUB redrawItAll
         idecompiling = 0
         ready = 1
         _RESIZE OFF
         DebugMode
+        UpdateMenuHelpLine  ""
         SELECT CASE IdeDebugMode
             CASE 1 'clean exit
                 IdeDebugMode = 0
@@ -1580,6 +1592,14 @@ FUNCTION ide2 (ignore)
 
         IF KB = KEY_F9 THEN 'toggle breakpoint
             GOTO toggleBreakpoint
+        END IF
+
+        IF KB = KEY_F10 THEN 'clear all breakpoints
+            IF KCTRL THEN
+                GOTO unskipAllLines
+            ELSE
+                GOTO clearAllBreakpoints
+            END IF
         END IF
 
         IF KB = KEY_F11 THEN 'make exe only
@@ -2734,6 +2754,7 @@ FUNCTION ide2 (ignore)
 
                                 WikiParse a$
                                 IdeSystem = 3
+                                GOSUB redrawItAll
                                 GOTO specialchar
 
                                 EXIT FOR
@@ -5737,6 +5758,7 @@ FUNCTION ide2 (ignore)
                     GOTO EnterDebugMode
                 ELSE
                     PCOPY 3, 0: SCREEN , , 3, 0
+                    clearAllBreakpoints:
                     REDIM IdeBreakpoints(iden) AS _BYTE
                     GOTO ideloop
                 END IF
@@ -5764,6 +5786,32 @@ FUNCTION ide2 (ignore)
                     IF IdeSkipLines(idecy) THEN IdeBreakpoints(idecy) = 0
                     GOTO ideloop
                 END IF
+            END IF
+
+            IF menu$(m, s) = "#Unskip All Lines  Ctrl+F10" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 15
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    unskipAllLines:
+                    REDIM IdeSkipLines(iden) AS _BYTE
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF menu$(m, s) = "Set Base #TCP/IP Port Number..." THEN
+                PCOPY 2, 0
+                bkpidebaseTcpPort = idebaseTcpPort
+                ideSetTCPPortBox
+                IF bkpidebaseTcpPort <> idebaseTcpPort THEN
+                    IF host& <> 0 THEN CLOSE host&: host& = 0
+                    attemptToHost = 0
+                    changingTcpPort = -1
+                    idechangemade = 1
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Set #Next Line  Ctrl+G" THEN
@@ -6003,8 +6051,17 @@ FUNCTION ide2 (ignore)
     COLOR 7, 1: _PRINTSTRING (idewx - 2, idewy - 4), CHR$(195)
 
     'add status title
-    IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
+    COLOR 7, 1
+    a$ = STRING$(14, 196)
+    _PRINTSTRING ((idewx - LEN(a$)) / 2, idewy - 4), a$
+    IF IdeDebugMode THEN
+        COLOR 1, 7
+        a$ = " $DEBUG MODE "
+    ELSE
+        IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
+        a$ = " Status "
+    END IF
+    _PRINTSTRING ((idewx - LEN(a$)) / 2, idewy - 4), a$
 
     a$ = idefindtext
     tx = 1
@@ -6207,7 +6264,7 @@ FUNCTION ide2 (ignore)
 END FUNCTION
 
 SUB DebugMode
-    STATIC PauseMode AS _BYTE
+    STATIC AS _BYTE PauseMode, noFocusMessage
     STATIC client&
     STATIC buffer$
     STATIC endc$
@@ -6217,44 +6274,31 @@ SUB DebugMode
 
     SCREEN , , 3, 0
 
-    SELECT CASE IdeDebugMode
+    SELECT EVERYCASE IdeDebugMode
         CASE 1
             PauseMode = 0
             callStackLength = 0
             callstacklist$ = ""
             buffer$ = ""
             client& = 0
-        CASE 2
-            IdeDebugMode = 1
-            GOTO returnFromContextMenu
-        CASE 3
-            IdeDebugMode = 1
-            GOTO requestCallStack
-        CASE 4
-            IdeDebugMode = 1
-            GOTO requestContinue
-        CASE 5
-            IdeDebugMode = 1
-            GOTO requestStepOut
-        CASE 6
-            IdeDebugMode = 1
-            GOTO requestStepOver
-        CASE 7
-            IdeDebugMode = 1
-            GOTO requestPause
+        CASE IS > 1
+            noFocusMessage = NOT noFocusMessage
+            GOSUB UpdateStatusArea
+            clearStatusWindow 1
+            setStatusMessage 1, "Paused.", 2
+        CASE 2: IdeDebugMode = 1: GOTO returnFromContextMenu
+        CASE 3: IdeDebugMode = 1: GOTO requestCallStack
+        CASE 4: IdeDebugMode = 1: GOTO requestContinue
+        CASE 5: IdeDebugMode = 1: GOTO requestStepOut
+        CASE 6: IdeDebugMode = 1: GOTO requestStepOver
+        CASE 7: IdeDebugMode = 1: GOTO requestPause
         CASE 8
             IdeDebugMode = 1
             result = idecy
             GOTO requestRunToThisLine
-        CASE 9
-            IdeDebugMode = 1
-            GOTO requestQuit
-        CASE 10
-            IdeDebugMode = 1
-            GOTO requestToggleBreakpoint
-        CASE 11
-            IdeDebugMode = 1
-            GOTO requestClearBreakpoints
+        CASE 9: IdeDebugMode = 1: GOTO requestQuit
+        CASE 10: IdeDebugMode = 1: GOTO requestToggleBreakpoint
+        CASE 11: IdeDebugMode = 1: GOTO requestClearBreakpoints
         CASE 12
             IdeDebugMode = 1
             result = idecy
@@ -6263,9 +6307,8 @@ SUB DebugMode
             IdeDebugMode = 1
             result = idecy
             GOTO requestSetNextLine
-        CASE 14
-            IdeDebugMode = 1
-            GOTO requestSubsDialog
+        CASE 14: IdeDebugMode = 1: GOTO requestSubsDialog
+        CASE 15: IdeDebugMode = 1: GOTO requestUnskipAllLines
     END SELECT
 
     COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
@@ -6283,7 +6326,7 @@ SUB DebugMode
             dummy = DarkenFGBG(0)
             clearStatusWindow 1
             setStatusMessage 1, "Failed to initiate debug session.", 7
-            setStatusMessage 2, "Cannot receive connections. Check your firewall permissions.", 2
+            setStatusMessage 2, "Cannot receive connections on port" + STR$(idebaseTcpPort) + ". Check your firewall permissions.", 2
             WHILE _MOUSEINPUT: WEND
             EXIT SUB
         END IF
@@ -6405,7 +6448,7 @@ SUB DebugMode
     GOSUB SendCommand
 
     clearStatusWindow 2
-    setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
@@ -6579,22 +6622,25 @@ SUB DebugMode
         END IF
 
 
+        UpdateStatusArea:
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: <F4 = Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
-                setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
+                setStatusMessage 2, "<F4 = Call Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
+                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints>", 15
+                UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+                setStatusMessage 2, "Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
+        IF IdeDebugMode > 1 THEN RETURN
 
         k& = _KEYHIT
         SELECT CASE k&
@@ -6761,10 +6807,17 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             CASE 17408 'F10
-                requestClearBreakpoints:
-                REDIM IdeBreakpoints(iden) AS _BYTE
-                cmd$ = "clear all breakpoints"
-                GOSUB SendCommand
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    requestUnskipAllLines:
+                    REDIM IdeSkipLines(iden) AS _BYTE
+                    cmd$ = "clear all skips"
+                    GOSUB SendCommand
+                ELSE
+                    requestClearBreakpoints:
+                    REDIM IdeBreakpoints(iden) AS _BYTE
+                    cmd$ = "clear all breakpoints"
+                    GOSUB SendCommand
+                END IF
                 GOSUB UpdateDisplay
             CASE 103, 71 'g, G
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
@@ -8254,6 +8307,7 @@ SUB idefindagain (showFlags AS _BYTE)
     IF x THEN
         ideselect = 1
         idecx = x: idecy = y
+        searchStringFoundOn = idecy
         ideselectx1 = x + LEN(s$): ideselecty1 = y
 
         IF idefindinvert THEN
@@ -9773,6 +9827,10 @@ SUB ideshowtext
 
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
+        IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN
+            COLOR 13, 5
+            searchStringFoundOn = 0
+        END IF
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
         IF vWatchOn = 1 AND IdeSkipLines(l) <> 0 THEN COLOR 14
         _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
@@ -11822,6 +11880,16 @@ SUB idegotobox
     idecy = v&
     idecentercurrentline
     ideselect = 0
+END SUB
+
+SUB ideSetTCPPortBox
+    a2$ = str2$(idebaseTcpPort)
+    v$ = ideinputbox$("Base TCP/IP Port Number", "#Port number for $DEBUG mode", a2$, "0123456789", 45, 5)
+    IF v$ = "" THEN EXIT SUB
+
+    idebaseTcpPort = VAL(v$)
+    IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000
+    WriteConfigSetting generalSettingsSection$, "BaseTCPPort", str2$(idebaseTcpPort)
 END SUB
 
 FUNCTION idegetlinenumberbox(title$, initialValue&)
@@ -14483,6 +14551,8 @@ SUB IdeMakeContextualMenu
         menuDesc$(m, i - 1) = "Removes all breakpoints"
         menu$(m, i) = "Toggle #Skip Line  Ctrl+P": i = i + 1
         menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
+        menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all line skip flags"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "SUBs...  F2": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
@@ -15920,7 +15990,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     BinaryFormatCheck% = 1
                 END IF
             ELSE
-                IF _FILEEXISTS("source/utilities/QB45BIN.bas") = 0 THEN
+                IF _FILEEXISTS("internal/support/converter/QB45BIN.bas") = 0 THEN
                     result = idemessagebox("Binary format", "Conversion utility not found. Cannot open QuickBASIC 4.5 binary format.", "")
                     BinaryFormatCheck% = 1
                     EXIT FUNCTION
@@ -15937,9 +16007,9 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     _PRINTSTRING (2, idewy - 3), "Preparing to convert..."
                     PCOPY 3, 0
                     IF INSTR(_OS$, "WIN") THEN
-                        SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                        SHELL _HIDE "qb64 -x internal/support/converter/QB45BIN.bas -o internal/utilities/QB45BIN"
                     ELSE
-                        SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
+                        SHELL _HIDE "./qb64 -x ./internal/support/converter/QB45BIN.bas -o ./internal/utilities/QB45BIN"
                     END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
                     clearStatusWindow 0

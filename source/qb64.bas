@@ -119,7 +119,7 @@ TYPE usedVarList
     name AS STRING
 END TYPE
 
-REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LONG
+DIM SHARED totalVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
@@ -1456,6 +1456,7 @@ SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 7
 totalVariablesCreated = 0
+REDIM SHARED usedVariableList(1000) AS usedVarList
 totalWarnings = 0
 duplicateConstWarning = 0
 emptySCWarning = 0
@@ -1651,11 +1652,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bm"
         ELSE
-            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch_stub.bm"
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude_prepass
@@ -1699,12 +1700,12 @@ DO
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
         IF temp$ = "$COLOR:0" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
             GOTO finishedlinepp
         END IF
 
         IF temp$ = "$COLOR:32" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
             GOTO finishedlinepp
         END IF
 
@@ -2873,11 +2874,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bm"
         ELSE
-            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch_stub.bm"
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude
@@ -3089,14 +3090,14 @@ DO
 
         IF a3u$ = "$COLOR:0" THEN
             layout$ = SCase$("$Color:0")
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
             layoutdone = 1
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$COLOR:32" THEN
             layout$ = SCase$("$Color:32")
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
             layoutdone = 1
             GOTO finishednonexec
         END IF
@@ -8926,8 +8927,8 @@ DO
             END IF
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             IF vWatchOn = 1 AND NoChecks = 0 THEN
-                vWatchAddLabel linenumber, 0
                 PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                vWatchAddLabel linenumber, 0
             ELSE
                 PRINT #12, "close_program=1;"
                 PRINT #12, "end();"

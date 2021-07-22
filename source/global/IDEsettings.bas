@@ -18,6 +18,7 @@ DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE, ideautolayoutkwcapitals AS _BYTE
 DIM SHARED windowSettingsSection$, colorSettingsSection$, customDictionarySection$
 DIM SHARED mouseSettingsSection$, generalSettingsSection$, displaySettingsSection$
 DIM SHARED colorSchemesSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
+DIM SHARED idebaseTcpPort AS LONG
 
 windowSettingsSection$ = "IDE WINDOW"
 colorSettingsSection$ = "IDE COLOR SETTINGS"
@@ -217,6 +218,10 @@ END IF
 result = ReadConfigSetting(generalSettingsSection$, "BackupSize", value$)
 idebackupsize = VAL(value$)
 IF idebackupsize < 10 OR idebackupsize > 2000 THEN idebackupsize = 100: WriteConfigSetting generalSettingsSection$, "BackupSize", "100 'in MB"
+
+result = ReadConfigSetting(generalSettingsSection$, "BaseTCPPort", value$)
+idebaseTcpPort = VAL(value$)
+IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000: WriteConfigSetting generalSettingsSection$, "BaseTCPPort", "9000"
 
 result = ReadConfigSetting(generalSettingsSection$, "DebugInfo", value$)
 idedebuginfo = VAL(value$)

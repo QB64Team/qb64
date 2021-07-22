@@ -1,0 +1,285 @@
+$CHECKING:OFF
+
+SUB vwatch (localVariables AS _OFFSET)
+    STATIC AS LONG ideHost, breakpointCount, skipCount, timeout, startLevel, lastLine
+    STATIC AS LONG callStackLength, runToLine
+    STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
+    STATIC buffer$, endc$
+    DIM AS LONG i
+    DIM AS _OFFSET address
+    DIM AS _MEM m
+    DIM start!, temp$, cmd$, value$, k&
+
+    DECLARE LIBRARY
+        SUB vwatch_stoptimers ALIAS stop_timers
+        SUB vwatch_starttimers ALIAS start_timers
+        SUB unlockvWatchHandle
+    END DECLARE
+
+    IF bypass THEN EXIT SUB
+
+    vwatch_goto = 0
+
+    IF ideHost = 0 THEN
+        timeout = 10
+        endc$ = "<END>"
+
+        'initial setup
+        GOSUB Connect
+
+        'send this binary's path/exe name
+        cmd$ = "me:" + COMMAND$(0)
+        GOSUB SendCommand
+
+        DO
+            GOSUB GetCommand
+            SELECT CASE cmd$
+                CASE "vwatch"
+                    IF value$ <> "ok" THEN
+                        unlockvWatchHandle: CLOSE #ideHost
+                        bypass = -1
+                        EXIT SUB
+                    END IF
+                CASE "line count"
+                    REDIM vwatch_breakpoints(CVL(value$)) AS _BYTE
+                    REDIM vwatch_skiplines(CVL(value$)) AS _BYTE
+                CASE "breakpoint count"
+                    breakpointCount = CVL(value$)
+                CASE "breakpoint list"
+                    IF LEN(value$) \ 4 <> breakpointCount THEN
+                        cmd$ = "quit:Communication error."
+                        GOSUB SendCommand
+                        unlockvWatchHandle: CLOSE #ideHost
+                        bypass = -1
+                        EXIT SUB
+                    END IF
+                    FOR i = 1 TO breakpointCount
+                        temp$ = MID$(value$, i * 4 - 3, 4)
+                        vwatch_breakpoints(CVL(temp$)) = -1
+                    NEXT
+                CASE "skip count"
+                    skipCount = CVL(value$)
+                CASE "skip list"
+                    IF LEN(value$) \ 4 <> skipCount THEN
+                        cmd$ = "quit:Communication error."
+                        GOSUB SendCommand
+                        unlockvWatchHandle: CLOSE #ideHost
+                        bypass = -1
+                        EXIT SUB
+                    END IF
+                    FOR i = 1 TO skipCount
+                        temp$ = MID$(value$, i * 4 - 3, 4)
+                        vwatch_skiplines(CVL(temp$)) = -1
+                    NEXT
+                CASE "run"
+                    IF vwatch_breakpoints(vwatch_linenumber) THEN EXIT DO
+                    pauseMode = 0
+                    EXIT SUB
+                CASE "break"
+                    pauseMode = -1
+                    EXIT DO
+            END SELECT
+        LOOP
+    END IF
+
+    IF vwatch_linenumber = 0 THEN
+        GOSUB SendCallStack
+        cmd$ = "quit:Program ended."
+        GOSUB SendCommand
+        unlockvWatchHandle: CLOSE #ideHost
+        bypass = -1
+        ideHost = 0
+        EXIT SUB
+    ELSEIF vwatch_linenumber = -1 THEN
+        'report an error in the most recent line
+        GOSUB SendCallStack
+        cmd$ = "error:" + MKL$(lastLine)
+        GOSUB SendCommand
+        EXIT SUB
+    ELSEIF vwatch_linenumber = -2 THEN
+        'report a new sub/function has been "entered"
+        IF LEN(vwatch_callstack) > 100000 THEN
+            vwatch_callstack = ""
+            callStackLength = 0
+        END IF
+        callStackLength = callStackLength + 1
+        IF LEN(vwatch_callstack) THEN vwatch_callstack = vwatch_callstack + CHR$(0)
+        vwatch_callstack = vwatch_callstack + vwatch_subname$ + ", line" + STR$(lastLine)
+        EXIT SUB
+    ELSEIF vwatch_linenumber = -3 THEN
+        'handle STOP - instead of quitting, pause execution
+        pauseMode = -1
+        stepOver = 0
+        EXIT SUB
+    END IF
+
+    IF vwatch_linenumber = lastLine AND setNextLine = 0 THEN EXIT SUB
+    setNextLine = 0
+    lastLine = vwatch_linenumber
+
+    GOSUB GetCommand
+    SELECT CASE cmd$
+        CASE "break"
+            pauseMode = -1
+            stepOver = 0
+            runToLine = 0
+            cmd$ = ""
+        CASE "set breakpoint"
+            vwatch_breakpoints(CVL(value$)) = -1
+            vwatch_skiplines(CVL(value$)) = 0
+        CASE "clear breakpoint"
+            vwatch_breakpoints(CVL(value$)) = 0
+        CASE "set skip line"
+            vwatch_skiplines(CVL(value$)) = -1
+            vwatch_breakpoints(CVL(value$)) = 0
+        CASE "clear skip line"
+            vwatch_skiplines(CVL(value$)) = 0
+        CASE "clear all breakpoints"
+            REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+        CASE "clear all skips"
+            REDIM vwatch_skiplines(UBOUND(vwatch_skiplines)) AS _BYTE
+    END SELECT
+
+    IF vwatch_skiplines(vwatch_linenumber) THEN vwatch_goto = -vwatch_linenumber: EXIT SUB
+
+    IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(vwatch_linenumber) = 0 THEN
+        EXIT SUB
+    ELSEIF stepOver = -1 AND vwatch_sublevel = startLevel THEN
+        stepOver = 0
+        pauseMode = -1
+    END IF
+
+    IF runToLine > 0 AND runToLine <> vwatch_linenumber THEN
+        EXIT SUB
+    ELSEIF runToLine > 0 AND runToLine = vwatch_linenumber THEN
+        pauseMode = -1
+        runToLine = 0
+    END IF
+
+    IF vwatch_breakpoints(vwatch_linenumber) = 0 AND pauseMode = 0 THEN
+        EXIT SUB
+    END IF
+
+    vwatch_stoptimers
+    cmd$ = "line number:"
+    IF vwatch_breakpoints(vwatch_linenumber) THEN cmd$ = "breakpoint:"
+    cmd$ = cmd$ + MKL$(vwatch_linenumber)
+    GOSUB SendCommand
+
+    DO 'main loop
+        SELECT CASE cmd$
+            CASE "run"
+                pauseMode = 0
+                stepOver = 0
+                vwatch_starttimers
+                EXIT SUB
+            CASE "run to line"
+                pauseMode = 0
+                stepOver = 0
+                runToLine = CVL(value$)
+                vwatch_starttimers
+                EXIT SUB
+            CASE "step"
+                pauseMode = -1
+                stepOver = 0
+                EXIT SUB
+            CASE "step over"
+                pauseMode = -1
+                stepOver = -1
+                startLevel = vwatch_sublevel
+                vwatch_starttimers
+                EXIT SUB
+            CASE "step out"
+                pauseMode = -1
+                stepOver = -1
+                startLevel = vwatch_sublevel - 1
+                vwatch_starttimers
+                EXIT SUB
+            CASE "free"
+                unlockvWatchHandle: CLOSE #ideHost
+                ideHost = 0
+                bypass = -1
+                vwatch_starttimers
+                EXIT SUB
+            CASE "set breakpoint"
+                vwatch_breakpoints(CVL(value$)) = -1
+                vwatch_skiplines(CVL(value$)) = 0
+            CASE "clear breakpoint"
+                vwatch_breakpoints(CVL(value$)) = 0
+            CASE "clear all breakpoints"
+                REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
+            CASE "clear all skips"
+                REDIM vwatch_skiplines(UBOUND(vwatch_skiplines)) AS _BYTE
+            CASE "call stack"
+                'send call stack history"
+                GOSUB SendCallStack
+            CASE "local"
+                i = CVL(value$)
+                address = localVariables + LEN(address) * i
+                PRINT "Local"; i; "is at"; _MEMGET(m, address, _OFFSET)
+            CASE "set next line"
+                pauseMode = -1
+                stepOver = 0
+                setNextLine = -1
+                vwatch_goto = CVL(value$)
+                EXIT SUB
+            CASE "set skip line"
+                vwatch_skiplines(CVL(value$)) = -1
+                vwatch_breakpoints(CVL(value$)) = 0
+            CASE "clear skip line"
+                vwatch_skiplines(CVL(value$)) = 0
+        END SELECT
+
+        GOSUB GetCommand
+        _LIMIT 100
+    LOOP
+
+    vwatch_starttimers
+    EXIT SUB
+
+    Connect:
+    DIM ideport$
+    ideport$ = ENVIRON$("QB64DEBUGPORT")
+    IF ideport$ = "" THEN bypass = -1: EXIT SUB
+
+    start! = TIMER
+    DO
+        k& = _KEYHIT
+        ideHost = _OPENCLIENT("QB64IDE:" + ideport$ + ":localhost")
+        _LIMIT 30
+    LOOP UNTIL k& = 27 OR ideHost <> 0 OR TIMER - start! > timeout
+    IF ideHost = 0 THEN bypass = -1: EXIT SUB
+    RETURN
+
+    GetCommand:
+    GET #ideHost, , temp$
+    buffer$ = buffer$ + temp$
+
+    IF INSTR(buffer$, endc$) THEN
+        cmd$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
+        buffer$ = MID$(buffer$, INSTR(buffer$, endc$) + LEN(endc$))
+
+        IF INSTR(cmd$, ":") THEN
+            value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
+            cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        ELSE
+            value$ = ""
+        END IF
+    ELSE
+        cmd$ = "": value$ = ""
+    END IF
+    RETURN
+
+    SendCallStack:
+    cmd$ = "call stack size:" + MKL$(callStackLength)
+    GOSUB SendCommand
+    cmd$ = "call stack:" + vwatch_callstack
+    GOSUB SendCommand
+    RETURN
+
+    SendCommand:
+    cmd$ = cmd$ + endc$
+    PUT #ideHost, , cmd$
+    cmd$ = ""
+    RETURN
+END SUB

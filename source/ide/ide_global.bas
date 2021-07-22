@@ -168,7 +168,7 @@ DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
 DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
-DIM SHARED SearchMenuEnableQuickNav AS INTEGER
+DIM SHARED SearchMenuEnableQuickNav AS INTEGER, searchStringFoundOn AS LONG
 DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
 DIM SHARED versionStringStatus$, lineNumberStatus$
 
