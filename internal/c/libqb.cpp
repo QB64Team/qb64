@@ -5397,6 +5397,14 @@ extern uint32 error_retry;
 
 void sub__echo(qbs *message);
 
+void unlockvWatchHandle() {
+    if (vwatch>0) vwatch=-1;
+}
+
+int32 vWatchHandle() {
+    return vwatch;
+}
+
 void sub__assert(int32 expression, qbs *assert_message, int32 passed) {
     if (asserts==0) return;
     if (expression==0) {

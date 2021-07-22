@@ -8768,7 +8768,16 @@ DO
         END IF
     END IF
 
+    IF firstelement$ = "CHAIN" THEN
+        IF vWatchOn THEN
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $DEBUG MODE", "CHAIN"
+        END IF
+    END IF
+
     IF firstelement$ = "RUN" THEN 'RUN
+        IF vWatchOn THEN
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $DEBUG MODE", "RUN"
+        END IF
         l$ = SCase$("Run")
         IF n = 1 THEN
             'no parameters
