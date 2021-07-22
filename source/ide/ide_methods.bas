@@ -6410,6 +6410,8 @@ SUB DebugMode
     noFocusMessage = -1
 
     DO 'main loop
+        IF _EXIT THEN ideexit = 1: GOTO requestQuit
+
         bkpidecy = idecy
         WHILE _MOUSEINPUT: idecy = idecy + _MOUSEWHEEL * 3: WEND
 
