@@ -240,7 +240,7 @@ SUB vwatch (localVariables AS _OFFSET)
     start! = TIMER
     DO
         k& = _KEYHIT
-        ideHost = _OPENCLIENT("TCP/IP:" + ideport$ + ":localhost")
+        ideHost = _OPENCLIENT("QB64IDE:" + ideport$ + ":localhost")
         _LIMIT 30
     LOOP UNTIL k& = 27 OR ideHost <> 0 OR TIMER - start! > timeout
     IF ideHost = 0 THEN bypass = -1: EXIT SUB

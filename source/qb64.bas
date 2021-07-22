@@ -27,8 +27,11 @@ REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name
 Set_OrderOfOperations
 
 DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState, vWatchErrorCall$
-DIM SHARED vWatchNewVariable$
+DIM SHARED vWatchNewVariable$, vWatchVariableExclusions$
 vWatchErrorCall$ = "if (stop_program) {*__LONG_VWATCH_LINENUMBER=0; SUB_VWATCH((ptrszint*)vwatch_local_vars);};if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
+vWatchVariableExclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__LONG_VWATCH_GOTO@" + _
+              "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
+              "@__ARRAY_BYTE_VWATCH_SKIPLINES@"
 
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
@@ -11395,6 +11398,9 @@ FOR i = 1 TO idn
             getid i
             IF Error_Happened THEN GOTO errmes
             IF id.arrayelements = -1 THEN GOTO clearerasereturned 'cannot erase non-existant array
+            IF INSTR(vWatchVariableExclusions$, "@" + RTRIM$(id.callname) + "@") > 0 THEN
+                GOTO clearerasereturned
+            END IF
             clearerasereturn = 1: GOTO clearerase
         END IF 'array
 
@@ -11417,14 +11423,18 @@ FOR i = 1 TO idn
                     PRINT #12, "memset((void*)(" + e$ + "->chr),0," + bytes$ + ");"
                     GOTO cleared
                 ELSE
-                    PRINT #12, e$ + "->len=0;"
+                    IF INSTR(vWatchVariableExclusions$, "@" + e$ + "@") = 0 AND LEFT$(e$, 12) <> "_SUB_VWATCH_" THEN
+                        PRINT #12, e$ + "->len=0;"
+                    END IF
                     GOTO cleared
                 END IF
             END IF
             IF typ AND ISUDT THEN
                 PRINT #12, "memset((void*)" + e$ + ",0," + bytes$ + ");"
             ELSE
-                PRINT #12, "*" + e$ + "=0;"
+                IF INSTR(vWatchVariableExclusions$, "@" + e$ + "@") = 0 AND LEFT$(e$, 12) <> "_SUB_VWATCH_" THEN
+                    PRINT #12, "*" + e$ + "=0;"
+                END IF
             END IF
             GOTO cleared
         END IF 'non-array variable
@@ -11695,7 +11705,7 @@ ELSE
 END IF
 
 IF vWatchOn THEN
-    PRINT #18, "int32 vwatch=1;"
+    PRINT #18, "int32 vwatch=-1;"
 ELSE
     PRINT #18, "int32 vwatch=0;"
 END IF
@@ -14197,17 +14207,10 @@ END SUB
 SUB vWatchVariable (this$, action AS _BYTE)
     STATIC totalLocalVariables AS LONG, localVariablesList$
     STATIC totalMainModuleVariables AS LONG, mainModuleVariablesList$
-    STATIC exclusions$
-
-    IF LEN(exclusions$) = 0 THEN
-        exclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__LONG_VWATCH_GOTO@" + _
-                      "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
-                      "@__ARRAY_BYTE_VWATCH_SKIPLINES@"
-    END IF
 
     SELECT CASE action
         CASE 0 'add
-            IF INSTR(exclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
+            IF INSTR(vWatchVariableExclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
                 EXIT SUB
             END IF
 
