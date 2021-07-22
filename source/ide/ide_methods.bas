@@ -344,6 +344,11 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Removes all breakpoints"
         menu$(m, i) = "Toggle #Skip Line  Ctrl+P": i = i + 1
         menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
+        menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all line skip flags"
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
+        menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -693,14 +698,19 @@ FUNCTION ide2 (ignore)
         IF ideautorun THEN ideautorun = 0: GOTO idemrunspecial
     END IF
 
-    STATIC attemptToHost AS _BYTE
+    STATIC AS _BYTE attemptToHost, changingTcpPort
     IF vWatchOn = 1 AND attemptToHost = 0 THEN
         IF host& = 0 THEN
-            hostport$ = _TRIM$(STR$(9000 + tempfolderindex))
+            hostport$ = _TRIM$(STR$(idebaseTcpPort + tempfolderindex))
             ENVIRON "QB64DEBUGPORT=" + hostport$
             host& = _OPENHOST("TCP/IP:" + hostport$)
             attemptToHost = -1
         END IF
+        IF changingTcpPort AND (host& = 0) THEN
+            result = idemessagebox("$DEBUG MODE", "Cannot receive connections on port" + STR$(idebaseTcpPort) + ".\nCheck your firewall permissions.", "")
+            PCOPY 3, 0: SCREEN , , 3, 0
+        END IF
+        changingTcpPort = 0
     END IF
 
     IF c$ = CHR$(254) THEN
@@ -1582,6 +1592,14 @@ FUNCTION ide2 (ignore)
 
         IF KB = KEY_F9 THEN 'toggle breakpoint
             GOTO toggleBreakpoint
+        END IF
+
+        IF KB = KEY_F10 THEN 'clear all breakpoints
+            IF KCTRL THEN
+                GOTO unskipAllLines
+            ELSE
+                GOTO clearAllBreakpoints
+            END IF
         END IF
 
         IF KB = KEY_F11 THEN 'make exe only
@@ -5740,6 +5758,7 @@ FUNCTION ide2 (ignore)
                     GOTO EnterDebugMode
                 ELSE
                     PCOPY 3, 0: SCREEN , , 3, 0
+                    clearAllBreakpoints:
                     REDIM IdeBreakpoints(iden) AS _BYTE
                     GOTO ideloop
                 END IF
@@ -5767,6 +5786,32 @@ FUNCTION ide2 (ignore)
                     IF IdeSkipLines(idecy) THEN IdeBreakpoints(idecy) = 0
                     GOTO ideloop
                 END IF
+            END IF
+
+            IF menu$(m, s) = "#Unskip All Lines  Ctrl+F10" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 15
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    unskipAllLines:
+                    REDIM IdeSkipLines(iden) AS _BYTE
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF menu$(m, s) = "Set Base #TCP/IP Port Number..." THEN
+                PCOPY 2, 0
+                bkpidebaseTcpPort = idebaseTcpPort
+                ideSetTCPPortBox
+                IF bkpidebaseTcpPort <> idebaseTcpPort THEN
+                    IF host& <> 0 THEN CLOSE host&: host& = 0
+                    attemptToHost = 0
+                    changingTcpPort = -1
+                    idechangemade = 1
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Set #Next Line  Ctrl+G" THEN
@@ -6263,6 +6308,7 @@ SUB DebugMode
             result = idecy
             GOTO requestSetNextLine
         CASE 14: IdeDebugMode = 1: GOTO requestSubsDialog
+        CASE 15: IdeDebugMode = 1: GOTO requestUnskipAllLines
     END SELECT
 
     COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
@@ -6280,7 +6326,7 @@ SUB DebugMode
             dummy = DarkenFGBG(0)
             clearStatusWindow 1
             setStatusMessage 1, "Failed to initiate debug session.", 7
-            setStatusMessage 2, "Cannot receive connections. Check your firewall permissions.", 2
+            setStatusMessage 2, "Cannot receive connections on port" + STR$(idebaseTcpPort) + ". Check your firewall permissions.", 2
             WHILE _MOUSEINPUT: WEND
             EXIT SUB
         END IF
@@ -6761,10 +6807,17 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             CASE 17408 'F10
-                requestClearBreakpoints:
-                REDIM IdeBreakpoints(iden) AS _BYTE
-                cmd$ = "clear all breakpoints"
-                GOSUB SendCommand
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    requestUnskipAllLines:
+                    REDIM IdeSkipLines(iden) AS _BYTE
+                    cmd$ = "clear all skips"
+                    GOSUB SendCommand
+                ELSE
+                    requestClearBreakpoints:
+                    REDIM IdeBreakpoints(iden) AS _BYTE
+                    cmd$ = "clear all breakpoints"
+                    GOSUB SendCommand
+                END IF
                 GOSUB UpdateDisplay
             CASE 103, 71 'g, G
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
@@ -11829,6 +11882,16 @@ SUB idegotobox
     ideselect = 0
 END SUB
 
+SUB ideSetTCPPortBox
+    a2$ = str2$(idebaseTcpPort)
+    v$ = ideinputbox$("Base TCP/IP Port Number", "#Port number for $DEBUG mode", a2$, "0123456789", 45, 5)
+    IF v$ = "" THEN EXIT SUB
+
+    idebaseTcpPort = VAL(v$)
+    IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000
+    WriteConfigSetting generalSettingsSection$, "BaseTCPPort", str2$(idebaseTcpPort)
+END SUB
+
 FUNCTION idegetlinenumberbox(title$, initialValue&)
     a2$ = str2$(initialValue&)
     IF a2$ = "0" THEN a2$ = ""
@@ -14488,6 +14551,8 @@ SUB IdeMakeContextualMenu
         menuDesc$(m, i - 1) = "Removes all breakpoints"
         menu$(m, i) = "Toggle #Skip Line  Ctrl+P": i = i + 1
         menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
+        menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all line skip flags"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "SUBs...  F2": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
