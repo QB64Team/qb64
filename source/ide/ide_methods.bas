@@ -8254,6 +8254,7 @@ SUB idefindagain (showFlags AS _BYTE)
     IF x THEN
         ideselect = 1
         idecx = x: idecy = y
+        searchStringFoundOn = idecy
         ideselectx1 = x + LEN(s$): ideselecty1 = y
 
         IF idefindinvert THEN
@@ -9773,6 +9774,10 @@ SUB ideshowtext
 
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
+        IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN
+            COLOR 13, 5
+            searchStringFoundOn = 0
+        END IF
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
         IF vWatchOn = 1 AND IdeSkipLines(l) <> 0 THEN COLOR 14
         _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
