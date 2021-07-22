@@ -15990,7 +15990,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     BinaryFormatCheck% = 1
                 END IF
             ELSE
-                IF _FILEEXISTS("source/utilities/QB45BIN.bas") = 0 THEN
+                IF _FILEEXISTS("internal/support/converter/QB45BIN.bas") = 0 THEN
                     result = idemessagebox("Binary format", "Conversion utility not found. Cannot open QuickBASIC 4.5 binary format.", "")
                     BinaryFormatCheck% = 1
                     EXIT FUNCTION
@@ -16007,9 +16007,9 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     _PRINTSTRING (2, idewy - 3), "Preparing to convert..."
                     PCOPY 3, 0
                     IF INSTR(_OS$, "WIN") THEN
-                        SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                        SHELL _HIDE "qb64 -x internal/support/converter/QB45BIN.bas -o internal/utilities/QB45BIN"
                     ELSE
-                        SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
+                        SHELL _HIDE "./qb64 -x ./internal/support/converter/QB45BIN.bas -o ./internal/utilities/QB45BIN"
                     END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
                     clearStatusWindow 0

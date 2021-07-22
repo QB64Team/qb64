@@ -1652,11 +1652,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bm"
         ELSE
-            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch_stub.bm"
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude_prepass
@@ -1700,12 +1700,12 @@ DO
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
         IF temp$ = "$COLOR:0" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
             GOTO finishedlinepp
         END IF
 
         IF temp$ = "$COLOR:32" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
             GOTO finishedlinepp
         END IF
 
@@ -2874,11 +2874,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bm"
         ELSE
-            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch\vwatch_stub.bm"
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude
@@ -3090,14 +3090,14 @@ DO
 
         IF a3u$ = "$COLOR:0" THEN
             layout$ = SCase$("$Color:0")
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
             layoutdone = 1
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$COLOR:32" THEN
             layout$ = SCase$("$Color:32")
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
             layoutdone = 1
             GOTO finishednonexec
         END IF
