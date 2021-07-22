@@ -6410,6 +6410,8 @@ SUB DebugMode
     noFocusMessage = -1
 
     DO 'main loop
+        IF _EXIT THEN ideexit = 1: GOTO requestQuit
+
         bkpidecy = idecy
         WHILE _MOUSEINPUT: idecy = idecy + _MOUSEWHEEL * 3: WEND
 
@@ -6656,6 +6658,7 @@ SUB DebugMode
                 r$ = idesubs
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB UpdateDisplay
+                WHILE _MOUSEINPUT: WEND
             CASE 15872 'F4
                 IF PauseMode THEN
                     requestCallStack:
@@ -6668,9 +6671,13 @@ SUB DebugMode
                     setStatusMessage 1, "Requesting call stack...", 7
 
                     start! = TIMER
+                    callStackLength = -1
                     DO
                         GOSUB GetCommand
-                        IF cmd$ = "call stack size" THEN callStackLength = CVL(value$)
+                        IF cmd$ = "call stack size" THEN
+                            callStackLength = CVL(value$)
+                            IF callStackLength = 0 THEN EXIT DO
+                        END IF
                         _LIMIT 100
                     LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
 
@@ -6678,13 +6685,20 @@ SUB DebugMode
                         'display call stack
                         callstacklist$ = value$
                         ShowCallStack:
-                        retval = idecallstackbox
-                        PCOPY 3, 0: SCREEN , , 3, 0
                         clearStatusWindow 0
                         setStatusMessage 1, "Paused.", 2
+                        retval = idecallstackbox
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
                     ELSE
-                        clearStatusWindow 0
-                        setStatusMessage 1, "Error retrieving call stack.", 2
+                        IF callStackLength = -1 THEN
+                            callStackLength = 0
+                            clearStatusWindow 0
+                            setStatusMessage 1, "Error retrieving call stack.", 2
+                        ELSEIF callStackLength = 0 THEN
+                            clearStatusWindow 0
+                            setStatusMessage 1, "No call stack log available.", 2
+                        END IF
                     END IF
                     noFocusMessage = NOT noFocusMessage
                 END IF
@@ -6757,8 +6771,9 @@ SUB DebugMode
                     IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
                         result = idegetlinenumberbox("Run To Line", idecy)
                         PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
                         requestRunToThisLine:
-                        IF result > 0 AND result < iden THEN
+                        IF result > 0 AND result <= iden THEN
                             PauseMode = 0
                             debugnextline = 0
                             cmd$ = "run to line:" + MKL$(result)
@@ -6771,8 +6786,9 @@ SUB DebugMode
                     ELSE
                         result = idegetlinenumberbox("Set Next Line", idecy)
                         PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
                         requestSetNextLine:
-                        IF result > 0 AND result < iden THEN
+                        IF result > 0 AND result <= iden THEN
                             cmd$ = "set next line:" + MKL$(result)
                             GOSUB SendCommand
                         END IF
@@ -6782,6 +6798,7 @@ SUB DebugMode
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
                     result = idegetlinenumberbox("Skip Line", idecy)
                     PCOPY 3, 0: SCREEN , , 3, 0
+                    WHILE _MOUSEINPUT: WEND
                     requestToggleSkipLine:
                     IF result > 0 AND result <= iden THEN
                         IdeSkipLines(result) = NOT IdeSkipLines(result)
@@ -6838,15 +6855,19 @@ SUB DebugMode
                 'requested when the program is about to quit or
                 'when an error just occurred
                 callStackLength = CVL(value$)
-                start! = TIMER
-                DO
-                    GOSUB GetCommand
-                    _LIMIT 100
-                LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
+                IF callStackLength THEN
+                    start! = TIMER
+                    DO
+                        GOSUB GetCommand
+                        _LIMIT 100
+                    LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
 
-                IF cmd$ = "call stack" THEN
-                    'store call stack
-                    callstacklist$ = value$
+                    IF cmd$ = "call stack" THEN
+                        'store call stack
+                        callstacklist$ = value$
+                    END IF
+                ELSE
+                    callstacklist$ = ""
                 END IF
         END SELECT
 
@@ -6906,19 +6927,25 @@ FUNCTION idecallstackbox
     '-------- init --------
 
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "$DEBUG MODE"
+
+    dialogHeight = callStackLength + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+
+    idepar p, idewx - 8, dialogHeight, "$DEBUG MODE"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 10
+    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(callstacklist$)
     o(i).sel = callStackLength
     o(i).nam = idenewtxt("Call Stack")
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogHeight
     o(i).txt = idenewtxt("#Close")
     o(i).dft = 1
 
@@ -8270,6 +8297,7 @@ FUNCTION idegetline$ (i)
 END FUNCTION
 
 SUB idecentercurrentline
+    IF iden <= idewy - 8 THEN EXIT SUB
     idesy = idecy - (idewy - 8) \ 2
     IF idesy < 1 THEN idesy = 1
 END SUB
@@ -8748,6 +8776,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
         '-------- custom display changes --------
         COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 4), "Path: "
         a$ = path$
+        IF LEN(a$) = 2 AND RIGHT$(a$, 1) = ":" THEN a$ = a$ + "\"
         w = p.w - 8
         IF LEN(a$) > w - 3 THEN a$ = STRING$(3, 250) + RIGHT$(a$, w - 3)
         _PRINTSTRING (p.x + 2 + 6, p.y + 4), a$
@@ -10074,13 +10103,17 @@ FUNCTION idesubs$
 
     '72,19
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "SUBs"
+    dialogHeight = TotalSUBs + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+    idepar p, idewx - 8, dialogHeight, "SUBs"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 1
     '68
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
+    o(i).w = idewx - 12: o(i).h = dialogHeight - 3
     IF SortedSubsFlag = 0 THEN
         IF IDESubsLength THEN
             o(i).txt = idenewtxt(lSized$)
@@ -10121,14 +10154,14 @@ FUNCTION idesubs$
     i = i + 1
     o(i).typ = 4 'check box
     o(i).x = 2
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogHeight
     o(i).nam = idenewtxt("#Line Count")
     o(i).sel = IDESubsLength
 
     i = i + 1
     o(i).typ = 4 'check box
     o(i).x = 18
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogHeight
     o(i).nam = idenewtxt("#Sort")
     o(i).sel = SortedSubsFlag
 
@@ -10136,8 +10169,12 @@ FUNCTION idesubs$
     o(i).typ = 3
     o(i).x = p.x + p.w - 26
     o(i).w = 26
-    o(i).y = idewy + idesubwindow - 6
-    o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
+    o(i).y = dialogHeight
+    IF IdeDebugMode = 0 THEN
+        o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
+    ELSE
+        o(i).txt = idenewtxt("#View" + sep + "#Cancel")
+    END IF
     o(i).dft = 1
 
 
@@ -10358,19 +10395,23 @@ FUNCTION idelanguagebox
     l$ = UCASE$(l$)
 
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "Language"
+    dialogHeight = idecpnum + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+    idepar p, idewx - 8, dialogHeight, "Language"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 10
+    o(i).w = idewx - 12: o(i).h = dialogheight - 4
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
     o(i).nam = idenewtxt("Code Pages")
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogheight
     o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
 
@@ -11293,7 +11334,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
         END IF
         'change drive
         IF LEN(newpath$) = 2 AND RIGHT$(newpath$, 1) = ":" THEN
-            idezchangepath$ = newpath$ + "\"
+            idezchangepath$ = newpath$
             EXIT FUNCTION
         END IF
         idezchangepath$ = path$ + "\" + newpath$

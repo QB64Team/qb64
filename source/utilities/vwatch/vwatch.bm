@@ -13,6 +13,7 @@ SUB vwatch (localVariables AS _OFFSET)
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
         SUB vwatch_starttimers ALIAS start_timers
+        SUB unlockvWatchHandle
     END DECLARE
 
     IF bypass THEN EXIT SUB
@@ -35,7 +36,7 @@ SUB vwatch (localVariables AS _OFFSET)
             SELECT CASE cmd$
                 CASE "vwatch"
                     IF value$ <> "ok" THEN
-                        CLOSE #ideHost
+                        unlockvWatchHandle: CLOSE #ideHost
                         bypass = -1
                         EXIT SUB
                     END IF
@@ -48,7 +49,7 @@ SUB vwatch (localVariables AS _OFFSET)
                     IF LEN(value$) \ 4 <> breakpointCount THEN
                         cmd$ = "quit:Communication error."
                         GOSUB SendCommand
-                        CLOSE #ideHost
+                        unlockvWatchHandle: CLOSE #ideHost
                         bypass = -1
                         EXIT SUB
                     END IF
@@ -62,7 +63,7 @@ SUB vwatch (localVariables AS _OFFSET)
                     IF LEN(value$) \ 4 <> skipCount THEN
                         cmd$ = "quit:Communication error."
                         GOSUB SendCommand
-                        CLOSE #ideHost
+                        unlockvWatchHandle: CLOSE #ideHost
                         bypass = -1
                         EXIT SUB
                     END IF
@@ -85,7 +86,7 @@ SUB vwatch (localVariables AS _OFFSET)
         GOSUB SendCallStack
         cmd$ = "quit:Program ended."
         GOSUB SendCommand
-        CLOSE #ideHost
+        unlockvWatchHandle: CLOSE #ideHost
         bypass = -1
         ideHost = 0
         EXIT SUB
@@ -193,7 +194,7 @@ SUB vwatch (localVariables AS _OFFSET)
                 vwatch_starttimers
                 EXIT SUB
             CASE "free"
-                CLOSE #ideHost
+                unlockvWatchHandle: CLOSE #ideHost
                 ideHost = 0
                 bypass = -1
                 vwatch_starttimers
@@ -240,7 +241,7 @@ SUB vwatch (localVariables AS _OFFSET)
     start! = TIMER
     DO
         k& = _KEYHIT
-        ideHost = _OPENCLIENT("TCP/IP:" + ideport$ + ":localhost")
+        ideHost = _OPENCLIENT("QB64IDE:" + ideport$ + ":localhost")
         _LIMIT 30
     LOOP UNTIL k& = 27 OR ideHost <> 0 OR TIMER - start! > timeout
     IF ideHost = 0 THEN bypass = -1: EXIT SUB
