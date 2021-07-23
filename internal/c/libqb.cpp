@@ -5397,6 +5397,14 @@ extern uint32 error_retry;
 
 void sub__echo(qbs *message);
 
+void unlockvWatchHandle() {
+    if (vwatch>0) vwatch=-1;
+}
+
+int32 vWatchHandle() {
+    return vwatch;
+}
+
 void sub__assert(int32 expression, qbs *assert_message, int32 passed) {
     if (asserts==0) return;
     if (expression==0) {
@@ -13096,7 +13104,11 @@ void sub_close(int32 i2,int32 passed){
     
     
     for (i=1;i<=special_handles->indexes;i++){
-        sub_close(-i-1,1);
+        if (vwatch>0 && vwatch==i) {
+            //keep connection to the IDE open for $DEBUG mode
+        } else {
+            sub_close(-i-1,1);
+        }
     }
     
     
@@ -21892,7 +21904,11 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if ((method==0)||(method==1)){
                 
                 if (parts<2) return -1;
-                if (qbs_equal(qbs_ucase(info_part[1]),qbs_new_txt("TCP/IP"))==0) return -1;
+                if (qbs_equal(qbs_ucase(info_part[1]),qbs_new_txt("TCP/IP"))==0) {
+                    if (qbs_equal(qbs_ucase(info_part[1]),qbs_new_txt("QB64IDE"))==0 || vwatch!=-1) {
+                        return -1;
+                    }
+                }
                 
                 d=func_val(info_part[2]);
                 port=qbr_double_to_long(d);//***assume*** port number is within valid range
@@ -21923,6 +21939,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     //init stream
                     my_stream_struct->in=NULL; my_stream_struct->in_size=0; my_stream_struct->in_limit=0;
                     
+                    if (vwatch==-1) vwatch=my_handle;
                     return my_handle;
                 }//client
                 

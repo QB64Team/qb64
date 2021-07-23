@@ -1,26 +1,4 @@
-if(oldstr3617){
-if(oldstr3617->fixed)qbs_set(oldstr3617,_FUNC_EVALPREIF_STRING_TEXT);
-qbs_free(_FUNC_EVALPREIF_STRING_TEXT);
+if(oldstr3696){
+if(oldstr3696->fixed)qbs_set(oldstr3696,_FUNC_VRGBS_STRING_TEXT);
+qbs_free(_FUNC_VRGBS_STRING_TEXT);
 }
-if(oldstr3618){
-if(oldstr3618->fixed)qbs_set(oldstr3618,_FUNC_EVALPREIF_STRING_ERR);
-qbs_free(_FUNC_EVALPREIF_STRING_ERR);
-}
-qbs_free(_FUNC_EVALPREIF_STRING_TEMP);
-if (_FUNC_EVALPREIF_ARRAY_STRING_PC_OP[2]&1){
-tmp_long=_FUNC_EVALPREIF_ARRAY_STRING_PC_OP[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(_FUNC_EVALPREIF_ARRAY_STRING_PC_OP[0]))[tmp_long]);
-free((void*)(_FUNC_EVALPREIF_ARRAY_STRING_PC_OP[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_EVALPREIF_ARRAY_STRING_PC_OP)[8] );
-qbs_free(_FUNC_EVALPREIF_STRING_FIRSTSYMBOL);
-qbs_free(_FUNC_EVALPREIF_STRING_A);
-qbs_free(_FUNC_EVALPREIF_STRING_SECONDSYMBOL);
-qbs_free(_FUNC_EVALPREIF_STRING_L);
-qbs_free(_FUNC_EVALPREIF_STRING_R);
-qbs_free(_FUNC_EVALPREIF_STRING_SYMBOL);
-qbs_free(_FUNC_EVALPREIF_STRING_LEFTSIDE);
-qbs_free(_FUNC_EVALPREIF_STRING_RIGHTSIDE);
-qbs_free(_FUNC_EVALPREIF_STRING_RESULT);
-qbs_free(_FUNC_EVALPREIF_STRING_T);
-qbs_free(_FUNC_EVALPREIF_STRING_M);

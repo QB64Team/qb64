@@ -12,6 +12,9 @@ extern void sub__consolefont(qbs* FontName, int FontSize);
 extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
 extern int32 func__getconsoleinput();
 
+extern void unlockvWatchHandle();
+extern int32 vWatchHandle();
+
 #ifdef DEPENDENCY_ZLIB
     #include <zlib.h>
     qbs *func__deflate(qbs *text);

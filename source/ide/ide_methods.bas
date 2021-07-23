@@ -342,9 +342,13 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Sets/clears breakpoint at cursor location"
         menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
         menuDesc$(m, i - 1) = "Removes all breakpoints"
-        'menu$(m, i) = "-": i = i + 1
-        'menu$(m, i) = "#Clear All Breakpoints  F10": i = i + 1
-        'menuDesc$(m, i - 1) = "Removes all breakpoints"
+        menu$(m, i) = "Toggle #Skip Line  Ctrl+P": i = i + 1
+        menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
+        menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all line skip flags"
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
+        menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -474,6 +478,7 @@ FUNCTION ide2 (ignore)
         'new blank text field
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
         REDIM IdeBreakpoints(iden) AS _BYTE
+        REDIM IdeSkipLines(iden) AS _BYTE
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
         idechangemade = 1
@@ -566,6 +571,7 @@ FUNCTION ide2 (ignore)
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
+                REDIM IdeSkipLines(iden) AS _BYTE
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
                     idecy = ideStartAtLine
                     IF idecy - 10 >= 1 THEN idesy = idecy - 10
@@ -692,14 +698,19 @@ FUNCTION ide2 (ignore)
         IF ideautorun THEN ideautorun = 0: GOTO idemrunspecial
     END IF
 
-    STATIC attemptToHost AS _BYTE
+    STATIC AS _BYTE attemptToHost, changingTcpPort
     IF vWatchOn = 1 AND attemptToHost = 0 THEN
         IF host& = 0 THEN
-            hostport$ = _TRIM$(STR$(9000 + tempfolderindex))
+            hostport$ = _TRIM$(STR$(idebaseTcpPort + tempfolderindex))
             ENVIRON "QB64DEBUGPORT=" + hostport$
             host& = _OPENHOST("TCP/IP:" + hostport$)
             attemptToHost = -1
         END IF
+        IF changingTcpPort AND (host& = 0) THEN
+            result = idemessagebox("$DEBUG MODE", "Cannot receive connections on port" + STR$(idebaseTcpPort) + ".\nCheck your firewall permissions.", "")
+            PCOPY 3, 0: SCREEN , , 3, 0
+        END IF
+        changingTcpPort = 0
     END IF
 
     IF c$ = CHR$(254) THEN
@@ -713,18 +724,25 @@ FUNCTION ide2 (ignore)
             idesubwindow = 0
             skipdisplay = 0
             IdeSystem = 1
-            retval = 1: GOSUB redrawItAll
+            retval = 1
        END IF
 
+        GOSUB redrawItAll
         idecompiling = 0
         ready = 1
         _RESIZE OFF
         DebugMode
+        UpdateMenuHelpLine  ""
         SELECT CASE IdeDebugMode
-            CASE 1
+            CASE 1 'clean exit
                 IdeDebugMode = 0
                 idefocusline = 0
                 debugnextline = 0
+            CASE 2 'right-click detected; invoke contextual menu
+                PCOPY 3, 0
+                IdeMakeContextualMenu
+                idecontextualmenu = 1
+                GOTO showmenu
         END SELECT
         COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
         IF idesubwindow <> 0 THEN _RESIZE OFF ELSE _RESIZE ON
@@ -1568,11 +1586,20 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F8 OR startPausedPending = -1 THEN
+            startPausedPending = 0
             GOTO startPausedMenuHandler
         END IF
 
         IF KB = KEY_F9 THEN 'toggle breakpoint
             GOTO toggleBreakpoint
+        END IF
+
+        IF KB = KEY_F10 THEN 'clear all breakpoints
+            IF KCTRL THEN
+                GOTO unskipAllLines
+            ELSE
+                GOTO clearAllBreakpoints
+            END IF
         END IF
 
         IF KB = KEY_F11 THEN 'make exe only
@@ -1582,7 +1609,13 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN
-            GOTO showCallStackDialog
+            IF callStackLength > 0 THEN
+                GOTO showCallStackDialog
+            ELSE
+                result = idemessagebox("$DEBUG MODE", "No call stack log available.", "")
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -2721,6 +2754,7 @@ FUNCTION ide2 (ignore)
 
                                 WikiParse a$
                                 IdeSystem = 3
+                                GOSUB redrawItAll
                                 GOTO specialchar
 
                                 EXIT FOR
@@ -2954,7 +2988,11 @@ FUNCTION ide2 (ignore)
                 idecytemp = mY - 2 + idesy - 1
                 IF idecytemp =< iden THEN
                     idecy = idecytemp
-                    GOTO toggleBreakpoint
+                    IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
+                        GOTO toggleSkipLine
+                    ELSE
+                        GOTO toggleBreakpoint
+                    END IF
                 END IF
             END IF
         END IF
@@ -3183,6 +3221,10 @@ FUNCTION ide2 (ignore)
         IF KCONTROL AND UCASE$(K$) = "O" THEN 'File -> #Open
             IdeOpenFile$ = ""
             GOTO ctrlOpen
+        END IF
+
+        IF KCONTROL AND UCASE$(K$) = "P" THEN 'Debug -> Toggle Skip Line
+            GOTO toggleSkipLine
         END IF
 
         IF (NOT KSHIFT) AND KCONTROL AND UCASE$(K$) = "R" THEN 'Comment (add ') - R for REMark
@@ -4411,20 +4453,27 @@ FUNCTION ide2 (ignore)
                         GOTO ideloop
                     END IF
 
-                    IF _RESIZE THEN
+                    IF (_RESIZE <> 0) AND IdeDebugMode <> 2 THEN
                         ForceResize = -1: skipdisplay = 0: GOTO ideloop
                     END IF
                 LOOP UNTIL KALT = 0 'wait till alt is released
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO startmenu2
             END IF
-            IF _EXIT THEN ideexit = 1: GOTO ideloop
+            IF _EXIT THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 9: GOTO EnterDebugMode
+                ELSE
+                    ideexit = 1: GOTO ideloop
+                END IF
+            END IF
             IF _WINDOWHASFOCUS = 0 AND (os$ = "WIN" OR MacOSX = 1) THEN
                 COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
                 PCOPY 3, 0: SCREEN , , 3, 0
+                IF IdeDebugMode = 2 THEN GOTO EnterDebugMode
                 GOTO ideloop
             END IF
-            IF _RESIZE THEN
+            IF (_RESIZE <> 0) AND IdeDebugMode <> 2 THEN
                 ForceResize = -1: skipdisplay = 0: GOTO ideloop
             END IF
             _LIMIT 100
@@ -4434,6 +4483,7 @@ FUNCTION ide2 (ignore)
 
         IF mWHEEL THEN
             PCOPY 3, 0: SCREEN , , 3, 0
+            IF IdeDebugMode = 2 THEN GOTO EnterDebugMode
             GOTO ideloop
         END IF
 
@@ -4441,6 +4491,16 @@ FUNCTION ide2 (ignore)
             IF (mX > 1 AND mX < idewx AND mY > 2 AND mY < (idewy - 5)) OR _
                 (mY >= idewy AND mY < idewy + idesubwindow) THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
+                IF IdeDebugMode = 2 THEN
+                    bkpidecy = idecy
+                    idecy = mY - 2 + idesy - 1
+                    IF idecy > iden THEN idecy = iden
+                    IF bkpidecy <> idecy THEN
+                        ideshowtext
+                        PCOPY 3, 0
+                    END IF
+                    GOTO showmenu
+                END IF
                 GOTO invokecontextualmenu
             ELSE
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4473,6 +4533,7 @@ FUNCTION ide2 (ignore)
 
             IF mX < xx - 2 OR mX >= xx - 2 + w + 4 OR mY > yy + menusize(m) + 1 OR (mY < yy AND idecontextualmenu = 1) THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
+                IF IdeDebugMode = 2 THEN GOTO EnterDebugMode
                 GOTO ideloop
             END IF
         END IF
@@ -4504,7 +4565,7 @@ FUNCTION ide2 (ignore)
             END IF
             IF oldmx <> mX THEN
                 checkmenubarhover:
-                IF mY = 1 AND idecontextualmenu <> 1 THEN 'Check if we're hovering on menu bar
+                IF IdeDebugMode <> 2 AND mY = 1 AND idecontextualmenu <> 1 THEN 'Check if we're hovering on menu bar
                     lastm = m
                     FOR i = 1 TO menus
                         x = CVI(MID$(MenuLocations, i * 2 - 1, 2))
@@ -4526,7 +4587,7 @@ FUNCTION ide2 (ignore)
         IF mB THEN
 
             'top row
-            IF mY = 1 THEN
+            IF mY = 1 AND IdeDebugMode <> 2 THEN
                 lastm = m
                 x = 3
                 FOR i = 1 TO menus
@@ -4582,6 +4643,7 @@ FUNCTION ide2 (ignore)
         IF m > menus AND idecontextualmenu = 0 THEN m = 1
         IF KB = KEY_ESC THEN
             PCOPY 3, 0: SCREEN , , 3, 0
+            IF IdeDebugMode = 2 THEN GOTO EnterDebugMode
             GOTO ideloop
         END IF
         IF KB = KEY_DOWN THEN
@@ -5232,13 +5294,18 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#SUBs...  F2" THEN
-                PCOPY 2, 0
-                idesubsjmp:
-                r$ = idesubs
-                IF r$ <> "C" THEN ideselect = 0
-                PCOPY 3, 0: SCREEN , , 3, 0
-                GOTO ideloop
+            IF menu$(m, s) = "#SUBs...  F2" OR menu$(m, s) = "SUBs...  F2" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 14
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 2, 0
+                    idesubsjmp:
+                    r$ = idesubs
+                    IF r$ <> "C" THEN ideselect = 0
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    GOTO ideloop
+                END IF
             END IF
 
             IF menu$(m, s) = "#Line Numbers  " + CHR$(16) THEN
@@ -5303,15 +5370,6 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "Compiler #Warnings...  Ctrl+W" THEN
                 PCOPY 2, 0
                 retval = idewarningbox
-                'retval is ignored
-                PCOPY 3, 0: SCREEN , , 3, 0
-                GOTO ideloop
-            END IF
-
-            IF menu$(m, s) = "Call #Stack...  F4" THEN
-                PCOPY 2, 0
-                showCallStackDialog:
-                retval = idecallstackbox
                 'retval is ignored
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
@@ -5424,6 +5482,7 @@ FUNCTION ide2 (ignore)
                 IF x THEN
                     ideselect = 1
                     idecx = x: idecy = y
+                    idecentercurrentline
                     ideselectx1 = x + LEN(s$): ideselecty1 = y
 
                     found = 1
@@ -5625,28 +5684,139 @@ FUNCTION ide2 (ignore)
                 END IF
             END IF
 
+            IF menu$(m, s) = "Call #Stack...  F4" OR menu$(m, s) = "Call Stack...  F4" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 3
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 2, 0
+                    showCallStackDialog:
+                    retval = idecallstackbox
+                    'retval is ignored
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF menu$(m, s) = "#Continue  F5" THEN
+                IdeDebugMode = 4
+                GOTO EnterDebugMode
+            END IF
+
+            IF menu$(m, s) = "Step O#ut  F6" THEN
+                IdeDebugMode = 5
+                GOTO EnterDebugMode
+            END IF
+
+            IF menu$(m, s) = "Step #Over  F7" THEN
+                IdeDebugMode = 6
+                GOTO EnterDebugMode
+            END IF
+
+            IF menu$(m, s) = "Ste#p Into  F8" THEN
+                IdeDebugMode = 7
+                GOTO EnterDebugMode
+            END IF
+
+            IF menu$(m, s) = "#Run To This Line  Ctrl+Shift+G" THEN
+                IdeDebugMode = 8
+                GOTO EnterDebugMode
+            END IF
+
+            IF menu$(m, s) = "#Exit $DEBUG mode  ESC" THEN
+                IdeDebugMode = 9
+                GOTO EnterDebugMode
+            END IF
+
             IF menu$(m, s) = "Toggle #Breakpoint  F9" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0
-                toggleBreakpoint:
-                IF vWatchOn = 0 THEN
-                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
-                    IF result = 1 THEN
-                        ideselect = 0
-                        ideinsline 1, SCase$("$Debug")
-                        idecy = idecy + 1
-                        idechangemade = 1
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 10
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    toggleBreakpoint:
+                    IF vWatchOn = 0 THEN
+                        result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        IF result = 1 THEN
+                            ideselect = 0
+                            ideinsline 1, SCase$("$Debug")
+                            idecy = idecy + 1
+                            idechangemade = 1
+                            IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                        END IF
+                    ELSE
                         IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
                     END IF
-                ELSE
-                    IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                    IF IdeBreakpoints(idecy) THEN IdeSkipLines(idecy) = 0
+                    GOTO ideloop
                 END IF
+            END IF
+
+            IF menu$(m, s) = "#Clear All Breakpoints  F10" OR menu$(m, s) = "Clear All Breakpoints  F10" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 11
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    clearAllBreakpoints:
+                    REDIM IdeBreakpoints(iden) AS _BYTE
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF menu$(m, s) = "Toggle #Skip Line  Ctrl+P" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 12
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    toggleSkipLine:
+                    IF vWatchOn = 0 THEN
+                        result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        IF result = 1 THEN
+                            ideselect = 0
+                            ideinsline 1, SCase$("$Debug")
+                            idecy = idecy + 1
+                            idechangemade = 1
+                            IdeSkipLines(idecy) = NOT IdeSkipLines(idecy)
+                        END IF
+                    ELSE
+                        IdeSkipLines(idecy) = NOT IdeSkipLines(idecy)
+                    END IF
+                    IF IdeSkipLines(idecy) THEN IdeBreakpoints(idecy) = 0
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF menu$(m, s) = "#Unskip All Lines  Ctrl+F10" THEN
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 15
+                    GOTO EnterDebugMode
+                ELSE
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    unskipAllLines:
+                    REDIM IdeSkipLines(iden) AS _BYTE
+                    GOTO ideloop
+                END IF
+            END IF
+
+            IF menu$(m, s) = "Set Base #TCP/IP Port Number..." THEN
+                PCOPY 2, 0
+                bkpidebaseTcpPort = idebaseTcpPort
+                ideSetTCPPortBox
+                IF bkpidebaseTcpPort <> idebaseTcpPort THEN
+                    IF host& <> 0 THEN CLOSE host&: host& = 0
+                    attemptToHost = 0
+                    changingTcpPort = -1
+                    idechangemade = 1
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Clear All Breakpoints  F10" THEN
-                PCOPY 3, 0: SCREEN , , 3, 0
-                REDIM IdeBreakpoints(iden) AS _BYTE
-                GOTO ideloop
+            IF menu$(m, s) = "Set #Next Line  Ctrl+G" THEN
+                IdeDebugMode = 13
+                GOTO EnterDebugMode
             END IF
 
             IF menu$(m, s) = "E#xit" THEN
@@ -5702,6 +5872,7 @@ FUNCTION ide2 (ignore)
                 ideunsaved = -1
                 'new blank text field
                 REDIM IdeBreakpoints(1) AS _BYTE
+                REDIM IdeSkipLines(1) AS _BYTE
                 callstacklist$ = "": callStackLength = 0
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
@@ -5880,8 +6051,17 @@ FUNCTION ide2 (ignore)
     COLOR 7, 1: _PRINTSTRING (idewx - 2, idewy - 4), CHR$(195)
 
     'add status title
-    IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
+    COLOR 7, 1
+    a$ = STRING$(14, 196)
+    _PRINTSTRING ((idewx - LEN(a$)) / 2, idewy - 4), a$
+    IF IdeDebugMode THEN
+        COLOR 1, 7
+        a$ = " $DEBUG MODE "
+    ELSE
+        IF IdeSystem = 2 THEN COLOR 1, 7 ELSE COLOR 7, 1
+        a$ = " Status "
+    END IF
+    _PRINTSTRING ((idewx - LEN(a$)) / 2, idewy - 4), a$
 
     a$ = idefindtext
     tx = 1
@@ -6084,18 +6264,53 @@ FUNCTION ide2 (ignore)
 END FUNCTION
 
 SUB DebugMode
-    STATIC PauseMode AS _BYTE
+    STATIC AS _BYTE PauseMode, noFocusMessage
+    STATIC client&
+    STATIC buffer$
+    STATIC endc$
 
     timeout = 10
     _KEYCLEAR
 
-    IF IdeDebugMode = 1 THEN
-        PauseMode = 0
-        callStackLength = 0
-        callstacklist$ = ""
-    END IF
-
     SCREEN , , 3, 0
+
+    SELECT EVERYCASE IdeDebugMode
+        CASE 1
+            PauseMode = 0
+            callStackLength = 0
+            callstacklist$ = ""
+            buffer$ = ""
+            client& = 0
+        CASE IS > 1
+            noFocusMessage = NOT noFocusMessage
+            GOSUB UpdateStatusArea
+            clearStatusWindow 1
+            setStatusMessage 1, "Paused.", 2
+        CASE 2: IdeDebugMode = 1: GOTO returnFromContextMenu
+        CASE 3: IdeDebugMode = 1: GOTO requestCallStack
+        CASE 4: IdeDebugMode = 1: GOTO requestContinue
+        CASE 5: IdeDebugMode = 1: GOTO requestStepOut
+        CASE 6: IdeDebugMode = 1: GOTO requestStepOver
+        CASE 7: IdeDebugMode = 1: GOTO requestPause
+        CASE 8
+            IdeDebugMode = 1
+            result = idecy
+            GOTO requestRunToThisLine
+        CASE 9: IdeDebugMode = 1: GOTO requestQuit
+        CASE 10: IdeDebugMode = 1: GOTO requestToggleBreakpoint
+        CASE 11: IdeDebugMode = 1: GOTO requestClearBreakpoints
+        CASE 12
+            IdeDebugMode = 1
+            result = idecy
+            GOTO requestToggleSkipLine
+        CASE 13
+            IdeDebugMode = 1
+            result = idecy
+            GOTO requestSetNextLine
+        CASE 14: IdeDebugMode = 1: GOTO requestSubsDialog
+        CASE 15: IdeDebugMode = 1: GOTO requestUnskipAllLines
+    END SELECT
+
     COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
     m$ = "$DEBUG MODE ACTIVE"
     COLOR 0
@@ -6111,7 +6326,7 @@ SUB DebugMode
             dummy = DarkenFGBG(0)
             clearStatusWindow 1
             setStatusMessage 1, "Failed to initiate debug session.", 7
-            setStatusMessage 2, "Cannot receive connections. Check your firewall permissions.", 2
+            setStatusMessage 2, "Cannot receive connections on port" + STR$(idebaseTcpPort) + ". Check your firewall permissions.", 2
             WHILE _MOUSEINPUT: WEND
             EXIT SUB
         END IF
@@ -6205,6 +6420,21 @@ SUB DebugMode
         GOSUB SendCommand
     END IF
 
+    skipCount = 0
+    skipList$ = ""
+    FOR i = 1 TO UBOUND(IdeSkipLines)
+        IF IdeSkipLines(i) THEN
+            skipCount = skipCount + 1
+            skipList$ = skipList$ + MKL$(i)
+        END IF
+    NEXT
+    IF skipCount THEN
+        cmd$ = "skip count:" + MKL$(skipCount)
+        GOSUB SendCommand
+        cmd$ = "skip list:" + skipList$
+        GOSUB SendCommand
+    END IF
+
     clearStatusWindow 1
     IF startPaused THEN
         cmd$ = "break"
@@ -6218,11 +6448,13 @@ SUB DebugMode
     GOSUB SendCommand
 
     clearStatusWindow 2
-    setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
     DO 'main loop
+        IF _EXIT THEN ideexit = 1: GOTO requestQuit
+
         bkpidecy = idecy
         WHILE _MOUSEINPUT: idecy = idecy + _MOUSEWHEEL * 3: WEND
 
@@ -6234,6 +6466,33 @@ SUB DebugMode
         mB2 = _MOUSEBUTTON(2)
         mX = _MOUSEX
         mY = _MOUSEY
+
+        IF mB2 THEN
+            IF mouseDown2 = 0 THEN
+                mouseDown2 = -1
+                mouseDownOnX2 = mX
+                mouseDownOnY2 = mY
+            ELSE
+            END IF
+        ELSE
+            IF mouseDown2 THEN
+                IF mouseDownOnX2 = mX AND mouseDownOnY2 = mY THEN
+                    IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
+                       (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) OR _
+                       (mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5)) THEN
+                        bkpidecy = idecy
+                        idecy = mY - 2 + idesy - 1
+                        IF idecy > iden THEN idecy = iden
+                        IF bkpidecy <> idecy THEN GOSUB UpdateDisplay
+                        IdeDebugMode = 2
+                        IF PauseMode = 0 THEN GOSUB requestPause: dummy = DarkenFGBG(0)
+                        EXIT SUB
+                        returnFromContextMenu:
+                    END IF
+                END IF
+            END IF
+            mouseDown2 = 0
+        END IF
 
         IF mB THEN
             IF mouseDown = 0 THEN
@@ -6307,9 +6566,26 @@ SUB DebugMode
                         ideselect = 0
                         idecytemp = mY - 2 + idesy - 1
                         IF idecytemp =< iden THEN
-                            IdeBreakpoints(idecytemp) = NOT IdeBreakpoints(idecytemp)
-                            IF IdeBreakpoints(idecytemp) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
-                            cmd$ = cmd$ + MKL$(idecytemp)
+                            IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
+                                IF IdeSkipLines(idecytemp) = -1 THEN
+                                    IdeSkipLines(idecytemp) = 0
+                                    cmd$ = "clear skip line:" + MKL$(idecytemp)
+                                ELSE
+                                    IdeSkipLines(idecytemp) = -1
+                                    IdeBreakpoints(idecytemp) = 0
+                                    cmd$ = "set skip line:" + MKL$(idecytemp)
+                                END IF
+                            ELSE
+                                IF IdeBreakpoints(idecytemp) THEN
+                                    IdeBreakpoints(idecytemp) = 0
+                                    cmd$ = "clear breakpoint:"
+                                ELSE
+                                    IdeBreakpoints(idecytemp) = -1
+                                    IdeSkipLines(idecytemp) = 0
+                                    cmd$ = "set breakpoint:"
+                                END IF
+                                cmd$ = cmd$ + MKL$(idecytemp)
+                            END IF
                             GOSUB SendCommand
                             GOSUB UpdateDisplay
                         END IF
@@ -6346,22 +6622,25 @@ SUB DebugMode
         END IF
 
 
+        UpdateStatusArea:
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: <F4 = Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step>", 15
-                setStatusMessage 3, "        <F9 = Toggle Breakpoint> <F10 = Clear All Breakpoints> <ESC = Abort>", 15
+                setStatusMessage 2, "<F4 = Call Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
+                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints>", 15
+                UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "$DEBUG: Set focus to the IDE to control execution", 15
+                setStatusMessage 2, "Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
+        IF IdeDebugMode > 1 THEN RETURN
 
         k& = _KEYHIT
         SELECT CASE k&
@@ -6410,6 +6689,7 @@ SUB DebugMode
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN idecy = iden
                 IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
             CASE 27
+                requestQuit:
                 cmd$ = "free"
                 GOSUB SendCommand
                 CLOSE #client&
@@ -6420,39 +6700,56 @@ SUB DebugMode
                 _KEYCLEAR
                 EXIT SUB
             CASE 15360 'F2
+                requestSubsDialog:
                 r$ = idesubs
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB UpdateDisplay
+                WHILE _MOUSEINPUT: WEND
             CASE 15872 'F4
                 IF PauseMode THEN
+                    requestCallStack:
                     cmd$ = "call stack"
                     GOSUB SendCommand
 
+                    IF BypassRequestCallStack THEN GOTO ShowCallStack
                     dummy = DarkenFGBG(0)
                     clearStatusWindow 0
                     setStatusMessage 1, "Requesting call stack...", 7
-                    noFocusMessage = -1
 
                     start! = TIMER
+                    callStackLength = -1
                     DO
                         GOSUB GetCommand
-                        IF cmd$ = "call stack size" THEN callStackLength = CVL(value$)
+                        IF cmd$ = "call stack size" THEN
+                            callStackLength = CVL(value$)
+                            IF callStackLength = 0 THEN EXIT DO
+                        END IF
                         _LIMIT 100
                     LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
 
                     IF cmd$ = "call stack" THEN
                         'display call stack
                         callstacklist$ = value$
-                        retval = idecallstackbox
-                        PCOPY 3, 0: SCREEN , , 3, 0
+                        ShowCallStack:
                         clearStatusWindow 0
                         setStatusMessage 1, "Paused.", 2
+                        retval = idecallstackbox
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
                     ELSE
-                        clearStatusWindow 0
-                        setStatusMessage 1, "Error retrieving call stack.", 2
+                        IF callStackLength = -1 THEN
+                            callStackLength = 0
+                            clearStatusWindow 0
+                            setStatusMessage 1, "Error retrieving call stack.", 2
+                        ELSEIF callStackLength = 0 THEN
+                            clearStatusWindow 0
+                            setStatusMessage 1, "No call stack log available.", 2
+                        END IF
                     END IF
+                    noFocusMessage = NOT noFocusMessage
                 END IF
             CASE 16128 'F5
+                requestContinue:
                 PauseMode = 0
                 debugnextline = 0
                 cmd$ = "run"
@@ -6462,6 +6759,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
             CASE 16384 'F6
+                requestStepOut:
                 IF PauseMode THEN
                     PauseMode = 0
                     cmd$ = "step out"
@@ -6471,6 +6769,7 @@ SUB DebugMode
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16640 'F7
+                requestStepOver:
                 IF PauseMode THEN
                     cmd$ = "step over"
                     PauseMode = 0
@@ -6481,6 +6780,7 @@ SUB DebugMode
                 END IF
             CASE 16896 'F8
                 IF PauseMode = 0 THEN
+                    requestPause:
                     cmd$ = "break"
                     PauseMode = -1
                     GOSUB SendCommand
@@ -6491,25 +6791,84 @@ SUB DebugMode
                 END IF
                 clearStatusWindow 1
                 setStatusMessage 1, "Paused.", 2
+                IF IdeDebugMode = 2 THEN RETURN
             CASE 17152 'F9
+                requestToggleBreakpoint:
                 IF PauseMode THEN
                     IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
-                    IF IdeBreakpoints(idecy) THEN cmd$ = "set breakpoint:" ELSE cmd$ = "clear breakpoint:"
+                    IF IdeBreakpoints(idecy) THEN
+                        IdeSkipLines(idecy) = 0
+                        cmd$ = "set breakpoint:"
+                    ELSE
+                        cmd$ = "clear breakpoint:"
+                    END IF
                     cmd$ = cmd$ + MKL$(idecy)
                     GOSUB SendCommand
                     GOSUB UpdateDisplay
                 END IF
             CASE 17408 'F10
-                REDIM IdeBreakpoints(iden) AS _BYTE
-                cmd$ = "clear all breakpoints"
-                GOSUB SendCommand
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    requestUnskipAllLines:
+                    REDIM IdeSkipLines(iden) AS _BYTE
+                    cmd$ = "clear all skips"
+                    GOSUB SendCommand
+                ELSE
+                    requestClearBreakpoints:
+                    REDIM IdeBreakpoints(iden) AS _BYTE
+                    cmd$ = "clear all breakpoints"
+                    GOSUB SendCommand
+                END IF
                 GOSUB UpdateDisplay
+            CASE 103, 71 'g, G
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
+                        result = idegetlinenumberbox("Run To Line", idecy)
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
+                        requestRunToThisLine:
+                        IF result > 0 AND result <= iden THEN
+                            PauseMode = 0
+                            debugnextline = 0
+                            cmd$ = "run to line:" + MKL$(result)
+                            GOSUB SendCommand
+                            clearStatusWindow 1
+                            setStatusMessage 1, "Running...", 10
+                            GOSUB UpdateDisplay
+                            dummy = DarkenFGBG(1)
+                        END IF
+                    ELSE
+                        result = idegetlinenumberbox("Set Next Line", idecy)
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
+                        requestSetNextLine:
+                        IF result > 0 AND result <= iden THEN
+                            cmd$ = "set next line:" + MKL$(result)
+                            GOSUB SendCommand
+                        END IF
+                    END IF
+                END IF
+            CASE 112, 80 'p, P
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
+                    result = idegetlinenumberbox("Skip Line", idecy)
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    WHILE _MOUSEINPUT: WEND
+                    requestToggleSkipLine:
+                    IF result > 0 AND result <= iden THEN
+                        IdeSkipLines(result) = NOT IdeSkipLines(result)
+                        cmd$ = "set skip line:"
+                        IF IdeSkipLines(result) = 0 THEN cmd$ = "clear skip line:"
+                        cmd$ = cmd$ + MKL$(result)
+                        GOSUB SendCommand
+                        GOSUB UpdateDisplay
+                    END IF
+                END IF
         END SELECT
 
         GOSUB GetCommand
 
         SELECT CASE cmd$
             CASE "breakpoint", "line number"
+                BypassRequestCallStack = 0
                 l = CVL(value$)
                 idecy = l
                 debugnextline = l
@@ -6542,20 +6901,26 @@ SUB DebugMode
                 clearStatusWindow 1
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
+                BypassRequestCallStack = -1
                 PauseMode = -1
             CASE "call stack size"
                 'call stack is only received without having been
-                'requested when the program is about to quit
+                'requested when the program is about to quit or
+                'when an error just occurred
                 callStackLength = CVL(value$)
-                start! = TIMER
-                DO
-                    GOSUB GetCommand
-                    _LIMIT 100
-                LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
+                IF callStackLength THEN
+                    start! = TIMER
+                    DO
+                        GOSUB GetCommand
+                        _LIMIT 100
+                    LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
 
-                IF cmd$ = "call stack" THEN
-                    'store call stack
-                    callstacklist$ = value$
+                    IF cmd$ = "call stack" THEN
+                        'store call stack
+                        callstacklist$ = value$
+                    END IF
+                ELSE
+                    callstacklist$ = ""
                 END IF
         END SELECT
 
@@ -6615,19 +6980,25 @@ FUNCTION idecallstackbox
     '-------- init --------
 
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "$DEBUG MODE"
+
+    dialogHeight = callStackLength + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+
+    idepar p, idewx - 8, dialogHeight, "$DEBUG MODE"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 10
+    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(callstacklist$)
     o(i).sel = callStackLength
     o(i).nam = idenewtxt("Call Stack")
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogHeight
     o(i).txt = idenewtxt("#Close")
     o(i).dft = 1
 
@@ -7300,6 +7671,18 @@ SUB idedelline (i)
         END IF
     NEXT
 
+    IF vWatchOn THEN
+        FOR b = i TO iden - 1
+            SWAP IdeBreakpoints(b), IdeBreakpoints(b + 1)
+        NEXT
+        REDIM _PRESERVE IdeBreakpoints(iden - 1) AS _BYTE
+
+        FOR b = i TO iden - 1
+            SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
+        NEXT
+        REDIM _PRESERVE IdeSkipLines(iden - 1) AS _BYTE
+    END IF
+
     idegotoline i
     textlen = CVL(MID$(idet$, ideli, 4))
     idet$ = LEFT$(idet$, ideli - 1) + RIGHT$(idet$, LEN(idet$) - ideli + 1 - 8 - textlen)
@@ -7924,12 +8307,14 @@ SUB idefindagain (showFlags AS _BYTE)
     IF x THEN
         ideselect = 1
         idecx = x: idecy = y
+        searchStringFoundOn = idecy
         ideselectx1 = x + LEN(s$): ideselecty1 = y
 
         IF idefindinvert THEN
             IF idefindbackwards = 0 THEN idefindbackwards = 1 ELSE idefindbackwards = 0
             idefindinvert = 0
         END IF
+        idecentercurrentline
         EXIT SUB
     END IF
 
@@ -7966,6 +8351,7 @@ FUNCTION idegetline$ (i)
 END FUNCTION
 
 SUB idecentercurrentline
+    IF iden <= idewy - 8 THEN EXIT SUB
     idesy = idecy - (idewy - 8) \ 2
     IF idesy < 1 THEN idesy = 1
 END SUB
@@ -8103,11 +8489,19 @@ SUB ideinsline (i, text$)
         END IF
     NEXT
 
-    REDIM _PRESERVE IdeBreakpoints(iden + 1) AS _BYTE
-    FOR b = iden + 1 TO i STEP -1
-        SWAP IdeBreakpoints(b), IdeBreakpoints(b - 1)
-    NEXT
-    IdeBreakpoints(i) = 0
+    IF vWatchOn THEN
+        REDIM _PRESERVE IdeBreakpoints(iden + 1) AS _BYTE
+        FOR b = iden + 1 TO i STEP -1
+            SWAP IdeBreakpoints(b), IdeBreakpoints(b - 1)
+        NEXT
+        IdeBreakpoints(i) = 0
+
+        REDIM _PRESERVE IdeSkipLines(iden + 1) AS _BYTE
+        FOR b = iden + 1 TO i STEP -1
+            SWAP IdeSkipLines(b), IdeSkipLines(b - 1)
+        NEXT
+        IdeSkipLines(i) = 0
+    END IF
 
     text$ = RTRIM$(text$)
 
@@ -8436,6 +8830,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
         '-------- custom display changes --------
         COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 4), "Path: "
         a$ = path$
+        IF LEN(a$) = 2 AND RIGHT$(a$, 1) = ":" THEN a$ = a$ + "\"
         w = p.w - 8
         IF LEN(a$) > w - 3 THEN a$ = STRING$(3, 250) + RIGHT$(a$, w - 3)
         _PRINTSTRING (p.x + 2 + 6, p.y + 4), a$
@@ -8676,6 +9071,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 lineinput3buffer = ""
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
+                REDIM IdeSkipLines(iden) AS _BYTE
                 callstacklist$ = "": callStackLength = 0
 
                 ideerror = 1
@@ -9424,14 +9820,31 @@ SUB ideshowtext
     DO WHILE l > UBOUND(IdeBreakpoints)
         REDIM _PRESERVE IdeBreakpoints(UBOUND(IdeBreakpoints) + 100) AS _BYTE
     LOOP
+
+    DO WHILE l > UBOUND(IdeSkipLines)
+        REDIM _PRESERVE IdeSkipLines(UBOUND(IdeSkipLines) + 100) AS _BYTE
+    LOOP
+
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
+        IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN
+            COLOR 13, 5
+            searchStringFoundOn = 0
+        END IF
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
+        IF vWatchOn = 1 AND IdeSkipLines(l) <> 0 THEN COLOR 14
         _PRINTSTRING (2, y + 3), SPACE$(maxLineNumberLength)
         IF l <= iden THEN
             l2$ = STR$(l)
             IF 2 + maxLineNumberLength - (LEN(l2$) + 1) >= 2 THEN
                 _PRINTSTRING (2 + maxLineNumberLength - (LEN(l2$) + 1), y + 3), l2$
+                IF vWatchOn THEN
+                    IF IdeBreakpoints(l) <> 0 THEN
+                        _PRINTSTRING (2, y + 3), CHR$(7)
+                    ELSEIF IdeSkipLines(l) <> 0 THEN
+                        _PRINTSTRING (2, y + 3), "!"
+                    END IF
+                END IF
             END IF
         END IF
         IF ShowLineNumbersSeparator THEN
@@ -9449,13 +9862,16 @@ SUB ideshowtext
         END IF
         COLOR , 1
     ELSE
-        IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN
+        IF vWatchOn = 1 AND (IdeBreakpoints(l) <> 0 OR IdeSkipLines(l) <> 0) THEN
             COLOR 7, 4
             IF l = debugnextline THEN
                 COLOR 10
                 _PRINTSTRING (1, y + 3), CHR$(16)
+            ELSEIF IdeSkipLines(l) <> 0 THEN
+                COLOR 14, 1
+                _PRINTSTRING (1, y + 3), "!"
             ELSE
-                _PRINTSTRING (1, y + 3), CHR$(179)
+                _PRINTSTRING (1, y + 3), CHR$(7)
             END IF
         END IF
     END IF
@@ -9745,13 +10161,17 @@ FUNCTION idesubs$
 
     '72,19
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "SUBs"
+    dialogHeight = TotalSUBs + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+    idepar p, idewx - 8, dialogHeight, "SUBs"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 1
     '68
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
+    o(i).w = idewx - 12: o(i).h = dialogHeight - 3
     IF SortedSubsFlag = 0 THEN
         IF IDESubsLength THEN
             o(i).txt = idenewtxt(lSized$)
@@ -9792,14 +10212,14 @@ FUNCTION idesubs$
     i = i + 1
     o(i).typ = 4 'check box
     o(i).x = 2
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogHeight
     o(i).nam = idenewtxt("#Line Count")
     o(i).sel = IDESubsLength
 
     i = i + 1
     o(i).typ = 4 'check box
     o(i).x = 18
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogHeight
     o(i).nam = idenewtxt("#Sort")
     o(i).sel = SortedSubsFlag
 
@@ -9807,8 +10227,12 @@ FUNCTION idesubs$
     o(i).typ = 3
     o(i).x = p.x + p.w - 26
     o(i).w = 26
-    o(i).y = idewy + idesubwindow - 6
-    o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
+    o(i).y = dialogHeight
+    IF IdeDebugMode = 0 THEN
+        o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
+    ELSE
+        o(i).txt = idenewtxt("#View" + sep + "#Cancel")
+    END IF
     o(i).dft = 1
 
 
@@ -10029,19 +10453,23 @@ FUNCTION idelanguagebox
     l$ = UCASE$(l$)
 
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "Language"
+    dialogHeight = idecpnum + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+    idepar p, idewx - 8, dialogHeight, "Language"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 10
+    o(i).w = idewx - 12: o(i).h = dialogheight - 4
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
     o(i).nam = idenewtxt("Code Pages")
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 6
+    o(i).y = dialogheight
     o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
 
@@ -10324,6 +10752,7 @@ FUNCTION idewarningbox
                 idegotobox_LastLineNum = warningLines(y)
                 AddQuickNavHistory
                 idecy = idegotobox_LastLineNum
+                idecentercurrentline
                 IF warningIncLines(y) > 0 THEN
                     warningInInclude = idecy
                     warningInIncludeLine = warningIncLines(y)
@@ -10963,7 +11392,7 @@ FUNCTION idezchangepath$ (path$, newpath$)
         END IF
         'change drive
         IF LEN(newpath$) = 2 AND RIGHT$(newpath$, 1) = ":" THEN
-            idezchangepath$ = newpath$ + "\"
+            idezchangepath$ = newpath$
             EXIT FUNCTION
         END IF
         idezchangepath$ = path$ + "\" + newpath$
@@ -11449,10 +11878,32 @@ SUB idegotobox
     idegotobox_LastLineNum = v&
     AddQuickNavHistory
     idecy = v&
+    idecentercurrentline
     ideselect = 0
 END SUB
 
+SUB ideSetTCPPortBox
+    a2$ = str2$(idebaseTcpPort)
+    v$ = ideinputbox$("Base TCP/IP Port Number", "#Port number for $DEBUG mode", a2$, "0123456789", 45, 5)
+    IF v$ = "" THEN EXIT SUB
 
+    idebaseTcpPort = VAL(v$)
+    IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000
+    WriteConfigSetting generalSettingsSection$, "BaseTCPPort", str2$(idebaseTcpPort)
+END SUB
+
+FUNCTION idegetlinenumberbox(title$, initialValue&)
+    a2$ = str2$(initialValue&)
+    IF a2$ = "0" THEN a2$ = ""
+    v$ = ideinputbox$(title$, "#Line", a2$, "0123456789", 30, 8)
+    IF v$ = "" THEN EXIT FUNCTION
+
+    v& = VAL(v$)
+    IF v& < 1 THEN v& = 1
+    IF v& > iden THEN v& = iden
+
+    idegetlinenumberbox = v&
+END FUNCTION
 
 
 
@@ -14079,205 +14530,246 @@ SUB IdeMakeContextualMenu
     m = idecontextualmenuID: i = 0
     menu$(m, i) = "Contextual": i = i + 1
 
-    IF IdeSystem = 1 OR IdeSystem = 2 THEN
-        'Figure out if the user wants to search for a selected term
-        Selection$ = getSelectedText$(0)
-        sela2$ = Selection$
-        IF LEN(Selection$) > 0 THEN
-            idecontextualSearch$ = Selection$
-            IF LEN(sela2$) > 22 THEN
-                sela2$ = LEFT$(sela2$, 19) + STRING$(3, 250)
-            END IF
-            menu$(m, i) = "Find '" + sela2$ + "'": i = i + 1
-            menuDesc$(m, i - 1) = "Searches for the text currently selected"
-        END IF
-
-        'build SUB/FUNCTION list:
-        TotalSF = 0
-        FOR y = 1 TO iden
-            a$ = idegetline(y)
-            a$ = LTRIM$(RTRIM$(a$))
-            sf = 0
-            nca$ = UCASE$(a$)
-            IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB  "
-            IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC "
-            IF sf THEN
-                IF RIGHT$(nca$, 7) = " STATIC" THEN
-                    a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
-                END IF
-
-                IF sf = 1 THEN
-                    a$ = RIGHT$(a$, LEN(a$) - 4)
-                ELSE
-                    a$ = RIGHT$(a$, LEN(a$) - 9)
-                END IF
-
-                a$ = LTRIM$(RTRIM$(a$))
-                x = INSTR(a$, "(")
-                IF x THEN
-                    n$ = RTRIM$(LEFT$(a$, x - 1))
-                ELSE
-                    n$ = a$
-                    cleanSubName n$
-                END IF
-
-                n2$ = n$
-                IF LEN(n2$) > 1 THEN
-                    DO UNTIL alphanumeric(ASC(RIGHT$(n2$, 1)))
-                        n2$ = LEFT$(n$, LEN(n2$) - 1) 'removes sigil, if any
-                    LOOP
-                END IF
-
-                'Populate SubFuncLIST()
-                TotalSF = TotalSF + 1
-                REDIM _PRESERVE SubFuncLIST(1 TO TotalSF) AS STRING
-                SubFuncLIST(TotalSF) = MKL$(y) + CHR$(sf) + n2$
-            END IF
-        NEXT
-
-        'identify if word or character at current cursor position is in the help system OR a sub/func
-        a2$ = UCASE$(getWordAtCursor$)
-
-        'check if cursor is on sub/func/label name
-        IF LEN(LTRIM$(RTRIM$(Selection$))) > 0 THEN
-            DO UNTIL alphanumeric(ASC(RIGHT$(Selection$, 1)))
-                Selection$ = LEFT$(Selection$, LEN(Selection$) - 1) 'removes sigil, if any
-                IF LEN(Selection$) = 0 THEN EXIT DO
-            LOOP
-            Selection$ = LTRIM$(RTRIM$(Selection$))
-        END IF
-
-        IF RIGHT$(a2$, 1) = "$" THEN a3$ = LEFT$(a2$, LEN(a2$) - 1) ELSE a3$ = a2$ 'creates a new version without $
-
-        IF LEN(a3$) > 0 OR LEN(Selection$) > 0 THEN
-
-            FOR CheckSF = 1 TO TotalSF
-                IF a3$ = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) OR UCASE$(Selection$) = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) THEN
-                    CurrSF$ = FindCurrentSF$(idecy)
-                    IF LEN(CurrSF$) = 0 THEN GOTO SkipCheckCurrSF
-
-                    DO UNTIL alphanumeric(ASC(RIGHT$(CurrSF$, 1)))
-                        CurrSF$ = LEFT$(CurrSF$, LEN(CurrSF$) - 1) 'removes sigil, if any
-                        IF LEN(CurrSF$) = 0 THEN EXIT DO
-                    LOOP
-                    CurrSF$ = UCASE$(CurrSF$)
-
-                    SkipCheckCurrSF:
-                    IF ASC(SubFuncLIST(CheckSF), 5) = 1 THEN
-                        CursorSF$ = "SUB "
-                    ELSE
-                        CursorSF$ = "FUNCTION "
-                    END IF
-                    CursorSF$ = CursorSF$ + MID$(SubFuncLIST(CheckSF), 6)
-
-                    IF UCASE$(CursorSF$) = CurrSF$ THEN
-                        EXIT FOR
-                    ELSE
-                        menu$(m, i) = "#Go To " + CursorSF$: i = i + 1
-                        menuDesc$(m, i - 1) = "Jumps to procedure definition"
-                        SubFuncLIST(1) = SubFuncLIST(CheckSF)
-                        EXIT FOR
-                    END IF
-                END IF
-            NEXT CheckSF
-
-            v = 0
-            CurrSF$ = FindCurrentSF$(idecy)
-            IF validname(a2$) THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
-            CheckThisLabel:
-            IF v THEN
-                LabelLineNumber = Labels(r).SourceLineNumber
-                ThisLabelScope$ = FindCurrentSF$(LabelLineNumber)
-                IF ThisLabelScope$ <> CurrSF$ AND v = 2 THEN
-                    v = HashFindCont(ignore, r)
-                    GOTO CheckThisLabel
-                END IF
-                IF LabelLineNumber > 0 AND LabelLineNumber <> idecy THEN
-                    menu$(m, i) = "Go To #Label " + RTRIM$(Labels(r).cn): i = i + 1
-                    menuDesc$(m, i - 1) = "Jumps to label"
-                    REDIM _PRESERVE SubFuncLIST(1 TO UBOUND(SubFuncLIST) + 1) AS STRING
-                    SubFuncLIST(UBOUND(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
-                END IF
-            END IF
-        END IF
-
-        IF LEN(a2$) > 0 THEN
-            'check if a2$ is in help links
-            lnks = 0
-            l2$ = findHelpTopic$(a2$, lnks, -1)
-
-            IF lnks THEN
-                IF LEN(l2$) > 15 THEN
-                    l2$ = LEFT$(l2$, 12) + STRING$(3, 250)
-                END IF
-                IF INSTR(l2$, "PARENTHESIS") = 0 THEN
-                    menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
-                    menuDesc$(m, i - 1) = "Opens help article on the selected term"
-                END IF
-            END IF
-        END IF
-
-        IF i > 1 THEN
-            menu$(m, i) = "-": i = i + 1
-        END IF
-
-        '--------- Check if _RGB mixer should be offered: -----------------------------------------
-        a$ = idegetline(idecy)
-        IF ideselect THEN
-            IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
-        END IF
-
-        Found_RGB = 0
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA(")
-        Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
-        IF Found_RGB THEN
-            menu$(m, i) = "#RGB Color Mixer...": i = i + 1
-            menuDesc$(m, i - 1) = "Allows mixing colors to edit/insert _RGB statements"
-            menu$(m, i) = "-": i = i + 1
-        END IF
-        NoRGBFound:
-        '--------- _RGB mixer check done.              --------------------------------------------
-
-        IF (ideselect <> 0) THEN
-            menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
-            menuDesc$(m, i - 1) = "Deletes selected text and copies it to clipboard"
-            menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-            menuDesc$(m, i - 1) = "Copies selected text to clipboard"
-        END IF
-
-        clip$ = _CLIPBOARD$ 'read clipboard
-        IF LEN(clip$) THEN
-            menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
-            menuDesc$(m, i - 1) = "Inserts clipboard contents at current location"
-        END IF
-
-        IF ideselect THEN
-            menu$(m, i) = "Cl#ear  Del": i = i + 1
-            menuDesc$(m, i - 1) = "Deletes selected text"
-        END IF
-        menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-        menuDesc$(m, i - 1) = "Selects all contents of current program"
+    IF IdeDebugMode = 2 THEN
+        menu$(m, i) = "#Continue  F5": i = i + 1
+        menuDesc$(m, i - 1) = "Runs until the end of the current procedure is reached"
+        menu$(m, i) = "Step O#ut  F6": i = i + 1
+        menuDesc$(m, i - 1) = "Runs until the end of the current procedure is reached"
+        menu$(m, i) = "Step #Over  F7": i = i + 1
+        menuDesc$(m, i - 1) = "Runs the next line of code without entering subs/functions"
+        menu$(m, i) = "Ste#p Into  F8": i = i + 1
+        menuDesc$(m, i - 1) = "Runs the next line of code and pauses execution"
         menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
-        menuDesc$(m, i - 1) = "Toggles comment (') on the current selection"
-        menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
-        menuDesc$(m, i - 1) = "Adds comment marker (') to the current selection"
-        menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
-        menuDesc$(m, i - 1) = "Removes comment marker (') from the current selection"
-        IF ideselect THEN
-            y1 = idecy
-            y2 = ideselecty1
-            IF y1 = y2 THEN 'single line selected
-                a$ = idegetline(idecy)
-                a2$ = ""
-                sx1 = ideselectx1: sx2 = idecx
-                IF sx2 < sx1 THEN SWAP sx1, sx2
-                FOR x = sx1 TO sx2 - 1
-                    IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
-                NEXT
-                IF a2$ <> "" THEN
+        menu$(m, i) = "Set #Next Line  Ctrl+G": i = i + 1
+        menuDesc$(m, i - 1) = "Jumps to the selected line before continuing execution"
+        menu$(m, i) = "#Run To This Line  Ctrl+Shift+G": i = i + 1
+        menuDesc$(m, i - 1) = "Runs until the selected line is reached"
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
+        menuDesc$(m, i - 1) = "Sets/clears breakpoint at cursor location"
+        menu$(m, i) = "Clear All Breakpoints  F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all breakpoints"
+        menu$(m, i) = "Toggle #Skip Line  Ctrl+P": i = i + 1
+        menuDesc$(m, i - 1) = "Sets/clears flag to skip line"
+        menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
+        menuDesc$(m, i - 1) = "Removes all line skip flags"
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "SUBs...  F2": i = i + 1
+        menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
+        menu$(m, i) = "Call Stack...  F4": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the call stack of the current program's execution"
+        menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "#Exit $DEBUG mode  ESC": i = i + 1
+        menuDesc$(m, i - 1) = "Disconnects from the running program and returns control to the IDE"
+    ELSE
+        IF IdeSystem = 1 OR IdeSystem = 2 THEN
+            'Figure out if the user wants to search for a selected term
+            Selection$ = getSelectedText$(0)
+            sela2$ = Selection$
+            IF LEN(Selection$) > 0 THEN
+                idecontextualSearch$ = Selection$
+                IF LEN(sela2$) > 22 THEN
+                    sela2$ = LEFT$(sela2$, 19) + STRING$(3, 250)
+                END IF
+                menu$(m, i) = "Find '" + sela2$ + "'": i = i + 1
+                menuDesc$(m, i - 1) = "Searches for the text currently selected"
+            END IF
+
+            'build SUB/FUNCTION list:
+            TotalSF = 0
+            FOR y = 1 TO iden
+                a$ = idegetline(y)
+                a$ = LTRIM$(RTRIM$(a$))
+                sf = 0
+                nca$ = UCASE$(a$)
+                IF LEFT$(nca$, 4) = "SUB " THEN sf = 1: sf$ = "SUB  "
+                IF LEFT$(nca$, 9) = "FUNCTION " THEN sf = 2: sf$ = "FUNC "
+                IF sf THEN
+                    IF RIGHT$(nca$, 7) = " STATIC" THEN
+                        a$ = RTRIM$(LEFT$(a$, LEN(a$) - 7))
+                    END IF
+
+                    IF sf = 1 THEN
+                        a$ = RIGHT$(a$, LEN(a$) - 4)
+                    ELSE
+                        a$ = RIGHT$(a$, LEN(a$) - 9)
+                    END IF
+
+                    a$ = LTRIM$(RTRIM$(a$))
+                    x = INSTR(a$, "(")
+                    IF x THEN
+                        n$ = RTRIM$(LEFT$(a$, x - 1))
+                    ELSE
+                        n$ = a$
+                        cleanSubName n$
+                    END IF
+
+                    n2$ = n$
+                    IF LEN(n2$) > 1 THEN
+                        DO UNTIL alphanumeric(ASC(RIGHT$(n2$, 1)))
+                            n2$ = LEFT$(n$, LEN(n2$) - 1) 'removes sigil, if any
+                        LOOP
+                    END IF
+
+                    'Populate SubFuncLIST()
+                    TotalSF = TotalSF + 1
+                    REDIM _PRESERVE SubFuncLIST(1 TO TotalSF) AS STRING
+                    SubFuncLIST(TotalSF) = MKL$(y) + CHR$(sf) + n2$
+                END IF
+            NEXT
+
+            'identify if word or character at current cursor position is in the help system OR a sub/func
+            a2$ = UCASE$(getWordAtCursor$)
+
+            'check if cursor is on sub/func/label name
+            IF LEN(LTRIM$(RTRIM$(Selection$))) > 0 THEN
+                DO UNTIL alphanumeric(ASC(RIGHT$(Selection$, 1)))
+                    Selection$ = LEFT$(Selection$, LEN(Selection$) - 1) 'removes sigil, if any
+                    IF LEN(Selection$) = 0 THEN EXIT DO
+                LOOP
+                Selection$ = LTRIM$(RTRIM$(Selection$))
+            END IF
+
+            IF RIGHT$(a2$, 1) = "$" THEN a3$ = LEFT$(a2$, LEN(a2$) - 1) ELSE a3$ = a2$ 'creates a new version without $
+
+            IF LEN(a3$) > 0 OR LEN(Selection$) > 0 THEN
+
+                FOR CheckSF = 1 TO TotalSF
+                    IF a3$ = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) OR UCASE$(Selection$) = UCASE$(MID$(SubFuncLIST(CheckSF), 6)) THEN
+                        CurrSF$ = FindCurrentSF$(idecy)
+                        IF LEN(CurrSF$) = 0 THEN GOTO SkipCheckCurrSF
+
+                        DO UNTIL alphanumeric(ASC(RIGHT$(CurrSF$, 1)))
+                            CurrSF$ = LEFT$(CurrSF$, LEN(CurrSF$) - 1) 'removes sigil, if any
+                            IF LEN(CurrSF$) = 0 THEN EXIT DO
+                        LOOP
+                        CurrSF$ = UCASE$(CurrSF$)
+
+                        SkipCheckCurrSF:
+                        IF ASC(SubFuncLIST(CheckSF), 5) = 1 THEN
+                            CursorSF$ = "SUB "
+                        ELSE
+                            CursorSF$ = "FUNCTION "
+                        END IF
+                        CursorSF$ = CursorSF$ + MID$(SubFuncLIST(CheckSF), 6)
+
+                        IF UCASE$(CursorSF$) = CurrSF$ THEN
+                            EXIT FOR
+                        ELSE
+                            menu$(m, i) = "#Go To " + CursorSF$: i = i + 1
+                            menuDesc$(m, i - 1) = "Jumps to procedure definition"
+                            SubFuncLIST(1) = SubFuncLIST(CheckSF)
+                            EXIT FOR
+                        END IF
+                    END IF
+                NEXT CheckSF
+
+                v = 0
+                CurrSF$ = FindCurrentSF$(idecy)
+                IF validname(a2$) THEN v = HashFind(a2$, HASHFLAG_LABEL, ignore, r)
+                CheckThisLabel:
+                IF v THEN
+                    LabelLineNumber = Labels(r).SourceLineNumber
+                    ThisLabelScope$ = FindCurrentSF$(LabelLineNumber)
+                    IF ThisLabelScope$ <> CurrSF$ AND v = 2 THEN
+                        v = HashFindCont(ignore, r)
+                        GOTO CheckThisLabel
+                    END IF
+                    IF LabelLineNumber > 0 AND LabelLineNumber <> idecy THEN
+                        menu$(m, i) = "Go To #Label " + RTRIM$(Labels(r).cn): i = i + 1
+                        menuDesc$(m, i - 1) = "Jumps to label"
+                        REDIM _PRESERVE SubFuncLIST(1 TO UBOUND(SubFuncLIST) + 1) AS STRING
+                        SubFuncLIST(UBOUND(SubFuncLIST)) = MKL$(Labels(r).SourceLineNumber)
+                    END IF
+                END IF
+            END IF
+
+            IF LEN(a2$) > 0 THEN
+                'check if a2$ is in help links
+                lnks = 0
+                l2$ = findHelpTopic$(a2$, lnks, -1)
+
+                IF lnks THEN
+                    IF LEN(l2$) > 15 THEN
+                        l2$ = LEFT$(l2$, 12) + STRING$(3, 250)
+                    END IF
+                    IF INSTR(l2$, "PARENTHESIS") = 0 THEN
+                        menu$(m, i) = "#Help On '" + l2$ + "'": i = i + 1
+                        menuDesc$(m, i - 1) = "Opens help article on the selected term"
+                    END IF
+                END IF
+            END IF
+
+            IF i > 1 THEN
+                menu$(m, i) = "-": i = i + 1
+            END IF
+
+            '--------- Check if _RGB mixer should be offered: -----------------------------------------
+            a$ = idegetline(idecy)
+            IF ideselect THEN
+                IF ideselecty1 <> idecy THEN GOTO NoRGBFound 'multi line selected
+            END IF
+
+            Found_RGB = 0
+            Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB(")
+            Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGB32(")
+            Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA(")
+            Found_RGB = Found_RGB + INSTR(UCASE$(a$), "RGBA32(")
+            IF Found_RGB THEN
+                menu$(m, i) = "#RGB Color Mixer...": i = i + 1
+                menuDesc$(m, i - 1) = "Allows mixing colors to edit/insert _RGB statements"
+                menu$(m, i) = "-": i = i + 1
+            END IF
+            NoRGBFound:
+            '--------- _RGB mixer check done.              --------------------------------------------
+
+            IF (ideselect <> 0) THEN
+                menu$(m, i) = "Cu#t  Shift+Del or Ctrl+X": i = i + 1
+                menuDesc$(m, i - 1) = "Deletes selected text and copies it to clipboard"
+                menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+                menuDesc$(m, i - 1) = "Copies selected text to clipboard"
+            END IF
+
+            clip$ = _CLIPBOARD$ 'read clipboard
+            IF LEN(clip$) THEN
+                menu$(m, i) = "#Paste  Shift+Ins or Ctrl+V": i = i + 1
+                menuDesc$(m, i - 1) = "Inserts clipboard contents at current location"
+            END IF
+
+            IF ideselect THEN
+                menu$(m, i) = "Cl#ear  Del": i = i + 1
+                menuDesc$(m, i - 1) = "Deletes selected text"
+            END IF
+            menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+            menuDesc$(m, i - 1) = "Selects all contents of current program"
+            menu$(m, i) = "-": i = i + 1
+            menu$(m, i) = "To#ggle Comment  Ctrl+T": i = i + 1
+            menuDesc$(m, i - 1) = "Toggles comment (') on the current selection"
+            menu$(m, i) = "Add Co#mment (')  Ctrl+R": i = i + 1
+            menuDesc$(m, i - 1) = "Adds comment marker (') to the current selection"
+            menu$(m, i) = "Remove Comme#nt (')  Ctrl+Shift+R": i = i + 1
+            menuDesc$(m, i - 1) = "Removes comment marker (') from the current selection"
+            IF ideselect THEN
+                y1 = idecy
+                y2 = ideselecty1
+                IF y1 = y2 THEN 'single line selected
+                    a$ = idegetline(idecy)
+                    a2$ = ""
+                    sx1 = ideselectx1: sx2 = idecx
+                    IF sx2 < sx1 THEN SWAP sx1, sx2
+                    FOR x = sx1 TO sx2 - 1
+                        IF x <= LEN(a$) THEN a2$ = a2$ + MID$(a$, x, 1) ELSE a2$ = a2$ + " "
+                    NEXT
+                    IF a2$ <> "" THEN
+                        menu$(m, i) = "#Increase Indent  TAB": i = i + 1
+                        menuDesc$(m, i - 1) = "Increases indentation of the current selection"
+                        menu$(m, i) = "#Decrease Indent"
+                        menuDesc$(m, i) = "Decreases indentation of the current selection"
+                        IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
+                        i = i + 1
+                        menu$(m, i) = "-": i = i + 1
+                    END IF
+                ELSE
                     menu$(m, i) = "#Increase Indent  TAB": i = i + 1
                     menuDesc$(m, i - 1) = "Increases indentation of the current selection"
                     menu$(m, i) = "#Decrease Indent"
@@ -14287,43 +14779,35 @@ SUB IdeMakeContextualMenu
                     menu$(m, i) = "-": i = i + 1
                 END IF
             ELSE
-                menu$(m, i) = "#Increase Indent  TAB": i = i + 1
-                menuDesc$(m, i - 1) = "Increases indentation of the current selection"
-                menu$(m, i) = "#Decrease Indent"
-                menuDesc$(m, i) = "Decreases indentation of the current selection"
-                IF INSTR(_OS$, "WIN") OR INSTR(_OS$, "MAC") THEN menu$(m, i) = menu$(m, i) + "  Shift+TAB"
-                i = i + 1
                 menu$(m, i) = "-": i = i + 1
             END IF
-        ELSE
+            menu$(m, i) = "New #SUB...": i = i + 1
+            menuDesc$(m, i - 1) = "Creates a new subprocedure at the end of the current program"
+            menu$(m, i) = "New #FUNCTION...": i = i + 1
+            menuDesc$(m, i - 1) = "Creates a new function at the end of the current program"
+        ELSEIF IdeSystem = 3 THEN
+            IF (Help_Select = 2) THEN
+                menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
+                menuDesc$(m, i - 1) = "Copies selected text to clipboard"
+            END IF
+            menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
+            menuDesc$(m, i - 1) = "Selects all contents of current article"
             menu$(m, i) = "-": i = i + 1
+            menu$(m, i) = "#Contents Page": i = i + 1
+            menuDesc$(m, i - 1) = "Displays help contents page"
+            menu$(m, i) = "Keyword #Index": i = i + 1
+            menuDesc$(m, i - 1) = "Displays keyword index page"
+            menu$(m, i) = "#Keywords by Usage": i = i + 1
+            menuDesc$(m, i - 1) = "Displays keywords index by usage"
+            menu$(m, i) = "-": i = i + 1
+            menu$(m, i) = "#Update Current Page": i = i + 1
+            menuDesc$(m, i - 1) = "Downloads the latest version of this article from the wiki"
+            menu$(m, i) = "Update All #Pages...": i = i + 1
+            menuDesc$(m, i - 1) = "Downloads the latest version of all articles from the wiki"
+            menu$(m, i) = "-": i = i + 1
+            menu$(m, i) = "Clo#se Help  ESC": i = i + 1
+            menuDesc$(m, i - 1) = "Closes help window"
         END IF
-        menu$(m, i) = "New #SUB...": i = i + 1
-        menuDesc$(m, i - 1) = "Creates a new subprocedure at the end of the current program"
-        menu$(m, i) = "New #FUNCTION...": i = i + 1
-        menuDesc$(m, i - 1) = "Creates a new function at the end of the current program"
-    ELSEIF IdeSystem = 3 THEN
-        IF (Help_Select = 2) THEN
-            menu$(m, i) = "#Copy  Ctrl+Ins or Ctrl+C": i = i + 1
-            menuDesc$(m, i - 1) = "Copies selected text to clipboard"
-        END IF
-        menu$(m, i) = "Select #All  Ctrl+A": i = i + 1
-        menuDesc$(m, i - 1) = "Selects all contents of current article"
-        menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "#Contents Page": i = i + 1
-        menuDesc$(m, i - 1) = "Displays help contents page"
-        menu$(m, i) = "Keyword #Index": i = i + 1
-        menuDesc$(m, i - 1) = "Displays keyword index page"
-        menu$(m, i) = "#Keywords by Usage": i = i + 1
-        menuDesc$(m, i - 1) = "Displays keywords index by usage"
-        menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "#Update Current Page": i = i + 1
-        menuDesc$(m, i - 1) = "Downloads the latest version of this article from the wiki"
-        menu$(m, i) = "Update All #Pages...": i = i + 1
-        menuDesc$(m, i - 1) = "Downloads the latest version of all articles from the wiki"
-        menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "Clo#se Help  ESC": i = i + 1
-        menuDesc$(m, i - 1) = "Closes help window"
     END IF
     menusize(m) = i - 1
 END SUB
@@ -14529,7 +15013,6 @@ SUB ideupdatehelpbox
     i = 0
     w2 = LEN(titlestr$) + 4
     IF w < w2 THEN w = w2
-    IF w < buttonsLen THEN w = buttonsLen
     IF w > idewx - 4 THEN w = idewx - 4
     idepar p, 60, 6, "Update Help"
 
@@ -15507,7 +15990,7 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     BinaryFormatCheck% = 1
                 END IF
             ELSE
-                IF _FILEEXISTS("source/utilities/QB45BIN.bas") = 0 THEN
+                IF _FILEEXISTS("internal/support/converter/QB45BIN.bas") = 0 THEN
                     result = idemessagebox("Binary format", "Conversion utility not found. Cannot open QuickBASIC 4.5 binary format.", "")
                     BinaryFormatCheck% = 1
                     EXIT FUNCTION
@@ -15524,9 +16007,9 @@ FUNCTION BinaryFormatCheck% (pathToCheck$, pathSepToCheck$, fileToCheck$)
                     _PRINTSTRING (2, idewy - 3), "Preparing to convert..."
                     PCOPY 3, 0
                     IF INSTR(_OS$, "WIN") THEN
-                        SHELL _HIDE "qb64 -x source/utilities/QB45BIN.bas -o internal/utilities/QB45BIN"
+                        SHELL _HIDE "qb64 -x internal/support/converter/QB45BIN.bas -o internal/utilities/QB45BIN"
                     ELSE
-                        SHELL _HIDE "./qb64 -x ./source/utilities/QB45BIN.bas -o ./internal/utilities/QB45BIN"
+                        SHELL _HIDE "./qb64 -x ./internal/support/converter/QB45BIN.bas -o ./internal/utilities/QB45BIN"
                     END IF
                     IF _FILEEXISTS(convertUtility$) THEN GOTO ConvertIt
                     clearStatusWindow 0

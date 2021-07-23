@@ -1,2 +1,10 @@
-qbs_free(_FUNC_EVALUATENUMBERS_STRING_C);
-qbs_free(_FUNC_EVALUATENUMBERS_STRING_N);
+if(oldstr3542){
+if(oldstr3542->fixed)qbs_set(oldstr3542,_SUB_PARSEEXPRESSION_STRING_EXP);
+qbs_free(_SUB_PARSEEXPRESSION_STRING_EXP);
+}
+if (_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[2]&1){
+tmp_long=_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[0]))[tmp_long]);
+free((void*)(_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM)[8] );

@@ -1,36 +1,36 @@
-qbs*oldstr2813=NULL;
-if(_SUB_INSERTELEMENTS_STRING_A->tmp||_SUB_INSERTELEMENTS_STRING_A->fixed||_SUB_INSERTELEMENTS_STRING_A->readonly){
-oldstr2813=_SUB_INSERTELEMENTS_STRING_A;
-if (oldstr2813->cmem_descriptor){
-_SUB_INSERTELEMENTS_STRING_A=qbs_new_cmem(oldstr2813->len,0);
+qbs *_FUNC_GETELEMENTS_STRING_GETELEMENTS=NULL;
+if (!_FUNC_GETELEMENTS_STRING_GETELEMENTS)_FUNC_GETELEMENTS_STRING_GETELEMENTS=qbs_new(0,0);
+qbs*oldstr2894=NULL;
+if(_FUNC_GETELEMENTS_STRING_A->tmp||_FUNC_GETELEMENTS_STRING_A->fixed||_FUNC_GETELEMENTS_STRING_A->readonly){
+oldstr2894=_FUNC_GETELEMENTS_STRING_A;
+if (oldstr2894->cmem_descriptor){
+_FUNC_GETELEMENTS_STRING_A=qbs_new_cmem(oldstr2894->len,0);
 }else{
-_SUB_INSERTELEMENTS_STRING_A=qbs_new(oldstr2813->len,0);
+_FUNC_GETELEMENTS_STRING_A=qbs_new(oldstr2894->len,0);
 }
-memcpy(_SUB_INSERTELEMENTS_STRING_A->chr,oldstr2813->chr,oldstr2813->len);
+memcpy(_FUNC_GETELEMENTS_STRING_A->chr,oldstr2894->chr,oldstr2894->len);
 }
-qbs*oldstr2814=NULL;
-if(_SUB_INSERTELEMENTS_STRING_ELEMENTS->tmp||_SUB_INSERTELEMENTS_STRING_ELEMENTS->fixed||_SUB_INSERTELEMENTS_STRING_ELEMENTS->readonly){
-oldstr2814=_SUB_INSERTELEMENTS_STRING_ELEMENTS;
-if (oldstr2814->cmem_descriptor){
-_SUB_INSERTELEMENTS_STRING_ELEMENTS=qbs_new_cmem(oldstr2814->len,0);
-}else{
-_SUB_INSERTELEMENTS_STRING_ELEMENTS=qbs_new(oldstr2814->len,0);
+int32 *_FUNC_GETELEMENTS_LONG_N=NULL;
+if(_FUNC_GETELEMENTS_LONG_N==NULL){
+_FUNC_GETELEMENTS_LONG_N=(int32*)mem_static_malloc(4);
+*_FUNC_GETELEMENTS_LONG_N=0;
 }
-memcpy(_SUB_INSERTELEMENTS_STRING_ELEMENTS->chr,oldstr2814->chr,oldstr2814->len);
+int32 *_FUNC_GETELEMENTS_LONG_P=NULL;
+if(_FUNC_GETELEMENTS_LONG_P==NULL){
+_FUNC_GETELEMENTS_LONG_P=(int32*)mem_static_malloc(4);
+*_FUNC_GETELEMENTS_LONG_P=0;
 }
-qbs *_SUB_INSERTELEMENTS_STRING_A2=NULL;
-if (!_SUB_INSERTELEMENTS_STRING_A2)_SUB_INSERTELEMENTS_STRING_A2=qbs_new(0,0);
-int32 *_SUB_INSERTELEMENTS_LONG_N=NULL;
-if(_SUB_INSERTELEMENTS_LONG_N==NULL){
-_SUB_INSERTELEMENTS_LONG_N=(int32*)mem_static_malloc(4);
-*_SUB_INSERTELEMENTS_LONG_N=0;
+int32 *_FUNC_GETELEMENTS_LONG_I=NULL;
+if(_FUNC_GETELEMENTS_LONG_I==NULL){
+_FUNC_GETELEMENTS_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_GETELEMENTS_LONG_I=0;
 }
-int32 *_SUB_INSERTELEMENTS_LONG_I2=NULL;
-if(_SUB_INSERTELEMENTS_LONG_I2==NULL){
-_SUB_INSERTELEMENTS_LONG_I2=(int32*)mem_static_malloc(4);
-*_SUB_INSERTELEMENTS_LONG_I2=0;
+int32 *_FUNC_GETELEMENTS_LONG_I1POS=NULL;
+if(_FUNC_GETELEMENTS_LONG_I1POS==NULL){
+_FUNC_GETELEMENTS_LONG_I1POS=(int32*)mem_static_malloc(4);
+*_FUNC_GETELEMENTS_LONG_I1POS=0;
 }
-int64 fornext_value2816;
-int64 fornext_finalvalue2816;
-int64 fornext_step2816;
-uint8 fornext_step_negative2816;
+byte_element_struct *byte_element_2895=NULL;
+if (!byte_element_2895){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2895=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2895=(byte_element_struct*)mem_static_malloc(12);
+}
