@@ -1227,6 +1227,7 @@ opexarray_recompileAttempts = 0
 
 recompile:
 vWatchOn = vWatchDesiredState
+vWatchVariable "", -1 'reset internal variables list
 
 qb64prefix_set = qb64prefix_set_desiredState
 qb64prefix$ = "_"
@@ -14219,6 +14220,11 @@ SUB vWatchVariable (this$, action AS _BYTE)
     STATIC totalMainModuleVariables AS LONG, mainModuleVariablesList$
 
     SELECT CASE action
+        CASE -1 'reset
+            totalLocalVariables = 0
+            localVariablesList$ = ""
+            totalMainModuleVariables = 0
+            mainModuleVariablesList$ = ""
         CASE 0 'add
             IF INSTR(vWatchVariableExclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
                 EXIT SUB
