@@ -137,7 +137,6 @@ FUNCTION ide2 (ignore)
 
     ignore = ignore 'just to clear warnings of unused variables
 
-    CONST idesystem2.w = 20 '"Find" field width (Status bar)
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
 
     c$ = idecommand$
@@ -6460,7 +6459,7 @@ SUB DebugMode
 
         IF idecy < 1 THEN idecy = 1
         IF idecy > iden THEN idecy = iden
-        IF idecy <> bkpidecy THEN GOSUB UpdateDisplay
+        IF idecy <> bkpidecy THEN ideselect = 0: GOSUB UpdateDisplay
 
         mB = _MOUSEBUTTON(1)
         mB2 = _MOUSEBUTTON(2)
@@ -6483,7 +6482,7 @@ SUB DebugMode
                         bkpidecy = idecy
                         idecy = mY - 2 + idesy - 1
                         IF idecy > iden THEN idecy = iden
-                        IF bkpidecy <> idecy THEN GOSUB UpdateDisplay
+                        IF bkpidecy <> idecy THEN ideselect = 0: GOSUB UpdateDisplay
                         IdeDebugMode = 2
                         IF PauseMode = 0 THEN GOSUB requestPause: dummy = DarkenFGBG(0)
                         EXIT SUB
@@ -6534,7 +6533,7 @@ SUB DebugMode
                                 idecy = i
                             END IF
                         END IF
-                        GOSUB UpdateDisplay
+                        ideselect = 0: GOSUB UpdateDisplay
                     END IF
                 END IF
 
@@ -6562,6 +6561,7 @@ SUB DebugMode
                 draggingHThumb = 0
                 IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
                    (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
+                    'Inside the editor/line numbers
                     IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
                         ideselect = 0
                         idecytemp = mY - 2 + idesy - 1
@@ -6590,12 +6590,14 @@ SUB DebugMode
                             GOSUB UpdateDisplay
                         END IF
                     END IF
-                ELSEIF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN 'inside text box
+                ELSEIF mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5) THEN
+                    'inside text box
                     bkpidecy = idecy
                     idecy = mY - 2 + idesy - 1
                     IF idecy > iden THEN idecy = iden
-                    IF bkpidecy <> idecy THEN GOSUB UpdateDisplay
-                ELSEIF mX = idewx AND mY > 2 AND mY < idewy - 5 THEN 'inside vbar
+                    IF bkpidecy <> idecy THEN ideselect = 0: GOSUB UpdateDisplay
+                ELSEIF mX = idewx AND mY > 2 AND mY < idewy - 5 THEN
+                    'inside vbar
                     IF mouseDownOnX = mX AND mouseDownOnY = mY THEN
                         IF mY = 3 THEN GOTO keyUp
                         IF mY = idewy - 6 THEN GOTO keyDown
@@ -6613,6 +6615,9 @@ SUB DebugMode
                             END IF
                         END IF
                     END IF
+                ELSEIF mY = idewy - 4 AND mX > idewx - (idesystem2.w + 10) AND mX < idewx - 1 THEN
+                    'inside "Find" box
+                    GOTO findjmp
                 END IF
             ELSE
                 mouseDown = 0
@@ -6655,7 +6660,7 @@ SUB DebugMode
                     idecy = idecy - 1
                     IF idecy < 1 THEN idecy = 1
                 END IF
-                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
             CASE 20480 'Down arrow
                 keyDown:
                 bkpidecy = idecy: bkpidesy = idesy
@@ -6667,27 +6672,27 @@ SUB DebugMode
                     idecy = idecy + 1
                     IF idecy > iden THEN idecy = iden
                 END IF
-                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
             CASE 18688 'Page up
                 pageUp:
                 bkpidecy = idecy: bkpidesy = idesy
                 idecy = idecy - (idewy - 9)
                 IF idecy < 1 THEN idecy = 1
-                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
             CASE 20736 'Page down
                 pageDown:
                 bkpidecy = idecy: bkpidesy = idesy
                 idecy = idecy + (idewy - 9)
                 IF idecy > iden THEN idecy = iden
-                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
             CASE 18176 'Home
                 bkpidecy = idecy: bkpidesy = idesy
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN idecy = 1
-                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
             CASE 20224 'End
                 bkpidecy = idecy: bkpidesy = idesy
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN idecy = iden
-                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN GOSUB UpdateDisplay
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
             CASE 27
                 requestQuit:
                 cmd$ = "free"
@@ -6701,10 +6706,36 @@ SUB DebugMode
                 EXIT SUB
             CASE 15360 'F2
                 requestSubsDialog:
+                bkpidecy = idecy: bkpidesy = idesy
                 r$ = idesubs
+                IF bkpidecy <> idecy OR bkpidesy <> idesy THEN ideselect = 0: GOSUB UpdateDisplay
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB UpdateDisplay
                 WHILE _MOUSEINPUT: WEND
+            CASE 102, 70 'f, F
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN GOTO findjmp
+            CASE 15616 'F3
+                IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN GOTO findjmp
+                IF idefindtext <> "" THEN
+
+                    'UpdateSearchBar:
+                    COLOR 7, 1: _PRINTSTRING (idewx - (idesystem2.w + 10), idewy - 4), CHR$(180)
+                    COLOR 3, 1
+                    _PRINTSTRING (1 + idewx - (idesystem2.w + 10), idewy - 4), "Find[" + SPACE$(idesystem2.w + 1) + CHR$(18) + "]"
+                    a$ = LEFT$(idefindtext, idesystem2.w)
+                    _PRINTSTRING (idewx - (idesystem2.w + 8) + 4, idewy - 4), a$
+                    COLOR 7, 1: _PRINTSTRING (idewx - 2, idewy - 4), CHR$(195)
+
+                    IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN idefindinvert = 1
+                    IdeAddSearched idefindtext
+                    idefindagain -1
+                ELSE
+                    findjmp:
+                    r$ = idefind
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    WHILE _MOUSEINPUT: WEND
+                END IF
+                GOSUB UpdateDisplay
             CASE 15872 'F4
                 IF PauseMode THEN
                     requestCallStack:
@@ -6871,6 +6902,7 @@ SUB DebugMode
                 BypassRequestCallStack = 0
                 l = CVL(value$)
                 idecy = l
+                ideselect = 0
                 debugnextline = l
                 idefocusline = 0
                 idecentercurrentline
@@ -6896,6 +6928,7 @@ SUB DebugMode
             CASE "error"
                 l = CVL(value$)
                 idecy = l
+                ideselect = 0
                 idefocusline = l
                 ideshowtext
                 clearStatusWindow 1
@@ -6957,8 +6990,8 @@ SUB DebugMode
     RETURN
 
     UpdateDisplay:
+    IF PauseMode = 0 THEN ideshowtextBypassColorRestore = -1
     ideshowtext
-    IF PauseMode = 0 THEN dummy = DarkenFGBG(1)
     PCOPY 3, 0
     RETURN
 
@@ -9181,16 +9214,19 @@ END FUNCTION
 
 SUB ideshowtext
 
-    _PALETTECOLOR 1, IDEBackgroundColor, 0
-    _PALETTECOLOR 2, _RGB32(84, 84, 84), 0 'dark gray - help system and interface details
-    _PALETTECOLOR 5, IDEBracketHighlightColor, 0
-    _PALETTECOLOR 6, IDEBackgroundColor2, 0
-    _PALETTECOLOR 8, IDENumbersColor, 0
-    _PALETTECOLOR 10, IDEMetaCommandColor, 0
-    _PALETTECOLOR 11, IDECommentColor, 0
-    _PALETTECOLOR 12, IDEKeywordColor, 0
-    _PALETTECOLOR 13, IDETextColor, 0
-    _PALETTECOLOR 14, IDEQuoteColor, 0
+    IF ideshowtextBypassColorRestore = 0 THEN
+        _PALETTECOLOR 1, IDEBackgroundColor, 0
+        _PALETTECOLOR 2, _RGB32(84, 84, 84), 0 'dark gray - help system and interface details
+        _PALETTECOLOR 5, IDEBracketHighlightColor, 0
+        _PALETTECOLOR 6, IDEBackgroundColor2, 0
+        _PALETTECOLOR 8, IDENumbersColor, 0
+        _PALETTECOLOR 10, IDEMetaCommandColor, 0
+        _PALETTECOLOR 11, IDECommentColor, 0
+        _PALETTECOLOR 12, IDEKeywordColor, 0
+        _PALETTECOLOR 13, IDETextColor, 0
+        _PALETTECOLOR 14, IDEQuoteColor, 0
+    END IF
+    ideshowtextBypassColorRestore = 0
 
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()'"
     initialNum.char$ = "0123456789-.&"

@@ -134,6 +134,8 @@ DIM SHARED idelayoutallow AS LONG
 
 'IDE MODULE: shared data & definitions
 '---------------------------------------------------
+CONST idesystem2.w = 20 '"Find" field width (Status bar)
+
 DIM SHARED idesubwindow, idehelp, statusarealink AS INTEGER
 DIM SHARED ideexit
 DIM SHARED idet AS STRING, idel, ideli, iden
@@ -170,7 +172,7 @@ DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
 DIM SHARED SearchMenuEnableQuickNav AS INTEGER, searchStringFoundOn AS LONG
 DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
-DIM SHARED versionStringStatus$, lineNumberStatus$
+DIM SHARED versionStringStatus$, lineNumberStatus$, ideshowtextBypassColorRestore AS _BYTE
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype
