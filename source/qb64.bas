@@ -1065,40 +1065,39 @@ IF C = 9 THEN 'run
 
     'execute program
 
+    IF iderunmode = 1 THEN
+        SELECT CASE os$
+            CASE "WIN": SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
 
-    SELECT CASE os$
-        CASE "WIN": SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
+            CASE "LNX"
 
-        CASE "LNX"
+                IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths
 
-            IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths
-
-            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
-                shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
-            ELSE
-                shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
-            END IF
-
-            IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
-
-
-            IF Console THEN
-                'launch terminal with program when using $CONSOLE
-                IF ReadConfigSetting(generalSettingsSection$, "DefaultTerminal", term$) = 0 THEN 'if DefaultTerminal is not in config.ini, then add it
-                    WriteConfigSetting generalSettingsSection$, "DefaultTerminal", "Auto"
-                    term$ = "auto"
+                IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
+                    shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+                ELSE
+                    shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
                 END IF
 
-                IF LCASE$(term$) = "auto" THEN term$ = "$(./internal/support/auto-term.sh)"
+                IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
 
-                shellcmdline$ = term$ + " -e " + shellcmdline$
-                PRINT shellcmdline$
-                SHELL _DONTWAIT shellcmdline$ 'bring up a terminal when using $Console
 
-                'not using $CONSOLE
-            ELSE SHELL _DONTWAIT shellcmdline$
-            END IF
-    END SELECT
+                IF Console THEN
+                    'launch terminal with program when using $CONSOLE
+                    IF ReadConfigSetting(generalSettingsSection$, "DefaultTerminal", term$) = 0 THEN 'if DefaultTerminal is not in config.ini, then add it
+                        WriteConfigSetting generalSettingsSection$, "DefaultTerminal", "Auto"
+                        term$ = "auto"
+                    END IF
+
+                    IF LCASE$(term$) = "auto" THEN term$ = "$(./internal/support/auto-term.sh)"
+
+                    SHELL _DONTWAIT term$ + " -e " + shellcmdline$ 'bring up a terminal when using $Console
+
+                    'not using $CONSOLE
+                ELSE SHELL _DONTWAIT shellcmdline$
+                END IF
+        END SELECT
+    END IF
 
 
     IF idemode THEN
@@ -24981,8 +24980,8 @@ FUNCTION QuotedFilename$ (f$)
         CASE "LNX"
             i~% = INSTR(f$, "'") 'do escapes to be safe
             WHILE i~%
-                f$ = LEFT$(f$, i~%) + "\" + MID$(f$, i~%) 'escape "'" (' -> \')
-                i~% = INSTR(i~% + 2, f$, "'")
+                f$ = LEFT$(f$, i~%) + "\'" + MID$(f$, i~%) 'escape "'" (' -> '\'')
+                i~% = INSTR(i~% + 5, f$, "'")
             WEND
 
             QuotedFilename$ = "'" + f$ + "'"
