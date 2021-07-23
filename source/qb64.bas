@@ -5293,15 +5293,15 @@ DO
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
-                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    IF NoChecks = 0 THEN
+                IF vWatchOn = 1 THEN
+                    IF NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN
                         vWatchAddLabel linenumber, 0
                         PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                         vWatchAddLabel 0, -1
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
 
-                    IF subfunc <> "SUB_VWATCH" AND firstLineNumberLabelvWatch > 0 THEN
+                    IF inclinenumber(inclevel) = 0 AND firstLineNumberLabelvWatch > 0 THEN
                         PRINT #12, "goto VWATCH_SKIPSETNEXTLINE;"
                         PRINT #12, "VWATCH_SETNEXTLINE:;"
                         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
