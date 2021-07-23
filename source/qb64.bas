@@ -1070,16 +1070,32 @@ IF C = 9 THEN 'run
         CASE "WIN": SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
 
         CASE "LNX"
-            IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths (why?)
+
+            IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths
+
             IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
                 shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
             ELSE
                 shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
             END IF
+
             IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
 
-            IF Console AND (MacOSX = 0) THEN
-                SHELL _DONTWAIT "x-terminal-emulator -e " + QuotedFilename$(shellcmdline$) 'bring up a terminal when using $Console
+
+            IF Console THEN
+                'launch terminal with program when using $CONSOLE
+                IF ReadConfigSetting(generalSettingsSection$, "DefaultTerminal", term$) = 0 THEN 'if DefaultTerminal is not in config.ini, then add it
+                    WriteConfigSetting generalSettingsSection$, "DefaultTerminal", "Auto"
+                    term$ = "auto"
+                END IF
+
+                IF LCASE$(term$) = "auto" THEN term$ = "$(./internal/support/auto-term.sh)"
+
+                shellcmdline$ = term$ + " -e " + shellcmdline$
+                PRINT shellcmdline$
+                SHELL _DONTWAIT shellcmdline$ 'bring up a terminal when using $Console
+
+                'not using $CONSOLE
             ELSE SHELL _DONTWAIT shellcmdline$
             END IF
     END SELECT
