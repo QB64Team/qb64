@@ -1,2 +1,8 @@
-qbs_free(_SUB_REGID_STRING_N);
-qbs_free(_SUB_REGID_STRING_MUSTHAVE);
+if(oldstr3014){
+if(oldstr3014->fixed)qbs_set(oldstr3014,_FUNC_OPERATORUSAGE_STRING_OPERATOR);
+qbs_free(_FUNC_OPERATORUSAGE_STRING_OPERATOR);
+}
+if(oldstr3015){
+if(oldstr3015->fixed)qbs_set(oldstr3015,_FUNC_OPERATORUSAGE_STRING_INFO);
+qbs_free(_FUNC_OPERATORUSAGE_STRING_INFO);
+}

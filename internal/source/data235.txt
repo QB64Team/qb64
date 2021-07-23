@@ -1,0 +1,35 @@
+qbs *_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL=NULL;
+if (!_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL)_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL=qbs_new(0,0);
+qbs*oldstr5966=NULL;
+if(_FUNC_WIKIGETUNTIL_STRING_A->tmp||_FUNC_WIKIGETUNTIL_STRING_A->fixed||_FUNC_WIKIGETUNTIL_STRING_A->readonly){
+oldstr5966=_FUNC_WIKIGETUNTIL_STRING_A;
+if (oldstr5966->cmem_descriptor){
+_FUNC_WIKIGETUNTIL_STRING_A=qbs_new_cmem(oldstr5966->len,0);
+}else{
+_FUNC_WIKIGETUNTIL_STRING_A=qbs_new(oldstr5966->len,0);
+}
+memcpy(_FUNC_WIKIGETUNTIL_STRING_A->chr,oldstr5966->chr,oldstr5966->len);
+}
+qbs*oldstr5967=NULL;
+if(_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->tmp||_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->fixed||_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->readonly){
+oldstr5967=_FUNC_WIKIGETUNTIL_STRING_SEPARATOR;
+if (oldstr5967->cmem_descriptor){
+_FUNC_WIKIGETUNTIL_STRING_SEPARATOR=qbs_new_cmem(oldstr5967->len,0);
+}else{
+_FUNC_WIKIGETUNTIL_STRING_SEPARATOR=qbs_new(oldstr5967->len,0);
+}
+memcpy(_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->chr,oldstr5967->chr,oldstr5967->len);
+}
+byte_element_struct *byte_element_5968=NULL;
+if (!byte_element_5968){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5968=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5968=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_WIKIGETUNTIL_LONG_J=NULL;
+if(_FUNC_WIKIGETUNTIL_LONG_J==NULL){
+_FUNC_WIKIGETUNTIL_LONG_J=(int32*)mem_static_malloc(4);
+*_FUNC_WIKIGETUNTIL_LONG_J=0;
+}
+byte_element_struct *byte_element_5969=NULL;
+if (!byte_element_5969){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5969=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5969=(byte_element_struct*)mem_static_malloc(12);
+}

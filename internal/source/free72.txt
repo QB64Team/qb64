@@ -1,10 +1,4 @@
-if(oldstr3462){
-if(oldstr3462->fixed)qbs_set(oldstr3462,_SUB_PARSEEXPRESSION_STRING_EXP);
-qbs_free(_SUB_PARSEEXPRESSION_STRING_EXP);
+if(oldstr3529){
+if(oldstr3529->fixed)qbs_set(oldstr3529,_SUB_PATH_SLASH_CORRECT_STRING_A);
+qbs_free(_SUB_PATH_SLASH_CORRECT_STRING_A);
 }
-if (_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[2]&1){
-tmp_long=_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[5];
-while(tmp_long--) qbs_free((qbs*)((uint64*)(_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[0]))[tmp_long]);
-free((void*)(_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM[0]));
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_SUB_PARSEEXPRESSION_ARRAY_STRING_NUM)[8] );
