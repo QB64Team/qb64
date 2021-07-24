@@ -217,6 +217,9 @@ SUB vwatch (localVariables AS _OFFSET)
                 i = CVL(value$)
                 address = localVariables + LEN(address) * i
                 PRINT "Local"; i; "is at"; _MEMGET(m, address, _OFFSET)
+            CASE "current sub"
+                cmd$ = "current sub:" + vwatch_subname
+                GOSUB SendCommand
             CASE "set next line"
                 pauseMode = -1
                 stepOver = 0
