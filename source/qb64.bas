@@ -115,6 +115,8 @@ TYPE usedVarList
     includedLine AS LONG
     includedFile AS STRING
     scope AS LONG
+    subfunc AS STRING
+    localIndex AS LONG
     cname AS STRING
     name AS STRING
 END TYPE
@@ -7528,7 +7530,7 @@ DO
                 IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
                 bypassNextVariable = -1
                 retval = dim2(n$, typ$, method, "")
-                manageVariableList "", vWatchNewVariable$, 2
+                manageVariableList "", vWatchNewVariable$, 0, 2
                 IF Error_Happened THEN GOTO errmes
                 'note: variable created!
 
@@ -14218,6 +14220,7 @@ END SUB
 SUB vWatchVariable (this$, action AS _BYTE)
     STATIC totalLocalVariables AS LONG, localVariablesList$
     STATIC totalMainModuleVariables AS LONG, mainModuleVariablesList$
+    STATIC totalSharedVariablesFromMainModule AS LONG, mainModuleSharedVariablesList$
 
     SELECT CASE action
         CASE -1 'reset
@@ -14225,6 +14228,8 @@ SUB vWatchVariable (this$, action AS _BYTE)
             localVariablesList$ = ""
             totalMainModuleVariables = 0
             mainModuleVariablesList$ = ""
+            totalSharedVariablesFromMainModule = 0
+            mainModuleSharedVariablesList$ = ""
         CASE 0 'add
             IF INSTR(vWatchVariableExclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
                 EXIT SUB
@@ -14234,11 +14239,16 @@ SUB vWatchVariable (this$, action AS _BYTE)
             IF subfunc = "" THEN
                 totalMainModuleVariables = totalMainModuleVariables + 1
                 mainModuleVariablesList$ = mainModuleVariablesList$ + "vwatch_local_vars[" + str2$(totalMainModuleVariables - 1) + "] = &" + this$ + ";" + CRLF
+                IF dimshared = 1 THEN
+                    'DIM SHARED variables will be appended to every SUB
+                    totalSharedVariablesFromMainModule = totalSharedVariablesFromMainModule + 1
+                    mainModuleSharedVariablesList$ = mainModuleSharedVariablesList$ + MKL$(LEN(this$)) + this$
+                END IF
             ELSE
                 totalLocalVariables = totalLocalVariables + 1
                 localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + this$ + ";" + CRLF
+                manageVariableList id.cn, this$, totalLocalVariables - 1, 0
             END IF
-            manageVariableList RTRIM$(id.cn), this$, 0
         CASE 1 'dump to data[].txt & reset
             IF subfunc = "" THEN
                 IF totalMainModuleVariables > 0 THEN
@@ -14251,8 +14261,18 @@ SUB vWatchVariable (this$, action AS _BYTE)
                 mainModuleVariablesList$ = ""
                 totalMainModuleVariables = 0
             ELSE
-                IF totalLocalVariables > 0 THEN
-                    PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
+                IF totalLocalVariables + totalSharedVariablesFromMainModule > 0 THEN
+                    PRINT #13, "void *vwatch_local_vars["; (totalLocalVariables + totalSharedVariablesFromMainModule); "];"
+                    i = totalLocalVariables
+                    tempShared$ = mainModuleSharedVariablesList$
+                    tempVar$ = ""
+                    DO UNTIL i = totalLocalVariables + totalSharedVariablesFromMainModule
+                        length = CVL(LEFT$(tempShared$, 4))
+                        tempVar$ = MID$(tempShared$, 5, length)
+                        tempShared$ = MID$(tempShared$, 5 + length)
+                        localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(i) + "] = &" + tempVar$ + ";" + CRLF
+                        i = i + 1
+                    LOOP
                     PRINT #13, localVariablesList$
                 ELSE
                     PRINT #13, "void *vwatch_local_vars[0];"
@@ -16137,7 +16157,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
                     bypassNextVariable = -1
                     retval = dim2(x$, typ$, 1, "")
-                    manageVariableList "", vWatchNewVariable$, 3
+                    manageVariableList "", vWatchNewVariable$, 0, 3
                     IF Error_Happened THEN EXIT FUNCTION
 
                     simplevarfound:
@@ -18579,7 +18599,7 @@ FUNCTION findid& (n2$)
 
     t = id.t
     temp$ = refer$(str2$(i), t, 1)
-    manageVariableList "", temp$, 1
+    manageVariableList "", temp$, 0, 1
     currentid = i
     EXIT FUNCTION
 
@@ -25869,7 +25889,7 @@ SUB dump_udts
     CLOSE #f
 END SUB
 
-SUB manageVariableList (__name$, __cname$, action AS _BYTE)
+SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
     DIM findItem AS LONG, cname$, i AS LONG, name$
     name$ = __name$
     cname$ = __cname$
@@ -25905,9 +25925,11 @@ SUB manageVariableList (__name$, __cname$, action AS _BYTE)
                     usedVariableList(i).includedFile = ""
                 END IF
                 usedVariableList(i).scope = subfuncn
+                usedVariableList(i).subfunc = subfunc
                 usedVariableList(i).cname = cname$
-                IF LEN(RTRIM$(id.musthave)) > 0 THEN name$ = name$ + RTRIM$(id.musthave)
-                usedVariableList(i).name = name$
+                usedVariableList(i).localIndex = localIndex
+                IF LEN(RTRIM$(id.mayhave)) = 0 AND LEN(RTRIM$(id.musthave)) > 0 THEN usedVariableList(i).name = name$ + RTRIM$(id.musthave)
+                IF LEN(RTRIM$(id.musthave)) = 0 AND LEN(RTRIM$(id.mayhave)) > 0 THEN usedVariableList(i).name = name$ + RTRIM$(id.mayhave)
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used
