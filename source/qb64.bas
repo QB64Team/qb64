@@ -12224,7 +12224,7 @@ IF NOT IgnoreWarnings THEN
         header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
         FOR i = 1 TO totalVariablesCreated
             IF usedVariableList(i).used = 0 THEN
-                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).varType + ")"
             END IF
         NEXT
     END IF
@@ -24030,6 +24030,10 @@ FUNCTION id2fulltypename$
         IF bits = 16 THEN a$ = "INTEGER"
         IF bits = 32 THEN a$ = "LONG"
         IF bits = 64 THEN a$ = qb64prefix$ + "INTEGER64"
+        IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
+    END IF
+    IF t AND ISOFFSET THEN
+        a$ = qb64prefix$ + "OFFSET"
         IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
     END IF
     id2fulltypename$ = a$
