@@ -14261,19 +14261,23 @@ SUB vWatchVariable (this$, action AS _BYTE)
                 mainModuleVariablesList$ = ""
                 totalMainModuleVariables = 0
             ELSE
-                IF totalLocalVariables + totalSharedVariablesFromMainModule > 0 THEN
-                    PRINT #13, "void *vwatch_local_vars["; (totalLocalVariables + totalSharedVariablesFromMainModule); "];"
-                    i = totalLocalVariables
-                    tempShared$ = mainModuleSharedVariablesList$
-                    tempVar$ = ""
-                    DO UNTIL i = totalLocalVariables + totalSharedVariablesFromMainModule
-                        length = CVL(LEFT$(tempShared$, 4))
-                        tempVar$ = MID$(tempShared$, 5, length)
-                        tempShared$ = MID$(tempShared$, 5 + length)
-                        localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(i) + "] = &" + tempVar$ + ";" + CRLF
-                        i = i + 1
-                    LOOP
-                    PRINT #13, localVariablesList$
+                IF subfunc <> "SUB_VWATCH" THEN
+                    IF totalLocalVariables + totalSharedVariablesFromMainModule > 0 THEN
+                        PRINT #13, "void *vwatch_local_vars["; (totalLocalVariables + totalSharedVariablesFromMainModule); "];"
+                        i = totalLocalVariables
+                        tempShared$ = mainModuleSharedVariablesList$
+                        tempVar$ = ""
+                        DO UNTIL i = totalLocalVariables + totalSharedVariablesFromMainModule
+                            length = CVL(LEFT$(tempShared$, 4))
+                            tempVar$ = MID$(tempShared$, 5, length)
+                            tempShared$ = MID$(tempShared$, 5 + length)
+                            localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(i) + "] = &" + tempVar$ + ";" + CRLF
+                            i = i + 1
+                        LOOP
+                        PRINT #13, localVariablesList$
+                    ELSE
+                        PRINT #13, "void *vwatch_local_vars[0];"
+                    END IF
                 ELSE
                     PRINT #13, "void *vwatch_local_vars[0];"
                 END IF
