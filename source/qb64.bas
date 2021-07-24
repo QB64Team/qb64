@@ -7546,6 +7546,7 @@ DO
                     END IF
                 END IF
 
+                IF ids(currentid).share = 0 THEN vWatchVariable RTRIM$(ids(currentid).callname), -2
                 ids(currentid).share = ids(currentid).share OR 2 'set as temporarily shared
 
                 'method must apply to the current sub/function regardless of how the variable was defined in 'main'
@@ -14223,6 +14224,9 @@ SUB vWatchVariable (this$, action AS _BYTE)
     STATIC totalSharedVariablesFromMainModule AS LONG, mainModuleSharedVariablesList$
 
     SELECT CASE action
+        CASE -2 'new variable added to main module using SHARED in a SUB
+            totalLocalVariables = totalLocalVariables + 1
+            localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + this$ + ";" + CRLF
         CASE -1 'reset
             totalLocalVariables = 0
             localVariablesList$ = ""
@@ -14522,6 +14526,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     PRINT #13, "}"
                 END IF
             END IF
+            id.callname = n$
             regid
             vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
@@ -14689,6 +14694,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF method = 1 THEN
                 id.musthave = "$" + str2(bytes)
             END IF
+            id.callname = n$
             regid
             vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
@@ -14780,6 +14786,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "$"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -14884,6 +14891,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~`" + str2(bits) ELSE id.musthave = "`" + str2(bits)
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -14970,6 +14978,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%%" ELSE id.musthave = "%%"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15053,6 +15062,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%" ELSE id.musthave = "%"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15141,6 +15151,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%&" ELSE id.musthave = "%&"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15226,6 +15237,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~&" ELSE id.musthave = "&"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15311,6 +15323,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~&&" ELSE id.musthave = "&&"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15396,6 +15409,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "!"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15479,6 +15493,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "#"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15562,6 +15577,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "##"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
