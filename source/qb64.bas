@@ -115,6 +115,7 @@ TYPE usedVarList
     includedLine AS LONG
     includedFile AS STRING
     scope AS LONG
+    varType AS STRING
     subfunc AS STRING
     localIndex AS LONG
     cname AS STRING
@@ -14248,6 +14249,7 @@ SUB vWatchVariable (this$, action AS _BYTE)
                     totalSharedVariablesFromMainModule = totalSharedVariablesFromMainModule + 1
                     mainModuleSharedVariablesList$ = mainModuleSharedVariablesList$ + MKL$(LEN(this$)) + this$
                 END IF
+                manageVariableList id.cn, this$, totalMainModuleVariables - 1, 0
             ELSE
                 totalLocalVariables = totalLocalVariables + 1
                 localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + this$ + ";" + CRLF
@@ -25911,8 +25913,8 @@ END SUB
 
 SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
     DIM findItem AS LONG, cname$, i AS LONG, name$
-    name$ = __name$
-    cname$ = __cname$
+    name$ = RTRIM$(__name$)
+    cname$ = RTRIM$(__cname$)
 
     IF LEN(cname$) = 0 THEN EXIT SUB
 
@@ -25946,10 +25948,14 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 END IF
                 usedVariableList(i).scope = subfuncn
                 usedVariableList(i).subfunc = subfunc
+                usedVariableList(i).varType = id2fulltypename$
                 usedVariableList(i).cname = cname$
                 usedVariableList(i).localIndex = localIndex
-                IF LEN(RTRIM$(id.mayhave)) = 0 AND LEN(RTRIM$(id.musthave)) > 0 THEN usedVariableList(i).name = name$ + RTRIM$(id.musthave)
-                IF LEN(RTRIM$(id.musthave)) = 0 AND LEN(RTRIM$(id.mayhave)) > 0 THEN usedVariableList(i).name = name$ + RTRIM$(id.mayhave)
+                IF LEN(RTRIM$(id.musthave)) > 0 THEN
+                    usedVariableList(i).name = name$ + RTRIM$(id.musthave)
+                ELSE
+                    usedVariableList(i).name = name$
+                END IF
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used
