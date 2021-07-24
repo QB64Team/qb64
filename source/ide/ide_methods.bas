@@ -272,7 +272,7 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Displays a list of recent code warnings"
 
         ViewMenuCallStack = i
-        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F4": i = i + 1
+        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F12": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menusize(m) = i - 1
 
@@ -1607,7 +1607,7 @@ FUNCTION ide2 (ignore)
             GOTO idemrunspecial
         END IF
 
-        IF KB = KEY_F4 THEN
+        IF KB = KEY_F12 THEN 'show call stack
             IF callStackLength > 0 THEN
                 GOTO showCallStackDialog
             ELSE
@@ -1615,6 +1615,12 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
+        END IF
+
+        IF KB = KEY_F4 THEN 'variable watch
+            result = idevariablewatchbox
+            PCOPY 3, 0: SCREEN , , 3, 0
+            GOTO ideloop
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -4337,9 +4343,9 @@ FUNCTION ide2 (ignore)
     END IF
 
     IF callStackLength = 0 THEN
-        menu$(ViewMenuID, ViewMenuCallStack) = "~Call #Stack...  F4"
+        menu$(ViewMenuID, ViewMenuCallStack) = "~Call #Stack...  F12"
     ELSE
-        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F4"
+        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F12"
     END IF
 
     oldmy = mY: oldmx = mX
@@ -5683,7 +5689,7 @@ FUNCTION ide2 (ignore)
                 END IF
             END IF
 
-            IF menu$(m, s) = "Call #Stack...  F4" OR menu$(m, s) = "Call Stack...  F4" THEN
+            IF menu$(m, s) = "Call #Stack...  F12" OR menu$(m, s) = "Call Stack...  F12" THEN
                 IF IdeDebugMode = 2 THEN
                     IdeDebugMode = 3
                     GOTO EnterDebugMode
@@ -6632,8 +6638,8 @@ SUB DebugMode
             IF noFocusMessage THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "<F4 = Call Stack> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
-                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints>", 15
+                setStatusMessage 2, "<F4 = Add Watch> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
+                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints> <F12 = Call Stack>", 15
                 UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
                 noFocusMessage = 0
             END IF
@@ -6996,6 +7002,189 @@ SUB DebugMode
     RETURN
 
 END SUB
+
+FUNCTION idevariablewatchbox
+
+    '-------- generic dialog box header --------
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+
+    mainmodule$ = "MAIN MODULE"
+    maxModuleNameLen = LEN(mainmodule$)
+    maxVarLen = LEN("Variable")
+    maxTypeLen = LEN("Type")
+
+    'calculate longest module name, longest var name, longest type name
+    FOR x = 1 TO totalVariablesCreated
+        IF LEN(usedVariableList(x).subfunc) > maxModuleNameLen THEN
+            maxModuleNameLen = LEN(usedVariableList(x).subfunc)
+        END IF
+
+        IF LEN(usedVariableList(x).name) > maxVarLen THEN maxVarLen = LEN(usedVariableList(x).name)
+        IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
+    NEXT
+
+    'build list
+    totalVisibleVariables = 0
+    FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
+        totalVisibleVariables = totalVisibleVariables + 1
+        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2)
+        IF usedVariableList(x).used = 0 THEN someUnusedVars = -1: text$ = text$ + "*" ELSE text$ = text$ + " "
+        text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
+        text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
+
+        l3$ = SPACE$(2)
+        IF LEN(usedVariableList(x).subfunc) > 0 THEN
+            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(16) + CHR$(16)
+        ELSE
+            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(16) + CHR$(16)
+        END IF
+
+        l$ = l$ + text$ + l3$
+        IF x < totalVariablesCreated THEN l$ = l$ + sep
+    NEXT
+
+    i = 0
+    dialogHeight = (totalVariablesCreated) + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+
+    idepar p, idewx - 8, dialogHeight, "Add Variable Watch"
+
+    i = i + 1
+    o(i).typ = 2
+    o(i).y = 2
+    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(i).txt = idenewtxt(l$)
+    o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
+    o(i).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
+
+    i = i + 1
+    o(i).typ = 3
+    o(i).y = dialogHeight
+    o(i).txt = idenewtxt("#Go to" + sep + "#Close")
+    o(i).dft = 1
+
+
+
+
+
+    '-------- end of init --------
+
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on a variable to add it to the watch list"
+        IF someUnusedVars THEN
+            COLOR 2
+            _PRINTSTRING (p.x + p.w - 32, p.y + p.h), "* declared but unused"
+        END IF
+
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        change = 0
+        DO
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+        LOOP UNTIL change
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+            END IF
+        END IF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
+
+        '-------- generic input response --------
+        info = 0
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+
+        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+            EXIT FUNCTION
+        END IF
+
+        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
+            y = ABS(o(1).sel)
+            IF y >= 1 AND y <= warningListItems AND warningLines(y) > 0 THEN
+                idegotobox_LastLineNum = warningLines(y)
+                AddQuickNavHistory
+                idecy = idegotobox_LastLineNum
+                idecentercurrentline
+                IF warningIncLines(y) > 0 THEN
+                    warningInInclude = idecy
+                    warningInIncludeLine = warningIncLines(y)
+                END IF
+                ideselect = 0
+                EXIT FUNCTION
+            END IF
+        END IF
+
+        'end of custom controls
+        mousedown = 0
+        mouseup = 0
+    LOOP
+
+    idevariablewatchbox = 0
+END FUNCTION
 
 FUNCTION idecallstackbox
 
@@ -14592,7 +14781,7 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "SUBs...  F2": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
-        menu$(m, i) = "Call Stack...  F4": i = i + 1
+        menu$(m, i) = "Call Stack...  F12": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's execution"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#Exit $DEBUG mode  ESC": i = i + 1
