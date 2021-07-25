@@ -110,6 +110,7 @@ DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
     used AS _BYTE
+    watch AS _BYTE
     linenumber AS LONG
     includeLevel AS LONG
     includedLine AS LONG
@@ -25939,6 +25940,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
                 END IF
                 usedVariableList(i).used = 0
+                usedVariableList(i).watch = 0
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
                 IF inclevel > 0 THEN

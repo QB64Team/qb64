@@ -7023,6 +7023,12 @@ FUNCTION idevariablewatchbox
     maxVarLen = LEN("Variable")
     maxTypeLen = LEN("Type")
 
+    TYPE varDlgList
+        AS LONG index, colorFlag, indicator
+    END TYPE
+
+    DIM varDlgList(1 TO totalVariablesCreated) AS varDlgList
+
     'calculate longest module name, longest var name, longest type name
     FOR x = 1 TO totalVariablesCreated
         IF LEN(usedVariableList(x).subfunc) > maxModuleNameLen THEN
@@ -7038,6 +7044,17 @@ FUNCTION idevariablewatchbox
     FOR x = 1 TO totalVariablesCreated
         IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
         totalVisibleVariables = totalVisibleVariables + 1
+
+        l$ = l$ + CHR$(16)
+        varDlgList(totalVisibleVariables).index = x
+        varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
+        varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
+        IF usedVariableList(x).watch THEN
+            l$ = l$ + CHR$(12) + "+"
+        ELSE
+            l$ = l$ + CHR$(16) + " "
+        END IF
+
         text$ = usedVariableList(x).name + CHR$(16) + CHR$(2)
         IF usedVariableList(x).used = 0 THEN someUnusedVars = -1: text$ = text$ + "*" ELSE text$ = text$ + " "
         text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
@@ -7060,22 +7077,21 @@ FUNCTION idevariablewatchbox
         dialogHeight = idewy + idesubwindow - 6
     END IF
 
-    idepar p, idewx - 8, dialogHeight, "Add Variable Watch"
+    idepar p, idewx - 8, dialogHeight, "Watch List"
 
-    i = i + 1
-    o(i).typ = 2
-    o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
-    o(i).txt = idenewtxt(l$)
-    o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
-    o(i).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
+    i = i + 1: varListBox = i
+    o(varListBox).typ = 2
+    o(varListBox).y = 2
+    o(varListBox).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(varListBox).txt = idenewtxt(l$)
+    o(varListBox).sel = 1
+    o(varListBox).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
 
-    i = i + 1
-    o(i).typ = 3
-    o(i).y = dialogHeight
-    o(i).txt = idenewtxt("#Go to" + sep + "#Close")
-    o(i).dft = 1
-
+    i = i + 1: buttonSet = i
+    o(buttonSet).typ = 3
+    o(i).x = p.x + p.w - 45
+    o(buttonSet).y = dialogHeight
+    o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
 
 
 
@@ -7107,7 +7123,7 @@ FUNCTION idevariablewatchbox
         COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on a variable to add it to the watch list"
         IF someUnusedVars THEN
             COLOR 2
-            _PRINTSTRING (p.x + p.w - 32, p.y + p.h), "* declared but unused"
+            _PRINTSTRING (p.x + 2, p.y + p.h), "* unused"
         END IF
 
         '-------- end of custom display changes --------
@@ -7158,23 +7174,45 @@ FUNCTION idevariablewatchbox
         NEXT
         '-------- end of generic input response --------
 
-        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+        IF (focus = 2 AND info <> 0) THEN 'add all
+            FOR y = 1 TO totalVisibleVariables
+                usedVariableList(varDlgList(y).index).watch = -1
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 12
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
+            NEXT
+        END IF
+
+        IF (focus = 3 AND info <> 0) THEN 'remove all
+            FOR y = 1 TO totalVisibleVariables
+                usedVariableList(varDlgList(y).index).watch = 0
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
+            NEXT
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
-            y = ABS(o(1).sel)
-            IF y >= 1 AND y <= warningListItems AND warningLines(y) > 0 THEN
-                idegotobox_LastLineNum = warningLines(y)
-                AddQuickNavHistory
-                idecy = idegotobox_LastLineNum
-                idecentercurrentline
-                IF warningIncLines(y) > 0 THEN
-                    warningInInclude = idecy
-                    warningInIncludeLine = warningIncLines(y)
+
+        IF mCLICK AND focus = 1 THEN 'list click
+            IF timeElapsedSince(lastClick!) < .3 THEN GOTO toggleWatch
+            lastClick! = TIMER
+        END IF
+
+        IF (K$ = CHR$(13) AND focus = 1) THEN
+            toggleWatch:
+            y = ABS(o(varListBox).sel)
+
+            IF y >= 1 AND y <= totalVisibleVariables THEN
+                usedVariableList(varDlgList(y).index).watch = NOT usedVariableList(varDlgList(y).index).watch
+                IF usedVariableList(varDlgList(y).index).watch THEN
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 12
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
+                ELSE
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
-                ideselect = 0
-                EXIT FUNCTION
             END IF
         END IF
 
@@ -10880,7 +10918,7 @@ FUNCTION idewarningbox
     o(i).y = 2
     o(i).w = idewx - 12: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(l$)
-    o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
+    o(i).sel = 1
     o(i).nam = idenewtxt("Warnings (" + LTRIM$(STR$(totalWarnings)) + ")")
 
     i = i + 1
@@ -11300,11 +11338,23 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                         IF x2 > 0 THEN
                             n = n + 1
                             REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
-                            ListBoxITEMS(n) = MID$(a$, x, x2 - x)
+                            ListBoxITEMS(n) = _TRIM$(MID$(a$, x, x2 - x))
+                            IF LEN(ListBoxITEMS(n)) THEN
+                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90
+                                    ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
+                                    IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
+                                LOOP
+                            END IF
                         ELSE
                             n = n + 1
                             REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
-                            ListBoxITEMS(n) = RIGHT$(a$, LEN(a$) - x + 1)
+                            ListBoxITEMS(n) = _TRIM$(RIGHT$(a$, LEN(a$) - x + 1))
+                            IF LEN(ListBoxITEMS(n)) THEN
+                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90
+                                    ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
+                                    IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
+                                LOOP
+                            END IF
                             EXIT DO
                         END IF
                         x = x2 + 1
