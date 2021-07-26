@@ -7,17 +7,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC buffer$, endc$
     DIM AS LONG i, tempIndex, localIndex
     DIM AS _OFFSET address
-    DIM AS _MEM m
     DIM start!, temp$, cmd$, value$, k&, dataType$, result$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
         SUB vwatch_starttimers ALIAS start_timers
         SUB unlockvWatchHandle
-    END DECLARE
-
-    DECLARE CUSTOMTYPE LIBRARY
-        SUB memcpy (BYVAL dest AS _OFFSET, BYVAL source AS _OFFSET, BYVAL bytes AS LONG)
     END DECLARE
 
     IF bypass THEN EXIT SUB
@@ -221,7 +216,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
                 dataType$ = MID$(value$, 9)
-                address = globalVariables
+                address = globalVariables + LEN(address) * localIndex
                 GOSUB GetMemData
                 $CONSOLE
                 _ECHO "global var requested:" + STR$(tempIndex) + STR$(localIndex) + " " + dataType$
@@ -232,7 +227,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
                 dataType$ = MID$(value$, 9)
-                address = localVariables
+                address = localVariables + LEN(address) * localIndex
                 GOSUB GetMemData
                 _ECHO "local var requested:" + STR$(tempIndex) + STR$(localIndex) + " " + dataType$
                 _ECHO "== result = " + result$
@@ -311,25 +306,50 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM integerType AS INTEGER, uintegerType AS _UNSIGNED INTEGER
     DIM longType AS LONG, ulongType AS _UNSIGNED LONG
     DIM singleType AS SINGLE, doubleType AS DOUBLE
+    DIM varOffset AS _OFFSET, m AS _MEM, m2 AS _MEM
 
     SELECT CASE dataType$
         CASE "INTEGER"
-            memcpy _OFFSET(integerType), address + LEN(address) * localIndex, 2
+            m = _MEM(address, 2)
+            m2 = _MEM(integerType)
+            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+            _MEMFREE m
+            _MEMFREE m2
             result$ = STR$(integerType)
         CASE "_UNSIGNED INTEGER"
-            memcpy _OFFSET(uintegerType), address + LEN(address) * localIndex, 2
+            m = _MEM(address, 2)
+            m2 = _MEM(uintegerType)
+            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+            _MEMFREE m
+            _MEMFREE m2
             result$ = STR$(uintegerType)
         CASE "LONG"
-            memcpy _OFFSET(longType), address + LEN(address) * localIndex, 4
+            m = _MEM(address, 4)
+            m2 = _MEM(longType)
+            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+            _MEMFREE m
+            _MEMFREE m2
             result$ = STR$(longType)
         CASE "_UNSIGNED LONG"
-            memcpy _OFFSET(ulongType), address + LEN(address) * localIndex, 4
+            m = _MEM(address, 4)
+            m2 = _MEM(ulongType)
+            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+            _MEMFREE m
+            _MEMFREE m2
             result$ = STR$(ulongType)
         CASE "SINGLE"
-            memcpy _OFFSET(singleType), address + LEN(address) * localIndex, 4
+            m = _MEM(address, 4)
+            m2 = _MEM(singleType)
+            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+            _MEMFREE m
+            _MEMFREE m2
             result$ = STR$(singleType)
         CASE "DOUBLE"
-            memcpy _OFFSET(doubleType), address + LEN(address) * localIndex, 8
+            m = _MEM(address, 8)
+            m2 = _MEM(doubleType)
+            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+            _MEMFREE m
+            _MEMFREE m2
             result$ = STR$(doubleType)
     END SELECT
     RETURN
