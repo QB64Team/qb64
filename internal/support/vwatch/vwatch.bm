@@ -1,14 +1,14 @@
 $CHECKING:OFF
 
-SUB vwatch (localVariables AS _OFFSET)
+SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG ideHost, breakpointCount, skipCount, timeout, startLevel, lastLine
     STATIC AS LONG callStackLength, runToLine
     STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
-    DIM AS LONG i
+    DIM AS LONG i, tempIndex, localIndex
     DIM AS _OFFSET address
     DIM AS _MEM m
-    DIM start!, temp$, cmd$, value$, k&
+    DIM start!, temp$, cmd$, value$, k&, dataType$, result$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -213,10 +213,27 @@ SUB vwatch (localVariables AS _OFFSET)
             CASE "call stack"
                 'send call stack history"
                 GOSUB SendCallStack
-            CASE "local"
-                i = CVL(value$)
-                address = localVariables + LEN(address) * i
-                PRINT "Local"; i; "is at"; _MEMGET(m, address, _OFFSET)
+            CASE "global var"
+                tempIndex = CVL(LEFT$(value$, 4))
+                localIndex = CVL(MID$(value$, 5, 4))
+                dataType$ = MID$(value$, 9)
+                address = globalVariables + LEN(address) * localIndex
+                GOSUB GetMemData
+                $CONSOLE
+                _ECHO "global var requested:" + STR$(tempIndex) + dataType$
+                _ECHO "== result = " + result$
+                cmd$ = "global var:" + MKL$(tempIndex) + result$
+                GOSUB SendCommand
+            CASE "local var"
+                tempIndex = CVL(LEFT$(value$, 4))
+                localIndex = CVL(MID$(value$, 5, 4))
+                dataType$ = MID$(value$, 9)
+                address = localVariables + LEN(address) * localIndex
+                GOSUB GetMemData
+                _ECHO "local var requested:" + STR$(tempIndex) + dataType$
+                _ECHO "== result = " + result$
+                cmd$ = "local var:" + MKL$(tempIndex) + result$
+                GOSUB SendCommand
             CASE "current sub"
                 cmd$ = "current sub:" + vwatch_subname
                 GOSUB SendCommand
@@ -284,5 +301,32 @@ SUB vwatch (localVariables AS _OFFSET)
     cmd$ = cmd$ + endc$
     PUT #ideHost, , cmd$
     cmd$ = ""
+    RETURN
+
+    GetMemData:
+    DIM integerType AS INTEGER, uintegerType AS _UNSIGNED INTEGER
+    DIM longType AS LONG, ulongType AS _UNSIGNED LONG
+    DIM singleType AS SINGLE, doubleType AS DOUBLE
+
+    SELECT CASE dataType$
+        CASE "INTEGER"
+            integerType = _MEMGET(m, address, INTEGER)
+            result$ = STR$(integerType)
+        CASE "_UNSIGNED INTEGER"
+            uintegerType = _MEMGET(m, address, _UNSIGNED INTEGER)
+            result$ = STR$(uintegerType)
+        CASE "LONG"
+            longType = _MEMGET(m, address, LONG)
+            result$ = STR$(longType)
+        CASE "_UNSIGNED LONG"
+            ulongType = _MEMGET(m, address, _UNSIGNED LONG)
+            result$ = STR$(ulongType)
+        CASE "SINGLE"
+            singleType = _MEMGET(m, address, SINGLE)
+            result$ = STR$(singleType)
+        CASE "DOUBLE"
+            doubleType = _MEMGET(m, address, DOUBLE)
+            result$ = STR$(doubleType)
+    END SELECT
     RETURN
 END SUB

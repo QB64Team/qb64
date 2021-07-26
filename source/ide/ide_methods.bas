@@ -6743,48 +6743,15 @@ SUB DebugMode
                 END IF
                 GOSUB UpdateDisplay
             CASE 15872 'F4
-                IF PauseMode THEN
-                    requestCallStack:
-                    cmd$ = "call stack"
+                IF PauseMode = 0 THEN
+                    cmd$ = "break"
+                    PauseMode = -1
                     GOSUB SendCommand
-
-                    IF BypassRequestCallStack THEN GOTO ShowCallStack
-                    dummy = DarkenFGBG(0)
-                    clearStatusWindow 0
-                    setStatusMessage 1, "Requesting call stack...", 7
-
-                    start! = TIMER
-                    callStackLength = -1
-                    DO
-                        GOSUB GetCommand
-                        IF cmd$ = "call stack size" THEN
-                            callStackLength = CVL(value$)
-                            IF callStackLength = 0 THEN EXIT DO
-                        END IF
-                        _LIMIT 100
-                    LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
-
-                    IF cmd$ = "call stack" THEN
-                        'display call stack
-                        callstacklist$ = value$
-                        ShowCallStack:
-                        clearStatusWindow 0
-                        setStatusMessage 1, "Paused.", 2
-                        retval = idecallstackbox
-                        PCOPY 3, 0: SCREEN , , 3, 0
-                        WHILE _MOUSEINPUT: WEND
-                    ELSE
-                        IF callStackLength = -1 THEN
-                            callStackLength = 0
-                            clearStatusWindow 0
-                            setStatusMessage 1, "Error retrieving call stack.", 2
-                        ELSEIF callStackLength = 0 THEN
-                            clearStatusWindow 0
-                            setStatusMessage 1, "No call stack log available.", 2
-                        END IF
-                    END IF
-                    noFocusMessage = NOT noFocusMessage
                 END IF
+                result = idevariablewatchbox
+                PCOPY 3, 0: SCREEN , , 3, 0
+                WHILE _MOUSEINPUT: WEND
+                GOSUB UpdateDisplay
             CASE 16128 'F5
                 requestContinue:
                 PauseMode = 0
@@ -6856,6 +6823,49 @@ SUB DebugMode
                     GOSUB SendCommand
                 END IF
                 GOSUB UpdateDisplay
+            CASE 34304 'F12
+                IF PauseMode THEN
+                    requestCallStack:
+                    cmd$ = "call stack"
+                    GOSUB SendCommand
+
+                    IF BypassRequestCallStack THEN GOTO ShowCallStack
+                    dummy = DarkenFGBG(0)
+                    clearStatusWindow 0
+                    setStatusMessage 1, "Requesting call stack...", 7
+
+                    start! = TIMER
+                    callStackLength = -1
+                    DO
+                        GOSUB GetCommand
+                        IF cmd$ = "call stack size" THEN
+                            callStackLength = CVL(value$)
+                            IF callStackLength = 0 THEN EXIT DO
+                        END IF
+                        _LIMIT 100
+                    LOOP UNTIL cmd$ = "call stack" OR TIMER - start! > timeout
+
+                    IF cmd$ = "call stack" THEN
+                        'display call stack
+                        callstacklist$ = value$
+                        ShowCallStack:
+                        clearStatusWindow 0
+                        setStatusMessage 1, "Paused.", 2
+                        retval = idecallstackbox
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        WHILE _MOUSEINPUT: WEND
+                    ELSE
+                        IF callStackLength = -1 THEN
+                            callStackLength = 0
+                            clearStatusWindow 0
+                            setStatusMessage 1, "Error retrieving call stack.", 2
+                        ELSEIF callStackLength = 0 THEN
+                            clearStatusWindow 0
+                            setStatusMessage 1, "No call stack log available.", 2
+                        END IF
+                    END IF
+                    noFocusMessage = NOT noFocusMessage
+                END IF
             CASE 103, 71 'g, G
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
                     IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
@@ -6920,6 +6930,26 @@ SUB DebugMode
                     setStatusMessage 1, "Paused.", 2
                 END IF
                 PauseMode = -1
+
+                'request variables
+                IF LEN(variableWatchList$) THEN
+                    temp$ = variableWatchList$
+                    DO WHILE LEN(temp$)
+                        tempIndex& = CVL(LEFT$(temp$, 4))
+                        temp$ = MID$(temp$, 5)
+                        IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
+                            cmd$ = "global var:"
+                        ELSE
+                            cmd$ = "local var:"
+                        END IF
+                        cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
+                        GOSUB SendCommand
+                    LOOP
+                END IF
+            CASE "global var", "local var"
+                tempIndex& = CVL(LEFT$(value$, 4))
+                value$ = MID$(value$, 5)
+                usedVariableList(tempIndex&).mostRecentValue = value$
             CASE "quit"
                 CLOSE #client&
                 dummy = DarkenFGBG(0)
@@ -7018,7 +7048,7 @@ FUNCTION idevariablewatchbox
 
     '-------- init --------
 
-    mainmodule$ = "MAIN MODULE"
+    mainmodule$ = "GLOBAL"
     maxModuleNameLen = LEN(mainmodule$)
     maxVarLen = LEN("Variable")
     maxTypeLen = LEN("Type")
@@ -7068,6 +7098,9 @@ FUNCTION idevariablewatchbox
         END IF
 
         l$ = l$ + text$ + l3$
+        IF IdeDebugMode > 0 AND LEN(usedVariableList(x).mostRecentValue) > 0 THEN
+            l$ = l$ + " = " + usedVariableList(x).mostRecentValue
+        END IF
         IF x < totalVariablesCreated THEN l$ = l$ + sep
     NEXT
 
@@ -7191,6 +7224,12 @@ FUNCTION idevariablewatchbox
         END IF
 
         IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
+            variableWatchList$ = ""
+            FOR y = 1 TO totalVisibleVariables
+                IF usedVariableList(varDlgList(y).index).watch THEN
+                    variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index)
+                END IF
+            NEXT
             EXIT FUNCTION
         END IF
 
