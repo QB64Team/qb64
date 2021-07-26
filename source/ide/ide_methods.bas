@@ -6937,13 +6937,15 @@ SUB DebugMode
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
                         temp$ = MID$(temp$, 5)
-                        IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
-                            cmd$ = "global var:"
-                        ELSE
-                            cmd$ = "local var:"
+                        IF usedVariableList(tempIndex&).watch THEN
+                            IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
+                                cmd$ = "global var:"
+                            ELSE
+                                cmd$ = "local var:"
+                            END IF
+                            cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
+                            GOSUB SendCommand
                         END IF
-                        cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
-                        GOSUB SendCommand
                     LOOP
                 END IF
             CASE "global var", "local var"

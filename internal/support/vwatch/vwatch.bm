@@ -16,6 +16,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         SUB unlockvWatchHandle
     END DECLARE
 
+    DECLARE CUSTOMTYPE LIBRARY
+        SUB memcpy (BYVAL dest AS _OFFSET, BYVAL source AS _OFFSET, BYVAL bytes AS LONG)
+    END DECLARE
+
     IF bypass THEN EXIT SUB
 
     vwatch_goto = 0
@@ -217,10 +221,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
                 dataType$ = MID$(value$, 9)
-                address = globalVariables + LEN(address) * localIndex
+                address = globalVariables
                 GOSUB GetMemData
                 $CONSOLE
-                _ECHO "global var requested:" + STR$(tempIndex) + dataType$
+                _ECHO "global var requested:" + STR$(tempIndex) + STR$(localIndex) + " " + dataType$
                 _ECHO "== result = " + result$
                 cmd$ = "global var:" + MKL$(tempIndex) + result$
                 GOSUB SendCommand
@@ -228,9 +232,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
                 dataType$ = MID$(value$, 9)
-                address = localVariables + LEN(address) * localIndex
+                address = localVariables
                 GOSUB GetMemData
-                _ECHO "local var requested:" + STR$(tempIndex) + dataType$
+                _ECHO "local var requested:" + STR$(tempIndex) + STR$(localIndex) + " " + dataType$
                 _ECHO "== result = " + result$
                 cmd$ = "local var:" + MKL$(tempIndex) + result$
                 GOSUB SendCommand
@@ -310,22 +314,22 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
     SELECT CASE dataType$
         CASE "INTEGER"
-            integerType = _MEMGET(m, address, INTEGER)
+            memcpy _OFFSET(integerType), address + LEN(address) * localIndex, 2
             result$ = STR$(integerType)
         CASE "_UNSIGNED INTEGER"
-            uintegerType = _MEMGET(m, address, _UNSIGNED INTEGER)
+            memcpy _OFFSET(uintegerType), address + LEN(address) * localIndex, 2
             result$ = STR$(uintegerType)
         CASE "LONG"
-            longType = _MEMGET(m, address, LONG)
+            memcpy _OFFSET(longType), address + LEN(address) * localIndex, 4
             result$ = STR$(longType)
         CASE "_UNSIGNED LONG"
-            ulongType = _MEMGET(m, address, _UNSIGNED LONG)
+            memcpy _OFFSET(ulongType), address + LEN(address) * localIndex, 4
             result$ = STR$(ulongType)
         CASE "SINGLE"
-            singleType = _MEMGET(m, address, SINGLE)
+            memcpy _OFFSET(singleType), address + LEN(address) * localIndex, 4
             result$ = STR$(singleType)
         CASE "DOUBLE"
-            doubleType = _MEMGET(m, address, DOUBLE)
+            memcpy _OFFSET(doubleType), address + LEN(address) * localIndex, 8
             result$ = STR$(doubleType)
     END SELECT
     RETURN
