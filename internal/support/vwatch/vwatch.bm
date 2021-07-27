@@ -222,35 +222,35 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "global var"
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
-                address = _offset(globalVariables) + LEN(address) * localIndex
-                $console
-                _echo "arrelem address=" + hex$(address)
+                address = _OFFSET(globalVariables) + LEN(address) * localIndex
+                $CONSOLE
+                _ECHO "arrelem address=" + HEX$(address)
                 address = _MEMGET(m, address, _OFFSET)
                 address = _MEMGET(m, address, _OFFSET)
-                _echo "var address=" + hex$(address)
-                cmd$ = "global var:" + MKL$(tempIndex) + str$(address)
+                _ECHO "var address=" + HEX$(address)
+                cmd$ = "global var:" + MKL$(tempIndex) + STR$(address)
                 GOSUB SendCommand
             CASE "local var"
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
-                address = _offset(localVariables) + LEN(address) * localIndex
-                _echo "arrelem address=" + hex$(address)
+                address = _OFFSET(localVariables) + LEN(address) * localIndex
+                _ECHO "arrelem address=" + HEX$(address)
                 address = _MEMGET(m, address, _OFFSET)
                 address = _MEMGET(m, address, _OFFSET)
-                _echo "var address=" + hex$(address)
-                cmd$ = "local var:" + MKL$(tempIndex) + str$(address)
+                _ECHO "var address=" + HEX$(address)
+                cmd$ = "local var:" + MKL$(tempIndex) + STR$(address)
                 GOSUB SendCommand
-            case "get address"
-                tempIndex = cvl(left$(value$, 4))
-                sequence = cvi(mid$(value$, 5, 2))
-                varSize = cvl(mid$(value$, 7, 4))
-                address = val(mid$(value$, 11))
-                buf$ = space$(varSize)
-                m = _mem(address, varSize)
-                m2 = _mem(_offset(buf$), varSize)
-                _memcopy m, m.offset, m.size to m2, m2.offset
-                cmd$ = "address read:" + mkl$(tempIndex) + mki$(sequence) + buf$
-                gosub sendcommand
+            CASE "get address"
+                tempIndex = CVL(LEFT$(value$, 4))
+                sequence = CVI(MID$(value$, 5, 2))
+                varSize = CVL(MID$(value$, 7, 4))
+                address = VAL(MID$(value$, 11))
+                buf$ = SPACE$(varSize)
+                m = _MEM(address, varSize)
+                m2 = _MEM(_OFFSET(buf$), varSize)
+                _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
+                cmd$ = "address read:" + MKL$(tempIndex) + MKI$(sequence) + buf$
+                GOSUB SendCommand
             CASE "current sub"
                 cmd$ = "current sub:" + vwatch_internalsubname$
                 GOSUB SendCommand
