@@ -222,21 +222,24 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "global var"
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
-                address = globalVariables + LEN(address) * localIndex
+                address = _offset(globalVariables) + LEN(address) * localIndex
+                $console
+                _echo "arrelem address=" + hex$(address)
                 address = _MEMGET(m, address, _OFFSET)
-                $CONSOLE
+                address = _MEMGET(m, address, _OFFSET)
+                _echo "var address=" + hex$(address)
                 cmd$ = "global var:" + MKL$(tempIndex) + str$(address)
                 GOSUB SendCommand
             CASE "local var"
-                ' tempIndex = CVL(LEFT$(value$, 4))
-                ' localIndex = CVL(MID$(value$, 5, 4))
-                ' dataType$ = MID$(value$, 9)
-                ' address = localVariables + LEN(address) * localIndex
-                ' address = _MEMGET(m, address, _OFFSET)
-                ' GOSUB GetMemData
-                ' _ECHO "Sending local var: " + STR$(tempIndex) + " = " + result$
-                ' cmd$ = "local var:" + MKL$(tempIndex) + result$
-                ' GOSUB SendCommand
+                tempIndex = CVL(LEFT$(value$, 4))
+                localIndex = CVL(MID$(value$, 5, 4))
+                address = _offset(localVariables) + LEN(address) * localIndex
+                _echo "arrelem address=" + hex$(address)
+                address = _MEMGET(m, address, _OFFSET)
+                address = _MEMGET(m, address, _OFFSET)
+                _echo "var address=" + hex$(address)
+                cmd$ = "local var:" + MKL$(tempIndex) + str$(address)
+                GOSUB SendCommand
             case "get address"
                 tempIndex = cvl(left$(value$, 4))
                 sequence = cvi(mid$(value$, 5, 2))
