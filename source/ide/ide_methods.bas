@@ -143,6 +143,10 @@ FUNCTION ide2 (ignore)
 
     'report any IDE errors which have occurred
     IF ideerror THEN
+        IF IdeDebugMode THEN
+            IdeDebugMode = 0
+            COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
+        END IF
         mustdisplay = 1
         IF ideerror = 1 THEN errorat$ = "Internal IDE error"
         IF ideerror = 2 THEN errorat$ = "File not found"
@@ -478,6 +482,7 @@ FUNCTION ide2 (ignore)
         idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
         REDIM IdeBreakpoints(iden) AS _BYTE
         REDIM IdeSkipLines(iden) AS _BYTE
+        variableWatchList$ = ""
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
         idechangemade = 1
@@ -571,6 +576,8 @@ FUNCTION ide2 (ignore)
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
                 REDIM IdeSkipLines(iden) AS _BYTE
+                variableWatchList$ = ""
+                callstacklist$ = "": callStackLength = 0
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
                     idecy = ideStartAtLine
                     IF idecy - 10 >= 1 THEN idesy = idecy - 10
@@ -5878,6 +5885,7 @@ FUNCTION ide2 (ignore)
                 'new blank text field
                 REDIM IdeBreakpoints(1) AS _BYTE
                 REDIM IdeSkipLines(1) AS _BYTE
+                variableWatchList$ = ""
                 callstacklist$ = "": callStackLength = 0
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
@@ -6280,6 +6288,11 @@ SUB DebugMode
 
     SCREEN , , 3, 0
 
+    TYPE vWatchPanelType
+        AS INTEGER x, y, w, h, firstVisible
+    END TYPE
+    STATIC vWatchPanel AS vWatchPanelType
+
     SELECT EVERYCASE IdeDebugMode
         CASE 1
             PauseMode = 0
@@ -6287,6 +6300,19 @@ SUB DebugMode
             callstacklist$ = ""
             buffer$ = ""
             client& = 0
+
+            IF LEN(variableWatchList$) THEN
+                totalVisibleVariables = LEN(variableWatchList$) \ 4
+                vWatchPanel.h = totalVisibleVariables + 2
+            ELSE
+                totalVisibleVariables = 0
+                vWatchPanel.h = 5
+            END IF
+
+            vWatchPanel.w = 40
+            vWatchPanel.x = idewx - vWatchPanel.w - 6
+            vWatchPanel.y = 4
+            vWatchPanel.firstVisible = 1
         CASE IS > 1
             noFocusMessage = NOT noFocusMessage
             GOSUB UpdateStatusArea
@@ -6462,7 +6488,21 @@ SUB DebugMode
         IF _EXIT THEN ideexit = 1: GOTO requestQuit
 
         bkpidecy = idecy
-        WHILE _MOUSEINPUT: idecy = idecy + _MOUSEWHEEL * 3: WEND
+        WHILE _MOUSEINPUT
+            mX = _MOUSEX
+            mY = _MOUSEY
+            IF LEN(variableWatchList$) > 0 AND _
+               (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
+               (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
+                vWatchPanel.firstVisible = vWatchPanel.firstVisible + _MOUSEWHEEL * 3
+                IF vWatchPanel.firstVisible < 1 THEN vWatchPanel.firstVisible = 1
+                IF vWatchPanel.firstVisible > (LEN(variableWatchList$) \ 4) THEN
+                    vWatchPanel.firstVisible = (LEN(variableWatchList$) \ 4)
+                END IF
+            ELSE
+                idecy = idecy + _MOUSEWHEEL * 3
+            END IF
+        WEND
 
         IF idecy < 1 THEN idecy = 1
         IF idecy > iden THEN idecy = iden
@@ -6470,8 +6510,6 @@ SUB DebugMode
 
         mB = _MOUSEBUTTON(1)
         mB2 = _MOUSEBUTTON(2)
-        mX = _MOUSEX
-        mY = _MOUSEY
 
         IF mB2 THEN
             IF mouseDown2 = 0 THEN
@@ -6505,6 +6543,19 @@ SUB DebugMode
                 mouseDown = -1
                 mouseDownOnX = mX
                 mouseDownOnY = mY
+                IF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
+                   (mY = vWatchPanel.y + vWatchPanel.h - 1) THEN
+                    resizingPanel = -1
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
+                   (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
+                    draggingPanel = -1
+                ELSE
+                    draggingPanel = 0
+                    resizingPanel = 0
+                END IF
+
                 IF mX = idewx THEN
                     IF mY = idevbar(idewx, 3, idewy - 8, idecy, iden) THEN
                         draggingVThumb = -1
@@ -6560,8 +6611,36 @@ SUB DebugMode
                         GOSUB UpdateDisplay
                     END IF
                 END IF
+
+                IF draggingPanel THEN
+                    vWatchPanel.x = vWatchPanel.x - (mouseDownOnX - mX)
+                    vWatchPanel.y = vWatchPanel.y - (mouseDownOnY - mY)
+
+                    IF vWatchPanel.x < 2 THEN vWatchPanel.x = 2
+                    IF vWatchPanel.x + vWatchPanel.w > idewx - 2 THEN vWatchPanel.x = idewx - vWatchPanel.w - 2
+                    IF vWatchPanel.y < 3 THEN vWatchPanel.y = 3
+                    IF vWatchPanel.y + vWatchPanel.h > idewy - (vWatchPanel.h + 7) THEN vWatchPanel.y = idewy - (vWatchPanel.h + 7)
+                    vWatchPanelLimit = idewy - 6
+                    IF vWatchPanel.y > vWatchPanelLimit - (vWatchPanel.h + 1) THEN vWatchPanel.y = vWatchPanelLimit - (vWatchPanel.h + 1)
+                    mouseDownOnX = mX
+                    mouseDownOnY = mY
+                    GOSUB UpdateDisplay
+                ELSEIF resizingPanel THEN
+                    vWatchPanel.w = vWatchPanel.w + (mX - mouseDownOnX)
+                    vWatchPanel.h = vWatchPanel.h + (mY - mouseDownOnY)
+
+                    IF vWatchPanel.w < 40 THEN vWatchPanel.w = 40
+                    IF vWatchPanel.w > idewx - 12 THEN vWatchPanel.w = idewx - 12
+                    IF vWatchPanel.h < 3 THEN vWatchPanel.h = 3
+                    IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
+                    mouseDownOnX = mX
+                    mouseDownOnY = mY
+                    GOSUB UpdateDisplay
+                END IF
             END IF
         ELSE
+            IF draggingPanel THEN draggingPanel = 0: mouseDown = 0
+            IF resizingPanel THEN resizingPanel = 0: mouseDown = 0
             IF mouseDown THEN
                 mouseDown = 0
                 draggingVThumb = 0
@@ -6630,6 +6709,8 @@ SUB DebugMode
                 mouseDown = 0
                 draggingVThumb = 0
                 draggingHThumb = 0
+                draggingPanel = 0
+                resizingPanel = 0
             END IF
         END IF
 
@@ -6926,7 +7007,6 @@ SUB DebugMode
                 debugnextline = l
                 idefocusline = 0
                 idecentercurrentline
-                ideshowtext
                 clearStatusWindow 1
                 IF cmd$ = "breakpoint" THEN
                     setStatusMessage 1, "Breakpoint reached on line" + STR$(l), 2
@@ -6934,6 +7014,7 @@ SUB DebugMode
                     setStatusMessage 1, "Paused.", 2
                 END IF
                 PauseMode = -1
+                GOSUB UpdateDisplay
 
                 'request variables
                 IF LEN(variableWatchList$) THEN
@@ -7010,6 +7091,7 @@ SUB DebugMode
                 END SELECT
                 usedVariableList(tempIndex&).mostRecentValue = recvData$
                 vwatch_string_seq1_done:
+                IF PauseMode THEN GOSUB UpdateDisplay
             CASE "current sub"
                 currentSub$ = value$
                 IF estabilishingScope THEN
@@ -7033,7 +7115,7 @@ SUB DebugMode
                 idecy = l
                 ideselect = 0
                 idefocusline = l
-                ideshowtext
+                GOSUB UpdateDisplay
                 clearStatusWindow 1
                 COLOR , 4
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 13
@@ -7060,7 +7142,7 @@ SUB DebugMode
                 END IF
         END SELECT
 
-        _LIMIT 100
+        IF draggingPanel = 0 THEN _LIMIT 100 ELSE _LIMIT 1000
     LOOP
 
     WHILE _MOUSEINPUT: WEND
@@ -7095,9 +7177,49 @@ SUB DebugMode
     UpdateDisplay:
     IF PauseMode = 0 THEN ideshowtextBypassColorRestore = -1
     ideshowtext
+
+    IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN showvWatchPanel vWatchPanel, currentSub$
+
     PCOPY 3, 0
     RETURN
+END SUB
 
+SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
+
+    totalVisibleVariables = LEN(variableWatchList$) \ 4
+    fg = 0: bg = 7
+    COLOR fg, bg
+    ideboxshadow this.x, this.y, this.w, this.h
+    color 15, bg
+    _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
+
+    title$ = "Watch List"
+    x = LEN(title$) + 2
+    COLOR fg, bg
+    _PRINTSTRING (this.x + (this.w \ 2) - (x - 1) \ 2, this.y), " " + title$ + " "
+
+    y = 0
+    IF LEN(variableWatchList$) THEN
+        temp$ = variableWatchList$
+        DO WHILE LEN(temp$)
+            tempIndex& = CVL(LEFT$(temp$, 4))
+            temp$ = MID$(temp$, 5)
+            IF this.firstVisible > totalVisibleVariables THEN _CONTINUE
+            y = y + 1
+            IF y > this.h - 2 THEN EXIT DO
+            item$ = usedVariableList(tempIndex&).name + " = "
+            IF usedVariableList(tempIndex&).watch THEN
+                IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
+                    item$ = item$ + usedVariableList(tempIndex&).mostRecentValue
+                    COLOR fg
+                ELSE
+                    item$ = item$ + "<out of scope>"
+                    COLOR 2
+                END IF
+            END IF
+            _PRINTSTRING (this.x + 2, this.y + y), LEFT$(item$, this.w - 4)
+        LOOP
+    END IF
 END SUB
 
 FUNCTION idevariablewatchbox(currentScope$)
@@ -9442,6 +9564,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 iden = n: IF n = 0 THEN idet$ = MKL$(0) + MKL$(0): iden = 1 ELSE idet$ = LEFT$(idet$, i2 - 1)
                 REDIM IdeBreakpoints(iden) AS _BYTE
                 REDIM IdeSkipLines(iden) AS _BYTE
+                variableWatchList$ = ""
                 callstacklist$ = "": callStackLength = 0
 
                 ideerror = 1
