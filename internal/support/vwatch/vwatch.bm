@@ -8,7 +8,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM AS LONG i, tempIndex, localIndex, varSize, sequence
     DIM AS _OFFSET address
     DIM AS _MEM m, m2
-    DIM start!, temp$, cmd$, value$, k&, dataType$, result$, buf$
+    DIM start!, temp$, cmd$, value$, k&, buf$, scope$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -105,6 +105,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         callStackLength = callStackLength + 1
         IF LEN(vwatch_callstack) THEN vwatch_callstack = vwatch_callstack + CHR$(0)
         vwatch_callstack = vwatch_callstack + vwatch_subname$ + ", line" + STR$(lastLine)
+        IF vwatch_sublevel > UBOUND(vwatch_stack) THEN
+            REDIM _PRESERVE vwatch_stack(UBOUND(vwatch_stack) + 1000) AS STRING
+        END IF
+        vwatch_stack(vwatch_sublevel) = vwatch_internalsubname$
         EXIT SUB
     ELSEIF vwatch_linenumber = -3 THEN
         'handle STOP - instead of quitting, pause execution
@@ -165,11 +169,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     IF vwatch_breakpoints(vwatch_linenumber) THEN cmd$ = "breakpoint:"
     cmd$ = cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
-    IF vwatch_sublevel > 1 THEN
-        cmd$ = "current sub:" + vwatch_internalsubname$
-    ELSE
-        cmd$ = "current sub:"
-    END IF
+    cmd$ = "current sub:" + vwatch_stack(vwatch_sublevel)
     GOSUB SendCommand
 
     DO 'main loop
@@ -223,23 +223,21 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
                 address = _OFFSET(globalVariables) + LEN(address) * localIndex
-                $CONSOLE
-                _ECHO "arrelem address=" + HEX$(address)
-                address = _MEMGET(m, address, _OFFSET)
-                address = _MEMGET(m, address, _OFFSET)
-                _ECHO "var address=" + HEX$(address)
+                address = _MEMGET(m, address, _OFFSET) 'first resolve pass
+                address = _MEMGET(m, address, _OFFSET) 'second resolve pass
                 cmd$ = "global var:" + MKL$(tempIndex) + STR$(address)
                 GOSUB SendCommand
             CASE "local var"
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
-                address = _OFFSET(localVariables) + LEN(address) * localIndex
-                _ECHO "arrelem address=" + HEX$(address)
-                address = _MEMGET(m, address, _OFFSET)
-                address = _MEMGET(m, address, _OFFSET)
-                _ECHO "var address=" + HEX$(address)
-                cmd$ = "local var:" + MKL$(tempIndex) + STR$(address)
-                GOSUB SendCommand
+                scope$ = MID$(value$, 9)
+                IF scope$ = vwatch_stack(vwatch_sublevel) THEN
+                    address = _OFFSET(localVariables) + LEN(address) * localIndex
+                    address = _MEMGET(m, address, _OFFSET) 'first resolve pass
+                    address = _MEMGET(m, address, _OFFSET) 'second resolve pass
+                    cmd$ = "local var:" + MKL$(tempIndex) + STR$(address)
+                    GOSUB SendCommand
+                END IF
             CASE "get address"
                 tempIndex = CVL(LEFT$(value$, 4))
                 sequence = CVI(MID$(value$, 5, 2))
@@ -252,7 +250,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 cmd$ = "address read:" + MKL$(tempIndex) + MKI$(sequence) + buf$
                 GOSUB SendCommand
             CASE "current sub"
-                cmd$ = "current sub:" + vwatch_internalsubname$
+                cmd$ = "current sub:" + vwatch_stack(vwatch_sublevel)
                 GOSUB SendCommand
             CASE "set next line"
                 pauseMode = -1

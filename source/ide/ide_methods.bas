@@ -6940,18 +6940,13 @@ SUB DebugMode
                         temp$ = MID$(temp$, 5)
                         IF usedVariableList(tempIndex&).watch THEN
                             cmd$ = ""
-                            '_ECHO "usedVariableList(tempIndex&).subfunc =" + usedVariableList(tempIndex&).subfunc
-                            '_ECHO "currentSub$ =" + currentSub$
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "global var:"
-                            ELSEIF usedVariableList(tempIndex&).subfunc = currentSub$ THEN
+                            ELSE
                                 cmd$ = "local var:"
                             END IF
                             IF LEN(cmd$) THEN
-                                _CONSOLE ON
-                                _ECHO "Requesting " + cmd$ + STR$(tempIndex&)
-                                '_ECHO "currentSub$ = " + currentSub$
-                                cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex)
+                                cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).subfunc
                                 GOSUB SendCommand
                             END IF
                         END IF
@@ -6973,13 +6968,11 @@ SUB DebugMode
                     CASE "_OFFSET", "_UNSIGNED _OFFSET": varSize& = LEN(dummy%&)
                     CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
                 END SELECT
-                _ECHO "Requesting " + STR$(varSize&) + " bytes from &H" + HEX$(address%&)
                 cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + STR$(address%&)
                 GOSUB SendCommand
             CASE "address read"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 sequence% = CVI(MID$(value$, 5, 2))
-                _ECHO "Received data for " + STR$(tempIndex&)
                 recvData$ = MID$(value$, 7)
                 varType$ = usedVariableList(tempIndex&).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
@@ -7007,7 +7000,6 @@ SUB DebugMode
                                 strLength& = CVL(MID$(recvData$, 5))
                             END IF
                             address$ = LEFT$(recvData$, LEN(dummy%&)) 'Pointer to data
-                            _ECHO "Requesting string of length " + STR$(strLength&) + " at &H" + HEX$(address%&)
                             cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + STR$(address%&)
                             GOSUB SendCommand
                             GOTO vwatch_string_seq1_done
