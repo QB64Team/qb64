@@ -7,6 +7,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC buffer$, endc$
     DIM AS LONG i, tempIndex, localIndex
     DIM AS _OFFSET address
+    DIM AS _MEM m
     DIM start!, temp$, cmd$, value$, k&, dataType$, result$
 
     DECLARE LIBRARY
@@ -164,6 +165,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     IF vwatch_breakpoints(vwatch_linenumber) THEN cmd$ = "breakpoint:"
     cmd$ = cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
+    IF vwatch_sublevel > 1 THEN
+        cmd$ = "current sub:" + vwatch_subname$
+    ELSE
+        cmd$ = "current sub:"
+    END IF
+    GOSUB SendCommand
 
     DO 'main loop
         SELECT CASE cmd$
@@ -217,10 +224,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 localIndex = CVL(MID$(value$, 5, 4))
                 dataType$ = MID$(value$, 9)
                 address = globalVariables + LEN(address) * localIndex
+                address = _MEMGET(m, address, _OFFSET)
                 GOSUB GetMemData
-                $CONSOLE
-                _ECHO "global var requested:" + STR$(tempIndex) + STR$(localIndex) + " " + dataType$
-                _ECHO "== result = " + result$
                 cmd$ = "global var:" + MKL$(tempIndex) + result$
                 GOSUB SendCommand
             CASE "local var"
@@ -228,13 +233,11 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 localIndex = CVL(MID$(value$, 5, 4))
                 dataType$ = MID$(value$, 9)
                 address = localVariables + LEN(address) * localIndex
-                GOSUB GetMemData
-                _ECHO "local var requested:" + STR$(tempIndex) + STR$(localIndex) + " " + dataType$
-                _ECHO "== result = " + result$
+                address = _MEMGET(m, address, _OFFSET)
                 cmd$ = "local var:" + MKL$(tempIndex) + result$
                 GOSUB SendCommand
             CASE "current sub"
-                cmd$ = "current sub:" + vwatch_subname
+                cmd$ = "current sub:" + vwatch_subname$
                 GOSUB SendCommand
             CASE "set next line"
                 pauseMode = -1
@@ -306,7 +309,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM integerType AS INTEGER, uintegerType AS _UNSIGNED INTEGER
     DIM longType AS LONG, ulongType AS _UNSIGNED LONG
     DIM singleType AS SINGLE, doubleType AS DOUBLE
-    DIM varOffset AS _OFFSET, m AS _MEM, m2 AS _MEM
+    DIM varOffset AS _OFFSET, m2 AS _MEM
 
     SELECT CASE dataType$
         CASE "INTEGER"

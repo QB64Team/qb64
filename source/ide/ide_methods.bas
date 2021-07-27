@@ -6273,6 +6273,7 @@ SUB DebugMode
     STATIC client&
     STATIC buffer$
     STATIC endc$
+    STATIC currentSub$
 
     timeout = 10
     _KEYCLEAR
@@ -6938,13 +6939,16 @@ SUB DebugMode
                         tempIndex& = CVL(LEFT$(temp$, 4))
                         temp$ = MID$(temp$, 5)
                         IF usedVariableList(tempIndex&).watch THEN
+                            cmd$ = ""
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "global var:"
-                            ELSE
+                            ELSEIF usedVariableList(tempIndex&).subfunc = currentSub$ THEN
                                 cmd$ = "local var:"
                             END IF
-                            cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
-                            GOSUB SendCommand
+                            IF LEN(cmd$) THEN
+                                cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
+                                GOSUB SendCommand
+                            END IF
                         END IF
                     LOOP
                 END IF
@@ -6952,6 +6956,8 @@ SUB DebugMode
                 tempIndex& = CVL(LEFT$(value$, 4))
                 value$ = MID$(value$, 5)
                 usedVariableList(tempIndex&).mostRecentValue = value$
+            CASE "current sub"
+                currentSub$ = value$
             CASE "quit"
                 CLOSE #client&
                 dummy = DarkenFGBG(0)
