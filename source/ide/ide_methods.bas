@@ -6940,12 +6940,17 @@ SUB DebugMode
                         temp$ = MID$(temp$, 5)
                         IF usedVariableList(tempIndex&).watch THEN
                             cmd$ = ""
+                            _ECHO "usedVariableList(tempIndex&).subfunc =" + usedVariableList(tempIndex&).subfunc
+                            _ECHO "currentSub$ =" + currentSub$
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "global var:"
                             ELSEIF usedVariableList(tempIndex&).subfunc = currentSub$ THEN
                                 cmd$ = "local var:"
                             END IF
                             IF LEN(cmd$) THEN
+                                _CONSOLE ON
+                                _ECHO "Requesting " + cmd$
+                                _ECHO "currentSub$ = " + currentSub$
                                 cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
                                 GOSUB SendCommand
                             END IF
@@ -6953,8 +6958,11 @@ SUB DebugMode
                     LOOP
                 END IF
             CASE "global var", "local var"
+                _ECHO "Received " + cmd$
                 tempIndex& = CVL(LEFT$(value$, 4))
                 value$ = MID$(value$, 5)
+                _ECHO "index = " + STR$(tempIndex&)
+                _ECHO "=== value$ = " + value$
                 usedVariableList(tempIndex&).mostRecentValue = value$
             CASE "current sub"
                 currentSub$ = value$

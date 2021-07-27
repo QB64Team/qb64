@@ -166,7 +166,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     cmd$ = cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
     IF vwatch_sublevel > 1 THEN
-        cmd$ = "current sub:" + vwatch_subname$
+        cmd$ = "current sub:" + vwatch_internalsubname$
     ELSE
         cmd$ = "current sub:"
     END IF
@@ -226,6 +226,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 address = globalVariables + LEN(address) * localIndex
                 address = _MEMGET(m, address, _OFFSET)
                 GOSUB GetMemData
+                $CONSOLE
+                _ECHO "Sending global var: " + STR$(tempIndex) + " = " + result$
                 cmd$ = "global var:" + MKL$(tempIndex) + result$
                 GOSUB SendCommand
             CASE "local var"
@@ -234,10 +236,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 dataType$ = MID$(value$, 9)
                 address = localVariables + LEN(address) * localIndex
                 address = _MEMGET(m, address, _OFFSET)
+                GOSUB GetMemData
+                _ECHO "Sending local var: " + STR$(tempIndex) + " = " + result$
                 cmd$ = "local var:" + MKL$(tempIndex) + result$
                 GOSUB SendCommand
             CASE "current sub"
-                cmd$ = "current sub:" + vwatch_subname$
+                cmd$ = "current sub:" + vwatch_internalsubname$
                 GOSUB SendCommand
             CASE "set next line"
                 pauseMode = -1
