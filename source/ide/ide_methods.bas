@@ -1618,7 +1618,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN 'variable watch
-            result = idevariablewatchbox
+            result = idevariablewatchbox("")
             PCOPY 3, 0: SCREEN , , 3, 0
             GOTO ideloop
         END IF
@@ -6748,11 +6748,14 @@ SUB DebugMode
                     cmd$ = "break"
                     PauseMode = -1
                     GOSUB SendCommand
+                    estabilishingScope = -1
+                ELSE
+                    requestVariableWatch:
+                    result = idevariablewatchbox(currentSub$)
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    WHILE _MOUSEINPUT: WEND
+                    GOSUB UpdateDisplay
                 END IF
-                result = idevariablewatchbox
-                PCOPY 3, 0: SCREEN , , 3, 0
-                WHILE _MOUSEINPUT: WEND
-                GOSUB UpdateDisplay
             CASE 16128 'F5
                 requestContinue:
                 PauseMode = 0
@@ -7009,6 +7012,11 @@ SUB DebugMode
                 vwatch_string_seq1_done:
             CASE "current sub"
                 currentSub$ = value$
+                IF estabilishingScope THEN
+                    estabilishingScope = 0
+                    GOSUB UpdateDisplay
+                    GOTO requestVariableWatch
+                END IF
             CASE "quit"
                 CLOSE #client&
                 dummy = DarkenFGBG(0)
@@ -7092,7 +7100,7 @@ SUB DebugMode
 
 END SUB
 
-FUNCTION idevariablewatchbox
+FUNCTION idevariablewatchbox(currentScope$)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -7111,6 +7119,7 @@ FUNCTION idevariablewatchbox
     maxModuleNameLen = LEN(mainmodule$)
     maxVarLen = LEN("Variable")
     maxTypeLen = LEN("Type")
+    highlightColor = 12
 
     TYPE varDlgList
         AS LONG index, colorFlag, indicator
@@ -7139,7 +7148,7 @@ FUNCTION idevariablewatchbox
         varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
         varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
         IF usedVariableList(x).watch THEN
-            l$ = l$ + CHR$(12) + "+"
+            l$ = l$ + CHR$(highlightColor) + "+"
         ELSE
             l$ = l$ + CHR$(16) + " "
         END IF
@@ -7157,8 +7166,14 @@ FUNCTION idevariablewatchbox
         END IF
 
         l$ = l$ + text$ + l3$
-        IF IdeDebugMode > 0 AND LEN(usedVariableList(x).mostRecentValue) > 0 THEN
-            l$ = l$ + " = " + usedVariableList(x).mostRecentValue
+        IF IdeDebugMode > 0 THEN
+            IF usedVariableList(x).watch THEN
+                IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
+                    l$ = l$ + " = " + CHR$(16) + CHR$(highlightcolor) + usedVariableList(x).mostRecentValue
+                ELSE
+                    l$ = l$ + " " + CHR$(16) + CHR$(2) + "<out of scope>"
+                END IF
+            END IF
         END IF
         IF x < totalVariablesCreated THEN l$ = l$ + sep
     NEXT
@@ -7269,7 +7284,7 @@ FUNCTION idevariablewatchbox
         IF (focus = 2 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = -1
-                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 12
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = highlightColor
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
             NEXT
         END IF
@@ -7305,7 +7320,7 @@ FUNCTION idevariablewatchbox
             IF y >= 1 AND y <= totalVisibleVariables THEN
                 usedVariableList(varDlgList(y).index).watch = NOT usedVariableList(varDlgList(y).index).watch
                 IF usedVariableList(varDlgList(y).index).watch THEN
-                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 12
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = highlightColor
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
                 ELSE
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
