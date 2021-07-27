@@ -6488,6 +6488,7 @@ SUB DebugMode
         IF _EXIT THEN ideexit = 1: GOTO requestQuit
 
         bkpidecy = idecy
+        bkpPanelFirstVisible = vWatchPanel.firstVisible
         WHILE _MOUSEINPUT
             mX = _MOUSEX
             mY = _MOUSEY
@@ -6506,7 +6507,9 @@ SUB DebugMode
 
         IF idecy < 1 THEN idecy = 1
         IF idecy > iden THEN idecy = iden
-        IF idecy <> bkpidecy THEN ideselect = 0: GOSUB UpdateDisplay
+        IF idecy <> bkpidecy OR bkpPanelFirstVisible <> vWatchPanel.firstVisible THEN
+            ideselect = 0: GOSUB UpdateDisplay
+        END IF
 
         mB = _MOUSEBUTTON(1)
         mB2 = _MOUSEBUTTON(2)
@@ -6612,6 +6615,7 @@ SUB DebugMode
                     END IF
                 END IF
 
+                vWatchPanelLimit = idewy - 6
                 IF draggingPanel THEN
                     vWatchPanel.x = vWatchPanel.x - (mouseDownOnX - mX)
                     vWatchPanel.y = vWatchPanel.y - (mouseDownOnY - mY)
@@ -6619,8 +6623,6 @@ SUB DebugMode
                     IF vWatchPanel.x < 2 THEN vWatchPanel.x = 2
                     IF vWatchPanel.x + vWatchPanel.w > idewx - 2 THEN vWatchPanel.x = idewx - vWatchPanel.w - 2
                     IF vWatchPanel.y < 3 THEN vWatchPanel.y = 3
-                    IF vWatchPanel.y + vWatchPanel.h > idewy - (vWatchPanel.h + 7) THEN vWatchPanel.y = idewy - (vWatchPanel.h + 7)
-                    vWatchPanelLimit = idewy - 6
                     IF vWatchPanel.y > vWatchPanelLimit - (vWatchPanel.h + 1) THEN vWatchPanel.y = vWatchPanelLimit - (vWatchPanel.h + 1)
                     mouseDownOnX = mX
                     mouseDownOnY = mY
@@ -6631,7 +6633,13 @@ SUB DebugMode
 
                     IF vWatchPanel.w < 40 THEN vWatchPanel.w = 40
                     IF vWatchPanel.w > idewx - 12 THEN vWatchPanel.w = idewx - 12
-                    IF vWatchPanel.h < 3 THEN vWatchPanel.h = 3
+                    IF vWatchPanel.x + vWatchPanel.w > idewx - 2 THEN
+                        vWatchPanel.w = (idewx - 2) - vWatchPanel.x
+                    END IF
+                    IF vWatchPanel.y + vWatchPanel.h > vWatchPanelLimit THEN
+                        vWatchPanel.h = vWatchPanelLimit - (vWatchPanel.y)
+                    END IF
+                    IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
                     IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
                     mouseDownOnX = mX
                     mouseDownOnY = mY
@@ -7204,7 +7212,8 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
         DO WHILE LEN(temp$)
             tempIndex& = CVL(LEFT$(temp$, 4))
             temp$ = MID$(temp$, 5)
-            IF this.firstVisible > totalVisibleVariables THEN _CONTINUE
+            i = i + 1
+            IF this.firstVisible > i THEN _CONTINUE
             y = y + 1
             IF y > this.h - 2 THEN EXIT DO
             item$ = usedVariableList(tempIndex&).name + " = "
