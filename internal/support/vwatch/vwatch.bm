@@ -5,10 +5,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG callStackLength, runToLine
     STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
-    DIM AS LONG i, tempIndex, localIndex
+    DIM AS LONG i, tempIndex, localIndex, varSize, sequence
     DIM AS _OFFSET address
-    DIM AS _MEM m
-    DIM start!, temp$, cmd$, value$, k&, dataType$, result$
+    DIM AS _MEM m, m2
+    DIM start!, temp$, cmd$, value$, k&, dataType$, result$, buf$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -217,29 +217,37 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "clear all skips"
                 REDIM vwatch_skiplines(UBOUND(vwatch_skiplines)) AS _BYTE
             CASE "call stack"
-                'send call stack history"
+                'send call stack history
                 GOSUB SendCallStack
             CASE "global var"
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
-                dataType$ = MID$(value$, 9)
                 address = globalVariables + LEN(address) * localIndex
                 address = _MEMGET(m, address, _OFFSET)
-                GOSUB GetMemData
                 $CONSOLE
-                _ECHO "Sending global var: " + STR$(tempIndex) + " = " + result$
-                cmd$ = "global var:" + MKL$(tempIndex) + result$
+                cmd$ = "global var:" + MKL$(tempIndex) + str$(address)
                 GOSUB SendCommand
             CASE "local var"
-                tempIndex = CVL(LEFT$(value$, 4))
-                localIndex = CVL(MID$(value$, 5, 4))
-                dataType$ = MID$(value$, 9)
-                address = localVariables + LEN(address) * localIndex
-                address = _MEMGET(m, address, _OFFSET)
-                GOSUB GetMemData
-                _ECHO "Sending local var: " + STR$(tempIndex) + " = " + result$
-                cmd$ = "local var:" + MKL$(tempIndex) + result$
-                GOSUB SendCommand
+                ' tempIndex = CVL(LEFT$(value$, 4))
+                ' localIndex = CVL(MID$(value$, 5, 4))
+                ' dataType$ = MID$(value$, 9)
+                ' address = localVariables + LEN(address) * localIndex
+                ' address = _MEMGET(m, address, _OFFSET)
+                ' GOSUB GetMemData
+                ' _ECHO "Sending local var: " + STR$(tempIndex) + " = " + result$
+                ' cmd$ = "local var:" + MKL$(tempIndex) + result$
+                ' GOSUB SendCommand
+            case "get address"
+                tempIndex = cvl(left$(value$, 4))
+                sequence = cvi(mid$(value$, 5, 2))
+                varSize = cvl(mid$(value$, 7, 4))
+                address = val(mid$(value$, 11))
+                buf$ = space$(varSize)
+                m = _mem(address, varSize)
+                m2 = _mem(_offset(buf$), varSize)
+                _memcopy m, m.offset, m.size to m2, m2.offset
+                cmd$ = "address read:" + mkl$(tempIndex) + mki$(sequence) + buf$
+                gosub sendcommand
             CASE "current sub"
                 cmd$ = "current sub:" + vwatch_internalsubname$
                 GOSUB SendCommand
@@ -309,55 +317,4 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     cmd$ = ""
     RETURN
 
-    GetMemData:
-    DIM integerType AS INTEGER, uintegerType AS _UNSIGNED INTEGER
-    DIM longType AS LONG, ulongType AS _UNSIGNED LONG
-    DIM singleType AS SINGLE, doubleType AS DOUBLE
-    DIM varOffset AS _OFFSET, m2 AS _MEM
-
-    SELECT CASE dataType$
-        CASE "INTEGER"
-            m = _MEM(address, 2)
-            m2 = _MEM(integerType)
-            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-            _MEMFREE m
-            _MEMFREE m2
-            result$ = STR$(integerType)
-        CASE "_UNSIGNED INTEGER"
-            m = _MEM(address, 2)
-            m2 = _MEM(uintegerType)
-            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-            _MEMFREE m
-            _MEMFREE m2
-            result$ = STR$(uintegerType)
-        CASE "LONG"
-            m = _MEM(address, 4)
-            m2 = _MEM(longType)
-            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-            _MEMFREE m
-            _MEMFREE m2
-            result$ = STR$(longType)
-        CASE "_UNSIGNED LONG"
-            m = _MEM(address, 4)
-            m2 = _MEM(ulongType)
-            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-            _MEMFREE m
-            _MEMFREE m2
-            result$ = STR$(ulongType)
-        CASE "SINGLE"
-            m = _MEM(address, 4)
-            m2 = _MEM(singleType)
-            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-            _MEMFREE m
-            _MEMFREE m2
-            result$ = STR$(singleType)
-        CASE "DOUBLE"
-            m = _MEM(address, 8)
-            m2 = _MEM(doubleType)
-            _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-            _MEMFREE m
-            _MEMFREE m2
-            result$ = STR$(doubleType)
-    END SELECT
-    RETURN
 END SUB

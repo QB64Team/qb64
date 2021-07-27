@@ -6940,8 +6940,8 @@ SUB DebugMode
                         temp$ = MID$(temp$, 5)
                         IF usedVariableList(tempIndex&).watch THEN
                             cmd$ = ""
-                            _ECHO "usedVariableList(tempIndex&).subfunc =" + usedVariableList(tempIndex&).subfunc
-                            _ECHO "currentSub$ =" + currentSub$
+                            '_ECHO "usedVariableList(tempIndex&).subfunc =" + usedVariableList(tempIndex&).subfunc
+                            '_ECHO "currentSub$ =" + currentSub$
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "global var:"
                             ELSEIF usedVariableList(tempIndex&).subfunc = currentSub$ THEN
@@ -6949,21 +6949,72 @@ SUB DebugMode
                             END IF
                             IF LEN(cmd$) THEN
                                 _CONSOLE ON
-                                _ECHO "Requesting " + cmd$
-                                _ECHO "currentSub$ = " + currentSub$
-                                cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).varType
+                                _ECHO "Requesting " + cmd$ + str$(tempIndex&)
+                                '_ECHO "currentSub$ = " + currentSub$
+                                cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex)
                                 GOSUB SendCommand
                             END IF
                         END IF
                     LOOP
                 END IF
             CASE "global var", "local var"
-                _ECHO "Received " + cmd$
                 tempIndex& = CVL(LEFT$(value$, 4))
-                value$ = MID$(value$, 5)
-                _ECHO "index = " + STR$(tempIndex&)
-                _ECHO "=== value$ = " + value$
-                usedVariableList(tempIndex&).mostRecentValue = value$
+                address%& = val(mid$(value$, 5))
+                varType$ = usedVariableList(tempIndex&).varType
+                if instr(varType$, "STRING *") then varType$ = "STRING"
+                select case varType$
+                    case "_BYTE", "_UNSIGNED _BYTE": varSize& = len(dummy%%)
+                    case "INTEGER", "_UNSIGNED INTEGER": varSize& = len(dummy%)
+                    case "LONG", "_UNSIGNED LONG": varSize& = len(dummy&)
+                    case "_INTEGER64", "_UNSIGNED _INTEGER64": varSize& = len(dummy&&)
+                    case "SINGLE": varSize& = len(dummy!)
+                    case "DOUBLE": varSize& = len(dummy#)
+                    case "_FLOAT": varSize& = len(dummy##)
+                    case "_OFFSET", "_UNSIGNED _OFFSET": varSize& = len(dummy%&)
+                    case "STRING": varSize& = len(dummy%&) + len(dummy&)
+                end select
+                _echo "Requesting " + str$(varSize&) + " bytes from &H" + hex$(address%&)
+                cmd$ = "get address:" + mkl$(tempIndex&) + mki$(1) + mkl$(varSize&) + str$(address%&)
+                gosub SendCommand
+            case "address read"
+                tempIndex& = cvl(left$(value$, 4))
+                sequence% = cvi(mid$(value$, 5, 2))
+                _echo "Received data for " + str$(tempIndex&)
+                recvData$ = mid$(value$, 7)
+                varType$ = usedVariableList(tempIndex&).varType
+                if instr(varType$, "STRING *") then varType$ = "STRING"
+                select case varType$
+                    case "_BYTE": recvData$ = str$(_cv(_byte, recvData$))
+                    case "_UNSIGNED _BYTE": recvData$ = str$(_cv(_unsigned _byte, recvData$))
+                    case "INTEGER": recvData$ = str$(_cv(integer, recvData$))
+                    case "_UNSIGNED INTEGER": recvData$ = str$(_cv(_unsigned integer, recvData$))
+                    case "LONG": recvData$ = str$(_cv(long, recvData$))
+                    case "_UNSIGNED LONG": recvData$ = str$(_cv(_unsigned long, recvData$))
+                    case "_INTEGER64": recvData$ = str$(_cv(_integer64, recvData$))
+                    case "_UNSIGNED _INTEGER64": recvData$ = str$(_cv(_unsigned _integer64, recvData$))
+                    case "SINGLE": recvData$ = str$(_cv(single, recvData$))
+                    case "DOUBLE": recvData$ = str$(_cv(double, recvData$))
+                    case "_FLOAT": recvData$ = str$(_cv(_float, recvData$))
+                    case "_OFFSET": 'TODO
+                    case "_UNSIGNED _OFFSET": 'TODO
+                    case "STRING"
+                        if sequence% = 1 then
+                            if len(dummy%&) = 8 then
+                                address%& = _cv(_integer64, left$(recvData$, 8))
+                                strLength& = cvl(mid$(recvData$, 9))
+                            else
+                                address%& = _cv(long, left$(recvData$, 4))
+                                strLength& = cvl(mid$(recvData$, 5))
+                            end if
+                            address$ = left$(recvData$, len(dummy%&)) 'Pointer to data
+                            _echo "Requesting string of length " + str$(strLength&) + " at &H" + hex$(address%&)
+                            cmd$ = "get address:" + mkl$(tempIndex&) + mki$(2) + mkl$(strLength&) + str$(address%&)
+                            gosub sendcommand
+                            goto vwatch_string_seq1_done
+                        end if
+                end select
+                usedVariableList(tempIndex&).mostRecentValue = recvData$
+                vwatch_string_seq1_done:
             CASE "current sub"
                 currentSub$ = value$
             CASE "quit"
