@@ -17073,7 +17073,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 IF n$ = "_MK" OR (n$ = "MK" AND qb64prefix_set = 1) THEN mktype = -1
                 IF mktype THEN
                     IF mktype <> -1 OR curarg = 2 THEN
-                        IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
+                        'IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
                         'both _MK and trad. process the following
                         qtyp& = 0
                         IF mktype$ = "%%" THEN ctype$ = "b": qtyp& = BYTETYPE - ISPOINTER
@@ -17087,6 +17087,8 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF mktype$ = "!" THEN ctype$ = "s": qtyp& = SINGLETYPE - ISPOINTER
                         IF mktype$ = "#" THEN ctype$ = "d": qtyp& = DOUBLETYPE - ISPOINTER
                         IF mktype$ = "##" THEN ctype$ = "f": qtyp& = FLOATTYPE - ISPOINTER
+                        IF mktype$ = "%&" THEN ctype$ = "o": qtyp& = OFFSETTYPE - ISPOINTER
+                        IF mktype$ = "~%&" THEN ctype$ = "uo": qtyp& = UOFFSETTYPE - ISPOINTER
                         IF LEFT$(mktype$, 2) = "~`" THEN ctype$ = "ubit": qtyp& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 2))
                         IF LEFT$(mktype$, 1) = "`" THEN ctype$ = "bit": qtyp& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 1))
                         IF qtyp& = 0 THEN Give_Error qb64prefix$ + "MK only accepts numeric types": EXIT FUNCTION
@@ -17124,6 +17126,8 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF cvtype$ = "!" THEN ctype$ = "s": typ& = SINGLETYPE - ISPOINTER
                         IF cvtype$ = "#" THEN ctype$ = "d": typ& = DOUBLETYPE - ISPOINTER
                         IF cvtype$ = "##" THEN ctype$ = "f": typ& = FLOATTYPE - ISPOINTER
+                        IF cvtype$ = "%&" THEN ctype$ = "o": typ& = OFFSETTYPE - ISPOINTER
+                        IF cvtype$ = "~%&" THEN ctype$ = "uo": typ& = UOFFSETTYPE - ISPOINTER
                         IF LEFT$(cvtype$, 2) = "~`" THEN ctype$ = "ubit": typ& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 2))
                         IF LEFT$(cvtype$, 1) = "`" THEN ctype$ = "bit": typ& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 1))
                         IF typ& = 0 THEN Give_Error qb64prefix$ + "CV cannot return STRING type!": EXIT FUNCTION

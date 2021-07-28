@@ -6462,6 +6462,8 @@ qbs *ui642string(uint64 v){ static qbs *tqbs; tqbs=qbs_new(8,1); *((uint64*)(tqb
 qbs *s2string(float v){ static qbs *tqbs; tqbs=qbs_new(4,1); *((float*)(tqbs->chr))=v; return tqbs;}
 qbs *d2string(double v){ static qbs *tqbs; tqbs=qbs_new(8,1); *((double*)(tqbs->chr))=v; return tqbs;}
 qbs *f2string(long double v){ static qbs *tqbs; tqbs=qbs_new(32,1); memset(tqbs->chr,0,32); *((long double*)(tqbs->chr))=v; return tqbs;}
+qbs *o2string(ptrszint v){ static qbs *tqbs; tqbs=qbs_new(sizeof(ptrszint),1); memset(tqbs->chr,0,sizeof(ptrszint)); *((ptrszint*)(tqbs->chr))=v; return tqbs;}
+qbs *uo2string(uptrszint v){ static qbs *tqbs; tqbs=qbs_new(sizeof(uptrszint),1); memset(tqbs->chr,0,sizeof(uptrszint)); *((uptrszint*)(tqbs->chr))=v; return tqbs;}
 qbs *bit2string(uint32 bsize,int64 v){
     static qbs* tqbs;
     tqbs=qbs_new(8,1);
@@ -6492,6 +6494,8 @@ uint64 string2ui64(qbs*str){ if (str->len<8) {error(5); return 0;} else {return 
 float string2s(qbs*str){ if (str->len<4) {error(5); return 0;} else {return *((float*)str->chr);} }
 double string2d(qbs*str){ if (str->len<8) {error(5); return 0;} else {return *((double*)str->chr);} }
 long double string2f(qbs*str){ if (str->len<32) {error(5); return 0;} else {return *((long double*)str->chr);} }
+ptrszint string2o(qbs*str){ if (str->len<sizeof(ptrszint)) {error(5); return 0;} else {return *((ptrszint*)str->chr);} }
+uptrszint string2uo(qbs*str){ if (str->len<sizeof(uptrszint)) {error(5); return 0;} else {return *((uptrszint*)str->chr);} }
 uint64 string2ubit(qbs*str,uint32 bsize){
     int64 bmask;
     if (str->len<((bsize+7)>>3)) {error(5); return 0;}
