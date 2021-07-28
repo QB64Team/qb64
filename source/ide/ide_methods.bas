@@ -7216,8 +7216,8 @@ SUB DebugMode
                     CASE "SINGLE": recvData$ = STR$(_CV(SINGLE, recvData$))
                     CASE "DOUBLE": recvData$ = STR$(_CV(DOUBLE, recvData$))
                     CASE "_FLOAT": recvData$ = STR$(_CV(_FLOAT, recvData$))
-                    CASE "_OFFSET": 'TODO
-                    CASE "_UNSIGNED _OFFSET": 'TODO
+                    CASE "_OFFSET": recvData$ = STR$(_CV(_OFFSET, recvData$))
+                    CASE "_UNSIGNED _OFFSET": recvData$ = STR$(_CV(_UNSIGNED _OFFSET, recvData$))
                     CASE "STRING"
                         IF sequence% = 1 THEN
                             IF LEN(dummy%&) = 8 THEN
