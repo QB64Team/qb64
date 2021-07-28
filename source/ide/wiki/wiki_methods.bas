@@ -348,6 +348,19 @@ SUB WikiParse (a$)
                 GOTO Special
             END IF
 
+            s$ = "&lt;nowiki>"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                GOTO Special
+            END IF
+
+            s$ = "&lt;/nowiki>"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                GOTO Special
+            END IF
+
+
             s$ = "&lt;p style="
             IF c$(LEN(s$)) = s$ THEN
                 i = i + LEN(s$) - 1
