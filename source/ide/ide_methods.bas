@@ -2233,6 +2233,11 @@ FUNCTION ide2 (ignore)
                 IF (mY = idewy AND (mX >= idewx - 6 AND mX <= idewx - 4)) THEN 'launch wiki
                     launchWiki:
                     url$ = StrReplace$("http://www.qb64.org/wiki/index.php?title=" + Back$(Help_Back_Pos), " ", "%20")
+                    IF INSTR(_OS$, "WIN") = 0 THEN
+                        url$ = StrReplace$(url$, "$", "\$")
+                        url$ = StrReplace$(url$, "&", "\&")
+                    END IF
+
                     IF INSTR(_OS$, "WIN") THEN
                         SHELL _DONTWAIT "start " + url$
                     ELSEIF INSTR(_OS$, "MAC") THEN
@@ -5215,6 +5220,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "View Current Page On #Wiki" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 IF idehelp THEN GOTO launchWiki
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "#Update Current Page" THEN
