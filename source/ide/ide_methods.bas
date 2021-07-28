@@ -2230,12 +2230,14 @@ FUNCTION ide2 (ignore)
 
 
             IF mCLICK THEN
-                IF (mY = idewy AND (mX >= idewx - 6 AND mX <= idewx - 4)) THEN 'launch wiki
+                IF (mY = idewy AND (mX >= idewx - 17 AND mX <= idewx - 4)) THEN 'view on wiki
                     launchWiki:
                     url$ = StrReplace$("http://www.qb64.org/wiki/index.php?title=" + Back$(Help_Back_Pos), " ", "%20")
                     IF INSTR(_OS$, "WIN") = 0 THEN
                         url$ = StrReplace$(url$, "$", "\$")
                         url$ = StrReplace$(url$, "&", "\&")
+                        url$ = StrReplace$(url$, "(", "\(")
+                        url$ = StrReplace$(url$, ")", "\)")
                     END IF
 
                     IF INSTR(_OS$, "WIN") THEN
@@ -6293,7 +6295,8 @@ FUNCTION ide2 (ignore)
             PRINT CHR$(196);
         END IF
     NEXT
-    COLOR 15, 3: _PRINTSTRING (idewx - 6, idewy), " " + CHR$(233) + " "
+    COLOR 7, 0: _PRINTSTRING (idewx - 18, idewy), CHR$(180)
+    COLOR 15, 3: _PRINTSTRING (idewx - 17, idewy), " View on Wiki "
     RETURN
 
 END FUNCTION
