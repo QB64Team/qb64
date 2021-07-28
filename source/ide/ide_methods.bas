@@ -2215,7 +2215,7 @@ FUNCTION ide2 (ignore)
         IF IdeSystem = 3 THEN
 
             IF mCLICK OR K$ = CHR$(27) THEN
-                IF (mY = idewy AND mX = idewx - 2) OR K$ = CHR$(27) THEN 'close help
+                IF (mY = idewy AND (mX >= idewx - 3 AND mX <= idewx - 1)) OR K$ = CHR$(27) THEN 'close help
 
 
                     'IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
@@ -6179,7 +6179,7 @@ FUNCTION ide2 (ignore)
     IF idehelp = 1 THEN
         COLOR 7, 0: idebox 1, idewy, idewx, idesubwindow + 1
         COLOR 7, 0: _PRINTSTRING (1, idewy), CHR$(195): _PRINTSTRING (idewx, idewy), CHR$(180)
-        COLOR 7, 0: _PRINTSTRING (idewx - 3, idewy), CHR$(180) + "X" + CHR$(195)
+        COLOR 15, 4: _PRINTSTRING (idewx - 3, idewy), " x "
     END IF
 
     GOSUB UpdateSearchBar
