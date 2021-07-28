@@ -438,6 +438,8 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Downloads the latest version of an article from the wiki"
         menu$(m, i) = "Update All #Pages...": i = i + 1
         menuDesc$(m, i - 1) = "Downloads the latest version of all articles from the wiki"
+        menu$(m, i) = "View Current Page On #Wiki": i = i + 1
+        menuDesc$(m, i - 1) = "Launches the default browser and navigates to the current article on the wiki"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "#About...": i = i + 1
         menuDesc$(m, i - 1) = "Displays the current version of QB64"
@@ -2216,10 +2218,6 @@ FUNCTION ide2 (ignore)
 
             IF mCLICK OR K$ = CHR$(27) THEN
                 IF (mY = idewy AND (mX >= idewx - 3 AND mX <= idewx - 1)) OR K$ = CHR$(27) THEN 'close help
-
-
-                    'IF idesubwindow THEN PCOPY 3, 0: SCREEN , , 3, 0: idewait4mous: idewait4alt: GOTO ideloop
-                    'idesubwindow = idewy \ 2: idewy = idewy - idesubwindow
                     closeHelp:
                     idewy = idewy + idesubwindow
                     idehelp = 0
@@ -2227,12 +2225,24 @@ FUNCTION ide2 (ignore)
                     skipdisplay = 0
                     IdeSystem = 1
                     retval = 1: GOSUB redrawItAll
-
                 END IF
             END IF
 
 
             IF mCLICK THEN
+                IF (mY = idewy AND (mX >= idewx - 6 AND mX <= idewx - 4)) THEN 'launch wiki
+                    launchWiki:
+                    url$ = StrReplace$("http://www.qb64.org/wiki/index.php?title=" + Back$(Help_Back_Pos), " ", "%20")
+                    IF INSTR(_OS$, "WIN") THEN
+                        SHELL _DONTWAIT "start " + url$
+                    ELSEIF INSTR(_OS$, "MAC") THEN
+                        SHELL _DONTWAIT "open " + url$
+                    ELSE
+                        SHELL _DONTWAIT "xdg-open " + url$
+                    END IF
+                    GOTO specialchar
+                END IF
+
                 IF mY = idewy THEN
 
                     sx = 2
@@ -5202,6 +5212,11 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
+            IF menu$(m, s) = "View Current Page On #Wiki" THEN
+                PCOPY 3, 0: SCREEN , , 3, 0
+                IF idehelp THEN GOTO launchWiki
+            END IF
+
             IF menu$(m, s) = "#Update Current Page" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 IF idehelp THEN
@@ -6272,6 +6287,7 @@ FUNCTION ide2 (ignore)
             PRINT CHR$(196);
         END IF
     NEXT
+    COLOR 15, 3: _PRINTSTRING (idewx - 6, idewy), " " + CHR$(233) + " "
     RETURN
 
 END FUNCTION
@@ -15451,6 +15467,8 @@ SUB IdeMakeContextualMenu
             menuDesc$(m, i - 1) = "Downloads the latest version of this article from the wiki"
             menu$(m, i) = "Update All #Pages...": i = i + 1
             menuDesc$(m, i - 1) = "Downloads the latest version of all articles from the wiki"
+            menu$(m, i) = "View Current Page On #Wiki": i = i + 1
+            menuDesc$(m, i - 1) = "Launches the default browser and navigates to the current article on the wiki"
             menu$(m, i) = "-": i = i + 1
             menu$(m, i) = "Clo#se Help  ESC": i = i + 1
             menuDesc$(m, i - 1) = "Closes help window"
