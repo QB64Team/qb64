@@ -6289,9 +6289,10 @@ SUB DebugMode
     SCREEN , , 3, 0
 
     TYPE vWatchPanelType
-        AS INTEGER x, y, w, h, firstVisible, vBarElevator
+        AS INTEGER x, y, w, h, firstVisible, hPos, vBarThumb, hBarThumb
+        AS INTEGER draggingVBar, draggingHBar
+        AS LONG contentWidth
         AS _BYTE draggingPanel, resizingPanel, closingPanel
-        AS _BYTE draggingVBar, draggingHBar
     END TYPE
     STATIC vWatchPanel AS vWatchPanelType
 
@@ -6556,8 +6557,28 @@ SUB DebugMode
                     vWatchPanel.closingPanel = -1
                 ELSEIF LEN(variableWatchList$) > 0 AND _
                    (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
-                   (mY = vWatchPanel.vBarElevator) THEN
-                    vWatchPanel.draggingVBar = -1
+                   (mY = vWatchPanel.vBarThumb) THEN
+                    vWatchPanel.draggingVBar = 1 'thumb
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
+                   (mY = vWatchPanel.y + 1) THEN
+                    vWatchPanel.draggingVBar = 2 'up arrow
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
+                   (mY = vWatchPanel.y + vWatchPanel.h - 2) THEN
+                    vWatchPanel.draggingVBar = 3 'down arrow
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.hBarThumb) AND _
+                   (mY = vWatchPanel.y + vWatchPanel.h - 1) THEN
+                    vWatchPanel.draggingHBar = 1 'thumb
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.x) AND _
+                   (mY = vWatchPanel.y + vWatchPanel.h - 1) THEN
+                    vWatchPanel.draggingHBar = 2 'left arrow
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.x + vWatchPanel.w - 2) AND _
+                   (mY = vWatchPanel.y + vWatchPanel.h - 1) THEN
+                    vWatchPanel.draggingHBar = 3 'right arrow
                 ELSEIF LEN(variableWatchList$) > 0 AND _
                    (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
                    (mY = vWatchPanel.y + vWatchPanel.h - 1) THEN
@@ -6578,6 +6599,7 @@ SUB DebugMode
                     vWatchPanel.resizingPanel = 0
                     vWatchPanel.closingPanel = 0
                     vWatchPanel.draggingVBar = 0
+                    vWatchPanel.draggingHBar = 0
                 END IF
 
                 IF mX = idewx THEN
@@ -6665,11 +6687,18 @@ SUB DebugMode
                     mouseDownOnX = mX
                     mouseDownOnY = mY
                     GOSUB UpdateDisplay
-                ELSEIF vWatchPanel.draggingVBar THEN
+                ELSEIF vWatchPanel.draggingVBar = 1 THEN
                     vWatchPanel.firstVisible = INT(map(mY, vWatchPanel.y + 2, vWatchPanel.y + vWatchPanel.h - 2, 1, totalVisibleVariables))
                     IF vWatchPanel.firstVisible < 1 THEN vWatchPanel.firstVisible = 1
                     IF vWatchPanel.firstVisible > totalVisibleVariables THEN
                         vWatchPanel.firstVisible = totalVisibleVariables
+                    END IF
+                    GOSUB UpdateDisplay
+                ELSEIF vWatchPanel.draggingHBar = 1 THEN
+                    vWatchPanel.hPos = INT(map(mX, vWatchPanel.x, vWatchPanel.x + vWatchPanel.w - 2, 1, vWatchPanel.contentWidth))
+                    IF vWatchPanel.hPos < 1 THEN vWatchPanel.hPos = 1
+                    IF vWatchPanel.hPos > vWatchPanel.contentWidth THEN
+                        vWatchPanel.hPos = vWatchPanel.contentWidth
                     END IF
                     GOSUB UpdateDisplay
                 END IF
@@ -6686,7 +6715,34 @@ SUB DebugMode
                 NEXT
                 GOSUB UpdateDisplay
             END IF
-            IF vWatchPanel.draggingVBar THEN vWatchPanel.draggingVBar = 0: mouseDown = 0
+            IF vWatchPanel.draggingVBar THEN
+                IF vWatchPanel.draggingVBar = 2 THEN
+                    vWatchPanel.firstVisible = vWatchPanel.firstVisible - 1
+                    IF vWatchPanel.firstVisible < 1 THEN vWatchPanel.firstVisible = 1
+                    GOSUB UpdateDisplay
+                ELSEIF vWatchPanel.draggingVBar = 3 THEN
+                    vWatchPanel.firstVisible = vWatchPanel.firstVisible + 1
+                    IF vWatchPanel.firstVisible > totalVisibleVariables THEN
+                        vWatchPanel.firstVisible = totalVisibleVariables
+                    END IF
+                    GOSUB UpdateDisplay
+                END IF
+                vWatchPanel.draggingVBar = 0: mouseDown = 0
+            END IF
+            IF vWatchPanel.draggingHBar THEN
+                IF vWatchPanel.draggingHBar = 2 THEN
+                    vWatchPanel.hPos = vWatchPanel.hPos - 1
+                    IF vWatchPanel.hPos < 1 THEN vWatchPanel.hPos = 1
+                    GOSUB UpdateDisplay
+                ELSEIF vWatchPanel.draggingHBar = 3 THEN
+                    vWatchPanel.hPos = vWatchPanel.hPos + 1
+                    IF vWatchPanel.hPos > vWatchPanel.contentWidth THEN
+                        vWatchPanel.hPos = vWatchPanel.contentWidth
+                    END IF
+                    GOSUB UpdateDisplay
+                END IF
+                vWatchPanel.draggingHBar = 0: mouseDown = 0
+            END IF
             IF mouseDown THEN
                 mouseDown = 0
                 draggingVThumb = 0
@@ -6759,6 +6815,7 @@ SUB DebugMode
                 vWatchPanel.resizingPanel = 0
                 vWatchPanel.closingPanel = 0
                 vWatchPanel.draggingVBar = 0
+                vWatchPanel.draggingHBar = 0
             END IF
         END IF
 
@@ -7260,6 +7317,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     COLOR , bg
 
     y = 0
+    this.contentWidth = 0
     IF LEN(variableWatchList$) THEN
         longestVarName = CVL(LEFT$(variableWatchList$, 4))
         temp$ = MID$(variableWatchList$, 5)
@@ -7280,13 +7338,20 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
                     COLOR 2
                 END IF
             END IF
-            _PRINTSTRING (this.x + 2, this.y + y), LEFT$(item$, this.w - 4)
+            IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
+            _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
         LOOP
     END IF
 
     y = idevbar(this.x + this.w - 1, this.y + 1, this.h - 2, this.firstVisible, totalVisibleVariables)
     IF this.draggingVBar = 0 THEN
-        this.vBarElevator = y
+        this.vBarThumb = y
+    END IF
+
+    IF this.hPos = 0 THEN this.hPos = 1
+    x = idehbar(this.x, this.y + this.h - 1, this.w - 1, this.hPos, this.contentWidth)
+    IF this.draggingHBar = 0 THEN
+        this.hBarThumb = x
     END IF
 END SUB
 
