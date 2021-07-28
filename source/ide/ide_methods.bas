@@ -725,6 +725,23 @@ FUNCTION ide2 (ignore)
         '$DEBUG mode on
         IdeDebugMode = 1
 
+        FOR x = 1 TO totalVariablesCreated
+            usedVariableList(x).mostRecentValue = ""
+        NEXT
+
+        variableWatchList$ = ""
+        longestVarName = 0
+        FOR y = 1 TO totalVariablesCreated
+            IF usedVariableList(y).watch THEN
+                IF LEN(usedVariableList(y).name) > longestVarName THEN
+                    longestVarName = LEN(usedVariableList(y).name)
+                    IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
+                    MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
+                END IF
+                variableWatchList$ = variableWatchList$ + MKL$(y)
+            END IF
+        NEXT
+
         EnterDebugMode:
         IF idehelp THEN
             idewy = idewy + idesubwindow
