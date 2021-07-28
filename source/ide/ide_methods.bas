@@ -6338,6 +6338,11 @@ SUB DebugMode
     END TYPE
     STATIC vWatchPanel AS vWatchPanelType
 
+    TYPE ui
+        AS INTEGER x, y, w, h
+        AS STRING caption
+    END TYPE
+
     SELECT EVERYCASE IdeDebugMode
         CASE 1
             PauseMode = 0
@@ -6360,6 +6365,32 @@ SUB DebugMode
             vWatchPanel.x = idewx - vWatchPanel.w - 6
             vWatchPanel.y = 4
             vWatchPanel.firstVisible = 1
+
+            STATIC Button(1 TO 8) AS ui
+            i = 0
+            i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
+            i = i + 1: Button(i).Caption = "<F5 = Run>"
+            i = i + 1: Button(i).Caption = "<F6 = Step Out>"
+            i = i + 1: Button(i).Caption = "<F7 = Step Over>"
+            i = i + 1: Button(i).Caption = "<F8 = Step Into>"
+            i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
+            i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
+            i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
+            y = (idewy - 4) + 2
+            x = 2
+            FOR i = 1 TO UBOUND(Button)
+                Button(i).x = x
+                Button(i).y = y
+                Button(i).w = LEN(Button(i).Caption)
+                IF i < UBOUND(Button) THEN
+                    x = x + Button(i).w + 1
+                    IF x + LEN(Button(i + 1).Caption) > idewx - 1 THEN
+                        y = y + 1
+                        x = 2
+                    END IF
+                END IF
+            NEXT
+
         CASE IS > 1
             noFocusMessage = NOT noFocusMessage
             GOSUB UpdateStatusArea
@@ -6397,7 +6428,7 @@ SUB DebugMode
 
     dummy = DarkenFGBG(1)
     clearStatusWindow 0
-    setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 15
+    setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 13
 
     IF host& = 0 THEN
         host& = _OPENHOST("TCP/IP:" + hostport$)
@@ -6437,7 +6468,7 @@ SUB DebugMode
 
     ideselect = 0
     clearStatusWindow 1
-    setStatusMessage 1, "Handshaking...", 15
+    setStatusMessage 1, "Handshaking...", 13
 
     start! = TIMER
     DO
@@ -6527,7 +6558,7 @@ SUB DebugMode
     GOSUB SendCommand
 
     clearStatusWindow 2
-    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 15
+    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 13
 
     noFocusMessage = -1
 
@@ -6663,6 +6694,15 @@ SUB DebugMode
                 ELSE
                     draggingHThumb = 0
                 END IF
+
+                mouseDownOnButton = 0
+                FOR i = 1 TO UBOUND(Button)
+                    IF mY = Button(i).y AND mX >= Button(i).x AND mX <= Button(i).x + Button(i).w AND _
+                       vWatchPanel.draggingPanel = 0 AND vWatchPanel.resizingPanel = 0 THEN
+                        mouseDownOnButton = i
+                        EXIT FOR
+                    END IF
+                NEXT
             ELSE
                 'drag
                 IF draggingVThumb = -1 THEN
@@ -6753,7 +6793,7 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             END IF
-        ELSE
+        ELSE 'mouse button released
             IF vWatchPanel.draggingPanel THEN vWatchPanel.draggingPanel = 0: mouseDown = 0
             IF vWatchPanel.resizingPanel THEN vWatchPanel.resizingPanel = 0: mouseDown = 0
             IF vWatchPanel.closingPanel AND (mX = mouseDownOnX AND mY = mouseDownOnY) THEN
@@ -6797,6 +6837,20 @@ SUB DebugMode
                 mouseDown = 0
                 draggingVThumb = 0
                 draggingHThumb = 0
+
+                IF mouseDownOnButton > 0 AND mX = mouseDownOnX AND mY = mouseDownOnY THEN
+                    SELECT CASE mouseDownOnButton
+                        CASE 1: mouseDownOnButton = 0: mouseDown = 0: GOTO F4
+                        CASE 2: mouseDownOnButton = 0: mouseDown = 0: GOTO F5
+                        CASE 3: mouseDownOnButton = 0: mouseDown = 0: GOTO F6
+                        CASE 4: mouseDownOnButton = 0: mouseDown = 0: GOTO F7
+                        CASE 5: mouseDownOnButton = 0: mouseDown = 0: GOTO F8
+                        CASE 6: mouseDownOnButton = 0: mouseDown = 0: GOTO F9
+                        CASE 7: mouseDownOnButton = 0: mouseDown = 0: GOTO F10
+                        CASE 8: mouseDownOnButton = 0: mouseDown = 0: GOTO F12
+                    END SELECT
+                END IF
+
                 IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
                    (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
                     'Inside the editor/line numbers
@@ -6873,18 +6927,15 @@ SUB DebugMode
         UpdateStatusArea:
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
-                clearStatusWindow 2
-                clearStatusWindow 3
-                setStatusMessage 2, "<F4 = Add Watch> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
-                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints> <F12 = Call Stack>", 15
                 UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
+                GOSUB UpdateButtons
                 noFocusMessage = 0
             END IF
         ELSE
             IF noFocusMessage = 0 THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "Set focus to the IDE to control execution", 15
+                setStatusMessage 2, "Set focus to the IDE to control execution", 13
                 noFocusMessage = -1
             END IF
         END IF
@@ -6980,6 +7031,7 @@ SUB DebugMode
                 END IF
                 GOSUB UpdateDisplay
             CASE 15872 'F4
+                F4:
                 IF PauseMode = 0 THEN
                     cmd$ = "break"
                     PauseMode = -1
@@ -6999,6 +7051,7 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             CASE 16128 'F5
+                F5:
                 requestContinue:
                 PauseMode = 0
                 debugnextline = 0
@@ -7009,6 +7062,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
             CASE 16384 'F6
+                F6:
                 requestStepOut:
                 IF PauseMode THEN
                     PauseMode = 0
@@ -7019,6 +7073,7 @@ SUB DebugMode
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16640 'F7
+                F7:
                 requestStepOver:
                 IF PauseMode THEN
                     cmd$ = "step over"
@@ -7029,6 +7084,7 @@ SUB DebugMode
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16896 'F8
+                F8:
                 IF PauseMode = 0 THEN
                     requestPause:
                     cmd$ = "break"
@@ -7043,6 +7099,7 @@ SUB DebugMode
                 setStatusMessage 1, "Paused.", 2
                 IF IdeDebugMode = 2 THEN RETURN
             CASE 17152 'F9
+                F9:
                 requestToggleBreakpoint:
                 IF PauseMode THEN
                     IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
@@ -7057,6 +7114,7 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             CASE 17408 'F10
+                F10:
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
                     requestUnskipAllLines:
                     REDIM IdeSkipLines(iden) AS _BYTE
@@ -7070,6 +7128,7 @@ SUB DebugMode
                 END IF
                 GOSUB UpdateDisplay
             CASE 34304 'F12
+                F12:
                 IF PauseMode THEN
                     requestCallStack:
                     cmd$ = "call stack"
@@ -7264,7 +7323,7 @@ SUB DebugMode
                 CLOSE #client&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
-                setStatusMessage 1, "Debug session aborted.", 15
+                setStatusMessage 1, "Debug session aborted.", 13
                 IF LEN(value$) THEN
                     setStatusMessage 2, value$, 7
                 END IF
@@ -7303,6 +7362,7 @@ SUB DebugMode
                 END IF
         END SELECT
 
+        IF _WINDOWHASFOCUS THEN GOSUB UpdateButtons
         _LIMIT 100
     LOOP
 
@@ -7343,6 +7403,22 @@ SUB DebugMode
 
     PCOPY 3, 0
     RETURN
+
+    UpdateButtons:
+    FOR i = 1 TO UBOUND(Button)
+        IF mY = Button(i).y AND mX >= Button(i).x AND mX <= Button(i).x + Button(i).w AND _
+           vWatchPanel.draggingPanel = 0 AND vWatchPanel.resizingPanel = 0 THEN
+            COLOR 0, 7
+            temp$ = ""
+        ELSE
+            COLOR 13, 1
+            temp$ = " "
+        END IF
+        _PRINTSTRING (Button(i).x, Button(i).y), Button(i).Caption + temp$
+    NEXT
+    PCOPY 3, 0
+    RETURN
+
 END SUB
 
 Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
