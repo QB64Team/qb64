@@ -9035,7 +9035,7 @@ END SUB
 
 SUB idegotoline (i)
     IF idel = i THEN EXIT SUB
-    IF i < 1 THEN ERROR 5
+    IF i < 1 THEN i = 1
     'scan backwards
     IF i < idel THEN
         DO
