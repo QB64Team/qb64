@@ -6289,7 +6289,9 @@ SUB DebugMode
     SCREEN , , 3, 0
 
     TYPE vWatchPanelType
-        AS INTEGER x, y, w, h, firstVisible
+        AS INTEGER x, y, w, h, firstVisible, vBarElevator
+        AS _BYTE draggingPanel, resizingPanel, closingPanel
+        AS _BYTE draggingVBar, draggingHBar
     END TYPE
     STATIC vWatchPanel AS vWatchPanelType
 
@@ -6302,8 +6304,10 @@ SUB DebugMode
             client& = 0
 
             IF LEN(variableWatchList$) THEN
-                totalVisibleVariables = LEN(variableWatchList$) \ 4
+                totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
                 vWatchPanel.h = totalVisibleVariables + 2
+                IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
+                IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
             ELSE
                 totalVisibleVariables = 0
                 vWatchPanel.h = 5
@@ -6497,8 +6501,8 @@ SUB DebugMode
                (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
                 vWatchPanel.firstVisible = vWatchPanel.firstVisible + _MOUSEWHEEL * 3
                 IF vWatchPanel.firstVisible < 1 THEN vWatchPanel.firstVisible = 1
-                IF vWatchPanel.firstVisible > (LEN(variableWatchList$) \ 4) THEN
-                    vWatchPanel.firstVisible = (LEN(variableWatchList$) \ 4)
+                IF vWatchPanel.firstVisible > ((LEN(variableWatchList$) - 4) \ 4) THEN
+                    vWatchPanel.firstVisible = ((LEN(variableWatchList$) - 4) \ 4)
                 END IF
             ELSE
                 idecy = idecy + _MOUSEWHEEL * 3
@@ -6547,16 +6551,33 @@ SUB DebugMode
                 mouseDownOnX = mX
                 mouseDownOnY = mY
                 IF LEN(variableWatchList$) > 0 AND _
+                   (mX >= vWatchPanel.x + vWatchPanel.w - 3) AND (mX <= vWatchPanel.x + vWatchPanel.w - 1) AND _
+                   (mY = vWatchPanel.y) THEN
+                    vWatchPanel.closingPanel = -1
+                ELSEIF LEN(variableWatchList$) > 0 AND _
+                   (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
+                   (mY = vWatchPanel.vBarElevator) THEN
+                    vWatchPanel.draggingVBar = -1
+                ELSEIF LEN(variableWatchList$) > 0 AND _
                    (mX = vWatchPanel.x + vWatchPanel.w - 1) AND _
                    (mY = vWatchPanel.y + vWatchPanel.h - 1) THEN
-                    resizingPanel = -1
+                    vWatchPanel.resizingPanel = -1
                 ELSEIF LEN(variableWatchList$) > 0 AND _
                    (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
                    (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
-                    draggingPanel = -1
+                    vWatchPanel.draggingPanel = -1
+                    IF timeElapsedSince(lastPanelClick!) < .3 THEN
+                        'Double-click on watch list
+                        vWatchPanel.draggingPanel = 0
+                        mouseDown = 0
+                        GOTO requestVariableWatch
+                    END IF
+                    lastPanelClick! = TIMER
                 ELSE
-                    draggingPanel = 0
-                    resizingPanel = 0
+                    vWatchPanel.draggingPanel = 0
+                    vWatchPanel.resizingPanel = 0
+                    vWatchPanel.closingPanel = 0
+                    vWatchPanel.draggingVBar = 0
                 END IF
 
                 IF mX = idewx THEN
@@ -6616,39 +6637,56 @@ SUB DebugMode
                 END IF
 
                 vWatchPanelLimit = idewy - 6
-                IF draggingPanel THEN
+                IF vWatchPanel.draggingPanel THEN
                     vWatchPanel.x = vWatchPanel.x - (mouseDownOnX - mX)
                     vWatchPanel.y = vWatchPanel.y - (mouseDownOnY - mY)
 
                     IF vWatchPanel.x < 2 THEN vWatchPanel.x = 2
-                    IF vWatchPanel.x + vWatchPanel.w > idewx - 2 THEN vWatchPanel.x = idewx - vWatchPanel.w - 2
+                    IF vWatchPanel.x + vWatchPanel.w > idewx - 1 THEN vWatchPanel.x = idewx - vWatchPanel.w - 1
                     IF vWatchPanel.y < 3 THEN vWatchPanel.y = 3
-                    IF vWatchPanel.y > vWatchPanelLimit - (vWatchPanel.h + 1) THEN vWatchPanel.y = vWatchPanelLimit - (vWatchPanel.h + 1)
+                    IF vWatchPanel.y > vWatchPanelLimit - (vWatchPanel.h - 1) THEN vWatchPanel.y = vWatchPanelLimit - (vWatchPanel.h - 1)
                     mouseDownOnX = mX
                     mouseDownOnY = mY
                     GOSUB UpdateDisplay
-                ELSEIF resizingPanel THEN
+                ELSEIF vWatchPanel.resizingPanel THEN
                     vWatchPanel.w = vWatchPanel.w + (mX - mouseDownOnX)
                     vWatchPanel.h = vWatchPanel.h + (mY - mouseDownOnY)
 
                     IF vWatchPanel.w < 40 THEN vWatchPanel.w = 40
                     IF vWatchPanel.w > idewx - 12 THEN vWatchPanel.w = idewx - 12
-                    IF vWatchPanel.x + vWatchPanel.w > idewx - 2 THEN
-                        vWatchPanel.w = (idewx - 2) - vWatchPanel.x
+                    IF vWatchPanel.x + vWatchPanel.w > idewx - 1 THEN
+                        vWatchPanel.w = (idewx - 1) - vWatchPanel.x
                     END IF
                     IF vWatchPanel.y + vWatchPanel.h > vWatchPanelLimit THEN
-                        vWatchPanel.h = vWatchPanelLimit - (vWatchPanel.y)
+                        vWatchPanel.h = vWatchPanelLimit - (vWatchPanel.y - 1)
                     END IF
                     IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
                     IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
                     mouseDownOnX = mX
                     mouseDownOnY = mY
                     GOSUB UpdateDisplay
+                ELSEIF vWatchPanel.draggingVBar THEN
+                    vWatchPanel.firstVisible = INT(map(mY, vWatchPanel.y + 2, vWatchPanel.y + vWatchPanel.h - 2, 1, totalVisibleVariables))
+                    IF vWatchPanel.firstVisible < 1 THEN vWatchPanel.firstVisible = 1
+                    IF vWatchPanel.firstVisible > totalVisibleVariables THEN
+                        vWatchPanel.firstVisible = totalVisibleVariables
+                    END IF
+                    GOSUB UpdateDisplay
                 END IF
             END IF
         ELSE
-            IF draggingPanel THEN draggingPanel = 0: mouseDown = 0
-            IF resizingPanel THEN resizingPanel = 0: mouseDown = 0
+            IF vWatchPanel.draggingPanel THEN vWatchPanel.draggingPanel = 0: mouseDown = 0
+            IF vWatchPanel.resizingPanel THEN vWatchPanel.resizingPanel = 0: mouseDown = 0
+            IF vWatchPanel.closingPanel AND (mX = mouseDownOnX AND mY = mouseDownOnY) THEN
+                vWatchPanel.closingPanel = 0
+                mouseDown = 0
+                variableWatchList$ = ""
+                FOR i = 1 TO totalVariablesCreated
+                    usedVariableList(i).watch = 0
+                NEXT
+                GOSUB UpdateDisplay
+            END IF
+            IF vWatchPanel.draggingVBar THEN vWatchPanel.draggingVBar = 0: mouseDown = 0
             IF mouseDown THEN
                 mouseDown = 0
                 draggingVThumb = 0
@@ -6717,8 +6755,10 @@ SUB DebugMode
                 mouseDown = 0
                 draggingVThumb = 0
                 draggingHThumb = 0
-                draggingPanel = 0
-                resizingPanel = 0
+                vWatchPanel.draggingPanel = 0
+                vWatchPanel.resizingPanel = 0
+                vWatchPanel.closingPanel = 0
+                vWatchPanel.draggingVBar = 0
             END IF
         END IF
 
@@ -6841,6 +6881,12 @@ SUB DebugMode
                 ELSE
                     requestVariableWatch:
                     result = idevariablewatchbox(currentSub$)
+                    IF LEN(variableWatchList$) THEN
+                        totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
+                        vWatchPanel.h = totalVisibleVariables + 2
+                        IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
+                        IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
+                    END IF
                     PCOPY 3, 0: SCREEN , , 3, 0
                     WHILE _MOUSEINPUT: WEND
                     GOSUB UpdateDisplay
@@ -7026,7 +7072,7 @@ SUB DebugMode
 
                 'request variables
                 IF LEN(variableWatchList$) THEN
-                    temp$ = variableWatchList$
+                    temp$ = MID$(variableWatchList$, 5)
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
                         temp$ = MID$(temp$, 5)
@@ -7150,7 +7196,7 @@ SUB DebugMode
                 END IF
         END SELECT
 
-        IF draggingPanel = 0 THEN _LIMIT 100 ELSE _LIMIT 1000
+        _LIMIT 100
     LOOP
 
     WHILE _MOUSEINPUT: WEND
@@ -7192,9 +7238,13 @@ SUB DebugMode
     RETURN
 END SUB
 
+Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
+    map! = ((value! - minRange!) / (maxRange! - minRange!)) * (newMaxRange! - newMinRange!) + newMinRange!
+End Function
+
 SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
 
-    totalVisibleVariables = LEN(variableWatchList$) \ 4
+    totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
     fg = 0: bg = 7
     COLOR fg, bg
     ideboxshadow this.x, this.y, this.w, this.h
@@ -7205,10 +7255,14 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     x = LEN(title$) + 2
     COLOR fg, bg
     _PRINTSTRING (this.x + (this.w \ 2) - (x - 1) \ 2, this.y), " " + title$ + " "
+    COLOR 15, 4
+    _PRINTSTRING (this.x + this.w - 3, this.y), " x " 'close button
+    COLOR , bg
 
     y = 0
     IF LEN(variableWatchList$) THEN
-        temp$ = variableWatchList$
+        longestVarName = CVL(LEFT$(variableWatchList$, 4))
+        temp$ = MID$(variableWatchList$, 5)
         DO WHILE LEN(temp$)
             tempIndex& = CVL(LEFT$(temp$, 4))
             temp$ = MID$(temp$, 5)
@@ -7216,7 +7270,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
             IF this.firstVisible > i THEN _CONTINUE
             y = y + 1
             IF y > this.h - 2 THEN EXIT DO
-            item$ = usedVariableList(tempIndex&).name + " = "
+            item$ = usedVariableList(tempIndex&).name + SPACE$(longestVarName - LEN(usedVariableList(tempIndex&).name)) + " = "
             IF usedVariableList(tempIndex&).watch THEN
                 IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
                     item$ = item$ + usedVariableList(tempIndex&).mostRecentValue
@@ -7228,6 +7282,11 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
             END IF
             _PRINTSTRING (this.x + 2, this.y + y), LEFT$(item$, this.w - 4)
         LOOP
+    END IF
+
+    y = idevbar(this.x + this.w - 1, this.y + 1, this.h - 2, this.firstVisible, totalVisibleVariables)
+    IF this.draggingVBar = 0 THEN
+        this.vBarElevator = y
     END IF
 END SUB
 
@@ -7430,8 +7489,14 @@ FUNCTION idevariablewatchbox(currentScope$)
 
         IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
             variableWatchList$ = ""
+            longestVarName = 0
             FOR y = 1 TO totalVisibleVariables
                 IF usedVariableList(varDlgList(y).index).watch THEN
+                    IF LEN(usedVariableList(varDlgList(y).index).name) > longestVarName THEN
+                        longestVarName = LEN(usedVariableList(varDlgList(y).index).name)
+                        IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
+                        MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
+                    END IF
                     variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index)
                 END IF
             NEXT
