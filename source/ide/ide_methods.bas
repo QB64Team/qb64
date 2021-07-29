@@ -7552,8 +7552,7 @@ FUNCTION idevariablewatchbox(currentScope$)
             l$ = l$ + CHR$(16) + " "
         END IF
 
-        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2)
-        IF usedVariableList(x).used = 0 THEN someUnusedVars = -1: text$ = text$ + "*" ELSE text$ = text$ + " "
+        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
         text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
         text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
 
@@ -7583,19 +7582,22 @@ FUNCTION idevariablewatchbox(currentScope$)
         dialogHeight = idewy + idesubwindow - 6
     END IF
 
-    idepar p, idewx - 8, dialogHeight, "Watch List"
+    dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen + 20
+    IF dialogWidth < 60 THEN dialogWidth = 60
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Watch List"
 
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
     o(varListBox).y = 2
-    o(varListBox).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 4
     o(varListBox).txt = idenewtxt(l$)
     o(varListBox).sel = 1
     o(varListBox).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
 
     i = i + 1: buttonSet = i
     o(buttonSet).typ = 3
-    o(i).x = p.x + p.w - 45
     o(buttonSet).y = dialogHeight
     o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
 
@@ -7627,10 +7629,6 @@ FUNCTION idevariablewatchbox(currentScope$)
 
         '-------- custom display changes --------
         COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on a variable to add it to the watch list"
-        IF someUnusedVars THEN
-            COLOR 2
-            _PRINTSTRING (p.x + 2, p.y + p.h), "* unused"
-        END IF
 
         '-------- end of custom display changes --------
 
@@ -7757,19 +7755,34 @@ FUNCTION idecallstackbox
 
     '-------- init --------
 
-    i = 0
-
     dialogHeight = callStackLength + 4
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
 
-    idepar p, idewx - 8, dialogHeight, "$DEBUG MODE"
+    dialogWidth = 52
+    temp$ = callstacklist$
+    DO
+        i = INSTR(temp$, sep)
+        IF i THEN
+            temp2$ = LEFT$(temp$, i - 1)
+            temp$ = MID$(temp$, i + 1)
+            IF LEN(temp2$) + 6 > dialogWidth THEN dialogWidth = LEN(temp2$) + 6
+        ELSE
+            IF LEN(temp$) + 6 > dialogWidth THEN dialogWidth = LEN(temp$) + 6
+            EXIT DO
+        END IF
+    LOOP
 
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "$DEBUG MODE"
+
+    i = 0
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(callstacklist$)
     o(i).sel = callStackLength
     o(i).nam = idenewtxt("Call Stack")
@@ -7805,7 +7818,7 @@ FUNCTION idecallstackbox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "These are the most recent sub/function calls in your program:"
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Most recent sub/function calls in your program:"
 
         '-------- end of custom display changes --------
 
@@ -10720,7 +10733,6 @@ FUNCTION idesubs$
     SortedSubsFlag = idesortsubs
     SubClosed = 0
 
-
     FOR y = 1 TO iden
         a$ = idegetline(y)
         IF SubClosed = 0 THEN ModuleSize = ModuleSize + 1
@@ -10871,6 +10883,8 @@ FUNCTION idesubs$
     END IF
 
     'build lists
+    dialogWidth = 50
+    argsLength = 2
     FOR x = 1 TO TotalSUBs
         n$ = SubNames(x)
         IF LEN(n$) > maxModuleNameLen THEN
@@ -10880,6 +10894,7 @@ FUNCTION idesubs$
         END IF
 
         args$ = Args(x)
+        IF LEN(args$) > argsLength THEN argsLength = LEN(args$)
         IF LEN(args$) <= (idewx - 41) THEN
             args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
         ELSE
@@ -10944,13 +10959,17 @@ FUNCTION idesubs$
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
-    idepar p, idewx - 8, dialogHeight, "SUBs"
+
+    IF argsLength + maxModuleNameLen + maxLineCountSpace + 20 > dialogWidth THEN dialogWidth = argsLength + maxModuleNameLen + maxLineCountSpace + 20
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "SUBs"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 1
     '68
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 3
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 3
     IF SortedSubsFlag = 0 THEN
         IF IDESubsLength THEN
             o(i).txt = idenewtxt(lSized$)
@@ -11004,8 +11023,8 @@ FUNCTION idesubs$
 
     i = i + 1
     o(i).typ = 3
-    o(i).x = p.x + p.w - 26
     o(i).w = 26
+    o(i).x = dialogWidth - (o(i).w + 2)
     o(i).y = dialogHeight
     IF IdeDebugMode = 0 THEN
         o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
@@ -11226,8 +11245,10 @@ FUNCTION idelanguagebox
 
     'generate list of available code pages
     l$ = idecpname(1)
+    dialogWidth = LEN(l$)
     FOR x = 2 TO idecpnum
         l$ = l$ + sep + idecpname(x)
+        IF LEN(idecpname(x)) > dialogWidth THEN dialogWidth = LEN(idecpname(x))
     NEXT
     l$ = UCASE$(l$)
 
@@ -11236,12 +11257,15 @@ FUNCTION idelanguagebox
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
-    idepar p, idewx - 8, dialogHeight, "Language"
+    IF dialogWidth < 60 THEN dialogWidth = 60
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Language"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogheight - 4
+    o(i).w = dialogWidth - 4: o(i).h = dialogheight - 4
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
     o(i).nam = idenewtxt("Code Pages")
@@ -11391,6 +11415,7 @@ FUNCTION idewarningbox
     NEXT
 
     'build list
+    dialogWidth = 60
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
             l$ = l$ + warning$(x)
@@ -11408,6 +11433,7 @@ FUNCTION idewarningbox
             END IF
             treeConnection = LEN(l$) + 1
             text$ = warning$(x)
+            IF LEN(text$) + 10 > dialogWidth THEN dialogWidth = LEN(text$) + 10
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
@@ -11427,12 +11453,14 @@ FUNCTION idewarningbox
         dialogHeight = idewy + idesubwindow - 6
     END IF
 
-    idepar p, idewx - 8, dialogHeight, "Compilation status"
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Compilation status"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1
     o(i).nam = idenewtxt("Warnings (" + LTRIM$(STR$(totalWarnings)) + ")")
@@ -15362,6 +15390,8 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "SUBs...  F2": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
+        menu$(m, i) = "#Watch List...  F4": i = i + 1
+        menuDesc$(m, i - 1) = "Adds variables to watch list"
         menu$(m, i) = "Call Stack...  F12": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's execution"
         menu$(m, i) = "-": i = i + 1
