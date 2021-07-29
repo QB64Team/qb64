@@ -404,7 +404,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
 id.specialformat = "[?]"
-id.hr_syntax = "_DEVICE$(device_number)
+id.hr_syntax = "_DEVICE$(device_number)"
 regid
 
 clearid
@@ -415,7 +415,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
 id.specialformat = "[?]"
-id.hr_syntax = "_DEVICEINPUT or _DEVICEINPUT(device_number%)
+id.hr_syntax = "_DEVICEINPUT or _DEVICEINPUT(device_number%)"
 regid
 
 clearid
@@ -664,7 +664,7 @@ id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?,?,?,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.hr_syntax = "_SCREENIMAGE(column1, row1, column2, row2)
+id.hr_syntax = "_SCREENIMAGE(column1, row1, column2, row2)"
 regid
 
 
@@ -1084,7 +1084,7 @@ id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.hr_syntax = "_COPYIMAGE[(imageHandle&[, mode])]
+id.hr_syntax = "_COPYIMAGE[(imageHandle&[, mode])]"
 regid
 
 'IMAGE SELECTION
@@ -2410,7 +2410,7 @@ id.args = 7
 id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "[{Step}](?,?),?[,[?][,[?][,[?][,?]]]]"
 'CIRCLE [STEP] (x!,y!),radius![,[color&] [,[start!] [,[end!] [,aspect!]]]]
-id.hr_syntax = "CIRCLE [STEP] (x!, y!), radius![, [color&] [, [start!] [, [end!] [, aspect!]]]]
+id.hr_syntax = "CIRCLE [STEP] (x!, y!), radius![, [color&] [, [start!] [, [end!] [, aspect!]]]]"
 regid
 
 clearid

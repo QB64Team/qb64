@@ -217,8 +217,9 @@ DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER, OptionsMenuIgnoreWarning
 DIM SHARED OptionsMenuDisableSyntax AS INTEGER ', OptionsMenuAutoComplete
 DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
-DIM SHARED ViewMenuCompilerWarnings AS INTEGER, ViewMenuCallStack AS INTEGER
+DIM SHARED ViewMenuCompilerWarnings AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
+DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
 DIM SHARED LastValidColorScheme AS INTEGER

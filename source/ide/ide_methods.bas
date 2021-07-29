@@ -274,10 +274,6 @@ FUNCTION ide2 (ignore)
         ViewMenuCompilerWarnings = i
         menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of recent code warnings"
-
-        ViewMenuCallStack = i
-        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F12": i = i + 1
-        menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: SearchMenuID = m
@@ -336,7 +332,7 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Compiles current program without running it"
         menusize(m) = i - 1
 
-        m = m + 1: i = 0
+        m = m + 1: i = 0: DebugMenuID = m
         menu$(m, i) = "Debug": i = i + 1
         menu$(m, i) = "Start #Paused  F8": i = i + 1
         menuDesc$(m, i - 1) = "Compiles current program and starts it in pause mode"
@@ -350,8 +346,18 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
         menuDesc$(m, i - 1) = "Removes all line skip flags"
         menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "#Watch List...  F4": i = i + 1
+        menuDesc$(m, i - 1) = "Adds variables to watch list"
+        DebugMenuCallStack = i
+        menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
+        menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
         menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
+        menu$(m, i) = "#Advanced (C++)...": i = i + 1
+        menuDesc$(m, i - 1) = "Enables embedding C++ debug information into compiled program"
+        menu$(m, i) = "Purge C++ #Libraries": i = i + 1
+        menuDesc$(m, i - 1) = "Purges all pre-compiled content"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -367,8 +373,6 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Changes code page to use with TTF fonts"
         menu$(m, i) = "#Backup/Undo...": i = i + 1
         menuDesc$(m, i - 1) = "Sets size of backup/undo buffer"
-        menu$(m, i) = "#Advanced...": i = i + 1
-        menuDesc$(m, i - 1) = "Enables embedding C++ debug information into compiled program"
         menu$(m, i) = "-": i = i + 1
 
         OptionsMenuDisableSyntax = i
@@ -724,6 +728,23 @@ FUNCTION ide2 (ignore)
     IF c$ = CHR$(254) THEN
         '$DEBUG mode on
         IdeDebugMode = 1
+
+        FOR x = 1 TO totalVariablesCreated
+            usedVariableList(x).mostRecentValue = ""
+        NEXT
+
+        variableWatchList$ = ""
+        longestVarName = 0
+        FOR y = 1 TO totalVariablesCreated
+            IF usedVariableList(y).watch THEN
+                IF LEN(usedVariableList(y).name) > longestVarName THEN
+                    longestVarName = LEN(usedVariableList(y).name)
+                    IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
+                    MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
+                END IF
+                variableWatchList$ = variableWatchList$ + MKL$(y)
+            END IF
+        NEXT
 
         EnterDebugMode:
         IF idehelp THEN
@@ -1627,9 +1648,26 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN 'variable watch
-            result = idevariablewatchbox("")
-            PCOPY 3, 0: SCREEN , , 3, 0
-            GOTO ideloop
+            IF vWatchOn = 0 THEN
+                result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
+                IF result = 1 THEN
+                    ideselect = 0
+                    ideinsline 1, SCase$("$Debug")
+                    idecy = idecy + 1
+                    idechangemade = 1
+                    GOTO ideloop
+                ELSE
+                    GOTO ideloop
+                END IF
+            ELSE
+                IF idecompiling = 1 THEN
+                    result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "")
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    GOTO ideloop
+                ELSE
+                    GOTO showWatchList
+                END IF
+            END IF
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -4367,9 +4405,9 @@ FUNCTION ide2 (ignore)
     END IF
 
     IF callStackLength = 0 THEN
-        menu$(ViewMenuID, ViewMenuCallStack) = "~Call #Stack...  F12"
+        menu$(DebugMenuID, DebugMenuCallStack) = "~Call #Stack...  F12"
     ELSE
-        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F12"
+        menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12"
     END IF
 
     oldmy = mY: oldmx = mX
@@ -4876,10 +4914,17 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Advanced..." THEN
+            IF menu$(m, s) = "#Advanced (C++)..." THEN
                 PCOPY 2, 0
                 retval = ideadvancedbox
                 'retval is ignored
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "Purge C++ #Libraries" THEN
+                PCOPY 2, 0
+                purgeprecompiledcontent
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -5719,6 +5764,14 @@ FUNCTION ide2 (ignore)
                 END IF
             END IF
 
+            IF menu$(m, s) = "#Watch List...  F4" THEN
+                PCOPY 2, 0
+                showWatchList:
+                result = idevariablewatchbox("")
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
             IF menu$(m, s) = "Call #Stack...  F12" OR menu$(m, s) = "Call Stack...  F12" THEN
                 IF IdeDebugMode = 2 THEN
                     IdeDebugMode = 3
@@ -6321,6 +6374,11 @@ SUB DebugMode
     END TYPE
     STATIC vWatchPanel AS vWatchPanelType
 
+    TYPE ui
+        AS INTEGER x, y, w, h
+        AS STRING caption
+    END TYPE
+
     SELECT EVERYCASE IdeDebugMode
         CASE 1
             PauseMode = 0
@@ -6343,6 +6401,32 @@ SUB DebugMode
             vWatchPanel.x = idewx - vWatchPanel.w - 6
             vWatchPanel.y = 4
             vWatchPanel.firstVisible = 1
+
+            STATIC Button(1 TO 8) AS ui
+            i = 0
+            i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
+            i = i + 1: Button(i).Caption = "<F5 = Run>"
+            i = i + 1: Button(i).Caption = "<F6 = Step Out>"
+            i = i + 1: Button(i).Caption = "<F7 = Step Over>"
+            i = i + 1: Button(i).Caption = "<F8 = Step Into>"
+            i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
+            i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
+            i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
+            y = (idewy - 4) + 2
+            x = 2
+            FOR i = 1 TO UBOUND(Button)
+                Button(i).x = x
+                Button(i).y = y
+                Button(i).w = LEN(Button(i).Caption)
+                IF i < UBOUND(Button) THEN
+                    x = x + Button(i).w + 1
+                    IF x + LEN(Button(i + 1).Caption) > idewx - 1 THEN
+                        y = y + 1
+                        x = 2
+                    END IF
+                END IF
+            NEXT
+
         CASE IS > 1
             noFocusMessage = NOT noFocusMessage
             GOSUB UpdateStatusArea
@@ -6646,6 +6730,15 @@ SUB DebugMode
                 ELSE
                     draggingHThumb = 0
                 END IF
+
+                mouseDownOnButton = 0
+                FOR i = 1 TO UBOUND(Button)
+                    IF mY = Button(i).y AND mX >= Button(i).x AND mX <= Button(i).x + Button(i).w AND _
+                       vWatchPanel.draggingPanel = 0 AND vWatchPanel.resizingPanel = 0 THEN
+                        mouseDownOnButton = i
+                        EXIT FOR
+                    END IF
+                NEXT
             ELSE
                 'drag
                 IF draggingVThumb = -1 THEN
@@ -6736,7 +6829,7 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             END IF
-        ELSE
+        ELSE 'mouse button released
             IF vWatchPanel.draggingPanel THEN vWatchPanel.draggingPanel = 0: mouseDown = 0
             IF vWatchPanel.resizingPanel THEN vWatchPanel.resizingPanel = 0: mouseDown = 0
             IF vWatchPanel.closingPanel AND (mX = mouseDownOnX AND mY = mouseDownOnY) THEN
@@ -6780,6 +6873,20 @@ SUB DebugMode
                 mouseDown = 0
                 draggingVThumb = 0
                 draggingHThumb = 0
+
+                IF mouseDownOnButton > 0 AND mX = mouseDownOnX AND mY = mouseDownOnY THEN
+                    SELECT CASE mouseDownOnButton
+                        CASE 1: mouseDownOnButton = 0: mouseDown = 0: GOTO F4
+                        CASE 2: mouseDownOnButton = 0: mouseDown = 0: GOTO F5
+                        CASE 3: mouseDownOnButton = 0: mouseDown = 0: GOTO F6
+                        CASE 4: mouseDownOnButton = 0: mouseDown = 0: GOTO F7
+                        CASE 5: mouseDownOnButton = 0: mouseDown = 0: GOTO F8
+                        CASE 6: mouseDownOnButton = 0: mouseDown = 0: GOTO F9
+                        CASE 7: mouseDownOnButton = 0: mouseDown = 0: GOTO F10
+                        CASE 8: mouseDownOnButton = 0: mouseDown = 0: GOTO F12
+                    END SELECT
+                END IF
+
                 IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
                    (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
                     'Inside the editor/line numbers
@@ -6856,11 +6963,8 @@ SUB DebugMode
         UpdateStatusArea:
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
-                clearStatusWindow 2
-                clearStatusWindow 3
-                setStatusMessage 2, "<F4 = Add Watch> <F5 = Run> <F6 = Step Out> <F7 = Step Over> <F8 = Step Into>", 15
-                setStatusMessage 3, "<F9 = Toggle Breakpoint> <F10 = Clear all breakpoints> <F12 = Call Stack>", 15
                 UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
+                GOSUB UpdateButtons
                 noFocusMessage = 0
             END IF
         ELSE
@@ -6963,6 +7067,7 @@ SUB DebugMode
                 END IF
                 GOSUB UpdateDisplay
             CASE 15872 'F4
+                F4:
                 IF PauseMode = 0 THEN
                     cmd$ = "break"
                     PauseMode = -1
@@ -6976,12 +7081,14 @@ SUB DebugMode
                         vWatchPanel.h = totalVisibleVariables + 2
                         IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
                         IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
+                        GOTO requestVariableValues
                     END IF
                     PCOPY 3, 0: SCREEN , , 3, 0
                     WHILE _MOUSEINPUT: WEND
                     GOSUB UpdateDisplay
                 END IF
             CASE 16128 'F5
+                F5:
                 requestContinue:
                 PauseMode = 0
                 debugnextline = 0
@@ -6992,6 +7099,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
             CASE 16384 'F6
+                F6:
                 requestStepOut:
                 IF PauseMode THEN
                     PauseMode = 0
@@ -7002,6 +7110,7 @@ SUB DebugMode
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16640 'F7
+                F7:
                 requestStepOver:
                 IF PauseMode THEN
                     cmd$ = "step over"
@@ -7012,6 +7121,7 @@ SUB DebugMode
                     dummy = DarkenFGBG(1)
                 END IF
             CASE 16896 'F8
+                F8:
                 IF PauseMode = 0 THEN
                     requestPause:
                     cmd$ = "break"
@@ -7026,6 +7136,7 @@ SUB DebugMode
                 setStatusMessage 1, "Paused.", 2
                 IF IdeDebugMode = 2 THEN RETURN
             CASE 17152 'F9
+                F9:
                 requestToggleBreakpoint:
                 IF PauseMode THEN
                     IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
@@ -7040,6 +7151,7 @@ SUB DebugMode
                     GOSUB UpdateDisplay
                 END IF
             CASE 17408 'F10
+                F10:
                 IF _KEYDOWN(100306) OR _KEYDOWN(100305) THEN
                     requestUnskipAllLines:
                     REDIM IdeSkipLines(iden) AS _BYTE
@@ -7053,6 +7165,7 @@ SUB DebugMode
                 END IF
                 GOSUB UpdateDisplay
             CASE 34304 'F12
+                F12:
                 IF PauseMode THEN
                     requestCallStack:
                     cmd$ = "call stack"
@@ -7087,10 +7200,10 @@ SUB DebugMode
                         IF callStackLength = -1 THEN
                             callStackLength = 0
                             clearStatusWindow 0
-                            setStatusMessage 1, "Error retrieving call stack.", 2
+                            setStatusMessage 1, "Error retrieving call stack.", 4
                         ELSEIF callStackLength = 0 THEN
                             clearStatusWindow 0
-                            setStatusMessage 1, "No call stack log available.", 2
+                            setStatusMessage 1, "No call stack log available.", 4
                         END IF
                     END IF
                     noFocusMessage = NOT noFocusMessage
@@ -7162,6 +7275,7 @@ SUB DebugMode
 
                 'request variables
                 IF LEN(variableWatchList$) THEN
+                    requestVariableValues:
                     temp$ = MID$(variableWatchList$, 5)
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
@@ -7216,8 +7330,8 @@ SUB DebugMode
                     CASE "SINGLE": recvData$ = STR$(_CV(SINGLE, recvData$))
                     CASE "DOUBLE": recvData$ = STR$(_CV(DOUBLE, recvData$))
                     CASE "_FLOAT": recvData$ = STR$(_CV(_FLOAT, recvData$))
-                    CASE "_OFFSET": 'TODO
-                    CASE "_UNSIGNED _OFFSET": 'TODO
+                    CASE "_OFFSET": recvData$ = STR$(_CV(_OFFSET, recvData$))
+                    CASE "_UNSIGNED _OFFSET": recvData$ = STR$(_CV(_UNSIGNED _OFFSET, recvData$))
                     CASE "STRING"
                         IF sequence% = 1 THEN
                             IF LEN(dummy%&) = 8 THEN
@@ -7262,7 +7376,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
                 clearStatusWindow 1
                 COLOR , 4
-                setStatusMessage 1, "Error occurred on line" + STR$(l), 13
+                setStatusMessage 1, "Error occurred on line" + STR$(l), 15
                 BypassRequestCallStack = -1
                 PauseMode = -1
             CASE "call stack size"
@@ -7286,6 +7400,7 @@ SUB DebugMode
                 END IF
         END SELECT
 
+        IF _WINDOWHASFOCUS THEN GOSUB UpdateButtons
         _LIMIT 100
     LOOP
 
@@ -7326,6 +7441,22 @@ SUB DebugMode
 
     PCOPY 3, 0
     RETURN
+
+    UpdateButtons:
+    FOR i = 1 TO UBOUND(Button)
+        IF mY = Button(i).y AND mX >= Button(i).x AND mX <= Button(i).x + Button(i).w AND _
+           vWatchPanel.draggingPanel = 0 AND vWatchPanel.resizingPanel = 0 THEN
+            COLOR 0, 7
+            temp$ = ""
+        ELSE
+            COLOR 13, 1
+            temp$ = " "
+        END IF
+        _PRINTSTRING (Button(i).x, Button(i).y), Button(i).Caption + temp$
+    NEXT
+    PCOPY 3, 0
+    RETURN
+
 END SUB
 
 Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
@@ -7451,8 +7582,7 @@ FUNCTION idevariablewatchbox(currentScope$)
             l$ = l$ + CHR$(16) + " "
         END IF
 
-        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2)
-        IF usedVariableList(x).used = 0 THEN someUnusedVars = -1: text$ = text$ + "*" ELSE text$ = text$ + " "
+        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
         text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
         text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
 
@@ -7481,20 +7611,24 @@ FUNCTION idevariablewatchbox(currentScope$)
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
+    IF dialogHeight < 6 THEN dialogHeight = 6
 
-    idepar p, idewx - 8, dialogHeight, "Watch List"
+    dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen + 20
+    IF dialogWidth < 60 THEN dialogWidth = 60
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Watch List"
 
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
     o(varListBox).y = 2
-    o(varListBox).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 4
     o(varListBox).txt = idenewtxt(l$)
     o(varListBox).sel = 1
     o(varListBox).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
 
     i = i + 1: buttonSet = i
     o(buttonSet).typ = 3
-    o(i).x = p.x + p.w - 45
     o(buttonSet).y = dialogHeight
     o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
 
@@ -7526,10 +7660,6 @@ FUNCTION idevariablewatchbox(currentScope$)
 
         '-------- custom display changes --------
         COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on a variable to add it to the watch list"
-        IF someUnusedVars THEN
-            COLOR 2
-            _PRINTSTRING (p.x + 2, p.y + p.h), "* unused"
-        END IF
 
         '-------- end of custom display changes --------
 
@@ -7656,19 +7786,34 @@ FUNCTION idecallstackbox
 
     '-------- init --------
 
-    i = 0
-
     dialogHeight = callStackLength + 4
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
 
-    idepar p, idewx - 8, dialogHeight, "$DEBUG MODE"
+    dialogWidth = 52
+    temp$ = callstacklist$
+    DO
+        i = INSTR(temp$, sep)
+        IF i THEN
+            temp2$ = LEFT$(temp$, i - 1)
+            temp$ = MID$(temp$, i + 1)
+            IF LEN(temp2$) + 6 > dialogWidth THEN dialogWidth = LEN(temp2$) + 6
+        ELSE
+            IF LEN(temp$) + 6 > dialogWidth THEN dialogWidth = LEN(temp$) + 6
+            EXIT DO
+        END IF
+    LOOP
 
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "$DEBUG MODE"
+
+    i = 0
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(callstacklist$)
     o(i).sel = callStackLength
     o(i).nam = idenewtxt("Call Stack")
@@ -7704,7 +7849,7 @@ FUNCTION idecallstackbox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "These are the most recent sub/function calls in your program:"
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Most recent sub/function calls in your program:"
 
         '-------- end of custom display changes --------
 
@@ -9035,7 +9180,7 @@ END SUB
 
 SUB idegotoline (i)
     IF idel = i THEN EXIT SUB
-    IF i < 1 THEN ERROR 5
+    IF i < 1 THEN i = 1
     'scan backwards
     IF i < idel THEN
         DO
@@ -10619,7 +10764,6 @@ FUNCTION idesubs$
     SortedSubsFlag = idesortsubs
     SubClosed = 0
 
-
     FOR y = 1 TO iden
         a$ = idegetline(y)
         IF SubClosed = 0 THEN ModuleSize = ModuleSize + 1
@@ -10770,6 +10914,8 @@ FUNCTION idesubs$
     END IF
 
     'build lists
+    dialogWidth = 50
+    argsLength = 2
     FOR x = 1 TO TotalSUBs
         n$ = SubNames(x)
         IF LEN(n$) > maxModuleNameLen THEN
@@ -10779,6 +10925,7 @@ FUNCTION idesubs$
         END IF
 
         args$ = Args(x)
+        IF LEN(args$) > argsLength THEN argsLength = LEN(args$)
         IF LEN(args$) <= (idewx - 41) THEN
             args$ = args$ + SPACE$((idewx - 41) - LEN(args$))
         ELSE
@@ -10843,13 +10990,17 @@ FUNCTION idesubs$
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
-    idepar p, idewx - 8, dialogHeight, "SUBs"
+
+    IF argsLength + maxModuleNameLen + maxLineCountSpace + 20 > dialogWidth THEN dialogWidth = argsLength + maxModuleNameLen + maxLineCountSpace + 20
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "SUBs"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 1
     '68
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 3
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 3
     IF SortedSubsFlag = 0 THEN
         IF IDESubsLength THEN
             o(i).txt = idenewtxt(lSized$)
@@ -10903,8 +11054,8 @@ FUNCTION idesubs$
 
     i = i + 1
     o(i).typ = 3
-    o(i).x = p.x + p.w - 26
     o(i).w = 26
+    o(i).x = dialogWidth - 22
     o(i).y = dialogHeight
     IF IdeDebugMode = 0 THEN
         o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
@@ -11125,8 +11276,10 @@ FUNCTION idelanguagebox
 
     'generate list of available code pages
     l$ = idecpname(1)
+    dialogWidth = LEN(l$)
     FOR x = 2 TO idecpnum
         l$ = l$ + sep + idecpname(x)
+        IF LEN(idecpname(x)) > dialogWidth THEN dialogWidth = LEN(idecpname(x))
     NEXT
     l$ = UCASE$(l$)
 
@@ -11135,12 +11288,15 @@ FUNCTION idelanguagebox
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
-    idepar p, idewx - 8, dialogHeight, "Language"
+    IF dialogWidth < 60 THEN dialogWidth = 60
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Language"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogheight - 4
+    o(i).w = dialogWidth - 4: o(i).h = dialogheight - 4
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
     o(i).nam = idenewtxt("Code Pages")
@@ -11290,6 +11446,7 @@ FUNCTION idewarningbox
     NEXT
 
     'build list
+    dialogWidth = 60
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
             l$ = l$ + warning$(x)
@@ -11307,6 +11464,7 @@ FUNCTION idewarningbox
             END IF
             treeConnection = LEN(l$) + 1
             text$ = warning$(x)
+            IF LEN(text$) + 10 > dialogWidth THEN dialogWidth = LEN(text$) + 10
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
@@ -11326,12 +11484,14 @@ FUNCTION idewarningbox
         dialogHeight = idewy + idesubwindow - 6
     END IF
 
-    idepar p, idewx - 8, dialogHeight, "Compilation status"
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Compilation status"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 2
-    o(i).w = idewx - 12: o(i).h = dialogHeight - 4
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 4
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1
     o(i).nam = idenewtxt("Warnings (" + LTRIM$(STR$(totalWarnings)) + ")")
@@ -12628,7 +12788,8 @@ FUNCTION ideadvancedbox
     o(i).y = y
     o(i).nam = idenewtxt("Embed C++ debug information into executable")
     o(i).sel = idedebuginfo
-    y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Investigate crashes/freezes at C++ (not QB64) code level"
+    y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " This setting is not required for $DEBUG mode"
+    y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Use it to investigate crashes/freezes at C++ (not QB64) code level"
     y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Use internal/temp/debug batch file to debug your executable"
     y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Increases executable size"
     y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Makes public the names of variables in your program's code"
@@ -12737,41 +12898,11 @@ FUNCTION ideadvancedbox
                     WriteConfigSetting generalSettingsSection$, "DebugInfo", "False" + DebugInfoIniWarning$
                 END IF
                 Include_GDB_Debugging_Info = idedebuginfo
-                IF os$ = "WIN" THEN
-                    CHDIR "internal\c"
-                    SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
-                    CHDIR "..\.."
-                END IF
-                IF os$ = "LNX" THEN
-                    CHDIR "./internal/c"
-
-                    IF INSTR(_OS$, "[MACOSX]") THEN
-                        SHELL _HIDE "./purge_all_precompiled_content_osx.command"
-                    ELSE
-                        SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
-                    END IF
-                    CHDIR "../.."
-                END IF
-                idechangemade = 1 'force recompilation
+                purgeprecompiledcontent
             END IF
-
-            '...
-
 
             EXIT FUNCTION
         END IF
-
-
-
-
-
-
-
-
-
-
-
-
 
         'end of custom controls
 
@@ -15023,13 +15154,22 @@ FUNCTION iderecentbox$
 
 
     l$ = ""
+    dialogWidth = 72
+    totalRecent = 0
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
     a$ = RIGHT$(a$, LEN(a$) - 2)
+    REDIM tempList$(100)
     DO WHILE LEN(a$)
         ai = INSTR(a$, CRLF)
         IF ai THEN
             f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+            IF LEN(f$) + 6 > dialogWidth THEN dialogWidth = LEN(f$) + 6
+            totalRecent = totalRecent + 1
+            IF totalRecent > UBOUND(tempList$) THEN
+                REDIM _PRESERVE tempList$(UBOUND(tempList$) + 100)
+            END IF
+            tempList$(totalRecent) = f$
             IF LEN(l$) THEN l$ = l$ + sep + f$ ELSE l$ = f$
         END IF
     LOOP
@@ -15037,21 +15177,27 @@ FUNCTION iderecentbox$
 
     '72,19
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "Open"
+    dialogHeight = (totalRecent) + 3
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+    idepar p, dialogWidth, dialogHeight, "Open"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 1
     '68
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 3
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1
     o(i).nam = idenewtxt("Recent Programs")
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 6
-    o(i).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "Clear #list" + sep + "#Remove broken links")
+    o(i).y = dialogHeight
+    o(i).txt = idenewtxt("#Open" + sep + "#Cancel" + sep + "Clear #list" + sep + "#Remove broken links")
     o(i).dft = 1
 
     '-------- end of init --------
@@ -15133,7 +15279,7 @@ FUNCTION iderecentbox$
         END IF
 
         IF (K$ = CHR$(13) AND focus = 1) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
-            f$ = idetxt(o(1).stx)
+            f$ = tempList$(ABS(o(1).sel))
             iderecentbox$ = f$
             EXIT FUNCTION
         END IF
@@ -15246,6 +15392,8 @@ SUB IdeMakeContextualMenu
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "SUBs...  F2": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of SUB/FUNCTION procedures"
+        menu$(m, i) = "#Watch List...  F4": i = i + 1
+        menuDesc$(m, i - 1) = "Adds variables to watch list"
         menu$(m, i) = "Call Stack...  F12": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's execution"
         menu$(m, i) = "-": i = i + 1
@@ -16950,3 +17098,22 @@ FUNCTION isnumber (__a$)
 END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'
+
+SUB purgeprecompiledcontent
+    IF os$ = "WIN" THEN
+        CHDIR "internal\c"
+        SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
+        CHDIR "..\.."
+    END IF
+    IF os$ = "LNX" THEN
+        CHDIR "./internal/c"
+
+        IF INSTR(_OS$, "[MACOSX]") THEN
+            SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+        ELSE
+            SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
+        END IF
+        CHDIR "../.."
+    END IF
+    idechangemade = 1 'force recompilation
+END SUB
