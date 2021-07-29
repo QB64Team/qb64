@@ -350,10 +350,14 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Adds variables to watch list"
         DebugMenuCallStack = i
         menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12": i = i + 1
-        menu$(m, i) = "-": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
+        menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
         menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
+        menu$(m, i) = "#Advanced (C++)...": i = i + 1
+        menuDesc$(m, i - 1) = "Enables embedding C++ debug information into compiled program"
+        menu$(m, i) = "Purge C++ #Libraries": i = i + 1
+        menuDesc$(m, i - 1) = "Purges all pre-compiled content"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: OptionsMenuID = m
@@ -369,8 +373,6 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Changes code page to use with TTF fonts"
         menu$(m, i) = "#Backup/Undo...": i = i + 1
         menuDesc$(m, i - 1) = "Sets size of backup/undo buffer"
-        menu$(m, i) = "#Advanced...": i = i + 1
-        menuDesc$(m, i - 1) = "Enables embedding C++ debug information into compiled program"
         menu$(m, i) = "-": i = i + 1
 
         OptionsMenuDisableSyntax = i
@@ -4893,10 +4895,17 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "#Advanced..." THEN
+            IF menu$(m, s) = "#Advanced (C++)..." THEN
                 PCOPY 2, 0
                 retval = ideadvancedbox
                 'retval is ignored
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
+            IF menu$(m, s) = "Purge C++ #Libraries" THEN
+                PCOPY 2, 0
+                purgeprecompiledcontent
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -7581,6 +7590,7 @@ FUNCTION idevariablewatchbox(currentScope$)
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
+    IF dialogHeight < 6 THEN dialogHeight = 6
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen + 20
     IF dialogWidth < 60 THEN dialogWidth = 60
@@ -11024,7 +11034,7 @@ FUNCTION idesubs$
     i = i + 1
     o(i).typ = 3
     o(i).w = 26
-    o(i).x = dialogWidth - (o(i).w + 2)
+    o(i).x = dialogWidth - 22
     o(i).y = dialogHeight
     IF IdeDebugMode = 0 THEN
         o(i).txt = idenewtxt("#Edit" + sep + "#Cancel")
@@ -12757,7 +12767,8 @@ FUNCTION ideadvancedbox
     o(i).y = y
     o(i).nam = idenewtxt("Embed C++ debug information into executable")
     o(i).sel = idedebuginfo
-    y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Investigate crashes/freezes at C++ (not QB64) code level"
+    y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " This setting is not required for $DEBUG mode"
+    y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Use it to investigate crashes/freezes at C++ (not QB64) code level"
     y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Use internal/temp/debug batch file to debug your executable"
     y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Increases executable size"
     y = y + 1: Direct_Text$(y) = "     " + CHR$(254) + " Makes public the names of variables in your program's code"
@@ -12866,41 +12877,11 @@ FUNCTION ideadvancedbox
                     WriteConfigSetting generalSettingsSection$, "DebugInfo", "False" + DebugInfoIniWarning$
                 END IF
                 Include_GDB_Debugging_Info = idedebuginfo
-                IF os$ = "WIN" THEN
-                    CHDIR "internal\c"
-                    SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
-                    CHDIR "..\.."
-                END IF
-                IF os$ = "LNX" THEN
-                    CHDIR "./internal/c"
-
-                    IF INSTR(_OS$, "[MACOSX]") THEN
-                        SHELL _HIDE "./purge_all_precompiled_content_osx.command"
-                    ELSE
-                        SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
-                    END IF
-                    CHDIR "../.."
-                END IF
-                idechangemade = 1 'force recompilation
+                purgeprecompiledcontent
             END IF
-
-            '...
-
 
             EXIT FUNCTION
         END IF
-
-
-
-
-
-
-
-
-
-
-
-
 
         'end of custom controls
 
@@ -15175,7 +15156,7 @@ FUNCTION iderecentbox$
 
     '72,19
     i = 0
-    dialogHeight = (totalRecent) + 4
+    dialogHeight = (totalRecent) + 3
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
@@ -17096,3 +17077,22 @@ FUNCTION isnumber (__a$)
 END FUNCTION
 
 '$INCLUDE:'wiki\wiki_methods.bas'
+
+SUB purgeprecompiledcontent
+    IF os$ = "WIN" THEN
+        CHDIR "internal\c"
+        SHELL _HIDE "cmd /c purge_all_precompiled_content_win.bat"
+        CHDIR "..\.."
+    END IF
+    IF os$ = "LNX" THEN
+        CHDIR "./internal/c"
+
+        IF INSTR(_OS$, "[MACOSX]") THEN
+            SHELL _HIDE "./purge_all_precompiled_content_osx.command"
+        ELSE
+            SHELL _HIDE "./purge_all_precompiled_content_lnx.sh"
+        END IF
+        CHDIR "../.."
+    END IF
+    idechangemade = 1 'force recompilation
+END SUB
