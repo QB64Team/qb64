@@ -15116,13 +15116,22 @@ FUNCTION iderecentbox$
 
 
     l$ = ""
+    dialogWidth = 72
+    totalRecent = 0
     fh = FREEFILE
     OPEN ".\internal\temp\recent.bin" FOR BINARY AS #fh: a$ = SPACE$(LOF(fh)): GET #fh, , a$
     a$ = RIGHT$(a$, LEN(a$) - 2)
+    REDIM tempList$(100)
     DO WHILE LEN(a$)
         ai = INSTR(a$, CRLF)
         IF ai THEN
             f$ = LEFT$(a$, ai - 1): IF ai = LEN(a$) - 1 THEN a$ = "" ELSE a$ = RIGHT$(a$, LEN(a$) - ai - 3)
+            IF LEN(f$) + 6 > dialogWidth THEN dialogWidth = LEN(f$) + 6
+            totalRecent = totalRecent + 1
+            IF totalRecent > UBOUND(tempList$) THEN
+                REDIM _PRESERVE tempList$(UBOUND(tempList$) + 100)
+            END IF
+            tempList$(totalRecent) = f$
             IF LEN(l$) THEN l$ = l$ + sep + f$ ELSE l$ = f$
         END IF
     LOOP
@@ -15130,21 +15139,27 @@ FUNCTION iderecentbox$
 
     '72,19
     i = 0
-    idepar p, idewx - 8, idewy + idesubwindow - 6, "Open"
+    dialogHeight = (totalRecent) + 4
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+    idepar p, dialogWidth, dialogHeight, "Open"
 
     i = i + 1
     o(i).typ = 2
     o(i).y = 1
     '68
-    o(i).w = idewx - 12: o(i).h = idewy + idesubwindow - 9
+    o(i).w = dialogWidth - 4: o(i).h = dialogHeight - 3
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1
     o(i).nam = idenewtxt("Recent Programs")
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = idewy + idesubwindow - 6
-    o(i).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "Clear #list" + sep + "#Remove broken links")
+    o(i).y = dialogHeight
+    o(i).txt = idenewtxt("#Open" + sep + "#Cancel" + sep + "Clear #list" + sep + "#Remove broken links")
     o(i).dft = 1
 
     '-------- end of init --------
@@ -15226,7 +15241,7 @@ FUNCTION iderecentbox$
         END IF
 
         IF (K$ = CHR$(13) AND focus = 1) OR (focus = 2 AND info <> 0) OR (info = 1 AND focus = 1) THEN
-            f$ = idetxt(o(1).stx)
+            f$ = tempList$(ABS(o(1).sel))
             iderecentbox$ = f$
             EXIT FUNCTION
         END IF
