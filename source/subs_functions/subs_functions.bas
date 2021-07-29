@@ -664,7 +664,7 @@ id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?,?,?,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.hr_syntax = "_SCREENIMAGE(column1, row1, column2, row2)
+id.hr_syntax = "_SCREENIMAGE(column1, row1, column2, row2)"
 regid
 
 
