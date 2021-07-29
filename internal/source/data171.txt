@@ -32,15 +32,32 @@ memset(_FUNC_IDELANGUAGEBOX_STRING1_SEP->chr,0,1);
 }
 qbs *_FUNC_IDELANGUAGEBOX_STRING_L=NULL;
 if (!_FUNC_IDELANGUAGEBOX_STRING_L)_FUNC_IDELANGUAGEBOX_STRING_L=qbs_new(0,0);
+int32 *_FUNC_IDELANGUAGEBOX_LONG_DIALOGWIDTH=NULL;
+if(_FUNC_IDELANGUAGEBOX_LONG_DIALOGWIDTH==NULL){
+_FUNC_IDELANGUAGEBOX_LONG_DIALOGWIDTH=(int32*)mem_static_malloc(4);
+*_FUNC_IDELANGUAGEBOX_LONG_DIALOGWIDTH=0;
+}
+byte_element_struct *byte_element_5263=NULL;
+if (!byte_element_5263){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5263=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5263=(byte_element_struct*)mem_static_malloc(12);
+}
 int32 *_FUNC_IDELANGUAGEBOX_LONG_X=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_X==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_X=(int32*)mem_static_malloc(4);
 *_FUNC_IDELANGUAGEBOX_LONG_X=0;
 }
-int64 fornext_value5254;
-int64 fornext_finalvalue5254;
-int64 fornext_step5254;
-uint8 fornext_step_negative5254;
+int64 fornext_value5265;
+int64 fornext_finalvalue5265;
+int64 fornext_step5265;
+uint8 fornext_step_negative5265;
+byte_element_struct *byte_element_5266=NULL;
+if (!byte_element_5266){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5266=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5266=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_5267=NULL;
+if (!byte_element_5267){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5267=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5267=(byte_element_struct*)mem_static_malloc(12);
+}
 int32 *_FUNC_IDELANGUAGEBOX_LONG_I=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_I==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_I=(int32*)mem_static_malloc(4);
@@ -51,11 +68,10 @@ if(_FUNC_IDELANGUAGEBOX_LONG_DIALOGHEIGHT==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_DIALOGHEIGHT=(int32*)mem_static_malloc(4);
 *_FUNC_IDELANGUAGEBOX_LONG_DIALOGHEIGHT=0;
 }
-int32 pass5255;
-int64 fornext_value5257;
-int64 fornext_finalvalue5257;
-int64 fornext_step5257;
-uint8 fornext_step_negative5257;
+int64 fornext_value5269;
+int64 fornext_finalvalue5269;
+int64 fornext_step5269;
+uint8 fornext_step_negative5269;
 int32 *_FUNC_IDELANGUAGEBOX_LONG_F=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_F==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_F=(int32*)mem_static_malloc(4);
@@ -71,10 +87,10 @@ if(_FUNC_IDELANGUAGEBOX_LONG_CY==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_CY=(int32*)mem_static_malloc(4);
 *_FUNC_IDELANGUAGEBOX_LONG_CY=0;
 }
-int64 fornext_value5260;
-int64 fornext_finalvalue5260;
-int64 fornext_step5260;
-uint8 fornext_step_negative5260;
+int64 fornext_value5272;
+int64 fornext_finalvalue5272;
+int64 fornext_step5272;
+uint8 fornext_step_negative5272;
 int32 *_FUNC_IDELANGUAGEBOX_LONG_LASTFOCUS=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_LASTFOCUS==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_LASTFOCUS=(int32*)mem_static_malloc(4);
@@ -107,9 +123,9 @@ _FUNC_IDELANGUAGEBOX_LONG_OLDALT=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_IDELANGUAGEBOX_STRING_ALTLETTER=NULL;
 if (!_FUNC_IDELANGUAGEBOX_STRING_ALTLETTER)_FUNC_IDELANGUAGEBOX_STRING_ALTLETTER=qbs_new(0,0);
-byte_element_struct *byte_element_5262=NULL;
-if (!byte_element_5262){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5262=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5262=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5274=NULL;
+if (!byte_element_5274){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5274=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5274=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_IDELANGUAGEBOX_LONG_K=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_K==NULL){
@@ -121,10 +137,10 @@ if(_FUNC_IDELANGUAGEBOX_LONG_INFO==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_INFO=(int32*)mem_static_malloc(4);
 *_FUNC_IDELANGUAGEBOX_LONG_INFO=0;
 }
-int64 fornext_value5264;
-int64 fornext_finalvalue5264;
-int64 fornext_step5264;
-uint8 fornext_step_negative5264;
+int64 fornext_value5276;
+int64 fornext_finalvalue5276;
+int64 fornext_step5276;
+uint8 fornext_step_negative5276;
 int32 *_FUNC_IDELANGUAGEBOX_LONG_T=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_T==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_T=(int32*)mem_static_malloc(4);
@@ -140,10 +156,10 @@ if(_FUNC_IDELANGUAGEBOX_LONG_Y==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_Y=(int32*)mem_static_malloc(4);
 *_FUNC_IDELANGUAGEBOX_LONG_Y=0;
 }
-int64 fornext_value5266;
-int64 fornext_finalvalue5266;
-int64 fornext_step5266;
-uint8 fornext_step_negative5266;
+int64 fornext_value5278;
+int64 fornext_finalvalue5278;
+int64 fornext_step5278;
+uint8 fornext_step_negative5278;
 int32 *_FUNC_IDELANGUAGEBOX_LONG_U=NULL;
 if(_FUNC_IDELANGUAGEBOX_LONG_U==NULL){
 _FUNC_IDELANGUAGEBOX_LONG_U=(int32*)mem_static_malloc(4);

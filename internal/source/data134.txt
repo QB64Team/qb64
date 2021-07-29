@@ -3,15 +3,15 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_IDEVARIABLEWATCHBOX==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_IDEVARIABLEWATCHBOX=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_IDEVARIABLEWATCHBOX=0;
 }
-qbs*oldstr4799=NULL;
+qbs*oldstr4805=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE->tmp||_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE->fixed||_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE->readonly){
-oldstr4799=_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE;
-if (oldstr4799->cmem_descriptor){
-_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE=qbs_new_cmem(oldstr4799->len,0);
+oldstr4805=_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE;
+if (oldstr4805->cmem_descriptor){
+_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE=qbs_new_cmem(oldstr4805->len,0);
 }else{
-_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE=qbs_new(oldstr4799->len,0);
+_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE=qbs_new(oldstr4805->len,0);
 }
-memcpy(_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE->chr,oldstr4799->chr,oldstr4799->len);
+memcpy(_FUNC_IDEVARIABLEWATCHBOX_STRING_CURRENTSCOPE->chr,oldstr4805->chr,oldstr4805->len);
 }
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_FOCUS=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_FOCUS==NULL){
@@ -47,9 +47,9 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_MAXMODULENAMELEN==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_MAXMODULENAMELEN=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_MAXMODULENAMELEN=0;
 }
-byte_element_struct *byte_element_4800=NULL;
-if (!byte_element_4800){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4800=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4800=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4806=NULL;
+if (!byte_element_4806){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4806=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4806=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_MAXVARLEN=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_MAXVARLEN==NULL){
@@ -83,41 +83,36 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_X==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_X=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_X=0;
 }
-int64 fornext_value4802;
-int64 fornext_finalvalue4802;
-int64 fornext_step4802;
-uint8 fornext_step_negative4802;
+int64 fornext_value4808;
+int64 fornext_finalvalue4808;
+int64 fornext_step4808;
+uint8 fornext_step_negative4808;
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_TOTALVISIBLEVARIABLES=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_TOTALVISIBLEVARIABLES==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_TOTALVISIBLEVARIABLES=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_TOTALVISIBLEVARIABLES=0;
 }
-int64 fornext_value4804;
-int64 fornext_finalvalue4804;
-int64 fornext_step4804;
-uint8 fornext_step_negative4804;
+int64 fornext_value4810;
+int64 fornext_finalvalue4810;
+int64 fornext_step4810;
+uint8 fornext_step_negative4810;
 qbs *_FUNC_IDEVARIABLEWATCHBOX_STRING_L=NULL;
 if (!_FUNC_IDEVARIABLEWATCHBOX_STRING_L)_FUNC_IDEVARIABLEWATCHBOX_STRING_L=qbs_new(0,0);
-byte_element_struct *byte_element_4805=NULL;
-if (!byte_element_4805){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4805=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4805=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4811=NULL;
+if (!byte_element_4811){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4811=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4811=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_4806=NULL;
-if (!byte_element_4806){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4806=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4806=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4812=NULL;
+if (!byte_element_4812){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4812=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4812=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_FUNC_IDEVARIABLEWATCHBOX_STRING_TEXT=NULL;
 if (!_FUNC_IDEVARIABLEWATCHBOX_STRING_TEXT)_FUNC_IDEVARIABLEWATCHBOX_STRING_TEXT=qbs_new(0,0);
-int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_SOMEUNUSEDVARS=NULL;
-if(_FUNC_IDEVARIABLEWATCHBOX_LONG_SOMEUNUSEDVARS==NULL){
-_FUNC_IDEVARIABLEWATCHBOX_LONG_SOMEUNUSEDVARS=(int32*)mem_static_malloc(4);
-*_FUNC_IDEVARIABLEWATCHBOX_LONG_SOMEUNUSEDVARS=0;
-}
 qbs *_FUNC_IDEVARIABLEWATCHBOX_STRING_L3=NULL;
 if (!_FUNC_IDEVARIABLEWATCHBOX_STRING_L3)_FUNC_IDEVARIABLEWATCHBOX_STRING_L3=qbs_new(0,0);
-byte_element_struct *byte_element_4807=NULL;
-if (!byte_element_4807){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4807=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4807=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4813=NULL;
+if (!byte_element_4813){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4813=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4813=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_I=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_I==NULL){
@@ -129,7 +124,11 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGHEIGHT==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGHEIGHT=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGHEIGHT=0;
 }
-int32 pass4808;
+int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGWIDTH=NULL;
+if(_FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGWIDTH==NULL){
+_FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGWIDTH=(int32*)mem_static_malloc(4);
+*_FUNC_IDEVARIABLEWATCHBOX_LONG_DIALOGWIDTH=0;
+}
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_VARLISTBOX=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_VARLISTBOX==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_VARLISTBOX=(int32*)mem_static_malloc(4);
@@ -140,10 +139,10 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_BUTTONSET==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_BUTTONSET=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_BUTTONSET=0;
 }
-int64 fornext_value4810;
-int64 fornext_finalvalue4810;
-int64 fornext_step4810;
-uint8 fornext_step_negative4810;
+int64 fornext_value4815;
+int64 fornext_finalvalue4815;
+int64 fornext_step4815;
+uint8 fornext_step_negative4815;
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_F=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_F==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_F=(int32*)mem_static_malloc(4);
@@ -159,10 +158,10 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_CY==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_CY=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_CY=0;
 }
-int64 fornext_value4813;
-int64 fornext_finalvalue4813;
-int64 fornext_step4813;
-uint8 fornext_step_negative4813;
+int64 fornext_value4818;
+int64 fornext_finalvalue4818;
+int64 fornext_step4818;
+uint8 fornext_step_negative4818;
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_LASTFOCUS=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_LASTFOCUS==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_LASTFOCUS=(int32*)mem_static_malloc(4);
@@ -195,9 +194,9 @@ _FUNC_IDEVARIABLEWATCHBOX_LONG_OLDALT=(int32*)mem_static_malloc(4);
 }
 qbs *_FUNC_IDEVARIABLEWATCHBOX_STRING_ALTLETTER=NULL;
 if (!_FUNC_IDEVARIABLEWATCHBOX_STRING_ALTLETTER)_FUNC_IDEVARIABLEWATCHBOX_STRING_ALTLETTER=qbs_new(0,0);
-byte_element_struct *byte_element_4815=NULL;
-if (!byte_element_4815){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4815=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4815=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_4820=NULL;
+if (!byte_element_4820){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4820=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4820=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_K=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_K==NULL){
@@ -209,10 +208,10 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_INFO==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_INFO=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_INFO=0;
 }
-int64 fornext_value4817;
-int64 fornext_finalvalue4817;
-int64 fornext_step4817;
-uint8 fornext_step_negative4817;
+int64 fornext_value4822;
+int64 fornext_finalvalue4822;
+int64 fornext_step4822;
+uint8 fornext_step_negative4822;
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_T=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_T==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_T=(int32*)mem_static_malloc(4);
@@ -228,23 +227,23 @@ if(_FUNC_IDEVARIABLEWATCHBOX_LONG_Y==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_Y=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_Y=0;
 }
-int64 fornext_value4819;
-int64 fornext_finalvalue4819;
-int64 fornext_step4819;
-uint8 fornext_step_negative4819;
-int64 fornext_value4821;
-int64 fornext_finalvalue4821;
-int64 fornext_step4821;
-uint8 fornext_step_negative4821;
+int64 fornext_value4824;
+int64 fornext_finalvalue4824;
+int64 fornext_step4824;
+uint8 fornext_step_negative4824;
+int64 fornext_value4826;
+int64 fornext_finalvalue4826;
+int64 fornext_step4826;
+uint8 fornext_step_negative4826;
 int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_LONGESTVARNAME=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_LONG_LONGESTVARNAME==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_LONG_LONGESTVARNAME=(int32*)mem_static_malloc(4);
 *_FUNC_IDEVARIABLEWATCHBOX_LONG_LONGESTVARNAME=0;
 }
-int64 fornext_value4823;
-int64 fornext_finalvalue4823;
-int64 fornext_step4823;
-uint8 fornext_step_negative4823;
+int64 fornext_value4828;
+int64 fornext_finalvalue4828;
+int64 fornext_step4828;
+uint8 fornext_step_negative4828;
 float *_FUNC_IDEVARIABLEWATCHBOX_SINGLE_LASTCLICK=NULL;
 if(_FUNC_IDEVARIABLEWATCHBOX_SINGLE_LASTCLICK==NULL){
 _FUNC_IDEVARIABLEWATCHBOX_SINGLE_LASTCLICK=(float*)mem_static_malloc(4);
