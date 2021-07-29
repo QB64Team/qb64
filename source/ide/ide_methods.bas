@@ -7062,6 +7062,7 @@ SUB DebugMode
                         vWatchPanel.h = totalVisibleVariables + 2
                         IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
                         IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
+                        GOTO requestVariableValues
                     END IF
                     PCOPY 3, 0: SCREEN , , 3, 0
                     WHILE _MOUSEINPUT: WEND
@@ -7255,6 +7256,7 @@ SUB DebugMode
 
                 'request variables
                 IF LEN(variableWatchList$) THEN
+                    requestVariableValues:
                     temp$ = MID$(variableWatchList$, 5)
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
