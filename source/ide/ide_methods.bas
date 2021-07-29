@@ -1648,7 +1648,26 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN 'variable watch
-            GOTO showWatchList
+            IF vWatchOn = 0 THEN
+                result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
+                IF result = 1 THEN
+                    ideselect = 0
+                    ideinsline 1, SCase$("$Debug")
+                    idecy = idecy + 1
+                    idechangemade = 1
+                    GOTO ideloop
+                ELSE
+                    GOTO ideloop
+                END IF
+            ELSE
+                IF idecompiling = 1 THEN
+                    result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "")
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    GOTO ideloop
+                ELSE
+                    GOTO showWatchList
+                END IF
+            END IF
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
