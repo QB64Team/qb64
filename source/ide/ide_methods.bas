@@ -6445,7 +6445,7 @@ SUB DebugMode
 
     dummy = DarkenFGBG(1)
     clearStatusWindow 0
-    setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 13
+    setStatusMessage 1, "Entering $DEBUG mode (ESC to abort)...", 15
 
     IF host& = 0 THEN
         host& = _OPENHOST("TCP/IP:" + hostport$)
@@ -6485,7 +6485,7 @@ SUB DebugMode
 
     ideselect = 0
     clearStatusWindow 1
-    setStatusMessage 1, "Handshaking...", 13
+    setStatusMessage 1, "Handshaking...", 15
 
     start! = TIMER
     DO
@@ -6575,7 +6575,7 @@ SUB DebugMode
     GOSUB SendCommand
 
     clearStatusWindow 2
-    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 13
+    setStatusMessage 2, "$DEBUG MODE: Set focus to the IDE to control execution", 15
 
     noFocusMessage = -1
 
@@ -6952,7 +6952,7 @@ SUB DebugMode
             IF noFocusMessage = 0 THEN
                 clearStatusWindow 2
                 clearStatusWindow 3
-                setStatusMessage 2, "Set focus to the IDE to control execution", 13
+                setStatusMessage 2, "Set focus to the IDE to control execution", 15
                 noFocusMessage = -1
             END IF
         END IF
@@ -7180,10 +7180,10 @@ SUB DebugMode
                         IF callStackLength = -1 THEN
                             callStackLength = 0
                             clearStatusWindow 0
-                            setStatusMessage 1, "Error retrieving call stack.", 2
+                            setStatusMessage 1, "Error retrieving call stack.", 4
                         ELSEIF callStackLength = 0 THEN
                             clearStatusWindow 0
-                            setStatusMessage 1, "No call stack log available.", 2
+                            setStatusMessage 1, "No call stack log available.", 4
                         END IF
                     END IF
                     noFocusMessage = NOT noFocusMessage
@@ -7340,7 +7340,7 @@ SUB DebugMode
                 CLOSE #client&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
-                setStatusMessage 1, "Debug session aborted.", 13
+                setStatusMessage 1, "Debug session aborted.", 15
                 IF LEN(value$) THEN
                     setStatusMessage 2, value$, 7
                 END IF
@@ -7355,7 +7355,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
                 clearStatusWindow 1
                 COLOR , 4
-                setStatusMessage 1, "Error occurred on line" + STR$(l), 13
+                setStatusMessage 1, "Error occurred on line" + STR$(l), 15
                 BypassRequestCallStack = -1
                 PauseMode = -1
             CASE "call stack size"
