@@ -2,7 +2,7 @@ $CHECKING:OFF
 
 SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG ideHost, breakpointCount, skipCount, timeout, startLevel, lastLine
-    STATIC AS LONG callStackLength, runToLine
+    STATIC AS LONG runToLine
     STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
     STATIC buffer$, endc$
     DIM AS LONG i, tempIndex, localIndex, varSize, sequence
@@ -98,17 +98,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         EXIT SUB
     ELSEIF vwatch_linenumber = -2 THEN
         'report a new sub/function has been "entered"
-        IF LEN(vwatch_callstack) > 100000 THEN
-            vwatch_callstack = ""
-            callStackLength = 0
-        END IF
-        callStackLength = callStackLength + 1
-        IF LEN(vwatch_callstack) THEN vwatch_callstack = vwatch_callstack + CHR$(0)
-        vwatch_callstack = vwatch_callstack + vwatch_subname$ + ", line" + STR$(lastLine)
         IF vwatch_sublevel > UBOUND(vwatch_stack) THEN
             REDIM _PRESERVE vwatch_stack(UBOUND(vwatch_stack) + 1000) AS STRING
         END IF
-        vwatch_stack(vwatch_sublevel) = vwatch_internalsubname$
+        vwatch_stack(vwatch_sublevel) = vwatch_internalsubname$ + "," + vwatch_subname$ + ", line" + STR$(lastLine)
         EXIT SUB
     ELSEIF vwatch_linenumber = -3 THEN
         'handle STOP - instead of quitting, pause execution
@@ -169,7 +162,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     IF vwatch_breakpoints(vwatch_linenumber) THEN cmd$ = "breakpoint:"
     cmd$ = cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
-    cmd$ = "current sub:" + vwatch_stack(vwatch_sublevel)
+    cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
     GOSUB SendCommand
 
     DO 'main loop
@@ -231,7 +224,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 tempIndex = CVL(LEFT$(value$, 4))
                 localIndex = CVL(MID$(value$, 5, 4))
                 scope$ = MID$(value$, 9)
-                IF scope$ = vwatch_stack(vwatch_sublevel) THEN
+                IF scope$ = LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1) THEN
                     address = _OFFSET(localVariables) + LEN(address) * localIndex
                     address = _MEMGET(m, address, _OFFSET) 'first resolve pass
                     address = _MEMGET(m, address, _OFFSET) 'second resolve pass
@@ -250,7 +243,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 cmd$ = "address read:" + MKL$(tempIndex) + MKI$(sequence) + buf$
                 GOSUB SendCommand
             CASE "current sub"
-                cmd$ = "current sub:" + vwatch_stack(vwatch_sublevel)
+                cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
                 GOSUB SendCommand
             CASE "set next line"
                 pauseMode = -1
@@ -306,7 +299,15 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     RETURN
 
     SendCallStack:
-    cmd$ = "call stack size:" + MKL$(callStackLength)
+    IF vwatch_sublevel - 1 > 0 THEN
+        vwatch_callstack = MID$(vwatch_stack(2), INSTR(vwatch_stack(2), ",") + 1)
+        FOR i = 3 TO vwatch_sublevel
+            vwatch_callstack = vwatch_callstack + CHR$(0) + MID$(vwatch_stack(i), INSTR(vwatch_stack(i), ",") + 1)
+        NEXT
+    ELSE
+        vwatch_callstack = ""
+    END IF
+    cmd$ = "call stack size:" + MKL$(vwatch_sublevel - 1)
     GOSUB SendCommand
     cmd$ = "call stack:" + vwatch_callstack
     GOSUB SendCommand
