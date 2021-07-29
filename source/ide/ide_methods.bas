@@ -274,10 +274,6 @@ FUNCTION ide2 (ignore)
         ViewMenuCompilerWarnings = i
         menu$(ViewMenuID, ViewMenuCompilerWarnings) = "Compiler #Warnings...  Ctrl+W": i = i + 1
         menuDesc$(m, i - 1) = "Displays a list of recent code warnings"
-
-        ViewMenuCallStack = i
-        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F12": i = i + 1
-        menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menusize(m) = i - 1
 
         m = m + 1: i = 0: SearchMenuID = m
@@ -336,7 +332,7 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Compiles current program without running it"
         menusize(m) = i - 1
 
-        m = m + 1: i = 0
+        m = m + 1: i = 0: DebugMenuID = m
         menu$(m, i) = "Debug": i = i + 1
         menu$(m, i) = "Start #Paused  F8": i = i + 1
         menuDesc$(m, i - 1) = "Compiles current program and starts it in pause mode"
@@ -350,6 +346,12 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "#Unskip All Lines  Ctrl+F10": i = i + 1
         menuDesc$(m, i - 1) = "Removes all line skip flags"
         menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "#Watch List...  F4": i = i + 1
+        menuDesc$(m, i - 1) = "Adds variables to watch list"
+        DebugMenuCallStack = i
+        menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12": i = i + 1
+        menu$(m, i) = "-": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
         menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
         menusize(m) = i - 1
@@ -1644,9 +1646,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN 'variable watch
-            result = idevariablewatchbox("")
-            PCOPY 3, 0: SCREEN , , 3, 0
-            GOTO ideloop
+            GOTO showWatchList
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -4384,9 +4384,9 @@ FUNCTION ide2 (ignore)
     END IF
 
     IF callStackLength = 0 THEN
-        menu$(ViewMenuID, ViewMenuCallStack) = "~Call #Stack...  F12"
+        menu$(DebugMenuID, DebugMenuCallStack) = "~Call #Stack...  F12"
     ELSE
-        menu$(ViewMenuID, ViewMenuCallStack) = "Call #Stack...  F12"
+        menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12"
     END IF
 
     oldmy = mY: oldmx = mX
@@ -5734,6 +5734,14 @@ FUNCTION ide2 (ignore)
                     startPaused = -1
                     GOTO idemrun
                 END IF
+            END IF
+
+            IF menu$(m, s) = "#Watch List...  F4" THEN
+                PCOPY 2, 0
+                showWatchList:
+                result = idevariablewatchbox("")
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Call #Stack...  F12" OR menu$(m, s) = "Call Stack...  F12" THEN
