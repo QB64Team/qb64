@@ -1,14 +1,14 @@
 $CHECKING:OFF
 
 SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
-    STATIC AS LONG ideHost, breakpointCount, skipCount, timeout, startLevel, lastLine
-    STATIC AS LONG runToLine
-    STATIC AS _BYTE pauseMode, stepOver, bypass, setNextLine
-    STATIC buffer$, endc$
-    DIM AS LONG i, tempIndex, localIndex, varSize, sequence
-    DIM AS _OFFSET address
-    DIM AS _MEM m, m2
-    DIM start!, temp$, cmd$, value$, k&, buf$, scope$
+    STATIC AS LONG vw_ideHost, vw_breakpointCount, vw_skipCount, vw_timeout, vw_startLevel, vw_lastLine
+    STATIC AS LONG vw_runToLine
+    STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine
+    STATIC vw_buffer$, vw_endc$
+    DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_sequence
+    DIM AS _OFFSET vw_address
+    DIM AS _MEM vw_m, vw_m2
+    DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -16,67 +16,67 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         SUB unlockvWatchHandle
     END DECLARE
 
-    IF bypass THEN EXIT SUB
+    IF vw_bypass THEN EXIT SUB
 
     vwatch_goto = 0
 
-    IF ideHost = 0 THEN
-        timeout = 10
-        endc$ = "<END>"
+    IF vw_ideHost = 0 THEN
+        vw_timeout = 10
+        vw_endc$ = "<END>"
 
         'initial setup
         GOSUB Connect
 
         'send this binary's path/exe name
-        cmd$ = "me:" + COMMAND$(0)
+        vw_cmd$ = "me:" + COMMAND$(0)
         GOSUB SendCommand
 
         DO
             GOSUB GetCommand
-            SELECT CASE cmd$
+            SELECT CASE vw_cmd$
                 CASE "vwatch"
-                    IF value$ <> "ok" THEN
-                        unlockvWatchHandle: CLOSE #ideHost
-                        bypass = -1
+                    IF vw_value$ <> "ok" THEN
+                        unlockvWatchHandle: CLOSE #vw_ideHost
+                        vw_bypass = -1
                         EXIT SUB
                     END IF
                 CASE "line count"
-                    REDIM vwatch_breakpoints(CVL(value$)) AS _BYTE
-                    REDIM vwatch_skiplines(CVL(value$)) AS _BYTE
+                    REDIM vwatch_breakpoints(CVL(vw_value$)) AS _BYTE
+                    REDIM vwatch_skiplines(CVL(vw_value$)) AS _BYTE
                 CASE "breakpoint count"
-                    breakpointCount = CVL(value$)
+                    vw_breakpointCount = CVL(vw_value$)
                 CASE "breakpoint list"
-                    IF LEN(value$) \ 4 <> breakpointCount THEN
-                        cmd$ = "quit:Communication error."
+                    IF LEN(vw_value$) \ 4 <> vw_breakpointCount THEN
+                        vw_cmd$ = "quit:Communication error."
                         GOSUB SendCommand
-                        unlockvWatchHandle: CLOSE #ideHost
-                        bypass = -1
+                        unlockvWatchHandle: CLOSE #vw_ideHost
+                        vw_bypass = -1
                         EXIT SUB
                     END IF
-                    FOR i = 1 TO breakpointCount
-                        temp$ = MID$(value$, i * 4 - 3, 4)
-                        vwatch_breakpoints(CVL(temp$)) = -1
+                    FOR vw_i = 1 TO vw_breakpointCount
+                        vw_temp$ = MID$(vw_value$, vw_i * 4 - 3, 4)
+                        vwatch_breakpoints(CVL(vw_temp$)) = -1
                     NEXT
                 CASE "skip count"
-                    skipCount = CVL(value$)
+                    vw_skipCount = CVL(vw_value$)
                 CASE "skip list"
-                    IF LEN(value$) \ 4 <> skipCount THEN
-                        cmd$ = "quit:Communication error."
+                    IF LEN(vw_value$) \ 4 <> vw_skipCount THEN
+                        vw_cmd$ = "quit:Communication error."
                         GOSUB SendCommand
-                        unlockvWatchHandle: CLOSE #ideHost
-                        bypass = -1
+                        unlockvWatchHandle: CLOSE #vw_ideHost
+                        vw_bypass = -1
                         EXIT SUB
                     END IF
-                    FOR i = 1 TO skipCount
-                        temp$ = MID$(value$, i * 4 - 3, 4)
-                        vwatch_skiplines(CVL(temp$)) = -1
+                    FOR vw_i = 1 TO vw_skipCount
+                        vw_temp$ = MID$(vw_value$, vw_i * 4 - 3, 4)
+                        vwatch_skiplines(CVL(vw_temp$)) = -1
                     NEXT
                 CASE "run"
                     IF vwatch_breakpoints(vwatch_linenumber) THEN EXIT DO
-                    pauseMode = 0
+                    vw_pauseMode = 0
                     EXIT SUB
                 CASE "break"
-                    pauseMode = -1
+                    vw_pauseMode = -1
                     EXIT DO
             END SELECT
         LOOP
@@ -84,16 +84,16 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
     IF vwatch_linenumber = 0 THEN
         GOSUB SendCallStack
-        cmd$ = "quit:Program ended."
+        vw_cmd$ = "quit:Program ended."
         GOSUB SendCommand
-        unlockvWatchHandle: CLOSE #ideHost
-        bypass = -1
-        ideHost = 0
+        unlockvWatchHandle: CLOSE #vw_ideHost
+        vw_bypass = -1
+        vw_ideHost = 0
         EXIT SUB
     ELSEIF vwatch_linenumber = -1 THEN
         'report an error in the most recent line
         GOSUB SendCallStack
-        cmd$ = "error:" + MKL$(lastLine)
+        vw_cmd$ = "error:" + MKL$(vw_lastLine)
         GOSUB SendCommand
         EXIT SUB
     ELSEIF vwatch_linenumber = -2 THEN
@@ -101,36 +101,36 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         IF vwatch_sublevel > UBOUND(vwatch_stack) THEN
             REDIM _PRESERVE vwatch_stack(UBOUND(vwatch_stack) + 1000) AS STRING
         END IF
-        vwatch_stack(vwatch_sublevel) = vwatch_internalsubname$ + "," + vwatch_subname$ + ", line" + STR$(lastLine)
+        vwatch_stack(vwatch_sublevel) = vwatch_internalsubname$ + "," + vwatch_subname$ + ", line" + STR$(vw_lastLine)
         EXIT SUB
     ELSEIF vwatch_linenumber = -3 THEN
         'handle STOP - instead of quitting, pause execution
-        pauseMode = -1
-        stepOver = 0
+        vw_pauseMode = -1
+        vw_stepOver = 0
         EXIT SUB
     END IF
 
-    IF vwatch_linenumber = lastLine AND setNextLine = 0 THEN EXIT SUB
-    setNextLine = 0
-    lastLine = vwatch_linenumber
+    IF vwatch_linenumber = vw_lastLine AND vw_setNextLine = 0 THEN EXIT SUB
+    vw_setNextLine = 0
+    vw_lastLine = vwatch_linenumber
 
     GOSUB GetCommand
-    SELECT CASE cmd$
+    SELECT CASE vw_cmd$
         CASE "break"
-            pauseMode = -1
-            stepOver = 0
-            runToLine = 0
-            cmd$ = ""
+            vw_pauseMode = -1
+            vw_stepOver = 0
+            vw_runToLine = 0
+            vw_cmd$ = ""
         CASE "set breakpoint"
-            vwatch_breakpoints(CVL(value$)) = -1
-            vwatch_skiplines(CVL(value$)) = 0
+            vwatch_breakpoints(CVL(vw_value$)) = -1
+            vwatch_skiplines(CVL(vw_value$)) = 0
         CASE "clear breakpoint"
-            vwatch_breakpoints(CVL(value$)) = 0
+            vwatch_breakpoints(CVL(vw_value$)) = 0
         CASE "set skip line"
-            vwatch_skiplines(CVL(value$)) = -1
-            vwatch_breakpoints(CVL(value$)) = 0
+            vwatch_skiplines(CVL(vw_value$)) = -1
+            vwatch_breakpoints(CVL(vw_value$)) = 0
         CASE "clear skip line"
-            vwatch_skiplines(CVL(value$)) = 0
+            vwatch_skiplines(CVL(vw_value$)) = 0
         CASE "clear all breakpoints"
             REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
         CASE "clear all skips"
@@ -139,72 +139,72 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
     IF vwatch_skiplines(vwatch_linenumber) THEN vwatch_goto = -vwatch_linenumber: EXIT SUB
 
-    IF stepOver = -1 AND vwatch_sublevel > startLevel AND vwatch_breakpoints(vwatch_linenumber) = 0 THEN
+    IF vw_stepOver = -1 AND vwatch_sublevel > vw_startLevel AND vwatch_breakpoints(vwatch_linenumber) = 0 THEN
         EXIT SUB
-    ELSEIF stepOver = -1 AND vwatch_sublevel = startLevel THEN
-        stepOver = 0
-        pauseMode = -1
+    ELSEIF vw_stepOver = -1 AND vwatch_sublevel = vw_startLevel THEN
+        vw_stepOver = 0
+        vw_pauseMode = -1
     END IF
 
-    IF runToLine > 0 AND runToLine <> vwatch_linenumber THEN
+    IF vw_runToLine > 0 AND vw_runToLine <> vwatch_linenumber THEN
         EXIT SUB
-    ELSEIF runToLine > 0 AND runToLine = vwatch_linenumber THEN
-        pauseMode = -1
-        runToLine = 0
+    ELSEIF vw_runToLine > 0 AND vw_runToLine = vwatch_linenumber THEN
+        vw_pauseMode = -1
+        vw_runToLine = 0
     END IF
 
-    IF vwatch_breakpoints(vwatch_linenumber) = 0 AND pauseMode = 0 THEN
+    IF vwatch_breakpoints(vwatch_linenumber) = 0 AND vw_pauseMode = 0 THEN
         EXIT SUB
     END IF
 
     vwatch_stoptimers
-    cmd$ = "line number:"
-    IF vwatch_breakpoints(vwatch_linenumber) THEN cmd$ = "breakpoint:"
-    cmd$ = cmd$ + MKL$(vwatch_linenumber)
+    vw_cmd$ = "line number:"
+    IF vwatch_breakpoints(vwatch_linenumber) THEN vw_cmd$ = "breakpoint:"
+    vw_cmd$ = vw_cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
-    cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
+    vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
     GOSUB SendCommand
 
     DO 'main loop
-        SELECT CASE cmd$
+        SELECT CASE vw_cmd$
             CASE "run"
-                pauseMode = 0
-                stepOver = 0
+                vw_pauseMode = 0
+                vw_stepOver = 0
                 vwatch_starttimers
                 EXIT SUB
             CASE "run to line"
-                pauseMode = 0
-                stepOver = 0
-                runToLine = CVL(value$)
+                vw_pauseMode = 0
+                vw_stepOver = 0
+                vw_runToLine = CVL(vw_value$)
                 vwatch_starttimers
                 EXIT SUB
             CASE "step"
-                pauseMode = -1
-                stepOver = 0
+                vw_pauseMode = -1
+                vw_stepOver = 0
                 EXIT SUB
             CASE "step over"
-                pauseMode = -1
-                stepOver = -1
-                startLevel = vwatch_sublevel
+                vw_pauseMode = -1
+                vw_stepOver = -1
+                vw_startLevel = vwatch_sublevel
                 vwatch_starttimers
                 EXIT SUB
             CASE "step out"
-                pauseMode = -1
-                stepOver = -1
-                startLevel = vwatch_sublevel - 1
+                vw_pauseMode = -1
+                vw_stepOver = -1
+                vw_startLevel = vwatch_sublevel - 1
                 vwatch_starttimers
                 EXIT SUB
             CASE "free"
-                unlockvWatchHandle: CLOSE #ideHost
-                ideHost = 0
-                bypass = -1
+                unlockvWatchHandle: CLOSE #vw_ideHost
+                vw_ideHost = 0
+                vw_bypass = -1
                 vwatch_starttimers
                 EXIT SUB
             CASE "set breakpoint"
-                vwatch_breakpoints(CVL(value$)) = -1
-                vwatch_skiplines(CVL(value$)) = 0
+                vwatch_breakpoints(CVL(vw_value$)) = -1
+                vwatch_skiplines(CVL(vw_value$)) = 0
             CASE "clear breakpoint"
-                vwatch_breakpoints(CVL(value$)) = 0
+                vwatch_breakpoints(CVL(vw_value$)) = 0
             CASE "clear all breakpoints"
                 REDIM vwatch_breakpoints(UBOUND(vwatch_breakpoints)) AS _BYTE
             CASE "clear all skips"
@@ -213,49 +213,49 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 'send call stack history
                 GOSUB SendCallStack
             CASE "global var"
-                tempIndex = CVL(LEFT$(value$, 4))
-                localIndex = CVL(MID$(value$, 5, 4))
-                address = _OFFSET(globalVariables) + LEN(address) * localIndex
-                address = _MEMGET(m, address, _OFFSET) 'first resolve pass
-                address = _MEMGET(m, address, _OFFSET) 'second resolve pass
-                cmd$ = "global var:" + MKL$(tempIndex) + STR$(address)
+                vw_tempIndex = CVL(LEFT$(vw_value$, 4))
+                vw_localIndex = CVL(MID$(vw_value$, 5, 4))
+                vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
+                vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
+                vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
+                vw_cmd$ = "global var:" + MKL$(vw_tempIndex) + STR$(vw_address)
                 GOSUB SendCommand
             CASE "local var"
-                tempIndex = CVL(LEFT$(value$, 4))
-                localIndex = CVL(MID$(value$, 5, 4))
-                scope$ = MID$(value$, 9)
-                IF scope$ = LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1) THEN
-                    address = _OFFSET(localVariables) + LEN(address) * localIndex
-                    address = _MEMGET(m, address, _OFFSET) 'first resolve pass
-                    address = _MEMGET(m, address, _OFFSET) 'second resolve pass
-                    cmd$ = "local var:" + MKL$(tempIndex) + STR$(address)
+                vw_tempIndex = CVL(LEFT$(vw_value$, 4))
+                vw_localIndex = CVL(MID$(vw_value$, 5, 4))
+                vw_scope$ = MID$(vw_value$, 9)
+                IF vw_scope$ = LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1) THEN
+                    vw_address = _OFFSET(localVariables) + LEN(vw_address) * vw_localIndex
+                    vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
+                    vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
+                    vw_cmd$ = "local var:" + MKL$(vw_tempIndex) + STR$(vw_address)
                     GOSUB SendCommand
                 END IF
             CASE "get address"
-                tempIndex = CVL(LEFT$(value$, 4))
-                sequence = CVI(MID$(value$, 5, 2))
-                varSize = CVL(MID$(value$, 7, 4))
-                address = VAL(MID$(value$, 11))
-                buf$ = SPACE$(varSize)
-                m = _MEM(address, varSize)
-                m2 = _MEM(_OFFSET(buf$), varSize)
-                _MEMCOPY m, m.OFFSET, m.SIZE TO m2, m2.OFFSET
-                cmd$ = "address read:" + MKL$(tempIndex) + MKI$(sequence) + buf$
+                vw_tempIndex = CVL(LEFT$(vw_value$, 4))
+                vw_sequence = CVI(MID$(vw_value$, 5, 2))
+                vw_varSize = CVL(MID$(vw_value$, 7, 4))
+                vw_address = VAL(MID$(vw_value$, 11))
+                vw_buf$ = SPACE$(vw_varSize)
+                vw_m = _MEM(vw_address, vw_varSize)
+                vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
+                _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+                vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKI$(vw_sequence) + vw_buf$
                 GOSUB SendCommand
             CASE "current sub"
-                cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
+                vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
                 GOSUB SendCommand
             CASE "set next line"
-                pauseMode = -1
-                stepOver = 0
-                setNextLine = -1
-                vwatch_goto = CVL(value$)
+                vw_pauseMode = -1
+                vw_stepOver = 0
+                vw_setNextLine = -1
+                vwatch_goto = CVL(vw_value$)
                 EXIT SUB
             CASE "set skip line"
-                vwatch_skiplines(CVL(value$)) = -1
-                vwatch_breakpoints(CVL(value$)) = 0
+                vwatch_skiplines(CVL(vw_value$)) = -1
+                vwatch_breakpoints(CVL(vw_value$)) = 0
             CASE "clear skip line"
-                vwatch_skiplines(CVL(value$)) = 0
+                vwatch_skiplines(CVL(vw_value$)) = 0
         END SELECT
 
         GOSUB GetCommand
@@ -266,57 +266,57 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     EXIT SUB
 
     Connect:
-    DIM ideport$
-    ideport$ = ENVIRON$("QB64DEBUGPORT")
-    IF ideport$ = "" THEN bypass = -1: EXIT SUB
+    DIM vw_ideport$
+    vw_ideport$ = ENVIRON$("QB64DEBUGPORT")
+    IF vw_ideport$ = "" THEN vw_bypass = -1: EXIT SUB
 
-    start! = TIMER
+    vw_start! = TIMER
     DO
-        k& = _KEYHIT
-        ideHost = _OPENCLIENT("QB64IDE:" + ideport$ + ":localhost")
+        vw_k& = _KEYHIT
+        vw_ideHost = _OPENCLIENT("QB64IDE:" + vw_ideport$ + ":localhost")
         _LIMIT 30
-    LOOP UNTIL k& = 27 OR ideHost <> 0 OR TIMER - start! > timeout
-    IF ideHost = 0 THEN bypass = -1: EXIT SUB
+    LOOP UNTIL vw_k& = 27 OR vw_ideHost <> 0 OR TIMER - vw_start! > vw_timeout
+    IF vw_ideHost = 0 THEN vw_bypass = -1: EXIT SUB
     RETURN
 
     GetCommand:
-    GET #ideHost, , temp$
-    buffer$ = buffer$ + temp$
+    GET #vw_ideHost, , vw_temp$
+    vw_buffer$ = vw_buffer$ + vw_temp$
 
-    IF INSTR(buffer$, endc$) THEN
-        cmd$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
-        buffer$ = MID$(buffer$, INSTR(buffer$, endc$) + LEN(endc$))
+    IF INSTR(vw_buffer$, vw_endc$) THEN
+        vw_cmd$ = LEFT$(vw_buffer$, INSTR(vw_buffer$, vw_endc$) - 1)
+        vw_buffer$ = MID$(vw_buffer$, INSTR(vw_buffer$, vw_endc$) + LEN(vw_endc$))
 
-        IF INSTR(cmd$, ":") THEN
-            value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
-            cmd$ = LEFT$(cmd$, INSTR(cmd$, ":") - 1)
+        IF INSTR(vw_cmd$, ":") THEN
+            vw_value$ = MID$(vw_cmd$, INSTR(vw_cmd$, ":") + 1)
+            vw_cmd$ = LEFT$(vw_cmd$, INSTR(vw_cmd$, ":") - 1)
         ELSE
-            value$ = ""
+            vw_value$ = ""
         END IF
     ELSE
-        cmd$ = "": value$ = ""
+        vw_cmd$ = "": vw_value$ = ""
     END IF
     RETURN
 
     SendCallStack:
     IF vwatch_sublevel - 1 > 0 THEN
         vwatch_callstack = MID$(vwatch_stack(2), INSTR(vwatch_stack(2), ",") + 1)
-        FOR i = 3 TO vwatch_sublevel
-            vwatch_callstack = vwatch_callstack + CHR$(0) + MID$(vwatch_stack(i), INSTR(vwatch_stack(i), ",") + 1)
+        FOR vw_i = 3 TO vwatch_sublevel
+            vwatch_callstack = vwatch_callstack + CHR$(0) + MID$(vwatch_stack(vw_i), INSTR(vwatch_stack(vw_i), ",") + 1)
         NEXT
     ELSE
         vwatch_callstack = ""
     END IF
-    cmd$ = "call stack size:" + MKL$(vwatch_sublevel - 1)
+    vw_cmd$ = "call stack size:" + MKL$(vwatch_sublevel - 1)
     GOSUB SendCommand
-    cmd$ = "call stack:" + vwatch_callstack
+    vw_cmd$ = "call stack:" + vwatch_callstack
     GOSUB SendCommand
     RETURN
 
     SendCommand:
-    cmd$ = cmd$ + endc$
-    PUT #ideHost, , cmd$
-    cmd$ = ""
+    vw_cmd$ = vw_cmd$ + vw_endc$
+    PUT #vw_ideHost, , vw_cmd$
+    vw_cmd$ = ""
     RETURN
 
 END SUB
