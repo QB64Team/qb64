@@ -1,14 +1,14 @@
 qbs *_FUNC_DWD_STRING_DWD=NULL;
 if (!_FUNC_DWD_STRING_DWD)_FUNC_DWD_STRING_DWD=qbs_new(0,0);
-qbs*oldstr3573=NULL;
+qbs*oldstr3587=NULL;
 if(_FUNC_DWD_STRING_EXP->tmp||_FUNC_DWD_STRING_EXP->fixed||_FUNC_DWD_STRING_EXP->readonly){
-oldstr3573=_FUNC_DWD_STRING_EXP;
-if (oldstr3573->cmem_descriptor){
-_FUNC_DWD_STRING_EXP=qbs_new_cmem(oldstr3573->len,0);
+oldstr3587=_FUNC_DWD_STRING_EXP;
+if (oldstr3587->cmem_descriptor){
+_FUNC_DWD_STRING_EXP=qbs_new_cmem(oldstr3587->len,0);
 }else{
-_FUNC_DWD_STRING_EXP=qbs_new(oldstr3573->len,0);
+_FUNC_DWD_STRING_EXP=qbs_new(oldstr3587->len,0);
 }
-memcpy(_FUNC_DWD_STRING_EXP->chr,oldstr3573->chr,oldstr3573->len);
+memcpy(_FUNC_DWD_STRING_EXP->chr,oldstr3587->chr,oldstr3587->len);
 }
 qbs *_FUNC_DWD_STRING_T=NULL;
 if (!_FUNC_DWD_STRING_T)_FUNC_DWD_STRING_T=qbs_new(0,0);
