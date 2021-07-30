@@ -1,14 +1,35 @@
-int32 *_SUB_GETINPUT_LONG_K=NULL;
-if(_SUB_GETINPUT_LONG_K==NULL){
-_SUB_GETINPUT_LONG_K=(int32*)mem_static_malloc(4);
-*_SUB_GETINPUT_LONG_K=0;
+int32 *_FUNC_COUNTITEMS_LONG_COUNTITEMS=NULL;
+if(_FUNC_COUNTITEMS_LONG_COUNTITEMS==NULL){
+_FUNC_COUNTITEMS_LONG_COUNTITEMS=(int32*)mem_static_malloc(4);
+*_FUNC_COUNTITEMS_LONG_COUNTITEMS=0;
 }
-byte_element_struct *byte_element_5537=NULL;
-if (!byte_element_5537){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5537=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5537=(byte_element_struct*)mem_static_malloc(12);
+qbs*oldstr5663=NULL;
+if(_FUNC_COUNTITEMS_STRING_SEARCHSTRING->tmp||_FUNC_COUNTITEMS_STRING_SEARCHSTRING->fixed||_FUNC_COUNTITEMS_STRING_SEARCHSTRING->readonly){
+oldstr5663=_FUNC_COUNTITEMS_STRING_SEARCHSTRING;
+if (oldstr5663->cmem_descriptor){
+_FUNC_COUNTITEMS_STRING_SEARCHSTRING=qbs_new_cmem(oldstr5663->len,0);
+}else{
+_FUNC_COUNTITEMS_STRING_SEARCHSTRING=qbs_new(oldstr5663->len,0);
 }
-int32 *_SUB_GETINPUT_LONG_RELEASE=NULL;
-if(_SUB_GETINPUT_LONG_RELEASE==NULL){
-_SUB_GETINPUT_LONG_RELEASE=(int32*)mem_static_malloc(4);
-*_SUB_GETINPUT_LONG_RELEASE=0;
+memcpy(_FUNC_COUNTITEMS_STRING_SEARCHSTRING->chr,oldstr5663->chr,oldstr5663->len);
+}
+qbs*oldstr5664=NULL;
+if(_FUNC_COUNTITEMS_STRING_ITEM->tmp||_FUNC_COUNTITEMS_STRING_ITEM->fixed||_FUNC_COUNTITEMS_STRING_ITEM->readonly){
+oldstr5664=_FUNC_COUNTITEMS_STRING_ITEM;
+if (oldstr5664->cmem_descriptor){
+_FUNC_COUNTITEMS_STRING_ITEM=qbs_new_cmem(oldstr5664->len,0);
+}else{
+_FUNC_COUNTITEMS_STRING_ITEM=qbs_new(oldstr5664->len,0);
+}
+memcpy(_FUNC_COUNTITEMS_STRING_ITEM->chr,oldstr5664->chr,oldstr5664->len);
+}
+int32 *_FUNC_COUNTITEMS_LONG_FOUND=NULL;
+if(_FUNC_COUNTITEMS_LONG_FOUND==NULL){
+_FUNC_COUNTITEMS_LONG_FOUND=(int32*)mem_static_malloc(4);
+*_FUNC_COUNTITEMS_LONG_FOUND=0;
+}
+int32 *_FUNC_COUNTITEMS_LONG_TOTAL=NULL;
+if(_FUNC_COUNTITEMS_LONG_TOTAL==NULL){
+_FUNC_COUNTITEMS_LONG_TOTAL=(int32*)mem_static_malloc(4);
+*_FUNC_COUNTITEMS_LONG_TOTAL=0;
 }

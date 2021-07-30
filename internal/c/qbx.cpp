@@ -634,6 +634,8 @@ extern qbs *ui642string(uint64 v);
 extern qbs *s2string(float v);
 extern qbs *d2string(double v);
 extern qbs *f2string(long double v);
+extern qbs *o2string(ptrszint v);
+extern qbs *uo2string(uptrszint v);
 extern char string2b(qbs*str);
 extern uint8 string2ub(qbs*str);
 extern int16 string2i(qbs*str);
@@ -645,6 +647,8 @@ extern uint64 string2ui64(qbs*str);
 extern float string2s(qbs*str);
 extern double string2d(qbs*str);
 extern long double string2f(qbs*str);
+extern ptrszint string2o(qbs*str);
+extern uptrszint string2uo(qbs*str);
 //Cobalt(aka Dave) added the next 2 lines
 uint64 func__shr(uint64 a1, int b1);
 uint64 func__shl(uint64 a1, int b1);

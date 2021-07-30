@@ -28,10 +28,10 @@ Set_OrderOfOperations
 
 DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState, vWatchErrorCall$
 DIM SHARED vWatchNewVariable$, vWatchVariableExclusions$
-vWatchErrorCall$ = "if (stop_program) {*__LONG_VWATCH_LINENUMBER=0; SUB_VWATCH((ptrszint*)vwatch_local_vars);};if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
+vWatchErrorCall$ = "if (stop_program) {*__LONG_VWATCH_LINENUMBER=0; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);};if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
 vWatchVariableExclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__LONG_VWATCH_GOTO@" + _
               "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
-              "@__ARRAY_BYTE_VWATCH_SKIPLINES@"
+              "@__ARRAY_BYTE_VWATCH_SKIPLINES@__STRING_VWATCH_INTERNALSUBNAME@__ARRAY_STRING_VWATCH_STACK@"
 
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
@@ -110,11 +110,16 @@ DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
     used AS _BYTE
+    watch AS _BYTE
+    mostRecentValue AS STRING
     linenumber AS LONG
     includeLevel AS LONG
     includedLine AS LONG
     includedFile AS STRING
     scope AS LONG
+    varType AS STRING
+    subfunc AS STRING
+    localIndex AS LONG
     cname AS STRING
     name AS STRING
 END TYPE
@@ -1236,6 +1241,7 @@ opexarray_recompileAttempts = 0
 
 recompile:
 vWatchOn = vWatchDesiredState
+vWatchVariable "", -1 'reset internal variables list
 
 qb64prefix_set = qb64prefix_set_desiredState
 qb64prefix$ = "_"
@@ -3443,7 +3449,7 @@ DO
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
             IF NoChecks = 0 THEN
-                IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+                IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
                 PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
             END IF
             IF n = 1 THEN GOTO finishednonexec
@@ -3504,7 +3510,7 @@ DO
                     inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
                 END IF
                 IF NoChecks = 0 THEN
-                    IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+                    IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
                     PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
                 END IF
                 entireline$ = RIGHT$(entireline$, LEN(entireline$) - x3): u$ = UCASE$(entireline$)
@@ -5161,7 +5167,9 @@ DO
 
                     PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + inclinenump$ + subfuncoriginalname$ + CHR$(34) + "," + str2$(LEN(inclinenump$ + subfuncoriginalname$)) + "));"
                     PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER=-2; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
+                    PRINT #12, "qbs_set(__STRING_VWATCH_INTERNALSUBNAME,qbs_new_txt_len(" + CHR$(34) + subfunc + CHR$(34) + "," + str2$(LEN(subfunc)) + "));"
+                    PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER=-2; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
                 END IF
             END IF
 
@@ -5305,7 +5313,7 @@ DO
                 IF vWatchOn = 1 THEN
                     IF NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN
                         vWatchAddLabel linenumber, 0
-                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                         vWatchAddLabel 0, -1
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
@@ -5573,7 +5581,7 @@ DO
                     PRINT #12, "fornext_continue_" + str2$(controlid(controllevel)) + ":;"
                     IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
                         vWatchAddLabel linenumber, 0
-                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                     END IF
                     PRINT #12, "}"
                     PRINT #12, "fornext_exit_" + str2$(controlid(controllevel)) + ":;"
@@ -5623,7 +5631,7 @@ DO
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
@@ -5683,14 +5691,14 @@ DO
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
                 IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 ELSE
                     PRINT #12, "do{"
                 END IF
@@ -5725,7 +5733,7 @@ DO
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
                 IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
@@ -5733,7 +5741,7 @@ DO
 
                 IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
 
                 IF controltype(controllevel) = 4 THEN
@@ -5887,7 +5895,7 @@ DO
 
             IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                 vWatchAddLabel linenumber, 0
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
@@ -5975,7 +5983,7 @@ DO
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
             FOR i = controllevel TO 1 STEP -1
@@ -6017,7 +6025,7 @@ DO
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
 
@@ -6100,7 +6108,7 @@ DO
 
             IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                 vWatchAddLabel linenumber, 0
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
             PRINT #12, "}"
@@ -6121,7 +6129,7 @@ DO
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
 
@@ -6247,7 +6255,7 @@ DO
 
             IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                 vWatchAddLabel linenumber, 0
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
@@ -6366,7 +6374,7 @@ DO
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
                     vWatchAddLabel linenumber, 0
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
 
@@ -6555,7 +6563,7 @@ DO
     IF NoChecks = 0 THEN
         IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
             vWatchAddLabel linenumber, 0
-            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
         ELSE
             PRINT #12, "do{"
         END IF
@@ -7536,7 +7544,7 @@ DO
                 IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
                 bypassNextVariable = -1
                 retval = dim2(n$, typ$, method, "")
-                manageVariableList "", vWatchNewVariable$, 2
+                manageVariableList "", vWatchNewVariable$, 0, 2
                 IF Error_Happened THEN GOTO errmes
                 'note: variable created!
 
@@ -8880,7 +8888,7 @@ DO
                 thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
-            IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+            IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
             PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
@@ -8904,7 +8912,7 @@ DO
                 thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
-            IF vWatchOn = 1 AND NoChecks = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+            IF vWatchOn = 1 AND NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
             PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
@@ -8912,8 +8920,10 @@ DO
 
 
         IF vWatchOn = 1 THEN
-            vWatchAddLabel linenumber, 0
-            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+            IF inclinenumber(inclevel) = 0 THEN
+                vWatchAddLabel linenumber, 0
+            END IF
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
         END IF
         PRINT #12, "if (sub_gl_called) error(271);"
         PRINT #12, "close_program=1;"
@@ -8936,7 +8946,7 @@ DO
             END IF
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             IF vWatchOn = 1 AND NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 vWatchAddLabel linenumber, 0
             ELSE
                 PRINT #12, "close_program=1;"
@@ -11192,7 +11202,7 @@ DO
         inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
     END IF
     IF NoChecks = 0 THEN
-        IF vWatchOn THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+        IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
         IF dynscope THEN
             dynscope = 0
             PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");if(r)goto S_" + str2$(statementn) + ";}"
@@ -12228,7 +12238,7 @@ IF NOT IgnoreWarnings THEN
         header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
         FOR i = 1 TO totalVariablesCreated
             IF usedVariableList(i).used = 0 THEN
-                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).varType + ")"
             END IF
         NEXT
     END IF
@@ -13252,7 +13262,8 @@ END IF
 
 IF ideerror THEN 'error happened inside the IDE
     fh = FREEFILE
-    OPEN "internal\temp\ideerror.txt" FOR OUTPUT AS #fh
+    OPEN "internal\temp\ideerror.txt" FOR APPEND AS #fh
+    PRINT #fh, DATE$; TIME$; "--------------------"
     PRINT #fh, ERR
     PRINT #fh, _ERRORMESSAGE$
     PRINT #fh, _ERRORLINE
@@ -14228,6 +14239,11 @@ SUB vWatchVariable (this$, action AS _BYTE)
     STATIC totalMainModuleVariables AS LONG, mainModuleVariablesList$
 
     SELECT CASE action
+        CASE -1 'reset
+            totalLocalVariables = 0
+            localVariablesList$ = ""
+            totalMainModuleVariables = 0
+            mainModuleVariablesList$ = ""
         CASE 0 'add
             IF INSTR(vWatchVariableExclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
                 EXIT SUB
@@ -14236,27 +14252,34 @@ SUB vWatchVariable (this$, action AS _BYTE)
             vWatchNewVariable$ = this$
             IF subfunc = "" THEN
                 totalMainModuleVariables = totalMainModuleVariables + 1
-                mainModuleVariablesList$ = mainModuleVariablesList$ + "vwatch_local_vars[" + str2$(totalMainModuleVariables - 1) + "] = &" + this$ + ";" + CRLF
+                mainModuleVariablesList$ = mainModuleVariablesList$ + "vwatch_global_vars[" + str2$(totalMainModuleVariables - 1) + "] = &" + this$ + ";" + CRLF
+                manageVariableList id.cn, this$, totalMainModuleVariables - 1, 0
             ELSE
                 totalLocalVariables = totalLocalVariables + 1
                 localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + this$ + ";" + CRLF
+                manageVariableList id.cn, this$, totalLocalVariables - 1, 0
             END IF
-            manageVariableList RTRIM$(id.cn), this$, 0
         CASE 1 'dump to data[].txt & reset
             IF subfunc = "" THEN
                 IF totalMainModuleVariables > 0 THEN
-                    PRINT #13, "void *vwatch_local_vars["; totalMainModuleVariables; "];"
+                    PRINT #13, "void *vwatch_local_vars[0];"
+                    PRINT #18, "void *vwatch_global_vars["; totalMainModuleVariables; "];"
                     PRINT #13, mainModuleVariablesList$
                 ELSE
                     PRINT #13, "void *vwatch_local_vars[0];"
+                    PRINT #18, "void *vwatch_global_vars[0];"
                 END IF
 
                 mainModuleVariablesList$ = ""
                 totalMainModuleVariables = 0
             ELSE
-                IF totalLocalVariables > 0 THEN
-                    PRINT #13, "void *vwatch_local_vars["; totalLocalVariables; "];"
-                    PRINT #13, localVariablesList$
+                IF subfunc <> "SUB_VWATCH" THEN
+                    IF totalLocalVariables > 0 THEN
+                        PRINT #13, "void *vwatch_local_vars["; (totalLocalVariables); "];"
+                        PRINT #13, localVariablesList$
+                    ELSE
+                        PRINT #13, "void *vwatch_local_vars[0];"
+                    END IF
                 ELSE
                     PRINT #13, "void *vwatch_local_vars[0];"
                 END IF
@@ -14501,6 +14524,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     PRINT #13, "}"
                 END IF
             END IF
+            id.callname = n$
             regid
             vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
@@ -14668,6 +14692,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF method = 1 THEN
                 id.musthave = "$" + str2(bytes)
             END IF
+            id.callname = n$
             regid
             vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
@@ -14759,6 +14784,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "$"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -14863,6 +14889,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~`" + str2(bits) ELSE id.musthave = "`" + str2(bits)
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -14949,6 +14976,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%%" ELSE id.musthave = "%%"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15032,6 +15060,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%" ELSE id.musthave = "%"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15120,6 +15149,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%&" ELSE id.musthave = "%&"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15205,6 +15235,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~&" ELSE id.musthave = "&"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15290,6 +15321,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~&&" ELSE id.musthave = "&&"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15375,6 +15407,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "!"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15458,6 +15491,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "#"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -15541,6 +15575,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "##"
         END IF
+        id.callname = n$
         regid
         vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
@@ -16140,7 +16175,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
                     bypassNextVariable = -1
                     retval = dim2(x$, typ$, 1, "")
-                    manageVariableList "", vWatchNewVariable$, 3
+                    manageVariableList "", vWatchNewVariable$, 0, 3
                     IF Error_Happened THEN EXIT FUNCTION
 
                     simplevarfound:
@@ -17050,7 +17085,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 IF n$ = "_MK" OR (n$ = "MK" AND qb64prefix_set = 1) THEN mktype = -1
                 IF mktype THEN
                     IF mktype <> -1 OR curarg = 2 THEN
-                        IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
+                        'IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
                         'both _MK and trad. process the following
                         qtyp& = 0
                         IF mktype$ = "%%" THEN ctype$ = "b": qtyp& = BYTETYPE - ISPOINTER
@@ -17064,6 +17099,8 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF mktype$ = "!" THEN ctype$ = "s": qtyp& = SINGLETYPE - ISPOINTER
                         IF mktype$ = "#" THEN ctype$ = "d": qtyp& = DOUBLETYPE - ISPOINTER
                         IF mktype$ = "##" THEN ctype$ = "f": qtyp& = FLOATTYPE - ISPOINTER
+                        IF mktype$ = "%&" THEN ctype$ = "o": qtyp& = OFFSETTYPE - ISPOINTER
+                        IF mktype$ = "~%&" THEN ctype$ = "uo": qtyp& = UOFFSETTYPE - ISPOINTER
                         IF LEFT$(mktype$, 2) = "~`" THEN ctype$ = "ubit": qtyp& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 2))
                         IF LEFT$(mktype$, 1) = "`" THEN ctype$ = "bit": qtyp& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 1))
                         IF qtyp& = 0 THEN Give_Error qb64prefix$ + "MK only accepts numeric types": EXIT FUNCTION
@@ -17101,6 +17138,8 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF cvtype$ = "!" THEN ctype$ = "s": typ& = SINGLETYPE - ISPOINTER
                         IF cvtype$ = "#" THEN ctype$ = "d": typ& = DOUBLETYPE - ISPOINTER
                         IF cvtype$ = "##" THEN ctype$ = "f": typ& = FLOATTYPE - ISPOINTER
+                        IF cvtype$ = "%&" THEN ctype$ = "o": typ& = OFFSETTYPE - ISPOINTER
+                        IF cvtype$ = "~%&" THEN ctype$ = "uo": typ& = UOFFSETTYPE - ISPOINTER
                         IF LEFT$(cvtype$, 2) = "~`" THEN ctype$ = "ubit": typ& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 2))
                         IF LEFT$(cvtype$, 1) = "`" THEN ctype$ = "bit": typ& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 1))
                         IF typ& = 0 THEN Give_Error qb64prefix$ + "CV cannot return STRING type!": EXIT FUNCTION
@@ -18582,7 +18621,7 @@ FUNCTION findid& (n2$)
 
     t = id.t
     temp$ = refer$(str2$(i), t, 1)
-    manageVariableList "", temp$, 1
+    manageVariableList "", temp$, 0, 1
     currentid = i
     EXIT FUNCTION
 
@@ -22776,8 +22815,9 @@ END FUNCTION
 
 SUB xend
     IF vWatchOn = 1 THEN
+        'check if closedmain = 0 in case a main module ends in an include.
         IF (inclinenumber(inclevel) = 0 OR closedmain = 0) THEN vWatchAddLabel 0, -1
-        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_local_vars);"
+        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
     END IF
     PRINT #12, "sub_end();"
 END SUB
@@ -23991,6 +24031,10 @@ FUNCTION id2fulltypename$
         IF bits = 16 THEN a$ = "INTEGER"
         IF bits = 32 THEN a$ = "LONG"
         IF bits = 64 THEN a$ = qb64prefix$ + "INTEGER64"
+        IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
+    END IF
+    IF t AND ISOFFSET THEN
+        a$ = qb64prefix$ + "OFFSET"
         IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
     END IF
     id2fulltypename$ = a$
@@ -25873,10 +25917,10 @@ SUB dump_udts
     CLOSE #f
 END SUB
 
-SUB manageVariableList (__name$, __cname$, action AS _BYTE)
+SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
     DIM findItem AS LONG, cname$, i AS LONG, name$
-    name$ = __name$
-    cname$ = __cname$
+    name$ = RTRIM$(__name$)
+    cname$ = RTRIM$(__cname$)
 
     IF LEN(cname$) = 0 THEN EXIT SUB
 
@@ -25897,6 +25941,8 @@ SUB manageVariableList (__name$, __cname$, action AS _BYTE)
                     REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
                 END IF
                 usedVariableList(i).used = 0
+                usedVariableList(i).watch = 0
+                usedVariableList(i).mostRecentValue = ""
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
                 IF inclevel > 0 THEN
@@ -25909,9 +25955,15 @@ SUB manageVariableList (__name$, __cname$, action AS _BYTE)
                     usedVariableList(i).includedFile = ""
                 END IF
                 usedVariableList(i).scope = subfuncn
+                usedVariableList(i).subfunc = subfunc
+                usedVariableList(i).varType = id2fulltypename$
                 usedVariableList(i).cname = cname$
-                IF LEN(RTRIM$(id.musthave)) > 0 THEN name$ = name$ + RTRIM$(id.musthave)
-                usedVariableList(i).name = name$
+                usedVariableList(i).localIndex = localIndex
+                IF LEN(RTRIM$(id.musthave)) > 0 THEN
+                    usedVariableList(i).name = name$ + RTRIM$(id.musthave)
+                ELSE
+                    usedVariableList(i).name = name$
+                END IF
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used

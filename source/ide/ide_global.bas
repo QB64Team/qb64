@@ -11,7 +11,7 @@ DIM SHARED IDEBuildModeChanged
 DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
-DIM SHARED host&, hostport$
+DIM SHARED host&, hostport$, variableWatchList$
 
 DIM SHARED IdeSystem AS LONG
 '1=Entering text into the main IDE window
@@ -134,6 +134,8 @@ DIM SHARED idelayoutallow AS LONG
 
 'IDE MODULE: shared data & definitions
 '---------------------------------------------------
+CONST idesystem2.w = 20 '"Find" field width (Status bar)
+
 DIM SHARED idesubwindow, idehelp, statusarealink AS INTEGER
 DIM SHARED ideexit
 DIM SHARED idet AS STRING, idel, ideli, iden
@@ -170,7 +172,7 @@ DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
 DIM SHARED SearchMenuEnableQuickNav AS INTEGER, searchStringFoundOn AS LONG
 DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
-DIM SHARED versionStringStatus$, lineNumberStatus$
+DIM SHARED versionStringStatus$, lineNumberStatus$, ideshowtextBypassColorRestore AS _BYTE
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype
@@ -215,8 +217,9 @@ DIM SHARED OptionsMenuShowErrorsImmediately AS INTEGER, OptionsMenuIgnoreWarning
 DIM SHARED OptionsMenuDisableSyntax AS INTEGER ', OptionsMenuAutoComplete
 DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
-DIM SHARED ViewMenuCompilerWarnings AS INTEGER, ViewMenuCallStack AS INTEGER
+DIM SHARED ViewMenuCompilerWarnings AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
+DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
 DIM SHARED LastValidColorScheme AS INTEGER

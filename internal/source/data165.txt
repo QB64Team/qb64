@@ -1,5 +1,21 @@
-float *_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=NULL;
-if(_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE==NULL){
-_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=(float*)mem_static_malloc(4);
-*_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=0;
+qbs*oldstr5092=NULL;
+if(_SUB_IDESAVE_STRING_F->tmp||_SUB_IDESAVE_STRING_F->fixed||_SUB_IDESAVE_STRING_F->readonly){
+oldstr5092=_SUB_IDESAVE_STRING_F;
+if (oldstr5092->cmem_descriptor){
+_SUB_IDESAVE_STRING_F=qbs_new_cmem(oldstr5092->len,0);
+}else{
+_SUB_IDESAVE_STRING_F=qbs_new(oldstr5092->len,0);
 }
+memcpy(_SUB_IDESAVE_STRING_F->chr,oldstr5092->chr,oldstr5092->len);
+}
+int32 *_SUB_IDESAVE_LONG_I=NULL;
+if(_SUB_IDESAVE_LONG_I==NULL){
+_SUB_IDESAVE_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_IDESAVE_LONG_I=0;
+}
+int64 fornext_value5094;
+int64 fornext_finalvalue5094;
+int64 fornext_step5094;
+uint8 fornext_step_negative5094;
+qbs *_SUB_IDESAVE_STRING_A=NULL;
+if (!_SUB_IDESAVE_STRING_A)_SUB_IDESAVE_STRING_A=qbs_new(0,0);
