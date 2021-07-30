@@ -7309,7 +7309,7 @@ SUB DebugMode
                 END IF
             CASE "global var", "local var"
                 tempIndex& = CVL(LEFT$(value$, 4))
-                address%& = VAL(MID$(value$, 5))
+                address%& = _CV(_OFFSET, MID$(value$, 5))
                 varType$ = usedVariableList(tempIndex&).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 SELECT CASE varType$
@@ -7323,7 +7323,7 @@ SUB DebugMode
                     CASE "_OFFSET", "_UNSIGNED _OFFSET": varSize& = LEN(dummy%&)
                     CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
                 END SELECT
-                cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + STR$(address%&)
+                cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
                 GOSUB SendCommand
             CASE "address read"
                 tempIndex& = CVL(LEFT$(value$, 4))
@@ -7355,7 +7355,7 @@ SUB DebugMode
                                 strLength& = CVL(MID$(recvData$, 5))
                             END IF
                             address$ = LEFT$(recvData$, LEN(dummy%&)) 'Pointer to data
-                            cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + STR$(address%&)
+                            cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
                             GOSUB SendCommand
                             GOTO vwatch_string_seq1_done
                         END IF
