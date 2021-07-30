@@ -242,6 +242,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
                 vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKI$(vw_sequence) + vw_buf$
                 GOSUB SendCommand
+            CASE "set address"
+                vw_varSize = CVL(LEFT$(vw_value$, 4))
+                vw_address = _CV(_OFFSET, MID$(vw_value$, 5, LEN(vw_address)))
+                vw_buf$ = MID$(vw_value$, 4 + LEN(vw_address) + 1)
+                vw_m = _MEM(vw_address, vw_varSize)
+                _MEMPUT vw_m, vw_m.OFFSET, vw_buf$
             CASE "current sub"
                 vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
                 GOSUB SendCommand
