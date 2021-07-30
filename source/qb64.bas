@@ -13253,7 +13253,8 @@ END IF
 
 IF ideerror THEN 'error happened inside the IDE
     fh = FREEFILE
-    OPEN "internal\temp\ideerror.txt" FOR OUTPUT AS #fh
+    OPEN "internal\temp\ideerror.txt" FOR APPEND AS #fh
+    PRINT #fh, DATE$; TIME$; "--------------------"
     PRINT #fh, ERR
     PRINT #fh, _ERRORMESSAGE$
     PRINT #fh, _ERRORLINE
