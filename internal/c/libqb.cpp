@@ -21740,14 +21740,18 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void tcp_out(void *connection,void *offset,ptrszint bytes){
             #if !defined(DEPENDENCY_SOCKETS)
-                #elif defined(QB64_WINDOWS) || defined(QB64_UNIX)
+            #elif defined(QB64_WINDOWS) || defined(QB64_UNIX)
+                // Handle Windows which might not have this flag (it would be a no-op anyway)
+                #if !defined(MSG_NOSIGNAL)
+                #define MSG_NOSIGNAL 0
+                #endif
                 tcp_connection *tcp; tcp=(tcp_connection*)connection;
                 int total = 0;        // how many bytes we've sent
                 int bytesleft = bytes; // how many we have left to send
                 int n;
                 
                 while(total < bytes) {
-                    n = send(tcp->socket, (char*)((char *)offset + total), bytesleft, 0);
+                    n = send(tcp->socket, (char*)((char *)offset + total), bytesleft, MSG_NOSIGNAL);
                     if (n < 0) {
                         tcp->connected = 0;
                         return;
