@@ -141,6 +141,7 @@ FUNCTION ide2 (ignore)
 
     c$ = idecommand$
 
+    IDEerrorMessage:
     'report any IDE errors which have occurred
     IF ideerror THEN
         IF IdeDebugMode THEN
@@ -165,9 +166,13 @@ FUNCTION ide2 (ignore)
 
         IF (ideerror > 1) THEN
             'Don't show too much detail if user just tried loading an invalid file
-            ideerrormessageTITLE$ = ideerrormessageTITLE$ + " (" + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE)
+            ideerrormessageTITLE$ = ideerrormessageTITLE$ + " ("
+            IF _ERRORLINE > 0 OR _INCLERRORLINE > 0 THEN
+                ideerrormessageTITLE$ = ideerrormessageTITLE$ + str2$(_ERRORLINE) + "-" + str2$(_INCLERRORLINE)
+            END IF
             IF LEN(AutoBuildMsg$) THEN ideerrormessageTITLE$ = ideerrormessageTITLE$ + "-" + MID$(AutoBuildMsg$, 10)
             ideerrormessageTITLE$ = ideerrormessageTITLE$ + ")"
+            IF ideerrormessageTITLE$ = "Error ()" THEN ideerrormessageTITLE$ = "Error"
             IF AttemptToLoadRecent = -1 THEN
                 'Offer to cleanup recent file list, removing invalid entries
                 PCOPY 2, 0
@@ -543,10 +548,11 @@ FUNCTION ide2 (ignore)
                 f$ = RIGHT$(c$, LEN(c$) - 1)
                 IF FileHasExtension(f$) = 0 THEN f$ = f$ + ".bas"
                 path$ = idezgetfilepath$(ideroot$, f$)
+                IF ideerror > 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO IDEerrorMessage
 
                 '(copied from ideopen)
                 ideerror = 2
-                OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
+                IF _FILEEXISTS(path$ + idepathsep$ + f$) = 0 THEN GOTO IDEerrorMessage
                 PCOPY 3, 0
                 IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN GOTO skipload
                 ideerror = 3
@@ -3314,6 +3320,7 @@ FUNCTION ide2 (ignore)
                 ELSE
                     a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                 END IF
+                IF ideerror > 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO IDEerrorMessage
             ELSE
                 idesave idepath$ + idepathsep$ + ideprogname$
             END IF
@@ -5922,9 +5929,9 @@ FUNCTION ide2 (ignore)
                             ELSE
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
-                            IF r$ = "C" THEN
-                                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
-                            END IF
+                            PCOPY 3, 0: SCREEN , , 3, 0
+                            IF ideerror > 1 THEN GOTO IDEerrorMessage
+                            IF r$ = "C" THEN GOTO ideloop
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
                         END IF
@@ -5951,6 +5958,7 @@ FUNCTION ide2 (ignore)
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
                             PCOPY 3, 0: SCREEN , , 3, 0
+                            IF ideerror > 1 THEN GOTO IDEerrorMessage
                             IF r$ = "C" THEN GOTO ideloop
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
@@ -6052,6 +6060,7 @@ FUNCTION ide2 (ignore)
                             ELSE
                                 r$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                             END IF
+                            IF ideerror > 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO IDEerrorMessage
                             IF r$ = "C" THEN GOTO ideloop
                         ELSE
                             idesave idepath$ + idepathsep$ + ideprogname$
@@ -6060,6 +6069,7 @@ FUNCTION ide2 (ignore)
                     END IF '"Y"
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
+                IF ideerror > 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO IDEerrorMessage
                 IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB redrawItAll: GOTO ideloop
@@ -6074,6 +6084,7 @@ FUNCTION ide2 (ignore)
                     ELSE
                         a$ = idefiledialog$(ProposedTitle$ + ".bas", 2)
                     END IF
+                    IF ideerror > 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO IDEerrorMessage
                 ELSE
                     idesave idepath$ + idepathsep$ + ideprogname$
                 END IF
@@ -6093,7 +6104,9 @@ FUNCTION ide2 (ignore)
                 ELSE
                     a$ = idefiledialog$(ideprogname$, 2)
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0: GOTO ideloop
+                PCOPY 3, 0: SCREEN , , 3, 0
+                IF ideerror > 1 THEN GOTO IDEerrorMessage
+                GOTO ideloop
             END IF
 
             IF LEFT$(menu$(m, s), 1) = "~" THEN 'Ignore disabled items (starting with "~")
@@ -7296,7 +7309,7 @@ SUB DebugMode
                 END IF
             CASE "global var", "local var"
                 tempIndex& = CVL(LEFT$(value$, 4))
-                address%& = _CV(_OFFSET, MID$(value$, 5))
+                address%& = VAL(MID$(value$, 5))
                 varType$ = usedVariableList(tempIndex&).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 SELECT CASE varType$
@@ -7310,7 +7323,7 @@ SUB DebugMode
                     CASE "_OFFSET", "_UNSIGNED _OFFSET": varSize& = LEN(dummy%&)
                     CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
                 END SELECT
-                cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
+                cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + STR$(address%&)
                 GOSUB SendCommand
             CASE "address read"
                 tempIndex& = CVL(LEFT$(value$, 4))
@@ -7342,7 +7355,7 @@ SUB DebugMode
                                 strLength& = CVL(MID$(recvData$, 5))
                             END IF
                             address$ = LEFT$(recvData$, LEN(dummy%&)) 'Pointer to data
-                            cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
+                            cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + STR$(address%&)
                             GOSUB SendCommand
                             GOTO vwatch_string_seq1_done
                         END IF
@@ -9794,6 +9807,8 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             IF _DIREXISTS(path$ + idepathsep$ + f$) THEN
                 'check/acquire file path
                 path$ = idezgetfilepath$(path$, f$ + idepathsep$) 'note: path ending with pathsep needn't contain a file
+                IF ideerror > 1 THEN EXIT FUNCTION
+
                 IF LEN(newpath$) = 0 THEN
                     idetxt(o(1).txt) = ""
                     focus = 1
@@ -9812,6 +9827,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 IF INSTR(f$, "/") > 0 OR INSTR(f$, "\") > 0 THEN
                     'path + wildcards
                     path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
+                    IF ideerror > 1 THEN EXIT FUNCTION
                     idetxt(o(3).txt) = idezpathlist$(path$)
                     o(3).sel = -1
                 END IF
@@ -9831,6 +9847,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
 
             DirectLoad:
             path$ = idezgetfilepath$(path$, f$) 'repeat in case of DirectLoad
+            IF ideerror > 1 THEN EXIT FUNCTION
 
             IF mode = 1 THEN
                 IF _FILEEXISTS(path$ + idepathsep$ + f$) = 0 THEN
@@ -9840,7 +9857,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
 
                 'check file exists
                 ideerror = 2
-                OPEN path$ + idepathsep$ + f$ FOR INPUT AS #150: CLOSE #150
+                IF _FILEEXISTS(path$ + idepathsep$ + f$) = 0 THEN EXIT FUNCTION
 
                 IF BinaryFormatCheck%(path$, idepathsep$, f$) > 0 THEN
                     IF LEN(IdeOpenFile) THEN
@@ -12453,6 +12470,7 @@ FUNCTION idezgetfilepath$ (root$, f$)
     IF os$ = "WIN" THEN
         IF RIGHT$(p2$, 1) = ":" THEN p2$ = p2$ + "\" 'force change to root of drive
     END IF
+    IF _DIREXISTS(p2$) = 0 THEN EXIT FUNCTION
 
     CHDIR p2$
     ideerror = 1
