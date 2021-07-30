@@ -6391,6 +6391,30 @@ SUB DebugMode
         AS INTEGER x, y, w, h
         AS STRING caption
     END TYPE
+    DIM Button(1 TO 8) AS ui
+    i = 0
+    i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
+    i = i + 1: Button(i).Caption = "<F5 = Run>"
+    i = i + 1: Button(i).Caption = "<F6 = Step Out>"
+    i = i + 1: Button(i).Caption = "<F7 = Step Over>"
+    i = i + 1: Button(i).Caption = "<F8 = Step Into>"
+    i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
+    i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
+    i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
+    y = (idewy - 4) + 2
+    x = 2
+    FOR i = 1 TO UBOUND(Button)
+        Button(i).x = x
+        Button(i).y = y
+        Button(i).w = LEN(Button(i).Caption)
+        IF i < UBOUND(Button) THEN
+            x = x + Button(i).w + 1
+            IF x + LEN(Button(i + 1).Caption) > idewx - 1 THEN
+                y = y + 1
+                x = 2
+            END IF
+        END IF
+    NEXT
 
     SELECT EVERYCASE IdeDebugMode
         CASE 1
@@ -6414,32 +6438,6 @@ SUB DebugMode
             vWatchPanel.x = idewx - vWatchPanel.w - 6
             vWatchPanel.y = 4
             vWatchPanel.firstVisible = 1
-
-            STATIC Button(1 TO 8) AS ui
-            i = 0
-            i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
-            i = i + 1: Button(i).Caption = "<F5 = Run>"
-            i = i + 1: Button(i).Caption = "<F6 = Step Out>"
-            i = i + 1: Button(i).Caption = "<F7 = Step Over>"
-            i = i + 1: Button(i).Caption = "<F8 = Step Into>"
-            i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
-            i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
-            i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
-            y = (idewy - 4) + 2
-            x = 2
-            FOR i = 1 TO UBOUND(Button)
-                Button(i).x = x
-                Button(i).y = y
-                Button(i).w = LEN(Button(i).Caption)
-                IF i < UBOUND(Button) THEN
-                    x = x + Button(i).w + 1
-                    IF x + LEN(Button(i + 1).Caption) > idewx - 1 THEN
-                        y = y + 1
-                        x = 2
-                    END IF
-                END IF
-            NEXT
-
         CASE IS > 1
             noFocusMessage = NOT noFocusMessage
             GOSUB UpdateStatusArea
