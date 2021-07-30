@@ -218,7 +218,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
-                vw_cmd$ = "global var:" + MKL$(vw_tempIndex) + STR$(vw_address)
+                vw_cmd$ = "global var:" + MKL$(vw_tempIndex) + _MK$(_OFFSET, vw_address)
                 GOSUB SendCommand
             CASE "local var"
                 vw_tempIndex = CVL(LEFT$(vw_value$, 4))
@@ -228,14 +228,14 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     vw_address = _OFFSET(localVariables) + LEN(vw_address) * vw_localIndex
                     vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                     vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
-                    vw_cmd$ = "local var:" + MKL$(vw_tempIndex) + STR$(vw_address)
+                    vw_cmd$ = "local var:" + MKL$(vw_tempIndex) + _MK$(_OFFSET, vw_address)
                     GOSUB SendCommand
                 END IF
             CASE "get address"
                 vw_tempIndex = CVL(LEFT$(vw_value$, 4))
                 vw_sequence = CVI(MID$(vw_value$, 5, 2))
                 vw_varSize = CVL(MID$(vw_value$, 7, 4))
-                vw_address = VAL(MID$(vw_value$, 11))
+                vw_address = _CV(_OFFSET, MID$(vw_value$, 11))
                 vw_buf$ = SPACE$(vw_varSize)
                 vw_m = _MEM(vw_address, vw_varSize)
                 vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
