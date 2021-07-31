@@ -1637,26 +1637,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN 'variable watch
-            IF vWatchOn = 0 THEN
-                result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
-                IF result = 1 THEN
-                    ideselect = 0
-                    ideinsline 1, SCase$("$Debug")
-                    idecy = idecy + 1
-                    idechangemade = 1
-                    GOTO ideloop
-                ELSE
-                    GOTO ideloop
-                END IF
-            ELSE
-                IF idecompiling = 1 THEN
-                    result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "")
-                    PCOPY 3, 0: SCREEN , , 3, 0
-                    GOTO ideloop
-                ELSE
-                    GOTO showWatchList
-                END IF
-            END IF
+            GOTO showWatchList
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -3767,30 +3748,6 @@ FUNCTION ide2 (ignore)
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
                     retval$ = idergbmixer$(0)
-                'ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
-                '    'close open block
-                '    tempIndent$ = idegetline(idefocusline)
-                '    tempIndent$ = SPACE$(LEN(tempIndent$) - LEN(LTRIM$(tempindent$)))
-                '    IF idefocusline = definingtypeerror THEN
-                '        idecx = LEN(tempIndent$) + 1
-                '        insertAtCursor SCase$("End Type"): GOTO specialchar
-                '    ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
-                '        idecx = LEN(tempIndent$) + 1
-                '        SELECT EVERYCASE controltype(controllevel)
-                '            CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
-                '            CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
-                '            CASE 3, 4: insertAtCursor SCase$("Loop"): GOTO specialchar
-                '            CASE 5: insertAtCursor SCase$("Wend"): GOTO specialchar
-                '            CASE 6: insertAtCursor SCase$("$End If"): GOTO specialchar
-                '            CASE 10 TO 19: insertAtCursor SCase$("End Select"): GOTO specialchar
-                '            CASE 32
-                '                IF LEFT$(subfunc, 4) = "SUB_" THEN
-                '                    insertAtCursor SCase$("End Sub"): GOTO specialchar
-                '                ELSE
-                '                    insertAtCursor SCase$("End Function"): GOTO specialchar
-                '                END IF
-                '        END SELECT
-                '    END IF
                 ELSE
                     IF ideselect THEN
                         IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
@@ -5736,7 +5693,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 startPausedMenuHandler:
                 IF vWatchOn = 0 THEN
-                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    result = idemessagebox("Start Paused", "Insert $DEBUG metacommand?", "#Yes;#No")
                     IF result = 1 THEN
                         ideselect = 0
                         ideinsline 1, SCase$("$Debug")
@@ -5757,7 +5714,28 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Watch List...  F4" THEN
                 PCOPY 2, 0
                 showWatchList:
-                result = idevariablewatchbox("")
+                IF vWatchOn = 0 THEN
+                    result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    IF result = 1 THEN
+                        ideselect = 0
+                        ideinsline 1, SCase$("$Debug")
+                        idecy = idecy + 1
+                        idechangemade = 1
+                        GOTO ideloop
+                    ELSE
+                        GOTO ideloop
+                    END IF
+                ELSE
+                    IF idecompiling = 1 THEN
+                        result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "#Continue Compilation")
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        GOTO ideloop
+                    ELSE
+                        result = idevariablewatchbox("")
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        GOTO ideloop
+                    END IF
+                END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -5850,7 +5828,7 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0: SCREEN , , 3, 0
                     toggleSkipLine:
                     IF vWatchOn = 0 THEN
-                        result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        result = idemessagebox("Toggle Skip Line", "Insert $DEBUG metacommand?", "#Yes;#No")
                         IF result = 1 THEN
                             ideselect = 0
                             ideinsline 1, SCase$("$Debug")
@@ -10333,22 +10311,6 @@ SUB ideshowtext
                             a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
                         END IF
                     END IF
-                'ELSE
-                '    temp_a$ = idegetline(idecy)
-                '    IF IdeAutoComplete AND idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
-                '        'some errors are mere blocks the user just opened and is still
-                '        'working on. This bit will offer to close said blocks.
-                '        IF idefocusline = definingtypeerror THEN
-                '            shiftEnter_idecx = LEN(a$)
-                '            a$ = a$ + " --> Shift+ENTER to close block"
-                '        ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
-                '            SELECT EVERYCASE controltype(controllevel)
-                '                CASE 1 to 6,10 to 19,32
-                '                    shiftEnter_idecx = LEN(a$)
-                '                    a$ = a$ + " --> Shift+ENTER to close block"
-                '            END SELECT
-                '        END IF
-                '    END IF
                 END IF 'l = idecy
 
                 a2$ = SPACE$(idesx + (idewx - 3))
