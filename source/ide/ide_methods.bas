@@ -9779,9 +9779,20 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
         IF focus = 3 THEN
             IF (K$ = CHR$(13) OR info = 1) AND o(3).sel >= 1 THEN
                 newpath$ = idetxt(o(3).stx)
-                IF newpath$ = "" THEN newpath$ = ".."
-                f$ = newpath$
-                GOTO changepath
+                IF newpath$ = "" THEN
+                    newpath$ = ".."
+                    f$ = newpath$
+                    GOTO changepath
+                ELSE
+                    path$ = idezchangepath(path$, newpath$)
+                    idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
+                    idetxt(o(3).txt) = idezpathlist$(path$)
+
+                    o(2).sel = -1
+                    o(3).sel = 1
+                    IF info = 1 THEN o(3).sel = -1
+                    GOTO ideopenloop
+                END IF
             END IF
         END IF
 
