@@ -11900,6 +11900,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 'Populate ListBoxITEMS:
                 a$ = idetxt(o.txt)
                 REDIM ListBoxITEMS(0) AS STRING
+                REDIM OriginalListBoxITEMS(0) AS STRING
                 IF LEN(a$) > 0 THEN
                     n = 0: x = 1
                     DO
@@ -11907,9 +11908,11 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                         IF x2 > 0 THEN
                             n = n + 1
                             REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
+                            REDIM _PRESERVE OriginalListBoxITEMS(1 TO n) AS STRING
                             ListBoxITEMS(n) = _TRIM$(MID$(a$, x, x2 - x))
+                            OriginalListBoxITEMS(n) = MID$(a$, x, x2 - x)
                             IF LEN(ListBoxITEMS(n)) THEN
-                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90
+                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90 OR INSTR("0123456789", LEFT$(ListBoxITEMS(n), 1)) > 0
                                     ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
                                     IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
                                 LOOP
@@ -11917,9 +11920,11 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                         ELSE
                             n = n + 1
                             REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
+                            REDIM _PRESERVE OriginalListBoxITEMS(1 TO n) AS STRING
                             ListBoxITEMS(n) = _TRIM$(RIGHT$(a$, LEN(a$) - x + 1))
+                            OriginalListBoxITEMS(n) = RIGHT$(a$, LEN(a$) - x + 1)
                             IF LEN(ListBoxITEMS(n)) THEN
-                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90
+                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90 OR INSTR("0123456789", LEFT$(ListBoxITEMS(n), 1)) > 0
                                     ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
                                     IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
                                 LOOP
@@ -11931,7 +11936,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 END IF
 
                 IF k = 255 THEN
-                    IF o.sel > 0 AND o.sel <= UBOUND(ListBoxITEMS) THEN idetxt(o.stx) = ListBoxITEMS(o.sel)
+                    IF o.sel > 0 AND o.sel <= UBOUND(OriginalListBoxITEMS) THEN idetxt(o.stx) = OriginalListBoxITEMS(o.sel)
                     GOTO selected 'Search is not performed if kk$ isn't a printable character
                 ELSE
                     SearchTerm$ = SearchTerm$ + UCASE$(kk$)
@@ -11959,7 +11964,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                             validCHARS$ = validCHARS$ + CHR$(aa)
                         END IF
                     NEXT
-                    IF findMatch = o.sel THEN idetxt(o.stx) = ListBoxITEMS(findMatch)
+                    IF findMatch = o.sel THEN idetxt(o.stx) = OriginalListBoxITEMS(findMatch)
                     IF LEFT$(validCHARS$, LEN(SearchTerm$)) = SearchTerm$ THEN
                         o.sel = findMatch
                         GOTO selected
