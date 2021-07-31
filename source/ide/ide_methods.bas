@@ -2285,11 +2285,11 @@ FUNCTION ide2 (ignore)
                     END IF
 
                     IF INSTR(_OS$, "WIN") THEN
-                        SHELL _DONTWAIT "start " + url$
+                        SHELL _HIDE _DONTWAIT "start " + url$
                     ELSEIF INSTR(_OS$, "MAC") THEN
-                        SHELL _DONTWAIT "open " + url$
+                        SHELL _HIDE _DONTWAIT "open " + url$
                     ELSE
-                        SHELL _DONTWAIT "xdg-open " + url$
+                        SHELL _HIDE _DONTWAIT "xdg-open " + url$
                     END IF
                     GOTO specialchar
                 END IF
