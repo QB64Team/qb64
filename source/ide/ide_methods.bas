@@ -5803,13 +5803,13 @@ FUNCTION ide2 (ignore)
                 GOTO EnterDebugMode
             END IF
 
-            IF menu$(m, s) = "Step #Over  F7" THEN
-                IdeDebugMode = 6
+            IF menu$(m, s) = "Ste#p Into  F7" THEN
+                IdeDebugMode = 7
                 GOTO EnterDebugMode
             END IF
 
-            IF menu$(m, s) = "Ste#p Into  F8" THEN
-                IdeDebugMode = 7
+            IF menu$(m, s) = "Step #Over  F8" THEN
+                IdeDebugMode = 6
                 GOTO EnterDebugMode
             END IF
 
@@ -6396,8 +6396,8 @@ SUB DebugMode
     i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
     i = i + 1: Button(i).Caption = "<F5 = Run>"
     i = i + 1: Button(i).Caption = "<F6 = Step Out>"
-    i = i + 1: Button(i).Caption = "<F7 = Step Over>"
-    i = i + 1: Button(i).Caption = "<F8 = Step Into>"
+    i = i + 1: Button(i).Caption = "<F7 = Step Into>"
+    i = i + 1: Button(i).Caption = "<F8 = Step Over>"
     i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
     i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
     i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
@@ -7122,19 +7122,7 @@ SUB DebugMode
                 END IF
             CASE 16640 'F7
                 F7:
-                requestStepOver:
-                IF PauseMode THEN
-                    cmd$ = "step over"
-                    PauseMode = 0
-                    GOSUB SendCommand
-                    clearStatusWindow 1
-                    setStatusMessage 1, "Running...", 10
-                    dummy = DarkenFGBG(1)
-                END IF
-            CASE 16896 'F8
-                F8:
                 IF PauseMode = 0 THEN
-                    requestPause:
                     cmd$ = "break"
                     PauseMode = -1
                     GOSUB SendCommand
@@ -7146,6 +7134,25 @@ SUB DebugMode
                 clearStatusWindow 1
                 setStatusMessage 1, "Paused.", 2
                 IF IdeDebugMode = 2 THEN RETURN
+            CASE 16896 'F8
+                F8:
+                requestStepOver:
+                IF PauseMode THEN
+                    cmd$ = "step over"
+                    PauseMode = 0
+                    GOSUB SendCommand
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                ELSE
+                    requestPause:
+                    cmd$ = "break"
+                    PauseMode = -1
+                    GOSUB SendCommand
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Paused.", 2
+                    IF IdeDebugMode = 2 THEN RETURN
+                END IF
             CASE 17152 'F9
                 F9:
                 requestToggleBreakpoint:
@@ -15398,10 +15405,10 @@ SUB IdeMakeContextualMenu
         menuDesc$(m, i - 1) = "Runs until the end of the current procedure is reached"
         menu$(m, i) = "Step O#ut  F6": i = i + 1
         menuDesc$(m, i - 1) = "Runs until the end of the current procedure is reached"
-        menu$(m, i) = "Step #Over  F7": i = i + 1
-        menuDesc$(m, i - 1) = "Runs the next line of code without entering subs/functions"
-        menu$(m, i) = "Ste#p Into  F8": i = i + 1
+        menu$(m, i) = "Ste#p Into  F7": i = i + 1
         menuDesc$(m, i - 1) = "Runs the next line of code and pauses execution"
+        menu$(m, i) = "Step #Over  F8": i = i + 1
+        menuDesc$(m, i - 1) = "Runs the next line of code without entering subs/functions"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Set #Next Line  Ctrl+G": i = i + 1
         menuDesc$(m, i - 1) = "Jumps to the selected line before continuing execution"
