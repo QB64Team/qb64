@@ -209,7 +209,7 @@ FUNCTION ide2 (ignore)
         clearStatusWindow 0
 
         dummy = DarkenFGBG(1)
-        BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+        BkpIdeSystem = IdeSystem: IdeSystem = 2: UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
         COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
         COLOR 15, 1
 
@@ -949,7 +949,7 @@ FUNCTION ide2 (ignore)
                     q = idevbar(idewx, 3, idewy - 8, 1, 1)
                     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
 
-                    GOSUB UpdateTitleOfMainWindow
+                    UpdateTitleOfMainWindow
 
                     COLOR 7, 1
                     _PRINTSTRING (2, idewy - 3), "Resizing..."
@@ -983,11 +983,8 @@ FUNCTION ide2 (ignore)
 
             LOCATE , , 0
 
-            sfname$ = FindCurrentSF$(idecy)
-            cleanSubName sfname$
-
             'update title of main window
-            GOSUB UpdateTitleOfMainWindow
+            UpdateTitleOfMainWindow
 
             'Draw navigation buttons (QuickNav)
             IF EnableQuickNav THEN GOSUB DrawQuickNav
@@ -1401,7 +1398,7 @@ FUNCTION ide2 (ignore)
                 RestoreBGQuickNav:
                 IF QuickNavHover = -1 THEN
                     QuickNavHover = 0
-                    GOSUB UpdateTitleOfMainWindow
+                    UpdateTitleOfMainWindow
                     GOSUB DrawQuickNav
                     ideshowtext
                     updateHover = -1
@@ -1704,14 +1701,14 @@ FUNCTION ide2 (ignore)
                     END IF
 
                     dummy = DarkenFGBG(1)
-                    BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+                    BkpIdeSystem = IdeSystem: IdeSystem = 2: UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
                     COLOR 15, 1
                     _PRINTSTRING (2, idewy - 3), "Starting program..."
                 ELSE
                     mustGenerateExe:
                     dummy = DarkenFGBG(1)
-                    BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+                    BkpIdeSystem = IdeSystem: IdeSystem = 2: UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
                     COLOR 15, 1
                     IF os$ = "LNX" THEN
@@ -6085,18 +6082,6 @@ FUNCTION ide2 (ignore)
 
     '--------------------------------------------------------------------------------
     EXIT FUNCTION
-    UpdateTitleOfMainWindow:
-    COLOR 7, 1: _PRINTSTRING (2, 2), STRING$(idewx - 2, CHR$(196))
-    IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
-    a$ = " " + a$
-    IF ideunsaved THEN a$ = a$ + "*"
-    IF LEN(sfname$) > 0 THEN a$ = a$ + ":" + sfname$
-    a$ = a$ + " "
-    IF LEN(a$) > idewx - 5 THEN a$ = LEFT$(a$, idewx - 11) + STRING$(3, 250) + " "
-    IF IdeSystem = 1 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    _PRINTSTRING (((idewx / 2) - 1) - (LEN(a$) - 1) \ 2, 2), a$
-    RETURN
-
     DrawQuickNav:
     IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
         COLOR 15, 7
@@ -6242,7 +6227,7 @@ FUNCTION ide2 (ignore)
 
     UpdateIdeInfo
 
-    GOSUB UpdateTitleOfMainWindow
+    UpdateTitleOfMainWindow
 
     DEF SEG = 0
     ideshowtext
@@ -6327,6 +6312,20 @@ FUNCTION ide2 (ignore)
     RETURN
 
 END FUNCTION
+
+SUB UpdateTitleOfMainWindow
+    sfname$ = FindCurrentSF$(idecy)
+    cleanSubName sfname$
+    COLOR 7, 1: _PRINTSTRING (2, 2), STRING$(idewx - 2, CHR$(196))
+    IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
+    a$ = " " + a$
+    IF ideunsaved THEN a$ = a$ + "*"
+    IF LEN(sfname$) > 0 THEN a$ = a$ + ":" + sfname$
+    a$ = a$ + " "
+    IF LEN(a$) > idewx - 5 THEN a$ = LEFT$(a$, idewx - 11) + STRING$(3, 250) + " "
+    IF IdeSystem = 1 THEN COLOR 1, 7 ELSE COLOR 7, 1
+    _PRINTSTRING (((idewx / 2) - 1) - (LEN(a$) - 1) \ 2, 2), a$
+END SUB
 
 SUB DebugMode
     STATIC AS _BYTE PauseMode, noFocusMessage
@@ -7431,6 +7430,7 @@ SUB DebugMode
     UpdateDisplay:
     IF PauseMode = 0 THEN ideshowtextBypassColorRestore = -1
     ideshowtext
+    UpdateTitleOfMainWindow
 
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN showvWatchPanel vWatchPanel, currentSub$
 
@@ -7462,12 +7462,20 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
 
     totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
     fg = 0: bg = 7
+
+
+    title$ = "Watch List"
+    IF LEN(currentScope$) THEN title$ = title$ + " - " + currentScope$
+    IF this.w < LEN(title$) + 4 THEN
+        this.w = LEN(title$) + 4
+        IF this.x + this.w + 2 > idewx THEN this.x = idewx - (this.w + 2)
+    END IF
+
     COLOR fg, bg
     ideboxshadow this.x, this.y, this.w, this.h
     color 15, bg
     _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
 
-    title$ = "Watch List"
     x = LEN(title$) + 2
     COLOR fg, bg
     _PRINTSTRING (this.x + (this.w \ 2) - (x - 1) \ 2, this.y), " " + title$ + " "
