@@ -1008,59 +1008,42 @@ FUNCTION ide2 (ignore)
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-                        idecompilererrormessage$ = a$
-                        x = 1
+                        x = 2
                         y = idewy - 3
-                        FOR i = 1 TO LEN(a$)
-                            IF ASC(a$, i) = 0 THEN
-                                idecompilererrormessage$ = LEFT$(a$, i - 1)
-                                IF _DEFAULTCOLOR <> 11 THEN COLOR 11 ELSE COLOR 7
-                                _CONTINUE
-                            END IF
-                            x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                            IF y > idewy - 1 THEN EXIT FOR
-                            _PRINTSTRING (x, y), CHR$(ASC(a$, i))
-                        NEXT
+                        printWrapStatus x, y, x, a$
                         statusarealink = 1
                     ELSE
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-                        idecompilererrormessage$ = a$
 
                         l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
 
-                        x = 1
+                        x = 2
                         y = idewy - 3
 
-                        IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + " on current line"
+                        IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + CHR$(1) + " on current line"
 
                         hasReference = INSTR(a$, " - Reference: ")
                         IF hasReference THEN
-                            hasReference = hasReference + 14
+                            hasReference = hasReference + 13
+                            a$ = LEFT$(a$, hasReference) + CHR$(2) + MID$(a$, hasReference + 1)
                         ELSE
                             hasReference = INSTR(a$, "Expected ")
                             IF hasReference THEN
-                                hasReference = hasReference + 9
+                                hasReference = hasReference + 8
+                                a$ = LEFT$(a$, hasReference) + CHR$(2) + MID$(a$, hasReference + 1)
                             END IF
                         END IF
-                        FOR i = 1 TO LEN(a$)
-                            IF hasReference > 0 AND i >= hasReference THEN COLOR 12, 6
-                            IF onCurrentLine > 0 AND i > onCurrentLine THEN COLOR 7, 1
-                            x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                            IF y > idewy - 1 THEN EXIT FOR
-                            _PRINTSTRING (x, y), CHR$(ASC(a$, i))
-                        NEXT
+
+                        printWrapStatus x, y, x, a$
 
                         IF l <> 0 AND idecy <> l THEN
                             a$ = " on line" + STR$(l) + " (click here or Ctrl+Shift+G to jump there)"
                             COLOR 11, 1
-                            FOR i = 1 TO LEN(a$)
-                                x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                                IF y > idewy - 1 THEN EXIT FOR
-                                _PRINTSTRING (x, y), CHR$(ASC(a$, i))
-                            NEXT
+                            printWrapStatus POS(0), CSRLIN, 2, a$
                             statusarealink = 2
                         END IF
 
+                        y = POS(0)
                         IF y < idewy - 1 AND linefragment <> "[INFORMATION UNAVAILABLE]" THEN
                             temp$ = linefragment
                             FOR i = 1 TO LEN(temp$)
@@ -17167,3 +17150,69 @@ SUB purgeprecompiledcontent
     END IF
     idechangemade = 1 'force recompilation
 END SUB
+
+SUB printWrapStatus (x AS INTEGER, y AS INTEGER, initialX AS INTEGER, __text$)
+    DIM text$, nextWord$
+    DIM AS INTEGER i, findSep, findColorMarker, changeColor, changeColorAfter
+    text$ = __text$
+
+    LOCATE y, x
+    DO WHILE LEN(_TRIM$(text$))
+        findSep = INSTR(text$, " ")
+        IF findSep THEN
+            nextWord$ = LEFT$(text$, findSep)
+        ELSE
+            findSep = LEN(text$)
+            nextWord$ = text$
+        END IF
+        text$ = MID$(text$, findSep + 1)
+        IF POS(0) + LEN(nextWord$) > _WIDTH THEN
+            IF CSRLIN + 1 <= (idewy - 4) + 3 THEN
+                LOCATE CSRLIN + 1, initialX
+            ELSE
+                'no more room for printing
+                EXIT SUB
+            END IF
+        END IF
+
+        changeColor = 0
+        changeColorAfter = 0
+        skipSpace = 0
+        FOR i = 0 TO 2
+            findColorMarker = INSTR(nextWord$, CHR$(i))
+            IF findColorMarker = 1 THEN
+                nextWord$ = MID$(nextWord$, 2)
+                changeColor = i + 1
+                GOSUB applyColorChange
+            ELSEIF findColorMarker > 0 THEN
+                nextWord$ = LEFT$(nextWord$, findColorMarker - 1) + MID$(nextWord$, findColorMarker + 1)
+                IF RIGHT$(nextWord$, 1) = " " THEN
+                    nextWord$ = RTRIM$(nextWord$)
+                    skipSpace = -1
+                END IF
+                changeColorAfter = i + 1
+            END IF
+        NEXT
+
+        PRINT nextWord$;
+
+        IF changeColorAfter THEN
+            changeColor = changeColorAfter
+            GOSUB applyColorChange
+            IF skipSpace THEN LOCATE , POS(0) + 1
+        END IF
+    LOOP
+    EXIT SUB
+
+    applyColorChange:
+    SELECT EVERYCASE changeColor
+        CASE 1
+            IF _DEFAULTCOLOR <> 11 THEN COLOR 11 ELSE COLOR 7
+        CASE 2
+            COLOR 7, 1
+        CASE 3
+            COLOR 12, 6
+    END SELECT
+    RETURN
+END SUB
+
