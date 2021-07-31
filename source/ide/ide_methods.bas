@@ -7816,7 +7816,7 @@ FUNCTION idecallstackbox
     i = i + 1
     o(i).typ = 3
     o(i).y = dialogHeight
-    o(i).txt = idenewtxt("#Close")
+    o(i).txt = idenewtxt("#Close" + sep + "Co#py")
     o(i).dft = 1
 
 
@@ -7902,6 +7902,9 @@ FUNCTION idecallstackbox
             EXIT FUNCTION
         END IF
 
+        IF K$ = CHR$(13) OR (focus = 3 AND info <> 0) OR (UCASE$(K$) = "C" AND KCTRL <> 0) THEN
+            _CLIPBOARD$ = StrReplace$(callstacklist$, sep, CHR$(10))
+        END IF
 
         'end of custom controls
         mousedown = 0
