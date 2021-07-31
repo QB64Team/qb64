@@ -7428,6 +7428,14 @@ SUB DebugMode
 
     GetCommand:
     GET #client&, , temp$
+    IF _CONNECTED(client&) = 0 THEN
+        clearStatusWindow 0
+        setStatusMessage 1, "Debug session aborted.", 7
+        setStatusMessage 2, "Disconnected.", 2
+        WHILE _MOUSEINPUT: WEND
+        _KEYCLEAR
+        EXIT SUB
+    END IF
     buffer$ = buffer$ + temp$
 
     IF INSTR(buffer$, endc$) THEN
@@ -7448,6 +7456,14 @@ SUB DebugMode
     SendCommand:
     cmd$ = cmd$ + endc$
     PUT #client&, , cmd$
+    IF _CONNECTED(client&) = 0 THEN
+        clearStatusWindow 0
+        setStatusMessage 1, "Debug session aborted.", 7
+        setStatusMessage 2, "Disconnected.", 2
+        WHILE _MOUSEINPUT: WEND
+        _KEYCLEAR
+        EXIT SUB
+    END IF
     cmd$ = ""
     RETURN
 
