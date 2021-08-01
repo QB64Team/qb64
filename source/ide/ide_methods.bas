@@ -9754,7 +9754,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             'create new folder
             newpath$ = idenewfolder(path$)
             IF LEN(newpath$) THEN
-                f$ = newpath$
+                f$ = removeDoubleSlashes$(newpath$)
                 GOTO changepath
             ELSE
                 GOTO ideopenloop
@@ -9766,20 +9766,21 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             EXIT FUNCTION
         END IF
 
-        IF idetxt(o(2).stx) <> "" THEN
+        IF focus = 2 AND o(2).sel <> prevFileBoxSel THEN
+            prevFileBoxSel = o(2).sel
             idetxt(o(1).txt) = idetxt(o(2).stx)
-            o(1).v1 = LEN(idetxt(o(1).txt))
+            o(1).issel = 0
         END IF
 
         IF focus = 3 THEN
             IF (K$ = CHR$(13) OR info = 1) AND o(3).sel >= 1 THEN
-                newpath$ = idetxt(o(3).stx)
+                newpath$ = removeDoubleSlashes$(idetxt(o(3).stx))
                 IF newpath$ = "" THEN
                     newpath$ = ".."
                     f$ = newpath$
                     GOTO changepath
                 ELSE
-                    path$ = idezchangepath(path$, newpath$)
+                    path$ = removeDoubleSlashes$(idezchangepath(path$, newpath$))
                     idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
                     idetxt(o(3).txt) = idezpathlist$(path$)
 
@@ -9810,7 +9811,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             changepath:
             IF _DIREXISTS(path$ + idepathsep$ + f$) THEN
                 'check/acquire file path
-                path$ = idezgetfilepath$(path$, f$ + idepathsep$) 'note: path ending with pathsep needn't contain a file
+                path$ = removeDoubleSlashes$(idezgetfilepath$(path$, f$ + idepathsep$)) 'note: path ending with pathsep needn't contain a file
                 IF ideerror > 1 THEN EXIT FUNCTION
 
                 IF LEN(newpath$) = 0 THEN
@@ -9830,7 +9831,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             IF INSTR(f$, "?") > 0 OR INSTR(f$, "*") > 0 THEN
                 IF INSTR(f$, "/") > 0 OR INSTR(f$, "\") > 0 THEN
                     'path + wildcards
-                    path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
+                    path$ = removeDoubleSlashes$(idezgetfilepath$(path$, f$)) 'note: path ending with pathsep needn't contain a file
                     IF ideerror > 1 THEN EXIT FUNCTION
                     idetxt(o(3).txt) = idezpathlist$(path$)
                     o(3).sel = -1
@@ -9850,7 +9851,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             END IF
 
             DirectLoad:
-            path$ = idezgetfilepath$(path$, f$) 'repeat in case of DirectLoad
+            path$ = removeDoubleSlashes$(idezgetfilepath$(path$, f$)) 'repeat in case of DirectLoad
             IF ideerror > 1 THEN EXIT FUNCTION
 
             IF mode = 1 THEN
@@ -11614,7 +11615,7 @@ FUNCTION idewarningbox
 END FUNCTION
 
 SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, mousedown, mouseup, mx, my, info, mw)
-    STATIC SearchTerm$, LastKeybInput AS SINGLE
+    STATIC LastKeybInput AS SINGLE
     DIM sep AS STRING * 1
     sep = CHR$(0)
 
@@ -11794,6 +11795,50 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
     IF t = 2 THEN 'list box
         idetxt(o.stx) = ""
 
+        'Populate ListBoxITEMS:
+        a$ = idetxt(o.txt)
+        REDIM ListBoxITEMS(0) AS STRING
+        REDIM OriginalListBoxITEMS(0) AS STRING
+        IF LEN(a$) > 0 THEN
+            n = 0: x = 1
+            DO
+                x2 = INSTR(x, a$, sep)
+                IF x2 > 0 THEN
+                    n = n + 1
+                    IF n > UBOUND(ListBoxITEMS) THEN
+                        REDIM _PRESERVE ListBoxITEMS(1 TO n + 999) AS STRING
+                        REDIM _PRESERVE OriginalListBoxITEMS(1 TO n + 999) AS STRING
+                    END IF
+                    ListBoxITEMS(n) = _TRIM$(MID$(a$, x, x2 - x))
+                    OriginalListBoxITEMS(n) = MID$(a$, x, x2 - x)
+                    IF LEN(ListBoxITEMS(n)) THEN
+                        DO WHILE ASC(ListBoxITEMS(n)) < 32 OR ASC(ListBoxITEMS(n)) > 126
+                            ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
+                            IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
+                        LOOP
+                    END IF
+                ELSE
+                    n = n + 1
+                    IF n > UBOUND(ListBoxITEMS) THEN
+                        REDIM _PRESERVE ListBoxITEMS(1 TO n + 999) AS STRING
+                        REDIM _PRESERVE OriginalListBoxITEMS(1 TO n + 999) AS STRING
+                    END IF
+                    ListBoxITEMS(n) = _TRIM$(RIGHT$(a$, LEN(a$) - x + 1))
+                    OriginalListBoxITEMS(n) = RIGHT$(a$, LEN(a$) - x + 1)
+                    IF LEN(ListBoxITEMS(n)) THEN
+                        DO WHILE ASC(ListBoxITEMS(n)) < 32 OR ASC(ListBoxITEMS(n)) > 126
+                            ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
+                            IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
+                        LOOP
+                    END IF
+                    EXIT DO
+                END IF
+                x = x2 + 1
+            LOOP
+            REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
+            REDIM _PRESERVE OriginalListBoxITEMS(1 TO n) AS STRING
+        END IF
+
         IF mousedown THEN
             x1 = o.par.x + o.x: y1 = o.par.y + o.y
             x2 = x1 + o.w + 1: y2 = y1 + o.h + 1
@@ -11804,7 +11849,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                     y = y + o.v1
                     IF o.sel = y THEN info = 1
                     o.sel = y
-                    IF o.sel > o.num THEN o.sel = o.num
+                    IF o.sel > o.num THEN o.sel = -o.num
                 END IF
             END IF
 
@@ -11904,60 +11949,20 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
 
             IF LEN(kk$) = 1 THEN
                 ResetKeybTimer = 0
-                IF timeElapsedSince(LastKeybInput) > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+                IF timeElapsedSince(LastKeybInput) > 1 THEN fileDlgSearchTerm$ = "": ResetKeybTimer = -1
                 LastKeybInput = TIMER
-                k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
-
-                'Populate ListBoxITEMS:
-                a$ = idetxt(o.txt)
-                REDIM ListBoxITEMS(0) AS STRING
-                REDIM OriginalListBoxITEMS(0) AS STRING
-                IF LEN(a$) > 0 THEN
-                    n = 0: x = 1
-                    DO
-                        x2 = INSTR(x, a$, sep)
-                        IF x2 > 0 THEN
-                            n = n + 1
-                            REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
-                            REDIM _PRESERVE OriginalListBoxITEMS(1 TO n) AS STRING
-                            ListBoxITEMS(n) = _TRIM$(MID$(a$, x, x2 - x))
-                            OriginalListBoxITEMS(n) = MID$(a$, x, x2 - x)
-                            IF LEN(ListBoxITEMS(n)) THEN
-                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90 OR INSTR("0123456789", LEFT$(ListBoxITEMS(n), 1)) > 0
-                                    ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
-                                    IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
-                                LOOP
-                            END IF
-                        ELSE
-                            n = n + 1
-                            REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
-                            REDIM _PRESERVE OriginalListBoxITEMS(1 TO n) AS STRING
-                            ListBoxITEMS(n) = _TRIM$(RIGHT$(a$, LEN(a$) - x + 1))
-                            OriginalListBoxITEMS(n) = RIGHT$(a$, LEN(a$) - x + 1)
-                            IF LEN(ListBoxITEMS(n)) THEN
-                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90 OR INSTR("0123456789", LEFT$(ListBoxITEMS(n), 1)) > 0
-                                    ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
-                                    IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
-                                LOOP
-                            END IF
-                            EXIT DO
-                        END IF
-                        x = x2 + 1
-                    LOOP
-                END IF
-
-                IF k = 255 THEN
-                    IF o.sel > 0 AND o.sel <= UBOUND(OriginalListBoxITEMS) THEN idetxt(o.stx) = OriginalListBoxITEMS(o.sel)
+                k = ASC(UCASE$(kk$))
+                IF k < 32 OR k > 126 THEN
                     GOTO selected 'Search is not performed if kk$ isn't a printable character
-                ELSE
-                    SearchTerm$ = SearchTerm$ + UCASE$(kk$)
                 END IF
 
-                IF LEN(SearchTerm$) = 2 AND LEFT$(SearchTerm$, 1) = RIGHT$(SearchTerm$, 1) THEN
+                fileDlgSearchTerm$ = fileDlgSearchTerm$ + UCASE$(kk$)
+
+                IF LEN(fileDlgSearchTerm$) = 2 AND LEFT$(fileDlgSearchTerm$, 1) = RIGHT$(fileDlgSearchTerm$, 1) THEN
                     'if the user is pressing the same letter again, we deduce the search
                     'is only for the initials
                     ResetKeybTimer = -1
-                    SearchTerm$ = UCASE$(kk$)
+                    fileDlgSearchTerm$ = UCASE$(kk$)
                 END IF
 
                 SearchPass = 1
@@ -11966,18 +11971,9 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 retryfind:
                 IF SearchPass > 2 THEN GOTO selected
                 FOR findMatch = StartSearch TO n
-                    validCHARS$ = ""
-                    FOR ai = 1 TO LEN(ListBoxITEMS(findMatch))
-                        aa = ASC(UCASE$(ListBoxITEMS(findMatch)), ai)
-                        IF aa > 126 OR (k <> 95 AND aa = 95) OR (k <> 42 AND aa = 42) THEN
-                            'ignore
-                        ELSE
-                            validCHARS$ = validCHARS$ + CHR$(aa)
-                        END IF
-                    NEXT
-                    IF findMatch = o.sel THEN idetxt(o.stx) = OriginalListBoxITEMS(findMatch)
-                    IF LEFT$(validCHARS$, LEN(SearchTerm$)) = SearchTerm$ THEN
+                    IF UCASE$(LEFT$(ListBoxITEMS(findMatch), LEN(fileDlgSearchTerm$))) = UCASE$(fileDlgSearchTerm$) THEN
                         o.sel = findMatch
+                        idetxt(o.stx) = OriginalListBoxITEMS(findMatch)
                         GOTO selected
                     END IF
                 NEXT findMatch
@@ -11987,8 +11983,8 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 GOTO retryfind
                 selected:
             END IF
-
         END IF
+        IF o.sel > 0 AND o.sel <= UBOUND(OriginalListBoxITEMS) THEN idetxt(o.stx) = OriginalListBoxITEMS(o.sel)
 
         'hot-key focus
         IF LEN(altletter$) THEN
@@ -15797,17 +15793,8 @@ END SUB
 
 SUB IdeAddRecent (f2$)
     f$ = f2$
-    x = INSTR(f$, "//")
-    DO WHILE x
-        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
-        x = INSTR(f$, "//")
-    LOOP
 
-    x = INSTR(f$, "\\")
-    DO WHILE x
-        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
-        x = INSTR(f$, "\\")
-    LOOP
+    f$ = removeDoubleSlashes(f$)
 
     f$ = CRLF + f$ + CRLF
     fh = FREEFILE
@@ -15822,6 +15809,22 @@ SUB IdeAddRecent (f2$)
     CLOSE #fh
     IdeMakeFileMenu
 END SUB
+
+FUNCTION removeDoubleSlashes$(f$)
+    x = INSTR(f$, "//")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "//")
+    LOOP
+
+    x = INSTR(f$, "\\")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "\\")
+    LOOP
+
+    removeDoubleSlashes$ = f$
+END FUNCTION
 
 SUB IdeAddSearched (s2$)
     s$ = CRLF + s2$ + CRLF

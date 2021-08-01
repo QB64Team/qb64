@@ -24,6 +24,7 @@ DIM SHARED callstacklist$
 
 DIM SHARED IdeRecentLink(1 TO 6, 1 TO 2) AS STRING
 DIM SHARED IdeOpenFile AS STRING 'makes IdeOpen directly open the file passed
+DIM SHARED fileDlgSearchTerm$
 
 TYPE IdeBmkType
     y AS LONG 'the vertical line
