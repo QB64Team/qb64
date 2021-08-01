@@ -7051,6 +7051,12 @@ SUB DebugMode
                         IF LEN(result$) THEN
                             'set address
                             tempIndex& = CVL(LEFT$(result$, 4))
+                            IF tempIndex& = 0 THEN
+                                PCOPY 3, 0: SCREEN , , 3, 0
+                                WHILE _MOUSEINPUT: WEND
+                                GOSUB UpdateDisplay
+                                _CONTINUE
+                            END IF
                             value$ = MID$(result$, 5)
                             address%& = usedVariableList(tempIndex&).address
                             IF address%& > 0 THEN
@@ -7088,7 +7094,7 @@ SUB DebugMode
                                 END SELECT
                                 cmd$ = "set address:" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
                                 GOSUB SendCommand
-                                usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + "Sent: " + MID$(result$, 5)
+                                usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + " Sent: " + MID$(result$, 5)
                             END IF
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
@@ -7782,11 +7788,17 @@ FUNCTION idevariablewatchbox$(currentScope$)
                 IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
                     'scope is valid
                     a2$ = usedVariableList(varDlgList(i).index).mostRecentValue
-                    v$ = ideinputbox$("Change Value", "#New value", a2$, "", idewx - 12, 0)
+                    temp$ = ""
+                    IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
+                        temp$ = " (cannot change string length)"
+                    END IF
+                    v$ = ideinputbox$("Change Value", "#New value" + temp$, a2$, "", idewx - 12, usedVariableList(varDlgList(i).index).strLength)
                     IF LEN(v$) THEN
                         idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
-                        EXIT FUNCTION
+                    ELSE
+                        idevariablewatchbox$ = MKL$(0)
                     END IF
+                    EXIT FUNCTION
                 ELSE
                     result = idemessagebox("Change Value", "Variable is out of scope.", "#OK")
                 END IF
