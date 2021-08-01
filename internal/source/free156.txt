@@ -1,28 +1,4 @@
-if(oldstr5041){
-if(oldstr5041->fixed)qbs_set(oldstr5041,_FUNC_IDEINPUTBOX_STRING_TITLE);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_TITLE);
+if(oldstr5035){
+if(oldstr5035->fixed)qbs_set(oldstr5035,_SUB_IDEINSLINE_STRING_TEXT);
+qbs_free(_SUB_IDEINSLINE_STRING_TEXT);
 }
-if(oldstr5042){
-if(oldstr5042->fixed)qbs_set(oldstr5042,_FUNC_IDEINPUTBOX_STRING_CAPTION);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_CAPTION);
-}
-if(oldstr5043){
-if(oldstr5043->fixed)qbs_set(oldstr5043,_FUNC_IDEINPUTBOX_STRING_INITIALVALUE);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_INITIALVALUE);
-}
-if(oldstr5044){
-if(oldstr5044->fixed)qbs_set(oldstr5044,_FUNC_IDEINPUTBOX_STRING_VALIDINPUT);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_VALIDINPUT);
-}
-if (_FUNC_IDEINPUTBOX_ARRAY_UDT_O[2]&1){
-if (_FUNC_IDEINPUTBOX_ARRAY_UDT_O[2]&4){
-cmem_dynamic_free((uint8*)(_FUNC_IDEINPUTBOX_ARRAY_UDT_O[0]));
-}else{
-free((void*)(_FUNC_IDEINPUTBOX_ARRAY_UDT_O[0]));
-}
-}
-free_mem_lock( (mem_lock*)((ptrszint*)_FUNC_IDEINPUTBOX_ARRAY_UDT_O)[8] );
-qbs_free(_FUNC_IDEINPUTBOX_STRING1_SEP);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_ALTLETTER);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_A);
-qbs_free(_FUNC_IDEINPUTBOX_STRING_TEMPA);

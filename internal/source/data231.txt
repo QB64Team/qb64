@@ -1,121 +1,64 @@
-qbs *_FUNC_WIKI_STRING_WIKI=NULL;
-if (!_FUNC_WIKI_STRING_WIKI)_FUNC_WIKI_STRING_WIKI=qbs_new(0,0);
-qbs*oldstr5957=NULL;
-if(_FUNC_WIKI_STRING_PAGENAME->tmp||_FUNC_WIKI_STRING_PAGENAME->fixed||_FUNC_WIKI_STRING_PAGENAME->readonly){
-oldstr5957=_FUNC_WIKI_STRING_PAGENAME;
-if (oldstr5957->cmem_descriptor){
-_FUNC_WIKI_STRING_PAGENAME=qbs_new_cmem(oldstr5957->len,0);
+int32 *_FUNC_ISNUMBER_LONG_ISNUMBER=NULL;
+if(_FUNC_ISNUMBER_LONG_ISNUMBER==NULL){
+_FUNC_ISNUMBER_LONG_ISNUMBER=(int32*)mem_static_malloc(4);
+*_FUNC_ISNUMBER_LONG_ISNUMBER=0;
+}
+qbs*oldstr5950=NULL;
+if(_FUNC_ISNUMBER_STRING___A->tmp||_FUNC_ISNUMBER_STRING___A->fixed||_FUNC_ISNUMBER_STRING___A->readonly){
+oldstr5950=_FUNC_ISNUMBER_STRING___A;
+if (oldstr5950->cmem_descriptor){
+_FUNC_ISNUMBER_STRING___A=qbs_new_cmem(oldstr5950->len,0);
 }else{
-_FUNC_WIKI_STRING_PAGENAME=qbs_new(oldstr5957->len,0);
+_FUNC_ISNUMBER_STRING___A=qbs_new(oldstr5950->len,0);
 }
-memcpy(_FUNC_WIKI_STRING_PAGENAME->chr,oldstr5957->chr,oldstr5957->len);
+memcpy(_FUNC_ISNUMBER_STRING___A->chr,oldstr5950->chr,oldstr5950->len);
 }
-qbs *_FUNC_WIKI_STRING_PAGENAME2=NULL;
-if (!_FUNC_WIKI_STRING_PAGENAME2)_FUNC_WIKI_STRING_PAGENAME2=qbs_new(0,0);
-int32 *_FUNC_WIKI_LONG_I=NULL;
-if(_FUNC_WIKI_LONG_I==NULL){
-_FUNC_WIKI_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_I=0;
+qbs *_FUNC_ISNUMBER_STRING_A=NULL;
+if (!_FUNC_ISNUMBER_STRING_A)_FUNC_ISNUMBER_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_5951=NULL;
+if (!byte_element_5951){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5951=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5951=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5960=NULL;
-if (!byte_element_5960){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5960=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5960=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_ISNUMBER_LONG_I=NULL;
+if(_FUNC_ISNUMBER_LONG_I==NULL){
+_FUNC_ISNUMBER_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_ISNUMBER_LONG_I=0;
 }
-byte_element_struct *byte_element_5962=NULL;
-if (!byte_element_5962){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5962=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5962=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_ISNUMBER_STRING_SYMBOL=NULL;
+if (!_FUNC_ISNUMBER_STRING_SYMBOL)_FUNC_ISNUMBER_STRING_SYMBOL=qbs_new(0,0);
+byte_element_struct *byte_element_5952=NULL;
+if (!byte_element_5952){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5952=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5952=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_WIKI_LONG_FH=NULL;
-if(_FUNC_WIKI_LONG_FH==NULL){
-_FUNC_WIKI_LONG_FH=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_FH=0;
+int32 *_FUNC_ISNUMBER_LONG_EE=NULL;
+if(_FUNC_ISNUMBER_LONG_EE==NULL){
+_FUNC_ISNUMBER_LONG_EE=(int32*)mem_static_malloc(4);
+*_FUNC_ISNUMBER_LONG_EE=0;
 }
-qbs *_FUNC_WIKI_STRING_A=NULL;
-if (!_FUNC_WIKI_STRING_A)_FUNC_WIKI_STRING_A=qbs_new(0,0);
-int32 *_FUNC_WIKI_LONG_CHR13=NULL;
-if(_FUNC_WIKI_LONG_CHR13==NULL){
-_FUNC_WIKI_LONG_CHR13=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_CHR13=0;
+int32 *_FUNC_ISNUMBER_LONG_DD=NULL;
+if(_FUNC_ISNUMBER_LONG_DD==NULL){
+_FUNC_ISNUMBER_LONG_DD=(int32*)mem_static_malloc(4);
+*_FUNC_ISNUMBER_LONG_DD=0;
 }
-int32 *_FUNC_WIKI_LONG_REMOVEDCHR13=NULL;
-if(_FUNC_WIKI_LONG_REMOVEDCHR13==NULL){
-_FUNC_WIKI_LONG_REMOVEDCHR13=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_REMOVEDCHR13=0;
+int64 fornext_value5954;
+int64 fornext_finalvalue5954;
+int64 fornext_step5954;
+uint8 fornext_step_negative5954;
+byte_element_struct *byte_element_5955=NULL;
+if (!byte_element_5955){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5955=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5955=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5964=NULL;
-if (!byte_element_5964){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5964=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5964=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_ISNUMBER_LONG_A=NULL;
+if(_FUNC_ISNUMBER_LONG_A==NULL){
+_FUNC_ISNUMBER_LONG_A=(int32*)mem_static_malloc(4);
+*_FUNC_ISNUMBER_LONG_A=0;
 }
-byte_element_struct *byte_element_5965=NULL;
-if (!byte_element_5965){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5965=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5965=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5956=NULL;
+if (!byte_element_5956){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5956=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5956=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5966=NULL;
-if (!byte_element_5966){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5966=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5966=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5967=NULL;
-if (!byte_element_5967){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5967=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5967=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_WIKI_STRING_URL=NULL;
-if (!_FUNC_WIKI_STRING_URL)_FUNC_WIKI_STRING_URL=qbs_new(0,0);
-qbs *_FUNC_WIKI_STRING_S1=NULL;
-if (!_FUNC_WIKI_STRING_S1)_FUNC_WIKI_STRING_S1=qbs_new(0,0);
-qbs *_FUNC_WIKI_STRING_URL2=NULL;
-if (!_FUNC_WIKI_STRING_URL2)_FUNC_WIKI_STRING_URL2=qbs_new(0,0);
-int32 *_FUNC_WIKI_LONG_X=NULL;
-if(_FUNC_WIKI_LONG_X==NULL){
-_FUNC_WIKI_LONG_X=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_X=0;
-}
-int32 *_FUNC_WIKI_LONG_C=NULL;
-if(_FUNC_WIKI_LONG_C==NULL){
-_FUNC_WIKI_LONG_C=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_C=0;
-}
-qbs *_FUNC_WIKI_STRING_E=NULL;
-if (!_FUNC_WIKI_STRING_E)_FUNC_WIKI_STRING_E=qbs_new(0,0);
-qbs *_FUNC_WIKI_STRING_URL3=NULL;
-if (!_FUNC_WIKI_STRING_URL3)_FUNC_WIKI_STRING_URL3=qbs_new(0,0);
-byte_element_struct *byte_element_5969=NULL;
-if (!byte_element_5969){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5969=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5969=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_WIKI_STRING_X=NULL;
-if (!_FUNC_WIKI_STRING_X)_FUNC_WIKI_STRING_X=qbs_new(0,0);
-byte_element_struct *byte_element_5970=NULL;
-if (!byte_element_5970){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5970=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5970=(byte_element_struct*)mem_static_malloc(12);
-}
-float *_FUNC_WIKI_SINGLE_T=NULL;
-if(_FUNC_WIKI_SINGLE_T==NULL){
-_FUNC_WIKI_SINGLE_T=(float*)mem_static_malloc(4);
-*_FUNC_WIKI_SINGLE_T=0;
-}
-qbs *_FUNC_WIKI_STRING_A2=NULL;
-if (!_FUNC_WIKI_STRING_A2)_FUNC_WIKI_STRING_A2=qbs_new(0,0);
-byte_element_struct *byte_element_5972=NULL;
-if (!byte_element_5972){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5972=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5972=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_WIKI_STRING_S2=NULL;
-if (!_FUNC_WIKI_STRING_S2)_FUNC_WIKI_STRING_S2=qbs_new(0,0);
-int32 *_FUNC_WIKI_LONG_S1=NULL;
-if(_FUNC_WIKI_LONG_S1==NULL){
-_FUNC_WIKI_LONG_S1=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_S1=0;
-}
-byte_element_struct *byte_element_5973=NULL;
-if (!byte_element_5973){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5973=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5973=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_FUNC_WIKI_LONG_S2=NULL;
-if(_FUNC_WIKI_LONG_S2==NULL){
-_FUNC_WIKI_LONG_S2=(int32*)mem_static_malloc(4);
-*_FUNC_WIKI_LONG_S2=0;
-}
-byte_element_struct *byte_element_5974=NULL;
-if (!byte_element_5974){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5974=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5974=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_ISNUMBER_LONG_DP=NULL;
+if(_FUNC_ISNUMBER_LONG_DP==NULL){
+_FUNC_ISNUMBER_LONG_DP=(int32*)mem_static_malloc(4);
+*_FUNC_ISNUMBER_LONG_DP=0;
 }

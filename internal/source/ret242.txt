@@ -1,0 +1,15 @@
+if (next_return_point){
+next_return_point--;
+switch(return_point[next_return_point]){
+case 0:
+error(3);
+break;
+case 141:
+goto RETURN_141;
+break;
+case 142:
+goto RETURN_142;
+break;
+}
+}
+error(3);
