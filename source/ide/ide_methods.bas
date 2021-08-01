@@ -7073,12 +7073,19 @@ SUB DebugMode
                 F6:
                 requestStepOut:
                 IF PauseMode THEN
-                    PauseMode = 0
-                    cmd$ = "step out"
-                    GOSUB SendCommand
-                    clearStatusWindow 1
-                    setStatusMessage 1, "Running...", 10
-                    dummy = DarkenFGBG(1)
+                    IF LEN(currentSub$) > 0 THEN
+                        PauseMode = 0
+                        cmd$ = "step out"
+                        GOSUB SendCommand
+                        clearStatusWindow 1
+                        setStatusMessage 1, "Running...", 10
+                        dummy = DarkenFGBG(1)
+                        GOSUB UpdateDisplay
+                    ELSE
+                        clearStatusWindow 0
+                        setStatusMessage 1, "Not inside a sub/function.", 4
+                        GOSUB UpdateDisplay
+                    END IF
                 END IF
             CASE 16640 'F7
                 F7:
