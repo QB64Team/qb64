@@ -2858,6 +2858,7 @@ FUNCTION ide2 (ignore)
             idecy = l
             idecx = IdeBmk(b).x
             ideselect = 0
+            idecentercurrentline
             GOTO specialchar
         END IF
 
@@ -5728,7 +5729,7 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     ELSE
-                        result = idevariablewatchbox("")
+                        result$ = idevariablewatchbox$("")
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
@@ -7045,7 +7046,56 @@ SUB DebugMode
                     estabilishingScope = -1
                 ELSE
                     requestVariableWatch:
-                    result = idevariablewatchbox(currentSub$)
+                    DO
+                        result$ = idevariablewatchbox$(currentSub$)
+                        IF LEN(result$) THEN
+                            'set address
+                            tempIndex& = CVL(LEFT$(result$, 4))
+                            value$ = MID$(result$, 5)
+                            address%& = usedVariableList(tempIndex&).address
+                            IF address%& > 0 THEN
+                                varType$ = usedVariableList(tempIndex&).varType
+                                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                                SELECT CASE varType$
+                                    CASE "_BYTE", "_UNSIGNED _BYTE"
+                                        value$ = _MK$(_BYTE, VAL(value$))
+                                        varSize& = LEN(dummy%%)
+                                    CASE "INTEGER", "_UNSIGNED INTEGER"
+                                        value$ = MKI$(VAL(value$))
+                                        varSize& = LEN(dummy%)
+                                    CASE "LONG", "_UNSIGNED LONG"
+                                        value$ = MKL$(VAL(value$))
+                                        varSize& = LEN(dummy&)
+                                    CASE "_INTEGER64", "_UNSIGNED _INTEGER64"
+                                        value$ = _MK$(_INTEGER64, VAL(value$))
+                                        varSize& = LEN(dummy&&)
+                                    CASE "SINGLE"
+                                        value$ = MKS$(VAL(value$))
+                                        varSize& = LEN(dummy!)
+                                    CASE "DOUBLE"
+                                        value$ = MKD$(VAL(value$))
+                                        varSize& = LEN(dummy#)
+                                    CASE "_FLOAT"
+                                        value$ = _MK$(_FLOAT, VAL(value$))
+                                        varSize& = LEN(dummy##)
+                                    CASE "_OFFSET", "_UNSIGNED _OFFSET"
+                                        value$ = _MK$(_OFFSET, VAL(value$))
+                                        varSize& = LEN(dummy%&)
+                                    CASE "STRING"
+                                        varSize& = usedVariableList(tempIndex&).strLength
+                                        value$ = LEFT$(value$, varSize&)
+                                END SELECT
+                                cmd$ = "set address" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
+                                GOSUB SendCommand
+                                usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + "Sent: " + MID$(result$, 5)
+                            END IF
+                            PCOPY 3, 0: SCREEN , , 3, 0
+                            WHILE _MOUSEINPUT: WEND
+                            GOSUB UpdateDisplay
+                        ELSE
+                            EXIT DO
+                        END IF
+                    LOOP
                     IF LEN(variableWatchList$) THEN
                         totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
                         vWatchPanel.h = totalVisibleVariables + 2
@@ -7281,6 +7331,7 @@ SUB DebugMode
             CASE "global var", "local var"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 address%& = _CV(_OFFSET, MID$(value$, 5))
+                usedVariableList(tempIndex&).address = address%&
                 varType$ = usedVariableList(tempIndex&).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 SELECT CASE varType$
@@ -7320,10 +7371,14 @@ SUB DebugMode
                         IF sequence% = 1 THEN
                             IF LEN(dummy%&) = 8 THEN
                                 address%& = _CV(_INTEGER64, LEFT$(recvData$, 8))
+                                usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 9))
+                                usedVariableList(tempIndex&).strLength = strLength&
                             ELSE
                                 address%& = _CV(LONG, LEFT$(recvData$, 4))
+                                usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 5))
+                                usedVariableList(tempIndex&).strLength = strLength&
                             END IF
                             address$ = LEFT$(recvData$, LEN(dummy%&)) 'Pointer to data
                             cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
@@ -7538,7 +7593,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     END IF
 END SUB
 
-FUNCTION idevariablewatchbox(currentScope$)
+FUNCTION idevariablewatchbox$(currentScope$)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -7720,7 +7775,23 @@ FUNCTION idevariablewatchbox(currentScope$)
         END IF
 
         IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
-            'send value
+            'set address
+            IF o(varListBox).sel > 0 THEN
+                i = o(varListBox).sel
+                IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
+                    'scope is valid
+                    a2$ = usedVariableList(varDlgList(i).index).mostRecentValue
+                    v$ = ideinputbox$("Change Value", "#New value", a2$, "", idewx - 12, 0)
+                    IF LEN(v$) THEN
+                        idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
+                        EXIT FUNCTION
+                    END IF
+                ELSE
+                    result = idemessagebox("Change Value", "Variable is out of scope.", "#OK")
+                END IF
+            ELSE
+                result = idemessagebox("Change Value", "Select a variable first.", "#OK")
+            END IF
             focus = filterBox
             _CONTINUE
         END IF
@@ -7798,7 +7869,7 @@ FUNCTION idevariablewatchbox(currentScope$)
         mouseup = 0
     LOOP
 
-    idevariablewatchbox = 0
+    idevariablewatchbox$ = ""
     EXIT FUNCTION
 
     copyList:

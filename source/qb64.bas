@@ -109,19 +109,10 @@ DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
-    used AS _BYTE
-    watch AS _BYTE
-    mostRecentValue AS STRING
-    linenumber AS LONG
-    includeLevel AS LONG
-    includedLine AS LONG
-    includedFile AS STRING
-    scope AS LONG
-    varType AS STRING
-    subfunc AS STRING
-    localIndex AS LONG
-    cname AS STRING
-    name AS STRING
+    AS LONG linenumber, includeLevel, includedLine, scope, localIndex, strLength
+    AS _BYTE used, watch
+    AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
+    AS _OFFSET address
 END TYPE
 
 DIM SHARED totalVariablesCreated AS LONG

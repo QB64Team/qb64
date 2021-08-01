@@ -245,7 +245,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "set address"
                 vw_varSize = CVL(LEFT$(vw_value$, 4))
                 vw_address = _CV(_OFFSET, MID$(vw_value$, 5, LEN(vw_address)))
-                vw_buf$ = MID$(vw_value$, 4 + LEN(vw_address) + 1)
+                vw_buf$ = MID$(vw_value$, 4 + LEN(vw_address) + 1, vw_varSize)
                 vw_m = _MEM(vw_address, vw_varSize)
                 _MEMPUT vw_m, vw_m.OFFSET, vw_buf$
             CASE "current sub"
