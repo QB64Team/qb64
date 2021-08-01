@@ -7084,8 +7084,9 @@ SUB DebugMode
                                     CASE "STRING"
                                         varSize& = usedVariableList(tempIndex&).strLength
                                         value$ = LEFT$(value$, varSize&)
+                                        varSize& = LEN(value$)
                                 END SELECT
-                                cmd$ = "set address" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
+                                cmd$ = "set address:" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
                                 GOSUB SendCommand
                                 usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + "Sent: " + MID$(result$, 5)
                             END IF
