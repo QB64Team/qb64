@@ -7792,6 +7792,13 @@ FUNCTION idevariablewatchbox(currentScope$)
     totalVisibleVariables = 0
     FOR x = 1 TO totalVariablesCreated
         IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
+
+        IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
+            'it's ok
+        ELSE
+            usedVariableList(x).mostRecentValue = ""
+        END IF
+
         IF LEN(searchTerm$) THEN
             thisScope$ = usedVariableList(x).subfunc
             IF thisScope$ = "" THEN thisScope$ = mainmodule$
