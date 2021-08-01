@@ -6329,7 +6329,6 @@ END SUB
 
 SUB DebugMode
     STATIC AS _BYTE PauseMode, noFocusMessage
-    STATIC client&
     STATIC buffer$
     STATIC endc$
     STATIC currentSub$
@@ -6382,7 +6381,7 @@ SUB DebugMode
             callStackLength = 0
             callstacklist$ = ""
             buffer$ = ""
-            client& = 0
+            debugClient& = 0
 
             IF LEN(variableWatchList$) THEN
                 totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
@@ -6454,8 +6453,8 @@ SUB DebugMode
     'wait for client to connect
     start! = TIMER
     DO
-        client& = _OPENCONNECTION(host&)
-        IF client& THEN EXIT DO
+        debugClient& = _OPENCONNECTION(host&)
+        IF debugClient& THEN EXIT DO
 
         k& = _KEYHIT
         IF k& = 27 OR TIMER - start! > timeout THEN
@@ -6508,7 +6507,7 @@ SUB DebugMode
                     setStatusMessage 3, LEFT$("Received: " + program$, idewx - 2), 2
                     cmd$ = "vwatch:file mismatch"
                     GOSUB SendCommand
-                    CLOSE #client&
+                    CLOSE #debugClient&
                     WHILE _MOUSEINPUT: WEND
                     EXIT SUB
                 ELSE
@@ -6998,7 +6997,7 @@ SUB DebugMode
                 requestQuit:
                 cmd$ = "free"
                 GOSUB SendCommand
-                CLOSE #client&
+                CLOSE #debugClient&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
@@ -7343,7 +7342,7 @@ SUB DebugMode
                     GOTO requestVariableWatch
                 END IF
             CASE "quit"
-                CLOSE #client&
+                CLOSE #debugClient&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 15
@@ -7394,8 +7393,8 @@ SUB DebugMode
     EXIT SUB
 
     GetCommand:
-    GET #client&, , temp$
-    IF _CONNECTED(client&) = 0 THEN
+    GET #debugClient&, , temp$
+    IF _CONNECTED(debugClient&) = 0 THEN
         clearStatusWindow 0
         setStatusMessage 1, "Debug session aborted.", 7
         setStatusMessage 2, "Disconnected.", 2
@@ -7422,8 +7421,8 @@ SUB DebugMode
 
     SendCommand:
     cmd$ = cmd$ + endc$
-    PUT #client&, , cmd$
-    IF _CONNECTED(client&) = 0 THEN
+    PUT #debugClient&, , cmd$
+    IF _CONNECTED(debugClient&) = 0 THEN
         clearStatusWindow 0
         setStatusMessage 1, "Debug session aborted.", 7
         setStatusMessage 2, "Disconnected.", 2
@@ -7576,52 +7575,14 @@ FUNCTION idevariablewatchbox(currentScope$)
         IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
     NEXT
 
-    'build list
-    totalVisibleVariables = 0
-    FOR x = 1 TO totalVariablesCreated
-        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
-        totalVisibleVariables = totalVisibleVariables + 1
-
-        l$ = l$ + CHR$(16)
-        varDlgList(totalVisibleVariables).index = x
-        varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
-        varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
-        IF usedVariableList(x).watch THEN
-            l$ = l$ + CHR$(highlightColor) + "+"
-        ELSE
-            l$ = l$ + CHR$(16) + " "
-        END IF
-
-        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
-        text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
-        text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
-
-        l3$ = SPACE$(2)
-        IF LEN(usedVariableList(x).subfunc) > 0 THEN
-            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(16) + CHR$(16)
-        ELSE
-            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(16) + CHR$(16)
-        END IF
-
-        l$ = l$ + text$ + l3$
-        IF IdeDebugMode > 0 THEN
-            IF usedVariableList(x).watch THEN
-                IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
-                    l$ = l$ + " = " + CHR$(16) + CHR$(highlightcolor) + usedVariableList(x).mostRecentValue
-                ELSE
-                    l$ = l$ + " " + CHR$(16) + CHR$(2) + "<out of scope>"
-                END IF
-            END IF
-        END IF
-        IF x < totalVariablesCreated THEN l$ = l$ + sep
-    NEXT
+    GOSUB buildList
 
     i = 0
-    dialogHeight = (totalVariablesCreated) + 4
+    dialogHeight = (totalVariablesCreated) + 7
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
-    IF dialogHeight < 6 THEN dialogHeight = 6
+    IF dialogHeight < 9 THEN dialogHeight = 9
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen + 20
     IF dialogWidth < 60 THEN dialogWidth = 60
@@ -7629,10 +7590,16 @@ FUNCTION idevariablewatchbox(currentScope$)
 
     idepar p, dialogWidth, dialogHeight, "Watch List"
 
+    i = i + 1: filterBox = i
+    PrevFocus = 1
+    o(i).typ = 1
+    o(i).y = 2
+    o(i).nam = idenewtxt("#Filter")
+
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
-    o(varListBox).y = 2
-    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 4
+    o(varListBox).y = 5
+    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 7
     o(varListBox).txt = idenewtxt(l$)
     o(varListBox).sel = 1
     o(varListBox).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
@@ -7640,7 +7607,11 @@ FUNCTION idevariablewatchbox(currentScope$)
     i = i + 1: buttonSet = i
     o(buttonSet).typ = 3
     o(buttonSet).y = dialogHeight
-    o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+    IF IdeDebugMode THEN
+        o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Send Value" + sep + "#Close")
+    ELSE
+        o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+    END IF
 
 
 
@@ -7669,7 +7640,7 @@ FUNCTION idevariablewatchbox(currentScope$)
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on a variable to add it to the watch list"
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 4), "Double-click on an item to add it to the watch list:"
 
         '-------- end of custom display changes --------
 
@@ -7718,24 +7689,41 @@ FUNCTION idevariablewatchbox(currentScope$)
             END IF
         NEXT
         '-------- end of generic input response --------
+        IF focus <> PrevFocus THEN
+            'Always start with TextBox values selected upon getting focus
+            PrevFocus = focus
+            IF focus = filterBox THEN
+                o(focus).v1 = LEN(idetxt(o(focus).txt))
+                IF o(focus).v1 > 0 THEN o(focus).issel = -1
+                o(focus).sx1 = 0
+            END IF
+        END IF
 
-        IF (focus = 2 AND info <> 0) THEN 'add all
+        IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = -1
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = highlightColor
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
             NEXT
+            focus = filterBox
         END IF
 
-        IF (focus = 3 AND info <> 0) THEN 'remove all
+        IF (focus = 4 AND info <> 0) THEN 'remove all
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = 0
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
+            focus = filterBox
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
+        IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
+            'send value
+            focus = filterBox
+        END IF
+
+        IF K$ = CHR$(27) OR (IdeDebugMode = 0 AND focus = 5 AND info <> 0) OR _
+                            (IdeDebugMode > 0 AND focus = 6 AND info <> 0) THEN
             variableWatchList$ = ""
             longestVarName = 0
             FOR y = 1 TO totalVisibleVariables
@@ -7751,13 +7739,13 @@ FUNCTION idevariablewatchbox(currentScope$)
             EXIT FUNCTION
         END IF
 
-
-        IF mCLICK AND focus = 1 THEN 'list click
+        IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 THEN GOTO toggleWatch
             lastClick! = TIMER
         END IF
 
-        IF (K$ = CHR$(13) AND focus = 1) THEN
+        IF (K$ = CHR$(13) AND focus = 2) THEN
+            K$ = ""
             toggleWatch:
             y = ABS(o(varListBox).sel)
 
@@ -7771,6 +7759,24 @@ FUNCTION idevariablewatchbox(currentScope$)
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
             END IF
+            focus = filterBox
+        END IF
+
+        IF focus = varListBox AND LEN(K$) = 1 THEN
+            focus = filterBox
+        END IF
+
+        IF focus = filterBox AND (KB = 18432 OR KB = 20480) THEN 'up/down arrow
+            focus = varListBox
+        END IF
+
+        IF focus = filterBox AND idetxt(o(filterBox).txt) <> searchTerm$ THEN
+            searchTerm$ = UCASE$(idetxt(o(filterBox).txt))
+            'rebuild filtered list
+            GOSUB buildList
+            idetxt(o(varListBox).txt) = l$
+            IF LEN(searchTerm$) THEN temp$ = " - filtered" ELSE temp$ = ""
+            idetxt(o(varListBox).nam) = "Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
         END IF
 
         'end of custom controls
@@ -7779,6 +7785,59 @@ FUNCTION idevariablewatchbox(currentScope$)
     LOOP
 
     idevariablewatchbox = 0
+    EXIT FUNCTION
+
+    buildList:
+    l$ = ""
+    totalVisibleVariables = 0
+    FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
+        IF LEN(searchTerm$) THEN
+            thisScope$ = usedVariableList(x).subfunc
+            IF thisScope$ = "" THEN thisScope$ = mainmodule$
+            IF (INSTR(UCASE$(usedVariableList(x).name), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).varType), searchTerm$) = 0 AND _
+               INSTR(UCASE$(thisScope$), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).mostRecentValue), searchTerm$) = 0) THEN
+                _CONTINUE 'skip variable if no field matches the search
+            END IF
+        END IF
+        totalVisibleVariables = totalVisibleVariables + 1
+
+        l$ = l$ + CHR$(16)
+        varDlgList(totalVisibleVariables).index = x
+        varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
+        varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
+        IF usedVariableList(x).watch THEN
+            l$ = l$ + CHR$(highlightColor) + "+"
+        ELSE
+            l$ = l$ + CHR$(16) + " "
+        END IF
+
+        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
+        text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
+        text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
+
+        l3$ = SPACE$(2)
+        IF LEN(usedVariableList(x).subfunc) > 0 THEN
+            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(16) + CHR$(16)
+        ELSE
+            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(16) + CHR$(16)
+        END IF
+
+        l$ = l$ + text$ + l3$
+        IF IdeDebugMode > 0 THEN
+            IF usedVariableList(x).watch THEN
+                IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
+                    l$ = l$ + " = " + CHR$(16) + CHR$(highlightcolor) + usedVariableList(x).mostRecentValue
+                ELSE
+                    l$ = l$ + " " + CHR$(16) + CHR$(2) + "<out of scope>"
+                END IF
+            END IF
+        END IF
+        IF x < totalVariablesCreated THEN l$ = l$ + sep
+    NEXT
+    RETURN
 END FUNCTION
 
 FUNCTION idecallstackbox
@@ -8507,6 +8566,11 @@ SUB idedelline (i)
     NEXT
 
     IF vWatchOn THEN
+        IF iden > UBOUND(IdeBreakpoints) OR iden > UBOUND(IdeSkipLines) THEN
+            REDIM _PRESERVE IdeBreakpoints(iden) AS _BYTE
+            REDIM _PRESERVE IdeSkipLines(iden) AS _BYTE
+        END IF
+
         FOR b = i TO iden - 1
             SWAP IdeBreakpoints(b), IdeBreakpoints(b + 1)
         NEXT
