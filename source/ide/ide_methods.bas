@@ -1040,7 +1040,7 @@ FUNCTION ide2 (ignore)
                             statusarealink = 2
                         END IF
 
-                        y = POS(0)
+                        y = CSRLIN
                         IF y < idewy - 1 AND linefragment <> "[INFORMATION UNAVAILABLE]" THEN
                             temp$ = linefragment
                             FOR i = 1 TO LEN(temp$)
