@@ -7706,6 +7706,7 @@ FUNCTION idevariablewatchbox(currentScope$)
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
             NEXT
             focus = filterBox
+            _CONTINUE
         END IF
 
         IF (focus = 4 AND info <> 0) THEN 'remove all
@@ -7715,11 +7716,13 @@ FUNCTION idevariablewatchbox(currentScope$)
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
             focus = filterBox
+            _CONTINUE
         END IF
 
         IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
             'send value
             focus = filterBox
+            _CONTINUE
         END IF
 
         IF K$ = CHR$(27) OR (IdeDebugMode = 0 AND focus = 5 AND info <> 0) OR _
@@ -7742,6 +7745,7 @@ FUNCTION idevariablewatchbox(currentScope$)
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 THEN GOTO toggleWatch
             lastClick! = TIMER
+            _CONTINUE
         END IF
 
         IF (K$ = CHR$(13) AND focus = 2) THEN
@@ -7760,14 +7764,22 @@ FUNCTION idevariablewatchbox(currentScope$)
                 END IF
             END IF
             focus = filterBox
+            _CONTINUE
         END IF
 
-        IF focus = varListBox AND LEN(K$) = 1 THEN
+        IF focus = 2 AND (UCASE$(K$) = "C" AND KCTRL <> 0) THEN
+            GOSUB copyList
+            _CONTINUE
+        END IF
+
+        IF focus = varListBox AND (K$ >= " " AND K$ <= CHR$(126)) THEN
             focus = filterBox
+            _CONTINUE
         END IF
 
         IF focus = filterBox AND (KB = 18432 OR KB = 20480) THEN 'up/down arrow
             focus = varListBox
+            _CONTINUE
         END IF
 
         IF focus = filterBox AND idetxt(o(filterBox).txt) <> searchTerm$ THEN
@@ -7777,8 +7789,10 @@ FUNCTION idevariablewatchbox(currentScope$)
             idetxt(o(varListBox).txt) = l$
             IF LEN(searchTerm$) THEN temp$ = " - filtered" ELSE temp$ = ""
             idetxt(o(varListBox).nam) = "Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
+            _CONTINUE
         END IF
 
+        dialogLoop:
         'end of custom controls
         mousedown = 0
         mouseup = 0
@@ -7786,6 +7800,49 @@ FUNCTION idevariablewatchbox(currentScope$)
 
     idevariablewatchbox = 0
     EXIT FUNCTION
+
+    copyList:
+    temp$ = ""
+    IF ideprogname = "" THEN
+        ProposedTitle$ = FindProposedTitle$
+        IF ProposedTitle$ = "" THEN
+            temp$ = "QB64 - Variable List Report: untitled" + tempfolderindexstr$ + ".bas" + CHR$(10)
+        ELSE
+            temp$ = "QB64 - Variable List Report: " + ProposedTitle$ + ".bas" + CHR$(10)
+        END IF
+    ELSE
+        temp$ = "QB64 - Variable List Report: " + ideprogname$ + CHR$(10)
+    END IF
+
+    FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
+
+        IF LEN(searchTerm$) THEN
+            thisScope$ = usedVariableList(x).subfunc
+            IF thisScope$ = "" THEN thisScope$ = mainmodule$
+            IF (INSTR(UCASE$(usedVariableList(x).name), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).varType), searchTerm$) = 0 AND _
+               INSTR(UCASE$(thisScope$), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).mostRecentValue), searchTerm$) = 0) THEN
+                _CONTINUE 'skip variable if no field matches the search
+            END IF
+        END IF
+
+        temp$ = temp$ + usedVariableList(x).name + " "
+        temp$ = temp$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
+        temp$ = temp$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
+
+        l3$ = SPACE$(2)
+        IF LEN(usedVariableList(x).subfunc) > 0 THEN
+            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(10)
+        ELSE
+            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(10)
+        END IF
+
+        temp$ = temp$ + l3$
+    NEXT
+    _CLIPBOARD$ = temp$
+    RETURN
 
     buildList:
     l$ = ""
