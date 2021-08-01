@@ -339,7 +339,7 @@ FUNCTION ide2 (ignore)
 
         m = m + 1: i = 0: DebugMenuID = m
         menu$(m, i) = "Debug": i = i + 1
-        menu$(m, i) = "Start #Paused  F8": i = i + 1
+        menu$(m, i) = "Start #Paused  F7 or F8": i = i + 1
         menuDesc$(m, i - 1) = "Compiles current program and starts it in pause mode"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
@@ -1600,7 +1600,7 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF KB = KEY_F8 OR startPausedPending = -1 THEN
+        IF KB = KEY_F7 OR KB = KEY_F8 OR startPausedPending = -1 THEN
             startPausedPending = 0
             GOTO startPausedMenuHandler
         END IF
@@ -5687,7 +5687,7 @@ FUNCTION ide2 (ignore)
                 GOTO idemexe
             END IF
 
-            IF menu$(m, s) = "Start #Paused  F8" THEN
+            IF menu$(m, s) = "Start #Paused  F7 or F8" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 startPausedMenuHandler:
                 IF vWatchOn = 0 THEN
