@@ -209,7 +209,7 @@ FUNCTION ide2 (ignore)
         clearStatusWindow 0
 
         dummy = DarkenFGBG(1)
-        BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+        BkpIdeSystem = IdeSystem: IdeSystem = 2: UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
         COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
         COLOR 15, 1
 
@@ -339,7 +339,7 @@ FUNCTION ide2 (ignore)
 
         m = m + 1: i = 0: DebugMenuID = m
         menu$(m, i) = "Debug": i = i + 1
-        menu$(m, i) = "Start #Paused  F8": i = i + 1
+        menu$(m, i) = "Start #Paused  F7 or F8": i = i + 1
         menuDesc$(m, i - 1) = "Compiles current program and starts it in pause mode"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Toggle #Breakpoint  F9": i = i + 1
@@ -949,7 +949,7 @@ FUNCTION ide2 (ignore)
                     q = idevbar(idewx, 3, idewy - 8, 1, 1)
                     q = idehbar(2, idewy - 5, idewx - 2, 1, 1)
 
-                    GOSUB UpdateTitleOfMainWindow
+                    UpdateTitleOfMainWindow
 
                     COLOR 7, 1
                     _PRINTSTRING (2, idewy - 3), "Resizing..."
@@ -983,11 +983,8 @@ FUNCTION ide2 (ignore)
 
             LOCATE , , 0
 
-            sfname$ = FindCurrentSF$(idecy)
-            cleanSubName sfname$
-
             'update title of main window
-            GOSUB UpdateTitleOfMainWindow
+            UpdateTitleOfMainWindow
 
             'Draw navigation buttons (QuickNav)
             IF EnableQuickNav THEN GOSUB DrawQuickNav
@@ -1008,59 +1005,42 @@ FUNCTION ide2 (ignore)
                     'scrolling unavailable, but may span multiple lines
                     IF compfailed THEN
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-                        idecompilererrormessage$ = a$
-                        x = 1
+                        x = 2
                         y = idewy - 3
-                        FOR i = 1 TO LEN(a$)
-                            IF ASC(a$, i) = 0 THEN
-                                idecompilererrormessage$ = LEFT$(a$, i - 1)
-                                IF _DEFAULTCOLOR <> 11 THEN COLOR 11 ELSE COLOR 7
-                                _CONTINUE
-                            END IF
-                            x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                            IF y > idewy - 1 THEN EXIT FOR
-                            _PRINTSTRING (x, y), CHR$(ASC(a$, i))
-                        NEXT
+                        printWrapStatus x, y, x, a$
                         statusarealink = 1
                     ELSE
                         a$ = MID$(c$, 2, LEN(c$) - 5)
-                        idecompilererrormessage$ = a$
 
                         l = CVL(RIGHT$(c$, 4)): IF l <> 0 THEN idefocusline = l
 
-                        x = 1
+                        x = 2
                         y = idewy - 3
 
-                        IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + " on current line"
+                        IF l <> 0 AND idecy = l THEN onCurrentLine = LEN(a$): a$ = a$ + CHR$(1) + " on current line"
 
                         hasReference = INSTR(a$, " - Reference: ")
                         IF hasReference THEN
-                            hasReference = hasReference + 14
+                            hasReference = hasReference + 13
+                            a$ = LEFT$(a$, hasReference) + CHR$(2) + MID$(a$, hasReference + 1)
                         ELSE
                             hasReference = INSTR(a$, "Expected ")
                             IF hasReference THEN
-                                hasReference = hasReference + 9
+                                hasReference = hasReference + 8
+                                a$ = LEFT$(a$, hasReference) + CHR$(2) + MID$(a$, hasReference + 1)
                             END IF
                         END IF
-                        FOR i = 1 TO LEN(a$)
-                            IF hasReference > 0 AND i >= hasReference THEN COLOR 12, 6
-                            IF onCurrentLine > 0 AND i > onCurrentLine THEN COLOR 7, 1
-                            x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                            IF y > idewy - 1 THEN EXIT FOR
-                            _PRINTSTRING (x, y), CHR$(ASC(a$, i))
-                        NEXT
+
+                        printWrapStatus x, y, x, a$
 
                         IF l <> 0 AND idecy <> l THEN
                             a$ = " on line" + STR$(l) + " (click here or Ctrl+Shift+G to jump there)"
                             COLOR 11, 1
-                            FOR i = 1 TO LEN(a$)
-                                x = x + 1: IF x = idewx THEN x = 2: y = y + 1
-                                IF y > idewy - 1 THEN EXIT FOR
-                                _PRINTSTRING (x, y), CHR$(ASC(a$, i))
-                            NEXT
+                            printWrapStatus POS(0), CSRLIN, 2, a$
                             statusarealink = 2
                         END IF
 
+                        y = CSRLIN
                         IF y < idewy - 1 AND linefragment <> "[INFORMATION UNAVAILABLE]" THEN
                             temp$ = linefragment
                             FOR i = 1 TO LEN(temp$)
@@ -1418,7 +1398,7 @@ FUNCTION ide2 (ignore)
                 RestoreBGQuickNav:
                 IF QuickNavHover = -1 THEN
                     QuickNavHover = 0
-                    GOSUB UpdateTitleOfMainWindow
+                    UpdateTitleOfMainWindow
                     GOSUB DrawQuickNav
                     ideshowtext
                     updateHover = -1
@@ -1620,7 +1600,7 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF KB = KEY_F8 OR startPausedPending = -1 THEN
+        IF KB = KEY_F7 OR KB = KEY_F8 OR startPausedPending = -1 THEN
             startPausedPending = 0
             GOTO startPausedMenuHandler
         END IF
@@ -1654,26 +1634,7 @@ FUNCTION ide2 (ignore)
         END IF
 
         IF KB = KEY_F4 THEN 'variable watch
-            IF vWatchOn = 0 THEN
-                result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
-                IF result = 1 THEN
-                    ideselect = 0
-                    ideinsline 1, SCase$("$Debug")
-                    idecy = idecy + 1
-                    idechangemade = 1
-                    GOTO ideloop
-                ELSE
-                    GOTO ideloop
-                END IF
-            ELSE
-                IF idecompiling = 1 THEN
-                    result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "")
-                    PCOPY 3, 0: SCREEN , , 3, 0
-                    GOTO ideloop
-                ELSE
-                    GOTO showWatchList
-                END IF
-            END IF
+            GOTO showWatchList
         END IF
 
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
@@ -1740,14 +1701,14 @@ FUNCTION ide2 (ignore)
                     END IF
 
                     dummy = DarkenFGBG(1)
-                    BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+                    BkpIdeSystem = IdeSystem: IdeSystem = 2: UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
                     COLOR 15, 1
                     _PRINTSTRING (2, idewy - 3), "Starting program..."
                 ELSE
                     mustGenerateExe:
                     dummy = DarkenFGBG(1)
-                    BkpIdeSystem = IdeSystem: IdeSystem = 2: GOSUB UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
+                    BkpIdeSystem = IdeSystem: IdeSystem = 2: UpdateTitleOfMainWindow: IdeSystem = BkpIdeSystem
                     COLOR 1, 7: _PRINTSTRING ((idewx - 8) / 2, idewy - 4), " Status "
                     COLOR 15, 1
                     IF os$ = "LNX" THEN
@@ -2285,11 +2246,11 @@ FUNCTION ide2 (ignore)
                     END IF
 
                     IF INSTR(_OS$, "WIN") THEN
-                        SHELL _DONTWAIT "start " + url$
+                        SHELL _HIDE _DONTWAIT "start " + url$
                     ELSEIF INSTR(_OS$, "MAC") THEN
-                        SHELL _DONTWAIT "open " + url$
+                        SHELL _HIDE _DONTWAIT "open " + url$
                     ELSE
-                        SHELL _DONTWAIT "xdg-open " + url$
+                        SHELL _HIDE _DONTWAIT "xdg-open " + url$
                     END IF
                     GOTO specialchar
                 END IF
@@ -2897,6 +2858,7 @@ FUNCTION ide2 (ignore)
             idecy = l
             idecx = IdeBmk(b).x
             ideselect = 0
+            idecentercurrentline
             GOTO specialchar
         END IF
 
@@ -3784,30 +3746,6 @@ FUNCTION ide2 (ignore)
                     HideBracketHighlight
                     keywordHighlight = oldkeywordHighlight
                     retval$ = idergbmixer$(0)
-                'ELSEIF IdeAutoComplete AND idefocusline > 0 AND LEN(_TRIM$(a$)) = 0 THEN
-                '    'close open block
-                '    tempIndent$ = idegetline(idefocusline)
-                '    tempIndent$ = SPACE$(LEN(tempIndent$) - LEN(LTRIM$(tempindent$)))
-                '    IF idefocusline = definingtypeerror THEN
-                '        idecx = LEN(tempIndent$) + 1
-                '        insertAtCursor SCase$("End Type"): GOTO specialchar
-                '    ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
-                '        idecx = LEN(tempIndent$) + 1
-                '        SELECT EVERYCASE controltype(controllevel)
-                '            CASE 1: insertAtCursor SCase$("End If"): GOTO specialchar
-                '            CASE 2: insertAtCursor SCase$("Next"): GOTO specialchar
-                '            CASE 3, 4: insertAtCursor SCase$("Loop"): GOTO specialchar
-                '            CASE 5: insertAtCursor SCase$("Wend"): GOTO specialchar
-                '            CASE 6: insertAtCursor SCase$("$End If"): GOTO specialchar
-                '            CASE 10 TO 19: insertAtCursor SCase$("End Select"): GOTO specialchar
-                '            CASE 32
-                '                IF LEFT$(subfunc, 4) = "SUB_" THEN
-                '                    insertAtCursor SCase$("End Sub"): GOTO specialchar
-                '                ELSE
-                '                    insertAtCursor SCase$("End Function"): GOTO specialchar
-                '                END IF
-                '        END SELECT
-                '    END IF
                 ELSE
                     IF ideselect THEN
                         IF ideselecty1 <> idecy THEN GOTO specialchar 'multi line selected
@@ -5749,11 +5687,11 @@ FUNCTION ide2 (ignore)
                 GOTO idemexe
             END IF
 
-            IF menu$(m, s) = "Start #Paused  F8" THEN
+            IF menu$(m, s) = "Start #Paused  F7 or F8" THEN
                 PCOPY 3, 0: SCREEN , , 3, 0
                 startPausedMenuHandler:
                 IF vWatchOn = 0 THEN
-                    result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    result = idemessagebox("Start Paused", "Insert $DEBUG metacommand?", "#Yes;#No")
                     IF result = 1 THEN
                         ideselect = 0
                         ideinsline 1, SCase$("$Debug")
@@ -5774,7 +5712,28 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Watch List...  F4" THEN
                 PCOPY 2, 0
                 showWatchList:
-                result = idevariablewatchbox("")
+                IF vWatchOn = 0 THEN
+                    result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    IF result = 1 THEN
+                        ideselect = 0
+                        ideinsline 1, SCase$("$Debug")
+                        idecy = idecy + 1
+                        idechangemade = 1
+                        GOTO ideloop
+                    ELSE
+                        GOTO ideloop
+                    END IF
+                ELSE
+                    IF idecompiling = 1 THEN
+                        result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "#Continue Compilation")
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        GOTO ideloop
+                    ELSE
+                        result$ = idevariablewatchbox$("")
+                        PCOPY 3, 0: SCREEN , , 3, 0
+                        GOTO ideloop
+                    END IF
+                END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -5803,13 +5762,13 @@ FUNCTION ide2 (ignore)
                 GOTO EnterDebugMode
             END IF
 
-            IF menu$(m, s) = "Step #Over  F7" THEN
-                IdeDebugMode = 6
+            IF menu$(m, s) = "Ste#p Into  F7" THEN
+                IdeDebugMode = 7
                 GOTO EnterDebugMode
             END IF
 
-            IF menu$(m, s) = "Ste#p Into  F8" THEN
-                IdeDebugMode = 7
+            IF menu$(m, s) = "Step #Over  F8" THEN
+                IdeDebugMode = 6
                 GOTO EnterDebugMode
             END IF
 
@@ -5867,7 +5826,7 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0: SCREEN , , 3, 0
                     toggleSkipLine:
                     IF vWatchOn = 0 THEN
-                        result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        result = idemessagebox("Toggle Skip Line", "Insert $DEBUG metacommand?", "#Yes;#No")
                         IF result = 1 THEN
                             ideselect = 0
                             ideinsline 1, SCase$("$Debug")
@@ -6124,18 +6083,6 @@ FUNCTION ide2 (ignore)
 
     '--------------------------------------------------------------------------------
     EXIT FUNCTION
-    UpdateTitleOfMainWindow:
-    COLOR 7, 1: _PRINTSTRING (2, 2), STRING$(idewx - 2, CHR$(196))
-    IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
-    a$ = " " + a$
-    IF ideunsaved THEN a$ = a$ + "*"
-    IF LEN(sfname$) > 0 THEN a$ = a$ + ":" + sfname$
-    a$ = a$ + " "
-    IF LEN(a$) > idewx - 5 THEN a$ = LEFT$(a$, idewx - 11) + STRING$(3, 250) + " "
-    IF IdeSystem = 1 THEN COLOR 1, 7 ELSE COLOR 7, 1
-    _PRINTSTRING (((idewx / 2) - 1) - (LEN(a$) - 1) \ 2, 2), a$
-    RETURN
-
     DrawQuickNav:
     IF IdeSystem = 1 AND QuickNavTotal > 0 THEN
         COLOR 15, 7
@@ -6281,7 +6228,7 @@ FUNCTION ide2 (ignore)
 
     UpdateIdeInfo
 
-    GOSUB UpdateTitleOfMainWindow
+    UpdateTitleOfMainWindow
 
     DEF SEG = 0
     ideshowtext
@@ -6367,9 +6314,22 @@ FUNCTION ide2 (ignore)
 
 END FUNCTION
 
+SUB UpdateTitleOfMainWindow
+    sfname$ = FindCurrentSF$(idecy)
+    cleanSubName sfname$
+    COLOR 7, 1: _PRINTSTRING (2, 2), STRING$(idewx - 2, CHR$(196))
+    IF LEN(ideprogname) THEN a$ = ideprogname ELSE a$ = "Untitled" + tempfolderindexstr$
+    a$ = " " + a$
+    IF ideunsaved THEN a$ = a$ + "*"
+    IF LEN(sfname$) > 0 THEN a$ = a$ + ":" + sfname$
+    a$ = a$ + " "
+    IF LEN(a$) > idewx - 5 THEN a$ = LEFT$(a$, idewx - 11) + STRING$(3, 250) + " "
+    IF IdeSystem = 1 THEN COLOR 1, 7 ELSE COLOR 7, 1
+    _PRINTSTRING (((idewx / 2) - 1) - (LEN(a$) - 1) \ 2, 2), a$
+END SUB
+
 SUB DebugMode
     STATIC AS _BYTE PauseMode, noFocusMessage
-    STATIC client&
     STATIC buffer$
     STATIC endc$
     STATIC currentSub$
@@ -6391,6 +6351,30 @@ SUB DebugMode
         AS INTEGER x, y, w, h
         AS STRING caption
     END TYPE
+    DIM Button(1 TO 8) AS ui
+    i = 0
+    i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
+    i = i + 1: Button(i).Caption = "<F5 = Run>"
+    i = i + 1: Button(i).Caption = "<F6 = Step Out>"
+    i = i + 1: Button(i).Caption = "<F7 = Step Into>"
+    i = i + 1: Button(i).Caption = "<F8 = Step Over>"
+    i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
+    i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
+    i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
+    y = (idewy - 4) + 2
+    x = 2
+    FOR i = 1 TO UBOUND(Button)
+        Button(i).x = x
+        Button(i).y = y
+        Button(i).w = LEN(Button(i).Caption)
+        IF i < UBOUND(Button) THEN
+            x = x + Button(i).w + 1
+            IF x + LEN(Button(i + 1).Caption) > idewx - 1 THEN
+                y = y + 1
+                x = 2
+            END IF
+        END IF
+    NEXT
 
     SELECT EVERYCASE IdeDebugMode
         CASE 1
@@ -6398,7 +6382,7 @@ SUB DebugMode
             callStackLength = 0
             callstacklist$ = ""
             buffer$ = ""
-            client& = 0
+            debugClient& = 0
 
             IF LEN(variableWatchList$) THEN
                 totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
@@ -6414,32 +6398,6 @@ SUB DebugMode
             vWatchPanel.x = idewx - vWatchPanel.w - 6
             vWatchPanel.y = 4
             vWatchPanel.firstVisible = 1
-
-            STATIC Button(1 TO 8) AS ui
-            i = 0
-            i = i + 1: Button(i).Caption = "<F4 = Add Watch>"
-            i = i + 1: Button(i).Caption = "<F5 = Run>"
-            i = i + 1: Button(i).Caption = "<F6 = Step Out>"
-            i = i + 1: Button(i).Caption = "<F7 = Step Over>"
-            i = i + 1: Button(i).Caption = "<F8 = Step Into>"
-            i = i + 1: Button(i).Caption = "<F9 = Toggle Breakpoint>"
-            i = i + 1: Button(i).Caption = "<F10 = Clear all breakpoints>"
-            i = i + 1: Button(i).Caption = "<F12 = Call Stack>"
-            y = (idewy - 4) + 2
-            x = 2
-            FOR i = 1 TO UBOUND(Button)
-                Button(i).x = x
-                Button(i).y = y
-                Button(i).w = LEN(Button(i).Caption)
-                IF i < UBOUND(Button) THEN
-                    x = x + Button(i).w + 1
-                    IF x + LEN(Button(i + 1).Caption) > idewx - 1 THEN
-                        y = y + 1
-                        x = 2
-                    END IF
-                END IF
-            NEXT
-
         CASE IS > 1
             noFocusMessage = NOT noFocusMessage
             GOSUB UpdateStatusArea
@@ -6496,8 +6454,8 @@ SUB DebugMode
     'wait for client to connect
     start! = TIMER
     DO
-        client& = _OPENCONNECTION(host&)
-        IF client& THEN EXIT DO
+        debugClient& = _OPENCONNECTION(host&)
+        IF debugClient& THEN EXIT DO
 
         k& = _KEYHIT
         IF k& = 27 OR TIMER - start! > timeout THEN
@@ -6550,7 +6508,7 @@ SUB DebugMode
                     setStatusMessage 3, LEFT$("Received: " + program$, idewx - 2), 2
                     cmd$ = "vwatch:file mismatch"
                     GOSUB SendCommand
-                    CLOSE #client&
+                    CLOSE #debugClient&
                     WHILE _MOUSEINPUT: WEND
                     EXIT SUB
                 ELSE
@@ -7040,7 +6998,7 @@ SUB DebugMode
                 requestQuit:
                 cmd$ = "free"
                 GOSUB SendCommand
-                CLOSE #client&
+                CLOSE #debugClient&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 7
@@ -7088,7 +7046,63 @@ SUB DebugMode
                     estabilishingScope = -1
                 ELSE
                     requestVariableWatch:
-                    result = idevariablewatchbox(currentSub$)
+                    DO
+                        result$ = idevariablewatchbox$(currentSub$)
+                        IF LEN(result$) THEN
+                            'set address
+                            tempIndex& = CVL(LEFT$(result$, 4))
+                            IF tempIndex& = 0 THEN
+                                PCOPY 3, 0: SCREEN , , 3, 0
+                                WHILE _MOUSEINPUT: WEND
+                                GOSUB UpdateDisplay
+                                _CONTINUE
+                            END IF
+                            value$ = MID$(result$, 5)
+                            address%& = usedVariableList(tempIndex&).address
+                            IF address%& > 0 THEN
+                                varType$ = usedVariableList(tempIndex&).varType
+                                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                                SELECT CASE varType$
+                                    CASE "_BYTE", "_UNSIGNED _BYTE"
+                                        value$ = _MK$(_BYTE, VAL(value$))
+                                        varSize& = LEN(dummy%%)
+                                    CASE "INTEGER", "_UNSIGNED INTEGER"
+                                        value$ = MKI$(VAL(value$))
+                                        varSize& = LEN(dummy%)
+                                    CASE "LONG", "_UNSIGNED LONG"
+                                        value$ = MKL$(VAL(value$))
+                                        varSize& = LEN(dummy&)
+                                    CASE "_INTEGER64", "_UNSIGNED _INTEGER64"
+                                        value$ = _MK$(_INTEGER64, VAL(value$))
+                                        varSize& = LEN(dummy&&)
+                                    CASE "SINGLE"
+                                        value$ = MKS$(VAL(value$))
+                                        varSize& = LEN(dummy!)
+                                    CASE "DOUBLE"
+                                        value$ = MKD$(VAL(value$))
+                                        varSize& = LEN(dummy#)
+                                    CASE "_FLOAT"
+                                        value$ = _MK$(_FLOAT, VAL(value$))
+                                        varSize& = LEN(dummy##)
+                                    CASE "_OFFSET", "_UNSIGNED _OFFSET"
+                                        value$ = _MK$(_OFFSET, VAL(value$))
+                                        varSize& = LEN(dummy%&)
+                                    CASE "STRING"
+                                        varSize& = usedVariableList(tempIndex&).strLength
+                                        value$ = LEFT$(value$, varSize&)
+                                        varSize& = LEN(value$)
+                                END SELECT
+                                cmd$ = "set address:" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
+                                GOSUB SendCommand
+                                usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + " Sent: " + MID$(result$, 5)
+                            END IF
+                            PCOPY 3, 0: SCREEN , , 3, 0
+                            WHILE _MOUSEINPUT: WEND
+                            GOSUB UpdateDisplay
+                        ELSE
+                            EXIT DO
+                        END IF
+                    LOOP
                     IF LEN(variableWatchList$) THEN
                         totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
                         vWatchPanel.h = totalVisibleVariables + 2
@@ -7115,28 +7129,23 @@ SUB DebugMode
                 F6:
                 requestStepOut:
                 IF PauseMode THEN
-                    PauseMode = 0
-                    cmd$ = "step out"
-                    GOSUB SendCommand
-                    clearStatusWindow 1
-                    setStatusMessage 1, "Running...", 10
-                    dummy = DarkenFGBG(1)
+                    IF LEN(currentSub$) > 0 THEN
+                        PauseMode = 0
+                        cmd$ = "step out"
+                        GOSUB SendCommand
+                        clearStatusWindow 1
+                        setStatusMessage 1, "Running...", 10
+                        dummy = DarkenFGBG(1)
+                        GOSUB UpdateDisplay
+                    ELSE
+                        clearStatusWindow 0
+                        setStatusMessage 1, "Not inside a sub/function.", 4
+                        GOSUB UpdateDisplay
+                    END IF
                 END IF
             CASE 16640 'F7
                 F7:
-                requestStepOver:
-                IF PauseMode THEN
-                    cmd$ = "step over"
-                    PauseMode = 0
-                    GOSUB SendCommand
-                    clearStatusWindow 1
-                    setStatusMessage 1, "Running...", 10
-                    dummy = DarkenFGBG(1)
-                END IF
-            CASE 16896 'F8
-                F8:
                 IF PauseMode = 0 THEN
-                    requestPause:
                     cmd$ = "break"
                     PauseMode = -1
                     GOSUB SendCommand
@@ -7148,6 +7157,25 @@ SUB DebugMode
                 clearStatusWindow 1
                 setStatusMessage 1, "Paused.", 2
                 IF IdeDebugMode = 2 THEN RETURN
+            CASE 16896 'F8
+                F8:
+                requestStepOver:
+                IF PauseMode THEN
+                    cmd$ = "step over"
+                    PauseMode = 0
+                    GOSUB SendCommand
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Running...", 10
+                    dummy = DarkenFGBG(1)
+                ELSE
+                    requestPause:
+                    cmd$ = "break"
+                    PauseMode = -1
+                    GOSUB SendCommand
+                    clearStatusWindow 1
+                    setStatusMessage 1, "Paused.", 2
+                    IF IdeDebugMode = 2 THEN RETURN
+                END IF
             CASE 17152 'F9
                 F9:
                 requestToggleBreakpoint:
@@ -7310,6 +7338,7 @@ SUB DebugMode
             CASE "global var", "local var"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 address%& = _CV(_OFFSET, MID$(value$, 5))
+                usedVariableList(tempIndex&).address = address%&
                 varType$ = usedVariableList(tempIndex&).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 SELECT CASE varType$
@@ -7349,10 +7378,14 @@ SUB DebugMode
                         IF sequence% = 1 THEN
                             IF LEN(dummy%&) = 8 THEN
                                 address%& = _CV(_INTEGER64, LEFT$(recvData$, 8))
+                                usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 9))
+                                usedVariableList(tempIndex&).strLength = strLength&
                             ELSE
                                 address%& = _CV(LONG, LEFT$(recvData$, 4))
+                                usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 5))
+                                usedVariableList(tempIndex&).strLength = strLength&
                             END IF
                             address$ = LEFT$(recvData$, LEN(dummy%&)) 'Pointer to data
                             cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
@@ -7371,7 +7404,7 @@ SUB DebugMode
                     GOTO requestVariableWatch
                 END IF
             CASE "quit"
-                CLOSE #client&
+                CLOSE #debugClient&
                 dummy = DarkenFGBG(0)
                 clearStatusWindow 0
                 setStatusMessage 1, "Debug session aborted.", 15
@@ -7422,7 +7455,15 @@ SUB DebugMode
     EXIT SUB
 
     GetCommand:
-    GET #client&, , temp$
+    GET #debugClient&, , temp$
+    IF _CONNECTED(debugClient&) = 0 THEN
+        clearStatusWindow 0
+        setStatusMessage 1, "Debug session aborted.", 7
+        setStatusMessage 2, "Disconnected.", 2
+        WHILE _MOUSEINPUT: WEND
+        _KEYCLEAR
+        EXIT SUB
+    END IF
     buffer$ = buffer$ + temp$
 
     IF INSTR(buffer$, endc$) THEN
@@ -7442,13 +7483,22 @@ SUB DebugMode
 
     SendCommand:
     cmd$ = cmd$ + endc$
-    PUT #client&, , cmd$
+    PUT #debugClient&, , cmd$
+    IF _CONNECTED(debugClient&) = 0 THEN
+        clearStatusWindow 0
+        setStatusMessage 1, "Debug session aborted.", 7
+        setStatusMessage 2, "Disconnected.", 2
+        WHILE _MOUSEINPUT: WEND
+        _KEYCLEAR
+        EXIT SUB
+    END IF
     cmd$ = ""
     RETURN
 
     UpdateDisplay:
     IF PauseMode = 0 THEN ideshowtextBypassColorRestore = -1
     ideshowtext
+    UpdateTitleOfMainWindow
 
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN showvWatchPanel vWatchPanel, currentSub$
 
@@ -7480,12 +7530,20 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
 
     totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
     fg = 0: bg = 7
+
+
+    title$ = "Watch List"
+    IF LEN(currentScope$) THEN title$ = title$ + " - " + currentScope$
+    IF this.w < LEN(title$) + 4 THEN
+        this.w = LEN(title$) + 4
+        IF this.x + this.w + 2 > idewx THEN this.x = idewx - (this.w + 2)
+    END IF
+
     COLOR fg, bg
     ideboxshadow this.x, this.y, this.w, this.h
     color 15, bg
     _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
 
-    title$ = "Watch List"
     x = LEN(title$) + 2
     COLOR fg, bg
     _PRINTSTRING (this.x + (this.w \ 2) - (x - 1) \ 2, this.y), " " + title$ + " "
@@ -7542,7 +7600,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     END IF
 END SUB
 
-FUNCTION idevariablewatchbox(currentScope$)
+FUNCTION idevariablewatchbox$(currentScope$)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -7579,52 +7637,14 @@ FUNCTION idevariablewatchbox(currentScope$)
         IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
     NEXT
 
-    'build list
-    totalVisibleVariables = 0
-    FOR x = 1 TO totalVariablesCreated
-        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
-        totalVisibleVariables = totalVisibleVariables + 1
-
-        l$ = l$ + CHR$(16)
-        varDlgList(totalVisibleVariables).index = x
-        varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
-        varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
-        IF usedVariableList(x).watch THEN
-            l$ = l$ + CHR$(highlightColor) + "+"
-        ELSE
-            l$ = l$ + CHR$(16) + " "
-        END IF
-
-        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
-        text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
-        text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
-
-        l3$ = SPACE$(2)
-        IF LEN(usedVariableList(x).subfunc) > 0 THEN
-            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(16) + CHR$(16)
-        ELSE
-            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(16) + CHR$(16)
-        END IF
-
-        l$ = l$ + text$ + l3$
-        IF IdeDebugMode > 0 THEN
-            IF usedVariableList(x).watch THEN
-                IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
-                    l$ = l$ + " = " + CHR$(16) + CHR$(highlightcolor) + usedVariableList(x).mostRecentValue
-                ELSE
-                    l$ = l$ + " " + CHR$(16) + CHR$(2) + "<out of scope>"
-                END IF
-            END IF
-        END IF
-        IF x < totalVariablesCreated THEN l$ = l$ + sep
-    NEXT
+    GOSUB buildList
 
     i = 0
-    dialogHeight = (totalVariablesCreated) + 4
+    dialogHeight = (totalVariablesCreated) + 7
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
-    IF dialogHeight < 6 THEN dialogHeight = 6
+    IF dialogHeight < 9 THEN dialogHeight = 9
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen + 20
     IF dialogWidth < 60 THEN dialogWidth = 60
@@ -7632,10 +7652,16 @@ FUNCTION idevariablewatchbox(currentScope$)
 
     idepar p, dialogWidth, dialogHeight, "Watch List"
 
+    i = i + 1: filterBox = i
+    PrevFocus = 1
+    o(i).typ = 1
+    o(i).y = 2
+    o(i).nam = idenewtxt("#Filter")
+
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
-    o(varListBox).y = 2
-    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 4
+    o(varListBox).y = 5
+    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 7
     o(varListBox).txt = idenewtxt(l$)
     o(varListBox).sel = 1
     o(varListBox).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
@@ -7643,7 +7669,11 @@ FUNCTION idevariablewatchbox(currentScope$)
     i = i + 1: buttonSet = i
     o(buttonSet).typ = 3
     o(buttonSet).y = dialogHeight
-    o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+    IF IdeDebugMode THEN
+        o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Send Value" + sep + "#Close")
+    ELSE
+        o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+    END IF
 
 
 
@@ -7672,7 +7702,7 @@ FUNCTION idevariablewatchbox(currentScope$)
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Double-click on a variable to add it to the watch list"
+        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 4), "Double-click on an item to add it to the watch list:"
 
         '-------- end of custom display changes --------
 
@@ -7721,24 +7751,66 @@ FUNCTION idevariablewatchbox(currentScope$)
             END IF
         NEXT
         '-------- end of generic input response --------
+        IF focus <> PrevFocus THEN
+            'Always start with TextBox values selected upon getting focus
+            PrevFocus = focus
+            IF focus = filterBox THEN
+                o(focus).v1 = LEN(idetxt(o(focus).txt))
+                IF o(focus).v1 > 0 THEN o(focus).issel = -1
+                o(focus).sx1 = 0
+            END IF
+        END IF
 
-        IF (focus = 2 AND info <> 0) THEN 'add all
+        IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = -1
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = highlightColor
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
             NEXT
+            focus = filterBox
+            _CONTINUE
         END IF
 
-        IF (focus = 3 AND info <> 0) THEN 'remove all
+        IF (focus = 4 AND info <> 0) THEN 'remove all
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = 0
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
+            focus = filterBox
+            _CONTINUE
         END IF
 
-        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
+        IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
+            'set address
+            IF o(varListBox).sel > 0 THEN
+                i = o(varListBox).sel
+                IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
+                    'scope is valid
+                    a2$ = usedVariableList(varDlgList(i).index).mostRecentValue
+                    temp$ = ""
+                    IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
+                        temp$ = " (cannot change string length)"
+                    END IF
+                    v$ = ideinputbox$("Change Value", "#New value" + temp$, a2$, "", idewx - 12, usedVariableList(varDlgList(i).index).strLength)
+                    IF LEN(v$) THEN
+                        idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
+                    ELSE
+                        idevariablewatchbox$ = MKL$(0)
+                    END IF
+                    EXIT FUNCTION
+                ELSE
+                    result = idemessagebox("Change Value", "Variable is out of scope.", "#OK")
+                END IF
+            ELSE
+                result = idemessagebox("Change Value", "Select a variable first.", "#OK")
+            END IF
+            focus = filterBox
+            _CONTINUE
+        END IF
+
+        IF K$ = CHR$(27) OR (IdeDebugMode = 0 AND focus = 5 AND info <> 0) OR _
+                            (IdeDebugMode > 0 AND focus = 6 AND info <> 0) THEN
             variableWatchList$ = ""
             longestVarName = 0
             FOR y = 1 TO totalVisibleVariables
@@ -7754,13 +7826,14 @@ FUNCTION idevariablewatchbox(currentScope$)
             EXIT FUNCTION
         END IF
 
-
-        IF mCLICK AND focus = 1 THEN 'list click
+        IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 THEN GOTO toggleWatch
             lastClick! = TIMER
+            _CONTINUE
         END IF
 
-        IF (K$ = CHR$(13) AND focus = 1) THEN
+        IF (K$ = CHR$(13) AND focus = 2) THEN
+            K$ = ""
             toggleWatch:
             y = ABS(o(varListBox).sel)
 
@@ -7774,14 +7847,145 @@ FUNCTION idevariablewatchbox(currentScope$)
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
             END IF
+            focus = filterBox
+            _CONTINUE
         END IF
 
+        IF focus = 2 AND (UCASE$(K$) = "C" AND KCTRL <> 0) THEN
+            GOSUB copyList
+            _CONTINUE
+        END IF
+
+        IF focus = varListBox AND (K$ >= " " AND K$ <= CHR$(126)) THEN
+            focus = filterBox
+            _CONTINUE
+        END IF
+
+        IF focus = filterBox AND (KB = 18432 OR KB = 20480) THEN 'up/down arrow
+            focus = varListBox
+            _CONTINUE
+        END IF
+
+        IF focus = filterBox AND idetxt(o(filterBox).txt) <> searchTerm$ THEN
+            searchTerm$ = UCASE$(idetxt(o(filterBox).txt))
+            'rebuild filtered list
+            GOSUB buildList
+            idetxt(o(varListBox).txt) = l$
+            IF LEN(searchTerm$) THEN temp$ = " - filtered" ELSE temp$ = ""
+            idetxt(o(varListBox).nam) = "Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
+            _CONTINUE
+        END IF
+
+        dialogLoop:
         'end of custom controls
         mousedown = 0
         mouseup = 0
     LOOP
 
-    idevariablewatchbox = 0
+    idevariablewatchbox$ = ""
+    EXIT FUNCTION
+
+    copyList:
+    temp$ = ""
+    IF ideprogname = "" THEN
+        ProposedTitle$ = FindProposedTitle$
+        IF ProposedTitle$ = "" THEN
+            temp$ = "QB64 - Variable List Report: untitled" + tempfolderindexstr$ + ".bas" + CHR$(10)
+        ELSE
+            temp$ = "QB64 - Variable List Report: " + ProposedTitle$ + ".bas" + CHR$(10)
+        END IF
+    ELSE
+        temp$ = "QB64 - Variable List Report: " + ideprogname$ + CHR$(10)
+    END IF
+
+    FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
+
+        IF LEN(searchTerm$) THEN
+            thisScope$ = usedVariableList(x).subfunc
+            IF thisScope$ = "" THEN thisScope$ = mainmodule$
+            IF (INSTR(UCASE$(usedVariableList(x).name), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).varType), searchTerm$) = 0 AND _
+               INSTR(UCASE$(thisScope$), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).mostRecentValue), searchTerm$) = 0) THEN
+                _CONTINUE 'skip variable if no field matches the search
+            END IF
+        END IF
+
+        temp$ = temp$ + usedVariableList(x).name + " "
+        temp$ = temp$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
+        temp$ = temp$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
+
+        l3$ = SPACE$(2)
+        IF LEN(usedVariableList(x).subfunc) > 0 THEN
+            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(10)
+        ELSE
+            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(10)
+        END IF
+
+        temp$ = temp$ + l3$
+    NEXT
+    _CLIPBOARD$ = temp$
+    RETURN
+
+    buildList:
+    l$ = ""
+    totalVisibleVariables = 0
+    FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
+
+        IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
+            'it's ok
+        ELSE
+            usedVariableList(x).mostRecentValue = ""
+        END IF
+
+        IF LEN(searchTerm$) THEN
+            thisScope$ = usedVariableList(x).subfunc
+            IF thisScope$ = "" THEN thisScope$ = mainmodule$
+            IF (INSTR(UCASE$(usedVariableList(x).name), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).varType), searchTerm$) = 0 AND _
+               INSTR(UCASE$(thisScope$), searchTerm$) = 0 AND _
+               INSTR(UCASE$(usedVariableList(x).mostRecentValue), searchTerm$) = 0) THEN
+                _CONTINUE 'skip variable if no field matches the search
+            END IF
+        END IF
+        totalVisibleVariables = totalVisibleVariables + 1
+
+        l$ = l$ + CHR$(16)
+        varDlgList(totalVisibleVariables).index = x
+        varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
+        varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
+        IF usedVariableList(x).watch THEN
+            l$ = l$ + CHR$(highlightColor) + "+"
+        ELSE
+            l$ = l$ + CHR$(16) + " "
+        END IF
+
+        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
+        text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
+        text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
+
+        l3$ = SPACE$(2)
+        IF LEN(usedVariableList(x).subfunc) > 0 THEN
+            l3$ = l3$ + usedVariableList(x).subfunc + SPACE$(maxModuleNameLen - LEN(usedVariableList(x).subfunc)) + CHR$(16) + CHR$(16)
+        ELSE
+            l3$ = l3$ + mainmodule$ + SPACE$(maxModuleNameLen - LEN(mainmodule$)) + CHR$(16) + CHR$(16)
+        END IF
+
+        l$ = l$ + text$ + l3$
+        IF IdeDebugMode > 0 THEN
+            IF usedVariableList(x).watch THEN
+                IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
+                    l$ = l$ + " = " + CHR$(16) + CHR$(highlightcolor) + usedVariableList(x).mostRecentValue
+                ELSE
+                    l$ = l$ + " " + CHR$(16) + CHR$(2) + "<out of scope>"
+                END IF
+            END IF
+        END IF
+        IF x < totalVariablesCreated THEN l$ = l$ + sep
+    NEXT
+    RETURN
 END FUNCTION
 
 FUNCTION idecallstackbox
@@ -7834,7 +8038,7 @@ FUNCTION idecallstackbox
     i = i + 1
     o(i).typ = 3
     o(i).y = dialogHeight
-    o(i).txt = idenewtxt("#Close")
+    o(i).txt = idenewtxt("#Close" + sep + "Co#py")
     o(i).dft = 1
 
 
@@ -7920,6 +8124,9 @@ FUNCTION idecallstackbox
             EXIT FUNCTION
         END IF
 
+        IF K$ = CHR$(13) OR (focus = 3 AND info <> 0) OR (UCASE$(K$) = "C" AND KCTRL <> 0) THEN
+            _CLIPBOARD$ = StrReplace$(callstacklist$, sep, CHR$(10))
+        END IF
 
         'end of custom controls
         mousedown = 0
@@ -8507,6 +8714,11 @@ SUB idedelline (i)
     NEXT
 
     IF vWatchOn THEN
+        IF iden > UBOUND(IdeBreakpoints) OR iden > UBOUND(IdeSkipLines) THEN
+            REDIM _PRESERVE IdeBreakpoints(iden) AS _BYTE
+            REDIM _PRESERVE IdeSkipLines(iden) AS _BYTE
+        END IF
+
         FOR b = i TO iden - 1
             SWAP IdeBreakpoints(b), IdeBreakpoints(b + 1)
         NEXT
@@ -9761,7 +9973,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             'create new folder
             newpath$ = idenewfolder(path$)
             IF LEN(newpath$) THEN
-                f$ = newpath$
+                f$ = removeDoubleSlashes$(newpath$)
                 GOTO changepath
             ELSE
                 GOTO ideopenloop
@@ -9773,17 +9985,29 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             EXIT FUNCTION
         END IF
 
-        IF idetxt(o(2).stx) <> "" THEN
+        IF focus = 2 AND o(2).sel <> prevFileBoxSel THEN
+            prevFileBoxSel = o(2).sel
             idetxt(o(1).txt) = idetxt(o(2).stx)
-            o(1).v1 = LEN(idetxt(o(1).txt))
+            o(1).issel = 0
         END IF
 
         IF focus = 3 THEN
             IF (K$ = CHR$(13) OR info = 1) AND o(3).sel >= 1 THEN
-                newpath$ = idetxt(o(3).stx)
-                IF newpath$ = "" THEN newpath$ = ".."
-                f$ = newpath$
-                GOTO changepath
+                newpath$ = removeDoubleSlashes$(idetxt(o(3).stx))
+                IF newpath$ = "" THEN
+                    newpath$ = ".."
+                    f$ = newpath$
+                    GOTO changepath
+                ELSE
+                    path$ = removeDoubleSlashes$(idezchangepath(path$, newpath$))
+                    idetxt(o(2).txt) = idezfilelist$(path$, AllFiles, "")
+                    idetxt(o(3).txt) = idezpathlist$(path$)
+
+                    o(2).sel = -1
+                    o(3).sel = 1
+                    IF info = 1 THEN o(3).sel = -1
+                    GOTO ideopenloop
+                END IF
             END IF
         END IF
 
@@ -9806,7 +10030,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             changepath:
             IF _DIREXISTS(path$ + idepathsep$ + f$) THEN
                 'check/acquire file path
-                path$ = idezgetfilepath$(path$, f$ + idepathsep$) 'note: path ending with pathsep needn't contain a file
+                path$ = removeDoubleSlashes$(idezgetfilepath$(path$, f$ + idepathsep$)) 'note: path ending with pathsep needn't contain a file
                 IF ideerror > 1 THEN EXIT FUNCTION
 
                 IF LEN(newpath$) = 0 THEN
@@ -9826,7 +10050,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             IF INSTR(f$, "?") > 0 OR INSTR(f$, "*") > 0 THEN
                 IF INSTR(f$, "/") > 0 OR INSTR(f$, "\") > 0 THEN
                     'path + wildcards
-                    path$ = idezgetfilepath$(path$, f$) 'note: path ending with pathsep needn't contain a file
+                    path$ = removeDoubleSlashes$(idezgetfilepath$(path$, f$)) 'note: path ending with pathsep needn't contain a file
                     IF ideerror > 1 THEN EXIT FUNCTION
                     idetxt(o(3).txt) = idezpathlist$(path$)
                     o(3).sel = -1
@@ -9846,7 +10070,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
             END IF
 
             DirectLoad:
-            path$ = idezgetfilepath$(path$, f$) 'repeat in case of DirectLoad
+            path$ = removeDoubleSlashes$(idezgetfilepath$(path$, f$)) 'repeat in case of DirectLoad
             IF ideerror > 1 THEN EXIT FUNCTION
 
             IF mode = 1 THEN
@@ -10318,22 +10542,6 @@ SUB ideshowtext
                             a$ = a$ + " --> Double-click to open": ActiveINCLUDELink = idecy
                         END IF
                     END IF
-                'ELSE
-                '    temp_a$ = idegetline(idecy)
-                '    IF IdeAutoComplete AND idefocusline = l AND LEN(_TRIM$(temp_a$)) = 0 THEN
-                '        'some errors are mere blocks the user just opened and is still
-                '        'working on. This bit will offer to close said blocks.
-                '        IF idefocusline = definingtypeerror THEN
-                '            shiftEnter_idecx = LEN(a$)
-                '            a$ = a$ + " --> Shift+ENTER to close block"
-                '        ELSEIF idefocusline = controlref(controllevel) AND INSTR(idecompilererrormessage$, " without ") > 0 THEN
-                '            SELECT EVERYCASE controltype(controllevel)
-                '                CASE 1 to 6,10 to 19,32
-                '                    shiftEnter_idecx = LEN(a$)
-                '                    a$ = a$ + " --> Shift+ENTER to close block"
-                '            END SELECT
-                '        END IF
-                '    END IF
                 END IF 'l = idecy
 
                 a2$ = SPACE$(idesx + (idewx - 3))
@@ -11626,7 +11834,7 @@ FUNCTION idewarningbox
 END FUNCTION
 
 SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, mousedown, mouseup, mx, my, info, mw)
-    STATIC SearchTerm$, LastKeybInput AS SINGLE
+    STATIC LastKeybInput AS SINGLE
     DIM sep AS STRING * 1
     sep = CHR$(0)
 
@@ -11806,6 +12014,50 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
     IF t = 2 THEN 'list box
         idetxt(o.stx) = ""
 
+        'Populate ListBoxITEMS:
+        a$ = idetxt(o.txt)
+        REDIM ListBoxITEMS(0) AS STRING
+        REDIM OriginalListBoxITEMS(0) AS STRING
+        IF LEN(a$) > 0 THEN
+            n = 0: x = 1
+            DO
+                x2 = INSTR(x, a$, sep)
+                IF x2 > 0 THEN
+                    n = n + 1
+                    IF n > UBOUND(ListBoxITEMS) THEN
+                        REDIM _PRESERVE ListBoxITEMS(1 TO n + 999) AS STRING
+                        REDIM _PRESERVE OriginalListBoxITEMS(1 TO n + 999) AS STRING
+                    END IF
+                    ListBoxITEMS(n) = _TRIM$(MID$(a$, x, x2 - x))
+                    OriginalListBoxITEMS(n) = MID$(a$, x, x2 - x)
+                    IF LEN(ListBoxITEMS(n)) THEN
+                        DO WHILE ASC(ListBoxITEMS(n)) < 32 OR ASC(ListBoxITEMS(n)) > 126
+                            ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
+                            IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
+                        LOOP
+                    END IF
+                ELSE
+                    n = n + 1
+                    IF n > UBOUND(ListBoxITEMS) THEN
+                        REDIM _PRESERVE ListBoxITEMS(1 TO n + 999) AS STRING
+                        REDIM _PRESERVE OriginalListBoxITEMS(1 TO n + 999) AS STRING
+                    END IF
+                    ListBoxITEMS(n) = _TRIM$(RIGHT$(a$, LEN(a$) - x + 1))
+                    OriginalListBoxITEMS(n) = RIGHT$(a$, LEN(a$) - x + 1)
+                    IF LEN(ListBoxITEMS(n)) THEN
+                        DO WHILE ASC(ListBoxITEMS(n)) < 32 OR ASC(ListBoxITEMS(n)) > 126
+                            ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
+                            IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
+                        LOOP
+                    END IF
+                    EXIT DO
+                END IF
+                x = x2 + 1
+            LOOP
+            REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
+            REDIM _PRESERVE OriginalListBoxITEMS(1 TO n) AS STRING
+        END IF
+
         IF mousedown THEN
             x1 = o.par.x + o.x: y1 = o.par.y + o.y
             x2 = x1 + o.w + 1: y2 = y1 + o.h + 1
@@ -11816,7 +12068,7 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                     y = y + o.v1
                     IF o.sel = y THEN info = 1
                     o.sel = y
-                    IF o.sel > o.num THEN o.sel = o.num
+                    IF o.sel > o.num THEN o.sel = -o.num
                 END IF
             END IF
 
@@ -11916,55 +12168,20 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
 
             IF LEN(kk$) = 1 THEN
                 ResetKeybTimer = 0
-                IF timeElapsedSince(LastKeybInput) > 1 THEN SearchTerm$ = "": ResetKeybTimer = -1
+                IF timeElapsedSince(LastKeybInput) > 1 THEN fileDlgSearchTerm$ = "": ResetKeybTimer = -1
                 LastKeybInput = TIMER
-                k = ASC(UCASE$(kk$)): IF k < 32 OR k > 126 THEN k = 255
-
-                'Populate ListBoxITEMS:
-                a$ = idetxt(o.txt)
-                REDIM ListBoxITEMS(0) AS STRING
-                IF LEN(a$) > 0 THEN
-                    n = 0: x = 1
-                    DO
-                        x2 = INSTR(x, a$, sep)
-                        IF x2 > 0 THEN
-                            n = n + 1
-                            REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
-                            ListBoxITEMS(n) = _TRIM$(MID$(a$, x, x2 - x))
-                            IF LEN(ListBoxITEMS(n)) THEN
-                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90
-                                    ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
-                                    IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
-                                LOOP
-                            END IF
-                        ELSE
-                            n = n + 1
-                            REDIM _PRESERVE ListBoxITEMS(1 TO n) AS STRING
-                            ListBoxITEMS(n) = _TRIM$(RIGHT$(a$, LEN(a$) - x + 1))
-                            IF LEN(ListBoxITEMS(n)) THEN
-                                DO WHILE ASC(UCASE$(ListBoxITEMS(n))) < 65 OR ASC(UCASE$(ListBoxITEMS(n))) > 90
-                                    ListBoxITEMS(n) = MID$(ListBoxITEMS(n), 2)
-                                    IF LEN(ListBoxITEMS(n)) = 0 THEN EXIT DO
-                                LOOP
-                            END IF
-                            EXIT DO
-                        END IF
-                        x = x2 + 1
-                    LOOP
-                END IF
-
-                IF k = 255 THEN
-                    IF o.sel > 0 AND o.sel <= UBOUND(ListBoxITEMS) THEN idetxt(o.stx) = ListBoxITEMS(o.sel)
+                k = ASC(UCASE$(kk$))
+                IF k < 32 OR k > 126 THEN
                     GOTO selected 'Search is not performed if kk$ isn't a printable character
-                ELSE
-                    SearchTerm$ = SearchTerm$ + UCASE$(kk$)
                 END IF
 
-                IF LEN(SearchTerm$) = 2 AND LEFT$(SearchTerm$, 1) = RIGHT$(SearchTerm$, 1) THEN
+                fileDlgSearchTerm$ = fileDlgSearchTerm$ + UCASE$(kk$)
+
+                IF LEN(fileDlgSearchTerm$) = 2 AND LEFT$(fileDlgSearchTerm$, 1) = RIGHT$(fileDlgSearchTerm$, 1) THEN
                     'if the user is pressing the same letter again, we deduce the search
                     'is only for the initials
                     ResetKeybTimer = -1
-                    SearchTerm$ = UCASE$(kk$)
+                    fileDlgSearchTerm$ = UCASE$(kk$)
                 END IF
 
                 SearchPass = 1
@@ -11973,18 +12190,9 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 retryfind:
                 IF SearchPass > 2 THEN GOTO selected
                 FOR findMatch = StartSearch TO n
-                    validCHARS$ = ""
-                    FOR ai = 1 TO LEN(ListBoxITEMS(findMatch))
-                        aa = ASC(UCASE$(ListBoxITEMS(findMatch)), ai)
-                        IF aa > 126 OR (k <> 95 AND aa = 95) OR (k <> 42 AND aa = 42) THEN
-                            'ignore
-                        ELSE
-                            validCHARS$ = validCHARS$ + CHR$(aa)
-                        END IF
-                    NEXT
-                    IF findMatch = o.sel THEN idetxt(o.stx) = ListBoxITEMS(findMatch)
-                    IF LEFT$(validCHARS$, LEN(SearchTerm$)) = SearchTerm$ THEN
+                    IF UCASE$(LEFT$(ListBoxITEMS(findMatch), LEN(fileDlgSearchTerm$))) = UCASE$(fileDlgSearchTerm$) THEN
                         o.sel = findMatch
+                        idetxt(o.stx) = OriginalListBoxITEMS(findMatch)
                         GOTO selected
                     END IF
                 NEXT findMatch
@@ -11994,8 +12202,8 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
                 GOTO retryfind
                 selected:
             END IF
-
         END IF
+        IF o.sel > 0 AND o.sel <= UBOUND(OriginalListBoxITEMS) THEN idetxt(o.stx) = OriginalListBoxITEMS(o.sel)
 
         'hot-key focus
         IF LEN(altletter$) THEN
@@ -15389,10 +15597,10 @@ SUB IdeMakeContextualMenu
         menuDesc$(m, i - 1) = "Runs until the end of the current procedure is reached"
         menu$(m, i) = "Step O#ut  F6": i = i + 1
         menuDesc$(m, i - 1) = "Runs until the end of the current procedure is reached"
-        menu$(m, i) = "Step #Over  F7": i = i + 1
-        menuDesc$(m, i - 1) = "Runs the next line of code without entering subs/functions"
-        menu$(m, i) = "Ste#p Into  F8": i = i + 1
+        menu$(m, i) = "Ste#p Into  F7": i = i + 1
         menuDesc$(m, i - 1) = "Runs the next line of code and pauses execution"
+        menu$(m, i) = "Step #Over  F8": i = i + 1
+        menuDesc$(m, i - 1) = "Runs the next line of code without entering subs/functions"
         menu$(m, i) = "-": i = i + 1
         menu$(m, i) = "Set #Next Line  Ctrl+G": i = i + 1
         menuDesc$(m, i - 1) = "Jumps to the selected line before continuing execution"
@@ -15804,17 +16012,8 @@ END SUB
 
 SUB IdeAddRecent (f2$)
     f$ = f2$
-    x = INSTR(f$, "//")
-    DO WHILE x
-        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
-        x = INSTR(f$, "//")
-    LOOP
 
-    x = INSTR(f$, "\\")
-    DO WHILE x
-        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
-        x = INSTR(f$, "\\")
-    LOOP
+    f$ = removeDoubleSlashes(f$)
 
     f$ = CRLF + f$ + CRLF
     fh = FREEFILE
@@ -15829,6 +16028,22 @@ SUB IdeAddRecent (f2$)
     CLOSE #fh
     IdeMakeFileMenu
 END SUB
+
+FUNCTION removeDoubleSlashes$(f$)
+    x = INSTR(f$, "//")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "//")
+    LOOP
+
+    x = INSTR(f$, "\\")
+    DO WHILE x
+        f$ = LEFT$(f$, x - 1) + MID$(f$, x + 1)
+        x = INSTR(f$, "\\")
+    LOOP
+
+    removeDoubleSlashes$ = f$
+END FUNCTION
 
 SUB IdeAddSearched (s2$)
     s$ = CRLF + s2$ + CRLF
@@ -17135,3 +17350,69 @@ SUB purgeprecompiledcontent
     END IF
     idechangemade = 1 'force recompilation
 END SUB
+
+SUB printWrapStatus (x AS INTEGER, y AS INTEGER, initialX AS INTEGER, __text$)
+    DIM text$, nextWord$
+    DIM AS INTEGER i, findSep, findColorMarker, changeColor, changeColorAfter
+    text$ = __text$
+
+    LOCATE y, x
+    DO WHILE LEN(_TRIM$(text$))
+        findSep = INSTR(text$, " ")
+        IF findSep THEN
+            nextWord$ = LEFT$(text$, findSep)
+        ELSE
+            findSep = LEN(text$)
+            nextWord$ = text$
+        END IF
+        text$ = MID$(text$, findSep + 1)
+        IF POS(0) + LEN(nextWord$) > _WIDTH THEN
+            IF CSRLIN + 1 <= (idewy - 4) + 3 THEN
+                LOCATE CSRLIN + 1, initialX
+            ELSE
+                'no more room for printing
+                EXIT SUB
+            END IF
+        END IF
+
+        changeColor = 0
+        changeColorAfter = 0
+        skipSpace = 0
+        FOR i = 0 TO 2
+            findColorMarker = INSTR(nextWord$, CHR$(i))
+            IF findColorMarker = 1 THEN
+                nextWord$ = MID$(nextWord$, 2)
+                changeColor = i + 1
+                GOSUB applyColorChange
+            ELSEIF findColorMarker > 0 THEN
+                nextWord$ = LEFT$(nextWord$, findColorMarker - 1) + MID$(nextWord$, findColorMarker + 1)
+                IF RIGHT$(nextWord$, 1) = " " THEN
+                    nextWord$ = RTRIM$(nextWord$)
+                    skipSpace = -1
+                END IF
+                changeColorAfter = i + 1
+            END IF
+        NEXT
+
+        PRINT nextWord$;
+
+        IF changeColorAfter THEN
+            changeColor = changeColorAfter
+            GOSUB applyColorChange
+            IF skipSpace THEN LOCATE , POS(0) + 1
+        END IF
+    LOOP
+    EXIT SUB
+
+    applyColorChange:
+    SELECT EVERYCASE changeColor
+        CASE 1
+            IF _DEFAULTCOLOR <> 11 THEN COLOR 11 ELSE COLOR 7
+        CASE 2
+            COLOR 7, 1
+        CASE 3
+            COLOR 12, 6
+    END SELECT
+    RETURN
+END SUB
+

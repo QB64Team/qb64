@@ -109,19 +109,10 @@ DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
-    used AS _BYTE
-    watch AS _BYTE
-    mostRecentValue AS STRING
-    linenumber AS LONG
-    includeLevel AS LONG
-    includedLine AS LONG
-    includedFile AS STRING
-    scope AS LONG
-    varType AS STRING
-    subfunc AS STRING
-    localIndex AS LONG
-    cname AS STRING
-    name AS STRING
+    AS LONG linenumber, includeLevel, includedLine, scope, localIndex, strLength
+    AS _BYTE used, watch
+    AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
+    AS _OFFSET address
 END TYPE
 
 DIM SHARED totalVariablesCreated AS LONG
@@ -13204,7 +13195,7 @@ END IF
 
 IF compfailed THEN
     IF idemode THEN
-        idemessage$ = "C++ Compilation failed (Check " + CHR$(0) + compilelog$ + CHR$(0) + ")"
+        idemessage$ = "C++ Compilation failed " + CHR$(0) + "(Check " + _TRIM$(compilelog$) + ")"
         GOTO ideerror
     END IF
     IF compfailed THEN
@@ -16584,7 +16575,14 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
         NEXT
         omitargs = omitarg_last - omitarg_first + 1
 
-        IF args <> id2.args - omitargs AND args <> id2.args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
+        IF args <> id2.args - omitargs AND args <> id2.args THEN
+            IF LEN(id2.hr_syntax) > 0 THEN
+                Give_Error "Incorrect number of arguments - Reference: " + id2.hr_syntax
+            ELSE
+                Give_Error "Incorrect number of arguments passed to function"
+            END IF
+            EXIT FUNCTION
+        END IF
 
         passomit = 1 'pass omit flags param to function
 
@@ -16595,7 +16593,14 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
         IF n$ = "ASC" AND args = 2 THEN GOTO skipargnumchk
         IF id2.overloaded = -1 AND (args >= id2.minargs AND args <= id2.args) THEN GOTO skipargnumchk
 
-        IF id2.args <> args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
+        IF id2.args <> args THEN
+            IF LEN(id2.hr_syntax) > 0 THEN
+                Give_Error "Incorrect number of arguments - Reference: " + id2.hr_syntax
+            ELSE
+                Give_Error "Incorrect number of arguments passed to function"
+            END IF
+            EXIT FUNCTION
+        END IF
 
     END IF
 
