@@ -7466,7 +7466,7 @@ SUB DebugMode
 
     GetCommand:
     GET #debugClient&, , temp$
-    IF _CONNECTED(debugClient&) = 0 THEN
+    IF os$ = "WIN" AND _CONNECTED(debugClient&) = 0 THEN
         clearStatusWindow 0
         setStatusMessage 1, "Debug session aborted.", 7
         setStatusMessage 2, "Disconnected.", 2
@@ -7494,7 +7494,7 @@ SUB DebugMode
     SendCommand:
     cmd$ = cmd$ + endc$
     PUT #debugClient&, , cmd$
-    IF _CONNECTED(debugClient&) = 0 THEN
+    IF os$ = "WIN" AND _CONNECTED(debugClient&) = 0 THEN
         clearStatusWindow 0
         setStatusMessage 1, "Debug session aborted.", 7
         setStatusMessage 2, "Disconnected.", 2
