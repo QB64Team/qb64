@@ -5246,7 +5246,7 @@ FUNCTION ide2 (ignore)
 
                 DO
                     PCOPY 2, 0
-                    retval$ = ideinputbox$("Math Evaluator", "#Enter expression", mathEvalExpr$, "", 60, 0)
+                    retval$ = ideinputbox$("Math Evaluator", "#Enter expression", mathEvalExpr$, "", 60, 0, 0)
                     result = 0
                     IF LEN(retval$) THEN
                         mathEvalExpr$ = retval$
@@ -5675,7 +5675,7 @@ FUNCTION ide2 (ignore)
 
             IF menu$(m, s) = "Modify #COMMAND$..." THEN
                 PCOPY 2, 0
-                ModifyCOMMAND$ = " " + ideinputbox$("Modify COMMAND$", "#Enter text for COMMAND$", _TRIM$(ModifyCOMMAND$), "", 60, 0)
+                ModifyCOMMAND$ = " " + ideinputbox$("Modify COMMAND$", "#Enter text for COMMAND$", _TRIM$(ModifyCOMMAND$), "", 60, 0, 0)
                 IF _TRIM$(ModifyCOMMAND$) = "" THEN ModifyCOMMAND$ = ""
                 'retval is ignored
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -7058,9 +7058,9 @@ SUB DebugMode
                                 _CONTINUE
                             END IF
                             value$ = MID$(result$, 5)
-                            address%& = usedVariableList(tempIndex&).address
-                            IF address%& > 0 THEN
-                                varType$ = usedVariableList(tempIndex&).varType
+                            address%& = usedVariableList(tempIndex&).baseAddress
+                            varType$ = usedVariableList(tempIndex&).varType
+                            IF address%& > 0 OR INSTR(varType$, "STRING") > 0 THEN
                                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                                 SELECT CASE varType$
                                     CASE "_BYTE", "_UNSIGNED _BYTE"
@@ -7088,9 +7088,20 @@ SUB DebugMode
                                         value$ = _MK$(_OFFSET, VAL(value$))
                                         varSize& = LEN(dummy%&)
                                     CASE "STRING"
-                                        varSize& = usedVariableList(tempIndex&).strLength
-                                        value$ = LEFT$(value$, varSize&)
                                         varSize& = LEN(value$)
+                                        cmd$ = ""
+                                        IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
+                                            cmd$ = "set global string:"
+                                        ELSE
+                                            cmd$ = "set local string:"
+                                        END IF
+                                        cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
+                                        GOSUB SendCommand
+                                        usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + " Sent: " + MID$(result$, 5)
+                                        PCOPY 3, 0: SCREEN , , 3, 0
+                                        WHILE _MOUSEINPUT: WEND
+                                        GOSUB UpdateDisplay
+                                        _CONTINUE
                                 END SELECT
                                 cmd$ = "set address:" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
                                 GOSUB SendCommand
@@ -7338,7 +7349,7 @@ SUB DebugMode
             CASE "global var", "local var"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 address%& = _CV(_OFFSET, MID$(value$, 5))
-                usedVariableList(tempIndex&).address = address%&
+                usedVariableList(tempIndex&).baseAddress = address%&
                 varType$ = usedVariableList(tempIndex&).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 SELECT CASE varType$
@@ -7377,17 +7388,16 @@ SUB DebugMode
                     CASE "STRING"
                         IF sequence% = 1 THEN
                             IF LEN(dummy%&) = 8 THEN
-                                address%& = _CV(_INTEGER64, LEFT$(recvData$, 8))
+                                address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
                                 usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 9))
                                 usedVariableList(tempIndex&).strLength = strLength&
                             ELSE
-                                address%& = _CV(LONG, LEFT$(recvData$, 4))
+                                address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
                                 usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 5))
                                 usedVariableList(tempIndex&).strLength = strLength&
                             END IF
-                            address$ = LEFT$(recvData$, LEN(dummy%&)) 'Pointer to data
                             cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
                             GOSUB SendCommand
                             GOTO vwatch_string_seq1_done
@@ -7788,12 +7798,8 @@ FUNCTION idevariablewatchbox$(currentScope$)
                 IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
                     'scope is valid
                     a2$ = usedVariableList(varDlgList(i).index).mostRecentValue
-                    temp$ = ""
-                    IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
-                        temp$ = " (cannot change string length)"
-                    END IF
-                    v$ = ideinputbox$("Change Value", "#New value" + temp$, a2$, "", idewx - 12, usedVariableList(varDlgList(i).index).strLength)
-                    IF LEN(v$) THEN
+                    v$ = ideinputbox$("Change Value", "#New value", a2$, "", idewx - 12, 0, ok)
+                    IF ok THEN
                         idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
                     ELSE
                         idevariablewatchbox$ = MKL$(0)
@@ -9565,7 +9571,7 @@ SUB ideinsline (i, text$)
     iden = iden + 1
 END SUB
 
-FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, maxlength)
+FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, maxlength, ok)
 
 
     '-------- generic dialog box header --------
@@ -9582,6 +9588,7 @@ FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, ma
     '-------- init --------
 
     i = 0
+    ok = 0 'will be set to true if "OK" or Enter are used to close the dialog
 
     idepar p, boxwidth, 5, title$
 
@@ -9706,6 +9713,7 @@ FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, ma
 
         IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
             ideinputbox$ = idetxt(o(1).txt)
+            ok = -1
             EXIT FUNCTION
         END IF
         'end of custom controls
@@ -9730,7 +9738,7 @@ SUB idenewsf (sf AS STRING)
         END IF
     END IF
 
-    newSF$ = ideinputbox$("New " + sf$, "#Name", a2$, "", 60, 40)
+    newSF$ = ideinputbox$("New " + sf$, "#Name", a2$, "", 60, 40, 0)
 
     IF LEN(newSF$) THEN
         y = iden
@@ -9746,7 +9754,7 @@ SUB idenewsf (sf AS STRING)
 END SUB
 
 FUNCTION idenewfolder$(thispath$)
-    newfolder$ = ideinputbox$("New Folder", "#Name", "", "", 60, 0)
+    newfolder$ = ideinputbox$("New Folder", "#Name", "", "", 60, 0, 0)
 
     IF LEN(newfolder$) THEN
         IF _DIREXISTS(thispath$ + idepathsep$ + newfolder$) THEN
@@ -12924,7 +12932,7 @@ END FUNCTION
 
 FUNCTION idebackupbox
     a2$ = str2$(idebackupsize)
-    v$ = ideinputbox$("Backup/Undo", "#Undo buffer limit (10-2000MB)", a2$, "0123456789", 50, 4)
+    v$ = ideinputbox$("Backup/Undo", "#Undo buffer limit (10-2000MB)", a2$, "0123456789", 50, 4, 0)
     IF v$ = "" THEN EXIT FUNCTION
 
     'save changes
@@ -12945,7 +12953,7 @@ END FUNCTION
 
 SUB idegotobox
     IF idegotobox_LastLineNum > 0 THEN a2$ = str2$(idegotobox_LastLineNum) ELSE a2$ = ""
-    v$ = ideinputbox$("Go To Line", "#Line", a2$, "0123456789", 30, 8)
+    v$ = ideinputbox$("Go To Line", "#Line", a2$, "0123456789", 30, 8, 0)
     IF v$ = "" THEN EXIT SUB
 
     v& = VAL(v$)
@@ -12960,7 +12968,7 @@ END SUB
 
 SUB ideSetTCPPortBox
     a2$ = str2$(idebaseTcpPort)
-    v$ = ideinputbox$("Base TCP/IP Port Number", "#Port number for $DEBUG mode", a2$, "0123456789", 45, 5)
+    v$ = ideinputbox$("Base TCP/IP Port Number", "#Port number for $DEBUG mode", a2$, "0123456789", 45, 5, 0)
     IF v$ = "" THEN EXIT SUB
 
     idebaseTcpPort = VAL(v$)
@@ -12971,7 +12979,7 @@ END SUB
 FUNCTION idegetlinenumberbox(title$, initialValue&)
     a2$ = str2$(initialValue&)
     IF a2$ = "0" THEN a2$ = ""
-    v$ = ideinputbox$(title$, "#Line", a2$, "0123456789", 30, 8)
+    v$ = ideinputbox$(title$, "#Line", a2$, "0123456789", 30, 8, 0)
     IF v$ = "" THEN EXIT FUNCTION
 
     v& = VAL(v$)

@@ -310,6 +310,7 @@ extern qbs *qbs_new_txt(const char *txt);
 extern qbs *qbs_new_txt_len(const char *txt,int32 len);
 extern qbs *qbs_new_fixed(uint8 *offset,uint32 size,uint8 tmp);
 extern qbs *qbs_new(int32 size,uint8 tmp);
+extern void set_qbs_size(ptrszint *target_qbs,int32 newlength);
 extern qbs *qbs_set(qbs *deststr,qbs *srcstr);
 extern qbs *qbs_add(qbs *str1,qbs *str2);
 extern qbs *qbs_ucase(qbs *str);

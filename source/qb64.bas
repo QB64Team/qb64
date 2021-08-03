@@ -112,7 +112,7 @@ TYPE usedVarList
     AS LONG linenumber, includeLevel, includedLine, scope, localIndex, strLength
     AS _BYTE used, watch
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
-    AS _OFFSET address
+    AS _OFFSET baseAddress, address
 END TYPE
 
 DIM SHARED totalVariablesCreated AS LONG

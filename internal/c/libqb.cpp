@@ -6556,6 +6556,11 @@ qbs *func_string(int32 characters,int32 asciivalue){
     return tqbs;
 }
 
+void set_qbs_size(ptrszint *target_qbs,int32 newlength) {
+    qbs_set((qbs*)(*target_qbs), func_space(newlength));
+    return;
+}
+
 int32 func_instr(int32 start,qbs *str,qbs *substr,int32 passed){
     //QB64 difference: start can be 0 or negative
     //justification-start could be larger than the length of string to search in QBASIC
