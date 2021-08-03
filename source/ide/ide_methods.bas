@@ -8070,7 +8070,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
         IF IdeDebugMode > 0 THEN
             IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
                 IF usedVariableList(x).watch THEN
-                    l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + usedVariableList(x).mostRecentValue
+                    l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
                 END IF
             ELSE
                 l$ = l$ + "   <out of scope>"

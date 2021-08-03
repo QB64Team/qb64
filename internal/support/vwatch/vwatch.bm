@@ -279,11 +279,11 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
                 vw_address = _CV(_OFFSET, LEFT$(vw_buf$, LEN(vw_address))) 'pointer to actual data
                 vw_varSize = CVL(MID$(vw_buf$, LEN(vw_address) + 1))
-                IF vw_varSize = LEN(vw_value$) THEN
-                    'resize was successful
-                    vw_m = _MEM(vw_address, vw_varSize)
-                    _MEMPUT vw_m, vw_m.OFFSET, vw_value$
+                IF vw_varSize < LEN(vw_value$) THEN
+                    vw_value$ = LEFT$(vw_value$, vw_varSize)
                 END IF
+                vw_m = _MEM(vw_address, vw_varSize)
+                _MEMPUT vw_m, vw_m.OFFSET, vw_value$
             CASE "current sub"
                 vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
                 GOSUB SendCommand
