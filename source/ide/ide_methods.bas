@@ -5729,7 +5729,7 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     ELSE
-                        result$ = idevariablewatchbox$("")
+                        result$ = idevariablewatchbox$("", "", 0)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
@@ -7046,8 +7046,10 @@ SUB DebugMode
                     estabilishingScope = -1
                 ELSE
                     requestVariableWatch:
+                    selectVar = 1
+                    filter$ = ""
                     DO
-                        result$ = idevariablewatchbox$(currentSub$)
+                        result$ = idevariablewatchbox$(currentSub$, filter$, selectVar)
                         IF LEN(result$) THEN
                             'set address
                             tempIndex& = CVL(LEFT$(result$, 4))
@@ -7057,56 +7059,89 @@ SUB DebugMode
                                 GOSUB UpdateDisplay
                                 _CONTINUE
                             END IF
+                            usedVariableList(tempIndex&).watch = -1
                             value$ = MID$(result$, 5)
-                            address%& = usedVariableList(tempIndex&).baseAddress
-                            varType$ = usedVariableList(tempIndex&).varType
-                            IF address%& > 0 OR INSTR(varType$, "STRING") > 0 THEN
-                                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                                SELECT CASE varType$
-                                    CASE "_BYTE", "_UNSIGNED _BYTE"
-                                        value$ = _MK$(_BYTE, VAL(value$))
-                                        varSize& = LEN(dummy%%)
-                                    CASE "INTEGER", "_UNSIGNED INTEGER"
-                                        value$ = MKI$(VAL(value$))
-                                        varSize& = LEN(dummy%)
-                                    CASE "LONG", "_UNSIGNED LONG"
-                                        value$ = MKL$(VAL(value$))
-                                        varSize& = LEN(dummy&)
-                                    CASE "_INTEGER64", "_UNSIGNED _INTEGER64"
-                                        value$ = _MK$(_INTEGER64, VAL(value$))
-                                        varSize& = LEN(dummy&&)
-                                    CASE "SINGLE"
-                                        value$ = MKS$(VAL(value$))
-                                        varSize& = LEN(dummy!)
-                                    CASE "DOUBLE"
-                                        value$ = MKD$(VAL(value$))
-                                        varSize& = LEN(dummy#)
-                                    CASE "_FLOAT"
-                                        value$ = _MK$(_FLOAT, VAL(value$))
-                                        varSize& = LEN(dummy##)
-                                    CASE "_OFFSET", "_UNSIGNED _OFFSET"
-                                        value$ = _MK$(_OFFSET, VAL(value$))
-                                        varSize& = LEN(dummy%&)
-                                    CASE "STRING"
-                                        varSize& = LEN(value$)
-                                        cmd$ = ""
-                                        IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
-                                            cmd$ = "set global string:"
-                                        ELSE
-                                            cmd$ = "set local string:"
-                                        END IF
-                                        cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
-                                        GOSUB SendCommand
-                                        usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + " Sent: " + MID$(result$, 5)
-                                        PCOPY 3, 0: SCREEN , , 3, 0
-                                        WHILE _MOUSEINPUT: WEND
-                                        GOSUB UpdateDisplay
-                                        _CONTINUE
-                                END SELECT
-                                cmd$ = "set address:" + MKL$(varSize&) + _MK$(_OFFSET, address%&) + value$
-                                GOSUB SendCommand
-                                usedVariableList(tempIndex&).mostRecentValue = CHR$(16) + CHR$(4) + " Sent: " + MID$(result$, 5)
+
+                            IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
+                                cmd$ = "set global address:"
+                            ELSE
+                                cmd$ = "set local address:"
                             END IF
+
+                            varType$ = usedVariableList(tempIndex&).varType
+                            IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                            SELECT CASE varType$
+                                CASE "_BYTE", "_UNSIGNED _BYTE"
+                                    value$ = _MK$(_BYTE, VAL(value$))
+                                    varSize& = LEN(dummy%%)
+                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                        result$ = STR$(_CV(_UNSIGNED _BYTE, value$))
+                                    ELSE
+                                        result$ = STR$(_CV(_BYTE, value$))
+                                    END IF
+                                CASE "INTEGER", "_UNSIGNED INTEGER"
+                                    value$ = MKI$(VAL(value$))
+                                    varSize& = LEN(dummy%)
+                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                        result$ = STR$(_CV(_UNSIGNED INTEGER, value$))
+                                    ELSE
+                                        result$ = STR$(_CV(INTEGER, value$))
+                                    END IF
+                                CASE "LONG", "_UNSIGNED LONG"
+                                    value$ = MKL$(VAL(value$))
+                                    varSize& = LEN(dummy&)
+                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                        result$ = STR$(_CV(_UNSIGNED LONG, value$))
+                                    ELSE
+                                        result$ = STR$(_CV(LONG, value$))
+                                    END IF
+                                CASE "_INTEGER64", "_UNSIGNED _INTEGER64"
+                                    value$ = _MK$(_INTEGER64, VAL(value$))
+                                    varSize& = LEN(dummy&&)
+                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                        result$ = STR$(_CV(_UNSIGNED _INTEGER64, value$))
+                                    ELSE
+                                        result$ = STR$(_CV(_INTEGER64, value$))
+                                    END IF
+                                CASE "SINGLE"
+                                    value$ = MKS$(VAL(value$))
+                                    varSize& = LEN(dummy!)
+                                    result$ = STR$(CVS(value$))
+                                CASE "DOUBLE"
+                                    value$ = MKD$(VAL(value$))
+                                    varSize& = LEN(dummy#)
+                                    result$ = STR$(CVD(value$))
+                                CASE "_FLOAT"
+                                    value$ = _MK$(_FLOAT, VAL(value$))
+                                    varSize& = LEN(dummy##)
+                                    result$ = STR$(_CV(_FLOAT, value$))
+                                CASE "_OFFSET", "_UNSIGNED _OFFSET"
+                                    value$ = _MK$(_OFFSET, VAL(value$))
+                                    varSize& = LEN(dummy%&)
+                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                        result$ = STR$(_CV(_UNSIGNED _OFFSET, value$))
+                                    ELSE
+                                        result$ = STR$(_CV(_OFFSET, value$))
+                                    END IF
+                                CASE "STRING"
+                                    varSize& = LEN(value$)
+                                    IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
+                                        cmd$ = "set global string:"
+                                    ELSE
+                                        cmd$ = "set local string:"
+                                    END IF
+                                    cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
+                                    GOSUB SendCommand
+                                    usedVariableList(tempIndex&).mostRecentValue = MID$(result$, 5)
+                                    PCOPY 3, 0: SCREEN , , 3, 0
+                                    WHILE _MOUSEINPUT: WEND
+                                    GOSUB UpdateDisplay
+                                    _CONTINUE
+                            END SELECT
+                            cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
+                            GOSUB SendCommand
+                            usedVariableList(tempIndex&).mostRecentValue = result$
+
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
                             GOSUB UpdateDisplay
@@ -7325,7 +7360,7 @@ SUB DebugMode
                 PauseMode = -1
                 GOSUB UpdateDisplay
 
-                'request variables
+                'request variables addresses
                 IF LEN(variableWatchList$) THEN
                     requestVariableValues:
                     temp$ = MID$(variableWatchList$, 5)
@@ -7610,7 +7645,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     END IF
 END SUB
 
-FUNCTION idevariablewatchbox$(currentScope$)
+FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -7629,10 +7664,12 @@ FUNCTION idevariablewatchbox$(currentScope$)
     maxModuleNameLen = LEN(mainmodule$)
     maxVarLen = LEN("Variable")
     maxTypeLen = LEN("Type")
-    highlightColor = 12
+    variableNameColor = 3
+    typeColumnColor = 15
+    selectedBG = 2
 
     TYPE varDlgList
-        AS LONG index, colorFlag, indicator
+        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator
     END TYPE
 
     DIM varDlgList(1 TO totalVariablesCreated) AS varDlgList
@@ -7647,6 +7684,7 @@ FUNCTION idevariablewatchbox$(currentScope$)
         IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
     NEXT
 
+    searchTerm$ = filter$
     GOSUB buildList
 
     i = 0
@@ -7656,25 +7694,30 @@ FUNCTION idevariablewatchbox$(currentScope$)
     END IF
     IF dialogHeight < 9 THEN dialogHeight = 9
 
-    dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen + 20
+    dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen
+    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 200 'make room for "= values"
     IF dialogWidth < 60 THEN dialogWidth = 60
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
-    idepar p, dialogWidth, dialogHeight, "Watch List"
+    idepar p, dialogWidth, dialogHeight, "Add Watch - Variable List"
 
     i = i + 1: filterBox = i
     PrevFocus = 1
     o(i).typ = 1
     o(i).y = 2
     o(i).nam = idenewtxt("#Filter")
+    o(i).txt = idenewtxt(filter$)
 
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
     o(varListBox).y = 5
     o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 7
     o(varListBox).txt = idenewtxt(l$)
-    o(varListBox).sel = 1
-    o(varListBox).nam = idenewtxt("Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + ")")
+    IF selectVar = 0 THEN selectVar = 1 ELSE focus = varListBox
+    o(varListBox).sel = selectVar
+
+    IF LEN(searchTerm$) THEN temp$ = ", filtered" ELSE temp$ = ""
+    idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
 
     i = i + 1: buttonSet = i
     o(buttonSet).typ = 3
@@ -7712,7 +7755,13 @@ FUNCTION idevariablewatchbox$(currentScope$)
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 4), "Double-click on an item to add it to the watch list:"
+        COLOR 0, 7
+        LOCATE p.y + 4, p.x + 2
+        PRINT "Double-click on an item to add it to the watch list:"
+        IF doubleClickThreshold < p.w AND IdeDebugMode > 0 THEN
+            _PRINTSTRING (p.x + doubleClickThreshold, p.y + 5), CHR$(194)
+            _PRINTSTRING (p.x + doubleClickThreshold, p.y + p.h - 1), CHR$(193)
+        END IF
 
         '-------- end of custom display changes --------
 
@@ -7774,7 +7823,9 @@ FUNCTION idevariablewatchbox$(currentScope$)
         IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = -1
-                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = highlightColor
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
             NEXT
             focus = filterBox
@@ -7785,6 +7836,8 @@ FUNCTION idevariablewatchbox$(currentScope$)
             FOR y = 1 TO totalVisibleVariables
                 usedVariableList(varDlgList(y).index).watch = 0
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
             focus = filterBox
@@ -7793,17 +7846,24 @@ FUNCTION idevariablewatchbox$(currentScope$)
 
         IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
             'set address
+            sendValue:
             IF o(varListBox).sel > 0 THEN
                 i = o(varListBox).sel
                 IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
                     'scope is valid
                     a2$ = usedVariableList(varDlgList(i).index).mostRecentValue
-                    v$ = ideinputbox$("Change Value", "#New value", a2$, "", idewx - 12, 0, ok)
+                    IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
+                        thisWidth = idewx - 20
+                    ELSE
+                        thisWidth = 40
+                    END IF
+                    v$ = ideinputbox$("Change Value", "#New value", a2$, "", thisWidth, 0, ok)
                     IF ok THEN
                         idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
                     ELSE
                         idevariablewatchbox$ = MKL$(0)
                     END IF
+                    selectVar = i
                     EXIT FUNCTION
                 ELSE
                     result = idemessagebox("Change Value", "Variable is out of scope.", "#OK")
@@ -7833,7 +7893,13 @@ FUNCTION idevariablewatchbox$(currentScope$)
         END IF
 
         IF mCLICK AND focus = 2 THEN 'list click
-            IF timeElapsedSince(lastClick!) < .3 THEN GOTO toggleWatch
+            IF timeElapsedSince(lastClick!) < .3 THEN
+                IF mX < p.x + doubleClickThreshold OR IdeDebugMode = 0 THEN
+                    GOTO toggleWatch
+                ELSE
+                    GOTO sendValue
+                END IF
+            END IF
             lastClick! = TIMER
             _CONTINUE
         END IF
@@ -7846,14 +7912,18 @@ FUNCTION idevariablewatchbox$(currentScope$)
             IF y >= 1 AND y <= totalVisibleVariables THEN
                 usedVariableList(varDlgList(y).index).watch = NOT usedVariableList(varDlgList(y).index).watch
                 IF usedVariableList(varDlgList(y).index).watch THEN
-                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = highlightColor
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
                 ELSE
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
             END IF
-            focus = filterBox
+                'focus = filterBox
             _CONTINUE
         END IF
 
@@ -7873,12 +7943,13 @@ FUNCTION idevariablewatchbox$(currentScope$)
         END IF
 
         IF focus = filterBox AND idetxt(o(filterBox).txt) <> searchTerm$ THEN
-            searchTerm$ = UCASE$(idetxt(o(filterBox).txt))
+            filter$ = idetxt(o(filterBox).txt)
+            searchTerm$ = UCASE$(filter$)
             'rebuild filtered list
             GOSUB buildList
             idetxt(o(varListBox).txt) = l$
-            IF LEN(searchTerm$) THEN temp$ = " - filtered" ELSE temp$ = ""
-            idetxt(o(varListBox).nam) = "Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
+            IF LEN(searchTerm$) THEN temp$ = ", filtered" ELSE temp$ = ""
+            idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
             _CONTINUE
         END IF
 
@@ -7958,17 +8029,31 @@ FUNCTION idevariablewatchbox$(currentScope$)
         END IF
         totalVisibleVariables = totalVisibleVariables + 1
 
+        l$ = l$ + CHR$(17)
+        varDlgList(totalVisibleVariables).bgColorFlag = LEN(l$) + 1
+        IF usedVariableList(x).watch THEN
+            l$ = l$ + CHR$(selectedBG)
+        ELSE
+            l$ = l$ + CHR$(17)
+        END IF
+
         l$ = l$ + CHR$(16)
         varDlgList(totalVisibleVariables).index = x
         varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
         varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
         IF usedVariableList(x).watch THEN
-            l$ = l$ + CHR$(highlightColor) + "+"
+            l$ = l$ + CHR$(variableNameColor) + "+"
         ELSE
             l$ = l$ + CHR$(16) + " "
         END IF
 
-        text$ = usedVariableList(x).name + CHR$(16) + CHR$(2) + " "
+        text$ = usedVariableList(x).name + CHR$(16)
+        varDlgList(totalVisibleVariables).colorFlag2 = LEN(l$) + LEN(text$) + 1
+        IF usedVariableList(x).watch THEN
+            text$ = text$ + CHR$(typeColumnColor) + " "
+        ELSE
+            text$ = text$ + CHR$(2) + " "
+        END IF
         text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
         text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
 
@@ -7980,13 +8065,15 @@ FUNCTION idevariablewatchbox$(currentScope$)
         END IF
 
         l$ = l$ + text$ + l3$
+        IF totalVisibleVariables = 1 THEN doubleClickThreshold = LEN(l$) - 1
+
         IF IdeDebugMode > 0 THEN
-            IF usedVariableList(x).watch THEN
-                IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
-                    l$ = l$ + " = " + CHR$(16) + CHR$(highlightcolor) + usedVariableList(x).mostRecentValue
-                ELSE
-                    l$ = l$ + " " + CHR$(16) + CHR$(2) + "<out of scope>"
+            IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
+                IF usedVariableList(x).watch THEN
+                    l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + usedVariableList(x).mostRecentValue
                 END IF
+            ELSE
+                l$ = l$ + "   <out of scope>"
             END IF
         END IF
         IF x < totalVariablesCreated THEN l$ = l$ + sep
@@ -8848,6 +8935,8 @@ SUB idedrawobj (o AS idedbotype, f)
                         IF INSTR(a3$, CHR$(16)) THEN
                             'color formatting: CHR$(16) + CHR$(color)
                             '                  CHR$(16) + CHR$(16) restores default
+                            '                  CHR$(17) + CHR$(bg color)
+                            '                  CHR$(17) + CHR$(17) restores default
                             character = 0
                             FOR cf = POS(1) TO POS(1) + o.w
                                 character = character + 1
@@ -8862,6 +8951,16 @@ SUB idedrawobj (o AS idedbotype, f)
                                         _CONTINUE
                                     ELSEIF ASC(a3$, character + 1) = 16 THEN
                                         IF o.sel = n THEN COLOR 7 ELSE COLOR 0
+                                        character = character + 1
+                                        _CONTINUE
+                                    END IF
+                                ELSEIF ASC(a3$, character) = 17 AND character < LEN(a3$) THEN
+                                    IF ASC(a3$, character + 1) >= 0 AND ASC(a3$, character + 1) <= 15 THEN
+                                        IF o.sel <> n THEN COLOR , ASC(a3$, character + 1)
+                                        character = character + 1
+                                        _CONTINUE
+                                    ELSEIF ASC(a3$, character + 1) = 17 THEN
+                                        IF o.sel = n THEN COLOR , 0 ELSE COLOR , 7
                                         character = character + 1
                                         _CONTINUE
                                     END IF

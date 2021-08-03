@@ -241,12 +241,21 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
                 vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKI$(vw_sequence) + vw_buf$
                 GOSUB SendCommand
-            CASE "set address"
-                vw_varSize = CVL(LEFT$(vw_value$, 4))
-                vw_address = _CV(_OFFSET, MID$(vw_value$, 5, LEN(vw_address)))
-                vw_buf$ = MID$(vw_value$, 4 + LEN(vw_address) + 1, vw_varSize)
+            CASE "set global address", "set local address"
+                vw_localIndex = CVL(LEFT$(vw_value$, 4))
+                vw_varSize = CVL(MID$(vw_value$, 5, 4))
+                vw_value$ = RIGHT$(vw_value$, vw_varSize)
+                IF vw_cmd$ = "set global address" THEN
+                    vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
+                ELSE
+                    vw_address = _OFFSET(localVariables) + LEN(vw_address) * vw_localIndex
+                END IF
+                vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
+                vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
+
+                'vw_address now points to the actual data
                 vw_m = _MEM(vw_address, vw_varSize)
-                _MEMPUT vw_m, vw_m.OFFSET, vw_buf$
+                _MEMPUT vw_m, vw_m.OFFSET, vw_value$
             CASE "set global string", "set local string"
                 vw_localIndex = CVL(LEFT$(vw_value$, 4))
                 vw_varSize = CVL(MID$(vw_value$, 5, 4))
