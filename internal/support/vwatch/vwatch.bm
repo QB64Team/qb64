@@ -168,7 +168,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     GOSUB SendCommand
 
     DO 'main loop
-        IF stop_program_state& THEN EXIT DO
+        IF stop_program_state& THEN vw_bypass = -1: EXIT DO
         SELECT CASE vw_cmd$
             CASE "run"
                 vw_pauseMode = 0
