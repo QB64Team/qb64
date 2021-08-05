@@ -15,6 +15,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         SUB vwatch_starttimers ALIAS start_timers
         SUB unlockvWatchHandle
         SUB set_qbs_size (target AS _OFFSET, BYVAL length&)
+        FUNCTION stop_program_state&
     END DECLARE
 
     IF vw_bypass THEN EXIT SUB
@@ -167,6 +168,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     GOSUB SendCommand
 
     DO 'main loop
+        IF stop_program_state& THEN EXIT DO
         SELECT CASE vw_cmd$
             CASE "run"
                 vw_pauseMode = 0

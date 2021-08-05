@@ -5604,6 +5604,9 @@ void end(){
     while(1) Sleep(16);
 }
 
+int32 stop_program_state() {
+    return stop_program;
+}
 
 
 //MEM_STATIC memory manager

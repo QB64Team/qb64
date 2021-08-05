@@ -286,6 +286,7 @@ extern double get_error_erl();
 extern uint32 get_error_err();
 extern char *human_error(int32 errorcode);
 extern void end();
+extern int32 stop_program_state();
 extern uint8 *mem_static_malloc(uint32 size);
 extern void mem_static_restore(uint8* restore_point);
 extern uint8 *cmem_dynamic_malloc(uint32 size);
