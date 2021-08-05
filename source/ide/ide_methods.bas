@@ -7372,17 +7372,15 @@ SUB DebugMode
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
                         temp$ = MID$(temp$, 5)
-                        IF usedVariableList(tempIndex&).watch THEN
-                            cmd$ = ""
-                            IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
-                                cmd$ = "global var:"
-                            ELSE
-                                cmd$ = "local var:"
-                            END IF
-                            IF LEN(cmd$) THEN
-                                cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).subfunc
-                                GOSUB SendCommand
-                            END IF
+                        cmd$ = ""
+                        IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
+                            cmd$ = "global var:"
+                        ELSE
+                            cmd$ = "local var:"
+                        END IF
+                        IF LEN(cmd$) THEN
+                            cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + usedVariableList(tempIndex&).subfunc
+                            GOSUB SendCommand
                         END IF
                     LOOP
                 END IF
@@ -7391,60 +7389,68 @@ SUB DebugMode
                 address%& = _CV(_OFFSET, MID$(value$, 5))
                 usedVariableList(tempIndex&).baseAddress = address%&
                 varType$ = usedVariableList(tempIndex&).varType
-                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                SELECT CASE varType$
-                    CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
-                    CASE "INTEGER", "_UNSIGNED INTEGER", "UNSIGNED INTEGER": varSize& = LEN(dummy%)
-                    CASE "LONG", "_UNSIGNED LONG", "UNSIGNED LONG": varSize& = LEN(dummy&)
-                    CASE "_INTEGER64", "_UNSIGNED _INTEGER64", "INTEGER64", "UNSIGNED INTEGER64": varSize& = LEN(dummy&&)
-                    CASE "SINGLE": varSize& = LEN(dummy!)
-                    CASE "DOUBLE": varSize& = LEN(dummy#)
-                    CASE "_FLOAT", "FLOAT": varSize& = LEN(dummy##)
-                    CASE "_OFFSET", "_UNSIGNED _OFFSET", "OFFSET", "UNSIGNED OFFSET": varSize& = LEN(dummy%&)
-                    CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
-                END SELECT
-                cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
-                GOSUB SendCommand
+                IF usedVariableList(tempIndex&).isarray THEN
+                    'TODO
+                ELSE
+                    IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    SELECT CASE varType$
+                        CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
+                        CASE "INTEGER", "_UNSIGNED INTEGER", "UNSIGNED INTEGER": varSize& = LEN(dummy%)
+                        CASE "LONG", "_UNSIGNED LONG", "UNSIGNED LONG": varSize& = LEN(dummy&)
+                        CASE "_INTEGER64", "_UNSIGNED _INTEGER64", "INTEGER64", "UNSIGNED INTEGER64": varSize& = LEN(dummy&&)
+                        CASE "SINGLE": varSize& = LEN(dummy!)
+                        CASE "DOUBLE": varSize& = LEN(dummy#)
+                        CASE "_FLOAT", "FLOAT": varSize& = LEN(dummy##)
+                        CASE "_OFFSET", "_UNSIGNED _OFFSET", "OFFSET", "UNSIGNED OFFSET": varSize& = LEN(dummy%&)
+                        CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
+                    END SELECT
+                    cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(1) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
+                    GOSUB SendCommand
+                END IF
             CASE "address read"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 sequence% = CVI(MID$(value$, 5, 2))
                 recvData$ = MID$(value$, 7)
-                varType$ = usedVariableList(tempIndex&).varType
-                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                SELECT CASE varType$
-                    CASE "_BYTE", "BYTE": recvData$ = STR$(_CV(_BYTE, recvData$))
-                    CASE "_UNSIGNED _BYTE", "UNSIGNED BYTE": recvData$ = STR$(_CV(_UNSIGNED _BYTE, recvData$))
-                    CASE "INTEGER": recvData$ = STR$(_CV(INTEGER, recvData$))
-                    CASE "_UNSIGNED INTEGER", "UNSIGNED INTEGER": recvData$ = STR$(_CV(_UNSIGNED INTEGER, recvData$))
-                    CASE "LONG": recvData$ = STR$(_CV(LONG, recvData$))
-                    CASE "_UNSIGNED LONG", "UNSIGNED LONG": recvData$ = STR$(_CV(_UNSIGNED LONG, recvData$))
-                    CASE "_INTEGER64", "INTEGER64": recvData$ = STR$(_CV(_INTEGER64, recvData$))
-                    CASE "_UNSIGNED _INTEGER64", "UNSIGNED INTEGER64": recvData$ = STR$(_CV(_UNSIGNED _INTEGER64, recvData$))
-                    CASE "SINGLE": recvData$ = STR$(_CV(SINGLE, recvData$))
-                    CASE "DOUBLE": recvData$ = STR$(_CV(DOUBLE, recvData$))
-                    CASE "_FLOAT", "FLOAT": recvData$ = STR$(_CV(_FLOAT, recvData$))
-                    CASE "_OFFSET", "OFFSET": recvData$ = STR$(_CV(_OFFSET, recvData$))
-                    CASE "_UNSIGNED _OFFSET", "UNSIGNED OFFSET": recvData$ = STR$(_CV(_UNSIGNED _OFFSET, recvData$))
-                    CASE "STRING"
-                        IF sequence% = 1 THEN
-                            IF LEN(dummy%&) = 8 THEN
-                                address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
-                                usedVariableList(tempIndex&).address = address%&
-                                strLength& = CVL(MID$(recvData$, 9))
-                                usedVariableList(tempIndex&).strLength = strLength&
-                            ELSE
-                                address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
-                                usedVariableList(tempIndex&).address = address%&
-                                strLength& = CVL(MID$(recvData$, 5))
-                                usedVariableList(tempIndex&).strLength = strLength&
+                IF usedVariableList(tempIndex&).isarray THEN
+                    'TODO
+                ELSE
+                    varType$ = usedVariableList(tempIndex&).varType
+                    IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    SELECT CASE varType$
+                        CASE "_BYTE", "BYTE": recvData$ = STR$(_CV(_BYTE, recvData$))
+                        CASE "_UNSIGNED _BYTE", "UNSIGNED BYTE": recvData$ = STR$(_CV(_UNSIGNED _BYTE, recvData$))
+                        CASE "INTEGER": recvData$ = STR$(_CV(INTEGER, recvData$))
+                        CASE "_UNSIGNED INTEGER", "UNSIGNED INTEGER": recvData$ = STR$(_CV(_UNSIGNED INTEGER, recvData$))
+                        CASE "LONG": recvData$ = STR$(_CV(LONG, recvData$))
+                        CASE "_UNSIGNED LONG", "UNSIGNED LONG": recvData$ = STR$(_CV(_UNSIGNED LONG, recvData$))
+                        CASE "_INTEGER64", "INTEGER64": recvData$ = STR$(_CV(_INTEGER64, recvData$))
+                        CASE "_UNSIGNED _INTEGER64", "UNSIGNED INTEGER64": recvData$ = STR$(_CV(_UNSIGNED _INTEGER64, recvData$))
+                        CASE "SINGLE": recvData$ = STR$(_CV(SINGLE, recvData$))
+                        CASE "DOUBLE": recvData$ = STR$(_CV(DOUBLE, recvData$))
+                        CASE "_FLOAT", "FLOAT": recvData$ = STR$(_CV(_FLOAT, recvData$))
+                        CASE "_OFFSET", "OFFSET": recvData$ = STR$(_CV(_OFFSET, recvData$))
+                        CASE "_UNSIGNED _OFFSET", "UNSIGNED OFFSET": recvData$ = STR$(_CV(_UNSIGNED _OFFSET, recvData$))
+                        CASE "STRING"
+                            IF sequence% = 1 THEN
+                                IF LEN(dummy%&) = 8 THEN
+                                    address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
+                                    usedVariableList(tempIndex&).address = address%&
+                                    strLength& = CVL(MID$(recvData$, 9))
+                                    usedVariableList(tempIndex&).strLength = strLength&
+                                ELSE
+                                    address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
+                                    usedVariableList(tempIndex&).address = address%&
+                                    strLength& = CVL(MID$(recvData$, 5))
+                                    usedVariableList(tempIndex&).strLength = strLength&
+                                END IF
+                                cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
+                                GOSUB SendCommand
+                                GOTO vwatch_string_seq1_done
                             END IF
-                            cmd$ = "get address:" + MKL$(tempIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
-                            GOSUB SendCommand
-                            GOTO vwatch_string_seq1_done
-                        END IF
-                END SELECT
-                usedVariableList(tempIndex&).mostRecentValue = recvData$
-                vwatch_string_seq1_done:
+                    END SELECT
+                    usedVariableList(tempIndex&).mostRecentValue = recvData$
+                    vwatch_string_seq1_done:
+                END IF
                 IF PauseMode THEN GOSUB UpdateDisplay
             CASE "current sub"
                 currentSub$ = value$
