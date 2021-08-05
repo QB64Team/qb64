@@ -110,8 +110,9 @@ DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
     AS LONG linenumber, includeLevel, includedLine, scope, localIndex, strLength
-    AS _BYTE used, watch
+    AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
+    AS STRING indexes, elements 'for Arrays and UDTs
     AS _OFFSET baseAddress, address
 END TYPE
 
@@ -25958,6 +25959,10 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     usedVariableList(i).name = name$ + RTRIM$(id.musthave)
                 ELSE
                     usedVariableList(i).name = name$
+                END IF
+                IF (id.arrayelements > 0) THEN
+                    usedVariableList(i).isarray = -1
+                    usedVariableList(i).name = usedVariableList(i).name + "()"
                 END IF
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF

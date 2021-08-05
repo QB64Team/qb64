@@ -739,18 +739,23 @@ FUNCTION ide2 (ignore)
             usedVariableList(x).mostRecentValue = ""
         NEXT
 
-        variableWatchList$ = ""
-        longestVarName = 0
-        FOR y = 1 TO totalVariablesCreated
-            IF usedVariableList(y).watch THEN
-                IF LEN(usedVariableList(y).name) > longestVarName THEN
-                    longestVarName = LEN(usedVariableList(y).name)
-                    IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
-                    MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
-                END IF
-                variableWatchList$ = variableWatchList$ + MKL$(y)
-            END IF
-        NEXT
+        'variableWatchList$ = ""
+        'longestVarName = 0
+        'FOR y = 1 TO totalVariablesCreated
+        '    IF usedVariableList(y).watch THEN
+        '        thisLen = LEN(usedVariableList(y).name)
+        '        IF usedVariableList(y).isarray THEN
+        '            thisLen = thisLen + LEN(STR$(CVL(RIGHT$(usedVariableList(y).indexes, 4)))) - 1
+        '        END IF
+
+        '        IF thisLen > longestVarName THEN
+        '            longestVarName = thisLen
+        '            IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
+        '            MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
+        '        END IF
+        '        variableWatchList$ = variableWatchList$ + MKL$(y)
+        '    END IF
+        'NEXT
 
         EnterDebugMode:
         IF idehelp THEN
@@ -6582,8 +6587,8 @@ SUB DebugMode
                (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
                 vWatchPanel.firstVisible = vWatchPanel.firstVisible + _MOUSEWHEEL * 3
                 IF vWatchPanel.firstVisible < 1 THEN vWatchPanel.firstVisible = 1
-                IF vWatchPanel.firstVisible > ((LEN(variableWatchList$) - 4) \ 4) THEN
-                    vWatchPanel.firstVisible = ((LEN(variableWatchList$) - 4) \ 4)
+                IF vWatchPanel.firstVisible > totalVisibleVariables - (vWatchPanel.h - 2) + 1 THEN
+                    vWatchPanel.firstVisible = totalVisibleVariables - (vWatchPanel.h - 2) + 1
                 END IF
             ELSE
                 idecy = idecy + _MOUSEWHEEL * 3
@@ -7602,24 +7607,37 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     IF LEN(variableWatchList$) THEN
         longestVarName = CVL(LEFT$(variableWatchList$, 4))
         temp$ = MID$(variableWatchList$, 5)
+        previousTempIndex& = 0
         DO WHILE LEN(temp$)
             tempIndex& = CVL(LEFT$(temp$, 4))
             temp$ = MID$(temp$, 5)
             i = i + 1
-            item$ = usedVariableList(tempIndex&).name + SPACE$(longestVarName - LEN(usedVariableList(tempIndex&).name)) + " = "
-            IF usedVariableList(tempIndex&).watch THEN
-                IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
-                    item$ = item$ + usedVariableList(tempIndex&).mostRecentValue
-                    COLOR fg
-                ELSE
-                    item$ = item$ + "<out of scope>"
-                    COLOR 2
-                END IF
-            END IF
-            IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
             IF this.firstVisible > i THEN _CONTINUE
             y = y + 1
-            IF y > this.h - 2 THEN _CONTINUE
+            IF y > this.h - 2 THEN EXIT DO
+
+            IF usedVariableList(tempIndex&).isarray THEN
+                IF tempIndex& <> previousTempIndex& THEN
+                    previousTempIndex& = tempIndex&
+                    thisArrayElement = 0
+                    tempElements$ = usedVariableList(tempIndex&).indexes
+                END IF
+                thisArrayElement = thisArrayElement + 1
+            END IF
+            thisName$ = usedVariableList(tempIndex&).name
+            IF usedVariableList(tempIndex&).isarray THEN
+                thisName$ = LEFT$(thisName$, LEN(thisName$) - 1) + _
+                            LTRIM$(STR$(CVL(MID$(tempElements$, thisArrayElement * 4 - 3, 4)))) + ")"
+            END IF
+            item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
+            IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
+                item$ = item$ + usedVariableList(tempIndex&).mostRecentValue
+                COLOR fg
+            ELSE
+                item$ = item$ + "<out of scope>"
+                COLOR 2
+            END IF
+            IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
             _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
         LOOP
     END IF
@@ -7669,12 +7687,13 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
     selectedBG = 2
 
     TYPE varDlgList
-        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator
+        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator, arrayElement
     END TYPE
 
-    DIM varDlgList(1 TO totalVariablesCreated) AS varDlgList
+    REDIM varDlgList(1 TO totalVariablesCreated) AS varDlgList
 
     'calculate longest module name, longest var name, longest type name
+    totalArrayElements = 0
     FOR x = 1 TO totalVariablesCreated
         IF LEN(usedVariableList(x).subfunc) > maxModuleNameLen THEN
             maxModuleNameLen = LEN(usedVariableList(x).subfunc)
@@ -7682,13 +7701,16 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
         IF LEN(usedVariableList(x).name) > maxVarLen THEN maxVarLen = LEN(usedVariableList(x).name)
         IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
+        IF LEN(usedVariableList(x).indexes) > 0 AND usedVariableList(x).watch <> 0 THEN
+            totalArrayElements = totalArrayElements + ((LEN(usedVariableList(x).indexes) \ 4) - 1)
+        END IF
     NEXT
 
     searchTerm$ = filter$
     GOSUB buildList
 
     i = 0
-    dialogHeight = (totalVariablesCreated) + 7
+    dialogHeight = (totalVariablesCreated + totalArrayElements) + 7
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
@@ -7822,6 +7844,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
         IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
+                IF usedVariableList(varDlgList(y).index).isarray THEN _CONTINUE
                 usedVariableList(varDlgList(y).index).watch = -1
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
@@ -7840,6 +7863,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
+            IF usedVariableList(varDlgList(y).index).isarray THEN
+                itemToSelect = varDlgList(y).index
+                GOSUB buildList
+                idetxt(o(varListBox).txt) = l$
+            END IF
             focus = filterBox
             _CONTINUE
         END IF
@@ -7855,7 +7883,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                     IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
                         thisWidth = idewx - 20
                     ELSE
-                        thisWidth = 40
+                        thisWidth = 45
                     END IF
                     v$ = ideinputbox$("Change Value", "#New value", a2$, "", thisWidth, 0, ok)
                     IF ok THEN
@@ -7881,8 +7909,13 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             longestVarName = 0
             FOR y = 1 TO totalVisibleVariables
                 IF usedVariableList(varDlgList(y).index).watch THEN
-                    IF LEN(usedVariableList(varDlgList(y).index).name) > longestVarName THEN
-                        longestVarName = LEN(usedVariableList(varDlgList(y).index).name)
+                    thisLen = LEN(usedVariableList(varDlgList(y).index).name)
+                    IF usedVariableList(varDlgList(y).index).isarray THEN
+                        thisLen = thisLen + LEN(STR$(CVL(RIGHT$(usedVariableList(varDlgList(y).index).indexes, 4)))) - 1
+                    END IF
+
+                    IF thisLen > longestVarName THEN
+                        longestVarName = thisLen
                         IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
                         MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
                     END IF
@@ -7912,15 +7945,38 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             IF y >= 1 AND y <= totalVisibleVariables THEN
                 usedVariableList(varDlgList(y).index).watch = NOT usedVariableList(varDlgList(y).index).watch
                 IF usedVariableList(varDlgList(y).index).watch THEN
+                    IF usedVariableList(varDlgList(y).index).isarray THEN
+                        temp$ = ""
+                        IF LEN(usedVariableList(varDlgList(y).index).indexes) THEN
+                            temp$ = formatRange$(usedVariableList(varDlgList(y).index).indexes)
+                        END IF
+
+                        v$ = ideinputbox$("Watch Array", "#Indexes to watch", temp$, "01234567890,-", 45, 0, ok)
+                        IF ok THEN
+                            temp$ = parseRange$(v$)
+                            usedVariableList(varDlgList(y).index).indexes = temp$
+                            GOSUB buildList
+                            idetxt(o(varListBox).txt) = l$
+                        ELSE
+                            usedVariableList(varDlgList(y).index).watch = 0
+                            _CONTINUE
+                        END IF
+                    END IF
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
                 ELSE
+                    rebuild = 0
+                    IF usedVariableList(varDlgList(y).index).isarray THEN rebuild = -1
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
+                END IF
+                IF rebuild then
+                    GOSUB buildList
+                    idetxt(o(varListBox).txt) = l$
                 END IF
             END IF
                 'focus = filterBox
@@ -8027,7 +8083,19 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                 _CONTINUE 'skip variable if no field matches the search
             END IF
         END IF
+
+        IF usedVariableList(x).isarray AND usedVariableList(x).watch THEN
+            totalArrayElements = LEN(usedVariableList(x).indexes) \ 4
+            thisArrayElement = 0
+            temp$ = usedVariableList(x).indexes
+            nextArrayElement:
+            thisArrayElement = thisArrayElement + 1
+        END IF
+
         totalVisibleVariables = totalVisibleVariables + 1
+        IF totalVisibleVariables > UBOUND(varDlgList) THEN
+            REDIM _PRESERVE varDlgList(1 TO totalVariablesCreated + 100) AS varDlgList
+        END IF
 
         l$ = l$ + CHR$(17)
         varDlgList(totalVisibleVariables).bgColorFlag = LEN(l$) + 1
@@ -8039,6 +8107,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
         l$ = l$ + CHR$(16)
         varDlgList(totalVisibleVariables).index = x
+        IF itemToSelect > 0 AND x = itemToSelect THEN itemToSelect = 0: o(varListBox).sel = totalVisibleVariables
         varDlgList(totalVisibleVariables).colorFlag = LEN(l$) + 1
         varDlgList(totalVisibleVariables).indicator = LEN(l$) + 2
         IF usedVariableList(x).watch THEN
@@ -8047,7 +8116,12 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             l$ = l$ + CHR$(16) + " "
         END IF
 
-        text$ = usedVariableList(x).name + CHR$(16)
+        IF usedVariableList(x).isarray AND usedVariableList(x).watch THEN
+            text$ = LEFT$(usedVariableList(x).name, LEN(usedVariableList(x).name) - 1)
+            text$ = text$ + LTRIM$(STR$(CVL(MID$(temp$, thisArrayElement * 4 - 3, 4)))) + ")" + CHR$(16)
+        ELSE
+            text$ = usedVariableList(x).name + CHR$(16)
+        END IF
         varDlgList(totalVisibleVariables).colorFlag2 = LEN(l$) + LEN(text$) + 1
         IF usedVariableList(x).watch THEN
             text$ = text$ + CHR$(typeColumnColor) + " "
@@ -8077,7 +8151,117 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             END IF
         END IF
         IF x < totalVariablesCreated THEN l$ = l$ + sep
+        IF usedVariableList(x).isarray AND usedVariableList(x).watch AND thisArrayElement < totalArrayElements THEN
+            GOTO nextArrayElement
+        END IF
     NEXT
+    itemToSelect = 0
+    RETURN
+END FUNCTION
+
+FUNCTION formatRange$(__text$)
+    '__text$ is a series of MKL$(values) concatenated
+    temp$ = __text$
+    v1 = -1
+    v2 = -1
+    FOR i = 1 TO LEN(temp$) \ 4
+        v = CVL(MID$(temp$, i * 4 - 3, 4))
+        IF v1 = -1 THEN
+            v1 = v
+        ELSE
+            IF v = v1 + 1 OR v = v2 + 1 THEN
+                v2 = v
+            ELSE
+                IF v2 = -1 THEN
+                    a2$ = a2$ + LTRIM$(STR$(v1)) + ","
+                    v1 = v
+                ELSE
+                    a2$ = a2$ + LTRIM$(STR$(v1)) + "-" + LTRIM$(STR$(v2)) + ","
+                    v1 = v
+                    v2 = -1
+                END IF
+            END IF
+        END IF
+    NEXT
+    IF v1 <> -1 AND v2 = -1 THEN a2$ = a2$ + LTRIM$(STR$(v1))
+    IF v1 <> -1 AND v2 <> -1 THEN a2$ = a2$ + LTRIM$(STR$(v1)) + "-" + LTRIM$(STR$(v2))
+    formatRange$ = a2$
+END FUNCTION
+
+FUNCTION parseRange$(__text$)
+    '__text$ must contain a valid numeric string (####),
+    'a valid interval (####-####) or comma-separated values.
+    'Only positive values >= 0 considered.
+    'Returns MKL$(value1) + MKL$(value2)... in order
+
+    IF LEN(_TRIM$(__text$)) = 0 THEN EXIT FUNCTION
+
+    DIM zeroIncluded AS _BYTE
+
+    Filter$ = _TRIM$(__text$)
+    j = INSTR(Filter$, "-") + INSTR(Filter$, ",")
+    temp$ = SPACE$(1000)
+
+    IF j = 0 THEN 'Single number passed
+        parseRange$ = MKL$(VAL(Filter$))
+        EXIT FUNCTION
+    END IF
+
+    Reading = 1
+    FOR j = 1 TO LEN(Filter$)
+        v = ASC(Filter$, j)
+        SELECT CASE v
+            CASE 44 'comma
+                Reading = 1
+                GOSUB parseIt
+            CASE 45 'hyphen
+                IF PrevChar <> 45 THEN
+                    Reading = Reading + 1
+                    IF Reading = 2 THEN
+                        IF j = LEN(Filter$) THEN GOSUB parseIt
+                    END IF
+                END IF
+            CASE 48 TO 57 '0 to 9
+                IF Reading = 1 THEN
+                    v1$ = v1$ + CHR$(v)
+                ELSEIF Reading = 2 THEN
+                    v2$ = v2$ + CHR$(v)
+                END IF
+                IF j = LEN(Filter$) THEN GOSUB parseIt
+        END SELECT
+        PrevChar = v
+    NEXT j
+
+    returnValue$ = ""
+    IF zeroIncluded THEN returnValue$ = MKL$(0)
+    FOR i = 1 TO LEN(temp$)
+        IF ASC(temp$, i) = 1 THEN returnValue$ = returnValue$ + MKL$(i)
+    NEXT
+    parseRange$ = returnValue$
+
+    EXIT FUNCTION
+    parseIt:
+    v1 = VAL(v1$)
+    v2 = VAL(v2$)
+    IF LEN(v2$) > 0 THEN
+        IF LEN(v1$) > 0 THEN
+            IF v1 > v2 THEN SWAP v1, v2
+            IF v2 > LEN(temp$) THEN temp$ = temp$ + SPACE$(v2 - LEN(temp$))
+            IF v1 = 0 THEN zeroIncluded = -1: v1 = 1
+            FOR i = v1 TO v2
+                ASC(temp$, i) = 1
+            NEXT
+        END IF
+    ELSE
+        IF v1 > LEN(temp$) THEN temp$ = temp$ + SPACE$(v1 - LEN(temp$))
+        IF v1 = 0 THEN
+            zeroIncluded = -1
+        ELSE
+            ASC(temp$, v1) = 1
+        END IF
+    END IF
+    v1$ = ""
+    v2$ = ""
     RETURN
 END FUNCTION
 
