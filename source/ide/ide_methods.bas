@@ -7680,7 +7680,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
     mainmodule$ = "GLOBAL"
     maxModuleNameLen = LEN(mainmodule$)
-    maxVarLen = LEN("Variable")
     maxTypeLen = LEN("Type")
     variableNameColor = 3
     typeColumnColor = 15
@@ -7699,7 +7698,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             maxModuleNameLen = LEN(usedVariableList(x).subfunc)
         END IF
 
-        IF LEN(usedVariableList(x).name) > maxVarLen THEN maxVarLen = LEN(usedVariableList(x).name)
         IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
         IF LEN(usedVariableList(x).indexes) > 0 AND usedVariableList(x).watch <> 0 THEN
             totalArrayElements = totalArrayElements + ((LEN(usedVariableList(x).indexes) \ 4) - 1)
@@ -7864,7 +7862,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
             IF usedVariableList(varDlgList(y).index).isarray THEN
-                itemToSelect = varDlgList(y).index
                 GOSUB buildList
                 idetxt(o(varListBox).txt) = l$
             END IF
@@ -7967,19 +7964,19 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
                 ELSE
-                    rebuild = 0
-                    IF usedVariableList(varDlgList(y).index).isarray THEN rebuild = -1
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
-                IF rebuild then
+                IF usedVariableList(varDlgList(y).index).isarray then
+                    itemToSelect = varDlgList(y).index
                     GOSUB buildList
                     idetxt(o(varListBox).txt) = l$
                 END IF
             END IF
                 'focus = filterBox
+            WHILE _MOUSEBUTTON(1) OR _MOUSEBUTTON(2): y = _MOUSEINPUT: WEND
             _CONTINUE
         END IF
 
@@ -8062,6 +8059,15 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
     RETURN
 
     buildList:
+    maxVarLen = LEN("Variable")
+    FOR x = 1 TO totalVariablesCreated
+        thisLen = LEN(usedVariableList(x).name)
+        IF LEN(usedVariableList(x).indexes) > 0 AND usedVariableList(x).watch <> 0 THEN
+            thisLen = thisLen + LEN(LTRIM$(STR$(CVL(RIGHT$(usedVariableList(x).indexes, 4)))))
+        END IF
+        IF thisLen > maxVarLen THEN maxVarLen = thisLen
+    NEXT
+
     l$ = ""
     totalVisibleVariables = 0
     FOR x = 1 TO totalVariablesCreated
@@ -8117,18 +8123,19 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
         END IF
 
         IF usedVariableList(x).isarray AND usedVariableList(x).watch THEN
-            text$ = LEFT$(usedVariableList(x).name, LEN(usedVariableList(x).name) - 1)
-            text$ = text$ + LTRIM$(STR$(CVL(MID$(temp$, thisArrayElement * 4 - 3, 4)))) + ")" + CHR$(16)
+            thisName$ = LEFT$(usedVariableList(x).name, LEN(usedVariableList(x).name) - 1)
+            thisName$ = thisName$ + LTRIM$(STR$(CVL(MID$(temp$, thisArrayElement * 4 - 3, 4)))) + ")"
         ELSE
-            text$ = usedVariableList(x).name + CHR$(16)
+            thisName$ = usedVariableList(x).name
         END IF
+        text$ = thisName$ + CHR$(16)
         varDlgList(totalVisibleVariables).colorFlag2 = LEN(l$) + LEN(text$) + 1
         IF usedVariableList(x).watch THEN
             text$ = text$ + CHR$(typeColumnColor) + " "
         ELSE
             text$ = text$ + CHR$(2) + " "
         END IF
-        text$ = text$ + SPACE$(maxVarLen - LEN(usedVariableList(x).name))
+        text$ = text$ + SPACE$(maxVarLen - LEN(thisName$))
         text$ = text$ + " " + usedVariableList(x).varType + SPACE$(maxTypeLen - LEN(usedVariableList(x).varType))
 
         l3$ = SPACE$(2)
