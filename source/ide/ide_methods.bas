@@ -739,24 +739,6 @@ FUNCTION ide2 (ignore)
             usedVariableList(x).mostRecentValue = ""
         NEXT
 
-        'variableWatchList$ = ""
-        'longestVarName = 0
-        'FOR y = 1 TO totalVariablesCreated
-        '    IF usedVariableList(y).watch THEN
-        '        thisLen = LEN(usedVariableList(y).name)
-        '        IF usedVariableList(y).isarray THEN
-        '            thisLen = thisLen + LEN(STR$(CVL(RIGHT$(usedVariableList(y).indexes, 4)))) - 1
-        '        END IF
-
-        '        IF thisLen > longestVarName THEN
-        '            longestVarName = thisLen
-        '            IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
-        '            MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
-        '        END IF
-        '        variableWatchList$ = variableWatchList$ + MKL$(y)
-        '    END IF
-        'NEXT
-
         EnterDebugMode:
         IF idehelp THEN
             idewy = idewy + idesubwindow
@@ -5734,7 +5716,7 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     ELSE
-                        result$ = idevariablewatchbox$("", "", 0)
+                        result$ = idevariablewatchbox$("", "", 0, 0)
                         PCOPY 3, 0: SCREEN , , 3, 0
                         GOTO ideloop
                     END IF
@@ -6389,12 +6371,7 @@ SUB DebugMode
             buffer$ = ""
             debugClient& = 0
 
-            IF LEN(variableWatchList$) THEN
-                totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
-                vWatchPanel.h = totalVisibleVariables + 2
-                IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
-                IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
-            ELSE
+            IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
                 vWatchPanel.h = 5
             END IF
@@ -7054,16 +7031,10 @@ SUB DebugMode
                     selectVar = 1
                     filter$ = ""
                     DO
-                        result$ = idevariablewatchbox$(currentSub$, filter$, selectVar)
-                        IF LEN(result$) THEN
+                        result$ = idevariablewatchbox$(currentSub$, filter$, selectVar, returnAction)
+                        IF returnAction = 1 THEN
                             'set address
                             tempIndex& = CVL(LEFT$(result$, 4))
-                            IF tempIndex& = 0 THEN
-                                PCOPY 3, 0: SCREEN , , 3, 0
-                                WHILE _MOUSEINPUT: WEND
-                                GOSUB UpdateDisplay
-                                _CONTINUE
-                            END IF
                             usedVariableList(tempIndex&).watch = -1
                             value$ = MID$(result$, 5)
 
@@ -7150,20 +7121,21 @@ SUB DebugMode
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
                             GOSUB UpdateDisplay
+                        ELSEIF returnAction = 2 THEN
+                            PCOPY 3, 0: SCREEN , , 3, 0
+                            WHILE _MOUSEINPUT: WEND
+                            GOSUB UpdateDisplay
+                            _CONTINUE
                         ELSE
                             EXIT DO
                         END IF
                     LOOP
-                    IF LEN(variableWatchList$) THEN
-                        totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
-                        vWatchPanel.h = totalVisibleVariables + 2
-                        IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
-                        IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
-                        GOTO requestVariableValues
-                    END IF
                     PCOPY 3, 0: SCREEN , , 3, 0
                     WHILE _MOUSEINPUT: WEND
                     GOSUB UpdateDisplay
+                    IF LEN(variableWatchList$) THEN
+                        GOTO requestVariableValues
+                    END IF
                 END IF
             CASE 16128 'F5
                 F5:
@@ -7371,7 +7343,8 @@ SUB DebugMode
                     temp$ = MID$(variableWatchList$, 5)
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
-                        temp$ = MID$(temp$, 5)
+                        tempArrayIndex& = CVL(MID$(temp$, 5, 4))
+                        temp$ = MID$(temp$, 9)
                         cmd$ = ""
                         IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                             cmd$ = "global var:"
@@ -7556,7 +7529,7 @@ SUB DebugMode
     ideshowtext
     UpdateTitleOfMainWindow
 
-    IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN showvWatchPanel vWatchPanel, currentSub$
+    IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables
 
     PCOPY 3, 0
     RETURN
@@ -7582,11 +7555,22 @@ Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
     map! = ((value! - minRange!) / (maxRange! - minRange!)) * (newMaxRange! - newMinRange!) + newMinRange!
 End Function
 
-SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
+SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariables)
+    STATIC previousVariableWatchList$
+    STATIC longestVarName
 
-    totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 4
+    IF previousVariableWatchList$ <> variableWatchList$ THEN
+        'new setup
+        previousVariableWatchList$ = variableWatchList$
+        longestVarName = CVL(LEFT$(variableWatchList$, 4))
+        expandedList$ = ""
+        totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 8
+        this.h = totalVisibleVariables + 2
+        IF this.h > idewy - 10 THEN this.h = idewy - 10
+        IF this.h < 5 THEN this.h = 5
+    END IF
+
     fg = 0: bg = 7
-
 
     title$ = "Watch List"
     IF LEN(currentScope$) THEN title$ = title$ + " - " + currentScope$
@@ -7597,8 +7581,8 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
 
     COLOR fg, bg
     ideboxshadow this.x, this.y, this.w, this.h
-    color 15, bg
-    _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
+    COLOR 15, bg
+    _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(18) 'resize handle
 
     x = LEN(title$) + 2
     COLOR fg, bg
@@ -7608,45 +7592,35 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     COLOR , bg
 
     y = 0
+    i = 0
     this.contentWidth = 0
     IF this.hPos = 0 THEN this.hPos = 1
-    IF LEN(variableWatchList$) THEN
-        longestVarName = CVL(LEFT$(variableWatchList$, 4))
-        temp$ = MID$(variableWatchList$, 5)
-        previousTempIndex& = 0
-        DO WHILE LEN(temp$)
-            tempIndex& = CVL(LEFT$(temp$, 4))
-            temp$ = MID$(temp$, 5)
-            i = i + 1
-            IF this.firstVisible > i THEN _CONTINUE
-            y = y + 1
-            IF y > this.h - 2 THEN EXIT DO
+    temp$ = MID$(variableWatchList$, 5)
+    DO WHILE LEN(temp$)
+        tempIndex& = CVL(LEFT$(temp$, 4))
+        tempArrayIndex& = CVL(MID$(temp$, 5, 4))
+        temp$ = MID$(temp$, 9)
+        i = i + 1
+        IF this.firstVisible > i THEN _CONTINUE
+        y = y + 1
+        IF y > this.h - 2 THEN EXIT DO
 
-            IF usedVariableList(tempIndex&).isarray THEN
-                IF tempIndex& <> previousTempIndex& THEN
-                    previousTempIndex& = tempIndex&
-                    thisArrayElement = 0
-                    tempElements$ = usedVariableList(tempIndex&).indexes
-                END IF
-                thisArrayElement = thisArrayElement + 1
-            END IF
-            thisName$ = usedVariableList(tempIndex&).name
-            IF usedVariableList(tempIndex&).isarray THEN
-                thisName$ = LEFT$(thisName$, LEN(thisName$) - 1) + _
-                            LTRIM$(STR$(CVL(MID$(tempElements$, thisArrayElement * 4 - 3, 4)))) + ")"
-            END IF
-            item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
-            IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
-                item$ = item$ + usedVariableList(tempIndex&).mostRecentValue
-                COLOR fg
-            ELSE
-                item$ = item$ + "<out of scope>"
-                COLOR 2
-            END IF
-            IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
-            _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
-        LOOP
-    END IF
+        thisName$ = usedVariableList(tempIndex&).name
+        IF usedVariableList(tempIndex&).isarray THEN
+            thisName$ = LEFT$(thisName$, LEN(thisName$) - 1) + _
+                        LTRIM$(STR$(tempArrayIndex&)) + ")"
+        END IF
+        item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
+        IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
+            item$ = item$ + usedVariableList(tempIndex&).mostRecentValue
+            COLOR fg
+        ELSE
+            item$ = item$ + "<out of scope>"
+            COLOR 2
+        END IF
+        IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
+        _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
+    LOOP
 
     IF totalVisibleVariables > this.h - 2 THEN
         y = idevbar(this.x + this.w - 1, this.y + 1, this.h - 2, this.firstVisible, totalVisibleVariables - (this.h - 2) + 1)
@@ -7669,7 +7643,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$)
     END IF
 END SUB
 
-FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
+FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     '-------- generic dialog box header --------
     PCOPY 0, 2
@@ -7684,6 +7658,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
     '-------- init --------
 
+    returnAction = 0
     mainmodule$ = "GLOBAL"
     maxModuleNameLen = LEN(mainmodule$)
     maxTypeLen = LEN("Type")
@@ -7692,13 +7667,12 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
     selectedBG = 2
 
     TYPE varDlgList
-        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator, arrayElement
+        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator
     END TYPE
 
     REDIM varDlgList(1 TO totalVariablesCreated) AS varDlgList
 
     'calculate longest module name, longest var name, longest type name
-    totalArrayElements = 0
     FOR x = 1 TO totalVariablesCreated
         IF LEN(usedVariableList(x).subfunc) > maxModuleNameLen THEN
             maxModuleNameLen = LEN(usedVariableList(x).subfunc)
@@ -7885,8 +7859,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                     v$ = ideinputbox$("Change Value", "#New value", a2$, "", thisWidth, 0, ok)
                     IF ok THEN
                         idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
+                        returnAction = 1 'actually send value
                     ELSE
-                        idevariablewatchbox$ = MKL$(0)
+                        returnAction = 2 'redraw and carry on
                     END IF
                     selectVar = i
                     EXIT FUNCTION
@@ -7916,7 +7891,15 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                         IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
                         MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
                     END IF
-                    variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index)
+                    IF usedVariableList(varDlgList(y).index).isarray THEN
+                        temp$ = usedVariableList(varDlgList(y).index).indexes
+                        DO WHILE LEN(temp$)
+                            variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index) + LEFT$(temp$, 4)
+                            temp$ = MID$(temp$, 5)
+                        LOOP
+                    ELSE
+                        variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index) + MKL$(0)
+                    END IF
                 END IF
             NEXT
             EXIT FUNCTION
