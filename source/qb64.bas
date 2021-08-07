@@ -112,7 +112,7 @@ TYPE usedVarList
     AS LONG linenumber, includeLevel, includedLine, scope, localIndex, strLength
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
-    AS STRING indexes, elements 'for Arrays and UDTs
+    AS STRING watchRange, indexes, elements 'for Arrays and UDTs
     AS _OFFSET baseAddress, address
 END TYPE
 
@@ -25963,6 +25963,11 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 IF (id.arrayelements > 0) THEN
                     usedVariableList(i).isarray = -1
                     usedVariableList(i).name = usedVariableList(i).name + "()"
+                ELSE
+                    usedVariableList(i).isarray = 0
+                    usedVariableList(i).watchRange = ""
+                    usedVariableList(i).indexes = ""
+                    usedVariableList(i).elements = ""
                 END IF
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
@@ -26079,3 +26084,4 @@ DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
+

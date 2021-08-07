@@ -7705,16 +7705,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
         END IF
 
         IF LEN(usedVariableList(x).varType) > maxTypeLen THEN maxTypeLen = LEN(usedVariableList(x).varType)
-        IF LEN(usedVariableList(x).indexes) > 0 AND usedVariableList(x).watch <> 0 THEN
-            totalArrayElements = totalArrayElements + ((LEN(usedVariableList(x).indexes) \ 4) - 1)
-        END IF
     NEXT
 
     searchTerm$ = filter$
     GOSUB buildList
-
+    dialogHeight = (totalVariablesCreated) + 7
+    listBuilt:
     i = 0
-    dialogHeight = (totalVariablesCreated + totalArrayElements) + 7
+    IF dialogHeight < lastUsedDialogHeight THEN dialogHeight = lastUsedDialogHeight
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
@@ -7731,14 +7729,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
     PrevFocus = 1
     o(i).typ = 1
     o(i).y = 2
-    o(i).nam = idenewtxt("#Filter")
-    o(i).txt = idenewtxt(filter$)
+    IF o(i).nam = 0 THEN o(i).nam = idenewtxt("#Filter")
+    IF o(i).txt = 0 THEN o(i).txt = idenewtxt(filter$)
 
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
     o(varListBox).y = 5
     o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 7
-    o(varListBox).txt = idenewtxt(l$)
+    IF o(varListBox).txt = 0 THEN o(varListBox).txt = idenewtxt(l$) ELSE idetxt(o(varListBox).txt) = l$
     IF selectVar = 0 THEN selectVar = 1 ELSE focus = varListBox
     o(varListBox).sel = selectVar
 
@@ -7748,13 +7746,13 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
     i = i + 1: buttonSet = i
     o(buttonSet).typ = 3
     o(buttonSet).y = dialogHeight
-    IF IdeDebugMode THEN
+    IF IdeDebugMode > 0 AND o(buttonSet).txt = 0 THEN
         o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Send Value" + sep + "#Close")
     ELSE
         o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
     END IF
 
-
+    lastUsedDialogHeight = dialogHeight
 
 
     '-------- end of init --------
@@ -7848,7 +7846,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
 
         IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
-                IF usedVariableList(varDlgList(y).index).isarray THEN _CONTINUE
+                IF usedVariableList(varDlgList(y).index).isarray AND LEN(usedVariableList(varDlgList(y).index).watchRange) = 0 THEN _CONTINUE
                 usedVariableList(varDlgList(y).index).watch = -1
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
@@ -7867,10 +7865,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
             NEXT
-            IF usedVariableList(varDlgList(y).index).isarray THEN
-                GOSUB buildList
-                idetxt(o(varListBox).txt) = l$
-            END IF
             focus = filterBox
             _CONTINUE
         END IF
@@ -7946,23 +7940,38 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             y = ABS(o(varListBox).sel)
 
             IF y >= 1 AND y <= totalVisibleVariables THEN
+                IF usedVariableList(varDlgList(y).index).watch <> 0 AND usedVariableList(varDlgList(y).index).isarray THEN
+                    GOTO setArrayRange
+                END IF
                 usedVariableList(varDlgList(y).index).watch = NOT usedVariableList(varDlgList(y).index).watch
                 IF usedVariableList(varDlgList(y).index).watch THEN
                     IF usedVariableList(varDlgList(y).index).isarray THEN
+                        setArrayRange:
                         temp$ = ""
                         IF LEN(usedVariableList(varDlgList(y).index).indexes) THEN
-                            temp$ = formatRange$(usedVariableList(varDlgList(y).index).indexes)
+                            temp$ = usedVariableList(varDlgList(y).index).watchRange
                         END IF
 
                         v$ = ideinputbox$("Watch Array", "#Indexes to watch", temp$, "01234567890,-", 45, 0, ok)
                         IF ok THEN
-                            temp$ = parseRange$(v$)
-                            usedVariableList(varDlgList(y).index).indexes = temp$
+                            IF LEN(v$) > 0 THEN
+                                temp$ = parseRange$(v$)
+                                usedVariableList(varDlgList(y).index).indexes = temp$
+                                temp$ = formatRange$(temp$)
+                                usedVariableList(varDlgList(y).index).watchRange = temp$
+                            ELSE
+                                usedVariableList(varDlgList(y).index).indexes = ""
+                                usedVariableList(varDlgList(y).index).watchRange = ""
+                                usedVariableList(varDlgList(y).index).watch = 0
+                                GOSUB buildList
+                                idetxt(o(varListBox).txt) = l$
+                                GOTO unWatch
+                            END IF
                             GOSUB buildList
                             idetxt(o(varListBox).txt) = l$
                         ELSE
                             usedVariableList(varDlgList(y).index).watch = 0
-                            _CONTINUE
+                            GOTO unWatch
                         END IF
                     END IF
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
@@ -7970,19 +7979,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
                 ELSE
+                    unWatch:
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
-                IF usedVariableList(varDlgList(y).index).isarray then
-                    itemToSelect = varDlgList(y).index
-                    GOSUB buildList
-                    idetxt(o(varListBox).txt) = l$
-                END IF
             END IF
-                'focus = filterBox
-            WHILE _MOUSEBUTTON(1) OR _MOUSEBUTTON(2): y = _MOUSEINPUT: WEND
+            'focus = filterBox
             _CONTINUE
         END IF
 
@@ -8006,10 +8010,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             searchTerm$ = UCASE$(filter$)
             'rebuild filtered list
             GOSUB buildList
-            idetxt(o(varListBox).txt) = l$
             IF LEN(searchTerm$) THEN temp$ = ", filtered" ELSE temp$ = ""
             idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
-            _CONTINUE
         END IF
 
         dialogLoop:
@@ -8068,8 +8070,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
     maxVarLen = LEN("Variable")
     FOR x = 1 TO totalVariablesCreated
         thisLen = LEN(usedVariableList(x).name)
-        IF LEN(usedVariableList(x).indexes) > 0 AND usedVariableList(x).watch <> 0 THEN
-            thisLen = thisLen + LEN(LTRIM$(STR$(CVL(RIGHT$(usedVariableList(x).indexes, 4)))))
+        IF LEN(usedVariableList(x).watchRange) > 0 THEN
+            thisLen = thisLen + LEN(usedVariableList(x).watchRange)
         END IF
         IF thisLen > maxVarLen THEN maxVarLen = thisLen
     NEXT
@@ -8096,18 +8098,10 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             END IF
         END IF
 
-        IF usedVariableList(x).isarray AND usedVariableList(x).watch THEN
-            totalArrayElements = LEN(usedVariableList(x).indexes) \ 4
-            thisArrayElement = 0
-            temp$ = usedVariableList(x).indexes
-            nextArrayElement:
-            thisArrayElement = thisArrayElement + 1
-        END IF
-
         totalVisibleVariables = totalVisibleVariables + 1
-        IF totalVisibleVariables > UBOUND(varDlgList) THEN
+        WHILE totalVisibleVariables > UBOUND(varDlgList)
             REDIM _PRESERVE varDlgList(1 TO totalVariablesCreated + 100) AS varDlgList
-        END IF
+        WEND
 
         l$ = l$ + CHR$(17)
         varDlgList(totalVisibleVariables).bgColorFlag = LEN(l$) + 1
@@ -8128,11 +8122,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             l$ = l$ + CHR$(16) + " "
         END IF
 
-        IF usedVariableList(x).isarray AND usedVariableList(x).watch THEN
-            thisName$ = LEFT$(usedVariableList(x).name, LEN(usedVariableList(x).name) - 1)
-            thisName$ = thisName$ + LTRIM$(STR$(CVL(MID$(temp$, thisArrayElement * 4 - 3, 4)))) + ")"
-        ELSE
-            thisName$ = usedVariableList(x).name
+        thisName$ = usedVariableList(x).name
+        IF LEN(usedVariableList(x).watchRange) THEN
+            thisName$ = LEFT$(thisName$, LEN(thisName$) - 1) + usedVariableList(x).watchRange + ")"
         END IF
         text$ = thisName$ + CHR$(16)
         varDlgList(totalVisibleVariables).colorFlag2 = LEN(l$) + LEN(text$) + 1
@@ -8164,9 +8156,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
             END IF
         END IF
         IF x < totalVariablesCreated THEN l$ = l$ + sep
-        IF usedVariableList(x).isarray AND usedVariableList(x).watch AND thisArrayElement < totalArrayElements THEN
-            GOTO nextArrayElement
-        END IF
     NEXT
     itemToSelect = 0
     RETURN
