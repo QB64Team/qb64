@@ -13402,6 +13402,7 @@ FUNCTION ideadvancedbox
                 END IF
                 Include_GDB_Debugging_Info = idedebuginfo
                 purgeprecompiledcontent
+                idechangemade = 1 'force recompilation
             END IF
 
             EXIT FUNCTION
@@ -17625,7 +17626,6 @@ SUB purgeprecompiledcontent
         END IF
         CHDIR "../.."
     END IF
-    idechangemade = 1 'force recompilation
 END SUB
 
 SUB printWrapStatus (x AS INTEGER, y AS INTEGER, initialX AS INTEGER, __text$)
