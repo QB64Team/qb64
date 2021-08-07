@@ -7923,7 +7923,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
         END IF
 
         IF mCLICK AND focus = 2 THEN 'list click
-            IF timeElapsedSince(lastClick!) < .3 THEN
+            IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
                 IF mX < p.x + doubleClickThreshold OR IdeDebugMode = 0 THEN
                     GOTO toggleWatch
                 ELSE
@@ -7931,6 +7931,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar)
                 END IF
             END IF
             lastClick! = TIMER
+            IF o(varListBox).sel > 0 THEN clickedItem = o(varListBox).sel
             _CONTINUE
         END IF
 
