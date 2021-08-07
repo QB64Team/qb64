@@ -12223,7 +12223,7 @@ IF NOT IgnoreWarnings THEN
         header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
         FOR i = 1 TO totalVariablesCreated
             IF usedVariableList(i).used = 0 THEN
-                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).varType + ")"
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + "  " + usedVariableList(i).varType
             END IF
         NEXT
     END IF
