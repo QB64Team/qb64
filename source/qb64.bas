@@ -14643,6 +14643,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 END IF
                 regid
                 IF Error_Happened THEN EXIT FUNCTION
+                vWatchVariable n$, 0
                 GOTO dim2exitfunc
             END IF
 
@@ -14744,6 +14745,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
+            vWatchVariable n$, 0
             GOTO dim2exitfunc
         END IF
 
@@ -14852,6 +14854,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
+            vWatchVariable n$, 0
             GOTO dim2exitfunc
         END IF
         'standard bit-length variable
