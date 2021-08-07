@@ -1953,6 +1953,7 @@ DO
                                 IF ii >= n OR getelement$(a$, ii) <> "AS" THEN a$ = "Expected element-name AS type, AS type element-list, or END TYPE": GOTO errmes
                                 t$ = getelements$(a$, ii + 1, n)
 
+                                IF t$ = RTRIM$(udtxname(definingtype)) THEN a$ = "Invalid self-reference": GOTO errmes
                                 typ = typname2typ(t$)
                                 IF Error_Happened THEN GOTO errmes
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
@@ -2043,6 +2044,7 @@ DO
                                 END IF
 
                                 t$ = RTRIM$(t$)
+                                IF t$ = RTRIM$(udtxname(definingtype)) THEN a$ = "Invalid self-reference": GOTO errmes
                                 typ = typname2typ(t$)
                                 IF Error_Happened THEN GOTO errmes
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
