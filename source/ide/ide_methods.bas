@@ -2042,8 +2042,8 @@ FUNCTION ide2 (ignore)
 
         IF IdeSystem = 2 THEN
             a$ = idefindtext
-            IF LEN(K$) = 1 THEN
-                k = ASC(K$)
+            IF LEN(K$) = 1 OR KB <> 0 THEN
+                IF LEN(K$) = 1 THEN k = ASC(K$)
                 IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
                     pasteIntoSearchField:
                     clip$ = _CLIPBOARD$ 'read clipboard
@@ -12148,8 +12148,8 @@ SUB ideobjupdate (o AS idedbotype, focus, f, focusoffset, kk$, altletter$, mb, m
 
         a$ = idetxt(o.txt)
         IF focusoffset = 0 THEN
-            IF LEN(kk$) = 1 THEN
-                k = ASC(kk$)
+            IF LEN(kk$) = 1 OR KB <> 0 THEN
+                IF LEN(kk$) = 1 THEN k = ASC(kk$)
                 IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(kk$) = "V") THEN 'paste from clipboard
                     clip$ = _CLIPBOARD$ 'read clipboard
                     x = INSTR(clip$, CHR$(13))
