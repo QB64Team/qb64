@@ -1787,7 +1787,7 @@ FUNCTION ide2 (ignore)
             GOTO idefindchangejmp
         END IF
 
-        IF KB = KEY_F3 THEN
+        IF KB = KEY_F3 OR K$ = CHR$(28) THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
             idemf3:
             IF idefindtext <> "" THEN
