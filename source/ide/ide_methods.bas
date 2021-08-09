@@ -7669,6 +7669,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     TYPE varDlgList
         AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator
+        AS _BYTE selected
     END TYPE
 
     REDIM varDlgList(1 TO totalVariablesCreated) AS varDlgList
@@ -7959,6 +7960,34 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             GOTO unWatch
                         END IF
                     END IF
+
+                    varType$ = usedVariableList(varDlgList(y).index).varType
+                    IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    nativeDataTypes$ = "@_BYTE@_UNSIGNED _BYTE@BYTE@UNSIGNED BYTE@INTEGER@_UNSIGNED INTEGER@UNSIGNED INTEGER@LONG@_UNSIGNED LONG@UNSIGNED LONG@_INTEGER64@INTEGER64@_UNSIGNED _INTEGER64@UNSIGNED INTEGER64@SINGLE@DOUBLE@_FLOAT@FLOAT@STRING@"
+                    IF INSTR(nativeDataTypes$, varType$) = 0 THEN
+                        'It's a UDT
+                        elementIndexes$ = ""
+                        thisUDT = 0
+                        E = 0
+                        FOR i = 1 TO lasttype
+                            IF RTRIM$(udtxcname(i)) = varType$ THEN thisUDT = i: EXIT FOR
+                        NEXT
+
+                        i = 0
+                        DO
+                            IF E = 0 THEN E = udtxnext(thisUDT) ELSE E = udtenext(E)
+                            IF E = 0 THEN EXIT DO
+                            elementIndexes$ = elementIndexes$ + MKL$(E)
+                            i = i + 1
+                        LOOP
+                        PCOPY 0, 4
+                        v$ = ideelementwatchbox$(usedVariableList(varDlgList(y).index).name + ".", elementIndexes$, ok)
+                        PCOPY 4, 0
+                        IF ok THEN
+                        ELSE
+                        END IF
+                    END IF
+
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
@@ -7995,11 +8024,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             searchTerm$ = UCASE$(filter$)
             'rebuild filtered list
             GOSUB buildList
+            idetxt(o(varListBox).txt) = l$
             IF LEN(searchTerm$) THEN temp$ = ", filtered" ELSE temp$ = ""
             idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
         END IF
 
-        dialogLoop:
         'end of custom controls
         mousedown = 0
         mouseup = 0
@@ -8143,6 +8172,264 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF x < totalVariablesCreated THEN l$ = l$ + sep
     NEXT
     itemToSelect = 0
+    RETURN
+END FUNCTION
+
+FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, ok)
+
+    '-------- generic dialog box header --------
+    PCOPY 4, 0
+    PCOPY 0, 2
+    PCOPY 0, 1
+    SCREEN , , 1, 0
+    focus = 1
+    DIM p AS idedbptype
+    DIM o(1 TO 100) AS idedbotype
+    DIM sep AS STRING * 1
+    sep = CHR$(0)
+    '-------- end of generic dialog box header --------
+
+    '-------- init --------
+
+    ok = 0
+    variableNameColor = 3
+    typeColumnColor = 15
+    selectedBG = 2
+
+    totalElements = LEN(elementIndexes$) \ 4
+    REDIM varDlgList(1 TO totalElements) AS varDlgList
+    dialogHeight = (totalElements) + 4
+    i = 0
+    IF dialogHeight > idewy + idesubwindow - 6 THEN
+        dialogHeight = idewy + idesubwindow - 6
+    END IF
+    IF dialogHeight < 5 THEN dialogHeight = 5
+
+
+    GOSUB buildList
+    dialogWidth = 6 + longestName + maxTypeLen
+    IF dialogWidth < 40 THEN dialogWidth = 40
+    IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
+
+    idepar p, dialogWidth, dialogHeight, "Add UDT Elements"
+
+    i = i + 1: varListBox = i
+    o(varListBox).typ = 2
+    o(varListBox).y = 2
+    o(varListBox).w = dialogWidth - 4: o(i).h = dialogHeight - 4
+    IF o(varListBox).txt = 0 THEN o(varListBox).txt = idenewtxt(l$) ELSE idetxt(o(varListBox).txt) = l$
+
+    i = i + 1: buttonSet = i
+    o(buttonSet).typ = 3
+    o(buttonSet).y = dialogHeight
+    IF o(buttonSet).txt = 0 THEN
+        o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+    END IF
+
+    '-------- end of init --------
+
+    '-------- generic init --------
+    FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+    '-------- end of generic init --------
+
+    DO 'main loop
+
+        '-------- generic display dialog box & objects --------
+        idedrawpar p
+        f = 1: cx = 0: cy = 0
+        FOR i = 1 TO 100
+            IF o(i).typ THEN
+                'prepare object
+                o(i).foc = focus - f 'focus offset
+                o(i).cx = 0: o(i).cy = 0
+                idedrawobj o(i), f 'display object
+                IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+            END IF
+        NEXT i
+        lastfocus = f - 1
+        '-------- end of generic display dialog box & objects --------
+
+        '-------- custom display changes --------
+        COLOR 0, 7
+        temp$ = currentPath$
+        IF LEN(temp$) > p.w - 4 THEN temp$ = STRING$(3, 250) + RIGHT$(temp$, p.w - 7)
+        _PRINTSTRING (p.x + 2, p.y + 1), temp$
+
+        '-------- end of custom display changes --------
+
+        'update visual page and cursor position
+        PCOPY 1, 0
+        IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+        '-------- read input --------
+        change = 0
+        DO
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+        LOOP UNTIL change
+        IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+        'convert "alt+letter" scancode to letter's ASCII character
+        altletter$ = ""
+        IF alt AND NOT KCTRL THEN
+            IF LEN(K$) = 1 THEN
+                k = ASC(UCASE$(K$))
+                IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+            END IF
+        END IF
+        SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+        '-------- end of read input --------
+
+        '-------- generic input response --------
+        info = 0
+        IF K$ = "" THEN K$ = CHR$(255)
+        IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+        IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+        IF focus < 1 THEN focus = lastfocus
+        IF focus > lastfocus THEN focus = 1
+        f = 1
+        FOR i = 1 TO 100
+            t = o(i).typ
+            IF t THEN
+                focusoffset = focus - f
+                ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+            END IF
+        NEXT
+        '-------- end of generic input response --------
+        IF (focus = 2 AND info <> 0) THEN 'add all
+            FOR y = 1 TO totalElements
+                varDlgList(y).selected = -1
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
+            NEXT
+            _CONTINUE
+        END IF
+
+        IF (focus = 3 AND info <> 0) THEN 'remove all
+            FOR y = 1 TO totalElements
+                varDlgList(y).selected = 0
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
+                ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
+            NEXT
+            _CONTINUE
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
+            'build element list to return
+            WHILE mb: GetInput: WEND
+            EXIT FUNCTION
+        END IF
+
+        IF mCLICK AND focus = 1 THEN 'list click
+            IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
+                GOTO toggleWatch
+            END IF
+            lastClick! = TIMER
+            IF o(varListBox).sel > 0 THEN clickedItem = o(varListBox).sel
+            _CONTINUE
+        END IF
+
+        IF (K$ = CHR$(13) AND focus = 1) THEN
+            K$ = ""
+            toggleWatch:
+            y = ABS(o(varListBox).sel)
+
+            IF y >= 1 AND y <= totalElements THEN
+                varDlgList(y).selected = NOT varDlgList(y).selected
+                IF varDlgList(y).selected THEN
+                    varType$ = typeNames$(y)
+                    IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    nativeDataTypes$ = "@_BYTE@_UNSIGNED _BYTE@BYTE@UNSIGNED BYTE@INTEGER@_UNSIGNED INTEGER@UNSIGNED INTEGER@LONG@_UNSIGNED LONG@UNSIGNED LONG@_INTEGER64@INTEGER64@_UNSIGNED _INTEGER64@UNSIGNED INTEGER64@SINGLE@DOUBLE@_FLOAT@FLOAT@STRING@"
+                    IF INSTR(nativeDataTypes$, varType$) = 0 THEN
+                        'It's a UDT
+                        elementIndexes2$ = ""
+                        thisUDT = 0
+                        E = 0
+                        FOR i = 1 TO lasttype
+                            IF RTRIM$(udtxcname(i)) = varType$ THEN thisUDT = i: EXIT FOR
+                        NEXT
+
+                        i = 0
+                        DO
+                            IF E = 0 THEN E = udtxnext(thisUDT) ELSE E = udtenext(E)
+                            IF E = 0 THEN EXIT DO
+                            elementIndexes2$ = elementIndexes2$ + MKL$(E)
+                            i = i + 1
+                        LOOP
+                        v$ = ideelementwatchbox$(currentPath$ + RTRIM$(udtecname(varDlgList(y).index)) + ".", elementIndexes2$, ok2)
+                        IF ok2 THEN
+                        ELSE
+                        END IF
+                    END IF
+
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
+                ELSE
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
+                END IF
+            END IF
+            _CONTINUE
+        END IF
+
+        'end of custom controls
+        mousedown = 0
+        mouseup = 0
+    LOOP
+
+    'idevariablewatchbox$ = ""
+    EXIT FUNCTION
+
+    buildList:
+    maxTypeLen = 0
+    DIM typeNames$(1 TO totalElements)
+    FOR x = 1 TO totalElements
+        thisType = CVL(MID$(elementIndexes$, x * 4 - 3, 4))
+        IF LEN(RTRIM$(udtecname(thisType))) > longestName THEN longestName = LEN(RTRIM$(udtecname(thisType)))
+        varDlgList(x).index = thisType
+        id.t = udtetype(thisType)
+        id.tsize = udtesize(thisType)
+        typeNames$(x) = id2fulltypename$
+        thisLen = LEN(typeNames$(x))
+        IF thisLen > maxTypeLen THEN maxTypeLen = thisLen
+    NEXT
+
+    l$ = ""
+    FOR x = 1 TO totalElements
+        thisElement = CVL(MID$(elementIndexes$, x * 4 - 3, 4))
+        l$ = l$ + CHR$(17)
+        varDlgList(x).bgColorFlag = LEN(l$) + 1
+        l$ = l$ + CHR$(17)
+
+        l$ = l$ + CHR$(16)
+        varDlgList(x).colorFlag = LEN(l$) + 1
+        varDlgList(x).indicator = LEN(l$) + 2
+        l$ = l$ + CHR$(16) + " "
+
+        thisName$ = RTRIM$(udtecname(thisElement))
+        text$ = thisName$ + CHR$(16)
+        varDlgList(x).colorFlag2 = LEN(l$) + LEN(text$) + 1
+        text$ = text$ + CHR$(2) + " "
+        text$ = text$ + SPACE$(longestName - LEN(thisName$))
+        text$ = text$ + " " + typeNames$(x) + SPACE$(maxTypeLen - LEN(typeNames$(x)))
+
+        l$ = l$ + text$
+        IF x < totalElements THEN l$ = l$ + sep
+    NEXT
     RETURN
 END FUNCTION
 
