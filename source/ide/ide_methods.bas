@@ -1769,6 +1769,7 @@ FUNCTION ide2 (ignore)
             K$ = ""
             IdeSystem = 2
             IF LEN(idefindtext) THEN idesystem2.issel = -1: idesystem2.sx1 = 0: idesystem2.v1 = LEN(idefindtext)
+            GOTO specialchar
         END IF
 
         IF KCTRL AND UCASE$(K$) = "K" THEN
@@ -2042,7 +2043,7 @@ FUNCTION ide2 (ignore)
 
         IF IdeSystem = 2 THEN
             a$ = idefindtext
-            IF LEN(K$) = 1 OR KB <> 0 THEN
+            IF LEN(K$) = 1 OR (KB = KEY_INSERT OR KB = KEY_DELETE) THEN
                 IF LEN(K$) = 1 THEN k = ASC(K$)
                 IF (KSHIFT AND KB = KEY_INSERT) OR (KCONTROL AND UCASE$(K$) = "V") THEN 'paste from clipboard
                     pasteIntoSearchField:
