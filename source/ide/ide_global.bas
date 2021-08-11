@@ -12,6 +12,7 @@ DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
 DIM SHARED host&, debugClient&, hostport$, variableWatchList$
+DIM SHARED startPausedPending AS _BYTE
 
 DIM SHARED IdeSystem AS LONG
 '1=Entering text into the main IDE window

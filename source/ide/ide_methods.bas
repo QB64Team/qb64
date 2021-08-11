@@ -133,7 +133,6 @@ FUNCTION ide2 (ignore)
     STATIC ForceResize, IDECompilationRequested AS _BYTE
     STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
     STATIC VersionInfoHover AS _BYTE, LineNumberHover AS _BYTE
-    STATIC startPausedPending AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -497,6 +496,7 @@ FUNCTION ide2 (ignore)
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
         idechangemade = 1
+        startPausedPending = 0
 
         redraweverything:
         ideselect = 0
@@ -1531,7 +1531,7 @@ FUNCTION ide2 (ignore)
             END IF
 
             _LIMIT 16
-
+            IF startPausedPending THEN GOTO startPausedMenuHandler
             GOTO waitforinput
         END IF 'change=0
 
@@ -1587,8 +1587,7 @@ FUNCTION ide2 (ignore)
             END IF
         END IF
 
-        IF KB = KEY_F7 OR KB = KEY_F8 OR startPausedPending = -1 THEN
-            startPausedPending = 0
+        IF KB = KEY_F7 OR KB = KEY_F8 THEN
             GOTO startPausedMenuHandler
         END IF
 
@@ -2962,6 +2961,7 @@ FUNCTION ide2 (ignore)
                                 END IF
                             ELSE
                                 idechangemade = 1
+                                startPausedPending = 0
                             END IF
 
                             PCOPY 3, 0
@@ -3379,7 +3379,7 @@ FUNCTION ide2 (ignore)
                     FOR bi = 1 TO IdeBmkN: GET #150, , IdeBmk(bi).y: GET #150, , IdeBmk(bi).x: NEXT
                     GET #150, , x&: idet$ = SPACE$(x&): GET #150, , idet$
 
-                    idechangemade = 1: idenoundo = 1
+                    idechangemade = 1: idenoundo = 1: startPausedPending = 0
 
                 END IF 'u
 
@@ -3440,7 +3440,7 @@ FUNCTION ide2 (ignore)
                     FOR bi = 1 TO IdeBmkN: GET #150, , IdeBmk(bi).y: GET #150, , IdeBmk(bi).x: NEXT
                     GET #150, , x&: idet$ = SPACE$(x&): GET #150, , idet$
 
-                    idechangemade = 1: idenoundo = 1
+                    idechangemade = 1: idenoundo = 1: startPausedPending = 0
 
                 END IF 'u
 
@@ -3453,12 +3453,14 @@ FUNCTION ide2 (ignore)
         IF ((KSHIFT AND KB = KEY_DELETE) OR (KCONTROL AND UCASE$(K$) = "X")) AND ideselect = 1 THEN 'cut to clipboard
             idemcut:
             idechangemade = 1
+            startPausedPending = 0
             GOTO copy2clip
         END IF
 
         IF (KB = KEY_DELETE OR KB = 8) AND ideselect = 1 THEN 'delete selection
             IF ideselecty1 <> idecy OR ideselectx1 <> idecx THEN
                 idechangemade = 1
+                startPausedPending = 0
                 delselect
                 GOTO specialchar
             ELSE
@@ -3520,6 +3522,7 @@ FUNCTION ide2 (ignore)
                 END IF
 
                 idechangemade = 1
+                startPausedPending = 0
             END IF
             GOTO specialchar
         END IF
@@ -3769,6 +3772,7 @@ FUNCTION ide2 (ignore)
                 ideselect = 0
                 desiredcolumn = 1
                 idechangemade = 1
+                startPausedPending = 0
                 IF idecx > LEN(a$) THEN
                     ideinsline idecy + 1, ""
                     IF LEN(a$) = 0 THEN
@@ -3803,6 +3807,7 @@ FUNCTION ide2 (ignore)
 
         IF KB = KEY_DELETE AND KCONTROL = 0 THEN
             idechangemade = 1
+            startPausedPending = 0
             a$ = idegetline(idecy)
             IF idecx <= LEN(a$) THEN
                 a$ = LEFT$(a$, idecx - 1) + RIGHT$(a$, LEN(a$) - idecx)
@@ -3824,6 +3829,7 @@ FUNCTION ide2 (ignore)
             (INSTR(_OS$, "MAC") > 0 AND K$ = CHR$(8) AND KCONTROL) THEN
             ideselect = 0
             idechangemade = 1
+            startPausedPending = 0
 
             'undocombos
             IF ideundocombochr <> 8 THEN
@@ -3881,6 +3887,7 @@ FUNCTION ide2 (ignore)
         IF K$ = CHR$(8) THEN 'Regular Backspace
             ideselect = 0
             idechangemade = 1
+            startPausedPending = 0
 
             'undocombos
             IF ideundocombochr <> 8 THEN
@@ -4007,6 +4014,7 @@ FUNCTION ide2 (ignore)
                                 a$ = RIGHT$(a$, LEN(a$) - BlockIndentLevel)
                                 idesetline y, a$
                                 idechangemade = 1
+                                startPausedPending = 0
                             END IF
                         NEXT
                     END IF
@@ -4056,6 +4064,7 @@ FUNCTION ide2 (ignore)
                             a$ = LEFT$(a$, lhs) + SPACE$(BlockIndentLevel) + RIGHT$(a$, LEN(a$) - lhs)
                             idesetline y, a$
                             idechangemade = 1
+                            startPausedPending = 0
                         END IF
                     NEXT
                     IF (y1 = y2) AND idechangemade THEN
@@ -4087,6 +4096,7 @@ FUNCTION ide2 (ignore)
         'standard character
         IF ideselect THEN delselect
         idechangemade = 1
+        startPausedPending = 0
 
         'undocombos
         IF LEN(K$) = 1 THEN
@@ -4714,6 +4724,7 @@ FUNCTION ide2 (ignore)
                         a$ = LEFT$(a$, lhs) + "'" + RIGHT$(a$, LEN(a$) - lhs)
                         idesetline y, a$
                         idechangemade = 1
+                        startPausedPending = 0
                     END IF
                 NEXT
                 PCOPY 3, 0: SCREEN , , 3, 0
@@ -4739,6 +4750,7 @@ FUNCTION ide2 (ignore)
                                 a$ = SPACE$(LEN(a$) - LEN(a2$)) + RIGHT$(a2$, LEN(a2$) - 1)
                                 idesetline y, a$
                                 idechangemade = 1
+                                startPausedPending = 0
                             END IF
                         END IF
                     END IF
@@ -4776,10 +4788,12 @@ FUNCTION ide2 (ignore)
                                 a$ = SPACE$(LEN(a$) - LEN(a2$)) + RIGHT$(a2$, LEN(a2$) - 1)
                                 idesetline y, a$
                                 idechangemade = 1
+                                startPausedPending = 0
                             ELSE
                                 a$ = LEFT$(a$, lhs) + "'" + RIGHT$(a$, LEN(a$) - lhs)
                                 idesetline y, a$
                                 idechangemade = 1
+                                startPausedPending = 0
                             END IF
                         END IF
                     END IF
@@ -4916,6 +4930,7 @@ FUNCTION ide2 (ignore)
                     menu$(OptionsMenuID, OptionsMenuShowErrorsImmediately) = "Syntax Ch#ecker"
                 END IF
                 idechangemade = 1
+                startPausedPending = 0
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -4932,6 +4947,7 @@ FUNCTION ide2 (ignore)
                     menu$(OptionsMenuID, OptionsMenuIgnoreWarnings) = "Ignore #Warnings"
                 END IF
                 idechangemade = 1
+                startPausedPending = 0
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -4984,7 +5000,7 @@ FUNCTION ide2 (ignore)
             IF menu$(m, s) = "#Code Layout..." THEN
                 PCOPY 2, 0
                 retval = idelayoutbox
-                IF retval THEN idechangemade = 1: idelayoutallow = 2 'recompile if options changed
+                IF retval THEN idechangemade = 1: idelayoutallow = 2: startPausedPending = 0 'recompile if options changed
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
@@ -5519,6 +5535,7 @@ FUNCTION ide2 (ignore)
                     IF r$ = "Y" THEN
                         l$ = idegetline(idecy)
                         idechangemade = 1
+                        startPausedPending = 0
                         IF LEN(l$) >= ideselectx1 THEN
                             l$ = LEFT$(l$, idecx - 1) + idechangeto$ + RIGHT$(l$, LEN(l$) - ideselectx1 + 1)
                         ELSE
@@ -5600,6 +5617,7 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 IF IdeSystem = 1 AND ideselect = 1 THEN
                     idechangemade = 1
+                    startPausedPending = 0
                     delselect
                 ELSEIF IdeSystem = 2 THEN
                     GOTO deleteSelectionSearchField
@@ -5692,6 +5710,7 @@ FUNCTION ide2 (ignore)
                         GOTO ideloop
                     END IF
                 ELSE
+                    startPausedPending = 0
                     startPaused = -1
                     GOTO idemrun
                 END IF
@@ -5933,6 +5952,7 @@ FUNCTION ide2 (ignore)
                 QuickNavTotal = 0
                 ModifyCOMMAND$ = ""
                 _TITLE WindowTitle
+                startPausedPending = 0
                 idechangemade = 1
                 idefocusline = 0
                 ideundobase = 0 'reset
@@ -6021,7 +6041,7 @@ FUNCTION ide2 (ignore)
                 END IF 'unsaved
                 r$ = idefiledialog$("", 1)
                 IF ideerror > 1 THEN PCOPY 3, 0: SCREEN , , 3, 0: GOTO IDEerrorMessage
-                IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0
+                IF r$ <> "C" THEN ideunsaved = -1: idechangemade = 1: idelayoutallow = 2: ideundobase = 0: QuickNavTotal = 0: ModifyCOMMAND$ = "": idefocusline = 0: startPausedPending = 0
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOSUB redrawItAll: GOTO ideloop
             END IF
@@ -9057,7 +9077,7 @@ FUNCTION idechange$
             IF changed = 0 THEN
                 idenomatch 0
             ELSE
-                idechanged changed: idechangemade = 1
+                idechanged changed: idechangemade = 1: startPausedPending = 0
             END IF
 
             idetxt(o(ButtonsID).txt) = "Find and #Verify" + sep + "#Change All" + sep + "Close"
@@ -10311,6 +10331,7 @@ SUB idenewsf (sf AS STRING)
         y = y + 1: idesetline y, "END " + sf$
         idecx = 1: idesx = 1
         idechangemade = 1
+        startPausedPending = 0
     END IF
 END SUB
 
@@ -13695,6 +13716,7 @@ FUNCTION ideadvancedbox
                 Include_GDB_Debugging_Info = idedebuginfo
                 purgeprecompiledcontent
                 idechangemade = 1 'force recompilation
+                startPausedPending = 0
             END IF
 
             EXIT FUNCTION
@@ -15442,6 +15464,7 @@ FUNCTION idergbmixer$ (editing)
                     NewLine$ = NewLine$ + CurrentRGB$
                     NewLine$ = NewLine$ + MID$(CurrentLine$, FindBracket2)
                     idechangemade = 1
+                    startPausedPending = 0
                     idesetline idecy, NewLine$
 
                     'Select the inserted bit
@@ -17814,6 +17837,7 @@ SUB insertAtCursor (tempk$)
     END IF
 
     idechangemade = 1
+    startPausedPending = 0
 END SUB
 
 FUNCTION findHelpTopic$(topic$, lnks, firstOnly AS _BYTE)
