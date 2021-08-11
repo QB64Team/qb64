@@ -5713,8 +5713,12 @@ FUNCTION ide2 (ignore)
                     END IF
                 ELSE
                     IF idecompiling = 1 THEN
-                        result = idemessagebox("Watch List", "Variable List not yet available.\nWait for the 'OK' message in the status area.", "#Continue Compilation")
-                        PCOPY 3, 0: SCREEN , , 3, 0
+                        SCREEN , , 3, 0
+                        COLOR 14, 1
+                        x = 2
+                        y = idewy - 2
+                        printWrapStatus x, y, x, "Variable List will be available after syntax checking is done..."
+                        PCOPY 3, 0
                         GOTO ideloop
                     ELSE
                         result$ = idevariablewatchbox$("", "", 0, 0)
