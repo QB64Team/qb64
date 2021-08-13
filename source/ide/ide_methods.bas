@@ -6345,6 +6345,11 @@ SUB DebugMode
     STATIC buffer$
     STATIC endc$
     STATIC currentSub$
+    STATIC debuggeehwnd AS _OFFSET
+
+    DECLARE LIBRARY
+        SUB set_foreground_window (BYVAL hwnd AS _OFFSET)
+    END DECLARE
 
     timeout = 10
     _KEYCLEAR
@@ -6395,6 +6400,7 @@ SUB DebugMode
             callstacklist$ = ""
             buffer$ = ""
             debugClient& = 0
+            debuggeepid = 0
 
             IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
@@ -6518,13 +6524,16 @@ SUB DebugMode
                     CLOSE #debugClient&
                     WHILE _MOUSEINPUT: WEND
                     EXIT SUB
-                ELSE
-                    EXIT DO
                 END IF
+            CASE "hwnd"
+                debuggeehwnd = _CV(_OFFSET, value$)
+                EXIT DO
         END SELECT
     LOOP
 
     cmd$ = "vwatch:ok"
+    GOSUB SendCommand
+    cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
     GOSUB SendCommand
     cmd$ = "line count:" + MKL$(iden)
     GOSUB SendCommand
@@ -7173,6 +7182,7 @@ SUB DebugMode
                 setStatusMessage 1, "Running...", 10
                 GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
+                set_foreground_window debuggeehwnd
             CASE 16384 'F6
                 F6:
                 requestStepOut:

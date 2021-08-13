@@ -12675,6 +12675,13 @@ qbs *func__title(){
     }
 }
 
+void set_foreground_window(ptrszint i) {
+    #ifdef QB64_WINDOWS
+        BOOL result = SetForegroundWindow((HWND) i);
+    #endif
+    return;
+}
+
 int32 func__hasfocus() {
     #ifdef QB64_GUI
         #ifdef QB64_WINDOWS

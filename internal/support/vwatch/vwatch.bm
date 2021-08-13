@@ -4,6 +4,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG vw_ideHost, vw_breakpointCount, vw_skipCount, vw_timeout, vw_startLevel, vw_lastLine
     STATIC AS LONG vw_runToLine
     STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine
+    STATIC AS _OFFSET vw_idehwnd
     STATIC vw_buffer$, vw_endc$
     DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_sequence
     DIM AS _OFFSET vw_address
@@ -18,6 +19,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         FUNCTION stop_program_state&
     END DECLARE
 
+    $IF WIN THEN
+        DECLARE DYNAMIC LIBRARY "user32"
+            FUNCTION SetForegroundWindow& (BYVAL hWnd AS _OFFSET)
+        END DECLARE
+    $END IF
+
     IF vw_bypass THEN EXIT SUB
 
     vwatch_goto = 0
@@ -31,6 +38,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
         'send this binary's path/exe name
         vw_cmd$ = "me:" + COMMAND$(0)
+        GOSUB SendCommand
+        vw_cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
         GOSUB SendCommand
 
         DO
@@ -59,6 +68,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_temp$ = MID$(vw_value$, vw_i * 4 - 3, 4)
                         vwatch_breakpoints(CVL(vw_temp$)) = -1
                     NEXT
+                CASE "hwnd"
+                    vw_idehwnd = _CV(_OFFSET, vw_value$)
                 CASE "skip count"
                     vw_skipCount = CVL(vw_value$)
                 CASE "skip list"
@@ -166,6 +177,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     GOSUB SendCommand
     vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
     GOSUB SendCommand
+
+    $IF WIN THEN
+        vw_i = SetForegroundWindow&(vw_idehwnd)
+    $END IF
 
     DO 'main loop
         IF stop_program_state& THEN vw_bypass = -1: EXIT DO

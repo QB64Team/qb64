@@ -187,6 +187,7 @@ extern int32 func__controlchr();
 extern void sub__blink(int32);
 extern int32 func__blink();
 extern int32 func__hasfocus();
+extern void set_foreground_window(ptrszint i);
 extern qbs *func__title();
 extern int32 func__handle();
 extern int32 func__fileexists(qbs*);
