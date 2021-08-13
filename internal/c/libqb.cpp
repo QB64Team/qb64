@@ -12658,6 +12658,8 @@ int64 func__handle(){
                 char pszConsoleTitle[1024];
                 GetConsoleTitle(pszConsoleTitle,1024);
                 window_handle = FindWindow(NULL, pszConsoleTitle);
+            #else
+                if (!window_exists) return 0;
             #endif
             while (!window_handle){Sleep(100);}
             return (ptrszint)window_handle;
