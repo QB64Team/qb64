@@ -109,7 +109,7 @@ DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
-    AS LONG linenumber, includeLevel, includedLine, scope, localIndex, strLength
+    AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex, strLength
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
     AS STRING watchRange, indexes, elements 'for Arrays and UDTs
@@ -25941,6 +25941,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 IF i > UBOUND(usedVariableList) THEN
                     REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
                 END IF
+                usedVariableList(i).id = currentid
                 usedVariableList(i).used = 0
                 usedVariableList(i).watch = 0
                 usedVariableList(i).mostRecentValue = ""
