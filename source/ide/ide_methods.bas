@@ -8000,24 +8000,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     nativeDataTypes$ = "@_BYTE@_UNSIGNED _BYTE@BYTE@UNSIGNED BYTE@INTEGER@_UNSIGNED INTEGER@UNSIGNED INTEGER@LONG@_UNSIGNED LONG@UNSIGNED LONG@_INTEGER64@INTEGER64@_UNSIGNED _INTEGER64@UNSIGNED INTEGER64@SINGLE@DOUBLE@_FLOAT@FLOAT@STRING@"
                     IF INSTR(nativeDataTypes$, varType$) = 0 THEN
                         'It's a UDT
-                        elementIndexes$ = ""
-                        thisUDT = 0
-                        E = 0
-                        FOR i = 1 TO lasttype
-                            IF RTRIM$(udtxcname(i)) = varType$ THEN thisUDT = i: EXIT FOR
-                        NEXT
-
-                        i = 0
-                        DO
-                            IF E = 0 THEN E = udtxnext(thisUDT) ELSE E = udtenext(E)
-                            IF E = 0 THEN EXIT DO
-                            elementIndexes$ = elementIndexes$ + MKL$(E)
-                            i = i + 1
-                        LOOP
-                        PCOPY 0, 4
-                        v$ = ideelementwatchbox$(usedVariableList(varDlgList(y).index).name + ".", elementIndexes$, ok)
-                        PCOPY 4, 0
+                        temp$ = usedVariableList(varDlgList(y).index).name + "."
+                        v$ = ideinputbox$("Watch UDT", "#Element to watch", temp$, "", 45, 0, ok)
                         IF ok THEN
+                            IF LEFT$(v$, LEN(temp$)) = temp$ THEN v$ = MID$(v$, LEN(temp$))
+                            v$ = lineformat$(UCASE$(v$))
+                            getid usedVariableList(varDlgList(y).index).id
+                            result$ = udtreference$("", v$, typ)
+                            result = idemessagebox("Result", v$ + "\n" + result$ + "\n" + STR$(typ), "#OK")
                         ELSE
                         END IF
                     END IF
