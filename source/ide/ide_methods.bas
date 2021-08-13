@@ -8006,8 +8006,15 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             IF LEFT$(v$, LEN(temp$)) = temp$ THEN v$ = MID$(v$, LEN(temp$))
                             v$ = lineformat$(UCASE$(v$))
                             getid usedVariableList(varDlgList(y).index).id
+                            Error_Happened = 0
                             result$ = udtreference$("", v$, typ)
-                            result = idemessagebox("Result", v$ + "\n" + result$ + "\n" + STR$(typ), "#OK")
+                            IF Error_Happened THEN
+                                result = idemessagebox("Error", Error_Message, "#OK")
+                                GOTO unWatch
+                            ELSE
+                                result = idemessagebox("Result", v$ + "\n" + result$ + "\n" + STR$(typ), "#OK")
+                                GOTO unWatch 'temporarily
+                            END IF
                         ELSE
                         END IF
                     END IF
