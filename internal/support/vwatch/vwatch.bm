@@ -16,14 +16,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         SUB vwatch_starttimers ALIAS start_timers
         SUB unlockvWatchHandle
         SUB set_qbs_size (target AS _OFFSET, BYVAL length&)
+        SUB set_foreground_window (BYVAL hwnd AS _OFFSET)
         FUNCTION stop_program_state&
     END DECLARE
-
-    $IF WIN THEN
-        DECLARE DYNAMIC LIBRARY "user32"
-            FUNCTION SetForegroundWindow& (BYVAL hWnd AS _OFFSET)
-        END DECLARE
-    $END IF
 
     IF vw_bypass THEN EXIT SUB
 
@@ -178,9 +173,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
     GOSUB SendCommand
 
-    $IF WIN THEN
-        vw_i = SetForegroundWindow&(vw_idehwnd)
-    $END IF
+    set_foreground_window vw_idehwnd
 
     DO 'main loop
         IF stop_program_state& THEN vw_bypass = -1: EXIT DO

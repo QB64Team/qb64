@@ -11611,6 +11611,9 @@ extern int32 qbs_input_variabletypes[257];
 qbs *qbs_input_arguements[257];
 int32 cursor_show_last;
 
+void set_foreground_window(ptrszint i);
+int64 func__handle();
+
 void qbs_input(int32 numvariables,uint8 newline){
     if (new_error) return;
     int32 i,i2,i3,i4,i5,i6,chr;
@@ -11622,6 +11625,10 @@ void qbs_input(int32 numvariables,uint8 newline){
     static int32 source_backup;
     source_backup=func__source();
     sub__source(func__dest());
+    
+    #ifdef QB64_WINDOWS
+        if (vwatch>0) set_foreground_window((ptrszint)func__handle());
+    #endif
     
     //duplicate dest image so any changes can be reverted
     static int32 dest_image,dest_image_temp,dest_image_holding_cursor;
