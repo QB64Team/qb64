@@ -7617,7 +7617,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
     COLOR fg, bg
     ideboxshadow this.x, this.y, this.w, this.h
     COLOR 15, bg
-    _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(18) 'resize handle
+    _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
 
     x = LEN(title$) + 2
     COLOR fg, bg
