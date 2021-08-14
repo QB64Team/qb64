@@ -8001,21 +8001,24 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     IF INSTR(nativeDataTypes$, varType$) = 0 THEN
                         'It's a UDT
                         temp$ = usedVariableList(varDlgList(y).index).name + "."
-                        v$ = ideinputbox$("Watch UDT", "#Element to watch", temp$, "", 45, 0, ok)
+                        v$ = ideinputbox$("Watch UDT", temp$, "", "", 45, 0, ok)
                         IF ok THEN
-                            IF LEFT$(v$, LEN(temp$)) = temp$ THEN v$ = MID$(v$, LEN(temp$))
+                            IF LEFT$(v$, 1) <> "." THEN v$ = "." + v$
                             v$ = lineformat$(UCASE$(v$))
                             getid usedVariableList(varDlgList(y).index).id
                             Error_Happened = 0
                             result$ = udtreference$("", v$, typ)
                             IF Error_Happened THEN
                                 result = idemessagebox("Error", Error_Message, "#OK")
+                                usedVariableList(varDlgList(y).index).watch = 0
                                 GOTO unWatch
                             ELSE
                                 result = idemessagebox("Result", v$ + "\n" + result$ + "\n" + STR$(typ), "#OK")
-                                GOTO unWatch 'temporarily
+                                usedVariableList(varDlgList(y).index).watch = 0: GOTO unWatch 'temporarily
                             END IF
                         ELSE
+                            usedVariableList(varDlgList(y).index).watch = 0
+                            GOTO unWatch
                         END IF
                     END IF
 
