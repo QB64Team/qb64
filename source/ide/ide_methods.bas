@@ -1289,7 +1289,7 @@ FUNCTION ide2 (ignore)
 
         change = 0
         waitforinput:
-
+        IF startPausedPending THEN GOTO idemrun
         IF idecurrentlinelayouti THEN
             IF idecy <> idecurrentlinelayouti THEN
                 idesetline idecurrentlinelayouti, idecurrentlinelayout$
@@ -1531,7 +1531,6 @@ FUNCTION ide2 (ignore)
             END IF
 
             _LIMIT 16
-            IF startPausedPending THEN GOTO startPausedMenuHandler
             GOTO waitforinput
         END IF 'change=0
 
@@ -1626,6 +1625,7 @@ FUNCTION ide2 (ignore)
         IF KB = KEY_F5 THEN 'Note: F5 or SHIFT+F5 accepted
             startPaused = 0
             idemrun:
+            startPausedPending = 0
             iderunmode = 1 'run detached; = 0 'standard run
             idemrunspecial:
 
@@ -5705,7 +5705,7 @@ FUNCTION ide2 (ignore)
                         idechangemade = 1
                         startPaused = -1
                         startPausedPending = -1
-                        GOTO ideloop
+                        GOTO specialchar
                     ELSE
                         GOTO ideloop
                     END IF
