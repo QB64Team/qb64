@@ -7489,6 +7489,21 @@ SUB DebugMode
                 setStatusMessage 1, "Error occurred on line" + STR$(l), 15
                 BypassRequestCallStack = -1
                 PauseMode = -1
+            CASE "enter input"
+                l = CVL(value$)
+                idecy = l
+                ideselect = 0
+                GOSUB UpdateDisplay
+                clearStatusWindow 1
+                setStatusMessage 1, "INPUT/LINE INPUT active in your program...", 10
+                set_foreground_window debuggeehwnd
+            CASE "leave input"
+                clearStatusWindow 1
+                IF PauseMode THEN
+                    setStatusMessage 1, "Paused.", 2
+                ELSE
+                    setStatusMessage 1, "Running...", 10
+                END IF
             CASE "call stack size"
                 'call stack is only received without having been
                 'requested when the program is about to quit or

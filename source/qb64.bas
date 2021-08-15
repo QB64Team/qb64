@@ -10121,8 +10121,14 @@ DO
                     NEXT
                     IF numvar = 0 THEN a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     IF lineinput = 1 AND numvar > 1 THEN a$ = "Too many variables": GOTO errmes
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
                     PRINT #12, "qbs_input(" + str2(numvar) + "," + str2$(newline) + ");"
                     PRINT #12, "if (stop_program) end();"
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
                     PRINT #12, cleanupstringprocessingcall$ + "0);"
                     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                     GOTO finishedline
