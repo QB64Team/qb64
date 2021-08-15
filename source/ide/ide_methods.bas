@@ -6441,9 +6441,8 @@ SUB DebugMode
         CASE 15: IdeDebugMode = 1: GOTO requestUnskipAllLines
     END SELECT
 
-    COLOR 0, 7: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
+    COLOR 15, 3: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
     m$ = "$DEBUG MODE ACTIVE"
-    COLOR 0
     _PRINTSTRING ((idewx - LEN(m$)) \ 2, 1), m$
 
     dummy = DarkenFGBG(1)
@@ -7498,6 +7497,7 @@ SUB DebugMode
                 EnteredInput = -1
                 l = CVL(value$)
                 idecy = l
+                debugnextline = l
                 ideselect = 0
                 GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
