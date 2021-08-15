@@ -18735,6 +18735,8 @@ END FUNCTION
 
 
 FUNCTION fixoperationorder$ (savea$)
+    STATIC uboundlbound AS _BYTE
+
     a$ = savea$
     IF Debug THEN PRINT #9, "fixoperationorder:in:" + a$
 
@@ -18743,6 +18745,7 @@ FUNCTION fixoperationorder$ (savea$)
     n = numelements(a$) 'n is maintained throughout function
 
     IF fooindwel = 1 THEN 'actions to take on initial call only
+        uboundlbound = 0
 
         'Quick check for duplicate binary operations
         uppercasea$ = UCASE$(a$) 'capitalize it once to reduce calls to ucase over and over
@@ -19367,7 +19370,7 @@ FUNCTION fixoperationorder$ (savea$)
 
                             IF Debug THEN PRINT #9, "found id matching " + f2$
 
-                            IF nextc = 40 THEN '(
+                            IF nextc = 40 OR uboundlbound <> 0 THEN '(
 
                                 'function or array?
                                 IF id.arraytype <> 0 OR id.subfunc = 1 THEN
@@ -19379,6 +19382,7 @@ FUNCTION fixoperationorder$ (savea$)
                                     IF Error_Happened THEN EXIT FUNCTION
                                     IF id.internal_subfunc THEN
                                         f2$ = SCase$(RTRIM$(id.cn)) + s$
+                                        uboundlbound = (UCASE$(f2$) = "UBOUND" OR UCASE$(f2$) = "LBOUND")
                                     ELSE
                                         f2$ = RTRIM$(id.cn) + s$
                                     END IF
