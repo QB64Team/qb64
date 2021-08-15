@@ -8217,17 +8217,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ =  "Name already in use (" + varname$ + ")": GOTO errmes
+                                        a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ =  "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ =  "Name already in use (" + varname$ + ")": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8244,7 +8244,7 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ =  "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
