@@ -1974,10 +1974,10 @@ DO
                                 hashres = HashFind(hashname$, hashchkflags, hashresflags, hashresref)
                                 DO WHILE hashres
                                     IF hashresflags AND HASHFLAG_UDTELEMENT THEN
-                                        IF hashresref = i THEN a$ = "Name already in use": GOTO errmes
+                                        IF hashresref = i THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     END IF
                                     IF hashresflags AND HASHFLAG_RESERVED THEN
-                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use": GOTO errmes
+                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     END IF
                                     IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                                 LOOP
@@ -2105,7 +2105,7 @@ DO
                                     IF hashresflags AND HASHFLAG_RESERVED THEN
                                         IF (hashresflags AND (HASHFLAG_TYPE + HASHFLAG_OPERATOR + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_XTYPENAME)) = 0 THEN allow = 1
                                     END IF
-                                    IF allow = 0 THEN a$ = "Name already in use": GOTO errmes
+                                    IF allow = 0 THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                                 LOOP
 
@@ -2304,16 +2304,16 @@ DO
                                             END IF
                                             GOTO constAddDone
                                         ELSE
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
                                 IF hashresflags AND HASHFLAG_RESERVED THEN
-                                    a$ = "Name already in use": GOTO errmes
+                                    a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                 END IF
                                 IF hashresflags AND (HASHFLAG_SUB + HASHFLAG_FUNCTION) THEN
-                                    IF ids(hashresref).internal_subfunc = 0 OR RTRIM$(ids(hashresref).musthave) <> "$" THEN a$ = "Name already in use": GOTO errmes
-                                    IF t AND ISSTRING THEN a$ = "Name already in use": GOTO errmes
+                                    IF ids(hashresref).internal_subfunc = 0 OR RTRIM$(ids(hashresref).musthave) <> "$" THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
+                                    IF t AND ISSTRING THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                 END IF
                                 IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                             LOOP
@@ -8134,17 +8134,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ = "Name already in use": GOTO errmes
+                                        a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8161,17 +8161,17 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
                                     IF dimmethod = 0 THEN
-                                        a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                        a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes 'explicit over explicit
                                     ELSE
                                         'if types match then fail
                                         IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                             IF ts = id.tsize THEN
-                                                a$ = "Name already in use": GOTO errmes
+                                                a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                             END IF
                                         END IF
                                     END IF
@@ -8195,13 +8195,13 @@ DO
                         IF UCASE$(varname$) = UCASE$(varname2$) THEN
                             IF dimmethod2 = 1 THEN
                                 'old using symbol
-                                IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use": GOTO errmes
+                                IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                             ELSE
                                 'old using AS
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                 ELSE
-                                    IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use": GOTO errmes
+                                    IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                 END IF
                             END IF
                         END IF
@@ -8217,17 +8217,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ = "Name already in use": GOTO errmes
+                                        a$ =  "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                    a$ =  "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ =  "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8244,17 +8244,17 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ =  "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
                                     IF dimmethod = 0 THEN
-                                        a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                        a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes 'explicit over explicit
                                     ELSE
                                         'if types match then fail
                                         IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                             IF ts = id.tsize THEN
-                                                a$ = "Name already in use": GOTO errmes
+                                                a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                             END IF
                                         END IF
                                     END IF
@@ -21163,7 +21163,7 @@ SUB regid
                             IF INSTR(ids(currentid).mayhave, "$") = 0 THEN allow = 1
                         END IF
                     END IF
-                    IF allow = 0 THEN Give_Error "Name already in use": EXIT SUB
+                    IF allow = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF 'hashres
                 IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
             LOOP
@@ -21194,35 +21194,35 @@ SUB regid
                         'All reserved words can be used as variables in QBASIC if "$" is appended to the variable name!
                         '(allow)
                     ELSE
-                        Give_Error "Name already in use": EXIT SUB 'Conflicts with reserved word
+                        Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Conflicts with reserved word
                     END IF
                 END IF 'HASHFLAG_RESERVED
 
                 'conflict with sub/function?
                 IF hashresflags AND (HASHFLAG_FUNCTION + HASHFLAG_SUB) THEN
-                    IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
+                    IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
                     IF RTRIM$(id.n) = "WIDTH" AND ids(hashresref).subfunc = 2 THEN GOTO varname_exception
                     musthave$ = RTRIM$(id.musthave)
                     IF LEN(musthave$) = 0 THEN
                         IF RTRIM$(ids(hashresref).musthave) = "$" THEN
                             'a sub/func requiring "$" can co-exist with implicit numeric variables
-                            IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use": EXIT SUB
+                            IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                         ELSE
-                            Give_Error "Name already in use": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
+                            Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
                         END IF
                     END IF 'len(musthave$)=0
                     IF INSTR(musthave$, "$") THEN
-                        IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use": EXIT SUB 'A sub/function name already exists as a string
+                        IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A sub/function name already exists as a string
                         '(allow)
                     ELSE
-                        IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use": EXIT SUB 'A non-"$" sub/func name already exists with this name
+                        IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A non-"$" sub/func name already exists with this name
                     END IF
                 END IF 'HASHFLAG_FUNCTION + HASHFLAG_SUB
 
                 'conflict with constant?
                 IF hashresflags AND HASHFLAG_CONSTANT THEN
                     scope1 = constsubfunc(hashresref)
-                    IF (scope1 = 0 AND AllowLocalName = 0) OR scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                    IF (scope1 = 0 AND AllowLocalName = 0) OR scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF
 
                 'conflict with variable?
@@ -21230,12 +21230,12 @@ SUB regid
                     astype1 = 0: IF ASC(ids(hashresref).musthave) = 32 THEN astype1 = 1
                     scope1 = ids(hashresref).insubfuncn
                     IF astype1 = 1 AND astype2 = 1 THEN
-                        IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                        IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     END IF
                     'same type?
                     IF id.t = ids(hashresref).t THEN
                         IF id.tsize = ids(hashresref).tsize THEN
-                            IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                            IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                         END IF
                     END IF
                     'will astype'd fixed STRING-variable mask a non-fixed string?
@@ -21243,7 +21243,7 @@ SUB regid
                         IF astype2 = 1 THEN
                             IF ids(hashresref).t AND ISSTRING THEN
                                 IF (ids(hashresref).t AND ISFIXEDLENGTH) = 0 THEN
-                                    IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                                    IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                                 END IF
                             END IF
                         END IF
@@ -21274,29 +21274,29 @@ SUB regid
                     'All reserved words can be used as variables in QBASIC if "$" is appended to the variable name!
                     '(allow)
                 ELSE
-                    Give_Error "Name already in use": EXIT SUB 'Conflicts with reserved word
+                    Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Conflicts with reserved word
                 END IF
             END IF 'HASHFLAG_RESERVED
 
             'conflict with sub/function?
             IF hashresflags AND (HASHFLAG_FUNCTION + HASHFLAG_SUB) THEN
-                IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
+                IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
                 IF RTRIM$(id.n) = "WIDTH" AND ids(hashresref).subfunc = 2 THEN GOTO arrayname_exception
                 musthave$ = RTRIM$(id.musthave)
 
                 IF LEN(musthave$) = 0 THEN
                     IF RTRIM$(ids(hashresref).musthave) = "$" THEN
                         'a sub/func requiring "$" can co-exist with implicit numeric variables
-                        IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use": EXIT SUB
+                        IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     ELSE
-                        Give_Error "Name already in use": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
+                        Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
                     END IF
                 END IF 'len(musthave$)=0
                 IF INSTR(musthave$, "$") THEN
-                    IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use": EXIT SUB 'A sub/function name already exists as a string
+                    IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A sub/function name already exists as a string
                     '(allow)
                 ELSE
-                    IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use": EXIT SUB 'A non-"$" sub/func name already exists with this name
+                    IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A non-"$" sub/func name already exists with this name
                 END IF
             END IF 'HASHFLAG_FUNCTION + HASHFLAG_SUB
 
@@ -21305,12 +21305,12 @@ SUB regid
                 astype1 = 0: IF ASC(ids(hashresref).musthave) = 32 THEN astype1 = 1
                 scope1 = ids(hashresref).insubfuncn
                 IF astype1 = 1 AND astype2 = 1 THEN
-                    IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                    IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF
                 'same type?
                 IF id.arraytype = ids(hashresref).arraytype THEN
                     IF id.tsize = ids(hashresref).tsize THEN
-                        IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                        IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     END IF
                 END IF
                 'will astype'd fixed STRING-variable mask a non-fixed string?
@@ -21318,7 +21318,7 @@ SUB regid
                     IF astype2 = 1 THEN
                         IF ids(hashresref).arraytype AND ISSTRING THEN
                             IF (ids(hashresref).arraytype AND ISFIXEDLENGTH) = 0 THEN
-                                IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                                IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                             END IF
                         END IF
                     END IF
