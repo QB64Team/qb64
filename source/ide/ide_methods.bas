@@ -6341,7 +6341,7 @@ SUB UpdateTitleOfMainWindow
 END SUB
 
 SUB DebugMode
-    STATIC AS _BYTE PauseMode, noFocusMessage
+    STATIC AS _BYTE PauseMode, noFocusMessage, EnteredInput
     STATIC buffer$
     STATIC endc$
     STATIC currentSub$
@@ -7211,7 +7211,12 @@ SUB DebugMode
                     GOSUB SendCommand
                 END IF
                 clearStatusWindow 1
-                setStatusMessage 1, "Paused.", 2
+                IF EnteredInput THEN
+                    setStatusMessage 1, "Execution will be paused after INPUT/LINE INPUT finishes running...", 2
+                    set_foreground_window debuggeehwnd
+                ELSE
+                    setStatusMessage 1, "Paused.", 2
+                END IF
                 IF IdeDebugMode = 2 THEN RETURN
             CASE 16896 'F8
                 F8:
@@ -7490,17 +7495,21 @@ SUB DebugMode
                 BypassRequestCallStack = -1
                 PauseMode = -1
             CASE "enter input"
+                EnteredInput = -1
                 l = CVL(value$)
                 idecy = l
                 ideselect = 0
                 GOSUB UpdateDisplay
+                dummy = DarkenFGBG(1)
                 clearStatusWindow 1
                 setStatusMessage 1, "INPUT/LINE INPUT active in your program...", 10
                 set_foreground_window debuggeehwnd
             CASE "leave input"
+                EnteredInput = 0
                 clearStatusWindow 1
                 IF PauseMode THEN
                     setStatusMessage 1, "Paused.", 2
+                    dummy = DarkenFGBG(0)
                 ELSE
                     setStatusMessage 1, "Running...", 10
                 END IF
