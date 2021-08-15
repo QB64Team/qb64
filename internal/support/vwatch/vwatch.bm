@@ -3,7 +3,7 @@ $CHECKING:OFF
 SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG vw_ideHost, vw_breakpointCount, vw_skipCount, vw_timeout, vw_startLevel, vw_lastLine
     STATIC AS LONG vw_runToLine
-    STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine
+    STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine, vw_hwndsent
     STATIC AS _OFFSET vw_idehwnd
     STATIC vw_buffer$, vw_endc$
     DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_sequence
@@ -34,8 +34,11 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         'send this binary's path/exe name
         vw_cmd$ = "me:" + COMMAND$(0)
         GOSUB SendCommand
-        vw_cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
-        GOSUB SendCommand
+        IF _WINDOWHANDLE THEN
+            vw_hwndsent = -1
+            vw_cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
+            GOSUB SendCommand
+        END IF
 
         DO
             GOSUB GetCommand
@@ -88,6 +91,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     EXIT DO
             END SELECT
         LOOP
+    END IF
+
+    IF vw_hwndsent = 0 AND _WINDOWHANDLE > 0 THEN
+        vw_hwndsent = -1
+        vw_cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
+        GOSUB SendCommand
     END IF
 
     IF vwatch_linenumber = 0 THEN

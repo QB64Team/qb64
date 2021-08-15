@@ -6525,8 +6525,6 @@ SUB DebugMode
                     WHILE _MOUSEINPUT: WEND
                     EXIT SUB
                 END IF
-            CASE "hwnd"
-                debuggeehwnd = _CV(_OFFSET, value$)
                 EXIT DO
         END SELECT
     LOOP
@@ -7392,6 +7390,8 @@ SUB DebugMode
                         END IF
                     LOOP
                 END IF
+            CASE "hwnd"
+                debuggeehwnd = _CV(_OFFSET, value$)
             CASE "global var", "local var"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 address%& = _CV(_OFFSET, MID$(value$, 5))
