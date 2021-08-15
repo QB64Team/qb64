@@ -1,23 +1,21 @@
-qbs*oldstr5153=NULL;
-if(_SUB_IDESETLINE_STRING_TEXT->tmp||_SUB_IDESETLINE_STRING_TEXT->fixed||_SUB_IDESETLINE_STRING_TEXT->readonly){
-oldstr5153=_SUB_IDESETLINE_STRING_TEXT;
-if (oldstr5153->cmem_descriptor){
-_SUB_IDESETLINE_STRING_TEXT=qbs_new_cmem(oldstr5153->len,0);
+qbs *_FUNC_IDECLEARHISTORY_STRING_IDECLEARHISTORY=NULL;
+if (!_FUNC_IDECLEARHISTORY_STRING_IDECLEARHISTORY)_FUNC_IDECLEARHISTORY_STRING_IDECLEARHISTORY=qbs_new(0,0);
+qbs*oldstr5229=NULL;
+if(_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY->tmp||_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY->fixed||_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY->readonly){
+oldstr5229=_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY;
+if (oldstr5229->cmem_descriptor){
+_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY=qbs_new_cmem(oldstr5229->len,0);
 }else{
-_SUB_IDESETLINE_STRING_TEXT=qbs_new(oldstr5153->len,0);
+_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY=qbs_new(oldstr5229->len,0);
 }
-memcpy(_SUB_IDESETLINE_STRING_TEXT->chr,oldstr5153->chr,oldstr5153->len);
+memcpy(_FUNC_IDECLEARHISTORY_STRING_WHICHHISTORY->chr,oldstr5229->chr,oldstr5229->len);
 }
-int32 *_SUB_IDESETLINE_LONG_TEXTLEN=NULL;
-if(_SUB_IDESETLINE_LONG_TEXTLEN==NULL){
-_SUB_IDESETLINE_LONG_TEXTLEN=(int32*)mem_static_malloc(4);
-*_SUB_IDESETLINE_LONG_TEXTLEN=0;
-}
-byte_element_struct *byte_element_5154=NULL;
-if (!byte_element_5154){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5154=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5154=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5155=NULL;
-if (!byte_element_5155){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5155=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5155=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_IDECLEARHISTORY_STRING_T=NULL;
+if (!_FUNC_IDECLEARHISTORY_STRING_T)_FUNC_IDECLEARHISTORY_STRING_T=qbs_new(0,0);
+qbs *_FUNC_IDECLEARHISTORY_STRING_M=NULL;
+if (!_FUNC_IDECLEARHISTORY_STRING_M)_FUNC_IDECLEARHISTORY_STRING_M=qbs_new(0,0);
+int32 *_FUNC_IDECLEARHISTORY_LONG_RESULT=NULL;
+if(_FUNC_IDECLEARHISTORY_LONG_RESULT==NULL){
+_FUNC_IDECLEARHISTORY_LONG_RESULT=(int32*)mem_static_malloc(4);
+*_FUNC_IDECLEARHISTORY_LONG_RESULT=0;
 }

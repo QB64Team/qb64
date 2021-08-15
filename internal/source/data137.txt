@@ -1,9 +1,44 @@
-int32 *_SUB_IDEBOX_LONG_Y2=NULL;
-if(_SUB_IDEBOX_LONG_Y2==NULL){
-_SUB_IDEBOX_LONG_Y2=(int32*)mem_static_malloc(4);
-*_SUB_IDEBOX_LONG_Y2=0;
+qbs *_FUNC_FORMATRANGE_STRING_FORMATRANGE=NULL;
+if (!_FUNC_FORMATRANGE_STRING_FORMATRANGE)_FUNC_FORMATRANGE_STRING_FORMATRANGE=qbs_new(0,0);
+qbs*oldstr4945=NULL;
+if(_FUNC_FORMATRANGE_STRING___TEXT->tmp||_FUNC_FORMATRANGE_STRING___TEXT->fixed||_FUNC_FORMATRANGE_STRING___TEXT->readonly){
+oldstr4945=_FUNC_FORMATRANGE_STRING___TEXT;
+if (oldstr4945->cmem_descriptor){
+_FUNC_FORMATRANGE_STRING___TEXT=qbs_new_cmem(oldstr4945->len,0);
+}else{
+_FUNC_FORMATRANGE_STRING___TEXT=qbs_new(oldstr4945->len,0);
 }
-int64 fornext_value4899;
-int64 fornext_finalvalue4899;
-int64 fornext_step4899;
-uint8 fornext_step_negative4899;
+memcpy(_FUNC_FORMATRANGE_STRING___TEXT->chr,oldstr4945->chr,oldstr4945->len);
+}
+qbs *_FUNC_FORMATRANGE_STRING_TEMP=NULL;
+if (!_FUNC_FORMATRANGE_STRING_TEMP)_FUNC_FORMATRANGE_STRING_TEMP=qbs_new(0,0);
+int32 *_FUNC_FORMATRANGE_LONG_V1=NULL;
+if(_FUNC_FORMATRANGE_LONG_V1==NULL){
+_FUNC_FORMATRANGE_LONG_V1=(int32*)mem_static_malloc(4);
+*_FUNC_FORMATRANGE_LONG_V1=0;
+}
+int32 *_FUNC_FORMATRANGE_LONG_V2=NULL;
+if(_FUNC_FORMATRANGE_LONG_V2==NULL){
+_FUNC_FORMATRANGE_LONG_V2=(int32*)mem_static_malloc(4);
+*_FUNC_FORMATRANGE_LONG_V2=0;
+}
+int32 *_FUNC_FORMATRANGE_LONG_I=NULL;
+if(_FUNC_FORMATRANGE_LONG_I==NULL){
+_FUNC_FORMATRANGE_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_FORMATRANGE_LONG_I=0;
+}
+int64 fornext_value4947;
+int64 fornext_finalvalue4947;
+int64 fornext_step4947;
+uint8 fornext_step_negative4947;
+byte_element_struct *byte_element_4948=NULL;
+if (!byte_element_4948){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4948=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4948=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_FORMATRANGE_LONG_V=NULL;
+if(_FUNC_FORMATRANGE_LONG_V==NULL){
+_FUNC_FORMATRANGE_LONG_V=(int32*)mem_static_malloc(4);
+*_FUNC_FORMATRANGE_LONG_V=0;
+}
+qbs *_FUNC_FORMATRANGE_STRING_A2=NULL;
+if (!_FUNC_FORMATRANGE_STRING_A2)_FUNC_FORMATRANGE_STRING_A2=qbs_new(0,0);
