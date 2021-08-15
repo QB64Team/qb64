@@ -1,35 +1,10 @@
-qbs *_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL=NULL;
-if (!_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL)_FUNC_WIKIGETUNTIL_STRING_WIKIGETUNTIL=qbs_new(0,0);
-qbs*oldstr6159=NULL;
-if(_FUNC_WIKIGETUNTIL_STRING_A->tmp||_FUNC_WIKIGETUNTIL_STRING_A->fixed||_FUNC_WIKIGETUNTIL_STRING_A->readonly){
-oldstr6159=_FUNC_WIKIGETUNTIL_STRING_A;
-if (oldstr6159->cmem_descriptor){
-_FUNC_WIKIGETUNTIL_STRING_A=qbs_new_cmem(oldstr6159->len,0);
-}else{
-_FUNC_WIKIGETUNTIL_STRING_A=qbs_new(oldstr6159->len,0);
+int32 *_FUNC_HELP_COL_LONG_HELP_COL=NULL;
+if(_FUNC_HELP_COL_LONG_HELP_COL==NULL){
+_FUNC_HELP_COL_LONG_HELP_COL=(int32*)mem_static_malloc(4);
+*_FUNC_HELP_COL_LONG_HELP_COL=0;
 }
-memcpy(_FUNC_WIKIGETUNTIL_STRING_A->chr,oldstr6159->chr,oldstr6159->len);
-}
-qbs*oldstr6160=NULL;
-if(_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->tmp||_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->fixed||_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->readonly){
-oldstr6160=_FUNC_WIKIGETUNTIL_STRING_SEPARATOR;
-if (oldstr6160->cmem_descriptor){
-_FUNC_WIKIGETUNTIL_STRING_SEPARATOR=qbs_new_cmem(oldstr6160->len,0);
-}else{
-_FUNC_WIKIGETUNTIL_STRING_SEPARATOR=qbs_new(oldstr6160->len,0);
-}
-memcpy(_FUNC_WIKIGETUNTIL_STRING_SEPARATOR->chr,oldstr6160->chr,oldstr6160->len);
-}
-byte_element_struct *byte_element_6161=NULL;
-if (!byte_element_6161){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6161=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6161=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_FUNC_WIKIGETUNTIL_LONG_J=NULL;
-if(_FUNC_WIKIGETUNTIL_LONG_J==NULL){
-_FUNC_WIKIGETUNTIL_LONG_J=(int32*)mem_static_malloc(4);
-*_FUNC_WIKIGETUNTIL_LONG_J=0;
-}
-byte_element_struct *byte_element_6162=NULL;
-if (!byte_element_6162){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6162=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6162=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_HELP_COL_LONG_COL=NULL;
+if(_FUNC_HELP_COL_LONG_COL==NULL){
+_FUNC_HELP_COL_LONG_COL=(int32*)mem_static_malloc(4);
+*_FUNC_HELP_COL_LONG_COL=0;
 }
