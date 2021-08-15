@@ -11543,6 +11543,9 @@ SUB ideshowtext
             ELSE
                 _PRINTSTRING (1, y + 3), CHR$(7)
             END IF
+        ELSEIF vWatchOn = 1 AND l = debugnextline THEN
+            COLOR 10
+            _PRINTSTRING (1, y + 3), CHR$(16)
         END IF
     END IF
     RETURN
