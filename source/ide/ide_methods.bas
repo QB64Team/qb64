@@ -7937,11 +7937,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             (IdeDebugMode > 0 AND focus = 6 AND info <> 0) THEN
             variableWatchList$ = ""
             longestVarName = 0
-            FOR y = 1 TO totalVisibleVariables
-                IF usedVariableList(varDlgList(y).index).watch THEN
-                    thisLen = LEN(usedVariableList(varDlgList(y).index).name)
-                    IF usedVariableList(varDlgList(y).index).isarray THEN
-                        thisLen = thisLen + LEN(STR$(CVL(RIGHT$(usedVariableList(varDlgList(y).index).indexes, 4)))) - 1
+            FOR y = 1 TO totalVariablesCreated
+                IF usedVariableList(y).watch THEN
+                    thisLen = LEN(usedVariableList(y).name)
+                    IF usedVariableList(y).isarray THEN
+                        thisLen = thisLen + LEN(STR$(CVL(RIGHT$(usedVariableList(y).indexes, 4)))) - 1
                     END IF
 
                     IF thisLen > longestVarName THEN
@@ -7949,14 +7949,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
                         MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
                     END IF
-                    IF usedVariableList(varDlgList(y).index).isarray THEN
-                        temp$ = usedVariableList(varDlgList(y).index).indexes
+                    IF usedVariableList(y).isarray THEN
+                        temp$ = usedVariableList(y).indexes
                         DO WHILE LEN(temp$)
-                            variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index) + LEFT$(temp$, 4)
+                            variableWatchList$ = variableWatchList$ + MKL$(y) + LEFT$(temp$, 4)
                             temp$ = MID$(temp$, 5)
                         LOOP
                     ELSE
-                        variableWatchList$ = variableWatchList$ + MKL$(varDlgList(y).index) + MKL$(0)
+                        variableWatchList$ = variableWatchList$ + MKL$(y) + MKL$(0)
                     END IF
                 END IF
             NEXT
