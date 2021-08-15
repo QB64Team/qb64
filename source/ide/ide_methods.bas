@@ -6343,7 +6343,6 @@ END SUB
 SUB DebugMode
     STATIC AS _BYTE PauseMode, noFocusMessage, EnteredInput
     STATIC buffer$
-    STATIC endc$
     STATIC currentSub$
     STATIC debuggeehwnd AS _OFFSET
 
@@ -6460,8 +6459,6 @@ SUB DebugMode
             EXIT SUB
         END IF
     END IF
-
-    endc$ = "<END>"
 
     'wait for client to connect
     start! = TIMER
@@ -7554,9 +7551,10 @@ SUB DebugMode
     END IF
     buffer$ = buffer$ + temp$
 
-    IF INSTR(buffer$, endc$) THEN
-        cmd$ = LEFT$(buffer$, INSTR(buffer$, endc$) - 1)
-        buffer$ = MID$(buffer$, INSTR(buffer$, endc$) + LEN(endc$))
+    IF LEN(buffer$) >= 4 THEN cmdsize = CVL(LEFT$(buffer$, 4)) ELSE cmdsize = 0
+    IF cmdsize > 0 AND LEN(buffer$) >= cmdsize THEN
+        cmd$ = MID$(buffer$, 5, cmdsize)
+        buffer$ = MID$(buffer$, 5 + cmdsize)
 
         IF INSTR(cmd$, ":") THEN
             value$ = MID$(cmd$, INSTR(cmd$, ":") + 1)
@@ -7570,7 +7568,7 @@ SUB DebugMode
     RETURN
 
     SendCommand:
-    cmd$ = cmd$ + endc$
+    cmd$ = MKL$(LEN(cmd$)) + cmd$
     PUT #debugClient&, , cmd$
     IF os$ = "WIN" AND _CONNECTED(debugClient&) = 0 THEN
         clearStatusWindow 0

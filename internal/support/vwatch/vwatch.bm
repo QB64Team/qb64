@@ -5,8 +5,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG vw_runToLine
     STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine, vw_hwndsent
     STATIC AS _OFFSET vw_idehwnd
-    STATIC vw_buffer$, vw_endc$
-    DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_sequence
+    STATIC vw_buffer$
+    DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_sequence, vw_cmdsize
     DIM AS _OFFSET vw_address
     DIM AS _MEM vw_m, vw_m2
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$
@@ -31,7 +31,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
     IF vw_ideHost = 0 THEN
         vw_timeout = 10
-        vw_endc$ = "<END>"
 
         'initial setup
         GOSUB Connect
@@ -360,9 +359,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     GET #vw_ideHost, , vw_temp$
     vw_buffer$ = vw_buffer$ + vw_temp$
 
-    IF INSTR(vw_buffer$, vw_endc$) THEN
-        vw_cmd$ = LEFT$(vw_buffer$, INSTR(vw_buffer$, vw_endc$) - 1)
-        vw_buffer$ = MID$(vw_buffer$, INSTR(vw_buffer$, vw_endc$) + LEN(vw_endc$))
+    IF LEN(vw_buffer$) >= 4 THEN vw_cmdsize = CVL(LEFT$(vw_buffer$, 4)) ELSE vw_cmdsize = 0
+    IF vw_cmdsize > 0 AND LEN(vw_buffer$) >= vw_cmdsize THEN
+        vw_cmd$ = MID$(vw_buffer$, 5, vw_cmdsize)
+        vw_buffer$ = MID$(vw_buffer$, 5 + vw_cmdsize)
 
         IF INSTR(vw_cmd$, ":") THEN
             vw_value$ = MID$(vw_cmd$, INSTR(vw_cmd$, ":") + 1)
@@ -391,7 +391,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     RETURN
 
     SendCommand:
-    vw_cmd$ = vw_cmd$ + vw_endc$
+    vw_cmd$ = MKL$(LEN(vw_cmd$)) + vw_cmd$
     PUT #vw_ideHost, , vw_cmd$
     vw_cmd$ = ""
     RETURN
