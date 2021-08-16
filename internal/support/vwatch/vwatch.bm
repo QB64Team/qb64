@@ -133,10 +133,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         'handle INPUT/LINE INPUT - tell the IDE we'll be hanging for a while
         vw_cmd$ = "enter input:" + MKL$(vw_lastLine)
         GOSUB SendCommand
+        EXIT SUB
     ELSEIF vwatch_linenumber = -5 THEN
         'handle end of INPUT/LINE INPUT - tell the IDE we're moving on
         vw_cmd$ = "leave input"
         GOSUB SendCommand
+        EXIT SUB
     END IF
 
     IF vwatch_linenumber = vw_lastLine AND vw_setNextLine = 0 THEN EXIT SUB
