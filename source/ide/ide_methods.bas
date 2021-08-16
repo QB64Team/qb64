@@ -7701,6 +7701,31 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
     END IF
 END SUB
 
+FUNCTION multiSearch (__fullText$, __searchString$)
+    'Returns -1 if all of the search items in SearchString can be found
+    'in FullText$. Returns 0 if any of the search terms cannot be found.
+    'Multiple items in SearchString$ must be in the format "term1+term2+..."
+    'Not case-sensitive.
+
+    fullText$ = _TRIM$(UCASE$(__fullText$))
+    searchString$ = _TRIM$(UCASE$(__searchString$))
+    IF LEN(fullText$) = 0 THEN EXIT FUNCTION
+    IF LEN(searchString$) = 0 THEN EXIT FUNCTION
+
+    multiSearch = -1
+    findPlus = INSTR(searchString$, "+")
+    WHILE findPlus
+        thisTerm$ = LEFT$(searchString$, findPlus - 1)
+        searchString$ = MID$(searchString$, findPlus + 1)
+        IF INSTR(fullText$, thisTerm$) = 0 THEN multiSearch = 0: EXIT FUNCTION
+        findPlus = INSTR(searchString$, "+")
+    WEND
+
+    IF LEN(searchString$) THEN
+        IF INSTR(fullText$, searchString$) = 0 THEN multiSearch = 0
+    END IF
+END FUNCTION
+
 FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     '-------- generic dialog box header --------
@@ -7762,7 +7787,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     PrevFocus = 1
     o(i).typ = 1
     o(i).y = 2
-    IF o(i).nam = 0 THEN o(i).nam = idenewtxt("#Filter")
+    IF o(i).nam = 0 THEN o(i).nam = idenewtxt("#Filter (multiple+terms+accepted)")
     IF o(i).txt = 0 THEN o(i).txt = idenewtxt(filter$)
 
     i = i + 1: varListBox = i
@@ -8113,10 +8138,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF LEN(searchTerm$) THEN
             thisScope$ = usedVariableList(x).subfunc
             IF thisScope$ = "" THEN thisScope$ = mainmodule$
-            IF (INSTR(UCASE$(usedVariableList(x).name), searchTerm$) = 0 AND _
-               INSTR(UCASE$(usedVariableList(x).varType), searchTerm$) = 0 AND _
-               INSTR(UCASE$(thisScope$), searchTerm$) = 0 AND _
-               INSTR(UCASE$(usedVariableList(x).mostRecentValue), searchTerm$) = 0) THEN
+            item$ = usedVariableList(x).name + usedVariableList(x).varType + thisScope$ + usedVariableList(x).mostRecentValue
+            IF multiSearch(item$, searchTerm$) = 0 THEN
                 _CONTINUE 'skip variable if no field matches the search
             END IF
         END IF
@@ -8161,10 +8184,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF LEN(searchTerm$) THEN
             thisScope$ = usedVariableList(x).subfunc
             IF thisScope$ = "" THEN thisScope$ = mainmodule$
-            IF (INSTR(UCASE$(usedVariableList(x).name), searchTerm$) = 0 AND _
-               INSTR(UCASE$(usedVariableList(x).varType), searchTerm$) = 0 AND _
-               INSTR(UCASE$(thisScope$), searchTerm$) = 0 AND _
-               INSTR(UCASE$(usedVariableList(x).mostRecentValue), searchTerm$) = 0) THEN
+            item$ = usedVariableList(x).name + usedVariableList(x).varType + thisScope$ + usedVariableList(x).mostRecentValue
+            IF multiSearch(item$, searchTerm$) = 0 THEN
                 _CONTINUE 'skip variable if no field matches the search
             END IF
         END IF
