@@ -112,7 +112,7 @@ TYPE usedVarList
     AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex, strLength
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
-    AS STRING watchRange, indexes, elements 'for Arrays and UDTs
+    AS STRING watchRange, indexes, elements, storage 'for Arrays and UDTs
     AS _OFFSET baseAddress, address
 END TYPE
 
@@ -25955,6 +25955,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).used = 0
                 usedVariableList(i).watch = 0
                 usedVariableList(i).mostRecentValue = ""
+                usedVariableList(i).storage = ""
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
                 IF inclevel > 0 THEN
