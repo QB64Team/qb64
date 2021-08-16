@@ -7292,7 +7292,8 @@ SUB DebugMode
                         clearStatusWindow 0
                         setStatusMessage 1, "Paused.", 2
                         retval = idecallstackbox
-                        PCOPY 3, 0: SCREEN , , 3, 0
+                        SCREEN , , 3, 0
+                        GOSUB UpdateDisplay
                         WHILE _MOUSEINPUT: WEND
                     ELSE
                         IF callStackLength = -1 THEN
@@ -8645,7 +8646,7 @@ FUNCTION idecallstackbox
     i = i + 1
     o(i).typ = 3
     o(i).y = dialogHeight
-    o(i).txt = idenewtxt("#Close" + sep + "Co#py")
+    o(i).txt = idenewtxt("#Go To Line" + sep + "#Close" + sep + "Co#py")
     o(i).dft = 1
 
 
@@ -8723,15 +8724,42 @@ FUNCTION idecallstackbox
         NEXT
         '-------- end of generic input response --------
 
-        IF K$ = CHR$(27) OR (focus = 2 AND info <> 0) THEN
+        IF mCLICK AND focus = 1 THEN 'list click
+            IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(1).sel THEN
+                GOTO setIDEcy
+            END IF
+            lastClick! = TIMER
+            IF o(1).sel > 0 THEN clickedItem = o(1).sel
+            _CONTINUE
+        END IF
+
+        IF (focus = 1 AND K$ = CHR$(13)) OR (focus = 2 AND info <> 0)THEN
+            setIDEcy:
+            y = ABS(o(1).sel)
+            IF y >= 1 AND y <= callStackLength THEN
+                temp$ = idetxt(o(1).stx)
+                idegotobox_LastLineNum = VAL(MID$(temp$, _INSTRREV(temp$, " ") + 1))
+                idecy = idegotobox_LastLineNum
+                idecentercurrentline
+                ideselect = 0
+
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+                EXIT FUNCTION
+            END IF
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
+        IF K$ = CHR$(13) OR (focus = 3 AND info <> 0) THEN
             EXIT FUNCTION
         END IF
 
-        IF K$ = CHR$(13) OR (focus = 3 AND info <> 0) OR (UCASE$(K$) = "C" AND KCTRL <> 0) THEN
+        IF K$ = CHR$(13) OR (focus = 4 AND info <> 0) OR (UCASE$(K$) = "C" AND KCTRL <> 0) THEN
             _CLIPBOARD$ = StrReplace$(callstacklist$, sep, CHR$(10))
         END IF
 
