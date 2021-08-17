@@ -139,6 +139,7 @@ FUNCTION ide2 (ignore)
     char.sep$ = CHR$(34) + " =<>+-/\^:;,*()."
 
     c$ = idecommand$
+    debugnextline = 0
 
     IDEerrorMessage:
     'report any IDE errors which have occurred
@@ -7383,32 +7384,26 @@ SUB DebugMode
                         temp$ = MID$(temp$, 9)
                         cmd$ = ""
                         IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
-                            cmd$ = "global var:"
+                            cmd$ = "get global address:"
                         ELSE
-                            cmd$ = "local var:"
+                            cmd$ = "get local address:"
                         END IF
+                        GOSUB GetVarSize
+                        IF usedVariableList(tempIndex&).isarray THEN varSize& = LEN(dummy%&)
                         IF LEN(cmd$) THEN
-                            cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + usedVariableList(tempIndex&).subfunc
+                            cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + MKI$(1) + MKL$(varSize&) + usedVariableList(tempIndex&).subfunc
                             GOSUB SendCommand
                         END IF
                     LOOP
                 END IF
             CASE "hwnd"
                 debuggeehwnd = _CV(_OFFSET, value$)
-            CASE "global var", "local var"
-                tempIndex& = CVL(LEFT$(value$, 4))
-                tempArrayIndex& = CVL(MID$(value$, 5, 4))
-                address%& = _CV(_OFFSET, MID$(value$, 9))
-                usedVariableList(tempIndex&).baseAddress = address%&
-                GOSUB GetVarSize
-                IF usedVariableList(tempIndex&).isarray THEN varSize& = LEN(dummy%&)
-                cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(1) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
-                GOSUB SendCommand
             CASE "address read"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 tempArrayIndex& = CVL(MID$(value$, 5, 4))
                 sequence% = CVI(MID$(value$, 9, 2))
-                recvData$ = MID$(value$, 11)
+                address%& = _CV(_OFFSET, MID$(value$, 11, LEN(address%&)))
+                recvData$ = MID$(value$, 11 + LEN(address%&))
                 GOSUB GetVarSize
                 IF usedVariableList(tempIndex&).isarray THEN
                     IF sequence% = 1 THEN
@@ -7443,14 +7438,10 @@ SUB DebugMode
                         IF sequence% = 1 THEN
                             IF LEN(dummy%&) = 8 THEN
                                 address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
-                                usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 9))
-                                usedVariableList(tempIndex&).strLength = strLength&
                             ELSE
                                 address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
-                                usedVariableList(tempIndex&).address = address%&
                                 strLength& = CVL(MID$(recvData$, 5))
-                                usedVariableList(tempIndex&).strLength = strLength&
                             END IF
                             cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
                             GOSUB SendCommand

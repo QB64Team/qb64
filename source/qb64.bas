@@ -109,11 +109,11 @@ DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
-    AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex, strLength
+    AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
     AS STRING watchRange, indexes, elements, storage 'for Arrays and UDTs
-    AS _OFFSET baseAddress, address
+    AS _OFFSET baseAddress
 END TYPE
 
 DIM SHARED totalVariablesCreated AS LONG
