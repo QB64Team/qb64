@@ -7406,20 +7406,39 @@ SUB DebugMode
                 recvData$ = MID$(value$, 11 + LEN(address%&))
                 GOSUB GetVarSize
                 IF usedVariableList(tempIndex&).isarray THEN
-                    IF sequence% = 1 THEN
-                        IF LEN(dummy%&) = 8 THEN
-                            address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
-                        ELSE
-                            address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
-                        END IF
-                        address%& = address%& + ((tempArrayIndex& - 1) * varSize&)
-                        cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(2) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
-                        GOSUB SendCommand
-                        GOTO vwatch_seq1_done
-                    END IF
+                    SELECT CASE sequence%
+                        CASE 1 'received array's address; request tempArrayIndex&
+                            IF LEN(dummy%&) = 8 THEN
+                                address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
+                            ELSE
+                                address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
+                            END IF
+
+                            IF INSTR(usedVariableList(tempIndex&).varType, "STRING *") THEN
+                                varType$ = usedVariableList(tempIndex&).varType
+                                varSize& = VAL(MID$(varType$, _INSTRREV(varType$, " ") + 1))
+                            ELSEIF varType$ = "STRING" THEN
+                                varSize& = LEN(dummy%&)
+                            END IF
+                            address%& = address%& + ((tempArrayIndex& - 1) * varSize&)
+                            cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(2) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
+                            GOSUB SendCommand
+                            GOTO vwatch_sequence_done
+                        CASE 2 'actual string data received or variable-length address
+                            IF INSTR(usedVariableList(tempIndex&).varType, "STRING *") THEN
+                                GOTO storeReceivedData
+                            ELSEIF varType$ = "STRING" THEN
+                                varSize& = LEN(dummy%&) + LEN(dummy&)
+                                cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(3) + MKL$(varSize&) + recvData$
+                                GOSUB SendCommand
+                                GOTO vwatch_sequence_done
+                            END IF
+                        CASE 3 'got an address and the length of this string array index
+                            GOTO requestActualStringData
+                        CASE 4 'variable-length string data finally received
+                            GOTO storeReceivedData
+                    END SELECT
                 END IF
-                varType$ = usedVariableList(tempIndex&).varType
-                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 SELECT CASE varType$
                     CASE "_BYTE", "BYTE": recvData$ = STR$(_CV(_BYTE, recvData$))
                     CASE "_UNSIGNED _BYTE", "UNSIGNED BYTE": recvData$ = STR$(_CV(_UNSIGNED _BYTE, recvData$))
@@ -7436,6 +7455,7 @@ SUB DebugMode
                     CASE "_UNSIGNED _OFFSET", "UNSIGNED OFFSET": recvData$ = STR$(_CV(_UNSIGNED _OFFSET, recvData$))
                     CASE "STRING"
                         IF sequence% = 1 THEN
+                            requestActualStringData:
                             IF LEN(dummy%&) = 8 THEN
                                 address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
                                 strLength& = CVL(MID$(recvData$, 9))
@@ -7443,11 +7463,14 @@ SUB DebugMode
                                 address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
                                 strLength& = CVL(MID$(recvData$, 5))
                             END IF
-                            cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(2) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
+
+                            sequence% = sequence% + 1
+                            cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(sequence%) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
                             GOSUB SendCommand
-                            GOTO vwatch_seq1_done
+                            GOTO vwatch_sequence_done
                         END IF
                 END SELECT
+                storeReceivedData:
                 IF usedVariableList(tempIndex&).isarray THEN
                     seqIndex& = INSTR(usedVariableList(tempIndex&).indexes, MKL$(tempArrayIndex&))
                     storageSlot& = CVL(MID$(usedVariableList(tempIndex&).storage, seqIndex&, 4))
@@ -7455,7 +7478,7 @@ SUB DebugMode
                 ELSE
                     usedVariableList(tempIndex&).mostRecentValue = recvData$
                 END IF
-                vwatch_seq1_done:
+                vwatch_sequence_done:
                 IF PauseMode THEN GOSUB UpdateDisplay
             CASE "current sub"
                 currentSub$ = value$
