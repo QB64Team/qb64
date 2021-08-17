@@ -75,6 +75,12 @@ qbs_free(__STRING_HELP_PAGELOADED);
 qbs_free(__STRING_IDEINFO);
 qbs_free(__STRING_HOSTPORT);
 qbs_free(__STRING_VARIABLEWATCHLIST);
+if (__ARRAY_STRING_VWATCHARRAYRECEIVEDDATA[2]&1){
+tmp_long=__ARRAY_STRING_VWATCHARRAYRECEIVEDDATA[5];
+while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_VWATCHARRAYRECEIVEDDATA[0]))[tmp_long]);
+free((void*)(__ARRAY_STRING_VWATCHARRAYRECEIVEDDATA[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_STRING_VWATCHARRAYRECEIVEDDATA)[8] );
 qbs_free(__STRING_CALLSTACKLIST);
 if (__ARRAY_STRING_IDERECENTLINK[2]&1){
 tmp_long=__ARRAY_STRING_IDERECENTLINK[5]*__ARRAY_STRING_IDERECENTLINK[9];
@@ -912,15 +918,16 @@ if (__ARRAY_UDT_USEDVARIABLELIST[2]&1){
 tmp_long=__ARRAY_UDT_USEDVARIABLELIST[5];
 while(tmp_long--) {
 
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 31));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 39));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 47));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 55));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 63));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 71));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 79));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 87));
-qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 95));}
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 27));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 35));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 43));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 51));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 59));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 67));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 75));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 83));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 91));
+qbs_free(*(qbs**)(__ARRAY_UDT_USEDVARIABLELIST[0]+(920/8+1-1)*tmp_long+ 99));}
 free((void*)(__ARRAY_UDT_USEDVARIABLELIST[0]));
 }
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_USEDVARIABLELIST)[8] );
@@ -1106,7 +1113,6 @@ qbs_free(_SUB_VWATCHVARIABLE_STRING_MAINMODULEVARIABLESLIST);
 qbs_free(_FUNC_IDE2_STRING_MENULOCATIONS);
 qbs_free(_FUNC_IDE2_STRING_MATHEVALEXPR);
 qbs_free(_SUB_DEBUGMODE_STRING_BUFFER);
-qbs_free(_SUB_DEBUGMODE_STRING_ENDC);
 qbs_free(_SUB_DEBUGMODE_STRING_CURRENTSUB);
 qbs_free(_SUB_SHOWVWATCHPANEL_STRING_PREVIOUSVARIABLEWATCHLIST);
 qbs_free(_SUB_IDESHOWTEXT_STRING_PREVLISTOFCUSTOMWORDS);
