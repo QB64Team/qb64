@@ -26210,6 +26210,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 memcpy(title, s->chr, s->len);
                 if (console){ if (console_active){
                     SetConsoleTitle(title);
+                    Sleep(40);
                 }}
             #endif
         }
