@@ -64,7 +64,7 @@ return (word << shift) | (word >> (32 - shift));
     uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
-    void fpu_reinit() { // do nothing }
+    void fpu_reinit() { } // do nothing
     #else
     //QBASIC compatible rounding via FPU:
     //FLDS=load single
