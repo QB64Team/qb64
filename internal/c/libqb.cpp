@@ -26203,15 +26203,15 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         int32 func__screenhide(){return -screen_hide;}
         
         void sub__consoletitle(qbs* s){
-            if (new_error) return;
-            static qbs *sz=NULL; if (!sz) sz=qbs_new(0,0);
-            static qbs *cz=NULL; if (!cz){cz=qbs_new(1,0); cz->chr[0]=0;}
-            qbs_set(sz,qbs_add(s,cz));
-            if (console){ if (console_active){
-                #ifdef QB64_WINDOWS
-                    SetConsoleTitle((char*)sz->chr);
-                #endif
-            }}
+            #ifdef QB64_WINDOWS
+                char *title;
+                title = (char *)malloc(s->len + 1);
+                title[s->len] = '\0'; //add NULL terminator
+                memcpy(title, s->chr, s->len);
+                if (console){ if (console_active){
+                    SetConsoleTitle(title);
+                }}
+            #endif
         }
         
         

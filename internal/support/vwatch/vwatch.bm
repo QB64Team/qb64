@@ -97,10 +97,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         LOOP
     END IF
 
-    IF vw_hwndsent = 0 AND _WINDOWHANDLE > 0 THEN
-        vw_hwndsent = -1
-        vw_cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
-        GOSUB SendCommand
+    IF vw_hwndsent = 0 THEN
+        IF _WINDOWHANDLE > 0 THEN
+            vw_hwndsent = -1
+            vw_cmd$ = "hwnd:" + _MK$(_OFFSET, _WINDOWHANDLE)
+            GOSUB SendCommand
+        END IF
     END IF
 
     IF vwatch_linenumber = 0 THEN
