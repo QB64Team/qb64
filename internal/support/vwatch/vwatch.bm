@@ -6,10 +6,12 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine, vw_hwndsent
     STATIC AS _OFFSET vw_idehwnd
     STATIC vw_buffer$
-    DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_sequence, vw_cmdsize
+    DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdsize
     DIM AS _OFFSET vw_address
     DIM AS _MEM vw_m, vw_m2
-    DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$
+    DIM AS _BYTE vw_isarray
+    DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
+    DIM vw_dummy%&
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -250,26 +252,22 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "call stack"
                 'send call stack history
                 GOSUB SendCallStack
-            CASE "get address"
+            CASE "get global var", "get local var"
                 vw_tempIndex = CVL(LEFT$(vw_value$, 4))
-                vw_arrayIndex = CVL(MID$(vw_value$, 5, 4))
-                vw_sequence = CVI(MID$(vw_value$, 9, 2))
-                vw_varSize = CVL(MID$(vw_value$, 11, 4))
-                vw_address = _CV(_OFFSET, MID$(vw_value$, 15, LEN(vw_address)))
-                vw_buf$ = SPACE$(vw_varSize)
-                vw_m = _MEM(vw_address, vw_varSize)
-                vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
-                _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
-                vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + MKI$(vw_sequence) + _MK$(_OFFSET, vw_address) + vw_buf$
-                GOSUB SendCommand
-            CASE "get global address", "get local address"
-                vw_tempIndex = CVL(LEFT$(vw_value$, 4))
-                vw_localIndex = CVL(MID$(vw_value$, 5, 4))
-                vw_arrayIndex = CVL(MID$(vw_value$, 9, 4))
-                vw_sequence = CVI(MID$(vw_value$, 13, 2))
-                vw_varSize = CVL(MID$(vw_value$, 15, 4))
-                vw_scope$ = MID$(vw_value$, 19)
-                IF vw_cmd$ = "get global address" THEN
+                vw_isarray = _CV(_BYTE, MID$(vw_value$, 5, 1))
+                vw_localIndex = CVL(MID$(vw_value$, 6, 4))
+                vw_arrayIndex = CVL(MID$(vw_value$, 10, 4))
+                vw_varSize = CVL(MID$(vw_value$, 14, 4))
+                vw_i = CVI(MID$(vw_value$, 18, 2))
+                IF vw_i THEN
+                    vw_scope$ = MID$(vw_value$, 20, vw_i)
+                    vw_i = CVI(MID$(vw_value$, 20 + vw_i, 2))
+                    vw_varType$ = RIGHT$(vw_value$, vw_i)
+                ELSE
+                    vw_i = CVI(MID$(vw_value$, 20, 2))
+                    vw_varType$ = RIGHT$(vw_value$, vw_i)
+                END IF
+                IF vw_cmd$ = "get global var" THEN
                     vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
                 ELSE
                     IF vw_scope$ = LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1) THEN
@@ -281,12 +279,78 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
 
+                IF vw_isarray THEN
+                    'get the address of where this array is stored
+                    vw_buf$ = SPACE$(LEN(vw_dummy%&))
+                    vw_m = _MEM(vw_address, LEN(vw_dummy%&))
+                    vw_m2 = _MEM(_OFFSET(vw_buf$), LEN(vw_dummy%&))
+                    _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+
+                    IF LEN(vw_dummy%&) = 8 THEN
+                        vw_address = _CV(_INTEGER64, vw_buf$) 'Pointer to data
+                    ELSE
+                        vw_address = _CV(LONG, vw_buf$) 'Pointer to data
+                    END IF
+                    'vw_address now points to the actual data
+
+                    'find the required element for this array
+                    IF INSTR(vw_varType$, "STRING *") THEN
+                        vw_varSize = VAL(MID$(vw_varType$, _INSTRREV(vw_varType$, " ") + 1))
+                    ELSEIF INSTR(vw_varType$, "STRING") THEN
+                        vw_varSize = LEN(vw_dummy%&)
+                    END IF
+
+                    'this is where we calculate the actual element position in memory
+                    vw_address = vw_address + ((vw_arrayIndex - 1) * vw_varSize)
+                END IF
+
                 'vw_address now points to the actual data
                 vw_buf$ = SPACE$(vw_varSize)
                 vw_m = _MEM(vw_address, vw_varSize)
                 vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
                 _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
-                vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + MKI$(vw_sequence) + _MK$(_OFFSET, vw_address) + vw_buf$
+
+                IF INSTR(vw_varType$, "STRING *") > 0 AND vw_isarray <> 0 THEN
+                    'actual data already fetched; nothing else to do
+                ELSEIF INSTR(vw_varType$, "STRING") THEN
+                    IF vw_isarray THEN
+                        'First pass
+                        vw_varSize = LEN(vw_dummy%&)
+                        vw_buf$ = SPACE$(vw_varSize)
+                        vw_m = _MEM(vw_address, vw_varSize)
+                        vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
+                        _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+
+                        IF LEN(vw_dummy%&) = 8 THEN
+                            vw_address = _CV(_INTEGER64, vw_buf$) 'Pointer to data
+                        ELSE
+                            vw_address = _CV(LONG, vw_buf$) 'Pointer to data
+                        END IF
+
+                        'Second pass
+                        vw_varSize = LEN(vw_dummy%&) + LEN(vw_varSize)
+                        vw_buf$ = SPACE$(vw_varSize)
+                        vw_m = _MEM(vw_address, vw_varSize)
+                        vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
+                        _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+                    END IF
+
+                    'vw_buf$ now contains a pointer to the string data
+                    'as well as the number of bytes we have to read
+                    IF LEN(vw_dummy%&) = 8 THEN
+                        vw_address = _CV(_INTEGER64, LEFT$(vw_buf$, 8)) 'Pointer to data
+                        vw_varSize = CVL(MID$(vw_buf$, 9))
+                    ELSE
+                        vw_address = _CV(LONG, LEFT$(vw_buf$, 4)) 'Pointer to data
+                        vw_varSize = CVL(MID$(vw_buf$, 5))
+                    END IF
+                    vw_buf$ = SPACE$(vw_varSize)
+                    vw_m = _MEM(vw_address, vw_varSize)
+                    vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
+                    _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+                END IF
+
+                vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + vw_buf$
                 GOSUB SendCommand
             CASE "set global address", "set local address"
                 vw_localIndex = CVL(LEFT$(vw_value$, 4))
