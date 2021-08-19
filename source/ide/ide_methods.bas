@@ -7653,8 +7653,10 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
             IF usedVariableList(tempIndex&).isarray THEN
                 seqIndex& = INSTR(usedVariableList(tempIndex&).indexes, MKL$(tempArrayIndex&))
-                storageSlot& = CVL(MID$(usedVariableList(tempIndex&).storage, seqIndex&, 4))
-                tempValue$ = vWatchArrayReceivedData$(storageSlot&)
+                IF seqIndex& <= LEN(usedVariableList(tempIndex&).mostRecentValue) - 3 THEN
+                    storageSlot& = CVL(MID$(usedVariableList(tempIndex&).mostRecentValue, seqIndex&, 4))
+                    tempValue$ = vWatchArrayReceivedData$(storageSlot&)
+                END IF
             ELSE
                 tempValue$ = usedVariableList(tempIndex&).mostRecentValue
             END IF
@@ -7766,7 +7768,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     IF dialogHeight < 9 THEN dialogHeight = 9
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen
-    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 200 'make room for "= values"
+    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 100 'make room for "= values"
     IF dialogWidth < 60 THEN dialogWidth = 60
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
@@ -7954,6 +7956,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             longestVarName = 0
             nextvWatchArraySlot = 0
             FOR y = 1 TO totalVariablesCreated
+                usedVariableList(y).mostRecentValue = ""
                 IF usedVariableList(y).watch THEN
                     thisLen = LEN(usedVariableList(y).name)
                     IF usedVariableList(y).isarray THEN
@@ -7973,7 +7976,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             WHILE nextvWatchArraySlot > UBOUND(vWatchArrayReceivedData$)
                                 REDIM _PRESERVE vWatchArrayReceivedData$(1 TO UBOUND(vWatchArrayReceivedData$) + 999)
                             WEND
-                            usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchArraySlot)
+                            usedVariableList(y).mostRecentValue = usedVariableList(y).mostRecentValue + MKL$(nextvWatchArraySlot)
                             vWatchArrayReceivedData$(nextvWatchArraySlot) = ""
                             temp$ = MID$(temp$, 5)
                         LOOP
@@ -7982,6 +7985,12 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     END IF
                 END IF
             NEXT
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
@@ -8022,6 +8031,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 temp$ = parseRange$(v$)
                                 usedVariableList(varDlgList(y).index).indexes = temp$
                                 temp$ = formatRange$(temp$)
+                                IF usedVariableList(varDlgList(y).index).watchRange <> temp$ THEN
+                                    usedVariableList(x).mostRecentValue = ""
+                                END IF
                                 usedVariableList(varDlgList(y).index).watchRange = temp$
                             ELSE
                                 usedVariableList(varDlgList(y).index).indexes = ""
@@ -8232,12 +8244,24 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         END IF
 
         l$ = l$ + text$ + l3$
-        IF totalVisibleVariables = 1 THEN doubleClickThreshold = LEN(l$) - 1
+        IF totalVisibleVariables = 1 THEN doubleClickThreshold = LEN(l$) - 3
 
         IF IdeDebugMode > 0 THEN
             IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
                 IF usedVariableList(x).watch THEN
-                    l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
+                    IF usedVariableList(x).isarray THEN
+                        temp$ = usedVariableList(x).mostRecentValue
+                        IF LEN(temp$) THEN l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + "{"
+                        DO WHILE LEN(temp$)
+                            storageSlot& = CVL(LEFT$(temp$, 4))
+                            temp$ = MID$(temp$, 5)
+                            l$ = l$ + StrReplace$(vWatchArrayReceivedData$(storageSlot&), CHR$(0), " ")
+                            IF LEN(temp$) THEN l$ = l$ + ","
+                        LOOP
+                        IF LEN(usedVariableList(x).mostRecentValue) THEN l$ = l$ + "}"
+                    ELSE
+                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
+                    END IF
                 END IF
             ELSE
                 l$ = l$ + "   <out of scope>"
@@ -8760,10 +8784,12 @@ FUNCTION idecallstackbox
                 idecentercurrentline
                 ideselect = 0
 
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
+                IF mousedown THEN
+                    DO
+                        GetInput
+                        _LIMIT 100
+                    LOOP UNTIL mRELEASE
+                END IF
                 EXIT FUNCTION
             END IF
         END IF
@@ -10366,12 +10392,24 @@ FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, ma
         END IF
 
         IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
         IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
             ideinputbox$ = idetxt(o(1).txt)
             ok = -1
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
         'end of custom controls
@@ -12040,6 +12078,12 @@ FUNCTION idesubs$
         IF K$ = CHR$(27) OR (focus = 5 AND info <> 0) THEN
             idesubs$ = "C"
             GOSUB SaveSortSettings
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
@@ -12057,6 +12101,12 @@ FUNCTION idesubs$
             idesx = 1
 
             GOSUB SaveSortSettings
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
