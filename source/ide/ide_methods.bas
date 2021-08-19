@@ -7651,6 +7651,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         END IF
         item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
         IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
+            isString = (INSTR(usedVariableList(tempIndex&).varType, "STRING *") > 0 OR usedVariableList(tempIndex&).varType = "STRING")
             IF usedVariableList(tempIndex&).isarray THEN
                 seqIndex& = INSTR(usedVariableList(tempIndex&).indexes, MKL$(tempArrayIndex&))
                 IF seqIndex& <= LEN(usedVariableList(tempIndex&).mostRecentValue) - 3 THEN
@@ -7661,7 +7662,11 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
                 tempValue$ = usedVariableList(tempIndex&).mostRecentValue
             END IF
 
-            item$ = item$ + tempValue$
+            IF isString THEN
+                item$ = item$ + CHR$(34) + tempValue$ + CHR$(34)
+            ELSE
+                item$ = item$ + tempValue$
+            END IF
             COLOR fg
         ELSE
             item$ = item$ + "<out of scope>"
