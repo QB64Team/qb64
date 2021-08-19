@@ -40,6 +40,10 @@
     #define QB64_32
 #endif
 
+#if !defined(i386) && !defined(__x86_64__)
+    #define QB64_NOT_X86
+#endif
+
 /* common types (not quite an include guard, but allows an including
     * file to not have these included.
     *
