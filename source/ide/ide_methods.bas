@@ -8249,18 +8249,24 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF IdeDebugMode > 0 THEN
             IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
                 IF usedVariableList(x).watch THEN
+                    isString = (INSTR(usedVariableList(x).varType, "STRING *") > 0 OR usedVariableList(x).varType = "STRING")
                     IF usedVariableList(x).isarray THEN
                         temp$ = usedVariableList(x).mostRecentValue
                         IF LEN(temp$) THEN l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + "{"
                         DO WHILE LEN(temp$)
                             storageSlot& = CVL(LEFT$(temp$, 4))
                             temp$ = MID$(temp$, 5)
+                            IF isString THEN l$ = l$ + CHR$(34)
                             l$ = l$ + StrReplace$(vWatchArrayReceivedData$(storageSlot&), CHR$(0), " ")
+                            IF isString THEN l$ = l$ + CHR$(34)
                             IF LEN(temp$) THEN l$ = l$ + ","
                         LOOP
                         IF LEN(usedVariableList(x).mostRecentValue) THEN l$ = l$ + "}"
                     ELSE
-                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
+                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
+                        IF isString THEN l$ = l$ + CHR$(34)
+                        l$ = l$ + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
+                        IF isString THEN l$ = l$ + CHR$(34)
                     END IF
                 END IF
             ELSE
