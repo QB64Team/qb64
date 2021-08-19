@@ -7,7 +7,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS _OFFSET vw_idehwnd
     STATIC vw_buffer$
     DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdsize
-    DIM AS _OFFSET vw_address
+    DIM AS _OFFSET vw_address, vw_lbound, vw_ubound
     DIM AS _MEM vw_m, vw_m2
     DIM AS _BYTE vw_isarray
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
@@ -19,6 +19,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         SUB unlockvWatchHandle
         SUB set_qbs_size (target AS _OFFSET, BYVAL length&)
         FUNCTION stop_program_state&
+        FUNCTION check_lbound%&(array AS _OFFSET)
+        FUNCTION check_ubound%&(array AS _OFFSET)
     END DECLARE
 
     $IF WIN THEN
@@ -280,7 +282,14 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
 
                 IF vw_isarray THEN
-                    'get the address of where this array is stored
+                    vw_lbound = check_lbound%&(vw_address)
+                    vw_ubound = check_ubound%&(vw_address)
+
+                    IF vw_arrayIndex < vw_lbound OR vw_arrayIndex > vw_ubound THEN
+                        GOTO cmdProcessingDone
+                    END IF
+
+                    'get the address of where this array's data is stored
                     vw_buf$ = SPACE$(LEN(vw_dummy%&))
                     vw_m = _MEM(vw_address, LEN(vw_dummy%&))
                     vw_m2 = _MEM(_OFFSET(vw_buf$), LEN(vw_dummy%&))
@@ -301,7 +310,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     END IF
 
                     'this is where we calculate the actual element position in memory
-                    vw_address = vw_address + ((vw_arrayIndex - 1) * vw_varSize)
+                    vw_address = vw_address + ((vw_arrayIndex - vw_lbound) * vw_varSize)
                 END IF
 
                 'vw_address now points to the actual data
