@@ -113,7 +113,7 @@ TYPE usedVarList
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
     AS STRING watchRange, indexes, elements 'for Arrays and UDTs
-    AS _OFFSET baseAddress
+    AS _OFFSET elementOffset
 END TYPE
 
 DIM SHARED totalVariablesCreated AS LONG
