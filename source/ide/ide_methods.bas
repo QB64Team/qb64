@@ -7384,14 +7384,13 @@ SUB DebugMode
                         temp$ = MID$(temp$, 9)
                         cmd$ = ""
                         IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
-                            cmd$ = "get global address:"
+                            cmd$ = "get global var:"
                         ELSE
-                            cmd$ = "get local address:"
+                            cmd$ = "get local var:"
                         END IF
                         GOSUB GetVarSize
-                        IF usedVariableList(tempIndex&).isarray THEN varSize& = LEN(dummy%&)
                         IF LEN(cmd$) THEN
-                            cmd$ = cmd$ + MKL$(tempIndex&) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + MKI$(1) + MKL$(varSize&) + usedVariableList(tempIndex&).subfunc
+                            cmd$ = cmd$ + MKL$(tempIndex&) + _MK$(_BYTE, usedVariableList(tempIndex&).isarray) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + MKL$(varSize&) + MKI$(LEN(usedVariableList(tempIndex&).subfunc)) + usedVariableList(tempIndex&).subfunc + MKI$(LEN(usedVariableList(tempIndex&).varType)) + usedVariableList(tempIndex&).varType
                             GOSUB SendCommand
                         END IF
                     LOOP
@@ -7401,44 +7400,8 @@ SUB DebugMode
             CASE "address read"
                 tempIndex& = CVL(LEFT$(value$, 4))
                 tempArrayIndex& = CVL(MID$(value$, 5, 4))
-                sequence% = CVI(MID$(value$, 9, 2))
-                address%& = _CV(_OFFSET, MID$(value$, 11, LEN(address%&)))
-                recvData$ = MID$(value$, 11 + LEN(address%&))
+                recvData$ = MID$(value$, 9)
                 GOSUB GetVarSize
-                IF usedVariableList(tempIndex&).isarray THEN
-                    SELECT CASE sequence%
-                        CASE 1 'received array's address; request tempArrayIndex&
-                            IF LEN(dummy%&) = 8 THEN
-                                address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
-                            ELSE
-                                address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
-                            END IF
-
-                            IF INSTR(usedVariableList(tempIndex&).varType, "STRING *") THEN
-                                varType$ = usedVariableList(tempIndex&).varType
-                                varSize& = VAL(MID$(varType$, _INSTRREV(varType$, " ") + 1))
-                            ELSEIF varType$ = "STRING" THEN
-                                varSize& = LEN(dummy%&)
-                            END IF
-                            address%& = address%& + ((tempArrayIndex& - 1) * varSize&)
-                            cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(2) + MKL$(varSize&) + _MK$(_OFFSET, address%&)
-                            GOSUB SendCommand
-                            GOTO vwatch_sequence_done
-                        CASE 2 'actual string data received or variable-length address
-                            IF INSTR(usedVariableList(tempIndex&).varType, "STRING *") THEN
-                                GOTO storeReceivedData
-                            ELSEIF varType$ = "STRING" THEN
-                                varSize& = LEN(dummy%&) + LEN(dummy&)
-                                cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(3) + MKL$(varSize&) + recvData$
-                                GOSUB SendCommand
-                                GOTO vwatch_sequence_done
-                            END IF
-                        CASE 3 'got an address and the length of this string array index
-                            GOTO requestActualStringData
-                        CASE 4 'variable-length string data finally received
-                            GOTO storeReceivedData
-                    END SELECT
-                END IF
                 SELECT CASE varType$
                     CASE "_BYTE", "BYTE": recvData$ = STR$(_CV(_BYTE, recvData$))
                     CASE "_UNSIGNED _BYTE", "UNSIGNED BYTE": recvData$ = STR$(_CV(_UNSIGNED _BYTE, recvData$))
@@ -7453,32 +7416,17 @@ SUB DebugMode
                     CASE "_FLOAT", "FLOAT": recvData$ = STR$(_CV(_FLOAT, recvData$))
                     CASE "_OFFSET", "OFFSET": recvData$ = STR$(_CV(_OFFSET, recvData$))
                     CASE "_UNSIGNED _OFFSET", "UNSIGNED OFFSET": recvData$ = STR$(_CV(_UNSIGNED _OFFSET, recvData$))
-                    CASE "STRING"
-                        IF sequence% = 1 THEN
-                            requestActualStringData:
-                            IF LEN(dummy%&) = 8 THEN
-                                address%& = _CV(_INTEGER64, LEFT$(recvData$, 8)) 'Pointer to data
-                                strLength& = CVL(MID$(recvData$, 9))
-                            ELSE
-                                address%& = _CV(LONG, LEFT$(recvData$, 4)) 'Pointer to data
-                                strLength& = CVL(MID$(recvData$, 5))
-                            END IF
-
-                            sequence% = sequence% + 1
-                            cmd$ = "get address:" + MKL$(tempIndex&) + MKL$(tempArrayIndex&) + MKI$(sequence%) + MKL$(strLength&) + _MK$(_OFFSET, address%&)
-                            GOSUB SendCommand
-                            GOTO vwatch_sequence_done
-                        END IF
+                    'CASE "STRING": 'no conversion required
                 END SELECT
-                storeReceivedData:
                 IF usedVariableList(tempIndex&).isarray THEN
                     seqIndex& = INSTR(usedVariableList(tempIndex&).indexes, MKL$(tempArrayIndex&))
-                    storageSlot& = CVL(MID$(usedVariableList(tempIndex&).storage, seqIndex&, 4))
-                    vWatchArrayReceivedData$(storageSlot&) = recvData$
+                    IF seqIndex& <= LEN(usedVariableList(tempIndex&).mostRecentValue) - 3 THEN
+                        storageSlot& = CVL(MID$(usedVariableList(tempIndex&).mostRecentValue, seqIndex&, 4))
+                        vWatchArrayReceivedData$(storageSlot&) = recvData$
+                    END IF
                 ELSE
                     usedVariableList(tempIndex&).mostRecentValue = recvData$
                 END IF
-                vwatch_sequence_done:
                 IF PauseMode THEN GOSUB UpdateDisplay
             CASE "current sub"
                 currentSub$ = value$
@@ -7703,15 +7651,22 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         END IF
         item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
         IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
+            isString = (INSTR(usedVariableList(tempIndex&).varType, "STRING *") > 0 OR usedVariableList(tempIndex&).varType = "STRING")
             IF usedVariableList(tempIndex&).isarray THEN
                 seqIndex& = INSTR(usedVariableList(tempIndex&).indexes, MKL$(tempArrayIndex&))
-                storageSlot& = CVL(MID$(usedVariableList(tempIndex&).storage, seqIndex&, 4))
-                tempValue$ = vWatchArrayReceivedData$(storageSlot&)
+                IF seqIndex& <= LEN(usedVariableList(tempIndex&).mostRecentValue) - 3 THEN
+                    storageSlot& = CVL(MID$(usedVariableList(tempIndex&).mostRecentValue, seqIndex&, 4))
+                    tempValue$ = vWatchArrayReceivedData$(storageSlot&)
+                END IF
             ELSE
                 tempValue$ = usedVariableList(tempIndex&).mostRecentValue
             END IF
 
-            item$ = item$ + tempValue$
+            IF isString THEN
+                item$ = item$ + CHR$(34) + tempValue$ + CHR$(34)
+            ELSE
+                item$ = item$ + tempValue$
+            END IF
             COLOR fg
         ELSE
             item$ = item$ + "<out of scope>"
@@ -7818,7 +7773,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     IF dialogHeight < 9 THEN dialogHeight = 9
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen
-    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 200 'make room for "= values"
+    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 100 'make room for "= values"
     IF dialogWidth < 60 THEN dialogWidth = 60
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
@@ -8006,6 +7961,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             longestVarName = 0
             nextvWatchArraySlot = 0
             FOR y = 1 TO totalVariablesCreated
+                usedVariableList(y).mostRecentValue = ""
                 IF usedVariableList(y).watch THEN
                     thisLen = LEN(usedVariableList(y).name)
                     IF usedVariableList(y).isarray THEN
@@ -8025,7 +7981,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             WHILE nextvWatchArraySlot > UBOUND(vWatchArrayReceivedData$)
                                 REDIM _PRESERVE vWatchArrayReceivedData$(1 TO UBOUND(vWatchArrayReceivedData$) + 999)
                             WEND
-                            usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchArraySlot)
+                            usedVariableList(y).mostRecentValue = usedVariableList(y).mostRecentValue + MKL$(nextvWatchArraySlot)
                             vWatchArrayReceivedData$(nextvWatchArraySlot) = ""
                             temp$ = MID$(temp$, 5)
                         LOOP
@@ -8034,6 +7990,12 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     END IF
                 END IF
             NEXT
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
@@ -8074,6 +8036,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 temp$ = parseRange$(v$)
                                 usedVariableList(varDlgList(y).index).indexes = temp$
                                 temp$ = formatRange$(temp$)
+                                IF usedVariableList(varDlgList(y).index).watchRange <> temp$ THEN
+                                    usedVariableList(x).mostRecentValue = ""
+                                END IF
                                 usedVariableList(varDlgList(y).index).watchRange = temp$
                             ELSE
                                 usedVariableList(varDlgList(y).index).indexes = ""
@@ -8284,12 +8249,30 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         END IF
 
         l$ = l$ + text$ + l3$
-        IF totalVisibleVariables = 1 THEN doubleClickThreshold = LEN(l$) - 1
+        IF totalVisibleVariables = 1 THEN doubleClickThreshold = LEN(l$) - 3
 
         IF IdeDebugMode > 0 THEN
             IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
                 IF usedVariableList(x).watch THEN
-                    l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
+                    isString = (INSTR(usedVariableList(x).varType, "STRING *") > 0 OR usedVariableList(x).varType = "STRING")
+                    IF usedVariableList(x).isarray THEN
+                        temp$ = usedVariableList(x).mostRecentValue
+                        IF LEN(temp$) THEN l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor) + "{"
+                        DO WHILE LEN(temp$)
+                            storageSlot& = CVL(LEFT$(temp$, 4))
+                            temp$ = MID$(temp$, 5)
+                            IF isString THEN l$ = l$ + CHR$(34)
+                            l$ = l$ + StrReplace$(vWatchArrayReceivedData$(storageSlot&), CHR$(0), " ")
+                            IF isString THEN l$ = l$ + CHR$(34)
+                            IF LEN(temp$) THEN l$ = l$ + ","
+                        LOOP
+                        IF LEN(usedVariableList(x).mostRecentValue) THEN l$ = l$ + "}"
+                    ELSE
+                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
+                        IF isString THEN l$ = l$ + CHR$(34)
+                        l$ = l$ + StrReplace$(usedVariableList(x).mostRecentValue, CHR$(0), " ")
+                        IF isString THEN l$ = l$ + CHR$(34)
+                    END IF
                 END IF
             ELSE
                 l$ = l$ + "   <out of scope>"
@@ -8812,10 +8795,12 @@ FUNCTION idecallstackbox
                 idecentercurrentline
                 ideselect = 0
 
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
+                IF mousedown THEN
+                    DO
+                        GetInput
+                        _LIMIT 100
+                    LOOP UNTIL mRELEASE
+                END IF
                 EXIT FUNCTION
             END IF
         END IF
@@ -10418,12 +10403,24 @@ FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, ma
         END IF
 
         IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
         IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
             ideinputbox$ = idetxt(o(1).txt)
             ok = -1
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
         'end of custom controls
@@ -12092,6 +12089,12 @@ FUNCTION idesubs$
         IF K$ = CHR$(27) OR (focus = 5 AND info <> 0) THEN
             idesubs$ = "C"
             GOSUB SaveSortSettings
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 
@@ -12109,6 +12112,12 @@ FUNCTION idesubs$
             idesx = 1
 
             GOSUB SaveSortSettings
+            IF mousedown THEN
+                DO
+                    GetInput
+                    _LIMIT 100
+                LOOP UNTIL mRELEASE
+            END IF
             EXIT FUNCTION
         END IF
 

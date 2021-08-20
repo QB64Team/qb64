@@ -941,6 +941,14 @@ inline int16 func_abs(int16 d){return abs(d);}
 inline int32 func_abs(int32 d){return abs(d);}
 inline int64 func_abs(int64 d){return llabs(d);}
 
+ptrszint check_lbound(ptrszint *array) {
+    return func_lbound((ptrszint*)(*array),1,1);
+}
+
+ptrszint check_ubound(ptrszint *array) {
+    return func_ubound((ptrszint*)(*array),1,1);
+}
+
 inline ptrszint array_check(uptrszint index,uptrszint limit){
     //nb. forces signed index into an unsigned variable for quicker comparison
     if (index<limit) return index;
