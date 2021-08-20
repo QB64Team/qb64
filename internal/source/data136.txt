@@ -412,6 +412,11 @@ byte_element_struct *byte_element_4920=NULL;
 if (!byte_element_4920){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4920=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4920=(byte_element_struct*)mem_static_malloc(12);
 }
+int32 *_FUNC_IDEVARIABLEWATCHBOX_LONG_THISISASTRING=NULL;
+if(_FUNC_IDEVARIABLEWATCHBOX_LONG_THISISASTRING==NULL){
+_FUNC_IDEVARIABLEWATCHBOX_LONG_THISISASTRING=(int32*)mem_static_malloc(4);
+*_FUNC_IDEVARIABLEWATCHBOX_LONG_THISISASTRING=0;
+}
 byte_element_struct *byte_element_4921=NULL;
 if (!byte_element_4921){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_4921=(byte_element_struct*)(mem_static_pointer-12); else byte_element_4921=(byte_element_struct*)mem_static_malloc(12);
