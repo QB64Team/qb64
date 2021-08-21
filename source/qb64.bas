@@ -4986,8 +4986,9 @@ DO
                             IF typ AND ISUDT THEN
                                 IF RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND UCASE$(t3$) = "MEM" AND qb64prefix_set = 1 THEN
                                     t3$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                                ELSE
+                                    t3$ = RTRIM$(udtxcname(typ AND 511))
                                 END IF
-                                t3$ = RTRIM$(udtxcname(typ AND 511))
                                 l$ = l$ + sp + t3$
                             ELSE
                                 FOR t3i = 1 TO LEN(t3$)
