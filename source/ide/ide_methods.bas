@@ -737,7 +737,7 @@ FUNCTION ide2 (ignore)
         IdeDebugMode = 1
 
         FOR x = 1 TO totalVariablesCreated
-            usedVariableList(x).mostRecentValue = ""
+            IF usedVariableList(x).isarray = 0 THEN usedVariableList(x).mostRecentValue = ""
         NEXT
 
         EnterDebugMode:

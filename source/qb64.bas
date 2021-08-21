@@ -25981,10 +25981,11 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     usedVariableList(i).name = usedVariableList(i).name + "()"
                 ELSE
                     usedVariableList(i).isarray = 0
-                    usedVariableList(i).watchRange = ""
-                    usedVariableList(i).indexes = ""
-                    usedVariableList(i).elements = ""
                 END IF
+                usedVariableList(i).watchRange = ""
+                usedVariableList(i).indexes = ""
+                usedVariableList(i).elements = ""
+                usedVariableList(i).elementOffset = 0
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used
