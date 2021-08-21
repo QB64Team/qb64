@@ -281,7 +281,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 END IF
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
-                vw_address = vw_address + vw_elementoffset
 
                 IF vw_isarray THEN
                     vw_lbound = check_lbound%&(vw_address)
@@ -316,6 +315,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 END IF
 
                 'vw_address now points to the actual data
+                vw_address = vw_address + vw_elementoffset
                 vw_buf$ = SPACE$(vw_varSize)
                 vw_m = _MEM(vw_address, vw_varSize)
                 vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
