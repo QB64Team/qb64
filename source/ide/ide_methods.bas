@@ -7574,8 +7574,10 @@ SUB DebugMode
     RETURN
 
     GetVarSize:
+    varSize& = 0
     varType$ = usedVariableList(tempIndex&).varType
     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+    checkVarType:
     SELECT CASE varType$
         CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
         CASE "INTEGER", "_UNSIGNED INTEGER", "UNSIGNED INTEGER": varSize& = LEN(dummy%)
@@ -7586,6 +7588,9 @@ SUB DebugMode
         CASE "_FLOAT", "FLOAT": varSize& = LEN(dummy##)
         CASE "_OFFSET", "_UNSIGNED _OFFSET", "OFFSET", "UNSIGNED OFFSET": varSize& = LEN(dummy%&)
         CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
+        CASE ELSE 'UDT?
+            varType$ = usedVariableList(tempIndex&).elementTypes
+            IF LEN(varType$) THEN GOTO checkVarType
     END SELECT
     RETURN
 END SUB
@@ -8078,6 +8083,47 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 usedVariableList(varDlgList(y).index).elementOffset = 0
                                 GOTO unWatch
                             ELSE
+                                typ = typ - ISUDT
+                                typ = typ - ISREFERENCE
+                                IF typ AND ISINCONVENTIONALMEMORY THEN typ = typ - ISINCONVENTIONALMEMORY
+                                SELECT CASE typ
+                                    CASE BYTETYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_BYTE"
+                                    CASE UBYTETYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_UNSIGNED _BYTE"
+                                    CASE INTEGERTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "INTEGER"
+                                    CASE UINTEGERTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_UNSIGNED INTEGER"
+                                    CASE LONGTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "LONG"
+                                    CASE ULONGTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_UNSIGNED LONG"
+                                    CASE INTEGER64TYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_INTEGER64"
+                                    CASE UINTEGER64TYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_UNSIGNED _INTEGER64"
+                                    CASE SINGLETYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "SINGLE"
+                                    CASE DOUBLETYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "DOUBLE"
+                                    CASE FLOATTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_FLOAT"
+                                    CASE OFFSETTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_OFFSET"
+                                    CASE UOFFSETTYPE
+                                        usedVariableList(varDlgList(y).index).elementTypes = "_UNSIGNED _OFFSET"
+                                    CASE ELSE
+                                        IF typ AND ISSTRING THEN
+                                            usedVariableList(varDlgList(y).index).elementTypes = "STRING"
+                                        ELSE
+                                            usedVariableList(varDlgList(y).index).watch = 0
+                                            usedVariableList(varDlgList(y).index).elements = ""
+                                            usedVariableList(varDlgList(y).index).elementOffset = 0
+                                            result = idemessagebox("Error", "Element must be of a native data type", "#OK")
+                                            GOTO unWatch
+                                        END IF
+                                END SELECT
                                 'result = idemessagebox("Result", v$ + "\n" + result$ + "\n" + STR$(typ), "#OK")
                                 usedVariableList(varDlgList(y).index).elementOffset = VAL(MID$(result$, _INSTRREV(result$, sp3) + 1))
                             END IF

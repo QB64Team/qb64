@@ -112,7 +112,7 @@ TYPE usedVarList
     AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
-    AS STRING watchRange, indexes, elements 'for Arrays and UDTs
+    AS STRING watchRange, indexes, elements, elementTypes 'for Arrays and UDTs
     AS _OFFSET elementOffset
 END TYPE
 
@@ -25986,6 +25986,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).watchRange = ""
                 usedVariableList(i).indexes = ""
                 usedVariableList(i).elements = ""
+                usedVariableList(i).elementTypes = ""
                 usedVariableList(i).elementOffset = 0
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
